@@ -36,26 +36,8 @@ TrigEgammaMonitorTagAndProbeAlgorithm::TrigEgammaMonitorTagAndProbeAlgorithm( co
   TrigEgammaMonitorAnalysisAlgorithm( name, pSvcLocator )
 
 
-{
-  /* TandP configuration algorithm */
-  declareProperty("TagTriggerList"                , m_tagTrigList                         );
-  declareProperty("TriggerList"                   , m_trigInputList                       );
-  declareProperty("ZeeLowerMass"                  , m_ZeeMassMin=80                       );
-  declareProperty("ZeeUpperMass"                  , m_ZeeMassMax=100                      );
-  declareProperty("OfflineTagSelector"            , m_offTagTightness="Tight"             );
-  declareProperty("OfflineProbeSelector"          , m_offProbeTightness="Loose"           );
-  declareProperty("OppositeCharge"                , m_oppositeCharge=true                 );
-  declareProperty("OfflineTagMinEt"               , m_tagMinEt=25                         );
-  declareProperty("OfflineProbeMinEt"             , m_probeMinEt=4                        );
-  declareProperty("OfflineProbeIsolation"         , m_offProbeIsolation="Loose"           );
-  declareProperty("RemoveCrack"                   , m_rmCrack=true                        );
-  declareProperty("ApplyMinimalTrigger"           , m_applyMinimalTrigger=true            );
-  declareProperty("ApplyJetNearProbeSelectionr"   , m_applyJetNearProbeSelection=true     );
-  declareProperty("DoJpsiee"                      , m_doJpsiee=false                      );
-  declareProperty("Analysis"                      , m_anatype="Zee"                       );
+{}
 
-
-}
 
 TrigEgammaMonitorTagAndProbeAlgorithm::~TrigEgammaMonitorTagAndProbeAlgorithm()
 {}

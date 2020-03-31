@@ -10,20 +10,7 @@ using namespace Trig;
 
 TrigEgammaMonitorElectronAlgorithm::TrigEgammaMonitorElectronAlgorithm( const std::string& name, ISvcLocator* pSvcLocator ):
   TrigEgammaMonitorAnalysisAlgorithm( name, pSvcLocator )
-{
-
-  declareProperty("TriggerList"               , m_trigInputList               );
-  declareProperty("Analysis"                  , m_anatype="Analysis"          );
-
-  /*! Algortihm configuration */  
-  declareProperty("OfflineProbeIsolation"     , m_offProbeIsolation="Loose"   );
-  declareProperty("ForceProbeIsolation"       , m_forceProbeIsolation=false   );
-  declareProperty("ForcePidSelection"         , m_forcePidSelection=true      );
-  declareProperty("ForceEtThreshold"          , m_forceEtThr=true             ); 
-  declareProperty("ForceVetoVeryLoose"        , m_forceVetoVeryLoose=false    ); 
-  declareProperty("RemoveCrack"               , m_rmCrack=true                ); 
-
-}
+{}
 
 TrigEgammaMonitorElectronAlgorithm::~TrigEgammaMonitorElectronAlgorithm()
 {}

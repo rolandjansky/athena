@@ -60,32 +60,35 @@ class TrigEgammaMonitorTagAndProbeAlgorithm: public TrigEgammaMonitorAnalysisAlg
 
     /** Properties **/
 
+
+
+
     /*! Zee lower mass cut */
-    float m_ZeeMassMin;
+    Gaudi::Property<float> m_ZeeMassMin{ this, "ZeeLowerMass", 80};
     /*! Zee upper mass cut */
-    float m_ZeeMassMax;
+    Gaudi::Property<float> m_ZeeMassMax{ this, "ZeeUpperMass", 100};
     /*! Define the PID for tag electron */
-    std::string m_offTagTightness;
+    Gaudi::Property<std::string> m_offTagTightness{ this, "OfflineTagSelector", "Tight"};
     /*! define the Pid of Probe from the user */
-    std::string m_offProbeTightness;
+    Gaudi::Property<std::string> m_offProbeTightness{ this, "OfflineProbeSelector", "Loose"};
     /*! Select opposite or same-sign pairs -- for background studies */
-    bool m_oppositeCharge;
+    Gaudi::Property<bool> m_oppositeCharge{ this, "OppositeCharge", true};
     /*! Minimum tag Et */
-    float m_tagMinEt;
+    Gaudi::Property<float> m_tagMinEt{ this, "OfflineTagMinEt", 25};
     /*! Minimum probe Et */
-    float m_probeMinEt;
+    Gaudi::Property<float> m_probeMinEt{this, "OfflineProbeMinEt", 4};
     /*! Probe isolation */
-    std::string m_offProbeIsolation;
+    Gaudi::Property<std::string> m_offProbeIsolation{ this, "OfflineProbeIsolation", "Loose"};
     /*! Remove crack region for Probe default True */
-    bool m_rmCrack;
+    Gaudi::Property<bool> m_rmCrack{this, "RemoveCrack", true};
     /*! Enable the requirement of triggers */
-    bool m_applyMinimalTrigger;
+    Gaudi::Property<bool> m_applyMinimalTrigger{this, "ApplyMinimalTrigger", true};
     /*! Apply nearby jet selection */
-    bool m_applyJetNearProbeSelection;
+    Gaudi::Property<bool> m_applyJetNearProbeSelection{this, "ApplyJetNearProbeSelection", true};
     /*! do jpsiee tag and probe */
-    bool m_doJpsiee;
+    Gaudi::Property<bool> m_doJpsiee{this,"DoJpsiee", false};
     /*! analysis name */
-    std::string m_anatype;
+    Gaudi::Property<std::string> m_anatype{ this, "Analysis","Zee"};
 
      // Containers 
     /*! Event Wise offline ElectronContainer Access and end iterator */

@@ -10,16 +10,7 @@ using namespace Trig;
 
 TrigEgammaMonitorPhotonAlgorithm::TrigEgammaMonitorPhotonAlgorithm( const std::string& name, ISvcLocator* pSvcLocator ):
   TrigEgammaMonitorAnalysisAlgorithm( name, pSvcLocator )
-{
-
-  declareProperty("TriggerList"               , m_trigInputList               );
-  declareProperty("Analysis"                  , m_anatype="Analysis"          );
-
-  /*! Algortihm configuratio */  
-  declareProperty("PhotonPid"                 , m_photonPid = "Tight"         );
-  declareProperty("doUnconverted"             , m_doUnconverted=false         );
-
-}
+{}
 
 TrigEgammaMonitorPhotonAlgorithm::~TrigEgammaMonitorPhotonAlgorithm()
 {}

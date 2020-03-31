@@ -10,17 +10,7 @@ TrigEgammaMonitorBaseAlgorithm::TrigEgammaMonitorBaseAlgorithm( const std::strin
   : AthMonitorAlgorithm(name,pSvcLocator),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_matchTool("Trig::TrigEgammaMatchingToolMT/TrigEgammaMatchingToolMT")
-{
-
-  declareProperty("MatchTool"                 , m_matchTool                         );
-  declareProperty("DefaultProbeSelector"      , m_defaultProbePid="Loose"           );
-  declareProperty("TPTrigger"                 , m_tp=false                          );
-  declareProperty("DetailedHistograms"        , m_detailedHists=false               );
-  declareProperty("isEMResultNames"           , m_isemname,"isEM"                   );
-  declareProperty("LHResultNames"             , m_lhname,"LH"                       );
-
-
-}
+{}
 
 
 TrigEgammaMonitorBaseAlgorithm::~TrigEgammaMonitorBaseAlgorithm() {}

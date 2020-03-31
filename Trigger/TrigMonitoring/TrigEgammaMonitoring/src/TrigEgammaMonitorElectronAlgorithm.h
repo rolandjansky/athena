@@ -34,26 +34,25 @@ class TrigEgammaMonitorElectronAlgorithm: public TrigEgammaMonitorAnalysisAlgori
                                  std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> &) const;
     
     
-    /*! List of triggers from menu */
-    std::vector<std::string> m_trigInputList;
     /*! List of triggers to study */
     std::vector<std::string> m_trigList;
+    
+    /*! List of triggers from menu */
+    Gaudi::Property<std::vector<std::string>> m_trigInputList{this, "TriggerList", {}};
     /*! Directory name for each algorithm */
-    std::string m_anatype;
+    Gaudi::Property<std::string> m_anatype{this, "Analysis", "Electron"};
     /*! Define isolation working point for Probe electron */
-    std::string m_offProbeIsolation;
+    Gaudi::Property<std::string> m_offProbeIsolation{ this, "OfflineProbeIsolation", "Loose"};
     /*! force probe isolation */
-    bool m_forceProbeIsolation;
+    Gaudi::Property<bool> m_forceProbeIsolation{this, "ForceProbeIsolation", false};
     /*! force pid and crack selection into electron navigation */
-    bool m_forcePidSelection;
+    Gaudi::Property<bool> m_forcePidSelection{ this, "ForcePidSelection", true};
     /* force et cluster cut*/
-    bool m_forceEtThr;
+    Gaudi::Property<bool> m_forceEtThr{ this, "ForceEtThreshold", true};
     /* force experimentalSelection selection*/
-    bool m_forceVetoVeryLoose;
+    Gaudi::Property<bool> m_forceVetoVeryLoose{ this, "ForceVetoVeryLoose", false};
     /*! Remove crack region for Probe default True */
-    bool m_rmCrack;
- 
-  
+    Gaudi::Property<bool> m_rmCrack{ this, "RemoveCrack", true};
  
     // Containers 
     /*! Event Wise offline ElectronContainer Access and end iterator */

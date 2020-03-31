@@ -101,8 +101,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &leve
     auto npvtx_passed_col  = Monitored::Collection( "npvtx_passed"  , npvtx_passed_vec );
     
 
-
-
     for( auto pairObj : pairObjs ){
        
         acceptData = setAccept( pairObj.second, info );
@@ -183,8 +181,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &leve
     fill( monGroup, et_col, highet_col, pt_col, eta_col, phi_col, avgmu_col, npvtx_col,
           match_et_col, match_highet_col, match_pt_col, match_eta_col, match_phi_col, match_avgmu_col, match_npvtx_col,
           et_passed_col, highet_passed_col, pt_passed_col, eta_passed_col, phi_passed_col, avgmu_passed_col, npvtx_passed_col);
-
-
 
 }
 

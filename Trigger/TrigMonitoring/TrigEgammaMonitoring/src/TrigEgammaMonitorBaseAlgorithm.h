@@ -54,7 +54,7 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     /*! Trigger decision tool */
     ToolHandle<Trig::TrigDecisionTool> m_trigdec;
     /* Trigger e/g matching tool */
-    ToolHandle<Trig::TrigEgammaMatchingToolMT> m_matchTool;
+    ToolHandle<Trig::TrigEgammaMatchingToolMT> m_matchTool{this, "MatchTool", {}};
     /*! creates map of trigger name and TrigInfo struct */
     std::map<std::string,TrigInfo> m_trigInfo;
     /*! AcceptInfo to store TrigDecision */
@@ -79,17 +79,18 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     
     
     /*! TP Trigger Analysis */
-    bool m_tp;
+    Gaudi::Property<bool> m_tp{this, "TPTrigger", false };
     /*! default probe pid for trigitems that don't have pid in their name */
-    std::string m_defaultProbePid;
+    Gaudi::Property<std::string> m_defaultProbePid{this, "DefaultProveSelection", "Loose"};
     /*! isem names */
-    std::vector<std::string> m_isemname;
+    Gaudi::Property<std::vector<std::string>> m_isemname{this, "isEMResultNames", {} };
     /*! lh names */
-    std::vector<std::string> m_lhname;
+    Gaudi::Property<std::vector<std::string>>  m_lhname{this, "LHResultNames", {} };
     /*! Include more detailed histograms */
-    bool m_detailedHists;
+    Gaudi::Property<bool> m_detailedHists{this, "DetailedHistograms", false};
   
-  
+
+
     /** Helper methods **/
 
     /*! Get the trig info map */
@@ -146,8 +147,6 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
 
 
 
-    /*! Fill helper */
-    void fillLabel( const ToolHandle<GenericMonitoringTool>& groupHandle, const std::string &histname, const std::string &label ) const;
 
 
 

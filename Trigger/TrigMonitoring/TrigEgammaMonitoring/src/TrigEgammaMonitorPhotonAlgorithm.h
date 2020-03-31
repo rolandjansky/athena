@@ -34,21 +34,16 @@ class TrigEgammaMonitorPhotonAlgorithm: public TrigEgammaMonitorAnalysisAlgorith
     StatusCode executeNavigation(const EventContext& ctx, const std::string trigItem,float,
                                  std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> &) const;
   
-    /*! Photon pid word */
-    std::string m_photonPid;
-    /*! doUnconverted analysis */
-    bool m_doUnconverted;
-    /*! List of triggers from menu */
-    std::vector<std::string> m_trigInputList;
     /*! List of triggers to study */
     std::vector<std::string> m_trigList;
+    /*! Photon pid word */
+    Gaudi::Property<std::string> m_photonPid{this, "PhotonPid","Tight" };
+    /*! doUnconverted analysis */
+    Gaudi::Property<bool> m_doUnconverted{this, "DoUnconverted", true};
+     /*! List of triggers from menu */
+    Gaudi::Property<std::vector<std::string>> m_trigInputList{this, "TriggerList", {}};
     /*! Directory name for each algorithm */
-    std::string m_anatype;
-    /*! The basepath */
-    std::string m_dir;
-    
-  
-   
+    Gaudi::Property<std::string> m_anatype{this, "Analysis", "Photon"};
  
     // Containers 
     /*! Event Wise offline ElectronContainer Access and end iterator */
