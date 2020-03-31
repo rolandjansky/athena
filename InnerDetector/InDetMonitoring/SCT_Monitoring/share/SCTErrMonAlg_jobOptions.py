@@ -105,6 +105,22 @@ for i in range(sctMon.N_ERRCATEGORY):
                                xmin = 0.5,
                                xmax = sctMon.NBINS_LBs+0.5)
 
+# Filled in fillByteStreamErrors
+for errCate in range(sctMon.N_ERRCATEGORY):
+    for region in range(sctMon.N_REGIONS):
+        for layer in range(sctMon.N_ENDCAPSx2):
+            myMonGroup.defineHistogram(varname = "eta, phi, hasError_"+sctMon.CategoryErrorsNames[errCate]+"_"+sctMon.subDetNameShort[region].Data()+"_"+str(layer/2)+"_"+str(layer%2)+";SCT_NumberOf"+sctMon.CategoryErrorsNames[errCate]+sctMon.subDetNameShort[region].Data()+"_"+str(layer/2)+"_"+str(layer%2),
+                                       type = "TProfile2D",
+                                       title = "Num of "+sctMon.CategoryErrorsNames[errCate]+" per "+sctMon.layerName[region].Data()+str(layer/2)+"_"+str(layer%2),
+                                       path = "SCT"+sctMon.subDetNameShort[region].Data()+"/errors/"+sctMon.CategoryErrorsNames[errCate],
+                                       xbins = sctMon.N_ETA_BINS if region==sctMon.BARREL_INDEX else sctMon.N_ETA_BINS_EC,
+                                       xmin = (sctMon.FIRST_ETA_BIN if region==sctMon.BARREL_INDEX else sctMon.FIRST_ETA_BIN_EC)-0.5,
+                                       xmax = (sctMon.LAST_ETA_BIN if region==sctMon.BARREL_INDEX else sctMon.LAST_ETA_BIN_EC)+0.5,
+                                       ybins = sctMon.N_PHI_BINS if region==sctMon.BARREL_INDEX else sctMon.N_PHI_BINS_EC,
+                                       ymin = (sctMon.FIRST_PHI_BIN if region==sctMon.BARREL_INDEX else sctMon.FIRST_PHI_BIN_EC)-0.5,
+                                       ymax = (sctMon.LAST_PHI_BIN if region==sctMon.BARREL_INDEX else sctMon.LAST_PHI_BIN_EC)+0.5,
+                                       duration = "lb")
+
 # Filled in fillByteStreamErrorsHelper
 myMonGroup.defineHistogram(varname = "maskedLinksBin;Masked Links",
                            weight = "maskedLinks",
