@@ -227,9 +227,12 @@ ManagedAthenaTileMon.ManualRunLBSetup    = True
 ManagedAthenaTileMon.Run                 = RunNumber
 ManagedAthenaTileMon.LumiBlock           = 1
 
+
+jetContainer = 'AntiKt4EMTopoJets'
 ## Adding JVT (TD)
 from AthenaCommon import CfgMgr
 jvt = CfgMgr.JetVertexTaggerTool('JVT')
+jvt.JetContainer = jetContainer
 ToolSvc += jvt
 ## Adding jet cleaning (TD)
 cleaning = CfgMgr.JetCleaningTool("MyCleaningTool")
@@ -249,7 +252,7 @@ from TileMonitoring.TileMonitoringConf import TileJetMonTool
 TileJetMonTool = TileJetMonTool(name                   = 'TileJetMonTool',
                                 jetPtMin               = 20000.0,
                                 jetEtaMax              = 1.6,
-                                jetCollectionName      = 'AntiKt4EMTopoJets',
+                                jetCollectionName      = jetContainer,
                                 do_1dim_histos         = True,
                                 do_2dim_histos         = False,
                                 do_enediff_histos      = False,
