@@ -460,7 +460,7 @@ namespace top {
     }
 
     if (m_do_fjvt) {
-      top::check(m_fjvtTool->modify(*shallow_xaod_copy.first),
+      top::check(!m_fjvtTool->modify(*shallow_xaod_copy.first),
                  "Failed to apply fJVT decoration");
     }
 
