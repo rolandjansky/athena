@@ -2,28 +2,20 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 //tau
 #include "tauRecTools/TauCalibrateLC.h"
 #include "xAODTau/TauJet.h"
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
-//compilation error if attempting to include CLHEP first
-//ASGTOOL_ATHENA defined here:
-//https://svnweb.cern.ch/trac/atlasoff/browser/Control/AthToolSupport/AsgTools/trunk/AsgTools/AsgToolsConf.h
-
 // root
 #include "TFile.h"
 #include "TF1.h"
 #include "TH1D.h"
 
-#ifndef XAOD_STANDALONE
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-using CLHEP::GeV;
-#else
-#define GeV 1000
-#endif
+using Gaudi::Units::GeV;
 
 /********************************************************************/
 TauCalibrateLC::TauCalibrateLC(const std::string& name) :
