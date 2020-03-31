@@ -27,27 +27,27 @@ InDetSCTHitsTool = SCTHitsNoiseMonTool ( name = "InDetSCTHitsNoiseMonTool",
 if (InDetFlags.doPrintConfigurables()):
   printfunc (InDetSCTHitsTool)
 
-from SCT_Monitoring.SCT_MonitoringConf import SCTErrMonTool
-InDetSCTErrMonTool = SCTErrMonTool ( name             = "InDetSCTErrMonTool",
-                                     OutputLevel      = 4,
-                                     histoPathBase    = "/stat",
-                                     UseDCS           = InDetFlags.useDCS() )
-if InDetFlags.useDCS():
-  from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
-  sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
-  sct_DCSConditionsToolSetup.setup()
-  InDetSCTErrMonTool.SCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool()
-else:
-  InDetSCTErrMonTool.SCT_DCSConditionsTool = None
-
-if jobproperties.Beam.beamType()=='collisions':
-  from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
-  InDetSCTErrMonTool.FilterTools += [GetFilledBunchFilterTool()]
-  
-if (InDetFlags.doPrintConfigurables()):
-  printfunc (InDetSCTErrMonTool)
-
 if not useNewAlgs:
+  from SCT_Monitoring.SCT_MonitoringConf import SCTErrMonTool
+  InDetSCTErrMonTool = SCTErrMonTool ( name             = "InDetSCTErrMonTool",
+                                       OutputLevel      = 4,
+                                       histoPathBase    = "/stat",
+                                       UseDCS           = InDetFlags.useDCS() )
+  if InDetFlags.useDCS():
+    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+    sct_DCSConditionsToolSetup.setup()
+    InDetSCTErrMonTool.SCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool()
+  else:
+    InDetSCTErrMonTool.SCT_DCSConditionsTool = None
+
+  if jobproperties.Beam.beamType()=='collisions':
+    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+    InDetSCTErrMonTool.FilterTools += [GetFilledBunchFilterTool()]
+  
+  if (InDetFlags.doPrintConfigurables()):
+    printfunc (InDetSCTErrMonTool)
+
   from SCT_Monitoring.SCT_MonitoringConf import SCTTracksMonTool
   InDetSCTTracksMonTool = SCTTracksMonTool ( name             = "InDetSCTTracksMonTool",
                                              OutputLevel      = 4,
@@ -116,16 +116,16 @@ InDetSCTMonMan = AthenaMonManager("InDetSCTMonManager",
                                   Run                 = DQMonFlags.monManRun(),
                                   LumiBlock           = DQMonFlags.monManLumiBlock(),
                                   AthenaMonTools      = [ InDetSCTHitsTool,
-                                                          InDetSCTErrMonTool
                                                         ] )
 
 if useNewAlgs:
-  # include("SCT_Monitoring/SCTErrMonAlg_jobOptions.py")
+  include("SCT_Monitoring/SCTErrMonAlg_jobOptions.py")
   include("SCT_Monitoring/SCTHitEffMonAlg_jobOptions.py")
   include("SCT_Monitoring/SCTLorentzMonAlg_jobOptions.py")
   include("SCT_Monitoring/SCTTracksMonAlg_jobOptions.py")
 
 else:
+  InDetSCTMonMan.AthenaMonTools += [ InDetSCTErrMonTool ]
   InDetSCTMonMan.AthenaMonTools += [ InDetSCTHitEffMonTool ]
   InDetSCTMonMan.AthenaMonTools += [ InDetSCTLorentzMonTool ]
   InDetSCTMonMan.AthenaMonTools += [ InDetSCTTracksMonTool ]

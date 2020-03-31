@@ -18,7 +18,7 @@ namespace SCT_Monitoring{
   ///what array indices mean when looping over subsystems
   enum BecIndex {INVALID_INDEX=-1, ENDCAP_C_INDEX=0, BARREL_INDEX=1, ENDCAP_A_INDEX=2, GENERAL_INDEX=3, N_REGIONS=3, N_REGIONS_INC_GENERAL=N_REGIONS+1};
   ///Possible values of the 'BEC' (Barrel or EndCap) value
-  enum Bec{ ENDCAP_C=-2, BARREL=0, ENDCAP_A=2, GENERAL=3, INVALID_SYSTEM=4};
+  enum Bec{ENDCAP_C=-2, BARREL=0, ENDCAP_A=2, GENERAL=3, INVALID_SYSTEM=4};
   ///Array for conversion of an array index to a Bec
   static const std::vector<Bec> index2BecArray={ENDCAP_C, BARREL, ENDCAP_A, GENERAL};
   ///Conversion  bec->index
@@ -27,7 +27,7 @@ namespace SCT_Monitoring{
   }
   ///Conversion index->bec
   inline Bec index2Bec(const unsigned int i) {
-    return (i < 4) ? (index2BecArray[i]) : INVALID_SYSTEM;
+    return i < N_REGIONS_INC_GENERAL ? (index2BecArray[i]) : INVALID_SYSTEM;
   }
   
   ///Numbers to use in histograms

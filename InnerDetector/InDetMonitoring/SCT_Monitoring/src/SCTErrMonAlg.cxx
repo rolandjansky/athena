@@ -42,6 +42,26 @@ StatusCode SCTErrMonAlg::initialize() {
     m_geo[i] = moduleGeo;
   }
 
+  // Fill existing wafers
+  m_indicesVector.reserve(maxHash);
+  SCT_ID::const_id_iterator waferIterator{m_pSCTHelper->wafer_begin()};
+  SCT_ID::const_id_iterator waferEnd{m_pSCTHelper->wafer_end()};
+  for (; waferIterator not_eq waferEnd; ++waferIterator) {
+    const Identifier waferId{*waferIterator};
+    int layer{m_pSCTHelper->layer_disk(waferId)};
+    int side{m_pSCTHelper->side(waferId)};
+    int barrel_ec{m_pSCTHelper->barrel_ec(waferId)};
+    int ieta{m_pSCTHelper->eta_module(waferId)};
+    int iphi{m_pSCTHelper->phi_module(waferId)};
+    layer = layer * 2 + side;
+    int regionIndex{GENERAL_INDEX};
+    if ((barrel_ec == BARREL) and (layer >= 0) and (layer < N_BARRELSx2)) regionIndex = BARREL_INDEX;
+    else if (barrel_ec == ENDCAP_A) regionIndex = ENDCAP_A_INDEX;
+    else if (barrel_ec == ENDCAP_C) regionIndex = ENDCAP_C_INDEX;
+    else continue;
+    m_indicesVector.push_back(indices_t{regionIndex, layer, ieta, iphi});
+  }
+
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -147,7 +167,7 @@ SCTErrMonAlg::fillConfigurationDetails(const EventContext& ctx) const {
   auto detailedConfBinAcc{Monitored::Scalar<int>("detailedConfBin")};
   auto nBadAcc{Monitored::Scalar<double>("nBad")};
   for (unsigned int i{0}; i<ConfbinsDetailed; i++) {
-    detailedConfBinAcc = 0;
+    detailedConfBinAcc = i;
     if (i==0) nBadAcc = nBadMods;
     else if (i==1) nBadAcc = nBadLink0;
     else if (i==2) nBadAcc = nBadLink1;
@@ -192,18 +212,29 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     fill("SCTErrMonitor", lumiBlockAcc, nBSErrorsAcc);
   }
 
-  std::array<int, CategoryErrors::N_ERRCATEGORY> tot_mod_bytestreamCate_errs;
-  tot_mod_bytestreamCate_errs.fill(0);
+  categoryErrorMap_t categoryErrorMap;
   int total_errors{0};
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), errType, tot_mod_bytestreamCate_errs);
+    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), errType, categoryErrorMap);
   }
   /// Fill /SCT/GENERAL/errors/SCT_LinksWith*VsLbs ///
   for (int errCate{0}; errCate < CategoryErrors::N_ERRCATEGORY; ++errCate) {
     auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
     auto nCategoryErrorsAcc{Monitored::Scalar<int>("n_"+CategoryErrorsNames[errCate],
-                                                   tot_mod_bytestreamCate_errs[errCate])};
+                                                   categoryErrorMap.count(errCate))};
     fill("SCTErrMonitor", lumiBlockAcc, nCategoryErrorsAcc);
+
+    for (const indices_t& indices : m_indicesVector) {
+      const int region{indices[REGIONINDEX]};
+      const int layer{indices[LAYERINDEX]};
+      const int eta{indices[ETAINDEX]};
+      const int phi{indices[PHIINDEX]};
+      auto etaAcc{Monitored::Scalar<int>("eta", eta)};
+      auto phiAcc{Monitored::Scalar<int>("phi", phi)};
+      auto hasErrorAcc{Monitored::Scalar<bool>("hasError_"+CategoryErrorsNames[errCate]+"_"+subDetNameShort[region].Data()+"_"+to_string(layer/2)+"_"+to_string(layer%2),
+                                               categoryErrorMap[errCate][region][layer][eta][phi])};
+      fill("SCTErrMonitor", etaAcc, phiAcc, hasErrorAcc);
+    }
   }
   
   if (m_coverageCheck) {
@@ -270,10 +301,10 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
 int
 SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
                                          int err_type,
-                                         std::array<int, CategoryErrors::N_ERRCATEGORY>& tot_mod_bytestreamCate_errs) const {
-
+                                         categoryErrorMap_t& categoryErrorMap) const {
   //--- Check categories of the BS error
-  bool b_category[CategoryErrors::N_ERRCATEGORY];
+  std::array<bool, CategoryErrors::N_ERRCATEGORY> b_category;
+  b_category.fill(false);
 
   b_category[CategoryErrors::MASKEDLINKALL] =
     (err_type == SCT_ByteStreamErrors::MaskedLink) or (err_type == SCT_ByteStreamErrors::MaskedROD);
@@ -325,10 +356,12 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
     if (not hash.is_valid()) continue;
 
     //--- FIll module information with BS error
-    Identifier fitId{m_pSCTHelper->wafer_id(hash)};
+    const Identifier fitId{m_pSCTHelper->wafer_id(hash)};
     int layer{m_pSCTHelper->layer_disk(fitId)};
     int side{m_pSCTHelper->side(fitId)};
     int barrel_ec{m_pSCTHelper->barrel_ec(fitId)};
+    int ieta{m_pSCTHelper->eta_module(fitId)};
+    int iphi{m_pSCTHelper->phi_module(fitId)};
     layer = layer * 2 + side;
     // barrel_ec = {ENDCAP_C=-2, BARREL=0, ENDCAP_A=2}
     // -> regionIndex = {ENDCAP_C_INDEX=0, BARREL_INDEX=1, ENDCAP_A_INDEX=2, GENERAL_INDEX=3}
@@ -345,6 +378,12 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
     }
 
     if (m_doPerLumiErrors) numErrorsPerLumi[regionIndex][layer]++;
+
+    for (int errCate{0}; errCate < CategoryErrors::N_ERRCATEGORY; ++errCate) {
+      if (b_category[errCate] and regionIndex!=GENERAL_INDEX) {
+        categoryErrorMap[errCate][regionIndex][layer][ieta][iphi] = true;
+      }
+    }
   }
 
   /// Fill /SCT/GENERAL/errors/Masked Links ///
@@ -370,10 +409,6 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
         fill("SCTErrMonitor", errorTypeAcc, layerSideAcc, errorFractionAcc, isECAcc, isBAcc, isEAAcc);
       }
     }
-  }
-
-  for (int errCate{0}; errCate < CategoryErrors::N_ERRCATEGORY; ++errCate) {
-    if (b_category[errCate]) tot_mod_bytestreamCate_errs[errCate]++;
   }
 
   if (b_category[CategoryErrors::SUMMARY]) return nerrors;
