@@ -99,7 +99,8 @@ namespace EL
       algorithm->setTreeWorker (workerData.m_treeWorker);
       algorithm->setFilterWorker (workerData.m_filterWorker);
       algorithm->setWk (workerData.m_wk);
-      algorithm->setEvtStore (workerData.m_evtStore);
+      if (workerData.m_evtStore)
+        algorithm->setEvtStore (workerData.m_evtStore);
       ANA_CHECK (algorithm->sysInitialize());
     } else
     {
