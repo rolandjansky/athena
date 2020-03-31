@@ -618,7 +618,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
    double jet_mass_TA = 0;
    double calo_mass_weight=1; // m_comb = Weight*m_Calo + (1-Weight)*m_TA
 
-   bool use_jetcalibtoolsweight = true;
+   bool use_jetuncertaintiesweight = true;
 
     if(m_MassDef=="Comb"){
 
@@ -649,11 +649,11 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 					//Later, when we rejoin the jets, we will use the JetUncertainty weights if the TA mass is not 0. If it is 0, we will use
 					// the weight 1 for the Calo mass (to avoid the non-clousure problem of JetCalibTools)
        		 calo_mass_weight = 1;
-		 use_jetcalibtoolsweight = true;		
+		 use_jetuncertaintiesweight = false;		
 	} 
 
 	else{
-		use_jetcalibtoolsweight = false;
+		use_jetuncertaintiesweight = true;
 	}
 
 
@@ -759,7 +759,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
 
 
-    if(m_MassDef=="Comb" && use_jetcalibtoolsweight == false){
+    if(m_MassDef=="Comb" && use_jetuncertaintiesweight == true){
 
         double aux1;
         double aux2;
