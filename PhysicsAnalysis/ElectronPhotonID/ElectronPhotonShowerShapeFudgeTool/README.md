@@ -37,7 +37,7 @@ As before, the tool must be integrated in code which provides it with the object
 In order to declare the tool, it needs to be named in the constructor, so it can be distinguished. This could look like this:
 
 ```C++
-ElectronPhotonVariableCorrectionTool  MyTool("myToolName");
+ElectronPhotonVariableCorrectionTool MyTool("myToolName");
 ```
 
 ### Initialization of the tool
@@ -54,12 +54,20 @@ The syntax of the configuration files is explained [below](#constructing-a-confi
 
 ### Usage of the tool for the correction of EGamma objects
 
-To correct an object, the object must be passed to the tool. **The tool will overwrite the original properties of the object** -- it will however keep the original value, stored as `variableName_original`. This means that the tool cannot be run on const containers -- a shallow or deep copy must be used. Please refer to the official documentation / tutorials on how to shallow / deep copy a container, if needed. Note that you do not have to pass all photons in an event to the tool, just the ones you want to be corrected.
+To correct an object, the object must be passed to the tool. **The tool will overwrite the original properties of the object** -- it will however keep the original value, stored as `variableName_original`. This means that the tool cannot be run on const containers -- a shallow or deep copy must be used. Please refer to the official documentation / tutorials on how to shallow / deep copy a container, if needed. Alternatively, you can use the tools `correctedCopy` function to get a corrected copy of your photon object as explained below.
+Note that you do not have to pass all photons in an event to the tool, just the ones you want to be corrected.
 
 Assuming a writeable object is used, the code for correcting it using the tool looks for example like this:
 
 ```C++
-ANA_CHECK(MyTool.applyCorrection(*photon));
+ANA_CHECK(MyTool->applyCorrection(*photon));
+```
+
+Alternatively, you can produce a corrected copy of the photon which should be corrected, doing:
+
+```C++
+xAOD::Photon* corrected_photon = new xAOD::Photon();
+ANA_CHECK(MyTool->correctedCopy(*photon_to_correct, corrected_photon));
 ```
 
 If electrons should be corrected, of course an electron should be passed to the tool instead.
@@ -216,7 +224,7 @@ Then, you need to checkout `Athena`. This can be done via a full or a sparse che
 Assuming you have completed a sparse checkout of `Athena` as explained in the linked tutorial, you need to then add the `ElectronPhotonShowerShapeFudgeTool` to your sparse checkout. For this, do
 
 ```bash
-cd  source/athena
+cd source/athena
 git atlas addpkg ElectronPhotonShowerShapeFudgeTool
 ```
 
@@ -236,7 +244,7 @@ asetup AnalysisBase,21.2.97,here
 To compile, do in the `source` directory
 
 ```bash
-cd  $TestArea/../build
+cd $TestArea/../build
 cmake ../source
 cmake --build .
 ```
@@ -244,7 +252,7 @@ cmake --build .
 To be able to run executables, run (only once per login session, or after adding new executables to the CMakeLists.txt file)
 
 ```bash
-source  $TestArea/../build/$CMTCONFIG/setup.sh
+source $TestArea/../build/$CMTCONFIG/setup.sh
 ```
 
 This will search for the executables produced during compilation and make them accessible from the whole TestArea environment. You should resource this script after you added a new executable and recompiled the code.
@@ -262,7 +270,7 @@ The base class must be integrated in code which provides it with the objects whi
 In order to declare the base class, it needs to be named in the constructor, so it can be distinguished. This could look like this:
 
 ```C++
-ElectronPhotonVariableCorrectionBase  MyTool("MyTool");
+ElectronPhotonVariableCorrectionBase MyTool("MyTool");
 ```
 
 #### Initialization of the base class
@@ -277,12 +285,20 @@ ANA_CHECK(MyTool.initialize());
 
 #### Usage of the base class for the correction of EGamma objects
 
-To correct an object, the object must be passed to the base class. **The base class will overwrite the original properties of the object** -- it will however keep the original value, stored as `variableName_original`. This means that the base class cannot be run on const containers -- a shallow or deep copy must be used. Please refer to the official documentation / tutorials on how to shallow / deep copy a container, if needed. Note that you do not have to pass all photons in an event to the base class, just the ones you want to be corrected.
+To correct an object, the object must be passed to the base class. **The base class will overwrite the original properties of the object** -- it will however keep the original value, stored as `variableName_original`. This means that the base class cannot be run on const containers -- a shallow or deep copy must be used. Please refer to the official documentation / tutorials on how to shallow / deep copy a container, if needed. Alternatively, you can use the tools `correctedCopy` function to get a corrected copy of your photon object as explained below.
+Note that you do not have to pass all photons in an event to the base class, just the ones you want to be corrected.
 
 Assuming a writeable object is used, the code for correcting it using the base class looks for example like this:
 
 ```C++
 ANA_CHECK(MyTool.applyCorrection(*photon));
+```
+
+Alternatively, you can produce a corrected copy of the photon which should be corrected, doing:
+
+```C++
+xAOD::Photon* corrected_photon = new xAOD::Photon();
+ANA_CHECK(MyTool.correctedCopy(*photon_to_correct, corrected_photon));
 ```
 
 If electrons should be corrected, of course an electron should be passed to the base class instead.
