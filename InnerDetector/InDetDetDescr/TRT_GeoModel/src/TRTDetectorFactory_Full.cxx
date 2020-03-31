@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -152,7 +152,7 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
   //---------------------- Initialize the parameter interface ------------------------//
 
-  msg(MSG::DEBUG) << " Getting primary numbers from the Detector Description Database " << endmsg;  
+  ATH_MSG_DEBUG( " Getting primary numbers from the Detector Description Database " );  
   TRT_DetDescrDB_ParameterInterface * parameterInterface = new TRT_DetDescrDB_ParameterInterface(getAthenaComps());
   m_data = parameterInterface;
 
@@ -164,12 +164,14 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   //---------------------- Check if the folder TRT/Cond/StatusHT is in place ------------------------//
   m_strawsvcavailable = false;
   if (m_doArgon || m_doKrypton){
-    m_strawsvcavailable = detStore()->contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT") && m_sumTool;
+    m_strawsvcavailable = detStore()->contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT") &&
+                          m_sumTool->getStrawStatusHTContainer() != nullptr;
   }
-  msg(MSG::DEBUG) << "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable << endmsg ;
-  if (!m_strawsvcavailable) msg(MSG::DEBUG) << "The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" << endmsg;
-  if (!m_doArgon  )	msg(MSG::DEBUG) << "Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endmsg;
-  if (!m_doKrypton)	msg(MSG::DEBUG) << "Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION" << endmsg;
+  // --------------------- In a normal reconstruction or digitization job, the folder will not be available at this point. No reason for warnings here.
+  ATH_MSG_DEBUG( "The folder of /TRT/Cond/StatusHT is available? " << m_strawsvcavailable) ;
+  if (!m_strawsvcavailable) ATH_MSG_DEBUG("The folder of /TRT/Cond/StatusHT is NOT available, WHOLE TRT RUNNING XENON" );
+  if (!m_doArgon  )	ATH_MSG_DEBUG("Tool setup will force to NOT to use ARGON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION");
+  if (!m_doKrypton)	ATH_MSG_DEBUG( "Tool setup will force to NOT to use KRYPTON. Ignore this warning if you are running RECONSTRUCTION or DIGI, but cross-check if you are running SIMULATION");
   
  
   //---------------------- Initialize ID Helper ------------------------------------//
@@ -180,10 +182,9 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   const TRT_ID *idHelper = 0;
 
   if (detStore()->retrieve(idHelper, "TRT_ID").isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve TRT ID Helper" << endmsg;
-  } //else {
-    //idHelperInitialized = true;
-  //}
+    ATH_MSG_ERROR( "Could not retrieve TRT ID Helper");
+  }
+
   m_detectorManager->setIdHelper(idHelper,false);
 
   //---------------------- Set and Print Version Information ------------------------------------//
@@ -242,8 +243,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
 
 
   // Print version information.
-  msg(MSG::INFO) << "In TRT Detector Factory (For DC2 and later geometries)" << endmsg;
-  msg(MSG::INFO) << " " << version.fullDescription() << endmsg;
+  ATH_MSG_INFO( "In TRT Detector Factory (For DC2 and later geometries)" );
+  ATH_MSG_INFO( " " << version.fullDescription() );
 
 
   //---------- Set flags for which parts of the detector are built -----------//
@@ -354,11 +355,10 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     m_detectorManager->setDigitizationVersion(m_data->digversion,m_data->digversionname);
   } else {
     m_detectorManager->setDigitizationVersion(m_overridedigversion,"CUSTOMOVERRIDDEN");
-    msg(MSG::INFO) << "Digversion overridden via joboptions from " 
-		      << m_data->digversion << " ('" << m_data->digversionname << "') to " 
-		      << m_detectorManager->digitizationVersion()<< " ('" 
-		      << m_detectorManager->digitizationVersionName()<<"')" 
-		      << endmsg;
+    ATH_MSG_INFO( "Digversion overridden via joboptions from " 
+		  << m_data->digversion << " ('" << m_data->digversionname << "') to " 
+		  << m_detectorManager->digitizationVersion()<< " ('" 
+		  << m_detectorManager->digitizationVersionName()<<"')" );
   }
 
 
@@ -416,8 +416,8 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     GeoLogVol  *lBarrelVol = new GeoLogVol("TRTBarrel", sBarrelVol, m_materialManager->getMaterial("trt::CO2"));
     pBarrelVol = new GeoFullPhysVol(lBarrelVol);
 
-    msg(MSG::DEBUG) << "Virtual TRT Barrel volume defined by RMin = "<<m_data->virtualBarrelInnerRadius 
-		    <<", Rmax = "<<m_data->virtualBarrelOuterRadius<<" Zmax = "<<m_data->virtualBarrelVolumeLength  << endmsg;
+    ATH_MSG_DEBUG( "Virtual TRT Barrel volume defined by RMin = "<<m_data->virtualBarrelInnerRadius 
+		   <<", Rmax = "<<m_data->virtualBarrelOuterRadius<<" Zmax = "<<m_data->virtualBarrelVolumeLength );
 
     // Common Endcap volumes (one for forward, one for backward):
     //GeoPhysVol *pCommonEndcapVolume[2];
@@ -718,10 +718,10 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
       GeoTrf::Vector2D shellCorner3(m_data->shellCornerXPosition[iABC][2],m_data->shellCornerYPosition[iABC][2]);
       GeoTrf::Vector2D shellCorner4(m_data->shellCornerXPosition[iABC][3],m_data->shellCornerYPosition[iABC][3]);
       GeoTrf::Transform3D shellPosition(GeoTrf::Transform3D::Identity());
-      if ( shellCorner1.y() <= 0 ) { msg(MSG::DEBUG) << "shellCorner1 is <= 0 (" << shellCorner1 << ")" << endmsg; }
-      if ( shellCorner2.y() <= 0 ) { msg(MSG::DEBUG) << "shellCorner2 is <= 0 (" << shellCorner2 << ")" << endmsg; }
-      if ( shellCorner3.y() <= 0 ) { msg(MSG::DEBUG) << "shellCorner3 is <= 0 (" << shellCorner3 << ")" << endmsg; }
-      if ( shellCorner4.y() <= 0 ) { msg(MSG::DEBUG) << "shellCorner4 is <= 0 (" << shellCorner4 << ")" << endmsg; }
+      if ( shellCorner1.y() <= 0 ) { ATH_MSG_DEBUG( "shellCorner1 is <= 0 (" << shellCorner1 << ")"); }
+      if ( shellCorner2.y() <= 0 ) { ATH_MSG_DEBUG( "shellCorner2 is <= 0 (" << shellCorner2 << ")"); }
+      if ( shellCorner3.y() <= 0 ) { ATH_MSG_DEBUG( "shellCorner3 is <= 0 (" << shellCorner3 << ")" ); }
+      if ( shellCorner4.y() <= 0 ) { ATH_MSG_DEBUG( "shellCorner4 is <= 0 (" << shellCorner4 << ")"); }
       const GeoShape * sShell = makeModule(m_data->lengthOfBarrelVolume,
 					   shellCorner1,shellCorner2,shellCorner3,shellCorner4,shellPosition);
 
@@ -984,22 +984,22 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   switch (agm)
     {
     case GM_ARGON:
-      msg(MSG::DEBUG) << "Marking Argon straws from /TRT/Cond/StatusHT:\t"
-                      << idHelper->print_to_string(TRT_Identifier) << endmsg; 
+      ATH_MSG_DEBUG( "Marking Argon straws from /TRT/Cond/StatusHT:\t"
+		     << idHelper->print_to_string(TRT_Identifier)); 
       pShell->add(pRadAR);
       break;
     case GM_KRYPTON:
-      msg(MSG::DEBUG) << "Marking Krypton straws from /TRT/Cond/StatusHT:\t"
-                      << idHelper->print_to_string(TRT_Identifier) << endmsg;
+      ATH_MSG_DEBUG( "Marking Krypton straws from /TRT/Cond/StatusHT:\t"
+		     << idHelper->print_to_string(TRT_Identifier));
       pShell->add(pRadKR);
       break;
     case GM_XENON:
-      msg(MSG::DEBUG) << "Marking Xenon straws from /TRT/Cond/StatusHT:\t"
-                      << idHelper->print_to_string(TRT_Identifier) << endmsg;
+      ATH_MSG_DEBUG( "Marking Xenon straws from /TRT/Cond/StatusHT:\t"
+		     << idHelper->print_to_string(TRT_Identifier) );
       pShell->add(pRad);
       break;
     default:
-      msg(MSG::FATAL) << "Unexpected gas mixture: " << agm << endmsg; 
+      ATH_MSG_FATAL( "Unexpected gas mixture: " << agm ); 
       throw std::runtime_error("Unexpected gas mixture");
       return;
     }
@@ -1298,22 +1298,22 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     switch (agm)
       {
       case GM_ARGON:
-        msg(MSG::DEBUG) << "Marking Argon straws from /TRT/Cond/StatusHT:\t"
-                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        ATH_MSG_DEBUG( "Marking Argon straws from /TRT/Cond/StatusHT:\t"
+		       << idHelper->print_to_string(TRT_Identifier) );
         childPlane = pStrawPlaneA_Ar->clone(); 
         break;
       case GM_KRYPTON:
-        msg(MSG::DEBUG) << "Marking Krypton straws from /TRT/Cond/StatusHT:\t"
-                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        ATH_MSG_DEBUG( "Marking Krypton straws from /TRT/Cond/StatusHT:\t"
+		       << idHelper->print_to_string(TRT_Identifier) );
         childPlane = pStrawPlaneA_Kr->clone();
         break;
       case GM_XENON:
-        msg(MSG::DEBUG) << "Marking Xenon straws from /TRT/Cond/StatusHT:\t"
-                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        ATH_MSG_DEBUG( "Marking Xenon straws from /TRT/Cond/StatusHT:\t"
+		       << idHelper->print_to_string(TRT_Identifier) );
         childPlane = pStrawPlaneA->clone();
         break;
       default:
-        msg(MSG::FATAL) << "Unexpected gas mixture: " << agm << endmsg; 
+        ATH_MSG_FATAL( "Unexpected gas mixture: " << agm ); 
         throw std::runtime_error("Unexpected gas mixture");
         return;
       }
@@ -1607,22 +1607,22 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
     switch (agm)
       {
       case GM_ARGON:
-        msg(MSG::DEBUG) << "Marking Argon straws from /TRT/Cond/StatusHT:\t"
-                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        ATH_MSG_DEBUG( "Marking Argon straws from /TRT/Cond/StatusHT:\t"
+		       << idHelper->print_to_string(TRT_Identifier) );
         childPlane = pStrawPlaneB_Ar->clone();
         break;
       case GM_KRYPTON:
-        msg(MSG::DEBUG) << "Marking Krypton straws from /TRT/Cond/StatusHT:\t"
-                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        ATH_MSG_DEBUG( "Marking Krypton straws from /TRT/Cond/StatusHT:\t"
+		       << idHelper->print_to_string(TRT_Identifier));
         childPlane = pStrawPlaneB_Kr->clone();
         break;
       case GM_XENON:
-        msg(MSG::DEBUG) << "Marking Xenon straws from /TRT/Cond/StatusHT:\t"
-                        << idHelper->print_to_string(TRT_Identifier) << endmsg;
+        ATH_MSG_DEBUG( "Marking Xenon straws from /TRT/Cond/StatusHT:\t"
+		       << idHelper->print_to_string(TRT_Identifier));
         childPlane = pStrawPlaneB->clone();
         break;
       default:
-        msg(MSG::FATAL) << "Unexpected gas mixture: " << agm << endmsg; 
+        ATH_MSG_FATAL( "Unexpected gas mixture: " << agm); 
         throw std::runtime_error("Unexpected gas mixture");
         return;
       }

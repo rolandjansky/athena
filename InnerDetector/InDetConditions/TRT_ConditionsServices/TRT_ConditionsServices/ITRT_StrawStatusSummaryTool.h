@@ -37,7 +37,7 @@ class ITRT_StrawStatusSummaryTool: virtual public IAlgTool
   virtual int getStatusHT(const Identifier) const =0;
   virtual bool get_status(const Identifier) const =0;
   virtual bool get_statusHT(const Identifier) const =0;
-
+  virtual const StrawStatusContainer* getStrawStatusHTContainer() const =0;
 
   virtual int getStatus(const Identifier, const EventContext&  ) const =0;
   virtual int getStatusPermanent(const Identifier, const EventContext& ) const =0;
