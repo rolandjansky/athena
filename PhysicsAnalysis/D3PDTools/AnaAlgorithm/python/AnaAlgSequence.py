@@ -250,7 +250,8 @@ class AnaAlgSequence( AlgSequence ):
         return
 
     def append( self, alg, inputPropName, outputPropName = None,
-                affectingSystematics = None, stageName = 'undefined' ):
+                affectingSystematics = None, stageName = 'undefined',
+                selectionDecorNames = [], selectionDecorCount = []):
         """Add one analysis algorithm to the sequence
 
         This function is specifically meant for adding one of the centrally
@@ -269,7 +270,7 @@ class AnaAlgSequence( AlgSequence ):
           stageName -- name of the current processing stage [optional]
         """
 
-        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName )
+        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, selectionDecorNames=selectionDecorNames, selectionDecorCount=selectionDecorCount )
         self += alg
         self._algorithmMeta.append( meta )
         return self
@@ -392,6 +393,20 @@ class AnaAlgSequence( AlgSequence ):
                 pass
             pass
         pass
+
+    def selectionDecorNames (self) :
+        result = []
+        for meta in self._algorithmMeta :
+            result += meta.selectionDecorNames
+            pass
+        return result
+
+    def selectionDecorCount (self) :
+        result = []
+        for meta in self._algorithmMeta :
+            result += meta.selectionDecorCount
+            pass
+        return result
 
     @staticmethod
     def allowedStageNames():
