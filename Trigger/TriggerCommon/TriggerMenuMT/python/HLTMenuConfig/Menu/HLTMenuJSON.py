@@ -14,7 +14,15 @@ def __getStepsDataFromAlgSequence(HLTAllSteps):
     if HLTAllSteps is not None:
         for HLTStep in HLTAllSteps.getChildren():
             if "_reco" not in HLTStep.name(): # Avoid the pre-step Filter execution
+                # Look for newJO reco
+                for Step in HLTStep.getChildren():
+                    for View in Step.getChildren():
+                        for Reco in View.getChildren():
+                            if "_reco" in Reco.name() and HLTStep.name() not in stepsData:
+                                stepsData.append( HLTStep.getChildren() )
+                                break
                 continue
+
             stepsData.append( HLTStep.getChildren() )
     else:
         __log.warn( "No HLTAllSteps sequencer, will not export per-Step data for chains.")

@@ -1,6 +1,4 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // Local include(s):
 #include "THolderCache.h"
@@ -8,6 +6,17 @@
 namespace xAOD {
 
    namespace Internal {
+
+      // These mutex and lock types were chosen to provide good performance for
+      // reading the "type map" and "reference map" variables very often, while
+      // only writing to them sparingly.
+      //
+      // This is especially true for the "type map", which is not modified in
+      // a typical job after the first event. The "reference map" is a bit
+      // different, that does get modified throughout the whole job. It just
+      // seemed easier to use the same mutex/lock types for both variable. But
+      // The mutex/lock for the "reference map" could be re-visited if
+      // performance tests show contention for it.
 
       /// Helper type definition
       typedef std::shared_lock< std::shared_timed_mutex > shared_lock_t;
@@ -20,7 +29,8 @@ namespace xAOD {
          return cache;
       }
 
-      ::TClass* THolderCache::getClass( const std::type_info& ti ) const {
+      std::pair< bool, ::TClass* >
+      THolderCache::getClass( const std::type_info& ti ) const {
 
          // Get a "read lock":
          shared_lock_t lock( m_typeMapMutex );
@@ -28,9 +38,9 @@ namespace xAOD {
          // Look for the type in the cache:
          auto itr = m_typeMap.find( &ti );
          if( itr != m_typeMap.end() ) {
-            return itr->second;
+            return std::pair< bool, ::TClass* >( true, itr->second );
          } else {
-            return nullptr;
+            return std::pair< bool, ::TClass* >( false, nullptr );
          }
       }
 

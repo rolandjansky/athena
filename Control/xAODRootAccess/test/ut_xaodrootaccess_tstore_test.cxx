@@ -1,8 +1,10 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
+// $Id: ut_xaodrootaccess_tstore_test.cxx 663791 2015-04-29 13:08:06Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -17,11 +19,7 @@
 
 // Local include(s):
 #include "xAODRootAccess/Init.h"
-//#define protected public
-//#define private public
-#   include "xAODRootAccess/TStore.h"
-//#undef private
-//#undef protected
+#include "xAODRootAccess/TStore.h"
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODRootAccess/tools/Utils.h"
 
@@ -66,16 +64,19 @@ public:
 
 }; // class ClassB
 
+/// Class making some of TStore's internal functions public
+class TStoreTester : public xAOD::TStore {
 
-class TStoreTest
-  : public xAOD::TStore
-{
 public:
-  using xAOD::TStore::TStore;
+   /// Inherit the TStore constructor(s)
+   using xAOD::TStore::TStore;
 
-  using xAOD::TStore::contains;
-  using xAOD::TStore::getName;
-};
+   /// Make all implementations of the "contains" function public
+   using xAOD::TStore::contains;
+   /// Make all implementations of the "getName" function public
+   using xAOD::TStore::getName;
+
+}; // class TStoreTester
 
 
 int main() {
@@ -87,7 +88,7 @@ int main() {
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
 
    // Create the TStore object that we'll be testing:
-   TStoreTest store;
+   TStoreTester store;
 
    // Record an EventFormat object:
    std::unique_ptr< xAOD::AuxContainerBase > c1( new xAOD::AuxContainerBase() );

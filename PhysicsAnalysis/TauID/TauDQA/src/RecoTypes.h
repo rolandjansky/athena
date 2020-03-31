@@ -1,4 +1,7 @@
-
+// Dear emacs, this is -*- c++ -*-
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef RECOTYPES_H_
 #define RECOTYPES_H_
 

@@ -1,32 +1,27 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-// PhysValTau.h 
-// Header file for class PhysValTau
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+// Dear emacs, this is -*- c++ -*-
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef TAUDQA_PHYSVALTAU_H
 #define TAUDQA_PHYSVALTAU_H
 
 // STL includes
+#include <memory>
 #include <string>
 #include <vector>
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "AsgTools/ToolHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "TauValidationPlots.h"
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
-#include <TLorentzVector.h>
 
-//Additional includes
+// Local includes
+#include "TauValidationPlots.h"
 #include "RecoTypes.h"
-
-// Forward declaration
-
-//namespace PhysVal {
 
 class PhysValTau
   : public ManagedMonitorToolBase
@@ -35,16 +30,10 @@ class PhysValTau
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
-
-  // Copy constructor: 
-
   /// Constructor with parameters: 
   PhysValTau( const std::string& type,
 		  const std::string& name, 
 		  const IInterface* parent );
-
-  /// Destructor: 
-  virtual ~PhysValTau(); 
 
   // Athena algtool's Hooks
   virtual StatusCode initialize();
@@ -52,24 +41,10 @@ class PhysValTau
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
-
-  /// Default constructor: 
-  PhysValTau();
-
   // Containers
   //std::string m_TruthParticleContainerName; 
   std::string m_TauJetContainerName; 
@@ -97,11 +72,4 @@ class PhysValTau
   
 }; 
 
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-//}
 #endif //> !TAUDQA_PHYSVALTAU_H

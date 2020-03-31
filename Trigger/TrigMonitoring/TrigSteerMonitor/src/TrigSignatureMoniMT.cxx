@@ -156,9 +156,12 @@ StatusCode TrigSignatureMoniMT::stop() {
     for ( const auto& seq : chain.getList("sequencers", true) ){
       // example sequencer name is "Step1_FastCalo_electron", we need only information about Step + number
       const std::string seqName = seq.getValue();
-      std::smatch stepName;
-      std::regex_search(seqName.begin(), seqName.end(), stepName, std::regex("^Step[0-9]+"));
-      chainToSteps[chain.name()].insert( stepName[0] );
+      std::smatch stepNameMatch;
+      std::regex_search(seqName.begin(), seqName.end(), stepNameMatch, std::regex("[Ss]tep[0-9]+"));
+
+      std::string stepName = stepNameMatch[0];
+      stepName[0] = std::toupper(stepName[0]); // fix for "step1" names
+      chainToSteps[chain.name()].insert( stepName );
     }
   }
 
