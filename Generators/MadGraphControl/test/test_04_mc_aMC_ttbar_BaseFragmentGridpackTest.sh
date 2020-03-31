@@ -9,7 +9,7 @@
 mkdir run_makeGridpack
 cd run_makeGridpack
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --jobConfig=950104 --outputFileValidation=False
+Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputTXTFile=fake_lhe_events --jobConfig=950104 --outputFileValidation=False
 
 echo "art-result: $? gridpack_creation"
 
