@@ -34,7 +34,7 @@ atlas_add_library( ElectronPhotonShowerShapeFudgeToolLib
    PUBLIC_HEADERS ElectronPhotonShowerShapeFudgeTool
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma PATInterfaces EgammaAnalysisInterfacesLib
-   xAODEventShape EgammaAnalysisHelpersLib
+   xAODEventShape EgammaAnalysisHelpersLib xAODRootAccess
    PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )
