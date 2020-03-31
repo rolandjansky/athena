@@ -98,6 +98,15 @@ class AnaAlgSequence( AlgSequence ):
             raise RuntimeError( 'Analysis algorithm sequence is in an ' \
                                 'inconsistent state' )
 
+        # do the dynamic configuration based on meta-information
+        index = 0
+        for alg, meta in zip( self, self._algorithmMeta ):
+            for var, func in meta.dynConfig.items() :
+                setattr (alg, var, func (self, index))
+                pass
+            index += 1
+            pass
+
         # Make the inputs and outputs dictionaries. Allowing simple sequences to
         # be configured using simple string names.
         if isinstance( inputName, dict ):
@@ -251,7 +260,8 @@ class AnaAlgSequence( AlgSequence ):
 
     def append( self, alg, inputPropName, outputPropName = None,
                 affectingSystematics = None, stageName = 'undefined',
-                selectionDecorNames = [], selectionDecorCount = []):
+                selectionDecorNames = [], selectionDecorCount = [],
+                dynConfig = {}):
         """Add one analysis algorithm to the sequence
 
         This function is specifically meant for adding one of the centrally
@@ -270,13 +280,15 @@ class AnaAlgSequence( AlgSequence ):
           stageName -- name of the current processing stage [optional]
         """
 
-        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, selectionDecorNames=selectionDecorNames, selectionDecorCount=selectionDecorCount )
+        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, selectionDecorNames=selectionDecorNames, selectionDecorCount=selectionDecorCount, dynConfig=dynConfig )
         self += alg
         self._algorithmMeta.append( meta )
         return self
 
     def insert( self, index, alg, inputPropName, outputPropName = None,
-                affectingSystematics = None, stageName = 'undefined' ):
+                affectingSystematics = None, stageName = 'undefined',
+                selectionDecorNames = [], selectionDecorCount = [],
+                dynConfig = {} ):
         """Insert one analysis algorithm into the sequence
 
         This function is specifically meant for adding one of the centrally
@@ -297,7 +309,7 @@ class AnaAlgSequence( AlgSequence ):
           stageName -- name of the current processing stage [optional]
         """
 
-        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName )
+        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, selectionDecorNames=selectionDecorNames, selectionDecorCount=selectionDecorCount, dynConfig=dynConfig )
         super( AnaAlgSequence, self ).insert( index, alg )
         self._algorithmMeta.insert( index, meta )
         return self
@@ -394,16 +406,16 @@ class AnaAlgSequence( AlgSequence ):
             pass
         pass
 
-    def selectionDecorNames (self) :
+    def selectionDecorNames (self, index = None) :
         result = []
-        for meta in self._algorithmMeta :
+        for meta in self._algorithmMeta [ 0 : index ] :
             result += meta.selectionDecorNames
             pass
         return result
 
-    def selectionDecorCount (self) :
+    def selectionDecorCount (self, index = None) :
         result = []
-        for meta in self._algorithmMeta :
+        for meta in self._algorithmMeta [ 0 : index ] :
             result += meta.selectionDecorCount
             pass
         return result
