@@ -4,7 +4,7 @@
 from AthenaCommon.AlgScheduler import AlgScheduler
 from AthenaCommon.CFElements import parOR
 from AthenaCommon.Logging import logging
-from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder, PrescalingEmulationTool
+from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import EmptyMenuSequence
 log = logging.getLogger('EmuStepProcessingConfig')
 
@@ -170,8 +170,6 @@ def generateL1DecoderAndChains():
     if doCombo:
         emptySeq1 = EmptyMenuSequence("step1EmptySeqence")
         emptySeq2 = EmptyMenuSequence("step2EmptySeqence")
-        emptySeq3 = EmptyMenuSequence("step3EmptySeqence")
-        emptySeq4 = EmptyMenuSequence("step4EmptySeqence")
         if not doElectron:
             from TrigUpgradeTest.HLTSignatureConfig import elMenuSequence        
             el11 = elMenuSequence(step="1",reconame="v1", hyponame="v1")    

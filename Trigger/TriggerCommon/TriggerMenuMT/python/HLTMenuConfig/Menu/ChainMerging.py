@@ -103,9 +103,9 @@ def serial_zip(allSteps, chainName):
             #stepList[chain_index] = step
             
             newsteps.append(stepList)
-    log.info('After serial_zip')
+    log.debug('After serial_zip')
     for s in newsteps:
-        print s
+        log.debug( s )
     return newsteps
 
 def mergeSerial(chainDefList):
@@ -154,7 +154,7 @@ def mergeSerial(chainDefList):
 def makeChainSteps(steps, stepNumber):
     from copy import deepcopy
     from TrigCompositeUtils.TrigCompositeUtils import legName
-    stepName = ''
+    stepName = 'merged_Step' + str(stepNumber)
     stepSeq = []
     stepMult = []
     log.verbose(" steps %s ", steps)
@@ -175,11 +175,9 @@ def makeChainSteps(steps, stepNumber):
 
 
         currentStep = step.name
-        stepNameParts = currentStep.split('_')
 
         # the step naming for combined chains needs to be revisted!!
-        stepName = "merged_Step" + str(stepNumber) + '_' + currentStep
-        #stepName += '_' +step.name
+        stepName += '_' + currentStep
         if len(step.sequences):
             seq = step.sequences[0]
             stepSeq.append(seq)
