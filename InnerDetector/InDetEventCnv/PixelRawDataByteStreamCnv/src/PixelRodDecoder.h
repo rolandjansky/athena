@@ -40,7 +40,9 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     StatusCode initialize() override;
     StatusCode finalize() override;
 
-    StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc,
+    StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag,
+				IPixelRDO_Container* rdoIdc,
+				IDCInDetBSErrContainer& decodingErrors,
 				std::vector<IdentifierHash>* vecHash = NULL) const override;
 
     StatusCode StoreBSError() const override;
