@@ -113,7 +113,7 @@ void eflowCaloObject::simulateShower(eflowLayerIntegrator *integrator, eflowEEta
 	}
       }
     }//if vector of 0.15 clusters exists
-    std::cout << " expectedEnergySigma is " << expectedEnergySigma << " for track with e, pt and eta of " << thisEfRecTrack->getTrack()->e() << ", " << thisEfRecTrack->getTrack()->pt() << " and " << thisEfRecTrack->getTrack()->eta() << " and 1st is " << j1st << std::endl;
+
     double pull_015 = NAN;
     if (expectedEnergySigma > 1e-6 ) pull_015 = (totalE_015-expectedEnergy)/expectedEnergySigma;
     thisEfRecTrack->setpull15(pull_015);
