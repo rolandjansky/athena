@@ -1031,7 +1031,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     {
       (*theVertexContainer)[i]->setVertexType(xAOD::VxType::PileUp);
     }
-    ATH_MSG_ALWAYS("Vertex at z =" << (*theVertexContainer)[i]->position().z() << 
+    ATH_MSG_VERBOSE("Vertex at z =" << (*theVertexContainer)[i]->position().z() << 
 		    " with ntracks: " << (*theVertexContainer)[i]->vxTrackAtVertex().size());
    
   }
