@@ -83,7 +83,6 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     # Set up the eta-cut on all muons prior to everything else
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'MuonEtaCutAlg' + postfix )
-    alg.preselection = "&&".join (seq.selectionDecorNames())
     addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
     alg.selectionTool.maxEta = 2.5
     alg.selectionDecoration = 'selectEta' + postfix + ',as_bits'
@@ -91,48 +90,48 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                 outputPropName = 'particlesOut',
                 stageName = 'selection',
                 selectionDecorNames = [alg.selectionDecoration],
-                selectionDecorCount = [2])
+                selectionDecorCount = [2],
+                dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
 
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
                            'MuonTrackSelectionAlg' + postfix )
-    alg.preselection = "&&".join (seq.selectionDecorNames())
     alg.selectionDecoration = 'trackSelection' + postfix + ',as_bits'
     alg.maxD0Significance = 3
     alg.maxDeltaZ0SinTheta = 0.5
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
                 selectionDecorNames = [alg.selectionDecoration],
-                selectionDecorCount = [3] )
+                selectionDecorCount = [3],
+                dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
 
     # Set up the muon calibration and smearing algorithm:
     alg = createAlgorithm( 'CP::MuonCalibrationAndSmearingAlg',
                            'MuonCalibrationAndSmearingAlg' + postfix )
-    alg.preselection = "&&".join (seq.selectionDecorNames())
     addPrivateTool( alg, 'calibrationAndSmearingTool',
                     'CP::MuonCalibrationPeriodTool' )
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                 affectingSystematics = '(^MUON_ID$)|(^MUON_MS$)|(^MUON_SAGITTA_.*)|(^MUON_SCALE$)',
-                stageName = 'calibration' )
+                stageName = 'calibration',
+                dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
 
     # Set up the the pt selection
     ptSelectionDecoration = 'selectPt' + postfix + ',as_bits'
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'MuonPtCutAlg' + postfix )
-    alg.preselection = "&&".join (seq.selectionDecorNames())
     alg.selectionDecoration = ptSelectionDecoration
     addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
     alg.selectionTool.minPt = 3e3
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
                 selectionDecorNames = [alg.selectionDecoration],
-                selectionDecorCount = [2] )
+                selectionDecorCount = [2],
+                dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
 
     # Setup the muon quality selection
     qualitySelectionDecoration = 'good_muon' + postfix + ',as_bits'
     badMuonVetoDecoration = 'is_bad' + postfix + ',as_char'
     alg = createAlgorithm( 'CP::MuonSelectionAlgV2',
                            'MuonSelectionAlg' + postfix )
-    alg.preselection = "&&".join (seq.selectionDecorNames())
     addPrivateTool( alg, 'selectionTool', 'CP::MuonSelectionTool' )
     alg.selectionTool.MuQuality = quality
     alg.selectionDecoration = qualitySelectionDecoration
@@ -140,19 +139,20 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     seq.append( alg, inputPropName = 'muons',
                 stageName = 'selection',
                 selectionDecorNames = [alg.selectionDecoration],
-                selectionDecorCount = [4] )
+                selectionDecorCount = [4],
+                dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
 
     # Set up the isolation calculation algorithm:
     if splitWP[1] != 'NonIso' :
         alg = createAlgorithm( 'CP::MuonIsolationAlg',
                                'MuonIsolationAlg' + postfix )
-        alg.preselection = "&&".join (seq.selectionDecorNames())
         addPrivateTool( alg, 'isolationTool', 'CP::IsolationSelectionTool' )
         alg.isolationDecoration = 'isolated_muon' + postfix + ',as_bits'
         seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                     stageName = 'selection',
                     selectionDecorNames = [alg.isolationDecoration],
-                    selectionDecorCount = [1] )
+                    selectionDecorCount = [1],
+                    dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
         pass
 
     # Set up an algorithm used for decorating baseline muon selection:
@@ -168,9 +168,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     if enableCutflow:
         alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'MuonCutFlowDumperAlg' + postfix )
         alg.histPattern = 'muon' + postfix + '_cflow_%SYS%'
-        alg.selection = seq.selectionDecorNames()
-        alg.selectionNCuts = seq.selectionDecorCount()
-        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+        seq.append( alg, inputPropName = 'input', stageName = 'selection',
+                    dynConfig = {'selection' : lambda seq, index : seq.selectionDecorNames (index),
+                                 'selectionNCuts' : lambda seq, index : seq.selectionDecorCount (index)} )
 
     # Set up the output selection
     if shallowViewOutput or deepCopyOutput:
@@ -192,7 +192,6 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     # Set up the efficiency scale factor calculation algorithm:
     alg = createAlgorithm( 'CP::MuonEfficiencyScaleFactorAlg',
                            'MuonEfficiencyScaleFactorAlg' + postfix )
-    alg.preselection = "&&".join (seq.selectionDecorNames())
     addPrivateTool( alg, 'efficiencyScaleFactorTool',
                     'CP::MuonEfficiencyScaleFactors' )
     alg.scaleFactorDecoration = 'muon_effSF' + postfix + "_%SYS%"
@@ -203,14 +202,15 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     if dataType != 'data':
         seq.append( alg, inputPropName = 'muons',
                     affectingSystematics = '(^MUON_EFF_RECO.*)',
-                    stageName = 'efficiency' )
+                    stageName = 'efficiency',
+                    dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
 
     # Set up an algorithm dumping the kinematic properties of the muons:
     if enableKinematicHistograms:
         alg = createAlgorithm( 'CP::KinematicHistAlg', 'MuonKinematicDumperAlg' + postfix )
-        alg.preselection = "&&".join (seq.selectionDecorNames())
         alg.histPattern = 'muon' + postfix + '_%VAR%_%SYS%'
-        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+        seq.append( alg, inputPropName = 'input', stageName = 'selection',
+                    dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
