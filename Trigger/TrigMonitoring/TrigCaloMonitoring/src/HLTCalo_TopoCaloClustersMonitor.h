@@ -25,7 +25,7 @@ public:
 
 private:
 
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;//{this, "BunchCrossingTool", ""};
+  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_HLT_cont_key;
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_OFF_cont_key;

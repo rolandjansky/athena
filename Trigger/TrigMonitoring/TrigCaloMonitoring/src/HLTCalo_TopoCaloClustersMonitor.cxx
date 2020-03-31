@@ -66,8 +66,11 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   auto HLT_bc = Monitored::Scalar<int>("HLT_bc",-1);
   HLT_bc = m_bunchCrossingTool->distanceFromFront(bcid) / m_bunchCrossingTool->bunchTrainSpacing();
 
-  // Cache expensive et, eta, phi calculations for the clusters
-  // prepare HLT clusters
+  /////////////////////////////////////
+  // Cache expensive et, eta and phi //
+  // calculations for the clusters   //
+  /////////////////////////////////////
+
   std::vector<clus_kin> vec_hlt_clusters;
   for (const auto& hlt_cluster : *hltCluster_readHandle) {
 	auto hlt_clus_et = hlt_cluster->et();
