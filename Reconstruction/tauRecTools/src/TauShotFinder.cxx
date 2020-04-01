@@ -328,11 +328,11 @@ bool TauShotFinder::isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell
 }
 
 float TauShotFinder::getEtaBin(float seedEta){
-    float absSeedEta=fabs(seedEta);
-    if(fabs(absSeedEta)<0.80)      return 0; // Central Barrel
-    else if(fabs(absSeedEta)<1.39) return 1; // Outer Barrel
-    else if(fabs(absSeedEta)<1.51) return 2; // crack
-    else if(fabs(absSeedEta)<1.80) return 3; // endcap, fine granularity
+    float absSeedEta=std::abs(seedEta);
+    if(absSeedEta < 0.80)      return 0; // Central Barrel
+    else if(absSeedEta<1.39) return 1; // Outer Barrel
+    else if(absSeedEta<1.51) return 2; // crack
+    else if(absSeedEta<1.80) return 3; // endcap, fine granularity
     else return 4;                           // endcap, coarse granularity
 }
 
