@@ -66,7 +66,7 @@ void GeoPixelSlimStaveSupportInclRef::preBuild() {
   double eosLength       = (staveDBHelper.getStaveSupportLength() * 0.5) - (brlZMax + m_planarGap);
   double eosZPos         = brlZMax + m_planarGap + (eosLength *  0.5);
   
-  double outerOffsetMid = 0.25*(eosBaseWidth - eosTopWidth);           // Dy>0 if top width < bottom width, i.e. sides point inwards
+  double outerOffsetMid = 0.25*(eosBaseWidth - eosTopWidth) + 0.000001;           // Dy>0 if top width < bottom width, i.e. sides point inwards, add epsilon to avoid FPE
   double eosShellAngle  = atan( (0.5*radialLength) / outerOffsetMid);
   if (eosShellAngle < 0.0) eosShellAngle = eosShellAngle + 180*CLHEP::degree; // Ensure angle is always positive to avoid heaches with sin and tan
 
