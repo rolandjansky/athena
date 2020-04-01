@@ -92,6 +92,22 @@ namespace top {
                  int ybins, double* ybinArray) const;
 
     /**
+     * @brief Add a 2D histogram with variable bin size to the output file.
+     *
+     * @param hname A unique name, notice that we automatically add the name
+     * of the analysis on to this with an underscore.
+     * @param title The histogram title, as root expects.
+     * @param xbins The number of x-bins, passed directly to root.
+     * @param xbinArray The array with x-bin edges, passed directly to root.
+     * @param ybins The number of y-bins, passed directly to root.
+     * @param ystart The starting y-value, passed directly to root.
+     * @param yend The ending y-value, passed directly to root.
+     */
+    void addHist(const std::string& hname, const std::string& title,
+                 int xbins, double* xbinArray,
+                 int ybins, double ystart, double yend) const;
+
+    /**
      * @brief Recover an existing histogram, to fill it for example.
      *
      * @return A pointer to the histogram if it exists.  If it doesn't exist

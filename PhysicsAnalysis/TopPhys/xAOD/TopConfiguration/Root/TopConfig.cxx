@@ -173,6 +173,8 @@ namespace top {
     m_passEventSelectionDecoration("passEventSelection"),
     m_decoKeyJetGhostTrack("GhostTrack"),
 
+    m_jetResponseMatchingDeltaR(-1),
+
     // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
     m_dumpBtagSystsInSystTrees(false),
 
