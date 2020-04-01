@@ -37,6 +37,7 @@ class AnaAlgSequence( AlgSequence ):
         # Set up the sequence's member variables:
         self._algorithmMeta = []
         self._outputAffectingSystematics = None
+        self._metaConfigDefault = {}
 
         return
 
@@ -99,12 +100,19 @@ class AnaAlgSequence( AlgSequence ):
                                 'inconsistent state' )
 
         # do the dynamic configuration based on meta-information
-        index = 0
+        metaConfig = {}
+        for name, value in self._metaConfigDefault.items() :
+            metaConfig[name] = value[:]
+            pass
         for alg, meta in zip( self, self._algorithmMeta ):
             for var, func in meta.dynConfig.items() :
-                setattr (alg, var, func (self, index))
+                setattr (alg, var, func (metaConfig))
                 pass
-            index += 1
+            for name, value in meta.metaConfig.items() :
+                if not name in metaConfig :
+                    raise RuntimeError ("metaConfig value " + name + " for algorithm " + alg.name() + " not registered, did you forget to call addMetaConfigDefault?")
+                metaConfig[name] += value[:]
+                pass
             pass
 
         # Make the inputs and outputs dictionaries. Allowing simple sequences to
@@ -260,7 +268,7 @@ class AnaAlgSequence( AlgSequence ):
 
     def append( self, alg, inputPropName, outputPropName = None,
                 affectingSystematics = None, stageName = 'undefined',
-                selectionDecorNames = [], selectionDecorCount = [],
+                metaConfig = {},
                 dynConfig = {}):
         """Add one analysis algorithm to the sequence
 
@@ -280,14 +288,14 @@ class AnaAlgSequence( AlgSequence ):
           stageName -- name of the current processing stage [optional]
         """
 
-        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, selectionDecorNames=selectionDecorNames, selectionDecorCount=selectionDecorCount, dynConfig=dynConfig )
+        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, metaConfig=metaConfig, dynConfig=dynConfig )
         self += alg
         self._algorithmMeta.append( meta )
         return self
 
     def insert( self, index, alg, inputPropName, outputPropName = None,
                 affectingSystematics = None, stageName = 'undefined',
-                selectionDecorNames = [], selectionDecorCount = [],
+                metaConfig = {},
                 dynConfig = {} ):
         """Insert one analysis algorithm into the sequence
 
@@ -309,7 +317,7 @@ class AnaAlgSequence( AlgSequence ):
           stageName -- name of the current processing stage [optional]
         """
 
-        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, selectionDecorNames=selectionDecorNames, selectionDecorCount=selectionDecorCount, dynConfig=dynConfig )
+        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, metaConfig=metaConfig, dynConfig=dynConfig )
         super( AnaAlgSequence, self ).insert( index, alg )
         self._algorithmMeta.insert( index, meta )
         return self
@@ -406,19 +414,39 @@ class AnaAlgSequence( AlgSequence ):
             pass
         pass
 
-    def selectionDecorNames (self, index = None) :
-        result = []
-        for meta in self._algorithmMeta [ 0 : index ] :
-            result += meta.selectionDecorNames
+
+
+    def addMetaConfigDefault (self, name, value) :
+        """add a default value for the given meta-configuration entry
+
+        This will both register name as a valid meta-configuration
+        value and set its default value, or add to its default value,
+        if that name is already known."""
+
+        if name in self._metaConfigDefault :
+            self._metaConfigDefault[name] += value
+            pass
+        else :
+            self._metaConfigDefault[name] = value
+            pass
+        pass
+
+
+
+    def getMetaConfig (self, name) :
+        """get the value for the given meta-configuration entry"""
+
+        if not name in self._metaConfigDefault :
+            raise RuntimeError ("metaConfig value " + name + " not registered, did you forget to call addMetaConfigDefault?")
+        result = self._metaConfigDefault[name][:]
+        for meta in self._algorithmMeta :
+            if name in meta.metaConfig :
+                result += meta.metaConfig[name]
+                pass
             pass
         return result
 
-    def selectionDecorCount (self, index = None) :
-        result = []
-        for meta in self._algorithmMeta [ 0 : index ] :
-            result += meta.selectionDecorCount
-            pass
-        return result
+
 
     @staticmethod
     def allowedStageNames():

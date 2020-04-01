@@ -80,6 +80,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "MuonAnalysisSequence" + postfix )
 
+    seq.addMetaConfigDefault ("selectionDecorNames", [])
+    seq.addMetaConfigDefault ("selectionDecorCount", [])
+
     # Set up the eta-cut on all muons prior to everything else
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'MuonEtaCutAlg' + postfix )
@@ -89,9 +92,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut',
                 stageName = 'selection',
-                selectionDecorNames = [alg.selectionDecoration],
-                selectionDecorCount = [2],
-                dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [2]},
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
@@ -101,9 +104,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     alg.maxDeltaZ0SinTheta = 0.5
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
-                selectionDecorNames = [alg.selectionDecoration],
-                selectionDecorCount = [3],
-                dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [3]},
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
     # Set up the muon calibration and smearing algorithm:
     alg = createAlgorithm( 'CP::MuonCalibrationAndSmearingAlg',
@@ -113,7 +116,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                 affectingSystematics = '(^MUON_ID$)|(^MUON_MS$)|(^MUON_SAGITTA_.*)|(^MUON_SCALE$)',
                 stageName = 'calibration',
-                dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
     # Set up the the pt selection
     ptSelectionDecoration = 'selectPt' + postfix + ',as_bits'
@@ -123,9 +126,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     alg.selectionTool.minPt = 3e3
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
-                selectionDecorNames = [alg.selectionDecoration],
-                selectionDecorCount = [2],
-                dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [2]},
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
     # Setup the muon quality selection
     qualitySelectionDecoration = 'good_muon' + postfix + ',as_bits'
@@ -138,9 +141,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     alg.badMuonVetoDecoration = badMuonVetoDecoration
     seq.append( alg, inputPropName = 'muons',
                 stageName = 'selection',
-                selectionDecorNames = [alg.selectionDecoration],
-                selectionDecorCount = [4],
-                dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [4]},
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
     # Set up the isolation calculation algorithm:
     if splitWP[1] != 'NonIso' :
@@ -150,16 +153,16 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         alg.isolationDecoration = 'isolated_muon' + postfix + ',as_bits'
         seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                     stageName = 'selection',
-                    selectionDecorNames = [alg.isolationDecoration],
-                    selectionDecorCount = [1],
-                    dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
+                    metaConfig = {'selectionDecorNames' : [alg.isolationDecoration],
+                                  'selectionDecorCount' : [1]},
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
         pass
 
     # Set up an algorithm used for decorating baseline muon selection:
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'MuonSelectionSummary' + postfix )
     addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
-    alg.selectionTool.selectionFlags = seq.selectionDecorNames()
+    alg.selectionTool.selectionFlags = seq.getMetaConfig ("selectionDecorNames")
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection' )
@@ -169,12 +172,12 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'MuonCutFlowDumperAlg' + postfix )
         alg.histPattern = 'muon' + postfix + '_cflow_%SYS%'
         seq.append( alg, inputPropName = 'input', stageName = 'selection',
-                    dynConfig = {'selection' : lambda seq, index : seq.selectionDecorNames (index),
-                                 'selectionNCuts' : lambda seq, index : seq.selectionDecorCount (index)} )
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"],
+                                 'selectionNCuts' : lambda meta : meta["selectionDecorCount"]} )
 
     # Set up the output selection
     if shallowViewOutput or deepCopyOutput:
-        selectionDecorNamesOutput = seq.selectionDecorNames()
+        selectionDecorNamesOutput = seq.getMetaConfig ("selectionDecorNames")
         if not ptSelectionOutput:
             selectionDecorNamesOutput.remove(ptSelectionDecoration)
         if not qualitySelectionOutput:
@@ -185,7 +188,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     if shallowViewOutput:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                             'MuonViewFromSelectionAlg' + postfix )
-        alg.selection = seq.selectionDecorNamesOutput()
+        alg.selection = selectionDecorNamesOutput
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection' )
 
@@ -203,14 +206,14 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         seq.append( alg, inputPropName = 'muons',
                     affectingSystematics = '(^MUON_EFF_RECO.*)',
                     stageName = 'efficiency',
-                    dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
     # Set up an algorithm dumping the kinematic properties of the muons:
     if enableKinematicHistograms:
         alg = createAlgorithm( 'CP::KinematicHistAlg', 'MuonKinematicDumperAlg' + postfix )
         alg.histPattern = 'muon' + postfix + '_%VAR%_%SYS%'
         seq.append( alg, inputPropName = 'input', stageName = 'selection',
-                    dynConfig = {'preselection' : lambda seq, index : "&&".join (seq.selectionDecorNames (index))})
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
