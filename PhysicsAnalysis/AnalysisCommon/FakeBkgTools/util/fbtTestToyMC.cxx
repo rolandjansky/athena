@@ -1131,7 +1131,7 @@ void  doMerge( std::vector<std::string> input, std::string name, fbtTestToyMC_co
 
 void usage() {
 
-  std::cout << std::endl << "fbtTextToyMC provides a toy MC model of a set of pseudoexperiments.  It is intended to explore the statistical properties of the fake lepton background estimate for a given set of experiemental conditions (number of events, number of leptons required, typical values of the real and fake efficiencies, etc.)" << std::endl << std::endl;
+  std::cout << std::endl << "fbtTestToyMC provides a toy MC model of a set of pseudoexperiments.  It is intended to explore the statistical properties of the fake lepton background estimate for a given set of experiemental conditions (number of events, number of leptons required, typical values of the real and fake efficiencies, etc.)" << std::endl << std::endl;
   std::cout << "Options: " << std::endl;
   std::cout << "   --ncases, -c:  number of pseudoexperiments to run (default: 100)" << std::endl;
   std::cout << "   --nevents, -e:  number of events in each pseudoexperiment (default: 100)" << std::endl;
