@@ -21,6 +21,7 @@
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "AthLinks/ElementLink.h"
+#include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
 
 #define EXPAND_DLV(T, suffix) \
   ::DataLinkVector< Muon::MuonPrepDataCollection< T > > m_dummy_dlv_ ## suffix ; \

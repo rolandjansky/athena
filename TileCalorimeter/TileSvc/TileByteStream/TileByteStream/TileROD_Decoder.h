@@ -194,26 +194,12 @@ class TileROD_Decoder: public AthAlgTool {
     int getWarningCounter();
 
     const TileHid2RESrcID * getHid2reHLT() {
-      if (!m_hid2reHLT) initHid2reHLT();
       return m_hid2reHLT;
     }
 
     const TileHid2RESrcID * getHid2re() {
+      std::lock_guard<std::mutex> lock (m_HidMutex);
       if (!m_hid2re) initHid2re();
-      return m_hid2re;
-    }
-
-    const TileHid2RESrcID * getHid2re(int swtRODId) {
-      if (!m_hid2re) {
-        switch (swtRODId) {
-          case 0:
-           initHid2re();
-           break;
-          case 1:
-           initTileMuRcvHid2re();
-           break;
-        }
-      }
       return m_hid2re;
     }
 
@@ -561,6 +547,9 @@ class TileROD_Decoder: public AthAlgTool {
     // Mutex protecting access to weight vectors.
     mutable std::mutex m_OFWeightMutex;
 
+    // Mutex protecting access to m_hid2re.
+    mutable std::mutex m_HidMutex;
+
     // fast decoding
     std::vector<int> m_Rw2Cell[4];
     std::vector<int> m_Rw2Pmt[4];
@@ -585,7 +574,6 @@ class TileROD_Decoder: public AthAlgTool {
     std::vector<int> m_list_of_masked_drawers;
     void initHid2re();
     void initHid2reHLT();
-    void initTileMuRcvHid2re();
 
     unsigned int m_maxChannels;
     bool m_checkMaskedDrawers;

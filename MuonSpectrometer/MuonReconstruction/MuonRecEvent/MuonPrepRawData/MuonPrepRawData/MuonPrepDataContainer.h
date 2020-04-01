@@ -53,7 +53,7 @@ public:
   MuonPrepDataContainer(unsigned int max);
 
   // Constructor with IdentifiableCache object
-  MuonPrepDataContainer(EventContainers::IdentifiableCache< Muon::MuonPrepDataCollection <CollectionT> >* cache);
+  MuonPrepDataContainer(EventContainers::IdentifiableCache<CollectionT> * cache);
 
   // Destructor:
   virtual ~MuonPrepDataContainer();

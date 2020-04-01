@@ -18,7 +18,9 @@
 //Core Include
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "GaudiKernel/ServiceHandle.h" 
 #include "GaudiKernel/ToolHandle.h" 
+#include "AsgTools/ToolHandleArray.h"
 
 //Helper Includes
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
@@ -26,7 +28,7 @@
 #include "MdtRawDataMonitoring/MDTNoisyTubes.h"
 #include "MdtRawDataMonitoring/MDTChamber.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
@@ -41,10 +43,6 @@
 #include <fstream> 
 #include <cstdlib>
 #include <iostream>
-
-class Identifier;
-class IdentifierHash;
-class MuonDQAHistList;
 
 namespace Muon {
   class MdtPrepData;
@@ -120,8 +118,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   MDTNoisyTubes* m_masked_tubes;
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
 
   // MuonDetectorManager from the conditions store
@@ -165,7 +162,6 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
 
   ToolHandleArray<IDQFilterTool> m_DQFilterTools;
   bool m_atlas_ready;
-  uint32_t m_firstTime;
 
   SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","MuonSegments","muon segments"};
 

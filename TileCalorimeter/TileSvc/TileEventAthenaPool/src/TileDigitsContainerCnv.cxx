@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileTPCnv/TileDigitsContainerCnv_p1.h"
@@ -39,15 +39,15 @@ TileDigitsContainer* TileDigitsContainerCnv::createTransient() {
     static const pool::Guid   p0_guid("EB51ED70-5EC0-4F31-97D3-14453F77C88B");
 
     if( this->compareClassGuid(p3_guid)) {
-        std::auto_ptr< TileDigitsContainer_p3 >   cont( this->poolReadObject< TileDigitsContainer_p3 >() );
+        std::unique_ptr< TileDigitsContainer_p3 >   cont( this->poolReadObject< TileDigitsContainer_p3 >() );
         trans_cont = converter_p3.createTransient( cont.get(), mlog );
     }
     else if( this->compareClassGuid(p2_guid)) {
-        std::auto_ptr< TileDigitsContainer_p2 >   cont( this->poolReadObject< TileDigitsContainer_p2 >() );
+        std::unique_ptr< TileDigitsContainer_p2 >   cont( this->poolReadObject< TileDigitsContainer_p2 >() );
         trans_cont = converter_p2.createTransient( cont.get(), mlog );
     }
     else if( this->compareClassGuid(p1_guid)) {
-        std::auto_ptr< TileDigitsContainer_p1 >   cont( this->poolReadObject< TileDigitsContainer_p1 >() );
+        std::unique_ptr< TileDigitsContainer_p1 >   cont( this->poolReadObject< TileDigitsContainer_p1 >() );
         trans_cont = converter_p1.createTransient( cont.get(), mlog );
     }
     else if( this->compareClassGuid(p0_guid)) {

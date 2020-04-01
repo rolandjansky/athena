@@ -1,4 +1,3 @@
-
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
@@ -131,6 +130,8 @@ def algColor(alg):
         return "cyan3"
     if isFilterAlg(alg):
         return "chartreuse3"
+    if isEmptyAlg(alg):
+        return "peachpuff3"
     if isComboHypoAlg(alg):
         return "darkorange"
     return "cadetblue1"
@@ -294,7 +295,10 @@ def isHypoBase(alg):
     if  'HypoInputDecisions'  in alg.__class__.__dict__:
         return True
     prop = alg.__class__.__dict__.get('_properties')
-    return  ('HypoInputDecisions'  in prop)
+    if type(prop) is dict:
+        return  ('HypoInputDecisions'  in prop)
+    else:
+        return False
 
 def isInputMakerBase(alg):
     return  ('InputMakerInputDecisions'  in alg.__class__.__dict__)
@@ -302,13 +306,88 @@ def isInputMakerBase(alg):
 def isFilterAlg(alg):
     return isinstance(alg, RoRSeqFilter)
 
+def isEmptyAlg(alg):
+    if alg is None:
+        return True
+    else:
+        return False
+
 def isComboHypoAlg(alg):
     return isinstance(alg, ComboHypo)
 
 
+
 ##########################################################
-# NOW sequences and chains
+# Now sequences and chains
 ##########################################################
+from AthenaConfiguration.ComponentFactory import CompFactory
+
+class EmptyMenuSequence(object):
+    """ Class to emulate reco sequences with no Hypo"""
+    """ By construction it has no Hypo;"""
+    
+    def __init__(self, name):
+        Maker = CompFactory.HLTTest__TestInputMaker("IM"+name, RoIsLink="initialRoI", LinkName="initialRoI", Output = 'empty' + name)
+        self._name = name
+        self._maker       = InputMakerNode( Alg = Maker )
+        self._seed=''
+        self._sequence     = Node( Alg = seqAND(name, [Maker]))
+
+    @property
+    def sequence(self):
+        return self._sequence
+
+    @property
+    def seed(self):
+        return self._seed
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def __maker(self):
+        return self._maker
+
+    def getOutputList(self):
+        return self.__maker.readOutputList() # Only one since it's merged
+
+    def connectToFilter(self, outfilter):
+        """ Connect filter to the InputMaker"""
+        self.__maker.addInput(outfilter)
+
+    def createHypoTools(self, chainDict):
+        log.debug("This sequence is empty. No Hypo to conficure")
+
+    def addToSequencer(self, stepReco, seqAndView, already_connected):
+        # menu sequence empty do not add to athena sequencer
+        log.debug("This sequence is empty. Adding Maker node only to athena sequencer")
+        ath_sequence = self.sequence.Alg
+        name = ath_sequence.name()
+        if name in already_connected:
+            log.debug("AthSequencer %s already in the Tree, not added again",name)
+            return stepReco, seqAndView, already_connected
+        else:
+            already_connected.append(name)
+            stepReco += ath_sequence
+        return stepReco, seqAndView, already_connected        
+
+    def buildCFDot(self, cfseq_algs, all_hypos, isCombo, last_step_hypo_nodes, file):
+        file.write("    %s[fillcolor=%s]\n"%("none", algColor(None)))
+        return cfseq_algs, all_hypos, last_step_hypo_nodes
+
+    def getTools(self):
+        # No tools for empty sequences - needs to return empty list?
+        log.debug("No tools for empty menu sequences")
+
+    def setSeed( self, seed ):
+        self._seed = seed
+
+    def __repr__(self):
+        return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s\n"\
+            %("Empty", "Empty", "Empty", "Empty", None)
+
+
 
 class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
@@ -366,17 +445,21 @@ class MenuSequence(object):
            HypoAlg::%s.output=%s",\
                            self.hypo.Alg.name(), input_maker_output, self.hypo.Alg.name(), self.hypo.readOutputList()[0])
 
+
     @property
     def seed(self):
         return self._seed
+
 
     @property
     def name(self):
         return self._name
 
+
     @property
     def sequence(self):
         return self._sequence
+
 
     @property
     def maker(self):
@@ -554,7 +637,6 @@ class CAMenuSequence(MenuSequence):
         hypoAlg = self.ca.getEventAlgo(self._hypo.Alg.name())
         self._hypo.Alg = hypoAlg
         return self._hypo
-
 
 
 class Chain(object):

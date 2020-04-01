@@ -153,6 +153,8 @@ StatusCode TileROD_Decoder::initialize() {
   // Initialize
   this->m_hashFunc.initialize(m_tileHWID);
   
+  this->initHid2reHLT();
+
   return StatusCode::SUCCESS;
 }
 
@@ -4025,11 +4027,6 @@ void TileROD_Decoder::initHid2reHLT() {
   ATH_MSG_DEBUG( "initHid2reHLT() for run " << m_fullTileRODs );
 
   m_hid2reHLT = new TileHid2RESrcID(m_tileHWID,m_fullTileRODs); // setting a frag2RODmap and map dedicated to TMDB
-}
-
-void TileROD_Decoder::initTileMuRcvHid2re() {
-  ATH_MSG_DEBUG( "initTileMuRcvHid2re() for run " << m_fullTileRODs );
-  initHid2re();
 }
 
 const uint32_t*
