@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TileMuonReceveirContainerCnv.cxx 
@@ -48,7 +48,7 @@ TileMuonReceiverContainer* TileMuonReceiverContainerCnv::createTransient() {
 
   } else if ( compareClassGuid(p1_guid) ) {
     // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<TileMuonReceiverContainer_p1> persObj( poolReadObject<TileMuonReceiverContainer_p1>() );
+    std::unique_ptr<TileMuonReceiverContainer_p1> persObj( poolReadObject<TileMuonReceiverContainer_p1>() );
     TileMuonReceiverContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   } else {

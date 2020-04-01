@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FatrasEvent/PlanarCluster.h"
@@ -169,7 +169,7 @@ iFatras::PlanarClusterContainer* PlanarClusterContainerCnv_p1::createTransient(c
       log << MSG::FATAL << "Could not initialize PlanarClusterContainerCnv_p1 " << endmsg;
     }
   }
-  std::auto_ptr<iFatras::PlanarClusterContainer> trans(new iFatras::PlanarClusterContainer(m_pixId->wafer_hash_max()));
+  std::unique_ptr<iFatras::PlanarClusterContainer> trans(new iFatras::PlanarClusterContainer(m_pixId->wafer_hash_max()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }
