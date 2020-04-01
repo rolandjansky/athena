@@ -632,15 +632,15 @@ namespace top {
         //     becomes a vector of 3 strings: "abc", "\"def\"", "ghi"
         std::vector<std::string> segments;
         std::vector<bool> segments_isquote;
-        int strsize = newstring.size();
-        int tmppos = 0;
+        std::size_t strsize = newstring.size();
+        std::size_t tmppos = 0;
         bool leftquote = true;
         while (tmppos <= strsize-1) {
           // find the position of the 1st quote after newstring[tmppos]
-          int tmppos2 = newstring.find_first_of("\"",tmppos);
+          std::size_t tmppos2 = newstring.find_first_of("\"",tmppos);
           
 	  // when the quote found has \ ahead of it, jump over and update tmppos2
-	  int tmppos3 = newstring.find_first_of("\\\"",tmppos);
+	  std::size_t tmppos3 = newstring.find_first_of("\\\"",tmppos);
           while (tmppos2 == tmppos3+1) {
 	    tmppos3 = newstring.find_first_of("\\\"",tmppos2+1);
             tmppos2 = newstring.find_first_of("\"",tmppos2+1);
