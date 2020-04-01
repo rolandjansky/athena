@@ -10,8 +10,8 @@
    @date   February 2020
 **/
 
-#include "AsgElectronPhotonCorrectionConfigHelper.h"
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionBase.h"
+#include "EgammaAnalysisHelpers/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "xAODEventShape/EventShape.h"
 
 // EDM includes

@@ -2,8 +2,16 @@
     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+/**
+   @class ElectronPhotonVariableCorrectionTool
+   @brief Tool to correct electron and photon MC variables.
+
+   @author Nils Gillwald (DESY) nils.gillwald@desy.de
+   @date   February 2020
+**/
+
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonVariableCorrectionTool.h"
-#include "AsgElectronPhotonCorrectionConfigHelper.h"
+#include "EgammaAnalysisHelpers/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
 
