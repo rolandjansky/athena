@@ -177,7 +177,7 @@ TrigSignatureMoniMT                                INFO -- #868405538 Events    
 TrigSignatureMoniMT                                INFO -- #868405538 Features                              50         -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_pf_L1J20 #1335156103
 TrigSignatureMoniMT                                INFO -- #1335156103 Events         19         19         16         -          -          -          -          16
-TrigSignatureMoniMT                                INFO -- #1335156103 Features                             33         -          -          -          -
+TrigSignatureMoniMT                                INFO -- #1335156103 Features                             31         -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_pf_nojcalib_L1J20 #3658890913
 TrigSignatureMoniMT                                INFO -- #3658890913 Events         19         19         15         -          -          -          -          15
 TrigSignatureMoniMT                                INFO -- #3658890913 Features                             29         -          -          -          -
@@ -201,13 +201,13 @@ TrigSignatureMoniMT                                INFO -- #1961149049 Events   
 TrigSignatureMoniMT                                INFO -- #1961149049 Features                             50         50         50         -          -
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subjesgscIS_pf_L1J20 #761060030
 TrigSignatureMoniMT                                INFO -- #761060030 Events          19         19         16         -          -          -          -          16
-TrigSignatureMoniMT                                INFO -- #761060030 Features                              33         -          -          -          -
+TrigSignatureMoniMT                                INFO -- #761060030 Features                              31         -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subresjesgscIS_L1J15 #1509925407
-TrigSignatureMoniMT                                INFO -- #1509925407 Events         20         20         19         -          -          -          -          19
-TrigSignatureMoniMT                                INFO -- #1509925407 Features                             51         -          -          -          -
+TrigSignatureMoniMT                                INFO -- #1509925407 Events         20         20         18         -          -          -          -          18
+TrigSignatureMoniMT                                INFO -- #1509925407 Features                             44         -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_j45_ftf_subresjesgscIS_pf_L1J20 #4012311417
 TrigSignatureMoniMT                                INFO -- #4012311417 Events         19         19         16         -          -          -          -          16
-TrigSignatureMoniMT                                INFO -- #4012311417 Features                             33         -          -          -          -
+TrigSignatureMoniMT                                INFO -- #4012311417 Features                             31         -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_j45_nojcalib_L1J20 #2042444294
 TrigSignatureMoniMT                                INFO -- #2042444294 Events         19         19         17         -          -          -          -          17
 TrigSignatureMoniMT                                INFO -- #2042444294 Features                             39         -          -          -          -
@@ -245,8 +245,8 @@ TrigSignatureMoniMT                                INFO HLT_j85_ftf_L1J20 #87704
 TrigSignatureMoniMT                                INFO -- #877042532 Events          19         19         13         -          -          -          -          13
 TrigSignatureMoniMT                                INFO -- #877042532 Features                              21         -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_j85_ftf_pf_L1J20 #1538535401
-TrigSignatureMoniMT                                INFO -- #1538535401 Events         19         19         10         -          -          -          -          10
-TrigSignatureMoniMT                                INFO -- #1538535401 Features                             16         -          -          -          -
+TrigSignatureMoniMT                                INFO -- #1538535401 Events         19         19         8          -          -          -          -          8
+TrigSignatureMoniMT                                INFO -- #1538535401 Features                             13         -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_mu0_muoncalib_L1MU20 #997163309
 TrigSignatureMoniMT                                INFO -- #997163309 Events          8          8          0          -          -          -          -          0
 TrigSignatureMoniMT                                INFO -- #997163309 Features                              0          -          -          -          -
