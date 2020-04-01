@@ -13,7 +13,7 @@
 # to change: 1) a jet trigger, a min bias trigger, an em trigger, a very much biased etmiss trigger
 from CaloMonitoring.CaloMonitoringConf import CaloClusterVecMon
 
-if not 'rec' in dir():
+if 'rec' not in dir():
    from RecExConfig.RecFlags import rec
  
 from AthenaMonitoring.DQMonFlags import DQMonFlags
