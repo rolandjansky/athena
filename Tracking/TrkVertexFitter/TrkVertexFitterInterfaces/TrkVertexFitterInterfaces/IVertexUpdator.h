@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -54,7 +54,23 @@ namespace Trk
         * AlgTool interface methods 
         */
        static const InterfaceID& interfaceID() { return IID_IVertexUpdator; };
-     
+            // Slim struct used to transport the (temporary) result of positionUpdate. 
+		
+	     // Significantly faster than using an xAOD::Vertex for this purpose. 
+	     struct positionUpdateOutcome{
+	        Amg::Vector3D position;       // vertex position
+	        AmgSymMatrix(3) covariancePosition;   // position covariance
+	        AmgSymMatrix(5) trkParametersWeight;  // inverse track parameter covariance, 
+	                                                // cached to avoid re-calculation
+	     }; 
+		
+	     // operating mode for positionUpdate. 
+	     typedef enum{
+	        removeTrack=-1, 
+	        addTrack=1 
+	     } updateMode;
+		
+	
       /**
        * Add method: adds one track to a vertex
        */
@@ -70,17 +86,23 @@ namespace Trk
       * Updates a position with the information from 
       * one track. 
       */
-       virtual xAOD::Vertex positionUpdate (const xAOD::Vertex& vtx, const LinearizedTrack * trk, double trackWeight, int sign) const = 0;
+       virtual positionUpdateOutcome positionUpdate(const xAOD::Vertex& vtx, const LinearizedTrack * trk, double trackWeight, updateMode mode) const = 0;
        
        /**
        * Method calculating the interstep Chi2 increment
+       * Can also be called using the outcome from a prior positionUpdate call. 
        */ 
-       virtual float trackParametersChi2(const xAOD::Vertex& new_vtx, const LinearizedTrack * trk) const = 0;
+       virtual float trackParametersChi2(const xAOD::Vertex& new_vtx, const LinearizedTrack * trk) const = 0;       
+       virtual float trackParametersChi2(const positionUpdateOutcome & new_vtx , const LinearizedTrack * trk) const = 0;
+
 
        /** 
-       * Method calculating the vertex displacement-related part of the chi2   
+       * Method calculating the vertex displacement-related part of the chi2          
+       * Can also be called using the outcome from a prior positionUpdate call. 
+
        */
        virtual float vertexPositionChi2(const xAOD::Vertex& old_vtx, const xAOD::Vertex& new_vtx) const = 0;
+       virtual float vertexPositionChi2(const xAOD::Vertex& old_vtx, const positionUpdateOutcome & new_vtx) const = 0;
 
   };
 }
