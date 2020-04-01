@@ -12,7 +12,7 @@
 #include "TGraph.h"
 
 //C++ includes
-#include <math.h>
+#include <cmath>
 #include <string.h>
 
 //_____________________________________________________________________________

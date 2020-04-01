@@ -38,7 +38,7 @@ Jan 2012   - (FF) add cellEnergyRing variables
  ********************************************************************/
 
 #include <algorithm> 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <sstream>
 

@@ -23,7 +23,7 @@
 //-----------------------------------------------------------------------------
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 #include "GaudiKernel/SystemOfUnits.h"

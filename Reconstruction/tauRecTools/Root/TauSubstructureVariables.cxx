@@ -10,7 +10,7 @@
 //********************************************************************//
 
 #include <algorithm> 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 #include "xAODJet/Jet.h"
