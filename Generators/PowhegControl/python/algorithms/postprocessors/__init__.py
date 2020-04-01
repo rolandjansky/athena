@@ -12,3 +12,4 @@ from photos import PHOTOS
 from quark_colour_fixer import quark_colour_fixer
 from reweighter import reweighter
 from lhe_cleaner import lhe_cleaner
+from lhe_nominal_weight_updater import lhe_nominal_weight_updater
