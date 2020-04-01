@@ -165,10 +165,10 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'MuonSelectionSummary' + postfix )
     addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
-    alg.selectionTool.selectionFlags = seq.getMetaConfig ("selectionDecorNames")
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
-                stageName = 'selection' )
+                stageName = 'selection',
+                dynConfig = {'selectionTool.selectionFlags' : lambda meta : meta["selectionDecorNames"]})
 
     # Set up an algorithm used to create muon selection cutflow:
     if enableCutflow:
