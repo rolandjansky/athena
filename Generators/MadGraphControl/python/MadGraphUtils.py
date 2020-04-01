@@ -399,6 +399,9 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
             os.rename(MADGRAPH_GRIDPACK_LOCATION,process_dir)
 
         mglog.info('Gridpack sucessfully created, exiting the transform')
+        if hasattr(runArgs,'outputTXTFile'):
+            mglog.info('Touching output TXT (LHE) file for the transform')
+            open(runArgs.outputTXTFile, 'w').close()
         from AthenaCommon.AppMgr import theApp
         theApp.finalize()
         theApp.exit()
