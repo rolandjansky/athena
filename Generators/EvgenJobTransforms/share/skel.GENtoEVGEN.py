@@ -229,7 +229,7 @@ if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
     if len(jo_physshortpart) > 50:
-        evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
+        evgenLog.error(jofile + " contains a physicsShort field of more than 50 characters: please rename.")
         sys.exit(1)
     ## There must be at least 2 physicsShort sub-parts separated by '_': gens, (tune)+PDF, and process
     jo_physshortparts = jo_physshortpart.split("_")
@@ -262,6 +262,10 @@ evgenLog.info(".transform =                  Gen_tf")
 
 ## Sort and check generator name / JO name consistency
 ##
+## Check that the common fragments are not obsolete:
+if evgenConfig.obsolete:
+    evgenLog.error("JOs or icludes are obsolete, please check them")
+    sys.exit(1)
 ## Check that the generators list is not empty:
 if not evgenConfig.generators:
     evgenLog.error("No entries in evgenConfig.generators: invalid configuration, please check your JO")
@@ -563,6 +567,8 @@ elif "BeamHaloGenerator" in evgenConfig.generators:
     eventsFile = "beamhalogen.events"
 elif "HepMCAscii" in evgenConfig.generators:
     eventsFile = "events.hepmc"
+elif "ReadMcAscii" in evgenConfig.generators:
+    eventsFile = "events.hepmc"
 elif gens_lhef(evgenConfig.generators):
     eventsFile = "events.lhe"
 
@@ -643,7 +649,7 @@ def mk_symlink(srcfile, dstfile):
 ## Find and symlink dat and event files, so they are available via the name expected by the generator
 if eventsFile or datFile:
     if not hasattr(runArgs, "inputGeneratorFile") or runArgs.inputGeneratorFile == "NONE":
-        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfigs)
+        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfig)
     if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
         raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
                            (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))

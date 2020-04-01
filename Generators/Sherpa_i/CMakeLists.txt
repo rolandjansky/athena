@@ -23,6 +23,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( HepMC )
+find_package( OpenLoops )
 find_package( Sherpa COMPONENTS SherpaTools SherpaInitialization )
 
 # Remove the --as-needed linker flags:

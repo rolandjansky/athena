@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 */
-
 #ifndef GENERATORFILTERS_MISSINGETFILTER_H
 #define GENERATORFILTERS_MISSINGETFILTER_H
 
@@ -22,6 +21,7 @@ public:
 
   double m_METmin;
   bool m_useHadronicNu;
+  bool m_useChargedNonShowering;
 
 };
 

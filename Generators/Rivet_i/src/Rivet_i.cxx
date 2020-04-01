@@ -31,6 +31,7 @@
 
 #include <cstdlib>
 #include <memory>
+#include <regex>
 
 using namespace std;
 
@@ -282,6 +283,14 @@ bool cmpGenParticleByEDesc(const HepMC::GenParticle* a, const HepMC::GenParticle
   return a->momentum().e() > b->momentum().e();
 }
 
+inline std::vector<std::string> split(const std::string& input, const std::string& regex) {
+  // passing -1 as the submatch index parameter performs splitting
+  std::regex re(regex);
+  std::sregex_token_iterator
+  first{input.begin(), input.end(), re, -1},
+    last;
+    return {first, last};
+}
 
 const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   std::vector<HepMC::GenParticle*> beams;
@@ -294,6 +303,50 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     int eventNumber = eventInfo->event_ID()->event_number();
     modEvent->set_event_number(eventNumber);
   }
+
+  // weight-name cleaning
+  vector<pair<string,string> > w_subs = {
+    {" nominal ",""},
+    {" set = ","_"},
+    {" = ","_"},
+    {"=",""},
+    {",",""},
+    {".",""},
+    {":",""},
+    {" ","_"},
+    {"#","num"},
+    {"\n","_"},
+    {"/","over"}
+  };
+
+  const HepMC::WeightContainer& old_wc = event->weights();
+  HepMC::WeightContainer& new_wc = modEvent->weights();
+  new_wc.clear();
+  std::ostringstream stream;
+  old_wc.print(stream);
+  string str =  stream.str();
+  std::regex re("(([^()]+))"); // Regex for stuff enclosed by parentheses ()
+  for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
+       i != std::sregex_iterator(); ++i ) {
+    std::smatch m = *i;
+    vector<string> temp = ::split(m.str(), "[,]");
+    if (temp.size() == 2 || temp.size() == 3) {
+      string wname = temp[0];
+      if (temp.size() == 3)  wname += "," + temp[1];
+      double value = old_wc[wname];
+      for (const auto& sub : w_subs) {
+        size_t start_pos = wname.find(sub.first);
+        while (start_pos != std::string::npos) {
+          wname.replace(start_pos, sub.first.length(), sub.second);
+          start_pos = wname.find(sub.first);
+        }
+      }
+      new_wc[wname];
+      new_wc.back() = value;
+    }
+  }
+  // end of weight-name cleaning
+
 
   if (!modEvent->valid_beam_particles()) {
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {

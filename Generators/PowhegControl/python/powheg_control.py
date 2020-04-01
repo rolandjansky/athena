@@ -81,6 +81,9 @@ class PowhegControl(object):
         # Load correct process
         self.process = getattr(processes.powheg, process_name)(os.environ["POWHEGPATH"].replace("POWHEG-BOX", ""), **process_kwargs)
 
+        # check if pre-made integration grids will be used or not
+        self.process.check_using_integration_files()
+
         # Expose all keyword parameters as attributes of this config object
         for parameter in self.process.parameters:
             if parameter.is_visible:

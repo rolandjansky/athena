@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+*/
 // Written by Bill Balunas (balunas@cern.ch)
 // Based on DiBjetFilter by Stephen Bienek
 

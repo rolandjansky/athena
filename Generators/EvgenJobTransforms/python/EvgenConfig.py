@@ -31,7 +31,7 @@ mainGenerators += ["AMPT","Superchic","Starlight", "Hijing", "Hydjet", "Reldis",
 ## Misc generators
 mainGenerators += ["AcerMC", "TopRex", "LPair"]
 ## Reading in fully-formed events
-mainGenerators += ["HepMCAscii"]
+mainGenerators += ["HepMCAscii", "ReadMcAscii"]
 
 ## Special QED and decay afterburners
 afterburnerGenerators = ["Photos", "Photospp", "Tauola", "TauolaPP", "Tauolapp", "EvtGen", "ParticleDecayer"]
@@ -123,6 +123,7 @@ class EvgenConfig(TransformConfig):
     extraSaveItems = ListOfStrings("List of extra StreamEVGEN items to save in output file - note occurs AFTER doNotSaveItems are removed")
     inputFilesPerJob = Integer("number of input files per job",0, AllowedExpression("value >= 0"))
     nEventsPerJob = Integer("number of input events per job",0, AllowedExpression("value >= 0"))
+    obsolete = Boolean("Are JOs/common fragment obsolete", False)
 
     def __init__(self, name="evgenConfig"):
         TransformConfig.__init__(self, name)

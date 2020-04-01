@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 // -------------------------------------------------------------
 // File: GeneratorFilters/DiBjetFilter.cxx
 // Description:
@@ -36,11 +35,14 @@ DiBjetFilter::DiBjetFilter(const std::string& name, ISvcLocator* pSvcLocator)
 {
   //--------------------------------------------------------------------------    
   // Local Member Data:-
-  declareProperty("LeadJetPtMin",m_leadJet_ptMin=0/Gaudi::Units::GeV);
-  declareProperty("LeadJetPtMax",m_leadJet_ptMax=50000/Gaudi::Units::GeV);
-  declareProperty("BottomPtMin",m_bottomPtMin=5.0/Gaudi::Units::GeV);
+  declareProperty("LeadJetPtMin",m_leadJet_ptMin=0*Gaudi::Units::GeV);
+  declareProperty("LeadJetPtMax",m_leadJet_ptMax=50000*Gaudi::Units::GeV);
+  declareProperty("DiJetPtMin",m_diJet_ptMin=0*Gaudi::Units::GeV);
+  declareProperty("DiJetMassMin",m_diJet_massMin=0*Gaudi::Units::GeV);
+  declareProperty("DiJetMassMax",m_diJet_massMax=50000*Gaudi::Units::GeV);
+  declareProperty("BottomPtMin",m_bottomPtMin=5.0*Gaudi::Units::GeV);
   declareProperty("BottomEtaMax",m_bottomEtaMax=3.0);
-  declareProperty("JetPtMin",m_jetPtMin=15.0/Gaudi::Units::GeV);
+  declareProperty("JetPtMin",m_jetPtMin=15.0*Gaudi::Units::GeV);
   declareProperty("JetEtaMax",m_jetEtaMax=2.7);
   declareProperty("DeltaRFromTruth",m_deltaRFromTruth=0.3);
   declareProperty("TruthContainerName",m_TruthJetContainerName="AntiKt4TruthJets");
@@ -111,7 +113,7 @@ StatusCode DiBjetFilter::filterEvent() {
   bool passLeadJetCut = false;
   xAOD::JetContainer::const_iterator jitr;
   double lead_jet_pt = 0.0;
-  std::vector<xAOD::JetContainer::const_iterator> jets;
+  std::vector<xAOD::JetContainer::const_iterator> jets,bjets;
   for (jitr = (*truthjetTES).begin(); jitr !=(*truthjetTES).end(); ++jitr) { 
     if( (*jitr)->pt() > lead_jet_pt ){
        lead_jet_pt = (*jitr)->pt();
@@ -144,6 +146,7 @@ StatusCode DiBjetFilter::filterEvent() {
 	double dR = (*jets[i])->p4().DeltaR(genpart);
 	if(dR<m_deltaRFromTruth){ 
 	  bJetCounter++;
+          bjets.push_back(jets[i]);
 	  break;
 	}    
       }   
@@ -153,6 +156,20 @@ StatusCode DiBjetFilter::filterEvent() {
   m_SumOfWeigths_Evt += weight;
 
   pass = (bJetCounter >= 2) && passLeadJetCut;
+
+  bool passDijetCuts = false;
+  //std::cout << "WALT " << bjets.size() << "\n";
+  for(uint i = 0; i < bjets.size(); i++){   
+    for(uint j = 0; j < i; j++){   
+       //std::cout << "  WUMP " << m_diJet_ptMin << " " << ((*bjets[i])->p4()+(*bjets[j])->p4()).Pt() << " " << weight << " " << (*bjets[i])->pt() << "  " << (*bjets[j])->pt() << " " << lead_jet_pt << '\n';
+       if (((*bjets[i])->p4()+(*bjets[j])->p4()).Pt()<m_diJet_ptMin) continue;
+       if (((*bjets[i])->p4()+(*bjets[j])->p4()).M()<m_diJet_massMin) continue;
+       if (((*bjets[i])->p4()+(*bjets[j])->p4()).M()>m_diJet_massMax) continue;
+       passDijetCuts = true;
+    }
+  }
+  if (!passDijetCuts) pass = false;
+
   if( (bJetCounter <= 1) && m_AcceptSomeLightEvents 
       && m_ranNumGen->Uniform() < (1.0 / m_LightJetSuppressionFactor ) 
       && passLeadJetCut ){

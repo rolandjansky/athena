@@ -216,7 +216,7 @@ if joparts[0].startswith("mc"): #and all(c in string.digits for c in joparts[0][
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
     if len(jo_physshortpart) > 50:
-        evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
+        evgenLog.error(jofile + " contains a physicsShort field of more than 50 characters: please rename.")
         sys.exit(1)
     ## There must be at least 2 physicsShort sub-parts separated by '_': gens, (tune)+PDF, and process
     jo_physshortparts = jo_physshortpart.split("_")
@@ -249,6 +249,10 @@ for opt in str(evgenConfig).split(os.linesep):
 evgenLog.info(".transform =                  Gen_tf")
 ## Sort and check generator name / JO name consistency
 ##
+## Check that the common fragments are not obsolete:
+if evgenConfig.obsolete:
+    evgenLog.error("JOs or icludes are obsolete, please check them")
+    sys.exit(1)
 ## Check that the generators list is not empty:
 if not evgenConfig.generators:
     evgenLog.error("No entries in evgenConfig.generators: invalid configuration, please check your JO")

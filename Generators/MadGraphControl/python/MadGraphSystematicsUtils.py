@@ -3,8 +3,12 @@
 # utils to set systematics according to base fragment
 
 # use some helper functions from MadGraphUtils
-import MadGraphUtils,ast
-from MadGraphUtilsHelpers import *
+import ast
+from MadGraphControl.MadGraphUtilsHelpers import checkSetting,checkSettingExists
+from MadGraphControl.MadGraphUtils import get_lhapdf_id_and_name
+
+from AthenaCommon import Logging
+mgsyslog = Logging.logging.getLogger('MadGraphSysUtils')
 
 SYSTEMATICS_WEIGHT_INFO="MUR%(mur).1f_MUF%(muf).1f_PDF%(pdf)i"
 
@@ -17,6 +21,7 @@ SYSTEMATICS_WEIGHT_INFO="MUR%(mur).1f_MUF%(muf).1f_PDF%(pdf)i"
 def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
     ### Set settings according to included base fragment
     runcard_settings={}
+    runcard_systematics_arguments={}
     
     basefragment_settings={}
     basefragment_settings['central_pdf']=None
@@ -29,7 +34,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
                 continue
             basefragment_settings[s]=the_base_fragment[s]
         else:
-            MadGraphUtils.mglog.warning('base fragment include does not define "'+s+'"')
+            mgsyslog.warning('base fragment include does not define "'+s+'"')
             if s=='central_pdf':               
                 raise RuntimeError('No "central_pdf" configured in base fragment')   
 
@@ -39,14 +44,14 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
             if not isinstance(basefragment_settings[s],int):
                 raise RuntimeError(s+', configured in base fragment, has to be an integer')
             continue
-        if basefragment_settings[s]==None:
+        if basefragment_settings[s] is None:
             continue
         if s=='scale_variations':
             if not isinstance(basefragment_settings[s],list):
-                raise RuntimeError(s+', configured in base fragment, has to be a list of integers')
+                raise RuntimeError(s+', configured in base fragment, has to be a list of numbers')
             for pdf in basefragment_settings[s]:
                 if not isinstance(pdf,float) and not isinstance(pdf,int):
-                    raise RuntimeError(s+', configured in base fragment, has to be a list of integers')
+                    raise RuntimeError(s+', configured in base fragment, has to be a list of numbers')
         else:
             if not isinstance(basefragment_settings[s],list):
                 raise RuntimeError(s+', configured in base fragment, has to be a list of integers')
@@ -55,13 +60,13 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
                     raise RuntimeError(s+', configured in base fragment, has to be a list of integers')
     
     ### Resolve smaller issues with base fragment input
-    if basefragment_settings['alternative_pdfs']!=None:
+    if basefragment_settings['alternative_pdfs'] is not None:
         # if a PDF set is included as variation (i.e. nominal + error pdf) there is no need to have it as alternative pdf (i.e. only nominal)
-        if basefragment_settings['pdf_variations']!=None:
+        if basefragment_settings['pdf_variations'] is not None:
             basefragment_settings['alternative_pdfs']=[ a for a in basefragment_settings['alternative_pdfs']  if a not in basefragment_settings['pdf_variations'] ]
         # the central pdf does not need to be included as alternative PDF
         if basefragment_settings['central_pdf'] in basefragment_settings['alternative_pdfs']:
-            basefragment_settings['alternative_pdfs'].remove('central_pdf')
+            basefragment_settings['alternative_pdfs'].remove(basefragment_settings['central_pdf'])
   
     ### Set central PDF
     runcard_settings['pdlabel']='lhapdf'
@@ -71,57 +76,55 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
     if not isNLO:
         runcard_settings['systematics_program']='none'
         for s in ['alternative_pdfs','pdf_variations','scale_variations']:
-            if basefragment_settings[s]!=None and len(basefragment_settings[s])>0:
+            if basefragment_settings[s] is not None and len(basefragment_settings[s])>0:
                 # set use_syst true if some variations are used
                 runcard_settings['use_syst']='True'
                 # use the MadGraph systematics program != syscalc
                 runcard_settings['systematics_program']='systematics'
                 break
 
-    ### Set PDFs to be included as weights                
+    ### Set PDFs to be included as weights
     if isNLO:
         # pdf weights with NLO syntax
-        if basefragment_settings['pdf_variations']!=None and basefragment_settings['central_pdf'] in basefragment_settings['pdf_variations']:
+        if basefragment_settings['pdf_variations'] is not None and basefragment_settings['central_pdf'] in basefragment_settings['pdf_variations']:
             runcard_settings['reweight_pdf']='True'
         else:
             runcard_settings['reweight_pdf']='False'
-        if basefragment_settings['pdf_variations']!=None:
+        if basefragment_settings['pdf_variations'] is not None:
             for v in basefragment_settings['pdf_variations']:
                 if v==basefragment_settings['central_pdf']:
                     continue
                 runcard_settings['lhaid']+=' '+str(v)
                 runcard_settings['reweight_pdf']+=' True'
-        if basefragment_settings['alternative_pdfs']!=None:
+        if basefragment_settings['alternative_pdfs'] is not None:
             for a in basefragment_settings['alternative_pdfs']:
                 runcard_settings['lhaid']+=' '+str(a)
                 runcard_settings['reweight_pdf']+=' False'
             
     else: #not NLO
         sys_pdfs=[]
-        runcard_settings['sys_pdf']=''
-        if basefragment_settings['pdf_variations']!=None:
+        if basefragment_settings['pdf_variations'] is not None:
             for v in basefragment_settings['pdf_variations']:
-                sys_pdfs.append(MadGraphUtils.get_lhapdf_id_and_name(v)[1])
-        if basefragment_settings['alternative_pdfs']!=None:
+                sys_pdfs.append(get_lhapdf_id_and_name(v)[1])
+        if basefragment_settings['alternative_pdfs'] is not None:
             for a in basefragment_settings['alternative_pdfs']:
-                sys_pdfs.append(MadGraphUtils.get_lhapdf_id_and_name(a)[1]+' 1')        
-        runcard_settings['sys_pdf']+=' '.join(sys_pdfs)
-
+                sys_pdfs.append(get_lhapdf_id_and_name(a)[1]+'@0')
+        if len(sys_pdfs)>0:
+            runcard_systematics_arguments['pdf']=','.join(sys_pdfs)
 
     ### Set scale variations to be included as weights
-    if isNLO and basefragment_settings['scale_variations']==None:
+    if isNLO and basefragment_settings['scale_variations'] is None:
         runcard_settings['reweight_scale']='False'
-    if basefragment_settings['scale_variations']!=None:
+    if basefragment_settings['scale_variations'] is not None:
         if isNLO:
             runcard_settings['reweight_scale']='True'
             runcard_settings['rw_rscale']=' '.join([str(s) for s in basefragment_settings['scale_variations']])
             runcard_settings['rw_fscale']=' '.join([str(s) for s in basefragment_settings['scale_variations']])
         else:
-            runcard_settings['sys_scalefact']=' '.join([str(s) for s in basefragment_settings['scale_variations']])
-
-    ###
-    if is_version_or_newer([2,6,2]):
-        convertSysCalcArguments(runcard_settings)
+            runcard_systematics_arguments['muf']=','.join([str(s) for s in basefragment_settings['scale_variations']])
+            runcard_systematics_arguments['mur']=','.join([str(s) for s in basefragment_settings['scale_variations']])
+            runcard_systematics_arguments['dyn']='-1'
+            runcard_settings['systematics_arguments']=write_systematics_arguments(runcard_systematics_arguments)
     return runcard_settings
 
 #==================================================================================
@@ -150,19 +153,19 @@ def setup_pdf_and_systematic_weights(the_base_fragment,extras,isNLO):
     ### backup extras (user set parameters for run_card)
     user_set_extras=dict(extras)
     for s in new_settings:
-        if s!=None:
+        if s is not None:
             extras[s]=new_settings[s]
 
     ### Make sure everything has been set
-    MadGraphUtils.mglog.info('PDF and scale settings were set as follows:')
+    mgsyslog.info('PDF and scale settings were set as follows:')
     for p in systematics_run_card_options(isNLO):
         user_set='not set'
         if p in user_set_extras:
-            user_set=str(extras_user[p])
+            user_set=str(user_set_extras[p])
         new_value='not set'
         if p in extras:
             new_value=str(extras[p])   
-        MadGraphUtils.mglog.info('MadGraphUtils set '+str(p)+' to "'+new_value+'", was set to "'+user_set+'"')
+        mgsyslog.info('MadGraphUtils set '+str(p)+' to "'+new_value+'", was set to "'+user_set+'"')
 
 
 #==================================================================================
@@ -173,10 +176,10 @@ def setup_pdf_and_systematic_weights(the_base_fragment,extras,isNLO):
 def base_fragment_setup_check(the_base_fragment,extras,isNLO):
     # no include: allow it (with warning), as long as lhapdf is used
     # if not (e.g. because no choice was made and the internal pdf ise used): error
-    if the_base_fragment == None:
-        MadGraphUtils.mglog.warning('!!! No pdf base fragment was included in your job options. PDFs should be set with an include file. You might be unable to follow the PDF4LHC uncertainty prescription. Let\'s hope you know what you doing !!!')
+    if the_base_fragment is None:
+        mgsyslog.warning('!!! No pdf base fragment was included in your job options. PDFs should be set with an include file. You might be unable to follow the PDF4LHC uncertainty prescription. Let\'s hope you know what you doing !!!')
         if not checkSetting('pdlabel','lhapdf',extras)  or not checkSettingExists('lhaid',extras):
-            MadGraphUtils.mglog.warning('!!! No pdf base fragment was included in your job options and you did not specify a LHAPDF yourself -- in the future, this will cause an error !!!')
+            mgsyslog.warning('!!! No pdf base fragment was included in your job options and you did not specify a LHAPDF yourself -- in the future, this will cause an error !!!')
             #TODO: in the future this should be an error
             #raise RuntimeError('No pdf base fragment was included in your job options and you did not specify a LHAPDF yourself')
         return True
@@ -185,7 +188,7 @@ def base_fragment_setup_check(the_base_fragment,extras,isNLO):
         correct_settings=get_pdf_and_systematic_settings(the_base_fragment,isNLO)
         allgood=True
         for s in correct_settings:
-            if s==None and s in extras:
+            if s is None and s in extras:
                 allgood=False
                 break
             if s not in extras or extras[s]!=correct_settings[s]:
@@ -202,14 +205,14 @@ def base_fragment_setup_check(the_base_fragment,extras,isNLO):
 def convertSysCalcArguments(extras):
     if 'systematics_program' in extras:
         if extras['systematics_program'].lower=='none':
-            MadGraphUtils.mglog.warning('no need to convert systematics arguments if systematcs are not run')
+            mgsyslog.warning('no need to convert systematics arguments if systematcs are not run')
             return
         if extras['systematics_program'].lower=='syscalc':
-            MadGraphUtils.mglog.warning('systematics already correct for chosen systematics program SysCalc')
+            mgsyslog.warning('systematics already correct for chosen systematics program SysCalc')
             return
 
     if 'systematics_arguments' in extras:
-        MadGraphUtils.mglog.warning('systematics_arguments already defined, will be overwritten')
+        mgsyslog.warning('systematics_arguments already defined, will be overwritten')
     systematics_arguments={}
     systematics_arguments['dyn']='-1'
     systematics_arguments['mur']='1'
@@ -255,7 +258,7 @@ def parse_systematics_arguments(sys_args):
             parsed[key]=value
     else:
         arg=sys_args.replace("'",'').replace('"','')
-        key,value=parse_systematics_argument(a)
+        key,value=parse_systematics_argument(arg)
     return parsed
  
 def parse_systematics_argument(sys_arg):
