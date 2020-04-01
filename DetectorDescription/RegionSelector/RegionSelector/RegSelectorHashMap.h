@@ -45,16 +45,17 @@ public:
   
   /// hash id methods
 
-  void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+  virtual void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
 
-  void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+  virtual void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
 
   /// rob methods
   
-  void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+  virtual void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
   
-  void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;  
-  
+  virtual void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;  
+
+  virtual ~RegSelectorHashMap() override = default;  
 public:
 
   double etaminValue() const ;
@@ -143,7 +144,7 @@ public:
   void populateMatrix(int iPage,IdentifierHash value);
   void populateMatrixRobId(int iPage, uint32_t value);
   void initMatrix(void);
-  void writeLine(const int& layer, const IdentifierHash& hashId, std::vector<uint32_t> robId, const double& emin,
+  void writeLine(const int& layer, const IdentifierHash& hashId, const std::vector<uint32_t>& robId, const double& emin,
 				    const double& emax, const double& pmin, const double& pmax, const int& samp);					
   int MyRound(double pdValue);
   void regionSelectorIN(const int& sampling, const double& etaminIn, 

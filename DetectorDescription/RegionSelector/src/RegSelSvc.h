@@ -215,7 +215,7 @@ private:
      \param const std::string \c \b lutName, parameter to be passed to lutCreatorTool.getLUT() if needed, optional
      \return const RegionSelectorLUT* \c \b detRSlut, the detector data LUT
   */
-  StatusCode readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string lutName=""); 
+  StatusCode readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string& lutName=""); 
 
   //! Initialise lookup tables using tools provided for the inner detector tables
   /*!
