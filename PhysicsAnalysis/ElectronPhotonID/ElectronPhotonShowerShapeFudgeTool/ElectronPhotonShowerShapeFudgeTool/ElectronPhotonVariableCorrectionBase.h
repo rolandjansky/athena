@@ -90,8 +90,8 @@ public:
 
     /** @brief Define the categories of EGamma objects tool can be applied to
      * @details The tool can be applied to electrons and photons, but the latter could also have different corrections according to whether they are
-     * converted or unconverted photons. The categories are designed in such a way, that the analyzer can freely choose whether he/she/* wants all objects
-     * (i.e. e and y) to be corrected in the same way, or wheter he/she/* wants to apply different corrections to different types of objects.
+     * converted or unconverted photons. The categories are designed in such a way, that the analyzer can freely choose whether he_she_* wants all objects
+     * (i.e. e and y) to be corrected in the same way, or wheter he_she_* wants to apply different corrections to different types of objects.
      */
     enum class EGammaObjects{
         Failure = 0,
