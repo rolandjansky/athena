@@ -27,7 +27,7 @@ namespace CP
    std::vector< std::vector < double > > OSfrac_num;
    std::vector< std::vector < double > >  OSfrac_denom;
    int totEvents;
-   std::vector<int> eventCount;
+   std::vector<double> eventCount;
    void reset();
    void resizeVectors(unsigned nlep);
    void add(LhoodMMFitInfo& rhs, int nLepMax); 

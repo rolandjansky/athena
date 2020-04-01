@@ -8,7 +8,7 @@
 //  is intended to explore the statistical properties of the fake lepton
 //  background estimate for a given set of experiemental conditions (number
 //  of events, number of leptons required, typical values of the real and
-//  fake efficiencies, etc.
+//  fake efficiencies, etc.)
 //
 //----------------------------------------------------------------------
 
@@ -83,10 +83,14 @@ void setupSystBranchesAsym(const char* baseName,
 			   TTree* ntuple);
 
 std::unique_ptr<TFile> openRootFile(fbtTestToyMC_config &config);
+
+void  doMerge( std::vector<std::string> input, std::string name, fbtTestToyMC_config &config, TH1F* h_lep_pt, float &lep_pt, TH1F* h_lep_eta, float &lep_eta, TH2F* h_lep_pt_eta, float &fakes, float &poserr, float &negerr, int icase);
   
 void Loop(fbtTestToyMC_config config);
 
 double comboProb(vector<FakeBkgTools::ParticleData> leptons_data, std::bitset<64> tights, std::bitset<64> reals);
+
+void usage();
 
 double totWeight_std; 
 double err_std;
@@ -136,8 +140,6 @@ int main(int argc, char *argv[]){
   if (config.verbose) cout << "maxnbaseline = " << config.maxnbaseline << endl;
 
   parseArguments(argc, argv, config);
-
-  cout << "maxnbaseline = " << config.maxnbaseline << endl;
 
   Loop(config);
 
@@ -215,25 +217,52 @@ void Loop(fbtTestToyMC_config config)
  
     nevents_sel = 0;
 
-    TH1F* h_lep_pt_lhoodMM = new TH1F("lep_pt_lhoodMM", "lep_pt_lhoodMM", 10, 0, 100);
-    TH1F* h_lep_eta_lhoodMM = new TH1F("lep_eta_lhoodMM", "lep_eta_lhoodMM", 10, -5, 5);
-    TH2F* h_lep_pt_eta_lhoodMM =  new TH2F("lep_pt_eta_lhoodMM", "lep_pt_eta_lhoodMM", 10, 0, 100, 10, -5, 5);
-    TH1F* h_lep_pt_lhoodMM_FF = new TH1F("lep_pt_lhoodMM_FF", "lep_pt_lhoodMM_FF", 10, 0, 100);
-    TH1F* h_lep_eta_lhoodMM_FF = new TH1F("lep_eta_lhoodMM_FF", "lep_eta_lhoodMM_FF", 10, -5, 5);
-    TH2F* h_lep_pt_eta_lhoodMM_FF =  new TH2F("lep_pt_eta_lhoodMM_FF", "lep_pt_eta_lhoodMM_FF", 10, 0, 100, 10, -5, 5);
-    TH1F* h_lep_pt_asm = new TH1F("lep_pt_asm", "lep_pt_asm", 10, 0, 100);
-    TH1F* h_lep_eta_asm = new TH1F("lep_eta_asm", "lep_eta_asm", 10, -5, 5);
-    TH2F* h_lep_pt_eta_asm =  new TH2F("lep_pt_eta_asm", "lep_pt_eta_asm", 10, 0, 100, 10, -5, 5);
-    TH1F* h_lep_pt_fkf = new TH1F("lep_pt_fkf", "lep_pt_fkf", 10, 0, 100);
-    TH1F* h_lep_eta_fkf = new TH1F("lep_eta_fkf", "lep_eta_fkf", 10, -5, 5);
-    TH2F* h_lep_pt_eta_fkf =  new TH2F("lep_pt_eta_fkf", "lep_pt_eta_fkf", 10, 0, 100, 10, -5, 5);
+    TH1F* h_lep_pt_lhoodMM = 0;
+    TH1F* h_lep_eta_lhoodMM = 0;
+    TH2F* h_lep_pt_eta_lhoodMM = 0;
+    TH1F* h_lep_pt_lhoodFF = 0;
+    TH1F* h_lep_eta_lhoodFF = 0;
+    TH2F* h_lep_pt_eta_lhoodFF = 0;
+    TH1F* h_lep_pt_asm = 0;
+    TH1F* h_lep_eta_asm = 0;
+    TH2F* h_lep_pt_eta_asm = 0;
+    TH1F* h_lep_pt_fkf = 0;
+    TH1F* h_lep_eta_fkf = 0;
+    TH2F* h_lep_pt_eta_fkf = 0;
+
+    if (config.test_histo) {
+      std::string hname = "lep_pt_lhoodMM_"+to_string(icase);
+      h_lep_pt_lhoodMM =  new TH1F(hname.c_str(), hname.c_str(), 10, 0, 100);
+      hname = "lep_eta_lhoodMM_"+to_string(icase);
+      h_lep_eta_lhoodMM = new TH1F(hname.c_str(), hname.c_str(), 10, -5, 5);
+      hname = "lep_pt_eta_lhoodMM_"+to_string(icase);
+      h_lep_pt_eta_lhoodMM =  new TH2F(hname.c_str(), hname.c_str(), 10, 0, 100, 10, -5, 5);
+      hname = "lep_pt_lhoodFF_"+to_string(icase);
+      h_lep_pt_lhoodFF = new TH1F(hname.c_str(), hname.c_str(), 10, 0, 100);
+      hname = "lep_eta_lhoodFF_"+to_string(icase);
+      h_lep_eta_lhoodFF = new TH1F(hname.c_str(), hname.c_str(), 10, -5, 5);
+      hname = "lep_pt_eta_lhoodFF_"+to_string(icase);
+      h_lep_pt_eta_lhoodFF =  new TH2F(hname.c_str(), hname.c_str(), 10, 0, 100, 10, -5, 5);
+      hname = "lep_pt_asm_"+to_string(icase);
+      h_lep_pt_asm = new TH1F(hname.c_str(), hname.c_str(), 10, 0, 100);
+      hname = "lep_eta_asm_"+to_string(icase);
+      h_lep_eta_asm = new TH1F(hname.c_str(), hname.c_str(), 10, -5, 5);
+      hname = "lep_pt_eta_asm_"+to_string(icase);
+      h_lep_pt_eta_asm =  new TH2F(hname.c_str(), hname.c_str(), 10, 0, 100, 10, -5, 5);
+      hname = "lep_pt_fkf_"+to_string(icase);
+      h_lep_pt_fkf = new TH1F(hname.c_str(), hname.c_str(), 10, 0, 100);
+      hname = "lep_eta_fkf_"+to_string(icase);
+      h_lep_eta_fkf = new TH1F(hname.c_str(), hname.c_str(), 10, -5, 5);
+      hname = "lep_pt_eta_fkf_"+to_string(icase);
+      h_lep_pt_eta_fkf =  new TH2F(hname.c_str(), hname.c_str(), 10, 0, 100, 10, -5, 5);
+    }
+
     float lep_pt, lep_eta;
   
     if (!config.test_merge) {
 
       cout << "Starting case " << icase << endl;
       CP::LhoodMM_tools lhmTool("LhoodMM_tools");
-      int savIndex = 0;
       // arrays of tool instances to test saveProgress
       std::vector<CP::LhoodMM_tools*> lhmTool_sav;
       CP::LhoodMM_tools lhmTool_FF("LhoodFF_tools");
@@ -251,9 +280,9 @@ void Loop(fbtTestToyMC_config config)
 	lhmTool.register1DHistogram(h_lep_pt_lhoodMM, &lep_pt);
 	lhmTool.register1DHistogram(h_lep_eta_lhoodMM, &lep_eta);
 	lhmTool.register2DHistogram(h_lep_pt_eta_lhoodMM, &lep_pt, &lep_eta);
-	lhmTool_FF.register1DHistogram(h_lep_pt_lhoodMM_FF, &lep_pt);
-	lhmTool_FF.register1DHistogram(h_lep_eta_lhoodMM_FF, &lep_eta);
-	lhmTool_FF.register2DHistogram(h_lep_pt_eta_lhoodMM_FF, &lep_pt, &lep_eta);
+	lhmTool_FF.register1DHistogram(h_lep_pt_lhoodFF, &lep_pt);
+	lhmTool_FF.register1DHistogram(h_lep_eta_lhoodFF, &lep_eta);
+	lhmTool_FF.register2DHistogram(h_lep_pt_eta_lhoodFF, &lep_pt, &lep_eta);
 	fkfTool.register1DHistogram(h_lep_pt_fkf, &lep_pt);
 	fkfTool.register1DHistogram(h_lep_eta_fkf, &lep_eta);
 	fkfTool.register2DHistogram(h_lep_pt_eta_fkf, &lep_pt, &lep_eta);
@@ -271,7 +300,7 @@ void Loop(fbtTestToyMC_config config)
 
       if (config.test_save) {
 	for (int iSave = 0; iSave <= nSave; iSave++) {
-	  std:: string toolName = "LhoodMM_tools_save_" + std::to_string(iSave);
+	  std:: string toolName = "LhoodMM_tools_save_" + std::to_string(icase) + "_" +  std::to_string(iSave);
 	  CP::LhoodMM_tools *lhmTool_is = new CP::LhoodMM_tools(toolName.c_str());
 	  lhmTool_sav.push_back(lhmTool_is);
 	  initialize(*lhmTool_sav[iSave], input, config.selection, config.process, config.verbose);
@@ -280,17 +309,18 @@ void Loop(fbtTestToyMC_config config)
 	    lhmTool_is->register1DHistogram(h_lep_eta_lhoodMM, &lep_eta);
 	    lhmTool_is->register2DHistogram(h_lep_pt_eta_lhoodMM, &lep_pt, &lep_eta);	
 	  }
-	  toolName = "LhoodMM_tools_FF_save_" + std::to_string(iSave);
+	  toolName = "LhoodMM_tools_FF_save_" + std::to_string(icase) + "_" + std::to_string(iSave);
 	  CP::LhoodMM_tools *lhmTool_FF_is = new CP::LhoodMM_tools(toolName.c_str());
 	  lhmTool_FF_sav.push_back(lhmTool_FF_is);
 	  initialize(*lhmTool_FF_sav[iSave], input, config.selection, config.process, config.verbose);
+	  lhmTool_FF_sav[iSave]->setProperty("DoFakeFactorFit", true);
 	  if (config.test_histo) {
-	    lhmTool_FF_is->register1DHistogram(h_lep_pt_lhoodMM_FF, &lep_pt);
-	    lhmTool_FF_is->register1DHistogram(h_lep_eta_lhoodMM_FF, &lep_eta);
-	    lhmTool_FF_is->register2DHistogram(h_lep_pt_eta_lhoodMM_FF, &lep_pt, &lep_eta);	
+	    lhmTool_FF_is->register1DHistogram(h_lep_pt_lhoodFF, &lep_pt);
+	    lhmTool_FF_is->register1DHistogram(h_lep_eta_lhoodFF, &lep_eta);
+	    lhmTool_FF_is->register2DHistogram(h_lep_pt_eta_lhoodFF, &lep_pt, &lep_eta);	
 	  }
 
-	  toolName = "AsymptMatrixTool_save_" + std::to_string(iSave);
+	  toolName = "AsymptMatrixTool_save_" + std::to_string(icase) + "_" + std::to_string(iSave);
 	  CP::AsymptMatrixTool *asmTool_is = new CP::AsymptMatrixTool(toolName.c_str()); if (config.test_histo) {
 	    asmTool_is->register1DHistogram(h_lep_pt_asm, &lep_pt);
 	    asmTool_is->register1DHistogram(h_lep_eta_asm, &lep_eta);
@@ -299,6 +329,7 @@ void Loop(fbtTestToyMC_config config)
 	  asmTool_sav.push_back(asmTool_is);
 	  initialize(*asmTool_sav[iSave], input, config.selection, config.process, config.verbose);
 	  
+	  toolName = "ApplyFakeFactor_save_" + std::to_string(icase) + "_" + std::to_string(iSave);
 	  CP::ApplyFakeFactor *fkfTool_is = new CP::ApplyFakeFactor(toolName.c_str());
 	  fkfTool_sav.push_back(fkfTool_is);
 	  initialize(*fkfTool_sav[iSave], input, config.selection, config.process, config.verbose);
@@ -348,6 +379,8 @@ void Loop(fbtTestToyMC_config config)
       // need two passes to simulate subtraction of real lepton contribution
       // in fake factor method with a statistically-independent sample
       for (int pass =0; pass<2; pass++) {
+
+	int savIndex = 0;
 
 	float nlep_frac = 1./(config.maxnbaseline-config.minnbaseline+1);
 	Int_t nlep_select = config.minnbaseline+rand.Uniform()/nlep_frac;
@@ -483,31 +516,39 @@ void Loop(fbtTestToyMC_config config)
 	    }
 	  }
 	
-	  if (pass == 1) {
-	    if (config.test_save) {
-	      if (ievt > 0 &&  (((nSave*ievt)%config.nevents ==0) || ievt == config.nevents -1) ) {
+	  if (config.test_save) {
+	    if (pass == 0) {
+	      if (ievt > 0 &&  (((nSave*ievt)%nevents_thiscase ==0) || ievt == nevents_thiscase -1) ) {
 		string saveFileName = config.saveFileNameBase;
-		saveFileName+=  "_lhm_"+to_string(savIndex)+".root";
+		saveFileName+=  "_lhm_"+to_string(icase)+"_"+to_string(savIndex)+".root";
 		std::unique_ptr<TFile> saveFile(TFile::Open(saveFileName.c_str(), "RECREATE"));
-		cout << "testing save/merge " << saveFileName << endl;
 		lhmTool_sav[savIndex]->saveProgress(saveFile->mkdir("fakes"));
 		saveFile->Close();
 
-		saveFileName =  config.saveFileNameBase+"_lhm_FF_"+to_string(savIndex)+".root";
-		saveFile = std::make_unique<TFile>(saveFileName.c_str(), "RECREATE");
-		lhmTool_FF_sav[savIndex]->saveProgress(saveFile->mkdir("fakes"));
-		saveFile->Close();
-
-		saveFileName =  config.saveFileNameBase+"_asm_"+to_string(savIndex)+".root";
+		saveFileName =  config.saveFileNameBase+"_asm_"+to_string(icase)+"_"+to_string(savIndex)+".root";
 		saveFile = std::make_unique<TFile>(saveFileName.c_str(), "RECREATE");
 		asmTool_sav[savIndex]->saveProgress(saveFile.get());
 		saveFile->Close();
-		
-		saveFileName =  config.saveFileNameBase+"_fkf_"+to_string(savIndex)+".root";
+
+		savIndex++;
+	      }
+	    } else {
+	      if (ievt > 0 &&  (((nSave*ievt)%(nevents_thiscase*nEventsMultFactor) ==0) || ievt == nevents_thiscase*nEventsMultFactor -1) ) {
+		string saveFileName = config.saveFileNameBase;
+
+		saveFileName =  config.saveFileNameBase+"_lhf_"+to_string(icase)+"_"+to_string(savIndex)+".root";
+		std::unique_ptr<TFile> saveFile(TFile::Open(saveFileName.c_str(), "RECREATE"));
+		lhmTool_FF_sav[savIndex]->saveProgress(saveFile->mkdir("fakes"));
+		saveFile->Close();
+
+		saveFileName =  config.saveFileNameBase+"_fkf_"+to_string(icase)+"_"+to_string(savIndex)+".root";
 		saveFile = std::make_unique<TFile>(saveFileName.c_str(), "RECREATE");
 		fkfTool_sav[savIndex]->saveProgress(saveFile.get());
 		saveFile->Close();
 		savIndex++;
+
+		float nfakes_tmp, err_tmp;
+		fkfTool.getTotalYield(nfakes_tmp, err_tmp, err_tmp);
 	      }
 	    }
 	  }
@@ -524,10 +565,11 @@ void Loop(fbtTestToyMC_config config)
 
 
       if(lhmTool.getTotalYield(lhoodMM_fakes, lhoodMM_poserr, lhoodMM_negerr) != StatusCode::SUCCESS) { cout << "ERROR: LhoodMM_tools::getTotalYield() failed\n"; exit(2); }
+
       if(lhmTool_FF.getTotalYield(lhoodFF_fakes, lhoodFF_poserr, lhoodFF_negerr) != StatusCode::SUCCESS) { cout << "ERROR: LhoodMM_tools::getTotalYield() failed\n"; exit(2); }
 
       if (fkfTool.getTotalYield(fkfYield, fkfErr, fkfErr) !=  StatusCode::SUCCESS) { cout << "ERROR: AsymptMatrixTool::getTotalYield() failed\n"; exit(2); }
-      fkf_err = sqrt(fkfErr);
+      fkf_err = fkfErr;
       fkf_fakes = fkfYield;          
       
       if (config.test_systematics) {
@@ -572,66 +614,31 @@ void Loop(fbtTestToyMC_config config)
       }
     
       
-
-      cout << "OUTPUT nfakes = " << lhoodMM_fakes << " +" << lhoodMM_poserr << " -" <<  lhoodMM_negerr <<  endl;
       cout << "OUTPUT true_fakes = " << true_fakes << endl;
-      ntuple->Fill();
+      cout << "OUTPUT nfakes for lhoodMM = " << lhoodMM_fakes << " +" << lhoodMM_poserr << " -" <<  lhoodMM_negerr <<  endl;
+      cout << "OUTPUT nfakes for lhoodFF = " << lhoodFF_fakes << " +" << lhoodFF_poserr << " -" <<  lhoodFF_negerr <<  endl;
+      cout << "OUTPUT nfakes for asm = " << asm_fakes << " +- " << asm_err <<  endl;
+      cout << "OUTPUT nfakes for fkf = " << fkf_fakes << " +- " << fkf_err <<  endl;
+      cout << "OUTPUT true_fakes = " << true_fakes << endl;
     } else {
-      std::string haddcmd = "hadd -f "+config.mergeFileNameBase+"_lhm.root "+config.mergeFileNameBase+"_lhm_*.root";
-      system(haddcmd.c_str());
-      haddcmd = "hadd -f "+config.mergeFileNameBase+"_asm.root "+config.mergeFileNameBase+"_asm_*.root";
-      system(haddcmd.c_str());
-      CP::LhoodMM_tools lhmTool_merge("LhoodMM_tools_merge");
-      std::string mergeFileName =  config.mergeFileNameBase+"_lhm.root";
-      lhmTool_merge.setProperty("ProgressFileName", mergeFileName);
-      initialize(lhmTool_merge, input, config.selection, config.process, config.verbose);
-      if (config.test_histo) {
-	lhmTool_merge.register1DHistogram(h_lep_pt_lhoodMM, &lep_pt);
-	lhmTool_merge.register1DHistogram(h_lep_eta_lhoodMM, &lep_eta);	
-	lhmTool_merge.register2DHistogram(h_lep_pt_eta_lhoodMM, &lep_pt, &lep_eta);
-      }
-      if(lhmTool_merge.getTotalYield(lhoodMM_fakes, lhoodMM_poserr, lhoodMM_negerr) != StatusCode::SUCCESS) { cout << "ERROR: LhoodMM_tools::getTotalYield() failed\n"; exit(2); }
-      cout << "merged lhm nfakes = " << lhoodMM_fakes << " + " << lhoodMM_poserr << " " <<  lhoodMM_negerr << endl;
-      
-      CP::AsymptMatrixTool asmTool_merge("asm_tool_merge");
-      mergeFileName =  config.mergeFileNameBase+"_asm.root";
-      asmTool_merge.setProperty("ProgressFileName", mergeFileName);
-      initialize(asmTool_merge, input, config.selection, config.process, config.verbose);
-      if (config.test_histo) {
-	asmTool_merge.register1DHistogram(h_lep_pt_asm, &lep_pt);
-	asmTool_merge.register1DHistogram(h_lep_eta_asm, &lep_eta);
-	asmTool_merge.register2DHistogram(h_lep_pt_eta_asm, &lep_pt, &lep_eta);
-      }
-      if(asmTool_merge.getTotalYield(asm_fakes, asm_err, asm_err) != StatusCode::SUCCESS) { cout << "ERROR: AsymptMatrixTool::getTotalYield() failed\n"; exit(2); }
-      cout << "merged asm nfakes = " << asm_fakes << " + " << asm_err << " " <<  asm_err << endl;
-    
-      if (config.test_systematics) {
-	auto sysvars = lhmTool_merge.affectingSystematics();
-	for(auto& sysvar : sysvars)
-	  {
-	    float weight = 0, statUp, statDown;
-	    lhmTool_merge.getSystDescriptor().printUncertaintyDescription(sysvar);
-	    std::cout << "sysvar = " << sysvar << std::endl;
-	    lhmTool_merge.applySystematicVariation({sysvar});
-	    lhmTool_merge.getTotalYield(weight, statUp, statDown);
-	    cout << "merged lhm weight = " << weight << endl;
-	    
-	    asmTool_merge.getSystDescriptor().printUncertaintyDescription(sysvar);
-	    asmTool_merge.applySystematicVariation({sysvar});
-	    asmTool_merge.getTotalYield(weight, statUp, statDown);
-	    cout << "merged asm weight = " << weight << endl;
-	  }
-      }      
+
+      doMerge(input, "lhm", config, h_lep_pt_lhoodMM, lep_pt, h_lep_eta_lhoodMM, lep_eta, h_lep_pt_eta_lhoodMM, lhoodMM_fakes, lhoodMM_poserr, lhoodMM_negerr, icase);
+      doMerge(input, "lhf", config, h_lep_pt_lhoodFF, lep_pt, h_lep_eta_lhoodFF, lep_eta, h_lep_pt_eta_lhoodFF, lhoodFF_fakes, lhoodFF_poserr, lhoodFF_negerr, icase);
+      doMerge(input, "asm", config, h_lep_pt_asm, lep_pt, h_lep_eta_asm, lep_eta, h_lep_pt_eta_asm, asm_fakes, asm_err, asm_err, icase);
+      doMerge(input, "fkf", config, h_lep_pt_fkf, lep_pt, h_lep_eta_fkf, lep_eta, h_lep_pt_eta_fkf, fkf_fakes, fkf_err, fkf_err, icase);
+
     }
-       
+     
+    ntuple->Fill();
+
     f_out->cd();
     if (config.test_histo) {
       h_lep_pt_lhoodMM->Write();
       h_lep_eta_lhoodMM->Write();
       h_lep_pt_eta_lhoodMM->Write();
-      h_lep_pt_lhoodMM_FF->Write();
-      h_lep_eta_lhoodMM_FF->Write();
-      h_lep_pt_eta_lhoodMM_FF->Write();
+      h_lep_pt_lhoodFF->Write();
+      h_lep_eta_lhoodFF->Write();
+      h_lep_pt_eta_lhoodFF->Write();
       h_lep_pt_asm->Write();
       h_lep_eta_asm->Write();
       h_lep_pt_eta_asm->Write();
@@ -642,9 +649,9 @@ void Loop(fbtTestToyMC_config config)
       delete h_lep_pt_lhoodMM;
       delete h_lep_eta_lhoodMM;
       delete h_lep_pt_eta_lhoodMM;
-      delete h_lep_pt_lhoodMM_FF;
-      delete h_lep_eta_lhoodMM_FF;
-      delete h_lep_pt_eta_lhoodMM_FF;
+      delete h_lep_pt_lhoodFF;
+      delete h_lep_eta_lhoodFF;
+      delete h_lep_pt_eta_lhoodFF;
       delete h_lep_pt_asm;
       delete h_lep_eta_asm;
       delete h_lep_pt_eta_asm;
@@ -755,14 +762,15 @@ void parseArguments(int argc, char *argv[], fbtTestToyMC_config &config) {
       {"test_histo", required_argument, 0, 'H'},
       {"test_systematics", no_argument, 0, 'E'},
       {"verbose", no_argument, 0, 'v'},
-      {"poisson", no_argument, 0, 'P'}
+      {"poisson", no_argument, 0, 'P'},
+      {"help", no_argument, 0, 'h'}
     };
 
   char c;
-  int option_index = 0;
+  //  int optind;
+  int longindex = 0;
 
-  while ((c = getopt_long(argc, argv, "c:e:m:n:r:f:s:l:p:S:M:HEPv", long_options, &option_index)) != -1) {
-    std::cout << "found option " << c << std::endl;
+  while ((c = getopt_long(argc, argv, "c:e:m:n:r:f:s:l:p:S:M:HEPvh", long_options, &longindex)) != -1) {
     switch(c) {
     case 'c':
       config.ncases = atoi(optarg);
@@ -807,13 +815,15 @@ void parseArguments(int argc, char *argv[], fbtTestToyMC_config &config) {
       break;
     case 'v':
       config.verbose = true;
-      std::cout << "Setting verbose to true" << std::endl;
       break;
     case 'P':
       config.poisson_fluctuations = true;
       break;
+    case 'h':
+      usage();
+      exit(0);
     case '?':
-      std::cout << "Unknown command-line option " << c << std::endl;
+      usage();
       abort();
     default:
       abort();
@@ -1077,4 +1087,66 @@ void setupSystBranchesAsym(const char* baseName,
   systBrNameF = systBrName+"/F";
   ntuple->Branch(systBrName.c_str(), &(syst_negerr_map.find(sysvar)->second), systBrNameF.c_str());
 }
+
+void  doMerge( std::vector<std::string> input, std::string name, fbtTestToyMC_config &config, TH1F* h_lep_pt, float &lep_pt, TH1F* h_lep_eta, float &lep_eta, TH2F* h_lep_pt_eta, float &fakes, float &poserr, float &negerr, int icase) {  
+
+  std::string haddcmd = "hadd -f "+config.mergeFileNameBase+"_"+name+"_"+to_string(icase)+".root "+config.mergeFileNameBase+"_"+name+"_"+to_string(icase)+"_*.root";
+      system(haddcmd.c_str());
+      
+      std::unique_ptr<CP::BaseFakeBkgTool> tool;
+      
+      if (name == "lhm" || name == "lhf") {
+	std::string toolName = "Lhood";
+	if (name == "lhm") {
+	  toolName += "MM";
+	} else {
+	  toolName += "FF";
+	}
+	toolName += to_string(icase)+"_tools_merge";
+	tool = std::make_unique<CP::LhoodMM_tools>(toolName);
+	if (name == "lhf") {
+	  tool->setProperty("DoFakeFactorFit", true);
+	}
+	tool->setProperty("ProgressFileDirectory", "fakes");
+      } else if (name == "asm") {
+	tool = std::make_unique<CP::AsymptMatrixTool>("asm_tool_merge");
+      } else if (name == "fkf") {
+	tool = std::make_unique<CP::ApplyFakeFactor>("fkf_tool_merge");
+      }
+
+      std::string mergeFileName =  config.mergeFileNameBase+"_"+name+"_"+to_string(icase)+".root";
+      std::cout << mergeFileName << std::endl;
+      tool->setProperty("ProgressFileName", mergeFileName);
+      initialize(*tool, input, config.selection, config.process, config.verbose);
+      if (config.test_histo) {
+	tool->register1DHistogram(h_lep_pt, &lep_pt);
+	tool->register1DHistogram(h_lep_eta, &lep_eta);	
+	tool->register2DHistogram(h_lep_pt_eta, &lep_pt, &lep_eta);
+      }
+
+      if(tool->getTotalYield(fakes, poserr, negerr) != StatusCode::SUCCESS) { cout << "ERROR: merged getTotalYield() failed\n"; exit(2); }
+      //      cout << "merged lhm nfakes = " << lhoodMM_fakes << " + " << lhoodMM_poserr << " " <<  lhoodMM_negerr << endl;
   
+}
+
+void usage() {
+
+  std::cout << std::endl << "fbtTextToyMC provides a toy MC model of a set of pseudoexperiments.  It is intended to explore the statistical properties of the fake lepton background estimate for a given set of experiemental conditions (number of events, number of leptons required, typical values of the real and fake efficiencies, etc.)" << std::endl << std::endl;
+  std::cout << "Options: " << std::endl;
+  std::cout << "   --ncases, -c:  number of pseudoexperiments to run (default: 100)" << std::endl;
+  std::cout << "   --nevents, -e:  number of events in each pseudoexperiment (default: 100)" << std::endl;
+  std::cout << "   --poisson, -P:  use Poisson-distributed number of events in each pseudoexperiment, rather than a fixed number (default: false)" << std::endl;
+  std::cout << "   --minnb, -m:  minimum number of baseline leptons per event (default: 1)" << std::endl;
+  std::cout << "   --maxnb, -m:  maximum number of baseline leptons per event (default: 4)" << std::endl;
+  std::cout << "   --rmean, -r: average real lepton efficiency (default: 0.9)" << std::endl;
+  std::cout << "   --fmean, -f: average fake lepton efficiency (default: 0.2)" << std::endl;
+  std::cout << "   --effsigma, -s: standard deviation for lepton-to-lepton variation in real and fake efficiencies (default: 0.10)" << std::endl;
+  std::cout << "   --sel, -l: selection string to be used by the tools (default \" >= 1T\") " << std::endl;
+  std::cout << "   --proc, -p: process string to be used by the tools (default \" >= 1F[T]\") " << std::endl;
+  std::cout << "   --test_save, -S: save output from subjobs in each pseudoexperiement.  If set, requires an argument to specify the base name of the root files where the output will be saved. (default: false) " << std::endl;
+  std::cout << "   --test_merge, -M: merge output from subjobs in each pseudoexperiement.  If set, requires an argument to specify the base name of the root files to be merged.  This should match the base name used in a previous run with the --test_save option (default: false) " << std::endl;
+  std::cout << "   --test_histo, -H: test the filling of 1- and 2-dimensional histograms (default: false) " << std::endl;
+  std::cout << "   --test_systematics, -E: test the handling of systematic unceratinties (default: false) " << std::endl;
+  std::cout << "   --verbose, -v: enable verbose output (default: false) " << std::endl;
+  std::cout << "   --help, -h: print this help message" << std::endl;
+}
