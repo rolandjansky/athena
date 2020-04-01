@@ -26,9 +26,9 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPSiGroup = helper.addGroup(afpSiLayerAlgorithm, 'AFPSiLayerTool', 'AFP/') 
     AFPToFGroup = helper.addGroup(afpToFAlgorithm, 'AFPToFTool', 'AFP/')
 
-    AFPSiGroup.defineHistogram('lb', title='Luminosity Block;lb;total number of Hits',  path='Global',xbins=1000,xmin=-0.5,xmax=999.5,weight='nsihits') 
+    AFPSiGroup.defineHistogram('lb', title='Luminosity Block;lb;total number of Hits',  path='Global',xbins=1000,xmin=-0.5,xmax=999.5,weight='nSiHits') 
     
-    AFPToFGroup.defineHistogram('lb', title='Luminosity Block;lb;total number of Hits',  path='ToF',xbins=1000,xmin=-0.5,xmax=999.5,weight='ntofhits') 
+    AFPToFGroup.defineHistogram('lb', title='Luminosity Block;lb;total number of Hits',  path='ToF',xbins=1000,xmin=-0.5,xmax=999.5,weight='nTofHits') 
     AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;total number of Hits',  path='ToF',xbins=3,xmin=-0.5,xmax=2.5)
     AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits',  path='ToF',xbins=3,xmin=-0.5,xmax=2.5)
 
@@ -60,8 +60,8 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = ''#/eos/atlas/atlastier0/tzero/prod/data18_13TeV/physics_Main/00348618/data18_13TeV.00348618.physics_Main.recon.AOD.v220/'
     #file = 'data18_13TeV.00348618.physics_Main.recon.AOD.v220._lb0295._0009.1'
-    file = '/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000003.pool.root.1' #ToF
-    #file = '/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000005.pool.root.1' #SiT
+    #file = '/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000003.pool.root.1' #ToF
+    file = '/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000005.pool.root.1' #SiT
     #/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.deriv.DAOD_STDM7.r10258_p3399_p4030/DAOD_STDM7.20036794._000007.pool.root.1'
     #/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.recon.AOD.r10258_p3412_r11501/AOD.18508508._000007.pool.root.1'
     #/eos/atlas/atlastier0/tzero/prod/data18_13TeV/physics_Main/00354309/data18_13TeV.00354309.physics_Main.recon.AOD.f946/data18_13TeV.00354309.physics_Main.recon.AOD.f946._lb0130._0001.1'
