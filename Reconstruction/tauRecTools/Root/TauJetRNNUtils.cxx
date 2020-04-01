@@ -2,7 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include "tauRecTools/TauJetRNNUtils.h"
+
+using Gaudi::Units::GeV;
 
 namespace TauJetRNNUtils {
 
@@ -226,17 +230,17 @@ bool massTrkSys(const xAOD::TauJet &tau, double &out) {
 }
 
 bool pt(const xAOD::TauJet &tau, double &out) {
-    out = TMath::Log10(std::min(tau.pt() / 1000.0, 100.0));
+    out = TMath::Log10(std::min(tau.pt() / GeV, 100.0));
     return true;
 }
 
 bool ptDetectorAxis(const xAOD::TauJet &tau, double &out) {
-    out = TMath::Log10(std::min(tau.ptDetectorAxis() / 1000.0, 100.0));
+    out = TMath::Log10(std::min(tau.ptDetectorAxis() / GeV, 100.0));
     return true;
 }
 
 bool ptIntermediateAxis(const xAOD::TauJet &tau, double &out) {
-    out = TMath::Log10(std::min(tau.ptIntermediateAxis() / 1000.0, 100.0));
+    out = TMath::Log10(std::min(tau.ptIntermediateAxis() /GeV, 100.0));
     return true;
 }
 

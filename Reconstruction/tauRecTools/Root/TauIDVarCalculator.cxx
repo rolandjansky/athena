@@ -8,6 +8,8 @@
  * Author: Lorenz Hauswald
  */
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include "tauRecTools/HelperFunctions.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "xAODTracking/VertexContainer.h"  
@@ -15,6 +17,7 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "TLorentzVector.h"
 
+using Gaudi::Units::GeV;
 const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
@@ -224,7 +227,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   float ptLeadTrkOverEt = etOverpTLeadTrk > 0 ? 1. / etOverpTLeadTrk : LOW_NUMBER;
   acc_corrftrk(tau) = ptLeadTrkOverEt != -1111. ? ptLeadTrkOverEt + correction : ptLeadTrkOverEt;
   
-  acc_centFracCorrected(tau) = tau.pt() < 80*1000. ? acc_centFrac(tau) + correction : acc_centFrac(tau);
+  acc_centFracCorrected(tau) = tau.pt() < 80. * GeV ? acc_centFrac(tau) + correction : acc_centFrac(tau);
  
   return StatusCode::SUCCESS;
 }
