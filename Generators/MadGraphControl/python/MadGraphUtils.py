@@ -50,9 +50,9 @@ def config_only_check():
 
 def error_check(errors):
     if not MADGRAPH_CATCH_ERRORS: return
+    unmasked_error = False
     if len(errors):
         mglog.info('Some errors detected by MadGraphControl - checking for serious errors')
-        unmasked_error = False
         for err in errors.split('\n'):
             if len(err.strip())==0:
                 continue
@@ -71,8 +71,26 @@ def error_check(errors):
                 continue
             mglog.error(err)
             unmasked_error = True
-        if unmasked_error:
-            raise RuntimeError('Error detected in MadGraphControl process')
+    # This is a bit clunky, but needed because we could be several places when we get here
+    my_debug_file = None
+    debug_files = glob.glob('*debug.log')+glob.glob('*/*debug.log')
+    for debug_file in debug_files:
+        # This protects against somebody piping their output to my_debug.log and it being caught here
+        has_subproc = os.access(os.path.dirname(debug_file)+'/SubProcesses',os.R_OK)
+        if has_subproc:
+            my_debug_file = debug_file
+            break
+    if my_debug_file is not None:
+        if not unmasked_error:
+            mglog.warning('Found a debug file at '+my_debug_file+' but no apparent error. Will terminate.')
+        mglog.error('MadGraph5_aMC@NLO appears to have crashed. Debug file output follows.')
+        with open(my_debug_file,'r') as error_output:
+            for l in error_output:
+                mglog.error(l)
+        mglog.error('End of debug file output')
+    # Now raise an error if we were in either of the error states
+    if unmasked_error or my_debug_file is not None:
+        raise RuntimeError('Error detected in MadGraphControl process')
     return
 
 
