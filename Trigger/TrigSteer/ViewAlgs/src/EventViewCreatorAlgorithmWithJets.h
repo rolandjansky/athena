@@ -31,7 +31,7 @@ class EventViewCreatorAlgorithmWithJets : public EventViewCreatorAlgorithm {
 
     EventViewCreatorAlgorithmWithJets();
 
-    SG::WriteHandleKey< ConstDataVector<xAOD::JetContainer> > m_inViewJets {this,"InViewJets","Unspecified","Name with which the Jets should be inserted into the views"};
+    SG::WriteHandleKey< xAOD::JetContainer > m_inViewJets {this,"InViewJets","Unspecified","Name with which the Jets should be inserted into the views"};
 };
 
 #endif

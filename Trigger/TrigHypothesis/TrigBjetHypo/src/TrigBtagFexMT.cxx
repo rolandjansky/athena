@@ -39,6 +39,9 @@
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagTool.h"
 
+//Read Decorated properties (NEW)
+#include "StoreGate/ReadDecorHandle.h"
+
 // ----------------------------------------------------------------------------------------------------------------- 
 
 
@@ -75,6 +78,12 @@ StatusCode TrigBtagFexMT::initialize() {
   ATH_CHECK( m_JetContainerKey.initialize()           );
   ATH_CHECK( m_VertexContainerKey.initialize()        );
   ATH_CHECK( m_trkContainerKey.initialize() );
+  ATH_CHECK( m_d0ContainerKey.initialize() );
+  ATH_CHECK( m_z0SinThetaContainerKey.initialize() );
+  ATH_CHECK( m_d0UncertaintyContainerKey.initialize() );
+  ATH_CHECK( m_z0SinThetaUncertaintyContainerKey.initialize() );
+  ATH_CHECK( m_trackposContainerKey.initialize() );
+  ATH_CHECK( m_trackmomContainerKey.initialize() );
 
   ATH_CHECK( m_outputBTaggingContainerKey.initialize() );
   //  ATH_CHECK( m_outputBtagVertexContainerKey.initialize() );
@@ -115,7 +124,11 @@ StatusCode TrigBtagFexMT::execute() {
   for ( const xAOD::TrackParticle *trk : *trkContainer ) 
     ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() * 1e-3 <<
 		   " eta=" << trk->eta() <<
-		   " phi=" << trk->phi() );
+		   " phi=" << trk->phi() <<
+		   " d0=" << trk->d0() <<
+		   " z0=" << trk->z0() );
+
+
 
   // Test retrieval of properties decorated in BTagTrackAugmenterAlg
   ATH_MSG_DEBUG( "Attempting to retrieve TrackParticleContainer with key " << m_d0ContainerKey.key() );
@@ -125,21 +138,25 @@ StatusCode TrigBtagFexMT::execute() {
   for ( long unsigned int i=0; i< trkContainer_d0_Handle->size(); i++)
     ATH_MSG_DEBUG("Track " << i <<": d0 =" << trkContainer_d0_Handle(i));
 
+  ATH_MSG_DEBUG( "Attempting to retrieve TrackParticleContainer with key " << m_z0SinThetaContainerKey.key() );
   SG::ReadDecorHandle< xAOD::TrackParticleContainer, float > trkContainer_z0SinTheta_Handle ( m_z0SinThetaContainerKey,ctx );
   CHECK( trkContainer_z0SinTheta_Handle.isValid() );
   for ( long unsigned int i=0; i< trkContainer_z0SinTheta_Handle->size(); i++)
     ATH_MSG_DEBUG("Track " << i <<": z0SinTheta =" << trkContainer_z0SinTheta_Handle(i));
 
+  ATH_MSG_DEBUG( "Attempting to retrieve TrackParticleContainer with key " << m_d0UncertaintyContainerKey.key() );
   SG::ReadDecorHandle< xAOD::TrackParticleContainer, float > trkContainer_d0Uncertainty_Handle ( m_d0UncertaintyContainerKey,ctx );
   CHECK( trkContainer_d0Uncertainty_Handle.isValid() );
   for ( long unsigned int i=0; i< trkContainer_d0Uncertainty_Handle->size(); i++)
     ATH_MSG_DEBUG("Track " << i << ": d0Uncertainty =" << trkContainer_d0Uncertainty_Handle(i));
 
+  ATH_MSG_DEBUG( "Attempting to retrieve TrackParticleContainer with key " << m_z0SinThetaUncertaintyContainerKey.key() );
   SG::ReadDecorHandle< xAOD::TrackParticleContainer, float > trkContainer_z0SinThetaUncertainty_Handle ( m_z0SinThetaUncertaintyContainerKey,ctx );
   CHECK( trkContainer_z0SinThetaUncertainty_Handle.isValid() );
   for ( long unsigned int i=0; i< trkContainer_z0SinThetaUncertainty_Handle->size(); i++)
     ATH_MSG_DEBUG("Track " << i << ": z0SinThetaUncertainty =" << trkContainer_z0SinThetaUncertainty_Handle(i));
 
+  ATH_MSG_DEBUG( "Attempting to retrieve TrackParticleContainer with key " << m_trackposContainerKey.key() );
   SG::ReadDecorHandle< xAOD::TrackParticleContainer, std::vector< float > > trkContainer_trackpos_Handle ( m_trackposContainerKey,ctx );
   CHECK( trkContainer_trackpos_Handle.isValid() );
   for ( long unsigned int i=0; i< trkContainer_trackpos_Handle->size(); i++){
@@ -149,6 +166,7 @@ StatusCode TrigBtagFexMT::execute() {
     }
   }
     
+  ATH_MSG_DEBUG( "Attempting to retrieve TrackParticleContainer with key " << m_trackmomContainerKey.key() );
   SG::ReadDecorHandle< xAOD::TrackParticleContainer, std::vector< float > > trkContainer_trackmom_Handle ( m_trackmomContainerKey,ctx );
   CHECK( trkContainer_trackmom_Handle.isValid() );
   for ( long unsigned int i=0; i< trkContainer_trackmom_Handle->size(); i++){
@@ -157,6 +175,7 @@ StatusCode TrigBtagFexMT::execute() {
       ATH_MSG_DEBUG( mom << ' ');
     }
   }
+
 
 
   // Test retrieval of VertexContainer
@@ -206,4 +225,5 @@ const xAOD::Vertex* TrigBtagFexMT::getPrimaryVertex(const xAOD::VertexContainer*
   ATH_MSG_WARNING( "No primary vertex found." );
   return nullptr;
 }
+
 

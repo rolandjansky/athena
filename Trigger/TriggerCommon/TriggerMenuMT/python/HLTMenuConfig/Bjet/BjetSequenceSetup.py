@@ -3,7 +3,7 @@
 
 # menu components
 from AthenaCommon.CFElements import seqAND
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, InViewReco
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 #from AthenaCommon.Constants import DEBUG
@@ -81,10 +81,11 @@ def bJetStep2Sequence():
     roisLink = "step1RoI"
     prmVtxKey = "HLT_EFHistoPrmVtx"
 
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets, ViewCreatorInitialROITool
     InputMakerAlg = EventViewCreatorAlgorithmWithJets( "IMBJet_step3",RoIsLink=roisLink )
     InputMakerAlg.ViewFallThrough = True
     InputMakerAlg.RequireParentView = True
+    InputMakerAlg.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithJets -> EventViewCreatorAlgorithm
     InputMakerAlg.Views = "BTagViews"
     InputMakerAlg.InViewRoIs = "InViewRoIs"
     InputMakerAlg.InViewJets = "HLT_InViewJets"
