@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_HistogramFiller_h
@@ -28,9 +28,7 @@ namespace Monitored {
     HistogramFiller(const HistogramDef& histDef, std::shared_ptr<IHistogramProvider> histogramProvider)
       : m_mutex(std::make_shared<std::mutex>()),
         m_histDef(new HistogramDef(histDef)),
-        m_histogramProvider(histogramProvider),
-        m_monWeight(nullptr),
-        m_monCutMask(nullptr) {}
+        m_histogramProvider(histogramProvider) {}
     /**
      * @brief Copy constructor
      *
@@ -59,7 +57,7 @@ namespace Monitored {
 
     /**
      * @brief clone filler for actual filling
-     * Note that this operation is very chip as the this class is effectively a flyweight
+     * Note that this operation is very cheap as the this class is effectively a flyweight
      */
     virtual HistogramFiller* clone() const = 0;
 
@@ -122,8 +120,8 @@ namespace Monitored {
     std::shared_ptr<HistogramDef> m_histDef;
     std::shared_ptr<IHistogramProvider> m_histogramProvider;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
-    Monitored::IMonitoredVariable* m_monWeight; // bare pointer instead of reference as it can be null
-    Monitored::IMonitoredVariable* m_monCutMask;
+    Monitored::IMonitoredVariable* m_monWeight{nullptr}; // bare pointer instead of reference as it can be null
+    Monitored::IMonitoredVariable* m_monCutMask{nullptr};
     
   private:
     HistogramFiller& operator=(HistogramFiller const&) = delete;
