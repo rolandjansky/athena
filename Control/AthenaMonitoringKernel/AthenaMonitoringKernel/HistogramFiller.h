@@ -100,8 +100,8 @@ namespace Monitored {
     std::pair<size_t, std::function<bool(size_t)>> getCutMaskFunc() {
       std::function<bool(size_t)> cutMaskValue = [] (size_t){ return true; }; // default is true
       size_t maskSize = 1;
-      const std::vector<double> cutMaskVector{m_monCutMask ? m_monCutMask->getVectorRepresentation() : std::vector<double>{}};
       if ( m_monCutMask != nullptr ) {
+        const std::vector<double> cutMaskVector{m_monCutMask->getVectorRepresentation()};
         maskSize = cutMaskVector.size();
         if (maskSize == 1) {
           if (!cutMaskVector[0]) {
