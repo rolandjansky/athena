@@ -5,7 +5,7 @@
 #include "tauMonitoring/tauMonitorAlgorithm.h"
 
 #include "GaudiKernel/SystemOfUnits.h"
-#include <xAODCore/ShallowCopy.h>
+#include "xAODCore/ShallowCopy.h"
 
 using Gaudi::Units::GeV;
 
@@ -52,8 +52,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto tauPhi = Monitored::Scalar<float>("tauPhi",0.0);
     auto tauEt = Monitored::Scalar<float>("tauEt",0.0);
     auto tauEtEt15BDTLoose = Monitored::Scalar<float>("tauEtEt15BDTLoose",0.0);
-    auto PanModeEt15BDTLoose = Monitored::Scalar<float>("PanModeEt15BDTLoose",0.0);
-    auto PanModeSubstructure = Monitored::Scalar<float>("PanModeSubstructure",0.0);
+    auto panModeEt15BDTLoose = Monitored::Scalar<float>("panModeEt15BDTLoose",0.0);
+    auto panModeSubstructure = Monitored::Scalar<float>("panModeSubstructure",0.0);
     auto coreTrk = Monitored::Scalar<float>("coreTrk",0.0);
     auto PtTESMVA = Monitored::Scalar<float>("PtTESMVA",0.0);
     auto PtCombined = Monitored::Scalar<float>("PtCombined",0.0);
@@ -140,9 +140,9 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto z0TJVA  = Monitored::Scalar<float>("z0TJVA",0.0);
     auto z0PriVtx  = Monitored::Scalar<float>("z0PriVtx",0.0);
 
-    auto eta_track  = Monitored::Scalar<float>("eta_track",0.0);
-    auto pT_track  = Monitored::Scalar<float>("pT_track",0.0);
-    auto phi_track  = Monitored::Scalar<float>("phi_track",0.0);
+    auto etaTrack  = Monitored::Scalar<float>("etaTrack",0.0);
+    auto ptTrack  = Monitored::Scalar<float>("ptTrack",0.0);
+    auto phiTrack  = Monitored::Scalar<float>("phiTrack",0.0);
     auto leadTrkPt  = Monitored::Scalar<float>("leadTrkPt",0.0);
     auto nHighPtTaus = Monitored::Scalar<float>("nHighPtTaus",0.0);
     auto numberOfTRTHighThresholdHits  = Monitored::Scalar<float>("numberOfTRTHighThresholdHits",0.0);
@@ -241,12 +241,12 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         nNeutPFO = tau->nProtoNeutralPFOs();
         nShot = tau->nShotPFOs() ;
 
-        int panmode = -1 ;
-        int panmodeSubstructure = -1 ;
+        int panModeDummy = -1 ;
+        int panModeSubstructureDummy = -1 ;
 
         const auto& trigDecTool = getTrigDecisionTool();
 
-        if (m_etaMin < fabs(tauEta) && fabs(tauEta) < m_etaMax){
+        if (m_etaMin < std::abs(tauEta) && std::abs(tauEta) < m_etaMax){
             nTauCandidates +=1;
 
             if(tauEt > higherEtThreshold){
@@ -270,15 +270,14 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                         nClustersEt15BDTLoose = tau->detail<int>(xAOD::TauJetParameters::numTopoClusters) ;
                         NumTracksEt15BDTLoose = tau->nTracks();
 
-                        tau->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, panmode); 
-                        PanModeEt15BDTLoose = panmode;
-
+                        tau->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, panModeDummy); 
+                        panModeEt15BDTLoose = panModeDummy;
                         fill(tool,tauPhiEt15BDTLoose);
                         fill(tool,tauEtaEt15BDTLoose);
                         fill(tool,nClustersEt15BDTLoose);
                         fill(tool,NumTracksEt15BDTLoose);
                         fill(tool,tauEtEt15BDTLoose);
-                        fill(tool,PanModeEt15BDTLoose);
+                        fill(tool,panModeEt15BDTLoose);
                     }
                     if (tau->nTracks()!= 0){
 
@@ -348,12 +347,12 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                         d0 = perigee.parameters()[Trk::d0];
                         fill(tool,d0);
                         //z0 missing
-                        phi_track = perigee.parameters()[Trk::phi];
-                        fill(tool,phi_track);
-                        eta_track = perigee.eta();
-                        fill(tool,eta_track);
-                        pT_track = perigee.pT()/GeV;
-                        fill(tool,pT_track);
+                        phiTrack = perigee.parameters()[Trk::phi];
+                        fill(tool,phiTrack);
+                        etaTrack = perigee.eta();
+                        fill(tool,etaTrack);
+                        ptTrack = perigee.pT()/GeV;
+                        fill(tool,ptTrack);
                     }
                     //this else can be removed, but it sets any track variable to 0 if there are no tracks
                     //this solution makes entry numbers match calo which is desired but there are too many zeros. 
@@ -428,11 +427,11 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                     fill(tool,trkAvgDist);
                     fill(tool,lumiPerBCID);
 
-                    tau->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, panmodeSubstructure); 
-                    PanModeSubstructure = panmodeSubstructure;
-                    fill(tool,PanModeSubstructure);
+                    tau->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, panModeSubstructureDummy); 
 
-                
+                    panModeSubstructure = panModeSubstructureDummy;
+
+                    fill(tool,panModeSubstructure);
                     if ( panPhi > -100 ){
                         fill(tool,panEta);
                         fill(tool,panPhi);

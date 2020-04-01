@@ -225,7 +225,7 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('tauEtEt15BDTLoose','et','Identification_BDTLoose15GeV',postfix), title='Et of tau candidates;Transverse Energy (GeV);Number of Candidates',
                                    xbins=60, xmin=0., xmax=300.,path=folder+"Identification/BDTLoose15GeV")
 
-            igroup.defineHistogram(namer('PanModeEt15BDTLoose','PanMode','Identification_BDTLoose15GeV',postfix), title='tau decay mode from PanTau upon JetBDTSigMedium;mode',
+            igroup.defineHistogram(namer('panModeEt15BDTLoose','panMode','Identification_BDTLoose15GeV',postfix), title='tau decay mode from panTau upon JetBDTSigMedium;mode',
                                    xbins=5, xmin=0., xmax=5., path=folder+"Identification/BDTLoose15GeV", labels=["1p0n","1p1n","1pXn","3p0n","3pXn"])
 
             igroup.defineHistogram(namer('jetSeedEta','jetSeedEta','Calo',postfix), title='Calorimeter eta of tau candidates;Eta;Numbers of Candidates',path=folder+"Calo",
@@ -310,7 +310,7 @@ def tauMonitoringConfig(inputFlags):
             xbins=20, xmin=0., xmax=2. )
 
             #Substructure Histograms
-            igroup.defineHistogram(namer('PanModeSubstructure','PanMode','SubStructure',postfix), title='tau decay mode from PanTau upon JetBDTSigMedium;mode',
+            igroup.defineHistogram(namer('panModeSubstructure','panMode','SubStructure',postfix), title='tau decay mode from PanTau upon JetBDTSigMedium;mode',
             xbins=8, xmin=0., xmax=8., path=folder+"SubStructure")
 
             igroup.defineHistogram(namer('BDTScoreAsP0','BDTScoreAsP0','SubStructure',postfix), title='BDT score indentifying pion zero ; BDT score',path=folder+"SubStructure",
@@ -372,7 +372,7 @@ def tauMonitoringConfig(inputFlags):
             xbins=1200,xmin=0,xmax=1200,ybins=50,ymin=-35.,ymax=35)
 
 
-            igroup.defineHistogram(namer('eta_track','eta','Track',postfix), title='Track Eta;Eta',path=folder+"Track",
+            igroup.defineHistogram(namer('etaTrack','eta','Track',postfix), title='Track Eta;Eta',path=folder+"Track",
             xbins=51, xmin=-2.55, xmax=2.55 )
 
             igroup.defineHistogram(namer('leadTrkPt','leadTrkPt','Track',postfix), title='Pt of Leading track;Transverse Momentum (GeV)',path=folder+"Track",
@@ -394,10 +394,10 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('numberOfTRTOutliers','numberOfTRTOutliers','Track',postfix), title="Number of TRT Low Threshold Outliers;Number of TRT Low Threshold Outliers",path=folder+"Track",
             xbins=31, xmin=-0.5, xmax=25.5)
             
-            igroup.defineHistogram(namer('pT_track','pT_track','Track',postfix), title='Track pT;Transverse Momentum (GeV)',path=folder+"Track",
+            igroup.defineHistogram(namer('ptTrack','pT','Track',postfix), title='Track pT;Transverse Momentum (GeV)',path=folder+"Track",
             xbins=60, xmin=0, xmax=300 )
 
-            igroup.defineHistogram(namer('phi_track','phi_track','Track',postfix), title='Track Phi;Phi',path=folder+"Track",
+            igroup.defineHistogram(namer('phiTrack','phi','Track',postfix), title='Track Phi;Phi',path=folder+"Track",
             xbins=64, xmin=PHIMIN, xmax=PHIMAX )
 
             igroup.defineHistogram(namer('rConv','rConv','Track',postfix), title='rConv;rConv',path=folder+"Track",
