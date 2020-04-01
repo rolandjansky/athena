@@ -592,7 +592,7 @@ double SCT_ChargeTrappingSvc::induced (int istrip, double x, double y)const{
   
   int ix1 = ix + 1;
   int iy1 = iy + 1;
-  double P = m_PotentialValue[ix][iy]   *(1.-fx)*(1.-fy) // NOTE: check the oder about potentialValue weighting
+  double P = m_PotentialValue[ix][iy]   *(1.-fx)*(1.-fy) // NOTE: check the order about potentialValue weighting
     + m_PotentialValue[ix1][iy]  *fx*(1.-fy)
     + m_PotentialValue[ix][iy1]  *(1.-fx)*fy
     + m_PotentialValue[ix1][iy1] *fx*fy ;
