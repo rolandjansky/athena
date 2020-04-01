@@ -390,7 +390,7 @@ namespace DerivationFramework {
           if(m_dobtag) {
             size_t ibtag(0);
             for(const auto& tool : m_btagSelTools) {
-              (*dec_btag[ibtag])(jet_orig) = jet->pt()>20e3 && fabs(jet->eta())<2.5 && passJVT && tool->accept(*jet);
+              (*dec_btag[ibtag])(jet_orig) = std::abs(jet->eta())<2.7 && passJVT && tool->accept(*jet);
               ATH_MSG_VERBOSE("Btag working point \"" << m_btagWP[ibtag] << "\" " << ((*dec_btag[ibtag])(jet_orig) ? "passed." : "failed."));
               ++ibtag;
             }
