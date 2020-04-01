@@ -26,7 +26,7 @@ ByteStreamEmonInputSvc = svcMgr.ByteStreamInputSvc
 # ############################################################
 if not 'Partition' in dir():
   Partition = 'ATLAS'
-print "ByteStreamEmonInputSvc: Setting partition to : %s" % (Partition)
+printfunc ("ByteStreamEmonInputSvc: Setting partition to : %s" % (Partition))
 ByteStreamEmonInputSvc.Partition = Partition
 
 # #########################################
@@ -160,4 +160,4 @@ if not 'BSEmonMsgLvl' in dir():
 ByteStreamEmonInputSvc.OutputLevel=BSEmonMsgLvl
 
 if BSEmonMsgLvl <= DEBUG:
-  print "\n\n\t ByteStreamEmonInput setup:\n",ByteStreamEmonInputSvc,"\n\n"
+  printfunc ("\n\n\t ByteStreamEmonInput setup:\n",ByteStreamEmonInputSvc,"\n\n")
