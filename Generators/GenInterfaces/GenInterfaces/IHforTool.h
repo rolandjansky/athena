@@ -8,7 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include <vector>
 
-#include "HepMCI/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 static const InterfaceID IID_IHforTool("IHforTool", 1, 0);
 

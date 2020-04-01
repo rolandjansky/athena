@@ -9,7 +9,7 @@ atlas_subdir( CavernBkgGenerator )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           GaudiKernel
-                          Generators/HepMCI
+                          Generators/AtlasHepMC
                           Generators/GeneratorModules )
 
 # External dependencies:

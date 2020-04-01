@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           Generators/GeneratorModules
-                          Generators/HepMCI
+                          Generators/AtlasHepMC
                           PRIVATE
                           Control/StoreGate
                           Event/EventInfo

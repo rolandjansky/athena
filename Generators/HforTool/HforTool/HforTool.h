@@ -8,9 +8,9 @@
 #include "GenInterfaces/IHforTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenParticle.h"
-#include "HepMCI/SimpleVector.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 #include "EventInfo/EventID.h"
 #include "JetEvent/JetCollection.h"

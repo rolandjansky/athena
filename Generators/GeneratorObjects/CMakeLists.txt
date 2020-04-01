@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Event/xAOD/xAODTruth
                           GaudiKernel
-                          Generators/HepMCI
+                          Generators/AtlasHepMC
                           PRIVATE
                           AtlasTest/TestTools
                           Control/CxxUtils

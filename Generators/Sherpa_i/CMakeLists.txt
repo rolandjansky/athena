@@ -9,7 +9,7 @@ atlas_subdir( Sherpa_i )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/GeneratorModules
-                          Generators/HepMCI
+                          Generators/AtlasHepMC
                           Generators/TruthUtils
                           PRIVATE
                           Control/AthenaBaseComps

@@ -10,8 +10,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "GaudiKernel/IPartPropSvc.h"
 

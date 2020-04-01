@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           GaudiKernel
                           Reconstruction/Jet/JetEvent
-                          Generators/HepMCI 
+                          Generators/AtlasHepMC 
                           PRIVATE
                           Control/StoreGate
                           Generators/TruthUtils

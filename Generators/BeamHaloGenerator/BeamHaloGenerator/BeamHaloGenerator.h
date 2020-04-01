@@ -8,7 +8,7 @@
 #include "BeamHaloGenerator/BeamHaloParticle.h"
 #include <string>
 #include <vector>
-#include "HepMCI/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 
 namespace HepPDT {

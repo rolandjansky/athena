@@ -8,7 +8,7 @@ atlas_subdir( Epos_i )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorModules
-                          Generators/HepMCI
+                          Generators/AtlasHepMC
                           PRIVATE
                           Control/AthenaKernel
                           GaudiKernel

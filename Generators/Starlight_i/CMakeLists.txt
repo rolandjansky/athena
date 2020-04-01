@@ -10,7 +10,7 @@ atlas_subdir( Starlight_i )
 atlas_depends_on_subdirs(
    PUBLIC
    Generators/GeneratorModules
-   Generators/HepMCI
+   Generators/AtlasHepMC
    PRIVATE
    Control/AthenaKernel
    Control/StoreGate

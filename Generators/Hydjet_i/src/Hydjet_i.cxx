@@ -22,9 +22,9 @@
 
 #include "GeneratorUtils/StringParse.h"
 
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenVertex.h"
-#include "HepMCI/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <stdlib.h>
 

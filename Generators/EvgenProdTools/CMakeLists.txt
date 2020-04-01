@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GenAnalysisTools/TruthHelper
                           Generators/GenInterfaces
                           Generators/GeneratorModules
-                          Generators/HepMCI
+                          Generators/AtlasHepMC
                           PRIVATE
                           Control/AthenaKernel
                           Event/EventInfo

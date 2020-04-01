@@ -9,7 +9,7 @@
 #include "GeneratorModules/GenModule.h"
 #include "TruthUtils/GeneratorName.h"
 
-#include "HepMCI/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 namespace SHERPA {
   class Sherpa;

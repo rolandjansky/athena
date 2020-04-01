@@ -5,7 +5,7 @@
 #ifndef BEAMHALOPARTICLE_H
 #define BEAMHALOPARTICLE_H
 
-#include "HepMCI/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 class MarsParticle;
 class FlukaParticle;

@@ -17,7 +17,7 @@
 #include "SGTools/CurrentEventStore.h"
 #include <atomic>
 #include <cassert>
-#include "HepMCI/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 
 class IProxyDict;

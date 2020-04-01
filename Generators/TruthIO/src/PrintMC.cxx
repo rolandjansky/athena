@@ -13,7 +13,7 @@
 
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"
-#include "HepMCI/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 
 inline void drawLine(std::ostream& os) {

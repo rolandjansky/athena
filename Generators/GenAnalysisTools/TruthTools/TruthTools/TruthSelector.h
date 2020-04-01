@@ -14,7 +14,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "HepPDT/ParticleDataTable.hh"
-#include "HepMCI/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GenInterfaces/ITruthSelector.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>

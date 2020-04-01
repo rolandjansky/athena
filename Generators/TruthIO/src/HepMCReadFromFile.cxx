@@ -4,9 +4,9 @@
 
 #include "TruthIO/HepMCReadFromFile.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/IO_HEPEVT.h"
-#include "HepMCI/HEPEVT_Wrapper.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/IO_HEPEVT.h"
+#include "AtlasHepMC/HEPEVT_Wrapper.h"
 
 #include "GaudiKernel/DataSvc.h"
 

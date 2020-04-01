@@ -23,8 +23,8 @@
 #include <limits>  /* numeric_limits */
 #include <string>
 
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 class IProxyDict;
 class McEventCollection;

@@ -9,7 +9,7 @@ atlas_subdir( ParticleDecayer )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Generators/GeneratorModules
-                          Generators/HepMCI
+                          Generators/AtlasHepMC
                           PRIVATE
                           GaudiKernel
                           Generators/GeneratorObjects )

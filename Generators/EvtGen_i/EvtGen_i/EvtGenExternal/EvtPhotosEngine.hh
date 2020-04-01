@@ -26,8 +26,8 @@
 #include "EvtGenBase/EvtId.hh"
 #include "EvtGenBase/EvtVector4R.hh"
 
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <string>
 

@@ -5,12 +5,12 @@
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/IO_GenEvent.h"
-#include "HepMCI/GenParticle.h"
-#include "HepMCI/GenVertex.h"
-#include "HepMCI/IO_AsciiParticles.h"
-#include "HepMCI/SimpleVector.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/IO_GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/IO_AsciiParticles.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 // ROOT headers

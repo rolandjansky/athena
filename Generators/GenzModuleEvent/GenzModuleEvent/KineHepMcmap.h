@@ -5,8 +5,8 @@
 #ifndef KINEHEPMCMAP_H
 #define KINEHEPMCMAP_H
 
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 class KineHepMcmap
 {

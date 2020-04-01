@@ -11,12 +11,12 @@
 
 #include <string>
 #include <vector>
-#include "HepMCI/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #undef NDEBUG
 
 class ISvcLocator;
-#include "HepMCI/GenEvent_fwd.h"
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 namespace Athena_test {
   /** @fn bool initGaudi(ISvcLocator*& pSvcLoc, HepMC::GenParticle*& pGenParticle)

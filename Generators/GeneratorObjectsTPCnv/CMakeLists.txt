@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Control/AthAllocators
                           Control/AthenaKernel
-                          Generators/HepMCI
+                          Generators/AtlasHepMC
                           Generators/GenInterfaces )
 
 # External dependencies:

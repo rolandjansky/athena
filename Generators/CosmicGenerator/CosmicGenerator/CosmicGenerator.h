@@ -62,7 +62,7 @@ in the vertical position (the way it is positioned in the ATLAS detector)
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
-#include "HepMCI/Polarization.h"
+#include "AtlasHepMC/Polarization.h"
 
 #include <iostream>
 #include <fstream>

@@ -8,7 +8,7 @@
 #include "BeamHaloGenerator/BeamHaloGeneratorAlg.h"
 #include "BeamHaloGenerator/BeamHaloGeneratorSettings.h"
 
-#include "HepMCI/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "CLHEP/Random/RandFlat.h"
 #include <cmath>
 

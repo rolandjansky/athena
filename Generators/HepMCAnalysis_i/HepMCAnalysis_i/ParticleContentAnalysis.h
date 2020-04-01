@@ -9,8 +9,8 @@
 
 // forward declarations
 // forward declarations
-#include "HepMCI/GenEvent_fwd.h"
-#include "HepMCI/GenParticle_fwd.h"
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 class TH1D;
 

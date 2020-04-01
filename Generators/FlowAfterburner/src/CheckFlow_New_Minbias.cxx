@@ -28,9 +28,9 @@
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/GenAll.h"
 
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenParticle.h"
-#include "HepMCI/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "GeneratorObjects/HijingEventParams.h"
 

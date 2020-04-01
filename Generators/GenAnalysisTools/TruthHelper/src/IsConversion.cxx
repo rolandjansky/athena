@@ -3,8 +3,8 @@
 */
 
 #include "TruthHelper/IsConversion.h"
-#include "HepMCI/GenParticle.h"
-#include "HepMCI/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include <vector>
 
 namespace TruthHelper {

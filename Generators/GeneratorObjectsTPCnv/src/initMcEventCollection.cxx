@@ -4,9 +4,9 @@
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 
 // HepMC includes
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenParticle.h"
-#include "HepMCI/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"

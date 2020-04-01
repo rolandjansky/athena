@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthContainers
                           Control/StoreGate
-                          Generators/HepMCI  
+                          Generators/AtlasHepMC  
                           Generators/GeneratorObjects )
 
 # External dependencies:

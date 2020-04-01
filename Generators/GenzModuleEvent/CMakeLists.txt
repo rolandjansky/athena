@@ -8,7 +8,7 @@ atlas_subdir( GenzModuleEvent )
 # The dependencies of the package:
 atlas_depends_on_subdirs(
    PUBLIC
-   Generators/HepMCI)
+   Generators/AtlasHepMC)
 # External dependencies:
 find_package( HepMC )
 

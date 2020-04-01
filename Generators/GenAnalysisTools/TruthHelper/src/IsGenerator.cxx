@@ -3,7 +3,7 @@
 */
 
 #include "TruthHelper/IsGenerator.h"
-#include "HepMCI/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 namespace TruthHelper {
 

@@ -8,10 +8,10 @@
 
 #include "AthContainers/DataVector.h"
 #include "AthenaKernel/CLASS_DEF.h"
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenParticle.h"
-#include "HepMCI/GenVertex.h"
-#include "HepMCI/GenRanges.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenRanges.h"
 
 #include <iostream>
 /**

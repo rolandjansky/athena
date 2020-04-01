@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#include "HepMCI/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
