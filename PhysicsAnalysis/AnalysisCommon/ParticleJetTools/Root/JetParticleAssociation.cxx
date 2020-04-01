@@ -34,9 +34,9 @@ StatusCode JetParticleAssociation::execute() {
         return StatusCode::FAILURE;
     }
 
-    const vector<vector<ElementLink<IParticleContainer> > >* matches = match(*jets);
 
 #ifndef GENERATIONBASE
+    const vector<vector<ElementLink<IParticleContainer> > >* matches = match(*jets);
     SG::AuxElement::ConstAccessor<vector<ElementLink<TrackParticleContainer> > >
         trkacc("BTagTrackToJetAssociator");
 
