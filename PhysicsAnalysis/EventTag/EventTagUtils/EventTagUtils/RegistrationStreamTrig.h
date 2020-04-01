@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REGISTRATIONSVC_REGSTREAMDEFMETA_H
@@ -54,7 +54,6 @@ public:
 protected:
 
   ServiceHandle<StoreGateSvc> m_pOutputStore;
-  ServiceHandle<StoreGateSvc> m_pInputStore;
   StringProperty  m_LBColl_name;
   StringProperty  m_incompleteLBColl_name;
 
