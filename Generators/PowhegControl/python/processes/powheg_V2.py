@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from .powheg_base import PowhegBase
-import glob
 
 class PowhegV2(PowhegBase):
     """! Base class for PowhegBox V2 processes.
@@ -65,7 +64,19 @@ class PowhegV2(PowhegBase):
             "pwggrid*.dat",
             "pwggridinfo*.dat",
             "pwgremnupb*.dat",
-            "pwgubound*.dat"
+            "pwgubound*.dat",
+            "pwgxgrid.dat",
+        ]
+
+    @property
+    def mandatory_integration_file_names(self):
+        """! Wildcarded list of integration files that are needed for this process."""
+        return [
+            "pwgbtildeupb*.dat",
+            "pwgfullgrid*.dat",
+            "pwggrid*.dat",
+            "pwgremnupb*.dat",
+            "pwgubound*.dat",
             "pwgxgrid.dat",
         ]
 
