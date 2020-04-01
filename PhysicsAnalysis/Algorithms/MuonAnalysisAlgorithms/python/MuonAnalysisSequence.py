@@ -81,6 +81,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     seq = AnaAlgSequence( "MuonAnalysisSequence" + postfix )
 
     seq.addMetaConfigDefault ("selectionDecorNames", [])
+    seq.addMetaConfigDefault ("selectionDecorNamesOutput", [])
     seq.addMetaConfigDefault ("selectionDecorCount", [])
 
     # Set up the eta-cut on all muons prior to everything else
@@ -93,6 +94,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                 outputPropName = 'particlesOut',
                 stageName = 'selection',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [2]},
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
@@ -105,6 +107,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [3]},
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
@@ -119,29 +122,28 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
     # Set up the the pt selection
-    ptSelectionDecoration = 'selectPt' + postfix + ',as_bits'
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'MuonPtCutAlg' + postfix )
-    alg.selectionDecoration = ptSelectionDecoration
+    alg.selectionDecoration = 'selectPt' + postfix + ',as_bits'
     addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
     alg.selectionTool.minPt = 3e3
     seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorNamesOutput' : [alg.selectionDecoration] if ptSelectionOutput else [],
                               'selectionDecorCount' : [2]},
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
     # Setup the muon quality selection
-    qualitySelectionDecoration = 'good_muon' + postfix + ',as_bits'
-    badMuonVetoDecoration = 'is_bad' + postfix + ',as_char'
     alg = createAlgorithm( 'CP::MuonSelectionAlgV2',
                            'MuonSelectionAlg' + postfix )
     addPrivateTool( alg, 'selectionTool', 'CP::MuonSelectionTool' )
     alg.selectionTool.MuQuality = quality
-    alg.selectionDecoration = qualitySelectionDecoration
-    alg.badMuonVetoDecoration = badMuonVetoDecoration
+    alg.selectionDecoration = 'good_muon' + postfix + ',as_bits'
+    alg.badMuonVetoDecoration = 'is_bad' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'muons',
                 stageName = 'selection',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorNamesOutput' : [alg.selectionDecoration] if qualitySelectionOutput else [],
                               'selectionDecorCount' : [4]},
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
@@ -154,6 +156,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                     stageName = 'selection',
                     metaConfig = {'selectionDecorNames' : [alg.isolationDecoration],
+                                  'selectionDecorNamesOutput' : [alg.isolationDecoration],
                                   'selectionDecorCount' : [1]},
                     dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
         pass
@@ -175,22 +178,14 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                     dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"],
                                  'selectionNCuts' : lambda meta : meta["selectionDecorCount"]} )
 
-    # Set up the output selection
-    if shallowViewOutput or deepCopyOutput:
-        selectionDecorNamesOutput = seq.getMetaConfig ("selectionDecorNames")
-        if not ptSelectionOutput:
-            selectionDecorNamesOutput.remove(ptSelectionDecoration)
-        if not qualitySelectionOutput:
-            selectionDecorNamesOutput.remove(qualitySelectionDecoration)
-
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     if shallowViewOutput:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                             'MuonViewFromSelectionAlg' + postfix )
-        alg.selection = selectionDecorNamesOutput
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                    stageName = 'selection' )
+                    stageName = 'selection',
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNamesOutput"]} )
 
     # Set up the efficiency scale factor calculation algorithm:
     alg = createAlgorithm( 'CP::MuonEfficiencyScaleFactorAlg',
@@ -220,9 +215,9 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                                'MuonDeepCopyMaker' + postfix )
         alg.deepCopy = True
-        alg.selection = selectionDecorNamesOutput
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                    stageName = 'selection' )
+                    stageName = 'selection',
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNamesOutput"]} )
         pass
 
     # Return the sequence:
