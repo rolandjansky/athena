@@ -41,6 +41,9 @@ public:
     
   // Constructor with parameters:
   MuonCoinDataContainer(unsigned int max);
+
+  // Constructor with cache
+  MuonCoinDataContainer(EventContainers::IdentifiableCache<CollectionT> * cache);
   
   // Destructor:
   virtual ~MuonCoinDataContainer();
