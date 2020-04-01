@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TAuxVector.h 793778 2017-01-25 04:06:29Z ssnyder $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TOOLS_TAUXVECTOR_H
 #define XAODROOTACCESS_TOOLS_TAUXVECTOR_H
 
@@ -32,9 +29,6 @@ namespace xAOD {
    /// @author Scott Snyder <Scott.Snyder@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 793778 $
-   /// $Date: 2017-01-25 05:06:29 +0100 (Wed, 25 Jan 2017) $
-   ///
    class TAuxVector : public SG::IAuxTypeVector {
 
    public:
@@ -53,7 +47,7 @@ namespace xAOD {
       /// @{
 
       /// Copy the managed vector
-     virtual std::unique_ptr<SG::IAuxTypeVector> clone() const override;
+      virtual std::unique_ptr< SG::IAuxTypeVector > clone() const override;
 
       /// Return a pointer to the start of the vector's data
       virtual void* toPtr() override;

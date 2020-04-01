@@ -40,12 +40,9 @@ if help:
 
 from TileCalibBlobPython import TileCalibTools
 import sys, getopt
-#------------------------- from Misha
-#sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/ [cern.ch]')
-sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
 from AtlCoolBKLib import resolveAlias
 current = resolveAlias.getCurrent()
-next = resolveAlias.getNext()
+nexttag = resolveAlias.getNext()
 #--------------------------------
 from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("resolve_Tag")
@@ -53,7 +50,7 @@ import logging
 log.setLevel(logging.DEBUG)
 
 if instance == 'CONDBR2' :
-    log.info("alias CURRENT = %s alias NEXT = %s", current, next)
+    log.info("alias CURRENT = %s alias NEXT = %s", current, nexttag)
 
 if folder == '':
         sys.exit()

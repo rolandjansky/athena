@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBPhaseCnv.h"
@@ -17,7 +17,7 @@ TBPhase* TBPhaseCnv::createTransient() {
    static pool::Guid   p0_guid("C044C9BE-E371-4AC3-95ED-CCA05984EDE4");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {
       // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr< TBPhase_p1 > col_vect( poolReadObject< TBPhase_p1 >() );
+      std::unique_ptr< TBPhase_p1 > col_vect( poolReadObject< TBPhase_p1 >() );
       return m_TPConverter.createTransient( col_vect.get(), log );
    }
    else if( compareClassGuid(p0_guid) ) {

@@ -318,9 +318,15 @@ Bugs/stuff missing
      
  
 """
+from __future__ import print_function
 
 
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
 import sys
 import string
 import tokenize
@@ -330,7 +336,7 @@ import exceptions
 import ROOT
 import cppyy
 import types
-from StringIO import StringIO
+from io import StringIO
 from PyAnalysisUtils.draw_obj import draw_obj, get_canvas
 
 
@@ -338,7 +344,7 @@ try:
     ScatterH2 = ROOT.RootUtils.ScatterH2
 except AttributeError: #pragma: NO COVER
     ScatterH2 = ROOT.TH2F #pragma: NO COVER
-    print "WARNING: RootUtils::ScatterH2 not available; using TH2F instead" #pragma: NO COVER
+    print("WARNING: RootUtils::ScatterH2 not available; using TH2F instead") #pragma: NO COVER
 
 
 try:
@@ -506,7 +512,7 @@ def _split_outer (haystack, needle):
     return out
 
 
-class TreeLoopWrapper:
+class TreeLoopWrapper(object):
     """Wrapper for TTree, supplying a loop method.
 
     This class wraps a TTree class and provides a loop method
@@ -518,18 +524,18 @@ class TreeLoopWrapper:
         self._tree = tree
         return
 
-    def loop (self, f, looplo=0, loophi=sys.maxint):
+    def loop (self, f, looplo=0, loophi=sys.maxsize):
         """Call f(i,tree) on rows [looplo, loophi)"""
         tree = self._tree
         loophi = min (loophi, tree.GetEntries())
         getentry = tree.GetEntry
-        for i in xrange(looplo, loophi):
+        for i in range(looplo, loophi):
             getentry(i)
             f(i, tree)
         return
     
 
-class AthenaLoopWrapper:
+class AthenaLoopWrapper(object):
     """Wrapper for the Athena event loop, supplying a loop method.
 
     This class wraps an application manager object and provides a loop method
@@ -545,11 +551,11 @@ class AthenaLoopWrapper:
         return                                             #pragma: NO COVER
 
     
-    def loop (self, f, looplo=0, loophi=sys.maxint):
+    def loop (self, f, looplo=0, loophi=sys.maxsize):
         """Call f(i,tree) on rows [looplo, loophi)"""
         loophi = min (loophi, self._app.size())            #pragma: NO COVER
         getentry = self._app.seekEvent                     #pragma: NO COVER
-        for i in xrange(looplo, loophi):                   #pragma: NO COVER
+        for i in range(looplo, loophi):                   #pragma: NO COVER
             getentry(i)                                    #pragma: NO COVER
             f(i, self)                                     #pragma: NO COVER
         return                                             #pragma: NO COVER
@@ -560,7 +566,7 @@ class AthenaLoopWrapper:
         raise AttributeError                               #pragma: NO COVER
 
 
-class _Loopvar:
+class _Loopvar(object):
     """Holds information about a dummy loop variable.
 
     Attributes:
@@ -600,7 +606,7 @@ class _Loopvar:
         return list (self.ids)
 
 
-class Draw_Cmd:
+class Draw_Cmd(object):
     """Holds information used to implement a draw/scan/loop command.
 
     Pass the draw string to the constructor.  See the file-level comments
@@ -641,7 +647,7 @@ class Draw_Cmd:
 
         try:
             self._tupleparse (s)
-        except Exception, e:
+        except Exception as e:
             import traceback
             self.errstr = str(e)
             self.excstr = traceback.format_exc()
@@ -731,7 +737,7 @@ class Draw_Cmd:
         Fills self.tuple, self.lo, self.hi.
         """
         lo = 0
-        hi = sys.maxint
+        hi = sys.maxsize
         (tuple, tail) = _find_outer (tuple, '[')
         if tail:
             g = copy.copy (_globals)
@@ -934,7 +940,7 @@ class Draw_Cmd:
         sel = self.sel
         if self._limdict:
             limsel = string.join (["len(%s)>=%d" % (self._iddict[p[0]], p[1])
-                                   for p in self._limdict.items()],
+                                   for p in list(self._limdict.items())],
                                   " and ")
             if not sel:
                 sel = limsel
@@ -942,11 +948,11 @@ class Draw_Cmd:
                 sel = limsel + " and (" + sel + ")"
 
         ftext = "def _loopfunc(_i, %s%s):\n" % (_evtvar, extargs)
-        for (id1, id2) in self._iddict.items():
+        for (id1, id2) in list(self._iddict.items()):
             ftext += "  %s = %s.%s\n" % (id2, _evtvar, id1)
         indent = 2
 
-        for (i,l) in self._loopdict.items():
+        for (i,l) in list(self._loopdict.items()):
             ids = l.get_ids()
             assert (not not ids)
             if len(ids) == 1:
@@ -972,12 +978,12 @@ class Draw_Cmd:
         ftext += ' '*indent + "%s\n" % payload
 
         if _debug:
-            print ftext
+            print(ftext)
         
         return ftext
 
 
-class _Bins:
+class _Bins(object):
     """Holds the results of _get_bins.  Defined attributes:
 
        nbins
@@ -1135,7 +1141,7 @@ def draw (arg):
     # Initial parsing of the arguments.
     c = Draw_Cmd (arg)
     if c.errstr:
-        print c.errstr
+        print(c.errstr)
         return False
 
     # Construct the expression to use to fill the histogram.
@@ -1174,7 +1180,7 @@ def draw (arg):
     g = copy.copy (_globals)
     g['_hfill'] = hist.Fill
     ftext = c._make_func (payload, ', _hfill = _hfill')
-    exec ftext in g
+    exec(ftext, g)
 
     # Execute the loop over the data.
     c.tuple_o.loop (g['_loopfunc'], c.lo, c.hi)
@@ -1197,11 +1203,11 @@ def _scan_print (i, *args):
     
     s = '%6d' % i
     for a in args:
-        if type(a) == types.IntType or type(a) == types.LongType:
+        if type(a) == int or type(a) == int:
             s += ' %8d' % a
         else:
             s += ' %8g' % a
-    print s
+    print(s)
     return
 
 
@@ -1215,7 +1221,7 @@ def scan (arg):
     # Initial parsing of the arguments.
     c = Draw_Cmd (arg)
     if c.errstr:
-        print c.errstr
+        print(c.errstr)
         return False
 
     payload = "_print (_i, %s)" % \
@@ -1226,7 +1232,7 @@ def scan (arg):
     g = copy.copy (_globals)
     g['_print'] = _scan_print
     ftext = c._make_func (payload, ', _print = _print')
-    exec ftext in g
+    exec(ftext, g)
 
     # Execute the loop over the data.
     c.tuple_o.loop (g['_loopfunc'], c.lo, c.hi)
@@ -1244,7 +1250,7 @@ def loop (arg):
     # Initial parsing of the arguments.
     c = Draw_Cmd (arg)
     if c.errstr:
-        print c.errstr
+        print(c.errstr)
         return False
 
     payload = "(%s,)" % ','.join (c.exprs)
@@ -1253,7 +1259,7 @@ def loop (arg):
     # It will be defined as _loopfunc in g.
     g = copy.copy (_globals)
     ftext = c._make_func (payload)
-    exec ftext in g
+    exec(ftext, g)
 
     # Execute the loop over the data.
     c.tuple_o.loop (g['_loopfunc'], c.lo, c.hi)
@@ -1303,7 +1309,7 @@ def cmd (s):
 # Hook holding the original value of the exception hook.
 # But be careful not to overwrite this if this file is reread.
 #
-if not globals().has_key ('_orig_ehook'):
+if '_orig_ehook' not in globals():
     _orig_ehook = None
 
 

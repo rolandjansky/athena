@@ -1,16 +1,14 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TDestructorRegistry.h 599851 2014-06-02 12:32:51Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TOOLS_TDESTRUCTORREGISTRY_H
 #define XAODROOTACCESS_TOOLS_TDESTRUCTORREGISTRY_H
 
 // System include(s):
 #include <map>
 #include <shared_mutex>
+#include <memory>
 
 // Forward declaration(s):
 namespace std {
@@ -30,9 +28,6 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 599851 $
-   /// $Date: 2014-06-02 14:32:51 +0200 (Mon, 02 Jun 2014) $
-   ///
    class TDestructorRegistry {
 
    public:
@@ -51,23 +46,17 @@ namespace xAOD {
       /// Hide the copy-constructor
       TDestructorRegistry( const TDestructorRegistry& ) = delete;
 
-      /// Type used internally to clean up memory at the end of the process
-      class TDestructorHolder {
-      public:
-         /// Constructor with a new TVirtualDestructor pointer
-         TDestructorHolder( TVirtualDestructor* d = 0 );
-         /// Destructor
-         ~TDestructorHolder();
-
-         /// The managed object
-         TVirtualDestructor* m_destructor;
-      };
-
       /// Type of the internal map
-      typedef std::map< const std::type_info*, TDestructorHolder > Map_t;
+      typedef std::map< const std::type_info*,
+                        std::unique_ptr< TVirtualDestructor > > Map_t;
       /// Internal map of known destructor objects
       Map_t m_types;
       /// Mutex for the destructor map
+      ///
+      /// This type is used because the registry is filled mostly at the very
+      /// beginning of a job, and is just read from there on. For the reading
+      /// the clients don't need exclusive locks on the store.
+      ///
       mutable std::shared_timed_mutex m_mutex;
 
    }; // class TDestructorRegistry

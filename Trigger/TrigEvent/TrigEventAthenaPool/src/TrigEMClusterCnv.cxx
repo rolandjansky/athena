@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEMClusterCnv.h"
@@ -47,13 +47,13 @@ TrigEMCluster* TrigEMClusterCnv::createTransient()
   if( compareClassGuid(tlp2_guid) ) {
     
     mlog << MSG::DEBUG << "TrigEMClusterCnv::reading tlp2 persistent object" << endmsg;
-    std::auto_ptr< TrigEMCluster_tlp2 >   col_vect( this->poolReadObject< TrigEMCluster_tlp2 >() );
+    std::unique_ptr< TrigEMCluster_tlp2 >   col_vect( this->poolReadObject< TrigEMCluster_tlp2 >() );
     trans_cont = m_impl->m_TPConverter2.createTransient( col_vect.get(), mlog );
 
   } else if( compareClassGuid(tlp1_guid) ) {
     
     mlog << MSG::DEBUG << "TrigEMClusterCnv::reading tlp1 persistent object" << endmsg;
-    std::auto_ptr< TrigEMCluster_tlp1 >   col_vect( this->poolReadObject< TrigEMCluster_tlp1 >() );
+    std::unique_ptr< TrigEMCluster_tlp1 >   col_vect( this->poolReadObject< TrigEMCluster_tlp1 >() );
     trans_cont = m_impl->m_TPConverter.createTransient( col_vect.get(), mlog );
 
   }

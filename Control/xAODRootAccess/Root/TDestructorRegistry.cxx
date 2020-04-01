@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TDestructorRegistry.cxx 649954 2015-02-26 13:28:38Z krasznaa $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // ROOT include(s):
 #include <TError.h>
@@ -31,7 +27,7 @@ namespace xAOD {
       // Look for this type:
       Map_t::const_iterator itr = m_types.find( &ti );
       if( itr != m_types.end() ) {
-         return itr->second.m_destructor;
+         return itr->second.get();
       }
 
       // We didn't find it:
@@ -44,18 +40,6 @@ namespace xAOD {
    TDestructorRegistry::TDestructorRegistry()
       : m_types(), m_mutex() {
 
-   }
-
-   TDestructorRegistry::TDestructorHolder::
-   TDestructorHolder( TVirtualDestructor* d )
-      : m_destructor( d ) {
-
-   }
-
-   TDestructorRegistry::TDestructorHolder::
-   ~TDestructorHolder() {
-
-      if( m_destructor ) delete m_destructor;
    }
 
 } // namespace xAOD

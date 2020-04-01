@@ -3,6 +3,7 @@
 */
 
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "tauRec/TauProcessorAlg.h"
 
@@ -23,6 +24,8 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
+using Gaudi::Units::GeV;
+
 //-----------------------------------------------------------------------------
 // Constructor
 //-----------------------------------------------------------------------------
@@ -31,7 +34,7 @@ TauProcessorAlg::TauProcessorAlg(const std::string &name,
 AthAlgorithm(name, pSvcLocator),
 m_tools(this), //make tools private
 m_maxEta(2.5),
-m_minPt(10000),
+m_minPt(10 * GeV),
 m_cellMakerTool("",this)
 {
   declareProperty("Tools", m_tools);
@@ -60,6 +63,7 @@ StatusCode TauProcessorAlg::initialize() {
     ATH_CHECK( m_tauPi0CellOutputContainer.initialize() );
     ATH_CHECK( m_pixelDetEleCollKey.initialize() ); 
     ATH_CHECK( m_SCTDetEleCollKey.initialize() ); 
+    ATH_CHECK( m_trtDetEleContKey.initialize() ); 
 
     ATH_CHECK( m_cellMakerTool.retrieve() );
 

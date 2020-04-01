@@ -26,7 +26,7 @@ def style():
     s.SetOptStat (1110)
 
     # title size
-    s.SetOptFit(0111)
+    s.SetOptFit(0o111)
     s.SetTitleFont(42)
     s.SetTitleH(0.09)
     s.SetTitleX(0.1)

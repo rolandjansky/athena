@@ -42,10 +42,60 @@ StatusCode SCTErrMonAlg::initialize() {
     m_geo[i] = moduleGeo;
   }
 
+  // Fill existing wafers
+  m_indicesVector.reserve(maxHash);
+  SCT_ID::const_id_iterator waferIterator{m_pSCTHelper->wafer_begin()};
+  SCT_ID::const_id_iterator waferEnd{m_pSCTHelper->wafer_end()};
+  for (; waferIterator not_eq waferEnd; ++waferIterator) {
+    const Identifier waferId{*waferIterator};
+    int layer{m_pSCTHelper->layer_disk(waferId)};
+    int side{m_pSCTHelper->side(waferId)};
+    int barrel_ec{m_pSCTHelper->barrel_ec(waferId)};
+    int ieta{m_pSCTHelper->eta_module(waferId)};
+    int iphi{m_pSCTHelper->phi_module(waferId)};
+    layer = layer * 2 + side;
+    int regionIndex{GENERAL_INDEX};
+    if ((barrel_ec == BARREL) and (layer >= 0) and (layer < N_BARRELSx2)) regionIndex = BARREL_INDEX;
+    else if (barrel_ec == ENDCAP_A) regionIndex = ENDCAP_A_INDEX;
+    else if (barrel_ec == ENDCAP_C) regionIndex = ENDCAP_C_INDEX;
+    else continue;
+    m_indicesVector.push_back(indices_t{regionIndex, layer, ieta, iphi});
+  }
+
   return AthMonitorAlgorithm::initialize();
 }
 
 StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
+  SG::ReadHandle<xAOD::EventInfo> pEvent{m_EventInfoKey, ctx};
+  if (not pEvent.isValid()) {
+    ATH_MSG_WARNING("Could not retrieve event info!");
+    return StatusCode::SUCCESS;
+  }
+
+  bool sctFlag{false};
+  if (pEvent->errorState(xAOD::EventInfo::SCT) == xAOD::EventInfo::Error) {
+    sctFlag = true;
+  }
+  /// Fill NumberOfSCTFlagErrorsVsLB, NumberOfEventsVsLB and FractionOfSCTFlagErrorsPerLB
+  /// under /SCT/GENERAL/Conf/ ///
+  auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
+  auto is1DAcc{Monitored::Scalar<bool>("is1D", true)};
+  auto sctFlagAcc{Monitored::Scalar<bool>("sctFlag", sctFlag)};
+  fill("SCTErrMonitor", lumiBlockAcc, is1DAcc, sctFlagAcc);
+
+  if (sctFlag) {
+    return StatusCode::SUCCESS;
+  }
+
+  // The numbers of disabled modules, links, strips do not change during a run.
+  if (m_isFirstConfigurationDetails) {
+    std::lock_guard{m_mutex};
+    if (m_isFirstConfigurationDetails) {
+      ATH_CHECK(fillConfigurationDetails(ctx));
+      m_isFirstConfigurationDetails = false;
+    }
+  }
+
   ATH_CHECK(fillByteStreamErrors(ctx));
 
   /// Fill /SCT/GENERAL/Conf/SCTConfOutM ///
@@ -71,15 +121,83 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
 }
 
 StatusCode
-SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
-  //--- Get event information
-  SG::ReadHandle<xAOD::EventInfo> pEvent{m_EventInfoKey, ctx};
-  if (not pEvent.isValid()) {
-    ATH_MSG_ERROR("Could not retrieve event info!");
-    return StatusCode::RECOVERABLE;
+SCTErrMonAlg::fillConfigurationDetails(const EventContext& ctx) const {
+  ATH_MSG_DEBUG("Inside fillConfigurationDetails()");
+  unsigned int nBadMods{static_cast<unsigned int>(m_configurationTool->badModules()->size())}; // bad modules
+  const map<IdentifierHash, pair<bool, bool>>* badLinks{m_configurationTool->badLinks(ctx)}; // bad links
+  unsigned int nBadLink0{0}, nBadLink1{0}, nBadLinkBoth{0};
+  for (const pair<IdentifierHash, pair<bool, bool>>& link: *badLinks) {
+    pair<bool, bool> status{link.second};
+    if ((status.first == false) and (status.second == true)) {
+      ++nBadLink0;
+    }
+    if ((status.first == true) and (status.second == false)) {
+      ++nBadLink1;
+    }
+    if ((status.first == false) and (status.second == false)) {
+      ++nBadLinkBoth;
+    }
   }
 
-  if (pEvent->errorState(xAOD::EventInfo::SCT) == xAOD::EventInfo::Error) {
+  const map<Identifier, unsigned int>* badChips{m_configurationTool->badChips(ctx)}; // bad chips
+  unsigned int nBadChips{0};
+  for (const pair<Identifier, unsigned int>& chip : *badChips) {
+    unsigned int status{chip.second};
+    for (unsigned int i{0}; i < CHIPS_PER_MODULE; i++) {
+      nBadChips += ((status & (1 << i)) == 0 ? 0 : 1);
+    }
+  }
+
+  set<Identifier> badStripsAll; // bad strips
+  m_configurationTool->badStrips(badStripsAll, ctx);
+  unsigned int nBadStrips{static_cast<unsigned int>(badStripsAll.size())};
+
+  set<Identifier> badStripsExclusive; // bad strips w/o bad modules and chips
+  m_configurationTool->badStrips(badStripsExclusive, ctx, true, true);
+  int nBadStripsExclusive{static_cast<int>(badStripsExclusive.size())};
+  int nBadStripsExclusiveBEC[N_REGIONS] = {
+    0, 0, 0
+  };
+  for (const Identifier& strip: badStripsExclusive) {
+    int bec{m_pSCTHelper->barrel_ec(strip)};
+    nBadStripsExclusiveBEC[bec2Index(bec)] += 1;
+  }
+
+  /// Fill /SCT/GENERAL/Conf/SCTConfDetails ///
+  auto detailedConfBinAcc{Monitored::Scalar<int>("detailedConfBin")};
+  auto nBadAcc{Monitored::Scalar<double>("nBad")};
+  for (unsigned int i{0}; i<ConfbinsDetailed; i++) {
+    detailedConfBinAcc = i;
+    if (i==0) nBadAcc = nBadMods;
+    else if (i==1) nBadAcc = nBadLink0;
+    else if (i==2) nBadAcc = nBadLink1;
+    else if (i==3) nBadAcc = nBadChips;
+    else if (i==4) nBadAcc = static_cast<double>(nBadStripsExclusive) / 100.;
+    fill("SCTErrMonitor", detailedConfBinAcc, nBadAcc);
+  }
+
+  ATH_MSG_DEBUG("-----------------------------------------------------------------------");
+  ATH_MSG_DEBUG("Number of bad modules                          = " << nBadMods);
+  ATH_MSG_DEBUG("Number of bad link 0                           = " << nBadLink0);
+  ATH_MSG_DEBUG("Number of bad link 1                           = " << nBadLink1);
+  ATH_MSG_DEBUG("Number of bad link both                        = " << nBadLinkBoth);
+  ATH_MSG_DEBUG("Number of bad chips                            = " << nBadChips);
+  ATH_MSG_DEBUG("Number of bad strips                           = " << nBadStrips);
+  ATH_MSG_DEBUG("Number of bad strips exclusive                 = " << nBadStripsExclusive);
+  ATH_MSG_DEBUG("Number of bad strips exclusive (ECC, B, ECA)   = "
+                << nBadStripsExclusiveBEC[ENDCAP_C_INDEX] << ", "
+                << nBadStripsExclusiveBEC[BARREL_INDEX] << ", "
+                << nBadStripsExclusiveBEC[ENDCAP_A_INDEX] << ", ");
+  ATH_MSG_DEBUG("-----------------------------------------------------------------------");
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode
+SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
+  SG::ReadHandle<xAOD::EventInfo> pEvent{m_EventInfoKey, ctx};
+  if (not pEvent.isValid()) {
+    ATH_MSG_WARNING("Could not retrieve event info!");
     return StatusCode::SUCCESS;
   }
 
@@ -94,11 +212,31 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     fill("SCTErrMonitor", lumiBlockAcc, nBSErrorsAcc);
   }
 
+  categoryErrorMap_t categoryErrorMap;
   int total_errors{0};
   for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
-    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), errType);
+    total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), errType, categoryErrorMap);
   }
+  /// Fill /SCT/GENERAL/errors/SCT_LinksWith*VsLbs ///
+  for (int errCate{0}; errCate < CategoryErrors::N_ERRCATEGORY; ++errCate) {
+    auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
+    auto nCategoryErrorsAcc{Monitored::Scalar<int>("n_"+CategoryErrorsNames[errCate],
+                                                   categoryErrorMap.count(errCate))};
+    fill("SCTErrMonitor", lumiBlockAcc, nCategoryErrorsAcc);
 
+    for (const indices_t& indices : m_indicesVector) {
+      const int region{indices[REGIONINDEX]};
+      const int layer{indices[LAYERINDEX]};
+      const int eta{indices[ETAINDEX]};
+      const int phi{indices[PHIINDEX]};
+      auto etaAcc{Monitored::Scalar<int>("eta", eta)};
+      auto phiAcc{Monitored::Scalar<int>("phi", phi)};
+      auto hasErrorAcc{Monitored::Scalar<bool>("hasError_"+CategoryErrorsNames[errCate]+"_"+subDetNameShort[region].Data()+"_"+to_string(layer/2)+"_"+to_string(layer%2),
+                                               categoryErrorMap[errCate][region][layer][eta][phi])};
+      fill("SCTErrMonitor", etaAcc, phiAcc, hasErrorAcc);
+    }
+  }
+  
   if (m_coverageCheck) {
     ATH_MSG_INFO("Detector Coverage calculation starts" );
 
@@ -162,10 +300,11 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
 
 int
 SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
-                                         int err_type) const {
-
+                                         int err_type,
+                                         categoryErrorMap_t& categoryErrorMap) const {
   //--- Check categories of the BS error
-  bool b_category[CategoryErrors::N_ERRCATEGORY];
+  std::array<bool, CategoryErrors::N_ERRCATEGORY> b_category;
+  b_category.fill(false);
 
   b_category[CategoryErrors::MASKEDLINKALL] =
     (err_type == SCT_ByteStreamErrors::MaskedLink) or (err_type == SCT_ByteStreamErrors::MaskedROD);
@@ -217,10 +356,12 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
     if (not hash.is_valid()) continue;
 
     //--- FIll module information with BS error
-    Identifier fitId{m_pSCTHelper->wafer_id(hash)};
+    const Identifier fitId{m_pSCTHelper->wafer_id(hash)};
     int layer{m_pSCTHelper->layer_disk(fitId)};
     int side{m_pSCTHelper->side(fitId)};
     int barrel_ec{m_pSCTHelper->barrel_ec(fitId)};
+    int ieta{m_pSCTHelper->eta_module(fitId)};
+    int iphi{m_pSCTHelper->phi_module(fitId)};
     layer = layer * 2 + side;
     // barrel_ec = {ENDCAP_C=-2, BARREL=0, ENDCAP_A=2}
     // -> regionIndex = {ENDCAP_C_INDEX=0, BARREL_INDEX=1, ENDCAP_A_INDEX=2, GENERAL_INDEX=3}
@@ -237,6 +378,12 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
     }
 
     if (m_doPerLumiErrors) numErrorsPerLumi[regionIndex][layer]++;
+
+    for (int errCate{0}; errCate < CategoryErrors::N_ERRCATEGORY; ++errCate) {
+      if (b_category[errCate] and regionIndex!=GENERAL_INDEX) {
+        categoryErrorMap[errCate][regionIndex][layer][ieta][iphi] = true;
+      }
+    }
   }
 
   /// Fill /SCT/GENERAL/errors/Masked Links ///

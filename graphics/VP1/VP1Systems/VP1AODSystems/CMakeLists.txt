@@ -48,8 +48,7 @@ if(NOT BUILDVP1LIGHT)
        PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives EventPrimitives
        xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver TrkExInterfaces
        VP1HEPVis VP1Utils Qt5::Gui )
-endif()
-if(BUILDVP1LIGHT)
+else()
     # Component(s) in the package:
     atlas_add_library( VP1AODSystems
        src/*.h VP1AODSystems/*.h src/*cxx
@@ -59,7 +58,7 @@ if(BUILDVP1LIGHT)
        Qt5::Core Qt5::Gui
        PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives EventPrimitives
        xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver xAODEventInfo
-       VP1HEPVis VP1Utils Qt5::Gui )
+       VP1HEPVis VP1Utils xAODRootAccess Qt5::Gui )
 endif()
 
 # Install files from the package:

@@ -16,6 +16,9 @@
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 
+#include <array>
+#include <atomic>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -32,13 +35,50 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   // First pair is eta and second pair is phi.
   // First element of pair is minimum second is maximum.
   typedef std::pair<std::pair<double, double>, std::pair<double, double>> moduleGeo_t;
+  class categoryErrorMap_t : public std::array<std::array<std::array<std::array<std::array<bool,
+             SCT_Monitoring::N_PHI_BINS>, SCT_Monitoring::N_ETA_BINS>, SCT_Monitoring::N_ENDCAPSx2>,
+             SCT_Monitoring::N_REGIONS>, SCT_Monitoring::N_ERRCATEGORY> {
+    // N_PHI_BINS=56 > N_PHI_BINS_EC=52, N_ETA_BINS=13 > N_ETA_BINS_EC=3, N_ENDCAPSx2=18 > N_BARRELSx2=8 defined in SCT_MonitoringNumbers.h
+  public:
+    categoryErrorMap_t() {
+      for (int iCat{0}; iCat<SCT_Monitoring::N_ERRCATEGORY; iCat++) {
+        for (int iReg{0}; iReg<SCT_Monitoring::N_REGIONS; iReg++) {
+          for (int iLay{0}; iLay<SCT_Monitoring::N_ENDCAPSx2; iLay++) {
+            for (int iEta{0}; iEta<SCT_Monitoring::N_ETA_BINS; iEta++) {
+              (*this)[iCat][iReg][iLay][iEta].fill(false);
+            }
+          }
+        }
+      }
+    };
+    int count(int errCate) {
+      int cnt{0};
+      for (int iReg{0}; iReg<SCT_Monitoring::N_REGIONS; iReg++) {
+        for (int iLay{0}; iLay<SCT_Monitoring::N_ENDCAPSx2; iLay++) {
+          for (int iEta{0}; iEta<SCT_Monitoring::N_ETA_BINS; iEta++) {
+            for (int iPhi{0}; iPhi<SCT_Monitoring::N_PHI_BINS; iPhi++) {
+              if ((*this)[errCate][iReg][iLay][iEta][iPhi]) cnt++;
+            }
+          }
+        }
+      }
+      return cnt;
+    }
+  };
+  enum {REGIONINDEX, LAYERINDEX, ETAINDEX, PHIINDEX, NINDICES};
+  typedef std::array<int, NINDICES> indices_t;
+  typedef std::vector<indices_t> indicesVector_t;
 
   static const unsigned int s_nBinsEta;
   static const double s_rangeEta;
   static const unsigned int s_nBinsPhi;
   static const double s_wafersThreshold;
 
+  indicesVector_t m_indicesVector{};
   std::vector<moduleGeo_t> m_geo{};
+
+  mutable std::atomic_bool m_isFirstConfigurationDetails{true};
+  mutable std::mutex m_mutex{};
 
   BooleanProperty m_makeConfHisto{this, "MakeConfHisto", true};
   BooleanProperty m_coverageCheck{this, "CoverageCheck", true};
@@ -53,10 +93,12 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   const SCT_ID* m_pSCTHelper{nullptr};
 
   /// Used in fillHistograms()
+  StatusCode fillConfigurationDetails(const EventContext& ctx) const;
   StatusCode fillByteStreamErrors(const EventContext& ctx) const;
   /// Used in fillByteStreamErrors()
   int fillByteStreamErrorsHelper(const std::set<IdentifierHash>& errors,
-                                 int err_type) const;
+                                 int err_type,
+                                 categoryErrorMap_t& categoryErrorMap) const;
   void numByteStreamErrors(const std::set<IdentifierHash>& errors, int& ntot) const;
   bool disabledSCT(std::set<IdentifierHash>& sctHashDisabled) const;
   bool errorSCT(std::set<IdentifierHash>& sctHashBadLinkError,

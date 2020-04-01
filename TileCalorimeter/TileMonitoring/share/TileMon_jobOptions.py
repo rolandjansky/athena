@@ -118,12 +118,24 @@ if tileESDMon:
 
 
     if (jobproperties.Beam.beamType() == 'collisions'):
+        from JetRec.JetRecFlags import jetFlags
         jetPtMin = 20000.
+        jetContainer = 'AntiKt4EMTopoJets'
+        doJetCleaning = jetFlags.useTracks()
+        doEventCleaning = True
+
+        if DQMonFlags.monManDataType == 'heavyioncollisions':
+            if not rec.doHIP():
+                jetContainer = 'AntiKt4HIJets'
+            doEventCleaning = False
+            doJetCleaning   = False
+
+
         TileJetMonTool = CfgMgr.TileJetMonTool(name                = 'TileJetMonTool'
                                          , OutputLevel       = INFO
                                          , jetPtMin          = jetPtMin
                                          , jetEtaMax         = 1.6
-                                         , jetCollectionName = 'AntiKt4EMTopoJets'
+                                         , jetCollectionName = jetContainer
                                          , do_1dim_histos    = False
                                          , do_2dim_histos    = False
                                          , do_enediff_histos = False
@@ -131,18 +143,18 @@ if tileESDMon:
                                          , energyChanMax     = 4000 # Default: 4000
                                          , enediff_threshold = 2000
                                          , do_energy_profiles= True
-                                         , do_event_cleaning = True
-                                         , do_jet_cleaning   = False
+                                         , do_event_cleaning = doEventCleaning
+                                         , do_jet_cleaning   = doJetCleaning
                                          # , useJVTTool        = jvt
                                          # , useJetCleaning    = cleaning
                                          , jet_JVT_threshold = 0.59
                                          , jet_JVT_pTmax     = 120000 # MeV
                                          , histoPathBase     = "/Tile/Jet")
 
-        from JetRec.JetRecFlags import jetFlags
-        if jetFlags.useTracks():
+        if doJetCleaning:
             jet_tracking_eta_limit = 2.4
             jvt = CfgMgr.JetVertexTaggerTool('JVT')
+            jvt.JetContainer = jetContainer
             ToolSvc += jvt
             cleaning = CfgMgr.JetCleaningTool("MyCleaningTool")
             cleaning.CutLevel = "LooseBad"
@@ -156,18 +168,12 @@ if tileESDMon:
             ecTool.OrDecorator     = "passOR"
             ecTool.CleaningLevel   = cleaning.CutLevel
             ToolSvc += ecTool
-            TileJetMonTool.do_jet_cleaning        = True
             TileJetMonTool.useJVTTool             = jvt
             TileJetMonTool.useJetCleaning         = cleaning
             TileJetMonTool.useEventCleaning       = ecTool
             TileJetMonTool.jet_tracking_eta_limit = jet_tracking_eta_limit
 
-        if DQMonFlags.monManDataType == 'heavyioncollisions':
-            if not rec.doHIP(): 
-                TileJetMonTool.jetCollectionName = 'AntiKt4HIJets'
-            TileJetMonTool.do_event_cleaning = False
-            TileJetMonTool.do_jet_cleaning   = False
-        
+
         ManagedAthenaTileMon.AthenaMonTools += [ TileJetMonTool ]
 
     if (not 'doTileTMDBRawChannelMon' in dir() or doTileTMDBRawChannelMon)  and (DQMonFlags.useTrigger() and rec.doTrigger()):

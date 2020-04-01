@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TextFileDBReader.h"
@@ -190,17 +190,17 @@ TextFileDBReader::add(const std::string & key, const std::string & value)
   if (m_table.find(key) != m_table.end()) {
     std::cout << "WARNING! Overwriting exist entry with key: " << key << std::endl;
   } 
-  m_table[key] = Data(value,m_currentSection);
+  m_table.try_emplace (key, value, m_currentSection);
 }
 
 bool 
 TextFileDBReader::find(const std::string & key, std::string & result) const
 {
-  std::map<std::string,Data>::const_iterator iter = m_table.find(key);
+  std::unordered_map<std::string,Data>::const_iterator iter = m_table.find(key);
   if (iter != m_table.end()) {
     result = iter->second.value;
-    m_logger[key]++;
-    return true;
+    (iter->second).flag=true;
+      return true;
   } else {
     result = "";
     return false;
@@ -214,11 +214,11 @@ TextFileDBReader::printParameters(const std::string & section) const
   std::cout << std::left;
   int sectionNum = 0;
   if (!section.empty()) {
-    std::map<std::string,int>::const_iterator iterSect = m_sections.find(section);
+    std::unordered_map<std::string,int>::const_iterator iterSect = m_sections.find(section);
     if (iterSect != m_sections.end()) sectionNum = iterSect->second;
     // If not found then prints those in unnamed section.(ie sectionNum = 0)
   } 
-  for (std::map<std::string,Data>::const_iterator iter = m_table.begin();
+  for (std::unordered_map<std::string,Data>::const_iterator iter = m_table.begin();
        iter != m_table.end();
        ++iter) {
     if (section.empty() || iter->second.section == sectionNum) {
@@ -238,14 +238,14 @@ TextFileDBReader::printNotUsed(const std::string & section) const
   bool allused = true;
   int sectionNum = 0;
   if (!section.empty()) {
-    std::map<std::string,int>::const_iterator iterSect = m_sections.find(section);
+    std::unordered_map<std::string,int>::const_iterator iterSect = m_sections.find(section);
     if (iterSect != m_sections.end()) sectionNum = iterSect->second;
     // If not found then considers those in unnamed section (ie sectionNum = 0)
   }
-  for (std::map<std::string,Data>::const_iterator iter = m_table.begin();
+  for (std::unordered_map<std::string,Data>::const_iterator iter = m_table.begin();
        iter != m_table.end();
        ++iter) {
-    if ((section.empty() || iter->second.section == sectionNum) && m_logger.find(iter->first) == m_logger.end()) {
+    if ((section.empty() || iter->second.section == sectionNum) && (!(iter->second.flag))) {
       std::cout << std::setw(35) << iter->first << " " << iter->second.value << std::endl;
       allused = false;
     }

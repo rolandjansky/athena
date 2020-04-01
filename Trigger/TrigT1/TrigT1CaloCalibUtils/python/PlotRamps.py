@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from ROOT import *
 import sys
@@ -15,12 +17,12 @@ def passesSelection(gain,offset):
 def PlotRamps(input_file_name=None):
 
   if input_file_name == None:
-    print "No input file name, assuming graphs.root"
+    print ("No input file name, assuming graphs.root")
     input_file_name = "graphs.root"
 
   gStyle.SetPalette(1)
   gStyle.SetOptStat(111111)
-  gStyle.SetOptFit(0011)
+  gStyle.SetOptFit(11)
   gStyle.SetCanvasColor(10)
   gStyle.SetFrameFillColor(10)
   gStyle.SetTitleFillColor(0)
@@ -57,7 +59,7 @@ def PlotRamps(input_file_name=None):
     histo= line[2]
     my_name = histo[2:-2]
     list_of_histos.append(my_name)
-#    print my_name
+#    print (my_name)
     
 #  list_of_histos.sort()
 
@@ -66,7 +68,7 @@ def PlotRamps(input_file_name=None):
   list_of_histos = [hex(iii) for iii in list_of_histos_dec]
 
 #  for iii in list_of_histos:
-#    print iii
+#    print (iii)
 
   page_ppm = list_of_histos[0][:-4]
 
@@ -77,7 +79,7 @@ def PlotRamps(input_file_name=None):
     
     if (nPlot % 64) == 0 or  (not graph_ppm == page_ppm):         # end of page
       if (nPage==0) and (nPlot==0):
-        print "start plotting"
+        print ("start plotting")
       else:	
         c1.cd(0)
         ppm_number=page_ppm[-1]
@@ -92,7 +94,7 @@ def PlotRamps(input_file_name=None):
         ltit.SetBorderSize(0);
         ltit.Draw()     
 
-#        print title, "  ", ppm_crate, " ", ppm_number 
+#        print (title, "  ", ppm_crate, " ", ppm_number )
         c1.Print("rampPlots.ps")
         c1.Clear()
         c1.Divide(8,9)            
@@ -149,11 +151,11 @@ def PlotRamps(input_file_name=None):
 
   c1.Print("rampPlots.ps]")
   os.system("ps2pdf rampPlots.ps")
-  print "Finished!"
+  print ("Finished!")
 
 if __name__ == "__main__":
 
-  print "Starting PlotRamps"
+  print ("Starting PlotRamps")
 
   parser = OptionParser()
   parser.add_option("-f","--InputFile",action="store",type="string",dest="input_file_name",help="Name of input file")

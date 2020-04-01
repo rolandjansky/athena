@@ -11,6 +11,7 @@
 Polynomial interpolation in a table.
 This is a python version of CaloClusterCorrection/interpolate.
 """
+from __future__ import division
 
 # Helper: do a binary search in a table.
 # Note: these are slightly different than the standard python definition
@@ -18,6 +19,9 @@ This is a python version of CaloClusterCorrection/interpolate.
 # This results in different behavior for the case that a key exactly
 # matching x is present in the table.  As it's done here, it matches
 # the result of the C++ lower_bound function, used in the C++ implementation.
+from past.builtins import cmp
+from builtins import range
+from past.utils import old_div
 def _bisect (a, x, lo=0, hi=None):
     if hi is None:
         hi = len(a)
@@ -67,8 +71,7 @@ def interpolate (points, x, degree, ycol=1, regions=[], xcol=0):
   The method used is Newtonian interpolation.
   Based on the cernlib routine divdif.
   """
-    if len (points) < 2 or degree < 1:
-        raise 'bad args!'
+    assert(len (points) >= 2 and degree >= 1)
     degree = min (degree, len (points) - 1)
     
 
@@ -99,7 +102,7 @@ def interpolate (points, x, degree, ycol=1, regions=[], xcol=0):
     extrahi = 0
     
     # Starting point index, not considering edges or boundaries.
-    ilo = ix - npts/2
+    ilo = ix - old_div(npts,2)
 
     # Make sure this point is within the array range and has not
     # crossed a region boundary.
@@ -169,9 +172,9 @@ def interpolate (points, x, degree, ycol=1, regions=[], xcol=0):
     # SUPPLEMENTED BY AN EXTRA LINE IF *EXTRA* IS TRUE.
     for l in range(0, degree):
         if extra:
-            d[degree+1] = (d[degree+1]-d[degree-1])/(t[degree+1]-t[degree-1-l])
+            d[degree+1] = old_div((d[degree+1]-d[degree-1]),(t[degree+1]-t[degree-1-l]))
         for i in range (degree, l, -1):
-            d[i] = (d[i]-d[i-1])/(t[i]-t[i-1-l])
+            d[i] = old_div((d[i]-d[i-1]),(t[i]-t[i-1-l]))
 
     # EVALUATE THE NEWTON INTERPOLATION FORMULA AT X, AVERAGING TWO VALUES
     # OF LAST DIFFERENCE IF *EXTRA* IS TRUE.

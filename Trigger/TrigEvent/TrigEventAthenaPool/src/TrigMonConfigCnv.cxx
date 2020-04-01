@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -43,7 +43,7 @@ TrigMonConfig* TrigMonConfigCnv::createTransient()
   if(compareClassGuid(p1_guid)) {
     
     (*m_log) << MSG::DEBUG << "TrigMonConfigCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigMonConfig_p1 >   col_vect( this->poolReadObject< TrigMonConfig_p1 >() );
+    std::unique_ptr< TrigMonConfig_p1 >   col_vect( this->poolReadObject< TrigMonConfig_p1 >() );
     trans_obj = m_TPConverter->createTransient( col_vect.get(), *m_log);
   }
   else {    

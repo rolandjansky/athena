@@ -32,11 +32,11 @@ conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/OnOffIdMap_SC<tag>LARIdentifierOf
 try:
   from LArTools.LArToolsConf import LArSuperCellCablingTool
 except Exception:
-  print 'Did not work from LArTools, will try something else'
+  printfunc ('Did not work from LArTools, will try something else')
 try:
   from LArCabling.LArCablingConf import LArSuperCellCablingTool
 except Exception:
-  print 'Did not work from LArCabling, will try something else'
+  printfunc ('Did not work from LArCabling, will try something else')
 ToolSvc+=LArSuperCellCablingTool()
 from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import SimpleLArDigitsChecks
 from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import TrigT1CaloEFex
@@ -72,15 +72,15 @@ for i in range(0,10000):
  try : 
   a=theApp.nextEvent().isFailure() 
   if ( a ) :
-    print 'should stop it in ev ',ev
+    printfunc ('should stop it in ev ',ev)
     break
-  print 'Event Number',ev
+  printfunc ('Event Number',ev)
   ev=ev+1;
  except : 
-  print "except in ev", ev
+  printfunc ("except in ev", ev)
   break
 theApp.finalize().ignore();
 
-print 'writing out file after',ev,'events'
+printfunc ('writing out file after',ev,'events')
 theApp.exit()
 

@@ -23,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonRDO
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData 
                           MuonSpectrometer/MuonReconstruction/MuonDataPrep/MMClusterization
-                          MuonSpectrometer/MuonCalib/NSWCalibTools )
+                          MuonSpectrometer/MuonCalib/NSWCalib/NSWCalibTools )
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )

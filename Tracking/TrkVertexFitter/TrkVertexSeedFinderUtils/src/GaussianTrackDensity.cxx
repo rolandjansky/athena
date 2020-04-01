@@ -148,28 +148,11 @@ namespace Trk
    */
   double GaussianTrackDensity::TrackDensity::trackDensity (double z) const
   {
-    double sum = 0.0;
-    TrackEntry target(z);
-    trackMap overlaps;
-    lowerMapIterator left = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
-    if (left == m_lowerMap.end()) return sum;                // z is to the right of every track's range
-    upperMapIterator right = m_upperMap.upper_bound(target); // first track whose LOWER bound is greater than z
-    if (right == m_upperMap.begin()) return sum;             // z is to the left of every track's range
-    for (auto itrk = left; itrk != m_lowerMap.end(); itrk++)
-    {
-      if ( itrk->first.upperBound > z + m_maxRange ) break;
-      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
-    }
-    for (auto itrk = right; itrk-- != m_upperMap.begin(); )
-    {
-      if ( itrk->first.lowerBound < z - m_maxRange ) break;
-      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
-    }
-    for (const auto& entry : overlaps)
-    {
-      sum += std::exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
-    }
-    return sum;
+    double firstDeriv, secondDeriv = 0;  // unused in this case
+    double density = 0; 
+    // use the existing trackDensity method to avoid duplication of logic
+    trackDensity(z,density,firstDeriv,secondDeriv); 
+    return density; 
   }
 
 
@@ -183,35 +166,13 @@ namespace Trk
                                                     double& firstDerivative,
                                                     double& secondDerivative) const
   {
-    density = 0.0;
-    firstDerivative = 0.0;
-    secondDerivative = 0.0;
-    TrackEntry target(z);
-    trackMap overlaps;
-    lowerMapIterator left = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
-    if (left == m_lowerMap.end()) return;                    // z is to the right of every track's range
-    upperMapIterator right = m_upperMap.upper_bound(target); // first track whose LOWER bound is greater than z
-    if (right == m_upperMap.begin()) return;                 // z is to the left of every track's range
-    for (auto itrk = left; itrk != m_lowerMap.end(); itrk++)
-    {
-      if ( itrk->first.upperBound > z + m_maxRange ) break;
-      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
+    TrackDensityEval densityResult(z);
+    for (const auto & trackAndPerigeePair : m_lowerMap){
+      densityResult.addTrack(trackAndPerigeePair.first); 
     }
-    for (auto itrk = right; itrk-- != m_upperMap.begin(); )
-    {
-      if ( itrk->first.lowerBound < z - m_maxRange ) break;
-      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
-    }
-    for (const auto& entry : overlaps)
-    {
-      if (entry.second.lowerBound > z || entry.second.upperBound < z) continue;
-      double delta = std::exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
-      density += delta;
-      double qPrime = entry.second.c_1 + 2*z*entry.second.c_2;
-      double deltaPrime = delta * qPrime;
-      firstDerivative += deltaPrime;
-      secondDerivative += 2*entry.second.c_2*delta + qPrime*deltaPrime;
-    }
+    density = densityResult.density();
+    firstDerivative = densityResult.firstDerivative();
+    secondDerivative = densityResult.secondDerivative(); 
   }
 
   std::pair<double,double> 
@@ -312,5 +273,16 @@ namespace Trk
                        std::forward_as_tuple(itrk));
   }
 
+
+  void GaussianTrackDensity::TrackDensityEval::addTrack (const TrackEntry & entry){
+    if (entry.lowerBound < m_z && entry.upperBound > m_z) {
+      double delta = std::exp(entry.c_0+m_z*(entry.c_1 + m_z*entry.c_2));
+      double qPrime = entry.c_1 + 2*m_z*entry.c_2;
+      double deltaPrime = delta * qPrime;
+      m_density += delta;
+      m_firstDerivative += deltaPrime;
+      m_secondDerivative += 2*entry.c_2*delta + qPrime*deltaPrime;
+    }
+  }
 
 }

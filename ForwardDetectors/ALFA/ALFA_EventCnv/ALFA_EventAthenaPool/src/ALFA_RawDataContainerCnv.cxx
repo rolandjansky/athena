@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_RawDataContainerCnv.h"
@@ -33,7 +33,7 @@ static const pool::Guid p1_guid("0C023583-E3D4-4C7D-9B20-B6B2A1018D2F");
 
 if (this->compareClassGuid(p1_guid)) {
 
-     std::auto_ptr< ALFA_RawDataContainer_p1 > persCont(poolReadObject< ALFA_RawDataContainer_p1 >());
+     std::unique_ptr< ALFA_RawDataContainer_p1 > persCont(poolReadObject< ALFA_RawDataContainer_p1 >());
 
      transCont = TPConverter_p1.createTransient(persCont.get(), log);
   }

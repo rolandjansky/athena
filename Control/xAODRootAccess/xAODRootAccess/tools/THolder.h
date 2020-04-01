@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: THolder.h 725531 2016-02-22 16:14:25Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TOOLS_THOLDER_H
 #define XAODROOTACCESS_TOOLS_THOLDER_H
 
@@ -34,9 +31,6 @@ namespace xAOD {
    /// that it can be cast to, or not.
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 725531 $
-   /// $Date: 2016-02-22 17:14:25 +0100 (Mon, 22 Feb 2016) $
    ///
    class THolder {
 
@@ -88,20 +82,17 @@ namespace xAOD {
       /// Renew the object in memory
       void renew();
 
-      /// Cache whether the type is a DataVector or an AuxElement.
-      /// Allows removing repeated calls to TClass::InheritsFrom()
-      /// in TEvent::setAuxStore().
+      /// Type of the object held by this one.
       enum TypeKind {
-        OTHER,
-        DATAVECTOR,
-        AUXELEMENT
-      };
-      TypeKind typeKind() const { return m_typeKind; }
+        OTHER,      ///< Some non-specified type
+        DATAVECTOR, ///< A DataVector container
+        AUXELEMENT  ///< A type inheriting from @c SG::AuxElement
+      }; // enum TypeKind
 
-
-   private:
-      static TypeKind setTypeKind (const TClass* type);
-      TypeKind m_typeKind;
+      /// Return the type of the object held by this one.
+      TypeKind typeKind() const {
+         return m_typeKind;
+      }
 
    protected:
       /// Internal function used to delete the managed object from memory
@@ -115,6 +106,8 @@ namespace xAOD {
       const std::type_info* m_typeInfo;
       /// A flag for whether the object owns what it points to
       ::Bool_t m_owner;
+      /// Type of the object held
+      TypeKind m_typeKind;
 
    }; // class THolder
 

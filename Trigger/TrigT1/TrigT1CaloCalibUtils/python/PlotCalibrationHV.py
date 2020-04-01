@@ -1,6 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 #from ROOT import gRandom,TCanvas,TH1F,TH2F
 import ROOT
@@ -162,8 +164,8 @@ class L1CaloHVReader:
       dbString='sqlite://;schema='+file_name+';dbname=L1CALO'
       try:
          db = dbSvc.openDatabase(dbString, False)        
-      except Exception, e:
-         print 'Error: Problem opening database', e
+      except Exception as e:
+         print ('Error: Problem opening database', e)
          sys.exit(1)
 
       folder_name = '/TRIGGER/L1Calo/V1/Results/HVCorrections'
@@ -178,8 +180,8 @@ class L1CaloHVReader:
 
       try:
          itr=folder.browseObjects(startValKey, endValKey, chsel)
-      except Exception, e:
-         print e
+      except Exception as e:
+         print (e)
          sys.exit(1)
      
       for row in itr:
@@ -198,7 +200,7 @@ class L1CaloHVReader:
          self.AffectedCells3[CoolId]  = struct.unpack('B',payload['AffectedCells3'])[0]
          self.AffectedCells4[CoolId]  = struct.unpack('B',payload['AffectedCells4'])[0]
             
-#	 print  " CoolId", CoolId ,"AffectedCells",  struct.unpack('B',self.AffectedCells1[CoolId])[0]
+#	 print ( " CoolId", CoolId ,"AffectedCells",  struct.unpack('B',self.AffectedCells1[CoolId])[0])
 	    
       
       # close database
@@ -212,8 +214,8 @@ class L1CaloHVReader:
       dbString='sqlite://;schema='+file_name+';dbname=L1CALO'
       try:
          db = dbSvc.openDatabase(dbString, False)        
-      except Exception, e:
-         print 'Error: Problem opening database', e
+      except Exception as e:
+         print ('Error: Problem opening database', e)
          sys.exit(1)
 
       folder_name = '/TRIGGER/L1Calo/V1/Results/RxLayers'
@@ -228,8 +230,8 @@ class L1CaloHVReader:
 
       try:
          itr=folder.browseObjects(startValKey, endValKey, chsel)
-      except Exception, e:
-         print e
+      except Exception as e:
+         print (e)
          sys.exit(1)
      
       for row in itr:
@@ -356,7 +358,7 @@ def PlotCalibrationHV(input_file_name=None):
 
 
   input_file = input_file_name
-  print "Taking HV information from file",input_file 
+  print ("Taking HV information from file",input_file )
   
   hv_status = L1CaloHVReader(input_file)
 
@@ -402,10 +404,10 @@ def PlotCalibrationHV(input_file_name=None):
       TT_part = 'EmbFcalHighEta'
 
 #    if geometry_convertor.isPPMOverlap(PPM_ID):
-#      print "Overlap tower COOL Id=%s  Rx=%s  layer=%s" % (PPM_ID,ReceiverId,geometry_convertor.getOverlapLayer(ReceiverId))
+#      print ("Overlap tower COOL Id=%s  Rx=%s  layer=%s" % (PPM_ID,ReceiverId,geometry_convertor.getOverlapLayer(ReceiverId)))
 
 #    if geometry_convertor.isPPMFCAL(PPM_ID):
-#      print "Overlap tower COOL Id=%s  Rx=%s  layer=%s" % (PPM_ID,ReceiverId,TT_part)
+#      print ("Overlap tower COOL Id=%s  Rx=%s  layer=%s" % (PPM_ID,ReceiverId,TT_part))
 
 #   Mean corrections
 
@@ -605,11 +607,11 @@ def PlotCalibrationHV(input_file_name=None):
  # os.system("cp HVStatus.pdf /home/jb/public_web/tmp ")
 
  
-  print "Done!"
+  print ("Done!")
 
 if __name__ == "__main__":
   
-  print "Starting PlotCalibrationHV"
+  print ("Starting PlotCalibrationHV")
 
   parser = OptionParser()
   

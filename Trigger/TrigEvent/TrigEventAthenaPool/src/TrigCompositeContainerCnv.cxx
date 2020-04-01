@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCompositeContainerCnv.h"
@@ -31,7 +31,7 @@ TrigCompositeContainer * TrigCompositeContainerCnv::createTransient()
 
   
  if( compareClassGuid( p1_guid ) ){
-         std::auto_ptr< TrigCompositeContainer_p1 > col_vect( poolReadObject< TrigCompositeContainer_p1 >() );
+         std::unique_ptr< TrigCompositeContainer_p1 > col_vect( poolReadObject< TrigCompositeContainer_p1 >() );
          //         std::cout << "Reading IMFC p1" << std::endl; 
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else { throw std::runtime_error( "Unsupported persistent version of TrigCompositeContainer" ); }

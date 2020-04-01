@@ -1,24 +1,7 @@
-# $Id: CMakeLists.txt 780060 2016-10-24 14:27:13Z krasznaa $
-################################################################################
-# Package: CaloAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloAthenaPool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Database/AthenaPOOL/AthenaPoolUtilities
-   PRIVATE
-   AtlasTest/TestTools
-   Calorimeter/CaloCnv/CaloTPCnv
-   Calorimeter/CaloDetDescr
-   Calorimeter/CaloEvent
-   Calorimeter/CaloInterface
-   Calorimeter/CaloUtils
-   Control/StoreGate
-   Database/AthenaPOOL/AthenaPoolCnvSvc )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( CaloAthenaPoolPoolCnv
@@ -34,11 +17,6 @@ atlas_add_poolcnv_library( CaloAthenaPoolPoolCnv
 atlas_install_joboptions( share/*.py )
 
 # Find the helper code for the T/P tests:
-set( _poolTestDir
-   ${CMAKE_CURRENT_SOURCE_DIR}/../../../Database/AthenaPOOL/AthenaPoolUtilities )
-if( IS_DIRECTORY ${_poolTestDir} )
-   set( AthenaPoolUtilitiesTest_DIR ${_poolTestDir}/cmake )
-endif()
 find_package( AthenaPoolUtilitiesTest )
 
 # Set up the tests if possible:

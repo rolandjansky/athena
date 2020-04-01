@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TTreeMgr.h 746122 2016-05-11 10:11:31Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TTREEMGR_H
 #define XAODROOTACCESS_TTREEMGR_H
 
@@ -33,9 +30,6 @@ namespace xAOD {
    /// of the input file(s).
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 746122 $
-   /// $Date: 2016-05-11 12:11:31 +0200 (Wed, 11 May 2016) $
    ///
    class TTreeMgr {
 

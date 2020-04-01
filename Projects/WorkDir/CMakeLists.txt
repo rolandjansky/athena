@@ -49,6 +49,14 @@ unset( _defaultUseFortran )
 # Find the project that we depend on:
 find_package( ${ATLAS_PROJECT} REQUIRED )
 
+# Set up where to find the AthenaPoolUtilitiesTest CMake code.
+if( IS_DIRECTORY
+   "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities" )
+   set( AthenaPoolUtilitiesTest_DIR
+      "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
+      CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
+endif()
+
 # Set up CTest:
 atlas_ctest_setup()
 

@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigEgamma
 			  Event/xAOD/xAODJet
-			  Event/xAOD/xAODMuon
+                          Event/xAOD/xAODMuon
                           PRIVATE
                           Control/AthViews
                           Control/StoreGate

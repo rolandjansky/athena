@@ -885,7 +885,7 @@ namespace MuonGM {
 
   }
 
-  void RpcReadoutElement::fillCache() const
+  void RpcReadoutElement::fillCache()
   {
 
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
