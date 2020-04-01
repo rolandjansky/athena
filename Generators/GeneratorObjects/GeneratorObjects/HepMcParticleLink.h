@@ -196,6 +196,7 @@ public:
   private:
     friend class HepMcParticleLinkCnv_p1;
     friend class HepMcParticleLinkCnv_p2;
+    friend class HepMcParticleLinkCnv_p3;
 
     barcode_type m_BC;
     index_type m_evtIndex;
@@ -211,6 +212,7 @@ public:
 private:
   friend class HepMcParticleLinkCnv_p1;
   friend class HepMcParticleLinkCnv_p2;
+  friend class HepMcParticleLinkCnv_p3;
 
   static const std::string s_MAINEVCOLKEYS[4];
   static const std::string s_FIRSTPUEVCOLKEYS[4];

@@ -10,6 +10,7 @@
 #include "InDetEventAthenaPool/InDetSimDataCollection_p1.h"
 #include "InDetEventAthenaPool/InDetSimDataCollection_p2.h"
 #include "InDetEventAthenaPool/InDetSimDataCollection_p3.h"
+#include "InDetEventAthenaPool/InDetSimDataCollection_p4.h"
 #include "InDetEventAthenaPool/InDetRawData_p1.h"
 #include "InDetEventAthenaPool/SCT3_RawData_p1.h"
 #include "InDetEventAthenaPool/SCT3_RawData_p2.h"
@@ -29,6 +30,10 @@ namespace InDetEventAthenaPoolCnvDict
     std::pair<unsigned long long, InDetSimData_p2> t2;
     std::vector<std::pair<unsigned int, InDetSimData_p2> > t3;
     std::vector<std::pair<unsigned long long, InDetSimData_p2> > t4;
+    std::pair<unsigned int, InDetSimData_p3> t5;
+    std::pair<unsigned long long, InDetSimData_p3> t6;
+    std::vector<std::pair<unsigned int, InDetSimData_p3> > t7;
+    std::vector<std::pair<unsigned long long, InDetSimData_p3> > t8;
 }
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimDataCollectionCnv.h"
@@ -26,7 +26,7 @@ MuonSimDataCollectionCnv::~MuonSimDataCollectionCnv() {
 MuonSimDataCollection_PERS*    MuonSimDataCollectionCnv::createPersistent (MuonSimDataCollection* transCont) {
     MsgStream log(msgSvc(), "MuonSimDataCollectionCnv" );
     ATH_MSG_DEBUG("createPersistent(): main converter");
-    MuonSimDataCollection_PERS *pixdc_p= m_TPConverter_p2.createPersistent( transCont, log );
+    MuonSimDataCollection_PERS *pixdc_p= m_TPConverter_p3.createPersistent( transCont, log );
     return pixdc_p;
 }
 
@@ -35,9 +35,16 @@ MuonSimDataCollection* MuonSimDataCollectionCnv::createTransient() {
     static pool::Guid   p0_guid("5B50C32E-A036-4B49-AC97-716E53210BE2");
     static pool::Guid   p1_guid("0605B4A3-3744-4486-B39D-F9C9E809D868");
     static pool::Guid   p2_guid("E0AA3013-4EF7-45B6-BDB1-17B21BF60791");
+    static pool::Guid   p3_guid("5548BB93-558D-468B-B477-AD81ABB1D4FC");
     ATH_MSG_DEBUG("createTransient(): main converter");
-    MuonSimDataCollection* p_collection(0);
-    if( compareClassGuid(p2_guid) ) {
+    MuonSimDataCollection* p_collection(nullptr);
+    if( compareClassGuid(p3_guid) ) {
+      ATH_MSG_DEBUG("createTransient(): T/P version 3 detected");
+      std::unique_ptr< Muon::MuonSimDataCollection_p3 >   col_vect( this->poolReadObject< Muon::MuonSimDataCollection_p3 >() );
+      p_collection = m_TPConverter_p3.createTransient( col_vect.get(), log );
+    }
+  //----------------------------------------------------------------
+    else if( compareClassGuid(p2_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
       std::unique_ptr< Muon::MuonSimDataCollection_p2 >   col_vect( this->poolReadObject< Muon::MuonSimDataCollection_p2 >() );
       p_collection = m_TPConverter_p2.createTransient( col_vect.get(), log );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGTRUTHEVENTTPCNV_TRIGTRUTHEVENTTPCNVDICT_H
@@ -8,6 +8,7 @@
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp1.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp2.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp3.h"
+#include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp4.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_p1.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_old.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_old_cnv.h"
