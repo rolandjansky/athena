@@ -106,7 +106,14 @@ class AnaAlgSequence( AlgSequence ):
             pass
         for alg, meta in zip( self, self._algorithmMeta ):
             for var, func in meta.dynConfig.items() :
-                setattr (alg, var, func (metaConfig))
+                # if this is a subtool, find the subtool
+                obj = alg
+                while '.' in var :
+                    obj = getattr (alg, var[:var.find('.')])
+                    var = var[var.find('.')+1:]
+                    pass
+                # set the property on the algorithm/tool
+                setattr (obj, var, func (metaConfig))
                 pass
             for name, value in meta.metaConfig.items() :
                 if not name in metaConfig :
