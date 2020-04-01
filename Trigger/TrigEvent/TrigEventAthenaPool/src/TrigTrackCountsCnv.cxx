@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTrackCountsCnv.h"
@@ -35,12 +35,12 @@ TrigTrackCounts* TrigTrackCountsCnv::createTransient() {
   static pool::Guid p0_guid("6277C97C-0EAA-4922-892E-E88C1FA01BA0");
   
   if(compareClassGuid(p2_guid)) {
-    std::auto_ptr< TrigTrackCounts_p2 > pers_ptr( poolReadObject< TrigTrackCounts_p2 >() );
+    std::unique_ptr< TrigTrackCounts_p2 > pers_ptr( poolReadObject< TrigTrackCounts_p2 >() );
     TrigTrackCountsCnv_p2 converter;
     return converter.createTransient( pers_ptr.get(), mlog );
   }
   else if(compareClassGuid(p1_guid)) {
-    std::auto_ptr< TrigTrackCounts_p1 > pers_ptr( poolReadObject< TrigTrackCounts_p1 >() );
+    std::unique_ptr< TrigTrackCounts_p1 > pers_ptr( poolReadObject< TrigTrackCounts_p1 >() );
     TrigTrackCountsCnv_p1 converter;
     return converter.createTransient( pers_ptr.get(), mlog );
   }

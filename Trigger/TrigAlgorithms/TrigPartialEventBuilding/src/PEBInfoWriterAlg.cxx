@@ -4,7 +4,7 @@
 
 // Trigger includes
 #include "PEBInfoWriterAlg.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 // TrigCompositeUtils types used here
 using TrigCompositeUtils::Decision;

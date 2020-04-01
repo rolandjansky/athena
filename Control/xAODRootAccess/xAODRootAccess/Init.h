@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: Init.h 687022 2015-08-03 09:48:01Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_INIT_H
 #define XAODROOTACCESS_INIT_H
 
@@ -26,9 +23,6 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 687022 $
-   /// $Date: 2015-08-03 11:48:01 +0200 (Mon, 03 Aug 2015) $
-   ///
    /// @param appname Name of the application/script [optional]
    /// @returns <code>TReturnCode::kSuccess</code> if successful,
    ///          <code>TReturnCode::kFailure</code> if not
@@ -45,9 +39,6 @@ namespace xAOD {
    /// his/her application, before an xAOD file would be opened.
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 687022 $
-   /// $Date: 2015-08-03 11:48:01 +0200 (Mon, 03 Aug 2015) $
    ///
    /// @param appname Name of the application
    /// @param argc The argc argument from main(...)

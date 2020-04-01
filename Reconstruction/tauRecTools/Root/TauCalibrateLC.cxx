@@ -6,12 +6,6 @@
 #include "tauRecTools/TauCalibrateLC.h"
 #include "xAODTau/TauJet.h"
 
-#include "LumiBlockComps/ILumiBlockMuTool.h"
-
-//compilation error if attempting to include CLHEP first
-//ASGTOOL_ATHENA defined here:
-//https://svnweb.cern.ch/trac/atlasoff/browser/Control/AthToolSupport/AsgTools/trunk/AsgTools/AsgToolsConf.h
-
 // root
 #include "TFile.h"
 #include "TF1.h"
@@ -28,7 +22,6 @@ using CLHEP::GeV;
 /********************************************************************/
 TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   TauRecToolBase(name),
-  m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),  
   m_doEnergyCorr(false),
   m_doPtResponse(false),
   m_doAxisCorr(false),
@@ -52,10 +45,7 @@ TauCalibrateLC::~TauCalibrateLC() {
 StatusCode TauCalibrateLC::initialize() {
 
   if (m_in_trigger) {
-    if (m_lumiBlockMuTool.retrieve().isFailure())  
-      ATH_MSG_WARNING( "Unable to retrieve LumiBlockMuTool" );
-    else  
-      ATH_MSG_DEBUG( "Successfully retrieved LumiBlockMuTool" ); 
+    ATH_CHECK( m_eventInfoKey.initialize() );
   }
   else {
     ATH_CHECK( m_vertexInputContainer.initialize() );
@@ -174,28 +164,32 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
     int nVertex = 0;
     
     // Obtain pileup
-    if (m_in_trigger)  { // online: retrieved from LumiBlockTool 
-      if(m_lumiBlockMuTool){
-        nVertex = m_lumiBlockMuTool->averageInteractionsPerCrossing();
-        ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << nVertex);
+    if (m_in_trigger)  { // online: retrieved from EventInfo 
+      SG::ReadHandle<xAOD::EventInfo> eventInfoHandle( m_eventInfoKey );
+      if (!eventInfoHandle.isValid()) {
+        ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventInfoHandle.key() << ", will set nVertex = " << m_averageNPV );
+        nVertex = m_averageNPV;
       }
       else {
-        nVertex = m_averageNPV;
-        ATH_MSG_DEBUG("No AvgInteractions object in tau candidate - using default value = " << nVertex);
-      } 
+        const xAOD::EventInfo* eventInfo = eventInfoHandle.cptr();
+        nVertex = eventInfo->averageInteractionsPerCrossing();
+        ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << nVertex);
+      }
     }  
     else { // offline: count the primary vertex container
       SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
       if (!vertexInHandle.isValid()) {
-	ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
+        return StatusCode::FAILURE;
       }
       const xAOD::VertexContainer * vxContainer = vertexInHandle.cptr();
       for (const auto vertex : *vxContainer) {
-        if (m_countOnlyPileupVertices && vertex->vertexType() == xAOD::VxType::PileUp)
+        if (m_countOnlyPileupVertices && vertex->vertexType() == xAOD::VxType::PileUp) {
           ++nVertex;
-        else if (!m_countOnlyPileupVertices && vertex->nTrackParticles() >= m_minNTrackAtVertex)
+        }
+        else if (!m_countOnlyPileupVertices && vertex->nTrackParticles() >= m_minNTrackAtVertex) {
           ++nVertex;
+        }
       } 
       ATH_MSG_DEBUG("calculated nVertex " << nVertex );           
     } 

@@ -91,7 +91,7 @@ def fillTripsProbs(fileTrips, folderPath, tag, since
     dict = parser.getDict()
     log.info("Updating dictionary from file with %i entries", len(dict))
     log.info("... filename: %s", fileTrips )
-    for key, trip in dict.items():
+    for key, trip in list(dict.items()):
         ros = key[0]
         mod = key[1]
         precisions[ros][mod] = len(trip[0]) - 2

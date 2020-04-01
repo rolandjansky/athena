@@ -17,8 +17,6 @@
 #pragma link off all functions;
 #pragma link C++ nestedclass;
 
-#pragma link C++ class SH::MetaData<float>+;
-#pragma link C++ class SH::MetaVector<float>+;
 #pragma link C++ class EL::AlgSelect+;
 #pragma link C++ class EL::DuplicateChecker+;
 #pragma link C++ class EL::NTupleSvc+;

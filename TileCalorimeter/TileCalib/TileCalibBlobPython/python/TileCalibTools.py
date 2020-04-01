@@ -18,10 +18,17 @@ ROOT.gInterpreter.EnableAutoLoading()
 
 import cx_Oracle # noqa: F401
 from PyCool import cool
-import time, types, re, sys, os
-import urllib2
+import time, re, sys, os
+try:
+    # For Python 3.0 and later
+    from urllib.request import urlopen
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import urlopen
 import cppyy
 import six
+#sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
+sys.path.append('/afs/cern.ch/user/t/tilebeam/offline/utils/python/')
 
 cppyy.makeClass('std::vector<float>')
 cppyy.makeClass('std::vector<std::vector<float> >')
@@ -35,7 +42,6 @@ from TileCalibBlobObjs.Classes import TileCalibUtils, TileCalibDrawerCmt, \
      TileCalibDrawerInt, TileCalibDrawerOfc, TileCalibDrawerBch, \
      TileCalibDrawerFlt, TileCalibType
 
-sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
 from AtlCoolBKLib import resolveAlias
 
 #=== get a logger
@@ -75,7 +81,7 @@ def getLastRunNumber():
     run=0
     for url in urls:
         try:
-            for line in urllib2.urlopen(url).readlines():
+            for line in urlopen(url).readlines():
                 r=line.strip()
                 if r.isdigit():
                     run=int(r)
@@ -299,11 +305,11 @@ def getCoolValidityKey(pointInTime, isSince=True):
     validityKey = None
     
     #=== string: convert to unix time and treat as latter
-    if isinstance(pointInTime, types.StringType):
+    if isinstance(pointInTime, str):
         pointInTime = decodeTimeString(pointInTime)
 
     #=== integer: unix time stamp
-    if isinstance(pointInTime, types.IntType):
+    if isinstance(pointInTime, int):
         if pointInTime >=0:
             validityKey = pointInTime * UNIX2COOL
         else:
@@ -312,7 +318,7 @@ def getCoolValidityKey(pointInTime, isSince=True):
             else      :
                 validityKey = cool.ValidityKeyMax
     #=== run-lumi tuple
-    elif isinstance(pointInTime, types.TupleType):
+    elif isinstance(pointInTime, tuple):
         validityKey = coolTimeFromRunLumi(pointInTime[0],pointInTime[1])
     #=== catch other types
     else:
@@ -543,7 +549,7 @@ class TileBlobWriter(TileCalibLogger):
 
         #=== build IOV string
         iovString = ""       
-        if isinstance(since, types.TupleType):
+        if isinstance(since, tuple):
             iovString = "[%i,%i] - [%i,%i]" % (since[0],since[1],until[0],until[1])
         else:
             sinceInfo = time.localtime( sinceCool / UNIX2COOL )

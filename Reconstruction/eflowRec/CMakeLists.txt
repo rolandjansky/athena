@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           InnerDetector/InDetRecTools/TrackVertexAssociationTool
                           Reconstruction/Particle
@@ -46,7 +47,7 @@ atlas_add_component( eflowRec
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloIdentifier CaloRecLib AthContainers AthLinks AthenaBaseComps CxxUtils AthenaKernel GeoPrimitives xAODCaloEvent xAODEgamma xAODMuon xAODPFlow xAODTracking GaudiKernel InDetReadoutGeometry TrackVertexAssociationToolLib Particle RecoToolInterfaces TrkParameters CaloDetDescrLib CaloUtilsLib StoreGateLib SGtests FourMomUtils PathResolver TrkCaloExtension TrkParametersIdentificationHelpers InDetTrackSelectionToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent CaloIdentifier CaloRecLib AthContainers AthLinks AthenaBaseComps CxxUtils AthenaKernel GeoPrimitives xAODCaloEvent xAODEgamma xAODMuon xAODPFlow xAODTracking GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry TrackVertexAssociationToolLib Particle RecoToolInterfaces TrkParameters CaloDetDescrLib CaloUtilsLib StoreGateLib SGtests FourMomUtils PathResolver TrkCaloExtension TrkParametersIdentificationHelpers InDetTrackSelectionToolLib )
 
 # Install files from the package:
 atlas_install_headers( eflowRec )

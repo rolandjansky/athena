@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -83,7 +83,7 @@ private:
 
     
 
-    const MuonGM::MuonDetectorManager*	p_MuonMgr;
+    MuonGM::MuonDetectorManager*	p_MuonMgr;
 
     ToolHandle<MuonCalib::IIdToFixedIdTool> m_fixedIdTool;
     ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 

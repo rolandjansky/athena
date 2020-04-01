@@ -10,8 +10,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "xAODEgamma/Electron.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "ITrigEgammaPrecisionElectronHypoTool.h"
 
 
@@ -29,9 +29,9 @@ class TrigEgammaPrecisionElectronHypoToolMult : public extends<AthAlgTool, ITrig
   virtual ~TrigEgammaPrecisionElectronHypoToolMult();
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input )  const override;
+  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& ctx )  const override;
 
-  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& ) const override { 
+  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo&,const EventContext& ) const override { 
     REPORT_MESSAGE(MSG::ERROR) << "this method should never be called";
     return false;
   }

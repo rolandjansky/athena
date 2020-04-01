@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Module that filters public events for Atlas-Live based on IS information
 """
@@ -31,8 +31,8 @@ class PublicStreamFilter( PyAthena.Alg ):
 		if self.checkrun:
 			try:
 				eventInfo = PyEventTools.getEventInfo("")
-			except LookupError, err:
-				self.msg.warning("Could not retrieve EventInfo: %s" % err)
+			except LookupError as err:
+				self.msg.warning("Could not retrieve EventInfo: %s", err)
 				self.setFilterPassed(False)
 
 		try:
@@ -46,29 +46,29 @@ class PublicStreamFilter( PyAthena.Alg ):
 			runParams = ISObject(partition, 'RunParams.RunParams','RunParams')
 			runParams.checkout()
 
-		except UserWarning, err:
-			self.msg.warning("Could not retrieve data from IS: %s" % err)
+		except UserWarning as err:
+			self.msg.warning("Could not retrieve data from IS: %s", err)
 			self.setFilterPassed(False)
 			time.sleep(5)
 
-		self.msg.debug("IS publishes T0_project_tag %s and readyForPhysics %s for run %d" % (runParams.T0_project_tag, ready, runParams.run_number))
+		self.msg.debug("IS publishes T0_project_tag %s and readyForPhysics %s for run %d", runParams.T0_project_tag, ready, runParams.run_number)
 
 		if self.checkready and not ready:
-			self.msg.info("ReadyForPhysics not set... rejecting event");
-			self.setFilterPassed(False);
+			self.msg.info("ReadyForPhysics not set... rejecting event")
+			self.setFilterPassed(False)
 			time.sleep(1)
 
 		elif runParams.T0_project_tag != self.t0project:
-			self.msg.info("T0_project_tag is not %s (%s)... rejecting event" % (self.t0project, runParams.T0_project_tag))
+			self.msg.info("T0_project_tag is not %s (%s)... rejecting event", self.t0project, runParams.T0_project_tag)
 			self.setFilterPassed(False)
 			time.sleep(1)
 
 		elif self.checkrun and runParams.run_number != eventInfo.event_ID().run_number():
-			self.msg.info("Information in IS is not for this run (%d != %d)... rejecting event" % (runParams.run_number, eventInfo.event_ID().run_number()))
+			self.msg.info("Information in IS is not for this run (%d != %d)... rejecting event", runParams.run_number, eventInfo.event_ID().run_number())
 			self.setFilterPassed(False)
 
 		else:
-			self.msg.info("Good event, passing into the public stream...");
+			self.msg.info("Good event, passing into the public stream...")
 			self.setFilterPassed(True)
 
 		return StatusCode.Success

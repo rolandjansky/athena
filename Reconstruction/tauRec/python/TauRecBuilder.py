@@ -73,7 +73,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         
         #switch off TJVA if jet reco don't use tracks.
         from JetRec.JetRecFlags import jetFlags
-        if not jetFlags.useTracks():
+        if not tauFlags.isStandalone() and not jetFlags.useTracks():
             self.do_TJVA = False  # switch off TJVA
         
         tools = []
@@ -86,7 +86,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             doMVATrackClassification = jobproperties.tauRecFlags.tauRecMVATrackClassification()
             doRNNTrackClassification = jobproperties.tauRecFlags.tauRecRNNTrackClassification()
 
-            if InDetFlags.doVertexFinding():
+            if tauFlags.isStandalone() or InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA))
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(not doMVATrackClassification) ))

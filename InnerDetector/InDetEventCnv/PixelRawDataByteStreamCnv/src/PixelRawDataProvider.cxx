@@ -5,10 +5,7 @@
 #include "PixelRawDataProvider.h"
 #include <memory>
 
-#include "PixelRawDataByteStreamCnv/IPixelRawDataProviderTool.h"
 #include "InDetIdentifier/PixelID.h"
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "IRegionSelector/IRegSelSvc.h" 
 #include "EventContainers/IdentifiableContTemp.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
@@ -18,27 +15,14 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 PixelRawDataProvider::PixelRawDataProvider(const std::string& name,
 				       ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_regionSelector  ("RegSelSvc", name), 
-  m_robDataProvider ("ROBDataProviderSvc",name),
-  m_rawDataTool     ("PixelRawDataProviderTool", this), //make private
-  m_pixel_id        (nullptr),
-  m_roiSeeded(false),
-  m_roiCollectionKey(""),
-  m_rdoContainerKey(""),
-  m_rdoCacheKey("")
-{
-  declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
-  declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
-  declareProperty("RDOKey", m_rdoContainerKey = std::string("PixelRDOs"));
-  declareProperty ("ROBDataProvider", m_robDataProvider);
-  declareProperty ("ProviderTool", m_rawDataTool);
-  declareProperty ("RDOCacheKey", m_rdoCacheKey);
+  AthAlgorithm(name, pSvcLocator) {
+  declareProperty("RDOCacheKey", m_rdoCacheKey);
+  declareProperty("BSErrorsCacheKey", m_bsErrorsCacheKey);
 }
 
 // Destructor
 
-PixelRawDataProvider::~PixelRawDataProvider(){
+PixelRawDataProvider::~PixelRawDataProvider() {
 }
 
 // --------------------------------------------------------------------
@@ -147,7 +131,9 @@ StatusCode PixelRawDataProvider::execute() {
   IPixelRDO_Container *containerInterface = tempcont ? static_cast< IPixelRDO_Container* >(tempcont.get()) :
          static_cast< IPixelRDO_Container* >(rdoContainer.ptr());
   // ask PixelRawDataProviderTool to decode it and to fill the IDC
-  if (m_rawDataTool->convert(listOfRobf,  containerInterface).isFailure())
+  // TODO: temporarily unused errors container
+  IDCInDetBSErrContainer decodingErrors(0, std::numeric_limits<int>::min()); // we will use IDC Errors from elswhere
+  if (m_rawDataTool->convert(listOfRobf,  containerInterface, decodingErrors).isFailure())
     ATH_MSG_ERROR("BS conversion into RDOs failed");
 
   if(tempcont) ATH_CHECK(tempcont->MergeToRealContainer(rdoContainer.ptr()));

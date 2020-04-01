@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "CTPUnpackingToolBase.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 
 CTPUnpackingToolBase::CTPUnpackingToolBase(const std::string& type, 

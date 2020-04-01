@@ -1,11 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from MuonCalibStandAloneExtraTools.MuonCalibStandAloneExtraToolsConfig import *
-print  "NoRecalibration=", NoRecalibration
+print ("NoRecalibration=", NoRecalibration)
 from CalibNtupleAnalysisAlg.CalibNtupleAnalysisConfig import *
-print  "NoRecalibration=", NoRecalibration
+print ("NoRecalibration=", NoRecalibration)
 from MuonCalibStandAloneExtraTools.MuonCalibStandAloneExtraToolsConf import *
-print  "NoRecalibration=", NoRecalibration
+print ("NoRecalibration=", NoRecalibration)
 #ToolSvc = Service( "ToolSvc" )
 
 

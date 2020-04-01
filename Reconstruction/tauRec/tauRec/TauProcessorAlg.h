@@ -10,6 +10,7 @@
 #include "tauRecTools/ITauToolBase.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -68,6 +69,8 @@ class TauProcessorAlg: public AthAlgorithm
         SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
         /** ReadCondHandleKey for SCT detector elements. This is needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks. */
         SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+        /** ReadCondHandleKey for TRT detector elements. This is needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks. */
+        SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer"}; 
 	
 };
 

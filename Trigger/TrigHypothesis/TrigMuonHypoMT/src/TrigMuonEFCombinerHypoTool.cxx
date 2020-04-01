@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "DecisionHandling/Combinators.h"
+#include "TrigCompositeUtils/Combinators.h"
 #include "TrigMuonEFCombinerHypoTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 class ISvcLocator;

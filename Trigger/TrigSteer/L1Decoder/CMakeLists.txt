@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigT1/TrigT1Result
                           Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils
                           Trigger/TrigTools/TrigTimeAlgs
                           Trigger/TrigMonitoring/TrigCostMonitorMT )
 
@@ -35,7 +36,7 @@ atlas_add_library( L1DecoderLib
                    PUBLIC_HEADERS L1Decoder
                    LINK_LIBRARIES GaudiKernel AthViews AthenaBaseComps AthenaMonitoringKernelLib 
                    xAODTrigger TrigConfHLTData TrigConfData TrigConfL1Data
-                   TrigSteeringEvent TrigT1Interfaces TrigT1Result DecisionHandlingLib
+                   TrigSteeringEvent TrigT1Interfaces TrigT1Result DecisionHandlingLib TrigCompositeUtilsLib
                    LINK_LIBRARIES ${CLHEP_LIBRARIES}
                    )
                    

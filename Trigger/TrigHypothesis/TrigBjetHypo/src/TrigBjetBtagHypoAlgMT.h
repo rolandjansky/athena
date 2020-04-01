@@ -12,7 +12,7 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"

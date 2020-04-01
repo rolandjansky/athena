@@ -18,8 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           Generators/TruthUtils
                           PhysicsAnalysis/AnalysisCommon/ParticleEvent
-                          PhysicsAnalysis/TruthParticleID/McParticleEvent
-                          Reconstruction/MissingETEvent )
+                          PhysicsAnalysis/TruthParticleID/McParticleEvent )
 
 # External dependencies:
 find_package( CLHEP )
@@ -35,12 +34,12 @@ atlas_add_library( GeneratorFiltersLib
                    PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel StoreGateLib SGtests GeneratorModulesLib
-                   PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} AthenaKernel CxxUtils EventInfo xAODJet xAODTruth TruthUtils ParticleEvent McParticleEvent MissingETEvent )
+                   PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} AthenaKernel CxxUtils EventInfo xAODJet xAODTruth TruthUtils ParticleEvent McParticleEvent )
 
 atlas_add_component( GeneratorFilters
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} StoreGateLib SGtests GaudiKernel GeneratorModulesLib AthenaKernel CxxUtils EventInfo xAODJet xAODTruth TruthUtils ParticleEvent McParticleEvent MissingETEvent GeneratorFiltersLib )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} StoreGateLib SGtests GaudiKernel GeneratorModulesLib AthenaKernel CxxUtils EventInfo xAODJet xAODTruth TruthUtils ParticleEvent McParticleEvent GeneratorFiltersLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

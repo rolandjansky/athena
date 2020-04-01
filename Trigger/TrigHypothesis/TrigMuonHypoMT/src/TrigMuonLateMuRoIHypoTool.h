@@ -6,8 +6,8 @@
 #define TRIGMUONLATEMUROIHYPO_TRIGMUONLATEMUROIHYPOTOOL_H 1
 #include <string>
 #include "AthenaBaseComps/AthAlgTool.h" 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h" 
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h" 
 
 class StoreGateSvc;
 class TriggerElement;

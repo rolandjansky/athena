@@ -8,7 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "InDetRawData/PixelRDO_Container.h"
-
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 // the tool to decode a ROB frament
 class IPixelRawDataProviderTool : virtual public IAlgTool
 {
@@ -23,7 +23,9 @@ class IPixelRawDataProviderTool : virtual public IAlgTool
 
   //! this is the main decoding method
   virtual StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
-		      IPixelRDO_Container*               rdoIdc ) const = 0;
+			      IPixelRDO_Container* rdoIdc,
+			      IDCInDetBSErrContainer& decodingErrors
+			      ) const = 0;
 
 };
 

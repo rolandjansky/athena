@@ -70,8 +70,8 @@ namespace Monitored {
 
       if (m_histDef->opt.find("kAddBinsDynamically") != std::string::npos) {
         const auto xmax = std::max_element(begin(valuesVector1), end(valuesVector1));
-        if (Monitored::detail::shouldRebinHistogram(histogram, *xmax)) {
-          Monitored::detail::rebinHistogram(histogram, *xmax);
+        if (Monitored::detail::shouldRebinHistogram(histogram->GetXaxis(), *xmax)) {
+          Monitored::detail::rebinHistogram<Axis::X>(histogram, *xmax);
         }
       }
 

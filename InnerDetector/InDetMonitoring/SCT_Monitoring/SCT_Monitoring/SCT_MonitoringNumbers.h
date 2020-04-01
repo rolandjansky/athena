@@ -11,13 +11,14 @@
 #ifndef SCT_MonitoringNumbers_H
 #define SCT_MonitoringNumbers_H
 #include "TString.h"
+#include <string>
 #include <vector>
  
 namespace SCT_Monitoring{
   ///what array indices mean when looping over subsystems
-  enum BecIndex {INVALID_INDEX=-1, ENDCAP_C_INDEX=0, BARREL_INDEX=1, ENDCAP_A_INDEX=2, GENERAL_INDEX=3};
+  enum BecIndex {INVALID_INDEX=-1, ENDCAP_C_INDEX=0, BARREL_INDEX=1, ENDCAP_A_INDEX=2, GENERAL_INDEX=3, N_REGIONS=3, N_REGIONS_INC_GENERAL=N_REGIONS+1};
   ///Possible values of the 'BEC' (Barrel or EndCap) value
-  enum Bec{ ENDCAP_C=-2, BARREL=0, ENDCAP_A=2, N_REGIONS=3, GENERAL=3, INVALID_SYSTEM=4};
+  enum Bec{ENDCAP_C=-2, BARREL=0, ENDCAP_A=2, GENERAL=3, INVALID_SYSTEM=4};
   ///Array for conversion of an array index to a Bec
   static const std::vector<Bec> index2BecArray={ENDCAP_C, BARREL, ENDCAP_A, GENERAL};
   ///Conversion  bec->index
@@ -26,7 +27,7 @@ namespace SCT_Monitoring{
   }
   ///Conversion index->bec
   inline Bec index2Bec(const unsigned int i) {
-    return (i < 4) ? (index2BecArray[i]) : INVALID_SYSTEM;
+    return i < N_REGIONS_INC_GENERAL ? (index2BecArray[i]) : INVALID_SYSTEM;
   }
   
   ///Numbers to use in histograms
@@ -48,6 +49,27 @@ namespace SCT_Monitoring{
     N_SIDES = 2
   };
   
+  enum CategoryErrors {MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
+  static const std::vector<std::string> CategoryErrorsNames = {"MaskedLinkALL", // MASKEDLINKALL
+                                                               "Errors", // SUMMARY
+                                                               "BadErrors", // BADERR
+                                                               "LinkLevelErrors", // LINKLEVEL
+                                                               "RODLevelErrors", // RODLEVEL
+                                                               "MaskedChipALL"}; // MASKEDCHIP
+
+  enum ProblemForCoverage {
+    allRegion, //All SCT module for counting good module
+    disabled, //Disabled
+    badLinkError, //BadLinkLevelError
+    badRODError, //BadRODLevelError
+    badError, //BadError = BadLinkLevelError + BadRODLevelError
+    psTripDCS, //Power supply trip using SCT_DCSConditionsSvc
+    summary, //Total coverage using SCT_ConditionsSummarySvc
+    numberOfProblemForCoverage
+  };
+
+  enum ConfigurationBins {ConfbinsSummary = 6, ConfbinsDetailed = 5, ConfbinsOnline = 4};
+
   static const std::vector<int> n_layers = {N_DISKS, N_BARRELS, N_DISKS, 2 * N_DISKS + N_BARRELS};
   static const std::vector<int> n_etabins = {N_ETA_BINS_EC, N_ETA_BINS, N_ETA_BINS_EC};
   static const std::vector<int> n_phibins = {N_PHI_BINS_EC, N_PHI_BINS, N_PHI_BINS_EC};
@@ -63,6 +85,16 @@ namespace SCT_Monitoring{
   
   static const long NBINS_LBs = 3000;
   
+  static const std::vector<std::string> coverageVarNames = {
+    "", // All (not used)
+    "OfEnabledLinks", // All - Disabled
+    "WithNoBadLinkLevelError", // All - BadLinkLevelError
+    "WithNoBadRODLevelError", // All - BadRODLevelError
+    "WithNoBadError", // All - BadError
+    "WithNoPSTrip", // All - PSTrip (DCS)
+    "OfLinksWithNoBadProblem" // All - Summary
+  };
+
   //====================================================================================================
   //                          SCTErrMonTool :: getNumModules, Daniel Damiani 16/8/2010
   //====================================================================================================

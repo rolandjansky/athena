@@ -2,6 +2,7 @@
 # Package filtering rules for the AthSimulation project build.
 #
 
++ AsgExternal/Asg_Test
 + AtlasGeometryCommon/BeamPipeGeoModel
 + AtlasGeometryCommon/GeoModelEnvelopes
 + AtlasGeometryCommon/Interpreters

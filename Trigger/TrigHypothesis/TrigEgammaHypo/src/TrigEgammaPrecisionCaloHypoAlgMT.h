@@ -12,7 +12,7 @@
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/HypoBase.h"
 
 #include "ITrigEgammaPrecisionCaloHypoTool.h"

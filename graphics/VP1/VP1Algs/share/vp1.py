@@ -38,7 +38,7 @@ if not 'vp1Trig' in dir(): vp1Trig=False
 if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
 if not 'vp1MuonLayout' in dir(): vp1MuonLayout=""
 
-def vp1CfgErr(s): print "VP1 CONFIGURATION ERROR: %s" % s
+def vp1CfgErr(s): printfunc ("VP1 CONFIGURATION ERROR: %s" % s)
 
 if (vp1Fatras and not vp1ID):
     vp1CfgErr("Fatras can not be enabled without inner detector. Turning off Fatras.")
@@ -59,8 +59,8 @@ if ( vp1FatrasTruthKey != "" and not vp1Fatras ):
     vp1CfgErr("FatrasTruthKey set but Fatras not enabled. Unsetting FatrasTruthKey.")
     vp1FatrasTruthKey=""
 
-print "*** VP1 NOTE *** setting COIN_GLXGLUE env vars to make screenshots working remotely..."
-print "*** VP1 NOTE *** COIN_GLXGLUE_NO_GLX13_PBUFFERS=1 - " + "COIN_GLXGLUE_NO_PBUFFERS=1"
+printfunc ("*** VP1 NOTE *** setting COIN_GLXGLUE env vars to make screenshots working remotely...")
+printfunc ("*** VP1 NOTE *** COIN_GLXGLUE_NO_GLX13_PBUFFERS=1 - " + "COIN_GLXGLUE_NO_PBUFFERS=1")
 os.putenv("COIN_GLXGLUE_NO_GLX13_PBUFFERS","1")
 os.putenv("COIN_GLXGLUE_NO_PBUFFERS","1")
 
@@ -263,7 +263,7 @@ from AtlasGeoModel import GeoModelInit
 from AthenaCommon.AppMgr import ToolSvc
 
 if vp1Muon and len(vp1NSWAGDDFiles)>0:
-    print "*** VP1 NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) instead from built-in geometry"
+    printfunc ("*** VP1 NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) instead from built-in geometry")
     from AthenaCommon.AppMgr import theApp
     from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
     AGDD2Geo = AGDDtoGeoSvc()
@@ -274,7 +274,7 @@ if vp1Muon and len(vp1NSWAGDDFiles)>0:
     NSWAGDDTool = CfgMgr.NSWAGDDTool("NewSmallWheel", DefaultDetector="Muon", ReadAGDD=False, XMLFiles=vp1NSWAGDDFiles, Volumes=["NewSmallWheel"])
     AGDD2Geo.Builders += [ NSWAGDDTool ]
 if vp1Muon and vp1MuonLayout!="":
-    print "*** VP1 NOTE *** You specified custom vp1MuonLayout, using %s as muon geometry"%vp1MuonLayout
+    printfunc ("*** VP1 NOTE *** You specified custom vp1MuonLayout, using %s as muon geometry"%vp1MuonLayout)
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
     GeoModelSvc = GeoModelSvc()
     GeoModelSvc.MuonVersionOverride=vp1MuonLayout
@@ -456,8 +456,8 @@ if vp1Extrapolator and (vp1ID or vp1Muon):
 #        ToolMuonDriftCircle = MdtTubeHitOnTrackCreator ,
 #                                                  Mode = 'all')
 #     ToolSvc += VP1RotCreator
-#     print VP1RotCreator
-#     print MdtTubeHitOnTrackCreator
+#     printfunc (VP1RotCreator)
+#     printfunc (MdtTubeHitOnTrackCreator)
 #
 #     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter as ConfiguredKalmanFitter
 #     VP1KalmanFitter = ConfiguredKalmanFitter(name                           = 'VP1KalmanFitter',
@@ -472,7 +472,7 @@ if vp1Extrapolator and (vp1ID or vp1Muon):
 #
 #     ToolSvc += VP1KalmanFitter
 #
-#     print VP1KalmanFitter
+#     printfunc (VP1KalmanFitter)
 #     os.putenv("VP1_JOBCFG_EXTRA_VP1_FITTERS",VP1KalmanFitter.name())
 #
 #
@@ -502,7 +502,7 @@ if vp1Extrapolator and (vp1ID or vp1Muon):
 #                                              SignedDriftRadius     = True,
 #                                              RecalculateDerivatives= True
 #                                              )
-#     print VP1GlobalChi2Fitter
+#     printfunc (VP1GlobalChi2Fitter)
 #     ToolSvc += VP1GlobalChi2Fitter
 #
 #     VP1GlobalChi2Fitter.OutputLevel=DEBUG

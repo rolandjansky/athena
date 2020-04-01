@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/DL2Tool.h"
@@ -31,6 +31,7 @@ namespace FlavorTagDiscriminants {
   }
 
   void DL2Tool::decorate(const xAOD::Jet& jet) const {
+    ATH_MSG_DEBUG("Decoration from: " + m_props.nnFile);
     m_dl2->decorate(jet);
   }
 

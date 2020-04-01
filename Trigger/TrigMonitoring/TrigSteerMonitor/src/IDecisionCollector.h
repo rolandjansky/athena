@@ -5,7 +5,7 @@
 #define TRIGSTEERMONITOR_IDECISIONCOLLECTOR_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 /**
  * @class IDecisionCollector

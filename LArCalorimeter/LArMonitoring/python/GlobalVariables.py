@@ -50,8 +50,10 @@ phibinsPS=64
 phibins=256
 lArDQGlobals.HVeta_EMEC = {"EMECAPS":emecbinsA,"EMECA":emecbinsA,"EMECCPS":emecbinsC,"EMECC":emecbinsC} 
 lArDQGlobals.HVphi_EMEC={}
-lArDQGlobals.HVphi_EMEC["EMECAPS"]=[-TMath.Pi()+ x*2*TMath.Pi()/phibinsPS for x in range(phibinsPS+1)]
-lArDQGlobals.HVphi_EMEC["EMECA"]=[-TMath.Pi()+ x*2*TMath.Pi()/phibins for x in range(phibins+1)]
+ps_phirange = range(phibinsPS+1)
+lArDQGlobals.HVphi_EMEC["EMECAPS"]=[-TMath.Pi()+ x*2*TMath.Pi()/phibinsPS for x in ps_phirange]
+phirange =range(phibins+1) 
+lArDQGlobals.HVphi_EMEC["EMECA"]=[-TMath.Pi()+ x*2*TMath.Pi()/phibins for x in phirange]
 lArDQGlobals.HVphi_EMEC["EMECCPS"]=lArDQGlobals.HVphi_EMEC["EMECAPS"]
 lArDQGlobals.HVphi_EMEC["EMECC"]=lArDQGlobals.HVphi_EMEC["EMECA"]
 #hec-fcal
@@ -103,8 +105,12 @@ lArDQGlobals.N_Cells=200000
 #feedthrough+slot ranges
 lArDQGlobals.Feedthrough_Slot_Nbins={p : (lArDQGlobals.FEB_Feedthrough[p][1]+1)*lArDQGlobals.FEB_Slot[p][1] for p in lArDQGlobals.FEB_Feedthrough }
 lArDQGlobals.Feedthrough_Slot_range={p : [lArDQGlobals.FEB_Feedthrough[p][0]*lArDQGlobals.FEB_Slot[p][1]+lArDQGlobals.FEB_Slot[p][0]-0.5,lArDQGlobals.FEB_Feedthrough[p][1]*lArDQGlobals.FEB_Slot[p][1]+lArDQGlobals.FEB_Slot[p][1]+0.5] for p in lArDQGlobals.FEB_Feedthrough }
-lArDQGlobals.Feedthrough_Slot_labels_Barrel=[str(If) if Is==1 else '' for If in range(32) for Is in range(1,15)]
-lArDQGlobals.Feedthrough_Slot_labels_Endcap=[str(If) if Is==1 else '' for If in range(25) for Is in range(1,16)]
+range_0_32=range(32)
+range_1_15=range(1,15)
+lArDQGlobals.Feedthrough_Slot_labels_Barrel=[str(If) if Is==1 else '' for If in range_0_32 for Is in range_1_15]
+range_0_25=range(25)
+range_1_16=range(1,16)
+lArDQGlobals.Feedthrough_Slot_labels_Endcap=[str(If) if Is==1 else '' for If in range_0_25 for Is in range_1_16]
 
 
 #ROD ranges
@@ -302,10 +308,12 @@ for Layer in lArDQGlobals.Layers :
             if Layer=="0": #there's only fcal1, fcal2 and fcal3
                 continue
             else:
-                lArDQGlobals.Cell_Variables["phiRange"][sdet]["A"][Layer]=[-0.5+x for x in xrange(lArDQGlobals.Cell_Variables["phiNbin"][sdet]["A"][Layer]+1)]
+                phi_range=range(lArDQGlobals.Cell_Variables["phiNbin"][sdet]["A"][Layer]+1)
+                lArDQGlobals.Cell_Variables["phiRange"][sdet]["A"][Layer]=[-0.5+x for x in phi_range]
                 lArDQGlobals.Cell_Variables["phiRange"][sdet]["C"]=lArDQGlobals.Cell_Variables["phiRange"][sdet]["A"]
         else: #all other partitions
-            lArDQGlobals.Cell_Variables["phiRange"][sdet]["A"][Layer]=[-TMath.Pi()+ x*2*TMath.Pi()/lArDQGlobals.Cell_Variables["phiNbin"][sdet]["A"][Layer] for x in xrange(lArDQGlobals.Cell_Variables["phiNbin"][sdet]["A"][Layer]+1)]
+            phi_range=range(lArDQGlobals.Cell_Variables["phiNbin"][sdet]["A"][Layer]+1)
+            lArDQGlobals.Cell_Variables["phiRange"][sdet]["A"][Layer]=[-TMath.Pi()+ x*2*TMath.Pi()/lArDQGlobals.Cell_Variables["phiNbin"][sdet]["A"][Layer] for x in phi_range]
             lArDQGlobals.Cell_Variables["phiRange"][sdet]["C"]=lArDQGlobals.Cell_Variables["phiRange"][sdet]["A"]
             pass
         pass #partition loop
@@ -326,13 +334,14 @@ for sdet in lArDQGlobals.SubDet:
                   
             etamin=lArDQGlobals.Cell_Variables["etaMin"][sdet]["A"][Lay]
             currange=[etamin]
-            for k in xrange(len(Ranges)-1) :
-                  currange+=[round(currange[-1] + x * Sizes[k],5) for x in xrange(1,Ranges[k+1]-Ranges[k]+1)]
+            for k in range(len(Ranges)-1) :
+                  eta_range = range(1,Ranges[k+1]-Ranges[k]+1)
+                  currange+=[round(currange[-1] + x * Sizes[k],5) for x in eta_range]
                   
                   lArDQGlobals.Cell_Variables["etaRange"][sdet]["A"][Lay]=currange
                   #The C side is just the symmeteric of the A side
                   if sdet=="FCal":
                         lArDQGlobals.Cell_Variables["etaRange"][sdet]["C"][Lay] = lArDQGlobals.Cell_Variables["etaRange"][sdet]["A"][Lay]
                   else: #all other partitions
-                        lArDQGlobals.Cell_Variables["etaRange"][sdet]["C"][Lay] =map(lambda x: x*-1,lArDQGlobals.Cell_Variables["etaRange"][sdet]["A"][Lay])[::-1]
+                        lArDQGlobals.Cell_Variables["etaRange"][sdet]["C"][Lay] =list(map(lambda x: x*-1,lArDQGlobals.Cell_Variables["etaRange"][sdet]["A"][Lay]))[::-1]
                               

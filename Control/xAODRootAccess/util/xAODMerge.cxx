@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-/// $Id: xAODMerge.cxx 796983 2017-02-14 05:09:12Z ssnyder $
+/// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ///
 /// @brief Executable replacing "hadd" for merging xAOD files in standalone mode
 ///
@@ -13,12 +9,11 @@
 ///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 796983 $
-/// $Date: 2017-02-14 06:09:12 +0100 (Tue, 14 Feb 2017) $
 
 // System include(s):
 #include <cstring>
 #include <vector>
+#include <cstdlib>
 
 // ROOT include(s):
 #include <TError.h>
@@ -123,7 +118,7 @@ int main( int argc, char* argv[] ) {
       }
    }
 
-   if (!outputName) {
+   if( ! outputName ) {
      ::Error( APP_NAME, "No output name provided." );
      return 1;
    }

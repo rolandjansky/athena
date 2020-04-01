@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GeometryDBSvc_h
@@ -72,10 +72,6 @@ private:
   bool m_printNotUsed;
   std::vector<std::string> m_sections;
 
-  // Cache of last lookup.
-  mutable std::string m_lastLookupKey;
-  mutable std::string m_lastLookupValue;
-  mutable bool m_lastLookupResult;
 
 };
 

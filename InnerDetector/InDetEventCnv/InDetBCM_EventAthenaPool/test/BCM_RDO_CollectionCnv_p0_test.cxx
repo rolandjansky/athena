@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file InDetBCM_EventAthenaPool/test/BCM_RDO_CollectionCnv_p0_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -12,8 +11,8 @@
 
 
 #undef NDEBUG
-#include "../src/BCM_RDO_CollectionCnv_p0.cxx"
-#include "../src/BCM_RawDataCnv_p0.cxx"
+#include "../src/BCM_RDO_CollectionCnv_p0.h"
+#include "../src/BCM_RawDataCnv_p0.h"
 #include <cassert>
 #include <iostream>
 

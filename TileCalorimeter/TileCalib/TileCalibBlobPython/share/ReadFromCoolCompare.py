@@ -216,7 +216,7 @@ while not flt:
 #flt.dump()
 ot = flt.getObjType()
 ov = flt.getObjVersion()
-os = flt.getObjSizeByte()/4
+os = flt.getObjSizeByte()//4
 no = flt.getNObjs()
 nc = flt.getNChans()
 ng = flt.getNGains()
@@ -234,7 +234,7 @@ while not flt2:
         d=TileCalibUtils.getMaxDrawer(r)-1
     flt2 = blobReader2.getDrawer(r, d, (run2,lumi2), False, False)
 ot2 = flt2.getObjType()
-os2 = flt2.getObjSizeByte()/4
+os2 = flt2.getObjSizeByte()//4
 
 if (os != os2) or (ot != ot2):
     log.error("Object sizes (%s vs %s) or types (%s vs %s) are different", os, os2, ot, ot2)
@@ -266,8 +266,8 @@ for ros in range(0,5):
         flt = blobReader.getDrawer(ros, mod,(run,lumi), False, False)
         flt2 = blobReader2.getDrawer(ros, mod,(run2,lumi2), False, False)
         if flt and flt2:
-            osc = flt.getObjSizeByte()/4
-            os2c = flt2.getObjSizeByte()/4
+            osc = flt.getObjSizeByte()//4
+            os2c = flt2.getObjSizeByte()//4
             if (((os != osc) or (os2 != os2c)) and answ != 'y'):
                 if (ros==0 and osc==os2c and os==os2):
                     log.warning("Object sizes are different for last drawer in DB (%s) and default drawer %s (%s)", os, modName, osc)

@@ -17,8 +17,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h" 
 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthLinks/ElementLinkVector.h"
 
 #include "xAODJet/JetContainer.h"

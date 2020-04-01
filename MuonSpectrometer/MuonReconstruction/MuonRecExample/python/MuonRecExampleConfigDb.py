@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \
      addTypesToExcludeIfDefaultValue, addNamesToExcludeIfDefaultValue, addFullNamesToExcludeIfDefaultValue, \
@@ -18,9 +18,8 @@ addTypesOnlyToSkip( "ICaloNoiseTool" )
 # Tools from other packages
 ################################################################################
 
-# put this here until it is set in the appropriate package
+# put this here until it is set in the appropriate package (needed for Trigger_topOptions_standalone.py", line 141)
 addTool("TrkExTools.AtlasExtrapolator.AtlasExtrapolator","AtlasExtrapolator")
-
 
 ################################################################################
 # Tools from MuonRecExample.MuonRecTools
@@ -235,6 +234,10 @@ addTool("MuonRecExample.NSWTools.ProjectionMMClusterBuilderTool","ProjectionMMCl
 addTool("MuonRecExample.NSWTools.ConstraintAngleMMClusterBuilderTool","ConstraintAngleMMClusterBuilderTool")
 
 addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
+
+addTool("NSWCalibTools.NSWCalibToolsConfig.MMCalibSmearingTool","MMCalibSmearingTool")
+addTool("NSWCalibTools.NSWCalibToolsConfig.STgcCalibSmearingTool","STgcCalibSmearingTool")
+addTool("NSWCalibTools.NSWCalibToolsConfig.NSWCalibTool","NSWCalibTool")
 
 ################################################################################
 # Tools from MuonRecExample.MuPatTools

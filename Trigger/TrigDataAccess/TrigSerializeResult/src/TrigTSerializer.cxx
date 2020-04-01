@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///
@@ -258,7 +258,6 @@ StatusCode TrigTSerializer::finalize(){
   }
   if (!reported)
     ATH_MSG_INFO( name() << " no problems encountered" );
-
   return StatusCode::SUCCESS;
 }
 
@@ -268,8 +267,8 @@ void TrigTSerializer::add_previous_streamerinfos(){
   std::string extFile = PathResolver::find_file (extStreamerInfos, "DATAPATH");
   ATH_MSG_DEBUG( "Using " << extFile );
   TFile f(extFile.c_str());
-  TList *a = f.GetStreamerInfoList();
-  TIter nextinfo(a);
+  TList* streamersList = f.GetStreamerInfoList();
+  TIter nextinfo(streamersList);
   while (TObject* obj = nextinfo()) {
     TStreamerInfo *inf = dynamic_cast<TStreamerInfo*> (obj);
     if (!inf) continue;
@@ -287,6 +286,9 @@ void TrigTSerializer::add_previous_streamerinfos(){
       ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
                      << " checksum: " << inf->GetCheckSum()  );
   }
+  streamersList->SetOwner(false);
+  streamersList->Clear("nodelete");
+  f.Close();
 }
 
 

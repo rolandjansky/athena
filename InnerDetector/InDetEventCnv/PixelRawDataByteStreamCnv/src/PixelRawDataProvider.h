@@ -16,17 +16,18 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "InDetRawData/PixelRDO_Container.h"
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include <string>
 
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "PixelRawDataByteStreamCnv/IPixelRawDataProviderTool.h"
+#include "IRegionSelector/IRegSelSvc.h"
 
 // Forward declarations
-class IPixelRawDataProviderTool;
 class PixelID;
-class IROBDataProviderSvc;
-class IRegSelSvc;
 
 class PixelRawDataProvider : public AthAlgorithm {
 
@@ -46,19 +47,17 @@ class PixelRawDataProvider : public AthAlgorithm {
   ~PixelRawDataProvider();
 
 private:
+  const PixelID* m_pixel_id { nullptr };
 
-  ServiceHandle<IRegSelSvc>             m_regionSelector;     
-  ServiceHandle<IROBDataProviderSvc>   m_robDataProvider;
-  ToolHandle<IPixelRawDataProviderTool> m_rawDataTool;
-  const PixelID*                       m_pixel_id; 
-  bool m_roiSeeded;
-  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  SG::WriteHandleKey<PixelRDO_Container> m_rdoContainerKey;
+  ServiceHandle<IRegSelSvc> m_regionSelector                            { this, "RegSelSvc",  "RegSelSvc", "Region selector" };
+  ServiceHandle<IROBDataProviderSvc>   m_robDataProvider                { this, "ROBDataProvider", "ROBDataProviderSvc" };
+  ToolHandle<IPixelRawDataProviderTool> m_rawDataTool                   { this, "ProviderTool", "PixelRawDataProviderTool"};
+  Gaudi::Property<bool> m_roiSeeded                                     { this, "isRoI_Seeded", false, "Use RoI" }; // TODO, doubled information, empty RoIs collection name would be sufficent
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey     { this, "RoIs", "", "If RoI driven unpacking to be used, this is the key"};
+  SG::WriteHandleKey<PixelRDO_Container> m_rdoContainerKey              { this, "RDOKey", "PixelRDOs"};
   SG::UpdateHandleKey<PixelRDO_Cache> m_rdoCacheKey;
-
-  SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
-    {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
-
+  SG::UpdateHandleKey<IDCInDetBSErrContainer_Cache> m_bsErrorsCacheKey;
+  SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey          { this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
 };
 
 #endif

@@ -1,8 +1,10 @@
 #!/bin/env python
 
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
+
+from __future__ import print_function
 
 #from ROOT import gRandom,TCanvas,TH1F,TH2F
 import ROOT
@@ -34,8 +36,8 @@ class HVCorrectionCOOLReader:
     dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2'
     try:
       db = dbSvc.openDatabase(dbString, False)        
-    except Exception, e:
-      print 'Error: Problem opening database', e
+    except Exception as e:
+      print ('Error: Problem opening database', e)
       sys.exit(1)
 
     folder_name = "/TRIGGER/Receivers/Factors/HVCorrections"
@@ -50,8 +52,8 @@ class HVCorrectionCOOLReader:
 
     try:
       itr=folder.browseObjects(startValKey, endValKey, chsel)
-    except Exception, e:
-      print e
+    except Exception as e:
+      print (e)
       sys.exit(1)
 
     for row in itr:
@@ -87,7 +89,7 @@ class HVCorrectionCalculator:
       
     except IOError:
 
-      print "\ncould not find file: %s ....exiting\n" % file_name
+      print ("\ncould not find file: %s ....exiting\n" % file_name)
 
       sys.exit()
 
@@ -190,7 +192,7 @@ def writeHVToSqlite(name,input_dict):
   dbSvc = cool.DatabaseSvcFactory.databaseService()
   connectString = 'sqlite://;schema='+name+';dbname=L1CALO'
 
-  print '\nrecreating database file:',name
+  print ('\nrecreating database file:',name)
   dbSvc.dropDatabase( connectString )
   db = dbSvc.createDatabase( connectString )
 
@@ -212,7 +214,7 @@ def writeHVToSqlite(name,input_dict):
   folder_description = '<timeStamp>time</timeStamp><addrHeader><address_header service_type="71" clid="1238547719"/></addrHeader><typeName>CondAttrListCollection</typeName>'
   f = db.createFolder( "/TRIGGER/Receivers/Factors/HVCorrections", folderSpec, folder_description)
 
-  print " Now creating sqlite file for ", len(input_dict.keys()), " channels"
+  print (" Now creating sqlite file for ", len(input_dict.keys()), " channels")
   for i in input_dict.keys():
     data = cool.Record( spec )
     data['factor'] = input_dict[i][0]
@@ -224,7 +226,7 @@ def writeHVToSqlite(name,input_dict):
 
 if __name__ == "__main__":
    
-  print " Starting script for calculating L1Calo HV corrections"
+  print (" Starting script for calculating L1Calo HV corrections")
 
   ### configure options
 
@@ -244,30 +246,30 @@ if __name__ == "__main__":
 
   if options.help: # print helpful info 
     
-    print "\nusage:    python doL1CaloHVCorrections.py [options]"
+    print ("\nusage:    python doL1CaloHVCorrections.py [options]")
     
-    print "\noptions:\n"                  
+    print ("\noptions:\n"                  )
 
-    print "-i, --hv_input        hv input .sqlite file     (default:           '') *"
-    print "-t, --hv_corr_diff    minimum abs. change in hv corrections    (default:         0.01)"
-    print "-c, --channel_list    file containing an input channel list    (default:           '')"
-    print "-o, --output_files    name assigned to all the output files    (default: doL1CaloHVCorrections)"
-    print "--noFCAL              receiver channels in FCAL not considered"
-    print "--noFCAL23            receiver channels in hadronic FCAL (FCAL23) not considered"
+    print ("-i, --hv_input        hv input .sqlite file     (default:           '') *")
+    print ("-t, --hv_corr_diff    minimum abs. change in hv corrections    (default:         0.01)")
+    print ("-c, --channel_list    file containing an input channel list    (default:           '')")
+    print ("-o, --output_files    name assigned to all the output files    (default: doL1CaloHVCorrections)")
+    print ("--noFCAL              receiver channels in FCAL not considered")
+    print ("--noFCAL23            receiver channels in hadronic FCAL (FCAL23) not considered")
    
 
-    print "\n[*] minimal requirements"
+    print ("\n[*] minimal requirements")
 
-    print "\nexample:  python doL1CaloHVCorrections.py -i file_1 "
+    print ("\nexample:  python doL1CaloHVCorrections.py -i file_1 ")
 
-    print "\nnote: if no input channel list is given all the channels will be considered by default"
+    print ("\nnote: if no input channel list is given all the channels will be considered by default")
 
-    print "\n(see https://twiki.cern.ch/twiki/bin/save/Atlas/LevelOneCaloGainPredictor for more info)\n"
+    print ("\n(see https://twiki.cern.ch/twiki/bin/save/Atlas/LevelOneCaloGainPredictor for more info)\n")
 
     sys.exit()
 
   if options.hv_input == "" :
-    print "\ntoo few input arguments given ....exiting , need at least sqlite file with input HV corrections\n"
+    print ("\ntoo few input arguments given ....exiting , need at least sqlite file with input HV corrections\n")
         
     sys.exit()
 
@@ -309,7 +311,7 @@ if __name__ == "__main__":
 
   ### initialise output .txt file
  
-  print "Creating output file", options.output_files+".txt"
+  print ("Creating output file", options.output_files+".txt")
   output_text = open(options.output_files+".txt","w") 
 
 
@@ -323,11 +325,11 @@ if __name__ == "__main__":
 
     except IOError:
 
-      print "\ncould not find file: %s ....exiting\n" % options.channel_list
+      print ("\ncould not find file: %s ....exiting\n" % options.channel_list)
 
       sys.exit()
 
-    print "\nreading input channel list from:", options.channel_list
+    print ("\nreading input channel list from:", options.channel_list)
    
     receiver_list = []
 
@@ -340,7 +342,7 @@ if __name__ == "__main__":
     
   else: # from oracle database
 
-    print "\nreading input channel list from oracle database"
+    print ("\nreading input channel list from oracle database")
         
     receiver_list = geometry_convertor.receiver_to_ppm_map.keys()
 
@@ -348,11 +350,11 @@ if __name__ == "__main__":
 
   if not receiver_list:
 
-    print "\ninput channel list is empty ....exiting\n"
+    print ("\ninput channel list is empty ....exiting\n")
 
     sys.exit()
     
-  print "\nsearching %s channels for hv correction changes, at least one layer > %s" % (len(receiver_list), options.hv_corr_diff)
+  print ("\nsearching %s channels for hv correction changes, at least one layer > %s" % (len(receiver_list), options.hv_corr_diff))
 
   ### loop over receivers
 
@@ -413,13 +415,13 @@ if __name__ == "__main__":
 
     correctionDifference = (predictedCorrection-referenceCorrection)
 
-#    print "predictedCorrection=", predictedCorrection, "  referenceCorrection=", referenceCorrection
+#    print ("predictedCorrection=", predictedCorrection, "  referenceCorrection=", referenceCorrection)
 
     if abs(correctionDifference) <= options.hv_corr_diff:                # we update only towers that changed
       continue # skip this receiver, the correction is not high enough
 
     calculatedCorrections[receiver] = [predictedCorrection,0]
-    print >> output_text, ("%5s %9s  %3i %2i  %.3f (%.3f)") % (receiver, coolid, eta_bin, phi_bin, predictedCorrection,referenceCorrection)
+    print (("%5s %9s  %3i %2i  %.3f (%.3f)") % (receiver, coolid, eta_bin, phi_bin, predictedCorrection,referenceCorrection), file=output_text)
 
 
     if geometry_convertor.isCoolEm(coolid):
@@ -528,6 +530,6 @@ if __name__ == "__main__":
  # os.system("cp HVStatus.pdf /home/jb/public_web/tmp ")
 
  
-  print "Done!"
+  print ("Done!")
 
 

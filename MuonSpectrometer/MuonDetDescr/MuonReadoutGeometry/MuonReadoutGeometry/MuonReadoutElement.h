@@ -18,7 +18,6 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
-//<<<<<< PUBLIC VARIABLES >>>>>>
 #define maxfieldindex 10
 
 class GeoPhysVol;
@@ -157,9 +156,9 @@ public:
    // This creates a new surface. The client is responsible for deleting it.
    inline int cachingFlag() const;
    inline void setCachingFlag(int value);
-   virtual void clearCache() const = 0;
-   virtual void fillCache() const = 0;
-   virtual void refreshCache() const = 0;
+   virtual void clearCache() = 0;
+   virtual void fillCache() = 0;
+   virtual void refreshCache() = 0;
 
    const Amg::Transform3D& defTransform(const Identifier&) const
    {return defTransform();};

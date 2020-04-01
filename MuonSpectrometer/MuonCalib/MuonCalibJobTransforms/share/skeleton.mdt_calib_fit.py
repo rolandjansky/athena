@@ -512,8 +512,8 @@ if Config.CalibrationAlgorithm == "Splitter":
 	#if set to true ommit output for chambers which are not to be fitted
 	Config.CalibrationTool2.SuppressNofit = True
 	Config.CalibrationTool.ToolToRun=Config.CalibrationTool2
-print AlgSequence()
-print ToolSvc
-print ServiceMgr
+printfunc (AlgSequence())
+printfunc (ToolSvc)
+printfunc (ServiceMgr)
 from ROOT import gROOT, TCanvas, TF1
 theApp.EvtMax = 1

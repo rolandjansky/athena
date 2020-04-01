@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
-# $Id: transBranchRemap.py,v 1.1 2008-10-06 15:35:51 ssnyder Exp $
-#
 # @file AthenaROOTAccess/python/transBranchRemap.py
 # @author sss
 # @date Oct 2008
 # @brief Table of transient tree key remappings.
 #
+
+from __future__ import print_function
 
 
 # We have to remap names of some branches of the transient tree
@@ -48,4 +48,4 @@ try:
     from TrigEDMConfig.TriggerEDM import getARATypesRenaming
     transBranchRemap.update (getARATypesRenaming())
 except ImportError:
-    print 'WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming'
+    print ('WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming')

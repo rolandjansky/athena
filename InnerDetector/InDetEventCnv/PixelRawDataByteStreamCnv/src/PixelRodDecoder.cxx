@@ -98,8 +98,9 @@ StatusCode PixelRodDecoder::finalize() {
 }
 
 
-//---------------------------------------------------------------------------------------------------- fillCollection
+//---------------------------------------------------------------------------------------------------- fillCixollection
 StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRDO_Container* rdoIdc,
+					    IDCInDetBSErrContainer& /*decodingErrors*/,
                                             std::vector<IdentifierHash>* vecHash) const
 {
 #ifdef PIXEL_DEBUG

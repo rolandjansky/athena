@@ -54,7 +54,7 @@ using std::string;
 namespace {// anonymous namespace for functions at file scope
   static const bool testOffline(false);
 
-  static const string histogramPath[N_REGIONS+1] = {
+  static const string histogramPath[N_REGIONS_INC_GENERAL] = {
     "SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"
   };
   static const string histogramPathRe[N_REGIONS] = {
@@ -191,7 +191,7 @@ SCTHitEffMonTool::bookHistograms() {
       ATH_MSG_VERBOSE("Module " << m_sctId->wafer_hash(chip.first) << ", chip " << chip.second);
     }
 
-    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {
+    std::array < MonGroup, N_REGIONS_INC_GENERAL > histGroupE = {
       MonGroup{this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED},
       MonGroup{this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED},
       MonGroup{this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED},
@@ -204,7 +204,7 @@ SCTHitEffMonTool::bookHistograms() {
       MonGroup{this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED}
     };
 
-    std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {
+    std::array < MonGroup, N_REGIONS_INC_GENERAL > histGroupShift = {
       MonGroup{this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED},
       MonGroup{this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED},
       MonGroup{this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED},
@@ -323,7 +323,7 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {
       ATH_MSG_VERBOSE("Module " << m_sctId->wafer_hash(chip.first) << ", chip " << chip.second);
     }
 
-    std::array < MonGroup, N_REGIONS + 1 > histGroupE = {
+    std::array < MonGroup, N_REGIONS_INC_GENERAL > histGroupE = {
       MonGroup{this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED},
       MonGroup{this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED},
       MonGroup{this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED},
@@ -336,7 +336,7 @@ SCTHitEffMonTool::bookHistogramsRecurrent() {
       MonGroup{this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED}
     };
 
-    std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {
+    std::array < MonGroup, N_REGIONS_INC_GENERAL > histGroupShift = {
       MonGroup{this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED},
       MonGroup{this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED},
       MonGroup{this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED},

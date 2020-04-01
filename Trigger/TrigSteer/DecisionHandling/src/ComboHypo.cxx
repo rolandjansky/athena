@@ -3,8 +3,8 @@
 */
 
 #include "ComboHypo.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "AthViews/View.h"
 #include <sstream>

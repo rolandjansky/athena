@@ -40,7 +40,8 @@ StatusCode PixelRawDataProviderTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs, IPixelRDO_Container* rdoIdc) const {
+StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs, IPixelRDO_Container* rdoIdc,
+					     IDCInDetBSErrContainer& decodingErrors ) const {
   if (vecRobs.size()==0) { return StatusCode::SUCCESS; }
 
 
@@ -108,7 +109,7 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
 
     // here the code for the timing monitoring should be reinserted
     // using 1 container per event and subdetector
-    StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc);
+    StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc, decodingErrors);
 
 
 
