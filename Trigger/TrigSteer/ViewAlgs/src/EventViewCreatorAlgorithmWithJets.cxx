@@ -124,16 +124,18 @@ StatusCode EventViewCreatorAlgorithmWithJets::execute( const EventContext& conte
 }
 
 StatusCode EventViewCreatorAlgorithmWithJets::placeJetInView( const xAOD::Jet* theObject, SG::View* view, const EventContext& context ) const {
-  // fill the Jet output collection
-  ATH_MSG_DEBUG( "Adding Jet To View : " << m_inViewJets.key() );
-  auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::JetContainer > >();
-  oneObjectCollection->clear( SG::VIEW_ELEMENTS );
-  oneObjectCollection->push_back( theObject );
+  auto oneObjectCollection = std::make_unique<xAOD::JetContainer>();
+  auto oneObjectCollectionAux = std::make_unique<xAOD::JetAuxContainer>();
+  oneObjectCollection->setStore(oneObjectCollectionAux.get());
+  xAOD::Jet* copiedJet = new xAOD::Jet();
+  oneObjectCollection->push_back(copiedJet);
+  *copiedJet = *theObject;
 
   //store in the view
   auto handle = SG::makeHandle( m_inViewJets,context );
   ATH_CHECK( handle.setProxyDict( view ) );
-  ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) );
+  ATH_CHECK( handle.record( std::move(oneObjectCollection), std::move(oneObjectCollectionAux) ) );
   return StatusCode::SUCCESS;
 }
+
 

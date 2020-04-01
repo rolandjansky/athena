@@ -81,41 +81,42 @@ def bJetStep2Sequence():
     roisLink = "step1RoI"
     prmVtxKey = "HLT_EFHistoPrmVtx"
 
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets, ViewCreatorInitialROITool
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
     InputMakerAlg = EventViewCreatorAlgorithmWithJets( "IMBJet_step3",RoIsLink=roisLink )
     InputMakerAlg.ViewFallThrough = True
     InputMakerAlg.RequireParentView = True
-    InputMakerAlg.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithJets -> EventViewCreatorAlgorithm
     InputMakerAlg.Views = "BTagViews"
     InputMakerAlg.InViewRoIs = "InViewRoIs"
-    InputMakerAlg.InViewJets = "InViewJets"
-        
-
+    InputMakerAlg.InViewJets = "HLT_InViewJets"
+    InputMakerAlg.ViewNodeName = "bJetBtagSequenceInView" 
+    
     # Second stage of Fast Tracking and Precision Tracking
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
     secondStageAlgs, PTTracks, PTTrackParticles = getSecondStageBjetTracking( inputRoI=InputMakerAlg.InViewRoIs )
 
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    
     # Flavour Tagging
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
-    flavourTaggingAlgs = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
+    acc_flavourTaggingAlgs, flavourTaggingAlgs = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
+    
+    inViewReco = InViewReco("bJetBtagSequence", viewMaker= InputMakerAlg)
+    inViewReco.addRecoAlg(secondStageAlgs)
+    inViewReco.addRecoAlg(flavourTaggingAlgs)
+    inViewReco.mergeReco(acc_flavourTaggingAlgs)
 
-    preAlgs = []
-
-    bJetBtagSequence = seqAND( "bJetBtagSequence", preAlgs + secondStageAlgs + flavourTaggingAlgs )
-    InputMakerAlg.ViewNodeName = "bJetBtagSequence"
-
-    # Sequence
-    BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
-
+    Configurable.configurableRun3Behavior=0
+    
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
     hypo = TrigBjetBtagHypoAlgMT( "TrigBjetBtagHypoAlg" )
     hypo.Tracks = PTTrackParticles[0]
 
     from TrigBjetHypo.TrigBjetBtagHypoTool import TrigBjetBtagHypoToolFromDict
-    return MenuSequence( Sequence    = BjetAthSequence,
-                         Maker       = InputMakerAlg,
+    return MenuSequence( Sequence    = inViewReco.sequence(),
+                         Maker       = inViewReco.inputMaker(),
                          Hypo        = hypo,
-                         HypoToolGen = TrigBjetBtagHypoToolFromDict )
+                         HypoToolGen = TrigBjetBtagHypoToolFromDict)
 
 
 

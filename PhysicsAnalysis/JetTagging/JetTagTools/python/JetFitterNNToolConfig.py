@@ -8,7 +8,7 @@ from JetTagTools.NeuralNetworkToHistoToolConfig import NeuralNetworkToHistoToolC
 # import the JetFitterNNTool configurable
 Analysis__JetFitterNNTool=CompFactory.Analysis__JetFitterNNTool
 
-def JetFitterNNToolCfg( name = 'JetFitterNNTool', CombinedIPNN = False, useBTagFlagsDefaults = True, **options ):
+def JetFitterNNToolCfg( name = 'JetFitterNNTool', scheme='', CombinedIPNN = False, useBTagFlagsDefaults = True, **options ):
     """Sets up a JetFitterNNTool tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -24,6 +24,8 @@ def JetFitterNNToolCfg( name = 'JetFitterNNTool', CombinedIPNN = False, useBTagF
     output: The actual tool."""
     acc = ComponentAccumulator()
     options['name'] = name
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
     if not BTaggingFlags.RunJetFitterNNTool:
         raise ValueError("This case is not implemented because always True during Run2. Contact BTagging software team.")
     if useBTagFlagsDefaults:
@@ -45,3 +47,4 @@ def JetFitterNNToolCfg( name = 'JetFitterNNTool', CombinedIPNN = False, useBTagF
     acc.setPrivateTools(Analysis__JetFitterNNTool( **options))
  
     return acc
+

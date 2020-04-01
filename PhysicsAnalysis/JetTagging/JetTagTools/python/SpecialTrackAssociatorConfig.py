@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from BTagging.BTaggingFlags import BTaggingFlags
 
 # import the TrackToVertexIPEstimator configurable
 CP__TrackVertexAssociationTool=CompFactory.CP__TrackVertexAssociationTool
@@ -22,6 +23,7 @@ def SpecialTrackAssociatorCfg( name = 'SpecialTrackAssociator', useBTagFlagsDefa
     for option in defaults:
         options.setdefault(option, defaults[option])
     options['name'] = name
+    options['VertexContainer'] = BTaggingFlags.PrimaryVertexCollectionName
     acc.setPrivateTools(CP__TrackVertexAssociationTool( **options))
  
     return acc

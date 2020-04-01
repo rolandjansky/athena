@@ -28,6 +28,8 @@ def MV2TagCfg( flags, name = 'MV2c10', scheme = '', useBTagFlagsDefaults = True,
     options['name'] = name + 'Tag'
     basename = name
     options['xAODBaseName'] = basename
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
 
     if useBTagFlagsDefaults:
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,

@@ -20,7 +20,7 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme=
     for assoc in BTagTrackToJetAssocNameList:
         TrackToJetAssociatorNameList.append(jetcol.replace('Track', 'PV0Track') + 'Jets.' + assoc)
 
-    options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, TaggerList)))
+    options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, TaggerList, SetupScheme)))
 
     timestamp = options.get('TimeStamp', None)
     if not timestamp:
@@ -39,8 +39,12 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme=
         options['name'] = (btagname + ConfigFlags.BTagging.GeneralToolSuffix).lower()
         options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
         options['TrackToJetAssociatorNames'] = TrackToJetAssociatorNameList
-        options['BTagSVCollectionName'] = btagname + 'SecVtx'
-        options['BTagJFVtxCollectionName'] = btagname + 'JFVtx'
+        if SetupScheme == "Trig":
+	    options['BTagSVCollectionName'] = 'HLT_SecVtx'
+            options['BTagJFVtxCollectionName'] = 'HLT_JFVtx'
+	else:
+            options['BTagSVCollectionName'] = btagname + 'SecVtx'
+            options['BTagJFVtxCollectionName'] = btagname + 'JFVtx'
         options['JetCalibrationName'] = jetcol.replace('Track', 'PV0Track')
         options['BTaggingCollectionName'] = btagname
         options['BTaggingLinkName'] = '.btaggingLink'+ts

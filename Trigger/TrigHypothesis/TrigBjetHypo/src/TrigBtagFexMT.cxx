@@ -117,6 +117,47 @@ StatusCode TrigBtagFexMT::execute() {
 		   " eta=" << trk->eta() <<
 		   " phi=" << trk->phi() );
 
+  // Test retrieval of properties decorated in BTagTrackAugmenterAlg
+  ATH_MSG_DEBUG( "Attempting to retrieve TrackParticleContainer with key " << m_d0ContainerKey.key() );
+  SG::ReadDecorHandle< xAOD::TrackParticleContainer, float > trkContainer_d0_Handle ( m_d0ContainerKey,ctx );
+  CHECK( trkContainer_d0_Handle.isValid() );
+  ATH_MSG_DEBUG("trkContainerHandle->size(): " << trkContainerHandle->size() << "   trkContainer_d0_Handle->size(): " << trkContainer_d0_Handle->size() );
+  for ( long unsigned int i=0; i< trkContainer_d0_Handle->size(); i++)
+    ATH_MSG_DEBUG("Track " << i <<": d0 =" << trkContainer_d0_Handle(i));
+
+  SG::ReadDecorHandle< xAOD::TrackParticleContainer, float > trkContainer_z0SinTheta_Handle ( m_z0SinThetaContainerKey,ctx );
+  CHECK( trkContainer_z0SinTheta_Handle.isValid() );
+  for ( long unsigned int i=0; i< trkContainer_z0SinTheta_Handle->size(); i++)
+    ATH_MSG_DEBUG("Track " << i <<": z0SinTheta =" << trkContainer_z0SinTheta_Handle(i));
+
+  SG::ReadDecorHandle< xAOD::TrackParticleContainer, float > trkContainer_d0Uncertainty_Handle ( m_d0UncertaintyContainerKey,ctx );
+  CHECK( trkContainer_d0Uncertainty_Handle.isValid() );
+  for ( long unsigned int i=0; i< trkContainer_d0Uncertainty_Handle->size(); i++)
+    ATH_MSG_DEBUG("Track " << i << ": d0Uncertainty =" << trkContainer_d0Uncertainty_Handle(i));
+
+  SG::ReadDecorHandle< xAOD::TrackParticleContainer, float > trkContainer_z0SinThetaUncertainty_Handle ( m_z0SinThetaUncertaintyContainerKey,ctx );
+  CHECK( trkContainer_z0SinThetaUncertainty_Handle.isValid() );
+  for ( long unsigned int i=0; i< trkContainer_z0SinThetaUncertainty_Handle->size(); i++)
+    ATH_MSG_DEBUG("Track " << i << ": z0SinThetaUncertainty =" << trkContainer_z0SinThetaUncertainty_Handle(i));
+
+  SG::ReadDecorHandle< xAOD::TrackParticleContainer, std::vector< float > > trkContainer_trackpos_Handle ( m_trackposContainerKey,ctx );
+  CHECK( trkContainer_trackpos_Handle.isValid() );
+  for ( long unsigned int i=0; i< trkContainer_trackpos_Handle->size(); i++){
+    ATH_MSG_DEBUG("Track " << i << ": Displacement (x,y,z) = ");
+    for (auto pos:  trkContainer_trackpos_Handle(i)){
+      ATH_MSG_DEBUG( pos << ' ');
+    }
+  }
+    
+  SG::ReadDecorHandle< xAOD::TrackParticleContainer, std::vector< float > > trkContainer_trackmom_Handle ( m_trackmomContainerKey,ctx );
+  CHECK( trkContainer_trackmom_Handle.isValid() );
+  for ( long unsigned int i=0; i< trkContainer_trackmom_Handle->size(); i++){
+    ATH_MSG_DEBUG("Track " << i << ": Momentum = ");
+    for (auto mom:  trkContainer_trackmom_Handle(i)){
+      ATH_MSG_DEBUG( mom << ' ');
+    }
+  }
+
 
   // Test retrieval of VertexContainer
   ATH_MSG_DEBUG( "Attempting to retrieve VertexContainer with key " << m_VertexContainerKey.key() );

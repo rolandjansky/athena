@@ -28,6 +28,8 @@ def DL1TagCfg(flags, name = 'DL1', scheme = '', useBTagFlagsDefaults = True, **o
     basename = name
     options['xAODBaseName'] = basename
     options['LocalNNConfigurationFile'] = BTaggingFlags.DL1LocalNNConfig
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
  
     if useBTagFlagsDefaults:
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,

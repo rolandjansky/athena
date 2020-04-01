@@ -30,6 +30,8 @@ def RNNIPTagCfg( flags, name = 'RNNIP', scheme = '', calibration=None, useBTagFl
     basename = 'RNNIP'
     options['xAODBaseName'] = basename
     options['trackAssociationName'] = 'BTagTrackToJetAssociator'
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
     cal_dir = calibration or basename
     is_flipped=False
     if (scheme == "Flip"):

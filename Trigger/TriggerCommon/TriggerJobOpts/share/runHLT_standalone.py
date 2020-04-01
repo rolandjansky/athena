@@ -557,6 +557,13 @@ ConfigFlags.lock()
 triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
 Configurable.configurableRun3Behavior-=1
 
+# B-jet output file
+log.info("opt.enabledSignatures")
+log.info(opt.enabledSignatures)
+from TriggerJobOpts.JetTagCalibConfig import JetTagCalibCfg
+alias = ["HLT_InView->HLT_InView,AntiKt4EMTopo"]
+topSequence+=JetTagCalibCfg(ConfigFlags, ChannelAlias = alias)
+
 # Trigger output
 if opt.doWriteBS or opt.doWriteRDOTrigger:
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, collectHypoDecisionObjects, triggerOutputCfg

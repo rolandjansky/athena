@@ -95,6 +95,14 @@ class TrigBtagFexMT: public AthAlgorithm {
   SG::ReadHandleKey< xAOD::VertexContainer > m_VertexContainerKey {this,"PriVtxKey","xPrimVx","Key of primary vertexes"};
   //  SG::ReadHandleKey< xAOD::VertexContainer > m_BackUpVertexContainerKey {this,"PriVtxKeyBackup","EFHistoPrmVtx","Back-Up Key of primary vertexes"};
   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_trkContainerKey {this,"TracksKey","tracks__COLL","Key for track particle container"};
+  SG::ReadDecorHandleKey< xAOD::TrackParticleContainer > m_d0ContainerKey {this,"d0Key","d0Key","Key for Particles d0 value"};
+  SG::ReadDecorHandleKey< xAOD::TrackParticleContainer > m_z0SinThetaContainerKey {this,"z0SinThetaKey","z0SinThetaKey","Key for Particles z0SinTheta value"};
+  SG::ReadDecorHandleKey< xAOD::TrackParticleContainer > m_d0UncertaintyContainerKey {this,"d0UncertaintyKey","d0UncertaintyKey","Key for Particles d0Uncertainty value"};
+  SG::ReadDecorHandleKey< xAOD::TrackParticleContainer > m_z0SinThetaUncertaintyContainerKey {this,"z0SinThetaUncertaintyKey","z0SinThetaUncertaintyKey","Key for Particles z0SinThetaUncertainty value"};
+  SG::ReadDecorHandleKey< xAOD::TrackParticleContainer > m_trackposContainerKey {this,"trackposKey","trackposKey","Key for Track Displacement"};
+  SG::ReadDecorHandleKey< xAOD::TrackParticleContainer > m_trackmomContainerKey {this,"trackmomKey","trackmomKey","Key for Track Momentum"};
+
+
 
   SG::WriteHandleKey< xAOD::BTaggingContainer > m_outputBTaggingContainerKey {this,"OutputBTagging","Undefined","Output Btagging Container Key"};
   //  SG::WriteHandleKey< xAOD::VertexContainer > m_outputVertexContainerKey {this,"OutputVtxKey","HLT_BjetVertexFex","Output Vertex Container Key"};
