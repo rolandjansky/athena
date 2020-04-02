@@ -514,7 +514,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  std::vector<double> E_EM12_below;
 	  E_EM12_below.reserve(6);
 	  float seedEta = m_SupercellMapTWR->GetXaxis()->GetBinCenter(i);
-	  int EM2seedBin = m_SupercellMapEM2_coarse->GetXaxis()->FindBin(seedEta);
+	  int EM2seedBin = m_SupercellMapEM2_coarse->GetXaxis()->FindBin(seedEta-0.025);
 
 	  // Make a vector with the 5 possible energies in the central phi row
 	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(EM2seedBin-2,j)+m_SupercellMapEM2_coarse->GetBinContent(EM2seedBin-1,j)+m_SupercellMapEM1_coarse->GetBinContent(EM2seedBin-2,j)+m_SupercellMapEM1_coarse->GetBinContent(EM2seedBin-1,j));
