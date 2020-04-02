@@ -1,4 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -362,7 +365,7 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
 
     #leave a check in for WorldRrange and WorldZrange?
     if ConfigFlags.Sim.WorldZRange:
-        print ConfigFlags.Sim.WorldZRange
+        print (ConfigFlags.Sim.WorldZRange)
         if ConfigFlags.Sim.WorldZRange < 26046.:
               raise RuntimeError('getATLASEnvelope: ERROR ConfigFlags.Sim.WorldZRange must be > 26046. Current value: %f' % ConfigFlags.Sim.WorldZRange)
         zSurfaces[17] =  ConfigFlags.Sim.WorldZRange + 100.

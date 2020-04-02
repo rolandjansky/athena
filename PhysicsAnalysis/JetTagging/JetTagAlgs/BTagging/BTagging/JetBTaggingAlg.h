@@ -47,12 +47,11 @@ class  JetBTaggingAlg:
     //SG::ReadHandleKey<xAOD::VertexContainer> m_VertexCollectionName {this, "vxPrimaryCollectionName", "", "Input primary vertex container"};
     SG::ReadHandleKey<xAOD::VertexContainer> m_BTagSVCollectionName {this, "BTagSVCollectionName", "", "Input BTagging secondary vertex container"};
     SG::ReadHandleKey<xAOD::BTagVertexContainer> m_BTagJFVtxCollectionName {this, "BTagJFVtxCollectionName", "", "Input BTagging Jet Fitter container"};
-    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::JetContainer> >m_jetBTaggingLinkName {this, "BTaggingLinkName", "", "Element link from jet to BTagging container"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_jetBTaggingLinkName {this, "BTaggingLinkName", "", "Element link from jet to BTagging container"};
     SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName {this, "BTaggingCollectionName", "", "Output BTagging container"};
     SG::WriteDecorHandleKey<xAOD::BTaggingContainer> m_bTagJetDecorLinkName {this, "JetLinkName", "", "Element Link from BTagging to Jet container"};
 
     std::string m_JetName;
-    std::string m_BTagLink;
 
     ToolHandle< IBTagTool > m_bTagTool;
     ToolHandle< IBTagLightSecVertexing > m_bTagSecVtxTool;

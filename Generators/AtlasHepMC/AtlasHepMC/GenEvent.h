@@ -11,13 +11,13 @@ inline int signal_process_id(const GenEvent e) {
 inline int signal_process_id(const GenEvent* e) {
     return e->signal_process_id();
 }
-inline void set_signal_process_id(const GenEvent* e, const int i) {
+inline void set_signal_process_id(GenEvent* e, const int i) {
     e->set_signal_process_id(i);
 }
-template <class T> void set_random_states(const GenEvent* e, std::vector<T> a) {
+template <class T> void set_random_states(GenEvent* e, std::vector<T> a) {
     e->set_random_states(a);
 }
-template <class T> void set_signal_process_vertex(const GenEvent* e, T v) {
+template <class T> void set_signal_process_vertex(GenEvent* e, T v) {
     e->set_signal_process_vertex(v);
 }
 }

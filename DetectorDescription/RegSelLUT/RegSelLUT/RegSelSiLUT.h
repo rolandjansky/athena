@@ -51,19 +51,19 @@ public:
   RegSelSiLUT(const RegSelSiLUT& r);
   RegSelSiLUT(const std::string& s);
 
-  virtual ~RegSelSiLUT() { } 
+  virtual ~RegSelSiLUT() override { } 
 
 
   /// implementation of the IRegSelUT interface                                                                                                                                        
   /// hash id methods                                                                                                                                                                 
-  void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+  virtual void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
 
-  void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+  virtual void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
 
   /// rob methods                                                                                                                                                                      
-  void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+  virtual void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
 
-  void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+  virtual void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
    
 
 public:

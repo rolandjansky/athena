@@ -99,7 +99,7 @@ namespace SCT_Monitoring{
   //                          SCTErrMonTool :: getNumModules, Daniel Damiani 16/8/2010
   //====================================================================================================
   inline int getNumModules(const int reg,const int layer) {
-    if (reg==0) {
+    if (reg==BARREL) {
       if (layer<2) return 384;
       else if (layer<4) return 480;
       else if (layer<6) return 576;

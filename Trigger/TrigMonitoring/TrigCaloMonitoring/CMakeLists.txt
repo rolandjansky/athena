@@ -25,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAlgorithms/TrigT2CaloCommon
                           Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigSteeringEvent 
+			  Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           Control/AthenaMonitoring )
 
 # External dependencies:

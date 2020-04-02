@@ -27,6 +27,13 @@ test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 
+#Overwrite default msgcount steps
+msgcount = test.get_step("MessageCount")
+msgcount.info_threshold = 1200
+msgcount.other_threshold = 100
+msgcount.required = True # make the test exit code depend on this step
+
+
 # Overwrite default RegTest settings
 regtest = test.get_step('RegTest')
 regtest.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'

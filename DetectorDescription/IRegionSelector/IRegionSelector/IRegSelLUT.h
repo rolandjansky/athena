@@ -67,6 +67,7 @@ public:
   
   virtual void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const = 0;   
    
+  virtual ~IRegSelLUT(){};
 };
 
 

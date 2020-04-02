@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -45,7 +45,7 @@ int Timersub(struct timeval* , struct timeval* , struct timeval* );
 
 
 /** destructor **/
-void __free_timer(void* t) {  if ( t!=NULL ) free((__gtttimer*)t); }
+void __free_timer(void* t) {  if ( t!=nullptr ) free((__gtttimer*)t); }
 
 /** initialiser **/
 // void gtttimer_initkey(void) {  pthread_key_create(&time_key, (void*)__free_timer); }
@@ -70,7 +70,7 @@ void __free_timer(void* t) {  if ( t!=NULL ) free((__gtttimer*)t); }
 void __gtt_gettime(struct timeval* t)
 {
   //  pthread_mutex_lock(&time_lock);
-  gettimeofday (t, NULL);            
+  gettimeofday (t, nullptr);            
   //  pthread_mutex_unlock(&time_lock);
 }
 
