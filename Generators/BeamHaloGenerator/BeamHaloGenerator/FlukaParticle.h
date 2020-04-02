@@ -5,7 +5,7 @@
 #ifndef FLUKAPARTICLE_H
 #define FLUKAPARTICLE_H
 
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include <string>
 #include <vector>
 

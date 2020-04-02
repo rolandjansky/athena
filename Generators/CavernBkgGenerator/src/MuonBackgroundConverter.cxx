@@ -34,8 +34,8 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/Polarization.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/Polarization.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
