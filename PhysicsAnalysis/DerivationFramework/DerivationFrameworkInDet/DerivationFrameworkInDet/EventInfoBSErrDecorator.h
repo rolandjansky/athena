@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,6 +19,7 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
@@ -38,11 +39,13 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-    
-      std::string m_sgName;
-      std::string m_containerName;
-    
-      const SCT_ID*          m_sctId;
+
+      Gaudi::Property<std::string> m_sgName
+         { this,"DecorationPrefix", "", "" };
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
+         { this, "ContainerName", "EventInfo", ""};
+
+      const SCT_ID*          m_sctId = nullptr;
 
       ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "ByteStreamErrTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
       ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};

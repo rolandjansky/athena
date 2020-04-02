@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,15 +20,10 @@ namespace DerivationFramework {
 
   EventInfoBSErrDecorator::EventInfoBSErrDecorator(const std::string& type,
       const std::string& name,
-      const IInterface* parent) : 
-    AthAlgTool(type,name,parent),  
-    m_sgName(""),
-    m_containerName(""),
-    m_sctId(0)  
+      const IInterface* parent) :
+    AthAlgTool(type,name,parent)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("DecorationPrefix",       m_sgName);
-    declareProperty("ContainerName",          m_containerName="EventInfo");
   }
 
   StatusCode EventInfoBSErrDecorator::initialize()
@@ -37,11 +32,8 @@ namespace DerivationFramework {
     if (m_sgName=="") {
       ATH_MSG_WARNING("No decoration prefix name provided for the output of EventInfoBSErrDecorator!");
     }
-    
-    if (m_containerName=="") {
-      ATH_MSG_ERROR("No TrackParticle collection provided for EventInfoBSErrDecorator!");
-      return StatusCode::FAILURE;
-    }
+
+    ATH_CHECK(m_eventInfoKey.initialize() );
 
     // need Atlas id-helpers to identify sub-detectors, take them from detStore
     if( detStore()->retrieve(m_sctId,"SCT_ID").isFailure() ){
@@ -64,8 +56,8 @@ namespace DerivationFramework {
   {
     ATH_MSG_DEBUG("Adding ByteStream errors to EventInfo");
 
-    const xAOD::EventInfo* eventInfo;
-    CHECK( evtStore()->retrieve( eventInfo, m_containerName ) );
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+    CHECK( eventInfo.isValid() ? StatusCode::SUCCESS : StatusCode::FAILURE );
 
     std::vector<int> scterr_Ntot;
     std::vector<int> scterr_bec;
