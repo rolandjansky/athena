@@ -25,22 +25,8 @@
 DerivationFramework::EgammaTrackParticleThinning::EgammaTrackParticleThinning(const std::string& t,
                                                                               const std::string& n,
                                                                               const IInterface* p ) :
-base_class(t,n,p),
-m_ntot(0),
-m_ntotGSF(0),
-m_npass(0),
-m_nGSFPass(0),
-m_sgKey(""),
-m_selectionString(""),
-m_bestMatchOnly(true),
-m_coneSize(-1.0),
-m_parser(0)
-{
-    declareProperty("SGKey", m_sgKey);
-    declareProperty("SelectionString", m_selectionString);
-    declareProperty("BestMatchOnly", m_bestMatchOnly);
-    declareProperty("ConeSize", m_coneSize);
-}
+base_class(t,n,p)
+{}
 
 // Destructor
 DerivationFramework::EgammaTrackParticleThinning::~EgammaTrackParticleThinning() {
@@ -51,26 +37,24 @@ StatusCode DerivationFramework::EgammaTrackParticleThinning::initialize()
 {
     // Decide which collections need to be checked for ID TrackParticles
     ATH_MSG_VERBOSE("initialize() ...");
+    ATH_CHECK( m_egammaKey.initialize());
     ATH_CHECK( m_inDetSGKey.initialize (m_streamName) );
     ATH_MSG_INFO("Using " << m_inDetSGKey.key() << "as the source collection for inner detector track particles");
 
-    if (m_sgKey=="") {
-        ATH_MSG_FATAL("No e-gamma collection provided for thinning.");
-        return StatusCode::FAILURE;
-    } else { ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_sgKey << " will be retained in this format with the rest being thinned away");}
+    ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_egammaKey.key() << " will be retained in this format with the rest being thinned away");
 
     ATH_CHECK( m_gsfSGKey.initialize (m_streamName) );
     ATH_MSG_INFO("GSF track particles associated with objects in " << m_gsfSGKey << " will be retained in this format with the rest being thinned away");
     
     // Set up the text-parsing machinery for selectiong the photon directly according to user cuts
-    if (m_selectionString!="") {
+    if (!m_selectionString.empty()) {
 	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
 	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
 	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    if (m_selectionString!="") {
-            m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-            m_parser->loadExpression(m_selectionString);
-        }
+	    if (!m_selectionString.empty()) {
+               m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
+               m_parser->loadExpression(m_selectionString);
+            }
     }
     
     return StatusCode::SUCCESS;
@@ -81,10 +65,7 @@ StatusCode DerivationFramework::EgammaTrackParticleThinning::finalize()
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, of which "<< m_npass<< " were retained ");
     ATH_MSG_INFO("Processed "<< m_ntotGSF <<" GSF tracks, of which "<< m_nGSFPass << " were retained ");
-    if (m_selectionString!="") {
-        delete m_parser;
-        m_parser = 0;
-    }
+    m_parser.reset();
     
     return StatusCode::SUCCESS;
 }
@@ -112,9 +93,9 @@ StatusCode DerivationFramework::EgammaTrackParticleThinning::doThinning() const
     m_ntotGSF += nGSF;
     
     // Retrieve e-gamma container
-    const xAOD::EgammaContainer* importedEgamma(0);
-    if (evtStore()->retrieve(importedEgamma,m_sgKey).isFailure()) {
-        ATH_MSG_ERROR("No e-gamma collection with name " << m_sgKey << " found in StoreGate!");
+    SG::ReadHandle<xAOD::EgammaContainer> importedEgamma(m_egammaKey,ctx);
+    if (!importedEgamma.isValid()) {
+        ATH_MSG_ERROR("No e-gamma collection with name " << m_egammaKey.key() << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
     unsigned int nEgammas(importedEgamma->size());
@@ -122,7 +103,7 @@ StatusCode DerivationFramework::EgammaTrackParticleThinning::doThinning() const
     std::vector<const xAOD::Egamma*> egToCheck; egToCheck.clear();
     
     // Execute the text parsers if requested
-    if (m_selectionString!="") {
+    if (!m_selectionString.empty()) {
         std::vector<int> entries =  m_parser->evaluateAsVector();
         unsigned int nEntries = entries.size();
         // check the sizes are compatible
@@ -136,27 +117,35 @@ StatusCode DerivationFramework::EgammaTrackParticleThinning::doThinning() const
     }
     
     // Are we dealing with electrons or photons?
-    const xAOD::ElectronContainer* testElectrons = dynamic_cast<const xAOD::ElectronContainer*>(importedEgamma);
-    const xAOD::PhotonContainer* testPhotons = dynamic_cast<const xAOD::PhotonContainer*>(importedEgamma);
+    const xAOD::ElectronContainer* testElectrons = dynamic_cast<const xAOD::ElectronContainer*>(importedEgamma.cptr());
+    const xAOD::PhotonContainer* testPhotons = dynamic_cast<const xAOD::PhotonContainer*>(importedEgamma.cptr());
     bool isElectrons(false), isPhotons(false);
     if (testElectrons) isElectrons = true;
     if (testPhotons) isPhotons = true;
 
     // Set elements in the mask to true if there is a corresponding ElementLink from a reconstructed object
-    if (m_selectionString=="") { // check all objects as user didn't provide a selection string
-        if (isElectrons) setElectronMasks(mask,gsfMask,importedEgamma,importedTrackParticles.cptr(),importedGSFTrackParticles.cptr(),m_bestMatchOnly);
-        if (isPhotons) setPhotonMasks(mask,gsfMask,importedEgamma,importedTrackParticles.cptr(),importedGSFTrackParticles.cptr(),m_bestMatchOnly);
+    if (m_selectionString.empty()) { // check all objects as user didn't provide a selection string
+        if (isElectrons) setElectronMasks(mask,gsfMask,importedEgamma.cptr(),importedTrackParticles.cptr(),importedGSFTrackParticles.cptr(),m_bestMatchOnly);
+        if (isPhotons) setPhotonMasks(mask,gsfMask,importedEgamma.cptr(),importedTrackParticles.cptr(),importedGSFTrackParticles.cptr(),m_bestMatchOnly);
     } else { // check only photons passing user selection string
         if (isElectrons) setElectronMasks(mask,gsfMask,egToCheck,importedTrackParticles.cptr(),importedGSFTrackParticles.cptr(),m_bestMatchOnly);
         if (isPhotons) setPhotonMasks(mask,gsfMask,egToCheck,importedTrackParticles.cptr(),importedGSFTrackParticles.cptr(),m_bestMatchOnly);
     }
-    
+
     // Count up the mask contents
-    for (unsigned int i=0; i<nTracks; ++i) {
-        if (mask[i]) ++m_npass;
+    {
+       unsigned int n_pass=0;
+       for (unsigned int i=0; i<nTracks; ++i) {
+          if (mask[i]) ++n_pass;
+       }
+    m_npass += n_pass;
     }
-    for (unsigned int i=0; i<nGSF; ++i) {
-        if (gsfMask[i]) ++m_nGSFPass;
+    {
+       unsigned int n_gsf_pass=0;
+       for (unsigned int i=0; i<nGSF; ++i) {
+          if (gsfMask[i]) ++n_gsf_pass;
+       }
+       m_nGSFPass += n_gsf_pass;
     }
     
     
