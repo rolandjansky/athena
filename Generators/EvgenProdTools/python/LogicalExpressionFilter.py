@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##==============================================================================
 ## Name:        LogicalExpressionFilter.py
 ##
@@ -18,9 +18,6 @@ __author__  = "Will Buttinger <will@cern.ch>"
 
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
-from GaudiKernel.GaudiHandles import *
-from AthenaCommon.AlgSequence import AlgSequence
-from AthenaCommon.Logging import logging
 
 import tokenize, random
 from cStringIO import StringIO
@@ -156,7 +153,7 @@ class LogicalExpressionFilter( PyAthena.Alg ):
 
             #execute command once to validate
             #response = bool(eval(self.cmd))
-        except Exception, e:
+        except Exception as e:
             self.msg.fatal("%s is not a valid Python expression string. Exception: %s" % (self.Expression,e))
             return StatusCode.Failure
 
@@ -197,7 +194,7 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         response = bool(eval(self.cmd)) if self.cmd else True
 
         if self.Sampling>0 and self.Sampling<=1 and not response:
-            for a in xrange(len(mc[0].weights())): mc[0].weights()[a] /= self.Sampling
+            for a in range(len(mc[0].weights())): mc[0].weights()[a] /= self.Sampling
             mc[0].weights().push_back( int(response) )
             event_weight /= self.Sampling
             response = random.random()<self.Sampling
@@ -219,7 +216,7 @@ class LogicalExpressionFilter( PyAthena.Alg ):
                 self.nEventsPassedPosWeighted+=event_weight
             else :
                 self.nEventsPassedNegWeighted+=abs(event_weight)
-        self.msg.debug("My decision is: %s" % response)
+        self.msg.debug("My decision is: %s", response)
         self.setFilterPassed(response)
         return StatusCode.Success
 
@@ -232,8 +229,8 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         self.msg.info("Filter Expression = " + self.Expression)
         efficiency = float(self.nEventsPassed)/float(self.nEventsProcessed) if self.nEventsProcessed!=0 else 0.0
         efficiencyWeighted = float(self.nEventsPassedWeighted)/float(self.nEventsProcessedWeighted) if self.nEventsProcessedWeighted!=0 else 0.0
-        self.msg.info("Filter Efficiency = %f [%s / %s]" % (efficiency,self.nEventsPassed,self.nEventsProcessed))
-        self.msg.info("Weighted Filter Efficiency = %f [%f / %f]" % (efficiencyWeighted,self.nEventsPassedWeighted,self.nEventsProcessedWeighted))
+        self.msg.info("Filter Efficiency = %f [%s / %s]", efficiency,self.nEventsPassed,self.nEventsProcessed)
+        self.msg.info("Weighted Filter Efficiency = %f [%f / %f]", efficiencyWeighted,self.nEventsPassedWeighted,self.nEventsProcessedWeighted)
         print("MetaData: GenFiltEff = %e" % (efficiencyWeighted if self.UseEventWeight else efficiency))
 
         print("MetaData: sumOfPosWeights = %e" % (self.nEventsPassedPosWeighted if self.UseEventWeight else self.nEventsPassed))

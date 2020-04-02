@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # Basic ROOT setup
-import ROOT,sys,os,math,glob,array
+import ROOT,sys,math,glob
 ROOT.SetSignalPolicy( ROOT.kSignalFast )
 ROOT.gROOT.SetBatch(True)
 ROOT.gErrorIgnoreLevel = ROOT.kError
@@ -9,9 +12,10 @@ ROOT.gErrorIgnoreLevel = ROOT.kError
 # Check for the right input files
 if len(sys.argv)>1:
     inputfilenames = []
-    for a in sys.argv[1].split(','): inputfilenames+=glob.glob(a)
+    for a in sys.argv[1].split(','):
+        inputfilenames+=glob.glob(a)
 else:
-    print 'Please specify an input LHE file (or comma-separated lists of them)'
+    print ('Please specify an input LHE file (or comma-separated lists of them)')
     sys.exit(1)
 
 # Set up histograms
@@ -48,12 +52,13 @@ for inputfilename in inputfilenames:
             # Check for the ktdurham cut
             if 'ktdurham' in line and '=' in line:
                 # Print the matching cut for info
-                print 'Matching cut:',float(line.split()[0])
+                print ('Matching cut:',float(line.split()[0]))
                 continue
             # Check for a comment
-            if len(line.split('#')[0].strip())==0: continue
+            if len(line.split('#')[0].strip())==0:
+                continue
             # Check if we have entered an event
-            if not event and not '<event>' in line:
+            if not event and '<event>' not in line:
                 continue
             # Check if we are just starting an event
             if not event and '<event>' in line:
@@ -74,8 +79,10 @@ for inputfilename in inputfilenames:
                 continue
             # Deal with the inital state partons first
             if npartons>extras+2:
-                if npartons>extras+3: e_init_0.Fill( float(line.split()[9]) )
-                else:                 e_init_1.Fill( float(line.split()[9]) )
+                if npartons>extras+3:
+                    e_init_0.Fill( float(line.split()[9]) )
+                else:
+                    e_init_1.Fill( float(line.split()[9]) )
                 pdg_init.Fill( abs(int(line.split()[0])) )
                 npartons -= 1
                 continue
@@ -84,17 +91,25 @@ for inputfilename in inputfilenames:
             pt = math.sqrt(momentum_x*momentum_x+momentum_y*momentum_y)
             # Now deal with hard scatter partons
             if npartons>extras:
-                if npartons>extras+1: pt_hard_0.Fill(pt)
-                else:                 pt_hard_1.Fill(pt)
+                if npartons>extras+1:
+                    pt_hard_0.Fill(pt)
+                else:
+                    pt_hard_1.Fill(pt)
                 npartons -= 1
                 continue
             # Now we are into the extras
-            if extras==npartons: pt_extra_0.Fill(pt)
-            elif extras-1==npartons: pt_extra_1.Fill(pt)
-            elif extras-2==npartons: pt_extra_2.Fill(pt)
-            elif extras-3==npartons: pt_extra_3.Fill(pt)
-            elif extras-4==npartons: pt_extra_4.Fill(pt)
-            elif extras-5==npartons: pt_extra_5.Fill(pt)
+            if extras==npartons:
+                pt_extra_0.Fill(pt)
+            elif extras-1==npartons:
+                pt_extra_1.Fill(pt)
+            elif extras-2==npartons:
+                pt_extra_2.Fill(pt)
+            elif extras-3==npartons:
+                pt_extra_3.Fill(pt)
+            elif extras-4==npartons:
+                pt_extra_4.Fill(pt)
+            elif extras-5==npartons:
+                pt_extra_5.Fill(pt)
             pdg_extras.Fill( abs(int(line.split()[0])) )
             npartons-=1
         # End of loop over input file lines
