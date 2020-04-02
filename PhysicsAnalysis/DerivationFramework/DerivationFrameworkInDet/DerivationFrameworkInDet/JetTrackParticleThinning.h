@@ -16,7 +16,9 @@
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODJet/JetContainer.h"
 #include "StoreGate/ThinningHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace ExpressionParsing {
   class ExpressionParser;
@@ -33,8 +35,11 @@ namespace DerivationFramework {
       virtual StatusCode doThinning() const override;
 
     private:
-      mutable std::atomic<unsigned int> m_ntot, m_npass;
-      std::string m_jetSGKey;
+      mutable std::atomic<unsigned int> m_ntot  {};
+      mutable std::atomic<unsigned int> m_npass {};
+      SG::ReadHandleKey<xAOD::JetContainer> m_jetKey
+        { this, "JetKey", "", ""};
+
       StringProperty m_streamName
         { this, "StreamName", "", "Name of the stream being thinned" };
       SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_inDetSGKey
