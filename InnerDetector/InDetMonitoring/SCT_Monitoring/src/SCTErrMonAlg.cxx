@@ -42,26 +42,6 @@ StatusCode SCTErrMonAlg::initialize() {
     m_geo[i] = moduleGeo;
   }
 
-  // Fill existing wafers
-  m_indicesVector.reserve(maxHash);
-  SCT_ID::const_id_iterator waferIterator{m_pSCTHelper->wafer_begin()};
-  SCT_ID::const_id_iterator waferEnd{m_pSCTHelper->wafer_end()};
-  for (; waferIterator not_eq waferEnd; ++waferIterator) {
-    const Identifier waferId{*waferIterator};
-    int layer{m_pSCTHelper->layer_disk(waferId)};
-    int side{m_pSCTHelper->side(waferId)};
-    int barrel_ec{m_pSCTHelper->barrel_ec(waferId)};
-    int ieta{m_pSCTHelper->eta_module(waferId)};
-    int iphi{m_pSCTHelper->phi_module(waferId)};
-    layer = layer * 2 + side;
-    int regionIndex{GENERAL_INDEX};
-    if ((barrel_ec == BARREL) and (layer >= 0) and (layer < N_BARRELSx2)) regionIndex = BARREL_INDEX;
-    else if (barrel_ec == ENDCAP_A) regionIndex = ENDCAP_A_INDEX;
-    else if (barrel_ec == ENDCAP_C) regionIndex = ENDCAP_C_INDEX;
-    else continue;
-    m_indicesVector.push_back(indices_t{regionIndex, layer, ieta, iphi});
-  }
-
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -218,22 +198,42 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     total_errors += fillByteStreamErrorsHelper(m_byteStreamErrTool->getErrorSet(errType), errType, categoryErrorMap);
   }
   /// Fill /SCT/GENERAL/errors/SCT_LinksWith*VsLbs ///
+  std::vector<int> vEta;
+  std::vector<int> vPhi;
+  std::vector<bool> vHasError;
   for (int errCate{0}; errCate < CategoryErrors::N_ERRCATEGORY; ++errCate) {
     auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
     auto nCategoryErrorsAcc{Monitored::Scalar<int>("n_"+CategoryErrorsNames[errCate],
                                                    categoryErrorMap.count(errCate))};
     fill("SCTErrMonitor", lumiBlockAcc, nCategoryErrorsAcc);
 
-    for (const indices_t& indices : m_indicesVector) {
-      const int region{indices[REGIONINDEX]};
-      const int layer{indices[LAYERINDEX]};
-      const int eta{indices[ETAINDEX]};
-      const int phi{indices[PHIINDEX]};
-      auto etaAcc{Monitored::Scalar<int>("eta", eta)};
-      auto phiAcc{Monitored::Scalar<int>("phi", phi)};
-      auto hasErrorAcc{Monitored::Scalar<bool>("hasError_"+CategoryErrorsNames[errCate]+"_"+subDetNameShort[region].Data()+"_"+to_string(layer/2)+"_"+to_string(layer%2),
-                                               categoryErrorMap[errCate][region][layer][eta][phi])};
-      fill("SCTErrMonitor", etaAcc, phiAcc, hasErrorAcc);
+    for (int iReg{0}; iReg<N_REGIONS; iReg++) {
+      const int maxLayer{iReg==BARREL_INDEX ? N_BARRELSx2 : N_ENDCAPSx2};
+      const int firstEta{iReg==BARREL_INDEX ? FIRST_ETA_BIN : FIRST_ETA_BIN_EC};
+      const int lastEta{iReg==BARREL_INDEX ? LAST_ETA_BIN : LAST_ETA_BIN_EC};
+      const int firstPhi{iReg==BARREL_INDEX ? FIRST_PHI_BIN : FIRST_PHI_BIN_EC};
+      const int lastPhi{iReg==BARREL_INDEX ? LAST_PHI_BIN : LAST_PHI_BIN_EC};
+      const size_t size{static_cast<size_t>((lastEta-firstEta+1)*(lastPhi-firstPhi+1))};
+      for (int iLay{0}; iLay<maxLayer; iLay++) {
+        vEta.resize(size);
+        vPhi.resize(size);
+        vHasError.resize(size);
+        for (int eta{firstEta}; eta<=lastEta; eta++) {
+          const int iEta{eta-firstEta};
+          for (int phi{firstPhi}; phi<=lastPhi; phi++) {
+            const int iPhi{phi-firstPhi};
+            size_t index{static_cast<size_t>(iEta*(lastPhi-firstPhi+1)+iPhi)};
+            vEta[index] = eta;
+            vPhi[index] = phi;
+            vHasError[index] = categoryErrorMap[errCate][iReg][iLay][iEta][iPhi];
+          }
+        }
+        auto etaAcc{Monitored::Collection("eta", vEta)};
+        auto phiAcc{Monitored::Collection("phi", vPhi)};
+        auto hasErrorAcc{Monitored::Collection("hasError_"+CategoryErrorsNames[errCate]+"_"+subDetNameShort[iReg].Data()+"_"+to_string(iLay/2)+"_"+to_string(iLay%2),
+                                               vHasError)};
+        fill("SCTErrMonitor", etaAcc, phiAcc, hasErrorAcc);
+      }
     }
   }
   
@@ -369,6 +369,10 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
     if ((barrel_ec == BARREL) and (layer >= 0) and (layer < N_BARRELSx2)) regionIndex = BARREL_INDEX;
     else if (barrel_ec == ENDCAP_A) regionIndex = ENDCAP_A_INDEX;
     else if (barrel_ec == ENDCAP_C) regionIndex = ENDCAP_C_INDEX;
+
+    // Take into account offsets
+    ieta -= ((regionIndex==BARREL_INDEX) ? FIRST_ETA_BIN : FIRST_ETA_BIN_EC);
+    iphi -= ((regionIndex==BARREL_INDEX) ? FIRST_PHI_BIN : FIRST_PHI_BIN_EC);
 
     if (b_category[CategoryErrors::MASKEDLINKALL]) {
       nMaskedLinks[GENERAL_INDEX]++;
