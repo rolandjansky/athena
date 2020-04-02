@@ -26,6 +26,11 @@ def MultivariateTagManagerCfg(flags, name = 'MultivariateTagManager', TaggerList
     MultivariateTagManagerAuxBranches = []
     MultivariateTagManagerAuxBranches += ['SMT_discriminant'] #ATLASRECTS-5381
 
+    if 'DL1rnn' in TaggerList or 'MV2c10rnn' in TaggerList:
+        #RNNIP output variables are needed
+        rnnip_outputs = ['b','c','u','tau']
+        MultivariateTagManagerAuxBranches += ['rnnip_p' + x for x in rnnip_outputs]
+
     if 'DL1' in TaggerList:
         dl1 = acc.popToolsAndMerge(DL1TagCfg(flags, 'DL1', scheme))
         mvtagtoollist.append(dl1)

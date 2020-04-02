@@ -6,7 +6,6 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 def getFlavourTagging( inputJets, inputVertex, inputTracks ):
 
     acc = ComponentAccumulator()
-    algSequence = []
 
     nThreads=1
     filesInput="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1"
@@ -26,7 +25,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     bTagTrackAugmenter = Analysis__BTagTrackAugmenterAlg( "Analysis__BTagTrackAugmenterAlg" )
     bTagTrackAugmenter.TrackContainer = inputTracks
     bTagTrackAugmenter.PrimaryVertexContainer = inputVertex
-    algSequence.append( bTagTrackAugmenter )
+    acc.addEventAlgo(bTagTrackAugmenter)
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBtagFexMT
     bTagFex = TrigBtagFexMT( "TrigBtagFexMT" )
@@ -40,8 +39,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     bTagFex.trackposKey = inputTracks + ".btagIp_trackDisplacement"
     bTagFex.trackmomKey = inputTracks + ".btagIp_trackMomentum"
     bTagFex.OutputBTagging = recordable( "HLT_BTagging" )
-    algSequence.append( bTagFex )
-
+    acc.addEventAlgo(bTagFex)
 
     from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
     from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
@@ -74,6 +72,6 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     acc.merge(JetBTaggingAlg)
 
 
-    return [ acc, algSequence]
+    return acc
 
 

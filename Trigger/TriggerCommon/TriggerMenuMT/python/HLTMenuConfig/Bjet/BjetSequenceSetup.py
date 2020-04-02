@@ -100,11 +100,10 @@ def bJetStep2Sequence():
     
     # Flavour Tagging
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
-    acc_flavourTaggingAlgs, flavourTaggingAlgs = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
+    acc_flavourTaggingAlgs = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
     
     inViewReco = InViewReco("bJetBtagSequence", viewMaker= InputMakerAlg)
     inViewReco.addRecoAlg(secondStageAlgs)
-    inViewReco.addRecoAlg(flavourTaggingAlgs)
     inViewReco.mergeReco(acc_flavourTaggingAlgs)
 
     Configurable.configurableRun3Behavior=0

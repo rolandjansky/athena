@@ -94,7 +94,7 @@ namespace Analysis {
     SG::ReadHandle< xAOD::TrackParticleContainer > trackContainerHandle = SG::makeHandle< xAOD::TrackParticleContainer >( m_TrackContainerKey,ctx);
     CHECK( trackContainerHandle.isValid() );
     const xAOD::TrackParticleContainer* tracks = trackContainerHandle.get();
-    ATH_MSG_INFO( "Retrieved " << tracks->size() << " input tracks..." );
+    ATH_MSG_DEBUG( "Retrieved " << tracks->size() << " input tracks..." );
 
 
     // ========================================================================================================================== 
