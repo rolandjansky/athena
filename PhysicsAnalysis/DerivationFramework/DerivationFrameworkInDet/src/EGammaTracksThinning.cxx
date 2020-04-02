@@ -4,8 +4,6 @@
 
 #include "DerivationFrameworkInDet/EGammaTracksThinning.h"
 #include "TrkParameters/TrackParameters.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "StoreGate/ThinningHandle.h"
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -13,20 +11,13 @@
 DerivationFramework::EGammaTracksThinning::EGammaTracksThinning(const std::string& type, 
                                                     const std::string& name, 
                                                     const IInterface* parent) :
-  base_class(type, name, parent),
-  m_electronsContainerName("Electrons"),
-  m_photonsContainerName("Photons"),
-  m_dr(0.5),
-  m_minEtEg(0)
-{
-  declareProperty("electronContainerName", m_electronsContainerName = "Electrons");
-  declareProperty("photonContainerName"  , m_photonsContainerName   = "Photons");
-  declareProperty("deltaR"               , m_dr=0.5);
-  declareProperty("minEtEg"              , m_minEtEg = 0 );
-}
+  base_class(type, name, parent)
+{}
 
 StatusCode DerivationFramework::EGammaTracksThinning::initialize(){
 
+  ATH_CHECK( m_electronsContainerKey.initialize() );
+  ATH_CHECK( m_photonsContainerKey.initialize() );
   ATH_CHECK( m_tracksCollectionName.initialize (m_streamName) );
   return StatusCode::SUCCESS;
 }
@@ -48,31 +39,31 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const
   
   // retrieve the electron collection
 
-  const xAOD::ElectronContainer* electronContainer = evtStore()->retrieve < const xAOD::ElectronContainer > (m_electronsContainerName);
-  if ( !electronContainer )
+  SG::ReadHandle<xAOD::ElectronContainer> electronContainer(m_electronsContainerKey, ctx);
+  if ( !electronContainer.isValid() )
     {
-      ATH_MSG_WARNING( "Container '" << m_electronsContainerName 
+      ATH_MSG_WARNING( "Container '" << m_electronsContainerKey.key()
                        << "' could not be retrieved from StoreGate!" ); 
       return StatusCode::FAILURE;
     } 
   else
     {
-      ATH_MSG_DEBUG( "Container '" << m_electronsContainerName
+      ATH_MSG_DEBUG( "Container '" << m_electronsContainerKey.key()
                      << "' retrieved from StoreGate" );
     }
 
    // retrieve the photon collection
   
-  const xAOD::PhotonContainer* photonContainer = evtStore()->retrieve < const xAOD::PhotonContainer > (m_photonsContainerName);
-  if ( !photonContainer )
+  SG::ReadHandle<xAOD::PhotonContainer> photonContainer(m_photonsContainerKey,ctx);
+  if ( !photonContainer.isValid() )
     {
-      ATH_MSG_WARNING( "Container '" << m_photonsContainerName 
+      ATH_MSG_WARNING( "Container '" << m_photonsContainerKey.key()
                        << "' could not be retrieved from StoreGate!" ); 
       return StatusCode::FAILURE;
     } 
   else
     {
-      ATH_MSG_DEBUG( "Container '" << m_photonsContainerName
+      ATH_MSG_DEBUG( "Container '" << m_photonsContainerKey.key()
                      << "' retrieved from StoreGate" );
     }
 
