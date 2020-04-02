@@ -58,6 +58,10 @@ BOOST_AUTO_TEST_SUITE(SCT_ID_Test)
     //the following case doesn't generate any error, even with 'checks on'
     const auto nonsenseIdentifier = sctId.module_id(0,3,3,0);//eta=0 modules don't exist in the barrel
     BOOST_TEST_MESSAGE("Module (0,3,3,0) : "<<nonsenseIdentifier<<", which is nonsense.");//but this doesn't prevent it generating a number
+    // These tests fail an assertion in debug builds.
+    // Even with assertions disabled, they involve undefined behavior --- the
+    // assertion protects against out-of-bounds array access.
+#if 0
     boost::test_tools::output_test_stream output;
     BOOST_TEST_MESSAGE("Check nonsense identifiers without and with checks turned on");
     auto nonsenseIdentifier2 = Identifier{};
@@ -73,6 +77,7 @@ BOOST_AUTO_TEST_SUITE(SCT_ID_Test)
     //put messages outside the cout capture block
     BOOST_TEST_MESSAGE("These invalid identifiers were returned : "<<nonsenseIdentifier2<<", "<<nonsenseIdentifier3<<", so be careful!");
     BOOST_CHECK( output.is_equal( rangeError ) );
+#endif
     //check wafer Identifier for side 0
     const auto barrelWaferId0 = sctId.wafer_id(0,3,3,-1,0);
     //which is just the same as the module Id...
