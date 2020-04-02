@@ -26,6 +26,11 @@ template <typename Txvec, typename Tyvec, typename Tz ,typename Trandom=float> c
 
     ///Function gets random number rnd in the range [0,1) as argument 
     ///and returns function value according to a histogram distribution.
+    ///An exponential interpolation is done within each bin
+
+
+///Function gets random number rnd in the range [0,1) as argument 
+    ///and returns function value according to a histogram distribution.
     ///A linear interpolation is done within each bin
     virtual void rnd_to_fct(float& valuex,float& valuey,float rnd, float rnd2) const {
       size_t nbins=get_nbins();
@@ -78,9 +83,12 @@ template <typename Txvec, typename Tyvec, typename Tz ,typename Trandom=float> c
         m=(mnext+mprev)*l*l/dfrac;
       } else m=0;
       
-      valuey = m_HistoBordersy.position(ibiny,m,residual_rnd);
+      valuey = m_HistoBordersy.position_lin(ibiny,m,residual_rnd);
       valuex = m_HistoBordersx.position(ibinx, rnd2);
     }
+
+
+
 
   ClassDef(TFCS2DFunctionTemplateInterpolationHistogram,1)  //TFCS1DFunctionTemplateInterpolationHistogram
 };
@@ -92,7 +100,6 @@ class TFCS2DFunctionInt8Int8Int8InterpolationHistogram: public TFCS2DFunctionTem
 
   ClassDef(TFCS2DFunctionInt8Int8Int8InterpolationHistogram,1)  //TFCS2DFunctionInt8Int8Int8InterpolationHistogram
 };
-
 class TFCS2DFunctionInt8Int8Int16InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint16_t,float>
 {
   public:
@@ -100,7 +107,6 @@ class TFCS2DFunctionInt8Int8Int16InterpolationHistogram: public TFCS2DFunctionTe
 
   ClassDef(TFCS2DFunctionInt8Int8Int16InterpolationHistogram,1)  //TFCS2DFunctionInt8Int8Int16InterpolationHistogram
 };
-
 class TFCS2DFunctionInt8Int8Int32InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint32_t,float>
 {
   public:
@@ -109,7 +115,7 @@ class TFCS2DFunctionInt8Int8Int32InterpolationHistogram: public TFCS2DFunctionTe
   ClassDef(TFCS2DFunctionInt8Int8Int32InterpolationHistogram,1)  //TFCS2DFunctionInt8Int8Int32InterpolationHistogram
 };
 
-
+////
 
 class TFCS2DFunctionInt8Int16Int8InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint8_t,float>
 {
@@ -118,7 +124,6 @@ class TFCS2DFunctionInt8Int16Int8InterpolationHistogram: public TFCS2DFunctionTe
 
   ClassDef(TFCS2DFunctionInt8Int16Int8InterpolationHistogram,1)  //TFCS2DFunctionInt8Int16Int8InterpolationHistogram
 };
-
 class TFCS2DFunctionInt8Int16Int16InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint16_t,float>
 {
   public:
@@ -126,7 +131,6 @@ class TFCS2DFunctionInt8Int16Int16InterpolationHistogram: public TFCS2DFunctionT
 
   ClassDef(TFCS2DFunctionInt8Int16Int16InterpolationHistogram,1)  //TFCS2DFunctionInt8Int16Int16InterpolationHistogram
 };
-
 class TFCS2DFunctionInt8Int16Int32InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint32_t,float>
 {
   public:
@@ -136,6 +140,56 @@ class TFCS2DFunctionInt8Int16Int32InterpolationHistogram: public TFCS2DFunctionT
 };
 
 
+class TFCS2DFunctionInt8Int32Int8InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint8_t,float>
+{
+  public:
+    TFCS2DFunctionInt8Int32Int8InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint8_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt8Int32Int8InterpolationHistogram,1)  //TFCS2DFunctionInt8Int32Int8InterpolationHistogram
+};
+class TFCS2DFunctionInt8Int32Int16InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint16_t,float>
+{
+  public:
+    TFCS2DFunctionInt8Int32Int16InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint16_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt8Int32Int16InterpolationHistogram,1)  //TFCS2DFunctionInt8Int32Int16InterpolationHistogram
+};
+class TFCS2DFunctionInt8Int32Int32InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint32_t,float>
+{
+  public:
+    TFCS2DFunctionInt8Int32Int32InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint32_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt8Int32Int32InterpolationHistogram,1)  //TFCS2DFunctionInt8Int32Int32InterpolationHistogram
+};
+
+
+
+
+
+
+class TFCS2DFunctionInt16Int8Int8InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint8_t,float>
+{
+  public:
+    TFCS2DFunctionInt16Int8Int8InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint8_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt16Int8Int8InterpolationHistogram,1)  //TFCS2DFunctionInt16Int8Int8InterpolationHistogram
+};
+class TFCS2DFunctionInt16Int8Int16InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint16_t,float>
+{
+  public:
+    TFCS2DFunctionInt16Int8Int16InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint16_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt16Int8Int16InterpolationHistogram,1)  //TFCS2DFunctionInt16Int8Int16InterpolationHistogram
+};
+class TFCS2DFunctionInt16Int8Int32InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint32_t,float>
+{
+  public:
+    TFCS2DFunctionInt16Int8Int32InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint32_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt16Int8Int32InterpolationHistogram,1)  //TFCS2DFunctionInt16Int8Int32InterpolationHistogram
+};
+
+////
 
 class TFCS2DFunctionInt16Int16Int8InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint8_t,float>
 {
@@ -144,7 +198,6 @@ class TFCS2DFunctionInt16Int16Int8InterpolationHistogram: public TFCS2DFunctionT
 
   ClassDef(TFCS2DFunctionInt16Int16Int8InterpolationHistogram,1)  //TFCS2DFunctionInt16Int16Int8InterpolationHistogram
 };
-
 class TFCS2DFunctionInt16Int16Int16InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint16_t,float>
 {
   public:
@@ -152,7 +205,6 @@ class TFCS2DFunctionInt16Int16Int16InterpolationHistogram: public TFCS2DFunction
 
   ClassDef(TFCS2DFunctionInt16Int16Int16InterpolationHistogram,1)  //TFCS2DFunctionInt16Int16Int16InterpolationHistogram
 };
-
 class TFCS2DFunctionInt16Int16Int32InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint32_t,float>
 {
   public:
@@ -160,5 +212,170 @@ class TFCS2DFunctionInt16Int16Int32InterpolationHistogram: public TFCS2DFunction
 
   ClassDef(TFCS2DFunctionInt16Int16Int32InterpolationHistogram,1)  //TFCS2DFunctionInt16Int16Int32InterpolationHistogram
 };
+
+
+class TFCS2DFunctionInt16Int32Int8InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint8_t,float>
+{
+  public:
+    TFCS2DFunctionInt16Int32Int8InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint8_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt16Int32Int8InterpolationHistogram,1)  //TFCS2DFunctionInt16Int32Int8InterpolationHistogram
+};
+class TFCS2DFunctionInt16Int32Int16InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint16_t,float>
+{
+  public:
+    TFCS2DFunctionInt16Int32Int16InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint16_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt16Int32Int16InterpolationHistogram,1)  //TFCS2DFunctionInt16Int32Int16InterpolationHistogram
+};
+class TFCS2DFunctionInt16Int32Int32InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint32_t,float>
+{
+  public:
+    TFCS2DFunctionInt16Int32Int32InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint32_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt16Int32Int32InterpolationHistogram,1)  //TFCS2DFunctionInt16Int32Int32InterpolationHistogram
+};
+
+
+
+
+
+
+class TFCS2DFunctionInt32Int8Int8InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint8_t,float>
+{
+  public:
+    TFCS2DFunctionInt32Int8Int8InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint8_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt32Int8Int8InterpolationHistogram,1)  //TFCS2DFunctionInt32Int8Int8InterpolationHistogram
+};
+class TFCS2DFunctionInt32Int8Int16InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint16_t,float>
+{
+  public:
+    TFCS2DFunctionInt32Int8Int16InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint16_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt32Int8Int16InterpolationHistogram,1)  //TFCS2DFunctionInt32Int8Int16InterpolationHistogram
+};
+class TFCS2DFunctionInt32Int8Int32InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint32_t,float>
+{
+  public:
+    TFCS2DFunctionInt32Int8Int32InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt8BinEdges,uint32_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt32Int8Int32InterpolationHistogram,1)  //TFCS2DFunctionInt32Int8Int32InterpolationHistogram
+};
+
+////
+
+class TFCS2DFunctionInt32Int16Int8InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint8_t,float>
+{
+  public:
+    TFCS2DFunctionInt32Int16Int8InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint8_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt32Int16Int8InterpolationHistogram,1)  //TFCS2DFunctionInt32Int16Int8InterpolationHistogram
+};
+class TFCS2DFunctionInt32Int16Int16InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint16_t,float>
+{
+  public:
+    TFCS2DFunctionInt32Int16Int16InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint16_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt32Int16Int16InterpolationHistogram,1)  //TFCS2DFunctionInt32Int16Int16InterpolationHistogram
+};
+class TFCS2DFunctionInt32Int16Int32InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint32_t,float>
+{
+  public:
+    TFCS2DFunctionInt32Int16Int32InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt16BinEdges,uint32_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt32Int16Int32InterpolationHistogram,1)  //TFCS2DFunctionInt32Int16Int32InterpolationHistogram
+};
+
+
+class TFCS2DFunctionInt32Int32Int8InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint8_t,float>
+{
+  public:
+    TFCS2DFunctionInt32Int32Int8InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint8_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt32Int32Int8InterpolationHistogram,1)  //TFCS2DFunctionInt32Int32Int8InterpolationHistogram
+};
+class TFCS2DFunctionInt32Int32Int16InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint16_t,float>
+{
+  public:
+    TFCS2DFunctionInt32Int32Int16InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint16_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt32Int32Int16InterpolationHistogram,1)  //TFCS2DFunctionInt32Int32Int16InterpolationHistogram
+};
+class TFCS2DFunctionInt32Int32Int32InterpolationHistogram: public TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint32_t,float>
+{
+  public:
+    TFCS2DFunctionInt32Int32Int32InterpolationHistogram(TH2* h=nullptr):TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges,TFCS1DFunction_HistogramInt32BinEdges,uint32_t,float>(h) {};
+
+  ClassDef(TFCS2DFunctionInt32Int32Int32InterpolationHistogram,1)  //TFCS2DFunctionInt32Int32Int32InterpolationHistogram
+};
+
+
+
+
+
+
+
+
+
+
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+
+#pragma link C++ class TFCS2DFunctionInt8Int8Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int8Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int8Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int16Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int16Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int16Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int32Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int32Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int32Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int8Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int8Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int8Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int16Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int16Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int16Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int32Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int32Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int32Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int8Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int8Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int8Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int16Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int16Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int16Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int32Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int32Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int32Int32InterpolationHistogram+;
+
+#endif
 
 #endif
