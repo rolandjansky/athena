@@ -11,6 +11,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODForward/AFPStationID.h"
 
+#include <Run3AFPMonitoring/AfpFastReco.h>
+
 
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
@@ -81,6 +83,17 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
       }
  
+    AfpMon::AfpFastReco fast(afpHitContainer.get());
+    fast.reco();
+
+    for (const auto& cluster : fast.clusters()) {
+      ATH_MSG_INFO("c: " << cluster.x << " " << cluster.y);
+    }
+
+    for (const auto& track : fast.tracks()) {
+      ATH_MSG_INFO("t: " << track.x << " " << track.y);
+    }
+
     return StatusCode::SUCCESS;
 }
 
