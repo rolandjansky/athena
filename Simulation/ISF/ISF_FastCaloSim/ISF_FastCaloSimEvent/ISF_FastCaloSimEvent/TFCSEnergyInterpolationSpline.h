@@ -14,6 +14,15 @@ class TFCSEnergyInterpolationSpline:public TFCSParametrization {
 public:
   TFCSEnergyInterpolationSpline(const char* name=nullptr, const char* title=nullptr);
 
+  ///Status bit for energy initialization
+  enum FCSEnergyInitializationStatusBits {
+     kOnlyScaleEnergy = BIT(15) ///< Set this bit in the TObject bit field the simulated energy should only be scaled by the spline
+  };
+
+  bool OnlyScaleEnergy() const {return TestBit(kOnlyScaleEnergy);};
+  void set_OnlyScaleEnergy() {SetBit(kOnlyScaleEnergy);};
+  void reset_OnlyScaleEnergy() {ResetBit(kOnlyScaleEnergy);};
+
   virtual bool is_match_Ekin_bin(int /*Ekin_bin*/) const override {return true;};
   virtual bool is_match_calosample(int /*calosample*/) const override {return true;};
   
