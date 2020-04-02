@@ -9,8 +9,8 @@ import time
 import ROOT
 import logging
 from ROOT import TCanvas, TH1D, TH2D, TArrayD, TLegend
-from TileCoolDcs import TileDCSDataGrabber
-from TileCoolDcs import ProgressBar
+from TileCoolDcs.TileDCSDataGrabber import TileDCSDataGrabber
+from TileCoolDcs.ProgressBar import progressBar
 
 
 class TileDCSDataPlotter (object):
@@ -29,7 +29,7 @@ class TileDCSDataPlotter (object):
         if verbose:
             logLvl = logging.DEBUG
 
-#        self.dataGrabber = TileDCSDataGrabber.TileDCSDataGrabber(dbSource, logLvl, dbstring, putDuplicates)
+#        self.dataGrabber = TileDCSDataGrabber(dbSource, logLvl, dbstring, putDuplicates)
 #        self.info = self.dataGrabber.info
 
         self.cmd     = argv[1]
@@ -40,7 +40,7 @@ class TileDCSDataPlotter (object):
         self.iovBeg  = int(time.mktime(time.strptime(beg,"%Y-%m-%d %H:%M:%S")))
         self.iovEnd  = int(time.mktime(time.strptime(end,"%Y-%m-%d %H:%M:%S")))
 
-        self.dataGrabber = TileDCSDataGrabber.TileDCSDataGrabber(dbSource, logLvl, dbstring, putDuplicates, self.iovBeg)
+        self.dataGrabber = TileDCSDataGrabber(dbSource, logLvl, dbstring, putDuplicates, self.iovBeg)
         self.info = self.dataGrabber.info
 
         self.cutExp  = ""
@@ -96,7 +96,7 @@ class TileDCSDataPlotter (object):
                 if oldVar!="":
                     #=== check if shorter variable is also present at another place
                     varExpr = varExpression
-                    for v in varDict.values():
+                    for v in list(varDict.values()):
                         varExpr=varExpr.replace(v," "*len(v))
                     oldPos = varExpr.find(oldVar)
                     if oldPos>-1:
@@ -115,13 +115,13 @@ class TileDCSDataPlotter (object):
                 else:
                     iPos+=1
 
-        varList = varDict.values()
+        varList = list(varDict.values())
         if "ALL_LVPS_AI" in varExpression:
-            varList.extend(self.info.vars_LVPS_AI.keys())
+            varList.extend(list(self.info.vars_LVPS_AI.keys()))
         if "ALL_LVPS_STATES" in varExpression:
-            varList.extend(self.info.vars_LVPS_STATES.keys())
+            varList.extend(list(self.info.vars_LVPS_STATES.keys()))
         if "ALL_HVSET" in varExpression or "ALL_SETHV" in varExpression:
-            varList.extend(self.info.vars_HVSET.keys())
+            varList.extend(list(self.info.vars_HVSET.keys()))
             if self.useCool or ("ALL_HV-ALL_SETHV" in varExpression or "ALL_HV-ALL_HVSET" in varExpression):
                 for i in range(2):
                     if "Set.vFix1%d" % (i+1) in varList:
@@ -133,7 +133,7 @@ class TileDCSDataPlotter (object):
                 for i in range(7):
                     varList.remove("Set.temp%d" % (i+1))
         if ("ALL_HV" in varExpression and "ALL_HVSET" not in varExpression) or "ALL_HV-ALL_HVSET" in varExpression:
-            varList.extend(self.info.vars_HV.keys())
+            varList.extend(list(self.info.vars_HV.keys()))
             if self.useCool or ("ALL_HV-ALL_SETHV" in varExpression or "ALL_HV-ALL_HVSET" in varExpression):
                 for i in range(4):
                     varList.remove("hvIn%d" % (i+1))
@@ -198,21 +198,21 @@ class TileDCSDataPlotter (object):
             if "ALL_LVPS_AI" in self.varExp:
                 newvar=""
                 for dr in self.drawer.split(","):
-                    for var in self.info.vars_LVPS_AI.keys():
+                    for var in list(self.info.vars_LVPS_AI.keys()):
                         newvar += dr+"."+var+","
                 self.varExp = self.varExp.replace("ALL_LVPS_AI",newvar[:-1])
 
             if "ALL_LVPS_STATES" in self.varExp:
                 newvar=""
                 for dr in self.drawer.split(","):
-                    for var in self.info.vars_LVPS_STATES.keys():
+                    for var in list(self.info.vars_LVPS_STATES.keys()):
                         newvar += dr+"."+var+","
                 self.varExp = self.varExp.replace("ALL_LVPS_STATES",newvar[:-1])
 
             if "ALL_HV-ALL_SETHV" in self.varExp or "ALL_HV-ALL_HVSET" in self.varExp:
                 newvar=""
                 for dr in self.drawer.split(","):
-                    for var in self.info.vars_HVSET.keys():
+                    for var in list(self.info.vars_HVSET.keys()):
                         if not ("Set.vFix" in var or "Set.hvIn" in var or "Set.volt" in var or "Set.temp" in var):
                             newvar += dr+"."+var.replace("Set.","")+"-"+dr+"."+var+","
                 self.varExp = self.varExp.replace("ALL_HV-ALL_SETHV",newvar[:-1])
@@ -220,7 +220,7 @@ class TileDCSDataPlotter (object):
             if "ALL_HVSET" in self.varExp or "ALL_SETHV" in self.varExp:
                 newvar=""
                 for dr in self.drawer.split(","):
-                    for var in self.info.vars_HVSET.keys():
+                    for var in list(self.info.vars_HVSET.keys()):
                         if not self.useCool or not ("Set.vFix" in var or "Set.hvIn" in var or "Set.volt" in var or "Set.temp" in var):
                             newvar += dr+"."+var+","
                 self.varExp = self.varExp.replace("ALL_HVSET",newvar[:-1])
@@ -228,7 +228,7 @@ class TileDCSDataPlotter (object):
             if "ALL_HV" in self.varExp and "ALL_HVSET" not in self.varExp :
                 newvar=""
                 for dr in self.drawer.split(","):
-                    for var in self.info.vars_HV.keys():
+                    for var in list(self.info.vars_HV.keys()):
                         if not self.useCool or not ("hvIn" in var or "volt" in var or "temp" in var):
                             newvar += dr+"."+var+","
                 self.varExp = self.varExp.replace("ALL_HV",newvar[:-1])
@@ -447,7 +447,7 @@ class TileDCSDataPlotter (object):
             n1=1
         else:
             n1=0
-        bar = ProgressBar.progressBar(n1,ne, 78)
+        bar = progressBar(n1,ne, 78)
         for n in range(n1,ne):
             tree.GetEntry(n)
             bar.update(n)
@@ -640,13 +640,13 @@ class TileDCSDataPlotter (object):
             self.varExp = self.varExp.replace("ALL_LVPS_STATES",",".join(sorted(self.info.vars_LVPS_STATES.keys())))
         if "ALL_HV-ALL_SETHV" in self.varExp or "ALL_HV-ALL_HVSET" in self.varExp:
             vlist = []
-            for var in self.info.vars_HVSET.keys():
+            for var in list(self.info.vars_HVSET.keys()):
                 if not ("Set.vFix" in var or "Set.hvIn" in var or "Set.volt" in var or "Set.temp" in var):
                     vlist += [var.replace("Set.","")+"-"+var]
             self.varExp = self.varExp.replace("ALL_HV-ALL_SETHV",",".join(sorted(vlist)))
             self.varExp = self.varExp.replace("ALL_HV-ALL_HVSET",",".join(sorted(vlist)))
         if "ALL_HVSET" in self.varExp or "ALL_SETHV" in self.varExp:
-            vlist = self.info.vars_HVSET.keys()
+            vlist = list(self.info.vars_HVSET.keys())
             if self.useCool:
                 for i in range(2):
                     if "Set.vFix1%d" % (i+1) in vlist:
@@ -660,7 +660,7 @@ class TileDCSDataPlotter (object):
             self.varExp = self.varExp.replace("ALL_HVSET",",".join(sorted(vlist)))
             self.varExp = self.varExp.replace("ALL_SETHV",",".join(sorted(vlist)))
         if "ALL_HV" in self.varExp and "ALL_HVSET" not in self.varExp:
-            vlist = self.info.vars_HV.keys()
+            vlist = list(self.info.vars_HV.keys())
             if self.useCool:
                 for i in range(4):
                     vlist.remove("hvIn%d" % (i+1))
