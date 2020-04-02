@@ -88,4 +88,4 @@ if __name__ == "__main__":
   runType=GetRunType()
   print ("RunType: %s"%runType)
   bFields = GetBFields()
-  print ("BFields (Sol,Tor):",bFields   )
+  print ("BFields (Sol,Tor):",bFields)
