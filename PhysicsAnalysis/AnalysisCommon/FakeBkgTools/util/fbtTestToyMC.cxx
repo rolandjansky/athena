@@ -497,7 +497,18 @@ void Loop(fbtTestToyMC_config config)
 		}
 	      }
 	    }
-      	
+	    // now see how many events actually passed the required selection
+	    tights.reset();
+	    for (int ilep = 0; ilep < nlep_select; ilep++) {
+	      if (leptons[ilep]->auxdata<char>("Tight")) tights.set(ilep);
+	    }
+	    for (int ilep = 0; ilep < nlep_select; ilep++) {
+	      if (fs[nlep_select]->accept_selection(tights,charges) ) {
+		 nevents_sel += extraweight;
+	       }
+	    }
+	    
+
 	    float wgt;
 	    if(asmTool.getEventWeight(wgt, config.selection, config.process) != StatusCode::SUCCESS) { cout << "ERROR: AsymptMatrixTool::getEventWeight() failed\n"; exit(2); }
 	    asmYield += wgt;
