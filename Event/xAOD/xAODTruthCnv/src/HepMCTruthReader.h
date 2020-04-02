@@ -7,9 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "HepMCI/GenEvent_fwd.h"
-#include "HepMCI/GenVertex_fwd.h"
-#include "HepMCI/GenParticle_fwd.h"
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/GenVertex_fwd.h"
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 
 /// @short Algorithm demonstrating reading of HepMC truth, and printing to screen
