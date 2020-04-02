@@ -12,9 +12,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-#ex.args = '-c "isOnline=True;doWriteBS=False;doWriteRDOTrigger=True;"'
-ex.args = '-c "doEmptyMenu=True;doBjetSlice=True;isOnline=True;doWriteBS=False;doWriteRDOTrigger=True;"'
-ex.max_events = 1000
+ex.args = '-c "isOnline=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'build'
