@@ -34,17 +34,17 @@ public:
   
   /// hash id methods
 
-  void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+  virtual void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
   
-  void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+  virtual void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
 
   /// Rob identifier methods
   
-  void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+  virtual void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
   
-  void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+  virtual void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
   
-    
+  virtual ~RegSelectorMap() override = default;
 
 public:
 
