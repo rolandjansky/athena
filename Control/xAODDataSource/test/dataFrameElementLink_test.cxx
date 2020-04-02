@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 
 // Local include(s).
@@ -13,8 +13,13 @@
 #include "AthContainers/ConstDataVector.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "CxxUtils/ubsan_suppress.h"
+
+#include <TInterpreter.h>
 
 int main() {
+   // Suppress ubsan warning.
+   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
 
    // Set up the runtime environment.
    ROOT::EnableImplicitMT();
