@@ -398,7 +398,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
     for (int reg{0}; reg<N_REGIONS; reg++) {
       const int nLayers{n_layers[reg]*2};
       for (int layerSide{0}; layerSide<nLayers; layerSide++) {
-        float num_modules{static_cast<float>(getNumModules(reg, layerSide))};
+        float num_modules{static_cast<float>(getNumModules(index2Bec(reg), layerSide))};
         /// Fill /run_x/lb_y/SCT/SCT*/RateErrorsPerLumi ///
         auto errorTypeAcc{Monitored::Scalar<int>("errorType", err_type)};
         auto layerSideAcc{Monitored::Scalar<int>("layerSide", layerSide)};
