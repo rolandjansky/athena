@@ -75,9 +75,9 @@ lArCellBinningScheme.phiRange={}
 for Part in lArCellBinningScheme.PartitionLayers:
       for Layer in lArCellBinningScheme.PartitionLayers[Part]:
             if Part=="FCAL": 
-                  lArCellBinningScheme.phiRange[Part+Layer+"A"]=[-0.5+x for x in xrange(lArCellBinningScheme.phiNbin[Part][Layer]+1)]
+                  lArCellBinningScheme.phiRange[Part+Layer+"A"]=[-0.5+x for x in range(lArCellBinningScheme.phiNbin[Part][Layer]+1)]
             else: #all other partitions
-                  lArCellBinningScheme.phiRange[Part+Layer+"A"]=[-TMath.Pi()+ x*2*TMath.Pi()/lArCellBinningScheme.phiNbin[Part][Layer] for x in xrange(lArCellBinningScheme.phiNbin[Part][Layer]+1)]
+                  lArCellBinningScheme.phiRange[Part+Layer+"A"]=[-TMath.Pi()+ x*2*TMath.Pi()/lArCellBinningScheme.phiNbin[Part][Layer] for x in range(lArCellBinningScheme.phiNbin[Part][Layer]+1)]
                   pass
             lArCellBinningScheme.phiRange[Part+Layer+"C"]=lArCellBinningScheme.phiRange[Part+Layer+"A"]
                   
@@ -97,8 +97,8 @@ for Part in lArCellBinningScheme.PartitionLayers:
                   #exit(1)
             etamin=lArCellBinningScheme.etaMin[Part][Lay]
             currange=[etamin]
-            for k in xrange(len(Ranges)-1) :
-                  currange+=[round(currange[-1] + x * Sizes[k],5) for x in xrange(1,Ranges[k+1]-Ranges[k]+1)]
+            for k in range(len(Ranges)-1) :
+                  currange+=[round(currange[-1] + x * Sizes[k],5) for x in range(1,Ranges[k+1]-Ranges[k]+1)]
                   pass
             lArCellBinningScheme.etaRange[Part+Lay+"A"]=currange
             #The C side is just the symmeteric of the A side
@@ -146,7 +146,7 @@ cted for Noise Plots"]}
 
 if __name__ =="__main__":
 
-    print lArCellBinningScheme.PartLayerNames
-    print lArCellBinningScheme.etaRange
+    print (lArCellBinningScheme.PartLayerNames)
+    print (lArCellBinningScheme.etaRange)
     for k in lArCellBinningScheme.etaRange: 
-          print k
+          print (k)
