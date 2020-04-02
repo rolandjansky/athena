@@ -534,6 +534,16 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
     // amount of energy to be converted into charges at current step
     double energy_per_step = 1.0*iHitRecord.second/1.E+6/ncharges;
 
+    // scale factors accounting for different pixel sizes
+    double scale_i=1., scale_f_e=1., scale_f_h=1.;
+    double columnWidth=p_design.widthFromColumnRange(pixel_i.etaIndex(),pixel_i.etaIndex());
+
+
+     if (abs(columnWidth-0.6)<1e-9){scale_i = 4./6.; scale_f_e = 4./6.; scale_f_h = 4./6.;}
+else if (abs(columnWidth-0.45)<1e-9){scale_i = 25./45.; scale_f_e = 25./45.; scale_f_h = 25./45.;}
+else if (abs(columnWidth-0.05)<1e-9){scale_i = 1.; scale_f_e = 1.; scale_f_h = 1.;}
+else if (abs(columnWidth-0.5)<1e-9){scale_i = 25./50.; scale_f_e = 25./50.; scale_f_h = 25./50.;}
+
     //Loop over charge-carrier pairs
     for(int j=0 ; j<ncharges ; j++) {
 
@@ -612,6 +622,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
               double dEta_i_e = pixelEta_i - dEta_nn_centre;
               double dPhi_i_e = pixelPhi_i - dPhi_nn_centre;
 
+              dEta_i_e*=scale_i;
+
               int nbin_ramo_i_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( fabs( dPhi_i_e )*1000. );
               int nbin_ramo_i_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( fabs( dEta_i_e )*1000. );
               int nbin_ramo_i_z = ramoPotentialMap[Layer]->GetZaxis()->FindBin( dist_electrode*1000 );
@@ -630,8 +642,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
               double pixelPhi_f_h = phi_f_h - centreOfPixel_i.xPhi() ;
 	      
 	      //Final position of charge carriers wrt nn centre
-	      double dEta_f_e = pixelEta_f_e  - dEta_nn_centre ;
+	          double dEta_f_e = pixelEta_f_e  - dEta_nn_centre ;
               double dPhi_f_e = pixelPhi_f_e  - dPhi_nn_centre ;
+
+              dEta_f_e*=scale_f_e;
 
               int nbin_ramo_f_e_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( fabs( dPhi_f_e )*1000. );
               int nbin_ramo_f_e_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( fabs( dEta_f_e )*1000. );
@@ -644,6 +658,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
               double dEta_f_h = pixelEta_f_h - dEta_nn_centre ;
               double dPhi_f_h = pixelPhi_f_h - dPhi_nn_centre ;
+              
+              dEta_f_h*=scale_f_h;
               
               int nbin_ramo_f_h_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( fabs( dPhi_f_h )*1000. );
               int nbin_ramo_f_h_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( fabs( dEta_f_h )*1000. );
