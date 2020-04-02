@@ -54,7 +54,7 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     /*! Trigger decision tool */
     ToolHandle<Trig::TrigDecisionTool> m_trigdec;
     /* Trigger e/g matching tool */
-    ToolHandle<Trig::TrigEgammaMatchingToolMT> m_matchTool{this, "MatchTool", {}};
+
     /*! creates map of trigger name and TrigInfo struct */
     std::map<std::string,TrigInfo> m_trigInfo;
     /*! AcceptInfo to store TrigDecision */
@@ -69,6 +69,7 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
 
   protected:
 
+    ToolHandle<Trig::TrigEgammaMatchingToolMT> m_matchTool;
                                                
     /*! Offline isEM Selectors */
     ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool{this,"ElectronIsEMSelector",{}};

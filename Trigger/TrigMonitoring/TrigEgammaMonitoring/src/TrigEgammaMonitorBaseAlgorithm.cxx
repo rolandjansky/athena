@@ -10,7 +10,9 @@ TrigEgammaMonitorBaseAlgorithm::TrigEgammaMonitorBaseAlgorithm( const std::strin
   : AthMonitorAlgorithm(name,pSvcLocator),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_matchTool("Trig::TrigEgammaMatchingToolMT/TrigEgammaMatchingToolMT")
-{}
+{
+  declareProperty( "MatchTool" , m_matchTool );
+}
 
 
 TrigEgammaMonitorBaseAlgorithm::~TrigEgammaMonitorBaseAlgorithm() {}

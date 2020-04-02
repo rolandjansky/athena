@@ -492,7 +492,7 @@ class TrigEgammaMonAlgBuilder:
   #
   def bookEfficiencies(self, monAlg, trigger, level ):
 
-    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TEfficiency
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TProfile
     monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level, self.basePath+'/'+trigger+'/Efficiency/'+level )
     
     # Numerator

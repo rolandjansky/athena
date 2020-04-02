@@ -78,7 +78,7 @@ def TH2F(name, title, nxbins, bins_par2, bins_par3, bins_par4, bins_par5=None, b
 
 
 
-def TEfficiency(*args, **kwargs):
+def TProfile(*args, **kwargs):
     res = TH1F(*args, **kwargs)
     res.name = res.name
     res['type'] = 'TProfile'
