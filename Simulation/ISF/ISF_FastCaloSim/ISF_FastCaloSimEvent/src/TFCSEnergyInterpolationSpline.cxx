@@ -13,6 +13,19 @@
 #include <iostream>
 #include <vector>
 
+#ifdef __FastCaloSimStandAlone__
+namespace Gaudi {
+  namespace Units {
+    constexpr double megaelectronvolt = 1.;
+    constexpr double kiloelectronvolt = 1.e-3 * megaelectronvolt;
+    constexpr double keV = kiloelectronvolt;
+  }
+}
+#else
+#include "GaudiKernel/SystemOfUnits.h"
+#endif
+
+
 //=============================================
 //======= TFCSEnergyInterpolation =========
 //=============================================
@@ -42,7 +55,7 @@ FCSReturnCode TFCSEnergyInterpolationSpline::simulate(TFCSSimulationState& simul
   if(OnlyScaleEnergy()) Einit=simulstate.E();
    else Einit=Ekin;
   //catch very small values of Ekin (use 1 keV here) and fix the spline lookup to the 1keV value
-  const float logEkin=(Ekin>0.001?TMath::Log(Ekin):TMath::Log(0.001));
+  const float logEkin=(Ekin>Gaudi::Units::keV?TMath::Log(Ekin):TMath::Log(Gaudi::Units::keV));
   if(logEkin<m_spline.GetXmin()) {
     Emean=m_spline.Eval(m_spline.GetXmin())*Einit;
   } else {
