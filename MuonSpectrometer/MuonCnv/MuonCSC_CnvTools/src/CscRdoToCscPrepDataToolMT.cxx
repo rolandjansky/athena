@@ -163,6 +163,9 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
 
   const CscRawDataCollection * rawCollection = *it_coll;
   ATH_MSG_DEBUG ( "Retrieved " << rawCollection->size() << " CSC RDOs.");
+  //return if the input raw collection is empty (can happen for seeded decoding in trigger)
+  if(rawCollection->size()==0) return StatusCode::SUCCESS;
+
   //************************************************
   IdentifierHash cscHashId;
 
