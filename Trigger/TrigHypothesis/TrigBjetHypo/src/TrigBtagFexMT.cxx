@@ -41,7 +41,7 @@
 
 //Read Decorated properties (NEW)
 #include "StoreGate/ReadDecorHandle.h"
-
+#include "AthenaMonitoringKernel/Monitored.h"
 // ----------------------------------------------------------------------------------------------------------------- 
 
 
@@ -189,6 +189,39 @@ StatusCode TrigBtagFexMT::execute() {
     ATH_MSG_DEBUG( "   ** PV x=" << pv->x()<<
 		   " y=" << pv->y() <<
 		   " z=" << pv->z() );
+
+
+  auto monitor_for_track_count = Monitored::Scalar( "track_count", trkContainer->size() );
+
+  auto monitor_for_track_Et = Monitored::Collection( "track_Et", *trkContainer, []( const xAOD::TrackParticle *trk ) { return trk->p4().Et(); } );
+  auto monitor_for_track_eta = Monitored::Collection( "track_eta", *trkContainer, &xAOD::TrackParticle::eta );
+  auto monitor_for_track_phi = Monitored::Collection( "track_phi", *trkContainer, &xAOD::TrackParticle::phi );
+
+  // Monitors for d0 and z0 track impact parameter variables
+  auto monitor_for_track_d0 = Monitored::Collection( "track_d0", *trkContainer, &xAOD::TrackParticle::d0 );
+  auto monitor_for_track_d0err = Monitored::Collection( "track_d0err", *trkContainer, []( const xAOD::TrackParticle *trk ) {
+    return trk->definingParametersCovMatrix()( Trk::d0, Trk::d0 );
+  } );
+  auto monitor_for_track_d0sig = Monitored::Collection( "track_d0sig", *trkContainer, []( const xAOD::TrackParticle *trk ) {
+    return trk->d0() / trk->definingParametersCovMatrix()( Trk::d0, Trk::d0 );
+  } );
+
+  auto monitor_for_track_z0 = Monitored::Collection( "track_z0", *trkContainer, &xAOD::TrackParticle::z0 );
+  auto monitor_for_track_z0err = Monitored::Collection( "track_z0err", *trkContainer, []( const xAOD::TrackParticle *trk ) {
+    return trk->definingParametersCovMatrix()( Trk::z0, Trk::z0 );
+  } );
+  auto monitor_for_track_z0sig = Monitored::Collection( "track_z0sig", *trkContainer, []( const xAOD::TrackParticle *trk ) {
+    return trk->z0() / trk->definingParametersCovMatrix()( Trk::z0, Trk::z0 );
+  } );
+
+  for ( const xAOD::TrackParticle *trk : *trkContainer ) {
+    ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() * 1e-3 << " eta=" << trk->eta() << " phi=" << trk->phi() );
+  }
+  auto monitor_group_for_tracks = Monitored::Group( m_monTool, 
+    monitor_for_track_Et, monitor_for_track_eta, monitor_for_track_phi,
+    monitor_for_track_d0, monitor_for_track_d0err, monitor_for_track_d0sig,
+    monitor_for_track_z0, monitor_for_track_z0err, monitor_for_track_z0sig
+  );
 
 
   // Creating dummy B-Tagging container in order to avoid

@@ -39,7 +39,11 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     bTagFex.trackposKey = inputTracks + ".btagIp_trackDisplacement"
     bTagFex.trackmomKey = inputTracks + ".btagIp_trackMomentum"
     bTagFex.OutputBTagging = recordable( "HLT_BTagging" )
+
+    from TrigBjetHypo.TrigBtagFexMTConfig import TrigBtagFexMT_OnlineMonitoring
+    bTagFex.MonTool = TrigBtagFexMT_OnlineMonitoring()
     acc.addEventAlgo(bTagFex)
+
 
     from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
     from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
@@ -67,7 +71,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
         acc.merge(JetSecVertexingAlg)
     
     JetBTaggingAlg = JetBTaggingAlgCfg(ConfigFlags, JetCollection = inputJets.replace("Jets",""), TaggerList = ConfigFlags.BTagging.TrigTaggersList, SetupScheme = "Trig", SVandAssoc = SecVertexingAndAssociators, **kwargs)
-    BTaggingAlg = JetBTaggingAlg.getEventAlgo("btagging_hlt_inview")
+    BTaggingAlg = JetBTaggingAlg.getEventAlgo((ConfigFlags.BTagging.OutputFiles.Prefix + inputJets.replace("Jets","") + ConfigFlags.BTagging.GeneralToolSuffix).lower()) #Defined in JetBTaggingAlgConfig.py; Ends up to be "btagging_hlt_inview"
     BTaggingAlg.BTaggingCollectionName = recordable("HLT_OfflineBTagging")
     acc.merge(JetBTaggingAlg)
 

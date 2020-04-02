@@ -7,10 +7,11 @@ from BTagging.BTagLightSecVertexingConfig import BTagLightSecVtxToolCfg
 # import the JetBTaggingAlg configurable
 from BTagging.BTaggingConf import Analysis__JetBTaggingAlg as JetBTaggingAlg
 
-def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="", SVandAssoc={""}, **options):
+def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="", SVandAssoc={""}, TimeStamp = "", **options):
 
     acc = ComponentAccumulator()
     jetcol = JetCollection
+    ts = TimeStamp
 
     BTagTrackToJetAssocNameList = []
     for k, v in SVandAssoc.items():
@@ -22,35 +23,28 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme=
 
     options.setdefault('BTagTool', acc.popToolsAndMerge(BTagToolCfg(ConfigFlags, TaggerList, SetupScheme)))
 
-    timestamp = options.get('TimeStamp', None)
-    if not timestamp:
-        timestamp = ['']
+    # setup the secondary vertexing tool
+    options['BTagSecVertexing'] = acc.popToolsAndMerge(BTagLightSecVtxToolCfg(ConfigFlags, 'LightSecVx'+ConfigFlags.BTagging.GeneralToolSuffix, jetcol, SVandAssoc =SVandAssoc, TimeStamp = ts, **options))
+
+    btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
+    # Set remaining options
+    options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
+    options['TrackToJetAssociatorNames'] = TrackToJetAssociatorNameList
+    options['JetCalibrationName'] = jetcol.replace('Track', 'PV0Track')
+    if SetupScheme == "Trig":
+	options['BTagSVCollectionName'] = 'HLT_SecVtx'
+        options['BTagJFVtxCollectionName'] = 'HLT_JFVtx'
     else:
-        del options['TimeStamp']
+        options['BTagSVCollectionName'] = btagname + 'SecVtx'
+        options['BTagJFVtxCollectionName'] = btagname + 'JFVtx'
+    options['BTaggingLinkName'] = '.btaggingLink'+ts
+    if ts:
+        btagname += '_'+ts
+    options['BTaggingCollectionName'] = btagname
+    options['JetLinkName'] = options['BTaggingCollectionName'] + '.jetLink'
+    options['name'] = (btagname + ConfigFlags.BTagging.GeneralToolSuffix).lower()
 
-    for ts in timestamp:
-        # setup the secondary vertexing tool
-        options['BTagSecVertexing'] = acc.popToolsAndMerge(BTagLightSecVtxToolCfg(ConfigFlags, 'LightSecVx'+ConfigFlags.BTagging.GeneralToolSuffix, jetcol, SVandAssoc =SVandAssoc, TimeStamp = ts, **options))
-
-        btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
-        if ts:
-            btagname += '_'+ts
-        # Set remaining options
-        options['name'] = (btagname + ConfigFlags.BTagging.GeneralToolSuffix).lower()
-        options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
-        options['TrackToJetAssociatorNames'] = TrackToJetAssociatorNameList
-        if SetupScheme == "Trig":
-	    options['BTagSVCollectionName'] = 'HLT_SecVtx'
-            options['BTagJFVtxCollectionName'] = 'HLT_JFVtx'
-	else:
-            options['BTagSVCollectionName'] = btagname + 'SecVtx'
-            options['BTagJFVtxCollectionName'] = btagname + 'JFVtx'
-        options['JetCalibrationName'] = jetcol.replace('Track', 'PV0Track')
-        options['BTaggingCollectionName'] = btagname
-        options['BTaggingLinkName'] = '.btaggingLink'+ts
-        options['JetLinkName'] = options['BTaggingCollectionName'] + '.jetLink'
-
-        # -- create main BTagging algorithm
-        acc.addEventAlgo(JetBTaggingAlg(**options))
+    # -- create main BTagging algorithm
+    acc.addEventAlgo(JetBTaggingAlg(**options))
 
     return acc
