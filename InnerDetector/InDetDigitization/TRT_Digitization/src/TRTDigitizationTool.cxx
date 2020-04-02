@@ -150,6 +150,9 @@ StatusCode TRTDigitizationTool::initialize()
   //Retrieve TRT_StrawNeighbourService.
   ATH_CHECK(m_TRTStrawNeighbourSvc.retrieve());
 
+  //Retrieve TRT_CalDbTool
+  ATH_CHECK(m_calDbTool.retrieve());
+
   // Get the magnetic field service
   ATH_CHECK(m_magneticfieldsvc.retrieve());
 
@@ -313,7 +316,7 @@ StatusCode TRTDigitizationTool::lateInitialize() {
   ITRT_SimDriftTimeTool *pTRTsimdrifttimetool = &(*m_TRTsimdrifttimetool);
 
   MagField::IMagFieldSvc *pMagfieldsvc = &(*m_magneticfieldsvc);
-
+  const ITRT_CalDbTool* calDbTool=m_calDbTool.get();
   m_pProcessingOfStraw =
     new TRTProcessingOfStraw( m_settings,
                               m_manager,
@@ -326,7 +329,8 @@ StatusCode TRTDigitizationTool::lateInitialize() {
                               m_particleTable,
                               m_trt_id,
                               TRTpaiToolAr,
-                              TRTpaiToolKr);
+                              TRTpaiToolKr,
+                              calDbTool);
 
   ATH_MSG_INFO ( "Gas Property:             UseGasMix is " << m_UseGasMix );
 
