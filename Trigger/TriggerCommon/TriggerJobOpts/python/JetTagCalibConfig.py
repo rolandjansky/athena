@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from IOVDbSvc.CondDB import conddb
 from AthenaConfiguration.ComponentFactory import CompFactory
-from IOVDbSvc.IOVDbSvcConfig import addFolders
 from BTagging.BTaggingFlags import BTaggingFlags
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
@@ -15,7 +14,6 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
     JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
     jettagcalibcondalg = "JetTagCalibCondAlg"
     readkeycalibpath = "/GLOBAL/Onl/TrigBTagCalib/RUN12"
-    connSchema = "GLOBAL"
     histoskey = "JetTagTrigCalibHistosKey"
     conddb.addFolder("GLOBAL_ONL", "/GLOBAL/Onl/TrigBTagCalib/RUN12", className='CondAttrListCollection')
 

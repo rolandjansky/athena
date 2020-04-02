@@ -59,13 +59,12 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     for k, v in SecVertexingAndAssociators.items():
         if v not in TrackToJetAssociators:
             raise RuntimeError( v + ' is not configured')
-        acc.merge(JetSecVtxFindingAlgCfg(ConfigFlags, inputJets, inputTracks, k, v))
+        acc.merge(JetSecVtxFindingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, k, v))
         JetSecVertexingAlg = JetSecVertexingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, k, v)
+        SecVertexingAlg = JetSecVertexingAlg.getEventAlgo(inputJets.replace("Jets","").lower() + "_" + k.lower() + "_secvtx") #If inputJets.replace("Jets","") is used in JetSecVertexingAlgCfg; Have to change it here aswell
         if k == "JetFitter":
-            SecVertexingAlg = JetSecVertexingAlg.getEventAlgo("hlt_inview_jetfitter_secvtx")
             SecVertexingAlg.BTagJFVtxCollectionName = recordable("HLT_JFVtx")
         elif k == "SV1":
-            SecVertexingAlg = JetSecVertexingAlg.getEventAlgo("hlt_inview_sv1_secvtx")
             SecVertexingAlg.BTagSVCollectionName = recordable("HLT_SecVtx")
         acc.merge(JetSecVertexingAlg)
     

@@ -558,11 +558,10 @@ triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
 Configurable.configurableRun3Behavior-=1
 
 # B-jet output file
-log.info("opt.enabledSignatures")
-log.info(opt.enabledSignatures)
-from TriggerJobOpts.JetTagCalibConfig import JetTagCalibCfg
-alias = ["HLT_InView->HLT_InView,AntiKt4EMTopo"]
-topSequence+=JetTagCalibCfg(ConfigFlags, ChannelAlias = alias)
+if opt.doBjetSlice or opt.forceEnableAllChains:
+    from TriggerJobOpts.JetTagCalibConfig import JetTagCalibCfg
+    alias = ["HLT_InView->HLT_InView,AntiKt4EMTopo"]
+    topSequence+=JetTagCalibCfg(ConfigFlags, ChannelAlias = alias)
 
 # Trigger output
 if opt.doWriteBS or opt.doWriteRDOTrigger:
