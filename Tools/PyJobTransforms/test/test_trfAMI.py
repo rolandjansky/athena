@@ -123,7 +123,7 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertEqual(tag.trfs[0].outFiles, {'outputAODFile': 'myAOD.pool.root', 'outputESDFile': 'myESD.pool.root'})
         self.assertEqual(tag.trfs[0].outputs, "{'outputESDFile': {'dstype': 'ESD', 'ifMatch': '(?!.*DRAW.*)'}, 'outputAODFile': {'dstype': 'AOD', 'ifMatch': 'data[0-9][0-9]_(cos|1beam|.*eV|comm)(?!.(.*DRAW.*|.*ZeroBias.*x[0-9].*))'}}")
         self.assertEqual(tag.trfs[0].inDS, None)
-        self.assertCountEqual(tag.trfs[0].outfmts, ['AOD', 'ESD'])
+        self.assertEqual(sorted(tag.trfs[0].outfmts), ['AOD', 'ESD'])
 
     def test_info_r6390(self):
         self.maxDiff = None
