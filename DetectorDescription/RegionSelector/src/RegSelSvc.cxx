@@ -1653,7 +1653,8 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
 // Some internal helper methods
 //
 
-StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string& lutName){
+StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string& lutName )
+{
   // Use generic tool to create LUT - instance set via ToolHandle property
   if (!p_lutCreatorTool) {
     ATH_MSG_INFO( "LUT creator tool not configured " << p_lutCreatorTool );
@@ -1676,8 +1677,6 @@ StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorToo
   }
   return StatusCode::SUCCESS;
 }
-
-
 
 StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionIDLUT_Creator> p_lutCreatorTool,  RegSelSiLUT*& detRSlut){
   // Use generic tool to create LUT - instance set via ToolHandle property

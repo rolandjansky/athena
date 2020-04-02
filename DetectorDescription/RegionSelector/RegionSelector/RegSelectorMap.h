@@ -118,7 +118,7 @@ public:
 			  double phiminIn, double phimaxIn,
 			  std::vector<uint32_t> outputIdlist ) const;
 
-  void getEtaPhi(IdentifierHash hashId, 
+  void getEtaPhi( IdentifierHash hashId, 
 		  double *etaMin, double *etaMax,
 		  double *phiMin, double *phiMax ) const;
 
