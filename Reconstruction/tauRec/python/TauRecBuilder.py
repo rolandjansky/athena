@@ -301,11 +301,11 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
                 tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauJetBDT1P",
                                                            weightsFile=tauFlags.tauRecJetBDTConfig()[0][0],
                                                            minNTracks=tauFlags.tauRecJetBDTConfig()[0][1],
-                                                           minNTracks=tauFlags.tauRecJetBDTConfig()[0][2]) )
+                                                           maxNTracks=tauFlags.tauRecJetBDTConfig()[0][2]) )
                 tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauJetBDT3P",
                                                            weightsFile=tauFlags.tauRecJetBDTConfig()[1][0],
                                                            minNTracks=tauFlags.tauRecJetBDTConfig()[1][1],
-                                                           minNTracks=tauFlags.tauRecJetBDTConfig()[1][2]) )
+                                                           maxNTracks=tauFlags.tauRecJetBDTConfig()[1][2]) )
                 tools.append(taualgs.getTauWPDecoratorJetBDT())
                 tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_def", weightsFile="", outputVarName="BDTEleScore"))#just inits values
                 tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_bar",
