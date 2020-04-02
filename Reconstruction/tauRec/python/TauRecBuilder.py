@@ -298,24 +298,33 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
 
             if tauFlags.doRunTauDiscriminant():
                 tools.append(taualgs.getTauIDVarCalculator())
-                tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauJetBDT1P", weightsFile=tauFlags.tauRecJetBDTConfig()[0][0],
-                                                           minNTracks=tauFlags.tauRecJetBDTConfig()[0][1], minNTracks=tauFlags.tauRecJetBDTConfig()[0][2])
-                tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauJetBDT3P", weightsFile=tauFlags.tauRecJetBDTConfig()[1][0],
-                                                           minNTracks=tauFlags.tauRecJetBDTConfig()[1][1], minNTracks=tauFlags.tauRecJetBDTConfig()[1][2])
+                tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauJetBDT1P",
+                                                           weightsFile=tauFlags.tauRecJetBDTConfig()[0][0],
+                                                           minNTracks=tauFlags.tauRecJetBDTConfig()[0][1],
+                                                           minNTracks=tauFlags.tauRecJetBDTConfig()[0][2]) )
+                tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauJetBDT3P",
+                                                           weightsFile=tauFlags.tauRecJetBDTConfig()[1][0],
+                                                           minNTracks=tauFlags.tauRecJetBDTConfig()[1][1],
+                                                           minNTracks=tauFlags.tauRecJetBDTConfig()[1][2]) )
                 tools.append(taualgs.getTauWPDecoratorJetBDT())
                 tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_def", weightsFile="", outputVarName="BDTEleScore"))#just inits values
                 tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_bar",
-                                                           weightsFile=tauFlags.tauRecEleBDTConfig()[0][0], minNTracks=tauFlags.tauRecEleBDTConfig()[0][1],
+                                                           weightsFile=tauFlags.tauRecEleBDTConfig()[0][0],
+                                                           minNTracks=tauFlags.tauRecEleBDTConfig()[0][1],
                                                            maxAbsTrackEta=tauFlags.tauRecEleBDTConfig()[0][2],
-                                                           outputVarName="BDTEleScore"))
+                                                           outputVarName="BDTEleScore") )
                 tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_end1",
-                                                           weightsFile=tauFlags.tauRecEleBDTConfig()[1][0], minNTracks=tauFlags.tauRecEleBDTConfig()[1][1],
-                                                           minAbsTrackEta=tauFlags.tauRecEleBDTConfig()[1][2], maxAbsTrackEta=tauFlags.tauRecEleBDTConfig()[1][3],
-                                                           outputVarName="BDTEleScore"))
+                                                           weightsFile=tauFlags.tauRecEleBDTConfig()[1][0],
+                                                           minNTracks=tauFlags.tauRecEleBDTConfig()[1][1],
+                                                           minAbsTrackEta=tauFlags.tauRecEleBDTConfig()[1][2],
+                                                           maxAbsTrackEta=tauFlags.tauRecEleBDTConfig()[1][3],
+                                                           outputVarName="BDTEleScore") )
                 tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_end23",
-                                                           weightsFile=tauFlags.tauRecEleBDTConfig()[2][0], minNTracks=tauFlags.tauRecEleBDTConfig()[2][1],
-                                                           minAbsTrackEta=tauFlags.tauRecEleBDTConfig()[2][2], maxAbsTrackEta=tauFlags.tauRecEleBDTConfig()[2][3],
-                                                           outputVarName="BDTEleScore"))
+                                                           weightsFile=tauFlags.tauRecEleBDTConfig()[2][0],
+                                                           minNTracks=tauFlags.tauRecEleBDTConfig()[2][1],
+                                                           minAbsTrackEta=tauFlags.tauRecEleBDTConfig()[2][2],
+                                                           maxAbsTrackEta=tauFlags.tauRecEleBDTConfig()[2][3],
+                                                           outputVarName="BDTEleScore") )
                 tools.append(taualgs.getTauWPDecoratorEleBDT())
                 tools.append(taualgs.getTauJetRNNEvaluator(suffix="TauJetRNN",
                                                            NetworkFile1P=tauFlags.tauRecJetRNNConfig()[0],
