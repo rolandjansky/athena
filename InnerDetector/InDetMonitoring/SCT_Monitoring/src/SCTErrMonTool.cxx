@@ -373,7 +373,7 @@ SCTErrMonTool::checkRateHists() {
             cxb = m_numErrorsPerLumi[reg]->GetXaxis()->GetBinCenter(xb);
             for (unsigned int yb{1}; yb < ybins; ++yb) {
               cyb = m_numErrorsPerLumi[reg]->GetYaxis()->GetBinCenter(yb);
-              int num_modules{getNumModules(reg, yb - 1)};
+              int num_modules{getNumModules(index2Bec(reg), yb - 1)};
               content = m_numErrorsPerLumi[reg]->GetBinContent(xb, yb);
               if (num_modules > 0) {
                 m_rateErrorsPerLumi[reg]->Fill(cxb, cyb, 1, content);

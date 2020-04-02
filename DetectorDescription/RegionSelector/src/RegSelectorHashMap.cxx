@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RegionSelector/RegSelectorHashMap.h"
@@ -250,7 +250,7 @@ void RegSelectorHashMap::initMatrix(void){
 }
 
 void RegSelectorHashMap::writeLine(const int& layer, const IdentifierHash& hashId, 
-			std::vector<uint32_t> robId, const double& emin,
+			const std::vector<uint32_t>& robId, const double& emin,
 			const double& emax, const double& pmin,
 			const double& pmax, const int& samp){
 
@@ -561,9 +561,9 @@ StatusCode RegSelectorHashMap::read(const char *filename){
       robId.clear();
       pch = strchr(buffer,' ');
       int test = sscanf(pch, " %u %d %d %lf %lf %lf %lf %s %s",  &hashId, &layer, &samp, &emin, &emax, &pmin, &pmax, robIdStr, robIdStr2);
-      robId.push_back(strtol(robIdStr,0,16));
+      robId.push_back(strtol(robIdStr,nullptr,16));
       if ( test == 9 ) // this means that there are 2 ROBs in 1 TT
-        robId.push_back(strtol(robIdStr2,0,16));
+        robId.push_back(strtol(robIdStr2,nullptr,16));
       pch=strchr(buffer,' ');
       stepPhi = std::fabs(pmax-pmin);// initial value for phi and eta step
       stepEta = std::fabs(emin-emax);

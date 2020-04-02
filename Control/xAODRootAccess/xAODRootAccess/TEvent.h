@@ -267,6 +267,14 @@ namespace xAOD {
       /// Function returning the key describing a known object
       const std::string& getName( uint32_t hash ) const override;
 
+      /// Internal function for recording an object into the output
+      // Declared public so we can call it from python.
+      TReturnCode record( void* obj, const std::string& typeName,
+                          const std::string& key,
+                          ::Int_t basketSize, ::Int_t splitLevel,
+                          ::Bool_t overwrite = kFALSE,
+                          ::Bool_t metadata = kFALSE,
+                          ::Bool_t isOwner = kTRUE );
    protected:
       /// Function for retrieving an output object in a non-template way
       void* getOutputObject( uint32_t key,
@@ -344,13 +352,6 @@ namespace xAOD {
                                   const std::type_info& ti,
                                   ::Bool_t silent = kFALSE,
                                   ::Bool_t metadata = kFALSE );
-      /// Internal function for recording an object into the output
-      TReturnCode record( void* obj, const std::string& typeName,
-                          const std::string& key,
-                          ::Int_t basketSize, ::Int_t splitLevel,
-                          ::Bool_t overwrite = kFALSE,
-                          ::Bool_t metadata = kFALSE,
-                          ::Bool_t isOwner = kTRUE );
       /// Internal function for adding an auxiliary store object to the output
       TReturnCode record( TAuxStore* store, const std::string& key,
                           ::Int_t basketSize, ::Int_t splitLevel,

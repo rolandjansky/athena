@@ -14,7 +14,7 @@ Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& 
   AthAlgTool(t,n,p)
 {
   declareInterface<IMMClusterBuilderTool>(this);
-  declareProperty("useErrorParametrization",m_useErrorParametrization=false);
+  declareProperty("useErrorParametrization",m_useErrorParametrization=true);
 
 }
 
@@ -117,8 +117,8 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	    MMflag[j] = 1;
 	    mergeIndices.push_back(j);
 	    mergeStrips.push_back(stripN);
-      mergeStripsTime.push_back(MMprds[j].time()-MMprds[j].globalPosition().norm()/299.792);
-      mergeStripsCharge.push_back(MMprds[j].charge());
+	    mergeStripsTime.push_back(MMprds[j].time()-MMprds[j].globalPosition().norm()/299.792);
+	    mergeStripsCharge.push_back(MMprds[j].charge());
 	    nmergeStrips++;
 	  }
 	}
@@ -178,6 +178,9 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
       if(nmerge<=1) (*covN)(0,0) = covX;
     } else {
       double localUncertainty = 0.074+0.66*theta-0.15*theta*theta;
+      if ( m_idHelperSvc->mmIdHelper().isStereo(MMprds[i].identify()) ) {
+      	localUncertainty = 10.;
+      } 
       (*covN)(0,0) = localUncertainty * localUncertainty;
     }
     ATH_MSG_VERBOSE(" make merged prepData at strip " << m_idHelperSvc->mmIdHelper().channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));

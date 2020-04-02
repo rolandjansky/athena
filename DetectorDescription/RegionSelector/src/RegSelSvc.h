@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -215,7 +215,7 @@ private:
      \param const std::string \c \b lutName, parameter to be passed to lutCreatorTool.getLUT() if needed, optional
      \return const RegionSelectorLUT* \c \b detRSlut, the detector data LUT
   */
-  StatusCode readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string lutName=""); 
+  StatusCode readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string& lutName=""); 
 
   //! Initialise lookup tables using tools provided for the inner detector tables
   /*!

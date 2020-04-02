@@ -32,7 +32,6 @@
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-
 namespace Analysis {
   class IBTagTool;
   class IBTagTrackAssociation;

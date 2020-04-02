@@ -206,7 +206,7 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::decode( const std::vector<IdentifierH
 void Muon::MdtRdoToPrepDataToolCore::processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect ){
   // get RDO container
   const MdtCsmContainer* rdoContainer = getRdoContainer();
-  if(!rdoContainer) {
+  if(!rdoContainer || rdoContainer->size()==0) {
     return;
   }                 
 
@@ -221,7 +221,7 @@ void Muon::MdtRdoToPrepDataToolCore::processRDOContainer( std::vector<Identifier
   
   // get RDO container
   const MdtCsmContainer* rdoContainer = getRdoContainer();
-  if(!rdoContainer) {
+  if(!rdoContainer || rdoContainer->size()==0) {
     return;                                        
   }    
 

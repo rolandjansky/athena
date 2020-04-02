@@ -20,6 +20,7 @@
 #include "ITRT_SimDriftTimeTool.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetSimData/InDetSimDataCollection.h"
@@ -124,6 +125,7 @@ private:
   ToolHandle<ITRT_PAITool> m_TRTpaiToolKr{this, "PAI_Tool_Kr", "TRT_PAI_Process_Kr", "The PAI model for ionisation in the TRT Kr gas"};
   ToolHandle<ITRT_SimDriftTimeTool> m_TRTsimdrifttimetool{this, "SimDriftTimeTool", "TRT_SimDriftTimeTool", "Drift time versus distance (r-t-relation) for TRT straws"};
   ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool{this, "InDetTRTStrawStatusSummaryTool", "TRT_StrawStatusSummaryTool", ""};
+  ToolHandle<ITRT_CalDbTool> m_calDbTool{this, "InDetTRTCalDbTool", "TRT_CalDbTool", ""};
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service"};
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc{this, "TRT_StrawNeighbourSvc", "TRT_StrawNeighbourSvc", ""};

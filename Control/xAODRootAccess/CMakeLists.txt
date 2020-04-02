@@ -100,6 +100,6 @@ if( XAOD_ANALYSIS )
       PROPERTIES TIMEOUT 600 )
 endif()
 
-if( NOT XAOD_STANDALONE )
+if( NOT XAOD_STANDALONE AND NOT GENERATIONBASE )
    _add_test( ut_xaodrootaccess_proxydict_test )
 endif()

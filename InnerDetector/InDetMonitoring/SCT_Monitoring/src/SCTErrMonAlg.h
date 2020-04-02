@@ -65,16 +65,12 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
       return cnt;
     }
   };
-  enum {REGIONINDEX, LAYERINDEX, ETAINDEX, PHIINDEX, NINDICES};
-  typedef std::array<int, NINDICES> indices_t;
-  typedef std::vector<indices_t> indicesVector_t;
 
   static const unsigned int s_nBinsEta;
   static const double s_rangeEta;
   static const unsigned int s_nBinsPhi;
   static const double s_wafersThreshold;
 
-  indicesVector_t m_indicesVector{};
   std::vector<moduleGeo_t> m_geo{};
 
   mutable std::atomic_bool m_isFirstConfigurationDetails{true};
