@@ -169,8 +169,8 @@ namespace InDet {
       int charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*>,int&);
       int charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*>,int&, double&);
       
-      double minpT(double eta);
-      unsigned int minclusters(double eta);
+      double minpT(double eta) const;
+      unsigned int minclusters(double eta) const;
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;
@@ -179,18 +179,18 @@ namespace InDet {
   MsgStream&    operator << (MsgStream&   ,const TrackClusterAssValidationITk&);
   std::ostream& operator << (std::ostream&,const TrackClusterAssValidationITk&); 
   
-  inline double TrackClusterAssValidationITk::minpT(double eta) {
-    if (m_ptbins.size() == 0) return m_ptcut;
-    double aeta = fabs(eta);
+  inline double TrackClusterAssValidationITk::minpT(double eta) const {
+    if (m_ptbins.empty()) return m_ptcut;
+    double aeta = std::abs(eta);
     for(int n = int(m_ptbins.size()-1); n>=0; --n) {
       if(aeta > m_etabins.at(n)) return m_ptbins.at(n);
     }
     return m_ptcut;
   }
   
-  inline unsigned int TrackClusterAssValidationITk::minclusters(double eta) {
-    if (m_minclusterbins.size() == 0) return m_clcut;
-    double aeta = fabs(eta);
+  inline unsigned int TrackClusterAssValidationITk::minclusters(double eta) const {
+    if (m_minclusterbins.empty()) return m_clcut;
+    double aeta = std::abs(eta);
     for(int n = int(m_minclusterbins.size()-1); n>=0; --n) {
       if(aeta > m_etabins.at(n)) return m_minclusterbins.at(n);
     }

@@ -103,7 +103,7 @@ StatusCode InDet::TrackClusterAssValidationITk::initialize()
   m_rapcut ? m_tcut = 1./tan(2.*atan(exp(-m_rapcut))) : m_tcut = 0.;
   
   // checking if eta dependent variables have a compatible size
-  if (m_etabins.size()>0) {
+  if (not m_etabins.empty()) {
     if (m_ptbins.size() > (m_etabins.size()-1)) {
       ATH_MSG_ERROR( "No. of min pt cut values bigger than eta bins");
       return StatusCode::FAILURE;
@@ -159,7 +159,7 @@ StatusCode InDet::TrackClusterAssValidationITk::initialize()
   m_nspacepointsSTOT = 0               ;
   m_nspacepointsOTOT = 0               ;
 
-  m_pdg          = fabs(m_pdg)         ;
+  m_pdg          = std::abs(m_pdg)         ;
   m_events       = 0                   ;
   m_eventsPOS    = 0                   ;
   m_eventsNEG    = 0                   ;
@@ -275,7 +275,7 @@ StatusCode InDet::TrackClusterAssValidationITk::finalize() {
   std::cout<<"|                                                                                   |"
 	   <<std::endl;
   
-  if (m_etabins.size()>0) {
+  if (not m_etabins.empty()) {
     std::cout<<"|        eta bins for eta dependent variables ="
         << " [0.0, ";
     for (unsigned int etabin = 1; etabin<(m_etabins.size()-1); etabin++)
@@ -283,7 +283,7 @@ StatusCode InDet::TrackClusterAssValidationITk::finalize() {
     std::cout << std::setw(2) << m_etabins.back() << "]                |"<<std::endl;
   }
    
-  if (m_etabins.size()>0) {
+  if (not m_etabins.empty()) {
     std::cout<<"|                    eta dependent pT [MeV]  >="
         << " [";
     for (unsigned int ptbin = 0; ptbin<(m_ptbins.size()-1); ptbin++)
@@ -562,7 +562,7 @@ StatusCode InDet::TrackClusterAssValidationITk::finalize() {
   std::cout<<"|               Additional cuts for truth particles are                             |"
 	   <<std::endl;
 
-  if (m_etabins.size()>0) {
+  if (not m_etabins.empty()) {
     std::cout<<"|   eta dependent number of silicon clusters >="
         << " [";
     for (unsigned int clbin = 0; clbin<(m_minclusterbins.size()-1); clbin++)
@@ -1580,8 +1580,8 @@ void InDet::TrackClusterAssValidationITk::tracksComparison()
       
       const Trk::TrackParameters* tpf = (*s)->trackParameters();  if(!tpf) continue;
       const AmgVector(5)&         Vpf = tpf ->parameters     ();
-      double                      pTf = fabs(sin(Vpf[3])/Vpf[4]);
-      double                     etaf = fabs(log(tan(.5*Vpf[3])));
+      double                      pTf = std::abs(sin(Vpf[3])/Vpf[4]);
+      double                     etaf = std::abs(log(tan(.5*Vpf[3])));
       bool                        qTf = pTf > minpT(etaf);          
       for(; s!=se; ++s) {
         
@@ -1592,7 +1592,7 @@ void InDet::TrackClusterAssValidationITk::tracksComparison()
             qp = true;
             const AmgVector(5)& Vp = tp->parameters();
             double pT  = sin(Vp[3])/Vp[4]  ;
-            double rap = fabs(log(tan(.5*Vp[3])));
+            double rap = std::abs(log(tan(.5*Vp[3])));
             double minpt = minpT(rap);
             if     (pT >  minpt && pT <  m_ptcutmax) {
               if     (rap < m_rapTRAN) ++m_ntracksPOSB[nc];
@@ -1747,7 +1747,7 @@ int InDet::TrackClusterAssValidationITk::kine
     int pdg = abs(pa->pdg_id()); if(m_pdg && m_pdg != pdg ) continue;
 
     const HepPDT::ParticleData* pd  = m_particleDataTable->particle(pdg);
-    if(!pd ||  fabs(pd->charge()) < .5) continue;
+    if(!pd ||  std::abs(pd->charge()) < .5) continue;
 
     double           px = pa->momentum().px(); 
     double           py = pa->momentum().py(); 
@@ -1756,7 +1756,7 @@ int InDet::TrackClusterAssValidationITk::kine
     
     // Rapidity cut
     //
-    double t  = fabs(pz)/pt;
+    double t  = std::abs(pz)/pt;
     if( t  > m_tcut ) continue;
     
     // pT cut
@@ -1962,7 +1962,7 @@ int InDet::TrackClusterAssValidationITk::charge(std::pair<int,const Trk::PrepRaw
       double pz =  pat->momentum().pz();
       double pt = sqrt(px*px+py*py)   ;
       double t  = atan2(pt,pz)        ;
-      double ra = fabs(log(tan(.5*t)));
+      double ra = std::abs(log(tan(.5*t)));
 
       ra > m_rapENDP ? rap = 3 : ra > m_rapENDS ? rap = 2 : ra > m_rapTRAN ? rap = 1 : rap = 0;
 
@@ -1988,7 +1988,7 @@ int InDet::TrackClusterAssValidationITk::charge(std::pair<const HepMC::GenPartic
   double pz =  pat->momentum().pz();
   double pt = sqrt(px*px+py*py)   ;
   double t  = atan2(pt,pz)        ;
-  double ra = fabs(log(tan(.5*t)));
+  double ra = std::abs(log(tan(.5*t)));
 
   ra > m_rapENDP ? rap = 3 : ra > m_rapENDS ? rap = 2 : ra > m_rapTRAN ? rap = 1 : rap = 0;
   
@@ -2023,7 +2023,7 @@ int InDet::TrackClusterAssValidationITk::charge(std::pair<int,const Trk::PrepRaw
       double pz =  pat->momentum().pz();
       double pt = sqrt(px*px+py*py)   ;
       double t  = atan2(pt,pz)        ;
-      double ra = fabs(log(tan(.5*t)));
+      double ra = std::abs(log(tan(.5*t)));
 
       etaExact = ra;
 
@@ -2051,7 +2051,7 @@ int InDet::TrackClusterAssValidationITk::charge(std::pair<const HepMC::GenPartic
   double pz =  pat->momentum().pz();
   double pt = sqrt(px*px+py*py)   ;
   double t  = atan2(pt,pz)        ;
-  double ra = fabs(log(tan(.5*t)));
+  double ra = std::abs(log(tan(.5*t)));
   
   etaExact = ra;
 
