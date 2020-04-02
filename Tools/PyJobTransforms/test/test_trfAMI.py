@@ -33,25 +33,25 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertEqual(tag.trfs[0].release, 'AtlasProduction,17.2.0.3')
         self.assertEqual(tag.trfs[0].physics, physics)
 
-    # test multiple transforms tag from ProdSys
-    def test_info_a180(self):
-        physics = {'conditionsTag':'OFLCOND-MC12-SIM-00',
-                  'postInclude':'FastCaloSimHit/postInclude.AF2FilterHitItems.py FastSimulationJobTransforms/jobConfig.FastCaloSim_ID_cuts.py FastSimulationJobTransforms/jobConfig.egamma_lateral_shape_tuning.config20.py',
-                  'DBRelease':'20.2.2',
-                  'preInclude':'FastSimulationJobTransforms/jobConfig.v14_Parametrisation.py FastCaloSimHit/preInclude.AF2Hit.py',
-                  'geometryVersion':'ATLAS-GEO-20-00-01'}
+#    # test multiple transforms tag from ProdSys
+#    def test_info_a180(self):
+#        physics = {'conditionsTag':'OFLCOND-MC12-SIM-00',
+#                  'postInclude':'FastCaloSimHit/postInclude.AF2FilterHitItems.py FastSimulationJobTransforms/jobConfig.FastCaloSim_ID_cuts.py FastSimulationJobTransforms/jobConfig.egamma_lateral_shape_tuning.config20.py',
+#                  'DBRelease':'20.2.2',
+#                  'preInclude':'FastSimulationJobTransforms/jobConfig.v14_Parametrisation.py FastCaloSimHit/preInclude.AF2Hit.py',
+#                  'geometryVersion':'ATLAS-GEO-20-00-01'}
 
 
-        tag = TagInfo('a180')
-        self.assertEqual(len(tag.trfs), 2)
-        self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
-        self.assertTrue(isinstance(tag.trfs[1], TrfConfig))
-        self.assertEqual(tag.isProdSys, True)
-        self.assertEqual(tag.trfs[0].name, 'Merging_trf.py')
-        self.assertEqual(tag.trfs[0].release, '17.2.1.4.2,TrigMC')
-        self.assertEqual(tag.trfs[0].physics, physics)
-        self.assertEqual(tag.trfs[1].name, 'DigiMReco_trf.py')
-        self.assertEqual(tag.trfs[1].release, '17.2.1.4.2,TrigMC')
+#        tag = TagInfo('a180')
+#        self.assertEqual(len(tag.trfs), 2)
+#        self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
+#        self.assertTrue(isinstance(tag.trfs[1], TrfConfig))
+#        self.assertEqual(tag.isProdSys, True)
+#        self.assertEqual(tag.trfs[0].name, 'Merging_trf.py')
+#        self.assertEqual(tag.trfs[0].release, '17.2.1.4.2,TrigMC')
+#        self.assertEqual(tag.trfs[0].physics, physics)
+#        self.assertEqual(tag.trfs[1].name, 'DigiMReco_trf.py')
+#        self.assertEqual(tag.trfs[1].release, '17.2.1.4.2,TrigMC')
 
     # test a new transform tag from AMI
     def test_info_q220(self):
@@ -123,7 +123,7 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertEqual(tag.trfs[0].outFiles, {'outputAODFile': 'myAOD.pool.root', 'outputESDFile': 'myESD.pool.root'})
         self.assertEqual(tag.trfs[0].outputs, "{'outputESDFile': {'dstype': 'ESD', 'ifMatch': '(?!.*DRAW.*)'}, 'outputAODFile': {'dstype': 'AOD', 'ifMatch': 'data[0-9][0-9]_(cos|1beam|.*eV|comm)(?!.(.*DRAW.*|.*ZeroBias.*x[0-9].*))'}}")
         self.assertEqual(tag.trfs[0].inDS, None)
-        self.assertEqual(tag.trfs[0].outfmts, ['AOD', 'ESD'])
+        self.assertCountEqual(tag.trfs[0].outfmts, ['AOD', 'ESD'])
 
     def test_info_r6390(self):
         self.maxDiff = None
@@ -250,25 +250,25 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertEqual(tag.trfs[0].inDS, None)
         self.assertEqual(tag.trfs[0].outfmts, [])
 
-    def test_transform(self):
-        from PyJobTransforms.transform import transform
-        from PyJobTransforms.trfArgClasses import argFactory, argString
-        from PyJobTransforms.trfDefaultFiles import getInputFileName
+#    def test_transform(self):
+#        from PyJobTransforms.transform import transform
+#        from PyJobTransforms.trfArgClasses import argFactory, argString
+#        from PyJobTransforms.trfDefaultFiles import getInputFileName
 
-        tf = transform()
-        addAthenaArguments(tf.parser)
-        tf.parser.add_argument('--inputBSFile', type = argFactory(argString))
-        tf.parser.add_argument('--outputBSFile', type = argFactory(argString))
-        tf.parser.add_argument('--extraArg', type = argFactory(argString))
+#        tf = transform()
+#        addAthenaArguments(tf.parser)
+#        tf.parser.add_argument('--inputBSFile', type = argFactory(argString))
+#        tf.parser.add_argument('--outputBSFile', type = argFactory(argString))
+#        tf.parser.add_argument('--extraArg', type = argFactory(argString))
 
-        tf.parseCmdLineArgs('--AMIConfig=p1346 --extraArg=special --outputBSFile=myOutput'.split())
+#        tf.parseCmdLineArgs('--AMIConfig=p1346 --extraArg=special --outputBSFile=myOutput'.split())
 
-        # not part of tag
-        self.assertEqual(tf.argdict['extraArg'].value, 'special')
-        #  part of tag
-        self.assertEqual(tf.argdict['inputBSFile'].value, getInputFileName('inputBSFile'))
-        #  part of tag but overwritten at command line
-        self.assertEqual(tf.argdict['outputBSFile'].value, 'myOutput')
+#        # not part of tag
+#        self.assertEqual(tf.argdict['extraArg'].value, 'special')
+#        #  part of tag
+#        self.assertEqual(tf.argdict['inputBSFile'].value, getInputFileName('inputBSFile'))
+#        #  part of tag but overwritten at command line
+#        self.assertEqual(tf.argdict['outputBSFile'].value, 'myOutput')
 
 
 if __name__ == '__main__':
