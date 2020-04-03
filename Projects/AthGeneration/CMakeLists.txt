@@ -42,19 +42,6 @@ set( AthenaPoolUtilitiesTest_DIR
    "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
    CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
 
-# Load all the files from the externals/ subdirectory:
-file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
-foreach( _external ${_externals} )
-   include( ${_external} )
-   get_filename_component( _extName ${_external} NAME_WE )
-   string( TOUPPER ${_extName} _extNameUpper )
-   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
-   unset( _extName )
-   unset( _extNameUpper )
-endforeach()
-unset( _external )
-unset( _externals )
-
 # Disable the usage of the --no-undefined linker flag:
 atlas_disable_no_undefined()
 
