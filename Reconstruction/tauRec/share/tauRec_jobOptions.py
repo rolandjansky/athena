@@ -13,6 +13,7 @@ from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags import globalflags
 import AthenaCommon.SystemOfUnits as Units
 from tauRec.tauRecFlags import jobproperties as taujp
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 
 # use Tau Jet Vertex Association Tool
 # each Tau candidate gets its own primary vertex
@@ -23,9 +24,9 @@ _doTJVA = True
 _doPi0Clus = taujp.tauRecFlags.doPi0() #False by default
 _doPi0Clus = True 
 
-
 # Switch to upgrade configs
-if taujp.tauRecFlags.doUpgrade():
+if (CommonGeometryFlags.Run() == "RUN4"):
+    # if taujp.tauRecFlags.doUpgrade():
     taujp.tauRecFlags.tauRecToolsCVMFSPath = "tauRecTools/00-03-00/"
     taujp.tauRecFlags.tauRecToolsLCCalibFile = "TES_calib_nVtxCorr_upgrade.root"
     taujp.tauRecFlags.tauRecToolsCombP4Weights = "CalibLoopResult_v04-04.root"

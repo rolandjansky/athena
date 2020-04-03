@@ -210,14 +210,6 @@ class tauRecJetRNNConfig(JobProperty):
     statusOn=True
     allowedTypes=[ [] ]
     StoredValue=["rnnid_prelim_config_deep_1p.json", "rnnid_prelim_config_deep_3p.json", 10, 6]
-    
-class doUpgrade(JobProperty):
-    """ use upgrade config files
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-                                            
 
 # Defines a sub-container for the algorithm switches
 class tauRecFlags(JobPropertyContainer):
@@ -227,7 +219,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,tauRecToolsCVMFSPath,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecMVATrackClassificationConfig,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,tauRecToolsLCCalibFile,tauRecToolsCombP4Weights,tauRecToolsMvaTESWeights,tauRecJetBDTConfig,tauRecEleBDTConfig,tauRecWPDecoratorJetBDTConfig,tauRecJetRNNConfig,doUpgrade]
+_list_tau=[Enabled,doTauRec,tauRecToolsCVMFSPath,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecMVATrackClassificationConfig,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,tauRecToolsLCCalibFile,tauRecToolsCombP4Weights,tauRecToolsMvaTESWeights,tauRecJetBDTConfig,tauRecEleBDTConfig,tauRecWPDecoratorJetBDTConfig,tauRecJetRNNConfig]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau
