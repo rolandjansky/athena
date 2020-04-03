@@ -888,16 +888,13 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     if ( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") && inputMetaStore()->retrieve(fmd,"FileMetaData").isSuccess() ) {
       fmd->value(xAOD::FileMetaData::mcProcID, dsid);
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
-      if ( amiTag.find("r9364")!=string::npos ) mcCampaignMD = "mc16a";
-      else if ( amiTag.find("r11285")!=string::npos ) mcCampaignMD = "mc16a";
+      if ( amiTag.find("r9364")!=string::npos || amiTag.find("r11285")!=string::npos || amiTag.find("r11505")!=string::npos) mcCampaignMD = "mc16a";
       else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
-      else if ( amiTag.find("r10201")!=string::npos ) mcCampaignMD = "mc16d";
-      else if ( amiTag.find("r11279")!=string::npos ) mcCampaignMD = "mc16d";
-      else if ( amiTag.find("r10724")!=string::npos ) mcCampaignMD = "mc16e";
-      else if ( amiTag.find("r11249")!=string::npos ) mcCampaignMD = "mc16e";
+      else if ( amiTag.find("r10201")!=string::npos || amiTag.find("r11279")!=string::npos || amiTag.find("r11506")!=string::npos ) mcCampaignMD = "mc16d";
+      else if ( amiTag.find("r10724")!=string::npos || amiTag.find("r11249")!=string::npos || amiTag.find("r11507")!=string::npos ) mcCampaignMD = "mc16e";
       else {
-	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample");
-	return StatusCode::FAILURE;
+      	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample");
+	      return StatusCode::FAILURE;
       }
     } else  {
 #ifndef XAOD_STANDALONE
@@ -942,6 +939,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     // Retrieve the input file
     int DSID_INT = (int) dsid;
     prwConfigFile += "DSID" + std::to_string(DSID_INT/1000) + "xxx/pileup_" + mcCampaignMD + "_dsid" + std::to_string(DSID_INT) + "_" + simType + ".root";
+    
     if (RPVLLmode) prwConfigFile = TString(prwConfigFile).ReplaceAll(".root","_rpvll.root").Data();
 
     // PRW file specified by user 
@@ -991,6 +989,8 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     TFile testF(prwConfigFile.data(),"read");
     if (testF.IsZombie()) {
       ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() << " ! Impossible to autoconfigure PRW. Aborting." );
+      if ( amiTag.find("r11")!=std::string::npos && !RPVLLmode ) 
+         ATH_MSG_WARNING("Running with r11xxx r-tag, but RPVLLmode not set. Perhaps you want to set \"PRW.autoconfigPRWRPVmode: 1\" in the config?");
       return StatusCode::FAILURE;
     }
 
