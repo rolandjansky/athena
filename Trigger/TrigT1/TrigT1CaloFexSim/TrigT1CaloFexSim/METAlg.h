@@ -58,11 +58,11 @@ class METAlg{
   /**
    *@brief Calculate MET using a fixed 4 sigma noise cut
    */
-  static StatusCode Baseline_MET(const xAOD::JGTowerContainer*towers, TString metname, std::vector<float> noise, bool useNegTowers);
+  static StatusCode NoiseCut_MET(const xAOD::JGTowerContainer*towers, TString metname, std::vector<float> noise, bool useNegTowers);
   /**
    *@brief Calculates MET with pileup subtraction
    */
-  static StatusCode SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useEtaBins, bool useRMS, bool useMedian, bool useNegTowers);
+  static StatusCode SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useEtaBins, bool useRMS,bool useNegTowers);
   /**
    *@brief Calculates MET with pileup subtraction in jFEX
    */
@@ -76,14 +76,14 @@ class METAlg{
   /**
    *@brief Calculates MET with Jets without Jets
    */
-      static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> gBlocks, TString metname, float pTcone_cut, bool useEtaBins, bool useRho, bool useNegTowers);
+  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> gBlocks, TString metname, float pTcone_cut, bool useRho, float RhoA, float RhoB, float RhoC, bool useNegTowers);
   /**
    *@brief Calculates MET using PUfit
    */
   static StatusCode Pufit_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useNegTowers);
  
-  static float Rho_avg(const xAOD::JGTowerContainer* towers, bool useNegTowers);
-  static float Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, int fpga, bool useNegTowers);
+  static float Rho_avg_barrel(const xAOD::JGTowerContainer* towers, bool useNegTowers);
+  static float Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, bool useNegTowers);
 };
 
 #endif

@@ -26,11 +26,14 @@ class SCellType(JobProperty):
     """
     statusOn = True
     allowedType = ['str']
-    StoredValue = "Pulse"
+    StoredValue = "BCID"
+    #We may need this again at some point, so I leave it -- but we are now at the point where we need quality cuts during emulation, B Carlson March 27, 2020
+    '''
     def _do_action(self):
         if self.get_Value()=="Emulated":
             from TrigT1CaloFexSim.L1SimulationControlFlags import L1Phase1SimFlags as simflags
             simflags.Calo.ApplySCQual=False 
+    '''
 _caloflags.append(SCellType)
 
 
