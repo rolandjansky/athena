@@ -344,7 +344,7 @@ StatusCode eflowPreparation::makeTrackContainer() {
 }
 
 bool eflowPreparation::selectTrack(const xAOD::TrackParticle* track) {
-  if (track->pt()*0.001 < m_upperTrackPtCut) return m_selTool->accept(*track, track->vertex());
+  if (track->pt()*0.001 < m_upperTrackPtCut) return m_selTool->accept(*track);
   else return false;
 }
 
