@@ -9,8 +9,8 @@
 // Decorator tool to store per-module summary information for pixel clusters
 
 #include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
+#include "DerivationFrameworkInDet/DecoratorUtils.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
@@ -58,6 +58,16 @@ namespace DerivationFramework {
 	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
 	    m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
 	    m_parser->loadExpression(m_selectionString);
+    }
+
+    {
+       std::vector<std::string> names;
+       names.resize(kNIntDecor);
+       names[kperModuleMultiplicity] ="perModuleMultiplicity";
+       names[klayer]                 ="layer";
+       names[keta_module]            ="eta_module";
+       names[kphi_module]            ="phi_module";
+       createDecoratorKeys(*this,m_eventInfoKey,m_decorationPrefix.value()+"_",names, m_intDecorKeys);
     }
 
     return StatusCode::SUCCESS;
@@ -116,10 +126,7 @@ namespace DerivationFramework {
     m_npass += n_pass;
 
     // fill the per-module information
-    std::vector<int> perModuleMultiplicity;
-    std::vector<int> layer;
-    std::vector<int> eta_module;
-    std::vector<int> phi_module;
+    std::array<std::vector<int>,kNIntDecor> vec;
 
     unsigned int i=0;
     std::vector<int> keys;
@@ -143,21 +150,22 @@ namespace DerivationFramework {
         }
       if( index == 9999 ){
         keys.push_back( key );
-        layer.push_back( clus_layer );
-        eta_module.push_back( clus_eta_module );
-        phi_module.push_back( clus_phi_module );
-        perModuleMultiplicity.push_back( 1 );
+        vec[klayer].push_back( clus_layer );
+        vec[keta_module].push_back( clus_eta_module );
+        vec[kphi_module].push_back( clus_phi_module );
+        vec[kperModuleMultiplicity].push_back( 1 );
       } else {
-        perModuleMultiplicity[index]++;
+        assert(index < vec[kperModuleMultiplicity].size());
+        vec[kperModuleMultiplicity][index]++;
       }
     }
 
-    // decorate per-layer multiplicity
-    eventInfo->auxdecor< std::vector<int> >(m_decorationPrefix+"_perModuleMultiplicity") = perModuleMultiplicity;
-    eventInfo->auxdecor< std::vector<int> >(m_decorationPrefix+"_layer")                 = layer;
-    eventInfo->auxdecor< std::vector<int> >(m_decorationPrefix+"_eta_module")            = eta_module;
-    eventInfo->auxdecor< std::vector<int> >(m_decorationPrefix+"_phi_module")            = phi_module;
-    
+    std::vector<SG::WriteDecorHandle<xAOD::EventInfo,std::vector<int> > >   int_decor_handles(createDecorators<xAOD::EventInfo,std::vector<int> >(m_intDecorKeys,ctx));
+    assert(int_decor_handles.size() == kNIntDecor);
+    for(unsigned int decorate_i=0; decorate_i<int_decor_handles.size(); ++decorate_i) {
+       int_decor_handles[decorate_i](*eventInfo) = std::move(vec[decorate_i]);
+    }
+
     return StatusCode::SUCCESS;
   }  
   

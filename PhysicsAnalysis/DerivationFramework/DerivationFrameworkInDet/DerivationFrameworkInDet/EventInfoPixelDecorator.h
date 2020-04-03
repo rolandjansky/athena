@@ -43,10 +43,16 @@ namespace DerivationFramework {
          { this, "EventInfoKey", "EventInfo", ""};
       Gaudi::Property<std::string> m_decorationPrefix
          { this, "DecorationPrefix", "", ""};
-     SG::ReadHandleKey<xAOD::TrackMeasurementValidationContainer> m_pixelKey
+      SG::ReadHandleKey<xAOD::TrackMeasurementValidationContainer> m_pixelKey
          { this, "TrackMeasurementValidationKey", "PixelClusters", ""};
 
-  }; 
+      enum EIntDecor {kperModuleMultiplicity,
+                      klayer,
+                      keta_module,
+                      kphi_module,
+                      kNIntDecor};
+      std::vector<SG::WriteDecorHandleKey<xAOD::EventInfo> > m_intDecorKeys;
+  };
 }
 
 #endif // DERIVATIONFRAMEWORK_EVENTINFOPIXELDECORATOR_H
