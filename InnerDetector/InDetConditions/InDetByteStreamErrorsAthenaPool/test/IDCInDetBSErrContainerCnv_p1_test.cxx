@@ -4,7 +4,7 @@
 
 
 #undef NDEBUG
-#include "../src/IDCInDetBSErrContainerCnv.h"
+#include "../src/IDCInDetBSErrContainerCnv_p1.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
 #include <cassert>
@@ -23,8 +23,8 @@ void compare (const IDCInDetBSErrContainer& c1,
 
 void testit (const IDCInDetBSErrContainer& trans1)
 {
-  IDCInDetBSErrContainerCnv cnv;
-  InDetBSErrContainer_p2 pers;
+  IDCInDetBSErrContainerCnv_p1 cnv;
+  InDetBSErrContainer64_p1 pers;
   MsgStream log (0, "test");
   cnv.transToPers (&trans1, &pers, log);
   IDCInDetBSErrContainer trans2 (10, -9999);
