@@ -2,6 +2,7 @@
 #
 # art-description: Run the full reconstruction on HITS without pile-up JZ6W samples (leading jet pt: 1300-1800 GeV) for validation of tracking overlay
 # art-include: 21.0/Athena
+# art-include: master/Athena
 # art-type: grid
 
 export inputHitsFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrackingOverlay/JZ6W_HITS
