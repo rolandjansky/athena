@@ -164,6 +164,10 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
                                SCBitMask = simflags.Calo.QualBitMask() )
         # j/gFEX
         l1simAlgSeq += createJGTowerReader(SuperCellType=SCIn) # too much debug output
+        
+        #jFEX taus 
+        from TrigT1CaloFexSim.TrigT1CaloFexSimConf import JFexEleTau
+        l1simAlgSeq += JFexEleTau(RegenerateSeeds = True, NoiseStrategy=0, ApplyNoise = False, CheckMax = True, UseRun2=False, SingleTowerSeed=True) 
 
         #include L1Topo Simulation
         if simflags.Topo.RunTopoAlgorithms():
