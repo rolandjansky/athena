@@ -40,7 +40,7 @@ namespace DerivationFramework {
 
     private:
 
-      Gaudi::Property<std::string> m_sgName
+      Gaudi::Property<std::string> m_prefix
          { this,"DecorationPrefix", "", "" };
       SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
          { this, "ContainerName", "EventInfo", ""};
@@ -50,7 +50,20 @@ namespace DerivationFramework {
       ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "ByteStreamErrTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
       ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
 
-  }; 
+      enum EIntDecor {kSCT_BSErr_Ntot,
+                      kSCT_BSErr_bec,
+                      kSCT_BSErr_layer,
+                      kSCT_BSErr_eta,
+                      kSCT_BSErr_phi,
+                      kSCT_BSErr_side,
+                      kSCT_BSErr_rodid,
+                      kSCT_BSErr_channel,
+                      kSCT_BSErr_type,
+                      kNIntDecor};
+
+      std::vector<SG::WriteDecorHandleKey<xAOD::EventInfo> > m_intDecorKeys;
+
+  };
 }
 
 #endif // DERIVATIONFRAMEWORK_EVENTINFOBSERRDECORATOR_H
