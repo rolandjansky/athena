@@ -45,7 +45,7 @@ atlas_add_library( DerivationFrameworkMuonsLib
    TrigDecisionToolLib TrigMuonMatchingLib ICaloTrkMuIdTools CaloTrkMuIdTools
    TrkExInterfaces InDetTrackSelectionToolLib
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel xAODEventInfo
-   xAODTracking xAODTruth MCTruthClassifierLib)
+   xAODTracking xAODTruth MCTruthClassifierLib FourMomUtils)
 
 atlas_add_component( DerivationFrameworkMuons
    src/components/*.cxx
