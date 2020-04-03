@@ -40,8 +40,12 @@ class ISCT_ChargeTrappingSvc: virtual public IInterface
   virtual double getTrappingPositionZ(const IdentifierHash & elementHash, const double & pos) = 0;
   virtual double getTrappingHoles(const IdentifierHash & elementHash, const double & pos) = 0;  
   virtual double getHoleDriftMobility(const IdentifierHash & elementHash, const double & pos) = 0;
+  virtual double getElectronDriftMobility(const IdentifierHash & elementHash, const double & pos) = 0;
   virtual bool getdoCTrap(const IdentifierHash & elementHash,  const double & pos) = 0;
-  virtual void getHoleTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const  = 0;
+  virtual void getHoleTransport(double & x0, double & y0, double & xfin, double & yfin,
+                                double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const  = 0;
+  virtual void getElectronTransport(double & x0, double & y0, double & xfin, double & yfin,
+                                    double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const  = 0;
   virtual void getInitPotentialValue() = 0;
 
  /// IOV CallBack

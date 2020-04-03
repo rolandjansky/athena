@@ -209,6 +209,7 @@ StatusCode SCT_ChargeTrappingSvc::geoInitialize()
   m_electrodeTime.resize(maxHash);
   m_trappingPosition.resize(maxHash);
   m_holeDriftMobility.resize(maxHash);
+  m_electronDriftMobility.resize(maxHash);
   m_getdoCTrap = false;
 
   return StatusCode::SUCCESS;
@@ -313,9 +314,20 @@ double SCT_ChargeTrappingSvc::getHoleDriftMobility(const IdentifierHash &  eleme
   return m_holeDriftMobility[elementHash];
 }
 
+double SCT_ChargeTrappingSvc::getElectronDriftMobility(const IdentifierHash &  elementHash, const double & pos)
+{
+  (void) pos;
+  return m_electronDriftMobility[elementHash];
+}
+
 void SCT_ChargeTrappingSvc::getHoleTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const
 {
   holeTransport(x0, y0, xfin, yfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
+}
+
+void SCT_ChargeTrappingSvc::getElectronTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const
+{
+  electronTransport(x0, y0, xfin, yfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
 }
 
 void SCT_ChargeTrappingSvc::getInitPotentialValue()
@@ -364,7 +376,8 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
   
   
   const InDetDD::SiDetectorElement * element = m_detManager->getDetectorElement(elementHash);
-  
+  const InDetDD::CarrierType carrierType = element->carrierType();
+
   double temperature;
   double deplVoltage;
   double biasVoltage;
@@ -431,8 +444,9 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
   double electronDriftVelocity = 0.;
   double holeDriftVelocity = 0.;
   if(element->carrierType()==InDetDD::electrons){
-    //    electronDriftMobility = m_siProperties.calcElectronDriftMobility(temperature,electricField);
-    //    electronDriftVelocity = electronDriftMobility*electricField;
+       electronDriftMobility = m_siProperties.calcElectronDriftMobility(temperature,electricField);
+       m_electronDriftMobility[elementHash] = electronDriftMobility;
+       electronDriftVelocity = electronDriftMobility*electricField;
   } else {
     if (m_calcHoles){
       holeDriftMobility = m_siProperties.calcHoleDriftMobility(temperature,electricField*CLHEP::volt)*CLHEP::volt; //in this way you could put the electric field in V/mm and the mobility will be in [V mm^2 ns^-1]
@@ -444,7 +458,7 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
   
   // -- Calculate Trapping Times
   double trappingElectrons = 1./(double)(totalFluence*betaElectrons);
-  //  m_trappingElectrons[elementHash] = trappingElectrons;
+  m_trappingElectrons[elementHash] = trappingElectrons;
 
   double trappingHoles = 0.;
   if (m_calcHoles) {trappingHoles = 1./(double)(totalFluence*betaHoles);
@@ -455,7 +469,7 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
   
   // -- Calculate Mean Free Path
   double meanFreePathElectrons = electronDriftVelocity*trappingElectrons;
-  //  m_meanFreePathElectrons[elementHash] = meanFreePathElectrons;
+  m_meanFreePathElectrons[elementHash] = meanFreePathElectrons;
 
   double meanFreePathHoles = 0.;
   if (m_calcHoles) {meanFreePathHoles = holeDriftVelocity*trappingHoles;
@@ -468,7 +482,7 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
   double trappingProbability_hole = 0.0;
   double trappingProbability = 0.0;
   double zpos = pos;
-  if (element->carrierType()==InDetDD::electrons){
+  if (carrierType==InDetDD::electrons){
     trappingProbability = 1.0 - TMath::Exp(-TMath::Abs(zpos/meanFreePathElectrons));
     trappingProbability_electron = trappingProbability;
   }
@@ -492,17 +506,21 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
 
   
   // -- Time to arrive to the electrode
-  //double t_electrode = zpos/electronDriftVelocity;
+  double t_electrode_electron = zpos/electronDriftVelocity;
   double t_electrode_hole = zpos/holeDriftVelocity;
-  // m_electrodeTime[elementHash] = t_electrode;
-  m_electrodeTime[elementHash] = t_electrode_hole;
+  if(carrierType==InDetDD::electrons)
+    m_electrodeTime[elementHash] = t_electrode_electron;
+  else
+    m_electrodeTime[elementHash] = t_electrode_hole;
 
 
   // -- Position at which the trapping happened
-  //  double trappingPosition = electronDriftVelocity*drift_time;
+  double trappingPosition_electron = electronDriftVelocity*drift_time;
   double trappingPosition_hole = holeDriftVelocity*drift_time;       
-  // m_trappingPosition[elementHash] = trappingPosition;
-  m_trappingPosition[elementHash] = trappingPosition_hole;
+  if(carrierType==InDetDD::electrons)
+    m_trappingPosition[elementHash] = trappingPosition_electron;
+  else
+    m_trappingPosition[elementHash] = trappingPosition_hole;
 
   //-------------------
 
@@ -533,11 +551,9 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
 }
 
 
-
 //-------------------------------------------------------------------------------------------------------------------
 //    RAMO POTENTIAL 
 //-------------------------------------------------------------------------------------------------------------------
-
 
 //--------------------------------------------------------------
 //   initialize PotentialValue
@@ -566,16 +582,17 @@ double SCT_ChargeTrappingSvc::induced (int istrip, double x, double y)const{
   // x is width, y is depth
 
   if ( y < 0. || y > bulk_depth) return 0;
-  double xc = strip_pitch * (istrip + 0.5);
-  double dx = fabs( x-xc );
+  double xc = strip_pitch * (istrip + 0.5);//NOTE: check the 0.5 against m_potentialValue map
+  double dx = fabs( x-xc ); 
   int ix = int( dx / deltax );
   if ( ix > 79 ) return 0.;
   int iy = int( y  / deltay );
   double fx = (dx - ix*deltax) / deltax;
   double fy = ( y - iy*deltay) / deltay;
+  
   int ix1 = ix + 1;
   int iy1 = iy + 1;
-  double P = m_PotentialValue[ix][iy]   *(1.-fx)*(1.-fy)
+  double P = m_PotentialValue[ix][iy]   *(1.-fx)*(1.-fy) // NOTE: check the order about potentialValue weighting
     + m_PotentialValue[ix1][iy]  *fx*(1.-fy)
     + m_PotentialValue[ix][iy1]  *(1.-fx)*fy
     + m_PotentialValue[ix1][iy1] *fx*fy ;
@@ -641,5 +658,37 @@ void SCT_ChargeTrappingSvc::holeTransport(double & x0, double & y0, double & xfi
   //#ifdef SCT_DIG_DEBUG  
   //ATH_MSG_DEBUG("holeTransport : x,y=("<< x0*1.e4<<","<<y0*1.e4<<")->(" << x*1.e4<<"," <<y*1.e4 <<") t="<<t_current);
   //#endif 
+  return;
+}
+
+
+//---------------------------------------------------------------------
+//  electronTransport
+//---------------------------------------------------------------------
+void SCT_ChargeTrappingSvc::electronTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double& Q_00, double & Q_p1, double & Q_p2 )const{
+  
+  double qstrip[5];
+  
+  double x = x0/10.;  // original hole position [cm]
+  double y = y0/10.;  // original hole position [cm]
+  for (int istrip = -2 ; istrip < 3 ; istrip++) 
+    qstrip[istrip+2] = induced(istrip, x, y);
+
+  x = xfin/10.;
+  y = yfin/10.;
+  // Get induced current by subtracting induced charges
+  for (int istrip = -2 ; istrip < 3 ; istrip++) {
+    double qnew = induced( istrip, x, y);
+    double dq = qnew - qstrip[istrip + 2];
+    qstrip[istrip + 2] = qnew ;
+    
+    switch(istrip) {
+    case -2: Q_m2 += dq ; break;
+    case -1: Q_m1 += dq ; break;
+    case  0: Q_00 += dq ; break;
+    case +1: Q_p1 += dq ; break;
+    case +2: Q_p2 += dq ; break;     
+    }
+  }
   return;
 }
