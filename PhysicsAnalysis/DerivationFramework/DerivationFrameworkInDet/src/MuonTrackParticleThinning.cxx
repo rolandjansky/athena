@@ -10,12 +10,9 @@
 // which removes all ID tracks which do not pass a user-defined cut
 
 #include "DerivationFrameworkInDet/MuonTrackParticleThinning.h"
-#include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/ThinningHandle.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
@@ -25,17 +22,8 @@
 DerivationFramework::MuonTrackParticleThinning::MuonTrackParticleThinning(const std::string& t,
                                                                           const std::string& n,
                                                                           const IInterface* p ) :
-base_class(t,n,p),
-m_ntot(0),
-m_npass(0),
-m_muonSGKey(""),
-m_selectionString(""),
-m_coneSize(-1.0),
-m_parser(0)
+base_class(t,n,p)
 {
-    declareProperty("MuonKey", m_muonSGKey);
-    declareProperty("SelectionString", m_selectionString);
-    declareProperty("ConeSize", m_coneSize);
 }
 
 // Destructor
@@ -49,17 +37,17 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::initialize()
     ATH_MSG_VERBOSE("initialize() ...");
     ATH_CHECK( m_inDetSGKey.initialize (m_streamName) );
     ATH_MSG_INFO("Using " << m_inDetSGKey.key() << "as the source collection for inner detector track particles");
-    if (m_muonSGKey=="") {
+    if (m_muonKey.key().empty()) {
         ATH_MSG_FATAL("No muon collection provided for thinning.");
         return StatusCode::FAILURE;
-    } else { ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_muonSGKey << " will be retained in this format with the rest being thinned away");}
-   
+    } else { ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_muonKey.key() << " will be retained in this format with the rest being thinned away");}
+    ATH_CHECK(m_muonKey.initialize());
     // Set up the text-parsing machinery for selectiong the muon directly according to user cuts
-    if (m_selectionString!="") {
+    if (!m_selectionString.empty()) {
 	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
 	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
 	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+	    m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
 	    m_parser->loadExpression(m_selectionString);
     }
     return StatusCode::SUCCESS;
@@ -69,10 +57,7 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::finalize()
 {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, "<< m_npass<< " were retained ");
-    if (m_selectionString!="") {
-        delete m_parser;
-        m_parser = 0;
-    }
+    m_parser.reset();
     return StatusCode::SUCCESS;
 }
 
@@ -96,9 +81,9 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::doThinning() const
     
     // Retrieve containers
     // ... muons
-    const xAOD::MuonContainer* importedMuons(0);
-    if (evtStore()->retrieve(importedMuons,m_muonSGKey).isFailure()) {
-        ATH_MSG_ERROR("No muon collection with name " << m_muonSGKey << " found in StoreGate!");
+    SG::ReadHandle<xAOD::MuonContainer> importedMuons( m_muonKey, ctx);
+    if (!importedMuons.isValid()) {
+        ATH_MSG_ERROR("No muon collection with name " << m_muonKey.key() << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
     unsigned int nMuons(importedMuons->size());
@@ -154,9 +139,11 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::doThinning() const
     }
 
     // Count up the mask contents
+    unsigned int n_pass=0;
     for (unsigned int i=0; i<nTracks; ++i) {
-        if (mask[i]) ++m_npass;
+        if (mask[i]) ++n_pass;
     }
+    m_npass+=n_pass;
     // Execute the thinning service based on the mask. Finish.
     importedTrackParticles.keep (mask);
 
