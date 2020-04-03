@@ -36,7 +36,7 @@ class muonNames(object):
     self.EFCBInOutName = "HLT_MuonsCBInsideOut"
     self.L2IsoMuonName = recordable("HLT_MuonL2ISInfo")
     self.EFIsoMuonName = recordable("HLT_MuonsIso")
-    self.L2forIDName   = recordable("HLT_forID")
+    self.L2forIDName   = "RoIs_fromL2SAViews"
 
   def getNames(self, name):
 
@@ -357,8 +357,7 @@ def muCombRecoSequence( RoIs ):
   ### Required to satisfy data dependencies                                       ###
   import AthenaCommon.CfgMgr as CfgMgr
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
-  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName),
-                            ('TrigRoiDescriptorCollection','StoreGateSvc+'+muNames.L2forIDName)]
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName)]
   muCombRecoSequence+=ViewVerify
 
   ### please read out TrigmuCombMTConfig file ###
