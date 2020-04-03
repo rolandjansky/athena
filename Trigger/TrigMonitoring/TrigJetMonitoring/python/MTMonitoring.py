@@ -1,0 +1,336 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+
+'''@file MTMonitoring.py
+@authors P-A. Delsart, Jona Bossio
+@date    03/04/2020
+@brief   Python configuration for the Run III Trigger Jet Monitoring
+'''
+
+import os,sys,argparse
+
+# Jet collection for each HLT jet
+Chain2JetCollDict = dict()
+# Jet collectoins for AthenaMT and Legacy
+JetCollections    = dict() # HLT jet collectoins
+OfflineJetCollections = [
+  'AntiKt4EMTopoJets',
+  'AntiKt4EMPFlowJets',
+]
+
+# AthenaMT
+JetCollections['MT']    = [
+  'HLT_AntiKt4EMTopoJets_subjesIS',                   # default small-R
+  'HLT_AntiKt10JetRCJets_subjesIS',                   # a10r
+  'HLT_AntiKt10LCTopoJets_subjes',                    # a10
+  'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes', # a10t
+]
+Chain2JetCollDict['MT'] = {
+  'HLT_j420_L1J100'                        : 'HLT_AntiKt4EMTopoJets_subjesIS',
+  'HLT_j260_320eta490_L1J75_31ETA49'       : 'HLT_AntiKt4EMTopoJets_subjesIS',
+  'HLT_5j70_0eta240_L14J20'                : 'HLT_AntiKt4EMTopoJets_subjesIS',
+  'HLT_3j200_L1J100'                       : 'HLT_AntiKt4EMTopoJets_subjesIS',
+  'HLT_j460_a10r_L1J100'                   : 'HLT_AntiKt10JetRCJets_subjesIS',
+  'HLT_j460_a10_lcw_subjes_L1J100'         : 'HLT_AntiKt10LCTopoJets_subjes',
+  'HLT_j460_a10t_lcw_jes_L1J100'           : 'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',
+  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',
+}
+ 
+# Legacy
+JetCollections['Legacy']    = [
+  'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    # default small-R
+  'HLT_xAOD__JetContainer_a10r_tcemsubjesISFS', # a10r
+  'HLT_xAOD__JetContainer_a10tclcwsubjesFS',    # a10
+  'HLT_xAOD__JetContainer_a10ttclcwjesFS',      # a10t
+]
+Chain2JetCollDict['Legacy'] = {
+  'HLT_j420'                               : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
+  'HLT_j260_320eta490'                     : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
+  'HLT_j460_a10r_L1J100'                   : 'HLT_xAOD__JetContainer_a10r_tcemsubjesISFS',
+  'HLT_j460_a10_lcw_subjes_L1J100'         : 'HLT_xAOD__JetContainer_a10tclcwsubjesFS',
+  'HLT_j460_a10t_lcw_jes_L1J100'           : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',
+  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',
+  'HLT_5j70_0eta240'                       : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
+  'HLT_3j200'                              : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
+}
+
+def offlineJetMonitoringConfig(inputFlags,jetcoll):
+   '''Function to configures some algorithms in the monitoring system.'''
+
+   ### STEP 1 ###
+   # The following class will make a sequence, configure algorithms, and link
+   # them to GenericMonitoringTools
+   from AthenaMonitoring import AthMonitorCfgHelper
+   helper = AthMonitorCfgHelper(inputFlags,jetcoll+'AthMonitorCfg')
+
+   ### STEP 2 ###
+   # Declare a configuration dictionnary for a JetContainer
+   from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec, ToolSpec
+
+   # we use a specialized dictionnary (JetMonAlgSpec) which will be translated into the final C++ tool
+   offlineConf = JetMonAlgSpec(
+     jetcoll+"Mon",
+     JetContainerName = jetcoll,
+   )
+
+   # Now start filling the histo spec list    
+   offlineConf.appendHistos(
+     # See knownHistos in JetStandardHistoSpecs.py for the list of standard specification.
+     "pt",  
+     "m",
+     "eta",
+     # or we can directly add our custom histo specification in the form of a HistoSpec :
+     # the basic call is : HistoSpec( variable, histobins, title='histotile;xtitle,ytitle')
+     #HistoSpec('Et', (50,-0.1,1.4), title="#it{E}_{T};HEC frac;" ), # doesn't work FIXME
+     
+     # Say we want a 2nd 'pt' plot but with a different binning than in the standard spec.
+     # WARNING : we can not re-use the same spec name in a given JetMonitoringAlg !!!
+     # so we give a new name AND we specify the actual variable with the argument 'xvar'
+     #   (the ':GeV' means the variable is to be set at GeV scale)
+     #HistoSpec( 'lowpt',  (100,0,150) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),            
+     # An equivalent solution would have been to clone the existing spec like in :
+     # knownHistos.pt.clone('lowpt',bins= (100,0,200) ),
+
+     # 2D histos are usually refered to by concatenating vars with a ';' as in 'varx;vary' 
+     # if the 'vax;vary' alias doesn't exist in knownHistos but 'varx' and 'vary'
+     # do exist, then a spec fot 'vax;vary' will be automatically generated.
+     "pt;m",
+     "pt;eta",
+
+     # TProfile2D : just use 3 variables. For now the sytem will automatically
+     #  interpret it as a TProfile2D (the 3rd variable being profiled)
+     #"phi;eta;e", # --> Average Energy vs pt and eta
+     
+     # Histograms build from a selection of filtered jets.
+     # we declare a selection using a SelectSpec dictionnary.  Here for  central jets :
+     SelectSpec( 'central',   # the name of the selection
+                 '|eta|<0.5', # selection expression. The form 'min<var<max' is automatically interpreted.
+                 # Then give a list of histo specs for the filtered jets
+                 #  these histos will be put under the 'central/' sub-directory
+                 FillerTools = [
+                     # exactly the same type of entries as for the JetMonAlgSpec/
+                     # we can re-use aliases since we're going in a different path.
+                     "pt",
+                     "m",
+                     "eta",
+                 ] ),
+
+     # another possible selections : only sub-leading jets and highJVF
+     #SelectSpec( 'subleading',
+     #            '', # no selection on variables
+     #            SelectedIndex=1, # force 2nd (sub-leading) jet (we would set 0 for leading jets)
+     #            path='standardHistos', # force the path where the histos are saved in the final ROOT file
+     #            FillerTools = [
+     #                "pt",
+     #                "m",
+     #            ] ),
+     #SelectSpec( 'highJVF',
+     #            '0.3<JVF[0]', # JVF is a vector<float> for each jets. Here we cut on the 0th entry of this vector
+     #            FillerTools = [
+     #                "pt",
+     #            ] ),
+   )
+
+   # then we turn the full specification into properly configured algorithm and tools.
+   # we use the method 'toAlg()' defined for the specialized dictionnary 'JetMonAlgSpec'
+   offlineConf.toAlg(helper) 
+
+   return helper.result() # the AthMonitorCfgHelper returns an accumulator to be used by the general configuration system.
+
+def jetMonitoringConfig(inputFlags,jetcoll):
+   '''Function to configures some algorithms in the monitoring system.'''
+
+   ### STEP 1 ###
+   # The following class will make a sequence, configure algorithms, and link
+   # them to GenericMonitoringTools
+   from AthenaMonitoring import AthMonitorCfgHelper
+   helper = AthMonitorCfgHelper(inputFlags,'ExampleAthMonitorCfg')
+
+   ### STEP 2 ###
+   # Declare a configuration dictionnary for a JetContainer
+   from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec, ToolSpec
+
+   # we use a specialized dictionnary (JetMonAlgSpec) which will be translated into the final C++ tool
+   trigConf = JetMonAlgSpec(
+     jetcoll+"TrigMon",
+     JetContainerName = jetcoll,
+     defaultPath      = 'NoTriggerSelection',
+   )
+
+   # Now start filling the histo spec list    
+   trigConf.appendHistos(
+     # See knownHistos in JetStandardHistoSpecs.py for the list of standard specification.
+     "pt",  
+     "m",
+     "eta",
+     # or we can directly add our custom histo specification in the form of a HistoSpec :
+     # the basic call is : HistoSpec( variable, histobins, title='histotile;xtitle,ytitle')
+     #HistoSpec('Et', (50,-0.1,1.4), title="#it{E}_{T};HEC frac;" ), # doesn't work FIXME
+     
+     # Say we want a 2nd 'pt' plot but with a different binning than in the standard spec.
+     # WARNING : we can not re-use the same spec name in a given JetMonitoringAlg !!!
+     # so we give a new name AND we specify the actual variable with the argument 'xvar'
+     #   (the ':GeV' means the variable is to be set at GeV scale)
+     #HistoSpec( 'lowpt',  (100,0,150) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),            
+     # An equivalent solution would have been to clone the existing spec like in :
+     # knownHistos.pt.clone('lowpt',bins= (100,0,200) ),
+
+     # 2D histos are usually refered to by concatenating vars with a ';' as in 'varx;vary' 
+     # if the 'vax;vary' alias doesn't exist in knownHistos but 'varx' and 'vary'
+     # do exist, then a spec fot 'vax;vary' will be automatically generated.
+     "pt;m",
+     "pt;eta",
+
+     # TProfile2D : just use 3 variables. For now the sytem will automatically
+     #  interpret it as a TProfile2D (the 3rd variable being profiled)
+     #"phi;eta;e", # --> Average Energy vs pt and eta
+     
+     # Histograms build from a selection of filtered jets.
+     # we declare a selection using a SelectSpec dictionnary.  Here for  central jets :
+     SelectSpec( 'central',   # the name of the selection
+                 '|eta|<0.5', # selection expression. The form 'min<var<max' is automatically interpreted.
+		 'NoTriggerSelection', # path
+                 # Then give a list of histo specs for the filtered jets
+                 #  these histos will be put under the 'central/' sub-directory
+                 FillerTools = [
+                     # exactly the same type of entries as for the JetMonAlgSpec/
+                     # we can re-use aliases since we're going in a different path.
+                     "pt",
+                     "m",
+                     "eta",
+                 ] ),
+
+     # another possible selections : only sub-leading jets and highJVF
+     #SelectSpec( 'subleading',
+     #            '', # no selection on variables
+     #            SelectedIndex=1, # force 2nd (sub-leading) jet (we would set 0 for leading jets)
+     #            path='standardHistos', # force the path where the histos are saved in the final ROOT file
+     #            FillerTools = [
+     #                "pt",
+     #                "m",
+     #            ] ),
+     #SelectSpec( 'highJVF',
+     #            '0.3<JVF[0]', # JVF is a vector<float> for each jets. Here we cut on the 0th entry of this vector
+     #            FillerTools = [
+     #                "pt",
+     #            ] ),
+   )
+   
+
+   # then we turn the full specification into properly configured algorithm and tools.
+   # we use the method 'toAlg()' defined for the specialized dictionnary 'JetMonAlgSpec'
+   trigConf.toAlg(helper)
+   
+   return helper.result() # the AthMonitorCfgHelper returns an accumulator to be used by the general configuration system.
+
+
+def jetChainMonitoringConfig(inputFlags,jetcoll,chain):
+   '''Function to configures some algorithms in the monitoring system.'''
+
+   ### STEP 1 ###
+   # The following class will make a sequence, configure algorithms, and link
+   # them to GenericMonitoringTools
+   from AthenaMonitoring import AthMonitorCfgHelper
+   helper = AthMonitorCfgHelper(inputFlags,chain+'AthMonitorCfg')
+
+   ### STEP 2 ###
+   # Declare a configuration dictionnary for a JetContainer
+   from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec, ToolSpec
+
+   # We schedule a new JetAlg which will be acting only when a TriggerChain fired (using the TriggerChain from the base classes).
+   # We'll plot 1 histo build by a dedicated JetHistoTriggEfficiency tool.
+   # So we'll have to explicitely give a specification via the generic dicionnary 'ToolSpec'
+   # This implies defining a little function which declares to the monitoring framework which variables to histogram and how.
+   #  this is done here.
+   def defineHistoForJetTrigg(conf, parentAlg, monhelper , path):
+       # create a monitoring group with the histo path starting from the parentAlg
+       #group = monhelper.addGroup(parentAlg, conf.Group,  'Jets/'+parentAlg.JetContainerName) # Temporary Jona
+       group = monhelper.addGroup(parentAlg, conf.Group,  'Jets/'+jetcoll+'/')
+       # define the histogram
+       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chain, xbins=100 , xmin=0, xmax=500000. ,)
+
+   from JetMonitoring.JetMonitoringConfig import retrieveVarToolConf
+   trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec 
+       chain+"TrigMon",
+       JetContainerName = jetcoll,
+       TriggerChain = chain,
+       defaultPath = chain,
+       )
+   trigConf.appendHistos(
+           "pt",
+           "m",
+           "eta",
+           # we pass directly the ToolSpec
+           ToolSpec('JetHistoTriggEfficiency', chain,
+                    # below we pass the Properties of this JetHistoTriggEfficiency tool :
+                    Group='jetTrigGroup',
+                    Var=retrieveVarToolConf("pt"), # In this context we can not just pass a str alias to describe a histo variable
+                                                   # so we use retrieveVarToolConf("pt") which returns a full specification for the "pt" histo variable.
+                    ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg),
+   )
+
+   trigConf.toAlg(helper)
+   
+   return helper.result() # the AthMonitorCfgHelper returns an accumulator to be used by the general configuration system.
+
+if __name__=='__main__':
+
+  # Read arguments
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--athenaMT', action='store_true', dest='athenaMT', default=False)
+  parser.add_argument('--legacy',   action='store_true', dest='legacy',   default=False)
+  args     = parser.parse_args()
+  AthenaMT = args.athenaMT
+  Legacy   = args.legacy
+  # Protections
+  if AthenaMT and Legacy:
+    print('ERROR: Choose AthenaMT or Legacy, exiting')
+    sys.exit(0)
+  elif not AthenaMT and not Legacy:
+    print('ERROR: Choose AthenaMT or Legacy, exiting')
+    sys.exit(0)
+
+  # Setup the Run III behavior
+  from AthenaCommon.Configurable import Configurable
+  Configurable.configurableRun3Behavior = 1
+
+  # Setup logs
+  from AthenaCommon.Logging import log
+  from AthenaCommon.Constants import INFO #,DEBUG 
+  log.setLevel(INFO)
+
+  # Set the Athena configuration flags
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  if AthenaMT: fileName = '/eos/atlas/atlascerngroupdisk/trig-jet/AOD_AthenaMTvalidations/FifthRound/AthenaMT/ttbar/valid1/AOD.20745922._000203.pool.root.1' # AthenaMT
+  else:        fileName = '/eos/atlas/atlascerngroupdisk/trig-jet/AOD_AthenaMTvalidations/FifthRound/Legacy/ttbar/valid1/AOD.20757452._000288.pool.root.1'   # Legacy
+  ConfigFlags.Input.Files = [fileName]
+  ConfigFlags.Input.isMC = True
+  ConfigFlags.Output.HISTFileName = 'AthenaMTMonitorOutput.root' if AthenaMT else 'LegacyMonitoringOutput.root'
+  ConfigFlags.lock()
+
+  # Initialize configuration object, add accumulator, merge, and run.
+  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+  from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+  cfg = MainServicesSerialCfg()
+  cfg.merge(PoolReadCfg(ConfigFlags))
+
+  # Loop over offline jet collections
+  for jetcoll in OfflineJetCollections:
+    offlineMonitorAcc = offlineJetMonitoringConfig(ConfigFlags,jetcoll)
+    cfg.merge(offlineMonitorAcc)
+  
+  # AthenaMT or Legacy
+  InputType = 'MT' if AthenaMT else 'Legacy'
+
+  # Loop over HLT jet collections
+  for jetcoll in JetCollections[InputType]:
+    monitorAcc = jetMonitoringConfig(ConfigFlags,jetcoll)
+    cfg.merge(monitorAcc)
+
+  # Loop over HLT jet chains
+  for chain,jetcoll in Chain2JetCollDict[InputType].iteritems():
+    monitorAcc = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain)
+    cfg.merge(monitorAcc)
+  
+  cfg.run()
