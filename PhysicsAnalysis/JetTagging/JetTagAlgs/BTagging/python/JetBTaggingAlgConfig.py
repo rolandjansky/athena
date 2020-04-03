@@ -38,7 +38,7 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme=
         options['BTagSVCollectionName'] = btagname + 'SecVtx'
         options['BTagJFVtxCollectionName'] = btagname + 'JFVtx'
 
-    options['BTaggingLinkName'] = '.btaggingLink'+ts
+    options['BTaggingLinkName'] = options['JetCollectionName'] + '.btaggingLink'+ts
     if ts:
         btagname += '_'+ts
     options['BTaggingCollectionName'] = btagname
