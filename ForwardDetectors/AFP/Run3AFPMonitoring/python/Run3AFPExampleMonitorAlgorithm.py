@@ -44,9 +44,10 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
 	#array1D.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1}', path='pixelRowIDChip', xbins=80, xmin=0.5, xmax=80.5)	
 
         array = helper.addArray([combinedList,layerList], alg, 'AFPSiLayerTool', topPath = 'Hits')
-	array.defineHistogram('pixelColIDChip', title='1D hitmap for {0} Layer {1}', path='pixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
-	array.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1}', path='pixelRowIDChip', xbins=80, xmin=0.5, xmax=80.5)
+	array.defineHistogram('pixelColIDChip', title='1D hitmap for {0} Layer {1}', path='PixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
+	array.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1}', path='PixelRowIDChip', xbins=80, xmin=0.5, xmax=80.5)
         array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1}', type='TH2F', path='AFPSiLayer', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+	array.defineHistogram('timeOverThreshold', title='1D Time over threshold for {0} Layer {1}', path='TimeOverThreshold', xbins=16, xmin=-0.5, xmax=15.5)
 
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     return helper.result()

@@ -47,6 +47,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto nSiHits = Monitored::Scalar<int>("nSiHits", 1);
     auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); 
     auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); 
+    auto timeOverThreshold = Monitored::Scalar<float>("timeOverThreshold", 0.0);
     
     lb = GetEventInfo(ctx)->lumiBlock();
  
@@ -75,14 +76,15 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     {
       pixelRowIDChip = hitsItr->pixelRowIDChip();
       pixelColIDChip = hitsItr->pixelColIDChip();
+      timeOverThreshold = hitsItr->timeOverThreshold();
 	
       if (hitsItr->stationID()<4 && hitsItr->stationID()>=0 && hitsItr->pixelLayerID()<4 && hitsItr->pixelLayerID()>=0) 
       {
         fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip, pixelColIDChip);
-
 	fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip);
-
 	fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelColIDChip);
+	fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], timeOverThreshold);
+	
       }
 	else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
       }
