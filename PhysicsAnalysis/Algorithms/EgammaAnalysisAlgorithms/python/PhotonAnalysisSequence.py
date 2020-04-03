@@ -58,30 +58,30 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     seq = AnaAlgSequence( "PhotonAnalysisSequence" + postfix )
 
     # Variables keeping track of the selections being applied.
-    selectionDecorNames = []
-    selectionDecorCount = []
+    seq.addMetaConfigDefault ("selectionDecorNames", [])
+    seq.addMetaConfigDefault ("selectionDecorCount", [])
 
     # Set up the photon selection algorithm:
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonIsEMSelectorAlg' + postfix )
     alg.selectionDecoration = 'selectEM'
-    selectionDecorNames.append( alg.selectionDecoration )
     if recomputeIsEM:
         # Rerun the cut-based ID
         addPrivateTool( alg, 'selectionTool', 'AsgPhotonIsEMSelector' )
         alg.selectionTool.isEMMask = quality
         alg.selectionTool.ConfigFile = \
           'ElectronPhotonSelectorTools/offline/20180116/PhotonIsEMTightSelectorCutDefs.conf'
-        selectionDecorCount.append( 32 )
     else:
         # Select from Derivation Framework flags
         addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
         dfFlag = 'DFCommonPhotonsIsEM' + qualityWP
         alg.selectionTool.selectionFlags = [ dfFlag ]
-        selectionDecorCount.append( 1 )
         pass
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut',
-                stageName = 'calibration' )
+                stageName = 'calibration',
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [32 if recomputeIsEM else 1]},
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     # Select electrons only with good object quality.
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonObjectQualityAlg' + postfix )
@@ -90,18 +90,19 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSPHOTON
     seq.append( alg, inputPropName = 'particles',
                 outputPropName = 'particlesOut',
-                stageName = 'calibration' )
-    selectionDecorNames.append( alg.selectionDecoration )
-    selectionDecorCount.append( 1 )
+                stageName = 'calibration',
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [1]},
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     # Only run subsequent processing on the objects passing all of these cuts.
     # Since these are independent of the photon calibration, and this speeds
     # up the job.
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'PhotonPreSelViewFromSelectionAlg' + postfix )
-    alg.selection = selectionDecorNames[ : ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                stageName = 'calibration' )
+                stageName = 'calibration',
+                dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"] [:]} )
 
     # Set up the calibration ans smearing algorithm.
     alg = createAlgorithm( 'CP::EgammaCalibrationAndSmearingAlg',
@@ -150,9 +151,9 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
     alg.selectionTool.PhotonWP = isolationWP
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
-                stageName = 'selection' )
-    selectionDecorNames.append( alg.selectionDecoration )
-    selectionDecorCount.append( 1 )
+                stageName = 'selection',
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [1]} )
 
     # Set up the photon efficiency correction algorithm.
     alg = createAlgorithm( 'CP::PhotonEfficiencyCorrectionAlg',
@@ -175,9 +176,9 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
         seq.append( alg, inputPropName = 'photons',
                     outputPropName = 'photonsOut',
                     affectingSystematics = '(^PH_EFF_.*)',
-                    stageName = 'efficiency' )
-        selectionDecorNames.append( alg.outOfValidityDeco )
-        selectionDecorCount.append( 1 )
+                    stageName = 'efficiency',
+                    metaConfig = {'selectionDecorNames' : [alg.outOfValidityDeco],
+                                  'selectionDecorCount' : [1]} )
         pass
 
     # Set up an algorithm used to create photon selection cutflow:
@@ -185,26 +186,26 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
         alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg',
                             'PhotonCutFlowDumperAlg' + postfix )
         alg.histPattern = 'photon_cflow_%SYS%' + postfix
-        alg.selection = selectionDecorNames[ : ]
-        alg.selectionNCuts = selectionDecorCount[ : ]
         seq.append( alg, inputPropName = 'input',
-                    stageName = 'selection' )
+                    stageName = 'selection',
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"][:],
+                                 'selectionNCuts' : lambda meta : meta["selectionDecorCount"][:]} )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                            'PhotonViewFromSelectionAlg' + postfix )
-    alg.selection = selectionDecorNames[ : ]
     seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                stageName = 'selection' )
+                stageName = 'selection',
+                dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"] [:]} )
 
     # Set up an algorithm dumping the kinematic properties of the photons:
     if enableKinematicHistograms:
         alg = createAlgorithm( 'CP::KinematicHistAlg', 'PhotonKinematicDumperAlg' + postfix )
-        alg.preselection = "&&".join (selectionDecorNames)
         alg.histPattern = 'photon_%VAR%_%SYS%' + postfix
         seq.append( alg, inputPropName = 'input',
-                    stageName = 'selection' )
+                    stageName = 'selection',
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
