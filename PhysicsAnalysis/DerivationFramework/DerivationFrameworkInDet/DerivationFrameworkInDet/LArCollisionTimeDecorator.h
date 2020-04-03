@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,13 +18,17 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthLinks/ElementLink.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
+#include "LArRecEvent/LArCollisionTime.h"
 
 namespace DerivationFramework {
 
   class LArCollisionTimeDecorator : public AthAlgTool, public IAugmentationTool {
-    public: 
+    public:
       LArCollisionTimeDecorator(const std::string& type, const std::string& name, const IInterface* parent);
 
       StatusCode initialize();
@@ -32,11 +36,21 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-    
-      std::string m_sgName;
-      std::string m_containerName;
-    
-  }; 
+
+      Gaudi::Property<std::string> m_sgName
+        { this, "DecorationPrefix", "", ""};
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
+        { this, "ContainerName", "EventInfo", "" };
+      SG::ReadHandleKey<LArCollisionTime> m_larCollisionTimeKey
+        { this, "LArCollisionTimeKey", "LArCollisionTime", ""};
+
+      enum EIntDecor   {kncellA, kncellC, kNIntDecor };
+      enum EFloatDecor {kenergyA,kenergyC,ktimeA,ktimeC, kNFloatDecor };
+
+      std::vector<SG::WriteDecorHandleKey<xAOD::EventInfo> > m_intDecorKeys;
+      std::vector<SG::WriteDecorHandleKey<xAOD::EventInfo> > m_floatDecorKeys;
+
+  };
 }
 
 #endif // DERIVATIONFRAMEWORK_LARCOLLISIONTIMEDECORATOR_H
