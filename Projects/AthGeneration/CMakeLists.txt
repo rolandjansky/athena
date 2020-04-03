@@ -52,10 +52,6 @@ atlas_ctest_setup()
 atlas_project( USE AthGenerationExternals ${AthGenerationExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
-# Install the external configurations:
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
-   DESTINATION ${CMAKE_INSTALL_CMAKEDIR} USE_SOURCE_PERMISSIONS )
-
 # Generate the environment setup for the externals, to be used during the build:
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 
