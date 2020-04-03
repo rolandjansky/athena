@@ -623,7 +623,93 @@ namespace top {
       }
 
       // remove (multiple) spaces hanging around relevant information
-      boost::algorithm::trim_all(newstring);
+      // if a pair of "" appears, the spaces in "" won't be touched
+      bool hasquote = (newstring.find("\"",0) != std::string::npos);
+      if (!hasquote) boost::algorithm::trim_all(newstring);
+      else { 
+        //split the string into segments, separated by pairs of quotes
+        //e.g. the string "abc \"def\" ghi"
+        //     becomes a vector of 3 strings: "abc", "\"def\"", "ghi"
+        std::vector<std::string> segments;
+        std::vector<bool> segments_isquote;
+        std::size_t strsize = newstring.size();
+        std::size_t tmppos = 0;
+        bool leftquote = true;
+        while (tmppos <= strsize-1) {
+          // find the position of the 1st quote after newstring[tmppos]
+          std::size_t tmppos2 = newstring.find_first_of("\"",tmppos);
+          
+	  // when the quote found has \ ahead of it, jump over and update tmppos2
+	  std::size_t tmppos3 = newstring.find_first_of("\\\"",tmppos);
+          while (tmppos2 == tmppos3+1) {
+	    tmppos3 = newstring.find_first_of("\\\"",tmppos2+1);
+            tmppos2 = newstring.find_first_of("\"",tmppos2+1);
+          }
+
+          // when no more quote found, save the segment from the last rightquote to the end, then quit the loop
+          if (tmppos2 == std::string::npos) {
+            segments.push_back(newstring.substr(tmppos,strsize-tmppos));
+            segments_isquote.push_back(false);
+            break;
+          }
+
+          // check it's a left quote or right quote
+          if (leftquote) {
+            segments.push_back(newstring.substr(tmppos,tmppos2-tmppos));
+            segments_isquote.push_back(false);
+
+            // update the position indicator and leftquote flag
+            tmppos = tmppos2+1;
+            leftquote = false;
+          } else {
+            segments.push_back(newstring.substr(tmppos-1,tmppos2-(tmppos-1)+1)); // have to include the two quotes, which is why +/-1 adjustment is introduced
+            segments_isquote.push_back(true);
+
+            // update the position indicator and leftquote flag
+            tmppos = tmppos2+1;
+            leftquote = true;
+          }
+        }
+
+        // sanity check: if leftquote = false after the loop, it means a left quote is found but not its associated rightquote
+        // in this case, crash the code
+        if (!leftquote) {
+          std::string message = "Problematic configuration line\n";
+          message.append(newstring.c_str());
+          throw std::invalid_argument(message);
+        }
+
+        //run the original trim_all for each segment that is NOT a quote
+        for (uint i = 0; i < segments.size(); i++) {
+          std::string seg = segments.at(i);
+          if (seg.size() == 0) continue;
+          if (segments_isquote.at(i)) continue;
+          boost::algorithm::trim_all(seg);
+
+          // if the segment has a space in the end and it's not the last segment, add the space back
+          if (i+1 != segments.size()) {
+            if (segments.at(i).at(segments.at(i).size()-1) == ' ') {
+              seg += " ";
+            }
+          }
+          // if the segment has a space in the head and it's not the first segment, add the space back
+          if (i != 0) {
+            if (segments.at(i).at(0) == ' ') {
+              seg = " " + seg;
+            }
+          }
+
+          // update the segment
+          segments.at(i) = seg;
+        }
+
+        // combine the segments back to newstring
+        newstring = "";
+        for (uint i = 0; i < segments.size(); i++) {
+          newstring += segments.at(i);
+        }
+      }
+
       if (newstring.empty()) continue;
 
       // handle start of a (sub)selection (implies end of key-value section)
