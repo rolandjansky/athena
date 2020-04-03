@@ -58,7 +58,7 @@ HepMcParticleLink::HepMcParticleLink(const HepMC::GenParticle* part,
 }
 
 
-uint16_t HepMcParticleLink::getEventNumberForEventPosition(EBC_EVCOLL evColl, index_type position, IProxyDict* sg) {
+HepMcParticleLink::index_type HepMcParticleLink::getEventNumberForEventPosition(EBC_EVCOLL evColl, HepMcParticleLink::index_type position, IProxyDict* sg) {
     CLID clid = ClassID_traits<McEventCollection>::ID();
     const McEventCollection* pEvtColl(nullptr);
     const std::string * colNames;
@@ -94,7 +94,7 @@ uint16_t HepMcParticleLink::getEventNumberForEventPosition(EBC_EVCOLL evColl, in
     return 0;
 }
 
-uint16_t HepMcParticleLink::getEventNumberForEventPosition(EBC_EVCOLL evColl, index_type position) {
+HepMcParticleLink::index_type HepMcParticleLink::getEventNumberForEventPosition(EBC_EVCOLL evColl, HepMcParticleLink::index_type position) {
   const McEventCollection* pEvtColl = retrieveMcEventCollection(evColl);
   if (pEvtColl && position<pEvtColl->size()) {
     const HepMC::GenEvent * pEvt(pEvtColl->at(position));
@@ -105,15 +105,15 @@ uint16_t HepMcParticleLink::getEventNumberForEventPosition(EBC_EVCOLL evColl, in
   return 0;
 }
 
-uint16_t HepMcParticleLink::getEventNumberForEventPosition(index_type position) const { return getEventNumberForEventPosition(this->getEventCollection(),position);}
+HepMcParticleLink::index_type HepMcParticleLink::getEventNumberForEventPosition(HepMcParticleLink::index_type position) const { return getEventNumberForEventPosition(this->getEventCollection(),position);}
 
 
-uint16_t HepMcParticleLink::getEventPositionForEventNumber(EBC_EVCOLL evColl, index_type evNumber) {
+HepMcParticleLink::index_type HepMcParticleLink::getEventPositionForEventNumber(EBC_EVCOLL evColl, HepMcParticleLink::index_type evNumber) {
   const McEventCollection* pEvtColl = retrieveMcEventCollection(evColl);
   if (pEvtColl) {
     for (unsigned int position=0; position<pEvtColl->size(); position++) {
       const HepMC::GenEvent * pEvt(pEvtColl->at(position));
-      if (pEvt && pEvt->event_number()==evNumber) { return position; }
+      if (pEvt && static_cast<unsigned int>(pEvt->event_number())==evNumber) { return position; }
     }
   }
   return evNumber;
@@ -163,10 +163,11 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
 
     const McEventCollection* pEvtColl(nullptr);
     if ((pEvtColl = retrieveMcEventCollection())) {
+      const int eventNumber = static_cast<int>(eventIndex());
       if(!pEvtColl->empty()) {
         const HepMC::GenEvent *pEvt((0 == eventIndex()) ?
                                     pEvtColl->at(0) : //original event is at EvtColl[0]
-                                    pEvtColl->find(eventIndex()));
+                                    pEvtColl->find(eventNumber));
         if (nullptr != pEvt) {
           m_particle = pEvt->barcode_to_particle(barcode());
           m_have_particle = true;
@@ -174,9 +175,13 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
         }
         else {
           mlog() << MSG::WARNING
-                 << "cptr: Mc Truth not stored for event " << eventIndex()
+                 << "cptr: Mc Truth not stored for event index" << eventNumber
+                 << ", size of McEventCollection = " << pEvtColl->size()
                  << endreq;
         }
+      }
+      else {
+        mlog() << MSG::WARNING << "cptr: McEventCollection empty!" << endreq;
       }
     }
     else {
