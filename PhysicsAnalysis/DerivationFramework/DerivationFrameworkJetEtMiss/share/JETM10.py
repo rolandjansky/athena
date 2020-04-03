@@ -36,6 +36,7 @@ for tool in contentManager.thinningTools:
 jetm10Seq = CfgMgr.AthSequencer("jetm10Seq")
 DerivationFrameworkJob += jetm10Seq
 
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
@@ -45,4 +46,17 @@ jetm10Seq += CfgMgr.DerivationFramework__DerivationKernel('JETM10Kernel',
                                                           ThinningTools = contentManager.thinningTools)
 contentManager.slimmingHelper.AllVariables.append("HLT_xAOD__MuonContainer_MuonEFInfo")
 contentManager.slimmingHelper.AllVariables.append("CaloCalTopoClusters")
+contentManager.slimmingHelper.AllVariables.append("JetETMissChargedParticleFlowObjects")
+contentManager.slimmingHelper.AllVariables.append("JetETMissNeutralParticleFlowObjects")
+contentManager.slimmingHelper.AllVariables.append("Kt4EMPFlowEventShape")
 contentManager.slimmingHelper.AppendContentToStream(JETM10Stream)
+
+
+#====================================================================
+# ADD PFLOW AUG INFORMATION 
+#====================================================================
+from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
+applyPFOAugmentation(DerivationFrameworkJob)
+
+
+
