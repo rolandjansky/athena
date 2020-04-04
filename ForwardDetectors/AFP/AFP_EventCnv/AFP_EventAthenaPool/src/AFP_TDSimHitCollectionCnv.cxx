@@ -27,7 +27,7 @@ AFP_TDSimHitCollection* AFP_TDSimHitCollectionCnv::createTransient()
 	AFP_TDSimHitCollection *pTransColl=NULL;
 
 	if(this->compareClassGuid(p1_guid)){
-		std::auto_ptr<AFP_TDSimHitCollection_p1> col_vect(this->poolReadObject<AFP_TDSimHitCollection_p1>());
+		std::unique_ptr<AFP_TDSimHitCollection_p1> col_vect(this->poolReadObject<AFP_TDSimHitCollection_p1>());
 		pTransColl=TPConverter_p1.createTransient(col_vect.get(), mlog);
 	}
 	else{

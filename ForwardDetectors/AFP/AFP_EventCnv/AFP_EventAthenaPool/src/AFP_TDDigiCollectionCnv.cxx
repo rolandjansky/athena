@@ -27,7 +27,7 @@ AFP_TDDigiCollection* AFP_TDDigiCollectionCnv::createTransient()
 	AFP_TDDigiCollection *pTransColl=NULL;
 
 	if(this->compareClassGuid(p1_guid)){
-		std::auto_ptr<AFP_TDDigiCollection_p1> col_vect(this->poolReadObject<AFP_TDDigiCollection_p1>());
+		std::unique_ptr<AFP_TDDigiCollection_p1> col_vect(this->poolReadObject<AFP_TDDigiCollection_p1>());
 		pTransColl=TPConverter_p1.createTransient(col_vect.get(), mlog);
 	}
 	else{
