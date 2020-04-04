@@ -25,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           PRIVATE
+			  Luminosity/LumiBlockData
                           Control/AthenaKernel
                           Control/AthContainers
                           DetectorDescription/Identifier
