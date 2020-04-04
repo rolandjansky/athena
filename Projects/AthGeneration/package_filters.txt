@@ -163,7 +163,6 @@
 + PhysicsAnalysis/POOLRootAccess
 + PhysicsAnalysis/TruthParticleID/McParticleEvent
 + PhysicsAnalysis/TruthParticleID/McParticleKernel
-+ PhysicsAnalysis/POOLRootAccess
 #+ Projects/AthGeneration
 #+ Projects/AthGeneration/.*
 #+ Reconstruction/eflowRec
