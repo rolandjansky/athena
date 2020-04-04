@@ -1439,7 +1439,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         float B2  = B*B;
         if (B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
 
-        float Im  = fabs((A-B*R)*R);
+        float y0=1./(2*B);
+        float x0=-A*y0;
+	float rTrack = sqrt(S2/B2)/2 ;
+        float Im = fabs(-rTrack + sqrt(rTrack*rTrack +2*x0*R +R*R));
+
 
         if (Im <= imax) {
           float dr = data.R[b];
