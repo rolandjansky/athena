@@ -743,7 +743,7 @@ int main(int argc, char** argv) {
     NeventRef  = 1; 
   }
 
-  std::map<std::string,std::string>* chainmap = nullptr;
+  chainmap_t* chainmap = nullptr;
 
   if ( mapfile == "" ) mapfile = configfile;
 
@@ -757,7 +757,7 @@ int main(int argc, char** argv) {
       chainmap = new chainmap_t();
       
       for ( size_t i=0 ; i<chains.size() ; i+=2 ) { 
-	chainmap->insert( std::map<std::string,std::string>::value_type( chains[i], chains[i+1] ) );
+	chainmap->insert( chainmap_t::value_type( chains[i], chains[i+1] ) );
       }
       
       for ( chainmap_t::iterator itr=chainmap->begin() ; itr!=chainmap->end() ; itr++ ) { 
