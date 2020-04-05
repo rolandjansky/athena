@@ -111,13 +111,6 @@ StatusCode AthenaRootStreamerSvc::AddStreamer(const std::string& converter_class
 {
    RootType streamer_class( converter_classname );
    if( !streamer_class ) {
-      // Class not yet known to Reflex
-      // try autoloading
-      static bool first = true;
-      if (first) {
-         gInterpreter->EnableAutoLoading();
-         first = false;
-      }
       // int ntypesBefore = Reflex::Type::TypeSize();
       gInterpreter->AutoLoad( converter_classname.c_str() );
 

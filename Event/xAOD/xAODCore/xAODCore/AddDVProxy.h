@@ -208,9 +208,6 @@ namespace xAOD {
       template < typename T >
       static void add( ROOT::TGenericClassInfo* clInfo ) {
 
-         // Enable library auto-loading:
-         gInterpreter->EnableAutoLoading();
-
          // Load the minimal amount of required dictionaries:
          loadDictionaries();
 
