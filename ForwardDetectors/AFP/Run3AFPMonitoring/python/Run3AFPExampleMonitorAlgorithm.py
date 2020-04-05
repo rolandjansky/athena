@@ -26,28 +26,22 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPSiGroup = helper.addGroup(afpSiLayerAlgorithm, 'AFPSiLayerTool', 'AFP/') 
     AFPToFGroup = helper.addGroup(afpToFAlgorithm, 'AFPToFTool', 'AFP/')
 
-    AFPSiGroup.defineHistogram('lb', title='Luminosity Block;lb;total number of Hits',  path='SiT',xbins=1000,xmin=-0.5,xmax=999.5,weight='nSiHits') 
-    
-    AFPToFGroup.defineHistogram('lb', title='Luminosity Block;lb;total number of Hits',  path='ToF',xbins=1000,xmin=-0.5,xmax=999.5,weight='nTofHits') 
-    AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;total number of Hits',  path='ToF',xbins=3,xmin=-0.5,xmax=2.5)
-    AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits',  path='ToF',xbins=3,xmin=-0.5,xmax=2.5)
+    AFPSiGroup.defineHistogram('lb,nSiHits', title='Luminosity Block;lb;total number of Hits', type='TProfile', path='SiT/',xbins=1000,xmin=-0.5,xmax=999.5 ) 
+    AFPToFGroup.defineHistogram('lb,nTofHits', title='Luminosity Block;lb;total number of Hits', type='TProfile',  path='ToF/',xbins=1000,xmin=-0.5,xmax=999.5) 
 
-    
-    for alg in [afpSiLayerAlgorithm]:
+    AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;total number of Hits',  path='ToF/',xbins=3,xmin=-0.5,xmax=2.5)
+    AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits',  path='ToF/',xbins=3,xmin=-0.5,xmax=2.5)
 
-        # Using a map of groups
-        layerList = ['P0','P1', 'P2', 'P3'] ## TODO XXX adapt to the enum/xAOD namespace names
-        combinedList = ['farAside', 'nearAside', 'nearCside', 'farCside']
-	
-	#array1D = helper.addArray([combinedList,layerList], alg, 'AFPSiLayerTool', topPath = '1D Hits')
-	#array1D.defineHistogram('pixelColIDChip', title='1D hitmap for {0} Layer {1}', path='pixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
-	#array1D.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1}', path='pixelRowIDChip', xbins=80, xmin=0.5, xmax=80.5)	
 
-        array = helper.addArray([combinedList,layerList], alg, 'AFPSiLayerTool', topPath = 'Hits')
-	array.defineHistogram('pixelColIDChip', title='1D hitmap for {0} Layer {1}', path='PixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
-	array.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1}', path='PixelRowIDChip', xbins=80, xmin=0.5, xmax=80.5)
-        array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1}', type='TH2F', path='AFPSiLayer', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
-	array.defineHistogram('timeOverThreshold', title='1D Time over threshold for {0} Layer {1}', path='TimeOverThreshold', xbins=16, xmin=-0.5, xmax=15.5)
+    # Using a map of groups
+    layerList = ['P0','P1', 'P2', 'P3'] ## TODO XXX adapt to the enum/xAOD namespace names
+    combinedList = ['farAside', 'nearAside', 'nearCside', 'farCside']
+
+    array = helper.addArray([combinedList,layerList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath = 'AFP/SiT/')
+    array.defineHistogram('pixelColIDChip', title='1D hitmap for {0} Layer {1}', path='PixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
+    array.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1}', path='PixelRowIDChip', xbins=80, xmin=0.5, xmax=80.5)
+    array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1}', type='TH2F', path='pixelColRow2D', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+    array.defineHistogram('timeOverThreshold', title='1D Time over threshold for {0} Layer {1}', path='SiTimeOverThreshold', xbins=60, xmin=0, xmax=20)
 
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     return helper.result()
