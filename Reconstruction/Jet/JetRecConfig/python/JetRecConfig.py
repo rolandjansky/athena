@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -10,13 +10,7 @@
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRecConfig')
 
-import cppyy
-try:
-    cppyy.loadDictionary('xAODBaseObjectTypeDict')
-except Exception:
-    pass
-from ROOT import xAODType
-xAODType.ObjectType
+from xAODBase.xAODType import xAODType
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
