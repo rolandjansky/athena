@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/HLTPrescalesSet.h"
@@ -19,7 +19,7 @@ TrigConf::HLTPrescalesSet::~HLTPrescalesSet()
 void
 TrigConf::HLTPrescalesSet::update()
 {
-   m_name = data().get_child("name").get_value<std::string>();
+   m_name = getAttribute("name");
    const auto & prescales = data().get_child("prescales");
    for( auto & p : prescales ) {
 
@@ -41,16 +41,21 @@ TrigConf::HLTPrescalesSet::update()
    }
 }
 
-std::string
-TrigConf::HLTPrescalesSet::name() const
-{
-   return m_name;
-}
 
 std::size_t 
 TrigConf::HLTPrescalesSet::size() const
 {
    return m_prescales.size();
+}
+
+unsigned int
+TrigConf::HLTPrescalesSet::psk() const {
+   return m_psk;
+}
+
+void
+TrigConf::HLTPrescalesSet::setPSK(unsigned int psk ) {
+   m_psk = psk;
 }
 
 const TrigConf::HLTPrescalesSet::HLTPrescale & 

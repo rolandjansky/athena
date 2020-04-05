@@ -519,7 +519,7 @@ namespace Muon
           case 0: cnv_sc = fillCollection_v240(data,robFrag.rod_ndata(),*coll); break;
           case 1: cnv_sc = fillCollection_v300(data,robFrag.rod_ndata(),*coll,subDetector, RPC_SECTORLOGIC); break;
           case 2: cnv_sc = fillCollection_v302(data,robFrag.rod_ndata(),*coll,sourceId, RPC_SECTORLOGIC); break;
-          default: fillCollection_v240(data,robFrag.rod_ndata(),*coll); break;
+          default: cnv_sc = fillCollection_v240(data,robFrag.rod_ndata(),*coll); break;
         }
         
         if( cnv_sc.isFailure() )

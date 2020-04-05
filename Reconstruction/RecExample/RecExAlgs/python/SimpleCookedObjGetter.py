@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies a specific SimpleCookedObjMaker instance
 
@@ -22,7 +22,7 @@ class SimpleCookedObjGetter ( Configured )  :
 
         try: 
             from RecExAlgs.SimpleRawObjGetter import SimpleRawObjGetter
-        except ImportError,err:
+        except ImportError:
             mlog.error("could not import SimpleRawObjGetter. Quit")
             return False
             
@@ -48,7 +48,7 @@ class SimpleCookedObjGetter ( Configured )  :
             return False
 
         theSimpleCookedObjMaker=SimpleCookedObjMaker()
-        self._SimpleCookedObjMakerHandle = theSimpleCookedObjMaker ;
+        self._SimpleCookedObjMakerHandle = theSimpleCookedObjMaker
         theSimpleCookedObjMaker.CookedMessage= "From SimpleCookedObjGetter.py"
         #
 

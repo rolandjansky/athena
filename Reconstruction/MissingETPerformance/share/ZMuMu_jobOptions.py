@@ -27,4 +27,4 @@ ZMuMuTool = ConfiguredZMuMuTool(
     )
 
 ToolSvc += ZMuMuTool
-print      ZMuMuTool
+printfunc (     ZMuMuTool)

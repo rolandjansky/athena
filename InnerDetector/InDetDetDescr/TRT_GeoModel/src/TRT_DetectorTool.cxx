@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DetectorTool.h"
@@ -34,7 +34,7 @@ TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& 
     m_geoDbTagSvc("GeoDbTagSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_geometryDBSvc("InDetGeometryDBSvc",name),
-    m_sumSvc("TRT_StrawStatusSummarySvc", name),
+    m_sumTool("TRT_StrawStatusSummaryTool", this),
     m_doArgonMixture(1),
     m_doKryptonMixture(1),
     m_useDynamicAlignFolders(false),
@@ -48,7 +48,6 @@ TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& 
   declareProperty("RDBAccessSvc", m_rdbAccessSvc);
   declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
-  declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);  // need for Argon
   declareProperty("DoXenonArgonMixture", m_doArgonMixture); // Set to 1 to use argon. DEFAULT VALUE is 1. Overridden by DOARGONMIXTURE switch
   declareProperty("DoKryptonMixture", m_doKryptonMixture); // Set to 1 to use krypton. DEFAULT VALUE is 1. Overridden by DOKRYPTONMIXTURE switch
   declareProperty("useDynamicAlignFolders", m_useDynamicAlignFolders);
@@ -69,58 +68,50 @@ TRT_DetectorTool::~TRT_DetectorTool()
 //
 StatusCode TRT_DetectorTool::create()
 { 
-  //MsgStream log(msgSvc(), name()); 
-  //msg(MSG::INFO) << " hello " << endmsg;
-
 
   // Get the detector configuration.
-  StatusCode sc = m_geoDbTagSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoDbTagSvc" << endmsg;
-    return (StatusCode::FAILURE);
-  } 
+  ATH_CHECK( m_geoDbTagSvc.retrieve());
+
+  // Get the straw status tool
+  ATH_CHECK(m_sumTool.retrieve());
   
   DecodeVersionKey versionKey(&*m_geoDbTagSvc, "TRT");
 
   // Unless we are using custom trt, the switch positions are going to
   // come from the database:
-  msg(MSG::INFO) << "Building TRT with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
+  ATH_MSG_INFO( "Building TRT with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() );
 
   
-  sc = m_rdbAccessSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
-    return (StatusCode::FAILURE); 
-  }  
+  ATH_CHECK( m_rdbAccessSvc.retrieve());
  
   // Print the TRT version tag:
   std::string trtVersionTag = m_rdbAccessSvc->getChildTag("TRT", versionKey.tag(), versionKey.node());
-  msg(MSG::INFO) << "TRT Version: " << trtVersionTag << "  Package Version: " << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO("TRT Version: " << trtVersionTag << "  Package Version: " << PACKAGE_VERSION );
  
 
   // Check if version is empty. If so, then the TRT cannot be built. This may or may not be intentional. We
   // just issue an INFO message. 
   if (trtVersionTag.empty()) { 
-     msg(MSG::INFO) << "No TRT Version. TRT will not be built." << endmsg;
+    ATH_MSG_INFO("No TRT Version. TRT will not be built." );
      return StatusCode::SUCCESS;
   }
 
   std::string versionName;
   if (versionKey.custom()) {
     
-    msg(MSG::WARNING) << "TRT_DetectorTool:  Detector Information coming from a custom configuration!!" << endmsg;
+    ATH_MSG_WARNING( "TRT_DetectorTool:  Detector Information coming from a custom configuration!!" );
  
   } else {
-    msg(MSG::DEBUG) << "TRT_DetectorTool:  Detector Information coming from the database and job options IGNORED." << endmsg;
+    ATH_MSG_DEBUG( "TRT_DetectorTool:  Detector Information coming from the database and job options IGNORED.");
     
-    msg(MSG::DEBUG) << "Keys for TRT Switches are "  << versionKey.tag()  << "  " << versionKey.node() << endmsg;
+    ATH_MSG_DEBUG( "Keys for TRT Switches are "  << versionKey.tag()  << "  " << versionKey.node() );
     IRDBRecordset_ptr switchSet =  m_rdbAccessSvc->getRecordsetPtr("TRTSwitches", versionKey.tag(), versionKey.node());
     const IRDBRecord    *switches   = (*switchSet)[0];
     
     //Should be stored as booleans?
     if (switches->getInt("DC1COMPATIBLE")) {
-      msg(MSG::ERROR) << "DC1COMPATIBLE flag set in database,"
-	  << " but DC1 is no longer supported in the code!!" << endmsg;
+      ATH_MSG_ERROR( "DC1COMPATIBLE flag set in database,"
+		     << " but DC1 is no longer supported in the code!!");
     }
     m_DC2CompatibleBarrelCoordinates = switches->getInt("DC2COMPATIBLE");
     m_useOldActiveGasMixture         	= ( switches->getInt("GASVERSION") == 0 );
@@ -135,19 +126,18 @@ StatusCode TRT_DetectorTool::create()
         if      ( switches->getInt("DOARGONMIXTURE") == 0) m_doArgonMixture = 0;
         else if ( switches->getInt("DOARGONMIXTURE") == 1) m_doArgonMixture = 1;
       } else {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Parameter DOARGONMIXTURE not available, m_doArgonMixture= " << m_doArgonMixture << endmsg;
+        ATH_MSG_INFO( "Parameter DOARGONMIXTURE not available, m_doArgonMixture= " << m_doArgonMixture );
       }
 
       if(!switches->isFieldNull( "DOKRYPTONMIXTURE")) {
         if      ( switches->getInt("DOKRYPTONMIXTURE") == 0) m_doKryptonMixture = 0;
         else if ( switches->getInt("DOKRYPTONMIXTURE") == 1) m_doKryptonMixture = 1;
       } else {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Parameter DOKRYPTONMIXTURE not available, m_doKryptonMixture= " << m_doKryptonMixture << endmsg;
+        ATH_MSG_INFO( "Parameter DOKRYPTONMIXTURE not available, m_doKryptonMixture= " << m_doKryptonMixture );
       }
      }
       catch(std::runtime_error& ex) {
-       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Exception caught: " << ex.what() << endmsg;
-       // result = false;
+        ATH_MSG_INFO( "Exception caught: " << ex.what() );
       }
     }
     if (!switches->isFieldNull("VERSIONNAME")) {
@@ -163,22 +153,18 @@ StatusCode TRT_DetectorTool::create()
       versionName = "Rome";
     }
   }
-  msg(MSG::INFO)  << "Creating the TRT" << endmsg;
-  msg(MSG::INFO)  << "TRT Geometry Options:" << endmsg;
-  msg(MSG::INFO)  << "  UseOldActiveGasMixture         = " << (m_useOldActiveGasMixture 	? "true" : "false") <<endmsg;
-  msg(MSG::INFO)  << "  Do Argon    = " << (m_doArgonMixture   ? "true" : "false") <<endmsg;
-  msg(MSG::INFO)  << "  Do Krypton  = " << (m_doKryptonMixture ? "true" : "false") <<endmsg;
-  msg(MSG::INFO)  << "  DC2CompatibleBarrelCoordinates = " << (m_DC2CompatibleBarrelCoordinates ? "true" : "false") <<endmsg;
-  msg(MSG::INFO)  << "  InitialLayout                  = " << (m_initialLayout ? "true" : "false") <<endmsg;
-  msg(MSG::INFO)  << "  Alignable                      = " << (m_alignable ? "true" : "false") <<endmsg;
-  msg(MSG::INFO)  << "  VersioName                     = " << versionName  <<endmsg;
+  ATH_MSG_INFO( "Creating the TRT" );
+  ATH_MSG_INFO( "TRT Geometry Options:" );
+  ATH_MSG_INFO( "  UseOldActiveGasMixture         = " << (m_useOldActiveGasMixture 	? "true" : "false") );
+  ATH_MSG_INFO( "  Do Argon    = " << (m_doArgonMixture   ? "true" : "false") );
+  ATH_MSG_INFO( "  Do Krypton  = " << (m_doKryptonMixture ? "true" : "false") );
+  ATH_MSG_INFO( "  DC2CompatibleBarrelCoordinates = " << (m_DC2CompatibleBarrelCoordinates ? "true" : "false"));
+  ATH_MSG_INFO( "  InitialLayout                  = " << (m_initialLayout ? "true" : "false") );
+  ATH_MSG_INFO( "  Alignable                      = " << (m_alignable ? "true" : "false") );
+  ATH_MSG_INFO( "  VersioName                     = " << versionName  );
    
   // Retrieve the Geometry DB Interface
-  sc = m_geometryDBSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
-    return (StatusCode::FAILURE);
-  } 
+  ATH_CHECK( m_geometryDBSvc.retrieve() );
 
   // Pass athena services to factory, etc
   m_athenaComps = new InDetDD::AthenaComps("TRT_GeoModel");
@@ -193,19 +179,17 @@ StatusCode TRT_DetectorTool::create()
   // 
   GeoModelExperiment * theExpt; 
   if (StatusCode::SUCCESS != detStore()->retrieve( theExpt, "ATLAS" )) { 
-    msg(MSG::ERROR) 
-	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endmsg; 
+    ATH_MSG_ERROR(  "Could not find GeoModelExperiment ATLAS" ); 
     return (StatusCode::FAILURE); 
   } 
 
   if ( 0 == m_detector ) {
     GeoPhysVol *world = theExpt->getPhysVol();
 
-    msg(MSG::INFO) << " Building TRT geometry from GeoModel factory TRTDetectorFactory_Full" << endmsg;
+    ATH_MSG_INFO( " Building TRT geometry from GeoModel factory TRTDetectorFactory_Full" );
 
     TRTDetectorFactory_Full theTRTFactory(m_athenaComps, 
-					  m_sumSvc,
+					  m_sumTool.get(),
 					  m_useOldActiveGasMixture,
 					  m_DC2CompatibleBarrelCoordinates,
 					  m_overridedigversion,
@@ -221,9 +205,9 @@ StatusCode TRT_DetectorTool::create()
     if (m_manager) {
       theExpt->addManager(m_manager);
       
-      sc = detStore()->record(m_manager,m_manager->getName());
+      StatusCode sc = detStore()->record(m_manager,m_manager->getName());
       if (sc.isFailure() ) {
-	msg(MSG::ERROR) << "Could not register TRT_DetectorManager" << endmsg;
+	ATH_MSG_ERROR("Could not register TRT_DetectorManager");
 	return( StatusCode::FAILURE );
       }
       
@@ -355,4 +339,3 @@ TRT_DetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
     return StatusCode::SUCCESS;
   }
 }
-

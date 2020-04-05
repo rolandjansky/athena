@@ -20,7 +20,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "xAODTrigger/TrigNavigation.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigNavigation/Navigation.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -218,7 +218,7 @@ class TrigEDMChecker : public AthAnalysisAlgorithm  {
 
    ServiceHandle< ::IClassIDSvc > m_clidSvc;
 
-   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_muonTracksKey{ this, "MuonTracksKey", "HLT_xAODTracks_Muon"};
+   SG::ReadHandleKey< xAOD::TrackParticleContainer > m_muonTracksKey{ this, "MuonTracksKey", "HLT_IDTrack_Muon_FTF"};
    SG::ReadHandleKey< xAOD::TrigNavigation > m_navigationHandleKey{ this, "TrigNavigation", "TrigNavigation", "" };
    SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{ this, "Decisions", "RoIDecisions", "Decisions created from TEs" };
    ToolHandle< HLT::Navigation > m_navigationTool{ this, "NavigationTool", "HLT::Navigation/Navigation", "" };

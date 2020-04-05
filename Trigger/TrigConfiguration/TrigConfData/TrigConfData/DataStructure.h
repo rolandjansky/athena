@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_DATASTRUCTURE_H
 #define TRIGCONFDATA_DATASTRUCTURE_H
 
 /**
- * @file TrigConfData/DataStructure.h
- * @author J. Stelzer
- * @date Feb 2019
  * @brief Base class for Trigger configuration data and wrapper around underlying representation
  */
 
@@ -63,7 +60,10 @@ namespace TrigConf {
       void setData(const ptree & data);
       void setData(ptree && data);
 
+      /** A string that is the name of the class */
       virtual std::string className() const;
+
+      virtual const std::string & name() const final;
 
       /** Clearing the configuration data
        * 
@@ -121,8 +121,12 @@ namespace TrigConf {
       template<class T>
       T getAttribute(const std::string & key, bool ignoreIfMissing = false, const T & def = T()) const {
          const auto & obj = data().get_child_optional(key);
-         if( !obj && ignoreIfMissing ) {
-            return def;
+         if( !obj ) {
+            if( ignoreIfMissing ) {
+               return def;
+            } else {
+               throw std::runtime_error(className() + "#" + name() + ": structure '" + key + "' does not exist" );
+            }
          }
          return obj.get().get_value<T>();
       }
@@ -172,7 +176,12 @@ namespace TrigConf {
       /* Print this object including children
        * @param os The output stream
        */
-      void print(std::ostream & os = std::cout) const;
+      void printRaw(std::ostream & os = std::cout) const;
+
+      /* Print this object including children
+       * @param os The output stream
+       */
+      virtual void print(std::ostream & os = std::cout) const;
 
       /** Static function to print a @c ptree object
        * @param key The key of this data as found in the parent structure
@@ -201,6 +210,8 @@ namespace TrigConf {
 
       std::shared_ptr<ptree> m_dataSPtr { nullptr }; // used when owning the tree
       const ptree * m_dataPtr { nullptr }; // used when not owning the tree
+
+      std::string m_name{""}; // most objects are named
    
    };
 

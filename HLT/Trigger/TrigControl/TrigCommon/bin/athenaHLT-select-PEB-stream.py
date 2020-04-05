@@ -217,6 +217,9 @@ def peb_writer(argv):
   logging.info('Number of events written to output file   = %d ', totalEvents_out)
   if totalEvents_out > 0:
     logging.info('Output file                               = %s ', ostream.last_filename())
+  else:
+    logging.error('No events selected so no output file created')
+    sys.exit(1)
 
   sys.exit(0)
 

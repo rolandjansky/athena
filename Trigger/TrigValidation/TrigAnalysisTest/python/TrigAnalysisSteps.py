@@ -29,6 +29,7 @@ class AthenaCheckerStep(ExecStep, InputDependentStep):
         self.input = ''
         self.explicit_input = True
         self.perfmon = False
+        self.prmon = False
 
     def configure(self, test):
         self.args += ' -c \'fileList=["{:s}"]\''.format(self.input_file)

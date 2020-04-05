@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Package filtering rules for the Athena project build.
 #
@@ -23,6 +24,8 @@
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
 
+
+
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
 - PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
@@ -37,7 +40,6 @@
 - PhysicsAnalysis/SUSYPhys/SUSYTools
 - PhysicsAnalysis/TauID/DiTauMassTools
 #- PhysicsAnalysis/TauID/TauCorrUncert  #no CMakeLists.txt file
-- PhysicsAnalysis/TopPhys/QuickAna
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*
 - PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
@@ -45,7 +47,6 @@
 - Reconstruction/Jet/JetJvtEfficiency
 - Reconstruction/Jet/JetReclustering
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
-- Trigger/TrigFTK/FTKStandaloneMonitoring
 
 # Data quality packages that would generally go to AthDataQuality, but should be built in Athena
 # until we have Run 3 Tier-0 ops

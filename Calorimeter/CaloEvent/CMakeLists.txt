@@ -5,6 +5,12 @@
 # Declare the package name:
 atlas_subdir( CaloEvent )
 
+# Extra dependencies, based on the environment:
+set( extra_deps )
+if( NOT GENERATIONBASE )
+   set( extra_deps LArCalorimeter/LArRawConditions ) # not ideal... LAr should depend on Calo
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
@@ -23,12 +29,11 @@ atlas_depends_on_subdirs(
    Event/EventKernel
    Event/FourMom
    Event/NavFourMom
-   LArCalorimeter/LArRawConditions #not ideal .. LAr should depend on Calo. 
+   ${extra_deps}
    PRIVATE
    AtlasTest/TestTools
    Control/StoreGate
    DetectorDescription/IdDictParser
-   LArCalorimeter/LArRawConditions
    GaudiKernel )
 
 # External dependencies:

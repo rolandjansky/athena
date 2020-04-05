@@ -23,7 +23,7 @@ def TriggerChains(HIGG4DxName):
     else :
         assert False, "HIGG4DxThinning: Unknown derivation stream '{}'".format(HIGG4DxName)
 
-def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
+def setup(HIGG4DxName, streamName, ToolSvc):
     thinningTools=[]
 
     #jets and tracks
@@ -124,7 +124,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     	#thin taus
         HIGG4DxTruthTool_TAU = DerivationFramework__GenericTruthThinning(name                         = HIGG4DxName+"TruthTool_TAU",
-                                                                         ThinningService              = HIGG4DxThinningSvc,
+                                                                         StreamName                   = streamName,
                                                                          ParticleSelectionString      = truth_cond_tau,
                                                                          PreserveDescendants          = False,
                                                                          PreserveGeneratorDescendants = True,
@@ -135,7 +135,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
 
 	#thin leptons and taus
         HIGG4DxTruthTool_COMB = DerivationFramework__GenericTruthThinning(name                         = HIGG4DxName+"TruthTool_COMB",
-                                                                          ThinningService              = HIGG4DxThinningSvc,
+                                                                          StreamName                   = streamName,
                                                                           ParticleSelectionString      = truth_cond_comb,
                                                                           PreserveDescendants          = False,
                                                                           PreserveGeneratorDescendants = False,
@@ -147,7 +147,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
 
     	#thin photons
         """HIGG4DxTruthTool_PHO = DerivationFramework__GenericTruthThinning(name                    = "HIGG4DxTruthTool_PHO",
-                                                                     ThinningService         = HIGG4DxThinningHelper.ThinningSvc(),
+                                                                     StreamName              = streamName,
                                                                      ParticlesKey            = "TruthPhotons",
                                                                      ParticleSelectionString = truth_photon_thinning)
     
@@ -157,7 +157,7 @@ def setup(HIGG4DxName, streamName, HIGG4DxThinningSvc, ToolSvc):
     	#thinning the master truth collection
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
         HIGG4DxTruthTool_MENU = DerivationFramework__MenuTruthThinning(  name 			    = HIGG4DxName+"TruthTool_MENU",
-                                                                         ThinningService 	    = HIGG4DxThinningSvc,
+                                                                         StreamName                 = streamName,
                                                                          WritePartons               = False,
                                                                          WriteHadrons               = False,
                                                                          WriteBHadrons              = False,

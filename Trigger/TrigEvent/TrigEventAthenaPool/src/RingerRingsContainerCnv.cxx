@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RingerRingsContainerCnv.h"
@@ -32,11 +32,11 @@ RingerRingsContainer *RingerRingsContainerCnv::createTransient() {
   static pool::Guid tlp1_guid("B5587828-50D8-4DAA-97F3-5E41A7F3E3FE");
 
   if( compareClassGuid( p2_guid ) ){
-         std::auto_ptr< RingerRingsContainer_p2 > col_vect( poolReadObject< RingerRingsContainer_p2 >() );
+         std::unique_ptr< RingerRingsContainer_p2 > col_vect( poolReadObject< RingerRingsContainer_p2 >() );
          //         std::cout << "Reading IMFC p2" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
   } else if (compareClassGuid(tlp1_guid)) {
-         std::auto_ptr< RingerRingsContainer_tlp1 > col_vect( poolReadObject< RingerRingsContainer_tlp1 >() );
+         std::unique_ptr< RingerRingsContainer_tlp1 > col_vect( poolReadObject< RingerRingsContainer_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
          return TPConverter_tlp1.createTransient( col_vect.get(), mlog );  
   } else { throw std::runtime_error("Unsupported persistent version of RingerRingsContainer");  }

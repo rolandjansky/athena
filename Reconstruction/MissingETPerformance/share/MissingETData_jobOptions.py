@@ -94,4 +94,4 @@ if MissingETData.getCaloCells == True:
         MissingETData.BadChannelMasker = theLArMasker
 
 ToolSvc += MissingETData
-print      MissingETData
+printfunc (     MissingETData)

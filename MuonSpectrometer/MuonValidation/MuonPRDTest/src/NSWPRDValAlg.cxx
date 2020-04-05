@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -9,6 +9,8 @@
 
 #include "MMDigitVariables.h"
 #include "MMSimHitVariables.h"
+#include "MDTSimHitVariables.h"
+#include "RPCSimHitVariables.h"
 #include "MMSDOVariables.h"
 #include "MMRDOVariables.h"
 #include "MMPRDVariables.h"
@@ -28,9 +30,6 @@
 
 // Other NSW includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MmIdHelper.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 
 // ROOT includes
 #include "TTree.h"
@@ -58,11 +57,10 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
     m_MmRdoVar(nullptr),
     m_MmPrdVar(nullptr),
     m_CscDigitVar(nullptr),
+    m_MDTSimHitVar(nullptr),
+    m_RPCSimHitVar(nullptr),
     m_thistSvc(nullptr),
     m_tree(nullptr),
-    m_MmIdHelper(nullptr),
-    m_sTgcIdHelper(nullptr),
-    m_CscIdHelper(nullptr),
     m_runNumber(0),
     m_eventNumber(0)
 {
@@ -80,6 +78,8 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("NSWMM_RDOContainerName",         m_NSWMM_RDOContainerName="MMRDO");
   declareProperty("NSWMM_PRDContainerName",         m_NSWMM_PRDContainerName="MM_Measurements");
   declareProperty("CSC_DigitContainerName",         m_CSC_DigitContainerName="CSC_DIGITS");
+  declareProperty("MDT_SimContainerName",           m_MDT_SimContainerName="MDT_Hits");
+  declareProperty("RPC_SimContainerName",           m_RPC_SimContainerName="RPC_Hits");
 
   // Input properties: do EDM objects
   declareProperty("isData",          m_isData=false);
@@ -96,16 +96,21 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("doMMRDO",         m_doMMRDO=false);
   declareProperty("doMMPRD",         m_doMMPRD=false);
   declareProperty("doCSCDigit",      m_doCSCDigit=false);
+  declareProperty("doMDTHit",        m_doMDTHit=false);
+  declareProperty("doRPCHit",        m_doRPCHit=false);
 
   // Input properties: NSW Maching algorithm
   declareProperty("doNSWMatchingAlg",   m_doNSWMatching=true);
   declareProperty("doNSWMatchingMuonOnly",  m_doNSWMatchingMuon=false);
   declareProperty("setMaxStripDistance",  m_maxStripDiff=3);
+
+  // this property is temporarely added to be able to deactivate the "No match found!" warning when running on the grid
+  declareProperty("suppressNoMatchWarning",  m_noMatchWarning=false);
 }
 
 StatusCode NSWPRDValAlg::initialize() {
 
-  ATH_MSG_INFO("initialize()");
+  ATH_MSG_DEBUG("initialize()");
 
   ATH_CHECK( service("THistSvc", m_thistSvc) );
 
@@ -121,11 +126,7 @@ StatusCode NSWPRDValAlg::initialize() {
   // MuonDetectorManager from the Detector Store (to be used only at initialize)
   ATH_CHECK( detStore()->retrieve( m_muonDetMgrDS ) );
 
-  ATH_CHECK( detStore()->retrieve( m_MmIdHelper ) );
-
-  ATH_CHECK( detStore()->retrieve( m_sTgcIdHelper ) );
-
-  if (m_doCSCDigit) ATH_CHECK( detStore()->retrieve( m_CscIdHelper ) );
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   if (m_doTruth){
      m_TruthVar = new TruthVariables(&(*(evtStore())), m_muonDetMgrDS,
@@ -141,25 +142,25 @@ StatusCode NSWPRDValAlg::initialize() {
 
   if (m_doSTGCHit){
      m_sTgcSimHitVar = new sTGCSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_ContainerName, msgLevel());
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_ContainerName, msgLevel());
      ATH_CHECK( m_sTgcSimHitVar->initializeVariables() );
   }
   
   if (m_doSTGCDigit){
      m_sTgcDigitVar = new sTGCDigitVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_DigitContainerName, msgLevel());
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_DigitContainerName, msgLevel());
      ATH_CHECK( m_sTgcDigitVar->initializeVariables() );
 
-  	  // Take SDO conainer
+      // Take SDO conainer
      m_sTgcSdoVar = new sTGCSDOVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_SDOContainerName, msgLevel());
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_SDOContainerName, msgLevel());
      ATH_CHECK( m_sTgcSdoVar->initializeVariables() );
   }
 
   if (m_doSTGCFastDigit){
-  	  // Take the "fast_SDO" instead of the SDOs from full sim
+      // Take the "fast_SDO" instead of the SDOs from full sim
      m_sTgcFastSdoVar = new sTGCSDOVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_sTgcIdHelper, m_tree, "sTGCfast_SDO", msgLevel());
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree, "sTGCfast_SDO", msgLevel());
      ATH_CHECK( m_sTgcFastSdoVar->initializeVariables() );
 
      // Fast digits = PRD
@@ -168,37 +169,37 @@ StatusCode NSWPRDValAlg::initialize() {
 
   if (m_doSTGCRDO){
      m_sTgcRdoVar = new sTGCRDOVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_RDOContainerName, msgLevel());
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_RDOContainerName, msgLevel());
      ATH_CHECK( m_sTgcRdoVar->initializeVariables() );
   }
 
   if (m_doSTGCPRD){
      m_sTgcPrdVar = new sTGCPRDVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_PRDContainerName, msgLevel());
+                                                &m_idHelperSvc->stgcIdHelper(), m_tree, m_NSWsTGC_PRDContainerName, msgLevel());
      ATH_CHECK( m_sTgcPrdVar->initializeVariables() );
   }
 
   if (m_doMMHit) {
      m_MmSimHitVar = new MMSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_MmIdHelper, m_tree, m_NSWMM_ContainerName, msgLevel());
+                                                &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_ContainerName, msgLevel());
      ATH_CHECK( m_MmSimHitVar->initializeVariables() );
   }
 
   if (m_doMMDigit) {
      m_MmDigitVar = new MMDigitVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_MmIdHelper, m_tree, m_NSWMM_DigitContainerName, msgLevel());
+                                                &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_DigitContainerName, msgLevel());
      ATH_CHECK( m_MmDigitVar->initializeVariables() );
 
      // Take SDO conainer
      m_MmSdoVar = new MMSDOVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_MmIdHelper, m_tree, m_NSWMM_SDOContainerName, msgLevel());
+                                                &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_SDOContainerName, msgLevel());
      ATH_CHECK( m_MmSdoVar->initializeVariables() );
   }
 
   if (m_doMMFastDigit){
-  	  // Take the "fast_SDO" instead of the SDOs from full sim
+      // Take the "fast_SDO" instead of the SDOs from full sim
      m_MmFastSdoVar = new MMSDOVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_MmIdHelper, m_tree, "MMfast_SDO", msgLevel());
+                                                &m_idHelperSvc->mmIdHelper(), m_tree, "MMfast_SDO", msgLevel());
      ATH_CHECK( m_MmFastSdoVar->initializeVariables() );
 
      // Fast digits = PRD
@@ -208,22 +209,33 @@ StatusCode NSWPRDValAlg::initialize() {
   if (m_doMMRDO) {
 
     m_MmRdoVar = new MMRDOVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_MmIdHelper, m_tree, m_NSWMM_RDOContainerName, msgLevel());
+                                                &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_RDOContainerName, msgLevel());
     ATH_CHECK( m_MmRdoVar->initializeVariables() );
   }
 
  if (m_doMMPRD){
      m_MmPrdVar = new MMPRDVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_MmIdHelper, m_tree, m_NSWMM_PRDContainerName, msgLevel());
+                                                &m_idHelperSvc->mmIdHelper(), m_tree, m_NSWMM_PRDContainerName, msgLevel());
      ATH_CHECK( m_MmPrdVar->initializeVariables() );
   }
 
   if (m_doCSCDigit){
      m_CscDigitVar = new CSCDigitVariables(&(*(evtStore())), m_muonDetMgrDS,
-                                                m_CscIdHelper, m_tree, m_CSC_DigitContainerName, msgLevel());
+                                                &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_DigitContainerName, msgLevel());
      ATH_CHECK( m_CscDigitVar->initializeVariables() );
   }
 
+  if (m_doMDTHit){
+     m_MDTSimHitVar = new MDTSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->mdtIdHelper(), m_tree, m_MDT_SimContainerName, msgLevel());
+     ATH_CHECK( m_MDTSimHitVar->initializeVariables() );
+  }
+
+    if (m_doRPCHit){
+     m_RPCSimHitVar = new RPCSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->rpcIdHelper(), m_tree, m_RPC_SimContainerName, msgLevel());
+     ATH_CHECK( m_RPCSimHitVar->initializeVariables() );
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -247,6 +259,8 @@ StatusCode NSWPRDValAlg::finalize()
   if (m_MmRdoVar) { delete m_MmRdoVar; m_MmRdoVar=0;}
   if (m_MmPrdVar) { delete m_MmPrdVar; m_MmPrdVar=0;}
   if (m_CscDigitVar) { delete m_CscDigitVar; m_CscDigitVar=0;}
+  if (m_MDTSimHitVar) { delete m_MDTSimHitVar; m_MDTSimHitVar=0;}
+  if (m_RPCSimHitVar) { delete m_RPCSimHitVar; m_RPCSimHitVar=0;}
 
   return StatusCode::SUCCESS;
 }
@@ -304,6 +318,10 @@ StatusCode NSWPRDValAlg::execute()
   if (m_doMMPRD) ATH_CHECK( m_MmPrdVar->fillVariables(muonDetMgr) );
 
   if (m_doCSCDigit) ATH_CHECK( m_CscDigitVar->fillVariables(muonDetMgr) );
+
+  if (m_doMDTHit) ATH_CHECK( m_MDTSimHitVar->fillVariables(muonDetMgr) );
+
+  if (m_doRPCHit) ATH_CHECK( m_RPCSimHitVar->fillVariables(muonDetMgr) );
 
   m_tree->Fill();
 
@@ -410,7 +428,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg () {
 StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
   if (data0.getDetector() != data1.getDetector()) { ATH_MSG_ERROR ("Matching " << data0.getDetector() << " data with " << data1.getDetector() << " data. This is not implemented in this algorithm"); }
   
-  ATH_MSG_INFO("NSWMatchingAlg: Start matching " << data0.getName() << " and " << data1.getName() << " for " << data0.getDetector());
+  ATH_MSG_DEBUG("NSWMatchingAlg: Start matching " << data0.getName() << " and " << data1.getName() << " for " << data0.getDetector());
   data0.setMatchedwith(data1.getName());
   data1.setMatchedwith(data0.getName());
 
@@ -459,8 +477,16 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
            }
         }
         ATH_MSG_VERBOSE("Total Number of matches found: " << nMatch << " " << data1.getName() << " for a single " << data0.getName() );
+        static bool warningPrinted = false;
         if (nMatch == 0) {
-          ATH_MSG_WARNING("No match found!");
+          if (m_noMatchWarning) {
+            if(!warningPrinted) {
+              ATH_MSG_WARNING("No match found! Will now disable this kind of WARNING but please be aware that you are running with suppressNoMatchWarning set to true!");
+              warningPrinted = true;
+            }
+          } else {
+            ATH_MSG_WARNING("No match found!");
+          }
         }
      }
     if (msgLevel() <= MSG::DEBUG) { 

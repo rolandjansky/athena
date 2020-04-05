@@ -4,7 +4,6 @@
 
 #include "./CTPSimulation.h"
 
-#include "TrigConfData/L1Menu.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/ClusterThresholdValue.h"
@@ -23,16 +22,33 @@
 #include "TrigT1Interfaces/JEPRoIDecoder.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
 
-#include "TH2.h"
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "AthenaMonitoringKernel/HistogramDef.h"
+
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/Ranlux64Engine.h"
+
+#include "TTree.h"
 
 #include <iomanip>
 #include <algorithm>
 #include <cmath>
 
+namespace {
+  static std::mutex s_metadataMutex;
+}
+
+
 using namespace TrigConf;
+
+const std::function< CLHEP::HepRandomEngine*(void) > CTPSimRanluxFactory = [](void)->CLHEP::HepRandomEngine*{
+   return new CLHEP::Ranlux64Engine();
+};
+
 
 LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSvcLocator ) :
    AthReentrantAlgorithm ( name, pSvcLocator ), 
+   m_RNGEngines( CTPSimRanluxFactory, SG::getNSlots() ),
    m_decoder( new LVL1::CPRoIDecoder() ),
    m_jetDecoder( new LVL1::JEPRoIDecoder() )
 {}
@@ -71,14 +87,11 @@ LVL1CTP::CTPSimulation::initialize() {
    // services
    ATH_CHECK( m_configSvc.retrieve() );
    ATH_CHECK( m_histSvc.retrieve() );
-   ATH_CHECK( m_rndmSvc.retrieve() );
 
    // tools
    ATH_CHECK( m_resultBuilder.retrieve() );
-   CLHEP::HepRandomEngine* rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-   m_resultBuilder->setRandomEngine( rndmEngine );
 
-   ATH_MSG_DEBUG("Registering histograms under " << m_histPath << " in " << m_histSvc);
+   ATH_MSG_DEBUG("Registering histograms under " << getBaseHistPath() << " in " << m_histSvc);
 
    return StatusCode::SUCCESS;
 }
@@ -91,25 +104,25 @@ LVL1CTP::CTPSimulation::start() {
    const TrigConf::L1Menu * l1menu = nullptr;
    if( m_useNewConfig ) {
       ATH_CHECK( m_detStore->retrieve(l1menu) ); 
-      ATH_MSG_INFO( "Use L1 trigger menu from detector store" );
+      ATH_MSG_INFO( "start(): use L1 trigger menu from detector store" );
       if(l1menu == nullptr) { // if no L1 configuration is available yet
          delayConfig = true;
       }
    } else {
-      ATH_MSG_INFO( "Use L1 trigger menu from L1ConfigSvc" );
+      ATH_MSG_INFO( "start(): use L1 trigger menu from L1ConfigSvc" );
       if( (m_configSvc->ctpConfig()==nullptr) || 
           (m_configSvc->ctpConfig()->menu().itemVector().size() == 0) ) { // if no L1 configuration is available yet
          delayConfig = true;
       }
    }
 
+   bookHists().ignore();
    if( ! delayConfig ) {
       // configure the CTP ResultBuilder
       // currently both types of configuration can be given (transition period towards Run 3)
-
       std::call_once(m_onceflag, [this, l1menu]{ 
             m_resultBuilder->setConfiguration( m_configSvc->ctpConfig(), l1menu ).ignore();
-            bookHists().ignore();
+            setHistLabels().ignore();
          });
    }
 
@@ -119,13 +132,15 @@ LVL1CTP::CTPSimulation::start() {
 StatusCode
 LVL1CTP::CTPSimulation::execute( const EventContext& context ) const {
 
+   ATH_MSG_DEBUG("execute");
+
    std::call_once(m_onceflag, [this]{
          const TrigConf::L1Menu * l1menu = nullptr;
          if( m_useNewConfig ) {
             m_detStore->retrieve(l1menu).ignore(); 
          }
          m_resultBuilder->setConfiguration( m_configSvc->ctpConfig(), l1menu ).ignore();
-         bookHists().ignore();
+         setHistLabels().ignore();
       });
 
    fillInputHistograms(context).ignore();
@@ -142,8 +157,38 @@ LVL1CTP::CTPSimulation::execute( const EventContext& context ) const {
 
 
 StatusCode
-LVL1CTP::CTPSimulation::createMultiplicityHist(const ConfigSource & cfgSrc, const std::string & type, TrigConf::L1DataDef::TriggerType tt, unsigned int maxMult ) const {
+LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigned int maxMult ) const {
 
+   StatusCode sc;
+   if( m_useNewConfig ) {
+      std::map<std::string,std::vector<std::string>> typeMapping = {
+         { "muon", {"MU"} },
+         { "jet", {"JET", "jJ", "gJ"} },
+         { "xe", {"XE", "gXE", "jXE"} },
+         { "te", {"TE"} },
+         { "xs", {"XS"} },
+         { "em", {"EM", "eEM"} },
+         { "tau", {"TAU", "eTAU"} }
+      };
+      std::vector<TrigConf::L1Threshold> thrV;
+      for( const std::string & t : typeMapping[type] ) {
+         size_t xsize = 1;
+         TH2* hist = new TH2I( Form("%sMult", t.c_str()),
+                               Form("%s threshold multiplicity", t.c_str()), xsize, 0, xsize, maxMult, 0, maxMult);
+         sc = hbook( "/multi/" + type, std::unique_ptr<TH2>(hist));
+      }
+   } else {
+      size_t xsize = 1;
+      TH2* hist = new TH2I( Form("%sMult", type.c_str()),
+                            Form("%s threshold multiplicity", type.c_str()), xsize, 0, xsize, maxMult, 0, maxMult);
+      sc = hbook( "/multi/" + type, std::unique_ptr<TH2>(hist));
+   }
+   return sc;
+}
+
+
+StatusCode
+LVL1CTP::CTPSimulation::setMultiplicityHistLabels(const ConfigSource & cfgSrc, const std::string & type, TrigConf::L1DataDef::TriggerType tt ) const {
    StatusCode sc;
    const TrigConf::CTPConfig* ctpConfig = cfgSrc.ctpConfig();
    const TrigConf::L1Menu* l1menu = cfgSrc.l1menu();
@@ -159,27 +204,35 @@ LVL1CTP::CTPSimulation::createMultiplicityHist(const ConfigSource & cfgSrc, cons
       };
       std::vector<TrigConf::L1Threshold> thrV;
       for( const std::string & t : typeMapping[type] ) {
-         const std::vector<TrigConf::L1Threshold> & thrV = l1menu->thresholds(t);
-         size_t xsize = thrV.empty() ? 1 : thrV.size();
-         TH2* hist = new TH2I( Form("%sMult", t.c_str()),
-                               Form("%s threshold multiplicity", t.c_str()), xsize, 0, xsize, maxMult, 0, maxMult);
-         for(const TrigConf::L1Threshold & thr: thrV) {
-            hist->GetXaxis()->SetBinLabel(thr.mapping()+1, thr.name().c_str() );
+         auto hist = get2DHist( "/multi/" + type + "/" + t + "Mult" );
+         auto & thrV = l1menu->thresholds(t);
+         while( hist->GetNbinsX() < (int)thrV.size() ) {
+            hist->LabelsInflate("xaxis");
          }
-         sc = hbook( "/multi/" + type, std::unique_ptr<TH2>(hist));
+         for(auto thr : thrV) {
+            hist->GetXaxis()->SetBinLabel(thr->mapping()+1, thr->name().c_str() );
+         }
       }
    } else {
+      auto hist = get2DHist( "/multi/" + type + "/" + type + "Mult" );
       const auto & thrV = ctpConfig->menu().thresholdConfig().getThresholdVector(tt);
-      TH2* hist = new TH2I( Form("%sMult", type.c_str()),
-                            Form("%s threshold multiplicity", type.c_str()), thrV.size(), 0, thrV.size(), maxMult, 0, maxMult);
+      while( hist->GetNbinsX() < (int) thrV.size() ) {
+         hist->LabelsInflate("xaxis");
+      }
       for(const TrigConf::TriggerThreshold * thr: thrV) {
          hist->GetXaxis()->SetBinLabel(thr->mapping()+1, thr->name().c_str() );
       }
-      sc = hbook( "/multi/" + type, std::unique_ptr<TH2>(hist));
    }
    return sc;
 }
 
+std::string
+LVL1CTP::CTPSimulation::getBaseHistPath() const {
+   std::string baseHistPath( m_histPath );
+   if(baseHistPath.back()!='/') baseHistPath += "/";
+   baseHistPath += name();
+   return baseHistPath;
+}
 
 StatusCode
 LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH1> hist) const {
@@ -195,7 +248,7 @@ LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH1> his
    }
 
    LockedHandle<TH1> lh;
-   StatusCode sc = m_histSvc->regShared( m_histPath + name() + path + "/" + hname, std::move(hist), lh );
+   StatusCode sc = m_histSvc->regShared( getBaseHistPath() + key, std::move(hist), lh );
    if( sc.isSuccess() ) {
       ATH_MSG_DEBUG("1D-hist " << hname << " registered with key - " << key);
       m_hist1D[key] = lh;
@@ -219,7 +272,7 @@ LVL1CTP::CTPSimulation::hbook(const std::string & path, std::unique_ptr<TH2> his
    }
 
    LockedHandle<TH2> lh;
-   StatusCode sc = m_histSvc->regShared( m_histPath + name() + path + "/" + hname, std::move(hist), lh );
+   StatusCode sc = m_histSvc->regShared( getBaseHistPath() + key, std::move(hist), lh );
    if( sc.isSuccess() ) {
       ATH_MSG_DEBUG("2D-hist " << hname << " registered with key - " << key);
       m_hist2D[key] = lh;
@@ -246,16 +299,95 @@ LVL1CTP::CTPSimulation::get2DHist(const std::string & histName) const {
 }
 
 StatusCode
-LVL1CTP::CTPSimulation::bookHists() const {
+LVL1CTP::CTPSimulation::setHistLabels() const {
+
+   ATH_MSG_DEBUG("enter setHistLabels()");
 
    const TrigConf::L1Menu * l1menu = nullptr;
    if( m_useNewConfig ) {
       ATH_CHECK( m_detStore->retrieve(l1menu) ); 
-      ATH_MSG_DEBUG("Calling ::bookHists(). L1 menu " << l1menu->size() << " items" );
+      ATH_MSG_DEBUG("setHistLabels(). L1 menu " << l1menu->size() << " items" );
    } else {
-      ATH_MSG_DEBUG("Calling ::bookHists(). ConfigSvc with " << m_configSvc->ctpConfig()->menu().itemVector().size() << " items");
+      ATH_MSG_DEBUG("setHistLabels(). ConfigSvc with " << m_configSvc->ctpConfig()->menu().itemVector().size() << " items");
    }
    ConfigSource cfgSrc(m_configSvc->ctpConfig(), l1menu);
+   // threshold multiplicities
+   ATH_CHECK ( setMultiplicityHistLabels( cfgSrc, "muon", L1DataDef::MUON) );
+   ATH_CHECK ( setMultiplicityHistLabels( cfgSrc, "jet",  L1DataDef::JET ) );
+   ATH_CHECK ( setMultiplicityHistLabels( cfgSrc, "xe",   L1DataDef::XE  ) );
+   ATH_CHECK ( setMultiplicityHistLabels( cfgSrc, "te",   L1DataDef::TE  ) );
+   ATH_CHECK ( setMultiplicityHistLabels( cfgSrc, "xs",   L1DataDef::XS  ) );
+   ATH_CHECK ( setMultiplicityHistLabels( cfgSrc, "em",   L1DataDef::EM  ) );
+   ATH_CHECK ( setMultiplicityHistLabels( cfgSrc, "tau",  L1DataDef::TAU ) );
+
+   // Topo
+   auto hTopo0 = *get1DHist("/input/topo/l1topo0");
+   auto hTopo1 = *get1DHist("/input/topo/l1topo1");
+   if ( l1menu ) {
+      // to be implemented
+   } else {
+      for(const TIP * tip : m_configSvc->ctpConfig()->menu().tipVector() ) {
+         if ( tip->tipNumber() < 384 )
+            continue;
+         unsigned int tipNumber = (unsigned int) ( tip->tipNumber() - 384 );
+         switch(tipNumber / 64) {
+         case 0:
+            hTopo0->GetXaxis()->SetBinLabel(1+ tipNumber % 64, tip->thresholdName().c_str() );
+            break;
+         case 1:
+            hTopo1->GetXaxis()->SetBinLabel(1+ tipNumber % 64, tip->thresholdName().c_str() );
+            break;
+         default:
+            break;
+         }
+      }
+   }
+
+   std::vector<std::string> orderedItemnames;
+   if( l1menu ) {
+      orderedItemnames.reserve( l1menu->size() );
+      for( const auto & item : *l1menu ) {
+         orderedItemnames.emplace_back(item.name());
+      }
+   } else {
+      orderedItemnames.reserve(m_configSvc->ctpConfig()->menu().items().size());
+      for( const auto & item : m_configSvc->ctpConfig()->menu().items() ) {
+         orderedItemnames.emplace_back(item->name());
+      }
+   }
+   std::sort(orderedItemnames.begin(), orderedItemnames.end());
+
+   // item decision
+   auto tbpById = *get1DHist( "/output/tbpById" );
+   auto tapById = *get1DHist( "/output/tapById" );
+   auto tavById = *get1DHist( "/output/tavById" );
+   auto tbpByName = *get1DHist( "/output/tbpByName" );
+   auto tapByName = *get1DHist( "/output/tapByName" );
+   auto tavByName = *get1DHist( "/output/tavByName" );
+   unsigned int bin = 1;
+   for ( const std::string & itemname : orderedItemnames ) {
+      unsigned int ctpId(0);
+      if (l1menu) {
+         TrigConf::L1Item item = l1menu->item( itemname );
+         ctpId = item.ctpId();
+      } else {
+         const TrigConf::TriggerItem * item = m_configSvc->ctpConfig()->menu().item( itemname );
+         ctpId = item->ctpId();
+      }
+      tbpById->GetXaxis()->SetBinLabel( ctpId+1, itemname.c_str() );
+      tapById->GetXaxis()->SetBinLabel( ctpId+1, itemname.c_str() );
+      tavById->GetXaxis()->SetBinLabel( ctpId+1, itemname.c_str() );
+      tbpByName->GetXaxis()->SetBinLabel( bin, itemname.c_str() );
+      tapByName->GetXaxis()->SetBinLabel( bin, itemname.c_str() );
+      tavByName->GetXaxis()->SetBinLabel( bin++, itemname.c_str() );
+   }
+
+   return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+LVL1CTP::CTPSimulation::bookHists() const {
 
    // jets
    ATH_CHECK ( hbook( "/input/jets/", std::make_unique<TH1I>("jJetPt","Jet p_{T} - jJ", 40, 0, 80) ));
@@ -299,89 +431,32 @@ LVL1CTP::CTPSimulation::bookHists() const {
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("taus","Number of TAU candidates", 20, 0, 20) ));
  
    // threshold multiplicities
-   ATH_CHECK ( createMultiplicityHist( cfgSrc, "muon", L1DataDef::MUON, 5) );
-   ATH_CHECK ( createMultiplicityHist( cfgSrc, "jet", L1DataDef::JET) );
-   ATH_CHECK ( createMultiplicityHist( cfgSrc, "xe", L1DataDef::XE, 2) );
-   ATH_CHECK ( createMultiplicityHist( cfgSrc, "te", L1DataDef::TE, 2) );
-   ATH_CHECK ( createMultiplicityHist( cfgSrc, "xs", L1DataDef::XS, 2) );
-   ATH_CHECK ( createMultiplicityHist( cfgSrc, "em", L1DataDef::EM) );
-   ATH_CHECK ( createMultiplicityHist( cfgSrc, "tau", L1DataDef::TAU) );
+   ATH_CHECK ( createMultiplicityHist( "muon" ) );
+   ATH_CHECK ( createMultiplicityHist( "jet" ) );
+   ATH_CHECK ( createMultiplicityHist( "xe", 2) );
+   ATH_CHECK ( createMultiplicityHist( "te", 2) );
+   ATH_CHECK ( createMultiplicityHist( "xs", 2) );
+   ATH_CHECK ( createMultiplicityHist( "em" ) );
+   ATH_CHECK ( createMultiplicityHist( "tau" ) );
+
+   ATH_CHECK ( hbook( "/multi/all", (std::unique_ptr<TH2>)std::make_unique<TH2I>("LegacyMult", "Legacy thresholds multiplicity", 1, 0, 1, 10, 0, 10) ));
+   ATH_CHECK ( hbook( "/multi/all", (std::unique_ptr<TH2>)std::make_unique<TH2I>("R3Mult", "New thresholds multiplicity", 1, 0, 1, 10, 0, 10) ));
 
    // Topo
-   TH1I* hTopo0 = new TH1I("l1topo0","L1Topo Decision Cable 0", 64, 0, 64);
-   TH1I* hTopo1 = new TH1I("l1topo1","L1Topo Decision Cable 1", 64, 0, 64);
-   if ( l1menu ) {
-      // to be implemented
-   } else {
-      for(const TIP * tip : m_configSvc->ctpConfig()->menu().tipVector() ) {
-         if ( tip->tipNumber() < 384 )
-            continue;
-         unsigned int tipNumber = (unsigned int) ( tip->tipNumber() - 384 );
-         switch(tipNumber / 64) {
-         case 0:
-            hTopo0->GetXaxis()->SetBinLabel(1+ tipNumber % 64, tip->thresholdName().c_str() );
-            break;
-         case 1:
-            hTopo1->GetXaxis()->SetBinLabel(1+ tipNumber % 64, tip->thresholdName().c_str() );
-            break;
-         default:
-            break;
-         }
-      }
-   }
-   ATH_CHECK( hbook( "/input/topo/", std::unique_ptr<TH1I>(hTopo0) ));
-   ATH_CHECK( hbook( "/input/topo/", std::unique_ptr<TH1I>(hTopo1) ));
-
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("l1topo0","L1Topo Decision Cable 0", 64, 0, 64) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("l1topo1","L1Topo Decision Cable 1", 64, 0, 64) ));
 
    // item decision
-   TH1I * tbpByID = new TH1I("tbpById", "Items decision (tbp)", 512, 0, 512);
-   TH1I * tapByID = new TH1I("tapById", "Items decision (tap)", 512, 0, 512);
-   TH1I * tavByID = new TH1I("tavById", "Items decision (tav)", 512, 0, 512);
+   ATH_CHECK ( hbook( "/output/", std::make_unique<TH1I>("tbpById", "Items decision (tbp)", 512, 0, 512) ));
+   ATH_CHECK ( hbook( "/output/", std::make_unique<TH1I>("tapById", "Items decision (tap)", 512, 0, 512) ));
+   ATH_CHECK ( hbook( "/output/", std::make_unique<TH1I>("tavById", "Items decision (tav)", 512, 0, 512) ));
+   ATH_CHECK ( hbook( "/output/", std::make_unique<TH1I>("tbpByName", "Items decision (tbp)", 512, 0, 512) ));
+   ATH_CHECK ( hbook( "/output/", std::make_unique<TH1I>("tapByName", "Items decision (tap)", 512, 0, 512) ));
+   ATH_CHECK ( hbook( "/output/", std::make_unique<TH1I>("tavByName", "Items decision (tav)", 512, 0, 512) ));
 
-   TH1I * tbpByName = new TH1I("tbpByName", "Items decision (tbp)", 512, 0, 512);
-   TH1I * tapByName = new TH1I("tapByName", "Items decision (tap)", 512, 0, 512);
-   TH1I * tavByName = new TH1I("tavByName", "Items decision (tav)", 512, 0, 512);
+   ATH_CHECK ( hbook( "/", std::make_unique<TH1I>("bcid", "Bunch crossing ID", 3564, 0, 3564)) );
 
-   std::vector<std::string> orderedItemnames;
-   if( l1menu ) {
-      orderedItemnames.reserve( l1menu->size() );
-      for( const auto & item : *l1menu ) {
-         orderedItemnames.emplace_back(item.name());
-      }
-   } else {
-      orderedItemnames.reserve(m_configSvc->ctpConfig()->menu().items().size());
-      for( const auto & item : m_configSvc->ctpConfig()->menu().items() ) {
-         orderedItemnames.emplace_back(item->name());
-      }
-   }
-   std::sort(orderedItemnames.begin(), orderedItemnames.end());
-   
-   unsigned int bin = 1;
-   for ( const std::string & itemname : orderedItemnames ) {
-      unsigned int ctpId(0);
-      if (l1menu) {
-         TrigConf::L1Item item = l1menu->item( itemname );
-         ctpId = item.ctpId();
-      } else {
-         const TrigConf::TriggerItem * item = m_configSvc->ctpConfig()->menu().item( itemname );
-         ctpId = item->ctpId();
-      }
-      tbpByID->GetXaxis()->SetBinLabel( ctpId+1, itemname.c_str() );
-      tapByID->GetXaxis()->SetBinLabel( ctpId+1, itemname.c_str() );
-      tavByID->GetXaxis()->SetBinLabel( ctpId+1, itemname.c_str() );
-      tbpByName->GetXaxis()->SetBinLabel( bin, itemname.c_str() );
-      tapByName->GetXaxis()->SetBinLabel( bin, itemname.c_str() );
-      tavByName->GetXaxis()->SetBinLabel( bin++, itemname.c_str() );
-   }
-
-   ATH_CHECK ( hbook( "/output/", std::unique_ptr<TH1I>(tbpByID) ));
-   ATH_CHECK ( hbook( "/output/", std::unique_ptr<TH1I>(tapByID) ));
-   ATH_CHECK ( hbook( "/output/", std::unique_ptr<TH1I>(tavByID) ));
-   ATH_CHECK ( hbook( "/output/", std::unique_ptr<TH1I>(tbpByName) ));
-   ATH_CHECK ( hbook( "/output/", std::unique_ptr<TH1I>(tapByName) ));
-   ATH_CHECK ( hbook( "/output/", std::unique_ptr<TH1I>(tavByName) ));
-
-   ATH_CHECK ( hbook( "/", std::unique_ptr<TH1I>(new TH1I("bcid", "Bunch crossing ID", 3564, 0, 3564)) ));
+   ATH_CHECK(storeMetadata());
 
    return StatusCode::SUCCESS;
 }
@@ -550,12 +625,11 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
    thrMultiMap.clear();
 
    if( l1menu ) {
-      const auto & thrV = l1menu->thresholds();
-      for ( const TrigConf::L1Threshold & thr : thrV ) {
+      for ( auto & thr : l1menu->thresholds() ) {
          // get the multiplicity for each threshold
-         unsigned int multiplicity = calculateMultiplicity( thr, l1menu, context );
+         unsigned int multiplicity = calculateMultiplicity( *thr, l1menu, context );
          // and record in threshold--> multiplicity map (to be used for item decision)
-         thrMultiMap[thr.name()] = multiplicity;
+         thrMultiMap[thr->name()] = multiplicity;
       }
    } else {
       for ( const TrigConf::TriggerThreshold * thr : m_configSvc->ctpConfig()->menu().thresholdVector() ) {
@@ -569,7 +643,6 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
 
    // internal triggers
    auto bcid = context.eventID().bunch_crossing_id();
-   get1DHist( "/bcid")->Fill(bcid);
    if( m_forceBunchGroupPattern ) {
       // force bunch group pattern from job options
       for ( size_t bg = 0; bg < 16; ++bg ) {
@@ -735,8 +808,8 @@ LVL1CTP::CTPSimulation::calculateEMMultiplicity( const TrigConf::L1Threshold & c
       for ( const auto & cl : *eFexCluster ) {
          float eta = cl->eta();
          int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
-         TrigConf::DataStructure thrV = confThr.thresholdValue( ieta );
-         bool clusterPasses = ( ((unsigned int) cl->et()) > thrV.getAttribute<unsigned int>("et")*scale ); // need to add cut on isolation and other variables, once available
+         unsigned int thrV = confThr.thrValue( ieta );
+         bool clusterPasses = ( ((unsigned int) cl->et()) > (thrV * scale) ); // need to add cut on isolation and other variables, once available
          multiplicity +=  clusterPasses ? 1 : 0;
       }
    } else {
@@ -1116,7 +1189,8 @@ LVL1CTP::CTPSimulation::simulateItems(const std::map<std::string, unsigned int> 
    CHECK( m_resultBuilder->constructTIPVector( thrMultiMap, tip ) );
 
    std::map<std::string, unsigned int> itemDecisionMap;
-   CHECK( m_resultBuilder->buildItemDecision(thrMultiMap, itemDecisionMap) );
+   CLHEP::HepRandomEngine* rndmEngine = m_RNGEngines.getEngine( context );
+   CHECK( m_resultBuilder->buildItemDecision(thrMultiMap, itemDecisionMap, rndmEngine) );
 
    std::vector<uint32_t> tbp;
    std::vector<uint32_t> tap;
@@ -1134,6 +1208,7 @@ LVL1CTP::CTPSimulation::simulateItems(const std::map<std::string, unsigned int> 
    ATH_CHECK( rdoWriteHandle.record( std::move(rdo) ));
    ATH_CHECK( sLinkWriteHandle.record( std::move(roi)  ));
 
+   // fill histograms with item simulation results
    {
       auto tbpById = *get1DHist( "/output/tbpById" );
       auto tapById = *get1DHist( "/output/tapById" );
@@ -1166,7 +1241,6 @@ LVL1CTP::CTPSimulation::finalize() {
       ATH_CHECK( m_detStore->retrieve(l1menu) );
    }
 
-
    constexpr unsigned int sizeOfCTPOutput = 512;
 
    unsigned int tbp[sizeOfCTPOutput];
@@ -1184,7 +1258,6 @@ LVL1CTP::CTPSimulation::finalize() {
       auto h = *get1DHist( "/output/tavById" );
       for( unsigned int id = 0; id < sizeOfCTPOutput; ++id ) tav[id] = h->GetBinContent(id+1);
    }
-
 
    // fill the byName TAV histograms from the byID ones
    {
@@ -1215,8 +1288,6 @@ LVL1CTP::CTPSimulation::finalize() {
 
    }
 
-   StatusCode sc(StatusCode::SUCCESS);
-
    // fill the threshold summary hists
    {
       // run 2 thresholds (legacy + muon)
@@ -1226,7 +1297,7 @@ LVL1CTP::CTPSimulation::finalize() {
       } else {
          thrHists = { "em/em", "muon/muon", "tau/tau", "jet/jet", "xe/xe", "te/te", "xs/xs" };
       }
-      TH2* hist = new TH2I( "LegacyMult", "Legacy thresholds multiplicity", 1, 0, 1, 10, 0, 10);
+      auto hist = * get2DHist( "/multi/all/LegacyMult" ); 
       for(const std::string & histpath : thrHists) {
          auto h = * get2DHist( "/multi/" + histpath + "Mult" );
          auto xaxis = h->GetXaxis();
@@ -1244,12 +1315,11 @@ LVL1CTP::CTPSimulation::finalize() {
       }
       hist->Sumw2(0);
       hist->LabelsDeflate();
-      sc = hbook( "/multi/all", std::unique_ptr<TH2>(hist));
    }
    {
       // run 3 thresholds
-      TH2* hist = new TH2I( "R3Mult", "New thresholds multiplicity", 1, 0, 1, 10, 0, 10);
       if( l1menu ) {
+         auto hist = * get2DHist( "/multi/all/R3Mult" ); 
          std::vector<std::string> thrHists = { "em/eEM", "muon/MU", "tau/eTAU", "jet/jJ", "jet/gJ", "xe/gXE", "xe/jXE" };
          for(const std::string & histpath : thrHists) {
             auto h = * get2DHist( "/multi/" + histpath + "Mult" );
@@ -1266,10 +1336,9 @@ LVL1CTP::CTPSimulation::finalize() {
                ATH_MSG_DEBUG( "REGTEST CTPSim " << xaxis->GetBinLabel(x) << " MULT " << s);
             }
          }
+         hist->Sumw2(0);
+         hist->LabelsDeflate();
       }
-      hist->Sumw2(0);
-      hist->LabelsDeflate();
-      sc = hbook( "/multi/all", std::unique_ptr<TH2>(hist));
    }
 
    if(l1menu) {
@@ -1287,5 +1356,60 @@ LVL1CTP::CTPSimulation::finalize() {
                         " TAV " << tav[item->ctpId()]);
       }
    }
-   return sc;
+   return StatusCode::SUCCESS;
+}
+
+/*
+  stores metadata for all histograms to provide merging information
+  adapted from @c HistogramFiller/OfflineHistogramProvider.h
+*/
+StatusCode
+LVL1CTP::CTPSimulation::storeMetadata() const {
+   std::vector<std::string> storedPaths;
+   for( auto & entry : m_hist1D ) {
+      storedPaths.push_back( getBaseHistPath() + entry.first);
+   }
+   for( auto & entry : m_hist2D ) {
+      storedPaths.push_back( getBaseHistPath() + entry.first);
+   }
+   std::scoped_lock<std::mutex> metadataLock(s_metadataMutex);
+   for (const auto & path : storedPaths) {
+      size_t pos = path.find_last_of('/');
+      auto splitPath = std::make_pair(path.substr(0, pos), path.substr(pos + 1));
+      std::string treePath = splitPath.first + "/metadata";
+      std::string interval("run");
+      char triggerData[] = "<none>";
+      const std::string mergeDataStr = "<default>";
+      std::vector<char> mergeData{mergeDataStr.begin(), mergeDataStr.end()};
+      mergeData.push_back('\0');
+      interval = "run";
+      if (!m_histSvc->existsTree(treePath)) {
+         auto tree = std::make_unique<TTree>("metadata", "Monitoring Metadata");
+         tree->SetDirectory(nullptr);
+         tree->Branch("Name", &(splitPath.second[0]), "Name/C");
+         tree->Branch("Interval", &(interval[0]), "Interval/C");
+         tree->Branch("TriggerChain", triggerData, "TriggerChain/C");
+         tree->Branch("MergeMethod", mergeData.data(), "MergeMethod/C");
+         tree->Fill();
+         if (!m_histSvc->regTree(treePath, std::move(tree))) {
+            MsgStream log(Athena::getMessageSvc(), "OfflineHistogramProvider");
+            log << MSG::ERROR
+                << "Failed to register DQ metadata TTree " << treePath << endmsg;
+         }
+      } else {
+         TTree *tree{nullptr};
+         if (m_histSvc->getTree(treePath, tree).isSuccess()) {
+            tree->SetBranchAddress("Name", &(splitPath.second[0]));
+            tree->SetBranchAddress("Interval", &(interval[0]));
+            tree->SetBranchAddress("TriggerChain", triggerData);
+            tree->SetBranchAddress("MergeMethod", mergeData.data());
+            tree->Fill();
+         } else {
+            MsgStream log(Athena::getMessageSvc(), "OfflineHistogramProvider");
+            log << MSG::ERROR
+                << "Failed to retrieve DQ metadata TTree " << treePath << " which is reported to exist" << endmsg;
+         }
+      }
+   }
+   return StatusCode::SUCCESS;
 }

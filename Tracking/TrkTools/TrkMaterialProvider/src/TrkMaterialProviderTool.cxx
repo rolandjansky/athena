@@ -265,33 +265,33 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
 
 
 // Update Calorimeter TSOS using TG for the combined fit
-void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack) const
+void Trk::TrkMaterialProviderTool::updateCaloTSOS(const Trk::Track& idTrack, Trk::Track& extrapolatedTrack) const
 {
   ATH_MSG_VERBOSE("updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack)");    
   
-  DataVector<const Trk::TrackStateOnSurface>* inputTSOS_ID = idTrack.trackStateOnSurfaces();
+  const DataVector<const Trk::TrackStateOnSurface>* inputTSOS_ID = idTrack.trackStateOnSurfaces();
   DataVector<const Trk::TrackStateOnSurface>* inputTSOS_MS = extrapolatedTrack.trackStateOnSurfaces();
   
 
   // find last ID TSOS
-  DataVector<const Trk::TrackStateOnSurface>::iterator lastIDwP  = inputTSOS_ID->end();
-  DataVector<const Trk::TrackStateOnSurface>::iterator it        = inputTSOS_ID->end()-1;
-  DataVector<const Trk::TrackStateOnSurface>::iterator itFront   = inputTSOS_ID->begin();
-  while(*it) {
-    if(this->getVolumeByGeo(*it)==1 && (*it)->trackParameters()) {
-      lastIDwP = it;
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator lastIDwP  = inputTSOS_ID->end();
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator itID        = inputTSOS_ID->end()-1;
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator itFront   = inputTSOS_ID->begin();
+  while(*itID) {
+    if(this->getVolumeByGeo(*itID)==1 && (*itID)->trackParameters()) {
+      lastIDwP = itID;
       break;
     }
-    if(it==itFront) break;
-    --it;
+    if(itID==itFront) break;
+    --itID;
   }
   
   // find first MS TSOS
   DataVector<const Trk::TrackStateOnSurface>::iterator firstCALO = inputTSOS_MS->end();
   DataVector<const Trk::TrackStateOnSurface>::iterator firstMS   = inputTSOS_MS->end();
   DataVector<const Trk::TrackStateOnSurface>::iterator firstMSwP = inputTSOS_MS->end();
-  it = inputTSOS_MS->begin();
   DataVector<const Trk::TrackStateOnSurface>::iterator itEnd = inputTSOS_MS->end();
+  DataVector<const Trk::TrackStateOnSurface>::iterator it = inputTSOS_MS->begin();
   for(; it!=itEnd; ++it) {
 
 #ifdef DEBUGON

@@ -119,7 +119,9 @@ StatusCode MdtDigitizationTool::initialize() {
     ATH_MSG_DEBUG ( "Retrieved MdtIdHelper " << m_idHelper );
   }
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   // check the input object name
   if (m_hitsContainerKey.key().empty()) {

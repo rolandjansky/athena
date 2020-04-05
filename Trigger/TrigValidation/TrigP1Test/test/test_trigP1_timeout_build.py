@@ -6,7 +6,7 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-from TrigValTools.TrigValSteering import Test, ExecStep
+from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigP1Test.TrigP1TestSteps import TrigBSDumpGrepStep
 
 output_name_base = 'output.test_trigP1_timeout'
@@ -22,7 +22,10 @@ ex.args += ' -o ' + output_name_base
 test = Test.Test()
 test.art_type = 'build'
 test.exec_steps = [ex]
-test.check_steps = []
+test.check_steps = CheckSteps.default_check_steps(test)
+
+# Use special check_log config to ignore timeout errors which are expected in this test
+test.get_step('CheckLog').config_file = 'checklogTrigP1TimeoutTest.conf'
 
 # Step checking if there is at least one event in HltTimeout debug stream
 debug_count_step = TrigBSDumpGrepStep('DebugCount')

@@ -148,12 +148,8 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT16Stream )
 EXOT16Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT16Stream.AcceptAlgs(["EXOT16Kernel"])
 
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT16ThinningSvc", outStreams=[evtStream] )
 
 
 #=======================================
@@ -179,7 +175,7 @@ EXOT16StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "E
                                                                          expression = expression)
 
 ToolSvc += EXOT16StringSkimmingTool
-print EXOT16StringSkimmingTool
+printfunc (EXOT16StringSkimmingTool)
 
 
 # Tracks thinning 
@@ -285,7 +281,7 @@ thinningTools.append(EXOT16Ak10CCThinningTool)
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT16MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT16MCThinningTool",
-                                                             ThinningService = "EXOT16ThinningSvc",
+                                                             StreamName                 = streamName,
 	                                                     WritePartons               = False,
 	                                                     WriteHadrons               = True,
 	                                                     WriteBHadrons              = True,
@@ -306,7 +302,7 @@ EXOT16MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT16MCTh
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT16MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT16MCGenThinningTool",
-                                                                ThinningService = "EXOT16ThinningSvc",
+                                                                StreamName              = streamName,
                                                                 ParticleSelectionString = "abs(TruthParticles.pdgId) ==25 || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==32 || abs(TruthParticles.pdgId)==5100021", 
                                                                 PreserveDescendants = False)
 

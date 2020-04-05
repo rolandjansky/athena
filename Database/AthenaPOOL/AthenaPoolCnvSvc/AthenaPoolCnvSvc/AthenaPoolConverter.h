@@ -124,7 +124,7 @@ protected: // data
    const Token*          m_i_poolToken;
 
    typedef std::mutex CallMutex;
-   mutable CallMutex m_conv_mut;
+   CallMutex m_conv_mut;
 };
 
 #endif

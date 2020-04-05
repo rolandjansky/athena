@@ -23,11 +23,8 @@ streamName = derivationFlags.WriteDAOD_JETM6Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_JETM6Stream )
 JETM6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 JETM6Stream.AcceptAlgs(["JETM6MainKernel"])
-# for thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="JETM6ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # SKIMMING TOOL 
@@ -154,7 +151,7 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     JETM6TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM6TruthThinningTool",
-                                                                        ThinningService        = "JETM6ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         ParticleSelectionString = truth_expression,
                                                                         #PreserveDescendants     = preserveAllDescendants,
                                                                         PreserveDescendants     = False,

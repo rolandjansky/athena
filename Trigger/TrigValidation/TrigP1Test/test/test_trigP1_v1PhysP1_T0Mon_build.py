@@ -16,6 +16,7 @@ hlt = ExecStep.ExecStep()
 hlt.type = 'athenaHLT'
 hlt.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 hlt.input = 'data'
+hlt.max_events = 50
 hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
 hlt.args += ' -o output'
 
@@ -40,6 +41,7 @@ tzreco.type = 'Reco_tf'
 tzreco.threads = 1
 tzreco.input = ''
 tzreco.explicit_input = True
+tzreco.max_events = 50
 tzreco.args = '--inputBSFile=' + findFile('*.physics_Main*._athenaHLT*.data')  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
 tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''

@@ -186,7 +186,7 @@ private: // data
    coral::Context*                                   m_context{nullptr};
    pool::IFileCatalog*                               m_catalog{nullptr};
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
-   mutable std::vector<CallMutex*>                   m_pers_mut;
+   std::vector<CallMutex*>                           m_pers_mut;
    std::map<std::string, unsigned int>               m_contextLabel;
    std::string                                       m_mainOutputLabel{};
    std::map<unsigned int, unsigned int>              m_contextMaxFile;

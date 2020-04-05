@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/src/CondCont.cpp
@@ -844,11 +844,13 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
   CondContSet* tsmap ATLAS_THREAD_SAFE =
     const_cast<CondContSet*>(reinterpret_cast<const CondContSet*> (tsmap_void));
 
-  if (!r.start().isTimeStamp() || !r.stop().isTimeStamp())
+  // Only test start timestamp.  stop timestamp may be missing
+  // for open-ended ranges.
+  if (!r.start().isTimeStamp() )
   {
     MsgStream msg (Athena::getMessageSvc(), title());
     msg << MSG::ERROR << "CondContMixedBase::insertMixed: "
-        << "Range does not have both start and stop timestamps defined."
+        << "Range does not have start timestamp defined."
         << endmsg;
     return StatusCode::FAILURE;
   }

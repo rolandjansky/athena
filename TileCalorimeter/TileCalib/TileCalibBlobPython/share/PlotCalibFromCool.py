@@ -1,61 +1,62 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # PlotCalibFromCool.py
 # Using Part of ReadCalibfromCool.py to plot constants
 # Tigran Mkrtchyan 2017-06-15
 
+from __future__ import print_function
 
 
-import getopt,sys,os,string,math,re
+import getopt,sys,os,math
 os.environ['TERM'] = 'linux'
 
 def usage():
-    print "How to use: ",sys.argv[0]," [OPTION] ... "
-    print "Plots the TileCal constants from various schemas / folders / tags as a function of run number/ lumiblock"
-    print ""
-    print "-h, --help      shows this help"
-    print "-T, --tree      save all in a tree"
-    print "-o, --opt=      specify plotting option: line, noline or graph, bin, dist or 2d, default is dist"
-    print "-z, --zAxis=    specify label for Z axis on 2d plot"
-    print "-x, --noTitle   create plot without title"
-    print "-L, --label=    create plot with ATLAS/Tile label at the very top and this additional text"
-    print "-M, --label2=   second line of the label, if needed"
-    print "-P, --print     print all the values on the console"
-    print "-n, --norm      normalize everything to the first point"
-    print "-f, --folder=   specify status folder to use f.i. /TILE/OFL02/CALIB/CIS/LIN "
-    print "-t, --tag=      specify tag to use, f.i. UPD1 or UPD4 or full suffix like RUN2-HLT-UPD1-00"
-    print "-b, --begin=    specify the starting run number"
-    print "-e, --end=      sepcify the last run number"
-    print "-r, --run=      specify fixed run number, will plot constants as a function of lumi"
-    print "-l, --lumi=     specify lumi block number, default is 0"
-    print "-p, --part=     specify which partition to plot, only for --plotopt=2d"
-    print "-I, --modmin=   specify minimal module to use for 2D plot, default is 1"
-    print "-A, --modmax=   specify maximal module to use for 2D plot, default is 64"
-    print "-N, --chmin=    specify minimal channel to use for 2D plot, default is 0"
-    print "-X, --chmax=    specify maximal channel to use for 2D plot, default is 47"
-    print "-Y, --gmin=     specify minimal gain to use for print option, default is 0"
-    print "-Z, --gmax=     specify maximal gain to use for print option, default is 1"
-    print "-m, --module=   specify module to use for 1D plots, default is LBA01"
-    print "-c, --chan=     specify channel to use for 1D plots, default is 0"
-    print "-g, --gain=, -a, --adc=  specify adc(gain) to use, default is 0 (low gain)"
-    print "-v, --val=,  -i, --ind=  specify index of value to use, default is 0 "
-    print "-d, --vmin=     specify minimal value for plot"
-    print "-u, --vmax=     specify maximal value for plot"
-    print "-C, --cut=      specify additional cut on displayed values"
-    print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db"
-    print "-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2"
+    print ("How to use: ",sys.argv[0]," [OPTION] ... ")
+    print ("Plots the TileCal constants from various schemas / folders / tags as a function of run number/ lumiblock")
+    print ("")
+    print ("-h, --help      shows this help")
+    print ("-T, --tree      save all in a tree")
+    print ("-o, --opt=      specify plotting option: line, noline or graph, bin, dist or 2d, default is dist")
+    print ("-z, --zAxis=    specify label for Z axis on 2d plot")
+    print ("-x, --noTitle   create plot without title")
+    print ("-L, --label=    create plot with ATLAS/Tile label at the very top and this additional text")
+    print ("-M, --label2=   second line of the label, if needed")
+    print ("-P, --print     print all the values on the console")
+    print ("-n, --norm      normalize everything to the first point")
+    print ("-f, --folder=   specify status folder to use f.i. /TILE/OFL02/CALIB/CIS/LIN ")
+    print ("-t, --tag=      specify tag to use, f.i. UPD1 or UPD4 or full suffix like RUN2-HLT-UPD1-00")
+    print ("-b, --begin=    specify the starting run number")
+    print ("-e, --end=      sepcify the last run number")
+    print ("-r, --run=      specify fixed run number, will plot constants as a function of lumi")
+    print ("-l, --lumi=     specify lumi block number, default is 0")
+    print ("-p, --part=     specify which partition to plot, only for --plotopt=2d")
+    print ("-I, --modmin=   specify minimal module to use for 2D plot, default is 1")
+    print ("-A, --modmax=   specify maximal module to use for 2D plot, default is 64")
+    print ("-N, --chmin=    specify minimal channel to use for 2D plot, default is 0")
+    print ("-X, --chmax=    specify maximal channel to use for 2D plot, default is 47")
+    print ("-Y, --gmin=     specify minimal gain to use for print option, default is 0")
+    print ("-Z, --gmax=     specify maximal gain to use for print option, default is 1")
+    print ("-m, --module=   specify module to use for 1D plots, default is LBA01")
+    print ("-c, --chan=     specify channel to use for 1D plots, default is 0")
+    print ("-g, --gain=, -a, --adc=  specify adc(gain) to use, default is 0 (low gain)")
+    print ("-v, --val=,  -i, --ind=  specify index of value to use, default is 0 ")
+    print ("-d, --vmin=     specify minimal value for plot")
+    print ("-u, --vmax=     specify maximal value for plot")
+    print ("-C, --cut=      specify additional cut on displayed values")
+    print ("-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db")
+    print ("-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2")
 
 
 letters = "hr:l:s:t:f:D:a:g:b:e:o:z:xL:M:Pp:Tv:i:m:c:I:A:N:X:Y:Z:d:u:C:n"
 words = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","adc=","gain=","print","module=","opt=","zAxis=","noTitle","label=","label2=","chan=","begin=","end=","tree","val=","ind=","part=","modmin=","modmax=","chmin=","chmax=","gmin=","gmax=","vmin=","vmax=","cut=","norm"]
 try:
     options,args = getopt.getopt(sys.argv[1:],letters,words)
-except getopt.GetoptError, err:
-    print
-    print str(err)
-    print
+except getopt.GetoptError as err:
+    print ()
+    print (str(err))
+    print ()
     usage()
     sys.exit(2)
 
@@ -180,31 +181,38 @@ for o, a in options:
 if len(dbname)<7:
     dbname = 'COMP200' if max(begin,runNum)<232000 else 'CONDBR2'
 
-if not 'COOLO' in schema and not ':' in schema and not ';' in schema:
+if 'COOLO' not in schema and ':' not in schema and ';' not in schema:
     schema='sqlite://;schema='+schema+';dbname='+(dbname if len(dbname) else 'CONDBR2')
 
 if schema=='COOLONL_TILE/COMP200':
     if not (folderPath.startswith('/TILE/ONL01/') or folderPath.startswith('/TILE/OFL01/')):
-        print "Folder %s doesn't exist in schema %s " % (folderPath,schema)
+        print ("Folder %s doesn't exist in schema %s " % (folderPath,schema))
         sys.exit(2)
 
 if schema=='COOLONL_TILE/CONDBR2':
     if not folderPath.startswith('/TILE/ONL01/'):
-        print "Folder %s doesn't exist in schema %s, only /TILE/ONL01 " % (folderPath,schema)
+        print ("Folder %s doesn't exist in schema %s, only /TILE/ONL01 " % (folderPath,schema))
         sys.exit(2)
 
 if schema=='COOLOFL_TILE/COMP200' or schema=='COOLOFL_TILE/CONDBR2':
     if not folderPath.startswith('/TILE/OFL02/'):
-        print "Folder %s doesn't exist in schema %s " % (folderPath,schema)
+        print ("Folder %s doesn't exist in schema %s " % (folderPath,schema))
         sys.exit(2)
 
 
-if opt2d: plotopt = "2d"
-if plotopt == "print": print_msg = True
-elif plotopt == "line": line = True
-elif plotopt == "bin": vsbin = True
-elif plotopt == "noline" or plotopt == "graph": noline = True
-elif plotopt == "2d": opt2d = True; one_run = True
+if opt2d:
+    plotopt = "2d"
+if plotopt == "print":
+    print_msg = True
+elif plotopt == "line":
+    line = True
+elif plotopt == "bin":
+    vsbin = True
+elif plotopt == "noline" or plotopt == "graph":
+    noline = True
+elif plotopt == "2d":
+    opt2d = True
+    one_run = True
 
 chan_n=max(0,chan_n)
 gain_n=max(0,gain_n)
@@ -222,30 +230,37 @@ if opt2d:
     modulename=partname+"00"
 else:
     if len(modulename) < 5 or len(modulename) > 5:
-        print "Wrong module name:",modulename
+        print ("Wrong module name:",modulename)
         sys.exit(2)
     partname=modulename[:3]
     modnum=modulename[3:]
     if modnum.isdigit():
         mod_n=int(modnum)
         if mod_n<0 or mod_n>64:
-            print "Wrong module name:",modulename
+            print ("Wrong module name:",modulename)
             sys.exit(2)
         elif mod_n>0:
             modmin=mod_n
             modmax=mod_n
     else:
-        print "Wrong module name:",modulename
+        print ("Wrong module name:",modulename)
         sys.exit(2)
 
 part_dict = {'AUX':0,'LBA':1,'LBC':2,'EBA':3,'EBC':4,'ALL':5}
 if partname in part_dict:
     ros=part_dict[partname]
-    if ros==5: rosmin=0; rosmax=5; ros=-1
-    else: rosmin=ros; rosmax=ros+1
+    if ros==5:
+        rosmin=0
+        rosmax=5
+        ros=-1
+    else:
+        rosmin=ros
+        rosmax=ros+1
 else:
-    if opt2d: print "Wrong partition name:",partname
-    else: print "Wrong module name:",modulename
+    if opt2d:
+        print ("Wrong partition name:",partname)
+    else:
+        print ("Wrong module name:",modulename)
     sys.exit(2)
 
 many=False
@@ -268,7 +283,7 @@ if gainmin!=gainmax:
     gain_n = -1
 
 if one_run and plotopt == "dist":
-    print "Switching to noline mode"
+    print ("Switching to noline mode")
     noline = True
     plotopt = "noline"
 
@@ -286,21 +301,20 @@ elif gain_n == 1:
     gainname = "HG"
 else:
     gainname = "G"+str(gain_n)
-if val_n>0: gainname += " val[%d]" % (val_n)
+if val_n>0:
+    gainname += " val[%d]" % (val_n)
 
 
 import ROOT
 from ROOT import TCanvas, TH1D, TH2D, TGraph, TTree, TLegend, TLatex
 from ROOT import gROOT
 from ROOT import kTRUE
-from array import array
 import numpy as np
 
 
 from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobPython import TileCellTools
-from TileCalibBlobObjs.Classes import *
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobObjs.Classes import TileCalibUtils
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("PlotCalibFromCool")
 import logging
 logLevel=logging.DEBUG
@@ -312,11 +326,11 @@ folderPath=folderPath.split(",")
 folderTag=[]
 for fp in folderPath:
     ft = TileCalibTools.getFolderTag(schema , fp, tag)
-    log.info("Initializing folder %s with tag %s" % (fp, ft))
+    log.info("Initializing folder %s with tag %s", fp, ft)
     folderTag += [ft]
 multi=(len(folderPath)>1)
 if multi and many:
-    print "Can not calculate product of "+" ".join(folderPath)+" in multi-channel mode"
+    print ("Can not calculate product of "+" ".join(folderPath)+" in multi-channel mode")
     sys.exit(2)
 
 
@@ -340,7 +354,8 @@ for (fp,ft) in zip(folderPath,folderTag):
     br = TileCalibTools.TileBlobReader(idb,fp, ft)
     blobReader += [br]
     dbobjs = br.getDBobjsWithinRange(COOL_part, COOL_chan)
-    if (dbobjs == None): raise Exception("No DB objects retrieved when building IOV list!")
+    if (dbobjs is None):
+        raise Exception("No DB objects retrieved when building IOV list!")
     while dbobjs.goToNext():
       obj = dbobjs.currentRef()
       objsince = obj.since()
@@ -357,8 +372,8 @@ for (fp,ft) in zip(folderPath,folderTag):
       else:
           iov = (since, until)
       iovList.append(iov)
-  except:
-    print "Warning: can not read IOVs from input DB file"
+  except Exception:
+    print ("Warning: can not read IOVs from input DB file")
     sys.exit(2)
 
 if multi:
@@ -370,14 +385,14 @@ if multi:
             il.append(iov)
             iov1=iov2
     iovList=[]
-    for i in xrange(len(il)-1):
+    for i in range(len(il)-1):
         iovList.append(((il[i][0][0],il[i][0][1]),(il[i+1][1][0],il[i+1][1][1])))
     i=len(il)-1
     iovList.append(((il[i][0][0],il[i][0][1]),(0xFFFFFFFF,0xFFFFFFFF)))
 
 ###################################################################
-print "\nPlotting in %s mode" % plotopt
-print '-'*20
+print ("\nPlotting in %s mode" % plotopt)
+print ('-'*20)
 
 be=iovList[0][0][0]
 en=iovList[-1][0][0]
@@ -392,8 +407,10 @@ if one_run:
     if line or noline:
         lumiNum = 0
 else:
-    if begin <= 0: begin = be
-    if end <= 0: end = lastrun
+    if begin <= 0:
+        begin = be
+    if end <= 0:
+        end = lastrun
 
 veryEnd = end if (end<lastrun or begin>lastrun) else lastrun
 
@@ -410,38 +427,40 @@ if begin != be or end != en:
             en=run
             ie=i+1
     if be != begin:
-        print "Changing begin run from",begin,"to",be,"(start of IOV)"
+        print ("Changing begin run from",begin,"to",be,"(start of IOV)")
         begin=be
     if en != end:
-        if en>end: print "Changing end run from",end,"to",en,"(start of next IOV)"
-        else: print "Changing end run from",end,"to",en,"(start of last IOV)"
+        if en>end:
+            print ("Changing end run from",end,"to",en,"(start of next IOV)")
+        else:
+            print ("Changing end run from",end,"to",en,"(start of last IOV)")
         end=en
     iovList=iovList[ib:ie]
 
 if one_run:
     if opt2d and not (line or noline):
         iovList=iovList[:1]
-        print "Plotting values for (Run,Lumi) = (%i,%i) " % (runNum,lumiNum)
-        print "from IOV",iovList[0]
+        print ("Plotting values for (Run,Lumi) = (%i,%i) " % (runNum,lumiNum))
+        print ("from IOV",iovList[0])
     elif len(iovList)<=2 and iovList[-1][0][0]!=runNum:
-        print "Too few points to plot value as a function of lumi block"
-        print "Just one IOV around run", runNum
-        print iovList[0]
-        print "Plotting value as a function of run number"
+        print ("Too few points to plot value as a function of lumi block")
+        print ("Just one IOV around run", runNum)
+        print (iovList[0])
+        print ("Plotting value as a function of run number")
         one_run=False
     else:
-        print "Plotting Run: %i" % runNum
-        print "IOV around this run"
-        print iovList
+        print ("Plotting Run: %i" % runNum)
+        print ("IOV around this run")
+        print (iovList)
         if not line and runNum!=iovList[-1][0][0]:
             iovList=iovList[:-1]
 
 if not one_run:
-    print "Plotting Runs: %i to %i" % (begin, end)
-    print len(iovList),"different IOVs in total"
+    print ("Plotting Runs: %i to %i" % (begin, end))
+    print (len(iovList),"different IOVs in total")
     if iovList[0][0][0]!=begin or iovList[-1][0][0]!=end:
-        print "Congratulations! You found the bug in this script"
-        print "Please, contact authors"
+        print ("Congratulations! You found the bug in this script")
+        print ("Please, contact authors")
         sys.exit(2)
 
 ####################################################################
@@ -463,10 +482,13 @@ titsuff+=" Tag " + " ".join(folderTag)
 rlt=titsuff.replace(" ","_").replace("_Tag","")
 gtitle = modulename +" " + " Channel" +("s " if (chanmin!=chanmax) else " ") + channame +" " + gainname + titsuff
 
-if opt2d: fname="%s_g%d_v%d%s_%s" % ( partname,gain_n,val_n,rlt,plotopt)
-else: fname="%s_ch%s_g%d_v%d%s_%s" % ( modulename,channame,gain_n,val_n,rlt,plotopt)
+if opt2d:
+    fname="%s_g%d_v%d%s_%s" % ( partname,gain_n,val_n,rlt,plotopt)
+else:
+    fname="%s_ch%s_g%d_v%d%s_%s" % ( modulename,channame,gain_n,val_n,rlt,plotopt)
 
-if save_tree: tree_file = ROOT.TFile(fname+".root","RECREATE")
+if save_tree:
+    tree_file = ROOT.TFile(fname+".root","RECREATE")
 
 tree = TTree("tree","ttree")
 run_n = np.zeros(1, dtype = float)
@@ -484,8 +506,10 @@ tree.Branch("module",module_n,'module/I')
 tree.Branch("ros",ros_n,'ros/I')
 tree.Branch("labels", labels)
 tree.Branch("vals", vals)
-if multi: tree.Branch("value", value,'value/D')
-if norm: tree.Branch("scale", scale,'scale/D')
+if multi:
+    tree.Branch("value", value,'value/D')
+if norm:
+    tree.Branch("scale", scale,'scale/D')
 
 ####################################################################
 #Looping over iovs and filling the tree
@@ -507,8 +531,10 @@ for iovs in iovList:
         lumi = iovs[0][1]
         rl = "(%i,%i)" % (run,lumi)
         if one_run and run!=runNum:
-            if run<runNum: lumi=-1
-            if run>runNum: lumi=2000
+            if run<runNum:
+                lumi=-1
+            if run>runNum:
+                lumi=2000
             run=runNum
 
     run_n[0] = run
@@ -522,36 +548,39 @@ for iovs in iovList:
         vals.clear()
         value[0]=1.
 
-    for ros in xrange(rosmin,rosmax):
+    for ros in range(rosmin,rosmax):
         ros_n[0] = ros
-        for mod in xrange(modmin-1, min(modmax,TileCalibUtils.getMaxDrawer(ros))):
+        for mod in range(modmin-1, min(modmax,TileCalibUtils.getMaxDrawer(ros))):
             module_n[0] = mod
             modName = TileCalibUtils.getDrawerString(ros,mod)
             for (fp,ft,br) in zip(folderPath,folderTag,blobReader):
                 try:
                   flt = br.getDrawer(ros, mod,(run,lumi), False, False)   # modified
                   if flt is None or isinstance(flt, (int)):
-                      if one_iov or ros!=0: print "%s is missing in DB" % modName
+                      if one_iov or ros!=0:
+                          print ("%s is missing in DB" % modName)
                   else:
                       nchan = flt.getNChans()
                       ngain = flt.getNGains()
                       nval  = flt.getObjSizeUint32()
-                      for chn in xrange(chanmin,min(chanmax+1,nchan)):
-                          for adc in xrange(gainmin,min(gainmax+1,ngain)):
+                      for chn in range(chanmin,min(chanmax+1,nchan)):
+                          for adc in range(gainmin,min(gainmax+1,ngain)):
                               msg = "%s  %s %2i %1i  " % (rl, modName, chn, adc )
-                              for val in xrange(nval):
+                              for val in range(nval):
                                   msg += "  %f" % flt.getData(chn, adc, val)
                                   vals.push_back(flt.getData(chn, adc, val))
                                   if val==0:
                                       value[0] *= flt.getData(chn, adc, val)
                               if print_msg:
                                   if multi:
-                                      print fp,msg
+                                      print (fp,msg)
                                   else:
-                                      print msg
+                                      print (msg)
                           channel_n[0] = chn
-                          if one_run: labels.push_back(str(lumi))
-                          else: labels.push_back(str(run))
+                          if one_run:
+                              labels.push_back(str(lumi))
+                          else:
+                              labels.push_back(str(run))
                           if not multi or opt2d:
                               if first:
                                   if vals.size()>val_n:
@@ -563,8 +592,8 @@ for iovs in iovList:
                                   vals.clear()
                                   value[0] = 1.
 
-                except Exception, e:
-                  print e
+                except Exception as e:
+                  print (e)
 
             if multi and not opt2d and vals.size()>0:
                 if first:
@@ -617,7 +646,8 @@ else:
     data = "vals[" + str(val_n) + "]"
 
 if cut:
-    if not "val" in cut: cut = data + cut
+    if "val" not in cut:
+        cut = data + cut
     cut_cond = "(" + cut_cond + ") && (" + cut + ")"
 
 if norm:
@@ -634,25 +664,28 @@ elif one_run:
 
 cx = 1600
 cy = 800
-#if label is not None: cy = int(1.05*cy)
+#if label is not None:
+#  cy = int(1.05*cy)
 canv = TCanvas("PlotCalib","plotCalib",0,0,cx,cy)
 
 if opt2d:
     hhh = TH2D("hhh","hhh",modmax-modmin+1,modmin-0.5,modmax+0.5,chanmax-chanmin+1,chanmin-0.5,chanmax+0.5)
 
 if not many and not opt2d:
-    print "Plotting",data
-    print "With cut",cut_cond
-    if vsbin: tree.Draw(data,cut_cond,"goff",15)
-    else: tree.Draw(data,cut_cond,"goff")
+    print ("Plotting",data)
+    print ("With cut",cut_cond)
+    if vsbin:
+        tree.Draw(data,cut_cond,"goff",15)
+    else:
+        tree.Draw(data,cut_cond,"goff")
 
     if tree.GetSelectedRows() <= 0:
-        print "Not enough points to plot"
+        print ("Not enough points to plot")
         sys.exit(2)
 
     if vsbin:
         if tree.GetSelectedRows() >= 15:
-            print "Maximum number of bins is 15"
+            print ("Maximum number of bins is 15")
 
 if line or noline:
     if many:
@@ -664,10 +697,10 @@ if line or noline:
         cut0 = cut_cond
         data1 = data
         leg = TLegend(0.7,0.7,0.9,0.9)
-        for ros in xrange(rosmin,rosmax):
-            for mod in xrange(modmin-1, modmax):
-                for chn in xrange(chanmin,chanmax+1):
-                    for adc in xrange(gainmin,gainmax+1):
+        for ros in range(rosmin,rosmax):
+            for mod in range(modmin-1, modmax):
+                for chn in range(chanmin,chanmax+1):
+                    for adc in range(gainmin,gainmax+1):
                         if "%d" in data:
                             data1 = data.replace("%d",str((adc-gainmin)*nval+val_n))
                         if "%d" in cut_cond:
@@ -678,48 +711,64 @@ if line or noline:
                             color = color + 1
                             gr = TGraph(tree.GetSelectedRows(),tree.GetV2(),tree.GetV1())
                             yy=gr.GetY()
-                            for ii in xrange(len(yy)):
+                            for ii in range(len(yy)):
                                 vv=yy[ii]
-                                if vv<vmin: vmin=vv
-                                if vv>vmax: vmax=vv
+                                if vv<vmin:
+                                    vmin=vv
+                                if vv>vmax:
+                                    vmax=vv
                             grall += [gr]
-                            leg.AddEntry(gr,"%s%2.2d ch %2.2d" % ( part_dict.keys()[part_dict.values().index(ros)],mod+1,chn),"lep")
+                            leg.AddEntry(gr,"%s%2.2d ch %2.2d" % ( list(part_dict.keys())[list(part_dict.values()).index(ros)],mod+1,chn),"lep")
                             gr.SetMarkerStyle(20)
                             gr.SetMarkerSize(1.3)
                             gr.SetMarkerColor(color)
                             gr.SetLineColor(color)
                             if first:
-                                print "First plot:"
-                                print "Plotting",data1
-                                print "With cut",cut1
-                                print "Note that in TTree module number starts from 0"
+                                print ("First plot:")
+                                print ("Plotting",data1)
+                                print ("With cut",cut1)
+                                print ("Note that in TTree module number starts from 0")
                                 gr.SetTitle(gtitle)
                                 gr.GetXaxis().SetNoExponent(kTRUE)
-                                if one_run: gr.GetXaxis().SetTitle("Lumi")
-                                else: gr.GetXaxis().SetTitle("Runs")
-                                if noline: gr.Draw("ap")
-                                else: gr.Draw("apl")
+                                if one_run:
+                                    gr.GetXaxis().SetTitle("Lumi")
+                                else:
+                                    gr.GetXaxis().SetTitle("Runs")
+                                if noline:
+                                    gr.Draw("ap")
+                                else:
+                                    gr.Draw("apl")
                                 first=False
                             else:
-                                if noline: gr.Draw("p")
-                                else: gr.Draw("pl")
+                                if noline:
+                                    gr.Draw("p")
+                                else:
+                                    gr.Draw("pl")
         lg=len(grall)
         if lg==0:
-            print "Plotting",data
-            print "With cut",cut_cond
-            print "Not enough points to plot"
+            print ("Plotting",data)
+            print ("With cut",cut_cond)
+            print ("Not enough points to plot")
             sys.exit(2)
-        if lg>400: nc=20
-        elif lg>144: nc=int(math.sqrt(lg))
-        else: nc=int((lg-1)/12+1)
+        if lg>400:
+            nc=20
+        elif lg>144:
+            nc=int(math.sqrt(lg))
+        else:
+            nc=int((lg-1)/12+1)
         leg.SetNColumns(nc)
         extra = (2+0.4*int(lg/nc+1))
         dv=(vmax-vmin)/10.
-        if valmin is None: grall[0].SetMinimum(vmin-dv)
-        else:              grall[0].SetMinimum(valmin)
-        if valmax is None: grall[0].SetMaximum(vmax+dv*extra)
-        else:              grall[0].SetMaximum(valmax)
-        if nc>8: nc=8
+        if valmin is None:
+            grall[0].SetMinimum(vmin-dv)
+        else:
+            grall[0].SetMinimum(valmin)
+        if valmax is None:
+            grall[0].SetMaximum(vmax+dv*extra)
+        else:
+            grall[0].SetMaximum(valmax)
+        if nc>8:
+            nc=8
         leg.SetX1(0.9-0.1*nc)
         leg.SetY1(0.9-0.8*(extra-1)/(11+extra))
         leg.Draw()
@@ -731,12 +780,18 @@ if line or noline:
         gr.SetMarkerColor(2)
         gr.SetLineColor(2)
         gr.GetXaxis().SetNoExponent(kTRUE)
-        if one_run: gr.GetXaxis().SetTitle("Lumi")
-        else: gr.GetXaxis().SetTitle("Runs")
-        if valmin is not None: grall[0].SetMinimum(valmin)
-        if valmax is not None: grall[0].SetMaximum(valmax)
-        if noline: gr.Draw("ap")
-        else: gr.Draw("apl")
+        if one_run:
+            gr.GetXaxis().SetTitle("Lumi")
+        else:
+            gr.GetXaxis().SetTitle("Runs")
+        if valmin is not None:
+            grall[0].SetMinimum(valmin)
+        if valmax is not None:
+            grall[0].SetMaximum(valmax)
+        if noline:
+            gr.Draw("ap")
+        else:
+            gr.Draw("apl")
 
 elif opt2d:
     nentries = tree.GetEntries()
@@ -750,27 +805,29 @@ elif opt2d:
 
     if multi:
         Matrix = [[1 for y in range(48)] for x in range(64)]
-        for i in xrange(nentries):
+        for i in range(nentries):
             tree.GetEntry(i)
             if vals.size()>0:
                 x=int(module_n[0])
                 y=int(channel_n[0])
                 Matrix[x][y] *= vals[0]
         sc = Matrix[modmax-1][chanmax] if norm and Matrix[modmax-1][chanmax]>0 else 1
-        for x in xrange(modmin,modmax+1):
-            for y in xrange(chanmin,chanmax+1):
+        for x in range(modmin,modmax+1):
+            for y in range(chanmin,chanmax+1):
                 hhh.Fill(x, y, Matrix[x-1][y]/sc)
     else:
-        for i in xrange(nentries):
+        for i in range(nentries):
             tree.GetEntry(i)
-            #print ("%f %f %f") % (module_n[0], channel_n[0],vals[0])
+            #print (("%f %f %f") % (module_n[0], channel_n[0],vals[0]))
             if norm:
                 hhh.Fill(module_n[0]+1, channel_n[0],vals[val_n]/scale[0])
             else:
                 hhh.Fill(module_n[0]+1, channel_n[0],vals[val_n])
 
-    if valmin is not None: hhh.SetMinimum(valmin)
-    if valmax is not None: hhh.SetMaximum(valmax)
+    if valmin is not None:
+        hhh.SetMinimum(valmin)
+    if valmax is not None:
+        hhh.SetMaximum(valmax)
     hhh.Draw("colz")
 
 else:
@@ -785,26 +842,31 @@ else:
         h.SetMarkerSize(1.4)
         h.SetMarkerColor(2)
         h.GetXaxis().SetTitle("Run")
-        if one_run: h.GetXaxis().SetTitle("Lumi");  h.SetTitle(gtitle)
+        if one_run:
+            h.GetXaxis().SetTitle("Lumi")
+            h.SetTitle(gtitle)
         h.GetYaxis().SetTitle("")
         h.GetYaxis().SetTitleOffset(1.35)
-        if valmin is not None: h.SetMinimum(valmin)
-        if valmax is not None: h.SetMaximum(valmax)
+        if valmin is not None:
+            h.SetMinimum(valmin)
+        if valmax is not None:
+            h.SetMaximum(valmax)
     try:
         h.Draw()
-    except: print "Empty "
+    except Exception:
+        print ("Empty ")
 
 if label is not None:
     canv.SetTopMargin(0.15)
     x = 0.1
     y = 0.93
     dy = 0.05
-    delx = 0.115*696*ROOT.gPad.GetWh()/(472*ROOT.gPad.GetWw());
+    delx = 0.115*696*ROOT.gPad.GetWh()/(472*ROOT.gPad.GetWw())
 
-    l = TLatex()
-    l.SetNDC()
-    l.SetTextFont(72);
-    l.DrawLatex(x,y,"ATLAS");
+    lat = TLatex()
+    lat.SetNDC()
+    lat.SetTextFont(72)
+    lat.DrawLatex(x,y,"ATLAS")
     p = TLatex()
     p.SetNDC()
     p.SetTextFont(42)
@@ -817,15 +879,17 @@ if label is not None:
         p.DrawLatex(x,y,label)
         p.DrawLatex(x,y-dy,label2)
 
-canv.SetGridx();
-canv.SetGridy();
+canv.SetGridx()
+canv.SetGridy()
 
 canv.Update()
 
 ##########################################################
 
-if valmin is not None: fname += "_min_%s" % (valmin)
-if valmax is not None: fname += "_max_%s" % (valmax)
+if valmin is not None:
+    fname += "_min_%s" % (valmin)
+if valmax is not None:
+    fname += "_max_%s" % (valmax)
 
 canv.Print(fname+".eps")
 canv.Print(fname+".png")

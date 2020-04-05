@@ -25,15 +25,15 @@ def generateChains(flags, chainDict):
                                 name = 'L2PhotonCaloHypo',
                                 CaloClusters = recordable('HLT_L2CaloEMClusters') )
 
-    l2CaloHypo.HypoTools = [ TrigL2CaloHypoToolFromDict(chainDict) ]
-
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
     fastCaloSequence = CAMenuSequence( Sequence = l2CaloReco.sequence(),
                                      Maker = l2CaloReco.inputMaker(),
                                      Hypo = l2CaloHypo,
-                                     HypoToolGen = None,
+                                     HypoToolGen = TrigL2CaloHypoToolFromDict,
                                      CA = accCalo )
+
+    fastCaloSequence.createHypoTools(chainDict)
 
     fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
 
@@ -51,15 +51,15 @@ def generateChains(flags, chainDict):
                                     Photons = 'HLT_L2Photons',
                                     RunInView = True )
 
-    l2PhotonHypo.HypoTools = [ TrigL2PhotonHypoToolFromDict(chainDict) ]
-
     accPhoton.addEventAlgo(l2PhotonHypo, sequenceName=stepView.getName())
 
     l2PhotonSequence = CAMenuSequence( Sequence = l2PhotonReco.sequence(),
                                      Maker = l2PhotonReco.inputMaker(),
                                      Hypo = l2PhotonHypo,
-                                     HypoToolGen = None,
+                                     HypoToolGen = TrigL2PhotonHypoToolFromDict,
                                      CA = accPhoton )
+
+    l2PhotonSequence.createHypoTools(chainDict)
 
     l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence])
 

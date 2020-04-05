@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPCHitsTestTool.h"
@@ -25,7 +25,7 @@
 #include "TTree.h"
 
 Identifier RPCHitsTestTool::getIdentifier(HitID rpchit) {
-  RpcHitIdHelper* rpchelper = RpcHitIdHelper::GetHelper();
+  RpcHitIdHelper* rpchelper = RpcHitIdHelper::GetHelper(m_pRpcIdHelper->gasGapMax());
   std::string rpc_stname = rpchelper->GetStationName(rpchit);
   int         rpc_steta  = rpchelper->GetZSector(rpchit);
   int         rpc_stphi  = rpchelper->GetPhiSector(rpchit);

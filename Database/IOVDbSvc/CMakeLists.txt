@@ -198,7 +198,7 @@ atlas_add_test( Base64Codec_test
                 )
 
 
-if( NOT SIMULATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
   atlas_add_test( IOVDbSvcCfgTest SCRIPT python -m IOVDbSvc.IOVDbSvcConfig POST_EXEC_SCRIPT nopost.sh )
 endif()
 

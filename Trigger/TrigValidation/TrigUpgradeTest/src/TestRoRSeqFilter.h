@@ -6,7 +6,7 @@
 
 
 #include <string>
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 namespace HLTTest {

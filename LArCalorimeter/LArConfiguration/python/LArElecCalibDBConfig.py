@@ -63,6 +63,15 @@ def LArElecCalibDBRun2Cfg(ConfigFlags,condObjs):
 
 
     for condData in condObjs:
+        if condData == "fSampl" and ConfigFlags.Overlay.DataOverlay:
+            LArMCSymCondAlg = CompFactory.LArMCSymCondAlg
+            result.addCondAlgo(LArMCSymCondAlg(ReadKey="LArOnOffIdMap"))
+            from IOVDbSvc.IOVDbSvcConfig import addFolders
+            # TODO: does this need to be configurable?
+            result.merge(addFolders(ConfigFlags, "/LAR/ElecCalibMC/fSampl", "LAR_OFL", className="LArfSamplMC", tag="LARElecCalibMCfSampl-G496-19213-FTFP_BERT_BIRK", db="OFLP200"))
+            result.addCondAlgo(LArfSamplSymAlg(ReadKey="LArfSampl", WriteKey="LArfSamplSym"))
+            continue
+
         try:
             outputKey,fldr,calg=_larCondDBFoldersDataR2[condData]
         except KeyError:
@@ -75,15 +84,21 @@ def LArElecCalibDBRun2Cfg(ConfigFlags,condObjs):
             fldr="/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+ConfigFlags.LAr.OFCShapeFolder
             dbString="<db>COOLOFL_LAR/CONDBR2</db>"
             persClass="LArOFCComplete"
+            calg = None
+            if ConfigFlags.Overlay.DataOverlay and ConfigFlags.LAr.OFCShapeFolder == "4samples1phase":
+                dbString+="<tag>LARElecCalibOflOFCPhysWaveRTM4samples1phase-RUN2-UPD4-00</tag>"
         if len(ConfigFlags.LAr.OFCShapeFolder)>0 and condData=="Shape":
             fldr="/LAR/ElecCalibOfl/Shape/RTM/"+ConfigFlags.LAr.OFCShapeFolder
             dbString="<db>COOLOFL_LAR/CONDBR2</db>"
             persClass="LArShapeComplete"
-        
+            calg = None
+            if ConfigFlags.Overlay.DataOverlay and ConfigFlags.LAr.OFCShapeFolder == "4samples1phase":
+                dbString+="<tag>LARElecCalibOflShapeRTM4samples1phase-RUN2-UPD4-00</tag>"
 
         iovDbSvc.Folders.append(fldr+dbString)# (addFolder(ConfigFlags,fldr,"LAR_ONL",'CondAttrListCollection'))
         condLoader.Load.append((persClass,fldr))
-        result.addCondAlgo(calg (ReadKey=fldr, WriteKey=outputKey))
+        if calg is not None:
+            result.addCondAlgo(calg (ReadKey=fldr, WriteKey=outputKey))
 
     return result
 

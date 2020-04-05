@@ -27,7 +27,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 JETM11StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM11StringSkimmingTool",
                                                                        expression = cutExpression)
 ToolSvc += JETM11StringSkimmingTool
-print JETM11StringSkimmingTool
+printfunc (JETM11StringSkimmingTool)
 
 #======================================================================================================================
 # AUGMENTATION TOOL

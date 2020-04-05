@@ -2,6 +2,7 @@
 
 """Define method to construct configured Tile hits to TTL1 algorithm"""
 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -40,6 +41,9 @@ def TileHitToTTL1Cfg(flags, **kwargs):
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault('TileTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.BkgPrefix + 'TileTTL1MBTS')
+    elif flags.Detector.OverlayTile:
+        kwargs.setdefault('TileTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1Cnt')
+        kwargs.setdefault('TileMBTSTTL1Container', flags.Overlay.SigPrefix + 'TileTTL1MBTS')
     else:
         kwargs.setdefault('TileTTL1Container', 'TileTTL1Cnt')
         kwargs.setdefault('TileMBTSTTL1Container', 'TileTTL1MBTS')
@@ -81,8 +85,14 @@ def TileTTL1OutputCfg(flags, TileHitToTTL1):
     mbtsTTL1Container = mbtsTTL1Container.split('+').pop()
     outputItemList += ['TileTTL1Container#' + mbtsTTL1Container]
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc = OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList)
+    acc = ComponentAccumulator()
+    if flags.Output.doWriteRDO:
+        if flags.Digitization.TruthOutput:
+            outputItemList += ["CaloCalibrationHitContainer#*"]
+            from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList))
 
     return acc
 

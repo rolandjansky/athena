@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import AthenaPython.PyAthena as PyAthena
 from array import array
@@ -70,7 +70,7 @@ class L1CaloDumpRampDataAlgorithm(PyAthena.Alg):
             del ey[:]
 
             coolId, rampData = (rampDataContainerIt.first, rampDataContainerIt.second)
-            for step in xrange(rampData.getNSteps()):
+            for step in range(rampData.getNSteps()):
                 if step != 0 and rampData.getLevel1(step).mean() < x[-1]:
                     continue # protect against saturated tower problems
                 x.append(rampData.getLevel1(step).mean())
@@ -81,7 +81,7 @@ class L1CaloDumpRampDataAlgorithm(PyAthena.Alg):
             if len(x) == 0: continue
             try:
                 ramp = ROOT.TGraphErrors(len(x), x, y, ex, ey)
-            except Exception, e:
+            except Exception as e:
                 traceback.print_exc(e)
                 continue
             
@@ -92,7 +92,7 @@ class L1CaloDumpRampDataAlgorithm(PyAthena.Alg):
                 chi2 = attrList["Chi2"]
                 func.SetParameters(offset, slope)
 
-            except Exception,e:
+            except Exception as e:
                 self.msg.warning("Could not obtain fit data from database.")
 
                 func.SetParameters(0., 1.)
@@ -111,7 +111,7 @@ class L1CaloDumpRampDataAlgorithm(PyAthena.Alg):
 
         try:
             rootfile.Close()
-        except Exception, e:
+        except Exception as e:
             traceback.print_exc(e)
 
         xmlfile.write("</TriggerTowerDecoratorData>\n")

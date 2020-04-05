@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigRNNOutputCnv.h"
@@ -42,7 +42,7 @@ TrigRNNOutput* TrigRNNOutputCnv::createTransient()
   
   if (compareClassGuid(tlp1_guid)) {
     mlog << MSG::DEBUG << "TrigRNNOutputCnv::reading tlp1 persistent object" << endmsg;
-    std::auto_ptr< TrigRNNOutput_tlp1 >   col_vect( this->poolReadObject< TrigRNNOutput_tlp1 >() );
+    std::unique_ptr< TrigRNNOutput_tlp1 >   col_vect( this->poolReadObject< TrigRNNOutput_tlp1 >() );
     trans_cont = m_impl->m_TPConverter.createTransient( col_vect.get(), mlog );
   }  else {
     throw std::runtime_error("Unsupported persistent version of Data container");

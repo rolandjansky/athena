@@ -6,27 +6,38 @@ from AthenaCommon.Constants import DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
 class MuonPrdCacheNames(object):
-    MdtCache  = "MdtPrdCache"
-    CscCache  = "CscPrdCache"
-    RpcCache  = "RpcPrdCache"
-    TgcCache  = "TgcPrdCache"
-    sTgcCache = "sTgcPrdCache"
-    MmCache   = "MmPrdCache"  
+    MdtCache       = "MdtPrdCache"
+    CscCache       = "CscPrdCache"
+    CscStripCache  = "CscStripPrdCache"
+    RpcCache       = "RpcPrdCache"
+    TgcCache       = "TgcPrdCache"
+    sTgcCache      = "sTgcPrdCache"
+    MmCache        = "MmPrdCache"
+    RpcCoinCache   = "RpcCoinCache"  
+    TgcCoinCache   = "TgcCoinCache"
 
 ## This configuration function creates the IdentifiableCaches for PRD
 #
 # The function returns a ComponentAccumulator which should be loaded first
 # If a configuration wants to use the cache, they need to use the same names as defined here
 def MuonPrdCacheCfg():
+    # Use MuonGeometryFlags to identify which configuration is being used
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
     acc = ComponentAccumulator()
 
     MuonPRDCacheCreator=CompFactory.MuonPRDCacheCreator
-    cacheCreator = MuonPRDCacheCreator(MdtCacheKey  = MuonPrdCacheNames.MdtCache,
-                                       CscCacheKey  = MuonPrdCacheNames.CscCache,
-                                       RpcCacheKey  = MuonPrdCacheNames.RpcCache,
-                                       TgcCacheKey  = MuonPrdCacheNames.TgcCache,
-                                       sTgcCacheKey = MuonPrdCacheNames.sTgcCache,
-                                       MmCacheKey   = MuonPrdCacheNames.MmCache)
+    cacheCreator = MuonPRDCacheCreator(CscStripCacheKey  = (MuonPrdCacheNames.CscStripCache if MuonGeometryFlags.hasCSC() else ""),
+                                       MdtCacheKey       = MuonPrdCacheNames.MdtCache,
+                                       CscCacheKey       = (MuonPrdCacheNames.CscCache if MuonGeometryFlags.hasCSC() else ""),
+                                       RpcCacheKey       = MuonPrdCacheNames.RpcCache,
+                                       TgcCacheKey       = MuonPrdCacheNames.TgcCache,
+                                       sTgcCacheKey      = (MuonPrdCacheNames.sTgcCache if MuonGeometryFlags.hasSTGC() else ""),
+                                       MmCacheKey        = (MuonPrdCacheNames.MmCache if MuonGeometryFlags.hasMM() else ""),
+                                       TgcCoinCacheKey   = MuonPrdCacheNames.TgcCoinCache,
+                                       RpcCoinCacheKey   = MuonPrdCacheNames.RpcCoinCache,
+                                       )
+
     acc.addEventAlgo( cacheCreator, primary=True )
     return acc
 

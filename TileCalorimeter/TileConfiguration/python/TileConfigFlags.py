@@ -31,6 +31,7 @@ def createTileConfigFlags():
      tcf.addFlag('Tile.correctPedestalDifference', _correctPedestalDifference)
      tcf.addFlag('Tile.RawChannelContainer', _getRawChannelContainer)
      tcf.addFlag('Tile.useDCS', _useDCS)
+     tcf.addFlag('Tile.TimingType', _getTimingType)
 
      return tcf
 
@@ -144,11 +145,21 @@ def _getRawChannelContainer(prevFlags):
      if prevFlags.Tile.doOpt2:
           rawChannelContainer = 'TileRawChannelOpt2'
      if prevFlags.Tile.doOptATLAS:
-          rawChannelContainer = 'TileRawChannelCnt' if prevFlags.Input.isMC else 'TileRawChannelFixed'
+          if not (prevFlags.Input.isMC or prevFlags.Overlay.DataOverlay) and prevFlags.Input.Format == 'BS':
+               rawChannelContainer = 'TileRawChannelFixed'                                                   
+          else:                               
+               rawChannelContainer = 'TileRawChannelCnt'
 
      return rawChannelContainer
 
 
+def _getTimingType(prevFlags):
+     # Tile timing types: PHY, LAS, GAP/LAS, CIS
+     timingType = {'PHY' : 'PHY', 'PED' : 'PHY',
+                   'LAS' : 'LAS', 'BILAS' : 'LAS', 'GAPLAS' : 'GAP/LAS',
+                   'CIS' : 'CIS', 'MONOCIS' : 'CIS'}
+
+     return timingType.get(prevFlags.Tile.RunType, 'UNDEFINED')
 
 if __name__=="__main__":
      import sys

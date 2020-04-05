@@ -79,6 +79,7 @@ foreach( name SiWidthCnv_p1_test SiWidthCnv_p2_test PixelClusterCnv_p1_test
       SOURCES test/${name}.cxx
       LINK_LIBRARIES InDetEventTPCnv GaudiKernel IdDictParser
       SGTools InDetReadoutGeometry TestTools InDetIdentifier
+      LOG_IGNORE_PATTERN "^ *DEBUG |Strip range"
       ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 endforeach()

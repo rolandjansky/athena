@@ -13,19 +13,19 @@ else:
 
 if LevelOfAlignment == 0:
 
-    print "|=================================================================================================================================|"
-    print "|========================================== Reading the Global (L1) TRT alignment ================================================|"
-    print "|=================================================================================================================================|"
+    print ("|=================================================================================================================================|")
+    print ("|========================================== Reading the Global (L1) TRT alignment ================================================|")
+    print ("|=================================================================================================================================|")
         
 
 elif LevelOfAlignment == 1:
 
-    print "|=================================================================================================================================|"
-    print "|========================================== Reading the Internal (L2) TRT alignment ==============================================|"
-    print "|=================================================================================================================================|"
+    print ("|=================================================================================================================================|")
+    print ("|========================================== Reading the Internal (L2) TRT alignment ==============================================|")
+    print ("|=================================================================================================================================|")
 
 else:
-    print "LevelOfAlignment is not set properly"
+    print ("LevelOfAlignment is not set properly")
     sys.exit(0)
 
 #==========================================================#
@@ -40,16 +40,16 @@ else:
     modDict = getModules()
     DofNotAligned = getDofNotAligned()
     
-print modDict
+print (modDict)
 # Getting the DoF not aligned
 
 
 #==========write out dofs which aren't being aligned=========
 for i in range(DofNotAligned.__len__()):
-    print "!========================== Warning, ",DofNotAligned[i], " is being ignored! ==================!"
+    print ("!========================== Warning, ",DofNotAligned[i], " is being ignored! ==================!")
 
 if doCSCTruth:
-    print "!========================== Warning, we are comparing to the CSC truth   ==================!"
+    print ("!========================== Warning, we are comparing to the CSC truth   ==================!")
 
 #=============== Things needed for both the L1 and L2 alignment =================
 #====total chi2====#
@@ -112,25 +112,25 @@ def drawStats():
             totChi2[i]
             TotalChi2Graph.SetPoint(i,i,totChi2[i] )
         except:
-            print "totChi2 not filled"
+            print ("totChi2 not filled")
 
         try:
             chngChi2[i]
             ChangeInChi2Graph.SetPoint(i,i,chngChi2[i] )
         except:
-            print "changeinchi2 not filled"
+            print ("changeinchi2 not filled")
 
         try:
             procTracks[i]
             ProcTracksGraph.SetPoint(i,i,procTracks[i] )
         except:
-            print "procTracks not filled"
+            print ("procTracks not filled")
 
         try:
             procHits[i]
             ProcHitsGraph.SetPoint(i,i,procHits[i] )
         except:
-            print "procHits not filled"
+            print ("procHits not filled")
         
     c0 = TCanvas("Statistics vs iteration","title",1050,750)
     c0.Divide(2,2)
@@ -155,7 +155,7 @@ def drawModule(module):
     printout = "|        "+str(bec)+"/"+str(lay)+"/"+str(phi)+"     "
     while printout.__len__() < 20:
         printout = printout + " "
-    print printout+"|",
+    print (printout+"|", end='')
 
     
     m_c2 = TCanvas("Change in Chi2","Chi2 for module: Layer:"+str(lay)+" Phi "+str(phi),700,500)
@@ -177,7 +177,7 @@ def drawModule(module):
         
         while printout.__len__() < 20:
             printout = printout + " "
-        print printout+"|",
+        print (printout+"|", end='')
 
         
     #Dy
@@ -192,7 +192,7 @@ def drawModule(module):
         
         while printout.__len__() < 20:
             printout = printout + " "
-        print printout+"|",
+        print (printout+"|", end='')
 
     #Dz
     if "Dz" not in DofNotAligned:
@@ -205,7 +205,7 @@ def drawModule(module):
         printout =  "    "+printerror(module.tot["dz"], module.err["dz"])
         while printout.__len__() < 20:
             printout = printout + " "
-        print printout+"|",
+        print (printout+"|", end='')
             
     zeroLine.Draw("same")
     #=======Total Translations
@@ -240,7 +240,7 @@ def drawModule(module):
         printout =  "  "+printerror(module.tot["rotx"], module.err["rotx"])
         while printout.__len__() < 20:
             printout = printout + " "
-        print printout+"|",
+        print (printout+"|", end='')
 
     
     #Roty
@@ -254,7 +254,7 @@ def drawModule(module):
         printout =  "  "+printerror(module.tot["roty"], module.err["roty"])
         while printout.__len__() < 20:
             printout = printout + " "
-        print printout+"|",
+        print (printout+"|", end='')
 
 
     #Rotz
@@ -267,7 +267,7 @@ def drawModule(module):
         printout =  "  "+printerror(module.tot["rotz"], module.err["rotz"])
         while printout.__len__() < 20:
             printout = printout + " "
-        print printout+"|",
+        print (printout+"|", end='')
         
     zeroLine.Draw("same")
     #=========Total Rotations
@@ -291,7 +291,7 @@ def drawModule(module):
         else:
             module.drawTotRotz("PL")
 
-    print ""
+    print ("")
 
     zeroLine.Draw("same")
     #========The Chi2
@@ -341,4 +341,4 @@ if LevelOfAlignment == 1:
     if doCSCTruth:
         include("InDetAlignExample/CSCTruthPlots.py")
 
-print "We've loaded all the functions ======== Exiting AlignmentHistoSetup.py"
+print ("We've loaded all the functions ======== Exiting AlignmentHistoSetup.py")

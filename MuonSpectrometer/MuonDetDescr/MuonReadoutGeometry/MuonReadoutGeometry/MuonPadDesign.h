@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -11,8 +11,6 @@
 #define MUONTRACKINGGEOMETRY_MUONPADDESIGN_H
 
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace MuonGM {
 
@@ -53,7 +51,7 @@ namespace MuonGM {
     double lWidth;
     double Size;
     double thickness;
-    mutable double radialDistance; ///< DT-2015-11-29 distance from the beamline to the center of the module
+    double radialDistance; ///< DT-2015-11-29 distance from the beamline to the center of the module
 
     double sPadWidth;
     double lPadWidth;
@@ -111,7 +109,7 @@ namespace MuonGM {
     double gasGapThickness() const;
 
     /** access to cache */
-    void setR( double R) const {this->radialDistance = R; }
+    void setR( double R) {this->radialDistance = R; }
 
   };
 

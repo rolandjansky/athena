@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfIO/TrigDBJobOptionsLoader.h"
@@ -95,7 +95,7 @@ TrigConf::TrigDBJobOptionsLoader::loadJobOptions ( unsigned int smk,
                                                    DataStructure & jobOptions ) const
 {
 
-   boost::property_tree::ptree ptJobOptions, pthlt;
+   boost::property_tree::ptree ptJobOptions;
 
    bool success = this -> loadJobOptions( smk, ptJobOptions);
 
@@ -103,7 +103,7 @@ TrigConf::TrigDBJobOptionsLoader::loadJobOptions ( unsigned int smk,
       return false;
 
    if( ! ptJobOptions.empty() )
-      jobOptions.setData(ptJobOptions);
+      jobOptions.setData(std::move(ptJobOptions));
 
    return true;
 }

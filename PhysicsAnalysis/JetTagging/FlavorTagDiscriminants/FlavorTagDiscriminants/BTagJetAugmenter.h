@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAG_JET_AUGMENTER_HH
@@ -15,20 +15,61 @@ class BTagJetAugmenter
 {
 public:
   typedef FlavorTagDiscriminants::FlipTagConfig FlipTagConfig;
-  BTagJetAugmenter(FlipTagConfig flip = FlipTagConfig::STANDARD);
+  BTagJetAugmenter(std::string associator, FlipTagConfig flip = FlipTagConfig::STANDARD);
   ~BTagJetAugmenter();
   BTagJetAugmenter(BTagJetAugmenter&&);
   void augmentJfDr(const xAOD::BTagging &btag);
   void augmentIpRatios(const xAOD::BTagging &btag);
+  void augmentBtagJes(const xAOD::Jet &target, const xAOD::Jet &uncalib);
   void augment(const xAOD::Jet &jet);
   void augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet);
+
+  std::string get_pt_uncalib_key();
+  std::string get_eta_uncalib_key();
+  std::string get_abs_eta_uncalib_key();
+
+  std::string get_ip2d_nTrks_key();
+  std::string get_ip2d_isDefaults_key();
+  std::string get_ip2d_cu_key();
+  std::string get_ip2d_bu_key();
+  std::string get_ip2d_bc_key();
+
+  std::string get_ip3d_nTrks_key();
+  std::string get_ip3d_isDefaults_key();
+  std::string get_ip3d_cu_key();
+  std::string get_ip3d_bu_key();
+  std::string get_ip3d_bc_key();
+
+  std::string get_jf_isDefaults_key();
+  std::string get_jf_deltaR_key();
+
+  std::string get_sv1_isDefaults_key();
+
+  std::string get_secondaryVtx_isDefaults_key();
+  std::string get_secondaryVtx_nTrks_key();
+  std::string get_secondaryVtx_m_key();
+  std::string get_secondaryVtx_E_key();
+  std::string get_secondaryVtx_EFrac_key();
+  std::string get_secondaryVtx_L3d_key();
+  std::string get_secondaryVtx_Lxy_key();
+  std::string get_secondaryVtx_min_trk_flightDirRelEta_key();
+  std::string get_secondaryVtx_max_trk_flightDirRelEta_key();
+  std::string get_secondaryVtx_avg_trk_flightDirRelEta_key();
+  std::string get_min_trk_flightDirRelEta_key();
+  std::string get_max_trk_flightDirRelEta_key();
+  std::string get_avg_trk_flightDirRelEta_key();
+
+  std::string get_smt_isDefaults_key();
+
+  std::string get_rnnip_isDefaults_key();
+
 private:
   bool jfIsDefaults(const xAOD::BTagging &btag);
   typedef SG::AuxElement AE;
 
-  AE::Decorator<double> m_pt_uncalib;
-  AE::Decorator<double> m_eta_uncalib;
-  AE::Decorator<double> m_abs_eta_uncalib;
+  AE::Decorator<float> m_pt_uncalib;
+  AE::Decorator<float> m_eta_uncalib;
+  AE::Decorator<float> m_abs_eta_uncalib;
 
   AE::ConstAccessor<std::vector<float> > m_ip2d_weightBOfTracks;
   AE::Decorator<int> m_ip2d_nTrks;

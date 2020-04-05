@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaL1TopoHistSvc.h"
@@ -43,7 +43,7 @@ public:
    TH1 * findHist(const std::string & histName) {
       TH1 * h;
       string fullName( m_baseDir + histName );
-      m_histSvc->getHist(fullName, h);
+      m_histSvc->getHist(fullName, h).ignore();
       TRG_MSG_DEBUG("findHist(" << histName << ") found: " << (void*)h);
       return h;
    }

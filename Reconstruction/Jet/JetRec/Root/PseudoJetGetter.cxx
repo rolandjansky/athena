@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PseudoJetGetter.cxx
@@ -12,7 +12,9 @@
 #include "xAODBase/IParticleContainer.h"
 #include "JetRec/IParticleExtractor.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#ifndef GENERATIONBASE
 #include "xAODPFlow/PFOContainer.h"
+#endif
 
 using std::string;
 using jet::PseudoJetVector;
@@ -133,7 +135,9 @@ const PseudoJetContainer* PseudoJetGetter::getC() const {
 
 std::vector<PseudoJet> 
 PseudoJetGetter::createPseudoJets(const xAOD::IParticleContainer* ips) const{
+#ifndef GENERATIONBASE
   if (m_pflow) {return PFlowsToPJs(ips);}
+#endif
   if (m_emtopo) {return EMToposToPJs(ips);}
   return IParticlesToPJs(ips);
 }
@@ -214,7 +218,7 @@ PseudoJetGetter::EMToposToPJs(const xAOD::IParticleContainer* ips) const {
   return vpj;
 }
 
-
+#ifndef GENERATIONBASE
 struct PFlowRejecter{
 
   bool skipNegativeEnergy{false};
@@ -267,7 +271,7 @@ PseudoJetGetter::PFlowsToPJs(const xAOD::IParticleContainer* ips) const {
   }
   return vpj;
 }
-
+#endif
 
 //**********************************************************************
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelKernel/GeoBox.h"
@@ -95,7 +95,7 @@ StatusCode GeoModelSvc::initialize()
   Service* convSvc=dynamic_cast<Service*>(conversionSvc.get());
   if (convSvc->FSMState() < Gaudi::StateMachine::INITIALIZED) {
     ATH_MSG_INFO("Explicitly initializing DetDescrCnvSvc");
-    convSvc->sysInitialize();
+    ATH_CHECK( convSvc->sysInitialize() );
   } 
 
   ATH_CHECK( m_detectorTools.retrieve() );
@@ -263,7 +263,8 @@ StatusCode GeoModelSvc::geoInit()
   }
 
   if(!m_ignoreTagSupport) {
-    RDBTagDetails atlasTagDetails = rdbAccess->getTagDetails(m_AtlasVersion);
+    RDBTagDetails atlasTagDetails;
+    rdbAccess->getTagDetails(atlasTagDetails, m_AtlasVersion);
     const coral::AttributeSpecification& supportedSpec = atlasTagDetails["SUPPORTED"].specification();
     if(supportedSpec.type()==typeid(bool)) {
       if(!atlasTagDetails["SUPPORTED"].data<bool>()) {

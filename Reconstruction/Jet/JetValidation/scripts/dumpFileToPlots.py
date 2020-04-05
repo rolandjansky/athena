@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # External dependencies
 import ROOT
@@ -19,10 +21,10 @@ treeName = "physics"
 pdfName  = "plots.pdf"
 
 if len(sys.argv) < 2:
-  print "Too few arguments.  Expected the following:"
-  print "1. Root file to dump (required)"
-  print "2. Tree name in the file (optional, default=\"physics\")"
-  print "3. Output plot file (optional, default=\"plots.pdf\")"
+  print ("Too few arguments.  Expected the following:")
+  print ("1. Root file to dump (required)")
+  print ("2. Tree name in the file (optional, default=\"physics\")")
+  print ("3. Output plot file (optional, default=\"plots.pdf\")")
   if not IsDebug:
     exit(1)
 
@@ -37,9 +39,9 @@ if len(sys.argv) > 3:
 inFile = ROOT.TFile(fileName,"READ")
 tree   = inFile.Get(treeName)
 if not isinstance(tree,ROOT.TTree) :
-  print "File does not contain the specified tree.  Is the tree name correct?"
-  print "File: ",fileName
-  print "Tree: ",treeName
+  print ("File does not contain the specified tree.  Is the tree name correct?")
+  print ("File: ",fileName)
+  print ("Tree: ",treeName)
   exit(2)
 
 
@@ -51,15 +53,15 @@ from JetValidation.D3PDHistoBuildLib import HistoBuilderFromD3PD,isSupportedType
 
 builder = HistoBuilderFromD3PD(tree)
 
-print "Adding branches..."
+print ("Adding branches...")
 for aBranch in sorted(tree.GetSetOfTreeBranchNames()):
   if str.startswith(aBranch,"jet_") or str.startswith(aBranch,"MET_"):
     if isSupportedType(tree.GetBranchType(aBranch)):
       builder.addHistos(aBranch)
 
-print "\nRunning event loop..."
+print ("\nRunning event loop...")
 builder.eventLoop()
-print "Done event loop!"
+print ("Done event loop!")
 
 #builder.dumpAllHistosToFile(pdfName)
 builder.dumpStructuredPDF(pdfName)

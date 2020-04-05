@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @brief: Trigger executor to call base transforms
 # @details: Based on athenaExecutor with some modifications
@@ -13,6 +13,7 @@ import os
 import fnmatch
 import re
 import subprocess
+import six
 
 from PyJobTransforms.trfExe import athenaExecutor
 
@@ -54,7 +55,7 @@ class trigRecoExecutor(athenaExecutor):
             for dataType in input:
                 inputEvents = self.conf.dataDictionary[dataType].nentries
                 msg.debug('Got {0} events for {1}'.format(inputEvents, dataType))
-                if not isinstance(inputEvents, (int, long)):
+                if not isinstance(inputEvents, six.integer_types):
                     msg.warning('Are input events countable? Got nevents={0} so disabling event count check for this input'.format(inputEvents))
                 elif self.conf.argdict['skipEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) >= inputEvents:
                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_NOEVENTS'),
@@ -70,7 +71,7 @@ class trigRecoExecutor(athenaExecutor):
                 outputFiles[dataType] = self.conf.dataDictionary[dataType]
                 
             # See if we have any 'extra' file arguments
-            for dataType, dataArg in self.conf.dataDictionary.iteritems():
+            for dataType, dataArg in self.conf.dataDictionary.items():
                 if dataArg.io == 'input' and self._name in dataArg.executor:
                     inputFiles[dataArg.subtype] = dataArg
                 
@@ -192,7 +193,63 @@ class trigRecoExecutor(athenaExecutor):
         
         #now build command line as in athenaExecutor
         super(trigRecoExecutor, self)._prepAthenaCommandLine()
-            
+
+    #loop over current directory and find the output file matching input pattern
+    def _findOutputFiles(self, pattern):
+        #list to store the filenames of files matching pattern
+        matchedOutputFileNames = []
+        #list of input files that could be in the same folder and need ignoring
+        ignoreInputFileNames = []
+        for dataType, dataArg in self.conf.dataDictionary.items():
+            if dataArg.io == 'input':
+                ignoreInputFileNames.append(dataArg.value[0])
+        #loop over all files in folder to find matching output files
+        for file in os.listdir('.'):
+            if fnmatch.fnmatch(file, pattern):
+                if file in ignoreInputFileNames:
+                    msg.info('Ignoring input file: %s' % file)
+                else:
+                    matchedOutputFileNames.append(file)
+        return matchedOutputFileNames
+
+    #run athenaHLT-select-PEB-stream.py to split a stream out of the BS file
+    #renames the split file afterwards
+    def _splitBSfile(self, outputStream, allStreamsFileName, splitFileName):
+        msg.info('Splitting stream %s from BS file' % outputStream)
+        splitStreamFailure=0
+        try:
+            cmd = 'athenaHLT-select-PEB-stream.py -s ' + outputStream + ' ' + allStreamsFileName
+            msg.info('running command for splitting (in original asetup env): %s' % cmd)
+            splitStreamFailure = subprocess.call(cmd, shell=True)
+            msg.debug('athenaHLT-select-PEB-stream.py splitting return code %s' % (splitStreamFailure) )
+        except OSError as e:
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                'Exception raised when selecting stream with athenaHLT-select-PEB-stream.py in file {0}: {1}'.format(allStreamsFileName, e))
+        if splitStreamFailure != 0:
+            msg.error('athenaHLT-select-PEB-stream.py returned error (%s) no split BS file created' % splitStreamFailure)
+            return 1
+        else:
+            #know that the format will be of the form ####._athenaHLT.####.data
+            expectedStreamFileName = '*_athenaHLT*.data'
+            #list of filenames of files matching expectedStreamFileName
+            matchedOutputFileName = self._findOutputFiles(expectedStreamFileName)
+            if(len(matchedOutputFileName)):
+                self._renamefile(matchedOutputFileName[0], splitFileName)
+                return 0
+            else:
+                msg.error('athenaHLT-select-PEB-stream.py did not created expected file (%s)' % expectedStreamFileName)
+                return 1
+
+    #rename a created file - used to overwrite filenames from athenaHLT into the requested argument name
+    def _renamefile(self, currentFileName, newFileName):
+        msg.info('Renaming file from %s to %s' % (currentFileName, newFileName))
+        try:
+            os.rename(currentFileName, newFileName)
+        except OSError as e:
+            msg.error('Exception raised when renaming {0} #to {1}: {2}'.format(currentFileName, newFileName, e))
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                'Exception raised when renaming {0} #to {1}: {2}'.format(currentFileName, newFileName, e))
+
     def postExecute(self):
                 
         #Adding check for HLTMPPU.*Child Issue in the log file
@@ -200,7 +257,7 @@ class trigRecoExecutor(athenaExecutor):
         #   Also sets the return code of the mother process to mark the job as failed
         #   Is based on trfValidation.scanLogFile
         log = self._logFileName
-        msg.debug('Now scanning logfile {0}'.format(log))
+        msg.debug('Now scanning logfile {0} for HLTMPPU Child Issues'.format(log))
         # Using the generator so that lines can be grabbed by subroutines if needed for more reporting
         try:
             myGen = lineByLine(log, substepName=self._substep)
@@ -216,6 +273,26 @@ class trigRecoExecutor(athenaExecutor):
                     signal = 1
                 msg.error('Detected issue with HLTChild, setting mother return code to %s' % (signal) )
                 self._rc = signal
+
+        #Merge child log files into parent log file
+        #is needed to make sure all child log files are scanned
+        #files are found by searching whole folder rather than relying on nprocs being defined
+        try:
+            #open original log file (log.BSRDOtoRAW) to merge child files into
+            with open(self._logFileName, 'a') as merged_file:
+                for file in os.listdir('.'):
+                    #expected child log files should be of the format athenaHLT:XX.out and .err
+                    if fnmatch.fnmatch(file, 'athenaHLT:*'):
+                        msg.info('Merging child log file (%s) into %s' % (file,self._logFileName))
+                        with open(file) as log_file:
+                            #write header infomation ### Output from athenaHLT:XX.out/err ###
+                            merged_file.write('### Output from {} ###\n'.format(file))
+                            #write out file line by line
+                            for line in log_file:
+                                merged_file.write(line)
+        except OSError as e:
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                        'Exception raised when merging log files into {0}: {1}'.format(self._logFileName, e))
 
         msg.info("Check for expert-monitoring.root file")
         #the BS-BS step generates the files:
@@ -265,35 +342,15 @@ class trigRecoExecutor(athenaExecutor):
         #The following is needed to handle the BS file being written with a different name (or names)
         #base is from either the tmp value created by the transform or the value entered by the user
         if self._rc != 0:
-            msg.info('HLT step failed (with status %s) so skip BS filename check' % self._rc)
+            msg.error('HLT step failed (with status %s) so skip BS filename check' % self._rc)
         elif 'BS' in self.conf.dataDictionary:
             argInDict = self.conf.dataDictionary['BS']
-            #create expected string by taking only some of input
-            #know that the format will be of the format ####._HLTMPPy_Argument_####.data
-            expectedOutputFileName = '*HLTMPPy_'
-            # removes uncertainty of which parts of the filename are used by athenaHLT
-            split_argInDict = argInDict.value[0].split('.')
-            #drop most of the input string to remove any potential ._####.data clash
-            # already in argInDict - so just take first element from input
-            expectedOutputFileName += split_argInDict[0]
-            #expect file from athenaHLT to end _###.data so add ending
-            expectedOutputFileName+='*.data'
             #keep dataset in case need to update argument
             dataset_argInDict = argInDict._dataset
-            #list to store the filenames of files matching expectedOutputFileName
-            matchedOutputFileNames = []
-            #list of input files that could be in the same folder and need ignoring
-            ignoreInputFileNames = []
-            for dataType, dataArg in self.conf.dataDictionary.iteritems():
-                if dataArg.io == 'input':
-                    ignoreInputFileNames.append(dataArg.value[0])
-            #loop over all files in folder to find matching output files
-            for file in os.listdir('.'):
-                if fnmatch.fnmatch(file, expectedOutputFileName):
-                    if file in ignoreInputFileNames:
-                        msg.info('Ignoring input file: %s' % file)
-                    else: 
-                        matchedOutputFileNames.append(file)
+            #expected string based on knowing that the format will be of form: ####._HLTMPPy_####.data
+            expectedOutputFileName = '*_HLTMPPy_*.data'
+            #list of filenames of files matching expectedOutputFileName
+            matchedOutputFileNames = self._findOutputFiles(expectedOutputFileName)
             #check there are file matches and rename appropriately
             if(len(matchedOutputFileNames)>1):
                 msg.warning('Multiple BS files found: will only rename internal arg')
@@ -302,14 +359,24 @@ class trigRecoExecutor(athenaExecutor):
                 argInDict.value = matchedOutputFileNames
                 argInDict._dataset = dataset_argInDict
             elif(len(matchedOutputFileNames)):
-                msg.info('Single BS file found: will rename file')
-                msg.info('Renaming BS file from %s to %s' % (matchedOutputFileNames[0], argInDict.value[0]))
-                try:
-                    os.rename(matchedOutputFileNames[0], argInDict.value[0])
-                except OSError as e:
-                    msg.error('Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
-                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                              'Exception raised when renaming {0} #to {1}: {2}'.format(expectedInput, inputFile, e))
+                msg.info('Single BS file found: will split (if requested) and rename file')
+
+                #TODO (ATR-20974) First check if we want to produce the COST BS output
+                #if 'COST' in self.conf.dataDictionary:
+                #    splitFailed = self._splitBSfile('Cost', matchedOutputFileNames[0],self.conf.dataDictionary['COST'].value[0])
+                #    if(splitFailed):
+                #        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                #            'Did not produce any BS file when selecting stream with athenaHLT-select-PEB-stream.py in file')
+
+                # If a stream (not All) is selected then slim the output to the particular stream out of the original BS file with many streams
+                if 'streamSelection' in self.conf.argdict and self.conf.argdict['streamSelection'].value != "All":
+                    splitFailed = self._splitBSfile(self.conf.argdict['streamSelection'].value, matchedOutputFileNames[0], argInDict.value[0])
+                    if(splitFailed):
+                        raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
+                            'Did not produce any BS file when selecting stream with athenaHLT-select-PEB-stream.py in file')
+                else:
+                    msg.info('Stream "All" requested, so not splitting BS file')
+                    self._renamefile(matchedOutputFileNames[0], argInDict.value[0])
             else:
                 msg.error('no BS files created with expected name: %s' % expectedOutputFileName )
         else:

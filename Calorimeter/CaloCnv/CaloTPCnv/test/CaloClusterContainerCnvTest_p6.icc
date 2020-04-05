@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CaloTPCnv/test/CaloClusterContainerCnvTest_p6.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -124,10 +122,6 @@ void CaloClusterContainerCnvTest_p6::transToPers(const CaloClusterContainer* tra
   short index=0;
   for(;it!=it_e;++it,++itp) {  // LOOP over clusters
     const CaloCluster& cl = **it;
-    //CaloClusterChangeSignalState statechange (&cl, P4SignalState::CALIBRATED);
-    P4SignalState::State oldstate=(*it)->signalState();
-    (*it)->setSignalState(P4SignalState::CALIBRATED);
-    //CaloClusterChangeVertexState vertexchange(&cl, 0);
     index++;
     transToPers(&cl,&(*itp),
                 showerLinkState,
@@ -247,8 +241,6 @@ void CaloClusterContainerCnvTest_p6::transToPers(const CaloClusterContainer* tra
        dphi = CaloPhiRange::diff ( cl.m_altPhi, cl.phi());
        tmp_altEtaPhiM.push_back( dphi);
        tmp_altEtaPhiM.push_back( cl.m_altM);
-
-       (*it)->setSignalState(oldstate); //set back to old signal state
    } // end of loop over clusters
 
    

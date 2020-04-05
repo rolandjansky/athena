@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 def LArMonitoringConfig(inputFlags):
@@ -9,14 +9,17 @@ def LArMonitoringConfig(inputFlags):
     from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfig
     from LArMonitoring.LArDigitMonAlg import LArDigitMonConfig
     from LArMonitoring.LArRODMonAlg import LArRODMonConfig
+    from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfig
+    from LArMonitoring.LArFEBMonAlg import LArFEBMonConfig
+    from LArMonitoring.LArHVCorrMonAlg import LArHVCorrMonConfig
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     
-    # algos which could run anytime (therefore should not in tier0Raw):
-    if inputFlags.DQ.Environment != 'tier0Raw':
-        if not inputFlags.Input.isMC:
-            acc.merge(LArAffectedRegionsConfig(inputFlags))
+    if not inputFlags.Input.isMC:
+         acc.merge(LArAffectedRegionsConfig(inputFlags))
+         acc.merge(LArNoisyROMonConfig(inputFlags))
+         acc.merge(LArHVCorrMonConfig(inputFlags))
 
     # algos which can run in ESD but not AOD:
     if inputFlags.DQ.Environment != 'AOD':
@@ -24,8 +27,10 @@ def LArMonitoringConfig(inputFlags):
 
     # and others on RAW data only
     if inputFlags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
-       acc.merge(LArDigitMonConfig(inputFlags))
-       acc.merge(LArRODMonConfig(inputFlags))
+       if not inputFlags.Input.isMC:
+          acc.merge(LArFEBMonConfig(inputFlags))
+          acc.merge(LArDigitMonConfig(inputFlags))
+          acc.merge(LArRODMonConfig(inputFlags))
 
     return acc
 

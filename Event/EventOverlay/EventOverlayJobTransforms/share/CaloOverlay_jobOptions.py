@@ -57,7 +57,7 @@ if DetFlags.overlay.LAr_on():
     #Adjust StoreGate keys in case of data-overlay:
     if overlayFlags.isDataOverlay():
        #Digits read from ByteStream:
-       job.digitmaker1.LArPileUpTool.RandomDigitContainer="FREE"
+       job.digitmaker1.LArPileUpTool.InputDigitContainer="FREE"
 
        #Output of the LArPileUpTool (set up by LArDigitGetter) is "LArDigitContainer_MC"
        #That's the input to the digit thinner and the LArRawChannelBuilder
@@ -78,18 +78,15 @@ if DetFlags.overlay.Tile_on():
     job.TileHitVecToCnt.DigitizationTool.RndmEvtOverlay = True
     job.TileHitVecToCnt.DigitizationTool.OnlyUseContainerName = not overlayFlags.isOverlayMT()
     theTileDigitsMaker.RndmEvtOverlay = True
-    theTileDigitsMaker.OverlayTileDigitContainerName = "TileDigitsCnt"
+    theTileDigitsMaker.InputTileDigitContainer = "TileDigitsCnt"
     if overlayFlags.isOverlayMT():
-       theTileDigitsMaker.OverlayTileDigitContainerName = overlayFlags.bkgPrefix() + "TileDigitsCnt"
-       theTileDigitsMaker.OverlayTileRawChannelContainerName = overlayFlags.bkgPrefix() + "TileRawChannelCnt"
+       theTileDigitsMaker.InputTileDigitContainer = overlayFlags.bkgPrefix() + "TileDigitsCnt"
        theTileDigitsMaker.OnlyUseContainerName = False
     if overlayFlags.isDataOverlay():
        theApp.Dlls += [ "TileByteStream"]
-       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileBeamElemContainer/TileBeamElemCnt"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/TileRawChannelCnt"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/TileDigitsCnt"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileL2Container/TileL2Cnt"]
-       ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileLaserObject/TileLaserObj"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/MuRcvRawChCnt"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/MuRcvDigitsCnt"]
 

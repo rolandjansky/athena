@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.Include import Include, IncludeError, include
+from AthenaCommon.Include import include
 from IOVDbSvc.CondDB import conddb
 
 if conddb.isMC:

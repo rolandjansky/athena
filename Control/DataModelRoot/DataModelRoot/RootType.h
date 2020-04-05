@@ -120,15 +120,18 @@ class TScopeAdapter {
 public:
    TScopeAdapter();
    TScopeAdapter( TClass* klass );
-   ATLAS_NOT_THREAD_SAFE TScopeAdapter( const std::string& name, Bool_t load = kTRUE, Bool_t quiet = kFALSE );
+   TScopeAdapter( const std::string& name, Bool_t load = kTRUE );
+   ATLAS_NOT_THREAD_SAFE TScopeAdapter( const std::string& name, Bool_t load, Bool_t quiet );
    TScopeAdapter( const TMemberAdapter& );
    TScopeAdapter( const std::type_info &typeinfo );
    operator TClass*() const { return fClass.GetClass(); }
    operator Bool_t() const;
 
 public:
-   static TScopeAdapter ByName(
+   static TScopeAdapter ByName ATLAS_NOT_THREAD_SAFE (
       const std::string& name, Bool_t load = kTRUE, Bool_t quiet = kTRUE );
+   static TScopeAdapter ByNameNoQuiet(
+      const std::string& name, Bool_t load = kTRUE );
 
    static TScopeAdapter TypeAt( size_t nth );
    static size_t TypeSize ();
@@ -193,9 +196,11 @@ public:
    static void EnableCintex() {}
   
 private:
+   void Init ( const std::string& name, Bool_t load, Bool_t quiet );
+
    std::string  fName;
    TClassRef    fClass;
-   bool         isFundamental = false;
+   bool         fIsFundamental = false;
 };
 
 

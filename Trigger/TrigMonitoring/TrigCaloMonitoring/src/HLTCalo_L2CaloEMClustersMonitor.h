@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCALOMONITORING_HLTCALO_L2CALOEMCLUSTERSMONITOR_H
@@ -10,6 +10,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 class HLTCalo_L2CaloEMClustersMonitor : public AthMonitorAlgorithm {
 
@@ -23,6 +24,8 @@ public:
   virtual float calculateDeltaPhi( float phi_1, float phi_2 ) const;
 
 private:
+
+  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
   SG::ReadHandleKey<xAOD::TrigEMClusterContainer> m_HLT_cont_key;
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_OFF_cont_key;

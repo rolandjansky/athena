@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigCompositeUtils/HLTUtils.h"
+#include "TrigConfHLTUtils/HLTUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 
 using namespace HLT;

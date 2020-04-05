@@ -78,12 +78,12 @@ namespace Muon
     //new decode method for Rob based readout
     StatusCode decode( const std::vector<uint32_t>& robIds ) override;
      
-    StatusCode processCsm(const MdtCsm *rdoColl, std::vector<IdentifierHash>& idWithDataVect);
+    virtual StatusCode processCsm(const MdtCsm *rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MdtCsm *rdoColl2 = nullptr);
 
     Muon::MdtDriftCircleStatus getMdtDriftRadius(const MdtDigit * digit, double& radius, double& errRadius, const MuonGM::MdtReadoutElement * descriptor);
  
     // + TWIN TUBE
-    StatusCode processCsmTwin(const MdtCsm *rdoColll, std::vector<IdentifierHash>& idWithDataVect);
+    virtual StatusCode processCsmTwin(const MdtCsm *rdoColll, std::vector<IdentifierHash>& idWithDataVect);
     // method to get the twin tube 2nd coordinate
     Muon::MdtDriftCircleStatus getMdtTwinPosition(const MdtDigit * prompt_digit, const MdtDigit * twin_digit, 
                                                   double& radius, double& errRadius, 
@@ -113,7 +113,6 @@ namespace Muon
     const MdtCsmContainer* getRdoContainer();
     void processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect );
     bool handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect );
-    void sortMdtPrdCollection( const Muon::MdtPrepDataCollection* col );
   
     /// Muon Detector Descriptor
     const MuonGM::MuonDetectorManager * m_muonMgr;

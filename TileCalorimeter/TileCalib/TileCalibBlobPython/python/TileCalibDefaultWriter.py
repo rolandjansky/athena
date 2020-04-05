@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # TileCalibDefaultWriter.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
 # modified Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-07-09
@@ -24,12 +24,14 @@ self.__tilePrefixOfl1
 
 """
 
+from __future__ import print_function
+
 import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK, LASPARTCHAN
 from TileCalibBlobPython.TileCalibLogger import TileCalibLogger
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobObjs.Classes import TileCalibUtils, TileBchDecoder
 import os
 
 #=== path to files with default values
@@ -42,7 +44,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
     This class provides methods to write default values for the various
     TileCal COOL folders.
     """
-    __slots__ = ["__db","__tilePrefixOfl","__tilePrefixOnl"]
+    __slots__ = ["__author","__db","__tilePrefixOfl1","__tilePrefixOfl","__tilePrefixOnl"]
 
     #____________________________________________________________________
     def __init__(self, db):
@@ -55,7 +57,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         self.__author = os.getlogin()
         try:
             if not db.isOpen():
-                raise "DB not open: ", db.databaseName()
+                raise Exception ("DB not open: ", db.databaseName())
             else:
                 self.__db = db
                 self.__tilePrefixOfl1 = TileCalibTools.getTilePrefix(True,False)
@@ -65,15 +67,15 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 #=== force the creation of template classes
                 cppyy.makeClass('std::vector<float>')
                 cppyy.makeClass('std::vector<unsigned int>')
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
 
 
     #____________________________________________________________________
     def writeCis(self, tag="", loGainDef=(1023./800.), hiGainDef=(64.*1023./800.)):
 
-        self.log().info( "*** Writing CIS with defaults loGain=%f, hiGain=%f and tag %s" %
-                  (loGainDef,hiGainDef,tag)                                         )
+        self.log().info( "*** Writing CIS with defaults loGain=%f, hiGain=%f and tag %s",
+                  loGainDef,hiGainDef,tag                                         )
 
         #=== fill LIN (linear) folders first
         loGainDefVec = cppyy.gbl.std.vector('float')()
@@ -99,8 +101,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
             #=== initialize all channels
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
             #=== only write to global defaul drawer ROS=0/drawer=0
             flt = blobWriter.getDrawer(0,0)
@@ -127,8 +129,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
 
             #=== initialize all channels
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
             #=== only write to global defaul drawer ROS=0/drawer=0
             flt = blobWriter.getDrawer(0,0)
@@ -142,7 +144,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
     #____________________________________________________________________
     def writeLas(self, tag=""):
 
-        self.log().info( "*** Writing Las default (1.) with tag %s" % tag )
+        self.log().info( "*** Writing Las default (1.) with tag %s", tag )
 
         #=== write linear (LIN) folders online and offline
         lasDef = cppyy.gbl.std.vector('float')()
@@ -161,8 +163,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
             #=== initialize all channels
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
             #=== only write to global defaul drawer ROS=0/drawer=0
             flt = blobWriter.getDrawer(0,0)
@@ -189,8 +191,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
             #=== initialize all channels
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
             #=== only write to global defaul drawer ROS=0/drawer=0
             flt = blobWriter.getDrawer(0,0)
@@ -204,7 +206,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
     #____________________________________________________________________
     def writeLasFiber(self, tag=""):
 
-        self.log().info( "*** Writing Las fiber and partition defaults (1.) with tag %s" % tag )
+        self.log().info( "*** Writing Las fiber and partition defaults (1.) with tag %s", tag )
 
         fibFolder = self.__tilePrefixOfl+"CALIB/LAS/FIBER"
         #=== write fiber folder
@@ -215,9 +217,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
         blobWriter = TileCalibTools.TileBlobWriter(self.__db,fibFolder,'Flt')
         #=== initialize all channels
         util = cppyy.gbl.TileCalibUtils()
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
-                flt = blobWriter.zeroBlob(ros,drawer)
+        for ros in range(util.max_ros()):
+            for drawer in range(util.getMaxDrawer(ros)):
+                blobWriter.zeroBlob(ros,drawer)
         #=== fiber variation: only write to global defaul drawer ROS=0/drawer=0
         fltDrawer = blobWriter.getDrawer(0,0)
         fltDrawer.init(defVec,1,1)
@@ -226,7 +228,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         adc = 0
         idx = 0
         val = 1.0
-        for ros in xrange(1,util.max_ros()):
+        for ros in range(1,util.max_ros()):
             fltDrawer = blobWriter.getDrawer(ros,0)
             fltDrawer.init(defVec,48,1)
             fltDrawer.setData(LASPARTCHAN,adc,idx,val)
@@ -247,14 +249,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
         and ignore weight for D-sampling.
         """
         
-        self.log().info( "*** Writing Ces with tag %s" % tag ) 
+        self.log().info( "*** Writing Ces with tag %s", tag ) 
 
         #=== special values != 1
         #=== some info available here: https://twiki.cern.ch/twiki/bin/view/Atlas/SpecialModules
         special = {}
         #=== D-cells in LB
-        for ros in xrange(1,3):
-            for mod in xrange(64):
+        for ros in range(1,3):
+            for mod in range(64):
                 special[(ros,mod, 0)] = dCellWeight
                 special[(ros,mod,13)] = dCellWeight
                 special[(ros,mod,14)] = dCellWeight
@@ -263,15 +265,15 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 special[(ros,mod,41)] = dCellWeight
                 special[(ros,mod,44)] = dCellWeight
         #=== D-cells in EB
-        for ros in xrange(3,5):
-            for mod in xrange(64):
+        for ros in range(3,5):
+            for mod in range(64):
                 special[(ros,mod, 2)] = dCellWeight
                 special[(ros,mod, 3)] = dCellWeight
                 special[(ros,mod, 4)] = dCellWeight
                 special[(ros,mod, 5)] = dCellWeight
         #=== E-cells in EB
-        for ros in xrange(3,5):
-            for mod in xrange(64):
+        for ros in range(3,5):
+            for mod in range(64):
                 special[(ros,mod, 0)] = eCellWeight
                 special[(ros,mod, 1)] = eCellWeight
                 special[(ros,mod,12)] = eCellWeight
@@ -365,14 +367,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
             newCesMbtsOuterC[0] *= 1.15
 
             if not MBTSflag=="13TeV" and not MBTSflag=="8TeV" and not MBTSflag=="7TeV" and not MBTSflag=="900GeV":  
-                print "MBTS flag",MBTSflag,"is not recognized, assuming 7TeV"
+                print ("MBTS flag",MBTSflag,"is not recognized, assuming 7TeV")
                 MBTSflag="7TeV"
             else:
-                print "setting MBTS weights for",MBTSflag
+                print ("setting MBTS weights for",MBTSflag)
 
             if MBTSflag=="13TeV" :
                 RUN=2
-                print "RUN2 configuration for MC"
+                print ("RUN2 configuration for MC")
 
                 # Cesium constants to have pC afer deposited energy is multiplied by EMS(0.0105) and CES  
                 ces_mbts_inner = 157.5/1.05 # connected to PMT5 of special C10
@@ -384,23 +386,23 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 #----- EBA inner
                 for i,mod in enumerate(mbts_inner):
                     special[(3,mod,chan_mbts_inner)] = ces_mbts_inner
-                    print "EBA",mod+1,"ch",chan_mbts_inner," inner MBTS = ",special[(3,mod,chan_mbts_inner)] 
+                    print ("EBA",mod+1,"ch",chan_mbts_inner," inner MBTS = ",special[(3,mod,chan_mbts_inner)] )
                 #----- EBA outer
                 for i,mod in enumerate(mbts_outer):
                     special[(3,mod,chan_mbts_outer)] = ces_mbts_outer
-                    print "EBA",mod+1,"ch",chan_mbts_outer," outer MBTS = ",special[(3,mod,chan_mbts_outer)] 
+                    print ("EBA",mod+1,"ch",chan_mbts_outer," outer MBTS = ",special[(3,mod,chan_mbts_outer)] )
                 #----- EBC inner
                 for i,mod in enumerate(mbts_inner):
                     special[(4,mod,chan_mbts_inner)] = ces_mbts_inner
-                    print "EBC",mod+1,"ch",chan_mbts_inner," inner MBTS = ",special[(4,mod,chan_mbts_inner)] 
+                    print ("EBC",mod+1,"ch",chan_mbts_inner," inner MBTS = ",special[(4,mod,chan_mbts_inner)] )
                 #----- EBC outer
                 for i,mod in enumerate(mbts_outer):
                     special[(4,mod,chan_mbts_outer)] = ces_mbts_outer
-                    print "EBC",mod+1,"ch",chan_mbts_outer," outer MBTS = ",special[(4,mod,chan_mbts_outer)] 
+                    print ("EBC",mod+1,"ch",chan_mbts_outer," outer MBTS = ",special[(4,mod,chan_mbts_outer)] )
 
             else:
                 RUN=1
-                print "RUN1 configuration for MC"
+                print ("RUN1 configuration for MC")
 
                 #=== Changes for 7 TeV ======================================================
                 if MBTSflag=="7TeV" or MBTSflag=="8TeV" :
@@ -426,25 +428,25 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 #----- EBA inner
                 for i,mod in enumerate(eba_mbts_inner):
                     special[(3,mod,0)] = newCesMbtsInnerA[i]
-                    print "EBA",mod+1," inner MBTS = ",special[(3,mod,0)] 
+                    print ("EBA",mod+1," inner MBTS = ",special[(3,mod,0)] )
                 #----- EBA outer
                 for i,mod in enumerate(eba_mbts_outer):
                     special[(3,mod,0)] = newCesMbtsOuterA[i]
-                    print "EBA",mod+1," outer MBTS = ",special[(3,mod,0)] 
+                    print ("EBA",mod+1," outer MBTS = ",special[(3,mod,0)] )
                 #----- EBC inner
                 for i,mod in enumerate(ebc_mbts_inner):
                     special[(4,mod,0)] = newCesMbtsInnerC[i]
-                    print "EBC",mod+1," inner MBTS = ",special[(4,mod,0)] 
+                    print ("EBC",mod+1," inner MBTS = ",special[(4,mod,0)] )
                 #----- EBC outer
                 for i,mod in enumerate(ebc_mbts_outer):
                     special[(4,mod,0)] = newCesMbtsOuterC[i]
-                    print "EBC",mod+1, " outer MBTS = ",special[(4,mod,0)] 
+                    print ("EBC",mod+1, " outer MBTS = ",special[(4,mod,0)] )
 
         else:
 
             if MBTSflag=="13TeV" :
                 RUN=2
-                print "RUN2 configuration for DATA"
+                print ("RUN2 configuration for DATA")
 
                 # Cesium constants to have fC in BS file for MBTS 
                 ces_mbts_inner = (1.036 * 0.987)/1.05 # connected to PMT5 of special C10
@@ -455,23 +457,23 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 #----- EBA inner
                 for i,mod in enumerate(mbts_inner):
                     special[(3,mod,chan_mbts_inner)] = ces_mbts_inner
-                    print "EBA",mod+1,"ch",chan_mbts_inner," inner MBTS = ",special[(3,mod,chan_mbts_inner)] 
+                    print ("EBA",mod+1,"ch",chan_mbts_inner," inner MBTS = ",special[(3,mod,chan_mbts_inner)] )
                 #----- EBA outer
                 for i,mod in enumerate(mbts_outer):
                     special[(3,mod,chan_mbts_outer)] = ces_mbts_outer
-                    print "EBA",mod+1,"ch",chan_mbts_outer," outer MBTS = ",special[(3,mod,chan_mbts_outer)] 
+                    print ("EBA",mod+1,"ch",chan_mbts_outer," outer MBTS = ",special[(3,mod,chan_mbts_outer)] )
                 #----- EBC inner
                 for i,mod in enumerate(mbts_inner):
                     special[(4,mod,chan_mbts_inner)] = ces_mbts_inner
-                    print "EBC",mod+1,"ch",chan_mbts_inner," inner MBTS = ",special[(4,mod,chan_mbts_inner)] 
+                    print ("EBC",mod+1,"ch",chan_mbts_inner," inner MBTS = ",special[(4,mod,chan_mbts_inner)] )
                 #----- EBC outer
                 for i,mod in enumerate(mbts_outer):
                     special[(4,mod,chan_mbts_outer)] = ces_mbts_outer
-                    print "EBC",mod+1,"ch",chan_mbts_outer," outer MBTS = ",special[(4,mod,chan_mbts_outer)] 
+                    print ("EBC",mod+1,"ch",chan_mbts_outer," outer MBTS = ",special[(4,mod,chan_mbts_outer)] )
 
             else:
                 RUN=1
-                print "RUN1 configuration for DATA"
+                print ("RUN1 configuration for DATA")
 
                 # Cesium constants to have fC in BS file for MBTS 
                 ces_mbts_inner = 1.0/1.05
@@ -480,19 +482,19 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 #----- EBA inner
                 for mod in eba_mbts_inner:
                     special[(3,mod,0)] = ces_mbts_inner
-                    print "EBA",mod+1," inner MBTS = ",special[(3,mod,0)] 
+                    print ("EBA",mod+1," inner MBTS = ",special[(3,mod,0)] )
                 #----- EBA outer
                 for mod in eba_mbts_outer:
                     special[(3,mod,0)] = ces_mbts_outer
-                    print "EBA",mod+1," outer MBTS = ",special[(3,mod,0)] 
+                    print ("EBA",mod+1," outer MBTS = ",special[(3,mod,0)] )
                 #----- EBC inner
                 for mod in ebc_mbts_inner:
                     special[(4,mod,0)] = ces_mbts_inner
-                    print "EBC",mod+1," inner MBTS = ",special[(4,mod,0)] 
+                    print ("EBC",mod+1," inner MBTS = ",special[(4,mod,0)] )
                 #----- EBC outer
                 for mod in ebc_mbts_outer:
                     special[(4,mod,0)] = ces_mbts_outer
-                    print "EBC",mod+1, " outer MBTS = ",special[(4,mod,0)] 
+                    print ("EBC",mod+1, " outer MBTS = ",special[(4,mod,0)] )
 
         #=== store 4 values per channel
         default = cppyy.gbl.std.vector('float')()
@@ -519,8 +521,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
             #=== initialize all channels
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
 
             #=== global detector default
@@ -529,13 +531,13 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
             #=== default settings (including all special cases)
             if mode=='DEFAULT':
-                self.log().info( "*** Writing Ces defaults with dCellWeight = %.1f eCellWeight = %.1f" % (dCellWeight,eCellWeight) )
+                self.log().info( "*** Writing Ces defaults with dCellWeight = %.1f eCellWeight = %.1f", dCellWeight,eCellWeight )
                 #=== defaults for LBA & LBC
                 lba = blobWriter.getDrawer(0,4)
                 lba.init(defVec,48,1)
                 lbc = blobWriter.getDrawer(0,8)
                 lbc.init(defVec,48,1)
-                for chan in xrange(48):
+                for chan in range(48):
                     key = (1,0,chan)
                     ces = special.get(key,1.)
                     lba.setData(chan,0,0,ces)
@@ -546,7 +548,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 eba.init(defVec,48,1)
                 ebc = blobWriter.getDrawer(0,16)
                 ebc.init(defVec,48,1)
-                for chan in xrange(48):
+                for chan in range(48):
                     key = (3,0,chan)
                     ces = special.get(key,1.)
                     eba.setData(chan,0,0,ces)
@@ -554,11 +556,11 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
                 #=== defaults for EBA & EBC
                 #=== store each drawer individually
-                for ros in xrange(3,5):
-                    for mod in xrange(64):
+                for ros in range(3,5):
+                    for mod in range(64):
                         flt = blobWriter.getDrawer(ros,mod)
                         flt.init(defVec,48,1)
-                        for chan in xrange(48):
+                        for chan in range(48):
                             key = (ros,mod,chan)
                             ces = special.get(key,1.)
                             flt.setData(chan,0,0,ces)
@@ -586,13 +588,13 @@ class TileCalibDefaultWriter(TileCalibLogger):
         These values with dCellWeight = 1.2 correspond to simulation with CSC and FDR global tags.
         """
         
-        self.log().info( "*** Writing Ces with tag %s" % tag ) 
+        self.log().info( "*** Writing Ces with tag %s", tag ) 
 
         #=== special values != 1
         special = {}
         #=== D-cells in LB
-        for ros in xrange(1,3):
-            for mod in xrange(64):
+        for ros in range(1,3):
+            for mod in range(64):
                 special[(ros,mod, 0)] = dCellWeight
                 special[(ros,mod,13)] = dCellWeight
                 special[(ros,mod,14)] = dCellWeight
@@ -601,21 +603,21 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 special[(ros,mod,41)] = dCellWeight
                 special[(ros,mod,44)] = dCellWeight
         #=== D-cells in EB
-        for ros in xrange(3,5):
-            for mod in xrange(64):
+        for ros in range(3,5):
+            for mod in range(64):
                 special[(ros,mod, 2)] = dCellWeight
                 special[(ros,mod, 3)] = dCellWeight
                 special[(ros,mod, 4)] = dCellWeight
                 special[(ros,mod, 5)] = dCellWeight
         #=== E-cells in EB
-        for ros in xrange(3,5):
-            for mod in xrange(64):
+        for ros in range(3,5):
+            for mod in range(64):
                 special[(ros,mod, 0)] = eCellWeight
                 special[(ros,mod, 1)] = eCellWeight
                 special[(ros,mod,12)] = eCellWeight
                 special[(ros,mod,13)] = eCellWeight
         #=== EB modules with channel 47 connected to MBTS scintillator
-        mev2pcb = 1.050/1000.
+        #mev2pcb = 1.050/1000.
         #ces_mbts_inner = 2.5751/mev2pcb
         #ces_mbts_outer = 1.8438/mev2pcb
         ces_mbts_inner = 1.0/1.05
@@ -663,8 +665,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         #=== initialize all channels
         util = cppyy.gbl.TileCalibUtils()
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
+        for ros in range(util.max_ros()):
+            for drawer in range(util.getMaxDrawer(ros)):
                 fltOfl = blobWriterOfl.zeroBlob(ros,drawer)
                 fltOnl = blobWriterOnl.zeroBlob(ros,drawer)
                 
@@ -675,7 +677,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         detOnl.init(defVec,48,1)
 
         #=== default settings (including all special cases)
-        self.log().info( "*** Writing Ces defaults with dCellWeight = %.1f eCellWeight = %.1f" % (dCellWeight,eCellWeight) )
+        self.log().info( "*** Writing Ces defaults with dCellWeight = %.1f eCellWeight = %.1f", dCellWeight,eCellWeight )
         #=== defaults for LBA & LBC
         lbaOfl = blobWriterOfl.getDrawer(0,4)
         lbaOfl.init(defVec,48,1)
@@ -685,7 +687,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         lbcOfl.init(defVec,48,1)
         lbcOnl = blobWriterOnl.getDrawer(0,8)
         lbcOnl.init(defVec,48,1)
-        for chan in xrange(48):
+        for chan in range(48):
             key = (1,0,chan)
             ces = special.get(key,1.)
             lbaOfl.setData(chan,0,0,ces)
@@ -695,13 +697,13 @@ class TileCalibDefaultWriter(TileCalibLogger):
             
         #=== defaults for EBA & EBC
         #=== store each drawer individually
-        for ros in xrange(3,5):
-            for mod in xrange(64):
+        for ros in range(3,5):
+            for mod in range(64):
                 fltOfl = blobWriterOfl.getDrawer(ros,mod)
                 fltOfl.init(defVec,48,1)
                 fltOnl = blobWriterOnl.getDrawer(ros,mod)
                 fltOnl.init(defVec,48,1)
-                for chan in xrange(48):
+                for chan in range(48):
                     key = (ros,mod,chan)
                     ces = special.get(key,1.)
                     fltOfl.setData(chan,0,0,ces)
@@ -753,7 +755,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         cC10 = [4, 5]
         cD4  = [2, 3]
 
-        self.log().info( "*** Writing Emscale with particle/Cesium factors with tag %s" % (tag,) )
+        self.log().info( "*** Writing Emscale with particle/Cesium factors with tag %s" , tag )
 
         #=== write linear (LIN) folder
         emsDef = cppyy.gbl.std.vector('float')()
@@ -770,8 +772,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
             #=== initialize all channels
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
                     
             #=== write EM scale as global default and explicitly too
@@ -779,8 +781,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
             flt.init(defVec,1,1)
         
             #=== LB values
-            for ros in xrange(1,3):
-                for mod in xrange(64):
+            for ros in range(1,3):
+                for mod in range(64):
                     flt = blobWriter.getDrawer(ros,mod)
                     flt.init(defVec,48,1)
                     for chan in clbA:
@@ -793,8 +795,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
                         flt.setData(chan,0,0,emscale/flbD)
         
             #=== EB and ITC values
-            for ros in xrange(3,5):
-                for mod in xrange(64):
+            for ros in range(3,5):
+                for mod in range(64):
                     flt = blobWriter.getDrawer(ros,mod)
                     flt.init(defVec,48,1)
                     for chan in cebA:
@@ -816,7 +818,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
     #____________________________________________________________________
     def writeEmscaleMC(self, tag="", emscale=(1.05/1000.), since=(MINRUN,MINLBK), until=(MAXRUN, MAXLBK)):
 
-        self.log().info( "*** Writing Emscale default (%.2f) with tag %s" % ((emscale * 1000.),tag) )
+        self.log().info( "*** Writing Emscale default (%.2f) with tag %s", (emscale * 1000.),tag )
 
         #=== write linear (LIN) folder
         emsDef = cppyy.gbl.std.vector('float')()
@@ -832,8 +834,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
             #=== initialize all channels
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
             #=== only write to global defaul drawer ROS=0/drawer=0
             flt = blobWriter.getDrawer(0,0)
@@ -868,11 +870,10 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         #=== number of integrator gains and value per gain
         ngain = 6
-        nperg = 8
 
         defVec = cppyy.gbl.std.vector('std::vector<float>')()
 
-        for i in xrange(ngain):
+        for i in range(ngain):
             defaultGain = cppyy.gbl.std.vector('float')()
             for v in dv[i]:
                 defaultGain.push_back(v)
@@ -885,9 +886,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
         writer.setComment(self.__author,"Integrator gain defaults")
         #=== initialize all channels and write global default
         util = cppyy.gbl.TileCalibUtils()
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
-                flt = writer.zeroBlob(ros,drawer)
+        for ros in range(util.max_ros()):
+            for drawer in range(util.getMaxDrawer(ros)):
+                writer.zeroBlob(ros,drawer)
         calibDrawer = writer.getDrawer(0,0)
         calibDrawer.init(defVec,1,1)
 
@@ -900,7 +901,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
 
         # NGO need to implement cell fiber length for special type 11 (?) modules!
-        self.log().info( "*** Writing Tcfib defaults using tag %s" % tag )
+        self.log().info( "*** Writing Tcfib defaults using tag %s", tag )
 
         parser = TileCalibTools.TileASCIIParser(pathDef+"TileTcfib.dat","Tfib")
         folder = self.__tilePrefixOfl+"TIME/CELLFIBERLENGTH"
@@ -912,9 +913,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
             #=== initialize all channels
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
-                    flt = blobWriter.zeroBlob(ros,drawer)
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
+                    blobWriter.zeroBlob(ros,drawer)
 
             #=== default for detector
             det = blobWriter.getDrawer(0, 0)
@@ -931,7 +932,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             #=== default for EBC
             ebc = blobWriter.getDrawer(0,16)
             ebc.init(defVec,48,0)
-            for chan in xrange(48):
+            for chan in range(48):
                 valLba = float(parser.getData(1,0,chan)[0])
                 valLbc = float(parser.getData(2,0,chan)[0])
                 valEba = float(parser.getData(3,0,chan)[0])
@@ -943,14 +944,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter.setComment(self.__author,"channel (laser) clear fiber length")
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
 
 
     #____________________________________________________________________
     def writeTclas(self, tag=""):
 
-        self.log().info( "*** Writing Tclas defaults using tag %s" % tag )
+        self.log().info( "*** Writing Tclas defaults using tag %s", tag )
 
         folder = self.__tilePrefixOfl+"TIME/CHANNELOFFSET/LAS"
         default = cppyy.gbl.std.vector('float')()
@@ -961,22 +962,22 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
             #=== initialize all channels
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
             flt = blobWriter.getDrawer(0, 0)
             flt.init(defVec,1,0)
             blobWriter.setComment(self.__author,"no channel timing offset by default")
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
 
 
     #____________________________________________________________________
     def writeTdlas(self, tag=""):
 
-        self.log().info( "*** Writing Tdlas defaults using tag %s" % tag )
+        self.log().info( "*** Writing Tdlas defaults using tag %s", tag )
 
         folder = self.__tilePrefixOfl+"TIME/DRAWEROFFSET/LAS"
         default = cppyy.gbl.std.vector('float')()
@@ -987,22 +988,22 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
             #=== initialize only one channel per drawer
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
             flt = blobWriter.getDrawer(0, 0)
             flt.init(defVec,1,0)
             blobWriter.setComment(self.__author,"no drawer timing offset by default")
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
 
 
     #____________________________________________________________________
     def writeTof(self, tag=""):
 
-        self.log().info( "*** Writing Tof defaults using tag %s" % tag )
+        self.log().info( "*** Writing Tof defaults using tag %s", tag )
 
         parser = TileCalibTools.TileASCIIParser(pathDef+"Tile.tctof","Tctof")
         folder = self.__tilePrefixOfl+"TIME/TIMEOFFLIGHT"
@@ -1014,9 +1015,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
             #=== initialize all channels and write global default
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
-                    flt = blobWriter.zeroBlob(ros,drawer)
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
+                    blobWriter.zeroBlob(ros,drawer)
             calibDrawer = blobWriter.getDrawer(0,0)
             calibDrawer.init(defVec,1,1)        
 
@@ -1025,15 +1026,15 @@ class TileCalibDefaultWriter(TileCalibLogger):
             for mod in (4, 8, 12, 16):
                 #=== need to invalidate previous blob in DB when reading from ASCII file
                 blobWriter.zeroBlob(ros,mod)
-                for chn in xrange(48):
+                for chn in range(48):
                     value = parser.getData(ros,mod,chn)
                     if not len(value):
-                        self.log().warning("%i/%2i/%2i/x: No value found in file" % (ros,mod,chn))
+                        self.log().warning("%i/%2i/%2i/x: No value found in file", ros,mod,chn)
                         continue
                     #=== init drawer with defaults for first entry
                     calibDrawer = blobWriter.getDrawer(ros,mod)
                     if not calibDrawer.getNObjs():
-                        self.log().info("Initializing drawer %i/%2i\t%i" % (ros,mod,calibDrawer.getNObjs()))
+                        self.log().info("Initializing drawer %i/%2i\t%i", ros,mod,calibDrawer.getNObjs())
                         calibDrawer.init(defVec,48,1)
 
                     #=== set the data
@@ -1047,15 +1048,15 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter.setComment("jose maneira","time-of-flight default values")
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
 
 
     #____________________________________________________________________
     def writeNoiseFit(self, tag="", loGainDef=0.8, hiGainDef=1.6):
 
-        self.log().info( "*** Writing Fit Method Noise with defaults (ADC counts) loGain=%f, hiGain=%f and tag %s" %
-                         (loGainDef,hiGainDef,tag) )
+        self.log().info( "*** Writing Fit Method Noise with defaults (ADC counts) loGain=%f, hiGain=%f and tag %s" ,
+                         loGainDef,hiGainDef,tag )
 
         #=== fill folders 
         loGainDefVec = cppyy.gbl.std.vector('float')()
@@ -1077,8 +1078,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
                 #=== initialize all channels
                 util = cppyy.gbl.TileCalibUtils()
-                for ros in xrange(util.max_ros()):
-                    for drawer in xrange(util.getMaxDrawer(ros)):
+                for ros in range(util.max_ros()):
+                    for drawer in range(util.getMaxDrawer(ros)):
                         flt = blobWriter.zeroBlob(ros,drawer)
                 #=== only write to global defaul drawer ROS=0/drawer=0
                 flt = blobWriter.getDrawer(0,0)
@@ -1086,15 +1087,15 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 blobWriter.setComment(self.__author,"Fit Method Noise defaults (ADC)")
                 folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-            except Exception, e:
+            except Exception as e:
                self.log().critical( e )
 
 
     #____________________________________________________________________
     def writeNoiseSample(self, tag="", loGainDef=0.8, hiGainDef=1.6):
 
-        self.log().info( "*** Writing sample noise (lo=%f, hi=%f) defaults using tag %s" %
-                  (loGainDef,hiGainDef,tag)                                  )
+        self.log().info( "*** Writing sample noise (lo=%f, hi=%f) defaults using tag %s",
+                  loGainDef,hiGainDef,tag                                  )
         
         #=== common noise defaults
         defaultLo = cppyy.gbl.std.vector('float')()
@@ -1124,23 +1125,23 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
                 #=== initialize all channels
                 util = cppyy.gbl.TileCalibUtils()
-                for ros in xrange(util.max_ros()):
-                    for drawer in xrange(util.getMaxDrawer(ros)):
+                for ros in range(util.max_ros()):
+                    for drawer in range(util.getMaxDrawer(ros)):
                         flt = blobWriter.zeroBlob(ros,drawer)
                 flt = blobWriter.getDrawer(0, 0)
                 flt.init(defVec,1,0)
                 blobWriter.setComment(self.__author,"default noise")
                 folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-            except Exception, e:
+            except Exception as e:
                 self.log().critical( e )
 
 
     #____________________________________________________________________
     def writeNoiseOnl(self, tag="", loGainDef=0.8, hiGainDef=1.6):
 
-        self.log().info( "*** Writing 1-g noise(ADC counts)+pileup(MeV) defaults loGain=%f, hiGain=%f and tag %s" %
-                         (loGainDef,hiGainDef,tag) )
+        self.log().info( "*** Writing 1-g noise(ADC counts)+pileup(MeV) defaults loGain=%f, hiGain=%f and tag %s",
+                         loGainDef,hiGainDef,tag )
         
         #=== common noise defaults
         defaultLo = cppyy.gbl.std.vector('float')()
@@ -1163,8 +1164,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
                 #=== initialize all channels
                 util = cppyy.gbl.TileCalibUtils()
-                for ros in xrange(util.max_ros()):
-                    for drawer in xrange(util.getMaxDrawer(ros)):
+                for ros in range(util.max_ros()):
+                    for drawer in range(util.getMaxDrawer(ros)):
                         flt = blobWriter.zeroBlob(ros,drawer)
                 #
                 flt = blobWriter.getDrawer(0, 0)
@@ -1173,7 +1174,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 blobWriter.setComment(self.__author,"default noise for DSP reco")
                 folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-            except Exception, e:
+            except Exception as e:
                 self.log().critical( e )
 
 
@@ -1185,8 +1186,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
         ped = 30 and 50 ADC counts respecively
         """
 
-        self.log().info( "*** Writing sample noise MC defaults (lo=%f, hi=%f) using tag %s" %
-                  (loGainDef,hiGainDef,tag)                                  )
+        self.log().info( "*** Writing sample noise MC defaults (lo=%f, hi=%f) using tag %s",
+                  loGainDef,hiGainDef,tag                                  )
         
         folders = [self.__tilePrefixOfl+"NOISE/SAMPLE",
                    self.__tilePrefixOnl+"NOISE/SAMPLE"]
@@ -1197,8 +1198,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
                 #=== initialize all channels
                 util = cppyy.gbl.TileCalibUtils()
-                for ros in xrange(util.max_ros()):
-                    for drawer in xrange(util.getMaxDrawer(ros)):
+                for ros in range(util.max_ros()):
+                    for drawer in range(util.getMaxDrawer(ros)):
                         flt = blobWriter.zeroBlob(ros,drawer)
                 flt = blobWriter.getDrawer(0, 0)
 
@@ -1227,7 +1228,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 flt.init(defVec,48,0)
 
                 #=== set common noise defaults per channel
-                for chan in xrange(48):
+                for chan in range(48):
 
                     loPedDef = 30.+(chan+1)/48.
                     hiPedDef = 50.+(chan+1)/48.
@@ -1250,19 +1251,19 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 blobWriter.setComment(self.__author,"default noise")
                 folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-            except Exception, e:
+            except Exception as e:
                 self.log().critical( e )
 
 
     #____________________________________________________________________
     def writeNoiseAutoCr(self, tag=""):
 
-        self.log().info( "*** Writing default sample auto correlation using tag %s" % tag)
+        self.log().info( "*** Writing default sample auto correlation using tag %s", tag)
         folder = self.__tilePrefixOfl+"NOISE/AUTOCR"
 
         #=== common noise defaults
         default = cppyy.gbl.std.vector('float')()
-        for i in xrange(6):
+        for i in range(6):
             default.push_back(0.)
         defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(default)
@@ -1271,22 +1272,22 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
             #=== initialize all channels
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
                     flt = blobWriter.zeroBlob(ros,drawer)
             flt = blobWriter.getDrawer(0, 0)
             flt.init(defVec,1,0)
             blobWriter.setComment(self.__author,"default auto correlation (unit matrix)")
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
 
 
     #____________________________________________________________________
     def writeBadChannels(self, tag=""):
 
-        self.log().info( "*** Writing BadChannel defaults using tag %s" % tag )
+        self.log().info( "*** Writing BadChannel defaults using tag %s", tag )
 
         default = cppyy.gbl.std.vector('unsigned int')()
         default.push_back(0)
@@ -1303,8 +1304,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Bch',multiVers)
                 #=== initialize all channels
                 util = cppyy.gbl.TileCalibUtils()
-                for ros in xrange(util.max_ros()):
-                    for drawer in xrange(util.getMaxDrawer(ros)):
+                for ros in range(util.max_ros()):
+                    for drawer in range(util.getMaxDrawer(ros)):
                         bch = blobWriter.zeroBlob(ros,drawer)
                 bch = blobWriter.getDrawer(0, 0)
                 bch.init(defVec,1,cppyy.gbl.TileBchDecoder.BitPat_ofl01 if multiVers else TileBchDecoder.BitPat_onl01)
@@ -1312,14 +1313,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 blobWriter.setComment(self.__author,"no bad channels")
                 folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-            except Exception, e:
+            except Exception as e:
                 self.log().critical( e )
 
 
     #____________________________________________________________________
     def writePulseShape(self, tag=""):
 
-        self.log().info( "*** Writing default pulse shapes with tag %s" % tag)
+        self.log().info( "*** Writing default pulse shapes with tag %s", tag)
 
 
         sources = {'PHY'          : ( 'pulselo_physics.dat', 'pulsehi_physics.dat', 'TileDefault.plsPhy'    ),
@@ -1331,7 +1332,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                    }
 
 
-        for source, info in sources.iteritems():
+        for source, info in list(sources.items()):
 
             path = pathDef
 
@@ -1342,10 +1343,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
             for line in lines:
                 fields = line.strip().split()
                 #=== ignore empty and comment lines
-                if not len(fields)          : continue
-                if fields[0].startswith("#"): continue 
-                if fields[0].startswith("*"): continue 
-                if len(fields) != 2         : continue
+                if not len(fields)          :
+                    continue
+                if fields[0].startswith("#"):
+                    continue 
+                if fields[0].startswith("*"):
+                    continue 
+                if len(fields) != 2         :
+                    continue
 
                 xlo.append(float(fields[0]))
                 ylo.append(float(fields[1]))
@@ -1357,10 +1362,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
             for line in lines:
                 fields = line.strip().split()
                 #=== ignore empty and comment lines
-                if not len(fields)          : continue
-                if fields[0].startswith("#"): continue 
-                if fields[0].startswith("*"): continue
-                if len(fields) != 2         : continue
+                if not len(fields)          :
+                    continue
+                if fields[0].startswith("#"):
+                    continue 
+                if fields[0].startswith("*"):
+                    continue
+                if len(fields) != 2         :
+                    continue
 
                 xhi.append(float(fields[0]))
                 yhi.append(float(fields[1]))
@@ -1368,11 +1377,15 @@ class TileCalibDefaultWriter(TileCalibLogger):
             #=== create default ascii file
             fileStr = "OBJVERSION 200"
             fileStr+= "\n0x000\t0\t0\t"
-            for x in xlo: fileStr += "%f " % x 
-            for y in ylo: fileStr += "%f " % y
+            for x in xlo:
+                fileStr += "%f " % x 
+            for y in ylo:
+                fileStr += "%f " % y
             fileStr+= "\n0x000\t0\t1\t"
-            for x in xhi: fileStr += "%f " % x 
-            for y in yhi: fileStr += "%f " % y
+            for x in xhi:
+                fileStr += "%f " % x 
+            for y in yhi:
+                fileStr += "%f " % y
             fileStr+="\n"
             defFile = open(info[2],"w")
             defFile.write(fileStr)
@@ -1380,11 +1393,15 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
             #=== build default pulseshape vectors for db
             defaultLo = cppyy.gbl.std.vector('float')()
-            for x in xlo: defaultLo.push_back(x)
-            for y in ylo: defaultLo.push_back(y)
+            for x in xlo:
+                defaultLo.push_back(x)
+            for y in ylo:
+                defaultLo.push_back(y)
             defaultHi = cppyy.gbl.std.vector('float')()
-            for x in xhi: defaultHi.push_back(x)
-            for y in yhi: defaultHi.push_back(y)
+            for x in xhi:
+                defaultHi.push_back(x)
+            for y in yhi:
+                defaultHi.push_back(y)
             defVec = cppyy.gbl.std.vector('std::vector<float>')()
             defVec.push_back(defaultLo)
             defVec.push_back(defaultHi)
@@ -1393,9 +1410,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
                 #=== initialize all channels
                 util = cppyy.gbl.TileCalibUtils()
-                for ros in xrange(util.max_ros()):
-                    for drawer in xrange(util.getMaxDrawer(ros)):
-                        flt = blobWriter.zeroBlob(ros,drawer)
+                for ros in range(util.max_ros()):
+                    for drawer in range(util.getMaxDrawer(ros)):
+                        blobWriter.zeroBlob(ros,drawer)
 
                 #=== default for detector
                 det = blobWriter.getDrawer(0, 0)
@@ -1405,14 +1422,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 folderTag = TileCalibUtils.getFullTag(folder, tag)
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
 
-            except Exception, e:
+            except Exception as e:
                 self.log().critical( e )
 
 
     #____________________________________________________________________
     def writeMuonReceiverPulseShape(self, tag = ""):
 
-        self.log().info( "*** Writing default pulse shapes for TileMuonReceiver board with tag %s" % tag)
+        self.log().info( "*** Writing default pulse shapes for TileMuonReceiver board with tag %s", tag)
 
         folder_name = 'MURCV'
         source_file = 'pulse_adder_muonRcv_physics.dat'
@@ -1427,10 +1444,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
         for line in lines:
             fields = line.strip().split()
             #=== ignore empty and comment lines
-            if not len(fields)          : continue            
-            if fields[0].startswith("#"): continue 
-            if fields[0].startswith("*"): continue 
-            if len(fields) != 2         : continue
+            if not len(fields)          :
+                continue            
+            if fields[0].startswith("#"):
+                continue 
+            if fields[0].startswith("*"):
+                continue 
+            if len(fields) != 2         :
+                continue
 
             phases.append(float(fields[0]))
             amplitudes.append(float(fields[1]))
@@ -1438,8 +1459,10 @@ class TileCalibDefaultWriter(TileCalibLogger):
         #=== create default ascii file
         fileStr = "OBJVERSION 200"
         fileStr += "\n0x000\t0\t0\t"
-        for phase in phases: fileStr += "%f " % phase 
-        for amplitude in amplitudes: fileStr += "%f " % amplitude
+        for phase in phases:
+            fileStr += "%f " % phase 
+        for amplitude in amplitudes:
+            fileStr += "%f " % amplitude
         fileStr += "\n"
         defFile = open(output_file,"w")
         defFile.write(fileStr)
@@ -1447,8 +1470,10 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         #=== build default pulseshape vectors for db
         defaultPls = cppyy.gbl.std.vector('float')()
-        for phase in phases: defaultPls.push_back(phase)
-        for amplitude in amplitudes: defaultPls.push_back(amplitude)
+        for phase in phases:
+            defaultPls.push_back(phase)
+        for amplitude in amplitudes:
+            defaultPls.push_back(amplitude)
         defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(defaultPls)
         try:
@@ -1456,9 +1481,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
             blobWriter = TileCalibTools.TileBlobWriter(self.__db, folder, 'Flt')
             #=== initialize all channels
             util = cppyy.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
-                    flt = blobWriter.zeroBlob(ros,drawer)
+            for ros in range(util.max_ros()):
+                for drawer in range(util.getMaxDrawer(ros)):
+                    blobWriter.zeroBlob(ros,drawer)
 
             #=== default for detector
             det = blobWriter.getDrawer(0, 0)
@@ -1468,7 +1493,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
 
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
 
 
@@ -1489,22 +1514,22 @@ class TileCalibDefaultWriter(TileCalibLogger):
     
         #=== common TileMuId defaults
         default = cppyy.gbl.std.vector('float')()
-        for i in xrange(20):
+        for i in range(20):
             default.push_back(150.)
             default.push_back(5000.)
         defVec = cppyy.gbl.std.vector('std::vector<float>')()
         defVec.push_back(default)
         defVec.push_back(default)    
         
-        #=== get a writter
+        #=== get a writer
         writer = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',False)
         writer.setComment(self.__author,"TileMuId default values")
     
         #=== initialize all channels and write global default
         util = cppyy.gbl.TileCalibUtils()
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
-                flt = writer.zeroBlob(ros,drawer)
+        for ros in range(util.max_ros()):
+            for drawer in range(util.getMaxDrawer(ros)):
+                writer.zeroBlob(ros,drawer)
         calibDrawer = writer.getDrawer(0,0)
         calibDrawer.init(defVec,1,1)
     

@@ -62,7 +62,7 @@ class GenerateMenuMT(object):
         self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau',
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias',
                               'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias'] #, AFP
-        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
+        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
 
         # flags
         self.doEgammaChains         = True
@@ -185,9 +185,11 @@ class GenerateMenuMT(object):
         == Returns the list of chain names that are in the menu
         """
         log.debug('Setting TriggerConfigHLT to get the right menu')
+
         self.setTriggerConfigHLT()
 
         log.debug('Creating one big list of of enabled signatures and chains')
+
         chains = []
         ## we can already use new set of flags
         #from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -200,8 +202,10 @@ class GenerateMenuMT(object):
                 log.debug("Adding %s chains to the list of chains to be configured", sig)
                 chains+= eval('TriggerFlags.' + sig + 'Slice.signatures()')
                 self.signaturesToGenerate.append(sig)
-            else:
-                log.debug('Signature %s is not switched on (no chains in menu or disabled by flag)', sig)
+            elif not eval('TriggerFlags.' + sig + 'Slice.signatures()'):
+                log.debug('Signature %s is not switched on (no chains in menu)', sig)
+            elif not eval('self.do' + sig + 'Chains'):
+                log.debug('Signature %s is not switched on (disabled by flag)', sig)
 
         log.info("The following signature(s) is (are) enabled: %s", self.signaturesToGenerate)
 
@@ -300,7 +304,7 @@ class GenerateMenuMT(object):
 
         elif len(listOfChainConfigs)>1:
                 log.debug("Merging strategy from dictionary: %s", mainChainDict["mergingStrategy"])
-                theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict, mainChainDict["mergingStrategy"], mainChainDict["mergingOffset"])
+                theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict)
 
                 # This needs to be added for topological chains - needs implementation
                 #doTopo = self.CheckIntraSignatureTopo(chainDicts) and chainDict["topo"]

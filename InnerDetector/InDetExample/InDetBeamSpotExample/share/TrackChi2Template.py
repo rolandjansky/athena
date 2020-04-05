@@ -5,7 +5,7 @@
 #
 # Written by Juerg Beringer in April 2008.
 #
-print "InDetBeamSpotExample INFO Using $Id: TrackChi2Template.py 352081 2011-03-16 12:16:14Z gwilliam $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: TrackChi2Template.py 352081 2011-03-16 12:16:14Z gwilliam $")
 
 
 # Default values (please put a default for EACH jobConfig parameter
@@ -60,13 +60,13 @@ ToolSvc += CfgMgr.InDet__InDetBeamSpotTrackChi2(name            = 'InDetBeamSpot
                                                 PixHoles_Q_cut  = jobConfig['PixHoles_Q_cut'],
                                                 ChiOvDof_Q_cut  = jobConfig['ChiOvDof_Q_cut'],
                                                 OutputLevel     = min(INFO,jobConfig['outputlevel']))
-print ToolSvc.InDetBeamSpotTrackChi2
+printfunc (ToolSvc.InDetBeamSpotTrackChi2)
 
 #from InDetBeamSpotFinder.InDetBeamSpotFinderConf import InDet__InDetBeamSpotDbWriterTool
 ToolSvc += CfgMgr.InDet__InDetBeamSpotDbWriterTool(name        = 'InDetBeamSpotDbWriterTool',
                                                    Tag         = "nominal",
                                                    OutputLevel = min(INFO,jobConfig['outputlevel']))
-print ToolSvc.InDetBeamSpotDbWriterTool
+printfunc (ToolSvc.InDetBeamSpotDbWriterTool)
 
 #from InDetBeamSpotFinder.InDetBeamSpotFinderConf import InDet__InDetBeamSpotFinder as InDetBeamSpotFinder
 topSequence += CfgMgr.InDet__InDetBeamSpotFinder(name                = 'InDetBeamSpotFinder',
@@ -91,8 +91,8 @@ try:
     topSequence.InDetBeamSpotFinder.UseLBFromViewed   = jobConfig['UseLBFromViewed']
     topSequence.InDetBeamSpotFinder.UseLBFromAccepted = jobConfig['UseLBFromAccepted']
 except:
-    print 'ERROR: You are using an older version of InDetBeamSpotFinder - please update to InDetBeamSpotFinder-01-00-29 or later'
-print topSequence.InDetBeamSpotFinder
+    printfunc ('ERROR: You are using an older version of InDetBeamSpotFinder - please update to InDetBeamSpotFinder-01-00-29 or later')
+printfunc (topSequence.InDetBeamSpotFinder)
 
 
 # Output SQLite and ROOT files

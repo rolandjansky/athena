@@ -10,6 +10,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/CxxUtils
    Control/DataModelRoot
+   Control/RootUtils
    GaudiKernel
    PRIVATE
    AtlasTest/TestTools
@@ -34,6 +35,7 @@ atlas_add_library( AthenaKernel
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS} 
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${UUID_LIBRARIES} CxxUtils DataModelRoot
+   RootUtils
    GaudiKernel ${RT_LIBRARY}
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES}
    ${CMAKE_DL_LIBS} )

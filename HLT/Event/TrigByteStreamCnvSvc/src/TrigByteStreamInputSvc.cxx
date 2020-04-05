@@ -95,29 +95,29 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
 
   using DCStatus = hltinterface::DataCollector::Status;
   DCStatus status = DCStatus::NO_EVENT;
-  do {
-    try {
-      auto t_getNext = Monitored::Timer("TIME_getNext");
-      status = hltinterface::DataCollector::instance()->getNext(cache->rawData);
-      auto mon = Monitored::Group(m_monTool, t_getNext);
-      if (status == DCStatus::NO_EVENT)
-        ATH_MSG_ERROR("Failed to read new event, DataCollector::getNext returned Status::NO_EVENT. Trying again.");
-    }
-    catch (const std::exception& ex) {
-      ATH_MSG_ERROR("Failed to read new event, caught an unexpected exception: " << ex.what()
-                    << ". Throwing hltonl::Exception::EventSourceCorrupted" );
-      throw hltonl::Exception::EventSourceCorrupted();
-    }
-    catch (...) {
-      ATH_MSG_ERROR("Failed to read new event, caught an unexpected exception. "
-                    << "Throwing hltonl::Exception::EventSourceCorrupted" );
-      throw hltonl::Exception::EventSourceCorrupted();
-    }
-  } while (status == DCStatus::NO_EVENT);
+  try {
+    auto t_getNext = Monitored::Timer("TIME_getNext");
+    status = hltinterface::DataCollector::instance()->getNext(cache->rawData);
+    auto mon = Monitored::Group(m_monTool, t_getNext);
+  }
+  catch (const std::exception& ex) {
+    ATH_MSG_ERROR("Failed to read new event, caught an unexpected exception: " << ex.what()
+                  << ". Throwing hltonl::Exception::EventSourceCorrupted" );
+    throw hltonl::Exception::EventSourceCorrupted();
+  }
+  catch (...) {
+    ATH_MSG_ERROR("Failed to read new event, caught an unexpected exception. "
+                  << "Throwing hltonl::Exception::EventSourceCorrupted" );
+    throw hltonl::Exception::EventSourceCorrupted();
+  }
 
   if (status == DCStatus::STOP) {
-    ATH_MSG_DEBUG("No more events available");
+    ATH_MSG_DEBUG("DataCollector::getNext returned STOP - no more events available");
     throw hltonl::Exception::NoMoreEvents();
+  }
+  else if (status == DCStatus::NO_EVENT) {
+    ATH_MSG_DEBUG("DataCollector::getNext returned NO_EVENT - no events available temporarily");
+    throw hltonl::Exception::NoEventsTemporarily();
   }
   else if (status != DCStatus::OK) {
     ATH_MSG_ERROR("Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext");

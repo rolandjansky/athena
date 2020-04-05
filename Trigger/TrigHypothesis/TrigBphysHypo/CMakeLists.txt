@@ -29,6 +29,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetConditions/InDetBeamSpotService
+                          InnerDetector/InDetRecTools/InDetConversionFinderTools
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Reconstruction/Particle
                           Tracking/TrkEvent/TrkParameters
@@ -46,7 +47,8 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigTools/TrigInDetToolInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
-                          Trigger/TrigSteer/DecisionHandling)
+                          Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils)
 
 # External dependencies:
 find_package( CLHEP )
@@ -58,7 +60,7 @@ atlas_add_component( TrigBphysHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AthLinks BeamSpotConditionsData DecisionHandlingLib FourMomUtils StoreGateLib SGtests GeoPrimitives EventInfo xAODEventInfo xAODMuon xAODTracking xAODTrigBphys xAODTrigMuon GaudiKernel GeneratorObjects Particle ElectronPhotonSelectorToolsLib TrkParameters TrkTrack VxVertex TrkVKalVrtFitterLib TrigBphysicsEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib AthViews )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AthLinks BeamSpotConditionsData InDetConversionFinderToolsLib DecisionHandlingLib FourMomUtils StoreGateLib SGtests GeoPrimitives EventInfo xAODEventInfo xAODMuon xAODTracking xAODTrigBphys xAODTrigMuon GaudiKernel GeneratorObjects Particle ElectronPhotonSelectorToolsLib TrkParameters TrkTrack VxVertex TrkVKalVrtFitterLib TrigBphysicsEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib AthViews TrigCompositeUtilsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

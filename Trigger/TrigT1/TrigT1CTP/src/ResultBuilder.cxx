@@ -40,10 +40,6 @@ LVL1CTP::ResultBuilder::~ResultBuilder() {
    delete m_ctpDataFormat;
 }
 
-void
-LVL1CTP::ResultBuilder::setRandomEngine( CLHEP::HepRandomEngine* rndmEngine ) {
-   m_rndmEngine = rndmEngine;
-}
 
 StatusCode
 LVL1CTP::ResultBuilder::setConfiguration( const TrigConf::CTPConfig* ctpConfig, 
@@ -181,7 +177,8 @@ LVL1CTP::ResultBuilder::constructTIPVector( const std::map<std::string, unsigned
 
 StatusCode
 LVL1CTP::ResultBuilder::buildItemDecision( const std::map<std::string, unsigned int> & thrMultiMap,
-                                           std::map<std::string, unsigned int> & itemDecisionMap ) const
+                                           std::map<std::string, unsigned int> & itemDecisionMap,
+                                           CLHEP::HepRandomEngine* rndmEngine ) const
 {
    // build trigger result for all items
    itemDecisionMap.clear();
@@ -195,7 +192,7 @@ LVL1CTP::ResultBuilder::buildItemDecision( const std::map<std::string, unsigned 
          bool pass_afterVeto = false;
 
          if ( pass_beforePrescale ) {
-            long random = CLHEP::RandFlat::shootInt(m_rndmEngine, pow(2,24) );
+            long random = CLHEP::RandFlat::shootInt( rndmEngine, pow(2,24) );
             int32_t cut = TrigConf::PrescaleSet::getCutFromPrescale( m_itemConfigMap->getItem( itemName )->prescale() );
             pass_afterPrescale = (random >= cut) && (cut > 0); // no pass if PS set to "-1"
             pass_afterVeto = pass_afterPrescale; // dead time is not simulated

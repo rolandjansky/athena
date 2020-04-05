@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -9,14 +9,10 @@
  -------------------------------------------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: CscDetectorElement.cxx,v 1.1 2009-05-20 15:24:08 tcorneli Exp $
-//<version>	$Name: not supported by cvs2svn $
-
 #include "MuonReadoutGeometry/CscDetectorElement.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkSurfaces/Surface.h"
-#include "GaudiKernel/MsgStream.h"
 
 namespace MuonGM {
 
@@ -64,7 +60,7 @@ const Amg::Vector3D&
 CscDetectorElement::normal(const Identifier& id) const
   {return m_cscre->normal(id);}
 
-const std::vector<const Trk::Surface*>&  CscDetectorElement::surfaces() const
+std::vector<const Trk::Surface*>  CscDetectorElement::surfaces() const
 {return m_cscre->surfaces();}
 
 }

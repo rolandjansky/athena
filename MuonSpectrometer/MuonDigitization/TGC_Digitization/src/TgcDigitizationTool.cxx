@@ -43,7 +43,9 @@ StatusCode TgcDigitizationTool::initialize()
   ATH_CHECK(detStore()->retrieve(m_mdManager));
   ATH_MSG_DEBUG("Retrieved MuonDetectorManager from DetectorStore.");
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   //initialize the TgcIdHelper
   m_idHelper = m_mdManager->tgcIdHelper();

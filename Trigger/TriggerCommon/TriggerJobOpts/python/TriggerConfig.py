@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
+from collections import OrderedDict
 from builtins import str
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -34,6 +35,8 @@ def collectHypos( steps ):
                 # will replace by function once dependencies are sorted
                 if 'HypoInputDecisions'  in alg.getProperties():
                     __log.info( "found hypo " + alg.name() + " in " +stepSeq.name() )
+                    if alg.getType() == 'ComboHypo':
+                        __log.info( "    with %d comboHypoTools: %s", len(alg.ComboHypoTools), ' '.join(map(str, [tool.name() for  tool in alg.ComboHypoTools])))
                     hypos[stepSeq.name()].append( alg )
                 else:
                     __log.verbose("Not a hypo" + alg.name())
@@ -110,7 +113,7 @@ def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
                 if outputs:
                     decisionObjects.add( hypoAlg.HypoOutputDecisions )
     __log.info("Collecting %i decision objects from hypos", len(decisionObjects))
-    return decisionObjects
+    return sorted(decisionObjects)
 
 def collectFilterDecisionObjects(filters, inputs = True, outputs = True):
     decisionObjects = set()
@@ -156,13 +159,12 @@ def triggerSummaryCfg(flags, hypos):
     DecisionSummaryMakerAlg=CompFactory.DecisionSummaryMakerAlg
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     decisionSummaryAlg = DecisionSummaryMakerAlg()
-    allChains = {}
-
+    allChains = OrderedDict()
 
     for stepName, stepHypos in sorted( hypos.items() ):
         for hypo in stepHypos:
             hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
-            allChains.update( dict.fromkeys( hypoChains, hypoOutputKey ) )
+            allChains.update( OrderedDict.fromkeys( hypoChains, hypoOutputKey ) )
 
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
@@ -171,7 +173,7 @@ def triggerSummaryCfg(flags, hypos):
     else:
         for chainName, chainDict in six.iteritems (TriggerConfigHLT.dicts()):
             if chainName not in allChains:
-                __log.warn("The chain %s is not mentiond in any step", chainName)
+                __log.warn("The chain %s is not mentioned in any step", chainName)
                 # TODO once sequences available in the menu we need to crosscheck it here
                 assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense: %s"%chainName
                 allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
@@ -179,8 +181,8 @@ def triggerSummaryCfg(flags, hypos):
 
     for c, cont in six.iteritems (allChains):
         __log.debug("Final decision of chain  " + c + " will be read from " + cont )
-    decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
-    decisionSummaryAlg.FinalStepDecisions = allChains
+    decisionSummaryAlg.FinalDecisionKeys = list(OrderedDict.fromkeys(allChains.values()))
+    decisionSummaryAlg.FinalStepDecisions = dict(allChains)
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
     decisionSummaryAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decisionSummaryAlg.CostWriteHandleKey = recordable(flags.Trigger.CostMonitoring.outputCollection)
@@ -208,7 +210,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
             stepDecisionKeys.append( hypoOutputKey )
             allChains.update( hypoChains )
 
-        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=list(set(stepDecisionKeys)) )
+        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=list(OrderedDict.fromkeys(stepDecisionKeys)))
         __log.debug( "The step monitoring decisions in " + dcTool.name() + " " +str( dcTool.Decisions ) )
         mon.CollectorTools += [ dcTool ]
 
@@ -298,8 +300,6 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     # handle the collectiosn defined in the EDM config
     collectionsToBS = getRun3BSList( ["BS"]+ list(EventBuildingInfo.DataScoutingIdentifiers.keys()) )
 
-    
-    from collections import OrderedDict
     ItemModuleDict = OrderedDict()
     for typekey, bsfragments in collectionsToBS:
         # translate readable frament names like BS, CostMonDS names to ROB fragment IDs 0 - for the BS, 1,...- for DS fragments
@@ -416,11 +416,6 @@ def triggerPOOLOutputCfg(flags, decObj, decObjHypoOut, edmSet):
     menuwriter = TrigConf__xAODMenuWriterMT()
     menuwriter.IsHLTJSONConfig = True
     menuwriter.IsL1JSONConfig = True
-    from .TriggerFlags import TriggerFlags
-    if TriggerFlags.triggerMenuSetup != 'LS2_v1':
-      menuwriter.IsL1JSONConfig = False
-      log = logging.getLogger( "triggerPOOLOutputCfg" )
-      log.warn("Menu other than LS2_v1 (%s), will continue to take the L1 menu from XML rather than JSON. See ATR-20873", TriggerFlags.triggerMenuSetup)
     acc.addEventAlgo( menuwriter )
 
     return acc
@@ -576,6 +571,9 @@ def triggerIDCCacheCreatorsCfg(flags):
     acc = ComponentAccumulator()
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
     acc.merge( MuonCacheCfg() )
+
+    from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheCfg
+    acc.merge( MuonPrdCacheCfg() )
 
     from TrigInDetConfig.InDetConfig import InDetIDCCacheCreatorCfg
     acc.merge( InDetIDCCacheCreatorCfg() )

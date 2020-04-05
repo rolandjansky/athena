@@ -28,34 +28,13 @@
 // Constructor with parameters:
 Muon::MuonHolesOnTrackTool::MuonHolesOnTrackTool(const std::string &type, const std::string &name, const IInterface* parent ) :
   AthAlgTool(type,name,parent),
-  m_trackingGeometryName("MuonTest"),
-  m_outlierLim(50.),
-  m_identifyHoles(true),
-  m_softLowerCut(0),
-  m_stopSearch(1),
-  m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
-  m_extrapolator("Trk::Extrapolator/Extrapolator"),
-  m_rotCreator("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator"),
-  m_msEntrance(0),
-  m_parUpdate(false)
+  m_msEntrance(0)
 {  
   declareInterface<Trk::ITrackHoleSearchTool>(this);
 
   m_sortingRefPoint.push_back(0.);
   m_sortingRefPoint.push_back(0.);
   m_sortingRefPoint.push_back(0.);
-
-  // Get parameter values from jobOptions file
-  declareProperty("OutlierResidualLimit",m_outlierLim);
-  declareProperty("ExtrapolatorName", m_extrapolator);
-  declareProperty("RIO_OnTrackCreator", m_rotCreator);
-  declareProperty("TrackingGeometryName", m_trackingGeometryName);     // this is dummy now and will be removed
-  declareProperty("MuonTGMeasurementTool",m_measTool);
-  //declareProperty("sortingRefereePoint",m_sortingRefPoint);
-  declareProperty("DoParameterUpdate",m_parUpdate);
-  declareProperty("DoHolesIdentification",m_identifyHoles);
-  declareProperty("LowerTrackMomentumCut",m_softLowerCut);
-  declareProperty("StopHolesSearchMode",m_stopSearch);
 }
 
 // Initialize method:
@@ -69,6 +48,7 @@ StatusCode Muon::MuonHolesOnTrackTool::initialize()
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_measTool.retrieve());
   ATH_CHECK(m_extrapolator.retrieve());
+  m_msEntrance = m_extrapolator->trackingGeometry()->trackingVolume("MuonSpectrometerEntrance");
   ATH_CHECK(m_rotCreator.retrieve());
 
   return StatusCode::SUCCESS;
@@ -128,7 +108,7 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
       nextLayer = nextExpectedLayer(currPar,tSoS);
       if (!nextLayer) expMeas = false;
     }
-    if (!expMeas && m_stopSearch==2) break;
+    if (!expMeas && m_stopSearch==2u) break;
  
     std::pair<const Trk::TrackParameters*,const Trk::Layer*> next = m_extrapolator->extrapolateToNextActiveLayer(*currPar,
                Trk::alongMomentum,true,particle) ;
@@ -140,7 +120,7 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
       delete nextPar;
       nextPar = 0;
     } else if (nextPar) {
-      if (!expMeas && m_stopSearch==1 && enclosingStation 
+      if (!expMeas && m_stopSearch==1u && enclosingStation 
 	    && !enclosingStation->trackingVolume()->inside(nextPar->position(),0.001)) {delete nextPar; break; } 
       enclosingStation = layer->enclosingDetachedTrackingVolume();
     }
@@ -453,8 +433,6 @@ const Trk::TrackParameters* Muon::MuonHolesOnTrackTool::getMSEntry(const Track* 
 
   const Trk::TrackParameters* msEntry = 0;
 
-  if (!m_msEntrance) m_msEntrance = m_extrapolator->trackingGeometry()->trackingVolume("MuonSpectrometerEntrance");
-
   // retrieve TSoS 
   const DataVector<const Trk::TrackStateOnSurface>* tSoS = input_track->trackStateOnSurfaces();
   std::vector <const Trk::TrackStateOnSurface*> ntSoS;
@@ -526,7 +504,6 @@ const Trk::TrackParameters* Muon::MuonHolesOnTrackTool::getMSEntry(const Track* 
       // MS entrance
       if ( m_extrapolator->trackingGeometry()->atVolumeBoundary( (*tit)->trackParameters()->position(), m_msEntrance, 100. ) ) {
         msEntry = (*tit)->trackParameters()->clone();
-	//std::cout << "muon entrance parameters found in track record:" << msEntry->position() << std::endl;
         return msEntry;
       }
       // first muon measurement
@@ -716,7 +693,6 @@ const Trk::Layer* Muon::MuonHolesOnTrackTool::nextExpectedLayer(const Trk::Track
   DataVector<const Trk::TrackStateOnSurface>::const_iterator tit  = tSoS->begin();
 
   for ( tit=tbeg; tit!=tend; ++tit) {
-    //if ((*tit)->type(Trk::TrackStateOnSurface::Measurement) ) {
     if ((*tit)->type(Trk::TrackStateOnSurface::Measurement) || (*tit)->type(Trk::TrackStateOnSurface::Outlier)) {
       // only muon hits matter
       if (m_msEntrance && !m_msEntrance->inside((*tit)->measurementOnTrack()->associatedSurface().center(),0.)) {
@@ -726,8 +702,6 @@ const Trk::Layer* Muon::MuonHolesOnTrackTool::nextExpectedLayer(const Trk::Track
 	  ATH_MSG_WARNING( name() << " no associated layer found for next measurement at position " << (*tit)->measurementOnTrack()->associatedSurface().center() );
 	} else if ( next!=currLayer) { 
 	  Trk::DistanceSolution distEst = next->surfaceRepresentation().straightLineDistanceEstimate(currPar->position(), currPar->momentum().unit());
-	  //std::cout << "estimating distance to meas.:" << tit-tbeg <<"," << distEst.numberOfSolutions() <<"," <<
-	  //  distEst.first() << "," << distEst.toPointOfClosestApproach() << std::endl; 
 	  if  ( distEst.numberOfSolutions()>0 && distEst.first()> tol ) {
 	    nextLayer = next;
 	    break; 

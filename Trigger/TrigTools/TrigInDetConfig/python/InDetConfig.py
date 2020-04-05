@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -13,6 +13,7 @@ class InDetCacheNames(object):
   SCTBSErrCacheKey   = "SctBSErrCache"
   SCTRDOCacheKey     = "SctRDOCache"
   PixRDOCacheKey     = "PixRDOCache"
+  PixBSErrCacheKey   = "PixBSErrCache"
 
 def InDetIDCCacheCreatorCfg():
   #Create IdentifiableCaches
@@ -25,7 +26,8 @@ def InDetIDCCacheCreatorCfg():
                                               SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                               SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
                                               SCTBSErrCacheKey   = InDetCacheNames.SCTBSErrCacheKey,
-                                              PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey)
+                                              PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey,
+                                              PixBSErrCacheKey   = InDetCacheNames.PixBSErrCacheKey)
 
   acc.addEventAlgo( InDetCacheCreatorTrig )
   return acc
@@ -129,7 +131,7 @@ def TrigInDetCondConfig( flags ):
       PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg, PixelCablingCondAlgCfg,
       PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg,
       PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
-# NEW FOR RUN3    PixelDeadMapCondAlgCfg
+# NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg
   )
 
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
@@ -148,6 +150,7 @@ def TrigInDetCondConfig( flags ):
                                   UseTDAQConditions=False))
   # charge calibration
   acc.merge(PixelChargeCalibCondAlgCfg(flags))
+# NEW FOR RUN3  acc.merge(PixelChargeLUTCalibCondAlgCfg(flags))
   # DCS setup
   acc.merge(PixelDCSCondHVAlgCfg(flags))
   acc.merge(PixelDCSCondTempAlgCfg(flags))
@@ -394,7 +397,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   #theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
   #                                                         doIBLresidual = False,
   #                                                         TrackName = "TrigFastTrackFinder_Tracks",
-  #                                                         TrackParticlesName = "xAODTracks",
+  #                                                         TrackParticlesName = "IDTrack",
   #                                                         ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
   #theTrackParticleCreatorAlg.roiCollectionName = roisKey
   #acc.addEventAlgo(theTrackParticleCreatorAlg)

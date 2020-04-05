@@ -22,7 +22,9 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
 StatusCode PixelDigitizationTool::initialize() {
   ATH_MSG_DEBUG("PixelDigitizationTool::Initialize()");
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
   ATH_CHECK(m_rndmSvc.retrieve());
 
   ATH_CHECK(detStore()->retrieve(m_detID,"PixelID"));

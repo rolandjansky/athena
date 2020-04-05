@@ -1,20 +1,23 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-import getopt,sys,os,string
+
+from __future__ import print_function
+
+import getopt,sys
  
 def usage():
-    print "Usage: ",sys.argv[0]," [OPTION] ... "
-    print "Write the TileCal drawer trips probabilities from ASCII file into local sqlite file"
-    print "ASCII file format:"
-    print "#CondId  |  frag  |  trip probability"
-    print "Trip    0x100    0.01"
-    print ""
-    print "-h, --help     shows this help"
-    print "-t, --tag=     specify tag to use, by default TEST-00"
-    print "-i, --input=   input ASCII file, by default Tile.trips"
-    print "-f, --folder=  specify status folder to use OFL01 or OFL02, by default OFL01 "
+    print ("Usage: ",sys.argv[0]," [OPTION] ... ")
+    print ("Write the TileCal drawer trips probabilities from ASCII file into local sqlite file")
+    print ("ASCII file format:")
+    print ("#CondId  |  frag  |  trip probability")
+    print ("Trip    0x100    0.01")
+    print ("")
+    print ("-h, --help     shows this help")
+    print ("-t, --tag=     specify tag to use, by default TEST-00")
+    print ("-i, --input=   input ASCII file, by default Tile.trips")
+    print ("-f, --folder=  specify status folder to use OFL01 or OFL02, by default OFL01 ")
 
 
 letters = "ht:i:f:"
@@ -22,8 +25,8 @@ keywords = ["help", "tag=", "input=","folder="]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:], letters, keywords)
-except getopt.GetoptError, err:
-    print str(err)
+except getopt.GetoptError as err:
+    print (str(err))
     usage()
     sys.exit(2)
 
@@ -50,10 +53,10 @@ for o, a in opts:
 import cppyy
 
 from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobObjs.Classes import * 
+from TileCalibBlobObjs.Classes import TileCalibUtils
 
 #=== some preparation
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("writeTripsProbs")
 import logging
 log.setLevel(logging.DEBUG)
@@ -70,7 +73,7 @@ def fillTripsProbs(fileTrips, folderPath, tag, since
     util = cppyy.gbl.TileCalibUtils()
     
     default = cppyy.gbl.std.vector('unsigned int')()
-    for i in xrange(util.max_drawer() + 1):
+    for i in range(util.max_drawer() + 1):
         default.push_back( 0 )
 
     defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()  
@@ -81,14 +84,14 @@ def fillTripsProbs(fileTrips, folderPath, tag, since
     #=====================================================
     writer = TileCalibTools.TileBlobWriter(db, folderPath, 'Bch')
    
-    precisions = [[0 for drawer in xrange(util.max_drawer())] for ros in xrange(util.max_ros())]
-    trips = [[0 for drawer in xrange(util.max_drawer())] for ros in xrange(util.max_ros())]
+    precisions = [[0 for drawer in range(util.max_drawer())] for ros in range(util.max_ros())]
+    trips = [[0 for drawer in range(util.max_drawer())] for ros in range(util.max_ros())]
 
-    parser = TileCalibTools.TileASCIIParser3(fileTrips, "Trip");
+    parser = TileCalibTools.TileASCIIParser3(fileTrips, "Trip")
     dict = parser.getDict()
-    log.info("Updating dictionary from file with %i entries" % len(dict))
-    log.info("... filename: %s" % fileTrips )
-    for key, trip in dict.iteritems():
+    log.info("Updating dictionary from file with %i entries", len(dict))
+    log.info("... filename: %s", fileTrips )
+    for key, trip in list(dict.items()):
         ros = key[0]
         mod = key[1]
         precisions[ros][mod] = len(trip[0]) - 2
@@ -98,9 +101,9 @@ def fillTripsProbs(fileTrips, folderPath, tag, since
     tripsCalibDrawer = writer.getDrawer(util.trips_ros(), util.trips_drawer())
     tripsCalibDrawer.init(defVec, util.max_ros(), 1)
 
-    for ros in xrange(util.max_ros()):
+    for ros in range(util.max_ros()):
         denominator = 10**max(precisions[ros])
-        for mod in xrange(util.max_drawer()):
+        for mod in range(util.max_drawer()):
             trip = int(trips[ros][mod] * denominator)
             tripsCalibDrawer.setData(ros, 0, mod, trip)
         tripsCalibDrawer.setData(ros, 0, util.max_drawer(), denominator)

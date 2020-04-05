@@ -5,8 +5,7 @@
 #ifndef DECISIONHANDLING_INPUTMAKERBASE_H
 #define DECISIONHANDLING_INPUTMAKERBASE_H 1
 
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
@@ -30,41 +29,45 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionInputs() const;
 
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
-  const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionOutputs() const;
+  const SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer>& decisionOutputs() const;
 
   // name of link to the RoI
-  StringProperty m_roisLink { this, "RoIsLink", "initialRoI", "Name of EL to RoI object linked to the decision" };
+  StringProperty m_roisLink {this, "RoIsLink", "initialRoI",
+    "Name of EL to RoI object linked to the decision, used in merging input Decision objects when mergeUsingFeature=False." };
   
+  Gaudi::Property<bool> m_mergeUsingFeature {this, "mergeUsingFeature", false,
+    "True=the IParicle-derived feature from the previous step is used to determine identical inputs. False=the ROI located with the RoIsLink property is used to determine identical inputs" };
+
   // helper methods for derived classes to reduce boiler plate code  //
   /////////////////////////////////////////////////////////////////////
   
   /// provides debug printout of the output of the algorithm
-  void debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const;
-
-   /// does the standard handling of input decisions: read from handles with all the checks, create corresponding output handles and link them, copies links and return outputHandles
-  StatusCode decisionInputToOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const;
+  void debugPrintOut(const EventContext& context, SG::WriteHandle<TrigCompositeUtils::DecisionContainer>& outputHandle) const;
 
   /// does the standard handling of input decisions: read from handles with all the checks, create merged output handles and link them, copies links and return outputHandles
-  StatusCode decisionInputToMergedOutput(const EventContext& context, std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> > & outputHandles) const;
+  StatusCode decisionInputToOutput(const EventContext& context, SG::WriteHandle<TrigCompositeUtils::DecisionContainer>& outputHandle) const;
 
-  /// counts valid input decisions
-  size_t countInputHandles( const EventContext& context ) const;
+  /// Checks for merge-able Decision objects coming from N upstream filters. Check based on stored element link in typed CONTAINER with 'linkNameToMatch'
+  template<typename CONTAINER>
+  size_t matchDecision(const TrigCompositeUtils::DecisionContainer* outDecisions, 
+    const TrigCompositeUtils::Decision* toMatch, 
+    const std::string& linkNameToMatch) const;
 
-    // setting strategy for output creation: merged means one decision per ROI
-  Gaudi::Property<bool>  m_mergeOutputs { this, "mergeOutputs", true, "true=outputs are merged, false=one output per input" };
+  /// Wrapper around matchDecision. Returns boolean if the match was successful.
+  bool matchInCollection(const TrigCompositeUtils::DecisionContainer* toMatchAgainst, 
+    const TrigCompositeUtils::Decision* toMatch,
+    size_t& matchIndex) const;
 
-  
  private:
   
-  /// input decisions, will be implicit (renounced).
+  /// input decisions array, will be implicit (renounced).
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "InputMakerInputDecisions", {}, "Input Decisions (implicit)" };
 
   /// output decisions
-  SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "InputMakerOutputDecisions", {}, "Ouput Decisions" };
-
-  
+  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_outputs { this, "InputMakerOutputDecisions", "", "Output Decisions" };
   
 };
 
+#include "InputMakerBase.icc"
 
 #endif // DECISIONHANDLING_INPUTMAKERBASE_H

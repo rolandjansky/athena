@@ -94,7 +94,7 @@ std::vector<Trk::DigitizationStep> Trk::PlanarModuleStepper::cellSteps(const Trk
 
     
     // first, intersect the boundary surfaces
-    auto boundarySurfaces =  dmodule.boundarySurfaces();
+    const auto &boundarySurfaces =  dmodule.boundarySurfaces();
     // intersect them - fast exit for cases where readout and counter readout are hit
     Amg::Vector3D intersection3D(moduleIntersection.x(),moduleIntersection.y(),0.);
     size_t attempts = 0;

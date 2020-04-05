@@ -210,6 +210,17 @@ def expandPrereqs(reqtype,prereqs):
             return None              
     return reqdefs
 
+########################################################################
+# For each modifier in the given list with a configurable input container
+# name ("JetContainer"), configure it to containerName.
+# Also handle any container-specific configuration needed.
+def autoconfigureModifiers(modifiers, containerName):
+    for mod in modifiers:
+        if "JetContainer" in mod.properties():
+            mod.JetContainer = containerName
+        if "DoPFlowMoments" in mod.properties():
+            mod.DoPFlowMoments = ("PFlow" in containerName)
+
 
 ########################################################################
 # Function producing an EventShapeAlg to calculate
@@ -354,10 +365,13 @@ def getGhostPrereqs(ghostdef):
 def getConstitPJGAlg(basedef):
     jetlog.debug("Getting PseudoJetAlg for label {0} from {1}".format(basedef.label,basedef.inputname))
     # 
-    getter = JetRecConf.PseudoJetGetter("pjg_"+basedef.label,
+    full_label = basedef.label
+    if basedef.basetype == xAODType.Jet:
+        full_label += "_"+basedef.inputname
+    getter = JetRecConf.PseudoJetGetter("pjg_"+full_label,
         InputContainer = basedef.inputname,
-        OutputContainer = "PseudoJet"+basedef.label,
-        Label = basedef.label,
+        OutputContainer = "PseudoJet"+full_label,
+        Label = full_label,
         SkipNegativeEnergy=True,
         GhostScale=0.
         )
@@ -467,6 +481,7 @@ def getJetRecTool(jetname, finder, pjs, mods):
         JetFinder = finder,
         JetModifiers = mods
     )
+    autoconfigureModifiers(jetrec.JetModifiers, jetname)
     return jetrec
 
 

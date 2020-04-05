@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -80,9 +80,6 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_lutCreatorToolCSC  ("CSC_RegionSelectorTable", this),
     m_lutCreatorToolMM   ("MM_RegionSelectorTable", this),
     m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable", this),
-    m_initFTK(false),
-    m_lutCreatorToolFTK  ("FTK_RegionSelectorTable", this),
-    m_ftklut(nullptr),
     m_duplicateRemoval( true )
 {
   //! Declare properties
@@ -100,13 +97,11 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
   declareProperty( "enableCSC",   m_initCSC,      "enable CSC map" );
   declareProperty( "enableMM",    m_initMM,       "enable MM map" );
   declareProperty( "enablesTGC",  m_initsTGC,     "enable sTGC map" );
-  declareProperty( "enableFTK",   m_initFTK,      "enable FTK map" );
   declareProperty( "WriteTables", m_dumpTable,    "write out maps to files for debugging" );
   declareProperty( "OutputFile",  m_roiFileName,  "base filename used to write maps to" );
   declareProperty( "PixelRegionLUT_CreatorTool", m_lutCreatorToolPixel);
   declareProperty( "SCT_RegionLUT_CreatorTool",  m_lutCreatorToolSCT);
   declareProperty( "TRT_RegionLUT_CreatorTool",  m_lutCreatorToolTRT);
-  declareProperty( "FTKRegionSelectorTable",     m_lutCreatorToolFTK);
   declareProperty( "LArRegionSelectorTable",     m_lutCreatorToolLAR);
   declareProperty( "TileRegionSelectorTable",    m_lutCreatorToolTile);
   declareProperty( "RPCRegionSelectorTable",     m_lutCreatorToolRPC);
@@ -194,10 +189,6 @@ StatusCode RegSelSvc::initialize() {
     if ( !m_initTRT.value() )   trtflag   = "disabled"; 
   }
    
-  std::string ftkflag("enabled");  
-  if ( !m_initFTK.value() )  ftkflag = "disabled"; 
-  
-
   std::string rpcflag("enabled");
   std::string mdtflag("enabled");
   std::string tgcflag("enabled");
@@ -219,7 +210,7 @@ StatusCode RegSelSvc::initialize() {
   msg(MSG::INFO) << "detector switches:" 
                  << " indet=" << (m_initOnlyID.value() ? "enabled":"disabled");
   if( m_initOnlyID.value() )
-    msg() << " ( sct=" << sctflag << " pixel=" << pixelflag << " trt=" << trtflag << " ftk=" << ftkflag << " )"; 
+    msg() << " ( sct=" << sctflag << " pixel=" << pixelflag << " trt=" << trtflag << " )"; 
 
   msg() << " calo="  << (m_initOnlyCalo.value() ? "enabled":"disabled") 
         << " muon="  << (m_initOnlyMuon.value() ? "enabled":"disabled");
@@ -232,9 +223,9 @@ StatusCode RegSelSvc::initialize() {
      
   bool errorFlag=false; // true indicates an error occured somewhere
   
-  m_newpixel = NULL;
-  m_newsct   = NULL;
-  m_newtrt   = NULL;
+  m_newpixel = nullptr;
+  m_newsct   = nullptr;
+  m_newtrt   = nullptr;
 
 
 
@@ -456,32 +447,6 @@ bool RegSelSvc::handleID() {
   // do any more than just extract the tables.
   
 
-  if ( m_initFTK.value() ) { 
-
-    ATH_MSG_INFO( "setting up the FTK tables " );
-
-    StatusCode sc = readFromSG(m_lutCreatorToolFTK, m_ftklut);
-
-    if (sc.isFailure()){
-      ATH_MSG_WARNING( "Failed to initialize ftk lut" );
-      errorFlag = true;
-    } 
-    else { 
-      if ( m_ftklut ) {
-        ATH_MSG_INFO( "retrieved ftk RegSelSiLUT" );
-      }
-      else { 
-        ATH_MSG_ERROR( "retrieved ftk RegSelSiLUT is NULL" );
-        errorFlag = true;
-      }
-    }
-    
-  }
-  else { 
-    ATH_MSG_INFO( "not setting up the FTK tables " );
-  }
-
-
   //! Read PIXEL data from Detector Store
   if ( m_initPixel.value() ) { 
     StatusCode sc = readFromSG(m_lutCreatorToolPixel, m_newpixel);
@@ -548,7 +513,7 @@ bool RegSelSvc::handleID() {
     ATH_MSG_WARNING( " could not disable requested detector elements " );
   }
 
-  m_enabledDetectors.push_back("Inner");
+  m_enabledDetectors.emplace_back("Inner");
   
   m_errorFlag |= errorFlag; 
 
@@ -686,7 +651,7 @@ bool RegSelSvc::handleMuon() {
 
 
   
-  m_enabledDetectors.push_back("Muon");
+  m_enabledDetectors.emplace_back("Muon");
 
   m_errorFlag |= errorFlag; 
 
@@ -794,7 +759,7 @@ bool RegSelSvc::handleCalo() {
       errorFlag = true;
     }
   }
-  m_enabledDetectors.push_back("Calorimeter");
+  m_enabledDetectors.emplace_back("Calorimeter");
   
   
   if (m_dumpTable) {
@@ -991,11 +956,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
     if ( m_newstgc ) m_newstgc->getHashList(selroi, IDList); 
     break;
   }
-  case FTK: { // FTK    
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getHashList(roi2, IDList); 
-    break;
-  }
   case LAR: {  // Liquid Argon Calorimeter
     m_larData.regionSelector(etaMin, etaMax, phiMin, phiMax, IDList);
     break;
@@ -1107,11 +1067,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
     if ( m_newstgc ) m_newstgc->getHashList(selroi, layer, IDList); 
     break;
   }
-  case FTK: { // FTK    
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getHashList(roi2, layer, IDList); 
-    break;
-  }
   case LAR: { // Liquid Argon Calorimeter
     m_larData.regionSelector(sampling, etaMin, etaMax, phiMin, phiMax, IDList);
     break;
@@ -1194,10 +1149,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   }
   case STGC: {
     if ( m_newstgc ) m_newstgc->getHashList(IDList); 
-    break;
-  }
-  case FTK: { // FTK    
-    if ( m_ftklut ) m_ftklut->getHashList(IDList); 
     break;
   }
   case LAR: {  // Liquid Argon Calorimeter
@@ -1288,10 +1239,6 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   }
   case STGC: {
     if ( m_newstgc ) m_newstgc->getHashList( layer, IDList); 
-    break;
-  }
-  case FTK: { // FTK    
-    if ( m_ftklut ) m_ftklut->getHashList( layer, IDList); 
     break;
   }
   case LAR: { // Liquid Argon Calorimeter
@@ -1411,11 +1358,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
     if ( m_newstgc ) m_newstgc->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
-  case FTK: { 
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getRobList(roi2, outputROBIDList, m_duplicateRemoval ); 
-    break;
-  }
   case LAR: {  // Liquid Argon Calorimeter
     m_larData.regionSelectorRobIdUint( etaMin, etaMax, phiMin, phiMax, outputROBIDList);
     break;
@@ -1528,11 +1470,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
     if ( m_newstgc ) m_newstgc->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
-  case FTK: { 
-    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getRobList(roi2, layer, outputROBIDList, m_duplicateRemoval ); 
-    break;
-  }
   case LAR: { // Liquid Argon Calorimeter
     m_larData.regionSelectorRobIdUint(sampling, etaMin, etaMax, phiMin, phiMax, outputROBIDList);
     break;
@@ -1599,10 +1536,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
   }
   case CSC: { 
     if ( m_newcsc ) m_newcsc->getRobList(outputROBIDList);
-    break;
-  }
-  case FTK: { 
-    if ( m_ftklut ) m_ftklut->getRobList(outputROBIDList);
     break;
   }
   case LAR: {  // Liquid Argon Calorimeter
@@ -1682,10 +1615,6 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
     if ( m_newcsc ) m_newcsc->getRobList( layer, outputROBIDList );
     break;
   }
-  case FTK: { 
-    if ( m_ftklut ) m_ftklut->getRobList( layer, outputROBIDList );
-    break;
-  }
   case LAR: { // Liquid Argon Calorimeter
     double etaMin=-4.8; double etaMax=4.8; double phiMin=-M_PI;double phiMax=M_PI; 
     m_larData.regionSelectorRobIdUint(sampling, etaMin, etaMax, phiMin, phiMax, outputROBIDList);
@@ -1724,7 +1653,8 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
 // Some internal helper methods
 //
 
-StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string lutName){
+StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string& lutName )
+{
   // Use generic tool to create LUT - instance set via ToolHandle property
   if (!p_lutCreatorTool) {
     ATH_MSG_INFO( "LUT creator tool not configured " << p_lutCreatorTool );
@@ -1747,8 +1677,6 @@ StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorToo
   }
   return StatusCode::SUCCESS;
 }
-
-
 
 StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionIDLUT_Creator> p_lutCreatorTool,  RegSelSiLUT*& detRSlut){
   // Use generic tool to create LUT - instance set via ToolHandle property
@@ -1989,7 +1917,6 @@ void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
   case CSC: strcpy(strtmp,"CSC"); break;
   case MM: strcpy(strtmp,"MM"); break;
   case STGC: strcpy(strtmp,"sTGC"); break;
-  case FTK: strcpy(strtmp,"FTK"); break;
   default: break;
   }
 
@@ -2028,7 +1955,6 @@ void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
   case CSC: strcpy(strtmp,"CSC"); break;
   case MM:  strcpy(strtmp,"MM"); break;
   case STGC: strcpy(strtmp,"sTGC"); break;
-  case FTK: strcpy(strtmp,"FTK"); break;
   default: break;
   }
 
@@ -2119,7 +2045,7 @@ void RegSelSvc::getFilenames(const std::string& detTypeStr, std::vector<std::str
   std::string tmp;
   unsigned int i;
   
-  std::string::size_type pos = m_roiFileName.value().find (".",0);
+  std::string::size_type pos = m_roiFileName.value().find ('.',0);
   getDetname(detTypeStr, detName);
   if( pos != 0 ){
     for( i = 0; i < detName.size(); i++){
@@ -2140,26 +2066,25 @@ void RegSelSvc::getFilenames(const std::string& detTypeStr, std::vector<std::str
 void RegSelSvc::getDetname(const std::string& detTypeStr, std::vector<std::string>& detName){
   
   if(detTypeStr == "Inner"){
-    detName.push_back("PIXEL");
-    detName.push_back("SCT");
-    detName.push_back("TRT");
-    detName.push_back("FTK");
+    detName.emplace_back("PIXEL");
+    detName.emplace_back("SCT");
+    detName.emplace_back("TRT");
   }
   else if(detTypeStr == "Calorimeter"){
-    detName.push_back("LAR");
-    detName.push_back("TTEM");
-    detName.push_back("TTHEC");
-    detName.push_back("FCALEM");
-    detName.push_back("FCALHAD");
-    detName.push_back("Tile");
+    detName.emplace_back("LAR");
+    detName.emplace_back("TTEM");
+    detName.emplace_back("TTHEC");
+    detName.emplace_back("FCALEM");
+    detName.emplace_back("FCALHAD");
+    detName.emplace_back("Tile");
   }
   else if(detTypeStr == "Muon"){
-    detName.push_back("MDT");
-    detName.push_back("RPC");
-    detName.push_back("TGC");
-    detName.push_back("CSC");
-    detName.push_back("MM");
-    detName.push_back("sTGC");
+    detName.emplace_back("MDT");
+    detName.emplace_back("RPC");
+    detName.emplace_back("TGC");
+    detName.emplace_back("CSC");
+    detName.emplace_back("MM");
+    detName.emplace_back("sTGC");
   }
 }
 
@@ -2262,7 +2187,7 @@ void RegSelSvc::DisablePixelHashList(const std::vector<unsigned int>& HashList) 
     
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(HashList.begin()) ; 
-	  hptr!=HashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=HashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
 
     if ( m_newpixel ) m_newpixel->disableModuleList(hashlist);
   } 
@@ -2275,7 +2200,7 @@ void RegSelSvc::DisableSCTHashList(const std::vector<unsigned int>& HashList) {
     // trying to disable the modules from them
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(HashList.begin()) ; 
-	  hptr!=HashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=HashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
     if ( m_newsct )   m_newsct->disableModuleList(hashlist);
   } 
 }
@@ -2288,7 +2213,7 @@ void RegSelSvc::DisableTRTHashList(const std::vector<unsigned int>& HashList) {
     // trying to disable the modules from them
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(HashList.begin()) ; 
-	  hptr!=HashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=HashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
     if ( m_newtrt )   m_newtrt->disableModuleList(hashlist);
   } 
 }
@@ -2370,7 +2295,7 @@ bool RegSelSvc::reinitialiseInternal() {
     // have to convert the std::vector<unsigned int> into std::vector<IdentifierHash>  
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(m_deletePixelHashList.begin()) ; 
-	  hptr!=m_deletePixelHashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=m_deletePixelHashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
     
     if ( m_deletePixelHashList.size() ) m_newpixel->disableModuleList(hashlist);    
   }
@@ -2388,7 +2313,7 @@ bool RegSelSvc::reinitialiseInternal() {
     // have to convert the std::vector<unsigned int> into std::vector<IdentifierHash>  
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(m_deleteSCTHashList.begin()) ; 
-	  hptr!=m_deleteSCTHashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=m_deleteSCTHashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
     
     if ( m_deleteSCTHashList.size() ) m_newsct->disableModuleList(hashlist);
   }
@@ -2407,7 +2332,7 @@ bool RegSelSvc::reinitialiseInternal() {
     // have to convert the std::vector<unsigned int> into std::vector<IdentifierHash>  
     std::vector<IdentifierHash> hashlist;
     for ( std::vector<unsigned int>::const_iterator hptr(m_deleteTRTHashList.begin()) ; 
-	  hptr!=m_deleteTRTHashList.end() ; hptr ++ ) hashlist.push_back(*hptr);
+	  hptr!=m_deleteTRTHashList.end() ; hptr ++ ) hashlist.emplace_back(*hptr);
     
     if ( m_deleteTRTHashList.size() ) m_newtrt->disableModuleList(hashlist);
   }

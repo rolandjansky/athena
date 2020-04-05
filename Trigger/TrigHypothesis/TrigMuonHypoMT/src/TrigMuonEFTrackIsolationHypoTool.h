@@ -5,9 +5,9 @@
 #ifndef TRIGMUONHYPOMT_TRIGMUONEFTRACKISOLATIONHYPOTOOL_H 
 #define TRIGMUONHYPOMT_TRIGMUONEFTRACKISOLATIONHYPOTOOL_H 1
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
-#include "DecisionHandling/TrigCompositeUtils.h" 
+#include "TrigCompositeUtils/TrigCompositeUtils.h" 
 #include "xAODMuon/MuonContainer.h"
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"

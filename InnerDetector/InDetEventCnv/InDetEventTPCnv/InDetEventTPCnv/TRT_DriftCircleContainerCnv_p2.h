@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DRIFTCIRCLECONTAINERCNV_P2_H
@@ -12,20 +12,22 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "InDetEventTPCnv/TRT_DriftCircleContainer_p2.h"
-
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
+#include "StoreGate/ReadCondHandleKey.h"
 class TRT_ID;
 class StoreGateSvc;
-namespace InDetDD{ class TRT_DetectorManager;}
 
-class TRT_DriftCircleContainerCnv_p2 :
+class TRT_DriftCircleContainerCnv_p2 : 
 public T_AthenaPoolTPCnvBase<InDet::TRT_DriftCircleContainer, InDet::TRT_DriftCircleContainer_p2>
 {
  public:
   TRT_DriftCircleContainerCnv_p2() :
-    m_trtId(nullptr),
-    m_storeGate(nullptr),
-    m_trtMgr(nullptr),
-    m_isInitialized(0) {};
+    m_trtId{nullptr},
+    m_storeGate{nullptr},
+    m_isInitialized{false}, 
+    m_trtDetEleContKey{"TRT_DetElementContainer"},
+    m_useDetectorElement{true}
+    {};
 
   virtual void persToTrans(const InDet::TRT_DriftCircleContainer_p2* persCont,
                            InDet::TRT_DriftCircleContainer* transCont,
@@ -36,12 +38,15 @@ public T_AthenaPoolTPCnvBase<InDet::TRT_DriftCircleContainer, InDet::TRT_DriftCi
 
   virtual InDet::TRT_DriftCircleContainer* createTransient(const InDet::TRT_DriftCircleContainer_p2* persObj, MsgStream& log);
 
+  void setIdHelper(const TRT_ID* trt_id);
+  void setUseDetectorElement(const bool useDetectorElement);
 
  private:
    const TRT_ID *m_trtId;
    StoreGateSvc *m_storeGate;
-   const InDetDD::TRT_DetectorManager* m_trtMgr;
    bool m_isInitialized;
+   SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey;
+   bool m_useDetectorElement;
    StatusCode initialize(MsgStream &log);
 
 

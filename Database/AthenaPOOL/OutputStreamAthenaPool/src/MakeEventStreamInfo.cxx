@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MakeEventStreamInfo.cxx
@@ -41,7 +41,7 @@ MakeEventStreamInfo::~MakeEventStreamInfo() {
 //___________________________________________________________________________
 StatusCode MakeEventStreamInfo::initialize() {
    ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   // Locate the MetaDataStore and InputMetaDataStore
+   // Locate the MetaDataStore
    if (!m_metaDataStore.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Could not find MetaDataStore");
       return(StatusCode::FAILURE);
@@ -142,7 +142,7 @@ StatusCode MakeEventStreamInfo::preFinalize() {
 //___________________________________________________________________________
 StatusCode MakeEventStreamInfo::finalize() {
    ATH_MSG_DEBUG("in finalize()");
-   // release the MetaDataStore and InputMetaDataStore
+   // release the MetaDataStore
    if (!m_metaDataStore.release().isSuccess()) {
       ATH_MSG_WARNING("Could not release MetaDataStore");
    }

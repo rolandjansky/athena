@@ -69,9 +69,13 @@ The following additional notes apply.
    mean that you need to keep the root file open.  Pass use_proxy=0
    to disable this behavior.
 """
+from __future__ import print_function
 
-from cStringIO import StringIO
-import cPickle
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
+from io import StringIO
+import pickle
 import ROOT
 import sys
 
@@ -96,7 +100,7 @@ def _restore (s):
     return s.replace ('\377\001', '\000').replace ('\377\376', '\377')
 
 
-class IO_Wrapper:
+class IO_Wrapper(object):
     def __init__ (self):
         return self.reopen()
 
@@ -121,7 +125,7 @@ class IO_Wrapper:
         return
 
 
-class Pickler:
+class Pickler(object):
     def __init__ (self, file, proto=0):
         """Create a root pickler.
 FILE should be a Root TFile.  PROTO is the python pickle protocol
@@ -132,7 +136,7 @@ Root objects.
         self.__file = file
         self.__keys = file.GetListOfKeys()
         self.__io = IO_Wrapper()
-        self.__pickle = cPickle.Pickler (self.__io, proto)
+        self.__pickle = pickle.Pickler (self.__io, proto)
         self.__pickle.persistent_id = self._persistent_id
         self.__pmap = {}
         return
@@ -197,7 +201,7 @@ Root objects.
 
 
 
-class Saver:
+class Saver(object):
     def __init__ (self):
         self.__chunksize = 65536
         self.__i = self.__chunksize
@@ -219,7 +223,7 @@ class Root_Proxy (object):
     __slots__ = ('__f', '__pid', '__o')
     def __init__ (self, f, pid):
         self.__f = f
-        self.__pid = intern(pid)
+        self.__pid = sys.intern(pid)
         self.__o = None
         return
     def __getattr__ (self, a):
@@ -234,7 +238,7 @@ class Root_Proxy (object):
             if self.__o.__class__.__module__ != 'ROOT':
                 self.__o.__class__.__module__ = 'ROOT'
         return self.__o
-class Unpickler:
+class Unpickler(object):
     def __init__ (self, file, use_proxy = True, use_hash = False):
         """Create a root unpickler.
 FILE should be a Root TFile.
@@ -242,7 +246,7 @@ FILE should be a Root TFile.
         self.__use_proxy = use_proxy
         self.__file = file
         self.__io = IO_Wrapper()
-        self.__unpickle = cPickle.Unpickler (self.__io)
+        self.__unpickle = pickle.Unpickler (self.__io)
         self.__unpickle.persistent_load = self._persistent_load
         self.__unpickle.find_global = self._find_class
         self.__n = 0
@@ -274,7 +278,7 @@ FILE should be a Root TFile.
                     cy = 9999
                 ret = htab.get ((nm,cy), None)
                 if not ret:
-                    print "did't find", nm, cy, len(htab)
+                    print("did't find", nm, cy, len(htab))
                     return oget (nm0)
                 #ctx = ROOT.TDirectory.TContext (file)
                 ret = ret.ReadObj()
@@ -315,15 +319,15 @@ FILE should be a Root TFile.
                 __import__(module)
                 mod = sys.modules[module]
             except ImportError:
-                print "Making dummy module %s" % (module)
-                class DummyModule:
+                print("Making dummy module %s" % (module))
+                class DummyModule(object):
                     pass
                 mod = DummyModule()
                 sys.modules[module] = mod
             klass = getattr(mod, name)
             return klass
         except AttributeError:
-            print "Making dummy class %s.%s" % (module, name)
+            print("Making dummy class %s.%s" % (module, name))
             mod = sys.modules[module]
             class Dummy(object):
                 pass

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ut_xaodrootaccess_metadata_test.cxx 796448 2017-02-09 18:28:08Z ssnyder $
 
 // System include(s):
 #include <memory>
@@ -14,6 +12,7 @@
 #include <TTree.h>
 
 // EDM that the package uses anyway:
+#include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxVectorBase.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "xAODCore/AuxContainerBase.h"
@@ -64,13 +63,7 @@ int main() {
    xAOD::TEvent event;
 
    // First, test the reading of metadata from an input file.
-   const char* ref = getenv ("ATLAS_REFERENCE_DATA");
-   std::string FPATH =
-     ref ? ref : "/afs/cern.ch/atlas/project/PAT";
-   std::string FNAME = FPATH + "/xAODs/r5597/"
-      "data12_8TeV.00204158.physics_JetTauEtmiss.recon.AOD.r5597/"
-      "AOD.01495682._003054.pool.root.1";
-   
+   const std::string FNAME = "${ASG_TEST_FILE_DATA}";
    std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME.c_str(),
                                                     "READ" ) );
    if( ! ifile.get() ) {
@@ -80,6 +73,10 @@ int main() {
    }
    RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
    Info( APP_NAME, "Opened file: %s", FNAME.c_str() );
+
+   // Make sure that event data is not accessible at this point.
+   const SG::AuxElement* ei = nullptr;
+   SIMPLE_ASSERT( event.retrieve( ei, "EventInfo" ).isSuccess() == false );
 
    // Try to retrieve some objects:
    const SG::AuxVectorBase* v = 0;

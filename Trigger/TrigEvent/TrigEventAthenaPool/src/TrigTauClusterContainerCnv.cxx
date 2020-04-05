@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTauClusterContainerCnv.h"
@@ -49,25 +49,25 @@ TrigTauClusterContainer* TrigTauClusterContainerCnv::createTransient()
 
     if(compareClassGuid(p5_guid))
     {
-        std::auto_ptr< TrigTauClusterContainer_p5 > col_vect(poolReadObject< TrigTauClusterContainer_p5 >());
+        std::unique_ptr< TrigTauClusterContainer_p5 > col_vect(poolReadObject< TrigTauClusterContainer_p5 >());
         //std::cout << "Reading TTCC p5" << std::endl;
         return TPconverter5.createTransient(col_vect.get(), mlog);
     }
     else if(compareClassGuid(p4_guid))
     {
-        std::auto_ptr< TrigTauClusterContainer_p4 > col_vect(poolReadObject< TrigTauClusterContainer_p4 >());
+        std::unique_ptr< TrigTauClusterContainer_p4 > col_vect(poolReadObject< TrigTauClusterContainer_p4 >());
         //std::cout << "Reading TTCC p4" << std::endl;
         return TPconverter4.createTransient(col_vect.get(), mlog);
     }
     else if(compareClassGuid(p3_guid))
     {
-        std::auto_ptr< TrigTauClusterContainer_p3 > col_vect(poolReadObject< TrigTauClusterContainer_p3 >());
+        std::unique_ptr< TrigTauClusterContainer_p3 > col_vect(poolReadObject< TrigTauClusterContainer_p3 >());
         //std::cout << "Reading TTCC p3" << std::endl;
         return TPconverter3.createTransient(col_vect.get(), mlog);
     }
     else if(compareClassGuid(tlp1_guid))
     {
-        std::auto_ptr< TrigTauClusterContainer_tlp1 > col_vect(poolReadObject< TrigTauClusterContainer_tlp1 >());
+        std::unique_ptr< TrigTauClusterContainer_tlp1 > col_vect(poolReadObject< TrigTauClusterContainer_tlp1 >());
         //std::cout << "Reading TTC tlp1" << std::endl;
         return TPconverter1.createTransient( col_vect.get(), mlog );
     }

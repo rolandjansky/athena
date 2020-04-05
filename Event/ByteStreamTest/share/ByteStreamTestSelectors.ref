@@ -93,12 +93,12 @@ Found 1 proxy for ClassID 226113180 (xAOD::AuxInfoBase):
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 EventSelector.E...   INFO Found attribute list
-EventSelector.E...   INFO Spec element RunNumber (long) : 327265
-EventSelector.E...   INFO Spec element EventNumber (long) : 186525031
-EventSelector.E...   INFO Spec element Lumiblock (int) : 100
-EventSelector.E...   INFO Spec element BunchID (int) : 339
-EventSelector.E...   INFO Spec element CrossingTimeSec (unsigned int) : 1497896168
-EventSelector.E...   INFO Spec element CrossingTimeNSec (unsigned int) : 189247220
+EventSelector.E...   INFO Spec element RunNumber (unsigned int) : 327265
+EventSelector.E...   INFO Spec element EventNumber (unsigned long long) : 186525031
+EventSelector.E...   INFO Spec element LumiBlockN (unsigned int) : 100
+EventSelector.E...   INFO Spec element BunchId (unsigned int) : 339
+EventSelector.E...   INFO Spec element EventTime (unsigned int) : 1497896168
+EventSelector.E...   INFO Spec element EventTimeNanoSec (unsigned int) : 189247220
 EventSelector.E...   INFO Spec element TriggerStatus (unsigned int) : 0
 EventSelector.E...   INFO Spec element ExtendedL1ID (unsigned int) : 4060342676
 EventSelector.E...   INFO Spec element L1TriggerType (unsigned int) : 129
@@ -188,12 +188,12 @@ Found 1 proxy for ClassID 226113180 (xAOD::AuxInfoBase):
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 EventSelector.E...   INFO Found attribute list
-EventSelector.E...   INFO Spec element RunNumber (long) : 327265
-EventSelector.E...   INFO Spec element EventNumber (long) : 186524665
-EventSelector.E...   INFO Spec element Lumiblock (int) : 100
-EventSelector.E...   INFO Spec element BunchID (int) : 3284
-EventSelector.E...   INFO Spec element CrossingTimeSec (unsigned int) : 1497896168
-EventSelector.E...   INFO Spec element CrossingTimeNSec (unsigned int) : 184074160
+EventSelector.E...   INFO Spec element RunNumber (unsigned int) : 327265
+EventSelector.E...   INFO Spec element EventNumber (unsigned long long) : 186524665
+EventSelector.E...   INFO Spec element LumiBlockN (unsigned int) : 100
+EventSelector.E...   INFO Spec element BunchId (unsigned int) : 3284
+EventSelector.E...   INFO Spec element EventTime (unsigned int) : 1497896168
+EventSelector.E...   INFO Spec element EventTimeNanoSec (unsigned int) : 184074160
 EventSelector.E...   INFO Spec element TriggerStatus (unsigned int) : 0
 EventSelector.E...   INFO Spec element ExtendedL1ID (unsigned int) : 4060342310
 EventSelector.E...   INFO Spec element L1TriggerType (unsigned int) : 129
@@ -277,12 +277,12 @@ Found 1 proxy for ClassID 226113180 (xAOD::AuxInfoBase):
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 EventSelector.E...   INFO Found attribute list
-EventSelector.E...   INFO Spec element RunNumber (long) : 327265
-EventSelector.E...   INFO Spec element EventNumber (long) : 186542447
-EventSelector.E...   INFO Spec element Lumiblock (int) : 100
-EventSelector.E...   INFO Spec element BunchID (int) : 153
-EventSelector.E...   INFO Spec element CrossingTimeSec (unsigned int) : 1497896168
-EventSelector.E...   INFO Spec element CrossingTimeNSec (unsigned int) : 444366780
+EventSelector.E...   INFO Spec element RunNumber (unsigned int) : 327265
+EventSelector.E...   INFO Spec element EventNumber (unsigned long long) : 186542447
+EventSelector.E...   INFO Spec element LumiBlockN (unsigned int) : 100
+EventSelector.E...   INFO Spec element BunchId (unsigned int) : 153
+EventSelector.E...   INFO Spec element EventTime (unsigned int) : 1497896168
+EventSelector.E...   INFO Spec element EventTimeNanoSec (unsigned int) : 444366780
 EventSelector.E...   INFO Spec element TriggerStatus (unsigned int) : 0
 EventSelector.E...   INFO Spec element ExtendedL1ID (unsigned int) : 4060360092
 EventSelector.E...   INFO Spec element L1TriggerType (unsigned int) : 129
@@ -366,12 +366,12 @@ Found 1 proxy for ClassID 226113180 (xAOD::AuxInfoBase):
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 EventSelector.E...   INFO Found attribute list
-EventSelector.E...   INFO Spec element RunNumber (long) : 327265
-EventSelector.E...   INFO Spec element EventNumber (long) : 186543405
-EventSelector.E...   INFO Spec element Lumiblock (int) : 100
-EventSelector.E...   INFO Spec element BunchID (int) : 2757
-EventSelector.E...   INFO Spec element CrossingTimeSec (unsigned int) : 1497896168
-EventSelector.E...   INFO Spec element CrossingTimeNSec (unsigned int) : 458481815
+EventSelector.E...   INFO Spec element RunNumber (unsigned int) : 327265
+EventSelector.E...   INFO Spec element EventNumber (unsigned long long) : 186543405
+EventSelector.E...   INFO Spec element LumiBlockN (unsigned int) : 100
+EventSelector.E...   INFO Spec element BunchId (unsigned int) : 2757
+EventSelector.E...   INFO Spec element EventTime (unsigned int) : 1497896168
+EventSelector.E...   INFO Spec element EventTimeNanoSec (unsigned int) : 458481815
 EventSelector.E...   INFO Spec element TriggerStatus (unsigned int) : 0
 EventSelector.E...   INFO Spec element ExtendedL1ID (unsigned int) : 4060361050
 EventSelector.E...   INFO Spec element L1TriggerType (unsigned int) : 129
@@ -455,12 +455,12 @@ Found 1 proxy for ClassID 226113180 (xAOD::AuxInfoBase):
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 EventSelector.E...   INFO Found attribute list
-EventSelector.E...   INFO Spec element RunNumber (long) : 327265
-EventSelector.E...   INFO Spec element EventNumber (long) : 186548387
-EventSelector.E...   INFO Spec element Lumiblock (int) : 100
-EventSelector.E...   INFO Spec element BunchID (int) : 1931
-EventSelector.E...   INFO Spec element CrossingTimeSec (unsigned int) : 1497896168
-EventSelector.E...   INFO Spec element CrossingTimeNSec (unsigned int) : 529867525
+EventSelector.E...   INFO Spec element RunNumber (unsigned int) : 327265
+EventSelector.E...   INFO Spec element EventNumber (unsigned long long) : 186548387
+EventSelector.E...   INFO Spec element LumiBlockN (unsigned int) : 100
+EventSelector.E...   INFO Spec element BunchId (unsigned int) : 1931
+EventSelector.E...   INFO Spec element EventTime (unsigned int) : 1497896168
+EventSelector.E...   INFO Spec element EventTimeNanoSec (unsigned int) : 529867525
 EventSelector.E...   INFO Spec element TriggerStatus (unsigned int) : 0
 EventSelector.E...   INFO Spec element ExtendedL1ID (unsigned int) : 4060366032
 EventSelector.E...   INFO Spec element L1TriggerType (unsigned int) : 129
@@ -544,12 +544,12 @@ Found 1 proxy for ClassID 226113180 (xAOD::AuxInfoBase):
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 EventSelector.E...   INFO Found attribute list
-EventSelector.E...   INFO Spec element RunNumber (long) : 327265
-EventSelector.E...   INFO Spec element EventNumber (long) : 186515186
-EventSelector.E...   INFO Spec element Lumiblock (int) : 100
-EventSelector.E...   INFO Spec element BunchID (int) : 613
-EventSelector.E...   INFO Spec element CrossingTimeSec (unsigned int) : 1497896168
-EventSelector.E...   INFO Spec element CrossingTimeNSec (unsigned int) : 48308825
+EventSelector.E...   INFO Spec element RunNumber (unsigned int) : 327265
+EventSelector.E...   INFO Spec element EventNumber (unsigned long long) : 186515186
+EventSelector.E...   INFO Spec element LumiBlockN (unsigned int) : 100
+EventSelector.E...   INFO Spec element BunchId (unsigned int) : 613
+EventSelector.E...   INFO Spec element EventTime (unsigned int) : 1497896168
+EventSelector.E...   INFO Spec element EventTimeNanoSec (unsigned int) : 48308825
 EventSelector.E...   INFO Spec element TriggerStatus (unsigned int) : 0
 EventSelector.E...   INFO Spec element ExtendedL1ID (unsigned int) : 4060332831
 EventSelector.E...   INFO Spec element L1TriggerType (unsigned int) : 132
@@ -634,12 +634,12 @@ Found 1 proxy for ClassID 226113180 (xAOD::AuxInfoBase):
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 EventSelector.E...   INFO Found attribute list
-EventSelector.E...   INFO Spec element RunNumber (long) : 327265
-EventSelector.E...   INFO Spec element EventNumber (long) : 186556019
-EventSelector.E...   INFO Spec element Lumiblock (int) : 100
-EventSelector.E...   INFO Spec element BunchID (int) : 3170
-EventSelector.E...   INFO Spec element CrossingTimeSec (unsigned int) : 1497896168
-EventSelector.E...   INFO Spec element CrossingTimeNSec (unsigned int) : 639275495
+EventSelector.E...   INFO Spec element RunNumber (unsigned int) : 327265
+EventSelector.E...   INFO Spec element EventNumber (unsigned long long) : 186556019
+EventSelector.E...   INFO Spec element LumiBlockN (unsigned int) : 100
+EventSelector.E...   INFO Spec element BunchId (unsigned int) : 3170
+EventSelector.E...   INFO Spec element EventTime (unsigned int) : 1497896168
+EventSelector.E...   INFO Spec element EventTimeNanoSec (unsigned int) : 639275495
 EventSelector.E...   INFO Spec element TriggerStatus (unsigned int) : 0
 EventSelector.E...   INFO Spec element ExtendedL1ID (unsigned int) : 4060373664
 EventSelector.E...   INFO Spec element L1TriggerType (unsigned int) : 129
@@ -723,12 +723,12 @@ Found 1 proxy for ClassID 226113180 (xAOD::AuxInfoBase):
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 EventSelector.E...   INFO Found attribute list
-EventSelector.E...   INFO Spec element RunNumber (long) : 327265
-EventSelector.E...   INFO Spec element EventNumber (long) : 186542866
-EventSelector.E...   INFO Spec element Lumiblock (int) : 100
-EventSelector.E...   INFO Spec element BunchID (int) : 1260
-EventSelector.E...   INFO Spec element CrossingTimeSec (unsigned int) : 1497896168
-EventSelector.E...   INFO Spec element CrossingTimeNSec (unsigned int) : 450530190
+EventSelector.E...   INFO Spec element RunNumber (unsigned int) : 327265
+EventSelector.E...   INFO Spec element EventNumber (unsigned long long) : 186542866
+EventSelector.E...   INFO Spec element LumiBlockN (unsigned int) : 100
+EventSelector.E...   INFO Spec element BunchId (unsigned int) : 1260
+EventSelector.E...   INFO Spec element EventTime (unsigned int) : 1497896168
+EventSelector.E...   INFO Spec element EventTimeNanoSec (unsigned int) : 450530190
 EventSelector.E...   INFO Spec element TriggerStatus (unsigned int) : 0
 EventSelector.E...   INFO Spec element ExtendedL1ID (unsigned int) : 4060360511
 EventSelector.E...   INFO Spec element L1TriggerType (unsigned int) : 129

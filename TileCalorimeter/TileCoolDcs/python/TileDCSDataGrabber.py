@@ -1,17 +1,17 @@
 #!/bin/env python
 # Author: nils.gollub@cern.ch
 
-import sys, os
+from __future__ import print_function
+
 import time
 import logging
 from PyCool import cool
 import ROOT
 from array import array
-from sets import Set
 import copy
-import TileDCSDataInfo
 from CoolConvUtilities.AtlCoolTool import connect
-from ProgressBar import progressBar
+from TileCoolDcs.TileDCSDataInfo import TileDCSDataInfo
+from TileCoolDcs.ProgressBar import progressBar
 
 #====================================================================================================
 class IOVDict:
@@ -36,11 +36,11 @@ class IOVDict:
         #=== check strict iovSince ordering
         if len(self.iovList):
             if iovSince < self.iovList[-1]:
-                raise "ERROR: Data must be entered by strict iov order"
+                raise Exception ("ERROR: Data must be entered by strict iov order")
         #=== check if data has changed since last entry
         oldData = self.getData(iovSince)
         if data != oldData or self.putDuplicates:
-            #print "Adding new data to store...: ", iovSince,"(",time.ctime(iovSince/1000000000),")", data
+            #print ("Adding new data to store...: ", iovSince,"(",time.ctime(iovSince/1000000000),")", data)
             self.iovDict[iovSince] = data
             if iovSince not in self.iovList:
                 self.iovList.append(iovSince)
@@ -57,7 +57,7 @@ class IOVDict:
         if not self.isSorted:
             self.iovList.sort()
             self.isSorted = True
-        return iovList;
+        return self.iovList
 
     def __binsearch(self, seq, search):
         right = len(seq)
@@ -66,7 +66,7 @@ class IOVDict:
         if search < seq[0]:
             return -1
         while True:
-            center = (left + right) / 2
+            center = (left + right) // 2
             candidate = seq[center]
             if search == candidate:
                 return center
@@ -103,7 +103,7 @@ class FolderVarSet:
         self.val = len(variables) * [ 0 ]
         #=== dictionary of variable name to index and modified
         self.index = {}
-        for ind in xrange(len(variables)):
+        for ind in range(len(variables)):
             self.index[variables[ind]] = [ ind, False ]
         #=== dictionary of drawers to IOVDict objects
         self.iovDictStore = {}
@@ -125,12 +125,14 @@ class FolderVarSet:
 
         #=== check if all variables have been set
         notSet = []
-        for var, stat in self.index.iteritems():
+        for var, stat in list(self.index.items()):
             mod = stat[1]
-            if mod==False: notSet.append(var)
+            if mod is False:
+                notSet.append(var)
         if len(notSet):
-            print "WARNING: Not all variables set: "
-            for var in notSet: print var
+            print ("WARNING: Not all variables set: ")
+            for var in notSet:
+                print (var)
 
         #=== register in IOVDict
         if drawer not in self.iovDictStore:
@@ -139,7 +141,7 @@ class FolderVarSet:
         self.iovDictStore[drawer].addData(iovSince, valueCopy)
 
         #=== reset all values and modification flags
-        for var in self.index.iterkeys():
+        for var in self.index.keys():
             self.index[var][1] = False
             self.val[ self.index[var][0] ] = 0
 
@@ -147,7 +149,7 @@ class FolderVarSet:
     def getFromIOVStore(self, drawer, iovSince):
 
         if drawer not in self.iovDictStore:
-            raise "Drawer not known: ", drawer
+            raise Exception ("Drawer not known: ", drawer)
         iovDict = self.iovDictStore[drawer]
         self.val = iovDict.getData(iovSince)
 
@@ -155,23 +157,23 @@ class FolderVarSet:
     def getUniqueIOVs(self):
 
         uniqueIOVList = []
-        for iovDict in self.iovDictStore.itervalues():
+        for iovDict in list(self.iovDictStore.values()):
             uniqueIOVList.extend( iovDict.iovList )
         return list(set(uniqueIOVList))
 
     def getUniqueVariables(self):
 
         uniqueVariableList = []
-        for drawer in self.iovDictStore.iterkeys():
-            for variable in self.index.iterkeys():
+        for drawer in self.iovDictStore.keys():
+            for variable in self.index.keys():
                 uniqueVariableList.append( (drawer,variable) )
-        return uniqueVariableList;
+        return uniqueVariableList
 
     def getVariables(self):
-        return self.index.keys()
+        return list(self.index.keys())
 
     def getDrawers(self):
-        return self.iovDictStore.keys()
+        return list(self.iovDictStore.keys())
 
 
 
@@ -196,9 +198,9 @@ class TileDCSDataGrabber:
         #=== connect to DB, depending on technology
         self.db = 0
         self.dbV = []
-        self.info = TileDCSDataInfo.TileDCSDataInfo(dbstring)
+        self.info = TileDCSDataInfo(dbstring)
         if dbSource=="COOL":
-            if dbstring==None:
+            if dbstring is None:
                 self.dbV.append(0)
                 self.dbV.append(0)
                 self.dbV.append(0)
@@ -213,15 +215,15 @@ class TileDCSDataGrabber:
         elif dbSource=="ORACLE":
             self.iovStart = self.getOracleTimeString(iovStartUnix)
             self.oldTableBoundary = 131231230000
-            if dbstring==None:
+            if dbstring is None:
                 dbstring = self.info.get_dbstring(dbSource, 1 if int(self.iovStart) < self.oldTableBoundary else 2)
             self.db = ROOT.TSQLServer.Connect( dbstring[0], dbstring[1], dbstring[2])
         elif dbSource=="TESTBEAM":
-            if dbstring==None:
+            if dbstring is None:
                 dbstring = self.info.get_dbstring(dbSource,0)
             self.db = ROOT.TSQLServer.Connect( dbstring[0], dbstring[1], dbstring[2])
         else:
-            raise("Unknown dbSource: %s, please use either COOL or ORACLE or TESTBEAM" % dbSource)
+            raise Exception("Unknown dbSource: %s, please use either COOL or ORACLE or TESTBEAM" % dbSource)
 
         self.dbCounter = 0
         self.queryCounter = 0
@@ -231,17 +233,15 @@ class TileDCSDataGrabber:
         self.unix2cool = 1000000000
         self.R2minTime = 1404165600 # 01-jul-2014 00:00:00 CEST
         self.putDuplicates = putDuplicates
-        print """
+        print ("""
         ##############################################################################
         #
         #     TileDCSDataGrabber   --   Access to TileCal DCS data in COOL / ORACLE
         #
-        #         problems, suggestions, etc... :  andrey.ryzhov@cern.ch
-        #
         ##############################################################################
 
-        """
-        print "Reading from",dbSource
+        """)
+        print ("Reading from",dbSource)
 
     #________________________________________________________________________________________________
     def check_db(self, iovStartUnix, iovEndUnix, ar):
@@ -274,7 +274,7 @@ class TileDCSDataGrabber:
 
         if self.queryCounter == self.maxQueryCounter:
             if self.dbSource=="ORACLE" or self.dbSource=="TESTBEAM":
-                print "Max connect counter reached, reconnecting to Databaase Server"
+                print ("Max connect counter reached, reconnecting to Databaase Server")
                 self.db.Close()
                 self.db = ROOT.TSQLServer.Connect( self.dbString[0], self.dbString[1], self.dbString[2] )
             self.queryCounter=1
@@ -318,7 +318,7 @@ class TileDCSDataGrabber:
         buffer = []
         nVars = len(variables)
         previousVal = {}
-        for iVar in xrange(nVars):
+        for iVar in range(nVars):
             var = variables[iVar]
             arrayType, treeType = self.info.get_variable_type(var)
             previousVal[var] = array(arrayType, [0])
@@ -330,21 +330,24 @@ class TileDCSDataGrabber:
         timeBeg = -1
         timeEnd = -1
         bar = progressBar(0, nEntries, 78)
-        for jentry in xrange( nEntries ):
+        for jentry in range( nEntries ):
 
             #=== load current entry
             ientry = h2000.LoadTree( jentry )
-            if ientry < 0: break
+            if ientry < 0:
+                break
             nb = h2000.GetEntry( jentry )
-            if nb <= 0: continue
+            if nb <= 0:
+                continue
             bar.update(jentry)
 
             #=== access cool only if IOV changed
-            if timeEnd==-1: timeBeg = evTime[0]
+            if timeEnd==-1:
+                timeBeg = evTime[0]
             if evTime[0]!=timeEnd:
                 timeEnd=evTime[0]
                 valKey = cool.ValidityKey(evTime[0]*self.unix2cool)
-                for folder, varlist in folders.iteritems():
+                for folder, varlist in list(folders.items()):
                     coolFolder = self.db.getFolder(folder)
                     channel = self.info.get_channel(folder,drawer)
                     obj = coolFolder.findObject(valKey,channel)
@@ -358,11 +361,12 @@ class TileDCSDataGrabber:
                             coolVarName = var.upper()
                         #previousVal[var][0]  = payload[coolVarName]
                         sval = obj.payloadValue(coolVarName)
-                        if sval=="NULL": sval="0"
+                        if sval=="NULL":
+                            sval="0"
                         previousVal[var][0] = float(sval)
 
             #=== fill the buffers with current value
-            for iVar in xrange(len(variables)):
+            for iVar in range(len(variables)):
                 var = variables[iVar]
                 buffer[iVar][0] = previousVal[var][0]
             #=== fill friend tree
@@ -370,12 +374,12 @@ class TileDCSDataGrabber:
 
         #=== reset trees
         h2000.SetBranchStatus("*",1)
-        t.ResetBranchAddresses();
+        t.ResetBranchAddresses()
         bar.done()
 
         #=== print out stats
-        print "IOV start: ", time.ctime(timeBeg), "\t COOL time stamp: ", (timeBeg*self.unix2cool)
-        print "IOV end  : ", time.ctime(timeEnd), "\t COOL time stamp: ", (timeEnd*self.unix2cool)
+        print ("IOV start: ", time.ctime(timeBeg), "\t COOL time stamp: ", (timeBeg*self.unix2cool))
+        print ("IOV end  : ", time.ctime(timeEnd), "\t COOL time stamp: ", (timeEnd*self.unix2cool))
 
         return t
 
@@ -401,7 +405,7 @@ class TileDCSDataGrabber:
         variables = list(set(variables))
         logging.debug("Will extract the following variables:")
         for var in variables:
-            logging.debug("\t- %s"%var)
+            logging.debug("\t- %s", var)
 
         #=== build a list of folders and
         #=== 1) associated channel numbers  and
@@ -446,14 +450,14 @@ class TileDCSDataGrabber:
             uniqueIOVs.extend( folderVarSet.getUniqueIOVs() )
             uniqueVariables.extend( folderVarSet.getUniqueVariables() )
         uniqueIOVs = sorted(list(set(uniqueIOVs)))
-        print "===> Found Number of unique IOVs: " , len(uniqueIOVs)
-        print "===> Will store the following variables:" , uniqueVariables
+        print ("===> Found Number of unique IOVs: " , len(uniqueIOVs))
+        print ("===> Will store the following variables:" , uniqueVariables)
 
         #=== calculate normalized iov weights
         uniqueIOVs.append(iovEndUnix*self.unix2cool)
         iovWeight={}
         sumDiff = 0.
-        for i in xrange(len(uniqueIOVs)-1):
+        for i in range(len(uniqueIOVs)-1):
             iov = uniqueIOVs[i]
             diff = float(uniqueIOVs[i+1]-iov)
             iovWeight[iov] = diff
@@ -526,7 +530,8 @@ class TileDCSDataGrabber:
         iovSince = obj.since()
         iovUntil = obj.until()
         sval     = obj.payloadValue(variable)
-        if sval=="NULL": sval="0"
+        if sval=="NULL":
+            sval="0"
         val      = float(sval)
         inTime   = obj.insertionTime()
 
@@ -551,19 +556,19 @@ class TileDCSDataGrabber:
         iovS=cool.ValidityKey(iovStartUnix*self.unix2cool)
         iovE=cool.ValidityKey(iovEndUnix*self.unix2cool)
 
-        print "IOV start: ", time.ctime(iovS/self.unix2cool), "\t COOL time stamp: ", iovS
+        print ("IOV start: ", time.ctime(iovS/self.unix2cool), "\t COOL time stamp: ", iovS)
         if iovStartUnix<self.R2minTime and iovEndUnix>self.R2minTime:
-            print "R1->R2 tm: ", time.ctime(self.R2minTime), "\t COOL time stamp: ", self.R2minTime*self.unix2cool
-        print "IOV end  : ", time.ctime(iovE/self.unix2cool), "\t COOL time stamp: ", iovE
+            print ("R1->R2 tm: ", time.ctime(self.R2minTime), "\t COOL time stamp: ", self.R2minTime*self.unix2cool)
+        print ("IOV end  : ", time.ctime(iovE/self.unix2cool), "\t COOL time stamp: ", iovE)
 
         #=== initialize return list
         folderVarSetList = []
 
         #=== loop over all different folders and build list of FolderVarSets
-        for folder, channels in folderChannelDict.iteritems():
-            logging.debug( "treating folder: %s" % folder )
+        for folder, channels in list(folderChannelDict.items()):
+            logging.debug( "treating folder: %s", folder )
             varsInFolder =  folderVariableDict[folder]
-            logging.debug( "---> variables in this folder: %s" % varsInFolder )
+            logging.debug( "---> variables in this folder: %s", varsInFolder )
             folderVarSet = FolderVarSet(varsInFolder,self.putDuplicates)
 
             ar=[iovS,iovE]
@@ -575,7 +580,7 @@ class TileDCSDataGrabber:
                 coolFolder.setPrefetchAll(False) #=== save some RAM
                 for channel in channels:
                     drawer = self.info.get_drawer(folder,channel)
-                    logging.debug( "---> treating channel %s,    drawer %s" % ( channel, drawer ) )
+                    logging.debug( "---> treating channel %s,    drawer %s",  channel, drawer )
                     channelSelection = cool.ChannelSelection(channel)
                     objs = coolFolder.browseObjects(iovStart, iovEnd, channelSelection)
                     bar = progressBar(iovStart,iovEnd,78,drawer)
@@ -591,9 +596,10 @@ class TileDCSDataGrabber:
                             else:
                                 coolVarName = var.upper()
                             sval=obj.payloadValue(coolVarName)
-                            if sval=="NULL": sval="0"
+                            if sval=="NULL":
+                                sval="0"
                             val=float(sval)
-                            logging.debug( "-------------> %s (%s)  %s : %f" % ( iovSince, time.ctime(iovSince/self.unix2cool), var, val ) )
+                            logging.debug( "-------------> %s (%s)  %s : %f", iovSince, time.ctime(iovSince/self.unix2cool), var, val )
                             folderVarSet.setVariable(var, val)
                         folderVarSet.registerInIOVStore(drawer,iovSince)
                         bar.update(iovSince)
@@ -618,46 +624,48 @@ class TileDCSDataGrabber:
         iovEnd   = self.getOracleTimeString(now)
         if iovEndUnix>iovStartUnix and iovEndUnix>0:
             iovEnd = self.getOracleTimeString(iovEndUnix)
-        print "IOV start: ", time.ctime(iovStartUnix), " (in local time)\t ORACLE time string: ", iovStart, " (in UTC)"
-        print "IOV end  : ", time.ctime(iovEndUnix  ), " (in local time)\t ORACLE time string: ", iovEnd  , " (in UTC)"
+        print ("IOV start: ", time.ctime(iovStartUnix), " (in local time)\t ORACLE time string: ", iovStart, " (in UTC)")
+        print ("IOV end  : ", time.ctime(iovEndUnix  ), " (in local time)\t ORACLE time string: ", iovEnd  , " (in UTC)")
 
         #=== initialize return list
         folderVarSetList = []
 
         #=== get all tables spanned by query
         tableRange = self.getEventHistoryTables( iovStart, iovEnd)
-        tables = tableRange.keys()
+        tables = list(tableRange.keys())
         tables.sort()
-        print "===> Going to access the following oracle table(s):"
+        print ("===> Going to access the following oracle table(s):")
         for table in tables:
-            print "     * ", table, " ---> validity range: ", tableRange[table]
+            print ("     * ", table, " ---> validity range: ", tableRange[table])
 
-        for folder, channels in folderChannelDict.iteritems():
-            logging.debug( "treating folder: %s" % folder )
+        for folder, channels in list(folderChannelDict.items()):
+            logging.debug( "treating folder: %s", folder )
             varsInFolder = folderVariableDict[folder]
-            logging.debug( "---> variables in this folder: %s" % varsInFolder )
+            logging.debug( "---> variables in this folder: %s", varsInFolder )
             for channel in channels:
                 drawer = self.info.get_drawer(folder,channel)
-                logging.debug( "channel: %s" % channel )
-                nCrap = 0;
+                logging.debug( "channel: %s", channel )
+                nCrap = 0
                 for var in varsInFolder:
                     varType = self.info.get_variable_type(var)
-                    logging.debug( "variable: %s" % var )
+                    logging.debug( "variable: %s", var )
                     folderVarSet = FolderVarSet([var],self.putDuplicates)
                     bar = progressBar(iovStartUnix,iovEndUnix,78,drawer,var)
                     for table in tables:
                         tableRangeStart, tableRangeEnd = tableRange[table]
-                        logging.debug( "Processing table: %s" % table )
+                        logging.debug( "Processing table: %s", table )
                         oracleString = self.getOracleString(folder, drawer, var, table, tableRangeStart, tableRangeEnd)
-                        logging.debug( "Oralce string: %s" % oracleString )
+                        logging.debug( "Oralce string: %s", oracleString )
                         stmt = self.db.Statement(oracleString)
                         if stmt.Process():
                             stmt.StoreResult()
                             #=== read all values
                             value = 0
                             while stmt.NextResultRow():
-                                if   varType==self.info.type_int:    value = stmt.GetInt(   1)
-                                elif varType==self.info.type_float:  value = stmt.GetDouble(1)
+                                if   varType==self.info.type_int:
+                                    value = stmt.GetInt(   1)
+                                elif varType==self.info.type_float:
+                                    value = stmt.GetDouble(1)
                                 #=== catch in oracle
                                 if value < -10000:
                                     nCrap += 1
@@ -678,12 +686,14 @@ class TileDCSDataGrabber:
                                 iovSince = int(unixTime*self.unix2cool)
                                 folderVarSet.setVariable(var, value)
                                 folderVarSet.registerInIOVStore(drawer,iovSince)
-                                if not isDebug: bar.update(unixTime)
-                                logging.debug( "%s %s: %s (%s)\t%f" % (drawer,var,iovSince,time.ctime(unixTime),value) )
-                        if not isDebug: bar.done()
+                                if not isDebug:
+                                    bar.update(unixTime)
+                                logging.debug( "%s %s: %s (%s)\t%f", drawer,var,iovSince,time.ctime(unixTime),value)
+                        if not isDebug:
+                            bar.done()
                     folderVarSetList.append(folderVarSet)
                 if nCrap > 0:
-                    logging.warning("Found %i \"bad\" entries for %s, ignored those!"%(nCrap,var))
+                    logging.warning("Found %i \"bad\" entries for %s, ignored those!", nCrap,var)
         return folderVarSetList
 
 
@@ -713,9 +723,9 @@ class TileDCSDataGrabber:
         self.reconnect()
         key = ( folder , drawer)
         if key not in self.info.folderDrawer_to_oracleId:
-            logging.error( "Can not resolve key: %s , known keys are:" % key )
-            for key, val in self.info.folderDrawer_to_oracleId.iteritems():
-                logging.error( "%s %s" % (key, val) )
+            logging.error( "Can not resolve key: %s , known keys are:", key )
+            for key, val in list(self.info.folderDrawer_to_oracleId.items()):
+                logging.error( "%s %s", key, val)
             return None
         oracleId = self.info.folderDrawer_to_oracleId[key]
 
@@ -730,17 +740,20 @@ class TileDCSDataGrabber:
 
         #=== special treatment for STATES
         if self.info.vars[var][0] == self.info.LVPS_STATES:
-            logging.debug( "STATES VAR DETECTED: %s" % var )
-            if   var == "FORDAQ_HV"  : var = ".ForDAQ_HV"
-            elif var == "FORDAQ_MB"  : var = ".ForDAQ_MB"
-            elif var == "FORDAQ_MBHV": var = ".ForDAQ_MBHV"
+            logging.debug( "STATES VAR DETECTED: %s", var )
+            if   var == "FORDAQ_HV"  :
+                var = ".ForDAQ_HV"
+            elif var == "FORDAQ_MB"  :
+                var = ".ForDAQ_MB"
+            elif var == "FORDAQ_MBHV":
+                var = ".ForDAQ_MBHV"
         #=== special treatment for HV
         elif self.info.vars[var][0] == self.info.VARS_HV:
-            logging.debug( "HV VAR DETECTED: %s" % var )
+            logging.debug( "HV VAR DETECTED: %s", var )
             var = "."+var+".value"
         #=== special treatment for HV
         elif self.info.vars[var][0] == self.info.VARS_HVSET:
-            logging.debug( "HVSET VAR DETECTED: %s" % var )
+            logging.debug( "HVSET VAR DETECTED: %s", var )
             var = "."+var.split(".")[1]+".order"
         #=== special treatment for DAQ STATE
         elif self.info.vars[var][0] == self.info.VARS_DAQ:
@@ -776,12 +789,12 @@ class TileDCSDataGrabber:
         oldTableBoundary2 = 131231230000
         if int(iovStart) < oldTableBoundary:
             if int(iovEnd) > oldTableBoundary:
-                raise ("Can not generate plots of table boundary at 2007-06-25 15:06:48, sorry...")
+                raise Exception("Can not generate plots of table boundary at 2007-06-25 15:06:48, sorry...")
             rangeEnd = min(iovEnd , "070625150648" )
             validityRange = ( iovStart, rangeEnd )
             evhistNames["ATLAS_PVSS_TILE.EVENTHISTORY_00007001"] = validityRange
         elif int(iovStart) < oldTableBoundary2 and int(iovStart) >= oldTableBoundary and int(iovEnd)>oldTableBoundary2:
-            raise ("Can not generate plots of table boundary at 2014-01-01 00:00:00, sorry...")
+            raise Exception("Can not generate plots of table boundary at 2014-01-01 00:00:00, sorry...")
             rangeEnd = min(iovEnd , "131231230000" )
             validityRange = ( iovStart, rangeEnd )
             evhistNames["ATLAS_PVSS_TILE.EVENTHISTORY_00007001"] = validityRange
@@ -801,7 +814,7 @@ class TileDCSDataGrabber:
             statement += ")"
 
             stmt = self.db.Statement(statement)
-            if stmt.Process()==True:
+            if stmt.Process() is True:
                 stmt.StoreResult()
                 while stmt.NextResultRow():
                     rangeStart = stmt.GetString(1)

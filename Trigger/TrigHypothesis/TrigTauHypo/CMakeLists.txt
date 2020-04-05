@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigEvent/TrigTopoEvent
                           Trigger/TrigSteer/TrigInterfaces
-			              Event/xAOD/xAODTrigger
+                          Event/xAOD/xAODTrigger
                           Calorimeter/CaloEvent
                           Control/AthViews
                           Control/AthContainers
@@ -38,7 +38,8 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkEvent/TrkTrackSummary
                           Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigNavStructure 
-                          Trigger/TrigSteer/DecisionHandling )
+                          Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils )
 
 # External dependencies:
 find_package( CLHEP )
@@ -48,7 +49,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_component( TrigTauHypo
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} StoreGateLib SGtests GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent TrigInterfacesLib CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODEgamma xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure DecisionHandlingLib AthViews )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} StoreGateLib SGtests GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent TrigInterfacesLib CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODEgamma xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure DecisionHandlingLib AthViews TrigCompositeUtilsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

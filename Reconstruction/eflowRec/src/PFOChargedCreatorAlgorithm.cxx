@@ -104,7 +104,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
     /* Optionally we add the links to clusters to the xAOD::PFO */
     if (true == addClusters){
 
-      std::vector<std::pair<eflowTrackClusterLink*,bool> > trackClusterLinkPairs = energyFlowCaloObject.efRecLink();
+      std::vector<std::pair<eflowTrackClusterLink*,float> > trackClusterLinkPairs = energyFlowCaloObject.efRecLink();
 
       std::vector<eflowTrackClusterLink*> thisTracks_trackClusterLinks = efRecTrack->getClusterMatches();
 
@@ -114,16 +114,29 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
 
       std::vector<eflowTrackClusterLink*> thisTracks_trackClusterLinksSubtracted;
 
+      //Create vector of pairs which map each CaloCluster to the ratio of its new energy to unstracted energy
+      std::vector<std::pair<ElementLink<xAOD::CaloClusterContainer>, double> > vectorClusterToSubtractedEnergies;
+
       for (auto trackClusterLink : thisTracks_trackClusterLinks){
         for (auto trackClusterLinkPair : trackClusterLinkPairs){
-          if (trackClusterLinkPair.first == trackClusterLink && true == trackClusterLinkPair.second) {
+          if (!m_eOverPMode && trackClusterLinkPair.first == trackClusterLink && !std::isnan(trackClusterLinkPair.second)) {
             thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
+            eflowRecCluster* efRecCluster = trackClusterLinkPair.first->getCluster();
+            ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
+    	      ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
+            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.push_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second));
+            else vectorClusterToSubtractedEnergies.push_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second));
           }
+          else if (m_eOverPMode) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
         }
       }
 
+      //sort the vectorClusterToSubtractedEnergies in order of subtracted energy ratio from low (most subtracted) to high (least subtracted)
+      std::sort(vectorClusterToSubtractedEnergies.begin(),vectorClusterToSubtractedEnergies.end(), [](auto const& a, auto const&b){return a.second < b.second;});
+      thisPFO->setAttribute("PF_vectorClusterToSubtractedEnergies",vectorClusterToSubtractedEnergies);
+
       //Now loop over the list of eflowTrackClusterLink which correspond to subtracted clusters matched to this track.
-      
+      bool isFirstCluster = true;
       for (auto trackClusterLink : thisTracks_trackClusterLinksSubtracted){	    
 
         eflowRecCluster* efRecCluster = trackClusterLink->getCluster();
@@ -132,12 +145,22 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
 	      ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
         if(theSisterClusterLink.isValid()) {
         	ATH_MSG_DEBUG("PFO with e and eta of " << thisPFO->e() << " and " << thisPFO->eta() << " is adding cluster with e, eta of " << (*theSisterClusterLink)->e() << " and " << (*theSisterClusterLink)->eta() << " an sistser has " << (*theOriginalClusterLink)->e() << " and " << (*theOriginalClusterLink)->eta());
-        	bool isSet = thisPFO->setClusterLink(theSisterClusterLink);
-        	if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
+          bool isSet = false;
+          if (isFirstCluster){
+            isSet = thisPFO->setClusterLink(theSisterClusterLink);
+            isFirstCluster = false;
+          }
+          else isSet = thisPFO->addClusterLink(theSisterClusterLink);
+          if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
         } else {
         	ATH_MSG_DEBUG("PFO with e and eta of " << thisPFO->e() << " and " << thisPFO->eta() << " is adding cluster with e, eta of " << (*theOriginalClusterLink)->e() << " and " << (*theOriginalClusterLink)->eta());
-        	bool isSet = thisPFO->setClusterLink(theOriginalClusterLink);
-        	if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
+          bool isSet = false;
+          if (isFirstCluster){
+            isSet = thisPFO->setClusterLink(theOriginalClusterLink);
+            isFirstCluster = false;
+          }
+          else isSet = thisPFO->addClusterLink(theOriginalClusterLink);
+          if (!isSet) { ATH_MSG_WARNING( "Could not set Cluster in PFO " ); }
 	      }
       }//track-cluster link loop
     }//addClusters is set to true - so we added the clusters to the xAOD::PFO   

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # art-description: Legacy trigger test on data with v7 primaries menu
-# art-type: build
+# art-type: grid
 # art-include: master/Athena
 # art-output: *.txt
 # art-output: *.log
@@ -14,6 +14,7 @@
 # art-output: *.root
 # art-output: *.pmon.gz
 # art-output: *perfmon*
+# art-output: prmon*
 # art-output: *.check*
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps

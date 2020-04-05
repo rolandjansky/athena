@@ -297,7 +297,7 @@ namespace Muon {
 	}
 	if( firstPos && secondPos ){
           Amg::Vector3D gpos = (*firstPos+*secondPos)/2.;
-          Amg::Vector3D gdir = (*secondPos-*firstPos).unit();
+          Amg::Vector3D gdir = (*firstPos-*secondPos).unit();
 	  ATH_MSG_DEBUG(" got position : r " << gpos.perp() << " z " << gpos.z()  
                         << "  and direction: theta " << gdir.theta() << " phi " << gdir.phi() );
           segment->setPosition(gpos.x(),gpos.y(),gpos.z());
@@ -318,10 +318,9 @@ namespace Muon {
     if( vertex ) parameters.push_back( std::make_pair(Amg::Vector3D(vertex->x(),vertex->y(),vertex->z()), 
                                                       Amg::Vector3D(truthParticle.px(),truthParticle.py(),truthParticle.pz())) );
 
-    int icol=0;
     for( SG::ReadHandle<TrackRecordCollection>& col : m_trackRecordCollectionNames.makeHandles() ){
       if(!col.isPresent()) continue;
-      const std::string name = m_trackRecordCollectionNames.at(icol).key();
+      const std::string name = col.key();
       float& x   = truthParticle.auxdata<float>(name+"_x");
       float& y   = truthParticle.auxdata<float>(name+"_y");
       float& z   = truthParticle.auxdata<float>(name+"_z");

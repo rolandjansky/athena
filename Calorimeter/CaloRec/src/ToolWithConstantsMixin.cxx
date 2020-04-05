@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ToolWithConstantsMixin.cxx,v 1.12 2009-04-18 02:56:18 ssnyder Exp $
 /**
  * @file  ToolWithConstantsMixin.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -386,10 +385,10 @@ ToolWithConstantsMixin::setProperty (const Property& p)
  * @brief Add a new constant to our store.
  * @param pi The @c Propinfo instance describing this constant.
  */
-StatusCode ToolWithConstantsMixin::add_constant (Propinfo_Base* pi)
+void ToolWithConstantsMixin::add_constant (Propinfo_Base* pi)
 {
   if (!pi)
-    return StatusCode::FAILURE;
+    return;
 
   // Make sure that a name isn't duplicated.
   for (unsigned int i=0; i < m_infos.size(); i++)
@@ -397,14 +396,13 @@ StatusCode ToolWithConstantsMixin::add_constant (Propinfo_Base* pi)
       REPORT_ERROR(StatusCode::FAILURE)
         << "Duplicate constant: " << pi->m_name;
       delete pi;
-      return StatusCode::FAILURE;
+      return;
     }
 
   // Record this declaration in @c m_infos.
   // @c makeinfo is one of an overloaded family of functions that
   // creates the @c Propinfo_* structure for the type of @a c.
   m_infos.push_back (pi);
-  return StatusCode::SUCCESS;
 }
 
 

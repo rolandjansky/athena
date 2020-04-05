@@ -20,11 +20,8 @@ streamName = derivationFlags.WriteDAOD_EXOT0Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT0Stream )
 EXOT0Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT0Stream.AcceptAlgs(["EXOT0Kernel"])
-# Thinning 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT0ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # THINNING TOOLS
@@ -55,7 +52,7 @@ thinningTools.append(EXOT0ElectronTPThinningTool)
 # truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT0TruthTool = DerivationFramework__MenuTruthThinning(name                  = "EXOT0TruthTool",
-                                                        ThinningService       = "EXOT0ThinningSvc",
+                                                        StreamName            = streamName,
                                                         WritePartons          = False,
                                                         WriteHadrons          = False,
                                                         WriteBHadrons         = False,
@@ -84,7 +81,7 @@ truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.p
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT0TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT0TruthTool2",
-                                                            ThinningService              = "EXOT0ThinningSvc",
+                                                            StreamName                   = streamName,
                                                             ParticleSelectionString      = truth_cond_Lepton,
                                                             PreserveDescendants          = False,
                                                             PreserveGeneratorDescendants = True,

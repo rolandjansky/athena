@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHistUtils/MuonSegmentSlimPlots.h"
 #include "xAODTracking/TrackingPrimitives.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 namespace Muon{

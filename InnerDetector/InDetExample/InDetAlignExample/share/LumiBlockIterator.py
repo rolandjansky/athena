@@ -1,8 +1,11 @@
-#!/afs/cern.ch/sw/lcg/external/Python/2.5.4/slc4_ia32_gcc34/bin/python
+#!usr/bin/env python
 # =====================================================================
 # Main script to run the NewInDetIterator
 # run with ./RunIterator.py
 # =====================================================================
+
+from __future__ import print_function
+
 import os
 import sys
 
@@ -79,12 +82,13 @@ with open(userFile, 'rb') as inFile:
         for line in inFile:
             whereLB = line.find("_lb") 
             thisLB = int(line[whereLB+3:whereLB+7])
-            #print whereLB, thisLB
+            #print (whereLB, thisLB)
             if ((initialLB <= thisLB and thisLB <=finalLB) or userUseLBselector):
                 outFile.write(line)
                 writtenLines += 1
             if (thisLB > upperLB): upperLB = thisLB
-        if (writtenLines>0): print " <LumiBlockIterator> ouput file ", outputFileName, " has ", writtenLines, " lines"
+        if (writtenLines>0):
+            print (" <LumiBlockIterator> ouput file ", outputFileName, " has ", writtenLines, " lines")
         if (writtenLines > 0): 
             ListOfDaughterFiles.append(outputFileName)
             ListOfNFiles.append(writtenLines)
@@ -96,7 +100,7 @@ with open(userFile, 'rb') as inFile:
         ListOfLBranges.append(initialLB)
         ListOfLBranges.append(finalLB)
         
-    print " <LumiBlockIterator> Lumiblock file splitting completed. In total ", len(ListOfDaughterFiles) ," daughter files with active LumiBlocks have been created"
+    print (" <LumiBlockIterator> Lumiblock file splitting completed. In total ", len(ListOfDaughterFiles) ," daughter files with active LumiBlocks have been created")
 
 ##########################################################
 # Loop over the daughter files and submit the jobs       #
@@ -116,17 +120,18 @@ if len(ListOfDaughterFiles) > 0:
     if (len(usernEvents)>0):execCommandOptions1 = execCommandOptions1 + " --nEvents " + usernEvents 
     execCommandOptions1 = execCommandOptions1 + " --isData True" 
     if (len(userPtMin)>0): execCommandOptions1 = execCommandOptions1 + " --ptmin " + userPtMin
-    if (debug): print " <LumiBlockIterator> execCommandOptions1 = ", execCommandOptions1
+    if (debug):
+        print (" <LumiBlockIterator> execCommandOptions1 = ", execCommandOptions1)
     if (len(userBowingDB)>0):  execCommandOptions2 = execCommandOptions2 + " --inputBowingDb "+userBowingDB     
         
     for daughterFile in ListOfDaughterFiles:
-        print "\n  <LumiBlockIterator> going to process lumiblocks in file ",  daughterFile
+        print ("\n  <LumiBlockIterator> going to process lumiblocks in file ",  daughterFile)
         whereLB = daughterFile.find("LB_")
         whereDotTxt = daughterFile.find(".txt")
         theTail = daughterFile[whereLB:whereDotTxt]
         if (len(userSuffix)>0): theTail = userSuffix + "_" + daughterFile[whereLB:whereDotTxt]
         
-        #if (debug): print " <LumiBlockIterator> theTail = ", theTail
+        #if (debug): print (" <LumiBlockIterator> theTail = ", theTail)
 
         execCommandOptions0 = " --inputList " + daughterFile
         execCommandOptions0 = execCommandOptions0 + " --suffix " + theTail
@@ -144,7 +149,8 @@ if len(ListOfDaughterFiles) > 0:
         # build the command options for RunIterator
         execCommandOptions = execCommandOptions0 + execCommandOptions1 + execCommandOptions2 + execCommandOptions3
 
-        if (debug): print " <LumiBlockIterator> execCommandOptions = ", execCommandOptions 
+        if (debug):
+            print (" <LumiBlockIterator> execCommandOptions = ", execCommandOptions )
         os.system("python RunIterator.py "+execCommandOptions+" &")
 
         subJob += 1

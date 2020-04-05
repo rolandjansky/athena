@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -67,11 +67,6 @@
 #include <QTreeWidget>
 
 // XAOD
-#include "xAODRootAccess/Init.h"
-#include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/TStore.h"
-#include "xAODRootAccess/tools/Message.h"
-#include "xAODRootAccess/TAuxStore.h"
 #include "xAODCore/AuxContainerBase.h"
 #include "xAODCore/tools/ReadStats.h"
 #include "xAODCore/tools/IOStats.h"

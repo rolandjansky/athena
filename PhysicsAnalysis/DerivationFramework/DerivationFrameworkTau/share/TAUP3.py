@@ -22,14 +22,8 @@ fileName                                         = buildFileName( derivationFlag
 TAUP3Stream                                      = MSMgr.NewPoolRootStream( streamName, fileName )
 TAUP3Stream.AcceptAlgs(["TAUP3Kernel"])
 
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream                                        = MSMgr.GetStream( streamName )
 evtStream                                        = augStream.GetEventStream()
-svcMgr                                          += createThinningSvc(
-                                                     svcName                   = "TAUP3ThinningSvc",
-                                                     outStreams                = [evtStream])
 
 # ==========================================================================================================================
 # Thinning tool

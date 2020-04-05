@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
@@ -13,103 +13,71 @@ from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuName
 
 _flags = []
 
+# Define simple boolean flags
+def bool_flag_with_default(name, val):
+    return type(name,
+                (JobProperty, ),
+                {
+                   "statusOn": True,
+                   "allowedType": ['bool'],
+                   "StoredValue": val,
+                })
 
-# Define Default Flags
-class doLVL1(JobProperty):
-    """ run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file) """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
+default_true_flags = [
+    "doLVL1", # run the LVL1 simulation (set to FALSE to read the LVL1 result from BS file)
+    "doL1Topo", # Run the L1 Topo simulation (set to FALSE to read the L1 Topo result from BS file)
+    "useCaloTTL", # False for DC1. Can use True for Rome files with Digits or post-Rome data """
+    "doMergedHLTResult", # if False disable decoding of the merged HLT Result (so decoding L2/EF Result) """
+    "doAlwaysUnpackDSResult",  # if False disable decoding of DS results for all files but for real DS files
+    "writeL1TopoValData",  # if False disable writing out of the xAOD L1Topo validation object """
+    "doFEX",  # if False disable Feature extraction algorithms """
+    "doHypo",  # if False disable all Hypothesis algorithms (HYPO)"""
+    "doID",  # if False, disable ID algos at LVL2 and EF """
+    "doCalo",  # if False, disable Calo algorithms at LVL2 & EF """
+    "doCaloOffsetCorrection",  # enable Calo pileup offset BCID correction """
+    "doBcm",  # if False, disable BCM algorithms at LVL2 & EF """
+    "doTrt",  # if False, disable TRT algorithms at LVL2 & EF """
+    "doZdc",  # if False, disable ZDC algorithms at LVL2 & EF """"
+    "doLucid", # if False, disable Lucid algorithms at LVL2 & EF
+    "doMuon", # if FAlse, disable Muons, note: muons need input file containing digits"""
+    "doHLTpersistency",  # serialise L2result """
+    "doNavigationSlimming",  # Enable the trigger navigation slimming"""
+]
 
-_flags.append(doLVL1)
+default_false_flags = [
+    "readLVL1Calo", # read LVL1 Calo info from pool or BS """
+    "readLVL1Muon", # read LVL1 Muon in from Pool or BS """
+    "fakeLVL1", # create fake RoI from KINE info  """
+    "useL1CaloCalibration", # Should be false for early data, true for later """
+    "useRun1CaloEnergyScale",
+    "doCosmicSim", # run the LVL1 simulation with special setup for cosmic simulation (set to FALSE by default, to do collisions simulation) """
+    "disableRandomPrescale",  # if True, disable Random Prescales
+    "doLVL2",  # if False, disable LVL2 selection
+    "doEF",  # if False, disable EF selection
+    "doTruth",
+    "doFTK",  # if False, disable FTK result reader """
+    "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
+    "useOfflineSpacePoints", # use online convertors for Si SpacePoints
+    "doTransientByteStream",  # Write transient ByteStream before executing HLT algorithms.
+                              # To be used for running on MC RDO with clients which require BS inputs.
+    "doNtuple",
+    "writeBS",  # Write ByteStream output file """
+    "readBS",
+    "readMenuFromTriggerDb", # define the TriggerDb to be the source of the LVL1 and HLT trigger menu
+    "generateMenuDiagnostics",  # Generate additional files heling in menu diagnostics """
+    "abortOnConfigurationError", # Should the job be stoped if there is an error in configuration
 
-class doL1Topo(JobProperty):
-    """ Run the L1 Topo simulation (set to FALSE to read the L1 Topo result from BS file) """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
+]
 
-_flags.append(doL1Topo)
+for name in default_true_flags:
+    newFlag = bool_flag_with_default(name, True)
+    globals()[newFlag.__name__] = newFlag
+    _flags.append(newFlag)
 
-class readLVL1Calo(JobProperty):
-    """  read LVL1 Calo info from pool or BS """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(readLVL1Calo)
-
-class readLVL1Muon(JobProperty):
-    """ read LVL1 Muon in from Pool or BS """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(readLVL1Muon)
-
-class fakeLVL1(JobProperty):
-    """ create fake RoI from KINE info  """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(fakeLVL1)
-
-class useCaloTTL(JobProperty):
-    """ False for DC1. Can use True for Rome files with Digits or post-Rome data """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(useCaloTTL)
-
-class useL1CaloCalibration(JobProperty):
-    """ Should be false for early data, true for later """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(useL1CaloCalibration)
-
-class useRun1CaloEnergyScale(JobProperty):
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(useRun1CaloEnergyScale)
-
-class doCosmicSim(JobProperty):
-    """ run the LVL1 simulation with special setup for cosmic simulation (set to FALSE by default, to do collisions simulation) """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(doCosmicSim)
-
-class disableRandomPrescale(JobProperty):
-    """ if True, disable Random Prescales """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(disableRandomPrescale)
-
-class doLVL2(JobProperty):
-    """ if False, disable LVL2 selection """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(doLVL2)
-
-class doEF(JobProperty):
-    """ if False, disable EF selection """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(doEF)
-
+for name in default_false_flags:
+    newFlag = bool_flag_with_default(name, False)
+    globals()[newFlag.__name__] = newFlag
+    _flags.append(newFlag)
 
 class doHLT(JobProperty):
     """ if False, disable HLT selection """
@@ -135,10 +103,8 @@ class doHLT(JobProperty):
             log = logging.getLogger( 'TriggerFlags.doHLT' )
             log.info("doHLT is True: force doLVL2=False and doEF=False"  )
 
-            
 _flags.append(doHLT)
 
-# Define Default Flags
 class doMT(JobProperty):
     """ Configure Run-3 AthenaMT Trigger """
     statusOn=True
@@ -156,31 +122,6 @@ class doMT(JobProperty):
 
 _flags.append(doMT)
 
-
-class doMergedHLTResult(JobProperty):
-    """ if False disable decoding of the merged HLT Result (so decoding L2/EF Result) """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doMergedHLTResult)
-
-class doAlwaysUnpackDSResult(JobProperty):
-    """ if False disable decoding of DS results for all files but for real DS files """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doAlwaysUnpackDSResult)
-
-class writeL1TopoValData(JobProperty):
-    """ if False disable writing out of the xAOD L1Topo validation object """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(writeL1TopoValData)
-
 class EDMDecodingVersion(JobProperty):
     """ if 1, Run1 decoding version is set; if 2, Run2; if 3, Run3 """
     statusOn=True
@@ -190,41 +131,6 @@ class EDMDecodingVersion(JobProperty):
 
 _flags.append(EDMDecodingVersion)
 
-class doFEX(JobProperty):
-    """ if False disable Feature extraction algorithms """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doFEX)
-
-class doHypo(JobProperty):
-    """ if False disable all Hypothesis algorithms (HYPO)"""
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doHypo)
-
-class doTruth(JobProperty):
-    """ """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(doTruth)
-
-# FTK simulation switch
-
-class doFTK(JobProperty):
-    """ if False, disable FTK result reader """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(doFTK)
-
-# monitoring switch
 class enableMonitoring(JobProperty):
     """ enables certain monitoring type: Validation, Online, Time"""
     statusOn=True
@@ -243,130 +149,6 @@ class configurationSourceList(JobProperty):
 
 _flags.append(configurationSourceList)
 
-class doTriggerConfigOnly(JobProperty):
-    """ if True only the configuration services should be set, no algorithm """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(doTriggerConfigOnly)
-              
-# Flags to switch on/off Detector Slices
-class doID(JobProperty):
-    """ if False, disable ID algos at LVL2 and EF """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doID)
-
-class doCalo(JobProperty):
-    """ if False, disable Calo algorithms at LVL2 & EF """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doCalo)
-
-class doCaloOffsetCorrection(JobProperty):
-    """ enable Calo pileup offset BCID correction """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doCaloOffsetCorrection)
-
-class doBcm(JobProperty):
-    """ if False, disable BCM algorithms at LVL2 & EF """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doBcm)
-
-class doTrt(JobProperty):
-    """ if False, disable TRT algorithms at LVL2 & EF """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doTrt)
-
-class doZdc(JobProperty):
-    """ if False, disable ZDC algorithms at LVL2 & EF """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doZdc)
-
-class doLucid(JobProperty):
-    """ if False, disable Lucid algorithms at LVL2 & EF """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doLucid)
-
-class doMuon(JobProperty):
-    """ if FAlse, disable Muons, note: muons need input file containing digits"""
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doMuon)
-
-class doHLTpersistency(JobProperty):
-    """ serialise L2result """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doHLTpersistency)
-
-class useOfflineSpacePoints(JobProperty):
-    """ use online convertors for Si SpacePoints"""
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(useOfflineSpacePoints)
-
-class doTransientByteStream(JobProperty):
-    """ Write transient ByteStream before executing HLT algorithms.
-    To be used for running on MC RDO with clients which require BS inputs. """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-    
-_flags.append(doTransientByteStream)
-
-class doNtuple(JobProperty):
-    """ """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(doNtuple)
-
-
-class writeBS(JobProperty):
-    """ Write ByteStream output file """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(writeBS)
-
-class readBS(JobProperty):
-    """ """
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(readBS)
-
-
 class AODEDMSet(JobProperty):
     """ Define which sets of object go to AOD """
     statusOn=True
@@ -382,14 +164,6 @@ class ESDEDMSet(JobProperty):
     StoredValue='ESD'
 
 _flags.append(ESDEDMSet)
-
-class doNavigationSlimming(JobProperty):
-    """Enable the trigger navigation slimming"""
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=True
-
-_flags.append(doNavigationSlimming)
 
 class OnlineCondTag(JobProperty):
     """ Default (online) HLT conditions tag """
@@ -723,9 +497,6 @@ class readL1TopoConfigFromXML(JobProperty):
 
 _flags.append(readL1TopoConfigFromXML)
 
-
-
-
 class readLVL1configFromXML(JobProperty):
     """ If set to True the LVL1 config file is read from earlier generated XML file """
     statusOn=True
@@ -756,8 +527,6 @@ class readLVL1configFromXML(JobProperty):
             TriggerFlags.Lvl1.items.set_Off()
 
 _flags.append(readLVL1configFromXML)
-
-
 
 class readHLTconfigFromXML(JobProperty):
     """ If set to True the HLT config file is read from earlier generated XMl file """
@@ -806,20 +575,6 @@ class readHLTconfigFromXML(JobProperty):
                     log.error("The HLT xml file is missing: HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml")
                 
 _flags.append(readHLTconfigFromXML)
-
-
-# trigger configuration source list
-class readMenuFromTriggerDb(JobProperty):
-    """ define the TriggerDb to be the source of the LVL1 and HLT trigger menu"""
-    statusOn=False
-    allowedType=['bool']
-    StoredValue=False
-#    def _do_action(self):
-#        """ setup reading from DB requires menu readingFromXML """
-#        if self.get_Value() is True:
-#            TriggerFlags.readLVL1configFromXML = True
-#            TriggerFlags.readHLTconfigFromXML = True
-_flags.append(readMenuFromTriggerDb)
 
 class triggerDbKeys(JobProperty):
     """ define the keys [Configuration, LVL1Prescale, HLTPrescale, L1BunchGroupSet] in that order!"""
@@ -908,13 +663,6 @@ class outputHLTmenuJsonFile(JobProperty):
 
 _flags.append(outputHLTmenuJsonFile)
 
-class generateMenuDiagnostics(JobProperty):
-    """ Generate additional files heling in menu diagnostics """
-    statusOn=True
-    StoredValue=False
-_flags.append( generateMenuDiagnostics )
-
-
 class inputL1TopoConfigFile(JobProperty):
     """Used to define an external L1Topo configuration file. To be
     used together with trigger flag readL1TopoConfigFromXML.
@@ -975,15 +723,6 @@ class inputHLTconfigFile(JobProperty):
             return self.get_Value()
         
 _flags.append(inputHLTconfigFile)
-
-class abortOnConfigurationError(JobProperty):
-    """ Should the job be stoped if there is an error in configuration"""
-    statusOn=True
-    allowedType=['bool']
-    StoredValue=False
-
-_flags.append(abortOnConfigurationError)
-
 
 # =================
 #
@@ -1085,7 +824,7 @@ class triggerMenuSetup(JobProperty):
         'PhysicsP1_pp_run3_v1', # PhysicsP1_pp_run3 for AthenaMT
         'Physics_pp_run3_v1', # Physics_pp_run3 for AthenaMT
         'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
-        'Cosmic_pp_run3_v1',
+        'Cosmic_run3_v1',
         ]
 
     _default_menu='Physics_pp_v7_primaries'

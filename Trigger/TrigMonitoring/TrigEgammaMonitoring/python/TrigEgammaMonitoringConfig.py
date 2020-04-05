@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
@@ -14,15 +14,12 @@
 # Provide all triggers to be monitored
 # Provide list of categories and shifter plots
 
-from __future__ import print_function
-
 # Provide function that is called by HLTMonitoring
 # Returns the name of tool in ToolSvc
 def TrigEgammaMonitoringTool(**kwargs):
     log_trigeg.info('TrigEgammaMonitoringTool()')
     from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonToolBuilder
     builder = TrigEgammaMonToolBuilder(**kwargs)
-
     return builder.monTool
 
 """
@@ -80,19 +77,16 @@ class TrigEgammaMonToolBuilder:
 
         if not self._configured:
             for key,value in kwargs.items():
-                print (key,value)
+                log_trigeg.info("%s,%s",key,value)
                 if key in self.__acceptable_keys_list:
                     setattr(self,key,value)
-            #print (self.derivation,self.emulation)
 
             self.config()
-            print('monTool')
-            print(self.monTool)
+            log_trigeg.info("monTool: %s",self.monTool)
         
     def config(self):
         log_trigeg.info("TrigEgammaMonToolBuilder.config()")
         self._get_monitoring_mode_success = self.get_monitoring_mode()
-        #print (self._get_monitoring_mode_success)
         if self._get_monitoring_mode_success == False:
             log_trigeg.warning("HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used.")
         else:

@@ -47,7 +47,7 @@ class TrigEgammaAnalysisBaseTool
   virtual public ITrigEgammaAnalysisBaseTool {
 ASG_TOOL_CLASS(TrigEgammaAnalysisBaseTool, ITrigEgammaAnalysisBaseTool)
 
-public:
+  public:
 
   TrigEgammaAnalysisBaseTool( const std::string& myname);
   ~TrigEgammaAnalysisBaseTool() {};

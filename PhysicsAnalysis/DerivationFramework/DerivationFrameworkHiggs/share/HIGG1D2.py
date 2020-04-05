@@ -22,11 +22,8 @@ HIGG1D2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 HIGG1D2Stream.AcceptAlgs(["HIGG1D2Kernel"])
 
 
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="HIGG1D2ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # SKIMMING TOOLS
@@ -174,7 +171,7 @@ truth_expression = '('+truth_cond_1+' || '+truth_cond_2 +' || '+truth_cond_3 +' 
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 HIGG1D2TruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = "HIGG1D2TruthThinningTool", 
-                                                                      ThinningService         = "HIGG1D2ThinningSvc",
+                                                                      StreamName              = streamName,
                                                                       ParticleSelectionString = truth_expression,
                                                                       PreserveDescendants     = False,
                                                                       PreserveGeneratorDescendants     = True,

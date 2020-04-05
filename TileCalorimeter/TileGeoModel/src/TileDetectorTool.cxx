@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileGeoModel/TileDetectorTool.h"
@@ -61,7 +61,7 @@ StatusCode TileDetectorTool::create()
 
   // Get the detector configuration
   IGeoModelSvc *geoModel;
-  service ("GeoModelSvc",geoModel);
+  ATH_CHECK(service ("GeoModelSvc",geoModel));
 
   std::string atlasVersion = geoModel->atlasVersion();
   std::string tileVersion = geoModel->tileVersionOverride();
@@ -86,7 +86,7 @@ StatusCode TileDetectorTool::create()
   if ( 0 == m_detector )
   {
     IRDBAccessSvc* raccess = 0;
-    service("RDBAccessSvc",raccess);
+    ATH_CHECK(service("RDBAccessSvc",raccess));
 
     TileDddbManager_ptr  dbManager(new TileDddbManager(raccess,versionTag,versionNode));
     m_manager = new TileDetDescrManager(dbManager);

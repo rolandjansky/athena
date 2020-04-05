@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1MENU_H
@@ -8,8 +8,11 @@
 #include "TrigConfData/ConstIter.h"
 #include "TrigConfData/DataStructure.h"
 #include "TrigConfData/L1Item.h"
-#include "TrigConfData/L1Threshold.h"
 #include "TrigConfData/L1Connector.h"
+#include "TrigConfData/L1Board.h"
+#include "TrigConfData/L1TopoAlgorithm.h"
+#include "TrigConfData/L1Threshold.h"
+#include "TrigConfData/L1ThrExtraInfo.h"
 
 #include <vector>
 #include <map>
@@ -37,9 +40,6 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1Menu();
 
-      /** Accessor to the menu name */
-      std::string name() const;
-
       /** Accessor to the menu version */
       unsigned int version() const;
 
@@ -48,6 +48,10 @@ namespace TrigConf {
 
       /** Accessor to the number of L1 items */
       std::size_t size() const;
+
+      /** setter and getter for the supermasterkey */
+      unsigned int smk() const;
+      void setSMK(unsigned int psk);
 
       /** Get item by name */
       L1Item item(const std::string & itemName) const;
@@ -67,25 +71,44 @@ namespace TrigConf {
        */
       const_iterator end() const;
 
-      /** Access to list of all L1Thresholds
-       * (requires vector copy)
-       */
-      std::vector<TrigConf::L1Threshold> thresholds() const;
+      /** List of L1 thresholds types */
+      std::vector<std::string> thresholdTypes() const;
+
+      /** List of L1 thresholds names */
+      std::vector<std::string> thresholdNames() const;
+
+      /** Access to list of all L1Thresholds */
+      std::vector<std::shared_ptr<TrigConf::L1Threshold>> thresholds() const;
 
       /** Access to list of L1Thresholds by type */
-      const std::vector<TrigConf::L1Threshold> & thresholds(const std::string & typeName) const;
+      const std::vector<std::shared_ptr<TrigConf::L1Threshold>> & thresholds(const std::string & typeName) const;
 
       /** Access to L1Threshold by name */
       const TrigConf::L1Threshold & threshold(const std::string & thresholdName) const;
 
-      /** List of L1 thresholds types */
-      std::vector<std::string> thresholdTypes() const;
+      /** Access to extra info for threshold types */
+      const L1ThrExtraInfo & thrExtraInfo() const;
+
+      /** Access to topo algorithm by name */
+      const TrigConf::L1TopoAlgorithm & algorithm(const std::string & algoName) const;
+
+      /** Access to topo algorithm by output */
+      const TrigConf::L1TopoAlgorithm & algorithmFromOutput(const std::string & outputName) const;
+
+
+      /** Access to boards by name */
+      const TrigConf::L1Board & board(const std::string & boardName) const;
+
+      /** Board names */
+      std::vector<std::string> boardNames() const;
+
 
       /** Access to connector by name */
       const TrigConf::L1Connector & connector(const std::string & connectorName) const;
 
       /** Connector names */
       std::vector<std::string> connectorNames() const;
+
 
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
@@ -95,12 +118,22 @@ namespace TrigConf {
       /** Update the internal data after modification of the data object */
       virtual void update() override;
 
-      std::string m_name{""};
+      /** the supermasterkey */
+      unsigned int m_smk {0};
 
       std::map<std::string, TrigConf::L1Connector> m_connectors{};
 
-      std::map<std::string, std::vector<TrigConf::L1Threshold>> m_thresholdsByType{};
-      std::map<std::string, TrigConf::L1Threshold*> m_thresholdsByName{};
+      std::map<std::string, TrigConf::L1Board> m_boards{};
+
+      std::map<std::string, std::vector<std::shared_ptr<TrigConf::L1Threshold>>> m_thresholdsByType{};
+      std::map<std::string, std::shared_ptr<TrigConf::L1Threshold>> m_thresholdsByName{};
+
+      TrigConf::L1ThrExtraInfo m_thrExtraInfo;
+
+
+      std::map<std::string, std::vector<TrigConf::L1TopoAlgorithm>> m_algorithmsByType{};
+      std::map<std::string, TrigConf::L1TopoAlgorithm*> m_algorithmsByName{};
+      std::map<std::string, TrigConf::L1TopoAlgorithm*> m_algorithmsByOutput{};
 
    };
 

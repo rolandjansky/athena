@@ -18,6 +18,8 @@ def make_exec_steps(nforks, nthreads, nslots):
     ex.forks = nforks
     ex.threads = nthreads
     ex.concurrent_events = nslots
+    ex.perfmon = False
+    ex.prmon = False
     ex.args = '--dump-config-exit'
     ex.args += ' -c "setMenu=\'LS2_v1\';"'  # LS2_v1 soon to be renamed to Dev_pp_run3_v1
 

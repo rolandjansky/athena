@@ -130,7 +130,7 @@ InDetAlignMonResiduals = IDAlignMonResiduals(
     RangeOfPullHistos  =   5.0,
     OutputLevel=0
     )
-print InDetAlignMonResiduals
+printfunc (InDetAlignMonResiduals)
 
 #ToolSvc += InDetAlignMonResiduals
 InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
@@ -192,7 +192,7 @@ InDetAlignMonResiduals = IDAlignMonResiduals(
     RangeOfPullHistos  =   5.0,
     OutputLevel=0
     )
-print InDetAlignMonResiduals
+printfunc (InDetAlignMonResiduals)
 
 #ToolSvc += InDetAlignMonResiduals
 InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
@@ -254,7 +254,7 @@ InDetAlignMonResiduals = IDAlignMonResiduals(
     RangeOfPullHistos  =   5.0,
     OutputLevel=0
     )
-print InDetAlignMonResiduals
+printfunc (InDetAlignMonResiduals)
 
 #ToolSvc += InDetAlignMonResiduals
 InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
@@ -317,7 +317,7 @@ if Cosmics:
                                                     OutputLowerTracksName = "TracksLowerSplit",
                                                     OutputLevel = INFO) 
     #ToolSvc += splittertoolcomb
-    print splittertoolcomb
+    printfunc (splittertoolcomb)
 
     # tool to convert to xAOD::TrackParticles 
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
@@ -349,7 +349,7 @@ if Cosmics:
 
     from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
     for i in range(len(m_alignMonTrackSelectionToolName)):
-        print " <NewInDetAlignMonitoring> step ",i," --> setting track SELECTOR:", m_trackSelectorToolName[i]    
+        printfunc (" <NewInDetAlignMonitoring> step ",i," --> setting track SELECTOR:", m_trackSelectorToolName[i]    )
         m_alignMonTrackSelectorTool.append(InDet__InDetDetailedTrackSelectorTool(name            = m_trackSelectorToolName[i],
                                                                                 pTMin            = 1000,#1 GeV
                                                                                 IPd0Max          = 1000.0,#no cut on d0 yet
@@ -364,7 +364,7 @@ if Cosmics:
                                                                                 Extrapolator     = InDetExtrapolator))
         #ToolSvc += m_alignMonTrackSelectorTool[i]
         if (InDetFlags.doPrintConfigurables()):
-            print m_alignMonTrackSelectorTool[i]
+            printfunc (m_alignMonTrackSelectorTool[i])
     
            
         m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name              = m_alignMonTrackSelectionToolName[i],
@@ -375,8 +375,8 @@ if Cosmics:
 
         #ToolSvc += m_alignMonTrackSelectionTool[i]
         if (InDetFlags.doPrintConfigurables()):
-            print " <NewInDetAlignMonitoring> ** SELECTION ** m_alignMonTrackSelectionTool[",i,"] =",  m_alignMonTrackSelectionToolName[i]
-            print m_alignMonTrackSelectionTool[i]
+            printfunc (" <NewInDetAlignMonitoring> ** SELECTION ** m_alignMonTrackSelectionTool[",i,"] =",  m_alignMonTrackSelectionToolName[i])
+            printfunc (m_alignMonTrackSelectionTool[i])
 
     
     #
@@ -401,23 +401,23 @@ if Cosmics:
     m_deltaQoverPt2D      = [  0.05,  0.05]
 
     for i in range(len(m_trackSplitterName)):
-        print " <NewInDetAlignMonitoring> Setting track splitter",i,":", m_trackSplitterName[i], " for upper:",m_upperTracksName[i]," and lower:",  m_lowerTracksName[i] 
+        printfunc (" <NewInDetAlignMonitoring> Setting track splitter",i,":", m_trackSplitterName[i], " for upper:",m_upperTracksName[i]," and lower:",  m_lowerTracksName[i] )
         m_trackSplitter.append(InDet__InDetTrackSplitterTool(name                  = m_trackSplitterName[i],
                                                              TrackFitter           = InDetTrackFitter,
                                                              OutputUpperTracksName = m_upperTracksName[i],
                                                              OutputLowerTracksName = m_lowerTracksName[i],
                                                              OutputLevel = INFO))
         #ToolSvc += m_trackSplitter[i] # add the track splitter to the ToolSvc
-        if (InDetFlags.doPrintConfigurables()): print m_trackSplitter[i]
-        print " "
-        print " **** WARNING **** "
-        print " * "
-        print " *  in case of crash due to AttributeError: InDet__InDetSplittedTracksCreator object has no attribute takeUpperSegment "
-        print " *  please check out the following package: InnerDetector/InDetValidation/InDetTrackValidation "
-        print " *"
-        print " *  thanks for your understanding"    
-        print " "
-        print " ***************** "
+        if InDetFlags.doPrintConfigurables(): printfunc (m_trackSplitter[i])
+        printfunc (" ")
+        printfunc (" **** WARNING **** ")
+        printfunc (" * ")
+        printfunc (" *  in case of crash due to AttributeError: InDet__InDetSplittedTracksCreator object has no attribute takeUpperSegment ")
+        printfunc (" *  please check out the following package: InnerDetector/InDetValidation/InDetTrackValidation ")
+        printfunc (" *")
+        printfunc (" *  thanks for your understanding"    )
+        printfunc (" ")
+        printfunc (" ***************** ")
 
             
         # monitoring part of the track segments matchinv
@@ -441,7 +441,7 @@ if Cosmics:
 
         #ToolSvc += m_trackSegmentsUpLow[i]
         InDetAlignMonManager.AthenaMonTools += [ m_trackSegmentsUpLow[i] ]
-        print " <NewInDetAlignMonitoring> step ",i, m_trackSegmentsUpLowName[i]," added to the ToolSvc"
+        printfunc (" <NewInDetAlignMonitoring> step ",i, m_trackSegmentsUpLowName[i]," added to the ToolSvc")
 
     #
     #### third task #### define monitoring histograms for each cosmic ray track segment 
@@ -462,7 +462,7 @@ if Cosmics:
                                                    takeLowerSegment      = False,
                                                    OutputLevel = INFO)
         topSequence += splitter_TakeUpper
-        print splitter_TakeUpper
+        printfunc (splitter_TakeUpper)
 
         xAODSplitTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name=m_inputTracksUpLow[i]+'_Splitter_TakeUpper_xAOD',#name = 'InDetSplitTrackParticles',
                                                                       xAODContainerName ="xAOD::TrackParticleContainer", #'InDetSplitTrackParticles',
@@ -485,7 +485,7 @@ if Cosmics:
                                                    takeLowerSegment      = True,
                                                    OutputLevel = INFO)
         topSequence += splitter_TakeLower
-        print splitter_TakeLower
+        printfunc (splitter_TakeLower)
 
         xAODSplitTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name=m_inputTracksUpLow[i]+'_Splitter_TakeLower_xAOD',
                                                                       xAODContainerName ="xAOD::TrackParticleContainer", 
@@ -502,7 +502,7 @@ if Cosmics:
         
     # 3) now create the monitoring histos
     for i in range(len(m_trkcolls)):
-        print " <NewInDetAlignMonitoring> going to define InDetAlignMonResiduals for track collection: ", m_trkcolls[i]
+        printfunc (" <NewInDetAlignMonitoring> going to define InDetAlignMonResiduals for track collection: ", m_trkcolls[i])
         InDetAlignMonResiduals = IDAlignMonResiduals(
             name = "InDetAlignMonResiduals_"+m_trkcolls[i],
             trackSelection = m_allSelection,
@@ -569,4 +569,4 @@ histOutput       = "IDAlignMon DATAFILE='./monitoring.root' OPT='RECREATE'"
 THistSvc.Output += [histOutput]
 InDetAlignMonManager.FileKey = "IDAlignMon"
 topSequence += InDetAlignMonManager
-print InDetAlignMonManager
+printfunc (InDetAlignMonManager)

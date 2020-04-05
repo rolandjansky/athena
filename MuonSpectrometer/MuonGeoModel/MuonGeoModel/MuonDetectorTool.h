@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONGEOMODEL_MUONDETECTORTOOL_H
@@ -83,7 +83,7 @@ private:
   int m_switchOnOff_BUILDFORWARDSHIELD;
   
   
-  const MuonGM::MuonDetectorManager*  m_manager;
+  MuonGM::MuonDetectorManager*  m_manager;
 };
 
 #endif // GEOMODELEXAMPLES_TOYDETECTORTOOL_H

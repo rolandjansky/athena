@@ -310,8 +310,8 @@ def getTauSubstructure():
                                                           # parameters for CaloIsoCorrected variable
                                                           maxPileUpCorrection = 4000., #MeV
                                                           pileUpAlpha = 1.0,
-                                                          VertexCorrection = True,
-                                                          inAODmode = bAODmode)
+                                                          VertexCorrection = True
+                                                       )
     
     cached_instances[_name] = TauSubstructureVariables
     return TauSubstructureVariables
@@ -670,26 +670,6 @@ def getTauTrackFinder(removeDuplicateTracks=True):
     return TauTrackFinder
 
 ########################################################################
-# TauTrackFilter
-def getTauTrackFilter():
-    _name = sPrefix + 'TauTrackFilter'
-    from tauRecTools.tauRecToolsConf import TauTrackFilter
-    TauTrackFilter = TauTrackFilter(name = _name, Key_trackParticleInputContainer = _DefaultTrackContainer)
-    cached_instances[_name] = TauTrackFilter
-    return TauTrackFilter
-
-########################################################################
-# TauGenericPi0Cone
-def getTauGenericPi0Cone():
-    _name = sPrefix + 'TauGenericPi0Cone'
-    from tauRecTools.tauRecToolsConf import TauGenericPi0Cone
-    TauGenericPi0Cone = TauGenericPi0Cone(name = _name)
-    cached_instances[_name] = TauGenericPi0Cone
-    return TauGenericPi0Cone
-
-#end
-
-########################################################################
 # MvaTESVariableDecorator
 def getMvaTESVariableDecorator():
     _name = sPrefix + 'MvaTESVariableDecorator'
@@ -912,7 +892,7 @@ def getTauJetRNNEvaluator(_n, NetworkFile0P="", NetworkFile1P="", NetworkFile3P=
     return myTauJetRNNEvaluator
 
 
-def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", GradiantBoost=True, minAbsTrackEta=-1, maxAbsTrackEta=-1):
+def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", minAbsTrackEta=-1, maxAbsTrackEta=-1):
     _name = sPrefix + _n
     from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
     myTauJetBDTEvaluator = TauJetBDTEvaluator(name=_name,
@@ -921,8 +901,7 @@ def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, ou
                                               maxNTracks=maxNTracks,
                                               minAbsTrackEta=minAbsTrackEta,
                                               maxAbsTrackEta=maxAbsTrackEta,
-                                              outputVarName=outputVarName,
-                                              GradiantBoost=GradiantBoost)
+                                              outputVarName=outputVarName)
     cached_instances[_name] = myTauJetBDTEvaluator
     return myTauJetBDTEvaluator
 

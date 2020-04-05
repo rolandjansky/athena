@@ -35,6 +35,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
 
     kwargs.setdefault('name', 'TileHitVecToCntTool')
     kwargs.setdefault('RndmEvtOverlay', flags.Detector.OverlayTile)
+    kwargs.setdefault('OnlyUseContainerName', not flags.Detector.OverlayTile)
 
     acc = ComponentAccumulator()
 
@@ -63,7 +64,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     else:
         kwargs.setdefault('PileUp', flags.Digitization.Pileup)
 
-    if kwargs['RndmEvtOverlay'] or kwargs['PileUp']:
+    if kwargs['PileUp']:
         PileUpMergeSvc=CompFactory.PileUpMergeSvc
         acc.addService( PileUpMergeSvc() )
 
@@ -98,7 +99,7 @@ def TileHitVecToCntCfg(flags, **kwargs):
         kwargs.setdefault('DigitizationTool', tool)
 
     # choose which alg to attach to, following PileUpToolsCfg
-    if flags.Digitization.DoXingByXingPileUp:
+    if flags.Digitization.DoXingByXingPileUp or flags.Detector.OverlayTile:
         Alg = CompFactory.TileHitVecToCnt
     else:
         Alg = CompFactory.DigitizationAlg
@@ -117,7 +118,10 @@ def TileHitOutputCfg(flags, **kwargs):
         flags  -- Athena configuration flags (ConfigFlags)
     """
 
-    acc = OutputStreamCfg(flags, 'RDO', ['TileHitContainer#*'])
+    if flags.Output.doWriteRDO:
+        acc = OutputStreamCfg(flags, 'RDO', ['TileHitContainer#*'])
+    else:
+        acc = ComponentAccumulator()
 
     return acc
 

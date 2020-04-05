@@ -194,6 +194,11 @@ public:
 private:
   /// Internal structure to hold information about a correction tool.
   struct Tool {
+    // Not thread-safe due to the use of DataHandle.
+    Tool() ATLAS_CTORDTOR_NOT_THREAD_SAFE = default;
+    Tool(const Tool&) ATLAS_CTORDTOR_NOT_THREAD_SAFE = default;
+    ~Tool() ATLAS_CTORDTOR_NOT_THREAD_SAFE = default;
+
     /// The name of the tool.
     std::string name;
 
@@ -253,7 +258,7 @@ private:
    * @brief Parse the supplied correction specification and create
    *        the Tools vector.  Do not actually create the tools yet.
    */
-  StatusCode parseCorrspecs();
+  StatusCode parseCorrspecs ATLAS_NOT_THREAD_SAFE ();
 
 
   /**

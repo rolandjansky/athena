@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -77,6 +77,7 @@ CaloCluster::CaloCluster(double eta0 /*= 0*/, double phi0 /*= 0*/,
     CaloCompositeCellBase<CaloClusterNavigable>(),
     m_dataStore(varTypePattern),
     m_ownDataStore(false),
+    m_shower(nullptr),
     m_basicSignal(0.),
     m_time(0.),
     m_samplingPattern(0),
@@ -156,6 +157,7 @@ CaloCluster::CaloCluster(const CaloCluster* pCluster)
   }
   CaloShower* pData = isExternalShowerThere
     ? new CaloShower(*(pCluster->m_dataLink)) : new CaloShower();
+  m_shower = pData;
   CaloCellLink* pLink = pCluster->getCellLink() != 0 ? new CaloCellLink(pCluster->getCellLink()) : new CaloCellLink();
   this->setStores(pData,pLink,
 		  m_ownDataStore);
@@ -216,6 +218,7 @@ CaloCluster::CaloCluster(const CaloCluster& rCluster)
   }
   CaloShower* pData = isExternalShowerThere
     ? new CaloShower(*(rCluster.m_dataLink)) : new CaloShower();
+  m_shower = pData;
   CaloCellLink* pLink = rCluster.getCellLink() != 0 ? new CaloCellLink(rCluster.getCellLink()) : new CaloCellLink();
   this->setStores(pData,pLink,
 		  m_ownDataStore);
@@ -1100,14 +1103,15 @@ CaloCluster::getDataStore(const variable_type& varType,bool traceLink)
     }
 
   // check external store if requested
-  if ( m_ownDataStore && !m_dataLink.isValid()) 
-    m_dataLink.setElement(new CaloShower());
+  if ( m_ownDataStore && !m_dataLink.isValid()) {
+    m_shower = new CaloShower();
+    m_dataLink.setElement(m_shower);
+  }
 
   // trace
-  if ( ( traceLink || m_ownDataStore ) && m_dataLink.isValid() )
+  if ( ( traceLink || m_ownDataStore ) && m_shower )
     {
-      CaloShower* pData = const_cast<CaloShower*>(*m_dataLink);
-      return &(pData->getSamplingStore());
+      return &(m_shower->getSamplingStore());
     }
 
   return (CaloSamplingData*)0;
@@ -1178,14 +1182,14 @@ CaloClusterMomentStore* CaloCluster::getMomentStore(bool useLink)
   // follow link policy: use link!
   if ( m_ownDataStore && m_dataLink.isValid() == 0 )
     {
-      m_dataLink.setElement(new CaloShower());
+      m_shower = new CaloShower();
+      m_dataLink.setElement(m_shower);
       return this->getMomentStore(useLink);
     }
 
-  if ( m_dataLink.isValid() || m_ownDataStore ) 
+  if ( m_shower || m_ownDataStore ) 
     {
-      CaloShower* pData = const_cast<CaloShower*>(*m_dataLink);
-      return &(pData->getMomentStore());
+      return &(m_shower->getMomentStore());
     }
   return (CaloClusterMomentStore*)0;
 }
@@ -1343,19 +1347,6 @@ void CaloCluster::setCalEta(double eta) { P4EEtaPhiM::setEta(eta); }
 void CaloCluster::setCalPhi(double phi) { P4EEtaPhiM::setPhi(phi); }
 void CaloCluster::setCalM(double m)     { P4EEtaPhiM::setM(m); }
 
-bool CaloCluster::setSignalState(signalstate_t s) const
-{
-  if ( !this->hasSignalState(s) ) return false;
-  
-  m_signalState = s;
-  
-  return 
-    s == statename_t::CALIBRATED    ? this->setStateCal() : 
-    s == statename_t::ALTCALIBRATED ? this->setStateAlt() : 
-    s == statename_t::UNCALIBRATED  ? this->setStateRaw() :
-    false;
-}
-
 bool CaloCluster::setSignalState(signalstate_t s)
 {
   if ( !this->hasSignalState(s) ) return false;
@@ -1381,11 +1372,6 @@ bool CaloCluster::isAtSignalState(signalstate_t s) const
   return s == m_signalState;
 }
 
-void CaloCluster::resetSignalState() const
-{
-  this->setSignalState(m_defSigState);
-}
-
 void CaloCluster::resetSignalState()
 {
   this->setSignalState(m_defSigState);
@@ -1407,17 +1393,6 @@ bool CaloCluster::setStateRaw()
   //
   return true;  
 }
-bool CaloCluster::setStateRaw() const
-{
-  // std::cout << "CaloCluster [" << this 
-  //	    << "] setStateRaw()" << std::endl;
-  m_getE   = &CaloCluster::getRawE;
-  m_getEta = &CaloCluster::getRawEta;
-  m_getPhi = &CaloCluster::getRawPhi;
-  m_getM   = &CaloCluster::getRawM;  
-  //
-  return true;  
-}
 
 bool CaloCluster::setStateAlt()
 {
@@ -1435,18 +1410,6 @@ bool CaloCluster::setStateAlt()
   return true;  
 }
 
-bool CaloCluster::setStateAlt() const
-{
-  // std::cout << "CaloCluster [" << this 
-  //	    << "] setStateAlt()" << std::endl;
-  m_getE   = &CaloCluster::getAltE;
-  m_getEta = &CaloCluster::getAltEta;
-  m_getPhi = &CaloCluster::getAltPhi;
-  m_getM   = &CaloCluster::getAltM;  
-  //
-  return true;  
-}
-
 bool CaloCluster::setStateCal()
 {
   // std::cout << "CaloCluster [" << this 
@@ -1460,18 +1423,6 @@ bool CaloCluster::setStateCal()
   m_setEta = &CaloCluster::setCalEta;
   m_setPhi = &CaloCluster::setCalPhi;
   m_setM   = &CaloCluster::setCalM;
-  return true;  
-}
-
-bool CaloCluster::setStateCal() const
-{
-  // std::cout << "CaloCluster [" << this 
-  //	    << "] setStateCal()" << std::endl;
-  m_getE   = &CaloCluster::getCalE;
-  m_getEta = &CaloCluster::getCalEta;
-  m_getPhi = &CaloCluster::getCalPhi;
-  m_getM   = &CaloCluster::getCalM;  
-  //
   return true;  
 }
 
@@ -1538,11 +1489,22 @@ unsigned int CaloCluster::getClusterPhiSize() const{
 CLHEP::HepLorentzVector
 CaloCluster::hlv(CaloCluster::signalstate_t s) const {
   if(hasSignalState(s)){
-    signalstate_t bak = signalState();
-    setSignalState(s);
-    CLHEP::HepLorentzVector v = hlv();
-    setSignalState(bak);
-    return v;
+    switch (s) {
+    case statename_t::CALIBRATED: {
+      P4EEtaPhiM tmp = *this;
+      return tmp.hlv();
+    }
+    case statename_t::UNCALIBRATED: {
+      P4EEtaPhiM tmp (m_rawE, m_rawEta, m_rawPhi, m_rawM);
+      return tmp.hlv();
+    }
+    case statename_t::ALTCALIBRATED: {
+      P4EEtaPhiM tmp (m_altE, m_altEta, m_altPhi, m_altM);
+      return tmp.hlv();
+    }
+    default:
+      break;
+    }
   }
   return this->hlv();
 }

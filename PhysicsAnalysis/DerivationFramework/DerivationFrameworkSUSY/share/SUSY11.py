@@ -89,7 +89,7 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
   SUSY11TruthThinningTool = DerivationFramework__GenericTruthThinning( 
                       name                         = "SUSY11TruthThinningTool",
-                      ThinningService	             = SUSY11ThinningHelper.ThinningSvc(),
+                      StreamName                   = streamName,
                       ParticleSelectionString      = truth_cond_Lepton,
                       PreserveDescendants          = True,
                       PreserveGeneratorDescendants = False,

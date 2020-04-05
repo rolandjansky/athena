@@ -57,6 +57,9 @@ atlas_add_component( MuonCalibAlgs
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel MuonCalibEventBase StoreGateLib SGtests GeoPrimitives EventInfo xAODEventInfo GeneratorObjects LArRecEvent MuonCalibEvent MuonCalibITools MuonCalibIdentifier MuonCalibNtuple MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO CscClusterizationLib MuonPrepRawData MuonTrigCoinData MuonSimData TileEvent TileIdentifier TrkEventPrimitives TrigT1Result MuonCalibAlgsLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
+atlas_add_test( flake8_share
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --ignore=F401,F821,ATL900 ${CMAKE_CURRENT_SOURCE_DIR}/share
+                POST_EXEC_SCRIPT nopost.sh )

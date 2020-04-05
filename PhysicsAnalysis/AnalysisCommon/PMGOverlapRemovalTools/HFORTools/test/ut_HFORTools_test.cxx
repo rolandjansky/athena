@@ -1,15 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <xAODRootAccess/Init.h>
 #include "AsgTools/AnaToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "HFORTools/IHFORSelectionTool.h"
 
-#ifndef XAOD_STANDALONE
-#include "POOLRootAccess/TEvent.h"
+#ifdef XAOD_STANDALONE
+#   include <TFile.h>
+#   include "xAODRootAccess/Init.h"
+#   include "xAODRootAccess/TEvent.h"
+#else
+#   include "POOLRootAccess/TEvent.h"
 #endif
+
+// System include(s).
+#include <memory>
 
 using namespace asg::msgUserCode;
 
@@ -23,16 +29,19 @@ using namespace asg::msgUserCode;
 int main() {
   ANA_CHECK_SET_TYPE (int); //makes ANA_CHECK return ints if exiting function
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   StatusCode::enableFailure();
   ANA_CHECK (xAOD::Init ());
-#endif
 
-#ifndef XAOD_STANDALONE
-
+  std::unique_ptr< TFile > ifile( TFile::Open( "${ASG_TEST_FILE_MC}" ) );
+  xAOD::TEvent evt( xAOD::TEvent::kAthenaAccess );
+  ANA_CHECK( evt.readFrom( ifile.get() ) );
+#else
   //start just by loading the first event of the test MC file
   POOL::TEvent evt(POOL::TEvent::kAthenaAccess);
-  evt.readFrom("$ASG_TEST_FILE_MC");
+  ANA_CHECK(evt.readFrom("$ASG_TEST_FILE_MC"));
+#endif // XAOD_STANDALONE
+
   evt.getEntry(0);
 
   //configuring the tool
@@ -64,8 +73,6 @@ int main() {
 				  (unsigned int) myTool->getDecisionType() );
 	  }
   }
-
-#endif
 
   return 0; //zero = success
 }

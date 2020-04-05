@@ -249,8 +249,8 @@ class AthMonitorCfgHelperOld(object):
         duration -- default time between histogram reset for all histograms in group
 
         Returns:
-        tool -- a GenericMonitoringToolArray object. This is used to define histograms
-                associated with each group in the array.
+        array -- a GenericMonitoringToolArray object. This is used to define histograms
+                 associated with each group in the array.
         '''
         # Generate the n-dimensional array
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringArray

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/HLTChain.h"
@@ -9,17 +9,27 @@ TrigConf::Chain::Chain()
 
 TrigConf::Chain::Chain(const boost::property_tree::ptree & data) 
    : DataStructure(data)
-{}
+{
+   update();
+}
+
+void
+TrigConf::Chain::update()
+{
+   if(! isInitialized() || empty() ) {
+      return;
+   }
+   m_name = getAttribute("name");
+}
 
 TrigConf::Chain::~Chain()
 {}
 
-
-const std::string &
-TrigConf::Chain::name() const
-{
-   return getAttribute("name");
+std::string
+TrigConf::Chain::className() const {
+   return "Chain";
 }
+
 
 unsigned int
 TrigConf::Chain::counter() const

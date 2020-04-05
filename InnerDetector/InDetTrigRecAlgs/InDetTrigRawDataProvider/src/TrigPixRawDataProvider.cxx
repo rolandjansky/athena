@@ -30,11 +30,13 @@ namespace InDet {
     m_robDataProvider ("ROBDataProviderSvc", name),
     m_rawDataTool     ("PixelRawDataProviderTool"),
     m_id(0),
-    m_container(0)
+    m_container(0),
+    m_decodingErrors(0)
   {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "PixelRDOs_EFID");
     declareProperty("RawDataProviderTool", m_rawDataTool);
+    declareProperty("DecodingErrorsKey", m_decodingErrorsKey="PixBSErr");
   }
 
   TrigPixRawDataProvider::~TrigPixRawDataProvider(){
@@ -108,6 +110,14 @@ namespace InDet {
 	       << m_RDO_Key << endmsg;
       }
     }
+
+    if( !evtStore()->transientContains<IDCInDetBSErrContainer>(m_decodingErrorsKey) ) {
+      m_decodingErrors = new IDCInDetBSErrContainer(m_id->wafer_hash_max(),  std::numeric_limits<int>::min());
+      ATH_CHECK(evtStore()->record(m_decodingErrors, m_decodingErrorsKey));
+    } else {
+      ATH_CHECK(evtStore()->retrieve(m_decodingErrors, m_decodingErrorsKey));
+    }
+
     return sc;
   }
 
@@ -144,7 +154,7 @@ namespace InDet {
 
     StatusCode scon = StatusCode::FAILURE;
     if (m_container){
-      scon = m_rawDataTool->convert(listOfRobf,m_container);
+      scon = m_rawDataTool->convert(listOfRobf,m_container, *m_decodingErrors);
       if (scon==StatusCode::FAILURE)
 	msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
     }

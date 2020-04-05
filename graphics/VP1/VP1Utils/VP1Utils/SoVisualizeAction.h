@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ---------------------------------------------------------------------//
@@ -39,10 +39,6 @@ public:
   virtual void handleTube(const GeoTube *tube);
 
   virtual void handleTubs(const GeoTubs *tubs);
-
-  #ifndef BUILDVP1LIGHT
-    virtual void handleLArCustom(const LArCustomShape *);
-  #endif
 
   virtual void handleSimplePolygonBrep(const GeoSimplePolygonBrep *);
 

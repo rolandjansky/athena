@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSTEERMONITOR_IDECISIONCOLLECTOR_H
 #define TRIGSTEERMONITOR_IDECISIONCOLLECTOR_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 /**
  * @class IDecisionCollector
@@ -15,7 +15,7 @@ class IDecisionCollector : virtual public IAlgTool {
 public: 
   DeclareInterfaceID(IDecisionCollector, 1, 0);
   
-  virtual StatusCode getDecisions( std::vector<TrigCompositeUtils::DecisionID>& ) const = 0;
+  virtual void getDecisions( std::vector<TrigCompositeUtils::DecisionID>& ) const = 0;
   
   virtual ~IDecisionCollector() override {}
 }; 

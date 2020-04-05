@@ -14,9 +14,7 @@
 #include "TH2D.h"
 #include "TSystem.h" // Replace with PathResolver
 #include "TMVA/Reader.h"
-
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
-
 
 namespace CP {
 
@@ -39,6 +37,7 @@ namespace CP {
                        CP::IMuonSelectionTool )
 
    public:
+
       /// Constructor for standalone usage
       MuonSelectionTool( const std::string& name = "MuonSelection");
 
@@ -77,7 +76,7 @@ namespace CP {
 
       /// set the passes low pT cuts variable of the muon
       //void setPassesLowPtEfficiencyCuts( xAOD::Muon& mu ) const;
-     
+
       /// set the passes quality variable of the muon 
       virtual void setQuality( xAOD::Muon& mu ) const override;
 
@@ -112,6 +111,9 @@ namespace CP {
 
       /// Returns true if the muon passed the tight working point cuts    
       bool passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const;
+
+      /// Returns an integer corresponding to categorization of muons with different resolutions
+      virtual int getResolutionCategory(const xAOD::Muon&) const override;
       /// @}
 
 
@@ -165,6 +167,11 @@ namespace CP {
      //argument needOnlyCorrectYear=true, in which case the random run number decoration
      //from the pile-up reweighting tool is not needed.
      unsigned int getRunNumber(bool needOnlyCorrectYear = false) const;
+
+     //Check if muon eta/phi falls in BIS7/8, BEE, or BMG chambers
+     bool isBIS78(const float eta, const float phi) const;
+     bool isBEE(const float eta, const float phi) const;
+     bool isBMG(const float eta, const float phi) const;
 
      //TMVA readers for low-pT working point
      TMVA::Reader* m_readerE_MUID;

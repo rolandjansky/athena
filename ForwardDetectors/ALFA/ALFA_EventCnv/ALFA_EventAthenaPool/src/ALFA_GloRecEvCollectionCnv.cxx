@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_EventTPCnv/ALFA_GloRecEvCollectionCnv_p1.h"
@@ -24,7 +24,7 @@ ALFA_GloRecEvCollection* ALFA_GloRecEvCollectionCnv::createTransient() {
     static const pool::Guid p1_guid ("210D255A-F94F-4009-9A9B-2122597330D5");
     
     if( this->compareClassGuid(p1_guid)) {
-         std::auto_ptr< ALFA_GloRecEvCollection_p1 >   col_vect( this->poolReadObject< ALFA_GloRecEvCollection_p1 >() );
+         std::unique_ptr< ALFA_GloRecEvCollection_p1 >   col_vect( this->poolReadObject< ALFA_GloRecEvCollection_p1 >() );
         trans_cont = TPConverter_p1.createTransient( col_vect.get(), mlog );
     }
 //    else if( m_token.find("CLID=35722E01-C4E3-420E-8A7E-E375C5E7989D") != std::string::npos) {

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 ###############################################################
 # author Caleb Lampen lampen@physics.arizona.edu 
 #
@@ -32,7 +34,7 @@ CscReadWriteCoolStr.oFile ="pulser.cal"
 CscReadWriteCoolStr.OutFileType ="04-00"
 CscReadWriteCoolStr.OutParameters = ["pslope"]
 
-print 'Preparing commissioning database COMP200 '
+printfunc ('Preparing commissioning database COMP200 ')
 #---Set detector description tag
 DetDescrVersion = "ATLAS-GEONF-08-00-00"
 
@@ -52,7 +54,7 @@ include ("RecExCond/AllDet_detDescr.py")
 #Set up IOVDbService
 #Pick a database tag. Should correspond with DetDescrVersion. See AtlasGeomDBTags page on twiki
 conddb.setGlobalTag('COMCOND-ES1C-003-00')
-Service("IOVDbSvc").forceRunNumber = runNumber;
+Service("IOVDbSvc").forceRunNumber = runNumber
 Service("IOVDbSvc").forceLumiblockNumber = 1
 
 
@@ -61,7 +63,7 @@ from MuonCondSvc.CscCondDB import cscCondDB
 cscCondDB.addPSlopeFolder()
 
 if('pslopeTag' in dir()):
-  print "Will override pusler slope to " + pslopeTag
+  printfunc ("Will override pusler slope to " + pslopeTag)
   conddb.addOverride('/CSC/PSLOPE',pslopeTag)
 
 #--------------------------------------------------------------

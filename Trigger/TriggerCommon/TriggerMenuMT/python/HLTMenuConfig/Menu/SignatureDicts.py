@@ -184,7 +184,7 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'Comb', 'fast', 'msonly','lateMu'],
+    'extra'          : ['noL1', 'Comb', 'fast', 'msonly','lateMu', "Dr", "muoncalib"],
     'IDinfo'         : [],
     'isoInfo'        : ['ivar','ivarmedium'],
     'invMassInfo'    : ['10invm70'],
@@ -235,7 +235,7 @@ TauChainParts = {
     'L1threshold'  : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['track', 'tracktwo', 'tracktwoMVA', 'tracktwoEFmvaTES', 'ptonly', ],
+    'preselection' : ['track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'tracktwoEFmvaTES', 'ptonly', ],
     'selection'    : ['medium1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'perf', 'idperf'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
@@ -344,8 +344,8 @@ ElectronChainParts = {
     'trkInfo'        : ['idperf'],
     'caloInfo'       : [],
     'lhInfo'         : [],
-    'L2IDAlg'        : [],
-    'addInfo'        : ['etcut', 'etcut1step',"v2","v3"],
+    'L2IDAlg'        : ['noringer'],
+    'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3"],
     }
 # ---- Egamma Dictinary of default Values ----
 ElectronChainParts_Default = {

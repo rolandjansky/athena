@@ -2,15 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// ----------------------------------------------------------------
-// The default behavior of this tool is to use beta = 1.0, but multiple 
-// values of beta can be used simultaneously. The property BetaList 
-// should be passed a list of floats. Values of < 0 or > 10 may result
-// in poblematic output variable names and all values will be rounded
-// to the nearest 0.1. No suffix will be added to the outputs for beta = 1.0 
-// and for other values a suffix of _BetaN will be added where N= 10*beta. 
-// ----------------------------------------------------------------
-
 #include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedTool.h"
 #include "JetSubStructureUtils/EnergyCorrelatorGeneralized.h" 
 #include "JetSubStructureUtils/EnergyCorrelator.h" 
@@ -19,26 +10,38 @@ EnergyCorrelatorGeneralizedTool::EnergyCorrelatorGeneralizedTool(std::string nam
   JetSubStructureMomentToolsBase(name)
 {
   declareProperty("Beta", m_Beta = 1.0);
-  declareProperty("BetaList", m_betaVals = {});
+  declareProperty("BetaList", m_rawBetaVals = {});
   declareProperty("DoN3", m_doN3 = false);
   declareProperty("DoLSeries", m_doLSeries = false);
   declareProperty("DoDichroic", m_doDichroic = false);
 }
 
 StatusCode EnergyCorrelatorGeneralizedTool::initialize() {
+
   // Add beta = 1.0 by default
-  m_cleaned_betaVals.push_back(1.0);
+  m_betaVals.push_back(1.0);
 
   // Add beta = m_Beta by default to keep backwards compatibility
-  if( fabs(m_Beta-1.0) > 1.0e-5 ) m_cleaned_betaVals.push_back(m_Beta);
+  if( std::abs(m_Beta-1.0) > 1.0e-5 ) m_betaVals.push_back(m_Beta);
 
-  // Clean up input list of beta values, rounding to nearest 0.1 and removing duplicates
-  for(float beta : m_betaVals) {
+  // Clean up input list of beta values
+  for(float beta : m_rawBetaVals) {
+
+    // Round to the nearest 0.1
     float betaFix = round( beta * 10.0 ) / 10.0;
-    if( std::find(m_cleaned_betaVals.begin(), m_cleaned_betaVals.end(), betaFix) == m_cleaned_betaVals.end() ) m_cleaned_betaVals.push_back(betaFix);
+    if(std::abs(beta-betaFix) > 1.0e-5) ATH_MSG_DEBUG("beta = " << beta << " has been rounded to " << betaFix);
+
+    // Skip negative values of beta
+    if(betaFix < 0.0) {
+      ATH_MSG_WARNING("beta must be positive. Skipping beta = " << beta);
+      continue;
+    }
+
+    // Only store value if it is not already in the list
+    if( std::find(m_betaVals.begin(), m_betaVals.end(), betaFix) == m_betaVals.end() ) m_betaVals.push_back(betaFix);
   }
 
-  for(float beta : m_cleaned_betaVals) {
+  for(float beta : m_betaVals) {
     ATH_MSG_DEBUG("Including beta = " << beta);
   }
 
@@ -68,7 +71,7 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
     decorate_ungroomed = SetupDecoration(jet_ungroomed,*parentJet);
   }
 
-  for(float beta : m_cleaned_betaVals) {
+  for(float beta : m_betaVals) {
 
     std::string suffix = GetBetaSuffix(beta);
 

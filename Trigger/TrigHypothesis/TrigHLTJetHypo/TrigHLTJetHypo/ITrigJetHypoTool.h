@@ -7,7 +7,7 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODJet/JetContainer.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 class ITrigJetHypoTool : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(ITrigJetHypoTool)

@@ -12,6 +12,7 @@ namespace LVL1TGCTrigger {
 
 TGCRPhiCoincidenceOut::TGCRPhiCoincidenceOut():
   m_idSSC(-1),
+  m_pT(0),
   m_phi(-1),
   m_r(-1),
   m_dR(0),

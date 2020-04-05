@@ -6,8 +6,10 @@
 #include "xAODTrigger/MuonRoI.h"
 #include "xAODTrigger/MuonRoIAuxContainer.h"
 #include "eformat/SourceIdentifier.h"
+#include "eformat/Status.h"
 
 using ROBF = OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+using WROBF = OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment;
 
 ExampleL1TriggerByteStreamTool::ExampleL1TriggerByteStreamTool(const std::string& type,
                                                                const std::string& name,
@@ -55,6 +57,7 @@ StatusCode ExampleL1TriggerByteStreamTool::convertFromBS(const std::vector<const
   const uint32_t* data = rob->rod_data();
   ATH_MSG_DEBUG("Starting to decode " << ndata << " ROD words");
   for (uint32_t i=0; i<ndata; ++i, ++data) {
+    ATH_MSG_DEBUG("Muon RoI raw word: " << *data);
     // Here comes the decoding
     // Using some dummy values as this is not real decoding, just an example
     handle->push_back(new xAOD::MuonRoI);
@@ -66,13 +69,37 @@ StatusCode ExampleL1TriggerByteStreamTool::convertFromBS(const std::vector<const
 }
 
 /// xAOD->BS conversion
-StatusCode ExampleL1TriggerByteStreamTool::convertToBS(std::vector<const ROBF*>& /*vrobf*/,
-                                                       const EventContext& eventContext) const {
+StatusCode ExampleL1TriggerByteStreamTool::convertToBS(std::vector<WROBF*>& vrobf,
+                                                       const EventContext& eventContext) {
   // Retrieve the RoI container
   auto muonRoIs = SG::makeHandle(m_roiReadKey, eventContext);
   ATH_CHECK(muonRoIs.isValid());
 
-  // TODO: implement this part when new code requesting the xAOD->BS conversion is implemented (ATR-19542)
+  // Clear BS data cache
+  clearCache(eventContext);
+
+  // Create raw ROD data words
+  ATH_MSG_DEBUG("Converting " << muonRoIs->size() << " L1 Muon RoIs to ByteStream");
+  uint32_t* data = newRodData(eventContext, muonRoIs->size());
+  for (size_t i=0; i<muonRoIs->size(); ++i) {
+    data[i] = muonRoIs->at(i)->roiWord();
+  }
+
+  // Create ROBFragment containing the ROD words
+  const eformat::helper::SourceIdentifier sid(eformat::TDAQ_MUON_CTP_INTERFACE, m_muCTPIModuleID.value());
+  const EventIDBase& eid = eventContext.eventID();
+  vrobf.push_back(newRobFragment(
+    eventContext,
+    sid.code(),
+    eid.run_number(),
+    eid.event_number(),
+    eid.bunch_crossing_id(),
+    0, // lvl1_type will be overwritten downstream from full event fragment
+    0, // detev_type is system-specific
+    muonRoIs->size(),
+    data,
+    eformat::STATUS_BACK // status_position is system-specific
+  ));
 
   return StatusCode::SUCCESS;
 }

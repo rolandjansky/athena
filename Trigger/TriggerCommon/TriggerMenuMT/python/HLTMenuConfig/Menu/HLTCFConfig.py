@@ -29,6 +29,7 @@ from builtins import zip
 from builtins import str
 from builtins import map
 from builtins import range
+from collections import OrderedDict
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.AlgSequence import dumpSequence
@@ -45,7 +46,7 @@ def makeSummary(name, flatDecisions):
     from DecisionHandling.DecisionHandlingConfig import TriggerSummaryAlg    
     summary = TriggerSummaryAlg( CFNaming.stepSummaryName(name) )
     summary.InputDecision = "L1DecoderSummary"
-    summary.FinalDecisions = list(set(flatDecisions))
+    summary.FinalDecisions = list(OrderedDict.fromkeys(flatDecisions))
     return summary
 
 
@@ -98,25 +99,15 @@ def createCFTree(CFseq):
 
     already_connected = []
     for menuseq in CFseq.step.sequences:
-        ath_sequence = menuseq.sequence.Alg
-        name = ath_sequence.name()
-        if name in already_connected:
-            log.debug("AthSequencer %s already in the Tree, not added again",name)
-            continue
-        else:
-            already_connected.append(name)
-            stepReco += ath_sequence
-        if type(menuseq.hypo) is list:
-           for hp in menuseq.hypo:
-              seqAndView += hp.Alg
-        else:
-           seqAndView += menuseq.hypo.Alg
+        stepReco, seqAndView, already_connected = menuseq.addToSequencer(
+            stepReco,
+            seqAndView,
+            already_connected)
 
     if CFseq.step.isCombo:
         seqAndView += CFseq.step.combo.Alg
 
     return seqAndWithFilter
-
 
 
 #######################################
@@ -245,18 +236,14 @@ def matrixDisplayOld( allCFSeq ):
 
     
 def matrixDisplay( allCFSeq ):
- 
+
     def __getHyposOfStep( step ):
         if len(step.sequences):
             if len(step.sequences)==1:
-                if type(step.sequences[0].hypo) is list:
-                    return step.sequences[0].hypo[0].tools
-                else:
-                    return step.sequences[0].hypo.tools
+                return step.sequences[0].getTools()
             else:
                 return list(step.combo.getChains().keys())
         return []
- 
    
     # fill dictionary to cumulate chains on same sequences, in steps (dict with composite keys)
     from collections import defaultdict
@@ -266,8 +253,10 @@ def matrixDisplay( allCFSeq ):
         for cfseq in cfseq_list:
             chains = __getHyposOfStep(cfseq.step)
             for seq in cfseq.step.sequences:
-                mx[stepNumber, seq.sequence.Alg.name()].extend(chains)
-
+                if seq.name == "Empty":
+                    mx[stepNumber, "Empty"].extend(chains)
+                else:
+                    mx[stepNumber, seq.sequence.Alg.name()].extend(chains)
 
     # sort dictionary by fist key=step
     from collections import  OrderedDict
@@ -308,7 +297,7 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
 
     # decode and attach HypoTools:
     for chain in chains:
-        chain.decodeHypoToolConfs()
+        chain.createHypoTools()
 
     log.debug("finalDecisions: %s", finalDecisions)
     if create_dot():
@@ -456,7 +445,7 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
 
     ## Fill chain steps matrix
     for chain in chains:
-        chain.decodeHypoToolConfs()#allChainDicts)
+        chain.createHypoTools()#allChainDicts)
         for stepNumber, chainStep in enumerate(chain.steps):
             chainName = chainStep.name.split('_')[0]
             chainStepsMatrix[stepNumber][chainName].append(chain)

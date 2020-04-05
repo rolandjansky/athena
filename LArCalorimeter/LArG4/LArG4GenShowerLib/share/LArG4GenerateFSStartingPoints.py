@@ -1,4 +1,8 @@
 #!/usr/bin/env physh
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 # print command line for logging
 from optparse import OptionParser
 parser = OptionParser(usage = "usage: %prog", version="%prog $Id: LArG4GenerateFSStartingPoints.py 574715 2013-12-09 23:43:19Z gsedov $")
@@ -18,7 +22,7 @@ parser.add_option("--spratio",    dest="spratio",     default=0.02,           ty
 (options, args) = parser.parse_args()
 
 if len(options.condition) == 0 :
-    print "No condition tag set, aborting"
+    print ("No condition tag set, aborting")
 
 ## Algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence

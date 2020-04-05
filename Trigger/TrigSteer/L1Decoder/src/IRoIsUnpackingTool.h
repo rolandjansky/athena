@@ -5,8 +5,8 @@
 #define L1DECODER_IROISUNPACKINGTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 
 namespace ROIB {

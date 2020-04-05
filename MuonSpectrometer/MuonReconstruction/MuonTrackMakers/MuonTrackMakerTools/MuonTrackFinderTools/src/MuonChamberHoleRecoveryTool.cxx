@@ -8,9 +8,6 @@
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
-
 #include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 #include "MuonStationIntersectSvc/MuonStationIntersect.h"
 

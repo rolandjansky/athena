@@ -6,8 +6,8 @@
 #define TRIGSTREAMER_ITRIGSTREAMERHYPOTOOLMT_H
 
 #include "AsgTools/IAsgTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 
 class ITrigStreamerHypoToolMT : virtual public::IAlgTool {

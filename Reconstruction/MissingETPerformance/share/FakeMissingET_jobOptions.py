@@ -17,4 +17,4 @@ FakeMissingETTool = ConfiguredFakeMissingETTool(
 
 ToolSvc += FakeMissingETTool
 FakeMissingETTool.OutputLevel = INFO
-print      FakeMissingETTool
+printfunc (     FakeMissingETTool)

@@ -4,8 +4,6 @@
 
 #include "tauRecTools/TauCalibrateLC.h"
 #include "tauRecTools/TauCommonCalcVars.h"
-#include "tauRecTools/TauGenericPi0Cone.h"
-#include "tauRecTools/TauTrackFilter.h"
 #include "tauRecTools/TauSubstructureVariables.h"
 #include "tauRecTools/TauRecToolBase.h"
 #include "tauRecTools/ITauToolBase.h"
@@ -33,8 +31,6 @@
 
 #pragma link C++ class TauCalibrateLC+;
 #pragma link C++ class TauCommonCalcVars+;
-#pragma link C++ class TauGenericPi0Cone+;
-#pragma link C++ class TauTrackFilter+;
 #pragma link C++ class TauSubstructureVariables+;
 #pragma link C++ class TauRecToolBase+;
 #pragma link C++ class ITauToolBase+;

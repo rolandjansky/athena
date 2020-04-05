@@ -20,6 +20,9 @@ import unittest
 # @class DCubePlotter 
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
 # @brief root plotter for DCubeClient package
+
+
+
 class DCubePlotter( DCubeObject ):
 
     ## DCubePlotter TCanvas
@@ -176,12 +179,13 @@ class DCubePlotter( DCubeObject ):
 
         
         self.plotOpts = []
+        
         if ( opts != "" ):
             plotOpts = [ opt.strip().lower() for opt in opts.split(";") ] 
             #self.debug("additional plot options are: '%s'" % str(plotOpts) )
            
             for opt in plotOpts:
-                if ( opt not in [ "logx", "logy", "logz", "norm", "enorm" ] ):
+                if ( opt not in [ "logx", "logy", "logz", "norm", "enorm", "box" ] ):
                     self.error("ignoring unknown additional plot option '%s'" % opt )
                 else:
                     self.plotOpts.append(opt)
@@ -617,7 +621,10 @@ class DCubePlotter( DCubeObject ):
             legend.AddEntry( same, "same", "F")
 
             canvas.cd()
-            stack.Draw( "lego1 nostack" )
+            if ( "box" in self.plotOpts ):
+               stack.Draw( "box nostack" )
+            else:
+               stack.Draw( "lego1 nostack" )
             titlePave.Draw()
             configPave.Draw()
             legend.Draw()
@@ -649,8 +656,11 @@ class DCubePlotter( DCubeObject ):
         else:
             diffHist.Add( self.mon, self.mon, 1.0, -1.0 )
 
-        canvas.Clear()           
-        diffHist.Draw("LEGO1 0" )
+        canvas.Clear()    
+        if ( "box" in self.plotOpts ):     
+           diffHist.Draw("colz1  0" )
+        else:
+           diffHist.Draw("LEGO1 0" )
         titlePave = self.__titlePave( "diff" )
         titlePave.Draw()
         configPave.Draw()
@@ -935,7 +945,10 @@ class DCubePlotter( DCubeObject ):
             legend.AddEntry( same, "same", "F")
 
             canvas.cd()
-            stack.Draw( "LEGO1 0 NOSTACK"  )
+            if ( "box" in self.plotOpts ):
+               stack.Draw( "box 0 NOSTACK"  )
+            else:
+               stack.Draw( "LEGO1 0 NOSTACK"  )            
             titlePave.Draw()
             configPave.Draw()
             legend.Draw()
@@ -968,7 +981,10 @@ class DCubePlotter( DCubeObject ):
             diffProfile.Add( self.mon, self.mon, 1.0, -1.0 )
 
         titlePave = self.__titlePave( "diff" )
-        diffProfile.Draw( "LEGO1 0" )
+        if ( "box" in self.plotOpts ):
+           diffProfile.Draw( "colz1  0" )
+        else:
+           diffProfile.Draw( "LEGO1 0" )
         titlePave.Draw()
         configPave.Draw()
         

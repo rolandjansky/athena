@@ -4,6 +4,7 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+import time
 
 log = logging.getLogger("PerfMonMTSvc_jobOptions.py")
 log.info("Setting up PerfMonMT...")
@@ -23,9 +24,8 @@ if not hasattr(svcMgr, 'PerfMonMTSvc'):
     # By default common difference is the number of threads with which the job is running
     svcMgr.PerfMonMTSvc.checkPointType = "Arithmetic" 
     svcMgr.PerfMonMTSvc.checkPointFactor = jp.ConcurrencyFlags.NumThreads()
-
     svcMgr.PerfMonMTSvc.nThreads = jp.ConcurrencyFlags.NumThreads()
-    pass
+    svcMgr.PerfMonMTSvc.wallTimeOffset = time.time() * 1000 # Take the current time as a wall time offset in ms
 
 ###############################
 # Load PerfMonMTAlg

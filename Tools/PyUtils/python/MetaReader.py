@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import absolute_import
 import os
@@ -389,8 +389,10 @@ def _read_guid(filename):
     params = root_file.Get('##Params')
 
     regex = re.compile(r'^\[NAME=([a-zA-Z0-9_]+)\]\[VALUE=(.*)\]')
+    fid = None
 
     for i in range(params.GetEntries()):
+        params.GetEntry(i)
         # Work around apparent pyroot issue:
         # If we try to access params.db_string directly, we see trailing
         # garbage, which can confuse python's bytes->utf8 conversion
@@ -399,13 +401,11 @@ def _read_guid(filename):
 
         result = regex.match(param)
         if result:
-            name = result.group(1)
-            value = result.group(2)
+            if result.group(1) == 'FID' :
+               # don't exit yet, it's the last FID entry that counts
+               fid = result.group(2)
 
-            if name == 'FID':
-                return value
-
-    return None
+    return fid
 
 
 def _extract_fields(obj):

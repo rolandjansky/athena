@@ -133,19 +133,24 @@ int main( int argc, char* argv[] ) {
   asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> corrTool; //!
   corrTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MuonCorrectionTool");
     //::: set the properties
-  corrTool.setProperty("Year",                  "Data17" );
-  corrTool.setProperty("Release",               "Recs2018_05_20" );     
-  corrTool.setProperty("StatComb",              false);
-  corrTool.setProperty("SagittaCorr",           false);
-  corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_30_07_18");
-  corrTool.setProperty("doSagittaMCDistortion", true);
-  corrTool.setProperty("SagittaCorrPhaseSpace", true);
-  corrTool.setProperty("fixedRho",              0.0);
-  corrTool.setProperty("useFixedRho",           true);
-  corrTool.setProperty("noEigenDecor" ,         false);
-  
+  StatusCode sc;
+  sc &= corrTool.setProperty("Year",                  "Data17" );
+  sc &= corrTool.setProperty("Release",               "Recs2018_05_20" );
+  sc &= corrTool.setProperty("StatComb",              false);
+  sc &= corrTool.setProperty("SagittaCorr",           false);
+  sc &= corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_30_07_18");
+  sc &= corrTool.setProperty("doSagittaMCDistortion", true);
+  sc &= corrTool.setProperty("SagittaCorrPhaseSpace", true);
+  sc &= corrTool.setProperty("fixedRho",              0.0);
+  sc &= corrTool.setProperty("useFixedRho",           true);
+  sc &= corrTool.setProperty("noEigenDecor" ,         false);
+
   //::: retrieve the tool
-  corrTool.retrieve();
+  sc &= corrTool.retrieve();
+  if (sc.isFailure()) {
+    Error( APP_NAME, "Cannot retrieve MuonCorrectionTool" );
+    return 1;
+  }
 
   ////////////////////////////////////////////////////
   //::: MuonSelectionTool
@@ -157,7 +162,10 @@ int main( int argc, char* argv[] ) {
   selTool.setTypeAndName("CP::MuonSelectionTool/MuonSelectionTool");
 
   //::: retrieve the tool
-  selTool.retrieve();
+  if (selTool.retrieve().isFailure()) {
+    Error( APP_NAME, "Cannot retrieve MuonSelectionTool" );
+    return 1;
+  }
 
   ////////////////////////////////////////////////////
   //::: Systematics initialization

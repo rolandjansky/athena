@@ -4,6 +4,7 @@
 
 // local include(s)
 #include "tauRecTools/MvaTESVariableDecorator.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "GaudiKernel/SystemOfUnits.h"
 
@@ -95,10 +96,13 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
     TLorentzVector cluster_P4;
     cluster_P4.SetPtEtaPhiM(1,(*it)->Eta(),(*it)->Phi(),0);
     if(LC_P4.DeltaR(cluster_P4)>0.2) continue;
-    
+
     // ----retrieve CaloCluster moments
-    const xAOD::CaloCluster* cl = dynamic_cast<const xAOD::CaloCluster *>( (*it)->rawConstituent() );        
-    
+    const xAOD::CaloCluster *cl = nullptr;
+    ATH_CHECK(tauRecTools::GetJetConstCluster(it, cl));
+    // Skip if charged PFO
+    if (!cl){continue;}
+
     clE = cl->calE();
     Etot += clE;
 
@@ -166,14 +170,10 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   if(!jet_seed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
   xTau.setDetail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg);
   
-  // calculate PFO energy relative difference
   // ----summing corrected Pi0 PFO energies
   TLorentzVector Pi0_totalP4;
   Pi0_totalP4.SetPtEtaPhiM(0,0,0,0);
   
-  //This should be available in EDM as of TauJet_v3
-  //  TauAnalysisTools::createPi0Vectors(&xTau,Pi0PFOs);
-  //for( size_t i=0; i !=  xTau.nPi0s(); ++i ) Pi0_totalP4+= xTau.pi0(i)->p4();
   for(size_t i=0; i<xTau.nPi0PFOs(); i++){
     Pi0_totalP4 += (TLorentzVector)xTau.pi0PFO(i)->p4();
   };

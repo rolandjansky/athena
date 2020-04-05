@@ -1,6 +1,8 @@
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
+
+from __future__ import print_function
 
 import ROOT
 import sys
@@ -39,8 +41,8 @@ class L1CaloGeometryConvertor:
          dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2'
          try:
            db = dbSvc.openDatabase(dbString, False)        
-         except Exception, e:
-           print 'Error: Problem opening database', e
+         except Exception as e:
+           print ('Error: Problem opening database', e)
            sys.exit(1)
 
          folder_name = "/TRIGGER/Receivers/RxPpmIdMap"
@@ -55,8 +57,8 @@ class L1CaloGeometryConvertor:
 
          try:
            itr=folder.browseObjects(startValKey, endValKey, chsel)
-         except Exception, e:
-           print e
+         except Exception as e:
+           print (e)
            sys.exit(1)
 
          for row in itr:
@@ -65,14 +67,14 @@ class L1CaloGeometryConvertor:
            PPMId = hex(int(payload['ppmid']))
            self.receiver_to_ppm_map[ReceiverId]= PPMId
   
-#         print self.receiver_to_ppm_map
+#         print (self.receiver_to_ppm_map)
          # close database
          db.closeDatabase()
 
 
      def getPPMfromReceiver(self,ReceiverId):
      
-       if self.receiver_to_ppm_map.has_key(ReceiverId):
+       if ReceiverId in self.receiver_to_ppm_map:
          return self.receiver_to_ppm_map[ReceiverId]
        else:
          return ''	 
@@ -82,7 +84,7 @@ class L1CaloGeometryConvertor:
        ReceiverChannels = [item[0] for item in self.receiver_to_ppm_map.items() if item[1]==PPMId]       
 
        if strategy_string == None:
-         print " Warning! in getReceiverfromPPM no runtype give, using default!"
+         print (" Warning! in getReceiverfromPPM no runtype give, using default!")
          return ReceiverChannels[0]
 
        if self.isPPMFCAL(PPMId) and self.isCoolHad(PPMId):      # pick correct FCAL23 channel
@@ -112,7 +114,7 @@ class L1CaloGeometryConvertor:
 	 
 
      def getCoolEm(self,i_eta,i_phi):
-          if self.list_of_channels_em.has_key((str(i_eta),str(i_phi))) == True:
+          if (str(i_eta),str(i_phi)) in self.list_of_channels_em:
               cool = self.list_of_channels_em[(str(i_eta),str(i_phi))]
               cool.rstrip()
               cool.lstrip()
@@ -122,7 +124,7 @@ class L1CaloGeometryConvertor:
      
      
      def getCoolHad(self,i_eta,i_phi):
-          if self.list_of_channels_had.has_key((str(i_eta),str(i_phi))) == True:
+          if (str(i_eta),str(i_phi)) in self.list_of_channels_had:
               cool = self.list_of_channels_had[(str(i_eta),str(i_phi))]
               cool.rstrip()
               cool.lstrip()
@@ -212,7 +214,7 @@ class L1CaloGeometryConvertor:
        elif cabling[2] == 2:
          return 'EMB'
        else:
-         print "Error in GetOverlapLayer, can't determine layer!"
+         print ("Error in GetOverlapLayer, can't determine layer!")
          return None        
 
      def getFCAL23RecEta(self,RecCoolId):
@@ -250,7 +252,7 @@ def WriteSqlite(name,input_dict):
 # folder_name="/TRIGGER/Receivers/Factors/CalibGains"
 
 
-  print '\nrecreating database file:',name
+  print ('\nrecreating database file:',name)
   dbSvc.dropDatabase( connectString )
   db = dbSvc.createDatabase( connectString )
 
@@ -272,7 +274,7 @@ def WriteSqlite(name,input_dict):
   folder_description = '<timeStamp>time</timeStamp><addrHeader><address_header service_type="71" clid="1238547719"/></addrHeader><typeName>CondAttrListCollection</typeName>'
   f = db.createFolder( "/TRIGGER/Receivers/Factors/CalibGains", folderSpec, folder_description)
 
-  print " Now creating sqlite file for ", len(input_dict.keys()), " channels"
+  print (" Now creating sqlite file for ", len(input_dict.keys()), " channels")
   for i in input_dict.keys():
     data = cool.Record( spec )
     data['factor'] = input_dict[i][0]
@@ -313,8 +315,8 @@ class GainsFromSqlite:
        dbString='sqlite://;schema='+name+';dbname=L1CALO'
        try:
          db = dbSvc.openDatabase(dbString, False)        
-       except Exception, e:
-         print 'Error: Problem opening database', e
+       except Exception as e:
+         print ('Error: Problem opening database', e)
          sys.exit(1)
 
        folder_name = '/TRIGGER/L1Calo/V1/Results/EnergyScanResults'
@@ -329,8 +331,8 @@ class GainsFromSqlite:
 
        try:
          itr=folder.browseObjects(startValKey, endValKey, chsel)
-       except Exception, e:
-         print e
+       except Exception as e:
+         print (e)
          sys.exit(1)
 
        for row in itr:
@@ -341,15 +343,15 @@ class GainsFromSqlite:
          self.measured_offset[CoolId]     = payload['Offset']
          self.measured_error_code[CoolId] = payload['ErrorCode']
   
-#       print self.measured_gains
+#       print (self.measured_gains)
 
        folder_gen_name = '/TRIGGER/L1Calo/V1/Results/EnergyScanRunInfo'
        folder_gen=db.getFolder(folder_gen_name)
 
        try:
          itr=folder_gen.browseObjects(startValKey, endValKey, chsel)
-       except Exception, e:
-         print e
+       except Exception as e:
+         print (e)
          sys.exit(1)
 
        for row in itr:
@@ -375,7 +377,7 @@ class GainsFromSqlite:
            good_gains[i]=[self.measured_gains[i],self.measured_error_code[i]]      
 
          else:
-           print "GainsFromSqlite::getGoodGains have rejected channel ", i
+           print ("GainsFromSqlite::getGoodGains have rejected channel ", i)
 
        return good_gains      # these are gains as a function of PPM Cool
 
@@ -392,8 +394,8 @@ class GainsFromOracle:
        dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2'
        try:
          db = dbSvc.openDatabase(dbString, False)        
-       except Exception, e:
-         print 'Error: Problem opening database', e
+       except Exception as e:
+         print ('Error: Problem opening database', e)
          sys.exit(1)
 
        folder_name = "/TRIGGER/Receivers/Factors/CalibGains"
@@ -408,8 +410,8 @@ class GainsFromOracle:
 
        try:
          itr=folder.browseObjects(startValKey, endValKey, chsel)
-       except Exception, e:
-         print e
+       except Exception as e:
+         print (e)
          sys.exit(1)
 
        for row in itr:
@@ -434,7 +436,7 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
 
      if not gains3 == None:     
        good_gains=gains3.getGoodGains()
-       print " Using run ", gains3.run_nr, " run strategy= ", gains3.strategy       
+       print (" Using run ", gains3.run_nr, " run strategy= ", gains3.strategy       )
 
        if gains3.strategy == "GainOne":
          n_files_Tile = n_files_Tile + 1
@@ -450,13 +452,13 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
          rec_chan   = geometry_map.getReceiverfromPPM(ppm_channel,gains3.strategy)
          output_gains[rec_chan]=[gain,error_code]
      else:
-       print "Ignoring File 3, probably not specified"      
+       print ("Ignoring File 3, probably not specified"      )
        
 #loop over gains2, fill in
 
      if not gains2 == None:
        good_gains=gains2.getGoodGains()
-       print " Using run ", gains2.run_nr, " run strategy= ", gains2.strategy       
+       print (" Using run ", gains2.run_nr, " run strategy= ", gains2.strategy       )
 
        if gains2.strategy == "GainOne":
          n_files_Tile = n_files_Tile + 1
@@ -471,14 +473,14 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
          rec_chan   = geometry_map.getReceiverfromPPM(ppm_channel,gains2.strategy)
          output_gains[rec_chan]=[gain,error_code]
      else:
-       print "Ignoring File 2, probably not specified"      
+       print ("Ignoring File 2, probably not specified"      )
      
        
 #loop over gains 1, fill in
 
      if not gains1 == None:
        good_gains=gains1.getGoodGains()
-       print " Using run ", gains1.run_nr, " run strategy= ", gains1.strategy       
+       print (" Using run ", gains1.run_nr, " run strategy= ", gains1.strategy       )
 
        if gains1.strategy == "GainOne":
          n_files_Tile = n_files_Tile + 1
@@ -493,7 +495,7 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
          rec_chan   = geometry_map.getReceiverfromPPM(ppm_channel,gains1.strategy)
          output_gains[rec_chan]=[gain,error_code]
      else:
-       print "Ignoring File 1, probably not specified"      
+       print ("Ignoring File 1, probably not specified"      )
      
 
 #read in forced list, overwrite
@@ -509,15 +511,15 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
          gain       = float(line_cont[1])
          error_code = 10                    # code for forced channels
          output_gains[rec_chan]=[gain,error_code]
-         print "forcing channel ", rec_chan, " to value ", gain 
+         print ("forcing channel ", rec_chan, " to value ", gain )
      else:
-       print "Ignoring forced channel list"
+       print ("Ignoring forced channel list")
 
 #check channels that haven't been found yet, take them from reference
 
      if writeAllChannels:
 
-       print "Adding gains for missing channels from Oracle"     
+       print ("Adding gains for missing channels from Oracle"     )
        missing_channels = geometry_convertor.getMissingReceiverChannels(output_gains.keys())    
        default_gains = reference_gains.getGoodGains()
        for channel in missing_channels:
@@ -525,10 +527,10 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
          error_code = 100
          output_gains[channel]=[gain,error_code]
 
-#       print "missing receiver=",channel, "PPM=", geometry_map.getPPMfromReceiver(channel) 
+#       print ("missing receiver=",channel, "PPM=", geometry_map.getPPMfromReceiver(channel) )
 
      if (not n_files_Tile == 1) or (not  n_files_LowEta_EMEC == 1) or (not n_files_HighEta_EMB == 1):
-       print "WARNING! input files do not allow to calibrate all partitions, using defaults where needed" 
+       print ("WARNING! input files do not allow to calibrate all partitions, using defaults where needed" )
 
      return output_gains
 
@@ -536,7 +538,7 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
 
 if __name__ == "__main__":
 
-  print "Starting mergeEnergyRamps"
+  print ("Starting mergeEnergyRamps")
 
   parser = OptionParser()
   
@@ -552,7 +554,7 @@ if __name__ == "__main__":
   geometry_convertor = L1CaloGeometryConvertor()
   geometry_convertor.LoadReceiverPPMMap()
 
-  print "Processing inputs"
+  print ("Processing inputs")
   
   if not options.input_file1 == None:
     gains_1 = GainsFromSqlite(options.input_file1,geometry_convertor)
@@ -569,14 +571,14 @@ if __name__ == "__main__":
   else:
     gains_3 = None
 
-  print "Reading reference"
+  print ("Reading reference")
   gains_reference = GainsFromOracle()
 
-  print "Merging gains"
+  print ("Merging gains")
   if options.writeAllChannels:
-    print "Will write out gains for all channels"
+    print ("Will write out gains for all channels")
   else:
-    print "Will write out gains only for updated channels"   
+    print ("Will write out gains only for updated channels"   )
   
   gains_to_load = merge_gains(gains_1,gains_2,gains_3,gains_reference,options.forced_file,geometry_convertor,options.writeAllChannels)
 
@@ -585,13 +587,13 @@ if __name__ == "__main__":
   else:
     output_file_name = "MergedGains.sqlite"
  
-  print "Writing output file ",output_file_name , " this may take some time ... :-( "    
+  print ("Writing output file ",output_file_name , " this may take some time ... :-( "    )
   WriteSqlite(output_file_name,gains_to_load)
 
-#  print gains_to_load 
+#  print (gains_to_load )
 
 #  for i in gains_to_load.keys():
-#    print i, "  ", gains_to_load[i]
-#    print int(i,16)
+#    print (i, "  ", gains_to_load[i])
+#    print (int(i,16))
 
-  print "Finished!"
+  print ("Finished!")

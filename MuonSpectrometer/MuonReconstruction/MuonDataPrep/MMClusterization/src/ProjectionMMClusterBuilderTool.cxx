@@ -57,7 +57,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::initialize()
 
 
 StatusCode Muon::ProjectionMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-							 std::vector<Muon::MMPrepData*>& clustersVect)
+							 std::vector<Muon::MMPrepData*>& clustersVect) const 
 {
 
 std::vector<std::vector<Muon::MMPrepData>> prdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
@@ -137,7 +137,7 @@ return StatusCode::SUCCESS;
 
 
 StatusCode Muon::ProjectionMMClusterBuilderTool::calculateCorrection(
-  const std::vector<Muon::MMPrepData> &prdsOfLayer,std::vector<double>& v_posxc,std::vector<double>& v_cor){
+  const std::vector<Muon::MMPrepData> &prdsOfLayer,std::vector<double>& v_posxc,std::vector<double>& v_cor)const {
     for(const auto& prd : prdsOfLayer){
       double posx = prd.localPosition().x();
       double posz = std::fabs(prd.globalPosition().z()); // use std::fabs of z to not break symetrie for A and C side
@@ -158,7 +158,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::calculateCorrection(
 }
 
 StatusCode Muon::ProjectionMMClusterBuilderTool::doFineScan(std::vector<int>& flag,const std::vector<double>& v_posxc,
-  const std::vector<double>& v_cor, std::vector<int>& idx_selected){
+  const std::vector<double>& v_cor, std::vector<int>& idx_selected)const {
     double xmin = *std::min_element(v_posxc.begin(),v_posxc.end());
     double xmax = *std::max_element(v_posxc.begin(),v_posxc.end());
     double stepSize = 0.1;
@@ -195,7 +195,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::doFineScan(std::vector<int>& fl
 }
 
 StatusCode  Muon::ProjectionMMClusterBuilderTool::doPositionCalculation(std::vector<double>& v_posxc, 
-  const std::vector<double>& v_cor,const std::vector<int> idx_selected, double& xmean, double& xmeanErr,double& qtot,const std::vector<Muon::MMPrepData>& prdsOfLayer){
+  const std::vector<double>& v_cor,const std::vector<int> idx_selected, double& xmean, double& xmeanErr,double& qtot,const std::vector<Muon::MMPrepData>& prdsOfLayer)const {
     //determine cluster charge
     qtot=0;
     for(const auto& idx:idx_selected) qtot+=prdsOfLayer.at(idx).charge();
@@ -214,7 +214,7 @@ StatusCode  Muon::ProjectionMMClusterBuilderTool::doPositionCalculation(std::vec
   }
 
 
-StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::MMPrepData*>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer){
+StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::MMPrepData*>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer)const {
       Amg::MatrixX* covN = new Amg::MatrixX(1,1);
       covN->coeffRef(0,0)=xerr; // TODO set proper uncertainty
       ATH_MSG_VERBOSE("Did set covN Matrix");
@@ -260,6 +260,6 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::M
 } 
 
 
-double Muon::ProjectionMMClusterBuilderTool::getSigma(double correction){
+double Muon::ProjectionMMClusterBuilderTool::getSigma(double correction)const {
   return stripErrorIntercept+stripErrorSlope*std::fabs(correction);
 }

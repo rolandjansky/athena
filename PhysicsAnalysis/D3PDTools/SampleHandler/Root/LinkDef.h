@@ -62,6 +62,8 @@
 #pragma link C++ class SH::ScanDir-;
 #pragma link C++ class SH::TagList+;
 #pragma link C++ class SH::Meta+;
+#pragma link C++ class SH::MetaData<float>+;
+#pragma link C++ class SH::MetaVector<float>+;
 #pragma link C++ class SH::MetaData<double>+;
 #pragma link C++ class SH::MetaData<std::string>+;
 #pragma link C++ class SH::MetaData<bool>+;

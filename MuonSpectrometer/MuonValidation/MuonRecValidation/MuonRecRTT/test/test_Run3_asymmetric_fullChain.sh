@@ -34,8 +34,10 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 
 #####################################################################
 # now use the produced HITS file and run digitisation
+# (since the 21.X and master branches use a different Geant4 version, we use the HITS file produced in 21.X
+# to avoid tiny differences in the number of secondary particles and hit positions and start from the same HITS file)
 LOG_DIGI="log_Run3_asymmetric_digi.log"
-Digi_tf.py --inputHITSFile OUT_HITS.root \
+Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v1.root \
            --imf False \
            --outputRDOFile OUT_RDO.root &> ${LOG_DIGI}
 exit_code=$?

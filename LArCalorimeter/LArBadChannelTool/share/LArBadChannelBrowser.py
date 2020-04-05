@@ -1,12 +1,7 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 ## @file MyPyAna/share/myjob.py
 ## @purpose steering job option file for MyAlg
-
-import sys
-import AthenaPython.PyAthena as PyAthena
-
-## get a handle on the sequence of algorithms to be run
-import AthenaCommon.SystemOfUnits as Units
-
 
 from AthenaCommon.GlobalFlags import GlobalFlags
 GlobalFlags.DetGeo.set_commis()

@@ -1,17 +1,16 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_badChannelExample.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-12-19
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
-from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobObjs.Classes import TileBchDecoder
 import os
 
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("writeBch")
 import logging
 log.setLevel(logging.DEBUG)
@@ -30,11 +29,11 @@ def fillBadChannels(db ,tag, bchFile,
     mgr.setLogLvl(logging.DEBUG)
     
     #=== always initialize with no bad channels
-    log.info("Initializing with no bad channels at tag=%s and time=%s" % (tag,(0,0)))
+    log.info("Initializing with no bad channels at tag=%s and time=%s", tag,(0,0))
     mgr.initialize(db, folder, tag, since)
     
     #=== update from file
-    log.info("Updating from file %s" % bchFile)
+    log.info("Updating from file %s", bchFile)
     mgr.updateFromFile(bchFile)
 
     #=== add definition for TileBchStatus::isBad from online side

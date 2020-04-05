@@ -8,11 +8,8 @@
 #include "../TauShotFinder.h"
 #include "../TauPi0ClusterCreator.h"
 #include "../TauPi0CreateROI.h"
-#include "../TauConversionTagger.h"
 #include "../TauVertexVariables.h"
 #endif
-#include "tauRecTools/TauTrackFilter.h"
-#include "tauRecTools/TauGenericPi0Cone.h"
 #include "tauRecTools/TauCalibrateLC.h"
 #include "tauRecTools/TauCommonCalcVars.h"
 #include "tauRecTools/TauSubstructureVariables.h"
@@ -40,7 +37,6 @@ DECLARE_COMPONENT( TauElectronVetoVariables )
 DECLARE_COMPONENT( TauShotFinder )
 DECLARE_COMPONENT( TauPi0ClusterCreator )
 DECLARE_COMPONENT( TauPi0CreateROI )
-DECLARE_COMPONENT( TauConversionTagger )
 DECLARE_COMPONENT( TauVertexVariables )
 #endif
 
@@ -52,8 +48,6 @@ DECLARE_COMPONENT( tauRecTools::TauTrackRNNClassifier )
 DECLARE_COMPONENT( tauRecTools::TrackMVABDT )
 DECLARE_COMPONENT( tauRecTools::TrackRNN )
 DECLARE_COMPONENT( CombinedP4FromRecoTaus )
-DECLARE_COMPONENT( TauTrackFilter )
-DECLARE_COMPONENT( TauGenericPi0Cone )
 DECLARE_COMPONENT( TauSubstructureVariables )
 DECLARE_COMPONENT( TauCommonCalcVars )
 DECLARE_COMPONENT( TauPi0ClusterScaler )

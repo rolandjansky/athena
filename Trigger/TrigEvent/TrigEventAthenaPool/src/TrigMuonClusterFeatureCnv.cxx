@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonClusterFeatureCnv.h"
@@ -37,7 +37,7 @@ TrigMuonClusterFeature *TrigMuonClusterFeatureCnv::createTransient()
   static pool::Guid p0_guid("A7B1865B-55D0-49D2-9778-5E0797FB06FE");
 
   if( compareClassGuid( p1_guid ) ) {
-    std::auto_ptr< TrigMuonClusterFeature_tlp1 > col_vect( poolReadObject< TrigMuonClusterFeature_tlp1 >() );
+    std::unique_ptr< TrigMuonClusterFeature_tlp1 > col_vect( poolReadObject< TrigMuonClusterFeature_tlp1 >() );
     return TPConverter.createTransient( col_vect.get(), mlog );
   }
   else if( compareClassGuid(p0_guid) ) {

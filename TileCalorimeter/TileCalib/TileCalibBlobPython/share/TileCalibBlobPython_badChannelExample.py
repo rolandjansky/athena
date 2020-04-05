@@ -1,14 +1,15 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_badChannelExample.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-12-19
 
+import os
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCalibDefaultWriter
 from TileCalibBlobPython import TileBchTools
-from TileCalibBlobObjs.Classes import * 
+from TileCalibBlobObjs.Classes import TileBchPrbs, TileBchDecoder
 
 #=======================================================
 #=== create bad channel manager
@@ -25,8 +26,8 @@ db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 tag = "TileOfl02StatusAdc-RUN2-UPD4-08"
 #=== check if status folder exist, otherwise create
 if not db.existsFolder(folder):
-    defaultWriter = TileCalibDefaultWriter.TileCalibDefaultWriter(db,tag)
-    defaultWriter.writeBadChannels()
+    defaultWriter = TileCalibDefaultWriter.TileCalibDefaultWriter(db)
+    defaultWriter.writeBadChannels(tag)
 
 #=======================================================
 #=== initialize with current db, (MAXRUN,MAXLBK) is default
@@ -68,9 +69,9 @@ mgr.listBadAdcs()
 #=======================================================
 #=== commit changes
 #=======================================================
-author  = "solodkov"
-comment = "testing bad channels"
-since= (191715 , 0)
+author  = os.getlogin()
+comment = "testing bad channels in LBA01, EBC64"
+since= (222222 , 0)
 mgr.commitToDb(db, folder, tag, TileBchDecoder.BitPat_ofl01, author, comment, since)
 db.closeDatabase()
 

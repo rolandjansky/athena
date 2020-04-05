@@ -1,28 +1,23 @@
 """Define functions for LAr Digitization with ComponentAccumulator
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 # utilities
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-PileUpXingFolder=CompFactory.PileUpXingFolder
-AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
 # for PileUpTool
-LArPileUpTool=CompFactory.LArPileUpTool
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
 from LArRecUtils.LArRecUtilsConfig import LArAutoCorrNoiseCondAlgCfg
 from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg, LArBadFebCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
-CosmicTriggerTimeTool=CompFactory.CosmicTriggerTimeTool
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 # for Digitization
-LArDigitMaker=CompFactory.LArDigitMaker
 from LArROD.LArRawChannelBuilderAlgConfig import LArRawChannelBuilderAlgCfg
 from LArROD.LArDigitThinnerConfig import LArDigitThinnerCfg
+from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 # for Trigger Tower
-LArTTL1Maker=CompFactory.LArTTL1Maker
 from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
 from CaloConditions.CaloConditionsConfig import CaloTriggerTowerCfg
 
@@ -49,6 +44,7 @@ def LArRangeEMCfg(flags, name="LArRangeEM", **kwargs):
     else:
         kwargs.setdefault("ItemList", ["LArHitContainer#LArHitEMB",
                                        "LArHitContainer#LArHitEMEC"])
+    PileUpXingFolder = CompFactory.PileUpXingFolder
     return PileUpXingFolder(name, **kwargs)
 
 
@@ -61,6 +57,7 @@ def LArRangeHECCfg(flags, name="LArRangeHEC", **kwargs):
         kwargs.setdefault("ItemList", ["LArHitFloatContainer#LArHitHEC"])
     else:
         kwargs.setdefault("ItemList", ["LArHitContainer#LArHitHEC"])
+    PileUpXingFolder = CompFactory.PileUpXingFolder
     return PileUpXingFolder(name, **kwargs)
 
 
@@ -73,6 +70,7 @@ def LArRangeFCALCfg(flags, name="LArRangeFCAL", **kwargs):
         kwargs.setdefault("ItemList", ["LArHitFloatContainer#LArHitFCAL"])
     else:
         kwargs.setdefault("ItemList", ["LArHitContainer#LArHitFCAL"])
+    PileUpXingFolder = CompFactory.PileUpXingFolder
     return PileUpXingFolder(name, **kwargs)
 
 
@@ -84,7 +82,12 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     # AutoCorrNoise, the list of bad FEBs and the cabling
     acc.merge(LArADC2MeVCondAlgCfg(flags))
     acc.merge(LArBadFebCfg(flags))
-    requiredConditons=["Noise","fSampl","Pedestal","Shape"]
+    if flags.Overlay.DataOverlay:
+        kwargs.setdefault("ShapeKey", "LArShape")
+    if not flags.Digitization.DoCaloNoise:
+        requiredConditons=["fSampl", "Pedestal", "Shape"]
+    else:
+        requiredConditons=["Noise", "fSampl", "Pedestal", "Shape"]
     acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
 
     if not flags.Detector.OverlayLAr:
@@ -112,11 +115,10 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
           kwargs.setdefault("isMcOverlay", True)
     kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
     kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
-    if flags.Detector.OverlayLAr:
-        kwargs.setdefault("RandomDigitContainer", "LArDigitContainer_MC")
     # cosmics digitization
     if flags.Beam.Type == "cosmics":
         kwargs.setdefault("UseTriggerTime", True)
+        CosmicTriggerTimeTool = CompFactory.CosmicTriggerTimeTool
         kwargs.setdefault("TriggerTimeToolName", CosmicTriggerTimeTool())
     # pileup configuration "algorithm" way
     if not flags.Digitization.DoXingByXingPileUp:
@@ -130,11 +132,19 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
             "LArHitContainer#LArHitHEC->LArHitFloatContainer#LArHitHEC",
             "LArHitContainer#LArHitFCAL->LArHitFloatContainer#LArHitFCAL"
         ]
+        AddressRemappingSvc, ProxyProviderSvc = CompFactory.getComps("AddressRemappingSvc", "ProxyProviderSvc",)
         acc.addService(AddressRemappingSvc(TypeKeyOverwriteMaps=maps, ProxyDict="ActiveStoreSvc"))
         acc.addService(ProxyProviderSvc(ProviderNames=["AddressRemappingSvc"]))
         kwargs.setdefault("LArHitContainers", [])
     else:
         kwargs.setdefault("LArHitFloatContainers", [])
+    if flags.Detector.OverlayLAr:
+        kwargs.setdefault("OnlyUseContainerName", False)
+        if flags.Overlay.DataOverlay:
+            kwargs.setdefault("InputDigitContainer", flags.Overlay.BkgPrefix + "FREE")
+        else:
+            kwargs.setdefault("InputDigitContainer", flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
+    LArPileUpTool = CompFactory.LArPileUpTool
     acc.setPrivateTools(LArPileUpTool(name, **kwargs))
     return acc
 
@@ -142,14 +152,21 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
 def LArOutputCfg(flags):
     """Return ComponentAccumulator with Output for LAr. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = []
-    if flags.Digitization.PileUpPremixing:
-        ItemList += ["LArDigitContainer#*LArDigitContainer_MC"]
-    else:
-        ItemList += ["LArRawChannelContainer#*", "LArDigitContainer#LArDigitContainer_MC_Thinned"]
-    if flags.Detector.SimulateHGTD:
-        ItemList += ["LArHitContainer#HGTDDigitContainer_MC"]
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = []
+        if flags.Digitization.PileUpPremixing:
+            ItemList += ["LArDigitContainer#" + flags.Overlay.BkgPrefix + "LArDigitContainer_MC"]
+        else:
+            ItemList += [
+                "LArRawChannelContainer#LArRawChannels",
+                "LArDigitContainer#LArDigitContainer_MC_Thinned"
+            ]
+        if flags.Detector.SimulateHGTD:
+            ItemList += ["LArHitContainer#HGTDDigitContainer_MC"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["CaloCalibrationHitContainer#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 
@@ -172,13 +189,32 @@ def LArDigitizationCfg(flags, **kwargs):
     return acc
 
 
-def LArOverlayDigitizationBasicCfg(flags, **kwargs):
+def LArOverlayDigitizationBasicCfg(flags, name="digitmaker1", **kwargs):
     """Return ComponentAccumulator with LAr Overlay digitization configuration"""
     acc = ComponentAccumulator()
-    if "DigitizationTool" not in kwargs:
-        kwargs["DigitizationTool"] = acc.popToolsAndMerge(LArPileUpToolCfg(flags))
-    acc.addEventAlgo(LArDigitMaker(**kwargs))
-    # FIXME not complete
+
+    if flags.Overlay.DataOverlay:
+        from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg
+        acc.merge(LArRawDataReadingCfg(flags))
+
+    if "LArPileUpTool" not in kwargs:
+        kwargs["LArPileUpTool"] = acc.popToolsAndMerge(LArPileUpToolCfg(flags))
+
+    if flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
+
+    LArDigitMaker = CompFactory.LArDigitMaker
+    acc.addEventAlgo(LArDigitMaker(name, **kwargs))
+
+    acc.merge(LArRawChannelBuilderAlgCfg(flags))
+    acc.merge(LArDigitThinnerCfg(flags))
+    return acc
+
+
+def LArOverlayCfg(flags, **kwargs):
+    """Return ComponentAccumulator with LAr overlay and Output"""
+    acc = LArOverlayDigitizationBasicCfg(flags, **kwargs)
+    acc.merge(LArOutputCfg(flags))
     return acc
 
 
@@ -191,11 +227,12 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
     if not flags.Digitization.DoXingByXingPileUp:
-        if flags.Digitization.Pileup or flags.Detector.OverlayLAr:
+        if flags.Digitization.Pileup:
             kwargs.setdefault("PileUp", True)
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1EM")
         kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1HAD")
+    LArTTL1Maker = CompFactory.LArTTL1Maker
     acc.addEventAlgo(LArTTL1Maker(**kwargs))
     return acc
 
@@ -205,4 +242,21 @@ def LArTriggerDigitizationCfg(flags, **kwargs):
     acc = LArTriggerDigitizationBasicCfg(flags)
     acc.merge(LArOutputCfg(flags))
     acc.merge(OutputStreamCfg(flags, "RDO", ["LArTTL1Container#*"]))
+    return acc
+
+
+def LArOverlayTriggerDigitizationBasicCfg(flags, **kwargs):
+    """Return ComponentAccumulator with LAr Overlay Trigger Tower"""
+    acc = LArOverlayDigitizationBasicCfg(flags)
+    acc.merge(LArFebRodMappingCfg(flags))
+    acc.merge(LArCalibIdMappingCfg(flags))
+    acc.merge(CaloTriggerTowerCfg(flags))
+
+    kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
+    kwargs.setdefault("PileUp", True)
+    kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.SigPrefix + "LArTTL1EM")
+    kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.SigPrefix + "LArTTL1HAD")
+
+    LArTTL1Maker = CompFactory.LArTTL1Maker
+    acc.addEventAlgo(LArTTL1Maker(**kwargs))
     return acc

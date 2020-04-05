@@ -110,7 +110,7 @@ if is_MC:
 
     augmentationTools.append(MUON5BkgElectronClassificationTool)
 
-    print "BkgElectronClassificationTool: ", MUON5BkgElectronClassificationTool
+    printfunc ("BkgElectronClassificationTool: ", MUON5BkgElectronClassificationTool)
 
 #====================================================================
 # THINNING TOOLS
@@ -164,7 +164,7 @@ from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import Derivation
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 
 MUON5TruthTool = DerivationFramework__GenericTruthThinning(name                         = "MUON5TruthThinningTool",
-                                                           ThinningService              = MUON5ThinningHelper.ThinningSvc(),
+                                                           StreamName                   = streamName,
                                                            ParticleSelectionString      = truth_expression,
                                                            PreserveDescendants          = True,
                                                            PreserveGeneratorDescendants = False,

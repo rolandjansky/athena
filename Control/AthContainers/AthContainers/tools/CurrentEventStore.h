@@ -22,12 +22,14 @@
 #include "xAODRootAccessInterfaces/TVirtualEvent.h"
 #include "xAODRootAccessInterfaces/TActiveEvent.h"
 
+namespace AthContainers {
 typedef xAOD::TVirtualEvent IProxyDict;
+}
 namespace SG {
 class CurrentEventStore
 {
 public:
-  static IProxyDict* store()
+  static AthContainers::IProxyDict* store()
   {
     return xAOD::TActiveEvent::event();
   }

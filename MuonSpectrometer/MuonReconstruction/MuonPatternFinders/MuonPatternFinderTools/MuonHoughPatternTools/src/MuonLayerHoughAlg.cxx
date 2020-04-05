@@ -24,13 +24,12 @@ StatusCode MuonLayerHoughAlg::initialize()
   }
   ATH_CHECK( m_layerTool.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
-
   ATH_CHECK( m_keyRpc.initialize() );
   ATH_CHECK( m_keyMdt.initialize() );
   ATH_CHECK( m_keyTgc.initialize() );
-  ATH_CHECK( m_keyCsc.initialize() );
-  ATH_CHECK( m_keysTgc.initialize());
-  ATH_CHECK( m_keyMM.initialize()  );
+  if (!m_keyCsc.empty()) ATH_CHECK( m_keyCsc.initialize() );
+  if (!m_keysTgc.empty()) ATH_CHECK( m_keysTgc.initialize());
+  if (!m_keyMM.empty()) ATH_CHECK( m_keyMM.initialize()  );
   ATH_CHECK( m_combis.initialize() );
   ATH_CHECK( m_houghDataPerSectorVecKey.initialize() );
 
@@ -39,16 +38,14 @@ StatusCode MuonLayerHoughAlg::initialize()
 
 StatusCode MuonLayerHoughAlg::execute()
 {
-  
   const Muon::RpcPrepDataContainer* rpcPrds = GetObject(m_keyRpc);
   const Muon::MdtPrepDataContainer* mdtPrds = GetObject(m_keyMdt);
   const Muon::TgcPrepDataContainer* tgcPrds = GetObject(m_keyTgc);
-  const Muon::CscPrepDataContainer* cscPrds = GetObject(m_keyCsc);      
-  const Muon::sTgcPrepDataContainer* stgcPrds = GetObject(m_keysTgc);
-  const Muon::MMPrepDataContainer* mmPrds =GetObject(m_keyMM);
+  const Muon::CscPrepDataContainer* cscPrds = m_keyCsc.empty() ? nullptr : GetObject(m_keyCsc);      
+  const Muon::sTgcPrepDataContainer* stgcPrds = m_keysTgc.empty() ? nullptr : GetObject(m_keysTgc);
+  const Muon::MMPrepDataContainer* mmPrds = m_keyMM.empty() ? nullptr : GetObject(m_keyMM);
   ATH_MSG_VERBOSE("calling layer tool ");
   auto [combis, houghDataPerSectorVec] = m_layerTool->analyse(mdtPrds,cscPrds,tgcPrds,rpcPrds,stgcPrds,mmPrds);
-
   SG::WriteHandle<MuonPatternCombinationCollection> Handle(m_combis);
   if( combis ){
     if (Handle.record(std::move(combis)).isFailure()) {

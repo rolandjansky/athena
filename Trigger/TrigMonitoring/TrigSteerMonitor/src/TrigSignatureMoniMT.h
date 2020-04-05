@@ -13,7 +13,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/LockedHandle.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigger/versions/TrigComposite_v1.h"
 #include "DecisionCollectorTool.h"

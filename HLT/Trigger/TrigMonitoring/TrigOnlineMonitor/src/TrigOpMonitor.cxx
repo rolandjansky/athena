@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOpMonitor.h"
@@ -72,6 +72,7 @@ StatusCode TrigOpMonitor::initialize()
 void TrigOpMonitor::handle( const Incident& incident ) {
   // One time fills after fork
   if (incident.type() == AthenaInterprocess::UpdateAfterFork::type()) {
+    if (!m_IOVDbSvc) service("IOVDbSvc", m_IOVDbSvc, /*createIf=*/false).ignore();
     fillMagFieldHist();
     fillIOVDbHist();
     fillSubDetHist();
@@ -81,6 +82,7 @@ void TrigOpMonitor::handle( const Incident& incident ) {
 StatusCode TrigOpMonitor::start()
 {
   m_previousLB = 0;
+  if (!m_IOVDbSvc) service("IOVDbSvc", m_IOVDbSvc, /*createIf=*/false).ignore();
   ATH_CHECK(bookHists());
 
   fillReleaseDataHist();
@@ -111,11 +113,7 @@ StatusCode TrigOpMonitor::bookHists()
   m_currentIOVs.clear();
   m_folderHist.clear();
 
-  if (!m_IOVDbSvc) service("IOVDbSvc", m_IOVDbSvc, /*createIf=*/false).ignore();
-  if (m_IOVDbSvc) {
-    m_iovChangeHist = new TH2I("CoolFolderUpdate_LB", "COOL folder updates;Lumiblock;", 1, 0, 1, 1,
-                               0, 1);
-  }
+  m_iovChangeHist = new TH2I("CoolFolderUpdate_LB", "COOL folder updates;Lumiblock;", 1, 0, 1, 1, 0, 1);
 
   // create histogram for magnetic field information
   if (!m_magFieldSvc) service("AtlasFieldSvc", m_magFieldSvc, /*createIf=*/false).ignore();
@@ -160,11 +158,9 @@ void TrigOpMonitor::fillMagFieldHist()
 
 void TrigOpMonitor::fillIOVDbHist()
 {
-  if (!m_IOVDbSvc) return;
-
   // create and fill histogram for IOVDb entries
-  std::vector<std::string> keyList(m_IOVDbSvc->getKeyList());
-  IIOVDbSvc::KeyInfo info;
+  std::vector<std::string> keyList;
+  if (m_IOVDbSvc) keyList = m_IOVDbSvc->getKeyList();
 
   // set up histograms
   TH2I* IOVDbRunHist = new TH2I("IOVDbRunRange", "IOVDb Run Range", 1, 0, 1, 1, 0, 1);
@@ -175,6 +171,7 @@ void TrigOpMonitor::fillIOVDbHist()
   IOVDbReadTimeHist->SetYTitle("Update time [ms]");
 
   // fill histograms
+  IIOVDbSvc::KeyInfo info;
   for (const std::string& key : keyList) {
 
     if (m_IOVDbSvc->getKeyInfo(key, info) && info.retrieved) {
@@ -241,12 +238,11 @@ void TrigOpMonitor::fillIOVDbHist()
 
 void TrigOpMonitor::fillIOVDbChangeHist(const EventContext& ctx)
 {
-  if (m_IOVDbSvc == nullptr) return;
-
-  IIOVDbSvc::KeyInfo info;
-  std::vector<std::string> keys(m_IOVDbSvc->getKeyList());
+  std::vector<std::string> keys;
+  if (m_IOVDbSvc) keys = m_IOVDbSvc->getKeyList();
 
   // Loop over all keys known to IOVDbSvc
+  IIOVDbSvc::KeyInfo info;
   for (const std::string& k : keys) {
     if (not m_IOVDbSvc->getKeyInfo(k, info)) continue;
     if (not info.retrieved) continue;
@@ -287,7 +283,7 @@ void TrigOpMonitor::fillIOVDbChangeHist(const EventContext& ctx)
               ("Bytes read for " + info.folderName + ";Data [bytes];Entries").c_str(), 100, 0, 1000);
 
           for (TH1* h : {fh->second.h_time, fh->second.h_bytes}) {
-            m_histSvc->regHist(h->GetName(), h);
+            m_histSvc->regHist(h->GetName(), h).ignore();
           }
         }
 

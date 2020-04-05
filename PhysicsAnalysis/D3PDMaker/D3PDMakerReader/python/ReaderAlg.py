@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: ReaderAlg.py 348546 2011-03-01 15:09:56Z krasznaa $
 
@@ -111,7 +111,7 @@ class ReaderAlg( D3PD__ReaderAlg ):
         collection getter registry for this tree.
         """
        
-        if conf.properties().has_key( 'CollectionGetterRegistry' ):
+        if 'CollectionGetterRegistry' in conf.properties():
             conf.CollectionGetterRegistry = self._registry
         for c in conf.getAllChildren():
             self._setRegistry( c )

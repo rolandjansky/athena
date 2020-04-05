@@ -80,7 +80,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains: 
                         tidaegamma.ntupleChainNames += [
                                 "Offline",
-                                "HLT_e.*etcut.*:key=HLT_xAODTracks_Electron",
+                                "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF",
                                 "HLT_e.*_gsf_idperf.*:key=GSFTrigTrackParticles"
                         ]
                 else:
@@ -168,7 +168,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains:
                         tidamuon.ntupleChainNames += [
                                 "Offline",
-                                "HLT_mu.*idperf.*:key=HLT_xAODTracks_Muon",
+                                "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF",
                         ]
                 else:
                         tidamuon.ntupleChainNames += [
@@ -243,9 +243,9 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains:
                         tidatau.ntupleChainNames += [
                                 "Offline",
-                                "HLT_tau.*idperf.*:key=HLT_xAODTracks_TauCore:roi=HLT_TAURoI",
-                                "HLT_tau.*idperf.*:key=HLT_xAODTracks_TauIso:roi=HLT_TAURoI",
-                                "HLT_tau.*idperf.*:key=HLT_xAODTracks_Tau:roi=HLT_TAURoI"
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_TAURoI",
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_TAURoI",
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI"
                         ]
                 else:
                         tidatau.ntupleChainNames += [

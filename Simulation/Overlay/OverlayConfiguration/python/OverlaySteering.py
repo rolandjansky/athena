@@ -12,6 +12,7 @@ from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
+from LArDigitization.LArDigitizationConfigNew import LArOverlayCfg
 from MuonConfig.CscOverlayConfig import CscOverlayCfg
 from MuonConfig.MdtOverlayConfig import MdtOverlayCfg
 from MuonConfig.RpcOverlayConfig import RpcOverlayCfg
@@ -19,6 +20,8 @@ from MuonConfig.TgcOverlayConfig import TgcOverlayCfg
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
+from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileOverlayTriggerDigitizationCfg
+from TrigT1CaloSim.OverlayTTL1Config import OverlayTTL1Cfg
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
 
@@ -62,6 +65,15 @@ def OverlayMainCfg(configFlags):
         acc.merge(SCTOverlayCfg(configFlags))
     if configFlags.Detector.OverlayTRT:
         acc.merge(TRTOverlayCfg(configFlags))
+
+    # Calorimeters
+    if configFlags.Detector.OverlayLAr:
+        acc.merge(LArOverlayCfg(configFlags))
+    if configFlags.Detector.OverlayTile:
+        acc.merge(TileDigitizationCfg(configFlags))
+    if configFlags.Detector.OverlayL1Calo:
+        acc.merge(OverlayTTL1Cfg(configFlags))
+        acc.merge(TileOverlayTriggerDigitizationCfg(configFlags))
 
     # Muon system
     if configFlags.Detector.OverlayCSC:

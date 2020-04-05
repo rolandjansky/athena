@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import re
 import math 
@@ -17,7 +17,7 @@ class MuonFixedIdUnpack:
 	
 	# regexps to match tube string possibilities 
 	online_re = re.compile(__stationRe + '(?P<eta>[0-8][AC])(?P<phi>[0-1][0-9])' + __mlRe) 
-	offline_re = re.compile(__stationRe + '_(?P<phi>[1-8])_(?P<eta>\-*[0-8])_{0,1}' + __mlRe)
+	offline_re = re.compile(__stationRe + '_(?P<phi>[1-8])_(?P<eta>\\-*[0-8])_{0,1}' + __mlRe)
 	numeric_re = re.compile('[0-9]{7,9}')
 
 	# set unused fixed id bits to 1?  The correct way is to set them.  This flag is a convenience to software that may need 
@@ -29,19 +29,19 @@ class MuonFixedIdUnpack:
 	
 	def __init__(self, iid=None, setUnusedBits=True):
 		self.setUnusedBits = setUnusedBits
-		if iid == None: 
+		if iid is None: 
 			return
-		if (self.numeric_re.match(str(iid)) != None):
+		if (self.numeric_re.match(str(iid)) is not None):
 			self.identifier=int(iid)
 		else:
 			idmatch = self.offline_re.match(str(iid))
-			if (idmatch != None):
+			if (idmatch is not None):
 				# default to 1 for groups not participating in match (same as method defaults if last three arguments not provided)
 				idgroups = idmatch.groupdict(1)
 				self.InitByParam(idgroups['station'], idgroups['phi'], idgroups['eta'],idgroups['ml'],idgroups['ly'],idgroups['tb'])
 			else:
 				idmatch = self.online_re.match(str(iid))
-				if(idmatch != None):
+				if(idmatch is not None):
 					idgroups = idmatch.groupdict(1)
 					swid = self.mapToOffline(idgroups['station'],idgroups['phi'], idgroups['eta'],idgroups['ml'],idgroups['ly'],idgroups['tb'])
 					self.InitByParam(swid['station'],swid['phi'], swid['eta'], swid['ml'],swid['ly'],swid['tb'])
@@ -142,7 +142,7 @@ class MuonFixedIdUnpack:
 	#init by parameters
 	def InitByParam(self, station, phi, eta, ml=1, ly=1, tb=1):
 		loc_station=station
-		if type(station) == type(""):
+		if isinstance(station, str):
 			loc_station = self.__kStationNameStringsMap[station] + 1
 		loc_station -= 	self.__kStationNameMin
 		loc_station &= self.__kStationNameMask
@@ -157,31 +157,31 @@ class MuonFixedIdUnpack:
 		
 
 		
-	__kMdtMultilayerMask    = 1;
-	__kMdtMultilayerShift   = 9;
-	__kMdtMultilayerMin     = 1;
+	__kMdtMultilayerMask    = 1
+	__kMdtMultilayerShift   = 9
+	__kMdtMultilayerMin     = 1
 
-	__kMdtTubeLayerMask     = 3;
-	__kMdtTubeLayerShift    = 7;
-	__kMdtTubeLayerMin      = 1;
+	__kMdtTubeLayerMask     = 3
+	__kMdtTubeLayerShift    = 7
+	__kMdtTubeLayerMin      = 1
 
-	__kMdtTubeMask          = 127;
-	__kMdtTubeShift         = 0;
-	__kMdtTubeMin           = 1;
+	__kMdtTubeMask          = 127
+	__kMdtTubeShift         = 0
+	__kMdtTubeMin           = 1
 
-	__kStationNameMask      = 63;
-	__kStationNameShift     = 24;
-	__kStationNameMin       = 1;
+	__kStationNameMask      = 63
+	__kStationNameShift     = 24
+	__kStationNameMin       = 1
 
-	__kStationEtaMask          = 31;
-	__kStationEtaShift         = 19;
-	__kStationEtaMin            = -8;
+	__kStationEtaMask          = 31
+	__kStationEtaShift         = 19
+	__kStationEtaMin            = -8
 
-	__kStationPhiMask          = 63;
-	__kStationPhiShift         = 13;
-	__kStationPhiMin           = 1;
+	__kStationPhiMask          = 63
+	__kStationPhiShift         = 13
+	__kStationPhiMin           = 1
 	
-	__kUnusedBits         = 7168;
+	__kUnusedBits         = 7168
 	
 	__kStationNameStrings = [ "BIL", "BIS", "BML", "BMS", "BOL", "BOS", "BEE", "BIR", "BMF", "BOF", "BOG", "BME", "BIM", "EIC", "EIL", "EEL", "EES", "EMC", "EML", "EMS", "EOC", "EOL", "EOS", "EIS", "T1F", "T1E", "T2F", "T2E", "T3F", "T3E", "T4F", "T4E", "CSS", "CSL", "BMG" ]
 	
@@ -192,11 +192,11 @@ class MuonFixedIdUnpack:
 	# maps for 'non-standard' chambers
 
 	__hardwareStationMaps = { "BOE" : "BOL" }
-	__BOFMAP = {1:1, 3:2, 5:3, 7:4};
-	__BOGMAP = {0:0, 2:1, 4:2, 6:3, 8:4};
+	__BOFMAP = {1:1, 3:2, 5:3, 7:4}
+	__BOGMAP = {0:0, 2:1, 4:2, 6:3, 8:4}
 	# keys in this map are the station names and phi values from hardware, values are key:value maps of non standard eta into software convention.
 	__hardwareEtaMaps = { 
-						"EEL" : { 05 : { 2:1 } }, 
+						"EEL" : {  5 : { 2:1 } }, 
 						"BML" : { 13 : { 5:4, 6:5 } },
 						"BOE" : { 13: { 3:7 } },
 						"BME" : { 13 : { 4:1 } },

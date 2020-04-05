@@ -7,31 +7,26 @@
  **   @date   Sun 22 Sep 2019 10:21:50 BST
  **
  **
- **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 
-#include "RegSelTool.h"
-#include "RegSelLUT/RegSelRoI.h"
 #include "RegSelLUT/RegSelSiLUT.h"
-// #include "RegSelLUT/RegSelModule.h"
 
-#include "GaudiKernel/ToolHandle.h"
-
-// ???
-#include "RegionSelector/StoreGateRS_ClassDEF.h"
-#include "RegSelLUT/StoreGateIDRS_ClassDEF.h"
+#include "RegSelTool.h"
 
 
 
 //! Constructor
 RegSelTool::RegSelTool( const std::string& type, const std::string& name, const IInterface*  parent )
   :  base_class( type, name, parent ),
+     m_initialised(false),
      m_dumpTable(false),
-     m_lookuptable{nullptr}
+     m_rpcflag(false)
 {
   //! Declare properties
-  declareProperty( "WriteTables", m_dumpTable,    "write out maps to files for debugging" );
+  declareProperty( "WriteTable",  m_dumpTable,          "write out maps to files for debugging" );
+  declareProperty( "Initialised", m_initialised=false,  "flag to determine whether the corresponding subsystem is initilised" );
 }
 
 
@@ -39,30 +34,30 @@ RegSelTool::RegSelTool( const std::string& type, const std::string& name, const 
 RegSelTool::~RegSelTool() { }
 
 
+const IRegSelLUT* RegSelTool::lookup() const {
+  if ( !m_initialised ) return nullptr; 
+  SG::ReadCondHandle<IRegSelLUTCondData> table_handle( m_tableKey ); 
+  return (*table_handle)->payload();
+}
+
+
+
 StatusCode RegSelTool::initialize() {
-  ATH_MSG_INFO( "Initializing " << name() );
+  ATH_CHECK( m_tableKey.initialize() );
+  ATH_MSG_DEBUG( "Initialising RegSelTool " << name() << "\ttable: " << m_tableKey );
+  if ( !m_initialised ) { 
+    ATH_MSG_WARNING( "Lookup table will not be initialised " << name() << "\tkey " << m_tableKey );
+  } 
+  if ( name().find( "RPC") != std::string::npos ) m_rpcflag = true;
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode RegSelTool::finalize() {
-  ATH_MSG_INFO( "Finalizing " << name() );
-  return StatusCode::SUCCESS;
-}
 
 
-bool RegSelTool::handle() { 
-  return m_initialised = false;
-}
-
-
-
-// new RegionSelector interface for the Innner Detector 
-
-void RegSelTool::getRoIData( const IRoiDescriptor& roi, std::vector<const RegSelModule*>& modules ) const {
-  modules.clear();
-  RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-  if ( m_lookuptable ) m_lookuptable->getRoIData( roitmp, modules );
+void RegSelTool::cleanup( std::vector<IdentifierHash>& idvec ) const {
+  for ( size_t i=idvec.size() ; i-- ; ) idvec[i] = IdentifierHash( ((unsigned)idvec[i]) & 0xfff );
+  RegSelSiLUT::removeDuplicates( idvec );
 }
 
 
@@ -76,6 +71,8 @@ void RegSelTool::getRoIData( const IRoiDescriptor& roi, std::vector<const RegSel
 
 void RegSelTool::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {
 
+  if ( !m_initialised ) return; 
+
   if ( roi.composite() ) {
     idlist.clear();
     for ( unsigned iroi=roi.size() ; iroi-- ;  )  HashIDList( *(roi.at(iroi)), idlist );
@@ -83,10 +80,10 @@ void RegSelTool::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHa
     return;
   }
 
-  if ( roi.isFullscan() ) return HashIDList( idlist );
+  const IRegSelLUT* lookuptable = lookup();
+  if ( lookuptable ) lookuptable->HashIDList( roi, idlist ); 
+  if ( m_rpcflag ) cleanup( idlist );
 
-  RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-  if ( m_lookuptable ) m_lookuptable->getHashList( roitmp, idlist ); 
 }
 
 
@@ -95,6 +92,8 @@ void RegSelTool::HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHa
 
 void RegSelTool::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const {
 
+  if ( !m_initialised ) return; 
+
   if ( roi.composite() ) { 
     idlist.clear();
     for ( unsigned iroi=roi.size() ; iroi-- ;  )  HashIDList( layer, *(roi.at(iroi)), idlist );
@@ -102,10 +101,10 @@ void RegSelTool::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<
     return;
   }
 
-  if ( roi.isFullscan() ) return HashIDList( layer, idlist );
+  const IRegSelLUT* lookuptable = lookup();
+  if ( lookuptable ) lookuptable->HashIDList( layer, roi, idlist ); 
+  if ( m_rpcflag ) cleanup( idlist );
 
-  RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-  if ( m_lookuptable ) m_lookuptable->getHashList( roitmp, layer, idlist ); 
 }
 
 
@@ -121,6 +120,8 @@ void RegSelTool::HashIDList( long layer, const IRoiDescriptor& roi, std::vector<
 
 void RegSelTool::ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
 
+  if ( !m_initialised ) return; 
+
   if ( roi.composite() ) { 
     roblist.clear();
     for ( unsigned iroi=roi.size() ; iroi-- ;  )  ROBIDList( *(roi.at(iroi)), roblist );
@@ -128,15 +129,18 @@ void RegSelTool::ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& ro
     return;
   }
 
-  if ( roi.isFullscan() ) return ROBIDList( roblist );
+  const IRegSelLUT* lookuptable = lookup();
+  if ( lookuptable ) lookuptable->ROBIDList( roi, roblist ); 
 
-  RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-  if ( m_lookuptable ) m_lookuptable->getRobList( roitmp, roblist ); 
 }
+
+
 
 /// standard roi for specific layer
 
 void RegSelTool::ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const {
+
+  if ( !m_initialised ) return; 
 
   if ( roi.composite() ) { 
     roblist.clear();
@@ -145,39 +149,10 @@ void RegSelTool::ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<u
     return;
   }
 
-  if ( roi.isFullscan() ) return ROBIDList( layer, roblist );
+  const IRegSelLUT* lookuptable = lookup();
+  if ( lookuptable ) lookuptable->ROBIDList( layer, roi, roblist );
 
-  RegSelRoI roitmp( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-  if ( m_lookuptable ) m_lookuptable->getRobList( roitmp, layer, roblist ); ///  m_duplicateRemoval ); ??? 
 }
 
 
-
-///////////////////////////////////////////////////////////////////////////////////
-
-/// protected fullscan access methods
-
-/// full scan hashid 
-
-void RegSelTool::HashIDList( std::vector<IdentifierHash>& idlist ) const {
-  if ( m_lookuptable ) m_lookuptable->getHashList( idlist ); 
-}
-
-/// fullscan hashid for specific layer 
-
-void RegSelTool::HashIDList( long layer, std::vector<IdentifierHash>& idlist ) const {
-  if ( m_lookuptable ) m_lookuptable->getHashList( layer, idlist ); 
-}
-
-/// full scan robid
-
-void RegSelTool::ROBIDList( std::vector<uint32_t>& roblist ) const {
-  if ( m_lookuptable ) m_lookuptable->getRobList( roblist ); 
-}
-
-/// fullscan robid for specific layer 
-
-void RegSelTool::ROBIDList( long layer, std::vector<uint32_t>& roblist ) const {
-  if ( m_lookuptable ) m_lookuptable->getRobList( layer, roblist ); 
-}
 

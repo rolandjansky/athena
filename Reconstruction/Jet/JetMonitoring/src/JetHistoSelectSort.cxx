@@ -77,7 +77,7 @@ StatusCode JetHistoSelectSort::processJetContainer(const JetMonitoringAlg& paren
   const xAOD::JetContainer * filteredCont = tmpCont.asDataVector();
 
   for(const auto& t: m_jetFillerTools){
-    t->processJetContainer(parentAlg, *filteredCont, ctx);      
+    ATH_CHECK(t->processJetContainer(parentAlg, *filteredCont, ctx));
   }
 
   

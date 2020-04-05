@@ -110,7 +110,7 @@ bool Trk::TargetSurfaces::initFrameVolume(const Amg::Vector3D& pos, const Amg::V
   m_tempSurfaces.clear();
 
   // static frame boundaries
-  const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > bounds = fVol->boundarySurfaces();
+  const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > &bounds = fVol->boundarySurfaces();
   for (unsigned int ib=0; ib< bounds.size(); ib++ ){
     const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
     Trk::TargetSurface bb(&surf,true,Trk::SurfNavigType::BoundaryFrame,ib,fVol,Trk::TVNavigType::Frame);

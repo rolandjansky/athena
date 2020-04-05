@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/SCT_ConditionsTools
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/ACT_ReadoutGeometry
+			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_Cabling
                           Trigger/TrigEvent/TrigSteeringEvent )
 

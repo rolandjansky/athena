@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # =====================================================================
 #  Classes for running ATLAS ID alignment jobs on Grid resources
@@ -6,12 +6,18 @@
 #             Song-Ming Wang (smwang@phys.sinica.edu.tw)
 # =====================================================================
 
+from __future__ import print_function
+
 
 from threading import Thread
 import os
 import time,datetime
-import commands, string
+import string
 import sys
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 class runProcess(Thread):
@@ -31,22 +37,22 @@ class runProcess(Thread):
 
 	def run(self):
 		if self.j == -1:
-			print "----------------------------------------------"
-			print "  Running Iter%d - Solve in local machine" % (self.i)
-			print "----------------------------------------------"
+			print ("----------------------------------------------")
+			print ("  Running Iter%d - Solve in local machine" % (self.i))
+			print ("----------------------------------------------")
 			process=os.popen("athena.py %s | tee %s/Iter%02d/logs/Iter%02dSolve.log" % (self.jobOptions, self.OutputPath, self.i, self.i))
 		else:
-			print "----------------------------------------------"
-			print "  Running Iter%d - Part%02d in local machine" % (self.i, self.j)
-			print "----------------------------------------------"
-			print " - output path: %s/Iter%02d/%02d" % (self.OutputPath, self.i, self.j)
+			print ("----------------------------------------------")
+			print ("  Running Iter%d - Part%02d in local machine" % (self.i, self.j))
+			print ("----------------------------------------------")
+			print (" - output path: %s/Iter%02d/%02d" % (self.OutputPath, self.i, self.j))
 			process=os.popen("athena.py %s | tee %s/Iter%02d/logs/Iter%02dPart%02d.log" % (self.jobOptions, self.OutputPath, self.i, self.i ,self.j))
 
-		print "Running..."
+		print ("Running...")
 		while 1:
 			line = process.readline()
 			if self.OutputLevel == 'DEBUG':
-				print line,
+				print (line, end='')
 			if not line:
 				self.status=1
 				break
@@ -214,7 +220,7 @@ class writeScriptGridForTFile :
 	def write(self) :
 
 
-		print " start to create the job submit command line ...\n "   
+		print (" start to create the job submit command line ...\n "   )
 		extOutFileStr    = "AlignmentTFile.root"
 		extOutFileStrAcc = extOutFileStr
 
@@ -295,10 +301,10 @@ class writeScriptGridForTFile :
 							
 						script.write(scriptStr)
 							
-					print " You are running alignment accumulation and using TFile for bookkeeping \n" 
-					print " You are running on customed dataset and doing detailed tags configuration \n"
-					print " the Grid job submission command line is : \n"
-					print scriptStr
+					print (" You are running alignment accumulation and using TFile for bookkeeping \n" )
+					print (" You are running on customed dataset and doing detailed tags configuration \n")
+					print (" the Grid job submission command line is : \n")
+					print (scriptStr)
 
 
 			if (self.Datasets.containType("900GeV") or self.Datasets.containType("7TeV")) :
@@ -363,14 +369,14 @@ class writeScriptGridForTFile :
 
 
 		elif self.part == "Prun" :
-			print self.SCRIPTNAME
+			print (self.SCRIPTNAME)
 			script     = open(self.SCRIPTNAME,'w')
 
 			prunSolve = open("prunSolve.py",'w')
-			prunSolve.write('import os\nimport commands, string\nimport sys\n\n\n')
+			prunSolve.write('import os\nimport string\nimport sys\nfrom future import standard_library\nstandard_library.install_aliases()\nimport subprocess\n\n\n')
 			prunSolve.write('inputTFiles = []\ninFiles = []\n\n\n')
-			prunSolve.write('ret, out = commands.getstatusoutput(\"cat input1.txt\")\n')
-			prunSolve.write('print \" the content of file input1.txt:  \", out \n')
+			prunSolve.write('ret, out = subprocess.getstatusoutput(\"cat input1.txt\")\n')
+			prunSolve.write('print (\" the content of file input1.txt:  \", out) \n')
 			prunSolve.write('lines = out.split(\",\")\n')
 			prunSolve.write('for line in lines:\n')
 			prunSolve.write('\tif \"AlignmentTFile.root\" in str(line):\n\t\tinputTFiles.append(line)\n')
@@ -391,7 +397,7 @@ class writeScriptGridForTFile :
 				if os.path.isfile(alignConstants) :
 					tmpStr = "pool_insertFileToCatalog  %s "  % alignConstants
 				else :
-					print "ALIGNMENT CONSTANTS %s NOT EXIST, WILL EXIT ANYHOW !!!  "  % alignConstants
+					print ("ALIGNMENT CONSTANTS %s NOT EXIST, WILL EXIT ANYHOW !!!  "  % alignConstants)
 					sys.exit()
 
 
@@ -404,9 +410,9 @@ class writeScriptGridForTFile :
 			prunSolve.write('os.system(\"athena.py %s \")\n'  % tmpStrJO )
 
 			# debugging ...
-			print "prunSolve.py: "
+			print ("prunSolve.py: ")
 			os.system(" cat prunSolve.py ")
-			print " newSolveJO_Iter%02d.py: " % self.i
+			print (" newSolveJO_Iter%02d.py: " % self.i)
 			os.system(" cat %s " % tmpStrJO)
 
 
@@ -418,7 +424,7 @@ class writeScriptGridForTFile :
 				("pixelAlignmentLevel"        in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevel"]        == 3)  or 
 				("pixelAlignmentLevelBarrel"  in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevelBarrel"]  == 3)  or 
 				("pixelAlignmentLevelEndcaps" in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevelEndcaps"] == 3) ) :
-				print "hmn, you are going to run L3 alignment, Eigen is being used, so no eigen value information!!! "
+				print ("hmn, you are going to run L3 alignment, Eigen is being used, so no eigen value information!!! ")
 			 
 			else : 
 
@@ -450,14 +456,14 @@ class writeScriptGridForTFile :
 
 			TNFiles = 0
 			tmpInDS = []
-			print " self.outDS : " , self.outDS
+			print (" self.outDS : " , self.outDS)
 
-			print " self.outDS[Customed]: " , self.outDS["Customed"]
+			print (" self.outDS[Customed]: " , self.outDS["Customed"])
 			for item in self.outDS["Customed"] :
-				print "self.outDS[Customed] item:  " , item
+				print ("self.outDS[Customed] item:  " , item)
 				tmpInDS.append(item+"/")
-				rec, nFiles = commands.getstatusoutput("dq2-ls -f %s | grep -i files | grep -i total | cut -c 13-" %  (item+"/") )
-				print " nFiles of this outDS[Customed] :" , nFiles
+				rec, nFiles = subprocess.getstatusoutput("dq2-ls -f %s | grep -i files | grep -i total | cut -c 13-" %  (item+"/") )
+				print (" nFiles of this outDS[Customed] :" , nFiles)
 				TNFiles += int(nFiles)
 			solveInDS = ",".join(tmpInDS)
 
@@ -480,7 +486,7 @@ class writeScriptGridForTFile :
 
 
 		else : 
-			print "Hi, except accumulate and solve, where do you want to go?"
+			print ("Hi, except accumulate and solve, where do you want to go?")
 
 
 
@@ -489,9 +495,9 @@ class writeScriptGridForTFile :
 		os.system("pwd")
 		os.system("chmod 777 %s" % self.SCRIPTNAME)
 
-		print "----------------------------------------------"
+		print ("----------------------------------------------")
 		if self.part == "Accumulate":           
-			print "Sending the %dth iteration accumulation job to grid at site ... %s" % (self.i, self.GridOptions["siteName"])
+			print ("Sending the %dth iteration accumulation job to grid at site ... %s" % (self.i, self.GridOptions["siteName"]))
 		 
 			if self.Datasets.containType("Customed") :
 				for i in range(len(self.Datasets.namesList("Customed"))) :   
@@ -507,7 +513,7 @@ class writeScriptGridForTFile :
 						os.system("cat tmpSubJobInfo_Customed_%02d.txt                 >> %s\n" % (i, self.AccSubInfo))
 						os.system("cat tmpSubJobInfo_Customed_%02d.txt | grep -i JobID >> %s\n" % (i, self.AccSubJobID))
 				else :
-					print " you don't plan to do detailed tags configuration for every dataset, so will submit only one job with long inDS: "
+					print (" you don't plan to do detailed tags configuration for every dataset, so will submit only one job with long inDS: ")
 			     	                                       
 			     	
 			if (self.Datasets.containType("900GeV") or self.Datasets.containType("7TeV")) :
@@ -526,27 +532,27 @@ class writeScriptGridForTFile :
 
 		elif self.part == "Prun" :
 
-			print "  Sending the %dth iteration prun matrix solving job to grid site ... %s" % (self.i, self.GridOptions["siteName"])
+			print ("  Sending the %dth iteration prun matrix solving job to grid site ... %s" % (self.i, self.GridOptions["siteName"]))
 			os.system("rm -f tmpSubJobInfo_prunSolve.txt")
 			os.system("source %s" % self.SCRIPTNAME)
 			os.system("cat tmpSubJobInfo_prunSolve.txt                 >> %s\n" % (self.AccSubInfo))
 			os.system("cat tmpSubJobInfo_prunSolve.txt | grep -i JobID >> %s\n" % (self.AccSubJobID))
 	
-			print "----------------------------------------------"
+			print ("----------------------------------------------")
 		
 		else : 
 
-			print "Hi, where do you want to go?"
+			print ("Hi, where do you want to go?")
 
 
 
 
 	def wait(self,logfilename):
-		print "Pathena wait()" 
+		print ("Pathena wait()" )
 	
 		if self.jobId == -99:
-			print "logiflename: ",logfilename
-			ret, out = commands.getstatusoutput("cat "+logfilename)
+			print ("logiflename: ",logfilename)
+			ret, out = subprocess.getstatusoutput("cat "+logfilename)
 			lines = out.split('\n')
              
 			# looping over all the job IDs
@@ -554,12 +560,12 @@ class writeScriptGridForTFile :
 				items = line.split()
 				if len(items)>0 and items[0]=="JobID" :
 					self.jobId = int(items[2])
-					print "jobId = ",self.jobId
+					print ("jobId = ",self.jobId)
 
 				# check status of each job ID
 				# while self.bjobs() == 0:
 				while self.bjobs() != 1:       
-					print " waiting for jobID ",self.jobId,"..."
+					print (" waiting for jobID ",self.jobId,"...")
 					time.sleep(300)
 
 
@@ -568,15 +574,15 @@ class writeScriptGridForTFile :
 
 	def bjobs(self) :
 		if self.jobId == -99:
-			print "need jobId"
+			print ("need jobId")
 			sys.exit(3)
 	
-		print "Pathena bjobs(), jobId: ",self.jobId
+		print ("Pathena bjobs(), jobId: ",self.jobId)
 		jobId = self.jobId
 		bjobstring = "pbook -c 'show(" + str(jobId) + ")'"
-		print bjobstring
-		ret, out = commands.getstatusoutput(bjobstring)
-		print "statusoutput: ",out
+		print (bjobstring)
+		ret, out = subprocess.getstatusoutput(bjobstring)
+		print ("statusoutput: ",out)
 		for line in out.split("\n") :
 			items_1 = line.split()
 			if len(items_1)>0 and items_1[0] != "jobStatus" :
@@ -584,26 +590,26 @@ class writeScriptGridForTFile :
 	
 			if len(items_1)>2 :
 				if items_1[2] == "frozen" :
-					print "jobStatus: " , items_1[2]
+					print ("jobStatus: " , items_1[2])
 	
 					### search the libDS #######   
 					for line2 in out.split("\n") :
-						print " line2: " , line2
+						print (" line2: " , line2)
 						items_2 = line2.split()
 						if items_2[0] == "libDS" :
 							break 
 	
 					if self.part == "Accumulate" and self.GridOptions["accumulateLibDS"] == "" :   
 						self.GridOptions["accumulateLibDS"] = items_2[2]
-						print " self.GridOptions accumulateLibDS: " , self.GridOptions["accumulateLibDS"]
+						print (" self.GridOptions accumulateLibDS: " , self.GridOptions["accumulateLibDS"])
 	
 					if (self.part == "Grid" or self.part == "Prun") and self.GridOptions["solveLibDS"] == "":
 						self.GridOptions["solveLibDS"     ] = items_2[2]                               
-						print " self.GridOptions solveLibDS: "      , self.GridOptions["solveLibDS"]
+						print (" self.GridOptions solveLibDS: "      , self.GridOptions["solveLibDS"])
 	                                  
 					return 1
 				else :
-					print "jobStatus: ",items_1[2]
+					print ("jobStatus: ",items_1[2])
 					return 0
 	
 
@@ -612,22 +618,22 @@ class writeScriptGridForTFile :
 		nfailed   = 0
 		nfinished = 0
 		if self.jobId == -99 :
-			print "need jobId, JOB SUBMISSION FAILED!!!, check the log files"
+			print ("need jobId, JOB SUBMISSION FAILED!!!, check the log files")
 			sys.exit(3)
 	
-		print "Pathena bjobs(), jobId: ",self.jobId
+		print ("Pathena bjobs(), jobId: ",self.jobId)
 		jobId = self.jobId
 		bjobstring = "pbook -c 'show(" + str(jobId) + ")'"
-		print bjobstring
-		ret, out = commands.getstatusoutput(bjobstring)
+		print (bjobstring)
+		ret, out = subprocess.getstatusoutput(bjobstring)
                
 		lines  = out.split("\n")
 		nlines = len(lines)
-		print " nlines: " , nlines
+		print (" nlines: " , nlines)
 	
 		for i in range(0, nlines) :
 			items = lines[i].split()
-			print " items: " , items
+			print (" items: " , items)
 			if "failed"   in items :
 				nfailed   = int(items[-1])
 			if "finished" in items :
@@ -645,12 +651,12 @@ class writeScriptGridForTFile :
 			successRatio = float(nfinished)/(nfailed + nfinished) 
 
 
-		print "the success ratio: ", successRatio
+		print ("the success ratio: ", successRatio)
 		if successRatio >= self.GridOptions["successRatioCut"] :
-			print "The success ratio is higher than the cut, will not retry ---"
+			print ("The success ratio is higher than the cut, will not retry ---")
 			return False
 		else :
-			print "The success ratio is lower than the cut, will retry ---"
+			print ("The success ratio is lower than the cut, will retry ---")
 			return True
 	
 
@@ -660,8 +666,8 @@ class writeScriptGridForTFile :
 	def retry(self) :
 		jobId = self.jobId
 		retrystring = "pbook -c 'retry(" + str(jobId) + ")'"   
-		ret, out    = commands.getstatusoutput(retrystring)
-		print " out1: " , out
+		ret, out    = subprocess.getstatusoutput(retrystring)
+		print (" out1: " , out)
 		#self.jobId =  self.jobId + 2
 
 		## get the new JobID ## 
@@ -672,21 +678,21 @@ class writeScriptGridForTFile :
 				if items[i] == "New" : 
 					jobstring = items[i+1].split("=") 
 					self.jobId = int(jobstring[-1]) 
-					print "new JobID: " , self.jobId 
+					print ("new JobID: " , self.jobId )
 					break 
 		self.retryNo = self.retryNo + 1 
 
 
 
 		while self.bjobs() != 1 :
-			print " waiting for the first retry jobID " , self.jobId , "..."
+			print (" waiting for the first retry jobID " , self.jobId , "...")
 			time.sleep(300)
 	
 		if self.whetherRetry() :
 			jobId = self.jobId
 			retrystring = "pbook -c 'retry(" + str(jobId) + ")'"
-			ret, out    = commands.getstatusoutput(retrystring)
-			print " out2: " , out
+			ret, out    = subprocess.getstatusoutput(retrystring)
+			print (" out2: " , out)
 	
 			#self.jobId = self.jobId + 2
 
@@ -698,14 +704,14 @@ class writeScriptGridForTFile :
 					if items[i] == "New" : 
 						jobstring = items[i+1].split("=") 
 						self.jobId = int(jobstring[-1]) 
-						print "new JobID: " , self.jobId 
+						print ("new JobID: " , self.jobId )
 						break 
 			self.retryNo = self.retryNo + 1
 
 
 
 			while self.bjobs() != 1 :
-				print " waiting for the second retry jobID " , self.jobId,"..."
+				print (" waiting for the second retry jobID " , self.jobId,"...")
 				time.sleep(300)
 	
 			
@@ -780,7 +786,7 @@ class writeScriptGrid :
 			("pixelAlignmentLevelBarrel"  in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevelBarrel"]  == 3)  or 
 			("pixelAlignmentLevelEndcaps" in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevelEndcaps"] == 3) ) : 
 			#extOutFile.append("vector.txt")
-			print "hmmn, you plan to do Level 3 alignment ... "
+			print ("hmmn, you plan to do Level 3 alignment ... ")
 
 			### put the three flags writeMatrixFileTxt,writeHitmapTxt,writeEigenMatTxt in the GridOptions, not in the AlignmentOptions
 			if ( "writeMatrixFileTxt" in self.GridOptions  and self.GridOptions["writeMatrixFileTxt"] == True  ) : 
@@ -808,7 +814,7 @@ class writeScriptGrid :
 
 
 		if self.part == "Accumulate":
-			print self.SCRIPTNAME
+			print (self.SCRIPTNAME)
 			script = open(self.SCRIPTNAME,'w')
 
 			if self.Datasets.containType("Customed") : 
@@ -848,11 +854,11 @@ class writeScriptGrid :
 							if os.path.isfile("%s"  % lastAlignConstant ) :  
 								scriptStr += " --extFile %s,Scaling.root  "      % lastAlignConstant    
 						
-						#print index
-						#print self.Datasets.namesList("Customed")[index]
-						#print self.outDS["Customed"][index]
-						#print self.Datasets.nFiles("Customed")[index]
-						#print self.GridOptions["CustomedCPUs"][index]
+						#print (index)
+						#print (self.Datasets.namesList("Customed")[index])
+						#print (self.outDS["Customed"][index])
+						#print (self.Datasets.nFiles("Customed")[index])
+						#print (self.GridOptions["CustomedCPUs"][index])
 
 
 						if self.GridOptions["debugLevel"] == 4 :
@@ -875,7 +881,7 @@ class writeScriptGrid :
 						script.write(scriptStr)
 
 				else : 
-					print " you don't plan to do detailed tags configuration for every dataset, so will submit only one job with a LONG inDS: "
+					print (" you don't plan to do detailed tags configuration for every dataset, so will submit only one job with a LONG inDS: ")
 
 					if ( "group" in self.GridOptions["userIDnum"] ) :
 						scriptStr   = "pathena  --official --voms=atlas:/atlas/det-indet/Role=production  %s  " % (self.JOBNAMES["Customed"][0])
@@ -970,7 +976,7 @@ class writeScriptGrid :
 
 
 		elif self.part == "Grid" :
-			print self.SCRIPTNAME
+			print (self.SCRIPTNAME)
 			script     = open(self.SCRIPTNAME,'w')
 		
 			extOutFileStrSol = extOutFileStr + ",Iter%02d_AlignmentConstants.root,OldSiAlignment.txt,OutputSiAlignment.txt,mycool.db,alignlogfile.txt" % (self.i)
@@ -1016,25 +1022,25 @@ class writeScriptGrid :
 			scriptStr += "*.bin "
 
 			if self.GridOptions["reUseSolveLibDS"] : 
-				#ret, out = commands.getstatusoutput("cat %s" % GridAccOutDS)
-				ret, out = commands.getstatusoutput("cat GridAccOutDS.txt")
-				print "out: ",out
+				#ret, out = subprocess.getstatusoutput("cat %s" % GridAccOutDS)
+				ret, out = subprocess.getstatusoutput("cat GridAccOutDS.txt")
+				print ("out: ",out)
 				lines = out.split('\n')
 				extFiles = []
 				 
 
 				#fileName = open('GridAccOutDS.txt', 'r+')				
- 				#ret, out = commands.getstatusoutput('fileName.read()')
+ 				#ret, out = subprocess.getstatusoutput('fileName.read()')
 				#lines = out.split('\n')
 				#extFiles = []
 
 				#for line in lines :
-				#	print "line: ", line
+				#	print ("line: ", line)
 				#	thisStr = "%s/\*.bin" % line
 				#	extFiles.append(thisStr)
-				#print " thisStr: " , thisStr
+				#print (" thisStr: " , thisStr)
 				#extFileStr = ",".join(extFiles)
-				#print " extFileStr: " , extFileStr
+				#print (" extFileStr: " , extFileStr)
 				#scriptStr += " --extFile %s "     %  extFileStr
 
 
@@ -1045,20 +1051,20 @@ class writeScriptGrid :
 			script.close()
 
 		elif self.part == "Prun" :
-			print self.SCRIPTNAME
+			print (self.SCRIPTNAME)
 			script     = open(self.SCRIPTNAME,'w')
 
 
 			prunSolve = open("prunSolve.py",'w')
-			prunSolve.write('import os\nimport commands, string\nimport sys\n\n\n')
+			prunSolve.write('import os\nimport string\nimport sys\nfrom future import standard_library\nstandard_library.install_aliases()\nimport subprocess\n\n')
 			prunSolve.write('inputHitmapFiles = []\ninputMatrixFiles = []\ninputVectorFiles = []\ninFiles = []\n\n\n')
-			prunSolve.write('ret, out = commands.getstatusoutput(\"cat input1.txt\")\n')
-			prunSolve.write('print \" the content of file input1.txt:  \", out \n')
+			prunSolve.write('ret, out = subprocess.getstatusoutput(\"cat input1.txt\")\n')
+			prunSolve.write('print (\" the content of file input1.txt:  \", out) \n')
 			prunSolve.write('lines = out.split(\",\")\n')
 			prunSolve.write('for line in lines:\n')
-			prunSolve.write('\tif \"hitmap.bin\" in str(line):\n\t\tif \"dcap://\" in str(line) :\n\t\t\tos.system(\" dccp %s ./\" % str(line) )\n\t\t\tlineHitmap = line.split(\'/\')[-1]\n\t\t\tprint \'file name retrived after splitting dcap address is %s \' % lineHitmap\n\t\t\tinputHitmapFiles.append(lineHitmap)\n\t\telse : \n\t\t\tinputHitmapFiles.append(line)\n')
-			prunSolve.write('\tif \"vector.bin\" in str(line):\n\t\tif \"dcap://\" in str(line) :\n\t\t\tos.system(\" dccp %s ./\" % str(line) )\n\t\t\tlineVector = line.split(\'/\')[-1]\n\t\t\tprint \'file name retrived after splitting dcap address is %s \' % lineVector\n\t\t\tinputVectorFiles.append(lineVector)\n\t\telse : \n\t\t\tinputVectorFiles.append(line)\n')
-			prunSolve.write('\tif \"matrix.bin\" in str(line):\n\t\tif \"dcap://\" in str(line) :\n\t\t\tos.system(\" dccp %s ./\" % str(line) )\n\t\t\tlineMatrix = line.split(\'/\')[-1]\n\t\t\tprint \'file name retrived after splitting dcap address is %s \' % lineMatrix\n\t\t\tinputMatrixFiles.append(lineMatrix)\n\t\telse : \n\t\t\tinputMatrixFiles.append(line)\n')
+			prunSolve.write('\tif \"hitmap.bin\" in str(line):\n\t\tif \"dcap://\" in str(line) :\n\t\t\tos.system(\" dccp %s ./\" % str(line) )\n\t\t\tlineHitmap = line.split(\'/\')[-1]\n\t\t\tprint (\'file name retrieved after splitting dcap address is %s \' % lineHitmap)\n\t\t\tinputHitmapFiles.append(lineHitmap)\n\t\telse : \n\t\t\tinputHitmapFiles.append(line)\n')
+			prunSolve.write('\tif \"vector.bin\" in str(line):\n\t\tif \"dcap://\" in str(line) :\n\t\t\tos.system(\" dccp %s ./\" % str(line) )\n\t\t\tlineVector = line.split(\'/\')[-1]\n\t\t\tprint (\'file name retrieved after splitting dcap address is %s \' % lineVector)\n\t\t\tinputVectorFiles.append(lineVector)\n\t\telse : \n\t\t\tinputVectorFiles.append(line)\n')
+			prunSolve.write('\tif \"matrix.bin\" in str(line):\n\t\tif \"dcap://\" in str(line) :\n\t\t\tos.system(\" dccp %s ./\" % str(line) )\n\t\t\tlineMatrix = line.split(\'/\')[-1]\n\t\t\tprint (\'file name retrieved after splitting dcap address is %s \' % lineMatrix)\n\t\t\tinputMatrixFiles.append(lineMatrix)\n\t\telse : \n\t\t\tinputMatrixFiles.append(line)\n')
 
 			tmpStrJO = "newSolveJO_Iter%02d.py" % self.i
 			prunSolve.write('jofile = open( \'%s\' , \'w+\')\n' % tmpStrJO )
@@ -1073,7 +1079,7 @@ class writeScriptGrid :
 				if os.path.isfile(alignConstants) :
 					tmpStr = "pool_insertFileToCatalog  %s "  % alignConstants
 				else : 
-					print "ALIGNMENT CONSTANTS %s NOT EXIST, WILL EXIT ANYHOW !!!  "  % alignConstants
+					print ("ALIGNMENT CONSTANTS %s NOT EXIST, WILL EXIT ANYHOW !!!  "  % alignConstants)
 					sys.exit()
 
 
@@ -1088,9 +1094,9 @@ class writeScriptGrid :
 			prunSolve.write('os.system(\"athena.py %s \")\n'  % tmpStrJO )
 
 			# debugging ...
-			print "prunSolve.py: "
+			print ("prunSolve.py: ")
 			os.system(" cat prunSolve.py ")
-			print " newSolveJO_Iter%02d.py: " % self.i
+			print (" newSolveJO_Iter%02d.py: " % self.i)
 			os.system(" cat %s " % tmpStrJO)
 
 
@@ -1103,7 +1109,7 @@ class writeScriptGrid :
 				("pixelAlignmentLevel"        in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevel"]        == 3)  or 
 				("pixelAlignmentLevelBarrel"  in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevelBarrel"]  == 3)  or 
 				("pixelAlignmentLevelEndcaps" in self.AlignmentOptions and self.AlignmentOptions["pixelAlignmentLevelEndcaps"] == 3) ) : 
-				print "hmn, you are going to run L3 alignment, Eigen is going to be used, so no eigen value information!!! "
+				print ("hmn, you are going to run L3 alignment, Eigen is going to be used, so no eigen value information!!! ")
 
 			else : 
 				if ( "writeEigenMat"      in self.GridOptions  and self.GridOptions["writeEigenMat"]    == True  ) and ( self.AlignmentOptions["runLocal"] == False ):
@@ -1129,14 +1135,14 @@ class writeScriptGrid :
 
 			TNFiles = 0
 			tmpInDS = []
-			print " self.outDS : " , self.outDS
+			print (" self.outDS : " , self.outDS)
 
-			print " self.outDS[Customed]: " , self.outDS["Customed"]
+			print (" self.outDS[Customed]: " , self.outDS["Customed"])
 			for item in self.outDS["Customed"] : 
-				print "self.outDS[Customed] item:  " , item
+				print ("self.outDS[Customed] item:  " , item)
 				tmpInDS.append(item+"/")
-				rec, nFiles = commands.getstatusoutput("dq2-ls -f %s | grep -i files | grep -i total | cut -c 13-" %  (item+"/") )
-				print " nFiles of this outDS[Customed] :" , nFiles
+				rec, nFiles = subprocess.getstatusoutput("dq2-ls -f %s | grep -i files | grep -i total | cut -c 13-" %  (item+"/") )
+				print (" nFiles of this outDS[Customed] :" , nFiles)
 				TNFiles += int(nFiles)
 
 			solveInDS = ",".join(tmpInDS) 
@@ -1158,16 +1164,16 @@ class writeScriptGrid :
 
 
 		else:
-		   print "Hi, except accumulate and solve, where do you want to go?"
+		   print ("Hi, except accumulate and solve, where do you want to go?")
 			
 			
 	def send(self):
 		os.system("pwd")
 		os.system("chmod 777 %s" % self.SCRIPTNAME)
 
-		print "----------------------------------------------"
+		print ("----------------------------------------------")
 		if self.part == "Accumulate":		
-			print "Sending %s_Iter%02d accumulation job to grid at site ... %s" % (self.preName, self.i, self.GridOptions["siteName"])
+			print ("Sending %s_Iter%02d accumulation job to grid at site ... %s" % (self.preName, self.i, self.GridOptions["siteName"]))
 
 			if self.Datasets.containType("Customed") :
 				for i in range(len(self.Datasets.namesList("Customed"))) :   
@@ -1182,7 +1188,7 @@ class writeScriptGrid :
 						os.system("cat tmpSubJobInfo_Customed_%02d.txt                 >> %s\n" % (i, self.AccSubInfo))
 						os.system("cat tmpSubJobInfo_Customed_%02d.txt | grep -i JobID >> %s\n" % (i, self.AccSubJobID))
 				else : 
-					print " you don't plan to do detailed tags configuration for every dataset, so will submit only one job with long inDS: "
+					print (" you don't plan to do detailed tags configuration for every dataset, so will submit only one job with long inDS: ")
 					
 
 			if (self.Datasets.containType("900GeV") or self.Datasets.containType("7TeV")) :
@@ -1201,38 +1207,38 @@ class writeScriptGrid :
 
 		elif self.part == "Grid" :
 
-			print "  Sending %s_Iter%02d matrix solving job to grid site %s" % (self.preName, self.i, self.GridOptions["siteName"])
+			print ("  Sending %s_Iter%02d matrix solving job to grid site %s" % (self.preName, self.i, self.GridOptions["siteName"]))
 			os.system("rm -f tmpSubJobInfo_solve.txt")
 			os.system("source %s" % self.SCRIPTNAME)
 			os.system("cat tmpSubJobInfo_solve.txt                 >> %s\n" % (self.AccSubInfo))
 			os.system("cat tmpSubJobInfo_solve.txt | grep -i JobID >> %s\n" % (self.AccSubJobID))
 
-			print "----------------------------------------------"
+			print ("----------------------------------------------")
 
 		elif self.part == "Prun" :
 
-			print "  Sending %s_Iter%02d prun matrix solving job to grid site %s" % (self.preName, self.i, self.GridOptions["siteName"])
+			print ("  Sending %s_Iter%02d prun matrix solving job to grid site %s" % (self.preName, self.i, self.GridOptions["siteName"]))
 			os.system("rm -f tmpSubJobInfo_prunSolve.txt")
 			os.system("source %s" % self.SCRIPTNAME)
 			os.system("cat tmpSubJobInfo_prunSolve.txt                 >> %s\n" % (self.AccSubInfo))
 			os.system("cat tmpSubJobInfo_prunSolve.txt | grep -i JobID >> %s\n" % (self.AccSubJobID))
 
-			print "----------------------------------------------"
+			print ("----------------------------------------------")
 
 
 		else:
-			print "Hi, where do you want to go?"
+			print ("Hi, where do you want to go?")
 
 
 
 
 	# take this part from Muon alignment in Jobs.py
 	def wait(self,logfilename):
-		print "Pathena wait()" 
+		print ("Pathena wait()" )
 
 		if self.jobId == -99:
-			print "logiflename: ",logfilename
-			ret, out = commands.getstatusoutput("cat "+logfilename)
+			print ("logiflename: ",logfilename)
+			ret, out = subprocess.getstatusoutput("cat "+logfilename)
 			lines = out.split('\n')
 			
 			# looping over all the job IDs
@@ -1240,27 +1246,27 @@ class writeScriptGrid :
 				items = line.split()
 				if len(items)>0 and items[0]=="JobID" :
 					self.jobId = int(items[2])
-					print "jobId = ",self.jobId
+					print ("jobId = ",self.jobId)
 
 				# check status of each job ID
 				# while self.bjobs() == 0:
 				while self.bjobs() != 1:	
-					print " waiting for jobID ",self.jobId,"..."
+					print (" waiting for jobID ",self.jobId,"...")
 					time.sleep(300)
 
 
 
 	def bjobs(self) :
 		if self.jobId == -99:
-			print "need jobId"
+			print ("need jobId")
 			sys.exit(3)
 
-		print "Pathena bjobs(), jobId: ",self.jobId
+		print ("Pathena bjobs(), jobId: ",self.jobId)
 		jobId = self.jobId
 		bjobstring = "pbook -c 'show(" + str(jobId) + ")'"
-		print bjobstring
-		ret, out = commands.getstatusoutput(bjobstring)
-		print "statusoutput: ",out
+		print (bjobstring)
+		ret, out = subprocess.getstatusoutput(bjobstring)
+		print ("statusoutput: ",out)
 		for line in out.split("\n") :
 			items_1 = line.split()
 			if len(items_1)>0 and items_1[0] != "jobStatus" :
@@ -1268,27 +1274,27 @@ class writeScriptGrid :
 
 			if len(items_1)>2 :
 				if items_1[2] == "frozen" :
-					print "jobStatus: " , items_1[2]
+					print ("jobStatus: " , items_1[2])
 
 					### search the libDS #######	
 					for line2 in out.split("\n") : 
-						print " line2: " , line2 
+						print (" line2: " , line2 )
 						items_2 = line2.split()
 						if items_2[0] == "libDS" :
 							break 
 
 					if self.part == "Accumulate" and self.GridOptions["accumulateLibDS"] == "" : 	
 						self.GridOptions["accumulateLibDS"] = items_2[2] 
-						print " self.GridOptions accumulateLibDS: " , self.GridOptions["accumulateLibDS"]
+						print (" self.GridOptions accumulateLibDS: " , self.GridOptions["accumulateLibDS"])
 
 					if (self.part == "Grid" or self.part == "Prun") and self.GridOptions["solveLibDS"] == "":
 						self.GridOptions["solveLibDS"     ] = items_2[2]				
-						print " self.GridOptions solveLibDS: "      , self.GridOptions["solveLibDS"]
+						print (" self.GridOptions solveLibDS: "      , self.GridOptions["solveLibDS"])
 
 					
 					return 1
 				else :
-					print "jobStatus: ",items_1[2]
+					print ("jobStatus: ",items_1[2])
 					return 0
 
 
@@ -1298,22 +1304,22 @@ class writeScriptGrid :
 		nfailed   = 0
 		nfinished = 0
 		if self.jobId == -99 :
-			print "need jobId"
+			print ("need jobId")
 			sys.exit(3)
 
-		print "Pathena bjobs(), jobId: ",self.jobId
+		print ("Pathena bjobs(), jobId: ",self.jobId)
 		jobId = self.jobId
 		bjobstring = "pbook -c 'show(" + str(jobId) + ")'"
-		print bjobstring
-		ret, out = commands.getstatusoutput(bjobstring)
+		print (bjobstring)
+		ret, out = subprocess.getstatusoutput(bjobstring)
 		
 		lines  = out.split("\n")
 		nlines = len(lines)
-		print " nlines: " , nlines
+		print (" nlines: " , nlines)
 
 		for i in range(0, nlines) : 
 			items = lines[i].split()
-			print " items: " , items
+			print (" items: " , items)
 			if "failed"   in items :
 				nfailed   = int(items[-1])
 			if "finished" in items :
@@ -1331,12 +1337,12 @@ class writeScriptGrid :
 
 
 
-		print "the success ratio: ", successRatio
+		print ("the success ratio: ", successRatio)
 		if successRatio >= self.GridOptions["successRatioCut"] :
-			print "The success ratio is higher than the cut, will not retry ---"
+			print ("The success ratio is higher than the cut, will not retry ---")
 			return False
 		else :
-			print "The success ratio is lower than the cut, will retry ---"
+			print ("The success ratio is lower than the cut, will retry ---")
 			return True
 
 
@@ -1344,8 +1350,8 @@ class writeScriptGrid :
 	def retry(self) :
 		jobId = self.jobId
 		retrystring = "pbook -c 'retry(" + str(jobId) + ")'"	
-		ret, out    = commands.getstatusoutput(retrystring)
-		print " out1: " , out 
+		ret, out    = subprocess.getstatusoutput(retrystring)
+		print (" out1: " , out )
 		#self.jobId =  self.jobId + 2
 
 		## get the new JobID ## 
@@ -1356,21 +1362,21 @@ class writeScriptGrid :
 				if items[i] == "New" : 
 					jobstring = items[i+1].split("=") 
 					self.jobId = int(jobstring[-1]) 
-					print "new JobID: " , self.jobId 
+					print ("new JobID: " , self.jobId )
 					break 
 		self.retryNo = self.retryNo + 1
 
 
 
 		while self.bjobs() != 1 :
-			print " waiting for the first retry jobID " , self.jobId , "..."
+			print (" waiting for the first retry jobID " , self.jobId , "...")
 			time.sleep(300)
 
 		if self.whetherRetry() :
 			jobId = self.jobId
 			retrystring = "pbook -c 'retry(" + str(jobId) + ")'"
-			ret, out    = commands.getstatusoutput(retrystring)
-			print " out2: " , out
+			ret, out    = subprocess.getstatusoutput(retrystring)
+			print (" out2: " , out)
 
 			#self.jobId =self.jobId + 2
 
@@ -1383,13 +1389,13 @@ class writeScriptGrid :
 					if items[i] == "New" : 
 						jobstring = items[i+1].split("=") 
 						self.jobId = int(jobstring[-1]) 
-						print "new JobID: " , self.jobId 
+						print ("new JobID: " , self.jobId )
 						break 
 			self.retryNo = self.retryNo + 1 
 
 
 			while self.bjobs() != 1 :
-				print " waiting for the second retry jobID " , self.jobId,"..."
+				print (" waiting for the second retry jobID " , self.jobId,"...")
 				time.sleep(300)
 
 
@@ -1449,7 +1455,7 @@ class writeScriptAFS :
 				script.write("pool_insertFileToCatalog "+ file + " \n")
 
 		nowPath = os.getcwd()
-		print"current path: ", nowPath
+		print ("current path: ", nowPath)
 
 		script.write("athena %s \n" % (nowPath + "/" + self.JOBNAME) )
 		script.close()
@@ -1458,16 +1464,16 @@ class writeScriptAFS :
 	def send(self, runmode) :
 		os.system("chmod +x %s" % self.SCRIPTNAME)
 		if "Local" == runmode : 
-			print "Running Iter%02dSolve job locally ..." % (self.i)
+			print ("Running Iter%02dSolve job locally ..." % (self.i))
 			os.system("sh %s | tee Iter%02dSolveLocally.log \n" % (self.SCRIPTNAME, self.i))
 
 		if "Batch" == runmode :
-			print "Submitting Iter%02dSolve job to queue %s ..." % (self.i, self.QUEUE)
+			print ("Submitting Iter%02dSolve job to queue %s ..." % (self.i, self.QUEUE))
 			os.system("bsub -q %s  %s" % (self.QUEUE, self.SCRIPTNAME) )
 
 
 	def wait(self) : 
-		print "Processing in lxbatch..."
+		print ("Processing in lxbatch...")
 		time.sleep(60)
 		while os.popen('bjobs -w').read().find(self.preName) != -1:
 			time.sleep(30)
@@ -1477,23 +1483,23 @@ class writeScriptAFS :
 def prepareForNextIter(OutputPath, iteration, GridSolvingOutDS, runSolveMode):
 
 	if ( "Grid"  == runSolveMode or "Prun" == runSolveMode ) :
-		print "GridSolveOutDS = ", (GridSolvingOutDS)
-		ret, outDS = commands.getstatusoutput("cat %s" % GridSolvingOutDS)
-		print "solve outDS: ",outDS
+		print ("GridSolveOutDS = ", (GridSolvingOutDS))
+		ret, outDS = subprocess.getstatusoutput("cat %s" % GridSolvingOutDS)
+		print ("solve outDS: ",outDS)
 
-		ret, out = commands.getstatusoutput("dq2-ls -f %s/ " % outDS)
+		ret, out = subprocess.getstatusoutput("dq2-ls -f %s/ " % outDS)
 		rootlist = []
 
-		print "out: ",out
+		print ("out: ",out)
 		lines = out.split('\n')
 		for line in lines :
 			items = line.split()
 			for item in items :
-				print " item : " , item
+				print (" item : " , item)
 				if item.find("AlignmentConstants.root") != -1 :
 					rootlist.append(item)
 		rootstr = ",".join(rootlist)
-		print "rootstr : " , rootstr
+		print ("rootstr : " , rootstr)
 		os.system("dq2-get -f %s -H %s/ -V %s/ "  % ( rootstr, outDS, outDS ) )
 	
 
@@ -1553,10 +1559,10 @@ def mergeMatrix(OutputPath, iteration, GridAccOutDS, GridOptions):
 	vectorlist = []
 	hitmaplist = []
 
-	print "GridAccOutDS = ", (GridAccOutDS)
+	print ("GridAccOutDS = ", (GridAccOutDS))
 
-	ret, out = commands.getstatusoutput("cat %s" % GridAccOutDS)
-	print "out: ",out
+	ret, out = subprocess.getstatusoutput("cat %s" % GridAccOutDS)
+	print ("out: ",out)
 	lines=out.split('\n')
 
 	nowDir = os.getcwd()
@@ -1567,19 +1573,19 @@ def mergeMatrix(OutputPath, iteration, GridAccOutDS, GridOptions):
 		items = line.split()
 		if len(items)>0 :
 			outDS = items[0]
-			print "when merging matrixes and vectors, this outDS name : ", outDS
+			print ("when merging matrixes and vectors, this outDS name : ", outDS)
 			binlist = []
-			ret, out = commands.getstatusoutput("dq2-ls -f %s/ " % outDS)
-			print " dq2-ls -f, out : ", out
+			ret, out = subprocess.getstatusoutput("dq2-ls -f %s/ " % outDS)
+			print (" dq2-ls -f, out : ", out)
 			lines = out.split('\n')
 			for line in lines :
 				items = line.split()
 				for item in items :
-					print " item : " , item
+					print (" item : " , item)
 					if item.find(".bin") != -1 :
 						binlist.append(item)
 			binstr = ",".join(binlist)
-			print "binary files string : " , binstr
+			print ("binary files string : " , binstr)
 			os.system("dq2-get -f %s -H %s/ -V %s/ "  % ( binstr, outDS, outDS ))
 
 
@@ -1588,10 +1594,10 @@ def mergeMatrix(OutputPath, iteration, GridAccOutDS, GridOptions):
 			os.system("chmod 777 job2.sh")
 			job2.write(jobstr2)
 			job2.close()
-			ret, out = commands.getstatusoutput('sh job2.sh')
+			ret, out = subprocess.getstatusoutput('sh job2.sh')
 			for line in out.split("\n"):
 				MatrixPath =  line
-				print "MatrixPath: ",MatrixPath
+				print ("MatrixPath: ",MatrixPath)
 				#if os.path.isfile(MatrixPath):
 				matrixlist.append(MatrixPath)
 
@@ -1601,35 +1607,35 @@ def mergeMatrix(OutputPath, iteration, GridAccOutDS, GridOptions):
 			os.system("chmod 777 job3.sh")
 			job3.write(jobstr3)
 			job3.close()
-			print "job3: ",job3
-			ret, out = commands.getstatusoutput('sh job3.sh')
+			print ("job3: ",job3)
+			ret, out = subprocess.getstatusoutput('sh job3.sh')
 			for line in out.split("\n"):
 				VectorPath = line
 				#		if os.path.isfile(VectorPath):
 				vectorlist.append(VectorPath)
 
-			print "vectorlist: ",vectorlist
+			print ("vectorlist: ",vectorlist)
 
 			jobstr4 = "ls %s/*.hitmap.bin" % (outDS)
 			job4 = open("job4.sh",'w')
 			os.system("chmod 777 job4.sh")
 			job4.write(jobstr4)
 			job4.close()
-			print "job4: ",job4
-			ret, out = commands.getstatusoutput('sh job4.sh')
+			print ("job4: ",job4)
+			ret, out = subprocess.getstatusoutput('sh job4.sh')
 			for line in out.split("\n"):
 				HitmapPath =  line
 				#		if os.path.isfile(HitmapPath):
 				hitmaplist.append(HitmapPath)
-			print "hitmaplist: ",hitmaplist
+			print ("hitmaplist: ",hitmaplist)
 		
 		else:
-			print "Problem getting the outDS files"
+			print ("Problem getting the outDS files")
 			
   
-	print "------------------------------------------"
-	print "  Setting Matrices list" 
-	print "------------------------------------------"
+	print ("------------------------------------------")
+	print ("  Setting Matrices list" )
+	print ("------------------------------------------")
 
 	os.system("rm *.sh")
 	os.chdir(nowDir)
@@ -1685,16 +1691,16 @@ class mergeMonitoringScript:
 		script.close()
 
 		mergeMonitoringFile = open(mergeMonitoringFilesName,"w")
-		ret, out = commands.getstatusoutput("cat %s" % self.GridAccOutDS)
-		print "out: ",out
+		ret, out = subprocess.getstatusoutput("cat %s" % self.GridAccOutDS)
+		print ("out: ",out)
 		lines = out.split('\n')
 		# looping over all output dataset names
 		for line in lines:
 			items = line.split()
 			if len(items)>0 :
 				outDS = items[0]
-				print "outDS = ",outDS
-				#print "hmn", glob.glob(("%s/*.root") % outDS)
+				print ("outDS = ",outDS)
+				#print ("hmn", glob.glob(("%s/*.root") % outDS))
 				os.system("find %s/*.root >> %s \n " % (outDS, mergeMonitoringFilesName))
 
 		mergeMonitoringFile.close()
@@ -1702,9 +1708,9 @@ class mergeMonitoringScript:
 
 	def send(self):
 		os.system("chmod +x %s" % self.SCRIPTNAME)
-		print "in doing merge----------------------------------------------"
+		print ("in doing merge----------------------------------------------")
 		os.system("sh %s  \n"   % self.SCRIPTNAME)
-		print "after doing merge----------------------------------------------"
+		print ("after doing merge----------------------------------------------")
 
 
 
@@ -1764,10 +1770,10 @@ class compareMonitoringScript:
 		
 	def send(self):
 		os.system("chmod +x %s" % self.SCRIPTNAME)
-		print "----------------------------------------------"
-		print "  Running MonitoringComparision.lsf job"
+		print ("----------------------------------------------")
+		print ("  Running MonitoringComparision.lsf job")
 		os.system("sh "+self.SCRIPTNAME+" | tee "+self.OutputPath+"/MonitoringComparison.log \n")
-		print "----------------------------------------------"
+		print ("----------------------------------------------")
 			
          
 

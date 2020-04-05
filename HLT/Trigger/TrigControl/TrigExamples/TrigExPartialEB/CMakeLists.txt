@@ -10,7 +10,7 @@ atlas_add_component( TrigExPartialEB
                      src/*.cxx
                      src/components/*.cxx
                      PRIVATE_LINK_LIBRARIES GaudiKernel AthenaBaseComps
-                     AthenaKernel ByteStreamCnvSvcBaseLib DecisionHandlingLib
+                     AthenaKernel ByteStreamCnvSvcBaseLib DecisionHandlingLib TrigCompositeUtilsLib 
                      TrigPartialEventBuildingLib )
 
 # Install files from the package:

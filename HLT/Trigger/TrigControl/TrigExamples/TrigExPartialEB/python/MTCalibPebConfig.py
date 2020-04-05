@@ -105,6 +105,9 @@ def make_l1_seq():
     from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
     L1ByteStreamDecodersRecExSetup()
 
+    from L1Decoder.L1DecoderConfig import L1TriggerResultMaker
+    all_algs.append(L1TriggerResultMaker())
+
     # Set menu for L1ConfigSvc
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.triggerMenuSetup = "LS2_v1"

@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Control/AthContainers
                           Control/AthLinks 
+                          Trigger/TrigSteer/TrigCompositeUtils
                           PRIVATE
                           Control/AthViews
                           Control/StoreGate

@@ -5,7 +5,7 @@
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigEDMConfig.TriggerEDMRun3 import recordable
       
@@ -20,6 +20,7 @@ def precisionCaloSequence(ConfigFlags):
     precisionCaloViewsMaker = EventViewCreatorAlgorithm( "IMprecisionCalo")
     precisionCaloViewsMaker.ViewFallThrough = True
     precisionCaloViewsMaker.RoIsLink = "initialRoI"
+    precisionCaloViewsMaker.RoITool = ViewCreatorInitialROITool()
     precisionCaloViewsMaker.InViewRoIs = InViewRoIs
     precisionCaloViewsMaker.Views = "precisionCaloViews"
     precisionCaloViewsMaker.RequireParentView = True

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_ATHENAPOOLCNVSVC_H
@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <map>
+#include <mutex>
 
 // Forward declarations
 class IAthenaIPCTool;
@@ -34,7 +35,7 @@ template <class TYPE> class SvcFactory;
 /** @class AthenaPoolCnvSvc
  *  @brief This class provides the interface between Athena and PoolSvc.
  **/
-class AthenaPoolCnvSvc : public ::AthCnvSvc,
+class ATLAS_CHECK_THREAD_SAFETY AthenaPoolCnvSvc : public ::AthCnvSvc,
 		public virtual IAthenaPoolCnvSvc,
 		public virtual IIncidentListener {
    // Allow the factory class access to the constructor
@@ -214,7 +215,7 @@ private: // properties
 
    /// Output FileNames to be associated with Stream Clients
    StringArrayProperty m_streamClientFilesProp;
-   mutable std::vector<std::string>   m_streamClientFiles;
+   std::vector<std::string>   m_streamClientFiles;
 
    /// MaxFileSizes, vector with maximum file sizes for Athena POOL output files
    StringArrayProperty m_maxFileSizes;
@@ -225,7 +226,7 @@ private: // properties
    /// default = false.
    BooleanProperty m_persSvcPerOutput;
    unsigned outputContextId(const std::string& outputConnection);
-   mutable std::mutex  m_mutex;  // mutable so const functions can lock
+   std::mutex  m_mutex;
   
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first
    /// container being committed to disk is not 'tainted' with the POOL overhead

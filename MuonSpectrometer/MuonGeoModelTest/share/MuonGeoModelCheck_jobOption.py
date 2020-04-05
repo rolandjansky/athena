@@ -31,9 +31,9 @@ DetFlags.detdescr.Muon_setOn()
 # Select geometry version
 if not 'DetDescrVersion' in dir():
     DetDescrVersion="ATLAS-GEO-20-00-01"
-    print 'MuonGeoModelTest/runAmdcMGM DetDescrVersion now set to ', DetDescrVersion
+    printfunc ('MuonGeoModelTest/runAmdcMGM DetDescrVersion now set to ', DetDescrVersion)
 else:
-    print 'MuonGeoModelTest/runAmdcMGM DetDescrVersion is already ', DetDescrVersion
+    printfunc ('MuonGeoModelTest/runAmdcMGM DetDescrVersion is already ', DetDescrVersion)
                     
 
 from AthenaCommon.JobProperties import jobproperties
@@ -76,7 +76,7 @@ from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 #GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.01.01.Initial.Light"
 
-print GeoModelSvc
+printfunc (GeoModelSvc)
 
 #***************************************************** HERE setup MuonDetectorManager
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
@@ -90,7 +90,7 @@ MuonDetectorTool.ForceSwitchOnOff_BUILDINERTMATERIALS = 1000; # avoid building t
 MuonDetectorTool.FillCacheInitTime=1
 MuonDetectorTool.DumpMemoryBreakDown=True
 
-print MuonDetectorTool
+printfunc (MuonDetectorTool)
 
 #***************************************************** HERE setup MuonGMCheck
 from MuonGeoModelTest.MuonGeoModelTestConf import MuonGMCheck
@@ -102,7 +102,7 @@ MuonGMCheck.check_tgc = 1
 MuonGMCheck.check_csc = 1
 #MuonGMCheck.check_surfaces = 1
 
-print MuonGMCheck
+printfunc (MuonGMCheck)
 
 
 ######################################################
@@ -111,19 +111,17 @@ print MuonGMCheck
 
 topSequence += MuonGMCheck
 
-print " "
-print "List of all Dlls"
-print theApp.Dlls
-print " "
-print "List of all Ext services"
-print theApp.ExtSvc
-print " "
-print "List of all top algorithms"
-print theApp.TopAlg
+printfunc (" ")
+printfunc ("List of all Dlls")
+printfunc (theApp.Dlls)
+printfunc (" ")
+printfunc ("List of all Ext services")
+printfunc (theApp.ExtSvc)
+printfunc (" ")
+printfunc ("List of all top algorithms")
+printfunc (theApp.TopAlg)
 
-#print "Print here Top Sequence" 
-#print topSequence
-#print "Print here Service Manager" 
-#print ServiceMgr
-
-
+#printfunc ("Print here Top Sequence" )
+#printfunc (topSequence)
+#printfunc ("Print here Service Manager" )
+#printfunc (ServiceMgr)

@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/Combinators.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigEgammaPrecisionElectronHypoToolInc.h"
@@ -16,8 +16,9 @@ TrigEgammaPrecisionElectronHypoToolInc::TrigEgammaPrecisionElectronHypoToolInc( 
 		    const std::string& name, 
 		    const IInterface* parent ) 
   : base_class( type, name, parent ),
-    m_decisionId( HLT::Identifier::fromToolName( name ) ) {
-        declareProperty("ElectronLHSelector"        ,m_egammaElectronCutIDTool   );
+    m_decisionId( HLT::Identifier::fromToolName( name ) ) 
+   {
+        declareProperty("ElectronLHSelector"        ,m_egammaElectronLHTool   );
     }
 
 StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
@@ -33,8 +34,8 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
   }
 
   // Now we try to retrieve the ElectronPhotonSelectorTools that we will use to apply the electron Identification. This is a *must*
-  ATH_MSG_DEBUG( "Retrieving egammaElectronCutIDTool..."  );
-  CHECK( m_egammaElectronCutIDTool.retrieve() );
+  ATH_MSG_DEBUG( "Retrieving egammaElectronLHTool..."  );
+  CHECK( m_egammaElectronLHTool.retrieve() );
 
   unsigned int nEtaBin = m_etabin.size();
   ATH_CHECK( m_eTthr.size() == nEtaBin-1 );
@@ -52,7 +53,7 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
 TrigEgammaPrecisionElectronHypoToolInc::~TrigEgammaPrecisionElectronHypoToolInc(){}
 
 
-bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input ) const {
+bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input,const EventContext& ) const {
 
   bool pass = false;
 
@@ -66,7 +67,7 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   auto monitorIt    = Monitored::Group( m_monTool, 
 					       dEta, dPhi, 
                                                etaBin, monEta,
-					       monPhi,PassedCuts );
+					       monPhi,PassedCuts);
  // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 
@@ -85,6 +86,7 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   // fill local variables for RoI reference position
   double etaRef = roiDescriptor->eta();
   double phiRef = roiDescriptor->phi();
+  ATH_MSG_DEBUG("etaRef: "<<etaRef);
   // correct phi the to right range ( probably not needed anymore )   
   if ( fabs( phiRef ) > M_PI ) phiRef -= 2*M_PI; // correct phi if outside range
 
@@ -92,8 +94,11 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   auto pClus = input.electron->caloCluster();
   
   float absEta = fabs( pClus->eta() );
-  const int cutIndex = findCutIndex( absEta );
   
+  ATH_MSG_DEBUG("absEta: "<<absEta);
+
+  const int cutIndex = findCutIndex( absEta );
+  ATH_MSG_DEBUG("cutIndex: "<<cutIndex);  
 
   
   dEta =  pClus->eta() - etaRef;
@@ -141,12 +146,11 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   PassedCuts = PassedCuts + 1; // ET_em
   
  
-// This is the last step. So pass is going to be the result of isEM
-  asg::AcceptData accept =  m_egammaElectronCutIDTool->accept(input.electron); 
+// This is the last step. So pass is going to be the result of LH
+  asg::AcceptData accept =  m_egammaElectronLHTool->accept(input.electron); 
   pass = (bool) accept;
 
-  std::bitset<32> isEMdecision = m_egammaElectronCutIDTool->accept(input.electron).getCutResultInvertedBitSet();
-  ATH_MSG_DEBUG("isEM Result bitset: " << isEMdecision);
+  ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << pass);
 
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
@@ -199,7 +203,6 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   ATH_MSG_DEBUG( "  fracm  " << fracm ) ;
 
 
-
   if ( !pass ){
       ATH_MSG_DEBUG("REJECT Likelihood failed");
   } else {
@@ -223,10 +226,10 @@ int TrigEgammaPrecisionElectronHypoToolInc::findCutIndex( float eta ) const {
 }
 
 
-StatusCode TrigEgammaPrecisionElectronHypoToolInc::decide( std::vector<ElectronInfo>& input )  const {
+StatusCode TrigEgammaPrecisionElectronHypoToolInc::decide( std::vector<ElectronInfo>& input,const EventContext& ctx )  const {
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
-      if ( decide( i ) ) {
+      if ( decide( i, ctx ) ) {
 	addDecisionID( m_decisionId, i.decision );
       }
     }

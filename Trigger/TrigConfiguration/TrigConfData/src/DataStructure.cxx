@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include "TrigConfData/DataStructure.h"
 
-using TV = boost::property_tree::ptree::value_type;  // tree-value type
-//using namespace std;
+#include "boost/property_tree/json_parser.hpp"
 
 TrigConf::DataStructure::DataStructure()
 {}
@@ -68,7 +67,6 @@ TrigConf::DataStructure::getValue() const {
    return value;
 }
 
-
 bool
 TrigConf::DataStructure::hasAttribute(const std::string & key) const {
    const auto & child = data().get_child_optional( key );
@@ -82,6 +80,10 @@ TrigConf::DataStructure::className() const {
    return "DataStructure";
 }
 
+const std::string &
+TrigConf::DataStructure::name() const {
+   return m_name;
+}
 
 bool
 TrigConf::DataStructure::hasChild(const std::string & path) const {
@@ -97,9 +99,9 @@ TrigConf::DataStructure::operator[](const std::string & key) const
    // check if the key points to a plain string value
    if ( !obj.empty() ) {
       if ( obj.front().first.empty() ) {
-         throw std::runtime_error(std::string("Structure \"") + key + "\" is not a simple attribute but a list [], it needs to be accessed via getList(\"" + key + "\") -> vector<DataStructure>");
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + key + "' is not a simple attribute but a list [], it needs to be accessed via getList(\"" + key + "\") -> vector<DataStructure>");
       } else { 
-         throw std::runtime_error(std::string("Structure \"") + key + "\" is not a simple attribute but an object {}, it needs to be accessed via getObject(\"" + key + "\") -> DataStructure");
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + key + "' is not a simple attribute but an object {}, it needs to be accessed via getObject(\"" + key + "\") -> DataStructure");
       }
    }
    return obj.data();
@@ -109,15 +111,19 @@ const std::string &
 TrigConf::DataStructure::getAttribute(const std::string & key, bool ignoreIfMissing, const std::string & def) const
 {
    const auto & obj = data().get_child_optional(key);
-   if( !obj && ignoreIfMissing ) {
-      return def;
+   if( !obj ) {
+      if( ignoreIfMissing ) {
+         return def;
+      } else {
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + key + "' does not exist" );
+      }
    }
    // check if the key points to a plain string value
    if ( !obj.get().empty() ) {
       if ( obj.get().front().first.empty() ) {
-         throw std::runtime_error(std::string("Structure \"") + key + "\" is not a simple attribute but a list [], it needs to be accessed via getList(\"" + key + "\") -> vector<DataStructure>");
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + key + "' is not a simple attribute but a list [], it needs to be accessed via getList(\"" + key + "\") -> vector<DataStructure>");
       } else {
-         throw std::runtime_error(std::string("Structure \"") + key + "\" is not a simple attribute but an object {}, it needs to be accessed via getObject(\"" + key + "\") -> DataStructure");
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + key + "' is not a simple attribute but an object {}, it needs to be accessed via getObject(\"" + key + "\") -> DataStructure");
       }
    }
    return obj.get().data();
@@ -132,15 +138,25 @@ TrigConf::DataStructure::getList(const std::string & pathToChild, bool ignoreIfM
       if ( ignoreIfMissing ) {
          return childList;
       } else {
-         throw std::runtime_error(std::string("Structure \"") + pathToChild + "\" does not exist.");          
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' does not exist.");          
       }
    }
 
    // check if the pathToChild points to a list
+
+   // this check is not complete, because boost::ptree can not
+   // distinguish between and empty list and an empty string. In both cases
+   // the value is empty and there are no children
+
    if ( list.get().empty() ) {
-      throw std::runtime_error(std::string("Structure \"") + pathToChild + "\" is not a list [] but a simple attribute, it needs to be accessed via [\"" + pathToChild + "\"] -> string");
+      if ( list.get().get_value<std::string>() != "" ) {
+         // if the value is not empty, then it is for sure an attribute ("key" : "value")
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not a list [] but a simple attribute, it needs to be accessed via [\"" + pathToChild + "\"] -> string");
+      }
+      // else: if the value is empty, we can not say for sure and will not
+      // give this debugging hint (an empty list will be returned
    } else if ( ! list.get().front().first.empty() ) {
-      throw std::runtime_error(std::string("Structure \"") + pathToChild + "\" is not a list [] but an object {}, it needs to be accessed via getObject(\"" + pathToChild + "\") -> DataStructure");
+      throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not a list [] but an object {}, it needs to be accessed via getObject(\"" + pathToChild + "\") -> DataStructure");
    }
 
    childList.reserve(list.get().size());
@@ -160,14 +176,14 @@ TrigConf::DataStructure::getObject(const std::string & pathToChild, bool ignoreI
       if ( ignoreIfMissing ) {
          return DataStructure();
       } else {
-         throw std::runtime_error(std::string("Structure \"") + pathToChild + "\" does not exist.");          
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' does not exist.");          
       }
    }
    // check if the pathToChild points to an object
    if ( obj.get().empty() ) {
-      throw std::runtime_error(std::string("Structure \"") + pathToChild + "\" is not an object {} but a simple attribute, it needs to be accessed via [\"" + pathToChild + "\"] -> string");
+      throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not an object {} but a simple attribute, it needs to be accessed via [\"" + pathToChild + "\"] -> string");
    } else if ( obj.get().front().first.empty() ) {
-      throw std::runtime_error(std::string("Structure \"") + pathToChild + "\" is not an object {} but a list [], it needs to be accessed via getList(\"" + pathToChild + "\") -> vector<DataStructure>");
+      throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' is not an object {} but a list [], it needs to be accessed via getList(\"" + pathToChild + "\") -> vector<DataStructure>");
    }
    return { obj.get() };
 }
@@ -187,14 +203,18 @@ TrigConf::DataStructure::getKeys() const
    return keys;
 }
 
+void
+TrigConf::DataStructure::printRaw(std::ostream & os) const
+{
+   boost::property_tree::json_parser::write_json( os, data() );
+}
+
 
 void
 TrigConf::DataStructure::print(std::ostream & os) const
 {
    printElement("", data(), 0, os);
    os << std::endl;
-
-   //boost::property_tree::write_json( o, data() );
 }
 
 void
@@ -218,7 +238,7 @@ TrigConf::DataStructure::printElement(const std::string& key, const ptree & data
    os << (isArray ? "[" : "{") << std::endl;
 
    size_t childCounter = data.size();
-   for( const TV & x : data ) {
+   for( const boost::property_tree::ptree::value_type & x : data ) {
       printElement(x.first, x.second, level + 1, os);
       if( --childCounter ) os << ",";
       os << std::endl;

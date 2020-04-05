@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # CaloCondTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
 # Carlos Solans <carlos.solans@cern.ch>, 2012-11-07
@@ -8,9 +8,10 @@
 Python helper module for managing COOL DB connections and CaloCondBlobs. 
 """
 
+import os
 import cppyy
 from PyCool import cool
-import time, types, re
+import time, re
 g = cppyy.gbl
 
 
@@ -23,6 +24,8 @@ MINRUN = 0
 MINLBK = 0
 MAXRUN = cool.Int32Max
 MAXLBK = cool.UInt32Max 
+UNIX2COOL   = 1000000000
+UNIXTMAX    = cool.Int32Max
 
 #
 #______________________________________________________________________
@@ -67,8 +70,8 @@ def openDb(db, schema, mode="READONLY", schema2="COOLONL_CALO", sqlfn="caloSqlit
     #=== check for valid db names
     validDb = ["SQLITE","ORACLE"]
     if db not in validDb:
-        log.error( "DB not valid: %s" % db )
-        log.error( "Valid DB are: %s" % validDb )
+        log.error( "DB not valid: %s", db )
+        log.error( "Valid DB are: %s", validDb )
         raise("Invalid DB")
     elif db == "ORACLE":
         mode = "READONLY" # If using ORACLE, only read
@@ -78,16 +81,16 @@ def openDb(db, schema, mode="READONLY", schema2="COOLONL_CALO", sqlfn="caloSqlit
     #=== see https://twiki.cern.ch/twiki/bin/view/Atlas/CoolProdAcc
     validInstance = ["COMP200", "CMCP200", "OFLP200","CONDBR2"]
     if schema not in validInstance:
-        log.error( "DB schema not valid: %s" % schema )
-        log.error( "Valid schema are: %s" % validInstance )
+        log.error( "DB schema not valid: %s", schema )
+        log.error( "Valid schema are: %s", validInstance )
         raise("Invalid schema")
         
     #=== check for valid schema names
     #=== see https://twiki.cern.ch/twiki/bin/view/Atlas/CoolProdAcc
     validSchema = ["COOLONL_CALO","COOLOFL_CALO"]
     if schema2 not in validSchema:
-        log.error( "DB schema2 not valid: %s" % schema2 )
-        log.error( "Valid schema2 are: %s" % validSchema )
+        log.error( "DB schema2 not valid: %s", schema2 )
+        log.error( "Valid schema2 are: %s", validSchema )
         raise("Invalid schema2")
         
     #=== construct connection string
@@ -97,7 +100,8 @@ def openDb(db, schema, mode="READONLY", schema2="COOLONL_CALO", sqlfn="caloSqlit
             raise Exception( "Sqlite file %s does not exist" % (sqlfn) )
         if (mode=="RECREATE" or mode=="UPDATE") and not os.path.exists(os.path.dirname(sqlfn)):
             dirn=os.path.dirname(sqlfn)
-            if dirn: os.makedirs(dirn)
+            if dirn:
+                os.makedirs(dirn)
         connStr="sqlite://X;schema=%s;dbname=%s" % (sqlfn,schema)
 #        connStr="sqlite://;schema=caloSqlite.db;dbname=%s" % schema
     elif db=='ORACLE':
@@ -131,9 +135,9 @@ def openDbConn(connStr, mode="READONLY"):
     dbSvc = cool.DatabaseSvcFactory.databaseService()
     log.info( "---------------------------------------------------------------------------------" )
     log.info( "-------------------------- CaloCondTools.openDbConn -----------------------------" )
-    log.info( "- using COOL version %s" % dbSvc.serviceVersion()                                  )
-    log.info( "- opening CaloDb: %s" %connStr_new                                                 )
-    log.info( "- mode: %s" %mode                                                                  )
+    log.info( "- using COOL version %s", dbSvc.serviceVersion()                                  )
+    log.info( "- opening CaloDb: %s",connStr_new                                                 )
+    log.info( "- mode: %s", mode                                                                  )
     log.info( "---------------------------------------------------------------------------------" )
 
     #=== action depends on mode
@@ -141,7 +145,7 @@ def openDbConn(connStr, mode="READONLY"):
         #=== open read only
         try:
             db=dbSvc.openDatabase(connStr_new,True)
-        except Exception, e:
+        except Exception as e:
             log.debug( e )
             log.critical("Could not connect to %s" % connStr_new )
             return None
@@ -151,7 +155,7 @@ def openDbConn(connStr, mode="READONLY"):
         dbSvc.dropDatabase(connStr_new)
         try:
             db = dbSvc.createDatabase(connStr_new)
-        except Exception, e:
+        except Exception as e:
             log.debug( e )
             log.critical( "Could not create database, giving up..." )
             return None
@@ -160,18 +164,18 @@ def openDbConn(connStr, mode="READONLY"):
         #=== update database
         try:
             db=dbSvc.openDatabase(connStr_new,False)
-        except Exception, e:
+        except Exception as e:
             log.debug( e )
-            log.warning( "Could not connect to \'%s\', trying to create it...." % connStr_new )
+            log.warning( "Could not connect to \'%s\', trying to create it....", connStr_new )
             try:
                 db=dbSvc.createDatabase(connStr_new)
-            except Exception, e:
+            except Exception as e:
                 log.debug( e )
                 log.critical( "Could not create database, giving up..." )
                 return None
         return db
     else:
-        log.error("Mode \"%s\" not recognized" % mode )
+        log.error("Mode \"%s\" not recognized", mode )
         return None
 
 
@@ -205,18 +209,20 @@ def getCoolValidityKey(pointInTime, isSince=True):
     validityKey = None
 
     #=== string: convert to unix time and treat as latter
-    if type(pointInTime) == types.StringType:
+    if isinstance(pointInTime, str):
         pointInTime = decodeTimeString(pointInTime)
 
     #=== integer: unix time stamp
-    if type(pointInTime) == types.IntType:
+    if isinstance(pointInTime, int):
         if pointInTime >=0:
             validityKey = pointInTime * UNIX2COOL
         else:
-            if isSince: validityKey = int(time.time()) * UNIX2COOL
-            else      : validityKey = cool.ValidityKeyMax
+            if isSince:
+                validityKey = int(time.time()) * UNIX2COOL
+            else      :
+                validityKey = cool.ValidityKeyMax
     #=== run-lumi tuple
-    elif type(pointInTime) == types.TupleType:
+    elif isinstance(pointInTime, tuple):
         validityKey = iovFromRunLumi(pointInTime[0],pointInTime[1])
     #=== catch other types
     else:
@@ -253,8 +259,10 @@ def getCellHash(detectorId,part,module,sample,tower):
     # Section specific offset to be added to cell hash for module different from 0
     # [LBC,LBA,EBC,EBA,ITC-C,ITC-A]
     modOffset = [22,23,12,12,6,6]
-    if side==1: sideOffset=1
-    else:       sideOffset=0
+    if side==1:
+        sideOffset=1
+    else:
+        sideOffset=0
 
     return hash[sideOffset*16*4+tower*4+sample]+modOffset[sideOffset+2*(section-1)]*module
 
@@ -286,7 +294,7 @@ class CaloBlobReader(CaloCondLogger):
         try:
             self.__db  = db
             self.__folder = self.__db.getFolder(folder)
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
             raise
 
@@ -311,9 +319,8 @@ class CaloBlobReader(CaloCondLogger):
         """
 
         validityKey = getCoolValidityKey(pointInTime)
-        self.log().debug("Validity key is %s" % validityKey)
+        self.log().debug("Validity key is %s", validityKey)
         try:
-            calibDrawer = None
             #=== Have we retrieved data previously?
             key = (systemId,validityKey)
             obj = self.__objDict.get(key)
@@ -321,20 +328,20 @@ class CaloBlobReader(CaloCondLogger):
             if not obj:
                 channelId = cool.ChannelId(systemId)
                 obj = self.__folder.findObject(validityKey, channelId, self.__tag)
-                self.log().debug("Fetching from DB: %s" % obj)
+                self.log().debug("Fetching from DB: %s", obj)
                 blob = obj.payload()[0]
-                self.log().debug("blob size: %d" % blob.size())
+                self.log().debug("blob size: %d", blob.size())
                 #=== store object in dictionary
                 self.__objDict[key] = obj
             #=== get blob
             blob = obj.payload()[0]
-            self.log().debug("blob size: %d" % blob.size())
+            self.log().debug("blob size: %d", blob.size())
 
             #=== create CaloCondBlob object
             flt = g.CaloCondBlobFlt.getInstance(blob)
             return flt
-        except Exception, e:
-            self.log().error("Fetching of systemId=%i failed with exception %s"%(systemId,e))
+        except Exception as e:
+            self.log().error("Fetching of systemId=%i failed with exception %s",systemId,e)
             return None
 
 
@@ -394,8 +401,10 @@ class CaloBlobWriter(CaloCondLogger):
                 modeInCool = self.__folder.versioningMode()
                 if modeInCool!=folderMode:
                     str = "Incompatible folder mode detected, COOL folder has type "
-                    if modeInCool==cool.FolderVersioning.MULTI_VERSION: str += "MULTI"
-                    else:                                               str += "SINGLE"
+                    if modeInCool==cool.FolderVersioning.MULTI_VERSION:
+                        str += "MULTI"
+                    else:
+                        str += "SINGLE"
                     raise Exception(str)
             else:
                 #=== create folder if it does not exist
@@ -403,7 +412,7 @@ class CaloBlobWriter(CaloCondLogger):
                 payloadSpec.extend( 'CaloCondBlob16M', cool.StorageType.Blob16M )
                 folderSpec = cool.FolderSpecification(folderMode, payloadSpec)
                 self.__folder = db.createFolder(folderPath, folderSpec, folderDescr, True)
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
             raise
 
@@ -437,7 +446,7 @@ class CaloBlobWriter(CaloCondLogger):
             userTagOnly = False
             #=== no folder Tag allowed for singleversion
             if tag!="":
-                self.log().warning( "Trying to store with tag \"%s\" to SINGLE_VERSION folder" % tag )
+                self.log().warning( "Trying to store with tag \"%s\" to SINGLE_VERSION folder", tag )
                 self.log().warning( "... resetting tag to \"\"!"                                     )
                 tag=""
 
@@ -449,7 +458,7 @@ class CaloBlobWriter(CaloCondLogger):
 
         #=== build IOV string
         iovString = ""       
-        if type(since) == types.TupleType:
+        if isinstance(since, tuple):
             iovString = "[%i,%i] - [%i,%i]" % (since[0],since[1],until[0],until[1])
         else:
             sinceInfo = time.localtime( sinceCool / UNIX2COOL )
@@ -465,16 +474,16 @@ class CaloBlobWriter(CaloCondLogger):
         folderTag=tag
         
         #=== print info
-        self.log().info( "Registering folder %s with tag \"%s\"" % (self.__folder.fullPath(),folderTag))
-        self.log().info( "... with IOV          : %s"            % iovString                          )
-        #self.log().info( "... with comment field: \"%s\""        % self.__chanDictDrawer[48].getComment()                  )
+        self.log().info( "Registering folder %s with tag \"%s\"", self.__folder.fullPath(),folderTag)
+        self.log().info( "... with IOV          : %s",  iovString                          )
+        #self.log().info( "... with comment field: \"%s\"", self.__chanDictDrawer[48].getComment()                  )
 
         #=== register all channels by increasing channel number
         chanList = sorted(self.__chanDictRecord.keys())
         for chanNum in chanList:
             data = self.__chanDictRecord[chanNum]
             strout = "cool channel=%4i" % chanNum
-            self.log().debug("Registering %s %s" % (strout, data))
+            self.log().debug("Registering %s %s", (strout, data))
             channelId = cool.ChannelId(chanNum)
             self.__folder.storeObject(sinceCool, untilCool, data, channelId, folderTag, userTagOnly)
 
@@ -500,7 +509,7 @@ class CaloBlobWriter(CaloCondLogger):
         self.__chanDictCells[chanNum] = flt    
         return flt
         
-        #except Exception, e:
+        #except Exception as e:
         #    self.log().critical( e )
         #    return None
 
@@ -518,7 +527,7 @@ class CaloBlobWriter(CaloCondLogger):
     #        self.__chanDictRecord[chanNum] = data
     #        blob = data['TileCalibBlob']
     #        cmt = TileCalibDrawerCmt.getInstance(blob,author,comment)
-    #    except Exception, e:
+    #    except Exception as e:
     #        self.log().critical( e )
 
             
@@ -529,7 +538,7 @@ class CaloBlobWriter(CaloCondLogger):
         Resets blob size to zero
         """
         try:
-            calibDrawer = None
+            chanNum = cool.ChannelId(systemId)
             data = self.__chanDictRecord.get(systemId)
             if not data:
                 spec = self.__folder.payloadSpecification()
@@ -537,7 +546,7 @@ class CaloBlobWriter(CaloCondLogger):
                 self.__chanDictRecord[chanNum] = data
             blob = data['CaloCondBlob16M']
             blob.resize(0)
-        except Exception, e:
+        except Exception as e:
             self.log().critical( e )
             return None
 

@@ -35,8 +35,6 @@
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
 
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
 #include "TrigInDetTrackFitter/TrigInDetTrackFitter.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
@@ -67,6 +65,10 @@ TrigInDetTrackFitter::TrigInDetTrackFitter(const std::string& t,
   declareProperty( "OfflineClusters", m_offlineClusters = true);
   declareProperty( "correctClusterPos", m_correctClusterPos = false);
   declareProperty( "ROTcreator", m_ROTcreator, "ROTcreatorTool" );
+  m_nTracksTotal = 0;
+  m_fitErrorsUnresolved=0;
+  m_fitErrorsDivergence=0;
+  m_fitErrorsLowPt=0;
 }
 
 StatusCode TrigInDetTrackFitter::initialize()
@@ -93,30 +95,6 @@ StatusCode TrigInDetTrackFitter::initialize()
       return sc;
     }
   }
-
-  ITrigTimerSvc* timerSvc;
-  StatusCode scTime = service( "TrigTimerSvc", timerSvc);
-  if( scTime.isFailure() ) {
-    ATH_MSG_INFO("Unable to locate Service TrigTimerSvc ");
-    m_timers = false;
-  } 
-  else{
-    m_timers = true;  
-  }
-//   add some timers:
-//
-  if ( m_timers ) {
-    m_timer[0] = timerSvc->addItem("CreateNodes");
-    m_timer[1] = timerSvc->addItem("ForwardFilter");
-    m_timer[2] = timerSvc->addItem("Smoother");
-    m_timer[3] = timerSvc->addItem("TrigTrackPars");
-    m_timer[4] = timerSvc->addItem("CleanUp");
-  }
-
-  m_fitStats.clear();
-  for(int i=0;i<13;i++) m_fitStats.push_back(FitStatStruct(i));
-  m_algorithmId=0;
-  ATH_MSG_INFO("TrigInDetTrackFitter constructed");
   return sc;
 }
 
@@ -124,29 +102,23 @@ StatusCode TrigInDetTrackFitter::finalize()
 {
   ATH_MSG_INFO("==============================================================");
   ATH_MSG_INFO("TrigInDetTrackFitter::finalize() - LVL2 Track fit Statistics: ");
-  for(std::vector<FitStatStruct>::iterator it=m_fitStats.begin();it!=m_fitStats.end();++it) {
-    if((*it).m_nTracksTotal==0) continue;
-    ATH_MSG_INFO("Algorithm Id="<<(*it).m_algorithmId<<" N tracks = "<<(*it).m_nTracksTotal);
-    ATH_MSG_INFO("Problems detected: ");
-    ATH_MSG_INFO("Unresolved spacepoints :"<<(*it).m_fitErrors[0]);
-    ATH_MSG_INFO("Extrapolator divergence:"<<(*it).m_fitErrors[1]);
-    ATH_MSG_INFO("pT falls below 200 MeV :"<<(*it).m_fitErrors[2]);
-  }
+  ATH_MSG_INFO(" N tracks = "<<m_nTracksTotal);
+  ATH_MSG_INFO("Problems detected: ");
+  ATH_MSG_INFO("Unresolved spacepoints :"<< m_fitErrorsUnresolved);
+  ATH_MSG_INFO("Extrapolator divergence:"<< m_fitErrorsDivergence);
+  ATH_MSG_INFO("pT falls below 200 MeV :"<< m_fitErrorsLowPt);
   ATH_MSG_INFO("==============================================================");
-  m_fitStats.clear();
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
-void TrigInDetTrackFitter::getMagneticField(double r[3],double* B)
-{
+void TrigInDetTrackFitter::getMagneticField(double r[3],double* B) const {
   B[0]=0.0;B[1]=0.0;B[2]=0.0;
 	double field[3];
 	m_MagFieldSvc->getField(r,field);//field is returned in kT
 	for(int i=0;i<3;i++) B[i]=field[i]/Gaudi::Units::kilogauss;//convert to kG
 }
 
-void TrigInDetTrackFitter::correctScale(Trk::TrkTrackState* pTS) {
+void TrigInDetTrackFitter::correctScale(Trk::TrkTrackState* pTS) const {
 
   double Rf[5];
   double Gf[5][5];
@@ -170,7 +142,7 @@ void TrigInDetTrackFitter::correctScale(Trk::TrkTrackState* pTS) {
 
 Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS, 
                                                       Trk::TrkPlanarSurface* pSB,
-                                                      Trk::TrkPlanarSurface* pSE)
+                                                      Trk::TrkPlanarSurface* pSE) const
 {
   const double C=0.02999975/1000.0;//using GeV internally 
   const double minStep=30.0;
@@ -185,9 +157,8 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
       double diff=0.0;
       for(i=0;i<4;i++) diff+=fabs(pSE->getPar(i)-pSB->getPar(i));
       if(diff<1e-5) {
-	samePlane=true;	
-	(m_fitStats[m_algorithmId]).m_fitErrors[0]++;
-	//std::cout<<"Starting plane and target plane are the same !"<<std::endl;
+        samePlane=true;	
+        m_fitErrorsUnresolved++;
       }
     }
 
@@ -584,7 +555,6 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
       Gi.fillSymmetric(i, j, pTE->getTrackCovariance(i,j));
     }
   Gi = Gi.inverse();
-  //m_matrixInversion5x5(Gi);
  
   for(i=0;i<5;i++) for(j=0;j<5;j++)
     {
@@ -597,104 +567,8 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
   return pTE;
 }
 
-void TrigInDetTrackFitter::matrixInversion5x5(double a[5][5])
+void TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, TrackCollection& fittedTracks, const Trk::ParticleHypothesis& matEffects) const
 {
-  /**** 5x5 matrix inversion by Gaussian elimination ****/
-  int i,j,k,l;
-  double factor;
-  double temp[5];
-  double b[5][5];
-  // Set b to I
-
-  memset(&b[0][0],0,sizeof(b));
-  b[0][0]=1.0;b[1][1]=1.0;b[2][2]=1.0;b[3][3]=1.0;b[4][4]=1.0;
-  
-  for(i=0;i<5;i++)
-    {
-      for(j=i+1;j<5;j++)
-	if (fabs(a[i][i])<fabs(a[j][i]))
-	  {
-	    for(l=0;l<5;l++) temp[l]=a[i][l];
-	    for(l=0;l<5;l++) a[i][l]=a[j][l];
-	    for(l=0;l<5;l++) a[j][l]=temp[l];
-	    for(l=0;l<5;l++) temp[l]=b[i][l];
-	    for(l=0;l<5;l++) b[i][l]=b[j][l];
-	    for(l=0;l<5;l++) b[j][l]=temp[l];
-	  }
-      factor=a[i][i];
-      for(j=4;j>-1;j--) 
-	{
-	  b[i][j]/=factor;a[i][j]/=factor;
-	}
-      for(j=i+1;j<5;j++) 
-	{
-	  factor=-a[j][i];
-	  for(k=0;k<5;k++)
-	    {
-	      a[j][k]+=a[i][k]*factor;b[j][k]+=b[i][k]*factor;
-	    }
-	}
-    } 
-  for(i=4;i>0;i--)
-    {
-      for(j=i-1;j>-1;j--)
-	{
-	  factor=-a[j][i];
-	  for(k=0;k<5;k++)
-	    {
-	      a[j][k]+=a[i][k]*factor;b[j][k]+=b[i][k]*factor;
-	    }
-	}
-    }
-  for(i=0;i<5;i++) for(j=0;j<5;j++) a[i][j]=b[i][j];
-}
-
-
-void TrigInDetTrackFitter::fit(TrigInDetTrackCollection* recoTracks )
-{
-	if(m_timers)
-	{
-		m_timer[0]->start();
-		m_timer[0]->pause();
-		m_timer[1]->start();
-		m_timer[1]->pause();
-		m_timer[2]->start();
-		m_timer[2]->pause();
-		m_timer[3]->start();
-		m_timer[3]->pause();
-		m_timer[4]->start();
-		m_timer[4]->pause();
-	}
-
-  for(auto trIt = recoTracks->begin(); trIt != recoTracks->end(); ++trIt) {
-		fitTrack(**trIt);
-	}
-
-	if(m_timers) 
-	{
-		m_timer[0]->stop();
-		m_timer[1]->stop();
-		m_timer[2]->stop();
-		m_timer[3]->stop();
-		m_timer[4]->stop();
-	}
-}
-
-void TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, TrackCollection& fittedTracks, const Trk::ParticleHypothesis& matEffects)
-{
-	if(m_timers)
-	{
-		m_timer[0]->start();
-		m_timer[0]->pause();
-		m_timer[1]->start();
-		m_timer[1]->pause();
-		m_timer[2]->start();
-		m_timer[2]->pause();
-		m_timer[3]->start();
-		m_timer[3]->pause();
-		m_timer[4]->start();
-		m_timer[4]->pause();
-	}
   fittedTracks.reserve(inputTracks.size());
   for(auto trIt = inputTracks.begin(); trIt != inputTracks.end(); ++trIt) {
 		Trk::Track* fittedTrack = fitTrack(**trIt, matEffects);
@@ -702,244 +576,9 @@ void TrigInDetTrackFitter::fit(const TrackCollection& inputTracks, TrackCollecti
 			fittedTracks.push_back(fittedTrack);
 		}
 	}
-	if(m_timers) 
-	{
-		m_timer[0]->stop();
-		m_timer[1]->stop();
-		m_timer[2]->stop();
-		m_timer[3]->stop();
-		m_timer[4]->stop();
-	}
 }
 
-void TrigInDetTrackFitter::fitTrack(TrigInDetTrack& recoTrack ) {
-
-	TrigInDetTrackFitPar* param=const_cast<TrigInDetTrackFitPar*>(recoTrack.param());
-	if(param==NULL)
-	{
-		ATH_MSG_WARNING("Fit Failed -- TrigInDetTrack has no parameters");
-		return;
-	}
-
-	// 1. Create initial track state:
-	double Rk[5];
-	Rk[0]=param->a0();
-	Rk[1]=param->z0();
-	Rk[2]=param->phi0();
-	double Theta=2.0*atan(exp(-param->eta()));
-	Rk[3]=Theta;
-	Rk[4]=1000.0*sin(Theta)/param->pT();//MeV->GeV
-	double Pt=param->pT();
-
-	if(fabs(Pt)<100.0)
-	{
-		ATH_MSG_DEBUG("Estimated Pt is too low "<<Pt<<" - skipping fit");
-		return;
-	}
-
-	// 2. Create filtering nodes
-
-	if(m_timers) m_timer[0]->resume();
-	std::vector<Trk::TrkBaseNode*> vpTrkNodes;
-	std::vector<Trk::TrkTrackState*> vpTrackStates;
-	bool trackResult = m_trackMaker->createDkfTrack(*(recoTrack.siSpacePoints()),vpTrkNodes, m_DChi2);
-	int nHits=vpTrkNodes.size();
-	if(m_timers) 
-	{
-		m_timer[0]->pause();
-		m_timer[1]->resume();
-	}
-	ATH_MSG_VERBOSE(nHits<<" filtering nodes created");
-
-	if(!trackResult) return;
-
-	// 3. Main algorithm: filter and smoother (Rauch-Tung-Striebel)
-
-	m_algorithmId=recoTrack.algorithmId();
-	(m_fitStats[m_algorithmId]).m_nTracksTotal++;
-	//Trk::TrkTrackState* pTS = new Trk::TrkTrackState(Rk);
-	Trk::TrkTrackState* pTS = new Trk::TrkTrackState(Rk);
-	double Gk[5][5] = {{100.0,     0, 0,    0,    0},
-			   {0,     100.0, 0,    0,    0},
-			   {0,         0, 0.01, 0,    0},
-			   {0,         0, 0,    0.01, 0},
-			   {0,         0, 0,    0,    0.1}};
-	pTS->setTrackCovariance(Gk);
-	if(m_doMultScatt)  
-		pTS->setScatteringMode(1);
-	if(m_doBremm)
-		pTS->setScatteringMode(2);
-	vpTrackStates.push_back(pTS);
-
-	ATH_MSG_VERBOSE("Initial chi2: "<<recoTrack.chi2()<<" track authorId: "<<recoTrack.algorithmId());
-	ATH_MSG_VERBOSE("Initial params: locT="<<Rk[0]<<" locL="<<Rk[1]<<" phi="<<Rk[2]
-			<<" theta="<<Rk[3]<<" Q="<<Rk[4]<<" pT="<<sin(Rk[3])/Rk[4]<<" GeV");
-
-	std::vector<Trk::TrkBaseNode*>::iterator pnIt(vpTrkNodes.begin()),
-		pnEnd(vpTrkNodes.end());
-
-	bool OK=true;
-
-	double chi2tot=0.0;
-	int ndoftot=-5;
-
-	Trk::TrkPlanarSurface* pSB=nullptr;
-	Trk::TrkPlanarSurface* pSE=nullptr;
-	for(;pnIt!=pnEnd;++pnIt)
-	{
-		pSE=(*pnIt)->getSurface();
-		Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
-
-		pSB=pSE;
-		if(pNS!=nullptr)
-		{
-			// pNS->report();
-			vpTrackStates.push_back(pNS);
-
-			(*pnIt)->validateMeasurement(pNS);
-			ATH_MSG_VERBOSE("dChi2="<<(*pnIt)->getChi2());
-			if((*pnIt)->isValidated())
-			{
-				chi2tot+=(*pnIt)->getChi2();
-				ndoftot+=(*pnIt)->getNdof();
-			}
-			(*pnIt)->updateTrackState(pNS);
-			pTS=pNS;
-			Pt=1000.0*sin(pTS->getTrackState(3))/pTS->getTrackState(4);
-			if(fabs(Pt)<200.0)
-			{
-				ATH_MSG_VERBOSE("Estimated Pt is too low "<<Pt<<" - skipping fit");
-				(m_fitStats[m_algorithmId]).m_fitErrors[2]++;
-				OK=false;break;
-			}
-		}
-		else
-		{
-			(m_fitStats[m_algorithmId]).m_fitErrors[0]++;
-			OK=false;break;
-		}
-	}
-	if(m_timers) m_timer[1]->pause();
-	if(OK)
-	{
-		if(m_timers) m_timer[2]->resume();
-		std::vector<Trk::TrkTrackState*>::reverse_iterator ptsIt(vpTrackStates.rbegin()),
-			ptsEnd(vpTrackStates.rend());
-
-		for(;ptsIt!=ptsEnd;++ptsIt)
-		{
-			(*ptsIt)->runSmoother();
-		}
-		if(m_timers) 
-		{
-			m_timer[2]->pause();
-			m_timer[3]->resume();
-		}      
-
-		pTS=(*vpTrackStates.begin());
-		//correct GeV->MeV
-
-		correctScale(pTS);
-
-		Pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
-		double Phi0 = pTS->getTrackState(2);
-		if(Phi0>M_PI) Phi0-=2*M_PI;
-		if(Phi0<-M_PI) Phi0+=2*M_PI;
-		double Eta = -log(sin(0.5*pTS->getTrackState(3))/cos(0.5*pTS->getTrackState(3)));
-		double Z0 = pTS->getTrackState(1);
-		double D0 = pTS->getTrackState(0);
-
-    bool bad_cov = false;
-    for (int i = 0; i < 5; i++) {
-      //Check for negative entries along the main diagonal
-      double cov_val = pTS->getTrackCovariance(i,i);
-      if (cov_val < 0) { 
-        bad_cov = true;
-      }
-    }
-		if((ndoftot<0) || (fabs(Pt)<100.0) || (std::isnan(Pt)) | bad_cov)
-		{
-			ATH_MSG_DEBUG("Fit failed - possibly floating point problem");
-			recoTrack.chi2(1e8);
-		}
-    else {
-      double errD0 = sqrt(pTS->getTrackCovariance(0,0));
-      double errZ0 = sqrt(pTS->getTrackCovariance(1,1));
-      double errPhi0 = sqrt(pTS->getTrackCovariance(2,2));
-      double errEta = sqrt(pTS->getTrackCovariance(3,3))/fabs(sin(pTS->getTrackState(3)));
-      double b=cos(pTS->getTrackState(3))/pTS->getTrackState(4);
-      double c=-Pt/pTS->getTrackState(4);
-      double a=-1.0/sin(pTS->getTrackState(3));
-      double errPt = sqrt(b*b*(pTS->getTrackCovariance(3,3))+c*c*(pTS->getTrackCovariance(4,4))+
-          2.0*b*c*(pTS->getTrackCovariance(3,4)));
-
-      std::vector<double>* pCov=new std::vector<double>;
-      double CV[5][5];
-      CV[0][0]=pTS->getTrackCovariance(0,0);
-      CV[0][1]=pTS->getTrackCovariance(0,2);
-      CV[0][2]=pTS->getTrackCovariance(0,1);
-      CV[0][3]=a*(pTS->getTrackCovariance(0,3));
-      CV[0][4]=b*(pTS->getTrackCovariance(0,3))+c*(pTS->getTrackCovariance(0,4));
-      CV[1][1]=pTS->getTrackCovariance(2,2);
-
-      CV[1][2]=pTS->getTrackCovariance(1,2);
-      CV[1][3]=a*(pTS->getTrackCovariance(2,3));
-      CV[1][4]=b*(pTS->getTrackCovariance(2,3))+c*(pTS->getTrackCovariance(2,4));
-      CV[2][2]=pTS->getTrackCovariance(1,1);
-      CV[2][3]=a*(pTS->getTrackCovariance(1,3));
-      CV[2][4]=b*(pTS->getTrackCovariance(1,3))+c*(pTS->getTrackCovariance(1,4));
-      CV[3][3]=a*a*(pTS->getTrackCovariance(3,3));
-      CV[3][4]=a*(b*(pTS->getTrackCovariance(3,3))+c*(pTS->getTrackCovariance(3,4)));
-      CV[4][4]=b*b*(pTS->getTrackCovariance(3,3))+2.0*b*c*(pTS->getTrackCovariance(3,4))+
-        c*c*(pTS->getTrackCovariance(4,4));
-
-      for(int i=0;i<5;i++) {
-        for(int j=i;j<5;j++) {
-          pCov->push_back(CV[i][j]);
-        }
-      }
-      const TrigInDetTrackFitPar* tidtfp = new TrigInDetTrackFitPar(D0,Phi0,Z0,Eta, Pt,
-          errD0,errPhi0,errZ0,
-          errEta,errPt,pCov);
-      delete param;
-      if(ndoftot>1) chi2tot/=ndoftot;
-      recoTrack.param(tidtfp);
-      recoTrack.chi2(chi2tot);
-    }
-
-		if(m_timers) 
-		{
-			m_timer[3]->pause();
-			m_timer[4]->resume();
-		}
-
-		ATH_MSG_VERBOSE("Total chi2 ="<<chi2tot<<" NDOF="<<ndoftot);
-		ATH_MSG_VERBOSE("Fitted parameters: d0="<<D0<<" phi0="<<Phi0<<" z0="<<Z0	
-				<<" eta0="<<Eta<<" pt="<<Pt);
-	}
-	else {
-		ATH_MSG_DEBUG("Forward Kalman filter: extrapolation failure ");
-		recoTrack.chi2(1e8);
-	}
-
-	pnIt=vpTrkNodes.begin();pnEnd=vpTrkNodes.end();
-	for(;pnIt!=pnEnd;++pnIt) 
-	{
-		delete((*pnIt)->getSurface());
-		delete (*pnIt);
-	}
-	vpTrkNodes.clear();
-	for(std::vector<Trk::TrkTrackState*>::iterator ptsIt=vpTrackStates.begin();
-			ptsIt!=vpTrackStates.end();++ptsIt) delete (*ptsIt);
-	vpTrackStates.clear();
-
-	if(m_timers) 
-	{
-		m_timer[4]->pause();
-	}
-}
-
-Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Trk::ParticleHypothesis& matEffects) {
+Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Trk::ParticleHypothesis& matEffects) const {
 
 	const Trk::TrackParameters* trackPars = recoTrack.perigeeParameters();
 	if(trackPars==nullptr) {
@@ -968,24 +607,17 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 
 	// 2. Create filtering nodes
 
-	if(m_timers) m_timer[0]->resume();
 	std::vector<Trk::TrkBaseNode*> vpTrkNodes;
 	std::vector<Trk::TrkTrackState*> vpTrackStates;
   vpTrackStates.reserve(vpTrkNodes.size() + 1);
 	bool trackResult = m_trackMaker->createDkfTrack(recoTrack,vpTrkNodes, m_DChi2);
 	int nHits=vpTrkNodes.size();
-	if(m_timers) 
-	{
-		m_timer[0]->pause();
-		m_timer[1]->resume();
-	}
 	ATH_MSG_VERBOSE(nHits<<" filtering nodes created");
 
 	if(!trackResult) return nullptr;
 
 	// 3. Main algorithm: filter and smoother (Rauch-Tung-Striebel)
-
-	(m_fitStats[m_algorithmId]).m_nTracksTotal++;
+  m_nTracksTotal++;
 	Trk::TrkTrackState* pTS = new Trk::TrkTrackState(Rk);
 	double Gk[5][5] = {{100.0,     0, 0,    0,    0},
 			   {0,     100.0, 0,    0,    0},
@@ -1031,31 +663,23 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 			if(fabs(est_Pt)<200.0)
 			{
 				ATH_MSG_VERBOSE("Estimated Pt is too low "<<est_Pt<<" - skipping fit");
-				(m_fitStats[m_algorithmId]).m_fitErrors[2]++;
+        m_fitErrorsLowPt++;
 				OK=false;break;
 			}
 		}
 		else
 		{
-			(m_fitStats[m_algorithmId]).m_fitErrors[0]++;
+      m_fitErrorsDivergence++;
 			OK=false;break;
 		}
 	}
-	if(m_timers) m_timer[1]->pause();
 	Trk::Track* fittedTrack = nullptr;
 	if(OK)
 	{
-		if(m_timers) m_timer[2]->resume();
 		for(auto ptsIt = vpTrackStates.rbegin();ptsIt!=vpTrackStates.rend();++ptsIt)
 		{
 			(*ptsIt)->runSmoother();
 		}
-		if(m_timers) 
-		{
-			m_timer[2]->pause();
-			m_timer[3]->resume();
-		}      
-
 		pTS=(*vpTrackStates.begin());
 		//correct GeV->MeV
 
@@ -1119,11 +743,6 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
             pParVec->push_back((*tSOS)->clone());
           }
         }
-        if(m_timers)
-        {
-          m_timer[3]->pause();
-          m_timer[4]->resume();
-        }
       }
       ATH_MSG_VERBOSE("Total chi2 ="<<chi2tot<<" NDOF="<<ndoftot);
       if(msgLvl(MSG::VERBOSE)) {
@@ -1152,10 +771,6 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 	}
 	vpTrackStates.clear();
 
-	if(m_timers)
-	{
-		m_timer[4]->pause();
-	}
 	return fittedTrack;
 }
 

@@ -674,6 +674,7 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
     m_msgSvc = Athena::getMessageSvc();
     MsgStream log(m_msgSvc, name());
     m_debug = log.level() <= MSG::DEBUG;
+    m_verbose = log.level() <= MSG::VERBOSE;
 
 
 			
