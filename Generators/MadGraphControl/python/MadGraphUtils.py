@@ -1876,7 +1876,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
 
     if not isNLO:
         #Check CKKW-L setting
-        if float(mydict['ktdurham']) > 0 and int(mydict['ickkw']) != 0:
+        if 'ktdurham' in mydict and float(mydict['ktdurham']) > 0 and int(mydict['ickkw']) != 0:
             log='Bad combination of settings for CKKW-L merging! ktdurham=%s and ickkw=%s.'%(mydict['ktdurham'],mydict['ickkw'])
             mglog.error(log)
             raise RuntimeError(log)
