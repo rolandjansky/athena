@@ -132,7 +132,10 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IFFJetSmearingTool
         std::string m_name;
         std::string m_release;
         std::string m_truth_jetColl;
+	std::string m_truthlabelaccessor;
 	float m_EtaRange;
+        float m_MassRange;
+        float m_PtRange;
         TString m_histFileName;
 	TString m_MassDef;
 	std::string m_configFile;

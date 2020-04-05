@@ -22,7 +22,7 @@
 
 // Constructor
 FFJetSmearingTool::FFJetSmearingTool(const std::string name)
-    : asg::AsgTool(name) // I do not use the name variable for nothing. Should I delete it?
+    : asg::AsgTool(name) 
     , m_isInit(false)
     , m_name(name)
     , m_release("")
@@ -98,6 +98,14 @@ StatusCode FFJetSmearingTool::initialize()
         return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("  Truth Jet Collection: " << m_truth_jetColl);
+    // Check the name of the truth label accessor for BoostjetTaggers
+    m_truthlabelaccessor = settings.GetValue("TruthLabelAccessor","");
+    if (m_truthlabelaccessor == "")
+    {
+        ATH_MSG_ERROR("Cannot find the TruthLabelAccessor to use in config");
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO(" Truth Label Accessor: " << m_truthlabelaccessor);
     //eta range of the tool  
     m_EtaRange = settings.GetValue("EtaRange",0);
     if (m_EtaRange == 0)
@@ -106,6 +114,22 @@ StatusCode FFJetSmearingTool::initialize()
         return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("  EtaRange : Abs(eta) < " << m_EtaRange);
+    //mass range of the tool  
+    m_MassRange = settings.GetValue("MassRange",0);
+    if (m_MassRange == 0)
+    {
+        ATH_MSG_ERROR("Cannot find the MassRange  in the config file");
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("  MassRange : jet_mass < " << m_MassRange);
+    //pt range of the tool 
+    m_PtRange = settings.GetValue("PtRange",0);
+    if (m_PtRange == 0)
+    {
+        ATH_MSG_ERROR("Cannot find the PtRange  in the config file");
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("  PtRange : jet_pt < " << m_PtRange);
     // Get the file to read uncertainties in from
     m_histFileName = settings.GetValue("UncertaintyRootFile","");
     m_HistogramsFilePath = jet::utils::findFilePath(m_histFileName.Data(),m_path.c_str(),m_calibArea.c_str());
@@ -241,9 +265,6 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
                 }
 
 
-
-
-        //ResponseMap (Mike)
 
 
 	TString CaloResponseMap_path = settings.GetValue("CaloResponseMap","");
@@ -436,8 +457,8 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet* jet_reco, xAOD::Jet&
 
 StatusCode FFJetSmearingTool::getJetTopology( xAOD::Jet* jet_reco, std::string& jetTopology){
 
-    static const SG::AuxElement::ConstAccessor<int> accTruthLabel("FatjetTruthLabel");
-    if (!accTruthLabel.isAvailable(*jet_reco) /*|| accTruthLabel(*jet_reco) == FatjetTruthLabel::UNKNOWN*/)
+    static const SG::AuxElement::ConstAccessor<int> accTruthLabel(m_truthlabelaccessor);
+    if (!accTruthLabel.isAvailable(*jet_reco) )
     {
         ATH_MSG_ERROR("Unable to retrieve the FatjetTruthLabel from the jet.  Please call the BoostedJetTaggers decorateTruthLabel() function before calling this function.");
         return StatusCode::FAILURE;
@@ -448,18 +469,13 @@ StatusCode FFJetSmearingTool::getJetTopology( xAOD::Jet* jet_reco, std::string& 
 
 
     if(jetTruthLabel == 1 || jetTruthLabel == 5)
-    {
+   {
 	jetTopology="Top";
     }
 
-    else if(jetTruthLabel == 2 || jetTruthLabel == 4 || jetTruthLabel == 6)
+    else if(jetTruthLabel == 2 || jetTruthLabel == 3 || jetTruthLabel == 4 || jetTruthLabel == 6)
     {
-        jetTopology="W";
-    }
-
-    else if(jetTruthLabel == 3 )
-    {
-        jetTopology="Z";
+        jetTopology="V";
     }
 
     else if(jetTruthLabel == 8)   
@@ -523,17 +539,11 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_va
 
 
 
-	if(m_Syst_TopologyAffected_map[sys.basename()] == "All" || m_Syst_TopologyAffected_map[sys.basename()] == jetTopology){
-		//Continue with the systematic
-	}
-	else{
-		ATH_MSG_VERBOSE("The systematic do not affects to this jet topology");
-		return StatusCode::SUCCESS;
-
+        if(m_Syst_TopologyAffected_map[sys.basename()] != "All" && m_Syst_TopologyAffected_map[sys.basename()] != jetTopology){
+                ATH_MSG_VERBOSE("The systematic do not affects to this jet topology");
+                return StatusCode::SUCCESS;
 	}
 
-//In previous versions there was a boundery (jet_mass > 600 || jet_pT < 200 || jet_pT > 3000) to avoid looking outsie the histograms 
-//but, I finally learned that when I "read" outside the histogram i obtain a 0 so I do not need the bounderies
 
 
         float jet_mass = jet_mass_value/1000.;//jet_reco->m()/1000.; The TA mass can not be extracted this way
@@ -579,11 +589,18 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         ATH_MSG_VERBOSE("//---------------------------------------------------------------//");
         ATH_MSG_VERBOSE("Reco Jet to Smear: pt = " << jet_reco->pt()/1000. << ", mass = " << jet_reco->m()/1000. << ", eta = " << jet_reco->eta());
 
-	if(TMath::Abs(jet_reco->eta()) > m_EtaRange){//JetCalibTools do not properly for jets with |eta|>2
+	if(std::abs(jet_reco->eta()) > m_EtaRange){//JetCalibTools do not properly for jets with |eta|>2
 		ATH_MSG_VERBOSE("This jet exceeds the eta range that the tool allows (|eta|<" << m_EtaRange << ")");
-		return CP::CorrectionCode::Ok;//It exits applyCorrection without performingthe smearing 
+		return CP::CorrectionCode::OutOfValidityRange; 
 	}
-
+        if(jet_reco->m()/1000. > m_MassRange){
+                ATH_MSG_VERBOSE("This jet exceeds the mass range that the tool allows jet_mass <" << m_MassRange << " GeV)");
+                return CP::CorrectionCode::OutOfValidityRange;
+        }
+        if(jet_reco->pt()/1000. > m_PtRange){
+                ATH_MSG_VERBOSE("This jet exceeds the pt range that the tool allows jet_pt <" << m_PtRange << " GeV)");
+                return CP::CorrectionCode::OutOfValidityRange;
+        }
 
       //Find matched truth jet
       xAOD::Jet jet_truth_matched;
@@ -651,6 +668,11 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
        		 calo_mass_weight = 1;
 		 use_jetuncertaintiesweight = false;		
 	} 
+	
+	else if(jet_mass_CALO == 0){
+                 calo_mass_weight = 0;
+                 use_jetuncertaintiesweight = false;
+	}
 
 	else{
 		use_jetuncertaintiesweight = true;
@@ -703,10 +725,9 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 	double JMS; double JMS_err; double JMR; double JMR_err;	
         double scale;
         double resolution;
-	//JMS=1.0; JMS_err=0.5; JMR=1; JMR_err=0.0;//to test:
 
-	double smeared_CALO_mass =0;
-	double smeared_TA_mass =0;
+	double smeared_CALO_mass = jet_mass_CALO;
+	double smeared_TA_mass = jet_mass_TA;
 
 	bool is_CALO_mass_smeared = false;
 	bool is_TA_mass_smeared = false;
@@ -744,6 +765,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
       		//FF procedure
        		smeared_TA_mass = jet_mass_TA * scale + (jet_mass_TA - avg_response_TA*jet_truth_matched.m())*(resolution-scale);//FF formula
 	}
+
    }
 
    if(is_CALO_mass_smeared==false && is_TA_mass_smeared == false){//We only smear the jet if we have to. If not, avoid doing extra calculations
@@ -761,8 +783,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     if(m_MassDef=="Comb" && use_jetuncertaintiesweight == true){
 
-        double aux1;
-        double aux2;
+        double caloRes;
+        double TARes;
 
         xAOD::JetFourMom_t jet_reco_CALO;
         xAOD::JetFourMom_t jet_reco_TA;
@@ -781,9 +803,9 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
        p4_aux = xAOD::JetFourMom_t(jet_reco_TA.pt(),jet_reco_TA.eta(),jet_reco_TA.phi(),smeared_TA_mass);
        jet_reco_TA = p4_aux;
 
-	aux1=FFJetSmearingTool::Read3DHistogram(m_caloMassWeight,jet_reco_CALO.e()/1000.,TMath::Log(jet_reco_CALO.M()/jet_reco_CALO.e()),TMath::Abs(jet_reco_CALO.eta())/*1*/);
+	caloRes=FFJetSmearingTool::Read3DHistogram(m_caloMassWeight,jet_reco_CALO.e()/1000.,TMath::Log(jet_reco_CALO.M()/jet_reco_CALO.e()),std::abs(jet_reco_CALO.eta()));
 
-	aux2=FFJetSmearingTool::Read3DHistogram(m_TAMassWeight,jet_reco_TA.e()/1000.,TMath::Log(jet_reco_TA.M()/jet_reco_TA.e()),TMath::Abs(jet_reco_TA.eta()));
+	TARes=FFJetSmearingTool::Read3DHistogram(m_TAMassWeight,jet_reco_TA.e()/1000.,TMath::Log(jet_reco_TA.M()/jet_reco_TA.e()),std::abs(jet_reco_TA.eta()));
 
 //The histograms with the weights that we are reading was deffined with the code "e_LOGmOe_eta" what means that each axis correspond to:
 ////-X: Jet Energy
@@ -792,8 +814,14 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 ////Domain is [200-6000],[-6,0],[0,2] but, the ReadHistogram function put the value of the extream of the histogram to the values outside the domain.
 ////We have to use a custom "My_Interpolate" because the Z axis has just one bin (and this makes the Root Interpolate function fail) 
 
+	if (caloRes == 0 || TARes == 0) { return CP::CorrectionCode::Ok;}
 
-	calo_mass_weight = (1/(aux1*aux1)) /((1/(aux1*aux1))+(1/(aux2*aux2)));
+	double caloFactor = 1./(caloRes*caloRes);
+	double TAFactor   = 1./(TARes*TARes);
+
+    if (caloFactor + TAFactor == 0){ return CP::CorrectionCode::Ok;} 
+
+	calo_mass_weight = caloFactor /(caloFactor + TAFactor);
 
 
 
