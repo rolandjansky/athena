@@ -47,7 +47,7 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
 				     const SiDetectorDesign *design,
 				     const GeoVFullPhysVol *geophysvol,
 				     SiCommonItems * commonItems) :
-  TrkDetElementBase(geophysvol),
+  SolidStateDetectorElementBase(geophysvol),
   m_id(id),
   m_design(design),
   m_commonItems(commonItems),

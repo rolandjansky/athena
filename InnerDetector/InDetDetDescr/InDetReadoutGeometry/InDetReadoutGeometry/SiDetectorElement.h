@@ -10,7 +10,7 @@
 #define INDETREADOUTGEOMETRY_SIDETECTORELEMENT_H
 
 // Base class.
-#include "TrkDetElementBase/TrkDetElementBase.h"
+#include "ReadoutGeometryBase/SolidStateDetectorElementBase.h"
 
 // Data member classes
 #include "Identifier/Identifier.h"
@@ -99,7 +99,7 @@ namespace InDetDD {
 
   */  
 
-  class SiDetectorElement : public Trk::TrkDetElementBase {
+  class SiDetectorElement : public SolidStateDetectorElementBase {
 
       ///////////////////////////////////////////////////////////////////
       // Public methods:

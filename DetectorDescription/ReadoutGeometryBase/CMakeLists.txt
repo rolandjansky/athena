@@ -1,9 +1,9 @@
 ################################################################################
-# Package: InDetReadoutGeometry
+# Package: ReadoutGeometryBase
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( InDetReadoutGeometry )
+atlas_subdir( ReadoutGeometryBase )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
-                          DetectorDescription/ReadoutGeometryBase
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetCondServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -33,11 +32,10 @@ find_package( CLHEP )
 find_package( Eigen )
 
 # Component(s) in the package:
-atlas_add_library( InDetReadoutGeometry
+atlas_add_library( ReadoutGeometryBase
                    src/*.c*
-                   PUBLIC_HEADERS InDetReadoutGeometry
+                   PUBLIC_HEADERS ReadoutGeometryBase
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel SGTools AtlasDetDescr GeoModelKernel GeoPrimitives Identifier ReadoutGeometryBase GaudiKernel InDetCondServices InDetIdentifier TrkDetElementBase TrkSurfaces TrkEventPrimitives StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel SGTools AtlasDetDescr GeoModelKernel GeoPrimitives Identifier GaudiKernel InDetCondServices InDetIdentifier TrkDetElementBase TrkSurfaces TrkEventPrimitives StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities DetDescrConditions IdDictDetDescr TRT_ConditionsData )
-
