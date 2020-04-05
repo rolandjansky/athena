@@ -1,13 +1,22 @@
-#include <Run3AFPMonitoring/AfpFastReco.h>
+/*
+ *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ *   *
+ *   *
+ *   *       AFPFastReco.cxx
+ *   *
+ *   *
+ *   */
 
-namespace AfpMon {
+#include <Run3AFPMonitoring/AFPFastReco.h>
 
-  void AfpFastReco::reco() {
+namespace AFPMon {
+
+  void AFPFastReco::reco() {
     recoClusters();
     recoTracks();
   }
 
-  void AfpFastReco::recoClusters() {
+  void AFPFastReco::recoClusters() {
     constexpr float dx   = 0.25;  // [mm]
     constexpr float dy   = 0.05;  // [mm]
     constexpr float dz   = 9.00;  // [mm]
@@ -46,7 +55,7 @@ namespace AfpMon {
     }
   }
 
-  void AfpFastReco::recoTracks() {
+  void AFPFastReco::recoTracks() {
     std::list toTrack(m_clusters.begin(), m_clusters.end());
 
     while (toTrack.size() > 0) {
@@ -76,7 +85,7 @@ namespace AfpMon {
     }
   }
 
-  std::pair<double, double> AfpFastReco::linReg(std::vector<std::pair<double, double>> YX) const {
+  std::pair<double, double> AFPFastReco::linReg(std::vector<std::pair<double, double>> YX) const {
     double meanx = 0;
     double meany = 0;
     for (const auto& yx : YX) {
@@ -102,7 +111,7 @@ namespace AfpMon {
     return {position, slope};
   }
 
-  bool AfpFastReco::areNeighbours(const xAOD::AFPSiHit* lhs, const xAOD::AFPSiHit* rhs) const {
+  bool AFPFastReco::areNeighbours(const xAOD::AFPSiHit* lhs, const xAOD::AFPSiHit* rhs) const {
     if (lhs->stationID() != rhs->stationID()) return false;
     if (lhs->pixelLayerID() != rhs->pixelLayerID()) return false;
     if (lhs->pixelColIDChip() != rhs->pixelColIDChip()) return false;
@@ -111,7 +120,7 @@ namespace AfpMon {
     return true;
   }
 
-  bool AfpFastReco::areNeighbours(const AfpCluster& lhs, const AfpCluster& rhs) const {
+  bool AFPFastReco::areNeighbours(const AFPCluster& lhs, const AFPCluster& rhs) const {
     if (lhs.station != rhs.station) return false;
 
     const float dx = lhs.x - rhs.x;
@@ -121,5 +130,5 @@ namespace AfpMon {
     return true;
   }
 
-}  // namespace AfpMon
+}  // namespace AFPMon
 

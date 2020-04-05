@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 *
 *
 *	AFPSiLayerAlgorithm
@@ -11,7 +11,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODForward/AFPStationID.h"
 
-#include <Run3AFPMonitoring/AfpFastReco.h>
+#include <Run3AFPMonitoring/AFPFastReco.h>
 
 
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
@@ -89,7 +89,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
       }
  
-    AfpMon::AfpFastReco fast(afpHitContainer.get());
+    AFPMon::AFPFastReco fast(afpHitContainer.get());
     fast.reco();
 
     for (const auto& cluster : fast.clusters()) {

@@ -9,10 +9,10 @@
 #include "xAODForward/AFPSiHit.h"
 #include "xAODForward/AFPSiHitContainer.h"
 
-namespace AfpMon {
+namespace AFPMon {
 
-  struct AfpCluster {
-    AfpCluster(float x_, float y_, float z_, int s, int l)
+  struct AFPCluster {
+    AFPCluster(float x_, float y_, float z_, int s, int l)
         : x {x_}, y {y_}, z {z_}, station {s}, layer {l} {}
 
     float x;
@@ -22,7 +22,7 @@ namespace AfpMon {
     int layer;
   };
 
-  inline bool operator==(const AfpCluster& lhs, const AfpCluster& rhs) {
+  inline bool operator==(const AFPCluster& lhs, const AFPCluster& rhs) {
     if (lhs.x != rhs.x) return false;
     if (lhs.y != rhs.y) return false;
     if (lhs.z != rhs.z) return false;
@@ -32,8 +32,8 @@ namespace AfpMon {
     return true;
   }
 
-  struct AfpTrack {
-    AfpTrack(float x_, float y_, int s, std::array<int, 4> a)
+  struct AFPTrack {
+    AFPTrack(float x_, float y_, int s, std::array<int, 4> a)
         : x {x_}, y {y_}, station {s}, layerClusters {std::move(a)} {}
 
     float x;
@@ -42,19 +42,19 @@ namespace AfpMon {
     std::array<int, 4> layerClusters;
   };
 
-  class AfpFastReco {
+  class AFPFastReco {
   public:
     /// Constructor. Sets input hit container
-    AfpFastReco(const xAOD::AFPSiHitContainer* hits) : m_hitContainer {hits} {}
+    AFPFastReco(const xAOD::AFPSiHitContainer* hits) : m_hitContainer {hits} {}
 
     /// Performs fast reconstruction of clusters and tracks
     void reco();
 
     /// Returns vector of clusters
-    std::vector<AfpCluster> clusters() const { return m_clusters; }
+    std::vector<AFPCluster> clusters() const { return m_clusters; }
 
     /// Returns vector of tracks
-    std::vector<AfpTrack> tracks() const { return m_tracks; }
+    std::vector<AFPTrack> tracks() const { return m_tracks; }
 
   private:
     /// Performs fast cluster reconstruction
@@ -74,18 +74,18 @@ namespace AfpMon {
     bool areNeighbours(const xAOD::AFPSiHit* lhs, const xAOD::AFPSiHit* rhs) const;
 
     /// Checks if given clusters are neighbours
-    bool areNeighbours(const AfpCluster& lhs, const AfpCluster& rhs) const;
+    bool areNeighbours(const AFPCluster& lhs, const AFPCluster& rhs) const;
 
     /// Pointer to hit container
     const xAOD::AFPSiHitContainer* m_hitContainer;
 
     /// Vector of clusters
-    std::vector<AfpCluster> m_clusters;
+    std::vector<AFPCluster> m_clusters;
 
     /// Vector of tracks
-    std::vector<AfpTrack> m_tracks;
+    std::vector<AFPTrack> m_tracks;
 
-    /// Number of Afp stations
+    /// Number of AFP stations
     static constexpr int s_afpStations = 4;
 
     /// Number of layers in each station
@@ -99,7 +99,7 @@ namespace AfpMon {
   };
 
   template <class T>
-  std::vector<T> AfpFastReco::findAround(T init, std::list<T>& toJoin) const {
+  std::vector<T> AFPFastReco::findAround(T init, std::list<T>& toJoin) const {
     std::vector<T> element;
     element.push_back(init);
 
@@ -125,7 +125,7 @@ namespace AfpMon {
     return element;
   }
 
-}  // namespace AfpMon
+}  // namespace AFPMon
 
 #endif /* AFP_MONITORING_AFPFASTRECO_H */
 
