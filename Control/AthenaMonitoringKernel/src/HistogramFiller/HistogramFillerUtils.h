@@ -16,6 +16,11 @@ namespace Monitored {
   enum Axis {X = 0, Y, Z};
 
   namespace detail {
+
+    /** Default cuts and weights used in fillers */
+    auto noWeight = [](size_t){ return 1.0; };
+    auto noCut = [](size_t){ return true; };
+
     /** Convert axis to ROOT-compatible character */
     constexpr std::array axis_name{"X", "Y", "Z"};
     constexpr std::array axis_bit{TH1::kXaxis, TH1::kYaxis, TH1::kZaxis};
