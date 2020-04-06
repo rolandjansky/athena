@@ -66,7 +66,7 @@ AthExDecay* AthExDecayCnv::createTransient()
 
    if ( compareClassGuid(p1_guid) ) {
 
-     // using auto_ptr ensures deletion of the persistent object
+     // using unique_ptr ensures deletion of the persistent object
      std::unique_ptr<AthExDecay_p1> persObj( poolReadObject<AthExDecay_p1>() );
      AthExDecayCnv_p1 cnv;
      transObj = cnv.createTransient( persObj.get(), msg );

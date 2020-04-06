@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,9 +25,9 @@ AlignableTransform_TRANS* AlignableTransformContainerCnv::createTransient() {
     static pool::Guid   p1_guid("BA1A841C-8D92-45AE-9AD1-9AF7A1736844");
     static pool::Guid   p0_guid("E779C6B5-3F2A-473E-B35E-6CCB345E0665");
     if( compareClassGuid(p1_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
+        // using unique_ptr ensures deletion of the persistent object
         if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "AlignableTransformContainer read p1" << endmsg;
-        std::auto_ptr< AlignableTransform_p1 > col_vect( poolReadObject< AlignableTransform_p1 >() );
+        std::unique_ptr< AlignableTransform_p1 > col_vect( poolReadObject< AlignableTransform_p1 >() );
         AlignableTransformCnv_p1 cnv;
         return cnv.createTransient( col_vect.get(), log );
     }
