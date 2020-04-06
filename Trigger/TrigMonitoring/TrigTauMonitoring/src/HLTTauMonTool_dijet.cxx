@@ -102,7 +102,8 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
 
   /* match offline tau to subleading jet */
   float dR = 666;
-  for(auto aTau : m_taus)
+  for(auto aTau : m_taus_BDT)
+  //  for(auto aTau : m_truth)
     {
       //const xAOD::TauJet *aTau = m_taus.at(t);
       /* check offline tau quality */
