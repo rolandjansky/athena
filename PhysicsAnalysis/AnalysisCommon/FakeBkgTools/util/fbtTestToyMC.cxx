@@ -502,11 +502,10 @@ void Loop(fbtTestToyMC_config config)
 	    for (int ilep = 0; ilep < nlep_select; ilep++) {
 	      if (leptons[ilep]->auxdata<char>("Tight")) tights.set(ilep);
 	    }
-	    for (int ilep = 0; ilep < nlep_select; ilep++) {
-	      if (fs[nlep_select]->accept_selection(tights,charges) ) {
-		 nevents_sel += extraweight;
-	       }
+	    if (fs[nlep_select]->accept_selection(tights,charges) ) {
+	      nevents_sel += extraweight;
 	    }
+	 
 	    
 
 	    float wgt;
@@ -774,7 +773,8 @@ void parseArguments(int argc, char *argv[], fbtTestToyMC_config &config) {
       {"test_systematics", no_argument, 0, 'E'},
       {"verbose", no_argument, 0, 'v'},
       {"poisson", no_argument, 0, 'P'},
-      {"help", no_argument, 0, 'h'}
+      {"help", no_argument, 0, 'h'},
+      {0,0,0,0}
     };
 
   char c;
