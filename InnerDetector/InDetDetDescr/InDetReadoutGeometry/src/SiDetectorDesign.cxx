@@ -23,6 +23,7 @@ SiDetectorDesign::SiDetectorDesign(double thickness,
                                    bool depthSymmetric,
                                    InDetDD::CarrierType carrierType,
                                    int readoutSide):
+    DetectorDesign(),
     m_etaAxis(zAxis),
     m_phiAxis(yAxis),
     m_depthAxis(xAxis),

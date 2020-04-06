@@ -11,6 +11,9 @@
 #ifndef INDETREADOUTGEOMETRY_SIDETECTORDESIGN_H
 #define INDETREADOUTGEOMETRY_SIDETECTORDESIGN_H
 
+// base class
+#include "ReadoutGeometryBase/DetectorDesign.h"
+
 // Input/output classes
 #include "ReadoutGeometryBase/SiDiodesParameters.h"
 #include "ReadoutGeometryBase/InDetDD_Defs.h"
@@ -18,7 +21,6 @@
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "GeoModelKernel/RCBase.h"
 
 #include <list>
 #include <vector>
@@ -51,7 +53,7 @@ enum DetectorShape {
     @author A. Calvet, Grant Gorfine
  */
 
-class SiDetectorDesign: public RCBase {
+class SiDetectorDesign: public DetectorDesign {
 public:
     enum Axis {
         xAxis=0, yAxis, zAxis
