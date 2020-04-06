@@ -21,7 +21,7 @@ namespace{
   const IdentifierHash invalidHash;
   const std::array<IdentifierHash, 5> invalidHashes{invalidHash, invalidHash, invalidHash,
   invalidHash, invalidHash};
-  std::function< IdentifierHash(const IdentifierHash &)>
+  const std::function< IdentifierHash(const IdentifierHash &)>
   invalidHashFunc = ([](const IdentifierHash &){return IdentifierHash{};});
 }
 
