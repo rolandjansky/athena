@@ -29,7 +29,7 @@ LArOFCCompleteCnv::createTransient () {
     static pool::Guid   p0_guid("3E5389EF-D163-4099-91D9-D3F0EE06C1CD");
 
     if( compareClassGuid(p1_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
+        // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArOFCSubset_p1 > col_vect( poolReadObject< LArOFCSubset_p1 >() );
         MsgStream log(msgSvc(), "LArOFCCompleteCnv" ); 
         //log << MSG::INFO << "Reading LArOFCSubset_p1" << endmsg; 
