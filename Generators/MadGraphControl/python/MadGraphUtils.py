@@ -56,7 +56,11 @@ def error_check(errors):
         for err in errors.split('\n'):
             if len(err.strip())==0:
                 continue
+            # Errors to do with I/O... not clear on their origin yet
             if 'Inappropriate ioctl for device' in err:
+                mglog.info(err)
+                continue
+            if 'stty: standard input: Invalid argument' in err:
                 mglog.info(err)
                 continue
             # Errors for PDF sets that should be fixed in MG5_aMC 2.7
