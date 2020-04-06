@@ -1,0 +1,9 @@
+<lcgdict>
+
+   <class name="CP::MuonCalibrationAndSmearingAlg" />
+   <class name="CP::MuonEfficiencyScaleFactorAlg" />
+   <class name="CP::MuonIsolationAlg" />
+   <class name="CP::MuonSelectionAlgV2" />
+   <class name="CP::MuonTriggerEfficiencyScaleFactorAlg" />
+   
+</lcgdict>
