@@ -174,11 +174,12 @@ ToolSvc += PHYSLITEMuonTPThinningTool
 thinningTools.append(PHYSLITEMuonTPThinningTool)
 
 # TauJets thinning
+tau_thinning_expression = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3) && (AnalysisTauJets.RNNJetScoreSigTrans>0.01)"
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSLITETauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSLITETauJetsThinningTool",
                                                                          ThinningService = PHYSLITEThinningHelper.ThinningSvc(),
                                                                          ContainerName   = "AnalysisTauJets",
-                                                                         SelectionString = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3)")
+                                                                         SelectionString = tau_thinning_expression)
 ToolSvc += PHYSLITETauJetsThinningTool
 thinningTools.append(PHYSLITETauJetsThinningTool)
 
@@ -188,7 +189,7 @@ PHYSLITETauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name  
                                                                           ThinningService        = PHYSLITEThinningHelper.ThinningSvc(),
                                                                           TauKey                 = "AnalysisTauJets",
                                                                           InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                          SelectionString        = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3)",
+                                                                          SelectionString        = tau_thinning_expression,
                                                                           ApplyAnd               = False,
                                                                           DoTauTracksThinning    = True,
                                                                           TauTracksKey           = "TauTracks")
