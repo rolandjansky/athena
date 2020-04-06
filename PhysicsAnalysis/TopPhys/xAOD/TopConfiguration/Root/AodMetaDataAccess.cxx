@@ -142,7 +142,7 @@ namespace top {
       return false;
     }
 
-    if (boost::equals(overlay, "TRUE")) return true;
+    if (boost::iequals(overlay, "TRUE")) return true;
     
     return false;
   }
