@@ -601,7 +601,7 @@ if skimmingExpression:
 
 #minimumbiasTrig = '(L1_RD0_FILLED)'
 #
-#if not IsMonteCarlo:
+#if not DerivationFrameworkIsMonteCarlo:
 #  from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 #  TrigSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "TrigSkimmingTool", expression = minimumbiasTrig)
 #  ToolSvc += TrigSkimmingTool
@@ -672,6 +672,21 @@ topSequence += IDDerivationSequence
 if (printIdTrkDxAODConf):
     print IDDerivationSequence 
     print IDDerivationSequence.properties()
+
+if DerivationFrameworkIsMonteCarlo:
+  # add track parameter decorations to truth particles but only if the decorations have not been applied already
+  import InDetPhysValMonitoring.InDetPhysValDecoration
+  meta_data = InDetPhysValMonitoring.InDetPhysValDecoration.getMetaData()
+  from AthenaCommon.Logging import logging
+  logger = logging.getLogger( "DerivationFramework" )
+  if len(meta_data) == 0 :
+    truth_track_param_decor_alg = InDetPhysValMonitoring.InDetPhysValDecoration.getInDetPhysValTruthDecoratorAlg()
+    if  InDetPhysValMonitoring.InDetPhysValDecoration.findAlg(truth_track_param_decor_alg.getName()) == None :
+      IDDerivationSequence.append( truth_track_param_decor_alg )
+    else :
+      logger.info('Decorator %s already present not adding again.' % (truth_track_param_decor_alg.getName() ))
+  else :
+    logger.info('IDPVM decorations to track particles already applied to input file not adding again.')
 
 #################
 ### Steer output file content
