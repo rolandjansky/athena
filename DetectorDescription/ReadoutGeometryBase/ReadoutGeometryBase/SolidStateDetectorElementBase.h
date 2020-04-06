@@ -22,12 +22,25 @@ class SolidStateDetectorElementBase : public Trk::TrkDetElementBase {
     public:
 
         // Constructor
-        SolidStateDetectorElementBase(const GeoVFullPhysVol *geophysvol);
+        SolidStateDetectorElementBase(const Identifier &id,
+                                      const GeoVFullPhysVol *geophysvol);
+
+        // // Constructor
+        // SolidStateDetectorElementBase(const Identifier &id,
+        //                               const SiDetectorDesign *design,
+        //                               const GeoVFullPhysVol *geophysvol,
+        //                               SiCommonItems * commonItems);
 
         // Destructor
         ~SolidStateDetectorElementBase();
 
-
+    ///////////////////////////////////////////////////////////////////
+    // Protected data:
+    ///////////////////////////////////////////////////////////////////
+    protected:
+        Identifier m_id; // identifier of this detector element
+        IdentifierHash m_idHash; // hash id
+        //const SiDetectorDesign *m_design; // local description of this detector element
 
 };
 

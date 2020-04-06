@@ -619,8 +619,6 @@ namespace InDetDD {
       // Protected data:
       ///////////////////////////////////////////////////////////////////
     protected:
-      Identifier m_id; // identifier of this detector element
-      IdentifierHash m_idHash; // hash id
       const SiDetectorDesign *m_design; // local description of this detector element
       //const AtlasDetectorID* m_idHelper; // id helper
       SiCommonItems * m_commonItems;
