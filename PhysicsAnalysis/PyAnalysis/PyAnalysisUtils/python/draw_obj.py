@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: draw_obj.py,v 1.4 2007-01-11 07:11:47 ssnyder Exp $
 # File: draw_obj.py
 # Created: sss, 2004.
 # Purpose: Helpers for drawing ROOT objects.
@@ -55,9 +54,7 @@ get_pad() returns the pad currently being used for drawing.
 from __future__ import division
 
 
-from past.utils import old_div
-from builtins import object
-from ROOT import gROOT, TCanvas, TVirtualPad, TIter, TH1, TH2
+from ROOT import gROOT, TCanvas, TVirtualPad, TH1, TH2
 import string
 
 
@@ -89,8 +86,8 @@ class _options(object):
         self.linecolors = 0
         self.other = ""
 
-        options = string.replace (options, ',', ' ')
-        for o in string.split (options):
+        options = options.replace (',', ' ')
+        for o in options.split():
             lo = string.lower (o)
             if lo in ["merge", "same", "norm", "logy", 'linecolors']:
                 setattr (self, lo, 1)
@@ -133,9 +130,9 @@ Returns:
 """
     global _samecount
 
-    if min != None:
+    if min is not None:
         obj.SetMinimum (min)
-    if max != None:
+    if max is not None:
         obj.SetMaximum (max)
         
     op = _options (options)
@@ -179,14 +176,15 @@ Returns:
         if op.norm:
             h = h.Clone()
             intg =  h.Integral()
-            if intg == 0: intg = 1
+            if intg == 0:
+                intg = 1
             h.Scale (1. / intg)
-            if max != None:
+            if max is not None:
                 h.SetMaximum (max)
 
         # Special handling for 1D histograms.
         # If SAME was specified, rescale the vertical axis, if needed.
-        if rescale_p and max == None:
+        if rescale_p and max is None:
             # Find the first hist already plotted.
             hfirst = None
             for obj in pad.GetListOfPrimitives():
@@ -212,7 +210,7 @@ Returns:
         if op.color >= 0:
             hh.SetLineColor (op.color)
         elif op.linecolors and _samecount >= 4:
-            hh.SetLineColor (old_div(_samecount, 4) + 1)
+            hh.SetLineColor (_samecount//4 + 1)
         if op.fill >= 0:
             hh.SetFillColor (op.fill)
         obj = hh
