@@ -50,7 +50,7 @@ LVL1CTP::Lvl1Result* Lvl1ResultCnv::createTransient()
 
   if ( compareClassGuid(p1_guid) ) {
     mlog << MSG::DEBUG << "Lvl1Result::createTransient reading p1 persistent object" << endmsg;
-    // using auto_ptr ensures deletion of the persistent object
+    // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr< LVL1CTP::Lvl1Result_p1 > col_vect( poolReadObject< LVL1CTP::Lvl1Result_p1 >() );
     return m_impl->m_TPConverter_p1.createTransient( col_vect.get(), mlog );
   } else if( compareClassGuid(p0_guid) ){
@@ -59,7 +59,7 @@ LVL1CTP::Lvl1Result* Lvl1ResultCnv::createTransient()
     return this->poolReadObject<LVL1CTP::Lvl1Result>();
   } else if ( compareClassGuid(p2_guid) ) {
     mlog << MSG::DEBUG << "Lvl1Result::createTransient reading p2 persistent object" << endmsg;
-    // using auto_ptr ensures deletion of the persistent object
+    // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr< LVL1CTP::Lvl1Result_p2 > col_vect( poolReadObject< LVL1CTP::Lvl1Result_p2 >() );
     return m_impl->m_TPConverter_p2.createTransient( col_vect.get(), mlog );
   }

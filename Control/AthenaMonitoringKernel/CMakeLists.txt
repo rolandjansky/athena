@@ -13,8 +13,16 @@ atlas_depends_on_subdirs(
         AtlasTest/TestTools
 )
 
+# Options to steer cmake configuation:
+option(VALGRIND "Enable valgrind dependency for profiling" OFF)
+
 # External dependencies:
 find_package( nlohmann_json )
+if (${VALGRIND})
+   find_package( valgrind REQUIRED )
+   add_compile_definitions(ATHMON_VALGRIND)
+   set( _extra_includes ${VALGRIND_INCLUDE_DIRS})
+endif()
 
 atlas_add_library(
     AthenaMonitoringKernelLib
@@ -46,6 +54,7 @@ foreach ( test_file ${CXX_TEST_FILES} )
     file( MAKE_DIRECTORY ${rundir} )
     atlas_add_test( ${name}
         SOURCES ${test_file}
+        INCLUDE_DIRS ${_extra_includes}
         LINK_LIBRARIES TestTools AthenaMonitoringKernelLib nlohmann_json
         ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
         POST_EXEC_SCRIPT nopost.sh

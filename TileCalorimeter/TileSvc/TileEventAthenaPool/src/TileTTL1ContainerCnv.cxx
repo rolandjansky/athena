@@ -48,7 +48,7 @@ TileTTL1Container* TileTTL1ContainerCnv::createTransient() {
 
   } else if ( compareClassGuid(p1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
+    // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr<TileTTL1Container_p1> persObj( poolReadObject<TileTTL1Container_p1>() );
     TileTTL1ContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
