@@ -9,15 +9,25 @@ set( ATLAS_FLAKE8 "@ATLAS_FLAKE8@"
 set( ATLAS_PYTHON_CHECKER "@ATLAS_PYTHON_CHECKER@"
    CACHE STRING "Python checker command to run during Python module compilation" )
 
-# Due to the way CMake handles propagation of targets to dependees,
-# any "external" that is used through imported targets in the build need
-# to be imported explicitly here.
+# Figure out whether to use QUIET in the following calls.
 set( _quietFlag )
 if( Athena_FIND_QUIETLY )
   set( _quietFlag QUIET )
 endif()
+
+# Set up the correct version of LCG. While AthenaExternals does this as well,
+# we need to do it explicitly here, to make the following find_package calls
+# find the packages correctly.
+set( LCG_VERSION_POSTFIX @LCG_VERSION_POSTFIX@ )
+find_package( LCG @LCG_VERSION_NUMBER@ REQUIRED EXACT ${_quietFlag} )
+
+# Due to the way CMake handles propagation of targets to dependees,
+# any "external" that is used through imported targets in the build need
+# to be imported explicitly here.
 find_package( Acts ${_quietFlag} COMPONENTS Core )
 find_package( nlohmann_json ${_quietFlag} )
 find_package( Qt5 ${_quietFlag} COMPONENTS Core OpenGL Gui PrintSupport Widgets
    Sql Network )
+
+# Clean up.
 unset( _quietFlag )
