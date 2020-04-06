@@ -7,9 +7,11 @@
 namespace InDetDD {
 
     SolidStateDetectorElementBase::SolidStateDetectorElementBase(const Identifier &id,
-                                                                 const GeoVFullPhysVol *geophysvol):
+                                                                 const GeoVFullPhysVol *geophysvol,
+                                                                 SiCommonItems *commonItems):
         TrkDetElementBase(geophysvol),
-        m_id(id)
+        m_id(id),
+        m_commonItems(commonItems)
     {
 
     }

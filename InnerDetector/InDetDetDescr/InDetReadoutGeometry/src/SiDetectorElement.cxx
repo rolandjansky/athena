@@ -27,7 +27,7 @@
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
 
 
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
@@ -47,9 +47,8 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
 				     const SiDetectorDesign *design,
 				     const GeoVFullPhysVol *geophysvol,
 				     SiCommonItems * commonItems) :
-  SolidStateDetectorElementBase(id, geophysvol),
+  SolidStateDetectorElementBase(id, geophysvol, commonItems),
   m_design(design),
-  m_commonItems(commonItems),
   m_nextInEta(0),
   m_prevInEta(0),
   m_nextInPhi(0),

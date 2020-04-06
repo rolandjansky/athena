@@ -19,7 +19,7 @@
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "InDetReadoutGeometry/SiIntersect.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "CLHEP/Geometry/Point3D.h"
@@ -620,8 +620,6 @@ namespace InDetDD {
       ///////////////////////////////////////////////////////////////////
     protected:
       const SiDetectorDesign *m_design; // local description of this detector element
-      //const AtlasDetectorID* m_idHelper; // id helper
-      SiCommonItems * m_commonItems;
     
       const SiDetectorElement * m_nextInEta;
       const SiDetectorElement * m_prevInEta;
