@@ -14,6 +14,10 @@ Muon::RpcRdoToPrepDataToolMT::RpcRdoToPrepDataToolMT( const std::string& type, c
   : AthAlgTool( type, name, parent ),
     RpcRdoToPrepDataToolCore( type, name, parent )
 {
+  declareProperty("RpcPrdContainerCacheKey", m_prdContainerCacheKey, 
+    "Optional external cache for the RPC PRD container");
+  declareProperty("RpcCoinDataContainerCacheKey", m_coindataContainerCacheKey, 
+    "Optional external cache for the RPC coin data container");
 }
 
 Muon::RpcRdoToPrepDataToolMT::~RpcRdoToPrepDataToolMT()
@@ -24,7 +28,10 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::initialize()
 {
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( RpcRdoToPrepDataToolCore::initialize() );
+  ATH_CHECK( m_prdContainerCacheKey.initialize( SG::AllowEmpty ) );
+  ATH_CHECK( m_coindataContainerCacheKey.initialize( SG::AllowEmpty ) );
   ATH_MSG_DEBUG("initialize() successful in " << name());
+  
   return StatusCode::SUCCESS;
 }
 
@@ -35,55 +42,71 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::finalize()
 
 StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeInTheEvent)
 {
-  // MT version of this method always adds container. Caching will be added later.
-  SG::WriteHandle< Muon::RpcPrepDataContainer > rpcPrepDataHandle(m_rpcPrepDataContainerKey);
-  if(!rpcPrepDataHandle.isPresent()) {
-    firstTimeInTheEvent = true;
+  // firstTimeInTheEvent is meaningless in MT
+  // We will need to retrieve from cache even in different threads
+  SG::WriteHandle< Muon::RpcPrepDataContainer >rpcPRDHandle(m_rpcPrepDataContainerKey);
 
-    StatusCode status = rpcPrepDataHandle.record(std::make_unique<Muon::RpcPrepDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
+  // Caching of PRD container
+  const bool externalCachePRD = !m_prdContainerCacheKey.key().empty();
 
-    if (status.isFailure() || !rpcPrepDataHandle.isValid() ) 	{
-      ATH_MSG_FATAL("Could not record container of RPC PrepData Container at " << m_rpcPrepDataContainerKey.key());
-      return status;
-    } else {
-      m_rpcPrepDataContainer = rpcPrepDataHandle.ptr();
-      ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_rpcPrepDataContainerKey.key() << ", " << rpcPrepDataHandle.key());
+  if (!externalCachePRD) {
+    // without the cache we just record the container
+    StatusCode status = rpcPRDHandle.record(std::make_unique<Muon::RpcPrepDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
+    if (status.isFailure() || !rpcPRDHandle.isValid() )   {
+      ATH_MSG_FATAL("Could not record container of RPC PrepData Container at " << m_rpcPrepDataContainerKey.key()); 
+      return StatusCode::FAILURE;
     }
-
-    if (m_producePRDfromTriggerWords){
-      /// create an empty RPC trigger hit container for filling
-      SG::WriteHandle< Muon::RpcCoinDataContainer > rpcCoinDataHandle(m_rpcCoinDataContainerKey);
-      status = rpcCoinDataHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
-
-      if (status.isFailure() || !rpcCoinDataHandle.isValid() ) 	{
-        ATH_MSG_FATAL("Could not record container of RPC TrigCoinData Container at " << m_rpcCoinDataContainerKey.key());
-        return status;
-      } else {
-        m_rpcCoinDataContainer = rpcCoinDataHandle.ptr();
-	ATH_MSG_DEBUG("RPC TrigCoinData Container recorded in StoreGate with key " << m_rpcCoinDataContainerKey.key());
-      }      
-      ATH_MSG_VERBOSE(" RpcCoinDataContainer created");
-    } 
-    m_decodedOfflineHashIds.clear();
-    m_decodedRobIds.clear();
-
+    ATH_MSG_DEBUG("Created container " << m_rpcPrepDataContainerKey.key());
+  } 
+  else {
+    // use the cache to get the container
+    SG::UpdateHandle<RpcPrepDataCollection_Cache> update(m_prdContainerCacheKey);
+    if (!update.isValid()){
+      ATH_MSG_FATAL("Invalid UpdateHandle " << m_prdContainerCacheKey.key());
+      return StatusCode::FAILURE;
+    }
+    StatusCode status = rpcPRDHandle.record(std::make_unique<Muon::RpcPrepDataContainer>(update.ptr()));
+    if (status.isFailure() || !rpcPRDHandle.isValid() )   {
+      ATH_MSG_FATAL("Could not record container of RPC PrepData Container using cache " 
+        << m_prdContainerCacheKey.key() << " - " <<m_rpcPrepDataContainerKey.key()); 
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG("Created container using cache for " << m_prdContainerCacheKey.key());
   }
-  else{
-    const Muon::RpcPrepDataContainer* rpcPrepDataContainer_c;
-    ATH_CHECK( evtStore()->retrieve (rpcPrepDataContainer_c, m_rpcPrepDataContainerKey.key()) );
-    m_rpcPrepDataContainer = const_cast<Muon::RpcPrepDataContainer*> (rpcPrepDataContainer_c);
-    ATH_MSG_DEBUG("RPC PrepData Container is already in StoreGate ");
-    if (m_producePRDfromTriggerWords){
-      SG::WriteHandle< Muon::RpcCoinDataContainer > rpcCoinDataHandle(m_rpcCoinDataContainerKey);
-      if (!rpcCoinDataHandle.isPresent()) {
-        ATH_MSG_FATAL("Muon::RpcPrepDataContainer found while Muon::RpcCoinDataContainer not found in Event Store");
+  // Pass the container from the handle
+  m_rpcPrepDataContainer = rpcPRDHandle.ptr();
+
+  // Handle coin data if being used
+  if (m_producePRDfromTriggerWords){
+    SG::WriteHandle< Muon::RpcCoinDataContainer >rpcCoinHandle(m_rpcCoinDataContainerKey);
+    const bool externalCacheCoinData = !m_coindataContainerCacheKey.key().empty();
+    if(!externalCacheCoinData){
+      // without the cache we just record the container
+      StatusCode status = rpcCoinHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_muonIdHelperTool->rpcIdHelper().module_hash_max()));
+      if (status.isFailure() || !rpcCoinHandle.isValid() )   {
+        ATH_MSG_FATAL("Could not record container of RPC Coin Data Container at " << m_rpcCoinDataContainerKey.key()); 
         return StatusCode::FAILURE;
       }
-      const Muon::RpcCoinDataContainer* rpcCoinDataContainer_c;
-      ATH_CHECK( evtStore()->retrieve (rpcCoinDataContainer_c, m_rpcCoinDataContainerKey.key()) );
-      m_rpcCoinDataContainer = const_cast<Muon::RpcCoinDataContainer*> (rpcCoinDataContainer_c);
-      ATH_MSG_DEBUG("RPC CoinData Container is already in StoreGate ");
+      ATH_MSG_DEBUG("Created container " << m_rpcCoinDataContainerKey.key());
+    } 
+    else {
+      // use the cache to get the container
+      SG::UpdateHandle<RpcPrepDataCollection_Cache> update(m_coindataContainerCacheKey);
+      if (!update.isValid()){
+        ATH_MSG_FATAL("Invalid UpdateHandle " << m_coindataContainerCacheKey.key());
+        return StatusCode::FAILURE;
+      }
+      StatusCode status = rpcCoinHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(update.ptr()));
+      if (status.isFailure() || !rpcCoinHandle.isValid() )   {
+        ATH_MSG_FATAL("Could not record container of RPC Coin Data Container using cache " 
+          << m_coindataContainerCacheKey.key() << " - " <<m_rpcCoinDataContainerKey.key()); 
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG("Created container using cache for " << m_coindataContainerCacheKey.key());
     }
+    // Pass the container from the handle
+    m_rpcCoinDataContainer = rpcCoinDataHandle.ptr();
   }
+
   return StatusCode::SUCCESS;
 }
