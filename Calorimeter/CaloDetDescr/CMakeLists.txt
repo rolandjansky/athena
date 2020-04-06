@@ -33,7 +33,7 @@ atlas_add_library( CaloDetDescrLib
                    PUBLIC_HEADERS CaloDetDescr
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel AthContainers GeoPrimitives Identifier GaudiKernel LArReadoutGeometry StoreGateLib SGtests
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel AthContainers GeoPrimitives Identifier GaudiKernel LArReadoutGeometry StoreGateLib SGtests GeoModelInterfaces
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloConditions CaloGeoHelpers )
 
 atlas_add_component( CaloDetDescr
