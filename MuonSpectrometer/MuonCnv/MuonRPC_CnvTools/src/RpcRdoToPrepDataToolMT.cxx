@@ -91,7 +91,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
     } 
     else {
       // use the cache to get the container
-      SG::UpdateHandle<RpcPrepDataCollection_Cache> update(m_coindataContainerCacheKey);
+      SG::UpdateHandle<RpcCoinDataCollection_Cache> update(m_coindataContainerCacheKey);
       if (!update.isValid()){
         ATH_MSG_FATAL("Invalid UpdateHandle " << m_coindataContainerCacheKey.key());
         return StatusCode::FAILURE;
@@ -105,7 +105,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
       ATH_MSG_DEBUG("Created container using cache for " << m_coindataContainerCacheKey.key());
     }
     // Pass the container from the handle
-    m_rpcCoinDataContainer = rpcCoinDataHandle.ptr();
+    m_rpcCoinDataContainer = rpcCoinHandle.ptr();
   }
 
   return StatusCode::SUCCESS;
