@@ -1,4 +1,4 @@
-
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 #from AthenaCommon.Constants import DEBUG
@@ -61,8 +61,8 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     for k, v in SecVertexingAndAssociators.items():
         if v not in TrackToJetAssociators:
             raise RuntimeError( v + ' is not configured')
-        acc.merge(JetSecVtxFindingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, k, v))
-        JetSecVertexingAlg = JetSecVertexingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, k, v)
+        acc.merge(JetSecVtxFindingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputVertex, k, v))
+        JetSecVertexingAlg = JetSecVertexingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputVertex, k, v)
         SecVertexingAlg = JetSecVertexingAlg.getEventAlgo(inputJets.replace("Jets","").lower() + "_" + k.lower() + "_secvtx") #If inputJets.replace("Jets","") is used in JetSecVertexingAlgCfg; Have to change it here aswell
         if k == "JetFitter":
             SecVertexingAlg.BTagJFVtxCollectionName = recordable("HLT_JFVtx")
@@ -70,7 +70,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
             SecVertexingAlg.BTagSVCollectionName = recordable("HLT_SecVtx")
         acc.merge(JetSecVertexingAlg)
     
-    JetBTaggingAlg = JetBTaggingAlgCfg(ConfigFlags, JetCollection = inputJets.replace("Jets",""), TaggerList = ConfigFlags.BTagging.TrigTaggersList, SetupScheme = "Trig", SVandAssoc = SecVertexingAndAssociators, **kwargs)
+    JetBTaggingAlg = JetBTaggingAlgCfg(ConfigFlags, JetCollection = inputJets.replace("Jets",""), PrimaryVertexCollectionName=inputVertex, TaggerList = ConfigFlags.BTagging.TrigTaggersList, SetupScheme = "Trig", SVandAssoc = SecVertexingAndAssociators, **kwargs)
     BTaggingAlg = JetBTaggingAlg.getEventAlgo((ConfigFlags.BTagging.OutputFiles.Prefix + inputJets.replace("Jets","") + ConfigFlags.BTagging.GeneralToolSuffix).lower()) #Defined in JetBTaggingAlgConfig.py; Ends up to be "btagging_hlt_inview"
     BTaggingAlg.BTaggingCollectionName = recordable("HLT_OfflineBTagging")
     acc.merge(JetBTaggingAlg)

@@ -73,7 +73,7 @@ class BjetChainConfiguration(ChainConfigurationBase):
     def getBjetSequence_btag(self):
         stepName = "Step3_bjet"
         log.debug("Configuring step " + stepName)
-
+        
         return self.getStep(3, stepName, [bjetSequenceCfg_btag])
 
 

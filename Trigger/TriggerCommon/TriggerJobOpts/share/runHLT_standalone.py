@@ -559,9 +559,9 @@ Configurable.configurableRun3Behavior-=1
 
 # B-jet output file
 if opt.doBjetSlice or opt.forceEnableAllChains:
-    from TriggerJobOpts.JetTagCalibConfig import JetTagCalibCfg
+    from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
     alias = ["HLT_InView->HLT_InView,AntiKt4EMTopo"]
-    topSequence+=JetTagCalibCfg(ConfigFlags, ChannelAlias = alias)
+    topSequence+=JetTagCalibCfg(ConfigFlags, scheme="Trig", ChannelAlias = alias)
 
 # Trigger output
 if opt.doWriteBS or opt.doWriteRDOTrigger:

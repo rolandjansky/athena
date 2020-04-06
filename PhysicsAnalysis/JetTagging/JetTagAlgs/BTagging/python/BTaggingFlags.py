@@ -355,15 +355,13 @@ class _BTaggingFlags:
         setattr(self, attr, 'matchQuark')
 
       for attr in self._TrackParticleCollectionName:
-        #setattr(self, attr, 'InDetTrackParticles')
-        setattr(self, attr, 'HLT_IDTrack_bjet_IDTrig')
+        setattr(self, attr, 'InDetTrackParticles')
 
       for attr in self._TrackParticleTruthCollectionName:
         setattr(self, attr, 'TrackParticleTruthCandidate')
 
       for attr in self._PrimaryVertexCollectionName:
-        #setattr(self, attr, 'PrimaryVertices')
-        setattr(self, attr, 'HLT_EFHistoPrmVtx')
+        setattr(self, attr, 'PrimaryVertices')
 
       for attr in self._MuonCollectionName:
         setattr(self, attr, 'Muons')
@@ -398,8 +396,7 @@ class _BTaggingFlags:
 
 
       #defaultJetCollections = ['AntiKt4LCTopo','AntiKt6LCTopo','AntiKt4TopoEM','AntiKt6TopoEM']
-      #defaultJetCollections = ['AntiKt4EMTopo']
-      defaultJetCollections = ['InView']
+      defaultJetCollections = ['AntiKt4EMTopo']
 
       for attr in self._Jets:
         setattr(self, attr, defaultJetCollections[:])

@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 # menu components
@@ -105,6 +105,8 @@ def bJetStep2Sequence():
     inViewReco = InViewReco("bJetBtagSequence", viewMaker= InputMakerAlg)
     inViewReco.addRecoAlg(secondStageAlgs)
     inViewReco.mergeReco(acc_flavourTaggingAlgs)
+    acc_flavourTaggingAlgs.wasMerged()
+    inViewReco.wasMerged()
 
     Configurable.configurableRun3Behavior=0
     

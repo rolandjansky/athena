@@ -2,8 +2,8 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from IOVDbSvc.IOVDbSvcConfig import addFolders
-from BTagging.BTaggingFlags import BTaggingFlags
+#from IOVDbSvc.IOVDbSvcConfig import addFolders
+#from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.JetBTaggerAlgConfig import JetBTaggerAlgCfg
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
 from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
@@ -12,46 +12,7 @@ from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
 from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
 from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
 from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
-
-def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
-    result=ComponentAccumulator()
-
-    #if ConfInstance.checkFlagsUsingBTaggingFlags():
-    if True:
-      #IP2D
-      grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
-                  "0HitInExp", "0HitIn",
-                  "0HitNInExp", "0HitNIn",
-                  "InANDNInShared", "PixShared", "SctShared",
-                  "InANDNInSplit", "PixSplit",
-                  "Good"]
-
-      #IP3D
-      #Same as IP2D. Revisit JetTagCalibCondAlg.cxx if not.
-
-      JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
-      jettagcalibcondalg = "JetTagCalibCondAlg"
-      readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
-      connSchema = "GLOBAL_OFL"
-      if not ConfigFlags.Input.isMC:
-          readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
-          connSchema = "GLOBAL"
-      histoskey = "JetTagCalibHistosKey"
-      result.merge(addFolders(ConfigFlags,[readkeycalibpath], connSchema, className='CondAttrListCollection'))
-      JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
-  # Maybe needed for trigger use
-  #from IOVDbSvc.CondDB import conddb
-  #if conddb.dbdata == 'COMP200':
-  #  conddb.addFolder("GLOBAL_ONL", "/GLOBAL/Onl/BTagCalib/RUN12", className='CondAttrListCollection')
-  #  if globalflags.DataSource()!='data':
-  #    conddb.addFolder("GLOBAL_ONL", "/GLOBAL/Onl/TrigBTagCalib/RUN12", className='CondAttrListCollection')
-  #elif conddb.isMC:
-  #  conddb.addFolder("GLOBAL_OFL", "/GLOBAL/BTagCalib/RUN12", className='CondAttrListCollection')
-  #  conddb.addFolder("GLOBAL_OFL", "/GLOBAL/TrigBTagCalib/RUN12", className='CondAttrListCollection')
-
-    result.addCondAlgo(JetTagCalib)
-
-    return result
+from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
 
 def registerJetCollectionEL(flags, JetCollection, TimeStamp):
     ItemList = []
@@ -248,16 +209,16 @@ def BTagCfg(inputFlags,**kwargs):
             for k, v in SecVertexingAndAssociators.items():
                 if v not in TrackToJetAssociators:
                     raise RuntimeError( v + ' is not configured')
-                result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "InDetTrackParticles", k, v))
+                result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "PrimaryVertices", k, v))
 
                 #Sec vertexing
-                result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", k, v))
+                result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "PrimaryVertices", k, v))
 
             #result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'MSV', 'BTagTrackToJetAssociatorBB'))
 
             #BTagging
             for ts in timestamp:
-                result.merge(JetBTaggingAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, SVandAssoc = SecVertexingAndAssociators, TimeStamp = ts, **kwargs))
+                result.merge(JetBTaggingAlgCfg(inputFlags, JetCollection = jet, PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerList, SVandAssoc = SecVertexingAndAssociators, TimeStamp = ts, **kwargs))
 
             if jet in postTagDL2JetToTrainingMap:
                 #Track Augmenter
@@ -269,7 +230,7 @@ def BTagCfg(inputFlags,**kwargs):
                         result.merge(RunHighLevelTaggersCfg(inputFlags, jet, 'BTagTrackToJetAssociator', postTagDL2JetToTrainingMap[jet], ts))
 
         else:
-            result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
+            result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet,  PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerList, **kwargs))
 
     return result
 
