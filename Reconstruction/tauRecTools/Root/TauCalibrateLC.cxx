@@ -252,7 +252,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
     double phiCorr = phi;
 
     // TauCalibrateLC should then only be called after Pantau !!
-    if(m_usePantauAxis && fabs(pTau.etaPanTauCellBased()) < 111) {      
+    if(m_usePantauAxis && std::abs(pTau.etaPanTauCellBased()) < 111) {      
       etaCorr = pTau.etaPanTauCellBased();
       phiCorr = pTau.phiPanTauCellBased();      
     }
