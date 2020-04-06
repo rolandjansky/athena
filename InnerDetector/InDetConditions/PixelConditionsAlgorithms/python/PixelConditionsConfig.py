@@ -10,8 +10,8 @@ from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelITkOffl
 def PixelITkOfflineCalibCondAlgCfg(flags, name="PixelITkOfflineCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelITkOfflineCalibCondAlg"""
     acc = ComponentAccumulator()
-    acc.merge(addFolders(flags, "/PIXEL/PixReco", "PIXEL_OFL", className="DetCondCFloat"))
-    kwargs.setdefault("ReadKey", "/PIXEL/PixReco")
+    acc.merge(addFolders(flags, "/PIXEL/PixelITkClusterErrorData", "PIXEL_OFL", className="CondAttrListCollection"))
+    kwargs.setdefault("ReadKey", "/PIXEL/PixelITkClusterErrorData")
     kwargs.setdefault("WriteKey", "PixelITkOfflineCalibData")
     kwargs.setdefault("InputSource", 2)
     acc.addCondAlgo(PixelITkOfflineCalibCondAlg(name, **kwargs))

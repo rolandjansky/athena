@@ -24,3 +24,14 @@ if geoFlags.isSLHC() and not hasattr(condSeq, 'PixelITkOfflineCalibCondAlg'):
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelITkOfflineCalibCondAlg
     condSeq += PixelITkOfflineCalibCondAlg(name="PixelITkOfflineCalibCondAlg", ReadKey="/PIXEL/PixelITkClusterErrorData")
     PixelITkOfflineCalibCondAlg.InputSource = 2
+
+    from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.GlobalFlags import globalflags
+    CoolDataBaseFolder = '/PIXEL/PixelITkClusterErrorData'
+    DetDescrVersion = globalflags.DetDescrVersion()
+    if(DetDescrVersion.startswith('ATLAS-P2-ITK-22')):
+        ctag = 'PixelITkError_v1'
+    else:
+        print "Undefined PixelITkClusterErrorData tag"
+    cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
+    conddb.addFolderSplitMC('PIXEL',cfoldertag,cfoldertag)
