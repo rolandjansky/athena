@@ -619,8 +619,6 @@ namespace InDetDD {
       // Protected data:
       ///////////////////////////////////////////////////////////////////
     protected:
-      const SiDetectorDesign *m_design; // local description of this detector element
-    
       const SiDetectorElement * m_nextInEta;
       const SiDetectorElement * m_prevInEta;
       const SiDetectorElement * m_nextInPhi;
@@ -747,7 +745,7 @@ namespace InDetDD {
 
     inline const SiDetectorDesign &SiDetectorElement::design() const
     {
-      return *m_design;
+      return *dynamic_cast<const SiDetectorDesign *>(m_design);
     }
     
     inline const AtlasDetectorID* SiDetectorElement::getIdHelper() const
@@ -786,12 +784,12 @@ namespace InDetDD {
     
     inline InDetDD::CarrierType SiDetectorElement::carrierType() const
     {
-      return m_design->carrierType();
+      return dynamic_cast<const SiDetectorDesign *>(m_design)->carrierType();
     }
     
     inline SiCellId SiDetectorElement::gangedCell(const SiCellId & cellId) const
     {
-      return m_design->gangedCell(cellId);
+      return dynamic_cast<const SiDetectorDesign *>(m_design)->gangedCell(cellId);
     }
     
     inline void SiDetectorElement::invalidate() const
@@ -851,42 +849,42 @@ namespace InDetDD {
     
     inline double SiDetectorElement::width() const
     {
-      return m_design->width();
+      return dynamic_cast<const SiDetectorDesign *>(m_design)->width();
     }
     
     inline double SiDetectorElement::minWidth() const
     {
-      return m_design->minWidth();
+      return dynamic_cast<const SiDetectorDesign *>(m_design)->minWidth();
     }
     
     inline double SiDetectorElement::maxWidth() const
     {
-      return m_design->maxWidth();
+      return dynamic_cast<const SiDetectorDesign *>(m_design)->maxWidth();
     }
     
     inline double SiDetectorElement::length() const
     {
-      return m_design->length();
+      return dynamic_cast<const SiDetectorDesign *>(m_design)->length();
     }
     
     inline double SiDetectorElement::thickness() const
     {
-      return m_design->thickness();
+      return dynamic_cast<const SiDetectorDesign *>(m_design)->thickness();
     }
     
     inline double SiDetectorElement::etaPitch() const
     {
-      return m_design->etaPitch();
+      return dynamic_cast<const SiDetectorDesign *>(m_design)->etaPitch();
     }
     
     inline double SiDetectorElement::phiPitch() const
     {
-      return m_design->phiPitch();
+      return dynamic_cast<const SiDetectorDesign *>(m_design)->phiPitch();
     }
     
     inline double SiDetectorElement::phiPitch(const Amg::Vector2D & localPosition) const
     {
-      return m_design->phiPitch(localPosition);
+      return dynamic_cast<const SiDetectorDesign *>(m_design)->phiPitch(localPosition);
     }
     
     inline const SiDetectorElement * SiDetectorElement::nextInEta() const
@@ -941,16 +939,16 @@ namespace InDetDD {
     
     inline bool SiDetectorElement::swapPhiReadoutDirection() const
     {
-      // equivalent to (m_design->swapHitPhiReadoutDirection() xor !m_phiDirection)
-      return ((!m_design->swapHitPhiReadoutDirection() && !m_phiDirection)
-    	  || (m_design->swapHitPhiReadoutDirection() && m_phiDirection));
+      // equivalent to (dynamic_cast<const SiDetectorDesign *>(m_design)->swapHitPhiReadoutDirection() xor !m_phiDirection)
+      return ((!dynamic_cast<const SiDetectorDesign *>(m_design)->swapHitPhiReadoutDirection() && !m_phiDirection)
+    	  || (dynamic_cast<const SiDetectorDesign *>(m_design)->swapHitPhiReadoutDirection() && m_phiDirection));
     }
     
     inline bool SiDetectorElement::swapEtaReadoutDirection() const
     {
-      // equivalent to (m_design->swapHitEtaReadoutDirection() xor !m_etaDirection)
-      return ((!m_design->swapHitEtaReadoutDirection() && !m_etaDirection)
-    	  || (m_design->swapHitEtaReadoutDirection() && m_etaDirection));
+      // equivalent to (dynamic_cast<const SiDetectorDesign *>(m_design)->swapHitEtaReadoutDirection() xor !m_etaDirection)
+      return ((!dynamic_cast<const SiDetectorDesign *>(m_design)->swapHitEtaReadoutDirection() && !m_etaDirection)
+    	  || (dynamic_cast<const SiDetectorDesign *>(m_design)->swapHitEtaReadoutDirection() && m_etaDirection));
     }
     
     inline double SiDetectorElement::getTanLorentzAnglePhi() const

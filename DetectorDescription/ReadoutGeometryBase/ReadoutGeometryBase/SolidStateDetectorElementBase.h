@@ -12,6 +12,7 @@
 // Base class.
 #include "TrkDetElementBase/TrkDetElementBase.h"
 
+#include "ReadoutGeometryBase/DetectorDesign.h"
 #include "ReadoutGeometryBase/SiCommonItems.h"
 
 namespace InDetDD {
@@ -25,14 +26,9 @@ class SolidStateDetectorElementBase : public Trk::TrkDetElementBase {
 
         // Constructor
         SolidStateDetectorElementBase(const Identifier &id,
+                                      const DetectorDesign *design,
                                       const GeoVFullPhysVol *geophysvol,
                                       SiCommonItems *commonItems);
-
-        // // Constructor
-        // SolidStateDetectorElementBase(const Identifier &id,
-        //                               const SiDetectorDesign *design,
-        //                               const GeoVFullPhysVol *geophysvol,
-        //                               SiCommonItems * commonItems);
 
         // Destructor
         ~SolidStateDetectorElementBase();
@@ -43,7 +39,7 @@ class SolidStateDetectorElementBase : public Trk::TrkDetElementBase {
     protected:
         Identifier m_id; // identifier of this detector element
         IdentifierHash m_idHash; // hash id
-        //const SiDetectorDesign *m_design; // local description of this detector element
+        const DetectorDesign *m_design; // local description of this detector element
         SiCommonItems * m_commonItems;
 
 };
