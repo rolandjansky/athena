@@ -14,7 +14,7 @@ from JetTagTools.SpecialTrackAssociatorConfig import SpecialTrackAssociatorCfg
 # import the IPTag configurable
 Analysis__IPTag=CompFactory.Analysis__IPTag
 
-def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = True, **options ):
+def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a IP3DTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -52,7 +52,7 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
             trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))
             likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP3DNewLikelihoodTool', 'IP3D', scheme))
             inDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectorCfg('InDetTrackSelector'))
-            trackVertexAssociationTool = acc.popToolsAndMerge(SpecialTrackAssociatorCfg('SpecialTrackAssociator'))
+            trackVertexAssociationTool = acc.popToolsAndMerge(SpecialTrackAssociatorCfg('SpecialTrackAssociator', PrimaryVertexCollectionName))
 
             defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,

@@ -31,7 +31,7 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
 
       if 'IP3D' in TaggerList:
           from JetTagTools.IP3DTagConfig import IP3DTagCfg
-          ip3dtool = acc.popToolsAndMerge(IP3DTagCfg(ConfigFlags, 'IP3DTag', scheme))
+          ip3dtool = acc.popToolsAndMerge(IP3DTagCfg(ConfigFlags, 'IP3DTag', PrimaryVertexCollectionName, scheme))
           tagToolList.append(ip3dtool)
 
       if 'SV1' in TaggerList:
