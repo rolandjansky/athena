@@ -621,7 +621,7 @@ class primaryVertexSetup(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['str']
     allowedValues= [ 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding', 'DummyVxFinder', 'MedImgMultiFinding', 'GaussIterativeFinding', 'GaussAdaptiveMultiFinding' ]
-    StoredValue  = 'IterativeFinding'
+    StoredValue  = 'GaussAdaptiveMultiFinding'
 
 class primaryVertexCutSetup(InDetFlagsJobProperty):
     """ string to store the type of cuts to be used in PV reconstruction: 'Offline', 'IBL', 'SLHC' 'HeavyIon' """
@@ -1648,7 +1648,7 @@ class InDetJobProperties(JobPropertyContainer):
           self.checkThenSet(self.priVtxCutLevel         , 1    )
        else:
           # --- vertexing setup is the pileup one now (if not set already above)
-          self.checkThenSet(self.primaryVertexSetup   , "IterativeFinding")
+          self.checkThenSet(self.primaryVertexSetup   , "GaussAdaptiveMultiFinding")
           self.checkThenSet(self.primaryVertexCutSetup, "Offline")
 
     # --- turn off brem reco for non collision reconstruction
