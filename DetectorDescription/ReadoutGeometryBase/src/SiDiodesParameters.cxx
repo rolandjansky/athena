@@ -11,7 +11,7 @@
 // Version 1.0 14/08/2001 David Calvet
 ///////////////////////////////////////////////////////////////////
 
-#include "InDetReadoutGeometry/SiDiodesParameters.h"
+#include "ReadoutGeometryBase/SiDiodesParameters.h"
 
 namespace InDetDD {
 

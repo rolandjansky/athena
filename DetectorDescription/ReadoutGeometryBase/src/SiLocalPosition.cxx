@@ -11,7 +11,7 @@
 // Version 2.1 01/08/2001 David Calvet
 ///////////////////////////////////////////////////////////////////
 
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 
 namespace InDetDD {
 

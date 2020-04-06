@@ -23,8 +23,8 @@
 #include "CLHEP/Units/PhysicalConstants.h" // for M_PI
 #include "CLHEP/Units/SystemOfUnits.h" 
 
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 
 
 #include "ReadoutGeometryBase/SiCommonItems.h"

@@ -12,14 +12,13 @@
 #define INDETREADOUTGEOMETRY_SIDETECTORDESIGN_H
 
 // Input/output classes
-#include "InDetReadoutGeometry/SiDiodesParameters.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiDiodesParameters.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "GeoModelKernel/RCBase.h"
-#include "InDetDD_Defs.h"
 
 #include <list>
 #include <vector>

@@ -12,7 +12,7 @@
 #define INDETREADOUTGEOMETRY_SIDIODESPARAMETERS_H
 
 // Data members classes
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 
 namespace InDetDD {
    

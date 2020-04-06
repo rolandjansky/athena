@@ -12,7 +12,7 @@
 #define INDETREADOUTGEOMETRY_SIREADOUTCELLID_H
 
 // Base class
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 
 namespace InDetDD {
 

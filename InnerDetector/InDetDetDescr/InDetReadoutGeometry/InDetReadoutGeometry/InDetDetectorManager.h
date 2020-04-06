@@ -15,7 +15,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 // GeoModel stuff
 #include "GeoModelKernel/GeoVDetectorManager.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "CLHEP/Geometry/Transform3D.h"
 // Message Stream Member
