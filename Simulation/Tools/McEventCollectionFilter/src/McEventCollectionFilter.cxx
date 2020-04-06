@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////
@@ -18,8 +18,12 @@
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonSimEvent/CSCSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHit.h"
 #include "MuonSimEvent/CSCSimHit.h"
+#include "MuonSimEvent/sTGCSimHit.h"
+#include "MuonSimEvent/MMSimHit.h"
 // CLHEP
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -35,6 +39,9 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
  declareProperty("McEventCollection" , m_mcEventCollection  = "TruthEvent");
  declareProperty("PileupPartPDGID"   , m_PileupPartPDGID    = 999);  //Geantino
  declareProperty("UseTRTHits"        , m_UseTRTHits   = true);  //
+ declareProperty("UseCSCHits"        , m_UseCSCHits   = true);  // If symmetric RUN3, CSCs are turned off, otherwise default to on
+ declareProperty("UseSTGCHits"       , m_UseSTGCHits   = false);  // Both NSW technologies are turned off by default. They are turned automatically if RUN3 geometry is used.
+ declareProperty("UseMMHits"         , m_UseMMHits   = false);  //
 
  m_RefBarcode=0;
 }
@@ -68,24 +75,36 @@ StatusCode McEventCollectionFilter::execute(){
   ATH_CHECK( ReduceMCEventCollection() );
 
   //.......to relink all Si hits to the new particle
-  ATH_CHECK( SiHistsTruthRelink() );
+  ATH_CHECK( SiHitsTruthRelink() );
 
   //.......to relink all TRT hits to the new particle
   if(m_UseTRTHits) {
-    ATH_CHECK( TRTHistsTruthRelink() );
+    ATH_CHECK( TRTHitsTruthRelink() );
   }
 
   //.......to relink all MDT hits to the new particle
-  ATH_CHECK( MDTHistsTruthRelink() );
+  ATH_CHECK( MDTHitsTruthRelink() );
 
   //.......to relink all CSC hits to the new particle
-  ATH_CHECK( CSCHistsTruthRelink() );
+  if(m_UseCSCHits) {
+    ATH_CHECK( CSCHitsTruthRelink() );
+  }
 
   //.......to relink all RPC hits to the new particle
-  ATH_CHECK( RPCHistsTruthRelink() );
+  ATH_CHECK( RPCHitsTruthRelink() );
 
   //.......to relink all TGC hits to the new particle
-  ATH_CHECK( TGCHistsTruthRelink() );
+  ATH_CHECK( TGCHitsTruthRelink() );
+
+  //.......to relink all STGC hits to the new particle
+  if(m_UseSTGCHits) {
+    ATH_CHECK( STGC_HitsTruthRelink() );
+  }
+
+  //.......to relink all MM hits to the new particle
+  if(m_UseMMHits) {
+    ATH_CHECK( MM_HitsTruthRelink() );
+  }
 
   ATH_MSG_DEBUG( "succeded McEventCollectionFilter ..... " );
 
@@ -204,7 +223,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 
 }
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::SiHistsTruthRelink(){
+StatusCode McEventCollectionFilter::SiHitsTruthRelink(){
 //--------------------------------------------------------
 //.......to relink all Si hits to the new particle
 //--------------------------------------------------------
@@ -259,7 +278,7 @@ StatusCode McEventCollectionFilter::SiHistsTruthRelink(){
 }
 
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::TRTHistsTruthRelink(){
+StatusCode McEventCollectionFilter::TRTHitsTruthRelink(){
 //--------------------------------------------------------
 //.......to relink all TRT hits to the new particle
 //--------------------------------------------------------
@@ -316,7 +335,7 @@ StatusCode McEventCollectionFilter::TRTHistsTruthRelink(){
 
 }
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::MDTHistsTruthRelink(){
+StatusCode McEventCollectionFilter::MDTHitsTruthRelink(){
 //--------------------------------------------------------
 //.......to relink all MDT hits to the new particle
 //--------------------------------------------------------
@@ -368,7 +387,7 @@ StatusCode McEventCollectionFilter::MDTHistsTruthRelink(){
 
 }
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::CSCHistsTruthRelink(){
+StatusCode McEventCollectionFilter::CSCHitsTruthRelink(){
 //--------------------------------------------------------
 //.......to relink all CSC hits to the new particle
 //--------------------------------------------------------
@@ -417,7 +436,7 @@ StatusCode McEventCollectionFilter::CSCHistsTruthRelink(){
 }
 
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::RPCHistsTruthRelink(){
+StatusCode McEventCollectionFilter::RPCHitsTruthRelink(){
 //--------------------------------------------------------
 //.......to relink all RPC hits to the new particle
 //--------------------------------------------------------
@@ -467,7 +486,7 @@ StatusCode McEventCollectionFilter::RPCHistsTruthRelink(){
 }
 
 //--------------------------------------------------------
-StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
+StatusCode McEventCollectionFilter::TGCHitsTruthRelink(){
 //--------------------------------------------------------
 //.......to relink all TGC hits to the new particle
 //--------------------------------------------------------
@@ -510,6 +529,97 @@ StatusCode McEventCollectionFilter::TGCHistsTruthRelink(){
 
   //.......write new  TGCSimHitCollection
   ATH_CHECK( evtStore()->record(pTGCHitCollNew,m_HitName) );
+  return StatusCode::SUCCESS;
+}
+
+//--------------------------------------------------------
+StatusCode McEventCollectionFilter::STGC_HitsTruthRelink(){
+//--------------------------------------------------------
+//.......to relink all STGC hits to the new particle
+//--------------------------------------------------------
+  m_HitName="sTGCSensitiveDetector";
+  const DataHandle<sTGCSimHitCollection> pSTGCHitColl;
+
+  if(evtStore()->contains<sTGCSimHitCollection>(m_HitName)) {
+    ATH_CHECK( evtStore()->retrieve(pSTGCHitColl, m_HitName) );
+  } else {
+    ATH_MSG_ERROR( "Could not find sTGCSimHitCollection  containing " << m_HitName );
+    return StatusCode::FAILURE;
+  }
+
+  sTGCSimHitCollection* pSTGCHitC = const_cast<sTGCSimHitCollection*> (&*pSTGCHitColl);
+
+  //.......Create new sTGCSimHitCollection
+  sTGCSimHitCollection* pSTGCHitCollNew = new sTGCSimHitCollection();
+
+  for(sTGCSimHitConstIterator i=pSTGCHitColl->begin();i!=pSTGCHitColl->end();++i){
+    const HepMcParticleLink oldLink = (*i).particleLink();
+    int curBarcode=0;
+    if(oldLink.barcode()!=0)  curBarcode=m_RefBarcode;
+    HepMcParticleLink partLink(curBarcode, oldLink.eventIndex(), oldLink.getEventCollection());
+
+    int             id = (*i).sTGCId();
+    double        time = (*i).globalTime();
+    Amg::Vector3D  pos = (*i).globalPosition();
+    int          pdgID = (*i).particleEncoding();
+    Amg::Vector3D  dir = (*i).globalDirection();
+    double   enDeposit = (*i).depositEnergy();
+
+    pSTGCHitCollNew->Emplace(id,time,pos,pdgID,dir,enDeposit,partLink);
+
+  }
+
+  //.......remove old sTGCSimHitCollection
+  ATH_CHECK( evtStore()->remove(pSTGCHitC) );
+
+  //.......write new  sTGCSimHitCollection
+  ATH_CHECK( evtStore()->record(pSTGCHitCollNew,m_HitName) );
+  return StatusCode::SUCCESS;
+}
+
+//--------------------------------------------------------
+StatusCode McEventCollectionFilter::MM_HitsTruthRelink(){
+//--------------------------------------------------------
+//.......to relink all MM hits to the new particle
+//--------------------------------------------------------
+  m_HitName="MicromegasSensitiveDetector";
+  const DataHandle<MMSimHitCollection> pMMHitColl;
+
+  if(evtStore()->contains<MMSimHitCollection>(m_HitName)) {
+    ATH_CHECK( evtStore()->retrieve(pMMHitColl, m_HitName) );
+  } else {
+    ATH_MSG_ERROR( "Could not find MMSimHitCollection  containing " << m_HitName );
+    return StatusCode::FAILURE;
+  }
+
+  MMSimHitCollection* pMMHitC = const_cast<MMSimHitCollection*> (&*pMMHitColl);
+
+  //.......Create new MMSimHitCollection
+  MMSimHitCollection* pMMHitCollNew = new MMSimHitCollection();
+
+  for(MMSimHitConstIterator i=pMMHitColl->begin();i!=pMMHitColl->end();++i){
+    const HepMcParticleLink oldLink = (*i).particleLink();
+    int curBarcode=0;
+    if(oldLink.barcode()!=0)  curBarcode=m_RefBarcode;
+    HepMcParticleLink partLink(curBarcode, oldLink.eventIndex(), oldLink.getEventCollection());
+
+    int             id = (*i).MMId();
+    double        time = (*i).globalTime();
+    Amg::Vector3D  pos = (*i).globalPosition();
+    int          pdgID = (*i).particleEncoding();
+    double    kinEnergy = (*i).kineticEnergy();
+    Amg::Vector3D  dir = (*i).globalDirection();
+    double   enDeposit = (*i).depositEnergy();
+
+    pMMHitCollNew->Emplace(id,time,pos,pdgID,kinEnergy,dir,enDeposit,partLink);
+
+  }
+
+  //.......remove old MMSimHitCollection
+  ATH_CHECK( evtStore()->remove(pMMHitC) );
+
+  //.......write new  MMSimHitCollection
+  ATH_CHECK( evtStore()->record(pMMHitCollNew,m_HitName) );
   return StatusCode::SUCCESS;
 }
 
