@@ -88,8 +88,6 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
 void
 SiDetectorElement::commonConstructor() 
 {
-  if (!m_id.is_valid()) throw std::runtime_error("SiDetectorElement: Invalid identifier");
-
   // Set booleans for wether we are pixel/sct barrel/endcap
   m_isPixel = getIdHelper()->is_pixel(m_id);
   if (!m_isPixel && !getIdHelper()->is_sct(m_id)){
@@ -130,11 +128,6 @@ SiDetectorElement::commonConstructor()
   // Increase the reference count of the SiDetectorDesign objects.
   m_design->ref();
 
-  // Increase the reference count of the SiCommonItems objects.
-  m_commonItems->ref();
-
-  // Should we reference count the geophysvol as well?
-
 }
 
 
@@ -145,8 +138,6 @@ SiDetectorElement::~SiDetectorElement()
 
   // The design is reference counted so that it will not be deleted until the last element is deleted.
   m_design->unref();
-
-  m_commonItems->unref();
 
 }
 
