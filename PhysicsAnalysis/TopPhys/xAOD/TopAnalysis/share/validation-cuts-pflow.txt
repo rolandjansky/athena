@@ -100,8 +100,6 @@ MuonIsolation FCTight_FixedRad
 MuonIsolationLoose None
 doExtraSmearing False
 do2StationsHighPt False
-doExtraSmearingLoose False
-do2StationsHighPt False
 
 ### Tau configuration
 TauPt 25000
