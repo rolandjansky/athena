@@ -39,8 +39,6 @@ namespace top {
     declareProperty("SoftMuonSelectionTool", m_softmuonSelectionTool);
     declareProperty("SoftMuonEfficiencyCorrectionsTool", m_softmuonEfficiencyCorrectionsTool);
 
-    declareProperty("MuonCalibrationAndSmearingTool", m_muonCalibrationAndSmearingTool);
-    declareProperty("MuonCalibrationAndSmearingToolLoose", m_muonCalibrationAndSmearingToolLoose);
   }
 
   StatusCode MuonCPTools::initialize() {
@@ -68,20 +66,19 @@ namespace top {
   StatusCode MuonCPTools::setupCalibration() {
     ///-- Calibration and smearing --///
     using IMuCalibSmearTool = CP::IMuonCalibrationAndSmearingTool;
-    ATH_MSG_INFO("Setting up MuonCalibrationPeriodTool for 2015+2016 and 2017 data");
+    ATH_MSG_INFO("Setting up MuonCalibrationPeriodTool for 2015+2016, 2017 and 2018 data");
     const std::string mu_calib_period_name = "CP::MuonCalibrationPeriodTool";
     if (asg::ToolStore::contains<IMuCalibSmearTool>(mu_calib_period_name)) {
       m_muonCalibrationPeriodTool = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_period_name);
     } else {
       IMuCalibSmearTool* muonCalibrationPeriodTool = new CP::MuonCalibrationPeriodTool(mu_calib_period_name);
-
+      
       // Initialise the tool
       top::check(muonCalibrationPeriodTool->initialize(),
                  "Failed to initialize " + mu_calib_period_name);
-
+      
       m_muonCalibrationPeriodTool = muonCalibrationPeriodTool;
     }
-
 
     ///-- Selection --///
     m_muonSelectionTool = setupMuonSelectionTool("CP::MuonSelectionTool",
@@ -94,22 +91,16 @@ namespace top {
     m_muonSelectionToolVeryLooseVeto = setupMuonSelectionTool("CP::MuonSelectionToolVeryLooseVeto",
                                                               "Loose",
                                                               2.5);
-
+    //now passing the flags (true/false) to CalibAndSmearingTool
+    m_muonCalibrationPeriodTool = setupMuonCalibrationAndSmearingTool("CP::MuonCalibrationAndSmearingTool", 
+								      m_config->muondoExtraSmearing(),
+								      m_config->muondo2StationsHighPt());
     //now the soft muon part
     if (m_config->useSoftMuons()) {
       m_softmuonSelectionTool = setupMuonSelectionTool("CP::SoftMuonSelectionTool",
                                                        m_config->softmuonQuality(),
                                                        m_config->softmuonEtacut());
     }
-
-    //now passing the flag (true/false) to CalibAndSmearingTool
-    m_muonCalibrationAndSmearingTool = setupMuonCalibrationAndSmearingTool("CP::MuonCalibrationAndSmearingTool", 
-									       m_config->muondoExtraSmearing(),
-                                                                               m_config->muondo2StationsHighPt());
-
-    m_muonCalibrationAndSmearingToolLoose = setupMuonCalibrationAndSmearingTool("CP::MuonCalibrationAndSmearingToolLoose", 
-									       m_config->muondoExtraSmearingLoose(),
-                                                                               m_config->muondo2StationsHighPtLoose());
 
     return StatusCode::SUCCESS;
   }
