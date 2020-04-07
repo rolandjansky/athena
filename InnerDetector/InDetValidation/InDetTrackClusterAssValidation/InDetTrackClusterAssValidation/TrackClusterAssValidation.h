@@ -17,7 +17,6 @@
 #include "HepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include "InDetTrackClusterAssValidation/TrackClusterAssValidationUtils.h"
 
 namespace InDet {
