@@ -1674,7 +1674,7 @@ void MdtReadoutElement::clearCache()
   clearBLineCache();
 }
 
-void MdtReadoutElement::setBLinePar(BLinePar* bLine)
+void MdtReadoutElement::setBLinePar(const BLinePar* bLine)
 {
 #ifndef NDEBUG
   MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
