@@ -10,7 +10,6 @@
 #include <vector>
 #include "AtlasHepMC/GenEvent.h"
 
-
 namespace HepPDT {
   class ParticleDataTable;
 }

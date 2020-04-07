@@ -575,8 +575,8 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
          //  We need to create a new vertex
          //
          HepMC::GenVertexPtr newVertex_p = HepMC::newGenVertexPtr(HepMC::FourVector(particleStart.x(),particleStart.y(),particleStart.z(),particleStart.t()));
-     
-         evt->add_vertex(newVertex_p);
+
+          evt->add_vertex(newVertex_p);
          vertexPtrVec.push_back(newVertex_p);
          particleVertexIndex = vertexPtrVec.size() - 1;
        }

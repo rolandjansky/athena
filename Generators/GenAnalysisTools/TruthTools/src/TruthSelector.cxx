@@ -57,7 +57,6 @@ TruthSelector::~TruthSelector() {  }
 
 
 bool TruthSelector::selectParticle (const HepMC::ConstGenParticlePtr particle, double minPt) {
-
     // skip null barcode
     int barCode = HepMC::barcode(particle);
     if (barCode == 0) return false;
