@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 744380 2016-05-03 09:18:10Z krasznaa $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Build configuration for the xAODRootAccessInterfaces package.
 #

@@ -7,6 +7,7 @@
 # Purpose: Rebin a 2D histogram.
 #
 
+from builtins import range
 import ROOT
 
 

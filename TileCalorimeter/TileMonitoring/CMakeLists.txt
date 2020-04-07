@@ -99,6 +99,16 @@ atlas_add_test( TileMBTSMonitorAlgorithm_test
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh)
 
+atlas_add_test( TileDigiNoiseMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileDigiNoiseMonitorAlgorithm
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileRawChannelTimeMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileRawChannelTimeMonitorAlgorithm
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
 atlas_add_test( TileMonitoringConfig_test
                 SCRIPT python -m TileMonitoring.TileMonitoringConfig
                 PROPERTIES TIMEOUT 300

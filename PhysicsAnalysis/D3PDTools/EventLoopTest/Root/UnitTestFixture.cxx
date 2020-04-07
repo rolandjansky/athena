@@ -106,7 +106,7 @@ namespace EL
       if (result.empty())
       {
 	std::unique_ptr<SH::SampleLocal> myresult (new SH::SampleLocal ("multi"));
-	for (unsigned jter = 0; jter != 100; ++ jter)
+	for (unsigned jter = 0; jter != 10; ++ jter)
 	{
 	  std::vector<unsigned> entries;
 	  for (unsigned iter = 0; iter != 10000; ++ iter)
@@ -268,7 +268,7 @@ namespace EL
 
   TEST_P (UnitTestFixture, empty_eventCount)
   {
-    ASSERT_EQ (eventCount ("empty"), 0u);
+    EXPECT_EQ (eventCount ("empty"), 0u);
   }
 
 
@@ -276,14 +276,14 @@ namespace EL
   TEST_P (UnitTestFixture, empty_callbacks)
   {
     TH1 *callbacks = getCallbacks ("empty");
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_FIRST));
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_OTHER));
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_INITIALIZE));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_INITIALIZE));
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_EXECUTE));
-    ASSERT_EQ (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FILE_EXECUTE));
-    ASSERT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FINALIZE));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_FINALIZE));
+    EXPECT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_FIRST));
+    EXPECT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_OTHER));
+    EXPECT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_INITIALIZE));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_INITIALIZE));
+    EXPECT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_EXECUTE));
+    EXPECT_EQ (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FILE_EXECUTE));
+    EXPECT_EQ (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FINALIZE));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_FINALIZE));
   }
 
 
@@ -297,7 +297,7 @@ namespace EL
 
   TEST_P (UnitTestFixture, single_eventCount)
   {
-    ASSERT_EQ (eventCount ("single"), 10000u);
+    EXPECT_EQ (eventCount ("single"), 10000u);
   }
 
 
@@ -305,14 +305,14 @@ namespace EL
   TEST_P (UnitTestFixture, single_callbacks)
   {
     TH1 *callbacks = getCallbacks ("single");
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_FIRST));
-    ASSERT_LE (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_OTHER));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_INITIALIZE));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_INITIALIZE));
-    ASSERT_EQ (10000, callbacks->GetBinContent (1 + UnitTestAlg1::CB_EXECUTE));
-    ASSERT_EQ (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FILE_EXECUTE));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FINALIZE));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_FINALIZE));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_FIRST));
+    EXPECT_LE (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_OTHER));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_INITIALIZE));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_INITIALIZE));
+    EXPECT_EQ (10000, callbacks->GetBinContent (1 + UnitTestAlg1::CB_EXECUTE));
+    EXPECT_EQ (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FILE_EXECUTE));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FINALIZE));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_FINALIZE));
   }
 
 
@@ -326,7 +326,7 @@ namespace EL
 
   TEST_P (UnitTestFixture, multi_eventCount)
   {
-    ASSERT_EQ (eventCount ("multi"), 1000000u);
+    EXPECT_EQ (eventCount ("multi"), 100000u);
   }
 
 
@@ -334,14 +334,14 @@ namespace EL
   TEST_P (UnitTestFixture, multi_callbacks)
   {
     TH1 *callbacks = getCallbacks ("multi");
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_FIRST));
-    ASSERT_LE (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_OTHER));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_INITIALIZE));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_INITIALIZE));
-    ASSERT_EQ (1000000, callbacks->GetBinContent (1 + UnitTestAlg1::CB_EXECUTE));
-    ASSERT_EQ (100, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FILE_EXECUTE));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FINALIZE));
-    ASSERT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_FINALIZE));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_FIRST));
+    EXPECT_LE (0, callbacks->GetBinContent (1 + UnitTestAlg1::CB_CHANGE_INPUT_OTHER));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_INITIALIZE));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_INITIALIZE));
+    EXPECT_EQ (100000, callbacks->GetBinContent (1 + UnitTestAlg1::CB_EXECUTE));
+    EXPECT_EQ (10, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FILE_EXECUTE));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_FINALIZE));
+    EXPECT_LE (1, callbacks->GetBinContent (1 + UnitTestAlg1::CB_HIST_FINALIZE));
   }
 
 

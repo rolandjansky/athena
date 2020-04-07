@@ -38,7 +38,7 @@ Jan 2012   - (FF) add cellEnergyRing variables
  ********************************************************************/
 
 #include <algorithm> 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <sstream>
 
@@ -49,6 +49,7 @@ Jan 2012   - (FF) add cellEnergyRing variables
 #include "xAODJet/Jet.h"
 #include "tauRecTools/KineUtils.h"
 #include "TauCellVariables.h"
+#include "tauRecTools/HelperFunctions.h"
 
 using Gaudi::Units::GeV;
 
@@ -102,8 +103,8 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 
     const xAOD::Jet* pJetSeed = (*pTau.jetLink());
     if (!pJetSeed) {
-      ATH_MSG_WARNING("tau does not have jet seed for cell variable calculation");
-      return StatusCode::SUCCESS;
+      ATH_MSG_ERROR("tau does not have jet seed for cell variable calculation");
+      return StatusCode::FAILURE;
     }
 
     xAOD::JetConstituentVector::const_iterator cItr = pJetSeed->getConstituents().begin();
@@ -116,8 +117,11 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     double cellEta, cellPhi, cellET, cellEnergy;
     for (; cItr != cItrE; ++cItr) {
       
-      const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*cItr)->rawConstituent() ); 
-
+      const xAOD::CaloCluster *cluster = nullptr;
+      ATH_CHECK(tauRecTools::GetJetConstCluster(cItr, cluster));
+      // Skip if charged PFO
+      if (!cluster){ continue; }      
+      
       CaloClusterCellLink::const_iterator firstcell = cluster->getCellLinks()->begin();
       CaloClusterCellLink::const_iterator lastcell = cluster->getCellLinks()->end();
       
@@ -174,7 +178,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
                 // If cell is a strip cell, sum for stripET calculation:
                 if (((calo == CaloSampling::EMB1) ||
                     (calo == CaloSampling::EME1)) // to be investigated
-                    && (fabs(cellEta) < 2.5)) {
+                    && (std::abs(cellEta) < 2.5)) {
                     sumStripET += cellET;
                     stripEta += cellEta * cellET;
                     stripEta2 += pow(cellEta, 2) * cellET;
@@ -210,7 +214,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 
     pTau.setDetail(xAOD::TauJetParameters::nStrip , numStripCell );
 
-    if (fabs(sumStripET) > 0.000001) {
+    if (std::abs(sumStripET) > 0.000001) {
         stripEta = stripEta / sumStripET;
         stripEta2 = stripEta2 / sumStripET;
     } else {
@@ -220,12 +224,12 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 
     pTau.setDetail(xAOD::TauJetParameters::stripWidth2 , static_cast<float>(stripEta2 - stripEta * stripEta) );
 
-    if (fabs(sumEMCellET) > 0.000001) {
+    if (std::abs(sumEMCellET) > 0.000001) {
         EMRadius = EMRadius / sumEMCellET;
     } else {
         EMRadius = -1.0;
     }
-    if (fabs(sumHadCellET) > 0.000001) {
+    if (std::abs(sumHadCellET) > 0.000001) {
         HadRadius = HadRadius / sumHadCellET;
     } else {
         HadRadius = -1.0;
@@ -236,7 +240,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     pTau.setDetail(xAOD::TauJetParameters::hadRadius , static_cast<float>( HadRadius ) );
     pTau.setDetail(xAOD::TauJetParameters::etHadAtEMScale , static_cast<float>( sumHadCellET ) );
     
-    if (fabs(sumCellET) > 0.000001) {
+    if (std::abs(sumCellET) > 0.000001) {
       pTau.setDetail(xAOD::TauJetParameters::centFrac , static_cast<float>( sumCellET01 / sumCellET ) );
       pTau.setDetail(xAOD::TauJetParameters::isolFrac , static_cast<float>( sumCellET12 / sumCellET ) );
     } else {

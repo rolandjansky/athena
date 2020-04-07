@@ -1,17 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////////
-////// Cluster.h (c) ATLAS Detector software
-////// Author: N.Bernard <nathan.rogers.bernard@cern.ch>
-///////////////////////////////////////////////////////////////////////////
 #ifndef CLUSTER_H
 #define CLUSTER_H
 
 #include <math.h>
 #include <string>
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 
 namespace ClusterSeg {
 
@@ -20,22 +16,22 @@ namespace ClusterSeg {
     Cluster( double x_, double y_, double z_, bool isPhi_, Muon::MuonStationIndex::TechnologyIndex tIndex_, Muon::MuonStationIndex::PhiIndex pIndex_, bool isMatch_ ,int barcode_);
     Cluster( double x_, double y_, double z_, bool isPhi_, int tIndex_, int pIndex_, bool isMatch_ ,int barcode_);
 
-    double x(){return m_x;}
-    double y(){return m_y;}
-    double z(){return m_z;}
-    double rSph(){return sqrt(m_x*m_x+m_y*m_y+m_z*m_z);}
-    double rCyl(){return sqrt(m_x*m_x+m_y*m_y);}
-    double phi(){return atan2(m_y,m_x);}
-    double theta(){return acos(m_z/(this->rSph()));}
-    double eta(){return -log(tan(this->theta()/2.));}
-    bool isPhi(){return m_isPhi;}
-    Muon::MuonStationIndex::TechnologyIndex techIndex(){return m_tIndex;}
-    Muon::MuonStationIndex::PhiIndex phiIndex(){return m_pIndex;}
-    bool isMatch(){return m_isMatch;}
-    int barcode(){return m_barcode;}
+    double x() const {return m_x;}
+    double y() const {return m_y;}
+    double z() const {return m_z;}
+    double rSph() const {return sqrt(m_x*m_x+m_y*m_y+m_z*m_z);}
+    double rCyl() const {return sqrt(m_x*m_x+m_y*m_y);}
+    double phi() const {return atan2(m_y,m_x);}
+    double theta() const {return acos(m_z/(this->rSph()));}
+    double eta() const {return -log(tan(this->theta()/2.));}
+    bool isPhi() const {return m_isPhi;}
+    Muon::MuonStationIndex::TechnologyIndex techIndex() const {return m_tIndex;}
+    Muon::MuonStationIndex::PhiIndex phiIndex() const {return m_pIndex;}
+    bool isMatch() const {return m_isMatch;}
+    int barcode() const {return m_barcode;}
 
     
-    bool isSideA(){if (m_z > 0.) return true; else return false;}
+    bool isSideA() const {if (m_z > 0.) return true; else return false;}
 
     double m_x;
     double m_y;
@@ -53,23 +49,23 @@ namespace ClusterSeg {
 
     SpacePoint( double eta_, double phi_, double z_, Muon::MuonStationIndex::TechnologyIndex tIndex_, Muon::MuonStationIndex::PhiIndex pIndex_, bool isMatch_ ,int barcode_,int eit_, int pit_);
 
-    double x(){return this->rSph()*sin(this->theta())*cos(this->phi());}
-    double y(){return this->rSph()*sin(this->theta())*sin(this->phi());}
-    double z(){return m_z;}
-    double rSph(){return m_z/cos(this->theta());}
-    double rCyl(){return sqrt(pow(this->x(),2)+pow(this->y(),2));}
-    double phi(){return m_phi;}
-    double theta(){return 2*atan(exp(-1*this->eta()));}
-    double eta(){return m_eta;} 
-    Muon::MuonStationIndex::TechnologyIndex techIndex(){return m_tIndex;}
-    Muon::MuonStationIndex::PhiIndex phiIndex(){return m_pIndex;}
-    bool isMatch(){return m_isMatch;}
-    int barcode(){return m_barcode;}
-    int eit(){return m_eit;}
-    int pit(){return m_pit;}
+    double x() const {return this->rSph()*sin(this->theta())*cos(this->phi());}
+    double y() const {return this->rSph()*sin(this->theta())*sin(this->phi());}
+    double z() const {return m_z;}
+    double rSph() const {return m_z/cos(this->theta());}
+    double rCyl() const {return sqrt(pow(this->x(),2)+pow(this->y(),2));}
+    double phi() const {return m_phi;}
+    double theta() const {return 2*atan(exp(-1*this->eta()));}
+    double eta() const {return m_eta;} 
+    Muon::MuonStationIndex::TechnologyIndex techIndex() const {return m_tIndex;}
+    Muon::MuonStationIndex::PhiIndex phiIndex() const {return m_pIndex;}
+    bool isMatch() const {return m_isMatch;}
+    int barcode() const {return m_barcode;}
+    int eit() const {return m_eit;}
+    int pit() const {return m_pit;}
 
-    bool isTGC(int num);
-    bool isRPC(int num);
+    bool isTGC(int num) const;
+    bool isRPC(int num) const;
 
     double m_eta;
     double m_phi;

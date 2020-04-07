@@ -69,7 +69,7 @@ StatusCode MuonRegSelCondAlg::execute(const EventContext& ctx)  const
 
   /// create the new lookuo table
 
-  std::unique_ptr<RegSelSiLUT> rd = createTable( *cabling );
+  std::unique_ptr<IRegSelLUT> rd = createTable( *cabling );
 
   if ( !rd ) return StatusCode::FAILURE;
 
@@ -77,14 +77,14 @@ StatusCode MuonRegSelCondAlg::execute(const EventContext& ctx)  const
 
   // write out new new LUT to a file if need be
   
-  if ( m_printTable ) rd->write( name()+".map" );
+  if ( m_printTable ) dynamic_cast<const RegSelSiLUT*>(rd.get())->write( name()+".map" );
 
   /// create the conditions data for storage 
 
-  RegSelLUTCondData* rcd = new RegSelLUTCondData( std::move(rd) );
+  IRegSelLUTCondData* rcd = new IRegSelLUTCondData( std::move(rd) );
   
   try { 
-    SG::WriteCondHandle<RegSelLUTCondData> lutCondData( m_tableKey, ctx );
+    SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
     if( lutCondData.record( id_range, rcd ).isFailure() ) {
       ATH_MSG_ERROR( "Could not record " << m_tableKey 
 		     << " " << lutCondData.key()

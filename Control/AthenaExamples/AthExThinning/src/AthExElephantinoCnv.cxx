@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ElephantinoCnv.cxx 
@@ -66,8 +66,8 @@ AthExElephantino* AthExElephantinoCnv::createTransient()
 
    if ( compareClassGuid(p1_guid) ) {
 
-     // using auto_ptr ensures deletion of the persistent object
-     std::auto_ptr<AthExElephantino_p1> persObj( poolReadObject<AthExElephantino_p1>() );
+     // using unique_ptr ensures deletion of the persistent object
+     std::unique_ptr<AthExElephantino_p1> persObj( poolReadObject<AthExElephantino_p1>() );
      AthExElephantinoCnv_p1 cnv;
      transObj = cnv.createTransient( persObj.get(), msg );
      

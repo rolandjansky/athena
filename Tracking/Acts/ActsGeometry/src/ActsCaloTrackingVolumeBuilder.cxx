@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsCaloTrackingVolumeBuilder.h"
@@ -496,7 +496,7 @@ ActsCaloTrackingVolumeBuilder::build_endcap(double z,
       std::array<Acts::Vector3D, 8>({{p1, p2, p3, p4, p5, p6, p7, p8}}));
   Acts::AbstractVolume vol(std::move(globalToLocal), std::move(cubo));
 
-  return std::move(vol);
+  return vol;
 }
 
 
@@ -569,7 +569,7 @@ ActsCaloTrackingVolumeBuilder::build_barrel(double r,
 
   Acts::AbstractVolume vol(std::move(globalToLocal), std::move(cubo));
 
-  return std::move(vol);
+  return vol;
 }
 
 Acts::AbstractVolume

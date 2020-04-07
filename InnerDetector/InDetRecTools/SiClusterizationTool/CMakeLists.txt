@@ -22,8 +22,8 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/PixelCabling
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDEscr/PixelReadoutGeometry
-   InnerDetector/InDetDetDEscr/SCT_ReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
    InnerDetector/InDetRawEvent/InDetRawData
    InnerDetector/InDetRecEvent/InDetPrepRawData
    InnerDetector/InDetRecTools/InDetRecToolInterfaces

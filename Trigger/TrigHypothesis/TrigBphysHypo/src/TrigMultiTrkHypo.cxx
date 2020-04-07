@@ -21,7 +21,7 @@
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigConfHLTData/HLTUtils.h"
 
 #include "AthViews/View.h"

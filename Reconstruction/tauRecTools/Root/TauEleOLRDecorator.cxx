@@ -9,9 +9,13 @@
  * Modified: Lorenz Hauswald
  */
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "TFile.h"
+
+using Gaudi::Units::GeV;
 
 TauEleOLRDecorator::TauEleOLRDecorator(const std::string& name):
   TauRecToolBase(name),
@@ -62,7 +66,7 @@ StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
   float fEleMatchPt = -1.;
   // find electron with pt>5GeV within 0.4 cone with largest pt
   for( const xAOD::Electron* xElectron : *electronContainer ) {
-    if(xElectron->pt() < 5000.) continue;
+    if(xElectron->pt() < 5.0 * GeV) continue;
     if(xElectron->p4().DeltaR( tau.p4() ) > 0.4 ) continue;
     if(xElectron->pt() > fEleMatchPt ) {
       fEleMatchPt=xElectron->pt();
@@ -86,7 +90,7 @@ StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
 
   bool bPass = false;
   if (tau.nTracks() == 1) {
-    bPass = (fLHScore <= getCutVal(tau.track(0)->eta(), tau.pt()/1000.));
+    bPass = (fLHScore <= getCutVal(tau.track(0)->eta(), tau.pt() / GeV));
   }
   else {
     bPass = true;
@@ -105,7 +109,7 @@ StatusCode TauEleOLRDecorator::finalize()
 float TauEleOLRDecorator::getCutVal(float fEta, float fPt)
 {
   if(fPt>1900) fPt=1900;
-  if(fabs(fEta)>2.465) fEta=2.465;
-  int iBin= m_hCutValues->FindBin(fPt, fabs(fEta));
+  if(std::abs(fEta)>2.465) fEta=2.465;
+  int iBin= m_hCutValues->FindBin(fPt, std::abs(fEta));
   return m_hCutValues->GetBinContent(iBin);
 }

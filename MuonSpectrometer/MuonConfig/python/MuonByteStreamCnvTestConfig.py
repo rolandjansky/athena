@@ -105,7 +105,7 @@ def TgcDigitToTgcRDOCfg(flags, name="TgcDigitToTgcRDO", **kwargs):
     return acc
 
 
-def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO4", **kwargs):
+def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
     """Return ComponentAccumulator with configured CscDigitToCscRDO algorithm"""
     # for Csc, configuration is in the tool CscDigitToCscRDOTool
     # configure dependency
@@ -126,7 +126,7 @@ def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO4", **kwargs):
         kwargs.setdefault("OutputObjectName", "CSCRDO")
     # tool and container algorithm
     CscDigitToCscRDOTool = CompFactory.CscDigitToCscRDOTool
-    tool = CscDigitToCscRDOTool("CscDigitToCscRDOTool4", **kwargs)
+    tool = CscDigitToCscRDOTool("CscDigitToCscRDOTool", **kwargs)
     CscDigitToCscRDO = CompFactory.CscDigitToCscRDO
     acc.addEventAlgo(CscDigitToCscRDO(name, CscDigitToRDOTool=tool))
     return acc

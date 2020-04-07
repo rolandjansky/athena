@@ -331,9 +331,9 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
 
 StatusCode InDet::SiSPSeededTrackFinder::finalize()
 {
-  if (msgLvl(MSG::INFO)) {
+  
     dump(MSG::INFO, &m_counterTotal);
-  }
+  
   return StatusCode::SUCCESS;
 }
 

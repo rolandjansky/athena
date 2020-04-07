@@ -17,4 +17,4 @@ if not 'VP1ATLREL' in dir():
         if versionMinor>99: versionMinor=99
         if versionMinor==99 or versionPatch>99: versionPatch=99
         VP1ATLREL=10000*versionMajor+100*versionMinor+versionPatch
-        print "VP1ATLREL: "+str(VP1ATLREL)
+        printfunc ("VP1ATLREL: "+str(VP1ATLREL))

@@ -1,7 +1,7 @@
 # jobOptions for SLHC geometry display 
 
-execfile("ID_only.py")
-execfile("geometry.py")
+include("InDetSLHC_Example/ID_only.py")
+include("InDetSLHC_Example/geometry.py")
 
 # geant4 or data - affects which conditions database instance is used
 globalflags.DataSource='geant4'

@@ -5,7 +5,7 @@
 #ifndef MARSPARTICLE_H
 #define MARSPARTICLE_H
 
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include <vector>
 #include <string>
 
@@ -23,7 +23,7 @@ class MarsShowerPrimary {
   int particleId; //!< IORIG
   int processId; //!< KORIG
   double weight; //!< WORIG
-  HepMC::ThreeVector position; //!< XORG, YORG, ZORG
+  HepMC::FourVector position; //!< XORG, YORG, ZORG , T
   double kineticEnergy; //!< EORIG
 };
 
@@ -81,11 +81,11 @@ class MarsParticle {
 
   /** A function to the position of this particle with respect to the
       scoring plane. */
-  HepMC::ThreeVector positionAtScoringPlane() const { return m_positionAtScoringPlane; }
+  HepMC::FourVector positionAtScoringPlane() const { return m_positionAtScoringPlane; }
 
   /** A function to return the directional cosines of this
       particle. */
-  HepMC::ThreeVector directionalCosines() const { return m_directionalCosines; }
+  HepMC::FourVector directionalCosines() const { return m_directionalCosines; }
 
   /** A function to return the time of flight for this particle. */
   double timeOfFlight() const { return m_timeOfFlight; }
@@ -110,8 +110,8 @@ class MarsParticle {
   int m_particleId;
   double m_kineticEnergy;
   double m_weight;
-  HepMC::ThreeVector m_positionAtScoringPlane;
-  HepMC::ThreeVector m_directionalCosines;
+  HepMC::FourVector m_positionAtScoringPlane;
+  HepMC::FourVector m_directionalCosines;
   double m_timeOfFlight;
   double m_primaryProtonZ;
   MarsShowerPrimary m_showerPrimary;

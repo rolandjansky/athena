@@ -200,7 +200,7 @@ CaloRunClusterCorrections::setCaloCellContainerName
  * @brief Parse the supplied correction specification and create
  *        the Tools vector.  Do not actually create the tools yet.
  */
-StatusCode CaloRunClusterCorrections::parseCorrspecs()
+StatusCode CaloRunClusterCorrections::parseCorrspecs ATLAS_NOT_THREAD_SAFE ()
 {
   size_t ispec = 0;
   while (ispec < m_corrspecs.size()) {

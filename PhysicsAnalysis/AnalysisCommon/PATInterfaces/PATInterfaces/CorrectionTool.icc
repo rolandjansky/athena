@@ -24,7 +24,7 @@ namespace CP {
 
       // Choose a smart pointer type according to the standard used:
 #if __cplusplus < 201100
-      std::auto_ptr< xAODObjectType > myobject( new xAODObjectType );
+      std::unique_ptr< xAODObjectType > myobject( new xAODObjectType );
 #else
       std::unique_ptr< xAODObjectType > myobject( new xAODObjectType );
 #endif // C++11

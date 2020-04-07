@@ -14,19 +14,15 @@
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_Cabling/ISCT_CablingTool.h"
-
-#include "GaudiKernel/ToolHandle.h"
-
 
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "SCT_Cabling/SCT_CablingData.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
 
-#include "IRegionSelector/RegSelLUTCondData.h"
+#include "IRegionSelector/IRegSelLUTCondData.h"
 
 #include <string>
 
@@ -50,18 +46,17 @@ public:
   /// Sadly the PIxel and SCT cabling are different classes so need both, 
   /// even if only one is to be used
  
-  ToolHandle<ISCT_CablingTool>  m_sctCablingTool; // This class accesses SCT cabling during table creation
-
   SG::ReadCondHandleKey<SCT_CablingData> m_sctCablingKey
     {this, "SCT_CablingData", "SCT_CablingData", "SCT cabling key"};
 
   SG::ReadCondHandleKey<PixelCablingCondData> m_pixCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
 
-
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_detEleCollKey
+    {this, "DetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel/SCT"};
 
   /// Output conditions object
-  SG::WriteCondHandleKey<RegSelLUTCondData> m_tableKey  
+  SG::WriteCondHandleKey<IRegSelLUTCondData> m_tableKey  
     { this, "RegSelLUT", "RegSelLUTCondData", "Region Selector lookup table" };
 
 };

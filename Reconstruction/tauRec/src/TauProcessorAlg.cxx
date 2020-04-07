@@ -3,6 +3,7 @@
 */
 
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "tauRec/TauProcessorAlg.h"
 
@@ -23,6 +24,8 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
+using Gaudi::Units::GeV;
+
 //-----------------------------------------------------------------------------
 // Constructor
 //-----------------------------------------------------------------------------
@@ -31,7 +34,7 @@ TauProcessorAlg::TauProcessorAlg(const std::string &name,
 AthAlgorithm(name, pSvcLocator),
 m_tools(this), //make tools private
 m_maxEta(2.5),
-m_minPt(10000),
+m_minPt(10 * GeV),
 m_cellMakerTool("",this)
 {
   declareProperty("Tools", m_tools);
@@ -60,6 +63,7 @@ StatusCode TauProcessorAlg::initialize() {
     ATH_CHECK( m_tauPi0CellOutputContainer.initialize() );
     ATH_CHECK( m_pixelDetEleCollKey.initialize() ); 
     ATH_CHECK( m_SCTDetEleCollKey.initialize() ); 
+    ATH_CHECK( m_trtDetEleContKey.initialize() ); 
 
     ATH_CHECK( m_cellMakerTool.retrieve() );
 
@@ -75,16 +79,15 @@ StatusCode TauProcessorAlg::initialize() {
     // Allocate tools
     //-------------------------------------------------------------------------
     ATH_CHECK( m_tools.retrieve() );
-    ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
-    ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
+    
     ATH_MSG_INFO("List of tools in execution sequence:");
     ATH_MSG_INFO("------------------------------------");
 
     unsigned int tool_count = 0;
 
-    for (; itT != itTE; ++itT) {
+    for (ToolHandle<ITauToolBase>& tool : m_tools) {
       ++tool_count;
-      ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
+      ATH_MSG_INFO(tool->type() << " - " << tool->name());
     }
     ATH_MSG_INFO(" ");
     ATH_MSG_INFO("------------------------------------");
@@ -107,13 +110,10 @@ StatusCode TauProcessorAlg::finalize() {
   //-----------------------------------------------------------------
   // Loop stops when Failure indicated by one of the tools
   //-----------------------------------------------------------------
-  ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
-  ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
-  for (; itT != itTE; ++itT) {
-    ATH_MSG_VERBOSE("Invoking tool " << (*itT)->name());
-    sc = (*itT)->finalize();
-    if (sc.isFailure())
-      break;
+  for (ToolHandle<ITauToolBase>& tool : m_tools) {
+    ATH_MSG_VERBOSE("Invoking tool " << tool->name());
+    sc = tool->finalize();
+    if (sc.isFailure()) break;
   }
 
   if (sc.isSuccess()) {
@@ -172,15 +172,15 @@ StatusCode TauProcessorAlg::execute() {
   for (const xAOD::Jet* pSeed : *pSeedContainer) {
     ATH_MSG_VERBOSE("Seeds eta:" << pSeed->eta() << ", pt:" << pSeed->pt());
 
-      if (fabs(pSeed->eta()) > m_maxEta) {
-	ATH_MSG_VERBOSE("--> Seed rejected, eta out of range!");
-	continue;
-      }
+    if (std::abs(pSeed->eta()) > m_maxEta) {
+      ATH_MSG_VERBOSE("--> Seed rejected, eta out of range!");
+      continue;
+    }
 
-      if (fabs(pSeed->pt()) < m_minPt) {
-	ATH_MSG_VERBOSE("--> Seed rejected, pt out of range!");
-	continue;
-      }
+    if (pSeed->pt() < m_minPt) {
+      ATH_MSG_VERBOSE("--> Seed rejected, pt out of range!");
+      continue;
+    }
 
       //-----------------------------------------------------------------                                                                 
       // Seed passed cuts --> create tau candidate
@@ -196,28 +196,25 @@ StatusCode TauProcessorAlg::execute() {
       // Loop stops when Failure indicated by one of the tools
       //-----------------------------------------------------------------
       StatusCode sc;
-      ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
-      ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
-      for (; itT != itTE; ++itT) {
-	ATH_MSG_DEBUG("ProcessorAlg Invoking tool " << (*itT)->name());
+      for (ToolHandle<ITauToolBase>& tool : m_tools) {
+	ATH_MSG_DEBUG("ProcessorAlg Invoking tool " << tool->name());
 
-        if ((*itT)->type() == "TauVertexFinder" ) { 
-          sc = (*itT)->executeVertexFinder(*pTau);
+        if (tool->type() == "TauVertexFinder" ) { 
+          sc = tool->executeVertexFinder(*pTau);
         }
-        else if ( (*itT)->type() == "TauTrackFinder") { 
-          sc = (*itT)->executeTrackFinder(*pTau);
+        else if ( tool->type() == "TauTrackFinder") { 
+          sc = tool->executeTrackFinder(*pTau);
         }
-        else if ( (*itT)->name().find("ShotFinder") != std::string::npos){
-	  sc = (*itT)->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);
+        else if ( tool->name().find("ShotFinder") != std::string::npos){
+	  sc = tool->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);
 	}
-	else if ( (*itT)->name().find("Pi0ClusterFinder") != std::string::npos){
-	  sc = (*itT)->executePi0CreateROI(*pTau, *Pi0CellContainer, addedCellsMap);
+	else if ( tool->name().find("Pi0ClusterFinder") != std::string::npos){
+	  sc = tool->executePi0CreateROI(*pTau, *Pi0CellContainer, addedCellsMap);
 	}
 	else {
-	  sc = (*itT)->execute(*pTau);
+	  sc = tool->execute(*pTau);
 	}
-	if (sc.isFailure())
-	  break;
+	if (sc.isFailure())  break;
       }
 
       if (sc.isSuccess()) {

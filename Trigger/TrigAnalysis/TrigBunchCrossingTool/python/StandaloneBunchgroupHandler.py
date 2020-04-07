@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # BunchgroupHandler
 #
@@ -10,15 +10,15 @@
 # BunchgroupHandler - utility tool to access bunch-group information from COOL
 #
 
+from __future__ import print_function
+from builtins import range
+from builtins import object
 import sys
-import math
-import types
-import numpy
 
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
-class BunchgroupRunData:
+class BunchgroupRunData(object):
 
     def __init__(self,run):
 
@@ -36,7 +36,7 @@ class BunchgroupRunData:
 
     def createLookup(self,lb,bcidRange):
         if self.verbose:
-            print "createLookup called"
+            print("createLookup called")
         self.bcidLookupBefore[lb] = []
         self.bcidLookupAfter[lb] = []
         for bcid in range(3564):
@@ -63,12 +63,12 @@ class BunchgroupRunData:
             self.bcidLookupBefore[lb].append(bcidListBefore)
 
         if self.verbose:
-            print "Bg run data, Run",self.run,"LB",lb
+            print("Bg run data, Run",self.run,"LB",lb)
             for bcid in range(3564):                
-                print "BCID",bcid,"before",self.bcidLookupBefore[lb][bcid]
-                print "BCID",bcid,"after",self.bcidLookupAfter[lb][bcid]
+                print("BCID",bcid,"before",self.bcidLookupBefore[lb][bcid])
+                print("BCID",bcid,"after",self.bcidLookupAfter[lb][bcid])
 
-class BunchgroupHandler:
+class BunchgroupHandler(object):
 
     def __init__(self):
 
@@ -101,15 +101,15 @@ class BunchgroupHandler:
         # Open the trigger COOL database
         try:
             self.trigProdDb = indirectOpen(self.trigProdDbName, True, False, False)
-            if self.verbose: print 'Connected to', self.trigProdDbName, 'for Trigger data'
-        except Exception, e:
-            print e
+            if self.verbose: print('Connected to', self.trigProdDbName, 'for Trigger data')
+        except Exception as e:
+            print(e)
             return False
         return True
 
     def closeDB(self):
         # Close the database
-        if self.trigProdDb != None:
+        if self.trigProdDb is not None:
             self.trigProdDb.closeDatabase()
         self.trigProdDb = None
 
@@ -119,7 +119,7 @@ class BunchgroupHandler:
         self.closeDB()
         if len(self.runArchive) > self.runsToArchive:
             if self.verbose:
-                print "Remove run",self.runArchive[0],"from memory"
+                print("Remove run",self.runArchive[0],"from memory")
             del self.runObjects[self.runArchive[0]]
             self.runArchive.pop(0)
 
@@ -130,7 +130,7 @@ class BunchgroupHandler:
         self.runObjects[run].verbose = self.verbose
 
         if self.verbose:
-            print 'loadBounchgroups called, run',run
+            print('loadBounchgroups called, run',run)
 
         bgFolder = self.trigProdDb.getFolder(self.bunchGroupContentFolder)
         itr = bgFolder.browseObjects(run << 32,(run+1) << 32,cool.ChannelSelection.all())
@@ -143,19 +143,19 @@ class BunchgroupHandler:
                 if(bgcont[bcid]>>self.physicsBunchgroupBit & 1): self.runObjects[run].physicsBunchgroupBcids[lb].append(bcid)
             self.runObjects[run].createLookup(lb,self.bcidRange)
             if self.verbose:
-                print "LB",lb,"BCIDs",self.runObjects[run].physicsBunchgroupBcids[lb]
+                print("LB",lb,"BCIDs",self.runObjects[run].physicsBunchgroupBcids[lb])
 
     def getTrainPosition(self,run,lb,bcid):
         
         if self.verbose:
-            print 'getTrainPosition called'
+            print('getTrainPosition called')
         before, after = self.getNeighbourBcids(run,lb,bcid)
         return (len(before)+1)
 
     def getNeighbourBcids(self,run,lb,bcid):
         
         if self.verbose:
-            print 'getNeighbourBcids called'
+            print('getNeighbourBcids called')
 
         before, after = self.getNeighbourPattern(run,lb,bcid)
 
@@ -165,7 +165,7 @@ class BunchgroupHandler:
             if checkBcid < 0: checkBcid += 3564
             if before[bcidOffset]: 
                 if self.verbose:
-                    print "BCID",checkBcid,"is filled"
+                    print("BCID",checkBcid,"is filled")
                 l1.append(checkBcid)
         l2 = []
         for bcidOffset in range(len(after)):
@@ -173,7 +173,7 @@ class BunchgroupHandler:
             if checkBcid > 3563: checkBcid -= 3564
             if after[bcidOffset]:
                 if self.verbose:
-                    print "BCID",checkBcid,"is filled"
+                    print("BCID",checkBcid,"is filled")
                 l2.append(checkBcid)
         return l1, l2
 
@@ -181,14 +181,14 @@ class BunchgroupHandler:
     def getNeighbourPattern(self,run,lb,bcid):
         
         if self.verbose:
-            print 'getNeighbourPattern called'
+            print('getNeighbourPattern called')
 
         lbList = []
         try:
-            lbList = self.runObjects[run].physicsBunchgroupBcids.keys()
+            lbList = list(self.runObjects[run].physicsBunchgroupBcids.keys())
         except KeyError:
             self.loadRunData(run)
-            lbList = self.runObjects[run].physicsBunchgroupBcids.keys()
+            lbList = list(self.runObjects[run].physicsBunchgroupBcids.keys())
 
         latestLb = -1
         try:
@@ -198,26 +198,26 @@ class BunchgroupHandler:
                 if latestLb < 0: latestLb = testLb
                 if lb > testLb: latestLb = testLb
             if self.verbose:
-                print "LB",lb,"latest LB",latestLb
+                print("LB",lb,"latest LB",latestLb)
             self.runObjects[run].lbLookup[lb] = latestLb
 
         return (self.runObjects[run].bcidLookupBefore[latestLb][bcid], self.runObjects[run].bcidLookupAfter[latestLb][bcid])
 
 if __name__ == '__main__':
     
-    import sys,getopt,os, math
+    import getopt
 
     def usage():
-        print "%s" % sys.argv[0]
-        print "  --help         this printout"
-        print "  --run <runNo>  run number"
-        print "  --bcid <bcid>  BCID"
-        print "  --lb <lb>      LB"
+        print("%s" % sys.argv[0])
+        print("  --help         this printout")
+        print("  --run <runNo>  run number")
+        print("  --bcid <bcid>  BCID")
+        print("  --lb <lb>      LB")
 
     try:
         longopts=['run=','bcid=','lb=','help']
         opts,args=getopt.getopt(sys.argv[1:],'',longopts)
-    except getopt.GetoptError,e:
+    except getopt.GetoptError:
         usage()
         sys.exit(2)
 
@@ -245,4 +245,4 @@ if __name__ == '__main__':
     bg.loadRunData(run)
 
     l1, l2 = bg.getNeighbourBcids(run,lb,bcid)
-    print "Run",run,"neighbouring filled BCIDs for BCID",bcid,":",sorted(l1), sorted(l2)
+    print("Run",run,"neighbouring filled BCIDs for BCID",bcid,":",sorted(l1), sorted(l2))

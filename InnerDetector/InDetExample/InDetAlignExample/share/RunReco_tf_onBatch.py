@@ -3,6 +3,8 @@
 ##pierfrancesco.butti@cern.ch
 ######################################################
  
+from __future__ import print_function
+
 import sys,os
 from datetime import datetime
 import glob
@@ -69,7 +71,7 @@ def main():
     elif inType=="ESD":
         inputType="--inputESDFile="
     else:
-        print "WARNING: input type not known: ",inType
+        print ("WARNING: input type not known: ",inType)
 
 
     if outType=="ESD":
@@ -77,14 +79,14 @@ def main():
     elif outType=="AOD":
         outputType="--outputAODFile="
     else:
-        print "WARNING:output type not known: ", outType
+        print ("WARNING:output type not known: ", outType)
 
 
     if debug:
-        print "inType="+inType+" triggerFlags="+triggerFlags+" postExec="+postExec
+        print ("inType="+inType+" triggerFlags="+triggerFlags+" postExec="+postExec)
     
     if inputFileList != "":
-        print "From Dir"
+        print ("From Dir")
         if not inputFileList.endswith("/"):
             inputFileList=inputFileList+"/"
         
@@ -104,8 +106,8 @@ def main():
     if int(len(inputFileList)) % nFilesPerJob != 0:
         nJobs+=1
         
-    print "Total Input Files number", len(inputFileList)
-    print "Sending a total of ",nJobs, "jobs"
+    print ("Total Input Files number", len(inputFileList))
+    print ("Sending a total of ",nJobs, "jobs")
     
     PWD=os.environ["PWD"]+"/"
 
@@ -115,7 +117,7 @@ def main():
     if not os.path.exists("batchLogs"):
         os.mkdir("batchLogs")
 
-    for job in xrange(nJobs):
+    for job in range(nJobs):
         script = open("batchScripts/batch_script_"+str(job)+"_"+jobname+".lsf","w")
         script.write("#BSUB -J RecoTf_job"+str(job)+"_M6_"+jobname+"\n")
         script.write("#BSUB -o "+PWD+"batchLogs/RecoTf_job"+str(job)+"_M6_"+jobname+".log\n")
@@ -130,18 +132,18 @@ def main():
         
     
         if len(inputFileList)-job*nFilesPerJob >= nFilesPerJob:
-            #print len(inputFileList)-job*nFilesPerJob
-            for iFile in xrange(nFilesPerJob):
+            #print (len(inputFileList)-job*nFilesPerJob)
+            for iFile in range(nFilesPerJob):
                 InputFiles+=inputFileList[job*nFilesPerJob+iFile]+","
         
         else:
-                for iFile in xrange(len(inputFileList)-job*nFilesPerJob):
+                for iFile in range(len(inputFileList)-job*nFilesPerJob):
                     InputFiles+=inputFileList[job*nFilesPerJob+iFile]+","
                     
         
         InputFiles=InputFiles.strip(",")
         if debug:
-            print InputFiles
+            print (InputFiles)
         
         #Setting Up and running the command
         #cmd = "Reco_tf.py --conditionsTag='CONDBR2-ES1PA-2014-01' --beamType='cosmics' --ignoreErrors=True --autoConfiguration='everything' --maxEvents=-1  --postExec='ServiceMgr.InDetSCT_ConditionsSummarySvc.ConditionsServices=[\"InDetSCT_ConfigurationConditionsSvc\",\"InDetSCT_FlaggedConditionSvc\",\"InDetSCT_ByteStreamErrorsSvc\",\"InDetSCT_ReadCalibDataSvc\"]' --preExec='rec.doJetMissingETTag=False;rec.doTau=False;from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False);from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.doJetMon=False;DQMonFlags.doMissingEtMon=False;DQMonFlags.enableLumiAccess=False;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;larCondFlags.OFCShapeFolder.set_Value_and_Lock(\"\")' --geometryVersion='ATLAS-R2-2015-01-01-00' --inputBSFile="+InputFiles+" --outputESDFile=myESD.pool.root --postInclude='"+PWD+"InDetMonitoringAlignment.py'"

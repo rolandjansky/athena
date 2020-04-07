@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -52,8 +52,8 @@ LArShape32MCCnv::createTransient ()
     static pool::Guid   p0_guid("055CF2F5-08D0-4EAA-B154-8CE5B1A599E7");
     MsgStream log(msgSvc(), "LArShape32MCCnv" ); 
     if( compareClassGuid(p1_guid) ) {  
-        // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< LArShapeSubset_p1 > col_vect( poolReadObject< LArShapeSubset_p1 >() );
+        // using unique_ptr ensures deletion of the persistent object
+        std::unique_ptr< LArShapeSubset_p1 > col_vect( poolReadObject< LArShapeSubset_p1 >() );
         //
         log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 
         return TPconverter.createTransient( col_vect.get(), log );
@@ -62,7 +62,7 @@ LArShape32MCCnv::createTransient ()
         // subset from before TP separation
         log << MSG::DEBUG << "Reading LArShapeSubset (original)" << endmsg; 
 
-        std::auto_ptr< LArConditionsSubset<LArShapeP> > subset ( poolReadObject< LArConditionsSubset<LArShapeP> >() );
+        std::unique_ptr< LArConditionsSubset<LArShapeP> > subset ( poolReadObject< LArConditionsSubset<LArShapeP> >() );
         // Here we must convert from LArShapeP to LArShapeP1
         
         log << MSG::VERBOSE << "subset ptr " << subset.get() << endmsg; 

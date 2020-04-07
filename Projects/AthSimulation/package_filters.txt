@@ -2,6 +2,7 @@
 # Package filtering rules for the AthSimulation project build.
 #
 
++ AsgExternal/Asg_Test
 + AtlasGeometryCommon/BeamPipeGeoModel
 + AtlasGeometryCommon/GeoModelEnvelopes
 + AtlasGeometryCommon/Interpreters
@@ -152,6 +153,7 @@
 + Event/xAOD/xAODTruthAthenaPool
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
++ Generators/AtlasHepMC
 + Generators/GenInterfaces
 + Generators/GeneratorObjects
 + Generators/GeneratorObjectsAthenaPool
@@ -252,6 +254,7 @@
 + MuonSpectrometer/MuonGeoModel
 + MuonSpectrometer/MuonIdHelpers
 + MuonSpectrometer/MuonSimEvent
++ MuonSpectrometer/MuonStationIndex
 + Reconstruction/RecAlgs
 + Reconstruction/RecEvent
 + Reconstruction/RecEventAthenaPool

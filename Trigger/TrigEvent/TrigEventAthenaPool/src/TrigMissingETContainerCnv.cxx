@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMissingETContainerCnv.h"
@@ -37,12 +37,12 @@ TrigMissingETContainer* TrigMissingETContainerCnv::createTransient()
   static pool::Guid tlp1_guid( "23EC84A7-8614-42D6-B82D-B0861D3CE08D" );
 
   if( compareClassGuid( p3_guid ) ){
-         std::auto_ptr< TrigMissingETContainer_p3 > col_vect( poolReadObject< TrigMissingETContainer_p3 >() );
+         std::unique_ptr< TrigMissingETContainer_p3 > col_vect( poolReadObject< TrigMissingETContainer_p3 >() );
          //         std::cout << "Reading IMFC p3" << std::endl;
          return TPConverter.createTransient( col_vect.get(), mlog ) ;
 
   } else if( compareClassGuid( tlp1_guid ) ) {
-        std::auto_ptr< TrigMissingETContainer_tlp1 > col_vect( poolReadObject< TrigMissingETContainer_tlp1 >() );
+        std::unique_ptr< TrigMissingETContainer_tlp1 > col_vect( poolReadObject< TrigMissingETContainer_tlp1 >() );
          //  std::cout << "Reading IMFC tlp1" << std::endl;
          return converter_tlp1.createTransient( col_vect.get(), mlog );
        

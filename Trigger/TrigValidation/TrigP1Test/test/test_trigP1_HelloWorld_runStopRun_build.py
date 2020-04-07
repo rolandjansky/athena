@@ -6,7 +6,7 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-from TrigValTools.TrigValSteering import Test, ExecStep
+from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigP1Test import TrigP1TestSteps
 
 ex = ExecStep.ExecStep()
@@ -27,6 +27,15 @@ test.check_steps = TrigP1TestSteps.default_check_steps_OHMon(test, 'run_2.root')
 # Extra merging pattern for logs produced with -ul option
 logmerge = test.get_step("LogMerge")
 logmerge.extra_log_regex = 'athenaHLT-.*-.*(.out|.err)'
+
+# Extra step comparing histograms between the two runs
+rc = CheckSteps.RootCompStep("RootComp_runStopRun")
+rc.input_file = 'run_2.root'
+rc.reference = 'run_1.root'
+rc.args += ' --output=rootcomp_runStopRun'
+rc.explicit_reference = True  # Don't check if reference exists at configuration time
+rc.required = True  # Final exit code depends on this step
+test.check_steps.append(rc)
 
 import sys
 sys.exit(test.run())

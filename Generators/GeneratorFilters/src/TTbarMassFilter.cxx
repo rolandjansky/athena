@@ -3,7 +3,7 @@
 */
 
 #include "GeneratorFilters/TTbarMassFilter.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include <algorithm>
 
 TTbarMassFilter::TTbarMassFilter(const std::string& name, ISvcLocator* pSvcLocator)

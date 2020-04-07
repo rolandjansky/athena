@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTPROCESSINGOFSTRAW_H
@@ -15,17 +15,14 @@
 
 #include "TRTElectronicsProcessing.h"
 
-// #include "CommissionEvent/ComTime.h"
-
-#include "GaudiKernel/ServiceHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
-//#include "CLHEP/Geometry/Point3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 
 class TRTDigit;
 class TRTTimeCorrection;
@@ -61,7 +58,8 @@ public:
                         const HepPDT::ParticleDataTable*,
                         const TRT_ID*,
                         ITRT_PAITool* = NULL,
-                        ITRT_PAITool* = NULL);
+                        ITRT_PAITool* = NULL,
+                        const ITRT_CalDbTool* = NULL);
   /** Destructor */
   ~TRTProcessingOfStraw();
 
@@ -110,7 +108,7 @@ private:
   TRTProcessingOfStraw& operator= (const TRTProcessingOfStraw&);
 
   /** Initialize */
-  void Initialize();
+  void Initialize(const ITRT_CalDbTool *);
 
   const TRTDigSettings* m_settings;
   const InDetDD::TRT_DetectorManager* m_detmgr;
@@ -138,14 +136,12 @@ private:
   double m_maxCrossingTime;
   double m_minCrossingTime;
   double m_shiftOfZeroPoint;
-  // double m_time_y_eq_zero;
 
   double m_innerRadiusOfStraw;
   double m_outerRadiusOfWire;
 
   double m_solenoidFieldStrength;
 
-  // const ComTime* m_ComTime;
 
   TRTTimeCorrection*        m_pTimeCorrection;
   TRTElectronicsProcessing* m_pElectronicsProcessing;

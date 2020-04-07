@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_RawDataContainerCnv.h"
@@ -34,7 +34,7 @@ LUCID_RawDataContainer* LUCID_RawDataContainerCnv::createTransient() {
   } 
   else if (this->compareClassGuid(p1_guid)) { // First persistent version 
     
-    std::auto_ptr< LUCID_RawDataContainer_p1 > col_vect( this->poolReadObject< LUCID_RawDataContainer_p1 >());
+    std::unique_ptr< LUCID_RawDataContainer_p1 > col_vect( this->poolReadObject< LUCID_RawDataContainer_p1 >());
     
     trans_cont = converter_p1.createTransient(col_vect.get(), mlog);
   }

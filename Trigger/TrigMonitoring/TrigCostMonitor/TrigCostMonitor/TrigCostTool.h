@@ -58,7 +58,7 @@ class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
 
  private:
   
-  void ProcessConfig(xAOD::EventInfo* info);
+  void ProcessConfig(const xAOD::EventInfo* info);
 
   void ProcessEvent(TrigMonEvent &event);
   void SavePrevLumi(TrigMonEvent &event);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LUCID_DigitContainerCnv.h"
@@ -32,7 +32,7 @@ LUCID_DigitContainer* LUCID_DigitContainerCnv::createTransient() {
   
   if (this->compareClassGuid(p2_guid)) {
     
-    std::auto_ptr< LUCID_DigitContainer_p2 > col_vect( this->poolReadObject< LUCID_DigitContainer_p2 >());
+    std::unique_ptr< LUCID_DigitContainer_p2 > col_vect( this->poolReadObject< LUCID_DigitContainer_p2 >());
     
     trans_cont = converter_p2.createTransient(col_vect.get(), mlog);
   }

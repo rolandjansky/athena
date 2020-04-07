@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/RPCSimHit.h"
@@ -60,7 +60,7 @@ void RPCSimHitCollectionCnv_p2::transToPers(const RPCSimHitCollection* transCont
 
 
 RPCSimHitCollection* RPCSimHitCollectionCnv_p2::createTransient(const Muon::RPCSimHitCollection_p2* persObj, MsgStream &log) {
-   std::auto_ptr<RPCSimHitCollection> trans(new RPCSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
+   std::unique_ptr<RPCSimHitCollection> trans(new RPCSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
    persToTrans(persObj, trans.get(), log);
    return(trans.release());
 }

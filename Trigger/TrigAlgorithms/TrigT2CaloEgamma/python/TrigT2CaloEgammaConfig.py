@@ -266,7 +266,6 @@ class T2CaloEgamma_eGamma_NoHad (T2CaloEgamma):
        #self.TimerNtuple="T2CaloEgamma.T2CaEgtTot"
        self.TrigEMClusterKey="TrigT2CaloEgamma"
        #self.Monitoring=False
-       #self.OutputLevel = DEBUG
        #self.AthenaMonTools += [t2catime]
        self.AthenaMonTools = [ TrigT2CaloEgammaValMonitoring(),
                                TrigT2CaloEgammaCosmicMonitoring(),
@@ -373,7 +372,7 @@ class RingerReFexConfig( RingerReFex ):
     self.NLayersRings         = [2, 2, 2, 2, 4, 5, 4]
     self.NMaxCells            = [320, 512, 272, 128, 128, 128, 128]
     self.UseHad               = True
-    from RingerConstants import Layer
+    from TrigT2CaloEgamma.RingerConstants import Layer
     self.LayersRings          = [
                                  Layer.PreSamplerB,Layer.PreSamplerE,
                                  Layer.EMB1,       Layer.EME1,
@@ -428,10 +427,8 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
        
        if doRinger:
          from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
-         from AthenaCommon.Constants import DEBUG
          ringer = RingerReFexConfig('ReFaAlgoRingerFexConfig')
          #ringer.RingsKey= recordable("L2CaloRinger")
-         ringer.OutputLevel = DEBUG
          ringer.RingerKey= RingerKey #"HLT_L2CaloRinger"
          ringer.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
          ringer.ClustersName = ClustersName

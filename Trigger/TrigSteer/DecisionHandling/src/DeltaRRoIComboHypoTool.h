@@ -6,9 +6,9 @@
 #define DECISIONHANDLING_DELTARROICOMBOHYPOTOOL_H
 
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "ComboHypoToolBase.h"
 
 class DeltaRRoIComboHypoTool:  public ComboHypoToolBase {

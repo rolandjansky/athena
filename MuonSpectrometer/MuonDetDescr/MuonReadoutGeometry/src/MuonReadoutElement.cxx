@@ -223,7 +223,7 @@ namespace MuonGM {
 
     HepGeom::Point3D<double> p(x[0],x[1],x[2]);
     HepGeom::Transform3D msToGlobal = parentMuonStation()->getTransform(); // native_MuonStation to global 
-    HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt) 
+    const HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt) 
     HepGeom::Point3D<double> p2 = msToGlobal*(msToAmdb->inverse())*p;
     return Amg::Vector3D(p2.x(),p2.y(),p2.z());
   }
@@ -231,7 +231,7 @@ namespace MuonGM {
   const Amg::Transform3D MuonReadoutElement::AmdbLRSToGlobalTransform() const {
 
     HepGeom::Transform3D msToGlobal = parentMuonStation()->getTransform(); // native_MuonStation to global 
-    HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)  
+    const HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)  
     return Amg::CLHEPTransformToEigen(msToGlobal*(msToAmdb->inverse()));
   }
 
@@ -239,7 +239,7 @@ namespace MuonGM {
 
     HepGeom::Point3D<double> p(x[0],x[1],x[2]);
     HepGeom::Transform3D msToGlobal = parentMuonStation()->getTransform(); // native_MuonStation to global 
-    HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)
+    const HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)
     HepGeom::Point3D<double> p2 = (*msToAmdb)*(msToGlobal.inverse())*p;
     return Amg::Vector3D(p2.x(),p2.y(),p2.z());
   }
@@ -247,7 +247,7 @@ namespace MuonGM {
   const Amg::Transform3D MuonReadoutElement::GlobalToAmdbLRSTransform() const {
 
     HepGeom::Transform3D msToGlobal = parentMuonStation()->getTransform(); // native_MuonStation to global 
-    HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)  
+    const HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)  
     return Amg::CLHEPTransformToEigen((*msToAmdb)*(msToGlobal.inverse()));
   }
 } // namespace MuonGM

@@ -12,13 +12,9 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
-//#include "StoreGate/ReadHandle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "HepMC/GenEvent.h"
-//using HepMC::GenEvent;
-//using HepMC::GenVertex;
-//using HepMC::GenParticle;
+#include "AtlasHepMC/GenEvent.h"
 
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"

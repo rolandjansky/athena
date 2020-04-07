@@ -28,13 +28,11 @@ namespace Analysis {
   JetBTaggingAlg::JetBTaggingAlg(const std::string& n, ISvcLocator *p) : 
     AthAlgorithm(n,p),
     m_JetName(""),
-    m_BTagLink(".btaggingLink"),
     m_bTagTool("Analysis::BTagTool",this),
     m_bTagSecVtxTool("Analysis::BTagSecVertexing",this),
     m_magFieldSvc("AtlasFieldSvc",n)
   {
     declareProperty("JetCalibrationName", m_JetName);
-    declareProperty("BTaggingLink", m_BTagLink);
     declareProperty("BTagTool", m_bTagTool);
     declareProperty("BTagSecVertexing", m_bTagSecVtxTool);
     declareProperty("MagFieldSvc",    m_magFieldSvc );
@@ -55,8 +53,15 @@ namespace Analysis {
     ATH_CHECK( m_BTagSVCollectionName.initialize() );
     ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
     ATH_CHECK( m_BTaggingCollectionName.initialize() );
-    m_jetBTaggingLinkName = m_JetCollectionName.key() + m_BTagLink;
     ATH_CHECK( m_jetBTaggingLinkName.initialize() );
+    ATH_CHECK( m_bTagJetDecorLinkName.initialize() );
+
+    ATH_MSG_DEBUG("#BTAG# Jet container name: " << m_JetCollectionName.key());
+    ATH_MSG_DEBUG("#BTAG# BTagging container name: " << m_BTaggingCollectionName.key());
+    ATH_MSG_DEBUG("#BTAG# EL from Jet to BTagging: " << m_jetBTaggingLinkName.key());
+    ATH_MSG_DEBUG("#BTAG# EL from BTagging to Jet: " << m_bTagJetDecorLinkName.key());
+    ATH_MSG_DEBUG("#BTAG# BTagging Secondary Vertex container name: " << m_BTagSVCollectionName.key());
+    ATH_MSG_DEBUG("#BTAG# BTagging JF Vertex container name: " << m_BTagJFVtxCollectionName.key());
    
     /// retrieve the main BTagTool
     if ( m_bTagTool.retrieve().isFailure() ) {
@@ -121,7 +126,9 @@ namespace Analysis {
 
 
     //Decor Jet with element link to the BTagging
-    SG::WriteDecorHandle<xAOD::JetContainer,ElementLink< xAOD::BTaggingContainer > > h_jetBTaggingLinkName(m_jetBTaggingLinkName);
+    SG::WriteDecorHandle<xAOD::JetContainer, ElementLink< xAOD::BTaggingContainer > > h_jetBTaggingLinkName(m_jetBTaggingLinkName);
+    //Decor BTagging with element link to the Jet
+    SG::WriteDecorHandle<xAOD::BTaggingContainer, ElementLink< xAOD::JetContainer > > h_bTagJetLinkName(m_bTagJetDecorLinkName);
 
     //Create a xAOD::BTaggingContainer in any case (must be done)
     std::string bTaggingContName = m_BTaggingCollectionName.key();
@@ -172,13 +179,16 @@ namespace Analysis {
       ATH_MSG_WARNING("#BTAG# Failed in taggers call");
     }
 
-    //Create the element link from the jet to the btagging
+    //Create the element link from the jet to the btagging and reverse link
     for (size_t jetIndex=0; jetIndex < h_JetCollectionName->size() ; ++jetIndex) {
       const xAOD::Jet * jetToTag = h_JetCollectionName->at(jetIndex);
       xAOD::BTagging * itBTag = h_BTaggingCollectionName->at(jetIndex);
       ElementLink< xAOD::BTaggingContainer> linkBTagger;
       linkBTagger.toContainedElement(*h_BTaggingCollectionName.ptr(), itBTag);
       h_jetBTaggingLinkName(*jetToTag) = linkBTagger;
+      ElementLink< xAOD::JetContainer> linkJet;
+      linkJet.toContainedElement(*h_JetCollectionName.ptr(), jetToTag);
+      h_bTagJetLinkName(*itBTag) = linkJet;
     }
 
     return StatusCode::SUCCESS;

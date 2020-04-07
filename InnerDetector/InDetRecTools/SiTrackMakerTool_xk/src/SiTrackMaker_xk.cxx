@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,7 +46,6 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   // Get magnetic field service
   //
   if (m_fieldmode != "NoField" ) {
-    
     if ( !m_fieldServiceHandle.retrieve() ){
       ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
       return StatusCode::FAILURE;
@@ -726,7 +725,12 @@ void InDet::SiTrackMaker_xk::detectorElementsSelection(SiTrackMakerEventData_xk&
 } 
 
 ///////////////////////////////////////////////////////////////////
-// New clusters comparison with clusters associated with track
+// Clusters from seed comparison with clusters associated with track
+//
+// Seeds is good only if no tracks has hits in all clusters from given seed (nt!=n)
+// where, n  - number clusters in seed
+//        nt - number clusters with track information
+//
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::SiTrackMaker_xk::newSeed(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& Sp) const
@@ -735,8 +739,8 @@ bool InDet::SiTrackMaker_xk::newSeed(SiTrackMakerEventData_xk& data, const std::
   std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator pt,pte = data.clusterTrack().end();
   std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
 
-  int n = 0;
-  for (s = Sp.begin(); s!=se; ++s) {
+  size_t n = 0;
+  for (;s!=se; ++s) {
 
     const Trk::PrepRawData* p = (*s)->clusterList().first; 
    
@@ -745,7 +749,6 @@ bool InDet::SiTrackMaker_xk::newSeed(SiTrackMakerEventData_xk& data, const std::
       trackseed.insert((*pt).second);
     }
     ++n;
-
     p = (*s)->clusterList().second;
     if (!p) continue;
 
@@ -756,49 +759,27 @@ bool InDet::SiTrackMaker_xk::newSeed(SiTrackMakerEventData_xk& data, const std::
     ++n;
 
   }
-  if (trackseed.empty()) return true;
-
-  if (m_ITKGeomtry && n!=3 && n!=6) return false;
- 
+   if(trackseed.size() < n) return true;
+   if( m_heavyion && n==3 ) return true;
+    
   std::multiset<const Trk::Track*>::iterator t = trackseed.begin(), te = trackseed.end();
 
   const Trk::Track* tr  = (*t)                             ;
-  unsigned int      nsm = tr->measurementsOnTrack()->size();
-  unsigned int      nsm3= 0                                ;
-  int               nt  = 1                                ;
-  int               t3  = 0                                ;
+  
+  size_t               nt  = 1                                ;
 
-  for (++t; t!=te; ++t) {
-    if ((*t) == tr) {
-      ++nt;
-      continue;
+   for(++t; t!=te; ++t) {
+
+    if((*t) != tr) {
+      tr = (*t);
+      nt =    1;
+      continue ;
     }
-    if (nt  == n) {
-      ++t3;
-      unsigned int ns =  tr->measurementsOnTrack()->size();
-      if (ns > nsm3) nsm3 = ns;
-    }
-    tr = (*t); nt = 1;
-    unsigned int ns = tr->measurementsOnTrack()->size();
-    if (ns > nsm) nsm = ns;
+    if(++nt == n) return false;
   }
-  if (nt == n) {
-    ++t3;
-    unsigned int ns =  tr->measurementsOnTrack()->size();
-    if (ns > nsm3) nsm3 = ns;
-  }
-
-  if (m_heavyion) {
-    if (n==3 || t3 <=0) return true;
-    return false;
-  }
-
-  if ( (m_ITKGeomtry && t3 > 0) || nsm3 > 13 || t3 > 2) return false;
-
-  if ( !m_cosmicTrack && n==3 && data.sct() && (*Sp.begin())->r() > 43. ) return true;
-  if (t3 > 0) return false;
-  return true;
+  return nt!=n;
 }
+
 
 ///////////////////////////////////////////////////////////////////
 // Clusters-track multimap production
@@ -925,12 +906,13 @@ bool InDet::SiTrackMaker_xk::globalPosition
   double v[3]  = {a0[1]*dir[2]-a0[2]*dir[1],a0[2]*dir[0]-a0[0]*dir[2],a0[0]*dir[1]-a0[1]*dir[0]};
 
   double du    = a0[0]*u[0]+a0[1]*u[1]+a0[2]*u[2];
-  double dv    = a1[0]*v[0]+a1[1]*v[1]+a1[2]*v[2];
 
-  if (du==0. || dv==0.) return false;
-
+  if (du==0. ) return false;
+  
+  //these need checking; original code calculated dv and used
+  //s1 = -(dr[0]*v[0]+dr[1]*v[1]+dr[2]*v[2])/dv;
   double s0 = (dr[0]*u[0]+dr[1]*u[1]+dr[2]*u[2])/du;
-  double s1 =-(dr[0]*v[0]+dr[1]*v[1]+dr[2]*v[2])/dv;
+  double s1 = (dr[0]*v[0]+dr[1]*v[1]+dr[2]*v[2])/du;
 
   if (s0 < -d0 || s0 > 1.+d0 ||  s1 < -d0 || s1 > 1.+d0) return false;
 

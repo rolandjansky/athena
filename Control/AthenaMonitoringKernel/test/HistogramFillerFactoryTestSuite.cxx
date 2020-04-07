@@ -29,7 +29,7 @@
 #include "../src/HistogramFiller/CumulativeHistogramFiller1D.h"
 #include "../src/HistogramFiller/VecHistogramFiller1D.h"
 #include "../src/HistogramFiller/VecHistogramFiller1DWithOverflows.h"
-#include "../src/HistogramFiller/HistogramFillerRebinable1D.h"
+#include "../src/HistogramFiller/HistogramFillerRebinable.h"
 #include "../src/HistogramFiller/HistogramFillerProfile.h"
 #include "../src/HistogramFiller/HistogramFiller2D.h"
 #include "../src/HistogramFiller/HistogramFiller2DProfile.h"

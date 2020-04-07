@@ -156,5 +156,14 @@
   <class name="ElementLink<Muon::MMPrepDataContainer>"/>
   <class name="ElementLink<Muon::MMPrepDataContainer>::Base"/>
 
+  <!-- Caches -->
+  <class name="CscPrepDataCollection_Cache"/>
+  <class name="CscStripPrepDataCollection_Cache"/>
+  <class name="MdtPrepDataCollection_Cache"/>
+  <class name="RpcPrepDataCollection_Cache"/>
+  <class name="TgcPrepDataCollection_Cache"/>
+  <class name="sTgcPrepDataCollection_Cache"/>
+  <class name="MMPrepDataCollection_Cache"/>
+
 
 </lcgdict>

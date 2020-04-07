@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IsoMuonFeatureContainerCnv.h"
@@ -43,17 +43,17 @@ IsoMuonFeatureContainer * IsoMuonFeatureContainerCnv::createTransient()
 
   //IsoMuonFeatureContainer *p_collection = 0;
   if( compareClassGuid( p3_guid ) ){
-         std::auto_ptr< IsoMuonFeatureContainer_p3 > col_vect( poolReadObject< IsoMuonFeatureContainer_p3 >() );
+         std::unique_ptr< IsoMuonFeatureContainer_p3 > col_vect( poolReadObject< IsoMuonFeatureContainer_p3 >() );
 	 //         std::cout << "Reading IMFC p3" << std::endl;
          return TPconverter.createTransient( col_vect.get(), mlog ) ;
 
     }else if( compareClassGuid( p2_guid ) ){
-         std::auto_ptr< IsoMuonFeatureContainer_p2 > col_vect( poolReadObject< IsoMuonFeatureContainer_p2 >() );
+         std::unique_ptr< IsoMuonFeatureContainer_p2 > col_vect( poolReadObject< IsoMuonFeatureContainer_p2 >() );
 	 //         std::cout << "Reading IMFC p2" << std::endl;
          return TPconverter2.createTransient( col_vect.get(), mlog ) ;
 
     }else if( compareClassGuid( tlp1_guid ) ){
-         std::auto_ptr< IsoMuonFeatureContainer_tlp1 > col_vect( poolReadObject< IsoMuonFeatureContainer_tlp1 >() );
+         std::unique_ptr< IsoMuonFeatureContainer_tlp1 > col_vect( poolReadObject< IsoMuonFeatureContainer_tlp1 >() );
 	 //  std::cout << "Reading IMFC tlp1" << std::endl;
          return TLPconverter1.createTransient( col_vect.get(), mlog );
       

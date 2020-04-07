@@ -1,16 +1,31 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
+def LArFEBMonConfigOld(inputFlags, cellDebug=False, dspDebug=False):
+    from AthenaMonitoring import AthMonitorCfgHelperOld
+    from LArMonitoring.LArMonitoringConf import  LArFEBMonAlg
+
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArFEBMonAlgOldCfg')
+    LArFEBMonConfigCore(helper, LArFEBMonAlg,inputFlags,cellDebug, dspDebug)
+
+    return helper.result()
+
 
 def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
 
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'LArFEBMonCfg')
+    helper = AthMonitorCfgHelper(inputFlags,'LArFEBMonAlgCfg')
+
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    LArFEBMonConfigCore(helper, CompFactory.LArFEBMonAlg,inputFlags,cellDebug, dspDebug)
+
+    return helper.result()
+
+def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebug=False):
 
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    larFEBMonAlg = helper.addAlgorithm(CompFactory.LArFEBMonAlg,'larFEBMonAlg')
+    larFEBMonAlg = helper.addAlgorithm(algoinstance,'larFEBMonAlg')
 
     GroupName="FEBMon"
     nslots=[]
@@ -22,31 +37,56 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
     larFEBMonAlg.SubDetNames=lArDQGlobals.SubDet
     larFEBMonAlg.Streams=lArDQGlobals.defaultStreamNames
 
-    # adding LArFebErrorSummary algo
-    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
-    acc = LArFebErrorSummaryMakerCfg(inputFlags)
-    helper.resobj.merge(acc)
+    isCOMP200=False
+    from AthenaCommon.Configurable import Configurable
+    if Configurable.configurableRun3Behavior:
+      if "COMP200" in inputFlags.IOVDb.DatabaseInstance:
+         isCOMP200=True
+    else:      
+      from IOVDbSvc.CondDB import conddb
+      if conddb.GetInstance() == 'COMP200':
+         isCOMP200=True
 
-    if "COMP200" not in inputFlags.IOVDb.DatabaseInstance:
-       iovDbSvc=helper.resobj.getService("IOVDbSvc")
-       condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+    if not isCOMP200:
        dbString="<db>COOLONL_LAR/CONDBR2</db>"
        persClass="AthenaAttributeList"
        fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
+       if Configurable.configurableRun3Behavior:
+          iovDbSvc=helper.resobj.getService("IOVDbSvc")
+          condLoader=helper.resobj.getCondAlgo("CondInputLoader")
+       else:   
+          from AthenaCommon import CfgGetter
+          iovDbSvc=CfgGetter.getService("IOVDbSvc")
+          from AthenaCommon.AlgSequence import AthSequencer
+          condSeq = AthSequencer("AthCondSeq")
+          condLoader=condSeq.CondInputLoader
+
        iovDbSvc.Folders.append(fld+dbString)
        condLoader.Load.append((persClass,fld))
-       larFEBMonAlg.keyDSPThresholds=fld
+       larFEBMonAlg.Run2DSPThresholdsKey = fld
     else:
        fld='/LAR/Configuration/DSPThreshold/Thresholds'
        db='LAR_ONL'
        obj='LArDSPThresholdsComplete'
-       helper.resobj.addFolderList(inputFlags,[(fld,db,obj)])
-       larFEBMonAlg.keyDSPThresholds="LArDSPThresholds"
+       if Configurable.configurableRun3Behavior:
+           helper.resobj.addFolderList(inputFlags,[(fld,db,obj)])
+       else:
+           conddb.addFolder (db, fld, className=obj)
+       larFEBMonAlg.Run1DSPThresholdsKey = 'LArDSPThresholds'
 
+    # adding LArFebErrorSummary algo
+    from AthenaCommon.Configurable import Configurable
+    if Configurable.configurableRun3Behavior :
+        from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+        acc = LArFebErrorSummaryMakerCfg(inputFlags)
+        helper.resobj.merge(acc)
+    else :
+        #put here what to do else
+        pass
     Group = helper.addGroup(
         larFEBMonAlg,
         GroupName,
-        '/LAr/'+GroupName+'/'
+        '/LAr/'+GroupName+'NewAlg/'
     )
 
 
@@ -65,7 +105,7 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.N_FEB_Parttions_Max, xmin=-0.5, xmax=lArDQGlobals.N_FEB_Parttions_Max-0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
-                                  #? how to put labels to Y axis only ?
+                                  ylabels=lArDQGlobals.Partitions
                                   )
     Group.defineHistogram('febError,part;NbOfLArFEBMonAlgErrors_dE', 
                                   title='# of data corruption errors',
@@ -73,7 +113,7 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.N_FEBErrors, xmin=0.5, xmax=lArDQGlobals.N_FEBErrors+0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
-                                  labels=lArDQGlobals.FEBErrors+lArDQGlobals.Partitions)
+                                  xlabels=lArDQGlobals.FEBErrors, ylabels=lArDQGlobals.Partitions)
     Group.defineHistogram('dspThrADC;dspThresholdsADC', 
                                   title='DSP thresholds to readout samples:Number of cells:Cell threshold in ADC counts',
                                   type='TH1I',
@@ -89,7 +129,7 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.Evt_Bins, xmin=lArDQGlobals.Evt_Min, xmax=lArDQGlobals.Evt_Max,
-                                  labels=lArDQGlobals.Evt_labels)
+                                  xlabels=lArDQGlobals.Evt_labels)
     Group.defineHistogram('LVL1Trig;TriggerWord', 
                                   title='Number of Events per L1 trigger word (8 bits):L1 trigger word',
                                   type='TH1I',
@@ -105,13 +145,13 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max,
-                                  labels=lArDQGlobals.EvtRej_labels)
+                                  xlabels=lArDQGlobals.EvtRej_labels)
     Group.defineHistogram('EvtRej,EvtRejYield;EventsRejectedYield', 
                                   title='Data corruption yield:Corruption type:Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins-1, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max-1,
-                                  labels=lArDQGlobals.EvtRejYield_labels)
+                                  xlabels=lArDQGlobals.EvtRejYield_labels)
     Group.defineHistogram('LB,EvtRejYield;YieldOfRejectedEventsVsLB', 
                                   title='Yield of corrupted events (DATACORRUPTED):Luminosity Block:Yield(%)',
                                   type='TProfile',
@@ -141,7 +181,7 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
                                   title='# of cells with samples readout:Number of cells:Number of events',
                                   type='TH1I',
                                   path=summary_hist_path,
-                                  xbins=lArDQGlobals.N_Cells/10, xmin=-1000, xmax=lArDQGlobals.N_Cells-1000)
+                                  xbins=int(lArDQGlobals.N_Cells/10), xmin=-1000, xmax=lArDQGlobals.N_Cells-1000)
     Group.defineHistogram('LB,LArEvSize;eventSizeVsLB', 
                                   title='LAr event size (w/o ROS headers):Luminosity Block:Megabytes',
                                   type='TProfile',
@@ -153,24 +193,33 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.Samples_Bins, xmin=lArDQGlobals.Samples_Min, xmax=lArDQGlobals.Samples_Max)
 
-    if inputFlags.DQ.Environment == 'online':
+    isOnline=False
+    if Configurable.configurableRun3Behavior :
+      if inputFlags.DQ.Environment == 'online':
+         isOnline=True
+    else:
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      if athenaCommonFlags.isOnline:
+         isOnline=True
+
+    if isOnline:     
        Group.defineHistogram('LBf,EvtRejYield;EventsRejectedLB',
                                 titile='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=summary_hist_path,
-                                xbins=1, xmin=0, xmax=1, labels=['% of events'])
+                                xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
        Group.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
                                 titile='LAr event size per stream per LB (w/o ROS headers)',
                                 type='TProfile2D',
                                 path=summary_hist_path,
                                 xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                 ybins=len(larFEBMonAlg.Streams),ymin=-0.5, ymax= len(larFEBMonAlg.Streams)-0.5,
-                                #labels=[''] needs only labels on Yaxis
+                                ylabels=larFEBMonAlg.Streams 
                                 )
 
     # Now per partition histograms
     for subdet in range(0,lArDQGlobals.N_SubDet):
-       hist_path='/LAr/'+GroupName+'/'+lArDQGlobals.SubDet[subdet]+'/'
+       hist_path='/LAr/'+GroupName+'NewAlg/'+lArDQGlobals.SubDet[subdet]+'/'
        slot_low = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        slot_up  = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        slot_n = int(slot_up - slot_low)
@@ -334,23 +383,23 @@ def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
                               path=hist_path,
                               xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
 
-       if inputFlags.DQ.Environment == 'online':
+       if isOnline:
           darray.defineHistogram('LBf,erronl;EventsRejectedLB',
                                 titile='% of events rejected in current LB (online only)',
                                 type='TProfile',
                                 path=hist_path,
-                                xbins=1, xmin=0, xmax=1, labels=['% of events'])
+                                xbins=1, xmin=0, xmax=1, xlabels=['% of events'])
           darray.defineHistogram('LB,streamBin,LArEvSizePart;eventSizeStreamVsLB',
                                 titile='LAr event size per stream per LB (w/o ROS headers)',
                                 type='TProfile2D',
                                 path=hist_path,
                                 xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max,
                                 ybins=len(larFEBMonAlg.Streams),ymin=-0.5, ymax= len(larFEBMonAlg.Streams)-0.5,
-                                #labels=[''] needs only labels on Y-axis
+                                ylabels=larFEBMonAlg.Streams
                                 )
        pass
 
-    return helper.result()
+
 
     
 
@@ -358,7 +407,7 @@ if __name__=='__main__':
 
    from AthenaConfiguration.AllConfigFlags import ConfigFlags
    from AthenaCommon.Logging import log
-   from AthenaCommon.Constants import DEBUG,WARNING
+   from AthenaCommon.Constants import DEBUG
    from AthenaCommon.Configurable import Configurable
    Configurable.configurableRun3Behavior=1
    log.setLevel(DEBUG)
@@ -367,20 +416,18 @@ if __name__=='__main__':
    from LArMonitoring.LArMonConfigFlags import createLArMonConfigFlags
    createLArMonConfigFlags()
 
-   ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data",]
+   from AthenaConfiguration.TestDefaults import defaultTestFiles
+   ConfigFlags.Input.Files = defaultTestFiles.RAW
 
    ConfigFlags.Output.HISTFileName = 'LArFEBMonOutput.root'
-   ConfigFlags.DQ.enableLumiAccess = False
+   ConfigFlags.DQ.enableLumiAccess = True
    ConfigFlags.DQ.useTrigger = False
    ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.lock()
 
-   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-   cfg = MainServicesSerialCfg()
-
 
    from CaloRec.CaloRecoConfig import CaloRecoCfg
-   cfg.merge(CaloRecoCfg(ConfigFlags))
+   cfg=CaloRecoCfg(ConfigFlags)
 
    #from CaloD3PDMaker.CaloD3PDConfig import CaloD3PDCfg,CaloD3PDAlg
    #cfg.merge(CaloD3PDCfg(ConfigFlags, filename=ConfigFlags.Output.HISTFileName, streamname='CombinedMonitoring'))
@@ -391,8 +438,8 @@ if __name__=='__main__':
    cfg.printConfig()
 
    ConfigFlags.dump()
-   f=open("LArFEBMon.pkl","w")
+   f=open("LArFEBMon.pkl","wb")
    cfg.store(f)
    f.close()
 
-   cfg.run(10,OutputLevel=WARNING)
+

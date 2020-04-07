@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.AlgSequence import AlgSequence
-from AthenaCommon.ConfigurableDb import getConfigurable
-from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
 from AthenaCommon.Logging import logging
 # flags
 from MuonCnvExample.MuonCalibFlags import muonCalibFlags
@@ -86,7 +86,8 @@ MoMuMooreConfig = MuonCalibConfig(
 def configure(config):
     """Configure the calibration input and output.
     If both segmentsKey and segmentCombisKey are defined, segmentsKey has priority."""
-    global topSequence,ToolSvc,MdtCalibTool, MuonSegmentToCalibSegment, MuonCalibAlg, MuonCalibTool, MuonCalibExtraTreeAlg, muonRecFlags
+    from AthenaCommon.AppMgr import ToolSvc
+    global topSequence,MdtCalibTool, MuonSegmentToCalibSegment, MuonCalibAlg, MuonCalibTool, MuonCalibExtraTreeAlg
     log.info("Configuring with %s", config)
     
     calibMode = muonCalibFlags.Mode()
@@ -208,11 +209,11 @@ def configure(config):
 def printConfig():
     global MuonSegmentToCalibSegment,MuonCalibAlg,MuonCalibTool,MdtCalibTool,MuonCalibExtraTreeAlg
 
-    print MuonSegmentToCalibSegment
-    print MuonCalibAlg
-    print MuonCalibTool
-    print MdtCalibTool
-    print MuonCalibExtraTreeAlg
+    print (MuonSegmentToCalibSegment)
+    print (MuonCalibAlg)
+    print (MuonCalibTool)
+    print (MdtCalibTool)
+    print (MuonCalibExtraTreeAlg)
 
 
 #

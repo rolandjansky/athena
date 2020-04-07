@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 #=======================================================#
 #==========Reading in the data==========================#
 #=======================================================#
@@ -7,7 +9,7 @@ currentdir = os.getcwd()
 
 isOk(dirHead)
 os.chdir(dirHead)
-print "Reading", dirHead
+print ("Reading", dirHead)
 
 Chi2Method = getChi2Method()
 
@@ -17,7 +19,7 @@ for iter in range(numIter):
         os.chdir(dirPrefix + str(iter+skipIter))
         isOk(alignlogfilename)
         file = open(alignlogfilename)
-        print "Reading From Directory ", dirPrefix+str(iter+skipIter)
+        print ("Reading From Directory ", dirPrefix+str(iter+skipIter))
         totChi2[iter] = 0
         readhalf = False
         for line in file:
@@ -65,15 +67,15 @@ for iter in range(numIter):
         file.close()
         os.chdir("..")
 
-print "================== Reading the subjobs ==========================="
+print ("================== Reading the subjobs ===========================")
 if numSubJobs:
     os.chdir(dirHead)
-    print os.getcwd()
+    print (os.getcwd())
     for iter in range(numIter):
         procTracks[iter] = 0
         procHits[iter] = 0
         totChi2[iter] = 0
-        print "Reading From Sub-Directories in ", dirPrefix+str(iter+skipIter)
+        print ("Reading From Sub-Directories in ", dirPrefix+str(iter+skipIter))
         for subJob in range(numSubJobs):
             if isOkJustGiveWarning(dirPrefix + str(iter+skipIter)+"_"+str(subJob)):
                 os.chdir(dirPrefix + str(iter+skipIter)+"_"+str(subJob))
@@ -92,7 +94,7 @@ if numSubJobs:
                     file.close()
                 os.chdir("..")
 
-print "================== Getting the EigenValues  ==========================="
+print ("================== Getting the EigenValues  ===========================")
 if Chi2Method:
     os.chdir(dirHead+dirPrefix + str(numIter-1))
     file = open(alignlogfilename)
@@ -119,6 +121,6 @@ if Chi2Method:
     
 #===return to the original directory====
 os.chdir(currentdir)
-print "We've read in all the data ============= Exiting ReadinAlignmentData.py"
+print ("We've read in all the data ============= Exiting ReadinAlignmentData.py")
 
 

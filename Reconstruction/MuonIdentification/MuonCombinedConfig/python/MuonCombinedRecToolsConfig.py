@@ -25,14 +25,21 @@ def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
     result.addPublicTool(indet_hole_search_tool)
     #FIXME - need InDet to provide configuration for PixelConditionsSummaryTool
     # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
-
-    indet_track_summary_helper_tool = CompFactory.InDet__InDetTrackSummaryHelperTool(name            = "CombinedMuonIDSummaryHelper",
-                                                                                    AssoTool        = None,
-                                                                                    PixelToTPIDTool = None,
-                                                                                    TestBLayerTool  = None,
-                                                                                    DoSharedHits    = False,
-                                                                                    HoleSearch      = indet_hole_search_tool)
-    result.addPublicTool(indet_track_summary_helper_tool)
+    from InDetConfig.InDetRecToolConfig import InDetTrackSummaryHelperToolCfg
+    acc = InDetTrackSummaryHelperToolCfg(flags, name="CombinedMuonIDSummaryHelper", 
+                                            AssoTool        = None, 
+                                            PixelToTPIDTool = None,
+                                            TestBLayerTool  = None,
+                                            DoSharedHits    = False,
+                                            HoleSearch      = indet_hole_search_tool)
+    indet_track_summary_helper_tool = acc.getPrimary()
+    # indet_track_summary_helper_tool = CompFactory.InDet__InDetTrackSummaryHelperTool(name            = "CombinedMuonIDSummaryHelper",
+    #                                                                                 AssoTool        = None,
+    #                                                                                 PixelToTPIDTool = None,
+    #                                                                                 TestBLayerTool  = None,
+    #                                                                                 DoSharedHits    = False,
+    #                                                                                 HoleSearch      = indet_hole_search_tool)
+    result.addPublicTool( acc.popPrivateTool() )
 
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
     acc = MuonTrackSummaryHelperToolCfg(flags)
@@ -181,7 +188,8 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
 
 def ExtrapolateMuonToIPToolCfg(flags, name="ExtrapolateMuonToIPTool", **kwargs):
     #FIXME complete this configuration
-    result = ComponentAccumulator()
+    result = MuonCombinedTrackSummaryToolCfg(flags)
+    kwargs.setdefault("TrackSummaryTool", result.popPrivateTools() )
     result.setPrivateTools(CompFactory.ExtrapolateMuonToIPTool(name,**kwargs))
     return result
 
@@ -189,11 +197,12 @@ def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
     result = CombinedMuonTrackBuilderCfg(flags)
     kwargs.setdefault("TrackBuilder", result.popPrivateTools() )
-    acc = ExtrapolateMuonToIPToolCfg(flags)
-    extrapolator = acc.popPrivateTools()
-    result.addPublicTool(extrapolator)
-    kwargs.setdefault("TrackExtrapolationTool", extrapolator )
-    result.merge(acc)
+    if flags.Beam.Type=="cosmics":
+        acc = ExtrapolateMuonToIPToolCfg(flags)
+        extrapolator = acc.popPrivateTools()
+        result.addPublicTool(extrapolator)
+        kwargs.setdefault("TrackExtrapolationTool", extrapolator )
+        result.merge(acc)
 
     acc = MuonAmbiProcessorCfg(flags)
     ambiguityprocessor = acc.popPrivateTools()
@@ -387,8 +396,8 @@ def MuidCaloTrackStateOnSurfaceParamCfg(flags, name='MuidCaloTrackStateOnSurface
     kwargs.setdefault("Propagator", CompFactory.Trk__RungeKuttaPropagator(name = 'AtlasRungeKuttaPropagator'))# FIXME - there should be a CA for this!
     kwargs.setdefault("MinRemainingEnergy" , 0.2*GeV )
     kwargs.setdefault("ParamPtCut"         , 3.0*GeV )
-    kwargs.setdefault("CaloEnergyDeposit"  , MuidCaloEnergyParam(flags) )
-    kwargs.setdefault("CaloEnergyParam"  ,   MuidCaloEnergyParam(flags) )
+    kwargs.setdefault("CaloEnergyDeposit"  , MuidCaloEnergyToolParam(flags) )
+    kwargs.setdefault("CaloEnergyParam"  ,   MuidCaloEnergyToolParam(flags) )
     tool = CompFactory.Rec__MuidCaloTrackStateOnSurface(name,**kwargs)
     result.setPrivateTools(tool)
     return result

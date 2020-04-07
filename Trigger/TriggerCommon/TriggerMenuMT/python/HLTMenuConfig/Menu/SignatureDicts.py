@@ -184,7 +184,7 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'Comb', 'fast', 'msonly','lateMu', "Dr"],
+    'extra'          : ['noL1', 'Comb', 'fast', 'msonly','lateMu', "Dr", "muoncalib"],
     'IDinfo'         : [],
     'isoInfo'        : ['ivar','ivarmedium'],
     'invMassInfo'    : ['10invm70'],
@@ -344,8 +344,8 @@ ElectronChainParts = {
     'trkInfo'        : ['idperf'],
     'caloInfo'       : [],
     'lhInfo'         : [],
-    'L2IDAlg'        : [],
-    'addInfo'        : ['noringer', 'etcut', 'etcut1step',"v2","v3"],
+    'L2IDAlg'        : ['noringer'],
+    'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3"],
     }
 # ---- Egamma Dictinary of default Values ----
 ElectronChainParts_Default = {

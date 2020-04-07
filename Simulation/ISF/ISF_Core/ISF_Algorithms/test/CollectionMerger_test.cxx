@@ -288,7 +288,7 @@ TEST_F(CollectionMerger_test, nonexisting_input_collection___expect_SG_exception
   ASSERT_TRUE( m_alg->setProperty( "OutputPixelHits", outputPropertyValue).isSuccess() );
 
   ASSERT_TRUE( m_alg->initialize().isSuccess() );
-  ASSERT_THROW( m_alg->execute(ctx), SG::ExcNullReadHandle );
+  ASSERT_THROW( m_alg->execute(ctx).ignore(), SG::ExcNullReadHandle );
 }
 
 

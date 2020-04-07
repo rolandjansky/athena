@@ -8,12 +8,16 @@
  * Author: Lorenz Hauswald
  */
 
+#include "GaudiKernel/SystemOfUnits.h"
+
+#include "tauRecTools/HelperFunctions.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "xAODTracking/VertexContainer.h"  
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "TLorentzVector.h"
 
+using Gaudi::Units::GeV;
 const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
@@ -55,16 +59,11 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     }
   }
  
-  if(!m_in_trigger){
-    SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
-    acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0;
-  }
-  
   SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
   float ipSigLeadTrk=0.;
   if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
     return StatusCode::FAILURE;
-  acc_absipSigLeadTrk(tau) = fabs(ipSigLeadTrk);
+  acc_absipSigLeadTrk(tau) = std::abs(ipSigLeadTrk);
   
   //don't calculate EleBDT variables if run from TrigTauDiscriminant:
   if(m_in_trigger) return StatusCode::SUCCESS;
@@ -113,44 +112,47 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
         CaloSampling::HEC0, CaloSampling::TileBar0, CaloSampling::TileGap1, CaloSampling::TileExt0};
 
   // Get Clusters via Jet Seed 
-  auto p4IntAxis = tau.p4(xAOD::TauJetParameters::IntermediateAxis);
   const xAOD::Jet *jetSeed = (*tau.jetLink());
+  if (!jetSeed) {
+    ATH_MSG_ERROR("Tau jet link is invalid.");
+    return StatusCode::FAILURE;
+  } 
+
+  auto p4IntAxis = tau.p4(xAOD::TauJetParameters::IntermediateAxis);
   float eEMAtEMScaleFixed = 0;
   float eHadAtEMScaleFixed = 0;
   float eHad1AtEMScaleFixed = 0;
-  if (jetSeed) {
-    for( auto it : jetSeed->getConstituents() ){
-      auto *cl = dynamic_cast<const xAOD::CaloCluster *>((*it)->rawConstituent());
-      if (!cl){
-        ATH_MSG_WARNING("Found invalid cluster link from seed jet");
-        continue;
-      }
-      // Only take clusters with dR<0.2 w.r.t IntermediateAxis
-      if( p4IntAxis.DeltaR(cl->p4(xAOD::CaloCluster::UNCALIBRATED)) > 0.2 ) continue;
 
-      for( auto samp : EMSamps )
-        eEMAtEMScaleFixed += cl->eSample(samp);
-      for( auto samp : HadSamps )
-        eHadAtEMScaleFixed += cl->eSample(samp);
-      for( auto samp : Had1Samps )
-        eHad1AtEMScaleFixed += cl->eSample(samp);  
-    }
-    acc_EMFracFixed(tau) = ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) != 0 ? 
-        eEMAtEMScaleFixed / ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) : LOW_NUMBER;
-  } 
-  else{
-    ATH_MSG_WARNING("Tau got invalid xAOD::Jet link");
-    acc_EMFracFixed(tau) = LOW_NUMBER;
+  xAOD::JetConstituentVector vec = jetSeed->getConstituents();
+  xAOD::JetConstituentVector::iterator it = vec.begin();
+  xAOD::JetConstituentVector::iterator itE = vec.end();
+  for( ; it!=itE; ++it){
+
+    const xAOD::CaloCluster* cl = nullptr;
+    ATH_CHECK(tauRecTools::GetJetConstCluster(it, cl));
+    // Skip if charged PFO
+    if (!cl){ continue; }
+    
+    // Only take clusters with dR<0.2 w.r.t IntermediateAxis
+    if( p4IntAxis.DeltaR(cl->p4(xAOD::CaloCluster::UNCALIBRATED)) > 0.2 ) continue;
+    
+    for( auto samp : EMSamps )
+      eEMAtEMScaleFixed += cl->eSample(samp);
+    for( auto samp : HadSamps )
+      eHadAtEMScaleFixed += cl->eSample(samp);
+    for( auto samp : Had1Samps )
+      eHad1AtEMScaleFixed += cl->eSample(samp);  
   }
-
+  acc_EMFracFixed(tau) = ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) != 0 ? 
+      eEMAtEMScaleFixed / ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) : LOW_NUMBER;
  
   if(tau.nTracks() > 0){
     const xAOD::TrackParticle* track = 0;
     track = tau.track(0)->track();
-    acc_absEtaLead(tau) = fabs( track->eta() );
-    acc_leadTrackEta(tau) = fabs( track->eta() );
-    acc_absDeltaEta(tau) = fabs( track->eta() - tau.eta() );
-    acc_absDeltaPhi(tau) = fabs( track->p4().DeltaPhi(tau.p4()) );
+    acc_absEtaLead(tau) = std::abs( track->eta() );
+    acc_leadTrackEta(tau) = std::abs( track->eta() );
+    acc_absDeltaEta(tau) = std::abs( track->eta() - tau.eta() );
+    acc_absDeltaPhi(tau) = std::abs( track->p4().DeltaPhi(tau.p4()) );
     //EMFRACTIONATEMSCALE_MOVEE3:
     float etEMScale1 = acc_etEMAtEMScale(tau);
     float etEMScale2 = acc_etHadAtEMScale(tau);
@@ -198,8 +200,8 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
           etHotShotDR1 = etShot;
         }
         // In 0.012 x 0.1 window
-        if(abs(shot->eta() - etaCalo) > 0.012 ) continue;
-        if(abs(xAOD::P4Helpers::deltaPhi(shot->phi(), phiCalo)) > 0.1 ) continue;
+        if(std::abs(shot->eta() - etaCalo) > 0.012 ) continue;
+        if(std::abs(xAOD::P4Helpers::deltaPhi(shot->phi(), phiCalo)) > 0.1 ) continue;
         if(etShot > etHotShotWin) etHotShotWin = etShot;
     }
     acc_etHotShotDR1(tau) = etHotShotDR1;
@@ -225,7 +227,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   float ptLeadTrkOverEt = etOverpTLeadTrk > 0 ? 1. / etOverpTLeadTrk : LOW_NUMBER;
   acc_corrftrk(tau) = ptLeadTrkOverEt != -1111. ? ptLeadTrkOverEt + correction : ptLeadTrkOverEt;
   
-  acc_centFracCorrected(tau) = tau.pt() < 80*1000. ? acc_centFrac(tau) + correction : acc_centFrac(tau);
+  acc_centFracCorrected(tau) = tau.pt() < 80. * GeV ? acc_centFrac(tau) + correction : acc_centFrac(tau);
  
   return StatusCode::SUCCESS;
 }

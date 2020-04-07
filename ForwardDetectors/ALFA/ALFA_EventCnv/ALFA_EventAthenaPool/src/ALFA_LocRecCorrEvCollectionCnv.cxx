@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_EventTPCnv/ALFA_LocRecCorrEvCollectionCnv_p1.h"
@@ -25,7 +25,7 @@ ALFA_LocRecCorrEvCollection* ALFA_LocRecCorrEvCollectionCnv::createTransient() {
 
     
     if( this->compareClassGuid(p1_guid)) {
-         std::auto_ptr< ALFA_LocRecCorrEvCollection_p1 >   col_vect( this->poolReadObject< ALFA_LocRecCorrEvCollection_p1 >() );
+         std::unique_ptr< ALFA_LocRecCorrEvCollection_p1 >   col_vect( this->poolReadObject< ALFA_LocRecCorrEvCollection_p1 >() );
         trans_cont = TPConverter_p1.createTransient( col_vect.get(), mlog );
     }
 //    else if( m_token.find("CLID=35722E01-C4E3-420E-8A7E-E375C5E7989D") != std::string::npos) {

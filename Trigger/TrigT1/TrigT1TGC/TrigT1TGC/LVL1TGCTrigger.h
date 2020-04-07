@@ -31,7 +31,6 @@
 #include "StoreGate/WriteHandleKey.h"
 
 #include "MuonDigitContainer/TgcDigit.h"
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TrigT1TGC/TGCArguments.hh"
 #include "MuonDigitContainer/TgcDigitContainer.h"
@@ -141,10 +140,11 @@ namespace LVL1TGCTrigger {
     BooleanProperty   m_OutputTgcRDO{this,"OutputTgcRDO",true};   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
     
     // expert usage
-    BooleanProperty   m_SHPTORED{this,"SHPTORED",true}; // flag for E1/E2 chamber ORED in Strip HPT
-    BooleanProperty   m_USEINNER{this,"USEINNER",true}; // flag for using Inner Station for SL
+    BooleanProperty m_USE_CONDDB{this, "USE_CONDDB", true};  //< flag to use the Condition DB
+    BooleanProperty m_SHPTORED  {this, "SHPTORED",   true};  //< flag for E1/E2 chamber ORED in Strip HPT
+    BooleanProperty m_USEINNER  {this, "USEINNER",   true};  //< flag for using Inner Station for SL
     BooleanProperty   m_INNERVETO{this,"INNERVETO",true}; // flag for using VETO by Inner Station for SL
-    BooleanProperty   m_FULLCW{this,"FULLCW",true};   // flag for using differne CW for each octant
+    BooleanProperty   m_FULLCW{this,"FULLCW",false};   // flag for using differne CW for each octant
     BooleanProperty   m_TILEMU{this,"TILEMU",false};   // flag for using TileMu
     BooleanProperty   m_useRun3Config{this,"useRun3Config",false}; // flag for using switch between Run3 and Run2 algorithms
     
@@ -168,7 +168,6 @@ namespace LVL1TGCTrigger {
     
     TGCArguments m_tgcArgs;
     TGCArguments* tgcArgs();
-
 
     SG::ReadHandleKey<TgcDigitContainer> m_keyTgcDigit{this,"InputData_perEvent","TGC_DIGITS","Location of TgcDigitContainer"};
     SG::ReadHandleKey<TileMuonReceiverContainer> m_keyTileMu{this,"TileMuRcv_Input","TileMuRcvCnt","Location of TileMuonReceiverContainer"};

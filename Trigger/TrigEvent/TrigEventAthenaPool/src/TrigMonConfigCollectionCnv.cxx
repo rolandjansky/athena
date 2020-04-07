@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -53,14 +53,14 @@ TrigMonConfigCollection* TrigMonConfigCollectionCnv::createTransient()
   if( compareClassGuid(tlp1_guid) ) {
     
     (*m_log) << MSG::DEBUG << "TrigMonConfigCollectionCnv::reading tlp1 persistent object" << endmsg;
-    std::auto_ptr< TrigMonConfigCollection_tlp1 >   col_vect( this->poolReadObject< TrigMonConfigCollection_tlp1 >() );
+    std::unique_ptr< TrigMonConfigCollection_tlp1 >   col_vect( this->poolReadObject< TrigMonConfigCollection_tlp1 >() );
     (*m_log) << MSG::DEBUG << "TrigMonConfigCollectionCnv::reading tlp1 persistent object pointer" <<  col_vect.get() << endmsg;
     trans_obj = m_impl->m_TPConverter_tlp1.createTransient( col_vect.get(), *m_log);
   }
   else if( compareClassGuid(p1_guid) ) {
     
     (*m_log) << MSG::DEBUG << "TrigMonConfigCollectionCnv::reading p1 persistent object" << endmsg;
-    std::auto_ptr< TrigMonConfigCollection_p1 >   col_vect( this->poolReadObject< TrigMonConfigCollection_p1 >() );
+    std::unique_ptr< TrigMonConfigCollection_p1 >   col_vect( this->poolReadObject< TrigMonConfigCollection_p1 >() );
     (*m_log) << MSG::DEBUG << "TrigMonConfigCollectionCnv::reading p1 persistent object pointer" <<  col_vect.get() << endmsg;
     trans_obj = m_impl->m_TPConverter.createTransient( col_vect.get(), *m_log);
   }

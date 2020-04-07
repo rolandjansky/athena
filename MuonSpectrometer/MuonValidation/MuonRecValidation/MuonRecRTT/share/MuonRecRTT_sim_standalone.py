@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # MuonRecRTT_sim_standalone.py
 #
 # top options to run Muon Spectrometer reconstruction only
@@ -23,13 +24,13 @@ muonRecFlags.doTrackPerformance = True
 muonRecFlags.TrackPerfDebugLevel = 0
 
 if 'doMoore' in dir():
-  if doMoore==False:
+  if doMoore is False:
     muonRecFlags.doMoore = False
 if 'doMuonboy' in dir():
-  if doMuonboy==False:
+  if doMuonboy is False:
     muonRecFlags.doMoore = False
 if 'doStandalone' in dir():
-  if doStandalone==False:
+  if doStandalone is False:
     muonRecFlags.doStandalone = False
 
 # Set input file

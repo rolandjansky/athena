@@ -718,7 +718,7 @@ if line or noline:
                                 if vv>vmax:
                                     vmax=vv
                             grall += [gr]
-                            leg.AddEntry(gr,"%s%2.2d ch %2.2d" % ( part_dict.keys()[part_dict.values().index(ros)],mod+1,chn),"lep")
+                            leg.AddEntry(gr,"%s%2.2d ch %2.2d" % ( list(part_dict.keys())[list(part_dict.values()).index(ros)],mod+1,chn),"lep")
                             gr.SetMarkerStyle(20)
                             gr.SetMarkerSize(1.3)
                             gr.SetMarkerColor(color)

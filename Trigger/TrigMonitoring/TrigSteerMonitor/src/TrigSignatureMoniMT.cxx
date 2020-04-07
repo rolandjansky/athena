@@ -6,7 +6,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaInterprocess/Incidents.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
 
 TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name, 
@@ -34,6 +34,11 @@ StatusCode TrigSignatureMoniMT::start() {
 
   SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
   bool gotL1Menu =  l1MenuHandle.isValid();
+
+  // reset the state
+  m_groupToChainMap.clear();
+  m_streamToChainMap.clear();
+  m_chainIDToBunchMap.clear();
 
   //retrieve chain information from menus
   std::vector<std::string> bcidChainNames;
@@ -151,9 +156,12 @@ StatusCode TrigSignatureMoniMT::stop() {
     for ( const auto& seq : chain.getList("sequencers", true) ){
       // example sequencer name is "Step1_FastCalo_electron", we need only information about Step + number
       const std::string seqName = seq.getValue();
-      std::smatch stepName;
-      std::regex_search(seqName.begin(), seqName.end(), stepName, std::regex("^Step[0-9]+"));
-      chainToSteps[chain.name()].insert( stepName[0] );
+      std::smatch stepNameMatch;
+      std::regex_search(seqName.begin(), seqName.end(), stepNameMatch, std::regex("[Ss]tep[0-9]+"));
+
+      std::string stepName = stepNameMatch[0];
+      stepName[0] = std::toupper(stepName[0]); // fix for "step1" names
+      chainToSteps[chain.name()].insert( stepName );
     }
   }
 

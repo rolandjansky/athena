@@ -1,14 +1,20 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import IOVDbSvc.IOVDbSvcConfig as iovDbSvc
+from __future__ import print_function
+
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
 
 def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **kwargs):
-  acc = InDetTrackHoleSearchToolCfg(flags)
+  result = InDetTrackHoleSearchToolCfg(flags)
   
   #FIXME - need InDet to provide configuration for PixelConditionsSummaryTool
   # Also assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
-  kwargs.setdefault("HoleSearch", acc.getPrimary())
-  acc.addPublicTool(CompFactory.InDet__InDetTrackSummaryHelperTool(name, **kwargs), primary=True)
+  kwargs.setdefault("HoleSearch", result.getPrimary())
+
+  result.addPublicTool(CompFactory.InDet__InDetTrackSummaryHelperTool(name, **kwargs), primary=True)
+  return result
 
 def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
   acc = ComponentAccumulator()
@@ -94,17 +100,16 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
     acc.addPublicTool(extrapolator, primary=True)
     return acc
 
-def InDetPixelConditionsSummaryToolCfg(flags, name = "InDetMaterialEffectsUpdator", **kwargs) :
-    if not flags.InDet.solenoidOn:
-        import AthenaCommon.SystemOfUnits as Units
-        kwargs.setdefault(   EnergyLoss          , False)
-        kwargs.setdefault(   ForceMomentum       , True)
-        kwargs.setdefault(   ForcedMomentumValue , 1000*Units.MeV )
+def InDetPixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool", **kwargs):
+    kwargs.setdefault( "UseByteStream", not flags.Input.isMC)
+
+    if flags.InDet.usePixelDCS():
+        kwargs.setdefault( "IsActiveStates", [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ] )
+        kwargs.setdefault( "IsActiveStatus", [ 'OK', 'WARNING', 'ERROR', 'FATAL' ] )
+    
     acc = ComponentAccumulator()
-    acc.setPrivateTools(CompFactory.Trk__MaterialEffectsUpdator(name, **kwargs))
+    acc.setPrivateTools(CompFactory.InDet__PixelConditionsSummaryTool(name, **kwargs))
     return acc
-
-
 
 def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryTool", **kwargs) :
   acc = ComponentAccumulator()
@@ -122,7 +127,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       SCTConfigurationFolderPath='/SCT/DAQ/Config/'
   
   if (flags.InDet.ForceCoolVectorPayload and flags.InDet.ForceCoraCool):
-      printfunc ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
+      print ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
       SCTConfigurationFolderPath=''
 
   cond_kwargs={"ChannelFolder" : SCTConfigurationFolderPath+"Chip",
@@ -132,29 +137,29 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   SCT_ConfigurationConditionsTool = acc.popPrivateTools()
   acc.merge(cfgCondToolAcc)
   if (flags.InDet.doPrintConfigurables):
-      printfunc (SCT_ConfigurationConditionsTool)
+      print (SCT_ConfigurationConditionsTool)
 
   # Load calibration conditions tool
   calDataAcc = SCT_ReadCalibDataToolCfg(flags)
   SCT_ReadCalibDataTool = calDataAcc.popPrivateTools()
   acc.merge(calDataAcc)
   if (flags.InDet.doPrintConfigurables):
-      printfunc (SCT_ReadCalibDataTool)
+      print (SCT_ReadCalibDataTool)
   
   # Load flagged condition tool
   flCondToolAcc = SCT_FlaggedConditionToolCfg(flags)
   SCT_FlaggedConditionTool = flCondToolAcc.popPrivateTools()
   acc.merge(flCondToolAcc)
   if (flags.InDet.doPrintConfigurables):
-      printfunc (SCT_FlaggedConditionTool)
+      print (SCT_FlaggedConditionTool)
   
   # Load conditions Monitoring tool
   if not flags.Common.isOnline:
-      monCondAcc = SCT_MonitorConditionsToolCfg(flags,{"OutputLevel" : INFO})
+      monCondAcc = SCT_MonitorConditionsToolCfg(flags)
       SCT_MonitorConditionsTool = monCondAcc.popPrivateTools()
       acc.merge(monCondAcc)
       if (flags.InDet.doPrintConfigurables):
-          printfunc (SCT_MonitorConditionsTool)
+          print (SCT_MonitorConditionsTool)
 
 # FIXME: can this be deleted? tool is not used, other consumers of implicitly setup condAlg are not setup here (other consumer only LinkMaskingTool?)
 #  if flags.InDet.doSCTModuleVeto:
@@ -163,38 +168,30 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
 #      sct_ModuleVetoToolSetup.setup()
 #      InDetSCT_ModuleVetoTool = sct_ModuleVetoToolSetup.getTool()
 #      if (flags.InDet.doPrintConfigurables):
-#          printfunc (InDetSCT_ModuleVetoTool)
+#          print (InDetSCT_ModuleVetoTool)
 
   # Load bytestream errors tool (use default instance without "InDet")
   SCT_BSToolAcc = SCT_ByteStreamErrorsToolCfg(flags, {"ConfigTool" : SCT_ConfigurationConditionsTool})
   SCT_ByteStreamErrorsTool = SCT_BSToolAcc.popPrivateTools()
   acc.merge(SCT_BSToolAcc)
   if (flags.InDet.doPrintConfigurables):
-      printfunc (SCT_ByteStreamErrorsTool)
+      print (SCT_ByteStreamErrorsTool)
   
   if flags.InDet.useSctDCS:
-      DCSCondAlg_kwargs = {}
-      if flags.InDet.useHVForSctDCS:
-        DCSCondAlg_kwargs["UseDefaultHV"] = True #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
-      DCSCondToolAcc = SCT_DCSConditionsToolCfg(flags, DCSCondAlg_kwargs=DCSCondAlg_kwargs)
-      SCT_DCSConditionsTool = DCSCondToolAcc.popPrivateTools()
-      acc.merge(DCSCondToolAcc)
+      from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg # FIXME this doesn't seem to have the UseDefaultHV hack from the old config?
+      acc = SCT_DCSConditionsCfg(flags)
+      SCT_DCSConditionsTool = acc.popPrivateTools()
+      acc.merge(acc)
       if (flags.InDet.doPrintConfigurables):
-          printfunc (SCT_DCSConditionsTool)
+          print (SCT_DCSConditionsTool)
   
-  if (flags.Input.isMC == False):
-      printfunc ("Conditions db instance is ", flags.IOVDb.DatabaseInstance)
-      # Load Tdaq enabled tools for data only and add some to summary tool for data only
-      tdaqFolder = '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
-      if ( flags.IOVDb.DatabaseInstance == "CONDBR2"):
-          tdaqFolder = '/TDAQ/Resources/ATLAS/SCT/Robins'
-      # Load TdaqEnabled tool
-      TdaqCondAlg_kwargs={"tdaqFolder":tdaqFolder} # FIXME Not sure if this is correct? Just fixed typo. EJWM.
-      TdaqToolAcc = SCT_TdaqEnabledToolCfg(flags, TdaqCondAlg_kwargs=TdaqCondAlg_kwargs)
+  if not flags.Input.isMC :
+      print ("Conditions db instance is ", flags.IOVDb.DatabaseInstance)
+      TdaqToolAcc = SCT_TdaqEnabledToolCfg(flags)
       SCT_TdaqEnabledTool = TdaqToolAcc.popPrivateTools()
       acc.merge(TdaqToolAcc)
       if (flags.InDet.doPrintConfigurables):
-          printfunc (SCT_TdaqEnabledTool)
+          print (SCT_TdaqEnabledTool)
       
       # Configure summary tool
       ConditionsTools =  [SCT_ConfigurationConditionsTool,
@@ -202,7 +199,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
                           SCT_ByteStreamErrorsTool,
                           SCT_ReadCalibDataTool,
                           SCT_TdaqEnabledTool]
-      if not athenaCommonFlags.isOnline():
+      if not flags.Common.isOnline:
           ConditionsTools += [ SCT_MonitorConditionsTool ]
 
       if flags.InDet.useSctDCS:
@@ -226,13 +223,11 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   kwargs.setdefault("ConditionsTools", ConditionsTools)
   InDetSCT_ConditionsSummaryTool = CompFactory.SCT_ConditionsSummaryTool(name, **kwargs)
   if (flags.InDet.doPrintConfigurables):
-      printfunc (InDetSCT_ConditionsSummaryTool)
+      print (InDetSCT_ConditionsSummaryTool)
 
   acc.setPrivateTools(InDetSCT_ConditionsSummaryTool)
 
 def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsTool", cond_kwargs={}, **kwargs):
-  from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
-
   cond_kwargs.setdefault("ChannelFolder","/SCT/DAQ/Config/Chip")
   cond_kwargs.setdefault("ModuleFolder","/SCT/DAQ/Config/Module")
   cond_kwargs.setdefault("MurFolder","/SCT/DAQ/Config/MUR")
@@ -244,32 +239,32 @@ def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsT
 
   acc = ComponentAccumulator()
   if not cond_kwargs['ChannelFolderDB']:
-    acc.merge(iovDbSvc.addFoldersSplitOnline(flags,
+    acc.merge(addFoldersSplitOnline(flags,
                                              detDb=cond_kwargs['dbInstance'],
                                              online_folders=cond_kwargs["ChannelFolder"],
                                              offline_folders=cond_kwargs["ChannelFolder"],
                                              className='CondAttrListVec',
                                              splitMC=True))
   else:
-    acc.merge(iovDbSvc.addFolders(flags, [cond_kwargs["ChannelFolderDB"]], detDb = cond_kwargs['dbInstance'], className='CondAttrListVec'))
+    acc.merge(addFolders(flags, [cond_kwargs["ChannelFolderDB"]], detDb = cond_kwargs['dbInstance'], className='CondAttrListVec'))
   if not cond_kwargs['ModuleFolderDB']:
-    acc.merge(iovDbSvc.addFoldersSplitOnline(flags,
+    acc.merge(addFoldersSplitOnline(flags,
                                              detDb=cond_kwargs['dbInstance'],
                                              online_folders=cond_kwargs["ModuleFolder"],
                                              offline_folders=cond_kwargs["ModuleFolder"],
                                              className='CondAttrListVec',
                                              splitMC=True))
   else:
-    acc.merge(iovDbSvc.addFolders(flags, [cond_kwargs["ModuleFolderDB"]], detDb = cond_kwargs['dbInstance'], className='CondAttrListVec'))
+    acc.merge(addFolders(flags, [cond_kwargs["ModuleFolderDB"]], detDb = cond_kwargs['dbInstance'], className='CondAttrListVec'))
   if not cond_kwargs['MurFolderDB']:
-    acc.merge(iovDbSvc.addFoldersSplitOnline(flags,
+    acc.merge(addFoldersSplitOnline(flags,
                                              detDb=cond_kwargs['dbInstance'],
                                              online_folders=cond_kwargs["MurFolder"],
                                              offline_folders=cond_kwargs["MurFolder"],
                                              className='CondAttrListVec',
                                              splitMC=True))
   else:
-    acc.merge(iovDbSvc.addFolders(flags, [cond_kwargs["MurFolderDB"]], detDb = cond_kwargs['dbInstance'],  className='CondAttrListVec'))
+    acc.merge(addFolders(flags, [cond_kwargs["MurFolderDB"]], detDb = cond_kwargs['dbInstance'],  className='CondAttrListVec'))
 
   ConfigCondAlg_kwargs={}
   ConfigCondAlg_kwargs["ReadKeyChannel"]=cond_kwargs["ChannelFolder"]
@@ -282,6 +277,41 @@ def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsT
 
   return acc
 
+def getSCTDAQConfigFolder(flags) :
+  if flags.InDetFlags.ForceCoolVectorPayload and flags.InDetFlags.ForceCoraCool :
+        raise Exception('SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected')  
+  return '/SCT/DAQ/Config/' if (    flags.InDetFlags.ForceCoolVectorPayload
+                                      or (flags.conddb.dbdata != "COMP200"
+                                          and not flags.InDetFlags.ForceCoraCool)) else '/SCT/DAQ/Configuration/'
+
+
+def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs):
+  acc = ComponentAccumulator()
+  config_folder_prefix = getSCTDAQConfigFolder(flags)
+  kwargs.setdefault("ReadKeyChannel", config_folder_prefix+"Chip")
+  kwargs.setdefault("ReadKeyModule", config_folder_prefix+"Module")
+  kwargs.setdefault("ReadKeyMur", config_folder_prefix+"MUR")
+
+  acc.merge(addFoldersSplitOnline(flags,
+                                           detDb="SCT",
+                                           online_folders=config_folder_prefix+"Chip",
+                                           offline_folders=config_folder_prefix+"Chip",
+                                           className='CondAttrListVec',
+                                           splitMC=True))
+  acc.merge(addFoldersSplitOnline(flags,
+                                           detDb="SCT",
+                                           online_folders=config_folder_prefix+"Module",
+                                           offline_folders=config_folder_prefix+"Module",
+                                           className='CondAttrListVec',
+                                           splitMC=True))
+  acc.merge(addFoldersSplitOnline(flags,
+                                           detDb="SCT",
+                                           online_folders=config_folder_prefix+"MUR",
+                                           offline_folders=config_folder_prefix+"MUR",
+                                           className='CondAttrListVec',
+                                           splitMC=True))
+  acc.addCondAlgo(CompFactory.SCT_ConfigurationCondAlg(flags, **kwargs))
+  return acc
 
 def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}, **kwargs):
   acc = ComponentAccumulator()
@@ -290,20 +320,20 @@ def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}
   cond_kwargs.setdefault("GainFolder","/SCT/DAQ/Calibration/NPtGainDefects")
   cond_kwargs.setdefault("ReadCalibDataCondAlgName","SCT_ReadCalibDataCondAlg")
 
-  acc.merge(iovDbSvc.addFoldersSplitOnline(flags,
+  acc.merge(addFoldersSplitOnline(flags,
                                            detDb="SCT",
                                            online_folders=cond_kwargs["NoiseFolder"],
                                            offline_folders=cond_kwargs["NoiseFolder"],
                                            className='CondAttrListVec',
                                            splitMC=True))
-  acc.merge(iovDbSvc.addFoldersSplitOnline(flags,
+  acc.merge(addFoldersSplitOnline(flags,
                                            detDb="SCT",
                                            online_folders=cond_kwargs["GainFolder"],
                                            offline_folders=cond_kwargs["GainFolder"],
                                            className='CondAttrListVec',
                                            splitMC=True))
 
-  acc.merge(SCT_ReadCalibDataCondAlgCfg(flags,
+  acc.merge(CompFactory.SCT_ReadCalibDataCondAlg(flags,
                                         name = cond_kwargs["ReadCalibDataCondAlgName"],
                                         ReadKeyGain = cond_kwargs["GainFolder"],
                                         ReadKeyNoise = cond_kwargs["NoiseFolder"]))
@@ -332,11 +362,11 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", *
   acc = ComponentAccumulator()
 
   #FIXME: this makes FolderDB always take precedence over Folder, do we want that?!
-  if not "FolderDb" in kwargs:
+  if  "FolderDb" not in kwargs:
     kwargs["FolderDb"] = kwargs["Folder"]
-  acc.merge(iovDbSvc.addFolders(kwargs["dbInstance"], kwargs["FolderDb"], className="CondAttrListCollection"))
+  acc.merge(addFolders(kwargs["dbInstance"], kwargs["FolderDb"], className="CondAttrListCollection"))
 
-  acc.merge( SCT_MonitorCondAlgCfg(flags, cond_kwargs, name=kwargs["MonitorCondAlgName"]) )
+  acc.merge( CompFactory.SCT_MonitorCondAlg(flags, cond_kwargs, name=kwargs["MonitorCondAlgName"]) )
 
   tool = CompFactory.SCT_MonitorConditionsTool(name, **kwargs)
   acc.setPrivateTools(tool)
@@ -344,39 +374,123 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", *
   return acc
 
 
-def SCT_ByteStreamErrorsToolCfg(flags):
-  acc = ComponentAccumulator()
-  # acc.setPrivateTools(tool)
+def SCT_ByteStreamErrorsToolCfg(flags, **kwargs):
+  acc = SCT_ConfigurationConditionsToolCfg(flags)
+  kwargs.setdefault("ConfigTool", acc.popPrivateTools())
+  tool = CompFactory.SCT_ByteStreamErrorsTool(**kwargs)
+  acc.setPrivateTools(tool)
   return acc
 
-#Placeholders
-# def SCT_DCSConditionsToolCfg(flags):
-#   acc = ComponentAccumulator()
+def SCT_TdaqEnabledToolCfg(flags):
+  # Copied from https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetConditions/SCT_ConditionsTools/python/SCT_TdaqEnabledToolSetup.py
+  acc = SCT_TdaqEnabledCondAlg(flags)
+  tool = CompFactory.SCT_CablingTool()
+  acc.setPrivateTools(tool)
+  return acc
 
-#   acc.setPrivateTools(tool)
-#   return acc
+def SCT_TdaqEnabledCondAlg(flags):
+  if flags.Input.isMC:
+    print("Warning: should not setup SCT_TdaqEnabledCond for MC")
+    return
+  acc = ComponentAccumulator()
 
-# def SCT_TdaqEnabledToolCfg(flags):
-#   acc.setPrivateTools(tool)
-#   return acc
+  #FIXME - is there a better way to do this? What about run3?
+  folder = '/TDAQ/Resources/ATLAS/SCT/Robins' if (flags.IOVDb.DatabaseInstance == "CONDBR2") else '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
 
-# def InDetTestPixelLayerToolCfg(flags):
-#   acc.addPublicTool(tool, primary=True)
+  acc.merge( addFolders(flags, [folder], detDb="TDAQ", className="CondAttrListCollection") )
 
+  # Think there's no need to configure the SCT_CablingTool - the default is fine. 
+  acc.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg() )
+  return acc
 
-# def InDetPropagatorCfg(flags):
-#   acc.addPublicTool(tool, primary=True)
+def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs):
+  the_name = makeName( name, kwargs)
+  result = ComponentAccumulator()
+  if 'PixelSummaryTool' not in kwargs :
+      acc = InDetPixelConditionsSummaryToolCfg(flags)
+      kwargs.setdefault( "PixelSummaryTool", acc.getPrimary())
+      result.merge(acc)
 
-# def InDetMaterialEffectsUpdatorCfg(flags):
-#   acc.addPublicTool(tool, primary=True)
+  kwargs.setdefault("CheckActiveAreas", flags.InDet.checkDeadElementsOnTrack)
+  kwargs.setdefault("CheckDeadRegions", flags.InDet.checkDeadElementsOnTrack)
+  kwargs.setdefault("CheckDisabledFEs", flags.InDet.checkDeadElementsOnTrack)
 
-# def InDetNavigatorCfg(flags):
-#   acc.addPublicTool(tool, primary=True)
+  tool = CompFactory.InDet__InDetTestPixelLayerTool( name = the_name, **kwargs)
+  result.addPublicTool( tool )
+  result.setPrivateTools( tool )
+  return result
 
-# def TRT_StrawStatusSummaryToolCfg(flags, name='TRT_StrawStatusSummaryTool', **kwargs):
-#   offlineFolders = []
-#   offlineFolders.append("/TRT/Cond/StatusHT")
-#   onlineFolders = []
-#   onlineFolders.append("/TRT/Onl/Cond/StatusHT")
-#   acc.merge(iovDbSvc.addFoldersSplitOnline(flags, detDb='TRT', onlineFolders, offlineFolders, className='TRTCond::StrawStatusMultChanContainer') )
+def InDetPropagatorCfg(flags, name='InDetPropagator',**kwargs):
+  the_name = makeName( name, kwargs)
+  result = ComponentAccumulator()
+  tool = None
+  if flags.InDet.propagatorType == "STEP":
+    tool = CompFactory.Trk__STEP_Propagator( name = the_name, **kwargs)
+  else:
+    if flags.InDet.propagatorType == "RungeKutta":
+        kwargs.setdefault("AccuracyParameter", 0.0001)
+        kwargs.setdefault("MaxStraightLineStep", .004) # Fixes a failed fit
+    tool = CompFactory.Trk__RungeKuttaPropagator( name = the_name, **kwargs)
+
+  result.addPublicTool( tool )
+  result.setPrivateTools( tool )
+  return result
+
+def InDetMaterialEffectsUpdatorCfg(flags, name = "InDetMaterialEffectsUpdator", **kwargs):
+  the_name = makeName( name, kwargs)
+  result = ComponentAccumulator()
+  if not flags.InDet.solenoidOn(): # FIXME! Not an InDet flag!
+      import AthenaCommon.SystemOfUnits as Units
+      kwargs.setdefault(EnergyLoss          = False)
+      kwargs.setdefault(ForceMomentum       = True)
+      kwargs.setdefault(ForcedMomentumValue = 1000*Units.MeV)
+
+  tool = CompFactory.Trk__MaterialEffectsUpdator( name = the_name, **kwargs)
+  result.addPublicTool( tool )
+  result.setPrivateTools( tool )
+  return result
+
+def InDetNavigatorCfg(flags, name='InDetNavigator', **kwargs):
+  the_name = makeName( name, kwargs)
+  result = ComponentAccumulator()
+  if 'TrackingGeometrySvc' not in kwargs :
+      from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+      acc = TrackingGeometrySvcCfg(flags)
+      kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
+      result.merge(acc)
+
+  tool = CompFactory.Trk__Navigator( name = the_name, **kwargs)
+  result.addPublicTool( tool )
+  result.setPrivateTools( tool )
+  return result
+
+def TRT_StrawStatusSummaryToolCfg(flags, name='TRT_StrawStatusSummaryTool', **kwargs):
+  result = ComponentAccumulator()
+  offlineFolders = []
+  offlineFolders.append("/TRT/Cond/StatusHT")
+  onlineFolders = []
+  onlineFolders.append("/TRT/Onl/Cond/StatusHT")
+  result.merge(addFoldersSplitOnline(flags, 'TRT', onlineFolders, offlineFolders, className='TRTCond::StrawStatusMultChanContainer') )
+  return result
+
+def splitDefaultPrefix(name) :
+    default_prefix=''
+    for prefix in ['InDet','InDetTrig'] :
+        if name[0:len(prefix)] == prefix :
+            name=name[len(prefix):]
+            default_prefix=prefix
+            break
+    return default_prefix,name
+
+def makeName( name, kwargs) :
+    default_prefix,name=splitDefaultPrefix(name)
+    namePrefix=kwargs.pop('namePrefix',default_prefix)
+    nameSuffix=kwargs.pop('nameSuffix','')
+    return namePrefix + name + nameSuffix
+
+def makeNameGetPreAndSuffix( name, kwargs) :
+    default_prefix,name=splitDefaultPrefix(name)
+    namePrefix=kwargs.pop('namePrefix',default_prefix)
+    nameSuffix=kwargs.pop('nameSuffix','')
+    return namePrefix + name + nameSuffix,namePrefix,nameSuffix
 

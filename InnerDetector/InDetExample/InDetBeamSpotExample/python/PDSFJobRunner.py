@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 PDSFJobRunner is a JobRunner for running jobs with the SGE batch system on pdsf.nersc.gov.
 
@@ -52,7 +55,7 @@ class PDSFJobRunner(JobRunner):
         """Submit a JobRunner job as a SGE batch job."""
         #batchCmd = 'qsub -q %(batchqueue)s -N %(jobname)s -j y -o %(logfile)s %(scriptfile)s' % jobConfig
         batchCmd = 'qsub -N %(jobname)s -j y -o %(logfile)s %(scriptfile)s' % jobConfig
-        print batchCmd
+        print (batchCmd)
         time.sleep(5)
         os.system(batchCmd)
         return None

@@ -1,11 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: truth.py,v 1.4 2007-08-02 22:21:56 ssnyder Exp $
 # File: truth.py
 # Created: sss, March 2005.
 # Purpose: Dump out MC truth information.
 #
+
+from __future__ import print_function
 
 """Dump out MC truth information.
 
@@ -21,11 +22,12 @@ def do_decay (t, n):
     """Return the barcode number for decay N of truth particle T
 as a string.  Return an empty string if there's no such decay.
 """
-    if t.nDecay() <= n: return ''
+    if t.nDecay() <= n:
+        return ''
     bc = t.child(n).genParticle().barcode()
-    return `bc`
+    return str(bc)
 
-class _Truthtmp:
+class _Truthtmp(object):
     pass
 def dump_one_truth (t, f=sys.stdout):
     """Dump truth information for truth particle T to file F."""
@@ -43,8 +45,9 @@ def dump_one_truth (t, f=sys.stdout):
     d.py = t.py()/1000
     d.pz = t.pz()/1000
     d.e = t.e()/1000
-    print >> f, "%(bc)3d %(name)-4s %(da1)4s %(da2)4s %(da3)4s %(pt)6.1f %(eta)5.2f %(phi)5.2f %(m)5.1f %(px)6.1f %(py)6.1f %(pz)6.1f %(e)6.1f" % d.__dict__
-    if t.nDecay() > 3: print>> f, "  (more than 3 decays)"
+    print ("%(bc)3d %(name)-4s %(da1)4s %(da2)4s %(da3)4s %(pt)6.1f %(eta)5.2f %(phi)5.2f %(m)5.1f %(px)6.1f %(py)6.1f %(pz)6.1f %(e)6.1f" % d.__dict__, file=f)
+    if t.nDecay() > 3:
+        print ("  (more than 3 decays)", file=f)
 
 
 def dump_truth(f=sys.stdout, sgkey="SpclMC", maxn=None):
@@ -57,9 +60,9 @@ This is followed by the particle type, and then by the barcode numbers
 of any decay daughters (up to 3).  This is followed by the four-momentum
 in two versions: first as pt, eta, phi, m and then as px, py, pz, e.
 """
-    l = [p for p in PyParticleTools.getTruthParticles (sgkey)]
-    if maxn != None:
-        l = l[:maxn]
-    for t in l:
+    parts = [p for p in PyParticleTools.getTruthParticles (sgkey)]
+    if maxn is not None:
+        parts = parts[:maxn]
+    for t in parts:
         dump_one_truth (t, f)
     return

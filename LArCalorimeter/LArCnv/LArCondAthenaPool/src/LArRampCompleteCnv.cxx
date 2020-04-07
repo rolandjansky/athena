@@ -29,8 +29,8 @@ LArRampCompleteCnv::createTransient ()
     static pool::Guid   p1_guid("BB629283-BDF5-4FA8-93F4-5D8C2F201364");
     static pool::Guid   p0_guid("4019776D-D528-4401-9CBD-7956C4B00607");
     if( compareClassGuid(p1_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< LArRampSubset_p1 > col_vect( poolReadObject< LArRampSubset_p1 >() );
+        // using unique_ptr ensures deletion of the persistent object
+        std::unique_ptr< LArRampSubset_p1 > col_vect( poolReadObject< LArRampSubset_p1 >() );
         MsgStream log(msgSvc(), "LArRampCompleteCnv" ); 
         //log << MSG::INFO << "Reading LArRampSubset_p1" << endmsg; 
         return TPconverter.createTransient( col_vect.get(), log );
@@ -41,7 +41,7 @@ LArRampCompleteCnv::createTransient ()
         MsgStream log(msgSvc(), "LArRampCompleteCnv" ); 
         log << MSG::DEBUG << "Reading LArRampSubset (original)" << endmsg; 
 
-        std::auto_ptr< LArConditionsSubset<LArRampP> > subset ( poolReadObject< LArConditionsSubset<LArRampP> >() );
+        std::unique_ptr< LArConditionsSubset<LArRampP> > subset ( poolReadObject< LArConditionsSubset<LArRampP> >() );
         // Here we must convert from LArRampP to LArRampP1
         
         log << MSG::DEBUG << "subset ptr " << subset.get() << endmsg; 
