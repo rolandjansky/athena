@@ -68,7 +68,7 @@ private:
   const RpcIdHelper* m_rpcId;
   const TgcIdHelper* m_tgcId;
 
-  ToolHandle<ITRT_CalDbTool> m_trtcaldbSvc;
+  ToolHandle<ITRT_CalDbTool> m_trtcaldbTool;
   ServiceHandle<ITRT_StrawNeighbourSvc> m_neighbourSvc ;
   ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool; 
   ToolHandle < Trk::IResidualPullCalculator > m_residualPullCalculator;

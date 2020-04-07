@@ -44,9 +44,6 @@ if not ('conddb' in dir()):
  from IOVDbSvc.CondDB import conddb
 conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT")
 conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0")
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-InDetTRTCalDbSvc = TRT_CalDbSvc()
-ServiceMgr += InDetTRTCalDbSvc
 
 ####### Reduce output
 #turn off perfmon

@@ -32,9 +32,6 @@
 #include <string>
 
 class TRT_ID;
-class ITRT_CalDbSvc ;
-class ITRT_DriftFunctionTool;
-class ITRT_StrawSummaryTool;
 
 namespace InDetDD {
   class TRT_DetectorManager;
@@ -68,7 +65,7 @@ private:
 
   // --- Services and Tools
   ToolHandle< ITRT_DriftFunctionTool >      m_driftFunctionTool ; //!< DriftFunctionTool
-  ToolHandle<ITRT_CalDbTool>              m_trtcaldbSvc       ;
+  ToolHandle<ITRT_CalDbTool>                m_trtcaldbTool      ;
   ServiceHandle<ITRT_StrawNeighbourSvc>     m_neighbourSvc      ;
   ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool; 
   const TRT_ID *m_TRTHelper;

@@ -43,7 +43,7 @@
 TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
   m_driftFunctionTool("TRT_DriftFunctionTool", this),
-  m_trtcaldbSvc("TRT_CalDbTool", this),
+  m_trtcaldbTool("TRT_CalDbTool", this),
   m_neighbourSvc("TRT_StrawNeighbourSvc", name),
   m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
   m_TRTHelper(0),
@@ -53,7 +53,7 @@ TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
   
   // --- Services and Tools
   declareProperty("TRTDriftFunctionTool",  m_driftFunctionTool);
-  declareProperty("TRTCalDbSvc",           m_trtcaldbSvc);
+  declareProperty("TRTCalDbTool",           m_trtcaldbTool);
   declareProperty("NeighbourSvc",          m_neighbourSvc);
   declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
 
@@ -82,7 +82,7 @@ StatusCode TRT_PrepDataToxAOD::initialize()
 
   CHECK ( m_neighbourSvc.retrieve() );
 
-  CHECK ( m_trtcaldbSvc.retrieve() );
+  CHECK ( m_trtcaldbTool.retrieve() );
 
   CHECK ( m_TRTStrawSummaryTool.retrieve() );
 
@@ -228,14 +228,14 @@ StatusCode TRT_PrepDataToxAOD::execute()
       //TRT hit bit word
       unsigned int word = prd->getWord();
 
-      //TRTCond::RtRelation const *rtr = m_trtcaldbSvc->getRtRelation(surfaceID);
+
       double tot = prd->timeOverThreshold();
       bool isvalid=false;
       AUXDATA(xprd, float, drifttime)  = prd->driftTime(isvalid)   ;
       AUXDATA(xprd, int, status)      = isvalid;
       AUXDATA(xprd, float, tot)        = tot ;
       AUXDATA(xprd, char, isHT)        = prd->highLevel()    ;
-      AUXDATA(xprd, float, T0)         = m_trtcaldbSvc->getT0(surfaceID)   ; 
+      AUXDATA(xprd, float, T0)         = m_trtcaldbTool->getT0(surfaceID)   ; 
 
 
       // Save time info:
