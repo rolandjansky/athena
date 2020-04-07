@@ -77,14 +77,14 @@ namespace top {
     }
 
     m_hists = std::make_shared<PlotManager>(name + "/JetResponsePlots", outputFile, wk);
-    m_hists->addHist("JetResponse",      ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_bb",   ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_b",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_c",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_tau",  ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_q",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_g",    ";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
-    m_hists->addHist("JetResponse_other",";p_{T}^{truth} [GeV];p_{T}^{reco}-p_{T}^{truth}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse",      ";p_{T}^{truth} [GeV];p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_bb",   ";p_{T}^{truth} [GeV];p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_b",    ";p_{T}^{truth} [GeV];p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_c",    ";p_{T}^{truth} [GeV];p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_tau",  ";p_{T}^{truth} [GeV];p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_q",    ";p_{T}^{truth} [GeV];p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_g",    ";p_{T}^{truth} [GeV];p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
+    m_hists->addHist("JetResponse_other",";p_{T}^{truth} [GeV];p_{T}^{reco}/p_{T}^{truth};Events", m_ptBinning.size() - 1, m_ptBinning.data(), m_bins, m_min, m_max);
   }
 
   bool JetResponsePlots::apply(const top::Event& event) const {
@@ -121,7 +121,7 @@ namespace top {
       // protection against division by zero
       if (matchedPt < 1e-6) continue;
 
-      const float response = (jetPtr->pt() - matchedPt) / matchedPt;
+      const float response = jetPtr->pt() / matchedPt;
 
       static_cast<TH2D*>(m_hists->hist("JetResponse"))->Fill(matchedPt/1e3, response, w_event);
       if (jet_flavor == 55) {
