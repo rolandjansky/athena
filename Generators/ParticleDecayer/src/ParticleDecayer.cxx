@@ -454,7 +454,7 @@ void ParticleDecayer::addParticle(HepMC::GenVertexPtr prod_vtx, int pdg, HepMC::
         mass = getParticleMass(pdg);
      }
   double energy=std::sqrt(std::pow(momentum.x(),2)+std::pow(momentum.y(),2)+std::pow(momentum.z(),2)+mass*mass);   
-  HepMC::GenParticlePtr aParticle = HepMC::newGenParticlePtr(HepMC::FourVector(momentum.x(), momentum.y(), momentum.z(), energy), 
+  HepMC::GenParticlePtr aParticle = new HepMC::GenParticle(HepMC::FourVector(momentum.x(), momentum.y(), momentum.z(), energy), 
 		                           pdg, statusCode, HepMC::Flow(), HepMC::Polarization(0, 0));
 
   prod_vtx->add_particle_out(aParticle);

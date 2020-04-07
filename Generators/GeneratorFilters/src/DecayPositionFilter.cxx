@@ -52,7 +52,7 @@ StatusCode DecayPositionFilter::filterEvent() {
               }
               if(notSelfDecay){
 
-	            HepMC::GenVertexPtr vtx = (*pitr)->end_vertex();
+	            HepMC::GenVertex* vtx = (*pitr)->end_vertex();
 				float x = vtx->position().x();
 				float y = vtx->position().y();
 				float Rdecay = sqrt(x*x + y*y);

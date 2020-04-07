@@ -47,7 +47,7 @@ StatusCode ParentTwoChildrenFilter::filterEvent() {
       n_parents++;
 
       int n_daughters = 0;
-      HepMC::GenParticlePtr mcpart = (*pitr);
+      HepMC::GenParticle* mcpart = (*pitr);
       const HepMC::GenVertex* decayVtx = mcpart->end_vertex();
       // Verify if we got a valid pointer and retrieve the number of daughters
       if (decayVtx != 0) n_daughters = decayVtx->particles_out_size();

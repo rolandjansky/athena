@@ -19,7 +19,7 @@ namespace TruthHelper {
       return new GenAll();
     }
 
-    bool operator()(const HepMC::ConstGenParticlePtr) const {
+    bool operator()(const HepMC::GenParticle* const) const {
       return true;
     }
 

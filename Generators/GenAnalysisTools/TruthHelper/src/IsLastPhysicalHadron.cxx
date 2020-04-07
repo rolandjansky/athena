@@ -14,7 +14,7 @@
 namespace TruthHelper {
 
 
-  bool IsLastPhysicalHadron::operator()(const HepMC::ConstGenParticlePtr  p ) const {
+  bool IsLastPhysicalHadron::operator()(const HepMC::GenParticle* const p ) const {
     return IsGenStable()(p) && IsPhysicalHadron()(p);
   }
 

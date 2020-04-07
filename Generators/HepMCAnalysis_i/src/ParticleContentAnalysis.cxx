@@ -581,8 +581,7 @@ inline double ParticleContentAnalysis::getCosTheta(const HepMC::GenParticlePtr  
 
   //make a copy of charged_pion
   //(maybe you need charge_pion later in your code again, therefore you do not want to boost it)
-  const HepMC::GenParticlePtr  copy_of_charged_pion;
-  copy_of_charged_pion = charged_pion;
+  const HepMC::GenParticlePtr  copy_of_charged_pion = charged_pion;
 
   CLHEP::HepLorentzVector charged_pion_vector(0,0,0,0);
   CLHEP::HepLorentzVector tau_vector(0,0,0,0);

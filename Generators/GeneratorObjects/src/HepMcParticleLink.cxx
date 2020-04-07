@@ -165,10 +165,10 @@ HepMcParticleLink::HepMcParticleLink (const HepMC::GenParticlePtr part,
 /**
  * @brief Dereference.
  */
-const HepMC::GenParticlePtr HepMcParticleLink::cptr() const
+const HepMC::GenParticle* HepMcParticleLink::cptr() const
 {
   const IProxyDict* sg = nullptr;
-  const HepMC::GenParticlePtr p = m_ptrs.get (sg);
+  const HepMC::GenParticle* p = m_ptrs.get (sg);
   if (!p) {
     if (0 == barcode() || 0x7fffffff == barcode()) {
 #if 0

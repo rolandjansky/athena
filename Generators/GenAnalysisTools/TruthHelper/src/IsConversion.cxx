@@ -10,7 +10,7 @@
 namespace TruthHelper {
 
 
-  bool IsConversion::operator()(const HepMC::ConstGenParticlePtr  part ) const {
+  bool IsConversion::operator()(const HepMC::GenParticle* const part ) const {
     if (part->pdg_id() != 22) return false;
     if (!part->end_vertex()) return false;
     if (part->end_vertex()->particles_out_size() != 2) return false;

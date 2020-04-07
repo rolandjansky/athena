@@ -25,7 +25,7 @@ public:
 private:
 
   /// Check if the particle has a B hadron as parent or ancestor
-  const HepMC::GenParticlePtr FindBParent(const HepMC::GenParticlePtr part);
+  const HepMC::GenParticle* FindBParent(const HepMC::GenParticle* part);
   /// Generate random number an check if electron passes the prescale weight
   bool PassPrescaleCheck( double etaAbs, double pt );
 

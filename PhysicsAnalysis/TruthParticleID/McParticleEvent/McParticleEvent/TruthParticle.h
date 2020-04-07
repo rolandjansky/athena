@@ -25,9 +25,9 @@
 
 // HepMC / CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
-#include "AtlasHepMCI/GenParticle.h"
-#include "AtlasHepMCI/Polarization.h"
-#include "AtlasHepMCI/Flow.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Polarization.h"
+#include "AtlasHepMC/Flow.h"
 
 // Gaudi includes
 
@@ -109,13 +109,13 @@ class TruthParticle : public ParticleImpl<
 //    */
 
   /// Retrieve the GenParticle mother of this TruthParticle
-  const HepMC::GenParticlePtr genMother(const std::size_t i=0) const;
+  const HepMC::GenParticle * genMother(const std::size_t i=0) const;
 
   /// Retrieve the GenParticle this TruthParticle has been made from (if any)
-  const HepMC::GenParticlePtr genParticle() const;
+  const HepMC::GenParticle* genParticle() const;
 
   /// Retrieve the i-th child (GenParticle) of this TruthParticle
-  const HepMC::GenParticlePtr genChild( const std::size_t i ) const;
+  const HepMC::GenParticle * genChild( const std::size_t i ) const;
 
   /** @{ HepMC::GenParticle forwarding interface
    */
@@ -279,7 +279,7 @@ std::ostream& operator<<( std::ostream& out, const TruthParticle& mc );
 inline TruthParticle::~TruthParticle() 
 {}
 
-inline const HepMC::GenParticlePtr TruthParticle::genParticle() const
+inline const HepMC::GenParticle*  TruthParticle::genParticle() const
 {
   return this->particleBase().genParticle();
 }

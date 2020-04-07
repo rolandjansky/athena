@@ -21,7 +21,7 @@ StatusCode SoftLeptonFilter::filterEvent() {
  		  // select e's from hadrons and from taus that come from hadrons,
  		  // and electrons from gammas that come from hadrons... (dalitz decay)
  		  HepMC::GenVertex::particle_iterator firstParent;
- 		  HepMC::GenVertexPtr decayVtx = (*pitr)->production_vertex();
+ 		  HepMC::GenVertex * decayVtx = (*pitr)->production_vertex();
  		  firstParent  = decayVtx->particles_begin(HepMC::parents);
 		  if (*firstParent==0) {
             ATH_MSG_ERROR("firstParent iterator is null for this muon; skip it");
@@ -30,7 +30,7 @@ StatusCode SoftLeptonFilter::filterEvent() {
           int parentID((*firstParent)->pdg_id());
           HepMC::GenVertex::particle_iterator theParent=firstParent;
           while(abs(parentID)==15||parentID==(*pitr)->pdg_id()) {
-            HepMC::GenVertexPtr parentDecayVtx = (*theParent)->production_vertex();
+            HepMC::GenVertex * parentDecayVtx = (*theParent)->production_vertex();
             HepMC::GenVertex::particle_iterator firstGrandParent = parentDecayVtx->particles_begin(HepMC::parents);
             if (*firstGrandParent==0) {
               ATH_MSG_ERROR("firstGrandParent iterator is null for this muon from tau decay; skip it");

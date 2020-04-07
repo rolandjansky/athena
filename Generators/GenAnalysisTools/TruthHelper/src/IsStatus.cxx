@@ -8,7 +8,7 @@
 namespace TruthHelper {
 
 
-  bool IsStatus::operator()(const HepMC::ConstGenParticlePtr  p ) const {
+  bool IsStatus::operator()(const HepMC::GenParticle* const p ) const {
     return p->status() == m_stat;
   }
 

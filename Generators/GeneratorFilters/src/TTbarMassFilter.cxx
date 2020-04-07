@@ -20,8 +20,8 @@ StatusCode TTbarMassFilter::filterEvent() {
   bool isLastTop    = false;
   bool isFirstTop = false;
   double topPairInvariantMass = 0.;
-  std::vector<HepMC::GenParticlePtr> tops;
-  std::vector<HepMC::GenVertexPtr>   top_vtxs;
+  std::vector<HepMC::GenParticle*> tops;
+  std::vector<const HepMC::GenVertex*>   top_vtxs;
 
   for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
@@ -158,7 +158,7 @@ StatusCode TTbarMassFilter::filterEvent() {
     double topPairInvMass_2=0.;
 
     // There must be only two different vertecies out of the four
-    const HepMC::GenVertexPtr prodVtx = top_vtxs[0];
+    const HepMC::GenVertex* prodVtx = top_vtxs[0];
     int top_11 = 0;
     int top_12 = -1;
     int top_21 = -1;

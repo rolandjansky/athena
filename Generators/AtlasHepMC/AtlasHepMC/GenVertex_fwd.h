@@ -6,6 +6,6 @@
 namespace HepMC {
 class GenVertex;
 typedef HepMC::GenVertex* GenVertexPtr;
-typedef (HepMC::GenVertex* const)  ConstGenVertexPtr;
+typedef HepMC::GenVertex*   ConstGenVertexPtr;
 }
 #endif

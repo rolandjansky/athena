@@ -44,13 +44,13 @@ atlas_add_dictionary( GeneratorObjectsDict
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers AthLinks SGTools xAODTruth GaudiKernel TestTools AthenaKernel RootUtils RootUtilsPyROOT StoreGateLib SGtests GeneratorObjects )
 
-atlas_add_test( HepMcParticleLink_test
-                SOURCES test/HepMcParticleLink_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers CxxUtils AthLinks SGTools xAODTruth GaudiKernel TestTools AthenaKernel RootUtils RootUtilsPyROOT StoreGateLib SGtests GeneratorObjects ${GTEST_LIBRARIES} )
+#atlas_add_test( HepMcParticleLink_test
+#                SOURCES test/HepMcParticleLink_test.cxx
+#                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+#                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers CxxUtils AthLinks SGTools xAODTruth GaudiKernel TestTools AthenaKernel RootUtils RootUtilsPyROOT StoreGateLib SGtests GeneratorObjects ${GTEST_LIBRARIES} )
 
 
-atlas_add_test( CachedParticlePtr_test
-                SOURCES test/CachedParticlePtr_test.cxx
-                LINK_LIBRARIES GeneratorObjects )
+#atlas_add_test( CachedParticlePtr_test
+#                SOURCES test/CachedParticlePtr_test.cxx
+#                LINK_LIBRARIES GeneratorObjects )
 

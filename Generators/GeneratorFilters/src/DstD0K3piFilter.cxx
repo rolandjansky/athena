@@ -15,21 +15,21 @@ DstD0K3piFilter::DstD0K3piFilter(const std::string& name, ISvcLocator* pSvcLocat
 
 // If mcpart first child lundId equals chLundId, return true
 /// @todo No need for this to be a member function... useful in a HepMC utils library?
-bool DstD0K3piFilter::CheckChildLundId(HepMC::GenParticlePtr mcpart, int nth, int chLundId) {
+bool DstD0K3piFilter::CheckChildLundId(HepMC::GenParticle* mcpart, int nth, int chLundId) {
   int nChild = 0;
-  const HepMC::GenVertexPtr DecayVtx = mcpart->end_vertex();
+  const HepMC::GenVertex* DecayVtx = mcpart->end_vertex();
   if (DecayVtx != 0) nChild = DecayVtx->particles_out_size();
   if (nChild < 2) return false;
   if (nth ==0) {
     HepMC::GenVertex::particles_in_const_iterator child_mcpartItr  = DecayVtx->particles_out_const_begin();
-    HepMC::GenParticlePtr child_mcpart = *child_mcpartItr;
+    HepMC::GenParticle* child_mcpart = *child_mcpartItr;
     if (std::abs(child_mcpart->pdg_id()) == chLundId) return true;
   } else if (nth == 1) {
     HepMC::GenVertex::particles_in_const_iterator child_mcpartItr  = DecayVtx->particles_out_const_begin();
     HepMC::GenVertex::particles_in_const_iterator child_mcpartItrE = DecayVtx->particles_out_const_end();
     ++child_mcpartItr;
     if (child_mcpartItr == child_mcpartItrE) return false;
-    HepMC::GenParticlePtr child_mcpart = *child_mcpartItr;
+    HepMC::GenParticle* child_mcpart = *child_mcpartItr;
     if (std::abs(child_mcpart->pdg_id()) == chLundId) return true;
   }
   return false;
@@ -37,7 +37,7 @@ bool DstD0K3piFilter::CheckChildLundId(HepMC::GenParticlePtr mcpart, int nth, in
 
 
 /// @todo No need for this to be a member function
-bool DstD0K3piFilter::IsCandidate(std::vector<float>& lundIds, std::vector<HepMC::GenParticlePtr>& genParticles) {
+bool DstD0K3piFilter::IsCandidate(std::vector<float>& lundIds, std::vector<HepMC::GenParticle*>& genParticles) {
   unsigned int nDecay = lundIds.size();
   if (nDecay == 2) {
     unsigned int id0 = std::abs( static_cast<int>(lundIds[0]) );
@@ -46,12 +46,12 @@ bool DstD0K3piFilter::IsCandidate(std::vector<float>& lundIds, std::vector<HepMC
     if ( id0 == 10323 && id1 == 211 ) { // // K_1+ CLHEP::pi-
       if ( CheckChildLundId(genParticles[0], 0, 313) ) { // K*0 pi+
         int nChild = 0;
-        const HepMC::GenVertexPtr DecayVtx = genParticles[0]->end_vertex();
+        const HepMC::GenVertex * DecayVtx = genParticles[0]->end_vertex();
         if ( DecayVtx != 0 ) nChild = DecayVtx->particles_out_size();
         if ( nChild != 2 ) return false;
 
         HepMC::GenVertex::particles_in_const_iterator child_mcpartItr  = DecayVtx->particles_out_const_begin();
-        HepMC::GenParticlePtr child_mcpart = (*child_mcpartItr); // K*0
+        HepMC::GenParticle * child_mcpart = (*child_mcpartItr); // K*0
         if ( CheckChildLundId(child_mcpart, 0, 321) ) return true;
       } else if ( CheckChildLundId(genParticles[0], 0, 321) ) {  // K+ rho0 or K+ CLHEP::pi CLHEP::pi
         if ( CheckChildLundId(genParticles[0], 1, 113) || CheckChildLundId(genParticles[0], 1, 211) ) return true;
@@ -99,8 +99,8 @@ StatusCode DstD0K3piFilter::filterEvent() {
       if (fabs((*pitr)->momentum().pseudoRapidity()) > m_EtaRange) continue;
 
       int nDstChild = 0;
-      HepMC::GenParticlePtr mcpartDst = *pitr;
-      const HepMC::GenVertexPtr DstDecayVtx = mcpartDst->end_vertex();
+      HepMC::GenParticle* mcpartDst = *pitr;
+      const HepMC::GenVertex* DstDecayVtx = mcpartDst->end_vertex();
       // Check that we got a valid pointer and retrieve the number of daughters
       if (DstDecayVtx != 0) nDstChild = DstDecayVtx->particles_out_size();
       //  For this analysis we are only interested in D*->D0 pi+
@@ -111,10 +111,10 @@ StatusCode DstD0K3piFilter::filterEvent() {
       HepMC::GenVertex::particles_in_const_iterator child_mcpartItr  = DstDecayVtx->particles_out_const_begin();
       HepMC::GenVertex::particles_in_const_iterator child_mcpartItrE = DstDecayVtx->particles_out_const_end();
       for (; child_mcpartItr != child_mcpartItrE; ++child_mcpartItr) {
-        HepMC::GenParticlePtr child_mcpart = (*child_mcpartItr);
+        HepMC::GenParticle* child_mcpart = (*child_mcpartItr);
         if (std::abs(child_mcpart->pdg_id()) != 421) continue; // D0
         int nD0Child = 0;
-        HepMC::GenParticlePtr mcpartD0 = *child_mcpartItr;
+        HepMC::GenParticle* mcpartD0 = *child_mcpartItr;
         const HepMC::GenVertex* D0DecayVtx = mcpartD0->end_vertex();
         // Check that we got a valid pointer and retrieve the number of daughters
         if (D0DecayVtx != 0) nD0Child = D0DecayVtx->particles_out_size();
@@ -123,13 +123,13 @@ StatusCode DstD0K3piFilter::filterEvent() {
         ATH_MSG_DEBUG("D0 meson found with Nchild = " << nD0Child << " and PDF ID = " << child_mcpart->pdg_id());
 
         std::vector<float> lundIds;
-        std::vector<HepMC::GenParticlePtr> genParticles;
+        std::vector<HepMC::GenParticle*> genParticles;
 
         if (D0DecayVtx) {
           HepMC::GenVertex::particles_in_const_iterator grandchild_mcpartItr  = D0DecayVtx->particles_out_const_begin();
           HepMC::GenVertex::particles_in_const_iterator grandchild_mcpartItrE = D0DecayVtx->particles_out_const_end();
           for (; grandchild_mcpartItr != grandchild_mcpartItrE; ++grandchild_mcpartItr) {
-            HepMC::GenParticlePtr grandchild_mcpart = (*grandchild_mcpartItr);
+            HepMC::GenParticle * grandchild_mcpart = (*grandchild_mcpartItr);
             genParticles.push_back(grandchild_mcpart);
             lundIds.push_back(grandchild_mcpart->pdg_id());
           }

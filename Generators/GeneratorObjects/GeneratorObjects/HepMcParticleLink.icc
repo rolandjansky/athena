@@ -484,7 +484,7 @@ const HepMC::GenParticle& HepMcParticleLink::operator* () const
  * @brief Dereference.
  */
 inline
-const HepMC::GenParticlePtr HepMcParticleLink::operator->() const
+const HepMC::GenParticle* HepMcParticleLink::operator->() const
 {
   return cptr();
 }
@@ -494,7 +494,7 @@ const HepMC::GenParticlePtr HepMcParticleLink::operator->() const
  * @brief Dereference.
  */
 inline
-HepMcParticleLink::operator const HepMC::GenParticlePtr () const
+HepMcParticleLink::operator const HepMC::GenParticle* () const
 {
   return cptr();
 }

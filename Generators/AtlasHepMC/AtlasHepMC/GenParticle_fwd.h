@@ -6,6 +6,6 @@
 namespace HepMC {
 class GenParticle;
 typedef GenParticle* GenParticlePtr;
-typedef (GenParticle* const) ConstGenParticlePtr;
+typedef GenParticle* ConstGenParticlePtr;
 }
 #endif

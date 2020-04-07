@@ -7,7 +7,7 @@
 // Date:   February 2008
 
 template<class Selector>
-void PileUpType::signal_particles( std::vector<HepMC::ConstGenParticlePtr>& particleList,
+void PileUpType::signal_particles( std::vector<const HepMC::GenParticle*>& particleList,
                                    const Selector& select ) const
 {
    HepMC::GenEvent::particle_const_iterator istart = this->signal_particle_begin();
@@ -18,7 +18,7 @@ void PileUpType::signal_particles( std::vector<HepMC::ConstGenParticlePtr>& part
 }
 
 template<class Selector>
-void PileUpType::in_time_minimum_bias_particles( std::vector<HepMC::ConstGenParticlePtr>& particleList,
+void PileUpType::in_time_minimum_bias_particles( std::vector<const HepMC::GenParticle*>& particleList,
                                                  const Selector& select ) const
 {
    McEventCollection::const_iterator ievent_begin = this->in_time_minimum_bias_event_begin();
@@ -33,7 +33,7 @@ void PileUpType::in_time_minimum_bias_particles( std::vector<HepMC::ConstGenPart
 }
 
 template<class Selector>
-void PileUpType::in_time_particles( std::vector<HepMC::ConstGenParticlePtr>& particleList,
+void PileUpType::in_time_particles( std::vector<const HepMC::GenParticle*>& particleList,
                                     const Selector& select ) const 
 {
    particleList.clear();
@@ -44,7 +44,7 @@ void PileUpType::in_time_particles( std::vector<HepMC::ConstGenParticlePtr>& par
 
 /** return the MC events in [-2BC, +2BC], including the signal McEvent at BC=0 */
 template<class Selector>
-void PileUpType::particles_in_two_bunch_crossings( std::vector<HepMC::ConstGenParticlePtr>& particleList,
+void PileUpType::particles_in_two_bunch_crossings( std::vector<const HepMC::GenParticle*>& particleList,
                                                    const Selector& select ) const
 {
    particleList.clear();
@@ -84,7 +84,7 @@ void PileUpType::particles_in_two_bunch_crossings( std::vector<HepMC::ConstGenPa
 
 /** return the MC events in [-inf,-2BC] and [+2BC,+inf], excluding the cavern background and the beam halo */
 template<class Selector>
-void PileUpType::particles_outside_two_bunch_crossings( std::vector<HepMC::ConstGenParticlePtr>& particleList,
+void PileUpType::particles_outside_two_bunch_crossings( std::vector<const HepMC::GenParticle*>& particleList,
                                                         const Selector& select ) const
 {
    particleList.clear();
@@ -124,7 +124,7 @@ void PileUpType::particles_outside_two_bunch_crossings( std::vector<HepMC::Const
  
 /** return the MC events of the cavern background */
 template<class Selector>
-void PileUpType::cavern_background_particles( std::vector<HepMC::ConstGenParticlePtr>& particleList,
+void PileUpType::cavern_background_particles( std::vector<const HepMC::GenParticle*>& particleList,
                                               const Selector& select ) const
 {
    particleList.clear();

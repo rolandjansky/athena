@@ -28,7 +28,7 @@ namespace TruthHelper {
 
     GenIMCselector* create() const;
 
-    bool operator()(const HepMC::ConstGenParticlePtr  p ) const;
+    bool operator()(const HepMC::GenParticle* const p ) const;
 
 
   private:
