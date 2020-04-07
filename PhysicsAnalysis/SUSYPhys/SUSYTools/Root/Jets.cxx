@@ -494,9 +494,9 @@ namespace ST {
       dec_selected(input) = 0;
     }
 
-    //if (m_useBtagging && !m_orBtagWP.empty()) {
-    //  dec_bjet_loose(input) = this->IsBJetLoose(input);
-    //}
+    if (m_useBtagging && !m_orBtagWP.empty()) {
+      dec_bjet_loose(input) = this->IsBJetLoose(input);
+    }
 
     if (m_debug) {
       ATH_MSG_INFO( "JET pt: " << input.pt() );
@@ -654,7 +654,7 @@ namespace ST {
     bool isbjet = m_btagSelTool->accept(input);
     dec_bjet(input) = isbjet;
 
-    double weight = 1.;
+    double weight = 0.;
     if ( m_btagSelTool->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
       ATH_MSG_ERROR ("btagSelTool:: could not retrieve b-tag weight.");
     }
