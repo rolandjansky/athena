@@ -34,6 +34,8 @@ def ELG_prun(sample) :
             'maxFileSize',
             'maxNFilesPerJob',
             'addNthFieldOfInDSToLFN',
+            'cpuTimePerEvent',
+            'maxWalltime',
             'voms',
             'workingGroup',
             'tmpDir']
