@@ -18,8 +18,8 @@ PURPOSE:
 #include "MissingETEvent/MissingET.h"
 #include "MissingETEvent/MissingEtRegions.h"
 
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenParticle.h"
+#include "AtlasHepMCGenEvent.h"
+#include "AtlasHepMCGenParticle.h"
 
 #include <vector>
 

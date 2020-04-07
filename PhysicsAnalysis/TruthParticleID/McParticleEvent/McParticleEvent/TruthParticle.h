@@ -25,9 +25,9 @@
 
 // HepMC / CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
-#include "HepMCI/GenParticle.h"
-#include "HepMCI/Polarization.h"
-#include "HepMCI/Flow.h"
+#include "AtlasHepMCGenParticle.h"
+#include "AtlasHepMCPolarization.h"
+#include "AtlasHepMCFlow.h"
 
 // Gaudi includes
 

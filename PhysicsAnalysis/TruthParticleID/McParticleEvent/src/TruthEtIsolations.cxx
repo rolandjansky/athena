@@ -17,9 +17,9 @@
 
 // HepMC / CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "HepMCI/GenParticle.h"
-#include "HepMCI/GenEvent.h"
-#include "HepMCI/GenVertex.h"
+#include "AtlasHepMCGenParticle.h"
+#include "AtlasHepMCGenEvent.h"
+#include "AtlasHepMCGenVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // McParticleEvent includes
