@@ -126,15 +126,6 @@ namespace InDetDD {
     
       //@{
     
-      /// identifier of this detector element:
-      virtual Identifier identify() const;
-    
-      /// identifier hash
-      virtual IdentifierHash identifyHash() const;
-    
-      /// Returns the id helper
-      const AtlasDetectorID* getIdHelper() const;
-    
       bool isPixel() const;
       bool isSCT() const;
       bool isBarrel() const;
@@ -148,6 +139,7 @@ namespace InDetDD {
       bool isDBM() const;
 
       // Identifier <-> SiCellId (ie strip number or pixel eta_index,phi_index)
+      // satisfy SolidStateDetectorElementBase interface
     
       /// Identifier from SiCellId (ie strip number or pixel eta_index,phi_index)
       Identifier identifierFromCellId(const SiCellId & cellId) const;
@@ -747,22 +739,6 @@ namespace InDetDD {
     {
       return *dynamic_cast<const SiDetectorDesign *>(m_design);
     }
-    
-    inline const AtlasDetectorID* SiDetectorElement::getIdHelper() const
-    {
-      return m_commonItems->getIdHelper();
-    }
-    
-    inline Identifier SiDetectorElement::identify() const
-    {
-      return m_id;
-    }
-    
-    inline IdentifierHash SiDetectorElement::identifyHash() const
-    {
-      return m_idHash;
-    }
-    
     
     inline double SiDetectorElement::hitDepthDirection() const
     {
