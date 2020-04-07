@@ -225,7 +225,7 @@ int main (int argc, char* argv[])
 
                 //apply correction
                 ANA_CHECK(CorrectElectronTool.applyCorrection(*electron));
-                
+
                 //get original and corrected value
                 SG::AuxElement::Accessor<float> VariableToCorrect(correctionVariable + "_original");
                 SG::AuxElement::Accessor<float> CorrectedVariable(correctionVariable);
