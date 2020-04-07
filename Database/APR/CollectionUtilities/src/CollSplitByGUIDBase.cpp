@@ -32,7 +32,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <memory>   // for auto_ptr
+#include <memory> 
 #define AUTO_PTR  auto_ptr
 #include <stdexcept>
 

@@ -242,7 +242,7 @@ LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
     }
   }
 
-  return *std::auto_ptr< std::vector<EnergySpot> >(shower);
+  return *std::unique_ptr< std::vector<EnergySpot> >(shower);
 }
 
 double

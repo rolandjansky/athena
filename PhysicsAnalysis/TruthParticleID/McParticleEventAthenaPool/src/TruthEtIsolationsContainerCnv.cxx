@@ -61,8 +61,7 @@ TruthEtIsolationsContainer* TruthEtIsolationsContainerCnv::createTransient()
 
    if ( compareClassGuid(p1_guid) ) {
      
-     // using auto_ptr ensures deletion of the persistent object
-     std::auto_ptr<TruthEtIsolationsContainer_p1> pers( poolReadObject<TruthEtIsolationsContainer_p1>() );
+     std::unique_ptr<TruthEtIsolationsContainer_p1> pers( poolReadObject<TruthEtIsolationsContainer_p1>() );
      TruthEtIsolationsContainerCnv_p1 cnv;
      trans = cnv.createTransient( pers.get(), msg );
 

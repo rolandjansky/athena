@@ -91,7 +91,7 @@ private:
   /// Data members
   //@{
   /// Random number generator objects
-  std::auto_ptr<CLHEP::HepRandomEngine> m_pRandomEngine;
+  std::unique_ptr<CLHEP::HepRandomEngine> m_pRandomEngine;
   // Random number service
   ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
   /// Handle on the incident service
