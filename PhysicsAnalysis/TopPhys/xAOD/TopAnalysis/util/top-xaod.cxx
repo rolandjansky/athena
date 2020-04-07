@@ -198,10 +198,15 @@ int main(int argc, char** argv) {
     }
 
 
-    bool const isMC = (useAodMetaData ?
-                       topConfig->aodMetaData().isSimulation() :
-                       top::isFileSimulation(testFile.get(), topConfig->sgKeyEventInfo())
-                       );
+    const bool isOverlay = useAodMetaData ? topConfig->aodMetaData().IsEventOverlayInputSim() : false;
+    bool isMC(true);
+    if (!isOverlay) {
+      isMC = (useAodMetaData ?
+              topConfig->aodMetaData().isSimulation() :
+              top::isFileSimulation(testFile.get(), topConfig->sgKeyEventInfo())
+              );
+    }
+
     topConfig->setIsMC(isMC);
 
     const bool isPrimaryxAOD = top::isFilePrimaryxAOD(testFile.get());

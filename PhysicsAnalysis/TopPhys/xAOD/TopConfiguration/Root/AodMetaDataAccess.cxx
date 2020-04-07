@@ -133,6 +133,20 @@ namespace top {
     throw std::invalid_argument("unrecognized value in meta-data entry for key 'project_name'");
   }
 
+  bool AodMetaDataAccess::IsEventOverlayInputSim() const {
+    std::string overlay;
+    try { 
+      overlay = get("/Simulation/Parameters", "IsEventOverlayInputSim");
+    } catch (const std::logic_error& e) {
+      // the key does not exists - is data most likely
+      return false;
+    }
+
+    if (boost::iequals(overlay, "TRUE")) return true;
+    
+    return false;
+  }
+
   bool AodMetaDataAccess::isAFII() const {
     if (!isSimulation()) return false; // No need to check if not MC
 
