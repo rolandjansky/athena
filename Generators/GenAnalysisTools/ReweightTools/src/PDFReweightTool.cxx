@@ -20,8 +20,8 @@
 #include "AthContainers/DataVector.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/PdfInfo.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/PdfInfo.h"
 #include "ReweightTools/PDFReweightTool.h"
 
 #include <math.h>

@@ -8,7 +8,7 @@
 #include "GenInterfaces/IHforTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "EventInfo/EventID.h"
 #include "JetEvent/JetCollection.h"
 

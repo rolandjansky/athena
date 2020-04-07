@@ -4,7 +4,7 @@
 
 #ifndef XAOD_ANALYSIS
 #include "EvgenProdTools/SimTimeEstimate.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "TruthUtils/HepMCHelpers.h"
 
 SimTimeEstimate::SimTimeEstimate(const std::string& name, ISvcLocator* pSvcLocator)
