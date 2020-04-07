@@ -230,7 +230,7 @@ namespace MuonGM {
     void set_wirepitch           (double );
     void set_first_strip_localcoo(double );
     void set_first_wire_localcoo (double );
-    void setCscInternalAlignmentPar(CscInternalAlignmentPar* );
+    void setCscInternalAlignmentPar(const CscInternalAlignmentPar& );
     void setCscInternalAlignmentParams();
     //    // internal alignment
     //    double m_cscIntTransl[4][3]; // first index is wireLayer, second = 0,1,2 for    s,z,t

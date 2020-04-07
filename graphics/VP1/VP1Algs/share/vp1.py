@@ -263,7 +263,7 @@ from AtlasGeoModel import GeoModelInit
 from AthenaCommon.AppMgr import ToolSvc
 
 if vp1Muon and len(vp1NSWAGDDFiles)>0:
-    printfunc ("*** VP1 NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) instead from built-in geometry")
+    printfunc ("*** VP1 NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1NSWAGDDFiles)))
     from AthenaCommon.AppMgr import theApp
     from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
     AGDD2Geo = AGDDtoGeoSvc()

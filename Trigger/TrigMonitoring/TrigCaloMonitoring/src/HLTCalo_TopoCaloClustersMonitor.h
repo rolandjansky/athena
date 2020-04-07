@@ -7,10 +7,10 @@
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 class HLTCalo_TopoCaloClustersMonitor : public AthMonitorAlgorithm {
 
@@ -25,7 +25,7 @@ public:
 
 private:
 
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
 
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_HLT_cont_key;
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_OFF_cont_key;

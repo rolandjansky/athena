@@ -967,10 +967,11 @@ class DiffFiles(object):
     terms of containers' content and containers' sizes
     """
 
-    def __init__(self, refFileName, chkFileName, verbose = False, ignoreList = None):
+    def __init__(self, refFileName, chkFileName, verbose = False, ignoreList = None, strict = False):
         object.__init__(self)
 
         self.verbose = verbose
+        self.strict = strict
         refFileName = os.path.expandvars( os.path.expanduser( refFileName ) )
         chkFileName = os.path.expandvars( os.path.expanduser( chkFileName ) )
 
@@ -1049,21 +1050,24 @@ class DiffFiles(object):
 
         if not self.allGood:
             self.summary += [ "=" * 80 ]
-        self.summary += [ "::: comparing common content (mem-size)..." ]
+        self.summary += [ "::: comparing common content (mem-size / disk-size)..." ]
 
         for name in commonContent:
             chkMemSize = self.chkFile.poolRecord(name).memSize
             refMemSize = self.refFile.poolRecord(name).memSize
-            if chkMemSize != refMemSize:
+            chkDiskSize = self.chkFile.poolRecord(name).diskSize
+            refDiskSize = self.refFile.poolRecord(name).diskSize
+
+            if chkMemSize != refMemSize or (self.strict and chkDiskSize != refDiskSize):
                 self.summary += [
-                    "[ERR] %12.3f kb (ref) ==> %12.3f kb (chk) | %s" % \
-                    ( refMemSize, chkMemSize, name )
+                    "[ERR] %12.3f / %12.3f kb (ref) ==> %12.3f / %12.3f kb (chk) | %s" % \
+                    ( refMemSize,refDiskSize,chkMemSize,chkDiskSize, name )
                     ]
                 self.allGood = False
             elif self.verbose:
                 self.summary += [
-                    " [OK] %12.3f kb                                 | %s" % \
-                    ( chkMemSize, name )
+                    " [OK] %12.3f/%12.3f kb                                 | %s" % \
+                    ( chkMemSize, chkDiskSize, name )
                     ]
 
         self.summary += [ "=" * 80 ]

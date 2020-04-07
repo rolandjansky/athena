@@ -206,8 +206,9 @@ if (vp1SLHC):
   TrkDetFlags.TRT_BuildStrawLayers            = False
   TrkDetFlags.MaterialSource = 'None'
 
+print("vp1NSWAGDDFiles:", vp1NSWAGDDFiles, "len:", len(vp1NSWAGDDFiles))
 if vp1Muon and len(vp1NSWAGDDFiles)>0:
-    print "*** DumpGeo NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) instead from built-in geometry"
+    print "*** DumpGeo NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1NSWAGDDFiles))
     from AthenaCommon.AppMgr import theApp
     from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
     AGDD2Geo = AGDDtoGeoSvc()

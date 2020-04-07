@@ -9,7 +9,7 @@
 # art-output: *.log
 # art-output: *.ps
 
-NEVENTS=1000
+NEVENTS=500
 REF_DIR="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/tauRec/reference/q431"
 
 # run the reconstruction

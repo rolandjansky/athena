@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file InDetPerfPlot_VertexContainer.cxx
+ * @file InDetPerfPlot_VerticesVsMu.cxx
  * @author Simone Pagan Griso
  **/
 
-#include "InDetPerfPlot_VertexContainer.h"
+#include "InDetPerfPlot_VerticesVsMu.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
@@ -15,14 +15,14 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-InDetPerfPlot_VertexContainer::InDetPerfPlot_VertexContainer(InDetPlotBase* pParent,
+InDetPerfPlot_VerticesVsMu::InDetPerfPlot_VerticesVsMu(InDetPlotBase* pParent,
                                                              const std::string& sDir) : InDetPlotBase(pParent, sDir),
   m_vx_n_vs_mu{} {
   // nop
 }
 
 void
-InDetPerfPlot_VertexContainer::initializePlots() {
+InDetPerfPlot_VerticesVsMu::initializePlots() {
   const bool prependDirectory(false);
 
   m_vx_n_vs_mu = Book2D("vx_n_vs_mu", "Number of vertices vs #mu;N vertices;#mu;Entries", 70, 0.0, 70., 100, 0.0, 100,
@@ -30,7 +30,7 @@ InDetPerfPlot_VertexContainer::initializePlots() {
 }
 
 void
-InDetPerfPlot_VertexContainer::fill(const xAOD::VertexContainer& vertices, const xAOD::EventInfo& ei) {
+InDetPerfPlot_VerticesVsMu::fill(const xAOD::VertexContainer& vertices, unsigned int nPU) {
   // fill number of vertices
   int nGoodVertices(0);
 
@@ -40,5 +40,5 @@ InDetPerfPlot_VertexContainer::fill(const xAOD::VertexContainer& vertices, const
     }
     nGoodVertices++;
   }
-  fillHisto(m_vx_n_vs_mu, nGoodVertices, ei.actualInteractionsPerCrossing());
+  fillHisto(m_vx_n_vs_mu, nGoodVertices, nPU);
 }

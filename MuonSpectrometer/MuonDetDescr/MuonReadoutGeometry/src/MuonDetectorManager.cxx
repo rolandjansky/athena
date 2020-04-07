@@ -100,10 +100,6 @@ MuonDetectorManager::MuonDetectorManager() {
 
   m_n_mdtDE = m_n_cscDE = m_n_tgcDE = m_n_rpcDE = 0;
   m_n_mdtRE = m_n_cscRE = m_n_tgcRE = m_n_rpcRE = m_n_mmcRE = m_n_stgRE = 0;
-  m_aLineContainer = nullptr;
-  m_bLineContainer = nullptr;
-  m_cscALineContainer = nullptr;
-  m_AsBuiltParamsMap = nullptr;
   setName("Muon");
 
   m_cachingFlag      = 1;
@@ -189,38 +185,6 @@ MuonDetectorManager::~MuonDetectorManager() {
   {
     delete i->second; i->second = nullptr;
   }
-
-  for (std::vector<TgcReadoutParams*>::iterator i=m_TgcReadoutParamsVec.begin();
-         i!=m_TgcReadoutParamsVec.end();++i)
-  {
-    delete (*i); *i = nullptr;
-  }  
-
-  if (nullptr != m_cscALineContainer) {
-    for (auto elem: *m_cscALineContainer ) {
-      if (nullptr != elem.second) {delete elem.second; elem.second = nullptr;}
-    }
-    delete m_cscALineContainer; m_cscALineContainer = nullptr;
-  }
-
-  if (nullptr != m_AsBuiltParamsMap) {
-    for (auto elem: *m_AsBuiltParamsMap ) {
-      if (nullptr != elem.second) {delete elem.second; elem.second = nullptr;}
-    }
-    delete m_AsBuiltParamsMap; m_AsBuiltParamsMap = nullptr;
-  }
-
-  if (nullptr != m_aLineContainer) {
-    for (auto elem: *m_aLineContainer ) {
-      if (nullptr != elem.second) {delete elem.second; elem.second = nullptr;}
-    }
-  }
-  if (nullptr != m_bLineContainer) {
-    for (auto elem: *m_bLineContainer ) {
-      if (nullptr != elem.second) {delete elem.second; elem.second = nullptr;}
-    }
-  }
-
 }
 
 
@@ -1223,10 +1187,10 @@ void
 MuonDetectorManager::initABlineContainers()
 {
     MsgStream log(Athena::getMessageSvc(),"MGM::MuonDetectorManager");
-    m_aLineContainer = new ALineMapContainer;
-    m_bLineContainer = new BLineMapContainer;
+    m_aLineContainer.clear();
+    m_bLineContainer.clear();
 
-    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Init A/B Line Containers - pointers are <" <<(uintptr_t)m_aLineContainer << "> and <" << (uintptr_t)m_bLineContainer << ">" << endmsg;
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Init A/B Line Containers - pointers are <" <<(uintptr_t)&m_aLineContainer << "> and <" << (uintptr_t)&m_bLineContainer << ">" << endmsg;
 
     // loop over stations to fill the A-line map at start-up
     for (std::map< std::string, MuonStation * >::const_iterator ist=m_MuonStationMap.begin();
@@ -1237,19 +1201,19 @@ MuonDetectorManager::initABlineContainers()
         int jzz = ms->getEtaIndex();
         std::string stType = ms->getStationType();
        
-        ALinePar* newALine = new ALinePar();
-        newALine->setAmdbId(stType, jff, jzz, 0);
+        ALinePar newALine;
+        newALine.setAmdbId(stType, jff, jzz, 0);
 	if (ms->hasALines()) 
 	{
-	  newALine->setParameters(ms->getALine_tras(),ms->getALine_traz(),ms->getALine_trat(),
-				  ms->getALine_rots(),ms->getALine_rotz(),ms->getALine_rott());	
+	  newALine.setParameters(ms->getALine_tras(),ms->getALine_traz(),ms->getALine_trat(),
+                                 ms->getALine_rots(),ms->getALine_rotz(),ms->getALine_rott());	
 	}
 	else
 	{
 	  if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"No starting A-lines for Station "<<stType<<" Jzz/Jff "<<jzz<<"/"<<jff<<endmsg;
-	  newALine->setParameters(0.,0.,0.,0.,0.,0.);				  
+	  newALine.setParameters(0.,0.,0.,0.,0.,0.);				  
 	}
-        newALine->isNew(true);
+        newALine.isNew(true);
 
         Identifier id;
         //= m_mdtIdHelper->elementID(stType, jzz, jff);
@@ -1279,15 +1243,15 @@ MuonDetectorManager::initABlineContainers()
             id = m_mdtIdHelper->elementID(stType, jzz, jff);
             if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Filling A-line container with entry for key = "<<m_mdtIdHelper->show_to_string(id)<<endmsg;
         }
-        m_aLineContainer->insert(std::make_pair(id,(ALinePar*)newALine));
+        m_aLineContainer.emplace(id, std::move(newALine));
         if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"<Filling A-line container with entry for key >"<<m_mdtIdHelper->show_to_string(id)<<endmsg;
     }
-    log << MSG::INFO << "Init A/B Line Containers - done - size is respectively " << m_aLineContainer->size() << "/" << m_bLineContainer->size() << endmsg;
+    log << MSG::INFO << "Init A/B Line Containers - done - size is respectively " << m_aLineContainer.size() << "/" << m_bLineContainer.size() << endmsg;
 }
 
 
 StatusCode
-MuonDetectorManager::updateAlignment(const ALineMapContainer *  alineData)
+MuonDetectorManager::updateAlignment(const ALineMapContainer& alineData)
 {
 #ifdef TESTBLINES
   {
@@ -1308,32 +1272,25 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer *  alineData)
   }
 #endif
     MsgStream log(Athena::getMessageSvc(),"MGM::MuonDetectorManager");
-    if (alineData == nullptr) {
-	log<<MSG::WARNING<<"Undefined pointer to temporary A-line container - nothing to do here"<<endmsg;
-	return StatusCode::SUCCESS;
-    }
-    if (alineData->size()==0) {
+    if (alineData.empty()) {
 	log<<MSG::WARNING<<"Empty temporary A-line container - nothing to do here"<<endmsg;
 	return StatusCode::SUCCESS;
     }
-    else log<<MSG::INFO<<"temporary A-line container with size = "<<alineData->size()<<endmsg;
+    else log<<MSG::INFO<<"temporary A-line container with size = "<<alineData.size()<<endmsg;
     
 
     // loop over the container of the updates passed by the MuonAlignmentDbTool
-    ciALineMap cialine = alineData->begin();//ALineMapBegin();
     unsigned int nLines = 0;
     unsigned int nUpdates = 0;
-    for (; cialine != alineData->end(); cialine++)
+    for (const auto& [ALineId, ALine] : alineData)
     {
         nLines++;
-        Identifier ALineId = (*cialine).first;
-        ALinePar* ALine = (*cialine).second;
         std::string stType = "";
         int jff = 0;
         int jzz = 0;
         int job = 0;
-        ALine->getAmdbId(stType, jff, jzz, job);
-        if (!ALine->isNew())
+        ALine.getAmdbId(stType, jff, jzz, job);
+        if (!ALine.isNew())
         {            
             log<<MSG::WARNING
                <<"ALinePar with AmdbId "
@@ -1344,124 +1301,97 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer *  alineData)
 	if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG
 					<<"ALinePar with AmdbId "
 					<<stType<<" "<<jzz<<" "<<jff<<" "<<job<<" is new ID = "<<m_mdtIdHelper->show_to_string(ALineId)<<endmsg;
+
+        
+        MuonStation* thisStation = getMuonStation(stType, jzz, jff);
+        if (!thisStation) {
+          log<<MSG::WARNING
+             <<"ALinePar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job
+             <<" *** No MuonStation found \n PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"<<endmsg;
+          continue;
+        }
+
+        if (job != 0) {
+          // job different than 0 (standard for TGC conditions for Sept 2010 repro.)
+          if (stType.substr(0,1)=="T") 
+          {
+            if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG
+                                            <<"ALinePar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job
+                                            <<" has JOB not 0 - this is expected for TGC"<<endmsg;
+          }
+          else 
+          {
+            log<<MSG::WARNING
+               <<"ALinePar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job
+               <<" has JOB not 0 - this is NOT EXPECTED yet for non TGC chambers - skipping this A-line"<<endmsg;
+            continue;
+          }
+        }
+
+        // record this A-line in the historical A-line container
+        auto [it, flag] = m_aLineContainer.insert_or_assign (ALineId, ALine);
+        ALinePar& newALine = it->second;
+        if (flag)
+        {
+          if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "               New entry in A-line container for Station "
+                                           <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff <<" --- in the container with key "<< m_mdtIdHelper->show_to_string(ALineId)<< endmsg;
+        }
+        else {
+          if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in A-line container for Station "
+                                           <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endmsg;
+        }
+
         if (job == 0) 
         {
-            MuonStation* thisStation = getMuonStation(stType, jzz, jff);
-            if (thisStation)
-            {
-                float s,z,t,ths,thz,tht;
-                ALine->getParameters(s,z,t,ths,thz,tht);
-		if  (    m_controlAlines%10        == 0)           tht = 0.;
-		if  (int(m_controlAlines/10)%10    == 0)           thz = 0.;
-		if  (int(m_controlAlines/100)%10   == 0)           ths = 0.;
-		if  (int(m_controlAlines/1000)%10  == 0)           t   = 0.;
-		if  (int(m_controlAlines/10000)%10 == 0)           z   = 0.;
-		if  (int(m_controlAlines/100000)%10== 0)           s   = 0.;
-		if  (m_controlAlines!=111111) ALine->setParameters(s,z,t,ths,thz,tht);
-                if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting delta transform for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<" params are = "<<s<<" "<<z<<" "<<t<<" "<<ths<<" "<<thz<<" "<<tht<<endmsg;
-                thisStation->setDelta_fromAline( s,z,t,ths,thz,tht );
+          float s,z,t,ths,thz,tht;
+          newALine.getParameters(s,z,t,ths,thz,tht);
+          if  (    m_controlAlines%10        == 0)           tht = 0.;
+          if  (int(m_controlAlines/10)%10    == 0)           thz = 0.;
+          if  (int(m_controlAlines/100)%10   == 0)           ths = 0.;
+          if  (int(m_controlAlines/1000)%10  == 0)           t   = 0.;
+          if  (int(m_controlAlines/10000)%10 == 0)           z   = 0.;
+          if  (int(m_controlAlines/100000)%10== 0)           s   = 0.;
+          if  (m_controlAlines!=111111) newALine.setParameters(s,z,t,ths,thz,tht);
+          if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting delta transform for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<" params are = "<<s<<" "<<z<<" "<<t<<" "<<ths<<" "<<thz<<" "<<tht<<endmsg;
+          thisStation->setDelta_fromAline( s,z,t,ths,thz,tht );
 #ifdef TESTBLINES
-		ALine->setParameters( 0., 0., 0., 0., 0., 0.);
-                thisStation->setDelta_fromAline( 0., 0., 0., 0., 0., 0.);
+          newALine.setParameters( 0., 0., 0., 0., 0., 0.);
+          thisStation->setDelta_fromAline( 0., 0., 0., 0., 0., 0.);
 #endif
-                if (cacheFillingFlag()) 
-		  {
-		    thisStation->clearCache();
-		    thisStation->fillCache();
-		  }
-		else 
-		  {
-		    thisStation->refreshCache();
-		  }
-                nUpdates++;
-            }
-            else
-            {                
-                log<<MSG::WARNING
-                   <<"ALinePar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job
-                   <<" *** No MuonStation found \n PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"<<endmsg;
-		continue;
-            }
-            // record this A-line in the historical A-line container
-            ciALineMap ci = ALineMapBegin();
-            if((ci = ALineContainer()->find(ALineId)) != ALineMapEnd())
-            {
-                if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in A-line container for Station "
-						 <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endmsg;
-		ALinePar * oldALine =  (*ci).second;
-                m_aLineContainer->erase(ALineId);
-		delete oldALine;
-            }
-            else 
-            {
-                if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "               New entry in A-line container for Station "
-                    <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff <<" --- in the container with key "<< m_mdtIdHelper->show_to_string(ALineId)<< endmsg;
-            }
-            m_aLineContainer->insert(std::make_pair(ALineId,ALine));
+          if (cacheFillingFlag()) 
+          {
+            thisStation->clearCache();
+            thisStation->fillCache();
+          }
+          else 
+          {
+            thisStation->refreshCache();
+          }
         }
         else
-        {// job different than 0 (standard for TGC conditions for Sept 2010 repro.)            
-            if (stType.substr(0,1)=="T") 
-	      {
-		if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG
-		   <<"ALinePar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job
-		   <<" has JOB not 0 - this is expected for TGC"<<endmsg;
-	      }
-	    else 
-	    {
-		log<<MSG::WARNING
-		   <<"ALinePar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job
-		   <<" has JOB not 0 - this is NOT EXPECTED yet for non TGC chambers - skipping this A-line"<<endmsg;
-		continue;
-	    }
-            MuonStation* thisStation = getMuonStation(stType, jzz, jff);
-            if (thisStation)
-            {
-                float s,z,t,ths,thz,tht;
-                ALine->getParameters(s,z,t,ths,thz,tht);
-		if  (    m_controlAlines%10        == 0)           tht = 0.;
-		if  (int(m_controlAlines/10)%10    == 0)           thz = 0.;
-		if  (int(m_controlAlines/100)%10   == 0)           ths = 0.;
-		if  (int(m_controlAlines/1000)%10  == 0)           t   = 0.;
-		if  (int(m_controlAlines/10000)%10 == 0)           z   = 0.;
-		if  (int(m_controlAlines/100000)%10== 0)           s   = 0.;
-		if  (m_controlAlines!=111111) ALine->setParameters(s,z,t,ths,thz,tht);
-                if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting delta transform for component "<<job<<" of Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<" params are = "<<s<<" "<<z<<" "<<t<<" "<<ths<<" "<<thz<<" "<<tht<<endmsg;
-                thisStation->setDelta_fromAline_forComp( job, s,z,t,ths,thz,tht );
-                if (cacheFillingFlag()) {
-		  thisStation->getMuonReadoutElement(job)->clearCache();
-		  thisStation->getMuonReadoutElement(job)->fillCache();
-		}
-		else 
-		  {
-		    thisStation->getMuonReadoutElement(job)->refreshCache();
-		  }
-                nUpdates++;
-            }
-            else
-            {                
-                log<<MSG::WARNING
-                   <<"ALinePar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job
-                   <<" *** No MuonStation found \n PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"<<endmsg;
-		continue;
-            }
-            // record this A-line in the historical A-line container
-            ciALineMap ci = ALineMapBegin();
-            if((ci = ALineContainer()->find(ALineId)) != ALineMapEnd())
-            {
-                if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating existing entry in A-line container for Station "
-                    <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endmsg;
-		ALinePar * oldALine =  (*ci).second;
-                m_aLineContainer->erase(ALineId);
-		delete oldALine; oldALine=0;
-            }
-            else 
-            {
-                if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "               New entry in A-line container for Station Component "
-                    <<stType<<" at Jzz/Jff/Job "<<jzz<<"/"<< jff <<"/"<<job<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(ALineId)<< endmsg;
-            }
-            m_aLineContainer->insert(std::make_pair(ALineId,ALine));
+        {
+          // job different than 0 (standard for TGC conditions for Sept 2010 repro.)            
+          float s,z,t,ths,thz,tht;
+          newALine.getParameters(s,z,t,ths,thz,tht);
+          if  (    m_controlAlines%10        == 0)           tht = 0.;
+          if  (int(m_controlAlines/10)%10    == 0)           thz = 0.;
+          if  (int(m_controlAlines/100)%10   == 0)           ths = 0.;
+          if  (int(m_controlAlines/1000)%10  == 0)           t   = 0.;
+          if  (int(m_controlAlines/10000)%10 == 0)           z   = 0.;
+          if  (int(m_controlAlines/100000)%10== 0)           s   = 0.;
+          if  (m_controlAlines!=111111) newALine.setParameters(s,z,t,ths,thz,tht);
+          if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting delta transform for component "<<job<<" of Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<" params are = "<<s<<" "<<z<<" "<<t<<" "<<ths<<" "<<thz<<" "<<tht<<endmsg;
+          thisStation->setDelta_fromAline_forComp( job, s,z,t,ths,thz,tht );
+          if (cacheFillingFlag()) {
+            thisStation->getMuonReadoutElement(job)->clearCache();
+            thisStation->getMuonReadoutElement(job)->fillCache();
+          }
+          else 
+          {
+            thisStation->getMuonReadoutElement(job)->refreshCache();
+          }
         }
+        nUpdates++;
     }
     log<<MSG::INFO<<"# of A-lines read from the ALineMapContainer in StoreGate is "<<nLines<<endmsg;
     log<<MSG::INFO<<"# of deltaTransforms updated according to A-lines         is "<<nUpdates<<endmsg;
@@ -1471,7 +1401,7 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer *  alineData)
 }
 
 StatusCode
-MuonDetectorManager::updateDeformations(const BLineMapContainer * blineData)
+MuonDetectorManager::updateDeformations(const BLineMapContainer& blineData)
 {
 #ifdef TESTBLINES
   {
@@ -1494,61 +1424,53 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer * blineData)
       return StatusCode::SUCCESS;
     }
 
-    if (blineData == nullptr)
-    {
-	log<<MSG::WARNING<<"Undefined pointer to temporary B-line container - nothing to do here"<<endmsg;
-	return StatusCode::SUCCESS;
-    }
-    if (blineData->size()==0)
+    if (blineData.empty())
     {
 	log<<MSG::WARNING<<"Empty temporary B-line container - nothing to do here"<<endmsg;
 	return StatusCode::SUCCESS;
     }
-    else log<<MSG::INFO<<"temporary B-line container with size = "<<blineData->size()<<endmsg;
+    else log<<MSG::INFO<<"temporary B-line container with size = "<<blineData.size()<<endmsg;
     
 
     // loop over the container of the updates passed by the MuonAlignmentDbTool
-    ciBLineMap cibline = blineData->begin();
     unsigned int nLines = 0;
     unsigned int nUpdates = 0;
-    for (; cibline != blineData->end(); cibline++)
+    for (auto [BLineId, BLine] : blineData)
     {
         nLines++;
-        Identifier BLineId = (*cibline).first;
-        BLinePar*  BLine   = (*cibline).second;
         std::string stType = "";
         int jff = 0;
         int jzz = 0;
         int job = 0;
 #ifdef TESTBLINES
-	BLine->setParameters(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
+	BLine.setParameters(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
 #endif	
 	if (mdtDeformationFlag()>999999) 
 	  {
 	    // first reset everything 
-	    BLine->setParameters(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
+	    BLine.setParameters(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
 	    // now apply user choice 
 	    int choice = mdtDeformationFlag();
- 	    if (int(choice%     10)>0    ) BLine->setParameters(0.,0.,0.,BLine->sp(),BLine->sn(),BLine->tw(),0.,0.,BLine->eg(),BLine->ep(),100.);
- 	    if (int(choice%    100)>9    ) BLine->setParameters(0.,0.,0.,BLine->sp(),BLine->sn(),BLine->tw(),0.,0.,BLine->eg(),100.,BLine->en());
- 	    if (int(choice%   1000)>99   ) BLine->setParameters(0.,0.,0.,BLine->sp(),BLine->sn(),BLine->tw(),0.,0.,100.,BLine->ep(),BLine->en());
- 	    if (int(choice%  10000)>999  ) BLine->setParameters(0.,0.,0.,BLine->sp(),BLine->sn(),100.,0.,0.,BLine->eg(),BLine->ep(),BLine->en());
- 	    if (int(choice% 100000)>9999 ) BLine->setParameters(0.,0.,0.,BLine->sp(),100.,BLine->tw(),0.,0.,BLine->eg(),BLine->ep(),BLine->en());
- 	    if (int(choice%1000000)>99999) BLine->setParameters(0.,0.,0.,100.,BLine->sn(),BLine->tw(),0.,0.,BLine->eg(),BLine->ep(),BLine->en());
+ 	    if (int(choice%     10)>0    ) BLine.setParameters(0.,0.,0.,BLine.sp(),BLine.sn(),BLine.tw(),0.,0.,BLine.eg(),BLine.ep(),100.);
+ 	    if (int(choice%    100)>9    ) BLine.setParameters(0.,0.,0.,BLine.sp(),BLine.sn(),BLine.tw(),0.,0.,BLine.eg(),100.,BLine.en());
+ 	    if (int(choice%   1000)>99   ) BLine.setParameters(0.,0.,0.,BLine.sp(),BLine.sn(),BLine.tw(),0.,0.,100.,BLine.ep(),BLine.en());
+ 	    if (int(choice%  10000)>999  ) BLine.setParameters(0.,0.,0.,BLine.sp(),BLine.sn(),100.,0.,0.,BLine.eg(),BLine.ep(),BLine.en());
+ 	    if (int(choice% 100000)>9999 ) BLine.setParameters(0.,0.,0.,BLine.sp(),100.,BLine.tw(),0.,0.,BLine.eg(),BLine.ep(),BLine.en());
+ 	    if (int(choice%1000000)>99999) BLine.setParameters(0.,0.,0.,100.,BLine.sn(),BLine.tw(),0.,0.,BLine.eg(),BLine.ep(),BLine.en());
 	    if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Testing B-lines: control flag "<<choice<<" hard coding Bline = ( bz="
-					    <<BLine->bz()<<" bp="
-					    <<BLine->bp()<<" bn="
-					    <<BLine->bn()<<" sp="
-					    <<BLine->sp()<<" sn="
-					    <<BLine->sn()<<" tw="
-					    <<BLine->tw()<<" pg="
-					    <<BLine->pg()<<" tr="
-					    <<BLine->tr()<<" eg="
-					    <<BLine->eg()<<" ep="
-					    <<BLine->ep()<<" en="
-					    <<BLine->en()<<")"<<endmsg;
+					    <<BLine.bz()<<" bp="
+					    <<BLine.bp()<<" bn="
+					    <<BLine.bn()<<" sp="
+					    <<BLine.sp()<<" sn="
+					    <<BLine.sn()<<" tw="
+					    <<BLine.tw()<<" pg="
+					    <<BLine.pg()<<" tr="
+					    <<BLine.tr()<<" eg="
+					    <<BLine.eg()<<" ep="
+					    <<BLine.ep()<<" en="
+					    <<BLine.en()<<")"<<endmsg;
 	  }
-        BLine->getAmdbId(stType, jff, jzz, job);
+        BLine.getAmdbId(stType, jff, jzz, job);
 	if (stType.substr(0,1)=="T" || stType.substr(0,1)=="C" || (stType.substr(0,3)=="BML" && abs(jzz)==7) ) {
 	  if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG
                <<"BLinePar with AmdbId "
@@ -1572,7 +1494,7 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer * blineData)
 	  if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" mdtDeformationFlag()==0 skipping this b-line"<<endmsg;
 	  continue; // should never happen...
 	}  
-        if (!BLine->isNew())
+        if (!BLine.isNew())
         {            
             log<<MSG::WARNING
                <<"BLinePar with AmdbId "
@@ -1586,37 +1508,30 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer * blineData)
         if (job == 0) 
         {
             MuonStation* thisStation = getMuonStation(stType, jzz, jff);
-            if (thisStation)
-            {
-                if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting deformation parameters for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<endmsg;
-                thisStation->clearBLineCache();
-                thisStation->setBline(BLine);
-                if (cacheFillingFlag()) thisStation->fillBLineCache();
-                nUpdates++;
+            if (!thisStation) {
+              log<<MSG::WARNING
+                 <<"BLinePar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job
+                 <<" *** No MuonStation found \n PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"<<endmsg;
+              continue;
             }
-            else
-            {                
-                log<<MSG::WARNING
-                   <<"BLinePar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job
-                   <<" *** No MuonStation found \n PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"<<endmsg;
-		continue;
-            }
+
             // record this B-line in the historical B-line container
-            ciBLineMap ci = BLineMapBegin();
-            if((ci = BLineContainer()->find(BLineId)) != BLineMapEnd())
+            auto [it, flag] = m_bLineContainer.insert_or_assign (BLineId, BLine);
+            if (flag)
             {
-                if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating existing entry in B-line container for Station "
-                    <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endmsg;
-		BLinePar * oldBLine =  (*ci).second;
-                m_bLineContainer->erase(BLineId);
-		delete oldBLine; oldBLine=0;
-            }
-            else 
-            {
-                if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "               New entry in B-line container for Station "
+              if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "               New entry in B-line container for Station "
                     <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff <<" --- in the container with key "<< m_mdtIdHelper->show_to_string(BLineId)<< endmsg;
             }
-            m_bLineContainer->insert(std::make_pair(BLineId,BLine));
+            else {
+              if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating existing entry in B-line container for Station "
+                    <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endmsg;
+            }
+
+            if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting deformation parameters for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<endmsg;
+            thisStation->clearBLineCache();
+            thisStation->setBline(&it->second);
+            if (cacheFillingFlag()) thisStation->fillBLineCache();
+            nUpdates++;
         }
         else
         {            
@@ -1632,9 +1547,9 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer * blineData)
     return StatusCode::SUCCESS; 
 }
 
-void MuonDetectorManager::storeTgcReadoutParams(TgcReadoutParams* x)
+void MuonDetectorManager::storeTgcReadoutParams(const TgcReadoutParams* /*x*/)
 {
-    m_TgcReadoutParamsVec.push_back(x);
+  // Unused (memory leak, to be fixed later)
 }
 
 StatusCode MuonDetectorManager::initCSCInternalAlignmentMap()
@@ -1644,7 +1559,7 @@ StatusCode MuonDetectorManager::initCSCInternalAlignmentMap()
   if (!m_useCscIlinesFromGM)
     {
       log<<MSG::INFO<<"Init of CSC I-Lines will be done via Conditions DB"<<endmsg;
-      m_cscALineContainer = new CscInternalAlignmentMapContainer;
+      m_cscALineContainer.clear();
 
       for (std::map< std::string, MuonStation * >::const_iterator ist=m_MuonStationMap.begin();
            ist!=m_MuonStationMap.end(); ++ist)
@@ -1659,63 +1574,52 @@ StatusCode MuonDetectorManager::initCSCInternalAlignmentMap()
 
           for (unsigned int wlay =1; wlay<5; ++wlay) 
           {
-              CscInternalAlignmentPar* newILine = new CscInternalAlignmentPar();
-              newILine->setAmdbId(stType, jff, jzz, job, wlay);
+              CscInternalAlignmentPar newILine;
+              newILine.setAmdbId(stType, jff, jzz, job, wlay);
               if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"No starting I-Lines or reseting them for Station "<<stType<<" Jzz/Jff/Wlay "<<jzz<<"/"<<jff<<"/"<<wlay<<endmsg;
               // there is no way to check if the RE already has parameters set - always overwriting them.
-              newILine->setParameters(0.,0.,0.,0.,0.,0.);
-              newILine->isNew(true);
+              newILine.setParameters(0.,0.,0.,0.,0.,0.);
+              newILine.isNew(true);
               Identifier idp = m_cscIdHelper->parentID(ms->getMuonReadoutElement(job)->identify());
               Identifier id = m_cscIdHelper->channelID(idp, 2, wlay, 0, 1);
               if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"<Filling I-Line container with entry for key >"<<m_cscIdHelper->show_to_string(id)<<endmsg;
-              m_cscALineContainer->insert(std::make_pair(id,(CscInternalAlignmentPar*)newILine));
+              m_cscALineContainer.emplace(id, newILine);
           }
       }
-      log<<MSG::INFO<<"Init I-Line Container - done - size is respectively " << m_cscALineContainer->size()<<endmsg;
+      log<<MSG::INFO<<"Init I-Line Container - done - size is respectively " << m_cscALineContainer.size()<<endmsg;
     }
   if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Init CSC I-Line Containers - pointer is <"
-     <<(uintptr_t)m_cscALineContainer<<">"<<endmsg;
+     <<(uintptr_t)&m_cscALineContainer<<">"<<endmsg;
 
-  if (m_cscALineContainer == nullptr) {
-      log<<MSG::INFO<<"No Aline for CSC wire layers loaded "<<endmsg;
-  } else {
-      log<<MSG::INFO<<"I-Line for CSC wire layers loaded (Csc Internal Alignment)"<<endmsg;
-      if (m_useCscIntAlign) log<<MSG::INFO<<"According to configuration they WILL be used "<<endmsg; 
-      else log<<MSG::INFO<<"According to configuration parameters they WILL BE UPDATED FROM CONDDB "<<endmsg;
-  }
+  log<<MSG::INFO<<"I-Line for CSC wire layers loaded (Csc Internal Alignment)"<<endmsg;
+  if (m_useCscIntAlign) log<<MSG::INFO<<"According to configuration they WILL be used "<<endmsg; 
+  else log<<MSG::INFO<<"According to configuration parameters they WILL BE UPDATED FROM CONDDB "<<endmsg;
   return StatusCode::SUCCESS;
 }
 StatusCode
-MuonDetectorManager::updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer* ilineData)
+MuonDetectorManager::updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer& ilineData)
 {
     MsgStream log(Athena::getMessageSvc(),"MGM::MuonDetectorManager");
-    if (ilineData == nullptr) {
-	log<<MSG::WARNING<<"Undefined pointer to temporary CSC I-line container - nothing to do here"<<endmsg;
-	return StatusCode::SUCCESS;
-    }
-    if (ilineData->size()==0) {
+    if (ilineData.empty()) {
 	log<<MSG::WARNING<<"Empty temporary CSC I-line container - nothing to do here"<<endmsg;
 	return StatusCode::SUCCESS;
     }
-    else log<<MSG::INFO<<"temporary CSC I-line container with size = "<<ilineData->size()<<endmsg;
+    else log<<MSG::INFO<<"temporary CSC I-line container with size = "<<ilineData.size()<<endmsg;
     
 
     // loop over the container of the updates passed by the MuonAlignmentDbTool
-    ciCscInternalAlignmentMap ciiline = ilineData->begin();
     unsigned int nLines = 0;
     unsigned int nUpdates = 0;
-    for (; ciiline != ilineData->end(); ciiline++)
+    for (const auto& [ILineId, ILine] : ilineData)
     {
         nLines++;
-        Identifier ILineId = (*ciiline).first;
-        CscInternalAlignmentPar* ILine = (*ciiline).second;
         std::string stType = "";
         int jff = 0;
         int jzz = 0;
         int job = 0;
         int jlay = 0;
-        ILine->getAmdbId(stType, jff, jzz, job, jlay);
-        if (!ILine->isNew())
+        ILine.getAmdbId(stType, jff, jzz, job, jlay);
+        if (!ILine.isNew())
         {            
             log<<MSG::WARNING
                <<"CscInternalAlignmentPar with AmdbId "
@@ -1729,57 +1633,52 @@ MuonDetectorManager::updateCSCInternalAlignmentMap(const CscInternalAlignmentMap
         if (job == 3) 
         {
             MuonStation* thisStation = getMuonStation(stType, jzz, jff);
-            if (thisStation)
+            if (!thisStation)
             {
-                float tras, traz, trat, rots, rotz, rott;
-                ILine->getParameters(tras,traz,trat,rots,rotz,rott);
-                int choice = CscIlinesFlag();
-		if (    choice%10        == 0)           tras = 0.;
-		if (int(choice/10)%10    == 0)           rotz = 0.;
-		if (int(choice/100)%10   == 0)           rots = 0.;
-		if (int(choice/1000)%10  == 0)           trat   = 0.;
-		if (int(choice/10000)%10 == 0)           traz   = 0.;
-		if (int(choice/100000)%10== 0)           traz   = 0.;
-		if (m_controlCscIlines!=111111) ILine->setParameters(tras,traz,trat,rots,rotz,rott);
-                if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting CSC I-Lines for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<job<<" "<<jlay<<" "<<" params are = "<<tras<<" "<<traz<<" "<<trat<<" "<<rots<<" "<<rotz<<" "<<rott<<endmsg;
-                CscReadoutElement* CscRE = dynamic_cast<CscReadoutElement*> (thisStation->getMuonReadoutElement(job));
-                if(!CscRE) log<<MSG::ERROR<<"The CSC I-lines container includes stations which are no CSCs! This is impossible." <<endmsg;
-                else {
-                  CscRE->setCscInternalAlignmentPar(ILine);
-                }
-                if (cacheFillingFlag()) 
-		  {
-		    thisStation->clearCache();
-		    thisStation->fillCache();
-		  }
-		else 
-		  {
-		    thisStation->refreshCache();
-		  }
-                nUpdates++;
+              log<<MSG::WARNING
+                 <<"CscInternalAlignmentPar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job<<" "<<jlay
+                 <<" *** No MuonStation found \n PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"<<endmsg;
+              continue;
             }
-            else
-            {                
-                log<<MSG::WARNING
-                   <<"CscInternalAlignmentPar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job<<" "<<jlay
-                   <<" *** No MuonStation found \n PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"<<endmsg;
-		continue;
+            
+            auto [it, flag] = m_cscALineContainer.insert_or_assign (ILineId, ILine);
+            if (flag) {
+              if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "               New entry in CSC I-line container for Station "
+                                               <<stType<<" at Jzz/Jff/Jlay "<<jzz<<"/"<< jff<<"/"<< jlay <<" --- in the container with key "<< m_cscIdHelper->show_to_string(ILineId)<< endmsg;
             }
-            ciCscInternalAlignmentMap ci = CscALineMapBegin();
-            if((ci = CscInternalAlignmentContainer()->find(ILineId)) != CscALineMapEnd())
+            else {
+              if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in CSC I-line container for Station "
+                                               <<stType<<" at Jzz/Jff/Jlay "<<jzz<<"/"<< jff <<"/"<< jlay<< endmsg;
+            }
+
+            CscInternalAlignmentPar& newILine = it->second;
+            float tras, traz, trat, rots, rotz, rott;
+            newILine.getParameters(tras,traz,trat,rots,rotz,rott);
+            int choice = CscIlinesFlag();
+            if (    choice%10        == 0)           tras = 0.;
+            if (int(choice/10)%10    == 0)           rotz = 0.;
+            if (int(choice/100)%10   == 0)           rots = 0.;
+            if (int(choice/1000)%10  == 0)           trat   = 0.;
+            if (int(choice/10000)%10 == 0)           traz   = 0.;
+            if (int(choice/100000)%10== 0)           traz   = 0.;
+            if (m_controlCscIlines!=111111) newILine.setParameters(tras,traz,trat,rots,rotz,rott);
+            if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting CSC I-Lines for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<job<<" "<<jlay<<" "<<" params are = "<<tras<<" "<<traz<<" "<<trat<<" "<<rots<<" "<<rotz<<" "<<rott<<endmsg;
+            CscReadoutElement* CscRE = dynamic_cast<CscReadoutElement*> (thisStation->getMuonReadoutElement(job));
+            if(!CscRE) log<<MSG::ERROR<<"The CSC I-lines container includes stations which are no CSCs! This is impossible." <<endmsg;
+            else {
+              CscRE->setCscInternalAlignmentPar(newILine);
+            }
+            if (cacheFillingFlag()) 
             {
-                if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in CSC I-line container for Station "
-						 <<stType<<" at Jzz/Jff/Jlay "<<jzz<<"/"<< jff <<"/"<< jlay<< endmsg;
-		CscInternalAlignmentPar * oldILine =  (*ci).second;
-                m_cscALineContainer->erase(ILineId);
-		delete oldILine; oldILine=0;
+              thisStation->clearCache();
+              thisStation->fillCache();
             }
             else 
             {
-                if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "               New entry in CSC I-line container for Station "
-                    <<stType<<" at Jzz/Jff/Jlay "<<jzz<<"/"<< jff<<"/"<< jlay <<" --- in the container with key "<< m_cscIdHelper->show_to_string(ILineId)<< endmsg;
+              thisStation->refreshCache();
             }
-            m_cscALineContainer->insert(std::make_pair(ILineId,ILine));
+            nUpdates++;
+
         }
         else
         {           
@@ -1793,60 +1692,44 @@ MuonDetectorManager::updateCSCInternalAlignmentMap(const CscInternalAlignmentMap
     return StatusCode::SUCCESS;
 }
 StatusCode
-MuonDetectorManager::updateAsBuiltParams(const MdtAsBuiltMapContainer* asbuiltData)
+MuonDetectorManager::updateAsBuiltParams(const MdtAsBuiltMapContainer& asbuiltData)
 {
     MsgStream log(Athena::getMessageSvc(),"MGM::MuonDetectorManager");
-    if (asbuiltData == nullptr) {
-	log<<MSG::WARNING<<"Undefined pointer to temporary As-Built container - nothing to do here"<<endmsg;
-	return StatusCode::SUCCESS;
-    }
-    if (asbuiltData->size()==0) {
+    if (asbuiltData.empty()) {
 	log<<MSG::WARNING<<"Empty temporary As-Built container - nothing to do here"<<endmsg;
 	return StatusCode::SUCCESS;
-    } else log<<MSG::INFO<<"temporary As-Built container with size = "<<asbuiltData->size()<<endmsg;
-
-    if (!m_AsBuiltParamsMap) {
-      log << MSG::INFO << "Creating the Mdt AsBuilt paramerter map" << endmsg; 
-      m_AsBuiltParamsMap = new MdtAsBuiltMapContainer();
-    }
+    } else log<<MSG::INFO<<"temporary As-Built container with size = "<<asbuiltData.size()<<endmsg;
 
     // loop over the container of the updates passed by the MuonAlignmentDbTool
-    ciMdtAsBuiltMap ciasbuilt = asbuiltData->begin();
     unsigned int nLines = 0;
     unsigned int nUpdates = 0;
-    for (; ciasbuilt != asbuiltData->end(); ciasbuilt++)
+    for (const auto& [AsBuiltId, AsBuiltPar] : asbuiltData)
     {
         nLines++;
-        Identifier AsBuiltId = (*ciasbuilt).first;
-        MdtAsBuiltPar* AsBuiltPar = (*ciasbuilt).second;
         std::string stType = "";
         int jff = 0;
         int jzz = 0;
         int job = 0;
-        AsBuiltPar->getAmdbId(stType, jff, jzz, job);
-        if (!AsBuiltPar->isNew())
+        AsBuiltPar.getAmdbId(stType, jff, jzz, job);
+        if (!AsBuiltPar.isNew())
         {            
             if (log.level()<=MSG::DEBUG)
                log<<MSG::DEBUG <<"MdtAsBuiltPar with AmdbId "
                <<stType<<" "<<jzz<<" "<<jff<<" "<<job
                <<" is not new *** skipping"<<endmsg;
             continue;
-        } else {
-
-          ciMdtAsBuiltMap ci = MdtAsBuiltMapBegin();
-          if((ci = MdtAsBuiltContainer()->find(AsBuiltId)) != MdtAsBuiltMapEnd())
-          {
-            if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in AsBuilt container for Station "
-                                             <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endmsg;
-            MdtAsBuiltPar* oldAsBuilt =  (*ci).second;
-            m_AsBuiltParamsMap->erase(AsBuiltId);
-            delete oldAsBuilt; oldAsBuilt=0;
-          } else {
-            if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "New entry in AsBuilt container for Station "
-                    <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(AsBuiltId)<< endmsg;
-          }
-          m_AsBuiltParamsMap->insert(std::make_pair(AsBuiltId,AsBuiltPar));
         }
+
+        auto [it, flag] = m_AsBuiltParamsMap.insert_or_assign (AsBuiltId, AsBuiltPar);
+        if (flag) {
+          if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "New entry in AsBuilt container for Station "
+                                           <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(AsBuiltId)<< endmsg;
+        }
+        else {
+          if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in AsBuilt container for Station "
+                                           <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endmsg;
+        }
+
         if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG <<"MdtAsBuiltPar with AmdbId "
                  <<stType<<" "<<jzz<<" "<<jff<<" "<<job<<" is new ID = "<<m_mdtIdHelper->show_to_string(AsBuiltId)<<endmsg;
 
@@ -1854,7 +1737,7 @@ MuonDetectorManager::updateAsBuiltParams(const MdtAsBuiltMapContainer* asbuiltDa
         if (thisStation) {
             if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting as-built parameters for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<endmsg;
             thisStation->clearBLineCache();
-            thisStation->setMdtAsBuiltParams(AsBuiltPar);
+            thisStation->setMdtAsBuiltParams(&it->second);
             if (cacheFillingFlag()) thisStation->fillBLineCache();
             nUpdates++;
         } else {
@@ -1870,65 +1753,52 @@ MuonDetectorManager::updateAsBuiltParams(const MdtAsBuiltMapContainer* asbuiltDa
     
     return StatusCode::SUCCESS;
 }
-void MuonDetectorManager::storeCscInternalAlignmentParams(CscInternalAlignmentPar* x)
+void MuonDetectorManager::storeCscInternalAlignmentParams(const CscInternalAlignmentPar& x)
 {
 
   MsgStream log(Athena::getMessageSvc(),"MGM::MuonDetectorManager");
-  if (!m_cscALineContainer) {
-    log<<MSG::INFO<<"Creating now the CscInternalAlignmentMapContainer"<<endmsg; 
-    m_cscALineContainer = new CscInternalAlignmentMapContainer;
-  }
   
   std::string stName="XXX";
   int jff = 0;
   int jzz = 0;
   int job = 0;
   int wlayer = 0;
-  x->getAmdbId(stName, jff, jzz, job, wlayer);
+  x.getAmdbId(stName, jff, jzz, job, wlayer);
   // chamberLayer is always 2 => job is always 3 
   int chamberLayer = 2;
   if (job != 3) log<<MSG::WARNING<<"job = "<<job<<" is not 3 => chamberLayer should be 1 - not existing ! setting 2"<<endmsg;
   Identifier id = m_cscIdHelper->channelID(stName, jzz, jff, chamberLayer, wlayer, 0, 1);
   
-  m_cscALineContainer->insert(std::make_pair(id,x));
+  m_cscALineContainer.emplace(id, x);
   if (log.level()<=MSG::DEBUG) {
     log<<MSG::DEBUG<<"Adding Aline for CSC wire layer: "<<m_cscIdHelper->show_to_string(id)<<endmsg; 
-    log<<MSG::DEBUG<<"CscInternalAlignmentMapContainer has currently size "<<m_cscALineContainer->size()<<endmsg;
+    log<<MSG::DEBUG<<"CscInternalAlignmentMapContainer has currently size "<<m_cscALineContainer.size()<<endmsg;
   }
 }
 
-void MuonDetectorManager::storeMdtAsBuiltParams(MdtAsBuiltPar* params) {
+void MuonDetectorManager::storeMdtAsBuiltParams(const MdtAsBuiltPar& params) {
   MsgStream log(Athena::getMessageSvc(),"MGM::MuonDetectorManager");
-
-  if (!m_AsBuiltParamsMap) {
-    log << MSG::INFO << "Creating the Mdt AsBuilt paramerter map" << endmsg; 
-    m_AsBuiltParamsMap = new MdtAsBuiltMapContainer;
-  }
 
   std::string stName="XXX";
   int jff = 0;
   int jzz = 0;
   int job = 0;
-  params->getAmdbId(stName, jff, jzz, job);
+  params.getAmdbId(stName, jff, jzz, job);
   Identifier id = mdtIdHelper()->elementID(stName, jzz, jff);
   if (!id.is_valid()) {
     log << MSG::ERROR << "Invalid MDT identifiers: sta=" << stName << " eta=" << jzz << " phi=" << jff << endmsg;
     return;
   }
 
-  ciMdtAsBuiltMap ci = MdtAsBuiltMapBegin();
-  if((ci = MdtAsBuiltContainer()->find(id)) != MdtAsBuiltMapEnd())
+  if (m_AsBuiltParamsMap.insert_or_assign (id, params).second)
   {
-    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in AsBuilt container for Station "
-						 <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff << endmsg;
-    MdtAsBuiltPar* oldAsBuilt =  (*ci).second;
-    m_AsBuiltParamsMap->erase(id);
-    delete oldAsBuilt; oldAsBuilt=0;
-  } else {
     if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "New entry in AsBuilt container for Station "
                     <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(id)<< endmsg;
   }
-  m_AsBuiltParamsMap->insert(std::make_pair(id,params));
+  else{
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in AsBuilt container for Station "
+						 <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff << endmsg;
+  }
 
   return;
 }
@@ -1939,8 +1809,8 @@ const MdtAsBuiltPar* MuonDetectorManager::getMdtAsBuiltParams(Identifier id) con
     log << MSG::DEBUG << "No Mdt AsBuilt parameter container available" << endmsg;
     return nullptr;
   }
-  iMdtAsBuiltMap iter = m_AsBuiltParamsMap->find(id);
-  if (iter == MdtAsBuiltContainer()->end()) {
+  ciMdtAsBuiltMap iter = m_AsBuiltParamsMap.find(id);
+  if (iter == m_AsBuiltParamsMap.end()) {
     MsgStream log(Athena::getMessageSvc(),"MGM::MuonDetectorManager");
     log << MSG::DEBUG << "No Mdt AsBuilt parameters for station " << id.getString() 
       << " sta=" << mdtIdHelper()->stationNameString(mdtIdHelper()->stationName(id))
@@ -1949,7 +1819,7 @@ const MdtAsBuiltPar* MuonDetectorManager::getMdtAsBuiltParams(Identifier id) con
       << endmsg;
     return nullptr;
   }
-  return iter->second;
+  return &iter->second;
 }
 
 const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(IdentifierHash id) const {

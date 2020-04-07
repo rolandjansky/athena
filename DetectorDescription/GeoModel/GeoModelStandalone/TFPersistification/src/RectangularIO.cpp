@@ -1,6 +1,4 @@
-#define private public
 #include "GeoGenericFunctions/Rectangular.h"
-#undef private
 #include "TFPersistification/GenFunctionPersistifier.h"
 #include "TFPersistification/GenFunctionInterpreter.h"
 #include "TFPersistification/RectangularIO.h"

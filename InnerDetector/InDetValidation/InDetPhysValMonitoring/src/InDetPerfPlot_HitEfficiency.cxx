@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file InDetPerfPlot_hitEff.cxx
+ * @file InDetPerfPlot_HitEfficiency.cxx
  * @author nora pettersson
  **/
 
-#include "InDetPerfPlot_hitEff.h"
+#include "InDetPerfPlot_HitEfficiency.h"
 #include "InDetPhysHitDecoratorAlg.h"
 #include "xAODTracking/TrackParticle.h"
 #include "TProfile.h"
@@ -18,12 +18,12 @@
 
 
 
-InDetPerfPlot_hitEff::InDetPerfPlot_hitEff(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(pParent,                                                                                                          sDir), m_hitEfficiencyVsEta{},  m_debug{false} {
+InDetPerfPlot_HitEfficiency::InDetPerfPlot_HitEfficiency(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(pParent,                                                                                                          sDir), m_HitEfficiencyVsEta{},  m_debug{false} {
   //
 }
 
 void
-InDetPerfPlot_hitEff::initializePlots() {
+InDetPerfPlot_HitEfficiency::initializePlots() {
   // const bool prependDirectory(false);
   // eff plots for L0PIXBARR, PIXEL, SCT, TRT
   // Barrel
@@ -38,27 +38,27 @@ InDetPerfPlot_hitEff::initializePlots() {
   book(m_eff_hit_vs_eta[TRT][ENDCAP], "eff_hit_vs_eta_trt_endcap");
   **/
   //
-  book(m_hitEfficiencyVsEta[L0PIXBARR][BARREL], "eff_hit_vs_eta_l0pix_barrel");
-  book(m_hitEfficiencyVsEta[PIXEL][BARREL], "eff_hit_vs_eta_pix_barrel");
-  book(m_hitEfficiencyVsEta[SCT][BARREL], "eff_hit_vs_eta_sct_barrel");
-  book(m_hitEfficiencyVsEta[TRT][BARREL], "eff_hit_vs_eta_trt_barrel");
+  book(m_HitEfficiencyVsEta[L0PIXBARR][BARREL], "eff_hit_vs_eta_l0pix_barrel");
+  book(m_HitEfficiencyVsEta[PIXEL][BARREL], "eff_hit_vs_eta_pix_barrel");
+  book(m_HitEfficiencyVsEta[SCT][BARREL], "eff_hit_vs_eta_sct_barrel");
+  book(m_HitEfficiencyVsEta[TRT][BARREL], "eff_hit_vs_eta_trt_barrel");
 
-  book(m_hitEfficiencyVsEta[PIXEL][ENDCAP], "eff_hit_vs_eta_pix_endcap");
-  book(m_hitEfficiencyVsEta[SCT][ENDCAP], "eff_hit_vs_eta_sct_endcap");
-  book(m_hitEfficiencyVsEta[TRT][ENDCAP], "eff_hit_vs_eta_trt_endcap");
+  book(m_HitEfficiencyVsEta[PIXEL][ENDCAP], "eff_hit_vs_eta_pix_endcap");
+  book(m_HitEfficiencyVsEta[SCT][ENDCAP], "eff_hit_vs_eta_sct_endcap");
+  book(m_HitEfficiencyVsEta[TRT][ENDCAP], "eff_hit_vs_eta_trt_endcap");
 }
 
 void
-InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle& trkprt) {
+InDetPerfPlot_HitEfficiency::fill(const xAOD::TrackParticle& trkprt) {
   if (m_debug) {
-    ATH_MSG_INFO("Filling hitEff");
+    ATH_MSG_INFO("Filling HitEfficiency");
   }
 
   const bool hitDetailsAvailable = trkprt.isAvailable<std::vector<int> >("measurement_region");
   static int warnCount(0);
   if (!hitDetailsAvailable) {
     if (warnCount++ < 10) {
-      ATH_MSG_WARNING("The hitEff plots dont see any data (note: only 10 warnings issued)");
+      ATH_MSG_WARNING("The HitEff plots dont see any data (note: only 10 warnings issued)");
     }
   } else {
     const std::vector<int>& result_det = trkprt.auxdata< std::vector<int> >("measurement_det");
@@ -78,7 +78,7 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle& trkprt) {
           continue; // ignore DBM
         }
         //fillHisto(m_eff_hit_vs_eta[det][region], eta, int(isHit));
-        fillHisto(m_hitEfficiencyVsEta[det][region], eta, isHit);
+        fillHisto(m_HitEfficiencyVsEta[det][region], eta, isHit);
       }
     }
   }

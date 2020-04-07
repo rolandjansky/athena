@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file InDetPerfPlot_hitResidual.cxx
+ * @file InDetPerfPlot_HitResidual.cxx
  * @author shaun roe
  **/
 
-#include "InDetPerfPlot_hitResidual.h"
+#include "InDetPerfPlot_HitResidual.h"
 
 using namespace TMath;
 
-InDetPerfPlot_hitResidual::InDetPerfPlot_hitResidual(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(
+InDetPerfPlot_HitResidual::InDetPerfPlot_HitResidual(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(
     pParent, sDir),
   m_residualx_1hit{},
   m_residualx_2ormorehits{},
@@ -27,7 +27,7 @@ InDetPerfPlot_hitResidual::InDetPerfPlot_hitResidual(InDetPlotBase* pParent, con
 }
 
 void
-InDetPerfPlot_hitResidual::initializePlots() {
+InDetPerfPlot_HitResidual::initializePlots() {
   // const bool prependDirectory(false);
   // x residuals
   book(m_residualx[L0PIXBARR][BARREL], "residualx_l0pix_barrel");
@@ -53,9 +53,6 @@ InDetPerfPlot_hitResidual::initializePlots() {
   book(m_residualx_2ormorehits[SCT][ENDCAP], "residualx_sct_endcap_2ormorehits");
   //
   book(m_residualx[TRT][ENDCAP], "residualx_trt_endcap");
-  // DBM
-  book(m_residualx[DBM][0], "residualx_dbm_neg");
-  book(m_residualx[DBM][1], "residualx_dbm_pos");
   //
 
   // y residuals
@@ -84,21 +81,16 @@ InDetPerfPlot_hitResidual::initializePlots() {
   // book(m_residualy_2ormorehits[SCT][ENDCAP],"residualy_sct_endcap_2ormorehits");
   // SCT and TRT do not have y-residuals/pulls
   // book(m_residualy[TRT][ENDCAP],"residualy_trt_endcap");
-  // DBM
-  book(m_residualy[DBM][0], "residualy_dbm_neg");
-  book(m_residualy[DBM][1], "residualy_dbm_pos");
   // pulls
   // barrel
   book(m_residualpullx[L0PIXBARR][BARREL], "residualpullx_l0pix_barrel");
   book(m_residualpullx[PIXEL][BARREL], "residualpullx_pixel_barrel");
   book(m_residualpullx[SCT][BARREL], "residualpullx_sct_barrel");
   book(m_residualpullx[TRT][BARREL], "residualpullx_trt_barrel");
-  book(m_residualpullx[DBM][0], "residualpullx_dbm_barrel");
   //
   book(m_residualpullx[PIXEL][ENDCAP], "residualpullx_pixel_endcap");
   book(m_residualpullx[SCT][ENDCAP], "residualpullx_sct_endcap");
   book(m_residualpullx[TRT][ENDCAP], "residualpullx_trt_endcap");
-  book(m_residualpullx[DBM][1], "residualpullx_dbm_endcap");
   //
   // barrel
   book(m_residualpully[L0PIXBARR][BARREL], "residualpully_l0pix_barrel");
@@ -107,13 +99,11 @@ InDetPerfPlot_hitResidual::initializePlots() {
   // SCT and TRT do not have y-residuals/pulls
   // book(m_residualpully[SCT][BARREL],"residualpully_sct_barrel");
   // book(m_residualpully[TRT][BARREL],"residualpully_trt_barrel");
-  book(m_residualpully[DBM][0], "residualpully_dbm_barrel");
   book(m_residualpully[PIXEL][ENDCAP], "residualpully_pixel_endcap");
   //
   ////SCT and TRT do not have y-residuals/pulls
   // book(m_residualpully[SCT][ENDCAP],"residualpully_sct_endcap");
   // book(m_residualpully[TRT][ENDCAP],"residualpully_trt_endcap");
-  book(m_residualpully[DBM][1], "residualpully_dbm_endcap");
   // introduce cluster width histograms
   book(m_phiWidth[PIXEL][BARREL], "clusterPhiWidth_pixel_barrel");
   book(m_phiWidth[PIXEL][ENDCAP], "clusterPhiWidth_pixel_endcap");
@@ -127,7 +117,7 @@ InDetPerfPlot_hitResidual::initializePlots() {
 }
 
 void
-InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
+InDetPerfPlot_HitResidual::fill(const xAOD::TrackParticle& trkprt) {
   const static bool hitDetailsAvailable = trkprt.isAvailable<std::vector<int> >("measurement_region");
   static int warnCount(0);
 
@@ -141,7 +131,7 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
     if (!result_det.empty()) {
       const std::vector<int>& result_measureType = trkprt.auxdata< std::vector<int> >("measurement_type");
       const std::vector<int>& result_region = trkprt.auxdata< std::vector<int> >("measurement_region");
-      // const std::vector<int> &result_iLayer = trkprt.auxdata< std::vector<int> >("hitResiduals_iLayer");
+      // const std::vector<int> &result_iLayer = trkprt.auxdata< std::vector<int> >("HitResiduals_iLayer");
       const std::vector<float>& result_residualLocX = trkprt.auxdata< std::vector<float> >("hitResiduals_residualLocX");
       const std::vector<float>& result_pullLocX = trkprt.auxdata< std::vector<float> >("hitResiduals_pullLocX");
       const std::vector<float>& result_residualLocY = trkprt.auxdata< std::vector<float> >("hitResiduals_residualLocY");

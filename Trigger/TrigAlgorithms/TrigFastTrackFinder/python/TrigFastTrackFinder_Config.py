@@ -8,9 +8,9 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
     def __init__ (self, name, doResMon=False):
-        self.name = "TrigFastTrackFinder_" + name
-        super(TrigFastTrackFinderMonitoring, self).__init__( self.name )
-        self.HistPath = self.name
+        name = "TrigFastTrackFinder_" + name
+        super(TrigFastTrackFinderMonitoring, self).__init__(name)
+        self.HistPath = name
         self.addSPHistograms(name)
         self.addDataErrorHistograms()
         self.addTimingHistograms(name)

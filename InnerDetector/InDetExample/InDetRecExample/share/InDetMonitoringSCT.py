@@ -115,20 +115,22 @@ InDetSCTMonMan = AthenaMonManager("InDetSCTMonManager",
                                   Environment         = DQMonFlags.monManEnvironment(),
                                   Run                 = DQMonFlags.monManRun(),
                                   LumiBlock           = DQMonFlags.monManLumiBlock(),
-                                  AthenaMonTools      = [ InDetSCTHitsTool,
-                                                        ] )
+                                  AthenaMonTools      = [  ] )
 
 if useNewAlgs:
   include("SCT_Monitoring/SCTErrMonAlg_jobOptions.py")
   include("SCT_Monitoring/SCTHitEffMonAlg_jobOptions.py")
   include("SCT_Monitoring/SCTLorentzMonAlg_jobOptions.py")
   include("SCT_Monitoring/SCTTracksMonAlg_jobOptions.py")
+  include("SCT_Monitoring/SCTHitsNoiseMonAlg_jobOptions.py")
 
 else:
   InDetSCTMonMan.AthenaMonTools += [ InDetSCTErrMonTool ]
   InDetSCTMonMan.AthenaMonTools += [ InDetSCTHitEffMonTool ]
   InDetSCTMonMan.AthenaMonTools += [ InDetSCTLorentzMonTool ]
   InDetSCTMonMan.AthenaMonTools += [ InDetSCTTracksMonTool ]
+  InDetSCTMonMan.AthenaMonTools += [ InDetSCTHitsTool ]
+
 
 topSequence += InDetSCTMonMan
 if (InDetFlags.doPrintConfigurables()):
