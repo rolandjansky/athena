@@ -32,7 +32,7 @@ namespace PUCorrection {
     }
 
     /// Main function which returns the corrected pT
-    float correctedPt(float pt, float eta, float area, float rho, int mu, int NPV ) const {
+    float correctedPt(float pt, float eta, float area, float rho, float mu, int NPV ) const {
       float areaCorr = area*rho*m_rhoEnergyScale;
 
       float  pt_ref = pt ;
@@ -47,7 +47,7 @@ namespace PUCorrection {
     }
 
     /// same as above but returns the ration pT_corrected/pT_uncorrected
-    float correctionFactor(float pt, float eta, float area, float rho, int mu, int NPV ) const {
+    float correctionFactor(float pt, float eta, float area, float rho, float mu, int NPV ) const {
       float ptCorr = correctedPt(pt,eta,area,rho,mu,NPV);
       return ptCorr/pt;
     }
@@ -55,14 +55,14 @@ namespace PUCorrection {
     
     
     /// calculate the mu,NPV dependent part of the correction
-    float correction3D(float pt, float eta , int mu, int NPV) const {
+    float correction3D(float pt, float eta , float mu, int NPV) const {
       int muNPVbin = m_ref3DHisto->FindBin(mu, NPV);
-      int etaBin = m_etaBins->FindFixBin(fabs(eta)) - 1;
+      int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
       float t0 = m_3Dp0_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);
       if(t0 <= -999.9) {
 	muNPVbin = m_closestNonEmpty[etaBin][muNPVbin];
       }
-      //std::cout << " etaBin "<< etaBin << "  muNPVbin "<< muNPVbin  << std::endl;
+
       float p0 = m_3Dp0_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);
       float p1 = m_3Dp1_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);
       
@@ -75,13 +75,12 @@ namespace PUCorrection {
 
     
     /// calculate the mu,NPV dependent part of the correction (this is only used for tests and validation)    
-    float correction3D_noextrap(float pt, float eta , int mu, int NPV) const {
+    float correction3D_noextrap(float pt, float eta , float mu, int NPV) const {
       int muNPVbin = m_ref3DHisto->FindBin(mu, NPV);
-      int etaBin = m_etaBins->FindFixBin(fabs(eta)) - 1;
+      int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
       float p0 = m_3Dp0_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);
       float p1 = m_3Dp1_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);       
 
-      //      std::cout << " etaBin "<< etaBin << "  muNPVbin "<< muNPVbin  << "   p0="<<p0<<std::endl;
       
       if ( (p0<= -999.9) || (p1<=-999.9) ) return 0;
       
@@ -95,8 +94,8 @@ namespace PUCorrection {
 
 
     // Just a test to see if we get smoother calib by doing an interpolation at point (mu,NPV), not used yet
-    float correction3D_interp(float pt, float eta , int mu, int NPV) const {
-      int etaBin = m_etaBins->FindFixBin(fabs(eta)) - 1;
+    float correction3D_interp(float pt, float eta , float mu, int NPV) const {
+      int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
       float p0 = m_3Dp0_vs_muNPV[ etaBin ]->Interpolate(mu, NPV);
       float p1 = m_3Dp1_vs_muNPV[ etaBin ]->Interpolate(mu,NPV);
       
@@ -112,8 +111,7 @@ namespace PUCorrection {
 
     
     float deltaPtCorrection(float pt, float eta) const {
-      int etabin = m_Dptp0_vs_eta->FindBin(fabs(eta)) ;
-      //std::cout << " delta etabin "<< etabin<< std::endl;
+      int etabin = m_Dptp0_vs_eta->FindBin(std::abs(eta)) ;
       float p0 = m_Dptp0_vs_eta->GetBinContent(etabin);
       float p1 = m_Dptp1_vs_eta->GetBinContent(etabin);
       return p0+pt*p1;

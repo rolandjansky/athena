@@ -157,7 +157,6 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
   const double rho = jetEventInfo.rho();
   ATH_MSG_VERBOSE("    Rho = " << rho);
 
-  ATH_MSG_INFO(" AAAAAAAA "<< m_do3Dcorrection );
   
   if(m_do3Dcorrection){
     int NPV = jetEventInfo.NPV();
