@@ -20,7 +20,7 @@ def ELG_prun(sample) :
     except ImportError:
         print ("prun needs additional setup, try:")
         print ("    lsetup panda")
-        return 99
+        #return 99
 
     cmd = ["prun"]
 
