@@ -9,11 +9,11 @@ import shlex
 
 def ELG_prun(sample) :
 
-    from pandatools import PandaToolsPkgInfo
-    if int(float(PandaToolsPkgInfo.release_version[2])) < 4 :
-        print "Need prun with JEDI support, try:"
-        print "    localSetupPandaClient currentJedi --noAthenaCheck"
-        print 'Skipping. this is obselete'
+    try:
+        from pandatools import PandaToolsPkgInfo  # noqa: F401
+    except ImportError:
+        print ("prun needs additional setup, try:")
+        print ("    lsetup panda")
         return 99
 
     cmd = ["prun"]
@@ -33,8 +33,6 @@ def ELG_prun(sample) :
             'nJobs',
             'maxFileSize',
             'maxNFilesPerJob',
-            'cpuTimePerEvent',
-            'maxWalltime',
             'addNthFieldOfInDSToLFN',
             'voms',
             'workingGroup',
@@ -93,7 +91,7 @@ def ELG_prun(sample) :
         cmd += shlex.split (sample.getMetaString('nc_EventLoop_SubmitFlags'))
 
     if sample.getMetaDouble('nc_showCmd', 0) != 0 :
-        print cmd
+        print (cmd)
 
     if not os.path.isfile('jobcontents.tgz') : 
         import copy
@@ -105,11 +103,11 @@ def ELG_prun(sample) :
         try:
             out = subprocess.check_output(dummycmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e: 
-            print "Command:"
-            print e.cmd
-            print "failed with return code " , e.returncode
-            print "output was:"
-            print e.output
+            print ("Command:")
+            print (e.cmd)
+            print ("failed with return code " , e.returncode)
+            print ("output was:")
+            print (e.output)
             return 1
 
     cmd += ["--inTarBall=jobcontents.tgz"]
@@ -118,19 +116,19 @@ def ELG_prun(sample) :
     try:
         out = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e: 
-        print "Command:"
-        print e.cmd
-        print "failed with return code ", e.returncode
-        print "output was:"
-        print e.output
+        print ("Command:")
+        print (e.cmd)
+        print ("failed with return code ", e.returncode)
+        print ("output was:")
+        print (e.output)
         return 2
 
     jediTaskID = 0
     try:
         line = re.findall(r'TaskID=\d+', out)[0]
         jediTaskID = int(re.findall(r'\d+', line)[0])
-    except:
-        print out
+    except IndexError:
+        print (out)
         return 3
 
     return jediTaskID
