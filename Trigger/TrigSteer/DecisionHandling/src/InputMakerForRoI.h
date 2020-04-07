@@ -26,7 +26,8 @@
     virtual StatusCode  execute(const EventContext&) const override;
 
   private: 
-    SG::WriteHandleKey<TrigRoiDescriptorCollection> m_RoIs {this,"RoIs", "Unspecified", "Name of the RoIs extracted from the decisions"};
+    SG::WriteHandleKey<TrigRoiDescriptorCollection> m_RoIs {this,"RoIs", "",
+      "Name of the collection of ROI extrated from the input Decision Objects. Used as cocnrete starting handle for step's reconstruction."};
 
   }; 
 

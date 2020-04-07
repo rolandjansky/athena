@@ -320,14 +320,14 @@ def isComboHypoAlg(alg):
 ##########################################################
 # Now sequences and chains
 ##########################################################
-from AthenaConfiguration.ComponentFactory import CompFactory
+from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
 
 class EmptyMenuSequence(object):
     """ Class to emulate reco sequences with no Hypo"""
     """ By construction it has no Hypo;"""
     
     def __init__(self, name):
-        Maker = CompFactory.HLTTest__TestInputMaker("IM"+name, RoIsLink="initialRoI", LinkName="initialRoI", Output = 'empty' + name)
+        Maker = InputMakerForRoI("IM"+name)
         self._name = name
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
