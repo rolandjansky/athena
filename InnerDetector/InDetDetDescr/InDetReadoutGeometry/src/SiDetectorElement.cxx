@@ -53,14 +53,12 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_nextInPhi(0),
   m_prevInPhi(0),
   m_otherSide(0),
-  m_cacheValid(false),
   m_conditionsCacheValid(false),
   m_firstTime(true),
   m_isStereo(false),
   m_tanLorentzAnglePhi(0),
   m_tanLorentzAngleEta(0),
-  m_lorentzCorrection(0),
-  m_surface(0)
+  m_lorentzCorrection(0)
 {
   //The following are fixes for coverity bug 11955, uninitialized scalars:
   const bool boolDefault(true);
@@ -137,7 +135,7 @@ void
 SiDetectorElement::updateCache() const
 {
 
-  m_cacheValid = true;
+  SolidStateDetectorElementBase::updateCache();
 
   bool firstTimeTmp = m_firstTime;
   m_firstTime = false;
@@ -820,15 +818,6 @@ SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double> &globalPos) con
 					  globalPosition(localEnds.second));
 }
 
-
-const Trk::Surface & 
-SiDetectorElement::surface() const
-{
-  if (!m_surface){
-    m_surface = new Trk::PlaneSurface(*this);
-  }
- return *m_surface;
-}
   
 const std::vector<const Trk::Surface*>& SiDetectorElement::surfaces() const 
 {

@@ -16,6 +16,10 @@
 #include "ReadoutGeometryBase/SiCommonItems.h"
 #include "ReadoutGeometryBase/SiCellId.h"
 
+namespace Trk{
+    class Surface;
+}
+
 namespace InDetDD {
 
 class SolidStateDetectorElementBase : public Trk::TrkDetElementBase {
@@ -64,6 +68,54 @@ public:
     //@}
 
     ///////////////////////////////////////////////////////////////////
+    //
+    /// @name Transformation/Orientation
+    //
+    ///////////////////////////////////////////////////////////////////
+
+    //@{
+
+    /// Element Surface
+    virtual const Trk::Surface & surface() const;
+
+    //@}
+
+    ///////////////////////////////////////////////////////////////////
+    //
+    /// @name Cache handling.
+    //
+    ///////////////////////////////////////////////////////////////////
+    //@{.
+    //   - Methods to handle invalidating and updating caches. The cached values include values that are affected by alignment
+    //     Surface are only created on demand.  The method updateAllCaches also creates the surfaces as well as calling updateCache.
+    //     Conditions cache contains Lorentz angle related quantities.
+
+    /// Signal that cached values are no longer valid.
+    /// Invalidate general cache
+    void invalidate() const;
+
+    /// Recalculate all cached values.
+    virtual void updateCache() const;
+
+    virtual void updateAllCaches() const = 0;
+
+    ///////////////////////////////////////////////////////////////////
+    //
+    /// @name Methods to satisfy TrkDetElementBase interface
+    //
+    ///////////////////////////////////////////////////////////////////
+    //{@
+    //virtual const Amg::Transform3D & transform(const Identifier&) const {return transform();}
+    virtual const Trk::Surface& surface (const Identifier&) const {return surface();}
+    //virtual const Amg::Vector3D& center (const Identifier&) const {return center();}
+    //virtual const Amg::Vector3D& normal (const Identifier&) const {return normal();}
+    //virtual const Trk::SurfaceBounds & bounds(const Identifier&) const {return bounds();}
+    //@}
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////
     // Protected data:
     ///////////////////////////////////////////////////////////////////
 protected:
@@ -71,6 +123,10 @@ protected:
     IdentifierHash m_idHash; // hash id
     const DetectorDesign *m_design; // local description of this detector element
     SiCommonItems * m_commonItems;
+
+    mutable bool m_cacheValid; // Alignment associated quatities.
+
+    mutable Trk::Surface * m_surface;
 
 };
 
@@ -80,17 +136,22 @@ protected:
 
 inline Identifier SolidStateDetectorElementBase::identify() const
 {
-  return m_id;
+    return m_id;
 }
 
 inline IdentifierHash SolidStateDetectorElementBase::identifyHash() const
 {
-  return m_idHash;
+    return m_idHash;
 }
 
 inline const AtlasDetectorID* SolidStateDetectorElementBase::getIdHelper() const
 {
-  return m_commonItems->getIdHelper();
+    return m_commonItems->getIdHelper();
+}
+
+inline void SolidStateDetectorElementBase::invalidate() const
+{
+    m_cacheValid = false;
 }
 
 } // namespace InDetDD

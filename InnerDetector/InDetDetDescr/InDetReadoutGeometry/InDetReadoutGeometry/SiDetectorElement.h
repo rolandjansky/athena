@@ -270,9 +270,6 @@ namespace InDetDD {
       /// See previous method
       double sinStereoLocal(const HepGeom::Point3D<double> &globalPos) const;
     
-      /// Element Surface
-      virtual const Trk::Surface & surface() const;
-    
       //@}
 
       /** Returns the full list of surfaces associated to this detector element */
@@ -513,9 +510,6 @@ namespace InDetDD {
       //     Conditions cache contains Lorentz angle related quantities.
      
       /// Signal that cached values are no longer valid.
-      /// Invalidate general cache
-      void invalidate() const; 
-    
       /// invalidate conditions cache
       void invalidateConditions() const; 
     
@@ -537,7 +531,7 @@ namespace InDetDD {
       ///////////////////////////////////////////////////////////////////
       //{@
       virtual const Amg::Transform3D & transform(const Identifier&) const {return transform();}
-      virtual const Trk::Surface& surface (const Identifier&) const {return surface();}
+      // virtual const Trk::Surface& surface (const Identifier&) const {return surface();}
       virtual const Amg::Vector3D& center (const Identifier&) const {return center();}
       virtual const Amg::Vector3D& normal (const Identifier&) const {return normal();}
       virtual const Trk::SurfaceBounds & bounds(const Identifier&) const {return bounds();}
@@ -642,7 +636,6 @@ namespace InDetDD {
       mutable bool m_phiDirection;     //
       mutable bool m_etaDirection;     //
     
-      mutable bool m_cacheValid; // Alignment associated quatities.
       mutable bool m_conditionsCacheValid; // Lorentz angle related values.
       mutable bool m_firstTime;
       mutable bool m_isStereo;
@@ -673,7 +666,6 @@ namespace InDetDD {
       mutable double m_tanLorentzAngleEta;
       mutable double m_lorentzCorrection; 
       
-      mutable Trk::Surface * m_surface;
       mutable std::vector<const Trk::Surface*> m_surfaces;
 
     };
@@ -766,12 +758,6 @@ namespace InDetDD {
     inline SiCellId SiDetectorElement::gangedCell(const SiCellId & cellId) const
     {
       return dynamic_cast<const SiDetectorDesign *>(m_design)->gangedCell(cellId);
-    }
-    
-    inline void SiDetectorElement::invalidate() const
-    {
-      m_cacheValid = false;
-      // Conditions cache invalidation is done by SiLorentzAngleSvc.
     }
     
     inline void SiDetectorElement::invalidateConditions() const
