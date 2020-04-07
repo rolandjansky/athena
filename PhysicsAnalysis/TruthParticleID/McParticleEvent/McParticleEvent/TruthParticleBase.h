@@ -14,7 +14,7 @@
 // STL includes
 
 // HepMC / CLHEP includes
-#include "AtlasHepMCGenParticle.h"
+#include "AtlasHepMCI/GenParticle.h"
 
 // Gaudi includes
 

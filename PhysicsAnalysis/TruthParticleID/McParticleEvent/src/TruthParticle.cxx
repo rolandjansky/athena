@@ -14,9 +14,9 @@
 #include <string>
 
 // HepMC / CLHEP includes
-#include "AtlasHepMCGenParticle.h"
-#include "AtlasHepMCGenEvent.h"
-#include "AtlasHepMCGenVertex.h"
+#include "AtlasHepMCI/GenParticle.h"
+#include "AtlasHepMCI/GenEvent.h"
+#include "AtlasHepMCI/GenVertex.h"
 
 #include "VxVertex/RecVertex.h"
 

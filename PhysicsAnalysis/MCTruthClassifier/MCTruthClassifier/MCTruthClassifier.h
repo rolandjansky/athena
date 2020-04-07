@@ -24,7 +24,7 @@ CREATED:  Sep 2007
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
 #include "GeneratorObjects/xAODTruthParticleLink.h"
-#include "AtlasHepMCGenParticle.h"
+#include "AtlasHepMCI/GenParticle.h"
 #endif
 
 #ifndef GENERATIONBASE
