@@ -19,6 +19,10 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include <TString.h> // for Form
 
+namespace {
+  static constexpr double const& rpc3GapLayerThickness = 11.8; // gas vol. + ( bakelite + graphite + PET )x2
+}
+
 namespace MuonGM {
 
 
@@ -26,7 +30,7 @@ namespace MuonGM {
 				       int zi, int fi, bool is_mirrored,
 				       MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
-      m_hasDEDontop(false), m_nphigasgaps(-1), m_netagasgaps(-1),
+      m_hasDEDontop(false), m_nlayers(2), m_nphigasgaps(-1), m_netagasgaps(-1),
       m_gasgapssize(-9999.), m_gasgapzsize(-9999.), m_nphistrippanels(-1),
       m_netastrippanels(-1), m_nphistripsperpanel(-1), m_netastripsperpanel(-1),
       m_phistripwidth(-9999.), m_etastripwidth(-9999.), m_phistrippitch(-9999.),
@@ -224,7 +228,7 @@ namespace MuonGM {
     if (!m_hasDEDontop) {
       if (measPhi ==0) lstrip = NetaStrips()-strip+1;
       lgg++;
-      if (lgg>2) lgg=1;
+      if (lgg>m_nlayers) lgg=1;
 #ifndef NDEBUG
     if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<"RpcReadoutElement::localstripos  m_hasDEDontop ="<<m_hasDEDontop
 		 <<" lstrip, lgg "<<lstrip<<" "<<lgg<<endmsg;
@@ -285,17 +289,17 @@ namespace MuonGM {
   double RpcReadoutElement::localGasGapDepth(int gasGap) const
   {
     const GenericRPCCache* r = manager()->getGenericRpcDescriptor();
-    double xgg = - m_Rsize/2.;
-    xgg = xgg + m_exthonthick + r->stripPanelThickness + r->GasGapThickness/2.;
+    double xgg=0;
+    if (m_nlayers==3) { // the BIS RPCs are the only ones with 3 gas gaps, they don't have an inner support structure
+      xgg = -rpc3GapLayerThickness + (gasGap-1)*rpc3GapLayerThickness;
+    } else {
+      xgg = -m_Rsize/2. + m_exthonthick + r->stripPanelThickness + r->GasGapThickness/2.;
+      if (gasGap == 1) return xgg;
+      xgg = xgg + r->rpcLayerThickness + r->centralSupPanelThickness;
+    }
 #ifndef NDEBUG
     MsgStream log(Athena::getMessageSvc(),"RpcReadoutElement");
-    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<"localGasGapDepth 1st "<<xgg<<endmsg;
-#endif
-    if (gasGap == 1) return xgg;
-    xgg = xgg + r->rpcLayerThickness + r->centralSupPanelThickness;
- 
-#ifndef NDEBUG
-    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<"localGasGapDepth selected is "<<xgg<<endmsg;
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<"localGasGapDepth(" << gasGap << ") selected is "<<xgg<<endmsg;
 #endif
     return xgg;
   }
@@ -356,7 +360,7 @@ namespace MuonGM {
     int lgg = gasGap;
     if (!m_hasDEDontop) {
       lgg++;
-      if (lgg>2) lgg=1;
+      if (lgg>m_nlayers) lgg=1;
     }
 
     bool topgg = false;
@@ -383,7 +387,7 @@ namespace MuonGM {
     int lgg = gasgap;
     if (!m_hasDEDontop) {
       lgg++;
-      if (lgg>2) lgg=1;
+      if (lgg>m_nlayers) lgg=1;
     }
 
     bool topgg = false;
@@ -442,7 +446,7 @@ namespace MuonGM {
     int lgg = gasgap;
     if (!m_hasDEDontop) {
       lgg++;
-      if (lgg>2) lgg=1;
+      if (lgg>m_nlayers) lgg=1;
 #ifndef NDEBUG
     if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<"RpcReadoutElement::localgasgapPos  m_hasDEDontop ="<<m_hasDEDontop <<" lgg "<<lgg<<endmsg;
 #endif
@@ -557,7 +561,7 @@ namespace MuonGM {
     int lsp = gasgap;
     if (!m_hasDEDontop) {
       lsp++;
-      if (lsp>2) lsp=1;
+      if (lsp>m_nlayers) lsp=1;
 #ifndef NDEBUG
     if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<"localStripPanelPos  m_hasDEDontop ="<<m_hasDEDontop<<" lsp "<<lsp<<endmsg;
 #endif
@@ -681,8 +685,8 @@ namespace MuonGM {
   {
     m_id = id;
     const RpcIdHelper* idh = manager()->rpcIdHelper();
-    IdentifierHash collIdhash = 0;
-    IdentifierHash detIdhash = 0;
+    IdentifierHash collIdhash;
+    IdentifierHash detIdhash;
     // set parent data collection hash id
     if (idh->get_module_hash(id, collIdhash) != 0) {
       MsgStream log(Athena::getMessageSvc(),"RpcReadoutElement");
@@ -967,7 +971,7 @@ namespace MuonGM {
     
     
     int gasgap     = idh->gasGap(id);
-    if (gasgap  <1 || gasgap >2) return false;
+    if (gasgap  <1 || gasgap >m_nlayers) return false;
     
     int measPhi    = idh->measuresPhi(id);
     int strip      = idh->strip(id);
