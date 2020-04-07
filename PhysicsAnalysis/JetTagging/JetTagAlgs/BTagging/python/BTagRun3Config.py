@@ -2,8 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-#from IOVDbSvc.IOVDbSvcConfig import addFolders
-#from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.JetBTaggerAlgConfig import JetBTaggerAlgCfg
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
 from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg

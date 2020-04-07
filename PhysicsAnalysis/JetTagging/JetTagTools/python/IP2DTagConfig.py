@@ -35,21 +35,21 @@ def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = Tru
     options['name'] = name
     options['xAODBaseName'] = 'IP2D'
     options['trackAssociationName'] = 'BTagTrackToJetAssociator'
-    if True: 
-        if useBTagFlagsDefaults:
-            grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
+
+    if useBTagFlagsDefaults:
+        grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
                   "0HitInExp", "0HitIn",
                   "0HitNInExp", "0HitNIn",
                   "InANDNInShared", "PixShared", "SctShared",
                   "InANDNInSplit", "PixSplit",
                   "Good"]
-            trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
-            svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
-            trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP2DDetailedTrackGradeFactory'))
-            trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP2DTrackSelector'))
-            likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP2DNewLikelihoodTool', 'IP2D', scheme))
+        trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
+        svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
+        trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP2DDetailedTrackGradeFactory'))
+        trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP2DTrackSelector'))
+        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP2DNewLikelihoodTool', 'IP2D', scheme))
 
-            defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
+        defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
                      'impactParameterView'              : '2D',
@@ -68,8 +68,8 @@ def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = Tru
                      'trackGradeFactory'                : trackGradeFactory,
                      'TrackToVertexIPEstimator'         : trackToVertexIPEstimator,
                      }
-            for option in defaults:
-                options.setdefault(option, defaults[option])
+        for option in defaults:
+            options.setdefault(option, defaults[option])
 
     acc.setPrivateTools(Analysis__IPTag( **options))
 

@@ -88,7 +88,7 @@ def bJetStep2Sequence():
     InputMakerAlg.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithJets -> EventViewCreatorAlgorithm
     InputMakerAlg.Views = "BTagViews"
     InputMakerAlg.InViewRoIs = "InViewRoIs"
-    InputMakerAlg.InViewJets = "HLT_InViewJets"
+    InputMakerAlg.InViewJets = recordable ( "HLT_InViewJets" )
     InputMakerAlg.ViewNodeName = "bJetBtagSequenceInView" 
     
     # Second stage of Fast Tracking and Precision Tracking
