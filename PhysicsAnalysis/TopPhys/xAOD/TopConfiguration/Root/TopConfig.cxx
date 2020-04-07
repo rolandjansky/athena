@@ -216,8 +216,6 @@ namespace top {
     m_muonIsolationSFLoose("SetMe"),
     m_do2StationsHighPt(false),
     m_doExtraSmearing(false),
-    m_do2StationsHighPtLoose(false),
-    m_doExtraSmearingLoose(false),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1107,10 +1105,17 @@ namespace top {
       this->muonIsolationLoose(cut_wp);
       this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
-    this->muondo2StationsHighPt( settings->value("MuonQuality") == "HighPt" && settings->value("do2StationsHighPt") == "True" ? true : false );
-    this->muondo2StationsHighPtLoose( settings->value("MuonQualityLoose") == "HighPt" && settings->value("do2StationsHighPtLoose") == "True" ? true : false );
-    this->muondoExtraSmearing( settings->value("doExtraSmearing") == "True" ? true : false );
-    this->muondoExtraSmearingLoose( settings->value("doExtraSmearingLoose") == "True" ? true : false );
+    bool do2StationsHighPt = false;
+    settings->retrieve("do2StationsHighPt", do2StationsHighPt);
+    if ( settings->value("MuonQuality") == "HighPt" ) {
+      this->muondo2StationsHighPt(do2StationsHighPt);
+    } else {
+      ATH_MSG_WARNING("Could not set do2StationsHighPt True without using the HighPt muon WP. do2StationsHighPt is now setted to the default value (False)");
+      this->muondo2StationsHighPt(false);
+    }
+    bool doExtraSmearing = false;
+    settings->retrieve("doExtraSmearing", doExtraSmearing);
+    this->muondoExtraSmearing( doExtraSmearing );
 
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
 
