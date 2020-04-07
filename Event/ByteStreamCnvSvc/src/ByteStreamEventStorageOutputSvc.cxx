@@ -32,8 +32,7 @@
 // Constructor.
 ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(const std::string& name, ISvcLocator* svcloc) :
 		ByteStreamOutputSvc(name,svcloc),
-	m_totalEventCounter(0),
-        m_attlistsvc("ByteStreamAttListMetadataSvc", name)
+	m_totalEventCounter(0)
 {
    declareProperty("OutputDirectory", m_inputDir);
    // a set of fields for making up filename
@@ -62,7 +61,6 @@ ByteStreamEventStorageOutputSvc::ByteStreamEventStorageOutputSvc(const std::stri
 
    declareProperty("MaxFileMB", m_maxFileMB = 10000);
    declareProperty("MaxFileNE", m_maxFileNE = 100000);
-   declareProperty("AttributeListKeys", m_keys);
 
    declareProperty("EformatVersion", m_eformatVersion = "current",
                    "Version of the event format data, use \"v40\" or \"run1\" "
@@ -101,12 +99,6 @@ StatusCode ByteStreamEventStorageOutputSvc::initialize() {
       } else {
          ATH_MSG_VERBOSE("io_register[" << this->name() << "](" << m_simpleFileName.value() << ") [ok]");
       }
-   }
-
-   // Retrieve AttListSvc
-   if (!m_attlistsvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get metadata AttListSvc.");
-      return(StatusCode::FAILURE);
    }
 
    // validate m_eformatVersion and m_eventStorageVersion
@@ -312,14 +304,6 @@ bool ByteStreamEventStorageOutputSvc::initDataWriterContents(const EventInfo* ev
 void ByteStreamEventStorageOutputSvc::checkForUserMetadata(EventStorage::freeMetaDataStrings& freeMetaDataStrings)
 {
    ATH_MSG_DEBUG("checkForUserMetadata");
-
-   // Check for attributeLists with user metadata
-   if (m_keys.size()>0) {
-      StatusCode sc = m_attlistsvc->toBSMetadata(m_keys);
-      if (sc.isFailure()) {
-         msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endmsg;
-      }
-   }
 
    ServiceHandle<StoreGateSvc> ds("DetectorStore", name());
    if (ds.retrieve().isSuccess()) {

@@ -961,7 +961,7 @@ Py:ComponentAccumulator    INFO  \__ MuonMDT_CablingAlg (cond alg)
 Py:ComponentAccumulator    INFO  \__ RpcCondDbAlg (cond alg)
 Py:ComponentAccumulator    INFO  \__ MdtCalibDbAlg (cond alg)
 Py:ComponentAccumulator    INFO Services
-Py:ComponentAccumulator    INFO ['EventSelector', 'ByteStreamInputSvc', 'EventPersistencySvc', 'ByteStreamCnvSvc', 'ROBDataProviderSvc', 'ByteStreamAddressProviderSvc', 'MetaDataStore', 'InputMetaDataStore', 'MetaDataSvc', 'ProxyProviderSvc', 'ByteStreamAttListMetadataSvc', 'IOVDbSvc', 'PoolSvc', 'CondSvc', 'DBReplicaSvc', 'GeoModelSvc', 'DetDescrCnvSvc', 'TagInfoMgr', 'AthenaPoolCnvSvc', 'MuonIdHelperSvc', 'RPCcablingServerSvc', 'MuonRPC_CablingSvc', 'LVL1TGC::TGCRecRoiSvc', 'TGCcablingServerSvc', 'MuonMDT_CablingSvc', 'AtlasFieldSvc', 'MdtCalibrationDbSvc', 'MdtCalibrationSvc', 'CSCcablingSvc', 'MuonCalib::CscCoolStrSvc']
+Py:ComponentAccumulator    INFO ['EventSelector', 'ByteStreamInputSvc', 'EventPersistencySvc', 'ByteStreamCnvSvc', 'ROBDataProviderSvc', 'ByteStreamAddressProviderSvc', 'MetaDataStore', 'InputMetaDataStore', 'MetaDataSvc', 'ProxyProviderSvc', 'IOVDbSvc', 'PoolSvc', 'CondSvc', 'DBReplicaSvc', 'GeoModelSvc', 'DetDescrCnvSvc', 'TagInfoMgr', 'AthenaPoolCnvSvc', 'MuonIdHelperSvc', 'RPCcablingServerSvc', 'MuonRPC_CablingSvc', 'LVL1TGC::TGCRecRoiSvc', 'TGCcablingServerSvc', 'MuonMDT_CablingSvc', 'AtlasFieldSvc', 'MdtCalibrationDbSvc', 'MdtCalibrationSvc', 'CSCcablingSvc', 'MuonCalib::CscCoolStrSvc']
 Py:ComponentAccumulator    INFO Public Tools
 Py:ComponentAccumulator    INFO [
 Py:ComponentAccumulator    INFO   IOVDbMetaDataTool/IOVDbMetaDataTool,
