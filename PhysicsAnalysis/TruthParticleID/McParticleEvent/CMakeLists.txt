@@ -17,7 +17,7 @@ atlas_depends_on_subdirs(
    Generators/GeneratorObjects
    PhysicsAnalysis/AnalysisCommon/ParticleEvent
    Tracking/TrkEvent/VxVertex
-   Generators/HepMCI
+   Generators/AtlasHepMC
    PRIVATE
    AtlasTest/TestTools
    GaudiKernel )
