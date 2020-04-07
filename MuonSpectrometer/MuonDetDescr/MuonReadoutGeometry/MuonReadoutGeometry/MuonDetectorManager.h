@@ -29,10 +29,10 @@
 
 #define optimRE true
 
-typedef std::map<Identifier,ALinePar*>::const_iterator ciALineMap;
-typedef std::map<Identifier,BLinePar*>::const_iterator ciBLineMap;
-typedef std::map<Identifier,CscInternalAlignmentPar*>::const_iterator ciCscInternalAlignmentMap;
-typedef std::map<Identifier,MdtAsBuiltPar*>::const_iterator ciMdtAsBuiltMap;
+typedef ALineMapContainer::const_iterator ciALineMap;
+typedef BLineMapContainer::const_iterator ciBLineMap;
+typedef CscInternalAlignmentMapContainer::const_iterator ciCscInternalAlignmentMap;
+typedef MdtAsBuiltMapContainer::const_iterator ciMdtAsBuiltMap;
 
 namespace MuonGM {
 
@@ -89,13 +89,13 @@ namespace MuonGM {
     void addsTgcReadoutElement_withIdFields (sTgcReadoutElement*, int iStname, int iStEta, int iStPhi, int imL);//!< store the sTgcReadoutElement using as "key" the identifier
     void addMMReadoutElement_withIdFields   (MMReadoutElement*,   int iStname, int iStEta, int iStPhi, int imL);//!< store the MMReadoutElement using as "key" the identifier
 
-    // storeTgcReadoutParams
-    void storeTgcReadoutParams(TgcReadoutParams* x);
+    // storeTgcReadoutParams  takes ownership.
+    void storeTgcReadoutParams(const TgcReadoutParams* x);
     
     // storeCscInternalAlignmentParams
-    void storeCscInternalAlignmentParams(CscInternalAlignmentPar* x);
+    void storeCscInternalAlignmentParams(const CscInternalAlignmentPar& x);
 
-    void storeMdtAsBuiltParams(MdtAsBuiltPar* x);
+    void storeMdtAsBuiltParams(const MdtAsBuiltPar& x);
     
     // access to Readout Elements
     const MdtReadoutElement* getMdtReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
@@ -362,11 +362,11 @@ namespace MuonGM {
     inline ciCscInternalAlignmentMap CscALineMapEnd() const;
     inline ciMdtAsBuiltMap MdtAsBuiltMapBegin() const;
     inline ciMdtAsBuiltMap MdtAsBuiltMapEnd() const;
-    StatusCode updateAlignment(const ALineMapContainer* a); 
-    StatusCode updateDeformations(const BLineMapContainer* a);
-    StatusCode updateAsBuiltParams(const MdtAsBuiltMapContainer* a);
+    StatusCode updateAlignment(const ALineMapContainer& a); 
+    StatusCode updateDeformations(const BLineMapContainer& a);
+    StatusCode updateAsBuiltParams(const MdtAsBuiltMapContainer& a);
     StatusCode initCSCInternalAlignmentMap();
-    StatusCode updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer* cscIntAline);
+    StatusCode updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer& cscIntAline);
     void initABlineContainers();
 
     // get Mdt AsBuilt parameters for chamber specified by Identifier
@@ -441,21 +441,16 @@ namespace MuonGM {
     unsigned int m_n_tgcDE;
     // TODO: New Small Wheel
 
-    // pointers to the XxxDetectorElements (with granularity a la EDM)
-    std::vector<TgcReadoutParams*> m_TgcReadoutParamsVec;
-    // vector of CSC Internal Alignment parameters (just for init purposes) filled from file or Oracle table (RDBReaderAccess) and then deleted by the factory; 
-    
     MdtDetectorElement* m_mdtDEArray[MdtDetElMaxHash];
     RpcDetectorElement* m_rpcDEArray[RpcDetElMaxHash];
     TgcDetectorElement* m_tgcDEArray[TgcDetElMaxHash];
     CscDetectorElement* m_cscDEArray[CscDetElMaxHash];
     // TODO: New Small Wheel
 
-    ALineMapContainer * m_aLineContainer;
-    BLineMapContainer * m_bLineContainer;
-    // CscInternalAlignmentMapContainer (pointers) will be created by RDBReaderAccess at the first attempt to store a CscInternalAlignmentPar -rot and transl parameters are held by the CSCredoutElements and the corresponding A-line is provided with this map (key Identifier) by the manager - the manager is responsible to delete the CscInternalAlignmentPar
-    CscInternalAlignmentMapContainer * m_cscALineContainer;
-    MdtAsBuiltMapContainer* m_AsBuiltParamsMap;
+    ALineMapContainer m_aLineContainer;
+    BLineMapContainer m_bLineContainer;
+    CscInternalAlignmentMapContainer m_cscALineContainer;
+    MdtAsBuiltMapContainer m_AsBuiltParamsMap;
     
   };
 
@@ -550,28 +545,28 @@ namespace MuonGM {
 
   const ALineMapContainer* 
     MuonDetectorManager::ALineContainer() const
-    {return m_aLineContainer;}
+    {return &m_aLineContainer;}
 
   const BLineMapContainer* 
     MuonDetectorManager::BLineContainer() const
-    {return m_bLineContainer;}
+    {return &m_bLineContainer;}
 
   const CscInternalAlignmentMapContainer*
     MuonDetectorManager::CscInternalAlignmentContainer() const
-    {return  m_cscALineContainer;}
+    {return  &m_cscALineContainer;}
 
   const MdtAsBuiltMapContainer* 
     MuonDetectorManager::MdtAsBuiltContainer() const
-    {return m_AsBuiltParamsMap;}
+    {return &m_AsBuiltParamsMap;}
 
-  ciALineMap MuonDetectorManager::ALineMapBegin() const {return m_aLineContainer->begin();}
-  ciBLineMap MuonDetectorManager::BLineMapBegin() const {return m_bLineContainer->begin();}
-  ciALineMap MuonDetectorManager::ALineMapEnd() const  {return m_aLineContainer->end();}
-  ciBLineMap MuonDetectorManager::BLineMapEnd() const  {return m_bLineContainer->end();}
-  ciCscInternalAlignmentMap MuonDetectorManager::CscALineMapBegin() const {return  m_cscALineContainer->begin();}
-  ciCscInternalAlignmentMap MuonDetectorManager::CscALineMapEnd() const {return  m_cscALineContainer->end();}
-  ciMdtAsBuiltMap MuonDetectorManager::MdtAsBuiltMapBegin() const {return  m_AsBuiltParamsMap->begin();}
-  ciMdtAsBuiltMap MuonDetectorManager::MdtAsBuiltMapEnd() const {return  m_AsBuiltParamsMap->end();}
+  ciALineMap MuonDetectorManager::ALineMapBegin() const {return m_aLineContainer.begin();}
+  ciBLineMap MuonDetectorManager::BLineMapBegin() const {return m_bLineContainer.begin();}
+  ciALineMap MuonDetectorManager::ALineMapEnd() const  {return m_aLineContainer.end();}
+  ciBLineMap MuonDetectorManager::BLineMapEnd() const  {return m_bLineContainer.end();}
+  ciCscInternalAlignmentMap MuonDetectorManager::CscALineMapBegin() const {return  m_cscALineContainer.begin();}
+  ciCscInternalAlignmentMap MuonDetectorManager::CscALineMapEnd() const {return  m_cscALineContainer.end();}
+  ciMdtAsBuiltMap MuonDetectorManager::MdtAsBuiltMapBegin() const {return  m_AsBuiltParamsMap.begin();}
+  ciMdtAsBuiltMap MuonDetectorManager::MdtAsBuiltMapEnd() const {return  m_AsBuiltParamsMap.end();}
 
 
   void MuonDetectorManager::setCacheFillingFlag(int value){m_cacheFillingFlag = value;}

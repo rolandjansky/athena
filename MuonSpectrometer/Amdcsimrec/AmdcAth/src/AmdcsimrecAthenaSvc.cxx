@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGateSvc.h"
@@ -1504,14 +1504,9 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcAlineStoreFromExternal(AmdcAlineStore* pA
   float rotT ;
    
 
-  ALineMapContainer::const_iterator ialineF = pALineMapContainer->begin();
-  ALineMapContainer::const_iterator ialineL = pALineMapContainer->end();
-
-  for (ALineMapContainer::const_iterator ialine = ialineF; ialine != ialineL; ++ialine){
-
-    ALinePar*  al = ialine->second;
-    al->getAmdbId(StationType, jff, jzz, job);
-    al->getParameters(s, z, t, rotS, rotZ, rotT);
+  for (const auto& [id, al] : *pALineMapContainer) {
+    al.getAmdbId(StationType, jff, jzz, job);
+    al.getParameters(s, z, t, rotS, rotZ, rotT);
      
     double double_s    = static_cast<double>( s    ) ;
     double double_z    = static_cast<double>( z    ) ;
@@ -1596,16 +1591,11 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcBlineStoreFromExternal(AmdcBlineStore* pA
   float ep; // local expansion
   float en; // local expansion
    
-  BLineMapContainer::const_iterator iblineF = pBLineMapContainer->begin();
-  BLineMapContainer::const_iterator iblineL = pBLineMapContainer->end();
-  
-  for (BLineMapContainer::const_iterator ibline = iblineF; ibline != iblineL; ++ibline){
+  for (const auto& [id, bl] : *pBLineMapContainer) {
+    bl.getAmdbId(StationType, jff, jzz, job);
      
-    BLinePar*  bl = ibline->second;
-    bl->getAmdbId(StationType, jff, jzz, job);
-     
-    bl->getParameters(bz, bp, bn, sp, sn, tw,
-                      pg, tr, eg, ep, en);
+    bl.getParameters(bz, bp, bn, sp, sn, tw,
+                     pg, tr, eg, ep, en);
                       
 //     ATH_MSG_DEBUG( "=============================SetAmdcBlineStoreFromExternal " ) ; 
 //     ATH_MSG_DEBUG( " StationType "  << StationType ) ; 
@@ -1713,14 +1703,9 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcIlineStoreFromExternal(AmdcIlineStore* pA
   float rotZ ;
   float rotT ;
 
-  CscInternalAlignmentMapContainer::const_iterator iCscInternalAlignmentF = pCscInternalAlignmentMapContainer->begin();
-  CscInternalAlignmentMapContainer::const_iterator iCscInternalAlignmentL = pCscInternalAlignmentMapContainer->end();
-
-  for (CscInternalAlignmentMapContainer::const_iterator iCscInternalAlignment = iCscInternalAlignmentF; iCscInternalAlignment != iCscInternalAlignmentL; ++iCscInternalAlignment){
-
-    CscInternalAlignmentPar*  al = iCscInternalAlignment->second;
-    al->getAmdbId(StationType, jff, jzz, job,jlay);
-    al->getParameters(s, z, t, rotS, rotZ, rotT);
+  for (const auto& [id, al] : *pCscInternalAlignmentMapContainer) {
+    al.getAmdbId(StationType, jff, jzz, job,jlay);
+    al.getParameters(s, z, t, rotS, rotZ, rotT);
 
     double double_s    = static_cast<double>( s    ) ;
     double double_z    = static_cast<double>( z    ) ;
@@ -1809,17 +1794,14 @@ void AmdcsimrecAthenaSvc::CheckALineMapContainer(const ALineMapContainer*& pALin
     float rotS2 ;
     float rotZ2 ;
     float rotT2 ;
-    
-    ALineMapContainer::const_iterator line1F = pALineMapContainer->begin();
-    ALineMapContainer::const_iterator line1L = pALineMapContainer->end();
-    ALineMapContainer::const_iterator line2F = pALineMapContainer->begin();
 
-    for (ALineMapContainer::const_iterator line1 = line1F; line1 != line1L; ++line1){
-      ALinePar*  a1 = line1->second;
-      a1->getAmdbId(StationType1, jff1, jzz1, job1);
-      for (ALineMapContainer::const_iterator line2 = line2F; line2 != line1; ++line2){
-        ALinePar*  a2 = line2->second;
-        a2->getAmdbId(StationType2, jff2, jzz2, job2);
+    for (const auto& [id1, a1] : *pALineMapContainer) {
+      a1.getAmdbId(StationType1, jff1, jzz1, job1);
+      for (const auto& [id2, a2] : *pALineMapContainer) {
+        if (&a1 == &a2) {
+          break;
+        }
+        a2.getAmdbId(StationType2, jff2, jzz2, job2);
         if ( StationType1 == StationType2
         &&   jff1         == jff2         
         &&   jzz1         == jzz2         
@@ -1831,15 +1813,15 @@ void AmdcsimrecAthenaSvc::CheckALineMapContainer(const ALineMapContainer*& pALin
                            << "  job         " << job1         
                            ) ; 
 /*          ATH_MSG_DEBUG( " A LINE DOUBLE ENTRY id1     " 
-                           << " " << line1->first
+                           << " " << id1
                            << " " << p_AtlasDetectorID->print_to_string(line1->first)
                            ) ; 
           ATH_MSG_DEBUG( " A LINE DOUBLE ENTRY id2     " 
-                           << " " << line2->first
+                           << " " << id2
                            << " " << p_AtlasDetectorID->print_to_string(line2->first)
                            ) ; */
-          a1->getParameters(s1, z1, t1, rotS1, rotZ1, rotT1);
-          a2->getParameters(s2, z2, t2, rotS2, rotZ2, rotT2);
+          a1.getParameters(s1, z1, t1, rotS1, rotZ1, rotT1);
+          a2.getParameters(s2, z2, t2, rotS2, rotZ2, rotT2);
           ATH_MSG_DEBUG( " A LINE DOUBLE ENTRY values1 " 
                            << " " << s1            
                            << " " << z1            
@@ -1898,16 +1880,13 @@ void AmdcsimrecAthenaSvc::CheckBLineMapContainer(const BLineMapContainer*& pBLin
     float ep2;
     float en2;
     
-    BLineMapContainer::const_iterator line1F = pBLineMapContainer->begin();
-    BLineMapContainer::const_iterator line1L = pBLineMapContainer->end();
-    BLineMapContainer::const_iterator line2F = pBLineMapContainer->begin();
-
-    for (BLineMapContainer::const_iterator line1 = line1F; line1 != line1L; ++line1){
-      BLinePar*  b1 = line1->second;
-      b1->getAmdbId(StationType1, jff1, jzz1, job1);
-      for (BLineMapContainer::const_iterator line2 = line2F; line2 != line1; ++line2){
-        BLinePar*  b2 = line2->second;
-        b2->getAmdbId(StationType2, jff2, jzz2, job2);
+    for (const auto& [id1, b1] : *pBLineMapContainer) {
+      b1.getAmdbId(StationType1, jff1, jzz1, job1);
+      for (const auto& [id2, b2] : *pBLineMapContainer) {
+        if (&b1 == &b2) {
+          break;
+        }
+        b2.getAmdbId(StationType2, jff2, jzz2, job2);
         if ( StationType1 == StationType2
         &&   jff1         == jff2         
         &&   jzz1         == jzz2         
@@ -1919,17 +1898,17 @@ void AmdcsimrecAthenaSvc::CheckBLineMapContainer(const BLineMapContainer*& pBLin
                            << "  job         " << job1         
                            ) ; 
 /*          ATH_MSG_DEBUG( " B LINE DOUBLE ENTRY id1     " 
-                           << " " << line1->first
+                           << " " << id1
                            << " " << p_AtlasDetectorID->print_to_string(line1->first)
                            ) ; 
           ATH_MSG_DEBUG( " B LINE DOUBLE ENTRY id2     " 
-                           << " " << line2->first
+                           << " " << id2
                            << " " << p_AtlasDetectorID->print_to_string(line2->first)
                            ) ; */
-          b1->getParameters(bz1, bp1, bn1, sp1, sn1, tw1,
-                            pg1, tr1, eg1, ep1, en1);
-          b2->getParameters(bz2, bp2, bn2, sp2, sn2, tw2,
-                            pg2, tr2, eg2, ep2, en2);
+          b1.getParameters(bz1, bp1, bn1, sp1, sn1, tw1,
+                           pg1, tr1, eg1, ep1, en1);
+          b2.getParameters(bz2, bp2, bn2, sp2, sn2, tw2,
+                           pg2, tr2, eg2, ep2, en2);
           ATH_MSG_DEBUG( " B LINE DOUBLE ENTRY values1 " 
                            << " " << bz1           
                            << " " << bp1          
