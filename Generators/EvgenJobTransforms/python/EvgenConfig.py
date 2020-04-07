@@ -133,7 +133,7 @@ class EvgenConfig(TransformConfig):
         self.maxeventsstrategy = "ABORT"
         self.specialConfig = "NONE"
 # for the sake of Generate_tf leave minevents for a while
-        self.minevents = 5000
+        self.minevents = 0
 
     ## Explicitly block MC11/12 settings of efficiency, input*base, or weighting attrs
     def __setattr__(self, name, value):
