@@ -1414,6 +1414,21 @@ def update_lhe_file(lhe_file_old,param_card_old=None,lhe_file_new=None,masses={}
     return lhe_file_new_tmp
 
 
+def find_key_and_update(akey,dictionary):
+    """ Helper function when looking at param cards
+    In some cases it's tricky to match keys - they may differ
+    only in white space. This tries to sort out when we have
+    a match, and then uses the one in blockParams afterwards.
+    In the case of no match, it returns the original key.
+    """
+    test_key = ' '.join(akey.strip().replace('\t',' ').split())
+    for key in dictionary:
+        mod_key = ' '.join(key.strip().replace('\t',' ').split())
+        if mod_key==test_key:
+            return key
+    return akey
+
+
 def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,params={}):
     """Build a new param_card.dat from an existing one.
     Params should be a dictionary of dictionaries. The first key is the block name, and the second in the param name.
@@ -1463,7 +1478,13 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
 
         akey = None
         if blockName != 'DECAY' and len(line.strip().split()) > 0:
-            akey = line.strip().split()[0]
+            # The line is already without the comment.
+            # In the case of mixing matrices this is a bit tricky
+            if len(line.split())==2:
+                akey = line.upper().strip().split()[0]
+            else:
+                # Take everything but the last word
+                akey = line.upper().strip()[:line.strip().rfind(' ')].strip()
         elif blockName == 'DECAY' and len(line.strip().split()) > 1:
             akey = line.strip().split()[1]
         if akey is None:
@@ -1475,6 +1496,8 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
            newcard.write(linewithcomment)
            continue
         blockParams = params[blockName]
+        # Check the spacing in the key
+        akey = find_key_and_update(akey,blockParams)
 
         # look for a string key, which would follow a #
         stringkey = None
