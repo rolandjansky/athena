@@ -172,15 +172,15 @@ StatusCode TauProcessorAlg::execute() {
   for (const xAOD::Jet* pSeed : *pSeedContainer) {
     ATH_MSG_VERBOSE("Seeds eta:" << pSeed->eta() << ", pt:" << pSeed->pt());
 
-      if (fabs(pSeed->eta()) > m_maxEta) {
-	ATH_MSG_VERBOSE("--> Seed rejected, eta out of range!");
-	continue;
-      }
+    if (std::abs(pSeed->eta()) > m_maxEta) {
+      ATH_MSG_VERBOSE("--> Seed rejected, eta out of range!");
+      continue;
+    }
 
-      if (fabs(pSeed->pt()) < m_minPt) {
-	ATH_MSG_VERBOSE("--> Seed rejected, pt out of range!");
-	continue;
-      }
+    if (pSeed->pt() < m_minPt) {
+      ATH_MSG_VERBOSE("--> Seed rejected, pt out of range!");
+      continue;
+    }
 
       //-----------------------------------------------------------------                                                                 
       // Seed passed cuts --> create tau candidate

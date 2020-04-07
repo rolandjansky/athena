@@ -18,6 +18,7 @@
 // Other classes used by this class
 #include "TruthUtils/PIDHelpers.h"
 #include "AtlasHepMC/GenEvent.h"
+
 #include "TruthUtils/HepMCHelpers.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 

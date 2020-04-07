@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/MMSimHit.h"
@@ -12,11 +12,6 @@ MMSimHit::MMSimHit():
   m_kineticEnergy(-9999.),// energy of the particle
   m_depositEnergy(-9999.),//Geant4 deposited energy
   m_partLink()
-{
-}
-/*******************************************************************************/
-//virtual destructor required by Pool
-MMSimHit::~MMSimHit()
 {
 }
 /*******************************************************************************/

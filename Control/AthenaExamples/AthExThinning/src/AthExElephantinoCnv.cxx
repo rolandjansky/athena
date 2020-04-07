@@ -66,7 +66,7 @@ AthExElephantino* AthExElephantinoCnv::createTransient()
 
    if ( compareClassGuid(p1_guid) ) {
 
-     // using auto_ptr ensures deletion of the persistent object
+     // using unique_ptr ensures deletion of the persistent object
      std::unique_ptr<AthExElephantino_p1> persObj( poolReadObject<AthExElephantino_p1>() );
      AthExElephantinoCnv_p1 cnv;
      transObj = cnv.createTransient( persObj.get(), msg );

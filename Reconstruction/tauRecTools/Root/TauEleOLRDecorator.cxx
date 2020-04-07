@@ -109,7 +109,7 @@ StatusCode TauEleOLRDecorator::finalize()
 float TauEleOLRDecorator::getCutVal(float fEta, float fPt)
 {
   if(fPt>1900) fPt=1900;
-  if(fabs(fEta)>2.465) fEta=2.465;
-  int iBin= m_hCutValues->FindBin(fPt, fabs(fEta));
+  if(std::abs(fEta)>2.465) fEta=2.465;
+  int iBin= m_hCutValues->FindBin(fPt, std::abs(fEta));
   return m_hCutValues->GetBinContent(iBin);
 }

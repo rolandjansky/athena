@@ -39,10 +39,6 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
     timeUnit = Units.picosecond
     larCollTimeMonAlg.TimeUnit = timeUnit
 
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-    larCollTimeMonAlg.BunchCrossingTool = BunchCrossingTool()
-
-
     collTimeGroup = helper.addGroup(
         larCollTimeMonAlg,
         collTimeGroupName,
@@ -256,6 +252,9 @@ if __name__=='__main__':
     from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
     cfg.merge(LArCollisionTimeCfg(ConfigFlags))
     cfg.getEventAlgo("LArCollisionTimeAlg").cutIteration=False
+
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    cfg.merge(BunchCrossingCondAlgCfg(ConfigFlags))
 
     import AthenaCommon.SystemOfUnits as Units
     collmon=LArCollisionTimeMonConfig(ConfigFlags)

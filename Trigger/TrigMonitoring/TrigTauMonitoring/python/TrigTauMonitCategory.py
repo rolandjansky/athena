@@ -17,8 +17,10 @@ monitoring_tau_FTK = [
         'tau25_medium1_tracktwo_L1TAU12IM_FTK'
 ] 
 
-monitoring_singleTau = 'tau25_medium1_tracktwo'
+monitoring_singleTau = [
+    'tau25_medium1_tracktwo'
 
+]
 monitoring_tau = [
 	'tau0_perf_ptonly_L1TAU12',
     'tau0_perf_ptonly_L1TAU60',
@@ -56,18 +58,29 @@ monitoring_tau_pp = [
 	'tau160_idperf_tracktwo',
 	'tau160_perf_tracktwo',
 	'tau160_medium1_tracktwo',
-        'tau12_idperf_FTK',
-        'tau12_perf_FTK',
-        'tau12_perf0_FTK',
-        'tau12_perf_FTKNoPrec',
-        'tau12_perf0_FTKNoPrec',
-        'tau12_medium0_FTK',
-        'tau12_medium1_FTK',
-        'tau12_medium0_FTKNoPrec',
-        'tau12_medium1_FTKNoPrec',
-        'tau25_idperf_tracktwo_L1TAU12IM_FTK',
-        'tau25_perf_tracktwo_L1TAU12IM_FTK',
-        'tau25_medium1_tracktwo_L1TAU12IM_FTK'
+    'tau25_idperf_track_L1TAU12IM',
+    'tau25_idperf_tracktwo_L1TAU12IM',
+    'tau25_perf_tracktwo_L1TAU12IM',
+    'tau25_medium1_tracktwo_L1TAU12IM',
+    'tau25_idperf_tracktwoMVA_L1TAU12IM', #new
+    'tau25_perf_tracktwoMVA_L1TAU12IM', #new
+    'tau25_medium1_tracktwoMVA_L1TAU12IM', #new
+    'tau25_verylooseRNN_tracktwoMVA_L1TAU12IM', #new
+    'tau25_looseRNN_tracktwoMVA_L1TAU12IM', #new
+    'tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
+    'tau25_tightRNN_tracktwoMVA_L1TAU12IM', #new
+    'tau25_verylooseRNN_tracktwo_L1TAU12IM', #new
+    'tau25_looseRNN_tracktwo_L1TAU12IM', #new
+    'tau25_mediumRNN_tracktwo_L1TAU12IM', #new
+    'tau25_tightRNN_tracktwo_L1TAU12IM', #new
+    'tau25_medium1_tracktwoEF_L1TAU12IM',
+    'tau160_idperf_track_L1TAU100',
+    'tau0_perf_ptonly_L1TAU100', #new
+    'tau160_idperf_tracktwo_L1TAU100',
+    'tau160_perf_tracktwo_L1TAU100',
+    'tau160_idperf_tracktwoMVA_L1TAU100', #new
+    'tau160_perf_tracktwoMVA_L1TAU100' #new
+
 ]
 
 monitoring_tau_validation = [

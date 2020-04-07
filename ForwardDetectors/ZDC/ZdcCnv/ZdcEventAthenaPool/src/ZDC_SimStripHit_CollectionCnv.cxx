@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -33,7 +33,7 @@ ZDC_SimStripHit_Collection* ZDC_SimStripHit_CollectionCnv::createTransient() {
 
     static const pool::Guid   p1_guid("1082F8C1-BA19-47AF-83D7-4669BD12E9AC");
     if( this->compareClassGuid(p1_guid)) {
-      std::auto_ptr< ZDC_SimStripHit_Collection_PERS >   col_vect( this->poolReadObject< ZDC_SimStripHit_Collection_PERS >() );
+      std::unique_ptr< ZDC_SimStripHit_Collection_PERS >   col_vect( this->poolReadObject< ZDC_SimStripHit_Collection_PERS >() );
       trans_cont = converter_p1.createTransient(col_vect.get(), mlog );
     }
     else {

@@ -14,6 +14,7 @@
 #include "StoreGate/DataHandle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
+#include "AtlasHepMC/GenEvent.h"
 
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"

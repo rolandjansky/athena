@@ -11,13 +11,13 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/StoreGate
+                          Generators/AtlasHepMC
                           Generators/GeneratorObjects
                           Generators/AtlasHepMC  
                            )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
@@ -26,8 +26,8 @@ atlas_disable_as_needed()
 atlas_add_component( EventBoost
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib SGtests GeneratorObjects )
+                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel StoreGateLib SGtests GeneratorObjects )
 
 # Install files from the package:
 atlas_install_headers( EventBoost )

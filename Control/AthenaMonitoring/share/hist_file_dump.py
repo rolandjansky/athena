@@ -8,6 +8,14 @@ import argparse
 import zlib
 import json
 
+def fixprecision(x):
+    import math
+    if not isinstance(x, float):
+        return x
+    else:
+        mantissa, exponent = math.frexp(x)
+        return float(str(mantissa)[:16]) * 2**exponent
+
 def jsonfixup(instr):
     instr = instr.Data()
     j=json.loads(instr)
@@ -15,9 +23,11 @@ def jsonfixup(instr):
     for badkey in ('fTsumw', 'fTsumwx', 'fTsumw2', 'fTsumwx2', 'fTsumwy', 'fTsumwy2', 'fTsumwxy',
                    'fTsumwz', 'fTsumwz2', 'fTsumwxz', 'fTsumwyz' ):
         if badkey in j:
-            if isinstance(j[badkey], float):
-                j[badkey] = float(str(j[badkey])[:8])
+            j[badkey] = fixprecision(j[badkey])
             #print(type(j["fTsumwx"]))
+    for badkey in ('fSumw2',):
+        if badkey in j:
+            j[badkey] = [fixprecision(_) for _ in j[badkey]]
     # the following ignores small layout fluctuations in TTrees
     if 'fBranches' in j:
         for branch in j['fBranches']['arr']:

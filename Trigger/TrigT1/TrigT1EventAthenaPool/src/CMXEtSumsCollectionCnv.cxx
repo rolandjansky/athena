@@ -37,7 +37,7 @@ CMXEtSumsCollection * CMXEtSumsCollectionCnv::createTransient()
   CMXEtSumsCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     
     {
-     // using auto_ptr ensures deletion of the persistent object
+     // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr< CMXEtSumsCollection_PERS > pers_ref( poolReadObject< CMXEtSumsCollection_PERS >() );
       p_collection = m_TPConverter_tlp1.createTransient( pers_ref.get(), mlog );
    

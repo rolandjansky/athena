@@ -6,6 +6,8 @@ from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 #Add colltime algo to sequence
 
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
 topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
 

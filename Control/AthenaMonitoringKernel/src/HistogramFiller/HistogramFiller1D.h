@@ -14,6 +14,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 namespace Monitored {
+
   /**
    * @brief Filler for plain 1D histograms
    */
@@ -29,66 +30,85 @@ namespace Monitored {
 
     virtual unsigned fill() override {
       if (m_monVariables.size() != 1) { return 0; }
-      size_t varVecSize = m_monVariables.at(0).get().size();
+      const IMonitoredVariable& var = m_monVariables.at(0).get();
 
-      // handling of the cutmask
-      auto cutMaskValuePair = getCutMaskFunc();
-      if (cutMaskValuePair.first == 0) { return 0; }
-      if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != varVecSize)) {
-        MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
-        log << MSG::ERROR << "CutMask does not match the size of plotted variable: " 
-            << cutMaskValuePair.first << " " << varVecSize << endmsg;
-      }
-      auto cutMaskAccessor = cutMaskValuePair.second;
-
-      std::function<double(size_t)> weightValue = [] (size_t ){ return 1.0; };  // default is always 1.0
-      const std::vector<double> weightVector{m_monWeight ? m_monWeight->getVectorRepresentation() : std::vector<double>{}};
-      if ( m_monWeight != nullptr ) {
-        if (weightVector.size() == 1) {
-          weightValue = [=](size_t){ return weightVector[0]; };
-        } else {
-          weightValue = [&](size_t i){ return weightVector[i]; };
-          if (ATH_UNLIKELY(weightVector.size() != varVecSize)) {
-            MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
-            log << MSG::ERROR << "Weight does not match the size of plotted variable: " 
-                << weightVector.size() << " " << varVecSize << endmsg;
-          }
+      std::function<bool(size_t)> cutMaskAccessor;
+      if (m_monCutMask) {
+        // handling of the cutmask
+        auto cutMaskValuePair = getCutMaskFunc();
+        if (cutMaskValuePair.first == 0) { return 0; }
+        if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != var.size())) {
+          MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
+          log << MSG::ERROR << "CutMask does not match the size of plotted variable: "
+              << cutMaskValuePair.first << " " << var.size() << endmsg;
         }
+        cutMaskAccessor = cutMaskValuePair.second;
       }
 
-      if ( not m_monVariables.at(0).get().hasStringRepresentation() ) {
-        const auto valuesVector{m_monVariables.at(0).get().getVectorRepresentation()};
-        fill( std::size( valuesVector), [&](size_t i){ return valuesVector[i]; }, weightValue, cutMaskAccessor );
-        return std::size( valuesVector );
-      } else {
-        const auto valuesVector{m_monVariables.at(0).get().getStringVectorRepresentation()};
-        fill( std::size( valuesVector ), [&](size_t i){ return valuesVector[i].c_str(); }, weightValue, cutMaskAccessor );
-        return std::size( valuesVector );
+      if (m_monWeight) {
+        const std::vector<double> weightVector{m_monWeight->getVectorRepresentation()};
+        auto weightAccessor = [&](size_t i){ return weightVector[i]; };
+
+        if (ATH_UNLIKELY(weightVector.size() != var.size())) {
+          MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
+          log << MSG::ERROR << "Weight does not match the size of plotted variable: "
+              << weightVector.size() << " " << var.size() << endmsg;
+        }
+        // Need to fill here while weightVector is still in scope
+        if (not m_monCutMask) return fill(var, weightAccessor, detail::noCut);
+        else                  return fill(var, weightAccessor, cutMaskAccessor);
       }
+
+      if (not m_monCutMask) return fill(var, detail::noWeight, detail::noCut);
+      else                  return fill(var, detail::noWeight, cutMaskAccessor);
     }
 
   protected:
+    /**
+     * Helper to extract double/string representation from MonitoredVariable.
+     * Forward remaining template parameters to fill function below.
+     */
+    template<typename ...Fs>
+    unsigned fill(const IMonitoredVariable& var , Fs... f) {
+      if (not var.hasStringRepresentation()) {
+        const auto valuesVector{var.getVectorRepresentation()};
+        return fill( std::size(valuesVector), [&](size_t i){ return valuesVector[i]; }, f...);
+      } else {
+        const auto valuesVector{var.getStringVectorRepresentation()};
+        return fill( std::size(valuesVector), [&](size_t i){ return valuesVector[i].c_str(); }, f...);
+      }
+    }
 
-    // The following method takes the length of the vector of values and three functions as arguments:
-    // a function that returns a value, one that returns a weight, and one that functions as a cut mask
-    // template allows us to support both floating point and string variable fill calls
-    template<typename F1, typename F2, typename F3>
-    void fill( size_t n, F1 f1, F2 f2, F3 f3 ) {
+    /**
+     * Helper to fill both double and string-valued variables
+     *
+     * @param n  size of the vector to fill
+     * @param v  accessor for values in vector
+     * @param w  weight accessor
+     * @param c  cut mask accessor
+     *
+     * If weight and/or cut are not needed use a lambda expression (instead of std::function)
+     * as this will allow the compiler to produce more optimal code.
+     */
+    template<typename V, typename W, typename C>
+    unsigned fill( size_t n, V v, W w, C c) {
 
       std::scoped_lock lock(*m_mutex);
+      int fills = 0;
       TH1* histogram = this->histogram<TH1>();
       for ( size_t i = 0; i < n; ++i ) {
-        if (f3(i)) {
-          const auto& x = f1(i);
+        if (c(i)) {
+          const auto& x = v(i);
           // In case re-binning occurs need to take the OH lock for online (no-op offline)
           if ( ATH_UNLIKELY(histogram->GetXaxis()->CanExtend() and
                             detail::fillWillRebinHistogram(histogram->GetXaxis(), x)) ) {
             oh_scoped_lock_histogram lock;
-            histogram->Fill( x, f2(i) );
+            fills += histogram->Fill( x, w(i) );
           }
-          else histogram->Fill( x, f2(i) );
+          else fills += histogram->Fill( x, w(i) );
         }
       }
+      return fills;
     }
   };
 }
