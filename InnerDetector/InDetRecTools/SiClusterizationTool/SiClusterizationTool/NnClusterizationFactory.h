@@ -144,6 +144,10 @@ namespace InDet {
                                                 const InDet::PixelCluster& pCluster,
                                                 int numberSubClusters,
                                                 std::vector<Amg::MatrixX> & errors);
+
+    // For error formatting in lwtnn version
+    double correctedRMS_X(double pos_pixels);
+    double correctedRMS_Y(double pos_pixels, double size_Y, std::vector<float>& pitches);    
  
     /* estimate position for both with and w/o tracks */
     std::vector<Amg::Vector2D> estimatePositions(std::vector<double> inputData,

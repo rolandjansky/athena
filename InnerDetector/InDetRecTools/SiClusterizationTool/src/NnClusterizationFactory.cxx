@@ -647,13 +647,21 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
       position_values.push_back(position["mean_y"]);
 
       // Fill errors.
-      // Values returned by NN are inverse of variance, and we want variances in matrix.
-      ATH_MSG_DEBUG(" Estimated RMS errors (1) x: " << sqrt(1.0/position["prec_x"]) << ", y: " << sqrt(1.0/position["prec_y"]));      
+      // Values returned by NN are inverse of variance, and we want variances.
+      float raw_rms_x = sqrt(1.0/position["prec_x"]);
+      float raw_rms_y = sqrt(1.0/position["prec_y"]);
+      // Now convert to real space units
+      double rms_x = correctedRMS_X(raw_rms_x);
+      double rms_y = correctedRMS_Y(raw_rms_y, 7., raw_input->vectorOfPitchesY);
+      ATH_MSG_DEBUG(" Estimated RMS errors (1) x: " << rms_x << ", y: " << rms_y);  
+
+      // Fill matrix    
       Amg::MatrixX erm(2,2);
       erm.setZero();
-      erm(0,0)=1.0/position["prec_x"];
-      erm(1,1)=1.0/position["prec_y"];
-      error_matrices.push_back(erm);       
+      erm(0,0)=rms_x*rms_x;
+      erm(1,1)=rms_y*rms_y;
+      error_matrices.push_back(erm); 
+
     }
 
     std::vector<Amg::Vector2D> myPositions = getPositionsFromOutput(position_values,*raw_input,pCluster);
@@ -664,6 +672,36 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     return myPositions;
 
   }
+
+  double NnClusterizationFactory::correctedRMS_X(double pos_pixels)
+  {
+
+    // This gives location in pixels
+    double pitch = 0.05;
+    double corrected = pos_pixels * pitch;
+
+    return corrected;
+  }
+
+  double NnClusterizationFactory::correctedRMS_Y(double pos_pixels,
+         double size_Y,
+        std::vector<float>& pitches)
+  {
+    double p = pos_pixels + (size_Y - 1) / 2.0;
+    double p_Y = -100;
+    double p_center = -100;
+    double p_actual = 0;
+
+    for (int i = 0; i < size_Y; i++) {
+      if (p >= i && p <= (i + 1))
+        p_Y = p_actual + (p - i + 0.5) * pitches.at(i);
+      if (i == (size_Y - 1) / 2)
+        p_center = p_actual + 0.5 * pitches.at(i);
+      p_actual += pitches.at(i);
+    }
+
+    return abs(p_Y - p_center);
+  }  
 
   std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(std::vector<double> inputData,
                                                                              NNinput* input,
