@@ -26,10 +26,8 @@ myMonAlg = helper.addAlgorithm(SCTHitEffMonAlg, "SCTHitEffMonAlg")
 
 myMonAlg.TriggerChain = ''
 
-from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-myMonAlg.BunchCrossingTool = BunchCrossingTool()
-
-
+from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+BunchCrossingCondAlgDefault()
 # Add a generic monitoring tool (a "group" in old language). The returned 
 # object here is the standard GenericMonitoringTool.
 
