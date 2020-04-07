@@ -3,7 +3,7 @@
 */
 
 #include "TruthHelper/NCutter.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include <vector>
 
 namespace TruthHelper {

@@ -7,7 +7,7 @@
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "TruthHelper/GenIMCselector.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"

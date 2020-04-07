@@ -153,6 +153,7 @@
 + Event/xAOD/xAODTruthAthenaPool
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
++ Generators/AtlasHepMC
 + Generators/GenInterfaces
 + Generators/GeneratorObjects
 + Generators/GeneratorObjectsAthenaPool

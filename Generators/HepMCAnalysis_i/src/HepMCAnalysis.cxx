@@ -17,7 +17,7 @@
 #include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 #include "TFile.h"
 #include "TH1.h"
