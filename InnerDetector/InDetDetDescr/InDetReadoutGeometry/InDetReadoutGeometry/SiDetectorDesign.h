@@ -40,10 +40,6 @@ class SiReadoutCell;
 class SiLocalPosition;
 class SiIntersect;
 
-enum DetectorShape {
-  Box=0, Trapezoid, Annulus,Other
-};
-
 /** @class SiDetectorDesign
 
    Base class for the detector design classes for Pixel and SCT.
@@ -54,11 +50,6 @@ enum DetectorShape {
  */
 
 class SiDetectorDesign: public DetectorDesign {
-public:
-    enum Axis {
-        xAxis=0, yAxis, zAxis
-    };
-
 
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -87,8 +78,8 @@ public:
                      bool depthSymmetric,
                      InDetDD::CarrierType carrierType,
                      int readoutSide,
-                     SiDetectorDesign::Axis stripDirection,
-                     SiDetectorDesign::Axis depthDirection);
+                     DetectorDesign::Axis stripDirection,
+                     DetectorDesign::Axis depthDirection);
 
 
     /** Destructor: */
@@ -99,11 +90,6 @@ public:
     ///////////////////////////////////////////////////////////////////
     /** Give strip angle in the reco frame */
     virtual double sinStripAngleReco(double phiCoord, double etaCoord) const;
- 
-    /** Return the centre of a sensor in the local reference frame. 
-        For most designs, this is the origin of the local reference frame.
-        For StripStereoAnnulusDesign, this is not the case (coordinate origin is "on the beamline") */
-    virtual HepGeom::Point3D<double> sensorCenter() const;
 
     /** Test if point is in the active part of the detector with specified tolerances */
     SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol,
@@ -112,26 +98,6 @@ public:
     /** Test if near bond gap within tolerances, only relevant for SCT. */
     virtual bool nearBondGap(const SiLocalPosition &localPosition,
                              double etaTol) const = 0;
-
-    /** local axis corresponding to eta direction: */
-    Axis etaAxis() const;
-
-    /** local axis corresponding to phi direction: */
-    Axis phiAxis() const;
-
-    /** local axis corresponding to depth direction: */
-    Axis depthAxis() const;
-
-    bool phiSymmetric() const;
-    bool etaSymmetric() const;
-    bool depthSymmetric() const;
-
-    /** ReadoutSide. +1 = postive depth side, -1 = negative depth side. */
-    int readoutSide() const;
-
-    /** Override default symmetries to prevent swapping of axes.
-       NB. Flags can be changed from true to false but not false to true. */
-    void setSymmetry(bool phiSymmetric, bool etaSymmetric, bool depthSymmetric);
 
     /** only relevant for SCT. Return strip1Dim(int strip, int row) if SCT; otherwise -1 */
     virtual int strip1Dim(int strip, int row) const;
@@ -168,9 +134,6 @@ public:
     /** Method to calculate maximum width of a module */
     virtual double maxWidth() const = 0;
 
-    /** Method which returns thickness of the silicon wafer */
-    double thickness() const;
-
     /** Pitch in phi direction */
     virtual double phiPitch() const = 0;
 
@@ -180,15 +143,9 @@ public:
     // ** Pitch in eta direction */
     virtual double etaPitch() const = 0;
 
-    /** Return carrier type (ie electrons or holes) */
-    InDetDD::CarrierType carrierType() const;
-
     /** Return true if hit local direction is the same as readout direction. */
     virtual bool swapHitPhiReadoutDirection() const = 0;
     virtual bool swapHitEtaReadoutDirection() const = 0;
-
-    /** Shape of element */
-    virtual DetectorShape shape() const;
 
     /**  Element boundary */
     virtual const Trk::SurfaceBounds &bounds() const = 0;
@@ -252,24 +209,6 @@ public:
 private:
     SiDetectorDesign();
 
-    ///////////////////////////////////////////////////////////////////
-    // Private data:
-    ///////////////////////////////////////////////////////////////////
-private:
-    Axis m_etaAxis; // !< local axis corresponding to eta direction
-    Axis m_phiAxis; // !< local axis corresponding to phi direction
-    Axis m_depthAxis; // !< local axis corresponding to depth direction
-    double m_thickness; // !< thickness of silicon sensor
-    InDetDD::CarrierType m_carrierType; // !< carrier type that drifts towards readout
-    // !< (ie holes fro SCT and electrons for pixel)
-    bool m_phiSymmetric;
-    bool m_etaSymmetric;
-    bool m_depthSymmetric;
-
-    bool m_readoutSidePosDepth; // !< Control which side readout is on.
-                                // !< true = positive Depth Side, false = negative Depth
-                                // Side
-
     // Disallow Copy and assignment;
     SiDetectorDesign(const SiDetectorDesign &design);
     SiDetectorDesign &operator = (const SiDetectorDesign &design);
@@ -281,42 +220,6 @@ private:
 
 inline double SiDetectorDesign::sinStripAngleReco(double /* x */, double /* y */) const {
     return 0.0; // pixel and barrel strip sensors always zero 
-}
-
-inline SiDetectorDesign::Axis SiDetectorDesign::etaAxis() const {
-    return m_etaAxis;
-}
-
-inline SiDetectorDesign::Axis SiDetectorDesign::phiAxis() const {
-    return m_phiAxis;
-}
-
-inline SiDetectorDesign::Axis SiDetectorDesign::depthAxis() const {
-    return m_depthAxis;
-}
-
-inline double SiDetectorDesign::thickness() const {
-    return m_thickness;
-}
-
-inline InDetDD::CarrierType SiDetectorDesign::carrierType() const {
-    return m_carrierType;
-}
-
-inline bool SiDetectorDesign::phiSymmetric() const {
-    return m_phiSymmetric;
-}
-
-inline bool SiDetectorDesign::etaSymmetric() const {
-    return m_etaSymmetric;
-}
-
-inline bool SiDetectorDesign::depthSymmetric() const {
-    return m_depthSymmetric;
-}
-
-inline int SiDetectorDesign::readoutSide() const {
-    return (m_readoutSidePosDepth) ? +1 : -1;
 }
 
 inline int SiDetectorDesign::strip1Dim(int, int) const{

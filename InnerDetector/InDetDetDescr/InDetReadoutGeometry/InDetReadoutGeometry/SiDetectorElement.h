@@ -624,44 +624,44 @@ namespace InDetDD {
       // Cached values.
       //
       // Axes
-      SiDetectorDesign::Axis m_hitEta;
-      SiDetectorDesign::Axis m_hitPhi;
-      SiDetectorDesign::Axis m_hitDepth;
+      DetectorDesign::Axis m_hitEta; // common?
+      DetectorDesign::Axis m_hitPhi; // common?
+      DetectorDesign::Axis m_hitDepth; // common?
 	 
 
       // Directions of axes. These are true if the hit/simulation and reconstruction local frames are
       // in the same direction and false if they are opposite.
-      mutable bool m_depthDirection; // Direction of depth axis. 
+      mutable bool m_depthDirection; // Direction of depth axis. // common?
                              // Also direction of readout implant (n+ for pixel, p+ for SCT).
-      mutable bool m_phiDirection;     //
-      mutable bool m_etaDirection;     //
+      mutable bool m_phiDirection;     // // common?
+      mutable bool m_etaDirection;     // // common?
     
       mutable bool m_conditionsCacheValid; // Lorentz angle related values.
-      mutable bool m_firstTime;
+      mutable bool m_firstTime; // common
       mutable bool m_isStereo;
     
-      mutable Amg::Transform3D m_transform; 
-      mutable HepGeom::Transform3D m_transformCLHEP; 
-      mutable HepGeom::Transform3D m_transformHit;
+      mutable Amg::Transform3D m_transform; // common? (updateCache)
+      mutable HepGeom::Transform3D m_transformCLHEP; // common? (updateCache)
+      mutable HepGeom::Transform3D m_transformHit; // common? (updateCache)
     
-      mutable Amg::Vector3D m_normal;
-      mutable HepGeom::Vector3D<double> m_normalCLHEP;
-      mutable Amg::Vector3D m_etaAxis;
-      mutable Amg::Vector3D m_phiAxis;
-      mutable HepGeom::Vector3D<double> m_etaAxisCLHEP;
-      mutable HepGeom::Vector3D<double> m_phiAxisCLHEP;
-      mutable Amg::Vector3D m_center;
-      mutable HepGeom::Vector3D<double> m_centerCLHEP;
-      mutable Amg::Vector3D m_origin;
-      mutable HepGeom::Vector3D<double> m_originCLHEP;
-    
-      mutable double m_minZ;
-      mutable double m_maxZ;
-      mutable double m_minR;
-      mutable double m_maxR;
-      mutable double m_minPhi;
-      mutable double m_maxPhi;
-    
+      mutable Amg::Vector3D m_normal; // common? (updateCache)
+      mutable HepGeom::Vector3D<double> m_normalCLHEP; // common? (updateCache)
+      mutable Amg::Vector3D m_etaAxis; // common? (updateCache)
+      mutable Amg::Vector3D m_phiAxis; // common? (updateCache)
+      mutable HepGeom::Vector3D<double> m_etaAxisCLHEP; // common? (updateCache)
+      mutable HepGeom::Vector3D<double> m_phiAxisCLHEP; // common? (updateCache)
+      mutable Amg::Vector3D m_center; // common? (updateCache)
+      mutable HepGeom::Vector3D<double> m_centerCLHEP; // common? (updateCache)
+      mutable Amg::Vector3D m_origin; // common? (updateCache)
+      mutable HepGeom::Vector3D<double> m_originCLHEP; // common? (updateCache)
+
+      mutable double m_minZ; // common? (updateCache, getExtent)
+      mutable double m_maxZ; // common? (updateCache, getExtent)
+      mutable double m_minR; // common? (updateCache, getExtent)
+      mutable double m_maxR; // common? (updateCache, getExtent)
+      mutable double m_minPhi; // common? (updateCache, getExtent)
+      mutable double m_maxPhi; // common? (updateCache, getExtent)
+
       mutable double m_tanLorentzAnglePhi;
       mutable double m_tanLorentzAngleEta;
       mutable double m_lorentzCorrection; 

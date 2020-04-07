@@ -54,7 +54,7 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_prevInPhi(0),
   m_otherSide(0),
   m_conditionsCacheValid(false),
-  m_firstTime(true),
+  m_firstTime(true), // common
   m_isStereo(false),
   m_tanLorentzAnglePhi(0),
   m_tanLorentzAngleEta(0),
@@ -62,9 +62,9 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
 {
   //The following are fixes for coverity bug 11955, uninitialized scalars:
   const bool boolDefault(true);
-  m_depthDirection=boolDefault;
-  m_phiDirection=boolDefault;
-  m_etaDirection=boolDefault;
+  m_depthDirection=boolDefault; // common?
+  m_phiDirection=boolDefault; // common?
+  m_etaDirection=boolDefault; // common?
   const double defaultMin(std::numeric_limits<double>::max());
   const double defaultMax(std::numeric_limits<double>::lowest());
   m_minZ=defaultMin;
@@ -74,9 +74,9 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_minPhi=defaultMin;
   m_maxPhi=defaultMax;
 
-  m_hitEta = static_cast<const SiDetectorDesign *>(m_design)->etaAxis();
-  m_hitPhi = static_cast<const SiDetectorDesign *>(m_design)->phiAxis();
-  m_hitDepth = static_cast<const SiDetectorDesign *>(m_design)->depthAxis();
+  m_hitEta = static_cast<const SiDetectorDesign *>(m_design)->etaAxis(); // common?
+  m_hitPhi = static_cast<const SiDetectorDesign *>(m_design)->phiAxis(); // common?
+  m_hitDepth = static_cast<const SiDetectorDesign *>(m_design)->depthAxis(); // common?
   ///
   
   commonConstructor();
