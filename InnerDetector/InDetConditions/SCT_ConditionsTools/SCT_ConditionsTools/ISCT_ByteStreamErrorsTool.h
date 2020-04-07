@@ -16,7 +16,7 @@
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 #include "SCT_ConditionsData/SCT_ByteStreamErrors.h"
-
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 #include "GaudiKernel/EventContext.h"
 
 #include <set>
@@ -28,6 +28,17 @@ class IdentifierHash;
  * @class SCT_ByteStreamErrorsTool
  * Tool that keeps track of modules that give rise to errors in the bytestram.
  **/
+namespace SCT_ByteStreamErrors {
+  //!< @brief helper to be used in clients to fetch error information
+  inline bool hasError(IDCInDetBSErrContainer::ErrorCode errWord,  errorTypes errType ) { return errWord & (1<<errType); }
+
+  //!< @brief helper to set the error: @example errors[hashId] = addError( errors[hashId], PixelByteStreamErrors::Invalid )
+  inline void addError(IDCInDetBSErrContainer::ErrorCode& errWord,  errorTypes errType ) { errWord |= (1<<errType); }
+
+  //!< @brief for cases when error doe snot need to be accumulated
+  inline IDCInDetBSErrContainer::ErrorCode makeError( errorTypes errType ) { return (1<<errType); }
+}
+
 
 class ISCT_ByteStreamErrorsTool: virtual public ISCT_ConditionsTool {
 

@@ -84,6 +84,7 @@ namespace SCT_ByteStreamErrors {
     MissingLinkHeaderError,
     MaskedROD
   };
+
   // Define bad errors in FE-link level to be used in monitoring
   static const std::vector<errorTypes> LinkLevelBadErrors = {
     TimeOutError,
