@@ -26,3 +26,12 @@ atlas_install_headers( TileMuId )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*jobOptions*.py )
 
+# Check python syntax:
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TileMuIdConfig_test
+                SCRIPT python -m TileMuId.TileMuIdConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
