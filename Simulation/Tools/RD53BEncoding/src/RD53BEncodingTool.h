@@ -89,10 +89,9 @@ private:
   bool m_addresscompression;
   bool m_compression;
   bool m_suppressToT;
-  float m_safetyFactor;
+  float m_auroraFactor;
   int  m_eventsPerStream;
   int m_testevent;
-  std::string m_layoutVersion;
   
   // this is now a bunch of histograms we need to add
   std::string m_path;
