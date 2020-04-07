@@ -81,9 +81,6 @@ else:
    ## file inclusion and tracing
    from AthenaCommon.Include import IncludeError, include
 
-   ## properties of the application manager
-   theApp.StatusCodeCheck = False     # enabled via TriggerFlags.Online.doValidation (see below)
-
    ## set resource limits
    from AthenaCommon.ResourceLimits import SetMaxLimits
    SetMaxLimits()
@@ -179,14 +176,6 @@ else:
       print(" | Execute command after jobOptions script END.   | ")
       print(" +------------------------------------------------+ ")
       print("\n")
-
-   ### final tweaks -------------------------------------------------------------
-
-   from TriggerJobOpts.TriggerFlags import TriggerFlags
-   if TriggerFlags.Online.doValidation():
-      theApp.StatusCodeCheck = True
-
-   del TriggerFlags
 
    ### Dump properties and convert to JSON if requested -------------------------
    if PscConfig.dumpJobProperties:

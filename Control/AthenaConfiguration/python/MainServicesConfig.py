@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -101,17 +101,12 @@ def MainServicesThreadedCfg(cfgFlags):
 
         # Migrated code from AtlasThreadedJob.py
         MessageSvc=CompFactory.MessageSvc
-        StatusCodeSvc, AuditorSvc=CompFactory.getComps("StatusCodeSvc","AuditorSvc",)
+        AuditorSvc=CompFactory.AuditorSvc
 
         msgsvc = MessageSvc()
         msgsvc.defaultLimit = 0
         msgsvc.Format = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
         cfg.addService(msgsvc)
-
-        scsvc = StatusCodeSvc()
-        scsvc.AbortOnError = False
-        cfg.addService(scsvc)
-        cfg.setAppProperty('StatusCodeCheck',False)
 
         SG__HiveMgrSvc=CompFactory.SG__HiveMgrSvc
         hivesvc = SG__HiveMgrSvc("EventDataSvc")
