@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PlanarClusterContainerCnv.h"
@@ -23,11 +23,11 @@ iFatras::PlanarClusterContainer* PlanarClusterContainerCnv::createTransient() {
   iFatras::PlanarClusterContainer* p_collection(0);
   if( compareClassGuid(p2_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
-    std::auto_ptr< iFatras::PlanarClusterContainer_p2 >  p_coll( poolReadObject< iFatras::PlanarClusterContainer_p2 >() );
+    std::unique_ptr< iFatras::PlanarClusterContainer_p2 >  p_coll( poolReadObject< iFatras::PlanarClusterContainer_p2 >() );
     p_collection = m_converter_p2.createTransient( p_coll.get(), msg() );
   } else if ( compareClassGuid(p1_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
-    std::auto_ptr< iFatras::PlanarClusterContainer_p1 >  p_coll( poolReadObject< iFatras::PlanarClusterContainer_p1 >() );
+    std::unique_ptr< iFatras::PlanarClusterContainer_p1 >  p_coll( poolReadObject< iFatras::PlanarClusterContainer_p1 >() );
     p_collection = m_converter_p1.createTransient( p_coll.get(), msg() );
   } else {
     throw std::runtime_error("Unsupported persistent version of PlanarClusterContainer");
