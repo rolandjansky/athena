@@ -52,12 +52,12 @@ class JetRecCalibrationFinder:
     "triggerTrim"     : "JES_MC15recommendation_FatJet_June2015.config",
     # Note that these are not available in the most recent calibration area
     "reco"            : "JES_MC15cRecommendation_May2016_rel21.config",
-    "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config"
+    "pflow"           : "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config"
   }
 
   # Default the calibration area tag to that used for T0 reconstruction for consistency
   # This is based on the initial R21 production in 2016
-  def find(self, alg, rad, inpin, seq, configkeyin, evsprefix, calibareatag="00-04-77"):
+  def find(self, alg, rad, inpin, seq, configkeyin, evsprefix, calibareatag="00-04-82"):
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     from JetRec.JetRecStandardToolManager import jtm
     inp = inpin
