@@ -127,6 +127,8 @@ namespace met{
     #else
     SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
     #endif
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClusterKey{this,"CaloClusterKey","","SG Key of Calo Cluster Collection"};
+    SG::ReadHandleKey<CaloCellContainer> m_caloCellKey{this,"CaloCellKey","","SG Key of Calo Cell Container"};
   }; 
 
 }

@@ -26,7 +26,6 @@ def METAssociator_Cfg(configFlags):
     ############################################################################
     # AntiKt4LCTopo
     JetType = 'LCJet'
-
     associators = [AssocConfig(JetType),
                    AssocConfig('Muon'),
                    AssocConfig('Ele'),
@@ -39,15 +38,8 @@ def METAssociator_Cfg(configFlags):
                                 modConstKey=modConstKey,
                                 modClusColls=modClusColls
                                 )
-
-    assoctool_akt4lc = getMETAssocTool(cfg_akt4lc)
-    assocAlg_akt4lc = getMETAssocAlg(algName='METAssociation_LCJets',tools=[assoctool_akt4lc])
-    components.addEventAlgo(assocAlg_akt4lc,sequencename)
-    makerAlg_akt4lc= getMETMakerAlg('AntiKt4LCTopo')
-    components.addEventAlgo(makerAlg_akt4lc,'METAssociation')
-    
-    #metFlags.METAssocConfigs()[cfg_akt4lc.suffix] = cfg_akt4lc
-    #metFlags.METAssocOutputList().append(cfg_akt4lc.suffix)
+    components_akt4lc= getAssocCA(cfg_akt4lc,sequencename='METAssoc_AntiKt4LCTopo',METName='AntiKt4LCTopo')
+    components.merge(components_akt4lc)
 
     ############################################################################
     # AntiKt4EMTopo
@@ -65,13 +57,8 @@ def METAssociator_Cfg(configFlags):
                                 modConstKey=modConstKey,
                                 modClusColls=modClusColls
                                 )
-    assoctool_akt4em = getMETAssocTool(cfg_akt4em)
-    assocAlg_akt4em = getMETAssocAlg(algName='METAssociation_EMJets',tools=[assoctool_akt4em])
-    components.addEventAlgo(assocAlg_akt4em,sequencename)
-    makerAlg_akt4em= getMETMakerAlg('AntiKt4EMTopo')
-    components.addEventAlgo(makerAlg_akt4em,'METAssociation')   
-    #metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
-    #metFlags.METAssocOutputList().append(cfg_akt4em.suffix)
+    components_akt4em= getAssocCA(cfg_akt4em,sequencename='METAssoc_AntiKt4EMTopo',METName='AntiKt4EMTopo')
+    components.merge(components_akt4em)                            
 
     ############################################################################
     # PFlow
@@ -88,11 +75,19 @@ def METAssociator_Cfg(configFlags):
                                     associators,
                                     doPFlow=True
                                     )
-	assoctool_akt4pf = getMETAssocTool(cfg_akt4pf)
-        #metFlags.METAssocConfigs()[cfg_akt4pf.suffix] = cfg_akt4pf
-        #metFlags.METAssocOutputList().append(cfg_akt4pf.suffix)
-    	assocAlg_akt4pf = getMETAssocAlg(algName='METAssociation_PFlowJets',tools=[assoctool_akt4pf])
-    	components.addEventAlgo(assocAlg_akt4em,sequencename)
-        makerAlg_akt4pf= getMETMakerAlg('AntiKt4EMPFlow')
-        components.addEventAlgo(makerAlg_akt4pf,'METAssociation')   
+        components_akt4pf= getAssocCA(cfg_akt4pf,sequencename='METAssoc_AntiKt4EMPFlow',METName='AntiKt4EMPFlow')         
+        components.merge(components_akt4pf)
+    return components
+    
+    
+def getAssocCA(config,sequencename='METAssociation',METName=''):
+    components = ComponentAccumulator()
+    from AthenaCommon.AlgSequence import AthSequencer
+    components.addSequence( AthSequencer(sequencename) )
+    assoctool = getMETAssocTool(config)
+    assocAlg = getMETAssocAlg(algName='METAssociation_LCJets',tools=[assoctool])
+    components.addEventAlgo(assocAlg,sequencename)
+    if not METName=='':
+    	makerAlg=getMETMakerAlg(METName)
+        components.addEventAlgo(makerAlg,sequencename)
     return components

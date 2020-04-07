@@ -225,21 +225,10 @@ def getMETAssocTool(topconfig,msglvl):
     return assocTool
 
 # Allow user to configure reco tools directly or get more default configurations
-def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
+def getMETAssocAlg(algName='METAssociation',tools=[],msglvl=INFO):
 
     assocTools = []
     assocTools += tools
-
-    from METReconstruction.METRecoFlags import metFlags
-    if configs=={} and tools==[]:
-        print (prefix, 'Taking configurations from METRecoFlags')
-        configs = metFlags.METAssocConfigs()
-        print (configs)
-    for key,conf in six.iteritems(configs):
-        print (prefix, 'Generate METAssocTool for MET_'+key)
-        assoctool = getMETAssocTool(conf,msglvl)
-        assocTools.append(assoctool)
-        metFlags.METAssocTools()[key] = assoctool
 
     for tool in assocTools:
         print (prefix, 'Added METAssocTool \''+tool.name()+'\' to alg '+algName)
