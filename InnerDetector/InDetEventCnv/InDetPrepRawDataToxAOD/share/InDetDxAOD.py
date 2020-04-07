@@ -536,9 +536,14 @@ if dumpBytestreamErrors:
 
 # Add Unassociated hits augmentation tool
 if dumpUnassociatedHits:
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsGetterTool 
+    from InDetRecExample import TrackingCommon
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsGetterTool
     unassociatedHitsGetterTool = DerivationFramework__UnassociatedHitsGetterTool (name = 'unassociatedHitsGetter',
                                                                                   TrackCollection = "Tracks",
+                                                                                  AssociationTool = TrackingCommon.getPRDtoTrackMapTool(),
+                                                                                  # @TODO consider ganged pixel and TRT outliers when searching for unassociated PRDs (enabled by props below)?
+                                                                                  # AssociationTool = "",
+                                                                                  # PRDtoTrackMap = "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
                                                                                   PixelClusters = "PixelClusters",
                                                                                   SCTClusterContainer = "SCT_Clusters",
                                                                                   TRTDriftCircleContainer = "TRT_DriftCircles")
