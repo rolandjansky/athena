@@ -826,7 +826,7 @@ namespace CP {
       double sigmas=1.0;
       double rho= m_useFixedRho ? m_fixedRho:0.0; 
 
-      bool isSystematic = (SytCase == MCAST::SagittaSysType::RHO) && !m_doSagittaCorrection && m_doSagittaMCDistortion; 
+      bool isSystematic = (SytCase == MCAST::SagittaSysType::RHO); // && !m_doSagittaCorrection && m_doSagittaMCDistortion; 
 
       if(isSystematic ) {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
