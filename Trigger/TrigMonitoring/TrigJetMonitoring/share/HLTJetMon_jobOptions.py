@@ -76,8 +76,6 @@ if 1:
 
   rec.AutoConfiguration          .set_Value_and_Lock(["everything"])
     
-  rec.abortOnUncheckedStatusCode .set_Value_and_Lock(False)
-    
   rec.doCBNT                     .set_Value_and_Lock(False)
   rec.doESD                      .set_Value_and_Lock(False)
   rec.doHist                     .set_Value_and_Lock(False)
