@@ -48,9 +48,9 @@ def getInDetPhysValMonitoringTool(**kwargs) :
       if 'TruthSelectionTool' not in kwargs :
          kwargs=setDefaults(kwargs, TruthSelectionTool = getInDetRttTruthSelectionTool() )
       if InDetPhysValFlags.doValidateTracksInJets() :
-         jets_name='AntiKt4TruthJets'
+         jets_name='AntiKt4LCTopoJets'
          kwargs=setDefaults(kwargs,
-                            jetContainerName    = jets_name,
+                            JetContainerName    = jets_name,
                             FillTrackInJetPlots = True)
          from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising
          addTruthJetsIfNotExising(jets_name)
