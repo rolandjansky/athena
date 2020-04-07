@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef INDETPHYSVALMONITORING_InDetPerfPlot_hitResidual
-#define INDETPHYSVALMONITORING_InDetPerfPlot_hitResidual
+#ifndef INDETPHYSVALMONITORING_InDetPerfPlot_HITRESIDUAL
+#define INDETPHYSVALMONITORING_InDetPerfPlot_HITRESIDUAL
 /**
- * @file InDetPerfPlot_hitResidual.h
+ * @file InDetPerfPlot_HitResidual.h
  * @author shaun roe
  **/
 
@@ -29,12 +29,12 @@ class IExtrapolator;
 
 
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_hitResidual: public InDetPlotBase {
+class InDetPerfPlot_HitResidual: public InDetPlotBase {
 public:
-  InDetPerfPlot_hitResidual(InDetPlotBase* pParent, const std::string& dirName);
+  InDetPerfPlot_HitResidual(InDetPlotBase* pParent, const std::string& dirName);
 
   void fill(const xAOD::TrackParticle& trkprt);
-  ~InDetPerfPlot_hitResidual() {/** nop **/
+  ~InDetPerfPlot_HitResidual() {/** nop **/
   }
 
 private:

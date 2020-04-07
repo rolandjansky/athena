@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef INDETPHYSVALMONITORING_InDetPerfPlot_hitEff
-#define INDETPHYSVALMONITORING_InDetPerfPlot_hitEff
+#ifndef INDETPHYSVALMONITORING_InDetPerfPlot_HITEFFICIENCY
+#define INDETPHYSVALMONITORING_InDetPerfPlot_HITEFFICIENCY
 /**
- * @file InDetPerfPlot_hitEff.h
+ * @file InDetPerfPlot_HitEfficiency.h
  * @author nora pettersson
  **/
 
@@ -28,12 +28,12 @@ class TProfile;
 class TEfficiency;
 
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_hitEff: public InDetPlotBase {
+class InDetPerfPlot_HitEfficiency: public InDetPlotBase {
 public:
-  InDetPerfPlot_hitEff(InDetPlotBase* pParent, const std::string& dirName);
+  InDetPerfPlot_HitEfficiency(InDetPlotBase* pParent, const std::string& dirName);
 
   void fill(const xAOD::TrackParticle& trkprt);
-  ~InDetPerfPlot_hitEff() {/** nop **/
+  ~InDetPerfPlot_HitEfficiency() {/** nop **/
   }
 
 private:
@@ -48,7 +48,7 @@ private:
   void initializePlots();
 
   //TProfile* m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
-  TEfficiency* m_hitEfficiencyVsEta[N_SUBDETECTORS][N_REGIONS];
+  TEfficiency* m_HitEfficiencyVsEta[N_SUBDETECTORS][N_REGIONS];
   bool m_debug;
 };
 

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPERFPLOT_VERTEXCONTAINER
 #define INDETPHYSVALMONITORING_INDETPERFPLOT_VERTEXCONTAINER
 /**
- * @file InDetPerfPlot_VertexContainer.h
+ * @file InDetPerfPlot_VerticesVsMu.h
  * @author Simone Pagan Griso
  **/
 
@@ -22,12 +22,12 @@
 class TH2;
 
 ///class holding general plots for xAOD::Vertex
-class InDetPerfPlot_VertexContainer: public InDetPlotBase {
+class InDetPerfPlot_VerticesVsMu: public InDetPlotBase {
 public:
-  InDetPerfPlot_VertexContainer(InDetPlotBase* pParent, const std::string& dirName);
+  InDetPerfPlot_VerticesVsMu(InDetPlotBase* pParent, const std::string& dirName);
 
   // Fills vertex container information; also uses EventInfo
-  void fill(const xAOD::VertexContainer& vertices, const xAOD::EventInfo& ei);
+  void fill(const xAOD::VertexContainer& vertices, unsigned int nPU);
 private:
   ///@name Number of vertices vs mu
   ///@{
