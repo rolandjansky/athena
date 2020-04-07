@@ -18,6 +18,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"

@@ -70,6 +70,8 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
 
 
 
+
+        fillDistributions( pairObjs, info );
         fillEfficiencies( pairObjs, info );
 
 

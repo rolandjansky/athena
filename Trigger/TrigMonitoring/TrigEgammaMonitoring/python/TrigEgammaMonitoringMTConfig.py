@@ -351,6 +351,7 @@ class TrigEgammaMonAlgBuilder:
     self.__logger.info( "Booking all histograms for alg: %s", monAlg.name )
 
     for trigger in triggers:
+      self.bookL1CaloDistributions( monAlg, trigger )
       self.bookL2CaloDistributions( monAlg, trigger )
       self.bookL2ElectronDistributions( monAlg, trigger )
       self.bookEFCaloDistributions( monAlg, trigger )
@@ -376,6 +377,22 @@ class TrigEgammaMonAlgBuilder:
     monGroup.defineHistogram(analysis+"_TagCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",xbins=12, xmin=0, xmax=12)
     monGroup.defineHistogram(analysis+"_ProbeCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",xbins=12, xmin=0, xmax=12)
     monGroup.defineHistogram(analysis+"_Mee", type='TH1F', path='/', title="Offline M(ee); m_ee [GeV] ; Count",xbins=50, xmin=monAlg.ZeeLowerMass, xmax=monAlg.ZeeUpperMass)
+
+
+  #
+  # Book L1Calo distributions
+  #
+  def bookL1CaloDistributions( self , monAlg, trigger ):
+
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_L1Calo', self.basePath+'/'+trigger+'/Distributions/L1Calo' )
+    
+    self.addHistogram(monGroup, TH1F("energy", "Cluster Energy; E [GeV] ; Count", 100, 0., 200.))
+    self.addHistogram(monGroup, TH1F("roi_eta", "RoI word Cluster Energy; E [GeV] ; Count", 100, 0, 200))
+    self.addHistogram(monGroup, TH1F("emIso", "EM Isolation; E [GeV] ; Count", 50, -1., 20.))
+    self.addHistogram(monGroup, TH1F("hadCore", "HAD Isolation; E [GeV] ; Count", 50, -1., 20.))
+    self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", 50, -2.5, 2.5))
+    self.addHistogram(monGroup, TH1F("phi", "phi; phi ; Count", 20, -3.2, 3.2))
 
 
 
@@ -432,8 +449,8 @@ class TrigEgammaMonAlgBuilder:
   def bookShowerShapesDistributions( self, monAlg, trigger, online=True ):
     
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + "HLT" if online else "Offline", 
-                              self.basePath+'/'+trigger+'/Distributions/' + "HLT" if online else "Offline" )
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
+                              self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
 
     self.addHistogram(monGroup, TH1F("ethad", "ethad; ethad ; Count", 20, -10, 10))
     self.addHistogram(monGroup, TH1F("ethad1", "ethad1; ehad1 ; Count", 20, -10, 10))
@@ -463,8 +480,8 @@ class TrigEgammaMonAlgBuilder:
   def bookTrackingDistributions(self, monAlg, trigger, online=True):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + "HLT" if online else "Offline", 
-                              self.basePath+'/'+trigger+'/Distributions/' + "HLT" if online else "Offline" )
+    monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
+                              self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
 
     self.addHistogram(monGroup, TH1F("deta1", "deta1; deta1 ; Count", 40, -0.01, 0.01))
     self.addHistogram(monGroup, TH1F("deta1_EMECA", "deta1 EMEC-A; deta1 ; Count", 40, -0.01, 0.01))

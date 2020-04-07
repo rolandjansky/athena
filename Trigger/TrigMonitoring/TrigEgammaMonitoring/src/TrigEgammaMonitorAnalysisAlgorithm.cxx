@@ -63,14 +63,16 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &leve
                                                          std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >> pairObjs) const
 {
 
-    asg::AcceptData acceptData (&getAccept());
 
+    
+    asg::AcceptData acceptData (&getAccept());
     const float etthr = info.trigThrHLT;
     const std::string pidword = info.trigPidDecorator;
     const std::string trigger = info.trigName;
 
 
     auto monGroup = getGroup( trigger + "_Efficiency_" + level );
+
     
     std::vector<float> et_vec, highet_vec, pt_vec, eta_vec, phi_vec, avgmu_vec, npvtx_vec;
     std::vector<float> match_et_vec, match_highet_vec, match_pt_vec, match_eta_vec, match_phi_vec, match_avgmu_vec, match_npvtx_vec;
@@ -189,529 +191,412 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &leve
 // *********************************************************************************
 
 
-
-
-void TrigEgammaMonitorAnalysisAlgorithm::fillL2Calo(const std::string &trigger, const xAOD::TrigEMCluster *emCluster) const
+void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs,
+                                                           const TrigInfo info ) const
 {
-    
-    if(!emCluster) ATH_MSG_DEBUG("Online pointer fails"); 
-    else{
-        auto monGroup = getGroup(trigger+"_Distributions_L2Calo");
-        auto et = Monitored::Scalar<float>("et", emCluster->et()/1.e3);
-        auto eta = Monitored::Scalar<float>("eta", emCluster->eta());
-        auto phi = Monitored::Scalar<float>("phi", emCluster->phi());
-        
-        fill( monGroup, et, eta, phi );
+
+  const std::string trigger = info.trigName;
+
+  if (info.trigL1){
+  
+      //  Fill L1 features
+      std::vector<const xAOD::EmTauRoI*> l1_vec;
+      auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,TrigDefs::includeFailedDecisions,"",
+                                                                    TrigDefs::allFeaturesOfType,"initialRoI");       
+      for( auto &initRoi: initRois ){               
+        if( !initRoi.link.isValid() ) continue;      
+        auto feat = match()->getFeature<xAOD::EmTauRoI>( initRoi.source );
+        if(feat)
+          l1_vec.push_back(feat);
+      }
+
+      fillL1Calo( trigger, l1_vec );
+
+  
+  }else{
+ 
+
+    // Offline
+    std::vector<const xAOD::Egamma*> eg_vec;
+    std::vector<const xAOD::Electron*> el_vec;
+    for( auto pairObj: pairObjs )
+    {
+        eg_vec.push_back(pairObj.first);
+        if( xAOD::EgammaHelpers::isElectron(pairObj.first)){
+            const xAOD::Electron* elOff = static_cast<const xAOD::Electron*> (pairObj.first);
+            el_vec.push_back(elOff);
+        }
     }
+    
+    ATH_MSG_INFO( "AKI_JOAO " << el_vec.size() ); 
+    // Offline
+    fillShowerShapes( trigger, eg_vec, false );
+    fillTracking( trigger, el_vec, false );
+   
+
+
+    if( m_tp ){
+        
+        if( info.trigType == "electron" ){
+
+
+        }else{
+          ATH_MSG_WARNING( "Chain type not Electron for TP trigger" );
+        }
+
+
+    }else{
+
+        // L1Calo
+        {
+          //  Fill L1 features
+          std::vector<const xAOD::EmTauRoI*> l1_vec;
+          auto initRois =  tdt()->features<TrigRoiDescriptorCollection>(trigger,TrigDefs::includeFailedDecisions,"",
+                                                                        TrigDefs::allFeaturesOfType,"initialRoI");       
+          for( auto &initRoi: initRois ){               
+            if( !initRoi.link.isValid() ) continue;      
+            auto feat = match()->getFeature<xAOD::EmTauRoI>( initRoi.source );
+            if(feat)
+              l1_vec.push_back(feat);
+          }
+
+          fillL1Calo( trigger, l1_vec );
+        }
+ 
+
+        // L2Calo
+        {
+          std::vector<const xAOD::TrigEMCluster*> emCluster_vec;
+          auto vec =  tdt()->features<xAOD::TrigEMClusterContainer>(trigger,TrigDefs::includeFailedDecisions ,match()->key("L2Calo") );      
+          for(auto &featLinkInfo : vec ){                                             
+            if(! featLinkInfo.isValid() ) continue;
+            const auto *feat = *(featLinkInfo.link);                   
+            if(!feat) continue;
+            emCluster_vec.push_back(feat);
+          }
+          fillL2Calo( trigger, emCluster_vec );
+        }
+
+
+        // EFCalo
+        {
+          std::vector<const xAOD::CaloCluster* > clus_vec;
+          auto vec =  tdt()->features<xAOD::CaloClusterContainer>(trigger,TrigDefs::includeFailedDecisions ,match()->key("EFCalo") );      
+          for(auto &featLinkInfo : vec ){                                             
+            if(! featLinkInfo.isValid() ) continue;
+            const auto *feat = *(featLinkInfo.link);                   
+            if(!feat) continue;
+            // Get only passed clusters
+            if (featLinkInfo.state == ActiveState::ACTIVE )
+              clus_vec.push_back(feat);
+          } 
+          fillEFCalo( trigger,  clus_vec );
+        }
+
+
+        if ( info.trigType == "electron" ){
+            // L2 Electron
+            
+            // HLT Electron
+
+        }else if ( info.trigType == "photon"){
+            // L2 Photon
+            
+            // HLT Photon
+
+        }else{
+            ATH_MSG_INFO( "Chain type not specified" );
+        }
+
+    }
+  
+  
+  }
 }
 
 
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillL2Electron(const std::string &trigger, const xAOD::TrigElectron *el) const
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillL1Calo( const std::string &trigger, std::vector< const xAOD::EmTauRoI* > l1_vec ) const 
 {
-    
-    if(!el) ATH_MSG_DEBUG("TrigElectron nullptr");
-    else {
-        auto monGroup = getGroup(trigger+"_Distributions_L2Electron");
-        auto et = Monitored::Scalar<float>("et", el->pt()/1.e3);
-        auto eta = Monitored::Scalar<float>("eta", el->eta());
-        auto phi = Monitored::Scalar<float>("phi", el->phi());
-        
-        fill( monGroup, et, eta, phi );
+    auto monGroup = getGroup(trigger+"_Distributions_L1Calo");
+
+    std::vector<float> eta_vec, phi_vec, energy_vec, roi_et_vec, emIso_vec, hadCore_vec;
+
+    auto eta_col      = Monitored::Collection( "eta"     , eta_vec       );
+    auto phi_col      = Monitored::Collection( "phi"     , phi_vec       );
+    auto energy_col   = Monitored::Collection( "energy"  , energy_vec    );
+    auto roi_et_col   = Monitored::Collection( "roi_et"  , roi_et_vec    );
+    auto emIso_col    = Monitored::Collection( "emIso"   , emIso_vec     );
+    auto hadCore_col  = Monitored::Collection( "hadCore" , hadCore_vec  );
+
+    for( auto l1 : l1_vec )
+    {
+      if(!l1)  continue;
+      eta_vec.push_back( l1->eta() );
+      phi_vec.push_back( l1->phi() );
+      energy_vec.push_back( l1->emClus()/1.e3 );
+      roi_et_vec.push_back( l1->eT()/1.e3 );
+      emIso_vec.push_back( l1->emIsol()/1.e3 );
+      hadCore_vec.push_back( l1->hadCore()/1.e3 );
     }
+
+    fill( monGroup, eta_col, phi_col, energy_col, roi_et_col, emIso_col, hadCore_col );
 
 }
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, const xAOD::CaloCluster *clus) const
+
+
+
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillL2Calo(const std::string &trigger, std::vector< const xAOD::TrigEMCluster *> emCluster_vec) const
 {
+    auto monGroup = getGroup(trigger+"_Distributions_L2Calo");
     
-    ATH_MSG_DEBUG("Fill EFCalo distributions:" << trigger);
-    ATH_MSG_DEBUG("Energy " << clus->e()/1.e3);
-    ATH_MSG_DEBUG("eta " << clus->eta());
-    ATH_MSG_DEBUG("phi " << clus->phi());
+    std::vector<float> et_vec, eta_vec, phi_vec;
     
-    double tmpeta = -999.;
-    if(!clus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta))
-        tmpeta=-999.;
-    double tmpphi = -999.;
-    if(!clus->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi))
-        tmpphi=-999.;
-    ATH_MSG_DEBUG("etacalo " << tmpeta);
-    ATH_MSG_DEBUG("phicalo " << tmpphi);
+    auto et_col   = Monitored::Collection("et" , et_vec  );    
+    auto eta_col  = Monitored::Collection("eta", eta_vec );    
+    auto phi_col  = Monitored::Collection("phi", phi_vec );    
+    
+    for ( auto emCluster : emCluster_vec )
+    {
+      if(!emCluster)  continue;
+      et_vec.push_back(  emCluster->et()/1.e3 );
+      eta_vec.push_back( emCluster->eta() );
+      phi_vec.push_back( emCluster->phi() );
+    }
+
+    fill( monGroup, et_col, eta_col, phi_col );
+
+
+}
+
+
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillL2Electron(const std::string &trigger, std::vector< const xAOD::TrigElectron* > el_vec) const
+{
+ 
+    auto monGroup = getGroup(trigger+"_Distributions_L2Electron");
+    
+    std::vector<float> et_vec, eta_vec, phi_vec;
+    
+    auto et_col   = Monitored::Collection("et" , et_vec  );    
+    auto eta_col  = Monitored::Collection("eta", eta_vec );    
+    auto phi_col  = Monitored::Collection("phi", phi_vec );    
+    
+    for ( auto el : el_vec )
+    {
+      if(!el)  continue;
+      et_vec.push_back( el->pt()/1.e3 );
+      eta_vec.push_back( el->eta() );
+      phi_vec.push_back( el->phi() );
+    }
+
+    fill( monGroup, et_col, eta_col, phi_col );
+}
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillEFCalo(const std::string &trigger, std::vector< const xAOD::CaloCluster*> clus_vec) const
+{
     
     auto monGroup = getGroup( trigger + "_Distributions_EFCalo" );
-
-    auto energyBE0 = Monitored::Scalar<float>("energyBE0", clus->energyBE(0)/1.e3);
-    auto energyBE1 = Monitored::Scalar<float>("energyBE1", clus->energyBE(1)/1.e3);
-    auto energyBE2 = Monitored::Scalar<float>("energyBE2", clus->energyBE(2)/1.e3);
-    auto energyBE3 = Monitored::Scalar<float>("energyBE3", clus->energyBE(3)/1.e3);
-    auto energy = Monitored::Scalar<float>("energy", clus->e()/1.e3);
-    auto et = Monitored::Scalar<float>("et", clus->et()/1.e3);
-    auto eta = Monitored::Scalar<float>("eta", clus->eta());
-    auto phi = Monitored::Scalar<float>("phi", clus->phi());
-    auto eta_calo = Monitored::Scalar<float>("eta_calo", tmpeta);
-    auto phi_calo = Monitored::Scalar<float>("phi_calo", tmpphi);
-
-    fill( monGroup, energyBE0, energyBE1, energyBE2, energyBE3, energy, et, eta, phi, eta_calo, phi_calo );
-}
-
-
-
-
-
-void TrigEgammaMonitorAnalysisAlgorithm::fillShowerShapes(const std::string &trigger,const xAOD::Egamma *eg, bool online ) const 
-{
-    ATH_MSG_DEBUG("Fill SS distributions: " << trigger);
-    if(!eg) ATH_MSG_WARNING("Egamma pointer fails"); 
-    else {
-        ATH_MSG_DEBUG("Shower Shapes");
-
-        auto monGroup = getGroup( trigger + ( online ? "_Distributions_HLT" : "_Distributions_Offline") );
-
-        std::vector<Monitored::Scalar<float>>  variables;
-        variables.push_back( Monitored::Scalar<float>("ethad", getShowerShape_ethad(eg)/1e3));
-        variables.push_back( Monitored::Scalar<float>("ethad1", getShowerShape_ethad1(eg)/1e3));
-        variables.push_back( Monitored::Scalar<float>("Rhad", getShowerShape_Rhad(eg)));
-        variables.push_back( Monitored::Scalar<float>("Rhad1", getShowerShape_Rhad(eg)));
-        variables.push_back( Monitored::Scalar<float>("Reta", getShowerShape_Reta(eg)));
-        variables.push_back( Monitored::Scalar<float>("Rphi", getShowerShape_Rphi(eg)));
-        variables.push_back( Monitored::Scalar<float>("weta1", getShowerShape_weta1(eg)));
-        variables.push_back( Monitored::Scalar<float>("weta2", getShowerShape_weta2(eg)));
-        variables.push_back( Monitored::Scalar<float>("f1", getShowerShape_f1(eg)));
-        variables.push_back( Monitored::Scalar<float>("f3", getShowerShape_f3(eg)));
-        variables.push_back( Monitored::Scalar<float>("eratio", getShowerShape_Eratio(eg)));
-        variables.push_back( Monitored::Scalar<float>("et", eg->pt()/1e3));
-        variables.push_back( Monitored::Scalar<float>("highet", eg->pt()/1e3));
-        variables.push_back( Monitored::Scalar<float>("eta", eg->eta()));
-        variables.push_back( Monitored::Scalar<float>("phi", eg->phi()));
-        variables.push_back( Monitored::Scalar<float>("topoetcone20", getIsolation_topoetcone20(eg)/1e3));
-        variables.push_back( Monitored::Scalar<float>("topoetcone40_shift", (getIsolation_topoetcone40(eg)-2450)/1e3));
-        
-        if (eg->pt() > 0) {
-            variables.push_back( Monitored::Scalar<float>("topoetcone20_rel", getIsolation_topoetcone20(eg)/eg->pt()));
-            variables.push_back( Monitored::Scalar<float>("topoetcone40_shift_rel", (getIsolation_topoetcone40(eg)-2450)/eg->pt()));
-        
-        }
-
-        std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>  mon_variables;
-        for(auto&v:variables) mon_variables.push_back(v);
-        fill( monGroup, mon_variables );
-    }
-}
-
-
-void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger, const xAOD::Electron *eg, bool online ) const
-{
-    ATH_MSG_DEBUG("Fill tracking");
-    if(!eg) ATH_MSG_WARNING("Electron pointer fails");
-    else {
-
-        auto monGroup = getGroup( trigger + ( online ? "_Distributions_HLT" : "_Distributions_Offline") );
-
-        std::vector<Monitored::Scalar<float>>  variables;
-
-        float cleta = 0.;
-        if(eg->caloCluster()) cleta=eg->caloCluster()->eta();
-        else cleta=eg->eta();
-
-        ATH_MSG_DEBUG("Calo-track match");
-        variables.push_back( Monitored::Scalar<float>("deta1", getCaloTrackMatch_deltaEta1(eg)) );
-        if(cleta > 1.375 && cleta < 3.2)
-            variables.push_back( Monitored::Scalar<float>("deta1_EMECA", getCaloTrackMatch_deltaEta1(eg)));
-        if(cleta < -1.375 && cleta > -3.2)
-            variables.push_back( Monitored::Scalar<float>("deta1_EMECC", getCaloTrackMatch_deltaEta1(eg)));
-        if(cleta > 0 && cleta < 1.375)
-            variables.push_back( Monitored::Scalar<float>("deta1_EMEBA", getCaloTrackMatch_deltaEta1(eg)));
-        if(cleta < 0 && cleta > -1.375)
-            variables.push_back( Monitored::Scalar<float>("deta1_EMEBC", getCaloTrackMatch_deltaEta1(eg)));
-        
-        variables.push_back( Monitored::Scalar<float>("deta2", getCaloTrackMatch_deltaEta2(eg)));
-        variables.push_back( Monitored::Scalar<float>("dphi2", getCaloTrackMatch_deltaPhi2(eg)));
-        variables.push_back( Monitored::Scalar<float>("dphiresc", getCaloTrackMatch_deltaPhiRescaled2(eg)));
-        
-        
-        variables.push_back( Monitored::Scalar<float>("eprobht", getTrackSummaryFloat_eProbabilityHT(eg)));
-        variables.push_back( Monitored::Scalar<float>("npixhits", getTrackSummary_numberOfPixelHits(eg)));
-        variables.push_back( Monitored::Scalar<float>("nscthits", getTrackSummary_numberOfSCTHits(eg)));
-        variables.push_back( Monitored::Scalar<float>("charge", eg->charge()));
-        variables.push_back( Monitored::Scalar<float>("ptcone20", getIsolation_ptcone20(eg)/1e3));
-        
-        variables.push_back( Monitored::Scalar<float>("ptvarcone20", getIsolation_ptvarcone20(eg)/1e3));
-        // Quantities directly from tracks
-        ATH_MSG_DEBUG("Get track Quantities");
-        variables.push_back( Monitored::Scalar<float>("d0", getTrack_d0(eg)));
-        variables.push_back( Monitored::Scalar<float>("d0sig", getD0sig(eg)));
-        variables.push_back( Monitored::Scalar<float>("pt", getTrack_pt(eg)/1e3));
-        
-        if (eg->pt() > 0) {
-            variables.push_back( Monitored::Scalar<float>("ptcone20_rel", getIsolation_ptcone20(eg)/eg->pt()));
-            variables.push_back( Monitored::Scalar<float>("ptvarcone20_rel", getIsolation_ptvarcone20(eg)/eg->pt()));
-        }
-
-        std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>  mon_variables;
-        for(auto&v:variables) mon_variables.push_back(v);
-        fill( monGroup, mon_variables );
- 
-    }
-}
-
-
-// *********************************************************************************
-
-void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloResolution(const std::string &trigger,const xAOD::EmTauRoI *l1, const xAOD::Egamma *off) const 
-{
-    ATH_MSG_DEBUG("Fill L1CaloResolution");
-    if(off->type()==xAOD::Type::Electron){
-
-      const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
-      auto monGroup = getGroup( trigger + "_Resolutions_L1Calo" );
-      auto eta = Monitored::Scalar<float>( "eta" , l1->eta() );
-      auto res_et = Monitored::Scalar<float>("res_et", (l1->emClus()-getEt(eloff))/getEt(eloff));
-      fill( monGroup, eta, res_et );
-    }
-}
-
-void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloAbsResolution(const std::string &trigger,const xAOD::EmTauRoI *l1, const xAOD::Egamma *off) const
-{
-    ATH_MSG_DEBUG("Fill L1CaloAbsResolution");
-    if(off->type()==xAOD::Type::Electron){
-
-      const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
-      auto monGroup = getGroup( trigger + "_AbsResolutions_L1Calo" );
-      auto eta = Monitored::Scalar<float>( "eta" , l1->eta() );
-      auto res_et = Monitored::Scalar<float>("res_et", 0.001* (l1->emClus()-getEt(eloff)));
-      fill( monGroup, eta, res_et );
-    }
-}
-
-
-void TrigEgammaMonitorAnalysisAlgorithm::fillL2CaloResolution(const std::string &trigger,const xAOD::TrigEMCluster *onl, const xAOD::Egamma *off) const
-{
-        
-    ATH_MSG_DEBUG("Fill Resolution");
-    float val_off=0.;
-    if(xAOD::EgammaHelpers::isElectron(off)){
-
-        auto monGroup = getGroup( trigger + "_Resolutions_L2Calo" );
-        std::vector<Monitored::Scalar<float>>  variables;
-
-        const xAOD::TrigEMCluster* elonl =onl;
-        const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
-
-        val_off=getEt(eloff);
-
-        variables.push_back( Monitored::Scalar<float>("et", elonl->et()/1e3 ));
-        variables.push_back( Monitored::Scalar<float>("eta", elonl->eta() ));
-        variables.push_back( Monitored::Scalar<float>("phi", elonl->phi() ));
-
-
-        if(val_off!=0.)
-            variables.push_back( Monitored::Scalar<float>("res_et", (elonl->et()-val_off)/val_off) );
-
-
-        val_off=eloff->caloCluster()->eta();
-        if(val_off!=0.) 
-            variables.push_back( Monitored::Scalar<float>("res_eta", (elonl->eta()-val_off)/val_off));
-        
-
-        val_off=eloff->caloCluster()->phi();
-        if(val_off!=0.) 
-            variables.push_back( Monitored::Scalar<float>("res_phi", (elonl->phi()-val_off)/val_off));
-
-
-        float elonl_ethad = elonl->energy( CaloSampling::HEC0 ); elonl_ethad += elonl->energy( CaloSampling::HEC1 );
-        elonl_ethad += elonl->energy( CaloSampling::HEC2 ); elonl_ethad += elonl->energy( CaloSampling::HEC3 );
-        elonl_ethad += elonl->energy( CaloSampling::TileBar0 ); elonl_ethad += elonl->energy( CaloSampling::TileExt0 ); 
-        elonl_ethad += elonl->energy( CaloSampling::TileBar1 ); elonl_ethad += elonl->energy( CaloSampling::TileExt1 ); 
-        elonl_ethad += elonl->energy( CaloSampling::TileBar2 ); elonl_ethad += elonl->energy( CaloSampling::TileExt2 ); 
-        elonl_ethad /= TMath::CosH(elonl->eta() );
-        val_off=getShowerShape_ethad(off);
-        
-        if(val_off!=0.)
-            variables.push_back( Monitored::Scalar<float>("res_ethad", (elonl_ethad-val_off)/val_off));
-
-        val_off=getShowerShape_ethad1(off);
-        if(val_off!=0.)
-            variables.push_back( Monitored::Scalar<float>("res_ethad1", ( (onl->ehad1()/TMath::Abs(onl->eta()) )-val_off)/val_off));
-
-        float elonl_Rhad = elonl_ethad / onl->energy() ;
-        val_off=getShowerShape_Rhad(off);
-        if(val_off!=0.)
-            variables.push_back( Monitored::Scalar<float>("res_Rhad", ( elonl_Rhad-val_off)/val_off));
-
-        float elonl_Rhad1 = onl->ehad1() / onl->energy() ;
-        val_off=getShowerShape_Rhad1(off);
-        if(val_off!=0.)
-            variables.push_back( Monitored::Scalar<float>("res_Rhad1", ( elonl_Rhad1-val_off)/val_off));
-
-
-        float onl_reta= 999.0;
-        if ( fabsf ( onl->e277() ) > 0.01 ) onl_reta = onl->e237() / onl->e277();
-        val_off=getShowerShape_Reta(off);
-        if(val_off!=0.){
-            variables.push_back( Monitored::Scalar<float>("res_Reta",  (onl_reta -val_off)/val_off));
-        }
-        
-        val_off=getShowerShape_weta2(off);
-        if(val_off!=0.){
-            variables.push_back( Monitored::Scalar<float>("res_weta2",  (onl->weta2()-val_off)/val_off) );
-        }
-
-        float onl_f1 = onl->energy(CaloSampling::EMB1)+onl->energy(CaloSampling::EME1);
-        onl_f1 /= onl->energy();
-        val_off=getShowerShape_f1(off);
-        if(val_off!=0.){
-            variables.push_back( Monitored::Scalar<float>("res_f1", ( (onl_f1)-val_off)/val_off));
-        }
-        float onl_f3 = onl->energy(CaloSampling::EMB3)+onl->energy(CaloSampling::EME3);
-        onl_f3 /= onl->energy();
-        val_off=getShowerShape_f3(off);
-        if(val_off!=0.){
-            variables.push_back( Monitored::Scalar<float>("res_f3",  (onl_f3-val_off)/val_off));
-        }
-        float onl_eratio = 999.0;
-        if ( fabsf(onl->emaxs1() + onl->e2tsts1()) > 0.01 ) 
-            onl_eratio = (onl->emaxs1() - onl->e2tsts1()) / (onl->emaxs1() + onl->e2tsts1());
-        val_off=getShowerShape_Eratio(off);
-        if(val_off!=0.){
-            variables.push_back( Monitored::Scalar<float>("res_eratio",  (onl_eratio-val_off)/val_off));
-        }
-
-        
-        std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>  mon_variables;
-        for(auto&v:variables) mon_variables.push_back(v);
-        fill( monGroup, mon_variables );
- 
-
-    } // Electron
-}
-
-
-
-
-
-void TrigEgammaMonitorAnalysisAlgorithm::fillHLTAbsResolution(const std::string &trigger,const xAOD::Egamma *onl, const xAOD::Egamma *off) const 
-{
+    
    
-    ATH_MSG_DEBUG("Fill Abs Resolution");    
-    auto monGroup = getGroup( trigger + "_AbsResolutions_HLT" );
-    std::vector<Monitored::Scalar<float>>  variables;
+    std::vector<float> energyBE0_vec, energyBE1_vec, energyBE2_vec, energyBE3_vec, 
+      energy_vec, et_vec, eta_vec, phi_vec, eta_calo_vec, phi_calo_vec;
+   
 
 
-    if(xAOD::EgammaHelpers::isElectron(onl)){
+    auto energyBE0_col  = Monitored::Collection("energyBE0", energyBE0_vec);
+    auto energyBE1_col  = Monitored::Collection("energyBE1", energyBE1_vec);
+    auto energyBE2_col  = Monitored::Collection("energyBE2", energyBE2_vec);
+    auto energyBE3_col  = Monitored::Collection("energyBE3", energyBE3_vec);
+    auto energy_col     = Monitored::Collection("energy"   , energy_vec );
+    auto et_col         = Monitored::Collection("et"       , et_vec );
+    auto eta_col        = Monitored::Collection("eta"      , eta_vec );
+    auto phi_col        = Monitored::Collection("phi"      , phi_vec );
+    auto eta_calo_col   = Monitored::Collection("eta_calo" , eta_calo_vec );
+    auto phi_calo_col   = Monitored::Collection("phi_calo" , phi_calo_vec );
 
-        const xAOD::Electron* elonl =static_cast<const xAOD::Electron*> (onl);
-        const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
-        variables.push_back( Monitored::Scalar<float>("res_pt", (getTrack_pt(elonl)-getTrack_pt(eloff))) );
-        variables.push_back( Monitored::Scalar<float>("res_et", (getEt(elonl)-getEt(eloff))/getEt(eloff)) );
-        
-        const float onl_eta=onl->eta();
-        const float feta = fabs(onl_eta);
-        const float off_eta=off->eta();
-        const float avgmu = lbAverageInteractionsPerCrossing();        
+    for ( auto clus : clus_vec )
+    {
+        double tmpeta = -999.;
+        if(!clus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta))
+            tmpeta=-999.;
+        double tmpphi = -999.;
+        if(!clus->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi))
+            tmpphi=-999.;
+     
+        energyBE0_vec.push_back( clus->energyBE(0)/1.e3 ); 
+        energyBE1_vec.push_back( clus->energyBE(1)/1.e3 ); 
+        energyBE2_vec.push_back( clus->energyBE(2)/1.e3 ); 
+        energyBE3_vec.push_back( clus->energyBE(3)/1.e3 ); 
+        energy_vec.push_back( clus->e()/1.e3 ); 
+        et_vec.push_back( clus->et()/1.e3 ); 
+        eta_vec.push_back( clus->eta() );
+        phi_vec.push_back( clus->phi() );
+        eta_calo_vec.push_back( tmpeta );
+        phi_calo_vec.push_back( tmpphi );
 
-        variables.push_back( Monitored::Scalar<float>("et", getEt(elonl)/1e3 ));
-        variables.push_back( Monitored::Scalar<float>("eta", elonl->eta() ));
-        variables.push_back( Monitored::Scalar<float>("phi", elonl->phi() ));
-        variables.push_back( Monitored::Scalar<float>("avgmu", avgmu ));
-
-
-
-
-        variables.push_back( Monitored::Scalar<float>("res_eta", onl_eta-off_eta));
-        variables.push_back( Monitored::Scalar<float>("res_phi", (elonl->phi()-eloff->phi())));
-        variables.push_back( Monitored::Scalar<float>("res_ptcone20", getIsolation_ptcone20(elonl)-getIsolation_ptcone20(eloff)));
-
-        //ptcone20/pt
-        if (getEt(elonl) > 0 && getEt(eloff) > 0) {
-            variables.push_back( Monitored::Scalar<float>("res_ptcone20_rel", getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff)));
-        }
-
-        //ptcone20
-        variables.push_back( Monitored::Scalar<float>("res_ptcone20", getIsolation_ptcone20(elonl)-getIsolation_ptcone20(eloff)));
-
-
-        if( feta < 1.37 )
-            variables.push_back( Monitored::Scalar<float>("res_etInEta0", (getEt(elonl)-getEt(eloff))));
-        else if( feta >=1.37 && feta <= 1.52 )
-            variables.push_back( Monitored::Scalar<float>("res_etInEta1", (getEt(elonl)-getEt(eloff)) ) );
-        else if( feta >= 1.55 && feta < 1.8 )
-            variables.push_back( Monitored::Scalar<float>("res_etInEta2", (getEt(elonl)-getEt(eloff))));
-        else if( feta >= 1.8 && feta < 2.45 )
-            variables.push_back( Monitored::Scalar<float>("res_etInEta3", (getEt(elonl)-getEt(eloff))));
-        
-        variables.push_back( Monitored::Scalar<float>("res_deta1", (getCaloTrackMatch_deltaEta1(elonl)-getCaloTrackMatch_deltaEta1(eloff))));
-        variables.push_back( Monitored::Scalar<float>("res_deta2", (getCaloTrackMatch_deltaEta2(elonl)-getCaloTrackMatch_deltaEta2(eloff))));
-        variables.push_back( Monitored::Scalar<float>("res_dphi2", (getCaloTrackMatch_deltaPhi2(elonl)-getCaloTrackMatch_deltaPhi2(eloff))));
-        variables.push_back( Monitored::Scalar<float>("res_dphiresc", (getCaloTrackMatch_deltaPhiRescaled2(elonl)-getCaloTrackMatch_deltaPhiRescaled2(eloff))));
-        variables.push_back( Monitored::Scalar<float>("res_d0", (getTrack_d0(elonl)-getTrack_d0(eloff))));
-        variables.push_back( Monitored::Scalar<float>("res_d0sig", (getD0sig(elonl)-getD0sig(eloff))));
-        variables.push_back( Monitored::Scalar<float>("res_eprobht",  (getTrackSummaryFloat_eProbabilityHT(elonl) - getTrackSummaryFloat_eProbabilityHT(eloff))));
-        variables.push_back( Monitored::Scalar<float>("res_npixhits", (getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl))));
-        variables.push_back( Monitored::Scalar<float>("res_nscthits", (getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl))));
     }
-    else{ 
-      variables.push_back( Monitored::Scalar<float>("res_et", (getCluster_et(onl)-getCluster_et(off))));
-      variables.push_back( Monitored::Scalar<float>("res_eta", (onl->eta()-off->eta())));
-      variables.push_back( Monitored::Scalar<float>("res_phi", (onl->phi()-off->phi())));
 
-      float feta = fabs(onl->eta());
-      if( feta < 1.37 )
-          variables.push_back( Monitored::Scalar<float>("res_etInEta0", (getCluster_et(onl)-getCluster_et(off))));
-      else if( feta >=1.37 && feta <= 1.52 )
-          variables.push_back( Monitored::Scalar<float>("res_etInEta1", (getCluster_et(onl)-getCluster_et(off))));
-      else if( feta >= 1.55 && feta < 1.8 )
-          variables.push_back( Monitored::Scalar<float>("res_etInEta2", (getCluster_et(onl)-getCluster_et(off))));
-      else if( feta >= 1.8 && feta < 2.45 )
-          variables.push_back( Monitored::Scalar<float>("res_etInEta3",(getCluster_et(onl)-getCluster_et(off))));
-    }
+ 
+    fill( monGroup,  energyBE0_col, energyBE1_col, energyBE2_col, energyBE3_col, 
+      energy_col, et_col, eta_col, phi_col, eta_calo_col, phi_calo_col);
+}
+
+
+
+
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillShowerShapes(const std::string &trigger, std::vector<const xAOD::Egamma*> eg_vec , bool online) const 
+{
     
-    variables.push_back( Monitored::Scalar<float>("res_e132", getShowerShape_e132(onl)-getShowerShape_e132(off)));
-    variables.push_back( Monitored::Scalar<float>("res_e237", getShowerShape_e237(onl)-getShowerShape_e237(off)));
-    variables.push_back( Monitored::Scalar<float>("res_e277", getShowerShape_e277(onl)-getShowerShape_e277(off)));
-    variables.push_back( Monitored::Scalar<float>("res_ethad", getShowerShape_ethad(onl)-getShowerShape_ethad(off)));
-    variables.push_back( Monitored::Scalar<float>("res_ethad1", getShowerShape_ethad1(onl)-getShowerShape_ethad1(off)));
-    variables.push_back( Monitored::Scalar<float>("res_Rhad", getShowerShape_Rhad(onl)-getShowerShape_Rhad(off)));
-    variables.push_back( Monitored::Scalar<float>("res_Rhad1", getShowerShape_Rhad1(onl)-getShowerShape_Rhad1(off)));
-    variables.push_back( Monitored::Scalar<float>("res_Reta", getShowerShape_Reta(onl)-getShowerShape_Reta(off)));
-    variables.push_back( Monitored::Scalar<float>("res_Rphi", getShowerShape_Rphi(onl)-getShowerShape_Rphi(off)));
-    variables.push_back( Monitored::Scalar<float>("res_weta1", getShowerShape_weta1(onl)-getShowerShape_weta1(off)));
-    variables.push_back( Monitored::Scalar<float>("res_weta2", getShowerShape_weta2(onl)-getShowerShape_weta2(off)));
-    variables.push_back( Monitored::Scalar<float>("res_wtots1", getShowerShape_wtots1(onl)-getShowerShape_wtots1(off)));
-    variables.push_back( Monitored::Scalar<float>("res_f1", getShowerShape_f1(onl)-getShowerShape_f1(off)));
-    variables.push_back( Monitored::Scalar<float>("res_f3", getShowerShape_f3(onl)-getShowerShape_f3(off)));
-    variables.push_back( Monitored::Scalar<float>("res_eratio",getShowerShape_Eratio(onl)-getShowerShape_Eratio(off)));
-    std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>  mon_variables;
-    for(auto&v:variables) mon_variables.push_back(v);
-    fill( monGroup, mon_variables );
+    ATH_MSG_DEBUG("Fill SS distributions: " << trigger);
+    auto monGroup = getGroup( trigger + ( online ? "_Distributions_HLT" : "_Distributions_Offline") );
+    
+    std::vector<float> ethad_vec, ethad1_vec, Rhad_vec, Rhad1_vec, Reta_vec, Rphi_vec, weta1_vec, weta2_vec, 
+      f1_vec, f3_vec, eratio_vec, et_vec, highet_vec , eta_vec, phi_vec, topoetcone20_vec, topoetcone40_shift_vec, 
+      topoetcone20_rel_vec, topoetcone40_shift_rel_vec;
  
 
-}
+    auto ethad_col              = Monitored::Collection("ethad"    , ethad_vec );
+    auto ethad1_col             = Monitored::Collection("ethad1"   , ethad1_vec );
+    auto Rhad_col               = Monitored::Collection("Rhad"     , Rhad_vec    );
+    auto Rhad1_col              = Monitored::Collection("Rhad1"    , Rhad1_vec   );
+    auto Reta_col               = Monitored::Collection("Reta"     , Reta_vec    );
+    auto Rphi_col               = Monitored::Collection("Rphi"     , Rphi_vec    );
+    auto weta1_col              = Monitored::Collection("weta1"    , weta1_vec   );
+    auto weta2_col              = Monitored::Collection("weta2"    , weta2_vec   );
+    auto f1_col                 = Monitored::Collection("f1"       , f1_vec      );
+    auto f3_col                 = Monitored::Collection("f3"       , f3_vec      );
+    auto eratio_col             = Monitored::Collection("eratio"   , eratio_vec  );
+    auto et_col                 = Monitored::Collection("et"       , et_vec      );
+    auto highet_col             = Monitored::Collection("highet"   , highet_vec  );
+    auto eta_col                = Monitored::Collection("eta"      , eta_vec     );
+    auto phi_col                = Monitored::Collection("phi"      , phi_vec     );
+    auto topoetcone20_col       = Monitored::Collection("topoetcone20", topoetcone20_vec);
+    auto topoetcone40_shift_col = Monitored::Collection("topoetcone40_shift",  topoetcone40_shift_vec );
+    auto topoetcone20_rel_col   = Monitored::Collection("topoetcone20_rel", topoetcone20_rel_vec);
+    auto topoetcone40_shift_rel_col   = Monitored::Collection("topoetcone40_shift_rel",  topoetcone40_shift_rel_vec );
+     
+    for ( auto eg : eg_vec ){
 
+        if(!eg) continue;
 
-
-
-
-
-
-
-
-void TrigEgammaMonitorAnalysisAlgorithm::fillHLTResolution(const std::string &trigger,const xAOD::Egamma *onl, const xAOD::Egamma *off) const 
-{
-    auto monGroup = getGroup( trigger + "_Resolutions_HLT" );
-    std::vector<Monitored::Scalar<float>>  variables;
-
-
-
-    // Check for zero before filling
-    ATH_MSG_DEBUG("Fill Resolution");
-    //float getOnlEt=0;
-    float val_off=0.;
-    const float onl_eta=onl->eta();
-    //const float feta = fabs(onl_eta);
-    val_off=off->eta();
-    if(val_off!=0.) 
-        variables.push_back( Monitored::Scalar<float>("res_eta", (onl_eta-val_off)/val_off));
-    val_off=off->phi();
-    if(val_off!=0.) 
-        variables.push_back( Monitored::Scalar<float>("res_phi", (onl->phi()-val_off)/val_off));
-
-
-    if(xAOD::EgammaHelpers::isElectron(onl)){
-        const xAOD::Electron* elonl =static_cast<const xAOD::Electron*> (onl);
-        const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
-        val_off=getTrack_pt(eloff);
-        if(val_off!=0.) variables.push_back( Monitored::Scalar<float>("res_pt", (getTrack_pt(elonl)-val_off)/val_off));
-        val_off=getEt(eloff);
-        if(val_off!=0.) variables.push_back( Monitored::Scalar<float>("res_et", (getEt(elonl)-val_off)/val_off));
-        //getOnlEt = getEt(elonl);
-
-
-        val_off=getCaloTrackMatch_deltaEta1(eloff);
-        if(val_off!=0.) variables.push_back( Monitored::Scalar<float>("res_deta1", (getCaloTrackMatch_deltaEta1(elonl)-val_off)/val_off));
-        val_off=getCaloTrackMatch_deltaEta2(eloff);
-        variables.push_back( Monitored::Scalar<float>("res_deta2", (getCaloTrackMatch_deltaEta2(elonl)-val_off)/val_off));
-        val_off=getCaloTrackMatch_deltaPhi2(eloff);
-        if(val_off!=0.) variables.push_back( Monitored::Scalar<float>("res_dphi2", (getCaloTrackMatch_deltaPhi2(elonl)-val_off)/val_off));
-        val_off=getCaloTrackMatch_deltaPhiRescaled2(eloff);
-        variables.push_back( Monitored::Scalar<float>("res_dphiresc", (getCaloTrackMatch_deltaPhiRescaled2(elonl)-val_off)/val_off));
-
-        // Absolute resolution for impact parameter
-        val_off=getTrack_d0(eloff);
-        if(val_off!=0.) variables.push_back( Monitored::Scalar<float>("res_d0", getTrack_d0(elonl)-val_off));
-        val_off=getD0sig(eloff);
-        if(val_off!=0.) variables.push_back( Monitored::Scalar<float>("res_d0sig", getD0sig(elonl)-val_off));
+        ethad_vec.push_back( getShowerShape_ethad(eg)/1e3);
+        ethad1_vec.push_back( getShowerShape_ethad1(eg)/1e3);
+        Rhad_vec.push_back( getShowerShape_Rhad(eg));
+        Rhad1_vec.push_back( getShowerShape_Rhad(eg));
+        Reta_vec.push_back( getShowerShape_Reta(eg));
+        Rphi_vec.push_back( getShowerShape_Rphi(eg));
+        weta1_vec.push_back( getShowerShape_weta1(eg));
+        weta2_vec.push_back( getShowerShape_weta2(eg));
+        f1_vec.push_back( getShowerShape_f1(eg));
+        f3_vec.push_back( getShowerShape_f3(eg));
+        eratio_vec.push_back( getShowerShape_Eratio(eg));
+        et_vec.push_back( eg->pt()/1e3);
+        highet_vec.push_back( eg->pt()/1e3);
+        eta_vec.push_back( eg->eta());
+        phi_vec.push_back( eg->phi());
+        topoetcone20_vec.push_back( getIsolation_topoetcone20(eg)/1e3);
+        topoetcone40_shift_vec.push_back( (getIsolation_topoetcone40(eg)-2450)/1e3 );
         
-        // Absolute resolution on track summary ints/floats 
-        val_off=getTrackSummaryFloat_eProbabilityHT(eloff);
-        variables.push_back( Monitored::Scalar<float>("res_eprobht",  (getTrackSummaryFloat_eProbabilityHT(elonl)-val_off)));
-        variables.push_back( Monitored::Scalar<float>("res_npixhits", getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl)));
-        variables.push_back( Monitored::Scalar<float>("res_nscthits", getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl)));
-
-    } else { 
-        val_off=getCluster_et(off);
-        if(val_off!=0.){
-            variables.push_back( Monitored::Scalar<float>("res_et", (getCluster_et(onl)-val_off)/val_off));
-
-            const xAOD::Photon* phoff =static_cast<const xAOD::Photon*> (off);
-            if(xAOD::EgammaHelpers::isConvertedPhoton(phoff)) {
-                variables.push_back( Monitored::Scalar<float>("res_et_cnv", (getCluster_et(onl)-val_off)/val_off));
-    
-            }
+        if (eg->pt() > 0) {
+            topoetcone20_rel_vec.push_back( getIsolation_topoetcone20(eg)/eg->pt());
+            topoetcone40_shift_rel_vec.push_back( (getIsolation_topoetcone40(eg)-2450)/eg->pt() );       
         }
-    }
-    if(val_off!=0.){
-        variables.push_back( Monitored::Scalar<float>("res_Rhad", (getShowerShape_Rhad(onl)-val_off)/val_off));
-    }
-    val_off=getShowerShape_Rhad1(off);
-    if(val_off!=0.){
-        variables.push_back( Monitored::Scalar<float>("res_Rhad1", (getShowerShape_Rhad1(onl)-val_off)/val_off));
-    }
-    val_off=getShowerShape_Reta(off);
-    if(val_off!=0.){
-        variables.push_back( Monitored::Scalar<float>("res_Reta", (getShowerShape_Reta(onl)-val_off)/val_off));
-    }
-    val_off=getShowerShape_Rphi(off);
-    if(val_off!=0.){
-        variables.push_back( Monitored::Scalar<float>("res_Rphi", (getShowerShape_Rphi(onl)-val_off)/val_off));
-    }
-    val_off=getShowerShape_weta1(off);
-    if(val_off!=0.){
-        variables.push_back( Monitored::Scalar<float>("res_weta1", (getShowerShape_weta1(onl)-val_off)/val_off));
-    }
-    val_off=getShowerShape_weta2(off);
-    if(val_off!=0.){
-        variables.push_back( Monitored::Scalar<float>("res_weta2", (getShowerShape_weta2(onl)-val_off)/val_off));
-    }
-    val_off=getShowerShape_wtots1(off);
-    if(val_off!=0.){
-        variables.push_back( Monitored::Scalar<float>("res_wtots1", (getShowerShape_wtots1(onl)-val_off)/val_off));
-    }
-    val_off=getShowerShape_f1(off);
-    if(val_off!=0.){
-        variables.push_back( Monitored::Scalar<float>("res_f1", (getShowerShape_f1(onl)-val_off)/val_off));
-    }
-    val_off=getShowerShape_f3(off);
-    if(val_off!=0.){
-        variables.push_back( Monitored::Scalar<float>("res_f3", (getShowerShape_f3(onl)-val_off)/val_off));
-    }
-    val_off=getShowerShape_Eratio(off);
-    if(val_off!=0.){
-        variables.push_back( Monitored::Scalar<float>("res_eratio", (getShowerShape_Eratio(onl)-val_off)/val_off));
-    }
 
-    std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>  mon_variables;
-    for(auto&v:variables) mon_variables.push_back(v);
-    fill( monGroup, mon_variables );
- 
+    }// Loop over egamma objects
+
+    fill( monGroup, ethad_col, ethad1_col, Rhad_col, Rhad1_col, Reta_col, Rphi_col, weta1_col, weta2_col, 
+          f1_col, f3_col, eratio_col, et_col, highet_col , eta_col, phi_col, topoetcone20_col, topoetcone40_shift_col, 
+          topoetcone20_rel_col, topoetcone40_shift_rel_col );
 
 }
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillIsolationResolution(const std::string &trigger, const xAOD::Egamma * /*onl*/, const xAOD::Egamma * /*off*/) const
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger, std::vector< const xAOD::Electron *> eg_vec, bool online ) const
 {
-    auto monGroup = getGroup( trigger + "_Resolutions_Iso" );
-    std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>  variables;
 
-    fill( monGroup, variables );
+    ATH_MSG_DEBUG("Fill tracking");
+    
+    auto monGroup = getGroup( trigger + ( online ? "_Distributions_HLT" : "_Distributions_Offline") );
+    
+    std::vector<float> deta1_vec, deta1_EMECA_vec, deta1_EMECC_vec, deta1_EMEBA_vec, deta1_EMEBC_vec, deta2_vec, dphi2_vec,
+      dphiresc_vec, eprobht_vec, npixhits_vec, nscthits_vec, charge_vec, ptcone20_vec, ptvarcone20_vec, d0_vec, d0sig_vec,
+      pt_vec, ptcone20_rel_vec, ptvarcone20_rel_vec;
+
+    auto deta1_col            = Monitored::Collection( "deta1"       , deta1_vec           );
+    auto deta1_EMECA_col      = Monitored::Collection( "deta1_EMECA" , deta1_EMECA_vec     );
+    auto deta1_EMECC_col      = Monitored::Collection( "deta1_EMECC" , deta1_EMECC_vec     );
+    auto deta1_EMEBA_col      = Monitored::Collection( "deta1_EMEBA" , deta1_EMEBA_vec     );
+    auto deta1_EMEBC_col      = Monitored::Collection( "deta1_EMEBC" , deta1_EMEBC_vec     );
+    auto deta2_col            = Monitored::Collection( "deta2"       , deta2_vec           );
+    auto dphi2_col            = Monitored::Collection( "dphi2"       , dphi2_vec           );
+    auto dphiresc_col         = Monitored::Collection( "dphiresc"    , dphiresc_vec        );
+    auto eprobht_col          = Monitored::Collection( "eprobht"     , eprobht_vec         );
+    auto npixhits_col         = Monitored::Collection( "npixhits"    , npixhits_vec        );
+    auto nscthits_col         = Monitored::Collection( "nscthits"    , nscthits_vec        );
+    auto charge_col           = Monitored::Collection( "charge"      , charge_vec          );
+    auto ptcone20_col         = Monitored::Collection( "ptcone20"    , ptcone20_vec        );
+    auto ptvarcone20_col      = Monitored::Collection( "ptvarcone20" , ptvarcone20_vec     );
+    auto d0_col               = Monitored::Collection( "d0"          , d0_vec              );
+    auto d0sig_col            = Monitored::Collection( "d0sig"       , d0sig_vec           );
+    auto pt_col               = Monitored::Collection( "pt"          , pt_vec              );
+    auto ptcone20_rel_col     = Monitored::Collection( "ptcone20_rel", ptcone20_rel_vec    );
+    auto ptvarcone20_rel_col  = Monitored::Collection( "ptvarcone20" , ptvarcone20_rel_vec );
+
+
+    for ( auto eg : eg_vec ){
+    
+      if(!eg)  continue;
+
+      float cleta = 0.;
+      if(eg->caloCluster()) cleta=eg->caloCluster()->eta();
+      else cleta=eg->eta();
+      
+      deta1_vec.push_back( getCaloTrackMatch_deltaEta1(eg));
+
+      if(cleta > 1.375 && cleta < 3.2)
+          deta1_EMECA_vec.push_back( getCaloTrackMatch_deltaEta1(eg));
+      if(cleta < -1.375 && cleta > -3.2)
+          deta1_EMECC_vec.push_back( getCaloTrackMatch_deltaEta1(eg));
+      if(cleta > 0 && cleta < 1.375)
+          deta1_EMEBA_vec.push_back( getCaloTrackMatch_deltaEta1(eg));
+      if(cleta < 0 && cleta > -1.375)
+          deta1_EMEBC_vec.push_back( getCaloTrackMatch_deltaEta1(eg));
+      
+      deta2_vec.push_back( getCaloTrackMatch_deltaEta2(eg));
+      dphi2_vec.push_back(  getCaloTrackMatch_deltaPhi2(eg));
+      dphiresc_vec.push_back( getCaloTrackMatch_deltaPhiRescaled2(eg));
+      eprobht_vec.push_back( getTrackSummaryFloat_eProbabilityHT(eg));
+      npixhits_vec.push_back( getTrackSummary_numberOfPixelHits(eg));
+      nscthits_vec.push_back( getTrackSummary_numberOfSCTHits(eg));
+      charge_vec.push_back( eg->charge());
+      ptcone20_vec.push_back( getIsolation_ptcone20(eg)/1e3);
+      ptvarcone20_vec.push_back( getIsolation_ptvarcone20(eg)/1e3);
+      
+      // Quantities directly from tracks
+      ATH_MSG_DEBUG("Get track Quantities");
+      d0_vec.push_back( getTrack_d0(eg));
+      d0sig_vec.push_back(getD0sig(eg));
+      pt_vec.push_back( getTrack_pt(eg)/1e3);
+      
+      if (eg->pt() > 0) {
+          ptcone20_rel_vec.push_back( getIsolation_ptcone20(eg)/eg->pt());
+          ptvarcone20_rel_vec.push_back(  getIsolation_ptvarcone20(eg)/eg->pt());
+      }
+
+    }
+    
+    
+    fill( monGroup, deta1_col, deta1_EMECA_col, deta1_EMECC_col, deta1_EMEBA_col, deta1_EMEBC_col, deta2_col, dphi2_col,
+      dphiresc_col, eprobht_col, npixhits_col, nscthits_col, charge_col, ptcone20_col, ptvarcone20_col, d0_col, d0sig_col,
+      pt_col, ptcone20_rel_col, ptvarcone20_rel_col);
+
+
+
 }
+
 

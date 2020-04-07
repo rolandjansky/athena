@@ -111,9 +111,7 @@ inline const xAOD::EmTauRoI* TrigEgammaMatchingToolMT::getFeature<xAOD::EmTauRoI
 
   SG::ReadHandle<xAOD::EmTauRoIContainer> l1_cont( m_emTauRoIKey, Gaudi::Hive::currentContext());
   
-  ATH_MSG_INFO("L1 IS VALID?");
   if( !l1_cont.isValid() ) return nullptr;
-  ATH_MSG_INFO( "L1 SIZE IS "<< l1_cont->size() );
 
   for( const auto *l1 : *l1_cont ){
     if ( l1->roiType() != xAOD::EmTauRoI::RoIType::EMRoIWord) continue;
