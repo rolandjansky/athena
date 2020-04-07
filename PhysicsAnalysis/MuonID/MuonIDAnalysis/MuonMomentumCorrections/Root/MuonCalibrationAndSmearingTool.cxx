@@ -768,26 +768,26 @@ namespace CP {
   }
 
 
-  CorrectionCode MuonCalibrationAndSmearingTool::applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SytCase, InfoHelper& muonInfo) const {
+  CorrectionCode MuonCalibrationAndSmearingTool::applySagittaBiasCorrectionAuto(const int DetType, xAOD::Muon& mu, bool isMC, const unsigned int SystCase, InfoHelper& muonInfo) const {
     //isSystematics ==false
 
     //:: If RHO is fixed and one does not apply a correction, return the nominal muon; 
-    if( (SytCase == MCAST::SagittaSysType::RHO) && !m_doSagittaCorrection && m_doSagittaMCDistortion){
+    if( (SystCase == MCAST::SagittaSysType::RHO) && !m_doSagittaCorrection && m_doSagittaMCDistortion){
       ATH_MSG_VERBOSE("Final pt "<<muonInfo.ptcb);
       return CorrectionCode::Ok;
     }
 
     unsigned int itersCB=0;
-    if(SytCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(0) > 1)
+    if(SystCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(0) > 1)
       itersCB= m_SagittaIterations.at(0) - 1;
 
     unsigned int itersID=0;
 
-    if(SytCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(1) > 1)
+    if(SystCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(1) > 1)
       itersID= m_SagittaIterations.at(1) - 1;
 
     unsigned int itersME=0;
-    if(SytCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(2) > 1)
+    if(SystCase == MCAST::SagittaSysType::BIAS && m_SagittaIterations.at(2) > 1)
       itersME= m_SagittaIterations.at(2) - 1;
 
     // In case one distrots the MC iterations are set to 1. Systamtics willl be calculated based on the full effect.
@@ -807,14 +807,14 @@ namespace CP {
       if( muonInfo.ptcb == 0) {
         ATH_MSG_VERBOSE("Combined pt = 0 correcting separtly ID and ME");
         if(muonInfo.ptid !=0 && muonInfo.ptms !=0){
-          if( applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID, mu, isMC, SytCase, muonInfo) != CorrectionCode::Ok &&
-              applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS, mu, isMC, SytCase, muonInfo) != CorrectionCode::Ok ) return CorrectionCode::Error;
+          if( applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID, mu, isMC, SystCase, muonInfo) != CorrectionCode::Ok &&
+              applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS, mu, isMC, SystCase, muonInfo) != CorrectionCode::Ok ) return CorrectionCode::Error;
         }
         else if(muonInfo.ptid !=0 ){
-          if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID, mu, isMC, SytCase, muonInfo) != CorrectionCode::Ok) return CorrectionCode::Error;
+          if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID, mu, isMC, SystCase, muonInfo) != CorrectionCode::Ok) return CorrectionCode::Error;
         }
         else if(muonInfo.ptms !=0 ){
-          if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS, mu, isMC, SytCase, muonInfo) != CorrectionCode::Ok) return CorrectionCode::Error;
+          if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS, mu, isMC, SystCase, muonInfo) != CorrectionCode::Ok) return CorrectionCode::Error;
         }
         else {
           return CP::CorrectionCode::Ok;
@@ -826,13 +826,12 @@ namespace CP {
       double sigmas=1.0;
       double rho= m_useFixedRho ? m_fixedRho:0.0; 
 
-      bool isSystematic = (SytCase == MCAST::SagittaSysType::RHO);
+      bool isSystematic = (SystCase == MCAST::SagittaSysType::RHO);
 
       if(isSystematic ) {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
         double denominator = (  muonInfo.ptcb  ) * std::sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
-        //double res= denominator ? std::sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
         double res= denominator ? std::sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
 
         if(m_currentParameters->SagittaRho==MCAST::SystVariation::Up){
@@ -904,7 +903,7 @@ namespace CP {
       
       muonInfo.ptcb = rho*ptCB + (1-rho)*ptWeight;
       
-      ATH_MSG_VERBOSE("Final pt "<<muonInfo.ptcb<<" "<<rho<<" * "<<ptCB<<" 1- rho "<<1-rho<<"  *  "<<ptWeight<<" sigmas "<<sigmas);
+      ATH_MSG_VERBOSE("Final pt "<<muonInfo.ptcb<<" "<<rho<<" * "<<ptCB<<" 1- rho "<<1-rho<<"  *  "<<ptWeight<<" sigmas "<<sigmas<<" (original pt: "<<origPt<<")");
       return CorrectionCode::Ok;
     }
     else{
