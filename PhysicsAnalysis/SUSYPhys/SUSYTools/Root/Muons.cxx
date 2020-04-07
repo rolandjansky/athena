@@ -42,6 +42,7 @@ namespace ST {
   const static SG::AuxElement::Decorator<char>      dec_passSignalID("passSignalID");
   const static SG::AuxElement::ConstAccessor<char>  acc_passSignalID("passSignalID");
 
+  const static SG::AuxElement::Decorator<float>     dec_dRJet("dRJet");
   const static SG::AuxElement::Decorator<float>     dec_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::Decorator<float>     dec_d0sig("d0sig");
@@ -98,7 +99,8 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_isolHighPt(input) = false;
   dec_passedHighPtCuts(input) = false;
   dec_passSignalID(input) = false;
-       
+  dec_dRJet(input)=-2.0;     
+  
   // don't bother calibrating or computing WP
   if ( input.pt() < 3e3 ) return StatusCode::SUCCESS;
 

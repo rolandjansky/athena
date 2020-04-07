@@ -655,9 +655,9 @@ namespace ST {
     dec_bjet(input) = isbjet;
 
     double weight = 1.;
-    //if ( m_btagSelTool->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
-    //  ATH_MSG_ERROR ("btagSelTool:: could not retrieve b-tag weight.");
-    //}
+    if ( m_btagSelTool->getTaggerWeight(input, weight, false/*useVetoWP=false*/) != CP::CorrectionCode::Ok ) {
+      ATH_MSG_ERROR ("btagSelTool:: could not retrieve b-tag weight.");
+    }
     dec_btag_weight(input) = weight;
     ATH_MSG_VERBOSE( "b-tag weight?: " << weight );
 
