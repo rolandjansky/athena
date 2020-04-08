@@ -215,8 +215,6 @@ void zero( TH2* h ) {
   for ( int i=1 ; i<=Nx ; i++ ) { 
     for ( int j=1 ; j<=Ny ; j++ ) { 
       if ( h->GetBinContent( i, j )==0 ) { 
-	//	h->SetBinContent( h->FindBin( i, j ), 1e-10 );
-	//	h->SetBinError( h->FindBin( i, j ), 1e-10 );
 	h->SetBinContent( i, j, 1e-10 );
 	h->SetBinError( i, j, 1e-10 );
       }
@@ -711,11 +709,6 @@ int main(int argc, char** argv) {
 
   } 
   
-  //  std::vector<std::string> chainnames;
-
-  //  chainnames.resize(chains.size(),"");
-  //  chainnames.clear();
-
   /// we divide the resolutions by these
   /// values if we have an "entries" histogram
   /// to tell us how many events there are
@@ -778,8 +771,7 @@ int main(int argc, char** argv) {
 
     /// the Chain histogram if present
     std::cout << "chain:        " << chains[j] << "\taddchains: " << addchains << std::endl;
-    //    std::cout << "chainref:     " << chainref[j] << " - original" << std::endl;
-    
+        
     if ( addchains && ( contains(chains[j],"Shifter") || ( !contains(chains[j],"HLT_") && !contains(chains[j], "Fullscan" ) ) ) ) { 
       
       TH1F* hchain = Get( ftest, chains[j]+"/Chain", testrun );
@@ -1050,11 +1042,6 @@ int main(int argc, char** argv) {
       Plots plots;
       plots.clear();
       
-      
-      //      TCanvas* c1 = new TCanvas(label("canvas-%d",i).c_str(),"histogram",800,600);
-      //      c1->cd();
-      
-      
       double xpos  = 0.18;
       double ypos  = 0.93;
       
@@ -1090,6 +1077,9 @@ int main(int argc, char** argv) {
 	ypositions.push_back( yhi - deltay*(ilines+0.5) );
       }
 
+
+      /// leave these comments as useful for debugging ...
+
       //      bool residual = false;
 
       //      if ( contains(histo.name(),"_res") ||  contains(histo.name(),"residual_") || contains(histo.name(),"1d") ) residual = true; 
@@ -1124,7 +1114,7 @@ int main(int argc, char** argv) {
       bool power_set = false;
       
       
-      
+      ///  leave these comments here for testing ...
       //    bool uselogx = xinfo.log();
       //    bool uselogy = yinfo.log();
       
@@ -1161,8 +1151,6 @@ int main(int argc, char** argv) {
 	  bool bmean = false;
 	  if ( contains(histo.name(),"/mean") ) bmean = true;
 
-	  //    	    std::cout << "\trefitting:  " << histos[i] << std::endl;
-	    
 	  Resplot::setoldrms95(oldrms);
 	  Resplot::setscalerms95(true);
 	    
@@ -1172,11 +1160,6 @@ int main(int argc, char** argv) {
 	  if ( bsigma ) base = chop( tmp_, "/sigma" );
 	  if ( bmean )  base = chop( tmp_, "/mean" );
 	    
-	  //	  TH2D* _htest2d = (TH2D*)ftest.Get((chains[j]+"/"+base+"/2d").c_str()) ;
-	  //	  TH2D* _href2d  = (TH2D*)ftest.Get((refchain[j]+"/"+base+"/2d").c_str()) ;
-	    
-	  //	  savedhistos.push_back( chains[j]+"/"+base+"/2d" );	    
-
 	  TH2D* _htest2d = Get<TH2D>( ftest, chains[j]+"/"+base+"/2d", testrun, 0, &savedhistos );
 	  TH2D* _href2d  = Get<TH2D>( ftest, refchain[j]+"/"+base+"/2d", testrun, 0  );
 
@@ -1186,10 +1169,8 @@ int main(int argc, char** argv) {
 	    
 	  /// get the test histogram
 	    
-	  //	    std::cout << "test " << _htest2d << std::endl;
 	  Resplot rtest("tmp", _htest2d);
-	  //	    if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
-	  //      else   rtest.Finalise(Resplot::FitNull95);
+
 	  if ( rtest.finalised() ) { 
 	    if ( contains(histo.name(),"npix") || contains(histo.name(),"nsct") || contains(histo.name(),"nsi") || contains(histo.name(),"nbl") ) rtest.Refit(Resplot::FitNull);
 	    else  rtest.Refit(Resplot::FitNull95);
@@ -1208,27 +1189,23 @@ int main(int argc, char** argv) {
 	  }
 
 
-	  /// Actually D) refit the references - if we are adding together many
+	  /// Actually Do refit the references - if we are adding together many
 	  /// resplots, then the means etc may not even have been calculated
 	  /// 
 	  /// NB: DON'T Refit the reference, since only the central values
 	  ///     are plotted
-	  //	 std::cout << "ref " << _href2d << std::endl;
+	  //   std::cout << "ref " << _href2d << std::endl;
 	  //   Resplot rref("tmp", _href2d);
 	  //   rref.Finalise(Resplot::FitNull95);
 	  //   href = (TH1F*)rref.Sigma()->Clone("rref_sigma"); href->SetDirectory(0);
 
 	  /// still get the reference histo
 
-	  //	    href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
-
-	  //	    TH1F* hreft  = (TH1F*)fref.Get( (refchain[j]+"/"+histos[i]).c_str() );
-	
 	  TH1F* hreft  = 0;
 
 	  if ( !noreftmp ) {
 	    if ( refitref_resplots ) { 
-	      //	    std::cout << "test " << _htest2d << std::endl;
+
 	      Resplot rref("tmp", _href2d);
 		
 	      if ( rref.finalised() ) { 
@@ -1259,8 +1236,9 @@ int main(int argc, char** argv) {
 	    href = (TH1F*)hreft->Clone();
 	    href->SetDirectory(0);
 	  }
-	    	      
-	  //	    std::cout << "\tget " << (refchain[j]+"/"+histos[i]) << "\t" << href << std::endl;
+
+	  /// useful test for debugging ...
+	  //  std::cout << "\tget " << (refchain[j]+"/"+histos[i]) << "\t" << href << std::endl;
 	    
 	  savedhistos.push_back( refchain[j]+"/"+histo.name() );
    	   
@@ -1277,13 +1255,6 @@ int main(int argc, char** argv) {
 
 	  htest = Get( ftest, chains[j]+"/"+reghist, testrun, 0, &savedhistos );
 
-	  //	  htest = (TH1F*)ftest.Get((chains[j]+"/"+reghist).c_str(), &savedhistos ) ;
-	  //	  savedhistos.push_back( chains[j]+"/"+reghist );
-
-	  //	  if ( htest==0 ) { 
-	  //	    htest = (TH1F*)ftest.Get((testrun+"/"+chains[j]+"/"+reghist).c_str()) ;
-	  //	    savedhistos.push_back( testrun+"/"+chains[j]+"/"+reghist );
-	  //	  }
 
 	  if ( htest==0 ) { 
 	    if ( htest==0 ) std::cerr << "missing histogram: " << (chains[j]+" / "+reghist) << " " << htest<< std::endl; 
@@ -1292,9 +1263,6 @@ int main(int argc, char** argv) {
 
 	  TH1F* hreft = Get( fref, refchain[j]+"/"+reghist, rawrefrun, chainmap );
 
-	  //	  TH1F* hreft  = Get( fref, refchain+"/"+reghist, rawrefrun );
-	  //	  TH1F* hreft  = (TH1F*)fref.Get((refchain+"/"+reghist).c_str()) ;
-	
 	  if ( std::string(htest->ClassName()).find("TH2")!=std::string::npos ) { 
 	    std::cout << "Class TH2: " << htest->GetName() << std::endl;
 	    continue;
@@ -1316,13 +1284,6 @@ int main(int argc, char** argv) {
 	    Plotter::setplotref(false);
 	  }
 	
-	  static int cunt = 0;
-
-	  if ( fulldbg ) std::cout << "htest: " << htest << " " << cunt << std::endl; 
-	  if ( fulldbg ) std::cout << "hreft: " << hreft << " " << cunt << std::endl; 
-
-	  cunt++;
-
 	  if ( hreft!=0 ) { 
 	    href = (TH1F*)hreft->Clone();
 	    href->SetDirectory(0);
@@ -1370,26 +1331,19 @@ int main(int argc, char** argv) {
 	if ( make_ref_efficiencies ) { 
 	  if ( htest && href ) { 
 
-	    //	  std::cout << "contains _eff " << contains( std::string(htest->GetName()), "eff" ) << std::endl;
+	    /// deugging ...
+	    //	std::cout << "contains _eff " << contains( std::string(htest->GetName()), "eff" ) << std::endl;
 
 	    if ( contains( std::string(htest->GetName()), "_eff" ) ) {
 
 	      htestnum = Get( ftest, chains[j]+"/"+histo.name()+"_n", testrun );
-	      //	      htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_n").c_str()) ;
 
 	      TH1F* hrefnumt  = Get( fref, refchain[j]+"/"+histo.name()+"_n", rawrefrun, chainmap, &savedhistos );
-
-	      //      TH1F* hrefnumt  = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_n").c_str()) ;
-	      //      savedhistos.push_back( refchain+"/"+histo.name()+"_n" );
-	   
 
 	      if ( !noreftmp && hrefnumt!=0 ) { 
 		hrefnum = (TH1F*)hrefnumt->Clone();
 		hrefnum->SetDirectory(0);
 	      }
-
-	    
-	      //	    std::cout << "numerator histos " << htestnum << " " << hrefnum << std::endl;
 
 	    }
 	  }
@@ -1400,15 +1354,6 @@ int main(int argc, char** argv) {
 
 	  if ( htest && contains( std::string(htest->GetName()), "eff" ) ) {
 
-	    //	  delete htest;
-
-	    //	    htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_n").c_str()) ;
-	    //	    htestden = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_d").c_str()) ;
-
-	    //	    savedhistos.push_back( chains[j]+"/"+histo.name()+"_n" );
-	    //	    savedhistos.push_back( chains[j]+"/"+histo.name()+"_d" );
-
-
 	    htestnum = Get( ftest, chains[j]+"/"+histo.name()+"_n", testrun, 0, &savedhistos ) ;
 	    htestden = Get( ftest, chains[j]+"/"+histo.name()+"_d", testrun, 0, &savedhistos ) ;
 
@@ -1417,6 +1362,8 @@ int main(int argc, char** argv) {
 	    if ( htestnum && htestden ) { 
 
 #if 0
+	      /// need this for lumi block histograms - although not always needed, so 
+	      /// excluded to prevent problems most of the time ...
 	      if ( contains( htest->GetName(), "_vs_lb" )  ) { 
 		std::cout << "rebin " << histo.name() << std::endl;
 		htestnum->Rebin(3);
@@ -1443,12 +1390,8 @@ int main(int argc, char** argv) {
 
 	    if ( href ) { 
 
-	      //	  delete htest;
-
 	      std::cout << "doin ..." << std::endl; 
 
-	      //	      TH1F* hrefnum = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_n").c_str()) ;
-	      //	      TH1F* hrefden = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_d").c_str()) ;
 	      TH1F* hrefnum = Get( fref, refchain[j]+"/"+histo.name()+"_n", rawrefrun, chainmap );
 	      TH1F* hrefden = Get( fref, refchain[j]+"/"+histo.name()+"_d", rawrefrun, chainmap );
 
@@ -1457,7 +1400,8 @@ int main(int argc, char** argv) {
 	    
 	      if ( hrefnum && hrefden ) { 
 		Efficiency e( hrefnum, hrefden, "", scale_eff_ref );
-		// tgref = e.Bayes(scale_eff);
+		/// leave for documentation purposes ...
+		//  tgref = e.Bayes(scale_eff);
 
 		href = e.Hist();
 	      
@@ -1502,8 +1446,6 @@ int main(int argc, char** argv) {
 	    href->Rebin(2);
 	    href->Sumw2();
 	  }
-	  //    htest->Scale(1./NeventTest);
-	  //    href->Scale(1./NeventRef);
 	}
 #endif
 
@@ -1859,6 +1801,7 @@ int main(int argc, char** argv) {
       
 	if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
+	// more useful debugging ...
 	//      std::cout <<  "yauto: " << yinfo.autoset() << "\tyrange " << yinfo.rangeset() << std::endl;
 
 	//      std::cout << "yminset " << yminset << "\tymaxset " << ymaxset << std::endl;  
@@ -1902,9 +1845,6 @@ int main(int argc, char** argv) {
 
 	if ( fulldbg ) std::cout << __LINE__ << std::endl;
       
-	///    if ( contains(histo.name(),"_res"))  plots.xrange(true);
-	//      if ( contains(histo.name(),"_res") ) plots.MaxScale( 100 ); 
-      
 	//    plots.limits();
       
 	/// actually draw the plot here ...
@@ -1915,16 +1855,12 @@ int main(int argc, char** argv) {
 
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
-	//      if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, atlaslabel.c_str() );
-
 	if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, atlaslabel.c_str(), kBlack, ncolsp, nrowsp );
 
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
           
 	for ( unsigned it=0 ; it<taglabels.size() ; it++ ) { 
-	  //      std::cout << "\ttaglabel " << ypositions[it] << "\t(" << histo.name() << ")" << std::endl;
 	  DrawLabel( xpos, ypositions[it], taglabels[it], kBlack, 0.04 );
-
 	}
       }
     
@@ -1950,7 +1886,6 @@ int main(int argc, char** argv) {
 	      if ( j<Mean.size() ) {
 		if ( !nomeans ) DrawLabel( 0.62, (0.57-j*0.035), Mean[j],  colours[j%6] );
 		DrawLabel( 0.62, (0.57-0.035*chains.size()-j*0.035)-0.01, RMS[j],  colours[j%6] );
-		//	      std::cout << "\tdraw stats " << histo.name() << "\tMean " << Mean[j] << std::endl;
 	      }
 	    }
 	  }
@@ -2040,7 +1975,6 @@ int main(int argc, char** argv) {
       
       std::cout << "main() cleaning up reference file" << std::endl;
       
-      //      TFile* newout = new TFile(".newout.root","recreate"); 
       TFile* newout = new TFile(".newout.root","recreate"); 
       newout->cd();
       
@@ -2050,7 +1984,8 @@ int main(int argc, char** argv) {
       TDirectory* base = gDirectory;
       
       for ( unsigned i=0 ; i<savedhistos.size() ; i++ ) { 
-	
+
+	/// debugging ...
 	//	std::cout << i << " " << savedhistos[i] << std::endl;
 	
 	std::vector<std::string> dirs = AxisInfo::split( savedhistos[i], "/" );
