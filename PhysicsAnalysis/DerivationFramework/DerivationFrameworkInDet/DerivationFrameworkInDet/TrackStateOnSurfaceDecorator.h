@@ -34,6 +34,8 @@
 #include "xAODTracking/TrackStateValidationContainer.h"
 #include "CommissionEvent/ComTime.h"
 
+#include "TrkEventUtils/PRDtoTrackMap.h"
+
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
@@ -98,6 +100,9 @@ namespace DerivationFramework {
       SG::ReadHandleKey<xAOD::TrackMeasurementValidationContainer> m_trtDCName
          {this, "TrtDriftCirclesName", "TRT_DriftCircles" ,"" };
 
+      SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap
+         { this,"PRDtoTrackMap","","option PRD-to-track association"};
+
       SG::WriteHandleKey<xAOD::TrackStateValidationContainer> m_pixelMsosName
          { this, "PixelMsosName", "PixelMSOSs", "" };
       SG::WriteHandleKey<xAOD::TrackStateValidationContainer> m_sctMsosName
@@ -109,6 +114,7 @@ namespace DerivationFramework {
       // For P->T converter of SCT_Clusters
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
+     
       // --- Services and tools
       const AtlasDetectorID* m_idHelper;
       const PixelID*         m_pixId; 
@@ -122,7 +128,6 @@ namespace DerivationFramework {
       ToolHandle<ITRT_CalDbTool>                m_trtcaldbTool;
 	  
       ToolHandle<ITRT_ToT_dEdx>    m_TRTdEdxTool;
-      ToolHandle< Trk::IPRD_AssociationTool >  m_assoTool;
       // --- Private other members
       std::vector<SG::WriteDecorHandleKey<xAOD::EventInfo> > m_trtPhaseDecorKey;
       enum ETRTFloatDecor {kTRTdEdxDecor,

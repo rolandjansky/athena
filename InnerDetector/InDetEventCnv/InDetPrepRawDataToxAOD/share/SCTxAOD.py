@@ -116,7 +116,7 @@ if not InDetFlags.disableTracking():
                                                                StoreSCT   = True,
                                                                StorePixel = False,
                                                                IsSimulation = isSctDxAODSimulation,
-                                                               TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool(),
+                                                               PRDtoTrackMap= "",
                                                                OutputLevel = INFO)
     ToolSvc += DFTSOS
     augmentationTools+=[DFTSOS]

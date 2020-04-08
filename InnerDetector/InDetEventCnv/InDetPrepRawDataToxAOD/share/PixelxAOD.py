@@ -130,8 +130,7 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           StoreSCT   = False,
                                                           StorePixel = True,
                                                           IsSimulation = isIdTrkDxAODSimulation,
-                                                          AssociationTool = InDetPrdAssociationTool,
-                                                          TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool(),
+                                                          PRDtoTrackMap= "",
                                                           OutputLevel = INFO)
 
 ToolSvc += DFTSOS

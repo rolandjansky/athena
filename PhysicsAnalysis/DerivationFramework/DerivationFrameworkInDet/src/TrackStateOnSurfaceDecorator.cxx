@@ -72,8 +72,7 @@ namespace DerivationFramework {
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
     m_trtcaldbTool("TRT_CalDbTool",this),
-    m_TRTdEdxTool("InDet::TRT_ElectronPidTools/TRT_ToT_dEdx"),
-    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
+    m_TRTdEdxTool("InDet::TRT_ElectronPidTools/TRT_ToT_dEdx")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     // --- Steering and configuration flags
@@ -96,7 +95,6 @@ namespace DerivationFramework {
     declareProperty("TRT_CalDbTool",           m_trtcaldbTool);
     declareProperty("TRT_ToT_dEdx",           m_TRTdEdxTool);
     declareProperty("TrackExtrapolator",      m_extrapolator);
-    declareProperty("AssociationTool",        m_assoTool);
   }
 
   StatusCode TrackStateOnSurfaceDecorator::initialize()
@@ -138,7 +136,7 @@ namespace DerivationFramework {
     }
 
     ATH_CHECK( m_trtcaldbTool.retrieve(DisableTool{ !m_storeTRT }));
-    ATH_CHECK( m_assoTool.retrieve(DisableTool{ !m_storeTRT }));
+    ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() && m_storeTRT) );
 
     ATH_CHECK( m_updator.retrieve(DisableTool{ !m_addPulls }));
     ATH_CHECK( m_residualPullCalculator.retrieve(DisableTool{ !m_addPulls }));
@@ -305,6 +303,16 @@ namespace DerivationFramework {
            return StatusCode::FAILURE;
         }
       }
+    }
+
+    SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
+    const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
+    if (!m_prdToTrackMap.key().empty()) {
+       prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+       if (!prd_to_track_map.isValid()) {
+          ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
+       }
+       prd_to_track_map_cptr = prd_to_track_map.cptr();
     }
 
     std::vector<SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> > trackTRTFloatDecorators;
@@ -571,13 +579,15 @@ namespace DerivationFramework {
 	    }
 	  }
 	  msos->setLocalAngles(lTheta, lPhi);
-	  
+
 	  bool isShared=false;
-	  const Trk::RIO_OnTrack* hit_trt = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : 0;
-	  if (hit_trt) {
-	    if ( m_assoTool->isShared(*(hit_trt->prepRawData())) ) isShared=true;
-	    msos->auxdata<bool>("isShared") = isShared;
-	  }
+          if (prd_to_track_map_cptr) {
+             const Trk::RIO_OnTrack* hit_trt = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : 0;
+             if (hit_trt) {
+                if (prd_to_track_map_cptr->isShared(*(hit_trt->prepRawData())) ) isShared=true;
+                msos->auxdata<bool>("isShared") = isShared;
+             }
+          }
 	}
 
 
