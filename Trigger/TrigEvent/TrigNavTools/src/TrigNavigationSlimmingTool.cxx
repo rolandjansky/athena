@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -7,11 +7,13 @@
 
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
-#include "AthenaKernel/IThinningSvc.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
+#include "AthenaKernel/getThinningCache.h"
 #include "TrigNavigation/Navigation.h"
 #include "TrigNavigation/TriggerElement.h"
 //#include "TrigNavigation/TriggerElementFactory.h"
 #include "TrigNavigation/Holder.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 #include "TrigNavTools/TrigNavigationSlimmingTool.h"
@@ -28,15 +30,13 @@ HLT::TrigNavigationSlimmingTool::TrigNavigationSlimmingTool( const std::string& 
 							     const std::string& name,
 							     const IInterface* parent ) 
   : AthAlgTool(type, name, parent), 
-    m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_thinningSvc("", name)
+    m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
 
   declareInterface<TrigNavigationSlimmingTool>(this);
   
   // job option configurable properties
   declareProperty("TrigDecisionTool", m_trigDecisionTool, "Tool handle to TDT/Navigation.");
-  declareProperty("ThinningSvc", m_thinningSvc, "Synchronize feature indexes wiht this instance of ThinningSvc");
   declareProperty("ChainsRegex", m_chainsRegex="", "Keep only information related to this chains");
   declareProperty("FeatureInclusionList", m_featureInclusionList, "This features will be kept. This setting overrules the FeatureExclusionList. Only list of types or type#key pairs are supported.");
   declareProperty("FeatureExclusionList", m_featureExclusionList, "This features will be dropeed. It can be specified as * meaning all, or as a list of typenames, or typename#key pairs.");
@@ -88,14 +88,6 @@ StatusCode HLT::TrigNavigationSlimmingTool::initialize() {
   else {
     ATH_MSG_FATAL ( "Could not retrive the TrigDecisionTool as it was not specified!" );
     return StatusCode::FAILURE;
-  }
-
-  if( not m_thinningSvc.empty() ) {
-    if (  m_thinningSvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL ( "ThinningSvc configured but can not retrieve it" );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO ( "Successfully retrived the ThinningSvc" );
   }
 
   ATH_MSG_DEBUG ( "Leaving TrigNavigationSlimmingTool::Initialize" );
@@ -732,11 +724,10 @@ bool HLT::TrigNavigationSlimmingTool::TriggerElementFind::operator()(const Trigg
 
 namespace {
 
-  static const std::size_t RemovedIdx = static_cast<std::size_t>(-1);
+  static const std::size_t RemovedIdx = SG::ThinningDecisionBase::RemovedIdx;
   struct IndexRecalculator {
-    IndexRecalculator( IThinningSvc* thinningSvc, const void *collection) 
-      : m_thinningSvc(thinningSvc),
-	m_collection(collection)
+    IndexRecalculator( const SG::ThinningDecisionBase* dec )
+      : m_dec(dec)
     {}
 
     size_t getNewIndex(size_t oldIndex) {
@@ -752,7 +743,7 @@ namespace {
       m_validIndices.resize(maxIndex+1);
 
       for ( size_t toScan = checkedSoFar; toScan <= maxIndex; ++ toScan ) {
-	size_t newIndex = m_thinningSvc->index(m_collection, toScan);
+	size_t newIndex = m_dec->index(toScan);
 	m_validIndices[toScan] = newIndex;	
       }
 
@@ -765,12 +756,12 @@ namespace {
 
     std::vector<size_t> m_indices = {0}; // the 0 index will be 0 no mater what is slimmed
     std::vector<size_t> m_validIndices; // the 0 index will be 0 no mater what is slimmed
-    IThinningSvc* m_thinningSvc;
-    const void* m_collection;
+    const SG::ThinningDecisionBase* m_dec;
   };
 }
 
 StatusCode HLT::TrigNavigationSlimmingTool::syncThinning(State& state) const {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   ATH_MSG_DEBUG ( "Running the syncThinning" );
   auto holders = state.navigation.m_holderstorage.getAllHolders<HLTNavDetails::IHolder>();
   for(auto holder : holders) {
@@ -779,10 +770,11 @@ StatusCode HLT::TrigNavigationSlimmingTool::syncThinning(State& state) const {
       continue;
     }
       holder->syncWithSG();
-      auto containerPointer = holder->containerTypeProxy().cptr();
-      if ( m_thinningSvc->thinningOccurred(containerPointer)  )  {
+      const SG::ThinningDecisionBase* dec =
+        SG::getThinningDecision (ctx, holder->label());
+      if ( dec  )  {
 	ATH_MSG_DEBUG ( "Thinning occured for this container" << *holder <<", going to ajust the indices" );
-	// ThinningSvc::index method returns the valid new index for unslimmed object and an invalid index IThinningSvc::RemovedIndex for the ones that were removed
+	// ThinningDecisionBase::index method returns the valid new index for unslimmed object and an invalid index ThinningDecisionBase::RemovedIndex for the ones that were removed
 	// The way to calulate new indexes for the ranges describing ROIs (X,Y) is to count the number valid indexes from X to 0 and from Y to 0
 	// This would be quite inefficient so we need to make a vector wiht new indexes
 	// this vector in the end will be of size equal to the original collection and at position X will have new values.
@@ -790,7 +782,7 @@ StatusCode HLT::TrigNavigationSlimmingTool::syncThinning(State& state) const {
 	// the scan of TEs. 
 	// Since this is quite tricky code it is outsourced to a helper class IndexRecalculator.
 	
-	IndexRecalculator recalculator( &*m_thinningSvc, containerPointer);
+	IndexRecalculator recalculator( dec );
 	// nowe we need to go over the TEs
 	for ( const auto& te: state.navigation.getAllTEs() ) {
 	  for ( auto& fea: te->getFeatureAccessHelpers() ) {
