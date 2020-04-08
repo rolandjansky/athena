@@ -1302,8 +1302,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise B-tagging tools
-///////////////////////////////////////////////////////////////////////////////////////////
-// Initialise B-tagging tools
 
   // Warnings for invalid timestamps, or timestamped containers with old CDI file & vice versa
   if (!m_BtagTimeStamp.empty() && !(m_BtagTimeStamp.compare("201810")==0||m_BtagTimeStamp.compare("201903")==0)) {
