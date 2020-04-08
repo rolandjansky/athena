@@ -64,8 +64,6 @@ namespace { // utility functions used here
     return energy * 0.001;
   }
 
-  constexpr float twoPi = 2 * M_PI;
-
   // general utility function to check value is in range
   template <class T>
   inline bool
