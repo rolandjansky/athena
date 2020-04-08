@@ -7,6 +7,7 @@ atlas_subdir( PyJobTransforms )
 
 # External dependencies:
 find_package( cx_Oracle )
+find_package( future )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
@@ -15,16 +16,25 @@ atlas_install_runtime( scripts/*.py )
 atlas_install_generic( share/*.db
                        DESTINATION share
                        EXECUTABLE )
-foreach( test Echo_tf RAWMerge_tf Sleep_tf
+foreach( test Echo_tf Sleep_tf
          transform trfAMI trfArgs trfDecorators trfEnv
          trfExceptions trfExe trfExitCodes trfFileUtils trfGraph trfJobOptions trfLogger
-         trfMPTools trfSignal trfSignatures trfSubstepIntegration
+         trfMPTools trfSignal trfSignatures
          trfUtils trfUtilsDBRelease trfUtilsParallelJobProcessor trfUtilsParallelJobProcessorData
          trfValidateRootFile )
    atlas_add_test( ${test}
       SCRIPT test/test_${test}.py
    )
 endforeach()
+
+if( NOT SIMULATIONBASE )
+  foreach( test RAWMerge_tf
+           trfSubstepIntegration )
+     atlas_add_test( ${test}
+        SCRIPT test/test_${test}.py
+     )
+  endforeach()
+endif()
 
 #The following tests currently fail in master and should be revised
 #AODMerge_tf
