@@ -10,6 +10,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           GaudiKernel )
 
+atlas_add_library (GeoModelInterfaces
+                   INTERFACE
+                   PUBLIC_HEADERS GeoModelInterfaces
+                   LINK_LIBRARIES AthenaKernel GaudiKernel )
+
 # Install files from the package:
 atlas_install_headers( GeoModelInterfaces )
 
