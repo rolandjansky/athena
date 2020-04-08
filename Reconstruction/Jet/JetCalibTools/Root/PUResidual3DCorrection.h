@@ -35,7 +35,7 @@ namespace PUCorrection {
     float correctedPt(float pt, float eta, float area, float rho, float mu, int NPV ) const {
       float areaCorr = area*rho*m_rhoEnergyScale;
 
-      float  pt_ref = pt ;
+      float  pt_ref = pt*m_pTEnergyScale ;
       float calibration3D = correction3D(pt_ref - areaCorr ,
 					 eta,
 					 mu,
@@ -43,7 +43,7 @@ namespace PUCorrection {
       pt_ref =  pt_ref - areaCorr - calibration3D;
       float deltaPt = deltaPtCorrection( pt_ref, eta );
 
-      return pt -areaCorr - calibration3D + deltaPt;      
+      return (pt*m_pTEnergyScale -areaCorr - calibration3D + deltaPt)/m_pTEnergyScale;      
     }
 
     /// same as above but returns the ration pT_corrected/pT_uncorrected
@@ -54,8 +54,10 @@ namespace PUCorrection {
 
     
     
-    /// calculate the mu,NPV dependent part of the correction
+    /// calculate the mu,NPV dependent part of the correction.
+    /// IMPORTANT : the pt must be given in GeV 
     float correction3D(float pt, float eta , float mu, int NPV) const {
+      pt = pt < 1 ? 1 : pt;
       int muNPVbin = m_ref3DHisto->FindBin(mu, NPV);
       int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
       float t0 = m_3Dp0_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);
@@ -75,6 +77,7 @@ namespace PUCorrection {
 
     
     /// calculate the mu,NPV dependent part of the correction (this is only used for tests and validation)    
+    /// IMPORTANT : the pt must be given in GeV 
     float correction3D_noextrap(float pt, float eta , float mu, int NPV) const {
       int muNPVbin = m_ref3DHisto->FindBin(mu, NPV);
       int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
@@ -110,6 +113,7 @@ namespace PUCorrection {
     }
 
     
+    /// IMPORTANT : the pt must be given in GeV 
     float deltaPtCorrection(float pt, float eta) const {
       int etabin = m_Dptp0_vs_eta->FindBin(std::abs(eta)) ;
       float p0 = m_Dptp0_vs_eta->GetBinContent(etabin);
@@ -224,6 +228,7 @@ namespace PUCorrection {
     //
     float m_maxPt=170.0 ; // GeV !!
     float m_rhoEnergyScale = 0.001; // 0.001 when rho is given in MeV. 
+    float m_pTEnergyScale = 0.001; // 0.001 when pT is given in MeV. 
 
     // ***************
     // 

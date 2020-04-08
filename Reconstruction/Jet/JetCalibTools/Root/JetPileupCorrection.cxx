@@ -114,7 +114,12 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
   if(m_do3Dcorrection){
     m_residual3DCorr = new PUCorrection::PU3DCorrectionHelper();
     m_residual3DCorr->loadParameters(m_config->GetValue("PU3DCorrection.constants", "pu3DResidualsConstants.root") );
-    
+    m_residual3DCorr->m_rhoEnergyScale = m_config->GetValue("PU3DCorrection.rhoEnergyScale", 0.001);
+    m_residual3DCorr->m_pTEnergyScale = m_config->GetValue("PU3DCorrection.pTEnergyScale", 0.001);
+    ATH_MSG_INFO("Pile-up 3D correction. Configured with :");
+    ATH_MSG_INFO("  calib constants file="<< m_config->GetValue("PU3DCorrection.constants", "pu3DResidualsConstants.root") );
+    ATH_MSG_INFO("  rho scale ="<<m_residual3DCorr->m_rhoEnergyScale );
+    ATH_MSG_INFO("  pT scale ="<<m_residual3DCorr->m_pTEnergyScale);    
   }else if ( m_doResidual ) { 
     std::string suffix = "_Residual";
     m_residualOffsetCorr = new ResidualOffsetCorrection(name+suffix,m_config,m_jetAlgo,m_calibAreaTag,m_isData,m_dev);
@@ -163,7 +168,8 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
     int mu  = jetEventInfo.mu();
     
     double pt_calib= m_residual3DCorr->correctedPt(pT_det,  eta_det, jetareaP4.Pt(), rho, mu, NPV ) ;
-    xAOD::JetFourMom_t calibP4 = jetStartP4 * pt_calib/pT_det;
+    double scaleF = pt_calib < 0 ? 0.01*m_GeV/pT_det : pt_calib/pT_det;
+    xAOD::JetFourMom_t calibP4 = jetStartP4 * scaleF;
     jet.setJetP4( calibP4 );
     
   } else if(m_useFull4vectorArea) {
