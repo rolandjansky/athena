@@ -189,7 +189,7 @@ class PowhegBase(Configurable):
         for s in search_strings:
             found = glob.glob(s)
             if found != []:
-                found_files.append(found)
+                found_files += found
             else:
                 missing_patterns.append(s)
         if missing_patterns == []:
