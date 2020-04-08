@@ -118,7 +118,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useHighestPT = True
     if mt_chains:
       chainnames = [
-        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF"
+        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF",
+        "HLT_mu.*idperf.*:key=HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon"
       ]
     else:
       chainnames = [
