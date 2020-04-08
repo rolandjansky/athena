@@ -105,7 +105,7 @@ class TrigBtagFexMT: public AthAlgorithm {
   SG::ReadDecorHandleKey< xAOD::TrackParticleContainer > m_trackmomContainerKey {this,"trackmomKey","trackmomKey","Key for Track Momentum"};
 
 
-  SG::WriteHandleKey< xAOD::BTaggingContainer > m_outputBTaggingContainerKey {this,"OutputBTagging","Undefined","Output Btagging Container Key"};
+  SG::ReadHandleKey< xAOD::BTaggingContainer > m_BTaggingContainerKey {this,"BTaggingKey","Undefined","Btagging Container Key"};
   //  SG::WriteHandleKey< xAOD::VertexContainer > m_outputVertexContainerKey {this,"OutputVtxKey","HLT_BjetVertexFex","Output Vertex Container Key"};
   //  SG::WriteHandleKey< xAOD::BTagVertexContainer > m_outputBtagVertexContainerKey {this,"OutputBtagVtxKey","HLT_BjetSecondaryVertexFex","Output Btag Vertex Container Key"};
 };

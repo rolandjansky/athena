@@ -32,8 +32,8 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName
     options['TrackToJetAssociatorNames'] = TrackToJetAssociatorNameList
     options['JetCalibrationName'] = jetcol.replace('Track', 'PV0Track')
     if SetupScheme == "Trig":
-	options['BTagSVCollectionName'] = 'HLT_SecVtx'
-        options['BTagJFVtxCollectionName'] = 'HLT_JFVtx'
+	options['BTagSVCollectionName'] = 'HLT_BTagging_AntiKt4EMTopoSecVtx'
+        options['BTagJFVtxCollectionName'] = 'HLT_BTagging_AntiKt4EMTopoJFVtx'
     else:
         options['BTagSVCollectionName'] = btagname + 'SecVtx'
         options['BTagJFVtxCollectionName'] = btagname + 'JFVtx'

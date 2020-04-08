@@ -73,7 +73,7 @@ BTagOutput = ['SV1_TrackParticleLinks','IP2D_TrackParticleLinks','IP3D_TrackPart
               'IP2D_flagfromV0ofTracks','IP2D_gradeOfTracks','trkSum_ntrk','trkSum_SPt','trkSum_VPt','trkSum_VEta','IP3D_valD0wrtPVofTracks',
               'IP3D_valZ0wrtPVofTracks','IP3D_sigD0wrtPVofTracks','IP3D_sigZ0wrtPVofTracks','IP3D_weightBofTracks','IP3D_weightUofTracks',
               'IP3D_weightCofTracks','IP3D_flagfromV0ofTracks','IP3D_gradeOfTracks','SV1_normdist','SV1_significance3d','SV1_deltaR','SV1_Lxy','SV1_L3d',
-              'MV2c10_discriminant','MV2c100_discriminant',] #komma am ende!
+              'MV2c10_discriminant','MV2c100_discriminant',]
 BTagVars = '.'.join(BTagOutput)
 
 
@@ -352,26 +352,27 @@ TriggerHLTListRun3 = [
     ('xAOD::JetContainer#HLT_InViewJets',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
     ('xAOD::JetAuxContainer#HLT_InViewJetsAux.',                      'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
-
     # vertex for b-jets
     ('xAOD::VertexContainer#HLT_EFHistoPrmVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
     ('xAOD::VertexAuxContainer#HLT_EFHistoPrmVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),  
 
     # secvertex for b-jets
-    ('xAOD::VertexContainer#HLT_SecVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::VertexAuxContainer#HLT_SecVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),  
+    ('xAOD::VertexContainer#HLT_BTagging_AntiKt4EMTopoSecVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    ('xAOD::VertexAuxContainer#HLT_BTagging_AntiKt4EMTopoSecVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),  
+    #('xAOD::VertexContainer#HLT_BTagging_AntiKt4EMPFlowSecVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    #('xAOD::VertexAuxContainer#HLT_BTagging_AntiKt4EMPFlowSecVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),  
 
     # btagvertex for b-jets
-    ('xAOD::BTagVertexContainer#HLT_JFVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::BTagVertexAuxContainer#HLT_JFVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
-
+    ('xAOD::BTagVertexContainer#HLT_BTagging_AntiKt4EMTopoJFVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    ('xAOD::BTagVertexAuxContainer#HLT_BTagging_AntiKt4EMTopoJFVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    #('xAOD::BTagVertexContainer#HLT_BTagging_AntiKt4EMPFlowJFVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    #('xAOD::BTagVertexAuxContainer#HLT_BTagging_AntiKt4EMPFlowJFVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    
     # bjet b-tagging
-    ('xAOD::BTaggingContainer#HLT_BTagging',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::BTaggingAuxContainer#HLT_BTaggingAux.',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
-
-    # bjet b-tagging offline
-    ('xAOD::BTaggingContainer#HLT_OfflineBTagging',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::BTaggingAuxContainer#HLT_OfflineBTaggingAux.'+BTagVars,          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    ('xAOD::BTaggingContainer#HLT_BTagging_AntiKt4EMTopo',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    ('xAOD::BTaggingAuxContainer#HLT_BTagging_AntiKt4EMTopoAux.'+BTagVars,          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    #('xAOD::BTaggingContainer#HLT_BTagging_AntiKt4EMPFlow',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    #('xAOD::BTaggingAuxContainer#HLT_BTagging_AntiKt4EMPFlowAux.'+BTagVars,          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
     # MinBias
     ('xAOD::TrackParticleContainer#HLT_IDTrack_MinBias',                 'BS ESD AODFULL', 'MinBias'),

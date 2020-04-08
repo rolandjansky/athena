@@ -85,7 +85,7 @@ StatusCode TrigBtagFexMT::initialize() {
   ATH_CHECK( m_trackposContainerKey.initialize() );
   ATH_CHECK( m_trackmomContainerKey.initialize() );
 
-  ATH_CHECK( m_outputBTaggingContainerKey.initialize() );
+  ATH_CHECK( m_BTaggingContainerKey.initialize() );
   //  ATH_CHECK( m_outputBtagVertexContainerKey.initialize() );
   //  ATH_CHECK( m_outputVertexContainerKey.initialize() );
 
@@ -194,7 +194,15 @@ StatusCode TrigBtagFexMT::execute() {
     ATH_MSG_DEBUG( "   ** PV x=" << pv->x()<< " y=" << pv->y() << " z=" << pv->z() );
   }
 
+  // Test retrieval of B-Tagging container
+  ATH_MSG_DEBUG( "Attempting to retrieve B-Tagging container with key " << m_BTaggingContainerKey.key() );
+  SG::ReadHandle< xAOD::BTaggingContainer > btaggingHandle = SG::makeHandle< xAOD::BTaggingContainer >( m_BTaggingContainerKey,ctx );
+  CHECK( btaggingHandle.isValid() );
+  const xAOD::BTaggingContainer* btaggingContainer = btaggingHandle.get();
+  ATH_MSG_DEBUG( "Exiting with " << btaggingContainer->size() <<" btagging objects" );
 
+
+  //Monitoring
   auto monitor_for_track_count = Monitored::Scalar( "track_count", trkContainer->size() );
 
   auto monitor_for_track_Et = Monitored::Collection( "track_Et", *trkContainer, []( const xAOD::TrackParticle *trk ) { return trk->p4().Et(); } );
@@ -226,17 +234,6 @@ StatusCode TrigBtagFexMT::execute() {
     monitor_for_track_d0, monitor_for_track_d0err, monitor_for_track_d0sig,
     monitor_for_track_z0, monitor_for_track_z0err, monitor_for_track_z0sig
   );
-
-
-  // Creating dummy B-Tagging container in order to avoid
-  // warnings from the SGInputLoader
-  std::unique_ptr< xAOD::BTaggingContainer > outputBtagging = std::make_unique< xAOD::BTaggingContainer >();
-  std::unique_ptr< xAOD::BTaggingAuxContainer > outputBtaggingAux = std::make_unique< xAOD::BTaggingAuxContainer >();
-  outputBtagging->setStore( outputBtaggingAux.get() );
-
-  SG::WriteHandle< xAOD::BTaggingContainer > btaggingHandle = SG::makeHandle( m_outputBTaggingContainerKey,ctx );
-  CHECK( btaggingHandle.record( std::move( outputBtagging ),std::move( outputBtaggingAux ) ) );
-  ATH_MSG_DEBUG( "Exiting with " << btaggingHandle->size() << " btagging objects" );
 
   auto monitor_group_for_events = Monitored::Group( m_monTool, monitor_for_jet_count, monitor_for_track_count, monitor_for_vertex_count );
 
