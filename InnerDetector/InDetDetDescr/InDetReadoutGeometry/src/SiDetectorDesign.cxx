@@ -13,7 +13,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "ReadoutGeometryBase/SiIntersect.h"
 
 namespace InDetDD {
 // Constructor with parameters:
@@ -52,34 +51,6 @@ SiDetectorDesign::SiDetectorDesign(double thickness,
 
 // Destructor:
 SiDetectorDesign::~SiDetectorDesign() {
-}
-
-SiIntersect SiDetectorDesign::inDetector(const SiLocalPosition &localPosition,
-                                         double phiTol, double etaTol) const {
-    double etaDist = 0;
-    double phiDist = 0;
-
-    distanceToDetectorEdge(localPosition, etaDist, phiDist);
-
-    SiIntersect state;
-
-    if (phiDist < -phiTol || etaDist < -etaTol) {
-        state.setOut();
-        return state;
-    }
-
-    if (phiDist > phiTol && etaDist > etaTol) {
-        state.setIn();
-        return state;
-    }
-
-    // Near boundary.
-    state.setNearBoundary();
-    return state;
-}
-
-const HepGeom::Transform3D SiDetectorDesign::SiHitToGeoModel() const {
-   return HepGeom::Transform3D();
 }
 
 } // namespace InDetDD

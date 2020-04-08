@@ -3,6 +3,7 @@
 */
 
 #include "ReadoutGeometryBase/DetectorDesign.h"
+#include "ReadoutGeometryBase/SiIntersect.h"
 
 namespace InDetDD {
 
@@ -89,6 +90,34 @@ void DetectorDesign::setSymmetry(bool phiSymmetric, bool etaSymmetric,
 DetectorShape DetectorDesign::shape() const {
     // Default is Box.
     return InDetDD::Box;
+}
+
+SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
+                                       double phiTol, double etaTol) const {
+    double etaDist = 0;
+    double phiDist = 0;
+
+    distanceToDetectorEdge(localPosition, etaDist, phiDist);
+
+    SiIntersect state;
+
+    if (phiDist < -phiTol || etaDist < -etaTol) {
+        state.setOut();
+        return state;
+    }
+
+    if (phiDist > phiTol && etaDist > etaTol) {
+        state.setIn();
+        return state;
+    }
+
+    // Near boundary.
+    state.setNearBoundary();
+    return state;
+}
+
+const HepGeom::Transform3D DetectorDesign::SiHitToGeoModel() const {
+   return HepGeom::Transform3D();
 }
 
 } // namespace InDetDD

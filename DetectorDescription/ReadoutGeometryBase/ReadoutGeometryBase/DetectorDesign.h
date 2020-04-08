@@ -24,6 +24,10 @@
 #include <list>
 #include <vector>
 
+namespace Trk {
+class SurfaceBounds;
+}
+
 namespace InDetDD {
 class SiReadoutCellId;
 class SiCellId;
@@ -91,6 +95,10 @@ public:
         For StripStereoAnnulusDesign, this is not the case (coordinate origin is "on the beamline") */
     virtual HepGeom::Point3D<double> sensorCenter() const;
 
+    /** Test if point is in the active part of the detector with specified tolerances */
+    SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol,
+                           double etaTol) const;
+
     /** Override default symmetries to prevent swapping of axes.
        NB. Flags can be changed from true to false but not false to true. */
     void setSymmetry(bool phiSymmetric, bool etaSymmetric, bool depthSymmetric);
@@ -121,8 +129,93 @@ public:
     // Pure virtual methods:
     ///////////////////////////////////////////////////////////////////
 
+    /** Returns distance to nearest detector active edge
+       +ve = inside
+       -ve = outside */
+    virtual void distanceToDetectorEdge(const SiLocalPosition &localPosition,
+                                        double &etaDist, double &phiDist) const = 0;
+
     /** Shape of element */
     virtual DetectorShape shape() const;
+
+    /** Method to calculate length of a module */
+    virtual double length() const = 0;
+
+    /** Method to calculate average width of a module */
+    virtual double width() const = 0;
+
+    /** Method to calculate minimum width of a module */
+    virtual double minWidth() const = 0;
+
+    /** Method to calculate maximum width of a module */
+    virtual double maxWidth() const = 0;
+
+    /** Pitch in phi direction */
+    virtual double phiPitch() const = 0;
+
+    /** Pitch in phi direction */
+    virtual double phiPitch(const SiLocalPosition &localPosition) const = 0;
+
+    // ** Pitch in eta direction */
+    virtual double etaPitch() const = 0;
+
+    /** Return true if hit local direction is the same as readout direction. */
+    virtual bool swapHitPhiReadoutDirection() const = 0;
+    virtual bool swapHitEtaReadoutDirection() const = 0;
+
+    /**  Element boundary */
+    virtual const Trk::SurfaceBounds &bounds() const = 0;
+
+    /** Transform from SiHit to GeoModel frame */
+    virtual const HepGeom::Transform3D SiHitToGeoModel() const;
+
+    ///////////////////////////////////////////////////////////
+    //
+    // The following will replace existing methods but are not all implemented yet
+    //
+
+    /** readout or diode id -> position, size */
+    virtual SiDiodesParameters parameters(const SiCellId &cellId) const = 0;
+
+    /** readout or diode id -> position. */
+    virtual SiLocalPosition localPositionOfCell(const SiCellId &cellId) const = 0;
+
+    /** number of connected cells. Generally 1 except for ganged pixels which will be 2.
+      */
+    virtual int numberOfConnectedCells(const SiReadoutCellId &readoutId) const = 0;
+
+    /** readout id -> id of connected diodes.
+       parameter number = 0 will refer to the primary diode and in general the
+       cell number will be the same.
+       NB. SiCellId cellId = connectedCell(readoutId, 0) will in general be equivalent to
+           SiCellId cellId = readoutId */
+    virtual SiCellId connectedCell(const SiReadoutCellId &readoutId,
+                                   int number) const = 0;
+
+    /** If cell is ganged return the id of the other cell which shares the readout
+        for this cell, otherwise return an invalid id. */
+    virtual SiCellId gangedCell(const SiCellId &cellId) const = 0;
+
+    /** diode id -> readout id
+        NB assignment of a SiReadoutCellId to a SiCellId is allowed so you are can
+        pass SiReadoutCellId variables to functions expecting a SiCellId.  */
+    virtual SiReadoutCellId readoutIdOfCell(const SiCellId &cellId) const = 0;
+
+    /** position -> id */
+    virtual SiReadoutCellId readoutIdOfPosition(const SiLocalPosition &localPos) const = 0;
+
+    /** position -> id */
+    virtual SiCellId cellIdOfPosition(const SiLocalPosition &localPos) const = 0;
+
+    /** Get the neighbouring diodes of a given diode:
+         Cell for which the neighbours must be found
+       List of cells which are neighbours of the given one */
+    virtual void neighboursOfCell(const SiCellId &cellId,
+                                  std::vector<SiCellId> &neighbours) const = 0;
+
+    /** Check if cell is in range. Returns the original cellId if it is in range,
+      otherwise it returns an invalid id. */
+    virtual SiCellId cellIdInRange(const SiCellId &cellId) const = 0;
 
     ///////////////////////////////////////////////////////////////////
     // Private methods:
