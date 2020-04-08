@@ -899,7 +899,14 @@ def add_madspin(madspin_card=None,process_dir=MADGRAPH_GRIDPACK_LOCATION):
 
     if len(glob.glob(process_dir+'/Events/*'))<1:
         mglog.error('Process dir '+process_dir+' does not contain events?')
-    run = glob.glob(process_dir+'/Events/*')[0].split('/')[-1]
+    proc_dir_list = glob.glob(process_dir+'/Events/*')
+    run=None
+    for adir in proc_dir_list:
+        if 'GridRun_' in adir:
+            run=adir.split('/')[-1]
+            break
+    else:
+        run=proc_dir_list[0].split('/')[-1]
 
     # Note : This slightly clunky implementation is needed for the time being
     # See : https://answers.launchpad.net/mg5amcnlo/+question/267904
