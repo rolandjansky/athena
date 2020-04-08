@@ -138,11 +138,12 @@ ToolSvc += PHYS2MuonTPThinningTool
 thinningTools.append(PHYS2MuonTPThinningTool)
 
 # TauJets thinning
+tau_thinning_expression = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3) && (TauJets.RNNJetScoreSigTrans>0.01)"
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYS2TauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYS2TauJetsThinningTool",
                                                                      ThinningService = PHYS2ThinningHelper.ThinningSvc(),
                                                                      ContainerName   = "TauJets",
-                                                                     SelectionString = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3)")
+                                                                     SelectionString = tau_thinning_expression)
 ToolSvc += PHYS2TauJetsThinningTool
 thinningTools.append(PHYS2TauJetsThinningTool)
 
@@ -152,7 +153,7 @@ PHYS2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name     
                                                                       ThinningService        = PHYS2ThinningHelper.ThinningSvc(),
                                                                       TauKey                 = "TauJets",
                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                      SelectionString        = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3)",
+                                                                      SelectionString        = tau_thinning_expression,
                                                                       ApplyAnd               = False,
                                                                       DoTauTracksThinning    = True,
                                                                       TauTracksKey           = "TauTracks")
