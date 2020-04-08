@@ -1107,12 +1107,11 @@ namespace top {
     }
     bool do2StationsHighPt = false;
     settings->retrieve("do2StationsHighPt", do2StationsHighPt);
-    if ( settings->value("MuonQuality") == "HighPt" && do2StationsHighPt ) {
-      this->muondo2StationsHighPt(do2StationsHighPt);
-    } else {
+    if (settings->value("MuonQuality") != "HighPt" && do2StationsHighPt) {
       ATH_MSG_WARNING("Could not set do2StationsHighPt True without using the HighPt muon WP. do2StationsHighPt is now setted to the default value (False)");
-      this->muondo2StationsHighPt(false);
+      do2StationsHighPt = false;
     }
+    this->muondo2StationsHighPt(do2StationsHighPt);
     bool doExtraSmearing = false;
     settings->retrieve("doExtraSmearing", doExtraSmearing);
     this->muondoExtraSmearing( doExtraSmearing );
