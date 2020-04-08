@@ -32,7 +32,7 @@ atlas_add_library( CaloTriggerToolLib
 atlas_add_component( CaloTriggerTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES CaloTriggerToolLib )
+                     LINK_LIBRARIES CaloTriggerToolLib AthenaBaseComps )
 
 atlas_add_dictionary( CaloTriggerToolDict
                       CaloTriggerTool/CaloTriggerToolDict.h
