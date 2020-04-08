@@ -254,7 +254,7 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
     # Set consistent mode and number of jobs
     mode = 0
     njobs = 1
-    if 'ATHENA_PROC_NUMBER' in os.environ:
+    if 'ATHENA_PROC_NUMBER' in os.environ and int(os.environ['ATHENA_PROC_NUMBER'])>0:
         njobs = int(os.environ['ATHENA_PROC_NUMBER'])
         mglog.info('Lucky you - you are running on a full node queue.  Will re-configure for '+str(njobs)+' jobs.')
         mode = 2
@@ -291,11 +291,14 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
         mglog.info('Started generating gridpack at '+str(time.asctime()))
         mglog.warning(' >>>>>> THIS KIND OF JOB SHOULD ONLY BE RUN LOCALLY - NOT IN GRID JOBS <<<<<<')
 
-        if not isNLO:
-            modify_run_card(process_dir=process_dir,settings={'gridpack':'true'})
+        # Some events required if we specify MadSpin usage!
+        my_settings = {'nevents':'1000'}
+        if isNLO:
+            my_settings['req_acc']=str(required_accuracy)
         else:
-            my_settings = {'nevents':'1000','req_acc':str(required_accuracy)}
-            modify_run_card(process_dir=process_dir,settings=my_settings)
+            my_settings = {'gridpack':'true'}
+        modify_run_card(process_dir=process_dir,settings=my_settings)
+
     else:
         #Running in on-the-fly mode
         mglog.info('Started generating at '+str(time.asctime()))
@@ -348,33 +351,32 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
     # Check the run card
     run_card_consistency_check(isNLO=isNLO)
 
-    if mode!=0 and not isNLO:
-
-        if mode==1:
-            mglog.info('Setting up parallel running system settings')
-            setNCores(process_dir=os.getcwd(), Ncores=njobs)
-            if cluster_type=='pbs':
-                mglog.info('Modifying bin/internal/cluster.py for PBS cluster running')
-                os.system("sed -i \"s:text += prog:text += './'+prog:g\" bin/internal/cluster.py")
-        generate = subprocess.Popen(['bin/generate_events',str(mode),str(njobs),MADGRAPH_RUN_NAME],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
-        (out,err) = generate.communicate()
-        error_check(err)
-
-    elif not isNLO:
-
-        setNCores(process_dir=os.getcwd(), Ncores=njobs)
-        mglog.info('Running serial generation.  This will take a bit more time than parallel generation.')
-        generate = subprocess.Popen(['bin/generate_events','0',MADGRAPH_RUN_NAME],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
-        (out,err) = generate.communicate()
-        error_check(err)
-
-    elif isNLO:
-
+    # Build up the generate command
+    # Use the new-style way of passing things: just --name, everything else in config
+    command = ['bin/generate_events']
+    if isNLO:
+        command += ['--name='+MADGRAPH_RUN_NAME]
         mglog.info('Removing Cards/shower_card.dat to ensure we get parton level events only')
         os.unlink('Cards/shower_card.dat')
-        generate = subprocess.Popen(['bin/generate_events','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE, stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
-        (out,err) = generate.communicate()
-        error_check(err)
+    else:
+        command += [MADGRAPH_RUN_NAME]
+    # Set the number of cores to be used
+    setNCores(process_dir=os.getcwd(), Ncores=njobs)
+    # Special handling for mode 1
+    if mode==1:
+        mglog.info('Setting up cluster running')
+        modify_config_card(process_dir=process_dir,settings={'run_mode':1})
+        if cluster_type=='pbs':
+            mglog.info('Modifying bin/internal/cluster.py for PBS cluster running')
+            os.system("sed -i \"s:text += prog:text += './'+prog:g\" bin/internal/cluster.py")
+    elif mode==2:
+        mglog.info('Setting up multi-core running on '+os.environ['ATHENA_PROC_NUMBER']+' cores')
+    elif mode==0:
+        mglog.info('Setting up serial generation.')
+
+    generate = subprocess.Popen(command,stdin=subprocess.PIPE, stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = generate.communicate()
+    error_check(err)
 
     # Get back to where we came from
     os.chdir(currdir)
@@ -816,7 +818,7 @@ def setupLHAPDF(process_dir=None, extlhapath=None, allow_links=True):
 # Function to set the number of cores and the running mode in the run card
 def setNCores(process_dir, Ncores=None):
     my_Ncores = Ncores
-    if Ncores is None and 'ATHENA_PROC_NUMBER' in os.environ:
+    if Ncores is None and 'ATHENA_PROC_NUMBER' in os.environ and int(os.environ['ATHENA_PROC_NUMBER'])>0:
         my_Ncores = int(os.environ['ATHENA_PROC_NUMBER'])
     if my_Ncores is None:
         mglog.info('Setting up for serial run')
@@ -2030,7 +2032,7 @@ def hack_gridpack_script():
 
 
 def check_reset_proc_number(opts):
-    if 'ATHENA_PROC_NUMBER' in os.environ:
+    if 'ATHENA_PROC_NUMBER' in os.environ and int(os.environ['ATHENA_PROC_NUMBER'])>0:
         mglog.info('Noticed that you have run with an athena MP-like whole-node setup.  Will re-configure now to make sure that the remainder of the job runs serially.')
         # Try to modify the opts underfoot
         if not hasattr(opts,'nprocs'):
