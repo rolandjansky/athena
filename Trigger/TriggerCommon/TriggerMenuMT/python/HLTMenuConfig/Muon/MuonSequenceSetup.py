@@ -26,7 +26,7 @@ muonRecFlags.enableErrorTuning = False
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, \
   ViewCreatorInitialROITool, ViewCreatorPreviousROITool, ViewCreatorNamedROITool, \
-  ViewCreatorFSROITool, ViewCreatorCentredOnIParticleROITool
+  ViewCreatorFSROITool, ViewCreatorCentredOnIParticleROITool, ViewCreatorFetchFromViewROITool
 
 #muon container names (for RoI based sequences)
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
@@ -102,11 +102,13 @@ def muFastOvlpRmSequence():
 ### ************* Step2  ************* ###
 #-----------------------------------------------------#
 def muCombAlgSequence(ConfigFlags):
-
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
     ### set the EVCreator ###
     l2muCombViewsMaker = EventViewCreatorAlgorithm("IMl2muComb")
-    newRoITool = ViewCreatorCentredOnIParticleROITool()
-    newRoITool.RoisWriteHandleKey = "HLT_l2SAMuROIs" # TODO - make this recordable()
+    newRoITool = ViewCreatorFetchFromViewROITool()
+    newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_L2SAMuon") #RoI collection recorded to EDM
+    newRoITool.InViewRoIs = muNames.L2forIDName #input RoIs from L2 SA views
+
     #
     l2muCombViewsMaker.RoIsLink = "initialRoI" # ROI for merging is still from L1, we get exactly one L2 SA muon per L1 ROI
     l2muCombViewsMaker.RoITool = newRoITool # Create a new ROI centred on the L2 SA muon from Step 1 
