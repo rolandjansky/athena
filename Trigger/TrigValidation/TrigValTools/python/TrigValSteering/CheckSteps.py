@@ -683,6 +683,7 @@ def default_check_steps(test):
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
                     'PhysicsValidation', 'RAWtoALL']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
+        reco_tf_logmerge.extra_log_regex = r'athfile-.*\.log\.txt'
         reco_tf_logmerge.merged_name = 'athena.merged.log'
         log_to_zip = reco_tf_logmerge.merged_name
         if log_to_check is not None:
