@@ -18,10 +18,9 @@ RD53BEncodingTool::RD53BEncodingTool(const std::string& t,
   m_addresscompression(true),
   m_compression(true),
   m_suppressToT(false),
-  m_safetyFactor(1.04),
+  m_auroraFactor(1.04),
   m_eventsPerStream(1),
   m_testevent(0),
-  m_layoutVersion(""),
   m_path("/RD53BCompressed/"),
   m_thistSvc("THistSvc", n),
   m_testStream(false),
@@ -35,8 +34,7 @@ RD53BEncodingTool::RD53BEncodingTool(const std::string& t,
   declareProperty("DoToTSuppression"      , m_suppressToT       );
   declareProperty("DoExpertPlots"         , m_doExpertPlots     );
   declareProperty("EventsPerStream"       , m_eventsPerStream   );
-  declareProperty("LayoutVersion"         , m_layoutVersion     );
-  declareProperty("SafetyFactor"          , m_safetyFactor      );  
+  declareProperty("AuroraFactor"          , m_auroraFactor      );  
   declareProperty("Path"                  , m_path              );
   declareProperty("TestStreamCreation"    , m_testStream        );
   declareProperty("TestStreamFileName"    , m_testFileName    ="testStream");
@@ -67,6 +65,7 @@ StatusCode RD53BEncodingTool::initialize() {
   if (m_testStream) {
     // human readable format
     m_testChipFile.open(m_testFileName+"_chip.txt");
+    m_testChipFile << "MODULE = " << m_testBarrelEndcap << "/" << m_testLayerDisc << "/" << m_testModuleEta << "/" << m_testModulePhi << "\n";    
     m_testChipFile << "Chip Tag       Pixel Eta       Pixel Phi       cCol        qRow       tot       (bitmap size)     (tot size)      \n";
     
     // stream format
@@ -117,6 +116,7 @@ void RD53BEncodingTool::fillStreams(ChipMap& chip_map, Identifier Id, int chip, 
     if (layer_disk>29) {
       layer_disk = layer_disk-28;          
     }  else if (layer_disk>16) {
+      eta_module=layer_disk;
       layer_disk=1;
     } else {
       std::swap(layer_disk, eta_module);
@@ -151,7 +151,8 @@ void RD53BEncodingTool::fillStreams(ChipMap& chip_map, Identifier Id, int chip, 
     std::cout << "------------------------------------------" << std::endl;
   }
   
-  if (doPrint) {
+  bool dumpStream = (m_testStream and  barrel_endcap == m_testBarrelEndcap and layer_disk == m_testLayerDisc and eta_module == m_testModuleEta and phi_module==m_testModulePhi and chip==0);
+  if (dumpStream) {
     testStream(chip_map, m_testStreams, m_testCores, event);    
   }
 }
@@ -807,6 +808,7 @@ void RD53BEncodingTool::fillDataRates() {
       if (layer_disk>29) {
         layer_disk = layer_disk-28;          
       }  else if (layer_disk>16) {
+        eta_module=layer_disk;
         layer_disk=1;
       } else {
         std::swap(layer_disk, eta_module);
@@ -855,8 +857,8 @@ void RD53BEncodingTool::fillDataRates() {
         }
         
         m_p_streamlength_per_stream[layer_disk][region]->Fill(z,length);
-        m_p_streamlength_per_stream_incl_prot[layer_disk][region]->Fill(z,length*m_safetyFactor);
-        m_p_datarate[layer_disk][region]->Fill(z,length*m_safetyFactor/float(m_eventsPerStream));
+        m_p_streamlength_per_stream_incl_prot[layer_disk][region]->Fill(z,length*m_auroraFactor);
+        m_p_datarate[layer_disk][region]->Fill(z,length*m_auroraFactor/float(m_eventsPerStream));
         m_p_cores_per_stream[layer_disk][region]->Fill(z,cores.at(stream));
         m_p_perc_orphans_per_stream[layer_disk][region]->Fill(z,current_orphans/length*100.);
         m_p_perc_tot_per_stream[layer_disk][region]->Fill(z,tots.at(stream)/length*100.);
@@ -869,8 +871,8 @@ void RD53BEncodingTool::fillDataRates() {
         m_p_tags_per_stream[layer_disk][region]->Fill(z,tags.at(stream));
         m_p_addressing_per_stream[layer_disk][region]->Fill(z,addresses.at(stream));            
         m_h2_streamlength_per_stream[layer_disk][region]->Fill(z,length);
-        m_h2_streamlength_per_stream_incl_prot[layer_disk][region]->Fill(z,length*m_safetyFactor);
-        m_h2_datarate[layer_disk][region]->Fill(z,length*m_safetyFactor/float(m_eventsPerStream));
+        m_h2_streamlength_per_stream_incl_prot[layer_disk][region]->Fill(z,length*m_auroraFactor);
+        m_h2_datarate[layer_disk][region]->Fill(z,length*m_auroraFactor/float(m_eventsPerStream));
         if (m_doExpertPlots) {
           m_h2_cores_per_stream[layer_disk][region]->Fill(z,cores.at(stream));
           m_h2_orphans_per_stream[layer_disk][region]->Fill(z,current_orphans);
@@ -930,7 +932,7 @@ StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float >
       m_p_streamlength_per_stream[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_p_streamlength_per_stream[layer][region]->GetName(), m_p_streamlength_per_stream[layer][region]));
       
-      m_p_streamlength_per_stream_incl_prot[layer][region] = new TProfile(("m_p_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length ( +"+std::to_string(m_safetyFactor)+"%) - Layer "+std::to_string(layer)+"; z[mm]; <stream length> [bits]").c_str(), int(bins.size()-1), &bins[0]);
+      m_p_streamlength_per_stream_incl_prot[layer][region] = new TProfile(("m_p_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length ( +"+std::to_string(m_auroraFactor)+"%) - Layer "+std::to_string(layer)+"; z[mm]; <stream length> [bits]").c_str(), int(bins.size()-1), &bins[0]);
       m_p_streamlength_per_stream_incl_prot[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_p_streamlength_per_stream_incl_prot[layer][region]->GetName(), m_p_streamlength_per_stream_incl_prot[layer][region])); 
       
@@ -986,7 +988,7 @@ StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float >
       m_h2_streamlength_per_stream[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_h2_streamlength_per_stream[layer][region]->GetName(), m_h2_streamlength_per_stream[layer][region])); 
       
-      m_h2_streamlength_per_stream_incl_prot[layer][region] = new TH2F(("m_h2_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length ( + "+std::to_string(m_safetyFactor)+"%) - Layer "+std::to_string(layer)+"; z[mm]; stream length [bits] ("+std::to_string(m_safetyFactor)+"%)").c_str(), int(bins.size()-1), &bins[0], 10000*m_eventsPerStream, 0., 10000.*m_eventsPerStream);
+      m_h2_streamlength_per_stream_incl_prot[layer][region] = new TH2F(("m_h2_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length ( + "+std::to_string(m_auroraFactor)+"%) - Layer "+std::to_string(layer)+"; z[mm]; stream length [bits] ("+std::to_string(m_auroraFactor)+"%)").c_str(), int(bins.size()-1), &bins[0], 10000*m_eventsPerStream, 0., 10000.*m_eventsPerStream);
       m_h2_streamlength_per_stream_incl_prot[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_h2_streamlength_per_stream_incl_prot[layer][region]->GetName(), m_h2_streamlength_per_stream_incl_prot[layer][region])); 
       
