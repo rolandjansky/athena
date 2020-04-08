@@ -111,7 +111,7 @@ if not len(jobId) == 5:
     jobId = ['Athena-EventProcessor', 'Athena-EventDisplays-Segment', 'EventDisplays-Rack', 'tmp', '%d' % randint(0, 999)]
 
 IPC_timeout = int(os.environ['TDAQ_IPC_TIMEOUT'])
-print " IPC_timeout Envrionment Variable = %d" %IPC_timeout
+printfunc (" IPC_timeout Envrionment Variable = %d" %IPC_timeout)
 #################################################################################
 
 #from random import randrange
