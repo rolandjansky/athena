@@ -39,7 +39,7 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
 
     array = helper.addArray([combinedList,layerList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath = 'AFP/SiT/')
     array.defineHistogram('pixelColIDChip', title='1D hitmap for {0} Layer {1}', path='PixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
-    array.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1}', path='PixelRowIDChip', xbins=80, xmin=0.5, xmax=80.5)
+    array.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1}', path='PixelRowIDChip', xbins=336, xmin=0.5, xmax=336.5)
     array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1}', type='TH2F', path='pixelColRow2D', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
     array.defineHistogram('timeOverThreshold', title='1D Time over threshold for {0} Layer {1}', path='SiTimeOverThreshold', xbins=60, xmin=0, xmax=20)
 
@@ -59,19 +59,8 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    nightly = ''#/eos/atlas/atlastier0/tzero/prod/data18_13TeV/physics_Main/00348618/data18_13TeV.00348618.physics_Main.recon.AOD.v220/'
-    #file = 'data18_13TeV.00348618.physics_Main.recon.AOD.v220._lb0295._0009.1'
-    #file = '/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000003.pool.root.1' #ToF
-    file = '/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000005.pool.root.1' #SiT
-    #/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.deriv.DAOD_STDM7.r10258_p3399_p4030/DAOD_STDM7.20036794._000007.pool.root.1'
-    #/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.recon.AOD.r10258_p3412_r11501/AOD.18508508._000007.pool.root.1'
-    #/eos/atlas/atlastier0/tzero/prod/data18_13TeV/physics_Main/00354309/data18_13TeV.00354309.physics_Main.recon.AOD.f946/data18_13TeV.00354309.physics_Main.recon.AOD.f946._lb0130._0001.1'
-    #nightly = '/eos/atlas/atlastier0/tzero/prod/data18_13TeV/physics_Main/00357750/data18_13TeV.00357750.physics_Main.recon.AOD.f1041/'
-    #file = 'data18_13TeV.00357750.physics_Main.recon.AOD.f1041._lb0105._SFO-7._0103.1'
-    #nightly = '/eos/atlas/atlastier0/tzero/prod/data17_13TeV/physics_Main/00337176/data17_13TeV.00337176.physics_Main.recon.AOD.f871/'
-    #file = 'data17_13TeV.00337176.physics_Main.recon.AOD.f871._lb0142._0006.1'
-
-    #file = '/eos/user/k/kciesla/data17_336505/RAW/data17_13TeV.00336505.physics_MinBias.merge.AOD.f935_m1992._lb0433._0004.1'
+    nightly = ''
+    file = '/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000005.pool.root.1'
     
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False

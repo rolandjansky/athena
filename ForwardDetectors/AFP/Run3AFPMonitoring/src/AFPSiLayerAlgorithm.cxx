@@ -58,15 +58,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	return StatusCode::FAILURE;
     }
 
-    /**
-     *
-     *	const int xAOD::AFPStationID::farA  = 0;
-     *	const int xAOD::AFPStationID::nearA = 1;
-     *	const int xAOD::AFPStationID::nearC = 2;
-     *	const int xAOD::AFPStationID::farC  = 3;
-     *
-     */
-
     ATH_CHECK( afpHitContainer.initialize() );
 
     nSiHits = afpHitContainer->size();
