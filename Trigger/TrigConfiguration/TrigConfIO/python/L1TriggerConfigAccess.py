@@ -153,8 +153,7 @@ class L1PrescalesSetAccess(TriggerConfigAccess):
         super(L1PrescalesSetAccess,self).__init__( ConfigType.L1PS, mainkey = "cutValues",
                                                    filename = filename, dbalias = dbalias, dbkey = l1pskey )
         self.loader.setQuery([
-            "SELECT L1PS_DATA FROM {schema}.L1_PRESCALE_SET WHERE L1PS_ID={dbkey}", # for new db schema
-            "SELECT L1MT.L1MT_MENU FROM {schema}.L1_MASTER_TABLE L1MT where L1MT.L1MT_ID={dbkey}"  # for current db schema
+            "SELECT L1PS_DATA FROM {schema}.L1_PRESCALE_SET WHERE L1PS_ID={dbkey}" # for current and new db schema
         ])
         self.load()
 
@@ -182,8 +181,8 @@ class BunchGroupSetAccess(TriggerConfigAccess):
     this class provides access to the L1 bunchgroup set
     the methods are self-explanatory for people with knowledge of the configuration
     """
-    def __init__(self, filename = None, dbalias = None, smkey = None ):
-        loader = self._getLoader( configType = ConfigType.L1PS, filename = filename, dbalias = dbalias, dbkey = smkey )
+    def __init__(self, filename = None, dbalias = None, bgskey = None ):
+        loader = self._getLoader( configType = ConfigType.L1PS, filename = filename, dbalias = dbalias, dbkey = bgskey )
         super(BunchGroupSetAccess,self).__init__(loader, mainkey = "bunchgroups")
 
 
