@@ -446,8 +446,7 @@ EXOT3SlimmingHelper.ExtraVariables = ["AntiKt4EMTopoJets"+TruthAssociationVars,"
 # /DerivationFramework/DerivationFrameworkExamples/trunk/share/SlimmingExample.py#L38
 EXOT3SlimmingHelper.SmartCollections = EXOT3SmartContent
 EXOT3SlimmingHelper.SmartCollections += ["BTagging_AntiKtVR30Rmax4Rmin02Track_201903", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
-                                         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
-                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"]
+                                         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"]
 EXOT3SlimmingHelper.ExtraVariables = EXOT3ExtraVariables
 EXOT3SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
@@ -477,6 +476,10 @@ EXOT3SlimmingHelper.AppendToDictionary = {
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
 
 }
+
+# Add all variabless for VR track-jets
+EXOT3SlimmingHelper.AllVariables  += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"
+        ]
 
 # Save certain b-tagging variables for VR track-jet
 EXOT3SlimmingHelper.ExtraVariables += [
