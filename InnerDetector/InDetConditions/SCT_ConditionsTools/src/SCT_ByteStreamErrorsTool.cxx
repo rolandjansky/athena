@@ -326,12 +326,9 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool filling event cache for module " << module_id  << " ec " << errCode );
 
     int side{m_sct_id->side(m_sct_id->wafer_id(hashId))};
-
-    if ((errCode >= SCT_ByteStreamErrors::ABCDError_Chip0 and
-         errCode<= SCT_ByteStreamErrors::ABCDError_Chip5)) {
+    if ( errCode & SCT_ByteStreamErrors::ABCDErrorMask() ) {
       cacheEntry->abcdErrorChips[module_id] |= (1 << (errCode - SCT_ByteStreamErrors::ABCDError_Chip0 + side * 6));
-    } else if (errCode>= SCT_ByteStreamErrors::TempMaskedChip0 and
-               errCode<= SCT_ByteStreamErrors::TempMaskedChip5) {
+    } else if (errCode & SCT_ByteStreamErrors::TempMaskedChipsMask()) {
       cacheEntry->tempMaskedChips[module_id] |= (1 << (errCode- SCT_ByteStreamErrors::TempMaskedChip0 + side * 6));
     } else {
       // for the moment this is dead code
