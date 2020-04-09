@@ -147,7 +147,7 @@ def EnvelopeDefSvcCfg(ConfigFlags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs
     kwargs.setdefault("GeoModelSvc", acc.getService("GeoModelSvc"))
     result.merge(acc)
 
-    result.addService(DetDescrDBEnvelopeSvc(name, **kwargs))
+    result.addService(DetDescrDBEnvelopeSvc(name, **kwargs),primary=True)
     return result
 
 
