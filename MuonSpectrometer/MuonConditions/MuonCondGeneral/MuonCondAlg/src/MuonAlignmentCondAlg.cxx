@@ -33,7 +33,6 @@ MuonAlignmentCondAlg::MuonAlignmentCondAlg(const std::string& name,
   m_ILineRequested = false;
 
   m_parlineFolder.clear();
-  declareProperty("ParlineFolders",  m_parlineFolder);
   declareProperty("DumpALines",      m_dumpALines=false);
   declareProperty("DumpBLines",      m_dumpBLines=false);
   declareProperty("DumpILines",      m_dumpILines=false);

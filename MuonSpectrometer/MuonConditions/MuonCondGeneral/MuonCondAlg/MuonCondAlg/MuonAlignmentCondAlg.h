@@ -33,7 +33,9 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
   virtual StatusCode execute() override;
   virtual StatusCode finalize() override;
 
-  std::vector<std::string> parlineFolder() { return m_parlineFolder; }
+  //std::vector<std::string> parlineFolder() { return m_parlineFolder; }
+
+  Gaudi::Property<std::vector<std::string>> m_parlineFolder {this, "ParlineFolders", std::vector<std::string>(), "Database folders", "Set<std::string>"};
     
  private:
 
@@ -78,7 +80,7 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
   ServiceHandle<ICondSvc> m_condSvc;
   std::string m_geometryVersion;
 
-  std::vector<std::string>       m_parlineFolder;
+  //std::vector<std::string>       m_parlineFolder;
   bool m_dumpALines;
   bool m_dumpBLines;
   bool m_dumpILines;
