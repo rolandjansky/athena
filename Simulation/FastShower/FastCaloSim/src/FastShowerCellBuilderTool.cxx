@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/FastShowerCellBuilderTool.h"
@@ -2750,9 +2750,13 @@ std::vector<Trk::HitInfo>* FastShowerCellBuilderTool::caloHits(const HepMC::GenP
                                                            Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);
     }
   } else {
+    caloEntry=&inputPar;
+  }  
+  
+  if(caloEntry==&inputPar) {
     ATH_MSG_DEBUG("Use clone of inputPar as caloEntry");
     caloEntry=inputPar.clone();
-  }  
+  }
 
   if ( caloEntry ) {
     ATH_MSG_DEBUG("caloEntry="<<caloEntry<<" nextGeoID="<<nextGeoID<<" charge="<<charge);
