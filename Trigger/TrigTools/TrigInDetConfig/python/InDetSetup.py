@@ -8,6 +8,8 @@ include.block("InDetTrigRecExample/EFInDetConfig.py")
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetSetup")
 
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
 if not 'InDetTrigFlags' in dir():
    # --- setup flags with default values
    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -141,29 +143,53 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetPixelClusterization.RoIs = rois
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey 
 
-
   viewAlgs.append(InDetPixelClusterization)
 
-  # TODO - it should work in principle but generates run time errors for the moment
-  # from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
-  # sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
-  # sct_FlaggedConditionToolSetup.setup()
-  # InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
-
+  # Create SCT_ConditionsSummaryTool
   from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
   sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool" + signature)
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
-  condTools = []
-  for condToolHandle in InDetSCT_ConditionsSummaryTool.ConditionsTools:
-    condTool = condToolHandle.typeAndName
-    if condTool not in condTools:
-      if condTool != "SCT_FlaggedConditionTool/InDetSCT_FlaggedConditionTool":
-        condTools.append(condTool)
   sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged" + signature)
   sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
-  InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
+
+  # Add conditions tools to SCT_ConditionsSummaryTool
+  from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
+  sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
+  sct_ConfigurationConditionsToolSetup.setToolName("InDetSCT_ConfigurationConditionsTool" + signature)
+  sct_ConfigurationConditionsToolSetup.setup()
+  InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ConfigurationConditionsToolSetup.getTool().getFullName())
+
+  from SCT_ConditionsTools.SCT_ReadCalibDataToolSetup import SCT_ReadCalibDataToolSetup
+  sct_ReadCalibDataToolSetup = SCT_ReadCalibDataToolSetup()
+  sct_ReadCalibDataToolSetup.setToolName("InDetSCT_ReadCalibDataTool" + signature)
+  sct_ReadCalibDataToolSetup.setup()
+  InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ReadCalibDataToolSetup.getTool().getFullName())
+
+  if not athenaCommonFlags.isOnline():
+     from SCT_ConditionsTools.SCT_MonitorConditionsToolSetup import SCT_MonitorConditionsToolSetup
+     sct_MonitorConditionsToolSetup = SCT_MonitorConditionsToolSetup()
+     sct_MonitorConditionsToolSetup.setToolName("InDetSCT_MonitorConditionsTool" + signature)
+     sct_MonitorConditionsToolSetup.setup()
+     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_MonitorConditionsToolSetup.getTool().getFullName())
+
+  from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
+  sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
+  sct_ByteStreamErrorsToolSetup.setToolName("InDetSCT_BSErrorTool" + signature)
+  sct_ByteStreamErrorsToolSetup.setConfigTool(sct_ConfigurationConditionsToolSetup.getTool())
+  sct_ByteStreamErrorsToolSetup.setup()
+  InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ByteStreamErrorsToolSetup.getTool().getFullName())     
+
+  if not athenaCommonFlags.isOnline():
+     from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+     sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+     sct_DCSConditionsToolSetup.setToolName("InDetSCT_DCSConditionsTool" + signature)
+     sct_DCSConditionsToolSetup.setup()
+     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_DCSConditionsToolSetup.getTool().getFullName())     
+
+  if (InDetTrigFlags.doPrintConfigurables()):
+     print sct_ConditionsSummaryToolSetupWithoutFlagged 
 
   #
   # --- SCT_ClusteringTool
