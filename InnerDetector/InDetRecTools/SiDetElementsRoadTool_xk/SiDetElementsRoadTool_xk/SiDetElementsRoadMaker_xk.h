@@ -30,6 +30,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+// MagField cache
+#include "MagFieldElements/AtlasFieldCache.h"
+
 #include <atomic>
 #include <iosfwd>
 #include <list>
@@ -80,7 +83,9 @@ namespace InDet{
        bool test) const override;
 
     virtual void detElementsRoad
-      (const Trk::TrackParameters&,
+      (const EventContext& ctx,
+       MagField::AtlasFieldCache& fieldCache,
+       const Trk::TrackParameters&,
        Trk::PropDirection,
        std::list<const InDetDD::SiDetectorElement*>&) const override;
     //@}
@@ -139,7 +144,8 @@ namespace InDet{
     float stepToDetElement(const InDetDD::SiDetectorElement*&,
                            Amg::Vector3D&, Amg::Vector3D&) const;
 
-    Trk::CylinderBounds getBound(const Trk::TrackParameters&) const;
+    Trk::CylinderBounds getBound(MagField::AtlasFieldCache& fieldCache,
+                                 const Trk::TrackParameters&) const;
 
     MsgStream& dumpConditions(MsgStream& out) const;
 

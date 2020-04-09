@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -16,8 +16,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "MagFieldServices/BFieldVector.h"
-#include "MagFieldServices/BFieldCache.h"
+#include "MagFieldElements/BFieldVector.h"
+#include "MagFieldElements/BFieldCache.h"
 
 template <class T>
 class BFieldMesh {
@@ -46,9 +46,9 @@ public:
     // test if a point is inside this zone
     inline bool inside( double z, double r, double phi ) const;
     // find the bin
-    inline void getCache( double z, double r, double phi, BFieldCache & cache ) const;
+    inline void getCache( double z, double r, double phi, BFieldCache & cache, double scaleFactor = 1.0 ) const;
     // get the B field
-    void getB( const double *xyz, double *B, double* deriv=0 ) const;
+    void getB( const double *xyz, double *B, double* deriv=nullptr ) const;
     // accessors
     double min( int i ) const { return m_min[i]; }
     double max( int i ) const { return m_max[i]; }
@@ -111,7 +111,7 @@ bool BFieldMesh<T>::inside( double z, double r, double phi ) const
 // Find and return the cache of the bin containing (z,r,phi)
 //
 template <class T>
-void BFieldMesh<T>::getCache( double z, double r, double phi, BFieldCache & cache ) const
+void BFieldMesh<T>::getCache( double z, double r, double phi, BFieldCache & cache, double scaleFactor ) const
 {
     // make sure phi is inside this zone
     if ( phi < phimin() ) phi += 2.0*M_PI;
@@ -135,17 +135,16 @@ void BFieldMesh<T>::getCache( double z, double r, double phi, BFieldCache & cach
     cache.setRange( mz[iz], mz[iz+1], mr[ir], mr[ir+1], mphi[iphi], mphi[iphi+1] );
     // store the B field at the 8 corners
     int im0 = iz*m_zoff+ir*m_roff+iphi; // index of the first corner
-    cache.setField( 0, m_field[im0              ] );
-    cache.setField( 1, m_field[im0            +1] );
-    cache.setField( 2, m_field[im0      +m_roff  ] );
-    cache.setField( 3, m_field[im0      +m_roff+1] );
-    cache.setField( 4, m_field[im0+m_zoff        ] );
-    cache.setField( 5, m_field[im0+m_zoff      +1] );
-    cache.setField( 6, m_field[im0+m_zoff+m_roff  ] );
-    cache.setField( 7, m_field[im0+m_zoff+m_roff+1] );
+    cache.setField( 0, m_field[im0              ],   scaleFactor );
+    cache.setField( 1, m_field[im0            +1],   scaleFactor );
+    cache.setField( 2, m_field[im0      +m_roff  ],  scaleFactor );
+    cache.setField( 3, m_field[im0      +m_roff+1],  scaleFactor );
+    cache.setField( 4, m_field[im0+m_zoff        ],  scaleFactor );
+    cache.setField( 5, m_field[im0+m_zoff      +1],  scaleFactor );
+    cache.setField( 6, m_field[im0+m_zoff+m_roff  ], scaleFactor );
+    cache.setField( 7, m_field[im0+m_zoff+m_roff+1], scaleFactor );
     // store the B scale
     cache.setBscale( m_scale );
-    return;
 }
 
 //
@@ -221,7 +220,11 @@ void BFieldMesh<T>::getB( const double *xyz, double *B, double* deriv ) const
         double sz = m_scale/(mz[iz+1]-mz[iz]);
         double sr = m_scale/(mr[ir+1]-mr[ir]);
         double sphi = m_scale/(mphi[iphi+1]-mphi[iphi]);
-        double dBdz[3], dBdr[3], dBdphi[3];
+        double dBdz[3];
+
+        double dBdr[3];
+
+        double dBdphi[3];
         for ( int j = 0; j < 3; j++ ) { // Bz, Br, Bphi components
             dBdz[j]   = sz*( gr*( gphi*(field[4][j]-field[0][j]) + fphi*(field[5][j]-field[1][j]) ) +
                              fr*( gphi*(field[6][j]-field[2][j]) + fphi*(field[7][j]-field[3][j]) ) );
@@ -244,8 +247,7 @@ void BFieldMesh<T>::getB( const double *xyz, double *B, double* deriv ) const
         deriv[7] = s*dBdr[1] + c*dBdphi[0]/r;
         deriv[8] = dBdz[0];
     }
-    return;
-}
+    }
 
 //
 // Construct the look-up table to accelerate bin-finding.

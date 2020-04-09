@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -14,8 +14,8 @@
 
 #include <vector>
 #include <cmath>
-#include "MagFieldServices/BFieldVectorZR.h"
-#include "MagFieldServices/BFieldCacheZR.h"
+#include "MagFieldElements/BFieldVectorZR.h"
+#include "MagFieldElements/BFieldCacheZR.h"
 
 class BFieldMeshZR {
 public:
@@ -34,7 +34,7 @@ public:
     inline bool inside( double z, double r ) const
         { return ( z >= zmin() && z <= zmax() && r >= rmin() && r <= rmax() ); }
     // find the bin
-    inline void getCache( double z, double r, BFieldCacheZR & cache ) const;
+    inline void getCache( double z, double r, BFieldCacheZR & cache, double scaleFactor = 1.0 ) const;
     // accessors
     double min( int i ) const { return m_min[i]; }
     double max( int i ) const { return m_max[i]; }
@@ -61,7 +61,7 @@ private:
 // Find and return the cache of the bin containing (z,r)
 //
 inline void
-BFieldMeshZR::getCache( double z, double r, BFieldCacheZR & cache ) const
+BFieldMeshZR::getCache( double z, double r, BFieldCacheZR & cache, double scaleFactor ) const
 {
     // find the mesh, and relative location in the mesh
     // z
@@ -78,11 +78,10 @@ BFieldMeshZR::getCache( double z, double r, BFieldCacheZR & cache ) const
     cache.setRange( mz[iz], mz[iz+1], mr[ir], mr[ir+1] );
     // store the B field at the 8 corners
     int im0 = iz*m_zoff+ir; // index of the first corner
-    cache.setField( 0, m_field[im0         ] );
-    cache.setField( 1, m_field[im0       +1] );
-    cache.setField( 2, m_field[im0+m_zoff  ] );
-    cache.setField( 3, m_field[im0+m_zoff+1] );
-    return;
+    cache.setField( 0, m_field[im0         ], scaleFactor );
+    cache.setField( 1, m_field[im0       +1], scaleFactor );
+    cache.setField( 2, m_field[im0+m_zoff  ], scaleFactor );
+    cache.setField( 3, m_field[im0+m_zoff+1], scaleFactor );
 }
 
 #endif

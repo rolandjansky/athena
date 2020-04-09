@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -13,30 +13,30 @@
 #ifndef BFIELDCACHEZR_H
 #define BFIELDCACHEZR_H
 
-#include "MagFieldServices/BFieldVectorZR.h"
+#include "MagFieldElements/BFieldVectorZR.h"
 #include <iostream>
 #include <cmath>
 
 class BFieldCacheZR {
 public:
     // default constructor sets unphysical boundaries, so that inside() will fail
-    BFieldCacheZR() : m_zmin(0.0), m_zmax(-1.0), m_rmin(0.0), m_rmax(-1.0) {;}
+    BFieldCacheZR() : m_zmin(0.0), m_zmax(-1.0), m_rmin(0.0), m_rmax(-1.0) {}
     // invalidate this cache, so that inside() will fail
     void invalidate() { m_rmin = 0.0; m_rmax = -1.0; }
     // set the z, r range that defines the bin
     void setRange( double zmin, double zmax, double rmin, double rmax )
     { m_zmin = zmin; m_zmax = zmax; m_rmin = rmin; m_rmax = rmax;
       m_invz = 1.0/(zmax-zmin); m_invr = 1.0/(rmax-rmin); }
-    // set the field values at each corner
-    void setField( int i, const BFieldVectorZR &field )
-    { m_field[0][i] = field[0]; m_field[1][i] = field[1]; }
+    // set the field values at each corner (rescale for current scale factor)
+    void setField( int i, const BFieldVectorZR &field, double scaleFactor = 1.0 )
+    { m_field[0][i] = scaleFactor * field[0]; m_field[1][i] = scaleFactor * field[1]; }
     // set the multiplicative factor for the field vectors
     // test if (z, r) is inside this bin
     bool inside( double z, double r ) const
     { return ( z >= m_zmin && z <= m_zmax && r >= m_rmin && r <= m_rmax ); }
     // interpolate the field and return B[3].
     // also compute field derivatives if deriv[9] is given.
-    inline void getB( const double *xyz, double r, double *B, double *deriv=0 ) const;
+    inline void getB( const double *xyz, double r, double *B, double *deriv=nullptr ) const;
 private:
     double m_zmin, m_zmax; // bin range in z
     double m_rmin, m_rmax; // bin range in r
@@ -78,7 +78,9 @@ BFieldCacheZR::getB( const double *xyz, double r, double *B, double *deriv ) con
 
     // compute field derivatives if requested
     if ( deriv ) {
-        float dBdz[2], dBdr[2];
+        float dBdz[2];
+
+        float dBdr[2];
         for ( int j = 0; j < 2; j++ ) { // Bz, Br components
             const float *field = m_field[j];
             dBdz[j]   = m_invz*( gr*(field[2]-field[0]) + fr*(field[3]-field[1]) );

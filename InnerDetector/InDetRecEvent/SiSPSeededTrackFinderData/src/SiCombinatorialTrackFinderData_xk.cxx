@@ -38,6 +38,11 @@ namespace InDet {
     m_initialized = true;
   }
 
+  void SiCombinatorialTrackFinderData_xk::setFieldCondObj(const  AtlasFieldCacheCondObj* fieldCondObj) 
+  {
+    m_tools.setFieldCondObj(fieldCondObj);
+  }
+    
   void SiCombinatorialTrackFinderData_xk::setPixContainer(const InDet::PixelClusterContainer* pixcont) {
     m_pixcontainer = pixcont;
   }

@@ -70,7 +70,7 @@ public:
 
   // /** When being run from PileUpToolsAlgs, this method is called at the start of
   //       the subevts loop. Not able to access SubEvents */
-  StatusCode prepareEvent(const unsigned int /*nInputEvents*/);
+  StatusCode prepareEvent(const EventContext& ctx, const unsigned int /*nInputEvents*/);
   //
   //   /** When being run from PileUpToolsAlgs, this method is called for each active
   //       bunch-crossing to process current SubEvents bunchXing is in ns */
@@ -80,10 +80,10 @@ public:
 
   //   /** When being run from PileUpToolsAlgs, this method is called at the end of
   //       the subevts loop. Not (necessarily) able to access SubEvents */
-  StatusCode mergeEvent();
+  StatusCode mergeEvent(const EventContext& ctx);
   /** alternative interface which uses the PileUpMergeSvc to obtain
       all the required SubEvents. */
-  virtual StatusCode processAllSubEvents();
+  virtual StatusCode processAllSubEvents(const EventContext& ctx);
 
   /** Just calls processAllSubEvents - leaving for back-compatibility
       (IMuonDigitizationTool) */
@@ -97,7 +97,7 @@ public:
      every readout element, i.e., a sensitive volume of a
      chamber. (IMuonDigitizationTool)
   */
-  StatusCode digitize();
+  StatusCode digitize(const EventContext& ctx);
 
   /** Finalize */
   StatusCode finalize();
@@ -112,7 +112,7 @@ private:
   /** Record sTgcDigitContainer and MuonSimDataCollection */
   StatusCode recordDigitAndSdoContainers();
   /** Core part of digitization use by mergeEvent (IPileUpTool) and digitize (IMuonDigitizationTool) */
-  StatusCode doDigitization();
+  StatusCode doDigitization(const EventContext& ctx);
 
 protected:
   PileUpMergeSvc *m_mergeSvc; // Pile up service

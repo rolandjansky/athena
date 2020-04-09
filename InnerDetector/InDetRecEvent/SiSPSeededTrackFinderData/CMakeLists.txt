@@ -26,12 +26,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkMaterialOnTrack
                           Tracking/TrkEvent/TrkPrepRawData
                           Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkSpacePoint )
+                          Tracking/TrkEvent/TrkSpacePoint
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions )
 
 # Component(s) in the package:
 atlas_add_library( SiSPSeededTrackFinderData
                    src/*.cxx
                    PUBLIC_HEADERS SiSPSeededTrackFinderData
-                   LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry MagFieldInterfaces TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces TrkEventUtils
-                   PRIVATE_LINK_LIBRARIES GaudiKernel InDetRIO_OnTrack SiSpacePointsSeed TrkSurfaces TrkMaterialOnTrack TrkPrepRawData TrkRIO_OnTrack TrkSpacePoint )
-
+                   LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry MagFieldInterfaces TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces TrkEventUtils MagFieldElements MagFieldConditions
+                   PRIVATE_LINK_LIBRARIES GaudiKernel InDetRIO_OnTrack SiSpacePointsSeed TrkSurfaces TrkMaterialOnTrack TrkPrepRawData TrkRIO_OnTrack TrkSpacePoint)

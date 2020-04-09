@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -33,7 +33,11 @@ BFieldSolenoid::readMap( istream& input )
         return 1;
     }
     // second line contains number of bins
-    int nz, nr, nphi;
+    int nz;
+
+    int nr;
+
+    int nphi;
     double unused;
     input >> nz >> nr >> nphi >> unused >> unused >> unused;
     m_orig->reserve( nz, nr, nphi+1 ); // extra phi at 2pi
@@ -55,7 +59,11 @@ BFieldSolenoid::readMap( istream& input )
     // read field values
     // the index order is opposite to the toroid - have to reorder
     // also convert from gauss to Tesla here.
-    vector<double> Bz, Br, Bphi;
+    vector<double> Bz;
+
+    vector<double> Br;
+
+    vector<double> Bphi;
     double b;
     for ( int k = 0; k < nphi; k++ ) {
         for ( int j = 0; j < nr; j++ ) {
@@ -96,9 +104,9 @@ void
 BFieldSolenoid::writeMap( TFile* rootfile, bool tilted )
 {
     BFieldMesh<double> *map = tilted ? m_tilt : m_orig;
-    if ( map == 0 ) return; // no map to write
-    if ( rootfile == 0 ) return; // no file
-    if ( rootfile->cd() == false ) return; // could not make it current directory
+    if ( map == nullptr ) return; // no map to write
+    if ( rootfile == nullptr ) return; // no file
+    if ( !rootfile->cd() ) return; // could not make it current directory
     // define the tree
     TTree* tree = new TTree( "BFieldSolenoid", "BFieldSolenoid version 4" );
     double zmin = map->zmin();
@@ -110,9 +118,17 @@ BFieldSolenoid::writeMap( TFile* rootfile, bool tilted )
     int nmeshz = map->nmesh(0);
     int nmeshr = map->nmesh(1);
     int nmeshphi = map->nmesh(2);
-    double *meshz, *meshr, *meshphi;
+    double *meshz;
+
+    double *meshr;
+
+    double *meshphi;
     int nfield = nmeshz*nmeshr*nmeshphi;
-    double *fieldz, *fieldr, *fieldphi;
+    double *fieldz;
+
+    double *fieldr;
+
+    double *fieldphi;
     meshz = new double[nmeshz];
     meshr = new double[nmeshr];
     meshphi = new double[nmeshphi];
@@ -171,19 +187,41 @@ BFieldSolenoid::writeMap( TFile* rootfile, bool tilted )
 int
 BFieldSolenoid::readMap( TFile* rootfile )
 {
-    if ( rootfile == 0 ) return 1; // no file
-    if ( rootfile->cd() == false ) return 2; // could not make it current directory
+    if ( rootfile == nullptr ) return 1; // no file
+    if ( !rootfile->cd() ) return 2; // could not make it current directory
     if ( m_orig == m_tilt ) delete m_orig;
     else { delete m_orig; delete m_tilt; }
     m_orig = m_tilt = new BFieldMesh<double>;
     // open the tree
     TTree* tree = (TTree*)rootfile->Get("BFieldSolenoid");
-    if ( tree == 0 ) return 3; // no tree
-    double zmin, zmax, rmin, rmax, phimin, phimax;
-    int nmeshz, nmeshr, nmeshphi;
-    double *meshz, *meshr, *meshphi;
+    if ( tree == nullptr ) return 3; // no tree
+    double zmin;
+
+    double zmax;
+
+    double rmin;
+
+    double rmax;
+
+    double phimin;
+
+    double phimax;
+    int nmeshz;
+
+    int nmeshr;
+
+    int nmeshphi;
+    double *meshz;
+
+    double *meshr;
+
+    double *meshphi;
     int nfield;
-    double *fieldz, *fieldr, *fieldphi;
+    double *fieldz;
+
+    double *fieldr;
+
+    double *fieldphi;
     //unsigned char *fbyte;
     // define the fixed-sized branches first
     tree->SetBranchAddress( "zmin", &zmin );
@@ -266,7 +304,7 @@ BFieldSolenoid::getB( const double *xyz, double *B, double *deriv ) const
 void
 BFieldSolenoid::moveMap( double dx, double dy, double dz, double ax, double ay )
 {
-    if ( m_orig==0 ) {
+    if ( m_orig==nullptr ) {
         cerr << "BFieldSolenoid::moveMap() : original map has not been read" << endl;
         return;
     }

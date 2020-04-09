@@ -237,6 +237,8 @@
 + MagneticField/MagFieldInterfaces
 + MagneticField/MagFieldServices
 + MagneticField/MagFieldUtils
++ MagneticField/MagFieldConditions
++ MagneticField/MagFieldElements
 + MuonSpectrometer/MuonAlignment/MuonAlignmentData
 + MuonSpectrometer/MuonCnv/MuonIdCnv
 + MuonSpectrometer/MuonCnv/MuonSimEventAthenaPool

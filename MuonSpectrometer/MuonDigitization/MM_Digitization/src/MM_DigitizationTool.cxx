@@ -361,7 +361,7 @@ StatusCode MM_DigitizationTool::initialize() {
 //----------------------------------------------------------------------
 // PrepareEvent method:
 //----------------------------------------------------------------------
-StatusCode MM_DigitizationTool::prepareEvent(unsigned int nInputEvents) {
+StatusCode MM_DigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents) {
 
 	ATH_MSG_DEBUG("MM_DigitizationTool::prepareEvent() called for " << nInputEvents << " input events" );
 
@@ -469,11 +469,11 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 
 }
 /*******************************************************************************/
-StatusCode MM_DigitizationTool::mergeEvent() {
+StatusCode MM_DigitizationTool::mergeEvent(const EventContext& ctx) {
 
 	ATH_MSG_VERBOSE ( "MM_DigitizationTool::in mergeEvent()" );
 
-	ATH_CHECK( doDigitization() );
+	ATH_CHECK( doDigitization(ctx) );
 
 	// reset the pointer (delete null pointer should be safe)
 	if (m_timedHitCollection_MM){
@@ -492,11 +492,11 @@ StatusCode MM_DigitizationTool::mergeEvent() {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode MM_DigitizationTool::digitize() {
-	return this->processAllSubEvents();
+StatusCode MM_DigitizationTool::digitize(const EventContext& ctx) {
+	return this->processAllSubEvents(ctx);
 }
 /*******************************************************************************/
-StatusCode MM_DigitizationTool::processAllSubEvents() {
+StatusCode MM_DigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
 	ATH_MSG_DEBUG ("MM_DigitizationTool::processAllSubEvents()");
 
@@ -504,7 +504,7 @@ StatusCode MM_DigitizationTool::processAllSubEvents() {
 
 	if (m_timedHitCollection_MM == nullptr) ATH_CHECK( getNextEvent() );
 
-	ATH_CHECK( doDigitization() );
+	ATH_CHECK( doDigitization(ctx) );
 
 	// reset the pointer (delete null pointer should be safe)
 	if (m_timedHitCollection_MM){
@@ -531,15 +531,15 @@ StatusCode MM_DigitizationTool::finalize() {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode MM_DigitizationTool::doDigitization() {
+StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 
   // create and record the Digit container in StoreGate
-  SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey);
+  SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<MmDigitContainer>(m_idHelper->detectorElement_hash_max())));
   ATH_MSG_DEBUG ( "MmDigitContainer recorded in StoreGate." );
 
   // Create and record the SDO container in StoreGate
-  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey);
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "MmSDOCollection recorded in StoreGate." );
 

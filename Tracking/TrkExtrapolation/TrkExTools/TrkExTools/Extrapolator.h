@@ -9,9 +9,12 @@
 #ifndef TRKEXTOOLS_EXTRAPOLATOR_H
 #define TRKEXTOOLS_EXTRAPOLATOR_H
 
-// Gaudi
+// Gaudi/StoreGate
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 // Trk
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/INavigator.h"
@@ -50,6 +53,7 @@ class Layer;
 class Volume;
 class DetachedTrackingVolume;
 class TrackingGeometry;
+class TrackParticleBase;
 class IPropagator;
 class IDynamicLayerCreator;
 class INavigator;
@@ -863,8 +867,9 @@ VERBOSE : Method call sequence with values
     unsigned int                    m_maxNavigVol;
     bool                            m_dumpCache;
     //------------ Magnetic field properties
-    bool                            m_fastField; 
-    Trk::MagneticFieldProperties    m_fieldProperties;
+    bool                                       m_fastField; 
+    Trk::MagneticFieldProperties               m_fieldProperties;
+    
     //------------Reference surface --------------
     
     Surface*                        m_referenceSurface;

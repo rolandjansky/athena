@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -13,8 +13,8 @@
 #define BFIELDZONE_H
 
 #include <vector>
-#include "MagFieldServices/BFieldMesh.h"
-#include "MagFieldServices/BFieldCond.h"
+#include "MagFieldElements/BFieldMesh.h"
+#include "MagFieldElements/BFieldCond.h"
 
 class BFieldZone : public BFieldMesh<short> {
 public:
@@ -25,8 +25,8 @@ public:
     // add elements to vectors
     void appendCond( const BFieldCond& cond ) { m_cond.push_back(cond); }
     // compute Biot-Savart magnetic field and add to B[3]
-    inline void addBiotSavart( const double *xyz, double *B, double *deriv=0 ) const;
-    // scale B field by a multiplicative factor
+    inline void addBiotSavart( const double *xyz, double *B, double *deriv=nullptr ) const;
+    // scale B field by a multiplicative factor: RDS 2019/09 - no longer used. Scaling is done in cachec
     void scaleField( double factor )
     { scaleBscale(factor); for (unsigned i=0; i<ncond(); i++) { m_cond[i].scaleCurrent(factor); } }
     // accessors
@@ -53,7 +53,7 @@ void
 BFieldZone::addBiotSavart( const double *xyz, double *B, double *deriv ) const
 {
     for ( unsigned i = 0; i < m_cond.size(); i++ ) {
-        m_cond[i].addBiotSavart( xyz, B, deriv );
+        m_cond[i].addBiotSavart( 1, xyz, B, deriv );
     }
 }
 

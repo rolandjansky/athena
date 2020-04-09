@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -15,12 +15,14 @@
 #include <vector>
 #include <iostream>
 #include "TFile.h"
-#include "MagFieldServices/BFieldZone.h"
+#include "MagFieldElements/BFieldZone.h"
+#include "CxxUtils/checker_macros.h"
 
-class BFieldSolenoid {
+
+class ATLAS_NOT_THREAD_SAFE BFieldSolenoid {
 public:
     // constructor
-    BFieldSolenoid() : m_orig(0), m_tilt(0) {;}
+    BFieldSolenoid() : m_orig(nullptr), m_tilt(nullptr) {;}
     // destructor
     ~BFieldSolenoid() { delete m_orig; if (m_orig!=m_tilt) delete m_tilt; }
     // read/write map from/to file
@@ -30,7 +32,7 @@ public:
     // move and tilt the map
     void moveMap( double dx, double dy, double dz, double ax, double ay );
     // compute magnetic field
-    void getB( const double *xyz, double *B, double *deriv=0 ) const;
+    void getB( const double *xyz, double *B, double *deriv=nullptr ) const;
     // accessor
     const BFieldMesh<double> *tiltedMap() const { return m_tilt; }
 private:

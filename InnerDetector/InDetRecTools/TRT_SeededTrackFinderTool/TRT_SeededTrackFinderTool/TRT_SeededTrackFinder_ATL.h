@@ -37,6 +37,12 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //Si Tools
 //
 #include "TRT_SeededTrackFinderTool/SiNoise_bt.h"
@@ -99,14 +105,14 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       /** Main method. Calls private methods and returns a list of Si tracks */
-      virtual std::list<Trk::Track*> getTrack (InDet::ITRT_SeededTrackFinder::IEventData &event_data,
+      virtual std::list<Trk::Track*> getTrack (const EventContext& ctx, InDet::ITRT_SeededTrackFinder::IEventData &event_data,
                                                const Trk::TrackSegment&) const override;
       /** New event initialization */
       virtual std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>
-         newEvent(SiCombinatorialTrackFinderData_xk& combinatorialData) const override;
+         newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& combinatorialData) const override;
       /** New region intialization */
       virtual std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>
-         newRegion(SiCombinatorialTrackFinderData_xk& combinatorialData,
+         newRegion(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& combinatorialData,
                    const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) const override;
       /** End of event tasks       */
       virtual void endEvent(InDet::ITRT_SeededTrackFinder::IEventData &event_data) const override;
@@ -171,6 +177,7 @@ namespace InDet{
       ToolHandle<Trk::IUpdator>                      m_updatorTool;  /** Updator tool        */
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder; /** Combinatorial track finder tool */
 
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
       /**ID TRT helper*/
       const TRT_ID* m_trtId;
@@ -207,7 +214,8 @@ namespace InDet{
                                                                     InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
 
       /** Find the corresponding list of Si tracks  */
-      std::list<Trk::Track*>                                 findTrack(InDet::TRT_SeededTrackFinder_ATL::EventData &event_data,
+      std::list<Trk::Track*>                                 findTrack(const EventContext& ctx,
+                                                                       InDet::TRT_SeededTrackFinder_ATL::EventData &event_data,
                                                                        const Trk::TrackParameters*,const Trk::TrackSegment&) const;
 
       /** Add material effects   */
