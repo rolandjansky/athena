@@ -95,9 +95,9 @@ if dumpTrtInfo:
     TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
     ServiceMgr += TRTStrawNeighbourSvc
 
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-    TRTCalibDBSvc=TRT_CalDbSvc()
-    ServiceMgr += TRTCalibDBSvc
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+    TRTCalibDBTool=TRT_CalDbTool()
+
 
 #Setup charge->ToT back-conversion to restore ToT info as well
 if dumpPixInfo: 
