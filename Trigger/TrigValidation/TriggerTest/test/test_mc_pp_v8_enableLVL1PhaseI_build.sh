@@ -9,6 +9,7 @@
 export NAME="mc_pp_v8_enableLVL1PhaseI_build"
 export MENU="MC_pp_v8"
 export EVENTS="5"
+export INPUT="run3_l1calo"
 export COST_MONITORING="False"
 export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags as tf;tf.doLVL1PhaseI.set_Value_and_Lock(True);"
 

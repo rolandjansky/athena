@@ -239,4 +239,3 @@ StatusCode DQTDataFlowMonTool::checkHists(bool /* fromFinalize */)
   */
   return StatusCode::SUCCESS;
 }
-

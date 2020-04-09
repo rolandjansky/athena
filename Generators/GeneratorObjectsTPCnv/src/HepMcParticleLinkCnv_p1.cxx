@@ -35,7 +35,7 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
     HepMcParticleLink::ExtendedBarCode( persObj->m_barcode,
                                         persObj->m_mcEvtIndex,
                                         EBC_MAINEVCOLL,
-                                        true);
+                                        persObj->m_mcEvtIndex==0);
   transObj->m_have_particle = false;
   transObj->m_particle = nullptr;
 
