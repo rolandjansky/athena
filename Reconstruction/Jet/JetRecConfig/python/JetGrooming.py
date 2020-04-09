@@ -109,7 +109,9 @@ class JetTrimming(GroomingDefinition):
 
         # Apart from groomalg and ToolType, these correspond to the
         # grooming tool property values
-        from JetRec.JetRecConf import JetTrimmer
+        #from JetRec.JetRecConf import JetTrimmer
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        JetTrimmer = CompFactory.JetTrimmer
         groomspec = {
             # Type of groomer
             "groomalg": "Trim",
