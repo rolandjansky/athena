@@ -1407,7 +1407,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTRTStandalone                   , False)
        self.checkThenSet(self.doForwardTracks                   , False)
        self.checkThenSet(self.doVertexFinding                   , True )
-       self.checkThenSet(self.primaryVertexSetup                , "AdaptiveMultiFinding")
+       self.checkThenSet(self.primaryVertexSetup                , "GaussAdaptiveMultiFinding")
        self.checkThenSet(self.primaryVertexCutSetup             , "SLHC")
        self.checkThenSet(self.secondaryVertexCutSetup           , "PileUp") 
        self.checkThenSet(self.vertexSeedFinder                  , "SlidingWindowMultiSeedFinder")
