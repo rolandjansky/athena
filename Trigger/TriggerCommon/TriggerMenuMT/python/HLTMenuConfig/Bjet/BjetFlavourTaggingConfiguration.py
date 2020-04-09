@@ -32,6 +32,11 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, 'BTagTrackToJetAssociatorBB', **kwargs))
     del kwargs['Release'] 
 
+    btagname = "HLT_BTagging_AntiKt4EMTopo"
+    btagname_JFVtx = btagname + "JFVtx"
+    btagname_SecVtx = btagname + "SecVtx"
+    btagname_jetLink = btagname + ".jetLink"
+
     SecVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
     for k, v in SecVertexingAndAssociators.items():
         if v not in TrackToJetAssociators:
@@ -40,14 +45,17 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
         JetSecVertexingAlg = JetSecVertexingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputVertex, k, v)
         SecVertexingAlg = JetSecVertexingAlg.getEventAlgo(inputJets.replace("Jets","").lower() + "_" + k.lower() + "_secvtx") #If inputJets.replace("Jets","") is used in JetSecVertexingAlgCfg; Have to change it here aswell
         if k == "JetFitter":
-            SecVertexingAlg.BTagJFVtxCollectionName = recordable("HLT_BTagging_AntiKt4EMTopoJFVtx")
+            SecVertexingAlg.BTagJFVtxCollectionName = recordable( btagname_JFVtx )
         elif k == "SV1":
-            SecVertexingAlg.BTagSVCollectionName = recordable("HLT_BTagging_AntiKt4EMTopoSecVtx")
+            SecVertexingAlg.BTagSVCollectionName = recordable( btagname_SecVtx )
         acc.merge(JetSecVertexingAlg)
     
     JetBTaggingAlg = JetBTaggingAlgCfg(ConfigFlags, JetCollection = inputJets.replace("Jets",""), PrimaryVertexCollectionName=inputVertex, TaggerList = ConfigFlags.BTagging.TrigTaggersList, SetupScheme = "Trig", SVandAssoc = SecVertexingAndAssociators, **kwargs)
     BTaggingAlg = JetBTaggingAlg.getEventAlgo((ConfigFlags.BTagging.OutputFiles.Prefix + inputJets.replace("Jets","") + ConfigFlags.BTagging.GeneralToolSuffix).lower()) #Defined in JetBTaggingAlgConfig.py; Ends up to be "btagging_hlt_inview"
-    BTaggingAlg.BTaggingCollectionName = recordable("HLT_BTagging_AntiKt4EMTopo")
+    BTaggingAlg.BTaggingCollectionName = recordable( btagname )
+    BTaggingAlg.BTagJFVtxCollectionName = btagname_JFVtx
+    BTaggingAlg.BTagSVCollectionName = btagname_SecVtx
+    BTaggingAlg.JetLinkName = btagname_jetLink
     acc.merge(JetBTaggingAlg)
 
 

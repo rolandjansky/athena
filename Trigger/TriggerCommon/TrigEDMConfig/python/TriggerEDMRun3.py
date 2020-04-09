@@ -73,7 +73,7 @@ BTagOutput = ['SV1_TrackParticleLinks','IP2D_TrackParticleLinks','IP3D_TrackPart
               'IP2D_flagfromV0ofTracks','IP2D_gradeOfTracks','trkSum_ntrk','trkSum_SPt','trkSum_VPt','trkSum_VEta','IP3D_valD0wrtPVofTracks',
               'IP3D_valZ0wrtPVofTracks','IP3D_sigD0wrtPVofTracks','IP3D_sigZ0wrtPVofTracks','IP3D_weightBofTracks','IP3D_weightUofTracks',
               'IP3D_weightCofTracks','IP3D_flagfromV0ofTracks','IP3D_gradeOfTracks','SV1_normdist','SV1_significance3d','SV1_deltaR','SV1_Lxy','SV1_L3d',
-              'MV2c10_discriminant','MV2c100_discriminant',]
+              'MV2c10_discriminant','MV2c100_discriminant','jetLink',]
 BTagVars = '.'.join(BTagOutput)
 
 
@@ -350,7 +350,7 @@ TriggerHLTListRun3 = [
 
     #bjet jets second step
     ('xAOD::JetContainer#HLT_InViewJets',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::JetAuxContainer#HLT_InViewJetsAux.',                      'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    ('xAOD::JetAuxContainer#HLT_InViewJetsAux.btaggingLink',          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
     # vertex for b-jets
     ('xAOD::VertexContainer#HLT_EFHistoPrmVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
