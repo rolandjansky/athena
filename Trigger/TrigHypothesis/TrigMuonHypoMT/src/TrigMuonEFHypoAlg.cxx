@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigMuonEFCombinerHypoAlg.h"
+#include "TrigMuonEFHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
@@ -11,7 +11,7 @@ using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-TrigMuonEFCombinerHypoAlg::TrigMuonEFCombinerHypoAlg( const std::string& name,
+TrigMuonEFHypoAlg::TrigMuonEFHypoAlg( const std::string& name,
 						  ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator )
 {
@@ -21,7 +21,7 @@ TrigMuonEFCombinerHypoAlg::TrigMuonEFCombinerHypoAlg( const std::string& name,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMuonEFCombinerHypoAlg::initialize()
+StatusCode TrigMuonEFHypoAlg::initialize()
 {
   ATH_CHECK(m_hypoTools.retrieve());
 
@@ -34,9 +34,9 @@ StatusCode TrigMuonEFCombinerHypoAlg::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) const
+StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
 {
-  ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute start");
+  ATH_MSG_DEBUG("StatusCode TrigMuonEFHypoAlg::execute start");
 
   // common for all hypos, to move in the base class
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
@@ -48,7 +48,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
   auto decisions = outputHandle.ptr();
   // end of common
   
-  std::vector<TrigMuonEFCombinerHypoTool::MuonEFInfo> toolInput;
+  std::vector<TrigMuonEFHypoTool::MuonEFInfo> toolInput;
   size_t counter = 0;  // view counter
 
   // loop over previous decisions
@@ -98,7 +98,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
 
   ATH_MSG_DEBUG("Found "<<toolInput.size()<<" inputs to tools");
 
-  // to TrigMuonEFCombinerHypoTool
+  // to TrigMuonEFHypoTool
   StatusCode sc = StatusCode::SUCCESS;
   for ( auto& tool: m_hypoTools ) {
     ATH_MSG_DEBUG("Go to " << tool );
@@ -111,7 +111,7 @@ StatusCode TrigMuonEFCombinerHypoAlg::execute( const EventContext& context ) con
 
   ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
-  ATH_MSG_DEBUG("StatusCode TrigMuonEFCombinerHypoAlg::execute success");
+  ATH_MSG_DEBUG("StatusCode TrigMuonEFHypoAlg::execute success");
   return StatusCode::SUCCESS;
 }
 
