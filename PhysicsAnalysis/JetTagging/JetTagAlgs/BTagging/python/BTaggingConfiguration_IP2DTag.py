@@ -13,7 +13,7 @@ if conddb.dbdata == 'COMP200':
     btagrun1=True
 elif conddb.isMC:
     btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
-   # btagItk=(commonGeoFlags.Run()=="RUN4") # To be uncommented when FTAG training references are integrated in central database
+    btagItk=(commonGeoFlags.Run()=="RUN4") # To be uncommented when FTAG training references are integrated in central database
 
 metaIP2DTag = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP2D',
