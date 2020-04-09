@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the Mode3dTo1dFinder configurable
-Trk__Mode3dTo1dFinder=CompFactory.Trk__Mode3dTo1dFinder
+Trk__Mode3dTo1dFinder=CompFactory.Trk.Mode3dTo1dFinder
 
 def JetFitterMode3dTo1dFinderCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterMode3dTo1dFinder tool and returns it.

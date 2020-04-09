@@ -8,7 +8,7 @@ from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 from JetTagTools.MuonSelectorToolConfig import MuonSelectorToolCfg
 
 # import the SoftMuonTag configurable
-Analysis__SoftMuonTag=CompFactory.Analysis__SoftMuonTag
+Analysis__SoftMuonTag=CompFactory.Analysis.SoftMuonTag
 
 def SoftMuonTagCfg( flags, name = 'SoftMu', useBTagFlagsDefaults = True, **options ):
     """Sets up a SoftMuonTag tool and returns it.

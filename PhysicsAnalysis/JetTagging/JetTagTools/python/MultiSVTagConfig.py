@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the MultiSVTag configurable
 
-Analysis__MultiSVTag=CompFactory.Analysis__MultiSVTag
+Analysis__MultiSVTag=CompFactory.Analysis.MultiSVTag
 
 def MultiSVTagCfg(flags, name = 'MultiSVbb1Tag', taggerNameBase = 'MultiSVbb1', useBTagFlagsDefaults = True, **options):
     """Sets up a MultiSVTag tool and returns it.

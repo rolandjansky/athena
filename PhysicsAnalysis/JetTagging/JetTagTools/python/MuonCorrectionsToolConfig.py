@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the MuonCalibrationAndSmearingTool configurable
-CP__MuonCalibrationAndSmearingTool=CompFactory.CP__MuonCalibrationAndSmearingTool
+CP__MuonCalibrationAndSmearingTool=CompFactory.CP.MuonCalibrationAndSmearingTool
 
 def MuonCorrectionsToolCfg( name = 'MuonCorrectionsTool', **options):
     """Sets up the CP MuonCorrection tool and returns it."""

@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the TrackToVertexIPEstimator configurable
-CP__TrackVertexAssociationTool=CompFactory.CP__TrackVertexAssociationTool
+CP__TrackVertexAssociationTool=CompFactory.CP.TrackVertexAssociationTool
 
 def SpecialTrackAssociatorCfg( name = 'SpecialTrackAssociator', useBTagFlagsDefaults = True, **options ):
     """Sets up a SpecialTrackAssociator tool and returns it.

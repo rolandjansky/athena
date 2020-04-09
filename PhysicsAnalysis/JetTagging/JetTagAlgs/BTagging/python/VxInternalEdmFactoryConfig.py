@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.JetFitterFullLinearizedTrackFactoryConfig import JetFitterFullLinearizedTrackFactoryCfg
 
 # import the SequentialVertexFitter configurable
-Trk__VxCandidateXAODVertex=CompFactory.Trk__VxCandidateXAODVertex
+Trk__VxCandidateXAODVertex=CompFactory.Trk.VxCandidateXAODVertex
 
 
 def VxInternalEdmFactoryCfg(name, useBTagFlagsDefaults = True, **options):

@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
 # import the FullLinearizedTrackFactory configurable
-Trk__FullLinearizedTrackFactory=CompFactory.Trk__FullLinearizedTrackFactory
+Trk__FullLinearizedTrackFactory=CompFactory.Trk.FullLinearizedTrackFactory
 
 def BTagFullLinearizedTrackFactoryCfg(flags, name = 'FullLinearizedTrackFactory', useBTagFlagsDefaults = True, **options ):
     """Sets up a BTagFullLinearizedTrackFactory tool and returns it.

@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the SVForIPTool configurable
-Analysis__SVForIPTool=CompFactory.Analysis__SVForIPTool
+Analysis__SVForIPTool=CompFactory.Analysis.SVForIPTool
 
 def SVForIPToolCfg( name = 'SVForIPTool', **options ):
     """Sets up a SVForIPTool tool and returns it.

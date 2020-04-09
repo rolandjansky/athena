@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the InDetDetailedTrackSelectorTool configurable
-InDet__InDetDetailedTrackSelectorTool=CompFactory.InDet__InDetDetailedTrackSelectorTool
+InDet__InDetDetailedTrackSelectorTool=CompFactory.InDet.InDetDetailedTrackSelectorTool
 
 
 def InDetImprovedJetFitterTrackSelectorToolCfg(name, useBTagFlagsDefaults = True, **options):

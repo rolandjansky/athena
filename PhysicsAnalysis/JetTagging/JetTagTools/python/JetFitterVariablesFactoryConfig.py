@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-Analysis__JetFitterVariablesFactory=CompFactory.Analysis__JetFitterVariablesFactory
+Analysis__JetFitterVariablesFactory=CompFactory.Analysis.JetFitterVariablesFactory
 
 def JetFitterVariablesFactoryCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a NewJetFitterVariablesFactory tool and returns it.

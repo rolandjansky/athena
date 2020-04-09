@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the JetFitterNtupleWriter configurable
-Analysis__JetFitterNtupleWriter=CompFactory.Analysis__JetFitterNtupleWriter
+Analysis__JetFitterNtupleWriter=CompFactory.Analysis.JetFitterNtupleWriter
 
 def JetFitterNtupleWriterNNCfg( name = 'JetFitterNtupleWriterNN', useBTagFlagsDefaults = True, **options ):
     """Sets up a JetFitterTagNN tool and returns it.

@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.BTagTrackToVertexToolConfig import BTagTrackToVertexToolCfg
 
 # import the TrackSelector configurable
-Analysis__TrackSelector=CompFactory.Analysis__TrackSelector
+Analysis__TrackSelector=CompFactory.Analysis.TrackSelector
 
 def IPTrackSelectorCfg(flags, name = 'IPTrackSelector', useBTagFlagsDefaults = True, **options ):
     """Sets up a IPTrackSelector tool and returns it.

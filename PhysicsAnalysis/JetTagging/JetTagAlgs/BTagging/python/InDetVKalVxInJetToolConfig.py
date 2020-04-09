@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
 # import the InDetVKalVxInJetTool configurable
-InDet__InDetVKalVxInJetTool=CompFactory.InDet__InDetVKalVxInJetTool
+InDet__InDetVKalVxInJetTool=CompFactory.InDet.InDetVKalVxInJetTool
 
 def InDetVKalVxInJetToolCfg(name, MSV = False, useBTagFlagsDefaults = True, **options):
     """Sets up a InDetVKalVxInJetTool tool and returns it.

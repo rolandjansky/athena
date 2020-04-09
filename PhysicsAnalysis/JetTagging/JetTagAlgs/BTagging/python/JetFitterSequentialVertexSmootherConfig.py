@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the JetFitterSequentialVertexSmoother configurable
-Trk__SequentialVertexSmoother=CompFactory.Trk__SequentialVertexSmoother
+Trk__SequentialVertexSmoother=CompFactory.Trk.SequentialVertexSmoother
 
 def JetFitterSequentialVertexSmootherCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterSequentialVertexSmoother tool and returns it.

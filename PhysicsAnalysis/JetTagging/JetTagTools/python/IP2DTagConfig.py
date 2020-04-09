@@ -10,7 +10,7 @@ from JetTagTools.IPTrackSelectorConfig import IPTrackSelectorCfg
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 
 # import the IPTag configurable
-Analysis__IPTag=CompFactory.Analysis__IPTag
+Analysis__IPTag=CompFactory.Analysis.IPTag
 
 def IP2DTagCfg( flags, name = 'IP2DTag', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a IP2DTag tool and returns it.

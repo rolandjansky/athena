@@ -6,7 +6,7 @@ from BTagging.BTagTrackToJetAssociatorConfig import BTagTrackToJetAssociatorCfg
 from BTagging.BTagMuonToJetAssociatorConfig import BTagMuonToJetAssociatorCfg
 from BTagging.BTaggingFlags import BTaggingFlags
 
-Analysis__BTagTrackAssociation=CompFactory.Analysis__BTagTrackAssociation
+Analysis__BTagTrackAssociation=CompFactory.Analysis.BTagTrackAssociation
 
 def BTagTrackAssociationCfg(flags, name, JetCollection, TaggerList, options={}):
 

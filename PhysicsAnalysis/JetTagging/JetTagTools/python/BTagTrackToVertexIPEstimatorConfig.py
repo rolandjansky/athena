@@ -6,7 +6,7 @@ from JetTagTools.BTagFullLinearizedTrackFactoryConfig import BTagFullLinearizedT
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
 # import the TrackToVertexIPEstimator configurable
-Trk__TrackToVertexIPEstimator=CompFactory.Trk__TrackToVertexIPEstimator
+Trk__TrackToVertexIPEstimator=CompFactory.Trk.TrackToVertexIPEstimator
 
 def BTagTrackToVertexIPEstimatorCfg( flags, name = 'TrkToVxIPEstimator', useBTagFlagsDefaults = True, **options ):
     """Sets up a TrackToVertexIPEstimator tool and returns it.

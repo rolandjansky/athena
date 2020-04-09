@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from BTagging.JetFitterFullLinearizedTrackFactoryConfig import JetFitterFullLinearizedTrackFactoryCfg
-Trk__JetFitterInitializationHelper=CompFactory.Trk__JetFitterInitializationHelper
+Trk__JetFitterInitializationHelper=CompFactory.Trk.JetFitterInitializationHelper
 
 def ImprovedJetFitterInitializationHelperCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a ImprovedJetFitterInitializationHelper tool and returns it.

@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the MSVVariablesFactory configurable
-Analysis__MSVVariablesFactory=CompFactory.Analysis__MSVVariablesFactory
+Analysis__MSVVariablesFactory=CompFactory.Analysis.MSVVariablesFactory
 
 def MSVVariablesFactoryCfg(name, **options):
     """Sets up a MSVVariablesFactory tool and returns it.

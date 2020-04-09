@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-Trk__TrkDistanceFinderNeutralNeutral=CompFactory.Trk__TrkDistanceFinderNeutralNeutral
+Trk__TrkDistanceFinderNeutralNeutral=CompFactory.Trk.TrkDistanceFinderNeutralNeutral
 
 def TrkDistanceFinderNeutralNeutralCfg(name, **options):
     """Sets up a TrkDistanceFinderNeutralNeutral tool and returns it.
