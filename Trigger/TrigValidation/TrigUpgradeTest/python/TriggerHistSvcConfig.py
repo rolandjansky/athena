@@ -4,9 +4,9 @@
 
 def TriggerHistSvcConfig(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
     acc = ComponentAccumulator()
-    from GaudiSvc.GaudiSvcConf import THistSvc
-    histSvc = THistSvc()
+    histSvc = CompFactory.THistSvc()
     histSvc.Output = ["SHIFT DATAFILE='shift-monitoring.root' OPT='RECREATE'", 
                       "EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'", 
                       "run_1 DATAFILE='lbn-monitoring.root' OPT='RECREATE'", 

@@ -334,10 +334,11 @@ else:
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior+=1
+Configurable.configurableRun3Behavior=1
 acc, edmSet = triggerOutputCfg(ConfigFlags, decObj, decObjHypoOut, summaryMakerAlg)
-Configurable.configurableRun3Behavior-=1
-acc.appendToGlobals()
+Configurable.configurableRun3Behavior=0
+from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+appendCAtoAthena(acc)
 
 ##########################################
 # Print top sequence for debugging

@@ -12,7 +12,7 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReHadEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerReFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaReFastAlgo
+
 
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaHitsCalibrationBarrelConfig, EgammaHitsCalibrationEndcapConfig, EgammaGapCalibrationConfig
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaTransitionRegionsConfig
@@ -398,8 +398,8 @@ class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
        self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger"
        self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
 
-
-class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
+from AthenaConfiguration.ComponentFactory import CompFactory
+class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_ReFastAlgo", ClustersName="HLT_L2CaloEMClusters", doRinger=False, RingerKey="HLT_L2CaloRinger"):
        super(T2CaloEgamma_ReFastAlgo, self).__init__(name)

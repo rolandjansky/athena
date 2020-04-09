@@ -7,11 +7,11 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
 from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigEDMConfig.TriggerEDMRun3 import recordable
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # TODO remove once full tracking is in place
-def fakeHypoAlgCfg(flags, name="FakeHypoForElectron"):
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
-    return HLTTest__TestHypoAlg( name, Input="" )
+def fakeHypoAlgCfg(flags, name="FakeHypoForElectron"):    
+    return CompFactory.getComp("HLTTest::TestHypoAlg")( name, Input="" )
 
 
 def generateChains( flags,  chainDict ):
@@ -52,19 +52,18 @@ def generateChains( flags,  chainDict ):
     accTrk.addSequence(stepView)
 
     # # # fast ID
-    from TrigInDetConfig.InDetConfig import indetInViewRecoCfg
+    from TrigInDetConfig.TrigInDetConfig import indetInViewRecoCfg
     fastInDetReco = indetInViewRecoCfg(flags, viewMakerName='ElectronInDet', signature='Electron')
     accTrk.merge( fastInDetReco, sequenceName=stepReco.getName() )
     # TODO once tracking fully works remove fake hypos
 
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
 
     # TODO remove once full tracking is in place
     fakeHypoAlg = fakeHypoAlgCfg(flags, name='FakeHypoForElectron')
 
 
     def makeFakeHypoTool(chainDict, cfg = None):
-        return HLTTest__TestHypoTool(chainDict['chainName'])
+        return CompFactory.getComp("HLTTest::TestHypoTool")(chainDict['chainName'])
 
     accTrk.addEventAlgo(fakeHypoAlg, sequenceName=stepView.getName())
 

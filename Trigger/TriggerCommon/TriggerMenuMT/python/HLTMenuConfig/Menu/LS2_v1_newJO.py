@@ -98,8 +98,8 @@ if __name__ == "__main__":
     fs = flatAlgorithmSequences( menu.getSequence('HLTAllSteps') )
     for seq, algs in six.iteritems (fs):
         for alg in algs:
-            if 'HypoTools' in alg.getProperties():
-                log.verbose("%s %s", alg.getName(), [ t.getFullName() for t in alg.HypoTools ])
+            if 'HypoTools' in alg._properties:
+                log.verbose("%s %s", alg.name, [ t.getFullJobOptName() for t in alg.HypoTools ])
 
     f = open('newJOMenu.pkl', 'wb')
     acc.store(f)

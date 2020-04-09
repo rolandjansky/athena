@@ -16,7 +16,7 @@ def Lvl1SimulationSequence( flags = None ):
     #
     from AthenaCommon.Logging import logging
     log = logging.getLogger('TriggerJobOpts.Lvl1Simulation')
-
+    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from AthenaCommon.CFElements import seqAND
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.AlgSequence import AthSequencer
@@ -27,7 +27,7 @@ def Lvl1SimulationSequence( flags = None ):
     TriggerFlags.outputLVL1configFile = None
     log.info("setting up LVL1ConfigSvc, including the menu generation")
     from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
-    svcMgr += getL1ConfigSvc()
+    svcMgr += conf2toConfigurable(getL1ConfigSvc())
     
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
     caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")

@@ -2,9 +2,11 @@
 
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
+from AthenaCommon.Include import Include 
+# flake8: noqa 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoTool
+
 
 log = logging.getLogger('TrigL2ElectronHypoTool')
 
@@ -15,8 +17,8 @@ def TrigL2ElectronHypoToolFromDict( chainDict ):
     thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
 
     name = chainDict['chainName']
-
-    tool = TrigL2ElectronHypoTool(name)
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tool = CompFactory.TrigL2ElectronHypoTool(name)
 
     monTool = GenericMonitoringTool("MonTool"+name)
     monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative")
@@ -28,7 +30,7 @@ def TrigL2ElectronHypoToolFromDict( chainDict ):
     monTool.defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="L2Electron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5)
     monTool.defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="L2Electron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2)
 
-    monTool.HistPath = 'L2ElectronHypo/'+tool.name()
+    monTool.HistPath = 'L2ElectronHypo/'+tool.getName()
     tool.MonTool = monTool
 
     nt = len( thresholds )

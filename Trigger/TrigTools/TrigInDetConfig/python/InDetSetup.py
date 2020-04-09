@@ -1,11 +1,11 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
 
-from AthenaCommon.Logging import logging 
+from AthenaCommon.Logging import logging
 log = logging.getLogger("InDetSetup")
 
 if not 'InDetTrigFlags' in dir():
@@ -19,7 +19,8 @@ if not 'InDetTrigFlags' in dir():
    InDetTrigFlags.doPrintConfigurables = False
 
 
-from TrigInDetConfig.InDetConfig import InDetCacheNames
+
+
 
 def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs' ):
   #If signature specified add suffix to the algorithms
@@ -33,8 +34,9 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.AppMgr import ServiceMgr
-
+  from TrigInDetConfig import InDetCacheNames
   from AthenaCommon.GlobalFlags import globalflags
+
   #Only add raw data decoders if we're running over raw data
   if globalflags.InputFormat.is_bytestream():
     #Pixel
@@ -51,7 +53,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
     if (InDetTrigFlags.doPrintConfigurables()):
       print(InDetPixelRawDataProviderTool) # noqa: ATL901
-    
+
     # load the PixelRawDataProvider
     from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProvider
     InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider"+ signature,
@@ -60,13 +62,13 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     InDetPixelRawDataProvider.isRoI_Seeded = True
     InDetPixelRawDataProvider.RoIs = rois
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
-    
+
     viewAlgs.append(InDetPixelRawDataProvider)
 
 
     if (InDetTrigFlags.doPrintConfigurables()):
       print(InDetPixelRawDataProvider) # noqa: ATL901
-    
+
 
     #SCT
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
@@ -79,7 +81,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     ToolSvc += InDetSCTRawDataProviderTool
     if (InDetTrigFlags.doPrintConfigurables()):
       print(InDetSCTRawDataProviderTool) # noqa: ATL901
-    
+
 
     # load the SCTRawDataProvider
     from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
@@ -139,7 +141,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = rois
-  InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey 
+  InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey
 
 
   viewAlgs.append(InDetPixelClusterization)
@@ -193,8 +195,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = rois
-  InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey 
-  
+  InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
+
 
   viewAlgs.append(InDetSCT_Clusterization)
 
@@ -236,7 +238,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
   theFTF.RoIs = rois
   theFTF.TracksName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator
-  
+
   #the following doCloneRemoval modification should be set up in the InDetTrigSliceSettings once legacy trigger not needed
   if whichSignature=="Electron":
      theFTF.doCloneRemoval = True
@@ -262,5 +264,5 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
 
 
-  
+
   return viewAlgs

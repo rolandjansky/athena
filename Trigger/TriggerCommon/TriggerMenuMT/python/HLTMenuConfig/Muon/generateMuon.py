@@ -8,8 +8,10 @@ from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 
+from AthenaConfiguration.ComponentFactory import CompFactory
+
 def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
+    HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
 
 def generateChains( flags, chainDict ):
@@ -71,7 +73,7 @@ def generateChains( flags, chainDict ):
     accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
 
     # TODO remove once full step is in place
-    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
+    HLTTest__TestHypoTool=CompFactory.HLTTest.TestHypoTool
     fakeHypoAlg = fakeHypoAlgCfg(muonflags, name='FakeHypoForMuon')
     def makeFakeHypoTool(chainDict, cfg=None):
         return HLTTest__TestHypoTool(chainDict['chainName'])
