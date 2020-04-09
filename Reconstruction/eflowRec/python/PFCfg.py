@@ -6,7 +6,7 @@ def getPFTrackSelectorAlgorithm(inputFlags,algName,useCaching=True):
     PFTrackSelector=PFTrackSelector(algName)
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg    
-    Trk__ParticleCaloExtensionTool=CompFactory.Trk__ParticleCaloExtensionTool
+    Trk__ParticleCaloExtensionTool=CompFactory.Trk.ParticleCaloExtensionTool
     extrapCfg = AtlasExtrapolatorCfg(inputFlags)
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = extrapCfg.popPrivateTools())
 
@@ -17,7 +17,7 @@ def getPFTrackSelectorAlgorithm(inputFlags,algName,useCaching=True):
 
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
-    InDet__InDetTrackSelectionTool=CompFactory.InDet__InDetTrackSelectionTool
+    InDet__InDetTrackSelectionTool=CompFactory.InDet.InDetTrackSelectionTool
     TrackSelectionTool = InDet__InDetTrackSelectionTool("PFTrackSelectionTool")
 
     TrackSelectionTool.CutLevel = "TightPrimary"

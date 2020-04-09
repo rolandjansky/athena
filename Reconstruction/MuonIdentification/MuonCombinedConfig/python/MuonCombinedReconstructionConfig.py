@@ -121,9 +121,9 @@ def MuonCombinedInDetCandidateAlg(flags, name="MuonCombinedInDetCandidateAlg",**
     extrapolator = acc.getPrimary()
     result.merge(acc)
 
-    muon_particle_extension_tool = CompFactory.Trk__ParticleCaloExtensionTool(Extrapolator=extrapolator)
+    muon_particle_extension_tool = CompFactory.Trk.ParticleCaloExtensionTool(Extrapolator=extrapolator)
 
-    muon_ext_tool = CompFactory.Muon__MuonSystemExtensionTool(ParticleCaloExtensionTool = muon_particle_extension_tool, Extrapolator = extrapolator)
+    muon_ext_tool = CompFactory.Muon.MuonSystemExtensionTool(ParticleCaloExtensionTool = muon_particle_extension_tool, Extrapolator = extrapolator)
     kwargs.setdefault("MuonSystemExtensionTool", muon_ext_tool)
     
     alg = CompFactory.MuonCombinedInDetCandidateAlg(name,**kwargs)
@@ -198,8 +198,7 @@ def MuonCombinedReconstructionCfg(flags):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     result.merge( GeoModelCfg(flags) )
 
-    Muon__MuonEDMHelperSvc=CompFactory.Muon__MuonEDMHelperSvc
-    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
+    muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
 
     result.merge( MuonCombinedInDetCandidateAlg(flags) )

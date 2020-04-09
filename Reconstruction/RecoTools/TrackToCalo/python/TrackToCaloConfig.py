@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
-Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool=CompFactory.getComps("Trk__ParticleCaloExtensionTool","Rec__ParticleCaloCellAssociationTool",)
+Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool=CompFactory.getComps("Trk::ParticleCaloExtensionTool","Rec::ParticleCaloCellAssociationTool")
 
 def ParticleCaloExtensionToolCfg(flags, **kwargs):
     acc=ComponentAccumulator()
