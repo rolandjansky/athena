@@ -76,42 +76,6 @@ namespace PUCorrection {
     }
 
     
-    /// calculate the mu,NPV dependent part of the correction (this is only used for tests and validation)    
-    /// IMPORTANT : the pt must be given in GeV 
-    float correction3D_noextrap(float pt, float eta , float mu, int NPV) const {
-      int muNPVbin = m_ref3DHisto->FindBin(mu, NPV);
-      int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
-      float p0 = m_3Dp0_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);
-      float p1 = m_3Dp1_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);       
-
-      
-      if ( (p0<= -999.9) || (p1<=-999.9) ) return 0;
-      
-      if(m_use3Dp2) {
-	float p2= m_3Dp2_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin) ;
-	if ( p2<=-999.9 ) return 0;
-	return p0+p1*log(pt-p2);	
-      }
-      return p0+p1*pt;            
-    }
-
-
-    // Just a test to see if we get smoother calib by doing an interpolation at point (mu,NPV), not used yet
-    float correction3D_interp(float pt, float eta , float mu, int NPV) const {
-      int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
-      float p0 = m_3Dp0_vs_muNPV[ etaBin ]->Interpolate(mu, NPV);
-      float p1 = m_3Dp1_vs_muNPV[ etaBin ]->Interpolate(mu,NPV);
-      
-      if ( (p0<= -999.9) || (p1<=-999.9) ) return 0;
-      
-      if(m_use3Dp2) {
-	float p2= m_3Dp2_vs_muNPV[ etaBin ]->Interpolate(mu,NPV) ;
-	if ( p2<=-999.9 ) return 0;
-	return p0+p1*log(pt-p2);	
-      }
-      return p0+p1*pt;            
-    }
-
     
     /// IMPORTANT : the pt must be given in GeV 
     float deltaPtCorrection(float pt, float eta) const {
@@ -233,6 +197,60 @@ namespace PUCorrection {
     // ***************
     // 
     std::vector< std::vector<int> > m_closestNonEmpty;
+
+
+
+
+
+
+
+
+
+
+
+
+    // *******************************************************
+    // function belows are not used in the correction evaluation but have proven useful for tests during developments
+    // of the calibration methods. We keep them here just in case.
+    // 
+
+    /// calculate the mu,NPV dependent part of the correction (this is only used for tests and validation)    
+    /// IMPORTANT : the pt must be given in GeV 
+    float correction3D_noextrap(float pt, float eta , float mu, int NPV) const {
+      int muNPVbin = m_ref3DHisto->FindBin(mu, NPV);
+      int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
+      float p0 = m_3Dp0_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);
+      float p1 = m_3Dp1_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin);       
+
+      
+      if ( (p0<= -999.9) || (p1<=-999.9) ) return 0;
+      
+      if(m_use3Dp2) {
+	float p2= m_3Dp2_vs_muNPV[ etaBin ]->GetBinContent(muNPVbin) ;
+	if ( p2<=-999.9 ) return 0;
+	return p0+p1*log(pt-p2);	
+      }
+      return p0+p1*pt;            
+    }
+
+
+    // Just a test to see if we get smoother calib by doing an interpolation at point (mu,NPV), not used yet
+    float correction3D_interp(float pt, float eta , float mu, int NPV) const {
+      int etaBin = m_etaBins->FindFixBin(std::abs(eta)) - 1;
+      float p0 = m_3Dp0_vs_muNPV[ etaBin ]->Interpolate(mu, NPV);
+      float p1 = m_3Dp1_vs_muNPV[ etaBin ]->Interpolate(mu,NPV);
+      
+      if ( (p0<= -999.9) || (p1<=-999.9) ) return 0;
+      
+      if(m_use3Dp2) {
+	float p2= m_3Dp2_vs_muNPV[ etaBin ]->Interpolate(mu,NPV) ;
+	if ( p2<=-999.9 ) return 0;
+	return p0+p1*log(pt-p2);	
+      }
+      return p0+p1*pt;            
+    }
+    
+
   };
 
 }
