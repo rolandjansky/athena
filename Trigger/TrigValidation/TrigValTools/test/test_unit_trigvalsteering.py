@@ -34,8 +34,12 @@ regtest_ref_text = [
 with open('regtest.ref','w') as f:
     f.write('\n'.join(regtest_ref_text))
 
-test.get_step("RegTest").regex = '###'
-test.get_step("RegTest").reference = 'regtest.ref'
+refcomp = CheckSteps.RegTestStep('RefComp')
+refcomp.input_base_name = 'athena.merged'
+refcomp.regex = '###'
+refcomp.reference = 'regtest.ref'
+refcomp.required = True
+CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)
 
 import sys
 sys.exit(test.run())
