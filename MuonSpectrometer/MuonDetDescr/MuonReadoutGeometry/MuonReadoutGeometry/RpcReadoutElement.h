@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  Rpc Readout Element properties
  -----------------------------------------
 ***************************************************************************/
-
-//<doc><file>	$Id: RpcReadoutElement.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_RPCREADOUTELEMENT_H
 # define MUONGEOMODEL_RPCREADOUTELEMENT_H
@@ -122,6 +119,7 @@ namespace MuonGM {
 
     /** number of layers in phi/eta projection, same for eta/phi planes */
     int numberOfLayers( bool measPhi = true ) const;
+    void setNumberOfLayers(const int = 2);
 
     /** number of strips per layer */
     int numberOfStrips( const Identifier& layerId )   const;
@@ -245,6 +243,7 @@ namespace MuonGM {
 
     int m_dbR, m_dbZ, m_dbPhi;
     bool m_hasDEDontop;
+    int m_nlayers;  // default=2, all BIS RPCs always have 3 gas gaps
 
     int m_nphigasgaps;
     int m_netagasgaps;
@@ -267,7 +266,7 @@ namespace MuonGM {
     double m_first_etastrip_z[maxetapanels];
     double m_etastrip_s[maxphipanels];
     double m_phistrip_z[maxetapanels];    
-    Amg::Transform3D m_Xlg[2][2];
+    Amg::Transform3D m_Xlg[3][2];
 
     const Amg::Transform3D localToGlobalStripPanelTransf(int dbZ, int dbPhi, int gasGap) const;
     const Amg::Vector3D localStripPanelPos(int dbZ, int dbP, int gg) const; 
@@ -385,7 +384,8 @@ namespace MuonGM {
     return design->stripPosition(manager()->rpcIdHelper()->strip(id),pos);
   }
 
-  inline int RpcReadoutElement::numberOfLayers( bool ) const { return 2; }
+  inline int RpcReadoutElement::numberOfLayers(bool) const { return m_nlayers; }
+  inline void RpcReadoutElement::setNumberOfLayers(const int nlay) { m_nlayers = nlay; }
 
   inline int RpcReadoutElement::numberOfStrips( const Identifier& layerId )   const {
     return numberOfStrips(1,manager()->rpcIdHelper()->measuresPhi(layerId));
