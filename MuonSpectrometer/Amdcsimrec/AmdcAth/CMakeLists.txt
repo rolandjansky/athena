@@ -31,7 +31,7 @@ atlas_add_library( AmdcAthLib
                    PUBLIC_HEADERS AmdcAth
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel AmdcCore MuonAlignmentData StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AtlasDetDescr AmdcStand MuonReadoutGeometry PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AtlasDetDescr AmdcStand MuonReadoutGeometry PathResolver RDBAccessSvcLib )
 
 atlas_add_component( AmdcAth
                      src/components/*.cxx
