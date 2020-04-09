@@ -42,7 +42,6 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string
         m_evtInFile(0),
 	m_sgSvc("StoreGateSvc", name),
 	m_mdSvc("StoreGateSvc/InputMetaDataStore", name),
-        m_attlistsvc("ByteStreamAttListMetadataSvc", name),
         m_robProvider("ROBDataProviderSvc", name),
 	m_sequential(false),
 	m_fileCount(0) {
@@ -56,7 +55,6 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string
 
    declareProperty("EventStore", m_sgSvc);
    declareProperty("MetaDataStore", m_mdSvc);
-   declareProperty("AttributeListKeys", m_keys);
 }
 //------------------------------------------------------------------------------
 ByteStreamEventStorageInputSvc::~ByteStreamEventStorageInputSvc() {
@@ -76,21 +74,9 @@ StatusCode ByteStreamEventStorageInputSvc::initialize() {
       ATH_MSG_FATAL("Cannot get InputMetaDataStore.");
       return(StatusCode::FAILURE);
    }
-   // Retrieve AttListSvc
-   if (!m_attlistsvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get metadata AttListSvc.");
-      return(StatusCode::FAILURE);
-   }
    if (!m_robProvider.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get rob data provider");
       return(StatusCode::FAILURE);
-   }
-   // Initialize stores for user metadata
-   if (m_keys.size()>0) {
-     StatusCode sc = m_attlistsvc->readInit(m_keys);
-     if (sc.isFailure()) {
-       msg() << MSG::WARNING << "readInit for AttributeList service failed" << endmsg;
-     }
    }
 
    // Check if defunct properties set, and give instructions
@@ -206,14 +192,6 @@ bool ByteStreamEventStorageInputSvc::loadMetadata()
         }
      }
      else good = false;
-  }
-
-  // Rebuild attributeLists with user metadata
-  if (m_keys.size()>0) {
-    StatusCode sc = m_attlistsvc->fromBSMetadata(m_keys);
-    if (sc.isFailure()) {
-       msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endmsg;
-    }
   }
 
   ATH_MSG_DEBUG(" run parameters  =  \n "

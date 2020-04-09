@@ -43,15 +43,8 @@ if not hasattr(svcMgr,"ByteStreamCnvSvc"):
    except OSError:
       pass
    svcMgr.ByteStreamEventStorageOutputSvc.SimpleFileName = "metatest2.data"
-   svcMgr.ByteStreamEventStorageOutputSvc.AttributeListKeys = ['RunEventTag']
    StreamBSFileOutput.AcceptAlgs = ["PassNoneFilter"]
    StreamBSFileOutput.OutputLevel = DEBUG
-
-# The piece which does the AttList conversion for WRITING
-from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamAttListMetadataSvc
-svcMgr += ByteStreamAttListMetadataSvc("ByteStreamAttListMetadataSvc")
-svcMgr.ByteStreamAttListMetadataSvc.InputStoreName = 'DetectorStore'
-svcMgr.ByteStreamAttListMetadataSvc.OutputLevel = DEBUG
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr

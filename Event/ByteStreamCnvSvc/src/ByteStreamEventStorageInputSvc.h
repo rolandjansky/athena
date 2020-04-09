@@ -13,7 +13,6 @@
 // Include files.
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "ByteStreamCnvSvc/IByteStreamFreeMetadataSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "EventStorage/DataReader.h"
@@ -92,7 +91,6 @@ private: // data
    /// Pointer to StoreGate
    ServiceHandle<StoreGateSvc> m_sgSvc; //!< StoreGateSvc
    ServiceHandle<StoreGateSvc> m_mdSvc; //!< StoreGateSvc
-   ServiceHandle<IByteStreamFreeMetadataSvc> m_attlistsvc; 
    ServiceHandle<IROBDataProviderSvc> m_robProvider;
 
 private: // properties
@@ -109,7 +107,6 @@ private: // properties
    Gaudi::Property<bool>    m_valEvent;      //!< switch on check_tree() call when reading events.
    Gaudi::Property<bool>    m_procBadEvent;  //!< DEFUNCT process bad events, which fail check_tree().
    Gaudi::Property<int>    m_maxBadEvts;    //!< DEFUNCT number of bad events allowed before quitting.
-   std::vector<std::string> m_keys;
    Gaudi::Property<std::string> m_eventInfoKey{this, "EventInfoKey", "EventInfo", ""};
 
 private: // internal helper functions
