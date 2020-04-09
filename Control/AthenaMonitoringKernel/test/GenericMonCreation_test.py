@@ -77,8 +77,8 @@ class TestGMT(unittest.TestCase):
         gmaMap = GenericMonitoringArray('TestGMAMap', [['a', 'b']])
         gmaVec.defineHistogram('x')
         gmaMap.defineHistogram('x')
-        dVec = histogramDictionary(gmaVec[0].Histograms+gmaVec[1].Histograms)
-        dMap = histogramDictionary(gmaMap[0].Histograms+gmaMap[1].Histograms)
+        dVec = histogramDictionary(list(gmaVec[0].Histograms)+list(gmaVec[1].Histograms))
+        dMap = histogramDictionary(list(gmaMap[0].Histograms)+list(gmaMap[1].Histograms))
         self.assertIn('x_0', dVec)
         self.assertIn('x_1', dVec)
         self.assertIn('x_a', dMap)
@@ -91,7 +91,7 @@ class TestGMT(unittest.TestCase):
     def test_titleTemplate(self):
         gma = GenericMonitoringArray('TestGMA', [['a', 'b']])
         gma.defineHistogram('x', title='Plot of x for {}')
-        d = histogramDictionary(gma[0].Histograms+gma[1].Histograms)
+        d = histogramDictionary(list(gma[0].Histograms)+list(gma[1].Histograms))
         self.assertEqual(d['x_a']['title'], 'Plot of x for a')
         self.assertEqual(d['x_b']['title'], 'Plot of x for b')
         with self.assertRaises(IndexError):
@@ -100,7 +100,7 @@ class TestGMT(unittest.TestCase):
     def test_pathTemplate(self):
         gma = GenericMonitoringArray('TestGMA', [['a','b']])
         gma.defineHistogram('x', path='/xxx/group_{}/yyy/')
-        d = histogramDictionary(gma[0].Histograms+gma[1].Histograms)
+        d = histogramDictionary(list(gma[0].Histograms)+list(gma[1].Histograms))
         self.assertEqual(d['x_a']['path'], '/xxx/group_a/yyy/')
         self.assertEqual(d['x_b']['path'], '/xxx/group_b/yyy/')
         with self.assertRaises(IndexError):
@@ -109,7 +109,7 @@ class TestGMT(unittest.TestCase):
     def test_forwardsHistogramArguments(self):
         gma = GenericMonitoringArray('TestGMA', [2])
         gma.defineHistogram('x,y', type='TH2D', weight='z')
-        d = histogramDictionary(gma[0].Histograms+gma[1].Histograms)
+        d = histogramDictionary(list(gma[0].Histograms)+list(gma[1].Histograms))
         self.assertEqual(d['y_vs_x_0']['xvar'], 'x')
         self.assertEqual(d['y_vs_x_1']['xvar'], 'x')
         self.assertEqual(d['y_vs_x_0']['yvar'], 'y')

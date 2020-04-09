@@ -5,42 +5,66 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
 import json
 import six
+import sys
+
+if "AthenaCommon.Include" not in sys.modules or Configurable.configurableRun3Behavior:
+    from GaudiConfig2.Configurables import GenericMonitoringTool as _GenericMonitoringTool
+else:
+    from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
 
 log = logging.getLogger(__name__)
 
 class GenericMonitoringTool(_GenericMonitoringTool):
     """Configurable of a GenericMonitoringTool"""
 
-    def __init__(self, name=Configurable.DefaultName, *args, **kwargs):
-        super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
-        self.convention = ''
+    __slots__ = ['_convention', '_defaultDuration']
 
-    def __new__( cls, *args, **kwargs ):
+    def __init__(self, name=None, *args, **kwargs):
+        self._convention = ''
+        self._defaultDuration = kwargs.pop('defaultDuration', None)
+        super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
+
+    def __new__( cls, name=None, *args, **kwargs ):
+        if not Configurable.configurableRun3Behavior:
+            if name is None: name = cls.__name__
+
         # GenericMonitoringTool is always private. To avoid the user having
         # to ensure a unique instance name, always create a new instance.
-
         b = Configurable.configurableRun3Behavior
         Configurable.configurableRun3Behavior = 1
         try:
-            conf = Configurable.__new__( cls, *args, **kwargs )
+            conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
         finally:
             Configurable.configurableRun3Behavior = b
 
         return conf
+
+    @property
+    def convention(self):
+        return self._convention
+
+    @convention.setter
+    def convention(self, value):
+        self._convention = value
+
+    @property
+    def defaultDuration(self):
+        return self._defaultDuration
+
+    @defaultDuration.setter
+    def defaultDuration(self, value):
+        self._defaultDuration = value
 
     def _coreDefine(self, deffunc, *args, **kwargs):
         if 'convention' in kwargs:
             # only if someone really knows what they're doing
             pass
         else:
-            if 'duration' in kwargs:
-                kwargs['convention'] = self.convention + ':' + kwargs['duration']
-                del kwargs['duration']
-            elif hasattr(self, 'defaultDuration'):
-                kwargs['convention'] = self.convention + ':' + self.defaultDuration
+            duration = kwargs.pop('duration', self.defaultDuration)
+            if duration is not None:
+                kwargs['convention'] = self.convention + ':' + duration
         self.Histograms.append(deffunc(*args, **kwargs))
 
     def defineHistogram(self, *args, **kwargs):
@@ -117,6 +141,10 @@ class GenericMonitoringArray:
             iterable = first
         elif isinstance(first,int):
             iterable = range(first)
+        else:
+            #Assume GaudiConfig2.semantics._ListHelper
+            iterable = list(first)
+            #print("Type of first:",type(first))
         for i in iterable:
             if len(dimensions)==1:
                  postList.append(previous+'_'+str(i))

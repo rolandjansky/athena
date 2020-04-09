@@ -23,8 +23,10 @@ class AthMonitorCfgHelper(object):
         inputFlags -- the global configuration flag object
         monName -- the name you want to assign the family of algorithms
         '''
-        from AthenaCommon.AlgSequence import AthSequencer
+        
         from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        AthSequencer=CompFactory.AthSequencer
         self.inputFlags = inputFlags
         self.monName = monName
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
@@ -50,8 +52,8 @@ class AthMonitorCfgHelper(object):
         Returns:
         algObj -- an algorithm Configurable object
         '''
-        from AthenaCommon.Configurable import Configurable
-        if issubclass(algClassOrObj, Configurable):
+        from inspect import isclass
+        if isclass(algClassOrObj):
             if name is None:
                 raise TypeError('addAlgorithm with a class argument requires a name for the algorithm')
             algObj = algClassOrObj(name, *args, **kwargs)
@@ -76,7 +78,7 @@ class AthMonitorCfgHelper(object):
         else:
             algObj.EnableLumi = False
 
-        self.monSeq += algObj
+        self.monSeq.Members.append(algObj)
         return algObj
 
     def addGroup(self, alg, name, topPath='', defaultDuration='run'):
@@ -209,7 +211,7 @@ class AthMonitorCfgHelperOld(object):
         else:
             algObj.EnableLumi = False
 
-        self.monSeq += algObj
+        self.monSeq+=algObj
         return algObj
 
     def addGroup(self, alg, name, topPath='', defaultDuration='run'):
@@ -292,7 +294,8 @@ def getDQTHistSvc(inputFlags):
     (result, histsvc) -- a tuple of (ComponentAccumulator, THistSvc Configurable object)
     '''
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from GaudiSvc.GaudiSvcConf import THistSvc
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    THistSvc=CompFactory.THistSvc
 
     result = ComponentAccumulator()
 
@@ -312,9 +315,12 @@ def getTriggerTranslatorToolSimple(inputFlags):
         outside the DQ setup code. '''
     import logging
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
     from TrigHLTMonitoring.HLTMonTriggerList import HLTMonTriggerList
     import collections
-    from AthenaMonitoring.AthenaMonitoringConf import TriggerTranslatorToolSimple
+
+    TriggerTranslatorToolSimple=CompFactory.TriggerTranslatorToolSimple
+    
     tdt_local_logger = logging.getLogger('getTriggerTranslatorToolSimple')
     tdt_local_hltconfig = HLTMonTriggerList()
     tdt_mapping = {}
