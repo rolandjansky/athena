@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -51,13 +51,16 @@ class JetConstit(object):
                  objtype,         # The type of xAOD object from which to build the jets
                  modifiers=[],    # Modifications to be applied to constituents prior to jet finding
                  rawname=None,    # Override the default input collection
-                 inputname=None): # Override the default output collection (not to be used with modifiers)
+                 inputname=None,  # Override the default output collection (not to be used with modifiers)
+                 prefix=None):    # Optional prefix for the inputname (mainly for trigger)
         self.__basetype = objtype
         self.__modifiers = modifiers
         # Override for unmodified container name
         self.__rawname = rawname
         # Override for final container name
         self.__inputname = inputname
+        # Prefix for inputname
+        self.__prefix = prefix
 
         self.defineLabelAndContainerNames()
         pass
@@ -166,6 +169,8 @@ class JetConstit(object):
             else:
                 self.inputname = modstring+containernames[self.basetype]
 
+        if self.__prefix:
+            self.inputname = self.__prefix+self.inputname
     pass
 
     # Define a string conversion for printing
