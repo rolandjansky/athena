@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORMODULES_GENMODULE_H
@@ -91,7 +91,7 @@ private:
   /// Data members
   //@{
   /// Random number generator objects
-  std::auto_ptr<CLHEP::HepRandomEngine> m_pRandomEngine;
+  std::unique_ptr<CLHEP::HepRandomEngine> m_pRandomEngine;
   // Random number service
   ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
   /// Handle on the incident service
