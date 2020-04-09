@@ -4,7 +4,8 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.AlgSequence import AthSequencer
+
+AthSequencer=CompFactory.AthSequencer
 
 def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'):
     #Mininmal basic config, just good enough for HelloWorld and alike
@@ -113,7 +114,7 @@ def MainServicesThreadedCfg(cfgFlags):
         cfg.addService(scsvc)
         cfg.setAppProperty('StatusCodeCheck',False)
 
-        SG__HiveMgrSvc=CompFactory.SG__HiveMgrSvc
+        SG__HiveMgrSvc=CompFactory.SG.HiveMgrSvc
         hivesvc = SG__HiveMgrSvc("EventDataSvc")
         hivesvc.NSlots = cfgFlags.Concurrency.NumConcurrentEvents
         cfg.addService( hivesvc )
@@ -155,11 +156,8 @@ def MainServicesThreadedCfg(cfgFlags):
         #
         ## Setup SGCommitAuditor to sweep new DataObjects at end of Alg execute
         #
-
-        auditorsvc = AuditorSvc()
         SGCommitAuditor=CompFactory.SGCommitAuditor
-        auditorsvc += SGCommitAuditor()
-        cfg.addService( auditorsvc )
+        cfg.addService( AuditorSvc(Auditors=[SGCommitAuditor().getFullJobOptName(),]))
         cfg.setAppProperty("AuditAlgorithms", True)
 
     return cfg

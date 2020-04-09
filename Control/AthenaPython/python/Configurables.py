@@ -118,6 +118,19 @@ class CfgPyAlgorithm( ConfigurableAlgorithm ):
         ## svcMgr.MessageSvc if none already set by user
         setattr(self, 'OutputLevel', _get_prop_value (self, 'OutputLevel') )
         return super(CfgPyAlgorithm, self).setup()
+
+    def setup2(self): #For CA-based configurations:
+        from AthenaPython import PyAthena
+        o = PyComponents.instances.get(self.name, None)
+        if not (o is None) and not (o is self):
+            err = "A python component [%r] has already been "\
+                  "registered with the PyComponents registry !" % o
+            raise RuntimeError(err)
+        PyComponents.instances[self.name] = self
+        setattr(PyAthena.algs, self.name, self)
+        return #super(CfgPyAlgorithm, self).setup()
+
+
     pass # class CfgPyAlgorithm
 
 ### Configurable base class for PyServices ------------------------------------
@@ -268,8 +281,12 @@ class _PyCompHandle(object):
     """
     def __init__(self, parent, attr_name):
         msg = parent.msg.verbose
+        try:
+            parentName=parent.name()
+        except TypeError:
+            parentName=parent.name
         msg('installing py-comp-handle for [%s.%s]...',
-            parent.name(), attr_name)
+            parentName, attr_name)
         self.__dict__.update({
             '_parent': parent,
             '_name': attr_name,
@@ -277,7 +294,7 @@ class _PyCompHandle(object):
             '_init_called': False,
             })
         msg('installing py-comp-handle for [%s.%s]... [done]',
-            parent.name(), attr_name)
+            parentName, attr_name)
         return
 
     def __getattribute__(self, n):

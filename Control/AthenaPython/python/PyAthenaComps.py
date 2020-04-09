@@ -49,11 +49,11 @@ del __wk_setattr__
 
 ### helper methods ------------------------------------------------------------
 def _get_prop_value(pycomp, propname):
-    v = pycomp.properties()[propname]
-    if v == pycomp.propertyNoValue:
-        v = pycomp.getDefaultProperty(propname)
-        pass
-    return v
+    if propname in pycomp.properties() and  pycomp.properties()[propname] != pycomp.propertyNoValue:
+        return pycomp.properties()[propname]
+    else:
+        return pycomp.getDefaultProperty(propname)
+
 
 ### PyAthena.StatusCode -------------------------------------------------------
 class StatusCode:
@@ -78,6 +78,9 @@ class Alg( CfgPyAlgorithm ):
         self._pyath_evtstore = None # handle to the evt store
         self._pyath_detstore = None # handle to the det store
         self._ctx = None
+        self.__component_type__="Algorithm"
+        self.__cpp_type__=self.__class__.__name__
+        self.name=name
         return
 
     @property
@@ -222,6 +225,8 @@ class AlgTool( CfgPyAlgTool ):
         self.__dict__['msg']  = logging.getLogger( self.getJobOptName() )
         self._pyath_evtstore = None # handle to the evt store
         self._pyath_detstore = None # handle to the det store
+        self.__component_type__ = "AlgTool"
+        self.__cpp_type__=self.__class__.__name__
         return
 
     @property
@@ -363,7 +368,8 @@ class AthFilterAlgorithm(Alg):
         return
 
     def sysInitialize(self):
-        self.cutID = self.cutFlowSvc().registerFilter(self.name(), self._filter_descr)
+        myName=self.name() if callable(self.name) else self.name 
+        self.cutID = self.cutFlowSvc().registerFilter(myName, self._filter_descr)
         if not self.cutID:
             self.msg.error("could not register filter-cut with cutflowsvc")
             return StatusCode.Failure

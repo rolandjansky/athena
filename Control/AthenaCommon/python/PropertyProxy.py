@@ -45,9 +45,9 @@ def derives_from( derived, base ):
          return True
 
    return False
-   
 
-def _isCompatible( tp, value ):
+
+def _isCompatible( tp, value, context = "" ):
  # Note: this function is only called for builtin types. Lists of
  # configurables (most likely GaudiHandleArrays) don't get here, since
  # their PropertyProxy types are special cases (see below). Thus, a
@@ -58,25 +58,26 @@ def _isCompatible( tp, value ):
       value = value.encode()
    if ( tp == str or type(value) == str ) and not isinstance( value, tp ):
     # special case, insist on exact match for str (no conversions allowed)
-      raise ValueError( "received an instance of %s, but %s expected" % (type(value),tp) )
+      raise ValueError( "received an instance of %s, but %s expected, context: %s" % (type(value),tp, context) )
    elif ( tp == int or tp == long ) and type(value) == float:
     # special case, insist on strict match for integer types
-      raise ValueError( "received an instance of %s, but %s expected" % (type(value),tp) )
+      raise ValueError( "received an instance of %s, but %s expected, context: %s" % (type(value),tp, context) )
    else:
     # all other types: accept if conversion allowed
       try:
          tp( value )
-      except (TypeError,ValueError):
+      except ValueError as verr:
          if isinstance( value, tp ):
           # this is a conversion mismatch, but an "ok" type (i.e. the type can
           # not be copied/constructed from itself), which is a typical case
           # for configurables being added to an ordinary list (as opposed to
           # a GaudiHandleArray), where the actual type of the list is unknown
-            raise ValueError( "received non-convertible type %s, but builtin type expected" % type(value) )
+            raise ValueError( "received non-convertible type %s, but builtin type expected, reason: %s context: %s" % (type(value), str(verr), context) )
          else:
           # this is a complete miss and the error message will be clear
-            raise ValueError( "received an instance of %s, but %s expected" % (type(value),tp) )
-
+            raise ValueError( "received an instance of %s, but %s expected, reason: %s, context: %s" % (type(value),tp, str(verr), context) )
+      except TypeError as  terr:
+         raise TypeError( "received an instance of %s, but %s expected, reason: %s, context: %s" % (type(value),tp, str(terr), context) )
    return value         # in case of e.g. classes with __int__, __iter__, etc. implemented
 
 
@@ -152,7 +153,7 @@ class PropertyProxy( object ):
     # check if type known; allow special initializer for typed instances
       if proptype and not isinstance(proptype, type(None)):
         # check value itself
-          value = _isCompatible( proptype, value )
+          value = _isCompatible( proptype, value, self.fullPropertyName(obj) )
 
         # check elements in case of list
           if proptype == tuple or proptype == list:
@@ -161,7 +162,7 @@ class PropertyProxy( object ):
                 if oldvec:
                    tpo = type(oldvec[0])
                    for v in value:
-                      _isCompatible( tpo, v )
+                      _isCompatible( tpo, v, self.fullPropertyName(obj) )
              except AttributeError:
               # value not yet set
                 pass
