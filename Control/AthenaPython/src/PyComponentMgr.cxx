@@ -151,10 +151,11 @@ PyComponentMgr::initialize()
   PyObject *rootFixes = 0;
   rootFixes = PyImport_ImportModule(const_cast<char*>(pyRootFixes.c_str()));
   if ( !rootFixes || !PyModule_Check( rootFixes ) ) {
+    PyErr_Print();
     PyErr_Clear();
     ATH_MSG_WARNING("Could not import [" << pyRootFixes << "] !!"
                     << endmsg
-                    << "Some problem may appear wit some C++->python binded classes (YMMV)");
+                    << "Some problem may appear with some C++->python binded classes (YMMV)");
   }
   Py_XDECREF(rootFixes);
   return StatusCode::SUCCESS;
