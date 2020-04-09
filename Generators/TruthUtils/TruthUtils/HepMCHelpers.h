@@ -12,6 +12,7 @@
 #include "TruthUtils/PIDHelpers.h"
 #include "TruthUtils/TruthParticleHelpers.h"
 #include "MCUtils/HepMCUtils.h"
+#include "AtlasHepMC/GenParticle.h"
 
 namespace MC {
 
