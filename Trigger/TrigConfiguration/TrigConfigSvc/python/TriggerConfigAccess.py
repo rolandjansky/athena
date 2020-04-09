@@ -1,11 +1,10 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from .TrigConfigSvcCfg import getTrigConfigFromFlag, getL1MenuFileName, getHLTMenuFileName, getL1PrescalesSetFileName, getHLTPrescalesSetFileName
+from .TrigConfigSvcCfg import getTrigConfigFromFlag, getL1MenuFileName, getHLTMenuFileName, getL1PrescalesSetFileName, getHLTPrescalesSetFileName, getBunchGroupSetFileName, getHLTJobOptionsFileName
 
 from TrigConfIO.L1TriggerConfigAccess import L1MenuAccess, L1PrescalesSetAccess, BunchGroupSetAccess
 from TrigConfIO.HLTTriggerConfigAccess import HLTMenuAccess, HLTPrescalesSetAccess, HLTJobOptionsAccess
 
-from AthenaCommon.Logging import logging
 from PyUtils.Decorators import memoize
 
 """
@@ -49,15 +48,15 @@ def getKeysFromCool(runNr, lbNr = 0):
     run_range = [[runNr,runNr]]
     d = { k: TriggerCoolUtil.getHLTConfigKeys(db, run_range)[runNr][k] for k in ['SMK', 'DB'] }
     for ( key, lbfirst, lblast) in TriggerCoolUtil.getBunchGroupKey(db, run_range)[runNr]['BGKey']:
-        if lb>=lbfirst and (lb<=lblast or lblast==-1):
+        if lbNr>=lbfirst and (lbNr<=lblast or lblast==-1):
             d['BGSK'] = key
             break
     for ( key, lbfirst, lblast) in TriggerCoolUtil.getL1ConfigKeys(db, run_range)[runNr]['LVL1PSK']:
-        if lb>=lbfirst and (lb<=lblast or lblast==-1):
+        if lbNr>=lbfirst and (lbNr<=lblast or lblast==-1):
             d['L1PSK'] = key
             break
     for ( key, lbfirst, lblast) in TriggerCoolUtil.getHLTPrescaleKeys(db, run_range)[runNr]['HLTPSK2']:
-        if lb>=lbfirst and (lb<=lblast or lblast==-1):
+        if lbNr>=lbfirst and (lbNr<=lblast or lblast==-1):
             d['HLTPSK'] = key
             break
 
@@ -76,7 +75,6 @@ L1 information
 
 """
 def getL1MenuAccess( flags = None ):
-    log = logging.getLogger('TriggerConfigAccess')
     tc = getTrigConfigFromFlag( flags )
     if tc["source"] == "FILE":
         cfg = L1MenuAccess( filename = getL1MenuFileName( flags ) )
@@ -84,7 +82,7 @@ def getL1MenuAccess( flags = None ):
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
-        cfg = L1MenuAccess( dbalias = trigConfFromCool["DB"], smkey = keysFromCool['SMK'] )
+        cfg = L1MenuAccess( dbalias = keysFromCool["DB"], smkey = keysFromCool['SMK'] )
     elif tc["source"] == "DB":
         cfg = L1MenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
     elif tc["source"] == "INFILE":
@@ -98,7 +96,6 @@ def getL1MenuAccess( flags = None ):
 
 
 def getL1PrescalesSetAccess( flags = None ):
-    log = logging.getLogger('TriggerConfigAccess')
     tc = getTrigConfigFromFlag( flags )
     if tc["source"] == "FILE":
         cfg = L1PrescalesSetAccess( filename = getL1PrescalesSetFileName( flags ) )
@@ -106,7 +103,7 @@ def getL1PrescalesSetAccess( flags = None ):
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
-        cfg = L1PrescalesSetAccess( dbalias = trigConfFromCool["DB"], l1pskey = keysFromCool['L1PSK'] )
+        cfg = L1PrescalesSetAccess( dbalias = keysFromCool["DB"], l1pskey = keysFromCool['L1PSK'] )
     elif tc["source"] == "DB":
         cfg = L1PrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["l1psk"] )
     elif tc["source"] == "INFILE":
@@ -120,7 +117,6 @@ def getL1PrescalesSetAccess( flags = None ):
 
 
 def getBunchGroupSetAccess( flags = None ):
-    log = logging.getLogger('TriggerConfigAccess')
     tc = getTrigConfigFromFlag( flags )
     if tc["source"] == "FILE":
         cfg = BunchGroupSetAccess( filename = getBunchGroupSetFileName( flags ) )
@@ -128,7 +124,7 @@ def getBunchGroupSetAccess( flags = None ):
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
-        cfg = BunchGroupSetAccess( dbalias = trigConfFromCool["DB"], bgskey = keysFromCool['BGSK'] )
+        cfg = BunchGroupSetAccess( dbalias = keysFromCool["DB"], bgskey = keysFromCool['BGSK'] )
     elif tc["source"] == "DB":
         cfg = BunchGroupSetAccess( dbalias = tc["dbconn"], bgskey = tc["bgsk"] )
     elif tc["source"] == "INFILE":
@@ -148,7 +144,6 @@ HLT information
 
 """
 def getHLTMenuAccess( flags = None ):
-    log = logging.getLogger('TriggerConfigAccess')
     tc = getTrigConfigFromFlag( flags )
     if tc["source"] == "FILE":
         cfg = HLTMenuAccess( filename = getHLTMenuFileName( flags ) )
@@ -156,7 +151,7 @@ def getHLTMenuAccess( flags = None ):
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
-        cfg = HLTMenuAccess( dbalias = trigConfFromCool["DB"], smkey = keysFromCool['SMK'] )
+        cfg = HLTMenuAccess( dbalias = keysFromCool["DB"], smkey = keysFromCool['SMK'] )
     elif tc["source"] == "DB":
         cfg = HLTMenuAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
     elif tc["source"] == "INFILE":
@@ -170,7 +165,6 @@ def getHLTMenuAccess( flags = None ):
 
 
 def getHLTPrescalesSetAccess( flags = None ):
-    log = logging.getLogger('TriggerConfigAccess')
     tc = getTrigConfigFromFlag( flags )
     if tc["source"] == "FILE":
         cfg = HLTPrescalesSetAccess( filename = getHLTPrescalesSetFileName( flags ) )
@@ -178,7 +172,7 @@ def getHLTPrescalesSetAccess( flags = None ):
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
-        cfg = HLTPrescalesSetAccess( dbalias = trigConfFromCool["DB"], l1pskey = keysFromCool['HLTPSK'] )
+        cfg = HLTPrescalesSetAccess( dbalias = keysFromCool["DB"], l1pskey = keysFromCool['HLTPSK'] )
     elif tc["source"] == "DB":
         cfg = HLTPrescalesSetAccess( dbalias = tc["dbconn"], l1pskey = tc["hltpsk"] )
     elif tc["source"] == "INFILE":
@@ -192,7 +186,6 @@ def getHLTPrescalesSetAccess( flags = None ):
 
 
 def getHLTJobOptionsAccess( flags = None ):
-    log = logging.getLogger('TriggerConfigAccess')
     tc = getTrigConfigFromFlag( flags )
     if tc["source"] == "FILE":
         cfg = HLTJobOptionsAccess( filename = getHLTJobOptionsFileName( flags ) )
@@ -200,7 +193,7 @@ def getHLTJobOptionsAccess( flags = None ):
         """This is the case when reconstructing the data."""
         from RecExConfig.InputFilePeeker import inpSum
         keysFromCool = getKeysFromCool( inpSum["run_number"] )
-        cfg = HLTJobOptionsAccess( dbalias = trigConfFromCool["DB"], smkey = keysFromCool['SMK'] )
+        cfg = HLTJobOptionsAccess( dbalias = keysFromCool["DB"], smkey = keysFromCool['SMK'] )
     elif tc["source"] == "DB":
         cfg = HLTJobOptionsAccess( dbalias = tc["dbconn"], smkey = tc["smk"] )
     elif tc["source"] == "INFILE":
