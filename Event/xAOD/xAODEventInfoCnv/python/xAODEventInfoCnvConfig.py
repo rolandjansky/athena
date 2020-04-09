@@ -19,7 +19,7 @@ def EventInfoCnvAlgCfg(flags, name="EventInfoCnvAlg",
 
     # TODO: luminosity
 
-    xAODMaker__EventInfoCnvAlg = CompFactory.xAODMaker__EventInfoCnvAlg
+    xAODMaker__EventInfoCnvAlg = CompFactory.xAODMaker.EventInfoCnvAlg
     alg = xAODMaker__EventInfoCnvAlg(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -37,7 +37,7 @@ def EventInfoOverlayAlgCfg(flags, name="EventInfoOverlay", **kwargs):
     kwargs.setdefault("DataOverlay", flags.Overlay.DataOverlay)
 
     # Do the xAOD::EventInfo overlay
-    xAODMaker__EventInfoOverlay = CompFactory.xAODMaker__EventInfoOverlay
+    xAODMaker__EventInfoOverlay = CompFactory.xAODMaker.EventInfoOverlay
     alg = xAODMaker__EventInfoOverlay(name, **kwargs)
     acc.addEventAlgo(alg)
 
