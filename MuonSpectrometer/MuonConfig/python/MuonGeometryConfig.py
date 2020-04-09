@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 MuonDetectorTool=CompFactory.MuonDetectorTool
-Muon__MuonIdHelperSvc=CompFactory.Muon__MuonIdHelperSvc
+Muon__MuonIdHelperSvc=CompFactory.Muon.MuonIdHelperSvc
 AGDDtoGeoSvc=CompFactory.AGDDtoGeoSvc
 MuonAGDDTool, NSWAGDDTool=CompFactory.getComps("MuonAGDDTool","NSWAGDDTool",)
 

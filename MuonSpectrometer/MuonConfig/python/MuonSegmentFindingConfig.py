@@ -18,9 +18,9 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Muon
 # Csc2dSegmentMaker, Csc4dSegmentMaker=CompFactory.getComps("Csc2dSegmentMaker","Csc4dSegmentMaker",)
-Muon__DCMathSegmentMaker, Muon__MdtMathSegmentFinder, Muon__MuonSegmentFittingTool, Muon__MuonClusterSegmentFinderTool=CompFactory.getComps("Muon__DCMathSegmentMaker","Muon__MdtMathSegmentFinder","Muon__MuonSegmentFittingTool","Muon__MuonClusterSegmentFinderTool",)
-Muon__MuonSegmentSelectionTool=CompFactory.Muon__MuonSegmentSelectionTool
-Muon__MuonClusterSegmentFinder=CompFactory.Muon__MuonClusterSegmentFinder
+Muon__DCMathSegmentMaker, Muon__MdtMathSegmentFinder, Muon__MuonSegmentFittingTool, Muon__MuonClusterSegmentFinderTool=CompFactory.getComps("Muon::DCMathSegmentMaker","Muon::MdtMathSegmentFinder","Muon::MuonSegmentFittingTool","Muon::MuonClusterSegmentFinderTool",)
+Muon__MuonSegmentSelectionTool=CompFactory.getComp("Muon::MuonSegmentSelectionTool")
+Muon__MuonClusterSegmentFinder=CompFactory.getComp("Muon::MuonClusterSegmentFinder")
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO - should maybe move this somewhere else?
 
 #Local
@@ -30,7 +30,7 @@ from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, M
 def MuonHoughPatternFinderTool(flags, **kwargs):
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py#L173
 
-    Muon__MuonHoughPatternFinderTool=CompFactory.Muon__MuonHoughPatternFinderTool
+    Muon__MuonHoughPatternFinderTool=CompFactory.Muon.MuonHoughPatternFinderTool
     
     # TODO
     # getPublicTool("MuonCombinePatternTool")
@@ -44,7 +44,7 @@ def MuonCurvedSegmentCombiner(flags, **kwargs):
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L74
     # The original code seems very odd. The default MissedHitsCut is 100 by default, and the rest of it is a bit tortuous.
     # I've tried to clean it up, but might have made mistakes. 
-    Muon__MuonCurvedSegmentCombiner =CompFactory.Muon__MuonCurvedSegmentCombiner
+    Muon__MuonCurvedSegmentCombiner=CompFactory.Muon.MuonCurvedSegmentCombiner
     if flags.Beam.Type!= 'collisions' :
         kwargs.setdefault( "AddUnassociatedMiddleEndcapSegments", False )
     elif flags.Input.isMC:
@@ -73,7 +73,7 @@ def AdjustableT0Tool(flags,**kwargs):
     else: # collisions simulation final precise cuts
         kwargs.setdefault("DoTof", 1)
         
-    AdjT0__AdjustableT0Tool=CompFactory.AdjT0__AdjustableT0Tool
+    AdjT0__AdjustableT0Tool=CompFactory.getComp("AdjT0::AdjustableT0Tool")
     return AdjT0__AdjustableT0Tool(**kwargs)
 
 def MdtMathSegmentFinder(flags,name="MdtMathSegmentFinder", **kwargs):
@@ -133,7 +133,7 @@ def MuonSegmentFittingToolCfg(flags, **kwargs):
     return result
 
 def DCMathSegmentMakerCfg(flags, **kwargs):    
-    TrkDriftCircleMath__MdtSegmentT0Fitter=CompFactory.TrkDriftCircleMath__MdtSegmentT0Fitter
+    TrkDriftCircleMath__MdtSegmentT0Fitter=CompFactory.TrkDriftCircleMath.MdtSegmentT0Fitter
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, MuonClusterOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg
      
@@ -250,7 +250,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
 
 
 def MuonPatternSegmentMakerCfg(flags, **kwargs):
-    Muon__MuonPatternSegmentMaker=CompFactory.Muon__MuonPatternSegmentMaker
+    Muon__MuonPatternSegmentMaker=CompFactory.Muon.MuonPatternSegmentMaker
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, MuonClusterOnTrackCreatorCfg
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L49
     
@@ -468,9 +468,9 @@ def Csc4dSegmentMakerCfg(flags, name= "Csc4dSegmentMaker", **kwargs):
 def MooSegmentFinderCfg(flags, name='MooSegmentFinder', **kwargs):
     # This is based on https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L99 
     
-    Muon__MuonLayerHoughTool=CompFactory.Muon__MuonLayerHoughTool
-    Muon__MuonSegmentCombinationCleanerTool=CompFactory.Muon__MuonSegmentCombinationCleanerTool
-    Muon__MooSegmentCombinationFinder=CompFactory.Muon__MooSegmentCombinationFinder
+    Muon__MuonLayerHoughTool=CompFactory.Muon.MuonLayerHoughTool
+    Muon__MuonSegmentCombinationCleanerTool=CompFactory.Muon.MuonSegmentCombinationCleanerTool
+    Muon__MooSegmentCombinationFinder=CompFactory.Muon.MooSegmentCombinationFinder
 
     result=ComponentAccumulator()
 
@@ -693,7 +693,7 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
     result.merge( MuonGeoModelCfg(flags) )
 
-    Muon__MuonEDMHelperSvc=CompFactory.Muon__MuonEDMHelperSvc
+    Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
 

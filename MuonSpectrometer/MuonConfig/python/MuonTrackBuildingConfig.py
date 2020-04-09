@@ -8,7 +8,7 @@ from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFittingToolCfg
 def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     # Based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L179
     # (Tons of explicit configuration missing from there though)
-    Muon__MooTrackFitter=CompFactory.Muon__MooTrackFitter
+    Muon__MooTrackFitter=CompFactory.Muon.MooTrackFitter
     MuonSegmentMomentum=CompFactory.MuonSegmentMomentum
     from MuonConfig.MuonRecToolsConfig import MuonPhiHitSelector, MuonTrackToSegmentToolCfg, MuonTrackSummaryHelperToolCfg, MuPatHitToolCfg
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg
@@ -83,8 +83,8 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     return result
 
 def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
-    Muon__MooTrackBuilder=CompFactory.Muon__MooTrackBuilder
-    Trk__STEP_Propagator=CompFactory.Trk__STEP_Propagator
+    Muon__MooTrackBuilder=CompFactory.Muon.MooTrackBuilder
+    Trk__STEP_Propagator=CompFactory.Trk.STEP_Propagator
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
     from MuonConfig.MuonRecToolsConfig import MuonTrackToSegmentToolCfg
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
@@ -181,7 +181,7 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
 # Taken from https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L268
 # Not bothering with MuonSegmentMatchingToolTight - just pass in TightSegmentMatching=True
 def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
-    Muon__MuonSegmentMatchingTool=CompFactory.Muon__MuonSegmentMatchingTool
+    Muon__MuonSegmentMatchingTool=CompFactory.Muon.MuonSegmentMatchingTool
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     
     kwargs.setdefault( "doThetaMatching", flags.Muon.useSegmentMatching)
@@ -205,7 +205,7 @@ def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
     return result
     
 def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmentPhiMatching=True, **kwargs):
-    Muon__MooCandidateMatchingTool=CompFactory.Muon__MooCandidateMatchingTool
+    Muon__MooCandidateMatchingTool=CompFactory.Muon.MooCandidateMatchingTool
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
     from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg
     
@@ -257,7 +257,7 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
     return result
 
 def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool", **kwargs):
-    Muon__MuonSegmentRegionRecoveryTool=CompFactory.Muon__MuonSegmentRegionRecoveryTool
+    Muon__MuonSegmentRegionRecoveryTool=CompFactory.Muon.MuonSegmentRegionRecoveryTool
     from MuonConfig.MuonRecToolsConfig import MuonExtrapolatorCfg, MuonStationIntersectSvcCfg, MuonTrackSummaryToolCfg
     # Based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MooreTools.py#L426
     
@@ -309,7 +309,7 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
     return result
     
 def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
-    Muon__MuPatCandidateTool=CompFactory.Muon__MuPatCandidateTool
+    Muon__MuPatCandidateTool=CompFactory.Muon.MuPatCandidateTool
     # https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuPatTools.py#L32
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
     result = MdtDriftCircleOnTrackCreatorCfg(flags)
@@ -327,7 +327,7 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     return result
     
 def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **kwargs):
-    Muon__MuonChamberHoleRecoveryTool=CompFactory.Muon__MuonChamberHoleRecoveryTool
+    Muon__MuonChamberHoleRecoveryTool=CompFactory.Muon.MuonChamberHoleRecoveryTool
     result=ComponentAccumulator()
     kwargs.setdefault("AddMeasurements",  not flags.Muon.doSegmentT0Fit )
     if flags.Detector.GeometryCSC:
@@ -357,7 +357,7 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
     
 
 def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
-    Muon__MuonTrackSteering=CompFactory.Muon__MuonTrackSteering
+    Muon__MuonTrackSteering=CompFactory.Muon.MuonTrackSteering
     # This is based on https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py#L35
     result=ComponentAccumulator()
     
@@ -446,7 +446,7 @@ def MuonTrackSteeringCfg(flags, name="MuonTrackSteering", **kwargs):
     return result
 
 def MuonTrackSelector(flags, name = "MuonTrackSelectorTool", **kwargs):
-    Muon__MuonTrackSelectorTool=CompFactory.Muon__MuonTrackSelectorTool
+    Muon__MuonTrackSelectorTool=CompFactory.Muon.MuonTrackSelectorTool
     # In MooreTools this is:
     # if beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam' or globalflags.DataSource() == 'data' :
     # Hopefully this is good enough
@@ -473,7 +473,7 @@ def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder"):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
     result.merge( MuonGeoModelCfg(flags) )
     
-    Muon__MuonEDMHelperSvc=CompFactory.Muon__MuonEDMHelperSvc
+    Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
     

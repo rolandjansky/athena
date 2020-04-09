@@ -8,6 +8,6 @@ def MuonCscRDODecoderCfg(flags, **kwargs):
     acc = CscCalibToolCfg(flags)
     kwargs.setdefault("cscCalibTool", acc.popPrivateTools())
 
-    CscRDO_Decoder = CompFactory.Muon__CscRDO_Decoder
+    CscRDO_Decoder = CompFactory.Muon.CscRDO_Decoder
     acc.setPrivateTools(CscRDO_Decoder(**kwargs))
     return acc
