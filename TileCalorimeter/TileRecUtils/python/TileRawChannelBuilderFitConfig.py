@@ -64,9 +64,9 @@ if __name__ == "__main__":
 
     acc = ComponentAccumulator()
 
-    print( acc.popToolsAndMerge( TileRawChannelBuilderFitFilterCfg(ConfigFlags) ) )
-
-    print( acc.popToolsAndMerge( TileRawChannelBuilderFitOverflowCfg(ConfigFlags) ) )
+    #printing Configurables isn't reliable with GaudiConfig2 
+    acc.popToolsAndMerge( TileRawChannelBuilderFitFilterCfg(ConfigFlags) )
+    acc.popToolsAndMerge( TileRawChannelBuilderFitOverflowCfg(ConfigFlags) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileRawChannelBuilderFit.pkl','wb') )

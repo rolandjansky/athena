@@ -236,8 +236,9 @@ def getTopoCalibMoments(configFlags):
 def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib=None,sequenceName='AthAlgSeq'):
     result=ComponentAccumulator()
     if (sequenceName != 'AthAlgSeq'):
-        from AthenaCommon.AlgSequence import AthSequencer
-        result.addSequence(AthSequencer(sequenceName))
+        from AthenaCommon.CFElements import seqAND
+        #result.mainSeq( seqAND( sequenceName ) )
+        result.addSequence( seqAND(sequenceName) )
 
     if not clustersname:
         clustersname = "CaloTopoClusters"

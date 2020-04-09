@@ -3,10 +3,10 @@
 from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def LArADC2MeVCondAlgCfg(configFlags):
     from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
-    from LArRecUtils.LArRecUtilsConf import LArADC2MeVCondAlg 
     from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     
@@ -14,7 +14,7 @@ def LArADC2MeVCondAlgCfg(configFlags):
     result.merge(LArOnOffIdMappingCfg(configFlags))
     result.merge(LArGMCfg(configFlags)) #Needed for identifier helpers
 
-    theADC2MeVCondAlg=LArADC2MeVCondAlg(LArADC2MeVKey = 'LArADC2MeV')
+    theADC2MeVCondAlg=CompFactory.LArADC2MeVCondAlg(LArADC2MeVKey = 'LArADC2MeV')
 
     isMC=configFlags.Input.isMC
     

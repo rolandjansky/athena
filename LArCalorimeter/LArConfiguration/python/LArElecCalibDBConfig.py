@@ -6,26 +6,29 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,ConfigurationError
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolderList
 
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArDAC2uAMC_LArDAC2uASym_ as LArDAC2uASymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasMC_LArMinBiasSym_ as LArMinBiasSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArNoiseMC_LArNoiseSym_ as LArNoiseSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArRampMC_LArRampSym_ as LArRampSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArfSamplMC_LArfSamplSym_ as LArfSamplSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LAruA2MeVMC_LAruA2MeVSym_ as LAruA2MeVSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArAutoCorrMC_LArAutoCorrSym_ as LArAutoCorrSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArShape32MC_LArShape32Sym_ as LArShapeSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMphysOverMcalMC_LArMphysOverMcalSym_ as LArMPhysOverMcalSymAlg
+
+#Import LArSymConditionsAlgs: Templated on the payload-type they handle
+#These algs are mostly needed for MC processing
+LArDAC2uASymAlg         =  CompFactory.getComp("LArSymConditionsAlg<LArDAC2uAMC, LArDAC2uASym>")                     
+LArMinBiasAverageSymAlg =  CompFactory.getComp("LArSymConditionsAlg<LArMinBiasAverageMC, LArMinBiasAverageSym>")     
+LArMinBiasSymAlg        =  CompFactory.getComp("LArSymConditionsAlg<LArMinBiasMC, LArMinBiasSym>")                   
+LArNoiseSymAlg          =  CompFactory.getComp("LArSymConditionsAlg<LArNoiseMC, LArNoiseSym>")                       
+LArRampSymAlg           =  CompFactory.getComp("LArSymConditionsAlg<LArRampMC, LArRampSym>")                         
+LArfSamplSymAlg         =  CompFactory.getComp("LArSymConditionsAlg<LArfSamplMC, LArfSamplSym>")                     
+LArAutoCorrSymAlg       =  CompFactory.getComp("LArSymConditionsAlg<LArAutoCorrMC, LArAutoCorrSym>")                 
+LAruA2MeVSymAlg         =  CompFactory.getComp("LArSymConditionsAlg<LAruA2MeVMC, LAruA2MeVSym>")                     
+LArShapeSymAlg          =  CompFactory.getComp("LArSymConditionsAlg<LArShape32MC, LArShape32Sym>")                   
+LArMPhysOverMcalSymAlg  =  CompFactory.getComp("LArSymConditionsAlg<LArMphysOverMcalMC, LArMphysOverMcalSym>")       
 
 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrCondFlatAlg
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LAruA2MeVFlat_ as LAruA2MeVCondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArDAC2uAFlat_ as LArDAC2uACondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArPedestalFlat_ as LArPedestalCondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArRampFlat_ as LArRampCondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArMphysOverMcalFlat_ as LArMphysOverMcalCondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArOFCFlat_ as LArOFCCondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArShapeFlat_ as LArShapeCondAlg
+LArHVScaleCorrCondFlatAlg  =  CompFactory.getComp("LArFlatConditionsAlg<LArHVScaleCorrFlat>")
+LAruA2MeVCondAlg           =  CompFactory.getComp("LArFlatConditionsAlg<LAruA2MeVFlat>")
+LArDAC2uACondAlg           =  CompFactory.getComp("LArFlatConditionsAlg<LArDAC2uAFlat>")
+LArPedestalCondAlg         =  CompFactory.getComp("LArFlatConditionsAlg<LArPedestalFlat>")
+LArRampCondAlg             =  CompFactory.getComp("LArFlatConditionsAlg<LArRampFlat>")
+LArMphysOverMcalCondAlg    =  CompFactory.getComp("LArFlatConditionsAlg<LArMphysOverMcalFlat>")
+LArOFCCondAlg              =  CompFactory.getComp("LArFlatConditionsAlg<LArOFCFlat>")
+LArShapeCondAlg            =  CompFactory.getComp("LArFlatConditionsAlg<LArShapeFlat>")
 
 
 

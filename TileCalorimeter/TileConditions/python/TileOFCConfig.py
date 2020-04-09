@@ -54,7 +54,7 @@ def TileOFCCondAlgCfg(flags, **kwargs):
         else:
             ofcFolder = folders.addSplitMC('/TILE/ONL01/FILTER/' + ofcType, '/TILE/ONL01/FILTER/' + ofcType)
 
-        from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerOfc_ as TileCondProxyCoolOfc
+        TileCondProxyCoolOfc=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerOfc>")
         ofcProxy = TileCondProxyCoolOfc('TileCondProxyCool_Ofc', Source = ofcFolder)
         
         from IOVDbSvc.IOVDbSvcConfig import addFolderList
@@ -63,7 +63,7 @@ def TileOFCCondAlgCfg(flags, **kwargs):
     else:
         raise(Exception("Invalid source: %s" % source))
 
-    from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerOfc_ as TileCalibOfcCondAlg
+    TileCalibOfcCondAlg=CompFactory.getComp("TileCalibCondAlg<TileCalibDrawerOfc>")
     ofcCondAlg = TileCalibOfcCondAlg( name = name, ConditionsProxy = ofcProxy, TileCalibData = ofc)
 
     acc.addCondAlgo(ofcCondAlg)

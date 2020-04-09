@@ -11,6 +11,7 @@ from __future__ import print_function
 
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaPython.PyAthenaComps import Alg, StatusCode
 import ROOT
 
@@ -63,7 +64,7 @@ def testCfg (configFlags):
 
     result.addEventAlgo (CreateDataAlg ('CreateDataAlg'))
 
-    from CaloRec.CaloRecConf import CaloThinCellsBySamplingAlg
+    CaloThinCellsBySamplingAlg=CompFactory.CaloThinCellsBySamplingAlg
     result.addEventAlgo (CaloThinCellsBySamplingAlg ('thinAlg',
                                                      StreamName = 'StreamAOD',
                                                      SamplingCellsName = ['EMB3',

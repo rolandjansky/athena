@@ -31,17 +31,17 @@ def TileDigitsMakerCfg(flags, **kwargs):
     infoLoader = infoLoaderAcc.getPrimary()
     acc.merge( infoLoaderAcc )
 
-    infoLoaderProperties = infoLoader.getValuedProperties()
+    infoLoaderProperties = infoLoader._properties.items()
 
     if 'TileNoise' in infoLoaderProperties:
         tileNoise = infoLoaderProperties['TileNoise']
     else:
-        tileNoise = infoLoader.getDefaultProperty('TileNoise')
+        tileNoise = infoLoader._descriptors['TileNoise'].default
 
     if 'TileCoherNoise' in infoLoaderProperties:
         tileCoherNoise = infoLoaderProperties['TileCoherNoise']
     else:
-        tileCoherNoise = infoLoader.getDefaultProperty('TileCoherNoise')
+        tileCoherNoise = infoLoader._descriptors['TileCoherNoise'].default
 
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))

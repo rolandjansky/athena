@@ -5,7 +5,7 @@
 # Purpose: Configure CaloThinCellsBySamplingAlg.
 
 from __future__ import print_function
-
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -14,7 +14,7 @@ def CaloThinCellsBySamplingAlgCfg (flags, streamName,
                                   cells = 'AllCalo'):
     result = ComponentAccumulator()
     
-    from CaloRec.CaloRecConf import CaloThinCellsBySamplingAlg
+    CaloThinCellsBySamplingAlg=CompFactory.CaloThinCellsBySamplingAlg
     alg = CaloThinCellsBySamplingAlg ('CaloThinCellsBySamplingAlg_' + '_'.join (samplings),
                                      StreamName = streamName,
                                      SamplingCellsName = samplings,

@@ -104,9 +104,10 @@ if __name__ == "__main__":
 
     acc = ComponentAccumulator()
 
-    print( acc.popToolsAndMerge( TileRawChannelBuilderOpt2Cfg(ConfigFlags) ) )
-    print( acc.popToolsAndMerge( TileRawChannelBuilderOptATLASCfg(ConfigFlags) ) )
-    print( acc.popToolsAndMerge( TileRawChannelBuilderOF1Cfg(ConfigFlags) ) )
+    #Comment for now, priting configurables isn't reliable with GaudiConfig2
+    acc.popToolsAndMerge( TileRawChannelBuilderOpt2Cfg(ConfigFlags) ) 
+    acc.popToolsAndMerge( TileRawChannelBuilderOptATLASCfg(ConfigFlags) ) 
+    acc.popToolsAndMerge( TileRawChannelBuilderOF1Cfg(ConfigFlags) ) 
 
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileRawChannelBuilder.pkl','wb') )

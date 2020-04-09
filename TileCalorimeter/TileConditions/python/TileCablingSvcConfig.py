@@ -2,6 +2,7 @@
 
 """Define method to construct configured Tile cabling service"""
 
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def TileCablingSvcCfg(flags):
     """Return component accumulator with configured Tile cabling service
@@ -19,8 +20,7 @@ def TileCablingSvcCfg(flags):
     from TileGeoModel.TileGMConfig import TileGMCfg
     acc.merge( TileGMCfg(flags) )
 
-    from TileConditions.TileConditionsConf import TileCablingSvc
-    tileCablingSvc = TileCablingSvc()
+    tileCablingSvc = CompFactory.TileCablingSvc()
 
     geometry = flags.GeoModel.AtlasVersion
     runNumber = flags.Input.RunNumber[0]

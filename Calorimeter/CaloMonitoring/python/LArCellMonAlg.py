@@ -40,7 +40,8 @@ def LArCellMonConfig(inputFlags):
     
     isCosmics = ( inputFlags.Beam.Type == 'cosmics' ) #will use this switch many times later
 
-    from CaloMonitoring.CaloMonitoringConf import LArCellMonAlg
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    LArCellMonAlg=CompFactory.LArCellMonAlg
     algname='LArCellMonAlg'
     if isCosmics:
         algname=algname+'Cosmics'

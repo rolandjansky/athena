@@ -5,14 +5,14 @@
 # Purpose: Configure CaloCellContainerAliasAlg.
 
 from __future__ import print_function
-
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 def CaloCellContainerAliasAlgCfg (flags, alias, cells = 'AllCalo'):
     result = ComponentAccumulator()
 
-    from CaloRec.CaloRecConf import CaloCellContainerAliasAlg
+    CaloCellContainerAliasAlg=CompFactory.CaloCellContainerAliasAlg
     alg = CaloCellContainerAliasAlg ('CaloCellContainerAliasAlg_' + alias,
                                      Alias = alias,
                                      Cells = cells)

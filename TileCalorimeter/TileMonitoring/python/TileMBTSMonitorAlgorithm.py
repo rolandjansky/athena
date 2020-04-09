@@ -84,8 +84,11 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, **kwargs):
 
     if 'FillHistogramsPerMBTS' in kwargs:
         fillHistogramPerMBTS = kwargs['FillHistogramsPerMBTS']
-    else:
+    elif hasattr(tileMBTSMonAlg,"_descriptors"): #GaudiConfig2 config
+        fillHistogramPerMBTS = tileMBTSMonAlg._descriptors['FillHistogramsPerMBTS'].default
+    else: #Run1/2 config
         fillHistogramPerMBTS = tileMBTSMonAlg.getDefaultProperty('FillHistogramsPerMBTS')
+
 
     # 1) Configure histogram with TileMBTSMonAlg algorithm execution time
     executeTimeGroup = helper.addGroup(tileMBTSMonAlg, 'TileMBTSMonExecuteTime', 'Tile/')

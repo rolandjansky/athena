@@ -41,7 +41,7 @@ def TileSampleNoiseCondAlgCfg(flags, **kwargs):
         else:
             sampleNoiseFolder = folders.addSplitOnline(onlineSampleNoiseFolder, '/TILE/OFL02/NOISE/SAMPLE')
 
-        from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerFlt_ as TileCondProxyCoolFlt
+        TileCondProxyCoolFlt=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerFlt>")
         sampleNoiseProxy = TileCondProxyCoolFlt('TileCondProxyCool_NoiseSample', Source = sampleNoiseFolder)
         
         from IOVDbSvc.IOVDbSvcConfig import addFolderList
@@ -49,14 +49,14 @@ def TileSampleNoiseCondAlgCfg(flags, **kwargs):
 
     elif source == 'FILE':
         # Connect FILE Tile conditions proxies to the algorithm
-        from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerFlt_ as TileCondProxyFileFlt
+        TileCondProxyFileFlt=CompFactory.getComp("TileCondProxyFile<TileCalibDrawerFlt>")
         sampleNoiseProxy = TileCondProxyFileFlt('TileCondProxyFile_NoiseSample', Source = 'TileDefault.ped')
 
     else:
         raise(Exception("Invalid source: %s" % source))
 
 
-    from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerFlt_ as TileCalibFltCondAlg
+    TileCalibFltCondAlg=CompFactory.getComp("TileCalibCondAlg<TileCalibDrawerFlt>")
     sampleNoiseCondAlg = TileCalibFltCondAlg( name = name,
                                               ConditionsProxy = sampleNoiseProxy,
                                               TileCalibData = sampleNoise)

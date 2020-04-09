@@ -30,7 +30,7 @@ def TileMuIDCondAlgCfg(flags, **kwargs):
 
         muIDFolder = folders.addSplitMC('/TILE/ONL01/MUID', '/TILE/ONL01/MUID')
 
-        from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerFlt_ as TileCondProxyCoolFlt
+        TileCondProxyCoolFlt=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerFlt>")
         muIDProxy = TileCondProxyCoolFlt('TileCondProxyCool_MuID', Source = muIDFolder)
         
         from IOVDbSvc.IOVDbSvcConfig import addFolderList
@@ -38,12 +38,12 @@ def TileMuIDCondAlgCfg(flags, **kwargs):
 
     elif source == 'FILE':
         # Connect FILE Tile conditions proxies to the algorithm
-        from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerFlt_ as TileCondProxyFileFlt
+        TileCondProxyFileFlt=CompFactory.getComp("TileCondProxyFile<TileCalibDrawerFlt>")
         muIDProxy = TileCondProxyFileFlt('TileCondProxyFile_MuID', Source = 'TileDefault.muid')
     else:
         raise(Exception("Invalid source: %s" % source))
 
-    from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerFlt_ as TileCalibFltCondAlg
+    TileCalibFltCondAlg=CompFactory.getComp("TileCalibCondAlg<TileCalibDrawerFlt>")
     muIDCondAlg = TileCalibFltCondAlg( name = name,
                                        ConditionsProxy = muIDProxy,
                                        TileCalibData = muID)
