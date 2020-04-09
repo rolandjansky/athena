@@ -27,7 +27,7 @@ foreach( test Echo_tf Sleep_tf
    )
 endforeach()
 
-if( NOT SIMULATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
   foreach( test RAWMerge_tf
            trfSubstepIntegration )
      atlas_add_test( ${test}
