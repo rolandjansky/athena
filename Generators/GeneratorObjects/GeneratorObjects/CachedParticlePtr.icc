@@ -38,7 +38,7 @@ CachedParticlePtr::CachedParticlePtr (const IProxyDict* sg)
  * @param part The particle to reference.
  */
 inline
-CachedParticlePtr::CachedParticlePtr (const HepMC::GenParticlePtr part)
+CachedParticlePtr::CachedParticlePtr (const HepMC::GenParticle* part)
   : m_ptr (part)
 {
   assert (!isdict (part));

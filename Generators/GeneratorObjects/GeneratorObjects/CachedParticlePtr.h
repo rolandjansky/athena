@@ -59,7 +59,7 @@ public:
    * @brief Constructor referencing a specific particle.
    * @param part The particle to reference.
    */
-  CachedParticlePtr (const HepMC::GenParticlePtr part);
+  CachedParticlePtr (const HepMC::GenParticle* part);
 
 
   /**
