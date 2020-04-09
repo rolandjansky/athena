@@ -276,7 +276,7 @@ namespace top {
   MuonCPTools::setupMuonCalibrationAndSmearingTool(const std::string& name, const bool& doExtraSmearing, const bool& do2StationsHighPt) {
     CP::IMuonCalibrationAndSmearingTool* tool = nullptr;
     if (asg::ToolStore::contains<CP::IMuonCalibrationAndSmearingTool>(name)) {
-      tool = asg::ToolStore::get<CP::MuonCalibrationAndSmearingTool>(name);
+      tool = asg::ToolStore::get<CP::IMuonCalibrationAndSmearingTool>(name);
     } else {
       tool = new CP::MuonCalibrationPeriodTool(name);
 
