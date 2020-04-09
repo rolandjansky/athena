@@ -8,6 +8,7 @@ atlas_subdir( Herwig7_i )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Generators/EvgenProdTools
    Generators/GeneratorModules
    PRIVATE
    Event/EventInfo
