@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsData
+			  InnerDetector/InDetConditions/InDetByteStreamErrors
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/StoreGate
