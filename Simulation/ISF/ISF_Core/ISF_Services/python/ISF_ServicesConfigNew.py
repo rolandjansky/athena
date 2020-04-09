@@ -13,7 +13,7 @@ from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import TruthStrategyGroupID_MC15Cf
 from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg
 
 
-ISF__TruthSvc, ISF__GeoIDSvc, ISF__ISFEnvelopeDefSvc, ISF__InputConverter=CompFactory.getComps("ISF__TruthSvc","ISF__GeoIDSvc","ISF__ISFEnvelopeDefSvc","ISF__InputConverter",)
+ISF__TruthSvc, ISF__GeoIDSvc, ISF__ISFEnvelopeDefSvc, ISF__InputConverter=CompFactory.getComps("ISF::TruthSvc","ISF::GeoIDSvc","ISF::ISFEnvelopeDefSvc","ISF::InputConverter",)
 
 #Functions yet to be migrated:
 #getParticleBrokerSvcNoOrdering, getParticleBrokerSvc, getAFIIParticleBrokerSvc, getAFIIEnvelopeDefSvc, getAFIIGeoIDSvc

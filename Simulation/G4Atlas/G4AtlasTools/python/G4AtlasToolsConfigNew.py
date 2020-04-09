@@ -261,7 +261,6 @@ def generateSensitiveDetectorList(ConfigFlags):
     SensitiveDetectorList += generateFwdSensitiveDetectorList(ConfigFlags)
 
     result.merge(acc_InDetSensitiveDetector)
-    result.merge(acc_CaloSensitiveDetector)
 
     result.setPrivateTools(SensitiveDetectorList)
     return result

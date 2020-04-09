@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
-from MCTruthSimAlgs.MCTruthSimAlgsConf import MergeRecoTimingObjTool
+from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 
@@ -32,6 +32,6 @@ def MergeRecoTimingObjCfg(flags, name="MergeRecoTimingObjTool", **kwargs):
         kwargs.setdefault("RecoTimingObjOutputKey", flags.Overlay.BkgPrefix + "EVNTtoHITS_timings")
     else:
         kwargs.setdefault("RecoTimingObjOutputKey", "EVNTtoHITS_timings")    
-    tool = MergeRecoTimingObjTool(name, **kwargs)
+    tool = CompFactory.MergeRecoTimingObjTool(name, **kwargs)
     acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc

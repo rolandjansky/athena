@@ -7,7 +7,7 @@ from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 #to prevent unit tests failing when just running over simulation
 import os
 if "AthSimulation_DIR" not in os.environ:
-    MagField__ForwardRegionFieldSvc=CompFactory.MagField__ForwardRegionFieldSvc
+    MagField__ForwardRegionFieldSvc=CompFactory.MagField.ForwardRegionFieldSvc
 
 def StandardFieldSvcCfg(ConfigFlags,name="StandardField", **kwargs):
     result = ComponentAccumulator()

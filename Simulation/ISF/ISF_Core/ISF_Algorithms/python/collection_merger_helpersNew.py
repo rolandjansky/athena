@@ -23,9 +23,8 @@ def CollectionMergerCfg(ConfigFlags, bare_collection_name,
              bare=bare_collection_name,
              suffix=mergeable_collection_suffix)
          
-
-      from AthenaCommon.CfgGetter import getAlgorithm
-      algo = getAlgorithm('ISF_CollectionMerger')
+      from ISF_Algorithms.CollectionMergerConfig import ISFCollectionMergerCfg
+      algo=ISFCollectionMergerCfg(ConfigFlags)
       result.addEventAlgo(algo)
 
       input_attribute_name = 'Input{merger_input_property}'.format(
