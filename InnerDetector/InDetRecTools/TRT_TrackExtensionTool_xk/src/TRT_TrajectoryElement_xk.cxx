@@ -28,10 +28,11 @@ void InDet::TRT_TrajectoryElement_xk::set
 }
 
 void InDet::TRT_TrajectoryElement_xk::set
-(const Trk::MagneticFieldProperties &  mf,const MagField::IMagFieldSvc*ms)
+(const Trk::MagneticFieldProperties &  mf, const MagField::IMagFieldSvc* ms, const AtlasFieldCacheCondObj* fieldCondObj)
 {
   m_fieldprop    = mf;
   m_fieldService = ms;
+  fieldCondObj->getInitializedCache (m_fieldCache);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -682,9 +683,22 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double pos0[3]; pos0[0]=Gp[0][0]; pos0[1]=Gp[0][1]; pos0[2]=Gp[0][2];
   double pos1[3]; pos1[0]=Gp[1][0]; pos1[1]=Gp[1][1]; pos1[2]=Gp[1][2];
   double pos2[3]; pos2[0]=Gp[2][0]; pos2[1]=Gp[2][1]; pos2[2]=Gp[2][2];
-  double H0  [3]; m_fieldService->getFieldZR(pos0,H0);
-  double H1  [3]; m_fieldService->getFieldZR(pos1,H1);
-  double H2  [3]; m_fieldService->getFieldZR(pos2,H2);
+  double H0  [3]; 
+  double H1  [3]; 
+  double H2  [3]; 
+  // MT version uses cache, temporarily keep old version
+  if (m_fieldCache.useNewBfieldCache()) {
+      m_fieldCache.getFieldZR    (pos0,H0);
+      m_fieldCache.getFieldZR    (pos1,H1);
+      m_fieldCache.getFieldZR    (pos2,H2);
+  }
+  else {
+      m_fieldService->getFieldZR (pos0,H0);
+      m_fieldService->getFieldZR (pos1,H1);
+      m_fieldService->getFieldZR (pos2,H2);      
+  }
+  
+  
   double Hz = .333333*(H0[2]+H1[2]+H2[2]);
 
   // If magnetic field exist
@@ -765,9 +779,21 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double pos0[3]; pos0[0]=Gp[0][0]; pos0[1]=Gp[0][1]; pos0[2]=Gp[0][2];
   double pos1[3]; pos1[0]=Gp[1][0]; pos1[1]=Gp[1][1]; pos1[2]=Gp[1][2];
   double pos2[3]; pos2[0]=Gp[2][0]; pos2[1]=Gp[2][1]; pos2[2]=Gp[2][2];
-  double H0  [3]; m_fieldService->getFieldZR(pos0,H0);
-  double H1  [3]; m_fieldService->getFieldZR(pos1,H1);
-  double H2  [3]; m_fieldService->getFieldZR(pos2,H2);
+  double H0  [3]; 
+  double H1  [3]; 
+  double H2  [3]; 
+  // MT version uses cache, temporarily keep old version
+  if (m_fieldCache.useNewBfieldCache()) {
+      m_fieldCache.getFieldZR    (pos0,H0);
+      m_fieldCache.getFieldZR    (pos1,H1);
+      m_fieldCache.getFieldZR    (pos2,H2);
+  }
+  else {
+      m_fieldService->getFieldZR (pos0,H0);
+      m_fieldService->getFieldZR (pos1,H1);
+      m_fieldService->getFieldZR (pos2,H2);      
+  }
+  
   double Hz = .333333*(H0[2]+H1[2]+H2[2]);
 
   // If magnetic field exist

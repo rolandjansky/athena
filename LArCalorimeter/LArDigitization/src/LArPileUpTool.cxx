@@ -244,17 +244,17 @@ StatusCode LArPileUpTool::initialize()
 
 // ----------------------------------------------------------------------------------------------------------------------------------
 
-StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
+StatusCode LArPileUpTool::prepareEvent(const EventContext& ctx, unsigned int /*nInputEvents */)
 {
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
   m_cabling=*cablingHdl;
   if(!m_cabling) {
      ATH_MSG_ERROR("Failed to retrieve LAr Cabling map with key " << m_cablingKey.key() );
      return StatusCode::FAILURE;
   }
 
-  m_hitmap=SG::makeHandle(m_hitMapKey);
+  m_hitmap=SG::makeHandle(m_hitMapKey, ctx);
   auto hitMapPtr=std::make_unique<LArHitEMap>(m_cabling,m_calocell_id,m_caloDDMgr,m_RndmEvtOverlay);
   ATH_CHECK(m_hitmap.record(std::move(hitMapPtr)));
   ATH_MSG_DEBUG(" Number of created  cells in Map " << m_hitmap->GetNbCells());
@@ -263,7 +263,7 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
 
   
   if (m_doDigiTruth) {
-    m_hitmap_DigiHSTruth=SG::makeHandle(m_hitMapKey_DigiHSTruth);
+    m_hitmap_DigiHSTruth=SG::makeHandle(m_hitMapKey_DigiHSTruth, ctx);
     auto hitMapPtr=std::make_unique<LArHitEMap>(m_cabling,m_calocell_id,m_caloDDMgr,m_RndmEvtOverlay);
     ATH_CHECK(m_hitmap_DigiHSTruth.record(std::move(hitMapPtr)));
     if (!m_useMBTime) m_energySum_DigiHSTruth.assign(m_hitmap_DigiHSTruth->GetNbCells(),0.);
@@ -278,11 +278,11 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
   }
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  rngWrapper->setSeed( name(), ctx );
 
   // add random phase (i.e subtract it from trigtime)
   if (m_addPhase) {
-    m_trigtime = m_trigtime - (m_phaseMin + (m_phaseMax-m_phaseMin)*RandFlat::shoot(*rngWrapper)  );
+    m_trigtime = m_trigtime - (m_phaseMin + (m_phaseMax-m_phaseMin)*RandFlat::shoot(rngWrapper->getEngine(ctx))  );
   }
 
   if (m_Windows) {
@@ -299,11 +299,11 @@ StatusCode LArPileUpTool::prepareEvent(unsigned int /*nInputEvents */)
   // ....... create the LAr Digit Container
   //
   
-  m_DigitContainer = SG::makeHandle(m_DigitContainerName);//new LArDigitContainer();
+  m_DigitContainer = SG::makeHandle(m_DigitContainerName, ctx);//new LArDigitContainer();
   ATH_CHECK(m_DigitContainer.record(std::make_unique<LArDigitContainer>()));
 
   if (m_doDigiTruth) {
-    m_DigitContainer_DigiHSTruth = SG::makeHandle(m_DigitContainerName_DigiHSTruth);//new LArDigitContainer();
+    m_DigitContainer_DigiHSTruth = SG::makeHandle(m_DigitContainerName_DigiHSTruth, ctx);//new LArDigitContainer();
     ATH_CHECK(m_DigitContainer_DigiHSTruth.record(std::make_unique<LArDigitContainer>()));
   }
 
@@ -371,16 +371,16 @@ StatusCode LArPileUpTool::processBunchXing(int bunchXing,
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 
-StatusCode LArPileUpTool::processAllSubEvents()
+StatusCode LArPileUpTool::processAllSubEvents(const EventContext& ctx)
 {
 
-  if (this->prepareEvent(0).isFailure()) {
+  if (this->prepareEvent(ctx, 0).isFailure()) {
      ATH_MSG_ERROR("error in prepareEvent");
      return StatusCode::FAILURE;
   }
 
   if(!m_onlyUseContainerName && m_RndmEvtOverlay) {
-    auto hitVectorHandles = m_hitContainerKeys.makeHandles();
+    auto hitVectorHandles = m_hitContainerKeys.makeHandles(ctx);
     for (auto & inputHits : hitVectorHandles) {
       if (!inputHits.isValid()) {
         ATH_MSG_ERROR("BAD HANDLE"); //FIXME improve error here
@@ -555,7 +555,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
     {
       if (!m_onlyUseContainerName)
       {
-        SG::ReadHandle<LArDigitContainer> digitCollection(m_inputDigitContainerKey);
+        SG::ReadHandle<LArDigitContainer> digitCollection(m_inputDigitContainerKey, ctx);
         if (!digitCollection.isValid()) {
           ATH_MSG_ERROR("Could not get LArDigitContainer container " << digitCollection.name() << " from store " << digitCollection.store());
           return StatusCode::FAILURE;
@@ -602,7 +602,7 @@ StatusCode LArPileUpTool::processAllSubEvents()
 
   }  // if pileup
 
-  if (this->mergeEvent().isFailure()) {
+  if (this->mergeEvent(ctx).isFailure()) {
     ATH_MSG_ERROR("error in mergeEvent");
     return StatusCode::FAILURE;
   }
@@ -614,9 +614,9 @@ StatusCode LArPileUpTool::processAllSubEvents()
 // ---------------------------------------------------------------------------------------------------------------------------------
 
 
-StatusCode LArPileUpTool::mergeEvent()
+StatusCode LArPileUpTool::mergeEvent(const EventContext& ctx)
 {
-   SG::ReadCondHandle<LArBadFebCont> badFebHdl(m_badFebKey);
+   SG::ReadCondHandle<LArBadFebCont> badFebHdl(m_badFebKey, ctx);
    const LArBadFebCont* badFebs=*badFebHdl;
 
    int it,it_end;
@@ -628,7 +628,7 @@ StatusCode LArPileUpTool::mergeEvent()
    const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr;
 
    ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
-   CLHEP::HepRandomEngine * engine = *rngWrapper;
+   CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(ctx);
 
    for( ; it!=it_end;++it) // now loop on cells
    {
@@ -652,7 +652,7 @@ StatusCode LArPileUpTool::mergeEvent()
 	    // MakeDigit called if in no overlay mode or
 	    // if in overlay mode and random digit exists
 	    if( (!m_RndmEvtOverlay) || (m_RndmEvtOverlay && digit) ) {
-	      if ( this->MakeDigit(cellID, ch_id,TimeE, digit, engine, TimeE_DigiHSTruth)
+              if ( this->MakeDigit(ctx,cellID, ch_id,TimeE, digit, engine, TimeE_DigiHSTruth)
 		   == StatusCode::FAILURE ) return StatusCode::FAILURE;
 	    }
 	  }
@@ -1590,7 +1590,7 @@ void LArPileUpTool::cross_talk(const IdentifierHash& hashId,
 // ----------------------------------------------------------------------------------------------------------------------------------
 
 
-StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
+StatusCode LArPileUpTool::MakeDigit(const EventContext& ctx, const Identifier & cellId,
                                     HWIdentifier & ch_id,
                                     const std::vector<std::pair<float,float> >* TimeE,
                                     const LArDigit * rndmEvtDigit, CLHEP::HepRandomEngine * engine,
@@ -1614,24 +1614,24 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
   std::vector<float> rndm_energy_samples(m_NSamples) ;
 
 
-  SG::ReadCondHandle<LArADC2MeV> adc2mevHdl(m_adc2mevKey);
+  SG::ReadCondHandle<LArADC2MeV> adc2mevHdl(m_adc2mevKey, ctx);
   const LArADC2MeV* adc2MeVs=*adc2mevHdl;
 
-  SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey);
+  SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey, ctx);
   const ILArfSampl* fSampl=*fSamplHdl;
 
-  SG::ReadCondHandle<ILArPedestal> pedHdl(m_pedestalKey);
+  SG::ReadCondHandle<ILArPedestal> pedHdl(m_pedestalKey, ctx);
   const ILArPedestal* pedestal=*pedHdl;
 
   const ILArNoise* noise=nullptr;  
   if ( !m_RndmEvtOverlay && !m_pedestalNoise && m_NoiseOnOff ){
-    SG::ReadCondHandle<ILArNoise> noiseHdl(m_noiseKey);
+    SG::ReadCondHandle<ILArNoise> noiseHdl(m_noiseKey, ctx);
     noise=*noiseHdl;
   }
 
   const LArAutoCorrNoise* autoCorrNoise=nullptr;
   if ( !m_RndmEvtOverlay  &&  m_NoiseOnOff) {
-    SG::ReadCondHandle<LArAutoCorrNoise>  autoCorrNoiseHdl(m_autoCorrNoiseKey);
+    SG::ReadCondHandle<LArAutoCorrNoise>  autoCorrNoiseHdl(m_autoCorrNoiseKey, ctx);
     autoCorrNoise=*autoCorrNoiseHdl;
   }
 
@@ -1690,9 +1690,9 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
   if (m_useBad) isDead = m_maskingTool->cellShouldBeMasked(ch_id);
 
   if (!isDead) {
-    if( this->ConvertHits2Samples(cellId,ch_id,initialGain,TimeE, m_Samples).isFailure() ) return StatusCode::SUCCESS;
+    if( this->ConvertHits2Samples(ctx, cellId,ch_id,initialGain,TimeE, m_Samples).isFailure() ) return StatusCode::SUCCESS;
     if(m_doDigiTruth){
-      if( this->ConvertHits2Samples(cellId,ch_id,initialGain,TimeE_DigiHSTruth, m_Samples_DigiHSTruth).isFailure() ) return StatusCode::SUCCESS;
+      if( this->ConvertHits2Samples(ctx, cellId,ch_id,initialGain,TimeE_DigiHSTruth, m_Samples_DigiHSTruth).isFailure() ) return StatusCode::SUCCESS;
     }
   }
 
@@ -1719,7 +1719,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 //   this requires to take into account the sum of the optimal filter coefficients, as they don't compute with ADC shift
      float adc0=0.;
      if (!m_isMcOverlay && rndmEvtDigit->gain()>0) {
-        SG::ReadCondHandle<ILArOFC> larOFC(m_OFCKey);
+        SG::ReadCondHandle<ILArOFC> larOFC(m_OFCKey, ctx);
         if (larOFC.cptr() != nullptr) {
           ILArOFC::OFCRef_t ofc_a = larOFC->OFC_a(ch_id,rndmEvtDigit->gain(),0);
           float sumOfc=0.;
@@ -1809,9 +1809,9 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
      }
 
      if (!isDead) {
-       if( this->ConvertHits2Samples(cellId,ch_id,igain,TimeE, m_Samples) == StatusCode::FAILURE ) return StatusCode::SUCCESS;
+       if( this->ConvertHits2Samples(ctx, cellId,ch_id,igain,TimeE, m_Samples) == StatusCode::FAILURE ) return StatusCode::SUCCESS;
        if(m_doDigiTruth){
-         if( this->ConvertHits2Samples(cellId,ch_id,igain,TimeE_DigiHSTruth, m_Samples_DigiHSTruth) == StatusCode::FAILURE ) return StatusCode::SUCCESS;
+         if( this->ConvertHits2Samples(ctx, cellId,ch_id,igain,TimeE_DigiHSTruth, m_Samples_DigiHSTruth) == StatusCode::FAILURE ) return StatusCode::SUCCESS;
        }
      }
 
@@ -1877,7 +1877,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 //   this requires to take into account the sum of the optimal filter coefficients, as they don't compute with ADC shift
   if(!m_isMcOverlay && m_RndmEvtOverlay  && igain>0)
   {
-    SG::ReadCondHandle<ILArOFC> larOFC(m_OFCKey);
+    SG::ReadCondHandle<ILArOFC> larOFC(m_OFCKey, ctx);
     if (larOFC.cptr() != nullptr) {
       float sumOfc=0.;
       ILArOFC::OFCRef_t ofc_a = larOFC->OFC_a(ch_id,igain,0);
@@ -1965,7 +1965,8 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 
 // ----------------------------------------------------------------------------------------------------------------------------------
 
-StatusCode LArPileUpTool::ConvertHits2Samples(const Identifier & cellId, const HWIdentifier ch_id, CaloGain::CaloGain igain,
+StatusCode LArPileUpTool::ConvertHits2Samples(const EventContext& ctx,
+                                              const Identifier & cellId, const HWIdentifier ch_id, CaloGain::CaloGain igain,
 					      //const std::vector<std::pair<float,float> >  *TimeE)
 					      const std::vector<std::pair<float,float> >  *TimeE, std::vector<double> &sampleList)
 
@@ -1979,7 +1980,7 @@ StatusCode LArPileUpTool::ConvertHits2Samples(const Identifier & cellId, const H
    float energy ;
    float time ;
 
-   SG::ReadCondHandle<ILArShape> shapeHdl(m_shapeKey);
+   SG::ReadCondHandle<ILArShape> shapeHdl(m_shapeKey, ctx);
    const ILArShape* shape=*shapeHdl;
 
 

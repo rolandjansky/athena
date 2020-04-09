@@ -117,6 +117,10 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   ATH_CHECK(m_caloHad.initialize( !m_useSSSfilter && m_useHClusSeed) );
 
   if (m_pTmin < 20.) m_pTmin = 20.;
+
+  ////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCondObjInputKey.initialize());
+  ////////////////////////////////////////////////////////////////////////////////
   return StatusCode::SUCCESS;
 }
 
@@ -225,12 +229,12 @@ MsgStream& InDet::SiTrackMaker_xk::dumpevent(SiTrackMakerEventData_xk& data, Msg
 // Initiate track finding tool for new event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::newEvent(SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const
+void InDet::SiTrackMaker_xk::newEvent(const EventContext& ctx, SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const
 {
   data.xybeam()[0] = 0.;
   data.xybeam()[1] = 0.;
   if (not m_beamSpotKey.empty()) {
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
     if (beamSpotHandle.isValid()) {
       data.xybeam()[0] = beamSpotHandle->beamPos()[0];
       data.xybeam()[1] = beamSpotHandle->beamPos()[1];
@@ -245,7 +249,7 @@ void InDet::SiTrackMaker_xk::newEvent(SiTrackMakerEventData_xk& data, bool PIX, 
 
   // New event for track finder tool
   //
-  m_tracksfinder->newEvent(data.combinatorialData(), m_trackinfo, trackquality);
+  m_tracksfinder->newEvent(ctx, data.combinatorialData(), m_trackinfo, trackquality);
 
   // Erase cluster to track association
   //
@@ -266,7 +270,7 @@ void InDet::SiTrackMaker_xk::newEvent(SiTrackMakerEventData_xk& data, bool PIX, 
     data.caloZ().clear();
 
     if (!m_caloCluster.key().empty()) {
-      SG::ReadHandle<CaloClusterROI_Collection> calo_cluster(m_caloCluster);
+      SG::ReadHandle<CaloClusterROI_Collection> calo_cluster(m_caloCluster, ctx);
       if (calo_cluster.isValid()) {
         for (const Trk::CaloClusterROI *c : * calo_cluster) {
           data.caloF().push_back( c->globalPosition().phi ());
@@ -283,7 +287,7 @@ void InDet::SiTrackMaker_xk::newEvent(SiTrackMakerEventData_xk& data, bool PIX, 
     data.hadZ().clear();
 
     if (!m_caloHad.key().empty()) {
-      SG::ReadHandle<CaloClusterROI_Collection> calo_had(m_caloHad);
+      SG::ReadHandle<CaloClusterROI_Collection> calo_had(m_caloHad, ctx);
       if (calo_had.isValid()) {
         for (const Trk::CaloClusterROI *c : * calo_had) {
           data.hadF().push_back( c->globalPosition().phi ());
@@ -300,7 +304,7 @@ void InDet::SiTrackMaker_xk::newEvent(SiTrackMakerEventData_xk& data, bool PIX, 
 // Initiate track finding tool for new event
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::newTrigEvent(SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const
+void InDet::SiTrackMaker_xk::newTrigEvent(const EventContext& ctx, SiTrackMakerEventData_xk& data, bool PIX, bool SCT) const
 {
   data.pix()        = PIX && m_usePix;
   data.sct()        = SCT && m_useSct;
@@ -310,7 +314,7 @@ void InDet::SiTrackMaker_xk::newTrigEvent(SiTrackMakerEventData_xk& data, bool P
 
   // New event for track finder tool
   //
-  m_tracksfinder->newEvent(data.combinatorialData(), m_trackinfo, trackquality);
+  m_tracksfinder->newEvent(ctx, data.combinatorialData(), m_trackinfo, trackquality);
 
   // Erase cluster to track association
   //
@@ -352,7 +356,7 @@ void InDet::SiTrackMaker_xk::endEvent(SiTrackMakerEventData_xk& data) const
 ///////////////////////////////////////////////////////////////////
 
 std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
-(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& Sp) const
+(const EventContext& ctx, SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& Sp) const
 {
   ++data.inputseeds();
   std::list<Trk::Track*> tracks;
@@ -365,20 +369,31 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
 
   data.dbm() = isDBMSeeds(*Sp.begin());
 
+  // Get AtlasFieldCache
+  MagField::AtlasFieldCache fieldCache;
+
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("InDet::SiTrackMaker_xk::getTracks: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return tracks;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
+  
   // Get initial parameters estimation
   //
   bool sss = false;
   const Trk::TrackParameters* Tp = nullptr;
-  if (data.dbm()) Tp = getAtaPlaneDBM(data, Sp);
-  else Tp = getAtaPlane(data, sss && m_useHClusSeed, Sp);
+  if (data.dbm()) Tp = getAtaPlaneDBM(fieldCache, data, Sp);
+  else Tp = getAtaPlane(fieldCache, data, sss && m_useHClusSeed, Sp);
   if (!Tp) return tracks;
   ++data.goodseeds();
 
   // Get detector elements road
   //
   std::list<const InDetDD::SiDetectorElement*> DE;
-  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(*Tp,Trk::alongMomentum,   DE);
-  else                m_roadmaker->detElementsRoad(*Tp,Trk::oppositeMomentum,DE);
+  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::alongMomentum,   DE);
+  else                m_roadmaker->detElementsRoad(ctx, fieldCache, *Tp,Trk::oppositeMomentum,DE);
 
   if (!data.pix() || !data.sct() || data.dbm()) detectorElementsSelection(data, DE);
 
@@ -427,7 +442,7 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
 ///////////////////////////////////////////////////////////////////
 
 std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
-(SiTrackMakerEventData_xk& data, const Trk::TrackParameters& Tp, const std::list<Amg::Vector3D>& Gp) const
+(const EventContext& ctx, SiTrackMakerEventData_xk& data, const Trk::TrackParameters& Tp, const std::list<Amg::Vector3D>& Gp) const
 {
   ++data.inputseeds();
   std::list<Trk::Track*> tracks;
@@ -435,11 +450,22 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
 
   ++data.goodseeds();
 
+  // Get AtlasFieldCache
+  MagField::AtlasFieldCache fieldCache;
+
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("InDet::SiTrackMaker_xk::getTracks: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return tracks;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
+  
   // Get detector elements road
   //
   std::list<const InDetDD::SiDetectorElement*> DE;
-  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(Tp,Trk::alongMomentum,   DE);
-  else                m_roadmaker->detElementsRoad(Tp,Trk::oppositeMomentum,DE);
+  if (!m_cosmicTrack) m_roadmaker->detElementsRoad(ctx, fieldCache, Tp,Trk::alongMomentum,   DE);
+  else                m_roadmaker->detElementsRoad(ctx, fieldCache, Tp,Trk::oppositeMomentum,DE);
 
   if (!data.pix() || !data.sct()) detectorElementsSelection(data, DE);
 
@@ -479,7 +505,10 @@ std::list<Trk::Track*> InDet::SiTrackMaker_xk::getTracks
 ///////////////////////////////////////////////////////////////////
 
 const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
-(SiTrackMakerEventData_xk& data, bool sss, const std::list<const Trk::SpacePoint*>& SP) const
+(MagField::AtlasFieldCache& fieldCache,
+ SiTrackMakerEventData_xk& data,
+ bool sss,
+ const std::list<const Trk::SpacePoint*>& SP) const
 {
   std::list<const Trk::SpacePoint*>::const_iterator is=SP.begin(),ise=SP.end(),is0,is1,is2;  
   if (is==ise) return nullptr;
@@ -535,7 +564,10 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
   Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
   if (fieldprop.magneticFieldMode() > 0) {
 
-    double H[3],gP[3] ={x0,y0,z0}; m_fieldServiceHandle->getFieldZR(gP,H);
+    double H[3],gP[3] ={x0,y0,z0};
+    //   MT version uses cache, temporarily keep old version
+    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, H);
+    else                                m_fieldServiceHandle->getFieldZR(gP, H);
 
     if (fabs(H[2])>.0001) {
       data.par()[2] = atan2(b+a*A,a-b*A);
@@ -570,7 +602,9 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
 ///////////////////////////////////////////////////////////////////
 
 const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlaneDBM
-(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& SP) const
+(MagField::AtlasFieldCache& fieldCache,
+ SiTrackMakerEventData_xk& data,
+ const std::list<const Trk::SpacePoint*>& SP) const
 {
   std::list<const Trk::SpacePoint*>::const_iterator is=SP.begin(),ise=SP.end(),is0,is1,is2;  
   if (is==ise) return nullptr;
@@ -623,7 +657,10 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlaneDBM
   Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
   if (fieldprop.magneticFieldMode() > 0) {
     double H[3],gP[3] ={p0[0],p0[1],p0[2]};
-    m_fieldServiceHandle->getFieldZR(gP,H);
+
+    //   MT version uses cache, temporarily keep old version
+    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, H);
+    else                                m_fieldServiceHandle->getFieldZR(gP,H);
 
     if (fabs(H[2])>.0001) {
       data.par()[2] = atan2(b+a*A,a-b*A);

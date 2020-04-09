@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -53,7 +53,7 @@ namespace MagField {
       // initialize map
       StatusCode initializeMap();
       // read the field map
-      StatusCode readMap( const std::string mapFile );
+      StatusCode readMap( const std::string& mapFile );
 
       /** Data members **/
 

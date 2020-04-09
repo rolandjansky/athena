@@ -207,6 +207,7 @@ void TRTProcessingOfStraw::Initialize(const ITRT_CalDbTool* calDbTool)
         }
     }
 
+
   ATH_MSG_VERBOSE ( "Initialization done" );
 
   return;
@@ -260,7 +261,8 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 }
 
 //________________________________________________________________________________
-void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
+void TRTProcessingOfStraw::ProcessStraw ( MagField::AtlasFieldCache& fieldCache,
+                                          hitCollConstIter i,
                                           hitCollConstIter e,
                                           TRTDigit& outdigit,
                                           bool & alreadyPrintedPDGcodeWarning,
@@ -520,8 +522,9 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
   //////////////////////////////////////////////////////////
 
   m_depositList.clear();
-  // ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_ComTime, strawGasType );
-  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, cosmicEventPhase, strawGasType, rndmEngine );
+
+  ClustersToDeposits(fieldCache, hitID, m_clusterlist, m_depositList, TRThitGlobalPos, cosmicEventPhase, strawGasType, rndmEngine );
+
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -557,11 +560,11 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 }
 
 //________________________________________________________________________________
-void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
-                                               const std::vector<cluster>& clusters,
-                                               std::vector<TRTElectronicsProcessing::Deposit>& deposits,
-                                               Amg::Vector3D TRThitGlobalPos,
-                                               double cosmicEventPhase, // was const ComTime* m_ComTime,
+void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldCache, const int& hitID,
+					       const std::vector<cluster>& clusters,
+					       std::vector<TRTElectronicsProcessing::Deposit>& deposits,
+					       Amg::Vector3D TRThitGlobalPos,
+					       double cosmicEventPhase, // was const ComTime* m_ComTime,
                                                int strawGasType,
                                                CLHEP::HepRandomEngine* rndmEngine)
 {
@@ -605,7 +608,13 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       globalPosition[0]=TRThitGlobalPos[0]*CLHEP::mm;
       globalPosition[1]=TRThitGlobalPos[1]*CLHEP::mm;
       globalPosition[2]=TRThitGlobalPos[2]*CLHEP::mm;
-      m_magneticfieldsvc->getField(&globalPosition, &mField);
+
+    // MT Field cache is stored in cache
+
+    // MT version uses cache, temporarily keep old version
+      if (fieldCache.useNewBfieldCache()) fieldCache.getField         (globalPosition.data(), mField.data());
+      else                                m_magneticfieldsvc->getField(&globalPosition, &mField);
+
       map_x2 = mField.x()*mField.x(); // would be zero for a uniform field
       map_y2 = mField.y()*mField.y(); // would be zero for a uniform field
       map_z2 = mField.z()*mField.z(); // would be m_solenoidfieldstrength^2 for uniform field

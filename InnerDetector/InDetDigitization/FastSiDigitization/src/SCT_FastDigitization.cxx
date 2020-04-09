@@ -37,7 +37,7 @@ StatusCode SCT_FastDigitization::execute() {
 
   ATH_MSG_VERBOSE ( " SCT_FastDigitization : execute()" );
 
-  StatusCode sc =  m_digTool->processAllSubEvents();
+  StatusCode sc =  m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
 
   ATH_MSG_VERBOSE ( " SCT_FastDigitization : m_digTool->processAllSubEvents()" );
 

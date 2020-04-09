@@ -28,7 +28,7 @@ StatusCode sTGC_Digitizer::initialize() {
 /*******************************************************************************/
 StatusCode sTGC_Digitizer::execute() {   
   ATH_MSG_DEBUG ("sTGC_Digitizer::in execute()"); 
-  return m_digTool->digitize();
+  return m_digTool->digitize(Gaudi::Hive::currentContext());
 }
 /*******************************************************************************/
 StatusCode sTGC_Digitizer::finalize() { 

@@ -78,7 +78,8 @@ IntersectorWrapper::propagate (const NeutralParameters&		parameters,
 }
 
 TrackParameters*
-IntersectorWrapper::propagate (const TrackParameters&		parameters,
+IntersectorWrapper::propagate (const EventContext&              /*ctx*/,
+                               const TrackParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
                                const BoundaryCheck& 			boundsCheck,
@@ -94,7 +95,8 @@ IntersectorWrapper::propagate (const TrackParameters&		parameters,
 }
 
 TrackParameters*
-IntersectorWrapper::propagate (const TrackParameters&		parameters,
+IntersectorWrapper::propagate (const EventContext&              /*ctx*/,
+                               const TrackParameters&		parameters,
                                const Surface&			surface,
                                PropDirection			dir,
                                const BoundaryCheck& 			boundsCheck,
@@ -112,7 +114,8 @@ IntersectorWrapper::propagate (const TrackParameters&		parameters,
 }
 
 TrackParameters*
-IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
+IntersectorWrapper::propagateParameters (const EventContext&              /*ctx*/,
+                                         const TrackParameters&		parameters,
                                          const Surface&			surface,
                                          PropDirection			dir,
                                          const BoundaryCheck& 			boundsCheck,
@@ -129,7 +132,8 @@ IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
 }
 
 TrackParameters*
-IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
+IntersectorWrapper::propagateParameters (const EventContext&              /*ctx*/,
+                                         const TrackParameters&		parameters,
                                          const Surface&			surface,
                                          PropDirection			dir,
                                          const BoundaryCheck& 			boundsCheck,
@@ -145,8 +149,9 @@ IntersectorWrapper::propagateParameters (const TrackParameters&		parameters,
   return cache.m_parameters;
 }
 
-IntersectionSolution*
-IntersectorWrapper::intersect (const TrackParameters&		parameters,
+const IntersectionSolution*
+IntersectorWrapper::intersect (const EventContext&              /*ctx*/,
+                               const TrackParameters&		parameters,
                                const Surface&			surface,
                                const MagneticFieldProperties&	/*magProperties*/,
                                ParticleHypothesis		/*particle*/,
@@ -162,7 +167,8 @@ IntersectorWrapper::intersect (const TrackParameters&		parameters,
 }
 
 void
-IntersectorWrapper::globalPositions (std::list<Amg::Vector3D>&,
+IntersectorWrapper::globalPositions (const EventContext&              /*ctx*/,
+                                     std::list<Amg::Vector3D>&,
                                      const TrackParameters&,
                                      const MagneticFieldProperties&,
                                      const CylinderBounds&,

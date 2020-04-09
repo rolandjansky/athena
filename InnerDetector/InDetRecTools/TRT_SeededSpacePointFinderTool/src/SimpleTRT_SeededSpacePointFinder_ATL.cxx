@@ -130,7 +130,9 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::SimpleTRT
 }
 
 std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >
-InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& directionTRT, InDet::ITRT_SeededSpacePointFinder::IEventData &) const
+InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const EventContext& ctx,
+                                                     const Trk::TrackParameters& directionTRT,
+                                                     InDet::ITRT_SeededSpacePointFinder::IEventData &) const
 {
   /** The main method. This method is called from outside to form pairs of SCT SpacePoints which could seed
       Si tracks linked to the TRT TrackParameter given as input. iModus is a dummy variable to satisfy the 
@@ -176,7 +178,7 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters&
 
       // fill the map of relevant SP as defined by hashes from ROI
       int modulTRT = TRT_Module(directionTRT);
-      getSpacePointsInROI(setOfSCT_Hashes, modulTRT, relevantSpacePoints);
+      getSpacePointsInROI(ctx, setOfSCT_Hashes, modulTRT, relevantSpacePoints);
 
       msg(MSG::VERBOSE) << "Retrieved " << relevantSpacePoints.size() << " potentially interesting SpacePoints" << endmsg;
 
@@ -252,7 +254,10 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getHashesInROI(const Trk::Trac
 
 //=====================================================================================================
 
-void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<IdentifierHash>& setOfSCT_Hashes, int modulTRT, std::multimap<int,const Trk::SpacePoint*>& relevantSpacePoints) const
+void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(const EventContext& ctx,
+                                                                      std::set<IdentifierHash>& setOfSCT_Hashes,
+                                                                      int modulTRT, std::multimap<int,
+                                                                      const Trk::SpacePoint*>& relevantSpacePoints) const
 {
   /** This method retrieves the SpacePoints in a given region of interest. The region of interest is defined by the hashes in the first argument of the method.
 
@@ -276,7 +281,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -284,7 +289,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
   }
 
   // retrieve SP Container
-  SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
+  SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname, ctx);
   if(spacepointsSCT.isValid()) 
     {
       // loop over SP collections in SP container
@@ -361,7 +366,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
     }
 
   // retrieve the overlap collection
-  SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap(m_spacepointsOverlapname);
+  SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap(m_spacepointsOverlapname, ctx);
   if(spacepointsOverlap.isValid()) 
     {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -30,7 +30,7 @@ public:
     {}
 
     // compute magnetic field, plus derivatives if requested, and add
-    inline void addBiotSavart( const double *xyz, double *B, double *deriv=0 ) const;
+    inline void addBiotSavart( double scaleFactor, const double *xyz, double *B, double *deriv=nullptr ) const;
     // scale the current wrt the nominal current
     void scaleCurrent( double factor ) { m_curr = factor*m_nomCurr; }
     // accessors
@@ -55,9 +55,14 @@ private:
 // Compute the Biot-Savart field due to this conductor
 // If deriv[9] is passed, also computes the field derivatives
 // The results are _added_ to B[] and deriv[].
+// The current scale factor can enter in one of two ways:
+//   1) the whole model is scaled using scaleCurrent
+//   2) each call is scaled with scaleFactor
+//   The former is the pre-multithreading way where the whole model is rebuilts for each changing current.
+//   The latter is the newer multithreading way where the model remains constant and there is 'per-thread' rescaling
 //
 void
-BFieldCond::addBiotSavart( const double *xyz, double *B_in, double *deriv ) const
+BFieldCond::addBiotSavart( double scaleFactor, const double *xyz, double *B_in, double *deriv ) const
 {
     static const double mu04pi = 1.0e-7;  // mu_0/4pi
     static const double minvsq = 10.*10.; // (1 cm)^2
@@ -70,10 +75,14 @@ BFieldCond::addBiotSavart( const double *xyz, double *B_in, double *deriv ) cons
     const Eigen::Vector3d v = m_u.cross(r1);
     const double vsq = std::max(v.squaredNorm(), minvsq);
 
-    const double r1u = r1.dot(m_u), r2u = r2.dot(m_u);
-    const double r1n = r1.norm(), r2n = r2.norm();
+    const double r1u = r1.dot(m_u);
 
-    const double f0 = mu04pi * m_curr / vsq;
+    const double r2u = r2.dot(m_u);
+    const double r1n = r1.norm();
+
+    const double r2n = r2.norm();
+
+    const double f0 = mu04pi * m_curr * scaleFactor / vsq;
     const double f1 = f0 * (m_finite ? r1u / r1n - r2u / r2n : 2.0);
     const double f2 = 2.0 * f1 / vsq;
 

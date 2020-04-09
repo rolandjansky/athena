@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -69,11 +69,11 @@ StatusCode MagField::H8FieldSvc::finalize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode MagField::H8FieldSvc::readMap( const std::string mapFile )
+StatusCode MagField::H8FieldSvc::readMap( const std::string& mapFile )
 {
     // find the path to the map file
     std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "DATAPATH" );
-    if ( resolvedMapFile == "" ) {
+    if ( resolvedMapFile.empty() ) {
         ATH_MSG_ERROR( "Field map file " << mapFile << " not found" );
         return StatusCode::FAILURE;
     }
@@ -145,14 +145,12 @@ void MagField::H8FieldSvc::getField( const double *xyz, double *B, double *deriv
     }
     // xyz is outside all grids
     B[0] = B[1] = B[2] = 0.0;
-    if ( deriv != 0 ) {
+    if ( deriv != nullptr ) {
         for ( int j = 0; j < 9; j++ ) deriv[j] = 0.0;
     }
-    return;
-}
+    }
 
 void MagField::H8FieldSvc::getFieldZR( const double *xyz, double *B, double *deriv ) const
 {
     getField( xyz, B, deriv );
-    return;
 }

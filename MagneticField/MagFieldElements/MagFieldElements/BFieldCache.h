@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -15,7 +15,7 @@
 
 #include <iostream>
 #include <cmath>
-#include "MagFieldServices/BFieldVector.h"
+#include "MagFieldElements/BFieldVector.h"
 
 class BFieldCache {
 public:
@@ -27,17 +27,21 @@ public:
     void setRange( double zmin, double zmax, double rmin, double rmax, double phimin, double phimax )
     { m_zmin = zmin; m_zmax = zmax; m_rmin = rmin; m_rmax = rmax; m_phimin = phimin; m_phimax = phimax;
       m_invz = 1.0/(zmax-zmin); m_invr = 1.0/(rmax-rmin); m_invphi = 1.0/(phimax-phimin); }
-    // set the field values at each corner
-    void setField( int i, const BFieldVector<double> &field ) { for(int j=0; j<3; j++) m_field[j][i] = field[j]; }
-    void setField( int i, const BFieldVector<short> &field ) { for(int j=0; j<3; j++) m_field[j][i] = field[j]; }    // set the multiplicative factor for the field vectors
+    // set the field values at each corner (rescale for current scale factor)
+    void setField( int i, const BFieldVector<double> &field, double scaleFactor = 1.0 )
+        { for(int j=0; j<3; j++) m_field[j][i] = scaleFactor * field[j]; }
+    void setField( int i, const BFieldVector<short> &field, double scaleFactor = 1.0 )
+        { for(int j=0; j<3; j++) m_field[j][i] = scaleFactor * field[j]; }
+    // set the multiplicative factor for the field vectors
     void setBscale( double bscale ) { m_scale = bscale; }
+    float bscale() { return m_scale; }
     // test if (z, r, phi) is inside this bin
     bool inside( double z, double r, double phi ) const
     { if ( phi < m_phimin ) phi += 2.0*M_PI;
       return ( phi >= m_phimin && phi <= m_phimax && z >= m_zmin && z <= m_zmax && r >= m_rmin && r <= m_rmax ); }
     // interpolate the field and return B[3].
     // also compute field derivatives if deriv[9] is given.
-    inline void getB( const double *xyz, double r, double phi, double *B, double *deriv=0 ) const;
+    inline void getB( const double *xyz, double r, double phi, double *B, double *deriv=nullptr ) const;
 private:
     double m_zmin, m_zmax; // bin range in z
     double m_rmin, m_rmax; // bin range in r
@@ -52,9 +56,12 @@ private:
 void
 BFieldCache::getB( const double *xyz, double r, double phi, double *B, double *deriv ) const
 {
+
+    
     const double &x(xyz[0]);
     const double &y(xyz[1]);
     const double &z(xyz[2]);
+
     // make sure phi is inside [m_phimin,m_phimax]
     if ( phi < m_phimin ) phi += 2*M_PI;
     // fractional position inside this bin
@@ -74,7 +81,11 @@ BFieldCache::getB( const double *xyz, double r, double phi, double *B, double *d
                                    fr*( gphi*field[6] + fphi*field[7] ) ) );
     }
     // convert (Bz,Br,Bphi) to (Bx,By,Bz)
-    float invr, c, s;
+    float invr;
+
+    float c;
+
+    float s;
     if ( r > 0.0 ) {
         invr = 1.0/r;
         c = x*invr;
@@ -93,7 +104,11 @@ BFieldCache::getB( const double *xyz, double r, double phi, double *B, double *d
         float sz = m_scale*m_invz;
         float sr = m_scale*m_invr;
         float sphi = m_scale*m_invphi;
-        float dBdz[3], dBdr[3], dBdphi[3];
+        float dBdz[3];
+
+        float dBdr[3];
+
+        float dBdphi[3];
         for ( int j = 0; j < 3; j++ ) { // Bz, Br, Bphi components
             const float *field = m_field[j];
             dBdz[j]   = sz*( gr*( gphi*(field[4]-field[0]) + fphi*(field[5]-field[1]) ) +

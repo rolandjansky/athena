@@ -19,6 +19,8 @@
 #include "TrkSegment/TrackSegment.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TRT_TrackExtensionTool_xk/TRT_TrajectoryElement_xk.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 namespace Trk {
   class Track;
@@ -71,7 +73,7 @@ namespace InDet{
 	       double,
                double);
 
-      void set(Trk::MagneticFieldProperties&,const MagField::IMagFieldSvc *);
+      void set(Trk::MagneticFieldProperties&,const MagField::IMagFieldSvc *, const AtlasFieldCacheCondObj*);
 
       void initiateForPrecisionSeed
 	(std::list< std::pair<Amg::Vector3D,double> >&,

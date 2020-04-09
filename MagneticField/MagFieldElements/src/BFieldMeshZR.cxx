@@ -9,7 +9,7 @@
 //
 // Masahiro Morii, Harvard University
 //
-#include "MagFieldServices/BFieldMeshZR.h"
+#include "MagFieldElements/BFieldMeshZR.h"
 
 //
 // Construct the look-up table to accelerate bin-finding.

@@ -222,7 +222,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   return status;
 }
 /*******************************************************************************/ 
-StatusCode sTgcDigitizationTool::prepareEvent(unsigned int nInputEvents) {
+StatusCode sTgcDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents) {
 
   ATH_MSG_DEBUG("sTgcDigitizationTool::prepareEvent() called for " << nInputEvents << " input events" );
   m_STGCHitCollList.clear();
@@ -327,13 +327,13 @@ StatusCode sTgcDigitizationTool::getNextEvent() {
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode sTgcDigitizationTool::mergeEvent() {
+StatusCode sTgcDigitizationTool::mergeEvent(const EventContext& ctx) {
 
   StatusCode status = StatusCode::SUCCESS;
 
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::in mergeEvent()" );
 
-  status = doDigitization();
+  status = doDigitization(ctx);
   if (status.isFailure())  {
     ATH_MSG_ERROR ( "doDigitization Failed" );
   }
@@ -354,11 +354,11 @@ StatusCode sTgcDigitizationTool::mergeEvent() {
   return status;
 }
 /*******************************************************************************/
-StatusCode sTgcDigitizationTool::digitize() {
-  return this->processAllSubEvents(); 
+StatusCode sTgcDigitizationTool::digitize(const EventContext& ctx) {
+  return this->processAllSubEvents(ctx); 
 } 
 /*******************************************************************************/
-StatusCode sTgcDigitizationTool::processAllSubEvents() {
+StatusCode sTgcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   StatusCode status = StatusCode::SUCCESS;
   ATH_MSG_DEBUG (" sTgcDigitizationTool::processAllSubEvents()" );
 
@@ -370,7 +370,7 @@ StatusCode sTgcDigitizationTool::processAllSubEvents() {
       return status;
     }
   }
-  status = doDigitization();
+  status = doDigitization(ctx);
   if (status.isFailure())  {
     ATH_MSG_ERROR ( "doDigitization() Failed" );
   }   
@@ -390,17 +390,17 @@ StatusCode sTgcDigitizationTool::finalize() {
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode sTgcDigitizationTool::doDigitization() {
+StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
   
   ATH_MSG_DEBUG ("sTgcDigitizationTool::doDigitization()" );
 
   // create and record the Digit container in StoreGate
-  SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey);
+  SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<sTgcDigitContainer>(m_idHelper->detectorElement_hash_max())));
   ATH_MSG_DEBUG ( "sTgcDigitContainer recorded in StoreGate." );
 
   // Create and record the SDO container in StoreGate
-  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey);
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "sTgcSDOCollection recorded in StoreGate." );
     

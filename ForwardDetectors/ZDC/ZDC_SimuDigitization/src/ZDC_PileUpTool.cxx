@@ -57,7 +57,7 @@ StatusCode ZDC_PileUpTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ZDC_PileUpTool::processAllSubEvents() {
+StatusCode ZDC_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
 
   ATH_MSG_DEBUG ( "ZDC_PileUpTool::processAllSubEvents()" );
 
@@ -128,7 +128,7 @@ StatusCode ZDC_PileUpTool::processAllSubEvents() {
   
   return StatusCode::SUCCESS;
 }
-StatusCode ZDC_PileUpTool::prepareEvent(const unsigned int nInputEvents){
+StatusCode ZDC_PileUpTool::prepareEvent(const EventContext& /*ctx*/, const unsigned int nInputEvents){
 
   ATH_MSG_DEBUG ( "ZDC_PileUpTool::prepareEvent() called for " << nInputEvents << " input events" );
  
@@ -196,7 +196,7 @@ StatusCode ZDC_PileUpTool::processBunchXing(int bunchXing,
   return StatusCode::SUCCESS;
 }
 
-StatusCode ZDC_PileUpTool::mergeEvent(){
+StatusCode ZDC_PileUpTool::mergeEvent(const EventContext& /*ctx*/){
  
   fillStripDigitContainer(m_mergedStripHitList, m_rndEngine);
   fillPixelDigitContainer(m_mergedPixelHitList, m_rndEngine);

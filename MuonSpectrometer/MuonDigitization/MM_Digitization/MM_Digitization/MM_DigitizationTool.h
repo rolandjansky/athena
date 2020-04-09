@@ -99,7 +99,7 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		virtual StatusCode initialize() override final;
 
 		/** When being run from PileUpToolsAlgs, this method is called at the start of the subevts loop. Not able to access SubEvents */
-		StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
+                StatusCode prepareEvent(const EventContext& ctx, const unsigned int /*nInputEvents*/) override final;
 
 		/** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
 		StatusCode  processBunchXing(int bunchXing,
@@ -107,17 +107,17 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 									SubEventIterator eSubEvents) override final;
 
 		/** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access SubEvents */
-		StatusCode mergeEvent() override final;
+		StatusCode mergeEvent(const EventContext& ctx) override final;
 
 		/** When being run from MM_Digitizer, this method is called during the event loop */
 
 		/** alternative interface which uses the PileUpMergeSvc to obtain
 		all the required SubEvents. */
-		virtual StatusCode processAllSubEvents() override;
+		virtual StatusCode processAllSubEvents(const EventContext& ctx) override;
 
 		/** Just calls processAllSubEvents - leaving for back-compatibility
 		(IMuonDigitizationTool) */
-		StatusCode digitize() override;
+		StatusCode digitize(const EventContext& ctx) override;
 
 		/** Finalize */
 		StatusCode finalize() override final;
@@ -132,7 +132,7 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		/** Record MmDigitContainer and MuonSimDataCollection */
 		StatusCode getNextEvent();
-		StatusCode doDigitization();
+		StatusCode doDigitization(const EventContext& ctx);
 
 		bool  checkMMSimHit(const MMSimHit& /* hit */ ) const;
 		MM_ElectronicsToolInput combinedStripResponseAllHits(const std::vector< MM_ElectronicsToolInput > & v_stripDigitOutput);

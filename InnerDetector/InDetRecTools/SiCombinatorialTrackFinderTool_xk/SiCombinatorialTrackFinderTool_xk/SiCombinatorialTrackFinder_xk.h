@@ -30,6 +30,11 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include <list>
 #include <map>
 #include <vector>
@@ -107,8 +112,8 @@ namespace InDet {
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
 	 bool) const override;
    
-      virtual void newEvent(SiCombinatorialTrackFinderData_xk& data) const override;
-      virtual void newEvent(SiCombinatorialTrackFinderData_xk& data,
+      virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const override;
+      virtual void newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data,
                             Trk::TrackInfo, const TrackQualityCuts&) const override;
 
       virtual void endEvent(SiCombinatorialTrackFinderData_xk& data) const override;
@@ -156,6 +161,7 @@ namespace InDet {
       // For P->T converter of SCT_Clusters
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey",
           "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
       //@}
 
       /// @name Properties
@@ -202,7 +208,7 @@ namespace InDet {
       MsgStream& dumpconditions(MsgStream& out) const;
       MsgStream& dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const;
 
-      void initializeCombinatorialData(SiCombinatorialTrackFinderData_xk& data) const;
+      void initializeCombinatorialData(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const;
 
     };
 

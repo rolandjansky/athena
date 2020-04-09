@@ -103,12 +103,12 @@ StatusCode InDet::TRT_TrackSegmentsMaker_BarrelCosmics::finalize() {
 //   other methods inherited from ITRT_TrackSegmentsMaker: newEvent, newRegion, endEvent
 //////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newEvent() const {
+std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newEvent(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG( "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newEvent()");
 
 
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_driftCirclesName); // get TRT_DriftCircle list from StoreGate containers
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_driftCirclesName, ctx); // get TRT_DriftCircle list from StoreGate containers
 
   if (not trtcontainer.isValid()) {
      msg(MSG::ERROR) << "Could not find TRT_DriftCircles collection!" << endmsg;
@@ -154,11 +154,11 @@ std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> InDet::TRT_TrackSegm
 }
 
 std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
-InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion(const std::vector<IdentifierHash> &vTRT) const {
+InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion(const EventContext& ctx, const std::vector<IdentifierHash> &vTRT) const {
 
   ATH_MSG_DEBUG("InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion()" );
 
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_driftCirclesName);
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_driftCirclesName, ctx);
   if (not trtcontainer.isValid()) {
     msg(MSG::ERROR) << "m_trtcontainer is empty!!!" << endmsg;
      std::stringstream msg;
@@ -219,7 +219,8 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::endEvent (InDet::ITRT_TrackSeg
 //   segment finding algorithm function: find, calls findSeed 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const {
+void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(const EventContext &/*ctx*/,
+                                                       InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const {
   TRT_TrackSegmentsMaker_BarrelCosmics::EventData &
      event_data  = TRT_TrackSegmentsMaker_BarrelCosmics::EventData::getPrivateEventData(virt_event_data);
 

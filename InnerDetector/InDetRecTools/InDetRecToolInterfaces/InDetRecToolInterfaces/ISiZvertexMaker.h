@@ -18,6 +18,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "VxVertex/Vertex.h"
+#include "GaudiKernel/EventContext.h"
 
 class MsgStream;
 
@@ -66,13 +67,13 @@ namespace InDet{
       /// @name Methods to initialize tool for new event or region and return vertex list
       ///////////////////////////////////////////////////////////////////
       //@{
-      virtual std::list<Trk::Vertex> newEvent(SiSpacePointsSeedMakerEventData& data) const =0;
+      virtual std::list<Trk::Vertex> newEvent(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data) const =0;
 
-      virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
+      virtual std::list<Trk::Vertex> newRegion(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
                                                const std::vector<IdentifierHash>&,
                                                const std::vector<IdentifierHash>&) const =0;
 
-      virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
+      virtual std::list<Trk::Vertex> newRegion(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
                                                const std::vector<IdentifierHash>&,
                                                const std::vector<IdentifierHash>&,
                                                const IRoiDescriptor&) const =0;

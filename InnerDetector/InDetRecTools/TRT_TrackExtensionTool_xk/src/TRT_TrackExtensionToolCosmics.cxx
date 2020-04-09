@@ -204,11 +204,11 @@ std::ostream& InDet::operator <<
 ///////////////////////////////////////////////////////////////////
 
 std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>
-InDet::TRT_TrackExtensionToolCosmics::newEvent() const
+InDet::TRT_TrackExtensionToolCosmics::newEvent(const EventContext& ctx) const
 {
   //create the boundary surfaces
   //
-  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname, ctx);
   if(not trtcontainer.isValid() && m_outputlevel<=0) {
     std::stringstream msg;
     msg << "Missing TRT_DriftCircleContainer " << m_trtname.key();
@@ -236,7 +236,8 @@ InDet::TRT_TrackExtensionToolCosmics::newEvent() const
 ///////////////////////////////////////////////////////////////////
 
 std::vector<const Trk::MeasurementBase*>& 
-InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr,
+InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& ctx,
+                                                  const Trk::Track& Tr,
                                                   InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 { 
   InDet::TRT_TrackExtensionToolCosmics::EventData &
@@ -263,7 +264,7 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr,
   }
 
   if(Tr.perigeeParameters()) {
-     return extendTrack(*Tr.perigeeParameters(),event_data);
+    return extendTrack(ctx, *Tr.perigeeParameters(),event_data);
   }
   event_data.m_measurement.clear();
   return event_data.m_measurement;
@@ -395,7 +396,8 @@ class tp_sort_cosmics{
 ///////////////////////////////////////////////////////////////////
 
 std::vector<const Trk::MeasurementBase*>&
-InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::TrackParameters& par,
+InDet::TRT_TrackExtensionToolCosmics::extendTrack(const EventContext& /*ctx*/,
+                                                  const Trk::TrackParameters& par,
                                                   InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionToolCosmics::EventData &
@@ -410,19 +412,19 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::TrackParameters& pa
 
   std::vector<const Trk::TrackParameters* >* tpars_down=0;
   std::vector<const Trk::TrackParameters* >* tpars_up=0;
-const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(&par);
+  const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(&par);
   if (!per) {
     msg(MSG::FATAL)<<"Track perigee not found!"<<endmsg;
     return event_data.m_measurement;
   }
 
- if (!event_data.m_trtcontainer) {
+  if (!event_data.m_trtcontainer) {
     return event_data.m_measurement;
   }
 
-InDet::TRT_DriftCircleContainer::const_iterator
-   w = event_data.m_trtcontainer->begin(),we = event_data.m_trtcontainer->end();
-   for(; w!=we; ++w) {
+  InDet::TRT_DriftCircleContainer::const_iterator
+      w = event_data.m_trtcontainer->begin(),we = event_data.m_trtcontainer->end();
+  for(; w!=we; ++w) {
      if ((**w).empty()) continue; 
      const Trk::Surface &surf=(**(**w).begin()).detectorElement()->surface();
      Amg::Vector3D pos=intersect(&surf,per);
@@ -489,7 +491,8 @@ InDet::TRT_DriftCircleContainer::const_iterator
 ///////////////////////////////////////////////////////////////////
 
 Trk::TrackSegment* 
-InDet::TRT_TrackExtensionToolCosmics::findSegment(const Trk::TrackParameters&,
+InDet::TRT_TrackExtensionToolCosmics::findSegment(const EventContext& /*ctx*/,
+                                                  const Trk::TrackParameters&,
                                                   InDet::ITRT_TrackExtensionTool::IEventData &) const
 {
   return NULL;
@@ -579,7 +582,8 @@ Amg::Vector3D InDet::TRT_TrackExtensionToolCosmics::intersect(const Trk::Surface
 ///////////////////////////////////////////////////////////////////
 
 Trk::Track* 
-InDet::TRT_TrackExtensionToolCosmics::newTrack(const Trk::Track&,
+InDet::TRT_TrackExtensionToolCosmics::newTrack(const EventContext& /*ctx*/,
+                                               const Trk::Track&,
                                                InDet::ITRT_TrackExtensionTool::IEventData &) const
 { 
   return 0;

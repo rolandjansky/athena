@@ -24,7 +24,7 @@ typedef std::vector<xAOD::EventInfo::SubEvent>::const_iterator SubEventIterator;
 class IPileUpTool : virtual public IAlgTool{
 public:
   ///called before the bunchXing loop
-  virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/) { return StatusCode::SUCCESS; }
+  virtual StatusCode prepareEvent(const EventContext& /*ctx*/, unsigned int /*nInputEvents*/) { return StatusCode::SUCCESS; }
   ///called for each active bunch-crossing (time in ns)
   virtual StatusCode processBunchXing(int bunchXing,
                                       SubEventIterator bSubEvents,
@@ -33,10 +33,10 @@ public:
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   virtual bool toProcess(int bunchXing) const =0;
   ///called at the end of the bunchXing loop
-  virtual StatusCode mergeEvent() { return StatusCode::SUCCESS; }
+  virtual StatusCode mergeEvent(const EventContext& /*ctx*/) { return StatusCode::SUCCESS; }
   ///alternative interface which uses the PileUpMergeSvc to obtain all
   ///the required SubEvents.
-  virtual StatusCode processAllSubEvents() = 0;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) = 0;
   ///flags whether the event should be removed or not
   virtual bool filterPassed() const =0;
   ///reset the filter
@@ -45,4 +45,5 @@ public:
   /// Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(IPileUpTool, 1, 0 );
 };
+
 #endif // PILEUPTOOLS_IPILEUPTOOL_H
