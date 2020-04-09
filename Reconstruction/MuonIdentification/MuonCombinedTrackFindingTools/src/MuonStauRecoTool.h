@@ -285,7 +285,7 @@ namespace MuonCombined {
     double m_rpcBetaAssociationCut;
     double m_segmentBetaAssociationCut;
     bool m_ignoreSiAssocated;
-    const double m_inverseSpeedOfLight = 1e6 / Gaudi::Units::c_light; // Gaudi::Units::c_light=2.99792458e+8, but need 299.792458, needed inside calculateTof()/calculateBeta()
+    const double m_inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458 inside calculateTof()/calculateBeta()
   };
 
   inline float MuonStauRecoTool::calculateTof(const float beta, const float dist) const {

@@ -234,7 +234,7 @@ namespace Muon {
       bool                                m_isMC; //!< toggle between MC and data alignment errors (to be removed in rel. 21!)
       bool                                m_looseErrors; //!< toggle between loose errors (initial before alignment) and tight after alignment
     
-      const double m_inverseSpeedOfLight = 1e6 / Gaudi::Units::c_light; // Gaudi::Units::c_light=2.99792458e+8, but need 299.792458, needed inside timeOfFlight()
+      const double m_inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458, needed inside timeOfFlight()
     };
 
 } // End of muon namespace
