@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
 # import the Extrapolator configurable
-Trk__Extrapolator=CompFactory.Trk__Extrapolator
+Trk__Extrapolator=CompFactory.Trk.Extrapolator
 
 # define the class
 def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
@@ -27,13 +27,13 @@ def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
        
        AtlasPropagators  = []
        
-       from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as RkPropagator
+       RkPropagator=CompFactory.Trk.RungeKuttaPropagator
        AtlasRungeKuttaPropagator = RkPropagator(name = 'AtlasRungeKuttaPropagator')
        result.addPublicTool(AtlasRungeKuttaPropagator) #TODO remove one day
        
        AtlasPropagators += [AtlasRungeKuttaPropagator]
        
-       from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as STEP_Propagator
+       STEP_Propagator=CompFactory.Trk.STEP_Propagator 
        AtlasSTEP_Propagator = STEP_Propagator(name = 'AtlasSTEP_Propagator')
        result.addPublicTool(AtlasSTEP_Propagator) #TODO remove one day
        
@@ -43,7 +43,7 @@ def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
        
        AtlasUpdators    = []
 
-       from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator as MaterialEffectsUpdator
+       MaterialEffectsUpdator=CompFactory.Trk.MaterialEffectsUpdator
        AtlasMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'AtlasMaterialEffectsUpdator')
        result.addPublicTool(AtlasMaterialEffectsUpdator) #TODO remove one day
        
@@ -56,7 +56,7 @@ def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
        AtlasUpdators    += [ AtlasMaterialEffectsUpdatorLandau ]
 
        # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
-       Trk__Navigator=CompFactory.Trk__Navigator
+       Trk__Navigator=CompFactory.Trk.Navigator
        AtlasNavigator = Trk__Navigator(name = 'AtlasNavigator')
        AtlasNavigator.TrackingGeometrySvc = geom_svc
        result.addPublicTool(AtlasNavigator) #TODO remove one day
@@ -68,28 +68,28 @@ def AtlasExtrapolatorCfg( flags, name = 'AtlasExtrapolator' ):
 
        # -------------------- set it depending on the geometry ----------------------------------------------------
        # default for Global is (Rk,Mat)
-       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name() ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name() ]
+       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name ]
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
 
        # default for ID is (Rk,Mat)
-       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name() ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name() ]
+       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name ]
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
 
        # default for BeamPipe is (STEP,Mat)
-       AtlasSubPropagators += [ AtlasSTEP_Propagator.name() ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name() ]
+       AtlasSubPropagators += [ AtlasSTEP_Propagator.name ]
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
        
        # default for Calo is (STEP,Mat)
-       AtlasSubPropagators += [ AtlasSTEP_Propagator.name() ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name() ]
+       AtlasSubPropagators += [ AtlasSTEP_Propagator.name ]
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
        
        # default for MS is (STEP,Mat)
-       AtlasSubPropagators += [ AtlasSTEP_Propagator.name() ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name() ]
+       AtlasSubPropagators += [ AtlasSTEP_Propagator.name ]
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
 
        # default for Cavern is (Rk,Mat)
-       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name() ]
-       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name() ]
+       AtlasSubPropagators += [ AtlasRungeKuttaPropagator.name ]
+       AtlasSubUpdators    += [ AtlasMaterialEffectsUpdator.name ]
        
        # ----------------------------------------------------------------------------------------------------------          
        
