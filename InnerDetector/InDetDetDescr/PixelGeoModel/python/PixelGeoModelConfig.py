@@ -11,10 +11,10 @@ def PixelGeometryCfg( flags ):
   acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
   PixelDetectorTool=CompFactory.PixelDetectorTool
   pixelDetectorTool = PixelDetectorTool("PixelDetectorTool")
-  InDetDD__BCM_Builder=CompFactory.InDetDD__BCM_Builder
+  InDetDD__BCM_Builder=CompFactory.InDetDD.BCM_Builder
   bcmTool = InDetDD__BCM_Builder()
   pixelDetectorTool.BCM_Tool = bcmTool
-  InDetDD__BLM_Builder=CompFactory.InDetDD__BLM_Builder
+  InDetDD__BLM_Builder=CompFactory.InDetDD.BLM_Builder
   blmTool = InDetDD__BLM_Builder()
   pixelDetectorTool.BLM_Tool = blmTool
   if flags.GeoModel.Run=="RUN4":

@@ -52,7 +52,7 @@ def TRT_LocalOccupancyCfg(flags, name="TRT_LocalOccupancy"):
     trtStrawStatusSummaryTool = acc.popToolsAndMerge(
         TRT_StrawStatusSummaryToolCfg(flags))
 
-    InDet__TRT_LocalOccupancy = CompFactory.InDet__TRT_LocalOccupancy
+    InDet__TRT_LocalOccupancy = CompFactory.InDet.TRT_LocalOccupancy
     acc.setPrivateTools(InDet__TRT_LocalOccupancy(name="TRT_LocalOccupancy",
                                                   isTrigger=False,
                                                   TRTCalDbTool=trtCalDbTool,
