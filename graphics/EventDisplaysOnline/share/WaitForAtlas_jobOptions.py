@@ -9,7 +9,7 @@ while not partitionUp:
         runparams.checkout()
         partitionUp=True
 
-    except Exception, e:
-        print "%s partition is not up, sleeping for 30 seconds" % partitionName
+    except Exception as e:
+        printfunc ("%s partition is not up, sleeping for 30 seconds" % partitionName)
         time.sleep(30)
 

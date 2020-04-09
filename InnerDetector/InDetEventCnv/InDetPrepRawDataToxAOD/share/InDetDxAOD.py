@@ -678,6 +678,7 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 # Add generic event information
 IDTRKVALIDStream.AddItem("xAOD::EventInfo#*")
@@ -696,7 +697,7 @@ if makeSplitTracks:
 
 # Add vertices
 IDTRKVALIDStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDTRKVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+IDTRKVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux."+excludedVtxAuxData)
 
 # Add links and measurements
 IDTRKVALIDStream.AddItem("xAOD::TrackStateValidationContainer#*")
