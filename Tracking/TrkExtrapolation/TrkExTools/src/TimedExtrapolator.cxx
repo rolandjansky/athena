@@ -339,6 +339,17 @@ Trk::TimedExtrapolator::extrapolateWithPathLimit(
     }
   }
 
+  std::map<const Trk::TrackParameters *, bool>::iterator garbageIter = cache.m_garbageBin.begin();
+  std::map<const Trk::TrackParameters *, bool>::iterator garbageEnd = cache.m_garbageBin.end();
+  for (; garbageIter != garbageEnd; ++garbageIter) if (garbageIter->first) {
+    ATH_MSG_VERBOSE("  [+] garbage - at " << positionOutput(garbageIter->first->position())<<" parm="<<garbageIter->first);
+    if(garbageIter->first == returnParms) {
+      auto ret=returnParms->clone();
+      ATH_MSG_DEBUG("  [+] garbage - at " << positionOutput(garbageIter->first->position())<<" parm="<<garbageIter->first<<" is the return param. Cloning to"<<ret);
+      returnParms=ret;
+    }
+  }
+
   return returnParms;
 }
 
@@ -364,8 +375,11 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   const Trk::TrackingVolume *assocVol = nullptr;
   unsigned int iDest = 0;
 
+  ATH_MSG_DEBUG("  [+] start extrapolateToVolumeWithPathLimit - at " << positionOutput(parm.position())<<" parm="<<&parm);
+
   // destination volume boundary ?
   if (destVol && m_navigator->atVolumeBoundary(currPar, destVol, dir, nextVol, m_tolerance) && nextVol != destVol) {
+    ATH_MSG_DEBUG("  [-] return 1 extrapolateToVolumeWithPathLimit ret="<<&parm);
     return &parm;
   }
 
@@ -377,6 +391,7 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
   }
 
   emptyGarbageBin(cache,&parm);
+  
   // navigation surfaces
   if (cache.m_navigSurfs.capacity() > m_maxNavigSurf) {
     cache.m_navigSurfs.reserve(m_maxNavigSurf);
@@ -410,7 +425,9 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
     if (!nextVol) {
       ATH_MSG_DEBUG("  [+] Word boundary reached        - at " << positionOutput(currPar->position()));
       nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
-      return currPar->clone();
+      auto ret=currPar->clone();
+      ATH_MSG_DEBUG("  [-] return 2 extrapolateToVolumeWithPathLimit par="<<currPar<<" clone="<<ret);
+      return ret;
     }
     cache.m_currentStatic = nextVol;
     updateStatic = true;
@@ -427,11 +444,15 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
                                                                        alignTV);
       const Trk::TrackParameters *aPar = boundPar.trPar;
       if (!aPar) {
-        return returnParameters;
+        auto ret=returnParameters;
+        ATH_MSG_DEBUG("  [-] return 3 extrapolateToVolumeWithPathLimit ret="<<ret);
+        return ret;
       }
       throwIntoGarbageBin(cache,aPar);
       // cache.m_currentStatic = boundPar.exitVol;
-      return extrapolateToVolumeWithPathLimit(cache,*aPar, timeLim, dir, particle, nextGeoID, destVol);
+      auto ret=extrapolateToVolumeWithPathLimit(cache,*aPar, timeLim, dir, particle, nextGeoID, destVol);
+      ATH_MSG_DEBUG("  [-] return 4 extrapolateToVolumeWithPathLimit ret="<<ret);
+      return ret;
     }
   }
 
@@ -813,7 +834,9 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
     if (!nextPar) {
       ATH_MSG_DEBUG("  [!] Propagation failed, return 0");
       cache.m_parametersAtBoundary.boundaryInformation(cache.m_currentStatic, nextPar, nextPar);
-      return returnParameters;
+      auto ret=returnParameters;
+      ATH_MSG_DEBUG("  [-] return 5 extrapolateToVolumeWithPathLimit ret="<<ret);
+      return ret;
     }
 
     throwIntoGarbageBin(cache,nextPar);
@@ -832,13 +855,19 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
                                                                    extMprop);
 
         if (!iPar) {
-          return returnParameters;
+          auto ret=returnParameters;
+          ATH_MSG_DEBUG("  [-] return 6 extrapolateToVolumeWithPathLimit ret="<<ret);
+          return ret;
         }
 
         throwIntoGarbageBin(cache,iPar);
-        return extrapolateToVolumeWithPathLimit(cache,*iPar, timeLim, dir, particle, nextGeoID, destVol);
+        auto ret=extrapolateToVolumeWithPathLimit(cache,*iPar, timeLim, dir, particle, nextGeoID, destVol);
+        ATH_MSG_DEBUG("  [-] return 7 extrapolateToVolumeWithPathLimit ret="<<ret);
+        return ret;
       } else {    // kill the particle without trace ( some validation info can be included here eventually )
-        return returnParameters;
+        auto ret=returnParameters;
+        ATH_MSG_DEBUG("  [-] return 8 extrapolateToVolumeWithPathLimit ret="<<ret);
+        return ret;
       }
     }
     // decay ?
@@ -849,12 +878,18 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
         const Trk::TrackParameters *iPar = m_updators[0]->interact(timeLim.time, nextPar->position(),
                                                                    nextPar->momentum(), particle, timeLim.process);
         if (!iPar) {
-          return returnParameters;
+          auto ret=returnParameters;
+          ATH_MSG_DEBUG("  [-] return 9 extrapolateToVolumeWithPathLimit ret="<<ret);
+          return ret;
         }
         throwIntoGarbageBin(cache,iPar);
-        return extrapolateToVolumeWithPathLimit(cache,*iPar, timeLim, dir, particle, nextGeoID, destVol);
+        auto ret=extrapolateToVolumeWithPathLimit(cache,*iPar, timeLim, dir, particle, nextGeoID, destVol);
+        ATH_MSG_DEBUG("  [-] return 10 extrapolateToVolumeWithPathLimit ret="<<ret);
+        return ret;
       } else {    // kill the particle without trace ( some validation info can be included here eventually )
-        return returnParameters;
+        auto ret=returnParameters;
+        ATH_MSG_DEBUG("  [-] return 11 extrapolateToVolumeWithPathLimit ret="<<ret);
+        return ret;
       }
     }
 
@@ -870,7 +905,9 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
     unsigned int iSol = 0;
     while (iSol < solutions.size()) {
       if (solutions[iSol] < iDest) {
-        return nextPar->clone();
+        auto ret=nextPar->clone();
+        ATH_MSG_DEBUG("  [-] return 12 extrapolateToVolumeWithPathLimit par="<<nextPar<<" clone="<<ret);
+        return ret;
       } else if (solutions[iSol] < iDest + cache.m_staticBoundaries.size()) {
         // material attached ?
         const Trk::Layer *mb = cache.m_navigSurfs[solutions[iSol]].first->materialLayer();
@@ -884,7 +921,9 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
             if (!nextPar) {
               ATH_MSG_VERBOSE("  [+] Update may have killed neutral track - return.");
               cache.m_parametersAtBoundary.resetBoundaryInformation();
-              return returnParameters;
+              auto ret=returnParameters;
+              ATH_MSG_DEBUG("  [-] return 13 extrapolateToVolumeWithPathLimit ret="<<ret);
+              return ret;
             }
             throwIntoGarbageBin(cache,nextPar);
           } else {    // material layer without material ?
@@ -923,7 +962,9 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
                             nextPar->position()) << ", timed at " << timeLim.time);
             nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
             if (!destVol) {
-              return nextPar->clone();
+              auto ret=nextPar->clone();
+              ATH_MSG_DEBUG("  [-] return 14 extrapolateToVolumeWithPathLimit par="<<nextPar<<" clone="<<ret);
+              return ret;
             }
           }
           // next volume found and parameters are at boundary
@@ -932,10 +973,14 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
             ATH_MSG_DEBUG("  [+] Crossing position is         - at " << positionOutput(nextPar->position()));
             if (!destVol && cache.m_currentStatic->geometrySignature() != nextVol->geometrySignature()) {
               nextGeoID = nextVol->geometrySignature();
-              return nextPar->clone();
+              auto ret=nextPar->clone();
+              ATH_MSG_DEBUG("  [-] return 15 extrapolateToVolumeWithPathLimit par="<<nextPar<<" clone="<<ret);
+              return ret;
             }
           }
-          return extrapolateToVolumeWithPathLimit(cache,*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+          auto ret=extrapolateToVolumeWithPathLimit(cache,*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+          ATH_MSG_DEBUG("  [-] return 16 extrapolateToVolumeWithPathLimit ret="<<ret);
+          return ret;
         }
       } else if (solutions[iSol] < iDest + cache.m_staticBoundaries.size() + cache.m_layers.size()) {
         // next layer; don't return passive material layers unless required
@@ -962,7 +1007,9 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           if (!nextPar) {
             ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
             cache.m_parametersAtBoundary.resetBoundaryInformation();
-            return returnParameters;
+            auto ret=returnParameters;
+            ATH_MSG_DEBUG("  [-] return 17 extrapolateToVolumeWithPathLimit ret="<<ret);
+            return ret;
           } else {
             ATH_MSG_VERBOSE(
               " Layer energy loss:" << nextPar->momentum().mag() - pIn << "at position:" << nextPar->position() << ", current momentum:" <<
@@ -1005,7 +1052,9 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
                   cache.m_navigSurfs[solutions[iSol] + replace - index].first = &(newLayer->surfaceRepresentation());
                 } else {
                   // can't insert a surface in middle
-                  return extrapolateToVolumeWithPathLimit(cache,*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+                  auto ret=extrapolateToVolumeWithPathLimit(cache,*nextPar, timeLim, dir, particle, nextGeoID, destVol);
+                  ATH_MSG_DEBUG("  [-] return 18 extrapolateToVolumeWithPathLimit ret="<<ret);
+                  return ret;
                 }
               }
             }
@@ -1067,7 +1116,9 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           // return only if detached volume boundaries not collected
           // if ( nextVol || !detachedBoundariesIncluded )
           if (nextVol) {
-            return extrapolateToVolumeWithPathLimit(cache,*currPar, timeLim, dir, particle, nextGeoID, destVol);
+            auto ret=extrapolateToVolumeWithPathLimit(cache,*currPar, timeLim, dir, particle, nextGeoID, destVol);
+            ATH_MSG_DEBUG("  [-] return 19 extrapolateToVolumeWithPathLimit ret="<<ret);
+            return ret;
           }
         }
       } else if (solutions[iSol] < iDest + cache.m_staticBoundaries.size() + cache.m_layers.size() + cache.m_denseBoundaries.size()
@@ -1093,7 +1144,9 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
           currPar = nextPar;
           // if ( nextVol || !detachedBoundariesIncluded)
           if (nextVol) {
-             return extrapolateToVolumeWithPathLimit(cache, *currPar, timeLim, dir, particle, nextGeoID, destVol);
+            auto ret=extrapolateToVolumeWithPathLimit(cache, *currPar, timeLim, dir, particle, nextGeoID, destVol);
+            ATH_MSG_DEBUG("  [-] return 20 extrapolateToVolumeWithPathLimit ret="<<ret);
+            return ret;
           }
         }
       }
@@ -1102,7 +1155,9 @@ Trk::TimedExtrapolator::extrapolateToVolumeWithPathLimit(
     currPar = nextPar;
   }
 
-  return returnParameters;
+  auto ret=returnParameters;
+  ATH_MSG_DEBUG("  [-] return 21 extrapolateToVolumeWithPathLimit ret="<<ret);
+  return ret;
 }
 
 void
@@ -1377,6 +1432,17 @@ Trk::TimedExtrapolator::transportNeutralsWithPathLimit(const Trk::TrackParameter
 
   // return timing
   timeLim.time = cache.m_time;
+
+  std::map<const Trk::TrackParameters *, bool>::iterator garbageIter = cache.m_garbageBin.begin();
+  std::map<const Trk::TrackParameters *, bool>::iterator garbageEnd = cache.m_garbageBin.end();
+  for (; garbageIter != garbageEnd; ++garbageIter) if (garbageIter->first) {
+    ATH_MSG_VERBOSE("  [+] garbage - at " << positionOutput(garbageIter->first->position())<<" parm="<<garbageIter->first);
+    if(garbageIter->first == returnParms) {
+      auto ret=returnParms->clone();
+      ATH_MSG_DEBUG("  [+] garbage - at " << positionOutput(garbageIter->first->position())<<" parm="<<garbageIter->first<<" is the return param. Cloning to"<<ret);
+      returnParms=ret;
+    }
+  }
 
   return returnParms;
 }
