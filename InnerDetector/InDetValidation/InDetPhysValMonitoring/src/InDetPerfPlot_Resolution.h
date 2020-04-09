@@ -101,8 +101,6 @@ private:
 
   TH1* m_pull[NPARAMS];
   TH1* m_res[NPARAMS];
-  TH1* m_reco[NPARAMS];
-  TH1* m_true[NPARAMS];
   TH1* m_sigma[NPARAMS];
 
   TH2* m_resHelpereta[NPARAMS];
@@ -130,23 +128,10 @@ private:
   TH1* m_reswidth_vs_pt_pos[NPARAMS];
   TH1* m_resmean_vs_pt_pos[NPARAMS];
 
-  TH1* m_pullwidth_vs_eta_pos[NPARAMS];
-  TH1* m_pullmean_vs_eta_pos[NPARAMS];
-  TH1* m_pullwidth_vs_pt_pos[NPARAMS];
-  TH1* m_pullmean_vs_pt_pos[NPARAMS];
-
   TH1* m_reswidth_vs_eta_neg[NPARAMS];
   TH1* m_resmean_vs_eta_neg[NPARAMS];
   TH1* m_reswidth_vs_pt_neg[NPARAMS];
   TH1* m_resmean_vs_pt_neg[NPARAMS];
-
-  TH1* m_pullwidth_vs_eta_neg[NPARAMS];
-  TH1* m_pullmean_vs_eta_neg[NPARAMS];
-  TH1* m_pullwidth_vs_pt_neg[NPARAMS];
-  TH1* m_pullmean_vs_pt_neg[NPARAMS];
-
-  TH1* m_pullResolution_vs_pt[NPARAMS][m_nResHist];
-  TH1* m_pullResolution_vs_eta[NPARAMS][m_nResHist];
 
   TH1* m_pullProjections_vs_pt[NPARAMS][m_nPtBins];
   TH1* m_pullProjections_vs_eta[NPARAMS][m_nEtaBins];

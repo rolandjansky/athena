@@ -56,23 +56,10 @@ InDetPerfPlot_Resolution::InDetPerfPlot_Resolution(InDetPlotBase* pParent, const
   m_reswidth_vs_pt_pos{},
   m_resmean_vs_pt_pos{},
 
-  m_pullwidth_vs_eta_pos{},
-  m_pullmean_vs_eta_pos{},
-  m_pullwidth_vs_pt_pos{},
-  m_pullmean_vs_pt_pos{},
-
   m_reswidth_vs_eta_neg{},
   m_resmean_vs_eta_neg{},
   m_reswidth_vs_pt_neg{},
   m_resmean_vs_pt_neg{},
-
-  m_pullwidth_vs_eta_neg{},
-  m_pullmean_vs_eta_neg{},
-  m_pullwidth_vs_pt_neg{},
-  m_pullmean_vs_pt_neg{},
-
-  m_pullResolution_vs_pt{},
-  m_pullResolution_vs_eta{},
 
   m_pullProjections_vs_pt{},
   m_pullProjections_vs_eta{},
