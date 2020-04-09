@@ -36,7 +36,7 @@ def MagneticFieldSvcCfg(flags, **kwargs):
       kwargs.setdefault( "UseDCS", True )
 
 
-    mag_field_svc = CompFactory.MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs)  
+    mag_field_svc = CompFactory.MagField.AtlasFieldSvc("AtlasFieldSvc",**kwargs)  
     result.addService(mag_field_svc,primary=True)
     return result 
     
