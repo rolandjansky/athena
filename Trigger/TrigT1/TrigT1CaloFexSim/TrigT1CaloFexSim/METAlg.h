@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_METALG_H
@@ -33,10 +33,15 @@
 #include "Objects.h"
 
 class METAlg{
+    private:
+        std::vector < std::vector < int > > m_jFEX_bins;
+        std::vector < std::vector < int > > m_jFEX_bins_core;
+        bool m_buildbins=false;
 
-
- public:
+    public:
   struct MET{
+    float ex; 
+    float ey; 
     float phi;
     float et;
     float rho = 0; 
@@ -49,15 +54,21 @@ class METAlg{
     float scalar_Et = 0;
   };
 
- static std::map<TString, std::shared_ptr<MET>> m_METMap;
+  static std::map<TString, std::shared_ptr<MET>> m_METMap;
   /**
    *@brief Calculate MET using a fixed 4 sigma noise cut
    */
-  static StatusCode Baseline_MET(const xAOD::JGTowerContainer*towers, TString metname, std::vector<float> noise, bool useNegTowers);
+  static StatusCode NoiseCut_MET(const xAOD::JGTowerContainer*towers, TString metname, std::vector<float> noise, bool useNegTowers);
   /**
    *@brief Calculates MET with pileup subtraction
    */
-  static StatusCode SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useEtaBins, bool useRMS, bool useMedian, bool useNegTowers);
+  static StatusCode SubtractRho_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useEtaBins, bool useRMS,bool useNegTowers);
+  /**
+   *@brief Calculates MET with pileup subtraction in jFEX
+   */
+  static std::vector <int> check_in_bin (const float &eta, const float &phi, const std::vector < std::pair < float, float> > &eta_bins, const  std::vector < std::pair < float, float> > &phi_bins, const float &phi_offset);
+  static StatusCode build_jFEX_bins( std::vector < std::vector < int > > &bins, std::vector < std::vector < int > > &bins_core, const xAOD::JGTowerContainer* towers ); 
+  static StatusCode jXERHO(const xAOD::JGTowerContainer* towers, TString metName, const std::vector<float> jTowerArea, const std::vector < std::vector < int > > jFEX_bins, const std::vector < std::vector < int > > jFEX_bins_core, float fixed_noise_cut, float rho_up_threshold, float min_noise_cut, xAOD::JGTowerContainer* towers_PUsub );
   /**
    *@brief Calculates MET with Softkiller
    */
@@ -65,14 +76,14 @@ class METAlg{
   /**
    *@brief Calculates MET with Jets without Jets
    */
-  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> gBlocks, TString metname, float pTcone_cut, bool useEtaBins, bool useRho, bool useNegTowers);
+  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> gBlocks, TString metname, float pTcone_cut, bool useRho, float RhoA, float RhoB, float RhoC, bool useNegTowers);
   /**
    *@brief Calculates MET using PUfit
    */
   static StatusCode Pufit_MET(const xAOD::JGTowerContainer* towers, TString metname, bool useNegTowers);
  
-  static float Rho_avg(const xAOD::JGTowerContainer* towers, bool useNegTowers);
-  static float Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, int fpga, bool useNegTowers);
+  static float Rho_avg_barrel(const xAOD::JGTowerContainer* towers, bool useNegTowers);
+  static float Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, bool useNegTowers);
 };
 
 #endif

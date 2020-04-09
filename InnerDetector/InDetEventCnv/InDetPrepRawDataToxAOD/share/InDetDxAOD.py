@@ -48,6 +48,12 @@ printIdTrkDxAODConf = InDetDxAODFlags.PrintIdTrkDxAODConf()  # True
 # Create split-tracks if running on cosmics
 makeSplitTracks = InDetDxAODFlags.MakeSplitCosmicTracks() and athCommonFlags.Beam.beamType() == 'cosmics'
 
+# general skimming based on this string input
+skimmingExpression = InDetDxAODFlags.SkimmingExpression() # *empty string*
+
+# thinning of pixel clusters
+pixelClusterThinningExpression = InDetDxAODFlags.PixelClusterThinningExpression() # *empty string*
+
 ## Autoconfiguration adjustements
 isIdTrkDxAODSimulation = False
 if (globalflags.DataSource == 'geant4'):
@@ -314,6 +320,13 @@ if TrtZSel or TrtJSel:
         print JPSI_SkimmingTool
 
 
+if skimmingExpression: 
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+    stringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "stringSkimmingTool",
+                                                                     expression = skimmingExpression)
+    
+    ToolSvc += stringSkimmingTool 
+
 
 DRAW_ZMUMU_SkimmingTool=None
 if DRAWZSel:
@@ -555,6 +568,8 @@ if TrtJSel:
 if DRAWZSel:
   skimmingTools.append(DRAW_ZMUMU_SkimmingTool)
 
+if skimmingExpression:
+    skimmingTools.append(stringSkimmingTool)
 
 #minimumbiasTrig = '(L1_RD0_FILLED)'
 #
@@ -579,6 +594,18 @@ IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThin
                                                                  ThinHitsOnTrack = thinHitsOnTrack)
 ToolSvc += IDTRKThinningTool
 thinningTools.append(IDTRKThinningTool)
+
+if pixelClusterThinningExpression: 
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
+    trackMeasurementThinningTool = DerivationFramework__TrackMeasurementThinning( 
+        name                          = "TrackMeasurementThinningTool",
+        ThinningService               = "IDTRKThinningSvc",
+        SelectionString               = pixelClusterThinningExpression,
+        TrackMeasurementValidationKey = "PixelClusters",
+        ApplyAnd                      = False)
+
+    ToolSvc += trackMeasurementThinningTool 
+    thinningTools.append(trackMeasurementThinningTool)
 
 #====================================================================
 # Create the derivation Kernel and setup output stream
@@ -619,6 +646,7 @@ evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="IDTRKThinningSvc", outStreams=[evtStream] )
 
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 # Add generic event information
 IDTRKVALIDStream.AddItem("xAOD::EventInfo#*")
@@ -651,7 +679,7 @@ if makeSplitTracks:
 
 # Add vertices
 IDTRKVALIDStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDTRKVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+IDTRKVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux."+excludedVtxAuxData)
 
 # Add links and measurements
 IDTRKVALIDStream.AddItem("xAOD::TrackStateValidationContainer#*")

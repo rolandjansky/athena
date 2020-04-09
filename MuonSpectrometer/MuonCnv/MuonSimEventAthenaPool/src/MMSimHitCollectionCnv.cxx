@@ -28,7 +28,7 @@ MMSimHitCollectionCnv::~MMSimHitCollectionCnv() {
 MMSimHitCollection_PERS*    MMSimHitCollectionCnv::createPersistent (MMSimHitCollection* transCont) {
     MsgStream log(msgSvc(), "MMSimHitCollectionCnv" );
     ATH_MSG_DEBUG("createPersistent(): main converter");
-    MMSimHitCollection_PERS *pixdc_p= m_TPConverter_p2.createPersistent( transCont, log );
+    MMSimHitCollection_PERS *pixdc_p= m_TPConverter_p3.createPersistent( transCont, log );
     return pixdc_p;
 }
 
@@ -36,9 +36,14 @@ MMSimHitCollection* MMSimHitCollectionCnv::createTransient() {
     MsgStream log(msgSvc(), "MMSimHitCollectionCnv" );
     static pool::Guid   p1_guid("ac0b677c-fe08-11e8-b174-02163e018187");
     static pool::Guid   p2_guid("b9bdd436-fe08-11e8-a40f-02163e018187");
+    static pool::Guid   p3_guid("7635A905-5E00-4193-9C10-2A523B1C529C");
     ATH_MSG_DEBUG("createTransient(): main converter");
-    MMSimHitCollection* p_collection(0);
-    if( compareClassGuid(p2_guid) ) {
+    MMSimHitCollection* p_collection(nullptr);
+    if( compareClassGuid(p3_guid) ) {
+      ATH_MSG_DEBUG("createTransient(): T/P version 3 detected");
+      std::unique_ptr< Muon::MMSimHitCollection_p3 >   col_vect( this->poolReadObject< Muon::MMSimHitCollection_p3 >() );
+      p_collection = m_TPConverter_p3.createTransient( col_vect.get(), log );
+    } else if( compareClassGuid(p2_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
       std::unique_ptr< Muon::MMSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::MMSimHitCollection_p2 >() );
       p_collection = m_TPConverter_p2.createTransient( col_vect.get(), log );

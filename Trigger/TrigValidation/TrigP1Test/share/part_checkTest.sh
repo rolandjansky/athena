@@ -20,7 +20,7 @@ checkLog() {
         echo "Cannot find $2 log file"
         status=2
     else
-        check_log.pl --config checklogTrigP1Test.conf $1
+        check_log.py --errors --config checklogTrigP1Test.conf $1
         status=$?
     fi
     return $status

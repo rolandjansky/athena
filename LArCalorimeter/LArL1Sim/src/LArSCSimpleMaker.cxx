@@ -97,7 +97,9 @@ StatusCode LArSCSimpleMaker::execute()
   
   int hash_max = calo_sc_id->calo_cell_hash_max(); 
   std::vector<float> energies (hash_max,0);
-  std::vector<uint16_t> provenances  (hash_max,0);
+  std::vector<float> enTime (hash_max,0);
+  std::vector<float> enForTime (hash_max,0);
+  std::vector<bool> timeDef (hash_max,false);
   std::vector<uint16_t> gains (hash_max,0);
   std::vector<uint16_t> qualities (hash_max,0);
   std::vector<float> sigma_noise_per_scell(hash_max,0);
@@ -138,7 +140,13 @@ StatusCode LArSCSimpleMaker::execute()
     if ( cell->gain() == CaloGain::LARHIGHGAIN )
 	sigma_noise_per_scell[hash]+=m_noise_per_cell[idx];
     idx++;
-    provenances[hash] |= cell->provenance(); 
+    uint16_t prov = cell->provenance();
+    if ( ((prov & 0x2000) == 0x2000) && (cell->et()>50) ) {
+	// time defined for one of the cells
+	timeDef[hash] = timeDef[hash] || true;
+        enForTime[hash] += cell->energy();
+        enTime[hash] += cell->energy()*cell->time();
+    }
     gains[hash] = std::max(gains[hash],(uint16_t)cell->gain());
     if ( qualities[hash] + (int) cell->quality() > 65535 ){
       qualities[hash] = 65535 ;
@@ -236,7 +244,15 @@ StatusCode LArSCSimpleMaker::execute()
     CaloCell* ss = dataPool.nextElementPtr();
     ss->setCaloDDE( m_sem_mgr->get_element (i));
     ss->setEnergy( energies[i] );
-    ss->setTime(  0.  );
+    uint16_t prov (0);
+    if ( timeDef[i]  ){
+        float time = enTime[i] / enForTime[i]; // if timeDef is true, enForTime is > 10
+        float et = ss->et();
+	ss->setTime( time ); 
+        prov = 0x2000;
+        if(et>10e3 && time>-8 && time<16) prov |= 0x200;
+        if(et<=10e3 && fabs(time)<8) prov |= 0x200; 
+    } else ss->setTime(  999.0  ); // makes sure it will fail some BCID
 
     ss->setQuality( qualities[i] );
     if (calo_sc_id->is_tile(ss->ID()))
@@ -246,8 +262,8 @@ StatusCode LArSCSimpleMaker::execute()
       }
     else
       {
-	ss->setProvenance( provenances[i] );
-	ss->setGain( (CaloGain::CaloGain)  gains[i] );
+	ss->setProvenance( prov );
+	ss->setGain( CaloGain::LARHIGHGAIN );
       }
     superCellContainer->push_back(ss);
 

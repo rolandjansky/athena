@@ -1,5 +1,5 @@
 /*
-(C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -873,16 +873,17 @@ double Trk::RungeKuttaPropagator::rungeKuttaStep
     A[0] = 2.*A3+(A0+A5+A6); 
     A[1] = 2.*B3+(B0+B5+B6); 
     A[2] = 2.*C3+(C0+C5+C6);
-
-    double Sl  = 2./S                                  ;  
-    double CBA = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
+    
+    double D  = (A[0]*A[0]+A[1]*A[1])+(A[2]*A[2]-9.);
+    double Sl = 2./S                                ;
+    D         = (1./3.)-((1./648.)*D)*(12.-D)       ;
 
     R[0] +=(A2+A3+A4)*S3;
     R[1] +=(B2+B3+B4)*S3;
     R[2] +=(C2+C3+C4)*S3;
-    A[0] *=CBA          ;
-    A[1] *=CBA          ;
-    A[2] *=CBA          ;
+    A[0] *=D            ;
+    A[1] *=D            ;
+    A[2] *=D            ;
     sA[0] = A6*Sl       ; 
     sA[1] = B6*Sl       ;
     sA[2] = C6*Sl       ; 
@@ -1069,9 +1070,9 @@ double Trk::RungeKuttaPropagator::rungeKuttaStepWithGradient
     // Parameters calculation
     //   
     double A00 = A[0], A11=A[1], A22=A[2];
-    R[0]+=(A2+A3+A4)*S3; A[0] = (A0+2.*A3)+(A5+A6);
-    R[1]+=(B2+B3+B4)*S3; A[1] = (B0+2.*B3)+(B5+B6);
-    R[2]+=(C2+C3+C4)*S3; A[2] = (C0+2.*C3)+(C5+C6);
+    R[0]+=(A2+A3+A4)*S3; A[0] = ((A0+2.*A3)+(A5+A6))*C33;
+    R[1]+=(B2+B3+B4)*S3; A[1] = ((B0+2.*B3)+(B5+B6))*C33;
+    R[2]+=(C2+C3+C4)*S3; A[2] = ((C0+2.*C3)+(C5+C6))*C33;
     double CBA = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
     A[0]*=CBA; A[1]*=CBA; A[2]*=CBA;
  

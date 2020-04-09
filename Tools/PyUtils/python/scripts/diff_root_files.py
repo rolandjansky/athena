@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.diff_root_files
 # @purpose check that 2 ROOT files have same content (containers and sizes).
@@ -11,17 +11,21 @@ __author__ = "Sebastien Binet"
 
 ### imports -------------------------------------------------------------------
 import PyUtils.acmdlib as acmdlib
-import PyUtils.RootUtils as ru
-ROOT = ru.import_root()
+from math import isnan
+from numbers import Real
 
 ### globals -------------------------------------------------------------------
-g_ALLOWED_MODES = ('summary', 'detailed')
+g_ALLOWED_MODES = ('summary', 'semi-detailed', 'detailed')
 g_ALLOWED_ERROR_MODES = ('bailout', 'resilient')
 g_args = None
 
 ### classes -------------------------------------------------------------------
 
 ### functions -----------------------------------------------------------------
+def _is_detailed():
+    global g_args
+    return g_args.mode == 'detailed'
+
 def _is_summary():
     global g_args
     return g_args.mode == 'summary'
@@ -40,12 +44,15 @@ def _is_exit_early():
                   help='name of the TTree to compare')
 @acmdlib.argument('--ignore-leaves',
                   nargs='*',
-                  default=('Token',),
+                  default=('Token', 'index_ref',),
                   help='set of leaves names to ignore from comparison; can be a branch name or a partial leaf name (without any trailing dots)')
 @acmdlib.argument('--enforce-leaves',
                   nargs='*',
                   default=('BCID',),
                   help='set of leaves names we make sure to compare')
+@acmdlib.argument('--leaves-prefix',
+                  default='',
+                  help='Remove prefix value from all leaves')
 @acmdlib.argument('--known-hacks',
                   nargs='*',
                   default=('m_athenabarcode', 'm_token',),
@@ -67,6 +74,7 @@ def _is_exit_early():
                   help="""\
 Enable a particular mode.
   'summary': only report the number of differences.
+  'semi-detailed': report the number of differences and the leaves that differ.
   'detailed': display everything.
 default='%(default)s'.
 allowed: %(choices)s
@@ -83,6 +91,11 @@ default='%(default)s'.
 allowed: %(choices)s
 """
                   )
+@acmdlib.argument('--nan-equal',
+                  action='store_true',
+                  default=False,
+                  help="""Compare nan as equal to nan""")
+
 def main(args):
     """check that 2 ROOT files have same content (containers and sizes)
     """
@@ -94,10 +107,12 @@ def main(args):
 
     import PyUtils.Logging as L
     msg = L.logging.getLogger('diff-root')
-    msg.setLevel(L.logging.INFO)
+    if args.verbose:
+        msg.setLevel(L.logging.VERBOSE)
+    else:
+        msg.setLevel(L.logging.INFO)
 
-    from PyUtils.Helpers import ShutUp, ROOT6Setup
-    ROOT6Setup()
+    from PyUtils.Helpers import ShutUp
 
     if args.entries == '':
         args.entries = -1
@@ -107,6 +122,7 @@ def main(args):
     msg.info(' new: [%s]', args.new)
     msg.info('ignore  leaves: %s', args.ignore_leaves)
     msg.info('enforce leaves: %s', args.enforce_leaves)
+    msg.info('leaves prefix:  %s', args.leaves_prefix)
     msg.info('hacks:          %s', args.known_hacks)
     msg.info('entries:        %s', args.entries)
     msg.info('mode:           %s', args.mode)
@@ -124,6 +140,8 @@ def main(args):
         # l.GetBranch().GetName() gives the full leaf path name
         leaves = [l.GetBranch().GetName() for l in tree.GetListOfLeaves()
                   if l.GetBranch().GetName() not in args.ignore_leaves]
+        if args.leaves_prefix:
+            leaves = [l.replace(args.leaves_prefix, '') for l in leaves]
         return {
             'entries' : nentries,
             'leaves': set(leaves),
@@ -137,9 +155,13 @@ def main(args):
         nevts = tree.GetEntriesFast()
 
         for idx in range(0, nevts):
-            if idx % 100 == 0: msg.debug('Read {} events from the input so far'.format(idx))
+            if idx % 100 == 0:
+                msg.debug('Read {} events from the input so far'.format(idx))
             tree.GetEntry(idx)
-            if hasattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
+            if hasattr(tree,'xAOD::EventAuxInfo_v2_EventInfoAux.'):
+                event_info = getattr(tree,'xAOD::EventAuxInfo_v2_EventInfoAux.')
+                event_number = event_info.eventNumber
+            elif hasattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
                 event_info = getattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.')
                 event_number = event_info.eventNumber
             elif hasattr(tree,'EventInfoAux.'):
@@ -198,15 +220,18 @@ def main(args):
             msg.warning('the following variables exist only in the new file !')
             for l in new_leaves:
                 msg.warning(' - [%s]', l)
-        skip_leaves = old_leaves | new_leaves | set(args.ignore_leaves)
-        
+
+        # need to remove trailing dots as they confuse reach_next()
+        skip_leaves = [ l.rstrip('.') for l in old_leaves | new_leaves | set(args.ignore_leaves) ]
+        for l in skip_leaves:
+            msg.debug('skipping [%s]', l)
+
         leaves = infos['old']['leaves'] & infos['new']['leaves']
         msg.info('comparing [%s] leaves over entries...', len(leaves))
         all_good = True
         n_good = 0
         n_bad = 0
         import collections
-        from itertools import izip
         summary = collections.defaultdict(int)
 
         if args.order_trees:
@@ -225,24 +250,26 @@ def main(args):
         def leafname_fromdump(entry):
             return '.'.join([s for s in entry[2] if not s.isdigit()])
         
-        def reach_next(dump_iter, skip_leaves):
+        def reach_next(dump_iter, skip_leaves, leaves_prefix=None):
             keep_reading = True
             while keep_reading:
                 try:
-                    entry = dump_iter.next()
+                    entry = next(dump_iter)
                 except StopIteration:
                     return None
                 entry[2][0] = entry[2][0].rstrip('.\0')  # clean branch name
+                if leaves_prefix:
+                    entry[2][0] = entry[2][0].replace(leaves_prefix, '')
                 name = []
                 skip = False
                 for n in leafname_fromdump(entry).split('.'):
                     name.append(n)
-                    if '.'.join(name) in skip_leaves:
+                    if '.'.join(name) in skip_leaves or n in skip_leaves:
                         skip = True
                         break
                 if not skip:
                     return entry
-                # print 'SKIP:', leafname_fromdump(entry)
+                # print('SKIP:', leafname_fromdump(entry))
             pass
 
         read_old = True
@@ -253,10 +280,10 @@ def main(args):
         while True:
             if read_old:
                 prev_d_old = d_old
-                d_old = reach_next(old_dump_iter, skip_leaves)
+                d_old = reach_next(old_dump_iter, skip_leaves, args.leaves_prefix)
             if read_new:
                 prev_d_new = d_new
-                d_new = reach_next(new_dump_iter, skip_leaves)
+                d_new = reach_next(new_dump_iter, skip_leaves, args.leaves_prefix)
                 
             if not d_new and not d_old:
                 break
@@ -273,6 +300,12 @@ def main(args):
             if d_new:
                 tree_name, jentry, name, inew = d_new
 
+            # for regression testing we should have NAN == NAN
+            if args.nan_equal:
+                if all([isinstance(x,Real) and isnan(x) for x in [iold,inew]]):
+                    n_good += 1
+                    continue
+
             # FIXME: that's a plain (temporary?) hack
             if name[-1] in args.known_hacks:
                 continue
@@ -284,15 +317,17 @@ def main(args):
             else:
                 in_synch = d_old and d_new and d_old[0] == d_new[0] and d_old[2] == d_new[2]
             if not in_synch:
-                if not _is_summary():
+                if _is_detailed():
                     if d_old:
-                        print '::sync-old %s' %'.'.join(["%03i"%ientry]+map(str, d_old[2]))
+                        print('::sync-old %s' %'.'.join(["%03i"%ientry]+map(str,
+                                                                            d_old[2])))
                     else:
-                        print '::sync-old ABSENT'
+                        print('::sync-old ABSENT')
                     if d_new:
-                        print '::sync-new %s' %'.'.join(["%03i"%jentry]+map(str, d_new[2]))
+                        print('::sync-new %s' %'.'.join(["%03i"%jentry]+map(str,
+                                                                            d_new[2])))
                     else:
-                        print '::sync-new ABSENT'
+                        print('::sync-new ABSENT')
                     pass
                 # remember for later
                 if not d_old:
@@ -305,14 +340,14 @@ def main(args):
                     branch_old = '.'.join(["%03i"%ientry, d_old[2][0]])
                     branch_new = '.'.join(["%03i"%jentry, d_new[2][0]])
                     if branch_old < branch_new: 
-                        if not _is_summary():
-                            print '::sync-old skipping entry'
+                        if _is_detailed():
+                            print('::sync-old skipping entry')
                         summary[d_old[2][0]] += 1
                         fnew.allgood = False
                         read_new = False
                     elif branch_old > branch_new:
-                        if not _is_summary():
-                            print '::sync-new skipping entry'
+                        if _is_detailed():
+                            print('::sync-new skipping entry')
                         summary[d_new[2][0]] += 1
                         fold.allgood = False
                         read_old = False
@@ -331,25 +366,25 @@ def main(args):
                             elif leaf_old == prev_leaf_old:
                                 # old has bigger array, skip old entry
                                 read_new = False
-                                if not _is_summary():
-                                    print '::sync-old skipping entry'
+                                if _is_detailed():
+                                    print('::sync-old skipping entry')
                                 summary[leaf_old] += 1
                             elif leaf_new == prev_leaf_new:
                                 # new has bigger array, skip new entry
                                 read_old = False
-                                if not _is_summary():
-                                    print '::sync-new skipping entry'
+                                if _is_detailed():
+                                    print('::sync-new skipping entry')
                                 summary[leaf_new] += 1
                                                             
                         if read_old and read_new:
                             summary[d_new[2][0]] += 1
-                            if not _is_summary():
-                                print '::sync-old+new skipping both entries'
+                            if _is_detailed():
+                                print('::sync-old+new skipping both entries')
                         fold.allgood = False
                         fnew.allgood = False
  
                 if _is_exit_early():
-                    print "*** exit on first error ***"
+                    print('*** exit on first error ***')
                     break
                 continue
             
@@ -363,8 +398,8 @@ def main(args):
                 diff_value = '%.8f%%' % (diff_value,)
             except Exception:
                 pass
-            if not _is_summary():
-                print '%s %r -> %r => diff= [%s]' %(n, iold, inew, diff_value)
+            if _is_detailed():
+                print('%s %r -> %r => diff= [%s]' %(n, iold, inew, diff_value))
                 pass
             summary[leafname_fromdump(d_old)] += 1
 
@@ -387,8 +422,8 @@ def main(args):
         
         if (not fold.allgood) or (not fnew.allgood):
             msg.info('NOTE: there were errors during the dump')
-            msg.info('fold.allgood: %s' % fold.allgood)
-            msg.info('fnew.allgood: %s' % fnew.allgood)
+            msg.info('fold.allgood: %s' , fold.allgood)
+            msg.info('fnew.allgood: %s' , fnew.allgood)
             n_bad += 0.5
         return n_bad
     

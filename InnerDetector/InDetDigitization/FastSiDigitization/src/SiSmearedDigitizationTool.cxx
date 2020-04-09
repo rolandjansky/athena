@@ -606,7 +606,8 @@ StatusCode SiSmearedDigitizationTool::FillTruthMap(PRD_MultiTruthCollection * ma
 
   HepMcParticleLink trklink(hit->particleLink());
   if (m_needsMcEventCollHelper) {
-    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType()) );
+    MsgStream* amsg = &(msg());
+    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType(), amsg) );
   }
   ATH_MSG_DEBUG("Truth map filling with cluster " << *cluster << " and link = " << trklink);
   if (trklink.isValid()){

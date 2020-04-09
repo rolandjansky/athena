@@ -9,14 +9,17 @@
 
 #include <string>
 
+// Forward declaration(s)
+class MsgStream;
+
 /** @namespace McEventCollectionHelper McEventCollectionHelper.h "McEventCollectionHelper.h"
  *
  *  Helper functions for mapping pileUpTypes onto McEventCollection names
  */
 
 namespace McEventCollectionHelper {
-  EBC_EVCOLL getMcEventCollectionHMPLEnumFromPileUpType(const int pileupType) ;
-  std::string getMcEventCollectionNameFromPileUpType(const int pileupType) ;
+  EBC_EVCOLL getMcEventCollectionHMPLEnumFromPileUpType(const int pileupType, MsgStream* log = nullptr) ;
+  std::string getMcEventCollectionNameFromPileUpType(const int pileupType, MsgStream* log = nullptr) ;
 }
 
 #endif //MCTRUTHSIMALGS_MCEVENTCOLLECTIONHELPER_H

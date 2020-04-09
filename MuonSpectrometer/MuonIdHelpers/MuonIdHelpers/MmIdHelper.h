@@ -93,6 +93,7 @@ class MmIdHelper : public MuonIdHelper {
   int gasGap(const Identifier& id) const;
   int multilayer(const Identifier& id) const;
   int channel(const Identifier& id) const;
+  bool isStereo(const Identifier& id) const;
   bool measuresPhi(const Identifier& id) const; //Returns false
 
   int numberOfMultilayers(const Identifier& id) const;
@@ -300,6 +301,14 @@ inline int MmIdHelper::multilayerMax() const
 /*******************************************************************************/ 
 inline int MmIdHelper::gasGapMin() const {
   return GasGapMin;
+}
+/*******************************************************************************/ 
+inline bool MmIdHelper::isStereo(const Identifier& id) const{
+  bool isStereo = false;
+  int ml = multilayer(id);
+  int gg = gasGap(id);
+  if ( (ml==1 && gg>2) || (ml==2 && gg<3) ) isStereo = true;
+  return isStereo;                                                                                               
 }
 /*******************************************************************************/ 
 inline bool MmIdHelper::measuresPhi(const Identifier& /*id*/) const{

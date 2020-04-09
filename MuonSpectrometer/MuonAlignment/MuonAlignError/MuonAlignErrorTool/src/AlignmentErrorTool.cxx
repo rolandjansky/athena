@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -46,15 +46,10 @@ AlignmentErrorTool::AlignmentErrorTool(const std::string& t, const std::string& 
 AlignmentErrorTool::~AlignmentErrorTool() {
 }
 
-//int AlignmentErrorTool::deviationSummary_t::i_instance = 0;
-
-
 AlignmentErrorTool::deviationSummary_t::deviationSummary_t()
 : traslation(0.), rotation(0.), stationName(""), sumP(Amg::Vector3D(0., 0., 0.)), sumU(Amg::Vector3D(0., 0., 0.)), sumV(Amg::Vector3D(0., 0., 0.)), sumW2(0.) { 
-	//i_instance++;
 } //
 AlignmentErrorTool::deviationSummary_t::~deviationSummary_t() {
-	//i_instance--;
 } //
 
 StatusCode AlignmentErrorTool::initialize() {
@@ -157,6 +152,11 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
       if (!rot) continue;
 
       Identifier channelId = rot->identify();
+      if (!m_idHelper->isMuon(channelId)) {
+        // the RIO_OnTrack Identifiers could also come from ID or Calo, but this tool is only interested in MS hits
+        ATH_MSG_VERBOSE("Given Identifier "<<channelId.get_compact()<<" is no muon Identifier, continuing");
+        continue;
+      }
       if (m_idHelper->isMM(channelId)||m_idHelper->issTgc(channelId)) continue; // needs to be still implemented for the NSW
 
       MuonCalib::MuonFixedId calibId = m_idTool->idToFixedId(channelId);

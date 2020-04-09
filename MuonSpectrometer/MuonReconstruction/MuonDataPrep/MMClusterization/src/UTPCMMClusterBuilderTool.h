@@ -12,7 +12,6 @@
 #include <numeric>
 
 #include "TH2D.h"
-#include "TMath.h"
 #include "TF1.h"
 #include "TGraphErrors.h"
 #include "TLinearFitter.h"
@@ -48,7 +47,7 @@ namespace Muon
     //virtual StatusCode finalize();
 
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-			   std::vector<Muon::MMPrepData*>& clustersVec);
+			   std::vector<Muon::MMPrepData*>& clustersVec)const ;
 
   private: 
 
@@ -66,19 +65,19 @@ namespace Muon
     double m_outerChargeRatioCut;
     int m_maxStripsCut;
 
-    double m_toRad=TMath::Pi()/180.;
+    bool m_digiHasNegativeAngles;
+    float m_scaleClusterError;
 
+    StatusCode runHoughTrafo(std::vector<int>& flag,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& idx_selected)const;
+    StatusCode fillHoughTrafo(std::unique_ptr<TH2D>& cummulator,std::vector<int>& flag, std::vector<double>& xpos, std::vector<double>& time)const;
+    StatusCode houghInitCummulator(std::unique_ptr<TH2D>& cummulator,double xmax,double xmin)const;
 
-    StatusCode runHoughTrafo(std::vector<int>& flag,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& idx_selected);
-    StatusCode fillHoughTrafo(std::unique_ptr<TH2D>& cummulator,std::vector<int>& flag, std::vector<double>& xpos, std::vector<double>& time);
-    StatusCode houghInitCummulator(std::unique_ptr<TH2D>& cummulator,double xmax,double xmin);
+    StatusCode findAlphaMax(std::unique_ptr<TH2D>& h_hough, std::vector<std::tuple<double,double>> &maxPos)const;
+    StatusCode selectTrack(std::vector<std::tuple<double,double>> &tracks,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& flag,std::vector<int>& idx_selected)const;
 
-    StatusCode findAlphaMax(std::unique_ptr<TH2D>& h_hough, std::vector<std::tuple<double,double>> &maxPos);
-    StatusCode selectTrack(std::vector<std::tuple<double,double>> &tracks,std::vector<double>& xpos, std::vector<double>& time,std::vector<int>& flag,std::vector<int>& idx_selected);
-
-    StatusCode transformParameters(double alpha, double d, double dRMS, double& slope,double& intercept, double& interceptRMS);
-    StatusCode applyCrossTalkCut(std::vector<int> &idxSelected,const std::vector<MMPrepData> &MMPrdsOfLayer,std::vector<int> &flag,int &nStripsCut);
-    StatusCode finalFit(std::vector<double>& xpos, std::vector<double>& time, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb);
+    StatusCode transformParameters(double alpha, double d, double dRMS, double& slope,double& intercept, double& interceptRMS)const;
+    StatusCode applyCrossTalkCut(std::vector<int> &idxSelected,const std::vector<MMPrepData> &MMPrdsOfLayer,std::vector<int> &flag,int &nStripsCut)const;
+    StatusCode finalFit(const std::vector<Muon::MMPrepData> &mmPrd, std::vector<double>& time, std::vector<int>& idxSelected,double& x0, double &sigmaX0, double &fitAngle, double &chiSqProb)const;
 };
 
 

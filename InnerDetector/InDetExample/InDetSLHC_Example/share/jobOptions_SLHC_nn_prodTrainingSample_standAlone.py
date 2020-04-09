@@ -83,6 +83,7 @@ globalflags.ConditionsTag = "OFLCOND-SDR-BS14T-ATLAS-00"
 #
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
+DetFlags.BCM_setOff()
 #DetFlags.SCT_setOff()
 DetFlags.TRT_setOff()
 DetFlags.Calo_setOff()

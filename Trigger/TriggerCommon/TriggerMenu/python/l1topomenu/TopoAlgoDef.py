@@ -1211,14 +1211,21 @@ class TopoAlgoDef:
             alg.addvariable('MinET', ocut1-1) # for MU threshold -1   # noqa: F821
             tm.registerAlgo(alg)        
 
+
         # DISAMB 2 lists
-        for x in [     
-            {"disamb": 1, "otype1" : "TAU", "ocut1": 12, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "J", "ocut2": 25, "olist2": "ab", "nleading2": HW.OutputWidthSelectJET}, #1DISAMB-TAU12abi-J25ab
-            #{"disamb": 0, "otype1" : "EM",  "ocut1": 15, "olist1" : "abhi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "TAU", "ocut2": 40, "olist2": "ab", "nleading2": HW.OutputWidthSelectTAU},
-            #{"disamb": 1, "otype1" : "TAU", "ocut1": 20, "olist1" : "ab", "nleading1": HW.OutputWidthSelectTAU,  "otype2" : "J", "ocut2": 20, "olist2": "ab", "nleading2": HW.OutputWidthSelectJET},
-            #{"disamb": 0, "otype1" : "EM",  "ocut1": 15, "olist1" : "abhi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU},
-            ]:
+        if not usev8:
+            algolist=[
+                {"disamb": 1, "otype1" : "TAU", "ocut1": 12, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "J", "ocut2": 25, "olist2": "ab", "nleading2": HW.OutputWidthSelectJET}, #1DISAMB-TAU12abi-J25ab
+                #{"disamb": 0, "otype1" : "EM",  "ocut1": 15, "olist1" : "abhi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "TAU", "ocut2": 40, "olist2": "ab", "nleading2": HW.OutputWidthSelectTAU},
+                #{"disamb": 1, "otype1" : "TAU", "ocut1": 20, "olist1" : "ab", "nleading1": HW.OutputWidthSelectTAU,  "otype2" : "J", "ocut2": 20, "olist2": "ab", "nleading2": HW.OutputWidthSelectJET},
+                #{"disamb": 0, "otype1" : "EM",  "ocut1": 15, "olist1" : "abhi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU},
+                ]
+        if usev8:
+            algolist=[
+                {"disamb": 2, "otype1" : "TAU", "ocut1": 12, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "J", "ocut2": 25, "olist2": "ab", "nleading2": HW.OutputWidthSelectJET}, #1DISAMB-TAU12abi-J25ab
+                ]
             
+        for x in algolist :
             for k in x:
                 exec("%s = x[k]" % k)
 
@@ -1283,7 +1290,7 @@ class TopoAlgoDef:
 
         if usev8:
             algolist=[
-               {"disamb": 1, "otype1" : "EM",  "ocut1": 15, "olist1": "shi","nleading1": 2, "inputwidth1": HW.OutputWidthSortEM, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28}, #1DISAMB-J25ab-0DR28-EM15his2-TAU12abi
+               {"disamb": 2, "otype1" : "EM",  "ocut1": 15, "olist1": "shi","nleading1": 2, "inputwidth1": HW.OutputWidthSortEM, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28}, #2DISAMB-J25ab-0DR28-EM15his2-TAU12abi
                {"disamb": 2, "otype1" : "TAU",  "ocut1": 20, "olist1": "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28}, # 2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi
                {"disamb": 2, "otype1" : "TAU",  "ocut1": 20, "olist1": "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 25}, # 2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi
             ]
@@ -1891,7 +1898,7 @@ class TopoAlgoDef:
             alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinMSqr', 0)
-            alg.addvariable('MaxMSqr', 10*10)
+            alg.addvariable('MaxMSqr', 10*10*_emscale_for_decision) # Fix to add emscale
             alg.addvariable('MinET1', 8)
             alg.addvariable('MinET2', 10)
             alg.addgeneric('ApplyEtaCut', 0)
@@ -1917,7 +1924,7 @@ class TopoAlgoDef:
             alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinMSqr', 0)
-            alg.addvariable('MaxMSqr', 10*10)
+            alg.addvariable('MaxMSqr', 10*10*_emscale_for_decision) # Fix to add emscale
             alg.addvariable('MinET1', 12)
             alg.addvariable('MinET2', 6)
             alg.addgeneric('ApplyEtaCut', 0)
@@ -2160,10 +2167,10 @@ class TopoAlgoDef:
             alg.addgeneric('InputWidth', HW.InputWidthJET) # noqa: F821
             alg.addgeneric('MaxTob', HW.InputWidthJET)       # noqa: F821
             alg.addgeneric('NumResultBits',  len(toponames)) # noqa: F821
-            alg.addvariable('MinXi', 13000.0*0.02) # noqa: F821
-            alg.addvariable('MaxXi', 13000.0*0.05) # noqa: F821
             for bitid,minET in enumerate(minETlist):  # noqa: F821
                 alg.addvariable('MinET1', minET, bitid)# noqa: F821
+                alg.addvariable('MinXi', 13000.0*0.02, bitid) # noqa: F821
+                alg.addvariable('MaxXi', 13000.0*0.05, bitid) # noqa: F821
             tm.registerAlgo(alg)
 
         

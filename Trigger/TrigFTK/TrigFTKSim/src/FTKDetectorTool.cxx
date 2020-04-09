@@ -532,7 +532,7 @@ void FTKDetectorTool::dumpModulePositions() {
          const InDetDD::SiDetectorElement* sielement( *i );
          idhash=sielement->identifyHash();
          Identifier id = sielement->identify();
-         isBLayer=sielement->isBlayer();
+         isBLayer=sielement->isInnermostPixelLayer();
          if(isPixel) {
             barrel_endcap=m_pixelId->barrel_ec(id);
             layer_disk=m_pixelId->layer_disk(id);

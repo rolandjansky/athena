@@ -50,6 +50,7 @@ atlas_depends_on_subdirs(
                           Trigger/TrigEvent/TrigParticle
                           Trigger/TrigT1/TrigT1Result 
                           PhysicsAnalysis/MuonID/MuonSelectorTools
+                          MCTruthClassifier
 )
 
 # External dependencies:

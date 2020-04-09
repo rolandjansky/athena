@@ -8,8 +8,12 @@ atlas_subdir( TrkExUnitTests )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoPrimitives
+                          DetectorDescription/Identifier
                           GaudiKernel
+                          InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkNeutralParameters
@@ -29,7 +33,7 @@ atlas_add_component( TrkExUnitTests
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel TrkGeometry TrkEventPrimitives TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils TrkValInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AtlasDetDescr GeoPrimitives Identifier InDetReadoutGeometry GaudiKernel InDetIdentifier TrkGeometry TrkEventPrimitives TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils TrkValInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkExUnitTests )

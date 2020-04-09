@@ -58,9 +58,21 @@ namespace Muon
 		const MuonGM::MMReadoutElement* detEl, 
 		const short int time,
 		const int charge, 
+		const float driftDist,
 		const std::vector<uint16_t>& stripNumbers, 
 		const std::vector<short int>& stripTimes, 
 		const std::vector<int>& stripCharges );
+
+    /** @brief constructor including time and charge and drift distance */
+    MMPrepData( const Identifier& RDOId,
+		const IdentifierHash &idDE,
+		const Amg::Vector2D& locpos,
+		const std::vector<Identifier>& rdoList,
+		const Amg::MatrixX* locErrMat,
+		const MuonGM::MMReadoutElement* detEl, 
+		const short int time,
+		const int charge,
+		const float driftDist );
 
     /** @brief constructor including time and charge */
     MMPrepData( const Identifier& RDOId,
@@ -85,6 +97,9 @@ namespace Muon
     /** @brief set microTPC parameters */
     void setMicroTPC(float angle, float chisqProb);
 
+    /** @brief set drift distances and uncertainties */
+    void setDriftDist(const std::vector<float>& driftDist, const std::vector<Amg::MatrixX>& driftDistErrors);
+
     /** @brief Returns the global position*/
     const Amg::Vector3D& globalPosition() const;
 
@@ -97,6 +112,9 @@ namespace Muon
 
     /** @brief Returns the AD */
     int charge() const;
+
+    /** @brief Returns the Drift Distance */
+    float driftDist() const;
 
     /** @brief Returns the microTPC angle */
     float angle() const;
@@ -112,6 +130,12 @@ namespace Muon
 
     /** @brief returns the list of charges */
     const std::vector<int>& stripCharges() const;
+
+    /** @brief returns the list of drift distances */
+    const std::vector<float>& stripDriftDist() const;
+
+    /** @brief returns the list of drift distances */
+    const std::vector<Amg::MatrixX>& stripDriftErrors() const;
     
     /** @brief Dumps information about the PRD*/
     MsgStream&    dump( MsgStream&    stream) const;
@@ -132,6 +156,9 @@ namespace Muon
     /** @brief the charge is calibrated, i.e. it is in units of electrons, after pedestal subtraction **/
     int m_charge;
 
+    /** @brief drift distance */
+    float m_driftDist;
+
     /** @angle and chisquare from micro-TPC fit */
     float m_angle;
     float m_chisqProb;
@@ -140,6 +167,8 @@ namespace Muon
     std::vector<uint16_t> m_stripNumbers;
     std::vector<short int> m_stripTimes;
     std::vector<int> m_stripCharges;
+    std::vector<float> m_stripDriftDist;
+    std::vector<Amg::MatrixX>  m_stripDriftErrors;
 
   };
 
@@ -164,6 +193,11 @@ namespace Muon
   inline int MMPrepData::charge() const 
   {
     return m_charge;
+  }
+
+  inline float MMPrepData::driftDist() const 
+  {
+    return m_driftDist;
   }
 
   inline float MMPrepData::angle() const 
@@ -191,6 +225,15 @@ namespace Muon
     return m_stripCharges;
   }
 
+  inline const std::vector<float>& MMPrepData::stripDriftDist() const
+  {
+    return m_stripDriftDist;
+  }
+
+  inline const std::vector<Amg::MatrixX>& MMPrepData::stripDriftErrors() const
+  {
+    return m_stripDriftErrors;
+  }
 
 }
 

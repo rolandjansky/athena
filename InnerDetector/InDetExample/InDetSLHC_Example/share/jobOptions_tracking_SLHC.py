@@ -69,6 +69,7 @@ rec.doTrigger=False
 from AthenaCommon.DetFlags import DetFlags 
 # --- switch on InnerDetector
 DetFlags.ID_setOn()
+DetFlags.BCM_setOff()
 # --- no TRT for SLHC
 DetFlags.TRT_setOff()
 DetFlags.detdescr.TRT_setOff()

@@ -233,12 +233,10 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
       
       information [numberOfContribPixelBarrelFlatLayers]     = 0;
       information [numberOfContribPixelBarrelInclinedLayers] = 0;
-      information [numberOfContribPixelBarrelRings]          = 0;
       information [numberOfContribPixelEndcap]               = 0;
       
       information [numberOfPixelBarrelFlatHits]     = 0;   
       information [numberOfPixelBarrelInclinedHits] = 0;   
-      information [numberOfPixelBarrelRingHits]     = 0;   
       information [numberOfPixelEndcapHits]         = 0;   
       
       if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
@@ -322,7 +320,6 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
       information [numberOfPixelHoles] = 0; 
       information [numberOfPixelBarrelFlatHoles]     = 0;  
       information [numberOfPixelBarrelInclinedHoles] = 0;  
-      information [numberOfPixelBarrelRingHoles]     = 0;  
       information [numberOfPixelEndcapHoles]         = 0;
     }
     information [numberOfSCTHoles]       = 0; 

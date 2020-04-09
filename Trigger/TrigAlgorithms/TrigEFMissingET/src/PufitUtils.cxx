@@ -9,7 +9,10 @@
 
 namespace HLT { namespace MET { namespace PufitUtils {
 
-  CovarianceSum::CovarianceSum() {}
+  CovarianceSum::CovarianceSum() :
+    sum(Eigen::Vector2d::Zero() ),
+    covariance(Eigen::Matrix2d::Zero() )
+  {}
 
   CovarianceSum::CovarianceSum(
       const Eigen::Vector2d& sum,

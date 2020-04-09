@@ -17,6 +17,7 @@ Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Over
           --geometryVersion 'default:ATLAS-R3S-2021-01-00-00_VALIDATION' \
           --AMI=s3512 \
           --maxEvents 25 \
+          --imf False \
           --outputHITSFile OUT_HITS.root &> ${LOG_SIM}
 exit_code=$?
 echo  "art-result: ${exit_code} Sim_tf.py"
@@ -29,12 +30,21 @@ NWARNING="$(cat ${LOG_SIM} | grep WARNING | wc -l)"
 NERROR="$(cat ${LOG_SIM} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_SIM} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_SIM}"
+# check differences wrt reference HITS file
+acmd.py diff-root OUT_HITS.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/SymmetricLayout_HITS_v1.root --ignore-leaves timings &> log_diff_HITS.log
+exit_code=$?
+echo  "art-result: ${exit_code} diff-root_sim"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
 #####################################################################
 
 #####################################################################
 # now use the produced HITS file and run digitisation
 LOG_DIGI="log_Run3_symmetric_digi.log"
 Digi_tf.py --inputHITSFile OUT_HITS.root \
+           --imf False \
            --outputRDOFile OUT_RDO.root &> ${LOG_DIGI}
 exit_code=$?
 echo  "art-result: ${exit_code} Digi_tf.py"
@@ -55,6 +65,7 @@ LOG_RECO="log_Run3_symmetric_reco.log"
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --preExec "from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.setDefaults();muonRecFlags.doFastDigitization=False;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);from RecExConfig.RecFlags import rec;rec.doTrigger=False;rec.doEgamma=True;rec.doLucid=True;rec.doZdc=True;rec.doJetMissingETTag=True" \
            --autoConfiguration everything \
+           --imf False \
            --outputESDFile OUT_ESD.root &> ${LOG_RECO}
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"

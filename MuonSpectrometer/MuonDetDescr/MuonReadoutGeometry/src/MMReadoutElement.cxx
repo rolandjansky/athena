@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -25,6 +25,7 @@
 //#include "StoreGate/DataHandle.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
+#include "MuonAlignmentData/BLinePar.h"
 
 #define MMReadout_verbose false
 
@@ -34,8 +35,16 @@ namespace MuonGM {
   MMReadoutElement::MMReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 				     int zi, int fi, int mL, bool is_mirrored,
 				     MuonDetectorManager* mgr)
-    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
+    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
+      m_BLinePar(0)
   {
+    m_rots = 0.;
+    m_rotz = 0.;
+    m_rott = 0.;
+
+    m_hasALines = false;
+    m_hasBLines = false;
+    m_delta = NULL;
     m_ml = mL;
     m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:MMReadoutElement");
     //MsgStream log(Athena::getMessageSvc(), "MuGM:MMReadoutElement");
@@ -74,19 +83,15 @@ namespace MuonGM {
 	  if ((npos = childname.find("Sensitive")) != std::string::npos ) {
 	    llay ++;
             if (llay > 4) {
-	      std::cerr<<"number of MM layers > 4: increase transform array size"<< std::endl;
+	                          reLog()<<MSG::ERROR<<"number of MM layers > 4: increase transform array size"<< endmsg;
               continue;
 	    }
-	    //std::cerr<<" navigating MM named "
-	    //       <<childname<<" child "
-	    //       <<ich<<" is a layer with tag "<<llay<<std::endl;
+	   
 	    m_Xlg[llay-1] = Amg::CLHEPTransformToEigen(pvc->getXToChildVol(ich));
             // save layer dimensions
             if (llay==1) {
               if (pc->getLogVol()->getShape()->type()=="Trd") {
 		const GeoTrd* trd = dynamic_cast<const GeoTrd*> (pc->getLogVol()->getShape());
-		//std::cerr<<"MM layer shape dimensions:minX,maxX,minY,maxY,halfZ:"<< trd->getXHalfLength1()<<"," << trd->getXHalfLength2()
-		//	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
                 m_halfX =  trd->getZHalfLength();
                 // adjust phi dimensions according to the active area  
                 m_minHalfY = trd->getYHalfLength1();
@@ -105,10 +110,8 @@ namespace MuonGM {
 		const GeoTrd* trd = dynamic_cast<const GeoTrd*> (sub);
                 
                 if (!trd) {
-		  std::cerr<<"MM layer base shape not trapezoid? " << sub->type()<< std::endl;
+		                        reLog()<<MSG::ERROR<<"MM layer base shape not trapezoid? " << sub->type()<<endmsg;
 		} else {
-		  //std::cerr<<"MM layer shape dimensions:minX,maxX,minY,maxY,halfZ:"<< trd->getXHalfLength1()<<"," << trd->getXHalfLength2()
-		  //	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
 		  m_halfX =  trd->getZHalfLength();
 		  m_minHalfY = trd->getYHalfLength1();
 		  m_maxHalfY = trd->getYHalfLength2();
@@ -117,14 +120,14 @@ namespace MuonGM {
 		  foundShape = true;
                 }
               } else {
-	        std::cerr<<"MM layer shape not recognized:" <<pc->getLogVol()->getShape()->type()<< std::endl;
+	                     reLog()<<MSG::ERROR<<"MM layer shape not recognized:" <<pc->getLogVol()->getShape()->type()<<endmsg;
 	      }
 	    }
 	  }
 	}
         m_nlayers=llay;
       } else {
-	std::cerr<<"Cannot perform a dynamic cast ! "<<std::endl;
+	             reLog()<<MSG::ERROR<<"Cannot perform a dynamic cast ! "<<endmsg;
       }
     }
     if( !foundShape ){
@@ -298,14 +301,11 @@ namespace MuonGM {
       // identifier of the first channel
       Identifier id = manager()->mmIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, layer+1, 1);
 
-      // move the readout plane to the sensitive volume boundary 
-      double shift = 0.5*m_etaDesign[layer].thickness;
-      double rox = ( layer==0 || layer==2) ? shift : -shift;
-      
+      /// keep the tracking surface at the center of the gap
       double sAngle = m_etaDesign[layer].sAngle;
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
-      m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*Amg::Translation3D(rox,0.,0.)*
+      m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
 						 Amg::AngleAxis3D(-90.*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
 
       // surface info (center, normal) 
@@ -339,10 +339,36 @@ namespace MuonGM {
     
     //    Amg::Vector3D  locP = (m_Xlg[gg-1].inverse())*locPos;
     Amg::Vector3D  locP = (m_Xlg[gg-1])*locPos;
-    std::cout<<"locPos in the gg      r.f. "<<locPos<<std::endl;
-    std::cout<<"locP in the multilayer r.f. "<<locP<<std::endl;
+    reLog()<<MSG::DEBUG<<"locPos in the gg      r.f. "<<locPos<<endmsg;
+    reLog()<<MSG::DEBUG<<"locP in the multilayer r.f. "<<locP<<endmsg;
     
     return absTransform()*locP;
+  }
+
+  void MMReadoutElement::setDelta(double tras, double traz, double trat,
+                                  double rots, double rotz, double rott)
+  {
+    m_rots = rots;
+    m_rotz = rotz;
+    m_rott = rott;
+
+    HepGeom::Transform3D delta = HepGeom::Transform3D::Identity;
+     if (fabs(tras)+fabs(traz)+fabs(trat)+(fabs(rots)+fabs(rotz)+fabs(rott))*1000. > 0.01)
+    {
+       // compute the delta transform 
+       delta = HepGeom::TranslateX3D(tras)*HepGeom::TranslateY3D(traz)*
+                     HepGeom::TranslateZ3D(trat)*HepGeom::RotateX3D(rots)*
+                    HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
+       m_hasALines = true;
+    }
+  }
+
+  void MMReadoutElement::setBLinePar(BLinePar* bLine) const
+  {
+    if(reLog().level() <= MSG::DEBUG) 
+      reLog()<<MSG::DEBUG<<"Setting B-line for "<<getStationName().substr(0,3)<<" at eta/phi "<<getStationEta()<<"/"<<getStationPhi()<<endmsg;
+    
+    m_BLinePar = bLine;
   }
 
 } // namespace MuonGM

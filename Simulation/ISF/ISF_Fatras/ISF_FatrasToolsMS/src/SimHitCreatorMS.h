@@ -1,16 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// SimHitCreatorMS.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISF_FATRASTOOLSMS_SIMHITCREATORMS_H
 #define ISF_FATRASTOOLSMS_SIMHITCREATORMS_H
 
 // Athena & Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -26,9 +23,11 @@
 #include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
 #include "MuonSimEvent/sTGCSimHitCollection.h"
+//Muon ReadoutGeometry includes
+#include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonTGRecTools/IMuonTGMeasTool.h"
 
-// Identifier
-#include "Identifier/Identifier.h"
 // Muon
 class MdtHitIdHelper;
 class RpcHitIdHelper;
@@ -37,11 +36,6 @@ class TgcHitIdHelper;
 
 namespace MuonGM {
   class MuonDetectorManager;
-}
-
-namespace Muon {
-  class IMuonTGMeasTool;
-  class MuonIdHelperTool;
 }
 
 namespace Trk {
@@ -73,12 +67,9 @@ namespace iFatras
       SimHitCreatorMS(const std::string&,const std::string&,const IInterface*);
 
        /** default destructor */
-      virtual ~SimHitCreatorMS ();
+      virtual ~SimHitCreatorMS ()=default;
       
-       /** standard Athena-Algorithm method */
       virtual StatusCode initialize();
-       /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
 
       /** handle for incident service */
       void handle(const Incident& inc);    
@@ -86,6 +77,8 @@ namespace iFatras
        /** Loop over the hits and call the hit creator - also provide the ISF particle to register the barcode */
       void createHits(const ISF::ISFParticle& isp, 
                       const std::vector<Trk::HitInfo>& hits) const;
+
+      void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
 
     private:
 
@@ -125,10 +118,9 @@ namespace iFatras
       RpcHitIdHelper*                      m_rpcHitIdHelper;
       CscHitIdHelper*                      m_cscHitIdHelper;
       TgcHitIdHelper*                      m_tgcHitIdHelper;
+      ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
       MM_SimIdToOfflineId*                 m_mmOffToSimId;
       sTgcSimIdToOfflineId*                m_stgcOffToSimId;
-
-      ToolHandle<Muon::MuonIdHelperTool>   m_idHelperTool; //!< Muon ID helper tool
  
       const MuonGM::MuonDetectorManager*   m_muonMgr;
       
@@ -136,7 +128,10 @@ namespace iFatras
       
       mutable std::string                  m_stationName; 
 
-      bool                                 m_createAllMdtHits;      
+      int                      m_BMGid; //added to protect against dead sensors
+      bool                                 m_createAllMdtHits;
+      bool                     m_BMGpresent;//added to protect against dead sensors
+      std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
     }; 
 
     

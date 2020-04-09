@@ -251,6 +251,15 @@ bool PixelGeneralXMLHelper::isEndcapPresentC() const
   return getBoolean("PixelGeneral", 0, "EndcapC");
 }
 
+bool PixelGeneralXMLHelper::isBCMPrimePresent() const
+{
+  if (getSchemaVersion() > 4) return getBoolean("PixelGeneral", 0, "BCMPrime");
+  else  {
+    msg(MSG::DEBUG)<<"XML: Old schema ("<<getSchemaVersion()<<"), disabling BCM'";
+    return false;
+  }
+}
+
 double PixelGeneralXMLHelper::getLayerRMin(int ilayer) const
 {
   std::ostringstream ostr; 

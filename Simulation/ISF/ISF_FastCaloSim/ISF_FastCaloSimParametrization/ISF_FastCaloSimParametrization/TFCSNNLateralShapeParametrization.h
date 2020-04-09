@@ -21,8 +21,4 @@ private:
   ClassDefOverride(TFCSNNLateralShapeParametrization,1)  //TFCSNNLateralShapeParametrization
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSNNLateralShapeParametrization+;
-#endif
-
 #endif

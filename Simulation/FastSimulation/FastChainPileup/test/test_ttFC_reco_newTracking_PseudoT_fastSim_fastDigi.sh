@@ -9,12 +9,12 @@
 # art-output: dcube-id
 
 inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_reco_newTracking_PseudoT_fastSim_fastDigi"
-inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
 art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
 dcubeName="ttFC_reco_newTracking_PseudoT_fastSim_fastDigi"
-dcubeXmlID="${inputXmlDir}/dcube_indetplots.xml"
+dcubeXmlID="${inputXmlDir}/dcube_ID_PseudoT_fastSim_fastDigi.xml"
 dcubeRefID="${inputRefDir}/InDetStandardPlots.root"
-dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth.xml"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth_pileup.xml"
 dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
 FastChain_tf.py --simulator ATLFASTIIF_PileUp \
@@ -69,7 +69,7 @@ then
     # Regression test
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
     rc4=$?
 
     # Histogram comparison with DCube

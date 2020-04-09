@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
@@ -68,20 +68,6 @@ MuonPRD_MultiTruthMaker::MuonPRD_MultiTruthMaker(const std::string &name, ISvcLo
     declareProperty("TGC_PRD_TruthContainer",     m_TGC_PRD_TruthName);
     declareProperty("STGC_PRD_TruthContainer",    m_STGC_PRD_TruthName);
     declareProperty("MM_PRD_TruthContainer",      m_MM_PRD_TruthName);
-}
-
-//================================================================
-StatusCode MuonPRD_MultiTruthMaker::initialize()
-{
-  ATH_MSG_DEBUG( "MuonPRD_MultiTruthMaker::initialize()" );
-  return StatusCode::SUCCESS;
-}
-
-//================================================================
-StatusCode MuonPRD_MultiTruthMaker::finalize() 
-{
-  ATH_MSG_DEBUG( "MuonPRD_MultiTruthMaker::finalize()" );
-  return StatusCode::SUCCESS;
 }
 
 //================================================================

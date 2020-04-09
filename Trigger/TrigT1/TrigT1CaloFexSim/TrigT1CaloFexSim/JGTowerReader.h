@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOFEXSIM_JGTOWERREADER_H
@@ -53,6 +53,7 @@ class JGTowerReader: public ::AthAlgorithm {
   bool m_debugJetAlg;
   bool m_dumpTowerInfo;
   bool m_dumpSeedsEtaPhi;
+  bool m_makeRoundJetsPUsub;
 
   bool  m_makeSquareJets;
   bool  m_buildgBlockJets;
@@ -97,28 +98,26 @@ class JGTowerReader: public ::AthAlgorithm {
   bool m_plotSeeds;
   bool m_saveSeeds;
 
-  float m_gJet_seed_size;
-  float m_gJet_max_r;
   float m_gJet_r;
-  float m_gJet_seed_tower_noise_multiplier;
-  float m_gJet_seed_total_noise_multiplier;
-  float m_gJet_seed_min_ET_MeV;
-  float m_gJet_jet_tower_noise_multiplier;
-  float m_gJet_jet_total_noise_multiplier;
+  float m_gJet_block_tower_noise_multiplier; 
+  float m_gJet_block_min_ET_MeV;
+  float m_gJet_tower_noise_multiplier;
   float m_gJet_jet_min_ET_MeV;
-
-  std::string m_noise_file;
- 
-  //job options for gFEX MET algorithms
+  float m_gFEX_pTcone_cut;
+  bool  m_gFEX_OnlyPosRho; 
+  bool  m_gFEX_useNegTowers;
+  bool  m_gFEX_Rho_useNegTowers; 
+  //job options for gFEX MET algorithms                                          
   bool m_useRMS;
   bool m_useMedian;
-  bool m_useNegTowers;
-  bool m_developerMET; 
-  bool m_combine_rhoNoise;
-  bool m_combine_skNoise;
-  bool m_combine_jwojNoise;
-  float m_pTcone_cut;
 
+  std::string m_noise_file;
+  
+  std::string m_jXERHO_correction_file;
+  float  m_jXERHO_fixed_noise_cut;  
+  float  m_jXERHO_rho_up_threshold;
+  float  m_jXERHO_min_noise_cut;
+ 
   const CaloCell_SuperCell_ID* m_scid;
   const JTower_ID* m_jTowerId;
   const GTower_ID* m_gTowerId;
@@ -131,6 +130,10 @@ class JGTowerReader: public ::AthAlgorithm {
   virtual StatusCode BuildJetsFromMap(const xAOD::JGTowerContainer*jTs);
 
   std::vector<float> jT_noise;
+  std::vector<float> jTowerArea;
+  std::vector < std::vector < int > > jFEX_bins;
+  std::vector < std::vector < int > > jFEX_bins_core;
+  bool buildbins=false;
   std::vector<float> jJet_thr;
   std::vector<float> jJet_jet_thr;
   std::vector<float> gT_noise;
@@ -181,7 +184,15 @@ class JGTowerReader: public ::AthAlgorithm {
   std::shared_ptr<TowerHelper> gT_helper;
 
   unsigned int m_eventCount = 0;
-  SG::AuxElement::Accessor<float>* acc_rho = new SG::AuxElement::Accessor<float>("Rho_avg");
+  SG::AuxElement::Accessor<float>* acc_rho_barrel = new SG::AuxElement::Accessor<float>("Rho_barrel");
+  SG::AuxElement::Accessor<float>* acc_rhoA = new SG::AuxElement::Accessor<float>("RhoA");
+  SG::AuxElement::Accessor<float>* acc_rhoB = new SG::AuxElement::Accessor<float>("RhoB"); 
+  SG::AuxElement::Accessor<float>* acc_rhoC = new SG::AuxElement::Accessor<float>("RhoC");
+  
+  SG::AuxElement::Accessor<float>* acc_threshA = new SG::AuxElement::Accessor<float>("ThreshA");
+  SG::AuxElement::Accessor<float>* acc_threshB = new SG::AuxElement::Accessor<float>("ThreshB");  
+  SG::AuxElement::Accessor<float>* acc_threshC = new SG::AuxElement::Accessor<float>("ThreshC");
+  
   SG::AuxElement::Accessor<float>* acc_mht = new SG::AuxElement::Accessor<float>("MHT");
   SG::AuxElement::Accessor<float>* acc_mst = new SG::AuxElement::Accessor<float>("MST");
 }; 

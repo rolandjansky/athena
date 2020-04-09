@@ -278,18 +278,24 @@ namespace MCTesting {
     const int process_id1(20);
     const int event_number1(17);
     inputTestDataHandle->push_back(new HepMC::GenEvent(process_id1, event_number1));
+    const HepMcParticleLink::index_type dummyIndex1(0);
+    const HepMcParticleLink::index_type refEvtNum1 = static_cast<HepMcParticleLink::index_type>(event_number1);
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
     const HepMC::GenParticle* particle1 = populateGenEvent(ge1);
     // Add a second dummy GenEvent
     const int process_id2(20);
     const int event_number2(25);
     inputTestDataHandle->push_back(new HepMC::GenEvent(process_id2, event_number2));
+    const HepMcParticleLink::index_type dummyIndex2(1);
+    const HepMcParticleLink::index_type refEvtNum2 = static_cast<HepMcParticleLink::index_type>(event_number2);
     HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
     const HepMC::GenParticle* particle2 = populateGenEvent2(ge2);
     // Add a third dummy GenEvent (identical to the first)
     const int process_id3(20);
     const int event_number3(17);
     inputTestDataHandle->push_back(new HepMC::GenEvent(process_id3, event_number3));
+    const HepMcParticleLink::index_type dummyIndex3(2);
+    const HepMcParticleLink::index_type refEvtNum3 = static_cast<HepMcParticleLink::index_type>(event_number3);
     HepMC::GenEvent& ge3 = *(inputTestDataHandle->at(2));
     const HepMC::GenParticle* particle3 = populateGenEvent(ge3);
 
@@ -300,32 +306,32 @@ namespace MCTesting {
     HepMcParticleLink testLink1a(particle1,0);
     ASSERT_TRUE( testLink1a.isValid() );
     ASSERT_EQ( particle1->barcode(), testLink1a.barcode());
-    ASSERT_EQ(  0, testLink1a.eventIndex());
-    ASSERT_NE( event_number1, testLink1a.eventIndex());
+    ASSERT_EQ(  dummyIndex1, testLink1a.eventIndex());
+    ASSERT_NE( refEvtNum1, testLink1a.eventIndex());
     ASSERT_EQ(particle1,testLink1a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
     // the GenEvent.
     HepMcParticleLink testLink1b(particle1->barcode(),0);
     ASSERT_TRUE( testLink1b.isValid() );
     ASSERT_EQ( particle1->barcode(), testLink1b.barcode());
-    ASSERT_EQ(  0, testLink1b.eventIndex());
-    ASSERT_NE( event_number1, testLink1b.eventIndex());
+    ASSERT_EQ(  dummyIndex1, testLink1b.eventIndex());
+    ASSERT_NE( refEvtNum1, testLink1b.eventIndex());
     ASSERT_EQ(*(testLink1a.cptr()),*(testLink1b.cptr()));
     // HepMcParticleLink built using a GenParticle pointer and the
     // event_number of the GenEvent.
     HepMcParticleLink testLink1c(particle1,event_number1);
     ASSERT_TRUE( testLink1c.isValid() );
     ASSERT_EQ( particle1->barcode(), testLink1c.barcode());
-    ASSERT_NE(  0, testLink1c.eventIndex());
-    ASSERT_EQ( event_number1, testLink1c.eventIndex());
+    ASSERT_NE(  dummyIndex1, testLink1c.eventIndex());
+    ASSERT_EQ( refEvtNum1, testLink1c.eventIndex());
     ASSERT_EQ(particle1,testLink1c.cptr());
     // A HepMcParticleLink built using the barcode and the event_number of
     // the GenEvent.
     HepMcParticleLink testLink1d(particle1->barcode(),event_number1);
     ASSERT_TRUE( testLink1d.isValid() );
     ASSERT_EQ( particle1->barcode(), testLink1d.barcode());
-    ASSERT_NE(  0, testLink1d.eventIndex());
-    ASSERT_EQ( event_number1, testLink1d.eventIndex());
+    ASSERT_NE(  dummyIndex1, testLink1d.eventIndex());
+    ASSERT_EQ( refEvtNum1, testLink1d.eventIndex());
     ASSERT_EQ(particle1,testLink1d.cptr());
 
     //Testing links to the second dummy GenEvent
@@ -335,8 +341,8 @@ namespace MCTesting {
     HepMcParticleLink testLink2a(particle2,1);
     ASSERT_TRUE( testLink2a.isValid() );
     ASSERT_EQ( particle2->barcode(), testLink2a.barcode());
-    ASSERT_EQ(  1, testLink2a.eventIndex());
-    ASSERT_NE( event_number2, testLink2a.eventIndex());
+    ASSERT_EQ(  dummyIndex2, testLink2a.eventIndex());
+    ASSERT_NE( refEvtNum2, testLink2a.eventIndex());
     ASSERT_EQ(particle2,testLink2a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
     // the GenEvent. BROKEN
@@ -347,16 +353,16 @@ namespace MCTesting {
     HepMcParticleLink testLink2c(particle2,event_number2);
     ASSERT_TRUE( testLink2c.isValid() );
     ASSERT_EQ( particle2->barcode(), testLink2c.barcode());
-    ASSERT_NE(  1, testLink2c.eventIndex());
-    ASSERT_EQ( event_number2, testLink2c.eventIndex());
+    ASSERT_NE(  dummyIndex2, testLink2c.eventIndex());
+    ASSERT_EQ( refEvtNum2, testLink2c.eventIndex());
     ASSERT_EQ(particle2,testLink2c.cptr());
     // A HepMcParticleLink built using the barcode and the event_number of
     // the GenEvent.
     HepMcParticleLink testLink2d(particle2->barcode(),event_number2);
     ASSERT_TRUE( testLink2d.isValid() );
     ASSERT_EQ( particle2->barcode(), testLink2d.barcode());
-    ASSERT_NE(  1, testLink2d.eventIndex());
-    ASSERT_EQ( event_number2, testLink2d.eventIndex());
+    ASSERT_NE(  dummyIndex2, testLink2d.eventIndex());
+    ASSERT_EQ( refEvtNum2, testLink2d.eventIndex());
     ASSERT_EQ(particle2,testLink2d.cptr());
 
     //Testing links to the third dummy GenEvent
@@ -366,8 +372,8 @@ namespace MCTesting {
     HepMcParticleLink testLink3a(particle3,2);
     ASSERT_TRUE( testLink3a.isValid() );
     ASSERT_EQ( particle3->barcode(), testLink3a.barcode());
-    ASSERT_EQ(  2, testLink3a.eventIndex());
-    ASSERT_NE( event_number3, testLink3a.eventIndex());
+    ASSERT_EQ(  dummyIndex3, testLink3a.eventIndex());
+    ASSERT_NE( refEvtNum3, testLink3a.eventIndex());
     ASSERT_EQ(particle3,testLink3a.cptr());
     // A HepMcParticleLink built using the barcode and the position of
     // the GenEvent. BROKEN
@@ -378,16 +384,16 @@ namespace MCTesting {
     HepMcParticleLink testLink3c(particle3,event_number3);
     ASSERT_TRUE( testLink3c.isValid() );
     ASSERT_EQ( particle3->barcode(), testLink3c.barcode());
-    ASSERT_NE(  2, testLink3c.eventIndex());
-    ASSERT_EQ( event_number3, testLink3c.eventIndex());
+    ASSERT_NE(  dummyIndex3, testLink3c.eventIndex());
+    ASSERT_EQ( refEvtNum3, testLink3c.eventIndex());
     ASSERT_EQ(particle3,testLink3c.cptr());
     // A HepMcParticleLink built using the barcode and the event_number of
     // the GenEvent. BROKEN
     HepMcParticleLink testLink3d(particle3->barcode(),event_number3);
     ASSERT_TRUE( testLink3d.isValid() );
     ASSERT_EQ( particle3->barcode(), testLink3d.barcode());
-    ASSERT_NE(  2, testLink3d.eventIndex());
-    ASSERT_EQ( event_number3, testLink3d.eventIndex());
+    ASSERT_NE(  dummyIndex3, testLink3d.eventIndex());
+    ASSERT_EQ( refEvtNum3, testLink3d.eventIndex());
     ASSERT_NE(particle3,testLink3d.cptr());
     ASSERT_EQ(particle1,testLink3d.cptr()); //POINTS AT THE IDENTICAL PARTICLE IN FIRST GenEvent!!
 

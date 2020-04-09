@@ -39,7 +39,7 @@ rc=$?
 echo  "art-result: $rc EVNTtoRDO"
 
 inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_FastChain_fatras_mc16a_ttbar"
-inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
 art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
 dcubeName="FastChain_fatras_mc16a_ttbar"
 dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth.xml"

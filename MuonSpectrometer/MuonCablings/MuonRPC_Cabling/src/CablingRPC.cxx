@@ -1804,6 +1804,7 @@ unsigned long int CablingRPC::strip_code_fromOffId (std::string stationName, int
 	cabStat=2; // special case of single RPC Chambers at the same R or dbr2
       }
   }
+  if (stationName.substr(0,3)=="BIS" && logicSector>31) logicSector+=1; // BIS78 are in doubPhi==1
 
   if (logicSector<0 || logicSector>63) 
     {
@@ -1846,6 +1847,7 @@ unsigned int CablingRPC::computeZIndexInCablingStation(std::string stationName, 
   else if (stationName=="BOF")  iStat=5; // BOF
   else if (stationName=="BOG")  iStat=6; // BOG
   else if (stationName=="BME")  iStat=7; // BME
+  else if (stationName=="BIS")  iStat=8; // BIS
   else 
   {
       std::cout<<"ERROR - no iStat set; StationName ="<<stationName<<std::endl;

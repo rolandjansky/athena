@@ -620,8 +620,6 @@ StatusCode MM_DigitizationTool::doDigitization() {
       //
       // Hit Information And Preparation
       //
-      
-      
       TimedHitPtr<MMSimHit> phit = *i++;
       m_eventTime = phit.eventTime();
       const MMSimHit& hit(*phit);
@@ -680,9 +678,10 @@ StatusCode MM_DigitizationTool::doDigitization() {
       
       HepMcParticleLink trklink(hit.particleLink());
       if (m_needsMcEventCollHelper) {
-	if(phit.pileupType()!=lastPileupType)        {
-	  currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType());
-	  lastPileupType=phit.pileupType();
+	if (phit.pileupType()!=lastPileupType) {
+      MsgStream* amsg = &(msg());
+      currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType(), amsg);
+      lastPileupType=phit.pileupType();
 	}
 	trklink.setEventCollection(currentMcEventCollection);
       }
@@ -739,9 +738,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
       ////////////////////////////////////////////////////////////////////
       //
       // Sanity Checks
-      //
-      
-      
+      //      
       if( !m_idHelper->is_mm(layerID) ){
 	ATH_MSG_WARNING("layerID does not represent a valid MM layer: "
 			<< m_idHelper->stationNameString(m_idHelper->stationName(layerID)) );
@@ -867,17 +864,25 @@ StatusCode MM_DigitizationTool::doDigitization() {
       Amg::Vector3D localDirectionTime(0., 0., 0.);
       
       // drift direction in backwards-chamber should be opposite to the incident direction.
-      if ((roParam.readoutSide).at(m_idHelper->gasGap(layerID)-1)==1)
+      if ((roParam.readoutSide).at(m_idHelper->gasGap(layerID)-1)==1) {
 	localDirectionTime  = localDirection;
+      inAngle_XZ = (-inAngle_XZ);
+      }
       else
 	localDirectionTime  = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(),
 										hit.globalDirection().y(),
 										-hit.globalDirection().z()
 										);
       
-      
-      
-      double scale = -stripLayerPosition.z()/localDirection.z();
+      /// move the initial track point to the readout plane
+      int gasGap = m_idHelper->gasGap(layerID);
+      double shift = 0.5*detectorReadoutElement->getDesign(layerID)->thickness;
+      double scale = 0.0;
+      if ( gasGap==1 || gasGap == 3) {
+	scale = -(stripLayerPosition.z() + shift)/localDirection.z();
+      } else if ( gasGap==2 || gasGap == 4) {
+	scale = -(stripLayerPosition.z() - shift)/localDirection.z();
+      }
       
       Amg::Vector3D hitOnSurface = stripLayerPosition + scale*localDirection;
       Amg::Vector2D positionOnSurface (hitOnSurface.x(), hitOnSurface.y());
@@ -888,7 +893,15 @@ StatusCode MM_DigitizationTool::doDigitization() {
       Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/localDirectionTime.z())*localDirectionTime;
       
       if( fabs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("Bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
-      
+ 
+      //  moving the hit position to the center of the gap for the SDO position 
+      double scaleSDO = -stripLayerPosition.z()/localDirection.z();
+      Amg::Vector3D hitAtCenterOfGasGap =  stripLayerPosition + scaleSDO*localDirection;
+      Amg::Vector3D hitAtCenterOfGasGapGlobal = surf.transform() * hitAtCenterOfGasGap; 
+      ATH_MSG_DEBUG("strip layer position z"<< stripLayerPosition.z() <<"hitAtCenterOfGasGap x" 
+		    << hitAtCenterOfGasGap.x() << " y " <<  hitAtCenterOfGasGap.y() 
+		    << " z " << hitAtCenterOfGasGap.z() << " gas gap "<< gasGap); 
+
       // Don't consider electron hits below m_energyThreshold
       if( hit.kineticEnergy() < m_energyThreshold && abs(hit.particleEncoding())==11) {
 	m_exitcode = 5;
@@ -1020,7 +1033,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
       std::vector<MuonSimData::Deposit> deposits;
       deposits.push_back(deposit);
       MuonSimData simData(deposits,0);
-      simData.setPosition(hitOnSurfaceGlobal);
+      simData.setPosition(hitAtCenterOfGasGapGlobal);
       simData.setTime(m_globalHitTime);
       m_sdoContainer->insert ( std::make_pair ( digitID, simData ) );
       ATH_MSG_DEBUG(" added MM SDO " <<  m_sdoContainer->size());

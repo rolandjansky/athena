@@ -1,4 +1,0 @@
-sweep-targets:
-  '21.9':
-    'NONE':
-      - 'master'

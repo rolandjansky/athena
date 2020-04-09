@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //###############################################
@@ -27,9 +27,10 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-BCMSensorSD::BCMSensorSD(const std::string& name, const std::string& hitCollectionName)
+BCMSensorSD::BCMSensorSD(const std::string& name, const std::string& hitCollectionName, bool isUpgrade)
   : G4VSensitiveDetector( name )
   , m_HitColl( hitCollectionName )
+  , m_isUpgrade(isUpgrade)
 {
 }
 
@@ -54,6 +55,8 @@ G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   //Get the Touchable History:
   G4TouchableHistory*  myTouch = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
 
+  int minCopyNumBCM = 11950;
+  int minCopyNumDiam = 951;
   int BEcopyNo =  myTouch->GetVolume()->GetCopyNo();
 
   // Get the hit coordinates. Start and End Point
@@ -77,31 +80,44 @@ G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   lP2[SiHit::xDep] = localPosition2[0]*CLHEP::mm;
 
   //BCM hit stuff
-  if(BEcopyNo == 11950 || BEcopyNo == 11951)
-    {
-      TrackHelper trHelp(aStep->GetTrack());
-      //primary or not
-      int primaren = 0;
-      if(trHelp.IsPrimary())
-        primaren = 1;
-      else if(trHelp.IsRegeneratedPrimary())
-        primaren = 2;
-      else if(trHelp.IsSecondary())
-        primaren = 3;
-      else if(trHelp.IsRegisteredSecondary())
-        primaren = 4;
-      //std::cout << "BCMBarcode == " << trHelp.GetBarcode() << " Vertex: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
 
-      int produced_in_diamond = 0;
-      if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::bcmDiamondLog")
-        produced_in_diamond = 1;
-      else if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::bcmModLog")
-        produced_in_diamond = 2;
-      else if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::bcmWallLog")
-        produced_in_diamond = 3;
+  TrackHelper trHelp(aStep->GetTrack());
+  //primary or not
+  int primaren = 0;
+  if(trHelp.IsPrimary())
+    primaren = 1;
+  else if(trHelp.IsRegeneratedPrimary())
+    primaren = 2;
+  else if(trHelp.IsSecondary())
+    primaren = 3;
+  else if(trHelp.IsRegisteredSecondary())
+    primaren = 4;
+  //std::cout << "BCMBarcode == " << trHelp.GetBarcode() << " Vertex: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
 
-      m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), trHelp.GetParticleLink(),
-                         0, 0, myTouch->GetVolume(1)->GetCopyNo()-951, BEcopyNo - 11950, primaren, produced_in_diamond);
-    }
+  int produced_in_diamond = 0;
+  if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::bcmDiamondLog")
+    produced_in_diamond = 1;
+  else if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::bcmModLog")
+    produced_in_diamond = 2;
+  else if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::bcmWallLog")
+    produced_in_diamond = 3;
+
+  int diamondNo;
+  int moduleNo;
+  int side;
+
+  if (m_isUpgrade) {
+    int layer0No = myTouch->GetVolume(1)->GetCopyNo();
+    side = (layer0No - 1) / 2; // transformation (-1,3) -> (-1,1)
+    diamondNo = (BEcopyNo - minCopyNumBCM) % 2;
+    moduleNo = (BEcopyNo - minCopyNumBCM - diamondNo) / 2 - 1; // transformation (2,4,6,8) -> (0,1,2,3)
+  } else {
+    side = 0;
+    diamondNo = BEcopyNo - minCopyNumBCM;
+    moduleNo = myTouch->GetVolume(1)->GetCopyNo() - minCopyNumDiam;
+  }
+
+  m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), trHelp.GetParticleLink(),
+                      0, side, moduleNo, diamondNo, primaren, produced_in_diamond);
   return true;
 }

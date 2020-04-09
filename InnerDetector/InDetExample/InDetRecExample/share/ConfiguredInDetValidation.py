@@ -46,12 +46,9 @@ class  ConfiguredInDetValidation:
                                                          UseTrackSummary          = True,
                                                          SummaryTool              = InDetTrackSummaryToolSharedHits, # this is a bug !!!
                                                          DoTruth                  = InDetFlags.doTruth(),
-                                                         # maxEta                   = NewTrackingCuts.maxEta(),
-                                                         # minPt                    = 2. * NewTrackingCuts.minPT(),
                                                          fakeTrackCut             = 0.8,    # ME: adapt cuts 
                                                          fakeTrackCut2            = 0.5,    # ME: adapt cuts 
                                                          matchTrackCut            = 0.5,    # ME: adapt cuts 
-                                                         # maxEta                   = 2.5,    # ME: full coverage ends here
                                                          maxEta                   = NewTrackingCuts.maxEta(),
                                                          minPt                    = 1.*GeV, # ME: let's restrict to higher pt
                                                          maxRStartPrimary         = 25.0,   # ME: allows for IBL
@@ -109,19 +106,22 @@ class  ConfiguredInDetValidation:
                                                           RapidityCut            = NewTrackingCuts.maxEta()        ,
                                                           RadiusMin              = rmin                            ,
                                                           RadiusMax              = rmax                            ,
-                                                          MinNumberClustersTRT   = 0                               ,
                                                           MinNumberSpacePoints   = 3                               ,
                                                           usePixel               = DetFlags.haveRIO.pixel_on()     ,
-                                                          useSCT                 = DetFlags.haveRIO.SCT_on()       ,
-                                                          useTRT                 = DetFlags.haveRIO.TRT_on()       )
+                                                          useSCT                 = DetFlags.haveRIO.SCT_on()       )
       
       if InDetFlags.useEtaDependentCuts() and NewTrackingCuts.mode() == "SLHC":
-        InDetTrackClusterAssValidation.MomentumCut               = min(NewTrackingCuts.minPT())
-        InDetTrackClusterAssValidation.MinNumberClusters         = NewTrackingCuts.minClusters()[0]
-        InDetTrackClusterAssValidation.InDetEtaDependentCutsSvc  = InDetEtaDependentCutsSvc
+        InDetTrackClusterAssValidation.Etabins                    = NewTrackingCuts.etaBins()
+        InDetTrackClusterAssValidation.MomentumCut                = max(NewTrackingCuts.minPT())
+        InDetTrackClusterAssValidation.MomentumCuts               = [max(NewTrackingCuts.minPT())]
+        InDetTrackClusterAssValidation.MinNumberClustersCuts      = NewTrackingCuts.minClusters()
       else:
         InDetTrackClusterAssValidation.MomentumCut            = 2. * NewTrackingCuts.minPT()
         InDetTrackClusterAssValidation.MinNumberClusters      = NewTrackingCuts.minClusters()
+      
+      if NewTrackingCuts.mode() != "SLHC":
+        InDetTrackClusterAssValidation.useTRT = DetFlags.haveRIO.TRT_on()
+        InDetTrackClusterAssValidation.MinNumberClustersTRT   = 0
 
       if InDetFlags.doDBMstandalone() or  nameExt=="DBM" or nameExt=="PUDBM":
         InDetTrackClusterAssValidation.MomentumCut            = 0

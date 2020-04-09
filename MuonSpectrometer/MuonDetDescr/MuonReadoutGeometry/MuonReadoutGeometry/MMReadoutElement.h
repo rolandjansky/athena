@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -16,6 +16,8 @@
 #include <cmath>
 
 class StoreGateSvc;
+
+class BLinePar;
 
 namespace Trk{
   class RectangleBounds;
@@ -118,7 +120,20 @@ namespace MuonGM {
     
     /** set methods only to be used by MuonGeoModel */
     void setChamberLayer(int ml) {m_ml=ml;}
+
+    inline double getALine_rots() const;
+    inline double getALine_rotz() const;
+    inline double getALine_rott() const;
+    inline bool has_ALines() const;
+    inline bool has_BLines() const;
+    void setDelta(double, double, double, double, double, double); //input: translations, rotations
+    void setBLinePar(BLinePar* bLine) const;
+    inline void clearBLinePar() const;
+    inline const BLinePar* getBLinePar() const { return m_BLinePar;}
+    void clearBLineCache() const;
+    void fillBLineCache() const;
   private:
+
 
     //MuonChannelDesign m_phiDesign;
     std::vector<MuonChannelDesign> m_etaDesign;
@@ -134,9 +149,38 @@ namespace MuonGM {
     double m_minHalfY; // 0.5*bottom length (active area)
     double m_maxHalfY; // 0.5*top length (active area)
 
+    double m_rots;
+    double m_rotz;
+    double m_rott;
+
+    bool m_hasALines;
+    bool m_hasBLines;
+
+    HepGeom::Transform3D* m_delta;
+
+    mutable BLinePar* m_BLinePar;
+    
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];
   };
+
+  void MMReadoutElement::clearBLinePar() const
+  { m_BLinePar = 0;}
+
+  double MMReadoutElement::getALine_rots() const
+  { return m_rots;}
+
+  double MMReadoutElement::getALine_rotz() const
+  { return m_rotz;}
+
+  double MMReadoutElement::getALine_rott() const
+  { return m_rott;}
+
+  bool MMReadoutElement::has_ALines() const
+  { return m_hasALines;}
+
+  bool MMReadoutElement::has_BLines() const
+  { return m_hasBLines;}
 
   inline int MMReadoutElement::surfaceHash( const Identifier& id ) const {
     return surfaceHash(manager()->mmIdHelper()->gasGap(id),0);

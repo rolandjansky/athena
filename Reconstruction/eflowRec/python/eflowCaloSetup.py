@@ -79,7 +79,7 @@ def setup_eflowCaloObjectCreator(Configured, nameModifier,mlog):
     TrackSelectionTool.CutLevel = "TightPrimary"
     TrackSelectionTool.minPt = 500.0
     if "EM_HLLHC" == nameModifier:
-        TrackSelectionTool.maxAbsEta=4.0
+        TrackSelectionTool.CutLevel = "ITkLoose"
 
     eflowPreparationAlgorithm.TrackSelectionTool = TrackSelectionTool
 

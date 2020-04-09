@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/Random/RandGauss.h"
@@ -50,7 +50,7 @@ void TFCSPCAEnergyParametrization::Print(Option_t *option) const
   TFCSEnergyParametrization::Print(option);
   
   if(longprint) {
-    ATH_MSG(INFO) << optprint <<"  #bins="<<m_numberpcabins<<", layers=";
+    ATH_MSG(INFO) << optprint <<"  #bins="<<m_numberpcabins<<", Enorm="<<m_total_energy_normalization<<", layers=";
     for(unsigned int i=0;i<m_RelevantLayers.size();i++) {
       if(i>0) msg()<<", ";
       msg()<<m_RelevantLayers[i];
@@ -59,7 +59,7 @@ void TFCSPCAEnergyParametrization::Print(Option_t *option) const
   }  
 }
 
-FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
   
   if (!simulstate.randomEngine()) {
@@ -127,7 +127,7 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
     simdata[l]*=scalefactor;
    }
    
-   double total_energy=simdata[layerNr.size()]*simulstate.E()/Ekin_nominal();
+   double total_energy=simdata[layerNr.size()]*simulstate.E()/m_total_energy_normalization;
    simulstate.set_E(total_energy);
    ATH_MSG_DEBUG("set E to total_energy="<<total_energy);
   
@@ -153,12 +153,12 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
   return FCSSuccess;
 }
 
-void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValues, TMatrixD *EV, int gNVariables, double *p, double *x, int nTest)
+void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValues, TMatrixD *EV, int gNVariables, double *p, double *x, int nTest) const
 {
 
-  double* gSigmaValues  = SigmaValues->GetMatrixArray();
-  double* gMeanValues   = MeanValues->GetMatrixArray();
-  double* gEigenVectors = EV->GetMatrixArray();
+  const double* gSigmaValues  = SigmaValues->GetMatrixArray();
+  const double* gMeanValues   = MeanValues->GetMatrixArray();
+  const double* gEigenVectors = EV->GetMatrixArray();
 
   for(int i = 0; i < gNVariables; i++)
     {
@@ -279,3 +279,29 @@ void TFCSPCAEnergyParametrization::clean()
  for(unsigned int i=0;i<m_EV.size();i++)
   delete m_EV[i];
 }
+
+void TFCSPCAEnergyParametrization::Streamer(TBuffer &R__b)
+{
+   // Stream an object of class TFCSPCAEnergyParametrization
+
+   if (R__b.IsReading()) {
+      UInt_t R__s, R__c;
+      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
+      R__b.SetBufferOffset(R__s);
+      
+      R__b.ReadClassBuffer(TFCSPCAEnergyParametrization::Class(),this);
+      
+      if(R__v==1) {
+        set_total_energy_normalization(Ekin_nominal());
+        //Check if min and max range is a factor 2 within 1 MeV tolerance
+        //If yes, the nominal to log-avergage
+        if(TMath::Abs(Ekin_max()-2*Ekin_min())<1) {
+          set_Ekin_nominal(Ekin_max()/TMath::Sqrt(2));
+        }
+      }
+   } else {
+      R__b.WriteClassBuffer(TFCSPCAEnergyParametrization::Class(),this);
+   }
+}
+
+

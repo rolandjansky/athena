@@ -9,10 +9,10 @@
 # art-output: dcube-id
 
 inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_recoinp_noSplit_noPseudoT_fastSim_fullDigi"
-inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
 art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
 dcubeName="ttFC_recoinp_noSplit_noPseudoT_fastSim_fullDigi"
-dcubeXmlID="${inputXmlDir}/dcube_indetplots.xml"
+dcubeXmlID="${inputXmlDir}/dcube_ID_recoinp.xml"
 dcubeRefID="${inputRefDir}/InDetStandardPlots.root"
 
 # RDO input from 21.3/Nov 13 Nightly test_ttFC_reco_noSplit_noPseudoT_fastSim_fullDigi.sh
@@ -22,7 +22,7 @@ FastChain_tf.py --maxEvents 500 \
     --conditionsTag OFLCOND-RUN12-SDR-31 \
     --inputRDOFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/RecoInputRefs/RDO_pileup_fastsim_fulldigi.pool.root' \
     --outputAODFile AOD_noSplit_noPseudoT_fastSim_fullDigi.pool.root \
-    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
+    --preExec "all:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" "InDetFlags.doStandardPlots.set_Value_and_Lock(True)" \
     --postExec 'RAWtoESD:from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("RAWtoESD_config.txt")' \
     --imf False
 
