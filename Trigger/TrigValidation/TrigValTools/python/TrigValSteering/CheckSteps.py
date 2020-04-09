@@ -236,6 +236,10 @@ class CheckLogStep(Step):
         self.check_warnings = False
         self.config_file = None
         self.args = '--showexcludestats'
+        # The following three are updated in configure() if not set
+        self.required = None
+        self.auto_report_result = None
+        self.output_stream = None
 
     def configure(self, test):
         if self.config_file is None:
@@ -256,10 +260,14 @@ class CheckLogStep(Step):
             self.args += ' --errors'
         if self.check_warnings:
             self.args += ' --warnings'
-        if self.check_errors and not self.check_warnings:
-            self.output_stream = Step.OutputStream.FILE_AND_STDOUT
-            self.auto_report_result = True
-            self.required = True
+
+        errors_only = self.check_errors and not self.check_warnings
+        if self.output_stream is None:
+            self.output_stream = Step.OutputStream.FILE_AND_STDOUT if errors_only else Step.OutputStream.FILE_ONLY
+        if self.auto_report_result is None:
+            self.auto_report_result = errors_only
+        if self.required is None:
+            self.required = errors_only
 
         self.args += ' --config {} {}'.format(self.config_file, self.log_file)
 
