@@ -10,12 +10,13 @@
 #include "Identifier/HWIdentifier.h"
 
 #include "LArRawConditions/LArMCSym.h"
+#include "CxxUtils/aligned_vector.h"
 
 
 class CaloBCIDAverage {
  public:
   CaloBCIDAverage() = delete;
-  CaloBCIDAverage(const LArMCSym* mcSym, std::vector<float>&& data);
+  CaloBCIDAverage(const LArMCSym* mcSym, CxxUtils::vec_aligned_vector<float>&& data);
   
   float average(const Identifier& id) const {
     if (!id.is_valid()) return 0;
@@ -40,7 +41,7 @@ class CaloBCIDAverage {
   
  private:
   const LArMCSym* m_mcSym;
-  std::vector<float> m_avg;
+  CxxUtils::vec_aligned_vector<float> m_avg;
 };
 
 
