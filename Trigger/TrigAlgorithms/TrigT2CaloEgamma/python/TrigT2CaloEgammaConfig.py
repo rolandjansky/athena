@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp1Fex as _EgammaSamp1Fex 
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp1Fex as _EgammaSamp1Fex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp2Fex as _EgammaSamp2Fex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex as _EgammaEmEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaHadEnFex as _EgammaHadEnFex
@@ -153,7 +153,7 @@ class T2CaloEgamma_eGamma (T2CaloEgamma):
        self.RhoMiddleLayer= [1756.75, 1757.91, 1757.06, 1758.25, 1757.40, # Eta range: 0.00 ~ 0.05 ~ 0.10 ~ 0.15 ~ 0.20 ~ 0.25
                              1758.75, 1757.90, 1756.01, 1754.76, 1748.07, # Eta range: 0.25 ~ 0.30 ~ 0.35 ~ 0.40 ~ 0.45 ~ 0.50
                              1740.84, 1735.52, 1732.03, 1721.71, 1716.65, # Eta range: 0.50 ~ 0.55 ~ 0.60 ~ 0.65 ~ 0.70 ~ 0.75
-                             1710.82, 1739.15, 1728.36, 1722.92, 1716.45, # Eta range: 0.75 ~ 0.80 ~ 0.85 ~ 0.90 ~ 0.95 ~ 1.00 
+                             1710.82, 1739.15, 1728.36, 1722.92, 1716.45, # Eta range: 0.75 ~ 0.80 ~ 0.85 ~ 0.90 ~ 0.95 ~ 1.00
                              1707.56, 1697.96, 1689.75, 1684.23, 1671.07, # Eta range: 1.00 ~ 1.05 ~ 1.10 ~ 1.15 ~ 1.20 ~ 1.25
                              1663.98, 1662.04]                            # Eta range: 1.25 ~ 1.30 ~ 1.37
 
@@ -355,9 +355,9 @@ class RingerFexConfig( RingerFex ):
 
 
 class RingerReFexConfig( RingerReFex ):
-  
+
   __slots__ = []
-  
+
   def __init__(self, name = "RingerReMaker"):
     super(RingerReFex, self).__init__(name)
     self.EtaBins              = [0.0000, 999.999] # bin pairs: min < eta <= max, PS,barrel,crack,endcap
@@ -366,7 +366,7 @@ class RingerReFexConfig( RingerReFex ):
     self.EtaSearchWindowSize  = 0.1
     self.PhiSearchWindowSize  = 0.1
     self.DEtaRings            = [0.025, 0.003125, 0.025, 0.05, 0.1, 0.1, 0.1]
-    self.DPhiRings            = [0.098174770424681, 0.098174770424681, 0.024543692606170, 0.024543692606170, 
+    self.DPhiRings            = [0.098174770424681, 0.098174770424681, 0.024543692606170, 0.024543692606170,
                                  0.098174770424681, 0.098174770424681, 0.098174770424681]
     self.NRings               = [8, 64, 8, 8, 4, 4, 4]
     self.NLayersRings         = [2, 2, 2, 2, 4, 5, 4]
@@ -390,74 +390,72 @@ class RingerReFexConfig( RingerReFex ):
 
 
 class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
-   __slots__ = []
-   def __init__ (self, name="T2CaloEgamma_Ringer"):
-       super(T2CaloEgamma_Ringer, self).__init__(name)
-       # here put your customizations
-       self.IAlgToolList += [RingerFexConfig()]
-       self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger"
-       self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
+    __slots__ = []
+    def __init__ (self, name="T2CaloEgamma_Ringer"):
+        super(T2CaloEgamma_Ringer, self).__init__(name)
+        # here put your customizations
+        self.IAlgToolList += [RingerFexConfig()]
+        self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger"
+        self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
 
 
 class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
-   __slots__ = []
-   def __init__ (self, name="T2CaloEgamma_ReFastAlgo", ClustersName="HLT_L2CaloEMClusters", doRinger=False, RingerKey="HLT_L2CaloRinger"):
-       super(T2CaloEgamma_ReFastAlgo, self).__init__(name)
-       # here put your customizations
-       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-       if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
-         from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
-         svcMgr += TrigCaloDataAccessSvc()
-       samp2 = EgammaReSamp2FexConfig(name="ReFaAlgoSamp2FexConfig",
-                                      trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
-                                      ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
-       samp1 = EgammaReSamp1FexConfig("ReFaAlgoSamp1FexConfig",
-                                      trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
-                                      ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
-       sampe = EgammaReEmEnFexConfig("ReFaAlgoEmEnFexConfig",
-                                     trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
-                                     ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
-       samph = EgammaReHadEnFexConfig("ReFaAlgoHadEnFexConfig",
-                                      trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
-                                      ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
-       
-       samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-       
-       self.IReAlgToolList = [ samp2, samp1, sampe, samph ]
-       
-       if doRinger:
-         from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
-         ringer = RingerReFexConfig('ReFaAlgoRingerFexConfig')
-         #ringer.RingsKey= recordable("L2CaloRinger")
-         ringer.RingerKey= RingerKey #"HLT_L2CaloRinger"
-         ringer.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-         ringer.ClustersName = ClustersName
-         #ToolSvc+=ringer
-         self.IReAlgToolList+= [ringer]
- 
+    __slots__ = []
+    def __init__ (self, name="T2CaloEgamma_ReFastAlgo", ClustersName="HLT_L2CaloEMClusters", doRinger=False, RingerKey="HLT_FastCaloRinger"):
+        super(T2CaloEgamma_ReFastAlgo, self).__init__(name)
+        # here put your customizations
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
+            from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
+            svcMgr += TrigCaloDataAccessSvc()
+        samp2 = EgammaReSamp2FexConfig(name="ReFaAlgoSamp2FexConfig",
+                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
+                                        ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
+        samp1 = EgammaReSamp1FexConfig("ReFaAlgoSamp1FexConfig",
+                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
+                                        ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
+        sampe = EgammaReEmEnFexConfig("ReFaAlgoEmEnFexConfig",
+                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
+                                        ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
+        samph = EgammaReHadEnFexConfig("ReFaAlgoHadEnFexConfig",
+                                        trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
+                                        ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
 
-       self.EtaWidth = 0.2
-       self.PhiWidth = 0.2
-       #self.EtaWidthForID = 0.1
-       #self.PhiWidthForID = 0.1
-       #self.TrigEMClusterKey="TrigT2CaloEgamma"
-       self.CalibListEndcap=[EgammaSshapeCalibrationEndcapConfig()]
-       self.CalibListBarrel=[EgammaSshapeCalibrationBarrelConfig()]
-       self.CalibListBarrel+=[EgammaHitsCalibrationBarrelConfig()]
-       self.CalibListBarrel+=[EgammaGapCalibrationConfig()]
-       self.CalibListBarrel+=[EgammaTransitionRegionsConfig()]
-       self.CalibListEndcap+=[EgammaHitsCalibrationEndcapConfig()]
-       self.CalibListEndcap+=[EgammaGapCalibrationConfig()]
+        samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
 
-       from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-       monTool = GenericMonitoringTool('MonTool')
-       monTool.defineHistogram('TrigEMCluster_eT', path='EXPERT', type='TH1F', title="T2Calo Egamma E_T; E_T [ GeV ] ; Nclusters", xbins=80, xmin=0.0, xmax=80.0)
-       monTool.defineHistogram('TrigEMCluster_had1', path='EXPERT', type='TH1F', title="T2Calo Egamma had E_T samp1; had E_T samp1 [ GeV ] ; Nclusters", xbins=80, xmin=0.0, xmax=8.0)
-       monTool.defineHistogram('TrigEMCluster_eta', path='EXPERT', type='TH1F', title="T2Calo Egamma #eta; #eta ; Nclusters", xbins=100, xmin=-2.5, xmax=2.5)
-       monTool.defineHistogram('TrigEMCluster_phi', path='EXPERT', type='TH1F', title="T2Calo Egamma #phi; #phi ; Nclusters", xbins=128, xmin=-3.2, xmax=3.2)
-       monTool.defineHistogram('TrigEMCluster_rEta', path='EXPERT', type='TH1F', title="T2Calo Egamma rEta; rEta (e237/e277) ; Nclusters", xbins=140, xmin=-0.2, xmax=1.2)
-       monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="T2Calo Egamma time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0)
-       monTool.defineHistogram('TrigEMCluster_eta,TIME_exec', path='EXPERT', type='TH2F', title="T2Calo Egamma time vs #eta ; #eta ; time [ us ]", xbins=100, xmin=-2.5, xmax=2.5, ybins=80, ymin=0.0, ymax=8000.0)
+        self.IReAlgToolList = [ samp2, samp1, sampe, samph ]
+        
+        if doRinger:
+            from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
+            ringer = RingerReFexConfig('ReFaAlgoRingerFexConfig')
+            ringer.RingerKey= RingerKey #"HLT_FastCaloRinger"
+            ringer.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+            ringer.ClustersName = ClustersName
+            #ToolSvc+=ringer
+            self.IReAlgToolList+= [ringer]
 
-       self.MonTool = monTool
+        self.EtaWidth = 0.2
+        self.PhiWidth = 0.2
+        #self.EtaWidthForID = 0.1
+        #self.PhiWidthForID = 0.1
+        #self.TrigEMClusterKey="TrigT2CaloEgamma"
+        self.CalibListEndcap=[EgammaSshapeCalibrationEndcapConfig()]
+        self.CalibListBarrel=[EgammaSshapeCalibrationBarrelConfig()]
+        self.CalibListBarrel+=[EgammaHitsCalibrationBarrelConfig()]
+        self.CalibListBarrel+=[EgammaGapCalibrationConfig()]
+        self.CalibListBarrel+=[EgammaTransitionRegionsConfig()]
+        self.CalibListEndcap+=[EgammaHitsCalibrationEndcapConfig()]
+        self.CalibListEndcap+=[EgammaGapCalibrationConfig()]
+
+        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+        monTool = GenericMonitoringTool('MonTool')
+        monTool.defineHistogram('TrigEMCluster_eT', path='EXPERT', type='TH1F', title="T2Calo Egamma E_T; E_T [ GeV ] ; Nclusters", xbins=80, xmin=0.0, xmax=80.0)
+        monTool.defineHistogram('TrigEMCluster_had1', path='EXPERT', type='TH1F', title="T2Calo Egamma had E_T samp1; had E_T samp1 [ GeV ] ; Nclusters", xbins=80, xmin=0.0, xmax=8.0)
+        monTool.defineHistogram('TrigEMCluster_eta', path='EXPERT', type='TH1F', title="T2Calo Egamma #eta; #eta ; Nclusters", xbins=100, xmin=-2.5, xmax=2.5)
+        monTool.defineHistogram('TrigEMCluster_phi', path='EXPERT', type='TH1F', title="T2Calo Egamma #phi; #phi ; Nclusters", xbins=128, xmin=-3.2, xmax=3.2)
+        monTool.defineHistogram('TrigEMCluster_rEta', path='EXPERT', type='TH1F', title="T2Calo Egamma rEta; rEta (e237/e277) ; Nclusters", xbins=140, xmin=-0.2, xmax=1.2)
+        monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="T2Calo Egamma time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=8000.0)
+        monTool.defineHistogram('TrigEMCluster_eta,TIME_exec', path='EXPERT', type='TH2F', title="T2Calo Egamma time vs #eta ; #eta ; time [ us ]", xbins=100, xmin=-2.5, xmax=2.5, ybins=80, ymin=0.0, ymax=8000.0)
+
+        self.MonTool = monTool
 
