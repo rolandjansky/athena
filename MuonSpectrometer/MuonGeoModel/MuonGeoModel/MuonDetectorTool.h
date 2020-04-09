@@ -6,7 +6,6 @@
 #define MUONGEOMODEL_MUONDETECTORTOOL_H
 
 #include "GeoModelUtilities/GeoModelTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "MuonGeoModel/MuonDetectorFactory001.h"
 
 namespace MuonGM
@@ -15,7 +14,7 @@ namespace MuonGM
 }
 
 
-class MuonDetectorTool : public GeoModelTool, virtual public IIncidentListener {
+class MuonDetectorTool : public GeoModelTool {
 
 public:
 
@@ -34,9 +33,6 @@ public:
 
   // Dereference tree tops and drop readout objects
   virtual StatusCode clear() override final;
-
-  // incident svc handle
-  virtual void handle(const Incident&) override;
 
 
 private:
