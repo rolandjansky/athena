@@ -3,16 +3,16 @@
 */
 
 #include "TrigCompositeUtils/Combinators.h"
-#include "TrigMuonEFCombinerHypoTool.h"
+#include "TrigMuonEFHypoTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 class ISvcLocator;
-TrigMuonEFCombinerHypoTool::TrigMuonEFCombinerHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
+TrigMuonEFHypoTool::TrigMuonEFHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
   AthAlgTool(type, name, parent),
   m_decisionId(HLT::Identifier::fromToolName(name)){
 }
-TrigMuonEFCombinerHypoTool::~TrigMuonEFCombinerHypoTool(){
+TrigMuonEFHypoTool::~TrigMuonEFHypoTool(){
 }
-StatusCode TrigMuonEFCombinerHypoTool::initialize(){
+StatusCode TrigMuonEFHypoTool::initialize(){
 
   if(m_muonqualityCut) {
     if(m_muonSelTool.retrieve().isFailure()) {
@@ -45,9 +45,12 @@ StatusCode TrigMuonEFCombinerHypoTool::initialize(){
     ATH_MSG_DEBUG("MonTool name: " << m_monTool);
   }
 
+  if(m_doSA) m_type = xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle;
+  else m_type = xAOD::Muon::TrackParticleType::CombinedTrackParticle;
+
   return StatusCode::SUCCESS;
 }
-bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool::MuonEFInfo& input, size_t cutIndex) const{
+bool TrigMuonEFHypoTool::decideOnSingleObject(TrigMuonEFHypoTool::MuonEFInfo& input, size_t cutIndex) const{
   ATH_MSG_DEBUG( "deciding...");
   //Monitored Variables
   std::vector<float> fexPt, fexEta, fexPhi, selPt, selEta, selPhi;
@@ -72,23 +75,35 @@ bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool
     ATH_MSG_DEBUG("Retrieval of xAOD::MuonContainer failed");
     return false;
   }
+  if(m_threeStationCut){
+    uint8_t nGoodPrcLayers=0;
+    if (!muon->summaryValue(nGoodPrcLayers, xAOD::numberOfGoodPrecisionLayers)){
+      ATH_MSG_DEBUG("No numberOfGoodPrecisionLayers variable found; not passing hypo");
+      return false;
+    }
+    if(std::abs(muon->eta()) > 1.05 && nGoodPrcLayers < 3){
+      ATH_MSG_DEBUG("Muon has less than three GoodPrecisionLayers; not passing hypo");
+      return false;
+    }
+  }
+
   if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
-    const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+    const xAOD::TrackParticle* tr = muon->trackParticle(m_type);
     if (!tr) {
-      ATH_MSG_DEBUG("No CombinedTrackParticle found.");
+      ATH_MSG_DEBUG("No TrackParticle found.");
     } else {
-      ATH_MSG_DEBUG("Retrieved CombinedTrack track with abs pt "<< (*tr).pt()/CLHEP::GeV << " GeV ");
+      ATH_MSG_DEBUG("Retrieved Track track with abs pt "<< (*tr).pt()/CLHEP::GeV << " GeV ");
       //fill monitored variables
       fexPt.push_back(tr->pt()/CLHEP::GeV);
       fexEta.push_back(tr->eta());
       fexPhi.push_back(tr->phi());
       //Apply hypo cuts
-      float absEta = fabs(tr->eta());
+      float absEta = std::abs(tr->eta());
       float threshold = 0;
       for (std::vector<float>::size_type k=0; k<m_bins[0]; ++k) {
         if (absEta > m_ptBins[cutIndex][k] && absEta <= m_ptBins[cutIndex][k+1]) threshold = m_ptThresholds[cutIndex][k];
       }
-      if (fabs(tr->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
+      if (std::abs(tr->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
         selPt.push_back(tr->pt()/CLHEP::GeV);
         selEta.push_back(tr->eta());
         selPhi.push_back(tr->phi());
@@ -105,7 +120,7 @@ bool TrigMuonEFCombinerHypoTool::decideOnSingleObject(TrigMuonEFCombinerHypoTool
   return result;	
 }
 
-bool TrigMuonEFCombinerHypoTool::passedQualityCuts(const xAOD::Muon* muon) const {
+bool TrigMuonEFHypoTool::passedQualityCuts(const xAOD::Muon* muon) const {
     bool passCut = false;
     const xAOD::TrackParticle* idtrack = muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
     const xAOD::TrackParticle* metrack = muon->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
@@ -127,7 +142,7 @@ bool TrigMuonEFCombinerHypoTool::passedQualityCuts(const xAOD::Muon* muon) const
    return passCut;
 }
   
-StatusCode TrigMuonEFCombinerHypoTool::decide(std::vector<MuonEFInfo>& toolInput) const {
+StatusCode TrigMuonEFHypoTool::decide(std::vector<MuonEFInfo>& toolInput) const {
   size_t numTrigger = m_ptBins.size();
   size_t numMuon=toolInput.size();
   if(numTrigger==1){
@@ -140,7 +155,7 @@ StatusCode TrigMuonEFCombinerHypoTool::decide(std::vector<MuonEFInfo>& toolInput
   }
   return StatusCode::SUCCESS;
 }
-StatusCode TrigMuonEFCombinerHypoTool::inclusiveSelection(std::vector<MuonEFInfo>& toolInput) const{
+StatusCode TrigMuonEFHypoTool::inclusiveSelection(std::vector<MuonEFInfo>& toolInput) const{
   for (auto& tool : toolInput){
     if(TrigCompositeUtils::passed(m_decisionId.numeric(), tool.previousDecisionIDs)){
       if(decideOnSingleObject(tool, 0)==true){
@@ -152,7 +167,7 @@ StatusCode TrigMuonEFCombinerHypoTool::inclusiveSelection(std::vector<MuonEFInfo
   }
   return StatusCode::SUCCESS;
 }
-StatusCode TrigMuonEFCombinerHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& toolInput) const{
+StatusCode TrigMuonEFHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& toolInput) const{
   HLT::Index2DVec passingSelection(m_ptBins.size());
   for(size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex) {
     size_t elementIndex{0};
