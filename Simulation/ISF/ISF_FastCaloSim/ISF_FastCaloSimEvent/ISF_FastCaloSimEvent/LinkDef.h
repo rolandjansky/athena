@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/DoubleArray.h"
@@ -39,6 +39,7 @@
 #include "ISF_FastCaloSimEvent/TFCSEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSEnergyAndHitGAN.h"
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
@@ -202,6 +203,7 @@
 #pragma link C++ class TFCSEnergyParametrization+;
 #pragma link C++ class TFCSPCAEnergyParametrization-;
 #pragma link C++ class TFCSEnergyBinParametrization+;
+#pragma link C++ class TFCSEnergyAndHitGAN-;
 
 #pragma link C++ class TFCSLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitBase+;
