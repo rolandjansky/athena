@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ElementLinkCnv_p3.icc
@@ -10,7 +10,6 @@
 #include <stdexcept>
 
 #include "AthLinks/ElementLink.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/ThinningCache.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/getThinningCache.h"
@@ -24,59 +23,7 @@ transToPers(const Link_t& trans, PersLink_t& pers,
             [[maybe_unused]] MsgStream& msg ) const
 {
    if( !trans.isDefault() ) {
-      IThinningSvc * thinningSvc = IThinningSvc::instance();
-      const SG::DataProxy* dp = trans.proxy();
-      const bool thinning = thinningSvc && 
-        (dp 
-         ? thinningSvc->thinningOccurred(dp) 
-         // otherwise, use the event-level one
-         : thinningSvc->thinningOccurred());
-      if (thinning) {
-        // the not so simple case: some thinning occurred
-        
-        // here is the problem: in case the ElementLink was directly created w/
-        // only a pointer to the element, _and_ if the the pointed at element 
-        // has been thinned away, EL::index() will throw b/c
-        // IndexingPolicy::setIndex will fail.
-        std::size_t idx = IThinningSvc::RemovedIdx;
-        try {
-          idx = trans.index();
-        } catch ( const SG::maybe_thinning_error& err ) {
-          // ok. that's the corner case we talked about above.
-#ifdef  ELLINK_DEBUG
-          msg << MSG::DEBUG << "caught a maybe_thinning_error: ["
-              << err.what() << "]"
-              << endmsg
-              << "(this is an expected case of the EL-state-phase-space "
-              << "when thinning is active)"
-              << endmsg;
-#endif
-        }
-        const std::size_t persIdx = dp ?
-          thinningSvc->index(dp, idx) :
-          thinningSvc->index(trans.getStorableObjectPointer(), idx);
-        
-        if( IThinningSvc::RemovedIdx == persIdx )
-        {
-          // this element has been thinned away. So the persistent equivalent
-          // of a null pointer is a default persistent pointer.
-          pers = PersLink_t();
-        }
-        else {
-          Link_t tmp = trans;
-          tmp.toPersistent();
-          pers.m_SGKeyHash       = tmp.key(); 
-          pers.m_elementIndex    = persIdx;
-        }
-#ifdef  ELLINK_DEBUG
-        msg << MSG::INFO << "ElementLinkCnv_p3::transToPer(): SG Container="
-            << ", Key Hash=" << pers.m_SGKeyHash
-            << ", IDX=" << pers.m_elementIndex << endmsg;
-#endif
-        return;
-      }
-
-      // Check for new thinning.
+      // Check for thinning.
       if (cache) {
         const SG::ThinningDecisionBase* dec = cache->thinning (trans.key());
         if (dec) {
@@ -84,7 +31,7 @@ transToPers(const Link_t& trans, PersLink_t& pers,
           // only a pointer to the element, _and_ if the the pointed at element 
           // has been thinned away, EL::index() will throw b/c
           // IndexingPolicy::setIndex will fail.
-          std::size_t idx = IThinningSvc::RemovedIdx;
+          std::size_t idx = SG::ThinningDecisionBase::RemovedIdx;
           try {
             idx = trans.index();
           } catch ( const SG::maybe_thinning_error& err ) {
