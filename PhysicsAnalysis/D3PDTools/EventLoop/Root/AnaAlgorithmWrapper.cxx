@@ -12,6 +12,7 @@
 
 #include <EventLoop/AnaAlgorithmWrapper.h>
 
+#include <AnaAlgorithm/AlgorithmWorkerData.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/Worker.h>
 #include <RootCoreUtils/Assert.h>
@@ -59,14 +60,14 @@ namespace EL
   {
     ANA_CHECK_SET_TYPE (EL::StatusCode);
     RCU_READ_INVARIANT (this);
-    ANA_CHECK (m_config.makeAlgorithm (m_algorithm));
-    m_algorithm->setHistogramWorker (wk ());
-    m_algorithm->setTreeWorker (wk ());
-    m_algorithm->setFilterWorker (wk ());
-    m_algorithm->setWk (wk ());
+    AlgorithmWorkerData workerData;
+    workerData.m_histogramWorker = wk();
+    workerData.m_treeWorker = wk();
+    workerData.m_filterWorker = wk();
+    workerData.m_wk = wk();
     if (m_config.useXAODs())
-      m_algorithm->setEvtStore (evtStore ());
-    ANA_CHECK (m_algorithm->sysInitialize());
+      workerData.m_evtStore = evtStore();
+    ANA_CHECK (m_config.makeAlgorithm (m_algorithm, workerData));
     return StatusCode::SUCCESS;
   }
 

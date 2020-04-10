@@ -13,10 +13,9 @@
 // Environment specific include(s):
 #ifdef XAOD_STANDALONE
 #   include "AsgMessaging/AsgMessaging.h"
+#   include "AsgTools/AsgComponent.h"
 #   include "AsgTools/SgTEvent.h"
    // Forward declaration(s):
-   class Property;
-   class PropertyMgr;
 #else // XAOD_STANDALONE
 #   include "AthenaBaseComps/AthAlgTool.h"
 #endif // XAOD_STANDALONE
@@ -28,7 +27,7 @@ namespace asg {
 #ifndef XAOD_STANDALONE
    typedef ::AthAlgTool AsgToolBase;
 #else // not XAOD_STANDALONE
-   typedef AsgMessaging AsgToolBase;
+   typedef AsgComponent AsgToolBase;
 #endif // not XAOD_STANDALONE
 
    /// Base class for the dual-use tool implementation classes
@@ -62,18 +61,6 @@ namespace asg {
       /// @name Property management functions
       /// @{
 
-      /// Declare a tool property in standalone mode
-      template< class T >
-      Property* declareProperty( const std::string& name, T& loc,
-                                 const std::string& doc = "" );
-
-      /// Set a string property in standalone mode
-      StatusCode setProperty( const std::string& name,
-                              const char* value );
-      /// Set a property in standalone mode
-      template< class T >
-      StatusCode setProperty( const std::string& name, const T& val );
-
       /// Get a non-constant pointer to the property manager
       PropertyMgr* getPropertyMgr();
       /// Get a constant pointer to the property manager
@@ -84,12 +71,15 @@ namespace asg {
       /// @name Tool name handling functions
       /// @{
 
-      /// Return the name of the tool
-      virtual const std::string& name() const;
       /// Set the name of the tool
       virtual void setName( const std::string& name );
 
       /// @}
+
+     // this is just so that my template functions can find this
+     // method in the base class.
+   public:
+     using AsgToolBase::msg;
 
 #endif // XAOD_STANDALONE
 
@@ -124,8 +114,6 @@ namespace asg {
 
    private:
 #ifdef XAOD_STANDALONE
-      std::string m_name; ///< The name of the tool instance
-      PropertyMgr* m_ppropmgr; ///< Standalone property manager
       mutable SgTEvent m_event; ///< Wrapper around TEvent/TStore
 #endif // XAOD_STANDALONE
 
