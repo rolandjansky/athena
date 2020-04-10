@@ -29,14 +29,15 @@ class IdentifierHash;
  * Tool that keeps track of modules that give rise to errors in the bytestram.
  **/
 namespace SCT_ByteStreamErrors {
+  //!< @brief for cases when error doe snot need to be accumulated
+  inline IDCInDetBSErrContainer::ErrorCode makeError( errorTypes errType ) { return IDCInDetBSErrContainer::ErrorCode{1} << errType; }
+
   //!< @brief helper to be used in clients to fetch error information
-  inline bool hasError(IDCInDetBSErrContainer::ErrorCode errWord,  errorTypes errType ) { return errWord & (1<<errType); }
+  inline bool hasError(IDCInDetBSErrContainer::ErrorCode errWord,  errorTypes errType ) { return errWord & makeError( errType ); }
 
   //!< @brief helper to set the error: @example errors[hashId] = addError( errors[hashId], PixelByteStreamErrors::Invalid )
-  inline void addError(IDCInDetBSErrContainer::ErrorCode& errWord,  errorTypes errType ) { errWord |= (1<<errType); }
+  inline void addError(IDCInDetBSErrContainer::ErrorCode& errWord,  errorTypes errType ) { errWord |= makeError( errType ); }
 
-  //!< @brief for cases when error doe snot need to be accumulated
-  inline IDCInDetBSErrContainer::ErrorCode makeError( errorTypes errType ) { return (1<<errType); }
 }
 
 
