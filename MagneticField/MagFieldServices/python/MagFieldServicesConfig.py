@@ -30,6 +30,8 @@ def MagneticFieldSvcCfg(flags, **kwargs):
       afsArgs.update( UseToroCurrent = 20400 )
     else:
       afsArgs.update( UseDCS = True )
+    if 'UseDCS' in kwargs:
+      afsArgs['UseDCS'] = kwargs['UseDCS']
     mag_field_svc = CompFactory.MagField__AtlasFieldSvc(**afsArgs)  
     result.addService(mag_field_svc, primary=True)
 
@@ -52,6 +54,9 @@ def MagneticFieldSvcCfg(flags, **kwargs):
     else:
       afcArgs.update( UseDCS = True )
       afcArgs.update( UseNewBfieldCache = True )
+    
+    if 'UseDCS' in kwargs:
+      afcArgs['UseDCS'] = kwargs['UseDCS']
     mag_field_cache_cond_alg = CompFactory.MagField__AtlasFieldCacheCondAlg(**afcArgs) 
     result.addCondAlgo(mag_field_cache_cond_alg)
     
