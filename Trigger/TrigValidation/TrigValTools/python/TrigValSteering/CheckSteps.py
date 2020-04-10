@@ -727,14 +727,6 @@ def default_check_steps(test):
     msgcount = MessageCountStep('MessageCount')
     check_steps.append(msgcount)
 
-    # RegTest
-    regtest = RegTestStep()
-    if log_to_check is not None:
-        regtest.input_base_name = os.path.splitext(log_to_check)[0]
-    if 'athenaHLT' in step_types:
-        regtest.regex = r'(?:HltEventLoopMgr(?!.*athenaHLT-)(?!.*DF_Pid)|REGTEST)'
-    check_steps.append(regtest)
-
     # Tail (probably not so useful these days)
     tail = TailStep()
     if log_to_check is not None:
@@ -767,3 +759,18 @@ def default_check_steps(test):
 
     # return the steps
     return check_steps
+
+
+def add_step_after_type(step_list, ref_type, step_to_add):
+    '''
+    Insert step_to_add into step_list after the last step of type ref_type.
+    If the list has no steps of type ref_type, append step_to_add at the end of the list.
+    '''
+    index_to_add = -1
+    for index, step in enumerate(step_list):
+        if isinstance(step, ref_type):
+            index_to_add = index+1
+    if index_to_add > 0:
+        step_list.insert(index_to_add, step_to_add)
+    else:
+        step_list.append(step_to_add)
