@@ -10,7 +10,7 @@
 #include <stdexcept>
 
 /// Convenience macro for setting the level of output messages
-#define MSGLVL MSG::INFO
+#define MSGLVL MSG::DEBUG
 
 /// Another convenience macro for printing messages in the converter
 #define ATH_MSG( MSG )                          \
