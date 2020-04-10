@@ -21,7 +21,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CommissionEvent/ComTime.h"
 #include "TFile.h"
@@ -35,7 +34,7 @@ class TH3F;
 class TProfile;
 class TProfile2D;
 class TGraphErrors;
-class ITRT_CalDbSvc;
+class ITRT_CalDbTool;
 
 class AtlasDetectorID;
 class PixelID;
@@ -117,7 +116,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
 
  protected:
-  ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc ;
+  ToolHandle<ITRT_CalDbTool> m_trtcaldbTool ;
  private:
 
 	
