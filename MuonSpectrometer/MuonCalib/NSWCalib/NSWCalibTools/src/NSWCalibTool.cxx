@@ -5,7 +5,7 @@
 namespace {
   static constexpr double const& toRad = M_PI/180;
   static constexpr double const& pitchErr = 0.425 * 0.425 / 12;
-  static constexpr double const& reciprocalSpeedOfLight = Gaudi::Units::c_light * 1e-6; // mm/ns
+  static constexpr double const& reciprocalSpeedOfLight = 1. / Gaudi::Units::c_light; // mm/ns
 }
 
 Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
@@ -23,7 +23,7 @@ Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
   declareProperty("longDiff",m_longDiff=0.019); //mm/mm
   declareProperty("transDiff",m_transDiff=0.036); //mm/mm
   declareProperty("ionUncertainty",m_ionUncertainty=4.0); //ns
-  declareProperty("timeOffset", m_timeOffset = 100); //ns                       
+  declareProperty("timeOffset", m_timeOffset = -100); //ns                       
   declareProperty("MuonIdHelperTool", m_idHelperTool);
 }
 
@@ -58,7 +58,7 @@ StatusCode Muon::NSWCalibTool::calibrate( const Muon::MM_RawData* mmRawData, con
   Amg::Vector3D magneticField;
 
   m_magFieldSvc->getField(&globalPos,&magneticField);
-  
+
   double lorentzAngle = m_lorentzAngleFunction->Eval((magneticField.y() > 0. ? 1. : -1.) * std::fabs (magneticField.y()) ) * toRad; // in radians;
 
   vDriftCorrected = m_vDrift * std::cos(lorentzAngle);
