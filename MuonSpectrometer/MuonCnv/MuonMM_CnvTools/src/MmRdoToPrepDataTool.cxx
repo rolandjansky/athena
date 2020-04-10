@@ -222,7 +222,7 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection( const MM_RawDataCollect
     cov->setIdentity();
     (*cov)(0,0) = calibStrip.resTransDistDrift;  
     (*cov)(1,1) = calibStrip.resLongDistDrift;
-    localPos.x() =+ calibStrip.dx;
+    localPos.x() += calibStrip.dx;
 
     if(!merge) {
       prdColl->push_back(new MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift));
