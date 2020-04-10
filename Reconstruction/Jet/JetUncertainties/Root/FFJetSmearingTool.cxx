@@ -814,22 +814,22 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 ////Domain is [200-6000],[-6,0],[0,2] but, the ReadHistogram function put the value of the extream of the histogram to the values outside the domain.
 ////We have to use a custom "My_Interpolate" because the Z axis has just one bin (and this makes the Root Interpolate function fail) 
 
-	if (caloRes == 0 || TARes == 0) { return CP::CorrectionCode::Ok;}
+        double caloFactor;
+        double TAFactor;
 
-	double caloFactor = 1./(caloRes*caloRes);
-	double TAFactor   = 1./(TARes*TARes);
+	if (caloRes == 0 ) { caloFactor = 0; TAFactor = 1;}
+	else if( TARes == 0) { caloFactor = 1; TAFactor = 0;}
+	else{
+		caloFactor = 1./(caloRes*caloRes);
+		TAFactor   = 1./(TARes*TARes);
+	}
 
-    if (caloFactor + TAFactor == 0){ return CP::CorrectionCode::Ok;} 
 
 	calo_mass_weight = caloFactor /(caloFactor + TAFactor);
-
-
 
 	ATH_MSG_VERBOSE(" Map Calo weight = " << calo_mass_weight  );
 	ATH_MSG_VERBOSE(" Map TA weight = " << 1 - calo_mass_weight  );
     }
-
-
 
 	double smeared_mass = calo_mass_weight*smeared_CALO_mass + (1 - calo_mass_weight)*smeared_TA_mass;
 
