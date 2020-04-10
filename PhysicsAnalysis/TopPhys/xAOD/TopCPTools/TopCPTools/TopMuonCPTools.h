@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPCPTOOLS_TOPMUONCPTOOLS_H_
@@ -35,9 +35,6 @@ namespace top {
     std::shared_ptr<top::TopConfig> m_config;
 
     ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationPeriodTool;
-    // This is a new tool handle required to manage different sagitta correction recommendations re:2017 data
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16#How_to_setup_for_2015_and_2016_d
-    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool2017;
 
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolLoose;
@@ -74,6 +71,9 @@ namespace top {
 
     CP::IMuonEfficiencyScaleFactors*
     setupMuonSFTool(const std::string& name, const std::string& WP);
+
+    CP::IMuonCalibrationAndSmearingTool*
+      setupMuonCalibrationAndSmearingTool(const std::string& name, const bool& doExtraSmearing, const bool& do2StationsHighPt);
   };
 }  // namespace top
 
