@@ -3869,14 +3869,7 @@ int HLTTauMonTool::PrimaryVertices(){
 }
 
 float HLTTauMonTool::Pileup(){
-  float Pileup(0.);
-  const xAOD::EventInfo* evtInfo = 0;
-  if( !evtStore()->retrieve(evtInfo, "EventInfo" ).isSuccess() ){
-    ATH_MSG_DEBUG("Failed to retrieve EventInfo container, returning -1!");
-    return -1;
-    }
-  Pileup = evtInfo->averageInteractionsPerCrossing();
-  return Pileup;
+  return lbAverageInteractionsPerCrossing();
 }
 
 

@@ -625,7 +625,7 @@ StatusCode JetTagMonitoring::fillHistograms() {
   //* Get Pileup     *//
   //////////////////////
 
-  m_mu = thisEventInfo->actualInteractionsPerCrossing();
+  m_mu = lbInteractionsPerCrossing();
   m_n_mu->Fill(m_mu); 
 
   ///////////////////////////////
