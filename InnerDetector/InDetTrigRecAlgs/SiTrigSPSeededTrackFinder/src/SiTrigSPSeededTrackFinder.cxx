@@ -396,7 +396,7 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltExecute(const HLT::TriggerEl
       
       if (msgLvl() <= MSG::VERBOSE) {
 	msg() << MSG::VERBOSE << "Using 3SPs seed with ====> " << endmsg; 
-	for(std::list<const Trk::SpacePoint*>::const_iterator it=seed->spacePoints().begin(); it != seed->spacePoints().end(); it++) {
+	for(std::vector<const Trk::SpacePoint*>::const_iterator it=seed->spacePoints().begin(); it != seed->spacePoints().end(); it++) {
 	  msg() << MSG::VERBOSE << "Using SP with :::: " << endmsg; 
 	  msg() << " :: r :: " << (*it)->globalPosition().mag() 
 		<< " :: perp :: " << (*it)->globalPosition().perp() 

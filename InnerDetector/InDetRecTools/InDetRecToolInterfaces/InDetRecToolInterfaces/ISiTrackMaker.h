@@ -64,7 +64,7 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       //@{
       virtual std::list<Trk::Track*>
-        getTracks(const EventContext& ctx, SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>&) const =0;
+        getTracks(const EventContext& ctx, SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>&) const =0;
       virtual std::list<Trk::Track*>
 	getTracks(const EventContext& ctx, SiTrackMakerEventData_xk& data, const Trk::TrackParameters&, const std::list<Amg::Vector3D>&) const =0;
 
