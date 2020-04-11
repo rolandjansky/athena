@@ -634,12 +634,6 @@ class TRTConditionsServicesSetup:
 
     # Calibration DB Service
     from AthenaCommon.AppMgr import ServiceMgr
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-    #InDetTRTCalDbSvc = TRT_CalDbSvc(self.instanceName('TRT_CalDbSvc'))    #
-    InDetTRTCalDbSvc = TRT_CalDbSvc('TRT_CalDbSvc')
-    ServiceMgr += InDetTRTCalDbSvc
-    if self._print:
-        print (InDetTRTCalDbSvc)
 
     # Dead/Noisy Straw Lists
     if not conddb.folderRequested('/TRT/Cond/Status'):
@@ -704,15 +698,6 @@ class TRTConditionsServicesSetup:
     #
     InDetTRTConditionsServices=[]
 
-    # Dead/Noisy Straw Service
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-    InDetTRTStrawStatusSummarySvc = \
-        TRT_StrawStatusSummarySvc(name=self.instanceName("InDetTRTStrawStatusSummarySvc"))
-    ServiceMgr += InDetTRTStrawStatusSummarySvc
-    InDetTRTConditionsServices.append(InDetTRTStrawStatusSummarySvc)
-
-    if self._print:
-      print (InDetTRTStrawStatusSummarySvc)
     
     # Services which only run on raw data
     if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
