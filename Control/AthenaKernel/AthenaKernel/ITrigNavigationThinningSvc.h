@@ -5,6 +5,7 @@
 /**
  * @file AthenaKernel/ITrigNavigationThinningSvc.h
  * @author scott snyder <snyder@bnl.gov>
+ *         Based on the original version from  TrigNavTools (T. Bold).
  * @date Apr, 2020
  * @brief Define interface for doing TrigNavigation thinning.
  */
