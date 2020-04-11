@@ -19,7 +19,7 @@ atlas_install_scripts( bin/acmd.py bin/checkFile.py bin/checkPlugins.py
    bin/gprof2dot bin/issues bin/magnifyPoolFile.py bin/merge-poolfiles.py
    bin/pep8.py bin/pool_extractFileIdentifier.py
    bin/pool_insertFileToCatalog.py bin/print_auditor_callgraph.py bin/pyroot.py
-   bin/vmem-sz.py bin/meta-reader.py bin/tree-orderer.py )
+   bin/vmem-sz.py bin/meta-reader.py bin/meta-diff.py bin/tree-orderer.py )
 
 # Aliases:
 atlas_add_alias( checkFile "checkFile.py" )
@@ -41,6 +41,7 @@ atlas_add_alias( acmd "acmd.py" )
 atlas_add_alias( vmem-sz "vmem-sz.py" )
 atlas_add_alias( getMetadata "getMetadata.py" )
 atlas_add_alias( meta-reader "meta-reader.py" )
+atlas_add_alias( meta-diff   "meta-diff.py" )
 atlas_add_alias( tree-orderer "tree-orderer.py" )
 
 # Tests:
