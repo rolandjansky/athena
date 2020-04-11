@@ -30,6 +30,9 @@
 <!ENTITY Z0PARA "250.0">
 <!ENTITY QOPPARA "5.0e-3">
 <!ENTITY Z0SINPARA "40.0">
+<!-- dR plots for tracks in jets -->
+<!ENTITY DRMAX "0.4">
+<!ENTITY SMALLDRMAX "0.1">
 <!-- histogram definitions common to Run2 and ITk -->
 <!ENTITY Common SYSTEM "InDetPVMPlotDefCommon.xml">
 ]>
