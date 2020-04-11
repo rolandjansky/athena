@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h
@@ -20,7 +20,6 @@
 #include "AthenaPoolCnvSvc/exceptions.h"
 #include "AthenaPoolCnvSvc/debug.h"
 #include "AthContainers/tools/copyThinned.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/ClassID_traits.h"
 
 
