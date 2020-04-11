@@ -30,11 +30,10 @@ StatusCode DQTLumiMonAlg::fillHistograms(const EventContext& ctx) const {
     }
 
     auto lumiBlock = Scalar<int>("LB", eventInfo->lumiBlock());
-    auto avgMu = Scalar("avgMu", eventInfo->averageInteractionsPerCrossing());
-    float avgMuInverse = avgMu>0 ? 1./avgMu : 0.;
 
     auto avgLumi = Scalar("avgLumi", lbAverageLuminosity(ctx));
     auto avgIntPerXing = Scalar("avgIntPerXing", lbAverageInteractionsPerCrossing(ctx));
+    float avgMuInverse = avgIntPerXing>0 ? 1./avgIntPerXing : 0.;
     auto lumiPerBCID = Scalar("lumiPerBCID", lbLuminosityPerBCID(ctx));
     auto intPerXing = Scalar("intPerXing", lbInteractionsPerCrossing(ctx));
     auto duration = Scalar("duration", lbDuration(ctx));
@@ -46,23 +45,25 @@ StatusCode DQTLumiMonAlg::fillHistograms(const EventContext& ctx) const {
     auto nLooseVtx = Scalar<int>("nLooseVtx",0);
     auto nTightVtx = Scalar<int>("nTightVtx",0);
     if ( vertices.isValid() ) {
-        for ( const auto vertex : *vertices ) {
-            if (!vertex || !vertex->vxTrackAtVertexAvailable()) continue;
+        for ( const auto& vertex : *vertices ) {
+            if (!vertex || !vertex->nTrackParticles()) continue;
             nLooseVtx++;
 
-            auto tracks = vertex->vxTrackAtVertex();
-            int nGoodTracks = std::count_if(tracks.begin(),tracks.end(),
-                [this](const auto track){return track.weight()>=m_tightTrackWeight;});
-            if ( nGoodTracks>=m_tightNTracks )
+            int nGoodTracks = 0;
+            for (size_t i = 0; i < vertex->nTrackParticles(); ++i) {
+                if (vertex->trackWeight(i) >= m_tightTrackWeight) { ++nGoodTracks; }
+            }
+            if ( nGoodTracks>=m_tightNTracks ) {
                 nTightVtx++;
+            }
         }
     } else {
         ATH_MSG_WARNING("Could not retrieve Vertex Container.");
     }
-    auto nLooseVtxPerAvgMu = Scalar<int>("nLooseVtxPerAvgMu",nLooseVtx*avgMuInverse);
-    auto nTightVtxPerAvgMu = Scalar<int>("nTightVtxPerAvgMu",nTightVtx*avgMuInverse);
+    auto nLooseVtxPerAvgMu = Scalar<float>("nLooseVtxPerAvgMu",nLooseVtx*avgMuInverse);
+    auto nTightVtxPerAvgMu = Scalar<float>("nTightVtxPerAvgMu",nTightVtx*avgMuInverse);
 
-    fill(group,lumiBlock,avgMu,avgLumi,avgIntPerXing,lumiPerBCID,intPerXing,duration,
+    fill(group,lumiBlock,avgLumi,avgIntPerXing,lumiPerBCID,intPerXing,duration,
          avgLiveFrac,liveFracPerBCID,lumiWeight,nLooseVtx,nTightVtx,nLooseVtxPerAvgMu,
          nTightVtxPerAvgMu);
 
@@ -105,7 +106,7 @@ StatusCode DQTLumiMonAlg::fillHistograms(const EventContext& ctx) const {
             auto nClustersB1PerAvgMu = Scalar<int>("nClustersB1PerAvg",nClustersB1*avgMuInverse);
             auto nClustersB2PerAvgMu = Scalar<int>("nClustersB2PerAvg",nClustersB2*avgMuInverse);
 
-            fill("pixel",lumiBlock,avgMu,
+            fill("pixel",lumiBlock,
                  nClustersAll,nClustersECA,nClustersECC,
                  nClustersB0,nClustersB1,nClustersB2,
                  nClustersAllPerAvgMu,nClustersECAPerAvgMu,nClustersECCPerAvgMu,
