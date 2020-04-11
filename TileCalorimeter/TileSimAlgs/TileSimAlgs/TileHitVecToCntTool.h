@@ -84,12 +84,12 @@ class TileHitVecToCntTool: public PileUpToolBase {
 public:
   TileHitVecToCntTool(const std::string& type, const std::string& name, const IInterface* parent); //!< Constructor
   StatusCode initialize() override final;
-  virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/) override final;
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode prepareEvent(const EventContext& ctx, unsigned int /*nInputEvents*/) override final;
+  virtual StatusCode mergeEvent(const EventContext& ctx) override final;
   virtual StatusCode processBunchXing(int bunchXing,
                                       SubEventIterator bSubEvents,
                                       SubEventIterator eSubEvents) override final;
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
   StatusCode finalize() override final;
 
 private:

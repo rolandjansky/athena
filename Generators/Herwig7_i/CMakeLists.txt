@@ -9,6 +9,7 @@ atlas_subdir( Herwig7_i )
 atlas_depends_on_subdirs(
    PUBLIC
    Generators/GeneratorModules
+   Generators/AtlasHepMC
    PRIVATE
    Event/EventInfo
    GaudiKernel

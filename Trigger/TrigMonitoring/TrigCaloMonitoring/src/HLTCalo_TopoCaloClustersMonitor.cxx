@@ -12,11 +12,8 @@ struct clus_kin {
 };
 
 HLTCalo_TopoCaloClustersMonitor::HLTCalo_TopoCaloClustersMonitor( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthMonitorAlgorithm(name,pSvcLocator),
-    m_bunchCrossingTool("Trig::BunchCrossingTool/BunchCrossingTool", this)
+  : AthMonitorAlgorithm(name,pSvcLocator)
 {
-  declareProperty("BunchCrossingTool", m_bunchCrossingTool);
-
   declareProperty("HLTContainer", m_HLT_cont_key = "HLT_TopoCaloClustersFS");
   declareProperty("OFFContainer", m_OFF_cont_key = "CaloCalTopoClusters");
   declareProperty("MonGroupName", m_mongroup_name = "TrigCaloMonitor");
@@ -37,8 +34,7 @@ HLTCalo_TopoCaloClustersMonitor::~HLTCalo_TopoCaloClustersMonitor() {}
 StatusCode HLTCalo_TopoCaloClustersMonitor::initialize() {
   ATH_CHECK(m_HLT_cont_key.initialize());
   ATH_CHECK(m_OFF_cont_key.initialize());
-
-  ATH_CHECK( m_bunchCrossingTool.retrieve() );
+  ATH_CHECK( m_bunchCrossingKey.initialize());
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -64,8 +60,15 @@ StatusCode HLTCalo_TopoCaloClustersMonitor::fillHistograms( const EventContext& 
   // Bunch crossing
   int bcid = ctx.eventID().bunch_crossing_id();
   auto HLT_bc = Monitored::Scalar<int>("HLT_bc",-1);
-  HLT_bc = m_bunchCrossingTool->distanceFromFront(bcid) / m_bunchCrossingTool->bunchTrainSpacing();
 
+  SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
+  if (!bcidHdl.isValid()) {
+     ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object" );
+     return StatusCode::FAILURE;
+  }
+  const BunchCrossingCondData* bcData=*bcidHdl;
+  
+  HLT_bc = bcData->distanceFromFront(bcid, BunchCrossingCondData::BunchCrossings);
   /////////////////////////////////////
   // Cache expensive et, eta and phi //
   // calculations for the clusters   //

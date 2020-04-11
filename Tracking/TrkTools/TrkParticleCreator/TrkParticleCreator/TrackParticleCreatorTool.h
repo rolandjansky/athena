@@ -148,7 +148,7 @@ class TrackParticleCreatorTool : public extends<AthAlgTool, ITrackParticleCreato
   
   /** Get the name used for the decoration of the track particle with the number of used hits for TRT dE/dx computation.*/
   static const std::string & trtdEdxUsedHitsAuxName() { return s_trtdEdxUsedHitsDecorationName; }
-  virtual const InDet::BeamSpotData* CacheBeamSpotData(const EventContext &ctx) const override;
+  virtual const InDet::BeamSpotData* CacheBeamSpotData(const ::EventContext &ctx) const override;
 
 private:
 

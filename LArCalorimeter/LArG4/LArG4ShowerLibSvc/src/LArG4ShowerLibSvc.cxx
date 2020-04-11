@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4ShowerLibSvc/LArG4ShowerLibSvc.h"
@@ -242,7 +242,7 @@ LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
     }
   }
 
-  return *std::auto_ptr< std::vector<EnergySpot> >(shower);
+  return *std::unique_ptr< std::vector<EnergySpot> >(shower);
 }
 
 double

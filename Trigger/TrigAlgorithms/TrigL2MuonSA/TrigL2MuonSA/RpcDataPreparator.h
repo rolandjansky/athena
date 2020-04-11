@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPCDATAPREPARATOR_H
@@ -20,9 +20,7 @@
 #include "RegionSelector/IRegSelSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
@@ -33,20 +31,10 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-
-class ActiveStoreSvc;
-
-namespace HLT {
-  class TriggerElement;
-  class Algo;
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
-  class RpcReadoutElement;
-}
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+// #include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
+// #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -75,14 +63,12 @@ class RpcDataPreparator: public AthAlgTool
  private:
       // Region Selector
       ServiceHandle<IRegSelSvc> m_regionSelector;
+      SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
-      // RPC cabling service
-      const IRPCcablingSvc* m_rpcCabling;
-      const CablingRPCBase* m_rpcCablingSvc;
-      
-      // Muon Id Helpers
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+      // const IRPCcablingSvc* m_rpcCabling;
+      // const CablingRPCBase* m_rpcCablingSvc;
+
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       // handles to the RoI driven data access
       ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{

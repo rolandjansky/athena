@@ -10,6 +10,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/WeightContainer.h"
 #include <cmath>
 
 //--------------------------------------------------------------------------

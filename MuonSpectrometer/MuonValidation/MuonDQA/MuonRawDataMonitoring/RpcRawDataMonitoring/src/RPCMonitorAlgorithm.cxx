@@ -4,8 +4,6 @@
 
 #include "RpcRawDataMonitoring/RPCMonitorAlgorithm.h"
 
-using namespace std;
-
 //========================================================================================================
 RPCMonitorAlgorithm::RPCMonitorAlgorithm (const std::string& name, ISvcLocator* pSvcLocator)
   :AthMonitorAlgorithm(name,pSvcLocator),

@@ -237,8 +237,8 @@ TruthSelector::reconstructablePrimaries (double minPt)
         double zEnd        = 0.;
         if ((**particle).end_vertex() != 0)
         {
-        rEnd    = (**particle).end_vertex()->point3d().perp();
-        zEnd    = (**particle).end_vertex()->point3d().z();
+        rEnd    = (**particle).end_vertex()->position().perp();
+        zEnd    = (**particle).end_vertex()->position().z();
         }
         ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed)
                << std::setw(6) << m_barcodes.size()
@@ -311,8 +311,8 @@ TruthSelector::reconstructableSecondaries (double minPt)
         double zEnd        = 0.;
         if ((**particle).end_vertex() != 0)
         {
-        rEnd    = (**particle).end_vertex()->point3d().perp();
-        zEnd    = (**particle).end_vertex()->point3d().z();
+        rEnd    = (**particle).end_vertex()->position().perp();
+        zEnd    = (**particle).end_vertex()->position().z();
         }
         ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed)
                << std::setw(6) << m_barcodes.size()

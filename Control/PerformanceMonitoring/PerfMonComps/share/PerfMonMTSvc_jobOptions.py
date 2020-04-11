@@ -4,7 +4,7 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-import time
+import os,psutil
 
 log = logging.getLogger("PerfMonMTSvc_jobOptions.py")
 log.info("Setting up PerfMonMT...")
@@ -16,16 +16,22 @@ log.info("Setting up PerfMonMT...")
 if not hasattr(svcMgr, 'PerfMonMTSvc'):
     from PerfMonComps.MTJobOptCfg import PerfMonMTSvc
     svcMgr += PerfMonMTSvc("PerfMonMTSvc")
-    # Disable event loop monitoring by default
-    svcMgr.PerfMonMTSvc.doEventLoopMonitoring = False
-    # Disable detailed table printing by default
-    svcMgr.PerfMonMTSvc.printDetailedTables = False
+    # Report results into json by default
+    svcMgr.PerfMonMTSvc.reportResultsToJSON = True
+    # Enable event loop monitoring by default
+    svcMgr.PerfMonMTSvc.doEventLoopMonitoring = True
+    # Disable component level monitoring by default
+    svcMgr.PerfMonMTSvc.doComponentLeveMonitoring = False
+    # Enable detailed table printing by default
+    svcMgr.PerfMonMTSvc.printDetailedTables = True
+    # Print only the top 50 components (sorted by CPU time) by default
+    svcMgr.PerfMonMTSvc.printNSerialComps = 50
+    svcMgr.PerfMonMTSvc.printNParallelComps = 50
     # Configure the check point sequence in the event loop monitoring.
     # By default common difference is the number of threads with which the job is running
     svcMgr.PerfMonMTSvc.checkPointType = "Arithmetic" 
-    svcMgr.PerfMonMTSvc.checkPointFactor = jp.ConcurrencyFlags.NumThreads()
-    svcMgr.PerfMonMTSvc.nThreads = jp.ConcurrencyFlags.NumThreads()
-    svcMgr.PerfMonMTSvc.wallTimeOffset = time.time() * 1000 # Take the current time as a wall time offset in ms
+    svcMgr.PerfMonMTSvc.checkPointFactor = max(10,jp.ConcurrencyFlags.NumThreads())
+    svcMgr.PerfMonMTSvc.wallTimeOffset = psutil.Process(os.getpid()).create_time() * 1000 # Get the job start time in ms
 
 ###############################
 # Load PerfMonMTAlg

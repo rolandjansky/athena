@@ -58,7 +58,6 @@ CSCSegmValAlg::CSCSegmValAlg( const std::string & type, const std::string & name
   declareProperty( "ClusterStatus",  m_clusStatWord);
     
   //trigger aware monitoring
-  declareProperty("TrigDecisionTool", m_trigDec );
   declareProperty("DoEventSelection",   m_doEvtSel = false );
   declareProperty("EventSelTriggers", m_sampSelTriggers );
 

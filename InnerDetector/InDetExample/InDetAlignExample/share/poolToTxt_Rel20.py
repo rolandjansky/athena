@@ -301,9 +301,3 @@ if doPrintDectectorPositions:
 # End of job options file
 #
 ###############################################################
-
-
-# Disable StatusCodeSvc 
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr 
-svcMgr.StatusCodeSvc.SuppressCheck = True
-svcMgr.StatusCodeSvc.AbortOnError = False

@@ -867,6 +867,8 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
     Amg::Transform3D trans =
       deformedTransform (multilayer, tubelayer, tube);
     ptr.set (std::make_unique<Amg::Transform3D> (trans));
+    if (!m_haveDeformTransf)
+      m_haveDeformTransf = true;
   }
   return *ptr;
 }
@@ -1345,6 +1347,8 @@ MdtReadoutElement::geoInfo (int tubeLayer, int tube) const
   const CxxUtils::CachedUniquePtr<GeoInfo>& ptr = m_tubeGeo.at (itube);
   if (!ptr) {
     ptr.set (makeGeoInfo (tubeLayer, tube));
+    if (!m_haveTubeGeo)
+      m_haveTubeGeo = true;
   }
   return *ptr;
 }
@@ -1360,7 +1364,9 @@ void MdtReadoutElement::restoreTubes()
 {
   if (m_backupTubeGeo.empty()) return;
   m_tubeGeo = std::move (m_backupTubeGeo);
+  m_haveTubeGeo = true;
   m_deformTransf = std::move (m_backupDeformTransf);
+  m_haveDeformTransf = true;
 }
 
 
@@ -1386,6 +1392,7 @@ void MdtReadoutElement::shiftTube(const Identifier& id)
   if (!m_backupTubeGeo[itube]) {
     m_backupTubeGeo[itube].store (m_tubeGeo[itube].release());
     m_tubeGeo[itube].store (makeGeoInfo (tubeLayer, tube));
+    m_haveTubeGeo = true;
   }
 
   if (m_backupDeformTransf.empty()) {
@@ -1425,6 +1432,8 @@ MdtReadoutElement::surface (int tubeLayer, int tube) const
       double wireTension = 350.;
       if (getStationName().substr(0,3) == "BOL") wireTension = 285.;
       ptr.set (std::make_unique<Trk::SaggedLineSurface>(*this, id, getWireLength(tubeLayer, tube), wireTension, linearDensity));
+      if (!m_haveTubeSurfaces)
+        m_haveTubeSurfaces = true;
     }
     return *ptr;
 }
@@ -1482,6 +1491,8 @@ MdtReadoutElement::bounds(int tubeLayer, int tube) const
     if (!ptr) {
       double tubelength = getTubeLengthForCaching(tubeLayer, tube);
       ptr.set (std::make_unique<Trk::CylinderBounds>(innerTubeRadius(), 0.5*tubelength - m_deadlength));
+      if (!m_haveTubeBounds)
+        m_haveTubeBounds = true;
     }
     return *ptr;
 }
@@ -1632,8 +1643,11 @@ void MdtReadoutElement::clearBLineCache()
   if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<"Clearing BLine cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
     <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi() <<" ml "<<m_multilayer<<endmsg;
 #endif
-  for (auto& d : m_deformTransf) {
-    d.release();
+  if (m_haveDeformTransf) {
+    m_haveDeformTransf = false;
+    for (auto& d : m_deformTransf) {
+      d.release();
+    }
   }
 }    
 
@@ -1661,20 +1675,29 @@ void MdtReadoutElement::clearCache()
   }
 #endif
   m_elemNormal.reset();
-  for (auto& s : m_tubeSurfaces) {
-    s.release();
+  if (m_haveTubeSurfaces) {
+    m_haveTubeSurfaces = false;
+    for (auto& s : m_tubeSurfaces) {
+      s.release();
+    }
   }
-  for (auto& g : m_tubeGeo) {
-    g.release();
+  if (m_haveTubeGeo) {
+    m_haveTubeGeo = false;
+    for (auto& g : m_tubeGeo) {
+      g.release();
+    }
   }
-  for (auto& b : m_tubeBounds) {
-    b.release();
+  if (m_haveTubeBounds) {
+    m_haveTubeBounds = false;
+    for (auto& b : m_tubeBounds) {
+      b.release();
+    }
   }
   // reset here the deform-related transforms
   clearBLineCache();
 }
 
-void MdtReadoutElement::setBLinePar(BLinePar* bLine)
+void MdtReadoutElement::setBLinePar(const BLinePar* bLine)
 {
 #ifndef NDEBUG
   MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");

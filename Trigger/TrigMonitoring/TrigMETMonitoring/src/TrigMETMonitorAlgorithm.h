@@ -9,6 +9,7 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "xAODMissingET/MissingETContainer.h"
 #include "xAODTrigger/EnergySumRoI.h" 
 #include "xAODTrigMissingET/TrigMissingETContainer.h" 
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h" 
@@ -23,6 +24,8 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
  private:
+  SG::ReadHandleKey<xAOD::MissingETContainer> m_offline_met_key;
+
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_roi_key;
 
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_cell_met_key;
@@ -30,6 +33,10 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tc_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tcpufit_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_trkmht_met_key;
+
+  std::string m_L1Chain1;
+  std::string m_HLTChain1;
+  std::string m_HLTChain2;
 
   ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/ReadSiDetectorElements.h"
@@ -660,11 +660,10 @@ ReadSiDetectorElements::testElement(const Identifier & id,
 
 std::string 
 ReadSiDetectorElements::printElementId(const SiDetectorElement * element) const{
-  static std::string noElementString("NONE");
   if (element) {
     return element->getIdHelper()->show_to_string(element->identify());
   } else {
-    return noElementString;
+    return "NONE";
   }
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 

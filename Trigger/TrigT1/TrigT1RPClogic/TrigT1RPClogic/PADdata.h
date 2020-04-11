@@ -21,14 +21,13 @@ class PADdata : public BaseObject
     private:
     unsigned long int m_debug;
     PATTERNSlist m_pad_patterns;
-    const IRPCcablingSvc* m_cabling;
     
     void create_pad_patterns(CMApatterns*);
     PADpatterns* find(const int,const int);
     
 
     public:
-    PADdata(CMAdata*, const IRPCcablingSvc* cablingSvc,unsigned long int );
+    PADdata(CMAdata*, unsigned long int );
     PADdata(const PADdata&);
     ~PADdata();
 
@@ -36,7 +35,6 @@ class PADdata : public BaseObject
 
 
     unsigned long int debug(void) const {return m_debug;}
-    const IRPCcablingSvc* cabling(void) const {return m_cabling;};
     
     const PATTERNSlist& pad_patterns(void) const {return m_pad_patterns;}
     PatternsList give_patterns(void);

@@ -41,5 +41,5 @@ StatusCode TileHitVecToCnt::initialize() {
 //----------------------------------------------------------------------
 StatusCode TileHitVecToCnt::execute() {
   ATH_MSG_DEBUG ( "execute()" );
-  return m_digTool->processAllSubEvents();
+  return m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }

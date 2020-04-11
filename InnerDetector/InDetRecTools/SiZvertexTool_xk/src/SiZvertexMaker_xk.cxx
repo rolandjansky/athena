@@ -58,10 +58,10 @@ StatusCode InDet::SiZvertexMaker_xk::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newEvent(SiSpacePointsSeedMakerEventData& data) const
+std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newEvent(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data) const
 {
-  m_seedsgenerator->newEvent(data);
-  return production(data);
+  m_seedsgenerator->newEvent(ctx, data);
+  return production(ctx, data);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -69,11 +69,11 @@ std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newEvent(SiSpacePointsSeedMaker
 ///////////////////////////////////////////////////////////////////
 
 std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newRegion
-(SiSpacePointsSeedMakerEventData& data,
+(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
 {
-  m_seedsgenerator->newRegion(data, vPixel, vSCT);
-  return production(data);
+  m_seedsgenerator->newRegion(ctx, data, vPixel, vSCT);
+  return production(ctx, data);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -81,19 +81,20 @@ std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newRegion
 ///////////////////////////////////////////////////////////////////
 
 std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::newRegion
-(SiSpacePointsSeedMakerEventData& data,
+(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
  const IRoiDescriptor& PhEt) const
 {
-  m_seedsgenerator->newRegion(data, vPixel, vSCT, PhEt);
-  return production(data);
+  m_seedsgenerator->newRegion(ctx, data, vPixel, vSCT, PhEt);
+  return production(ctx, data);
 }
 
 ///////////////////////////////////////////////////////////////////
 // Get list vertices Z-coordinates
 ///////////////////////////////////////////////////////////////////
 
-std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::production(SiSpacePointsSeedMakerEventData& data) const
+std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::production(const EventContext& ctx,
+                                                            SiSpacePointsSeedMakerEventData& data) const
 {
   std::list<Trk::Vertex> vertices;
 
@@ -109,8 +110,8 @@ std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::production(SiSpacePointsSeedMak
   std::list<Trk::Vertex> lv;  
   
   if      (m_nspoint==2) m_seedsgenerator->find2Sp(data, lv);
-  else if (m_nspoint==3) m_seedsgenerator->find3Sp(data, lv);
-  else                   m_seedsgenerator->findVSp(data, lv);
+  else if (m_nspoint==3) m_seedsgenerator->find3Sp(ctx, data, lv);
+  else                   m_seedsgenerator->findVSp(ctx, data, lv);
 
   const InDet::SiSpacePointsSeed* seed = nullptr;
   std::multimap<int,double> ver;
@@ -119,9 +120,9 @@ std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::production(SiSpacePointsSeedMak
   int    Hmax = 0 ;
   double zmax = 0.;
 
-  while ((seed = m_seedsgenerator->next(data))) {
+  while ((seed = m_seedsgenerator->next(ctx, data))) {
 
-    std::list<const Trk::SpacePoint*>::const_iterator 
+    std::vector<const Trk::SpacePoint*>::const_iterator
       s = seed->spacePoints().begin();
     ++s;
     if ((*s)!=p0) {

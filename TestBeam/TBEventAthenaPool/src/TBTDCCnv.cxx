@@ -16,7 +16,7 @@ TBTDC* TBTDCCnv::createTransient() {
    static pool::Guid   p1_guid("D909CCF6-CE91-4401-98FC-C1C41BD06513");  // GUID of the persistent object
    static pool::Guid   p0_guid("51CEFACC-47E5-4BF1-8BF5-FA48FCA15B43");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {
-      // using auto_ptr ensures deletion of the persistent object
+      // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr< TBTDC_p1 > col_vect( poolReadObject< TBTDC_p1 >() );
       return m_TPConverter.createTransient( col_vect.get(), log );
    }

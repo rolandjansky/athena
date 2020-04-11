@@ -22,7 +22,10 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkTools/TrkToolInterfaces
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+			  )
 
 # External dependencies:
 find_package( CLHEP )
@@ -32,7 +35,7 @@ atlas_add_component( TRT_SeededSpacePointFinderTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IRegionSelector GaudiKernel SiSpacePointsSeed InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkSpacePoint RoiDescriptor InDetIdentifier InDetPrepRawData TrkSurfaces TrkToolInterfaces TrkEventUtils)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IRegionSelector GaudiKernel SiSpacePointsSeed InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkSpacePoint RoiDescriptor InDetIdentifier InDetPrepRawData TrkSurfaces TrkToolInterfaces TrkEventUtils MagFieldElements MagFieldConditions)
 
 # Install files from the package:
 atlas_install_headers( TRT_SeededSpacePointFinderTool )

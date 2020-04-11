@@ -25,10 +25,12 @@ def CaloBCIDAvgAlgDefault():
             #Here we need a 32-sample, symmetrized shape. Therfore the re-key'ing and the dedicated LArPileUpShapeSymCondAlg
 
             from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
-            condSeq+=LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym")
+            if not hasattr (condSeq, 'LArPileUpAvgSymCondAlg'):
+                condSeq+=LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym")
 
             from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArShape32MC_LArShape32Sym_ as LArShapeSymAlg
-            condSeq+=LArShapeSymAlg("LArPileUpShapeSymCondAlg",ReadKey="LArShape32",WriteKey="LArShape32Sym")
+            if not hasattr (condSeq, 'LArPileUpShapeSymCondAlg'):
+                condSeq+=LArShapeSymAlg("LArPileUpShapeSymCondAlg",ReadKey="LArShape32",WriteKey="LArShape32Sym")
 
             topSequence+=CaloBCIDAvgAlg(isMC=False,
                                         LuminosityCondDataKey = lumiAlg.LuminosityOutputKey,

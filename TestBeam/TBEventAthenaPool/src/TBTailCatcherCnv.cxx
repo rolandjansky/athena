@@ -16,7 +16,7 @@ TBTailCatcher* TBTailCatcherCnv::createTransient() {
    static pool::Guid   p1_guid("B304A3B8-5FC1-415D-AE97-E3E7B6769213");  // GUID of the persistent object
    static pool::Guid   p0_guid("7AA6F3C3-3FF2-4732-B0CB-4ECC32FEF06D");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {
-      // using auto_ptr ensures deletion of the persistent object
+      // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr< TBTailCatcher_p1 > col_vect( poolReadObject< TBTailCatcher_p1 >() );
       return m_TPConverter.createTransient( col_vect.get(), log );
    }

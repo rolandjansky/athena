@@ -26,7 +26,7 @@ StatusCode MuonRdoToMuonDigit::initialize()
 StatusCode MuonRdoToMuonDigit::execute()
 {
   ATH_MSG_DEBUG( "in execute()"  );
-  return m_digTool->digitize();
+  return m_digTool->digitize(Gaudi::Hive::currentContext());
 }
 
 

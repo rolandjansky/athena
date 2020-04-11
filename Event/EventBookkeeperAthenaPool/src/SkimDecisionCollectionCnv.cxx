@@ -22,7 +22,7 @@ SkimDecisionCollection* SkimDecisionCollectionCnv::createTransient() {
   //p1_guid matches the number in EventBookkeeperTPCnv/selection.xtml and is generated with uuidgen | tr "[:lower:]" "[:upper:]"
   static pool::Guid   p1_guid("5705559E-F062-4F15-A220-78A8542EFBF3");
   if( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
+    // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr< SkimDecisionCollection_p1 > col_vect( poolReadObject< SkimDecisionCollection_p1 >() );
     return m_TPConverter.createTransient( col_vect.get(), log );
   }

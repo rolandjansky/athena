@@ -174,7 +174,7 @@ namespace pool {
                                std::string )
    {
       // iterator object supporting the collection query interface
-      std::auto_ptr<ImplicitCollectionIterator>
+      std::unique_ptr<ImplicitCollectionIterator>
 	 iterquery( new ImplicitCollectionIterator( *m_container, m_description ) );
       iterquery->setCondition( primaryQuery );
       iterquery->execute();

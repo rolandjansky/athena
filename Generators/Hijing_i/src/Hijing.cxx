@@ -26,9 +26,9 @@
 
 #include "GeneratorUtils/StringParse.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <stdlib.h>
 
@@ -450,9 +450,9 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
            {
              //  Make sure it is consistent with this track origin
              //
-	     HepGeom::Point3D<double> vertex_pos(vertexPtrVec[parentDecayIndex]->point3d().x(),
-                                  vertexPtrVec[parentDecayIndex]->point3d().y(),
-                                  vertexPtrVec[parentDecayIndex]->point3d().z());
+	     HepGeom::Point3D<double> vertex_pos(vertexPtrVec[parentDecayIndex]->position().x(),
+                                  vertexPtrVec[parentDecayIndex]->position().y(),
+                                  vertexPtrVec[parentDecayIndex]->position().z());
               double distance = vertex_pos.distance(particleStart.vect());
 
               //std::cout << "ML-> distance = " << distance <<"   parentDecayIndex = "<<parentDecayIndex<< std::endl;
@@ -470,9 +470,9 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
                 // Dump the parent decay vertex
                 //
-                log << MSG::WARNING << " Parent decay vertex: (x,y,z) = " << vertexPtrVec[parentDecayIndex]->point3d().x()
-                    << ", " << vertexPtrVec[parentDecayIndex]->point3d().y() 
-                    << ", " << vertexPtrVec[parentDecayIndex]->point3d().z() 
+                log << MSG::WARNING << " Parent decay vertex: (x,y,z) = " << vertexPtrVec[parentDecayIndex]->position().x()
+                    << ", " << vertexPtrVec[parentDecayIndex]->position().y() 
+                    << ", " << vertexPtrVec[parentDecayIndex]->position().z() 
                     << ", associated daughter IDs = ";
               
                 HepMC::GenVertex::particles_out_const_iterator iter;
@@ -496,9 +496,10 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
              //  Now compare the distance between the vertex FROM which the parent originates and the
              //    start of this particle
              //
-	     HepGeom::Point3D<double> vertex_pos(vertexPtrVec[parentOriginIndex]->point3d().x(),
-                                      vertexPtrVec[parentOriginIndex]->point3d().y(),
-                                      vertexPtrVec[parentOriginIndex]->point3d().z());
+
+	     HepGeom::Point3D<double> vertex_pos(vertexPtrVec[parentOriginIndex]->position().x(),
+                                      vertexPtrVec[parentOriginIndex]->position().y(),
+                                      vertexPtrVec[parentOriginIndex]->position().z());
                 double distance = vertex_pos.distance(particleStart.vect());
 
              if (distance > m_vertexOffsetCut && parentIndex == -1)
@@ -530,8 +531,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
               {
                 // We need to create a new vertex
                 // 
-                HepMC::GenVertex* newVertex_p = new HepMC::GenVertex(particleStart);
-
+                HepMC::GenVertexPtr newVertex_p = new HepMC::GenVertex(HepMC::FourVector(particleStart.x(),particleStart.y(),particleStart.z(),particleStart.t()));
                   evt->add_vertex(newVertex_p);
                 vertexPtrVec.push_back(newVertex_p);
                 particleVertexIndex = vertexPtrVec.size() - 1;
@@ -558,9 +558,10 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
        int foundVert = -1;
        for (unsigned int ivert = 0; ivert < vertexPtrVec.size(); ivert++)
        {
-	 HepGeom::Point3D<double> vertex_pos(vertexPtrVec[ivert]->point3d().x(),
-                              vertexPtrVec[ivert]->point3d().y(),
-                              vertexPtrVec[ivert]->point3d().z());
+
+	 HepGeom::Point3D<double> vertex_pos(vertexPtrVec[ivert]->position().x(),
+                              vertexPtrVec[ivert]->position().y(),
+                              vertexPtrVec[ivert]->position().z());
          double distance = vertex_pos.distance(particleStart.vect());
          if (distance < m_vertexOffsetCut) 
          {
@@ -573,7 +574,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
        {
          //  We need to create a new vertex
          //
-         HepMC::GenVertex* newVertex_p = new HepMC::GenVertex(particleStart);
+         HepMC::GenVertex* newVertex_p = new HepMC::GenVertex(HepMC::FourVector(particleStart.x(),particleStart.y(),particleStart.z(),particleStart.t()));
 
           evt->add_vertex(newVertex_p);
          vertexPtrVec.push_back(newVertex_p);
@@ -677,7 +678,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
          //  Add aaa non-tracked entry in the hepmc event with status code 103 (temporary)
          //
-         v1->add_particle_out( new HepMC::GenParticle( CLHEP::HepLorentzVector(px, py, pz, e), partonId, 103 ) );
+         v1->add_particle_out( new HepMC::GenParticle( HepMC::FourVector(px, py, pz, e), partonId, 103 ) );
        }
       }
     }
@@ -714,7 +715,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
          
          //  Add aaa non-tracked entry in the hepmc event with status code 103 (temporary)
          //
-         v1->add_particle_out( new HepMC::GenParticle( CLHEP::HepLorentzVector(px, py, pz, e), partonId, 103 ) );
+         v1->add_particle_out( new HepMC::GenParticle( HepMC::FourVector(px, py, pz, e), partonId, 103 ) );
        }
       }
     }
@@ -748,7 +749,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
          
          //  Add aaa non-tracked entry in the hepmc event with status code 103 (temporary)
          //
-         v1->add_particle_out( new HepMC::GenParticle( CLHEP::HepLorentzVector(px, py, pz, e), partonId, 103 ) );
+         v1->add_particle_out( new HepMC::GenParticle( HepMC::FourVector(px, py, pz, e), partonId, 103 ) );
        }
       }
     }
@@ -771,9 +772,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
        tmpmom.setY(-tmpmom.y());
        tmpmom.setZ(-tmpmom.z());
        tmpmom.setT(tmpmom.t());
-       //std::cout <<"before="<<(*pitr)->momentum() <<std::endl;
        (*pitr)->set_momentum(tmpmom);
-       //std::cout <<"after="<<(*pitr)->momentum() <<std::endl;
        }
       }
     }

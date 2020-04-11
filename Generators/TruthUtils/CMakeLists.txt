@@ -10,7 +10,6 @@ atlas_subdir( TruthUtils )
 find_package( Boost )
 find_package( HEPUtils )
 find_package( MCUtils )
-find_package( HepMC QUIET )
 
 # Extra include directories and libraries, based on which externals were found:
 set( extra_includes )
@@ -24,8 +23,8 @@ if( MCUTILS_FOUND )
    list( APPEND extra_libs ${MCUTILS_LIBRARIES} )
 endif()
 if( HEPMC_FOUND )
-   list( APPEND extra_includes ${HEPMC_INCLUDE_DIRS} )
-   list( APPEND extra_libs ${HEPMC_LIBRARIES} )
+   list( APPEND extra_includes  )
+   list( APPEND extra_libs AtlasHepMCLib )
 endif()
 
 # Component(s) in the package:

@@ -8,7 +8,7 @@
 #include <vector>
 #include "GaudiKernel/PhysicalConstants.h"
 
-static constexpr double const& invSpeedOfLight = 1e6 / Gaudi::Units::c_light; // Gaudi::Units::c_light=2.99792458e+8, but need 299.792458
+static constexpr double const& invSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458
 
 namespace Muon {
   

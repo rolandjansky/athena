@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   RecExConfig/python/RecFlags.py
@@ -369,13 +369,6 @@ class doFloatingPointException(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
-
-class abortOnUncheckedStatusCode(JobProperty):
-    """ If True abort on first unchecked status code
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
 
 #
 class doHist(JobProperty):
@@ -1026,7 +1019,7 @@ _list_Rec=[TAGFromRDO, doTagRawSummary , doBeamBackgroundFiller, \
 OutputLevel, RootHistoOutput, RootNtupleOutput, UserAlgs, UserExecs, UserFlags, doDPD, DPDMakerScripts, LoadGeometry, doAOD, doAODCaloCells, doESD,\
 doAODall, doCBNT, doPyDump, doMonitoring, doCheckDictionary, doCheckJOT,CBNTAthenaAware,\
 doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\
-doDumpTDS, doDumpTES, doFloatingPointException, abortOnUncheckedStatusCode, oldFlagCompatibility, oldFlagTopSteering,oldFlagLandMine,\
+doDumpTDS, doDumpTES, doFloatingPointException, oldFlagCompatibility, oldFlagTopSteering,oldFlagLandMine,\
 doEdmMonitor, doHist, doJiveXML, doPersint,doVP1, doNameAuditor, \
 doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth,\
 doWriteAOD, doWritexAOD, doWriteESD, doWriteDPD, doWriteBS, doWriteRDO, doWriteTAG, doWriteTAGCOM, PoolTAGCOMOutput, readAOD, readTAG, readRDO, \

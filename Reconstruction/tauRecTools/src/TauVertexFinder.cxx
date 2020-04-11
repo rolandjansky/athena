@@ -217,11 +217,11 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
               double deltaz = longitudinalDistance - vertex->z();
               
               // Check longitudinal distance between track and vertex
-              if ( fabs(deltaz)  > m_longDistMax)
+              if ( std::abs(deltaz)  > m_longDistMax)
                   continue;
               
               // Check z0*sinThetha between track and vertex
-              if (fabs(deltaz*sinTheta) > m_maxZ0SinTheta)
+              if (std::abs(deltaz*sinTheta) > m_maxZ0SinTheta)
                   continue;
               
               // If it passed the cuts, then this is the vertex we want

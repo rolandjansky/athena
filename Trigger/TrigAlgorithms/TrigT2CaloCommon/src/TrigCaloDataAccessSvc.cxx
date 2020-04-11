@@ -417,6 +417,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
       LArCellCollection* coll = *it; 
       ATH_MSG_DEBUG( "ROB of ID " << sourceID << " to be decoded"   );
 
+      std::lock_guard<std::mutex> decoderLock( m_lardecoderProtect );
       //TB next two lines seem danger, as they seem to rely on the decoder state 
       m_larDecoder->setsecfeb( larcell->findsec( sourceID ) );
       if ( ! m_larDecoder->check_valid( rob, msg() ) ){
@@ -479,31 +480,32 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<IdentifierHas
                   (tilecell->find(rIds[i]));
           TileCellCollection* col = *it;
           if ( robFrags1.size()!=0 && col != NULL ) {
-          size_t roddatasize = robFrags1[0]->rod_ndata();
-          // insert data into vector (to be removed soon)
-          if (roddatasize < 3) {
-            ATH_MSG_WARNING( "Error reading bytestream"<<
+            size_t roddatasize = robFrags1[0]->rod_ndata();
+            // insert data into vector (to be removed soon)
+            if (roddatasize < 3) {
+              ATH_MSG_WARNING( "Error reading bytestream"<<
                              "event: Empty ROD block (less than 3 words) : 0x"
                              << std::hex << tile[0] << std::dec );
-            msg(MSG::WARNING) << "Error reading bytestream "
+              msg(MSG::WARNING) << "Error reading bytestream "
                               << "event: Empty ROD block (less than 3 words) : 0x"
                               << std::hex << tile[0] << std::dec << endmsg;
-            // Data seems corrupted
-            //m_error|=0x20000000;
-            if ( !tilecell->cached(rIds[i])){
+              // Data seems corrupted
+              //m_error|=0x20000000;
+              if ( !tilecell->cached(rIds[i])){
                   // resets collection
                   //reset_TileCol(col);
-            }
-            robFrags1.clear();
-          } else  {// End of if small size
-          if ( !tilecell->cached(rIds[i]))
-          m_tileDecoder->fillCollectionHLT(robFrags1[0],*col,d0cells);
-          m_tileDecoder->mergeD0cellsHLT(d0cells,*col);
-          // Accumulates superior byte from ROD Decoder
-          //m_error|=m_tileDecoder->report_error();
-          robFrags1.clear();
-          }
-          }
+              }
+              robFrags1.clear();
+            } else  {// End of if small size
+              std::lock_guard<std::mutex> decoderLock { m_tiledecoderProtect };  
+              if ( !tilecell->cached(rIds[i]))
+                 m_tileDecoder->fillCollectionHLT(robFrags1[0],*col,d0cells);
+              m_tileDecoder->mergeD0cellsHLT(d0cells,*col);
+              // Accumulates superior byte from ROD Decoder
+              //m_error|=m_tileDecoder->report_error();
+              robFrags1.clear();
+            } // end of else
+          } // end of if robFrags1.size
   } // End of for through RobFrags
 
   ATH_MSG_DEBUG( "finished decoding" );
@@ -637,6 +639,7 @@ unsigned int TrigCaloDataAccessSvc::prepareMBTSCollections( const EventContext& 
     m_robDataProvider->addROBData( m_mbts_add_rods );
   }
   std::lock_guard<std::mutex> collectionLock { cache->mutex };  
+  std::lock_guard<std::mutex> decoderLock { m_tiledecoderProtect };  
   TileCellCont* tilecell = cache->tileContainer;
   m_tileDecoder->loadMBTS_Ptr( tilecell->MBTS_collection(),
         tilecell->MBTS_map(), tilecell->MBTS_channel() );

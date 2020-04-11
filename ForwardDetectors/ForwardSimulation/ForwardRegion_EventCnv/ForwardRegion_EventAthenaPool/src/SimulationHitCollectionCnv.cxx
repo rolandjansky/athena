@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ForwardRegion_EventTPCnv/SimulationHitCollectionCnv_p1.h"
@@ -27,7 +27,7 @@ SimulationHitCollection* SimulationHitCollectionCnv::createTransient()
 	SimulationHitCollection *pTransColl=NULL;
 
 	if(this->compareClassGuid(p1_guid)){
-		std::auto_ptr<SimulationHitCollection_p1> col_vect(this->poolReadObject<SimulationHitCollection_p1>());
+		std::unique_ptr<SimulationHitCollection_p1> col_vect(this->poolReadObject<SimulationHitCollection_p1>());
 		pTransColl=TPConverter_p1.createTransient(col_vect.get(), mlog);
 	}
 	else{

@@ -108,7 +108,7 @@ class MdtDigitizationTool : public PileUpToolBase {
   virtual StatusCode initialize() override final;
 
   /** When being run from PileUpToolsAlgs, this method is called at the start of the subevts loop. Not able to access SubEvents */
-  StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
+  StatusCode prepareEvent(const EventContext& ctx, const unsigned int /*nInputEvents*/) override final;
 
   /** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
    virtual StatusCode processBunchXing(
@@ -117,11 +117,11 @@ class MdtDigitizationTool : public PileUpToolBase {
                                 SubEventIterator eSubEvents
                                 ) override final;
   /** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access SubEvents */
-  StatusCode mergeEvent() override final;
+  StatusCode mergeEvent(const EventContext& ctx) override final;
 
   /** alternative interface which uses the PileUpMergeSvc to obtain
   all the required SubEvents. */
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
   struct GeoCorOut {
   GeoCorOut( double sSag, double sTrack, Amg::Vector3D lp, double lSag ) : sagSign(sSag), trackingSign(sTrack), localPosition(lp), localSag(lSag) {}
@@ -132,7 +132,7 @@ class MdtDigitizationTool : public PileUpToolBase {
   };
 
  private:
-  CLHEP::HepRandomEngine*   getRandomEngine(const std::string& streamName) const;
+  CLHEP::HepRandomEngine*   getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
   int                       digitizeTime(double time, bool isHPTDC, CLHEP::HepRandomEngine *rndmEngine) const;
   double                    minimumTof(Identifier DigitId) const;
 
@@ -236,8 +236,8 @@ class MdtDigitizationTool : public PileUpToolBase {
   // Access to the event methods:
   ///////////////////////////////////////////////////////////////////
   // Get next event and extract collection of hit collections:
-  StatusCode                getNextEvent();
-  StatusCode doDigitization(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer);
+  StatusCode                getNextEvent(const EventContext& ctx);
+  StatusCode doDigitization(const EventContext& ctx, MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer);
   MdtDigitCollection*       getDigitCollection(Identifier elementId, MdtDigitContainer* digitContainer);
   void                fillMaps(const MDTSimHit * mdtHit, const Identifier digitId,
                                const double driftR);

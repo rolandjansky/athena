@@ -20,6 +20,7 @@
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
 #include "VxVertex/Vertex.h"
+#include "GaudiKernel/EventContext.h"
 
 #include <set>
 
@@ -87,10 +88,10 @@ namespace InDet {
       /// @name Methods to initialize tool for new event or region
       ///////////////////////////////////////////////////////////////////
       //@{
-      virtual void newEvent(SiSpacePointsSeedMakerEventData& data, int iteration=-1) const =0;
-      virtual void newRegion(SiSpacePointsSeedMakerEventData& data,
+      virtual void newEvent(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data, int iteration=-1) const =0;
+      virtual void newRegion(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
                              const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const =0;
-      virtual void newRegion(SiSpacePointsSeedMakerEventData& data,
+      virtual void newRegion(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
                              const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
                              const IRoiDescriptor& iRD) const =0;
       //@}
@@ -104,17 +105,17 @@ namespace InDet {
                            const std::list<Trk::Vertex>& lv) const =0;
 
       /// with three space points with or without vertex constraint
-      virtual void find3Sp(SiSpacePointsSeedMakerEventData& data,
+      virtual void find3Sp(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
                            const std::list<Trk::Vertex>& lv) const =0;
 
       /// with three space points with or without vertex constraint
       /// with information about min and max Z of the  vertex
-      virtual void find3Sp(SiSpacePointsSeedMakerEventData& data,
+      virtual void find3Sp(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
                            const std::list<Trk::Vertex>& lv, const double* zVertex) const =0;
 
       /// with variable number space points with or without vertex constraint
       /// Variable means (2,3,4,....) any number space points
-      virtual void findVSp(SiSpacePointsSeedMakerEventData& data,
+      virtual void findVSp(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
                            const std::list<Trk::Vertex>& lv) const =0;
       //@}
       
@@ -123,7 +124,7 @@ namespace InDet {
       /// produced accordingly methods find
       ///////////////////////////////////////////////////////////////////
       //@{
-      virtual const SiSpacePointsSeed* next(SiSpacePointsSeedMakerEventData& data) const =0;
+      virtual const SiSpacePointsSeed* next(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data) const =0;
       //@}
       
       ///////////////////////////////////////////////////////////////////

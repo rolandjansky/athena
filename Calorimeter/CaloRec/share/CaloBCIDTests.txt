@@ -1,0 +1,7 @@
+ApplicationMgr.ExtSvc += {"StoreGateSvc/DetectorStore"};
+ApplicationMgr.ExtSvc += {"StoreGateSvc/ConditionStore"};
+
+CaloBCIDLumiCondAlgMC.isMC = true;
+CaloBCIDLumiCondAlgMC.OutputLumiKey = "CaloBCIDLumiMC";
+CaloBCIDLumiCondAlgData.isMC = false;
+CaloBCIDLumiCondAlgData.OutputLumiKey = "CaloBCIDLumiData";

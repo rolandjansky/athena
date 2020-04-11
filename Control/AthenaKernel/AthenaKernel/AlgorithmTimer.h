@@ -163,6 +163,7 @@ namespace Athena {
     struct sigevent  m_sigevent;        ///< for signal handler
     timer_t          m_timerid;         ///< timer ID
     callbackFct_t    m_onAlarm;         ///< user callback 
+    std::atomic_bool m_active;          ///< flag protecting race condition at stop
   
   
   private:

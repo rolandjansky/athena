@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArHVPathologyDbTool_H
 #define LArHVPathologyDbTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "LArElecCalib/ILArHVPathologyDbTool.h" 
+#include "LArElecCalib/ILArHVPathologyDbTool.h"
+#include "CxxUtils/checker_macros.h"
 
 class LArHVPathologyDbTool: public AthAlgTool, virtual public ILArHVPathologyDbTool
 {
@@ -17,11 +18,14 @@ class LArHVPathologyDbTool: public AthAlgTool, virtual public ILArHVPathologyDbT
 
   virtual ~LArHVPathologyDbTool();
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-  AthenaAttributeList* hvPathology2AttrList(const LArHVPathologiesDb&);
-  LArHVPathologiesDb* attrList2HvPathology(const AthenaAttributeList&);
+  virtual AthenaAttributeList* hvPathology2AttrList(const LArHVPathologiesDb&) const override;
+  virtual LArHVPathologiesDb* attrList2HvPathology(const AthenaAttributeList&) const override;
+
+private:
+  AthenaAttributeList* newAttrList ATLAS_NOT_THREAD_SAFE() const;
 };
 
 #endif

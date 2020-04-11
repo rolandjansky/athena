@@ -46,21 +46,21 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
 
 
     __fex_tools = [ samp2, samp1, sampe, samph] #, ring ]
-   
+
     if doRinger:
       from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
       ringer = RingerReFexConfig('FaAlgoRingerFexConfig')
-      ringer.RingsKey= recordable("HLT_L2CaloRinger")
+      ringer.RingsKey= recordable("HLT_FastCaloRinger")
       ringer.ClustersName = alg.ClustersName
       acc.addPublicTool( ringer )
       __fex_tools.append(ringer)
- 
+
     alg.IReAlgToolList = __fex_tools
-    
+
     for t in __fex_tools:
         t.trigDataAccessMT = cdaSvc # set data access svc
 
-    
+
     # set calibration
     from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaSshapeCalibrationBarrelConfig, EgammaHitsCalibrationBarrelConfig, \
                                                               EgammaGapCalibrationConfig, EgammaTransitionRegionsConfig
@@ -76,5 +76,5 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     alg.CalibListEndcap += [EgammaGapCalibrationConfig()]
 
 
-    acc.addEventAlgo( alg ) 
+    acc.addEventAlgo( alg )
     return acc

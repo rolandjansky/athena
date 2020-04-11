@@ -28,6 +28,12 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "MuonRDO/RpcPadContainer.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 namespace Trk {
    //REL18 class IMagneticFieldTool; 
@@ -50,7 +56,7 @@ class DQTDetSynchMonTool: public DataQualityFatherMonTool
     
   StatusCode bookHistograms( );
   //StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
-  StatusCode fillHistograms();
+  StatusCode fillHistograms( );
   StatusCode procHistograms( );
   //StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );
   StatusCode checkHists(bool fromFinalize);
@@ -276,6 +282,11 @@ private:
     { "TileDigitsFlt" };
   SG::ReadHandleKey<RpcPadContainer> m_RpcPadContainerKey
     { "RPCPAD" };
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                       "Name of the Magnetic Field conditions object key"};
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 };
 
 #endif

@@ -63,7 +63,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   float ipSigLeadTrk=0.;
   if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
     return StatusCode::FAILURE;
-  acc_absipSigLeadTrk(tau) = fabs(ipSigLeadTrk);
+  acc_absipSigLeadTrk(tau) = std::abs(ipSigLeadTrk);
   
   //don't calculate EleBDT variables if run from TrigTauDiscriminant:
   if(m_in_trigger) return StatusCode::SUCCESS;
@@ -149,10 +149,10 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   if(tau.nTracks() > 0){
     const xAOD::TrackParticle* track = 0;
     track = tau.track(0)->track();
-    acc_absEtaLead(tau) = fabs( track->eta() );
-    acc_leadTrackEta(tau) = fabs( track->eta() );
-    acc_absDeltaEta(tau) = fabs( track->eta() - tau.eta() );
-    acc_absDeltaPhi(tau) = fabs( track->p4().DeltaPhi(tau.p4()) );
+    acc_absEtaLead(tau) = std::abs( track->eta() );
+    acc_leadTrackEta(tau) = std::abs( track->eta() );
+    acc_absDeltaEta(tau) = std::abs( track->eta() - tau.eta() );
+    acc_absDeltaPhi(tau) = std::abs( track->p4().DeltaPhi(tau.p4()) );
     //EMFRACTIONATEMSCALE_MOVEE3:
     float etEMScale1 = acc_etEMAtEMScale(tau);
     float etEMScale2 = acc_etHadAtEMScale(tau);
@@ -200,8 +200,8 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
           etHotShotDR1 = etShot;
         }
         // In 0.012 x 0.1 window
-        if(abs(shot->eta() - etaCalo) > 0.012 ) continue;
-        if(abs(xAOD::P4Helpers::deltaPhi(shot->phi(), phiCalo)) > 0.1 ) continue;
+        if(std::abs(shot->eta() - etaCalo) > 0.012 ) continue;
+        if(std::abs(xAOD::P4Helpers::deltaPhi(shot->phi(), phiCalo)) > 0.1 ) continue;
         if(etShot > etHotShotWin) etHotShotWin = etShot;
     }
     acc_etHotShotDR1(tau) = etHotShotDR1;

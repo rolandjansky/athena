@@ -84,9 +84,6 @@ doTAG=False
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
 
-# abort when there is an unchecked status code
-StatusCodeSvc.AbortOnError=False
-
 
 ####NOTE this still needs to updated for the DC14 menu!!! check what the TrigEDMChecker supports!!! rm L2 etc .. 
 from TrigValAlgs.TrigValAlgsConfig import TrigEDMChecker

@@ -22,7 +22,7 @@ InputMakerForRoI:: InputMakerForRoI( const std::string& name,
 
 StatusCode  InputMakerForRoI::initialize() {
   ATH_MSG_DEBUG("Will produce output RoI collections: " << m_RoIs);
-  CHECK( m_RoIs.initialize() );
+  CHECK( m_RoIs.initialize( SG::AllowEmpty ) );
   return StatusCode::SUCCESS;
 }
 
@@ -35,7 +35,7 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
   ATH_CHECK(outputHandle.isValid());
   
   // Prepare Outputs
-  std::unique_ptr< TrigRoiDescriptorCollection > oneRoIColl( new TrigRoiDescriptorCollection() );
+  std::unique_ptr<TrigRoiDescriptorCollection> oneRoIColl = std::make_unique<TrigRoiDescriptorCollection>();
 
   // use also this:    ElementLinkVector<xAOD::MuonRoIContainer> getMuonRoILinks = obj->objectCollectionLinks<xAOD::MuonRoIContainer>("ManyMuonRoIs");
   std::vector <ElementLink<TrigRoiDescriptorCollection> > RoIsFromDecision;  // used to check for duplicate features linked to different inputHandles
@@ -70,11 +70,15 @@ StatusCode  InputMakerForRoI::execute( const EventContext& context ) const {
   } // loop over decisions      
   
   
-    // Finally, record output
-  ATH_MSG_DEBUG("Produced "<<oneRoIColl->size() <<" output RoIs");
-  auto roi_outputHandle = SG::makeHandle(m_RoIs, context);
-  ATH_CHECK( roi_outputHandle.record(std::move(oneRoIColl)) );
-  
+  // Finally, record output
+  if (m_RoIs.empty()) {
+    ATH_MSG_DEBUG("No concrete output ROI collection required from this InputMaker.");
+  } else {
+    ATH_MSG_DEBUG("Produced "<<oneRoIColl->size() <<" output RoIs");
+    auto roi_outputHandle = SG::makeHandle(m_RoIs, context);
+    ATH_CHECK( roi_outputHandle.record(std::move(oneRoIColl)) );
+  }
+
   // call base class helper method to print some debug messages summarising the content of the outputHandles.
   if (msgLvl(MSG::DEBUG)) {
     debugPrintOut(context, outputHandle);

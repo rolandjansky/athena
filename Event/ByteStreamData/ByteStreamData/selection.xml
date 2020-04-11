@@ -3,6 +3,5 @@
   <class name="ByteStreamMetadataContainer" />
   <class name="DataVector<ByteStreamMetadata>" />
   <class name="ByteStreamMetadata" />
-  <class name="ByteStream::FreeMetadata" />
 </lcgdict>
 

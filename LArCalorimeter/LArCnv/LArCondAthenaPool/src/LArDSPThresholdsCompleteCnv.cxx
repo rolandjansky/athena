@@ -26,7 +26,7 @@ LArConditionsSubset<LArDSPThresholdsP>*
 LArDSPThresholdsCompleteCnv::createTransient () {
     static pool::Guid   p0_guid("09607438-09CC-4E40-A1E2-23F0B021DF3D");
     if( compareClassGuid(p0_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
+        // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArDSPThresholdsSubset_p1 > col_vect( poolReadObject< LArDSPThresholdsSubset_p1 >() );
         MsgStream log(msgSvc(), "LArDSPThresholdsCompleteCnv" ); 
         //log << MSG::INFO << "Reading LArDSPThresholdsSubset_p1" << endmsg; 

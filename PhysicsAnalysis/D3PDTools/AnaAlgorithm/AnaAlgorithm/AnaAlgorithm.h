@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -13,7 +13,7 @@
 #include <AnaAlgorithm/Global.h>
 
 #ifdef XAOD_STANDALONE
-#include <AsgTools/AsgMessaging.h>
+#include <AsgTools/AsgComponent.h>
 #include <AsgTools/SgTEvent.h>
 #include <AsgTools/SgTEventMeta.h>
 #include <memory>
@@ -31,11 +31,6 @@ class TH2;
 class TH3;
 class TTree;
 class ISvcLocator;
-#ifdef XAOD_STANDALONE
-class Property;
-class PropertyMgr;
-#else
-#endif
 
 namespace EL
 {
@@ -75,7 +70,7 @@ namespace EL
 
   class AnaAlgorithm
 #ifdef XAOD_STANDALONE
-    : public asg::AsgMessaging, public INamedInterface
+    : public asg::AsgComponent
 #else
     : public AthHistogramAlgorithm, virtual public IIncidentListener
 #endif
@@ -267,34 +262,6 @@ namespace EL
 
 
     //
-    // properties interface
-    //
-
-#ifdef XAOD_STANDALONE
-    /// \brief declare an algorithm property
-    /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   out of memory II
-  public:
-    template<typename T> Property *
-    declareProperty (const std::string& name, T& loc,
-                     const std::string& doc = "");
-
-    /// \brief set a property with a given value
-    /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   out of memory II\n
-    ///   invalid property type
-  public:
-    template<typename T> ::StatusCode
-    setProperty (const std::string& name, T&& value);
-#endif
-
-
-
-    //
     // virtual interface
     //
 
@@ -455,13 +422,6 @@ namespace EL
   public:
     void setWk (IWorker *val_wk);
 
-    /// \brief add an object to release when this algorithm gets
-    /// destructed
-    ///
-    /// This is mostly used to attach private tools to the algorithm.
-  public:
-    void addCleanup (const std::shared_ptr<void>& cleanup);
-
 
     /// \brief whether we have an implementation for \ref
     /// fileExecute
@@ -491,32 +451,10 @@ namespace EL
 #endif
 
 
-    //
-    // inherited interface
-    //
-
-#ifdef XAOD_STANDALONE
-  public:
-    virtual const std::string& name () const final;
-#endif
-
-
 
     //
     // private interface
     //
-
-#ifdef XAOD_STANDALONE
-    /// \brief the name of the algorithm
-  private:
-    std::string m_name;
-#endif
-
-#ifdef XAOD_STANDALONE
-    /// \brief the property manager
-  private:
-    std::unique_ptr<PropertyMgr> m_properties;
-#endif
 
 #ifdef XAOD_STANDALONE
     /// \brief the value of \ref evtStore
@@ -574,13 +512,6 @@ namespace EL
     /// \brief the value of \ref hasBeginInputFile
   private:
     bool m_hasBeginInputFile {false};
-
-#ifdef XAOD_STANDALONE
-    /// \brief a list of objects to clean up when releasing the
-    /// algorithm
-  private:
-    std::vector<std::shared_ptr<void> > m_cleanup;
-#endif
   };
 }
 

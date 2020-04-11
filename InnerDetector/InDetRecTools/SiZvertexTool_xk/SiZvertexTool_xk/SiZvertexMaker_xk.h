@@ -70,11 +70,11 @@ namespace InDet {
     /// @name Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
     //@{
-    virtual std::list<Trk::Vertex> newEvent(SiSpacePointsSeedMakerEventData& data) const override;
-    virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
+    virtual std::list<Trk::Vertex> newEvent(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data) const override;
+    virtual std::list<Trk::Vertex> newRegion(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
                                              const std::vector<IdentifierHash>&,
                                              const std::vector<IdentifierHash>&) const override;
-    virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
+    virtual std::list<Trk::Vertex> newRegion(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data,
                                              const std::vector<IdentifierHash>&,
                                              const std::vector<IdentifierHash>&,
                                              const IRoiDescriptor&) const override;
@@ -113,7 +113,7 @@ namespace InDet {
     // Protected methods
     ///////////////////////////////////////////////////////////////////
 
-    std::list<Trk::Vertex> production(SiSpacePointsSeedMakerEventData& data) const;
+    std::list<Trk::Vertex> production(const EventContext& ctx, SiSpacePointsSeedMakerEventData& data) const;
     MsgStream& dumpConditions(MsgStream& out) const;
   };
 }

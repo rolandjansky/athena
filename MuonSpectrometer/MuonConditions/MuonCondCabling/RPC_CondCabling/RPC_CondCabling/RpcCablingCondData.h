@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 #ifndef RPCCABLINGCONDDATA_H
@@ -18,8 +18,7 @@
 #include "RPC_CondCabling/RPCPadParameters.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
+#include "MuonIdHelpers/RpcIdHelper.h"
 
 class RpcCablingCondData{
 
@@ -29,22 +28,34 @@ class RpcCablingCondData{
 
   typedef std::map <int,RDOindex,std::less < int > > RDOmap;
   typedef std::vector<const RDOindex*> OfflineOnlineHashMap;
+  typedef std::map <Identifier,const RDOindex*,std::less < Identifier > > OfflineOnlineMap;
   typedef Identifier ID;
   typedef std::vector < RPC_CondCabling::SectorLogicSetup > STvec;
   typedef std::map <IdentifierHash, std::set<IdentifierHash> > PRD_RDO_Map;
   typedef std::map <IdentifierHash, std::set<uint32_t> > PRD_ROB_Map;
 
-  RpcCablingCondData();
-  virtual ~RpcCablingCondData();
+  RpcCablingCondData()=default;
+  virtual ~RpcCablingCondData()=default;
 
   const RDOmap& give_RDOs(void) const;
-  bool giveOnlineID(const unsigned int hashID,
-                    unsigned short int& ROBid,
-                    unsigned short int& RODid,
-                    unsigned short int& side,
-                    unsigned short int& SLid,
-                    unsigned short int& RXid,
-                    unsigned short int& PADid) const;
+  
+  bool give_ROBid(const Identifier& compactID, unsigned short int& id) const;
+  bool give_ROBid(const unsigned int hashID, unsigned short int& id) const;
+
+  bool give_RODid(const Identifier& compactID, unsigned short int& id) const;
+  bool give_RODid(const unsigned int hashID, unsigned short int& id) const;
+
+  bool give_side(const Identifier& compactID, unsigned short int& id) const;
+  bool give_side(const unsigned int hashID, unsigned short int& id) const;
+
+  bool give_SLid(const Identifier& compactID, unsigned short int& id) const;
+  bool give_SLid(const unsigned int hashID, unsigned short int& id) const;
+
+  bool give_RXid(const Identifier& compactID, unsigned short int& id) const;
+  bool give_RXid(const unsigned int hashID, unsigned short int& id) const;
+
+  bool give_PADid(const Identifier& compactID, unsigned short int& id) const;
+  bool give_PADid(const unsigned int hashID, unsigned short int& id) const;
 
 
   const std::vector<uint32_t>& giveFullListOfRobIds() const;
@@ -60,7 +71,7 @@ class RpcCablingCondData{
                                        unsigned short int CMAId,
                                        unsigned short ijk,
                                        unsigned short int Channel,
-                                       ServiceHandle<Muon::IMuonIdHelperSvc> idHelperSvc ) const;
+                                       const RpcIdHelper* rpcId ) const;
 
   const CMAparameters::CMAlist give_CMAs(const int logic_sector,const ViewType side, const int station,const int cabling_code) const;
   unsigned long int strip_code_fromOffline (int etaPhiView, int logicSector, int cablingStation, int gasGap, int zIndexInCablingStation, int strip) const;
@@ -82,6 +93,66 @@ class RpcCablingCondData{
                                     unsigned short int  & feet_th1,
                                     unsigned short int  & feet_th2 ) const;
 
+  bool give_PAD_address (unsigned short int SubsystemId,
+                         unsigned short int SectorId,
+                         unsigned short int RoIId,
+                         unsigned int& padIdHash) const;
+
+bool give_RoI_borders_id (unsigned short int SubsystemId,
+                          unsigned short int SectorId,
+                          unsigned short int RoIId,
+                          Identifier& EtaLowBorder_id,
+                          Identifier& EtaHighBorder_id,
+                          Identifier& PhiLowBorder_id,
+                          Identifier& PhiHighBorder_id,
+                          const RpcIdHelper* rpcId) const;
+
+bool give_RoI_borders (unsigned short int SubsystemId,
+                       unsigned short int SectorId,
+                       unsigned short int RoIId,
+                       unsigned int& EtaLowBorder,
+                       unsigned int& EtaHighBorder,
+                       unsigned int& PhiLowBorder,
+                       unsigned int& PhiHighBorder) const;
+
+Identifier protected_strip_OffId_fromCode (unsigned long int strip_code, const RpcIdHelper* rpcId) const;
+RPCofflineId strip_id_fromCode(unsigned long int strip_code) const;
+
+bool give_LowPt_borders (unsigned short int SubsystemId,
+                         unsigned short int SectorId,
+                         unsigned short int RoIId,
+                         unsigned int& EtaLowBorder,
+                         unsigned int& EtaHighBorder,
+                         unsigned int& PhiLowBorder,
+                         unsigned int& PhiHighBorder) const;
+
+bool give_LowPt_borders_id (unsigned short int SubsystemId,
+                            unsigned short int SectorId,
+                            unsigned short int RoIId,
+                            Identifier& EtaLowBorder_id,
+                            Identifier& EtaHighBorder_id,
+                            Identifier& PhiLowBorder_id,
+                            Identifier& PhiHighBorder_id,
+                            const RpcIdHelper* rpcId) const;
+
+bool give_HighPt_borders (unsigned short int SubsystemId,
+                          unsigned short int SectorId,
+                          unsigned short int RoIId,
+                          unsigned int& EtaLowBorder,
+                          unsigned int& EtaHighBorder,
+                          unsigned int& PhiLowBorder,
+                          unsigned int& PhiHighBorder) const;
+
+bool give_HighPt_borders_id(unsigned short int SubsystemId,
+                            unsigned short int SectorId,
+                            unsigned short int RoIId,
+                            Identifier& EtaLowBorder_id,
+                            Identifier& EtaHighBorder_id,
+                            Identifier& PhiLowBorder_id,
+                            Identifier& PhiHighBorder_id,
+                            const RpcIdHelper* rpcId) const;
+
+Identifier strip_OffId_fromCode (unsigned long int strip_code, const RpcIdHelper* rpcId) const;
 
   // migrate from RpcPadIDHash
   // reverse conversion 
@@ -99,6 +170,7 @@ class RpcCablingCondData{
 
 
   RDOmap m_RDOs;
+  OfflineOnlineMap m_RDOmap;
   OfflineOnlineHashMap m_HashVec;
 
   std::string m_map;

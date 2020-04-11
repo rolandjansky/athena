@@ -68,6 +68,13 @@ atlas_add_test( gt_AnaToolHandle_test
    LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
 set_tests_properties (AsgExampleTools_gt_AnaToolHandle_test_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
+atlas_add_test( gt_AsgToolConfig
+   SOURCES test/gt_AsgToolConfig.cxx
+   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
+set_tests_properties (AsgExampleTools_gt_AsgToolConfig_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
+
+
 if( XAOD_STANDALONE )
 
    atlas_add_test( gt_AsgTool

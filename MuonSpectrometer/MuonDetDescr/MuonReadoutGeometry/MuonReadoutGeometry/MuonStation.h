@@ -105,7 +105,7 @@ public:
    void fillCache();
    void clearBLineCache();
    void fillBLineCache();
-   void setBline(BLinePar * bline);
+   void setBline(const BLinePar * bline);
    inline GeoAlignableTransform* getGeoTransform() const;
    inline HepGeom::Transform3D  getTransform() const;
    inline const HepGeom::Transform3D* getNativeToAmdbLRS() const;

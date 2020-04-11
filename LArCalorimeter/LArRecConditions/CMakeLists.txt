@@ -25,7 +25,7 @@ atlas_add_library( LArRecConditions
                    src/*.cxx
                    PUBLIC_HEADERS LArRecConditions
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloIdentifier LArIdentifier AthenaKernel Identifier GaudiKernel AthenaBaseComps
+                   LINK_LIBRARIES CaloIdentifier LArIdentifier AthenaKernel Identifier GaudiKernel AthenaBaseComps LArElecCalib LArCablingLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( LArRecConditionsDict

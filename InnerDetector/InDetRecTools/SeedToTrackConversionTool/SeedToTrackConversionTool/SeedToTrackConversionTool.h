@@ -68,7 +68,7 @@ namespace InDet
 
     /** @name Main methods for seeds conversion */
     //@{
-    virtual void executeSiSPSeedSegments(SeedToTrackConversionData& data, const Trk::TrackParameters*, const int&, const std::list<const Trk::SpacePoint*>&) const override;
+    virtual void executeSiSPSeedSegments(SeedToTrackConversionData& data, const Trk::TrackParameters*, const int&, const std::vector<const Trk::SpacePoint*>&) const override;
     //!<seed trackparameters, number of tracks found:m_track.size(), list of spacepoints
     virtual void newEvent(SeedToTrackConversionData& data, const Trk::TrackInfo&, const std::string&) const override;
     virtual void endEvent(SeedToTrackConversionData& data) const override;

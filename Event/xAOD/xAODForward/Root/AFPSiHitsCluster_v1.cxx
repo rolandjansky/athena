@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -35,7 +35,7 @@ namespace xAOD
 
   AUXSTORE_OBJECT_SETTER_AND_GETTER (AFPSiHitsCluster_v1, std::vector<AFPSiHitsCluster_v1::AFPHitLink_t>,  hitsLinks, setHitsLinks)
 
-  static SG::AuxElement::Accessor< std::vector<AFPSiHitsCluster_v1::AFPHitLink_t> > hitsLinksAcc( "hitsLinks" );
+  const static SG::AuxElement::Accessor< std::vector<AFPSiHitsCluster_v1::AFPHitLink_t> > hitsLinksAcc( "hitsLinks" );
   
   void AFPSiHitsCluster_v1::addHitLink( const AFPSiHitsCluster_v1::AFPHitLink_t& link )
   {

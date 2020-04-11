@@ -19,7 +19,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "TH1.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // forward declarations
 class ITHistSvc;
