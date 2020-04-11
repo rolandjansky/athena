@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -10,15 +10,9 @@
   Re-adapted by Michela Biglietti for Mdt Rods
 */
 
-//#include <strstream>
-//#include <cassert>
-
 #include "MuonByteStreamCnvTest/ReadMdtDigit.h"
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
-
-using namespace std;
-
 
 static const int maxColl =   1200;
 static const int maxDig =    5000;
@@ -29,8 +23,6 @@ ReadMdtDigit::ReadMdtDigit(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
   m_activeStore("ActiveStoreSvc", name)
 {
-  // Declare the properties
-
   declareProperty("NtupleLocID",m_NtupleLocID);
   declareProperty("WriteMdtNtuple", m_mdtNtuple = false);
 }

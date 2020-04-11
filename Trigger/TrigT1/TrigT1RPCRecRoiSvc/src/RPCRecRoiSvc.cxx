@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -9,7 +9,6 @@
 #include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "Identifier/Identifier.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
@@ -20,14 +19,16 @@ StatusCode RPCRecRoiSvc::initialize (void)
   StoreGateSvc* detStore = nullptr;
   ATH_CHECK( service("DetectorStore",detStore) );
 
-  m_MuonMgr  = 0;
   ATH_CHECK( detStore->retrieve(m_MuonMgr) );
   ATH_MSG_DEBUG( "Found the MuonDetDescrMgr "  );
 
-  m_rPCcablingSvc = 0;
-  const IRPCcablingServerSvc* RpcCabGet = 0;
+  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
+
+  m_cabling = nullptr;
+  const IRPCcablingServerSvc* RpcCabGet = nullptr;
   ATH_CHECK( service("RPCcablingServerSvc",RpcCabGet,1) );
-  ATH_CHECK( RpcCabGet->giveCabling(m_rPCcablingSvc) );
+  ATH_CHECK( RpcCabGet->giveCabling(m_cabling) );
 
   return StatusCode::SUCCESS; 
 }
@@ -66,16 +67,13 @@ void RPCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
   Amg::Vector3D PhiLowBorder_pos(0.,0.,0.);
   Amg::Vector3D PhiHighBorder_pos(0.,0.,0.);
 
+  /*SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};*/
   
-  if(m_rPCcablingSvc->
-     give_RoI_borders_id(m_side,
-			 m_sector,
-			 m_roi,
-			 EtaLowBorder_id,
-			 EtaHighBorder_id,
-			 PhiLowBorder_id,
-			 PhiHighBorder_id)) {
-    
+  if(m_cabling->give_RoI_borders_id(m_side, m_sector, m_roi,
+                                   EtaLowBorder_id, EtaHighBorder_id,
+                                   PhiLowBorder_id, PhiHighBorder_id)) 
+  {
     const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
       m_MuonMgr->getRpcReadoutElement(EtaLowBorder_id);
     EtaLowBorder_pos = EtaLowBorder_descriptor->stripPos(EtaLowBorder_id);
@@ -213,13 +211,11 @@ bool  RPCRecRoiSvc::etaDimLow (double& etaMin, double& etaMax)  const
   Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
   Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
 
-  if( !m_rPCcablingSvc-> give_LowPt_borders_id(m_side,
-					       m_sector,
-					       m_roi,
-					       EtaLowBorder_id,
-					       EtaHighBorder_id,
-					       PhiLowBorder_id,
-					       PhiHighBorder_id)) return false;
+  /*SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};*/
+  if(!m_cabling->give_LowPt_borders_id(m_side, m_sector, m_roi,
+                                       EtaLowBorder_id, EtaHighBorder_id,
+                                       PhiLowBorder_id, PhiHighBorder_id)) return false;
   
   const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
     m_MuonMgr->getRpcReadoutElement(EtaLowBorder_id);
@@ -249,13 +245,11 @@ bool RPCRecRoiSvc::etaDimHigh (double& etaMin, double& etaMax)  const
   Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
   Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
 
-  if(!m_rPCcablingSvc->give_HighPt_borders_id(m_side,
-					      m_sector,
-					      m_roi,
-					      EtaLowBorder_id,
-					      EtaHighBorder_id,
-					      PhiLowBorder_id,
-					      PhiHighBorder_id)) return false;
+  /*SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};*/
+  if(!m_cabling->give_HighPt_borders_id(m_side, m_sector, m_roi,
+                                      EtaLowBorder_id, EtaHighBorder_id,
+                                      PhiLowBorder_id, PhiHighBorder_id)) return false;
     
   const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
     m_MuonMgr->getRpcReadoutElement(EtaLowBorder_id);
