@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_STGC_DIGITIZATIONTOOL_H
@@ -16,16 +16,18 @@
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "PileUpTools/PileUpToolBase.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "HitManagement/TimedHitCollection.h"
-#include "Identifier/Identifier.h"
 #include "MuonSimEvent/sTGCSimHitCollection.h"
 #include "MuonSimEvent/sTGCSimHit.h"
-#include "MuonSimData/MuonSimDataCollection.h"
-#include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
+#include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonDigitContainer/sTgcDigitContainer.h"
+
+#include "NSWCalibTools/INSWCalibSmearingTool.h"
 
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -43,22 +45,14 @@
 /*******************************************************************************/
 namespace MuonGM{
   class MuonDetectorManager;
-  class sTgcReadoutElement;
 }
 namespace CLHEP{
   class HepRandomEngine;
 }
-
 class PileUpMergeSvc;
-
-class sTgcIdHelper;
-class sTgcDigitMaker;
 class sTgcHitIdHelper;
-class IAtRndmGenSvc;
+class sTgcDigitMaker;
 
-class TFile;
-class TH2F;
-class TH1F;
 /*******************************************************************************/
 class sTgcDigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
 
@@ -110,7 +104,7 @@ private:
   /** Get next event and extract collection of hit collections */
   StatusCode getNextEvent();
   /** Record sTgcDigitContainer and MuonSimDataCollection */
-  StatusCode recordDigitAndSdoContainers();
+  StatusCode recordDigitAndSdoContainers(const EventContext& ctx);
   /** Core part of digitization use by mergeEvent (IPileUpTool) and digitize (IMuonDigitizationTool) */
   StatusCode doDigitization(const EventContext& ctx);
 
@@ -121,16 +115,21 @@ protected:
   std::string m_rndmEngineName;// name of random engine
 
 private:
+
   sTgcHitIdHelper*                         m_hitIdHelper;
-  const sTgcIdHelper*                      m_idHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   const MuonGM::MuonDetectorManager*       m_mdManager;
   sTgcDigitMaker*                          m_digitizer;
   TimedHitCollection<sTGCSimHit>*   m_thpcsTGC;
   std::list<sTGCSimHitCollection*>  m_STGCHitCollList;
 
+  ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool;
+  BooleanProperty m_doSmearing;
+
   std::string m_inputHitCollectionName; // name of the input objects
   SG::WriteHandleKey<sTgcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","sTGC_DIGITS","WriteHandleKey for Output sTgcDigitContainer"}; // name of the output digits
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","sTGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
+  bool m_needsMcEventCollHelper;
 
   bool m_doToFCorrection;
   int m_doChannelTypes;
@@ -139,7 +138,6 @@ private:
   float m_neighborOnThreshold;
   float m_saturation;
   
-  //float m_ADC;
   bool  m_deadtimeON;
   bool  m_produceDeadDigits;
   float m_deadtimeStrip;
@@ -166,10 +164,6 @@ private:
 
   uint16_t bcTagging(const float digittime, const int channelType) const;
   int humanBC(uint16_t bctag);
-
-  //TFile *m_file;
-  //TH2F *m_SimHitOrg, *m_SimHitMerged, *m_SimHitDigitized, *m_SimHitDigitizedwPad, *m_SimHitDigitizedwoPad;
-  //TH1F *m_kineticEnergy, *m_EnergyDeposit;
 
 };
 

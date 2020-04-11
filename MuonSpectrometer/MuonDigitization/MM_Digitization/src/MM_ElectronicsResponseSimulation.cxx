@@ -12,75 +12,76 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "TF1.h"
 
 std::vector<float> shaperInputTime;
 std::vector<float> shaperInputCharge;
 // set drift electron's timing and charge via above vector before use function
 double shaperResponseFunction(double *x, double *par){
-	double response=0;
-	for(size_t i=0; i<shaperInputTime.size(); i++){
-		double amp = (x[0]>shaperInputTime[i])? shaperInputCharge[i]*pow((x[0]-shaperInputTime[i])/par[1],par[0])*exp(-(x[0]-shaperInputTime[i])/par[1]) :0;
-		response += amp;
-	}
-	return response;
+  double response=0;
+  for(size_t i=0; i<shaperInputTime.size(); i++){
+    double amp = (x[0]>shaperInputTime[i])? shaperInputCharge[i]*pow((x[0]-shaperInputTime[i])/par[1],par[0])*exp(-(x[0]-shaperInputTime[i])/par[1]) :0;
+    response += amp;
+  }
+  return response;
 }
 
 /*******************************************************************************/
 MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
-	m_peakTime(0),
-	m_alpha(0),
-	m_timeWindowLowerOffset(0),
-	m_timeWindowUpperOffset(0),
-	m_electronicsThreshold(0),
-	m_stripDeadTime(0),
-	m_artDeadTime(0),
-	m_stripResponseQThreshold(0),
-	m_stripResponseDriftGapWidth(0),
-	m_stripResponseDriftVelocity(0),
-	m_useNeighborLogic(true),
-	m_decoupleShaperFunctionParamaters(false)
+  m_peakTime(0),
+  m_alpha(0),
+  m_timeWindowLowerOffset(0),
+  m_timeWindowUpperOffset(0),
+  m_electronicsThreshold(0),
+  m_stripDeadTime(0),
+  m_artDeadTime(0),
+  m_stripResponseQThreshold(0),
+  m_stripResponseDriftGapWidth(0),
+  m_stripResponseDriftVelocity(0),
+  m_useNeighborLogic(true),
+  m_decoupleShaperFunctionParamaters(false)
 {
 }
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::initialize()
 {
-
-	float peakTimeMultiplier = 0;
-
-	if(!m_decoupleShaperFunctionParamaters){
-
-		peakTimeMultiplier = sqrt(m_peakTime / 50.);
-		m_alpha = 2.5 * peakTimeMultiplier;
-
-		m_h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
-		m_h_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
-		m_h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
-
-	} else {
-
-		peakTimeMultiplier = (m_peakTime / 50.);
-		m_alpha = 2.5;
-
-		m_h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
-		m_h_intFn->SetParameter( 0, m_alpha ); // previously split into the alpha parameter
-		m_h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
-
-	}
-
+  
+  float peakTimeMultiplier = 0;
+  
+  if(!m_decoupleShaperFunctionParamaters){
+    
+    peakTimeMultiplier = std::sqrt(m_peakTime / 50.);
+    m_alpha = 2.5 * peakTimeMultiplier;
+    
+    m_h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
+    m_h_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
+    m_h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
+    
+  } else {
+    
+    peakTimeMultiplier = (m_peakTime / 50.);
+    m_alpha = 2.5;
+    
+    m_h_intFn = new TF1("intFn", shaperResponseFunction, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 );
+    m_h_intFn->SetParameter( 0, m_alpha ); // previously split into the alpha parameter
+    m_h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
+    
+  }
+  
 }
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::clearValues()
 {
-	m_tStripElectronicsAbThr.clear();
-	m_qStripElectronics.clear();
-	m_nStripElectronics.clear();
+  m_tStripElectronicsAbThr.clear();
+  m_qStripElectronics.clear();
+  m_nStripElectronics.clear();
 }
 /*******************************************************************************/
-MM_DigitToolOutput MM_ElectronicsResponseSimulation::getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput)
+MM_DigitToolOutput MM_ElectronicsResponseSimulation::getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput, const float thresholdScaleFactor)
 {
 	clearValues();
 
-	vmmPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
+	vmmPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime(), thresholdScaleFactor);
 
 	/// ToDo: include loop for calculating Trigger study vars
 	MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
@@ -88,109 +89,111 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::getPeakResponseFrom(const M
 	return tmp;
 }
 /*******************************************************************************/
-MM_DigitToolOutput MM_ElectronicsResponseSimulation::getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput)
+MM_DigitToolOutput MM_ElectronicsResponseSimulation::getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput, const float thresholdScaleFactor)
 {
-	clearValues();
-	vmmThresholdResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
-	MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
-	return tmp;
+  clearValues();
+  vmmThresholdResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime(), thresholdScaleFactor);
+  MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
+  return tmp;
 }
 /*******************************************************************************/
-void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip){
-	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
-
-		//find min and max times for each strip:
-		double maxChargeThisStrip = 0;
-		double maxChargeLeftNeighbor = 0;
-		double maxChargeRightNeighbor = 0;
-
-		// find the maximum charge:
-		if(m_useNeighborLogic){// only check neighbor strips if VMM neighbor logic is enabled
-			if ( ii > 0 ) {
-				shaperInputTime = tStrip.at(ii-1);
-				shaperInputCharge = qStrip.at(ii-1);
-				maxChargeLeftNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-			}
-
-			if ( ii+1 < numberofStrip.size() ) {
-				shaperInputTime = tStrip.at(ii+1);
-				shaperInputCharge = qStrip.at(ii+1);
-				maxChargeRightNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-			}
-		}
-		shaperInputTime = tStrip.at(ii);
-		shaperInputCharge = qStrip.at(ii);
-		maxChargeThisStrip = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-
-
-		//check if neighbor strip was above threshold
-		bool neighborFired = maxChargeLeftNeighbor > m_electronicsThreshold || maxChargeRightNeighbor > m_electronicsThreshold;
-
-		// Look at strip if it or its neighbor was above threshold  and if neighbor logic of the VMM is enabled:
-		if (maxChargeThisStrip > m_electronicsThreshold || (m_useNeighborLogic && neighborFired) ) {
-			shaperInputTime = tStrip.at(ii);
-			shaperInputCharge = qStrip.at(ii);
-			// float localPeak = 0;
-			float localPeakt = 0;
-			float localPeakq = 0;
-
-			float stepSize = 0.1; //ns(?) step size corresponding to VMM discriminator
-
-			for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
-
-				float thisStep = m_timeWindowLowerOffset+jj*stepSize;
-				float nextStep = m_timeWindowLowerOffset+(jj+1)*stepSize;
-				float oneAfterStep = m_timeWindowLowerOffset+(jj+2)*stepSize;
-
-
-				//check if the charge for the next points is less than the current step and the derivative of the first point is positive or 0 and the next point is negative:
-				if ( ( m_h_intFn->Eval(thisStep,0,0) < m_h_intFn->Eval(nextStep,0,0) ) && ( m_h_intFn->Eval(nextStep,0,0) > m_h_intFn->Eval(oneAfterStep,0,0) ) && (m_h_intFn->Eval(thisStep+0.001)-m_h_intFn->Eval(thisStep-0.001))/0.001 > 0.0 && (m_h_intFn->Eval(oneAfterStep+0.001)-m_h_intFn->Eval(oneAfterStep-0.001))/0.001 < 0.0 ){ // m_h_intFn->Derivative() does not work. WHY? 2016/07/18
-
-					localPeakt = nextStep;
-					localPeakq = m_h_intFn->Eval(nextStep,0,0);
-
-					m_nStripElectronics.push_back(numberofStrip.at(ii));
-					m_tStripElectronicsAbThr.push_back(localPeakt);
-					m_qStripElectronics.push_back(localPeakq);
-				}
-				//                }
-			}
-		}
+void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor){
+  for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
+    
+    //find min and max times for each strip:
+    double maxChargeThisStrip = 0;
+    double maxChargeLeftNeighbor = 0;
+    double maxChargeRightNeighbor = 0;
+    
+    // find the maximum charge:
+    if(m_useNeighborLogic){// only check neighbor strips if VMM neighbor logic is enabled
+      if ( ii > 0 ) {
+	shaperInputTime = tStrip.at(ii-1);
+	shaperInputCharge = qStrip.at(ii-1);
+	maxChargeLeftNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+      }
+      
+      if ( ii+1 < numberofStrip.size() ) {
+	shaperInputTime = tStrip.at(ii+1);
+	shaperInputCharge = qStrip.at(ii+1);
+	maxChargeRightNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+      }
+    }
+    shaperInputTime = tStrip.at(ii);
+    shaperInputCharge = qStrip.at(ii);
+    maxChargeThisStrip = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+  
+    float scaledThreshold = m_electronicsThreshold * thresholdScaleFactor;
+    
+    //check if neighbor strip was above threshold
+    bool neighborFired = maxChargeLeftNeighbor > scaledThreshold || maxChargeRightNeighbor > scaledThreshold;
+    
+    // Look at strip if it or its neighbor was above threshold  and if neighbor logic of the VMM is enabled:
+    if (maxChargeThisStrip > scaledThreshold || (m_useNeighborLogic && neighborFired) ) {
+      shaperInputTime = tStrip.at(ii);
+      shaperInputCharge = qStrip.at(ii);
+      // float localPeak = 0;
+      float localPeakt = 0;
+      float localPeakq = 0;
+      
+      float stepSize = 0.1; //ns(?) step size corresponding to VMM discriminator
+      
+      for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
+	
+	float thisStep = m_timeWindowLowerOffset+jj*stepSize;
+	float nextStep = m_timeWindowLowerOffset+(jj+1)*stepSize;
+	float oneAfterStep = m_timeWindowLowerOffset+(jj+2)*stepSize;
+	
+	
+	//check if the charge for the next points is less than the current step and the derivative of the first point is positive or 0 and the next point is negative:
+	if ( ( m_h_intFn->Eval(thisStep,0,0) < m_h_intFn->Eval(nextStep,0,0) ) && ( m_h_intFn->Eval(nextStep,0,0) > m_h_intFn->Eval(oneAfterStep,0,0) ) && (m_h_intFn->Eval(thisStep+0.001)-m_h_intFn->Eval(thisStep-0.001))/0.001 > 0.0 && (m_h_intFn->Eval(oneAfterStep+0.001)-m_h_intFn->Eval(oneAfterStep-0.001))/0.001 < 0.0 ){ // m_h_intFn->Derivative() does not work. WHY? 2016/07/18
+	  
+	  localPeakt = nextStep;
+	  localPeakq = m_h_intFn->Eval(nextStep,0,0);
+	  
+	  m_nStripElectronics.push_back(numberofStrip.at(ii));
+	  m_tStripElectronicsAbThr.push_back(localPeakt);
+	  m_qStripElectronics.push_back(localPeakq);
 	}
+	//                }
+      }
+    }
+  }
 }///end of VMM response function
 /*******************************************************************************/
 
 
 
 
-void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip){
+void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor){
+  
+  
+  for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {  
+    
+    shaperInputTime = tStrip.at(ii);
+    shaperInputCharge = qStrip.at(ii);
+    
+    float localThresholdt = 0;
+    float localThresholdq = 0;
+    
+    float stepSize = 0.1; //ns(?) step size corresponding to VMM discriminator
+    
+    float scaledThreshold = m_electronicsThreshold*thresholdScaleFactor;
 
-
-	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
-
-
-		shaperInputTime = tStrip.at(ii);
-		shaperInputCharge = qStrip.at(ii);
-
-		float localThresholdt = 0;
-		float localThresholdq = 0;
-
-		float stepSize = 0.1; //ns(?) step size corresponding to VMM discriminator
-
-		for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
-
-			float thisStep = m_timeWindowLowerOffset+jj*stepSize;
-			float preStep = (jj>0) ? m_timeWindowLowerOffset+(jj-1)*stepSize: 0.0;
-
-			if ( ( m_h_intFn->Eval(thisStep,0,0) >  m_electronicsThreshold) && (m_h_intFn->Eval(thisStep+0.001)-m_h_intFn->Eval(thisStep-0.001))/0.001 > 0.0  && ( m_h_intFn->Eval(preStep,0,0) <  m_electronicsThreshold) ) {
-				localThresholdt = thisStep;
-				localThresholdq = m_h_intFn->Eval(thisStep,0,0);
-				m_nStripElectronics.push_back(numberofStrip.at(ii));
-				m_tStripElectronicsAbThr.push_back(localThresholdt);
-				m_qStripElectronics.push_back(localThresholdq);
-			}
-		}
-	}
+    for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
+      
+      float thisStep = m_timeWindowLowerOffset+jj*stepSize;
+      float preStep = (jj>0) ? m_timeWindowLowerOffset+(jj-1)*stepSize: 0.0;
+      
+      if ( ( m_h_intFn->Eval(thisStep,0,0) >  scaledThreshold) && (m_h_intFn->Eval(thisStep+0.001)-m_h_intFn->Eval(thisStep-0.001))/0.001 > 0.0  && ( m_h_intFn->Eval(preStep,0,0) <  scaledThreshold) ) {
+	localThresholdt = thisStep;
+	localThresholdq = m_h_intFn->Eval(thisStep,0,0);
+	m_nStripElectronics.push_back(numberofStrip.at(ii));
+	m_tStripElectronicsAbThr.push_back(localThresholdt);
+	m_qStripElectronics.push_back(localThresholdq);
+      }
+    }
+  }
 }///end of VMM response function
 /*******************************************************************************/
 
