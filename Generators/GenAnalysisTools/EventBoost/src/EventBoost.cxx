@@ -181,13 +181,9 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
     particles_needing_modification.push_back(*p);
   }
 
-  std::vector<HepMC::GenParticle*>::const_iterator it = particles_needing_modification.begin();
-  std::vector<HepMC::GenParticle*>::const_iterator itE = particles_needing_modification.end();
-
   m_pxsum=0.;
-
-  for (;it!=itE;++it) {
-    if (!doModification(*it,m_pxsum)) {
+  for (auto it: particles_needing_modification) {
+    if (!doModification(it,m_pxsum)) {
       msg(MSG::WARNING) << "Problems modifying HepMC record!" << endmsg;
       ++m_nFailedEvent;
     } else
@@ -198,17 +194,13 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
   
   if ((m_gaussian_vertex_smearing)||(m_flat_vertex_smearing)) {
 
-    HepMC::GenEvent::vertex_const_iterator v = genEvt->vertices_begin();
-    HepMC::GenEvent::vertex_const_iterator vEnd = genEvt->vertices_end();
-
     std::vector<HepMC::GenVertex*> vertices_needing_modification;
-    
+
+    HepMC::GenEvent::vertex_const_iterator v = genEvt->vertices_begin();
+    HepMC::GenEvent::vertex_const_iterator vEnd = genEvt->vertices_end();    
     for(; v != vEnd; ++v ) {
       vertices_needing_modification.push_back(*v);
     }
-
-    std::vector<HepMC::GenVertex*>::const_iterator vit  = vertices_needing_modification.begin();
-    std::vector<HepMC::GenVertex*>::const_iterator vitE = vertices_needing_modification.end();
 
 
     Rndm::Numbers GaussVertexModifier_x(randSvc(), Rndm::Gauss(m_gaussian_mean[0],m_gaussian_width[0]));
@@ -234,11 +226,10 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
     m_flat_rand_y = FlatVertexModifier_y.shoot();
     m_flat_rand_z = FlatVertexModifier_z.shoot();
 
-
-    for (;vit!=vitE;++vit) {
+    for (auto vit: vertices_needing_modification) {
 
       if (m_gaussian_vertex_smearing) {
-	if (!doVertexModification(*vit, m_gauss_rand_x, m_gauss_rand_y, m_gauss_rand_z)) {
+	if (!doVertexModification(vit, m_gauss_rand_x, m_gauss_rand_y, m_gauss_rand_z)) {
 	  msg(MSG::WARNING) << "Problems modifying HepMC record!" << endmsg;
 	  ++m_nFailedEvent;
 	} else
@@ -246,7 +237,7 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
       }
 
       else if (m_flat_vertex_smearing) {
-	if (!doVertexModification(*vit, m_flat_rand_x, m_flat_rand_y, m_flat_rand_z)) {
+	if (!doVertexModification(vit, m_flat_rand_x, m_flat_rand_y, m_flat_rand_z)) {
 	  msg(MSG::WARNING) << "Problems modifying HepMC record!" << endmsg;
 	  ++m_nFailedEvent;
 	} else
