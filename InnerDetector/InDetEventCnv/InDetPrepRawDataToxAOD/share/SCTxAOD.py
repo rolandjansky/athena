@@ -106,6 +106,7 @@ svcMgr.DecisionSvc.CalcStats = True
 augmentationTools=[]
 
 from InDetRecExample.InDetJobProperties import InDetFlags
+from InDetRecExample import TrackingCommon
 if not InDetFlags.disableTracking():
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
     DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "SCTxAOD_DFTrackStateOnSurfaceDecorator",
@@ -115,6 +116,7 @@ if not InDetFlags.disableTracking():
                                                                StoreSCT   = True,
                                                                StorePixel = False,
                                                                IsSimulation = isSctDxAODSimulation,
+                                                               TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool(),
                                                                OutputLevel = INFO)
     ToolSvc += DFTSOS
     augmentationTools+=[DFTSOS]
