@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iomanip>
 #include "RPC_CondCabling/TRIGGERidentity.h"
-
-using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -113,14 +111,14 @@ TRIGGERidentity::searchForHigh() const
 }
 
 
-void TRIGGERidentity::Print(ostream& stream,bool detail) const
+void TRIGGERidentity::Print(std::ostream& stream,bool detail) const
 {
     detail = true;
     if(detail)
     {
         stream << s_type_tag[type()] << " trigger, " 
                << s_threshold_tag[threshold()]
-	       << " threshold fired (" << setw(4) 
+	       << " threshold fired (" << std::setw(4) 
                << s_pt_value[type()][threshold()]
 	       << " GeV), overlap flag ";
         if(overlap()) stream << "ON";

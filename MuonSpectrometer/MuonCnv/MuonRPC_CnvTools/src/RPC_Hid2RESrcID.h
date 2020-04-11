@@ -1,60 +1,46 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __RPC_HID2RESRCID__
 #define __RPC_HID2RESRCID__
 
-
 #include "AthenaKernel/MsgStreamMember.h"
-// #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "RPCcablingInterface/IRPCcablingSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "MuonIdHelpers/RpcIdHelper.h"
 
 #include <stdint.h> 
 #include <map>
-
 
 class RPC_Hid2RESrcID {
 
 public:
 
-  RPC_Hid2RESrcID (); 
+  RPC_Hid2RESrcID();
 
-  RPC_Hid2RESrcID (int specialROBNumber); 
+  RPC_Hid2RESrcID (int specialROBNumber);
 
-  void set(const IRPCcablingSvc* p_cabling, const Muon::MuonIdHelperTool* muonIdHelperTool); 
+  void set(const RpcIdHelper* rpdId);
 
-  std::vector<uint32_t> getRodIDFromCollID(const Identifier& offlineId);
+  uint32_t getRodID(const Identifier& offlineId, const RpcCablingCondData* readCdo);
+  uint32_t getRodID(const int& side, const int& slogic, const int& padId, const RpcCablingCondData* readCdo);
+  uint32_t getRodID(const int& sector);
+  uint32_t getRodID(const uint16_t& side, const uint16_t& rodIndex);
 
-  uint32_t getRodID(const Identifier& offlineId);
+  uint32_t getRobID(const uint32_t rod_id);
 
-  uint32_t getRodID  (const int& side, const int& slogic, const int& padId); 
-  uint32_t getRodID  (const int& sector); 
-  uint32_t getRodID  (const uint16_t& side, const uint16_t& rodIndex);
+  uint32_t getRosID(const uint32_t rob_id);
 
-  uint32_t getRobID  ( uint32_t rod_id); 
-
-  uint32_t getRosID  ( uint32_t rob_id); 
-
-  uint32_t getDetID  ( uint32_t ros_id); 
-  
-  uint16_t findRODid(uint16_t side, uint16_t slogic, uint16_t padId);
-
-  Identifier findPadOfflineId(uint16_t side, uint16_t slogic, uint16_t padId);
-
-  const RpcIdHelper& getIdHelper () { return m_muonIdHelperTool->rpcIdHelper(); }  
+  uint32_t getDetID(const uint32_t ros_id);
    
-  MsgStream & msg(MSG::Level lvl) const { return m_msg << lvl;};
+  MsgStream& msg(MSG::Level lvl) const { return m_msg << lvl;};
 
   bool msgLevel (MSG::Level lvl) { return m_msg.get().level() <= lvl;};
 
-private: 
-
-  const IRPCcablingSvc* m_cabling;
-  const Muon::MuonIdHelperTool* m_muonIdHelperTool;
+private:
+  const RpcIdHelper* m_rpcIdHelper;
 
   int m_specialROBNumber;
 
