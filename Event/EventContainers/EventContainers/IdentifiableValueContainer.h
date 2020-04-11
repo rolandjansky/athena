@@ -20,7 +20,7 @@ template<class T>
 class IdentifiableValueContainer : IdentifiableValueContainerBase{
 
 public:
-
+  typedef T value_type;
   typedef IdentifiableValueCache<T> Cache;
 
    //Prevent accidental copying

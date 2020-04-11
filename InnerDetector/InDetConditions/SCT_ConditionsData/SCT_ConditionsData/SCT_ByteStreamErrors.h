@@ -12,6 +12,7 @@
 #define SCT_ByteStreamErrors_h
 
 #include <vector>
+#include <array>
 
 // http://stackoverflow.com/questions/21456262/enum-to-string-in-c11
 #ifndef SCT_ERRORTYPELIST
@@ -84,6 +85,7 @@ namespace SCT_ByteStreamErrors {
     MissingLinkHeaderError,
     MaskedROD
   };
+
   // Define bad errors in FE-link level to be used in monitoring
   static const std::vector<errorTypes> LinkLevelBadErrors = {
     TimeOutError,
@@ -138,6 +140,17 @@ namespace SCT_ByteStreamErrors {
     MissingLinkHeaderError, // We cannot know which FE-link does not have header. We assign this error to all the FE-links of the ROD.
     MaskedROD
   };
+  template<errorTypes et>
+  static constexpr uint64_t maskUpTo() { return  ( uint64_t(1) << et ) - 1; }
+  static constexpr uint64_t ABCDErrorMask() { return maskUpTo<ABCDError_Error4>() & ~(maskUpTo<ABCDError_Chip0>()); }
+  static constexpr uint64_t TempMaskedChipsMask() { return maskUpTo<TempMaskedChip5>() & ~(maskUpTo<TempMaskedChip0>()); }
+  inline errorTypes TempMaskedChipToBit(int chip){ return std::array<errorTypes, 6>{{
+	  TempMaskedChip0,
+	  TempMaskedChip1,
+	  TempMaskedChip2,
+	  TempMaskedChip3,
+	  TempMaskedChip4,
+	  TempMaskedChip5}}[chip]; }
 
   // Ensure that the enums are available from ROOT
   struct ROOT6_NamespaceAutoloadHook{};
