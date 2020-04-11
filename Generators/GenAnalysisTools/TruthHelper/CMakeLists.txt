@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/AtlasHepMC
                           Generators/GeneratorObjects
-                          Generators/AtlasHepMC  
                           PRIVATE
                           Control/AthenaKernel
                           Generators/TruthUtils )
