@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file AtlasUnixStandardJob.py
 ## @brief py-module to configure the Athena AppMgr for standard (UNIX) jobs
 ## @author Sebastien Binet <binet@cern.ch>
-## $Id: AtlasUnixStandardJob.py,v 1.16 2009-02-10 22:48:51 wlav Exp $
 ###############################################################
 
 from __future__ import print_function
@@ -11,8 +10,6 @@ from __future__ import print_function
 def _setupAtlasUnixStandardJob():
     from .AppMgr import theApp
     from .AppMgr import ServiceMgr as svcMgr
-
-    from .Constants import INFO
 
     ## basic Gaudi services
     import GaudiSvc.GaudiSvcConf as GaudiSvcConf
@@ -27,18 +24,6 @@ def _setupAtlasUnixStandardJob():
     import GaudiAud.GaudiAudConf as GaudiAudConf
     svcMgr.AuditorSvc += GaudiAudConf.AlgContextAuditor()
 
-    # make sure StatusCodeSvc messages are always printed
-    svcMgr += GaudiSvcConf.StatusCodeSvc()
-    svcMgr.StatusCodeSvc.OutputLevel = INFO
-    svcMgr.StatusCodeSvc.Filter += [
-              "Reflex::NewDelFunctionsT<StatusCode>::delete_T(void*)",
-        "ROOT::Reflex::NewDelFunctionsT<StatusCode>::delete_T(void*)",
-        ]
-    # make sure StatusCodes are always checked
-    svcMgr.StatusCodeSvc.AbortOnError=True
-
-
-    
     # make the message service available
     # from GaudiSvc.GaudiSvcConf import MessageSvc
     svcMgr.MessageSvc = theApp.service( "MessageSvc" )     # already instantiated
