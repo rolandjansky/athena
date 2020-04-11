@@ -47,7 +47,9 @@
 
 
 //truh label
-#include "BoostedJetTaggers/SmoothedWZTagger.h"
+//#include "BoostedJetTaggers/SmoothedWZTagger.h"
+
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 //My includes
 #include "JetUncertainties/FFJetSmearingTool.h"
@@ -256,21 +258,35 @@ std::vector<CP::SystematicSet> sysList;
 
 //---------------------------------------------------------
 //////Initialize the tool to set the truth tagging
-           std::unique_ptr<JSSTaggerBase> m_TaggerForJES;
+//           std::unique_ptr<JSSTaggerBase> m_TaggerForJES;
+//
+//  m_TaggerForJES = nullptr;
 
-  m_TaggerForJES = nullptr;
+//m_TaggerForJES = std::unique_ptr<SmoothedWZTagger>( new SmoothedWZTagger( "TaggerTruthLabelling" ) );
 
-m_TaggerForJES = std::unique_ptr<SmoothedWZTagger>( new SmoothedWZTagger( "TaggerTruthLabelling" ) );
+//m_TaggerForJES->setProperty("CalibArea",  "SmoothedWZTaggers/Rel21");
 
-m_TaggerForJES->setProperty("CalibArea",  "SmoothedWZTaggers/Rel21");
+//m_TaggerForJES->setProperty("ConfigFile",  "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
 
-m_TaggerForJES->setProperty("ConfigFile",  "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
+//m_TaggerForJES->setProperty("DSID", 304308/*m_config->getDSID()*/);
 
-m_TaggerForJES->setProperty("DSID", 304308/*m_config->getDSID()*/);
-
-m_TaggerForJES->initialize();
+//m_TaggerForJES->initialize();
 
 //--------------------------------------------------------
+
+  //---------------------------------------------------------
+  //////Initialize the tool to set the truth tagging
+
+JetTruthLabelingTool m_JetTruthLabelingTool("JetTruthLabelingTool");
+
+  CHECK(m_JetTruthLabelingTool.setProperty("TruthLabelName",  "R10TruthLabel_R21Consolidated"));
+  CHECK(m_JetTruthLabelingTool.setProperty("UseTRUTH3",  false)); // Set this to false only if you have the FULL !TruthParticles container in your input file
+  CHECK(m_JetTruthLabelingTool.setProperty("TruthParticleContainerName",  "TruthParticles")); // Set this if you have the FULL !TruthParticles container but have named it something else
+  CHECK(m_JetTruthLabelingTool.initialize());
+
+
+
+
 
   //--------------------
   // Calibrate jets (ir is necessary to extract the CALO and TA from a Combined jet). The user have to calibrate the jets before using the SmearingTool
@@ -445,7 +461,7 @@ if(want_to_debug==true){
 }
       //Give a TruthLabel to the LargeRJets. ou will need it in the FFSmearingTool (you need to know the jet topology) (JetUncertainties also used this)
       //
-     CHECK( m_TaggerForJES->decorateTruthLabel(*jet_reco) );// , "Failed to do truth labeling for large-R jet" 
+//     CHECK( m_TaggerForJES->decorateTruthLabel(*jet_reco) );// , "Failed to do truth labeling for large-R jet" 
 
     }
 
@@ -461,7 +477,11 @@ if(want_to_debug==true){
 
       // Shallow copy 
       auto jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
+
+     m_JetTruthLabelingTool.modify(*(jets_shallowCopy.first));
 	
+    std::cout << "I am passed the modify function " << std::endl;
+
       bool lead_jet = true;//to fill the histogram
 
       // Iterate over the shallow copy
@@ -527,7 +547,7 @@ if(want_to_debug==true){
 				if(lead_jet == true){reco_jet_mass_hist->Fill(jet_reco->m()/1000.); matched_truth_jet_mass_hist->Fill(jet_truth_matched.m()/1000.);  }
 
 if(kindofmass=="TA"){
-    	CHECK( m_TaggerForJES->decorateTruthLabel(*jet_reco_TA) );// , "Failed to do truth labeling for large-R jet" 
+//    	CHECK( m_TaggerForJES->decorateTruthLabel(*jet_reco_TA) );// , "Failed to do truth labeling for large-R jet" 
 
         Double_t aux_original_jet_mass = jet_reco->m()/1000.;
 

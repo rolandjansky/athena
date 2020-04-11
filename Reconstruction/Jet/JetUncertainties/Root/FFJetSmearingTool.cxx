@@ -513,11 +513,7 @@ ATH_MSG_VERBOSE("The topology of this jet correspond to a " << jetTopology << " 
 // The function "getJMSJMR" read the JMS and JMR uncertainties associated with the systematic 
 //-----------------------------------------------------------------------------
 
-StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_value, std::string CALO_or_TA, std::string jetTopology, double& JMS, double& JMS_err, double& JMR, double& JMR_err){
-
-	//No JMs/JMR callibration applied 
-	JMS = 1;
-	JMR=1;
+StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_value, std::string CALO_or_TA, std::string jetTopology, double& JMS_err,  double& JMR_err){
 
 	//JMS/JMR systematic variations
 	JMS_err=0;
@@ -722,7 +718,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
       //Obtain the jet mass scale (JMS) and the jet mass resolution (JMR) nominal values and variation that correspond to the jet_reco
 
-	double JMS; double JMS_err; double JMR; double JMR_err;	
+	double JMS=1; double JMS_err; double JMR=1; double JMR_err;	
         double scale;
         double resolution;
 
@@ -733,7 +729,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 	bool is_TA_mass_smeared = false;
 
     if(m_MassDef=="Comb" || m_MassDef=="Calo"){
-	getJMSJMR( jet_reco, jet_mass_CALO, "Calo",jetTopology, JMS, JMS_err, JMR, JMR_err);	
+	getJMSJMR( jet_reco, jet_mass_CALO, "Calo",jetTopology, JMS_err, JMR_err);	
 
 	scale = JMS + JMS_err;
         resolution = JMR + JMR_err;
@@ -751,7 +747,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
    }
 
     if(m_MassDef=="Comb" || m_MassDef=="TA"){
-        getJMSJMR( jet_reco, jet_mass_TA, "TA",jetTopology, JMS, JMS_err, JMR, JMR_err);
+        getJMSJMR( jet_reco, jet_mass_TA, "TA",jetTopology, JMS_err, JMR_err);
 
         scale = JMS + JMS_err;
         resolution = JMR + JMR_err;

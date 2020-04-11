@@ -118,7 +118,7 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IFFJetSmearingTool
 
         StatusCode readFFJetSmearingToolSimplifiedData(TEnv& settings);
 
-	StatusCode getJMSJMR( xAOD::Jet* jet_reco, double jet_mass, std::string CALO_or_TA,std::string jetTopology, double& JMS, double& JMS_err, double& JMR, double& JMR_err);
+	StatusCode getJMSJMR( xAOD::Jet* jet_reco, double jet_mass, std::string CALO_or_TA,std::string jetTopology, double& JMS_err, double& JMR_err);
 
         StatusCode getJetTopology( xAOD::Jet* jet_reco, std::string& jetTopology);
 

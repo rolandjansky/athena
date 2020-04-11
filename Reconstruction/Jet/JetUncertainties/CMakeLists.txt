@@ -29,6 +29,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCore
    Event/xAOD/xAODTracking
    Tools/PathResolver
+   PhysicsAnalysis/AnalysisCommon/ParticleJetTools
    ${extra_deps} )
 
 # External dependencies:
@@ -81,7 +82,7 @@ if( XAOD_STANDALONE )
       util/FFJetSmearingTool_MyExample.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
-      xAODEventShape xAODCore xAODRootAccess BoostedJetTaggersLib JetUncertaintiesLib JetCalibToolsLib)
+      xAODEventShape xAODCore xAODRootAccess BoostedJetTaggersLib JetUncertaintiesLib JetCalibToolsLib ParticleJetToolsLib)
 
 
 endif()
