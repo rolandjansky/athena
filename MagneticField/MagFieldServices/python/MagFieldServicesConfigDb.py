@@ -4,6 +4,6 @@
 # Valerio Ippolito - Harvard University
 from AthenaCommon.CfgGetter import addService,addAlgorithm  
 
-addService('MagFieldServices.MagFieldServicesConfig.GetFieldSvc', 'AtlasFieldSvc')
-addAlgorithm('MagFieldServices.MagFieldServicesConfig.GetFieldMapCondAlg', 'AtlasFieldMapCondAlg')
-addAlgorithm('MagFieldServices.MagFieldServicesConfig.GetFieldCacheCondAlg', 'AtlasFieldCacheCondAlg')
+addService('MagFieldServices.MagFieldServicesSetup.GetFieldSvc', 'AtlasFieldSvc')
+addAlgorithm('MagFieldServices.MagFieldServicesSetup.GetFieldMapCondAlg', 'AtlasFieldMapCondAlg')
+addAlgorithm('MagFieldServices.MagFieldServicesSetup.GetFieldCacheCondAlg', 'AtlasFieldCacheCondAlg')
