@@ -62,20 +62,10 @@ public:
   ///fill reco-vertex related plots that need EventInfo
   void fill(const xAOD::VertexContainer& vertexContainer, unsigned int nPU);
 
-  // New set has replaced fillJetPlot
-  bool filltrkInJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet& jet);
-  void fillSimpleJetPlots(const xAOD::TrackParticle& particle, float prob);
-  void fillJetHitsPlots(const xAOD::TrackParticle& particle, float prob, int barcode);
-  void fillJetResPlots(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
-  void fillJetEffPlots(const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
-
-  void jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
-  void jetBMR(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
-
-  void fillJetPlotCounter(const xAOD::Jet& jet);
-  void fillJetTrkTruth(const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
-  void fillJetTrkTruthCounter(const xAOD::Jet& jet);
-
+  void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood);
+  void fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, const bool isFake);
+  
   virtual ~InDetRttPlots() {/**nop**/
   };
   ///fill for Counters
@@ -103,19 +93,7 @@ private:
   bool m_secondaryResolution;
   bool m_doTrackInJetPlots;
 
-  InDetPerfPlot_TrkInJet *m_trkInJetPlot;
-  InDetPerfPlot_TrkInJet *m_trkInJetPlot_highPt;
-  InDetPerfPlot_TrackParameters *m_trkInJetBasicPlot;
-  InDetPerfPlot_Hits *m_trkInJetHitsDetailedPlots;
-  InDetPerfPlot_FakeRate *m_trkInJetFakePlots;
-  InDetPerfPlot_Resolution *m_trkInJetResPlots;
-  InDetPerfPlot_Resolution* m_trkInJetResPlotsDr0010;
-  InDetPerfPlot_Resolution* m_trkInJetResPlotsDr1020;
-  InDetPerfPlot_Resolution* m_trkInJetResPlotsDr2030;
-  InDetPerfPlot_Efficiency *m_trkInJetEffPlots;
-  InDetPerfPlot_Resolution *m_trkInJetHighPtResPlots;
-  InDetPerfPlot_Hits *m_trkInJetHitsFakeTracksPlots;
-  InDetPerfPlot_Hits *m_trkInJetHitsMatchedTracksPlots;
+  InDetPerfPlot_TrkInJet *m_trkInJetPlots;
 
   std::string m_trackParticleTruthProbKey;
   float m_truthProbLowThreshold;

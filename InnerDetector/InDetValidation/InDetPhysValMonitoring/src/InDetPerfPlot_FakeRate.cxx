@@ -35,7 +35,7 @@ void
 InDetPerfPlot_FakeRate::fill(const xAOD::TrackParticle& track, const bool isFake) {
 
   double eta = track.eta();
-  double pt = track.pt() * 1_GeV; // convert MeV to GeV
+  double pt = track.pt() * Gaudi::Units::GeV; // convert MeV to GeV
   double phi = track.phi();
   double d0 = track.d0();
   double z0 = track.z0();

@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 from __future__ import print_function
 
 from ConfigUtils import serviceFactory,toolFactory
@@ -56,7 +55,7 @@ def getInDetPhysValMonitoringTool(**kwargs) :
          addTruthJetsIfNotExising(jets_name)
       else :
          kwargs=setDefaults(kwargs,
-                            jetContainerName    ='' ,
+                            JetContainerName    ='' ,
                             FillTrackInJetPlots = False)
 
    else :
@@ -64,11 +63,11 @@ def getInDetPhysValMonitoringTool(**kwargs) :
       kwargs=setDefaults(kwargs,
                          TruthParticleContainerName = '',
                          TruthVertexContainerName   = '',
-                         TruthEventKey              = '',
-                         TruthPileupEventKey        = '',
+                         TruthEvents                = '',
+                         TruthPileupEvents          = '',
                          TruthSelectionTool         = '',
                          # the jet container is actually meant to be a truth jet container
-                         jetContainerName           ='',
+                         JetContainerName           ='',
                          FillTrackInJetPlots        = False)
 
    # hack to remove example physval monitor

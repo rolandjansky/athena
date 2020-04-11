@@ -93,7 +93,7 @@ InDetPerfPlot_Vertex::fill(const xAOD::Vertex& vertex) {
     // loop over tracks at vertex
     for (const auto& elTrk : vertex.trackParticleLinks()) {
       const xAOD::TrackParticle* trk = *elTrk;
-      fillHisto(m_vx_track_pt, trk->pt() * 1_GeV); // MeV -> GeV
+      fillHisto(m_vx_track_pt, trk->pt() / Gaudi::Units::GeV); // MeV -> GeV
       fillHisto(m_vx_track_eta, trk->eta());
       const xAOD::ParametersCovMatrix_t covTrk = trk->definingParametersCovMatrix();
       fillHisto(m_vx_track_d0, trk->d0());
