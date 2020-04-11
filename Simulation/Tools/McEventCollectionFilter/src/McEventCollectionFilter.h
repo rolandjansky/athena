@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCEVENTCOLLECTIONFILTER_H
@@ -26,17 +26,22 @@ public:
 
    StatusCode ReduceMCEventCollection();
    StatusCode FindTRTElectronHits();
-   StatusCode SiHistsTruthRelink();
-   StatusCode TRTHistsTruthRelink();
-   StatusCode MDTHistsTruthRelink();
-   StatusCode CSCHistsTruthRelink();
-   StatusCode RPCHistsTruthRelink();
-   StatusCode TGCHistsTruthRelink();
+   StatusCode SiHitsTruthRelink();
+   StatusCode TRTHitsTruthRelink();
+   StatusCode MDTHitsTruthRelink();
+   StatusCode CSCHitsTruthRelink();
+   StatusCode RPCHitsTruthRelink();
+   StatusCode TGCHitsTruthRelink();
+   StatusCode STGC_HitsTruthRelink();
+   StatusCode MM_HitsTruthRelink();
 
    bool m_IsKeepTRTElect;
    std::string   m_mcEventCollection;
    int m_PileupPartPDGID;
    bool m_UseTRTHits;
+   bool m_UseCSCHits;
+   bool m_UseSTGCHits;
+   bool m_UseMMHits;
    //---------------------
    std::string   m_HitName;
    int m_RefBarcode;
