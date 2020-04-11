@@ -85,7 +85,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       //@{
       virtual std::list<Trk::Track*>
-      getTracks(const EventContext& ctx, SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& Sp) const override;
+      getTracks(const EventContext& ctx, SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>& Sp) const override;
 
       virtual std::list<Trk::Track*>
       getTracks(const EventContext& ctx, SiTrackMakerEventData_xk& data, const Trk::TrackParameters& Tp, const std::list<Amg::Vector3D>& Gp) const override;
@@ -178,22 +178,22 @@ namespace InDet{
 
       const Trk::TrackParameters* getAtaPlane(MagField::AtlasFieldCache& fieldCache, SiTrackMakerEventData_xk& data,
                                               bool sss,
-                                              const std::list<const Trk::SpacePoint*>& SP) const;
+                                              const std::vector<const Trk::SpacePoint*>& SP) const;
       const Trk::TrackParameters* getAtaPlaneDBM(MagField::AtlasFieldCache& fieldCache, SiTrackMakerEventData_xk& data,
-                                                 const std::list<const Trk::SpacePoint*>& SP) const;
+                                                 const std::vector<const Trk::SpacePoint*>& SP) const;
 
-      bool globalPositions(const Trk::SpacePoint* s0,
-                           const Trk::SpacePoint* s1,
-                           const Trk::SpacePoint* s2,
+      bool globalPositions(const Trk::SpacePoint& s0,
+                           const Trk::SpacePoint& s1,
+                           const Trk::SpacePoint& s2,
                            double* p0,
                            double* p1,
                            double* p2) const;
-      bool globalPosition(const Trk::SpacePoint* sp, double* dir, double* p) const;
+      bool globalPosition(const Trk::SpacePoint& sp, double* dir, double* p) const;
       void globalDirections(double* p0, double* p1, double* p2, double* d0, double* d1, double* d2) const;
       InDet::TrackQualityCuts setTrackQualityCuts(bool simpleTrack) const;
       void detectorElementsSelection(SiTrackMakerEventData_xk& data,
                                      std::list<const InDetDD::SiDetectorElement*>& DE) const;
-      bool newSeed(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>& Sp) const;
+      bool newSeed(SiTrackMakerEventData_xk& data, const std::vector<const Trk::SpacePoint*>& Sp) const;
       bool isNewTrack(SiTrackMakerEventData_xk& data, Trk::Track* Tr) const;
       bool isCaloCompatible(SiTrackMakerEventData_xk& data) const;
       bool isHadCaloCompatible(SiTrackMakerEventData_xk& data) const;

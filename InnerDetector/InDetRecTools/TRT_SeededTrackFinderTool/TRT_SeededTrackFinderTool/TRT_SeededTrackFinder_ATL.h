@@ -222,10 +222,10 @@ namespace InDet{
       const Trk::TrackParameters*                            addNoise(double,double,double,double,const Trk::TrackParameters*,int) const;
 
       /** Get better track theta initial estimate using the SPs from the seed */
-      double                                                 getNewTheta(std::list<const Trk::SpacePoint*>&) const;
+      double                                                 getNewTheta(std::vector<const Trk::SpacePoint*>&) const;
 
       /** Check consistency of seed and TRT track segment */
-      bool                                                   checkSeed(std::list<const Trk::SpacePoint*>&,const Trk::TrackSegment&,const Trk::TrackParameters*) const;
+      bool                                                   checkSeed(std::vector<const Trk::SpacePoint*>&,const Trk::TrackSegment&,const Trk::TrackParameters*) const;
 
       /** Modify track parameters if brem correction  */
       const Trk::TrackParameters*                            modifyTrackParameters(const Trk::TrackParameters&,int) const;
@@ -239,11 +239,11 @@ namespace InDet{
                                                                             const;
 
       /** Seed used by another track?  */
-      bool                                                   newClusters(const std::list<const Trk::SpacePoint*>&,
+      bool                                                   newClusters(const std::vector<const Trk::SpacePoint*>&,
                                                                          InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
 
       /** Seed SPs used by other high quality tracks? */
-      bool                                                   newSeed(const std::list<const Trk::SpacePoint*>&,
+      bool                                                   newSeed(const std::vector<const Trk::SpacePoint*>&,
                                                                      InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
 
       /** Clean-up duplicate tracks  */

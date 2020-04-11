@@ -35,7 +35,7 @@ namespace InDet
   class ISeedToTrackConversionTool : virtual public IAlgTool {
   public:
     DeclareInterfaceID(ISeedToTrackConversionTool, 1, 0);
-    virtual void executeSiSPSeedSegments(SeedToTrackConversionData& data, const Trk::TrackParameters*,const int&, const std::list<const Trk::SpacePoint*>&) const =0;
+    virtual void executeSiSPSeedSegments(SeedToTrackConversionData& data, const Trk::TrackParameters*,const int&, const std::vector<const Trk::SpacePoint*>&) const =0;
     virtual void newEvent(SeedToTrackConversionData& data, const Trk::TrackInfo&, const std::string&) const =0;
     virtual void endEvent(SeedToTrackConversionData& data) const =0;
 

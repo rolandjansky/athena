@@ -562,11 +562,11 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
       }
     }
 
-    std::list<const Trk::SpacePoint*> spList = {osp1, osp2, osp3};
+    std::vector<const Trk::SpacePoint*> spVec = {osp1, osp2, osp3};
 
     ++mnt_roi_nSeeds;
 
-    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(Gaudi::Hive::currentContext(), trackEventData, spList);
+    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(Gaudi::Hive::currentContext(), trackEventData, spVec);
 
     for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
       if((*t)) {

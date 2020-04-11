@@ -122,7 +122,7 @@ std::list<Trk::Vertex> InDet::SiZvertexMaker_xk::production(const EventContext& 
 
   while ((seed = m_seedsgenerator->next(ctx, data))) {
 
-    std::list<const Trk::SpacePoint*>::const_iterator 
+    std::vector<const Trk::SpacePoint*>::const_iterator
       s = seed->spacePoints().begin();
     ++s;
     if ((*s)!=p0) {

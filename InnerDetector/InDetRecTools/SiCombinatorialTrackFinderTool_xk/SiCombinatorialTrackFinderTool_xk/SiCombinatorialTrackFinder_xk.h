@@ -90,7 +90,7 @@ namespace InDet {
       virtual const std::list<Trk::Track*>& getTracks
         (SiCombinatorialTrackFinderData_xk& data,
          const Trk::TrackParameters&, 
-	 const std::list<const Trk::SpacePoint*>&,
+	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 const TrackQualityCuts&) const override;
@@ -98,7 +98,7 @@ namespace InDet {
       virtual const std::list<Trk::Track*>& getTracks
         (SiCombinatorialTrackFinderData_xk& data,
          const Trk::TrackParameters&, 
-	 const std::list<const Trk::SpacePoint*>&,
+	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const override;
@@ -106,7 +106,7 @@ namespace InDet {
       virtual const std::list<Trk::Track*>& getTracksWithBrem
         (SiCombinatorialTrackFinderData_xk& data,
          const Trk::TrackParameters&, 
-	 const std::list<const Trk::SpacePoint*>&,
+	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&,
@@ -185,7 +185,7 @@ namespace InDet {
       bool findTrack
         (SiCombinatorialTrackFinderData_xk& data,
          const Trk::TrackParameters&, 
-	 const std::list<const Trk::SpacePoint*>&,
+	 const std::vector<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*, const Trk::Track*>&) const;
@@ -198,12 +198,12 @@ namespace InDet {
       void magneticFieldInit();
 
       bool spacePointsToClusters
-	(const std::list<const Trk::SpacePoint*>&,
+	(const std::vector<const Trk::SpacePoint*>&,
 	 std::list<const InDet::SiCluster*> &) const; 
 
       void detectorElementLinks
 	(std::list<const InDetDD::SiDetectorElement*>        &,
-	 std::list<const InDet::SiDetElementBoundaryLink_xk*>&) const;
+	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&) const;
 
       MsgStream& dumpconditions(MsgStream& out) const;
       MsgStream& dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const;
