@@ -79,15 +79,15 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   virtual StatusCode initialize() override final;
 
-  virtual StatusCode prepareEvent(unsigned int nInputEvents) override final;
+  virtual StatusCode prepareEvent(const EventContext& ctx, unsigned int nInputEvents) override final;
 
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode mergeEvent(const EventContext& ctx) override final;
 
   virtual StatusCode processBunchXing(int bunchXing,
                                       SubEventIterator bSubEvents,
                                       SubEventIterator eSubEvents) override final;
 
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
   virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal) override final;
 
@@ -104,14 +104,14 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   StatusCode AddHit(const Identifier cellId, const float energy, const float time, const bool iSignal);
 
 
-  StatusCode MakeDigit(const Identifier & cellId,
+  StatusCode MakeDigit(const EventContext& ctx, const Identifier & cellId,
 		       HWIdentifier & ch_id,
 		       const std::vector<std::pair<float,float> >* TimeE,
 		       const LArDigit * rndm_digit, CLHEP::HepRandomEngine * engine,
 		       const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr);
 
 
-  StatusCode ConvertHits2Samples(const Identifier & cellId, HWIdentifier ch_id,
+  StatusCode ConvertHits2Samples(const EventContext& ctx, const Identifier & cellId, HWIdentifier ch_id,
                    CaloGain::CaloGain igain,
                    //const std::vector<std::pair<float,float> >  *TimeE);
                    const std::vector<std::pair<float,float> >  *TimeE,  std::vector<double> &sampleList);

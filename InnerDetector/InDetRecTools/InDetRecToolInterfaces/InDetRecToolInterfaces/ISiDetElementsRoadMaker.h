@@ -17,6 +17,8 @@
 #include "TrkSpacePoint/SpacePoint.h"
 
 #include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 #include <list>
 
@@ -57,8 +59,10 @@ namespace InDet {
          bool test) const=0;
 
       virtual void detElementsRoad
-	(const Trk::TrackParameters&,Trk::PropDirection,
-	 std::list<const InDetDD::SiDetectorElement*>&) const=0;
+      (const EventContext& ctx,
+       MagField::AtlasFieldCache& fieldCache,
+       const Trk::TrackParameters&,Trk::PropDirection,
+       std::list<const InDetDD::SiDetectorElement*>&) const=0;
       //@} 
 
       ///////////////////////////////////////////////////////////////////

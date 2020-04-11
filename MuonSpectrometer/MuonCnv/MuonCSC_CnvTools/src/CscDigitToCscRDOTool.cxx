@@ -70,7 +70,7 @@ StatusCode CscDigitToCscRDOTool::initialize()
   return StatusCode::SUCCESS;
 }
  
-StatusCode CscDigitToCscRDOTool::digitize()
+StatusCode CscDigitToCscRDOTool::digitize(const EventContext& /*ctx*/)
 {
   ATH_MSG_DEBUG ( "in execute()" );
 

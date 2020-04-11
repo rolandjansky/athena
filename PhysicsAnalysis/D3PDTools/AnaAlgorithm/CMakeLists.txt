@@ -36,6 +36,7 @@ else()
       AnaAlgorithm/AnaAlgorithm.h AnaAlgorithm/AnaAlgorithm.icc
       Root/AnaAlgorithm.cxx
       AnaAlgorithm/MessageCheck.h Root/MessageCheck.cxx
+      Root/FilterReporterParams.cxx Root/FilterReporter.cxx
       PUBLIC_HEADERS AnaAlgorithm
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools StoreGateLib

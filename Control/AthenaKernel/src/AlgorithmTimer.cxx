@@ -50,7 +50,8 @@ namespace Athena {
     void onAlarmThread(sigval_t sv)
     {
       AlgorithmTimer* me = static_cast<AlgorithmTimer*>(sv.sival_ptr);
-      me->m_onAlarm();
+      if (me != nullptr && me->m_active)
+        me->m_onAlarm();
     }
   }
 }
@@ -113,6 +114,7 @@ AlgorithmTimer::AlgorithmTimer(unsigned int milliseconds,
 AlgorithmTimer::~AlgorithmTimer()
 {
 #ifndef __APPLE__
+  m_active = false;
   timer_delete(m_timerid);
 #endif
 }
@@ -128,6 +130,7 @@ void AlgorithmTimer::start(unsigned int milliseconds)
   spec.it_interval.tv_sec  = 0;
   spec.it_interval.tv_nsec = 0;
   
+  m_active = true;
   timer_settime(m_timerid, 0, &spec, NULL);
 #endif
 }
@@ -149,6 +152,7 @@ unsigned int AlgorithmTimer::stop()
   spec.it_interval.tv_nsec = 0;
   
   itimerspec ovalue;
+  m_active = false;
   timer_settime(m_timerid, 0, &spec, &ovalue);
   return 1000*ovalue.it_value.tv_sec + int(ovalue.it_value.tv_nsec/1000000);
 #else

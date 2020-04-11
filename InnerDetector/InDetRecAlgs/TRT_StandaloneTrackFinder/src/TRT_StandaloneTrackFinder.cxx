@@ -164,7 +164,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute(const EventContext& ctx) co
 	ATH_MSG_DEBUG ("Segment considered for further processing, enter into list");
 
 	// Transform the original TRT segment into a track
-	Trk::Track* trtSeg = m_segToTrackTool->segToTrack(*trackTRT);
+	Trk::Track* trtSeg = m_segToTrackTool->segToTrack(ctx, *trackTRT);
 	if(!trtSeg){
 	  // Statistics...
 	  counter[kNSegFailed]++;

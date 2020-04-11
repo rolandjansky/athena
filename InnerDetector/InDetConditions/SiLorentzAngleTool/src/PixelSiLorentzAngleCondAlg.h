@@ -11,7 +11,7 @@
 #ifndef PIXELSILORENTZANGLECONDALG
 #define PIXELSILORENTZANGLECONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -21,22 +21,29 @@
 #include "PixelConditionsData/PixelDCSHVData.h"
 #include "PixelConditionsData/PixelDCSTempData.h"
 #include "GaudiKernel/ICondSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "SiPropertiesTool/ISiPropertiesTool.h"
 
 #include "SiLorentzAngleTool/SiLorentzAngleCondData.h"
 #include "InDetIdentifier/PixelID.h"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // forward declarations
 namespace MagField {
   class IMagFieldSvc;
 }
 
-class PixelSiLorentzAngleCondAlg: public AthAlgorithm {
+class PixelSiLorentzAngleCondAlg: public AthReentrantAlgorithm {
   public:
     PixelSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~PixelSiLorentzAngleCondAlg() = default;
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
     virtual StatusCode finalize() override;
 
   private:
@@ -64,12 +71,20 @@ class PixelSiLorentzAngleCondAlg: public AthAlgorithm {
     {this, "SiPropertiesTool", "SiPropertiesTool", "Tool to retrieve SiProperties"};
 
     // Properties
-    double                   m_nominalField;
-    bool                     m_useMagFieldSvc;
-    bool                     m_useMagFieldDcs;
-    double                   m_correctionFactor;
+    DoubleProperty           m_nominalField  {this, "NominalField", 2.0834*Gaudi::Units::tesla, "Default nominal field"};
+    BooleanProperty          m_useMagFieldSvc{this, "UseMagFieldSvc", true};
+    BooleanProperty          m_useMagFieldDcs{this, "UseMagFieldDcs", true};
+    DoubleProperty           m_correctionFactor{this, "CorrectionFactor", 0.9, "Lorentz angle correction factor"};
+    unsigned int             m_maxHash;
 
-    Amg::Vector3D getMagneticField(const InDetDD::SiDetectorElement* element) const;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    Amg::Vector3D getMagneticField(const InDetDD::SiDetectorElement* element) const;
+    Amg::Vector3D getMagneticField(MagField::AtlasFieldCache& m_fieldCache,
+                                   const InDetDD::SiDetectorElement* element) const;
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                       "Name of the Magnetic Field conditions object key"};
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 };
 
 #endif

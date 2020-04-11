@@ -37,17 +37,20 @@ def extractRecoDict(chainParts):
 # grooming configuration
 def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
     constitMods = []
-    if "sk" in jetRecoDict["dataType"]:
-        constitMods.append("SK")
-
     # Get the details of the constituent definition:
     # type, mods and the input container name
-    if jetRecoDict["dataType"]=="pf":
-        jetConstit = JetConstit( xAODType.ParticleFlow, constitMods)
+    if "pf" in jetRecoDict["dataType"]:
         if pfoPrefix is None:
             raise RuntimeError("JetRecoConfiguration: Cannot define PF jets without pfo prefix!")
-        jetConstit.rawname = pfoPrefix+"ParticleFlowObjects"
-        jetConstit.inputname = pfoPrefix+"CHSParticleFlowObjects"
+        # apply constituent pileup suppression
+        if "cs" in jetRecoDict["dataType"]:
+            constitMods.append("CS")
+        if "sk" in jetRecoDict["dataType"]:
+            constitMods.append("SK")
+        if not constitMods:
+            jetConstit = JetConstit( xAODType.ParticleFlow, constitMods, rawname=pfoPrefix+"ParticleFlowObjects", inputname=pfoPrefix+"CHSParticleFlowObjects")
+        else:
+            jetConstit = JetConstit( xAODType.ParticleFlow, constitMods, rawname=pfoPrefix+"ParticleFlowObjects", prefix=pfoPrefix)
         
     if "tc" in jetRecoDict["dataType"]:
         # apply this scale
@@ -57,24 +60,29 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             constitMods = ["LC"] + constitMods
         # read from this cluster collection,
         # overriding the standard offline collection
-        jetConstit = JetConstit( xAODType.CaloCluster, constitMods)
-        if clustersKey is not None:
-            jetConstit.rawname = clustersKey
-            if jetRecoDict["dataType"]=="tc":
-                jetConstit.inputname = clustersKey
+        jetConstit = JetConstit( xAODType.CaloCluster, constitMods, rawname=clustersKey, prefix="HLT_")
         # apply constituent pileup suppression
         if "cs" in jetRecoDict["dataType"]:
             constitMods.append("CS")
         if "sk" in jetRecoDict["dataType"]:
             constitMods.append("SK")
+        jetConstit.modifiers = constitMods
+        if clustersKey is not None and jetRecoDict["dataType"]=="tc":
+            jetConstit.inputname = clustersKey
     return jetConstit
 
 # Arbitrary min pt for fastjet, set to be low enough for MHT(?)
 # Could/should adjust higher for large-R
 def defineJets(jetRecoDict,clustersKey=None,pfoPrefix=None):
+    minpt = {
+        "a4":  5000,
+        "a10": 50000,
+        "a10r": 50000,
+        "a10t": 50000,
+    }
     radius = float(jetRecoDict["recoAlg"].lstrip("a").rstrip("tr"))/10
     jetConstit = defineJetConstit(jetRecoDict,clustersKey,pfoPrefix)
-    jetDef = JetDefinition( "AntiKt", radius, jetConstit, ptmin=5000.)
+    jetDef = JetDefinition( "AntiKt", radius, jetConstit, ptmin=minpt[jetRecoDict["recoAlg"]])
     return jetDef
 
 def defineReclusteredJets(jetRecoDict):

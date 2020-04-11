@@ -49,6 +49,17 @@ Trk::RungeKuttaPropagator::RungeKuttaPropagator
 
 StatusCode Trk::RungeKuttaPropagator::initialize()
 {
+  ATH_MSG_VERBOSE(" RungeKutta_Propagator initialize() successful" );
+
+  // temporarily protect the use of the field cond object/field cache for clients with IOV callbacks
+      
+  // Read handle for AtlasFieldCacheCondObj
+  ATH_CHECK( m_fieldCondObjInputKey.initialize(m_useCondObj) );
+  if (m_useCondObj) ATH_MSG_INFO("initialize() init key: " << m_fieldCondObjInputKey.key());
+  else              ATH_MSG_INFO("initialize() DID NOT init key: " << m_fieldCondObjInputKey.key());
+  
+
+  
   if( !m_fieldServiceHandle.retrieve() ){
     ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
     return StatusCode::FAILURE;
@@ -56,7 +67,7 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
   m_fieldService = &*m_fieldServiceHandle;
 
-  msg(MSG::INFO) << name() <<" initialize() successful" << endmsg;
+//  msg(MSG::INFO) << name() <<" initialize() successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -66,7 +77,7 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
 
 StatusCode  Trk::RungeKuttaPropagator::finalize()
 {
-  msg(MSG::INFO) << name() <<" finalize() successful" << endmsg;
+  ATH_MSG_INFO(name() <<" finalize() successful");
   return StatusCode::SUCCESS;
 }
 
@@ -98,7 +109,8 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagate
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
-(const Trk::TrackParameters  & Tp,
+(const ::EventContext&               ctx,
+ const Trk::TrackParameters  & Tp,
  const Trk::Surface          & Su,
  Trk::PropDirection             D,
  const Trk::BoundaryCheck    &  B,
@@ -109,6 +121,10 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 {
   double J[25];
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_maxPath = 10000.;
   return propagateRungeKutta(cache,true,Tp,Su,D,B,M,J,returnCurv);
 }
@@ -119,7 +135,8 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
-(const Trk::TrackParameters   & Tp ,
+(const ::EventContext&               ctx,
+ const Trk::TrackParameters   & Tp ,
  const Trk::Surface&            Su ,
  Trk::PropDirection             D  ,
  const Trk::BoundaryCheck     & B  ,
@@ -132,6 +149,10 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 {
   double J[25];
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   pathLength < 0. ?  cache.m_maxPath = 10000. : cache.m_maxPath = pathLength; 
   Trk::TrackParameters* Tpn = propagateRungeKutta(cache,true,Tp,Su,D,B,M,J,returnCurv);
   pathLength = cache.m_step;  
@@ -149,7 +170,8 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
-(const TrackParameters        & Tp  ,
+(const ::EventContext&               ctx,
+ const TrackParameters        & Tp  ,
  std::vector<DestSurf>        & DS  ,
  PropDirection                  D   ,
  const MagneticFieldProperties& M   ,
@@ -162,6 +184,10 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 {
  
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   Sol.erase(Sol.begin(),Sol.end()); Path = 0.; if(DS.empty()) return nullptr;
   cache.m_direction               = D; 
 
@@ -171,9 +197,9 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 
   // Magnetic field information preparation
   //
-  M.magneticFieldMode()==2  ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
+  M.magneticFieldMode() == Trk::FastField  ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
   (useJac && m_usegradient) ? cache.m_needgradient = true : cache.m_needgradient = false; 
-  M.magneticFieldMode()!=0  ? cache.m_mcondition   = true : cache.m_mcondition   = false;
+  M.magneticFieldMode() != Trk::NoField    ? cache.m_mcondition   = true : cache.m_mcondition   = false;
 
   // Transform to global presentation
   //
@@ -293,7 +319,8 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
-(const Trk::TrackParameters  & Tp,
+(const ::EventContext&               ctx,
+ const Trk::TrackParameters  & Tp,
  const Trk::Surface          & Su, 
  Trk::PropDirection             D,
  const Trk::BoundaryCheck    &  B,
@@ -304,6 +331,10 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
 {
   double J[25];
   Cache cache;
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_maxPath = 10000.;
   return propagateRungeKutta(cache,false,Tp,Su,D,B,M,J,returnCurv);
 }
@@ -314,7 +345,8 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
-(const Trk::TrackParameters    & Tp ,
+(const ::EventContext&               ctx,
+ const Trk::TrackParameters    & Tp ,
  const Trk::Surface            & Su , 
  Trk::PropDirection              D  ,
  const Trk::BoundaryCheck      & B  ,
@@ -326,6 +358,9 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
 {
   double J[25];
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
   cache.m_maxPath = 10000.;
   Trk::TrackParameters* Tpn = propagateRungeKutta   (cache,true,Tp,Su,D,B,M,J,returnCurv);
   
@@ -343,10 +378,10 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
 Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 (Cache&                         cache ,
  bool                           useJac,
- const Trk::NeutralParameters & Tp    ,
- const Trk::Surface           & Su    ,
+ const Trk::NeutralParameters&  Tp    ,
+ const Trk::Surface&            Su    ,
  Trk::PropDirection             D     ,
- const Trk::BoundaryCheck&             B     ,
+ const Trk::BoundaryCheck&      B     ,
  double                       * Jac   ,
  bool                       returnCurv) const 
 {
@@ -472,10 +507,10 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
 (Cache&                         cache ,
  bool                           useJac,
- const Trk::TrackParameters   & Tp    ,
- const Trk::Surface           & Su    ,
+ const Trk::TrackParameters&    Tp    ,
+ const Trk::Surface&            Su    ,
  Trk::PropDirection             D     ,
- const Trk::BoundaryCheck&             B     ,
+ const Trk::BoundaryCheck&      B     ,
  const MagneticFieldProperties& M     ,
  double                       * Jac   ,
  bool                       returnCurv) const 
@@ -484,9 +519,9 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
 
   cache.m_direction               = D ; 
 
-  M.magneticFieldMode()==2 ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
+  M.magneticFieldMode() == Trk::FastField ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
   (useJac && m_usegradient)? cache.m_needgradient = true : cache.m_needgradient = false; 
-  M.magneticFieldMode()!=0 ? cache.m_mcondition   = true : cache.m_mcondition   = false;
+  M.magneticFieldMode() != Trk::NoField   ? cache.m_mcondition   = true : cache.m_mcondition   = false;
 
   if(su == &Tp.associatedSurface()) return buildTrackParametersWithoutPropagation(Tp,Jac);
 
@@ -601,7 +636,8 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaPropagator::globalPositions 
-(std::list<Amg::Vector3D>      & GP,
+(const ::EventContext&               ctx,
+ std::list<Amg::Vector3D>      & GP,
  const TrackParameters         & Tp,
  const MagneticFieldProperties & M ,
  const CylinderBounds          & CB,
@@ -612,6 +648,10 @@ void Trk::RungeKuttaPropagator::globalPositions
   Trk::RungeKuttaUtils utils;
   double P[45]; if(!utils.transformLocalToGlobal(false,Tp,P)) return;
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_direction = fabs(mS);
   if(mS > 0.) globalOneSidePositions(cache,GP,P,M,CB, mS);
   else        globalTwoSidePositions(cache,GP,P,M,CB,-mS);
@@ -621,8 +661,9 @@ void Trk::RungeKuttaPropagator::globalPositions
 //  Global position together with direction of the trajectory on the surface
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
-( const Trk::TrackParameters   & Tp,
+const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
+( const ::EventContext&               ctx,
+  const Trk::TrackParameters   & Tp,
   const Trk::Surface           & Su,
   const MagneticFieldProperties& M ,
   ParticleHypothesis               ,
@@ -631,11 +672,15 @@ Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
   bool nJ = false;
   const Trk::Surface* su = &Su;
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+ 
   cache.m_direction            = 0. ;
 
   cache.m_needgradient = false; 
-  M.magneticFieldMode()==2 ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
-  M.magneticFieldMode()!=0 ? cache.m_mcondition   = true : cache.m_mcondition   = false;
+  M.magneticFieldMode() == Trk::FastField ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
+  M.magneticFieldMode() != Trk::NoField   ? cache.m_mcondition   = true : cache.m_mcondition   = false;
 
   Trk::RungeKuttaUtils utils;
 
@@ -1240,7 +1285,8 @@ double Trk::RungeKuttaPropagator::straightLineStep
 /////////////////////////////////////////////////////////////////////////////////
 
 bool Trk::RungeKuttaPropagator::propagate
-(Trk::PatternTrackParameters  & Ta,
+(const ::EventContext&               ctx,
+ Trk::PatternTrackParameters  & Ta,
  const Trk::Surface           & Su,
  Trk::PatternTrackParameters  & Tb,
  Trk::PropDirection             D ,
@@ -1249,6 +1295,10 @@ bool Trk::RungeKuttaPropagator::propagate
 {
   double S;
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+ 
   cache.m_maxPath = 10000.;
   return propagateRungeKutta(cache,true,Ta,Su,Tb,D,M,S);
 }
@@ -1259,7 +1309,8 @@ bool Trk::RungeKuttaPropagator::propagate
 /////////////////////////////////////////////////////////////////////////////////
 
 bool Trk::RungeKuttaPropagator::propagate
-(Trk::PatternTrackParameters  & Ta,
+(const ::EventContext&               ctx,
+ Trk::PatternTrackParameters  & Ta,
  const Trk::Surface           & Su,
  Trk::PatternTrackParameters  & Tb,
  Trk::PropDirection             D ,
@@ -1268,6 +1319,10 @@ bool Trk::RungeKuttaPropagator::propagate
  ParticleHypothesis               ) const 
 {
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_maxPath = 10000.; 
   return propagateRungeKutta(cache,true,Ta,Su,Tb,D,M,S);
 }
@@ -1278,7 +1333,8 @@ bool Trk::RungeKuttaPropagator::propagate
 /////////////////////////////////////////////////////////////////////////////////
 
 bool Trk::RungeKuttaPropagator::propagateParameters
-(Trk::PatternTrackParameters  & Ta,
+(const ::EventContext&               ctx,
+ Trk::PatternTrackParameters  & Ta,
  const Trk::Surface           & Su,
  Trk::PatternTrackParameters  & Tb, 
  Trk::PropDirection             D ,
@@ -1287,6 +1343,10 @@ bool Trk::RungeKuttaPropagator::propagateParameters
 {
   double S;
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_maxPath = 10000.; 
   return propagateRungeKutta(cache,false,Ta,Su,Tb,D,M,S);
 }
@@ -1297,7 +1357,8 @@ bool Trk::RungeKuttaPropagator::propagateParameters
 /////////////////////////////////////////////////////////////////////////////////
 
 bool Trk::RungeKuttaPropagator::propagateParameters
-(Trk::PatternTrackParameters  & Ta,
+(const ::EventContext&               ctx,
+Trk::PatternTrackParameters  & Ta,
  const Trk::Surface           & Su,
  Trk::PatternTrackParameters  & Tb, 
  Trk::PropDirection             D ,
@@ -1306,6 +1367,10 @@ bool Trk::RungeKuttaPropagator::propagateParameters
  ParticleHypothesis               ) const 
 {
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+ 
   cache.m_maxPath = 10000.;
   return propagateRungeKutta(cache,false,Ta,Su,Tb,D,M,S);
 }
@@ -1317,7 +1382,8 @@ bool Trk::RungeKuttaPropagator::propagateParameters
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaPropagator::globalPositions 
-(std::list<Amg::Vector3D>         & GP,
+(const ::EventContext&               ctx,
+ std::list<Amg::Vector3D>         & GP,
  const Trk::PatternTrackParameters& Tp,
  const MagneticFieldProperties    & M,
  const CylinderBounds             & CB,
@@ -1328,6 +1394,10 @@ void Trk::RungeKuttaPropagator::globalPositions
   double P[45]; if(!utils.transformLocalToGlobal(false,Tp,P)) return;
 
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+ 
   cache.m_direction = fabs(mS);
   if(mS > 0.) globalOneSidePositions(cache,GP,P,M,CB, mS);
   else        globalTwoSidePositions(cache,GP,P,M,CB,-mS);
@@ -1339,6 +1409,7 @@ void Trk::RungeKuttaPropagator::globalPositions
 
 void Trk::RungeKuttaPropagator::globalPositions
 (
+ const ::EventContext&               ctx,
  const PatternTrackParameters                 & Tp,
  std::list<const Trk::Surface*>               & SU,
  std::list< std::pair<Amg::Vector3D,double> > & GP,
@@ -1346,12 +1417,16 @@ void Trk::RungeKuttaPropagator::globalPositions
  ParticleHypothesis                               ) const
 {
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx); 
+
   cache.m_direction               = 0.    ;
   cache.m_mcondition              = false ;
   cache.m_maxPath                 = 10000.;
   cache.m_needgradient = false;
-  M.magneticFieldMode()==2 ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
-  M.magneticFieldMode()!=0 ? cache.m_mcondition   = true : cache.m_mcondition   = false;
+  M.magneticFieldMode() == Trk::FastField ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
+  M.magneticFieldMode() != Trk::NoField   ? cache.m_mcondition   = true : cache.m_mcondition   = false;
 
   Trk::RungeKuttaUtils utils;
 
@@ -1446,9 +1521,9 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
 
   if(useJac && !Ta.iscovariance()) useJac = false;
 
-  M.magneticFieldMode()==2  ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
+  M.magneticFieldMode() == Trk::FastField  ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
   (useJac && m_usegradient) ? cache.m_needgradient = true : cache.m_needgradient = false; 
-  M.magneticFieldMode()!=0  ? cache.m_mcondition   = true : cache.m_mcondition   = false;
+  M.magneticFieldMode() != Trk::NoField    ? cache.m_mcondition   = true : cache.m_mcondition   = false;
 
   Trk::RungeKuttaUtils utils;
 
@@ -1632,8 +1707,8 @@ void Trk::RungeKuttaPropagator::globalOneSidePositions
  double                          mS,
  ParticleHypothesis                ) const
 {
-  M.magneticFieldMode()==2 ? cache.m_solenoid   = true : cache.m_solenoid  = false;  
-  M.magneticFieldMode()!=0 ? cache.m_mcondition = true : cache.m_mcondition = false;
+  M.magneticFieldMode() == Trk::FastField ? cache.m_solenoid   = true : cache.m_solenoid  = false;  
+  M.magneticFieldMode() != Trk::NoField   ? cache.m_mcondition = true : cache.m_mcondition = false;
 
   double Pm[45]; for(int i=0; i!=7; ++i) Pm[i]=P[i];
 
@@ -1751,8 +1826,8 @@ void Trk::RungeKuttaPropagator::globalTwoSidePositions
  double                          mS,
  ParticleHypothesis                ) const
 {
-  M.magneticFieldMode()==2 ? cache.m_solenoid   = true : cache.m_solenoid   = false;  
-  M.magneticFieldMode()!=0 ? cache.m_mcondition = true : cache.m_mcondition = false;
+  M.magneticFieldMode() == Trk::FastField ? cache.m_solenoid   = true : cache.m_solenoid   = false;  
+  M.magneticFieldMode() != Trk::NoField   ? cache.m_mcondition = true : cache.m_mcondition = false;
 
   double       W     = 0.                 ; // way
   double       R2max = CB.r()*CB.r()      ; // max. radius**2 of region
@@ -1884,17 +1959,22 @@ double Trk::RungeKuttaPropagator::stepReduction(const double* E) const
 // Ro and Po - output  coordinate and momentum after propagation
 /////////////////////////////////////////////////////////////////////////////////
 
-void Trk::RungeKuttaPropagator::propagateStep( const Amg::Vector3D& Ri,const  Amg::Vector3D& Pi,
-                                               double Charge,double Step,
-                                               Amg::Vector3D& Ro, Amg::Vector3D& Po, 
-                                               const MagneticFieldProperties& Mag) const
+void Trk::RungeKuttaPropagator::propagateStep(const EventContext& ctx,
+                                              const Amg::Vector3D& Ri,const  Amg::Vector3D& Pi,
+                                              double Charge,double Step,
+                                              Amg::Vector3D& Ro, Amg::Vector3D& Po, 
+                                              const MagneticFieldProperties& Mag) const
 {
 
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   // Magnetic field information preparation
   //
-  Mag.magneticFieldMode()==2 ? cache.m_solenoid   = true : cache.m_solenoid   = false;  
-  Mag.magneticFieldMode()!=0 ? cache.m_mcondition = true : cache.m_mcondition = false;
+  Mag.magneticFieldMode() == Trk::FastField ? cache.m_solenoid   = true : cache.m_solenoid   = false;  
+  Mag.magneticFieldMode() != Trk::NoField   ? cache.m_mcondition = true : cache.m_mcondition = false;
 
   double M  = sqrt(Pi[0]*Pi[0]+Pi[1]*Pi[1]+Pi[2]*Pi[2]); if(M < .00001) {Ro = Ri; Po = Pi; return;}
   double Mi = 1./M;
@@ -1925,3 +2005,26 @@ void Trk::RungeKuttaPropagator::propagateStep( const Amg::Vector3D& Ri,const  Am
   Ro[0] =   P[0];  Ro[1] =   P[1];  Ro[2] =   P[2];
   Po[0] = M*P[3];  Po[1] = M*P[4];  Po[2] = M*P[5];
 }
+
+
+void Trk::RungeKuttaPropagator::getFieldCacheObject( Cache& cache,const EventContext& ctx) const
+{
+
+    if (m_useCondObj) {
+
+        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+        if (fieldCondObj == nullptr) {
+
+            // temporarily protect for when cache a cannot be retrieved in an IOV callback
+            ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key()
+                          << ". Skipping use of field cache!");
+
+            // ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+            // return;
+        }
+        fieldCondObj->getInitializedCache (cache.m_fieldCache);
+    }
+
+}
+

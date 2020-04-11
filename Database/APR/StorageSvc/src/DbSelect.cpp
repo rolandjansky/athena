@@ -151,7 +151,7 @@ DbStatus DbSelect::next(Token*& refpToken)    {
       DbStatus sc = cntH.fetch(*this);
       if ( sc.isSuccess() )  {
         /// Create token according to OID
-        std::auto_ptr<Token> new_token(new Token(cntH.token()));
+        std::unique_ptr<Token> new_token(new Token(cntH.token()));
         new_token->setClassID(shapeID());
         new_token->oid() = link();
         sc = dbH.makeLink(new_token.get(), new_token->oid());

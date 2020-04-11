@@ -21,3 +21,8 @@ from GeometryJiveXML.GeometryJiveXMLConf import JiveXML__MuonGeometryWriter
 theMuonGeometryWriter = JiveXML__MuonGeometryWriter (name = "MuonGeometryWriter")
 theMuonGeometryWriter.OutputLevel = DEBUG
 ToolSvc += theMuonGeometryWriter
+
+# Build FULL geometry for LAr (default is a minimal RECO geometry)
+from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+GeoModelSvc = GeoModelSvc()
+GeoModelSvc.DetectorTools["LArDetectorToolNV"].GeometryConfig = "FULL"

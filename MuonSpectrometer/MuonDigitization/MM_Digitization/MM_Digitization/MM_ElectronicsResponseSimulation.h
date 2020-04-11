@@ -56,10 +56,11 @@ public :
   void initialize();
 
   void clearValues ();
-  void vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip);
-  void vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip);
-  MM_DigitToolOutput getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput);
-  MM_DigitToolOutput getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput);
+  void vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor);
+  void vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor);
+
+  MM_DigitToolOutput getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput, const float thresholdScaleFactor);
+  MM_DigitToolOutput getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput, const float thresholdScaleFactor);
 
   MM_ElectronicsToolTriggerOutput getTheFastestSignalInVMM(const MM_DigitToolOutput & ElectronicThresholdOutput, const int chMax, const int stationEta);
   int getIdTheFastestSignalInVMM(float time, int VMM_id, std::vector<int> trigger_VMM_id, const std::vector<float> ElectronicsThreshold_stripTime, float timeWindowLower, float timeWindowUpper);

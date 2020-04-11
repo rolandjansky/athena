@@ -21,5 +21,5 @@ StatusCode ZDC_DigiTop::execute()
 {
   ATH_MSG_DEBUG ( "ZDC_DigiTop::execute" );
 
-  return m_digTool->processAllSubEvents();
+  return m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }

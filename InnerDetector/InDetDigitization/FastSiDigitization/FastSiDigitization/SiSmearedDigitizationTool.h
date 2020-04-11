@@ -84,12 +84,12 @@ public:
 
 
   StatusCode initialize();
-  StatusCode prepareEvent(unsigned int);
+  StatusCode prepareEvent(const EventContext& ctx, unsigned int);
   StatusCode processBunchXing( int bunchXing,
                                SubEventIterator bSubEvents,
                                SubEventIterator eSubEvents );
-  StatusCode processAllSubEvents();
-  StatusCode mergeEvent();
+  StatusCode processAllSubEvents(const EventContext& ctx);
+  StatusCode mergeEvent(const EventContext& ctx);
 
   typedef std::multimap<IdentifierHash, InDet::PixelCluster*> Pixel_detElement_RIO_map;
   typedef std::multimap<IdentifierHash, iFatras::PlanarCluster*> Planar_detElement_RIO_map;
@@ -98,8 +98,8 @@ public:
   StatusCode mergeClusters(Planar_detElement_RIO_map * cluster_map);
   StatusCode mergeClusters(SCT_detElement_RIO_map * cluster_map);
 
-  StatusCode digitize();
-  StatusCode createAndStoreRIOs();
+  StatusCode digitize(const EventContext& ctx);
+  StatusCode createAndStoreRIOs(const EventContext& ctx);
   StatusCode retrieveTruth();
   StatusCode finalize();
 

@@ -43,7 +43,7 @@ InDetPerfPlot_Efficiency::initializePlots() {
 void
 InDetPerfPlot_Efficiency::fill(const xAOD::TruthParticle& truth, const bool isGood) {
   double eta = truth.eta();
-  double pt = truth.pt() * 1_GeV; // convert MeV to GeV
+  double pt = truth.pt() / Gaudi::Units::GeV; // convert MeV to GeV
   double phi = truth.phi();
 
   fillHisto(m_efficiency_vs_eta, eta, isGood);

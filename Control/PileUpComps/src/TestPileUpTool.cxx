@@ -13,13 +13,13 @@ TestPileUpTool::TestPileUpTool(const std::string& type,
 {
 }
 
-StatusCode TestPileUpTool::prepareEvent(unsigned int nInputEvents)
+StatusCode TestPileUpTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents)
 {
   ATH_MSG_INFO( "prepareEvent: expect to process " << nInputEvents << " events this time." );
   return StatusCode::SUCCESS;
 }
 
-StatusCode TestPileUpTool::mergeEvent()
+StatusCode TestPileUpTool::mergeEvent(const EventContext& /*ctx*/)
 {
   for (const auto& bc : m_seen)
     {

@@ -30,7 +30,7 @@ StatusCode CscDigitToCscRDO::initialize()
 StatusCode CscDigitToCscRDO::execute()
 {
   ATH_MSG_DEBUG( "in execute()"  );
-  return m_digTool->digitize();
+  return m_digTool->digitize(Gaudi::Hive::currentContext());
 }
 
 StatusCode CscDigitToCscRDO::finalize()

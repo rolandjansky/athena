@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,9 +12,6 @@ S. Rosati Dec 2005
 
 #include "MuonByteStreamCnvTest/ReadMdtPRD.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-
-using namespace std;
 
 static const int maxColl =   1200;
 static const int maxPrd =    5000;

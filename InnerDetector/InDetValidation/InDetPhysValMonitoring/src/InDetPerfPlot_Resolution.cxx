@@ -56,23 +56,10 @@ InDetPerfPlot_Resolution::InDetPerfPlot_Resolution(InDetPlotBase* pParent, const
   m_reswidth_vs_pt_pos{},
   m_resmean_vs_pt_pos{},
 
-  m_pullwidth_vs_eta_pos{},
-  m_pullmean_vs_eta_pos{},
-  m_pullwidth_vs_pt_pos{},
-  m_pullmean_vs_pt_pos{},
-
   m_reswidth_vs_eta_neg{},
   m_resmean_vs_eta_neg{},
   m_reswidth_vs_pt_neg{},
   m_resmean_vs_pt_neg{},
-
-  m_pullwidth_vs_eta_neg{},
-  m_pullmean_vs_eta_neg{},
-  m_pullwidth_vs_pt_neg{},
-  m_pullmean_vs_pt_neg{},
-
-  m_pullResolution_vs_pt{},
-  m_pullResolution_vs_eta{},
 
   m_pullProjections_vs_pt{},
   m_pullProjections_vs_eta{},
@@ -321,7 +308,7 @@ InDetPerfPlot_Resolution::getTrackParameters(const xAOD::TrackParticle& trkprt) 
   m_trkP[QOVERPT] = trkprt.qOverP() * (1 / std::sin(trkprt.theta()));
   m_trkP[THETA] = trkprt.theta();
   m_trkP[PHI] = trkprt.phi0();
-  m_trkP[PT] = trkprt.pt() / 1000.;
+  m_trkP[PT] = trkprt.pt() / Gaudi::Units::GeV;
   m_trkP[Z0SIN] = trkprt.z0() * std::sin(trkprt.theta());
 
   // Track fit errors
@@ -349,7 +336,7 @@ InDetPerfPlot_Resolution::getTrackParameters(const xAOD::TrackParticle& trkprt) 
     double diff_theta = pt / tan(trkprt.theta());
     const std::vector<float>& cov = trkprt.definingParametersCovMatrixVec();
     double pt_err2 = diff_qp * (diff_qp * cov[14] + diff_theta * cov[13]) + diff_theta * diff_theta * cov[9];
-    m_trkErrP[PT] = sqrt(pt_err2) / 1000.;
+    m_trkErrP[PT] = sqrt(pt_err2) / Gaudi::Units::GeV;
   }
 
 }
@@ -379,7 +366,7 @@ InDetPerfPlot_Resolution::getTrackParameters(const xAOD::TruthParticle& truthprt
                                                                   m_truetrkP[QOVERPT] = -9999.;
 
 
-  m_truetrkP[PT] = truthprt.pt() / 1000.;
+  m_truetrkP[PT] = truthprt.pt() / Gaudi::Units::GeV;
   (truthprt.isAvailable<float>("z0") &&
    truthprt.isAvailable<float>("theta")) ? m_truetrkP[Z0SIN] = m_truetrkP[Z0] *
                                                                std::sin(m_truetrkP[THETA]) : m_truetrkP[Z0SIN] =

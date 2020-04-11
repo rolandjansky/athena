@@ -31,5 +31,3 @@ from FastCaloSim.FastCaloSimConf import FastShowerCellBuilderTool
 theFastShowerCellBuilderTool=FastShowerCellBuilderTool()
 theFastShowerCellBuilderTool.McLocation=FatrasKeyFlags.McEventCollection()
 #theFastShowerCellBuilderTool.OutputLevel = ERROR
-
-rec.abortOnUncheckedStatusCode=False

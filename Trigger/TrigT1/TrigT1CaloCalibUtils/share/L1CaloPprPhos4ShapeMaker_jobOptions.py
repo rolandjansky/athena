@@ -17,7 +17,7 @@ rec.doTile.set_Value_and_Lock(False)
 #rec.oldFlagLandMine.set_Value_and_Lock(True)
 rec.doTrigger.set_Value_and_Lock(True)
 
-disableRecJobOpts = ('abortOnUncheckedStatusCode','doWriteESD','doTruth', 'doAOD','doAODCaloCells',
+disableRecJobOpts = ('doWriteESD','doTruth', 'doAOD','doAODCaloCells',
           'doAODall','doCBNT','CBNTAthenaAware','doPerfMon','oldFlagTopSteering','doHist',
           'doDetailedPerfMon','doWriteAOD','doWriteTAG','doInDet','doMuon','doJetMissingETTag',
           'doEgamma','doMuonCombined','doTau','doMonitoring','readESD','doWriteBS','doDPD','oldFlagCompatibility',

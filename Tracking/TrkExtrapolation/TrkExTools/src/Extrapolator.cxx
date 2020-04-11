@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
+// #include "GaudiKernel/EventContext.h"
 // Trk inlcude
 #include "TrkExTools/ObjContainer.h"
 #include "TrkParameters/TrackParameters.h"
@@ -215,6 +216,7 @@ Trk::Extrapolator::~Extrapolator() {
 // initialize
 StatusCode
 Trk::Extrapolator::initialize() {
+
   m_referenceSurface = new Trk::PlaneSurface(new Amg::Transform3D(Trk::s_idTransform), 0., 0.);
   m_referenceSurface->setOwner(Trk::TGOwn);
 
@@ -4544,6 +4546,7 @@ Trk::Extrapolator::extrapolateWithPathLimit(
      }
   }
   Cache cache{};
+
   // reset the path
   cache.m_path = 0.;
   ++cache.m_methodSequence;

@@ -33,12 +33,12 @@ msgcount.info_threshold = 1200
 msgcount.other_threshold = 100
 msgcount.required = True # make the test exit code depend on this step
 
-
-# Overwrite default RegTest settings
-regtest = test.get_step('RegTest')
-regtest.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
-regtest.reference = 'TriggerTest/ref_data_v1Dev_build.ref'
-regtest.required = True # Final exit code depends on this step
+# Add a step comparing counts in the log against reference
+refcomp = CheckSteps.RegTestStep("CountRefComp")
+refcomp.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
+refcomp.reference = 'TriggerTest/ref_data_v1Dev_build.ref'
+refcomp.required = True # Final exit code depends on this step
+CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)
 
 import sys
 sys.exit(test.run())

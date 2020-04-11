@@ -23,10 +23,6 @@ def _setupAtlasThreadedJob():
     svcMgr.MessageSvc.defaultLimit = 0
     svcMgr.MessageSvc.Format = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
 
-    theApp.StatusCodeCheck = False
-
-    svcMgr.StatusCodeSvc.AbortOnError = False
-
     numStores = jps.ConcurrencyFlags.NumConcurrentEvents()
 
     from StoreGate.StoreGateConf import SG__HiveMgrSvc

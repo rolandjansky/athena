@@ -347,7 +347,6 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const std::vector<Identifier
       int thisSide{m_pSCTHelper->side(SCT_Identifier)};
       int thisElement{(N_SIDES * thisLayerDisk) + thisSide};
       // CAM adds mod id needed for map
-      Identifier wafer_id{m_pSCTHelper->wafer_id(SCT_Identifier)};
       int chan{firstStrip};
       int limit{chan + numberOfStrips};
       unsigned int systemIndex{bec2Index(thisBec)};
@@ -481,7 +480,6 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const std::vector<Identifier
   }
   for (const InDet::SCT_ClusterCollection* SCT_Collection: *p_clucontainer) {
     for (const InDet::SCT_Cluster* cluster: *SCT_Collection) {
-      Identifier cluId{cluster->identify()};
       long unsigned int GroupSize{cluster->rdoList().size()};
       auto cluSizeAcc{Monitored::Scalar<long unsigned int>("clu_size", GroupSize)};
       fill("SCTHitsNoiseMonitorGeneral",cluSizeAcc);

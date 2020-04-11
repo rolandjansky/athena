@@ -101,7 +101,7 @@ JetChainParts = {
     'extra'        : [],
     'cleaning'     : ['noCleaning',],
     'recoAlg'      : ['a4', 'a10', 'a10r', 'a10t'],
-    'dataType'     : ['tc','sktc','pf'],
+    'dataType'     : ['tc','pf','sktc','cssktc','csskpf'],
     'calib'        : ['em', 'lcw'],
     'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
     'scan'         : ['FS',],

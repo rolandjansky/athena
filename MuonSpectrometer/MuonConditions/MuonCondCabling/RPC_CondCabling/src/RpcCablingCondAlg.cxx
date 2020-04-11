@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 #include "RPC_CondCabling/RpcCablingCondAlg.h"
@@ -14,6 +14,10 @@ RpcCablingCondAlg::RpcCablingCondAlg(const std::string& name, ISvcLocator* pSvcL
   m_condSvc("CondSvc",name)
 {
   declareProperty( "CosmicConfiguration", m_cosmic_configuration=false );
+  declareProperty("ApplyFeetPadThresholds", m_ApplyFeetPadThresholds=true,
+      "map 3 low pt thresholds from special feet pads on standard 6 (3low+3high)");
+  // declareProperty( "RPCTriggerRoadsfromCool",m_RPCTriggerRoadsfromCool=false)
+  declareProperty("ForceFeetPadThresholdsFromJO", m_ForceFeetPadThresholdsFromJO=false, "JO override db setting"); 
 }
 
 StatusCode RpcCablingCondAlg::initialize() {
@@ -122,7 +126,14 @@ StatusCode RpcCablingCondAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK(loadParameters(readCdoMap));
+  // Create an intersection of input IOVs
+  EventIDRange rangeIntersection = EventIDRange::intersect(range_map_schema, range_map_schema_corr, range_cm_thr_eta, range_cm_thr_phi);
+  if(rangeIntersection.start()>rangeIntersection.stop()) {
+    ATH_MSG_ERROR("Invalid intersection range: " << rangeIntersection);
+    return StatusCode::FAILURE;
+  }
+
+  ATH_CHECK(loadParameters(readCdoMap,readCdoCorr,readCdoEta,readCdoPhi) );
   ATH_CHECK(ReadConf());
   ATH_CHECK(buildRDOmap(writeCdo.get()));
 
@@ -138,7 +149,10 @@ StatusCode RpcCablingCondAlg::execute()
 }
 
 
-StatusCode RpcCablingCondAlg::loadParameters(const CondAttrListCollection* readCdoMap)
+StatusCode RpcCablingCondAlg::loadParameters(const CondAttrListCollection* readCdoMap,
+                                             const CondAttrListCollection* readCdoCorr,
+                                             const CondAttrListCollection* readCdoEta,
+                                             const CondAttrListCollection* readCdoPhi)
 {
 
   ATH_MSG_DEBUG( "RpcCablingCondAlg::loadParameters()" << name() );
@@ -156,6 +170,78 @@ StatusCode RpcCablingCondAlg::loadParameters(const CondAttrListCollection* readC
     ic++;
     const coral::AttributeList& atr=itrMap->second;
     m_ConfMapPString = static_cast<const std::string*>((atr["Map"]).addressOfData());    
+  }
+
+  // begin like RPCCablingDbTool::loadRPCCorr() -----------
+
+  ATH_MSG_DEBUG( "excute --- Read Corrections from DB" ); 
+
+  CondAttrListCollection::const_iterator itrCorr;
+  for (itrCorr = readCdoCorr->begin(); itrCorr != readCdoCorr->end(); ++itrCorr) 
+  {
+    const coral::AttributeList& atr=itrCorr->second;
+    m_corr = static_cast<const std::string*>((atr["Map"]).addressOfData());
+    ATH_MSG_VERBOSE( "Sequence read is \n" << m_corr ); 
+    ATH_MSG_VERBOSE( "End of Sequence read and write" );
+  }
+
+  // begin like RPCCablingDbTool::loadRPCEtaTable() -----------
+
+  ATH_MSG_DEBUG( "excute --- Read RPCEtaTable from DB" ); 
+
+  CondAttrListCollection::const_iterator itrEta;
+  ic=0;
+  for (itrEta = readCdoEta->begin(); itrEta != readCdoEta->end(); ++itrEta) {
+    ic++;
+    ATH_MSG_VERBOSE( "Loop over CondAttrListCollection ic = " << ic ); 
+    const coral::AttributeList& atr=itrEta->second;
+
+    std::string etaCM_File = *(static_cast<const std::string*>((atr["CM_File"]).addressOfData()));    
+    m_vecetaCM_File.push_back(etaCM_File);
+    std::string etaTh0 = *(static_cast<const std::string*>((atr["Th0"]).addressOfData()));      
+    m_vecetaTh0.push_back(etaTh0);
+    m_trigroads[etaCM_File]=etaTh0;
+    std::string etaSequence_Th = *(static_cast<const std::string*>((atr["Sequence_Th"]).addressOfData()));  
+    m_vecetaSequence_Th.push_back(etaSequence_Th);
+    std::string etaInfo = *(static_cast<const std::string*>((atr["Additional_Info"]).addressOfData()));    
+    m_vecetaInfo.push_back(etaInfo);
+
+    ATH_MSG_VERBOSE( "column eta CM_File is \n" << etaCM_File ); 
+    ATH_MSG_VERBOSE( "column eta Th0 is \n" << etaTh0 ); 
+    ATH_MSG_VERBOSE( "column eta Sequence_Th is \n" << etaSequence_Th ); 
+    ATH_MSG_VERBOSE( "column eta Additional_Info is \n" << etaInfo ); 
+    ATH_MSG_VERBOSE( "End of Sequence read and write" );
+
+  }
+
+  // begin like RPCCablingDbTool::loadRPCEPhiTable() -----------
+
+  ATH_MSG_DEBUG( "excute --- Read RPCPhiTable from DB" ); 
+
+  CondAttrListCollection::const_iterator itrPhi;
+  ic=0;
+  for (itrPhi = readCdoPhi->begin(); itrPhi != readCdoPhi->end(); ++itrPhi) {
+    ic++;
+    ATH_MSG_VERBOSE( "Loop over CondAttrListCollection ic = " << ic ); 
+    const coral::AttributeList& atr=itrPhi->second;
+
+    std::string phiCM_File;
+    std::string phiTh0;    
+    std::string phiInfo;   
+
+    phiCM_File = *(static_cast<const std::string*>((atr["CM_File"]).addressOfData()));    
+    m_vecphiCM_File.push_back(phiCM_File);   
+    phiTh0 = *(static_cast<const std::string*>((atr["Th0"]).addressOfData()));      
+    m_vecphiTh0.push_back(phiTh0);
+    m_trigroads[phiCM_File]=phiTh0;
+    phiInfo = *(static_cast<const std::string*>((atr["Additional_Info"]).addressOfData()));    
+    m_vecphiInfo.push_back(phiInfo);
+
+    ATH_MSG_VERBOSE( "column phi CM_File is \n" << phiCM_File );
+    ATH_MSG_VERBOSE( "column phi Th0 is \n" << phiTh0 );
+    ATH_MSG_VERBOSE( "column phi Additional_Info is \n" << phiInfo);
+    ATH_MSG_VERBOSE( "End of Sequence read and write" );
+
   }
 
   return StatusCode::SUCCESS;
@@ -436,6 +522,13 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
     Identifier id;
     pRDOindex->pad_identifier( id );
 
+    // build the map
+    std::pair < RpcCablingCondData::OfflineOnlineMap::iterator, bool> ins = writeCdo->m_RDOmap.insert( RpcCablingCondData::OfflineOnlineMap::value_type(id,pRDOindex));
+    ATH_MSG_DEBUG("OfflineOnlineMap new entry: value  "<< m_idHelperSvc ->rpcIdHelper().show_to_string(id) << 
+                  "hash of the RDOindex (key) = " << pRDOindex->hash());
+    if(!ins.second) return StatusCode::FAILURE;
+
+
     //build the PRD->RDO and PRD->ROB maps
     ATH_MSG_VERBOSE("Looking for PRDs corresponding to this RDO");
     std::list<Identifier> strip_id_list;
@@ -479,7 +572,73 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
      }
     }
 
+    // ----   begin like MuonRPC_CablingSvc::initTrigRoadsModel()
 
+    // Trigger Roads Header 
+    std::map<std::string, std::string>::const_iterator it;
+    it=m_trigroads.find("infos.txt");
+    if (it==m_trigroads.end()){
+      ATH_MSG_WARNING("Missing HEADER FILE infos.txt");
+    } else {
+      ATH_MSG_VERBOSE("======== RPC Trigger Roads from COOL - Header infos ========");
+      ATH_MSG_VERBOSE("\n"+it->second+"\n");
+      // Read FeetPadThresholds from infos.txt
+      if (!m_ForceFeetPadThresholdsFromJO){             
+        std::stringstream ss;
+        ss << it->second;
+        std::string word;
+        while (ss >> word){
+          if (word=="FeetPadThresholds"){
+            m_FeetPadThresholds.assign(3,0);
+            ss >> m_FeetPadThresholds.at(0);
+            ss >> m_FeetPadThresholds.at(1);
+            ss >> m_FeetPadThresholds.at(2);
+            ATH_MSG_VERBOSE("FeetPadThresholds set from COOL to: "
+                            <<m_FeetPadThresholds.at(0)<<","
+                            <<m_FeetPadThresholds.at(1)<<","
+                            <<m_FeetPadThresholds.at(2));
+          }
+        }
+      }
+    }
+           
+    // this must be done both in case of source = COOL or ASCII
+    // -----  Initialization of Pad configuration ------ //
+    if (m_ApplyFeetPadThresholds) {
+      // if using COOL check the existence of a PAD not existing in run-1 cabling
+      Identifier offline_id;
+      // if (!giveOffflineID(0,21,7,offline_id)&&m_RPCTriggerRoadsfromCool) {
+      //   ATH_MSG_INFO("RUN-1 like cabling, not applying FeetPadThresholds");
+      // }else{
+        if (m_FeetPadThresholds.size()!=3){
+          // if thresholds vector empty, set it to default
+          m_FeetPadThresholds.assign(3,0);
+          m_FeetPadThresholds.at(0)=0;
+          m_FeetPadThresholds.at(1)=2;
+          m_FeetPadThresholds.at(2)=5;
+        }
+        ATH_MSG_VERBOSE("Applying FeetPadThresholds : "
+          <<  m_FeetPadThresholds.at(0) << ","
+          <<  m_FeetPadThresholds.at(1) << ","
+          <<  m_FeetPadThresholds.at(2));
+
+        const unsigned int NumFeetSectors = 8;
+        unsigned int FeetSectors[NumFeetSectors]={21,22,25,26,53,54,57,58};
+        const unsigned int NumSpecialFeetPads = 4;
+        unsigned int SpecialFeetPads[NumSpecialFeetPads]={2,4,5,7};
+
+        for (unsigned int is=0; is<NumFeetSectors; is++) 
+        {
+          for (unsigned int it=0; it<NumSpecialFeetPads; it++) 
+          {
+            writeCdo->m_RPCPadParameters_array[FeetSectors[is]][SpecialFeetPads[it]].set_feet_on(true);
+            for (unsigned int th=0; th<3; th++) 
+              writeCdo->m_RPCPadParameters_array[FeetSectors[is]][SpecialFeetPads[it]].set_feet_threshold(th,m_FeetPadThresholds.at(th));
+          }
+        }
+
+      // }
+    }   
 
     // ------ begin like  PCcablingInterface::RpcPadIdHash::RpcPadIdHash()
     RDOindex index = (*pad_beg).second;
@@ -547,7 +706,6 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
     ATH_MSG_DEBUG("Could not read any HashID");
     return StatusCode::FAILURE;
   }
-
   return StatusCode::SUCCESS;
 
 }
@@ -637,5 +795,3 @@ std::list<Identifier> RpcCablingCondAlg::give_strip_id(unsigned short int Subsys
   return id;
 
 }
-
-

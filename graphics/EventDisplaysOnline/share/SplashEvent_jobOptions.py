@@ -94,7 +94,6 @@ rec.doDetStatus.set_Value_and_Lock(False)                                #
 
 #---------------------------------------------- Comissioning settings  
 rec.Commissioning.set_Value_and_Lock(True)
-rec.abortOnUncheckedStatusCode.set_Value_and_Lock(False)
 
 # ----------------------------- Main jobOpt
 include("RecExCommon/RecExCommon_topOptions.py")

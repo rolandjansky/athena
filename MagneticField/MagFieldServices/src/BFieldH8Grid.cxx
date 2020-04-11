@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -78,7 +78,7 @@ BFieldH8Grid::getB( const double *xyz, double *B, double *deriv ) const
 {
     if ( !defined() || !inside( xyz ) ) {
         B[0] = B[1] = B[2] = 0.0;
-        if ( deriv != 0 ) {
+        if ( deriv != nullptr ) {
             for ( int j = 0; j < 9; j++ ) deriv[j] = 0.0;
         }
         return;
@@ -112,7 +112,7 @@ BFieldH8Grid::getB( const double *xyz, double *B, double *deriv ) const
                       f[1]*( g[0]*m_B[i][ixyz[6]] + f[0]*m_B[i][ixyz[7]] ) );
     }
     // derivatives
-    if ( deriv != 0 ) {
+    if ( deriv != nullptr ) {
         for ( int i=0; i<3; i++ ) { // Bx, By, Bz
             deriv[i*3  ] = ( g[2]*( g[1]*(m_B[i][ixyz[1]] - m_B[i][ixyz[0]] ) +
                                     f[1]*(m_B[i][ixyz[3]] - m_B[i][ixyz[2]] ) ) +

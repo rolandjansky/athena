@@ -60,18 +60,18 @@ public:
   /**
      @brief Called before processing physics events
   */
-  virtual StatusCode prepareEvent(unsigned int) override final;
+  virtual StatusCode prepareEvent(const EventContext& ctx, unsigned int) override final;
   virtual StatusCode processBunchXing(int bunchXing,
                                       SubEventIterator bSubEvents,
                                       SubEventIterator eSubEvents) override final;
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode mergeEvent(const EventContext& ctx) override final;
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
 protected:
 
-  bool digitizeElement(SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const ; //!
+  bool digitizeElement(const EventContext& ctx, SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const ; //!
   void applyProcessorTools(SiChargedDiodeCollection* chargedDiodes, CLHEP::HepRandomEngine * rndmEngine) const; //!
   void addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const;
 
@@ -108,9 +108,9 @@ private:
   */
   SCT_RDO_Collection* createRDO(SiChargedDiodeCollection* collection) const;
 
-  StatusCode getNextEvent();
-  void       digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const; //!< digitize all hits
-  void       digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements, CLHEP::HepRandomEngine * rndmEngine) const;     //!< digitize SCT without hits
+  StatusCode getNextEvent(const EventContext& ctx);
+  void       digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const; //!< digitize all hits
+  void       digitizeNonHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements, CLHEP::HepRandomEngine * rndmEngine) const;     //!< digitize SCT without hits
 
   /**
      @brief Called when m_WriteSCT1_RawData is altered. Does nothing, but required by Gaudi.

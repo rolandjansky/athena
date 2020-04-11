@@ -24,6 +24,12 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 class TRTDigit;
 class TRTTimeCorrection;
 class TRTNoise;
@@ -85,11 +91,12 @@ public:
    * @param outdigit: The 27 bit digit
    * (bits: 8 low + 1 high + 8 low + 1 high + 8 low + 1 high)
    */
-  void ProcessStraw (hitCollConstIter i,
-                     hitCollConstIter e,
-                     TRTDigit& outdigit,
-                     bool & m_alreadyPrintedPDGcodeWarning,
-                     double m_cosmicEventPhase, //const ComTime* m_ComTime,
+  void ProcessStraw (MagField::AtlasFieldCache& fieldCache,
+                     hitCollConstIter i,
+		     hitCollConstIter e,
+		     TRTDigit& outdigit,
+		     bool & m_alreadyPrintedPDGcodeWarning,
+		     double m_cosmicEventPhase, //const ComTime* m_ComTime,
                      int strawGasType,
                      bool emulationArflag,
                      bool emulationKrflag,
@@ -214,10 +221,10 @@ private:
    * @param clusters: ionisation clusters along particle trajectory
    * @param deposits: energy deposits on wire
    */
-  void ClustersToDeposits (const int& hitID,
-                           const std::vector<cluster>& clusters,
-                           std::vector<TRTElectronicsProcessing::Deposit>& deposits,
-                           Amg::Vector3D TRThitGlobalPos,
+  void ClustersToDeposits (MagField::AtlasFieldCache& fieldCache, const int& hitID,
+			   const std::vector<cluster>& clusters,
+			   std::vector<TRTElectronicsProcessing::Deposit>& deposits,
+			   Amg::Vector3D TRThitGlobalPos,
                            double m_cosmicEventPhase, // const ComTime* m_ComTime
                            int strawGasType,
                            CLHEP::HepRandomEngine* rndmEngine);

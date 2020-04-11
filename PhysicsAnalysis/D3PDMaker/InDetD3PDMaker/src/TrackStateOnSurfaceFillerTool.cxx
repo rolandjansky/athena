@@ -44,7 +44,7 @@ TrackStateOnSurfaceFillerTool::TrackStateOnSurfaceFillerTool (const std::string&
     m_pixId(0),
     m_sctId(0),
     m_trtId(0),
-    m_trtcaldbSvc("TRT_CalDbTool",this),
+    m_trtcaldbTool("TRT_CalDbTool",this),
     m_neighbourSvc("TRT_StrawNeighbourSvc",name), 
     m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
     m_driftFunctionTool("TRT_DriftFunctionTool")
@@ -72,7 +72,7 @@ TrackStateOnSurfaceFillerTool::TrackStateOnSurfaceFillerTool (const std::string&
     itr->second = false;
     declareProperty(itr->first, itr->second);
   }
-  declareProperty("ITRT_CalDbSvc",m_trtcaldbSvc);
+  declareProperty("ITRT_CalDbTool",m_trtcaldbTool);
   declareProperty("NeighbourSvc",m_neighbourSvc);
   declareProperty("TRTStrawSummaryTool",  m_TRTStrawSummaryTool);
   declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
@@ -128,7 +128,7 @@ StatusCode TrackStateOnSurfaceFillerTool::initialize(){
     CHECK(m_residualPullCalculator.retrieve());
   }
 
-  CHECK(m_trtcaldbSvc.retrieve());
+  CHECK(m_trtcaldbTool.retrieve());
 
   CHECK(m_neighbourSvc.retrieve());
 
@@ -372,7 +372,7 @@ StatusCode TrackStateOnSurfaceFillerTool::fill (const Trk::TrackStateOnSurface& 
           if(driftCircle){
             unsigned int word = driftCircle->getWord();
             Identifier surfaceID = rio->identify();
-            TRTCond::RtRelation const *rtr = m_trtcaldbSvc->getRtRelation(surfaceID);
+            TRTCond::RtRelation const *rtr = m_trtcaldbTool->getRtRelation(surfaceID);
             double tot = driftCircle->timeOverThreshold();
             if(getFillVariable("TOT")) *m_TOT = tot;
             if(getFillVariable("driftTimeToTCorrection")) *m_driftTimeToTCorrection = m_driftFunctionTool->driftTimeToTCorrection(tot,surfaceID);
@@ -406,7 +406,7 @@ StatusCode TrackStateOnSurfaceFillerTool::fill (const Trk::TrackStateOnSurface& 
             if(getFillVariable("t0")) {
               if(tp){                
                 Identifier surfaceID = rio->identify();
-                *m_t0 = m_trtcaldbSvc->getT0(surfaceID);
+                *m_t0 = m_trtcaldbTool->getT0(surfaceID);
               }
             }
             if(getFillVariable("drifttime")){

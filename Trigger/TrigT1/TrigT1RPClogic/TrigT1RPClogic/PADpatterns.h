@@ -13,7 +13,7 @@
 #include <list>
 #include "TrigT1RPClogic/CMAdata.h"
 #include "TrigT1RPChardware/Pad.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
 
 class PADpatterns : public RPCtrigDataObject
 {
@@ -26,15 +26,12 @@ class PADpatterns : public RPCtrigDataObject
     unsigned long int m_debug;
 
     CMAdata::PatternsList m_cma_patterns;
-    const IRPCcablingSvc*  m_cabling;
     
     
     Pad* m_pad;
 
-    void create_hardware(void);
-
     public:
-    PADpatterns(int,int,const IRPCcablingSvc*, unsigned long int);
+    PADpatterns(int,int,unsigned long int);
 
     PADpatterns(const PADpatterns&);
     ~PADpatterns();
@@ -51,12 +48,11 @@ class PADpatterns : public RPCtrigDataObject
     int sector(void) const {return m_sector;}
     int pad_id(void) const {return m_pad_id;}
     unsigned long int debug(void) const {return m_debug;}
-    const IRPCcablingSvc*  cabling(void) const {return m_cabling;};
     
     const CMAdata::PatternsList cma_patterns(void) const 
                                       {return m_cma_patterns;}
 
-    Pad* give_pad(void);
+    Pad* give_pad(const RpcCablingCondData* readCdo);
 
     void Print (std::ostream&,bool) const;
 };

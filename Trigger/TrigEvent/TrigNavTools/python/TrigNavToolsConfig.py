@@ -8,11 +8,8 @@ def slimmingTool( config ):
   global ToolSvc
   assert 'name' in config, 'name of the configuration is missing'
   assert 'mode' in config, 'mode of slimming has to be configured'
-  assert 'ThinningSvc' in config, 'Instance of thinning svc to talk to is indispensable'
-  assert config['ThinningSvc'], 'No ThinningSvc given'
 
   SlimTool=HLT__TrigNavigationSlimmingTool( config['name']+'Slim' )  
-  SlimTool.ThinningSvc = config['ThinningSvc']
   if 'chains' in  config:
     SlimTool.ChainsRegex = config['chains']
   if 'features' in config:
@@ -37,6 +34,8 @@ def navigationSlimming( config ):
   global ToolSvc
 
   SlimTool = slimmingTool(config)
+  assert 'ThinningSvc' in config, 'Instance of thinning svc to talk to is indispensable'
+  assert config['ThinningSvc'], 'No ThinningSvc given'
 
   ThinTool = TrigNavigationThinningTool(config['name']+'Thin')
   ThinTool.ThinningSvc = config['ThinningSvc']

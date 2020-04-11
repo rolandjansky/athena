@@ -296,63 +296,65 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                         fill(tool,ipZ0SinThetaSigLeadTrk);
                         fill(tool,leadTrkPt);
 
+                        if ( environment() != Environment_t::AOD ){
+                            const xAOD::TrackParticle* track = tau->track(0)->track();
+                            const Trk::Perigee perigee = track->perigeeParameters();
 
-                        const xAOD::TrackParticle* track = tau->track(0)->track();
-                        const Trk::Perigee perigee = track->perigeeParameters();
-
-                        uint8_t dummy(0);
-                    
-                        if (track->summaryValue(dummy, xAOD::numberOfSCTSharedHits)){
-                            numberOfSCTSharedHits = dummy;
-                            fill(tool,numberOfSCTSharedHits);
-                        }
-
-                        if (track->summaryValue(dummy, xAOD::numberOfSCTHits)){
-                            numberOfSCTHits = dummy;
-                            fill(tool,numberOfSCTHits);
-                        }
-
-                        if (track->summaryValue(dummy, xAOD::numberOfPixelSharedHits)){
-                            numberOfPixelSharedHits = dummy;
-                            fill(tool,numberOfPixelSharedHits);
-                        }
+                            uint8_t dummy(0);
                         
-                        if (track->summaryValue(dummy, xAOD::numberOfInnermostPixelLayerHits)){
-                            numberOfInnermostPixelLayerHits = dummy;
-                            fill(tool,numberOfInnermostPixelLayerHits);
-                        }
-                       
-                        if (track->summaryValue(dummy, xAOD::numberOfPixelHits)){
-                            numberOfPixelHits = dummy;
-                            fill(tool,numberOfPixelHits);
-                        }
-                        if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdHits)){
-                            numberOfTRTHighThresholdHits = dummy;
-                            fill(tool,numberOfTRTHighThresholdHits);
-                        }
-                        if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdOutliers)){
-                            numberOfTRTHighThresholdOutliers = dummy;
-                            fill(tool,numberOfTRTHighThresholdOutliers);
-                        }
-                        if (track->summaryValue(dummy, xAOD::numberOfTRTHits)){
-                            numberOfTRTHits = dummy;
-                            fill(tool,numberOfTRTHits);
-                        }
-                        if (track->summaryValue(dummy, xAOD::numberOfTRTOutliers)){
-                            numberOfTRTOutliers = dummy;
-                            fill(tool,numberOfTRTOutliers);
-                        }
-                    
+                            if (track->summaryValue(dummy, xAOD::numberOfSCTSharedHits)){
+                                numberOfSCTSharedHits = dummy;
+                                fill(tool,numberOfSCTSharedHits);
+                            }
 
-                        d0 = perigee.parameters()[Trk::d0];
-                        fill(tool,d0);
-                        //z0 missing
-                        phiTrack = perigee.parameters()[Trk::phi];
-                        fill(tool,phiTrack);
-                        etaTrack = perigee.eta();
-                        fill(tool,etaTrack);
-                        ptTrack = perigee.pT()/GeV;
-                        fill(tool,ptTrack);
+                            if (track->summaryValue(dummy, xAOD::numberOfSCTHits)){
+                                numberOfSCTHits = dummy;
+                                fill(tool,numberOfSCTHits);
+                            }
+
+                            if (track->summaryValue(dummy, xAOD::numberOfPixelSharedHits)){
+                                numberOfPixelSharedHits = dummy;
+                                fill(tool,numberOfPixelSharedHits);
+                            }
+                            
+                            if (track->summaryValue(dummy, xAOD::numberOfInnermostPixelLayerHits)){
+                                numberOfInnermostPixelLayerHits = dummy;
+                                fill(tool,numberOfInnermostPixelLayerHits);
+                            }
+                           
+                            if (track->summaryValue(dummy, xAOD::numberOfPixelHits)){
+                                numberOfPixelHits = dummy;
+                                fill(tool,numberOfPixelHits);
+                            }
+                            if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdHits)){
+                                numberOfTRTHighThresholdHits = dummy;
+                                fill(tool,numberOfTRTHighThresholdHits);
+                            }
+                            if (track->summaryValue(dummy, xAOD::numberOfTRTHighThresholdOutliers)){
+                                numberOfTRTHighThresholdOutliers = dummy;
+                                fill(tool,numberOfTRTHighThresholdOutliers);
+                            }
+                            if (track->summaryValue(dummy, xAOD::numberOfTRTHits)){
+                                numberOfTRTHits = dummy;
+                                fill(tool,numberOfTRTHits);
+                            }
+                            if (track->summaryValue(dummy, xAOD::numberOfTRTOutliers)){
+                                numberOfTRTOutliers = dummy;
+                                fill(tool,numberOfTRTOutliers);
+                            }
+                        
+
+                            d0 = perigee.parameters()[Trk::d0];
+                            fill(tool,d0);
+                            //z0 missing
+                            phiTrack = perigee.parameters()[Trk::phi];
+                            fill(tool,phiTrack);
+                            etaTrack = perigee.eta();
+                            fill(tool,etaTrack);
+                            ptTrack = perigee.pT()/GeV;
+                            fill(tool,ptTrack);
+
+                        }
                     }
                     //this else can be removed, but it sets any track variable to 0 if there are no tracks
                     //this solution makes entry numbers match calo which is desired but there are too many zeros. 

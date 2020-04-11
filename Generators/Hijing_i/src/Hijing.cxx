@@ -532,6 +532,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
                 // We need to create a new vertex
                 // 
                 HepMC::GenVertexPtr newVertex_p = HepMC::newGenVertexPtr(HepMC::FourVector(particleStart.x(),particleStart.y(),particleStart.z(),particleStart.t()));
+
                   evt->add_vertex(newVertex_p);
                 vertexPtrVec.push_back(newVertex_p);
                 particleVertexIndex = vertexPtrVec.size() - 1;
@@ -575,6 +576,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
          //  We need to create a new vertex
          //
          HepMC::GenVertexPtr newVertex_p = HepMC::newGenVertexPtr(HepMC::FourVector(particleStart.x(),particleStart.y(),particleStart.z(),particleStart.t()));
+
 
           evt->add_vertex(newVertex_p);
          vertexPtrVec.push_back(newVertex_p);
@@ -679,6 +681,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
          //  Add aaa non-tracked entry in the hepmc event with status code 103 (temporary)
          //
          v1->add_particle_out( HepMC::newGenParticlePtr( HepMC::FourVector(px, py, pz, e), partonId, 103 ) );
+
        }
       }
     }
@@ -716,6 +719,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
          //  Add aaa non-tracked entry in the hepmc event with status code 103 (temporary)
          //
          v1->add_particle_out( HepMC::newGenParticlePtr( HepMC::FourVector(px, py, pz, e), partonId, 103 ) );
+
        }
       }
     }

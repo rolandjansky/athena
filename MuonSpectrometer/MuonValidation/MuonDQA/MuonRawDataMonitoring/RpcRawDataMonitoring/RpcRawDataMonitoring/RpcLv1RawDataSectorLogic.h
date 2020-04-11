@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,13 +55,11 @@ class RpcLv1RawDataSectorLogic: public ManagedMonitorToolBase {
  public:
 
   RpcLv1RawDataSectorLogic ( const std::string & type, const std::string & name, const IInterface* parent );
-  virtual ~RpcLv1RawDataSectorLogic();
+  virtual ~RpcLv1RawDataSectorLogic()=default;
   StatusCode initialize(); 
-  StatusCode finalize();   
 
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
-  virtual StatusCode procHistograms();
 
  private:
     
