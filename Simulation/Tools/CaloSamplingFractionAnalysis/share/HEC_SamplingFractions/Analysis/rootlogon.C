@@ -1,0 +1,60 @@
+////////////////////////////////////////////////////////////////////////
+{
+   gStyle->SetHistFillColor(11);   
+   gStyle->SetHistFillStyle(1001); 
+   gStyle->SetOptStat(111110); 
+   gStyle->SetOptFit(111);
+//
+   gStyle->SetPadTickX(1);
+   gStyle->SetPadTickY(1);
+//
+   gStyle->SetNdivisions(507,"X");
+   gStyle->SetNdivisions(507,"Y");
+//
+   gStyle->SetLabelSize(0.045,"X");
+   gStyle->SetLabelSize(0.045,"Y");
+   gStyle->SetLabelOffset(0.01,"X");
+   gStyle->SetLabelOffset(0.01,"Y");
+//
+//
+   gStyle->SetTitleBorderSize(1);  
+//   
+//    
+   gStyle->SetStatBorderSize(1);
+   gStyle->SetStatStyle(0);     
+   gStyle->SetStatX(0.98);   
+   gStyle->SetStatY(0.90);   
+   gStyle->SetStatW(0.30);   
+   gStyle->SetStatH(0.20);   
+//
+   gStyle->SetTitleX(0.18);   
+   gStyle->SetTitleY(0.98);   
+   gStyle->SetTitleW(0.80);   
+   gStyle->SetTitleH(0.08);   
+//
+   gStyle->SetPadBorderSize(0);
+   gStyle->SetPadBorderMode(0);
+//
+   gStyle->SetPadLeftMargin(0.18);
+   gStyle->SetPadRightMargin(0.02);
+   gStyle->SetPadTopMargin(0.10);
+   gStyle->SetPadBottomMargin(0.15);
+//   
+   gStyle->SetMarkerSize(1.0);   
+//
+//
+   gErrorIgnoreLevel = kWarning;
+//
+//
+   gROOT->ForceStyle();
+//
+//
+   gROOT->ProcessLine(".L mypage.C");
+   gROOT->ProcessLine(".L myplot.C");
+//
+   gROOT->ProcessLine(".L samfr_etaX.C+");
+   gROOT->ProcessLine(".L read_var_cutX.C+");
+//
+//
+}
+////////////////////////////////////////////////////////////////////////

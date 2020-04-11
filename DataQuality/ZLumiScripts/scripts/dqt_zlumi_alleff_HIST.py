@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration                   
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                   
+
 import sys, os, glob
 import ROOT
 import argparse
@@ -22,7 +23,7 @@ runmode    = args.mode
 infile     = ROOT.TFile.Open(infilename, 'READ')
 
 
-def trigTP(h, effcyt):
+def trig_tag_and_probe(h, effcyt):
     yld    = (h[2], h[3])
     ylderr = (h.GetBinError(2), h.GetBinError(3))
     A, B   = yld
@@ -46,7 +47,7 @@ def trigTP(h, effcyt):
     effcyt.SetBinError(lbnum-lbnums[0]+1, o_trigeffstat[0])
 
 
-def recoTP(hmo, hms, hno, hns, effcyr):
+def reco_tag_and_probe(hmo, hms, hno, hns, effcyr):
     bin1 = hmo.GetXaxis().FindBin(86000)
     bin2 = hmo.GetXaxis().FindBin(95000)
     matchos, matchoserr = extract(hmo, bin1, bin2)
@@ -74,7 +75,7 @@ def recoTP(hmo, hms, hno, hns, effcyr):
     effcyr.SetBinError(lbnum-lbnums[0]+1, o_recoeffstat[0])
 
 
-def templateMethod(hmo, hms, hno, hns, hto, hts, effcyr):
+def template_method(hmo, hms, hno, hns, hto, hts, effcyr):
     noSign  = False
     doScale = False    
     
@@ -134,7 +135,7 @@ def templateMethod(hmo, hms, hno, hns, hto, hts, effcyr):
         d2 = (nomatchos_tail*templateos_peak)/templateos_tail
 
         eff = (n1 - n2)/(d1- d2)
-        err = templateTPErr(hmo, hms, hno, hns, hto, hts)   
+        err = template_method_error(hmo, hms, hno, hns, hto, hts)   
  
 
     o_recoeff[0]     = eff
@@ -143,7 +144,7 @@ def templateMethod(hmo, hms, hno, hns, hto, hts, effcyr):
     effcyr.SetBinError(lbnum-lbnums[0]+1, err)
 
 
-def templateTPErr(hmo, hms, hno, hns, hto, hts):
+def template_method_error(hmo, hms, hno, hns, hto, hts):
     bin1 = hmo.GetXaxis().FindBin(75000)
     bin2 = hmo.GetXaxis().FindBin(104000)
     bin3 = hmo.GetXaxis().FindBin(120000)
@@ -199,16 +200,20 @@ def templateTPErr(hmo, hms, hno, hns, hto, hts):
     err = math.sqrt((da*dva)**2 + (db*dvb)**2 + (dc*dvc)**2 + (dd*dvd)**2 + (de*dve)**2 + (df*dvf)**2 + (dg*dvg)**2)
     return err
 
-def containerEff(h_photon, h_pass, h_tos, h_tss):
+def container_efficiency(h_photon, h_pass, h_tos, h_tss):
     h_temp = h_tos.Clone()
     h_temp.Add(h_tss)
 
     bin1 = h_pass.FindBin(120000)
     bin2 = h_pass.FindBin(250000)
-    scale = h_pass.Integral(bin1, bin2)/h_temp.Integral(bin1, bin2)
-    h_temp.Scale(scale)
-
-    scale_err = scale*pow((1/math.sqrt(h_pass.Integral(bin1, bin2)))+(1/math.sqrt(h_temp.Integral(bin1, bin2))), 0.5)
+    
+    if h_pass.Integral(bin1, bin2) != 0 and h_temp.Integral(bin1, bin2) != 0:
+        scale = h_pass.Integral(bin1, bin2)/h_temp.Integral(bin1, bin2)
+        h_temp.Scale(scale)
+        scale_err = scale*pow((1/math.sqrt(h_pass.Integral(bin1, bin2)))+(1/math.sqrt(h_temp.Integral(bin1, bin2))), 0.5)
+    else: 
+        scale = 1
+        scale_err = 1
 
     bin66  = h_photon.FindBin(66000)
     bin75  = h_photon.FindBin(75000)
@@ -239,9 +244,18 @@ def containerEff(h_photon, h_pass, h_tos, h_tss):
     db = photonerr
     dc = bkgerr
 
-    dda = (b-c)/(b-c+a)**2
-    ddb = -a/(b-c+a)**2
-    ddc = a/(b-c+a)**2
+    try:
+        dda = (b-c)/(b-c+a)**2
+    except ZeroDivisionError:
+        dda = 1
+    try:
+        ddb = -a/(b-c+a)**2
+    except ZeroDivisionError:
+        ddb = 1
+    try:
+        ddc = a/(b-c+a)**2
+    except ZeroDivisionError:
+        ddc = 1
 
     o_conteff[0] = passval/(photonval - bkg + passval)
     o_conteffstat[0] = math.sqrt((da*dda)**2 + (db*ddb)**2 + (dc*ddc)**2)
@@ -322,7 +336,7 @@ tl.Branch('aestat', o_aestat, 'aestat/F')
 lblb = fetch_iovs("LBLB", runs=int(runname[4:])).by_run
 for lb in sorted(lbdirs):
     if runmode == "Zee":
-        h = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_eltrigtp_matches_os' % (runname, lb))
+        h = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_eltrigtp_matches_os' % (runname, lb)) 
         hmo = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_ele_tight_good_os' % (runname, lb))
         hms = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_ele_tight_good_ss' % (runname, lb))
         hno = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_ele_tight_bad_os' % (runname, lb))
@@ -340,12 +354,11 @@ for lb in sorted(lbdirs):
         hns = infile.Get('%s/%s/GLOBAL/DQTGlobalWZFinder/m_muloosetp_nomatch_ss' % (runname, lb))
 
     lbnum  = int(lb[3:])
-    trigTP(h, effcyt)
+    trig_tag_and_probe(h, effcyt)
     if runmode == "Zmumu":
-        recoTP(hmo, hms, hno, hns, effcyr)   
+        reco_tag_and_probe(hmo, hms, hno, hns, effcyr)   
     elif runmode == "Zee": 
-        templateMethod(hmo, hms, hno, hns, hto, hts, effcyr)
-        containerEff(hphoton, hpass, hto, hts)
+        template_method(hmo, hms, hno, hns, hto, hts, effcyr)
 
     o_ae[0]         = ACCEPTANCE*(1-(1-o_trigeff[0])**2)*(o_recoeff[0])**2
     o_aestat[0]     = ACCEPTANCE*((o_recoeff[0]**2*2*(1-o_trigeff[0])*o_trigeffstat[0])**2+(2*o_recoeff[0]*(1-(1-o_trigeff[0])**2)*o_recoeffstat[0])**2)**.5
@@ -361,6 +374,7 @@ tl.Write()
 print 'Done'
 
 c1 = ROOT.TCanvas()
+c1.SetBatch(ROOT.kTRUE)
 effcya.SetMarkerStyle(21)
 effcya.SetMarkerColor(ROOT.kBlue)
 effcya.GetYaxis().SetRangeUser(0, 0.4)
@@ -423,8 +437,3 @@ if sumweights:
     effcyrat.Draw('PE')
     effcyrat.Fit('pol1')
     c1.Print(os.path.join(args.plotdir, '%s_tp_correction.eps' % runname[4:]))
-
-
-
-
-

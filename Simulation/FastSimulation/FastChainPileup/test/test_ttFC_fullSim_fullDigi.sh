@@ -6,6 +6,7 @@
 # art-output: config.txt
 # art-output: *.root
 # art-output: dcube-rdo-truth
+# art-html: dcube-rdo-truth
 
 FastChain_tf.py --simulator ATLFASTII \
     --digiSteeringConf "SplitNoMerge" \

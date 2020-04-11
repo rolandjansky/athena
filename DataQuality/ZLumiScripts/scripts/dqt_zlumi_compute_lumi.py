@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import ROOT
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -7,21 +7,18 @@ import sys, os
 import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument('infile', type=str, help='input HIST file')
 parser.add_argument('--grl', type=str, help='Specify an input GRL')
 parser.add_argument('--out', type=str, help='output ROOT file')
-parser.add_argument('--tag', type=str, help='Lumi tag',
-                    default='OflLumiAcct-001')
+parser.add_argument('--tag', type=str, help='Lumi tag', default='OflLumiAcct-001')
 parser.add_argument('--useofficial', action='store_true', help='Use official lumi folder (otherwise, use OflLumiAcct')
 parser.add_argument('--lumifolder', type=str, help='Lumi folder', default='/TRIGGER/OFLLUMI/OflPrefLumi')
 parser.add_argument('--lumitag', type=str, help='Lumi tag', default='OflLumi-13TeV-009')
-parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
-                    default='plots')
-parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies',
-                    default=0)
-parser.add_argument('--dblivetime', action='store_true',
-                    help='Look up livetime from DB')
+parser.add_argument('--plotdir', type=str, help='Directory to dump plots', default='plots')
+parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies', default=0)
+parser.add_argument('--dblivetime', action='store_true', help='Look up livetime from DB')
 parser.add_argument('--mode', type=str, help='Zee or Zmumu')
 
 args = parser.parse_args()
@@ -149,23 +146,24 @@ from DQUtils import fetch_iovs
 from DQUtils.iov_arrangement import inverse_lblb
 lblb = fetch_iovs("LBLB", runs=int(runname[4:]))
 lbtime = inverse_lblb(lblb)
-#print list(lbtime)
+
 iovs_acct = fetch_iovs('COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LumiAccounting', lbtime.first.since, lbtime.last.until, tag=args.tag)
 if args.useofficial:
     iovs_lum = fetch_iovs('COOLOFL_TRIGGER::%s' % args.lumifolder, lblb.first.since, lblb.last.until, tag=args.lumitag, channels=[0])
-    #print list(iovs_lum)
+
 lb_start_end = {}
-lb_lhcfill = {}
+lb_lhcfill   = {}
 for iov in lblb:
     lb_start_end[iov.since & 0xffffffff] = (iov.StartTime/1e9, iov.EndTime/1e9)
 
 for iov in iovs_acct:
     if not lbmin < iov.LumiBlock < lbmax:
         continue
+    
     lb_lhcfill[iov.LumiBlock] = iov.FillNumber
     if args.dblivetime:
         livetime.Fill(iov.LumiBlock, iov.LiveFraction)
-    #print iov.InstLumi, iovs_lum[iov.LumiBlock-1].LBAvInstLumi
+    
     if not args.useofficial:
         official_lum_zero.Fill(iov.LumiBlock, iov.InstLumi/1e3)
         official_lum.Fill(iov.LumiBlock, iov.InstLumi*iov.LBTime*iov.LiveFraction/1e3)
@@ -235,7 +233,6 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
 
     # fill tree
     if t:
-        #print ibin, lumiplot_raw_m.GetBinCenter(ibin)
         o_lb[0] = int(lumiplot_raw_m.GetBinCenter(ibin))
         o_lbwhen[0] = lb_start_end[o_lb[0]][0]
         o_lbwhen[1] = lb_start_end[o_lb[0]][1]
@@ -297,6 +294,7 @@ if fout:
     fout.Close()
 
 c1 = ROOT.TCanvas()
+c1.SetBatch(ROOT.kTRUE)
 c1.SetTickx()
 c1.SetTicky()
 leg = ROOT.TLegend(0.6, 0.75, 0.89, 0.88)
@@ -311,6 +309,7 @@ c1.Print(os.path.join(args.plotdir, '%s_lumi.eps' % runname[4:]))
 c1.Print(os.path.join(args.plotdir, '%s_lumi.png' % runname[4:]))
 
 c1.Clear()
+c1.SetBatch(ROOT.kTRUE)
 lumiplot_m_ratio.Draw()
 c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.eps' % runname[4:]))
 c1.Print(os.path.join(args.plotdir, '%s_lumi_ratio.png' % runname[4:]))
