@@ -28,9 +28,6 @@ TrigConf::L1PrescalesSet::update()
       ps.prescale = getPrescaleFromCut(ps.cut);
       m_prescales[c.first] = ps;
    }
-   for( auto & entry : m_prescales ) {
-      std::cout << entry.first << "  =>  " << entry.second.cut << std::endl;
-   }
 }
 
 std::size_t 
