@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AddDVProxy.cxx 591472 2014-04-05 11:23:29Z krasznaa $
+// Local include(s):
+#include "xAODCore/AddDVProxy.h"
 
 // ROOT include(s):
 #include <TClass.h>
 #include <TError.h>
+#include <TInterpreter.h>
 
-// Local include(s):
-#include "xAODCore/AddDVProxy.h"
+// System include(s):
+#include <mutex>
 
 namespace xAOD {
 
@@ -19,16 +21,25 @@ namespace xAOD {
    ///
    void AddDVProxy::loadDictionaries() {
 
-      // Make sure that the minimal set of dictionaries are loaded:
-      TClass* dummyCl =
-         TClass::GetClass( "DataVector<xAOD::TDVCollectionProxyDummy>" );
-      if( ! dummyCl ) {
-         ::Error( "xAOD::AddDVProxy::loadDictionaries",
-                  "Couldn't load the dictionary for "
-                  "DataVector<xAOD::TDVCollectionProxyDummy>" );
-      }
+      // Enable library auto-loading. Only once per job.
+      static std::once_flag libLoadFlag;
+      std::call_once( libLoadFlag, []( TInterpreter& interpreter ) {
+
+         // Enable library auto-loading.
+         TClass::ReadRules();
+         interpreter.LoadLibraryMap();
+         interpreter.SetClassAutoloading( true );
+
+         // Make sure that the minimal set of dictionaries are loaded:
+         if( ! TClass::GetClass( "DataVector<xAOD::TDVCollectionProxyDummy>" ) ) {
+            ::Error( "xAOD::AddDVProxy::loadDictionaries",
+                     "Couldn't load the dictionary for "
+                     "DataVector<xAOD::TDVCollectionProxyDummy>" );
+         }
+
+      }, *gInterpreter );
 
       return;
    }
 
-} // namespace edm
+} // namespace xAOD
