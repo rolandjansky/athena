@@ -27,7 +27,7 @@ atlas_add_library( BeamPipeGeoModelLib
                    PUBLIC_HEADERS BeamPipeGeoModel
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} GeoModelUtilities StoreGateLib 
-                   PRIVATE_LINK_LIBRARIES SGTools AthenaKernel GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES SGTools AthenaKernel GaudiKernel RDBAccessSvcLib )
 
 atlas_add_component( BeamPipeGeoModel
                      src/components/*.cxx
