@@ -49,16 +49,9 @@ def generateL1Menu(menu, cmdline):
 
 
 def generateDefaultMCBunchgroupSet(cmdline):
-    def getBunchGroupSetFileName():
-        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        bunchGroupSetFileName = 'BunchGroupSet_'+tf.triggerMenuSetup()+'_'+tf.menuVersion()+'.json'
-        return bunchGroupSetFileName
-
     from TriggerMenuMT.L1.Base.BunchGroupSet import createMCDefaultBunchGroupSet
-
     bgs = createMCDefaultBunchGroupSet()
-    #from TrigConfigSvc.TrigConfigSvcCfg import getBunchGroupSetFileName
-    bgs.writeJSON( outputFile = getBunchGroupSetFileName(), destdir = cmdline.dest)
+    bgs.writeJSON( outputFile = "L1BunchGroupSet.json", destdir = cmdline.dest)
     
 
 

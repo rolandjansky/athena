@@ -135,21 +135,22 @@ class BunchGroupSet(object):
 
     def json(self):
         confObj = odict()
-        confObj["name"] = self.name
-        confObj["filetype"] = "bunchgroupset"
-        confObj["bunchGroups"] = odict()
         for bg in self.bunchGroups:
             if bg:
-                confObj["bunchGroups"]["BGRP%i" % bg.internalNumber] = bg.json()
+                confObj["BGRP%i" % bg.internalNumber] = bg.json()
             else:
-                confObj["bunchGroups"]["BGRP%i" % bg.internalNumber] = bg.json()
+                confObj["BGRP%i" % bg.internalNumber] = bg.json()
 
         return confObj
 
     def writeJSON(self, outputFile, destdir="./", pretty=True):
         outputFile = destdir.rstrip('/') + '/' + outputFile
+        confObj = odict()
+        confObj["name"] = self.name
+        confObj["filetype"] = "bunchgroupset"
+        confObj["bunchGroups"] = self.json()
         with open( outputFile, mode="wt" ) as fh:
             import json
-            json.dump(self.json(), fh, indent = 4 if pretty else None, separators=(',', ': '))
+            json.dump(confObj, fh, indent = 4 if pretty else None, separators=(',', ': '))
         log.info("Wrote %s", outputFile)
         return outputFile
