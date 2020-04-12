@@ -76,9 +76,9 @@ class BunchGroupSet(object):
             self.bunches = sorted(list(set(self.bunches))) # uniq and sort
             if any(map(lambda bcid : bcid<0 or bcid >= 3564, self.bunches)):
                 raise RuntimeError("Found bcid outside range 0..3563 in bunchgroup %s" % self.name)
-            f = lambda x: (x[0][1], len(x))
             for k,g in groupby(enumerate(self.bunches), lambda x : x[1]-x[0]):
-                self.normalized += [ f(list(g)) ]
+                train = list(g)
+                self.normalized += [ (train[0][1], len(train)) ]
             return self
         def json(self):
             confObj = odict()
