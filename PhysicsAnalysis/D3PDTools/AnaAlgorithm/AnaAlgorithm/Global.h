@@ -12,6 +12,8 @@
 namespace EL
 {
   class AnaAlgorithm;
+  class FilterReporter;
+  class FilterReporterParams;
 
 #ifdef ROOTCORE
   class AnaAlgorithmConfig;

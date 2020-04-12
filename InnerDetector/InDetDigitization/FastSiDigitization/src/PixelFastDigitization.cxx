@@ -37,7 +37,7 @@ StatusCode PixelFastDigitization::execute() {
 
   ATH_MSG_VERBOSE ( " PixelFastDigitization : execute()" );
 
-  StatusCode sc =  m_digTool->processAllSubEvents();
+  StatusCode sc =  m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
 
   ATH_MSG_VERBOSE ( " PixelFastDigitization : m_digTool->processAllSubEvents()" );
 

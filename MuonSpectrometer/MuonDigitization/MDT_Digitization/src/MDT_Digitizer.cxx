@@ -21,5 +21,5 @@ StatusCode MDT_Digitizer::initialize() {
 
 StatusCode MDT_Digitizer::execute() {
   ATH_MSG_DEBUG("in execute()");
-  return m_digTool->processAllSubEvents();
+  return m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }

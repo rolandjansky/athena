@@ -131,7 +131,7 @@ StatusCode AFP_PileUpTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_PileUpTool::processAllSubEvents() {
+StatusCode AFP_PileUpTool::processAllSubEvents(const EventContext& /*ctx*/) {
 
   ATH_MSG_DEBUG ( "AFP_PileUpTool::processAllSubEvents()" );
  
@@ -231,7 +231,7 @@ StatusCode AFP_PileUpTool::processAllSubEvents() {
 }
 
 
-StatusCode AFP_PileUpTool::prepareEvent(const unsigned int nInputEvents){
+StatusCode AFP_PileUpTool::prepareEvent(const EventContext& /*ctx*/, const unsigned int nInputEvents){
 
   ATH_MSG_DEBUG ( "AFP_PileUpTool::prepareEvent() called for " << nInputEvents << " input events" );
  
@@ -254,8 +254,8 @@ StatusCode AFP_PileUpTool::prepareEvent(const unsigned int nInputEvents){
 }
 
 StatusCode AFP_PileUpTool::processBunchXing(int bunchXing,
-                                                 SubEventIterator bSubEvents,
-                                                 SubEventIterator eSubEvents) {
+                                            SubEventIterator bSubEvents,
+                                            SubEventIterator eSubEvents) {
 
   ATH_MSG_DEBUG ( "AFP_PileUpTool::processBunchXing() " << bunchXing );
   SubEventIterator iEvt = bSubEvents;
@@ -310,7 +310,7 @@ StatusCode AFP_PileUpTool::processBunchXing(int bunchXing,
   return StatusCode::SUCCESS;
 }
 
-StatusCode AFP_PileUpTool::mergeEvent(){
+StatusCode AFP_PileUpTool::mergeEvent(const EventContext& /*ctx*/){
  
   fillTDDigiCollection(m_mergedTDSimHitList, m_rndEngine);
   fillSiDigiCollection(m_mergedSIDSimHitList);

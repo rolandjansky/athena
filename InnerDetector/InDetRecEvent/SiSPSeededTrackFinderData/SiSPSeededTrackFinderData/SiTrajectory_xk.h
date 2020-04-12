@@ -67,14 +67,14 @@ namespace InDet{
          const SCT_ClusterContainer*                          ,
          const Trk::TrackParameters                          &,
          std::list<const InDet::SiCluster*>                  &,
-         std::list<const InDet::SiDetElementBoundaryLink_xk*>&,
+         std::vector<const InDet::SiDetElementBoundaryLink_xk*>&,
          bool                                                &);
 
       bool trackParametersToClusters
         (const PixelClusterContainer*                             ,
          const SCT_ClusterContainer*                              ,
          const Trk::TrackParameters                              &,
-         std::list<const InDet::SiDetElementBoundaryLink_xk*>    &,
+         std::vector<const InDet::SiDetElementBoundaryLink_xk*>  &,
          std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
          std::list<const InDet::SiCluster*>                      &);
       
@@ -82,7 +82,7 @@ namespace InDet{
         (const PixelClusterContainer*                             ,
          const SCT_ClusterContainer*                              ,
          const std::list<Amg::Vector3D>                          &,
-         std::list<const InDet::SiDetElementBoundaryLink_xk*>    &,
+         std::vector<const InDet::SiDetElementBoundaryLink_xk*>  &,
          std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
          std::list<const InDet::SiCluster*>                      &);
 

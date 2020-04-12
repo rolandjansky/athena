@@ -30,14 +30,6 @@ print IDTR1TrackToVertexWrapper
 if 'DerivationFrameworkIsMonteCarlo' not in dir() :
   DerivationFrameworkIsMonteCarlo=( globalflags.DataSource()=='geant4' )
 
-# Add decoration with truth parameters if running on simulation
-if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
-    TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
-                                                                        DecorationPrefix = "IDTR1")
-    ToolSvc += TruthDecor
-    print TruthDecor
- 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================

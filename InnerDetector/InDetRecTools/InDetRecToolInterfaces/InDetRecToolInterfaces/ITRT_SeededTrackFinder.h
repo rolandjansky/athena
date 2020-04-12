@@ -19,6 +19,7 @@
 #include "GaudiKernel/AlgTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkSegment/TrackSegment.h"
+#include "GaudiKernel/EventContext.h"
 
 class MsgStream;
 
@@ -56,13 +57,14 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       virtual std::list<Trk::Track*> getTrack
-         (InDet::ITRT_SeededTrackFinder::IEventData &,
+         (const EventContext& ctx,
+          InDet::ITRT_SeededTrackFinder::IEventData &,
           const Trk::TrackSegment&) const = 0;
       virtual std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>
-      newEvent(SiCombinatorialTrackFinderData_xk& combinatorialData) const =0;
+      newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& combinatorialData) const =0;
 
       virtual std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>
-      newRegion(SiCombinatorialTrackFinderData_xk& combinatorialData,
+      newRegion(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& combinatorialData,
                 const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&) const =0;
       virtual void endEvent(InDet::ITRT_SeededTrackFinder::IEventData &event_data) const =0;
 

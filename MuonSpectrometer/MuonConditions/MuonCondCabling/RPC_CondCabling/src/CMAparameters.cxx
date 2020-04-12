@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -8,9 +8,6 @@
 #include "RPC_CondCabling/CMAparameters.h"
 #include "RPC_CondCabling/CMAprogram.h"
 #include "MuonCablingTools/RPCdecoder.h"
-
-
-using namespace std;
 
 int CMAparameters::s_Layer = 0;
 
@@ -445,16 +442,16 @@ CMAparameters::operator+=(const CMAparameters& cma)
 }
 
 void
-CMAparameters::showDt(ostream& stream) const
+CMAparameters::showDt(std::ostream& stream) const
 {
     // Set the chracters used for matrix display
     unsigned int finish = 164;
     
     if(!m_pivot)
     {
-        stream << endl << "Low Pt and Hi Pt not yet connected!" << endl;
+        stream << std::endl << "Low Pt and Hi Pt not yet connected!" << std::endl;
         for(int i=0;i<80;++i) stream << (char)finish;
-        stream << endl;
+        stream << std::endl;
         return;
     }
 
@@ -464,16 +461,16 @@ CMAparameters::showDt(ostream& stream) const
     char (*displow)[90] = new char [ln][90];
 
     // Show Low Pt connections
-    stream << endl << "Low Pt matrix connections:" << endl << endl;
+    stream << std::endl << "Low Pt matrix connections:" << std::endl << std::endl;
     showMt(displow,ln,Low);
 
     // Dumping memory on output stream
-    for (int i=0;i<ln;++i) if(displow[i][0]!='\0') stream << displow[i]<<endl;
+    for (int i=0;i<ln;++i) if(displow[i][0]!='\0') stream << displow[i]<<std::endl;
 
     delete [] displow;
 
     // Show Hi Pt connections
-    stream << endl << endl << "Hi Pt matrix connections:" << endl << endl;
+    stream << std::endl << std::endl << "Hi Pt matrix connections:" << std::endl << std::endl;
 
     ln = (m_highPt_rpc_read > 0)? (m_highPt_rpc_read - 1)*6 + 39 : 39;
     
@@ -482,13 +479,13 @@ CMAparameters::showDt(ostream& stream) const
     showMt(disphi,ln,High);
 
     // Dumping memory on output stream
-    for (int i=0;i<ln;++i) if(disphi[i][0]!='\0') stream << disphi[i]<<endl;
+    for (int i=0;i<ln;++i) if(disphi[i][0]!='\0') stream << disphi[i]<<std::endl;
 
     delete [] disphi;
 
-    stream << endl;
+    stream << std::endl;
     for(int i=0;i<80;++i) stream << (char)finish;
-    stream << endl;
+    stream << std::endl;
 }
 
 void
@@ -534,7 +531,7 @@ CMAparameters::showMt(char display[][90],int ln, TrigType type) const
     int shift = 6*pivot_loop;
 
     for(int i=0;i<shift;++i) *disp[0] << " ";
-    for(int i=0;i<confirm_channels;++i) (ostream&)*disp[0] << (char)up;
+    for(int i=0;i<confirm_channels;++i) (std::ostream&)*disp[0] << (char)up;
 
     for(int i=1;i<=pivot_channels;++i)
     {
@@ -545,12 +542,12 @@ CMAparameters::showMt(char display[][90],int ln, TrigType type) const
             (*disp[i]).fill(48);
 	    if(m_pivot[j][s_Layer][pivot_channels-i] >= 0)
 	    {
-	        *disp[i] << setw(5) << m_pivot[j][s_Layer][pivot_channels-i];
+	        *disp[i] << std::setw(5) << m_pivot[j][s_Layer][pivot_channels-i];
 	    } else *disp[i] << "*****";
 	}
 
         // Display the trigger window for all tresholds
-        (ostream&) *disp[i] << (char)left;
+        (std::ostream&) *disp[i] << (char)left;
         for(int j=0;j<confirm_channels;++j) 
         {
 	    unsigned int no_coincidence = ':';
@@ -565,12 +562,12 @@ CMAparameters::showMt(char display[][90],int ln, TrigType type) const
 		if      (registers[third])  *disp[i] << "3";
 		else if (registers[second]) *disp[i] << "2";
 		else if (registers[first])  *disp[i] << "1";
-		else             (ostream&) *disp[i] << (char)no_coincidence;
+		else             (std::ostream&) *disp[i] << (char)no_coincidence;
 
             }
             else *disp[i] << " ";
 	}
-        (ostream&) *disp[i] << (char)right;
+        (std::ostream&) *disp[i] << (char)right;
     }
 
     // Display the cabling for the confirm plane
@@ -580,7 +577,7 @@ CMAparameters::showMt(char display[][90],int ln, TrigType type) const
         for(int j=0;j<shift;++j) *disp[i] << " ";
 
     for(int i=0;i<confirm_channels;++i) 
-        (ostream&) *disp[start_confirm] << (char)down;
+        (std::ostream&) *disp[start_confirm] << (char)down;
     
     for(int i=0;i<conf_loop;++i)
     {
@@ -588,7 +585,7 @@ CMAparameters::showMt(char display[][90],int ln, TrigType type) const
          if(i) 
          {
             for(int ch=1;ch<=confirm_channels;++ch) 
-                (ostream&) *disp[start]<<(char)middle;
+                (std::ostream&) *disp[start]<<(char)middle;
             ++start;
 	 }
 
@@ -597,9 +594,9 @@ CMAparameters::showMt(char display[][90],int ln, TrigType type) const
 	 {
 	     if(conf[i][s_Layer][ch] >= 0)
 	     {
-                 (ostream&) *disp[start+j] << 
+                 (std::ostream&) *disp[start+j] << 
                             ( conf[i][s_Layer][ch]/static_cast<int>(pow(10.,j)) )%10;
-             } else (ostream&) *disp[start+j] << "*";
+             } else (std::ostream&) *disp[start+j] << "*";
 	 }
     }
 
@@ -616,44 +613,44 @@ CMAparameters::showMt(char display[][90],int ln, TrigType type) const
 
 
 void
-CMAparameters::Print(ostream& stream,bool detail) const
+CMAparameters::Print(std::ostream& stream,bool detail) const
 {
     stream << id();
 
     stream << "  I/O " << m_pivot_station << ",";
     stream << m_lowPt_station << "," << m_highPt_station << "  pivot ";
     stream.fill(48);
-    stream << "<" <<setw(2)  << pivot_start_ch();
-    stream << ":" << setw(2) << pivot_start_st();
-    stream << " " << setw(2) << pivot_stop_ch() << ":";
-    stream << setw(2) << pivot_stop_st() << ">" << endl;
+    stream << "<" <<std::setw(2)  << pivot_start_ch();
+    stream << ":" << std::setw(2) << pivot_start_st();
+    stream << " " << std::setw(2) << pivot_stop_ch() << ":";
+    stream << std::setw(2) << pivot_stop_st() << ">" << std::endl;
     stream << "                                                             ";
-    stream << "lowPt <" << setw(2);
+    stream << "lowPt <" << std::setw(2);
 
-    stream << lowPt_start_ch() << ":" << setw(2) << lowPt_start_st();
-    stream << " " << setw(2) << lowPt_stop_ch() << ":";
-    stream << setw(2) << lowPt_stop_st() << ">" << endl;
+    stream << lowPt_start_ch() << ":" << std::setw(2) << lowPt_start_st();
+    stream << " " << std::setw(2) << lowPt_stop_ch() << ":";
+    stream << std::setw(2) << lowPt_stop_st() << ">" << std::endl;
     stream << "                                                             ";
-    stream << "highPt<" << setw(2);
+    stream << "highPt<" << std::setw(2);
 
-    stream << highPt_start_ch() << ":" << setw(2) << highPt_start_st();
-    stream << " " << setw(2) << highPt_stop_ch() << ":";
-    stream << setw(2) << highPt_stop_st() << ">" << endl;
+    stream << highPt_start_ch() << ":" << std::setw(2) << highPt_start_st();
+    stream << " " << std::setw(2) << highPt_stop_ch() << ":";
+    stream << std::setw(2) << highPt_stop_st() << ">" << std::endl;
     stream.fill(32);
     if(detail) showDt(stream);
 }
 
 void
-CMAparameters::noMoreChannels(const string stat)
+CMAparameters::noMoreChannels(const std::string stat)
 {
     int max_channels = 0;
     if(stat == "Pivot") max_channels = pivot_channels;
     else max_channels = confirm_channels;
 
-    DISP << "Error in Sector Type " << this->sector_type() << ":" << endl
+    DISP << "Error in Sector Type " << this->sector_type() << ":" << std::endl
          << this->id()
          << "  attempted to receive more than " << max_channels
-         << " channels for " << stat << " side" << endl;
+         << " channels for " << stat << " side" << std::endl;
     DISP_ERROR;
 }
 
@@ -691,7 +688,7 @@ CMAparameters::two_obj_error_message(std::string msg,CMAparameters* cma)
     this->error_header();
 
     DISP << "  " << msg << " between " << name() << " n. " << number()
-         << " and " << cma->name() << " n. " << cma->number() << endl
+         << " and " << cma->name() << " n. " << cma->number() << std::endl
          << *this
          << *cma;
     DISP_ERROR;
@@ -706,14 +703,14 @@ CMAparameters::no_confirm_error(int stat)
     {
         DISP << "Low Pt cabling inconsistence (cabling from connector "
              << m_lowPt_start_co << " to connector " << m_lowPt_stop_co
-             << ") for" << endl << *this;
+             << ") for" << std::endl << *this;
 	DISP_ERROR;
     }
     else if (stat == highPt_station())
     {
         DISP << "High Pt cabling inconsistence (cabling from connector "
              << m_highPt_start_co << " to connector " << m_highPt_stop_co
-             << ") for" << endl << *this;
+             << ") for" << std::endl << *this;
 	DISP_ERROR;
     }
     else return;
@@ -724,9 +721,9 @@ CMAparameters::no_wor_readout(int num,int stat)
 {
     this->error_header();
 
-    DISP << this->id() << "   receives input from" << endl
+    DISP << this->id() << "   receives input from" << std::endl
          << "  RPC chamber n. " << num << " of station " << stat
-         << " which has no Wired OR readout!" << endl;
+         << " which has no Wired OR readout!" << std::endl;
     DISP_ERROR;
 }
 
@@ -735,7 +732,7 @@ CMAparameters::error(std::string str)
 {
     this->error_header();
 
-    DISP << this->id() << str << endl;
+    DISP << this->id() << str << std::endl;
     DISP_ERROR;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -21,8 +21,6 @@
 
 #include "MuonByteStreamCnvTest/ReadRpcRDO.h"
 
-using namespace std;
-
 static const int maxPad           =   512;
 static const int maxCMA           =  2048;
 static const int maxFiredChannels =  4096;
@@ -33,12 +31,8 @@ ReadRpcRDO::ReadRpcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), m_ntuplePtr(0),
   m_activeStore("ActiveStoreSvc", name)
 {
-  
-  // Declare the properties
-
   declareProperty("NtupleLocID",m_NtupleLocID);
   declareProperty("WriteRpcNtuple", m_rpcNtuple = false);
-
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 

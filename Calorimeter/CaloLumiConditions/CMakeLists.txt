@@ -3,7 +3,7 @@
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( CaloumiConditions )
+atlas_subdir( CaloLumiConditions )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
@@ -25,20 +25,20 @@ atlas_add_library( CaloLumiConditions
                    src/*.cxx
                    PUBLIC_HEADERS CaloLumiConditions
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-                   LINK_LIBRARIES CxxUtils Identifier AthenaKernel 
+                   LINK_LIBRARIES CxxUtils Identifier AthenaKernel LArElecCalib
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} TestTools LArIdentifier LumiBlockData )
 
 atlas_add_test( CaloBCIDCoeffs_test
                 SOURCES
                 test/CaloBCIDCoeffs_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils Identifier TestTools CaloLumiConditions IdDictParser LArIdentifier )
+                LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils Identifier TestTools CaloLumiConditions IdDictParser LArIdentifier LArElecCalib )
 
 atlas_add_test( CaloBCIDLumi_test
                 SOURCES
                 test/CaloBCIDLumi_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils Identifier TestTools CaloLumiConditions IdDictParser LumiBlockData LArIdentifier
+                LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils Identifier TestTools CaloLumiConditions IdDictParser LumiBlockData LArIdentifier LArElecCalib
                 PROPERTIES TIMEOUT 300 )
 
 

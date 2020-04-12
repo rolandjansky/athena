@@ -107,6 +107,11 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
       return StatusCode::FAILURE;
     }    
     ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ATH_CHECK( m_fieldCondObjInputKey.initialize());
+    ////////////////////////////////////////////////////////////////////////////////
+    
   }
 
   if     (m_fieldmode == "NoField"    ) m_fieldprop = Trk::MagneticFieldProperties(Trk::NoField  );
@@ -315,9 +320,9 @@ std::ostream& InDet::operator <<
 ///////////////////////////////////////////////////////////////////
 
 std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>
-InDet::TRT_TrackExtensionTool_xk::newEvent() const
+InDet::TRT_TrackExtensionTool_xk::newEvent(const EventContext& ctx) const
 {
-  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname, ctx);
 
   if((not trtcontainer.isValid()) && m_outputlevel<=0) {
     std::stringstream msg;
@@ -329,8 +334,15 @@ InDet::TRT_TrackExtensionTool_xk::newEvent() const
                                                   ? m_fieldprop
                                                   : Trk::MagneticFieldProperties(Trk::NoField  ));
 
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("InDet::TRT_TrackExtensionTool_xk::findSegment: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return 0;
+  }
+
   std::unique_ptr<EventData> event_data(new EventData(trtcontainer.cptr(), m_maxslope));
-  event_data->m_trajectory.set(fieldprop,&(*m_fieldServiceHandle));
+  event_data->m_trajectory.set(fieldprop, &(*m_fieldServiceHandle), fieldCondObj);
   event_data->m_trajectory.set (m_trtid,
                                 &(*m_proptool),
                                 &(*m_updatortool),
@@ -350,7 +362,8 @@ InDet::TRT_TrackExtensionTool_xk::newEvent() const
 ///////////////////////////////////////////////////////////////////
 
 std::vector<const Trk::MeasurementBase*>& 
-InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::Track& Tr,
+InDet::TRT_TrackExtensionTool_xk::extendTrack(const EventContext& ctx,
+                                              const Trk::Track& Tr,
                                               InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionTool_xk::EventData &
@@ -373,7 +386,7 @@ InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::Track& Tr,
     const Amg::Vector3D& g2 = parb->position();
     if((g2.x()*g2.x()+g2.y()*g2.y()) > (g1.x()*g1.x()+g1.y()*g1.y())) par=parb;
   }
-  return extendTrackFromParameters(*par,event_data);
+  return extendTrackFromParameters(ctx, *par, event_data);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -381,21 +394,23 @@ InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::Track& Tr,
 ///////////////////////////////////////////////////////////////////
 
 std::vector<const Trk::MeasurementBase*>&
-InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::TrackParameters& par,
+InDet::TRT_TrackExtensionTool_xk::extendTrack(const EventContext& ctx,
+                                              const Trk::TrackParameters& par,
                                               InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionTool_xk::EventData &
      event_data=InDet::TRT_TrackExtensionTool_xk::EventData::getPrivateEventData(virt_event_data);
-  return extendTrackFromParameters(par,event_data);
+  return extendTrackFromParameters(ctx, par, event_data);
 }
 
 
 std::vector<const Trk::MeasurementBase*>&
-InDet::TRT_TrackExtensionTool_xk::extendTrackFromParameters(const Trk::TrackParameters& par,
+InDet::TRT_TrackExtensionTool_xk::extendTrackFromParameters(const EventContext& ctx,
+                                                            const Trk::TrackParameters& par,
                                                             InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const
 {
   event_data.m_measurement.clear();
-  if(isGoodExtension(par,event_data)) event_data.m_trajectory.convert(event_data.m_measurement);
+  if(isGoodExtension(ctx, par,event_data)) event_data.m_trajectory.convert(event_data.m_measurement);
   return event_data.m_measurement;
 }
 
@@ -404,7 +419,8 @@ InDet::TRT_TrackExtensionTool_xk::extendTrackFromParameters(const Trk::TrackPara
 ///////////////////////////////////////////////////////////////////
 
 Trk::TrackSegment* 
-InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par,
+InDet::TRT_TrackExtensionTool_xk::findSegment(const EventContext& ctx,
+                                              const Trk::TrackParameters& par,
                                               InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionTool_xk::EventData &
@@ -413,10 +429,23 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par,
   int nCut = m_minNumberDCs;
   if(m_parameterization) {nCut = m_selectortool->minNumberDCs(&par); if(nCut<m_minNumberDCs) nCut=m_minNumberDCs;}
 
+
+  // Get AtlasFieldCache
+  MagField::AtlasFieldCache fieldCache;
+
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("InDet::TRT_TrackExtensionTool_xk::findSegment: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return 0;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
+  
+
   // TRT detector elements road builder
   //
   std::vector<const InDetDD::TRT_BaseElement*> DE;
-  m_roadtool->detElementsRoad(par,Trk::alongMomentum,DE);
+  m_roadtool->detElementsRoad(ctx, fieldCache, par, Trk::alongMomentum,DE);
 
   if(int(DE.size())< nCut) return 0;
   
@@ -433,7 +462,7 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par,
   // 
   Trk::PatternTrackParameters Tp; if(!Tp.production(&par)) return 0;
   std::list< std::pair<Amg::Vector3D,double> > gpos;
-  m_proptool->globalPositions(Tp,surfaces,gpos,m_fieldprop);
+  m_proptool->globalPositions(ctx, Tp, surfaces, gpos, m_fieldprop);
 
   // Initiate trajectory
   //
@@ -499,13 +528,27 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par,
 // Test possiblity extend track to TRT for pixles+sct tracks
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameters& par,
+bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const EventContext& ctx,
+                                                       const Trk::TrackParameters& par,
                                                        InDet::TRT_TrackExtensionTool_xk::EventData &event_data) const
-{ 
+{
+    
+  // Get AtlasFieldCache
+  MagField::AtlasFieldCache fieldCache;
+
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("InDet::TRT_TrackExtensionTool_xk::findSegment: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return 0;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
+
+    
   // TRT detector elements road builder
   //
   std::vector<const InDetDD::TRT_BaseElement*> DE;
-  m_roadtool->detElementsRoad(par,Trk::alongMomentum,DE);
+  m_roadtool->detElementsRoad(ctx, fieldCache, par,Trk::alongMomentum,DE);
   if(int(DE.size()) < m_minNumberDCs) return false;
   
   // Array pointers to surface preparation
@@ -521,7 +564,7 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
   // 
   Trk::PatternTrackParameters Tp; if(!Tp.production(&par)) return false;
   std::list< std::pair<Amg::Vector3D,double> > gpos;
-  m_proptool->globalPositions(Tp,surfaces,gpos,m_fieldprop);
+  m_proptool->globalPositions(ctx, Tp,surfaces,gpos,m_fieldprop);
 
   // Initiate trajectory
   //
@@ -549,7 +592,8 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
 // and new track production
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const Trk::Track& Tr,
+Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const EventContext& ctx,
+                                                       const Trk::Track& Tr,
                                                        InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const
 {
   InDet::TRT_TrackExtensionTool_xk::EventData &
@@ -571,7 +615,7 @@ Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const Trk::Track& Tr,
 
   // Test possibility extend track and new track production
   //
-  if(isGoodExtension(*pe,event_data)) return event_data.m_trajectory.convert(Tr);
+  if(isGoodExtension(ctx, *pe,event_data)) return event_data.m_trajectory.convert(Tr);
   return 0;
 }
 

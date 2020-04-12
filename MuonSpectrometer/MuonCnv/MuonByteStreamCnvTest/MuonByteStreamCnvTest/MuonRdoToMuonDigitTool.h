@@ -73,28 +73,28 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
   ~MuonRdoToMuonDigitTool();
     
   virtual StatusCode initialize() override;
-  virtual StatusCode digitize()   override;
+  virtual StatusCode digitize(const EventContext& ctx)   override;
 
  private:
 
   // private method for the decoding RDO --> digits
-  StatusCode decodeMdtRDO(MdtDigitContainer*);
+  StatusCode decodeMdtRDO(const EventContext& ctx, MdtDigitContainer*); 
   StatusCode decodeMdt(MdtDigitContainer*, const MdtCsm *, MdtDigitCollection*&, Identifier& );
 
-  StatusCode decodeCscRDO(CscDigitContainer*);
+  StatusCode decodeCscRDO(const EventContext& ctx, CscDigitContainer*);
   //  StatusCode decodeCsc( const CscRawDataCollection *, CscDigitCollection*, Identifier&, CscRDO_Decoder& decoder );
   StatusCode decodeCsc(CscDigitContainer*, const CscRawDataCollection *, CscDigitCollection*&, Identifier&);
 
-  StatusCode decodeRpcRDO(RpcDigitContainer*);
+  StatusCode decodeRpcRDO(const EventContext& ctx, RpcDigitContainer*);
   StatusCode decodeRpc(RpcDigitContainer*, const RpcPad *, RpcDigitCollection*& );
  
-  StatusCode decodeTgcRDO(TgcDigitContainer*);
+  StatusCode decodeTgcRDO(const EventContext& ctx, TgcDigitContainer*);
   StatusCode decodeTgc(TgcDigitContainer*, const TgcRdo *, Identifier&);
 
-  StatusCode decodeSTGC_RDO(sTgcDigitContainer*);
+  StatusCode decodeSTGC_RDO(const EventContext& ctx, sTgcDigitContainer*);
   StatusCode decodeSTGC(sTgcDigitContainer*, const Muon::STGC_RawDataCollection *, sTgcDigitCollection*&, Identifier&);
 
-  StatusCode decodeMM_RDO(MmDigitContainer*);
+  StatusCode decodeMM_RDO(const EventContext& ctx, MmDigitContainer*);
   StatusCode decodeMM(MmDigitContainer*, const Muon::MM_RawDataCollection *, MmDigitCollection*&, Identifier&);
 
   StatusCode getTgcCabling();

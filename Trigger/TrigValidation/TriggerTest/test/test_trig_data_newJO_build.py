@@ -6,7 +6,7 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-from TrigValTools.TrigValSteering import Test, Step, ExecStep, CheckSteps
+from TrigValTools.TrigValSteering import Test, Step, ExecStep #, CheckSteps
 
 # Copy the job options to the working directory
 copy_jo = ExecStep.ExecStep('CopyJO')

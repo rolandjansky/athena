@@ -16,7 +16,6 @@
 #include "ByteStreamDataWriter.h"
 
 #include "ByteStreamCnvSvc/ByteStreamOutputSvc.h"
-#include "ByteStreamCnvSvc/IByteStreamFreeMetadataSvc.h"
 #include "ByteStreamData/RawEvent.h"
 
 #include "GaudiKernel/IIoComponent.h"
@@ -82,9 +81,6 @@ private: // properties
    Gaudi::Property<std::string>     m_eventStorageVersion;  //!< EventStorage BS version to produce, "v5" for run1, or "current"
    Gaudi::Property<std::string>     m_bsOutputStreamName;//!< stream name for multiple output
    Gaudi::Property<std::string>     m_simpleFileName;    //!< use this string for filename, not from the "AgreedFileName"
-   std::vector<std::string> m_keys;
-
-   ServiceHandle<IByteStreamFreeMetadataSvc> m_attlistsvc;
 
 private: // internal helper functions
    /// initialize EventStorage's DataWriter

@@ -75,7 +75,8 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       virtual std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> >
-      find2Sp (const Trk::TrackParameters& tP,
+      find2Sp (const EventContext& ctx,
+               const Trk::TrackParameters& tP,
                ITRT_SeededSpacePointFinder::IEventData &event_data) const=0;
 
       ///////////////////////////////////////////////////////////////////

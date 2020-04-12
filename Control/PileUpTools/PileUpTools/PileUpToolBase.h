@@ -37,7 +37,8 @@ public:
   }
   ///dummy implementation to allow compilation while all Digitization
   ///packages are migrated to use this new interface.
-  virtual StatusCode processAllSubEvents() override {
+  using IPileUpTool::processAllSubEvents;
+  virtual StatusCode processAllSubEvents(const EventContext&) override {
     return StatusCode::SUCCESS;
   }
   virtual StatusCode

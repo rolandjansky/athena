@@ -86,15 +86,15 @@ namespace InDet{
       // Methods to initialize tool for new event or region
       ///////////////////////////////////////////////////////////////////
 
-      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newEvent() const override;
-      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newRegion(const std::vector<IdentifierHash>&) const override;
+      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newEvent(const EventContext& ctx) const override;
+      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newRegion(const EventContext& ctx, const std::vector<IdentifierHash>&) const override;
       void endEvent(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
 
       ///////////////////////////////////////////////////////////////////
       // Methods of seeds production without vertex constraint
       ///////////////////////////////////////////////////////////////////
 
-      virtual void find(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
+      virtual void find(const EventContext& ctx, InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
 
       ///////////////////////////////////////////////////////////////////
       // Iterator through seeds pseudo collection produced accordingly

@@ -87,13 +87,10 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         ungroomedJetRecoDict = dict(jetRecoDict)
         ungroomedJetRecoDict["recoAlg"] = ungroomedJetRecoDict["recoAlg"].rstrip("t") # Drop grooming spec
         ungroomedJetRecoDict["jetCalib"] = "nojcalib" # No need to calibrate
+        ungroomedDef = JetRecoConfiguration.defineJets(ungroomedJetRecoDict)
+
         (ungroomedJetRecoSequence,ungroomedJetsName) = RecoFragmentsPool.retrieve(jetRecoSequence,None,dataSource=dataSource, **ungroomedJetRecoDict)
         recoSeq += conf2toConfigurable( ungroomedJetRecoSequence )
-
-        ungroomedDef = JetRecoConfiguration.defineJets(ungroomedJetRecoDict)
-        # Cluster large-R jets only down to 50 GeV
-        # Trigger thresholds are in the 100s of GeV
-        ungroomedDef.ptmin = 50e3
 
         groomDef = JetRecoConfiguration.defineGroomedJets(jetRecoDict,ungroomedDef,ungroomedJetsName)
         groomedJetsFullName = jetNamePrefix+groomDef.basename+"Jets_"+jetRecoDict["jetCalib"]
@@ -125,7 +122,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
 
         # Potentially add particle flow reconstruction
         # Work in progress
-        if jetRecoDict["dataType"] == "pf":
+        if "pf" in jetRecoDict["dataType"]:
             if jetRecoDict["trkopt"] == "notrk":
                 raise RuntimeError("PFlow jet chain requested with no tracking option!")
             from eflowRec.PFHLTSequence import PFHLTSequence
@@ -134,7 +131,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
             jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix)
         else:
             jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey)
-        useConstitMods = ["sk", "pf"]
+        useConstitMods = ["sktc","cssktc", "pf", "csskpf"]
         doConstitMods = jetRecoDict["dataType"] in useConstitMods
         if doConstitMods:
             from JetRecConfig.ConstModHelpers import getConstitModAlg

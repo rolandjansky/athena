@@ -19,6 +19,7 @@
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
 #include "SiDetElementsRoadUtils_xk.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "TrkPrepRawData/PrepRawData.h"
 
 #include <ostream>
@@ -446,8 +447,11 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 // Main methods for road builder using track parameters and direction
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiDetElementsRoadMaker_xk::detElementsRoad 
-(const Trk::TrackParameters& Tp, Trk::PropDirection D,
+void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
+(const EventContext& ctx,
+ MagField::AtlasFieldCache& fieldCache,
+ const Trk::TrackParameters& Tp,
+ Trk::PropDirection D,
  std::list<const InDetDD::SiDetectorElement*>& R) const
 {
   if (!m_usePIX && !m_useSCT) return;
@@ -467,8 +471,10 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   if (!m_fieldServiceHandle->solenoidOn()) fieldModeEnum = Trk::NoField;
   Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
 
+  // Note: could also give fieldCache directly to propagator if it would be more efficient - would
+  // need to add interface RDS 2020/03
   std::list<Amg::Vector3D> G;
-  m_proptool->globalPositions(G, Tp, fieldprop,getBound(Tp), S, Trk::pion);
+  m_proptool->globalPositions(ctx, G, Tp, fieldprop,getBound(fieldCache, Tp), S, Trk::pion);
   if (G.size()<2) return;
 
   if (D > 0) {
@@ -666,7 +672,8 @@ float InDet::SiDetElementsRoadMaker_xk::stepToDetElement
 ///////////////////////////////////////////////////////////////////
 
 Trk::CylinderBounds InDet::SiDetElementsRoadMaker_xk::getBound
-(const Trk::TrackParameters& Tp) const
+(MagField::AtlasFieldCache& fieldCache,
+ const Trk::TrackParameters& Tp) const
 {
   const double cor = 1.;
 
@@ -674,7 +681,11 @@ Trk::CylinderBounds InDet::SiDetElementsRoadMaker_xk::getBound
   if (m_fieldModeEnum!=Trk::NoField && m_fieldServiceHandle->solenoidOn()) {
     const Amg::Vector3D& pos = Tp.position();
     double f[3], p[3] = {pos[Amg::x], pos[Amg::y], pos[Amg::z]};
-    m_fieldServiceHandle->getFieldZR(p, f);
+
+    //   MT version uses cache, temporarily keep old version
+    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (p, f);
+    else                                m_fieldServiceHandle->getFieldZR(p, f);
+
     zfield = 299.7925*f[2];
   }
 

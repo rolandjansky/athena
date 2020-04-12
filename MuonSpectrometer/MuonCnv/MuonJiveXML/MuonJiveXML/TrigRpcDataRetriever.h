@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_TRIGRPCDATARETRIEVER_H
@@ -14,9 +14,14 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonRPC_CnvTools/IRPC_RDO_Decoder.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class IRPCcablingSvc;
 
@@ -46,12 +51,11 @@ namespace JiveXML {
     ///The storegate key for the CSC collection
     std::string m_sgKey;
 
-    /// Tool for RPC identifier helper
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    /// RPC cabling Svc
     const IRPCcablingSvc *m_rpcCabling;
+
+    SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
     /// RPC decoder
     ToolHandle<Muon::IRPC_RDO_Decoder> m_rpcDecoder; 

@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_CondCabling/CMAprogram.h"
 #include <string.h>
-
-using namespace std;
 
 CMAprogram::CMAprogram() :
     m_isnewcab(false), m_overlap1(0xff), m_overlap2(0xff000000),
@@ -88,7 +86,7 @@ CMAprogram::CMAprogram() :
     m_status = false;
 }
 
-CMAprogram::CMAprogram(ifstream& file) :
+CMAprogram::CMAprogram(std::ifstream& file) :
 
   m_overlap1(0xff),m_overlap2(0xff000000),m_trig_local_direc_i(0x1),
   m_trig_local_direc_j(0x1),m_trig_k_readout(0x0),
@@ -173,7 +171,7 @@ CMAprogram::CMAprogram(ifstream& file) :
   m_status = read_v02(data);
 }
 
-CMAprogram::CMAprogram(ifstream& file, bool NewCab) :
+CMAprogram::CMAprogram(std::ifstream& file, bool NewCab) :
 
   m_overlap1(0xff),m_overlap2(0xff000000),m_trig_local_direc_i(0x1),
   m_trig_local_direc_j(0x1),m_trig_k_readout(0x0),
@@ -258,7 +256,7 @@ CMAprogram::CMAprogram(ifstream& file, bool NewCab) :
   m_status = read_v02(data);
 }
 
-CMAprogram::CMAprogram(istringstream& filestr) :
+CMAprogram::CMAprogram(std::istringstream& filestr) :
 
   m_overlap1(0xff),m_overlap2(0xff000000),m_trig_local_direc_i(0x1),
   m_trig_local_direc_j(0x1),m_trig_k_readout(0x0),
@@ -343,7 +341,7 @@ CMAprogram::CMAprogram(istringstream& filestr) :
   m_status = read_v02(data);
 }
 
-CMAprogram::CMAprogram(istringstream& filestr, bool NewCab) :
+CMAprogram::CMAprogram(std::istringstream& filestr, bool NewCab) :
 
   m_overlap1(0xff),m_overlap2(0xff000000),m_trig_local_direc_i(0x1),
   m_trig_local_direc_j(0x1),m_trig_k_readout(0x0),
@@ -996,7 +994,7 @@ CMAprogram::hasProgrammed(unsigned int th) const {
     return false;
 }
 
-ostream& operator<<(ostream& stream,const CMAprogram& program)
+std::ostream& operator<<(std::ostream& stream,const CMAprogram& program)
 {
     unsigned int no_coincidence = 183;
 
@@ -1014,7 +1012,7 @@ ostream& operator<<(ostream& stream,const CMAprogram& program)
                 if(th==0)  stream << (char)no_coincidence;
 	    }
 	}
-	stream << endl;
+	stream << std::endl;
     }
     return stream;
 }

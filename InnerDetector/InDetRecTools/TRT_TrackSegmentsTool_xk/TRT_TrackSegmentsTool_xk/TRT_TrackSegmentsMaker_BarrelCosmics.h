@@ -58,11 +58,11 @@ namespace InDet{
 //      StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
       virtual StatusCode               finalize  () override;
 
-      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newEvent() const override;
-      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newRegion(const std::vector<IdentifierHash>&) const override;
+      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newEvent(const EventContext& ctx) const override;
+      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newRegion(const EventContext& ctx, const std::vector<IdentifierHash>&) const override;
       void endEvent(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
 
-      virtual void find(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
+      virtual void find(const EventContext& ctx, InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
       virtual Trk::TrackSegment *next(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const override;
 
       virtual MsgStream&    dump          (MsgStream   & out) const override

@@ -7,7 +7,7 @@ topSequence += createlb
 if globalflags.DataSource()=='data' and athenaCommonFlags.isOnline==False:
     from IOVDbSvc.CondDB import conddb
     countfolder="/GLOBAL/FILECOUNT/PROMPT <tag>GlobalFileCountPrompt-Tier0</tag>"
-    conddb.addFolder('GLOBAL_OFL',countfolder)
+    conddb.addFolder('GLOBAL_OFL',countfolder,className='CondAttrListCollection')
     trstreamName=str(rec.triggerStream())
     if(trstreamName != "") :
        createlb.streamName = trstreamName

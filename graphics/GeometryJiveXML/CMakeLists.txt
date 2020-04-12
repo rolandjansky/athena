@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileDetDescr )
 
 # External dependencies:
-find_package( CLHEP )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_component( GeometryJiveXML

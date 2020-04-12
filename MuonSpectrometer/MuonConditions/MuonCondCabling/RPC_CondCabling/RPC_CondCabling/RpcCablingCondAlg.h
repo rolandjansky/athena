@@ -1,19 +1,16 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 
 #ifndef MUONCONDALG_RPCCABLINGCONDALG_H
 #define MUONCONDALG_RPCCABLINGCONDALG_H
 
-#include "GaudiKernel/ServiceHandle.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/IChronoStatSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -28,13 +25,10 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "Identifier/IdentifierHash.h"
 #include "PathResolver/PathResolver.h"
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
-#include "Identifier/Identifier.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 
 #include "RPC_CondCabling/RPCofflineId.h"
 
@@ -53,7 +47,10 @@ class RpcCablingCondAlg: public AthAlgorithm {
 
   private:
 
-    StatusCode loadParameters(const CondAttrListCollection* readCdoMap);
+    StatusCode loadParameters(const CondAttrListCollection* readCdoMap,
+                              const CondAttrListCollection* readCdoCorr,
+                              const CondAttrListCollection* readCdoEta,
+                              const CondAttrListCollection* readCdoPhi);
     StatusCode ReadConf();
     StatusCode buildRDOmap(RpcCablingCondData* writeCdo);
     std::list<Identifier> give_strip_id (unsigned short int SubsystemId,
@@ -63,8 +60,18 @@ class RpcCablingCondAlg: public AthAlgorithm {
                                          unsigned short ijk,
                                          unsigned short int Channel) const;
 
-
     const std::string* m_ConfMapPString;
+    const std::string* m_corr;
+    std::vector<std::string> m_vecetaCM_File;
+    std::vector<std::string> m_vecetaTh0;
+    std::vector<std::string> m_vecetaSequence_Th;
+    std::vector<std::string> m_vecetaInfo;
+
+    std::map<std::string, std::string> m_trigroads;
+
+    std::vector<std::string> m_vecphiCM_File;
+    std::vector<std::string> m_vecphiTh0;
+    std::vector<std::string> m_vecphiInfo;
 
     std::string m_DataName; 
     bool m_TestbeamFlag; 
@@ -81,7 +88,12 @@ class RpcCablingCondAlg: public AthAlgorithm {
     //map; for each sectorlogic number returns the SectorLogicSetup
     SLmap m_SectorLogic;
 
-
+    // BooleanProperty m_RPCTriggerRoadsfromCool;
+    
+    // Pad parameters
+    BooleanProperty m_ApplyFeetPadThresholds;
+    BooleanProperty m_ForceFeetPadThresholdsFromJO;
+    std::vector<unsigned short int> m_FeetPadThresholds;
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

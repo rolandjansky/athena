@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/AppMgr.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -194,7 +194,7 @@ class AthAppMgr( AppMgr ):
       if 'EventLoop' not in kw:      kw['EventLoop']="AthenaEventLoopMgr"
       if 'OutStreamType' not in kw:
          kw['OutStreamType'] = "AthenaOutputStream"
-      if 'StatusCodeCheck' not in kw: kw['StatusCodeCheck'] = True
+      if 'StatusCodeCheck' not in kw: kw['StatusCodeCheck'] = False
 
     # always the case in ATLAS (need early or ExtSvc should be a no-op, too)
       kw['ExtSvcCreates'] = False

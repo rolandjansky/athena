@@ -7,6 +7,8 @@
  * @author shaun roe
  **/
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include "InDetPhysValMonitoring/InDetPhysValMonitoringTool.h"
 #include "InDetPhysHitDecoratorAlg.h"
 #include "InDetRttPlots.h"
@@ -59,13 +61,7 @@ namespace { // utility functions used here
     return (pTrk->pt() > safePtThreshold) ? (pTrk->eta()) : std::nan("");
   }
 
-  constexpr float
-  operator "" _GeV (unsigned long long energy) {
-    return energy * 0.001;
-  }
-
   constexpr float twoPi = 2 * M_PI;
-
   // general utility function to check value is in range
   template <class T>
   inline bool
@@ -83,9 +79,9 @@ namespace { // utility functions used here
   bool
   passJetCuts(const xAOD::Jet& jet) {
     const float absEtaMax = 2.5;
-    const float jetPtMin = 10;  // in GeV
-    const float jetPtMax = 1000; // in GeV
-    const float jetPt = jet.pt() * 1_GeV; // GeV
+    const float jetPtMin = 10.0;  // in GeV
+    const float jetPtMax = 1000.0; // in GeV
+    const float jetPt = jet.pt() / Gaudi::Units::GeV; // GeV
     const float jetEta = jet.eta();
 
     return inRange(jetPt, jetPtMin, jetPtMax) and inRange(jetEta, absEtaMax);
@@ -130,19 +126,20 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   m_trackSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool"),
   m_truthSelectionTool("AthTruthSelectionTool", this),
   m_doTrackInJetPlots(true) {
-  declareProperty("useTrackSelection", m_useTrackSelection);
-  declareProperty("TrackSelectionTool", m_trackSelectionTool);
-  declareProperty("TruthSelectionTool", m_truthSelectionTool);
-  declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
-  declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
-  declareProperty("DirName", m_dirName = "SqurrielPlots/");
-  declareProperty("SubFolder", m_folder);
-  declareProperty("PileupSwitch", m_pileupSwitch = "All");
-  declareProperty("LowProb", m_lowProb=0.50);
-  declareProperty("HighProb", m_highProb=0.80);
-}
+    declareProperty("useTrackSelection", m_useTrackSelection);
+    declareProperty("TrackSelectionTool", m_trackSelectionTool);
+    declareProperty("TruthSelectionTool", m_truthSelectionTool);
+    declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
+    declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
+    declareProperty("DirName", m_dirName = "SquirrelPlots/");
+    declareProperty("SubFolder", m_folder);
+    declareProperty("PileupSwitch", m_pileupSwitch = "All");
+    declareProperty("LowProb", m_lowProb=0.50);
+    declareProperty("HighProb", m_highProb=0.80);
+  }
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
+
 }
 
 StatusCode
@@ -374,51 +371,35 @@ InDetPhysValMonitoringTool::fillHistograms() {
     ATH_MSG_WARNING(
       "Cannot open " << m_jetContainerName <<
         " jet container or TruthParticles truth particle container. Skipping jet plots.");
-    } else {
+  } else {
     for (const auto& thisJet: *jets) {         // The big jets loop
       if (not passJetCuts(*thisJet)) {
         continue;
       }
       for (auto thisTrack: *tracks) {    // The beginning of the track loop
+        bool isEfficientJet = false;
         if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryvertex))) {
           continue;
         }
         if (thisJet->p4().DeltaR(thisTrack->p4()) > m_maxTrkJetDR) {
           continue;
         }
-        //Why is the returning a bool?
-        const bool safelyFilled = m_monPlots->filltrkInJetPlot(*thisTrack, *thisJet);
-        if (safelyFilled) {
-          float prob = getMatchingProbability(*thisTrack);
-          m_monPlots->fillSimpleJetPlots(*thisTrack, prob);                                // Fill all the
-                                                                                          
-          const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);     //
+        float prob = getMatchingProbability(*thisTrack);
+        if(std::isnan(prob)) prob = 0.0;
+        m_monPlots->fill(*thisTrack, *thisJet);
+      
+        const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack); 
                                                                                          
-          if (associatedTruth) {
-            m_monPlots->fillJetResPlots(*thisTrack, *associatedTruth, *thisJet);          // Fill jet pull &
-                                                                                          // resolution plots
-            int barcode = associatedTruth->barcode();
-            m_monPlots->fillJetHitsPlots(*thisTrack, prob, barcode);                      // Fill the two extra
-                                                                                          // plots
-            if (m_truthSelectionTool->accept(associatedTruth)) {                          // Fill the Jet plots with
-                                                                                          // "Eff" in the name
-              m_monPlots->fillJetEffPlots(*associatedTruth, *thisJet);
-            }
+        if (associatedTruth)  {
+          if(m_truthSelectionTool->accept(associatedTruth) and prob > m_lowProb ) {
+            isEfficientJet = true;
           }
-        }
-      } // end of track loop
-        // fill in things like sum jet pT in dR bins - need all tracks in the jet first
-      m_monPlots->fillJetPlotCounter(*thisJet);
-      for (const auto& thisTruth: truthParticlesVec) {
-        // for primary tracks we want an efficiency as a function of track jet dR
-        if ((m_truthSelectionTool->accept(thisTruth) and(thisJet->p4().DeltaR(thisTruth->p4()) < m_maxTrkJetDR))) {
-          m_monPlots->fillJetTrkTruth(*thisTruth, *thisJet);
+          m_monPlots->fillEfficiency(*associatedTruth, *thisJet, isEfficientJet);
+          m_monPlots->fillFakeRate(*thisTrack, *thisJet, !isEfficientJet);
         }
       }
-      m_monPlots->fillJetTrkTruthCounter(*thisJet);
-    } // loop over jets
-  }
-
+    }
+  } // loop over jets
 
   return StatusCode::SUCCESS;
 }

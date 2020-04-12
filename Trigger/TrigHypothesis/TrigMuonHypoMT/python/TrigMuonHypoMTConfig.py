@@ -3,24 +3,23 @@
 # import Hypo Algs/Tools
 from AthenaConfiguration.ComponentFactory import CompFactory # tools are imported from the factory, (NewJO)
 from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used here)
-    TrigMufastHypoAlg,
-    TrigmuCombHypoAlg,
-    TrigMuonEFMSonlyHypoAlg,
-    TrigMuisoHypoAlg,
-    TrigMuonEFCombinerHypoAlg,
-    TrigMuonEFTrackIsolationHypoAlg,
-    TrigL2MuonOverlapRemoverMufastAlg,
-    TrigMuonEFInvMassHypoAlg,
-    TrigMuonLateMuRoIHypoAlg
-    )
+    TrigMufastHypoAlg, TrigMufastHypoTool,
+    TrigmuCombHypoAlg, TrigmuCombHypoTool,
+    TrigMuisoHypoAlg, TrigMuisoHypoTool,
+    TrigMuonEFHypoAlg, TrigMuonEFHypoTool,
+    TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool,
+    TrigL2MuonOverlapRemoverMufastAlg, TrigL2MuonOverlapRemoverMucombAlg, TrigL2MuonOverlapRemoverTool,
+    TrigMuonEFInvMassHypoAlg, TrigMuonEFInvMassHypoTool,
+    TrigMuonLateMuRoIHypoAlg, TrigMuonLateMuRoIHypoTool
+)
+
 
 # import monitoring
 from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import (
     TrigMufastHypoMonitoring,
     TrigmuCombHypoMonitoring,
-    TrigMuonEFMSonlyHypoMonitoring,
     TrigMuisoHypoMonitoring,
-    TrigMuonEFCombinerHypoMonitoring,
+    TrigMuonEFHypoMonitoring,
     TrigL2MuonOverlapRemoverMonitoringMufast,
     TrigL2MuonOverlapRemoverMonitoringMucomb,
     TrigMuonEFInvMassHypoMonitoring
@@ -32,7 +31,6 @@ from AthenaCommon.SystemOfUnits import GeV
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigMuonHypoMTConfig')
-TrigL2MuonOverlapRemoverTool=CompFactory.TrigL2MuonOverlapRemoverTool
 
 trigMuonEFSAThresholds = {
     '0GeV'             : [ [0,9.9],              [ 0.100 ] ],
@@ -492,7 +490,7 @@ def TrigMuonEFMSonlyHypoToolFromDict( chainDict ) :
     thresholds = getThresholdsFromDict( chainDict )
     config = TrigMuonEFMSonlyHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
-    addMonitoring( tool, TrigMuonEFMSonlyHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
+    addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
     return tool
 
 def TrigMuonEFMSonlyHypoToolFromName(chainDict):
@@ -514,7 +512,7 @@ def TrigMuonEFMSonlyHypoToolFromName(chainDict):
             thresholds.append(thr)
     config = TrigMuonEFMSonlyHypoConfig()
     tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds)
-    addMonitoring( tool, TrigMuonEFMSonlyHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
+    addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFMSonlyHypoTool", chainDict['chainName'] )
     return tool
 
 class TrigMuonEFMSonlyHypoConfig(object):
@@ -524,13 +522,13 @@ class TrigMuonEFMSonlyHypoConfig(object):
     def ConfigurationHypoTool( self, toolName, thresholds ):
 
         log = logging.getLogger(self.__class__.__name__)
-        tool = CompFactory.TrigMuonEFMSonlyHypoTool( toolName )
+        tool = CompFactory.TrigMuonEFHypoTool( toolName )
 
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
-
+        tool.RequireSAMuons=True
         if '3layersEC' in toolName:
             tool.RequireThreeStations=True
         for th, thvalue in enumerate(thresholds):
@@ -570,7 +568,7 @@ def TrigMuonEFCombinerHypoToolFromDict( chainDict ) :
 
     config = TrigMuonEFCombinerHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds , muonquality)
-    addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
+    addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
 
 def TrigMuonEFCombinerHypoToolFromName(chainDict):
@@ -598,7 +596,7 @@ def TrigMuonEFCombinerHypoToolFromName(chainDict):
     config = TrigMuonEFCombinerHypoConfig()
 
     tool = config.ConfigurationHypoTool(chainDict['chainName'], thresholds, muonquality)
-    addMonitoring( tool, TrigMuonEFCombinerHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
+    addMonitoring( tool, TrigMuonEFHypoMonitoring, "TrigMuonEFCombinerHypoTool", chainDict['chainName'] )
     return tool
 
 class TrigMuonEFCombinerHypoConfig(object):
@@ -607,15 +605,14 @@ class TrigMuonEFCombinerHypoConfig(object):
 
     def ConfigurationHypoTool( self, thresholdHLT, thresholds, muonquality ):
 
-        tool = CompFactory.TrigMuonEFCombinerHypoTool( thresholdHLT )
-
+        tool = CompFactory.TrigMuonEFHypoTool( thresholdHLT )  
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
 
         tool.MuonQualityCut = muonquality
-
+        tool.RequireSAMuons=False
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV_v15a'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)

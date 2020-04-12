@@ -72,22 +72,26 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-         (const Trk::Track&,
+         (const EventContext& ctx,
+          const Trk::Track&,
           InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
 
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-         (const Trk::TrackParameters&,
+         (const EventContext& ctx,
+          const Trk::TrackParameters&,
           InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
 
       virtual Trk::TrackSegment* findSegment
-	 (const Trk::TrackParameters&,
+	 (const EventContext& ctx,
+          const Trk::TrackParameters&,
           InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
 
       virtual Trk::Track* newTrack
-         (const Trk::Track&,
+         (const EventContext& ctx,
+          const Trk::Track&,
           InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const override;
 
-      virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent() const override;
+      virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent(const EventContext& ctx) const override;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status

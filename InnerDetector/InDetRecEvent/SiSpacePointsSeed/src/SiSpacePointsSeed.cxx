@@ -88,7 +88,7 @@ namespace InDet {
        <<std::setw(3)<<m_spacepoints.size()
        <<" space points"
        <<std::endl;
-    std::list<const Trk::SpacePoint*>::const_iterator is,ise = m_spacepoints.end();  
+    std::vector<const Trk::SpacePoint*>::const_iterator is,ise = m_spacepoints.end();
     for(is=m_spacepoints.begin(); is!=ise; ++is) {
       
       if((*is)->clusterList().second == 0) {
@@ -120,7 +120,7 @@ namespace InDet {
        <<std::setw(3)<<m_spacepoints.size()
        <<" space points"
        <<std::endl;
-    std::list<const Trk::SpacePoint*>::const_iterator is,ise = m_spacepoints.end();  
+    std::vector<const Trk::SpacePoint*>::const_iterator is,ise = m_spacepoints.end();
     for(is=m_spacepoints.begin(); is!=ise; ++is) {
       
       if((*is)->clusterList().second == 0) {

@@ -60,9 +60,6 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     proxy.ProviderNames += [ bsAddressProviderSvc.name ]
     acc.addService( proxy )
 
-    ByteStreamAttListMetadataSvc=CompFactory.ByteStreamAttListMetadataSvc
-    acc.addService( ByteStreamAttListMetadataSvc() )
-    
     bsCnvSvc.InitCnvs += [ "EventInfo",]
 
     return acc

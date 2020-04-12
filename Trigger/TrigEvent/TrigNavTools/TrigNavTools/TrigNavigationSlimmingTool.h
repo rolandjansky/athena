@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HLT__TRIG_NAVIGATION_SLIMMING_TOOL_H
@@ -13,7 +13,6 @@
 
 #include <vector>
 
-class IThinningSvc;
 
 namespace HLT {
 
@@ -77,7 +76,6 @@ namespace HLT {
 	 	 
    private:
 	 ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-	 ServiceHandle<IThinningSvc> m_thinningSvc;
 	 
 	 std::vector<std::string> m_featureInclusionList;
 	 std::vector<std::string> m_featureExclusionList;

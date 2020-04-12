@@ -79,13 +79,9 @@ ROBDataProviderSvc   INFO Initializing ROBDataProviderSvc - package version Byte
 ROBDataProviderSvc   INFO  ---> Filter out empty ROB fragments                               =  'filterEmptyROB':False
 ROBDataProviderSvc   INFO  ---> Filter out specific ROBs by Status Code: # ROBs = 0
 ROBDataProviderSvc   INFO  ---> Filter out Sub Detector ROBs by Status Code: # Sub Detectors = 0
-InputMetaDataStoreWARNING retrieve(default): No valid proxy for default object 
- of type ByteStreamMetadata(CLID 170625359)
-ByteStreamEvent...   INFO No ByteStreamMetadata in InputMetaDataStore
 DetectorStore     WARNING retrieve(default): No valid proxy for default object 
  of type TagInfo(CLID 61780915)
 ClassIDSvc           INFO  getRegistryEntries: read 219 CLIDRegistry entries for module ALL
-ByteStreamEvent...WARNING Did not find /ByteStream/Output/FreeMetadataStrings in detstore. Skipping.
 2018-Oct-09 18:21:14,992 DEBUG_0 [Adler32MT::Adler32MT(...) at /afs/cern.ch/atlas/project/tdaq/cmake/projects/tdaq-common/tdaq-common-02-09-00/EventStorage/src/Adler32MT.cpp:20] adler32mt instantiated: nb_threads= 1, threshold= 30000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===

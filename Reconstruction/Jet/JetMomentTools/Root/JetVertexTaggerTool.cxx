@@ -169,5 +169,3 @@ const xAOD::Vertex* JetVertexTaggerTool::findHSVertex(const xAOD::VertexContaine
   ATH_MSG_VERBOSE("There is no vertex of type PriVx. Taking default vertex.");
   return vertices->at(0);
 }
-
-//**********************************************************************
