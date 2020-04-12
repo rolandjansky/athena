@@ -10,7 +10,7 @@ export ATHENA_PROC_NUMBER=8
 unset ATHENA_CORE_NUMBER # This is not an MT job!
 
 Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --jobConfig=950112
-
+# Note 11.4.2020: This is currently crashing because the output validator expects an MP-specific file (asked VT)
 echo "art-result: $? generation"
 
 # Run tests on the log file
