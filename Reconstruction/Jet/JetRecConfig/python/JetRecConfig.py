@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -10,13 +10,7 @@
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRecConfig')
 
-import cppyy
-try:
-    cppyy.loadDictionary('xAODBaseObjectTypeDict')
-except Exception:
-    pass
-from ROOT import xAODType
-xAODType.ObjectType
+from xAODBase.xAODType import xAODType
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -213,10 +207,13 @@ def expandPrereqs(reqtype,prereqs):
 ########################################################################
 # For each modifier in the given list with a configurable input container
 # name ("JetContainer"), configure it to containerName.
-def configureContainerName(modifiers, containerName):
+# Also handle any container-specific configuration needed.
+def autoconfigureModifiers(modifiers, containerName):
     for mod in modifiers:
         if "JetContainer" in mod.properties():
             mod.JetContainer = containerName
+        if "DoPFlowMoments" in mod.properties():
+            mod.DoPFlowMoments = ("PFlow" in containerName)
 
 
 ########################################################################
@@ -478,7 +475,7 @@ def getJetRecTool(jetname, finder, pjs, mods):
         JetFinder = finder,
         JetModifiers = mods
     )
-    configureContainerName(jetrec.JetModifiers, jetname)
+    autoconfigureModifiers(jetrec.JetModifiers, jetname)
     return jetrec
 
 

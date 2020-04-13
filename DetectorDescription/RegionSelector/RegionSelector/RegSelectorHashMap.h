@@ -1,5 +1,6 @@
+// emacs: this is -*- c++ -*- 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REGSELECTORHASHMAP_H
@@ -10,6 +11,9 @@
 #include "RegionSelectorLUT.h"
 #include "RegionSelector/RegSelEnums.h"
 #include "GaudiKernel/StatusCode.h"
+
+#include "IRegionSelector/IRegSelLUT.h"
+
 #include <vector>
 #include <list>
 #include <set>
@@ -33,62 +37,96 @@ struct equals{
 
 
 // Class RegSelectorHashMap ----------------------------------------------------
-class RegSelectorHashMap{
+class RegSelectorHashMap : virtual public IRegSelLUT {
 
- public:
-  double etaminValue();
-  double etamaxValue();
-  double phiminValue();
-  double phimaxValue();
-  std::vector<double> etaMinOut(void);
-  std::vector<double> etaMaxOut(void);
-  std::vector<double> phiMinOut(void);
-  std::vector<double> phiMaxOut(void);
+public: 
+
+  /// implementation of the IRegSelUT interface
+  
+  /// hash id methods
+
+  virtual void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+
+  virtual void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+
+  /// rob methods
+  
+  virtual void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+  
+  virtual void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;  
+
+  virtual ~RegSelectorHashMap() override = default;  
+public:
+
+  double etaminValue() const ;
+  double etamaxValue() const ;
+  double phiminValue() const ;
+  double phimaxValue() const ;
+
+  const std::vector<double>& etaMinOut(void) const ;
+  const std::vector<double>& etaMaxOut(void) const ;
+  const std::vector<double>& phiMinOut(void) const ;
+  const std::vector<double>& phiMaxOut(void) const ;
 
   void mountDataStruct(void);
-  std::vector<IdentifierHash> hashIdOut(void);
-  std::vector<std::vector<uint32_t> > robIdOut(void);
-  std::vector<int> sampleOut(void);
-  std::vector<int> layerOut(void);
-  void regionSelectorRobIdUint(double etaminIn, double etamaxIn, double phiminIn, double phimaxIn,
-			       std::vector<uint32_t>& outRobIDList);
-  void regionSelectorRobIdUint(int sampling, double etaminIn, double etamaxIn, double phiminIn,
-  			        double phimaxIn, std::vector<uint32_t>& outRobIDList);
 
+  const std::vector<IdentifierHash>&         hashIdOut(void) const ;
+  const std::vector<std::vector<uint32_t> >&  robIdOut(void) const ;
+  const std::vector<int>&                    sampleOut(void) const ;
+  const std::vector<int>&                     layerOut(void) const ;
+
+  void regionSelectorRobIdUint(double etaminIn, double etamaxIn, 
+			       double phiminIn, double phimaxIn,
+			       std::vector<uint32_t>& outRobIDList) const;
+
+  void regionSelectorRobIdUint(int sampling, 
+			       double etaminIn, double etamaxIn, 
+			       double phiminIn, double phimaxIn, 
+			       std::vector<uint32_t>& outRobIDList) const;
+  
   void regionSelector(double etaminIn, double etamaxIn,
-		double phiminIn, double phimaxIn,std::vector<IdentifierHash> & outList);
-  void regionSelector(int sampling, double etaminIn, double etamaxIn,
-		double phiminIn, double phimaxIn,std::vector<IdentifierHash> & outList);
+		      double phiminIn, double phimaxIn,
+		      std::vector<IdentifierHash> & outList) const;
+
+  void regionSelector(int sampling, 
+		      double etaminIn, double etamaxIn,
+		      double phiminIn, double phimaxIn,
+		      std::vector<IdentifierHash> & outList) const;
 
   void initvar(void);
   StatusCode read(const char *filename);
   void addLut(const RegionSelectorLUT *detLut); 
   void summaryDataFile(std::list<RegSelectorMapElement> &dataList);
-  void verifyInputs(double &etaminIn, double &etamaxIn,double &phiminIn, double &phimaxIn);
+  void verifyInputs(double &etaminIn, double &etamaxIn,double &phiminIn, double &phimaxIn) const;
 
   void verifyROBIDOutput(double etaminIn, double etamaxIn,
-		    double phiminIn, double phimaxIn,
-		    std::vector<uint32_t>& outputIdlist);
+			 double phiminIn, double phimaxIn,
+			 std::vector<uint32_t>& outputIdlist) const ;
+
   void verifyROBIDOutput(int sampling,
                          double etaminIn, double etamaxIn,
                          double phiminIn, double phimaxIn,
-                         std::vector<uint32_t>& outputIdlist);
+                         std::vector<uint32_t>& outputIdlist) const;
 
   void verifyOutput(double etaminIn, double etamaxIn,
 		    double phiminIn, double phimaxIn,
-		    std::vector<IdentifierHash>* outputIdlist);
+		    std::vector<IdentifierHash>* outputIdlist) const;
+
   void verifyOutput(int sampling, double etaminIn, double etamaxIn,
 		    double phiminIn, double phimaxIn,
-		    std::vector<IdentifierHash>* outputIdlist);
+		    std::vector<IdentifierHash>* outputIdlist) const;
+
   void getEtaPhi(IdentifierHash hashId, 
 		double *etaMin, double *etaMax,
-		double *phiMin, double *phiMax);
+		double *phiMin, double *phiMax) const;
 
   void DisableMissingROBs(const std::vector<uint32_t>& vec);
 
 
  private:
+
   double m_stepMinPhi{}, m_stepMinEta{};
+
   std::list<RegSelectorMapElement> m_dataList;
   std::vector<int> m_sample, m_layer;
   std::vector<IdentifierHash> m_hashId;
@@ -106,33 +144,40 @@ class RegSelectorHashMap{
   void populateMatrix(int iPage,IdentifierHash value);
   void populateMatrixRobId(int iPage, uint32_t value);
   void initMatrix(void);
-  void writeLine(const int& layer, const IdentifierHash& hashId, std::vector<uint32_t> robId, const double& emin,
+  void writeLine(const int& layer, const IdentifierHash& hashId, const std::vector<uint32_t>& robId, const double& emin,
 				    const double& emax, const double& pmin, const double& pmax, const int& samp);					
   int MyRound(double pdValue);
   void regionSelectorIN(const int& sampling, const double& etaminIn, 
 	const double& etamaxIn, const double& phiminIn, const double& phimaxIn, 
-	std::vector<IdentifierHash>* outListIH );
+	std::vector<IdentifierHash>* outListIH ) const;
+
   void regionSelectorINROB(const int& sampling, const double& etaminIn,
 	const double& etamaxIn, const double& phiminIn, const double& phimaxIn,
-  	std::vector<uint32_t>* outList);
-  void phiCondition(std::vector<IdentifierHash>& identifier, int i, 
-  										  double etaminIn, double etamaxIn,
-                                double phiminIn, double phimaxIn,
-                                double etamin, double etamax, 
-										  std::set<IdentifierHash>* outset);
-  void phiConditionRobId(std::vector<std::vector<uint32_t> >& identifier, int i, 
-  											double etaminIn, double etamaxIn,
-                                	double phiminIn, double phimaxIn,
-											double etamin, double etamax,
-                                	std::set<uint32_t>* outset);
+  	std::vector<uint32_t>* outList) const;
+
+  void phiCondition(const std::vector<IdentifierHash>& identifier, int i, 
+		    double etaminIn, double etamaxIn,
+		    double phiminIn, double phimaxIn,
+		    double etamin, double etamax, 
+		    std::set<IdentifierHash>* outset) const;
+
+  void phiConditionRobId(const std::vector<std::vector<uint32_t> >& identifier, int i, 
+			 double etaminIn, double etamaxIn,
+			 double phiminIn, double phimaxIn,
+			 double etamin, double etamax,
+			 std::set<uint32_t>* outset) const;
+
   //LRSIdentHash
   void findIdentifier(std::vector<IdentifierHash> &auxsetIH,
-     const int& iXBeg, const int& iXEnd, const int iYBeg, const int iYEnd,
-     const int iPage);
+		      const int iXBeg, const int iXEnd, 
+		      const int iYBeg, const int iYEnd,
+		      const int iPage) const;
+
   //LRSUint
   void findIdentifierROB(std::vector<uint32_t> &auxset, 
-     const int& iXBeg, const int& iXEnd, const int iYBeg, const int
-                    iYEnd, const int iPage);
+			 const int  iXBeg, const int  iXEnd, 
+			 const int  iYBeg, const int  iYEnd, 
+			 const int iPage) const;
 
 };
 #endif

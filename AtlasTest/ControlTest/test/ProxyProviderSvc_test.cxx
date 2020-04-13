@@ -124,7 +124,7 @@ void testReadPrivate(StoreGateSvc& rSG) {
   cout << "*** ProxyProviderSvc_test readPrivate BEGINS ***" <<endl;
   
   std::unique_ptr<Foo> apFoo;
-  SGASSERTERROR((rSG.readPrivateCopy<Foo>("NotThere")).get() != nullptr);
+  SGASSERTERROR((rSG.readUniquePrivateCopy<Foo>("NotThere")).get() != nullptr);
   
   apFoo=rSG.readUniquePrivateCopy<Foo>("diskFoo");
   assert(nullptr != apFoo.get());
@@ -161,7 +161,7 @@ void testReadPrivate(StoreGateSvc& rSG) {
   assert(floatEQ(3.14f, static_cast<float>(pFoo33->a())));
   assert(pFoo33 == pFoo33Orig); //the private copy we recorded.
   assert(pFoo33 != &*bpFoo); //not one of the private copies
-  SGASSERTERROR((rSG.readPrivateCopy<Foo>("silly33")).get() != nullptr);
+  SGASSERTERROR((rSG.readUniquePrivateCopy<Foo>("silly33")).get() != nullptr);
   assert(rSG.retrieve<Foo>("silly33"));
   std::unique_ptr<Foo> aptrFoo33(rSG.retrieveUniquePrivateCopy<Foo>("silly33"));
   assert(aptrFoo33.get() == pFoo33);

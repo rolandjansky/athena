@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCSIMHITVARIABLES_H
@@ -23,6 +23,7 @@ class sTGCSimHitVariables : public ValAlgVariables
     m_sTgcIdHelper(0),
     m_NSWsTGC_nSimHits(0), 
     m_NSWsTGC_trackId(0),
+    m_NSWsTGC_isInsideBounds(0),
     m_NSWsTGC_globalTime(0), 
     m_NSWsTGC_hitGlobalPositionX(0), 
     m_NSWsTGC_hitGlobalPositionY(0), 
@@ -95,6 +96,8 @@ class sTGCSimHitVariables : public ValAlgVariables
 
   int m_NSWsTGC_nSimHits;
   std::vector<int> *m_NSWsTGC_trackId;
+
+  std::vector<bool> *m_NSWsTGC_isInsideBounds;
 
   std::vector<double> *m_NSWsTGC_globalTime;
   std::vector<double> *m_NSWsTGC_hitGlobalPositionX;

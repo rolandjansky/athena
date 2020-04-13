@@ -6,6 +6,7 @@
 #define MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOLMT_H 
 
 #include "CscRdoToCscPrepDataToolCore.h"
+#include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
 
 #include <string>
 
@@ -40,6 +41,14 @@ namespace Muon {
     using CscRdoToCscPrepDataToolCore::decode;
     
     virtual StatusCode decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs) override;
+    virtual StatusCode decode(const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) override;
+    virtual StatusCode decode(const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs) override;
+
+
+
+  private:
+    /// This is the key for the cache for the CSC PRD containers, can be empty
+    SG::UpdateHandleKey<CscStripPrepDataCollection_Cache> m_prdContainerCacheKey ;
   };
 }
 #endif /// MUONCSC_CNVTOOL_CSCRDOTOCSCPREPDATA_H

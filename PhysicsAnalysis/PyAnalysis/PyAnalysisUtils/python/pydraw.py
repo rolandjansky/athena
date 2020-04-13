@@ -1,11 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: pydraw.py,v 1.3 2009-02-24 03:22:49 ssnyder Exp $
 # File: pydraw.py
 # Created: sss, a while ago.  Added to ATLAS repository, Dec 2008
 # Purpose: Interactive python commands for plotting from a tuple-like object.
 #
+
+from __future__ import print_function
 
 """Interactive python commands for plotting from a tuple-like object.
 This module provides in python functionality similar to TTree::Draw
@@ -320,17 +321,18 @@ Bugs/stuff missing
 """
 
 
-
 import sys
 import string
 import tokenize
 import token
 import copy
-import exceptions
 import ROOT
-import cppyy
-import types
-from StringIO import StringIO
+import cppyy # noqa: F401
+import six
+if six.PY2:
+    from StringIO import StringIO #pragma: NO COVER
+else:
+    from io import StringIO #pragma: NO COVER
 from PyAnalysisUtils.draw_obj import draw_obj, get_canvas
 
 
@@ -338,7 +340,7 @@ try:
     ScatterH2 = ROOT.RootUtils.ScatterH2
 except AttributeError: #pragma: NO COVER
     ScatterH2 = ROOT.TH2F #pragma: NO COVER
-    print "WARNING: RootUtils::ScatterH2 not available; using TH2F instead" #pragma: NO COVER
+    print ("WARNING: RootUtils::ScatterH2 not available; using TH2F instead") #pragma: NO COVER
 
 
 try:
@@ -363,7 +365,7 @@ _globals = sys.modules['__main__'].__dict__
 
 
 # Characters that are legal in identifiers.
-_idchars = string.letters + string.digits + '_'
+_idchars = string.ascii_letters + string.digits + '_'
 
 # This is what's used as the event formal argument in the generated functions.
 _evtvar = '_ev'
@@ -376,9 +378,9 @@ def _sanitize_hname(s):
 
     Root does bad things if you put / in a histogram name, so we remove them.
     Examples:
-    >>> print _sanitize_hname('foo')
+    >>> print (_sanitize_hname('foo'))
     foo
-    >>> print _sanitize_hname('foo/bar')
+    >>> print (_sanitize_hname('foo/bar'))
     foo DIV bar
     """
     return s.replace ('/', ' DIV ')
@@ -394,8 +396,12 @@ def _untokenize (tokens):
     It also tries not to add unneeded spaces.
 
     Examples:
-    >>> from tokenize import *
-    >>> from StringIO import StringIO
+    >>> from tokenize import generate_tokens, untokenize
+    >>> import six
+    >>> if six.PY2:
+    ...     from StringIO import StringIO
+    ... else:
+    ...     from io import StringIO
     >>> def untokenize1(tt):
     ...   tt=list(tt)
     ...   if tt[-1][0]==0: tt=tt[:-1]
@@ -414,7 +420,7 @@ def _untokenize (tokens):
     toks_append = toks.append
     for tok in tokens:
         toknum, tokval = tok[:2]
-        tokval = string.strip (tokval)
+        tokval = tokval.strip()
         if toknum in (token.NAME, token.NUMBER):
             if lastname:
                 tokval = ' ' + tokval
@@ -466,8 +472,8 @@ def _find_outer (haystack, needle, ignore_delim = False):
         if tnum != token.STRING and not pend and val == needle:
             col1 = a[1]
             col2 = b[1]
-            return (string.strip (haystack[:col1]),
-                    string.strip (haystack[col2:]))
+            return (haystack[:col1].strip(),
+                    haystack[col2:].strip())
         if not ignore_delim:
             if val == '(':
                 pend.append (')')
@@ -497,16 +503,16 @@ def _split_outer (haystack, needle):
     out = []
     while True:
         (head, tail) = _find_outer (haystack, needle)
-        head = string.strip (head)
+        head = head.strip()
         out.append (head)
-        if tail == None:
+        if tail is None:
             break
         else:
             haystack = tail
     return out
 
 
-class TreeLoopWrapper:
+class TreeLoopWrapper(object):
     """Wrapper for TTree, supplying a loop method.
 
     This class wraps a TTree class and provides a loop method
@@ -518,18 +524,18 @@ class TreeLoopWrapper:
         self._tree = tree
         return
 
-    def loop (self, f, looplo=0, loophi=sys.maxint):
+    def loop (self, f, looplo=0, loophi=sys.maxsize):
         """Call f(i,tree) on rows [looplo, loophi)"""
         tree = self._tree
         loophi = min (loophi, tree.GetEntries())
         getentry = tree.GetEntry
-        for i in xrange(looplo, loophi):
+        for i in range(looplo, loophi):
             getentry(i)
             f(i, tree)
         return
     
 
-class AthenaLoopWrapper:
+class AthenaLoopWrapper(object):
     """Wrapper for the Athena event loop, supplying a loop method.
 
     This class wraps an application manager object and provides a loop method
@@ -537,7 +543,7 @@ class AthenaLoopWrapper:
 """
     def __init__ (self, app=None):
         from AthenaPython import PyAthena                  #pragma: NO COVER
-        if app == None:                                    #pragma: NO COVER
+        if app is None:                                    #pragma: NO COVER
             from AthenaCommon.AppMgr import theApp         #pragma: NO COVER
             app = theApp                                   #pragma: NO COVER
         self._app = app                                    #pragma: NO COVER
@@ -545,22 +551,23 @@ class AthenaLoopWrapper:
         return                                             #pragma: NO COVER
 
     
-    def loop (self, f, looplo=0, loophi=sys.maxint):
+    def loop (self, f, looplo=0, loophi=sys.maxsize):
         """Call f(i,tree) on rows [looplo, loophi)"""
         loophi = min (loophi, self._app.size())            #pragma: NO COVER
         getentry = self._app.seekEvent                     #pragma: NO COVER
-        for i in xrange(looplo, loophi):                   #pragma: NO COVER
+        for i in range(looplo, loophi):                    #pragma: NO COVER
             getentry(i)                                    #pragma: NO COVER
             f(i, self)                                     #pragma: NO COVER
         return                                             #pragma: NO COVER
 
 
     def __getattr__ (self, v):
-        if not v.startswith('_'): return self._sg[v]       #pragma: NO COVER
-        raise AttributeError                               #pragma: NO COVER
+        if not v.startswith('_'):                          #pragma: NO COVER
+                return self._sg[v]                         #pragma: NO COVER
+        raise AttributeError()                             #pragma: NO COVER
 
 
-class _Loopvar:
+class _Loopvar(object):
     """Holds information about a dummy loop variable.
 
     Attributes:
@@ -600,7 +607,7 @@ class _Loopvar:
         return list (self.ids)
 
 
-class Draw_Cmd:
+class Draw_Cmd(object):
     """Holds information used to implement a draw/scan/loop command.
 
     Pass the draw string to the constructor.  See the file-level comments
@@ -641,7 +648,7 @@ class Draw_Cmd:
 
         try:
             self._tupleparse (s)
-        except Exception, e:
+        except Exception as e:
             import traceback
             self.errstr = str(e)
             self.excstr = traceback.format_exc()
@@ -658,13 +665,13 @@ class Draw_Cmd:
         # ??? Don't split at spaces in delimiters.
         # _find_outer doesn't really work for this since it operates
         # on the tokenized string, in which whitespace doesn't appear.
-        if self.histspec == None:
+        if self.histspec is None:
             self.histspec = []
         else:
             self.histspec = self.histspec.split ()
 
         # Gotta have something.
-        s = string.strip (s)
+        s = s.strip()
         if not s:
             self.errstr = "Empty draw string."
             return
@@ -731,29 +738,30 @@ class Draw_Cmd:
         Fills self.tuple, self.lo, self.hi.
         """
         lo = 0
-        hi = sys.maxint
+        hi = sys.maxsize
         (tuple, tail) = _find_outer (tuple, '[')
         if tail:
             g = copy.copy (_globals)
 
             pos = tail.find (':')
             pos2 = tail.find (']')
-            if pos2 < 0: pos2 = len (tail)
+            if pos2 < 0:
+                    pos2 = len (tail) #pragma: NO COVER
             if pos < 0:
-                slo = string.strip (tail[:pos2])
+                slo = tail[:pos2].strip()
                 if len (slo) > 0:
                     lo = int (eval (slo, g))
                 hi = lo + 1
             else:
-                slo = string.strip (tail[:pos])
+                slo = tail[:pos].strip()
                 if len (slo) > 0:
                     lo = int (eval (slo, g))
-                shi = string.strip (tail[pos+1:pos2])
+                shi = tail[pos+1:pos2].strip()
                 if len (shi) > 0:
                     hi = int (eval (shi, g))
 
         if tuple[0] == '(' and tuple[-1] == ')':
-            tuple = string.strip (tuple[1:-1])
+            tuple = tuple[1:-1].strip()
         self.tuple = tuple
         self.lo = lo
         self.hi = hi
@@ -868,7 +876,7 @@ class Draw_Cmd:
         pos = 0
         while 1:
             (s1, s2) = _find_outer (s[pos:], '$', True)
-            if s2 == None:
+            if s2 is None:
                 break
             snew = None
             if len(s2) > 0:
@@ -880,10 +888,10 @@ class Draw_Cmd:
                        s1.endswith (' or') or
                        s1.endswith ('not'))):
                     snew = self._mung_n (s1, s2)
-                elif s2[0] in string.letters:
+                elif s2[0] in string.ascii_letters:
                     snew = self._mung_loop (s1, s2)
             s = s[:pos]
-            if snew == None:
+            if snew is None:
                 snew = s1 + '$' + s2
                 pos = pos + len(s1)+1
             s = s + snew
@@ -933,21 +941,20 @@ class Draw_Cmd:
 
         sel = self.sel
         if self._limdict:
-            limsel = string.join (["len(%s)>=%d" % (self._iddict[p[0]], p[1])
-                                   for p in self._limdict.items()],
-                                  " and ")
+            limsel = ' and '.join (["len(%s)>=%d" % (self._iddict[p[0]], p[1])
+                                    for p in self._limdict.items()])
             if not sel:
                 sel = limsel
             else:
                 sel = limsel + " and (" + sel + ")"
 
         ftext = "def _loopfunc(_i, %s%s):\n" % (_evtvar, extargs)
-        for (id1, id2) in self._iddict.items():
+        for (id1, id2) in sorted(self._iddict.items()):
             ftext += "  %s = %s.%s\n" % (id2, _evtvar, id1)
         indent = 2
 
-        for (i,l) in self._loopdict.items():
-            ids = l.get_ids()
+        for (i,l) in sorted(self._loopdict.items()):
+            ids = sorted(l.get_ids())
             assert (not not ids)
             if len(ids) == 1:
                 vars = l.itname (ids[0])
@@ -972,12 +979,12 @@ class Draw_Cmd:
         ftext += ' '*indent + "%s\n" % payload
 
         if _debug:
-            print ftext
+            print (ftext)
         
         return ftext
 
 
-class _Bins:
+class _Bins(object):
     """Holds the results of _get_bins.  Defined attributes:
 
        nbins
@@ -992,31 +999,31 @@ def _get_bins (args, ndim, axis):
     NDIM is 1 or 2, and AXIS is 0 or 1, for the x or y axis.
 
     Examples:
-    >>> import pydraw
+    >>> from PyAnalysisUtils import pydraw
     >>> pydraw._globals = globals()
     >>> import ROOT
     >>> ROOT.gPad.Range(0, 1,2,3)
     >>> b = _get_bins (["50", "10", "100"], 1, 0)
-    >>> print b.nbins, b.lo, b.hi, b.rebin
+    >>> print (b.nbins, b.lo, b.hi, b.rebin)
     50 10.0 100.0 0
     >>> b = _get_bins ([], 1, 0)
-    >>> print b.nbins, b.lo, b.hi, b.rebin
+    >>> print (b.nbins, b.lo, b.hi, b.rebin)
     50 0 1 1
     >>> b = _get_bins (["!", "10"], 1, 0)
-    >>> print b.nbins, b.lo, b.hi, b.rebin
+    >>> print (b.nbins, b.lo, b.hi, b.rebin)
     50 10.0 11.0 1
     >>> b = _get_bins (["!", "!", "10"], 1, 0)
-    >>> print b.nbins, b.lo, b.hi, b.rebin
+    >>> print (b.nbins, b.lo, b.hi, b.rebin)
     50 0 10.0 0
     >>> scale = 10
     >>> b = _get_bins (["50", "0", "2*scale"], 1, 0)
-    >>> print b.nbins, b.lo, b.hi, b.rebin
+    >>> print (b.nbins, b.lo, b.hi, b.rebin)
     50 0.0 20.0 0
     >>> b = _get_bins ([], 2, 0)
-    >>> print b.nbins, b.lo, b.hi, b.rebin
+    >>> print (b.nbins, b.lo, b.hi, b.rebin)
     50 0.0 2.0 1
     >>> b = _get_bins ([], 2, 1)
-    >>> print b.nbins, b.lo, b.hi, b.rebin
+    >>> print (b.nbins, b.lo, b.hi, b.rebin)
     50 1.0 3.0 1
     >>> b = _get_bins ([], 2, 2)
     Traceback (most recent call last):
@@ -1081,12 +1088,12 @@ def _get_hist (ndim, args, hname, htitle):
     # Look for drawing options.
     options = ''
     for i in range (0, len(args)):
-        if args[i][0] in string.letters:
+        if args[i][0] in string.ascii_letters:
             for j in range (i, len(args)):
                 if ndim == 2 and args[j].lower() == "prof":
                     profile = 1
                     args[j] = ''
-            options = string.join (args[i:])
+            options = ' '.join (args[i:])
             break
 
     # Delete any old object of the same name.
@@ -1098,7 +1105,7 @@ def _get_hist (ndim, args, hname, htitle):
         # the object, so IsOnHeap might return false for it.)
         # Force the issue by doing a C++ delete directly.
         ROOT.gROOT.ProcessLine ("delete (%s*)%d" %
-                                (hold.__class__.__name__,
+                                (hold.__class__.__cppname__,
                                  ROOT.AddressOf(hold)[0]))
 
     # Create the histogram.
@@ -1135,17 +1142,15 @@ def draw (arg):
     # Initial parsing of the arguments.
     c = Draw_Cmd (arg)
     if c.errstr:
-        print c.errstr
+        print (c.errstr)
         return False
 
     # Construct the expression to use to fill the histogram.
     if len (c.exprs) == 1:
         ndim = 1
-        expr = c.exprs[0]
         payload = "_hfill (%s)" % c.exprs[0]
     else:
         ndim = 2
-        expr = '%s:%s' % (c.exprs[0], c.exprs[1])
         payload = "_hfill ((%s),(%s))" % (c.exprs[0], c.exprs[1])
         
     # Construct the histogram title.
@@ -1155,13 +1160,13 @@ def draw (arg):
 
     # Make the histogram.
     # If it's `!', then we just use the last one.
-    if len(c.histspec) >= 1 and c.histspec[0] == "!" and last_hist != None:
+    if len(c.histspec) >= 1 and c.histspec[0] == "!" and last_hist is not None:
         hist = last_hist
-        options = string.join (c.histspec[1:])
+        options = ' '.join (c.histspec[1:])
     elif len(c.histspec) >= 1 and c.histspec[0][:2] == '>>':
         hname = c.histspec[0][2:]
         hist = _globals.get (hname)
-        options = string.join (c.histspec[1:])
+        options = ' '.join (c.histspec[1:])
     else:
         (hist, options) = _get_hist (ndim, c.histspec,
                                      _sanitize_hname(c.tuple+'.'+c.expr_orig), htitle)
@@ -1174,7 +1179,7 @@ def draw (arg):
     g = copy.copy (_globals)
     g['_hfill'] = hist.Fill
     ftext = c._make_func (payload, ', _hfill = _hfill')
-    exec ftext in g
+    exec (ftext, g)
 
     # Execute the loop over the data.
     c.tuple_o.loop (g['_loopfunc'], c.lo, c.hi)
@@ -1197,11 +1202,11 @@ def _scan_print (i, *args):
     
     s = '%6d' % i
     for a in args:
-        if type(a) == types.IntType or type(a) == types.LongType:
+        if isinstance(a, six.integer_types):
             s += ' %8d' % a
         else:
             s += ' %8g' % a
-    print s
+    print (s)
     return
 
 
@@ -1215,7 +1220,7 @@ def scan (arg):
     # Initial parsing of the arguments.
     c = Draw_Cmd (arg)
     if c.errstr:
-        print c.errstr
+        print (c.errstr)
         return False
 
     payload = "_print (_i, %s)" % \
@@ -1226,7 +1231,7 @@ def scan (arg):
     g = copy.copy (_globals)
     g['_print'] = _scan_print
     ftext = c._make_func (payload, ', _print = _print')
-    exec ftext in g
+    exec (ftext, g)
 
     # Execute the loop over the data.
     c.tuple_o.loop (g['_loopfunc'], c.lo, c.hi)
@@ -1244,7 +1249,7 @@ def loop (arg):
     # Initial parsing of the arguments.
     c = Draw_Cmd (arg)
     if c.errstr:
-        print c.errstr
+        print (c.errstr)
         return False
 
     payload = "(%s,)" % ','.join (c.exprs)
@@ -1253,7 +1258,7 @@ def loop (arg):
     # It will be defined as _loopfunc in g.
     g = copy.copy (_globals)
     ftext = c._make_func (payload)
-    exec ftext in g
+    exec (ftext, g)
 
     # Execute the loop over the data.
     c.tuple_o.loop (g['_loopfunc'], c.lo, c.hi)
@@ -1277,7 +1282,7 @@ def cmd (s):
     See the header comments for the command syntax.
     """
 
-    ssplit = string.split (s, maxsplit=1)
+    ssplit = s.split (None, 1)
 
     if len(ssplit) < 2:
         return False
@@ -1303,7 +1308,7 @@ def cmd (s):
 # Hook holding the original value of the exception hook.
 # But be careful not to overwrite this if this file is reread.
 #
-if not globals().has_key ('_orig_ehook'):
+if '_orig_ehook' not in globals():
     _orig_ehook = None
 
 
@@ -1311,9 +1316,10 @@ def _excepthook (exctype, value, traceb):
     """Exception hook used by pydraw to process drawing commands."""
 
     # If it's a syntax error, try interpreting as a drawing command.
-    if isinstance (value, exceptions.SyntaxError):
+    if isinstance (value, SyntaxError):
         val = value.text
-        if val[-1] == '\n': val = val[:-1]
+        if val[-1] == '\n':
+                val = val[:-1] #pragma: NO COVER
         if cmd (val):
             # Success --- update root stuff and return.
             # (This will swallow the original syntax error.)
@@ -1330,7 +1336,7 @@ def cmdhook():
     # Store the old value of the exception hook (only if we haven't
     # done so already).
     global _orig_ehook
-    if _orig_ehook == None:
+    if _orig_ehook is None:
         _orig_ehook = sys.excepthook
 
     # Install our handler.
@@ -1351,7 +1357,7 @@ def cmdhook():
 #     ScatterH2 = ROOT.RootUtils.ScatterH2
 # except AttributeError:
 #     ScatterH2 = ROOT.TH2F
-#     print "WARNING: RootUtils::ScatterH2 not available; using TH2F instead"
+#     print ("WARNING: RootUtils::ScatterH2 not available; using TH2F instead")
 
 # kCanRebin = ROOT.TH1.kCanRebin
 
@@ -1389,7 +1395,7 @@ def cmdhook():
 #             return
 #         return fill
 #     def flush (self):
-#         #print self.i, self.xarr
+#         #print (self.i, self.xarr)
 #         self.filln (self.i[0], self.xarr, self.warr)
 #         self.i[0] = 0
 #         return

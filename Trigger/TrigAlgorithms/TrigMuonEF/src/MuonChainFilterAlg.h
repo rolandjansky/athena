@@ -9,7 +9,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 
 class MuonChainFilterAlg : public AthAlgorithm

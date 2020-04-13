@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from ROOT import TFile, TTree
 import sys
@@ -12,7 +14,7 @@ class CalibNtupleMetaData:
     inf=None
     for line in fl.readlines():
       items=line.replace('\n', '').split()
-      print line.replace('\n', ''), items
+      print (line.replace('\n', ''), items)
       if len(items)==0 or items[0][0]=="#":
         continue
       if items[0]=="[":
@@ -39,6 +41,6 @@ class CalibNtupleMetaData:
     while tree.GetEntry(i):
       i+=1
       self.MetaData[str(tree.key)] = str(tree.value)
-    print "Found meta data:"
+    print ("Found meta data:")
     for k in self.MetaData:
-      print k, self.MetaData[k]
+      print (k, self.MetaData[k])

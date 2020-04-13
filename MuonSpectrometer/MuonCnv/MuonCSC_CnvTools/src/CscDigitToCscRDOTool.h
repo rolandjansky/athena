@@ -37,7 +37,7 @@ class CscDigitToCscRDOTool final : public extends<AthAlgTool, IMuonDigitizationT
   virtual ~CscDigitToCscRDOTool() = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode digitize() override;
+  virtual StatusCode digitize(const EventContext& ctx) override;
 
  private:
 

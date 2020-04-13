@@ -9,6 +9,7 @@ atlas_subdir( Herwig7_i )
 atlas_depends_on_subdirs(
    PUBLIC
    Generators/GeneratorModules
+   Generators/AtlasHepMC
    PRIVATE
    Event/EventInfo
    GaudiKernel
@@ -25,18 +26,13 @@ find_package( VBFNLO )
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
 
-# Add extra flag for H7 versions >=7.2
-set( _extraDefs )
-if(DEFINED HW3_VER_IS_72)
-   set( _extraDefs -DHWVER_IS_72=\"${HW3_VER_IS_72}\" )
-endif()
-
 # Component(s) in the package:
 atlas_add_component( Herwig7_i
    Herwig7_i/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HERWIG3_INCLUDE_DIRS}
    ${THEPEG_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${VBFNLO_INCLUDE_DIRS}
-   DEFINITIONS -DHWVERSION=\"${HERWIG3_LCGVERSION}\" ${_extraDefs}
+   DEFINITIONS -DHWVERSION=\"${HERWIG3_LCGVERSION}\"
+   -DHWVER_IS_72=\"${HW3_VER_IS_72}\"
    LINK_LIBRARIES ${HERWIG3_LIBRARIES}  ${Boost_LIBRARIES} 
    ${THEPEG_LIBRARIES} ${GSL_LIBRARIES} ${VBFNLO_LIBRARIES}
    GeneratorModulesLib EventInfo GaudiKernel PathResolver )

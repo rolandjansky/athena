@@ -192,7 +192,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
 
     if(!m_tagTrigList.empty()){
       if(m_applyMinimalTrigger){ 
-        if ( !MinimalTriggerRequirement() ) 
+        if ( !minimalTriggerRequirement() ) 
           return false;
       }
       fillLabel(monGroup, m_anatype+"_CutCounter", "PassTrigger");
@@ -227,7 +227,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
             
             if(m_doJpsiee){
 
-              float  Jpsieelifetime = GetPseudoLifetime(elTag,elProbe);
+              float  Jpsieelifetime = getPseudoLifetime(elTag,elProbe);
 
               if(  dR(elTag->caloCluster()->eta(),elTag->caloCluster()->phi(),
                       elProbe->caloCluster()->eta(),elProbe->caloCluster()->phi()) <= 0.2 ){
@@ -260,7 +260,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
                 //fill( monGroup, m_anatype+"_ProbeCutCounter", "GoodProbe");
                 
                 xAOD::Electron *selProbe = new xAOD::Electron(*elProbe);              
-                DressPid(selProbe);
+                dressPid(selProbe);
                 
                 probeElectrons.push_back(selProbe);
 
@@ -278,7 +278,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
 
 
 
-bool TrigEgammaMonitorTagAndProbeAlgorithm::MinimalTriggerRequirement() const {
+bool TrigEgammaMonitorTagAndProbeAlgorithm::minimalTriggerRequirement() const {
     
     ATH_MSG_DEBUG("Apply Minimal trigger requirements");
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
@@ -501,7 +501,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isGoodProbeElectron( ToolHandle<Gene
 
 
 
-void TrigEgammaMonitorTagAndProbeAlgorithm::DressPid(const xAOD::Electron *eg) const
+void TrigEgammaMonitorTagAndProbeAlgorithm::dressPid(const xAOD::Electron *eg) const
 {    
     auto ctx = Gaudi::Hive::currentContext() ;
     for(int ipid=0;ipid<3;ipid++){
@@ -523,7 +523,7 @@ void TrigEgammaMonitorTagAndProbeAlgorithm::DressPid(const xAOD::Electron *eg) c
 
 
 
-float TrigEgammaMonitorTagAndProbeAlgorithm::GetPseudoLifetime(const xAOD::Electron *el1,const xAOD::Electron *el2) const 
+float TrigEgammaMonitorTagAndProbeAlgorithm::getPseudoLifetime(const xAOD::Electron *el1,const xAOD::Electron *el2) const 
 {
 
   TLorentzVector el1track;

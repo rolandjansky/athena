@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonDigitContainer/sTgcDigit.h"
@@ -222,7 +222,7 @@ sTgcDigitContainer* Muon::STGC_DigitContainerCnv_p1::createTransient(const Muon:
       return 0;
     } 
   }
-  std::auto_ptr<sTgcDigitContainer> trans(new sTgcDigitContainer(m_sTgcId->detectorElement_hash_max()));
+  std::unique_ptr<sTgcDigitContainer> trans(new sTgcDigitContainer(m_sTgcId->detectorElement_hash_max()));
   persToTrans(persObj, trans.get(), log);
   return trans.release();
 }

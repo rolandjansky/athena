@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -79,6 +79,9 @@ StatusCode LArFEBMonAlg::initialize() {
     part.push_back(m_partitions[2*i+1]);
     m_histoGroups.push_back(Monitored::buildToolMap<int>(m_tools,m_SubDetNames[i],part));
   }
+
+  ATH_CHECK( m_run1DSPThresholdsKey.initialize (SG::AllowEmpty) );
+  ATH_CHECK( m_run2DSPThresholdsKey.initialize (SG::AllowEmpty) );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -167,52 +170,32 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
     //dspThresholds_qtime->SetTitle(Form("DSP thresholds for qfactor+time calculation (only in physics) - LB %4d",lumi_block));
     auto dspADC = Monitored::Scalar<int>("dspThrADC",-1);
     auto dspQT = Monitored::Scalar<int>("dspThrQT",-1);
-    if (m_keyDSPThresholds.size()>0) { 
-      if (detStore()->contains<LArDSPThresholdsComplete>(m_keyDSPThresholds)) {
-	ATH_MSG_DEBUG("Loading run1 version of LAr DSP Thresholds");
-	const LArDSPThresholdsComplete* dspThresh=0;
-	sc=detStore()->retrieve(dspThresh,m_keyDSPThresholds);
-	if(!sc.isSuccess()) {
-	  ATH_MSG_WARNING(" Failed to retrieve LArDSPThresholds with key " << m_keyDSPThresholds 
-			  << ". Will not fill histograms" );
-	}
-	else {
-	  auto chIt=m_onlineHelper->channel_begin();
-	  auto chIt_e=m_onlineHelper->channel_end();
-	  for (;chIt!=chIt_e;++chIt) {
-            dspADC=dspThresh->samplesThr(*chIt);
-            dspQT=dspThresh->tQThr(*chIt);
-            fill(m_monGroupName, dspADC, dspQT);
-	  }//end loop over channels
-	}//end got DSP Thresholds
-      } //end if contains LArDSPThresholdsComplete
-
-      else {
-	ATH_MSG_DEBUG("Loading run2 version of LAr DSP Thresholds");
-	const AthenaAttributeList* dspThrshAttr=0; 
-	sc=detStore()->retrieve(dspThrshAttr,m_keyDSPThresholds);
-	if (sc.isFailure()) {
-	  ATH_MSG_WARNING( "Failed to retrieve AttributeList with key (folder) " << m_keyDSPThresholds 
-			  << ", containing DSP Thresholds. Will not fill histograms." );
-	}
-	else {
-          std::unique_ptr<LArDSPThresholdsFlat> dspThreshFlat(new LArDSPThresholdsFlat(dspThrshAttr)); 
-	  if (!dspThreshFlat->good()) {
-	    ATH_MSG_WARNING( "Failed to initialize LArDSPThresholdFlat from attribute list loaded from " << m_keyDSPThresholds
-			    << ". Will not fill histograms." ); 
-	  }//end if not good
-	  const IdentifierHash chanMax=m_onlineHelper->channelHashMax();
-	  for (unsigned iChan=0;iChan<chanMax;++iChan) {
-            dspADC=dspThreshFlat->samplesThrByHash(iChan);
-            dspQT=dspThreshFlat->tQThrByHash(iChan);
-            fill(m_monGroupName, dspADC, dspQT);
-	  }
-
-	}//end else got DSP Thresholds
-      }// else run 2
-    }// end load DSP thresholds from DB
+    if (!m_run1DSPThresholdsKey.empty()) {
+      ATH_MSG_DEBUG("Loading run1 version of LAr DSP Thresholds");
+      SG::ReadCondHandle<LArDSPThresholdsComplete> dspThresh (m_run1DSPThresholdsKey, ctx);
+      for (HWIdentifier ch : m_onlineHelper->channel_range()) {
+        dspADC=dspThresh->samplesThr(ch);
+        dspQT=dspThresh->tQThr(ch);
+        fill(m_monGroupName, dspADC, dspQT);
+      }//end loop over channels
+    }
+    else if (!m_run2DSPThresholdsKey.empty()) {
+      ATH_MSG_DEBUG("Loading run2 version of LAr DSP Thresholds");
+      SG::ReadCondHandle<AthenaAttributeList> dspThrshAttr (m_run2DSPThresholdsKey, ctx);
+      LArDSPThresholdsFlat dspThreshFlat(*dspThrshAttr);
+      if (!dspThreshFlat.good()) {
+        ATH_MSG_WARNING( "Failed to initialize LArDSPThresholdFlat from attribute list loaded from " << m_run2DSPThresholdsKey.key()
+                         << ". Will not fill histograms." ); 
+      }//end if not good
+      const IdentifierHash chanMax=m_onlineHelper->channelHashMax();
+      for (unsigned iChan=0;iChan<chanMax;++iChan) {
+        dspADC=dspThreshFlat.samplesThrByHash(iChan);
+        dspQT=dspThreshFlat.tQThrByHash(iChan);
+        fill(m_monGroupName, dspADC, dspQT);
+      }
+    }
     else 
-      ATH_MSG_WARNING( "No LArDSPThresholds key specificed. Will not fill these histograms" );
+      ATH_MSG_WARNING( "No LArDSPThresholds key specified. Will not fill these histograms" );
     m_dspThrDone=true;
    }//m_dspThrDone
   } // locking scope

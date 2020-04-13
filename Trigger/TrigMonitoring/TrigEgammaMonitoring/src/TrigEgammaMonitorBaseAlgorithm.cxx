@@ -24,28 +24,11 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
 {
     
   ATH_CHECK(AthMonitorAlgorithm::initialize());
+  ATH_CHECK(m_trigdec.retrieve());
+  ATH_CHECK(m_electronIsEMTool.retrieve());
+  ATH_CHECK(m_electronLHTool.retrieve());
 
-
-  if ( (m_trigdec.retrieve()).isFailure() ){
-      ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
-      return StatusCode::FAILURE;
-  }
-  
   m_trigdec->ExperimentalAndExpertMethods()->enable();
-
-  if ( (m_electronIsEMTool.retrieve()).isFailure() ){
-  	  ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
-  	  return StatusCode::FAILURE;
-  }
-
-  if ( (m_electronLHTool.retrieve()).isFailure() ){
-  	  ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
-  	  return StatusCode::FAILURE;
-  }
-  
-
-
-  for(const auto cut:m_trigLevel) m_accept.addCut(cut,cut);
 
   return StatusCode::SUCCESS;
 }
@@ -154,7 +137,13 @@ bool TrigEgammaMonitorBaseAlgorithm::isPrescaled(const std::string trigger) cons
 asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUtils::Decision *dec, const TrigInfo info) const {
     
     ATH_MSG_DEBUG("setAccept");
-    asg::AcceptData acceptData (&m_accept);
+
+
+    asg::AcceptInfo accept;
+    for(const auto cut:m_trigLevel) accept.addCut(cut,cut);
+    asg::AcceptData acceptData (&accept);
+
+
     bool passedL1Calo=false;
     bool passedL2Calo=false;
     bool passedEFCalo=false;

@@ -3,7 +3,7 @@
 */
 
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TestComboHypoAlg.h"
 
 

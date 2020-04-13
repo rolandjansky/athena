@@ -55,7 +55,7 @@ namespace Trk {
   class TrackStateOnSurface;      
   class Layer;
   class Volume;
-
+    
   class IExtrapolator : virtual public IAlgTool {
      public:
      
@@ -75,7 +75,7 @@ namespace Trk {
 
 
 
-       /** xAOD 0) neutral xAOD particle */
+        /** xAOD 0) xAOD track particle */
         virtual const TrackParameters* extrapolate(const xAOD::TrackParticle& particleBase,
                                                    const Surface& sf,
                                                    PropDirection dir=anyDirection,
@@ -160,22 +160,20 @@ namespace Trk {
          - extrapolation to the next active layer, based on the extrapolation to the next layer
            and layer identification
         */          
-        virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayer(
-                                                                                       const IPropagator& prop,
-											                                           const TrackParameters& parm,
-											                                           PropDirection dir,
-											                                           const BoundaryCheck& bcheck,
-											                                           ParticleHypothesis particle=pion,
-											                                           MaterialUpdateMode matupmode=addNoise) const=0;
+        virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayer(const IPropagator& prop,
+                                                                                            const TrackParameters& parm,
+											    PropDirection dir,
+                                                                                            const BoundaryCheck& bcheck,
+											    ParticleHypothesis particle=pion,
+											    MaterialUpdateMode matupmode=addNoise) const=0;
 
-        virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayerM(
-                                                                                       const IPropagator& prop,
-											                                           const TrackParameters& parm,
-											                                           PropDirection dir,
-											                                           const BoundaryCheck& bcheck,
-											                                           std::vector<const Trk::TrackStateOnSurface*>& material,
-											                                           ParticleHypothesis particle=pion,
-											                                           MaterialUpdateMode matupmode=addNoise) const=0;
+        virtual std::pair<const TrackParameters*,const Layer*> extrapolateToNextActiveLayerM(const IPropagator& prop,
+											     const TrackParameters& parm,
+											     PropDirection dir,
+                                                                                             const BoundaryCheck& bcheck,
+											     std::vector<const Trk::TrackStateOnSurface*>& material,
+											     ParticleHypothesis particle=pion,
+											     MaterialUpdateMode matupmode=addNoise) const=0;
               
         /** S 8) <b>Strategy Pattern extrapolation method</b>:
          - Extrapolation using specific intermediate surfaces and energy loss effects to be accounted for at

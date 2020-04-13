@@ -47,7 +47,7 @@ using namespace std;
 namespace {// anonymous namespace for functions at file scope
   static const bool testOffline{false};
 
-  static const string histogramPath[N_REGIONS+1] = {
+  static const string histogramPath[N_REGIONS_INC_GENERAL] = {
     "SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"
   };
   static const string histogramPathRe[N_REGIONS] = {
@@ -104,8 +104,7 @@ StatusCode SCTHitEffMonAlg::initialize() {
 
   ATH_MSG_INFO("Retrieved tool " << m_rotcreator);
   ATH_CHECK(m_fieldServiceHandle.retrieve());
-  ATH_CHECK(m_bunchCrossingTool.retrieve());
-  ATH_MSG_INFO("Retrieved BunchCrossing tool " << m_bunchCrossingTool);
+  ATH_CHECK( m_bunchCrossingKey.initialize());
   ATH_CHECK(m_configConditions.retrieve());
 
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
@@ -256,7 +255,14 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
   // If we are going to use TRT phase in anger, need run-dependent corrections.
   const EventIDBase& pEvent{ctx.eventID()};
   unsigned BCID{pEvent.bunch_crossing_id()};
-  int BCIDpos{m_bunchCrossingTool->distanceFromFront(BCID)};
+  SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
+  if (!bcidHdl.isValid()) {
+     ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object" );
+     return StatusCode::FAILURE;
+  }
+  const BunchCrossingCondData* bcData=*bcidHdl;
+
+  int BCIDpos{bcData->distanceFromFront(BCID, BunchCrossingCondData::BunchCrossings)};
 
   // ---- First try if m_tracksName is a TrackCollection
   SG::ReadHandle<TrackCollection>tracks{m_TrackName, ctx};

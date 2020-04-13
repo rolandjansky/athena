@@ -25,23 +25,27 @@ class RefComparisonStep(Step):
         super(RefComparisonStep, self).__init__(name)
         self.reference = None
         self.input_file = None
+        self.explicit_reference = False  # True if reference doesn't exist at configuration time
 
     def configure(self, test):
         if self.reference is not None:
+            # Do nothing if the reference will be produced later
+            if self.explicit_reference:
+                return super(RefComparisonStep, self).configure(test)
             # Do nothing if the reference exists
             if os.path.isfile(self.reference):
-                return
+                return super(RefComparisonStep, self).configure(test)
             # Try to find the file in DATAPATH
-            full_path = str(subprocess.check_output('find_data.py {}'.format(self.reference), shell=True).strip())
+            full_path = subprocess.check_output('find_data.py {}'.format(self.reference), shell=True).decode('utf-8').strip()
             if os.path.isfile(full_path):
                 self.log.debug('%s using reference %s', self.name, full_path)
                 self.reference = full_path
-                return
+                return super(RefComparisonStep, self).configure(test)
             else:
                 self.log.warning(
                     '%s failed to find reference %s - wrong path?',
                     self.name, self.reference)
-                return
+                return super(RefComparisonStep, self).configure(test)
 
         if self.input_file is None:
             self.log.error('Cannot configure %s because input_file not specified',
@@ -75,7 +79,7 @@ class RefComparisonStep(Step):
                              art_input_eos, art_input_cvmfs)
             self.reference = None
 
-        super(RefComparisonStep, self).configure(test)
+        return super(RefComparisonStep, self).configure(test)
 
 
 class InputDependentStep(Step):
@@ -232,6 +236,10 @@ class CheckLogStep(Step):
         self.check_warnings = False
         self.config_file = None
         self.args = '--showexcludestats'
+        # The following three are updated in configure() if not set
+        self.required = None
+        self.auto_report_result = None
+        self.output_stream = None
 
     def configure(self, test):
         if self.config_file is None:
@@ -252,10 +260,14 @@ class CheckLogStep(Step):
             self.args += ' --errors'
         if self.check_warnings:
             self.args += ' --warnings'
-        if self.check_errors and not self.check_warnings:
-            self.output_stream = Step.OutputStream.FILE_AND_STDOUT
-            self.auto_report_result = True
-            self.required = True
+
+        errors_only = self.check_errors and not self.check_warnings
+        if self.output_stream is None:
+            self.output_stream = Step.OutputStream.FILE_AND_STDOUT if errors_only else Step.OutputStream.FILE_ONLY
+        if self.auto_report_result is None:
+            self.auto_report_result = errors_only
+        if self.required is None:
+            self.required = errors_only
 
         self.args += ' --config {} {}'.format(self.config_file, self.log_file)
 
@@ -679,6 +691,7 @@ def default_check_steps(test):
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
                     'PhysicsValidation', 'RAWtoALL']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
+        reco_tf_logmerge.extra_log_regex = r'athfile-.*\.log\.txt'
         reco_tf_logmerge.merged_name = 'athena.merged.log'
         log_to_zip = reco_tf_logmerge.merged_name
         if log_to_check is not None:
@@ -714,14 +727,6 @@ def default_check_steps(test):
     msgcount = MessageCountStep('MessageCount')
     check_steps.append(msgcount)
 
-    # RegTest
-    regtest = RegTestStep()
-    if log_to_check is not None:
-        regtest.input_base_name = os.path.splitext(log_to_check)[0]
-    if 'athenaHLT' in step_types:
-        regtest.regex = r'(?:HltEventLoopMgr(?!.*athenaHLT-)(?!.*DF_Pid)|REGTEST)'
-    check_steps.append(regtest)
-
     # Tail (probably not so useful these days)
     tail = TailStep()
     if log_to_check is not None:
@@ -754,3 +759,18 @@ def default_check_steps(test):
 
     # return the steps
     return check_steps
+
+
+def add_step_after_type(step_list, ref_type, step_to_add):
+    '''
+    Insert step_to_add into step_list after the last step of type ref_type.
+    If the list has no steps of type ref_type, append step_to_add at the end of the list.
+    '''
+    index_to_add = -1
+    for index, step in enumerate(step_list):
+        if isinstance(step, ref_type):
+            index_to_add = index+1
+    if index_to_add > 0:
+        step_list.insert(index_to_add, step_to_add)
+    else:
+        step_list.append(step_to_add)

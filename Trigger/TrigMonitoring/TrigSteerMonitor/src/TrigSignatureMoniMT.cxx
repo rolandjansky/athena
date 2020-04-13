@@ -6,7 +6,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaInterprocess/Incidents.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
 
 TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name, 
@@ -34,6 +34,11 @@ StatusCode TrigSignatureMoniMT::start() {
 
   SG::ReadHandle<TrigConf::L1Menu>  l1MenuHandle = SG::makeHandle( m_L1MenuKey );
   bool gotL1Menu =  l1MenuHandle.isValid();
+
+  // reset the state
+  m_groupToChainMap.clear();
+  m_streamToChainMap.clear();
+  m_chainIDToBunchMap.clear();
 
   //retrieve chain information from menus
   std::vector<std::string> bcidChainNames;
@@ -151,9 +156,12 @@ StatusCode TrigSignatureMoniMT::stop() {
     for ( const auto& seq : chain.getList("sequencers", true) ){
       // example sequencer name is "Step1_FastCalo_electron", we need only information about Step + number
       const std::string seqName = seq.getValue();
-      std::smatch stepName;
-      std::regex_search(seqName.begin(), seqName.end(), stepName, std::regex("^Step[0-9]+"));
-      chainToSteps[chain.name()].insert( stepName[0] );
+      std::smatch stepNameMatch;
+      std::regex_search(seqName.begin(), seqName.end(), stepNameMatch, std::regex("[Ss]tep[0-9]+"));
+
+      std::string stepName = stepNameMatch[0];
+      stepName[0] = std::toupper(stepName[0]); // fix for "step1" names
+      chainToSteps[chain.name()].insert( stepName );
     }
   }
 
@@ -541,6 +549,7 @@ StatusCode TrigSignatureMoniMT::initBunchHist(LockedHandle<TH2>& hist, SG::ReadH
   return StatusCode::SUCCESS;
 }
 
+
 TrigSignatureMoniMT::RateHistogram::~RateHistogram(){
   delete m_bufferHistogram.get();
 }
@@ -581,6 +590,13 @@ void TrigSignatureMoniMT::RateHistogram::startTimer(unsigned int duration, unsig
 
 void TrigSignatureMoniMT::RateHistogram::stopTimer() {
   if (m_timer) {
+    m_stopCallback = true;
+
+    // wait for the pending signals to be stopped
+    while (m_stopCallback) {
+      usleep(m_duration*50*1000); //microseconds
+    }
+
     m_timer.reset();
     time_t t = time(0);
     unsigned int interval;
@@ -603,10 +619,13 @@ void TrigSignatureMoniMT::RateHistogram::callback() const {
   unsigned int newinterval;
   unsigned int oldinterval;
 
-  if ( m_timeDivider->isPassed(t, newinterval, oldinterval) ) {
+  if (m_timeDivider->isPassed(t, newinterval, oldinterval)) {
     updatePublished(m_duration);
   }
 
-  //schedule itself in another 1/20 of the integration period in milliseconds
-  if ( m_timer ) m_timer->start(m_duration*50);
+  //stop callback if timer is going to be deleted
+  //else schedule itself in another 1/20 of the integration period in milliseconds
+  if (bool exp=true; not m_stopCallback.compare_exchange_strong(exp,false)) {
+	m_timer->start(m_duration*50);
+  }
 }

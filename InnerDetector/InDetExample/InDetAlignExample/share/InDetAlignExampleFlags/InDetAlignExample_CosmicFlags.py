@@ -1,4 +1,4 @@
-print 'Loading default InDetAlignExample_CosmicFlags'
+printfunc ('Loading default InDetAlignExample_CosmicFlags')
 include.block("InDetAlignExample/InDetAlignExample_CosmicFlags.py")
 
 # Default options 

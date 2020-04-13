@@ -12,6 +12,7 @@
 #include <utility>
 #include <list>
 #include "TrigT1RPClogic/PADdata.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
 
 #include "TrigT1RPChardware/SectorLogic.h"
 
@@ -25,7 +26,6 @@ class SLpatterns : public RPCtrigDataObject
     
     SectorLogic* m_SectorL;
 
-    void create_hardware(void);
 
     public:
     SLpatterns(int,unsigned long int);
@@ -48,7 +48,7 @@ class SLpatterns : public RPCtrigDataObject
     const PADdata::PatternsList pad_patterns(void) const 
                                       {return m_pad_patterns;}
 
-    SectorLogic* give_SectorL(void);
+    SectorLogic* give_SectorL(const RpcCablingCondData* readCdo);
 
     void Print (std::ostream&,bool) const;
 };

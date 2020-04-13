@@ -55,12 +55,8 @@ namespace MissingEtDQA {
 			  const std::string& name, 
 			  const IInterface* parent) : 
     ManagedMonitorToolBase( type, name, parent ),
-    m_muonSelTool(""), m_elecSelLHTool(""), m_photonSelIsEMTool(""), m_jvtTool("")
+    m_metmaker(nullptr)
   {
-    
-    declareProperty( "METContainerName", m_metName = "MET_Reference_AntiKt4LCTopo" );
-    //declareProperty( "METContainerName", m_metName );
-    declareProperty( "InputJets",      m_jetColl   = "AntiKt4LCTopoJets" );
     declareProperty( "InputElectrons", m_eleColl   = "Electrons"         );
     declareProperty( "InputPhotons",   m_gammaColl = "Photons"           );
     declareProperty( "InputTaus",      m_tauColl   = "TauJets"           );
@@ -68,13 +64,6 @@ namespace MissingEtDQA {
     declareProperty( "DoTruth", m_doTruth = false );
     declareProperty( "METMapName",     m_mapname   = "METAssoc"          );
     declareProperty( "METCoreName",    m_corename  = "MET_Core"          );
-    declareProperty( "MuonSelectionTool",        m_muonSelTool           );
-    declareProperty( "ElectronLHSelectionTool",  m_elecSelLHTool         );
-    declareProperty( "PhotonIsEMSelectionTool" , m_photonSelIsEMTool     );
-    declareProperty( "TauSelectionTool",         m_tauSelTool            );
-    declareProperty( "METMakerTopo",         m_metmakerTopo );
-    declareProperty( "METMakerPFlow",         m_metmakerPFlow );
-    declareProperty( "JVTTool",          m_jvtTool );
   }
   
   // Destructor
@@ -140,7 +129,6 @@ namespace MissingEtDQA {
     m_names["PVTrack_Pileup"] = "Track MET for each pileup vertex";
 
     m_types.clear();
-    m_types.push_back("AntiKt4LCTopo");
     m_types.push_back("AntiKt4EMTopo");
     m_types.push_back("AntiKt4EMPFlow");
 
@@ -157,41 +145,14 @@ namespace MissingEtDQA {
 
     ATH_MSG_INFO("Retrieving tools...");
 
-    if( m_metmakerTopo.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve METMaker tool: " << m_metmakerTopo->name());
-      return StatusCode::FAILURE;
-    }
-
-    if( m_metmakerPFlow.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve METMaker tool: " << m_metmakerPFlow->name());   
-      return StatusCode::FAILURE;
-    }
-
-
-    if( m_muonSelTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve MuonSelection tool: " << m_muonSelTool->name());
-      return StatusCode::FAILURE;
-    }
-
-    if( m_elecSelLHTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve ElectronSelection tool: " << m_elecSelLHTool->name());
-      return StatusCode::FAILURE;
-    }
-
-    if( m_photonSelIsEMTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve PhotonSelection tool: " << m_photonSelIsEMTool->name());
-      return StatusCode::FAILURE;
-    }
-
-    if( m_tauSelTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve TauSelection tool: " << m_tauSelTool->name());
-      return StatusCode::FAILURE;
-    }
-
-    if( m_jvtTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve JVT tool: " << m_jvtTool->name());
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_metmakerTopo.retrieve() ); 
+    ATH_CHECK( m_metmakerPFlow.retrieve() );
+    ATH_CHECK( m_muonSelTool.retrieve() );
+    ATH_CHECK( m_elecSelLHTool.retrieve() );
+    ATH_CHECK( m_photonSelIsEMTool.retrieve() );
+    ATH_CHECK( m_tauSelTool.retrieve() );
+    ATH_CHECK( m_jvtToolEM.retrieve() );
+    ATH_CHECK( m_jvtToolPFlow.retrieve() );
 
     m_MET_Ref.clear();
     m_MET_Ref_x.clear();
@@ -742,9 +703,20 @@ namespace MissingEtDQA {
 
     for (const auto& type : m_types){
       std::string name_met = "MET_Reference_" + type;
+      ToolHandle<IJetUpdateJvt>* jvtTool(nullptr);
       double JvtCut = 0.59;
-      if (type == "AntiKt4EMPFlow") JvtCut = 0.2;
+      if (type == "AntiKt4EMPFlow"){
+        JvtCut = 0.2;
+        jvtTool = &m_jvtToolPFlow;
+      }
+      else if (type == "AntiKt4EMTopo"){
+        jvtTool = &m_jvtToolEM;
+      }
     
+      if(jvtTool == nullptr){
+        ATH_MSG_ERROR("Unrecognized jet container: " << type << "Jets");
+        return StatusCode::FAILURE;
+      }
       // Retrieve Reference MET
       const xAOD::MissingETContainer* met_Ref = 0;
       ATH_CHECK( evtStore()->retrieve(met_Ref, name_met) );
@@ -762,7 +734,7 @@ namespace MissingEtDQA {
     	return StatusCode::FAILURE;
       }
       for(auto jet : *jets) {
-	float newjvt = m_jvtTool->updateJvt(*jet); 
+	float newjvt = (*jvtTool)->updateJvt(*jet); 
 	jet->auxdecor<float>("NewJvt") = newjvt;
       }
       ConstDataVector<JetContainer> metJets(SG::VIEW_ELEMENTS);
@@ -905,45 +877,44 @@ namespace MissingEtDQA {
 
       ATH_MSG_INFO( "  MET_Rebuilt_" << type << ":" );
       //Select and flag objects for final MET building ***************************
-      if( type.find("PFlow") != std::string::npos) m_metmaker = m_metmakerPFlow;
-      else m_metmaker = m_metmakerTopo;
+      if( type.find("PFlow") != std::string::npos) m_metmaker = &m_metmakerPFlow;
+      else m_metmaker = &m_metmakerTopo;
 
       // Electrons
-      if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, met_Reb, metElectrons.asDataVector(), &metHelper).isFailure() ) {
+      if( (*m_metmaker)->rebuildMET("RefEle", xAOD::Type::Electron, met_Reb, metElectrons.asDataVector(), &metHelper).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build electron term.");
       }
 
       // Photons
-      if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, met_Reb, metPhotons.asDataVector(), &metHelper).isFailure() ) {
+      if( (*m_metmaker)->rebuildMET("RefGamma", xAOD::Type::Photon, met_Reb, metPhotons.asDataVector(), &metHelper).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build photon term.");
       }
 
       // Taus
-      if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, met_Reb,metTaus.asDataVector(),&metHelper).isFailure() ){
+      if( (*m_metmaker)->rebuildMET("RefTau", xAOD::Type::Tau, met_Reb,metTaus.asDataVector(),&metHelper).isFailure() ){
     	ATH_MSG_WARNING("Failed to build tau term.");
       }
 
       // Muons
-      if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, met_Reb, metMuons.asDataVector(), &metHelper).isFailure() ) {
+      if( (*m_metmaker)->rebuildMET("Muons", xAOD::Type::Muon, met_Reb, metMuons.asDataVector(), &metHelper).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build muon term.");
       }
 
       // Jets
-      if( m_metmaker->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Reb, jets, coreMet, &metHelper, true).isFailure() ) {
+      if( (*m_metmaker)->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Reb, jets, coreMet, &metHelper, true).isFailure() ) {
     	ATH_MSG_WARNING("Failed to build jet and soft terms.");
       }
       MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
       if((*met_Reb)["PVSoftTrk"]) trksource = (*met_Reb)["PVSoftTrk"]->source();
-      if( m_metmaker->buildMETSum("FinalTrk", met_Reb, trksource).isFailure() ){
+      if( (*m_metmaker)->buildMETSum("FinalTrk", met_Reb, trksource).isFailure() ){
     	ATH_MSG_WARNING("Building MET FinalTrk sum failed.");
       }
       MissingETBase::Types::bitmask_t clsource;
-      if (type == "AntiKt4LCTopo") clsource = MissingETBase::Source::LCTopo;
-      else if (type == "AntiKt4EMTopo") clsource = MissingETBase::Source::EMTopo;
+      if (type == "AntiKt4EMTopo") clsource = MissingETBase::Source::EMTopo;
       else clsource = MissingETBase::Source::UnknownSignal;
       
       if((*met_Reb)["SoftClus"]) clsource = (*met_Reb)["SoftClus"]->source();
-      if( m_metmaker->buildMETSum("FinalClus", met_Reb, clsource).isFailure() ) {
+      if( (*m_metmaker)->buildMETSum("FinalClus", met_Reb, clsource).isFailure() ) {
     	ATH_MSG_WARNING("Building MET FinalClus sum failed.");
       }
 
@@ -1024,14 +995,14 @@ namespace MissingEtDQA {
       unsigned int jetcount = 0;
 
       for (auto jet_itr = jets->begin(); jet_itr != jets->end(); ++jet_itr) {
-	if ((*jet_itr)->pt() > leadPt && Accept(*jet_itr,JvtCut)) {
+	if ((*jet_itr)->pt() > leadPt && Accept(*jet_itr,JvtCut,jvtTool)) {
 	  subleadPt = leadPt;
 	  subleadPhi = leadPhi;
 	  leadPt = (*jet_itr)->pt();
 	  leadPhi = (*jet_itr)->phi();
  	  jetcount++;
 	}
-	else if ((*jet_itr)->pt() > subleadPt && Accept(*jet_itr,JvtCut)) {
+	else if ((*jet_itr)->pt() > subleadPt && Accept(*jet_itr,JvtCut,jvtTool)) {
 	  subleadPt = (*jet_itr)->pt();
 	  subleadPhi = (*jet_itr)->phi();
  	  jetcount++;
@@ -1220,7 +1191,7 @@ namespace MissingEtDQA {
       TLorentzVector jetReb_tlv;
       double sum_jetReb = 0;
       for(const auto jet : metJetsOR) {
-    	if(Accept(jet, JvtCut)) {
+    	if(Accept(jet, JvtCut, jvtTool)) {
     	  jetReb_tlv += jet->p4();
     	  sum_jetReb += jet->pt();
     	}
@@ -1295,12 +1266,12 @@ namespace MissingEtDQA {
       	}
       	met_Calo->setStore(met_CaloAux);
         MissingETAssociationHelper metHelper(metMap);
-	if( m_metmaker->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Calo, metJetsEmpty.asDataVector(), coreMet, &metHelper, true).isFailure() ) {
+	if( (*m_metmaker)->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", met_Calo, metJetsEmpty.asDataVector(), coreMet, &metHelper, true).isFailure() ) {
       	  ATH_MSG_WARNING("Failed to build jet and soft terms.");
       	}
 
       	if((*met_Calo)["SoftClus"]) clsource = (*met_Calo)["SoftClus"]->source();
-      	if( m_metmaker->buildMETSum("FinalClus", met_Calo, clsource).isFailure() ) {
+      	if( (*m_metmaker)->buildMETSum("FinalClus", met_Calo, clsource).isFailure() ) {
       	  ATH_MSG_WARNING("Building MET FinalClus sum failed.");
       	}
 
@@ -1477,10 +1448,10 @@ namespace MissingEtDQA {
   bool PhysValMET::Accept(const xAOD::TauJet* tau)
   { return static_cast<bool> (m_tauSelTool->accept( *tau )); }
 
-  bool PhysValMET::Accept(const xAOD::Jet* jet, double JvtCut)
+  bool PhysValMET::Accept(const xAOD::Jet* jet, double JvtCut, ToolHandle<IJetUpdateJvt>* jvtTool)
   {
-    if( jet->pt()<20e3) return false;
-    return (fabs(jet->eta()) > 2.4 || jet->pt() > 60e3 || m_jvtTool->updateJvt(*jet) > JvtCut);
+    if( jet->pt()<20e3 || jvtTool == nullptr) return false;
+    return (fabs(jet->eta()) > 2.4 || jet->pt() > 60e3 || (*jvtTool)->updateJvt(*jet) > JvtCut);
   }
 
   /////////////////////////////////////////////////////////////////// 

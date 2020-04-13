@@ -21,15 +21,6 @@ atlas_add_executable( TrigConfL1TopoGenPyHardware
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 
-# In release recompilation mode only parse the following if the package is
-# being rebuilt:
-if( ATLAS_RELEASE_RECOMPILE_DRYRUN )
-   return()
-endif()
-if( ATLAS_RELEASE_MODE AND NOT ATLAS_PACKAGE_RECOMPILE )
-   return()
-endif()
-
 # Create an auto-generated python description of the L1Topo hardware:
 add_custom_command( OUTPUT
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1TopoHardware/L1TopoHardware.py
@@ -46,4 +37,5 @@ add_dependencies( Package_L1TopoHardware L1TopoPyGenHardware )
 # Install the auto-generated file:
 install( FILES
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1TopoHardware/L1TopoHardware.py
-   DESTINATION ${CMAKE_INSTALL_PYTHONDIR}/L1TopoHardware )
+   DESTINATION ${CMAKE_INSTALL_PYTHONDIR}/L1TopoHardware
+   OPTIONAL )

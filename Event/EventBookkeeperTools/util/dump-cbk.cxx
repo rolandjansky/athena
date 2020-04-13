@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
   // Trigger finalization of all services and tools created by the Gaudi Application
 #ifndef XAOD_STANDALONE
-  app->finalize();
+  app->finalize().ignore();
 #endif
 
   return 0;

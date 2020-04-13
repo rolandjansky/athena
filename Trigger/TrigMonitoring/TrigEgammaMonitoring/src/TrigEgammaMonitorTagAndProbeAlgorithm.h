@@ -45,17 +45,17 @@ class TrigEgammaMonitorTagAndProbeAlgorithm: public TrigEgammaMonitorAnalysisAlg
   private:
 
     /*! at least one chain should pass. e28_tight_iloose? */
-    bool MinimalTriggerRequirement () const;
+    bool minimalTriggerRequirement () const;
     /*! Tag Electron selection */
     bool isTagElectron( ToolHandle<GenericMonitoringTool> monGroup, const xAOD::Electron *el) const;
     /*! Probe selection */
     bool isGoodProbeElectron( ToolHandle<GenericMonitoringTool> monGroup, const xAOD::Electron *el, const xAOD::JetContainer *) const;
     /*! Return pseudo-lifetime of Jpsi */
-    float GetPseudoLifetime(const xAOD::Electron*,const xAOD::Electron*) const;
+    float getPseudoLifetime(const xAOD::Electron*,const xAOD::Electron*) const;
     /*! Calculate the displacement of the Jpsi vertex w.r.t. the primary vertex in the transverse plane */
     double simple_lxy(int ,double, double, double , double , double , double , double, double ) const;
     /*! Rerun offline selection */
-    void DressPid(const xAOD::Electron *eg) const;
+    void dressPid(const xAOD::Electron *eg) const;
     
 
     /** Properties **/

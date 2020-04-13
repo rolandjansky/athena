@@ -700,7 +700,7 @@ void CscReadoutElement::setCscInternalAlignmentParams()
     }
   // 
 }
-void CscReadoutElement::setCscInternalAlignmentPar(CscInternalAlignmentPar* x)
+void CscReadoutElement::setCscInternalAlignmentPar(const CscInternalAlignmentPar& x)
 {
 
   // get id helper 
@@ -711,19 +711,19 @@ void CscReadoutElement::setCscInternalAlignmentPar(CscInternalAlignmentPar* x)
   int jzz = 0;
   int job = 0;
   int wlayer = 0;
-  x->getAmdbId(stName, jff, jzz, job, wlayer);
+  x.getAmdbId(stName, jff, jzz, job, wlayer);
   float s_trans =0.;
   float z_trans =0.;
   float t_trans =0.;
   float s_rot   =0.;
   float z_rot   =0.;
   float t_rot   =0.;
-  x->getParameters(s_trans,
-		   z_trans,
-		   t_trans,
-		   s_rot  ,
-		   z_rot  ,
-		   t_rot  );
+  x.getParameters(s_trans,
+                  z_trans,
+                  t_trans,
+                  s_rot  ,
+                  z_rot  ,
+                  t_rot  );
   bool notAllowedWLayer = (wlayer>4 || wlayer<1);
 
   if (stName != getStationName().substr(0,3) || jff != getStationPhi() || jzz != getStationEta() || notAllowedWLayer ) 
@@ -856,7 +856,7 @@ CscReadoutElement::originForInternalALines(int gasGap) const
 }
 
 
-void CscReadoutElement::fillCache() const
+void CscReadoutElement::fillCache()
 {
 
 

@@ -107,14 +107,14 @@ sub regtest(){
     }
 # diff the output and the reference
 # even if verify is off
-    print "$prog: debug: diff -b $newfile $reffile\n" if ($debug);
-    my $rc = system("diff -b $newfile $reffile");
+    print "$prog: debug: diff -U 2 -b $reffile $newfile\n" if ($debug);
+    my $rc = system("diff -U 2 -b $reffile $newfile ");
     if ($rc == 0){
 	print "=== Output is the same as reference\n";
         $result = 0;
     } else {
 	# print failure keyword here to flag it as an error
-	print "=== Alert! $failkey input file (<) differs from reference (>) \n";
+	print "=== Alert! $failkey input file (+) differs from reference (-) \n";
         print "    If this change is understood, to update the reference file please type:\n";
         print "    cp ",File::Spec->rel2abs($newfile)," ",File::Spec->rel2abs($reffile),"\n";
 	$result = 1;

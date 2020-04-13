@@ -10,7 +10,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 #include "./ITestHypoTool.h"
 

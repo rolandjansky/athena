@@ -9,6 +9,7 @@
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 
 #include "Identifier/IdentifierHash.h"
 
@@ -169,13 +170,40 @@ StatusCode SCT_RodDecoder::finalize()
   return StatusCode::SUCCESS;
 }
 
-// fillCollection method
 
+/**
+ * @brief allows to accumulate errors in one fillColection call
+ *
+ * Errors information is scattered across this code.
+ * To be sure that all of the errors are saved this helper class provides add method allowing to update/accumulate erorr.
+ * The IDC, for a very good reasons (MT safety) do not allow for that.
+ **/
+class SCT_RodDecoderErrorsHelper {
+public:
+  SCT_RodDecoderErrorsHelper( IDCInDetBSErrContainer& idcContainer )
+    : m_errorsIDC{ idcContainer } {}
+  ~SCT_RodDecoderErrorsHelper()  {
+    for ( auto [id, err]: m_accumulatedErrors ) {
+      m_errorsIDC.setOrDrop( id, err );
+    }
+  }
+  void add( const IdentifierHash id, SCT_ByteStreamErrors::errorTypes etype) {
+    SCT_ByteStreamErrors::addError( m_accumulatedErrors[id], etype);
+  }
+
+private:
+  std::map<IdentifierHash, IDCInDetBSErrContainer::ErrorCode> m_accumulatedErrors;
+  IDCInDetBSErrContainer& m_errorsIDC;
+};
+
+
+// fillCollection method
 StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                           ISCT_RDO_Container& rdoIDCont,
-                                          IDCInDetBSErrContainer& errs,
+                                          IDCInDetBSErrContainer& errorsIDC,
                                           const std::vector<IdentifierHash>* vecHash) const
 {
+  SCT_RodDecoderErrorsHelper errs( errorsIDC ); // on destruction will fill the IDC
   const uint32_t robID{robFrag.rod_source_id()};
   // Determine whether this data was generated using the ROD simulator
   const uint32_t rodDataType{robFrag.rod_detev_type()};
@@ -949,13 +977,13 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin, uint32_t onli
 
 // addRODError method
 
-StatusCode SCT_RodDecoder::addRODError(uint32_t rodID, int errorType,
-				       IDCInDetBSErrContainer& errs) const
+StatusCode SCT_RodDecoder::addRODError(uint32_t rodID, SCT_ByteStreamErrors::errorTypes error,
+				       SCT_RodDecoderErrorsHelper& errs) const
 {
   std::vector<IdentifierHash> hashIDs;
   m_cabling->getHashesForRod(hashIDs, rodID);
   for (const IdentifierHash& hash: hashIDs) {
-    ATH_CHECK( addSingleError(hash, errorType, errs) );
+    ATH_CHECK( addSingleError(hash, error, errs) );
   }
   return StatusCode::SUCCESS;
 }
@@ -963,14 +991,14 @@ StatusCode SCT_RodDecoder::addRODError(uint32_t rodID, int errorType,
 // addSingleError method
 
 StatusCode SCT_RodDecoder::addSingleError(const IdentifierHash& hashID,
-					  int bsErrorType,
-					  IDCInDetBSErrContainer& errs) const
+					  SCT_ByteStreamErrors::errorTypes error,
+					  SCT_RodDecoderErrorsHelper& errs) const
 {
   if ( not hashID.is_valid() ) {
     ATH_MSG_INFO("addSingleError hashID " << hashID << " is invalid.");
     return StatusCode::SUCCESS;
   }
-  errs.setOrDrop(hashID, bsErrorType);
+  errs.add(hashID, error);
   return StatusCode::SUCCESS;
 }
 
@@ -978,7 +1006,7 @@ StatusCode SCT_RodDecoder::addSingleError(const IdentifierHash& hashID,
 
 StatusCode SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashID, 
 						  unsigned int firstTempMaskedChip, 
-						  IDCInDetBSErrContainer& errs) const 
+						  SCT_RodDecoderErrorsHelper& errs) const
 {
   if (not hashID.is_valid()) {
     ATH_MSG_INFO("setFirstTempMaskedChip hashID " << hashID << " is invalid.");
@@ -1102,12 +1130,12 @@ StatusCode SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashID,
 
     if (firstTempMaskedChipSide0>0) {
       for (unsigned int iChip{firstTempMaskedChipSide0-1}; iChip<6; iChip++) {
-        ATH_CHECK( addSingleError(hashSide0, SCT_ByteStreamErrors::TempMaskedChip0+iChip, errs) );
+        ATH_CHECK( addSingleError(hashSide0, SCT_ByteStreamErrors::TempMaskedChipToBit(iChip), errs) );
       }
     }
     if (firstTempMaskedChipSide1>6) {
       for (unsigned int iChip{firstTempMaskedChipSide1-1}; iChip<12; iChip++) {
-        ATH_CHECK( addSingleError(hashSide1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6, errs) );
+        ATH_CHECK( addSingleError(hashSide1, SCT_ByteStreamErrors::TempMaskedChipToBit(iChip-6), errs) );
       }
     }
   } 
@@ -1118,8 +1146,8 @@ StatusCode SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashID,
       int jChip{chipOrder[type][iChip]};
       if (jChip==static_cast<int>(firstTempMaskedChip-1)) toBeMasked = true;
       if (toBeMasked) {
-        if (jChip<6) ATH_CHECK( addSingleError(hashSide0, SCT_ByteStreamErrors::TempMaskedChip0+jChip, errs));
-        else         ATH_CHECK( addSingleError(hashSide1, SCT_ByteStreamErrors::TempMaskedChip0+jChip-6, errs));
+        if (jChip<6) ATH_CHECK( addSingleError(hashSide0, SCT_ByteStreamErrors::TempMaskedChipToBit(jChip), errs));
+        else         ATH_CHECK( addSingleError(hashSide1, SCT_ByteStreamErrors::TempMaskedChipToBit(jChip-6), errs));
       }
     }
   }

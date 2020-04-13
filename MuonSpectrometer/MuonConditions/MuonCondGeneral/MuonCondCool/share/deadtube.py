@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 ###############################################################
 #
 #
@@ -94,5 +96,5 @@ try:
     IOVDbSvc.dbConnection  = "impl=cool;techno=oracle;devdb10:"
     IOVDbSvc.dbConnection  += CAL
     IOVDbSvc.dbConnection  += ":ATLAS_MDT:mdt_oracle"
-except:
+except Exception:
     IOVDbSvc.dbConnection  = "impl=cool;techno=oracle;devdb10:CAL:ATLAS_MDT:mdt_oracle"

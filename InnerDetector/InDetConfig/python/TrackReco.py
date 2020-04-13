@@ -107,7 +107,7 @@ def InDetMergedPixelsToolCfg(flags, **kwargs) :
          if flags.InDet.pixelClusterSplittingType == 'NeuralNet':
             useBeamConstraint = flags.InDet.useBeamConstraint
 
-	    from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
+            from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleToolCfg
             # --- new NN prob tool
             from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
             NnClusterizationFactory = InDet__NnClusterizationFactory(   name                         = "NnClusterizationFactory",

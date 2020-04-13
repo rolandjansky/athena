@@ -345,6 +345,17 @@ def PixelChargeCalibCondAlgCfg(flags, name="PixelChargeCalibCondAlg", **kwargs):
     acc.addCondAlgo(CompFactory.PixelChargeCalibCondAlg(name, **kwargs))
     return acc
 
+def PixelChargeLUTCalibCondAlgCfg(flags, name="PixelChargeLUTCalibCondAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelChargeLUTCalibCondAlg"""
+    acc = ComponentAccumulator()
+    acc.merge(addFolders(flags, "/PIXEL/PixCalib", "PIXEL_OFL", className="CondAttrListCollection"))
+    kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
+    kwargs.setdefault("PixelModuleData", "PixelModuleData")
+    kwargs.setdefault("ReadKey", "/PIXEL/ChargeCalibration")
+    kwargs.setdefault("WriteKey", "PixelChargeCalibCondData")
+    acc.addCondAlgo(CompFactory.PixelChargeLUTCalibCondAlg(name, **kwargs))
+    return acc
+
 def PixelDCSCondHVAlgCfg(flags, name="PixelDCSCondHVAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondHVAlg"""
     acc = ComponentAccumulator()

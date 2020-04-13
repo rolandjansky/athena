@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os, time
 
@@ -118,21 +120,21 @@ class manageJobEoverPMaps:
 		
 	def send(self,runmode):
 		os.system("chmod +x %s" % self.SCRIPTNAME)
-		print "----------------------------------------------"
+		print ("----------------------------------------------")
 		if runmode == "batch":
 			os.system("bsub <%s" % self.SCRIPTNAME)
 		   
-			print "  Sending %s_%s_Part%02d job to LxBatch" % (self.preName,self.dataName, self.j)
+			print ("  Sending %s_%s_Part%02d job to LxBatch" % (self.preName,self.dataName, self.j))
 				  
 		elif runmode == "local":
-			print "  Running %s_%s_Part%02d job" % (self.preName,self.dataName,self.j)
+			print ("  Running %s_%s_Part%02d job" % (self.preName,self.dataName,self.j))
 			os.system("sh %s | tee %s/logs/%s_Part%02d.log \n" % (self.SCRIPTNAME, self.OutputPath,self.dataName,self.j))
 
 			
-		print "----------------------------------------------"
+		print ("----------------------------------------------")
 
 	def wait(self):
-		print "Processing in lxbatch..."
+		print ("Processing in lxbatch...")
 		# Wait for signal
 		time.sleep(30)
 		while os.popen('bjobs -w').read().find(self.preName)!=-1:
@@ -194,15 +196,15 @@ class mergeScriptEoverPMaps:
 
 	def send(self,runmode):
 		os.system("chmod +x %s" % self.SCRIPTNAME)
-		print "----------------------------------------------"
+		print ("----------------------------------------------")
 		if runmode == "batch":
 			os.system("bsub <%s" % self.SCRIPTNAME)
 			
-			print "  Sending %s_Merge job " % self.preName
+			print ("  Sending %s_Merge job " % self.preName)
 			
 		elif runmode == "local":
-			print "  Running %s_Merge job" % self.preName
+			print ("  Running %s_Merge job" % self.preName)
 			os.system("sh %s | tee %s/logs/Merge.log \n" % (self.SCRIPTNAME, self.OutputPath))
 			
-		print "----------------------------------------------"
+		print ("----------------------------------------------")
                        

@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # utils to set systematics according to base fragment
 
 # use some helper functions from MadGraphUtils
 import ast
-from MadGraphControl.MadGraphUtilsHelpers import is_version_or_newer,checkSetting,checkSettingExists
+from MadGraphControl.MadGraphUtilsHelpers import checkSetting,checkSettingExists
 from MadGraphControl.MadGraphUtils import get_lhapdf_id_and_name
 
 from AthenaCommon import Logging
@@ -21,6 +21,7 @@ SYSTEMATICS_WEIGHT_INFO="MUR%(mur).1f_MUF%(muf).1f_PDF%(pdf)i"
 def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
     ### Set settings according to included base fragment
     runcard_settings={}
+    runcard_systematics_arguments={}
     
     basefragment_settings={}
     basefragment_settings['central_pdf']=None
@@ -47,10 +48,10 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
             continue
         if s=='scale_variations':
             if not isinstance(basefragment_settings[s],list):
-                raise RuntimeError(s+', configured in base fragment, has to be a list of integers')
+                raise RuntimeError(s+', configured in base fragment, has to be a list of numbers')
             for pdf in basefragment_settings[s]:
                 if not isinstance(pdf,float) and not isinstance(pdf,int):
-                    raise RuntimeError(s+', configured in base fragment, has to be a list of integers')
+                    raise RuntimeError(s+', configured in base fragment, has to be a list of numbers')
         else:
             if not isinstance(basefragment_settings[s],list):
                 raise RuntimeError(s+', configured in base fragment, has to be a list of integers')
@@ -65,7 +66,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
             basefragment_settings['alternative_pdfs']=[ a for a in basefragment_settings['alternative_pdfs']  if a not in basefragment_settings['pdf_variations'] ]
         # the central pdf does not need to be included as alternative PDF
         if basefragment_settings['central_pdf'] in basefragment_settings['alternative_pdfs']:
-            basefragment_settings['alternative_pdfs'].remove('central_pdf')
+            basefragment_settings['alternative_pdfs'].remove(basefragment_settings['central_pdf'])
   
     ### Set central PDF
     runcard_settings['pdlabel']='lhapdf'
@@ -82,7 +83,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
                 runcard_settings['systematics_program']='systematics'
                 break
 
-    ### Set PDFs to be included as weights                
+    ### Set PDFs to be included as weights
     if isNLO:
         # pdf weights with NLO syntax
         if basefragment_settings['pdf_variations'] is not None and basefragment_settings['central_pdf'] in basefragment_settings['pdf_variations']:
@@ -102,15 +103,14 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
             
     else: #not NLO
         sys_pdfs=[]
-        runcard_settings['sys_pdf']=''
         if basefragment_settings['pdf_variations'] is not None:
             for v in basefragment_settings['pdf_variations']:
                 sys_pdfs.append(get_lhapdf_id_and_name(v)[1])
         if basefragment_settings['alternative_pdfs'] is not None:
             for a in basefragment_settings['alternative_pdfs']:
-                sys_pdfs.append(get_lhapdf_id_and_name(a)[1]+' 1')
-        runcard_settings['sys_pdf']+=' '.join(sys_pdfs)
-
+                sys_pdfs.append(get_lhapdf_id_and_name(a)[1]+'@0')
+        if len(sys_pdfs)>0:
+            runcard_systematics_arguments['pdf']=','.join(sys_pdfs)
 
     ### Set scale variations to be included as weights
     if isNLO and basefragment_settings['scale_variations'] is None:
@@ -121,11 +121,10 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO):
             runcard_settings['rw_rscale']=' '.join([str(s) for s in basefragment_settings['scale_variations']])
             runcard_settings['rw_fscale']=' '.join([str(s) for s in basefragment_settings['scale_variations']])
         else:
-            runcard_settings['sys_scalefact']=' '.join([str(s) for s in basefragment_settings['scale_variations']])
-
-    ###
-    if is_version_or_newer([2,6,2]):
-        convertSysCalcArguments(runcard_settings)
+            runcard_systematics_arguments['muf']=','.join([str(s) for s in basefragment_settings['scale_variations']])
+            runcard_systematics_arguments['mur']=','.join([str(s) for s in basefragment_settings['scale_variations']])
+            runcard_systematics_arguments['dyn']='-1'
+            runcard_settings['systematics_arguments']=write_systematics_arguments(runcard_systematics_arguments)
     return runcard_settings
 
 #==================================================================================
@@ -152,7 +151,6 @@ def setup_pdf_and_systematic_weights(the_base_fragment,extras,isNLO):
 
     new_settings=get_pdf_and_systematic_settings(the_base_fragment,isNLO)
     ### backup extras (user set parameters for run_card)
-    user_set_extras=dict(extras)
     for s in new_settings:
         if s is not None:
             extras[s]=new_settings[s]
@@ -160,13 +158,10 @@ def setup_pdf_and_systematic_weights(the_base_fragment,extras,isNLO):
     ### Make sure everything has been set
     mgsyslog.info('PDF and scale settings were set as follows:')
     for p in systematics_run_card_options(isNLO):
-        user_set='not set'
-        if p in user_set_extras:
-            user_set=str(extras_user[p])
         new_value='not set'
         if p in extras:
             new_value=str(extras[p])   
-        mgsyslog.info('MadGraphUtils set '+str(p)+' to "'+new_value+'", was set to "'+user_set+'"')
+        mgsyslog.info('MadGraphUtils set '+str(p)+' to "'+new_value+'"')
 
 
 #==================================================================================

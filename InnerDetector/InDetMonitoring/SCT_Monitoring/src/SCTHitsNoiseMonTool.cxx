@@ -449,12 +449,11 @@ SCTHitsNoiseMonTool::fillHistograms() {
 StatusCode
 SCTHitsNoiseMonTool::procHistograms() {
   bool endOfEventsBlock{endOfLumiBlockFlag()};
-
   if (endOfEventsBlock) {
     if (checkNoiseMaps(true).isFailure()) {
       ATH_MSG_WARNING("Error in checkNoiseMaps(true)");
     }
-  }
+  }    
   return StatusCode::SUCCESS;
 }
 
@@ -599,7 +598,6 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
         if (m_environment == AthenaMonManager::online) {
           histogram_recent = m_phitsHistoVectorRecent[systemIndex][thisElement];
         }
-
         if (find(m_RDOsOnTracks.begin(), m_RDOsOnTracks.end(), SCT_Identifier) != m_RDOsOnTracks.end()) {
           for (int ichan{chan}; ichan < limit; ++ichan) {
             m_tbinHisto[systemIndex]->Fill(tbin, 1.);

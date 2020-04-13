@@ -109,6 +109,8 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   std::mutex m_initMutex; // this will be gone once we move to new conditions
   std::mutex m_dataPrepMutex; // this will be gone when reg sel & Rob DP will become thread safe
   std::mutex m_getCollMutex; // this will be gone
+  std::mutex m_lardecoderProtect;  // protection for the larRodDecoder
+  std::mutex m_tiledecoderProtect;  // protection for the tileRodDecoder
 
   unsigned int lateInit();
   bool m_lateInitDone = false;

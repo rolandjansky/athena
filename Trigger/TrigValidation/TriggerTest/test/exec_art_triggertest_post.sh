@@ -65,20 +65,7 @@ timeout 5m chainDump.py -f expert-monitoring.root --json >ChainDump.log 2>&1
 export JOB_LOG_TAIL=${JOB_LOG%%.*}.tail.${JOB_LOG#*.}
 tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
 
-### REGTEST
-
-grep REGTEST athena.log > athena.regtest
-
-if [ -f ${REF_FOLDER}/athena.regtest ]; then
-  echo $(date "+%FT%H:%M %Z")"     Running regtest"
-  timeout 5m regtest.pl --inputfile athena.regtest --reffile ${REF_FOLDER}/athena.regtest 2>&1 | tee regtest.log
-  echo "art-result: ${PIPESTATUS[0]} RegTest"
-else
-  echo $(date "+%FT%H:%M %Z")"     No reference athena.regtest found in ${REF_FOLDER}"
-  echo "art-result: 999 RegTest"
-fi
-
-mv athena.regtest athena.regtest.new
+### ROOTCOMP
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"

@@ -239,7 +239,7 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent() {
     MonGroup monGr_shift{this, "SCT/DetectorCoverage", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED};
 
     //All SCT module for counting good module
-    m_mapSCT[all] = new TH2F( "SCT_AllRegion", "Map of All Region",
+    m_mapSCT[allRegion] = new TH2F( "SCT_AllRegion", "Map of All Region",
                               s_nBinsEta, -s_rangeEta, s_rangeEta, s_nBinsPhi, -M_PI, M_PI );
     //Disabled
     m_mapSCT[disabled] = new TH2F( "SCT_MapOfDisabledLinks", "Map of Disabled Links",
@@ -269,7 +269,7 @@ StatusCode SCTErrMonTool::bookHistogramsRecurrent() {
     }
 
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
-      if (iProblem==all) continue;
+      if (iProblem==allRegion) continue;
 
       m_detectorCoverageVsLbs[iProblem] = new TProfile(profNames[iProblem].c_str(), profTitles[iProblem].c_str(), NBINS_LBs,0.5,NBINS_LBs+0.5);
       m_detectorCoverageVsLbs[iProblem]->GetXaxis()->SetTitle("LumiBlock");
@@ -373,7 +373,7 @@ SCTErrMonTool::checkRateHists() {
             cxb = m_numErrorsPerLumi[reg]->GetXaxis()->GetBinCenter(xb);
             for (unsigned int yb{1}; yb < ybins; ++yb) {
               cyb = m_numErrorsPerLumi[reg]->GetYaxis()->GetBinCenter(yb);
-              int num_modules{getNumModules(reg, yb - 1)};
+              int num_modules{getNumModules(index2Bec(reg), yb - 1)};
               content = m_numErrorsPerLumi[reg]->GetBinContent(xb, yb);
               if (num_modules > 0) {
                 m_rateErrorsPerLumi[reg]->Fill(cxb, cyb, 1, content);
@@ -592,9 +592,10 @@ SCTErrMonTool::fillByteStreamErrors() {
     std::set<IdentifierHash> sctHash[numberOfProblemForCoverage]{{}};
     syncDisabledSCT(sctHash[disabled]);
     syncErrorSCT(sctHash[badLinkError], sctHash[badRODError], sctHash[badError]);
-    summarySCT(sctHash[all], sctHash[summary]);
+    summarySCT(sctHash[allRegion], sctHash[summary]);
     float PSTripModules{0.};
-    psTripDCSSCT(sctHash[psTripDCS], PSTripModules);
+    psTripDCSSCT(sctHash[psTripDCS],
+                 PSTripModules);
     
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
       for (const IdentifierHash& hash: sctHash[iProblem]) {
@@ -604,7 +605,7 @@ SCTErrMonTool::fillByteStreamErrors() {
     
     //detector coverage
     for (int iProblem{0}; iProblem<numberOfProblemForCoverage; iProblem++) {
-      if (iProblem==all) continue;
+      if (iProblem==allRegion) continue;
 
       double detector_coverage{calculateDetectorCoverage(m_mapSCT[iProblem])};
       m_detectorCoverageVsLbs[iProblem]->Fill(static_cast<double>(current_lb), detector_coverage);
@@ -836,15 +837,15 @@ SCTErrMonTool::bookConfMapsGen() {
   static const string OnlineBinNames[ConfbinsOnline] = {
     "Mod Out", "Flagged Links", "Masked Links", "Errors"
   };
-  static const TString regLabel[NREGIONS_INC_GENERAL] = {
+  static const TString regLabel[N_REGIONS_INC_GENERAL] = {
     "EndcapC", "Barrel", "EndcapA", ""
   };
-  static const TString regTitle[NREGIONS_INC_GENERAL] = {
+  static const TString regTitle[N_REGIONS_INC_GENERAL] = {
     "EndcapC", "Barrel", "EndcapA", "All Region"
   };
 
   if (ManagedMonitorToolBase::newRunFlag()) {
-    MonGroup ConfHist[NREGIONS_INC_GENERAL] = {
+    MonGroup ConfHist[N_REGIONS_INC_GENERAL] = {
       MonGroup{this, "SCT/SCTEC/Conf",   ManagedMonitorToolBase::run, ATTRIB_UNMANAGED},
       MonGroup{this, "SCT/SCTB/Conf",    ManagedMonitorToolBase::run, ATTRIB_UNMANAGED},
       MonGroup{this, "SCT/SCTEA/Conf",   ManagedMonitorToolBase::run, ATTRIB_UNMANAGED},
@@ -926,12 +927,12 @@ SCTErrMonTool::bookConfMapsGen() {
 
       if ((m_environment == AthenaMonManager::online) or testOffline) {
         m_ConfEffOnline = new TProfile("SCTEffConf", "Number of Inefficient Modules Online",
-                                       NREGIONS_INC_GENERAL, -0.5, NREGIONS_INC_GENERAL-0.5);
+                                       N_REGIONS_INC_GENERAL, -0.5, N_REGIONS_INC_GENERAL-0.5);
         m_ConfNoiseOnline = TProfile_LW::create("SCTNoiseConf", "Number of Noisy Modules Online",
-                                                NREGIONS_INC_GENERAL, -0.5, NREGIONS_INC_GENERAL-0.5);
+                                                N_REGIONS_INC_GENERAL, -0.5, N_REGIONS_INC_GENERAL-0.5);
         m_ConfNoiseOnlineRecent = TProfile_LW::create("SCTNoiseConfRecent", "Number of Noisy Modules Online Recent",
-                                                      NREGIONS_INC_GENERAL, -0.5, NREGIONS_INC_GENERAL - 0.5);
-        for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
+                                                      N_REGIONS_INC_GENERAL, -0.5, N_REGIONS_INC_GENERAL - 0.5);
+        for (int reg{0}; reg < N_REGIONS_INC_GENERAL; ++reg) {
           m_ConfOnline[GENERAL_INDEX] = TProfile_LW::create("SCTOnlineConf"+regLabel[GENERAL_INDEX], "Num of Out Links in "+regTitle[GENERAL_INDEX]+" Online",
                                                   ConfbinsOnline, -0.5, ConfbinsOnline-0.5);
           for (int bin{0}; bin < ConfbinsOnline; bin++) {
@@ -968,28 +969,28 @@ SCTErrMonTool::bookConfMapsGen() {
 // ====================================================================================================
 StatusCode
 SCTErrMonTool::fillCondDBMaps() {
-  int Flagged[NREGIONS_INC_GENERAL] = { // Not updated. Always zero.
+  int Flagged[N_REGIONS_INC_GENERAL] = { // Not updated. Always zero.
     0, 0, 0, 0
   };
-  int MOut[NREGIONS_INC_GENERAL] = {
+  int MOut[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
   };
-  int MaskedAllLinks[NREGIONS_INC_GENERAL] = {
+  int MaskedAllLinks[N_REGIONS_INC_GENERAL] = {
     static_cast<int>(m_MaskedAllLinks->GetBinContent(1)),
     static_cast<int>(m_MaskedAllLinks->GetBinContent(2)),
     static_cast<int>(m_MaskedAllLinks->GetBinContent(3)),
     static_cast<int>(m_MaskedAllLinks->GetBinContent(4))
   };
-  int ModErr[NREGIONS_INC_GENERAL] = {
+  int ModErr[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
   };
-  int InEffModules[NREGIONS_INC_GENERAL] = {
+  int InEffModules[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
   };
-  int NoisyModules[NREGIONS_INC_GENERAL] = {
+  int NoisyModules[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
   };
-  int NoisyModulesRecent[NREGIONS_INC_GENERAL] = {
+  int NoisyModulesRecent[N_REGIONS_INC_GENERAL] = {
     0, 0, 0, 0
   };
 
@@ -1102,7 +1103,7 @@ SCTErrMonTool::fillCondDBMaps() {
     m_ConfNew->Fill(3., static_cast<double>(InEffModules[GENERAL_INDEX]));
     m_ConfNew->Fill(4., static_cast<double>(NoisyModules[GENERAL_INDEX]));
     if (m_environment == AthenaMonManager::online) {
-      for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
+      for (int reg{0}; reg < N_REGIONS_INC_GENERAL; ++reg) {
         m_ConfOnline[reg]->Fill(0., static_cast<double>(MOut[reg]));
         m_ConfOnline[reg]->Fill(1., static_cast<double>(Flagged[reg]));
         m_ConfOnline[reg]->Fill(2., static_cast<double>(MaskedAllLinks[reg]));
@@ -1111,7 +1112,7 @@ SCTErrMonTool::fillCondDBMaps() {
     }
     if ((m_environment == AthenaMonManager::online) or testOffline) {
       m_ConfEffOnline->Reset("ICE");
-      for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
+      for (int reg{0}; reg < N_REGIONS_INC_GENERAL; ++reg) {
         const float f{static_cast<float>(reg)};
         m_ConfEffOnline->Fill(f, static_cast<double>(InEffModules[reg]));
         m_ConfNoiseOnline->Fill(f, static_cast<double>(NoisyModules[reg]));
@@ -1185,9 +1186,9 @@ SCTErrMonTool::fillConfigurationDetails() {
   ATH_MSG_DEBUG("Number of bad strips                           = " << nBadStrips);
   ATH_MSG_DEBUG("Number of bad strips exclusive                 = " << nBadStripsExclusive);
   ATH_MSG_DEBUG("Number of bad strips exclusive (ECC, B, ECA)   = "
-                << nBadStripsExclusiveBEC[0] << ", "
-                << nBadStripsExclusiveBEC[1] << ", "
-                << nBadStripsExclusiveBEC[2] << ", ");
+                << nBadStripsExclusiveBEC[ENDCAP_C_INDEX] << ", "
+                << nBadStripsExclusiveBEC[BARREL_INDEX] << ", "
+                << nBadStripsExclusiveBEC[ENDCAP_A_INDEX] << ", ");
   ATH_MSG_DEBUG("-----------------------------------------------------------------------");
 
   return StatusCode::SUCCESS;
@@ -1202,7 +1203,7 @@ SCTErrMonTool::resetCondDBMaps() {
     return StatusCode::SUCCESS;
   }
   if (m_makeConfHisto) {
-    for (int reg{0}; reg < NREGIONS_INC_GENERAL; ++reg) {
+    for (int reg{0}; reg < N_REGIONS_INC_GENERAL; ++reg) {
       m_ConfOnline[reg]->Reset();
     }
     m_ConfEffOnline->Reset();
@@ -1466,7 +1467,7 @@ double SCTErrMonTool::calculateDetectorCoverage( const TH2F* histo ) const {
 
   for (unsigned int i{0}; i < s_nBinsEta; i++) {
     for (unsigned int j{0}; j < s_nBinsPhi; j++) {
-      double waferCell{m_mapSCT[all]->GetBinContent(i+1, j+1) - histo->GetBinContent(i+1, j+1)};
+      double waferCell{m_mapSCT[allRegion]->GetBinContent(i+1, j+1) - histo->GetBinContent(i+1, j+1)};
 
       if (waferCell >= s_WafersThreshold) {
         occupancy += 1.0;

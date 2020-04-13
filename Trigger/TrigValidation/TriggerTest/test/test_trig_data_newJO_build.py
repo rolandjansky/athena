@@ -39,12 +39,5 @@ test.art_type = 'build'
 test.exec_steps = [copy_jo, pickle, run_athena]
 test.check_steps = CheckSteps.default_check_steps(test)
 
-# Temporarily skip ZeroCounts check (ATR-21057)
-test.check_steps.remove(test.get_step("ZeroCounts"))
-
-# Change RegTest pattern
-regtest = test.get_step('RegTest')
-regtest.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
-
 import sys
 sys.exit(test.run())

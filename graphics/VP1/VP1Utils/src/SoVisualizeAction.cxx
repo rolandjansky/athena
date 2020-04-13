@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1Utils/SoVisualizeAction.h"
@@ -54,16 +54,100 @@ SoVisualizeAction::~SoVisualizeAction()
 
 void SoVisualizeAction::handleShape(const GeoShape *shape)
 {
-  //qDebug() << "SoVisualizeAction::handleShape";
-  // We don't recognize it.  Try to polyhedrize it!
-  SbPolyhedrizeAction a;
-  shape->exec(&a);
-  const SbPolyhedron *poly =a.getPolyhedron();
-  if (poly) {
-    SoPolyhedron *myPoly = new SoPolyhedron(poly);
-    m_shape=myPoly;
-  }
+#ifndef BUILDVP1LIGHT
+  const LArCustomShape* custom = dynamic_cast< const LArCustomShape* >( shape );
+  if( custom ) {
+    static const double eta_hi  = 3.2;
+    static const double eta_mid = 2.5;
+    static const double eta_low = 1.375;
 
+    static const double dMechFocaltoWRP      = 3691. *SYSTEM_OF_UNITS::mm;  //=endg_z1
+    static const double dWRPtoFrontFace      =   11. *SYSTEM_OF_UNITS::mm;
+    static const double rOuterCutoff         = 2034. *SYSTEM_OF_UNITS::mm;  //=endg_rlimit
+
+    SoLAr::initClass();
+    SoLAr *solar = new SoLAr();
+    const LArWheelCalculator *calc = custom->calculator();
+    LArG4::LArWheelCalculator_t type = calc->type();
+    if (type==LArG4::InnerAbsorberWheel ||
+        type==LArG4::InnerElectrodWheel ||
+        type==LArG4::InnerAbsorberModule ||
+        type==LArG4::InnerElectrodModule ) {
+      float zPlane[2],rInner[2],rOuter[2];
+      zPlane[0]=0;
+      zPlane[1]=calc->GetWheelThickness();
+
+      double tanThetaInner = 2. * exp(-eta_hi ) / (1. - exp(2.*-eta_hi ));
+      double tanThetaMid   = 2. * exp(-eta_mid) / (1. - exp(2.*-eta_mid));
+      double zWheelFrontFace = dMechFocaltoWRP + dWRPtoFrontFace;
+      double zWheelBackFace = zWheelFrontFace + calc->GetWheelThickness();
+      rInner[0] = zWheelFrontFace * tanThetaInner;
+      rInner[1] = zWheelBackFace  * tanThetaInner;
+      // Note that there is a 3mm gap between the outer surface of the
+      // inner wheel and the inner surface of the outer wheel.
+      double HalfGapBetweenWheels = 0.15*SYSTEM_OF_UNITS::cm;  // In DB EMECGEOMETRY.DCRACK
+      rOuter[0] = zWheelFrontFace * tanThetaMid - HalfGapBetweenWheels;
+      rOuter[1] = zWheelBackFace  * tanThetaMid - HalfGapBetweenWheels;
+      solar->fRmin.setValues(0,2,rInner);
+      solar->fRmax.setValues(0,2,rOuter);
+      solar->fDz.setValues  (0,2,zPlane);
+    }
+    else if (type==LArG4::OuterAbsorberWheel ||
+	           type==LArG4::OuterElectrodWheel ||
+	           type==LArG4::OuterAbsorberModule ||
+	           type==LArG4::OuterElectrodModule ) {
+      float zPlane[3], rInner[3], rOuter[3];
+      zPlane[0] = 0;
+      zPlane[2] = calc->GetWheelThickness();
+      double tanThetaMid   = 2. * exp(-eta_mid) / (1. - exp(2.*-eta_mid));
+      double tanThetaOuter = 2. * exp(-eta_low) / (1. - exp(2.*-eta_low));
+      double zWheelFrontFace = dMechFocaltoWRP + dWRPtoFrontFace;
+      double zWheelBackFace = zWheelFrontFace + calc->GetWheelThickness();
+      // Note that there is a 3mm gap between the outer surface of the
+      // inner wheel and the inner surface of the outer wheel.
+      double HalfGapBetweenWheels = 0.15*SYSTEM_OF_UNITS::cm;  // In DB! (EMECGEOMETRY.DCRACK);
+      rInner[0] = zWheelFrontFace * tanThetaMid + HalfGapBetweenWheels;
+      rInner[2] = zWheelBackFace  * tanThetaMid + HalfGapBetweenWheels;
+      rOuter[0] = zWheelFrontFace * tanThetaOuter;
+      rOuter[2] = zWheelBackFace  * tanThetaOuter;
+      // If we simply left it at that, the outer wheel would protrude
+      // beyond the edge of the cryostat.  We have to "slice off" the lip
+      // of the outer wheel to create a shape that's roughtly like a
+      // bathtub plug.
+      // Use the endpoints of the outer arrays to define lines in the
+      // (z,r) plane.
+      double slopeMin = (rInner[2] - rInner[0]) / (zPlane[2] - zPlane[0]);
+      double slopeMax = (rOuter[2] - rOuter[0]) / (zPlane[2] - zPlane[0]);
+      double interceptMin = rInner[0] - slopeMin * zPlane[0];
+      double interceptMax = rOuter[0] - slopeMax * zPlane[0];
+      // At what value of z does the outer line hit the cutoff?
+      zPlane[1] = (rOuterCutoff - interceptMax) / slopeMax;
+      // Calculate the radii at this z:
+      rInner[1] = slopeMin * zPlane[1] + interceptMin;
+      rOuter[1] = rOuterCutoff;
+      // Now override the radius to keep the wheel inside the cryostat:
+      rOuter[2] = rOuterCutoff;
+      solar->fRmin.setValues(0,3,rInner);
+      solar->fRmax.setValues(0,3,rOuter);
+      solar->fDz.setValues  (0,3,zPlane);
+    }
+
+    solar->fSPhi= 0;
+    solar->fDPhi= 2*M_PI;
+    m_shape=solar;
+  } else {
+#endif // not BUILDVP1LIGHT
+    // We don't recognize it.  Try to polyhedrize it!
+    SbPolyhedrizeAction a;
+    shape->exec(&a);
+    const SbPolyhedron *poly =a.getPolyhedron();
+    if (poly) {
+      SoPolyhedron *myPoly = new SoPolyhedron(poly);
+      m_shape=myPoly;
+    }
+#ifndef BUILDVP1LIGHT
+  }
+#endif // not BUILDVP1LIGHT
 }
 
 void SoVisualizeAction::handleBox(const GeoBox *box)
@@ -167,95 +251,6 @@ void SoVisualizeAction::handleTubs(const GeoTubs *tubs)
   sotubs->pDPhi= tubs->getDPhi();
   m_shape=sotubs;
 }
-
-#ifndef BUILDVP1LIGHT
-void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
-{
-  //qDebug() << "SoVisualizeAction::handleLArCustom";
-  static const double eta_hi  = 3.2;
-  static const double eta_mid = 2.5;
-  static const double eta_low = 1.375;
-
-
-  //  static const double zWheelRefPoint       = 3689.5*SYSTEM_OF_UNITS::mm;  //=endg_z0
-  static const double dMechFocaltoWRP      = 3691. *SYSTEM_OF_UNITS::mm;  //=endg_z1
-  //  static const double dElecFocaltoWRP      = 3689. *SYSTEM_OF_UNITS::mm;  //=endg_dcf
-  static const double dWRPtoFrontFace      =   11. *SYSTEM_OF_UNITS::mm;
-  static const double rOuterCutoff         = 2034. *SYSTEM_OF_UNITS::mm;  //=endg_rlimit
-
-
-  SoLAr::initClass();
-  SoLAr *solar = new SoLAr();
-  const LArWheelCalculator *calc = custom->calculator();
-  LArG4::LArWheelCalculator_t type = calc->type();
-  if (type==LArG4::InnerAbsorberWheel ||
-      type==LArG4::InnerElectrodWheel ||
-      type==LArG4::InnerAbsorberModule ||
-      type==LArG4::InnerElectrodModule ) {
-    float zPlane[2],rInner[2],rOuter[2];
-    zPlane[0]=0;
-    zPlane[1]=calc->GetWheelThickness();
-
-    double tanThetaInner = 2. * exp(-eta_hi ) / (1. - exp(2.*-eta_hi ));
-    double tanThetaMid   = 2. * exp(-eta_mid) / (1. - exp(2.*-eta_mid));
-    double zWheelFrontFace = dMechFocaltoWRP + dWRPtoFrontFace;
-    double zWheelBackFace = zWheelFrontFace + calc->GetWheelThickness();
-    rInner[0] = zWheelFrontFace * tanThetaInner;
-    rInner[1] = zWheelBackFace  * tanThetaInner;
-    // Note that there is a 3mm gap between the outer surface of the
-    // inner wheel and the inner surface of the outer wheel.
-    double HalfGapBetweenWheels = 0.15*SYSTEM_OF_UNITS::cm;  // In DB EMECGEOMETRY.DCRACK
-    rOuter[0] = zWheelFrontFace * tanThetaMid - HalfGapBetweenWheels;
-    rOuter[1] = zWheelBackFace  * tanThetaMid - HalfGapBetweenWheels;
-    solar->fRmin.setValues(0,2,rInner);
-    solar->fRmax.setValues(0,2,rOuter);
-    solar->fDz.setValues  (0,2,zPlane);
-  }
-  else if  (type==LArG4::OuterAbsorberWheel ||
-	    type==LArG4::OuterElectrodWheel ||
-	    type==LArG4::OuterAbsorberModule ||
-	    type==LArG4::OuterElectrodModule ) {
-    float zPlane[3], rInner[3], rOuter[3];
-    zPlane[0] = 0;
-    zPlane[2] = calc->GetWheelThickness();
-    double tanThetaMid   = 2. * exp(-eta_mid) / (1. - exp(2.*-eta_mid));
-    double tanThetaOuter = 2. * exp(-eta_low) / (1. - exp(2.*-eta_low));
-    double zWheelFrontFace = dMechFocaltoWRP + dWRPtoFrontFace;
-    double zWheelBackFace = zWheelFrontFace + calc->GetWheelThickness();
-    // Note that there is a 3mm gap between the outer surface of the
-    // inner wheel and the inner surface of the outer wheel.
-    double HalfGapBetweenWheels = 0.15*SYSTEM_OF_UNITS::cm;  // In DB! (EMECGEOMETRY.DCRACK);
-    rInner[0] = zWheelFrontFace * tanThetaMid + HalfGapBetweenWheels;
-    rInner[2] = zWheelBackFace  * tanThetaMid + HalfGapBetweenWheels;
-    rOuter[0] = zWheelFrontFace * tanThetaOuter;
-    rOuter[2] = zWheelBackFace  * tanThetaOuter;
-    // If we simply left it at that, the outer wheel would protrude
-    // beyond the edge of the cryostat.  We have to "slice off" the lip
-    // of the outer wheel to create a shape that's roughtly like a
-    // bathtub plug.
-    // Use the endpoints of the outer arrays to define lines in the
-    // (z,r) plane.
-    double slopeMin = (rInner[2] - rInner[0]) / (zPlane[2] - zPlane[0]);
-    double slopeMax = (rOuter[2] - rOuter[0]) / (zPlane[2] - zPlane[0]);
-    double interceptMin = rInner[0] - slopeMin * zPlane[0];
-    double interceptMax = rOuter[0] - slopeMax * zPlane[0];
-    // At what value of z does the outer line hit the cutoff?
-    zPlane[1] = (rOuterCutoff - interceptMax) / slopeMax;
-    // Calculate the radii at this z:
-    rInner[1] = slopeMin * zPlane[1] + interceptMin;
-    rOuter[1] = rOuterCutoff;
-    // Now override the radius to keep the wheel inside the cryostat:
-    rOuter[2] = rOuterCutoff;
-    solar->fRmin.setValues(0,3,rInner);
-    solar->fRmax.setValues(0,3,rOuter);
-    solar->fDz.setValues  (0,3,zPlane);
-  }
-
-  solar->fSPhi= 0;
-  solar->fDPhi= 2*M_PI;
-  m_shape=solar;
-}
-#endif
 
 void SoVisualizeAction::handleSimplePolygonBrep(const GeoSimplePolygonBrep *brep)
 {

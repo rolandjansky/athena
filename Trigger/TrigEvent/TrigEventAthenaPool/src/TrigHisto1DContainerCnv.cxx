@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigInDetEventTPCnv/TrigHisto1DContainer_p1.h"
@@ -50,7 +50,7 @@ TrigHisto1DContainer* TrigHisto1DContainerCnv::createTransient()
     p_container = m_TPConverter->createTransient(mlog);
   }
   else if(compareClassGuid(p1_guid)) {
-     std::auto_ptr< TrigHisto1DContainer_p1 > col_vect( poolReadObject< TrigHisto1DContainer_p1 >() );
+     std::unique_ptr< TrigHisto1DContainer_p1 > col_vect( poolReadObject< TrigHisto1DContainer_p1 >() );
      TrigHisto1DContainerCnv_p1 converter;
      p_container = converter.createTransient( col_vect.get(), mlog );
   }

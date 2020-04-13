@@ -70,6 +70,7 @@
 #include "TrigNavigation/NavigationCore.icc"
 
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
@@ -540,7 +541,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   bool PIX = true;
   bool SCT = true;
-  m_trackMaker->newTrigEvent(trackEventData, PIX, SCT);
+  m_trackMaker->newTrigEvent(Gaudi::Hive::currentContext(), trackEventData, PIX, SCT);
 
   for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
 
@@ -561,11 +562,11 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
       }
     }
 
-    std::list<const Trk::SpacePoint*> spList = {osp1, osp2, osp3};
+    std::vector<const Trk::SpacePoint*> spVec = {osp1, osp2, osp3};
 
     ++mnt_roi_nSeeds;
 
-    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(trackEventData, spList);
+    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(Gaudi::Hive::currentContext(), trackEventData, spVec);
 
     for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
       if((*t)) {
@@ -592,10 +593,6 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   m_trackMaker->endEvent(trackEventData);
   for(auto& seed : triplets) delete seed;
-
-  // Run3 monitoring ---------->
-  mnt_roi_nSeeds = m_nSeeds;
-  // <---------- Run3 monitoring
 
   //clone removal
   if(m_doCloneRemoval) {

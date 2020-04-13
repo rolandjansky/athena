@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 ### Setup Athena common flags
 include ("AthenaCommon/AthenaCommonFlags.py")
 include.block("AthenaCommon/AthenaCommonFlags.py")
@@ -29,7 +31,6 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += WriteMdtGeometry
 #Set geometry tag
-from AthenaCommon.AppMgr import ServiceMgr
 from AtlasGeoModel import SetGeometryVersion, GeoModelInit
 
 GeoModelSvc = ServiceMgr.GeoModelSvc

@@ -54,12 +54,8 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
 
     /*! Trigger decision tool */
     ToolHandle<Trig::TrigDecisionTool> m_trigdec;
-    /* Trigger e/g matching tool */
-
     /*! creates map of trigger name and TrigInfo struct */
     std::map<std::string,TrigInfo> m_trigInfo;
-    /*! AcceptInfo to store TrigDecision */
-    asg::AcceptInfo m_accept;
  
 
     static const std::vector<std::string> m_trigLevel;
@@ -70,8 +66,8 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
 
   protected:
 
+    /* Trigger e/g matching tool */
     ToolHandle<Trig::TrigEgammaMatchingToolMT> m_matchTool;
-                                               
     /*! Offline isEM Selectors */
     ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool{this,"ElectronIsEMSelector",{}};
     /*! Offline LH Selectors */
@@ -103,8 +99,6 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     const ToolHandle<Trig::TrigDecisionTool>& tdt() const {return m_trigdec;};
     /*! Get the e/g match tool */
     const ToolHandle<Trig::TrigEgammaMatchingToolMT>& match() const {return m_matchTool;}
-    /*! Get the accept object for all trigger levels */
-    const asg::AcceptInfo& getAccept() const {return m_accept;}
     /*! Set the accept object for all trigger levels */
     asg::AcceptData setAccept(const TrigCompositeUtils::Decision*, const TrigInfo) const;
     /*! Get the trigger info parsed from the chain name */

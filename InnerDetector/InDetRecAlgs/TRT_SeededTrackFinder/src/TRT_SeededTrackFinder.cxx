@@ -173,8 +173,8 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
   InDet::ExtendedSiCombinatorialTrackFinderData_xk combinatorialData(m_prdToTrackMap);
 
   // Initialize the TRT seeded track tool's new event
-  std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p( m_trackmaker  ->newEvent(combinatorialData));
-  std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> ext_event_data_p( m_trtExtension->newEvent() );
+  std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData> event_data_p( m_trackmaker->newEvent(ctx, combinatorialData));
+  std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> ext_event_data_p( m_trtExtension->newEvent(ctx) );
 
 //  TrackCollection* outTracks  = new TrackCollection;           //Tracks to be finally output
   std::unique_ptr<TrackCollection> outTracks = std::make_unique<TrackCollection>();
@@ -221,7 +221,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
         ev_stat.m_counter[Stat_t::Stat_t::kNTrtSegGood]++;
 
 	// ok, call track maker and get list of possible track candidates
-        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*event_data_p, *trackTRT); //Get the possible Si extensions
+        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(ctx, *event_data_p, *trackTRT); //Get the possible Si extensions
 
         if (trackSi.size()==0) {
           ATH_MSG_DEBUG ("No Si track candidates associated to the TRT track ");
@@ -232,7 +232,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
 	  // obsolete backup of TRT only
           if(m_saveTRT && trackTRT->numberOfMeasurementBases() > m_minTRTonly){
             ///Transform the original TRT segment into a track
-            Trk::Track* trtSeg = 0;trtSeg = segToTrack(*trackTRT);
+            Trk::Track* trtSeg = 0;trtSeg = segToTrack(ctx, *trackTRT);
             if(!trtSeg) {
 	      ATH_MSG_DEBUG ("Failed to make a track out of the TRT segment!");
 	      continue;
@@ -356,7 +356,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
 	      ev_stat.m_counter[Stat_t::Stat_t::kNTrtExtCalls]++;
 
 	      // call extension tool
-              std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(*(*itt), *ext_event_data_p);
+              std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(ctx, *(*itt), *ext_event_data_p);
 
               if(!tn.size()) {
 
@@ -419,7 +419,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
               ATH_MSG_DEBUG ("Failed to merge TRT+Si track segment !");
 
 	      if(m_saveTRT && trackTRT->numberOfMeasurementBases() > m_minTRTonly) {
-                Trk::Track* trtSeg = 0;trtSeg = segToTrack(*trackTRT);
+                Trk::Track* trtSeg = 0;trtSeg = segToTrack(ctx, *trackTRT);
                 if(!trtSeg){
 		  ATH_MSG_DEBUG ("Failed to make a track out of the  TRT segment!");
 		  continue;
@@ -649,7 +649,7 @@ Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, co
 // Transform a TRT segment to track
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS) const {
+Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const EventContext&, const Trk::TrackSegment& tS) const {
 	ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
 
 	//Get the track segment information and build the initial track parameters

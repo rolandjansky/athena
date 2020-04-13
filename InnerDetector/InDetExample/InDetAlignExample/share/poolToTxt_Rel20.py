@@ -52,27 +52,27 @@ doSilicon = True
 doTRT = False
 
 doPrintDectectorPositions = False
-print " <poolToTxt> config mode = ", config
-print " <poolToTxt> doSilicon   = ", doSilicon
-print " <poolToTxt> doTRT       = ", doTRT
+printfunc (" <poolToTxt> config mode = ", config)
+printfunc (" <poolToTxt> doSilicon   = ", doSilicon)
+printfunc (" <poolToTxt> doTRT       = ", doTRT)
 
 if (doSilicon):
     if (config == 'TxtToPool'):
         if os.path.isfile(textFileInSi):
-            print " <poolToTxt> textFileInSi = ", textFileInSi, "   output = ",textFileOutSi
+            printfunc (" <poolToTxt> textFileInSi = ", textFileInSi, "   output = ",textFileOutSi)
         else:
-            print " <poolToTxt> ** ERROR ** input file:", textFileInSi, " does not exist "
+            printfunc (" <poolToTxt> ** ERROR ** input file:", textFileInSi, " does not exist ")
 
 if (doTRT):
     if os.path.isfile(textFileInTRT):
-        print " <poolToTxt> textFileInTRT = ", textFileInTRT, "   output = ",textFileOutTRT
+        printfunc (" <poolToTxt> textFileInTRT = ", textFileInTRT, "   output = ",textFileOutTRT)
     else:
-        print " <poolToTxt> ** ERROR ** input file:", textFileInTRT, " does not exist "
+        printfunc (" <poolToTxt> ** ERROR ** input file:", textFileInTRT, " does not exist ")
     
     if os.path.isfile(textFileInTRT):
-        print " <poolToTxt> textFileInTRTStraw = ", textFileInTRTStraw, "   output = ",textFileOutTRTStraw
+        printfunc (" <poolToTxt> textFileInTRTStraw = ", textFileInTRTStraw, "   output = ",textFileOutTRTStraw)
     else:
-        print " <poolToTxt> ** ERROR ** input file:", textFileInTRTStraw, " does not exist "
+        printfunc (" <poolToTxt> ** ERROR ** input file:", textFileInTRTStraw, " does not exist ")
     
 #==============================================================
 
@@ -188,7 +188,7 @@ if readPool :
     # set this to the file containing AlignableTransform objects
     ServiceMgr.CondProxyProvider.InputCollections += inputCollections
     ServiceMgr.CondProxyProvider.OutputLevel=DEBUG
-    print ServiceMgr.CondProxyProvider
+    printfunc (ServiceMgr.CondProxyProvider)
 
     # this preload causes callbacks for read in objects to be activated,
     # allowing GeoModel to pick up the transforms
@@ -233,8 +233,8 @@ if doSilicon:
 
     topSequence += InDetAlignWrt
 
-    print InDetAlignWrt
-    print InDetDBTool
+    printfunc (InDetAlignWrt)
+    printfunc (InDetDBTool)
 
 if doTRT:
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawAlign
@@ -252,7 +252,7 @@ if doTRT:
         TRTStrawAlign.InputFile=textFileInTRT
         #TRTStrawAlign.InputStrawAlignmentFile = textFileInTRTStraw
     topSequence+=TRTStrawAlign
-    print TRTStrawAlign
+    printfunc (TRTStrawAlign)
 
 if writeDB:
     objectList = []
@@ -301,9 +301,3 @@ if doPrintDectectorPositions:
 # End of job options file
 #
 ###############################################################
-
-
-# Disable StatusCodeSvc 
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr 
-svcMgr.StatusCodeSvc.SuppressCheck = True
-svcMgr.StatusCodeSvc.AbortOnError = False

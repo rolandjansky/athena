@@ -10,4 +10,5 @@
 #include "InDetByteStreamErrorsAthenaPool/InDetBSErrContainer_p2.h"
 #include "InDetByteStreamErrorsAthenaPool/TRT_BSErrContainer_p1.h"
 #include "InDetByteStreamErrorsAthenaPool/TRT_BSIdErrContainer_p1.h"
+#include "InDetByteStreamErrorsAthenaPool/InDetBSErrContainer64_p1.h"
 #endif

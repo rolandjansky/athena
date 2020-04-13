@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -39,7 +39,7 @@ TileMuFeature* TileMuFeatureCnv::createTransient() {
 	// from "TrigEvent/TrigMuonEvent/TrigMuonEvent/selection.xml"
 
     if( compareClassGuid(p1_guid) ) {
-      std::auto_ptr< TileMuFeature_p1 > col_vect( poolReadObject< TileMuFeature_p1 >() );
+      std::unique_ptr< TileMuFeature_p1 > col_vect( poolReadObject< TileMuFeature_p1 >() );
       TileMuFeatureCnv_p1 converter;
       return converter.createTransient( col_vect.get(), mlog );
 

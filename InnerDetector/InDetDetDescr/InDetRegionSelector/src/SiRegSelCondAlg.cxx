@@ -24,7 +24,8 @@
 
 #include "SiRegSelCondAlg.h"
 
-
+#include "IRegionSelector/IRegSelLUTCondData.h"
+#include "RegSelLUT/RegSelSiLUT.h"
 
 
 SiRegSelCondAlg::SiRegSelCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
@@ -61,7 +62,7 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
   /// do stuff here ...  
   ATH_MSG_DEBUG( "Creating region selector table " << m_tableKey );
 
-  SG::WriteCondHandle<RegSelLUTCondData> lutCondData( m_tableKey, ctx );
+  SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
   // Do we have a valid Write Cond Handle for current time?
   if (lutCondData.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << lutCondData.fullKey() << " is already valid."
@@ -191,7 +192,7 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
   // write out new new LUT to a file if need be
   if ( m_printTable ) rd->write( name()+".map" );
 
-  RegSelLUTCondData* rcd = new RegSelLUTCondData( std::move(rd) );
+  IRegSelLUTCondData* rcd = new IRegSelLUTCondData( std::move(rd) );
   
   try { 
     if( lutCondData.record( id_range, rcd ).isFailure() ) {

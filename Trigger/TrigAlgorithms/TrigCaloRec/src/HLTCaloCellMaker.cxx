@@ -22,13 +22,15 @@ HLTCaloCellMaker::HLTCaloCellMaker(const std::string & name, ISvcLocator* pSvcLo
   : AthReentrantAlgorithm(name, pSvcLocator),
     m_tileEMScaleKey ("TileEMScale"),
     m_dataAccessSvc( "TrigCaloDataAccessSvc/TrigCaloDataAccessSvc", name ),
-    m_roiMode(true)
+    m_roiMode(true),
+    m_monCells(false)
 {
   declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
   declareProperty("CellsVName", m_cellContainerVKey = std::string("CellsVClusters"), "Calo cells container");
   declareProperty("CellsName", m_cellContainerKey = std::string("CellsClusters"), "Calo cells container");
   declareProperty("TrigDataAccessMT",m_dataAccessSvc,"Data Access for LVL2 Calo Algorithms in MT");
   declareProperty("roiMode",m_roiMode,"RoiMode roi->CaloCellCollection");
+  declareProperty("monitorCells",m_monCells,"monitorCells");
   declareProperty("TileEMSCaleKey", m_tileEMScaleKey);
 }
 
@@ -72,7 +74,6 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
     auto clET = Monitored::Collection ("Cells_eT",*cdv,getCellPt);
     auto clEta = Monitored::Collection ("Cells_eta",*cdv,&CaloCell::eta);
     auto clPhi = Monitored::Collection ("Cells_phi",*cdv,&CaloCell::phi);
-    auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       ATH_MSG_INFO ( "Running on RoI " << *roiDescriptor<< " FS="<<roiDescriptor->isFullscan());
       if ( roiDescriptor->isFullscan() ) {
@@ -83,6 +84,11 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->setHasCalo(CaloCell_ID::TILE);
 	cdv->updateCaloIterators();
         clN=cdv->size();
+        if ( m_monCells ){
+          auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
+        } else {
+          auto monitoring = Monitored::Group( m_monTool, timer, clN );
+        }
 	
       } else {
 	// TT EM PART
@@ -123,6 +129,12 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 	cdv->updateCaloIterators();
       }
       ATH_MSG_DEBUG ("REGTEST: Producing "<<cdv->size()<<" cells");
+      clN=cdv->size();
+      if ( m_monCells ){
+        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
+      } else {
+        auto monitoring = Monitored::Group( m_monTool, timer, clN );
+      }
       auto ss = cellContainer.record( std::move(cdv) );
       ATH_CHECK( ss );
 
@@ -139,16 +151,19 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         auto clET = Monitored::Collection ("Cells_eT",*c,getCellPt);
         auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
         auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
-        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
 	ATH_CHECK(m_dataAccessSvc->loadFullCollections( context, *c ));
         clN=c->size();
+        if ( m_monCells ){
+          auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
+        } else {
+          auto monitoring = Monitored::Group( m_monTool, timer, clN );
+        }
 	cellContainerV->push_back( c.release()->asDataVector() );
       } else {
 	auto c = std::make_unique<CaloConstCellContainer >(SG::VIEW_ELEMENTS);
         auto clET = Monitored::Collection ("Cells_eT",*c,getCellPt);
         auto clEta = Monitored::Collection ("Cells_eta",*c,&CaloCell::eta);
         auto clPhi = Monitored::Collection ("Cells_phi",*c,&CaloCell::phi);
-        auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
 
         // TT EM PART
         for(int sampling=0;sampling<4;sampling++){
@@ -187,6 +202,11 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
         c->setHasCalo(CaloCell_ID::LARFCAL);
         c->updateCaloIterators();
         clN=c->size();
+        if ( m_monCells ){
+          auto monitoring = Monitored::Group( m_monTool, timer, clN, clET, clEta, clPhi);
+        } else {
+          auto monitoring = Monitored::Group( m_monTool, timer, clN);
+        }
 	cellContainerV->push_back( c.release()->asDataVector() );
       }
     }

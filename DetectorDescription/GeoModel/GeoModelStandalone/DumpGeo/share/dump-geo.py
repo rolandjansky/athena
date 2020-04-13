@@ -1,5 +1,5 @@
 #/*
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #*/
 
 if not 'vp1InputFiles' in dir(): vp1InputFiles = []
@@ -38,6 +38,8 @@ if not 'vp1NoAutoConf' in dir(): vp1NoAutoConf=False
 if not 'vp1Trig' in dir(): vp1Trig=False
 if not 'vp1CustomGeometry' in dir(): vp1CustomGeometry=False
 if not 'vp1SLHC' in dir(): vp1SLHC=False
+if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
+if not 'vp1MuonLayout' in dir(): vp1MuonLayout=""
 
 def vp1CfgErr(s): print "VP1 CONFIGURATION ERROR: %s" % s
 
@@ -203,6 +205,24 @@ if (vp1SLHC):
   TrkDetFlags.MagneticFieldCallbackEnforced   = False
   TrkDetFlags.TRT_BuildStrawLayers            = False
   TrkDetFlags.MaterialSource = 'None'
+
+print("vp1NSWAGDDFiles:", vp1NSWAGDDFiles, "len:", len(vp1NSWAGDDFiles))
+if vp1Muon and len(vp1NSWAGDDFiles)>0:
+    print "*** DumpGeo NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1NSWAGDDFiles))
+    from AthenaCommon.AppMgr import theApp
+    from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+    AGDD2Geo = AGDDtoGeoSvc()
+    theApp.CreateSvc += ["AGDDtoGeoSvc"]
+    svcMgr += AGDD2Geo
+    from AthenaCommon import CfgMgr
+    from MuonAGDD.MuonAGDDConf import NSWAGDDTool
+    NSWAGDDTool = CfgMgr.NSWAGDDTool("NewSmallWheel", DefaultDetector="Muon", ReadAGDD=False, XMLFiles=vp1NSWAGDDFiles, Volumes=["NewSmallWheel"])
+    AGDD2Geo.Builders += [ NSWAGDDTool ]
+if vp1Muon and vp1MuonLayout!="":
+    print "*** DumpGeo NOTE *** You specified custom vp1MuonLayout, using %s as muon geometry"%vp1MuonLayout
+    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+    GeoModelSvc = GeoModelSvc()
+    GeoModelSvc.MuonVersionOverride=vp1MuonLayout
 
 # --- GeoModel
 from AtlasGeoModel import SetGeometryVersion

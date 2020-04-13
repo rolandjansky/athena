@@ -159,7 +159,7 @@ namespace InDet {
       Trk::Track*                   mergeExtension(const Trk::Track&,std::vector<const Trk::MeasurementBase*>&) const;
 
       /** Transform a TRT track segment into a track  */
-      Trk::Track*                   segToTrack(const Trk::TrackSegment&) const;
+        Trk::Track*                 segToTrack(const EventContext&, const Trk::TrackSegment&) const;
 
       /** Do some statistics analysis at the end of each event */
       void                 Analyze(TrackCollection*) const;

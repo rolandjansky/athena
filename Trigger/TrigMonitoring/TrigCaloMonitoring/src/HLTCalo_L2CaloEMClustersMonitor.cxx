@@ -32,7 +32,7 @@ HLTCalo_L2CaloEMClustersMonitor::~HLTCalo_L2CaloEMClustersMonitor() {}
 StatusCode HLTCalo_L2CaloEMClustersMonitor::initialize() {
   ATH_CHECK(m_HLT_cont_key.initialize());
   ATH_CHECK(m_OFF_cont_key.initialize());
-
+  ATH_CHECK( m_bunchCrossingKey.initialize());
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -53,6 +53,20 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 	ATH_MSG_ERROR("evtStore() does not contain a cluster Collection with key " << m_OFF_cont_key);
 	return StatusCode::FAILURE;
   }
+
+  // Bunch crossing
+  int bcid = ctx.eventID().bunch_crossing_id();
+  auto HLT_bc = Monitored::Scalar<int>("HLT_bc",-1);
+
+  SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
+  if (!bcidHdl.isValid()) {
+    ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object" );
+    return StatusCode::FAILURE;
+  }
+  const BunchCrossingCondData* bcData=*bcidHdl;
+  HLT_bc = bcData->distanceFromFront(bcid, BunchCrossingCondData::BunchCrossings);
+
+
 
   /////////////////////////////////////
   // Cache expensive et, eta and phi //
@@ -291,7 +305,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
   // Fill everything
   fill(m_mongroup_name,
         // HLT clusters
-        HLT_num, HLT_et, HLT_eta, HLT_phi, HLT_size, HLT_barrel_high_et_num,
+        HLT_num, HLT_et, HLT_eta, HLT_phi, HLT_size, HLT_barrel_high_et_num, HLT_bc,
 
 	// HLT cutmasks
 	HLT_barrel_high_et, HLT_no_OFF_match, HLT_with_OFF_match,

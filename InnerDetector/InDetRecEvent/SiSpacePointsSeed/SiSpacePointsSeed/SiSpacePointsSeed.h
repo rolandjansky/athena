@@ -20,7 +20,7 @@
 
 #ifndef SiSpacePointsSeed_h
 #define SiSpacePointsSeed_h
-#include <list>
+#include <vector>
 #include "TrkSpacePoint/SpacePoint.h"
 
 class MsgStream;
@@ -48,7 +48,7 @@ namespace InDet {
     void                                     erase();
     void                                     add(const Trk::SpacePoint*&);
     void                                     setZVertex(const double&);
-    const std::list<const Trk::SpacePoint*>& spacePoints() const;
+    const std::vector<const Trk::SpacePoint*>& spacePoints() const;
     const double&                            zVertex    () const;
     virtual MsgStream&    dump(MsgStream&    out) const ;
     virtual std::ostream& dump(std::ostream& out) const ;
@@ -59,7 +59,7 @@ namespace InDet {
     
   protected:
     
-    std::list<const Trk::SpacePoint*> m_spacepoints;
+    std::vector<const Trk::SpacePoint*> m_spacepoints;
     double                            m_zvertex    ;  
   };
 
@@ -70,7 +70,7 @@ namespace InDet {
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
  
-  inline const std::list<const Trk::SpacePoint*>& SiSpacePointsSeed::spacePoints() const 
+  inline const std::vector<const Trk::SpacePoint*>& SiSpacePointsSeed::spacePoints() const
     {
       return this->m_spacepoints;
     }

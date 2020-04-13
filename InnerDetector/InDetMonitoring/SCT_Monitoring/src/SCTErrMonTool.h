@@ -16,7 +16,7 @@
 #define SCTERRMONTOOL_H
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "SCT_MonitoringNumbers.h"
+#include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
@@ -70,24 +70,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   //First pair is eta and second pair is phi.
   //First element of pair is minimum second is maximum.
   typedef std::pair<std::pair<double, double>, std::pair<double, double>> moduleGeo_t;
-
-  enum CategoryErrors {MASKEDLINKALL=0, SUMMARY, BADERR, LINKLEVEL, RODLEVEL, MASKEDCHIP, N_ERRCATEGORY};
-
-  enum ProblemForCoverage {
-    all, //All SCT module for counting good module
-    disabled, //Disabled
-    badLinkError, //BadLinkLevelError
-    badRODError, //BadRODLevelError
-    badError, //BadError = BadLinkLevelError + BadRODLevelError
-    psTripDCS, //Power supply trip using SCT_DCSConditionsSvc
-    summary, //Total coverage using SCT_ConditionsSummarySvc
-    numberOfProblemForCoverage
-  };
-
-  /// "Magic numbers" for an SCT module
-  enum {ConfbinsSummary = 6, ConfbinsDetailed = 5, ConfbinsOnline = 4};
-
-  enum {NREGIONS_INC_GENERAL = SCT_Monitoring::N_REGIONS+1};
 
   static const unsigned int s_nBinsEta;
   static const double s_rangeEta;
@@ -164,28 +146,28 @@ class SCTErrMonTool : public ManagedMonitorToolBase {
   // Unnecessary but necessary to fill necessary m_ConfNew
   /// Under LB directories
   // total number of errors
-  TH2F_LW* m_pallErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][SCT_Monitoring::N_REGIONS][SCT_Monitoring::N_ENDCAPSx2]{}; // Filled in fillByteStreamErrorsHelper. Used to fill m_allErrsCate and m_summaryErrsRecent
+  TH2F_LW* m_pallErrsCate[SCT_Monitoring::CategoryErrors::N_ERRCATEGORY][SCT_Monitoring::N_REGIONS][SCT_Monitoring::N_ENDCAPSx2]{}; // Filled in fillByteStreamErrorsHelper. Used to fill m_allErrsCate and m_summaryErrsRecent
   // Default histos to print per lumi block
-  TH2F_LW* m_numErrorsPerLumi[NREGIONS_INC_GENERAL]{}; // Filled in fillByteStreamErrorsHelper. Used to fill m_rateErrorsPerLumi
+  TH2F_LW* m_numErrorsPerLumi[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Filled in fillByteStreamErrorsHelper. Used to fill m_rateErrorsPerLumi
   /// Detector coverage
-  TH2F* m_mapSCT[numberOfProblemForCoverage]{nullptr}; // Filled in fillByteStreamErrors
+  TH2F* m_mapSCT[SCT_Monitoring::numberOfProblemForCoverage]{nullptr}; // Filled in fillByteStreamErrors
   TProfile* m_PSTripModulesVsLbs{}; // Filled in fillByteStreamErrors
 
   /// Profiles requiring postprocessing
   /// Under run directories
   TProfile_LW* m_ConfNew{}; // Filled in fillCondDBMaps using m_MaskedAllLinks and m_allErrsCate. Noise plots are also used.
-  TProfile_LW* m_LinksWithCategorisedErrorsVsLB[CategoryErrors::N_ERRCATEGORY]{}; // Fillded in fillByteStreamErrors using m_pallErrsCate
+  TProfile_LW* m_LinksWithCategorisedErrorsVsLB[SCT_Monitoring::CategoryErrors::N_ERRCATEGORY]{}; // Fillded in fillByteStreamErrors using m_pallErrsCate
   /// Under LB directories
-  TProfile2D_LW* m_allErrsCate[SCT_ByteStreamErrors::NUM_ERROR_TYPES][SCT_Monitoring::N_REGIONS][SCT_Monitoring::N_ENDCAPSx2]{}; // Rate of errors. Filled in fillByteStreamErrors. Used to fill necessary m_ConfNew
-  TProfile2D_LW* m_rateErrorsPerLumi[NREGIONS_INC_GENERAL]{}; // Filled in checkRateHists using m_numErrorsPerLumi
+  TProfile2D_LW* m_allErrsCate[SCT_Monitoring::CategoryErrors::N_ERRCATEGORY][SCT_Monitoring::N_REGIONS][SCT_Monitoring::N_ENDCAPSx2]{}; // Rate of errors. Filled in fillByteStreamErrors. Used to fill necessary m_ConfNew
+  TProfile2D_LW* m_rateErrorsPerLumi[SCT_Monitoring::N_REGIONS]{}; // Filled in checkRateHists using m_numErrorsPerLumi
   /// Only online
-  TProfile_LW* m_ConfOnline[NREGIONS_INC_GENERAL]{}; // Filled in fillCondDBMaps using m_MaskedAllLinks and m_allErrsCate
+  TProfile_LW* m_ConfOnline[SCT_Monitoring::N_REGIONS_INC_GENERAL]{}; // Filled in fillCondDBMaps using m_MaskedAllLinks and m_allErrsCate
   TProfile_LW* m_ConfNoiseOnline{}; // Filled in fillCondDBMaps using noise plots
   TProfile_LW* m_ConfNoiseOnlineRecent{}; // Filled in fillCondDBMaps using noise plots
   TProfile2D_LW* m_summaryErrsRecent[SCT_Monitoring::N_REGIONS][SCT_Monitoring::N_ENDCAPSx2]{}; // Recent error rate histograms. Filled in fillByteStreamErrors using m_pallErrsCate
   TProfile* m_ConfEffOnline{}; // Filled in fillByteStreamErrors using efficiency plots
   /// Detector coverage
-  TProfile* m_detectorCoverageVsLbs[numberOfProblemForCoverage]{nullptr}; // Filled in fillByteStreamErrors using m_mapSCT
+  TProfile* m_detectorCoverageVsLbs[SCT_Monitoring::numberOfProblemForCoverage]{nullptr}; // Filled in fillByteStreamErrors using m_mapSCT
 
   /// Used in bookHistograms()
   StatusCode bookConfMapsGen();

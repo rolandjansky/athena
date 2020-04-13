@@ -22,6 +22,7 @@
 + Event/xAOD/.*
 + Generators/TruthUtils
 + MuonSpectrometer/MuonStationIndex
++ PhysicsAnalysis/D3PDTools/.*
 + Tools/PathResolver
 + Trigger/TrigConfiguration/TrigConfBase
 + Trigger/TrigConfiguration/TrigConfL1Data

@@ -101,7 +101,7 @@ JetChainParts = {
     'extra'        : [],
     'cleaning'     : ['noCleaning',],
     'recoAlg'      : ['a4', 'a10', 'a10r', 'a10t'],
-    'dataType'     : ['tc','sktc','pf'],
+    'dataType'     : ['tc','pf','sktc','cssktc','csskpf'],
     'calib'        : ['em', 'lcw'],
     'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
     'scan'         : ['FS',],
@@ -344,8 +344,8 @@ ElectronChainParts = {
     'trkInfo'        : ['idperf'],
     'caloInfo'       : [],
     'lhInfo'         : [],
-    'L2IDAlg'        : [],
-    'addInfo'        : ['noringer', 'etcut', 'etcut1step',"v2","v3"],
+    'L2IDAlg'        : ['noringer'],
+    'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3"],
     }
 # ---- Egamma Dictinary of default Values ----
 ElectronChainParts_Default = {

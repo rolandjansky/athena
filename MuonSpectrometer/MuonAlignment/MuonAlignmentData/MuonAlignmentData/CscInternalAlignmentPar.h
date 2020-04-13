@@ -18,19 +18,19 @@ class CscInternalAlignmentPar : public MuonAlignmentPar {
   virtual ~CscInternalAlignmentPar() override = default;
 
   void setAmdbId(std::string type, int jff, int jzz, int job, int wireLayer);
-  void getAmdbId(std::string& type, int& jff, int& jzz, int& job, int& wireLayer);
+  void getAmdbId(std::string& type, int& jff, int& jzz, int& job, int& wireLayer) const;
 
   void setParameters(float s, float z, float t, 
 		     float rotS, float rotZ, float rotT);
 
   void getParameters(float& s, float& z, float& t, 
-		     float& rotS, float& rotZ, float& rotT);
+		     float& rotS, float& rotZ, float& rotT) const;
   
  private:
     // wire layer identifier
   int m_wireLayer;  
 
-  // traslation parameters
+  // translation parameters
   float m_S;
   float m_Z;
   float m_T;

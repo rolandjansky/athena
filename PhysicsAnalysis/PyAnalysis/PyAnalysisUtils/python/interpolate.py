@@ -1,11 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: interpolate.py,v 1.1 2005-05-06 22:44:58 ssnyder Exp $
 # File: interpolate.py
 # Created: sss, 2004.
 # Purpose: Polynomial interpolation in a table.
 #
+
+from __future__ import print_function
 
 """
 Polynomial interpolation in a table.
@@ -23,8 +24,10 @@ def _bisect (a, x, lo=0, hi=None):
         hi = len(a)
     while lo < hi:
         mid = (lo+hi)//2
-        if cmp(x,a[mid]) <= 0: hi = mid
-        else: lo = mid+1
+        if x <= a[mid]:
+            hi = mid
+        else:
+            lo = mid+1
     return lo
 
 # Helper: do a binary search in a 2D table.
@@ -33,8 +36,10 @@ def _bisect2 (a, x, xcol, lo=0, hi=None):
         hi = len(a)
     while lo < hi:
         mid = (lo+hi)//2
-        if cmp(x,a[mid][xcol]) <= 0: hi = mid
-        else: lo = mid+1
+        if x <= a[mid][xcol]:
+            hi = mid
+        else:
+            lo = mid+1
     return lo
 
 
@@ -68,7 +73,7 @@ def interpolate (points, x, degree, ycol=1, regions=[], xcol=0):
   Based on the cernlib routine divdif.
   """
     if len (points) < 2 or degree < 1:
-        raise 'bad args!'
+        raise Exception ('bad args!')
     degree = min (degree, len (points) - 1)
     
 
@@ -87,7 +92,7 @@ def interpolate (points, x, degree, ycol=1, regions=[], xcol=0):
     # If we end up using degree+2 points, we'll do two interpolations
     # of degree degree and average them.
     npts = degree + 2 - (degree%2)
-    l = 0
+    l = 0  # noqa: E741
     t = []
     d = []
 
@@ -99,7 +104,7 @@ def interpolate (points, x, degree, ycol=1, regions=[], xcol=0):
     extrahi = 0
     
     # Starting point index, not considering edges or boundaries.
-    ilo = ix - npts/2
+    ilo = ix - npts // 2
 
     # Make sure this point is within the array range and has not
     # crossed a region boundary.
@@ -169,14 +174,15 @@ def interpolate (points, x, degree, ycol=1, regions=[], xcol=0):
     # SUPPLEMENTED BY AN EXTRA LINE IF *EXTRA* IS TRUE.
     for l in range(0, degree):
         if extra:
-            d[degree+1] = (d[degree+1]-d[degree-1])/(t[degree+1]-t[degree-1-l])
+            d[degree+1] = (d[degree+1]-d[degree-1]) / (t[degree+1]-t[degree-1-l])
         for i in range (degree, l, -1):
-            d[i] = (d[i]-d[i-1])/(t[i]-t[i-1-l])
+            d[i] = (d[i]-d[i-1]) / (t[i]-t[i-1-l])
 
     # EVALUATE THE NEWTON INTERPOLATION FORMULA AT X, AVERAGING TWO VALUES
     # OF LAST DIFFERENCE IF *EXTRA* IS TRUE.
     sum = d[degree]
-    if extra: sum=0.5*(sum+d[degree+1])
+    if extra:
+        sum=0.5*(sum+d[degree+1])
     for j in range (degree-1, -1, -1):
         sum = d[j] + (x - t[j]) * sum
 
@@ -250,5 +256,6 @@ __test__['tests'] = """
 
 
 if __name__ == "__main__":
+    print ('PyAnalysisUtils/interpolate.py test')
     import doctest
     doctest.testmod()

@@ -253,8 +253,10 @@ def matrixDisplay( allCFSeq ):
         for cfseq in cfseq_list:
             chains = __getHyposOfStep(cfseq.step)
             for seq in cfseq.step.sequences:
-                mx[stepNumber, seq.sequence.Alg.name()].extend(chains)
-
+                if seq.name == "Empty":
+                    mx[stepNumber, "Empty"].extend(chains)
+                else:
+                    mx[stepNumber, seq.sequence.Alg.name()].extend(chains)
 
     # sort dictionary by fist key=step
     from collections import  OrderedDict

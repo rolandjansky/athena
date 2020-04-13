@@ -20,7 +20,7 @@ StatusCode MergeRecoTimingObjTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeRecoTimingObjTool::prepareEvent(unsigned int nInputEvents)
+StatusCode MergeRecoTimingObjTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents)
 {
   ATH_MSG_DEBUG ( "Calling prepareEvent(): " << name() << " - package version " << PACKAGE_VERSION );
   ATH_MSG_DEBUG( "prepareEvent: there are " << nInputEvents << " subevents in this event.");
@@ -52,7 +52,7 @@ StatusCode MergeRecoTimingObjTool::processBunchXing(int bunchXing,
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeRecoTimingObjTool::mergeEvent()
+StatusCode MergeRecoTimingObjTool::mergeEvent(const EventContext& /*ctx*/)
 {
   //Nothing to do here;
   return StatusCode::SUCCESS;
@@ -65,7 +65,7 @@ bool MergeRecoTimingObjTool::toProcess(int bunchXing) const
   return (bunchXing==0);
 }
 
-StatusCode MergeRecoTimingObjTool::processAllSubEvents()
+StatusCode MergeRecoTimingObjTool::processAllSubEvents(const EventContext& /*ctx*/)
 {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
   const RecoTimingObj *oldColl(nullptr);

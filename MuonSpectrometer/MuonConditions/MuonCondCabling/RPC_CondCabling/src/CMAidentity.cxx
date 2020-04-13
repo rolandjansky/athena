@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iomanip>
 #include <string>
 #include "RPC_CondCabling/CMAidentity.h"
-
-using namespace std;
 
 const char CMAidentity::CoverageTAG[3][5] = {{"even"},{"odd"},{""}};
 
@@ -159,7 +157,7 @@ CMAidentity::inversion()
     m_Ixx_index = (m_Ixx_index==0)? 1 : 0;
 }
 
-ostream& operator<<(ostream& stream, const CMAidentity& id)
+std::ostream& operator<<(std::ostream& stream, const CMAidentity& id)
 {
     char exttag[5] = {' ',' ',' ',' ','\0'};
     const char* tag = CMAidentity::covtag(id.m_coverage);
@@ -173,10 +171,10 @@ ostream& operator<<(ostream& stream, const CMAidentity& id)
 
     std::string type = (id.type() == Phi )?" phi cma " + covtag : " eta cma " + covtag;
     if(covtag != "" ) type = type + " ";
-    stream << type << setw(2) << id.number() << ": Eta ";
-    stream << setw(2) << id.eta_index();
-    stream << "  Phi " << setw(2) << id.phi_index();
-    stream << "  PAD " << setw(2) << id.PAD_index();
-    stream << "  Ixx " << setw(2) << id.Ixx_index();
+    stream << type << std::setw(2) << id.number() << ": Eta ";
+    stream << std::setw(2) << id.eta_index();
+    stream << "  Phi " << std::setw(2) << id.phi_index();
+    stream << "  PAD " << std::setw(2) << id.PAD_index();
+    stream << "  Ixx " << std::setw(2) << id.Ixx_index();
     return stream;
 }

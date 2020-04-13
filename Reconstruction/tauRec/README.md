@@ -62,7 +62,7 @@ the instance you want.  For example, the [TauJetBDTEvaluator]((https://gitlab.ce
 
 ```python
 
-def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", GradiantBoost=True, minAbsTrackEta=-1, maxAbsTrackEta=-1):
+def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", minAbsTrackEta=-1, maxAbsTrackEta=-1):
     _name = sPrefix + _n
     from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
     myTauJetBDTEvaluator = TauJetBDTEvaluator(name=_name,
@@ -71,8 +71,7 @@ def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, ou
                                               maxNTracks=maxNTracks,
                                               minAbsTrackEta=minAbsTrackEta,
                                               maxAbsTrackEta=maxAbsTrackEta,
-                                              outputVarName=outputVarName,
-                                              GradiantBoost=GradiantBoost)
+                                              outputVarName=outputVarName)
     cached_instances[_name] = myTauJetBDTEvaluator
     return myTauJetBDTEvaluator
 ```

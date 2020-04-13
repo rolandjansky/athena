@@ -79,7 +79,7 @@ StatusCode PileUpToolsAlg::execute()
       // Reset the filters
       puToolHandle->resetFilter();
       ATH_MSG_VERBOSE ( puToolHandle->name() << " will get " << eventsToProcessByTool[&(*puToolHandle)] << " subevents to process." );
-      ATH_CHECK(puToolHandle->prepareEvent(eventsToProcessByTool[&(*puToolHandle)]));
+      ATH_CHECK(puToolHandle->prepareEvent(Gaudi::Hive::currentContext(), eventsToProcessByTool[&(*puToolHandle)]));
     }
 
   // Loop over bunch-crossings and call processBunchXing for each
@@ -108,7 +108,7 @@ StatusCode PileUpToolsAlg::execute()
   // call mergeEvent for all PileUpTools
   for(auto& puToolHandle : m_puTools)
     {
-      ATH_CHECK(puToolHandle->mergeEvent());
+      ATH_CHECK(puToolHandle->mergeEvent(Gaudi::Hive::currentContext()));
       // Check if the event was filtered out by the current PileUpTool.
       if (!puToolHandle->filterPassed())
         {

@@ -194,8 +194,6 @@ doAOD             = False
 writeAOD          = False
 IOVDbSvcMessage   = False
 
-abortonuncheckedstatuscode = False
-
 ## ------------------------------------------ flags set in: RecExOnline_recoflags.py (from RecExOnline_jobOptions.py)
 doAllReco   = True
 

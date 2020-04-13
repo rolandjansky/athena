@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -3065,7 +3065,7 @@ void MuonGMCheck::testRpcCache_here()
                  {
                      for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index)
                      {
-                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(sname_index,
+                         RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(sname_index,
                                                                                         seta_index,
                                                                                         sphi_index,
                                                                                         dbr_index,
@@ -3114,7 +3114,7 @@ void MuonGMCheck::testTgcCache_here()
              for (int sphi_index = 0; sphi_index<MuonDetectorManager::NTgcStatPhi; ++sphi_index)
              {
                  
-                 const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(sname_index,
+                 TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(sname_index,
                                                                                 seta_index,
                                                                                 sphi_index);
                  if (tgc == NULL) continue;
@@ -3154,7 +3154,7 @@ void MuonGMCheck::testCscCache_here()
                  for (int ml=0; ml<MuonDetectorManager::NCscChamberLayer; ++ml)
                  {   
                  
-                     const CscReadoutElement* csc = p_MuonMgr->getCscReadoutElement(sname_index,
+                     CscReadoutElement* csc = p_MuonMgr->getCscReadoutElement(sname_index,
                                                                                     seta_index,
                                                                                     sphi_index,
                                                                                     ml);
@@ -3196,7 +3196,7 @@ void MuonGMCheck::testMdtCache_here()
              {
                  for (int dbr_index = 0; dbr_index<MuonDetectorManager::NMdtMultilayer; ++dbr_index)
                  {
-                     const MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(sname_index,
+                     MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(sname_index,
                                                                                     seta_index,
                                                                                     sphi_index,
                                                                                     dbr_index);

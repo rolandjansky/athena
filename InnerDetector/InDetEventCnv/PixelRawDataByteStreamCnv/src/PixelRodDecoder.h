@@ -40,7 +40,9 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     StatusCode initialize() override;
     StatusCode finalize() override;
 
-    StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IPixelRDO_Container* rdoIdc,
+    StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag,
+				IPixelRDO_Container* rdoIdc,
+				IDCInDetBSErrContainer& decodingErrors,
 				std::vector<IdentifierHash>* vecHash = NULL) const override;
 
     StatusCode StoreBSError() const override;
@@ -122,6 +124,8 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
     void addRODError(uint32_t rodid, uint32_t robStatus) const;
 
+
+
     bool CheckLinkStart(const bool Link_start, const int rodId, const unsigned int mLink, const unsigned int mBCID, const unsigned int mLVL1ID, const int LVL1A);
 
     uint32_t treatmentFEFlagInfo(unsigned int serviceCode, unsigned int serviceCodeCounter) const;
@@ -149,7 +153,8 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     SG::ReadCondHandleKey<PixelHitDiscCnfgData> m_condHitDiscCnfgKey
     {this, "PixelHitDiscCnfgData", "PixelHitDiscCnfgData", "Pixel FEI4 HitDiscConfig key"};
 
-
+    //!< adds given ErrorCode to all hasIDs for given ROB
+    void addRODError(uint32_t robid, IDCInDetBSErrContainer::ErrorCode, IDCInDetBSErrContainer& errorsCollection) const;
 
 };
 

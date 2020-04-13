@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TPyStore.h 659468 2015-04-08 14:31:56Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TPYSTORE_H
 #define XAODROOTACCESS_TPYSTORE_H
 
@@ -29,9 +26,6 @@ namespace xAOD {
    /// much more flexibility in PyROOT.
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 659468 $
-   /// $Date: 2015-04-08 16:31:56 +0200 (Wed, 08 Apr 2015) $
    ///
    class TPyStore : public TStore {
 

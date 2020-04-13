@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CSCSimHitCollectionCnv.h"
@@ -45,21 +45,21 @@ CSCSimHitCollection* CSCSimHitCollectionCnv::createTransient() {
       if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
       // poolReadObject< CSCSimHitCollection_PERS >( m_TPConverter );
       // p_collection = m_TPConverter.createTransient( log );
-      std::auto_ptr< Muon::CSCSimHitCollection_p3 >   col_vect( this->poolReadObject< Muon::CSCSimHitCollection_p3 >() );
+      std::unique_ptr< Muon::CSCSimHitCollection_p3 >   col_vect( this->poolReadObject< Muon::CSCSimHitCollection_p3 >() );
       p_collection = m_TPConverter_p3.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p2_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endmsg;
         // poolReadObject< CSCSimHitCollection_PERS >( m_TPConverter );
         // p_collection = m_TPConverter.createTransient( log );
-        std::auto_ptr< Muon::CSCSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::CSCSimHitCollection_p2 >() );
+        std::unique_ptr< Muon::CSCSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::CSCSimHitCollection_p2 >() );
         p_collection = m_TPConverter_p2.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p1_guid) ) {
         if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
         // poolReadObject< CSCSimHitCollection_PERS >( m_TPConverter );
         // p_collection = m_TPConverter.createTransient( log );
-        std::auto_ptr< Muon::CSCSimHitCollection_p1 >   col_vect( this->poolReadObject< Muon::CSCSimHitCollection_p1 >() );
+        std::unique_ptr< Muon::CSCSimHitCollection_p1 >   col_vect( this->poolReadObject< Muon::CSCSimHitCollection_p1 >() );
         p_collection = m_TPConverter.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------

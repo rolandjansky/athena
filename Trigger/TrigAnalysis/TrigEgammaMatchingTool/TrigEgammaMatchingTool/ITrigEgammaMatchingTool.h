@@ -31,10 +31,10 @@ namespace Trig{
 
         public:
             virtual StatusCode initialize() = 0;
-            virtual bool match(const xAOD::Egamma *,const std::string,const HLT::TriggerElement*&)=0;
-            virtual bool match(const xAOD::Egamma *,const std::string)=0;
-            virtual bool matchHLT(const xAOD::Egamma *,const std::string)=0;
-            virtual const xAOD::Egamma* closestHLTObject(const xAOD::Egamma *,const std::string)=0;
+            virtual bool match(const xAOD::Egamma *,const std::string&,const HLT::TriggerElement*&)=0;
+            virtual bool match(const xAOD::Egamma *,const std::string&)=0;
+            virtual bool matchHLT(const xAOD::Egamma *,const std::string&)=0;
+            virtual const xAOD::Egamma* closestHLTObject(const xAOD::Egamma *,const std::string&)=0;
         protected:
 
         private:

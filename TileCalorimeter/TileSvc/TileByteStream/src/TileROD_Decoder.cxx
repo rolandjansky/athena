@@ -153,6 +153,8 @@ StatusCode TileROD_Decoder::initialize() {
   // Initialize
   this->m_hashFunc.initialize(m_tileHWID);
   
+  this->initHid2reHLT();
+
   return StatusCode::SUCCESS;
 }
 
@@ -3509,11 +3511,6 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
       pCell->addEnergy(0., 1-m_Rw2Pmt[sec][5], 1);
     }
 
-    // This is looking at event data via member variables.  Won't work with MT.
-    if (Gaudi::Hive::currentContext().slot() > 1) {
-      ATH_MSG_ERROR("TileROD_Decoder::make_copyHLT is not MT-safe but used in "
-                    "a MT job.  Results will likely be wrong.");
-    }
     if (m_MBTS && MBTS_chan >= 0) {
       auto it = m_mapMBTS.find (frag_id);
       unsigned int idx = it != m_mapMBTS.end() ? it->second : 0u;
@@ -4025,11 +4022,6 @@ void TileROD_Decoder::initHid2reHLT() {
   ATH_MSG_DEBUG( "initHid2reHLT() for run " << m_fullTileRODs );
 
   m_hid2reHLT = new TileHid2RESrcID(m_tileHWID,m_fullTileRODs); // setting a frag2RODmap and map dedicated to TMDB
-}
-
-void TileROD_Decoder::initTileMuRcvHid2re() {
-  ATH_MSG_DEBUG( "initTileMuRcvHid2re() for run " << m_fullTileRODs );
-  initHid2re();
 }
 
 const uint32_t*

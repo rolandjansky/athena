@@ -60,7 +60,7 @@ const Amg::Vector3D&
 CscDetectorElement::normal(const Identifier& id) const
   {return m_cscre->normal(id);}
 
-const std::vector<const Trk::Surface*>&  CscDetectorElement::surfaces() const
+std::vector<const Trk::Surface*>  CscDetectorElement::surfaces() const
 {return m_cscre->surfaces();}
 
 }

@@ -13,7 +13,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/LockedHandle.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigger/versions/TrigComposite_v1.h"
 #include "DecisionCollectorTool.h"
@@ -67,6 +67,7 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
     mutable LockedHandle<TH2> m_bufferHistogram;
     mutable LockedHandle<TH2> m_histogram;
     std::mutex m_mutex;
+    mutable std::atomic_bool m_stopCallback {false};
     std::unique_ptr<Athena::AlgorithmTimer> m_timer;
     std::unique_ptr<TimeDivider> m_timeDivider;
     unsigned int m_duration;

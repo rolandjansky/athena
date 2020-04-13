@@ -5,9 +5,7 @@
 #include "ByteStreamEventStorageInputSvc.h"
 
 #include "DumpFrags.h"
-#include "ByteStreamData/ByteStreamMetadata.h"
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
-#include "ByteStreamData/ByteStreamUserMetadata.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "EventStorage/pickDataReader.h"
 
@@ -42,7 +40,6 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string
         m_evtInFile(0),
 	m_sgSvc("StoreGateSvc", name),
 	m_mdSvc("StoreGateSvc/InputMetaDataStore", name),
-        m_attlistsvc("ByteStreamAttListMetadataSvc", name),
         m_robProvider("ROBDataProviderSvc", name),
 	m_sequential(false),
 	m_fileCount(0) {
@@ -56,7 +53,6 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string
 
    declareProperty("EventStore", m_sgSvc);
    declareProperty("MetaDataStore", m_mdSvc);
-   declareProperty("AttributeListKeys", m_keys);
 }
 //------------------------------------------------------------------------------
 ByteStreamEventStorageInputSvc::~ByteStreamEventStorageInputSvc() {
@@ -76,21 +72,9 @@ StatusCode ByteStreamEventStorageInputSvc::initialize() {
       ATH_MSG_FATAL("Cannot get InputMetaDataStore.");
       return(StatusCode::FAILURE);
    }
-   // Retrieve AttListSvc
-   if (!m_attlistsvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get metadata AttListSvc.");
-      return(StatusCode::FAILURE);
-   }
    if (!m_robProvider.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get rob data provider");
       return(StatusCode::FAILURE);
-   }
-   // Initialize stores for user metadata
-   if (m_keys.size()>0) {
-     StatusCode sc = m_attlistsvc->readInit(m_keys);
-     if (sc.isFailure()) {
-       msg() << MSG::WARNING << "readInit for AttributeList service failed" << endmsg;
-     }
    }
 
    // Check if defunct properties set, and give instructions
@@ -134,18 +118,11 @@ long ByteStreamEventStorageInputSvc::positionInBlock()
   return m_evtOffsets.size();
 }
 //------------------------------------------------------------------------------
-// Load both default and user freemetadata into store
+// Load freemetadata into store
 bool ByteStreamEventStorageInputSvc::loadMetadata()
 {
   bool good = true;
 
-  // Get ByteStream Metadata into Input MetaData Store
-  std::vector<std::string> fullFmd = m_reader->freeMetaDataStrings();
-  std::vector<std::string> user, nonuser;
-  for (std::vector<std::string>::iterator it=fullFmd.begin(); it != fullFmd.end(); ++it) {
-     if (it->substr(0,5)=="UMD::") user.push_back(*it);
-     else                          nonuser.push_back(*it);
-  }
   // default goes into ByteStreamMetadata
   std::bitset<64> word1;
   std::bitset<64> word2;
@@ -156,7 +133,7 @@ bool ByteStreamEventStorageInputSvc::loadMetadata()
   ByteStreamMetadata* metadata = new ByteStreamMetadata(m_reader->runNumber(), m_reader->eventsInFile(),
 	  m_reader->maxEvents(), m_reader->recEnable(), m_reader->triggerType(), word1.to_ulong(), word2.to_ulong(),
 	  m_reader->beamType(), m_reader->beamEnergy(), m_reader->GUID(), m_reader->stream(),
-	  m_reader->projectTag(), m_reader->lumiblockNumber(), nonuser);
+	  m_reader->projectTag(), m_reader->lumiblockNumber(), m_reader->freeMetaDataStrings());
   ByteStreamMetadataContainer* bsmdc = new ByteStreamMetadataContainer;
   bsmdc->push_back(metadata);
   StatusCode status = m_mdSvc->record(bsmdc, "ByteStreamMetadata");
@@ -166,55 +143,6 @@ bool ByteStreamEventStorageInputSvc::loadMetadata()
      good = false;
   }
   else ATH_MSG_DEBUG("Recorded ByteStreamMetadata in InputMetadataStore");
-  // user goes into ByteStreamUserMetadata
-  for (std::vector<std::string>::const_iterator it=user.begin(); it != user.end(); ++it) {
-     // find the beginning of the data
-     std::string::size_type keybegin = it->rfind(ByteStreamFreeMetadataString::foldersep())+ByteStreamFreeMetadataString::foldersep().size();
-     bool dataok(true);
-     ByteStreamFreeMetadataString bsfms;
-     // If dataset found, then make the FMS
-     if (keybegin!=0) {
-        dataok = bsfms.fromString(it->substr(keybegin));
-     }
-     // Find the beginning of the folder
-     std::string::size_type folderbegin = it->find(ByteStreamFreeMetadataString::foldersep());
-     std::string folder("UNKNOWN");
-     // If folder found, then set string to that
-     if (folderbegin!=std::string::npos) {
-        folderbegin += ByteStreamFreeMetadataString::foldersep().size();
-        folder = it->substr(folderbegin,keybegin-folderbegin-ByteStreamFreeMetadataString::foldersep().size());
-     }
-     // If data is ok
-     if (dataok) {
-        ByteStream::FreeMetadata* umeta;
-        // Check if already in storegate and use that one if there, otherwise create one
-        if (m_mdSvc->contains<ByteStream::FreeMetadata>(folder)) {
-           StatusCode sc = m_mdSvc->retrieve(umeta,folder);
-           if (sc.isSuccess()) {
-              umeta->push_back(bsfms);
-           }
-        }
-        else {
-           umeta = new ByteStream::FreeMetadata();
-           umeta->push_back(bsfms);
-           StatusCode screc = m_mdSvc->record(umeta,folder);
-           if (!screc.isSuccess()) {
-              delete umeta; 
-              ATH_MSG_WARNING("Unable to record User MetaData for ByteStream");
-              good = false;
-           }
-        }
-     }
-     else good = false;
-  }
-
-  // Rebuild attributeLists with user metadata
-  if (m_keys.size()>0) {
-    StatusCode sc = m_attlistsvc->fromBSMetadata(m_keys);
-    if (sc.isFailure()) {
-       msg() << MSG::WARNING << "Conversion failed for AttributeList service" << endmsg;
-    }
-  }
 
   ATH_MSG_DEBUG(" run parameters  =  \n "
      << " run number  " << m_reader->runNumber() << "\n"

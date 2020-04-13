@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #####################################################################################
 # Add a filter algorithm that cuts on timing difference of the hits on MBTS A and C side
 #####################################################################################

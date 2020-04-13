@@ -394,9 +394,11 @@ StatusCode ParticleDecayer::fillEvt(HepMC::GenEvent* event) {
                                     darkPhotonLVs) );
 
            //add dark photon 1
-           addParticle( genpart->end_vertex(), m_particlePDGID, darkPhotonLVs.at(0).vect(), 2);
+           auto v0=darkPhotonLVs.at(0).vect();
+           addParticle( genpart->end_vertex(), m_particlePDGID, HepMC::FourVector(v0.x(),v0.y(),v0.z(),0.0) , 2);
            //add dark photon 2
-           addParticle( genpart->end_vertex(), m_particlePDGID, darkPhotonLVs.at(1).vect(), 2);
+           auto v1=darkPhotonLVs.at(1).vect();
+           addParticle( genpart->end_vertex(), m_particlePDGID, HepMC::FourVector(v1.x(),v1.y(),v1.z(),0.0), 2);
            
            //lifetime handling of the dark photons
            HepMC::GenVertex::particles_out_const_iterator pIt    = genpart->end_vertex()->particles_out_const_begin();
@@ -441,7 +443,7 @@ StatusCode ParticleDecayer::fillEvt(HepMC::GenEvent* event) {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void ParticleDecayer::addParticle(HepMC::GenVertex* prod_vtx, int pdg, HepMC::ThreeVector momentum, int statusCode) {
+void ParticleDecayer::addParticle(HepMC::GenVertex* prod_vtx, int pdg, HepMC::FourVector momentum, int statusCode) {
 
   double mass = 0.;
   if( pdg == m_particlePDGID)
@@ -451,7 +453,8 @@ void ParticleDecayer::addParticle(HepMC::GenVertex* prod_vtx, int pdg, HepMC::Th
      {
         mass = getParticleMass(pdg);
      }
-  HepMC::GenParticle* aParticle = new HepMC::GenParticle(HepMC::FourVector(momentum.x(), momentum.y(), momentum.z(), sqrt(momentum.r()*momentum.r() + mass*mass)), 
+  double energy=std::sqrt(std::pow(momentum.x(),2)+std::pow(momentum.y(),2)+std::pow(momentum.z(),2)+mass*mass);   
+  HepMC::GenParticle* aParticle = new HepMC::GenParticle(HepMC::FourVector(momentum.x(), momentum.y(), momentum.z(), energy), 
 		                           pdg, statusCode, HepMC::Flow(), HepMC::Polarization(0, 0));
 
   prod_vtx->add_particle_out(aParticle);
@@ -519,8 +522,10 @@ StatusCode ParticleDecayer::DFTwoBodyDecay( HepMC::GenParticle* genpart, int Pol
    //Add the daughters to the pool file
    ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- Add the daughters to the pool file");
    HepMC::GenVertex* end_vtx = genpart->end_vertex();
-   addParticle(end_vtx,  ModeOfDecay, daughterLVs.at(0).vect(),    1);
-   addParticle(end_vtx, -ModeOfDecay, daughterLVs.at(1).vect(),    1);
+   auto v0=daughterLVs.at(0).vect();
+   addParticle(end_vtx,  ModeOfDecay, HepMC::FourVector(v0.x(),v0.y(),v0.z(),0.0),    1);
+   auto v1=daughterLVs.at(1).vect();
+   addParticle(end_vtx, -ModeOfDecay, HepMC::FourVector(v1.x(),v1.y(),v1.z(),0.0),    1);
 
    return StatusCode::SUCCESS;
 }

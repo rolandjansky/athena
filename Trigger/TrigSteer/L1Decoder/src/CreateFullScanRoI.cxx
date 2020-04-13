@@ -3,7 +3,7 @@
 */
 
 #include "CreateFullScanRoI.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 CreateFullScanRoI::CreateFullScanRoI(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator)

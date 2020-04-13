@@ -10,7 +10,7 @@
 //********************************************************************//
 
 #include <algorithm> 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 #include "xAODJet/Jet.h"
@@ -21,12 +21,8 @@
 
 #include "tauRecTools/KineUtils.h"
 
-#ifndef XAOD_ANALYSIS
 #include "GaudiKernel/SystemOfUnits.h"
 using Gaudi::Units::GeV;
-#else
-#define GeV 1000
-#endif
 
 const double TauSubstructureVariables::DEFAULT = -1111.;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -73,7 +73,7 @@ namespace MuonGM {
   
     const Amg::Vector3D& center(const Identifier& id) const;
 
-    const std::vector<const Trk::Surface*>& surfaces() const;
+    std::vector<const Trk::Surface*> surfaces() const;
 
     enum RpcGMRanges
       {NDoubletZ = 4}; 
@@ -84,9 +84,6 @@ namespace MuonGM {
     const RpcIdHelper* m_helper;
     int m_ndbz;
     const RpcReadoutElement* m_rpcVector[NDoubletZ];
-    //here is the std::vector of pointers to ReadoutElements in this DetectorElement
-
-    mutable std::vector<const Trk::Surface*> m_detectorSurfaces;
   };
 
 } // namespace MuonGM

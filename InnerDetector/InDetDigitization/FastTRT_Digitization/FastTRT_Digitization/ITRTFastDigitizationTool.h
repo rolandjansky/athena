@@ -7,6 +7,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/EventContext.h"
 
 static const InterfaceID IID_ITRTFastDigitizationTool ("ITRTFastDigitizationTool",1,0);
 
@@ -19,7 +20,7 @@ class ITRTFastDigitizationTool : virtual public IAlgTool
 
      ///alternative interface which uses the PileUpMergeSvc to obtain all
      ///the required SubEvents.
-     virtual StatusCode processAllSubEvents() = 0;
+     virtual StatusCode processAllSubEvents(const EventContext& ctx) = 0;
 
 };
 

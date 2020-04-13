@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #---------------------------------------------------------
 # Author      : B.Trocme (LPSC Grenoble) 
 # Description : JO steering CaloBaselineMon
@@ -9,7 +9,7 @@ from CaloMonitoring.CaloMonitoringConf import CaloBaselineMon
  
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaCommon.GlobalFlags  import globalflags
-if not 'rec' in dir():
+if 'rec' not in dir():
    from RecExConfig.RecFlags import rec
 
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool

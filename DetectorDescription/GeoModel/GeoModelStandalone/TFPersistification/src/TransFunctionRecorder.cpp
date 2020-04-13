@@ -3,9 +3,7 @@
 #include "TFPersistification/TransFunctionRecorder.h"
 
 // This is a data recorder. It breaks encapsulation. Normal. ==========//
-#define private public
 #include "GeoModelKernel/GeoXF.h"
-#undef private
 //=====================================================================//
 
 
@@ -21,9 +19,7 @@ const TransFunctionPersistifier *TransFunctionRecorder::getPersistifier() const 
 
 TransFunctionRecorder::~TransFunctionRecorder () {}
 
-#define private public                                     //
 #include "GeoModelKernel/GeoXF.h"                          //
-#undef private                                             //
 
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
@@ -44,9 +40,9 @@ void ProductRecorder::execute( const GeoXF::Function & function) const {
   std::ostringstream & stream = getPersistifier()->getStream();
 
   stream << "GeoXF::Product" << "{";
-  getPersistifier()->persistify(*ptr->m_arg1);
+  getPersistifier()->persistify(*ptr->arg1());
   stream << "|";
-  getPersistifier()->persistify(*ptr->m_arg2);
+  getPersistifier()->persistify(*ptr->arg2());
   stream << "}";
   return;
 }
@@ -57,14 +53,14 @@ void PreMultRecorder::execute( const GeoXF::Function & function) const {
   if (!ptr) throw std::runtime_error("Error in PreMultRecorder:  wrong function type");
   std::ostringstream & stream = getPersistifier()->getStream();
   stream << "GeoXF::PreMult" << "{";
-  const HepGeom::Transform3D & tPtr = Amg::EigenTransformToCLHEP(ptr->m_arg1);
+  const HepGeom::Transform3D & tPtr = Amg::EigenTransformToCLHEP(ptr->arg1());
   stream << "Transform["
 	 << tPtr.xx() << ";" << tPtr.xy() << ";" << tPtr.xz() << ";"
 	 << tPtr.yx() << ";" << tPtr.yy() << ";" << tPtr.yz() << ";"
 	 << tPtr.zx() << ";" << tPtr.zy() << ";" << tPtr.zz() << ";"
 	 << tPtr.dx() << ";" << tPtr.dy() << ";" << tPtr.dz() << "]";
   stream << "|";
-  getPersistifier()->persistify(*ptr->m_arg2);
+  getPersistifier()->persistify(*ptr->arg2());
   stream << "}";
   return;
 }
@@ -75,9 +71,9 @@ void PostMultRecorder::execute( const GeoXF::Function & function) const {
   if (!ptr) throw std::runtime_error("Error in PostMultRecorder:  wrong function type");
   std::ostringstream & stream = getPersistifier()->getStream();
   stream << "GeoXF::PostMult" << "{";
-  getPersistifier()->persistify(*ptr->m_arg1);
+  getPersistifier()->persistify(*ptr->arg1());
   stream << "|";
-  const HepGeom::Transform3D & tPtr = Amg::EigenTransformToCLHEP(ptr->m_arg2);
+  const HepGeom::Transform3D & tPtr = Amg::EigenTransformToCLHEP(ptr->arg2());
   stream << "Transform["
 	 << tPtr.xx() << ";" << tPtr.xy() << ";" << tPtr.xz() << ";"
 	 << tPtr.yx() << ";" << tPtr.yy() << ";" << tPtr.yz() << ";"
@@ -94,14 +90,14 @@ void PowRecorder::execute( const GeoXF::Function & function) const {
   if (!ptr) throw std::runtime_error("Error in PowRecorder:  wrong function type");
   std::ostringstream & stream = getPersistifier()->getStream();
   stream << "GeoXF::Pow" << "{";
-  const HepGeom::Transform3D & tPtr = Amg::EigenTransformToCLHEP(ptr->m_xf);
+  const HepGeom::Transform3D & tPtr = Amg::EigenTransformToCLHEP(ptr->transform());
   stream << "Transform["
 	 << tPtr.xx() << ";" << tPtr.xy() << ";" << tPtr.xz() << ";"
 	 << tPtr.yx() << ";" << tPtr.yy() << ";" << tPtr.yz() << ";"
 	 << tPtr.zx() << ";" << tPtr.zy() << ";" << tPtr.zz() << ";"
 	 << tPtr.dx() << ";" << tPtr.dy() << ";" << tPtr.dz() << "]";
   stream << "|";
-  getPersistifier()->getGenFunctionPersistifier()->persistify(*ptr->m_function);
+  getPersistifier()->getGenFunctionPersistifier()->persistify(*ptr->function());
   stream << getPersistifier()->getGenFunctionPersistifier()->getCodedString();
   stream << "}";
   return;

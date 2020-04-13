@@ -27,7 +27,14 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkEventPrimitives/TrackScore.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <string>
 
@@ -73,7 +80,7 @@ namespace InDet {
       virtual StatusCode initialize() override;
       virtual StatusCode finalize() override;
 
-      virtual Trk::Track* segToTrack(const Trk::TrackSegment&) const override;
+      virtual Trk::Track* segToTrack(const EventContext& ctx, const Trk::TrackSegment&) const override;
       /** Check if the TRT segment has already been assigned a Si extension  */
       virtual bool segIsUsed(const Trk::TrackSegment&,
                              const Trk::PRDtoTrackMap *prd_to_track_map) const override;
@@ -105,6 +112,13 @@ namespace InDet {
 
       ToolHandle<Trk::ITrackScoringTool>     m_scoringTool   ;  //!< Track scoring tool
       ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc  ;  //!< Magnetic field service
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // Read handle for conditions object to get the field cache
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                           "Name of the Magnetic Field conditions object key"};
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
       /**ID TRT helper*/
       const TRT_ID* m_trtId;

@@ -179,22 +179,6 @@ StoreGateSvc::create(const TKEY& key, ARGS... constructorArgs) {
 // record an object with key
 //////////////////////////////////////////////////////////////////
 template <typename T, typename TKEY> 
-StatusCode StoreGateSvc::record(std::auto_ptr<T> pAuto, const TKEY& key)
-{
-  const bool ALLOWMODS(true);
-  return record (pAuto.release(), key, ALLOWMODS); //SG takes ownership
-}
-
-template <typename T, typename TKEY> 
-StatusCode 
-StoreGateSvc::overwrite(std::auto_ptr<T> pAuto, const TKEY& key) 
-{
-  const bool ALLOWMODS(true);
-  return overwrite(pAuto.release(), key, ALLOWMODS); //SG takes ownership
-}
-
-//-------------------------------------------------------------------
-template <typename T, typename TKEY> 
 StatusCode StoreGateSvc::record(T* pObject, const TKEY& key)
 {
   const bool ALLOWMODS(true);
@@ -812,28 +796,6 @@ StoreGateSvc::retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVers
   return sc;
 }
 
-
-template <typename T>
-std::auto_ptr<T> 
-StoreGateSvc::readPrivateCopy (const std::string& key) {
-  return std::auto_ptr<T>(SG::Storable_cast<T>(
-                                               this->typeless_readPrivateCopy(ClassID_traits<T>::ID(), key)));
-}
-
-
-template <typename T>
-std::auto_ptr<T> 
-StoreGateSvc::retrievePrivateCopy (const std::string& key) {
-  CLID clid = ClassID_traits<T>::ID();
-  DataObject* obj = this->currentStore()->typeless_retrievePrivateCopy(clid, key);
-  std::auto_ptr<T> ret (SG::Storable_cast<T>(obj));
-  if (DataBucketBase* dbb = dynamic_cast<DataBucketBase*> (obj)) 
-  {
-    dbb->relinquish();
-  }
-  obj->release();
-  return ret;
-}
 
 template <typename T>
 std::unique_ptr<T> 

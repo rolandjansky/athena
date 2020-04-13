@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: SUSYToolsTester_opt.cxx 696994 2015-09-26 20:40:26Z khoo $
@@ -210,7 +210,7 @@ int main( int argc, char* argv[] ) {
 est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   }
   Info( APP_NAME, "Opening file: %s", fileName.Data() );
-  std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
+  std::unique_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   ANA_CHECK( ifile.get() );
 
   // Create a TEvent object:
@@ -234,7 +234,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
   // Open up an output file.  Not needed for this example.  If you wish to enable
   // this, please don't forget to add the call to fill towards the end of the code!
-  //std::auto_ptr< TFile > ofile( TFile::Open( "out.root", "RECREATE" ) );
+  //std::unique_ptr< TFile > ofile( TFile::Open( "out.root", "RECREATE" ) );
   //ANA_CHECK( event.writeTo( ofile.get() ) );
 
   // Decide how many events to run over:

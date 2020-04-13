@@ -31,8 +31,8 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool, public virtual ITrigEgamma
 
         std::string key( std::string ) const;
         
-        bool match(const xAOD::Egamma *,const std::string) const override;
-        bool match(const xAOD::Egamma *,const std::string, const TrigCompositeUtils::Decision *&) const override;
+        bool match(const xAOD::Egamma *,const std::string&) const override;
+        bool match(const xAOD::Egamma *,const std::string&, const TrigCompositeUtils::Decision *&) const override;
 
         template<class CONTAINER> bool ancestorPassed( const TrigCompositeUtils::Decision*, const std::string&trigger , const std::string&key) const;
 
@@ -59,8 +59,8 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool, public virtual ITrigEgamma
 
         inline double dR(const double eta1, const double phi1, const double eta2, const double phi2) const
         {
-          double deta = fabs(eta1 - eta2);
-          double dphi = fabs(phi1 - phi2) < TMath::Pi() ? fabs(phi1 - phi2) : 2*TMath::Pi() - fabs(phi1 - phi2);
+          double deta = std::abs(eta1 - eta2);
+          double dphi = std::abs(phi1 - phi2) < TMath::Pi() ? std::abs(phi1 - phi2) : 2*TMath::Pi() - std::abs(phi1 - phi2);
           return sqrt(deta*deta + dphi*dphi);
         };
 

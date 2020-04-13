@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------//
@@ -17,8 +17,7 @@
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h" //for Argon
-#include "GaudiKernel/ServiceHandle.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" //for Argon
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 
@@ -37,7 +36,7 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   //                                                                           //
   // Constructor:                                                              //
   TRTDetectorFactory_Full(const InDetDD::AthenaComps * athenaComps,            //
-			  ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc,  //
+			  const ITRT_StrawStatusSummaryTool * sumTool,         //
 			  bool useOldActiveGasMixture,                         //
 			  bool DC2CompatibleBarrelCoordinates,                 //
 			  int overridedigversion,                              //
@@ -62,7 +61,7 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
     return n;
   }
 
-
+ typedef TRTCond::StrawStatusMultChanContainer StrawStatusContainer;
  private:  
 
   //---------------------------Illegal operations:---------------------------------//
@@ -99,11 +98,12 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   bool m_DC2CompatibleBarrelCoordinates;
   int m_overridedigversion;
   bool m_alignable;
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added for Argon
+  const ITRT_StrawStatusSummaryTool* m_sumTool; // added for Argon
   bool m_strawsvcavailable;
   bool m_doArgon;
   bool m_doKrypton;
   bool m_useDynamicAlignFolders;
+
 };
 
 #endif // TRTDetectorFactory_Full_h

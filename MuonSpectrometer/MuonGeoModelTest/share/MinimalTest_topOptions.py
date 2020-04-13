@@ -32,9 +32,9 @@ DetFlags.detdescr.Muon_setOn()
 ############################ general initialization of the geometry 
 if not 'DetDescrVersion' in dir():
     DetDescrVersion="ATLAS-GEO-20-00-01"
-    print 'MuonGeoModelTest/MinimalTest_topOptions DetDescrVersion now set to ', DetDescrVersion
+    printfunc ('MuonGeoModelTest/MinimalTest_topOptions DetDescrVersion now set to ', DetDescrVersion)
 else:
-    print 'MuonGeoModelTest/MinimalTest_topOptions DetDescrVersion is already ', DetDescrVersion
+    printfunc ('MuonGeoModelTest/MinimalTest_topOptions DetDescrVersion is already ', DetDescrVersion)
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = DetDescrVersion
 
@@ -87,8 +87,8 @@ MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
 MessageSvc.defaultLimit = 99999999
 
 
-print GeoModelSvc
-###print MuonDetectorTool
+printfunc (GeoModelSvc)
+###printfunc (MuonDetectorTool)
 
     
 #***************************************************** HERE setup MuonGMCheck
@@ -104,7 +104,7 @@ MuonGMCheck.check_csc = 1 # as an example
 #MuonGMCheck.check_surfaces = 1
 MuonGMCheck.OutputLevel=DEBUG
 
-print MuonGMCheck
+printfunc (MuonGMCheck)
 
 
 ######################################################
@@ -119,19 +119,17 @@ topSequence += MuonGMCheck
 
 
 
-print " "
-print "List of all Dlls"
-print theApp.Dlls
-print " "
-print "List of all Ext services"
-print theApp.ExtSvc
-print " "
-print "List of all top algorithms"
-print theApp.TopAlg
+printfunc (" ")
+printfunc ("List of all Dlls")
+printfunc (theApp.Dlls)
+printfunc (" ")
+printfunc ("List of all Ext services")
+printfunc (theApp.ExtSvc)
+printfunc (" ")
+printfunc ("List of all top algorithms")
+printfunc (theApp.TopAlg)
 
-#print "Print here Top Sequence" 
-#print topSequence
-#print "Print here Service Manager" 
-#print ServiceMgr
-
-
+#printfunc ("Print here Top Sequence" )
+#printfunc (topSequence)
+#printfunc ("Print here Service Manager" )
+#printfunc (ServiceMgr)

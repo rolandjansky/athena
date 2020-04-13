@@ -4,8 +4,6 @@
 # TileMu creation from TileCell
 # with TileLookForMuAlg algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -23,7 +21,7 @@ class TileMuGetter ( Configured )  :
         try:
             from TileMuId.TileMuGetter import TileMuGetter
             theTileMuGetter=TileMuGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileMuGetter Quit")
             traceback.print_exc()
             return False
@@ -38,13 +36,13 @@ class TileMuGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileMuId.TileMuIdConf import TileLookForMuAlg                
-        except:
+        except Exception:
             mlog.error("could not import TileMuId.TileLookForMuAlg")
             traceback.print_exc()
             return False
 
         theTileLookForMuAlg=TileLookForMuAlg()
-        self._TileLookForMuAlgHandle = theTileLookForMuAlg ;
+        self._TileLookForMuAlgHandle = theTileLookForMuAlg
 
         # Configure TileLookForMuAlg here
         # As in TileMuId_cosmics_jobOptions.py, check also
@@ -118,7 +116,7 @@ class TileMuGetter ( Configured )  :
         mlog.info(" now adding to topSequence")        
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileLookForMuAlg;
+        topSequence += theTileLookForMuAlg
         
         return True
 

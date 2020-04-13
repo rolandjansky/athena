@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # python fragment to configure LAr HV conditions chain
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolders
 
 def LArHVDBCfg(configFlags):
@@ -18,16 +17,16 @@ def LArHVDBCfg(configFlags):
       result.merge(addFolders(configFlags,["/LAR/DCS/HV/BARREl/I16","/LAR/DCS/HV/BARREL/I8"],detDb="DCS_OFL",className="CondAttrListCollection"))
       result.merge(addFolders(configFlags,["/LAR/IdentifierOfl/HVLineToElectrodeMap","/LAR/HVPathologiesOfl/Pathologies"],detDb="LAR_OFL",className="AthenaAttributeList"))
  
-      LArHVIdMappingAlg=CompFactory.LArHVIdMappingAlg
+      from LArRecUtils.LArRecUtilsConf import LArHVIdMappingAlg
       result.addCondAlgo(LArHVIdMappingAlg(ReadKey="/LAR/IdentifierOfl/HVLineToElectrodeMap",WriteKey="LArHVIdMap"))
  
-      LArHVPathologyDbCondAlg=CompFactory.LArHVPathologyDbCondAlg
+      from LArRecUtils.LArRecUtilsConf import LArHVPathologyDbCondAlg
       result.addCondAlgo(LArHVPathologyDbCondAlg(PathologyFolder="/LAR/HVPathologiesOfl/Pathologies",HVMappingKey="LArHVIdMap", HVPAthologyKey="LArHVPathology"))
  
-      LArHVCondAlg=CompFactory.LArHVCondAlg
+      from LArRecUtils.LArRecUtilsConf import LArHVCondAlg
       result.addCondAlgo(LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData"))
  
-      LArHVScaleCorrCondAlg=CompFactory.LArHVScaleCorrCondAlg
+      from LArRecUtils.LArRecUtilsConf import LArHVScaleCorrCondAlg
       hvscale = LArHVScaleCorrCondAlg(keyHVdata="LArHVData",keyOutputCorr="LArHVScaleCorrRecomputed")
       hvscale.UndoOnlineHVCorr=True
       result.addCondAlgo(hvscale)

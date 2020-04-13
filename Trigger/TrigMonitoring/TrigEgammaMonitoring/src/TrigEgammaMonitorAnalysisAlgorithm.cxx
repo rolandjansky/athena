@@ -65,7 +65,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &leve
 
 
     
-    asg::AcceptData acceptData (&getAccept());
     const float etthr = info.trigThrHLT;
     const std::string pidword = info.trigPidDecorator;
     const std::string trigger = info.trigName;
@@ -105,7 +104,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &leve
 
     for( auto pairObj : pairObjs ){
        
-        acceptData = setAccept( pairObj.second, info );
+        auto acceptData = setAccept( pairObj.second, info );
         bool pid=true;
         bool isPassed = acceptData.getCutResult( level );
         float et=0.;
@@ -228,7 +227,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
         }
     }
     
-    ATH_MSG_INFO( "AKI_JOAO " << el_vec.size() ); 
     // Offline
     fillShowerShapes( trigger, eg_vec, false );
     fillTracking( trigger, el_vec, false );

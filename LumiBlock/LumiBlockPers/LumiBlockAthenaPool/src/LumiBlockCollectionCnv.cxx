@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,13 +30,11 @@ LumiBlockCollection* LumiBlockCollectionCnv::createTransient() {
 
 
   if( compareClassGuid(p2_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr< LumiBlockCollection_p2 > col_vect( poolReadObject< LumiBlockCollection_p2 >() );
+    std::unique_ptr< LumiBlockCollection_p2 > col_vect( poolReadObject< LumiBlockCollection_p2 >() );
     return TPConverter_p2.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr< LumiBlockCollection_p1 > col_vect( poolReadObject< LumiBlockCollection_p1 >() );
+    std::unique_ptr< LumiBlockCollection_p1 > col_vect( poolReadObject< LumiBlockCollection_p1 >() );
     return TPConverter_p1.createTransient( col_vect.get(), log );
   }
   else {

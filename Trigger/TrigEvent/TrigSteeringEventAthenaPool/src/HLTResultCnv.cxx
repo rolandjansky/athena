@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -41,8 +41,8 @@ HLT::HLTResult* HLTResultCnv::createTransient()
   
   if ( compareClassGuid(p1_guid) ) {
     mlog << MSG::DEBUG << "HLTResult::reading p1 persistent object" << endmsg;
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr< HLT::HLTResult_p1 > col_vect( poolReadObject< HLT::HLTResult_p1 >() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr< HLT::HLTResult_p1 > col_vect( poolReadObject< HLT::HLTResult_p1 >() );
     return m_TPConverter->createTransient( col_vect.get(), mlog );
   }
   

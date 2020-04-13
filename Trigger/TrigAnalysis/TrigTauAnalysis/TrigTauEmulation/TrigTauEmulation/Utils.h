@@ -34,7 +34,7 @@ namespace Utils {
 #else
   template< typename T >
       static bool toolStoreContains( const std::string& name ) {
-          return ( dynamic_cast< T* >( asg::ToolStore::get( name ) ) != 0 );
+          return ( dynamic_cast< T* >( asg::ToolStore::get( name, true ) ) != 0 );
       }
 #endif
 

@@ -191,10 +191,13 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
 
 def MuonCombinedReconstructionCfg(flags):
     result = ComponentAccumulator()
-    #Arguably this should be somewhere deeper - not quite sure where yet though. FIXME
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
-    result.merge( MuonGeoModelCfg(flags) )
-    
+
+    from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
+    result.merge( DetDescrCnvSvcCfg(flags) ) 
+
+    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+    result.merge( GeoModelCfg(flags) )
+
     Muon__MuonEDMHelperSvc=CompFactory.Muon__MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
@@ -258,7 +261,11 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryMDT   = True 
     ConfigFlags.Detector.GeometryTGC   = True
     ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryRPC   = True 
+    ConfigFlags.Detector.GeometryTile   = True 
+    ConfigFlags.Detector.GeometryLAr   = True 
+    ConfigFlags.Detector.GeometryPixel   = True 
+    ConfigFlags.Detector.GeometrySCT   = True 
+    ConfigFlags.Detector.GeometryTRT   = True 
         
     # from AthenaConfiguration.TestDefaults import defaultTestFiles
     # ConfigFlags.Input.Files = defaultTestFiles.ESD

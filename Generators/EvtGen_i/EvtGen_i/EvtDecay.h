@@ -28,8 +28,8 @@
 #ifndef GENERATORMODULESEVTDECAY_H
 #define GENERATORMODULESEVTDECAY_H
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "EvtGenBase/EvtParticle.hh"
 #include "EvtGen/EvtGen.hh"

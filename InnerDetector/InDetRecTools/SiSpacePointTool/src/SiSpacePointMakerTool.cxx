@@ -100,19 +100,27 @@ namespace InDet {
 
     Amg::Vector3D point;
 
-    bool ok(true);  
+    bool ok(true);
+    const double limit = 1. + m_stripLengthTolerance;
+
     if (m_usePerpProj) {
-      /* a simple hack for the case the origin of the particle is completely unknown:
-         The closest approach of element1 to element2 is used (perpendicular projection)
-         to determine the position of the SpacePoint on element 1. 
-         This option is especially aimed at the use with cosmics data.
-      */
-      Amg::Vector3D mab(endStrip2 - endStrip1);
-      const double eaTeb = strip1Direction.dot(strip2Direction);
-      const double denom = 1. - eaTeb*eaTeb;
-      if (std::fabs(denom)>10e-7){
-        const double lambda0 = (mab.dot(strip1Direction) - mab.dot(strip2Direction)*eaTeb)/denom;
-        point = endStrip1+lambda0 * strip1Direction;    
+      /** This is simple hack for the case the origin of the particle is completely unknown:
+          The closest approach of element1 to element2 is used (perpendicular projection)
+          to determine the position of the SpacePoint on element 1. 
+          This option is especially aimed at the use with cosmics data.
+          Ref. https://its.cern.ch/jira/browse/ATLASRECTS-5394.
+        */
+      
+      const double denom = Amg::Vector3D(strip1Direction.cross(strip2Direction)).z();
+      if (std::abs(denom)>10e-7){
+        Amg::Vector3D s(endStrip1+startStrip1);
+        Amg::Vector3D t(endStrip2+startStrip2);
+        const double lambda0 = strip2Direction.cross(Amg::Vector3D(strip1Direction-t)).z()/denom;
+        if (std::abs(lambda0)>limit){
+          ATH_MSG_WARNING("Intersection is outside strip bounds");
+          ok = false;
+        }
+        point = (s + lambda0 * strip1Direction) * 0.5;    
         ATH_MSG_VERBOSE( "Endpoints 1 : ( " <<  endStrip1.x() << " , " << endStrip1.y() << " , " << endStrip1.z() << " )   to   (" << startStrip1.x() << " , " << startStrip1.y() << " , " << startStrip1.z() << " ) " );
         ATH_MSG_VERBOSE( "Endpoints 2 : ( " <<  endStrip2.x() << " , " << endStrip2.y() << " , " << endStrip2.z() << " )   to   (" << startStrip2.x() << " , " << startStrip2.y() << " , " << startStrip2.z() << " )  " );
         ATH_MSG_VERBOSE( "Intersection: ( " <<  point.x() << " , " << point.y() << " , " << point.z() << " )   " );
@@ -132,8 +140,7 @@ namespace InDet {
       // us to recover space-points from tracks pointing back to an interaction
       // point up to around z = +- 20 cm
 
-      double limit = 1. + m_stripLengthTolerance;
-
+      
       if      (std::fabs(            m             ) > limit) ok = false;
       else if (std::fabs((n=-(midpoint2x2.dot(qs)/strip2Direction.dot(qs)))) > limit) ok = false;
  

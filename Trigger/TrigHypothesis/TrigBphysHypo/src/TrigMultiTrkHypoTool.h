@@ -25,16 +25,16 @@
 #include "Constants.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
 
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-#include "DecisionHandling/Combinators.h"
+#include "TrigCompositeUtils/Combinators.h"
 
 
 class TrigMultiTrkHypoTool: public ::AthAlgTool  {

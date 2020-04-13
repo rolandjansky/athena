@@ -9,6 +9,7 @@
 #define ITRKTRACKPARTICLECREATORTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
 #include "TrkParticleBase/TrackParticleBase.h" // to know TrackParticleOrigin enum
 #include "TrkTrack/TrackCollection.h"
 #include "AthLinks/ElementLink.h"
@@ -98,7 +99,7 @@ namespace Trk
                                                  xAOD::TrackParticleContainer* container = nullptr ) const = 0;
 
     /** Convenience method to retrieve Beamspot Data object -- cache this once per event for optimal performance */
-    virtual const InDet::BeamSpotData* CacheBeamSpotData(const EventContext &ctx) const =0;
+    virtual const InDet::BeamSpotData* CacheBeamSpotData(const ::EventContext &ctx) const =0;
 
   };
 

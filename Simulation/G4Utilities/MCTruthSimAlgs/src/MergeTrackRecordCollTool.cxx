@@ -21,7 +21,7 @@ StatusCode MergeTrackRecordCollTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeTrackRecordCollTool::prepareEvent(unsigned int nInputEvents)
+StatusCode MergeTrackRecordCollTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents)
 {
   ATH_MSG_DEBUG ( "Calling prepareEvent(): " << name() << " - package version " << PACKAGE_VERSION );
   ATH_MSG_DEBUG( "prepareEvent: there are " << nInputEvents << " subevents in this event.");
@@ -65,7 +65,7 @@ StatusCode MergeTrackRecordCollTool::processBunchXing(int bunchXing,
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeTrackRecordCollTool::mergeEvent()
+StatusCode MergeTrackRecordCollTool::mergeEvent(const EventContext& /*ctx*/)
 {
   //Nothing to do here;
   return StatusCode::SUCCESS;
@@ -78,7 +78,7 @@ bool MergeTrackRecordCollTool::toProcess(int bunchXing) const
   return (bunchXing==0);
 }
 
-StatusCode MergeTrackRecordCollTool::processAllSubEvents()
+StatusCode MergeTrackRecordCollTool::processAllSubEvents(const EventContext& ctx)
 {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
 
@@ -89,7 +89,7 @@ StatusCode MergeTrackRecordCollTool::processAllSubEvents()
       //FIXME we are forced to do a deep copy
       const TrackRecordCollection &oldColl=*(truthList.begin())->second;
 
-      SG::WriteHandle<TrackRecordCollection> outputCollection(m_outputKey);
+      SG::WriteHandle<TrackRecordCollection> outputCollection(m_outputKey, ctx);
       ATH_CHECK(outputCollection.record(std::make_unique<TrackRecordCollection>()));
       if (!outputCollection.isValid()) {
         ATH_MSG_ERROR("Could not record output TrackRecordCollection " << outputCollection.name() << " to store " << outputCollection.store());

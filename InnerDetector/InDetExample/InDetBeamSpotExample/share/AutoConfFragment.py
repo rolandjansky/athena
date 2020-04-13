@@ -5,7 +5,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: AutoConfFragment.py 226960 2009-11-15 23:14:39Z beringer $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: AutoConfFragment.py 226960 2009-11-15 23:14:39Z beringer $")
 
 
 # Default values (please put a default for EACH jobConfig parameter
@@ -35,7 +35,7 @@ for p in [ w.strip() for w in jobConfig['autoconfparams'].split(',') ]:
 
 # Extract parameters
 if autoconfparams:
-    print "InDetBeamSpotExample INFO Automatically configuring parameters: ", autoconfparams
+    printfunc ("InDetBeamSpotExample INFO Automatically configuring parameters: ", autoconfparams)
     from PyUtils.MetaReader import read_metadata
     try:
         input_file = jobConfig['inputfiles'][0]
@@ -44,15 +44,15 @@ if autoconfparams:
 
     except:
         if len(jobConfig['inputfiles'])>0:
-            print "InDetBeamSpotExample ERROR Unable to autoconfigure from input file",jobConfig['inputfiles'][0]
+            printfunc ("InDetBeamSpotExample ERROR Unable to autoconfigure from input file",jobConfig['inputfiles'][0])
         else:
-            print "InDetBeamSpotExample ERROR Unable to autoconfigure - no input files in jobConfig['inputfiles']"
+            printfunc ("InDetBeamSpotExample ERROR Unable to autoconfigure - no input files in jobConfig['inputfiles']")
     else:
         for p in autoconfparams:
             try:
                 jobConfig[p] = metadata[metaDataName(p)]
-                print "InDetBeamSpotExample INFO %s --> %s" % (p,jobConfig[p])
+                printfunc ("InDetBeamSpotExample INFO %s --> %s" % (p,jobConfig[p]))
             except:
-                print "InDetBeamSpotExample ERROR Unable to determine", p
+                printfunc ("InDetBeamSpotExample ERROR Unable to determine", p)
 else:
-    print "InDetBeamSpotExample INFO Nothing to autoconfigure"
+    printfunc ("InDetBeamSpotExample INFO Nothing to autoconfigure")

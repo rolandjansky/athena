@@ -70,7 +70,7 @@ std::string TrigEgammaMatchingToolMT::key( std::string key) const
 }
 
 
-bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string trigger, const TrigCompositeUtils::Decision *&dec ) const
+bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec ) const
 {
   ATH_MSG_DEBUG("Match decec with trigger " << trigger);
   if(xAOD::EgammaHelpers::isElectron(eg)){
@@ -101,7 +101,7 @@ bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string tr
 }
 
 
-bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string trigger ) const
+bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string &trigger ) const
 {
     const TrigCompositeUtils::Decision *dec=nullptr;
     if( match( eg, trigger, dec ) ){

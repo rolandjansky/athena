@@ -33,13 +33,13 @@ class TrigEgammaMatchingTool :
         
         
         /*! Egamma trigger matching which returns TE */
-        bool match(const xAOD::Egamma *,const std::string,const HLT::TriggerElement*&);
+        bool match(const xAOD::Egamma *,const std::string&,const HLT::TriggerElement*&);
         /*! Egamma trigger matching to HLT Electron/Photon with DeactivatedTE*/
-        bool match(const xAOD::Egamma *,const std::string);
+        bool match(const xAOD::Egamma *,const std::string&);
         /*! Egamma trigger matching to HLT Electron/Photon Only */
-        bool matchHLT(const xAOD::Egamma *,const std::string);
+        bool matchHLT(const xAOD::Egamma *,const std::string&);
         /*! Egamma trigger matching to HLT Electron/Photon only -- returns nearest object */
-        const xAOD::Egamma* closestHLTObject(const xAOD::Egamma *,const std::string);
+        const xAOD::Egamma* closestHLTObject(const xAOD::Egamma *,const std::string&);
         double dR(const double, const double, const double, const double);
         double m_dR;
         double m_dRL1;
@@ -49,13 +49,13 @@ class TrigEgammaMatchingTool :
         
         template<class T> const T* getFeature(const HLT::TriggerElement* te);
         template<class T> bool ancestorPassed(const HLT::TriggerElement* te);
-        bool matchHLTElectron(const xAOD::Electron *,const std::string,const HLT::TriggerElement*&);
-        bool matchHLTPhoton(const xAOD::Photon *,const std::string,const HLT::TriggerElement*&);
-        bool matchHLTCalo(const xAOD::Egamma *,const std::string,const HLT::TriggerElement*&);
-        bool matchL2Electron(const xAOD::Electron *,const std::string,const HLT::TriggerElement*&);
-        bool matchL2Photon(const xAOD::Photon *,const std::string,const HLT::TriggerElement*&);
-        bool matchL2Calo(const xAOD::Egamma *,const std::string,const HLT::TriggerElement*&);
-        bool matchL1(const xAOD::Egamma *,const std::string,const HLT::TriggerElement*&);
+        bool matchHLTElectron(const xAOD::Electron *,const std::string&,const HLT::TriggerElement*&);
+        bool matchHLTPhoton(const xAOD::Photon *,const std::string&,const HLT::TriggerElement*&);
+        bool matchHLTCalo(const xAOD::Egamma *,const std::string&,const HLT::TriggerElement*&);
+        bool matchL2Electron(const xAOD::Electron *,const std::string&,const HLT::TriggerElement*&);
+        bool matchL2Photon(const xAOD::Photon *,const std::string&,const HLT::TriggerElement*&);
+        bool matchL2Calo(const xAOD::Egamma *,const std::string&,const HLT::TriggerElement*&);
+        bool matchL1(const xAOD::Egamma *,const std::string&,const HLT::TriggerElement*&);
 
 };
 }

@@ -8,7 +8,7 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthViews/View.h"
 
 #include "TrigL2ElectronHypoTool.h"

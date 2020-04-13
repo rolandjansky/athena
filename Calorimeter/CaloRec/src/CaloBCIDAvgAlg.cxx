@@ -66,8 +66,12 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
     const float xlumiMC = ei->averageInteractionsPerCrossing()*0.158478605;  
 
     // Calculate Luminosity values ONLY around the places Luminosity will be needed    
-    for(int i=std::max(0,bcid-38);i<std::min(bcid+38,(int)m_bcidMax);++i) {
-      lumiVec[i]=bcData->isFilled(i)*xlumiMC; 
+    int ii = bcid-38;
+    if (ii < 0) ii += m_bcidMax;
+    for (int i=bcid-38; i<bcid+38; ++i) {
+      lumiVec[ii]=bcData->isFilled(ii)*xlumiMC; 
+      ++ii;
+      if (ii >= static_cast<int>(m_bcidMax)) ii -= m_bcidMax;
     }
   }
   else {

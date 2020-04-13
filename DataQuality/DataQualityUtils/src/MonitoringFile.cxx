@@ -38,6 +38,8 @@
 #include <TROOT.h>
 #include <TTree.h>
 #include <TEfficiency.h>
+#include "TTreeReader.h"
+#include "TTreeReaderArray.h"
 
 ClassImp(dqutils::MonitoringFile)
 
@@ -78,44 +80,22 @@ bool histOKToMerge(TH1* h) {
 
 MonitoringFile::OutputMetadata::
 OutputMetadata( TTree* metadata )
-	: m_charArrSize(100)
-	, m_metadata(metadata)
-	, m_nameData(0)
-	, m_intervalData(0)
-	, m_chainData(0)
-  , m_mergeData(0)
+	: m_metadata(metadata)
 {
-  m_nameData = new char[m_charArrSize];
-  m_intervalData = new char[m_charArrSize];
-  m_chainData = new char[m_charArrSize];
-  m_mergeData = new char[m_charArrSize];
-  adjustAddresses( "Name", m_nameData, "Name/C" );
-  adjustAddresses( "Interval", m_intervalData, "Interval/C" );
-  adjustAddresses( "TriggerChain", m_chainData, "TriggerChain/C" );
-  adjustAddresses( "MergeMethod", m_mergeData, "MergeMethod/C" );
+  makeBranch( "Name", "Name/C" );
+  makeBranch( "Interval", "Interval/C" );
+  makeBranch( "TriggerChain", "TriggerChain/C" );
+  makeBranch( "MergeMethod", "MergeMethod/C" );
 }
 
 void
 MonitoringFile::OutputMetadata::
-adjustAddresses(const char* branchName, void* ptr, const char* branchstr) 
+makeBranch(const char* branchName, const char* branchstr) 
 {
-  if (m_metadata->GetBranch(branchName)) {
-    m_metadata->SetBranchAddress(branchName, ptr);
-  } else {
-    m_metadata->Branch(branchName, ptr, branchstr);
+  if (!m_metadata->GetBranch(branchName)) {
+    m_metadata->Branch(branchName, (void*) nullptr, branchstr);
   }
 }
-
-
-MonitoringFile::OutputMetadata::
-~OutputMetadata()
-{
-  delete [] m_mergeData;
-	delete [] m_chainData;
-	delete [] m_intervalData;
-	delete [] m_nameData;
-}
-
 
 void
 MonitoringFile::OutputMetadata::
@@ -124,25 +104,11 @@ fill( std::string name,
       std::string chain,
       std::string merge )
 {
-	copyString( m_nameData, name );
-	copyString( m_intervalData, interval );
-	copyString( m_chainData, chain );
-	copyString( m_mergeData, merge );
+  m_metadata->SetBranchAddress("Name", name.data());
+	m_metadata->SetBranchAddress("Interval", interval.data());
+  m_metadata->SetBranchAddress("TriggerChain", chain.data());
+  m_metadata->SetBranchAddress("MergeMethod", merge.data());
 	m_metadata->Fill();
-}
-
-
-void
-MonitoringFile::OutputMetadata::
-copyString( char* to, const std::string& from )
-{
-	int i = 0;
-	const char* f = from.c_str();
-	while( ++i < m_charArrSize && (*to++ = *f++) != 0 )
-	  ;
-	if( i == m_charArrSize ) {
-		*to = 0;
-	}
 }
 
 
@@ -173,13 +139,10 @@ MonitoringFile::
 ~MonitoringFile()
 {
   dqi::DisableMustClean disabled;
-  //  bool useRecursiveDelete = gROOT->MustClean();
-  //  gROOT->SetMustClean(false);
   
   delete m_file;
   delete m_mergeMatchDirRE;
   delete m_mergeMatchHistoRE;
-  //  gROOT->SetMustClean(useRecursiveDelete);
 }
 
 bool MonitoringFile::setHistogramRegEx(const std::string& re){
@@ -700,50 +663,27 @@ MonitoringFile::
 fillMetaDataMap( std::map<std::string,dqutils::MonitoringFile::MetaData>& mdMap, TDirectory* dir )
 {
   if (dir == 0) return;
-  //  TKey *mdKey = dynamic_cast<TKey*>(dir->GetListOfKeys()->FindObject("metadata"));
-  //if (mdKey == 0) return;
-  //TTree *md = dynamic_cast<TTree*>(mdKey->ReadObj());
   TTree *md = dynamic_cast<TTree*>(dir->Get("metadata"));
   if (md == 0) return;
 
-  char* i_name = new char[100];
-  char* i_interval = new char[100];
-  char* i_chain = new char[100];
-  char* i_merge = new char[100];
+  TTreeReader reader(md);
+  TTreeReaderArray<char> i_name(reader, "Name");
+  TTreeReaderArray<char> i_interval(reader, "Interval");
+  TTreeReaderArray<char> i_chain(reader, "TriggerChain");
+  TTreeReaderArray<char> i_merge(reader, "MergeMethod");
 
-  md->SetBranchStatus( "Name", 1 );
-  md->SetBranchAddress( "Name", i_name );
-  md->SetBranchStatus( "Interval", 1 );
-  md->SetBranchAddress( "Interval", i_interval );
-  md->SetBranchStatus( "TriggerChain", 1 );
-  md->SetBranchAddress( "TriggerChain", i_chain );
-  md->SetBranchStatus( "MergeMethod", 1 );
-  md->SetBranchAddress( "MergeMethod", i_merge );
-  int counter = 0;
-  int nEntries = int( md->GetEntries() );
-
-  while( counter < nEntries ) {
-    try {
-      md->GetEntry(counter);
-    }
-    catch( const std::exception& e ) {
-      std::cerr << "Exception: \"" << e.what() << "\" in directory \""
-                << dir->GetName() << "\"\n" << std::flush;
-      return;
-    }
-
-    std::string nameStr(i_name);
+  while (reader.Next()) {
+    const std::string nameStr(static_cast<char*>(i_name.GetAddress()));
     if( mdMap.find(nameStr) == mdMap.end() ) {
-      MetaData md( i_name, i_interval, i_chain, i_merge );
+      MetaData md( nameStr, 
+                   static_cast<char*>(i_interval.GetAddress()),
+                   static_cast<char*>(i_chain.GetAddress()),
+                   static_cast<char*>(i_merge.GetAddress()) );
       std::map<std::string,MetaData>::value_type mdVal( nameStr, md );
       mdMap.insert( mdVal );
     }
-    ++counter;
   }
-  delete [] i_name;
-  delete [] i_interval;
-  delete [] i_chain;
-  delete [] i_merge;
+
   delete md;
 }
 
@@ -1357,23 +1297,14 @@ MonitoringFile::CopyHistogram::
 CopyHistogram( TDirectory* target, std::string dirName )
   : m_target(target)
   , m_dirName(dirName)
-  , m_charArrSize(1000)
   , m_metadata(0)
-  , m_nameData(0)
-  , m_intervalData(0)
-  , m_chainData(0)
-  , m_mergeData(0)
 {
   m_metadata = new TTree( "metadata", "Monitoring Metadata" );
   m_metadata->SetDirectory(0);
-  m_nameData = new char[m_charArrSize];
-  m_intervalData = new char[m_charArrSize];
-  m_chainData = new char[m_charArrSize];
-  m_mergeData = new char[m_charArrSize];
-  m_metadata->Branch( "Name", m_nameData, "Name/C" );
-  m_metadata->Branch( "Interval", m_intervalData, "Interval/C" );
-  m_metadata->Branch( "TriggerChain", m_chainData, "TriggerChain/C" );
-  m_metadata->Branch( "MergeMethod", m_mergeData, "MergeMethod/C" );
+  m_metadata->Branch( "Name", (void*) nullptr, "Name/C" );
+  m_metadata->Branch( "Interval", (void*) nullptr, "Interval/C" );
+  m_metadata->Branch( "TriggerChain", (void*) nullptr, "TriggerChain/C" );
+  m_metadata->Branch( "MergeMethod", (void*) nullptr, "MergeMethod/C" );
 }
 
 
@@ -1384,10 +1315,6 @@ MonitoringFile::CopyHistogram::
   m_metadata->SetDirectory(m_target);
   m_metadata->Write();
   delete m_metadata;
-  delete [] m_nameData;
-  delete [] m_intervalData;
-  delete [] m_chainData;
-  delete [] m_mergeData;
 }
 
 
@@ -1419,6 +1346,20 @@ bool MonitoringFile::CopyHistogram::execute( TEfficiency* eff ) {
   return true;
 }
 
+void
+MonitoringFile::CopyHistogram::
+fillMD( const MetaData& md )
+{
+  std::string name(md.name);
+  std::string interval(md.interval);
+  std::string chain(md.chain);
+  std::string merge(md.merge);
+  m_metadata->SetBranchAddress( "Name", name.data() );
+  m_metadata->SetBranchAddress( "Interval", interval.data() );
+  m_metadata->SetBranchAddress( "TriggerChain", chain.data() );
+  m_metadata->SetBranchAddress( "MergeMethod", merge.data() );
+  m_metadata->Fill();
+}
 
 bool
 MonitoringFile::CopyHistogram::
@@ -1428,11 +1369,7 @@ executeMD( TH1* hist, const MetaData& md )
   hist->SetDirectory(m_target);
   hist->Write();
   
-  copyString( m_nameData, md.name );
-  copyString( m_intervalData, md.interval );
-  copyString( m_chainData, md.chain );
-  copyString( m_mergeData, md.merge );
-  m_metadata->Fill();
+  fillMD( md );
   
   return true;
 }
@@ -1445,11 +1382,7 @@ executeMD( TGraph* graph, const MetaData& md )
   m_target->cd();
   graph->Write();
   
-  copyString( m_nameData, md.name );
-  copyString( m_intervalData, md.interval );
-  copyString( m_chainData, md.chain );
-  copyString( m_mergeData, md.merge );
-  m_metadata->Fill();
+  fillMD( md );
   
   return true;
 }
@@ -1458,26 +1391,8 @@ executeMD( TGraph* graph, const MetaData& md )
 bool MonitoringFile::CopyHistogram::executeMD( TEfficiency* eff, const MetaData& md ) {
   m_target->cd();
   eff->Write();
-  copyString( m_nameData, md.name );
-  copyString( m_intervalData, md.interval );
-  copyString( m_chainData, md.chain );
-  copyString( m_mergeData, md.merge );
-  m_metadata->Fill();
+  fillMD( md );
   return true;
-}
-
-
-void
-MonitoringFile::CopyHistogram::
-copyString( char* to, const std::string& from )
-{
-  int i = 0;
-	const char* f = from.c_str();
-	while( ++i < m_charArrSize && (*to++ = *f++) != 0 )
-	  ;
-	if( i == m_charArrSize ) {
-		*to = 0;
-	}
 }
 
 
@@ -1571,9 +1486,7 @@ MonitoringFile::
 clearData()
 {
   dqi::DisableMustClean disabled;
-  //  bool useRecursiveDelete = gROOT->MustClean();
-  //  gROOT->SetMustClean(false);
-  
+
   delete m_file;
   m_file = 0;
   m_debugLevel=0;
@@ -1585,7 +1498,6 @@ clearData()
   m_mergeMatchHistoRE=new boost::regex(m_mergeMatchHistoREString);
   m_mergeMatchDirRE=new boost::regex(m_mergeMatchDirREString);
   m_useRE=false;
-  //  gROOT->SetMustClean(useRecursiveDelete);
 }
 
 
@@ -1656,8 +1568,6 @@ loopOnHistogramsInMetadata( HistogramOperation& fcn, TDirectory* dir )
   dir->cd();
   TKey* mdKey = dir->FindKey( "metadata" );
   if( mdKey == 0 ) {
-    //std::cerr << "MonitoringFile::loopOnHistogramsInMetadata(): "
-    //          << "No \'metadata\' object found in directory \"" << dir->GetName() << "\"\n";
     return false;
   }
   
@@ -1666,42 +1576,27 @@ loopOnHistogramsInMetadata( HistogramOperation& fcn, TDirectory* dir )
     return false;
   }
   
-  char* i_name = new char[100];
-  char* i_interval = new char[100];
-  char* i_chain = new char[100];
-  char* i_merge = new char[100];
   TKey* i_key;
   
-  md->SetBranchStatus( "Name", 1 );
-  md->SetBranchAddress( "Name", i_name );
-  md->SetBranchStatus( "Interval", 1 );
-  md->SetBranchAddress( "Interval", i_interval );
-  md->SetBranchStatus( "TriggerChain", 1 );
-  md->SetBranchAddress( "TriggerChain", i_chain );
-  md->SetBranchStatus( "MergeMethod", 1 );
-  md->SetBranchAddress( "MergeMethod", i_merge );
-  
-  int counter = 0;
-  int nEntries = int( md->GetEntries() );
-  
-  while( counter < nEntries ) {
+  TTreeReader reader(md);
+  TTreeReaderArray<char> i_name(reader, "Name");
+  TTreeReaderArray<char> i_interval(reader, "Interval");
+  TTreeReaderArray<char> i_chain(reader, "TriggerChain");
+  TTreeReaderArray<char> i_merge(reader, "MergeMethod");
+
+  while (reader.Next()) {
+    const std::string nameStr(static_cast<char*>(i_name.GetAddress()));
     dir->cd();
-    try {
-      md->GetEntry(counter);
-    }
-    catch( const std::exception& e ) {
-      std::cerr << "Exception: \"" << e.what() << "\" in directory \""
-                << dir->GetName() << "\"\n" << std::flush;
-      return false;
-    }
-    
-    i_key = dir->FindKey( i_name );
+    i_key = dir->FindKey( static_cast<char*>(i_name.GetAddress()) );
     if( i_key == 0 ) {
       std::cerr << "MonitoringFile::loopOnHistogramsInMetadata(): "
-		<< "No \'" << i_name << "\' object found\n";
+		            << "No \'" << nameStr << "\' object found\n";
       return false;
     }
-    MetaData md( i_name, i_interval, i_chain, i_merge );
+      MetaData md( nameStr, 
+                   static_cast<char*>(i_interval.GetAddress()),
+                   static_cast<char*>(i_chain.GetAddress()),
+                   static_cast<char*>(i_merge.GetAddress()) );
     TObject* obj = i_key->ReadObj();
     TH1* h = dynamic_cast<TH1*>( obj );
     if( h != 0 ) {
@@ -1710,17 +1605,12 @@ loopOnHistogramsInMetadata( HistogramOperation& fcn, TDirectory* dir )
     else {
       TGraph* g = dynamic_cast<TGraph*>( obj );
       if( g != 0 ) {
-	fcn.executeMD( g, md );
+        fcn.executeMD( g, md );
       }
     }
     delete obj; 
-    ++counter;
   }
   
-  delete [] i_name;
-  delete [] i_interval;
-  delete [] i_chain;
-  delete [] i_merge;
   delete md;
   
   return true;

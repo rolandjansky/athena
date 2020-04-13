@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: AddDVProxy.h 599963 2014-06-02 16:44:36Z ssnyder $
 #ifndef XAODCORE_ADDDVPROXY_H
 #define XAODCORE_ADDDVPROXY_H
 
@@ -154,9 +151,6 @@ namespace xAOD {
       ///
       /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
       ///
-      /// $Revision: 599963 $
-      /// $Date: 2014-06-02 18:44:36 +0200 (Mon, 02 Jun 2014) $
-      ///
       template< class T >
       struct Helper {
 
@@ -208,9 +202,6 @@ namespace xAOD {
       template < typename T >
       static void add( ROOT::TGenericClassInfo* clInfo ) {
 
-         // Enable library auto-loading:
-         gInterpreter->EnableAutoLoading();
-
          // Load the minimal amount of required dictionaries:
          loadDictionaries();
 
@@ -219,33 +210,8 @@ namespace xAOD {
             new TDVCollectionProxy( ClassName< T >::name().c_str() );
          proxy->SetResize( Helper< T >::resize );
 
-         if( clInfo ) {
-
-            // This is where we go with ROOT 6...
-
-            // Add it to the class info:
-            clInfo->AdoptCollectionProxy( proxy );
-
-         } else {
-
-            // This is where we go with ROOT 5...
-
-            // Try to access the class's dictionary:
-            TClass* cl = TClass::GetClass( typeid( T ) );
-            if( ! cl ) {
-               ::Error( "xAOD::AddDVProxy::add",
-                        "Couldn't find dictionary for type \"%s\"",
-                        ClassName< T >::name().c_str() );
-               delete proxy;
-               return;
-            }
-
-            // Attach the proxy to the dictionary:
-            cl->CopyCollectionProxy( *proxy );
-            // We don't need this instance anymore:
-            delete proxy;
-
-         }
+         // Add it to the class info:
+         clInfo->AdoptCollectionProxy( proxy );
 
          return;
       }

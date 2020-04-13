@@ -19,7 +19,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 // Calib db access
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
@@ -430,7 +430,7 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 		  //std::cout << "break point 5 " << std::endl;
 	          // Get TRT calibration from the database, t0
 	          Identifier TRTlocal = m_trtId->straw_id(bec,m_trtId->phi_module(DCoTId),layer,strawLayer,m_trtId->straw(DCoTId));
-	          double t0 = m_trtconddbsvc->getT0(TRTlocal);
+	          double t0 = m_trtconddbTool->getT0(TRTlocal);
 	          TRT_t0->push_back(t0);
 
                   //is this a tube hit?  Not filling the dc rad with 0 for much longer, need to check directly:
@@ -445,7 +445,7 @@ StatusCode InDet::LowBetaAlg::parseDataForTrtToolBetaLiklihood(const Trk::Track&
 	          TRT_R->push_back(driftCircleRadius);
 		  //std::cout << "break point 6 " << std::endl;
                   // Get TRT r(t) from the db:
-                  const TRTCond::BasicRtRelation* rtr = dynamic_cast<const TRTCond::BasicRtRelation*>(m_trtconddbsvc->getRtRelation(TRTlocal)) ;
+                  const TRTCond::BasicRtRelation* rtr = dynamic_cast<const TRTCond::BasicRtRelation*>(m_trtconddbTool->getRtRelation(TRTlocal)) ;
                   const float *pcal;
                   const float defaultpcal[] = {-0.179736,0.0366578,0.000699622,-0.000011811} ;
                   pcal = rtr ? rtr->cal() : defaultpcal ;

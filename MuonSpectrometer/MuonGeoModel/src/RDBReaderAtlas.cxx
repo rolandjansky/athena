@@ -361,9 +361,9 @@ void RDBReaderAtlas::ProcessCscInternalAlignments()
         tras      = m_iacsc[ipos].tras      ; // T ROTATION
       }
     }
-    CscInternalAlignmentPar * myPar = new CscInternalAlignmentPar();
-    myPar->setAmdbId(name, jff, jzz, job, wireLayer);
-    myPar->setParameters(tras, traz, trat, rots, rotz, rott);
+    CscInternalAlignmentPar myPar;
+    myPar.setAmdbId(name, jff, jzz, job, wireLayer);
+    myPar.setParameters(tras, traz, trat, rots, rotz, rott);
 
     m_mgr->storeCscInternalAlignmentParams(myPar);
   }

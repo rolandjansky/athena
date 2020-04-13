@@ -83,9 +83,6 @@ include ("RecExCond/RecExCommon_flags.py")
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-#Don't abort on status code error
-StatusCodeSvc.AbortOnError=False
-
 #-------------------------------------------------------------
 # Disable overly verbose and problematic ChronoStatSvc print-out
 #-------------------------------------------------------------

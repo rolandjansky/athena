@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @author: Sebastien Binet <binet@cern.ch>
 # @date:   March 2007
@@ -15,6 +15,9 @@ import six
 
 from AthenaCommon.Logging import log
 
+# import xml before ROOT to prevent crashes (LCG_96): ATEAM-597
+# should be OK to remove from LCG_97 on
+import xml.etree.cElementTree
 
 def ROOT6Setup():
    log.info('executing ROOT6Setup')

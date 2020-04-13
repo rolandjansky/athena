@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -110,9 +110,13 @@ namespace Trk
       
       ATH_MSG_DEBUG("The vertex seed width is " << zResult.second);
      
-     // TODO: not sure what to do when no seed is found as width is NaN...
-      // if seed position is 0 then vertexing should stop anayways...
-      if(zResult.second!=zResult.second) covarianceMatrix.fillSymmetric(2,2,1); 
+     // if no seed is found, we get a NaN here. 
+     // This should not propagate through the vertex fit.
+     // The upstream code aborts if position[z] == 0, which we need to ensure.
+     // In this case, the cov matrix will not be used. 
+      if(std::isnan(zResult.second)){
+        positionVector[2] = 0.; 
+      }
       else covarianceMatrix.fillSymmetric(2,2,std::pow(zResult.second,2.));
 
       return std::make_pair(positionVector,covarianceMatrix) ;

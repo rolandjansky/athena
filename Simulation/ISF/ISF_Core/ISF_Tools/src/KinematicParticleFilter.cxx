@@ -12,6 +12,9 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 
+// CLHEP includes
+#include "CLHEP/Units/SystemOfUnits.h"
+
 /** Constructor **/
 ISF::KinematicParticleFilter::KinematicParticleFilter(const std::string& t, const std::string& n, const IInterface* p) :
   base_class(t,n,p),
@@ -22,7 +25,7 @@ ISF::KinematicParticleFilter::KinematicParticleFilter(const std::string& t, cons
                    m_maxEtaSym=3.0,
                    "Particle momentum pseudorapidity cut");
   declareProperty( "MinMomentum",
-                   m_cut_minMom2=100.,
+                   m_cut_minMom2=50.*CLHEP::MeV,
                    "Momentum cut");
 }
 

@@ -310,6 +310,3 @@ include("RecExCommon/RecExCommon_topOptions.py")
 if Debug:
     from IOVDbSvc.CondDB import conddb
     conddb.dumpFolderTags('iovfolderlist.txt',True)
-
-
-# svcMgr.ByteStreamNavigationProviderSvc.OutputLevel = DEBUG

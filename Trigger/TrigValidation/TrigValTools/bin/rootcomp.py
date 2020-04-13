@@ -140,6 +140,7 @@ def main():
       opts.skip += ["ErrorCodes_vs_Chains_"]
       opts.skip += ["Initital_RoIs_phi_vs_eta"]
       opts.skip += ["Time$","time_","Time_", "_time"]
+      opts.skip += ["HltEventLoopMgr/TotalTime"]
       opts.skip += ["Unpck$"]
       opts.skip += ["BufFreeCnt$", "CalEvtSize$"]     # muon calibration buffer
       opts.skip += ["/TrigMemMonitor/"]               # memory monitor
@@ -147,6 +148,7 @@ def main():
       opts.skip += ["GeneralOpInfo"]                  # release number, etc.
       opts.skip += ["MessageSvc/MessageCount"]        # MessageSvc
       opts.skip += ["TrigSteer_.*/Rate"]              # Rate monitoring
+      opts.skip += ["TrigSignatureMoniMT/.*Rate"]     # Rate monitoring
       opts.skip += ["IOVDbRunRange","IOVDbBytesRead"] # conditions data IOVs and size
       opts.skip += ["TrigOpMonitor/.*BytesRead"]      # conditions data size
       opts.skip += ["/ROBMonitor/DataVolumeFractionForSD"]  # Volume data fraction profile diff

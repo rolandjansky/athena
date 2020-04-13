@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_ITRIGPRECISIONELECTRONHYPOTOOL_H
 #define TRIGEGAMMAHYPO_ITRIGPRECISIONELECTRONHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 
 /**
@@ -44,13 +44,13 @@ class ITrigEgammaPrecisionElectronHypoTool
    * There will be many tools called often to perform this quick operation and we do not want to pay for polymorphism which we do not need to use.
    * Will actually see when N obj hypos will enter the scene
    **/
-  virtual StatusCode decide( std::vector<ElectronInfo>& input )  const = 0;
+  virtual StatusCode decide( std::vector<ElectronInfo>& input, const EventContext& )  const = 0;
 
   /**
    * @brief Makes a decision for a single object
    * The decision needs to be returned
    **/ 
-  virtual bool decide( const ElectronInfo& i ) const = 0;
+  virtual bool decide( const ElectronInfo& i,const EventContext& ) const = 0;
 
 
 

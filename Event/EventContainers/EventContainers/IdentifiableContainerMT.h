@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTCONTAINERS_IDENTIFIABLECONTAINERMT_H
@@ -360,8 +360,8 @@ template < class T>
 const T*
 IdentifiableContainerMT<T>::indexFindPtr( IdentifierHash hashId ) const
 {
-    if(m_mask[hashId])  return castCache()->findWait(hashId);
-    else                return nullptr;
+    if((hashId < m_mask.size()) and m_mask[hashId])  return castCache()->findWait(hashId);
+    else return nullptr;
 }
 
 // insert collection into container with id hash

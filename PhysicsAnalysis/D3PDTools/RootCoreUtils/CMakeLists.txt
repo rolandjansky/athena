@@ -23,12 +23,6 @@ atlas_add_library( RootCoreUtils
 atlas_add_executable( rcu_locate util/rcu_locate.cxx
    LINK_LIBRARIES RootCoreUtils )
 
-# Test(s) in the package:
-atlas_add_test( test_message_svc
-   SOURCES test/test_message_svc.cxx
-   LINK_LIBRARIES RootCoreUtils
-   PROPERTIES WILL_FAIL TRUE )
-
 atlas_add_test( ut_expression
    SOURCES test/ut_expression.cxx
    LINK_LIBRARIES RootCoreUtils )

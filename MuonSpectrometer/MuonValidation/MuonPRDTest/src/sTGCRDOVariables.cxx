@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCRDOVariables.h"
@@ -150,7 +150,7 @@ StatusCode sTGCRDOVariables::initializeVariables()
   m_NSWsTGC_rdo_channel     = new std::vector<int>();
   m_NSWsTGC_rdo_channel_type= new std::vector<int>();
   m_NSWsTGC_rdo_time        = new std::vector<double>();
-  m_NSWsTGC_rdo_charge      = new std::vector<double>();
+  m_NSWsTGC_rdo_charge      = new std::vector<uint16_t>();
   m_NSWsTGC_rdo_bcTag       = new std::vector<uint16_t>();
   m_NSWsTGC_rdo_isDead      = new std::vector<bool>();
 

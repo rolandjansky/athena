@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TVirtualIncidentListener.h 611948 2014-08-15 08:48:40Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TVIRTUALINCIDENTLISTENER_H
 #define XAODROOTACCESS_TVIRTUALINCIDENTLISTENER_H
 
@@ -24,9 +21,6 @@ namespace xAOD {
    /// Naturally, the design here is taken straight from Gaudi's IncidentSvc.
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 611948 $
-   /// $Date: 2014-08-15 10:48:40 +0200 (Fri, 15 Aug 2014) $
    ///
    class TVirtualIncidentListener {
 

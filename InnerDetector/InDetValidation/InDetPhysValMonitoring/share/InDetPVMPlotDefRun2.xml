@@ -5,6 +5,7 @@
 <!ENTITY PI "3.1415926">
 <!-- eta coverage of the tracker -->
 <!ENTITY ETA "2.5">
+<!ENTITY NETA "64">
 <!-- min eta covered by pix. endcaps -->
 <!ENTITY ETAPixECMin "1.5">
 <!-- eta coverage of sct -->
@@ -13,6 +14,25 @@
 <!ENTITY ETASctECMin "1.0">
 <!-- term used for innermost pixel barrel layer in histogram text -->
 <!ENTITY L0PixBarr "IBL">
+<!-- bins for hits -->
+<!ENTITY PIXHIT "10">
+<!ENTITY SCTHIT "20">
+<!ENTITY TRTHIT "40">
+<!-- bins for resolutions -->
+<!ENTITY D0RES "2.00">
+<!ENTITY Z0RES "10.0">
+<!ENTITY PTQOPTRES "2.00">
+<!ENTITY THETARES "0.10">
+<!ENTITY PHIRES "0.010">
+<!ENTITY Z0SINRES "1.00">
+<!-- bins for parameters -->
+<!ENTITY D0PARA "20.0">
+<!ENTITY Z0PARA "250.0">
+<!ENTITY QOPPARA "5.0e-3">
+<!ENTITY Z0SINPARA "40.0">
+<!-- dR plots for tracks in jets -->
+<!ENTITY DRMAX "0.4">
+<!ENTITY SMALLDRMAX "0.1">
 <!-- histogram definitions common to Run2 and ITk -->
 <!ENTITY Common SYSTEM "InDetPVMPlotDefCommon.xml">
 ]>
@@ -37,14 +57,7 @@
     <x title="x residual(#mum)" n="200" lo="-500" hi="500"/> 
     <y title="Entries"/>
   </h>
-  <h id="residualx_dbm_neg" type="TH1F" title="Residual: DBM -side X">
-    <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
-    <y title="Entries"/>
-  </h>
-  <h id="residualx_dbm_pos" type="TH1F" title="Residual: DBM +side X">
-    <x title="x residual(#mum)" n="120" lo="-3000" hi="3000"/>
-    <y title="Entries"/>
-  </h>
+
   <!-- y residuals -->
   <!-- barrel -->
   <h id="residualy_trt_barrel" type="TH1F" title="Residual: TRT Barrel Y">
@@ -68,21 +81,10 @@
     <x title="y residual(#mum)" n="120" lo="-50" hi="50"/>
     <y title="Entries"/>
   </h>
-  <h id="residualy_dbm_neg" type="TH1F" title="Residual: DBM -side Y">
-    <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
-    <y title="Entries"/>
-  </h>
-  <h id="residualy_dbm_pos" type="TH1F" title="Residual: DBM +side Y">
-    <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
-    <y title="Entries"/>
-  </h>
+
   <!-- pulls -->
   <!-- barrel, x -->
   <h id="residualpullx_trt_barrel" type="TH1F" title="Residualpull: TRT Barrel X">
-    <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
-    <y title="Entries"/>
-  </h>
-  <h id="residualpullx_dbm_barrel" type="TH1F" title="Residualpull: DBM -side X">
     <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
     <y title="Entries"/>
   </h>
@@ -91,26 +93,14 @@
     <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
     <y title="Entries"/>
   </h>
-  <h id="residualpullx_dbm_endcap" type="TH1F" title="Residualpull: DBM +side X">
-    <x title="x residual(#mum)" n="100" lo="-5" hi="5"/>
-    <y title="Entries"/>
-  </h>
   <!-- barrel, y -->
   <h id="residualpully_trt_barrel" type="TH1F" title="Residualpull: TRT Barrel Y">
     <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
     <y title="Entries"/>
   </h>
-  <h id="residualpully_dbm_barrel" type="TH1F" title="Residualpull: DBM -side Y">
-    <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
-    <y title="Entries"/>
-  </h>
   <!-- endcap,y -->
   <h id="residualpully_trt_endcap" type="TH1F" title="Residualpull: TRT Endcap Y">
     <x title="y residual(#mum)" n="10" lo="-5" hi="5"/>
-    <y title="Entries"/>
-  </h>
-  <h id="residualpully_dbm_endcap" type="TH1F" title="Residualpull: DBM +side Y">
-    <x title="y residual(#mum)" n="100" lo="-5" hi="5"/>
     <y title="Entries"/>
   </h>
   <!--
