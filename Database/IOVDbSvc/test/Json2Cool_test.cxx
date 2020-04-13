@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -17,7 +17,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/test/output_test_stream.hpp>
+#include <boost/test/tools/output_test_stream.hpp>
 
 #include "../src/Json2Cool.h"
 #include "../src/BasicFolder.h"
