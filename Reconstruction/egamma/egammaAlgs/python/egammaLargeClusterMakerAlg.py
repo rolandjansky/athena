@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactory to instantiate egammaLargeClusterMaker with default configuration"
 __author__ = "Jovan Mitrevski"
 
 from egammaTools.egammaToolsFactories import egammaLargeClusterMakerTool
 from CaloRec import CaloRecConf
-from egammaRec.Factories import AlgFactory, ToolFactory, FcnWrapper
+from egammaRec.Factories import AlgFactory, FcnWrapper
 from egammaRec import egammaKeys
 from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
 
