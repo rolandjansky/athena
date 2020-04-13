@@ -4,7 +4,7 @@
 
 ##############################################################################
 
-import os, os.path, sys, json, sets, argparse
+import os, os.path, sys, json, argparse
 
 from PyJobTransforms.trfLogger import msg
 
@@ -13,10 +13,10 @@ from PyJobTransforms.trfLogger import msg
 def _getTransformsFromPATH():
     ##########################################################################
 
-    done_list = sets.Set([
+    done_list = set([
     ])
 
-    skip_list = sets.Set([
+    skip_list = set([
         'Athena_tf.py',
         'beamSpotT0_Vertex_tf.py',
         'Cat_tf.py',
@@ -188,7 +188,7 @@ def main():
                     desc = transform.parser.getProdsysDesc
 
                     if not isinstance(desc, dict):
-	                desc = transform.parser.getProdsysDesc()
+                       desc = transform.parser.getProdsysDesc()
 
                     result[transform_module] = (((((((desc)))))))
 
