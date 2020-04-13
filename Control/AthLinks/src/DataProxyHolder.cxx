@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthLinks/src/DataProxyHolder.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -19,7 +18,6 @@
 #include "AthenaKernel/ThinningCache.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/IProxyDict.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -495,36 +493,7 @@ bool DataProxyHolder::thin (sgkey_t& sgkey, size_t& index,
     return false;
   }
 
-  // Check if thinning is needed for this link: old-style
-  IThinningSvc* thinSvc = IThinningSvc::instance();
-  if( thinSvc ) {
-    // Try to get a DataProxy for our link:
-    SG::DataProxy* dp = proxy( true );
-    if( ! dp ) {
-       // If we were not successful, let's give up.
-       REPORT_MESSAGE_WITH_CONTEXT( MSG::ERROR,
-                                    "DataProxyHolder::toPersistent" )
-          << "Couldn't get proxy for target object";
-       return false;
-    }
-    // Get the updated index:
-    const std::size_t persIdx = thinSvc->index( dp, index );
-    // If the object was thinned away, set the persistent variables to an
-    // invalid state. Otherwise update just the index variable.
-    if( persIdx == IThinningSvc::RemovedIdx ) {
-       sgkey = 0;
-       index = 0;
-       return true;
-    }
-    else {
-      if (index != persIdx) {
-        index = persIdx;
-        return true;
-      }
-    }
-  }
-
-  // Check for new thinning.
+  // Check for thinning.
   if (thinningCache) {
     const SG::ThinningDecisionBase* dec = thinningCache->thinning (sgkey);
     if (dec) {

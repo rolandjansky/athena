@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthLinks/test/ElementLinkBase_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,6 +15,7 @@
 #include "AthLinks/exceptions.h"
 #include "AthLinks/tools/ForwardIndexingPolicy.h"
 #include "SGTools/CurrentEventStore.h"
+#include "AthenaKernel/ThinningCache.h" 
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/getMessageSvc.h" 
 #include <vector>
@@ -26,7 +26,6 @@
 
 #include "SGTools/TestStore.h"
 #include "TestTools/expect_exception.h"
-#include "TestThinningSvc.icc"
 
 
 using namespace SGTest;
@@ -468,22 +467,26 @@ void test4 (SGTest::TestStore& store)
 {
   std::cout << "test4\n";
 
-  TestThinningSvc svc;
-  TestThinningSvc::instance (&svc, true);
+  SG::ThinningCache cache;
   SG::DataProxyHolder h1;
   TestStore::sgkey_t sgkey_foo = store.stringToKey ("foo", fooclid);
   TestStore::sgkey_t sgkey = sgkey_foo;
   size_t index = 10;
   h1.toTransient (sgkey);
 
-  assert (h1.thin (sgkey, index, nullptr) == false);
+  assert (h1.thin (sgkey, index, &cache) == false);
   assert (sgkey == sgkey_foo);
   assert (index == 10);
 
-  svc.remap (10, 12);
-  assert (h1.thin (sgkey, index, nullptr) == true);
+  SG::ThinningDecisionBase dec (20);
+  dec.thin (7);
+  dec.thin (8);
+  dec.buildIndexMap();
+  cache.addThinning ("foo", {sgkey_foo}, &dec);
+
+  assert (h1.thin (sgkey, index, &cache) == true);
   assert (sgkey == sgkey_foo);
-  assert (index == 12);
+  assert (index == 8);
 }
 
 
