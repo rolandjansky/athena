@@ -60,7 +60,7 @@ STDM7ThinningHelper.AppendToStream( STDM7Stream )
 
 
 # Truth leptons and their ancestors and descendants + final-state hadrons
-truth_cond_boson = "((abs(TruthParticles.pdgId) == 23) || (abs(TruthParticles.pdgId) == 24))"
+truth_cond_boson = "((abs(TruthParticles.pdgId) == 23) || (abs(TruthParticles.pdgId) == 24) || (abs(TruthParticles.pdgId) == 25) || (abs(TruthParticles.pdgId) == 35) || (abs(TruthParticles.pdgId) == 36))"
 truth_cond_lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 14) &&(TruthParticles.pt > 1*GeV) && (TruthParticles.status ==1) && (TruthParticles.barcode<200000))"
 # Truth hadrons for UE analysis
 truth_cond_hadrons = "( (TruthParticles.status ==1) && (TruthParticles.barcode<200000) )"
@@ -152,6 +152,9 @@ STDM7Sequence = CfgMgr.AthSequencer("STDM7Sequence")
 STDM7Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM7Kernel",
                                                               SkimmingTools = [STDM7SkimmingTool],
                                                               ThinningTools = thinningTools)
+# JET REBUILDING
+reducedJetList = ["AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList, STDM7Sequence, "STDM7Jets")
 
 # ADD SEQUENCE TO JOB
 DerivationFrameworkJob += STDM7Sequence
