@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODConfigTool.h 631651 2014-11-27 18:33:16Z lheinric $
@@ -116,6 +116,9 @@ namespace TrigConf {
       /// The active configuration for the current event
       const xAOD::TriggerMenu* m_menu;
 
+      // Hide these from cling --- otherwise, we get warnings about
+      // the use of boost::multi_index in TrigConfL1Data.
+#ifndef __CLING__
       /// The "translated" LVL1 configuration object
       CTPConfig m_ctpConfig;
       /// The "translated" HLT configuration object
@@ -124,6 +127,7 @@ namespace TrigConf {
       HLTSequenceList m_sequenceList;
       /// The "translated" bunch group set object
       BunchGroupSet m_bgSet;
+#endif
 
    }; // class xAODConfigTool
 
