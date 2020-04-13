@@ -53,7 +53,7 @@ TruthParticle::TruthParticle( const TruthParticle& rhs ) :
   m_nGenEventIdx   ( rhs.m_nGenEventIdx )
 {}
 
-TruthParticle::TruthParticle( const HepMC::GenParticlePtr particle, 
+TruthParticle::TruthParticle( const HepMC::GenParticle * particle, 
                               const TruthParticleContainer * container ) :
   INavigable          ( ),
   I4Momentum          ( ),

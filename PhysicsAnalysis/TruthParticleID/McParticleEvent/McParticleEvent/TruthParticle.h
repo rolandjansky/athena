@@ -86,7 +86,7 @@ class TruthParticle : public ParticleImpl<
    *  construct a @c TruthParticle from a @c HepMC::GenParticle and
    *  the @c TruthParticleContainer holding this @c TruthParticle
    */
-  TruthParticle( const HepMC::GenParticlePtr genParticle, 
+  TruthParticle( const HepMC::GenParticle* genParticle, 
 		 const TruthParticleContainer * container = 0 );
 
   /** Assignment operator
