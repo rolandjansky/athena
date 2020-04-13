@@ -57,20 +57,40 @@ class SCTHitsNoiseMonAlg : public AthMonitorAlgorithm {
       
  
   mutable std::shared_mutex m_sharedMutex ATLAS_THREAD_SAFE;
+
+
+  struct Data
+  {
+    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyM[nThreshes];
+    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_occ_lb[SCT_Monitoring::N_REGIONS+1];
+    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyMTrigger[nThreshes];
+    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_occTrigger_lb[SCT_Monitoring::N_REGIONS+1];
+
+    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyMWithHO[nThreshes];
+    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_hitocc_lb[SCT_Monitoring::N_REGIONS+1];
+    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyMWithHOTrigger[nThreshes];
+    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_hitoccTrigger_lb[SCT_Monitoring::N_REGIONS+1];
+
+    ///additional maps for track NO to compare with SP NO calc
+    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiased;
+    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiasedTrigger;
+    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiasedRecent;
+
+    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1];
+    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1];
+
+    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiased;
+    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiasedTrigger;
+    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiasedRecent;
+
+    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1];
+    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1];
+  };
+  std::unique_ptr<Data> m_data;
   
   
   mutable atomic<int> m_events_lb{0};
   mutable atomic<int> m_eventsTrigger_lb{0};
-  mutable std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyM[nThreshes] ATLAS_THREAD_SAFE {}; 
-  mutable std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_occ_lb[SCT_Monitoring::N_REGIONS+1] ATLAS_THREAD_SAFE {};
-  mutable std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyMTrigger[nThreshes] ATLAS_THREAD_SAFE {};
-  mutable std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_occTrigger_lb[SCT_Monitoring::N_REGIONS+1] ATLAS_THREAD_SAFE {};
-  
-  mutable std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyMWithHO[nThreshes] ATLAS_THREAD_SAFE {};
-  mutable std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_hitocc_lb[SCT_Monitoring::N_REGIONS+1] ATLAS_THREAD_SAFE {};
-  mutable std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyMWithHOTrigger[nThreshes] ATLAS_THREAD_SAFE {};
-  mutable std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_hitoccTrigger_lb[SCT_Monitoring::N_REGIONS+1] ATLAS_THREAD_SAFE {};
-  //mutable int m_noisyM[nThreshes][SCT_Monitoring::NBINS_LBs+1]{};
   
   std::vector<int> m_nSP_buf{};   
   mutable atomic<int> m_nSP_pos{0};
@@ -79,23 +99,7 @@ class SCTHitsNoiseMonAlg : public AthMonitorAlgorithm {
   std::vector<int> m_nmaxHits_buf{};
   std::vector<Identifier> m_nmaxModule_buf{};
   std::vector<int> m_nminHits_buf{};
-  std::vector<Identifier> m_nminModule_buf{};
-
-  ///additional maps for track NO to compare with SP NO calc
-  mutable std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiased ATLAS_THREAD_SAFE;
-  mutable std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiasedTrigger ATLAS_THREAD_SAFE; 
-  mutable std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiasedRecent ATLAS_THREAD_SAFE; 
-
-  mutable std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1] ATLAS_THREAD_SAFE; 
-  mutable std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1] ATLAS_THREAD_SAFE; 
-   
-  mutable std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiased ATLAS_THREAD_SAFE {}; 
-  mutable std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiasedTrigger ATLAS_THREAD_SAFE {}; 
-  mutable std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiasedRecent ATLAS_THREAD_SAFE {}; 
-
-  mutable std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1] ATLAS_THREAD_SAFE {}; 
-  mutable std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1] ATLAS_THREAD_SAFE {}; 
- 
+  std::vector<Identifier> m_nminModule_buf{}; 
  
   /// Name of the L1 Type to use for filling the extra NO histograms
   StringProperty m_NOTriggerItem{this, "NOTrigger", "L1_RD0_EMPTY"};

@@ -71,7 +71,9 @@ const double SCTHitsNoiseMonAlg::s_thresholds[]{100., 1000., 10000.};
 const string SCTHitsNoiseMonAlg::s_thresholdNames[]{"100", "1000", "10000"};
 
 SCTHitsNoiseMonAlg::SCTHitsNoiseMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  :AthMonitorAlgorithm(name,pSvcLocator) {
+  :AthMonitorAlgorithm(name,pSvcLocator),
+   m_data (std::make_unique<Data>())
+{
 }
 
 
@@ -96,19 +98,19 @@ StatusCode SCTHitsNoiseMonAlg::initialize() {
     return StatusCode::RECOVERABLE;
   }
   for (unsigned int hash{0}; hash<SCT_Monitoring::N_WAFERS; hash++) {
-    m_occSumUnbiased[hash] = 0.;
-    m_occSumUnbiasedTrigger[hash] = 0.;
-    m_occSumUnbiasedRecent[hash] = 0.;
+    m_data->m_occSumUnbiased[hash] = 0.;
+    m_data->m_occSumUnbiasedTrigger[hash] = 0.;
+    m_data->m_occSumUnbiasedRecent[hash] = 0.;
   for (unsigned int jReg{0}; jReg<N_REGIONS+1; jReg++) {
-      m_occSumUnbiased_lb[jReg][hash] = 0.;
-      m_occSumUnbiasedTrigger_lb[jReg][hash] = 0.;
+      m_data->m_occSumUnbiased_lb[jReg][hash] = 0.;
+      m_data->m_occSumUnbiasedTrigger_lb[jReg][hash] = 0.;
     }
-    m_hitoccSumUnbiased[hash] = 0.;
-    m_hitoccSumUnbiasedTrigger[hash] = 0.;
-    m_hitoccSumUnbiasedRecent[hash] = 0.;
+    m_data->m_hitoccSumUnbiased[hash] = 0.;
+    m_data->m_hitoccSumUnbiasedTrigger[hash] = 0.;
+    m_data->m_hitoccSumUnbiasedRecent[hash] = 0.;
     for (unsigned int jReg{0}; jReg<N_REGIONS+1; jReg++) {
-      m_hitoccSumUnbiased_lb[jReg][hash] = 0.;
-      m_hitoccSumUnbiasedTrigger_lb[jReg][hash] = 0.;
+      m_data->m_hitoccSumUnbiased_lb[jReg][hash] = 0.;
+      m_data->m_hitoccSumUnbiasedTrigger_lb[jReg][hash] = 0.;
     }
   }
   return AthMonitorAlgorithm::initialize();
@@ -423,31 +425,31 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const std::vector<Identifier
       }
       if (den > 0) {
         sumocc = num / static_cast<float> (den);
-        m_occSumUnbiased[theModuleHash0] = m_occSumUnbiased[theModuleHash0].load() + sumocc;
+        m_data->m_occSumUnbiased[theModuleHash0] = m_data->m_occSumUnbiased[theModuleHash0].load() + sumocc;
         if (m_environment == AthMonitorAlgorithm::Environment_t::online) {
-          m_occSumUnbiasedRecent[theModuleHash0] = m_occSumUnbiasedRecent[theModuleHash0].load() + sumocc;
+          m_data->m_occSumUnbiasedRecent[theModuleHash0] = m_data->m_occSumUnbiasedRecent[theModuleHash0].load() + sumocc;
         }
         if (isSelectedTrigger) {
-          m_occSumUnbiasedTrigger[theModuleHash0] = m_occSumUnbiasedTrigger[theModuleHash0].load() + sumocc;
+          m_data->m_occSumUnbiasedTrigger[theModuleHash0] = m_data->m_occSumUnbiasedTrigger[theModuleHash0].load() + sumocc;
         }
 	IdentifierHash theWaferhash{m_pSCTHelper->wafer_hash(theWaferIdentifierOfTheRDOCollection)};
-	m_occSumUnbiased_lb[systemIndex][theWaferhash]= m_occSumUnbiased_lb[systemIndex][theWaferhash].load() + sumocc;
-        m_occSumUnbiased_lb[GENERAL_INDEX][theWaferhash] = m_occSumUnbiased_lb[GENERAL_INDEX][theWaferhash].load() + sumocc;
+	m_data->m_occSumUnbiased_lb[systemIndex][theWaferhash]= m_data->m_occSumUnbiased_lb[systemIndex][theWaferhash].load() + sumocc;
+        m_data->m_occSumUnbiased_lb[GENERAL_INDEX][theWaferhash] = m_data->m_occSumUnbiased_lb[GENERAL_INDEX][theWaferhash].load() + sumocc;
 	if (isSelectedTrigger) {
-	  m_occSumUnbiasedTrigger_lb[systemIndex][theWaferhash] = m_occSumUnbiasedTrigger_lb[systemIndex][theWaferhash].load() + sumocc;
-          m_occSumUnbiasedTrigger_lb[GENERAL_INDEX][theWaferhash] = m_occSumUnbiasedTrigger_lb[GENERAL_INDEX][theWaferhash].load() + sumocc;
+	  m_data->m_occSumUnbiasedTrigger_lb[systemIndex][theWaferhash] = m_data->m_occSumUnbiasedTrigger_lb[systemIndex][theWaferhash].load() + sumocc;
+          m_data->m_occSumUnbiasedTrigger_lb[GENERAL_INDEX][theWaferhash] = m_data->m_occSumUnbiasedTrigger_lb[GENERAL_INDEX][theWaferhash].load() + sumocc;
 	}
       }
 
        // hit occupancy
           
       float sumhitocc{static_cast<float> (numberOfHitsFromAllRDOs) / static_cast<float> (N_STRIPS)};
-      m_hitoccSumUnbiased[theModuleHash0] = m_hitoccSumUnbiased[theModuleHash0].load() + sumhitocc;
+      m_data->m_hitoccSumUnbiased[theModuleHash0] = m_data->m_hitoccSumUnbiased[theModuleHash0].load() + sumhitocc;
       if (m_environment == AthMonitorAlgorithm::Environment_t::online) {
-        m_hitoccSumUnbiasedRecent[theModuleHash0] = m_hitoccSumUnbiasedRecent[theModuleHash0].load() + sumhitocc;
+        m_data->m_hitoccSumUnbiasedRecent[theModuleHash0] = m_data->m_hitoccSumUnbiasedRecent[theModuleHash0].load() + sumhitocc;
       }
       if (isSelectedTrigger) {
-        m_hitoccSumUnbiasedTrigger[theModuleHash0] = m_hitoccSumUnbiasedTrigger[theModuleHash0].load() + sumhitocc;
+        m_data->m_hitoccSumUnbiasedTrigger[theModuleHash0] = m_data->m_hitoccSumUnbiasedTrigger[theModuleHash0].load() + sumhitocc;
       }
         
       auto lbHits_vsLBAcc{Monitored::Scalar<int>("lbh_Hits_vsLB", m_current_lb)};
@@ -557,16 +559,16 @@ return StatusCode::SUCCESS;
 void SCTHitsNoiseMonAlg::resetCaches() const{
 
   for (unsigned int iThre{0}; iThre<nThreshes; iThre++) {
-    m_noisyM[iThre][m_current_lb] = 0;
-    m_noisyMTrigger[iThre][m_current_lb] = 0;
-    m_noisyMWithHO[iThre][m_current_lb] = 0;
-    m_noisyMWithHOTrigger[iThre][m_current_lb] = 0;
+    m_data->m_noisyM[iThre][m_current_lb] = 0;
+    m_data->m_noisyMTrigger[iThre][m_current_lb] = 0;
+    m_data->m_noisyMWithHO[iThre][m_current_lb] = 0;
+    m_data->m_noisyMWithHOTrigger[iThre][m_current_lb] = 0;
   }
   for (unsigned int jReg{0}; jReg<N_REGIONS+1; jReg++) {
-    m_occ_lb[jReg][m_current_lb] = 0;
-    m_occTrigger_lb[jReg][m_current_lb] = 0;
-    m_hitocc_lb[jReg][m_current_lb] = 0;
-    m_hitoccTrigger_lb[jReg][m_current_lb] = 0;
+    m_data->m_occ_lb[jReg][m_current_lb] = 0;
+    m_data->m_occTrigger_lb[jReg][m_current_lb] = 0;
+    m_data->m_hitocc_lb[jReg][m_current_lb] = 0;
+    m_data->m_hitoccTrigger_lb[jReg][m_current_lb] = 0;
   }
   int nlinks[N_REGIONS+1]{0, 0, 0, 0};
   SCT_ID::const_id_iterator planeIterator{m_pSCTHelper->wafer_begin()};
@@ -583,38 +585,38 @@ void SCTHitsNoiseMonAlg::resetCaches() const{
     
     if (m_events_lb > 0) {
       for (unsigned int jReg{0}; jReg<N_REGIONS+1; jReg++) {
-	m_occ_lb[jReg][m_current_lb] += m_occSumUnbiased_lb[jReg][planehash] / m_events_lb;
-	m_hitocc_lb[jReg][m_current_lb] += m_hitoccSumUnbiased_lb[jReg][planehash] / m_events_lb;
+	m_data->m_occ_lb[jReg][m_current_lb] += m_data->m_occSumUnbiased_lb[jReg][planehash] / m_events_lb;
+	m_data->m_hitocc_lb[jReg][m_current_lb] += m_data->m_hitoccSumUnbiased_lb[jReg][planehash] / m_events_lb;
       }
       for (unsigned int iThre{0}; iThre<nThreshes; iThre++) {
-	if ((1E5) * m_occSumUnbiased_lb[GENERAL_INDEX][planehash] / m_events_lb > s_thresholds[iThre]) {
-	  m_noisyM[iThre][m_current_lb]++;
+	if ((1E5) * m_data->m_occSumUnbiased_lb[GENERAL_INDEX][planehash] / m_events_lb > s_thresholds[iThre]) {
+	  m_data->m_noisyM[iThre][m_current_lb]++;
 	}
-	if ((1E5) * m_hitoccSumUnbiased_lb[GENERAL_INDEX][planehash] / m_events_lb > s_thresholds[iThre]) {
-	  m_noisyMWithHO[iThre][m_current_lb]++;
+	if ((1E5) * m_data->m_hitoccSumUnbiased_lb[GENERAL_INDEX][planehash] / m_events_lb > s_thresholds[iThre]) {
+	  m_data->m_noisyMWithHO[iThre][m_current_lb]++;
 	}
       }
     }
     
     if (m_eventsTrigger_lb > 0) {
       for (unsigned int jReg{0}; jReg<N_REGIONS+1; jReg++) {
-	m_occTrigger_lb[jReg][m_current_lb] += (1E5) * m_occSumUnbiasedTrigger_lb[jReg][planehash] / m_eventsTrigger_lb;
-	m_hitoccTrigger_lb[jReg][m_current_lb] += (1E5) * m_hitoccSumUnbiasedTrigger_lb[jReg][planehash] / m_eventsTrigger_lb;
+	m_data->m_occTrigger_lb[jReg][m_current_lb] += (1E5) * m_data->m_occSumUnbiasedTrigger_lb[jReg][planehash] / m_eventsTrigger_lb;
+	m_data->m_hitoccTrigger_lb[jReg][m_current_lb] += (1E5) * m_data->m_hitoccSumUnbiasedTrigger_lb[jReg][planehash] / m_eventsTrigger_lb;
       }
       for (unsigned int iThre{0}; iThre<nThreshes; iThre++) {
-	if ((1E5) * m_occSumUnbiasedTrigger_lb[GENERAL_INDEX][planehash] / m_eventsTrigger_lb > s_thresholds[iThre]) {
-	  m_noisyMTrigger[iThre][m_current_lb]++;
+	if ((1E5) * m_data->m_occSumUnbiasedTrigger_lb[GENERAL_INDEX][planehash] / m_eventsTrigger_lb > s_thresholds[iThre]) {
+	  m_data->m_noisyMTrigger[iThre][m_current_lb]++;
 	}
-	if ((1E5) * m_hitoccSumUnbiasedTrigger_lb[GENERAL_INDEX][planehash] / m_eventsTrigger_lb > s_thresholds[iThre]) {
-	  m_noisyMWithHOTrigger[iThre][m_current_lb]++;
+	if ((1E5) * m_data->m_hitoccSumUnbiasedTrigger_lb[GENERAL_INDEX][planehash] / m_eventsTrigger_lb > s_thresholds[iThre]) {
+	  m_data->m_noisyMWithHOTrigger[iThre][m_current_lb]++;
 	}
       }
     }
     for (unsigned int jReg{0}; jReg<N_REGIONS+1; jReg++) {
-      m_occSumUnbiased_lb[jReg][planehash] = 0;
-      m_occSumUnbiasedTrigger_lb[jReg][planehash] = 0;
-      m_hitoccSumUnbiased_lb[jReg][planehash] = 0;
-      m_hitoccSumUnbiasedTrigger_lb[jReg][planehash] = 0;
+      m_data->m_occSumUnbiased_lb[jReg][planehash] = 0;
+      m_data->m_occSumUnbiasedTrigger_lb[jReg][planehash] = 0;
+      m_data->m_hitoccSumUnbiased_lb[jReg][planehash] = 0;
+      m_data->m_hitoccSumUnbiasedTrigger_lb[jReg][planehash] = 0;
     }
     nlinks[systemIndex]++;
     nlinks[GENERAL_INDEX]++;
@@ -622,10 +624,10 @@ void SCTHitsNoiseMonAlg::resetCaches() const{
   for (unsigned int jReg{0}; jReg<N_REGIONS+1; jReg++) {
     if (nlinks[jReg]>0) {
       
-      m_occ_lb[jReg][m_current_lb] = m_occ_lb[jReg][m_current_lb].load() / nlinks[jReg];
-      m_occTrigger_lb[jReg][m_current_lb] = m_occTrigger_lb[jReg][m_current_lb].load() / nlinks[jReg];
-      m_hitocc_lb[jReg][m_current_lb] = m_hitocc_lb[jReg][m_current_lb].load() / nlinks[jReg];
-      m_hitoccTrigger_lb[jReg][m_current_lb] = m_hitoccTrigger_lb[jReg][m_current_lb].load() / nlinks[jReg];
+      m_data->m_occ_lb[jReg][m_current_lb] = m_data->m_occ_lb[jReg][m_current_lb].load() / nlinks[jReg];
+      m_data->m_occTrigger_lb[jReg][m_current_lb] = m_data->m_occTrigger_lb[jReg][m_current_lb].load() / nlinks[jReg];
+      m_data->m_hitocc_lb[jReg][m_current_lb] = m_data->m_hitocc_lb[jReg][m_current_lb].load() / nlinks[jReg];
+      m_data->m_hitoccTrigger_lb[jReg][m_current_lb] = m_data->m_hitoccTrigger_lb[jReg][m_current_lb].load() / nlinks[jReg];
     
     }
   }
