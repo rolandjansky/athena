@@ -1161,7 +1161,7 @@ int main(int argc, char** argv) {
 	  if ( bmean )  base = chop( tmp_, "/mean" );
 	    
 	  TH2D* _htest2d = Get<TH2D>( ftest, chains[j]+"/"+base+"/2d", testrun, 0, &savedhistos );
-	  TH2D* _href2d  = Get<TH2D>( ftest, refchain[j]+"/"+base+"/2d", testrun, 0  );
+	  TH2D* _href2d  = Get<TH2D>( ftest, refchain[j]+"/"+base+"/2d", testrun );
 
 	  if ( _htest2d==0 ) continue;
 	  if ( !noreftmp && _href2d==0 )  noreftmp = true;
