@@ -44,11 +44,6 @@ conddb.blockFolder("/TRT/Calib/T0" )
 
 from AthenaCommon.AppMgr import ServiceMgr
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRTCalDbSvc
-TRTCalSvc=TRTCalDbSvc(name="TRTCalDbSvc",StreamTool=TRTCondStream)
-TRTCalSvc.calibTextFile = "%s"
-ServiceMgr += TRTCalSvc
-print TRTCalSvc
 
 from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTCondWrite
 TRTCondWrite=TRTCondWrite( name = "TRTCondWrite",
@@ -119,11 +114,6 @@ print TRTCondStream
 conddb.blockFolder("/TRT/Calib/RT" )
 conddb.blockFolder("/TRT/Calib/T0" )
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRTCalDbSvc
-TRTCalSvc=TRTCalDbSvc(name="TRTCalDbSvc",StreamTool=TRTCondStream)
-TRTCalSvc.calibTextFile = "%s"
-ServiceMgr+=TRTCalSvc
-print TRTCalSvc
 
 from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTCondWrite
 TRTCondWrite=TRTCondWrite( name = "TRTCondWrite",
