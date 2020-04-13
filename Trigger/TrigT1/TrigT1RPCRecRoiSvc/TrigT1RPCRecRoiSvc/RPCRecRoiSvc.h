@@ -5,7 +5,6 @@
 #ifndef TRIGT1_RPCRECROISVC_H
 #define TRIGT1_RPCRECROISVC_H
 
-
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
@@ -21,7 +20,8 @@ class RPCRecRoiSvc : public LVL1::RecMuonRoiSvc
 {
 public:
     RPCRecRoiSvc (const std::string& name, ISvcLocator* svc)
-        : LVL1::RecMuonRoiSvc( name, svc ), 
+        : LVL1::RecMuonRoiSvc( name, svc ),
+          m_isInit(false),
           m_phi(0),
           m_eta(0),
           m_phiMin(0),
@@ -56,11 +56,12 @@ public:
                double & etaMin_lowHigh, double & etaMax_lowHigh, double & phiMin_lowHigh, double & phiMax_lowHigh) const; //!< calculate RoI edges TAKING INTO ACCOUNT BENDING !!!
     
     // RoI edges for Low-pt and High-pt confirm planes 
-    bool etaDimLow (double& etaMin, double& etaMax) const;
-    bool etaDimHigh(double& etaMin, double& etaMax) const;
+    bool etaDimLow (double& etaMin, double& etaMax, const RpcCablingCondData* readCdo) const;
+    bool etaDimHigh(double& etaMin, double& etaMax, const RpcCablingCondData* readCdo) const;
 
 
 private:
+    bool m_isInit;
     mutable double m_phi, m_eta;
     mutable double m_phiMin, m_phiMax, m_etaMin, m_etaMax;
     mutable unsigned short int m_side, m_sector, m_roi;
