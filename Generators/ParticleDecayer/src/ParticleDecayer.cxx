@@ -217,7 +217,7 @@ StatusCode ParticleDecayer::setDecayPosition( HepMC::GenParticle* genpart, HepMC
    //Create a HepMC vertex at the decay position of the particle 
    ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- set the decay vertex");
    HepMC::GenVertex* end_vtx = new HepMC::GenVertex();
-   end_vtx->set_position(posLV);
+   end_vtx->set_position(HepMC::FourVector(posLV.x(),posLV.y(),posLV.z(),posLV.t()));
    end_vtx->add_particle_in(genpart);
    event->add_vertex(end_vtx);
    return StatusCode::SUCCESS;
@@ -401,10 +401,10 @@ StatusCode ParticleDecayer::fillEvt(HepMC::GenEvent* event) {
            addParticle( genpart->end_vertex(), m_particlePDGID, HepMC::FourVector(v1.x(),v1.y(),v1.z(),0.0), 2);
            
            //lifetime handling of the dark photons
-           HepMC::GenVertex::particles_out_const_iterator pIt    = genpart->end_vertex()->particles_out_const_begin();
-           HepMC::GenVertex::particles_out_const_iterator pItEnd = genpart->end_vertex()->particles_out_const_end();
            std::vector<HepMC::GenVertex*> dp_end_vertices;
            int polarizationSwitch = 1;
+           HepMC::GenVertex::particles_out_const_iterator pIt    = genpart->end_vertex()->particles_out_const_begin();
+           HepMC::GenVertex::particles_out_const_iterator pItEnd = genpart->end_vertex()->particles_out_const_end();
            for ( ; pIt != pItEnd; ++pIt )
               {
                  //Add decay position to the event

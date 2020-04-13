@@ -328,7 +328,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
     if( m_rand )newVertex = randomizeVertex(); // Create a random vertex along the pipe
     else if(m_sel) newVertex = CLHEP::HepLorentzVector(m_x, m_y, m_z, 0.); // Create vertex at selected point - preempted by m_rand
 
-    HepMC::GenVertex* v1 = new HepMC::GenVertex(newVertex);
+    HepMC::GenVertex* v1 = new HepMC::GenVertex(HepMC::FourVector(newVertex.x(),newVertex.y(),newVertex.z(),newVertex.t()));
 
     evt->set_signal_process_vertex(v1);
     vertexPtrVec.push_back(v1);
@@ -350,7 +350,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
     } else if (  m_proj == "A       " ) {
        proj_id = 3000000 + m_iap;
     }
-    HepMC::GenParticle* part_p = new HepMC::GenParticle( CLHEP::HepLorentzVector(0., 0., eproj, eproj), proj_id, 101 );
+    HepMC::GenParticle* part_p = new HepMC::GenParticle( HepMC::FourVector(0., 0., eproj, eproj), proj_id, 101 );
     v1->add_particle_in( part_p );
     
     double etarg = 0.;
@@ -370,7 +370,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
     } else if (  m_targ == "A       " ) {
        targ_id = 3000000 + m_iat;
     }
-    HepMC::GenParticle* part_t = new HepMC::GenParticle( CLHEP::HepLorentzVector(0., 0., -etarg, etarg), targ_id, 102 );
+    HepMC::GenParticle* part_t = new HepMC::GenParticle( HepMC::FourVector(0., 0., -etarg, etarg), targ_id, 102 );
     v1->add_particle_in( part_t );
 
     evt->set_beam_particles(part_p,part_t);
@@ -595,7 +595,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
       // Create the new particle
       //
-      CLHEP::HepLorentzVector particleP4(m_himain2.patt(i, 1),
+      HepMC::FourVector particleP4(m_himain2.patt(i, 1),
                               m_himain2.patt(i, 2),
                               m_himain2.patt(i, 3),
                               m_himain2.patt(i, 4));
