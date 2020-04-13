@@ -5,7 +5,11 @@
 #ifndef AthenaMonitoringKernel_HistogramFillerUtils_h
 #define AthenaMonitoringKernel_HistogramFillerUtils_h
 
+#include <algorithm>
+#include <utility>
+
 #include "AthenaMonitoringKernel/OHLockedHist.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 #include "TH1.h"
 #include "THashList.h"
@@ -17,9 +21,8 @@ namespace Monitored {
 
   namespace detail {
 
-    /** Default cuts and weights used in fillers */
-    auto noWeight = [](size_t){ return 1.0; };
-    auto noCut = [](size_t){ return true; };
+    auto noWeight = [](size_t){ return 1.0; }; ///< no weight for filling
+    auto noCut = [](size_t){ return true; };   ///< no cut for filling
 
     /** Convert axis to ROOT-compatible character */
     constexpr std::array axis_name{"X", "Y", "Z"};
@@ -104,6 +107,69 @@ namespace Monitored {
       return true;
     }
 
+    // gcc bug #94505
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wparentheses"
+    /**
+     * Check if any of the histogram axes will be rebinned
+     *
+     * @param hist  histogram to check
+     * @param a...     integer sequence of axes to check (0, 1, ...)
+     * @param v...     x, y, ... values to fill
+     */
+    template<typename H, typename T, T... a, typename ...Vs>
+    bool fillWillRebinHistogram(H* hist, std::integer_sequence<T, a...>, const Vs&... v) {
+      // First check if axis is extensible, then if value would be outside of range
+      return (... || (getAxis<H, static_cast<Axis>(a)>(hist)->CanExtend() and
+                      detail::fillWillRebinHistogram(getAxis<H, static_cast<Axis>(a)>(hist), v)));
+    }
+    #pragma GCC diagnostic pop
+
+
+    /**
+     * Return value that can be digested by TH1::Fill
+     * (We only support double and string)
+     */
+    template<typename T>
+    constexpr auto toFill(const T& value) {
+      if constexpr(std::is_same_v<double,T>) return value;
+      else return value.c_str();
+    }
+
+    /**
+     * Generic histogram filling helper
+     *
+     * Works for any dimension and double/string-valued entries.
+     * If weight and/or cut are not needed use a lambda expression (instead of std::function)
+     * as this will allow the compiler to produce more optimal code.
+     *
+     * @param hist    histogram to fill
+     * @param weight  weight accessor
+     * @param cut     cut mask accessor
+     * @param v...    vectors used for filling (one for each dimension)
+     * @return  number of fills performed
+     */
+    template<typename H, typename W, typename C, typename ...Vs>
+    unsigned fill(H* hist, W weight, C cut, const Vs&... v) {
+
+      // For >=2D: If one variable has a single entry, do repeated fills with that value
+      auto get = [](const auto& v, size_t i) { return v.size()==1 ? v[0] : v[i]; };
+
+      unsigned fills = 0;
+      for ( size_t i = 0; i < std::max({v.size()...}); ++i ) {
+        if ( cut(i) ) {
+          fills++;
+          // In case re-binning occurs need to take the OH lock for online (no-op offline)
+          if ( ATH_UNLIKELY(fillWillRebinHistogram(hist, std::index_sequence_for<Vs...>{},
+                                                   toFill(get(v,i))...)) ){
+            oh_scoped_lock_histogram lock;
+            hist->Fill( toFill(get(v,i))..., weight(i) );
+          }
+          else hist->Fill( toFill(get(v,i))..., weight(i) );
+        }
+      }
+      return fills;
+    }
   }
 }
 
