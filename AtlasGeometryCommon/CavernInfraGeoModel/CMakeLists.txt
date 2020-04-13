@@ -26,7 +26,7 @@ atlas_add_component( CavernInfraGeoModel
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} GeoModelUtilities StoreGateLib SGtests GaudiKernel )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} GeoModelUtilities StoreGateLib SGtests GaudiKernel RDBAccessSvcLib )
 
 # Install files from the package:
 atlas_install_headers( CavernInfraGeoModel )
