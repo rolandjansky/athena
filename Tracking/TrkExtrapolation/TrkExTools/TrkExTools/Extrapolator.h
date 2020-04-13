@@ -64,6 +64,7 @@ class AlignableTrackingVolume;
 class ExtrapolationCache;
 
 typedef std::vector<const Trk::TrackParameters*> TrackParametersVector;
+typedef std::vector<std::unique_ptr<const Trk::TrackParameters> > TrackParametersUVector;
 typedef std::pair< const Surface*,BoundaryCheck  > DestSurf;
 
 using TrackParmContainer  = ObjContainer<const Trk::TrackParameters>;
@@ -197,13 +198,13 @@ VERBOSE : Method call sequence with values
     /** S 2) <b>Strategy Pattern extrapolation method</b>
       - returns a vector of TrackParameters representing the tracking detector elements
       hit in between and the TrackParameters at the destination Surface (if final extrapolation suceeds),
-      0 if the extrapolation to the destination surface does not suceed*/
-    virtual const TrackParametersVector*  extrapolateStepwise(const IPropagator& prop,
-                                                              const TrackParameters& parm,
-                                                              const Surface& sf,
-                                                              PropDirection dir=anyDirection,
-                                                              const BoundaryCheck&  bcheck = true,
-                                                              ParticleHypothesis particle=pion ) const override final;
+      empty if the extrapolation to the destination surface does not suceed*/
+    virtual TrackParametersUVector extrapolateStepwise(const IPropagator& prop,
+                                                       const TrackParameters& parm,
+                                                       const Surface& sf,
+                                                       PropDirection dir=anyDirection,
+                                                       const BoundaryCheck&  bcheck = true,
+                                                       ParticleHypothesis particle=pion ) const override final;
 
     /** S 3) <b>Strategy Pattern extrapolation method</b>: 
       - searches the closest TrackParameters of the Track to the destination Surface
@@ -230,13 +231,13 @@ VERBOSE : Method call sequence with values
 
     /** S 5) <b>Strategy Pattern extrapolation method</b>:
       - blind extrapolation inside the given TrackingVolume
-      */          
-    virtual const TrackParametersVector* extrapolateBlindly(const IPropagator& prop,
-                                                            const TrackParameters& parm,
-                                                            PropDirection dir,
-                                                            const BoundaryCheck&  bcheck,
-                                                            ParticleHypothesis particle=pion,
-                                                            const Volume* boundaryVol=nullptr) const override final;
+    */          
+    virtual TrackParametersUVector extrapolateBlindly(const IPropagator& prop,
+                                                      const TrackParameters& parm,
+                                                      PropDirection dir,
+                                                      const BoundaryCheck&  bcheck,
+                                                      ParticleHypothesis particle=pion,
+                                                      const Volume* boundaryVol=nullptr) const override final;
 
 
     /** S 6) <b>Strategy Pattern extrapolation method</b>:
@@ -306,11 +307,11 @@ VERBOSE : Method call sequence with values
                                                Trk::ExtrapolationCache* cache = nullptr) const override final;
 
     /** C 2) <b>Configured AlgTool extrapolation method</b> of S 2):*/
-    virtual const TrackParametersVector*  extrapolateStepwise(const TrackParameters& parm,
-                                                              const Surface& sf,
-                                                              PropDirection dir=anyDirection,
-                                                              const BoundaryCheck&  bcheck = true,
-                                                              ParticleHypothesis particle=pion) const override final;
+    virtual TrackParametersUVector extrapolateStepwise(const TrackParameters& parm,
+                                                       const Surface& sf,
+                                                       PropDirection dir=anyDirection,
+                                                       const BoundaryCheck&  bcheck = true,
+                                                       ParticleHypothesis particle=pion) const override final;
 
     /** C 3) <b>Configured AlgTool extrapolation method</b> of S 3):*/
     virtual const TrackParameters* extrapolate(const Track& trk,
@@ -329,11 +330,11 @@ VERBOSE : Method call sequence with values
                                                        ParticleHypothesis particle=pion) const override final;
 
     /** C 5) <b>Configured AlgTool extrapolation method</b> of S 5):*/                        
-    virtual const TrackParametersVector* extrapolateBlindly(const TrackParameters& parm,
-                                                            PropDirection dir=anyDirection,
-                                                            const BoundaryCheck&  bcheck = true,
-                                                            ParticleHypothesis particle=pion,
-                                                            const Volume* boundaryVol=nullptr) const override final;
+    virtual TrackParametersUVector extrapolateBlindly(const TrackParameters& parm,
+                                                      PropDirection dir=anyDirection,
+                                                      const BoundaryCheck&  bcheck = true,
+                                                      ParticleHypothesis particle=pion,
+                                                      const Volume* boundaryVol=nullptr) const override final;
 
 
     /** C 6) <b>Configured AlgTool extrapolation method</b> of S 6):*/                        
@@ -492,7 +493,6 @@ VERBOSE : Method call sequence with values
             for (const Trk::TrackParameters *parm : *m_parametersOnDetElements) {
                delete parm;
             }
-            delete m_parametersOnDetElements;
          }
          s_containerSizeMax.update(trackParmContainer().size());
       }
@@ -561,13 +561,13 @@ VERBOSE : Method call sequence with values
 
     /** Actual heavy lifting implementation for  
      * C 5) <b>Configured AlgTool extrapolation method</b> of S 5):*/
-    const Trk::TrackParametersVector *extrapolateBlindlyImpl(Cache& cache,
-                                                             const IPropagator &prop, 
-                                                             TrackParmPtr parm,
-                                                             PropDirection dir=anyDirection,
-                                                             const BoundaryCheck&  bcheck = true,
-                                                             ParticleHypothesis particle=pion,
-                                                             const Volume* boundaryVol=nullptr) const;
+    Trk::TrackParametersUVector extrapolateBlindlyImpl(Cache& cache,
+                                                       const IPropagator &prop, 
+                                                       TrackParmPtr parm,
+                                                       PropDirection dir=anyDirection,
+                                                       const BoundaryCheck&  bcheck = true,
+                                                       ParticleHypothesis particle=pion,
+                                                       const Volume* boundaryVol=nullptr) const;
 
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -32,7 +32,7 @@ StatusCode SCT_ByteStreamErrorsTestAlg::execute(const EventContext& ctx) const {
 
   ATH_MSG_ALWAYS("------------------------------------------------------------");
   for (unsigned int iErr{0}; iErr<SCT_ByteStreamErrors::NUM_ERROR_TYPES; iErr++) {
-    ATH_MSG_ALWAYS("BS Error index: " << iErr << " type " << SCT_ByteStreamErrors::errorTypesDescription[iErr].c_str());
+    ATH_MSG_ALWAYS("BS Error index: " << iErr << " type " << SCT_ByteStreamErrors::ErrorTypeDescription[iErr].c_str());
     const std::set<IdentifierHash>  errorSet =  m_bsErrTool->getErrorSet(iErr,  ctx);
     for (const IdentifierHash& hash: errorSet) {
       ATH_MSG_ALWAYS("  Wafer hash : " << hash);

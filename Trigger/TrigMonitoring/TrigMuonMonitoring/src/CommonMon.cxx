@@ -2633,7 +2633,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_standard(const std::string& chainName, c
       ATH_MSG_ERROR(" Cannot retrieve EventInfo ");
       return StatusCode::FAILURE;
     }
-    float mean_mu = evt->averageInteractionsPerCrossing();
+    float mean_mu = lbAverageInteractionsPerCrossing();
     // start to dump the probe muon information //
     if(tag_muon_index > -1){
       ATH_MSG_DEBUG(" ####### found tag muon ######### ");
