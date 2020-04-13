@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************
@@ -11,7 +11,6 @@
 #include "TRT_CalibAlgs/TRTCalibrationMgr.h"
 
 #include "TrkTrack/Track.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 
 #include "TRT_CalibData/TrackInfo.h"
 #include "TRT_ConditionsData/FloatArrayStore.h"
@@ -32,20 +31,22 @@ TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcL
 	m_AccumulatorTools(),
 	m_FitTools(),
 	m_trackFitter("Trk::KalmanFitter/TrkKalmanFitter"),
-	m_trtcaldbSvc("TRT_CalDbSvc", name),
+        m_streamer("AthenaOutputStreamTool/CondStream1"),
 	m_dorefit(true),
 	m_docalibrate(false),
 	m_writeConstants(false),
 	m_ntrk(0),
 	m_trackSelector("InDet::InDetTrackSelectorTool/InDetTrackSelectorTool"),
-	m_max_ntrk(100000)
+	m_max_ntrk(100000),
+        m_par_rtcontainerkey("/TRT/Calib/RT"),
+        m_par_t0containerkey("/TRT/Calib/T0")
 {
 	m_TrackInfoTools.push_back("FillAlignTrkInfo");
 	m_AccumulatorTools.push_back("TRTCalAccumulator");
 	m_TRTCalibTools.push_back("TRTCalibrator");
 	m_FitTools.push_back("FitTool");
 	// declare algorithm parameters
-	declareProperty("TRTCalDBTool", m_trtcaldbSvc);
+	declareProperty("StreamTool", m_streamer);
 	declareProperty("AlignTrkTools",m_TrackInfoTools);
 	declareProperty("AccumulatorTools",m_AccumulatorTools);
 	declareProperty("FitTools",m_FitTools);
@@ -67,29 +68,31 @@ TRTCalibrationMgr::~TRTCalibrationMgr(void)
 
 StatusCode TRTCalibrationMgr::initialize()
 {
-	msg(MSG::INFO) << "initialize()" << endmsg;
+  ATH_MSG_DEBUG( "initialize()" );
 
 	if (m_docalibrate) {
 		if( !m_TRTCalibTools.size() || m_TRTCalibTools.retrieve().isFailure()){
-			msg(MSG::FATAL) << "Cannot get Calibration tool " << m_TRTCalibTools << endmsg;
+		  ATH_MSG_FATAL( "Cannot get Calibration tool " << m_TRTCalibTools );
 			return StatusCode::FAILURE;
 		}
 	} else {
 		if( !m_TrackInfoTools.size() || m_TrackInfoTools.retrieve().isFailure()){
-			msg(MSG::FATAL) << "Cannot get TrackInfo filler tool " << m_TrackInfoTools << endmsg;
+		  ATH_MSG_FATAL( "Cannot get TrackInfo filler tool " << m_TrackInfoTools );
 			return StatusCode::FAILURE;
 		}
 	}
 
 	if( !m_FitTools.size() || m_FitTools.retrieve().isFailure()){
-		msg(MSG::FATAL) << "Cannot get Fit tools " << m_FitTools << endmsg;
+	  ATH_MSG_FATAL( "Cannot get Fit tools " << m_FitTools );
 		return StatusCode::FAILURE;
 	}
 
 	if(m_trackFitter.retrieve().isFailure()){
-		msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackFitter << endmsg;
+	  ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackFitter );
 		return StatusCode::FAILURE;
 	}
+
+        if(m_writeConstants) ATH_CHECK(m_streamer.retrieve());
 
 	//Initialize ReadHandles and ReadHandleKeys
 	ATH_CHECK(m_verticesKey.initialize());
@@ -97,22 +100,21 @@ StatusCode TRTCalibrationMgr::initialize()
 	ATH_CHECK(m_TrkCollections.initialize());
 	ATH_CHECK(m_comTimeKey.initialize());
 	// Each ROI/road may create its own collection....
-	msg(MSG::INFO) << "Tracks from Trk::Track collection(s):";
+	ATH_MSG_INFO( "Tracks from Trk::Track collection(s):");
 	for (unsigned int i=0;i<m_TrkCollections.size();i++)
-		msg(MSG::INFO) << "\n\t" << m_TrkCollections[i];
-	msg(MSG::INFO) << endmsg;
+	  ATH_MSG_INFO( "\n\t" << m_TrkCollections[i]);
 
 	// Get the Track Selector Tool
 	if ( !m_trackSelector.empty() ) {
 		StatusCode sc = m_trackSelector.retrieve();
 		if (sc.isFailure()) {
-			msg(MSG::FATAL) << "Could not retrieve "<< m_trackSelector <<" (to select the tracks which are written to the ntuple) "<< endmsg;
-			msg(MSG::INFO) << "Set the ToolHandle to None if track selection is supposed to be disabled" << endmsg;
+		  ATH_MSG_FATAL( "Could not retrieve "<< m_trackSelector <<" (to select the tracks which are written to the ntuple) ");
+		  ATH_MSG_INFO( "Set the ToolHandle to None if track selection is supposed to be disabled" );
 			return sc;
 		}
 	}
 
-	msg(MSG::INFO) <<"Track Selector retrieved" << endmsg;
+	ATH_MSG_INFO("Track Selector retrieved" );
 
 
 	m_ntrk=0;
@@ -125,29 +127,16 @@ StatusCode TRTCalibrationMgr::initialize()
 StatusCode TRTCalibrationMgr::execute() {
 
 	if (m_docalibrate){
-		msg(MSG::INFO) << "skipping execute() calibrating instead" << endmsg;
+	  ATH_MSG_INFO( "skipping execute() calibrating instead" );
 		m_TRTCalibTools[0]->calibrate();
 		return StatusCode::SUCCESS;
 	}
 
 	if(m_writeConstants){
-		StatusCode sc=m_trtcaldbSvc->streamOutCalibObjects() ;
+		StatusCode sc=streamOutCalibObjects() ;
 		return sc;
 	}
 
-	// require at least one vertex per event
-	/*
-	  const VxContainer* vxContainer(0);
-	  StatusCode sc = evtStore()->retrieve(vxContainer,"VxPrimaryCandidate");
-	  if ( sc.isFailure() ) { msg(MSG::ERROR) << "vertex container missing!" << endmsg; }
-	  else {
-	  int countVertices(0);
-	  for (VxContainer::const_iterator it = vxContainer->begin() ; it != vxContainer->end() ; ++it ) {
-	  if ( (*it)->vxTrackAtVertex()->size() >= 3 ) countVertices++;
-	  }
-	  if (countVertices < 1) {msg(MSG::INFO) << "no vertices found" << endmsg;}// return sc;}
-	  }
-	*/
 
 	// Get Primary vertex
 	SG::ReadHandle<xAOD::VertexContainer> vertices(m_verticesKey);
@@ -163,14 +152,14 @@ StatusCode TRTCalibrationMgr::execute() {
 		}
 	}
 	if (countVertices < 1) {
-		msg(MSG::INFO) << "no vertices found" << endmsg;
+	  ATH_MSG_INFO( "no vertices found" );
 		return StatusCode::SUCCESS;
 	}
 
 	// get event info pointer
 	SG::ReadHandle<xAOD::EventInfo> EventInfo(m_EventInfoKey);
 	if (not EventInfo.isValid()) {
-		msg(MSG::FATAL) << "skipping event, could not get EventInfo" << endmsg;
+	  ATH_MSG_FATAL( "skipping event, could not get EventInfo" );
 		return StatusCode::FAILURE;
 	}
 
@@ -182,7 +171,6 @@ StatusCode TRTCalibrationMgr::execute() {
 
 	// Loop over tracks; get track info and accumulate it
 	const Trk::Track* aTrack;
-	//const DataVector<Trk::Track>* trks;
 
 	TrackCollection::const_iterator t;
 
@@ -193,20 +181,20 @@ StatusCode TRTCalibrationMgr::execute() {
 			//      if (trks->size()>100){
 
 			if(trks->size()<3) {
-				msg(MSG::INFO) << "skipping event, it contains only " << trks->size() << " tracks (less than 3)" << endmsg;
+			  ATH_MSG_INFO( "skipping event, it contains only " << trks->size() << " tracks (less than 3)");
 				return StatusCode::SUCCESS;
 			}
 
 
 			if(trks->size()>m_max_ntrk) {
-				msg(MSG::INFO) << "skipping event, it contains " << trks->size() << " tracks, more than max: " << m_max_ntrk  << endmsg;
+			  ATH_MSG_INFO( "skipping event, it contains " << trks->size() << " tracks, more than max: " << m_max_ntrk);
 				return StatusCode::SUCCESS;
 			}
 
 			for (t=trks->begin();t!=trks->end();++t) {
-				//msg(MSG::INFO) << "Tracks seees "  << endmsg;
+
 				if ( m_trackSelector->decision(*(*t), 0)) {
-					//msg(MSG::INFO) << "Tracks ACCEPTED "  << endmsg;
+
 					m_ntrk++;
 					aTrack=*t;
 
@@ -223,8 +211,8 @@ StatusCode TRTCalibrationMgr::execute() {
 						at[TRT::Track::run]=EventInfo->runNumber();
 						at[TRT::Track::event]=EventInfo->eventNumber();
 						at[TRT::Track::trackNumber]=m_ntrk;
-						if (msgLvl(MSG::DEBUG)) msg() << "  Track " << m_ntrk << " accepted Info: run="
-						                              << at[TRT::Track::run] << "   event=" << at[TRT::Track::event] << endmsg;
+						ATH_MSG_DEBUG( "  Track " << m_ntrk << " accepted Info: run="
+						               << at[TRT::Track::run] << "   event=" << at[TRT::Track::event]);
 						for (unsigned int j=0;j<m_TrackInfoTools.size();j++)
 							if (!m_TrackInfoTools[j]->fill(aTrack, &at, comTime.ptr(), *EventInfo, *vertices)) break;
 						if(m_dorefit)
@@ -244,19 +232,53 @@ StatusCode TRTCalibrationMgr::execute() {
 
 StatusCode TRTCalibrationMgr::finalize()
 {
-	msg(MSG::INFO) << "finalise()" << endmsg;
-	std::cout << "CALIBSTAT CM_TRKS: " << m_ntrk << std::endl;
+  ATH_MSG_INFO( "CALIBSTAT CM_TRKS: " << m_ntrk);
 
-	//argh this is insane ...
 	gROOT->SetMustClean(false);
 
 	// Accumulators to finalize
 	std::vector<IdentifierProfileHistogram*> histograms;
 	for (unsigned int j=0;j<m_TrackInfoTools.size();j++)
 		if ((m_TrackInfoTools[j]->finalize()).isFailure()){
-			msg(MSG::FATAL) << "Error calling TrackInfo tool finalize " << endmsg;
+		  ATH_MSG_FATAL( "Error calling TrackInfo tool finalize ");
 			return StatusCode::FAILURE;
 		}
 
 	return StatusCode::SUCCESS;
 }
+
+StatusCode TRTCalibrationMgr::streamOutCalibObjects() const
+{
+  ATH_MSG_INFO( "entering streamOutCalibObjects " );
+  StatusCode sc;
+  
+
+  IAthenaOutputStreamTool*  streamer=const_cast<IAthenaOutputStreamTool*>(&(*m_streamer));
+
+
+  sc = streamer->connectOutput();
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR("Could not connect stream to output");
+    return( StatusCode::FAILURE);
+  }
+  
+  IAthenaOutputStreamTool::TypeKeyPairs typeKeys;
+  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(StrawT0Container::classname(),m_par_t0containerkey)) ;
+  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),m_par_rtcontainerkey)) ;
+  
+  sc = streamer->streamObjects(typeKeys);
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR("Could not stream out Containers ");
+    return( StatusCode::FAILURE);
+  }
+  
+  sc = streamer->commitOutput();
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR("Could not commit output stream");
+    return( StatusCode::FAILURE);
+  }
+  
+  ATH_MSG_INFO( "   Streamed out and committed "  << typeKeys.size() << " objects " );
+  return StatusCode::SUCCESS;
+}
+

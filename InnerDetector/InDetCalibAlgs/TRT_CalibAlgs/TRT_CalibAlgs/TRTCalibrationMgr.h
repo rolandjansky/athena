@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_CALIBALGS_TRTCALIBRATIONMGR_H
@@ -12,15 +12,16 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-
+#include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "StoreGate/DataHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/VertexContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CommissionEvent/ComTime.h"
-//#include "TrkTrack/Track.h"
-//#include "TRT_ConditionsTools/TRTCalDbTool.h"
+#include "TRT_ConditionsData/RtRelationMultChanContainer.h"
+#include "TRT_ConditionsData/StrawT0MultChanContainer.h"
+
 
 namespace TRT{
   class TrackInfo;
@@ -34,7 +35,6 @@ class IFillAlignTrkInfo;
 class IAccumulator;
 class IFitTool;
 
-class ITRT_CalDbSvc;
 
 /**
 
@@ -66,9 +66,13 @@ public:
   TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcLocator);
   ~TRTCalibrationMgr(void);
 
-  StatusCode initialize(void);
-  StatusCode execute(void);
-  StatusCode finalize(void);
+  typedef TRTCond::RtRelationMultChanContainer RtRelationContainer ;
+  typedef TRTCond::StrawT0MultChanContainer StrawT0Container ;
+
+  virtual StatusCode initialize(void) override;
+  virtual StatusCode execute(void) override;
+  virtual StatusCode finalize(void) override;
+  StatusCode streamOutCalibObjects() const;
 
 private:
 
@@ -79,21 +83,27 @@ private:
   ToolHandleArray<IFitTool>           m_FitTools;
   ToolHandle<Trk::ITrackFitter>       m_trackFitter;
 
-  ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc ;
+  ToolHandle<IAthenaOutputStreamTool> m_streamer;        //!< OutputStreamTool
 
   bool m_dorefit;
   bool m_docalibrate;
 
   bool m_writeConstants;
   int m_ntrk;
+  ToolHandle<Trk::ITrackSelectorTool>   m_trackSelector;   //!< Tool handle to the Trk::ITrackSelectorTool
+  unsigned int m_max_ntrk;
+  std::string m_par_rtcontainerkey;        //"/TRT/Calib/RT"
+  std::string m_par_t0containerkey;        //"/TRT/Calib/T0"
+
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_verticesKey{this,"VerticesKey","PrimaryVertices","RHK for primary veritces"};
   SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this,"EventInfoKey","EventInfo","RHK for xAOD::EventInfo"};
   SG::ReadHandleKeyArray<TrackCollection> m_TrkCollections{this,"TrkCollections",{"Tracks", "ConvertedIParTracks"},"RHKs for track collections"};
   SG::ReadHandleKey<ComTime> m_comTimeKey{this, "ComTimeKey", "TRT_Phase", "Name of TRT Com time object"};
-  ToolHandle<Trk::ITrackSelectorTool>   m_trackSelector;   //!< Tool handle to the Trk::ITrackSelectorTool
 
-  unsigned int m_max_ntrk;
+
+
+
 };
 
 #endif // TRT_CALIBALGS_TRTCALIBRATIONMGR_H

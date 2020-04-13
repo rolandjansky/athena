@@ -281,9 +281,6 @@ ServiceMgr.ByteStreamInputSvc.FullFileName = ["""
 
 from AthenaCommon.AppMgr import ToolSvc
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalibDBSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalibDBSvc
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbourSvc
 TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
@@ -392,6 +389,7 @@ if (InDetFlags.doPrintConfigurables()):
 
 from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTCalibrationMgr
 CosmicsTRTCalibMgr = TRTCalibrationMgr(name                = 'CosmicsTRTCalibMgr',
+                                       StreamTool          = TRTCondStream,
                                        TrackSelectorTool   = TRTTrackSelectorTool,
                                        #TrkCollections      = [ 'StandaloneTRTTracks' ],
                                        #TrkCollections      = [ 'CombinedInDetTracks' ],
@@ -455,8 +453,7 @@ conddb.blockFolder("/TRT/Calib/T0" )
 """
 
     if not calibconstants=="":
-        ostring+='TRTCalibDBSvc.calibTextFile="%s"\n' % (calibconstants)
+        ostring+='TRTCondWrite.CalibInputFile="%s"\n' % (calibconstants)
 
-    ostring+='TRTCalibDBSvc.StreamTool=TRTCondStream'
     return ostring
 

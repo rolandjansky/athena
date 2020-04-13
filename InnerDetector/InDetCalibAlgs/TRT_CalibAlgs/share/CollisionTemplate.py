@@ -368,6 +368,7 @@ if (InDetFlags.doPrintConfigurables()):
 
 from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTCalibrationMgr
 CosmicsTRTCalibMgr = TRTCalibrationMgr(name                = 'CosmicsTRTCalibMgr',
+                                       StreamTool          = TRTCondStream,
                                        TrackSelectorTool   = TRTTrackSelectorTool,
                                        TrkCollections      = [ 'CombinedInDetTracks' ],
                                        AlignTrkTools       = [ FillAlignTrkInfo, FillAlignTRTHits ],
@@ -382,13 +383,6 @@ print CosmicsTRTCalibMgr
 from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTCondWrite
 TRTCondWrite = TRTCondWrite( name = \"TRTCondWrite\")
 topSequence+=TRTCondWrite 
-
-
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalibDBSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalibDBSvc
-
-TRTCalibDBSvc.StreamTool=TRTCondStream
 
 from IOVDbSvc.CondDB import conddb
 conddb.addFolder(\"PIXEL_OFL\",\"/PIXEL/PixelClustering/PixelClusNNCalib\")
@@ -411,9 +405,8 @@ conddb.blockFolder("/TRT/Calib/T0" )
 """
 
     if not calibconstants=="":
-        ostring+='TRTCalibDBSvc.calibTextFile="%s"\n' % (calibconstants)
+        ostring+='TRTCondWrite.CalibInputFile="%s"\n' % (calibconstants)
 
-    ostring+='TRTCalibDBSvc.StreamTool=TRTCondStream'
     return ostring
 
 
