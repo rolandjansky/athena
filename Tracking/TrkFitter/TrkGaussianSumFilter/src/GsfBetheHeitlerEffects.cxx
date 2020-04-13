@@ -246,9 +246,9 @@ Trk::GsfBetheHeitlerEffects::compute(Cache& cache,
         varQoverP = varZ / (momentum * momentum);
       }
 
-      std::unique_ptr<AmgSymMatrix(5)> newCovarianceMatrix = std::make_unique<AmgSymMatrix(5)>();
-      newCovarianceMatrix->setZero();
-      (*newCovarianceMatrix)(Trk::qOverP, Trk::qOverP) = varQoverP;
+      AmgSymMatrix(5) newCovarianceMatrix;
+      newCovarianceMatrix.setZero();
+      (newCovarianceMatrix)(Trk::qOverP, Trk::qOverP) = varQoverP;
       cache.deltaPs.push_back(deltaP);
       cache.weights.push_back(1.);
       cache.deltaCovariances.push_back(std::move(newCovarianceMatrix));
@@ -320,9 +320,9 @@ Trk::GsfBetheHeitlerEffects::compute(Cache& cache,
         varianceInverseMomentum = mixture[componentIndex].variance / (momentum * momentum);
       } // end backwards propagation if clause
 
-      std::unique_ptr<AmgSymMatrix(5)> newCovarianceMatrix = std::make_unique<AmgSymMatrix(5)>();
-      newCovarianceMatrix->setZero();
-      (*newCovarianceMatrix)(Trk::qOverP, Trk::qOverP) = varianceInverseMomentum;
+      AmgSymMatrix(5) newCovarianceMatrix;
+      newCovarianceMatrix.setZero();
+      newCovarianceMatrix(Trk::qOverP, Trk::qOverP) = varianceInverseMomentum;
 
       cache.deltaCovariances.push_back(std::move(newCovarianceMatrix));
     } // end for loop over all components
@@ -333,8 +333,8 @@ Trk::GsfBetheHeitlerEffects::compute(Cache& cache,
     ATH_MSG_DEBUG("Trying to apply energy loss to " << pathlengthInX0 << " x/x0. No Bethe-Heitler effects applied");
     cache.weights.push_back(1.);
     cache.deltaPs.push_back(0.);
-    std::unique_ptr<AmgSymMatrix(5)> newCovarianceMatrix = std::unique_ptr<AmgSymMatrix(5)>();
-    newCovarianceMatrix->setZero();
+    AmgSymMatrix(5) newCovarianceMatrix;
+    newCovarianceMatrix.setZero();
     cache.deltaCovariances.push_back(std::move(newCovarianceMatrix));
   }
 }

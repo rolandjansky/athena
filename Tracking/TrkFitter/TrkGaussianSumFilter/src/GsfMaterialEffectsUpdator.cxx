@@ -342,10 +342,9 @@ Trk::GsfMaterialEffectsUpdator::compute(const Trk::ComponentParameters& componen
     }
 
     AmgSymMatrix(5)* updatedCovariance = nullptr;
-    if (measuredCov && !cache.deltaCovariances.empty() && cache.deltaCovariances[componentIndex] != nullptr) {
-      updatedCovariance = new AmgSymMatrix(5)(*cache.deltaCovariances[componentIndex] + *measuredCov);
+    if (measuredCov && cache.deltaCovariances.size()>componentIndex) {
+      updatedCovariance = new AmgSymMatrix(5)(cache.deltaCovariances[componentIndex] + *measuredCov);
     }
-
     Trk::TrackParameters* updatedTrackParameters =
       trackParameters->associatedSurface().createTrackParameters(updatedStateVector[Trk::loc1],
                                                                  updatedStateVector[Trk::loc2],
