@@ -12,7 +12,7 @@
 
   from ROOT import SCT_ByteStreamErrors
   for i in range(SCT_ByteStreamErrors.NUM_ERROR_TYPES):
-    print(SCT_ByteStreamErrors.errorTypesDescription[i])
+    print(SCT_ByteStreamErrors.ErrorTypeDescription[i])
  */
 
 #ifndef SCT_ConditionsDataDict_h

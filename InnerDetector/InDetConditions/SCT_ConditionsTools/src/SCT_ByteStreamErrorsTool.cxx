@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -277,7 +277,7 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) co
     if ( idcErrCont != nullptr  ) {
       const std::vector<std::pair<size_t, uint64_t>> errorcodesforView = idcErrCont->getAll();
       for (const auto& [hashId, errCode] : errorcodesforView) {
-	if (  SCT_ByteStreamErrors::hasError( errCode, static_cast<SCT_ByteStreamErrors::errorTypes>( errorType ) ) ) {
+	if (  SCT_ByteStreamErrors::hasError( errCode, static_cast<SCT_ByteStreamErrors::ErrorType>( errorType ) ) ) {
 	  result.insert(hashId);
 	}
       }

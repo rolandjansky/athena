@@ -439,7 +439,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
   b_category[CategoryErrors::SUMMARY] = true;
 
   b_category[CategoryErrors::BADERR] = false;
-  for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType tmpBadError: SCT_ByteStreamErrors::BadErrors) {
     if (err_type == tmpBadError) {
       b_category[CategoryErrors::BADERR] = true;
       break;
@@ -448,7 +448,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
 
 
   b_category[CategoryErrors::LINKLEVEL] = false;
-  for (SCT_ByteStreamErrors::errorTypes linkLevelError: SCT_ByteStreamErrors::LinkLevelErrors) {
+  for (SCT_ByteStreamErrors::ErrorType linkLevelError: SCT_ByteStreamErrors::LinkLevelErrors) {
     if (err_type == linkLevelError) {
       b_category[CategoryErrors::LINKLEVEL] = true;
       break;
@@ -456,7 +456,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
   }
 
   b_category[CategoryErrors::RODLEVEL] = false;
-  for (SCT_ByteStreamErrors::errorTypes rodLevelError: SCT_ByteStreamErrors::RodLevelErrors) {
+  for (SCT_ByteStreamErrors::ErrorType rodLevelError: SCT_ByteStreamErrors::RodLevelErrors) {
     if (err_type == rodLevelError) {
       b_category[CategoryErrors::RODLEVEL] = true;
       break;
@@ -768,8 +768,8 @@ SCTErrMonTool::bookErrHistos(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
       }
       //______________________________________________________________________________________
       for (unsigned int bin{0}; bin < SCT_ByteStreamErrors::NUM_ERROR_TYPES; bin++) {
-        m_numErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::errorTypesDescription[bin].c_str());
-        m_rateErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::errorTypesDescription[bin].c_str());
+        m_numErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::ErrorTypeDescription[bin].c_str());
+        m_rateErrorsPerLumi[reg]->GetXaxis()->SetBinLabel(bin+1, SCT_ByteStreamErrors::ErrorTypeDescription[bin].c_str());
       }
       for (int bin{0}; bin < nLayers; bin++) {
         m_numErrorsPerLumi[reg]->GetYaxis()->SetBinLabel(bin+1, (to_string(bin/2) +"_"+ to_string(bin%2)).c_str());
@@ -883,14 +883,14 @@ SCTErrMonTool::bookConfMapsGen() {
 
       for (int errType{0}; errType < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
         m_ByteStreamVsLB[errType] =
-          TProfile_LW::create("SCT_" + SCT_ByteStreamErrors::errorTypesDescription[errType] + "VsLbs" + regLabel[GENERAL_INDEX],
-                              "Ave. " + SCT_ByteStreamErrors::errorTypesDescription[errType] + " per LB in " + regTitle[GENERAL_INDEX],
+          TProfile_LW::create("SCT_" + SCT_ByteStreamErrors::ErrorTypeDescription[errType] + "VsLbs" + regLabel[GENERAL_INDEX],
+                              "Ave. " + SCT_ByteStreamErrors::ErrorTypeDescription[errType] + " per LB in " + regTitle[GENERAL_INDEX],
                               NBINS_LBs, 0.5, NBINS_LBs + 0.5);
         m_ByteStreamVsLB[errType]->GetXaxis()->SetTitle("LumiBlock");
-        m_ByteStreamVsLB[errType]->GetYaxis()->SetTitle("Num of " + TString(SCT_ByteStreamErrors::errorTypesDescription[errType]));
+        m_ByteStreamVsLB[errType]->GetYaxis()->SetTitle("Num of " + TString(SCT_ByteStreamErrors::ErrorTypeDescription[errType]));
 
         if (ConfHist[GENERAL_INDEX].regHist(m_ByteStreamVsLB[errType]).isFailure()) {
-          ATH_MSG_WARNING("Cannot book Histogram:" + SCT_ByteStreamErrors::errorTypesDescription[errType]);
+          ATH_MSG_WARNING("Cannot book Histogram:" + SCT_ByteStreamErrors::ErrorTypeDescription[errType]);
         }
       }
 
@@ -1381,7 +1381,7 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
   sctHashBadError.clear();
  
   //BadLinkLevelError
-  for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
     const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadLinkError.insert(waferHash);
@@ -1389,7 +1389,7 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
   }
 
   //BadRODLevelError
-  for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
     const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
     for (const IdentifierHash& waferHash: sctErrors) {
       sctHashBadRODError.insert(waferHash);
@@ -1397,7 +1397,7 @@ bool SCTErrMonTool::syncErrorSCT(set<IdentifierHash>& sctHashBadLinkError,
   }
 
   //BadError = BadLinkLevelError + BadRODLevelError
-  for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType tmpBadError: SCT_ByteStreamErrors::BadErrors) {
     const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
     for (const IdentifierHash& waferHash: sctErrors) {
       sctHashBadError.insert(waferHash);
