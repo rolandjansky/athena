@@ -22,7 +22,7 @@ class signaledExit(unittest.TestCase):
         p = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
         p.wait()
         for line in p.stdout:
-            sys.stdout.write(line)
+            sys.stdout.write(line.decode())
         self.assertEqual(p.returncode, 65)
         
         # Now load metadata and test a few important values

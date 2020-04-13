@@ -328,7 +328,11 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
     if( m_rand )newVertex = randomizeVertex(); // Create a random vertex along the pipe
     else if(m_sel) newVertex = CLHEP::HepLorentzVector(m_x, m_y, m_z, 0.); // Create vertex at selected point - preempted by m_rand
 
+<<<<<<< HEAD
     HepMC::GenVertexPtr v1 = HepMC::newGenVertexPtr(HepMC::FourVector(newVertex.x(),newVertex.y(),newVertex.z(),newVertex.t()));
+=======
+    HepMC::GenVertex* v1 = new HepMC::GenVertex(HepMC::FourVector(newVertex.x(),newVertex.y(),newVertex.z(),newVertex.t()));
+>>>>>>> upstream/master
 
     HepMC::set_signal_process_vertex(evt,v1); 
     vertexPtrVec.push_back(v1);
@@ -597,7 +601,7 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
 
       // Create the new particle
       //
-      CLHEP::HepLorentzVector particleP4(m_himain2.patt(i, 1),
+      HepMC::FourVector particleP4(m_himain2.patt(i, 1),
                               m_himain2.patt(i, 2),
                               m_himain2.patt(i, 3),
                               m_himain2.patt(i, 4));

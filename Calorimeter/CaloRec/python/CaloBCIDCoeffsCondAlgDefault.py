@@ -53,7 +53,8 @@ def CaloBCIDCoeffsCondAlgDefault():
         conddb.addFolder("LAR_OFL","/LAR/ElecCalibMC/LArPileupAverage",className="LArMinBiasAverageMC")
 
         from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
-        condSeq+=LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym")
+        if not hasattr (condSeq, 'LArPileUpAvgSymCondAlg'):
+            condSeq+=LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym")
 
         ShapeKey = 'LArShapeSym'
 

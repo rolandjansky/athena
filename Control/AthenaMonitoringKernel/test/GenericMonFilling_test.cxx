@@ -524,7 +524,7 @@ bool timerFilling( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSv
   VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetEntries() ) EXPECTED( 1 );
   double t1_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t1" )->GetMean();
   double t2_value = getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetMean();
-  assert( 9000 < t1_value && t1_value < 11000 );
+  assert( 8000 < t1_value && t1_value < 12000 );
   assert( 8 < t2_value && t2_value < 12 );
 
   // Test scoped timer

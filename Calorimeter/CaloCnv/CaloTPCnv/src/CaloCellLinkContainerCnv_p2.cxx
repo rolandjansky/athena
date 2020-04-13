@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloCellLinkContainerCnv_p2.cxx,v 1.9 2009-02-18 22:50:08 hma Exp $
@@ -17,7 +17,6 @@
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/errorcheck.h"
 
-#include "AthenaKernel/IThinningSvc.h"
 #include "CxxUtils/fpcompare.h"
 
 #include <vector>
@@ -211,9 +210,6 @@ CaloCellLinkContainerCnv_p2::transToPersWithKey (const CaloCellLinkContainer* tr
   SG::sgkey_t first_key = 0;
 
 
-  IThinningSvc * thinningSvc = IThinningSvc::instance();
-  const bool thinning = thinningSvc && thinningSvc->thinningOccurred();
-
   const SG::ThinningCache* thinningCache = SG::getThinningCache();
 
   // Declare this outside the loop to save on memory allocations.
@@ -244,30 +240,6 @@ CaloCellLinkContainerCnv_p2::transToPersWithKey (const CaloCellLinkContainer* tr
       }
 
       size_t index = citer->first.index();
-  
-      if(thinning){
-        const SG::DataProxy* dp  = citer->first.proxy();
-	const std::size_t persIdx = dp ?
-	            thinningSvc->index(dp, index) :
-	            thinningSvc->index(citer->first.getStorableObjectPointer(), index);
-
-	if( IThinningSvc::RemovedIdx == persIdx ) {
-
-	  //REPORT_MESSAGE_WITH_CONTEXT (MSG::DEBUG,
-          //                           "CaloCellLinkContainerCnv_p2")
-          // << " Cell index has been thinned away, skip all cells  " ;
-
-	  cells.clear();
-	  break; 
-
-	}else
-	  {
-	    //REPORT_MESSAGE_WITH_CONTEXT (MSG::DEBUG, 
-            //                         "CaloCellLinkContainerCnv_p2")
-	     //			       << " cell index changed from  "<< index << " to " <<persIdx <<endmsg ;
-            index = persIdx;
-	  }
-      }
 
       // Handle thinning.
       if (thinningCache){

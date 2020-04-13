@@ -72,7 +72,7 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
 
   // The numbers of disabled modules, links, strips do not change during a run.
   if (m_isFirstConfigurationDetails) {
-    lock_guard{m_mutex};
+    lock_guard glock{m_mutex};
     if (m_isFirstConfigurationDetails) {
       ATH_CHECK(fillConfigurationDetails(ctx));
       m_isFirstConfigurationDetails = false;
