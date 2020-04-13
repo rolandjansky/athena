@@ -153,7 +153,7 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   //////////////////////
 
   auto mu = Monitored::Scalar<float>("mu",0);
-  mu = GetEventInfo(ctx)->actualInteractionsPerCrossing();
+  mu = lbInteractionsPerCrossing(ctx);
   fill(tool,mu); 
 
   //////////////////////
