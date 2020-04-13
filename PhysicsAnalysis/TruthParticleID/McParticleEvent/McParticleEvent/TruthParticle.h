@@ -237,7 +237,7 @@ class TruthParticle : public ParticleImpl<
  protected: 
   
   /// Fill the data members of ParticleBase from the GenParticle
-  void setGenParticle( const HepMC::GenParticlePtr particle );
+  void setGenParticle( const HepMC::GenParticle* particle );
 
 
 

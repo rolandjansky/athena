@@ -248,7 +248,7 @@ PDG::pidType TruthParticle::pdgDecay( const std::size_t i ) const
 /////////////////////////////////////////////////////////////////// 
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
-void TruthParticle::setGenParticle( const HepMC::GenParticlePtr particle )
+void TruthParticle::setGenParticle( const HepMC::GenParticle* particle )
 {
   this->particleBase().setGenParticle( particle );
 
