@@ -572,7 +572,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
   // Clean up memory used by the combiner
   combinedState = nullptr;
 
-  const Trk::MultiComponentState* nextState = nullptr;
+  std::unique_ptr<Trk::MultiComponentState> nextState = nullptr;
 
   // If an associated surface can be found, extrapolation within the tracking volume is mandatory
   // This will take extrapolate to the last layer in the volume
@@ -580,12 +580,14 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
     nextState = extrapolateFromLayerToLayer(
       cache, propagator, *currentState, trackingVolume, associatedLayer, nullptr, direction, particleHypothesis);
 
-    // Make sure reduced state is added to the list of garbage to be collected
+    //if we have a next State update the currentState
     if (nextState) {
-      if (nextState != currentState && currentState != &multiComponentState)
+      //We can delete the currentState as long as it does not point to the input
+      if (currentState != &multiComponentState){
         delete currentState;
-      // Refresh the current state pointer
-      currentState = nextState;
+      }
+      // currentState now owns the ptr
+      currentState = nextState.release();
     }
   }
 
@@ -633,7 +635,6 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
   }
 
   else {
-
     // The Default
     nextNavigationCell = m_navigator->nextTrackingVolume(propagator, *navigationParameters, direction, trackingVolume);
     nextVolume = nextNavigationCell.nextVolume;
@@ -641,12 +642,12 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
   }
 
   // Clean up memory allocated by the combiner
-  if (navigationParameters != combinedState)
+  if (navigationParameters != combinedState){
     delete combinedState;
+  }
 
   if (!nextVolume) {
     ATH_MSG_DEBUG("Cannot find next TrackingVolume from initial tracking volume: " << trackingVolume.volumeName());
-
     // Reset the layer recall
     resetRecallInformation(cache);
   }
@@ -664,7 +665,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
     const Trk::Layer* layerAtBoundary =
       (paramsAtBoundary) ? (paramsAtBoundary->associatedSurface()).materialLayer() : nullptr;
     const Trk::TrackParameters* matUpdatedParameters = nullptr;
-    const Trk::MultiComponentState* matUpdatedState = nullptr;
+    std::unique_ptr<Trk::MultiComponentState> matUpdatedState = nullptr;
 
     if (nextVolume && layerAtBoundary) {
 
@@ -672,36 +673,33 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
         ATH_MSG_DEBUG("Boundary surface has material - updating properties");
         assert(currentState);
         matUpdatedState =
-          m_materialUpdator->postUpdate(*currentState, *layerAtBoundary, direction, particleHypothesis).release();
+          m_materialUpdator->postUpdate(*currentState, *layerAtBoundary, direction, particleHypothesis);
       }
     }
 
     // If state has changed due to boundary material, modify state, parameters accordingly.
-    if (matUpdatedState && matUpdatedState != currentState) {
-
+    if (matUpdatedState) {
       ATH_MSG_DEBUG("Performing state update");
-
       // Clean out memory, update state.
       delete currentState;
-      currentState = matUpdatedState;
-
+      currentState = matUpdatedState.release();
       // Update navigation parameters (?).
       matUpdatedParameters = currentState->begin()->first->clone();
       if (matUpdatedParameters != navigationParameters) {
         delete navigationParameters;
         navigationParameters = matUpdatedParameters;
       }
-
       // Add to material vector.
       addMaterialtoVector(cache, layerAtBoundary, currentState->begin()->first.get());
     }
   }
 
-  // Update the boundary information
+  // Update the boundary information in the cache
   cache.m_stateAtBoundarySurface.updateBoundaryInformation(currentState, navigationParameters, nextVolume);
 
-  // Make sure navigation parameters and current state are added to the list of garbage to be
-  // collected
+  // Make sure navigation parameters 
+  // and currentstate (if is not the same as input) 
+  // are added to the list of garbage to be collected
   throwIntoGarbageBin(cache, navigationParameters);
   if (currentState != &multiComponentState) {
     throwIntoGarbageBin(cache, currentState);
@@ -783,7 +781,7 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
   if (destinationLayer) {
     // If there are intermediate layers then additional extrapolations need to be done
     if (associatedLayer && associatedLayer != destinationLayer) {
-      const Trk::MultiComponentState* nextState = extrapolateFromLayerToLayer(cache,
+      std::unique_ptr<Trk::MultiComponentState> nextState = extrapolateFromLayerToLayer(cache,
                                                                               propagator,
                                                                               *currentState,
                                                                               trackingVolume,
@@ -792,15 +790,16 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
                                                                               direction,
                                                                               particleHypothesis);
 
-      // Memory clean-up
+      // currentState is now the next
       if (nextState) {
-        if (nextState != currentState && currentState != &multiComponentState)
+        //We can delete currentState if does not point to the input 
+        if (currentState && currentState != &multiComponentState){
           delete currentState;
+        }
         // Refresh the current state pointer
-        currentState = nextState;
+        currentState = nextState.release();
       }
     }
-
     // Final extrapolation to destination surface
     std::unique_ptr<Trk::MultiComponentState> returnState = extrapolateToDestinationLayer(cache,
                                                                                           propagator,
@@ -812,18 +811,15 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
                                                                                           direction,
                                                                                           boundaryCheck,
                                                                                           particleHypothesis);
-
     /* Memory clean-up
      * Here we can delete the currentState except if it still points to the input which we do not
-     * own or is the same as returnState which we want to return
      */
-    if (currentState && currentState != &multiComponentState && returnState.get() != currentState) {
+    if (currentState && currentState != &multiComponentState) {
       delete currentState;
       currentState = nullptr;
     }
     // Set the information for the current layer, surface, tracking volume
     setRecallInformation(cache, surface, *destinationLayer, trackingVolume);
-
     return returnState;
   }
 
@@ -837,7 +833,7 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
    * Here we can delete the currentState except if it still points to the input which we do not own
    * or is the same as returnState which we want to return
    */
-  if (currentState && currentState != &multiComponentState && returnState.get() != currentState) {
+  if (currentState != &multiComponentState) {
     delete currentState;
     currentState = nullptr;
   }
@@ -851,10 +847,7 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
 /*
  * Extrapolate from Layer to Layer
  */
-
-// Ok this can return its input  this will need a change in logic for this to return a unique
-// pointer
-const Trk::MultiComponentState*
+std::unique_ptr<Trk::MultiComponentState>
 Trk::GsfExtrapolator::extrapolateFromLayerToLayer(Cache& cache,
                                                   const IPropagator& propagator,
                                                   const MultiComponentState& multiComponentState,
@@ -881,9 +874,7 @@ Trk::GsfExtrapolator::extrapolateFromLayerToLayer(Cache& cache,
   // Begin while loop over all intermediate layers
   while (nextLayer && nextLayer != destinationLayer) {
     layersHit.insert(nextLayer);
-
-    // Only extrapolate to an intermediate layer if it requires material update... otherwise step
-    // over it
+    // Only extrapolate to an intermediate layer if it requires material update... otherwise step over it
     if (nextLayer && nextLayer->layerMaterialProperties()) {
 
       if (currentState) {
@@ -918,10 +909,12 @@ Trk::GsfExtrapolator::extrapolateFromLayerToLayer(Cache& cache,
     currentState.reset();
   }
 
-  if (!currentState)
-    return &multiComponentState;
-  else
-    return currentState.release();
+  if (!currentState){
+    return nullptr;
+  }
+  else{
+    return currentState;
+  }
 }
 
 /*
@@ -990,13 +983,10 @@ Trk::GsfExtrapolator::extrapolateToIntermediateLayer(Cache& cache,
   return updatedState;
 }
 
-/*===================================================================================================================
 
+/*
    Extrapolate to Destination Layer
-
-====================================================================================================================
 */
-
 std::unique_ptr<Trk::MultiComponentState>
 Trk::GsfExtrapolator::extrapolateToDestinationLayer(Cache& cache,
                                                     const Trk::IPropagator& propagator,
