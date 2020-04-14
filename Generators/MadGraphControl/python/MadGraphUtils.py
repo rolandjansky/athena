@@ -422,7 +422,7 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
             ### NLO RUN ###
             mglog.info('Package up process_dir')
             os.rename(process_dir,MADGRAPH_GRIDPACK_LOCATION)
-            tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets'])
+            tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets','--exclude=Events/*/*events*gz'])
             tar.wait()
             os.rename(MADGRAPH_GRIDPACK_LOCATION,process_dir)
 
@@ -950,12 +950,23 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
     #  results for now?
     #isNLO=is_NLO_run(process_dir=process_dir)
 
-    this_run_name=process_dir+'/Events/'+MADGRAPH_RUN_NAME
+
+    if len(glob.glob(os.path.join(process_dir, 'Events','*')))<1:
+        mglog.error('Process dir '+process_dir+' does not contain events?')
+    proc_dir_list = glob.glob(os.path.join(process_dir, 'Events', '*'))
+    this_run_name=None
+    # looping over possible directories to find the right one
+    for adir in proc_dir_list:
+        if 'decayed' in adir:# skipping '*decayed*' directories produced by MadSpin, will be picked later if they exist
+            continue
+        else:
+            if 'GridRun_' in adir:
+                this_run_name=adir
+                break # GridRun_* directories have priority
+            elif os.path.join(process_dir, 'Events',MADGRAPH_RUN_NAME) in adir:
+                this_run_name=adir
     if not os.access(this_run_name,os.R_OK):
-        mglog.info('Did not find run in expected place -- checking for gridpack run')
-        this_run_name=glob.glob(process_dir+'/Events/GridRun_*')[0]
-        if not os.access(this_run_name,os.R_OK):
-            raise RuntimeError('Unable to locate run directory')
+        raise RuntimeError('Unable to locate run directory')
 
     hasUnweighted = os.access(this_run_name+'/unweighted_events.lhe.gz',os.R_OK)
 
