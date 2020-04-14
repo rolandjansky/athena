@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // csc_cosmic_cluster.cxx
@@ -16,12 +16,7 @@
 
 #include <string>
 #include <iostream>
-using namespace std;
-using std::cout;
 #include <iomanip>
-using std::setw;
-using std::setiosflags;
-using std::setprecision;
 #include <sstream>
 #include <map>
 #include <vector>
@@ -31,18 +26,12 @@ using std::setprecision;
 #include "CscClusterPerformance/ClusterAccessor.h"
 #include <cmath>
 
-using std::string;
-using std::map;
-using std::cout;
-using std::endl;
-using std::cerr;
-using std::istringstream;
-
 // To build a exe that only generates the ROOTT interface classes.
 #undef  GENERATE_ONLY
 
 typedef std::vector<int> EntryList;
 typedef std::vector<std::string> NameList;
+
 namespace {
 
 // Class to hold event number.
@@ -175,26 +164,24 @@ void fit_segment_eqwgt(const std::vector<Cluster*>& clus, float& s0, float& s1, 
 int main(int narg, char* argv[]) {
   bool help = false;
   bool generate = false;
-  //  bool verbose = true;
-  //  bool doPhi = false;
   int error = 0;
   int ndump = 0;
-  string arg1;
-  cout << narg << "  " << argv[0] << endl;
+  std::string arg1;
+  std::cout << narg << "  " << argv[0] << std::endl;
   // Read option flags.
   int iarg = 0;
   while ( ++iarg<narg && argv[iarg][0] == '-' ) {
-    string opt = argv[iarg] + 1;
+    std::string opt = argv[iarg] + 1;
     if ( opt == "h" ) {
       help = true;
     } else if ( opt == "g" ) {
       generate = true;
     } else if ( opt == "d" ) {
-      string sdump = argv[++iarg];
-      istringstream ssdump(sdump);
+      std::string sdump = argv[++iarg];
+      std::istringstream ssdump(sdump);
       ssdump >> ndump;
     } else {
-      cerr << "Uknown option: -" << opt << endl;
+      std::cerr << "Uknown option: -" << opt << std::endl;
       error = 3;
     }
   }
@@ -202,20 +189,14 @@ int main(int narg, char* argv[]) {
   if ( !error && !help ) {
     if ( iarg < narg ) {
       arg1 = argv[iarg++];
-      //      if ( iarg < narg ) {
-      //        arg2 = argv[iarg++];
-      //      } else {
-      //        cerr << "Second file name not found" << endl;
-      //        error = 2;
-      //      }
     } else {
-      cout << "First file name not found" << endl;
+      std::cout << "First file name not found" << std::endl;
       error = 1;
     }
   }
 
   if ( help ) {
-    cout << "Usage: " << argv[0] << " [-g] simpos_file cluster_file" << endl;
+    std::cout << "Usage: " << argv[0] << " [-g] simpos_file cluster_file" << std::endl;
     return error;
   }
 
@@ -229,14 +210,14 @@ int main(int narg, char* argv[]) {
   TFile* psfile = new TFile(arg1.c_str(), "READ");
   TTree* pctree = dynamic_cast<TTree*>(psfile->Get("csc_cluster"));
   if ( pctree == 0 ) {
-    cout << "Unable to retrieve simpos tree" << endl;
-    cerr << "  File: " << arg1 << endl;
+    std::cout << "Unable to retrieve simpos tree" << std::endl;
+    std::cerr << "  File: " << arg1 << std::endl;
     psfile->Print();
     return 3;
   }
-  cout << "Cluster tree has " << pctree->GetEntries() << " entries." << endl;
+  std::cout << "Cluster tree has " << pctree->GetEntries() << " entries." << std::endl;
   if ( generate ) {
-    cout << "Generating class ClusterAccessor" << endl;
+    std::cout << "Generating class ClusterAccessor" << std::endl;
     pctree->MakeClass("ClusterAccessor");
   } 
 
@@ -263,7 +244,7 @@ int main(int narg, char* argv[]) {
     run = cluster.run;
     evt = cluster.evt;
     Runevt re(run, evt);
-    cout << "Processing run:event " << re << endl;
+    std::cout << "Processing run:event " << re << std::endl;
     int nclu = cluster.nentry;
 
     // Loop over clusters.
@@ -290,26 +271,6 @@ int main(int narg, char* argv[]) {
     for (Int_t iphi=3; iphi>=0; --iphi) {
       std::vector<Cluster*> clus;
       for (Int_t ilay=3; ilay>=0; --ilay) {
-        /*
-        cout << "  [" << iphi+1 << ", " << ilay+1 << "]  "
-             << setw(7) << setprecision(2) << cluster.z[pid[0][iphi][ilay]]
-             << setw(10) << setiosflags (ios::fixed) << setprecision(0) << cluster.qpeak[pid[0][iphi][ilay]]
-             << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][iphi][ilay]]
-             << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.error[pid[0][iphi][ilay]]
-             << setw(5)  << setiosflags (ios::fixed) << cluster.strip0[pid[0][iphi][ilay]]
-             << setw(5)  << setiosflags (ios::fixed) << cluster.pstrip[pid[0][iphi][ilay]]+cluster.strip0[pid[0][iphi][ilay]]
-             << setw(4)  << setiosflags (ios::fixed) << cluster.sfit[pid[0][iphi][ilay]];
-        if (doPhi)
-          cout << setw(10) << setiosflags (ios::fixed) << setprecision(0) << cluster.qpeak[pid[1][iphi][ilay]]
-               << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[1][iphi][ilay]]
-               << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.error[pid[1][iphi][ilay]]
-               << setw(5)  << setiosflags (ios::fixed) << cluster.strip0[pid[1][iphi][ilay]]
-               << setw(5)  << setiosflags (ios::fixed) << cluster.pstrip[pid[1][iphi][ilay]]+cluster.strip0[pid[1][iphi][ilay]]
-               << setw(4)  << setiosflags (ios::fixed) << cluster.sfit[pid[1][iphi][ilay]]
-               << endl;
-        else
-          cout << endl;
-        */
         float clupos =cluster.pos[pid[0][iphi][ilay]];
         float cludpos = cluster.error[pid[0][iphi][ilay]];
         float cluz = cluster.z[pid[0][iphi][ilay]];
@@ -318,50 +279,40 @@ int main(int narg, char* argv[]) {
         global_clus.push_back(clu);
       }
       float s0, s1, d0, d1, d01, chsq;
-      //      fit_segment(clus, s0, s1, d0, d1, d01, chsq);
-      //      cout << s0 << " " << d0 << " " << s1 << " " << d1 << " " << chsq << endl;
       fit_segment_eqwgt(clus, s0, s1, d0, d1, d01, chsq);
-      cout << "LOCAL  " <<  setw(7)  << setiosflags (ios::fixed) << setprecision(0) <<chsq << "  "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][iphi][3]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][iphi][2]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][iphi][1]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][iphi][0]] << " "
-           <<endl;
+      std::cout << "LOCAL  " <<  std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(0) <<chsq << "  "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][iphi][3]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][iphi][2]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][iphi][1]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][iphi][0]] << " "
+           <<std::endl;
     }
     float s0, s1, d0, d1, d01, chsq;
-    //    fit_segment(global_clus, s0, s1, d0, d1, d01, chsq);
-    //    cout << s0 << " " << d0 << " " << s1 << " " << d1 << " " << chsq << endl;
     fit_segment_eqwgt(global_clus, s0, s1, d0, d1, d01, chsq);
-    cout << "GLOBAL "
-         << setw(7)  << setiosflags (ios::fixed) << setprecision(0) << chsq
-         << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][3][3]] << " "
-         << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][3][2]] << " "
-         << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][3][1]] << " "
-         << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][3][0]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][2][3]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][2][2]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][2][1]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][2][0]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][1][3]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][1][2]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][1][1]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][1][0]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][0][3]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][0][2]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][0][1]] << " "
-           << setw(7)  << setiosflags (ios::fixed) << setprecision(1) << cluster.pos[pid[0][0][0]] << " "
-         << endl;
-    cout << endl;
-    cout << endl;
-    // Fill tree.
-    //    nentry = ient;
-    //    ptree->Fill();
+    std::cout << "GLOBAL "
+         << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(0) << chsq
+         << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][3][3]] << " "
+         << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][3][2]] << " "
+         << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][3][1]] << " "
+         << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][3][0]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][2][3]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][2][2]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][2][1]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][2][0]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][1][3]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][1][2]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][1][1]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][1][0]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][0][3]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][0][2]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][0][1]] << " "
+           << std::setw(7)  << setiosflags (std::ios::fixed) << std::setprecision(1) << cluster.pos[pid[0][0][0]] << " "
+         << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
   }  // end loop over events
-
-  //  ptree->Print();
-  //  pfile->Write();
 #endif
-  cout << "Done." << endl;
+  std::cout << "Done." << std::endl;
   return 0;
 }
 
@@ -373,41 +324,6 @@ int main(int narg, char* argv[]) {
 // the segment. The error in the residual includes those of the segment and the
 // excluded cluster.
 
-/*
-  void CscSegmentUtil::
-fit_residual(const Clusters& clus, unsigned int irclu,
-             float& res, float& dres) const {
-  MsgStream log(m_alg.msgSvc(), m_alg.name());
-  string prefix = "CscSegmentUtil::fit_residual: ";
-  if ( debug () ) {
-    std::cout << prefix << "Calculate residual for cluster " << irclu << std::endl;
-  }
-  Clusters fitclus;
-  for ( unsigned int iclu=0; iclu<clus.size(); ++iclu ) {
-    if ( iclu != irclu ) fitclus.push_back(clus[iclu]);
-  }
-  // Fit cluster.
-  float s0, s1, d0, d1, d01, chsq;
-  fit_segment(fitclus, s0, s1, d0, d1, d01, chsq);
-  // Extract excluded cluster paramters.
-  const CscCluster& clu = *clus[irclu];
-  Identifier id = clu.identify();
-  const CscReadoutElement* pro = m_gm.getCscReadoutElement(id);
-  const HepPoint3D lpos = pro->localPos(clu.position());
-  float y = lpos.y();
-  float x = lpos.x();
-  float d = clu.sigma();
-  // Calculate predicted position and error.
-  float seg_y = s0 + s1*x;
-  float seg_dsquare = d0*d0 + 2.0*x*d01 + d1*d1;
-  // Calculate residual and error.
-  res = y - seg_y;
-  dres = sqrt(d*d + seg_dsquare);
-  if ( debug() ) {
-    std::cout << prefix << "Residual " << irclu << ": " << res << " " << dres << std::endl;
-  }
-}
-*/
 // Build the skeleton functions.
 #define ClusterAccessor_cxx
 #include "CscClusterPerformance/ClusterAccessor.h"

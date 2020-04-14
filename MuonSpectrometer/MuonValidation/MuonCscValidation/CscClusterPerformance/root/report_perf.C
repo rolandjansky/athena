@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //  file  : CscClusterPerformance/root/report_perf.C
@@ -13,7 +13,6 @@
 #include <iostream> 
 #include <sstream>
 #include <fstream>
-using namespace std;
 
 void report_perf(){
   // set all inputs

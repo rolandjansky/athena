@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
 // Fri Apr  8 10:02:30 2011 by ROOT version 5.28/00
@@ -14,8 +18,6 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
-using namespace std;
 
 class TTree;
 class TBranch;

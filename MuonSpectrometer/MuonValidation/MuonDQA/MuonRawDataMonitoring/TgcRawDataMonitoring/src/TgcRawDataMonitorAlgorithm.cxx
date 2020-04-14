@@ -189,7 +189,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       mymuon.probeOK_any = true;
       if( mymuon.muon->charge() == mu2.muon->charge() )continue;
       double dimuon_mass = (mu2.fourvec + mymuon.fourvec).M();
-      if( TMath::Abs( dimuon_mass - m_zMass.value()) > m_zMassWindow.value() )continue;
+      if(std::abs( dimuon_mass - m_zMass.value()) > m_zMassWindow.value() )continue;
       mymuon.probeOK_Z = true;
       break;
     }
@@ -197,10 +197,10 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   
   auto muon_eta = Monitored::Collection("muon_eta",mymuons,[](const MyMuon& m){return (m.muon->pt()/1000>30)?m.muon->eta():-10;});variables.push_back(muon_eta);
   auto muon_phi = Monitored::Collection("muon_phi",mymuons,[](const MyMuon& m){return (m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi);
-  auto muon_phi_rpc = Monitored::Collection("muon_phi_rpc",mymuons,[](const MyMuon& m){return (TMath::Abs(m.muon->eta())<1.05&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_rpc);
-  auto muon_phi_tgc = Monitored::Collection("muon_phi_tgc",mymuons,[](const MyMuon& m){return (TMath::Abs(m.muon->eta())>1.05&&TMath::Abs(m.muon->eta())<2.4&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_tgc);
-  auto muon_pt_rpc = Monitored::Collection("muon_pt_rpc",mymuons,[](const MyMuon& m){return (TMath::Abs(m.muon->eta())<1.05)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_rpc);
-  auto muon_pt_tgc = Monitored::Collection("muon_pt_tgc",mymuons,[](const MyMuon& m){return (TMath::Abs(m.muon->eta())>1.05&&TMath::Abs(m.muon->eta())<2.4)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_tgc);
+  auto muon_phi_rpc = Monitored::Collection("muon_phi_rpc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())<1.05&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_rpc);
+  auto muon_phi_tgc = Monitored::Collection("muon_phi_tgc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())>1.05&&std::abs(m.muon->eta())<2.4&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_tgc);
+  auto muon_pt_rpc = Monitored::Collection("muon_pt_rpc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())<1.05)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_rpc);
+  auto muon_pt_tgc = Monitored::Collection("muon_pt_tgc",mymuons,[](const MyMuon& m){return (std::abs(m.muon->eta())>1.05&&std::abs(m.muon->eta())<2.4)?m.muon->pt()/1000:-10;});variables.push_back(muon_pt_tgc);
   auto muon_l1passThr1 = Monitored::Collection("muon_l1passThr1",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(1)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr1);
   auto muon_l1passThr2 = Monitored::Collection("muon_l1passThr2",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(2)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr2);
   auto muon_l1passThr3 = Monitored::Collection("muon_l1passThr3",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(3)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr3);
@@ -378,7 +378,7 @@ void TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::Muon* muon, MyMuon& mym
     Amg::Vector3D mom(0,0,0);
     Amg::Vector3D extrapolateTo(0, 0, z);
     if( extrapolate(track,extrapolateTo,TGC, etaDeta, phiDphi, mom) ){
-      double pt = extrapolateTo.z() / TMath::SinH(etaDeta[0]);
+      double pt = extrapolateTo.z() / std::sinh(etaDeta[0]);
       TVector3 vec,pos;
       pos.SetPtEtaPhi(pt,etaDeta[0],phiDphi[0]);
       vec.SetXYZ(mom.x(),mom.y(),mom.z());
@@ -556,7 +556,7 @@ TgcRawDataMonitorAlgorithm::getError(const std::vector<double>& inputVec) const
   double sum = 0;
   double sum2 = 0;
   for (int ii = 0; ii < nSize; ii++) {
-    sum = sum + inputVec.at(ii);
+    sum += inputVec.at(ii);
   }
   const double mean = sum/nSize;
   for(int jj = 0; jj < nSize; jj++){
