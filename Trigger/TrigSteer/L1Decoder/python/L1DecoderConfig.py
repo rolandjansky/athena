@@ -32,7 +32,7 @@ def mapThresholdToL1RoICollection(threshold):
     Translates L1 threshold  name of the RoIDescriptor name in the L1Decoder unpacking tools
     """
 
-    mapThresholdToL1Decoder = { "FSNOSEED": "HLT_FSRoIs",
+    mapThresholdToL1Decoder = { "FSNOSEED": "HLT_FSRoI",
                                 "EM" : "HLT_EMRoIs",
                                 "MU" : "HLT_MURoIs",
                                 "J"  : "HLT_JETRoI",
@@ -124,7 +124,9 @@ class L1Decoder(L1Decoder) :
 
         self.ctpUnpacker = ctpUnpacker
         from L1Decoder.L1DecoderConf import FSRoIsUnpackingTool
-        self.roiUnpackers += [ FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FSNOSEED") ) ]
+        self.roiUnpackers += [ FSRoIsUnpackingTool("FSRoIsUnpackingTool",
+                                                   Decisions=mapThresholdToL1DecisionCollection("FSNOSEED"),
+                                                   OutputTrigRoIs = mapThresholdToL1RoICollection("FSNOSEED") ) ]
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():

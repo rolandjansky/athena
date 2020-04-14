@@ -11,6 +11,9 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include <map>
+#include "GaudiKernel/Property.h"
+#include "AthViews/View.h"
 
 // STL includes
 #include <string>

@@ -8,7 +8,11 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "DecisionHandling/HypoBase.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "SPCountHypoTool.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include <map>
+#include "GaudiKernel/Property.h"
+#include "AthViews/View.h"
 
 // STL includes
 #include <string>
