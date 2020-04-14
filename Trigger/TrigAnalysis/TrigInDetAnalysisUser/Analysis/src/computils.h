@@ -786,7 +786,6 @@ public:
     for ( unsigned i=0 ; i<size() ; i++ ) { 
       if ( at(i).href() ) ::xrange( at(i).href(), symmetric );
       ::xrange( at(i).htest(), symmetric );
-      // ::xrange( at(i).htest(), symmetric );
     }
   }
 
