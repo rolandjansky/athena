@@ -13,16 +13,28 @@ import sys
 import logging
 import os
 import six
-import numpy as np
 from collections import OrderedDict
-from pandas import read_csv
-from scipy.optimize import curve_fit
 from TrigValTools.TrigARTUtils import first_existing_file, newest_file
 
-import matplotlib
-matplotlib.use('PDF')
-import matplotlib.pyplot as plt
-
+logging.basicConfig(stream=sys.stdout,
+                    format='%(levelname)-8s %(message)s',
+                    level=logging.INFO)
+do_prmon = True
+mod_name = ''
+try:
+    mod_name = 'numpy'
+    import numpy as np
+    mod_name = 'pandas'
+    from pandas import read_csv
+    mod_name = 'scipy.optimize'
+    from scipy.optimize import curve_fit
+    mod_name = 'matplotlib'
+    import matplotlib
+    matplotlib.use('PDF')
+    import matplotlib.pyplot as plt
+except Exception as e:
+    do_prmon = False
+    logging.warning('Failed to import module %s, prmon output analysis will be skipped! %s', mod_name, e)
 
 class LastUpdatedOrderedDict(OrderedDict):
     'Store items in the order the keys were last added'
@@ -192,10 +204,6 @@ def analyse_prmon(filename):
 
 
 def main():
-    logging.basicConfig(stream=sys.stdout,
-                        format='%(levelname)-8s %(message)s',
-                        level=logging.INFO)
-
     data = LastUpdatedOrderedDict()
 
     # Get number of errors
@@ -229,20 +237,21 @@ def main():
         data['num-histograms'] = nh
 
     # Get memory usage information from prmon
-    prmon_log = newest_file(r'prmon\..*\.txt')
-    if not prmon_log:
-        prmon_log = first_existing_file(['prmon.full.RDOtoRDOTrigger', 'prmon.full.RAWtoESD', 'prmon.full.ESDtoAOD'])
-    if not prmon_log:
-        logging.info("No prmon output found, the result will be empty")
-        data['prmon'] = 'n/a'
-    else:
-        logging.info("Analysing prmon output from %s", prmon_log)
-        prmon_data = analyse_prmon(prmon_log)
-        if prmon_data is None:
-            logging.warning("Could not analyse prmon output, the result will be empty")
+    if do_prmon:
+        prmon_log = newest_file(r'prmon\..*\.txt')
+        if not prmon_log:
+            prmon_log = first_existing_file(['prmon.full.RDOtoRDOTrigger', 'prmon.full.RAWtoESD', 'prmon.full.ESDtoAOD'])
+        if not prmon_log:
+            logging.info("No prmon output found, the result will be empty")
             data['prmon'] = 'n/a'
         else:
-            data['prmon'] = prmon_data
+            logging.info("Analysing prmon output from %s", prmon_log)
+            prmon_data = analyse_prmon(prmon_log)
+            if prmon_data is None:
+                logging.warning("Could not analyse prmon output, the result will be empty")
+                data['prmon'] = 'n/a'
+            else:
+                data['prmon'] = prmon_data
 
     # Get memory usage information from PerfMon
     perfmon_log = newest_file(r'.*perfmon\.summary\.txt')
