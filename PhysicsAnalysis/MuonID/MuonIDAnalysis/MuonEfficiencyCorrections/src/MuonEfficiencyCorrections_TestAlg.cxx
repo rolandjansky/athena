@@ -50,6 +50,7 @@ namespace CP {
 
     StatusCode MuonEfficiencyCorrections_TestAlg::initialize() {
         ATH_MSG_DEBUG("SGKey = " << m_sgKey);
+        ATH_CHECK(m_eventInfo.initialize());
         ATH_CHECK(m_prw_Tool.retrieve());
         ATH_CHECK(m_sel_tool.retrieve());
         ATH_MSG_DEBUG("PileupReweightingTool  = " << m_prw_Tool);
@@ -90,8 +91,7 @@ namespace CP {
         const xAOD::MuonContainer* muons = nullptr;
         ATH_CHECK(evtStore()->retrieve(muons, m_sgKey));
         // Retrieve the EventInfo:
-        const xAOD::EventInfo* ei = nullptr;
-        ATH_CHECK(evtStore()->retrieve(ei, "EventInfo"));
+        SG::ReadHandle<xAOD::EventInfo> ei(m_eventInfo);
        
         ATH_MSG_DEBUG("Start to run over event "<<ei->eventNumber()<<" in run" <<ei->runNumber());
        

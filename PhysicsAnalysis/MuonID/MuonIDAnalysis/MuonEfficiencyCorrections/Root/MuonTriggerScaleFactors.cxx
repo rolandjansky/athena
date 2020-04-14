@@ -9,7 +9,6 @@
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
@@ -38,7 +37,6 @@ namespace CP {
       m_calibration_version("190129_Winter_r21"),
       m_custom_dir(),
       m_binning("fine"),
-      m_eventInfoContName("EventInfo"),
       m_allowZeroSF(false),
       m_experimental(false),
       m_useRel207(false),
@@ -64,7 +62,6 @@ namespace CP {
         declareProperty("NReplicas", m_nReplicas, "Number of generated toy replicas, if replicas are required.");
         declareProperty("ReplicaRandomSeed", m_ReplicaRandomSeed, "Random seed for toy replica generation.");
         declareProperty("AllowZeroSF", m_allowZeroSF, "If a trigger is not available will return 0 instead of throwing an error. More difficult to spot configuration issues. Use at own risk");
-	declareProperty("EventInfoContName", m_eventInfoContName, "Overwrite default event info container name");
 	declareProperty("forceYear", m_forceYear, "Only for developers. Never use this in any analysis!!!!!!");
 	declareProperty("forcePeriod", m_forcePeriod, "Only for developers. Never use this in any analysis!!!!!!");
     }
@@ -211,6 +208,8 @@ namespace CP {
         ATH_MSG_INFO("AllowZeroSF = " << m_allowZeroSF);
 	    ATH_MSG_INFO("experimental = " << m_experimental);
     	ATH_MSG_INFO("useRel27 = " << m_useRel207);
+
+        ATH_CHECK(m_eventInfo.initialize());
 
         if (registerSystematics() != CP::SystematicCode::Ok) {
             return StatusCode::FAILURE;
@@ -805,9 +804,9 @@ namespace CP {
   
     unsigned int MuonTriggerScaleFactors::getRunNumber() const {
         static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
-        const xAOD::EventInfo* info = nullptr;
-        if (!evtStore()->contains<xAOD::EventInfo>(m_eventInfoContName) || !evtStore()->retrieve(info, m_eventInfoContName).isSuccess()) {
-	  ATH_MSG_WARNING("Could not retrieve the xAOD::EventInfo with name: " << m_eventInfoContName << " Return "<<getFallBackRunNumber() );
+        SG::ReadHandle<xAOD::EventInfo> info(m_eventInfo);
+        if (info.operator->()==nullptr) {
+            ATH_MSG_WARNING("Could not retrieve the xAOD::EventInfo with name: " << m_eventInfo.key() << " Return "<<getFallBackRunNumber() );
             return getFallBackRunNumber() ;
         }
         if (!info->eventType(xAOD::EventInfo::IS_SIMULATION)) {
