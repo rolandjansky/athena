@@ -70,7 +70,7 @@ private:
   
   BooleanProperty m_useRun3Config{this,"useRun3Config",false};         // flag for using switch between Run3 and Run2 configurations
   
-  StatusCode fill_RPCdata(RPCsimuData&);
+  StatusCode fill_RPCdata(RPCsimuData&, const RpcCablingCondData* readCdo);
 
  private:
   const MuonGM::MuonDetectorManager* m_MuonMgr;
@@ -84,8 +84,6 @@ private:
   
   ServiceHandle <IRPCcablingServerSvc> m_cabling_getter;
   const IRPCcablingSvc*                m_cabling;
-
 };
-
 
 #endif
