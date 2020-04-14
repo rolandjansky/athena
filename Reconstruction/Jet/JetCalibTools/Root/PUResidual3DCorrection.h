@@ -111,14 +111,21 @@ namespace PUCorrection {
 
       for(size_t i=0 ; i<(etaBins_v->size()-1); i++){
 	m_3Dp0_vs_muNPV[i].reset((TH2D*)param3D_p0->At(i));
+	m_3Dp0_vs_muNPV[i]->SetDirectory(nullptr);
 	m_3Dp1_vs_muNPV[i].reset((TH2D*)param3D_p1->At(i));
-	if(m_use3Dp2) m_3Dp2_vs_muNPV[i].reset( (TH2D*)param3D_p2->At(i) );
+	m_3Dp1_vs_muNPV[i]->SetDirectory(nullptr);
+	if(m_use3Dp2) {
+	  m_3Dp2_vs_muNPV[i].reset( (TH2D*)param3D_p2->At(i) );
+	  m_3Dp2_vs_muNPV[i]->SetDirectory(nullptr);
+	}
       }
       m_ref3DHisto = m_3Dp0_vs_muNPV[0].get();
       
       TList* paramDelta_l = (TList*) tmpF.Get(paramDelta_name.c_str());
       m_Dptp0_vs_eta.reset( (TH1F*) paramDelta_l->At(0) );
+      m_Dptp0_vs_eta->SetDirectory(nullptr);
       m_Dptp1_vs_eta.reset( (TH1F*) paramDelta_l->At(1) ) ;      
+      m_Dptp1_vs_eta->SetDirectory(nullptr);
       setupClosestNonEmptyBins();
     }
 
