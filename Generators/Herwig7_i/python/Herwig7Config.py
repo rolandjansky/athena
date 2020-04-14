@@ -151,34 +151,14 @@ set /Herwig/Samplers/Sampler:Verbose Yes
             paramlist.append("set /Herwig/Particles/"+value['name']+"bar:Width "+value['width'])         
             paramlist.append("set /Herwig/Particles/"+value['name']+":NominalMass "+value['mass'])
             paramlist.append("set /Herwig/Particles/"+value['name']+":Width "+value['width'])
-    ## Something like this could be used to integrate the other parameters if wanted
-         # if (int(key) in range(1,6) or int(key) in range(7,23)):
-          #  paramlist.append("set /Herwig/Particles/"+value['name']+":NominalMass "+value['mass'])
-           # paramlist.append("set /Herwig/Particles/"+value['name']+":Width "+value['width'])
-      
-# Take the value of sin2thetaW from the EW_parameters dictionary      
+   
+    ## Take the value of sin2thetaW from the EW_parameters dictionary      
       if k == 'EW_parameters':
         for key,value in v.items():
           if key[2] == "Sin2ThetaW":
             paramlist.append("set /Herwig/Model:EW/"+str(key[2])+" "+str(value))
     paramstring = '\n'.join(paramlist)
     return(paramstring)
-    
-    ## Old method to implement the parameters    
-    #    return("""
-    ## Masses and widths: PDG 2010 values (except TOP mass; kept at PDG2007)
-    #set /Herwig/Particles/t:NominalMass 172.5*GeV
-    #set /Herwig/Particles/tbar:NominalMass 172.5*GeV
-    #set /Herwig/Particles/W+:NominalMass 80.399*GeV
-    #set /Herwig/Particles/W-:NominalMass 80.399*GeV
-    #set /Herwig/Particles/Z0:NominalMass 91.1876*GeV
-    #set /Herwig/Particles/W+:Width 2.085*GeV
-    #set /Herwig/Particles/W-:Width 2.085*GeV
-    #set /Herwig/Particles/Z0:Width 2.4952*GeV
-    
-    ## Weinberg angle
-    #set /Herwig/Model:EW/Sin2ThetaW 0.23113
-    #""")
     
     self.physics_parameter_commands = True
 
