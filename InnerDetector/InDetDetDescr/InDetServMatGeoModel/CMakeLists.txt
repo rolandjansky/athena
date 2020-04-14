@@ -32,7 +32,7 @@ atlas_add_component( InDetServMatGeoModel
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelUtilities GaudiKernel InDetGeoModelUtils SGTools StoreGateLib SGtests )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelUtilities GaudiKernel InDetGeoModelUtils SGTools StoreGateLib SGtests GeometryDBSvcLib )
 
 # Install files from the package:
 atlas_install_headers( InDetServMatGeoModel )
