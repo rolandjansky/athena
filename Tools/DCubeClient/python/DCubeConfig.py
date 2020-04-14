@@ -138,7 +138,6 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
     # @param self "Me, myself and Irene"
     def generate( self ):
 
-        self.error( self.opts.config )
         configURI = os.path.abspath( self.opts.config )
         
         fromScratch = False
@@ -255,7 +254,7 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
         mode = "strict" if strict else "regexp" 
         self.info("maching config in %s mode" % mode)
 
-        pattern = "[\S]+"
+        pattern = "[\S]*"
         whats = ["branch", "install", "cmtconfig", "project", "jobId" ]
         cPairs = dict( zip (whats, zip( fromRun, fromXML ) ) )
         cMatch = dict( zip (whats, [False for i in range(5)] ) )
@@ -526,6 +525,8 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
                 if ( objDim <= 2 ):
                     objNode = self.xmldoc.createElement( "hist%dD" % objDim  )
                     objNode.setAttribute( "name", name )
+                    if self.opts.flat:
+                        objNode.setAttribute( "mon", fp )
                     objNode.setAttribute( "type", cl )
                     objNode.setAttribute( "plotopts", "" )
                     if ( "TProfile" in cl ):
@@ -545,6 +546,8 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
 
                 objNode = self.xmldoc.createElement( "graph" )
                 objNode.setAttribute( "name", name )
+                if self.opts.flat:
+                    objNode.setAttribute( "mon", fp )
                 objNode.setAttribute( "type", cl )
                 objNode.setAttribute( "plotopts", "" )
                 configNode.appendChild( objNode )
@@ -559,12 +562,15 @@ class DCubeConfig( DCubeUtils.DCubeObject ):
             elif ( isa.InheritsFrom("TDirectory") ):
                 self.debug( nbsp +" --> found TDirectory=" + fp )
                 
-                dirNode = self.xmldoc.createElement("TDirectory")
-                dirNode.setAttribute( "name", name )
+                if self.opts.flat:
+                    self.__scan( obj, configNode, level )
+                else:
+                    dirNode = self.xmldoc.createElement("TDirectory")
+                    dirNode.setAttribute( "name", name )
                 
-                configNode.appendChild( dirNode )
+                    configNode.appendChild( dirNode )
                 
-                self.__scan( obj, dirNode, level+1 )
+                    self.__scan( obj, dirNode, level+1 )
            
             else:
                 self.warn( nbsp +" --> unsupported object of type '%s' found at '%s'" % ( cl, fp ) )  
