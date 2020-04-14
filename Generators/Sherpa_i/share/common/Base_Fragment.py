@@ -40,25 +40,13 @@ genSeq.Sherpa_i.Parameters += [
     "SCALE_VARIATIONS=0.25,0.25 0.25,1. 1.,0.25 1.,1. 1.,4. 4.,1. 4.,4.",
     ]
 
-## Old version of input for particle masses/widths
-#genSeq.Sherpa_i.Parameters += [
-#    "MASS[6]=172.5",
-#    "WIDTH[6]=1.32",
-#    "MASS[15]=1.777",
-#    "WIDTH[15]=2.26735e-12",
-#    "MASS[23]=91.1876",
-#    "WIDTH[23]=2.4952",
-#    "MASS[24]=80.399",
-#    "WIDTH[24]=2.085",
-#    ]
-
-## Load parameters from parameter dictionary located in EvgenProdTools/python/offline_dict.py
+## Load particle masses/widths from parameter dictionary located in EvgenProdTools/python/offline_dict.py 
 from EvgenProdTools.offline_dict import parameters
 for k,v in parameters.items():
     if k == 'particles':
         for key,value in v.items():
             if int(key) in range(6,26):
-# This includes now the top quark, the leptons and the bosons
+## This includes now the top quark, the leptons and the bosons
                 genSeq.Sherpa_i.Parameters += [ 
                     'MASS['+key+']='+ value['mass'],
                     'WIDTH['+key+']='+ value['width'],
@@ -67,10 +55,9 @@ for k,v in parameters.items():
 ## Switch to EW_SCHEME=0 to be able to set PDG value of thetaW
 genSeq.Sherpa_i.Parameters += [
     "EW_SCHEME=0",
-#    "SIN2THETAW=0.23113",
     ]
 
-## Set EW parameters also via dictionary
+## Set EW parameters also via parameter dictionary
 for k,v in parameters.items():
     if k == 'EW_parameters':
         for key,value in v.items():
