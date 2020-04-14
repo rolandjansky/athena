@@ -3,7 +3,8 @@
 */
 
 #include "GeneratorFilters/TtHtoVVDecayFilter.h"
-
+
+
 
 TtHtoVVDecayFilter::TtHtoVVDecayFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name, pSvcLocator)
@@ -85,9 +86,7 @@ StatusCode TtHtoVVDecayFilter::filterEvent() {
           if (!isGrandParentOK) continue;
 
           ++nGoodParent;  // good parent from the indicated GrandParents
-          HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-          HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
-          const bool okPDGChild = findAncestor(firstChild, endChild, m_PDGParent[iParent]);
+          const bool okPDGChild = findAncestor((*pitr)->end_vertex(), m_PDGParent[iParent]);
           ATH_MSG_DEBUG("Result " << nGoodParent << " " << okPDGChild );
           if (!(okPDGChild)) continue;
 
@@ -127,13 +126,14 @@ StatusCode TtHtoVVDecayFilter::filterEvent() {
 }
 
 
-bool TtHtoVVDecayFilter::findAncestor(const HepMC::GenVertex::particle_iterator &firstAncestor,
-                                      const HepMC::GenVertex::particle_iterator &endAncestor,
+bool TtHtoVVDecayFilter::findAncestor(const HepMC::GenVertex* searchvertex,
                                       int targetPDGID) {
-  for (HepMC::GenVertex::particle_iterator anc = firstAncestor; anc != endAncestor; ++anc) {
+  if (!searchvertex) return false;
+  const HepMC::GenVertex::particles_out_const_iterator firstAncestor = searchvertex->particles_out_const_begin();
+  const HepMC::GenVertex::particles_out_const_iterator endAncestor = searchvertex->particles_out_const_end();
+  for (HepMC::GenVertex::particles_out_const_iterator anc = firstAncestor; anc != endAncestor; ++anc) {
     if (abs((*anc)->pdg_id()) == targetPDGID) { // same particle as parent
-      return findAncestor((*anc)->end_vertex()->particles_begin(HepMC::children),
-                          (*anc)->end_vertex()->particles_end(HepMC::children),
+      return findAncestor((*anc)->end_vertex(),
                           targetPDGID);
     } else {
       for (size_t i = 0; i < m_PDGChild.size(); ++i) {
