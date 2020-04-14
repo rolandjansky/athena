@@ -152,7 +152,7 @@ namespace PUCorrection {
 	    int clBin = -1;
 	    float x0 = xax->GetBinCenter(xi);
 	    float y0 = yax->GetBinCenter(yi);
-	    float minDr2=1e10;
+	    float minDr2=1e10; // just pick a bigger value than any distance in the (mu,NPV) plan
 	    // loop over other bins to find the closest non-empty :
 	    for(int xj=1;xj<nbinX+1;xj++) for(int yj=1;yj<nbinY+1;yj++) {
 		int bj = refHisto->GetBin(xj,yj);
@@ -160,7 +160,7 @@ namespace PUCorrection {
 		float x = xax->GetBinCenter(xj);
 		float y = yax->GetBinCenter(yj);
 		float dr2 = (x0-x)*(x0-x)*xscale+(y0-y)*(y0-y)*yscale;
-		if(dr2<minDr2){ minDr2 = dr2; clBin = bj;}
+		if(dr2<minDr2){ minDr2 = dr2; clBin = bj;} // found a closest-bin candidate
 	      }
 	    m_closestNonEmpty[etabin][bi] = clBin;
 	  }

@@ -165,7 +165,7 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
   
   if(m_do3Dcorrection){
     int NPV = jetEventInfo.NPV();
-    int mu  = jetEventInfo.mu();
+    float mu  = jetEventInfo.mu();
     
     double pt_calib= m_residual3DCorr->correctedPt(pT_det,  eta_det, jetareaP4.Pt(), rho, mu, NPV ) ;
     double scaleF = pt_calib < 0 ? 0.01*m_GeV/pT_det : pt_calib/pT_det;
