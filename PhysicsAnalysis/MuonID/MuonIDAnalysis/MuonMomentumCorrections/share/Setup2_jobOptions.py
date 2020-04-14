@@ -29,6 +29,6 @@ theJob += alg
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 100
+theApp.EvtMax = 10 
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000

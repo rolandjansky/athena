@@ -1,4 +1,5 @@
-path = '/data/atlassmallfiles/users/artoni/mcp/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.deriv.DAOD_MUON6.e3601_s3126_r10201_p4029'
+path = '/data/atlassmallfiles/users/artoni/mcp/mc16_13TeV.301030.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2000M2250.deriv.DAOD_MUON1.e3649_s3126_r10751_p4062'
+#path = '/data/atlassmallfiles/users/artoni/mcp/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.deriv.DAOD_MUON6.e3601_s3126_r10201_p4029'
 files = [os.path.join(path, f) for f in os.listdir(path)]
 
 import AthenaPoolCnvSvc.ReadAthenaPool
@@ -29,6 +30,6 @@ theJob += alg
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 100 
+theApp.EvtMax = 10
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000
