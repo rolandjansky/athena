@@ -7,6 +7,8 @@
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include <stdexcept>
@@ -113,6 +115,8 @@ namespace CP {
             std::string getDataPeriod(unsigned int run) const;
             std::string getDataPeriod(unsigned int runNumber, unsigned int year) const;
        private:
+            SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
+
             TDirectory* getTemporaryDirectory(void) const;
 
             //Generate replicas of h for Toys with each bin of h varied with Gaussian distribution
@@ -132,7 +136,6 @@ namespace CP {
             std::string m_calibration_version;
             std::string m_custom_dir;
             std::string m_binning;
-            std::string m_eventInfoContName;
             bool m_allowZeroSF;
             bool m_experimental;
             bool m_useRel207;

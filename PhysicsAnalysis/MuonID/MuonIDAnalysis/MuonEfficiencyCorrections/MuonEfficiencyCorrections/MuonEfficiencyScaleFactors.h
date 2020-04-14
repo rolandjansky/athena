@@ -5,15 +5,15 @@
 #ifndef MUONEFFICIENCYSCALEFACTORS_H_
 #define MUONEFFICIENCYSCALEFACTORS_H_
 
-
-
 #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 #include "MuonEfficiencyCorrections/MuonEfficiencyType.h"
 #include "MuonEfficiencyCorrections/EfficiencyScaleFactor.h"
 #include "MuonEfficiencyCorrections/EffiCollection.h"
 
-#include <AsgTools/ToolHandle.h>
-#include <AsgTools/AsgTool.h>
+#include "AsgTools/ToolHandle.h"
+#include "AsgTools/AsgTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <string>
 #include <memory>
@@ -73,6 +73,8 @@ namespace CP {
             unsigned int getRandomRunNumber(const xAOD::EventInfo* info) const;
             /// load the SF histos
             StatusCode LoadInputs();
+
+            SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
            
             /// Scale-factor files since  Moriond2019 contain the breakdown of systematics into
             /// their individual components. This method loads all systematics and looks their
