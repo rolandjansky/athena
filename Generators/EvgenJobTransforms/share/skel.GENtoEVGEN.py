@@ -339,8 +339,8 @@ if evgenConfig.minevents > 0 :
 
 if evgenConfig.nEventsPerJob < 1:
     raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
-elif evgenConfig.nEventsPerJob > 10000:
-    raise RunTimeError("evgenConfig.nEventsPerJob can be max. 10000")
+elif evgenConfig.nEventsPerJob > 20000:
+    raise RunTimeError("evgenConfig.nEventsPerJob can be max. 20000")
 else:
     allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
