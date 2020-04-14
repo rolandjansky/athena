@@ -344,8 +344,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
     m_tileDecoder->loadRw2Cell ( i, tilecell->Rw2CellMap(i) );
     m_tileDecoder->loadRw2Pmt  ( i, tilecell->Rw2PmtMap (i) );
   }
-  m_tileDecoder->loadMBTS_Ptr( tilecell->MBTS_collection(),
-	tilecell->MBTS_map(), tilecell->MBTS_channel() );
+  m_tileDecoder->loadMBTS( tilecell->MBTS_map(), tilecell->MBTS_channel() );
   m_mbts_rods = tilecell->MBTS_RODs();
   for(size_t i = 0 ; i < m_mbts_rods->size(); i++)
   m_mbts_add_rods.insert(m_mbts_add_rods.end(),(*m_mbts_rods).begin(),(*m_mbts_rods).end());
@@ -465,6 +464,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<IdentifierHas
                                                TileCellCont* tilecell ) {
   unsigned int status(0);
   TileROD_Decoder::D0CellsHLT d0cells;
+  TileCellCollection* mbts = tilecell->MBTS_collection();
 
   size_t listIDsize = rIds.size();
   std::vector<unsigned int> tile; tile.push_back(0);
@@ -499,7 +499,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<IdentifierHas
             } else  {// End of if small size
               std::lock_guard<std::mutex> decoderLock { m_tiledecoderProtect };  
               if ( !tilecell->cached(rIds[i]))
-                 m_tileDecoder->fillCollectionHLT(robFrags1[0],*col,d0cells);
+                m_tileDecoder->fillCollectionHLT(robFrags1[0],*col,d0cells,mbts);
               m_tileDecoder->mergeD0cellsHLT(d0cells,*col);
               // Accumulates superior byte from ROD Decoder
               //m_error|=m_tileDecoder->report_error();
@@ -641,8 +641,6 @@ unsigned int TrigCaloDataAccessSvc::prepareMBTSCollections( const EventContext& 
   std::lock_guard<std::mutex> collectionLock { cache->mutex };  
   std::lock_guard<std::mutex> decoderLock { m_tiledecoderProtect };  
   TileCellCont* tilecell = cache->tileContainer;
-  m_tileDecoder->loadMBTS_Ptr( tilecell->MBTS_collection(),
-        tilecell->MBTS_map(), tilecell->MBTS_channel() );
   cache->tileContainer->eventNumber( context.evt() );
  
   const std::vector<unsigned int>* ids = tilecell->MBTS_IDs();
