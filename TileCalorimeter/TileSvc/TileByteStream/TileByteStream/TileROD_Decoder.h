@@ -154,7 +154,8 @@ class TileROD_Decoder: public AthAlgTool {
                         typename TileROD_Helper::ContainerForCollection<COLLECTION>::type* container = nullptr) const;
     uint32_t fillCollectionHLT(const ROBData * rob,
                                TileCellCollection & v,
-                               D0CellsHLT& d0cells) const;
+                               D0CellsHLT & d0cells,
+                               TileCellCollection * MBTS) const;
     void fillCollectionL2(const ROBData * rob, TileL2Container & v) const;
     void fillCollectionL2ROS(const ROBData * rob, TileL2Container & v) const;
     void fillTileLaserObj(const ROBData * rob, TileLaserObject & v) const;
@@ -169,7 +170,7 @@ class TileROD_Decoder: public AthAlgTool {
         m_Rw2Cell[section].push_back(vec[i]);
       }
     }
-    void loadMBTS_Ptr(TileCellCollection* col, std::map<unsigned int, unsigned int>& mapMBTS, int MBTS_channel);
+    void loadMBTS(std::map<unsigned int, unsigned int>& mapMBTS, int MBTS_channel);
     inline const TileHWID* getTileHWID() const { return m_tileHWID;}
     inline const TileFragHash* hashFunc() const { return &m_hashFunc; }
 
@@ -463,7 +464,8 @@ class TileROD_Decoder: public AthAlgTool {
                           bool correctAmplitude,
                           const FRwChVec & pChannel,
                           TileCellCollection& v, const uint16_t DQuality,
-                          D0CellsHLT& d0cells) const;
+                          D0CellsHLT& d0cells,
+                          TileCellCollection * MBTS) const;
 
     inline void make_copy(const ROBData * rob, pBeamVec & pBeam, TileBeamElemCollection& v) const;
     inline void make_copy(const ROBData * rob, pBeamVec & pBeam, TileDigitsCollection& v) const;
@@ -557,9 +559,6 @@ class TileROD_Decoder: public AthAlgTool {
     TileFragHash m_hashFunc;
     bool m_of2Default;
 
-    // FIXME: Non-MT safe members --- used only by trigger, not offline.
-    // Pointer to a MBTS cell collection
-    TileCellCollection* m_MBTS;
     // Map from frag id to MBTS idx
     std::map<unsigned int, unsigned int> m_mapMBTS;
     // index of the MBTS channel
