@@ -12,7 +12,7 @@ mkdir run_makeGridpack
 cd run_makeGridpack
 
 Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputTXTFile=fake_lhe_events --jobConfig=950110 --outputFileValidation=False
-
+# Note 11.4.2020: This crashes on MadSpin in the GridPack; see https://bugs.launchpad.net/bugs/1871206
 echo "art-result: $? gridpack_creation"
 
 cd ../
