@@ -1,5 +1,3 @@
-from future import standard_library
-standard_library.install_aliases()
 #! /usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
@@ -20,6 +18,9 @@ import pickle as pickle
 import sys
 import unittest
 
+from future import standard_library
+standard_library.install_aliases()
+
 from PyJobTransforms.trfLogger import msg
 from PyJobTransforms.trfReports import pyJobReportToFileDict
 
@@ -35,7 +36,7 @@ class RecoTier0test(unittest.TestCase):
         p = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
         while p.poll() is None:
             line = p.stdout.readline()
-            sys.stdout.write(line)
+            sys.stdout.write(line.decode())
         # Hoover up remaining buffered output lines
         for line in p.stdout:
             sys.stdout.write(line)
@@ -54,7 +55,7 @@ class RecoTier0test(unittest.TestCase):
         p = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
         while p.poll() is None:
             line = p.stdout.readline()
-            sys.stdout.write(line)
+            sys.stdout.write(line.decode())
         # Hoover up remaining buffered output lines
         for line in p.stdout:
             sys.stdout.write(line)

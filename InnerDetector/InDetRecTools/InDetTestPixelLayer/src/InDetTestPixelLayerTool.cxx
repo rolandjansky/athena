@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h" 
@@ -314,18 +314,17 @@ namespace InDet {
 
     bool expect_hit = false; /// will be set to true if at least one good module is passed
 
-    std::vector<const Trk::TrackParameters*> pixelLayerParam;
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > pixelLayerParam;
     if(!this->getPixelLayerParameters(trackpar, pixelLayerParam)){
       ATH_MSG_WARNING("Failed to get pixel layer parameters!");
       return false;	
     }
-    std::vector<const Trk::TrackParameters*>::const_iterator it = pixelLayerParam.begin();
 
     // now, figure out which layer we're supposed to be checking.
     PixelIDVec pixvec;
-    for(it = pixelLayerParam.begin(); it !=pixelLayerParam.end(); ++it){
-      if( !((*it)->associatedSurface().associatedDetectorElement())) continue;
-      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+    for (std::unique_ptr<const Trk::TrackParameters>& p : pixelLayerParam) {
+      if( !(p->associatedSurface().associatedDetectorElement())) continue;
+      Identifier id = p->associatedSurface().associatedDetectorElement()->identify();
       pixvec.push_back(id);
     }
     std::sort(pixvec.begin(),pixvec.end(),PixelIDLayerComp(m_pixelId));
@@ -339,10 +338,10 @@ namespace InDet {
       return expect_hit;
     }
 
-    for(it = pixelLayerParam.begin(); it !=pixelLayerParam.end(); ++it){
+    for (std::unique_ptr<const Trk::TrackParameters>& p : pixelLayerParam) {
       
-      if( !((*it)->associatedSurface().associatedDetectorElement())) continue;
-      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+      if( !(p->associatedSurface().associatedDetectorElement())) continue;
+      Identifier id = p->associatedSurface().associatedDetectorElement()->identify();
 
       // need to check that this is the "correct" pixel layer....
       if(!IsInCorrectLayer(id,pixvec,pixel_layer)) continue;
@@ -351,11 +350,11 @@ namespace InDet {
 
 	if( m_checkActiveAreas ){
 
-	  if( isActive(*it) ){
+	  if( isActive(p.get()) ){
 
 	    if(m_checkDeadRegions){
 
-	      double fracGood = getFracGood(*it, m_phiRegionSize, m_etaRegionSize);
+	      double fracGood = getFracGood(p.get(), m_phiRegionSize, m_etaRegionSize);
 	      if(fracGood>m_goodFracCut && fracGood>=0){
 		ATH_MSG_DEBUG("Condition Summary: b-layer good");
 		expect_hit=true;  /// pass good module -> hit is expected on pixelLayer
@@ -386,15 +385,8 @@ namespace InDet {
 	ATH_MSG_DEBUG(__LINE__ << "b-layer not good");
       }
 
-      // do this down below for now....
-      //delete *it;
-
     } /// pixelLayer param
 
-
-    for(it = pixelLayerParam.begin(); it !=pixelLayerParam.end(); ++it){
-      delete *it;
-    }
 
     return expect_hit;
   }
@@ -460,16 +452,14 @@ namespace InDet {
     }
 
 
-    std::vector<const Trk::TrackParameters*> pixelLayerParam;
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > pixelLayerParam;
     if(!this->getPixelLayerParameters(trackpar, pixelLayerParam)) return -5.;	
-
-    std::vector<const Trk::TrackParameters*>::const_iterator it = pixelLayerParam.begin();
 
     // now, figure out which layer we're supposed to be checking.
     PixelIDVec pixvec;
-    for(it = pixelLayerParam.begin(); it !=pixelLayerParam.end(); ++it){
-      if( !((*it)->associatedSurface().associatedDetectorElement())) continue;
-      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+    for (std::unique_ptr<const Trk::TrackParameters>& p : pixelLayerParam) {
+      if( !(p->associatedSurface().associatedDetectorElement())) continue;
+      Identifier id = p->associatedSurface().associatedDetectorElement()->identify();
       pixvec.push_back(id);
     }
     std::sort(pixvec.begin(),pixvec.end(),PixelIDLayerComp(m_pixelId));
@@ -477,18 +467,18 @@ namespace InDet {
     // if we're asking for a layer that doesn't exist in the extrapolation, then return.
     if(pixel_layer >= (int)pixvec.size()) return -7.;
 
-    for(it = pixelLayerParam.begin(); it !=pixelLayerParam.end(); ++it){
+    for (std::unique_ptr<const Trk::TrackParameters>& p : pixelLayerParam) {
 
-      if( !((*it)->associatedSurface().associatedDetectorElement())) continue;
-      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+      if( !(p->associatedSurface().associatedDetectorElement())) continue;
+      Identifier id = p->associatedSurface().associatedDetectorElement()->identify();
 
       if(!IsInCorrectLayer(id,pixvec,pixel_layer)) continue;
 
       if( m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE) ){
 
-	  if( isActive(*it) ){
+          if( isActive(p.get()) ){
 
-	      return getFracGood(*it, m_phiRegionSize, m_etaRegionSize);
+	      return getFracGood(p.get(), m_phiRegionSize, m_etaRegionSize);
 
 	  }
 	  else{
@@ -499,8 +489,6 @@ namespace InDet {
       else{
 	ATH_MSG_DEBUG(__LINE__ << "b-layer not good");
       }
-
-      delete *it;
 
     } /// pixelLayer param
 
@@ -597,16 +585,13 @@ namespace InDet {
       return false;
     }
 
-    std::vector<const Trk::TrackParameters*> pixelLayerParam;
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > pixelLayerParam;
     if(!getPixelLayerParameters(trackpar, pixelLayerParam)) return false;
 
-    std::vector<const Trk::TrackParameters*>::const_iterator it = pixelLayerParam.begin();
-    for(; it !=pixelLayerParam.end(); ++it){
-
-      const Trk::TrackParameters* trkParam = *it;           
+    for (std::unique_ptr<const Trk::TrackParameters>& trkParam : pixelLayerParam) {
       TrackStateOnPixelLayerInfo pixelLayerInfo;
         
-      double fracGood = getFracGood(trkParam, m_phiRegionSize, m_etaRegionSize);
+      double fracGood = getFracGood(trkParam.get(), m_phiRegionSize, m_etaRegionSize);
       pixelLayerInfo.goodFraction(fracGood);
 
       Identifier id = trkParam->associatedSurface().associatedDetectorElement()->identify();
@@ -684,18 +669,16 @@ namespace InDet {
       }
 
       infoList.push_back(pixelLayerInfo);
-
-      delete trkParam;
-
     } /// pixelLayer param
 
     return true;
 
   }
  
-  bool InDet::InDetTestPixelLayerTool::getPixelLayerParameters(const Trk::TrackParameters* trackpar,
-							       std::vector<const Trk::TrackParameters*>& pixelLayerParam) const{
-
+  bool InDet::InDetTestPixelLayerTool::getPixelLayerParameters
+    (const Trk::TrackParameters* trackpar,
+     std::vector<std::unique_ptr<const Trk::TrackParameters> >& pixelLayerParam) const
+  {
     //// Cylinder bigger than the b-layer ////
     ATH_MSG_DEBUG("Trying to extrapolate to pixelLayer");
     Amg::Transform3D* surfTrans = new Amg::Transform3D();
@@ -705,7 +688,7 @@ namespace InDet {
 						      10000.0);
 
     // extrapolate stepwise to this parameter (be careful, sorting might be wrong)
-    const std::vector<const Trk::TrackParameters*>* paramList =
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
       m_extrapolator->extrapolateStepwise(*trackpar,
 					  BiggerThanPixelLayerSurface,
 					  Trk::alongMomentum,
@@ -714,42 +697,37 @@ namespace InDet {
 
 
 
-   if(!paramList){
+   if(paramList.empty()){
      ATH_MSG_DEBUG("No parameter returned by propagator ");
      ATH_MSG_VERBOSE("dumping track parameters " <<*trackpar);
      return false;
    }
 
-   ATH_MSG_DEBUG(" Number of generated parameters by propagator: " << paramList->size() );
+   ATH_MSG_DEBUG(" Number of generated parameters by propagator: " << paramList.size() );
 
 
-   int s_int = 0; 
-   for (std::vector<const Trk::TrackParameters*>::const_iterator it = paramList->begin();
-	it != paramList->end(); ++it){
-
+   int s_int = 0;
+   for (std::unique_ptr<const Trk::TrackParameters>& p : paramList) {
      ATH_MSG_DEBUG( s_int++ << "th surface : ");
 
      Identifier id;
-     if( !( (*it)->associatedSurface().associatedDetectorElement() !=0 && 
-	 (*it)->associatedSurface().associatedDetectorElement()->identify() !=0 ) ){  
-       delete *it;
+     if( !( p->associatedSurface().associatedDetectorElement() !=0 && 
+	 p->associatedSurface().associatedDetectorElement()->identify() !=0 ) )
+     {  
        continue;
      }
 
-     id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+     id = p->associatedSurface().associatedDetectorElement()->identify();
      if (!m_idHelper->is_pixel(id)){
-       delete *it;
        continue;
      }
 
      ATH_MSG_DEBUG("Found pixel module : " << id.get_compact());
 
-     pixelLayerParam.push_back((*it));
+     pixelLayerParam.push_back (std::move (p));
    } /// all params
 
-   delete paramList;
    return true;
-
   }
 
 
@@ -894,7 +872,6 @@ namespace InDet {
   bool InDetTestPixelLayerTool::IsInSameLayer(Identifier& id1, Identifier& id2) const{
     return ((m_pixelId->barrel_ec(id1) == m_pixelId->barrel_ec(id2)) && (m_pixelId->layer_disk(id1) == m_pixelId->layer_disk(id2)));
   }
-
 
 } //end namespace
 

@@ -1547,9 +1547,9 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer& blineData)
     return StatusCode::SUCCESS; 
 }
 
-void MuonDetectorManager::storeTgcReadoutParams(const TgcReadoutParams* /*x*/)
+void MuonDetectorManager::storeTgcReadoutParams(std::unique_ptr<const TgcReadoutParams> x)
 {
-  // Unused (memory leak, to be fixed later)
+  m_TgcReadoutParamsVec.push_back(std::move(x));
 }
 
 StatusCode MuonDetectorManager::initCSCInternalAlignmentMap()

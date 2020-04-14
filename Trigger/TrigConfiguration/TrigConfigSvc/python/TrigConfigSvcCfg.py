@@ -53,6 +53,21 @@ def getHLTPrescalesSetFileName( flags=None ):
         hltPrescalesSetFileName = 'HLTPrescalesSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
     return hltPrescalesSetFileName
 
+# L1 Bunchgroups set json file name
+def getBunchGroupSetFileName( flags=None ):
+    if flags is None:
+        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
+        bunchGroupSetFileName = 'BunchGroupSet_'+tf.triggerMenuSetup()+'_'+tf.menuVersion()+'.json'
+    else:
+        bunchGroupSetFileName = 'BunchGroupSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
+    return bunchGroupSetFileName
+
+
+# HLT Job options json file name
+def getHLTJobOptionsFileName( flags=None ):
+    return 'HLTJobOptions.json'
+
+
 # Creates an L1 Prescale file from the menu
 # this is a temporary solution, in the final version the L1PrescalesSet file should come from the menu
 def createL1PrescalesFileFromMenu( flags=None ):
@@ -106,28 +121,28 @@ def createHLTPrescalesFileFromMenu( flags=None ):
 
 def getTrigConfigFromFlag( flags=None ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    if flags is None:
+    if flags is None: # old-style TriggerFlags
         from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        tcflag = tf.triggerConfig()
-        log.info("Parsing TriggerFlags.triggerConfig %s", tcflag)
+        tcflag = tf.triggerConfig() if tf.triggerConfig.statusOn else None
+        log.info("Parsing old-style trigger flags 'triggerConfig': %s", tcflag)
     else:
         tcflag = flags.Trigger.triggerConfig
-        log.info("Parsing flags.Trigger.triggerConfig %s", tcflag)
+        log.info("Parsing new-style trigger flag 'triggerConfig': %s", tcflag)
     if tcflag is None:
         tcflag = "FILE"
     source, dbconn, keys = (tcflag+":::").split(":")[:3]
-    smk,l1psk,hltpsk,bgk = (keys+",,,").split(",")[:4]
+    smk,l1psk,hltpsk,bgsk = (keys+",,,").split(",")[:4]
     smk = int(smk) if smk != "" else None
     l1psk = int(l1psk) if l1psk!="" else None
     hltpsk = int(hltpsk) if hltpsk!="" else None
-    bgk = int(bgk) if bgk!="" else None
+    bgsk = int(bgsk) if bgsk!="" else None
     tcdict = {
         "source" : source.upper(),  # DB, FILE, COOL
         "dbconn" : dbconn, # db connection (if origin==DB or COOL) or "JOSVC" if connection is to be taken from TrigConf::IJobOptionsSvc 
         "smk"    : smk,
         "l1psk"  : l1psk,
         "hltpsk" : hltpsk,
-        "bgk"    : bgk
+        "bgsk"   : bgsk
     }
     # this is for backward compatibility
     if tcdict["source"] == "MCRECO":

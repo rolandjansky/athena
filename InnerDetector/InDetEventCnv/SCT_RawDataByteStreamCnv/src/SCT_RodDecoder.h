@@ -105,7 +105,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param errorType Error type info.
    * @param errs Byte stream error container.
    */
-  StatusCode addRODError(uint32_t rodID, SCT_ByteStreamErrors::errorTypes error,
+  StatusCode addRODError(uint32_t rodID, SCT_ByteStreamErrors::ErrorType error,
 			 SCT_RodDecoderErrorsHelper& errs) const;
   /**
    * @brief Add single eror
@@ -115,7 +115,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param errs Byte stream error container.
    */
   StatusCode addSingleError(const IdentifierHash& hashID,
-			    SCT_ByteStreamErrors::errorTypes error,
+			    SCT_ByteStreamErrors::ErrorType error,
 			    SCT_RodDecoderErrorsHelper& errs) const;
 
   /**

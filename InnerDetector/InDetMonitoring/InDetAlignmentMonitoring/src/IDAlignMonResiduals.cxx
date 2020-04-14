@@ -1068,7 +1068,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
   }
 
   if (!m_hasBeenCalledThisEvent){
-    m_mu = eventInfo->averageInteractionsPerCrossing();
+    m_mu = lbAverageInteractionsPerCrossing();
     m_hasBeenCalledThisEvent=true;
   }
   else

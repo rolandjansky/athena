@@ -14,7 +14,6 @@ Python helper module for managing COOL DB connections and TileCalibBlobs.
 from __future__ import print_function
 
 import ROOT
-ROOT.gInterpreter.EnableAutoLoading()
 
 import cx_Oracle # noqa: F401
 from PyCool import cool

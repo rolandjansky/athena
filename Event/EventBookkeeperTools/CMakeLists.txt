@@ -53,6 +53,7 @@ atlas_install_runtime( scripts/dump-cbk )
 # Tests
 atlas_add_test( BookkeeperDumperTool
                 SCRIPT test/test_BookkeeperDumperTool.py
+                PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( CutflowSvcDummyAlg

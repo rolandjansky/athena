@@ -33,7 +33,7 @@ class Identifier;
 
 class TRT_ID;
 class ITRT_StrawNeighbourSvc;
-class ITRT_StrawStatusSummarySvc ;
+class ITRT_StrawStatusSummaryTool ;
 class ITRT_HWMappingSvc;
 class ITRT_DCS_ConditionsSvc;
 
@@ -96,7 +96,7 @@ namespace InDet
       ServiceHandle<ITRT_HWMappingSvc> m_mapSvc;
       ServiceHandle<ITRT_DCS_ConditionsSvc> m_DCSSvc;
       ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
-      ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawStatusSummarySvc;
+      ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawStatusSummaryTool;
       ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder;
       PublicToolHandle<Trk::IUpdator> m_updator
          {this,"KalmanUpdator","Trk::KalmanUpdator/TrkKalmanUpdator",""};

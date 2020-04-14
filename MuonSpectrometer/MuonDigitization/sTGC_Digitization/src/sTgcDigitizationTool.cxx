@@ -995,18 +995,18 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
   if ( acceptDigit ) { 
 
-    std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
-                        it_digit->bcTag(), 
-                        it_digit->time(), 
-                        chargeAfterSmearing, 
-                        it_digit->isDead(), 
-                        it_digit->isPileup());    
+	  std::unique_ptr<sTgcDigit> finalDigit = std::make_unique<sTgcDigit>(it_digit->identify(), 
+									      it_digit->bcTag(), 
+									      it_digit->time(), 
+									      chargeAfterSmearing, 
+									      it_digit->isDead(), 
+									      it_digit->isPileup());	  
 
-    digitCollection->push_back(std::move(finalDigit));
-    ATH_MSG_VERBOSE("Final Digit") ;
-    ATH_MSG_VERBOSE(" BC tag = "    << finalDigit->bcTag()) ;
-    ATH_MSG_VERBOSE(" digitTime = " << finalDigit->time()) ;
-    ATH_MSG_VERBOSE(" charge = "    << finalDigit->charge()) ;
+	  digitCollection->push_back(std::move(finalDigit));
+	  ATH_MSG_VERBOSE("Final Digit") ;
+	  ATH_MSG_VERBOSE(" BC tag = "    << finalDigit->bcTag()) ;
+	  ATH_MSG_VERBOSE(" digitTime = " << finalDigit->time()) ;
+	  ATH_MSG_VERBOSE(" charge = "    << finalDigit->charge()) ;
 
   }
 

@@ -47,8 +47,7 @@ class HLTPrescalesSetAccess(TriggerConfigAccess):
         super(HLTPrescalesSetAccess,self).__init__( ConfigType.HLTPS, mainkey = "prescales",
                                                     filename = filename, dbalias = dbalias, dbkey = hltpskey )
         self.loader.setQuery([
-            "SELECT HPS_DATA FROM {schema}.HLT_PRESCALE_SET WHERE HPS_ID={dbkey}", # for new db schema
-            ""  # for current db schema
+            "SELECT HPS_DATA FROM {schema}.HLT_PRESCALE_SET WHERE HPS_ID={dbkey}" # for current and new db schema
         ])
         self.load()
 

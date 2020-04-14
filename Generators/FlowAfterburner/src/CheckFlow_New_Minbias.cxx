@@ -261,12 +261,13 @@ StatusCode CheckFlow_New_Minbias::execute() {
   GenAll ifs;
   std::vector<const HepMC::GenParticle*> particles;
   CHECK(m_tesIO->getMC(particles, &ifs, m_key));
-  for (std::vector<const HepMC::GenParticle*>::iterator pitr = particles.begin();pitr != particles.end(); pitr++) {
-    int    pid    = (*pitr)->pdg_id();
-    int    p_stat = (*pitr)->status();
-    double pt     = (*pitr)->momentum().perp();
-    double rapid  = (*pitr)->momentum().pseudoRapidity();
-    double phi    = (*pitr)->momentum().phi();
+
+  for (auto pitr: particles) {
+    int    pid    = pitr->pdg_id();
+    int    p_stat = pitr->status();
+    double pt     = pitr->momentum().perp();
+    double rapid  = pitr->momentum().pseudoRapidity();
+    double phi    = pitr->momentum().phi();
     ATH_MSG_DEBUG(" PID = " << pid   << " Status = " << p_stat \
 	       << " Eta = " << rapid << " Phi = "    << phi);
     
@@ -393,10 +394,10 @@ StatusCode CheckFlow_New_Minbias::execute() {
     m_profile_resolution[ihar]->Fill( ib_imp,  cos(  (ihar+1) * (Psi_n_reco_pos[ihar] - Psi_n_reco_neg[ihar]) ) );
     if(ib_imp==0) {std::cout<<"i11111111111111111111  "<<b<<std::endl;}
   }
-  for (std::vector<const HepMC::GenParticle*>::iterator pitr = particles.begin();pitr != particles.end(); pitr++) {
-    double pt     = (*pitr)->momentum().perp();
-    double rapid  = (*pitr)->momentum().pseudoRapidity();
-    double phi    = (*pitr)->momentum().phi();
+  for (auto  pitr: particles) {
+    double pt     = pitr->momentum().perp();
+    double rapid  = pitr->momentum().pseudoRapidity();
+    double phi    = pitr->momentum().phi();
     if( (fabs(rapid) >= m_rapcut_min) && (fabs(rapid) <= m_rapcut_max) &&
 	(fabs(pt) >= m_ptcut_min) && (fabs(pt) <= m_ptcut_max) ) {
       
@@ -426,31 +427,6 @@ StatusCode CheckFlow_New_Minbias::execute() {
 StatusCode CheckFlow_New_Minbias::finalize() {
 
   ATH_MSG_INFO(">>> CheckFlow_New from finalize");
-/*
-  for(int ihar=0;ihar<6;ihar++){
-    for(int ib_imp=0;ib_imp<n_b_bins;ib_imp++){
-      double reso=m_profile_resolution[ihar]->GetBinContent(ib_imp+1);
-      if (reso >=0) reso= sqrt( reso);
-      else          reso=-sqrt(-reso);
-
-      for(int ieta=0;ieta<n_etabin;ieta++){
-        m_profile_pt_dep_reco [ihar][ib_imp][ieta]->Scale(1.0/reso);
-      }
-      for(int ipt=0;ipt<n_ptbin;ipt++){
-       m_profile_eta_dep_reco[ihar][ib_imp][ipt]->Scale(1.0/reso);
-      }
-
-      for(int ipt=0;ipt<n_ptbin;ipt++){
-        for(int ieta=0;ieta<n_etabin;ieta++){
-          float val=m_profile_eta_dep_reco[ihar][ipt][ieta]->GetBinContent(ib_imp+1)*reso;
-          float err=m_profile_eta_dep_reco[ihar][ipt][ieta]->GetBinError  (ib_imp+1)*reso;
-          m_profile_eta_dep_reco[ihar][ipt][ieta]->SetBinContent(ib_imp+1,val);
-          m_profile_eta_dep_reco[ihar][ipt][ieta]->GetBinError  (ib_imp+1,err);
-        }
-      }
-    }
-  } 
-// */
 
   return StatusCode::SUCCESS;
 }

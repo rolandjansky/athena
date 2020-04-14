@@ -37,7 +37,7 @@ namespace Muon {
 
   private:
     
-    StatusCode getIdFields(const Identifier id, int& etaSector, int& phiSector, int& gasGap);
+    bool getIdFields(const Identifier id, int& etaSector, int& phiSector, int& gasGap);
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

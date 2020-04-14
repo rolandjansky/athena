@@ -187,7 +187,7 @@ public:
       m_errorsIDC.setOrDrop( id, err );
     }
   }
-  void add( const IdentifierHash id, SCT_ByteStreamErrors::errorTypes etype) {
+  void add( const IdentifierHash id, SCT_ByteStreamErrors::ErrorType etype) {
     SCT_ByteStreamErrors::addError( m_accumulatedErrors[id], etype);
   }
 
@@ -977,7 +977,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin, uint32_t onli
 
 // addRODError method
 
-StatusCode SCT_RodDecoder::addRODError(uint32_t rodID, SCT_ByteStreamErrors::errorTypes error,
+StatusCode SCT_RodDecoder::addRODError(uint32_t rodID, SCT_ByteStreamErrors::ErrorType error,
 				       SCT_RodDecoderErrorsHelper& errs) const
 {
   std::vector<IdentifierHash> hashIDs;
@@ -991,7 +991,7 @@ StatusCode SCT_RodDecoder::addRODError(uint32_t rodID, SCT_ByteStreamErrors::err
 // addSingleError method
 
 StatusCode SCT_RodDecoder::addSingleError(const IdentifierHash& hashID,
-					  SCT_ByteStreamErrors::errorTypes error,
+					  SCT_ByteStreamErrors::ErrorType error,
 					  SCT_RodDecoderErrorsHelper& errs) const
 {
   if ( not hashID.is_valid() ) {

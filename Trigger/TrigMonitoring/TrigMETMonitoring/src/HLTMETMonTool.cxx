@@ -1160,8 +1160,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
   // HLT mu50
   monFolderName = monGroupName + "/mu50";
   setCurrentMonGroup(monFolderName);
-  if (hlt_et > 0 && eventInfo) { // remove MET=0 events
-    if (eventInfo->actualInteractionsPerCrossing()>47. && eventInfo->actualInteractionsPerCrossing()<53.) {
+  if (hlt_et > 0) { // remove MET=0 events
+    if (lbInteractionsPerCrossing()>47. && lbInteractionsPerCrossing()<53.) {
       fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_et,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
     }
   }
@@ -1204,7 +1204,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     if ((h = hist("HLT_limiBlock")) && eventInfo)    h->Fill(eventInfo->lumiBlock());
 
     // <mju> histogram
-    if ((h = hist("HLT_mu")) && eventInfo)    h->Fill(eventInfo->actualInteractionsPerCrossing());
+    if ((h = hist("HLT_mu")))    h->Fill(lbInteractionsPerCrossing());
 
     // status histogram
     TH1F *h1i(0);

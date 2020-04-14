@@ -215,9 +215,6 @@ from AthenaCommon.AppMgr import ToolSvc
 
 from AthenaCommon.AppMgr import ServiceMgr
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalibDBSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalibDBSvc
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbourSvc
 TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
@@ -325,6 +322,7 @@ topSequence+=TRTCondWrite
 
 from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTCalibrationMgr
 CosmicsTRTCalibMgr = TRTCalibrationMgr(name                = 'CosmicsTRTCalibMgr',
+                                       StreamTool          = TRTCondStream,
                                        Max_ntrk            = 10000,
                                        TrackSelectorTool   = TRTTrackSelectorTool,
                                        TrkCollections      = [ 'TRTCalibTracks' ],
@@ -355,8 +353,7 @@ if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'd
 """
 
     if not calibconstants=="":
-        ostring+='TRTCalibDBSvc.calibTextFile="%s"\n' % (calibconstants)
+        ostring+='TRTCondWrite="%s"\n' % (calibconstants)
 
-    ostring+='TRTCalibDBSvc.StreamTool=TRTCondStream'
 
     return ostring

@@ -68,7 +68,7 @@ namespace Monitored {
 
       std::scoped_lock<std::mutex> lock(*m_mutex);
 
-      if (m_histDef->opt.find("kAddBinsDynamically") != std::string::npos) {
+      if (m_histDef->kAddBinsDynamically) {
         const auto xmax = std::max_element(begin(valuesVector1), end(valuesVector1));
         if (Monitored::detail::shouldRebinHistogram(histogram->GetXaxis(), *xmax)) {
           Monitored::detail::rebinHistogram<Axis::X>(histogram, *xmax);

@@ -72,7 +72,7 @@ StatusCode SCTErrMonAlg::fillHistograms(const EventContext& ctx) const {
 
   // The numbers of disabled modules, links, strips do not change during a run.
   if (m_isFirstConfigurationDetails) {
-    lock_guard{m_mutex};
+    lock_guard glock{m_mutex};
     if (m_isFirstConfigurationDetails) {
       ATH_CHECK(fillConfigurationDetails(ctx));
       m_isFirstConfigurationDetails = false;
@@ -204,7 +204,7 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     numByteStreamErrors(m_byteStreamErrTool->getErrorSet(errType), nBSErrors);
     /// Fill /SCT/GENERAL/Conf/SCT_*VsLbs ///
     auto lumiBlockAcc{Monitored::Scalar<int>("lumiBlock", pEvent->lumiBlock())};
-    auto nBSErrorsAcc{Monitored::Scalar<int>("n_"+SCT_ByteStreamErrors::errorTypesDescription[errType], nBSErrors)};
+    auto nBSErrorsAcc{Monitored::Scalar<int>("n_"+SCT_ByteStreamErrors::ErrorTypeDescription[errType], nBSErrors)};
     fill("SCTErrMonitor", lumiBlockAcc, nBSErrorsAcc);
   }
 
@@ -344,7 +344,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
   b_category[CategoryErrors::SUMMARY] = true;
 
   b_category[CategoryErrors::BADERR] = false;
-  for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType tmpBadError: SCT_ByteStreamErrors::BadErrors) {
     if (err_type == tmpBadError) {
       b_category[CategoryErrors::BADERR] = true;
       break;
@@ -352,7 +352,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
   }
 
   b_category[CategoryErrors::LINKLEVEL] = false;
-  for (SCT_ByteStreamErrors::errorTypes linkLevelError: SCT_ByteStreamErrors::LinkLevelErrors) {
+  for (SCT_ByteStreamErrors::ErrorType linkLevelError: SCT_ByteStreamErrors::LinkLevelErrors) {
     if (err_type == linkLevelError) {
       b_category[CategoryErrors::LINKLEVEL] = true;
       break;
@@ -360,7 +360,7 @@ SCTErrMonAlg::fillByteStreamErrorsHelper(const set<IdentifierHash>& errors,
   }
 
   b_category[CategoryErrors::RODLEVEL] = false;
-  for (SCT_ByteStreamErrors::errorTypes rodLevelError: SCT_ByteStreamErrors::RodLevelErrors) {
+  for (SCT_ByteStreamErrors::ErrorType rodLevelError: SCT_ByteStreamErrors::RodLevelErrors) {
     if (err_type == rodLevelError) {
       b_category[CategoryErrors::RODLEVEL] = true;
       break;
@@ -495,7 +495,7 @@ bool SCTErrMonAlg::errorSCT(set<IdentifierHash>& sctHashBadLinkError,
   sctHashBadError.clear();
  
   //BadLinkLevelError
-  for (SCT_ByteStreamErrors::errorTypes linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType linkLevelBadErrors: SCT_ByteStreamErrors::LinkLevelBadErrors) {
     const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( linkLevelBadErrors )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadLinkError.insert(waferHash);
@@ -503,7 +503,7 @@ bool SCTErrMonAlg::errorSCT(set<IdentifierHash>& sctHashBadLinkError,
   }
 
   //BadRODLevelError
-  for (SCT_ByteStreamErrors::errorTypes RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType RodLevelBadErrors: SCT_ByteStreamErrors::RodLevelBadErrors) {
     const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( RodLevelBadErrors )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadRODError.insert(waferHash);
@@ -511,7 +511,7 @@ bool SCTErrMonAlg::errorSCT(set<IdentifierHash>& sctHashBadLinkError,
   }
 
   //BadError = BadLinkLevelError + BadRODLevelError
-  for (SCT_ByteStreamErrors::errorTypes tmpBadError: SCT_ByteStreamErrors::BadErrors) {
+  for (SCT_ByteStreamErrors::ErrorType tmpBadError: SCT_ByteStreamErrors::BadErrors) {
     const set<IdentifierHash> sctErrors{m_byteStreamErrTool->getErrorSet( tmpBadError )};
     for (const IdentifierHash& waferHash : sctErrors) {
       sctHashBadError.insert(waferHash);

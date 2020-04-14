@@ -89,8 +89,8 @@ namespace MuonGM {
     void addsTgcReadoutElement_withIdFields (sTgcReadoutElement*, int iStname, int iStEta, int iStPhi, int imL);//!< store the sTgcReadoutElement using as "key" the identifier
     void addMMReadoutElement_withIdFields   (MMReadoutElement*,   int iStname, int iStEta, int iStPhi, int imL);//!< store the MMReadoutElement using as "key" the identifier
 
-    // storeTgcReadoutParams  takes ownership.
-    void storeTgcReadoutParams(const TgcReadoutParams* x);
+    // storeTgcReadoutParams
+    void storeTgcReadoutParams(std::unique_ptr<const TgcReadoutParams> x);
     
     // storeCscInternalAlignmentParams
     void storeCscInternalAlignmentParams(const CscInternalAlignmentPar& x);
@@ -441,6 +441,9 @@ namespace MuonGM {
     unsigned int m_n_tgcDE;
     // TODO: New Small Wheel
 
+    // pointers to the XxxDetectorElements (with granularity a la EDM)
+    std::vector<std::unique_ptr<const TgcReadoutParams> > m_TgcReadoutParamsVec;
+    
     MdtDetectorElement* m_mdtDEArray[MdtDetElMaxHash];
     RpcDetectorElement* m_rpcDEArray[RpcDetElMaxHash];
     TgcDetectorElement* m_tgcDEArray[TgcDetElMaxHash];

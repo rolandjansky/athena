@@ -107,7 +107,7 @@ class trfReport(object):
             print(pprint.pformat(machineReport().python(fast = fast)), file=report)
 
     def writeGPickleReport(self, filename, fast = False):
-        with open(filename, 'w') as report:
+        with open(filename, 'wb') as report:
             pickle.dump(self.classicPython(fast = fast), report)
 
     def writeClassicXMLReport(self, filename, fast = False):

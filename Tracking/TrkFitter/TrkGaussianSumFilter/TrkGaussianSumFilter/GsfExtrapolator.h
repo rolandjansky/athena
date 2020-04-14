@@ -33,7 +33,6 @@ AlgTool inheriting from the IMultiStateExtrapolator class
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -152,8 +151,9 @@ private:
                                                      //!< at a boundary of tracking volumes
     std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> m_matstates;
     std::vector<std::unique_ptr<const MultiComponentState>>
-      m_mcsGarbageBin;                                                  //!< Garbage bin for MultiComponentState objects
-    std::vector<std::unique_ptr<const TrackParameters>> m_tpGarbageBin; //!< Garbage bin for TrackParameter objects
+      m_mcsGarbageBin; //!< Garbage bin for MultiComponentState objects
+    std::vector<std::unique_ptr<const TrackParameters>>
+      m_tpGarbageBin; //!< Garbage bin for TrackParameter objects
 
     Cache()
       : m_recall(false)
@@ -168,20 +168,22 @@ private:
   };
 
   /** These are the methods that do the actual heavy lifting when extrapolating with a cache */
-  std::unique_ptr<MultiComponentState> extrapolateImpl(Cache& cache,
-                                                       const IPropagator&,
-                                                       const MultiComponentState&,
-                                                       const Surface&,
-                                                       PropDirection direction = anyDirection,
-                                                       const BoundaryCheck& boundaryCheck = true,
-                                                       ParticleHypothesis particleHypothesis = nonInteracting) const;
+  std::unique_ptr<MultiComponentState> extrapolateImpl(
+    Cache& cache,
+    const IPropagator&,
+    const MultiComponentState&,
+    const Surface&,
+    PropDirection direction = anyDirection,
+    const BoundaryCheck& boundaryCheck = true,
+    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  std::unique_ptr<MultiComponentState> extrapolateImpl(Cache& cache,
-                                                       const MultiComponentState&,
-                                                       const Surface&,
-                                                       PropDirection direction = anyDirection,
-                                                       const BoundaryCheck& boundaryCheck = true,
-                                                       ParticleHypothesis particleHypothesis = nonInteracting) const;
+  std::unique_ptr<MultiComponentState> extrapolateImpl(
+    Cache& cache,
+    const MultiComponentState&,
+    const Surface&,
+    PropDirection direction = anyDirection,
+    const BoundaryCheck& boundaryCheck = true,
+    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Two primary private extrapolation methods
     - extrapolateToVolumeBoundary - extrapolates to the exit of the destination tracking volume
@@ -212,14 +214,15 @@ private:
   /** Additional private extrapolation methods */
 
   /** Layer stepping, stopping at the last layer before destination */
-  const MultiComponentState* extrapolateFromLayerToLayer(Cache& cache,
-                                                         const IPropagator&,
-                                                         const MultiComponentState&,
-                                                         const TrackingVolume&,
-                                                         const Layer* startLayer,
-                                                         const Layer* destinationLayer = nullptr,
-                                                         PropDirection direction = anyDirection,
-                                                         ParticleHypothesis particleHypothesis = nonInteracting) const;
+  std::unique_ptr<MultiComponentState> extrapolateFromLayerToLayer(
+    Cache& cache,
+    const IPropagator&,
+    const MultiComponentState&,
+    const TrackingVolume&,
+    const Layer* startLayer,
+    const Layer* destinationLayer = nullptr,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Single extrapolation step to an intermediate layer */
   std::unique_ptr<Trk::MultiComponentState> extrapolateToIntermediateLayer(
@@ -279,7 +282,10 @@ private:
                             PropDirection direction) const;
 
   /** Method to set the recall information */
-  void setRecallInformation(Cache& cache, const Surface&, const Layer&, const TrackingVolume&) const;
+  void setRecallInformation(Cache& cache,
+                            const Surface&,
+                            const Layer&,
+                            const TrackingVolume&) const;
 
   /** Method to reset the recall information */
   void resetRecallInformation(Cache& cache) const;
@@ -320,10 +326,12 @@ private:
     "Trk::GsfMaterialMixtureConvolution/GsfMaterialMixtureConvolution",
     ""
   };
-  ToolHandle<IMultipleScatteringUpdator> m_msupdators{ this,
-                                                       "MultipleScatteringUpdator",
-                                                       "Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",
-                                                       "" };
+  ToolHandle<IMultipleScatteringUpdator> m_msupdators{
+    this,
+    "MultipleScatteringUpdator",
+    "Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",
+    ""
+  };
   ToolHandle<IEnergyLossUpdator> m_elossupdators{ this,
                                                   "EnergyLossUpdator",
                                                   "Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",
@@ -376,7 +384,8 @@ Trk::GsfExtrapolator::resetRecallInformation(Cache& cache) const
 }
 
 inline void
-Trk::GsfExtrapolator::throwIntoGarbageBin(Cache& cache, const Trk::MultiComponentState* garbage) const
+Trk::GsfExtrapolator::throwIntoGarbageBin(Cache& cache,
+                                          const Trk::MultiComponentState* garbage) const
 {
   if (garbage) {
     std::unique_ptr<const Trk::MultiComponentState> sink(garbage);

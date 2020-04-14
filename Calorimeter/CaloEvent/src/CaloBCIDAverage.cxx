@@ -5,7 +5,8 @@
 #include "CaloEvent/CaloBCIDAverage.h"
 
 
-CaloBCIDAverage::CaloBCIDAverage(const LArMCSym* mcSym, std::vector<float>&& data):
+CaloBCIDAverage::CaloBCIDAverage(const LArMCSym* mcSym,
+                                 CxxUtils::vec_aligned_vector<float>&& data):
   m_mcSym(mcSym),
   m_avg(std::move(data))
 {

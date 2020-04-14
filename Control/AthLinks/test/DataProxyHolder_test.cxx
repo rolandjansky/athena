@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthLinks/test/DataProxyHolder_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -25,7 +24,6 @@
 
 #include "SGTools/TestStore.h"
 #include "TestTools/expect_exception.h"
-#include "TestThinningSvc.icc"
 
 
 using namespace SGTest;
@@ -328,50 +326,6 @@ void test6 (SGTest::TestStore& store)
 }
 
 
-// thinning (old)
-void test6a (SGTest::TestStore& store)
-{
-  std::cout << "test6a\n";
-  TestThinningSvc svc;
-  SG::DataProxyHolder h1;
-  TestStore::sgkey_t sgkey = 0;
-  size_t index = 10;
-  
-  assert (h1.thin (sgkey, index, nullptr) == false);
-  assert (sgkey == 0);
-  assert (index == 10);
-
-  TestStore::sgkey_t sgkey_foo = store.stringToKey ("foo", fooclid);
-  sgkey = sgkey_foo;
-  assert (h1.thin (sgkey, index, nullptr) == false);
-  assert (sgkey == sgkey_foo);
-  assert (index == 10);
-
-  TestThinningSvc::instance (&svc, true);
-  assert (h1.thin (sgkey, index, nullptr) == false);
-  assert (sgkey == sgkey_foo);
-  assert (index == 10);
-
-  Foo* foo = new Foo(0);
-  store.record (foo, "foo");
-  h1.toTransient (sgkey);
-  assert (h1.thin (sgkey, index, nullptr) == false);
-  assert (sgkey == sgkey_foo);
-  assert (index == 10);
-
-  svc.remap (10, 12);
-  assert (h1.thin (sgkey, index, nullptr) == true);
-  assert (sgkey == sgkey_foo);
-  assert (index == 12);
-
-  svc.remap (20, IThinningSvc::RemovedIdx);
-  index = 20;
-  assert (h1.thin (sgkey, index, nullptr) == true);
-  assert (sgkey == 0);
-  assert (index == 0);
-}
-
-
 // converting ctor
 void test7 (SGTest::TestStore& store)
 {
@@ -436,7 +390,6 @@ int main ATLAS_NOT_THREAD_SAFE ()
   test4 (*store);
   test5 (*store);
   test6 (*store);
-  test6a (*store);
   test7 (*store);
   return 0;
 }
