@@ -24,7 +24,7 @@ namespace Monitored {
       return new HistogramFillerProfile( *this );
     }
 
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       if (m_monVariables.size() != 2) {
         return 0;
       }

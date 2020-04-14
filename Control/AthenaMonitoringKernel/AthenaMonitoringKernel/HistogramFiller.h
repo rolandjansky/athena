@@ -61,7 +61,7 @@ namespace Monitored {
      * @brief Method that actually fills the ROOT object
      * @return number of fills performed
      */
-    virtual unsigned fill() = 0;
+    virtual unsigned fill() const = 0;
 
 
     /**
@@ -101,12 +101,12 @@ namespace Monitored {
     
   protected:
     template <class H>
-    H* histogram() {
+    H* histogram() const {
       return static_cast<H*>(m_histogramProvider->histogram());
     }
 
     // convenience function to provide a function that interprets the cutmask
-    std::pair<size_t, std::function<bool(size_t)>> getCutMaskFunc() {
+    std::pair<size_t, std::function<bool(size_t)>> getCutMaskFunc() const {
       std::function<bool(size_t)> cutMaskValue = [] (size_t){ return true; }; // default is true
       size_t maskSize = 1;
       if ( m_monCutMask != nullptr ) {
@@ -136,7 +136,7 @@ namespace Monitored {
      * @param  m1,m...  IMonitoredVariable list to fill from
      */
     template<class H, typename W, typename C, typename M, typename ...Ms>
-    unsigned fill(W weight, C cut, const M& m1, const Ms&... m) {
+    unsigned fill(W weight, C cut, const M& m1, const Ms&... m) const {
       // Template magic: Recursively convert all M to std::vector
       if constexpr(std::is_same_v<M, Monitored::IMonitoredVariable>) {
         if (not m1.hasStringRepresentation())

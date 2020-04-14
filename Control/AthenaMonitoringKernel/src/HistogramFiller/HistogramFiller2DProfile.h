@@ -23,7 +23,7 @@ namespace Monitored {
     }
 
 
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       if (m_monVariables.size() != 3) {
         return 0;
       }

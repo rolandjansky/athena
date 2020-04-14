@@ -25,7 +25,7 @@ namespace Monitored {
       return new HistogramFiller2D( *this ); 
     }
     
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       if (ATH_UNLIKELY(m_monVariables.size() != 2)) return 0;
 
       const IMonitoredVariable& var1 = m_monVariables[0].get();
