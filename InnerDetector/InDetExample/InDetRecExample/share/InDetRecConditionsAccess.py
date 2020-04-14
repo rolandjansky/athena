@@ -441,13 +441,6 @@ if DetFlags.haveRIO.TRT_on():
       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className='CondAttrListCollection')
 
 
-    # Calibration DB Service
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-    InDetTRTCalDbSvc = TRT_CalDbSvc()
-    ServiceMgr += InDetTRTCalDbSvc
-    if(InDetFlags.doPrintConfigurables()):
-        printfunc (InDetTRTCalDbSvc)
-
 
     # Dead/Noisy Straw Lists
     if not conddb.folderRequested('/TRT/Cond/Status'):
@@ -508,13 +501,6 @@ if DetFlags.haveRIO.TRT_on():
     topSequence = AlgSequence()
     if DetFlags.simulate.any_on() or hasattr(topSequence,"OutputConditionsAlg"):
          useOldStyle = True
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc",
-                                                              isGEANT4 = useOldStyle)
-    ServiceMgr += InDetTRTStrawStatusSummarySvc
-    if (InDetFlags.doPrintConfigurables()):
-        printfunc (InDetTRTStrawStatusSummarySvc)
-    InDetTRTConditionsServices.append(InDetTRTStrawStatusSummarySvc)
 
     # Straw status tool
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool

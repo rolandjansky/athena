@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/RpcRoadDefiner.h"
@@ -28,29 +28,14 @@ TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
   declareInterface<TrigL2MuonSA::RpcRoadDefiner>(this);
 }
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::RpcRoadDefiner::~RpcRoadDefiner(void)
-{
-}
-
-
 // --------------------------------------------------------------------------------                  
 // --------------------------------------------------------------------------------                  
 
 StatusCode TrigL2MuonSA::RpcRoadDefiner::initialize()
 {
   ATH_MSG_DEBUG("Initializing RpcRoadDefiner - package version " << PACKAGE_VERSION) ;
-
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  //                                                                                                 
+  ATH_CHECK(AthAlgTool::initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -75,11 +60,9 @@ void TrigL2MuonSA::RpcRoadDefiner::setRpcGeometry(bool use_rpc)
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::RpcRoadDefiner::setMdtGeometry( const ServiceHandle<IRegSelSvc>& regionSelector, 
-                                                   const Muon::MuonIdHelperTool* muonIdHelperTool)
+void TrigL2MuonSA::RpcRoadDefiner::setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector)
 {
   m_regionSelector = regionSelector;
-  m_muonIdHelperTool = muonIdHelperTool;
 }
 
 // --------------------------------------------------------------------------------
@@ -181,7 +164,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   std::vector<IdentifierHash> mdtHashList;
   
   // get sector_trigger and sector_overlap by using the region selector
-  IdContext context = m_muonIdHelperTool->mdtIdHelper().module_context();
+  IdContext context = m_idHelperSvc->mdtIdHelper().module_context();
   
   double etaMin =  p_roi->eta()-.02;
   double etaMax =  p_roi->eta()+.02;
@@ -202,14 +185,13 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   for(int i_hash=0; i_hash < (int)mdtHashList.size(); i_hash++){
     
     Identifier id;
-    int convert = m_muonIdHelperTool->mdtIdHelper().get_id(mdtHashList[i_hash], id, &context);
-    //	int convert = m_muonIdHelperTool->mdtIdHelper().get_id(mdtHashList[i_hash], id);
+    int convert = m_idHelperSvc->mdtIdHelper().get_id(mdtHashList[i_hash], id, &context);
 
     if(convert!=0) ATH_MSG_ERROR("problem converting hash list to id");
     
     muonRoad.stationList.push_back(id);
-    int stationPhi = m_muonIdHelperTool->mdtIdHelper().stationPhi(id);
-    std::string name = m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(id));
+    int stationPhi = m_idHelperSvc->mdtIdHelper().stationPhi(id);
+    std::string name = m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id));
     
     if ( name[1]=='M' && name[2]=='E' ) continue;//exclude BME
     if ( name[1]=='M' && name[2]=='G' ) continue;//exclude BMG
@@ -280,8 +262,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::finalize()
 
   if (m_roadData) delete m_roadData;
 
-  StatusCode sc = AthAlgTool::finalize();
-  return sc;
+  return AthAlgTool::finalize();
 }
 
 // --------------------------------------------------------------------------------                  

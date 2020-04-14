@@ -72,7 +72,7 @@ class DCubeLogger( object ):
     # @param fileName name of log file 
     # @param logName name of logger
     # @param toConsole flag to trigger stdout printout
-    def __init__( self, fileName=None, logName="DCube", toConsole=True ):
+    def __init__( self, fileName=None, logName="DCube", toConsole=True, verbosity=1 ):
                 
         if ( fileName == None ): fileName = self.__defaultLogFile
 
@@ -83,7 +83,7 @@ class DCubeLogger( object ):
                              filename=fileName,
                              filemode='w' )
           
-        self.toConsole( toConsole )
+        self.toConsole( toConsole, verbosity )
         
         self.__log = logging.getLogger( str(logName) )
 
@@ -123,12 +123,12 @@ class DCubeLogger( object ):
     # @param cls class reference
     # @param toConsole bool flag [default True]
     @classmethod
-    def toConsole( cls, toConsole=True):
+    def toConsole( cls, toConsole=True, verbosity=1 ):
         if ( toConsole ):
 
             if ( not isinstance(cls.__console, logging.StreamHandler)  ):
                 cls.__console = logging.StreamHandler()
-                cls.__console.setLevel(logging.DEBUG)
+                cls.__console.setLevel(verbosity*10)
                 formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
                 cls.__console.setFormatter(formatter)
 
@@ -153,6 +153,23 @@ class DCubeLogger( object ):
     @classmethod
     def info( cls, msg ):
         cls.__log.info( msg )
+
+    ## 
+    # @brief info level logger, but always print (if verbosity<=2)
+    # @param cls class reference
+    # @param msg message to log
+    @classmethod
+    def infoExtra( cls, lines, verbosity=2 ):
+        oldlevel = None
+        if ( isinstance(cls.__console, logging.StreamHandler)  ):
+            oldlevel = cls.__console.level
+            cls.__console.setLevel(verbosity*10)
+
+        for msg in lines:
+            cls.__log.info( str(msg) )
+
+        if oldlevel is not None:
+            cls.__console.setLevel(oldlevel)
 
     ## 
     # @brief warning level logger 
@@ -220,54 +237,64 @@ class DCubeObject( DCubeLogger ):
     # @param self "Me, myself and Irene"
     # @param msg logging string
     def debug( self, msg ):
-        if ( self.__log ):
+        try:
             self.__log.getLogger(self).debug( str(msg) )
-        else:
-            print(msg)
+        except AttributeError:
+            pass
 
     ## info level logger
     # @param self "Me, myself and Irene"
     # @param msg logging string
     def info( self, msg  ):
-        if ( self.__log ):
+        try:
             self.__log.getLogger(self).info( str(msg) )
-        else:
-            print(msg)
-        
+        except AttributeError:
+            pass
+
+    ## info level logger, but always print (if verbosity<=2)
+    # @param self "Me, myself and Irene"
+    # @param lines list of logging strings
+    def infoExtra( self, lines, verbose=2  ):
+        try:
+            self.__log.getLogger(self).infoExtra( lines, verbose )
+        except AttributeError:
+            for msg in lines:
+                print( str(msg) )
+
     ## warning level logger
     # @param self "Me, myself and Irene"
     # @param msg logging string
     def warn( self, msg ):
-        if ( self.__log ):
+        try:
             self.__log.getLogger(self).warn( str(msg) )
-        else:
+        except AttributeError:
             print(msg)
     
     ## error level logger
     # @param self "Me, myself and Irene"
     # @param msg logging string
     def error( self, msg ):
-        if ( self.__log ):
+        try:
             self.__log.getLogger(self).error( str(msg) )
-        else:
+        except AttributeError:
             print(msg)
 
     ## critical level logger
     # @param self "Me, myself and Irene"
     # @param msg logging string
     def panic( self, msg ):
-        if ( self.__log ):
+        try:
             self.__log.getLogger(self).critical( str(msg) )
-        else:
+        except AttributeError:
             print(msg)
 
     ## exception level logger
     # @param self "Me, myself and Irene"
     # @param msg logging string
     def epanic( self, msg ):
-        if ( self.__log ):
+        try:
             self.__log.getLogger(self).epanic( str(msg) )
-        else:
+        except AttributeError:
             print(msg)
 
 
@@ -278,7 +305,7 @@ class DCubeObject( DCubeLogger ):
 class DCubeVersion( object ):
 
     __project = "DCube"
-    __version = "4.6692016 ($Rev: 217525 $ $Date$)"
+    __version = "5.0"
     __author = "Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)"
           
     ## str operator

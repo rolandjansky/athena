@@ -26,20 +26,6 @@ class DCubePHPWriter( DCubeObject ):
     def __init__( self, parsed ):
         super( DCubePHPWriter, self ).__init__( self )
         self.opts, self.args = parsed
-
-        self.server = self.opts.server
-        if ( not os.path.isdir( self.server ) ):
-            self.server = os.path.dirname( self.server )
-
-        self.debug( "server %s" % self.server )
-        self.debug( "output %s" % os.path.dirname( os.path.abspath( self.opts.output ) ) )
-
-        #self.server = self.__relpath( self.server, os.path.dirname(self.opts.output ) ) 
-
-        #if ( self.server == "..") : self.server = "../"
-        #self.server = "./" + self.server
-        #self.info( "server relative path %s" % self.server )
-
         
 
     ## give relative path between target and base
@@ -110,7 +96,7 @@ class DCubePHPWriter( DCubeObject ):
     # @param self "Me, myself and Irene"
     def __bodyPHP( self ):
         out  = "/* ADD TO include_path TO LOCAL INSTALLATION OF DCUBE PHP PART */\n"
-        out += "$where = \"%s\";\n" % self.server
+        out += "$where = \"DCubeServer\";\n"
         out += "set_include_path($where);\n";
         out += "require \"dcube.php\";\n\n";
  
@@ -123,7 +109,7 @@ class DCubePHPWriter( DCubeObject ):
     # @param self "Me, myself and Irene"
     def __bodyLOG( self ):
         out  = "/* ADD TO include_path TO LOCAL INSTALLATION OF DCUBE PHP PART */\n";
-        out += "$where = \"%s\";\n" % self.server
+        out += "$where = \"DCubeServer\";\n"
         out += "set_include_path($where);\n"
         out += "require \"rw.php\";\n\n"
         out += "$log_file = \"%s\";\n" % os.path.basename(self.opts.log)

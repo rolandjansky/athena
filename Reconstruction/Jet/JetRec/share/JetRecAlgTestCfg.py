@@ -58,7 +58,6 @@ def JetInputCfg(ConfigFlags):
     import cppyy
     cppyy.loadDictionary('xAODBaseObjectTypeDict')
     from ROOT import xAODType
-    xAODType.ObjectType
 
     # Apply some corrections to the topoclusters
     # Example with property assignments

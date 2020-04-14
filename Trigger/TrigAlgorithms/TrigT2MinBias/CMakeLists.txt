@@ -30,7 +30,8 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigTools/TrigTimeAlgs
                           Event/xAOD/xAODTrigger
-                          Control/AthenaMonitoringKernel )
+                          Control/AthenaMonitoringKernel
+                          Control/AthViews )
 
 # External dependencies:
 find_package( tdaq-common )
@@ -39,7 +40,8 @@ find_package( tdaq-common )
 atlas_add_component( TrigT2MinBias
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} DecisionHandlingLib xAODTrigger xAODTrigMinBias ZdcEvent GaudiKernel TileEvent TrigT2CaloCommonLib TrigCaloEvent TrigInDetEvent TrigInterfacesLib IRegionSelector xAODEventInfo ZdcConditions ZdcIdentifier InDetIdentifier InDetRawData InDetPrepRawData TileIdentifier TrkSpacePoint TrigSteeringEvent TrigTimeAlgsLib TrigCompositeUtilsLib)
+
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} DecisionHandlingLib xAODTrigger xAODTrigMinBias ZdcEvent GaudiKernel TileEvent TrigT2CaloCommonLib TrigCaloEvent TrigInDetEvent TrigInterfacesLib IRegionSelector xAODEventInfo ZdcConditions ZdcIdentifier InDetIdentifier InDetRawData InDetPrepRawData TileIdentifier TrkSpacePoint TrigSteeringEvent TrigTimeAlgsLib AthViews TrigCompositeUtilsLib)
 
 
 # Install files from the package:

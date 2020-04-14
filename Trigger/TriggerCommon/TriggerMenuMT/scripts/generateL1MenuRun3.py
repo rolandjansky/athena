@@ -48,6 +48,13 @@ def generateL1Menu(menu, cmdline):
     return l1cfg.l1menu
 
 
+def generateDefaultMCBunchgroupSet(cmdline):
+    from TriggerMenuMT.L1.Base.BunchGroupSet import createMCDefaultBunchGroupSet
+    bgs = createMCDefaultBunchGroupSet()
+    bgs.writeJSON( outputFile = "L1BunchGroupSet.json", destdir = cmdline.dest)
+    
+
+
 def main():
 
 
@@ -76,6 +83,8 @@ def main():
             menu = [menu]
         for m in menu:
             generateL1Menu(menu=m, cmdline=cmdline)
+    elif cmdline.menu.lower() == "bgrp":
+        generateDefaultMCBunchgroupSet(cmdline=cmdline)
     else:
         generateL1Menu(menu=cmdline.menu, cmdline=cmdline)
 

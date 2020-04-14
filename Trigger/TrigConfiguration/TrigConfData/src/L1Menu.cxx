@@ -318,6 +318,5 @@ TrigConf::L1Menu::printMenu(bool full) const
    ctpinputs += data().get_child("ctp.inputs.ctpin.slot8").size();
    ctpinputs += data().get_child("ctp.inputs.ctpin.slot9").size();
    cout << "CTP connections: " << ctpinputs << endl;
-   cout << "The L1Menu " << (ownsData() ? "owns" : "does not own") << " the ptree" << endl;
 }
 

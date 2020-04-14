@@ -6,7 +6,7 @@
 # @author Krzysztof Danile Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
 # @brief implementation of DCubeOptParser
 
-import sys
+import sys,os,re
 import optparse
 from DCubeUtils import DCubeObject, DCubeLogger, DCubeSingleton, DCubeVersion
 from DCubeValid import DCubeValid
@@ -29,7 +29,7 @@ class DCubeOptParser( object ):
     def __init__( self  ):
 
 
-        self.valid = DCubeValid()
+        self.valid = None
 
         today = "today"
         try:
@@ -43,6 +43,25 @@ class DCubeOptParser( object ):
         self.__version = DCubeVersion()
         self.__par = optparse.OptionParser( usage=usage, version=self.__version.version() )
 
+        self.__par.add_option( "-v",
+                               "--verbose",
+                               action="callback",
+                               callback=self.verbose_callback,
+                               dest="verbosity",
+                               help="more verbose console output (INFO level). -vv for DEBUG. Log file always shows full detail. [default WARNING]")
+
+        self.__par.add_option( "-q",
+                               "--quiet",
+                               action="count",
+                               dest="verbosity",
+                               help="less verbose console output (ERROR level). -qq for CRITICAL, -qqq for no console output.")
+
+        self.__par.add_option( "--checkKnown",
+                               action="callback",
+                               callback=self.checkKnown_callback,
+                               dest="checkKnown",
+                               help="check following options have only known values")
+
         self.__par.add_option( "-r",
                                "--reference", 
                                action="store", 
@@ -53,10 +72,11 @@ class DCubeOptParser( object ):
 
         self.__par.add_option( "-x", 
                                "--xml",
+                               "--output",
                                action="store",
                                dest="output",
                                metavar="OUTPUTXML",
-                               help="XML output file" )
+                               help="output directory or XML file name" )
 
         self.__par.add_option( "-c", 
                                "--config",
@@ -70,7 +90,7 @@ class DCubeOptParser( object ):
                                type="string",
                                dest="log",
                                metavar="LOGNAME",
-                               help="log file [default %default]" )
+                               help="log file [default 'dcube.log' in output (-x) directory]" )
 
         self.__par.add_option( "-t",
                                "--tests",
@@ -102,7 +122,7 @@ class DCubeOptParser( object ):
                                callback=self.isodate_callback,
                                dest="isodate",
                                metavar="YYYY-MM-DD",
-                               help="date of run in ISO format [default %default]")
+                               help="date of run in ISO format [default '%default']")
 
         self.__par.add_option( "-s", 
                                "--server",
@@ -116,33 +136,34 @@ class DCubeOptParser( object ):
                                action="callback",
                                callback=self.branch_callback,
                                dest="branch",
-                               help="branch name [default %default]" )
+                               help="branch name [default '%default']" )
 
         self.__par.add_option( "--cmtconfig",
                                type="string",
                                action="callback",
                                callback=self.cmtconfig_callback,
                                dest="cmtconfig",
-                               help="CMTCONFIG name [default %default]" )
+                               help="CMTCONFIG name [default '%default']" )
         
-        self.__par.add_option( "--install",
+        self.__par.add_option( "--release",
+                               "--install",
                                type="string",
                                action="callback",
                                callback=self.install_callback,
                                dest="install",
-                               help="install name [default %default]" )
+                               help="release or install name [default '%default']" )
 
         self.__par.add_option( "--project",
                                type="string",
                                action="callback",
                                callback=self.project_callback,
                                dest="project",
-                               help="project name [default %default]" )
+                               help="project name [default '%default']" )
 
         self.__par.add_option( "--jobId",
                                type="string",
                                dest="jobId",
-                               help="job identification name [default %default]")
+                               help="job identification name [default '%default']")
 
         self.__par.add_option( "-g",
                                "--generate",
@@ -168,23 +189,25 @@ class DCubeOptParser( object ):
                                dest="useVarNameForPlotName",
                                help="Name output plots after the variable they contain [default: use a generated UUID as name]")
 
-        self.__par.set_defaults( pwarn=0.95,
+        self.__par.add_option( "--flat",
+                               action="store_true",
+                               dest="flat",
+                               help="generate XML config with flat structure in a single <TDirectory>, specifying path with 'mon' attributes [default: generate hierarchical structure]")
+
+        self.__par.set_defaults( verbosity=3,
+                                 checkKnown=False,
+                                 pwarn=0.95,
                                  pfail=0.75, 
                                  config="dcube_config.xml",
                                  output="",
-                                 log="./dcube.log",
+                                 log="",
                                  tests=["KS", "meany"],
                                  isodate=today,
                                  server="",
-                                 branch="*",
-                                 cmtconfig="*",
-                                 install="*",
-                                 project="*",
-                                 jobId="*",
                                  generate=False,
                                  makeplots=False,
                                  useVarNameForPlotName=False,
-                                 root2null=False)
+                                 flat=False)
 
 
 
@@ -210,21 +233,60 @@ class DCubeOptParser( object ):
     # @return tuple ( argumenst, optparse.Values )
     def parse( self, args = sys.argv[1:] ):
 
-        args, opts = self.__par.parse_args( args )
-        
-        #if ( args.generate and not args.reference ):
+        opts, args = self.__par.parse_args( args )
+
+        if opts.generate:
+            defaults = {
+                "branch":    "*",
+                "cmtconfig": "*",
+                "install":   "*",
+                "project":   "*",
+                "jobId":     "*",
+                }
+        else:
+            defaults = {
+                "branch":    os.environ.get("AtlasBuildBranch","*"),
+                "cmtconfig": os.environ.get("CMTCONFIG","*"),
+                "install":   (os.environ.get("AtlasBuildStamp" if os.environ.get("AtlasReleaseType","")=="nightly" else "AtlasVersion","*")),
+                "project":   os.environ.get("AtlasProject","*"),
+                "jobId":     re.sub(r"^test_",r"",re.sub(r"\.\w+$","",os.environ.get("ArtJobName","*"))),
+                }
+        for o,v in defaults.items():
+            if getattr( opts, o, None ) is None:
+                setattr( opts, o, v )
+
+        #if ( opts.generate and not opts.reference ):
         #    print "can't generate DCube config, reference root file not set (use -r, --reference)"
         #    self.usage()
         #    sys.exit(0)
-        #if ( ( args.config and not args.generate ) and len(opts) < 2 ):
+        #if ( ( opts.config and not opts.generate ) and len(args) < 2 ):
         #    self.usage()
         #    sys.exit(0)
         
-        return ( args, opts )
+        return ( opts, args )
         
 
 
     ##
+    # @param self "Me, myself and Irene"
+    # @param option option name
+    # @param opt_str option long name
+    # @param value returned value
+    # @param parser OptParser instance
+    def checkKnown_callback( self, option , opt_str, value, parser ):
+        self.valid = DCubeValid()
+        parser.values.checkKnown= True
+
+    ##
+    # @param self "Me, myself and Irene"
+    # @param option option name
+    # @param opt_str option long name
+    # @param value returned value
+    # @param parser OptParser instance
+    def verbose_callback( self, option , opt_str, value, parser ):
+        parser.values.verbosity -= 1
+
+   ##
     # @param self "Me, myself and Irene"
     # @param option option name
     # @param opt_str option long name
@@ -347,7 +409,7 @@ class DCubeOptParser( object ):
     # @param value option value
     # @param parser OptParser instance
     def branch_callback(  self, option, opt_str, value, parser ):
-        if ( "*" not in value ):
+        if ( self.valid and "*" not in value ):
             found = False
             for k, v in self.valid.branches().items():
                 if ( v.match( value ) ): 
@@ -365,7 +427,7 @@ class DCubeOptParser( object ):
     # @param value option value
     # @param parser OptParser instance
     def install_callback(  self, option, opt_str, value, parser ):    
-        if ( "*" not in value ):
+        if ( self.valid and "*" not in value ):
             if ( value not in self.valid.installs() ):
                 print(self.valid.listInstalls())
                 raise optparse.OptionValueError("invalid %s option value '%s'" % (option, value) ) 
@@ -379,7 +441,7 @@ class DCubeOptParser( object ):
     # @param value option value
     # @param parser OptParser instance
     def cmtconfig_callback(  self, option, opt_str, value, parser ):    
-        if ( "*" not in value ):
+        if ( self.valid and "*" not in value ):
             if ( value not in self.valid.cmtconfigs() ):
                 print(self.valid.listCmtconfigs())
                 raise optparse.OptionValueError("invalid %s option value '%s'" % (option, value) ) 
@@ -392,7 +454,7 @@ class DCubeOptParser( object ):
     # @param value option value
     # @param parser OptParser instance
     def project_callback(  self, option, opt_str, value, parser ):    
-        if ( "*" not in value ):
+        if ( self.valid and "*" not in value ):
             if ( value not in self.valid.projects() ):
                 print(self.valid.listProjects())
                 raise optparse.OptionValueError("invalid %s option value '%s'" % (option, value)  ) 

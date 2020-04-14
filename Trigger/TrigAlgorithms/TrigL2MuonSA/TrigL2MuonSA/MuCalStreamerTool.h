@@ -15,9 +15,7 @@
 #include "TrigL2MuonSA/TrackData.h"
 
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-// #include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "RegionSelector/IRegSelSvc.h"
@@ -115,8 +113,6 @@ namespace TrigL2MuonSA {
     // the region selector
     ServiceHandle<IRegSelSvc>  m_regionSelector;
 
-    // const IRPCcablingSvc* m_rpcCabling;
-    // const CablingRPCBase* m_rpcCablingSvc;
     SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
     // ROB DataProvider

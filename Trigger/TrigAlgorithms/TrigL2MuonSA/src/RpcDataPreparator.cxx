@@ -53,15 +53,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding }) );
    ATH_MSG_DEBUG("Retrieved Tool " << m_rawDataProviderTool);
 
-   // ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
-   // ATH_CHECK( RpcCabGet.retrieve() ); 
-   // ATH_CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
-   // m_rpcCablingSvc = m_rpcCabling->getRPCCabling();
-   // if ( !m_rpcCablingSvc ) {
-   //   ATH_MSG_ERROR("Could not retrieve the RPC cabling svc");
-   //   return StatusCode::FAILURE;
-   // }
-
    ATH_CHECK(m_readKey.initialize());
    ATH_CHECK(m_rpcPrepContainerKey.initialize());
 
@@ -105,11 +96,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
   SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
   const RpcCablingCondData* readCdo{*readHandle};
   unsigned int padIdHash;
-
-  // unsigned int logic_sector;
-  // unsigned short int PADId;
-  // if ( !m_rpcCablingSvc->give_PAD_address( side, sector, roiNumber, logic_sector, PADId, padIdHash) ) {
-
   if ( !readCdo->give_PAD_address( side, sector, roiNumber, padIdHash) ) {
     ATH_MSG_WARNING("Roi Number: " << roiNumber << " not compatible with side, sector: "
         << side <<  " " << sector << " (padIdHash=" << padIdHash << ")");

@@ -206,8 +206,7 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
 	m_tiledecoder->loadRw2Cell (i,m_tilecell->Rw2CellMap (i));
 	m_tiledecoder->loadRw2Pmt  (i,m_tilecell->Rw2PmtMap  (i));
 	}
-	m_tiledecoder->loadMBTS_Ptr(m_tilecell->MBTS_collection(),
-		m_tilecell->MBTS_map(), m_tilecell->MBTS_channel() );
+	m_tiledecoder->loadMBTS(m_tilecell->MBTS_map(), m_tilecell->MBTS_channel() );
 	// ROD Address for MBTS
         m_mbts_rods = m_tilecell->MBTS_RODs();
 	// unique set
@@ -637,6 +636,7 @@ StatusCode TrigDataAccess::LoadCollections (
         // Resets error flag
         m_error=0;
 	m_robFrags.clear();
+        TileCellCollection* mbts = m_tilecell->MBTS_collection();
 
 	int i = sample;
 	Begin=End;
@@ -670,7 +670,7 @@ StatusCode TrigDataAccess::LoadCollections (
                   End = col->end();
 		} else  {// End of if small size
 		if ( !m_tilecell->cached(m_rIds[i]))
-                  m_error|=m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells);
+                  m_error|=m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells,mbts);
 		m_tiledecoder->mergeD0cellsHLT(m_d0cells,*col);
 		// Accumulates superior byte from ROD Decoder
                 Begin = col->begin();
@@ -732,7 +732,7 @@ StatusCode TrigDataAccess::LoadMBTS (
 		  //return StatusCode::SUCCESS;
                 } // End of if small size
 		if ( !m_tilecell->cached((*ids)[i]))
-                m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells);
+                  m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells,mbts);
                 }
                 m_robFrags.clear();
 
@@ -968,6 +968,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
 	// Resets error flag
         m_error=0;
         m_robFrags.clear();
+        TileCellCollection* mbts = m_tilecell->MBTS_collection();
 
         if ( sample == 0 ) { 
             m_robDataProvider->addROBData( m_alltile ); 
@@ -1005,7 +1006,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
 		  //return StatusCode::SUCCESS;
                 } else {// End of if small size
 		if ( !m_tilecell->cached(m_rIdstile[i]))
-                m_error|=m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells);
+                  m_error|=m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells,mbts);
                 m_tiledecoder->mergeD0cellsHLT(m_d0cells,*col);
                 Begin = col->begin();
                 End = col->end();
@@ -1272,6 +1273,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
 
         m_error=0;
         m_robFrags.clear();
+        TileCellCollection* mbts = m_tilecell->MBTS_collection();
 
         int tilefullcont = TileFullContSize();
         for(int i=0;i<tilefullcont;i++){
@@ -1299,7 +1301,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
 		  continue;
                 } // End of if small size
                 if ( !m_tilecell->cached(m_rIdstile[i]))
-                m_error|=m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells);
+                  m_error|=m_tiledecoder->fillCollectionHLT(m_robFrags[0],*col,m_d0cells,mbts);
                 m_tiledecoder->mergeD0cellsHLT(m_d0cells,*col);
                 m_robFrags.clear();
                 } 
