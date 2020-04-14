@@ -152,13 +152,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
             from AthenaCommon.GlobalFlags import globalflags
             #Only add raw data decoders if we're running over raw data
             if globalflags.InputFormat.is_bytestream():
-                from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-                InDetTRTCalDbSvc = TRT_CalDbSvc()
-                ServiceMgr += InDetTRTCalDbSvc
              
-                from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-                InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "%sStrawStatusSummarySvc%s"%(algNamePrefix,signature))
-                ServiceMgr += InDetTRTStrawStatusSummarySvc
              
                 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
                 InDetTRTRodDecoder = TRT_RodDecoder(name = "%sTRTRodDecoder%s" %(algNamePrefix, signature),
