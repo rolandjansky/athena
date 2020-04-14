@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigNavTools_TrigNavigationThinningSvc_h
@@ -10,7 +10,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IThinningSvc.h"
-#include "TrigNavTools/ITrigNavigationThinningSvc.h"
+#include "AthenaKernel/ITrigNavigationThinningSvc.h"
 #include "TrigNavTools/TrigNavigationSlimmingTool.h"
 
 
@@ -25,10 +25,11 @@ public:
   virtual StatusCode finalize() override;
   virtual StatusCode queryInterface(const InterfaceID& rrid, void** ppvInterface) override; 
   
-  // specifics of ITrigNavigationThinningSvc
+  // specifics of ITrigNavigationThinning
 
-  virtual StatusCode doSlimming( std::vector<uint32_t>& slimmed_and_serialized ) override
- { return m_slimmingTool->doSlimming(slimmed_and_serialized);  }
+  virtual StatusCode doSlimming( const EventContext& /*ctx*/,
+                                 std::vector<uint32_t>& slimmed_and_serialized ) const override
+  { return m_slimmingTool->doSlimming(slimmed_and_serialized);  }
   
   // forwards of ThinningSvc
   virtual bool thinningOccurred() const override;
