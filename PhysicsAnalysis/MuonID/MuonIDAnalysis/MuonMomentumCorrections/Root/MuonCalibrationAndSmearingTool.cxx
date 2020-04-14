@@ -821,31 +821,33 @@ namespace CP {
         }
       }
 
-      double central= 45.2;
-      double width=15.5;
-      double sigmas=1.0;
-      double rho= m_useFixedRho ? m_fixedRho:0.0; 
+      double central(45.2), width(15.5), sigmas(1.0);
+      double rho = m_useFixedRho ? m_fixedRho : 0.0; 
+      double nom_central(central), nom_sigmas(sigmas), nom_rho(rho);
 
       bool isSystematic = (SystCase == MCAST::SagittaSysType::RHO);
 
       if(isSystematic ) {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
-        double denominator = (  muonInfo.ptcb  ) * std::sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
+        double denominator = muonInfo.ptcb * std::sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
         double res= denominator ? std::sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
 
         if(m_currentParameters->SagittaRho==MCAST::SystVariation::Up){
-          central=central + std::abs(0.5 * res  * central);
+          central=nom_central + std::abs(0.5 * res  * nom_central);
         }
         else if(m_currentParameters->SagittaRho==MCAST::SystVariation::Down){
-          central=central - std::abs(0.5 * res  * central);
+          central=nom_central - std::abs(0.5 * res  * nom_central);
         }
       }
       
       if(!m_useFixedRho){
-        sigmas=(std::abs(muonInfo.ptcb - central)/width);
-        rho= 1/sigmas;
-        if(sigmas <  1 ) rho=1;
+        sigmas = (std::abs(muonInfo.ptcb - central)/width);
+        nom_sigmas = (std::abs(muonInfo.ptcb - nom_central)/width);
+        rho = 1./sigmas;
+        nom_rho = 1./nom_sigmas;
+        if(sigmas < 1.) rho = 1.;
+        if(nom_sigmas < 1.) nom_rho = 1.;
       }
       
       // For standalone muons and Silicon associated fowrad do not use the combined
@@ -871,7 +873,7 @@ namespace CP {
         return CP::CorrectionCode::Ok;
       }
 
-      double origPt=muonInfo.ptcb;;
+      double origPt=muonInfo.ptcb;
       double ptCB=muonInfo.ptcb;
       double ptWeight=muonInfo.ptcb;
 
@@ -901,9 +903,11 @@ namespace CP {
         rho=m_fixedRho;
       }
       
-      muonInfo.ptcb = rho*ptCB + (1-rho)*ptWeight;
+      // Rescaling momentum to make sure it is consistent with nominal value
+      double nom_ptcb = nom_rho*ptCB + (1-nom_rho)*ptWeight;
+      double ptcb = rho*ptCB + (1-rho)*ptWeight;
+      muonInfo.ptcb = ptcb * origPt / nom_ptcb;
       
-      ATH_MSG_VERBOSE("Final pt "<<muonInfo.ptcb<<" "<<rho<<" * "<<ptCB<<" 1- rho "<<1-rho<<"  *  "<<ptWeight<<" sigmas "<<sigmas<<" (original pt: "<<origPt<<")");
       return CorrectionCode::Ok;
     }
     else{
