@@ -3,7 +3,7 @@
 
 from collections import OrderedDict
 from builtins import str
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,conf2toConfigurable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
@@ -279,7 +279,7 @@ def triggerOutputCfg(flags, decObj, decObjHypoOut, summaryAlg):
         # For now use old svcMgr interface as this service is not available from acc.getService()
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         hltEventLoopMgr = svcMgr.HltEventLoopMgr
-        hltEventLoopMgr.ResultMaker.MakerTools = acc.popPrivateTools()
+        hltEventLoopMgr.ResultMaker.MakerTools = [conf2toConfigurable(t) for t in acc.popPrivateTools()]
     elif offlineWriteBS:
         __log.info("Configuring offline ByteStream HLT output")
         acc = triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=True)
