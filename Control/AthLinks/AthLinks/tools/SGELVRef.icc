@@ -8,6 +8,7 @@
 #include <cassert>
 
 #include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/ThinningDecisionBase.h"
 #include "GaudiKernel/MsgStream.h"
 
 /* #define __ELVDEBUG */
@@ -111,6 +112,14 @@ SG::ELVRef<DOBJ>::toTransient
 
   // locate DataLink
   typename DataLinkVector::const_iterator iHost(owner.beginHostDObjs());
+
+  // handle thinned-away/null elements
+  if ( m_shortRef == SG::ThinningDecisionBase::RemovedIdx ||
+       !IndexingPolicy::isValid(m_index))
+  {
+    m_link = ElemLink();
+    return success;
+  }
 
   if (m_shortRef >= (unsigned)(owner.endHostDObjs() - iHost)) {
     MsgStream log(Athena::getMessageSvc(), "ElementLinkVector");
