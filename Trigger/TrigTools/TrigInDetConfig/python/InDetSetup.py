@@ -167,13 +167,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   sct_ReadCalibDataToolSetup.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ReadCalibDataToolSetup.getTool().getFullName())
 
-  if not athenaCommonFlags.isOnline():
-     from SCT_ConditionsTools.SCT_MonitorConditionsToolSetup import SCT_MonitorConditionsToolSetup
-     sct_MonitorConditionsToolSetup = SCT_MonitorConditionsToolSetup()
-     sct_MonitorConditionsToolSetup.setToolName("InDetSCT_MonitorConditionsTool" + signature)
-     sct_MonitorConditionsToolSetup.setup()
-     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_MonitorConditionsToolSetup.getTool().getFullName())
-
   from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
   sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
   sct_ByteStreamErrorsToolSetup.setToolName("InDetSCT_BSErrorTool" + signature)
@@ -181,15 +174,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   sct_ByteStreamErrorsToolSetup.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ByteStreamErrorsToolSetup.getTool().getFullName())     
 
-  if not athenaCommonFlags.isOnline():
-     from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
-     sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
-     sct_DCSConditionsToolSetup.setToolName("InDetSCT_DCSConditionsTool" + signature)
-     sct_DCSConditionsToolSetup.setup()
-     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_DCSConditionsToolSetup.getTool().getFullName())     
-
   if (InDetTrigFlags.doPrintConfigurables()):
-     print sct_ConditionsSummaryToolSetupWithoutFlagged 
+     print (InDetSCT_ConditionsSummaryToolWithoutFlagged)
 
   #
   # --- SCT_ClusteringTool
