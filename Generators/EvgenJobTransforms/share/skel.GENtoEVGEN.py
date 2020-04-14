@@ -79,7 +79,7 @@ if hasattr(runArgs, "inputGenConfFile"):
    raise RuntimeError("inputGenConfFile is invalid !! Gridpacks and config. files/links to be put into DSID directory ")
 
 if hasattr(runArgs, "inputGeneratorFile"):
-   evgenLog.info("inputGeneratorFile used " + inputGeneratorFile)
+   evgenLog.info("inputGeneratorFile used " + runArgs.inputGeneratorFile)
  
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
