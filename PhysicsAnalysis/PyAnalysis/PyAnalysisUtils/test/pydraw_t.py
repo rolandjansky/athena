@@ -810,6 +810,7 @@ import ROOT
 ROOT.gROOT.SetBatch (True)
 
 h1=ROOT.TH1F('hx','hx', 10, 0, 10)
+ROOT.TPad
 h1.Draw()
 p=ROOT.gPad
 p.SetPad('pad', 'pad', 0, 0.25, 0.5, 1)
