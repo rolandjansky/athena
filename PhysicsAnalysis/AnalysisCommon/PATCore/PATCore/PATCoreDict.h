@@ -19,7 +19,6 @@
 
 #include "PATCore/AcceptInfo.h"
 #include "PATCore/AcceptData.h"
-#include "PATCore/TSelectorToolBase.h"
 #include "PATCore/IAsgSelectionTool.h"
 
 #ifndef ROOTCORE
