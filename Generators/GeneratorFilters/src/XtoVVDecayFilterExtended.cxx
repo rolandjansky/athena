@@ -62,9 +62,7 @@ StatusCode XtoVVDecayFilterExtended::filterEvent() {
 	ATH_MSG_DEBUG(" Grand Parent is OK? " << isGrandParentOK);
         if (!isGrandParentOK) continue;
         ++nGoodParent;
-        HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-        HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
-        FindAncestor(firstChild, endChild, m_PDGParent, okPDGChild1, okPDGChild2);
+        FindAncestor((*pitr)->end_vertex(), m_PDGParent, okPDGChild1, okPDGChild2);
       }
     }
   }
@@ -137,16 +135,16 @@ HepMC::GenParticle*  XtoVVDecayFilterExtended::CheckGrandparent(HepMC::GenPartic
 }
 
 
-void XtoVVDecayFilterExtended::FindAncestor(const HepMC::GenVertex::particle_iterator &firstAncestor,
-                                    const HepMC::GenVertex::particle_iterator &endAncestor,
+void XtoVVDecayFilterExtended::FindAncestor(const HepMC::GenVertex * searchvertex,
                                     int targetPDGID, bool& okPDGChild1, bool& okPDGChild2) {
-  HepMC::GenVertex::particle_iterator thisAncestor = firstAncestor;
+  if (!searchvertex) return;
+  const HepMC::GenVertex::particles_out_const_iterator firstAncestor = searchvertex->particles_out_const_begin();
+  const HepMC::GenVertex::particles_out_const_iterator endAncestor = searchvertex->particles_out_const_end();
+  HepMC::GenVertex::particles_out_const_iterator thisAncestor = firstAncestor;
   for (; thisAncestor != endAncestor; ++thisAncestor){
     //ATH_MSG_DEBUG(" child " << (*thisAncestor)->pdg_id());
     if (abs((*thisAncestor)->pdg_id()) == targetPDGID) { //same particle as parent
-      HepMC::GenVertex::particle_iterator firstChild = (*thisAncestor)->end_vertex()->particles_begin(HepMC::children);
-      HepMC::GenVertex::particle_iterator endChild = (*thisAncestor)->end_vertex()->particles_end(HepMC::children);
-      FindAncestor(firstChild, endChild, targetPDGID, okPDGChild1, okPDGChild2);
+      FindAncestor((*thisAncestor)->end_vertex(), targetPDGID, okPDGChild1, okPDGChild2);
     } else {
       if (!okPDGChild1) {
         for (size_t i = 0; i < m_PDGChild1.size(); ++i) {

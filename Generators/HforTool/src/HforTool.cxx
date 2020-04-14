@@ -423,16 +423,12 @@ void HforTool::findHFQuarksHerwig
 
   // loop over all the final state b/c-quarks and find out where they come from
   // first loop over quarks flavours that were stored (b,c)
-  for ( auto ipdg = finalstate_q.begin() ;
-	ipdg != finalstate_q.end(); ipdg++ ) {
-    int apdg(ipdg->first) ;
+  for (auto ipdg: finalstate_q) {
+    int apdg(ipdg.first) ;
     ATH_MSG_DEBUG("looking for ancestors of pdg " << apdg);
 
     // second loop over the final state quarks
-    for ( auto
-	    ibcpart = (ipdg->second).begin() ;
-	  ibcpart != (ipdg->second).end(); ibcpart++ ) {
-      auto bcpart=*(ibcpart);
+    for ( auto bcpart: ipdg.second) {
       ATH_MSG_DEBUG("final state b/c " << *bcpart);
       HepMC::GenVertexPtr prodvtx(bcpart->production_vertex()) ;
       bool isMPI(false) ;
@@ -555,9 +551,8 @@ void HforTool::findHFQuarksPythia
   // first loop over quarks flavours that were stored (b,c)
   ATH_MSG_DEBUG("findHFQuarksPythia");
 
-  for ( auto ipdg = finalstate_q.begin() ;
-	ipdg != finalstate_q.end(); ipdg++ ) {
-    int apdg(ipdg->first) ;
+  for ( auto ipdg: finalstate_q) {
+    int apdg(ipdg.first) ;
     ATH_MSG_DEBUG("looking for ancestors of pdg " << apdg);
 
     // assume the Alpgen input (initial-state -> final-state) is completely
@@ -568,10 +563,7 @@ void HforTool::findHFQuarksPythia
     std::set<const HepMC::GenParticle*> PDFParton ;
 
     // loop over the stat=3 final state quarks
-    for ( auto ibcpart =
-	    (ipdg->second).begin() ;
-	  ibcpart != (ipdg->second).end(); ibcpart++ ) {
-      auto bcpart=*(ibcpart);
+    for ( auto bcpart: ipdg.second) {
       if ( bcpart->status() == 3 ) {
 	ATH_MSG_DEBUG("final state b/c (stat=3) " << *bcpart
 		      << ", m = " << bcpart->momentum().m() );
@@ -607,10 +599,7 @@ void HforTool::findHFQuarksPythia
     int nPDFPartons(PDFParton.size()) ;
 
     // loop over the other final state quarks
-    for ( auto ibcpart =
-	    (ipdg->second).begin() ;
-	  ibcpart != (ipdg->second).end(); ibcpart++ ) {
-      auto bcpart=*(ibcpart) ;
+    for ( auto bcpart: ipdg.second) {
       if ( bcpart->status() != 3 ) {
 	ATH_MSG_DEBUG("final state b/c " << *bcpart
 		      << ", m = " << bcpart->momentum().m() );
@@ -730,10 +719,9 @@ void HforTool::findHFQuarksPythia
 		// number of times this parton gets identified as ME or PDF
 		int nid(0) ;
 		// PDF parton
-		for ( auto ipdf =
-			PDFParton.begin(); ipdf != PDFParton.end(); ipdf++ ) {
-		  if ( (*ipdf)->production_vertex() == pvtx34 &&
-		       (*ipdf)->pdg_id() == -pdg ) {
+		for ( auto ipdf: PDFParton) {
+		  if ( ipdf->production_vertex() == pvtx34 &&
+		       ipdf->pdg_id() == -pdg ) {
 		    ATH_MSG_DEBUG("  -> PDF parton") ;
 		    nid += 1 ;
 		    m_Quarks_PDF[apdg].push_back( bcpart->momentum() ) ;
@@ -741,16 +729,15 @@ void HforTool::findHFQuarksPythia
 		} // loop over stat=3 PDF partons
 		// ME parton
 		bool isME(false) ;
-		for ( auto ime =
-			MEParton.begin(); !isME && ime != MEParton.end();ime++) {
-		  HepMC::GenVertexPtr mepvtx((*ime)->production_vertex()) ;
+		for ( auto ime:  MEParton) { if (isME) break;
+		  HepMC::GenVertex* mepvtx(ime->production_vertex()) ;
 		  // check the prod.vertices of the parents
 		  if ( mepvtx ) {
 		    HepMC::GenVertex::particle_iterator pin =
 		      mepvtx->particles_begin(HepMC::parents) ;
 		    for (; pin != mepvtx->particles_end(HepMC::parents); pin++) {
 		      if ( (*pin)->production_vertex() == pvtx34 &&
-			   (*ime)->pdg_id() == pdg ) {
+			   ime->pdg_id() == pdg ) {
 			ATH_MSG_DEBUG("  -> ME parton") ;
 			nid += 1 ;
 			isME = true ;
@@ -795,14 +782,13 @@ void HforTool::findHFQuarksPythia
 	ATH_MSG_WARNING("Mismatch in number of id-d PDF partons, apdg = "
 			<< apdg ) ;
 	ATH_MSG_DEBUG("PDF partons from ME:") ;
-	for ( auto ipdf =
-		PDFParton.begin(); ipdf != PDFParton.end(); ipdf++ ) {
-	  const HepMC::FourVector & mom((*ipdf)->momentum()) ;
+	for ( auto ipdf: PDFParton) {
+	  const HepMC::FourVector & mom(ipdf->momentum()) ;
 	  ATH_MSG_DEBUG(mom.px()<<", "<< mom.py()<<", "<<mom.pz()<<
 			"  pT = "<<mom.perp()/1000.<<", eta = "<<mom.eta()) ;
 	}
 	ATH_MSG_DEBUG("PDF partons identified:") ;
-	for ( auto iq =
+	for ( std::vector<HepMC::FourVector>::const_iterator iq =
 		m_Quarks_PDF[apdg].begin(); iq!=m_Quarks_PDF[apdg].end();iq++) {
 	  const HepMC::FourVector & mom((*iq)) ;
 	  ATH_MSG_DEBUG(mom.px()<<", "<< mom.py()<<", "<<mom.pz()<<
@@ -833,16 +819,12 @@ void HforTool::findHFQuarksUnknown
   // this doesn't really work for, eg, Sherpa with a c in the initial state
   // or a c and a b in the same event
   // first loop over quarks flavours that were stored (b,c)
-  for ( auto ipdg = finalstate_q.begin() ;
-	ipdg != finalstate_q.end(); ipdg++ ) {
-    int apdg(ipdg->first) ;
+  for ( auto ipdg: finalstate_q ) {
+    int apdg(ipdg.first) ;
     ATH_MSG_DEBUG("labeling final state partons with pdg " << apdg);
 
     // second loop over the final state quarks
-    for ( std::vector<const HepMC::GenParticle*>::const_iterator
-	    ibcpart = (ipdg->second).begin() ;
-	  ibcpart != (ipdg->second).end(); ibcpart++ ) {
-      auto bcpart=*(ibcpart);
+    for ( auto  bcpart: ipdg.second) {
       ATH_MSG_DEBUG("final state b/c " << *bcpart);
       // still filter out the b/c partons directly from a b/c/bhadron
       // or from top or W decay
