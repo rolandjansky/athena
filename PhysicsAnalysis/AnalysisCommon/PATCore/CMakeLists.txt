@@ -29,11 +29,18 @@ atlas_add_library( PATCoreLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AsgTools ${extra_libs} )
 
-# Only build the "Reflex dictionary" in the offline environment:
 atlas_add_dictionary( PATCoreDict
    PATCore/PATCoreDict.h
    PATCore/selection.xml
    LINK_LIBRARIES PATCoreLib )
+
+# second dictionary for Athena-only classes
+if( NOT XAOD_STANDALONE )
+   atlas_add_dictionary( PATCoreAthenaDict
+      PATCore/PATCoreAthenaDict.h
+      PATCore/selection_athena.xml
+      LINK_LIBRARIES PATCoreLib )
+endif ()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
