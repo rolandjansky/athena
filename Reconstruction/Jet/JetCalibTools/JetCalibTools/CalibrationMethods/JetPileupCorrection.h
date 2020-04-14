@@ -61,7 +61,7 @@ class JetPileupCorrection
   bool m_useFull4vectorArea;
   ResidualOffsetCorrection * m_residualOffsetCorr;
 
-  PUCorrection::PU3DCorrectionHelper *m_residual3DCorr=nullptr;
+  std::unique_ptr<PUCorrection::PU3DCorrectionHelper> m_residual3DCorr;
   
   bool m_doOnlyResidual;
   

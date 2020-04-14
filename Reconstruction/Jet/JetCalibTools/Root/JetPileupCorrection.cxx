@@ -38,7 +38,6 @@ JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config,
 JetPileupCorrection::~JetPileupCorrection() {
 
   if(m_residualOffsetCorr) delete m_residualOffsetCorr;
-  if(m_residual3DCorr) delete m_residual3DCorr;
 }
 
 
@@ -112,7 +111,7 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
   //ATH_MSG_INFO(" \n");
 
   if(m_do3Dcorrection){
-    m_residual3DCorr = new PUCorrection::PU3DCorrectionHelper();
+    m_residual3DCorr.reset( new PUCorrection::PU3DCorrectionHelper() ) ;
     m_residual3DCorr->loadParameters(m_config->GetValue("PU3DCorrection.constants", "pu3DResidualsConstants.root") );
     m_residual3DCorr->m_rhoEnergyScale = m_config->GetValue("PU3DCorrection.rhoEnergyScale", 0.001);
     m_residual3DCorr->m_pTEnergyScale = m_config->GetValue("PU3DCorrection.pTEnergyScale", 0.001);

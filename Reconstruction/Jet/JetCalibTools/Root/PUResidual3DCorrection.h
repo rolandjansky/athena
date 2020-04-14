@@ -27,8 +27,7 @@ namespace PUCorrection {
   struct PU3DCorrectionHelper {
 
     ~PU3DCorrectionHelper(){
-      if(m_inputFile) delete m_inputFile; // this should also delete all objects owned by this file (?)
-      if(m_etaBins) delete m_etaBins;
+      
     }
 
     /// Main function which returns the corrected pT
@@ -93,11 +92,11 @@ namespace PUCorrection {
 			const std::string &paramDelta_name = "paramDeltaPt",
 			const std::string &etaBins_name = "etaBins"
 			){
-      m_inputFile = new TFile(fileName.c_str() );
-      std::vector<float> * etaBins_v = (std::vector<float>*)m_inputFile->Get(etaBins_name.c_str());
+      TFile tmpF(fileName.c_str() );
+      std::vector<float> * etaBins_v = (std::vector<float>*)tmpF.Get(etaBins_name.c_str());
       std::vector<double> tmp(etaBins_v->begin(), etaBins_v->end() );
-      m_etaBins = new TAxis( tmp.size()-1, tmp.data() );
-      TList *param3D_l = (TList*) m_inputFile->Get(param3D_name.c_str());
+      m_etaBins.reset( new TAxis( tmp.size()-1, tmp.data() ) );
+      TList *param3D_l = (TList*) tmpF.Get(param3D_name.c_str());
 
       TList *param3D_p0 = (TList*) param3D_l->At(0);
       m_3Dp0_vs_muNPV.resize( param3D_p0->GetSize() );
@@ -111,16 +110,15 @@ namespace PUCorrection {
       }
 
       for(size_t i=0 ; i<(etaBins_v->size()-1); i++){
-	m_3Dp0_vs_muNPV[i] = (TH2D*)param3D_p0->At(i);
-	m_3Dp1_vs_muNPV[i] = (TH2D*)param3D_p1->At(i);
-	if(m_use3Dp2) m_3Dp2_vs_muNPV[i] = (TH2D*)param3D_p2->At(i);
+	m_3Dp0_vs_muNPV[i].reset((TH2D*)param3D_p0->At(i));
+	m_3Dp1_vs_muNPV[i].reset((TH2D*)param3D_p1->At(i));
+	if(m_use3Dp2) m_3Dp2_vs_muNPV[i].reset( (TH2D*)param3D_p2->At(i) );
       }
-      m_ref3DHisto = m_3Dp0_vs_muNPV[0];
+      m_ref3DHisto = m_3Dp0_vs_muNPV[0].get();
       
-      TList* paramDelta_l = (TList*) m_inputFile->Get(paramDelta_name.c_str());
-      m_Dptp0_vs_eta = (TH1F*) paramDelta_l->At(0);
-      m_Dptp1_vs_eta = (TH1F*) paramDelta_l->At(1);      
-
+      TList* paramDelta_l = (TList*) tmpF.Get(paramDelta_name.c_str());
+      m_Dptp0_vs_eta.reset( (TH1F*) paramDelta_l->At(0) );
+      m_Dptp1_vs_eta.reset( (TH1F*) paramDelta_l->At(1) ) ;      
       setupClosestNonEmptyBins();
     }
 
@@ -133,7 +131,7 @@ namespace PUCorrection {
       m_closestNonEmpty.resize( m_3Dp0_vs_muNPV.size() );
       for(size_t etabin=0;  etabin< m_closestNonEmpty.size() ;etabin++ ){
 
-	TH2D *refHisto =  m_3Dp0_vs_muNPV[etabin] ;
+	TH2D *refHisto =  m_3Dp0_vs_muNPV[etabin].get() ;
 	int nTot = refHisto->GetNcells();
 	TAxis * xax = refHisto->GetXaxis();
 	TAxis * yax = refHisto->GetYaxis();
@@ -174,19 +172,16 @@ namespace PUCorrection {
     // data members
     
     // 3D corrections parameters :
-    TAxis *m_etaBins = nullptr;
-    std::vector<TH2D*> m_3Dp0_vs_muNPV;
-    std::vector<TH2D*> m_3Dp1_vs_muNPV;
-    std::vector<TH2D*> m_3Dp2_vs_muNPV;
+    std::unique_ptr<TAxis> m_etaBins ;
+    std::vector<std::unique_ptr<TH2D> > m_3Dp0_vs_muNPV;
+    std::vector<std::unique_ptr<TH2D> > m_3Dp1_vs_muNPV;
+    std::vector<std::unique_ptr<TH2D> > m_3Dp2_vs_muNPV;
     TH2D* m_ref3DHisto = nullptr;
     bool m_use3Dp2=true;
 
     // DeltaPt corrections parameters :
-    TH1F* m_Dptp0_vs_eta=nullptr;
-    TH1F* m_Dptp1_vs_eta=nullptr;
-
-    // keep a pointer to the file from which we read constants from.
-    TFile* m_inputFile = nullptr;
+    std::unique_ptr<TH1F> m_Dptp0_vs_eta=nullptr;
+    std::unique_ptr<TH1F> m_Dptp1_vs_eta=nullptr;
 
 
     //
