@@ -77,6 +77,9 @@ if hasattr(runArgs, "runNumber"):
 
 if hasattr(runArgs, "inputGenConfFile"):
    raise RuntimeError("inputGenConfFile is invalid !! Gridpacks and config. files/links to be put into DSID directory ")
+
+if hasattr(runArgs, "inputGeneratorFile"):
+   evgenLog.info("inputGeneratorFile used " + inputGeneratorFile)
  
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
@@ -323,9 +326,21 @@ rounding = 0
 if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:   multiInput = runArgs.inputGeneratorFile.count(',')+1
 else:
    multiInput = 0
-   
+# check if default nEventsPerJob used 
+if not evgenConfig.nEventsPerJob:
+    evgenLog.info('#############################################################')
+    evgenLog.info(' !!!! no nEventsPerJob set !!!  The default 10000 used. !!! ') 
+    evgenLog.info('#############################################################')
+else:
+    evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
+
+if evgenConfig.minevents > 0 :
+    raise RunTimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
+
 if evgenConfig.nEventsPerJob < 1:
     raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
+elif evgenConfig.nEventsPerJob > 10000:
+    raise RunTimeError("evgenConfig.nEventsPerJob can be max. 10000")
 else:
     allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
@@ -649,7 +664,7 @@ def mk_symlink(srcfile, dstfile):
 ## Find and symlink dat and event files, so they are available via the name expected by the generator
 if eventsFile or datFile:
     if not hasattr(runArgs, "inputGeneratorFile") or runArgs.inputGeneratorFile == "NONE":
-        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfigs)
+        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfig)
     if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
         raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
                            (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))

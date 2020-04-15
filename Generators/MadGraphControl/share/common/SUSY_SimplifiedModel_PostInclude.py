@@ -35,7 +35,7 @@ elif 'qcdw' in phys_short:
 # Pass arguments as a dictionary: the "decays" argument is not accepted in older versions of MadGraphControl
 if 'mass' in [x.lower() for x in param_blocks]:
     raise RuntimeError('Do not provide masses in param_blocks; use the masses variable instead')
-param_blocks['Mass']=masses
+param_blocks['MASS']=masses
 # Add decays in if needed
 if len(decays)>0: param_blocks['DECAY']=decays
 argdict = {'runArgs'        : runArgs,
@@ -88,7 +88,8 @@ check_reset_proc_number(opts)
 
 # Pythia8 setup for matching if necessary
 njets=max([l.count('j') for l in process.split('\n')])
-if njets>0 and hasattr(genSeq,'Pythia8'):
+njets_min=min([l.count('j') for l in process.split('\n') if 'generate ' in l or 'add process' in l])
+if njets>0 and njets!=njets_min and hasattr(genSeq,'Pythia8'):
     genSeq.Pythia8.Commands += ["Merging:mayRemoveDecayProducts = on",
                                 "Merging:nJetMax = "+str(njets),
                                 "Merging:doKTMerging = on",

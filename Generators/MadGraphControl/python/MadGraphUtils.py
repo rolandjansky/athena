@@ -15,6 +15,8 @@ mglog = Logging.logging.getLogger('MadGraphUtils')
 MADGRAPH_GRIDPACK_LOCATION='madevent'
 # Name for the run (since we only have 1, just needs consistency)
 MADGRAPH_RUN_NAME='run_01'
+# For error handling
+MADGRAPH_CATCH_ERRORS=True
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
 from MadGraphUtilsHelpers import checkSettingExists,checkSetting,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
@@ -44,6 +46,60 @@ def config_only_check():
     except ImportError:
         pass
     return False
+
+
+def error_check(errors):
+    if not MADGRAPH_CATCH_ERRORS: return
+    unmasked_error = False
+    if len(errors):
+        mglog.info('Some errors detected by MadGraphControl - checking for serious errors')
+        for err in errors.split('\n'):
+            if len(err.strip())==0:
+                continue
+            # Errors to do with I/O... not clear on their origin yet
+            if 'Inappropriate ioctl for device' in err:
+                mglog.info(err)
+                continue
+            if 'stty: standard input: Invalid argument' in err:
+                mglog.info(err)
+                continue
+            # Errors for PDF sets that should be fixed in MG5_aMC 2.7
+            if 'PDF already installed' in err:
+                mglog.info(err)
+                continue
+            if 'Read-only file system' in err:
+                mglog.info(err)
+                continue
+            if 'HTML' in err:
+                # https://bugs.launchpad.net/mg5amcnlo/+bug/1870217
+                mglog.info(err)
+                continue
+            if err.startswith('tar'):
+                mglog.info(err)
+                continue
+            mglog.error(err)
+            unmasked_error = True
+    # This is a bit clunky, but needed because we could be several places when we get here
+    my_debug_file = None
+    debug_files = glob.glob('*debug.log')+glob.glob('*/*debug.log')
+    for debug_file in debug_files:
+        # This protects against somebody piping their output to my_debug.log and it being caught here
+        has_subproc = os.access(os.path.dirname(debug_file)+'/SubProcesses',os.R_OK)
+        if has_subproc:
+            my_debug_file = debug_file
+            break
+    if my_debug_file is not None:
+        if not unmasked_error:
+            mglog.warning('Found a debug file at '+my_debug_file+' but no apparent error. Will terminate.')
+        mglog.error('MadGraph5_aMC@NLO appears to have crashed. Debug file output follows.')
+        with open(my_debug_file,'r') as error_output:
+            for l in error_output:
+                mglog.error(l)
+        mglog.error('End of debug file output')
+    # Now raise an error if we were in either of the error states
+    if unmasked_error or my_debug_file is not None:
+        raise RuntimeError('Error detected in MadGraphControl process')
+    return
 
 
 def new_process(process='generate p p > t t~\noutput -f',keepJpegs=False):
@@ -98,8 +154,9 @@ def new_process(process='generate p p > t t~\noutput -f',keepJpegs=False):
 
     mglog.info('Started process generation at '+str(time.asctime()))
 
-    generate = subprocess.Popen([madpath+'/bin/mg5_aMC',card_loc],stdin=subprocess.PIPE)
-    generate.communicate()
+    generate = subprocess.Popen([madpath+'/bin/mg5_aMC',card_loc],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = generate.communicate()
+    error_check(err)
 
     mglog.info('Finished process generation at '+str(time.asctime()))
 
@@ -197,7 +254,7 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
     # Set consistent mode and number of jobs
     mode = 0
     njobs = 1
-    if 'ATHENA_PROC_NUMBER' in os.environ:
+    if 'ATHENA_PROC_NUMBER' in os.environ and int(os.environ['ATHENA_PROC_NUMBER'])>0:
         njobs = int(os.environ['ATHENA_PROC_NUMBER'])
         mglog.info('Lucky you - you are running on a full node queue.  Will re-configure for '+str(njobs)+' jobs.')
         mode = 2
@@ -234,11 +291,14 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
         mglog.info('Started generating gridpack at '+str(time.asctime()))
         mglog.warning(' >>>>>> THIS KIND OF JOB SHOULD ONLY BE RUN LOCALLY - NOT IN GRID JOBS <<<<<<')
 
-        if not isNLO:
-            modify_run_card(process_dir=process_dir,settings={'gridpack':'true'})
+        # Some events required if we specify MadSpin usage!
+        my_settings = {'nevents':'1000'}
+        if isNLO:
+            my_settings['req_acc']=str(required_accuracy)
         else:
-            my_settings = {'nevents':'1000','req_acc':str(required_accuracy)}
-            modify_run_card(process_dir=process_dir,settings=my_settings)
+            my_settings = {'gridpack':'true'}
+        modify_run_card(process_dir=process_dir,settings=my_settings)
+
     else:
         #Running in on-the-fly mode
         mglog.info('Started generating at '+str(time.asctime()))
@@ -291,30 +351,32 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
     # Check the run card
     run_card_consistency_check(isNLO=isNLO)
 
-    if mode!=0 and not isNLO:
-
-        if mode==1:
-            mglog.info('Setting up parallel running system settings')
-            setNCores(process_dir=os.getcwd(), Ncores=njobs)
-            if cluster_type=='pbs':
-                mglog.info('Modifying bin/internal/cluster.py for PBS cluster running')
-                os.system("sed -i \"s:text += prog:text += './'+prog:g\" bin/internal/cluster.py")
-        generate = subprocess.Popen(['bin/generate_events',str(mode),str(njobs),MADGRAPH_RUN_NAME],stdin=subprocess.PIPE)
-        generate.communicate()
-
-    elif not isNLO:
-
-        setNCores(process_dir=os.getcwd(), Ncores=njobs)
-        mglog.info('Running serial generation.  This will take a bit more time than parallel generation.')
-        generate = subprocess.Popen(['bin/generate_events','0',MADGRAPH_RUN_NAME],stdin=subprocess.PIPE)
-        generate.communicate()
-
-    elif isNLO:
-
+    # Build up the generate command
+    # Use the new-style way of passing things: just --name, everything else in config
+    command = ['bin/generate_events']
+    if isNLO:
+        command += ['--name='+MADGRAPH_RUN_NAME]
         mglog.info('Removing Cards/shower_card.dat to ensure we get parton level events only')
         os.unlink('Cards/shower_card.dat')
-        generate = subprocess.Popen(['bin/generate_events','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
-        generate.communicate()
+    else:
+        command += [MADGRAPH_RUN_NAME]
+    # Set the number of cores to be used
+    setNCores(process_dir=os.getcwd(), Ncores=njobs)
+    # Special handling for mode 1
+    if mode==1:
+        mglog.info('Setting up cluster running')
+        modify_config_card(process_dir=process_dir,settings={'run_mode':1})
+        if cluster_type=='pbs':
+            mglog.info('Modifying bin/internal/cluster.py for PBS cluster running')
+            os.system("sed -i \"s:text += prog:text += './'+prog:g\" bin/internal/cluster.py")
+    elif mode==2:
+        mglog.info('Setting up multi-core running on '+os.environ['ATHENA_PROC_NUMBER']+' cores')
+    elif mode==0:
+        mglog.info('Setting up serial generation.')
+
+    generate = subprocess.Popen(command,stdin=subprocess.PIPE, stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = generate.communicate()
+    error_check(err)
 
     # Get back to where we came from
     os.chdir(currdir)
@@ -337,9 +399,12 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
                 untar.wait()
                 mglog.info('compile and clean up')
                 os.chdir('madevent/')
-                compilep = subprocess.Popen(['./bin/compile'])
-                compilep.wait()
-                clean = subprocess.Popen(['./bin/clean4grid'])
+                compilep = subprocess.Popen(['./bin/compile'],stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+                (out,err) = compilep.communicate()
+                error_check(err)
+                clean = subprocess.Popen(['./bin/clean4grid'],stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+                (out,err) = clean.communicate()
+                error_check(err)
                 clean.wait()
                 os.chdir('../')
                 mglog.info('remove old tarball')
@@ -362,6 +427,9 @@ def generate(process_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,ex
             os.rename(MADGRAPH_GRIDPACK_LOCATION,process_dir)
 
         mglog.info('Gridpack sucessfully created, exiting the transform')
+        if hasattr(runArgs,'outputTXTFile'):
+            mglog.info('Touching output TXT (LHE) file for the transform')
+            open(runArgs.outputTXTFile, 'w').close()
         from AthenaCommon.AppMgr import theApp
         theApp.finalize()
         theApp.exit()
@@ -386,6 +454,9 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None)
     (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(process_dir=MADGRAPH_GRIDPACK_LOCATION, extlhapath=extlhapath)
 
     setupFastjet(process_dir=MADGRAPH_GRIDPACK_LOCATION)
+
+    # This is hard-coded as a part of MG5_aMC :'(
+    gridpack_run_name = 'GridRun_'+str(random_seed)
 
     # Ensure that we only do madspin at the end
     if os.access(MADGRAPH_GRIDPACK_LOCATION+'/Cards/madspin_card.dat',os.R_OK):
@@ -434,8 +505,9 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None)
         ls_dir(currdir)
         ls_dir(MADGRAPH_GRIDPACK_LOCATION)
         run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
-        generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE)
-        generate.communicate()
+        generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+        (out,err) = generate.communicate()
+        error_check(err)
 
     else:
         ### NLO RUN ###
@@ -447,14 +519,14 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None)
         ls_dir(currdir)
         ls_dir(MADGRAPH_GRIDPACK_LOCATION+'/Events/')
 
-        if os.access(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME, os.F_OK):
-            mglog.info('Removing '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME+' directory from gridpack generation')
-            shutil.rmtree(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME)
+        if os.access(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name, os.F_OK):
+            mglog.info('Removing '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+' directory from gridpack generation')
+            shutil.rmtree(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name)
 
         # Delete events generated when setting up MadSpin during gridpack generation
-        if os.access(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME+'_decayed_1', os.F_OK):
-            mglog.info('Removing '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME+'_decayed_1 directory from gridpack generation')
-            shutil.rmtree(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME+'_decayed_1')
+        if os.access(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'_decayed_1', os.F_OK):
+            mglog.info('Removing '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'_decayed_1 directory from gridpack generation')
+            shutil.rmtree(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'_decayed_1')
 
         ls_dir(MADGRAPH_GRIDPACK_LOCATION+'/Events/')
 
@@ -463,22 +535,24 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None)
             mglog.info('Copying make_opts from Template')
             shutil.copy(os.environ['MADPATH']+'/Template/LO/Source/make_opts',MADGRAPH_GRIDPACK_LOCATION+'/Source/')
 
-            generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE)
-            generate.communicate()
+            generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+gridpack_run_name],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+            (out,err) = generate.communicate()
+            error_check(err)
         else:
             mglog.info('Allowing recompilation of gridpack')
             if os.path.islink(MADGRAPH_GRIDPACK_LOCATION+'/lib/libLHAPDF.a'):
                 mglog.info('Unlinking '+MADGRAPH_GRIDPACK_LOCATION+'/lib/libLHAPDF.a')
                 os.unlink(MADGRAPH_GRIDPACK_LOCATION+'/lib/libLHAPDF.a')
 
-            generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--only_generation','-f','--name='+MADGRAPH_RUN_NAME],stdin=subprocess.PIPE)
-            generate.communicate()
+            generate = subprocess.Popen([MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--only_generation','-f','--name='+gridpack_run_name],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+            (out,err) = generate.communicate()
+            error_check(err)
 
     # See if MG5 did the job for us already
     if not os.access('events.lhe.gz',os.R_OK):
         mglog.info('Copying generated events to '+currdir)
-        if not os.path.exists(MADGRAPH_GRIDPACK_LOCATION+'Events/GridRun_'+str(random_seed)):
-            shutil.copy(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME+'/events.lhe.gz','events.lhe.gz')
+        if not os.path.exists(MADGRAPH_GRIDPACK_LOCATION+'Events/'+gridpack_run_name):
+            shutil.copy(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'/events.lhe.gz','events.lhe.gz')
     else:
         mglog.info('Events were already in place')
 
@@ -489,13 +563,13 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None)
     unzip = subprocess.Popen(['gunzip','-f','events.lhe.gz'])
     unzip.wait()
 
-    mglog.info('Moving file over to '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe')
-    mkdir = subprocess.Popen(['mkdir','-p',(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME)])
+    mglog.info('Moving file over to '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'/unweighted_events.lhe')
+    mkdir = subprocess.Popen(['mkdir','-p',(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name)])
     mkdir.wait()
-    shutil.move('events.lhe',MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe')
+    shutil.move('events.lhe',MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'/unweighted_events.lhe')
 
-    mglog.info('Re-zipping into dataset name '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe.gz')
-    rezip = subprocess.Popen(['gzip',MADGRAPH_GRIDPACK_LOCATION+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe'])
+    mglog.info('Re-zipping into dataset name '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'/unweighted_events.lhe.gz')
+    rezip = subprocess.Popen(['gzip',MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'/unweighted_events.lhe'])
     rezip.wait()
 
     os.chdir(currdir)
@@ -744,7 +818,7 @@ def setupLHAPDF(process_dir=None, extlhapath=None, allow_links=True):
 # Function to set the number of cores and the running mode in the run card
 def setNCores(process_dir, Ncores=None):
     my_Ncores = Ncores
-    if Ncores is None and 'ATHENA_PROC_NUMBER' in os.environ:
+    if Ncores is None and 'ATHENA_PROC_NUMBER' in os.environ and int(os.environ['ATHENA_PROC_NUMBER'])>0:
         my_Ncores = int(os.environ['ATHENA_PROC_NUMBER'])
     if my_Ncores is None:
         mglog.info('Setting up for serial run')
@@ -791,8 +865,9 @@ add_time_of_flight '''+run+((' --threshold='+str(threshold)) if threshold is not
 
     mglog.info('Started adding time of flight info '+str(time.asctime()))
 
-    generate = subprocess.Popen([me_exec,'time_of_flight_exec_card'],stdin=subprocess.PIPE)
-    generate.communicate()
+    generate = subprocess.Popen([me_exec,'time_of_flight_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = generate.communicate()
+    error_check(err)
 
     mglog.info('Finished adding time of flight information at '+str(time.asctime()))
 
@@ -826,7 +901,14 @@ def add_madspin(madspin_card=None,process_dir=MADGRAPH_GRIDPACK_LOCATION):
 
     if len(glob.glob(process_dir+'/Events/*'))<1:
         mglog.error('Process dir '+process_dir+' does not contain events?')
-    run = glob.glob(process_dir+'/Events/*')[0].split('/')[-1]
+    proc_dir_list = glob.glob(process_dir+'/Events/*')
+    run=None
+    for adir in proc_dir_list:
+        if 'GridRun_' in adir:
+            run=adir.split('/')[-1]
+            break
+    else:
+        run=proc_dir_list[0].split('/')[-1]
 
     # Note : This slightly clunky implementation is needed for the time being
     # See : https://answers.launchpad.net/mg5amcnlo/+question/267904
@@ -838,8 +920,12 @@ decay_events '''+run)
 
     mglog.info('Started running madspin at '+str(time.asctime()))
 
-    generate = subprocess.Popen([me_exec,'madspin_exec_card'],stdin=subprocess.PIPE)
-    generate.communicate()
+    generate = subprocess.Popen([me_exec,'madspin_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = generate.communicate()
+    error_check(err)
+    if len(glob.glob(process_dir+'/Events/'+run+'_decayed_*/')) == 0:
+        mglog.error('No '+process_dir+'/Events/'+run+'_decayed_*/ can be found')
+        raise RuntimeError('Problem while running MadSpin')
 
     mglog.info('Finished running madspin at '+str(time.asctime()))
 
@@ -863,10 +949,18 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
     #  unweighted events in the output directory.  MadSpin (above) only seems to give weighted
     #  results for now?
     #isNLO=is_NLO_run(process_dir=process_dir)
-    hasUnweighted = os.access(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe.gz',os.R_OK)
+
+    this_run_name=process_dir+'/Events/'+MADGRAPH_RUN_NAME
+    if not os.access(this_run_name,os.R_OK):
+        mglog.info('Did not find run in expected place -- checking for gridpack run')
+        this_run_name=glob.glob(process_dir+'/Events/GridRun_*')[0]
+        if not os.access(this_run_name,os.R_OK):
+            raise RuntimeError('Unable to locate run directory')
+
+    hasUnweighted = os.access(this_run_name+'/unweighted_events.lhe.gz',os.R_OK)
 
     hasRunMadSpin=False
-    madspinDirs=sorted(glob.glob(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'_decayed_*/'))
+    madspinDirs=sorted(glob.glob(this_run_name+'_decayed_*/'))
     if len(madspinDirs):
         hasRunMadSpin=True
     if hasRunMadSpin and not hasUnweighted:
@@ -882,21 +976,21 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
                 # and  madevent/Events/run_01_decayed_1/events.lhe.gz
                 # so there are unweighted events but not in the madspinDir...
                 if os.path.exists(madspinDirs[-1]+'/unweighted_events.lhe.gz'):
-                    shutil.move(madspinDirs[-1]+'/unweighted_events.lhe.gz',process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe.gz')
-                    mglog.info('Moving MadSpin events from '+madspinDirs[-1]+'/unweighted_events.lhe.gz to '+process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe.gz')
+                    shutil.move(madspinDirs[-1]+'/unweighted_events.lhe.gz',this_run_name+'/unweighted_events.lhe.gz')
+                    mglog.info('Moving MadSpin events from '+madspinDirs[-1]+'/unweighted_events.lhe.gz to '+this_run_name+'/unweighted_events.lhe.gz')
                 elif os.path.exists(madspinDirs[-1]+'/events.lhe.gz'):
-                    shutil.move(madspinDirs[-1]+'/events.lhe.gz',process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe.gz')
-                    mglog.info('Moving MadSpin events from '+madspinDirs[-1]+'/events.lhe.gz to '+process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe.gz')
+                    shutil.move(madspinDirs[-1]+'/events.lhe.gz',this_run_name+'/unweighted_events.lhe.gz')
+                    mglog.info('Moving MadSpin events from '+madspinDirs[-1]+'/events.lhe.gz to '+this_run_name+'/unweighted_events.lhe.gz')
                 else:
                     raise RuntimeError('MadSpin was run but can\'t find files :(')
 
             else:
-                shutil.move(madspinDirs[-1]+'/events.lhe.gz',process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/events.lhe.gz')
-                mglog.info('Moving MadSpin events from '+madspinDirs[-1]+'/events.lhe.gz to '+process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/events.lhe.gz')
+                shutil.move(madspinDirs[-1]+'/events.lhe.gz',this_run_name+'/events.lhe.gz')
+                mglog.info('Moving MadSpin events from '+madspinDirs[-1]+'/events.lhe.gz to '+this_run_name+'/events.lhe.gz')
 
         else:
-            mglog.error('MadSpin was run but can\'t find output folder '+(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'_decayed_1/'))
-            raise RuntimeError('MadSpin was run but can\'t find output folder '+(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'_decayed_1/'))
+            mglog.error('MadSpin was run but can\'t find output folder '+(this_run_name+'_decayed_1/'))
+            raise RuntimeError('MadSpin was run but can\'t find output folder '+(this_run_name+'_decayed_1/'))
 
         if fixEventWeightsForBridgeMode:
             mglog.info("Fixing event weights after MadSpin... initial checks.")
@@ -910,7 +1004,7 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
                 eventsfilename="unweighted_events"
             else:
                 eventsfilename="events"
-            unzip = subprocess.Popen(['gunzip','-f',process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s.lhe.gz' % eventsfilename])
+            unzip = subprocess.Popen(['gunzip','-f',this_run_name+'/%s.lhe.gz' % eventsfilename])
             unzip.wait()
 
             for line in open(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s.lhe'%eventsfilename):
@@ -927,7 +1021,7 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
 
             if spinmodenone and MGnumevents>0 and MGintweight>0:
                 mglog.info("Fixing event weights after MadSpin... modifying LHE file.")
-                newlhe=open(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s_fixXS.lhe'%eventsfilename,'w')
+                newlhe=open(this_run_name+'/%s_fixXS.lhe'%eventsfilename,'w')
                 initlinecount=0
                 eventlinecount=0
                 inInit=False
@@ -937,7 +1031,7 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
                 # but verified from LHE below.
                 event_norm_setting="average" 
 
-                for line in open(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s.lhe'%eventsfilename):
+                for line in open(this_run_name+'/%s.lhe'%eventsfilename):
 
                     newline=line
                     if "<init>" in line:                         
@@ -987,16 +1081,16 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
                 newlhe.close()
 
                 mglog.info("Fixing event weights after MadSpin... cleaning up.")
-                shutil.copyfile(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s.lhe' % eventsfilename,
-                                process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s_badXS.lhe' % eventsfilename)
+                shutil.copyfile(this_run_name+'/%s.lhe' % eventsfilename,
+                                this_run_name+'/%s_badXS.lhe' % eventsfilename)
 
-                shutil.move(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s_fixXS.lhe' % eventsfilename,
-                            process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s.lhe' % eventsfilename)
+                shutil.move(this_run_name+'/%s_fixXS.lhe' % eventsfilename,
+                            this_run_name+'/%s.lhe' % eventsfilename)
 
-                rezip = subprocess.Popen(['gzip',process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s.lhe' % eventsfilename])
+                rezip = subprocess.Popen(['gzip',this_run_name+'/%s.lhe' % eventsfilename])
                 rezip.wait()
 
-                rezip = subprocess.Popen(['gzip',process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s_badXS.lhe' % eventsfilename])
+                rezip = subprocess.Popen(['gzip',this_run_name+'/%s_badXS.lhe' % eventsfilename])
                 rezip.wait()
 
     # Clean up in case a link or file was already there
@@ -1005,18 +1099,18 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
 
     mglog.info('Unzipping generated events.')
     if hasUnweighted:
-        unzip = subprocess.Popen(['gunzip','-f',process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe.gz'])
+        unzip = subprocess.Popen(['gunzip','-f',this_run_name+'/unweighted_events.lhe.gz'])
         unzip.wait()
     else:
-        unzip = subprocess.Popen(['gunzip','-f',process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/events.lhe.gz'])
+        unzip = subprocess.Popen(['gunzip','-f',this_run_name+'/events.lhe.gz'])
         unzip.wait()
 
     mglog.info('Putting a copy in place for the transform.')
     if hasUnweighted:
-        orig_input = process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe'
+        orig_input = this_run_name+'/unweighted_events.lhe'
         mod_output = open(os.getcwd()+'/events.lhe','w')
     else:
-        orig_input = process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/events.lhe'
+        orig_input = this_run_name+'/events.lhe'
         mod_output = open(os.getcwd()+'/events.lhe','w')
 
     #Removing empty lines in LHE
@@ -1152,18 +1246,18 @@ def check_reweight_card(process_dir=MADGRAPH_GRIDPACK_LOCATION):
         else:
             rwgt_name_match=re.match(name_expression,line.strip())
             rwgt_info_match=re.match(info_expression,line.strip())
-            if rwgt_name_match==None and rwgt_info_match==None:
+            if rwgt_name_match is None and rwgt_info_match is None:
                 raise RuntimeError('Every reweighting should have a --rwgt_info (see https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Reweight), please update your reweight_card accordingly. Line to fix: '+line)
             for match in [rwgt_info_match,rwgt_name_match]:
-                if match==None:
+                if match is None:
                     continue
                 if len(match.groups())!=1:
                     raise RuntimeError('Unexpected format of reweight card in line: '+line)
                 if not re.match(goodname_expression,match.group(1)):
                     raise RuntimeError('No special character in reweighting info/name, only allowing '+goodname_expression)
-            if rwgt_info_match!=None:
+            if rwgt_info_match is not None:
                 newcard.write(line)
-            elif rwgt_name_match!=None:
+            elif rwgt_name_match is not None:
                 newcard.write(line.strip()+' --rwgt_info={0}\n'.format(rwgt_name_match.group(1)))
                 changed=True
     if changed:
@@ -1417,6 +1511,21 @@ def update_lhe_file(lhe_file_old,param_card_old=None,lhe_file_new=None,masses={}
     return lhe_file_new_tmp
 
 
+def find_key_and_update(akey,dictionary):
+    """ Helper function when looking at param cards
+    In some cases it's tricky to match keys - they may differ
+    only in white space. This tries to sort out when we have
+    a match, and then uses the one in blockParams afterwards.
+    In the case of no match, it returns the original key.
+    """
+    test_key = ' '.join(akey.strip().replace('\t',' ').split())
+    for key in dictionary:
+        mod_key = ' '.join(key.strip().replace('\t',' ').split())
+        if mod_key==test_key:
+            return key
+    return akey
+
+
 def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,params={}):
     """Build a new param_card.dat from an existing one.
     Params should be a dictionary of dictionaries. The first key is the block name, and the second in the param name.
@@ -1466,7 +1575,13 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
 
         akey = None
         if blockName != 'DECAY' and len(line.strip().split()) > 0:
-            akey = line.strip().split()[0]
+            # The line is already without the comment.
+            # In the case of mixing matrices this is a bit tricky
+            if len(line.split())==2:
+                akey = line.upper().strip().split()[0]
+            else:
+                # Take everything but the last word
+                akey = line.upper().strip()[:line.strip().rfind(' ')].strip()
         elif blockName == 'DECAY' and len(line.strip().split()) > 1:
             akey = line.strip().split()[1]
         if akey is None:
@@ -1478,6 +1593,8 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
            newcard.write(linewithcomment)
            continue
         blockParams = params[blockName]
+        # Check the spacing in the key
+        akey = find_key_and_update(akey,blockParams)
 
         # look for a string key, which would follow a #
         stringkey = None
@@ -1795,7 +1912,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
 
     if not isNLO:
         #Check CKKW-L setting
-        if float(mydict['ktdurham']) > 0 and int(mydict['ickkw']) != 0:
+        if 'ktdurham' in mydict and float(mydict['ktdurham']) > 0 and int(mydict['ickkw']) != 0:
             log='Bad combination of settings for CKKW-L merging! ktdurham=%s and ickkw=%s.'%(mydict['ktdurham'],mydict['ickkw'])
             mglog.error(log)
             raise RuntimeError(log)
@@ -1873,11 +1990,11 @@ def hack_gridpack_script():
     # in older MG versions the gridpack is run with the command below
     gridrun_line_old='./bin/gridrun $num_events $seed'
     syst_line_old=''
-    reweight_line_old='./bin/madevent reweight GridRun_${seed} -f\n'
+    reweight_line_old='./bin/madevent reweight '+MADGRAPH_RUN_NAME+' -f\n'
     # in new versions it is run like this
     gridrun_line_new='${DIR}/bin/gridrun $num_events $seed $gran'
     syst_line_new=''
-    reweight_line_new='${DIR}/bin/madevent reweight GridRun_${seed} -f\n'
+    reweight_line_new='${DIR}/bin/madevent reweight '+MADGRAPH_RUN_NAME+' -f\n'
 
     for line in oldscript:
         if (need_to_add_rwgt or need_to_add_syst) and gridrun_line_old in line:
@@ -1915,7 +2032,7 @@ def hack_gridpack_script():
 
 
 def check_reset_proc_number(opts):
-    if 'ATHENA_PROC_NUMBER' in os.environ:
+    if 'ATHENA_PROC_NUMBER' in os.environ and int(os.environ['ATHENA_PROC_NUMBER'])>0:
         mglog.info('Noticed that you have run with an athena MP-like whole-node setup.  Will re-configure now to make sure that the remainder of the job runs serially.')
         # Try to modify the opts underfoot
         if not hasattr(opts,'nprocs'):

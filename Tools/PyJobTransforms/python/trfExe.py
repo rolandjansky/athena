@@ -872,7 +872,7 @@ class athenaExecutor(scriptExecutor):
             myMaxEvents = self.conf.argdict['maxEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
         else:
             myMaxEvents = -1
-        
+
         # Any events to process...?
         if (self._inputEventTest and mySkipEvents > 0 and mySkipEvents >= inputEvents):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_NOEVENTS'),
@@ -898,9 +898,12 @@ class athenaExecutor(scriptExecutor):
         else:
             self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
 
+            # Are we creating events on the fly here?
+            generation_job = len(self._inputDataTypeCountCheck)==0 and myMaxEvents==-1
+
             # Small hack to detect cases where there are so few events that it's not worthwhile running in MP mode
             # which also avoids issues with zero sized files
-            if expectedEvents < self._athenaMP:
+            if expectedEvents < self._athenaMP and not generation_job:
                 msg.info("Disabling AthenaMP as number of input events to process is too low ({0} events for {1} workers)".format(expectedEvents, self._athenaMP))
                 self._disableMP = True
                 self._athenaMP = 0
