@@ -79,7 +79,7 @@ namespace InDet {
           m_NetworkEstimateNumberParticles(0),
           m_NetworkEstimateNumberParticles_NoTrack(0),
           m_coolFolder_root("/PIXEL/PixelClustering/PixelClusNNCalib"),
-          m_coolFolder_json("/PIXEL/PixelClustering/PixelNNCalib_JSON"),
+          m_coolFolder_json("/PIXEL/PixelClustering/PixelNNCalibJSON"),
           m_layerInfoHistogram("LayersInfo"),
           m_layerPrefix("Layer"), 
           m_weightIndicator("_weights"),
