@@ -172,7 +172,7 @@ def tauMonitoringConfig(inputFlags):
                                    xbins=1200,xmin=0,xmax=1200,ybins=80,ymin=PHIMIN,ymax=PHIMAX,path=folder)
 
         
-        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix=="TauTrig"):
+        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix=="TauTrig" or postfix=="Global"):
             igroup.defineHistogram(namer('centFrac',"CentFrac","Identification_tauJetBDTinputs",postfix), title='Centrality Fraction;Centrality Fraction;Number Of Candidates',
                 xbins=70, xmin=0., xmax=1.4, path=folder+"Identification/tauJetBDTinputs")
 
