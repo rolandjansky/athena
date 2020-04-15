@@ -47,6 +47,8 @@ def printProperties(msg, c, nestLevel = 0):
         elif isinstance(propval,GaudiHandles.PrivateToolHandleArray):
             ths = [th.name for th in propval]
             propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
+        elif isinstance(propval,GaudiHandles.GaudiHandle): # Any other handle
+            propstr = "Handle( {0} )".format(propval.typeAndName)
         else:
             propstr = str(propval)            
         msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr))
@@ -152,7 +154,7 @@ class ComponentAccumulator(object):
         self._msg.info( "Event Algorithm Sequences" )
 
 
-        if withDetails:
+        if False: #withDetails: The WithDetails option does work with GaudiConfi2 (for now) 
             self._msg.info( self._sequence )
         else:
             def printSeqAndAlgs(seq, nestLevel = 0,
