@@ -16,5 +16,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( RegSelLUT
                    src/*.cxx
                    PUBLIC_HEADERS RegSelLUT
-                   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel )
+                   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel IRegionSelector )
 
