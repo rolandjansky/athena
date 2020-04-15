@@ -663,7 +663,6 @@ IOVDbMetaDataTool::overrideIOV (CondAttrListCollection*& coll) const
             return StatusCode::SUCCESS;
         }
         // Now over ride IOVs
-        coll->resetMinRange();
         if (iovSizeIsZero) { 
             // Only add in overall range if channels do not have
             // IOVs - otherwise this is automatically calculated
@@ -680,6 +679,9 @@ IOVDbMetaDataTool::overrideIOV (CondAttrListCollection*& coll) const
             ATH_MSG_DEBUG("overrideIOV: overriding the IOV of collection " << chan);
           }
         }
+        // must reset the collection range AFTER the channels, because the collection range will be
+        // 'narrowed' to that of the channels
+        coll->resetMinRange();
         if (msgLvl(MSG::DEBUG)) {
 	  std::ostringstream stream;
 	  coll->dump(stream);
