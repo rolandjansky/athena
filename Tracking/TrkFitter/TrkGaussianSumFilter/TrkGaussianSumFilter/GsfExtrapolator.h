@@ -200,7 +200,7 @@ private:
                                    PropDirection direction = anyDirection,
                                    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  std::unique_ptr<MultiComponentState> extrapolateInsideVolume(
+  MultiComponentState extrapolateInsideVolume(
     Cache& cache,
     const IPropagator&,
     const MultiComponentState&,
@@ -214,7 +214,7 @@ private:
   /** Additional private extrapolation methods */
 
   /** Layer stepping, stopping at the last layer before destination */
-  std::unique_ptr<MultiComponentState> extrapolateFromLayerToLayer(
+  MultiComponentState extrapolateFromLayerToLayer(
     Cache& cache,
     const IPropagator&,
     const MultiComponentState&,
@@ -225,7 +225,7 @@ private:
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Single extrapolation step to an intermediate layer */
-  std::unique_ptr<Trk::MultiComponentState> extrapolateToIntermediateLayer(
+   MultiComponentState extrapolateToIntermediateLayer(
     Cache& cache,
     const IPropagator&,
     const MultiComponentState&,
@@ -236,7 +236,7 @@ private:
     bool perpendicularCheck = true) const;
 
   /** Final extrapolation step to a destination layer */
-  std::unique_ptr<Trk::MultiComponentState> extrapolateToDestinationLayer(
+  MultiComponentState extrapolateToDestinationLayer(
     Cache& cache,
     const IPropagator&,
     const MultiComponentState&,
@@ -249,7 +249,7 @@ private:
 
   /** Extrapolation to consider material effects assuming all material on active sensor elements -
    * CTB method */
-  std::unique_ptr<Trk::MultiComponentState> extrapolateSurfaceBasedMaterialEffects(
+  Trk::MultiComponentState extrapolateSurfaceBasedMaterialEffects(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -258,7 +258,7 @@ private:
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** GSF Method to propagate a number of components simultaneously */
-  std::unique_ptr<Trk::MultiComponentState> multiStatePropagate(
+  Trk::MultiComponentState multiStatePropagate(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
