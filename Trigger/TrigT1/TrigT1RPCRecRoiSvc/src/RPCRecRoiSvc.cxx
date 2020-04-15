@@ -14,7 +14,7 @@
 
 using namespace LVL1RPC;
 
-StatusCode RPCRecRoiSvc::initialize (void) 
+StatusCode RPCRecRoiSvc::initialize()
 {
   StoreGateSvc* detStore = nullptr;
   ATH_CHECK( service("DetectorStore",detStore) );
@@ -30,13 +30,12 @@ StatusCode RPCRecRoiSvc::initialize (void)
   ATH_CHECK( service("RPCcablingServerSvc",RpcCabGet,1) );
   ATH_CHECK( RpcCabGet->giveCabling(m_cabling) );
 
+  m_isInit = true;
   return StatusCode::SUCCESS; 
 }
 
-
-void RPCRecRoiSvc::reconstruct (const unsigned int & roIWord) const 
+void RPCRecRoiSvc::reconstruct(const unsigned int & roIWord) const
 {
-    
   //  first extract the parts holding the sector address and 
   //  and the RoI/Overlap from the 32 bit word
   unsigned int sectorAddress = (roIWord & 0x003FC000) >> 14;
@@ -54,7 +53,6 @@ void RPCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
   m_phiMin = 0.;
   m_etaMax = 0.;
   m_phiMax = 0.;
-
   
   // Get the strips delimiting the RoIs from rPCcablingSvc
   Identifier EtaLowBorder_id;
@@ -66,9 +64,6 @@ void RPCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
   Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
   Amg::Vector3D PhiLowBorder_pos(0.,0.,0.);
   Amg::Vector3D PhiHighBorder_pos(0.,0.,0.);
-
-  /*SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-  const RpcCablingCondData* readCdo{*readHandle};*/
   
   if(m_cabling->give_RoI_borders_id(m_side, m_sector, m_roi,
                                    EtaLowBorder_id, EtaHighBorder_id,
@@ -123,10 +118,16 @@ void RPCRecRoiSvc::reconstruct (const unsigned int & roIWord) const
 
 bool
 RPCRecRoiSvc::dumpRoiMap(const std::string& filename)
-{  
+{
+    if (!m_isInit) {
+      if (!RPCRecRoiSvc::initialize().isSuccess()) return false;
+    }
     const unsigned int maxSubsystem = 2;
     const unsigned int maxLogicSector = 32;
     const unsigned int maxRoI = 32;
+
+    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+    const RpcCablingCondData* readCdo{*readHandle};
 
     // ADDED PART FOR ETA-PHI DUMP
     // MC July 2014: add dump the ROI Eta-Phi Map 
@@ -145,8 +146,8 @@ RPCRecRoiSvc::dumpRoiMap(const std::string& filename)
                     unsigned long int roIWord = (roi<<2)+(side<<14)+(sector<<15);
                     reconstruct(roIWord);
                     double etaMinLow(0),etaMaxLow(0),etaMinHigh(0),etaMaxHigh(0);
-                    etaDimLow (etaMinLow, etaMaxLow);
-                    etaDimHigh(etaMinHigh,etaMaxHigh);
+                    etaDimLow (etaMinLow, etaMaxLow, readCdo);
+                    etaDimHigh(etaMinHigh,etaMaxHigh, readCdo);
                     roi_map << std::setw(8)  << side     << " "
                             << std::setw(8)  << sector   << " "
                             << std::setw(8)  << roi      << " "
@@ -167,7 +168,7 @@ RPCRecRoiSvc::dumpRoiMap(const std::string& filename)
     return true;
 }
 
-void  RPCRecRoiSvc::RoIsize(const unsigned int & roIWord,
+void RPCRecRoiSvc::RoIsize(const unsigned int & roIWord,
              double & etaMin_LowHigh, double & etaMax_LowHigh, double & phiMin_LowHigh, double & phiMax_LowHigh) const
 {
     double etaMin_Low=0;
@@ -175,12 +176,15 @@ void  RPCRecRoiSvc::RoIsize(const unsigned int & roIWord,
     double etaMax_Low=0;
     double etaMax_High=0;
 
+    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+    const RpcCablingCondData* readCdo{*readHandle};
+
     reconstruct(roIWord);
     phiMin_LowHigh=m_phiMin;
     phiMax_LowHigh=m_phiMax;
     
-    bool low  = etaDimLow(etaMin_Low,etaMax_Low);
-    bool high = etaDimHigh(etaMin_High,etaMax_High);
+    bool low  = etaDimLow(etaMin_Low,etaMax_Low, readCdo);
+    bool high = etaDimHigh(etaMin_High,etaMax_High, readCdo);
 
     if (low&&high) {
         etaMin_LowHigh=std::min(etaMin_Low,etaMin_High);
@@ -201,7 +205,7 @@ void  RPCRecRoiSvc::RoIsize(const unsigned int & roIWord,
 
 
 
-bool  RPCRecRoiSvc::etaDimLow (double& etaMin, double& etaMax)  const 
+bool RPCRecRoiSvc::etaDimLow (double& etaMin, double& etaMax, const RpcCablingCondData* readCdo) const
 {
   // Get the strips delimiting the RoIs from rPCcablingSvc
   Identifier EtaLowBorder_id;
@@ -211,11 +215,9 @@ bool  RPCRecRoiSvc::etaDimLow (double& etaMin, double& etaMax)  const
   Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
   Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
 
-  /*SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-  const RpcCablingCondData* readCdo{*readHandle};*/
-  if(!m_cabling->give_LowPt_borders_id(m_side, m_sector, m_roi,
+  if(!readCdo->give_LowPt_borders_id(m_side, m_sector, m_roi,
                                        EtaLowBorder_id, EtaHighBorder_id,
-                                       PhiLowBorder_id, PhiHighBorder_id)) return false;
+                                       PhiLowBorder_id, PhiHighBorder_id, &m_idHelperSvc->rpcIdHelper())) return false;
   
   const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
     m_MuonMgr->getRpcReadoutElement(EtaLowBorder_id);
@@ -235,7 +237,7 @@ bool  RPCRecRoiSvc::etaDimLow (double& etaMin, double& etaMax)  const
   return true;
 }
 
-bool RPCRecRoiSvc::etaDimHigh (double& etaMin, double& etaMax)  const 
+bool RPCRecRoiSvc::etaDimHigh (double& etaMin, double& etaMax, const RpcCablingCondData* readCdo) const
 {
   // Get the strips delimiting the RoIs from rPCcablingSvc
   Identifier EtaLowBorder_id;
@@ -245,11 +247,9 @@ bool RPCRecRoiSvc::etaDimHigh (double& etaMin, double& etaMax)  const
   Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
   Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
 
-  /*SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-  const RpcCablingCondData* readCdo{*readHandle};*/
-  if(!m_cabling->give_HighPt_borders_id(m_side, m_sector, m_roi,
+  if(!readCdo->give_HighPt_borders_id(m_side, m_sector, m_roi,
                                       EtaLowBorder_id, EtaHighBorder_id,
-                                      PhiLowBorder_id, PhiHighBorder_id)) return false;
+                                      PhiLowBorder_id, PhiHighBorder_id, &m_idHelperSvc->rpcIdHelper())) return false;
     
   const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
     m_MuonMgr->getRpcReadoutElement(EtaLowBorder_id);

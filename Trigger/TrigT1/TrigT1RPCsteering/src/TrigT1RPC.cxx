@@ -3,23 +3,9 @@
 */
 
 #include "TrigT1RPCsteering/TrigT1RPC.h"
-#include "GaudiKernel/SmartDataPtr.h"
 
-#include "GeneratorObjects/McEventCollection.h"  // include for retrieving the Montecarlo
-#include "HepMC/GenEvent.h"                      // thru
-
-#include "TrigT1RPClogic/ShowData.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-
-#include "MuonIdHelpers/RpcIdHelper.h"
-
-
-#include "MuonDigitContainer/RpcDigitContainer.h"
-#include "MuonDigitContainer/RpcDigitCollection.h"
-#include "MuonDigitContainer/RpcDigit.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "HepMC/GenEvent.h"
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 
@@ -27,10 +13,10 @@
 #include "TrigT1RPChardware/MatrixReadOut.h"
 
 #include "TrigT1RPClogic/decodeSL.h"
+#include "TrigT1RPClogic/ShowData.h"
 
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
-
 
 #include <algorithm>
 #include <cmath>
@@ -77,11 +63,13 @@ StatusCode TrigT1RPC::initialize(){
 
 StatusCode TrigT1RPC::execute() {
 
-
     ATH_MSG_DEBUG ("in execute()");
+
+    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+    const RpcCablingCondData* readCdo{*readHandle};
     
     RPCsimuData data;         // instanciate the container for the RPC digits
-    CHECK(fill_RPCdata(data));  // fill the data with RPC simulated digts
+    CHECK(fill_RPCdata(data, readCdo));  // fill the data with RPC simulated digts
     
     ATH_MSG_DEBUG(
         "RPC data loaded from G3:" << std::endl
@@ -94,16 +82,11 @@ StatusCode TrigT1RPC::execute() {
         << data.how_many(-1,-1,3,-1,-1,-1)
         );
     // ******************** Start of Level-1 simulation section *****************
-    
-    
   unsigned long int debug;
-  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-  const RpcCablingCondData* readCdo{*readHandle};
     
     ///// Creates the CMA patterns from RPC digits /////////////////////////
   debug = (m_hardware_emulation)? m_cma_debug : m_fast_debug;           //
-  CMAdata patterns(&data,m_cabling,debug);
-  // CMAdata patterns(&data,readCdo, debug);                              //
+  CMAdata patterns(&data, m_cabling, debug);                              //
                                                                         //
   ATH_MSG_DEBUG ( "CMApatterns created from RPC digits:" << std::endl //
                   << ShowData<CMAdata>(patterns,"",m_data_detail) );      //
@@ -141,7 +124,6 @@ StatusCode TrigT1RPC::execute() {
     ctpiInRPC = wh_muctpiRpc.ptr();
   }
 
-  
                                                                         //
   SLdata::PatternsList sectors_patterns = sectors.give_patterns();      //
   SLdata::PatternsList::iterator SLit = sectors_patterns.begin();       //
@@ -282,11 +264,9 @@ StatusCode TrigT1RPC::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
+StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* readCdo)
 {
     std::string space = "                          ";
-    /*SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-    const RpcCablingCondData* readCdo{*readHandle};*/      
 
     ATH_MSG_DEBUG("in execute(): fill RPC data");
 
@@ -340,10 +320,8 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
 		    Amg::Vector3D pos = descriptor->stripPos(channelId);		    
 
                     // Get the Level-1 numbering schema for the RPC strips
-		    unsigned long int strip_code_cab = 
-                        m_cabling->strip_code_fromOffId (StationName,StationEta,StationPhi,
-						       DoubletR,DoubletZ,DoubletP,
-						       GasGap,MeasuresPhi,Strip);
+		    unsigned long int strip_code_cab = readCdo->strip_code_fromOffId(StationName,StationEta,StationPhi,
+						       DoubletR,DoubletZ,DoubletP,GasGap,MeasuresPhi,Strip);
 		    
 
                     if(strip_code_cab) {

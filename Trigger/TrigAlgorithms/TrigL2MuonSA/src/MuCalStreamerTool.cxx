@@ -51,15 +51,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
 {
    ATH_CHECK(AthAlgTool::initialize());
 
-   // ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
-   // ATH_CHECK( RpcCabGet.retrieve() );
-   // ATH_CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
-   // m_rpcCablingSvc = m_rpcCabling->getRPCCabling();
-   // if ( !m_rpcCablingSvc ) {
-   //   ATH_MSG_ERROR("Could not retrieve the RPC cabling svc");
-   //   return StatusCode::FAILURE;
-   // }
-
    // locate the region selector
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved the region selector");
@@ -87,8 +78,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::finalize()
    // delete the calibration buffer
    if ( m_localBuffer ) delete m_localBuffer; 
 
-   StatusCode sc = AthAlgTool::finalize(); 
-   return sc;
+   return AthAlgTool::finalize();
 }
 
 // --------------------------------------------------------------------------------
@@ -498,14 +488,9 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
   const RpcPadContainer* rpcPadContainer=nullptr; 
   ATH_CHECK(evtStore()->retrieve(rpcPadContainer,"RPCPAD"));
 
-  unsigned int padIdHash;
   SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
   const RpcCablingCondData* readCdo{*readHandle};
-
-  // unsigned int logic_sector;
-  // unsigned short int PADId;
-  // if ( m_rpcCablingSvc->give_PAD_address( side, sector, roiNumber, logic_sector, PADId, padIdHash) ) {
-
+  unsigned int padIdHash;
   if (readCdo->give_PAD_address( side, sector, roiNumber, padIdHash)) {
 
     RpcPadContainer::const_iterator itPad = rpcPadContainer->indexFind(padIdHash);  
@@ -564,7 +549,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
     }
   }
   else {
-    ATH_MSG_WARNING("Can't get the pad address from the rpc cabling service");
+    ATH_MSG_WARNING("Can't get the pad address from the RpcCablingCondData");
     return StatusCode::FAILURE;
   }
 

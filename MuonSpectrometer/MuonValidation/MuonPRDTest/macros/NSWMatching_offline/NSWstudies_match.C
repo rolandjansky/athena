@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define NSWstudies_cxx
@@ -15,13 +15,11 @@
 #include "NSWstudies_match.h"
 #include "NSWstudies.h"
 
-using namespace std;
-
-void validateHits(Flocalize_collection& Hits, vector<bool>* insideBounds, vector<int>* pdgCodes);
-void init_hists (vector< TH1I* >& hist_vec, bool isMM, string datatype, string matchedwith);
+void validateHits(Flocalize_collection& Hits, std::vector<bool>* insideBounds, std::vector<int>* pdgCodes);
+void init_hists (std::vector< TH1I* >& hist_vec, bool isMM, std::string datatype, std::string matchedwith);
 bool doEvt (int evtnr);
-void write_and_delete (vector< TH1I* > vec);
-void init_hist_pull (vector< TH1F*>& hist_pull);
+void write_and_delete (std::vector< TH1I* > vec);
+void init_hist_pull (std::vector< TH1F*>& hist_pull);
 void efficiency (double missers, double total);
 
 //Inputs
@@ -49,16 +47,16 @@ void NSWstudies::Loop()
    bool dosTGC = 1;
 
    TFile *outFile = new TFile("NSWMatching_Hists.root", "recreate");
-   vector< TH1I* > hist_MM_digits;
-   vector< TH1I* > hist_MM_hits;
-   vector< TH1I* > hist_sTGC_digits;
-   vector< TH1I* > hist_sTGC_hits;
+   std::vector< TH1I* > hist_MM_digits;
+   std::vector< TH1I* > hist_MM_hits;
+   std::vector< TH1I* > hist_sTGC_digits;
+   std::vector< TH1I* > hist_sTGC_hits;
    TH2D *hist_MM_global_digits = new TH2D ("MM_Global_pos_mismatched_digits", "MM_Global_pos_mismatched_digits", 50, -6000., 6000., 50, -6000., 6000.);
    TH2D *hist_MM_global_hits = new TH2D ("MM_Global_pos_mismatched_hits", "MM_Global_pos_mismatched_hits", 50, -6000., 6000., 50, -6000., 6000.);
    TH2D *hist_sTGC_global_digits = new TH2D ("sTGC_Global_pos_mismatched_digits", "sTGC_Global_pos_mismatched_digits", 50, -6000., 6000., 50, -6000., 6000.);
    TH2D *hist_sTGC_global_hits = new TH2D ("sTGC_Global_pos_mismatched_hits", "sTGC_Global_pos_mismatched_hits", 50, -6000., 6000., 50, -6000., 6000.);
 
-   vector< TH1F* > hist_pull;
+   std::vector< TH1F* > hist_pull;
    if (doPull) { init_hist_pull(hist_pull); }
 
    if (fChain == 0) return;
@@ -192,7 +190,7 @@ void NSWstudies::Loop()
    delete outFile;
 }
 
-void validateHits(Flocalize_collection& Hits, vector<bool>* insideBounds, vector<int>* pdgCodes) {
+void validateHits(Flocalize_collection& Hits, std::vector<bool>* insideBounds, std::vector<int>* pdgCodes) {
 	//Function to take out hits which should not be digitized
 	bool accept_hit;
 	for (unsigned int i = 0; i < Hits.size(); ++i) {
@@ -253,7 +251,7 @@ void NSWstudies::match_Hits_Digits (Flocalize_collection& Hits, Flocalize_collec
    if (printHits) { printf("\nFull hits info (event: %d): \n", eventNumber); Hits.printInfo(); }
  }
 
-void NSWstudies::fillHists (Flocalize_collection& oData, vector< TH1I* >& hist_vec) {
+void NSWstudies::fillHists (Flocalize_collection& oData, std::vector< TH1I* >& hist_vec) {
    if (hist_vec.empty()) { init_hists(hist_vec, oData.isMM, oData.name, oData.matchedwith); }
    TH1I* hist_diff = hist_vec[0];
    TH1I* hist_ndigits = hist_vec[1];
@@ -314,7 +312,7 @@ void NSWstudies::fillHists (Flocalize_collection& oData, vector< TH1I* >& hist_v
    }
 }
 
-void init_hists (vector< TH1I* >& hist_vec, bool isMM, string datatype, string matchedwith) {
+void init_hists (std::vector< TH1I* >& hist_vec, bool isMM, std::string datatype, std::string matchedwith) {
    int ndigits;
    const char* obj = datatype.c_str();
    const char* type;
@@ -341,7 +339,7 @@ void init_hists (vector< TH1I* >& hist_vec, bool isMM, string datatype, string m
    hist_vec.push_back( new TH1I (title.Data(), title.Data(), 100, 0, 500) );
 }
 
-void NSWstudies::plotError (Flocalize_collection oPRD, vector<TH1F*> hists_pull) {
+void NSWstudies::plotError (Flocalize_collection oPRD, std::vector<TH1F*> hists_pull) {
 	bool isMM = oPRD.isMM;
 
    double sTGC_error, sTGC_locX, sTGC_truthX, sTGC_pull;
@@ -400,7 +398,7 @@ bool doEvt (int evtnr) {
    return keep_event;
 }
 
-void write_and_delete (vector< TH1I* > vec) {
+void write_and_delete (std::vector< TH1I* > vec) {
    for (TH1I* _h: vec) {
       _h->Write();
       delete _h;
@@ -408,7 +406,7 @@ void write_and_delete (vector< TH1I* > vec) {
 }
 
 
-void init_hist_pull (vector< TH1F*>& hist_pull) {
+void init_hist_pull (std::vector< TH1F*>& hist_pull) {
 	hist_pull.push_back (new TH1F("sTGC_pad_distance", "sTGC_pad_distance", 200, -200, 200));
    hist_pull.push_back (new TH1F("sTGC_strip_distance", "sTGC_strip_distance", 200, -200, 200));
    hist_pull.push_back (new TH1F("sTGC_wire_distance", "sTGC_wire_distance", 200, -200, 200));

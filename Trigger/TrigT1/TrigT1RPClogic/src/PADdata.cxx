@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPClogic/PADdata.h"
@@ -46,19 +46,14 @@ PADdata::operator=(const PADdata& pad_data)
 void
 PADdata::create_pad_patterns(CMApatterns* cma_patterns)
 {
-    PADpatterns* patterns;	
-
     const int pad_id = cma_patterns->cma_parameters().id().PAD_index();
     const int sector = cma_patterns->sector();
-
-    if( (patterns = find(sector,pad_id)) ) 
-        patterns->load_cma_patterns(cma_patterns);
-    else 
-    {
-        patterns = new PADpatterns(sector,pad_id,m_debug);
-        patterns->load_cma_patterns(cma_patterns);
-	m_pad_patterns.push_back(*patterns);
-	delete patterns;
+    PADpatterns* patterns = find(sector,pad_id);
+    if(patterns) patterns->load_cma_patterns(cma_patterns);
+    else {
+        PADpatterns thePatterns(sector,pad_id,m_debug);
+        thePatterns.load_cma_patterns(cma_patterns);
+        m_pad_patterns.push_back(thePatterns);
     }
 }
 

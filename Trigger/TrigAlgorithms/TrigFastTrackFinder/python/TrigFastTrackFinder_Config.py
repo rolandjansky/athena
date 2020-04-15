@@ -159,7 +159,8 @@ remap  = {
     "BeamSpot" : "beamSpot",
     "Bphysics" : "bphysics",
     "Cosmic"   : "cosmics",
-    "MinBias"  : "minBias400"
+    "MinBias"  : "minBias400",
+    "minBias"  : "minBias400"
 }
 
 class TrigFastTrackFinderBase(TrigFastTrackFinder):
@@ -369,4 +370,3 @@ class TrigFastTrackFinder_Jet(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_MinBias(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_MinBias"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MinBias","MinBias")
-

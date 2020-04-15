@@ -35,52 +35,37 @@ Trk::MultiComponentStateHelpers::cloneWithScaledError(const Trk::MultiComponentS
                                                       double errorScaleTheta,
                                                       double errorScaleQoverP)
 {
+ 
+  AmgSymMatrix(5) coefficients;
+  coefficients(0, 0) = (errorScaleLocX * errorScaleLocX);
+  coefficients(1, 1) = (errorScaleLocY * errorScaleLocY);
+  coefficients(2, 2) = (errorScalePhi * errorScalePhi);
+  coefficients(3, 3) = (errorScaleTheta * errorScaleTheta);
+  coefficients(4, 4) = (errorScaleQoverP * errorScaleQoverP);
+
+  coefficients.fillSymmetric(0, 1, (errorScaleLocX * errorScaleLocY));
+  coefficients.fillSymmetric(0, 2, (errorScaleLocX * errorScalePhi));
+  coefficients.fillSymmetric(0, 3, (errorScaleLocX * errorScaleTheta));
+  coefficients.fillSymmetric(0, 4, (errorScaleLocX * errorScaleQoverP));
+  coefficients.fillSymmetric(1, 2, (errorScaleLocY * errorScalePhi));
+  coefficients.fillSymmetric(1, 3, (errorScaleLocY * errorScaleTheta));
+  coefficients.fillSymmetric(1, 4, (errorScaleLocY * errorScaleQoverP));
+  coefficients.fillSymmetric(2, 3, (errorScalePhi * errorScaleTheta));
+  coefficients.fillSymmetric(2, 4, (errorScalePhi * errorScaleQoverP));
+  coefficients.fillSymmetric(3, 4, (errorScaleTheta * errorScaleQoverP));
+
   auto stateWithScaledErrors = std::make_unique<Trk::MultiComponentState>();
   stateWithScaledErrors->reserve(in.size());
+ 
   for (const ComponentParameters& component : in) {
-
     const Trk::TrackParameters* trackParameters = component.first.get();
     const AmgSymMatrix(5)* originalMatrix = trackParameters->covariance();
     if (!originalMatrix) {
       return clone(in);
     }
-
     auto covarianceMatrix = std::make_unique<AmgSymMatrix(5)>();
-    int size = covarianceMatrix->rows();
-    if (size == 5) {
-      (*covarianceMatrix)(0, 0) = (*originalMatrix)(0, 0) * (errorScaleLocX * errorScaleLocX);
-      (*covarianceMatrix)(1, 1) = (*originalMatrix)(1, 1) * (errorScaleLocY * errorScaleLocY);
-      (*covarianceMatrix)(2, 2) = (*originalMatrix)(2, 2) * (errorScalePhi * errorScalePhi);
-      (*covarianceMatrix)(3, 3) = (*originalMatrix)(3, 3) * (errorScaleTheta * errorScaleTheta);
-      (*covarianceMatrix)(4, 4) = (*originalMatrix)(4, 4) * (errorScaleQoverP * errorScaleQoverP);
+    (*covarianceMatrix) = (*originalMatrix).cwiseProduct(coefficients);
 
-      covarianceMatrix->fillSymmetric(
-        0, 1, (*originalMatrix)(0, 1) * (errorScaleLocX * errorScaleLocY));
-      covarianceMatrix->fillSymmetric(
-        0, 2, (*originalMatrix)(0, 2) * (errorScaleLocX * errorScalePhi));
-      covarianceMatrix->fillSymmetric(
-        0, 3, (*originalMatrix)(0, 3) * (errorScaleLocX * errorScaleTheta));
-      covarianceMatrix->fillSymmetric(
-        0, 4, (*originalMatrix)(0, 4) * (errorScaleLocX * errorScaleQoverP));
-
-      covarianceMatrix->fillSymmetric(
-        1, 2, (*originalMatrix)(1, 2) * (errorScaleLocY * errorScalePhi));
-      covarianceMatrix->fillSymmetric(
-        1, 3, (*originalMatrix)(1, 3) * (errorScaleLocY * errorScaleTheta));
-      covarianceMatrix->fillSymmetric(
-        1, 4, (*originalMatrix)(1, 4) * (errorScaleLocY * errorScaleQoverP));
-
-      covarianceMatrix->fillSymmetric(
-        2, 3, (*originalMatrix)(2, 3) * (errorScalePhi * errorScaleTheta));
-      covarianceMatrix->fillSymmetric(
-        2, 4, (*originalMatrix)(2, 4) * (errorScalePhi * errorScaleQoverP));
-
-      covarianceMatrix->fillSymmetric(
-        3, 4, (*originalMatrix)(3, 4) * (errorScaleTheta * errorScaleQoverP));
-
-    } else {
-      return clone(in);
-    }
     const AmgVector(5)& par = trackParameters->parameters();
     TrackParameters* newTrackParameters =
       trackParameters->associatedSurface().createTrackParameters(par[Trk::loc1],
@@ -112,25 +97,7 @@ Trk::MultiComponentStateHelpers::cloneWithScaledError(const Trk::MultiComponentS
 
     auto covarianceMatrix = std::make_unique<AmgSymMatrix(5)>();
 
-    (*covarianceMatrix)(0, 0) = (*originalMatrix)(0, 0) * errorScale;
-    (*covarianceMatrix)(1, 1) = (*originalMatrix)(1, 1) * errorScale;
-    (*covarianceMatrix)(2, 2) = (*originalMatrix)(2, 2) * errorScale;
-    (*covarianceMatrix)(3, 3) = (*originalMatrix)(3, 3) * errorScale;
-    (*covarianceMatrix)(4, 4) = (*originalMatrix)(4, 4) * errorScale;
-
-    covarianceMatrix->fillSymmetric(0, 1, (*originalMatrix)(0, 1) * errorScale);
-    covarianceMatrix->fillSymmetric(0, 2, (*originalMatrix)(0, 2) * errorScale);
-    covarianceMatrix->fillSymmetric(0, 3, (*originalMatrix)(0, 3) * errorScale);
-    covarianceMatrix->fillSymmetric(0, 4, (*originalMatrix)(0, 4) * errorScale);
-
-    covarianceMatrix->fillSymmetric(1, 2, (*originalMatrix)(1, 2) * errorScale);
-    covarianceMatrix->fillSymmetric(1, 3, (*originalMatrix)(1, 3) * errorScale);
-    covarianceMatrix->fillSymmetric(1, 4, (*originalMatrix)(1, 4) * errorScale);
-
-    covarianceMatrix->fillSymmetric(2, 3, (*originalMatrix)(2, 3) * errorScale);
-    covarianceMatrix->fillSymmetric(2, 4, (*originalMatrix)(2, 4) * errorScale);
-
-    covarianceMatrix->fillSymmetric(3, 4, (*originalMatrix)(3, 4) * errorScale);
+    (*covarianceMatrix)  = (*originalMatrix) * errorScale;
 
     const AmgVector(5)& par = trackParameters->parameters();
     TrackParameters* newTrackParameters =
@@ -153,9 +120,10 @@ Trk::MultiComponentStateHelpers::isMeasured(const Trk::MultiComponentState& in)
   bool isMeasured = true;
   for (const ComponentParameters& component : in) {
     const AmgSymMatrix(5)* originalMatrix = component.first->covariance();
-    if (!originalMatrix)
+    if (!originalMatrix){
       isMeasured = false;
-    break;
+      break;
+    }
   }
   return isMeasured;
 }

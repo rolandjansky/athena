@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonSimValUtils/MuonChamberNameConverter.h"
 #include <cstdlib>
-
-using namespace std;
-
 
 //Function converting from ATHENA identifier int StationName,int StationEta, int StationPhi, std::string ChamberType 
 //to the (hopefully) corresponding Hardware chamber name.Works only for Barrel MDTs (for the moment) 

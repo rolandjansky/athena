@@ -247,13 +247,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
 
     #TRT
-    TRT_CalDbSvc=CompFactory.TRT_CalDbSvc
-    InDetTRTCalDbSvc = TRT_CalDbSvc()
-    acc.addService(InDetTRTCalDbSvc)
 
-    TRT_StrawStatusSummarySvc=CompFactory.TRT_StrawStatusSummarySvc
-    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc"+ signature)
-    acc.addService(InDetTRTStrawStatusSummarySvc)
 
     TRT_RodDecoder=CompFactory.TRT_RodDecoder
     InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder",

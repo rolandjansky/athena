@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file AthenaKernel/src/ThinningCache.cxx
@@ -99,6 +99,26 @@ void ThinningCache::addThinning (const std::string& key,
 
 
 /**
+ * @brief Return the TrigNavigation helper for this stream, or nullptr.
+ */
+const ITrigNavigationThinningSvc*
+ThinningCache::trigNavigationThinningSvc() const
+{
+  return m_trigNavigationThinningSvc;
+}
+
+
+/**
+ * @brief Set the TrigNavigation helper for this stream.
+ * @param thinning TrigNavigation helper.
+ */
+void ThinningCache::setTrigNavigationThinningSvc (const ITrigNavigationThinningSvc* thinning)
+{
+  m_trigNavigationThinningSvc = thinning;
+}
+
+
+/**
  * @brief Lock all the @c ThinningDecisionBase objects that we own.
  *
  * This should be called after all thinning objects have been added,
@@ -120,6 +140,7 @@ void ThinningCache::clear()
   m_map.clear();
   m_sgmap.clear();
   m_owned.clear();
+  m_trigNavigationThinningSvc = nullptr;
 }
 
 

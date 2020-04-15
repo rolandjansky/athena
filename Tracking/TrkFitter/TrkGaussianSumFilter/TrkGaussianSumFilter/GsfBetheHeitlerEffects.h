@@ -29,6 +29,7 @@ class GsfBetheHeitlerEffects
 {
 
 private:
+  
   /** Helper class for construction and evaluation of polynomial */
   class Polynomial
   {
@@ -51,17 +52,31 @@ private:
 
       return sum;
     }
-
   private:
     std::vector<double> m_coefficients;
   };
 
+
   struct ComponentValues
   {
+    // Default ctors/dtor/assignment operators
+    ComponentValues() = default;
+    ~ComponentValues() = default;
+    ComponentValues(const ComponentValues&) = default;
+    ComponentValues& operator=(const ComponentValues&) = default;
+    ComponentValues(ComponentValues&&) = default;
+    ComponentValues& operator=(ComponentValues&&) = default;
+    // Constructor with arguments
+    ComponentValues(double aWeight, double aMean, double aVariance)
+      : weight(aWeight)
+      , mean(aMean)
+      , variance(aVariance)
+    {}
     double weight;
     double mean;
     double variance;
   };
+
 
 public:
   GsfBetheHeitlerEffects(const std::string&, const std::string&, const IInterface*);

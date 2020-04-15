@@ -33,8 +33,6 @@
 
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
-// #include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
-// #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -61,13 +59,8 @@ class RpcDataPreparator: public AthAlgTool
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
  private:
-      // Region Selector
       ServiceHandle<IRegSelSvc> m_regionSelector;
       SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
-
-      // const IRPCcablingSvc* m_rpcCabling;
-      // const CablingRPCBase* m_rpcCablingSvc;
-
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       // handles to the RoI driven data access

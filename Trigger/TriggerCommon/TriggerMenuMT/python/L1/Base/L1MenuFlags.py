@@ -95,7 +95,7 @@ class BunchGroupPartitioning(JobProperty):
 _flags.append(BunchGroupPartitioning)
 
 class BunchGroupNames(JobProperty):
-    statusOn = True
+    statusOn = False
     allowedTypes = ['list']
     StoredValue = []
 

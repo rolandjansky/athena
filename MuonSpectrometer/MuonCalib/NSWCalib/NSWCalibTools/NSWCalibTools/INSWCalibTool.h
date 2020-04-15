@@ -6,11 +6,28 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "Identifier/Identifier.h"
 
 #include <cmath>
 #include <vector>
 
 static const InterfaceID IID_INSWCalibTool("Muon::INSWCalibTool",1,0);
+
+namespace NSWCalib { 
+
+  struct CalibratedStrip {
+    double charge;
+    double time;
+    double resTime;
+    double distDrift;
+    double resTransDistDrift;
+    double resLongDistDrift;
+    double dx;
+    Identifier identifier;
+  };
+
+}
+
 
 namespace Muon {
 
@@ -23,8 +40,8 @@ namespace Muon {
     static const InterfaceID& interfaceID()  {return IID_INSWCalibTool;}
 
   public:  // interface methods
-
-    virtual StatusCode calibrate(const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, double& dist_drift, double& distRes_drift, double& calib_charge) = 0;
+    
+    virtual StatusCode calibrate(const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, NSWCalib::CalibratedStrip& calibStrip) const = 0;
 
   };
   

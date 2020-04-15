@@ -175,16 +175,10 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
    * Generate a large prediction for extrapolation. This way there is no dependance on error of
    * prediction NB local Y and theta are not blown out too much to help in the TRT
    */
-  std::unique_ptr<Trk::MultiComponentState> smoothedStateWithScaledError = std::unique_ptr<Trk::MultiComponentState>(
-    MultiComponentStateHelpers::cloneWithScaledError(*firstSmoothedState, 15., 5., 15., 5., 15.));
-
-  if (!smoothedStateWithScaledError) {
-    ATH_MSG_WARNING("Covariance scaling could not be performed... returning 0");
-    return nullptr;
-  }
+  std::unique_ptr<Trk::MultiComponentState> smoothedStateWithScaledError =
+    MultiComponentStateHelpers::cloneWithScaledError(*firstSmoothedState, 15., 5., 15., 5., 15.);
 
   // Perform a measurement update on this new state
-
   std::unique_ptr<Trk::MultiComponentState> updatedState =
     m_updator->update(std::move(*smoothedStateWithScaledError), *firstSmootherMeasurementOnTrack);
 

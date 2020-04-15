@@ -234,7 +234,7 @@ void test3 (TileROD_Decoder* decoder_nc)
     }
 
     TileROD_Decoder::D0CellsHLT d0cells;
-    uint32_t stat = decoder->fillCollectionHLT (&data01.rob(), coll, d0cells);
+    uint32_t stat = decoder->fillCollectionHLT (&data01.rob(), coll, d0cells, NULL);
     assert (stat == 0);
     std::cout << "TileCellCollection: " << coll.size() << "\n";
     std::cout << static_cast<std::string> (coll);

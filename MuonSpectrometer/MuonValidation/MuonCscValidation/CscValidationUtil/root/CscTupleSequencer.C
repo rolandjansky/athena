@@ -1,21 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// CscTupleSequencer.C
-
 #include "CscTupleSequencer.h"
+#include "TMath.h" // for TMath::Sort()
 
 int CscTupleSequencer::sequence(const TTree* ptree) const {
   m_ents.clear();
   if ( ptree == 0 ) {
-    cout << "CscTupleSequencer: null tree" << endl;
+    cout << "CscTupleSequencer: null tree" << std::endl;
     return 1;
   }
   int nent = ptree->GetEntries();
   int iinit = m_peval->init(ptree);
   if ( iinit != 0 ) {
-    cout << "CscTupleSequencer: Error initializing evaluatior: " << iinit << endl;
+    std::cout << "CscTupleSequencer: Error initializing evaluatior: " << iinit << std::endl;
     return 2;
   }
   for ( int ient=0; ient<nent; ++ient ) {
@@ -29,14 +28,14 @@ int CscTupleSequencer::sequence(const TTree* ptree) const {
 template<class R>
 int EventNumberEvaluator<R>::init(TTree* ptree) const {
   if ( ptree == 0 ) {
-    cout << "EventNumberEvaluator:init: null tree " << endl;
+    std::cout << "EventNumberEvaluator:init: null tree " << std::endl;
     return -1;
   }
   if ( m_ptree != ptree ) {
     m_ptree = ptree;
     m_preader = m_getfun();
     if ( m_preader == 0 ) {
-      cout << "EventNumberEvaluator:init: null reader " << endl;
+      std::cout << "EventNumberEvaluator:init: null reader " << std::endl;
       return -2;
     }
   }
@@ -46,16 +45,16 @@ int EventNumberEvaluator<R>::init(TTree* ptree) const {
 template<class R>
 double EventNumberEvaluator<R>::operator()(int ient) const {
   if ( m_ptree == 0 ) {
-    cout << "EventNumberEvaluator: null tree " << endl;
+    std::cout << "EventNumberEvaluator: null tree " << std::endl;
     return -1.0;
   }
   if ( m_preader == 0 ) {
-    cout << "EventNumberEvaluator: null reader " << endl;
+    std::cout << "EventNumberEvaluator: null reader " << std::endl;
     return -2.0;
   }
   int entry_size = m_preader->GetEntry(ient);
   if ( entry_size <= 0 ) {
-    cout << "EventNumberEvaluator: GetEntry returned " << entry_size << endl;
+    std::cout << "EventNumberEvaluator: GetEntry returned " << entry_size << std::endl;
     return -3.0;
   }
   int ievt = m_preader->evt;
