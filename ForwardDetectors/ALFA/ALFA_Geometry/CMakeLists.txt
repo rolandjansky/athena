@@ -27,7 +27,7 @@ atlas_add_library( ALFA_Geometry
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES PathResolver )
+                   PRIVATE_LINK_LIBRARIES PathResolver GeoModelInterfaces RDBAccessSvcLib )
 
 # Install files from the package:
 atlas_install_runtime( share/metrology/*.dat )
