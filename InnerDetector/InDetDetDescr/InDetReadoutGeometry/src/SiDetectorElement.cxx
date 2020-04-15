@@ -74,9 +74,9 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_minPhi=defaultMin;
   m_maxPhi=defaultMax;
 
-  m_hitEta = static_cast<const SiDetectorDesign *>(m_design)->etaAxis(); // common?
-  m_hitPhi = static_cast<const SiDetectorDesign *>(m_design)->phiAxis(); // common?
-  m_hitDepth = static_cast<const SiDetectorDesign *>(m_design)->depthAxis(); // common?
+  m_hitEta = m_design->etaAxis(); // common?
+  m_hitPhi = m_design->phiAxis(); // common?
+  m_hitDepth = m_design->depthAxis(); // common?
   ///
   
   commonConstructor();
@@ -142,7 +142,7 @@ SiDetectorElement::updateCache() const
   
   const HepGeom::Transform3D &geoTransform = getMaterialGeom()->getAbsoluteTransform();
       
-  m_centerCLHEP = geoTransform * static_cast<const SiDetectorDesign *>(m_design)->sensorCenter();
+  m_centerCLHEP = geoTransform * m_design->sensorCenter();
   m_center = Amg::Vector3D(m_centerCLHEP[0],m_centerCLHEP[1],m_centerCLHEP[2]);
   
   HepGeom::Point3D<double> centerGeoModel(0., 0., 0.);
@@ -228,7 +228,7 @@ SiDetectorElement::updateCache() const
     double depthDir = globalDepthAxis.dot(nominalNormal);
     m_depthDirection = true;
     if (depthDir < 0) {
-      if (static_cast<const SiDetectorDesign *>(m_design)->depthSymmetric()) {
+      if (m_design->depthSymmetric()) {
         m_depthDirection = false;
       } else {
         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local depth axis." << endreq;
@@ -246,7 +246,7 @@ SiDetectorElement::updateCache() const
     double phiDir = globalPhiAxis.dot(nominalPhi);
     m_phiDirection = true;
     if (phiDir < 0) {
-      if (static_cast<const SiDetectorDesign *>(m_design)->phiSymmetric()) {
+      if (m_design->phiSymmetric()) {
         m_phiDirection = false;
       } else {
         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xPhi axis." << endreq;
@@ -265,7 +265,7 @@ SiDetectorElement::updateCache() const
     double etaDir = globalEtaAxis.dot(nominalEta);
     m_etaDirection = true;
     if (etaDir < 0) {
-      if (static_cast<const SiDetectorDesign *>(m_design)->etaSymmetric()) {
+      if (m_design->etaSymmetric()) {
         m_etaDirection = false;
       } else {
         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endreq;
@@ -280,7 +280,7 @@ SiDetectorElement::updateCache() const
   } // end if (m_firstTime)
   
 
-  m_transformHit   = geoTransform * static_cast<const SiDetectorDesign *>(m_design)->SiHitToGeoModel();
+  m_transformHit   = geoTransform * m_design->SiHitToGeoModel();
   m_transformCLHEP = geoTransform * recoToHitTransform();
   //m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
   m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
@@ -722,8 +722,8 @@ double SiDetectorElement::sinStereo() const
   if (isBarrel()) {
     sinStereo = m_phiAxis.z();
   } else { // endcap
-    if (static_cast<const SiDetectorDesign *>(m_design)->shape() == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
-      HepGeom::Point3D<double> sensorCenter = static_cast<const SiDetectorDesign *>(m_design)->sensorCenter();
+    if (m_design->shape() == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
+      HepGeom::Point3D<double> sensorCenter = m_design->sensorCenter();
       //Below retrieved method will return -sin(m_Stereo), thus sinStereolocal = sin(m_Stereo)
       double sinStereoReco = - static_cast<const SiDetectorDesign *>(m_design)->sinStripAngleReco(sensorCenter[1], sensorCenter[0]);
       double cosStereoReco = sqrt(1-sinStereoReco*sinStereoReco); 
@@ -762,7 +762,7 @@ double SiDetectorElement::sinStereo(const HepGeom::Point3D<double> &globalPos) c
 
   double sinStereo;
   if (isBarrel()) {
-    if (static_cast<const SiDetectorDesign *>(m_design)->shape() != InDetDD::Trapezoid) {
+    if (m_design->shape() != InDetDD::Trapezoid) {
       sinStereo = m_phiAxis.z();
     } else { // trapezoid
       assert (minWidth() != maxWidth());
@@ -771,7 +771,7 @@ double SiDetectorElement::sinStereo(const HepGeom::Point3D<double> &globalPos) c
       sinStereo = (stripAxis.x() * m_normal.y() - stripAxis.y() * m_normal.x()) / stripAxis.mag();
     }
   } else { // endcap
-    if (static_cast<const SiDetectorDesign *>(m_design)->shape() != InDetDD::Trapezoid) {
+    if (m_design->shape() != InDetDD::Trapezoid) {
       sinStereo = (globalPos.y() * m_etaAxis.x() - globalPos.x() * m_etaAxis.y()) / globalPos.perp();
     } else { // trapezoid      
       // double radius   = m_center.perp(); // Really want nominal r.
@@ -836,7 +836,7 @@ const std::vector<const Trk::Surface*>& SiDetectorElement::surfaces() const
 const Trk::SurfaceBounds & 
 SiDetectorElement::bounds() const
 {
-  return static_cast<const SiDetectorDesign *>(m_design)->bounds();
+  return m_design->bounds();
 }
   
 // Get min/max or r, z,and phi
@@ -851,7 +851,7 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 
   double phiOffset = 0.;
 
-  HepGeom::Point3D<double> sensorCenter = static_cast<const SiDetectorDesign *>(m_design)->sensorCenter();
+  HepGeom::Point3D<double> sensorCenter = m_design->sensorCenter();
   double radialShift = sensorCenter[0];
 
   const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
@@ -1009,9 +1009,9 @@ void SiDetectorElement::getCorners(HepGeom::Point3D<double> *corners) const
   // For the SCT barrel and pixel detectors minWidth and maxWidth are the same and so should 
   // work for all orientations.
 
-  double minWidth = static_cast<const SiDetectorDesign *>(m_design)->minWidth();
-  double maxWidth = static_cast<const SiDetectorDesign *>(m_design)->maxWidth();
-  double length   = static_cast<const SiDetectorDesign *>(m_design)->length();
+  double minWidth = m_design->minWidth();
+  double maxWidth = m_design->maxWidth();
+  double length   = m_design->length();
   
   // Lower left
   corners[0][distPhi] = -0.5 * minWidth;
@@ -1038,14 +1038,14 @@ SiIntersect
 SiDetectorElement::inDetector(const Amg::Vector2D & localPosition, 
 					  double phiTol, double etaTol) const
 {
-  return static_cast<const SiDetectorDesign *>(m_design)->inDetector(localPosition, phiTol, etaTol);
+  return m_design->inDetector(localPosition, phiTol, etaTol);
 }
 
   
 SiIntersect 
 SiDetectorElement::inDetector(const HepGeom::Point3D<double> & globalPosition, double phiTol, double etaTol) const
 {
-  return static_cast<const SiDetectorDesign *>(m_design)->inDetector(localPosition(globalPosition), phiTol, etaTol);
+  return m_design->inDetector(localPosition(globalPosition), phiTol, etaTol);
 }
 
 bool 
@@ -1064,7 +1064,7 @@ SiDetectorElement::nearBondGap(HepGeom::Point3D<double> globalPosition, double e
   Amg::Vector2D
 SiDetectorElement::localPositionOfCell(const SiCellId &cellId) const
 {
-  Amg::Vector2D pos(static_cast<const SiDetectorDesign *>(m_design)->localPositionOfCell(cellId));
+  Amg::Vector2D pos(m_design->localPositionOfCell(cellId));
   return correctLocalPosition(pos);
 }
 
@@ -1072,7 +1072,7 @@ Amg::Vector2D
 SiDetectorElement::localPositionOfCell(const Identifier & id) const
 {
   SiCellId cellId = cellIdFromIdentifier(id);
-  SiLocalPosition silp = static_cast<const SiDetectorDesign *>(m_design)->localPositionOfCell(cellId);
+  SiLocalPosition silp = m_design->localPositionOfCell(cellId);
   Amg::Vector2D pos = hitLocalToLocal(silp.xEta(), silp.xPhi());
   return correctLocalPosition(pos);
 }
@@ -1080,41 +1080,41 @@ SiDetectorElement::localPositionOfCell(const Identifier & id) const
 Amg::Vector2D
 SiDetectorElement::rawLocalPositionOfCell(const SiCellId &cellId) const
 {
-  return static_cast<const SiDetectorDesign *>(m_design)->localPositionOfCell(cellId);
+  return m_design->localPositionOfCell(cellId);
 }
 
 Amg::Vector2D
 SiDetectorElement::rawLocalPositionOfCell(const Identifier & id) const
 {
   SiCellId cellId = cellIdFromIdentifier(id);
-  return static_cast<const SiDetectorDesign *>(m_design)->localPositionOfCell(cellId);
+  return m_design->localPositionOfCell(cellId);
 }
 
 int 
 SiDetectorElement::numberOfConnectedCells(const SiCellId cellId) const
 {
-  SiReadoutCellId readoutId = static_cast<const SiDetectorDesign *>(m_design)->readoutIdOfCell(cellId);
-  return static_cast<const SiDetectorDesign *>(m_design)->numberOfConnectedCells(readoutId);
+  SiReadoutCellId readoutId = m_design->readoutIdOfCell(cellId);
+  return m_design->numberOfConnectedCells(readoutId);
 }
 
 SiCellId 
 SiDetectorElement::connectedCell(const SiCellId cellId, int number) const
 {
-  SiReadoutCellId readoutId = static_cast<const SiDetectorDesign *>(m_design)->readoutIdOfCell(cellId);
-  return static_cast<const SiDetectorDesign *>(m_design)->connectedCell(readoutId, number);
+  SiReadoutCellId readoutId = m_design->readoutIdOfCell(cellId);
+  return m_design->connectedCell(readoutId, number);
 }
 
 
 SiCellId 
 SiDetectorElement::cellIdOfPosition(const Amg::Vector2D &localPosition) const
 {
-  return static_cast<const SiDetectorDesign *>(m_design)->cellIdOfPosition(localPosition);
+  return m_design->cellIdOfPosition(localPosition);
 }
 
 Identifier
 SiDetectorElement::identifierOfPosition(const Amg::Vector2D &localPosition) const
 {
-  SiCellId cellId = static_cast<const SiDetectorDesign *>(m_design)->cellIdOfPosition(localPosition);
+  SiCellId cellId = m_design->cellIdOfPosition(localPosition);
   return identifierFromCellId(cellId);
 }
 
