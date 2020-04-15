@@ -346,6 +346,5 @@ def do_MadSpin_DRX(DRmode, msdirname):
                         do_DR2_hack(full_file_matrix_prod, "mytmp.txt","_PROD",to_replace,0) #do not put top propagator on shell
                         do_driver_hacks(fdir+f_file+"/driver.f")
 
-    os.remove("the_process.txt")
     drlog.info("finished do_MadSpin_DRX")
     sys.stdout.flush()
