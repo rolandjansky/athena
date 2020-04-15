@@ -200,7 +200,7 @@ SCTVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."
 
 # Add vertices
 SCTVALIDStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-SCTVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+SCTVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV")
 
 # Add links and measurements
 SCTVALIDStream.AddItem("xAOD::TrackStateValidationContainer#*")
