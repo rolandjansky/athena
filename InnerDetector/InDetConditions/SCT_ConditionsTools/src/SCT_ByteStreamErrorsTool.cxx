@@ -330,23 +330,6 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
       cacheEntry->abcdErrorChips[module_id] |= (1 << (errCode - SCT_ByteStreamErrors::ABCDError_Chip0 + side * 6));
     } else if (errCode & SCT_ByteStreamErrors::TempMaskedChipsMask()) {
       cacheEntry->tempMaskedChips[module_id] |= (1 << (errCode- SCT_ByteStreamErrors::TempMaskedChip0 + side * 6));
-    } else {
-      // for the moment this is dead code
-      std::pair<bool, bool> badLinks{m_config->badLinks(hashId, ctx)};
-      bool result{(side == 0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
-      if (result) {
-        /// error in a module using RX redundancy - add an error for the other
-        /// link as well!!
-        /// However, ABCDError_Chip0-ABCDError_Chip5 and
-        /// TempMaskedChip0-TempMaskedChip5 are not common for two links.
-        if (side == 0) {
-          IdentifierHash otherSide{IdentifierHash(hashId + 1)};
-          ATH_MSG_DEBUG("Adding error to side 1 for module with RX redundancy " << otherSide);
-        } else if (side == 1) {
-          IdentifierHash otherSide{IdentifierHash(hashId - 1)};
-          ATH_MSG_DEBUG("Adding error to side 0 for module with RX redundancy " << otherSide);
-        }
-      }
     }
 
   }
