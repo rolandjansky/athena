@@ -123,11 +123,8 @@ StatusCode ToolExamplesAlg::execute() {
     CHECK( evtStore()->record(calib_els.second,"Electrons" + systName + "Aux.") ); 
     
     //CloseBy-corrected Isolation Selection example
-    std::vector<const xAOD::IParticle*> all_els;
-    for(auto el : *calib_els.first) all_els.push_back(el);
-    
     for(auto el : *calib_els.first) {
-      Root::TAccept acc = m_elCorrectedIsoSelection->acceptCorrected(*el, all_els);
+      Root::TAccept acc = m_elCorrectedIsoSelection->acceptCorrected(*el, *els);
     }
     
   }
