@@ -84,7 +84,7 @@ def find_W_prepare_DRXhack(mfile,bindex,windex,redefine_twidth,which_DR):
 
 #-------------------------------------
 def do_DR1_hacks(mfile,tmpfile):
-    drlog.info("performing DR1 for file ", mfile)
+    drlog.info("performing DR1 for file "+mfile)
     with open(tmpfile,"r") as mytmp:
         for line in fileinput.input(mfile, inplace=True):
             # fileinput redirects the print output to mfile
@@ -202,7 +202,7 @@ def do_DR2_hack(mfile, tmpfile, suffix,to_replace,should_replace): #to_replace a
                 destination.write("      REAL*8 MATRIX"+suffix+"_res\n")
                 destination.write("      COMPLEX*16 JAMP_res(NCOLOR)\n")
             elif "JAMP(1)=" in line:
-                drlog.info("performing DR2 for file ", mfile)
+                drlog.info("performing DR2 for file "+mfile)
                 jamplines = saved_jamp1.readlines()
                 my_jamp1 = ""
                 for j,jline in enumerate(jamplines):

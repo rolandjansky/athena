@@ -191,7 +191,7 @@ class PowhegBase(Configurable):
             if found != []:
                 found_files += found
             else:
-                missing_patterns += s
+                missing_patterns.append(s)
         if missing_patterns == []:
             logger.info("Integration grid files found locally. Event generation shall continue, skipping the integration step.")
             logger.info("Integration grid files found locally: {}".format(found_files))
