@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ thinning
@@ -176,6 +176,60 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
     thinningTools.append(TOPQSV1ThinningTool)
     print TOPQname+".py", TOPQname+"SV1ThinningTool: ", TOPQSV1ThinningTool
 
+    if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ4':
+        # Keep tracks associated to AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903
+        # as well as their JetFitter and SV1 vertices
+        # we are only interested in the latest calibrated time-stamped version
+        # the largeRsel is to only keep tracks and vertices if events have boosted tops
+        largeR_pt = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV"
+        largeR_eta = "abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.5"
+        largeRsel = "count(({0}) && ({1})) >= 1".format(largeR_pt, largeR_eta)
+        track_particle_thinning_trackjetpt_cut = "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903.pt >= 10*GeV"
+
+        from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TrkJetTrackThinning
+        TOPQTrkJetThinningTool = DerivationFramework__TrkJetTrackThinning(
+            name                    = TOPQname + "TrkJetTrackThinning",
+            ThinningService         = TOPQThinningSvc,
+            TrkJetKey               = "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+            InDetTrackParticlesKey  = "InDetTrackParticles",
+            TrkJetSelectionString   = track_particle_thinning_trackjetpt_cut,
+            EventSelectionString    = largeRsel,
+            ThinConstituents        = True,
+            ThinJetFitterTracks     = True,
+            ThinSV1Tracks           = True,
+            ApplyAnd                = False
+        )
+        ToolSvc += TOPQTrkJetThinningTool
+        thinningTools.append(TOPQTrkJetThinningTool)
+        print TOPQname+".py", TOPQname+"TrkJetThinningTool: ", TOPQTrkJetThinningTool
+
+        from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TrkJetSecVtxThinning
+        TOPQTrkJetSecVtxThinningTool = DerivationFramework__TrkJetSecVtxThinning(
+            name                     = TOPQname + "TrkJetSecVtxThinning",
+            ThinningService          = TOPQThinningSvc,
+            TrkJetKey                = "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+            SecVtxContainerKey       = "BTagging_AntiKtVR30Rmax4Rmin02Track_201903SecVtx",
+            TrkJetSelectionString    = track_particle_thinning_trackjetpt_cut,
+            EventSelectionString     = largeRsel,
+            ApplyAnd                 = False
+        )
+        ToolSvc += TOPQTrkJetSecVtxThinningTool
+        thinningTools.append(TOPQTrkJetSecVtxThinningTool)
+        print TOPQname+".py", TOPQname+"TrkJetSecVtxThinningTool: ", TOPQTrkJetSecVtxThinningTool
+
+        from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TrkJetJetFitterThinning
+        TOPQTrkJetJetFitterThinningTool = DerivationFramework__TrkJetJetFitterThinning(
+            name                     = TOPQname + "TrkJetJetFitterThinning",
+            ThinningService          = TOPQThinningSvc,
+            TrkJetKey                = "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+            JetFitterContainerKey    = "BTagging_AntiKtVR30Rmax4Rmin02Track_201903JFVtx",
+            TrkJetSelectionString    = track_particle_thinning_trackjetpt_cut,
+            EventSelectionString     = largeRsel,
+            ApplyAnd                 = False
+        )
+        ToolSvc += TOPQTrkJetJetFitterThinningTool
+        thinningTools.append(TOPQTrkJetJetFitterThinningTool)
+        print TOPQname+".py", TOPQname+"TrkJetJetFitterThinningTool: ", TOPQTrkJetJetFitterThinningTool
 
     #============================
     # JetCaloCluster Thinning (AntiKt4EMTopoJets)
