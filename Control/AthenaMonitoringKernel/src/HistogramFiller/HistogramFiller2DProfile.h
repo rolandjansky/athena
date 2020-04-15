@@ -6,6 +6,7 @@
 #define AthenaMonitoringKernel_HistogramFiller_HistogramFiller2DProfile_h
 
 #include "TProfile2D.h"
+#include "boost/range/combine.hpp"
 
 #include "AthenaMonitoringKernel/HistogramFiller.h"
 
