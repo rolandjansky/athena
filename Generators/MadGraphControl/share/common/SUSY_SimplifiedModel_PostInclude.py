@@ -10,7 +10,7 @@ if evt_multiplier>0:
 else:
     # Sensible default
     nevts=evgenConfig.nEventsPerJob*2.
-run_settings.update({'nevents':nevts})
+run_settings.update({'nevents':int(nevts)})
 
 # Only needed for something non-standard (not 1/4 heavy mass)
 if ktdurham is not None:
