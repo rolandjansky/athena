@@ -14,16 +14,42 @@ log = logging.getLogger("InDetPT")
 
 
 
-#Start using already decided naming conventions
-#TODO: remap might not be needed in the end once this is consistent with FTF configuration
-def remap_signature( signature ):
-   if signature == 'electron':
-       return 'Electron'
-   else:
-        return signature
+# Start using already decided naming conventions
+# NB: this is only needed at the moment since the signature menu code is 
+#     inconcistent in what flags they pass the ID Trigger configuration 
+#     for the FTF And precision tracking. Once that is tidied up, this
+#     should be removed
+ 
+def remapSuffix( signature ):
+   suffix_map = { 
+      'electron':  'Electron', 
+      'muon':      'Muon',
+      'muonFS':    'MuonFS',
+      'muonLate':  'MuonLate',
+      'muonIso':   'MuonIso',
+      'bjet':      'Bjet',
+      'tau':       'Tau',
+      'tauId':     'Tau',
+      'tauEF':     'Tau',
+      'tauTrk':    'Tau',
+      'tauTrkTwo': 'Tau'
+   } 
 
-def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks='TrigFastTrackFinder_Tracks', outputTrackPrefixName = "HLT_ID", rois = 'EMViewRoIs' ):
-  doTRTextension = False 
+
+   
+   if signature in suffix_map :
+      return suffix_map[ signature ]
+
+   return signature
+   
+
+def makeInDetPrecisionTracking( whichSignature, 
+                                verifier = False, 
+                                inputFTFtracks='TrigFastTrackFinder_Tracks', 
+                                outputTrackPrefixName = "HLT_ID", 
+                                rois = 'EMViewRoIs', 
+                                doTRTextension = True ) :
+
   ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
 
 
@@ -42,18 +68,26 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   nameExtTrackCollection = "%s%sTrkTrack%s"         %(outputTrackPrefixName, 'TRText', signature)
 
   #Note IDTrig suffix as a key to specify that this collection comes from precision tracking rather than fast tracking (FTF)
-  outPTTracks             = "%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remap_signature( whichSignature ), 'IDTrig')
-  outPTTrackParticles     = "%sTrack_%s_%s"            %(outputTrackPrefixName, remap_signature( whichSignature ), 'IDTrig')
+  outPTTracks             = "%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
+  outPTTrackParticles     = "%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
+
+
+  # disable the TRT extension at the moment for bjets and muons
+  if "electron" in whichSignature : 
+      doTRTextension = True
+  else : 
+      doTRTextension = False
+
 
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
   #e.g InDetTrigPT_Tracks_electron
-  if whichSignature == "electron":
-      doTRTextension = True
-      nameExtTrackCollection = outPTTracks
+  if doTRTextension == True :
+     nameExtTrackCollection = outPTTracks
   else:
-      nameAmbiTrackCollection = outPTTracks
+     nameAmbiTrackCollection = outPTTracks
 
+     
 
 
   #-----------------------------------------------------------------------------
@@ -80,7 +114,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                           TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool)
 
 
-  if whichSignature == "electron":
+  if whichSignature == "electron" or "tau" in whichSignature :
       Parameter_config = True 
       SummaryTool_config = InDetTrigTrackSummaryToolSharedHitsWithTRTPid
   else:
@@ -146,6 +180,12 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
 
   ptAlgs.extend( [ InDetTrigAmbiguityScore, InDetTrigMTAmbiguitySolver] )
   if doTRTextension:
+
+            proxySignature = whichSignature
+            if "tau" in whichSignature :
+               proxySignature = "tau"
+     
+
             #-----------------------------------------------------------------------------
             #                        TRT data preparation
             from AthenaCommon.AppMgr import ServiceMgr
@@ -155,20 +195,20 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
              
              
                 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
-                InDetTRTRodDecoder = TRT_RodDecoder(name = "%sTRTRodDecoder%s" %(algNamePrefix, signature),
-                                                    LoadCompressTableDB = True)#(globalflags.DataSource() != 'geant4'))
+                InDetTRTRodDecoder = TRT_RodDecoder( name = "%sTRTRodDecoder%s" %(algNamePrefix, signature),
+                                                     LoadCompressTableDB = True )#(globalflags.DataSource() != 'geant4'))
                 ToolSvc += InDetTRTRodDecoder
              
                 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
-                InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "%sTRTRawDataProviderTool%s"%(algNamePrefix, signature),
-                                                                      Decoder = InDetTRTRodDecoder)
+                InDetTRTRawDataProviderTool = TRTRawDataProviderTool( name    = "%sTRTRawDataProviderTool%s"%(algNamePrefix, signature),
+                                                                      Decoder = InDetTRTRodDecoder )
                 ToolSvc += InDetTRTRawDataProviderTool
              
                 # load the TRTRawDataProvider
                 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
-                InDetTRTRawDataProvider = TRTRawDataProvider(name         = "%sTRTRawDataProvider%s"%(algNamePrefix, signature),
-                                                             RDOKey       = "TRT_RDOs",
-                                                             ProviderTool = InDetTRTRawDataProviderTool)
+                InDetTRTRawDataProvider = TRTRawDataProvider( name         = "%sTRTRawDataProvider%s"%(algNamePrefix, signature),
+                                                              RDOKey       = "TRT_RDOs",
+                                                              ProviderTool = InDetTRTRawDataProviderTool )
                 InDetTRTRawDataProvider.isRoI_Seeded = True
                 InDetTRTRawDataProvider.RoIs = rois
 
@@ -206,19 +246,24 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
             # Condition algorithm for InDet__TRT_DetElementsRoadMaker_xk
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
-            #if not hasattr(condSeq, "InDet__TRT_DetElementsRoadCondAlg_xk"):
-            from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
-            condSeq += InDet__TRT_DetElementsRoadCondAlg_xk(name = "%sTRT_DetElementsRoadCondAlg_xk%s"%(algNamePrefix, signature) )
+            
 
- 
+            InDetTRTRoadAlgName = "%sTRT_DetElementsRoadCondAlg_xk"%(algNamePrefix)
+
+            if not hasattr( condSeq, InDetTRTRoadAlgName ):
+               from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadCondAlg_xk
+
+               # condSeq += InDet__TRT_DetElementsRoadCondAlg_xk(name = "%sTRT_DetElementsRoadCondAlg_xk%s"%(algNamePrefix, signature) )
+               condSeq += InDet__TRT_DetElementsRoadCondAlg_xk( name = InDetTRTRoadAlgName )
+
 
             from TRT_DetElementsRoadTool_xk.TRT_DetElementsRoadTool_xkConf import InDet__TRT_DetElementsRoadMaker_xk
-            InDetTrigTRTDetElementsRoadMaker =  InDet__TRT_DetElementsRoadMaker_xk(name   = '%sTRTRoadMaker%s'%(algNamePrefix, signature),
-                                                                                       #DetectorStoreLocation = 'DetectorStore',
-                                                                                       #TRTManagerLocation    = 'TRT',
-                                                                                       MagneticFieldMode     = 'MapSolenoid',
-                                                                                       PropagatorTool        = InDetTrigPatternPropagator)
-
+            InDetTrigTRTDetElementsRoadMaker =  InDet__TRT_DetElementsRoadMaker_xk( name   = '%sTRTRoadMaker%s'%(algNamePrefix, signature),
+                                                                                    #DetectorStoreLocation = 'DetectorStore',
+                                                                                    #TRTManagerLocation    = 'TRT',
+                                                                                    MagneticFieldMode     = 'MapSolenoid',
+                                                                                    PropagatorTool        = InDetTrigPatternPropagator )
+            
 
             ToolSvc += InDetTrigTRTDetElementsRoadMaker
 
@@ -280,7 +325,7 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
                                                                   DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
                                                                   )
 
-            InDetTrigExtScoringTool.minPt = InDetTrigSliceSettings[('pTmin',whichSignature)]
+            InDetTrigExtScoringTool.minPt = InDetTrigSliceSettings[('pTmin', proxySignature)]
 
             ToolSvc += InDetTrigExtScoringTool
 
@@ -324,27 +369,31 @@ def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks
   
   
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
-  InDetTrigMTxAODTrackCollectionCnvTool= xAODMaker__TrackCollectionCnvTool(name = "%sxAODTrackCollectionCnvTool%s" %(algNamePrefix, signature),
-                                                                           TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool)
+  InDetTrigMTxAODTrackCollectionCnvTool= xAODMaker__TrackCollectionCnvTool(
+     name = "%sxAODTrackCollectionCnvTool%s" %(algNamePrefix, signature),
+     TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool)
   
+
   ToolSvc += InDetTrigMTxAODTrackCollectionCnvTool
   log.info(InDetTrigMTxAODTrackCollectionCnvTool)
   
   #This one shouldn't be necessary
   #TODO: obsolete turn off
   from xAODTrackingCnv.xAODTrackingCnvConf import  xAODMaker__RecTrackParticleContainerCnvTool
-  InDetTrigMTRecTrackParticleContainerCnvTool=  xAODMaker__RecTrackParticleContainerCnvTool(name = "%sRecTrackContainerCnvTool%s" %(algNamePrefix, signature),
-                                                                                            TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool)
+  InDetTrigMTRecTrackParticleContainerCnvTool=  xAODMaker__RecTrackParticleContainerCnvTool(
+     name = "%sRecTrackContainerCnvTool%s" %(algNamePrefix, signature),
+     TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool )
   
   ToolSvc += InDetTrigMTRecTrackParticleContainerCnvTool
   #print (InDetTrigMTRecTrackParticleContainerCnvTool)
   
+  from TrigEDMConfig.TriggerEDMRun3 import recordable
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
-  InDetTrigMTxAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name = "%sxAODParticleCreatorAlg%s" %( algNamePrefix, signature),
+  InDetTrigMTxAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "%sxAODParticleCreatorAlg%s" %( algNamePrefix, signature),
                                                                       # Properties below are used for:  TrackCollection -> xAOD::TrackParticle
                                                                         ConvertTracks = True,  #Turn on  retrieve of TrackCollection, false by default
                                                                         TrackContainerName                        = outPTTracks,
-                                                                        xAODTrackParticlesFromTracksContainerName = outPTTrackParticles, 
+                                                                        xAODTrackParticlesFromTracksContainerName = recordable( outPTTrackParticles ), 
                                                                         TrackCollectionCnvTool = InDetTrigMTxAODTrackCollectionCnvTool,
                                                                        ## Properties below are used for: Rec:TrackParticle, aod -> xAOD::TrackParticle (Turn off)
                                                                         ConvertTrackParticles = False,  # Retrieve of Rec:TrackParticle, don't need this atm
