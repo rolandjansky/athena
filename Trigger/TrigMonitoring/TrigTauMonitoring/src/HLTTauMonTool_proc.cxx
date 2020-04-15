@@ -37,7 +37,7 @@ StatusCode HLTTauMonTool::proc()
             std::string trigItemShort=m_trigItems[i];
             if(m_trigItems[i].find("tau25")!=string::npos && m_trigItems[i].find("L1TAU")!=string::npos){
               size_t posit=m_trigItems[i].rfind("_");
-              trigItemShort=m_trigItems[i].substr(0,posit);
+              if(posit<31)trigItemShort=m_trigItems[i].substr(0,posit);
             }
 
             if(m_truth && m_turnOnCurves)

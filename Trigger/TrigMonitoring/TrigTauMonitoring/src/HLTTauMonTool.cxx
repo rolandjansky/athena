@@ -274,7 +274,8 @@ StatusCode HLTTauMonTool::book()
     std::string trigItem=m_trigItems[i];
     if(m_trigItems[i].find("tau25")!=string::npos && m_trigItems[i].find("L1TAU")!=string::npos){
       size_t posit=m_trigItems[i].rfind("_");
-      trigItem=m_trigItems[i].substr(0,posit);
+      ATH_MSG_DEBUG("Size is: "<< posit);
+      if(posit<31)trigItem=m_trigItems[i].substr(0,posit);
     }
     ATH_MSG_DEBUG("This is the token: "<<trigItem);
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem,run));
@@ -674,7 +675,8 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
     std::string trigItemShort=trigItem;
     if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
       size_t posit=trigItem.rfind("_");
-      trigItemShort=trigItem.substr(0,posit);
+      ATH_MSG_DEBUG("Size is: "<< posit);
+      if(posit<31)trigItemShort=trigItem.substr(0,posit);
     }
 
     for(; itEMTau!=itEMTau_e; ++itEMTau){
@@ -682,6 +684,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/L1RoI");
       ATH_CHECK(fillL1Tau(*itEMTau)); 
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/L1VsOffline");
+      ATH_MSG_DEBUG("Check if L1VsOffline group exists");
       ATH_CHECK(fillL1TauVsOffline(*itEMTau, goodTauRefType));
     }
     const xAOD::TauJetContainer * tauJetCont = 0;
@@ -823,7 +826,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
         std::string trigItemShort=trigItem;
         if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
           size_t posit=trigItem.rfind("_");
-          trigItemShort=trigItem.substr(0,posit);
+          if(posit<31)trigItemShort=trigItem.substr(0,posit);
         }
 
          // L1 Histograms, but looking only at RoIs seeding events passing HLT. Otherwise we are biased to events accepted by other chains
@@ -1002,7 +1005,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem, co
         std::string trigItemShort=trigItem;
         if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
           size_t posit=trigItem.rfind("_");
-          trigItemShort=trigItem.substr(0,posit);
+          if(posit<31)trigItemShort=trigItem.substr(0,posit);
         }
 
         const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > featuresPreselect
@@ -1198,10 +1201,15 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
     return StatusCode::FAILURE;
   }
 
+  ATH_MSG_DEBUG("Check01");
   hist("hL1RoIEta")->Fill(aL1Tau->eta());
+  ATH_MSG_DEBUG("Check02");
   hist("hL1RoIPhi")->Fill(aL1Tau->phi());
+  ATH_MSG_DEBUG("Check03");
   hist2("hL1EtaVsPhi")->Fill(aL1Tau->eta(),aL1Tau->phi());
+  ATH_MSG_DEBUG("Check04");
   hist("hL1RoIeT")->Fill(aL1Tau->eT()/GeV);
+  ATH_MSG_DEBUG("Check05");
 
   uint8_t isoBit = aL1Tau->isol();
   if(isoBit/128) hist("hL1RoIisol")->Fill(8);
@@ -1212,14 +1220,22 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
   if((isoBit/4)%2) hist("hL1RoIisol")->Fill(3);
   if((isoBit/2)%2) hist("hL1RoIisol")->Fill(2);
   if((isoBit/1)%2) hist("hL1RoIisol")->Fill(1);
+  ATH_MSG_DEBUG("Check06");
   hist("hL1RoITauClus")->Fill(aL1Tau->tauClus()/GeV);
+  ATH_MSG_DEBUG("Check07");
   //hist("hL1RoITauClus2")->Fill(aL1Tau->tauClus()/GeV);
   hist("hL1RoIEMIso")->Fill(aL1Tau->emIsol()/GeV);
+  ATH_MSG_DEBUG("Check08");
   hist("hL1RoIHadCore")->Fill(aL1Tau->hadCore()/GeV);
+  ATH_MSG_DEBUG("Check09");
   hist("hL1RoIHadIsol")->Fill(aL1Tau->hadIsol()/GeV);
+  ATH_MSG_DEBUG("Check10");
   hist2("hL1RoITauClusEMIso")->Fill(aL1Tau->tauClus()/GeV,aL1Tau->emIsol()/GeV);
+  ATH_MSG_DEBUG("Check11");
   hist2("hL1EtVsPhi")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->phi());
+  ATH_MSG_DEBUG("Check12");
   hist2("hL1EtVsEta")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->eta());
+  ATH_MSG_DEBUG("Check13");
 
   const xAOD::JetRoIContainer *l1jets = 0;
   if ( !evtStore()->retrieve( l1jets, "LVL1JetRoIs").isSuccess() ){
@@ -1235,11 +1251,16 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
    float dPhi = deltaPhi(aL1Tau->phi(),(*itL1Jet)->phi());
    if(deltaR(aL1Tau->eta(), (*itL1Jet)->eta(), aL1Tau->phi(), (*itL1Jet)->phi()) > 0.3) continue;
    hist2("hL1RoITauVsJet")->Fill(aL1Tau->eT()/CLHEP::GeV,(*itL1Jet)->etLarge()/CLHEP::GeV);
+   ATH_MSG_DEBUG("Check014");
    if(aL1Tau->eT()>(*itL1Jet)->etLarge()) {
   hist2("hL1RoITauVsJetMismatch")->Fill(dEta,dPhi);
+  ATH_MSG_DEBUG("Check015");
   hist2("hL1RoITauVsJetDEt")->Fill(aL1Tau->eT()/CLHEP::GeV,aL1Tau->eT()/CLHEP::GeV-(*itL1Jet)->etLarge()/CLHEP::GeV);
+  ATH_MSG_DEBUG("Check016");
    } 
   }
+
+  ATH_MSG_DEBUG("Exit from fillL1Tau");
 
   return StatusCode::SUCCESS;
 
@@ -1367,7 +1388,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
     size_t posit=trigItem.rfind("_");
-    trigItemShort=trigItem.substr(0,posit);
+    if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
   if(BDTinput_type == "basicVars")
@@ -2014,7 +2035,7 @@ StatusCode HLTTauMonTool::fillEFTauVsTruth(const xAOD::TauJet *aEFTau, const std
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
     size_t posit=trigItem.rfind("_");
-    trigItemShort=trigItem.substr(0,posit);
+    if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
   if(truthPt>0.){
@@ -2131,7 +2152,7 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
     size_t posit=trigItem.rfind("_");
-    trigItemShort=trigItem.substr(0,posit);
+    if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
   if(BDTinput_type == "basicVars")
@@ -2942,7 +2963,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
     size_t posit=trigItem.rfind("_");
-    trigItemShort=trigItem.substr(0,posit);
+    if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
   // loop over taus in denominator and match with L1 and HLT taus:
@@ -3521,7 +3542,7 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
     std::string trigItemShort=trigItem;
     if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
       size_t posit=trigItem.rfind("_");
-      trigItemShort=trigItem.substr(0,posit);
+      if(posit<31)trigItemShort=trigItem.substr(0,posit);
     }
     
     if(TauCont_type == "Truth")
