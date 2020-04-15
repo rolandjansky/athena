@@ -49,7 +49,7 @@ public:
   StatusCode finalize() override final;
 
   /** Method for merging components - ownership of objects is passed */
-  virtual std::unique_ptr<MultiComponentState> merge(Trk::MultiComponentState) const override final;
+  virtual MultiComponentState merge(Trk::MultiComponentState) const override final;
 
 private:
   Gaudi::Property<unsigned int> m_maximumNumberOfComponents{ this,
@@ -57,8 +57,9 @@ private:
                                                              12,
                                                              "Maximum number of components" };
 
-  std::unique_ptr<MultiComponentState> mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
-                                                          Trk::MultiComponentState&) const;
+  MultiComponentState mergeFullDistArray(
+    MultiComponentStateAssembler::Cache& cache, 
+    Trk::MultiComponentState&) const;
 };
 
 }

@@ -77,7 +77,7 @@ private:
                       const PrepRawData*,
                       const MeasurementBase*,
                       const Surface&,
-                      std::unique_ptr<MultiComponentState>&,
+                      MultiComponentState&,
                       const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
 private:

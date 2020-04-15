@@ -125,7 +125,7 @@ Trk::GsfExtrapolator::finalize()
  * This is the actual (non-direct) extrapolation method
  * The other one will end up calling this one passing the internal cache
  */
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
                                       const Trk::IPropagator& propagator,
                                       const Trk::MultiComponentState& multiComponentState,
@@ -139,12 +139,13 @@ Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
   // If the extrapolation is to be without material effects simply revert to the extrapolateDirectly
   // method
   if (particleHypothesis == Trk::nonInteracting) {
-    return extrapolateDirectly(propagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis);
+    return extrapolateDirectly(propagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis);;
   }
   // Surface based material effects (assumes all material is on active sensor elements)
   if (m_surfaceBasedMaterialEffects) {
-    return extrapolateSurfaceBasedMaterialEffects(
+    std::unique_ptr<Trk::MultiComponentState> result = extrapolateSurfaceBasedMaterialEffects(
       propagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis);
+    return std::move(*result);
   }
   // statistics
   ++buff_extrapolateCalls;
@@ -300,10 +301,10 @@ Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
 
     if (!bailOutState) {
       ATH_MSG_DEBUG("Fallback to propagation failed... Returning 0");
-      return nullptr;
+      return {};
     }
     emptyGarbageBins(cache);
-    return bailOutState;
+    return std::move(*bailOutState);
   }
 
   /*
@@ -354,17 +355,17 @@ Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
   emptyGarbageBins(cache);
   if (!destinationState) {
     ATH_MSG_DEBUG("Extrapolation inside volume failed... returning nullptr");
-    return nullptr;
+    return {};
   }
   // After successful extrapolation return the state
-  return destinationState;
+  return std::move(*destinationState);
 }
 
 /*
  * When the propagator is configured
  * We can go through this overload
  */
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
                                       const Trk::MultiComponentState& multiComponentState,
                                       const Trk::Surface& surface,
@@ -374,7 +375,7 @@ Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
 {
   if (multiComponentState.empty()) {
     ATH_MSG_DEBUG("MultiComponentState is empty... returning 0");
-    return nullptr;
+    return {};
   }
   if (m_propagatorConfigurationLevel < 10) {
 
@@ -384,7 +385,7 @@ Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
       cache, *currentPropagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis);
   }
   ATH_MSG_ERROR("No default propagator is selected in 'extrapolate'. Check job options!");
-  return nullptr;
+  return {};
 }
 
 /************************************************************/
@@ -397,7 +398,7 @@ Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
 /*
  * Extrapolation methods without configured propagator
  */
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::GsfExtrapolator::extrapolate(const Trk::IPropagator& propagator,
                                   const Trk::MultiComponentState& multiComponentState,
                                   const Trk::Surface& surface,
@@ -413,7 +414,7 @@ Trk::GsfExtrapolator::extrapolate(const Trk::IPropagator& propagator,
  * Direct method
  * does not uses a cache
  */
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::GsfExtrapolator::extrapolateDirectly(const Trk::IPropagator& propagator,
                                           const Trk::MultiComponentState& multiComponentState,
                                           const Trk::Surface& surface,
@@ -428,15 +429,17 @@ Trk::GsfExtrapolator::extrapolateDirectly(const Trk::IPropagator& propagator,
   const Trk::TrackingVolume* currentVolume = m_navigator->highestVolume();
   if (!currentVolume) {
     ATH_MSG_WARNING("Current tracking volume could not be determined... returning 0");
-    return nullptr;
+    return {};
   }
-  return multiStatePropagate(propagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis);
+  std::unique_ptr<Trk::MultiComponentState> result =
+    multiStatePropagate(propagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis);
+  return std::move(*result);
 }
 
 /*
  * Methods that can use a configured propagator
  */
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::GsfExtrapolator::extrapolate(const Trk::MultiComponentState& multiComponentState,
                                   const Trk::Surface& surface,
                                   Trk::PropDirection direction,
@@ -450,7 +453,7 @@ Trk::GsfExtrapolator::extrapolate(const Trk::MultiComponentState& multiComponent
 /*
  * Direct method does not uses a cache
  */
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::GsfExtrapolator::extrapolateDirectly(const Trk::MultiComponentState& multiComponentState,
                                           const Trk::Surface& surface,
                                           Trk::PropDirection direction,
@@ -463,14 +466,14 @@ Trk::GsfExtrapolator::extrapolateDirectly(const Trk::MultiComponentState& multiC
     const Trk::IPropagator* currentPropagator = &(*m_propagators[m_propagatorConfigurationLevel]);
     if (!currentPropagator) {
       ATH_MSG_ERROR("No current propagator is defined... Exiting");
-      return nullptr;
+      return {};
     }
 
-    return this->extrapolateDirectly(
+    return extrapolateDirectly(
       *currentPropagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis);
   }
   ATH_MSG_ERROR("No default propagator is selected in 'extrapolateDirectly'. Check job options!");
-  return nullptr;
+  return {};
 }
 
 /*
@@ -493,10 +496,9 @@ Trk::GsfExtrapolator::extrapolateM(const Trk::MultiComponentState& mcsparameters
   Cache cache{};
   cache.m_matstates.reset();
   // collect the material
-  std::unique_ptr<MultiComponentState> parameterAtDestination =
-    extrapolateImpl(cache, mcsparameters, sf, dir, bcheck, particle);
+  MultiComponentState parameterAtDestination =extrapolateImpl(cache, mcsparameters, sf, dir, bcheck, particle);
   // there are no parameters
-  if (!parameterAtDestination) {
+  if (parameterAtDestination.empty()) {
     // loop over and clean up
     for (const Trk::TrackStateOnSurface* ptr : *cache.m_matstates) {
       delete ptr;
@@ -505,8 +507,7 @@ Trk::GsfExtrapolator::extrapolateM(const Trk::MultiComponentState& mcsparameters
     return nullptr;
   } else {
     cache.m_matstates->push_back(
-      new TrackStateOnSurface(nullptr, parameterAtDestination->begin()->first->clone(), nullptr, nullptr));
-    parameterAtDestination.reset();
+      new TrackStateOnSurface(nullptr, parameterAtDestination.begin()->first->clone(), nullptr, nullptr));
   }
   // assign the temporary states
   std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> tmpMatStates = std::move(cache.m_matstates);
@@ -560,12 +561,12 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
   }
   // Only loop over layers if they can be found within the tracking volume
   else if (trackingVolume.confinedLayers() && associatedLayer->layerMaterialProperties()) {
-    std::unique_ptr<Trk::MultiComponentState> updatedState =
+    Trk::MultiComponentState updatedState =
       m_materialUpdator->postUpdate(*currentState, *layer, direction, particleHypothesis);
 
-    if (updatedState) {
+    if (!updatedState.empty()) {
       addMaterialtoVector(cache, layer, currentState->begin()->first.get());
-      currentState = updatedState.release();
+      currentState = std::make_unique<Trk::MultiComponentState>(std::move(updatedState)).release();
     }
   }
 
@@ -573,7 +574,6 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
   combinedState = nullptr;
 
   std::unique_ptr<Trk::MultiComponentState> nextState = nullptr;
-
   // If an associated surface can be found, extrapolation within the tracking volume is mandatory
   // This will take extrapolate to the last layer in the volume
   if (associatedLayer) {
@@ -665,10 +665,9 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
     const Trk::Layer* layerAtBoundary =
       (paramsAtBoundary) ? (paramsAtBoundary->associatedSurface()).materialLayer() : nullptr;
     const Trk::TrackParameters* matUpdatedParameters = nullptr;
-    std::unique_ptr<Trk::MultiComponentState> matUpdatedState = nullptr;
+    Trk::MultiComponentState matUpdatedState{};
 
     if (nextVolume && layerAtBoundary) {
-
       if (layerAtBoundary->layerMaterialProperties()) {
         ATH_MSG_DEBUG("Boundary surface has material - updating properties");
         assert(currentState);
@@ -678,11 +677,11 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
     }
 
     // If state has changed due to boundary material, modify state, parameters accordingly.
-    if (matUpdatedState) {
+    if (!matUpdatedState.empty()) {
       ATH_MSG_DEBUG("Performing state update");
       // Clean out memory, update state.
       delete currentState;
-      currentState = matUpdatedState.release();
+      currentState = std::make_unique<Trk::MultiComponentState>(std::move(matUpdatedState)).release();
       // Update navigation parameters (?).
       matUpdatedParameters = currentState->begin()->first->clone();
       if (matUpdatedParameters != navigationParameters) {
@@ -764,14 +763,14 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
   else if (associatedLayer != destinationLayer && trackingVolume.confinedLayers() &&
            associatedLayer->layerMaterialProperties()) {
 
-    std::unique_ptr<Trk::MultiComponentState> updatedState =
+   Trk::MultiComponentState updatedState =
       m_materialUpdator->postUpdate(*currentState, *associatedLayer, direction, particleHypothesis);
 
-    if (updatedState) {
+    if (!updatedState.empty()) {
       addMaterialtoVector(cache, associatedLayer, currentState->begin()->first.get());
 
       // Refresh the current state pointer
-      currentState = updatedState.release();
+      currentState = std::make_unique<Trk::MultiComponentState>(std::move(updatedState)).release();
     }
   }
 
@@ -972,15 +971,16 @@ Trk::GsfExtrapolator::extrapolateToIntermediateLayer(Cache& cache,
      Material effects
      ------------------------------------- */
 
-  std::unique_ptr<Trk::MultiComponentState> updatedState =
+  Trk::MultiComponentState updatedState =
     m_materialUpdator->update(*destinationState, layer, direction, particleHypothesis);
 
-  if (!updatedState)
+  if (updatedState.empty()){
     return destinationState;
+  }
 
-  addMaterialtoVector(cache, &layer, updatedState->begin()->first.get(), direction, particleHypothesis);
+  addMaterialtoVector(cache, &layer, updatedState.begin()->first.get(), direction, particleHypothesis);
 
-  return updatedState;
+  return std::make_unique<Trk::MultiComponentState>(std::move(updatedState));
 }
 
 
@@ -1032,16 +1032,18 @@ Trk::GsfExtrapolator::extrapolateToDestinationLayer(Cache& cache,
      Material effects
      ---------------------------------------- */
 
-  std::unique_ptr<Trk::MultiComponentState> updatedState =
-    (startLayer != &layer) ? m_materialUpdator->preUpdate(*destinationState, layer, direction, particleHypothesis)
-                           : nullptr;
+  Trk::MultiComponentState updatedState{};
+   if(startLayer != &layer) {
+      updatedState=m_materialUpdator->preUpdate(*destinationState, layer, direction, particleHypothesis);
+    }
 
-  if (!updatedState)
+
+  if (updatedState.empty())
     return destinationState;
 
-  addMaterialtoVector(cache, &layer, updatedState->begin()->first.get(), direction, particleHypothesis);
+  addMaterialtoVector(cache, &layer, updatedState.begin()->first.get(), direction, particleHypothesis);
 
-  return updatedState;
+  return std::make_unique<Trk::MultiComponentState>(std::move(updatedState));
 }
 
 /*
@@ -1081,14 +1083,13 @@ Trk::GsfExtrapolator::extrapolateSurfaceBasedMaterialEffects(const IPropagator& 
      Material effects
      ---------------------------------------- */
 
-  std::unique_ptr<Trk::MultiComponentState> finalState =
+  Trk::MultiComponentState finalState =
     m_materialUpdator->simplifiedMaterialUpdate(*lastState, direction, particleHypothesis);
-  if (!finalState) {
+  if (finalState.empty()) {
     ATH_MSG_DEBUG("Simple material effects updator failed");
     return lastState;
   }
-
-  return finalState;
+  return std::make_unique<Trk::MultiComponentState>(std::move(finalState));
 }
 
 /*

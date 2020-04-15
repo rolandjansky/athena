@@ -99,7 +99,7 @@ public:
   virtual StatusCode finalize() override final;
 
   /** Extrapolation of a MutiComponentState to a destination surface (1) */
-  virtual std::unique_ptr<MultiComponentState> extrapolate(
+  virtual MultiComponentState extrapolate(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -109,7 +109,7 @@ public:
 
   /** - Extrapolation of a MultiComponentState to destination surface without material effects (2)
    */
-  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
+  virtual MultiComponentState extrapolateDirectly(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -118,7 +118,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Configured AlgTool extrapolation method (1) */
-  virtual std::unique_ptr<MultiComponentState> extrapolate(
+  virtual MultiComponentState extrapolate(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -126,7 +126,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
-  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
+  virtual MultiComponentState extrapolateDirectly(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -168,7 +168,7 @@ private:
   };
 
   /** These are the methods that do the actual heavy lifting when extrapolating with a cache */
-  std::unique_ptr<MultiComponentState> extrapolateImpl(
+  MultiComponentState extrapolateImpl(
     Cache& cache,
     const IPropagator&,
     const MultiComponentState&,
@@ -177,7 +177,7 @@ private:
     const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  std::unique_ptr<MultiComponentState> extrapolateImpl(
+  MultiComponentState extrapolateImpl(
     Cache& cache,
     const MultiComponentState&,
     const Surface&,

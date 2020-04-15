@@ -28,7 +28,7 @@ namespace Trk {
 class PosteriorWeightsCalculator
 {
 public:
-  std::unique_ptr<std::vector<Trk::ComponentParameters>> weights(MultiComponentState&&, const MeasurementBase&) const;
+  std::vector<Trk::ComponentParameters> weights(MultiComponentState&&, const MeasurementBase&) const;
 
 private:
   /** Function to calculate the determinant and  chi2 of a measurement for a 1D hit */

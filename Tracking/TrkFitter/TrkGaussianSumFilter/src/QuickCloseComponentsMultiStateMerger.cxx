@@ -52,7 +52,7 @@ Trk::QuickCloseComponentsMultiStateMerger::finalize()
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState statesToMerge) const
 {
   // Assembler Cache
@@ -81,15 +81,15 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState states
               [](const ComponentParameters& x, const ComponentParameters& y) { return x.second > y.second; });
 
     Trk::ComponentParameters dummyCompParams(statesToMerge.begin()->first->clone(), 1.);
-    auto returnMultiState = std::make_unique<Trk::MultiComponentState>();
-    returnMultiState->push_back(std::move(dummyCompParams));
+    Trk::MultiComponentState returnMultiState;
+    returnMultiState.push_back(std::move(dummyCompParams));
     return returnMultiState;
   }
 
   return mergeFullDistArray(cache, statesToMerge);
 }
 
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
                                                               Trk::MultiComponentState& statesToMerge) const
 {
@@ -212,9 +212,8 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
     cache.multiComponentState.push_back(ComponentParameters(state.first.release(), state.second));
     cache.validWeightSum += state.second;
   }
-  std::unique_ptr<Trk::MultiComponentState> mergedState = MultiComponentStateAssembler::assembledState(cache);
+  Trk::MultiComponentState mergedState = MultiComponentStateAssembler::assembledState(cache);
   // Clear the state vector
   statesToMerge.clear();
-  
   return mergedState;
 }
