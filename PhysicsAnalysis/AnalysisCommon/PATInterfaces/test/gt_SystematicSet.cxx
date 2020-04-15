@@ -1,11 +1,8 @@
-//        
-//                  Author: Nils Krumnack
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
-// Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
 
 
 //
@@ -29,6 +26,20 @@ using namespace CP;
 
 #define ASSERT_FAILURE(x)			\
   ASSERT_EQ (asg::CheckHelper<decltype(x)>::failureCode(), x)
+
+TEST (SystematicSetTest, state_clear)
+{
+  SystematicVariation sys("TEST_VARIATION", 1);
+  SystematicSet set;
+  set.insert( SystematicVariation("TEST_VARIATION", 1) );
+  const std::string sysName = sys.name();
+  const std::string setName = set.name();
+  // First assert that the sys name matches the single-sys-set name
+  ASSERT_EQ( sysName, setName );
+  // Assert that the state is properly cleared
+  set.clear();
+  ASSERT_EQ( set.name(), std::string() );
+}
 
 TEST (SystematicSetTest, getToyVariation_empty)
 {

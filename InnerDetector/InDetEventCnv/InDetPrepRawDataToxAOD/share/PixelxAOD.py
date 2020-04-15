@@ -223,7 +223,7 @@ PIXELVALIDStream.AddItem("xAOD::TrackParticleContainer#PixelMonitoringTrack")
 PIXELVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#PixelMonitoringTrackAux."+excludedAuxData)
 
 PIXELVALIDStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-PIXELVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+PIXELVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV")
 
 PIXELVALIDStream.AddItem("xAOD::ElectronContainer#Electrons")
 PIXELVALIDStream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")

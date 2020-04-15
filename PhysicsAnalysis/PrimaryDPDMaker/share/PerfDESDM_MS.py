@@ -346,7 +346,7 @@ AlignmentTriggerMuonStream.AddItem(["Muon::MdtPrepDataContainer#*"])
 #Alignment
 AlignmentTriggerMuonStream.AddItem(["Trk::SegmentCollection#MuonSegments"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::VertexContainer#PrimaryVertices"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex"])
+AlignmentTriggerMuonStream.AddItem(["xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"])
 AlignmentTriggerMuonStream.AddItem(["TrackCollection#MuonSpectrometerTracks"])
 AlignmentTriggerMuonStream.AddItem(["TrackCollection#CombinedMuonTracks"])
 #AlignmentTriggerMuonStream.AddItem(["TrackCollection#Tracks"])

@@ -343,7 +343,7 @@ IDNCBStream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#*")
 
 # Add vertices
 IDNCBStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDNCBStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+IDNCBStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV")
 
 # Add info about electrons and muons (are small containers)
 IDNCBStream.AddItem("xAOD::MuonContainer#Muons")

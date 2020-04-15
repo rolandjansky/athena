@@ -45,10 +45,10 @@ namespace CP {
     TFile* m_DebugFile;
     TTree* m_DebugTree;
     int m_SelCategoryRaw, m_SelCategory;
-    std::unique_ptr<TrackInfo> m_Combined;
-    std::unique_ptr<TrackInfo> m_InnerDet;
-    std::unique_ptr<TrackInfo> m_MSExtr;
-    std::unique_ptr<TrackInfo> m_MSOnlyExtr;
+    std::unique_ptr<MMCTest::TrackInfo> m_Combined;
+    std::unique_ptr<MMCTest::TrackInfo> m_InnerDet;
+    std::unique_ptr<MMCTest::TrackInfo> m_MSExtr;
+    std::unique_ptr<MMCTest::TrackInfo> m_MSOnlyExtr;
   
   
   }; // class TestMCASTTool

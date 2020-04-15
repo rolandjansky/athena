@@ -19,6 +19,7 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Control/StoreGate
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODMuon
    Event/xAOD/xAODJet
@@ -41,7 +42,7 @@ atlas_add_library( MuonEfficiencyCorrectionsLib
    MuonEfficiencyCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonEfficiencyCorrections
    INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon xAODEventInfo MuonAnalysisInterfacesLib PATInterfaces
+   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon xAODEventInfo MuonAnalysisInterfacesLib PATInterfaces StoreGateLib
    PRIVATE_LINK_LIBRARIES xAODTrigger PathResolver )
 
 if( NOT XAOD_STANDALONE )
@@ -49,7 +50,7 @@ if( NOT XAOD_STANDALONE )
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODJet PATInterfaces AthContainers MuonAnalysisInterfacesLib
-      AthenaBaseComps GaudiKernel MuonEfficiencyCorrectionsLib )
+      AthenaBaseComps GaudiKernel MuonEfficiencyCorrectionsLib StoreGateLib )
 endif()
 
 atlas_add_dictionary( MuonEfficiencyCorrectionsDict
@@ -63,7 +64,7 @@ macro( _add_exec name )
       util/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon MuonAnalysisInterfacesLib
-      PATInterfaces xAODCore AsgAnalysisInterfaces PileupReweightingLib MuonEfficiencyCorrectionsLib )
+      PATInterfaces xAODCore AsgAnalysisInterfaces PileupReweightingLib MuonEfficiencyCorrectionsLib StoreGateLib )
 endmacro( _add_exec )
 
 if( XAOD_STANDALONE )

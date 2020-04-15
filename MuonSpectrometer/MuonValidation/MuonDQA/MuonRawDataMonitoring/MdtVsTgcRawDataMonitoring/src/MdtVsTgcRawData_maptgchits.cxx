@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,6 @@
 #include <algorithm>
 #include <fstream>
 
-using namespace std;
 void
 MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *newsegment,
                                 const Muon::TgcPrepDataContainer *tgc_prepcontainer){//use new mdt segment

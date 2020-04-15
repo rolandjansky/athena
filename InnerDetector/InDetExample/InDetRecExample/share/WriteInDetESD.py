@@ -128,10 +128,9 @@ if InDetFlags.doTruth():
 
 if globalflags.InputFormat()=='bytestream':     
    InDetESDList+=['InDetBSErrContainer#'+InDetKeys.PixelByteStreamErrs()]
-   InDetESDList+=['InDetBSErrContainer#'+InDetKeys.SCT_ByteStreamErrs()]
    InDetESDList+=['TRT_BSErrContainer#'+InDetKeys.TRT_ByteStreamErrs()]
    InDetESDList+=['TRT_BSIdErrContainer#'+InDetKeys.TRT_ByteStreamIdErrs()]
-   InDetESDList+=['IDCInDetBSErrContainer#SCT_ByteStreamErrs']
+   InDetESDList+=['IDCInDetBSErrContainer#'+InDetKeys.SCT_ByteStreamErrs()]
 
 if InDetFlags.doxAOD():
   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation."

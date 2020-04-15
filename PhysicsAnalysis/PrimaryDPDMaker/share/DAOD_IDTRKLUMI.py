@@ -228,7 +228,7 @@ if InDetFlags.doTrackSegmentsPixel():
 
 # Add vertices
 IDTRKLUMIStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDTRKLUMIStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+IDTRKLUMIStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV")
 
 # Add links and measurements
 IDTRKLUMIStream.AddItem("xAOD::TrackStateValidationContainer#*")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWstudies_match_h
@@ -12,14 +12,12 @@
 // Header file for the classes stored in the TTree if any.
 #include "vector"
 
-using namespace std;
-
 class Flocalize {
 private:
 public:
    ~Flocalize() {;}
    Flocalize () {
-      stationName = string("");
+      stationName = std::string("");
       stationEta = 0;
       stationPhi = 0;
       multiplet = 0;
@@ -27,7 +25,7 @@ public:
       channel_type = 0;
       channel = 0;
    }
-   Flocalize (string i_stationName, int i_stationEta, int i_stationPhi, int i_multiplet, int i_gas_gap, int i_channel, int i_channel_type, int i_matchedchannel) {
+   Flocalize (std::string i_stationName, int i_stationEta, int i_stationPhi, int i_multiplet, int i_gas_gap, int i_channel, int i_channel_type, int i_matchedchannel) {
       stationName = i_stationName;
       stationEta = i_stationEta;
       stationPhi = i_stationPhi;
@@ -62,7 +60,7 @@ public:
       printf("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s\n", "stationname", "stationEta", "stationPhi", "multiplet", "gas_gap", "channeltype", "channel", "matchedchannel");
       printf("%-15s %-15d %-15d %-15d %-15d %-15d %-15d %-15d\n", stationName.data(), stationEta, stationPhi, multiplet, gas_gap, channel_type, channel, matchedchannel);
    }
-   string stationName;
+   std::string stationName;
    int stationEta;
    int stationPhi;
    int multiplet;
@@ -87,7 +85,7 @@ public:
    }
    ~Flocalize_collection() {;}
    //NB: MM has no detector type: make this last entry, and ajust member functions for no type possibility.
-   Flocalize_collection (string i_name, vector<string>* i_stationName, vector<int>* i_stationEta, vector<int>* i_stationPhi, vector<int>* i_multiplet, vector<int>* i_gas_gap, vector<int>* i_channel, vector<int>* i_channel_type = nullptr) {
+   Flocalize_collection (std::string i_name, std::vector<std::string>* i_stationName, std::vector<int>* i_stationEta, std::vector<int>* i_stationPhi, std::vector<int>* i_multiplet, std::vector<int>* i_gas_gap, std::vector<int>* i_channel, std::vector<int>* i_channel_type = nullptr) {
       isMM = (i_channel_type == nullptr) ? 1 : 0; 
       stationName = i_stationName;
       stationEta = i_stationEta;
@@ -96,10 +94,10 @@ public:
       gas_gap = i_gas_gap;
       channel_type = i_channel_type;
       channel = i_channel;
-      vector<int> mc(this->size());
+      std::vector<int> mc(this->size());
       for (unsigned int i = 0; i < this->size(); ++i) { mc[i] = -10; }
       matchedchannel = mc;
-      vector<vector<unsigned int>> mi(this->size());
+      std::vector<std::vector<unsigned int>> mi(this->size());
       matchedindices = mi;
       name = i_name;
       this->checksize();
@@ -172,29 +170,29 @@ public:
    }
    int localize_sTGC (int index) {
       int unique = loc_unique(index);
-      static vector<int> _vloc;
+      static std::vector<int> _vloc;
       for (unsigned int i = 0; i < _vloc.size(); ++i) {if (_vloc[i] == unique ) {return i;} }
       _vloc.push_back(unique);
       return (_vloc.size() - 1);
    } 
    int localize_MM (int index) {
       int unique = loc_unique(index);
-      static vector<int> _vloc;
+      static std::vector<int> _vloc;
       for (unsigned int i = 0; i < _vloc.size(); ++i) {if (_vloc[i] == unique ) {return i;} }
       _vloc.push_back(unique);
       return (_vloc.size() - 1);
    } 
-   vector<string>  *stationName;
-   vector<int>     *stationEta;
-   vector<int>     *stationPhi;
-   vector<int>     *multiplet;
-   vector<int>     *gas_gap;
-   vector<int>     *channel_type;
-   vector<int>     *channel;
-   vector<int>     matchedchannel;
-   vector<vector<unsigned int>> matchedindices;
-   string name;
-   string matchedwith;
+   std::vector<std::string>  *stationName;
+   std::vector<int>     *stationEta;
+   std::vector<int>     *stationPhi;
+   std::vector<int>     *multiplet;
+   std::vector<int>     *gas_gap;
+   std::vector<int>     *channel_type;
+   std::vector<int>     *channel;
+   std::vector<int>     matchedchannel;
+   std::vector<std::vector<unsigned int>> matchedindices;
+   std::string name;
+   std::string matchedwith;
    bool isMM;
 
  };

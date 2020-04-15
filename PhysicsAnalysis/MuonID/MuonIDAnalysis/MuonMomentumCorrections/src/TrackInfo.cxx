@@ -1,6 +1,6 @@
 #define __TrackInfo_cxx__
 #include "TrackInfo.h"
-
+namespace MMCTest {
 TrackInfo::TrackInfo(std::string type, std::vector<std::string> systs) {
     m_Type = type;
     m_Systs = systs;
@@ -64,4 +64,5 @@ TLorentzVector TrackInfo::GetFourMomentum(bool calib) {
     if(calib) result.SetPtEtaPhiM(m_CalibPt[""], m_Eta, m_Phi, 0.105658);
     else result.SetPtEtaPhiM(m_Pt, m_Eta, m_Phi, 0.105658);
     return result;
+}
 }
