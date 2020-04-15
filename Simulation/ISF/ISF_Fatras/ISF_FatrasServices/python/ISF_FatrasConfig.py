@@ -231,9 +231,186 @@ def fatrasParticleDecayHelperCfg(flags, name="ISF_FatrasParticleDecayHelper", **
     return result
 
 ################################################################################
+# Extrapolator
+################################################################################
+# the definition of an extrapolator (to be cleaned up)
+def fatrasNavigatorCfg(flags, name="ISF_FatrasNavigator", **kwargs):
+    mlog = logging.getLogger(name)
+    mlog.debug('Start configuration')
+
+    result = ComponentAccumulator()    
+    # the Navigator (needed for several instances)
+    AtlasTrackingGeometrySvc = CompFactory.AtlasTrackingGeometrySvc
+    kwargs.setdefault("TrackingGeometrySvc", AtlasTrackingGeometrySvc)
+
+    Trk__Navigator = CompFactory.Trk__Navigator
+    result.addPublicTool(Trk__Navigator(name=name, **kwargs))
+
+    return result
+
+def fatrasEnergyLossUpdatorCfg(flags, name="ISF_FatrasEnergyLossUpdator", **kwargs):
+    mlog = logging.getLogger(name)
+    mlog.debug('Start configuration')
+
+    result = ComponentAccumulator()
+
+    kwargs.setdefault("UsePDG_EnergyLossFormula", True)
+    kwargs.setdefault("EnergyLossDistribution", 2)
+    
+    iFatras__McEnergyLossUpdator = CompFactory.iFatras__McEnergyLossUpdator
+    result.addPublicTool(iFatras__McEnergyLossUpdator(name=name, **kwargs))
+
+    return result
+
+def fatrasMultipleScatteringUpdatorCfg(flags, name="ISF_FatrasMultipleScatteringUpdator", **kwargs):
+    mlog = logging.getLogger(name)
+    mlog.debug('Start configuration')
+
+    result = ComponentAccumulator()
+    kwargs.setdefault("GaussianMixtureModel", True)
+
+    Trk__MultipleScatteringUpdator = CompFactory.Trk__MultipleScatteringUpdator
+    result.addPublicTool(Trk__MultipleScatteringUpdator(name=name, **kwargs))
+
+    return result
+
+# Combining all in the MaterialEffectsUpdator
+def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
+    mlog = logging.getLogger(name)
+    mlog.debug('Start configuration')
+
+    result = ComponentAccumulator()
+
+    ### to be configured
+    ### from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+    
+    # hadronic interactions
+    kwargs.setdefault("HadronicInteraction", True)
+    acc = fatrasG4HadIntProcessorCfg(flags)
+    g4had_proc_cfg = acc.getPublicTool('ISF_FatrasG4HadIntProcessor')
+    kwargs.setdefault("HadronicInteractionProcessor", g4had_proc_cfg)
+    result.merge(acc)
+
+    # energy loss
+    kwargs.setdefault("EnergyLoss", True)
+    acc = fatrasEnergyLossUpdatorCfg(flags)
+    eloss_updator = acc.getPublicTool('ISF_FatrasEnergyLossUpdator')
+    kwargs.setdefault("EnergyLossUpdator", eloss_updator)
+    result.merge(acc)
+
+    # mutiple scattering
+    kwargs.setdefault("MultipleScattering", True)
+    acc = fatrasMultipleScatteringUpdatorCfg(flags)
+    multi_scattering_updator = acc.getPublicTool('ISF_FatrasMultipleScatteringUpdator')
+    kwargs.setdefault("MultipleScatteringUpdator", multi_scattering_updator)
+    result.merge(acc)
+
+    # photon conversion
+    acc = fatrasConversionCreatorCfg(flags)
+    ph_conv_cfg = acc.getPublicTool('ISF_FatrasConversionCreator')
+    result.merge(acc)
+    kwargs.setdefault("PhotonConversionTool", ph_conv_cfg)
+  
+    # the validation output
+    ##  NOTE to be checked
+    ###  kwargs.setdefault("ValidationMode", ISF_Flags.ValidationMode())
+
+    acc = fatrasPhysicsValidationToolCfg(flags)
+    phys_val_cfg = acc.getPublicTool('ISF_FatrasPhysicsValidationTool')
+    result.merge(acc)
+    kwargs.setdefault("PhysicsValidationTool", phys_val_cfg)
+
+    acc = fatrasProcessSamplingToolCfg(flags)
+    proc_samp_cfg = acc.getPublicTool('ISF_FatrasProcessSamplingTool')
+    result.merge(acc)
+    kwargs.setdefault("ProcessSamplingTool", proc_samp_cfg)
+
+    acc = fatrasParticleDecayHelperCfg(flags)
+    pdhelper_cfg = acc.getPublicTool('ISF_FatrasParticleDecayHelper')
+    result.merge(acc)
+    kwargs.setdefault("ParticleDecayHelper", pdhelper_cfg)
+
+    # MCTruth Process Code
+    ## NOTE to be checked later
+    ## kwargs.setdefault("TrackingGeometrySvc", AtlasTrackingGeometrySvc)
+
+    iFatras__McMaterialEffectsUpdator = CompFactory.iFatras__McMaterialEffectsUpdator
+    result.addPublicTool(iFatras__McMaterialEffectsUpdator(name=name, **kwargs))
+
+    return result
+
+def fatrasChargedPropagatorCfg(flags, name="ISF_FatrasChargedPropagator", **kwargs):
+    mlog = logging.getLogger(name)
+    mlog.debug('Start configuration')
+
+    result = ComponentAccumulator()
+    # the charged particle propagator
+    ChargedPropagator = CompFactory.Trk__RungeKuttaPropagator
+    result.addPublicTool(ChargedPropagator(name=name, **kwargs))
+
+    return result
+
+def fatrasSTEP_PropagatorCfg(flags, name="ISF_FatrasSTEP_Propagator", **kwargs):
+    mlog = logging.getLogger(name)
+    mlog.debug('Start configuration')
+
+    result = ComponentAccumulator()
+    kwargs.setdefault("SimulationMode", True)
+
+    acc = fatrasMaterialUpdatorCfg(flags)
+    material_updator = acc.getPublicTool('ISF_FatrasMaterialUpdator')
+    result.merge(acc)
+    kwargs.setdefault("SimMatEffUpdator", material_updator)
+
+    # the step propagaor
+    StepPropagator = CompFactory.Trk__STEP_Propagator
+    result.addPublicTool(StepPropagator(name=name, **kwargs))
+
+    return result
+
+
+def fatrasExtrapolatorCfg(flags, name="ISF_FatrasExtrapolator", **kwargs):
+    mlog = logging.getLogger(name)
+    mlog.debug('Start configuration')
+
+    result = ComponentAccumulator()
+
+    # Charged Transport Tool
+    # assign the tools
+    acc = fatrasNavigatorCfg(flags)
+    navigator = acc.getPublicTool('ISF_FatrasNavigator')
+    result.merge(acc)
+    kwargs.setdefault("Navigator", navigator)
+
+    acc = fatrasMaterialUpdatorCfg(flags)
+    material_updator = acc.getPublicTool('ISF_FatrasMaterialUpdator')
+    result.merge(acc)
+    kwargs.setdefault("MaterialEffectsUpdators", [material_updator])
+
+    acc = fatrasChargedPropagatorCfg(flags)
+    charged_propagator = acc.getPublicTool('ISF_FatrasChargedPropagator')
+    result.merge(acc)
+    kwargs.setdefault("Propagators", [charged_propagator])
+
+    acc = fatrasSTEP_PropagatorCfg(flags)
+    step_propagator = acc.getPublicTool('ISF_FatrasSTEP_Propagator')
+    result.merge(acc)
+    kwargs.setdefault("STEP_Propagator", step_propagator)
+
+    # Fatras specific: stop the trajectory
+    kwargs.setdefault("StopWithNavigationBreak", True)
+    kwargs.setdefault("StopWithUpdateKill", True)
+    kwargs.setdefault("ResolveMuonStation", True)
+    kwargs.setdefault("UseMuonMatApproximation", True)
+
+    TimedExtrapolator = CompFactory.Trk__TimedExtrapolator
+    result.addPublicTool(TimedExtrapolator(name=name, **kwargs))
+
+    return result
+
+################################################################################
 # SIMULATION TOOL and SERVICE
 ################################################################################
-
 
 def fatrasKinematicFilterCfg(flags, name="ISF_FatrasKinematicFilter", **kwargs):
     mlog = logging.getLogger(name)
@@ -353,7 +530,10 @@ def fatrasSimToolCfg(flags, name="ISF_FatrasSimTool", **kwargs):
     kwargs.setdefault("NeutralFilter", kin_filter_cfg)
     kwargs.setdefault("PhotonFilter", kin_filter_cfg)
 
-    # NOTE extrapolator to be added
+    acc = fatrasExtrapolatorCfg(flags)
+    extrapolator_cfg = acc.getPublicTool('ISF_FatrasExtrapolator')
+    kwargs.setdefault("Extrapolator", extrapolator_cfg)
+    result.merge(acc)
 
     acc = fatrasPhysicsValidationToolCfg(flags)
     phys_val_cfg = acc.getPublicTool('ISF_FatrasPhysicsValidationTool')
