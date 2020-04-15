@@ -43,6 +43,14 @@ atlas_add_dictionary( GeneratorObjectsDict
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers AthLinks SGTools xAODTruth GaudiKernel TestTools AthenaKernel RootUtils RootUtilsPyROOT StoreGateLib SGtests GeneratorObjects )
 
+# Install a dummy rootmap file to suppress loading the rootmap from hepmc3,
+# which defines dictionary entries for HepMC types that clash with
+# what we generate here (and result in ROOT giving duplicate rootmap
+# entry warnings).  See !31633.
+atlas_install_generic ( share/libHepMC3rootIO.rootmap
+                        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                        BUILD_DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} )
+
 atlas_add_test( HepMcParticleLink_test
                 SOURCES test/HepMcParticleLink_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
