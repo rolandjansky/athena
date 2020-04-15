@@ -92,11 +92,11 @@ namespace PUCorrection {
 			const std::string &paramDelta_name = "paramDeltaPt",
 			const std::string &etaBins_name = "etaBins"
 			){
-      TFile tmpF(fileName.c_str() );
-      std::vector<float> * etaBins_v = (std::vector<float>*)tmpF.Get(etaBins_name.c_str());
+      std::unique_ptr<TFile> tmpF(TFile::Open( fileName.c_str() ));
+      std::vector<float> * etaBins_v = (std::vector<float>*)tmpF->Get(etaBins_name.c_str());
       std::vector<double> tmp(etaBins_v->begin(), etaBins_v->end() );
       m_etaBins.reset( new TAxis( tmp.size()-1, tmp.data() ) );
-      TList *param3D_l = (TList*) tmpF.Get(param3D_name.c_str());
+      TList *param3D_l = (TList*) tmpF->Get(param3D_name.c_str());
 
       TList *param3D_p0 = (TList*) param3D_l->At(0);
       m_3Dp0_vs_muNPV.resize( param3D_p0->GetSize() );
@@ -121,7 +121,7 @@ namespace PUCorrection {
       }
       m_ref3DHisto = m_3Dp0_vs_muNPV[0].get();
       
-      TList* paramDelta_l = (TList*) tmpF.Get(paramDelta_name.c_str());
+      TList* paramDelta_l = (TList*) tmpF->Get(paramDelta_name.c_str());
       m_Dptp0_vs_eta.reset( (TH1F*) paramDelta_l->At(0) );
       m_Dptp0_vs_eta->SetDirectory(nullptr);
       m_Dptp1_vs_eta.reset( (TH1F*) paramDelta_l->At(1) ) ;      
