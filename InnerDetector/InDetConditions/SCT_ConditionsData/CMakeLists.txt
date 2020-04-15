@@ -20,5 +20,5 @@ atlas_add_dictionary( SCT_ConditionsDataDict
 atlas_add_library( SCT_ConditionsData
                    src/*.cxx
                    PUBLIC_HEADERS SCT_ConditionsData
-                   LINK_LIBRARIES AthenaPoolUtilities Identifier )
+                   LINK_LIBRARIES AthenaPoolUtilities Identifier AthenaBaseComps )
 
