@@ -48,10 +48,10 @@ StatusCode TestMCASTTool::initialize() {
 
   std::vector<std::string> empty_list;
 
-  m_Combined = std::make_unique<TrackInfo>("CB", m_sysNames);
-  m_InnerDet = std::make_unique<TrackInfo>("ID", m_sysNames);
-  m_MSExtr = std::make_unique<TrackInfo>("ME", m_sysNames);
-  m_MSOnlyExtr = std::make_unique<TrackInfo>("MSOE", empty_list);
+  m_Combined = std::make_unique<MMCTest::TrackInfo>("CB", m_sysNames);
+  m_InnerDet = std::make_unique<MMCTest::TrackInfo>("ID", m_sysNames);
+  m_MSExtr = std::make_unique<MMCTest::TrackInfo>("ME", m_sysNames);
+  m_MSOnlyExtr = std::make_unique<MMCTest::TrackInfo>("MSOE", empty_list);
 
   m_DebugFile = new TFile( "MCaST_Debug.root", "RECREATE", "Smearing and non-Smearing of Muons" );
   m_DebugTree = new TTree( "CorrectionsTree", "This Tree contains the information of the muon after smearing effects" );
