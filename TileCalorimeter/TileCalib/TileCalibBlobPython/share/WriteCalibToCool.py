@@ -326,10 +326,14 @@ ngainDef=ngain
 
 comments = []
 blobWriters = []
+nvalUpdated = []
+commentsSplit = []
 for since in iovList:
     comm=blobReader.getComment(since)
     log.info("Comment: %s", comm)
     comments+=[comm]
+    nvalUpdated += [0]
+    commentsSplit+=[blobReader.getComment(since,True)]
     blobWriters += [TileCalibTools.TileBlobWriter(dbw,outfolderPath,'Flt',(True if len(outtag) else False))]
 log.info( "\n" )
 
@@ -356,6 +360,7 @@ if len(txtFile)>0:
         nvold=0
         nvnew=0
         nvdef=0
+        nvnewdef=0
 
         #=== loop over whole detector
         irm=-1
@@ -383,12 +388,20 @@ if len(txtFile)>0:
                     modSpec = modName
                 newDrawer=True
                 flt1 = blobReader.getDrawer(ros, mod, since, False, False)
+                if flt1:
+                    oldNchan = flt1.getNChans()
+                    oldNgain = flt1.getNGains()
+                    oldVsize = flt1.getObjSizeUint32()
+                else:
+                    oldNchan = 0
+                    oldNgain = 0
+                    oldVsize = 0
                 nchan = nchanDef if nchanDef>0 else (flt1.getNChans() if flt1 else TileCalibUtils.max_chan())
                 ngain = ngainDef if ngainDef>0 else (flt1.getNGains() if flt1 else TileCalibUtils.max_gain())
                 for chn in range(nchan):
                     #=== loop over gains
                     for adc in range(ngain):
-                        data = blobParser.getData(ros,mod,chn,adc)
+                        data = blobParser.getData(ros,mod,chn,adc,since)
                         if not len(data) and allzero:
                             continue
                         if not len(data) and (not all or (not flt1 and not rosmin)):
@@ -431,6 +444,10 @@ if len(txtFile)>0:
                                         calibDrawer.setData(ch,ad,n,val)
                                         if undo:
                                             calibDrawer2.setData(ch,ad,n,val)
+                                    for n in range(kval,nval):
+                                        nvdef+=1
+                                        val=calibDrawer.getData(ch,ad,n)
+                                        log.debug("%i/%2i/%2i/%i: def data[%i] = %f", ros,mod,ch,ad, n, val)
 
                         if not len(data):
                             if not rosmin:
@@ -444,7 +461,8 @@ if len(txtFile)>0:
                         nnew+=1
                         kval=mval-len(data)
                         if kval>0:
-                            ndef+=1
+                            if chn>=oldNchan or adc>=oldNgain:
+                                ndef+=1
                             mval-=kval
                         for n in range(mval):
                             coef=None
@@ -475,13 +493,24 @@ if len(txtFile)>0:
                                 val = float(strval)
                             if val is not None:
                                 nvnew+=1
+                                if n>=oldVsize:
+                                    nvdef-=1
+                                    nvnewdef+=1
                                 calibDrawer.setData(chn,adc,n,val)
                                 if coef is None:
                                     log.debug("%i/%2i/%2i/%i: new data[%i] = %s", ros,mod,chn,adc, n, val)
+                            else:
+                                val = calibDrawer.getData(chn,adc,n)
+                                if n>=oldVsize:
+                                    log.debug("%i/%2i/%2i/%i: DEF data[%i] = %s", ros,mod,chn,adc, n, val)
+                                else:
+                                    log.debug("%i/%2i/%2i/%i: OLD data[%i] = %s", ros,mod,chn,adc, n, val)
                         for n in range(mval,kval+mval):
-                            nvdef+=1
                             val = calibDrawer.getData(chn,adc,n)
-                            log.debug("%i/%2i/%2i/%i: def data[%i] = %s", ros,mod,chn,adc, n, val)
+                            if n>=flt.getObjSizeUint32():
+                                log.debug("%i/%2i/%2i/%i: DEF data[%i] = %s", ros,mod,chn,adc, n, val)
+                            else:
+                                log.debug("%i/%2i/%2i/%i: OLD data[%i] = %s", ros,mod,chn,adc, n, val)
                 if (zero or allzero) and newDrawer:
                     blobWriters[io].zeroBlob(ros,mod)
                     if ros==0 and mod==0:
@@ -490,14 +519,15 @@ if len(txtFile)>0:
                         calibDrawer = blobWriters[io].getDrawer(ros,mod)
                         calibDrawer.init(defConst,1,blobVersion)
 
+        nvalUpdated[io]=nvnew
         log.info("%d/%d old channels*gains/values have been read from database", nold,nvold)
         log.info("%d/%d new channels*gains/values have been read from input ascii file", nnew,nvnew)
-        if nold>nnew or nvold>nvnew:
-            log.info("%d/%d old channels*gains/values remain unchanged", nold-nnew,nvold-nvnew)
-        if nold<nnew or nvold<nvnew:
-            log.info("%d/%d new channels*gains/values have been added to database", nnew-nold,nvnew-nvold)
-        if ndef:
-            log.info("%d/%d new channels*gains/values with default values have been added to database", ndef-nold,nvdef)
+        if nold>nnew or nvold>(nvnew-nvnewdef):
+            log.info("%d/%d old channels*gains/values remain unchanged", nold-nnew,nvold-nvnew+nvnewdef)
+        if nold<nnew or nvold<(nvnew-nvnewdef):
+            log.info("%d/%d new channels*gains/values have been added to database", nnew-nold,nvnew-nvold-nvnewdef)
+        if ndef or nvdef:
+            log.info("%d/%d new channels*gains/values with default values have been added to database", ndef,nvdef)
     
 #=== commit changes
 if mval!=0 and (len(comment)>0 or len(txtFile)>0):
@@ -517,7 +547,10 @@ if mval!=0 and (len(comment)>0 or len(txtFile)>0):
                 comm=comment
             if iov:
                 comm+=" - "+comments[io]
-            blobWriters[io].setComment(user,comm)
+            if iov and (nvalUpdated[io]==0 or comment=="keep"):
+                blobWriters[io].setComment(commentsSplit[io])
+            else:
+                blobWriters[io].setComment(user,comm)
         blobWriters[io].register(begin, until, outfolderTag)
     if undo:
         if (comment is None) or (comment == "None"):
