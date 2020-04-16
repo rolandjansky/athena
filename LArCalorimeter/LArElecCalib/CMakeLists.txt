@@ -19,6 +19,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 atlas_add_library ( LArElecCalib
                     INTERFACE
+                    PUBLIC_HEADERS LArElecCalib
                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                     LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloIdentifier AthenaKernel Identifier GaudiKernel LArIdentifier )
 
