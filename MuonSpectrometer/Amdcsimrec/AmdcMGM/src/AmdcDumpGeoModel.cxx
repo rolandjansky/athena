@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-#include "GaudiKernel/ISvcLocator.h"
 
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IDataProviderSvc.h"
@@ -12,8 +10,6 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
  
-#include "Identifier/Identifier.h"
-
 #include <cmath>
 
 /////////////////////////////////////////////////////////
@@ -28,7 +24,6 @@ p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
   m_AmdcsimrecAthenaSvcUpdatedSvcDONE = false ; 
   m_KountCallsDoIt   = 0 ;
 
-   p_detStore            = 0 ; 
    p_MuonDetectorManager = 0 ; 
 
 // CheckTEC if 1 perform the comparison for TEC 
@@ -105,8 +100,6 @@ p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
 StatusCode AmdcDumpGeoModel::initialize(){
 
   ATH_MSG_INFO( "Initialisation started     " ) ;
-
-
   ATH_MSG_INFO( "================================" ) ;
   ATH_MSG_INFO( "=Proprieties are     " ) ;
   if (m_SwitchOff == 0) {
@@ -181,25 +174,13 @@ StatusCode AmdcDumpGeoModel::initialize(){
 
   if (m_SwitchOff == 0) {
 
-
 //  Set pointer on MuonDetectorManager
-    StatusCode sc = detStore()->retrieve(p_MuonDetectorManager);
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL( "p_MuonDetectorManager not found !" ) ;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(p_MuonDetectorManager));
 
-    if( m_muonIdHelperSvc.retrieve().isFailure() ){
-      ATH_MSG_FATAL("Could not get " << m_muonIdHelperSvc);      
-      return StatusCode::FAILURE;
-    }
-
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
 //Retrieve p_AmdcsimrecAthenaSvc and set up call back
-    if ( p_AmdcsimrecAthenaSvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve service " << p_AmdcsimrecAthenaSvc ) ;
-      return StatusCode::FAILURE;
-    } 
+    ATH_CHECK(p_AmdcsimrecAthenaSvc.retrieve());
     ATH_MSG_INFO( "Retrieved service " << p_AmdcsimrecAthenaSvc ) ;
 
     if (p_AmdcsimrecAthenaSvc->InitializedSvc()) {
@@ -207,24 +188,14 @@ StatusCode AmdcDumpGeoModel::initialize(){
       m_AmdcsimrecAthenaSvcUpdatedSvcDONE = true ; 
     }else{
       ATH_MSG_INFO( "p_AmdcsimrecAthenaSvc->InitializedSvc() is false " ) ;
-
-      sc=regFcnDoIt();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("regFcnDoIt failed" ) ;
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(regFcnDoIt());
       ATH_MSG_INFO( "Done: regFcnDoIt " ) ;
-     
     }
 
 //  Do something now if possible
     if ( m_AmdcsimrecAthenaSvcUpdatedSvcDONE ){
       ATH_MSG_INFO( "m_AmdcsimrecAthenaSvcUpdatedSvcDONE found true in initialize " ) ;
-      StatusCode sc = DoIt() ;
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL( "DoIt failed" ) ; 
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(DoIt());
     }
 
   }
@@ -337,11 +308,6 @@ StatusCode AmdcDumpGeoModel::DoIt()
 
 }
 
-StatusCode AmdcDumpGeoModel::execute() {return StatusCode::SUCCESS;}
- 
-StatusCode AmdcDumpGeoModel::finalize() {return StatusCode::SUCCESS;}
-
-
 int AmdcDumpGeoModel::AntiSelectedStation(std::string TheStationName){
 
   int ToBeReturned = 1 ;
@@ -392,31 +358,31 @@ void AmdcDumpGeoModel::LoopMdtElements(std::ofstream&  OutFile) {
   m_Mdt_MaxDiffSs = 0. ; 
   m_Mdt_MaxDiffTs = 0. ; 
   
-  for (int sname_index = 0; sname_index<MuonDetectorManager::NMdtStatType; ++ sname_index) 
+  for (int sname_index = 0; sname_index<MuonGM::MuonDetectorManager::NMdtStatType; ++ sname_index) 
   {
-   for (int seta_index = 0; seta_index<MuonDetectorManager::NMdtStatEta; ++seta_index)
+   for (int seta_index = 0; seta_index<MuonGM::MuonDetectorManager::NMdtStatEta; ++seta_index)
    {
-    for (int sphi_index = 0; sphi_index<MuonDetectorManager::NMdtStatPhi; ++sphi_index)
+    for (int sphi_index = 0; sphi_index<MuonGM::MuonDetectorManager::NMdtStatPhi; ++sphi_index)
     {
-     for (int dbr_index = 0; dbr_index<MuonDetectorManager::NMdtMultilayer; ++dbr_index)
+     for (int dbr_index = 0; dbr_index<MuonGM::MuonDetectorManager::NMdtMultilayer; ++dbr_index)
      {
-      const MdtReadoutElement* pReadoutElement = 
+      const MuonGM::MdtReadoutElement* pReadoutElement = 
           p_MuonDetectorManager->getMdtReadoutElement(sname_index,
      	     					      seta_index,
      	     					      sphi_index,
      	     					      dbr_index);
       if (pReadoutElement == NULL) continue;
       Identifier idr = pReadoutElement->identify();
-      Identifier idp = m_muonIdHelperSvc->mdtIdHelper().parentID(idr);
+      Identifier idp = m_idHelperSvc->mdtIdHelper().parentID(idr);
       for ( int tl=1; tl<=pReadoutElement->getNLayers();) 
       {
        int turn = 1 ;
        for ( int tube=1; tube<=pReadoutElement->getNtubesperlayer();) 
        {
-        Identifier channelId = m_muonIdHelperSvc->mdtIdHelper().channelID(idp,
+        Identifier channelId = m_idHelperSvc->mdtIdHelper().channelID(idp,
 	                                           pReadoutElement->getMultilayer(),
 						   tl, tube);
-        bool IsValid = m_muonIdHelperSvc->mdtIdHelper().valid(channelId);
+        bool IsValid = m_idHelperSvc->mdtIdHelper().valid(channelId);
 	if (IsValid) {
          MdtCompare(OutFile,channelId,pReadoutElement);
 	}else{
@@ -466,18 +432,18 @@ void AmdcDumpGeoModel::LoopMdtElements(std::ofstream&  OutFile) {
 void AmdcDumpGeoModel::MdtCompare(
  std::ofstream&           OutFile,
  Identifier               channelId,
- const MdtReadoutElement* pReadoutElement)
+ const MuonGM::MdtReadoutElement* pReadoutElement)
 {
-  bool IsValid = m_muonIdHelperSvc->mdtIdHelper().valid(channelId);
+  bool IsValid = m_idHelperSvc->mdtIdHelper().valid(channelId);
   if (IsValid) {
   
-    int SPstationName		   = m_muonIdHelperSvc->mdtIdHelper().stationName(channelId);
-    std::string SPstationNameString = m_muonIdHelperSvc->mdtIdHelper().stationNameString(SPstationName);
-    int SPstationEta		   = m_muonIdHelperSvc->mdtIdHelper().stationEta(channelId);
-    int SPstationPhi		   = m_muonIdHelperSvc->mdtIdHelper().stationPhi(channelId);
-    int SPmultilayer		   = m_muonIdHelperSvc->mdtIdHelper().multilayer(channelId);
-    int SPtubeLayer 		   = m_muonIdHelperSvc->mdtIdHelper().tubeLayer(channelId);
-    int SPtube 		           = m_muonIdHelperSvc->mdtIdHelper().tube(channelId);
+    int SPstationName		   = m_idHelperSvc->mdtIdHelper().stationName(channelId);
+    std::string SPstationNameString = m_idHelperSvc->mdtIdHelper().stationNameString(SPstationName);
+    int SPstationEta		   = m_idHelperSvc->mdtIdHelper().stationEta(channelId);
+    int SPstationPhi		   = m_idHelperSvc->mdtIdHelper().stationPhi(channelId);
+    int SPmultilayer		   = m_idHelperSvc->mdtIdHelper().multilayer(channelId);
+    int SPtubeLayer 		   = m_idHelperSvc->mdtIdHelper().tubeLayer(channelId);
+    int SPtube 		           = m_idHelperSvc->mdtIdHelper().tube(channelId);
 
     const  Amg::Vector3D globalPositionRO = pReadoutElement->ROPos(channelId);
     const  Amg::Vector3D globalPosition   = pReadoutElement->tubePos(channelId);
@@ -964,17 +930,17 @@ void AmdcDumpGeoModel::LoopRpcElements(std::ofstream&  OutFile){
   m_Rpc_MaxDiffS  = 0. ; 
   m_Rpc_MaxDiffT  = 0. ; 
   
-  for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++ sname_index) 
+  for (int sname_index = 0; sname_index<MuonGM::MuonDetectorManager::NRpcStatType; ++ sname_index) 
   {
-   for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index)
+   for (int seta_index = 0; seta_index<MuonGM::MuonDetectorManager::NRpcStatEta; ++seta_index)
    {
-    for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index)
+    for (int sphi_index = 0; sphi_index<MuonGM::MuonDetectorManager::NRpcStatPhi; ++sphi_index)
     {
-     for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index)
+     for (int dbr_index = 0; dbr_index<MuonGM::MuonDetectorManager::NDoubletR; ++dbr_index)
      {
-      for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index)
+      for (int dbz_index = 0; dbz_index<MuonGM::MuonDetectorManager::NDoubletZ; ++dbz_index)
       {
-       const RpcReadoutElement* pReadoutElement = 
+       const MuonGM::RpcReadoutElement* pReadoutElement = 
            p_MuonDetectorManager->getRpcReadoutElement(sname_index,
         					       seta_index,
         					       sphi_index,
@@ -982,23 +948,23 @@ void AmdcDumpGeoModel::LoopRpcElements(std::ofstream&  OutFile){
         					       dbz_index);
        if (pReadoutElement == NULL) continue;
        Identifier idr = pReadoutElement->identify();
-       Identifier idp = m_muonIdHelperSvc->rpcIdHelper().parentID(idr);
+       Identifier idp = m_idHelperSvc->rpcIdHelper().parentID(idr);
 
        int ndbphi = pReadoutElement->NphiStripPanels();
        for (int idbphi = 1; idbphi<=ndbphi; idbphi++)
        {
 //I do not understand this JFL(Wed Nov 17 13:43:44 CET 2004)
-        int dbp = m_muonIdHelperSvc->rpcIdHelper().doubletPhi(idr);
+        int dbp = m_idHelperSvc->rpcIdHelper().doubletPhi(idr);
         if (ndbphi>1 && idbphi>1) dbp = idbphi;
         for ( int igg=1; igg<3; igg++) 
         {
          int measphi = 1;
          for (int strip = 1; strip<=pReadoutElement->NphiStrips();)
          {
-          Identifier channelId = m_muonIdHelperSvc->rpcIdHelper().channelID(idp,
-             				            m_muonIdHelperSvc->rpcIdHelper().doubletZ(idr),
+          Identifier channelId = m_idHelperSvc->rpcIdHelper().channelID(idp,
+             				            m_idHelperSvc->rpcIdHelper().doubletZ(idr),
              				            dbp, igg, measphi, strip);
-          bool IsValid = m_muonIdHelperSvc->rpcIdHelper().valid(channelId);
+          bool IsValid = m_idHelperSvc->rpcIdHelper().valid(channelId);
 	  if (IsValid) {
            RpcCompare(OutFile,channelId,pReadoutElement);
 	  }else{
@@ -1019,10 +985,10 @@ void AmdcDumpGeoModel::LoopRpcElements(std::ofstream&  OutFile){
          measphi = 0;
          for (int strip = 1; strip<=pReadoutElement->NetaStrips();)
          {
-          Identifier channelId = m_muonIdHelperSvc->rpcIdHelper().channelID(idp,
-             					    m_muonIdHelperSvc->rpcIdHelper().doubletZ(idr),
+          Identifier channelId = m_idHelperSvc->rpcIdHelper().channelID(idp,
+             					    m_idHelperSvc->rpcIdHelper().doubletZ(idr),
              					    dbp, igg, measphi, strip);
-          bool IsValid = m_muonIdHelperSvc->rpcIdHelper().valid(channelId);
+          bool IsValid = m_idHelperSvc->rpcIdHelper().valid(channelId);
 	  if (IsValid) {
            RpcCompare(OutFile,channelId,pReadoutElement);
 	  }else{
@@ -1060,21 +1026,21 @@ void AmdcDumpGeoModel::LoopRpcElements(std::ofstream&  OutFile){
 void AmdcDumpGeoModel::RpcCompare(
  std::ofstream&           OutFile,
  Identifier               channelId,
- const RpcReadoutElement* pReadoutElement)
+ const MuonGM::RpcReadoutElement* pReadoutElement)
 {
 
-  bool IsValid = m_muonIdHelperSvc->rpcIdHelper().valid(channelId);
+  bool IsValid = m_idHelperSvc->rpcIdHelper().valid(channelId);
   if (IsValid) {
-   int SPstationName               = m_muonIdHelperSvc->rpcIdHelper().stationName(channelId);
-   std::string SPstationNameString = m_muonIdHelperSvc->rpcIdHelper().stationNameString(SPstationName);
-   int SPstationEta                = m_muonIdHelperSvc->rpcIdHelper().stationEta(channelId);
-   int SPstationPhi                = m_muonIdHelperSvc->rpcIdHelper().stationPhi(channelId);
-   int SPDoubletR                  = m_muonIdHelperSvc->rpcIdHelper().doubletR(channelId);
-   int SPDoubletZ                  = m_muonIdHelperSvc->rpcIdHelper().doubletZ(channelId);
-   int SPDoubletPhi                = m_muonIdHelperSvc->rpcIdHelper().doubletPhi(channelId);
-   int SPGasGap                    = m_muonIdHelperSvc->rpcIdHelper().gasGap(channelId);
-   int SPMeasuresPhi               = m_muonIdHelperSvc->rpcIdHelper().measuresPhi(channelId);
-   int SPStrip                     = m_muonIdHelperSvc->rpcIdHelper().strip(channelId);
+   int SPstationName               = m_idHelperSvc->rpcIdHelper().stationName(channelId);
+   std::string SPstationNameString = m_idHelperSvc->rpcIdHelper().stationNameString(SPstationName);
+   int SPstationEta                = m_idHelperSvc->rpcIdHelper().stationEta(channelId);
+   int SPstationPhi                = m_idHelperSvc->rpcIdHelper().stationPhi(channelId);
+   int SPDoubletR                  = m_idHelperSvc->rpcIdHelper().doubletR(channelId);
+   int SPDoubletZ                  = m_idHelperSvc->rpcIdHelper().doubletZ(channelId);
+   int SPDoubletPhi                = m_idHelperSvc->rpcIdHelper().doubletPhi(channelId);
+   int SPGasGap                    = m_idHelperSvc->rpcIdHelper().gasGap(channelId);
+   int SPMeasuresPhi               = m_idHelperSvc->rpcIdHelper().measuresPhi(channelId);
+   int SPStrip                     = m_idHelperSvc->rpcIdHelper().strip(channelId);
 
    const Amg::Vector3D globalPosition = pReadoutElement->stripPos(channelId);
 
@@ -1289,23 +1255,23 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
   m_Tgc_MaxDiffS  = 0. ; 
   m_Tgc_MaxDiffT  = 0. ; 
 
-  for (int sname_index = 0; sname_index<MuonDetectorManager::NTgcStatType; ++ sname_index) 
+  for (int sname_index = 0; sname_index<MuonGM::MuonDetectorManager::NTgcStatType; ++ sname_index) 
   {
-   for (int seta_index = 5; seta_index<MuonDetectorManager::NTgcStatEta; ++seta_index)
+   for (int seta_index = 5; seta_index<MuonGM::MuonDetectorManager::NTgcStatEta; ++seta_index)
    {
-    for (int sphi_index = 0; sphi_index<MuonDetectorManager::NTgcStatPhi; ++sphi_index)
+    for (int sphi_index = 0; sphi_index<MuonGM::MuonDetectorManager::NTgcStatPhi; ++sphi_index)
     {
-     const TgcReadoutElement* pReadoutElement = 
+     const MuonGM::TgcReadoutElement* pReadoutElement = 
          p_MuonDetectorManager->getTgcReadoutElement(sname_index,
      						     seta_index,
      						     sphi_index);
      if (pReadoutElement == NULL) continue;
      Identifier idr  = pReadoutElement->identify();
-     Identifier idp  = m_muonIdHelperSvc->tgcIdHelper().parentID(idr);
-     Identifier idp1 = m_muonIdHelperSvc->tgcIdHelper().elementID(m_muonIdHelperSvc->tgcIdHelper().stationName(idp),
-     					  -m_muonIdHelperSvc->tgcIdHelper().stationEta(idp),
-     					  m_muonIdHelperSvc->tgcIdHelper().stationPhi(idp));
-     const TgcReadoutElement* pReadoutElement1 = 
+     Identifier idp  = m_idHelperSvc->tgcIdHelper().parentID(idr);
+     Identifier idp1 = m_idHelperSvc->tgcIdHelper().elementID(m_idHelperSvc->tgcIdHelper().stationName(idp),
+     					  -m_idHelperSvc->tgcIdHelper().stationEta(idp),
+     					  m_idHelperSvc->tgcIdHelper().stationPhi(idp));
+     const MuonGM::TgcReadoutElement* pReadoutElement1 = 
          p_MuonDetectorManager->getTgcReadoutElement(idp1);
 
      for (int ngg=0; ngg<pReadoutElement->NwirePlanes(); ++ngg)
@@ -1313,8 +1279,8 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
       int isStrip = 0 ;
       for (int channel = 1; channel<=pReadoutElement->getNGangs(ngg+1);)
       {
-       Identifier channelId = m_muonIdHelperSvc->tgcIdHelper().channelID(idp,ngg+1, isStrip, channel);
-       bool IsValid = m_muonIdHelperSvc->tgcIdHelper().valid(channelId);
+       Identifier channelId = m_idHelperSvc->tgcIdHelper().channelID(idp,ngg+1, isStrip, channel);
+       bool IsValid = m_idHelperSvc->tgcIdHelper().valid(channelId);
        if (IsValid) {
         TgcCompare(OutFile,channelId,pReadoutElement);
        }else{
@@ -1336,15 +1302,15 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
         OutFile  
                 << " getNGangs " << pReadoutElement->getNGangs(ngg+1) 
 		<< " Is this expected? " 
-		<< " " << m_muonIdHelperSvc->tgcIdHelper().show_to_string(channelId)
+		<< " " << m_idHelperSvc->tgcIdHelper().show_to_string(channelId)
 	        << std::endl; 
 	
        }
       }
       for (int channel = 1; channel<=pReadoutElement1->getNGangs(ngg+1);)
       {
-       Identifier channelId = m_muonIdHelperSvc->tgcIdHelper().channelID(idp1,ngg+1, isStrip, channel);
-       bool IsValid = m_muonIdHelperSvc->tgcIdHelper().valid(channelId);
+       Identifier channelId = m_idHelperSvc->tgcIdHelper().channelID(idp1,ngg+1, isStrip, channel);
+       bool IsValid = m_idHelperSvc->tgcIdHelper().valid(channelId);
        if (IsValid) {
         TgcCompare(OutFile,channelId,pReadoutElement1);
        }else{
@@ -1366,7 +1332,7 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
         OutFile  
                 << " getNGangs " << pReadoutElement1->getNGangs(ngg+1) 
 		<< " Is this expected? " 
-		<< " " << m_muonIdHelperSvc->tgcIdHelper().show_to_string(channelId)
+		<< " " << m_idHelperSvc->tgcIdHelper().show_to_string(channelId)
 	        << std::endl; 
 	
        }
@@ -1374,8 +1340,8 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
       isStrip = 1 ;
       for (int channel = 1; channel<=pReadoutElement->getNStrips(ngg+1);)
       {
-       Identifier channelId = m_muonIdHelperSvc->tgcIdHelper().channelID(idp, ngg+1, isStrip, channel);
-       bool IsValid = m_muonIdHelperSvc->tgcIdHelper().valid(channelId);
+       Identifier channelId = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, isStrip, channel);
+       bool IsValid = m_idHelperSvc->tgcIdHelper().valid(channelId);
        if (IsValid) {
         TgcCompare(OutFile,channelId,pReadoutElement);
        }else{
@@ -1397,15 +1363,15 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
 //         OutFile  
 //                 << " getNStrips " << pReadoutElement->getNStrips(ngg+1) 
 // 		<< " Is this expected? " 
-// 		<< " " << m_muonIdHelperSvc->tgcIdHelper().show_to_string(channelId)
+// 		<< " " << m_idHelperSvc->tgcIdHelper().show_to_string(channelId)
 // 	        << std::endl; 
 	
        }
       }
       for (int channel = 1; channel<=pReadoutElement1->getNStrips(ngg+1);)
       {
-       Identifier channelId = m_muonIdHelperSvc->tgcIdHelper().channelID(idp1,ngg+1, isStrip, channel);
-       bool IsValid = m_muonIdHelperSvc->tgcIdHelper().valid(channelId);
+       Identifier channelId = m_idHelperSvc->tgcIdHelper().channelID(idp1,ngg+1, isStrip, channel);
+       bool IsValid = m_idHelperSvc->tgcIdHelper().valid(channelId);
        if (IsValid) {
         TgcCompare(OutFile,channelId,pReadoutElement1);
        }else{
@@ -1427,7 +1393,7 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
 //         OutFile  
 //                 << " getNStrips " << pReadoutElement1->getNStrips(ngg+1) 
 // 		<< " Is this expected? " 
-// 		<< " " << m_muonIdHelperSvc->tgcIdHelper().show_to_string(channelId)
+// 		<< " " << m_idHelperSvc->tgcIdHelper().show_to_string(channelId)
 // 	        << std::endl; 
 	
        }
@@ -1449,17 +1415,17 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
 void AmdcDumpGeoModel::TgcCompare(
  std::ofstream&           OutFile,
  Identifier               channelId,
- const TgcReadoutElement* pReadoutElement){
+ const MuonGM::TgcReadoutElement* pReadoutElement){
 
-  bool IsValid = m_muonIdHelperSvc->tgcIdHelper().valid(channelId);
+  bool IsValid = m_idHelperSvc->tgcIdHelper().valid(channelId);
   if (IsValid) {
-   int         SPstationName       = m_muonIdHelperSvc->tgcIdHelper().stationName(channelId);
-   std::string SPstationNameString = m_muonIdHelperSvc->tgcIdHelper().stationNameString(SPstationName);
-   int         SPstationEta        = m_muonIdHelperSvc->tgcIdHelper().stationEta(channelId);
-   int         SPstationPhi        = m_muonIdHelperSvc->tgcIdHelper().stationPhi(channelId);
-   int         SPGasGap            = m_muonIdHelperSvc->tgcIdHelper().gasGap(channelId);
-   int         SPIsStrip           = m_muonIdHelperSvc->tgcIdHelper().isStrip(channelId);
-   int         SPChannel           = m_muonIdHelperSvc->tgcIdHelper().channel(channelId);
+   int         SPstationName       = m_idHelperSvc->tgcIdHelper().stationName(channelId);
+   std::string SPstationNameString = m_idHelperSvc->tgcIdHelper().stationNameString(SPstationName);
+   int         SPstationEta        = m_idHelperSvc->tgcIdHelper().stationEta(channelId);
+   int         SPstationPhi        = m_idHelperSvc->tgcIdHelper().stationPhi(channelId);
+   int         SPGasGap            = m_idHelperSvc->tgcIdHelper().gasGap(channelId);
+   int         SPIsStrip           = m_idHelperSvc->tgcIdHelper().isStrip(channelId);
+   int         SPChannel           = m_idHelperSvc->tgcIdHelper().channel(channelId);
 
    const Amg::Vector3D globalPosition = pReadoutElement->channelPos(channelId);
    double GeoModX = globalPosition.x();
@@ -1665,15 +1631,15 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
   m_Csc_MaxDiffzz  = 0. ; 
   m_Csc_MaxDifftt  = 0. ; 
 
-  for (int sname_index = 0; sname_index<MuonDetectorManager::NCscStatType; ++ sname_index) 
+  for (int sname_index = 0; sname_index<MuonGM::MuonDetectorManager::NCscStatType; ++ sname_index) 
   {
-   for (int seta_index = 1; seta_index<MuonDetectorManager::NCscStatEta; ++seta_index)
+   for (int seta_index = 1; seta_index<MuonGM::MuonDetectorManager::NCscStatEta; ++seta_index)
    {
-    for (int sphi_index = 0; sphi_index<MuonDetectorManager::NCscStatPhi; ++sphi_index)
+    for (int sphi_index = 0; sphi_index<MuonGM::MuonDetectorManager::NCscStatPhi; ++sphi_index)
     {
-     for (int ml=0; ml<MuonDetectorManager::NCscChamberLayer; ++ml)
+     for (int ml=0; ml<MuonGM::MuonDetectorManager::NCscChamberLayer; ++ml)
      {
-      const CscReadoutElement* pReadoutElement = 
+      const MuonGM::CscReadoutElement* pReadoutElement = 
           p_MuonDetectorManager->getCscReadoutElement(sname_index,
      	     					      seta_index,
      	     					      sphi_index,
@@ -1681,15 +1647,15 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
       if (pReadoutElement == NULL) continue;
 
       Identifier idr  = pReadoutElement->identify();
-      Identifier idp  = m_muonIdHelperSvc->cscIdHelper().parentID(idr);
-      Identifier idp1 = m_muonIdHelperSvc->cscIdHelper().elementID(m_muonIdHelperSvc->cscIdHelper().stationName(idp),
-     	     				   -m_muonIdHelperSvc->cscIdHelper().stationEta(idp),
-     	     				   m_muonIdHelperSvc->cscIdHelper().stationPhi(idp));
-      Identifier idp1ch = m_muonIdHelperSvc->cscIdHelper().channelID(idp1, 
+      Identifier idp  = m_idHelperSvc->cscIdHelper().parentID(idr);
+      Identifier idp1 = m_idHelperSvc->cscIdHelper().elementID(m_idHelperSvc->cscIdHelper().stationName(idp),
+     	     				   -m_idHelperSvc->cscIdHelper().stationEta(idp),
+     	     				   m_idHelperSvc->cscIdHelper().stationPhi(idp));
+      Identifier idp1ch = m_idHelperSvc->cscIdHelper().channelID(idp1, 
                                              pReadoutElement->ChamberLayer(), 
 					     1, 0, 1);
 //Why is it not getCscReadoutElement(idp1) JFL(Tue Nov 30 10:17:40 CET 2004)
-      const CscReadoutElement* pReadoutElement1 = 
+      const MuonGM::CscReadoutElement* pReadoutElement1 = 
           p_MuonDetectorManager->getCscReadoutElement(idp1ch);
 
       for (int gg=1; gg<=pReadoutElement->Ngasgaps(); ++gg)
@@ -1697,8 +1663,8 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
        int MeasuresPhi = 0 ;
        for (int Strip=1; Strip<=pReadoutElement->NetaStrips(gg);)
        {
-        Identifier channelId = m_muonIdHelperSvc->cscIdHelper().channelID(idp, ml+1, gg, MeasuresPhi, Strip);
-        bool IsValid = m_muonIdHelperSvc->cscIdHelper().valid(channelId);
+        Identifier channelId = m_idHelperSvc->cscIdHelper().channelID(idp, ml+1, gg, MeasuresPhi, Strip);
+        bool IsValid = m_idHelperSvc->cscIdHelper().valid(channelId);
         if (IsValid) {
          CscCompare(OutFile,channelId,pReadoutElement);
         }else{
@@ -1720,15 +1686,15 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
          OutFile  
                  << " NetaStrips " << pReadoutElement->NetaStrips(gg) 
 		 << " Is this expected? " 
-		 << " " << m_muonIdHelperSvc->cscIdHelper().show_to_string(channelId)
+		 << " " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)
 	         << std::endl; 
 	
         }
        }
        for (int Strip=1; Strip<=pReadoutElement1->NetaStrips(gg);)
        {
-        Identifier channelId = m_muonIdHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, MeasuresPhi, Strip);
-        bool IsValid = m_muonIdHelperSvc->cscIdHelper().valid(channelId);
+        Identifier channelId = m_idHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, MeasuresPhi, Strip);
+        bool IsValid = m_idHelperSvc->cscIdHelper().valid(channelId);
         if (IsValid) {
          CscCompare(OutFile,channelId,pReadoutElement1);
         }else{
@@ -1750,7 +1716,7 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
          OutFile  
                  << " NetaStrips " << pReadoutElement1->NetaStrips(gg) 
 		 << " Is this expected? " 
-		 << " " << m_muonIdHelperSvc->cscIdHelper().show_to_string(channelId)
+		 << " " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)
 	         << std::endl; 
 	
         }
@@ -1758,8 +1724,8 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
        MeasuresPhi = 1 ;
        for (int Strip=1; Strip<=pReadoutElement->NphiStrips(gg);)
        {
-        Identifier channelId = m_muonIdHelperSvc->cscIdHelper().channelID(idp, ml+1, gg, MeasuresPhi, Strip);
-        bool IsValid = m_muonIdHelperSvc->cscIdHelper().valid(channelId);
+        Identifier channelId = m_idHelperSvc->cscIdHelper().channelID(idp, ml+1, gg, MeasuresPhi, Strip);
+        bool IsValid = m_idHelperSvc->cscIdHelper().valid(channelId);
         if (IsValid) {
          CscCompare(OutFile,channelId,pReadoutElement);
         }else{
@@ -1780,7 +1746,7 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
          OutFile  
                  << " NphiStrips " << pReadoutElement->NphiStrips(gg) 
 		 << " Is this expected? " 
-		 << " " << m_muonIdHelperSvc->cscIdHelper().show_to_string(channelId)
+		 << " " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)
 	         << std::endl; 
 	
         }else{
@@ -1805,8 +1771,8 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
        }
        for (int Strip=1; Strip<=pReadoutElement1->NphiStrips(gg);)
        {
-        Identifier channelId = m_muonIdHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, MeasuresPhi, Strip);
-        bool IsValid = m_muonIdHelperSvc->cscIdHelper().valid(channelId);
+        Identifier channelId = m_idHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, MeasuresPhi, Strip);
+        bool IsValid = m_idHelperSvc->cscIdHelper().valid(channelId);
         if (IsValid) {
          CscCompare(OutFile,channelId,pReadoutElement1);
         }else{
@@ -1827,7 +1793,7 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
          OutFile  
                  << " NphiStrips " << pReadoutElement1->NphiStrips(gg) 
 		 << " Is this expected? " 
-		 << " " << m_muonIdHelperSvc->cscIdHelper().show_to_string(channelId)
+		 << " " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)
 	         << std::endl; 
 	
         }else{
@@ -1868,18 +1834,18 @@ void AmdcDumpGeoModel::LoopCscElements(std::ofstream&  OutFile){
 void AmdcDumpGeoModel::CscCompare(
  std::ofstream&           OutFile,
  Identifier               channelId,
- const CscReadoutElement* pReadoutElement){
+ const MuonGM::CscReadoutElement* pReadoutElement){
 
-  bool IsValid = m_muonIdHelperSvc->cscIdHelper().valid(channelId);
+  bool IsValid = m_idHelperSvc->cscIdHelper().valid(channelId);
   if (IsValid) {
-   int          SPstationName       = m_muonIdHelperSvc->cscIdHelper().stationName(channelId);
-   std::string  SPstationNameString = m_muonIdHelperSvc->cscIdHelper().stationNameString(SPstationName);
-   int          SPstationEta        = m_muonIdHelperSvc->cscIdHelper().stationEta(channelId);
-   int          SPstationPhi        = m_muonIdHelperSvc->cscIdHelper().stationPhi(channelId);
-   int          SPChamberLayer      = m_muonIdHelperSvc->cscIdHelper().chamberLayer(channelId);
-   int          SPWireLayer	    = m_muonIdHelperSvc->cscIdHelper().wireLayer(channelId);
-   int          SPMeasuresPhi	    = m_muonIdHelperSvc->cscIdHelper().measuresPhi(channelId);
-   int          SPStrip	            = m_muonIdHelperSvc->cscIdHelper().strip(channelId);
+   int          SPstationName       = m_idHelperSvc->cscIdHelper().stationName(channelId);
+   std::string  SPstationNameString = m_idHelperSvc->cscIdHelper().stationNameString(SPstationName);
+   int          SPstationEta        = m_idHelperSvc->cscIdHelper().stationEta(channelId);
+   int          SPstationPhi        = m_idHelperSvc->cscIdHelper().stationPhi(channelId);
+   int          SPChamberLayer      = m_idHelperSvc->cscIdHelper().chamberLayer(channelId);
+   int          SPWireLayer	    = m_idHelperSvc->cscIdHelper().wireLayer(channelId);
+   int          SPMeasuresPhi	    = m_idHelperSvc->cscIdHelper().measuresPhi(channelId);
+   int          SPStrip	            = m_idHelperSvc->cscIdHelper().strip(channelId);
  
    const Amg::Vector3D globalPosition = pReadoutElement->stripPos(channelId);
    double GeoModX = globalPosition.x();
