@@ -1191,7 +1191,6 @@ namespace top {
     this->doJVTinMET((settings->value("JVTinMETCalculation") == "True" ? true : false));
     this->saveFailJVTJets((settings->value("SaveFailJVTJets") == "True" ? true : false));
     this->setJVTWP(settings->value("JVTWP"));
-    this->m_largeRSmallRCorrelations = settings->value("LargeRSmallRCorrelations") == "True" ? true : false;
 
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));

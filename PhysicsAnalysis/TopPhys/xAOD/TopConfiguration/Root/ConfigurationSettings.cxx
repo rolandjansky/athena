@@ -168,9 +168,6 @@ namespace top {
                                                          "   \"410470,410472,345873,345874,345875\" (for the listed DSIDs, histograms with the processed DSID will be used, while the flat 50+/-50% fraction will be used for the other DSIDs)."
                                                          " Default: None (i.e. no specific pattern is looked for in the name of the provided histograms).",
                       "None");
-    registerParameter("LargeRSmallRCorrelations",
-                      "Do large-small R jet correlation systematics - True or False (default)",
-                      "False");
     registerParameter("JetJERSmearingModel",
                       "All (inc. data smearing), All_PseudoData (use MC as pseudo-data), Full (inc. data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (MC only - default)",
                       "Simple");

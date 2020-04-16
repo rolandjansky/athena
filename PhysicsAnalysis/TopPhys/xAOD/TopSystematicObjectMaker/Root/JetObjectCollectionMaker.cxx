@@ -906,42 +906,4 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
-  void JetObjectCollectionMaker::addCorrelation(const std::string& name,
-                                                systMap& map_one,
-                                                const std::string& syst_one_name,
-                                                systMap& map_two,
-                                                const std::string& syst_two_name) {
-    std::vector<std::string> directions = {
-      "__1up", "__1down"
-    };
-    for (const std::string& d : directions) {
-      std::string tree_name = name + d;
-      map_one.insert(std::make_pair(CP::SystematicSet(tree_name),
-                                    CP::SystematicSet(syst_one_name + d)));
-      map_two.insert(std::make_pair(CP::SystematicSet(tree_name),
-                                    CP::SystematicSet(syst_two_name + d)));
-
-      m_specifiedSystematics.push_back(tree_name);
-      m_specifiedSystematicsLargeR.push_back(tree_name);
-    }  // loop through up and down
-
-    m_specifiedSystematics.sort();
-    m_specifiedSystematics.unique();
-
-    m_specifiedSystematicsLargeR.sort();
-    m_specifiedSystematicsLargeR.unique();
-  }
-
-  void JetObjectCollectionMaker::addCorrelation(const std::string& name,
-                                                systMap& map_one,
-                                                const std::string& syst_one_name,
-                                                std::list<CP::SystematicSet>& jet_specified) {
-    map_one.insert(std::make_pair(CP::SystematicSet(name),
-                                  CP::SystematicSet(syst_one_name)));
-
-    jet_specified.push_back(name);
-
-    jet_specified.sort();
-    jet_specified.unique();
-  }
 }  // namespace top

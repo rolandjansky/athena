@@ -1163,7 +1163,6 @@ namespace top {
     virtual void jetUncertainties_QGFracFile(const std::string& s);
     virtual void jetUncertainties_QGHistPatterns(const std::string& s);
     inline bool doMultipleJES() const {return m_doMultipleJES;}
-    inline bool doLargeRSmallRCorrelations() const {return m_largeRSmallRCorrelations;}
     inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
     inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
     inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {
@@ -2037,7 +2036,6 @@ namespace top {
     std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with
                                                                 // more flexibility
     bool m_doMultipleJES;
-    bool m_largeRSmallRCorrelations = false; // Add correlations of large/small R jets
     std::string m_jetJERSmearingModel; // Full or Simple
     std::string m_jetCalibSequence; // GCC or JMS
     bool m_jetStoreTruthLabels; // True or False
