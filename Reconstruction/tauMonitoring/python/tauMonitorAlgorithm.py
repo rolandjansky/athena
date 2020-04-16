@@ -171,8 +171,8 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('LB,tauPhi','tauPhiVsLB','',postfix), type='TH2F', title='Tau Phi vs Lumiblock;Lumiblock;Phi', 
                                    xbins=1200,xmin=0,xmax=1200,ybins=80,ymin=PHIMIN,ymax=PHIMAX,path=folder)
 
-        
-        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix=="TauTrig" or postfix=="Global"):
+        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix=="TauTrig"):
+
             igroup.defineHistogram(namer('centFrac',"CentFrac","Identification_tauJetBDTinputs",postfix), title='Centrality Fraction;Centrality Fraction;Number Of Candidates',
                 xbins=70, xmin=0., xmax=1.4, path=folder+"Identification/tauJetBDTinputs")
 
@@ -228,44 +228,6 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('panModeEt15BDTLoose','panMode','Identification_BDTLoose15GeV',postfix), title='tau decay mode from panTau upon JetBDTSigMedium;mode',
                                    xbins=5, xmin=0., xmax=5., path=folder+"Identification/BDTLoose15GeV", labels=["1p0n","1p1n","1pXn","3p0n","3pXn"])
 
-            igroup.defineHistogram(namer('jetSeedEta','jetSeedEta','Calo',postfix), title='Calorimeter eta of tau candidates;Eta;Numbers of Candidates',path=folder+"Calo",
-            xbins=50, xmin=-2.5, xmax=2.5 )
-
-            igroup.defineHistogram(namer('jetSeedPhi','jetSeedPhi','Calo',postfix), title='Calorimeter phi of tau candidates;Phi;Numbers of Candidates',path=folder+"Calo",
-            xbins=64, xmin=PHIMIN, xmax=PHIMAX )
-
-            igroup.defineHistogram(namer('jetSeedPt','jetSeedPt','Calo',postfix), title='Calorimeter pt of tau candidates;Et;Numbers of Candidates',path=folder+"Calo",
-            xbins=100, xmin=0., xmax=300 )
-            
-            igroup.defineHistogram(namer('EMRadius','EMRadius','Calo',postfix), title='Uncalibrated EM Radius;EM Radius;Number Of Candidates',path=folder+"Calo",
-            xbins=50, xmin=0., xmax=1.2 )
-
-            igroup.defineHistogram(namer('hadRadius','hadRadius','Calo',postfix), title='Hadronic Radius of tau candidates;Hadronic Radius; Number Of Candidates',path=folder+"Calo",
-            xbins=50, xmin=0., xmax=1. )
-
-            igroup.defineHistogram(namer('stripWidth2','stripWidth2','Calo',postfix), title='Strip Width of tau candidates;Strip Width;Number of Candidates',path=folder+"Calo",
-            xbins=50, xmin=-0.1, xmax=0.12 )
-
-            igroup.defineHistogram(namer('isolFrac','isolFrac','Calo',postfix), title='Isolation Fraction;Et Isolation Fraction;Number of Candidates',path=folder+"Calo",
-            xbins=51, xmin=0.0, xmax=1.02 )
-
-            igroup.defineHistogram(namer('nStrip','nStrip','Calo',postfix), title='Number of strip cells of tau candidates;Number of Strip Cells;Number of Candidates',path=folder+"Calo",
-            xbins=56, xmin=-0.5, xmax=55.5 )
-
-            igroup.defineHistogram(namer('etEMAtEMScale','etEMAtEMScale','Calo',postfix), title='EM energy at the EM scale;EM Et (GeV) );Number of Candidates',path=folder+"Calo",
-            xbins=50, xmin=0., xmax=200. )
-
-            igroup.defineHistogram(namer('etHadAtEMScale','etHadAtEMScale','Calo',postfix), title='Hadronic Energy at the EM Scale;Had Et (GeV) );Number of Candidates',path=folder+"Calo",
-            xbins=50, xmin=0., xmax=200. )
-            
-            igroup.defineHistogram(namer('centFrac,LB','CentFracVsLB','Calo',postfix), type='TH2F', title='Centrality Fraction vs Lumiblock;Centrality Fraction;Lumiblock', path=folder+"Calo", 
-            xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
-
-            igroup.defineHistogram('centFrac,LB', type='TH2F', title='Centrality Fraction vs Lumiblock;Centrality Fraction;Lumiblock', path=folder+"Calo", 
-            xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
-
-            igroup.defineHistogram('isolFrac,LB', type='TH2F', title='Isolation Fraction vs Lumiblock;Isolation Fraction;Lumiblock', path=folder+"Calo", 
-            xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
 
             igroup.defineHistogram(namer('BDTJetScore','BDTJetScore','Identification',postfix), title='BDT Score for Jet Rejection;Boosted Decision Tree Score',path=folder+"Identification",
             xbins=48, xmin=-1.1, xmax=1.1 )
@@ -309,6 +271,7 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('EMFrac','EMFrac','Identification_EleVetoBDTinputs',postfix), title='EMFracFixed',path=folder+"Identification/EleVetoBDTinputs",
             xbins=20, xmin=0., xmax=2. )
 
+
             #Substructure Histograms
             igroup.defineHistogram(namer('panModeSubstructure','panMode','SubStructure',postfix), title='tau decay mode from PanTau upon JetBDTSigMedium;mode',
             xbins=8, xmin=0., xmax=8., path=folder+"SubStructure")
@@ -345,6 +308,52 @@ def tauMonitoringConfig(inputFlags):
 
             igroup.defineHistogram(namer('pt3','shots_pt3','SubStructure',postfix), title='weighted cell pt in 3x3 window in shots; pt3 (GeV) ',path=folder+"SubStructure",
             xbins=24, xmin=0, xmax=12 )
+
+
+
+        
+        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix=="TauTrig" or postfix=="Global"):
+
+            igroup.defineHistogram(namer('jetSeedEta','jetSeedEta','Calo',postfix), title='Calorimeter eta of tau candidates;Eta;Numbers of Candidates',path=folder+"Calo",
+            xbins=50, xmin=-2.5, xmax=2.5 )
+
+            igroup.defineHistogram(namer('jetSeedPhi','jetSeedPhi','Calo',postfix), title='Calorimeter phi of tau candidates;Phi;Numbers of Candidates',path=folder+"Calo",
+            xbins=64, xmin=PHIMIN, xmax=PHIMAX )
+
+            igroup.defineHistogram(namer('jetSeedPt','jetSeedPt','Calo',postfix), title='Calorimeter pt of tau candidates;Et;Numbers of Candidates',path=folder+"Calo",
+            xbins=100, xmin=0., xmax=300 )
+            
+            igroup.defineHistogram(namer('EMRadius','EMRadius','Calo',postfix), title='Uncalibrated EM Radius;EM Radius;Number Of Candidates',path=folder+"Calo",
+            xbins=50, xmin=0., xmax=1.2 )
+
+            igroup.defineHistogram(namer('hadRadius','hadRadius','Calo',postfix), title='Hadronic Radius of tau candidates;Hadronic Radius; Number Of Candidates',path=folder+"Calo",
+            xbins=50, xmin=0., xmax=1. )
+
+            igroup.defineHistogram(namer('stripWidth2','stripWidth2','Calo',postfix), title='Strip Width of tau candidates;Strip Width;Number of Candidates',path=folder+"Calo",
+            xbins=50, xmin=-0.1, xmax=0.12 )
+
+            igroup.defineHistogram(namer('isolFrac','isolFrac','Calo',postfix), title='Isolation Fraction;Et Isolation Fraction;Number of Candidates',path=folder+"Calo",
+            xbins=51, xmin=0.0, xmax=1.02 )
+
+            igroup.defineHistogram(namer('nStrip','nStrip','Calo',postfix), title='Number of strip cells of tau candidates;Number of Strip Cells;Number of Candidates',path=folder+"Calo",
+            xbins=56, xmin=-0.5, xmax=55.5 )
+
+            igroup.defineHistogram(namer('etEMAtEMScale','etEMAtEMScale','Calo',postfix), title='EM energy at the EM scale;EM Et (GeV) );Number of Candidates',path=folder+"Calo",
+            xbins=50, xmin=0., xmax=200. )
+
+            igroup.defineHistogram(namer('etHadAtEMScale','etHadAtEMScale','Calo',postfix), title='Hadronic Energy at the EM Scale;Had Et (GeV) );Number of Candidates',path=folder+"Calo",
+            xbins=50, xmin=0., xmax=200. )
+            
+            igroup.defineHistogram(namer('centFrac,LB','CentFracVsLB','Calo',postfix), type='TH2F', title='Centrality Fraction vs Lumiblock;Centrality Fraction;Lumiblock', path=folder+"Calo", 
+            xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
+
+            igroup.defineHistogram('centFrac,LB', type='TH2F', title='Centrality Fraction vs Lumiblock;Centrality Fraction;Lumiblock', path=folder+"Calo", 
+            xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
+
+            igroup.defineHistogram('isolFrac,LB', type='TH2F', title='Isolation Fraction vs Lumiblock;Isolation Fraction;Lumiblock', path=folder+"Calo", 
+            xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
+
+
 
             #Track Histograms!
             igroup.defineHistogram(namer('d0','d0','Track',postfix), title='Track d0;Transverse Impact Parameter (mm)',path=folder+"Track",
