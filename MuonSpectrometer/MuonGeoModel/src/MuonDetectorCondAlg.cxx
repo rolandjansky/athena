@@ -80,10 +80,8 @@ StatusCode MuonDetectorCondAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  // It is very bad code but it is necessary to compile that
-  std::unique_ptr<MuonGM::MuonDetectorManager> MuonMgrData(
-    const_cast<MuonGM::MuonDetectorManager*>(theFactory.getDetectorManager())
-  );
+  std::unique_ptr<MuonGM::MuonDetectorManager> MuonMgrData
+    (theFactory.getDetectorManager());
 
   // =======================
   // Update CSC Internal Alignment if requested

@@ -29,7 +29,7 @@ atlas_add_library( AFP_GeoModelLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaKernel ${GEOMODELCORE_LIBRARIES} GeoModelUtilities AFP_Geometry StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities GaudiKernel GeoPrimitives )
 
 atlas_add_component( AFP_GeoModel
                      src/components/*.cxx

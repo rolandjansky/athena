@@ -495,6 +495,7 @@ def muEFCBRecoSequence( RoIs, name ):
                               ( 'Muon::TgcPrepDataContainer'      , 'StoreGateSvc+TGC_Measurements' ),
                               ( 'Muon::RpcPrepDataContainer'      , 'StoreGateSvc+RPC_Measurements' ),
                               ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates') ]
+
   muEFCBRecoSequence += ViewVerifyMS
   if "FS" in name:
     #Need to run tracking for full scan chains
@@ -532,10 +533,10 @@ def muEFCBRecoSequence( RoIs, name ):
   #Pass verifier as an argument and it will automatically append necessary DataObjects
   #@NOTE: Don't provide any verifier if loaded in the same view as FTF
   if 'FS' in name:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsFS", inputFTFtracks=TrackCollection)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonFS", inputFTFtracks=TrackCollection)
     PTSeq = seqAND("precisionTrackingInMuonsFS", PTAlgs  )
   else:
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muons",  ViewVerifyTrk, inputFTFtracks= TrackCollection)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muon",  ViewVerifyTrk, inputFTFtracks= TrackCollection)
     PTSeq = seqAND("precisionTrackingInMuons", PTAlgs  )
   #Get last tracks from the list as input for other alg
 
@@ -629,7 +630,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsLate",  inputFTFtracks= TrackCollection)
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonLate",  inputFTFtracks= TrackCollection)
     PTSeq = seqAND("precisionTrackingInLateMuons", PTAlgs  )
 
     efmuInsideOutRecoSequence += PTSeq
@@ -712,7 +713,7 @@ def efmuisoRecoSequence( RoIs, Muons ):
   PTTrackParticles = [] #List of TrackParticleKeys
   
   from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonsIso", inputFTFtracks=TrackCollection)
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "muonIso", inputFTFtracks=TrackCollection)
 
   PTSeq = seqAND("precisionTrackingInMuonsIso", PTAlgs  )
   efmuisoRecoSequence += PTSeq

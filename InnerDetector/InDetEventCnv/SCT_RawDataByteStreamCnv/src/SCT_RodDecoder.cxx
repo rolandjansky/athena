@@ -994,11 +994,28 @@ StatusCode SCT_RodDecoder::addSingleError(const IdentifierHash& hashID,
 					  SCT_ByteStreamErrors::ErrorType error,
 					  SCT_RodDecoderErrorsHelper& errs) const
 {
-  if ( not hashID.is_valid() ) {
+  if (not hashID.is_valid()) {
     ATH_MSG_INFO("addSingleError hashID " << hashID << " is invalid.");
     return StatusCode::SUCCESS;
   }
+
   errs.add(hashID, error);
+
+  if ((not (error>=SCT_ByteStreamErrors::ABCDError_Chip0 and error<=SCT_ByteStreamErrors::ABCDError_Chip5)) and
+      (not (error>=SCT_ByteStreamErrors::TempMaskedChip0 and error<=SCT_ByteStreamErrors::TempMaskedChip5))) {
+    std::pair<bool, bool> badLinks{m_configTool->badLinks(hashID)};
+    int side{m_sctID->side(m_sctID->wafer_id(hashID))};
+    bool result{(side==0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
+    if (result) {
+      /// error in a module using RX redundancy - add an error for the other link as well!!
+      /// However, ABCDError_Chip0-ABCDError_Chip5 and TempMaskedChip0-TempMaskedChip5 are not common for two links.
+      IdentifierHash otherSide;
+      m_sctID->get_other_side(hashID, otherSide);
+      errs.add(otherSide, error);
+      ATH_MSG_DEBUG("Adding error to side " << 1-side << " for module with RX redundancy " << otherSide);
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 

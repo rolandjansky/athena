@@ -45,12 +45,14 @@ namespace CP
   SystematicSet::SystematicSet(const std::string& systematics)
         : SystematicSet()
   {
-    std::string::size_type split = 0, split2 = 0;
-    while ((split = systematics.find ("-", split2)) != std::string::npos) {
+    if (!systematics.empty()) {
+      std::string::size_type split = 0, split2 = 0;
+      while ((split = systematics.find ("-", split2)) != std::string::npos) {
+        m_sysVariations.insert (systematics.substr (split2, split - split2));
+        split2 = split + 1;
+      }
       m_sysVariations.insert (systematics.substr (split2, split - split2));
-      split2 = split + 1;
     }
-    m_sysVariations.insert (systematics.substr (split2, split - split2));
   }
 
 
@@ -111,6 +113,16 @@ namespace CP
     m_nameIsCached = m_hashIsCached = false;
     otherSet.m_nameIsCached = false;
     otherSet.m_hashIsCached = false;
+  }
+
+
+  // Clear the systematics and the rest of the state
+  void SystematicSet::clear()
+  {
+    m_sysVariations.clear();
+    m_joinedName.clear();
+    m_hash = 0;
+    m_nameIsCached = m_hashIsCached = false;
   }
 
 
