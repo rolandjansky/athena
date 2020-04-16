@@ -82,6 +82,8 @@ StatusCode TrigT1CaloRun3TauFex::initialize(){
 	acc_Ore_clusterIso_20pass = new SG::AuxElement::Accessor<bool>("R3_Ore_ClusterIso_20pass");
 	acc_BC_clusterET = new SG::AuxElement::Accessor<float>("R3_BC_ClusterET");
 	acc_BC_clusterIso = new SG::AuxElement::Accessor<float>("R3_BC_ClusterIso");
+	acc_BC_clusterIso_12pass = new SG::AuxElement::Accessor<bool>("R3_BC_ClusterIso_12pass");
+	acc_BC_clusterIso_20pass = new SG::AuxElement::Accessor<bool>("R3_BC_ClusterIso_20pass");
 	return StatusCode::SUCCESS;
 }
 
@@ -101,6 +103,8 @@ StatusCode TrigT1CaloRun3TauFex::finalize(){
 	delete acc_Ore_clusterIso_20pass;
 	delete acc_BC_clusterET;
 	delete acc_BC_clusterIso;
+	delete acc_BC_clusterIso_12pass;
+	delete acc_BC_clusterIso_20pass;
 	return StatusCode::SUCCESS;
 }
 
@@ -454,12 +458,12 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  
 	  // Set boolean for whether event passes 12 GeV isolation cut, hardcoding isolation threshold for now
 	  bool eFEX_OregonIso_12pass = true;
-	  if (10000. < eFEX_OregonET && 15000. < eFEX_OregonET && eFEX_OregonIso < 0.66)
+	  if (10000. < eFEX_OregonET && 15000. > eFEX_OregonET && eFEX_OregonIso < 0.67)
 	    eFEX_OregonIso_12pass = false;
 
 	  // Set boolean for whether event passes 20 GeV isolation cut, hardcoding isolation threshold for now
 	  bool eFEX_OregonIso_20pass = true;
-	  if (20000. < eFEX_OregonET && 25000. < eFEX_OregonET && eFEX_OregonIso < 0.6)
+	  if (20000. < eFEX_OregonET && 25000. > eFEX_OregonET && eFEX_OregonIso < 0.62)
 	    eFEX_OregonIso_20pass = false;
 
 	  // Code Oregon cluster later
@@ -514,7 +518,7 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  std::vector<double> E_EM12_below;
 	  E_EM12_below.reserve(6);
 	  float seedEta = m_SupercellMapTWR->GetXaxis()->GetBinCenter(i);
-	  int EM2seedBin = m_SupercellMapEM2_coarse->GetXaxis()->FindBin(seedEta);
+	  int EM2seedBin = m_SupercellMapEM2_coarse->GetXaxis()->FindBin(seedEta-0.025);
 
 	  // Make a vector with the 5 possible energies in the central phi row
 	  E_EM12_central.push_back(m_SupercellMapEM2_coarse->GetBinContent(EM2seedBin-2,j)+m_SupercellMapEM2_coarse->GetBinContent(EM2seedBin-1,j)+m_SupercellMapEM1_coarse->GetBinContent(EM2seedBin-2,j)+m_SupercellMapEM1_coarse->GetBinContent(EM2seedBin-1,j));
@@ -571,6 +575,16 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 
 	  float eFEX_BCiso = nomeFEX_BCiso/denBCiso;
 
+	  // Set boolean for whether event passes 12 GeV isolation cut, hardcoding isolation threshold for now
+	  bool eFEX_BCiso_12pass = true;
+	  if (10000. < eFEX_BC && 15000. > eFEX_BC && eFEX_BCiso < 0.38)
+	    eFEX_BCiso_12pass = false;
+
+	  // Set boolean for whether event passes 20 GeV isolation cut, hardcoding isolation threshold for now
+	  bool eFEX_BCiso_20pass = true;
+	  if (20000. < eFEX_BC && 25000. > eFEX_BC && eFEX_BCiso < 0.18)
+	    eFEX_BCiso_20pass = false;
+
 	  // Calculate an EM2-based isolation
 	  // Center in EM2, offset to the right in eta:
 	  int em2i=m_SupercellMapEM2->GetXaxis()->FindFixBin(myMaximum.Eta()+0.05);
@@ -620,6 +634,8 @@ StatusCode TrigT1CaloRun3TauFex::execute(){
 	  (*acc_BC_clusterIso)(*clForTau) = 0;
 	  if(denBCiso > 0)
 	    (*acc_BC_clusterIso)(*clForTau) = eFEX_BCiso;
+	  (*acc_BC_clusterIso_12pass)(*clForTau) = eFEX_BCiso_12pass;
+	  (*acc_BC_clusterIso_20pass)(*clForTau) = eFEX_BCiso_20pass;
 	  (*acc_Ore_clusterIso)(*clForTau) = 0;
 	  if(oreIsoOuterET > 0)
 	    (*acc_Ore_clusterIso)(*clForTau) = eFEX_OregonIso;
