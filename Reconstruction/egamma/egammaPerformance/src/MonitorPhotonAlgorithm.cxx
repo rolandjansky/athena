@@ -65,9 +65,12 @@ StatusCode MonitorPhotonAlgorithm::fillHistograms( const EventContext& ctx ) con
     np = 0;
     for (const auto& e_iter : *photons) {
 
-      // Check that the electron meets our requirements
+      // Check that the photon meets our requirements
       bool isGood;
-      e_iter->passSelection(isGood,m_RecoName);
+      if (! e_iter->passSelection(isGood,m_RecoName)) {
+        ATH_MSG_WARNING("Misconfiguration: " << m_RecoName << " is not a valid working point");
+        break; // no point in continuing
+      }
       if(isGood) {np++;}
       else continue;
                            
