@@ -103,6 +103,7 @@ FLAG_CGAL=0
 FLAG_SLHC=0
 MUONLAYOUT=""
 NSWAGDDFILE=""
+MUONAGDDFILE=""
 FLAG_CUSTOMGEOMETRY=0
 MULTINP_SRC=""
 MULTINP_CPY=""
@@ -195,6 +196,15 @@ while [ $i -le $# ]; do
         NSWAGDDFILE=${arg:9:$((${#arg}-9))}
         if [ "x$NSWAGDDFILE" == "x" ]; then
             ERRORS="$ERRORS\nNeed argument to -nswagdd. Example: -nswagdd=stations.v2.06.xml"
+        fi
+    ###
+    # Muon NSW AGDD custom file
+    elif [ "x${arg:0:10}" == "x-muonagdd" ]; then
+            ERRORS="$ERRORS\nNeed argument to -muonagdd. Example: -muonagdd=muon_passive_r.08.01.xml"
+    elif [ "x${arg:0:10}" == "x-muonagdd=" ]; then
+        MUONAGDDFILE=${arg:10:$((${#arg}-10))}
+        if [ "x$MUONAGDDFILE" == "x" ]; then
+            ERRORS="$ERRORS\nNeed argument to -muonagdd. Example: -muonagdd=muon_passive_r.08.01.xml"
         fi
     ###
     elif [ "x${arg}" == "x-mc" ]; then
@@ -839,6 +849,10 @@ fi
 if [ "x$NSWAGDDFILE" != "x" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1NSWAGDDFiles=[\"${NSWAGDDFILE}\"]"
+fi
+if [ "x$MUONAGDDFILE" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1MuonAGDDFiles=[\"${MUONAGDDFILE}\"]"
 fi
 if [ "x$FLAG_NOGUI" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi

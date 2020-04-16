@@ -38,6 +38,7 @@ if not 'vp1NoAutoConf' in dir(): vp1NoAutoConf=False
 if not 'vp1Trig' in dir(): vp1Trig=False
 if not 'vp1CustomGeometry' in dir(): vp1CustomGeometry=False
 if not 'vp1SLHC' in dir(): vp1SLHC=False
+if not 'vp1MuonAGDDFiles' in dir(): vp1MuonAGDDFiles=[]
 if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
 if not 'vp1MuonLayout' in dir(): vp1MuonLayout=""
 
@@ -206,20 +207,8 @@ if (vp1SLHC):
   TrkDetFlags.TRT_BuildStrawLayers            = False
   TrkDetFlags.MaterialSource = 'None'
 
-print("vp1NSWAGDDFiles:", vp1NSWAGDDFiles, "len:", len(vp1NSWAGDDFiles))
-if vp1Muon and len(vp1NSWAGDDFiles)>0:
-    print "*** DumpGeo NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1NSWAGDDFiles))
-    from AthenaCommon.AppMgr import theApp
-    from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
-    AGDD2Geo = AGDDtoGeoSvc()
-    theApp.CreateSvc += ["AGDDtoGeoSvc"]
-    svcMgr += AGDD2Geo
-    from AthenaCommon import CfgMgr
-    from MuonAGDD.MuonAGDDConf import NSWAGDDTool
-    NSWAGDDTool = CfgMgr.NSWAGDDTool("NewSmallWheel", DefaultDetector="Muon", ReadAGDD=False, XMLFiles=vp1NSWAGDDFiles, Volumes=["NewSmallWheel"])
-    AGDD2Geo.Builders += [ NSWAGDDTool ]
 if vp1Muon and vp1MuonLayout!="":
-    print "*** DumpGeo NOTE *** You specified custom vp1MuonLayout, using %s as muon geometry"%vp1MuonLayout
+    print ("*** DumpGeo NOTE *** You specified custom vp1MuonLayout, using %s as muon geometry"%vp1MuonLayout)
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
     GeoModelSvc = GeoModelSvc()
     GeoModelSvc.MuonVersionOverride=vp1MuonLayout
@@ -254,6 +243,21 @@ if vp1ToyDetector:
 if (vp1Muon):
 
     from AtlasGeoModel import Agdd2Geo
+
+    if len(vp1MuonAGDDFiles)>0:
+        print ("*** DumpGeo NOTE *** You specified custom vp1MuonAGDDFiles, configuring MuonAGDDTool to read MuonAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1MuonAGDDFiles)))
+        if hasattr(svcMgr,"AGDDtoGeoSvc"):
+            for b in getattr(svcMgr,"AGDDtoGeoSvc").Builders:
+                if b.name()=="MuonSpectrometer":
+                    b.ReadAGDD=False
+                    b.XMLFiles=vp1MuonAGDDFiles
+    if len(vp1NSWAGDDFiles)>0:
+        print ("*** DumpGeo NOTE *** You specified custom vp1NSWAGDDFiles, configuring NSWAGDDTool to read NSWAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1NSWAGDDFiles)))
+        if hasattr(svcMgr,"AGDDtoGeoSvc"):
+            for b in getattr(svcMgr,"AGDDtoGeoSvc").Builders:
+                if b.name()=="NewSmallWheel":
+                    b.ReadAGDD=False
+                    b.XMLFiles=vp1NSWAGDDFiles
 
     # if(vp1FullToroids or vp1NSW):
     #     from AtlasGeoModel import Agdd2Geo
