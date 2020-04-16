@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file SCTHitNoiseMonAlg_jobOptions.py
@@ -221,7 +221,7 @@ myMonGroupGeneral.defineHistogram(varname= "Bec_TBinFracAll,TBin_TBinFracAll;" +
                 title= "fraction of 01X for each region" + "; ;Fraction of 01X",
                 path= "/tbin",
                 xbins= N_REGIONS, xmin = 0., xmax = N_REGIONS,
-                labels= names)
+                xlabels= names)
     
     
 

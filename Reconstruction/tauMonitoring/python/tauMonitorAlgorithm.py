@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file tauMonitorAlgorithm.py
@@ -226,7 +226,7 @@ def tauMonitoringConfig(inputFlags):
                                    xbins=60, xmin=0., xmax=300.,path=folder+"Identification/BDTLoose15GeV")
 
             igroup.defineHistogram(namer('panModeEt15BDTLoose','panMode','Identification_BDTLoose15GeV',postfix), title='tau decay mode from panTau upon JetBDTSigMedium;mode',
-                                   xbins=5, xmin=0., xmax=5., path=folder+"Identification/BDTLoose15GeV", labels=["1p0n","1p1n","1pXn","3p0n","3pXn"])
+                                   xbins=5, xmin=0., xmax=5., path=folder+"Identification/BDTLoose15GeV", xlabels=["1p0n","1p1n","1pXn","3p0n","3pXn"])
 
             igroup.defineHistogram(namer('jetSeedEta','jetSeedEta','Calo',postfix), title='Calorimeter eta of tau candidates;Eta;Numbers of Candidates',path=folder+"Calo",
             xbins=50, xmin=-2.5, xmax=2.5 )
@@ -271,7 +271,7 @@ def tauMonitoringConfig(inputFlags):
             xbins=48, xmin=-1.1, xmax=1.1 )
 
             igroup.defineHistogram(namer('JetBDTBkgMedium','JetBDTBkgMedium','Identification',postfix), title='Loose EleBDT',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5, labels=["False","True"])
+            xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
 
             igroup.defineHistogram(namer('BDTEleScoreSigTrans','BDTEleScoreSigTrans','Identification',postfix), title=' Flattened Signal Transformed BDT  for Ele Rejection;Boosted Decision Tree Score',path=folder+"Identification",
             xbins=24, xmin=-0.1, xmax=1.1 )
@@ -280,22 +280,22 @@ def tauMonitoringConfig(inputFlags):
             xbins=48, xmin=0, xmax=1.1 )
 
             igroup.defineHistogram(namer('eleBDTMedium','eleBDTMedium','Identification',postfix), title='Medium EleBDT',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5, labels=["False","True"])
+            xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
 
             igroup.defineHistogram(namer('eleBDTTight','eleBDTTight','Identification',postfix), title='Tight EleBDT',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5, labels=["False","True"])
+            xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
 
             igroup.defineHistogram(namer('muonVeto','muonVeto','Identification',postfix), title='Muon Veto',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5, labels=["False","True"] )
+            xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"] )
 
             igroup.defineHistogram(namer('tauBDTLoose','tauBDTLoose','Identification',postfix), title='Identification Flag: tauBDTLoose',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5 , labels=["False","True"])
+            xbins=2, xmin=-0.5, xmax=1.5 , xlabels=["False","True"])
 
             igroup.defineHistogram(namer('tauBDTMedium','tauBDTMedium','Identification',postfix), title='Identification Flag: tauBDTMedium',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5 ,labels=["False","True"])
+            xbins=2, xmin=-0.5, xmax=1.5 , xlabels=["False","True"])
 
             igroup.defineHistogram(namer('tauBDTTight','tauBDTTight','Identification',postfix), title='Identification Flag: tauBDTTight',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5, labels=["False","True"])
+            xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
 
             igroup.defineHistogram(namer('etHotShotWinOverPtLeadTrk','etHotShotWinOverPtLeadTrk','Identification_EleVetoBDTinputs',postfix), title='etHotShotWinOverPtLeadTrk',path=folder+"Identification/EleVetoBDTinputs",
             xbins=20, xmin=0, xmax=12 )
