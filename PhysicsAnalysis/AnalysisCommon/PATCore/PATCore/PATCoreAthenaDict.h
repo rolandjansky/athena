@@ -4,8 +4,8 @@
 
 // Dear emacs, this is -*-c++-*-
 
-#ifndef PATCORE_PATCOREDICT_H
-#define PATCORE_PATCOREDICT_H
+#ifndef PATCORE_PATCOREATHENADICT_H
+#define PATCORE_PATCOREATHENADICT_H
 
 /**
    @brief For dictionary generation.
@@ -17,8 +17,7 @@
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-#include "PATCore/AcceptInfo.h"
-#include "PATCore/AcceptData.h"
-#include "PATCore/IAsgSelectionTool.h"
+#include "PATCore/IAthHistogramTool.h"
+#include "PATCore/IUserDataCalcTool.h"
 
 #endif
