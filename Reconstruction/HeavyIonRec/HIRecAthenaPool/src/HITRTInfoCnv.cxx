@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -38,8 +38,7 @@ HITRTInfo* HITRTInfoCnv::createTransient()
   
   if ( compareClassGuid(p1_guid) )
     {
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr<HITRTInfo_p1> persObj( poolReadObject<HITRTInfo_p1>() );
+      std::unique_ptr<HITRTInfo_p1> persObj( poolReadObject<HITRTInfo_p1>() );
       HITRTInfoCnv_p1 cnv;
       transObj = cnv.createTransient( persObj.get(), *m_msg );
     } else {
