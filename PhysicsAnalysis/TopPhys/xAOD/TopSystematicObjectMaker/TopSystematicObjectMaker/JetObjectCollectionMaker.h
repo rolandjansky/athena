@@ -101,16 +101,6 @@ namespace top {
 
     StatusCode printout(const bool isLargeR);
 
-    void addCorrelation(const std::string& name,
-                        systMap& map_one,
-                        const std::string& syst_one_name,
-                        systMap& map_two,
-                        const std::string& syst_two_name);
-
-    void addCorrelation(const std::string& name,
-                        systMap& map_one,
-                        const std::string& syst_one_name,
-                        std::list<CP::SystematicSet>& jet_specified);
   private:
     std::shared_ptr<top::TopConfig> m_config;
     bool m_doJER;
