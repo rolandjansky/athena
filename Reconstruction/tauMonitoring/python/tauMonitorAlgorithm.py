@@ -470,22 +470,24 @@ def tauMonitoringConfig(inputFlags):
             #igroup.defineHistogram(namer('LB,tauEt','tauEtVsLB','',postfix), type='TH2F', title='Tau Et Vs Lumiblock ;Lumiblock;Transverse Energy (GeV)', 
             #                       xbins=1200,xmin=0,xmax=1200,ybins=300,ymin=0.,ymax=300.,path=folder)
 
-
-            #Physics Histograms - I suspect these should be doing some kind of selection, not obvious in the old code.
-            igroup.defineHistogram(namer('tauEta','tau_eta','',postfix), title='Eta of tau candidates;Eta;Number of Candidates',
-                                   xbins=51, xmin=-2.55, xmax=2.55,path=folder+"Physics/Z")
-
-            igroup.defineHistogram(namer('tauEta,tauEt','tau_pTVsEta','',postfix), type='TH2F', title='Tau Et Vs Eta;#eta;Transverse Energy (Gev)',
-                      xbins=40,xmin=-2.55,xmax=2.55 ,ybins=300,ymin=0,ymax=300,path=folder+"Physics/Z")
-
             
-            #will use different variable when not a placeholder
-            igroup.defineHistogram(namer('tauEta','lepton_pTVsEta','',postfix), title='Placeholder for empty histogram;Eta;Number of Candidates',
-                                   xbins=51, xmin=-2.55, xmax=2.55,path=folder+"Physics/Z")
+
+            if postfix == 'Global':
+                #Physics Histograms - I suspect these should be doing some kind of selection, not obvious in the old code.
+                igroup.defineHistogram(namer('tauEta','tau_eta','',postfix), title='Eta of tau candidates;Eta;Number of Candidates',
+                                       xbins=51, xmin=-2.55, xmax=2.55,path=folder+"Physics/Z")
+
+                igroup.defineHistogram(namer('tauEta,tauEt','tau_pTVsEta','',postfix), type='TH2F', title='Tau Et Vs Eta;#eta;Transverse Energy (Gev)',
+                          xbins=40,xmin=-2.55,xmax=2.55 ,ybins=300,ymin=0,ymax=300,path=folder+"Physics/Z")
+
+                
+                #will use different variable when not a placeholder
+                igroup.defineHistogram(namer('tauEta','lepton_pTVsEta','',postfix), title='Placeholder for empty histogram;Eta;Number of Candidates',
+                                       xbins=51, xmin=-2.55, xmax=2.55,path=folder+"Physics/Z")
 
 
-            igroup.defineHistogram(namer('tauEta,tauEt','tau_pTVsEta','',postfix), type='TH2F', title='Tau Et Vs Eta;#eta;Transverse Energy (Gev)',
-                      xbins=40,xmin=-2.55,xmax=2.55 ,ybins=300,ymin=0,ymax=300,path=folder+"Physics/W")
+                igroup.defineHistogram(namer('tauEta,tauEt','tau_pTVsEta','',postfix), type='TH2F', title='Tau Et Vs Eta;#eta;Transverse Energy (Gev)',
+                          xbins=40,xmin=-2.55,xmax=2.55 ,ybins=300,ymin=0,ymax=300,path=folder+"Physics/W")
 
 
 
