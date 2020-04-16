@@ -313,7 +313,7 @@ def tauMonitoringConfig(inputFlags):
 
         
         if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix=="TauTrig" or postfix=="Global"):
-
+            #Calo Histograms
             igroup.defineHistogram(namer('jetSeedEta','jetSeedEta','Calo',postfix), title='Calorimeter eta of tau candidates;Eta;Numbers of Candidates',path=folder+"Calo",
             xbins=50, xmin=-2.5, xmax=2.5 )
 
@@ -352,8 +352,6 @@ def tauMonitoringConfig(inputFlags):
 
             igroup.defineHistogram('isolFrac,LB', type='TH2F', title='Isolation Fraction vs Lumiblock;Isolation Fraction;Lumiblock', path=folder+"Calo", 
             xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
-
-
 
             #Track Histograms!
             igroup.defineHistogram(namer('d0','d0','Track',postfix), title='Track d0;Transverse Impact Parameter (mm)',path=folder+"Track",
@@ -437,6 +435,7 @@ def tauMonitoringConfig(inputFlags):
             xbins=21, xmin=-0.5, xmax=20.5 )
 
 
+
         if postfix == 'Global' or postfix == "TauTrig" or postfix == "EleTrig" or postfix=="JetTrig":
             #igroup.defineHistogram(namer('PtCombined','Ptcombined','',postfix), title='combined pT of tau candidates);Transverse Energy (GeV) );Number of Candidates', 
             #        xbins=60, xmin=0., xmax=300. ,path=folder)
@@ -447,6 +446,8 @@ def tauMonitoringConfig(inputFlags):
 
             #igroup.defineHistogram(namer('LB,coreTrk','NumCoreTrkVsLB','',postfix), type='TH2F', title='Tau Core tracks vs Lumiblock); LumiBlock ; NumCoreTrk', 
             #                       xbins=1200,xmin=0,xmax=1200,ybins=400,ymin=0,ymax=40,path=folder)
+
+
 
             igroup.defineHistogram(namer('LB','nTauPerLB','',postfix), title='Total number of tau candidates per LB);Luminosity Block);Number of Candidates', 
                     xbins=1000, xmin=0., xmax=1000. ,path=folder)
@@ -468,6 +469,26 @@ def tauMonitoringConfig(inputFlags):
 
             #igroup.defineHistogram(namer('LB,tauEt','tauEtVsLB','',postfix), type='TH2F', title='Tau Et Vs Lumiblock ;Lumiblock;Transverse Energy (GeV)', 
             #                       xbins=1200,xmin=0,xmax=1200,ybins=300,ymin=0.,ymax=300.,path=folder)
+
+
+            #Physics Histograms - I suspect these should be doing some kind of selection, not obvious in the old code.
+            igroup.defineHistogram(namer('tauEta','tau_eta','',postfix), title='Eta of tau candidates;Eta;Number of Candidates',
+                                   xbins=51, xmin=-2.55, xmax=2.55,path=folder+"Physics/Z")
+
+            igroup.defineHistogram(namer('tauEta,tauEt','tau_pTVsEta','',postfix), type='TH2F', title='Tau Et Vs Eta;#eta;Transverse Energy (Gev)',
+                      xbins=40,xmin=-2.55,xmax=2.55 ,ybins=300,ymin=0,ymax=300,path=folder+"Physics/Z")
+
+            
+            #will use different variable when not a placeholder
+            igroup.defineHistogram(namer('tauEta','lepton_pTVsEta','',postfix), title='Placeholder for empty histogram;Eta;Number of Candidates',
+                                   xbins=51, xmin=-2.55, xmax=2.55,path=folder+"Physics/Z")
+
+
+            igroup.defineHistogram(namer('tauEta,tauEt','tau_pTVsEta','',postfix), type='TH2F', title='Tau Et Vs Eta;#eta;Transverse Energy (Gev)',
+                      xbins=40,xmin=-2.55,xmax=2.55 ,ybins=300,ymin=0,ymax=300,path=folder+"Physics/W")
+
+
+
 
         if postfix == 'HighPt':
 
