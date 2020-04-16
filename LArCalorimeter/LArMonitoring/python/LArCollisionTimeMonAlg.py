@@ -19,10 +19,14 @@ def LArCollisionTimeMonConfig(inputFlags):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArCollisionTimeMonAlgCfg')
 
+    from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
+    cfg = LArCollisionTimeCfg(inputFlags)
+
     from AthenaConfiguration.ComponentFactory import CompFactory
     LArCollisionTimeMonConfigCore(helper, CompFactory.LArCollisionTimeMonAlg,inputFlags)
 
-    return helper.result()
+    cfg.merge(helper.result())
+    return cfg
 
 def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
 
