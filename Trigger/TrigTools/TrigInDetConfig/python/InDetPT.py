@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 #           Setup of precision tracking
 
@@ -11,6 +11,11 @@ from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("InDetPT")
+
+
+#Global keys/names for collections 
+from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
+
 
 
 
@@ -72,8 +77,10 @@ def makeInDetPrecisionTracking( whichSignature,
   outPTTrackParticles     = "%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
 
 
-  # disable the TRT extension at the moment for bjets and muons
-  if "electron" in whichSignature : 
+#  # disable the TRT extension at the moment for bjets and muons
+  if "electron" in whichSignature :
+      doTRTextension = True
+  elif "tau" in whichSignature :
       doTRTextension = True
   else : 
       doTRTextension = False
@@ -96,7 +103,7 @@ def makeInDetPrecisionTracking( whichSignature,
   #If run in views need to check data dependancies!
   #NOTE: this seems necessary only when PT is called from a different view than FTF otherwise causes stalls
   if verifier:
-         verifier.DataObjects += [  ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' ),
+         verifier.DataObjects += [  ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
                                   ( 'TrackCollection' , 'StoreGateSvc+' + inputFTFtracks ) ] 
       
   
@@ -191,9 +198,9 @@ def makeInDetPrecisionTracking( whichSignature,
             from AthenaCommon.AppMgr import ServiceMgr
             from AthenaCommon.GlobalFlags import globalflags
             #Only add raw data decoders if we're running over raw data
+            TRT_RDO_Key = "TRT_RDOs"
             if globalflags.InputFormat.is_bytestream():
-             
-             
+                TRT_RDO_Key = TrigTRTKeys.RDOs
                 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
                 InDetTRTRodDecoder = TRT_RodDecoder( name = "%sTRTRodDecoder%s" %(algNamePrefix, signature),
                                                      LoadCompressTableDB = True )#(globalflags.DataSource() != 'geant4'))
@@ -206,9 +213,9 @@ def makeInDetPrecisionTracking( whichSignature,
              
                 # load the TRTRawDataProvider
                 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
-                InDetTRTRawDataProvider = TRTRawDataProvider( name         = "%sTRTRawDataProvider%s"%(algNamePrefix, signature),
-                                                              RDOKey       = "TRT_RDOs",
-                                                              ProviderTool = InDetTRTRawDataProviderTool )
+                InDetTRTRawDataProvider = TRTRawDataProvider(name         = "%sTRTRawDataProvider%s"%(algNamePrefix, signature),
+                                                             RDOKey       = TrigTRTKeys.RDOs,
+                                                             ProviderTool = InDetTRTRawDataProviderTool)
                 InDetTRTRawDataProvider.isRoI_Seeded = True
                 InDetTRTRawDataProvider.RoIs = rois
 
@@ -227,13 +234,14 @@ def makeInDetPrecisionTracking( whichSignature,
             from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
             from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__TRT_RIO_Maker
             InDetTrigTRTRIOMaker = InDet__TRT_RIO_Maker( name = "%sTRTDriftCircleMaker%s"%(algNamePrefix, signature),
-                                                     #RawDataProvider = InDetTRTRawDataProvider,
-                                                     TRTRIOLocation = 'TRT_TrigDriftCircles',
-                                                     TRTRDOLocation = "TRT_RDOs",
+                                                     TRTRIOLocation = TrigTRTKeys.DriftCircles,
+                                                     TRTRDOLocation = TRT_RDO_Key,
                                                      #EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',signature)],
                                                      #PhiHalfWidth = InDetTrigSliceSettings[('phiHalfWidth',signature)],
                                                      #doFullScan =   InDetTrigSliceSettings[('doFullScan',signature)],
                                                      TRT_DriftCircleTool = InDetTrigTRT_DriftCircleTool )
+            InDetTrigTRTRIOMaker.isRoI_Seeded = True
+            InDetTrigTRTRIOMaker.RoIs = rois
  
  
             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPatternPropagator, InDetTrigPatternUpdator
@@ -267,13 +275,12 @@ def makeInDetPrecisionTracking( whichSignature,
 
             ToolSvc += InDetTrigTRTDetElementsRoadMaker
 
-
              #TODO implement new configuration of circle cut
             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTDriftCircleCut
             from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionTool_xk
             InDetTrigTRTExtensionTool = InDet__TRT_TrackExtensionTool_xk ( name = "%sTrackExtensionTool%s"%(algNamePrefix,signature),
                                                                            MagneticFieldMode     = 'MapSolenoid',      # default
-                                                                           TRT_ClustersContainer = 'TRT_TrigDriftCircles', # default
+                                                                           TRT_ClustersContainer = TrigTRTKeys.DriftCircles, # default
                                                                            TrtManagerLocation    = 'TRT',              # default
                                                                            PropagatorTool = InDetTrigPatternPropagator,
                                                                            UpdatorTool    = InDetTrigPatternUpdator,
