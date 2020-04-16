@@ -172,80 +172,7 @@ namespace InDetDD {
       ///////////////////////////////////////////////////////////////////
     
       //@{
-      // Position 
-      /// Local (simulation/hit frame) to global transform
-      virtual const HepGeom::Transform3D & transformHit() const; 
-      /// Local (reconstruction frame) to global transform
-      const Amg::Transform3D & transform() const; 
-      /// Default Local (reconstruction frame) to global transform
-      /// ie with no misalignment. 
-      const HepGeom::Transform3D defTransformCLHEP() const; 
-      const Amg::Transform3D defTransform() const; 
-      /// Center of the sensor in global coordinates
-      const Amg::Vector3D & center() const; 
-      /// Center of the local reference system in global coordinates
-      const Amg::Vector3D & origin() const; 
-    
-      const HepGeom::Transform3D & transformCLHEP() const;
-    
-      /// Simulation/Hit local frame to reconstruction local frame. 2D.
-      //  TODO: Will change order of parameters at some point.
-      Amg::Vector2D hitLocalToLocal(double xEta, double xPhi) const;
-      /// Same as previuos method but 3D.
-      HepGeom::Point3D<double> hitLocalToLocal3D(const HepGeom::Point3D<double> & hitPosition) const; 
-    
-      /// Transform to go from local reconstruction frame to local hit frame.
-      const HepGeom::Transform3D recoToHitTransform() const;
-    
-      /// Directions of hit depth,phi,eta axes relative to reconstruction local position
-      /// axes (LocalPosition). Returns +/-1.
-      double hitDepthDirection() const;
-      /// See previous method.
-      double hitPhiDirection() const;
-      /// See previous method.
-      double hitEtaDirection() const;
-    
-      // To determine if readout direction between online and offline needs swapping, see methods
-      // swapPhiReadoutDirection() and swapEtaReadoutDirection() below in "Readout Cell id" section
-    
-    
-      // Orientation. 
-      // Directions.
-      //  phiAxis - in same direction as increasing phi and identifier phi_index/strip. 
-      //            NB. This requires some flipping of axes with repsect to the hits.  
-      //  etaAxis - in direction of increasing z in the barrel and increasing r in the endcap. 
-      //  normal  - choosen to give right-handed coordinate frame (x=normal,y=phiAxis,z=etaAxis)
-      //            NB. This requires some flipping of axes with repsect to the hits.  
-      
-      /// Get reconstruction local phi axes in global frame. 
-      /// In same direction as increasing phi and identifier phi_index/strip. 
-      const Amg::Vector3D & phiAxis() const;
-      const HepGeom::Vector3D<double> & phiAxisCLHEP() const;
-      /// Get reconstruction local eta axes in global frame. 
-      /// In direction of increasing z in the barrel and increasing r in the endcap. 
-      const Amg::Vector3D & etaAxis() const;
-      const HepGeom::Vector3D<double> & etaAxisCLHEP() const;
-      /// Get reconstruction local normal axes in global frame. Choosen to give right-handed coordinate frame.
-      const Amg::Vector3D & normal() const;
-     
-      /// transform a hit local position into a global position:
-      HepGeom::Point3D<double> globalPositionHit(const HepGeom::Point3D<double> &simulationLocalPos) const;
-      Amg::Vector3D globalPositionHit(const Amg::Vector3D &simulationLocalPos) const;
-      
-      /// transform a reconstruction local position into a global position:
-      HepGeom::Point3D<double> globalPosition(const HepGeom::Point3D<double> &localPos) const;
-      Amg::Vector3D globalPosition(const Amg::Vector3D &localPos) const;
 
-      /// as in previous method but for 2D local position
-      HepGeom::Point3D<double> globalPositionCLHEP(const Amg::Vector2D &localPos) const;
-      
-      Amg::Vector3D globalPosition(const Amg::Vector2D &localPos) const;
-    
-      /// transform a global position into a 2D local position (reconstruction frame)
-      Amg::Vector2D localPosition(const HepGeom::Point3D<double> & globalPosition) const;
-
-      Amg::Vector2D localPosition(const Amg::Vector3D& globalPosition) const;
-    
       /// Compute sin(tilt angle) at a given position:
       /// at center
       double sinTilt() const; // At center
@@ -260,7 +187,7 @@ namespace InDetDD {
       double sinStereo(const Amg::Vector2D &localPos) const;
       /// at given global position
       double sinStereo(const HepGeom::Point3D<double> &globalPosition) const;
-    
+
       /// Check if it is the stereo side (useful for SCT) 
       bool isStereo() const;
     
@@ -328,22 +255,7 @@ namespace InDetDD {
       ///////////////////////////////////////////////////////////////////
     
       //@{
-      // Extent in r,z and phi
-      double rMin() const;
-      double rMax() const;
-      double zMin() const;
-      double zMax() const;
-      double phiMin() const;
-      double phiMax() const;
-    
-      /// Method for building up region of interest table.
-      /// Get eta/phi extent for the element. Returns min/max eta and phi
-      /// and r (for barrel) or z (for endcap) Takes as input the vertex
-      /// spread in z (-deltaZ to +deltaZ)
-      void getEtaPhiRegion(double deltaZ, 
-    		       double &etaMin, double &etaMax, 
-    		       double &phiMin, double &phiMax, 
-    		       double &rz) const;
+      double get_rz() const;
       //@}
     
       ///////////////////////////////////////////////////////////////////
@@ -411,22 +323,6 @@ namespace InDetDD {
       //
       ///////////////////////////////////////////////////////////////////
       //@{
-    
-      /// tan(Lorentz angle). Component in phi direction (hit frame)
-      double getTanLorentzAnglePhi() const; 
-    
-      /// Same as getTanLorentzAnglePhi()
-      double getTanLorentzAngle() const; 
-    
-      /// tan(Lorentz angle). Component in eta direction (hit frame)
-      double getTanLorentzAngleEta() const; 
-    
-      /// Lorentz shift in distPhi (reconstruction local frame)
-      double getLorentzCorrection() const; 
-    
-      /// Correct a local position (reconstruction frame) for the Lorentz angle:
-      /// Users generally shouldn't need to call this as localPositionOfCell() returns the Lorentz corrected position.
-      Amg::Vector2D correctLocalPosition(const Amg::Vector2D &position) const;
       //@}
     
       ///////////////////////////////////////////////////////////////////
@@ -452,31 +348,6 @@ namespace InDetDD {
       bool swapPhiReadoutDirection() const;
       /// For eta_index (only relevant for pixel)
       bool swapEtaReadoutDirection() const;
-    
-      /// Full identifier of the cell for a given position:
-      /// assumes a raw local position (no Lorentz shift)
-      Identifier identifierOfPosition(const Amg::Vector2D &localPos) const;
-      /// As in previous method but returns SiCellId 
-      SiCellId cellIdOfPosition(const Amg::Vector2D &localPos) const;
-    
-    
-      /// Returns position (center) of cell. These are corrected for the Lorentz shift
-      Amg::Vector2D localPositionOfCell(const SiCellId & cellId) const;
-      /// As above
-      Amg::Vector2D localPositionOfCell(const Identifier & id) const;
-    
-      /// Returns position (center) of cell. These are the raw positions *NOT* corrected for the Lorentz shift
-      Amg::Vector2D rawLocalPositionOfCell(const SiCellId & cellId) const;
-      /// As above
-      Amg::Vector2D rawLocalPositionOfCell(const Identifier & id) const;
-    
-      /// Test if readout cell has more than one diode associated with it.
-      /// Number of cells sharing the same readout as this cell.
-      /// ie generally 1 except for ganged pixels which will be 2.
-      int numberOfConnectedCells(const SiCellId cellId) const;
-      /// Get the cell ids sharing the readout for this cell.
-      /// number = 0 will return the primary readout cell id.
-      SiCellId connectedCell(const SiCellId cellId, int number) const;
     
       /// If cell is ganged return the id of the other cell which shares the readout
       /// for this cell, otherwise return an invalid id.
@@ -514,10 +385,7 @@ namespace InDetDD {
       void invalidateConditions() const; 
     
       /// Recalculate all cached values. 
-      void updateCache() const; 
-    
-      /// Recalculate subset of cached values.
-      void updateConditionsCache() const; 
+      void updateCache() const;
     
       /// Update all caches including surfaces.
       void updateAllCaches() const;
@@ -530,10 +398,10 @@ namespace InDetDD {
       //
       ///////////////////////////////////////////////////////////////////
       //{@
-      virtual const Amg::Transform3D & transform(const Identifier&) const {return transform();}
+      // virtual const Amg::Transform3D & transform(const Identifier&) const {return transform();}
       // virtual const Trk::Surface& surface (const Identifier&) const {return surface();}
-      virtual const Amg::Vector3D& center (const Identifier&) const {return center();}
-      virtual const Amg::Vector3D& normal (const Identifier&) const {return normal();}
+      // virtual const Amg::Vector3D& center (const Identifier&) const {return center();}
+      // virtual const Amg::Vector3D& normal (const Identifier&) const {return normal();}
       virtual const Trk::SurfaceBounds & bounds(const Identifier&) const {return bounds();}
       //@}
     
@@ -557,41 +425,7 @@ namespace InDetDD {
       void setOtherSide(const SiDetectorElement *); // For SCT only
     
       //@}
-    
-      ///////////////////////////////////////////////////////////////////
-      // Private methods:
-      ///////////////////////////////////////////////////////////////////
-    
-    private:
-    
-      // Common code for constructors.
-      void commonConstructor();
-    
-      // Calculate extent in r,z and phi. The values are cached and there
-      // are rMin(), rMax etc methods.
-      void getExtent(double &rMin, double &rMax, 
-    		 double &zMin, double &zMax, 
-    		 double &phiMin, double &phiMax) const; 
-    
-      // Return the four corners of an element in local coordinates.
-      // Pass it an array of length 4.
-      // This function is used by getEtaPhiRegion()
-      void getCorners(HepGeom::Point3D<double> *corners) const;
-    
-      // Get eta and phi coresponding to a point in local coordinates. 
-      // Requires as input the vertex spread. Returns etaMin, etaMax, and phi.
-      // This function is used by getEtaPhiRegion()
-      void getEtaPhiPoint(const HepGeom::Point3D<double> & point, double deltaZ, 
-    		      double &etaMin, double &etaMax, double &phi) const;
-    
-      
-      //Declaring the Message method for further use
-      MsgStream& msg (MSG::Level lvl) const { return m_commonItems->msg(lvl);}
-    
-      //Declaring the Method providing Verbosity Level
-      bool msgLvl (MSG::Level lvl) const { return m_commonItems->msgLvl(lvl);}
-    
-    
+
       ///////////////////////////////////////////////////////////////////
       // Private methods:
       ///////////////////////////////////////////////////////////////////
@@ -623,49 +457,9 @@ namespace InDetDD {
       //
       // Cached values.
       //
-      // Axes
-      DetectorDesign::Axis m_hitEta; // common?
-      DetectorDesign::Axis m_hitPhi; // common?
-      DetectorDesign::Axis m_hitDepth; // common?
-	 
-
-      // Directions of axes. These are true if the hit/simulation and reconstruction local frames are
-      // in the same direction and false if they are opposite.
-      mutable bool m_depthDirection; // Direction of depth axis. // common?
-                             // Also direction of readout implant (n+ for pixel, p+ for SCT).
-      mutable bool m_phiDirection;     // // common?
-      mutable bool m_etaDirection;     // // common?
-    
-      mutable bool m_conditionsCacheValid; // Lorentz angle related values.
-      mutable bool m_firstTime; // common
+      mutable bool m_cacheValid; // used only for SiDetectorElement specific cache values
+      mutable bool m_firstTime;
       mutable bool m_isStereo;
-    
-      mutable Amg::Transform3D m_transform; // common? (updateCache)
-      mutable HepGeom::Transform3D m_transformCLHEP; // common? (updateCache)
-      mutable HepGeom::Transform3D m_transformHit; // common? (updateCache)
-    
-      mutable Amg::Vector3D m_normal; // common? (updateCache)
-      mutable HepGeom::Vector3D<double> m_normalCLHEP; // common? (updateCache)
-      mutable Amg::Vector3D m_etaAxis; // common? (updateCache)
-      mutable Amg::Vector3D m_phiAxis; // common? (updateCache)
-      mutable HepGeom::Vector3D<double> m_etaAxisCLHEP; // common? (updateCache)
-      mutable HepGeom::Vector3D<double> m_phiAxisCLHEP; // common? (updateCache)
-      mutable Amg::Vector3D m_center; // common? (updateCache)
-      mutable HepGeom::Vector3D<double> m_centerCLHEP; // common? (updateCache)
-      mutable Amg::Vector3D m_origin; // common? (updateCache)
-      mutable HepGeom::Vector3D<double> m_originCLHEP; // common? (updateCache)
-
-      mutable double m_minZ; // common? (updateCache, getExtent)
-      mutable double m_maxZ; // common? (updateCache, getExtent)
-      mutable double m_minR; // common? (updateCache, getExtent)
-      mutable double m_maxR; // common? (updateCache, getExtent)
-      mutable double m_minPhi; // common? (updateCache, getExtent)
-      mutable double m_maxPhi; // common? (updateCache, getExtent)
-
-      mutable double m_tanLorentzAnglePhi;
-      mutable double m_tanLorentzAngleEta;
-      mutable double m_lorentzCorrection; 
-      
       mutable std::vector<const Trk::Surface*> m_surfaces;
 
     };
@@ -679,76 +473,19 @@ namespace InDetDD {
       return (!isBarrel()&&!isDBM());
     }
     
-    
-    inline HepGeom::Point3D<double> SiDetectorElement::globalPositionHit(const HepGeom::Point3D<double> &localPos) const
-    {
-      return transformHit()*localPos;
-    }
-    
-    inline Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector2D &localPos) const
-    {
-      if (!m_cacheValid) updateCache();
-      return m_origin + localPos[Trk::distEta] * m_etaAxis + localPos[Trk::distPhi] * m_phiAxis;
-      
-    }
 
-    inline Amg::Vector3D SiDetectorElement::globalPositionHit(const Amg::Vector3D &localPos) const
-    {
-      return Amg::CLHEPTransformToEigen(transformHit()) * localPos;
-    }
-    
-     inline HepGeom::Point3D<double> SiDetectorElement::globalPositionCLHEP(const Amg::Vector2D &localPos) const
-    {
-      if (!m_cacheValid) updateCache();
-      return m_originCLHEP + localPos[Trk::distEta] * m_etaAxisCLHEP + localPos[Trk::distPhi] * m_phiAxisCLHEP;
-      
-    }
-     //here
-     inline Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector3D &localPos) const
-    {
-      return transform() * localPos;
-    }
-    
-     inline HepGeom::Point3D<double> SiDetectorElement::globalPosition(const HepGeom::Point3D<double> &localPos) const
-    {
-      return transformCLHEP() * localPos;
-    }
-    
-    inline Amg::Vector2D SiDetectorElement::localPosition(const HepGeom::Point3D<double> & globalPosition) const
-    {
-      if (!m_cacheValid) updateCache();
-      HepGeom::Vector3D<double> relativePos = globalPosition - m_originCLHEP;
-      return Amg::Vector2D(relativePos.dot(m_phiAxisCLHEP), relativePos.dot(m_etaAxisCLHEP));
-    }
 
-    inline Amg::Vector2D SiDetectorElement::localPosition(const Amg::Vector3D & globalPosition) const{
-      if (!m_cacheValid) updateCache();
-      Amg::Vector3D relativePos = globalPosition - m_origin;
-      return Amg::Vector2D(relativePos.dot(m_phiAxis), relativePos.dot(m_etaAxis));
-}
+
+
 
     inline const SiDetectorDesign &SiDetectorElement::design() const
     {
       return *dynamic_cast<const SiDetectorDesign *>(m_design);
     }
+
+
     
-    inline double SiDetectorElement::hitDepthDirection() const
-    {
-      if (!m_cacheValid) updateCache();
-      return (m_depthDirection) ? 1. : -1.;
-    }
-    
-    inline double SiDetectorElement::hitPhiDirection() const
-    {
-      if (!m_cacheValid) updateCache();
-      return (m_phiDirection) ? 1. : -1.;
-    }
-    
-    inline double SiDetectorElement::hitEtaDirection() const
-    {
-      if (!m_cacheValid) updateCache();
-      return (m_etaDirection) ? 1. : -1.;
-    }
+
     
     inline InDetDD::CarrierType SiDetectorElement::carrierType() const
     {
@@ -771,43 +508,11 @@ namespace InDetDD {
       if (!m_conditionsCacheValid) updateConditionsCache();
       if (!m_surface) surface();
     }
-    
-    
-    inline double SiDetectorElement::rMin() const 
-    {
-      if (!m_cacheValid) updateCache();
-      return m_minR;
-    }
-    
-    inline double SiDetectorElement::rMax() const 
-    {
-      if (!m_cacheValid) updateCache();
-      return m_maxR;
-    }
-    
-    inline double SiDetectorElement::zMin() const 
-    {
-      if (!m_cacheValid) updateCache();
-      return m_minZ;
-    }
-    
-    inline double SiDetectorElement::zMax() const 
-    {
-      if (!m_cacheValid) updateCache();
-      return m_maxZ;
-    }
-    
-    inline double SiDetectorElement::phiMin() const 
-    {
-      if (!m_cacheValid) updateCache();
-      return m_minPhi;
-    }
-    
-    inline double SiDetectorElement::phiMax() const 
-    {
-      if (!m_cacheValid) updateCache();
-      return m_maxPhi;
-    }
+
+
+
+
+
     
     inline double SiDetectorElement::width() const
     {
@@ -911,31 +616,6 @@ namespace InDetDD {
       // equivalent to (dynamic_cast<const SiDetectorDesign *>(m_design)->swapHitEtaReadoutDirection() xor !m_etaDirection)
       return ((!dynamic_cast<const SiDetectorDesign *>(m_design)->swapHitEtaReadoutDirection() && !m_etaDirection)
     	  || (dynamic_cast<const SiDetectorDesign *>(m_design)->swapHitEtaReadoutDirection() && m_etaDirection));
-    }
-    
-    inline double SiDetectorElement::getTanLorentzAnglePhi() const
-    {
-      if (!m_conditionsCacheValid) updateConditionsCache();
-      return m_tanLorentzAnglePhi;
-    }
-    
-    // Same as getTanLorentzAnglePhi()
-    inline double SiDetectorElement::getTanLorentzAngle() const
-    {
-      if (!m_conditionsCacheValid) updateConditionsCache();
-      return m_tanLorentzAnglePhi;
-    }
-    
-    inline double SiDetectorElement::getTanLorentzAngleEta() const
-    {
-      if (!m_conditionsCacheValid) updateConditionsCache();
-      return m_tanLorentzAngleEta;
-    }
-    
-    inline double SiDetectorElement::getLorentzCorrection() const
-    {
-      if (!m_conditionsCacheValid) updateConditionsCache();
-      return m_lorentzCorrection;
     }
 
 } // namespace InDetDD
