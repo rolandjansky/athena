@@ -16,8 +16,13 @@ public:
 
 private:
 
-  double m_Ptmin;
-  double m_Ptmax;
+  std::vector<double> m_Ptmin;
+  std::vector<double> m_Ptmax;
+  double m_EtaRange;
+  size_t m_NPhotons;
+  bool m_AllowSUSYDecay;
+  bool m_OrderPhotons;
+
   double m_EtaRange;
   int m_NPhotons;
   bool m_AllowSUSYDecay;
