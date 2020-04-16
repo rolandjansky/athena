@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -54,7 +54,7 @@ HIPixelTrackletsCollectionCnv::createTransient() {
 
   HIPixelTrackletsCollection *p_collection = 0;
   if( compareClassGuid( p1_guid ) ) {
-    std::auto_ptr< HIPixelTrackletsCollection_PERS > p_coll( poolReadObject< HIPixelTrackletsCollection_PERS >() );
+    std::unique_ptr< HIPixelTrackletsCollection_PERS > p_coll( poolReadObject< HIPixelTrackletsCollection_PERS >() );
     p_collection = m_TPConverter.createTransient( p_coll.get(), m_log );
   }
   else throw std::runtime_error( "Unsupported persistent version of HIPixelTrackletsCollection." );

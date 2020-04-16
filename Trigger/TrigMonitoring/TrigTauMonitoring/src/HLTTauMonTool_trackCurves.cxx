@@ -15,7 +15,7 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem, const std::s
     std::string trigItemShort=trigItem;
     if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
       size_t posit=trigItem.rfind("_");
-      trigItemShort=trigItem.substr(0,posit);
+      if(posit<31)trigItemShort=trigItem.substr(0,posit);
     }
 
     setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/trackCurves");

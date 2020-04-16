@@ -451,32 +451,6 @@ InDetPhysHitDecoratorAlg::getUnbiasedTrackParameters(const Trk::TrackParameters*
 }
 
 /**
-   for (; TSOSItr != trackWithHoles->trackStateOnSurfaces()->end(); ++TSOSItr) {
-   const Trk::MeasurementBase* mesb=(*TSOSItr)->measurementOnTrack();
-      const Trk::RIO_OnTrack* hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack*>(mesb) : 0;
-   const Trk::TrackParameters* biasedTrackParameters = (*TSOSItr)->trackParameters();
-
-   if (mesb && biasedTrackParameters) {
-   const Trk::TrackParameters *trackParameters = (!(*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier))
-      ?getUnbiasedTrackParameters(biasedTrackParameters,mesb) : biasedTrackParameters;
-
-   Trk::ResidualPull::ResidualType resType = (m_isUnbiased) ? (Trk::ResidualPull::Unbiased):(Trk::ResidualPull::Biased);
-   const auto_ptr<const Trk::ResidualPull>
-      residualPull(m_residualPullCalculator->residualPull(hit,trackParameters,resType));
-   residualLocX = 1000*residualPull->residual()[Trk::loc1]; // residuals in microns
-   m_residualx_pixel_barrel->Fill(residualLocX);
-   }
-   }
-   }
- **/
-
-
-
-
-
-
-
-/**
    const Trk::TrackParameters*
    IDStandardPerformance::getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters
                                                 , const Trk::MeasurementBase* measurement ) {

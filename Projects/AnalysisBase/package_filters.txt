@@ -22,6 +22,7 @@
 + Event/xAOD/.*
 + Generators/TruthUtils
 + MuonSpectrometer/MuonStationIndex
++ PhysicsAnalysis/AnalysisCommon/PATCore
 + PhysicsAnalysis/AnalysisCommon/PATInterfaces
 + PhysicsAnalysis/D3PDTools/.*
 + Tools/PathResolver
