@@ -268,16 +268,8 @@ namespace InDetDD {
       /// access to the local description:
       const SiDetectorDesign &design() const;
     
-      // Methods from design
-      double width() const; // Width in phi direction. For the SCT endcap it returns the average width. 
-      double minWidth() const; // Min, max width. Needed for the SCT endcap. 
-      double maxWidth() const; 
-      double length() const; // Length in eta direction (z - barrel, r - endcap)
-      double thickness() const;
-    
       InDetDD::CarrierType carrierType() const; // carrier type for readout. ie holes for SCT 
                                                 // and electrons for pixels.
-      virtual const Trk::SurfaceBounds & bounds() const;
     
       // Pitch 
       //
@@ -291,8 +283,6 @@ namespace InDetDD {
       //
       // All return pitch in distance units. 
       //
-      double etaPitch() const; 
-      double phiPitch() const; 
       double phiPitch(const Amg::Vector2D &) const; // Useful for SCT Forward.
       //@}
     
@@ -306,15 +296,6 @@ namespace InDetDD {
       // Test if near bond gap within tolerances
       bool nearBondGap(Amg::Vector2D localPosition, double etaTol) const;
       bool nearBondGap(HepGeom::Point3D<double> globalPosition, double etaTol) const;
-    
-      // Test that it is in the active region
-      // Intersect has 3 states
-      // bool SiIntersect::in() const // definitely in
-      // bool SiIntersect::out() const // definitely out
-      // bool SiIntersect::nearBoundary() const // near a boundary within the tolerances 
-      // bool SiIntersect::mayIntersect() const // in() OR nearBoundary()
-      SiIntersect inDetector(const Amg::Vector2D & localPosition, double phiTol, double etaTol) const;
-      SiIntersect inDetector(const HepGeom::Point3D<double> & globalPosition, double phiTol, double etaTol) const;
       //@}
     
       ///////////////////////////////////////////////////////////////////
@@ -379,10 +360,6 @@ namespace InDetDD {
       //   - Methods to handle invalidating and updating caches. The cached values include values that are affected by alignment
       //     Surface are only created on demand.  The method updateAllCaches also creates the surfaces as well as calling updateCache.
       //     Conditions cache contains Lorentz angle related quantities.
-     
-      /// Signal that cached values are no longer valid.
-      /// invalidate conditions cache
-      void invalidateConditions() const; 
     
       /// Recalculate all cached values. 
       void updateCache() const;
@@ -390,19 +367,6 @@ namespace InDetDD {
       /// Update all caches including surfaces.
       void updateAllCaches() const;
     
-      //@}
-    
-      ///////////////////////////////////////////////////////////////////
-      //
-      /// @name Methods to satisfy TrkDetElementBase interface
-      //
-      ///////////////////////////////////////////////////////////////////
-      //{@
-      // virtual const Amg::Transform3D & transform(const Identifier&) const {return transform();}
-      // virtual const Trk::Surface& surface (const Identifier&) const {return surface();}
-      // virtual const Amg::Vector3D& center (const Identifier&) const {return center();}
-      // virtual const Amg::Vector3D& normal (const Identifier&) const {return normal();}
-      virtual const Trk::SurfaceBounds & bounds(const Identifier&) const {return bounds();}
       //@}
     
       //////////////////////////////////////////////////////////////////////////////////////
@@ -472,21 +436,12 @@ namespace InDetDD {
     {
       return (!isBarrel()&&!isDBM());
     }
-    
-
-
-
-
 
     inline const SiDetectorDesign &SiDetectorElement::design() const
     {
       return *dynamic_cast<const SiDetectorDesign *>(m_design);
     }
 
-
-    
-
-    
     inline InDetDD::CarrierType SiDetectorElement::carrierType() const
     {
       return dynamic_cast<const SiDetectorDesign *>(m_design)->carrierType();
@@ -496,11 +451,7 @@ namespace InDetDD {
     {
       return dynamic_cast<const SiDetectorDesign *>(m_design)->gangedCell(cellId);
     }
-    
-    inline void SiDetectorElement::invalidateConditions() const
-    {
-      m_conditionsCacheValid = false;
-    }
+
     
     inline void SiDetectorElement::updateAllCaches() const
     {
@@ -510,50 +461,6 @@ namespace InDetDD {
     }
 
 
-
-
-
-    
-    inline double SiDetectorElement::width() const
-    {
-      return dynamic_cast<const SiDetectorDesign *>(m_design)->width();
-    }
-    
-    inline double SiDetectorElement::minWidth() const
-    {
-      return dynamic_cast<const SiDetectorDesign *>(m_design)->minWidth();
-    }
-    
-    inline double SiDetectorElement::maxWidth() const
-    {
-      return dynamic_cast<const SiDetectorDesign *>(m_design)->maxWidth();
-    }
-    
-    inline double SiDetectorElement::length() const
-    {
-      return dynamic_cast<const SiDetectorDesign *>(m_design)->length();
-    }
-    
-    inline double SiDetectorElement::thickness() const
-    {
-      return dynamic_cast<const SiDetectorDesign *>(m_design)->thickness();
-    }
-    
-    inline double SiDetectorElement::etaPitch() const
-    {
-      return dynamic_cast<const SiDetectorDesign *>(m_design)->etaPitch();
-    }
-    
-    inline double SiDetectorElement::phiPitch() const
-    {
-      return dynamic_cast<const SiDetectorDesign *>(m_design)->phiPitch();
-    }
-    
-    inline double SiDetectorElement::phiPitch(const Amg::Vector2D & localPosition) const
-    {
-      return dynamic_cast<const SiDetectorDesign *>(m_design)->phiPitch(localPosition);
-    }
-    
     inline const SiDetectorElement * SiDetectorElement::nextInEta() const
     {
       return m_nextInEta;

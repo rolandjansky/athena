@@ -13,6 +13,7 @@
 #include "TrkDetElementBase/TrkDetElementBase.h"
 
 #include "ReadoutGeometryBase/DetectorDesign.h"
+#include "ReadoutGeometryBase/SiIntersect.h"
 #include "ReadoutGeometryBase/SiCommonItems.h"
 #include "ReadoutGeometryBase/SiCellId.h"
 #include "ReadoutGeometryBase/SiReadoutCellId.h"
@@ -181,6 +182,58 @@ public:
 
     ///////////////////////////////////////////////////////////////////
     //
+    /// @name Design methods
+    //
+    ///////////////////////////////////////////////////////////////////
+    //@{
+
+    /// access to the local description:
+    virtual const DetectorDesign &design() const = 0;
+
+    // Methods from design
+    double width() const; // Width in phi direction. For the SCT endcap it returns the average width.
+    double minWidth() const; // Min, max width. Needed for the SCT endcap.
+    double maxWidth() const;
+    double length() const; // Length in eta direction (z - barrel, r - endcap)
+    double thickness() const;
+
+    virtual const Trk::SurfaceBounds & bounds() const;
+
+    // Pitch
+    //
+    // NOTE: phiPitch is ambiguous for the Forward SCT where it varies along the strip.
+    //       etaPitch is ambiguous for the pixel which has long pixels between FE chips.
+    //
+    // For these cases:
+    //
+    // phiPitch:  For SCT Forward returns pitch at center.
+    // etaPitch:  For pixel returns average pitch. (Active_length/number_of_cells)
+    //
+    // All return pitch in distance units.
+    //
+    double etaPitch() const;
+    double phiPitch() const;
+    //@}
+
+    ///////////////////////////////////////////////////////////////////
+    //
+    /// @name Intersection Tests
+    //
+    ///////////////////////////////////////////////////////////////////
+
+    //@{
+    // Test that it is in the active region
+    // Intersect has 3 states
+    // bool SiIntersect::in() const // definitely in
+    // bool SiIntersect::out() const // definitely out
+    // bool SiIntersect::nearBoundary() const // near a boundary within the tolerances
+    // bool SiIntersect::mayIntersect() const // in() OR nearBoundary()
+    SiIntersect inDetector(const Amg::Vector2D & localPosition, double phiTol, double etaTol) const;
+    SiIntersect inDetector(const HepGeom::Point3D<double> & globalPosition, double phiTol, double etaTol) const;
+    //@}
+
+    ///////////////////////////////////////////////////////////////////
+    //
     /// @name Lorentz Correction
     //
     ///////////////////////////////////////////////////////////////////
@@ -261,6 +314,10 @@ public:
     /// Invalidate general cache
     void invalidate() const;
 
+    /// Signal that cached values are no longer valid.
+    /// invalidate conditions cache
+    void invalidateConditions() const;
+
     /// Recalculate all cached values.
     virtual void updateCache() const;
 
@@ -284,7 +341,7 @@ public:
     virtual const Trk::Surface& surface (const Identifier&) const {return surface();}
     virtual const Amg::Vector3D& center (const Identifier&) const {return center();}
     virtual const Amg::Vector3D& normal (const Identifier&) const {return normal();}
-    //virtual const Trk::SurfaceBounds & bounds(const Identifier&) const {return bounds();}
+    virtual const Trk::SurfaceBounds & bounds(const Identifier&) const {return bounds();}
     //@}
 
     ///////////////////////////////////////////////////////////////////
@@ -479,6 +536,11 @@ inline void SolidStateDetectorElementBase::invalidate() const
     m_baseCacheValid = false;
 }
 
+inline void SolidStateDetectorElementBase::invalidateConditions() const
+{
+    m_conditionsCacheValid = false;
+}
+
 inline double SolidStateDetectorElementBase::rMin() const 
 {
     if (!m_baseCacheValid) updateCache();
@@ -513,6 +575,41 @@ inline double SolidStateDetectorElementBase::phiMax() const
 {
     if (!m_baseCacheValid) updateCache();
     return m_maxPhi;
+}
+
+inline double SolidStateDetectorElementBase::width() const
+{
+    return m_design->width();
+}
+
+inline double SolidStateDetectorElementBase::minWidth() const
+{
+    return m_design->minWidth();
+}
+
+inline double SolidStateDetectorElementBase::maxWidth() const
+{
+    return m_design->maxWidth();
+}
+
+inline double SolidStateDetectorElementBase::length() const
+{
+    return m_design->length();
+}
+
+inline double SolidStateDetectorElementBase::thickness() const
+{
+    return m_design->thickness();
+}
+
+inline double SolidStateDetectorElementBase::etaPitch() const
+{
+    return m_design->etaPitch();
+}
+
+inline double SolidStateDetectorElementBase::phiPitch() const
+{
+    return m_design->phiPitch();
 }
 
 inline double SolidStateDetectorElementBase::getTanLorentzAnglePhi() const

@@ -370,6 +370,12 @@ SolidStateDetectorElementBase::normal() const
   return m_normal;
 }
 
+const Trk::SurfaceBounds &
+SolidStateDetectorElementBase::bounds() const
+{
+  return m_design->bounds();
+}
+
 const HepGeom::Vector3D<double> & 
 SolidStateDetectorElementBase::etaAxisCLHEP() const
 {
@@ -652,6 +658,20 @@ SolidStateDetectorElementBase::connectedCell(const SiCellId cellId, int number) 
 {
     SiReadoutCellId readoutId = m_design->readoutIdOfCell(cellId);
     return m_design->connectedCell(readoutId, number);
+}
+
+SiIntersect
+SolidStateDetectorElementBase::inDetector(const Amg::Vector2D & localPosition,
+                      double phiTol, double etaTol) const
+{
+    return m_design->inDetector(localPosition, phiTol, etaTol);
+}
+
+  
+SiIntersect
+SolidStateDetectorElementBase::inDetector(const HepGeom::Point3D<double> & globalPosition, double phiTol, double etaTol) const
+{
+    return m_design->inDetector(localPosition(globalPosition), phiTol, etaTol);
 }
 
 SiCellId

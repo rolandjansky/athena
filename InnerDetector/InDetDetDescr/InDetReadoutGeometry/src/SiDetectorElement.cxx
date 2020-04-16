@@ -469,12 +469,6 @@ const std::vector<const Trk::Surface*>& SiDetectorElement::surfaces() const
     }
     // return the surfaces
     return m_surfaces;
-}  
-  
-const Trk::SurfaceBounds & 
-SiDetectorElement::bounds() const
-{
-  return m_design->bounds();
 }
 
 
@@ -490,20 +484,6 @@ double SiDetectorElement::get_rz() const
   }
 }
 
-
-SiIntersect
-SiDetectorElement::inDetector(const Amg::Vector2D & localPosition, 
-					  double phiTol, double etaTol) const
-{
-  return m_design->inDetector(localPosition, phiTol, etaTol);
-}
-
-  
-SiIntersect 
-SiDetectorElement::inDetector(const HepGeom::Point3D<double> & globalPosition, double phiTol, double etaTol) const
-{
-  return m_design->inDetector(localPosition(globalPosition), phiTol, etaTol);
-}
 
 bool 
 SiDetectorElement::nearBondGap(Amg::Vector2D localPosition, double etaTol) const
