@@ -1,8 +1,8 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.CFElements import parOR, seqAND
+from AthenaCommon.CFElements import parOR
 from AthenaCommon.GlobalFlags import globalflags
 
 #logging
@@ -38,7 +38,8 @@ def precisionElectronRecoSequence(RoIs):
     ViewVerifyTrk.DataObjects = [('TrackCollection','StoreGateSvc+'+TrackCollection),
                                  ('xAOD::CaloClusterContainer' , precisionCaloMenuDefs.precisionCaloClusters),
                                  ('CaloCellContainer' , 'StoreGateSvc+CaloCells'),
-                                 ('SCT_FlaggedCondData','StoreGateSvc+SCT_FlaggedCondData_TRIG')]
+                                 ('SCT_FlaggedCondData','StoreGateSvc+SCT_FlaggedCondData_TRIG'),
+                                 ]
     
     if globalflags.InputFormat.is_bytestream():
        ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -53,7 +54,7 @@ def precisionElectronRecoSequence(RoIs):
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
 
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking("electron", ViewVerifyTrk, inputFTFtracks= TrackCollection, rois= RoIs)
-    PTSeq = seqAND("precisionTrackingInElectrons", PTAlgs)
+    PTSeq = parOR("precisionTrackingInElectrons", PTAlgs)
     #electronPrecisionTrack += PTSeq
     trackParticles = PTTrackParticles[-1]
     

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Include import include
@@ -131,12 +131,14 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder" + signature)
   ToolSvc += InDetPixelGangedAmbiguitiesFinder
 
+  #Global keys/names for collections 
+  from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
   InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization" + signature,
                                                         clusteringTool          = InDetMergedPixelsTool,
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
-                                                        AmbiguitiesMap          = 'TrigPixelClusterAmbiguitiesMap',
+                                                        AmbiguitiesMap          = TrigPixelKeys.PixelClusterAmbiguitiesMap,
                                                         ClustersName            = "PixelTrigClusters")
 
   InDetPixelClusterization.isRoI_Seeded = True
