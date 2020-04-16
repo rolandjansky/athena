@@ -139,7 +139,7 @@ Trk::GsfExtrapolator::extrapolateImpl(Cache& cache,
   // If the extrapolation is to be without material effects simply revert to the extrapolateDirectly
   // method
   if (particleHypothesis == Trk::nonInteracting) {
-    return extrapolateDirectly(propagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis);;
+    return extrapolateDirectly(propagator, multiComponentState, surface, direction, boundaryCheck, particleHypothesis);
   }
   // Surface based material effects (assumes all material is on active sensor elements)
   if (m_surfaceBasedMaterialEffects) {
