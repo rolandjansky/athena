@@ -23,10 +23,6 @@ private:
   bool m_AllowSUSYDecay;
   bool m_OrderPhotons;
 
-  double m_EtaRange;
-  int m_NPhotons;
-  bool m_AllowSUSYDecay;
-
 };
 
 #endif
