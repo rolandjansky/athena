@@ -4,15 +4,16 @@
 #ifndef CONSTRIANTANGLEMMCLUSTERBUILDERTOOL_h
 #define CONSTRIANTANGLEMMCLUSTERBUILDERTOOL_h
 
+#include <string>
+#include <vector>
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-#include <numeric>
 
 namespace Muon{
     class ConstraintAngleMMClusterBuilderTool: virtual public IMMClusterBuilderTool, public AthAlgTool {
@@ -38,30 +39,11 @@ namespace Muon{
             StatusCode scanLayer(const std::vector<Muon::MMPrepData> &mmPrdsPerLayer,std::vector<std::vector<uint>> &idxClusters, std::vector<double> &clusterTheta)const ;
             StatusCode fitCluster(const std::vector<Muon::MMPrepData> &prdPerLayer,const std::vector<uint>& idxCluster,const double &clusterTheta,std::vector<Muon::MMPrepData*>& clustersVec) const;
 
-            double m_t0;
-            double m_vDrift;
             int m_nSigmaSelection;
             double m_sigmaTheta;
-            double m_transDiff,m_longDiff, m_ionUncertainty, m_scaleXerror, m_scaleYerror;
             double m_fitAngleCut;
+    };  // class ConstraintAngleMMClusterBuilderTool
 
-            
-             
-
-
-
-
-
-
-    };
+}  // namespace Muon
 
 #endif
-
-
-
-
-
-
-
-
-}
