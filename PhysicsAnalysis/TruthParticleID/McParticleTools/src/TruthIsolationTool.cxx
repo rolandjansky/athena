@@ -235,7 +235,7 @@ TruthIsolationTool::buildEtIsolations( const std::string& mcEvtName,
 
 void
 TruthIsolationTool::computeIso( const GenParticles_t& particles, 
-				const HepMC::GenParticle* part,
+				const HepMC::GenParticlePtr part,
 				TruthEtIsolations& etIsolations, 
 				ITruthIsolationTool::ParticleSelect partSel  )
 {
@@ -278,7 +278,7 @@ TruthIsolationTool::computeIso( const GenParticles_t& particles,
   // Correction for tau (as was done in the old tool for the time being)
   double pxv = 0.*GeV;
   double pyv = 0.*GeV;
-  HepMC::GenVertex *decVtx = part->end_vertex();
+  HepMC::GenVertexPtr decVtx = part->end_vertex();
   if (ida == 15 && decVtx) {
     HepMC::GenVertex::particle_iterator child  = decVtx->particles_begin(HepMC::children);
     HepMC::GenVertex::particle_iterator childE = decVtx->particles_end(HepMC::children);

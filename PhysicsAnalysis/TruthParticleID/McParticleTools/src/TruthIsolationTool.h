@@ -94,7 +94,7 @@ class TruthIsolationTool : virtual public ITruthIsolationTool,
    *  for various cone sizes into the @c TruthEtIsolations container
    */
   void computeIso( const std::list<const HepMC::GenParticle*>& parts, 
-		   const HepMC::GenParticle* p,
+		   const HepMC::GenParticlePtr p,
 		   TruthEtIsolations& etIsolations, 
 		   ITruthIsolationTool::ParticleSelect sel );
 
