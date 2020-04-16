@@ -45,6 +45,8 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers(bool& firstTimeI
   // firstTimeInTheEvent is meaningless in MT
   // We will need to retrieve from cache even in different threads
   SG::WriteHandle< Muon::RpcPrepDataContainer >rpcPRDHandle(m_rpcPrepDataContainerKey);
+  // In MT, we always want to treat this as if its the first time in the event
+  firstTimeInTheEvent = true;
 
   // Caching of PRD container
   const bool externalCachePRD = !m_prdContainerCacheKey.key().empty();
