@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "GeneratorFilters/DirectPhotonFilter.h"
 #include <limits>
 #include <algorithm>
@@ -8,22 +9,19 @@
 DirectPhotonFilter::DirectPhotonFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name, pSvcLocator)
 {
+  declareProperty("NPhotons", m_NPhotons = 1);
   declareProperty("OrderPhotons",m_OrderPhotons = true);
   declareProperty("Ptmin",m_Ptmin = std::vector<double>(m_NPhotons, 10000.));
   declareProperty("Ptmax",m_Ptmax = std::vector<double>(m_NPhotons, std::numeric_limits<double>::max()));
   declareProperty("Etacut", m_EtaRange = 2.50);
-
-  declareProperty("NPhotons", m_NPhotons = 1);
   declareProperty("AllowSUSYDecay",m_AllowSUSYDecay = false);
 
   // Backward compatibility aliases
   declareProperty("Ptcut", m_Ptmin = std::vector<double>(m_NPhotons, 10000.));
-
 }
 
 StatusCode DirectPhotonFilter::filterInitialize() {
 
-  int NPhotons = 0;
   ATH_MSG_INFO("Initialising DirectPhoton filter with OrderPhotons="<<m_OrderPhotons);
 
   if (m_Ptmin.size()>m_NPhotons || m_Ptmax.size()>m_NPhotons) {
@@ -36,7 +34,7 @@ StatusCode DirectPhotonFilter::filterInitialize() {
     return StatusCode::FAILURE;
   }
 
-// allow specifying only one pTmin/max to be applied to all (further) photons
+  // allow specifying only one pTmin/max to be applied to all (further) photons
   // for backward compatibility
   if (m_Ptmin.size()<m_NPhotons) {
     size_t origsize = m_Ptmin.size();
@@ -52,8 +50,9 @@ StatusCode DirectPhotonFilter::filterInitialize() {
   }
   return StatusCode::SUCCESS;
 }
-  bool DirectPhotonFilterCmpByPt(HepMC::GenParticle* p1, HepMC::GenParticle* p2) {
-     return (p1->momentum().perp()<p2->momentum().perp());
+
+bool DirectPhotonFilterCmpByPt(HepMC::GenParticle* p1, HepMC::GenParticle* p2) {
+  return (p1->momentum().perp()<p2->momentum().perp());
 }
 
 StatusCode DirectPhotonFilter::filterEvent() {
@@ -62,8 +61,7 @@ StatusCode DirectPhotonFilter::filterEvent() {
     const HepMC::GenEvent* genEvt = (*itr);
     ATH_MSG_DEBUG("----->>> Process : " << genEvt->signal_process_id());
 
-
-// Find all prompt photons with within given eta range
+    // Find all prompt photons with within given eta range
     for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
       if ((*pitr)->pdg_id() == 22 &&
           (*pitr)->status() == 1 &&
@@ -82,13 +80,15 @@ StatusCode DirectPhotonFilter::filterEvent() {
 false;
           }
         }
+
         if (!fromHadron) promptPhotonsInEta.push_back((*pitr));
         else ATH_MSG_DEBUG("non-prompt photon ignored");
       }
     }
   }
 
-if (promptPhotonsInEta.size()<m_NPhotons) {
+
+  if (promptPhotonsInEta.size()<m_NPhotons) {
     setFilterPassed(false);
   }
   else {
@@ -117,9 +117,7 @@ if (promptPhotonsInEta.size()<m_NPhotons) {
       }
       if (NPhotons>=m_NPhotons) ATH_MSG_DEBUG("Passed!");
       setFilterPassed(NPhotons>=m_NPhotons);
-
     }
   }
-
   return StatusCode::SUCCESS;
 }
