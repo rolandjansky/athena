@@ -12,6 +12,7 @@ class DirectPhotonFilter : public GenFilter {
 public:
 
   DirectPhotonFilter(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual StatusCode filterInitialize();
   virtual StatusCode filterEvent();
 
 private:
