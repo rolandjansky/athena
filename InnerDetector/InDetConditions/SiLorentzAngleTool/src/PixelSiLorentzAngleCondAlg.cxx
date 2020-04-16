@@ -13,7 +13,6 @@
 
 PixelSiLorentzAngleCondAlg::PixelSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator),
-  m_pixid(nullptr),
   m_condSvc("CondSvc", name),
   m_magFieldSvc("AtlasFieldSvc", name)
 {

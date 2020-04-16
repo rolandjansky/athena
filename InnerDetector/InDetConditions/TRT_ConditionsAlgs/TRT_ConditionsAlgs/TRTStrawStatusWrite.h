@@ -89,7 +89,6 @@ class TRTStrawStatusWrite : public AthAlgorithm
 
 
   const TRT_ID* m_trtid;                    //TRT id helper
-  const InDetDD::TRT_DetectorManager* m_trtDetMgr; // TRT detector manager
   std::string m_par_statstream;             //output stream  
   ServiceHandle<ICondSvc> m_condSvc;
 

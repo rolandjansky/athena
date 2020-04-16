@@ -47,8 +47,6 @@ class PixelSiLorentzAngleCondAlg: public AthReentrantAlgorithm {
     virtual StatusCode finalize() override;
 
   private:
-    const PixelID* m_pixid;
-
     ServiceHandle<ICondSvc> m_condSvc;
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 

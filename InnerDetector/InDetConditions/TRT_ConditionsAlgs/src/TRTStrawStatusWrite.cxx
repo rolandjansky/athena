@@ -38,7 +38,6 @@ TRTStrawStatusWrite::TRTStrawStatusWrite( const std::string &name, ISvcLocator *
   m_par_stattextfilepermanent(""),
   m_par_stattextfileHT(""),
   m_trtid(0),
-  m_trtDetMgr(0),
   m_par_statstream("AthenaOutputStreamTool/CondStream1"),
   m_condSvc("CondSvc",name),
   m_statReadKey("/TRT/Cond/Status"),
