@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_T_ATHENAPOOLTPVECTORCNV_H
@@ -183,7 +183,7 @@ public:
       @return the created transient object
   */
   virtual TRANS* createTransient(const PERS* persObj, MsgStream &log) {
-     std::auto_ptr<TRANS>	trans(new TRANS());
+     std::unique_ptr<TRANS>	trans(new TRANS());
      persToTrans(persObj, trans.get(), log);
      return(trans.release());
   }
