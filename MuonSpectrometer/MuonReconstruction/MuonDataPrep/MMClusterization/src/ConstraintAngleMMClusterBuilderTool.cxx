@@ -4,6 +4,11 @@
 
 #include "ConstraintAngleMMClusterBuilderTool.h"
 
+#include <numeric>
+#include <cmath>
+#include <algorithm>
+#include <memory>
+
 #include "GaudiKernel/PhysicalConstants.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
@@ -12,19 +17,8 @@
 #include "Minuit2/Minuit2Minimizer.h"
 #include "Math/IFunction.h"
 
-#include <cmath>
 
 namespace{
-
-    static constexpr double const& reciprocalSpeedOfLight = Gaudi::Units::c_light * 1e-6; // mm/ns
-    static constexpr double const& sqrt12PitchSquared = 0.425*0.425/12; // pitch/sqrt(12) * pitch/sqrt(12) to dertermine the  transversal uncertainty of the drifted electron 
-
-    template <class T>
-    std::string printVec(std::vector<T> vec){
-        std::ostringstream outstream;
-        std::copy(vec.begin(),vec.end(),std::ostream_iterator<T>(outstream,", "));
-        return outstream.str();
-    }
     //class to provide fit function to minuit
     class MyFCN : public ROOT::Math::IBaseFunctionMultiDim {
         public:
@@ -80,14 +74,7 @@ Muon::ConstraintAngleMMClusterBuilderTool::ConstraintAngleMMClusterBuilderTool(c
                     AthAlgTool(t,n,p)
 {
     declareInterface<IMMClusterBuilderTool>(this);
-    declareProperty("vDrift", m_vDrift = 0.047);
-    declareProperty("t0", m_t0 = -100);
     declareProperty("nSigmaSelection",m_nSigmaSelection = 3);
-    declareProperty("longDiff",m_longDiff=0.019); //mm/mm
-    declareProperty("transDiff",m_transDiff=0.036); //mm/mm
-    declareProperty("ionUncertainty",m_ionUncertainty=4.0); //ns
-    declareProperty("scaleXerror",m_scaleXerror=1.);
-    declareProperty("scaleYerror",m_scaleYerror=1.);
     declareProperty("sTheta",m_sigmaTheta = 3);
     declareProperty("fitAngleCut",m_fitAngleCut = 10);  //degree 
 }
@@ -154,7 +141,6 @@ const{
         ATH_MSG_DEBUG("Hit channel "<< m_idHelperSvc->mmIdHelper().channel(prd.identify())
                        << " local positionX " << prd.localPosition().x()
                        << " time " << prd.time()
-                       << " corrected time " << prd.time()-prd.globalPosition().norm()*reciprocalSpeedOfLight+m_t0
                        << " angle to IP" << std::atan(prd.globalPosition().perp()/std::abs(prd.globalPosition().z())) << " "<< std::atan(prd.globalPosition().perp()/std::abs(prd.globalPosition().z()))/Gaudi::Units::degree 
                        << " stationEta " <<m_idHelperSvc->mmIdHelper().stationEta(prd.identify()) 
                        << " stationPhi "<< m_idHelperSvc->mmIdHelper().stationEta(prd.identify())
@@ -174,7 +160,7 @@ const{
     }
     ATH_MSG_DEBUG("Found "<< idxClusters.size() <<" clusters");
     for(const auto idxCluster:idxClusters){
-        ATH_MSG_DEBUG("cluster: "<< printVec(idxCluster));
+        ATH_MSG_DEBUG("cluster: "<< idxCluster);
     }
 
     //determine mean IP pointing theta and mean position per cluster
@@ -216,8 +202,8 @@ const{
 
            for(const auto &idx:idxClusters.at(i_cluster)){
                 double x = sign * (mmPrdsPerLayer.at(idx).localPosition().x() - clusterMeanX.at(i_cluster)); 
-                double y = (mmPrdsPerLayer.at(idx).time()-mmPrdsPerLayer.at(idx).globalPosition().norm()*reciprocalSpeedOfLight+m_t0)*m_vDrift;
-                double sy = std::sqrt(m_ionUncertainty*m_ionUncertainty*m_vDrift*m_vDrift + m_longDiff*m_longDiff*y*y);
+                double y = mmPrdsPerLayer.at(idx).driftDist();
+                double sy = std::sqrt(mmPrdsPerLayer.at(idx).localCovariance()(1,1));
                 ATH_MSG_VERBOSE("selection: x "<< x <<" y "<< y << " fUpper(x) " << fUpper->Eval(x) <<" fLower(x) "<< fLower->Eval(x) << " ylower " << y-m_nSigmaSelection*sy << "yupper" << y+m_nSigmaSelection*sy);
                 //select points which are within x sigma of the road
                 if(x<=0) ATH_MSG_VERBOSE("x<=0: "<< fUpper->Eval(x)-y<<" "<< y-fLower->Eval(x) << " x*sigma"<< m_nSigmaSelection*sy);
@@ -235,7 +221,7 @@ const{
            }
        } // end of probe intercept
         idxClusters.at(i_cluster) = idxBest;
-        ATH_MSG_DEBUG(" cluster  after filtering "<< printVec(idxClusters.at(i_cluster)));
+        ATH_MSG_DEBUG(" cluster  after filtering "<< idxClusters.at(i_cluster));
     } // end of i_cluster
     for(int i_cluster = idxClusters.size()-1; i_cluster>=0; i_cluster--){
         if(idxClusters.at(i_cluster).size()<2){ // delete to small clusters after pattern reco
@@ -278,19 +264,17 @@ const{
     
     for(uint i_strip=0; i_strip < idxCluster.size(); i_strip++){
         double x = prdPerLayer.at(idxCluster.at(i_strip)).localPosition().x()-meanX; 
-        double y = (prdPerLayer.at(idxCluster.at(i_strip)).time()-prdPerLayer.at(i_strip).globalPosition().norm()*reciprocalSpeedOfLight+m_t0)*m_vDrift;
-        double xerror = std::sqrt(sqrt12PitchSquared + m_transDiff*m_transDiff*y*y);
-        double yerror = std::sqrt(m_ionUncertainty*m_ionUncertainty*m_vDrift*m_vDrift + m_longDiff*m_longDiff*y*y);
+        double y = prdPerLayer.at(idxCluster.at(i_strip)).driftDist();
+        double xerror = std::sqrt(prdPerLayer.at(idxCluster.at(i_strip)).localCovariance()(0,0));
+        double yerror = std::sqrt(prdPerLayer.at(idxCluster.at(i_strip)).localCovariance()(1,1));
         fitGraph->SetPoint(i_strip,x,y);
         fitGraph->SetPointError(i_strip, xerror, yerror);
         fitFunc.addPoint(x,y,xerror,yerror);
 
         stripsOfCluster.push_back(prdPerLayer.at(idxCluster.at(i_strip)).identify());
         stripsOfClusterCharges.push_back(prdPerLayer.at(idxCluster.at(i_strip)).charge());
-        stripsOfClusterTimes.push_back(prdPerLayer.at(idxCluster.at(i_strip)).time()-prdPerLayer.at(i_strip).globalPosition().norm()*reciprocalSpeedOfLight+m_t0);
         stripsOfClusterChannels.push_back(m_idHelperSvc->mmIdHelper().channel(prdPerLayer.at(idxCluster.at(i_strip)).identify()));
-
-
+        stripsOfClusterTimes.push_back(prdPerLayer.at(idxCluster.at(i_strip)).time());
     }
     if(std::abs(ffit->GetParameter(0)-clusterTheta)> m_fitAngleCut * Gaudi::Units::degree){return StatusCode::FAILURE;}; // very loose cut for now
 
