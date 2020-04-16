@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: Standard test for Run2 with 1 GeV muon input
 # art-type: grid
-# art-input: mc16_13TeV.422032.ParticleGun_single_mu_Pt1.recon.RDO.e7967_e5984_s3126_r11774_tid20254908_00
+# art-input: mc16_13TeV.422028.ParticleGun_single_ele_Pt5.recon.RDO.e7967_e5984_s3126_r11774_tid20254991_00
 # art-include: master/Athena
 # art-output: *.root
 # art-output: *.xml
@@ -23,7 +23,7 @@ name="run2"
 script="`basename \"$0\"`"
 dcubemon_rec=physval.root
 dcubecfg_rec=$artdata/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml
-dcuberef_rec=$artdata/InDetPhysValMonitoring/ReferenceHistograms/physval_mu1GeV.root
+dcuberef_rec=$artdata/InDetPhysValMonitoring/ReferenceHistograms/physval_ele5GeV.root
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
 
 #lastref_dir=last_results

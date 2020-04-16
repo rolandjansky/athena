@@ -7,24 +7,26 @@
 # art-output: *.xml
 # art-output: dcube*
 
+echo "List of files = " ${ArtInFile}
+
 # Fix ordering of output in logfile
 exec 2>&1
 run() { (set -x; exec "$@") }
 
 # Following specify DCube output directories. Set empty to disable.
 dcube_rec_fixref="dcube"
-dcube_rec_lastref="dcube_last"
+#dcube_rec_lastref="dcube_last"
 
 artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 
 name="run2"
 script="`basename \"$0\"`"
 dcubemon_rec=physval.root
-dcubecfg_rec=$artdata/InDetPhysValMonitoring/dcube/config/run2_physval.xml
-dcuberef_rec=$artdata/InDetPhysValMonitoring/ReferenceHistograms/run2_physval_mu100GeV.root
+dcubecfg_rec=$artdata/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml
+dcuberef_rec=$artdata/InDetPhysValMonitoring/ReferenceHistograms/physval_mu100GeV.root
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
 
-lastref_dir=last_results
+#lastref_dir=last_results
 
 dcube() {
   # Run DCube and print art-result (if $2 is not empty)
@@ -55,6 +57,7 @@ dcube() {
 
 # Reco step based on test InDetPhysValMonitoring ART setup from Josh Moss.
 run Reco_tf.py \
+  --inputRDOFile ${ArtInFile} \
   --outputAODFile   physval.AOD.root \
   --outputNTUP_PHYSVALFile "$dcubemon_rec" \
   --steering        doRAWtoALL \
@@ -79,12 +82,12 @@ run Reco_tf.py \
   AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);\
   AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False) '
 echo "art-result: $? reco"
-if [ rec_tf_exit_code  eq 0 ]  ;then
-  run art.py download --user=artprod --dst="$lastref_dir" InDetPhysValMonitoring "$script"
-  run ls -la "$lastref_dir"
-fi
+#if [ rec_tf_exit_code  eq 0 ]  ;then
+#  run art.py download --user=artprod --dst="$lastref_dir" InDetPhysValMonitoring "$script"
+#  run ls -la "$lastref_dir"
+#fi
 
 
 # DCube InDetPhysValMonitoring performance plots
-dcube InDetPhysValMonitoring plot "$dcubemon_rec" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec" "$dcube_rec_lastref"
+#dcube InDetPhysValMonitoring plot "$dcubemon_rec" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec" "$dcube_rec_lastref"
 dcube InDetPhysValMonitoring ""   "$dcubemon_rec" "$dcubecfg_rec"              "$dcuberef_rec" "$dcube_rec_fixref"
