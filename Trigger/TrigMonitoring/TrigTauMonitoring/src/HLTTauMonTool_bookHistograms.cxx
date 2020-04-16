@@ -30,7 +30,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
     size_t posit=trigItem.rfind("_");
-    trigItemShort=trigItem.substr(0,posit);
+    if(posit<31)trigItemShort=trigItem.substr(0,posit);
   }
 
  const int nbin_pt = 13;
@@ -57,6 +57,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     //L1 Roi
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItemShort+"/L1RoI",run));
     setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/L1RoI");
+    ATH_MSG_DEBUG("After setting CurrentMonGroup" << "HLT/TauMon/Expert/"+trigItemShort+"/L1RoI");
     addHistogram(new TH1F("hL1RoIEta","L1 RoI Eta ; #eta; N RoI",100,-2.6,2.6));
     addHistogram(new TH1F("hL1RoIPhi","L1 RoI Phi ; #phi; N RoI",100,-3.2,3.2));
     
@@ -616,7 +617,7 @@ void HLTTauMonTool::bookHistogramsAllItem(){
             std::string trigItemShort;
             if(m_trigItemsZtt[i].find("tau25")!=string::npos){
               size_t posit=m_trigItemsZtt[i].rfind("_");
-              trigItemShort=m_trigItemsZtt[i].substr(0,posit);
+              if(posit<31)trigItemShort=m_trigItemsZtt[i].substr(0,posit);
             }
             addMonGroup( new MonGroup(this, "HLT/TauMon/Expert/RealZtautauEff/"+trigItemShort,run) );
             setCurrentMonGroup("HLT/TauMon/Expert/RealZtautauEff/"+trigItemShort);
