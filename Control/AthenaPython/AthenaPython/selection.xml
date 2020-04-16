@@ -2,7 +2,6 @@
 
   <!-- Framework bindings -->
   <class name="IClassIDSvc" />
-  <class name="IThinningSvc" />
   <class name="Athena::IThinningHdlr" />
   <class name="Athena::ISlimmingHdlr" />
   <class name="IValgrindSvc" />
