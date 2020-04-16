@@ -48,7 +48,7 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    return m
 
 def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
-   from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
+   from TrigEDMConfig.DataScoutingInfo import getFullHLTResultID
 
    # Configuration helper methods
    def addCollection(self, typeNameAux, moduleIds):
@@ -93,7 +93,7 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
    tpTool.TPMap = tpMap()
    serialiser.TPTool = tpTool
 
-   from TrigEDMConfig.TriggerEDMRun3 import TruncationThresholds as truncThresholds
+   from TrigEDMConfig.DataScoutingInfo import TruncationThresholds as truncThresholds
    serialiser.TruncationThresholds = truncThresholds
 
    # Configure monitoring histograms

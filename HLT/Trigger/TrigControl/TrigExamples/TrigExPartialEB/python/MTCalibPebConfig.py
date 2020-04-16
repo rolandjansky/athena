@@ -199,7 +199,7 @@ def make_all_hypo_algs(num_chains, concurrent=False):
 def configure_hlt_result(hypo_algs):
     from TrigOutputHandling.TrigOutputHandlingConf import StreamTagMakerTool, TriggerBitsMakerTool
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg
-    from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
+    from TrigEDMConfig.DataScoutingInfo import getFullHLTResultID
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
