@@ -42,7 +42,7 @@ class GroomingDefinition(object):
         return self.__hash__() == rhs.__hash__()
 
     def __ne__(self,rhs):
-        return (not __eq__(self,rhs))
+        return (not self.__eq__(rhs))
 
     # Define core attributes as properties, with
     # custom setter/getter such that if changed, these
@@ -63,7 +63,7 @@ class GroomingDefinition(object):
             jetlog.error("Unsupported grooming algorithm specification \"{}\"! Allowable options:")
             for groomalg in supportedGrooming:
                 jetlog.error(groomalg)
-            raise KeyError("Invalid grooming algorithm choice: {0}".format(groomtype))
+            raise KeyError("Invalid grooming algorithm choice: {0}".format(groomalg))
 
     @property
     def groomspec(self):

@@ -144,7 +144,6 @@ def StreamTagMakerToolCfg(name="StreamTagMakerTool"):
 
 
 def TriggerBitsMakerToolCfg(name="TriggerBitsMakerTool"):
-   from TriggerJobOpts.TriggerFlags import TriggerFlags
 
    bitsmaker = CompFactory.TriggerBitsMakerTool(name)
    # Extra configuration may come here

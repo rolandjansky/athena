@@ -12,8 +12,6 @@ def BadLBFilterAlgCfg(inputFlags,name, defects, writekey, ignoreRecoverable=Fals
     log = logging.getLogger('BadLBFilterAlgCfg')
     result=ComponentAccumulator()
 
-    DQBadLBFilterAlg=CompFactory.DQBadLBFilterAlg
-
     from DQDefects import DefectsDB
     ddb = DefectsDB('COOLOFL_GLOBAL/' + inputFlags.IOVDb.DatabaseInstance, 
                     tag=origDbTag or inputFlags.IOVDb.GlobalTag)

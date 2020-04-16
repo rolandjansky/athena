@@ -393,12 +393,18 @@ def MuidCaloTrackStateOnSurfaceCfg(flags, name='MuidCaloTrackStateOnSurface', **
     result.setPrivateTools(tool)
     return result
 
+
 def MuidCaloTrackStateOnSurfaceParamCfg(flags, name='MuidCaloTrackStateOnSurfaceParam', **kwargs ):
-    result = MuidCaloEnergyToolParamCfg(flags)
-    kwargs.setdefault("CaloEnergyDeposit"  ,  tmpAcc.popPrivateTools())
-    tmpAcc = MuidCaloTrackStateOnSurfaceCfg(flags, name, **kwargs)
-    result.merge(tmpAcc)
+    result=ComponentAccumulator()
+    kwargs.setdefault("Propagator", CompFactory.Trk.RungeKuttaPropagator(name = 'AtlasRungeKuttaPropagator'))# FIXME - there should be a CA for this!
+    kwargs.setdefault("MinRemainingEnergy" , 0.2*GeV )
+    kwargs.setdefault("ParamPtCut"         , 3.0*GeV )
+    kwargs.setdefault("CaloEnergyDeposit"  , MuidCaloEnergyParam(flags) )
+    kwargs.setdefault("CaloEnergyParam"  ,   MuidCaloEnergyParam(flags) )
+    tool = CompFactory.Rec.MuidCaloTrackStateOnSurface(name,**kwargs)
+    result.setPrivateTools(tool)
     return result
+
 
 def MuidMaterialEffectsOnTrackProviderCfg(flags, name='MuidMaterialEffectsOnTrackProvider', **kwargs ):
     result = MuidCaloTrackStateOnSurfaceCfg(flags)

@@ -21,7 +21,8 @@ def propertiesOf(comp):
     try:
         propNames = comp._descriptors
         return propNames
-    except: pass
+    except Exception: 
+        pass
     return comp.properties()
 
 
