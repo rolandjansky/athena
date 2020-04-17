@@ -64,7 +64,7 @@ std::pair<double,double> PixelITkClusterErrorData::getDeltaError(const Identifie
   std::vector<double> value = m_constmap.at(*pixelId);
 
   double delta_x_error = value[3];
-  double delta_y_error = value[7];
+  double delta_y_error = value[6];
 
   return std::make_pair(delta_x_error,delta_y_error);
 
