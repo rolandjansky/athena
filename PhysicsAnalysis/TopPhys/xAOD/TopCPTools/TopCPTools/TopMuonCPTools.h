@@ -64,7 +64,7 @@ namespace top {
     StatusCode setupScaleFactors();
 
     CP::IMuonSelectionTool*
-    setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta);
+    setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta, const bool& UseMVALowPt, const bool& Use2stationMuonsHighPt);
 
     CP::IMuonTriggerScaleFactors*
     setupMuonTrigSFTool(const std::string& name, const std::string& quality);
