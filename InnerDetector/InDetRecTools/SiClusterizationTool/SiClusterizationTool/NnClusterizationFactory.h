@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
  #ifndef SICLUSTERIZATIONTOOL_NnClusterizationFactory_C
@@ -122,32 +122,32 @@ namespace InDet {
     /** Callback for nnSetup */
     StatusCode nnSetup( IOVSVC_CALLBACK_ARGS );
 
-    StatusCode setUpNN_lwtnn(IOVSVC_CALLBACK_ARGS);
+    StatusCode setUpNNLwtnn(IOVSVC_CALLBACK_ARGS);
     
    private:
     void clearCache(std::vector<TTrainedNetwork*>& ttnn);
  
     // NN implementations
-    std::unique_ptr<lwt::LightweightGraph> m_lwnn_number;  
-    std::map<int, std::unique_ptr<lwt::LightweightGraph> > m_lwnn_position;  
+    std::unique_ptr<lwt::LightweightGraph> m_lwnnNumber;  
+    std::map<int, std::unique_ptr<lwt::LightweightGraph> > m_lwnnPosition;  
 
     // Flags for determining which NNs to use
-    bool m_uselwtnn_number;
-    bool m_uselwtnn_position;
+    bool m_useLwtnnNumber;
+    bool m_useLwtnnPosition;
 
     // Handling inputs and outputs
     typedef std::map<std::string, std::map<std::string, double> > InputMap;
 
     // lwtnn version
     std::vector<Amg::Vector2D> estimatePositions(NnClusterizationFactory::InputMap & input, 
-                                                NNinput* raw_input,
+                                                NNinput* rawInput,
                                                 const InDet::PixelCluster& pCluster,
                                                 int numberSubClusters,
                                                 std::vector<Amg::MatrixX> & errors);
 
     // For error formatting in lwtnn version
-    double correctedRMS_X(double pos_pixels);
-    double correctedRMS_Y(double pos_pixels, double size_Y, std::vector<float>& pitches);    
+    double correctedRMSX(double posPixels);
+    double correctedRMSY(double posPixels, double sizeY, std::vector<float>& pitches);    
  
     /* estimate position for both with and w/o tracks */
     std::vector<Amg::Vector2D> estimatePositions(std::vector<double> inputData,
@@ -178,7 +178,7 @@ namespace InDet {
 
     TTrainedNetwork* retrieveNetwork(const std::string& folder, const std::string& subfolder);
 
-  StatusCode configure_lwtnn(std::unique_ptr<lwt::LightweightGraph> & this_nn, std::string this_json);
+  StatusCode configureLwtnn(std::unique_ptr<lwt::LightweightGraph> & thisNN, std::string thisJson);
 
     std::vector<double> assembleInput(NNinput& input,
                                       int sizeX,
@@ -226,8 +226,8 @@ namespace InDet {
 
      // Two different cool folders store the differents kinds of configuration formats
      // One is stored in root files, the other in json format as strings
-     std::string m_coolFolder_root;
-     std::string m_coolFolder_json;     
+     std::string m_coolFolderRoot;
+     std::string m_coolFolderJson;     
      std::string m_layerInfoHistogram;
      std::string m_layerPrefix;
      std::string m_weightIndicator;
