@@ -24,9 +24,9 @@
 #endif
 #define private public
 #define protected public
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 #undef private
 #undef protected
 #ifdef __clang__

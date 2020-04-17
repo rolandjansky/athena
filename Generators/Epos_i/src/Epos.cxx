@@ -19,8 +19,8 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "HepMC/HEPEVT_Wrapper.h"
-#include "HepMC/IO_HEPEVT.h"
+#include "AtlasHepMC/HEPEVT_Wrapper.h"
+#include "AtlasHepMC/IO_HEPEVT.h"
 
 
 #include "Epos_i/Epos.h"
