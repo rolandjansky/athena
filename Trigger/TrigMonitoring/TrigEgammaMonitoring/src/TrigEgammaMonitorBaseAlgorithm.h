@@ -79,7 +79,7 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     /*! TP Trigger Analysis */
     Gaudi::Property<bool> m_tp{this, "TPTrigger", false };
     /*! default probe pid for trigitems that don't have pid in their name */
-    Gaudi::Property<std::string> m_defaultProbePid{this, "DefaultProveSelection", "Loose"};
+    Gaudi::Property<std::string> m_defaultProbePid{this, "DefaultProbeSelection", "Loose"};
     /*! isem names */
     Gaudi::Property<std::vector<std::string>> m_isemname{this, "isEMResultNames", {} };
     /*! lh names */

@@ -54,14 +54,16 @@ class TrigEgammaMonAlgBuilder:
 
   
   # Add a flag to enable emulation
-  __acceptable_keys_list=['derivation','emulation', 'debugLevel', 'detailLevel','basePath']
+  __acceptable_keys_list=['derivation','emulation', 'debugLevel', 'detailedHistograms','basePath']
   emulation = False
   derivation = False
   debugLevel = DEBUG
-  detailLevel = False
+  detailedHistograms = False
   basePath = 'HLT/EgammaMon'
 
 
+  isemnames = ["Tight", "Medium", "Loose"]
+  lhnames   = ["LHTight", "LHMedium", "LHLoose"]
  
 
   def __init__(self, helper, runflag, **kwargs):
@@ -237,8 +239,8 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.MatchTool = EgammaMatchTool
       self.zeeMonAlg.TPTrigger=False
       self.zeeMonAlg.ElectronKey = 'Electrons'
-      self.zeeMonAlg.isEMResultNames=["Tight","Medium","Loose"]
-      self.zeeMonAlg.LHResultNames=["LHTight","LHMedium","LHLoose"]
+      self.zeeMonAlg.isEMResultNames=self.isemnames
+      self.zeeMonAlg.LHResultNames=self.lhnames
       self.zeeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.zeeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
       self.zeeMonAlg.ZeeLowerMass=80
@@ -250,7 +252,7 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.RemoveCrack=False
       self.zeeMonAlg.TagTriggerList=self.tagItems
       self.zeeMonAlg.TriggerList=self.tpList
-      #self.zeeMonAlg.DetailedHistogram=self.detailLevel
+      self.zeeMonAlg.DetailedHistograms=self.detailHistograms
       self.zeeMonAlg.OutputLevel=self.debugLevel
 
 
@@ -263,8 +265,8 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.MatchTool = EgammaMatchTool
       self.jpsieeMonAlg.TPTrigger=False
       self.jpsieeMonAlg.ElectronKey = 'Electrons'
-      self.jpsieeMonAlg.isEMResultNames=["Tight","Medium","Loose"]
-      self.jpsieeMonAlg.LHResultNames=["LHTight","LHMedium","LHLoose"]
+      self.jpsieeMonAlg.isEMResultNames=self.isemnames
+      self.jpsieeMonAlg.LHResultNames=self.lhnames
       self.jpsieeMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.jpsieeMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
       self.jpsieeMonAlg.ZeeLowerMass=2
@@ -276,7 +278,7 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.RemoveCrack=False
       self.jpsieeMonAlg.TagTriggerList=self.tagItems
       self.jpsieeMonAlg.TriggerList=self.tpList
-      #self.jpsieeMonAlg.DetailedHistogram=self.detailLevel
+      self.jpsieeMonAlg.DetailedHistograms=self.detailedHistograms
       self.jpsieeMonAlg.OutputLevel=self.debugLevel
 
 
@@ -286,17 +288,16 @@ class TrigEgammaMonAlgBuilder:
       self.elMonAlg = self.helper.addAlgorithm( TrigEgammaMonitorElectronAlgorithm, "TrigEgammaMonitorElectronAlgorithm" )
       self.elMonAlg.MatchTool = EgammaMatchTool
       self.elMonAlg.ElectronKey = 'Electrons'
-      self.elMonAlg.isEMResultNames=["Tight","Medium","Loose"]
-      self.elMonAlg.LHResultNames=["LHTight","LHMedium","LHLoose"]
+      self.elMonAlg.isEMResultNames=self.isemnames
+      self.elMonAlg.LHResultNames=self.lhnames
       self.elMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.elMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
       self.elMonAlg.ForcePidSelection=False
       self.elMonAlg.ForceProbeIsolation=False
       self.elMonAlg.ForceEtThreshold=True
       self.elMonAlg.TriggerList=self.electronList
-      #self.elMonAlg.DetailedHistogram=self.detailLevel
+      self.elMonAlg.DetailedHistograms=self.detailedHistograms
       self.elMonAlg.OutputLevel=self.debugLevel
-
 
     if self.activate_photon:
 
@@ -304,12 +305,12 @@ class TrigEgammaMonAlgBuilder:
       self.phMonAlg = self.helper.addAlgorithm( TrigEgammaMonitorPhotonAlgorithm, "TrigEgammaMonitorPhotonAlgorithm" )
       self.phMonAlg.MatchTool = EgammaMatchTool
       self.phMonAlg.PhotonKey = 'Photons'
-      self.phMonAlg.isEMResultNames=["Tight","Medium","Loose"]
-      self.phMonAlg.LHResultNames=["LHTight","LHMedium","LHLoose"]
+      self.phMonAlg.isEMResultNames=self.isemnames
+      self.phMonAlg.LHResultNames=self.lhnames
       self.phMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.phMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
       self.phMonAlg.TriggerList=self.tpList
-      #self.phMonAlg.DetailedHistogram=self.detailLevel
+      self.phMonAlg.DetailedHistograms=self.detailedHistograms
       self.phMonAlg.OutputLevel=self.debugLevel
 
 
@@ -364,8 +365,13 @@ class TrigEgammaMonAlgBuilder:
       self.bookEfficiencies( monAlg, trigger, "L2"     )
       self.bookEfficiencies( monAlg, trigger, "EFCalo" )
       self.bookEfficiencies( monAlg, trigger, "HLT"    )
+      
+      if self.detailedHistograms:
+        for pid in self.isemnames + self.lhnames:
+          self.bookEfficiencies( monAlg, trigger, "HLT", pid )
+          self.bookEfficiencies( monAlg, trigger, "HLT", pid+"Iso" )
 
-
+      
 
   def bookEvent(self, monAlg, analysis):
 
@@ -507,11 +513,16 @@ class TrigEgammaMonAlgBuilder:
   #
   # Book efficiencies
   #
-  def bookEfficiencies(self, monAlg, trigger, level ):
+  def bookEfficiencies(self, monAlg, trigger, level, subgroup=None ):
 
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F, TProfile
-    monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level, self.basePath+'/'+trigger+'/Efficiency/'+level )
+    if subgroup:
+      monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level+'_'+subgroup, self.basePath+'/'+trigger+'/Efficiency/'+level+'/'+subgroup )
+    else:
+      monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level, self.basePath+'/'+trigger+'/Efficiency/'+level )
     
+
+
     # Numerator
     self.addHistogram(monGroup, TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", self._nEtbins, self._etbins))
     self.addHistogram(monGroup, TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", self._nEtbins, self._etbins))

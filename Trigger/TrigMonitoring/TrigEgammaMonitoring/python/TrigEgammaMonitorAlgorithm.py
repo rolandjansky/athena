@@ -24,7 +24,7 @@ def TrigEgammaMonConfig(inputFlags):
     helper = AthMonitorCfgHelper(inputFlags,'TrigEgammaAthMonitorCfg')
     # configure alg and ana tools
     from TrigEgammaMonitoring.TrigEgammaMonitoringMTConfig import TrigEgammaMonAlgBuilder
-    monAlgCfg = TrigEgammaMonAlgBuilder( helper, '2018' ) # Using 2018 e/g tunings
+    monAlgCfg = TrigEgammaMonAlgBuilder( helper, '2018', detailedHistogram=True ) # Using 2018 e/g tunings
     
     # Force monitor builder
     monAlgCfg.activate_zee=False

@@ -9,29 +9,36 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TrigEgammaMatchingTool/ITrigEgammaMatchingToolMT.h"
+#include "xAODTrigger/EmTauRoIContainer.h"
+#include "xAODTrigCalo/TrigEMClusterContainer.h"
+#include "xAODTrigEgamma/TrigPhotonContainer.h"
+#include "xAODTrigEgamma/TrigElectronContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 
 
 namespace Trig{
 
 
 
-class TrigEgammaMatchingToolMT : public asg::AsgTool, public virtual ITrigEgammaMatchingToolMT
+class TrigEgammaMatchingToolMT : public asg::AsgTool
 
 {
-    ASG_TOOL_CLASS( TrigEgammaMatchingToolMT, ITrigEgammaMatchingToolMT)
+    ASG_TOOL_CLASS0( TrigEgammaMatchingToolMT )
 
     public:
 
         TrigEgammaMatchingToolMT( const std::string& name );
 
 
-        virtual ~TrigEgammaMatchingToolMT() override;
-        virtual StatusCode initialize() override;
+        ~TrigEgammaMatchingToolMT();
+        StatusCode initialize();
 
 
-        virtual bool match(const xAOD::Egamma *,const std::string&) const override;
-        virtual bool match(const xAOD::Egamma *,const std::string&, const TrigCompositeUtils::Decision *&) const override;
+        bool match(const xAOD::Egamma *,const std::string&) const;
+        bool match(const xAOD::Egamma *,const std::string&, const TrigCompositeUtils::Decision *&) const;
         
         std::string key( std::string ) const;
         template<class CONTAINER> bool ancestorPassed( const TrigCompositeUtils::Decision*, const std::string&trigger , const std::string&key) const;

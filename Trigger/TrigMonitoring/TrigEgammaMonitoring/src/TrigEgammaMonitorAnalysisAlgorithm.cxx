@@ -44,21 +44,69 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillLabel( const ToolHandle<GenericMoni
 void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiencies( std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs,
                                                            const TrigInfo info ) const
 {
+
+  std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pair_vec;
+  std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pair_iso_vec;
+
+
+  for( auto pairObj : pairObjs ){
+
+    if(pairObj.first->type()==xAOD::Type::Electron){
+      const xAOD::Electron* el = static_cast<const xAOD::Electron *> (pairObj.first);
+      float et = getEt(el)/1e3;
+      if(et < info.trigThrHLT-5.0) continue; 
+     
+    }else if(pairObj.first->type()==xAOD::Type::Photon){
+      float et = getCluster_et(pairObj.first)/1e3;
+      if(et < info.trigThrHLT-5.0) continue; 
+      
+       if(boost::contains(info.trigName,"icalovloose")) {
+          if (getIsolation_topoetcone20(pairObj.first)/getCluster_et(pairObj.first) >= 0.065) continue; // pass FixedCutLoose offline isolation
+      }
+      else {
+          if ((getIsolation_topoetcone40(pairObj.first)-2450.0)/getCluster_et(pairObj.first) >= 0.022) continue; // pass FixedCutTightCaloOnly offline isolation
+      }
+    } // Offline photon
+  
+    // Good pair to be measure
+    pair_vec.push_back(pairObj);
+
+    if( pairObj.first->auxdecor<bool>("Isolated") ){
+      pair_iso_vec.push_back(pairObj);
+    }
+  }
+
+
   if (info.trigL1){
-    fillEfficiency( "L1Calo" , info, pairObjs );
+    fillEfficiency( "L1Calo", "L1Calo" ,  info.trigPidDecorator, info, pair_vec );
   }else{
-    fillEfficiency( "L1Calo"  , info, pairObjs );
-    fillEfficiency( "L2Calo"  , info, pairObjs );
-    fillEfficiency( "L2"      , info, pairObjs );
-    fillEfficiency( "EFCalo"  , info, pairObjs );
-    fillEfficiency( "HLT"     , info, pairObjs );
+    fillEfficiency( "L1Calo"  , "L1Calo", info.trigPidDecorator, info, pair_vec );
+    fillEfficiency( "L2Calo"  , "L2Calo", info.trigPidDecorator, info, pair_vec );
+    fillEfficiency( "L2"      , "L2"    , info.trigPidDecorator, info, pair_vec );
+    fillEfficiency( "EFCalo"  , "EFCalo", info.trigPidDecorator, info, pair_vec );
+    fillEfficiency( "HLT"     , "HLT"   , info.trigPidDecorator, info, pair_vec );
+
+    if( m_detailedHists ){
+      
+      for( const auto pid : m_isemname ){
+        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec );
+        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec );
+      }
+
+      for( const auto pid : m_lhname ){
+        fillEfficiency( "HLT_" + pid, "HLT", "is"+pid, info, pair_vec );
+        fillEfficiency( "HLT_" + pid + "Iso", "HLT", "is"+pid, info, pair_iso_vec );
+      }
+    } 
   }
 }
 
 
 
 
-void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &level, 
+void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &subgroup, 
+                                                         const std::string &level,
+                                                         const std::string &pidword,
                                                          const TrigInfo info,
                                                          std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >> pairObjs) const
 {
@@ -66,11 +114,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &leve
 
     
     const float etthr = info.trigThrHLT;
-    const std::string pidword = info.trigPidDecorator;
     const std::string trigger = info.trigName;
 
 
-    auto monGroup = getGroup( trigger + "_Efficiency_" + level );
+    auto monGroup = getGroup( trigger + "_Efficiency_" + subgroup );
 
     
     std::vector<float> et_vec, highet_vec, pt_vec, eta_vec, phi_vec, avgmu_vec, npvtx_vec;
@@ -122,7 +169,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillEfficiency( const std::string &leve
         float eta = eg->caloCluster()->etaBE(2);
         float phi = eg->phi();
         float pt = eg->pt()/1e3;
-        float avgmu=lbAverageInteractionsPerCrossing();
+        float avgmu=lbAverageInteractionsPerCrossing( Gaudi::Hive::currentContext() );
         float npvtx=0.0;
         
         ATH_MSG_DEBUG("PID decision efficiency " << eg->auxdecor<bool>(pidword));

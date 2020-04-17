@@ -23,13 +23,10 @@ class TrigEgammaMonitorAnalysisAlgorithm: public TrigEgammaMonitorBaseAlgorithm
     void fillLabel( const ToolHandle<GenericMonitoringTool>& groupHandle, const std::string &histname, const std::string &label ) const;
 
 
-
-
-
-
     // Efficiency monitoring
     void fillEfficiencies( std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*> > , TrigInfo ) const;
-    void fillEfficiency( const std::string &level, const TrigInfo info, std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >> pairObjs) const;
+    void fillEfficiency( const std::string &subgroup, const std::string &level, const std::string &pidword, const TrigInfo info, 
+                         std::vector< std::pair< const xAOD::Egamma *, const TrigCompositeUtils::Decision* >> pairObjs) const;
 
 
     void fillDistributions( std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*> > , TrigInfo ) const;
