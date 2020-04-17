@@ -1,29 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 05.04.2008, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS CurvedLine ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 #include "MdtCalibFitters/CurvedLine.h"
 #include "MuonCalibMath/BaseFunctionFitter.h"
 #include "MuonCalibMath/LegendrePolynomial.h"
-
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 using namespace MuonCalib;
-using namespace std;
 
 //*****************************************************************************
 
@@ -37,8 +22,8 @@ CurvedLine::CurvedLine(void) {
 // VARIABLES //
 ///////////////
 
-    vector<Amg::Vector3D> points(3);
-    vector<Amg::Vector3D> errors(3);
+    std::vector<Amg::Vector3D> points(3);
+    std::vector<Amg::Vector3D> errors(3);
 
 ////////////////////
 // FILL VARIABLES //
@@ -68,7 +53,7 @@ CurvedLine::CurvedLine(std::vector<Amg::Vector3D> & points) {
 // VARIABLES //
 ///////////////
 
-    vector<Amg::Vector3D> errors(points.size());
+    std::vector<Amg::Vector3D> errors(points.size());
 
 ////////////////////
 // FILL VARIABLES //
@@ -173,9 +158,8 @@ void CurvedLine::init(std::vector<Amg::Vector3D> & points,
 ////////////////////////////////
 
 	if (points.size()<3) {
-		cerr << endl
-				<< "Class CurvedLine, method init: ERROR!\n"
-				<< "Not enough points given, must be at least 3 points!\n";
+        MsgStream log(Athena::getMessageSvc(), "CurvedLine");
+        log<< MSG::ERROR << "Class CurvedLine, method init: Not enough points given, must be at least 3 points!"<<endmsg;
 	}
 
 ///////////////
@@ -185,7 +169,7 @@ void CurvedLine::init(std::vector<Amg::Vector3D> & points,
     BaseFunctionFitter fitter;
     LegendrePolynomial legendre; // Legendre polynomial needed by the base
                                  // function fitter
-    vector<SamplePoint> sample_points(points.size()); // sample points needed
+    std::vector<SamplePoint> sample_points(points.size()); // sample points needed
                                                       // by the base function
                                                       // fitter
 /////////////////////////////////////////////

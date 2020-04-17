@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
  //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -22,14 +22,6 @@
 //                     (important to reduce oscillations in r(t) relationship)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS RtCalibrationCurved ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 #include "MdtCalibRt/RtCalibrationCurved.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "MdtCalibRt/RtCalibrationOutput.h"
@@ -43,7 +35,6 @@
 #include "MdtCalibRt/RtParabolicExtrapolation.h"
 #include "MdtCalibData/RtFromPoints.h"
 #include "MdtCalibRt/AdaptiveResidualSmoothing.h"
-
 #include "MdtCalibInterfaces/IMdtCalibrationOutput.h"
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/RtRelationLookUp.h"
@@ -52,20 +43,15 @@
 #include "MdtCalibFitters/CurvedPatRec.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibMath/BaseFunction.h"
-
 #include "MultilayerRtDifference.h"
-
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include "sstream"
 #include "TF1.h"
 #include "TProfile.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
 using namespace MuonCalib;
-using namespace std;
 
 inline Double_t RtCalibrationCurved_polfun(Double_t *x, Double_t *par) {
   return par[0] * RtScalePolynomial(x[0]);
@@ -333,9 +319,10 @@ const IMdtCalibrationOutput * RtCalibrationCurved::analyseSegments(const std::ve
       handleSegment(*seg[k]);
     }
     if(!analyse(seg)) {
+      MsgStream log(Athena::getMessageSvc(), "RtCalibrationCurved");
+      log<<MSG::WARNING<< "analyseSegments() - analyse failed, segments:"<<endmsg;
       for(unsigned int i=0; i<seg.size(); i++) {
-	std::cout << i << " " << seg[i]->direction() <<" "
-		  << seg[i]->position() << std::endl;
+        log<<MSG::WARNING<<i<<" "<<seg[i]->direction()<<" "<<seg[i]->position()<<endmsg;
       }
       return NULL;
     }
@@ -427,8 +414,8 @@ const IMdtCalibrationOutput * RtCalibrationCurved::analyseSegments(const std::ve
 
  // break, do no smoothing if there are not enough segments //
     if (counter<1000) {
-      cerr << "Class RtCalibrationCurved, no smoothing applied due to "
-	   << "too small number of reconstructed segments!\n";
+      MsgStream log(Athena::getMessageSvc(), "RtCalibrationCurved");
+      log<<MSG::WARNING<< "analyseSegments() - too small number of reconstructed segments!"<<endmsg;
       // final residuals //
       double r, d;
       for (unsigned int k=0; k<seg.size(); k++) {
@@ -537,14 +524,14 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
   // hit selection vectors for refits
   unsigned int nb_hits_in_ml; // number of hits in the multilayers
   double x; // reduced time = (r(t)-0.5*m_r_max)/(0.5*m_r_max)
-  vector<double> d_track; // signed distances of the track from the anode 
+  std::vector<double> d_track; // signed distances of the track from the anode 
   // wires of the tubes
-  vector<MTStraightLine> w; // anode wires
+  std::vector<MTStraightLine> w; // anode wires
   Amg::Vector3D null(0.0, 0.0, 0.0); // auxiliary 0 vector
   Amg::Vector3D xhat(1.0, 0.0, 0.0); // auxiliary unit vector
   
 // objects needed to calculate the autocalibration matrix and vector //
-  vector<CLHEP::HepVector> F; // auxiliary vectors for the calculation of the
+  std::vector<CLHEP::HepVector> F; // auxiliary vectors for the calculation of the
   // track cooeffients matrix
   CLHEP::HepVector residual_value; // residuals values
   CLHEP::HepVector weighted_residual; // residual values weighted by the inverse
@@ -555,9 +542,6 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
 ///////////////////////////////////////
 // PREPARATION FOR THE SEGMENT REFIT //
 ///////////////////////////////////////
-
-// debug display //
-// 	display_segment(&seg, display);
 
 // overwrite the drift radii according to the input r-t relationship, //
 // calculate the average spatial resolution to define a road width,   //
@@ -574,7 +558,6 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
     }
     
    // overwrite radius //
-    //   		std::cout<<"XXxxXX "<<m_rt->GetTmaxDiff()<<std::endl;
     seg.mdtHOT()[k]->setDriftRadius(m_rt->radius(
 						 seg.mdtHOT()[k]->driftTime()),
 				    aux_res);
@@ -655,14 +638,10 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
   m_chi2 = m_chi2+m_tracker->chi2PerDegreesOfFreedom();
   m_nb_segments_used = m_nb_segments_used+1;
 
-// debug display //
-// 	display_segment(&seg, display);
-// 	display << "MESSAGE CONTINUE\n";
-
 // fill the autocalibration objects //
     
   // track coeffient matrix and its inverse //
-  F = vector<CLHEP::HepVector>(m_tracker->numberOfTrackHits());
+  F = std::vector<CLHEP::HepVector>(m_tracker->numberOfTrackHits());
   for (unsigned int h=0; h<m_tracker->numberOfTrackHits(); h++) {     
     const MdtCalibHitBase &hb=*(m_tracker->trackHits()[h]);
     m_multilayer_rt_difference->Fill(hb, *m_rt);
@@ -690,17 +669,15 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
   int ifail;
   m_M_track_inverse = m_M_track.inverse(ifail);
   if (ifail!=0) {
-    cerr << endl
-	 << "Class RtCalibrationCurved, method handleSegment: WARNING!"
-	 << endl
-	 << "Could not invert track matrix!\n";
+    MsgStream log(Athena::getMessageSvc(), "RtCalibrationCurved");
+    log<<MSG::WARNING<< "handleSegment() - Could not invert track matrix!"<<endmsg;
     return true;
   }
 
 // Jacobian matrix for the residuals //
    // track distances, residuals, corrections //
-  d_track = vector<double>(m_tracker->numberOfTrackHits());
-  w = vector<MTStraightLine>(m_tracker->numberOfTrackHits());
+  d_track = std::vector<double>(m_tracker->numberOfTrackHits());
+  w = std::vector<MTStraightLine>(m_tracker->numberOfTrackHits());
   residual_value = CLHEP::HepVector(m_tracker->numberOfTrackHits());
   weighted_residual = CLHEP::HepVector(m_tracker->numberOfTrackHits());
   for (unsigned int l=0; l<m_order; l++) {
@@ -724,55 +701,6 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
     }
   }
 
-// test track matrix //
-//     static ofstream outfile("tmp.txt");
-//     CLHEP::HepVector my_b(3);
-//     for (int p=0; p<my_b.num_row(); p++) {
-//         my_b[p] = 0.0;
-//         for (unsigned int h=0; h<m_tracker->numberOfTrackHits(); h++) {
-// //             my_b[p] = my_b[p]+m_Legendre->value(p, (m_tracker->trackHits(
-// //                                             )[h]->localPosition()).z())*
-// //                      (
-// //                       +(2*d_track[h]>=0-1)*m_tracker->trackHits()[h]->driftRadius()
-// //                       +(m_tracker->trackHits()[h]->localPosition()).y()
-// //                        /sqrt(1.0+std::pow((track.getTangent(
-// //                                        (m_tracker->trackHits(
-// //                                        )[h]->localPosition()).z())).a_x2(), 2))
-// //                      )
-// //                      /(
-// //                        (m_tracker->trackHits()[h])->sigma2DriftRadius()
-// //                        *sqrt(1.0+std::pow((track.getTangent(
-// //                                        (m_tracker->trackHits(
-// //                                        )[h]->localPosition()).z())).a_x2(), 2))
-// //                        );
-//             my_b[p] = my_b[p]+((m_tracker->trackHits()[h]->localPosition()).y()
-//                             +(2*(d_track[h]>=0)-1)
-//                              *sqrt(1.0+std::pow((track.getTangent(
-//                                        (m_tracker->trackHits(
-//                                        )[h]->localPosition()).z())).a_x2() ,2))
-//                              *m_tracker->trackHits()[h]->driftRadius())
-//                              *m_Legendre->value(p, (m_tracker->trackHits(
-//                                             )[h]->localPosition()).z())
-//                              /((m_tracker->trackHits()[h])->sigma2DriftRadius()
-//                                 *(1.0+std::pow((track.getTangent(
-//                                        (m_tracker->trackHits(
-//                                        )[h]->localPosition()).z())).a_x2() ,2)));
-//         }
-//     }
-//     CLHEP::HepVector my_alpha(3);
-//     my_alpha = m_M_track_inverse*my_b;
-//     for (unsigned int h=0; h<m_tracker->numberOfTrackHits(); h++) {
-//         double ypos(0.0);
-//         for (unsigned int p=0; p<3; p++) {
-//             ypos = ypos+my_alpha[p]*m_Legendre->value(p, (m_tracker->trackHits(
-//                                             )[h]->localPosition()).z());
-//         }
-//         outfile << (m_tracker->trackHits()[h]->localPosition()).z() << "\t"
-//                     << m_tracker->curvedTrack().getPointOnLine(
-//                         (m_tracker->trackHits()[h]->localPosition()).z()).y()
-//                     << "\t" << ypos << endl;
-//     }
-
    // Jacobian //
   D = CLHEP::HepMatrix(m_tracker->numberOfTrackHits(), m_tracker->numberOfTrackHits());
   for (unsigned int h=0; h<m_tracker->numberOfTrackHits(); h++) {
@@ -785,7 +713,7 @@ bool RtCalibrationCurved::handleSegment(MuonCalibSegment & seg) {
 
 // autocalibration objects //
   // errors of the residuals //
-  vector<double> sigma_residual(m_tracker->numberOfTrackHits(), 0.0);
+  std::vector<double> sigma_residual(m_tracker->numberOfTrackHits(), 0.0);
   for (unsigned int h=0; h<m_tracker->numberOfTrackHits(); h++) {
     for (unsigned int hp=0; hp<m_tracker->numberOfTrackHits(); hp++) {
       sigma_residual[h] = sigma_residual[h]+std::pow(D[h][hp]*(m_tracker->trackHits()[hp])->sigmaDriftRadius(), 2);
@@ -854,11 +782,7 @@ void RtCalibrationCurved::setInput(const IMdtCalibrationOutput * rt_input) {
 // CHECK IF THE OUTPUT CLASS IS SUPPORTED //
 ////////////////////////////////////////////
   if (input==0) {
-    cerr << endl
-	 << "Class RtCalibrationCurved, "
-	 << "method setInput: ERROR!\n" 
-	 << "Calibration input class not supported.\n";
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationCurved::setInput - Calibration input class not supported.", __FILE__, __LINE__));
   }
 
 /////////////////////////////////////////////////////////////////
@@ -881,11 +805,7 @@ void RtCalibrationCurved::setInput(const IMdtCalibrationOutput * rt_input) {
   const RtRelationLookUp *rt_LookUp(dynamic_cast<const RtRelationLookUp *>(m_rt));
 
   if (rt_Chebyshev==0 && rt_LookUp==0) {
-    cerr << endl
-	 << "Class RtCalibrationCurved, "
-	 << "method setInput: ERROR!\n" 
-	 << "r-t class not supported.\n";
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationCurved::setInput - r-t class not supported.", __FILE__, __LINE__));
   }
 
    // RtChebyshev //
@@ -914,13 +834,12 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment*> & seg) {
 // VARIABLES //
 ///////////////
   int ifail; // flag indicating a failure of the matrix inversion
-  unsigned int nb_points(30); // number of points used to set the new
-	                            // r-t relationship
+  unsigned int nb_points(30); // number of points used to set the new r-t relationship
   double step; // r step size
   const RtChebyshev *rt_Chebyshev(dynamic_cast<const RtChebyshev *>(m_rt));
   const RtRelationLookUp *rt_LookUp(dynamic_cast<const RtRelationLookUp *>(m_rt));
   double r_corr; // radial correction
-  vector<double> rt_param(m_rt->nPar()); // parameters for the new r-t
+  std::vector<double> rt_param(m_rt->nPar()); // parameters for the new r-t
   double x; // reduced time
   RtFromPoints rt_from_points; // r-t from points
 
@@ -930,11 +849,8 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment*> & seg) {
 
   m_alpha = m_A.inverse(ifail)*m_b;
   if (ifail!=0) {
-    cerr << endl
-	 << "Class RtCalibrationCurved, method analyse: ERROR!"
-	 << endl
-	 << "Could not solve the autocalibration equation!"
-	 << endl;
+    MsgStream log(Athena::getMessageSvc(), "RtCalibrationCurved");
+    log<<MSG::WARNING<< "analyse() - Could not solve the autocalibration equation!"<<endmsg;
     return false;
   }
 
@@ -954,7 +870,7 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment*> & seg) {
     step = m_r_max/static_cast<double>(nb_points);
 
     // sample points and Chebyshev fitter //
-    vector<SamplePoint> x_r(nb_points+1);
+    std::vector<SamplePoint> x_r(nb_points+1);
     BaseFunctionFitter fitter(rt_Chebyshev->numberOfRtParameters());
     ChebyshevPolynomial chebyshev;
     
@@ -1008,48 +924,6 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment*> & seg) {
     m_rt_new = new RtChebyshev(rt_param);
     m_rt_new->SetTmaxDiff(m_rt->GetTmaxDiff());
 
-    // parabolic extrapolation //
-		/*
-       if (m_do_parabolic_extrapolation) {
-	    RtRelationLookUp tmprt(performParabolicExtrapolation(false, true,
-                                                                *m_rt_new));
-//         vector<SamplePoint> add_fit_point;
-//         if (m_fix_min) {
-//             add_fit_point.push_back(
-//                                 SamplePoint(m_rt_new->tLower(), 0.0, 1.0));
-//         }
-//         RtRelationLookUp tmp_rt(rt_extrapolator.getRtWithParabolicExtrapolation(
-//                                 *m_rt_new,
-//                                 m_rt_new->radius(m_rt_new->tLower())+1.0,
-//                                 m_rt_new->radius(m_rt_new->tLower())+3.0,
-//                                 m_rt_new->radius(m_rt_new->tLower()),
-//                                 add_fit_point));
-//         add_fit_point.clear();
-//         if (m_fix_max) {
-//             add_fit_point.push_back(
-//                                 SamplePoint(m_rt_new->tUpper(), m_r_max, 1.0));
-//         }
-//         RtRelationLookUp tmprt(rt_extrapolator.getRtWithParabolicExtrapolation(
-//                                 tmp_rt,
-//                                 m_rt_new->radius(m_rt_new->tUpper())-1.0,
-//                                 m_rt_new->radius(m_rt_new->tUpper())-3.0,
-//                                 m_rt_new->radius(m_rt_new->tUpper()),
-//                                 add_fit_point));
-
-        if (m_rt_new!=0) {
-			delete m_rt_new;
-		}
-
-		vector<SamplePoint> t_r(nb_points+1);
-		for (unsigned int k=0; k<nb_points+1; k++) {
-			t_r[k].set_x1(t_from_r(k*step));
-			t_r[k].set_x2(tmprt.radius(k*step));
-			t_r[k].set_error(1.0);
-        }
-        m_rt_new = new RtChebyshev(rt_from_points.getRtChebyshev(t_r,
-                                        rt_Chebyshev->numberOfRtParameters()));
-       }
-*/
   }
 
 // input-rt is of type RtRelationLookUp //
@@ -1083,46 +957,6 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment*> & seg) {
     }
     m_rt_new = new RtRelationLookUp(rt_param);
     m_rt_new->SetTmaxDiff(m_rt->GetTmaxDiff());
-    // parabolic extrapolation //
-/*
-       if (m_do_parabolic_extrapolation) {
-	    RtRelationLookUp tmprt(performParabolicExtrapolation(false, true,
-                                                                *m_rt_new));
-// 	    vector<SamplePoint> add_fit_point;
-// //         if (m_fix_min) {
-// //             add_fit_point.push_back(
-// //                                 SamplePoint(m_rt_new->tLower(), 0.0, 1.0));
-// //         }
-// // //         RtRelationLookUp tmp_rt(rt_extrapolator.getRtWithParabolicExtrapolation(
-// // //                                 *m_rt_new,
-// // //                                 m_rt_new->radius(m_rt_new->tLower())+1.0,
-// // //                                 m_rt_new->radius(m_rt_new->tLower())+3.0,
-// // //                                 m_rt_new->radius(m_rt_new->tLower()),
-// // //                                 add_fit_point));
-// //         RtRelationLookUp tmp_rt(rt_extrapolator.getRtWithParabolicExtrapolation(
-// //                                 *m_rt_new,
-// //                                 1.2,
-// //                                 3.0,
-// //                                 0.0,
-// //                                 add_fit_point));
-// //         add_fit_point.clear();
-//         if (m_fix_max) {
-//             add_fit_point.push_back(
-//                                 SamplePoint(m_rt_new->tUpper(), m_r_max, 1.0));
-//         }
-//         RtRelationLookUp tmprt(rt_extrapolator.getRtWithParabolicExtrapolation(
-//                                 *m_rt_new,
-//                                 m_r_max-1.0,
-//                                 m_r_max-3.0,
-//                                 m_r_max,
-//                                 add_fit_point));
-
-        if (m_rt_new!=0) {
-			delete m_rt_new;
-		}
-        m_rt_new = new RtRelationLookUp(tmprt);
-       }
-*/
   }
 
 /////////////////////////////////////////////////////////
@@ -1173,7 +1007,6 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment*> & seg) {
   if(m_iteration>0 && m_do_multilayer_rt_scale) {
     m_multilayer_rt_difference->DoFit(m_rt_new, &seg);
   } else {
-    //		std::cout<<"No update in first iteration!"<<std::endl;
     m_multilayer_rt_difference->DoFit();
   }
 		
@@ -1256,10 +1089,7 @@ void RtCalibrationCurved::init(const double & rt_accuracy,
   m_tracker = new CurvedPatRec;
 
   if (m_order==0) {
-    cerr << "\n"
-	 << "Class RtCalibrationCurved, method init: ERROR!"
-	 << "\nOrder of the correction polynomial must be >0!\n";
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationCurved::init - Order of the correction polynomial must be >0!", __FILE__, __LINE__));
   }
 	
   m_t_length = 1000.0;
@@ -1270,8 +1100,8 @@ void RtCalibrationCurved::init(const double & rt_accuracy,
   m_rt_new = 0;
   m_output = 0;
 
-  m_U = vector<CLHEP::HepVector>(m_order);
-  m_U_weighted = vector<CLHEP::HepVector>(m_order);
+  m_U = std::vector<CLHEP::HepVector>(m_order);
+  m_U_weighted = std::vector<CLHEP::HepVector>(m_order);
   m_A = CLHEP::HepSymMatrix(m_order, 0);
   m_b = CLHEP::HepVector(m_order, 0);
   m_alpha = CLHEP::HepVector(m_order, 0);
@@ -1279,11 +1109,7 @@ void RtCalibrationCurved::init(const double & rt_accuracy,
 // correction function
   if (func_type<1 || func_type>3) {
     m_base_function = 0;
-    cerr << "\n"
-	 << "Class RtCalibrationCurved, method init: "
-	 << "ERROR!\n"
-	 << "Illegal correction function type!\n";
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationCurved::init - Illegal correction function type!", __FILE__, __LINE__));
   }
   switch(func_type) {
   case 1:
@@ -1294,15 +1120,9 @@ void RtCalibrationCurved::init(const double & rt_accuracy,
     break;
   case 3:
     if (m_order<2) {
-      cerr << "\n"
-	   << "Class RtCalibrationCurved, "
-	   << "method init: ERROR!\n"
-	   << "Order must be >2 for polygons! "
-	   << "It is set to " << m_order
-	   << "by the user.\n";
-      exit(1);
+      throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationCurved::init - Order must be >2 for polygons! It is set to %i by the user.", __FILE__, __LINE__, m_order));
     }
-    vector<double> x(m_order);
+    std::vector<double> x(m_order);
     double bin_width=2.0/static_cast<double>(m_order-1);
     for (unsigned int k=0; k<m_order; k++) {
       x[k] = -1+k*bin_width;
@@ -1501,7 +1321,7 @@ RtRelationLookUp * RtCalibrationCurved::performParabolicExtrapolation(
 ///////////////
   RtParabolicExtrapolation rt_extrapolator; // r-t extrapolator
   RtRelationLookUp *rt_low(0), *rt_high(0); // pointers to the r-t relationships after extrapolation
-  vector<SamplePoint> add_fit_point;        // additional r-t points used if r(0) or r(t_max) is fixed.
+  std::vector<SamplePoint> add_fit_point;        // additional r-t points used if r(0) or r(t_max) is fixed.
 
 ////////////////////////////////
 // EXTRAPOLATE TO LARGE RADII //

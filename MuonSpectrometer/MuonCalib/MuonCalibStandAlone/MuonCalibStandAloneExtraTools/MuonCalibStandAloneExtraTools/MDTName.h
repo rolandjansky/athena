@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Author: Marco Vanadia vanadiam@roma1.infn.it*/
@@ -12,8 +12,6 @@
 #include <sstream>
 #include <stdlib.h>
 #include "TString.h"
-
-//using namespace std;
 
 namespace MuonCalib{
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -24,12 +24,6 @@
 //                                     is now done after convergence/smoothing
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-#include "cmath"
-
 #include "MdtCalibRt/RtCalibrationAnalytic.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "MdtCalibRt/RtCalibrationOutput.h" 
@@ -42,28 +36,21 @@
 #include "MdtCalibRt/AdaptiveResidualSmoothing.h"
 #include "MdtCalibRt/RtParabolicExtrapolation.h"
 #include "MdtCalibData/RtFromPoints.h"
-
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/RtRelationLookUp.h"
 #include "MdtCalibRt/RtCalibrationOutput.h"
 #include "MdtCalibInterfaces/IMdtCalibrationOutput.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibMath/BaseFunction.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
-
-//root
+#include <TString.h> // for Form
 #include "TGraphErrors.h"
-
-//std
 #include "sstream"
 #include "cmath"
 
-//:::::::::::::::::::::::
-//:: NAMESPACE SETTING ::
-//:::::::::::::::::::::::
-
 using namespace MuonCalib;
-using namespace std;
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS RtCalibrationAnalytic ::
@@ -71,9 +58,7 @@ using namespace std;
 
 //*****************************************************************************
 
-
-
-RtCalibrationAnalytic :: RtCalibrationAnalytic(std::string name,
+RtCalibrationAnalytic::RtCalibrationAnalytic(std::string name,
 		const double & rt_accuracy,
 		const unsigned int & func_type,
 		const unsigned int & ord,
@@ -88,7 +73,7 @@ RtCalibrationAnalytic :: RtCalibrationAnalytic(std::string name,
 			fix_min, fix_max, max_it, do_smoothing, do_parabolic_extrapolation);
 	        }
 
-RtCalibrationAnalytic :: ~RtCalibrationAnalytic(void) {
+RtCalibrationAnalytic::~RtCalibrationAnalytic(void) {
   if (m_base_function!=0) {
     delete m_base_function;
   }
@@ -139,10 +124,7 @@ void RtCalibrationAnalytic::init(const double & rt_accuracy,
   m_max_it = abs(max_it);
 
   if (m_order==0) {
-    cerr << "\n"
-	 << "Class RtCalibrationAnalytic, method init: ERROR!"
-	 << "\nOrder of the correction polynomial must be >0!\n";
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationAnalytic::init - Order of the correction polynomial must be >0!", __FILE__, __LINE__));
   }
   
   m_t_length = 1000.0;
@@ -153,7 +135,7 @@ void RtCalibrationAnalytic::init(const double & rt_accuracy,
   m_rt_new = 0;
   m_output = 0;
 
-  m_U = vector<CLHEP::HepVector>(m_order);
+  m_U = std::vector<CLHEP::HepVector>(m_order);
   m_A = CLHEP::HepSymMatrix(m_order, 0);
   m_b = CLHEP::HepVector(m_order, 0);
   m_alpha = CLHEP::HepVector(m_order, 0);
@@ -161,11 +143,7 @@ void RtCalibrationAnalytic::init(const double & rt_accuracy,
 // correction function
   if (func_type<1 || func_type>3) {
     m_base_function = 0;
-    cerr << "\n"
-	 << "Class RtCalibrationAnalytic, method init: "
-	 << "ERROR!\n"
-	 << "Illegal correction function type!\n";
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationAnalytic::init - Illegal correction function type!", __FILE__, __LINE__));
   }
   switch(func_type) {
   case 1:
@@ -175,16 +153,10 @@ void RtCalibrationAnalytic::init(const double & rt_accuracy,
     m_base_function = new ChebyshevPolynomial;
     break;
   case 3:
-    if (m_order<2) {
-      cerr << "\n"
-	   << "Class RtCalibrationAnalytic, "
-	   << "method init: ERROR!\n"
-	   << "Order must be >2 for polygons! "
-	   << "It is set to " << m_order
-	   << "by the user.\n";
-      exit(1);
+    if (m_order<2) {\
+      throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationAnalytic::init - Order must be >2 for polygons! It is set to %i by the user.", __FILE__, __LINE__, m_order));
     }
-    vector<double> x(m_order);
+    std::vector<double> x(m_order);
     double bin_width=2.0/static_cast<double>(m_order-1);
     for (unsigned int k=0; k<m_order; k++) {
       x[k] = -1+k*bin_width;
@@ -242,7 +214,7 @@ double RtCalibrationAnalytic::t_from_r(const double & r) {
 ////////////////////////////
 // METHOD display_segment //
 ////////////////////////////
-void RtCalibrationAnalytic::display_segment(MuonCalibSegment * segment,	ofstream & outfile) {
+void RtCalibrationAnalytic::display_segment(MuonCalibSegment* segment, std::ofstream& outfile) {
 
 ///////////////
 // VARIABLES //
@@ -428,7 +400,7 @@ bool RtCalibrationAnalytic::smoothing(void) const {
 //:::::::::::::::::::::::::::::::::::::::::
 //:: METHOD switch_on_control_histograms ::
 //:::::::::::::::::::::::::::::::::::::::::
-void RtCalibrationAnalytic::switch_on_control_histograms(const string & file_name) {
+void RtCalibrationAnalytic::switch_on_control_histograms(const std::string& file_name) {
 
 /////////////////////////////////////////////
 // CREATE THE ROOT FILE AND THE HISTOGRAMS //
@@ -581,8 +553,10 @@ const IMdtCalibrationOutput * RtCalibrationAnalytic::analyseSegments(
       handleSegment(*seg[k]);
     }
     if(!analyse()) {
+      MsgStream log(Athena::getMessageSvc(), "RtCalibrationAnalytic");
+      log<<MSG::WARNING<< "analyseSegments() - analyse failed, segments:"<<endmsg;
       for(unsigned int i=0; i<seg.size(); i++) {
-	std::cout<<i<<" "<<seg[i]->direction()<<" "<<seg[i]->position()<<std::endl;
+        log<<MSG::WARNING<<i<<" "<<seg[i]->direction()<<" "<<seg[i]->position()<<endmsg;
       }
       if(conv_rt) delete conv_rt;
       return NULL;
@@ -595,7 +569,7 @@ const IMdtCalibrationOutput * RtCalibrationAnalytic::analyseSegments(
     }
     tmp_rt = rtOut->rt();
 
-    vector<double> params;
+    std::vector<double> params;
     params.push_back(tmp_rt->tLower());
     params.push_back(0.01*(tmp_rt->tUpper()-tmp_rt->tLower()));
     for (double t=tmp_rt->tLower(); t<=tmp_rt->tUpper(); t=t+params[1]) {
@@ -681,39 +655,10 @@ const IMdtCalibrationOutput * RtCalibrationAnalytic::analyseSegments(
 
  // break, do no smoothing if there are not enough segments //
     if (counter<1000) {
-      cerr << "Class RtCalibrationAnalytic, no smoothing applied due to "
-	   << "too small number of reconstructed segments!\n";
+      MsgStream log(Athena::getMessageSvc(), "RtCalibrationAnalytic");
+      log<<MSG::WARNING<< "analyseSegments() - no smoothing applied due to too small number of reconstructed segments"<<endmsg;
       return getResults();
     }
-
-//  // break, do no smoothing if there are not enough segments //
-// 	if (counter<250) {
-// 		cerr << "Class RtCalibrationAnalytic, no smoothing applied due to "
-// 		     << "too small number of reconstructed segments!\n";
-// 		return getResults();
-// 	}
-// 
-//  // set bin content for residual bins //
-// 	unsigned int bin_content(100);
-// 	if (counter<500) {
-// 		bin_content = 50;
-// 	}
-// 	if (counter>3000) {
-// 		bin_content = 200;
-// 	}
-// 	if (counter>6000) {
-// 		bin_content = 400;
-// 	}
-// 	if (counter>12000) {
-// 		bin_content = 800;
-// 	}
-// 	if (counter>24000) {
-// 		bin_content = seg.size()/60;
-// 	}
-// 
-//   // smoothing //
-// 	RtRelationLookUp smooth_rt(smoothing.performSmoothing(*tmp_rt, bin_content,
-// 													m_fix_min, m_fix_max));
 
   // smoothing //
     RtRelationLookUp smooth_rt(smoothing.performSmoothing(*tmp_rt,
@@ -731,38 +676,14 @@ const IMdtCalibrationOutput * RtCalibrationAnalytic::analyseSegments(
     it++;
 
   // delete tmp_rt and update it //
-// 	if (it>1) {
-// 		delete tmp_rt;
-// 	}
     delete tmp_rt;
     tmp_rt = new RtRelationLookUp(smooth_rt);
-// 	cout << "1: " << tmp_rt << endl;
 
 //---------------------------------------------------------------------------//
   }
 //---------------------------------------------------------------------------//
 //---------------------------------------------------------------------------//
 
-// // r-t format conversion //
-// 	vector<double> rt_params;
-// 	rt_params.push_back(tmp_rt->tLower());
-// 	rt_params.push_back(0.01*(tmp_rt->tUpper()-tmp_rt->tLower()));
-// 	for (double t=tmp_rt->tLower(); t<=tmp_rt->tUpper(); t=t+rt_params[1]) {
-// 		rt_params.push_back(tmp_rt->radius(t));
-// 	}
-// 	RtRelationLookUp *improved_rt = new RtRelationLookUp(rt_params);
-
-// 	ofstream out1("out1.txt");
-// 	for (double t=conv_rt->tLower(); t<=conv_rt->tUpper(); t=t+5.0) {
-// 		out1 << t << "\t" << tmp_rt->radius(t) << "\t"
-// 			 << conv_rt->radius(t)
-// 			 << endl;
-// 	}
-
-// 
-// // 	m_output = new RtCalibrationOutput(smooth_rt, 
-// // 				new RtFullInfo("RtCalibrationAnalytic", m_iteration,
-// // 				m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
   delete m_output;
   m_output = new RtCalibrationOutput(tmp_rt, 
     new RtFullInfo("RtCalibrationAnalytic", m_iteration, m_nb_segments_used, 0.0, 0.0, 0.0, 0.0));
@@ -816,15 +737,15 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
   unsigned int nb_hits_in_ml[2]; // number of hits in the multilayers
   double x; // reduced time = (r(t)-0.5*m_r_max)/(0.5*m_r_max)
   MTStraightLine track; // refitted straight line
-  vector<double> d_track; // signed distances of the track from the anode wires of the tubes
-  vector<double> residual_value; // residuals
-  vector<MTStraightLine> w; // anode wires
+  std::vector<double> d_track; // signed distances of the track from the anode wires of the tubes
+  std::vector<double> residual_value; // residuals
+  std::vector<MTStraightLine> w; // anode wires
   Amg::Vector3D null(0.0, 0.0, 0.0); // auxiliary 0 vector
   Amg::Vector3D xhat(1.0, 0.0, 0.0); // auxiliary unit vector
 
 // objects needed to calculate the autocalibration matrix and vector //
   CLHEP::HepVector G; // vector used in the calculation of the autocalibration matrix
-  vector<double> zeta; // vector used in the calculation of G
+  std::vector<double> zeta; // vector used in the calculation of G
 
 ///////////////////////////////////////
 // PREPARATION FOR THE SEGMENT REFIT //
@@ -952,18 +873,14 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
     m_chi2 = m_chi2+m_tracker.chi2PerDegreesOfFreedom();
     m_nb_segments_used = m_nb_segments_used+1;
 
-// debug display //
-// 	display_segment(&seg, display);
-// 	display << "MESSAGE CONTINUE\n";
-
 // fill the autocalibration objects //
    // auxiliary variables //
     track = m_tracker.track(); // refitted track
-    d_track = vector<double>(m_tracker.numberOfTrackHits());
-    residual_value = vector<double>(m_tracker.numberOfTrackHits());
-    w = vector<MTStraightLine>(m_tracker.numberOfTrackHits());
+    d_track = std::vector<double>(m_tracker.numberOfTrackHits());
+    residual_value = std::vector<double>(m_tracker.numberOfTrackHits());
+    w = std::vector<MTStraightLine>(m_tracker.numberOfTrackHits());
     G = CLHEP::HepVector(m_tracker.numberOfTrackHits());
-    zeta = vector<double>(m_tracker.numberOfTrackHits());
+    zeta = std::vector<double>(m_tracker.numberOfTrackHits());
     
    // base function values //
     for (unsigned int l=0; l<m_order; l++) {
@@ -1051,11 +968,7 @@ void RtCalibrationAnalytic::setInput(const IMdtCalibrationOutput * rt_input) {
 // CHECK IF THE OUTPUT CLASS IS SUPPORTED //
 ////////////////////////////////////////////
   if (input==0) {
-    cerr << endl
-	 << "Class RtCalibrationAnalytic, "
-	 << "method setInput: ERROR!\n" 
-	 << "Calibration input class not supported.\n";
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationAnalytic::setInput - Calibration input class not supported.", __FILE__, __LINE__));
   }
 
 /////////////////////////////////////////////////////////////////
@@ -1079,11 +992,7 @@ void RtCalibrationAnalytic::setInput(const IMdtCalibrationOutput * rt_input) {
   const RtRelationLookUp *rt_LookUp(dynamic_cast<const RtRelationLookUp *>(m_rt));
 
   if (rt_Chebyshev==0 && rt_LookUp==0) {
-    cerr << endl
-	 << "Class RtCalibrationAnalytic, "
-	 << "method setInput: ERROR!\n" 
-	 << "r-t class not supported.\n";
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationAnalytic::setInput - r-t class not supported.", __FILE__, __LINE__));
   }
 
   // RtChebyshev //
@@ -1119,7 +1028,7 @@ bool RtCalibrationAnalytic::analyse(void) {
   const RtChebyshev *rt_Chebyshev(dynamic_cast<const RtChebyshev *>(m_rt));
   const RtRelationLookUp *rt_LookUp(dynamic_cast<const RtRelationLookUp *>(m_rt));
   double r_corr; // radial correction
-  vector<double> rt_param(m_rt->nPar()); // parameters for the new r-t
+  std::vector<double> rt_param(m_rt->nPar()); // parameters for the new r-t
   double x; // reduced time
   RtParabolicExtrapolation rt_extrapolator; // r-t extrapolator
   RtFromPoints rt_from_points; // r-t from points
@@ -1129,11 +1038,8 @@ bool RtCalibrationAnalytic::analyse(void) {
 ////////////////////////////////////////
   m_alpha = m_A.inverse(ifail)*m_b;
   if (ifail!=0) {
-    cerr << endl
-	 << "Class RtCalibrationAnalytic, method analyse: ERROR!"
-	 << endl
-	 << "Could not solve the autocalibration equation!"
-	 << endl;
+    MsgStream log(Athena::getMessageSvc(), "RtCalibrationAnalytic");
+    log<<MSG::WARNING<< "analyse() - Could not solve the autocalibration equation!"<<endmsg;
     return false;
   }
 
@@ -1155,7 +1061,7 @@ bool RtCalibrationAnalytic::analyse(void) {
     step = m_r_max/static_cast<double>(nb_points);
 
 	// sample points and Chebyshev fitter //
-    vector<SamplePoint> x_r(nb_points+1);
+    std::vector<SamplePoint> x_r(nb_points+1);
     BaseFunctionFitter fitter(rt_Chebyshev->numberOfRtParameters());
     ChebyshevPolynomial chebyshev;
 
@@ -1214,24 +1120,6 @@ bool RtCalibrationAnalytic::analyse(void) {
       delete m_rt_new;
     }
     m_rt_new = new RtChebyshev(rt_param);
-
-    // parabolic extrapolation // commented, as extr. to end-point is done after convergence
-/*       if (m_do_parabolic_extrapolation) {
-	    RtRelationLookUp tmprt(performParabolicExtrapolation(false, true,
-                                                                *m_rt_new));
-        if (m_rt_new!=0) {
-			delete m_rt_new;
-		}
-
-		vector<SamplePoint> t_r(nb_points+1);
-		for (unsigned int k=0; k<nb_points+1; k++) {
-			t_r[k].set_x1(t_from_r(k*step));
-			t_r[k].set_x2(tmprt.radius(k*step));
-			t_r[k].set_error(1.0);
-        }
-        m_rt_new = new RtChebyshev(rt_from_points.getRtChebyshev(t_r,
-                                        rt_Chebyshev->numberOfRtParameters()));
-       }*/
 }
 
 // input-rt is of type RtRelationLookUp //
@@ -1275,16 +1163,6 @@ bool RtCalibrationAnalytic::analyse(void) {
     }
     m_r_max = m_rt_new->radius(m_rt_new->tUpper());
 
-    // parabolic extrapolation //
-//       if (m_do_parabolic_extrapolation) {
-//	    RtRelationLookUp tmprt(performParabolicExtrapolation(false, true,
-//                                                              *m_rt_new));
-//        if (m_rt_new!=0) {
-//			delete m_rt_new;
-//		}
-//       m_rt_new = new RtRelationLookUp(tmprt);
-//       }
-//
   }
 
 /////////////////////////////////////////////////////////
@@ -1293,7 +1171,6 @@ bool RtCalibrationAnalytic::analyse(void) {
 
 // estimate r-t accuracy //
   m_rt_accuracy = 0.0;
-  // double m_rt_accuracy_diff = 0.0; 
   double r_corr_max =0.0;
 	
   for (unsigned int k=0; k<100; k++) {
@@ -1308,18 +1185,11 @@ bool RtCalibrationAnalytic::analyse(void) {
     m_rt_accuracy = m_rt_accuracy+r_corr*r_corr;
   }
   m_rt_accuracy = sqrt(0.01*m_rt_accuracy);
-  // m_rt_accuracy_diff = m_rt_accuracy_previous - m_rt_accuracy;
   m_rt_accuracy_previous = m_rt_accuracy;
 	
 // convergence? //
 
   m_chi2 = m_chi2/static_cast<double>(m_nb_segments_used);
-  //	cout << "------------------ ITERATION: "<< m_iteration <<" ---------------------- " << endl;
-  //	cout << " CHI2:\t" << m_chi2 <<endl;
-  //	cout << " CORDUNC.DIFF:\t" << fabs(m_rt_accuracy_diff) << endl;
-  //	cout << " Accuracy Guess:\t" << fabs(m_rt_accuracy) << endl;
-  //	if ((m_chi2<=m_chi2_previous || fabs(m_rt_accuracy_diff)>0.001) &&
-  //							m_iteration<m_max_it) {
   if ( ((m_chi2<m_chi2_previous && fabs(m_chi2-m_chi2_previous)>0.01) || fabs(m_rt_accuracy)>0.001) 
        &&	m_iteration<m_max_it) {
     m_status = 0; // no convergence yet
@@ -1388,7 +1258,7 @@ RtRelationLookUp * RtCalibrationAnalytic::performParabolicExtrapolation(
   RtRelationLookUp *rt_low(0), *rt_high(0); // pointers to the r-t
                                             // relationships after
                                             // extrapolation
-  vector<SamplePoint> add_fit_point; // additional r-t points used if r(0) or
+  std::vector<SamplePoint> add_fit_point; // additional r-t points used if r(0) or
                                      // r(t_max) is fixed.
 
 ////////////////////////////////

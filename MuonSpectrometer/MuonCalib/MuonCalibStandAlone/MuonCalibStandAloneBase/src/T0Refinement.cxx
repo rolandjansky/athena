@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -15,30 +15,15 @@
 //                                     only 3 last points are used for t0-fit.
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//:::::::::::::::::::::::::::::::::::::::::::::::
-//:: METHODS DEFINED IN THE CLASS T0Refinement ::
-//:::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// standard C++ //
 #include <iostream>
 #include <fstream>
 
-// MuonCalib //
 #include "MuonCalibStandAloneBase/T0Refinement.h"
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibMath/SimplePolynomial.h"
 #include "MuonCalibMath/BaseFunctionFitter.h"
 #include "MdtCalibInterfaces/IMdtSegmentFitter.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
 
 //*****************************************************************************
@@ -90,7 +75,7 @@ double T0Refinement::getDeltaT0(MuonCalibSegment * segment,
 	double sigma; // sigma(r)
 	BaseFunctionFitter fitter(3);
 	SimplePolynomial pol; // polynomial base functions x^k
-	vector<SamplePoint> my_points(3);
+	std::vector<SamplePoint> my_points(3);
 	IMdtPatRecFitter *segment_fitter(0); // pointer to the segment fitter
 	if (curved) {
 		segment_fitter = m_cfitter;
@@ -286,7 +271,7 @@ my_points[2].set_x1(-2.0*m_delta_t0);
 	double min_chi2=9e9;
 	double best_t0=delta_t0_opt;
 	double current_t0=delta_t0_opt;
-	vector<double> t0s, chi2, mchi2;
+	std::vector<double> t0s, chi2, mchi2;
 	while(1)
 		{
 		for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
