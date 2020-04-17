@@ -195,7 +195,6 @@ def _options(opt):
 #  @param weight   Name of the variable containing the fill weight
 #  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
 #  @param opt      String or dictionary of histogram options
-#  @param labels   Deprecated. Copies value to xlabels and/or ylabels.
 #  @param treedef  Internal use only. Use defineTree() method.
 #  @param xlabels  List of x bin labels.
 #  @param ylabels  List of y bin labels.
@@ -207,7 +206,7 @@ def defineHistogram(varname, type='TH1F', path=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
                     zmin=None, zmax=None, zlabels=None,
-                    opt=None, labels=None, convention=None, cutmask=None,
+                    opt=None, convention=None, cutmask=None,
                     treedef=None, merge=None):
 
     # All of these fields default to an empty string
@@ -310,23 +309,6 @@ def defineHistogram(varname, type='TH1F', path=None,
     if zmax is not None:
         settings['zmax'] = zmax
 
-    # Bin labels
-    # First, handle the deprecated labels argument
-    if labels is not None:
-        assert xlabels is None and ylabels is None and zlabels is None,'Mixed use of \
-        depricated "labels" argument with [xyz]labels arguments.'
-        log.warning('Histogram %s configured with deprecated "labels" argument. Please use "xlabels" and "ylabels" instead.', 
-                    settings['title'])
-        nLabels = len(labels)
-        if nLabels==xbins:
-            xlabels = labels
-        elif nLabels>xbins:
-            nybins = 0 if ybins is None else ybins
-            if nLabels > xbins+nybins:
-                log.warning('More labels specified for %s (%d) than there are x+y bins (%d+%d)',
-                            settings['title'], nLabels, xbins, nybins)
-            xlabels = labels[:xbins]
-            ylabels = labels[xbins:xbins+nybins]
     # Then, parse the [xyz]label arguments
     if xlabels is not None and len(xlabels)>0:
         assert isinstance(xlabels, (list, tuple)),'xlabels must be list or tuple'
