@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 """ AssociationUtils/config.py
     This file contains the configuration helper code for the overlap removal
     tools in Athena. It is a work in progress. It may in fact be possible to
@@ -11,6 +13,7 @@ from AthenaCommon.Constants import INFO
 from AssociationUtils.AssociationUtilsConf import (
     ORUtils__OverlapRemovalTool as OverlapRemovalTool,
     ORUtils__DeltaROverlapTool as DeltaROverlapTool,
+    ORUtils__MuPFJetOverlapTool as MuPFJetOverlapTool,
     ORUtils__EleEleOverlapTool as EleEleOverlapTool,
     ORUtils__EleJetOverlapTool as EleJetOverlapTool,
     ORUtils__EleMuSharedTrkOverlapTool as EleMuSharedTrkOverlapTool,
@@ -22,12 +25,13 @@ from AssociationUtils.AssociationUtilsConf import (
 #-------------------------------------------------------------------------------
 def recommended_tools(masterName='OverlapRemovalTool',
                       inputLabel='selected', outputLabel='overlaps',
-                      bJetLabel='', boostedLeptons=False,
+                      bJetLabel='', maxElePtForBJetAwareOR = 100. * 1000,
+                      boostedLeptons=False,
                       outputPassValue=False,
                       linkOverlapObjects=False,
                       doEleEleOR=False,
                       doElectrons=True, doMuons=True, doJets=True,
-                      doTaus=True, doPhotons=True, doFatJets=False,
+                      doTaus=True, doPhotons=True, doFatJets=False, doMuPFJetOR=False,
                       **kwargs):
     """
     Provides the pre-configured overlap removal recommendations.
@@ -40,6 +44,9 @@ def recommended_tools(masterName='OverlapRemovalTool',
       outputLabel        - set the OutputLabel property for all tools.
       bJetLabel          - set user bjet decoration name. Leave blank to
                            disable btag-aware overlap removal.
+      maxElePtForBJetAwareOR  - set the maximum electron pT for which b-tag
+                           aware overlap removal is done. Set to negative
+                           value to use for all electrons.
       boostedLeptons     - enable sliding dR cones for boosted lepton
                            analyses.
       outputPassValue    - set the OutputPassValue property for all tools
@@ -47,6 +54,7 @@ def recommended_tools(masterName='OverlapRemovalTool',
                            marked with true or false.
       linkOverlapObjects - enable ElementLinks to overlap objects.
       doEleEleOR         - enable electron-electron overlap removal.
+      doMuPFJetOR        - enable the pflow jet removal for muons
       doXXXX             - these flags enable/disable object types to
                            configure tools for: doElectrons, doMuons,
                            doJets, doTaus, doPhotons, doFatJets.
@@ -69,6 +77,10 @@ def recommended_tools(masterName='OverlapRemovalTool',
     # Overlap tools share an additional common property for object linking
     common_args['LinkOverlapObjects'] = linkOverlapObjects
 
+    # Muon-PFlow fake-jet
+    if doMuPFJetOR:
+        orTool.MuPFJetORT = MuPFJetOverlapTool('MuPFJetORT', **common_args)
+
     # Electron-electron
     if doElectrons and doEleEleOR:
         orTool.EleEleORT = EleEleOverlapTool('EleEleORT', **common_args)
@@ -80,6 +92,7 @@ def recommended_tools(masterName='OverlapRemovalTool',
     if doElectrons and doJets:
         orTool.EleJetORT = EleJetOverlapTool('EleJetORT',
                                              BJetLabel=bJetLabel,
+                                             MaxElePtForBJetAwareOR=maxElePtForBJetAwareOR,
                                              UseSlidingDR=boostedLeptons,
                                              **common_args)
     # Muon-jet
@@ -115,44 +128,5 @@ def recommended_tools(masterName='OverlapRemovalTool',
     # Jet-fatjet
     if doJets and doFatJets:
         orTool.JetFatJetORT = DeltaROverlapTool('JetFatJetORT', DR=1.0, **common_args)
-
-    return orTool
-
-
-#-------------------------------------------------------------------------------
-def harmonized_tools(name='OverlapRemovalTool', OutputLevel=INFO,
-                     input_label='selected', output_label='overlaps',
-                     output_pass_value=False, do_taus=True, do_photons=True):
-    """
-    Provides the pre-configured overlap removal tools according to the
-    recommendations of the harmonization document. The recommended_tools
-    function gives the updated recommendations.
-
-    DEPRECATED - please update to latest recommendations.
-    """
-    from warnings import warn
-    warn('The harmoinzation OR recommendations are deprecated')
-
-    # Call the above function for standard pre-configured tools
-    orTool = recommended_tools(name, OutputLevel, input_label, output_label,
-                               output_pass_value=output_pass_value,
-                               do_taus=do_taus, do_photons=do_photons)
-
-    # TODO: RESTORE TAU-LOOSE-LEP
-    # Use tau loose-lep OR implementations
-    if do_taus:
-        tau_args = {
-            'InputLabel' : inputLabel,
-            'OutputLabel' : outputLabel,
-            'OutputPassValue' : outputPassValue
-        }
-        orTool.TauEleORT = TauLooseEleOverlapTool('TauEleORT', **tau_args)
-        orTool.TauMuORT = TauLooseMuOverlapTool('TauMuORT', **tau_args)
-
-    # Override properties
-    orTool.EleMuORT.RemoveCaloMuons = False
-    orTool.MuJetORT.ApplyRelPt = False
-    orTool.MuJetORT.UseGhostAssociation = False
-    orTool.MuJetORT.InnerDR = 0.4
 
     return orTool

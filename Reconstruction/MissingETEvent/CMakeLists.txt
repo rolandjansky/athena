@@ -29,7 +29,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_library( MissingETEvent
                    src/*.cxx
                    PUBLIC_HEADERS MissingETEvent
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} AtlasHepMCLib CaloEvent CaloGeoHelpers AthContainers Navigation EventKernel NavFourMom GaudiKernel

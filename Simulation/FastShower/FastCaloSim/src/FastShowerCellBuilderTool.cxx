@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/FastShowerCellBuilderTool.h"
@@ -2737,8 +2737,8 @@ std::vector<Trk::HitInfo>* FastShowerCellBuilderTool::caloHits(const HepMC::GenP
 
   if (m_caloEntrance && m_caloEntrance->inside(pos,0.001) &&
       !m_extrapolator->trackingGeometry()->atVolumeBoundary(pos,m_caloEntrance,0.001)) {
-
-    std::vector<Trk::HitInfo>*     dummyHitVector = 0;
+    ATH_MSG_DEBUG("Inside calo entrace extrapolation");
+    std::vector<Trk::HitInfo>*     dummyHitVector = nullptr;
     if ( charge==0 ) {
 
       caloEntry = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,
@@ -2749,16 +2749,24 @@ std::vector<Trk::HitInfo>* FastShowerCellBuilderTool::caloHits(const HepMC::GenP
       caloEntry = m_extrapolator->extrapolateWithPathLimit(inputPar,pathLim,timeLim,
                                                            Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);
     }
-  } else caloEntry=&inputPar;
+  } else {
+    caloEntry=&inputPar;
+  }  
+  
+  if(caloEntry==&inputPar) {
+    ATH_MSG_DEBUG("Use clone of inputPar as caloEntry");
+    caloEntry=inputPar.clone();
+  }
 
   if ( caloEntry ) {
+    ATH_MSG_DEBUG("caloEntry="<<caloEntry<<" nextGeoID="<<nextGeoID<<" charge="<<charge);
 
     const Trk::TrackParameters* eParameters = 0;
 
     // save Calo entry hit (fallback info)
-    hitVector->push_back(Trk::HitInfo(caloEntry->clone(),timeLim.time,nextGeoID,0.));
+    hitVector->push_back(Trk::HitInfo(caloEntry,timeLim.time,nextGeoID,0.));
 
-    ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting Calo transport from position "<< pos );
+    ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting Calo transport from position "<< pos<<" charge="<<charge );
 
     if ( charge==0 ) {
 

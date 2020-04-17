@@ -36,7 +36,7 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
 
     def addDataErrorHistograms(self):
         self.defineHistogram('roi_lastStageExecuted',path='EXPERT',type='TH1F',title="Last Step Successfully Executed", xbins = 8 , xmin=-0.5, xmax=7.5,
-                             labels=["Start","GetRoI","GetSPs","ZFinder","Triplets","TrackMaker","TrackFitter","TrackConverter"])
+                             xlabels=["Start","GetRoI","GetSPs","ZFinder","Triplets","TrackMaker","TrackFitter","TrackConverter"])
    
     def addTimingHistograms(self, name):
         if name=='Electron' or name=='Muon' or name=='TauCore' or name=='MuonIso' or name=='TauIso':

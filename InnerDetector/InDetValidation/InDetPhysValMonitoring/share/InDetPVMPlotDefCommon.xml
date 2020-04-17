@@ -664,7 +664,7 @@
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h> 
 <h id="fakerate_vs_pt" type="TEfficiency" title="Fractions of reco-tracks with matching probability &lt; 50%">
-  <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
+  <x title="p_{T} [GeV]" n="100" lo="0" hi="50.0"/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h>
 <h id="fakerate_vs_phi" type="TEfficiency" title="Fractions of reco-tracks with matching probability &lt; 50%">

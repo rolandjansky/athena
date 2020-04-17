@@ -1,4 +1,7 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
+#
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script to generate the trigger menu XML files
 #
 
@@ -29,6 +32,9 @@ while true; do
             break
     esac
 done
+
+# Fail on errors.
+set -e
 
 if [ -z ${PYTHONDONTWRITEBYTE+x} ]; then export PYTHONDONTWRITEBYTECODE=1; fi # don't write .pyc files, keep source directory clean
 
@@ -64,7 +70,7 @@ logfile=${menu}.log
 cd $rundir
 
 # L1Topo config file
-generateL1TopoMenu.py $menu >&! $logfiletopo
+generateL1TopoMenu.py $menu 2>&1 > $logfiletopo
 cp L1Topoconfig_*.xml ${dest}
 rename _${release}.xml .xml L1Topoconfig_*.xml
 cp L1Topoconfig_*.xml ${dest}
@@ -75,7 +81,7 @@ if [ -z "$TMXML_DEBUG" ]; then
 else
     MSGLVL="-lDEBUG"
 fi
-athena.py $MSGLVL -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
+athena.py $MSGLVL -c "TriggerMenuSetup='$menu'" $jo 2>&1 > $logfile
 athena_exit=$?
 
 cp $logfile $logfiletopo ${dest}
