@@ -200,6 +200,7 @@ if globalflags.DataSource.is_geant4():  # MC modifiers
 else:           # More data modifiers
     setModifiers += ['allowCOOLUpdates',
                      'BFieldAutoConfig',
+                     'useDynamicAlignFolders',
                      'useHLTMuonAlign',
                      #Check for beamspot quality flag
                      'UseBeamSpotFlagForBjet',
