@@ -395,6 +395,17 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     // geometry versions (CSC-01-* and CSC-02-*)
     double angle = atan(tan(bowphi)-readoutside*tanl);
 
+    // settle the sign/pi periodicity issues
+    double thetaloc=-999.;
+    if(boweta > -0.5*M_PI && boweta < M_PI/2.){
+      thetaloc = M_PI/2.-boweta;
+    }else if(boweta > M_PI/2. && boweta < M_PI){
+      thetaloc = 1.5*M_PI-boweta;
+    } else{ // 3rd quadrant
+      thetaloc = -0.5*M_PI-boweta;
+    }
+    double etaloc = -1*log(tan(thetaloc/2.));
+
     // try to understand...
     const Identifier element_id = element->identify();
     int PixEtaModule = m_pixelid->eta_module(element_id);    
@@ -454,7 +465,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
 	  }
 	}
 
-	std::pair<double,double> delta = m_offlineITkCalibData->getPixelITkClusterErrorData()->getDelta(&element_id);
+	std::pair<double,double> delta = m_offlineITkCalibData->getPixelITkClusterErrorData()->getDelta(&element_id,nrows,angle,ncol,etaloc);
 
 	double delta_phi = nrows != 1 ? delta.first : 0.;
 	double delta_eta = ncol != 1 ? delta.second : 0.;
@@ -487,17 +498,6 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
 	  }
 
 	  localphi += delta*(omegaphi-0.5);
-
-	  // settle the sign/pi periodicity issues
-	  double thetaloc=-999.;
-	  if(boweta > -0.5*M_PI && boweta < M_PI/2.){
-	    thetaloc = M_PI/2.-boweta;
-	  }else if(boweta > M_PI/2. && boweta < M_PI){
-	    thetaloc = 1.5*M_PI-boweta;
-	  } else{ // 3rd quadrant
-	    thetaloc = -0.5*M_PI-boweta;
-	  }
-	  double etaloc = -1*log(tan(thetaloc/2.));
 
 	  if ( m_IBLAbsent || !blayer ) delta = m_calibSvc->getBarrelDeltaY(ncol,etaloc);
 	  else {   //special calibration for IBL
