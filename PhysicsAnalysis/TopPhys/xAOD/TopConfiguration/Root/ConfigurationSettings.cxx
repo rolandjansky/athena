@@ -113,6 +113,18 @@ namespace top {
     registerParameter("MuonQualityLoose",
                       "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight",
                       "Medium");
+    registerParameter("UseMVALowPt",
+		      "Turn on MVA for low-pT muons (only for LowPt WP). Optimized to improve efficiency and hadron rejection. - Default: False",
+		      "False");
+    registerParameter("Use2stationMuonsHighPt",
+		      "Allows muon reconstruction using 2-station muons with missing inner MS station for |eta|<1.3 - Default: True (only for HighPt)",
+		      "True");
+    registerParameter("UseMVALowPtLoose",
+		      "Turn on MVA for low-pT muons (only for LowPt WP) for Loose tree. Optimized to improve efficiency and hadron rejection. - Default: False",
+		      "False");
+    registerParameter("Use2stationMuonsHighPtLoose",
+		      "Allows muon reconstruction using 2-station muons with missing inner MS station for |eta|<1.3 for Loose tree - Default: True (only for HighPt)",
+		      "True");
     registerParameter("MuonIsolation",
                       "Isolation to use : PflowTight_VarRad, PflowTight_FixedRad, PflowLoose_VarRad, PflowLoose_FixedRad, HighPtTrackOnly, TightTrackOnly_VarRad, TightTrackOnly_FixedRad, PLVTight, PLVLoose, Tight_VarRad, Tight_FixedRad, Loose_VarRad, Loose_FixedRad, FCTight, FCLoose, FCTightTrackOnly, FCTightTrackOnly_FixedRad, FCLoose_FixedRad, FCTight_FixedRad, FixedCutPflowTight, FixedCutPflowLoose, FCTight_FixedRad, None",
 		      "PflowTight_FixedRad");
@@ -124,13 +136,15 @@ namespace top {
     registerParameter("do2StationsHighPt", "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: false", "false");
     registerParameter("doExtraSmearing", "True/False, To be used by analyses willing to check their sensitivity to momentum resolution effects at large muon momenta. - Default: false", "false");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
-
     registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise", "False");
     registerParameter("SoftMuonPt", "Soft Muon pT cut for object selection (in MeV). Default 4 GeV.", "4000");
     registerParameter("SoftMuonEta", "Absolute Soft Muon eta cut for object selection. Default 2.5.", "2.5");
     registerParameter("SoftMuonQuality",
                       "Soft Muon quality cut for object selection. Options are Loose, Medium, Tight (default), LowPt",
                       "Tight");
+    registerParameter("UseMVALowPtSoftMuon",
+		      "Turn on MVA for low-pT soft muons (only for LowPt WP). Optimized to improve efficiency and hadron rejection. - Default: False",
+		      "False");
     registerParameter("SoftMuonDRJet",
                       "Soft Muon maximum dR wrt nearest selected jet. Can be set to 999. to keep all soft muons. Default 0.4",
                       "0.4");
