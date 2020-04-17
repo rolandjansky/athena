@@ -68,10 +68,7 @@ met_alt_algorithms_shifter = [
 
 met_alt_algorithms_expert = [
         "mht_em",
-        "trkmht_FS",
-        "trkmht_FTK",
-        "trktc_FS",
-        "trktc_FTK"
+        "trkmht_FS"
 ]
 
 # algorithms in Run1
