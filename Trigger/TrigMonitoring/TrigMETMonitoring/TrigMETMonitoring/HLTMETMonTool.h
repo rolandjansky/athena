@@ -63,8 +63,8 @@ private:
   // methods to make filling easier
   void fillL1BasicHistograms(float l1_mex,float l1_mex_log,float l1_mey,float l1_mey_log,float l1_met,float l1_met_log,float l1_sumet,float l1_sumet_log,float l1_phi,float saturated);
   void fillL1JetHistograms(float l1_jet_pt,float l1_jet_eta);
-  void fillL1ProfileHistograms(float off_met,float pT_mumu,bool METMuonFilled,std::map<std::string, int> met_signatures_tolook);
-  void fillHLTBasicHistograms(float hlt_ex,float hlt_ex_log,float hlt_ey,float hlt_ey_log,float hlt_ez,float hlt_ez_log,float hlt_met,float hlt_met_log,float hlt_sumet,float hlt_sumet_log,float hlt_sume,float hlt_sume_log,float hlt_phi,float hlt_eta,float hlt_significance);
+  void fillL1ProfileHistograms(float off_met,std::map<std::string, int> met_signatures_tolook);
+  void fillHLTBasicHistograms(float hlt_ex,float hlt_ex_log,float hlt_ey,float hlt_ey_log,float hlt_ez,float hlt_ez_log,float hlt_met,float hlt_met_log,float hlt_sumet,float hlt_sumet_log,float hlt_sume,float hlt_sume_log,float hlt_phi,float hlt_eta);
   void fillHLTProfileHistograms(float off_met,std::map<std::string, int> met_signatures_tolook);
   void fillHLTProfileShifterHistograms(float off_met);
   void fillHLTProfileExpertHistograms(float off_met);
@@ -146,8 +146,10 @@ private:
   std::string m_hlt_Fex_met_key; 
   std::string m_off_met_key;
   std::string m_muon_key;
+  std::string m_muon_run3_key;
   std::string m_muon_base_trigger;
   std::string m_electron_key;
+  std::string m_electron_run3_key;
   std::string m_electron_base_trigger;
 
   double m_muon_pt_thresh;
