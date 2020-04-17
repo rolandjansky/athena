@@ -24,15 +24,14 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( Boost )
 find_package( CLHEP )
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_library( McParticleEvent
    McParticleEvent/*.h src/*.cxx
    PUBLIC_HEADERS McParticleEvent
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaKernel AthContainers AthLinks Navigation
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaKernel AthContainers AthLinks Navigation
    EventKernel NavFourMom GeneratorObjects ParticleEvent VxVertex
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
 
@@ -50,8 +49,8 @@ set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 # Test(s) in the package:
 atlas_add_test( TruthParticle_test
    SOURCES test/TruthParticle_test.cxx
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorObjects
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib GeneratorObjects
    TestTools GaudiKernel McParticleEvent
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 

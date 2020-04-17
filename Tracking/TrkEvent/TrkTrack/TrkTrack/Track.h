@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACK_H
@@ -180,49 +180,55 @@ namespace Trk
        const DataVector<const MeasurementBase>* outliersOnTrack() const;	            
 
        /**									            
-        * return a pointer to a const DataVector of const TrackStateOnSurfaces. 		            
-        *		
+        * return a pointer to the const DataVector of const TrackStateOnSurfaces. 		            
+        *	owned by a const Track
         * The pointer will be nullptr if the track was created without	            
         * TrackStateOnSurfaces. 						            
         */									            
-       const DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() const{
-         return m_trackStateVector;
-       }
+       const DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() const;
+
        /** 
-        * return a pointer to a non-const DataVector of const TrackStateOnSurfaces. 		            
+        * return a pointer to the non-const DataVector of const TrackStateOnSurfaces
+        * owned by a non-const track 
         * The pointer will be nullptr if the track was created without   
         * TrackStateOnSurfaces.			            
         */				            
-       DataVector<const TrackStateOnSurface>* trackStateOnSurfaces() {
-         return m_trackStateVector;
-       }
+       DataVector<const TrackStateOnSurface>* trackStateOnSurfaces();
+       
+        /** 
+        * Set the TrackStateOnSurfaces. The Trk::Track takes ownership 		            
+        */				            
+       void setTrackStateOnSurfaces(DataVector<const TrackStateOnSurface>* input);
  
        /**									            
-        * returns a const info for const tracks.           
+        * Returns a const ref to info of a const tracks.           
         */									            
-       const TrackInfo& info() const{
-         return m_trackInfo;
-       }
+       const TrackInfo& info() const;
 
        /**									            
-        * returns the info (non-const) for non-const tracks.           
+        * returns a ref to the  info (non-const) for a non-const tracks.           
         */									            
-       TrackInfo& info() {
-         return m_trackInfo;
-       }
-        											            
+       TrackInfo& info();
+       
        /**									            
-        * Returns  a const pointer to the Trk::TrackSummary owned by this const track (could be nullptr)     
+        * set the info.           
         */									            
-       const Trk::TrackSummary* trackSummary() const{
-         return m_trackSummary;
-       }
+       void setInfo(const TrackInfo& input);
+       
        /**									            
-        * Returns a  pointer to the Trk::TrackSummary owned by this  track (could be nullptr)     
+        * Returns  a pointer to the const Trk::TrackSummary owned by this const track (could be nullptr)     
         */									            
-       Trk::TrackSummary* trackSummary() {
-         return m_trackSummary;
-       }
+       const Trk::TrackSummary* trackSummary() const;
+       
+       /**									            
+        * Returns a  pointer to the Trk::TrackSummary owned by this track (could be nullptr)     
+        */									            
+       Trk::TrackSummary* trackSummary();
+
+       /**
+        * Set the track summary pointer. The Trk::Track takes ownership
+        */
+       void setTrackSummary(Trk::TrackSummary* input);
         	
        /**
         * reset all caches
@@ -338,16 +344,6 @@ namespace Trk
 
 }//end of namespace definitions
 
-inline const Trk::Perigee* Trk::Track::perigeeParameters() const
-{
-    if(!m_perigeeParameters.isValid()){
-    //findPerigee performs the setting of the parameters
-    //i.e does the CachedValue set
-      findPerigeeImpl();
-    }
-    //Here the cached value type is a pointer 
-    return *(m_perigeeParameters.ptr());
-}
-
+#include "Track.icc"
 #endif
 

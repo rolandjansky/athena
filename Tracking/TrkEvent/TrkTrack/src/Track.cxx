@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrkTrack/Track.h"
@@ -212,7 +212,19 @@ void Trk::Track::findPerigeeImpl() const
   if (tmpPerigeeParameters) {
     m_perigeeParameters.set(tmpPerigeeParameters);
   }
+}
+
+const Trk::Perigee*
+Trk::Track::perigeeParameters() const
+{
+  if (!m_perigeeParameters.isValid()) {
+    // findPerigee performs the setting of the parameters
+    // i.e does the CachedValue set
+    findPerigeeImpl();
   }
+  // Here the cached value type is a pointer
+  return *(m_perigeeParameters.ptr());
+}
 
 const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() const
 {
@@ -261,12 +273,33 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::outliersOnTrack() cons
   return m_cachedOutlierVector.ptr();
 }
 
-void Trk::Track::reset(){
+void Trk::Track::setTrackStateOnSurfaces(DataVector<const Trk::TrackStateOnSurface>* input)
+{
+  delete m_trackStateVector;  // delete existing
+  m_trackStateVector = input; // add new
+  reset();                    // reset caches
+}
+
+void Trk::Track::setInfo(const TrackInfo& input)
+{
+  m_trackInfo = input;
+}
+
+void Trk::Track::setTrackSummary(Trk::TrackSummary* input)
+{
+  delete m_trackSummary;  // delete existing
+  m_trackSummary = input; // add new
+}
+
+void Trk::Track::reset()
+{
   m_cachedParameterVector.reset();
   m_cachedMeasurementVector.reset();
   m_cachedOutlierVector.reset();
   m_perigeeParameters.reset();
 }
+
+
 
 unsigned int Trk::Track::numberOfInstantiations() 
 {

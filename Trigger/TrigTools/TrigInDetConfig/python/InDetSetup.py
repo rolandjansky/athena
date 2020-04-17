@@ -133,12 +133,14 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder" + signature)
   ToolSvc += InDetPixelGangedAmbiguitiesFinder
 
+  #Global keys/names for collections 
+  from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
   InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization" + signature,
                                                         clusteringTool          = InDetMergedPixelsTool,
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
-                                                        AmbiguitiesMap          = 'TrigPixelClusterAmbiguitiesMap',
+                                                        AmbiguitiesMap          = TrigPixelKeys.PixelClusterAmbiguitiesMap,
                                                         ClustersName            = "PixelTrigClusters")
 
   InDetPixelClusterization.isRoI_Seeded = True

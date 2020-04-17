@@ -13,15 +13,23 @@ Introduction
 
 This package contains a set of tools to provide users with the recommended
 overlap removal prescriptions for analysis-level objects (electrons, muons,
-jets, photons, and fat-jets). This document covers a wide range of technical
-details about how the package is structured, but if you're just looking for
-the quick answers of how to set things up and use the tools, you can skip
-ahead to the `Configuration helpers`_ section.
+taus, jets, photons, and fat-jets). This document covers a wide range of
+technical details about how the package is structured, but if you're just
+looking for the quick answers of how to set things up and use the tools, you
+can skip ahead to the `Configuration helpers`_ section.
 
-The current features and recommendations (for ICHEP) are summarized in my
-ASG presentation on 2016-06-03 here: https://indico.cern.ch/event/539619/.
+The current recommendations were summarized by me in these slides from the
+flavour-tagging and Hbb workshop on Sep 6, 2017:
+https://indico.cern.ch/event/631313/contributions/2683959/
+
+For some history you may also refer to the slides at these meetings:
+
+* 2016-11-14 in physics coordination: https://indico.cern.ch/event/587852/
+* 2016-10-21 in ASG: https://indico.cern.ch/event/576538/
+* 2016-06-03 (for ICHEP): https://indico.cern.ch/event/539619/
+
 The configuration is quite flexible and a lot of features are supported,
-but in summary it is recommended that analyses adopt one of ~four "working
+but in summary it is recommended that analyses adopt one of the "working
 points" depending on the type of analysis:
 
 * **Standard** - covers normal analyses not falling into the other categories.
@@ -30,26 +38,25 @@ points" depending on the type of analysis:
 * **Boosted+Heavy-flavor** - for analyses with both HF jets and boosted
   objects.
 
+See the above slides for a good summary of these working points.
+There are some variations on the above which favor leptons or photons more,
+but I won't cover those details here.
+
 For a quick example of how to use the tools with the configuration helper
 code in RootCore, take a look at the tester executable:
 
 * `util/OverlapRemovalTester.cxx <../util/OverlapRemovalTester.cxx>`_
 
-For a corresponding example in Athena (or AthAnalysisBase), look at the
+For a corresponding example in Athena (e.g. in AthAnalysis), look at the
 tester algorithm and job options:
 
 * `src/OverlapRemovalTestAlg.h <../src/OverlapRemovalTestAlg.h>`_
 * `src/OverlapRemovalTestAlg.cxx <../src/OverlapRemovalTestAlg.cxx>`_
 * `share/OverlapRemovalTest_jobOptions.py <../share/OverlapRemovalTest_jobOptions.py>`_
 
-The design of this package has undergone some upgrades since its initial
-offering. See for example the following JIRA ticket describing the upgrade
-to the current modular tool design:
-https://its.cern.ch/jira/browse/ATLASG-182.
-For details on the deprecated legacy implementation (which provided OR
-prescriptions in a single monolithic tool), refer to
-`doc/README_legacy.rst <README_legacy.rst>`_.
-However, that code is no longer maintained.
+For documentation of legacy features, refer to the original package README
+in the SVN area:
+https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/AnalysisCommon/AssociationUtils/trunk/doc/README.rst
 
 ---------------------
 Overlap removal tools
@@ -81,14 +88,15 @@ type-specific and do a runtime type check.
 * EleJetOverlapTool - Implements the recommended ele-jet overlap removal
   based on dR cones, JVT, and user-set btagging decorations.
 * EleMuSharedTrkOverlapTool - Removes (input) electrons that share an ID track
-  with (input) muons. By default vetoes overlapping calo-muons.
+  with (input) muons. By default vetoes overlapping calo-muons. If activated,
+  electrons in a DR cone of a muon can be removed.
 * MuJetOverlapTool - Implements the recommended mu-jet overlap removal based
   on dR, jet track multiplicity, mu-jet PT ratios, and user-specified btagging.
 * TauLooseEleOverlapTool - Implements overlap removal between taus and loose
   electrons based on the LooseLH ID of the electron and a dR cone.
 * TauLooseMuOverlapTool - Implements overlap removal between taus and loose
   muons. The criteria considers muons based on PT and isCombined as
-  recommended in the harmonization document.
+  recommended in the run-2 harmonization document (`ATL-PHYS-INT-2014-018 <https://cds.cern.ch/record/1743654>`_).
 * ObjLinkOverlapTool - A generic tool which flags overlaps by looking for
   ElementLinks to other particles. This tool can be used to find overlaps in
   two stages. For example, one might use the EleMuSharedTrkOverlapTool to
@@ -148,10 +156,16 @@ in Athena environments. There are three pieces:
 
 **How to setup the working points**
 
-*Important note*: in the following snippets, the ORFlags and ToolBox
-objects are declared as locals. In your actual setup you will likely make
-these private members of some EventLoop algorithm or a parent tool or
-something like that.
+*Important notes*:
+
+* In the following snippets, the ORFlags and ToolBox objects are declared as
+  locals. In your actual setup you will likely make these private members of
+  some EventLoop algorithm or a parent tool or something like that.
+
+* The working points calculate delta-R using _rapidity_ instead of
+  pseudo-rapidity, as recommended in the run-2 harmonization note (more details about the motivations for
+  using rapidity can be found in `arXiv:1802.05356 [hep-ph] <https://arxiv.org/abs/1802.05356>`_).
+  You can override this with the UseRapdity property that all relevant tools support.
 
 *Standard working point* - you only need to set the tool and
 decoration names:
@@ -187,8 +201,8 @@ that you will apply to label bjets:
 *Heavy flavor and boosted object working point* - just combine the above
 settings and set both the bJetLabel and the boostedLeptons flag.
 
-*HSG2 overlap removal prescription* - HSG2 uses a modified overlap removal
-prescription including electron-electron overlap removal and the disabling
+*Lepton favored working point* - HSG2 uses a modified overlap removal
+prescription including electron-electron cluster matching and the disabling
 of the electron and muon rejections by jets. To configure this setup,
 do the following:
 
@@ -196,7 +210,6 @@ do the following:
 
     ORUtils::ORFlags orFlags(masterToolName, inputLabel, outputLabel);
     ORUtils::ToolBox toolBox;
-    orFlags.doEleEleOR = true;
     CHECK( ORUtils::recommendedTools(orFlags, toolBox) );
     CHECK( toolBox.eleEleORT.setProperty("UseClusterMatch", true) );
     CHECK( toolBox.eleJetORT.setProperty("OuterDR", 0.) );
@@ -260,8 +273,7 @@ in the RootCore examples above. Configure like thus:
     from AssociationUtils.config import recommended_tools
     orTool = recommended_tools(masterName=masterToolName,
                                inputLabel=inputLabel,
-                               outputLabel=outputLabel,
-                               doEleEleOR=True)
+                               outputLabel=outputLabel)
     orTool.EleEleORT.UseClusterMatch = True
     orTool.EleJetORT.OuterDR = 0.
     orTool.MuJetORT.OuterDR = 0.
