@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -14,11 +14,10 @@
 
 #include <cassert>
 #include <cmath>
-// #include <iostream>
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+class MsgStream;
 
 //  class SolenoidParametrization
 //
@@ -75,9 +74,9 @@ public:
                                                 Parameters& parms) const;
     double			maximumR() const;		// param valid to maximumR
     double			maximumZ() const;		// param valid to maximumZ
-    void			printFieldIntegrals() const;
-    void			printParametersForEtaLine(double eta, double z_origin) const;
-    void			printResidualForEtaLine (double eta, double zOrigin) const;
+    void			printFieldIntegrals(MsgStream& m) const;
+    void			printParametersForEtaLine(double eta, double z_origin, MsgStream & msg) const;
+    void			printResidualForEtaLine (double eta, double zOrigin, MsgStream & msg) const;
     bool			validOrigin(const Amg::Vector3D& origin) const; // param valid for this origin?
 
     // OK to use this parametrization for CURRENT?
@@ -152,13 +151,6 @@ SolenoidParametrization::fieldKey(BinParameters& parms)
 	thetaBin 		= s_maxBinTheta - 2;
     }
     parms.m_complementTheta	= 1. - parms.m_interpolateTheta;
-    // std::cout << " zAtAxis " << zAtAxis
-    // 	      << "   cotTheta " << cotTheta
-    // 	      << "   zBin " << zBin
-    // 	      << "   interpolateZ " << parms.m_interpolateZ
-    // 	      << "   thetaBin " << thetaBin
-    // 	      << "   interpolateTheta " << parms.m_interpolateTheta << std::endl;
-    
     return 2*s_numberParameters*(s_maxBinTheta*zBin + thetaBin);
 }
 
@@ -267,11 +259,6 @@ SolenoidParametrization::fieldIntegrals(double&	firstIntegral,
 	setTerms(key, parms);
 	integrate(firstIntegral,secondIntegral,s_zInner,zEnd-parms.m_zAtAxis,parms);
     }
-	
-    // std::cout << " zBegin < 0. " << zBegin
-    // 	      << "   zEnd " << zEnd
-    // 	      << "   m_signTheta " << parms.m_signTheta
-    // 	      << "   m_zAtAxis " << parms.m_zAtAxis << std::endl;
 }
 
 inline double
