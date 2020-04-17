@@ -42,9 +42,6 @@ class HepMCAnalysis
   /// Destructor: 
   virtual ~HepMCAnalysis(); 
 
-  // Assignment operator: 
-  //HepMCAnalysis &operator=(const HepMCAnalysis &alg); 
-
   // Athena algorithm's Hooks
   virtual StatusCode  initialize();
   virtual StatusCode  execute();

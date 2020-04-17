@@ -257,7 +257,6 @@ StatusCode EvtInclusiveDecay::execute() {
     // Store the number of decay attempts in event weights std::map, only if repeated decays enabled
     if(m_maxNRepeatedDecays > 1)
       hepMC->weights()["nEvtGenDecayAttempts"] = loopCounter;
-    //hepMC->weights().write();
     // Print HepMC in tree format if desired (after finishing all EvtGen decays)
     if (m_printHepMCAfterEvtGen) {
       msg(MSG::INFO)  << "Printing HepMC record at " << hepMC << " AFTER running EvtGen:" << endmsg;

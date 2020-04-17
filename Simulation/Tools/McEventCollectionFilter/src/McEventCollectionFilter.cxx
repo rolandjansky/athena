@@ -161,10 +161,6 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
   //......copy GenEvent to the new one and remove all vertex
   HepMC::GenEvent* evt=new HepMC::GenEvent(*genEvt);
 
-  //to set geantino vertex as a truth primary vertex
-  //HepMC::GenVertex* pmvx=*(evt->vertices_begin());
-  //HepMC::FourVector pmvxpos=pmvx->position();
-  //genVertex->set_position(pmvxpos);
 
   //to set geantino vertex as a truth primary vertex
   HepMC::GenVertex* hScatVx = genEvt->barcode_to_vertex(-3);
