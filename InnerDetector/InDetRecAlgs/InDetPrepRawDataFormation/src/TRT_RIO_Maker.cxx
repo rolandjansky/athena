@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -34,8 +34,6 @@ namespace InDet {
   m_rioContainerKey("TRT_DriftCircles"),
   m_mode_rio_production(0),
   m_trtBadChannels(0),
-  m_roiSeeded(false),
-  m_roiCollectionKey(""),
   m_regionSelector("RegSelSvc", name),
   m_rioContainerCacheKey("")
   {
@@ -57,6 +55,10 @@ namespace InDet {
     // Get TRT_DriftCircle tool
     ATH_CHECK(m_driftcircle_tool.retrieve());
     ATH_CHECK(detStore()->retrieve(m_pTRTHelper,"TRT_ID"));
+    if (m_roiSeeded.value()) {
+      ATH_CHECK(m_roiCollectionKey.initialize());
+      ATH_CHECK(m_regionSelector.retrieve());
+    }
 
     ATH_CHECK( m_rdoContainerKey.initialize() );
     ATH_CHECK( m_rioContainerKey.initialize() );
