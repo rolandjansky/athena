@@ -102,11 +102,12 @@ InDetPerfPlot_Resolution::initializePlots() {
     //
     //1D distributions
     //
+
+    if(iparam == PT) continue;
     book(m_pull[iparam], "pull_" + m_paramProp[iparam]);
     book(m_res[iparam],  "res_" + m_paramProp[iparam]);
 
     book(m_sigma[iparam], "sigma_" + m_paramProp[iparam]); //New One 
-    if(iparam == PT) continue;
     //
     //2D Distributions to evaluate resolutions vs eta and pT
     //

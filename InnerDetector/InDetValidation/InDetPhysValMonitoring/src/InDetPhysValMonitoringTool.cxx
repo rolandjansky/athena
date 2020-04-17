@@ -366,7 +366,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
   }
 
   SG::ReadHandle<xAOD::JetContainer> jets(m_jetContainerName);
-
+  SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > ghosttruth("GhostTruth");
+  
   if (not jets.isValid() or truthParticlesVec.empty()) {
     ATH_MSG_WARNING(
       "Cannot open " << m_jetContainerName <<
@@ -376,8 +377,40 @@ InDetPhysValMonitoringTool::fillHistograms() {
       if (not passJetCuts(*thisJet)) {
         continue;
       }
+      if(!ghosttruth.isAvailable(*thisJet)) {
+           ATH_MSG_WARNING("Failed to extract ghost truth particles from jet");
+      } else {
+        for(const auto& el : ghosttruth(*thisJet)){ 
+          if(el.isValid()) {
+            const xAOD::TruthParticle *truth = static_cast<const xAOD::TruthParticle*>(*el);
+            if (thisJet->p4().DeltaR(truth->p4()) > m_maxTrkJetDR) {
+                continue;
+            }
+
+            const IAthSelectionTool::CutResult accept = m_truthSelectionTool->accept(truth);
+              
+            if(!accept) continue;
+            bool isEfficient(false);
+            for (auto thisTrack: *tracks) {
+              if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryvertex))) {
+                continue;
+              }
+
+              const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
+              if (associatedTruth and associatedTruth == truth) {
+                float prob = getMatchingProbability(*thisTrack);
+                if (not std::isnan(prob) && prob > m_lowProb) {
+                  isEfficient = true;
+                  break;
+                }
+              }
+            }
+            m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient);
+          }
+        }
+      }
       for (auto thisTrack: *tracks) {    // The beginning of the track loop
-        bool isEfficientJet = false;
+        bool isFakeJet = false;
         if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryvertex))) {
           continue;
         }
@@ -390,13 +423,12 @@ InDetPhysValMonitoringTool::fillHistograms() {
       
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack); 
                                                                                          
-        if (associatedTruth)  {
-          if(m_truthSelectionTool->accept(associatedTruth) and prob > m_lowProb ) {
-            isEfficientJet = true;
-          }
-          m_monPlots->fillEfficiency(*associatedTruth, *thisJet, isEfficientJet);
-          m_monPlots->fillFakeRate(*thisTrack, *thisJet, !isEfficientJet);
-        }
+        if (associatedTruth){
+          if(m_truthSelectionTool->accept(associatedTruth) and prob < m_lowProb ) {
+            isFakeJet = true;
+          } 
+          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFakeJet);
+       }
       }
     }
   } // loop over jets
