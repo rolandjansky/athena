@@ -97,7 +97,4 @@ if __name__ == '__main__':
   cfg.store(f) 
   f.close()
 
-
-
-  print (cfg._publicTools)
   print ("-----------------finished----------------------")

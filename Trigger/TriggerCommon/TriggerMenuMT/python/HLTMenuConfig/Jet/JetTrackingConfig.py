@@ -6,6 +6,8 @@ from AthenaCommon.CFElements import parOR
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 from JetRecTools.JetRecToolsConfig import getTrackSelTool, getTrackVertexAssocTool
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
 def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     jetTrkSeq = parOR( "JetTrackingSeq_"+trkopt, [])
@@ -44,15 +46,18 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     trackcollectionmap[trkopt]["JetTracks"] = jettracksname
     trackcollectionmap[trkopt]["TVA"] = tvaname
 
-    from JetRec import JetRecConf
-    jettrkprepalg = JetRecConf.JetAlgorithm("jetalg_TrackPrep")
+    #from JetRec import JetRecConf
+    #jettrkprepalg = JetRecConf.JetAlgorithm("jetalg_TrackPrep")
+
+
+    jettrkprepalg = CompFactory.JetAlgorithm("jetalg_TrackPrep")
     jettrkprepalg.Tools = [ jettrackselloose, jettvassoc ]
-    jetTrkSeq += jettrkprepalg
+    jetTrkSeq += conf2toConfigurable( jettrkprepalg )
 
     label = "GhostTrack_{}".format(trkopt)
     ghosttracksname = "PseudoJet{}".format(label)
-    pjg = JetRecConf.PseudoJetGetter("pjg_{}".format(label),
-                                     InputContainer=tracksname,                                     
+    pjg = CompFactory.PseudoJetGetter("pjg_{}".format(label),
+                                     InputContainer=tracksname,
                                      OutputContainer=ghosttracksname,
                                      Label=label,
                                      SkipNegativeEnergy=True,
@@ -61,10 +66,10 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     trackcollectionmap[trkopt]["GhostTracks"] = ghosttracksname
     trackcollectionmap[trkopt]["GhostTracksLabel"] = label
 
-    pjgalg = JetRecConf.PseudoJetAlgorithm(
+    pjgalg = CompFactory.PseudoJetAlgorithm(
         "pjgalg_"+label,
         PJGetter=pjg
         )
-    jetTrkSeq += pjgalg
+    jetTrkSeq += conf2toConfigurable( pjgalg )
 
     return jetTrkSeq, trkcolls

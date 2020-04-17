@@ -21,12 +21,12 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
         acc.addService( eventSelector )
     else:
         filenames = inputFlags.Input.Files
-        xAODMaker__EventInfoSelectorTool, = CompFactory.getComps("xAODMaker__EventInfoSelectorTool",)
+        xAODMaker__EventInfoSelectorTool = CompFactory.xAODMaker.EventInfoSelectorTool
         xconv = xAODMaker__EventInfoSelectorTool()
         eventSelector = EventSelectorByteStream("EventSelector")
         eventSelector.HelperTools += [xconv]
         acc.addService( eventSelector )
-        acc.setAppProperty( "EvtSel", eventSelector.name() )
+        acc.setAppProperty( "EvtSel", eventSelector.name )
 
     bsInputSvc = ByteStreamEventStorageInputSvc( "ByteStreamInputSvc" )
     bsInputSvc.FullFileName = filenames
@@ -39,8 +39,8 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     acc.addService( eventPersistencySvc )
     
     bsCnvSvc = ByteStreamCnvSvc()
-    eventSelector.ByteStreamInputSvc = bsInputSvc.name()
-    eventPersistencySvc.CnvServices = [ bsCnvSvc.name() ]
+    eventSelector.ByteStreamInputSvc = bsInputSvc.name
+    eventPersistencySvc.CnvServices = [ bsCnvSvc.name ]
     acc.addService( bsCnvSvc )
 
     ROBDataProviderSvc=CompFactory.ROBDataProviderSvc
@@ -57,7 +57,7 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     acc.merge(MetaDataSvcCfg(inputFlags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"]))
     
     proxy = ProxyProviderSvc()
-    proxy.ProviderNames += [ bsAddressProviderSvc.name() ]
+    proxy.ProviderNames += [ bsAddressProviderSvc.name ]
     acc.addService( proxy )
 
     bsCnvSvc.InitCnvs += [ "EventInfo",]

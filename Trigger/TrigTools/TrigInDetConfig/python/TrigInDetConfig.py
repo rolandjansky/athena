@@ -18,7 +18,7 @@ class InDetCacheNames(object):
 def InDetIDCCacheCreatorCfg():
   #Create IdentifiableCaches
   acc = ComponentAccumulator()
-  InDet__CacheCreator=CompFactory.InDet__CacheCreator
+  InDet__CacheCreator=CompFactory.getComp("InDet::CacheCreator")
   InDetCacheCreatorTrig = InDet__CacheCreator(name = "InDetCacheCreatorTrig",
                                               Pixel_ClusterKey   = InDetCacheNames.Pixel_ClusterKey,
                                               SCT_ClusterKey     = InDetCacheNames.SCT_ClusterKey,
@@ -50,15 +50,10 @@ def TrigInDetCondConfig( flags ):
   SCT_DCSConditionsTool=CompFactory.SCT_DCSConditionsTool
   dcsTool = SCT_DCSConditionsTool(ReadAllDBFolders = True, ReturnHVTemp = True)
 
-  from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
-  sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
-  sct_SiliconConditionsToolSetup.setDcsTool(dcsTool)
-  sct_SiliconConditionsToolSetup.setToolName("InDetSCT_SiliconConditionsTool")
-  sct_SiliconConditionsToolSetup.setup()
-
-  sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
-  sctSiliconConditionsTool.CheckGeoModel = False
-  sctSiliconConditionsTool.ForceUseGeoModel = False
+  from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsToolCfg, SCT_SiliconConditionsCfg
+  #sctSiliconConditionsTool= SCT_SiliconConditionsCfg(flags, toolName="InDetSCT_SiliconConditionsTool", dcsTool=dcsTool )
+  sctSiliconConditionsTool = SCT_SiliconConditionsToolCfg(flags)
+  acc.merge(SCT_SiliconConditionsCfg(flags, DCSConditionsTool=dcsTool))
 
   SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
   acc.addCondAlgo(SCT_AlignCondAlg(UseDynamicAlignFolders = True))
@@ -277,13 +272,13 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
 
   #Pixel clusterisation
-  InDet__ClusterMakerTool=CompFactory.InDet__ClusterMakerTool
+  InDet__ClusterMakerTool=CompFactory.InDet.ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool"+ signature)
 
   acc.addPublicTool(InDetClusterMakerTool)
 
 
-  InDet__MergedPixelsTool=CompFactory.InDet__MergedPixelsTool
+  InDet__MergedPixelsTool=CompFactory.InDet.MergedPixelsTool
   InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool"+ signature,
                                                   globalPosAlg            = InDetClusterMakerTool,
                                                   MinimalSplitSize        = 0,
@@ -293,11 +288,11 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                   )
   acc.addPublicTool(InDetMergedPixelsTool)
 
-  InDet__PixelGangedAmbiguitiesFinder=CompFactory.InDet__PixelGangedAmbiguitiesFinder
+  InDet__PixelGangedAmbiguitiesFinder=CompFactory.InDet.PixelGangedAmbiguitiesFinder
   InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder"+ signature)
   acc.addPublicTool(InDetPixelGangedAmbiguitiesFinder)
 
-  InDet__PixelClusterization=CompFactory.InDet__PixelClusterization
+  InDet__PixelClusterization=CompFactory.InDet.PixelClusterization
   InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization"+ signature,
                                                         clusteringTool          = InDetMergedPixelsTool,
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
@@ -307,34 +302,16 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = roisKey
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheNames.Pixel_ClusterKey
-
   acc.addEventAlgo(InDetPixelClusterization)
 
-  from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
-  sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
-  sct_FlaggedConditionToolSetup.setup()
-  InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
+  from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
+  InDetSCT_ConditionsSummaryToolWithoutFlagged = acc.popToolsAndMerge(InDetSCT_ConditionsSummaryToolCfg(flags,withFlaggedCondTool=False))
 
-  from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
-  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool"+ signature)
-  sct_ConditionsSummaryToolSetup.setup()
-  InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
-  condTools = []
-  for condToolHandle in InDetSCT_ConditionsSummaryTool.ConditionsTools:
-    condTool = condToolHandle.typeAndName
-    if condTool not in condTools:
-      if condTool != InDetSCT_FlaggedConditionTool.getFullName():
-        condTools.append(condTool)
-  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged"+ signature)
-  sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
-  InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
-  InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
 
   #
   # --- SCT_ClusteringTool (public)
   #
-  InDet__SCT_ClusteringTool=CompFactory.InDet__SCT_ClusteringTool
+  InDet__SCT_ClusteringTool=CompFactory.InDet.SCT_ClusteringTool
   InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool"+ signature,
                                                       globalPosAlg      = InDetClusterMakerTool,
                                                       conditionsTool    = InDetSCT_ConditionsSummaryToolWithoutFlagged)
@@ -342,7 +319,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   # --- SCT_Clusterization algorithm
   #
 
-  InDet__SCT_Clusterization=CompFactory.InDet__SCT_Clusterization
+  InDet__SCT_Clusterization=CompFactory.InDet.SCT_Clusterization
   InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization"+ signature,
                                                       clusteringTool          = InDetSCT_ClusteringTool,
                                                       # ChannelStatus         = InDetSCT_ChannelStatusAlg,
@@ -358,12 +335,12 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
   #Space points and FTF
 
-  InDet__SiSpacePointMakerTool=CompFactory.InDet__SiSpacePointMakerTool
+  InDet__SiSpacePointMakerTool=CompFactory.InDet.SiSpacePointMakerTool
   InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool"+ signature)
   acc.addPublicTool(InDetSiSpacePointMakerTool)
 
   from AthenaCommon.DetFlags import DetFlags
-  InDet__SiTrackerSpacePointFinder=CompFactory.InDet__SiTrackerSpacePointFinder
+  InDet__SiTrackerSpacePointFinder=CompFactory.InDet.SiTrackerSpacePointFinder
   InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder"+ signature,
                                                                     SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
                                                                     PixelsClustersName     = "PixelTrigClusters",
@@ -387,7 +364,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   #from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
   #from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 
-  #InDet__TrigTrackingxAODCnvMT=CompFactory.InDet__TrigTrackingxAODCnvMT
+  #InDet__TrigTrackingxAODCnvMT=CompFactory.InDet.TrigTrackingxAODCnvMT
   #theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
   #                                                         doIBLresidual = False,
   #                                                         TrackName = "TrigFastTrackFinder_Tracks",
@@ -426,7 +403,7 @@ if __name__ == "__main__":
 
     nThreads=1
 
-    SG__HiveMgrSvc=CompFactory.SG__HiveMgrSvc
+    SG__HiveMgrSvc=CompFactory.SG.HiveMgrSvc
     eventDataSvc = SG__HiveMgrSvc("EventDataSvc")
     eventDataSvc.NSlots = nThreads
     acc.addService( eventDataSvc )

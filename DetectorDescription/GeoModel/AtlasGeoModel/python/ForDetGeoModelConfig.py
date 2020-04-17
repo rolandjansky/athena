@@ -14,8 +14,8 @@ def ForDetGeometryCfg( ConfigFlags ):
         geoModelSvc.DetectorTools += [ LUCID_DetectorTool() ]
     # ALFA
     if ConfigFlags.Detector.GeometryALFA:
-        from ALFA_GeoModel.ALFA_GeoModelConf import ALFA_DetectorTool 
-
+        #from ALFA_GeoModel.ALFA_GeoModelConf import ALFA_DetectorTool 
+        ALFA_DetectorTool=CompFactory.ALFA_DetectorTool
         theALFA_DetectorTool=ALFA_DetectorTool(name="ALFA_DetectorTool")
         theALFA_DetectorTool.MetrologyType=3
         theALFA_DetectorTool.B7L1U_MDGeometryType = 2

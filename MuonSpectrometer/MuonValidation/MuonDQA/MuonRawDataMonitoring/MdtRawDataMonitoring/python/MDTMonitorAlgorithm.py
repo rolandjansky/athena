@@ -28,7 +28,7 @@ def MdtMonitoringConfig(inputFlags):
     result.merge(MuonGeoModelCfg(inputFlags))
 
     # Temporary, until we move to services/private tools-- from MuonSpectrometer/MuonConfig
-    result.addPublicTool( CompFactory.Muon__MuonIdHelperTool() )
+    result.addPublicTool( CompFactory.Muon.MuonIdHelperTool() )
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools

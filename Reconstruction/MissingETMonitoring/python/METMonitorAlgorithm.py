@@ -146,8 +146,7 @@ def METMonitoringConfig(inputFlags):
         defineHistograms(METEMTopo_METCut_MonAlg, METEMTopo_METCut_group,helper,mets)    
 # Jet cleaning
 
-    from AthenaCommon import CfgMgr
-    jetCleaningTool = CfgMgr.JetCleaningTool()
+    jetCleaningTool = CompFactory.JetCleaningTool()
     jetCleaningTool.CutLevel = "LooseBad"       
 #    jetCleaningTool.CutLevel = "TightBad"       
     jetCleaningTool.DoUgly = False

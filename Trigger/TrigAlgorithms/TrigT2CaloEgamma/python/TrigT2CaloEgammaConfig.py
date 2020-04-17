@@ -1,18 +1,21 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp1Fex as _EgammaSamp1Fex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp2Fex as _EgammaSamp2Fex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex as _EgammaEmEnFex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaHadEnFex as _EgammaHadEnFex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex as _RingerFex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaAllFex as _EgammaAllFex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp1Fex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp2Fex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReHadEnFex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerReFex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaReFastAlgo
+from AthenaConfiguration.ComponentFactory import CompFactory
+_EgammaSamp1Fex=CompFactory.EgammaSamp1Fex
+_EgammaSamp2Fex=CompFactory.EgammaSamp2Fex
+_EgammaEmEnFex=CompFactory.EgammaEmEnFex 
+_EgammaHadEnFex=CompFactory.EgammaHadEnFex
+_RingerFex=CompFactory.RingerFex
+_EgammaAllFex=CompFactory.EgammaAllFex
+
+#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp1Fex
+#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp2Fex
+#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex
+#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReHadEnFex
+#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerReFex
+#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
+#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaReFastAlgo
+
 
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaHitsCalibrationBarrelConfig, EgammaHitsCalibrationEndcapConfig, EgammaGapCalibrationConfig
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaTransitionRegionsConfig
@@ -53,21 +56,21 @@ class RingerFex (_RingerFex):
    def __init__ (self, name="RingerFex"):
        super(RingerFex, self).__init__(name)
 
-class EgammaSamp2FexConfig (EgammaSamp2Fex):
+class EgammaSamp2FexConfig (CompFactory.EgammaSamp2Fex):
    __slots__ = []
    def __init__ (self, name="EgammaSamp2FexConfig"):
        super(EgammaSamp2FexConfig, self).__init__(name)
        self.MaxDetaHotCell=0.15
        self.MaxDphiHotCell=0.15
 
-class EgammaReSamp2FexConfig (EgammaReSamp2Fex):
+class EgammaReSamp2FexConfig (CompFactory.EgammaReSamp2Fex):
    __slots__ = []
    def __init__ (self, name="EgammaReSamp2FexConfig", *args, **kwargs):
        super(EgammaReSamp2FexConfig, self).__init__(name, *args, **kwargs)
        self.MaxDetaHotCell=0.15
        self.MaxDphiHotCell=0.15
 
-class EgammaSamp2FexNoTimerConfig (EgammaSamp2Fex):
+class EgammaSamp2FexNoTimerConfig (CompFactory.EgammaSamp2Fex):
    __slots__ = []
    def __init__ (self, name="EgammaSamp2FexNoTimerConfig"):
        super(EgammaSamp2FexNoTimerConfig, self).__init__(name)
@@ -75,39 +78,39 @@ class EgammaSamp2FexNoTimerConfig (EgammaSamp2Fex):
        self.MaxDphiHotCell=0.15
        self.TrigTimerSvc=""
 
-class EgammaReSamp1FexConfig (EgammaReSamp1Fex):
+class EgammaReSamp1FexConfig (CompFactory.EgammaReSamp1Fex):
    __slots__ = []
    def __init__ (self, name="EgammaReSamp1Fex", *args, **kwargs):
        super(EgammaReSamp1FexConfig, self).__init__(name, *args, **kwargs)
 
-class EgammaSamp1FexNoTimerConfig (EgammaSamp1Fex):
+class EgammaSamp1FexNoTimerConfig (CompFactory.EgammaSamp1Fex):
    __slots__ = []
    def __init__ (self, name="EgammaSamp1Fex"):
        super(EgammaSamp1FexNoTimerConfig, self).__init__(name)
        self.TrigTimerSvc=""
 
-class EgammaReEmEnFexConfig (EgammaReEmEnFex):
+class EgammaReEmEnFexConfig (CompFactory.EgammaReEmEnFex):
    __slots__ = []
    def __init__ (self, name="EgammaReEmEnFex", *args, **kwargs):
        super(EgammaReEmEnFexConfig, self).__init__(name, *args, **kwargs)
 
-class EgammaEmEnFexNoTimerConfig (EgammaEmEnFex):
+class EgammaEmEnFexNoTimerConfig (CompFactory.EgammaEmEnFex):
    __slots__ = []
    def __init__ (self, name="EgammaEmEnFex"):
        super(EgammaEmEnFexNoTimerConfig, self).__init__(name)
        self.TrigTimerSvc=""
 
-class EgammaReHadEnFexConfig (EgammaReHadEnFex):
+class EgammaReHadEnFexConfig (CompFactory.EgammaReHadEnFex):
    __slots__ = []
    def __init__ (self, name="EgammaReHadEnFex", *args, **kwargs):
        super(EgammaReHadEnFexConfig, self).__init__(name, *args, **kwargs)
 
-class EgammaHadEnFexConfig (EgammaHadEnFex):
+class EgammaHadEnFexConfig (CompFactory.EgammaHadEnFex):
    __slots__ = []
    def __init__ (self, name="EgammaHadEnFex"):
        super(EgammaHadEnFexConfig, self).__init__(name)
 
-class T2CaloEgamma_eGamma (T2CaloEgamma):
+class T2CaloEgamma_eGamma (CompFactory.T2CaloEgamma):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_eGamma"):
        super(T2CaloEgamma_eGamma, self).__init__(name)
@@ -181,7 +184,7 @@ class EgammaAllFexHadConfig (EgammaAllFex):
        self.IncludeHad=True
 
 
-class T2CaloEgamma_All (T2CaloEgamma):
+class T2CaloEgamma_All (CompFactory.T2CaloEgamma):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_All"):
        super(T2CaloEgamma_All, self).__init__(name)
@@ -197,7 +200,7 @@ class T2CaloEgamma_All (T2CaloEgamma):
                                 TrigT2CaloEgammaAllTimeMonitoring()]
        self.doTiming=True
 
-class T2CaloEgamma_AllEm (T2CaloEgamma):
+class T2CaloEgamma_AllEm (CompFactory.T2CaloEgamma):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_AllEm"):
        super(T2CaloEgamma_AllEm, self).__init__(name)
@@ -213,7 +216,7 @@ class T2CaloEgamma_AllEm (T2CaloEgamma):
                                 TrigT2CaloEgammaAllTimeMonitoring()]
        self.doTiming=True
 
-class T2CaloEgamma_cells (T2CaloEgamma):
+class T2CaloEgamma_cells (CompFactory.T2CaloEgamma):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_cells"):
        super(T2CaloEgamma_cells, self).__init__(name)
@@ -251,7 +254,7 @@ class T2CaloEgamma_cells (T2CaloEgamma):
        self.doTiming=True
 
 
-class T2CaloEgamma_eGamma_NoHad (T2CaloEgamma):
+class T2CaloEgamma_eGamma_NoHad (CompFactory.T2CaloEgamma):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_eGamma_NoHad"):
        super(T2CaloEgamma_eGamma_NoHad, self).__init__(name)
@@ -280,7 +283,7 @@ class T2CaloEgamma_eGamma_NoHad (T2CaloEgamma):
        self.CalibListEndcap+=[EgammaGapCalibrationConfig()]
 
 # for single-beam chains starting from MBTS+BPTX
-class T2CaloEgamma_MBTSA (T2CaloEgamma):
+class T2CaloEgamma_MBTSA (CompFactory.T2CaloEgamma):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_MBTSA"):
        super(T2CaloEgamma_MBTSA, self).__init__(name)
@@ -302,7 +305,7 @@ class T2CaloEgamma_MBTSA (T2CaloEgamma):
                                 TrigT2CaloEgammaCosmicMonitoring(),
                                 TrigT2CaloEgammaOnMonitoring()]
 
-class T2CaloEgamma_MBTSC (T2CaloEgamma):
+class T2CaloEgamma_MBTSC (CompFactory.T2CaloEgamma):
    __slots__ = []
    def __init__ (self, name="T2CaloEgamma_MBTSC"):
        super(T2CaloEgamma_MBTSC, self).__init__(name)
@@ -325,7 +328,7 @@ class T2CaloEgamma_MBTSC (T2CaloEgamma):
                                 TrigT2CaloEgammaOnMonitoring()]
 
 
-class RingerFexConfig( RingerFex ):
+class RingerFexConfig( CompFactory.RingerFex ):
   __slots__ = []
   def __init__(self, name = "RingerFexConfig"):
     super(RingerFexConfig, self).__init__(name)
@@ -354,12 +357,12 @@ class RingerFexConfig( RingerFex ):
     self.NMaxCells = [320, 512, 272, 128, 128, 128, 128]
 
 
-class RingerReFexConfig( RingerReFex ):
+class RingerReFexConfig( CompFactory.RingerReFex ):
 
   __slots__ = []
 
   def __init__(self, name = "RingerReMaker"):
-    super(RingerReFex, self).__init__(name)
+    super(RingerReFexConfig, self).__init__(name)
     self.EtaBins              = [0.0000, 999.999] # bin pairs: min < eta <= max, PS,barrel,crack,endcap
     self.GlobalCenter         = False
     self.RingerKey            = "L2CaloRings"
@@ -399,7 +402,7 @@ class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
         self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
 
 
-class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
+class T2CaloEgamma_ReFastAlgo (CompFactory.T2CaloEgammaReFastAlgo):
     __slots__ = []
     def __init__ (self, name="T2CaloEgamma_ReFastAlgo", ClustersName="HLT_L2CaloEMClusters", doRinger=False, RingerKey="HLT_FastCaloRinger"):
         super(T2CaloEgamma_ReFastAlgo, self).__init__(name)

@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 
 # import the DL1Tag configurable
-Analysis__DL1Tag=CompFactory.Analysis__DL1Tag
+Analysis__DL1Tag=CompFactory.Analysis.DL1Tag
 
 # define the class
 def DL1TagCfg(flags, name = 'DL1', scheme = '', useBTagFlagsDefaults = True, **options):

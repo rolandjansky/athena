@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-Analysis__BTagHighLevelAugmenterAlg=CompFactory.Analysis__BTagHighLevelAugmenterAlg
+Analysis__BTagHighLevelAugmenterAlg=CompFactory.Analysis.BTagHighLevelAugmenterAlg
 
 def BTagHighLevelAugmenterAlgCfg(ConfigFlags, sequenceName, BTagCollection, Associator, doFlipTagger=False, **options):
     """Adds a SecVtxTool instance and registers it.
