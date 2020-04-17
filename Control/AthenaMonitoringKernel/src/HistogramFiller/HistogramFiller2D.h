@@ -13,19 +13,23 @@
 #include "GaudiKernel/MsgStream.h"
 
 namespace Monitored {
+
   /**
-   * @brief Filler for plain 2D histogram
+   * @brief Generic filler for 2D histogram
+   *
+   * @tparam H  Type of 2D histogram (TH2, TProfile)
    */
-  class HistogramFiller2D : public HistogramFiller {
+  template<typename H>
+  class HistogramFiller2DGeneric : public HistogramFiller {
   public:
-    HistogramFiller2D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
+    HistogramFiller2DGeneric(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
 
-    virtual HistogramFiller2D* clone() const override {
-      return new HistogramFiller2D( *this ); 
+    virtual HistogramFiller2DGeneric* clone() const override {
+      return new HistogramFiller2DGeneric( *this );
     }
     
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       if (ATH_UNLIKELY(m_monVariables.size() != 2)) return 0;
 
       const IMonitoredVariable& var1 = m_monVariables[0].get();
@@ -72,14 +76,16 @@ namespace Monitored {
           return 0;
         }
         // Need to fill here while weightVector is still in scope
-        if (not m_monCutMask) return HistogramFiller::fill<TH2>(weightAccessor, detail::noCut, var1, var2);
-        else                  return HistogramFiller::fill<TH2>(weightAccessor, cutMaskAccessor, var1, var2);
+        if (not m_monCutMask) return HistogramFiller::fill<H>(weightAccessor, detail::noCut, var1, var2);
+        else                  return HistogramFiller::fill<H>(weightAccessor, cutMaskAccessor, var1, var2);
       }
 
-      if (not m_monCutMask) return HistogramFiller::fill<TH2>(detail::noWeight, detail::noCut, var1, var2);
-      else                  return HistogramFiller::fill<TH2>(detail::noWeight, cutMaskAccessor, var1, var2);
+      if (not m_monCutMask) return HistogramFiller::fill<H>(detail::noWeight, detail::noCut, var1, var2);
+      else                  return HistogramFiller::fill<H>(detail::noWeight, cutMaskAccessor, var1, var2);
     }
   };
+
+  typedef HistogramFiller2DGeneric<TH2> HistogramFiller2D;
 }
 
 #endif /* AthenaMonitoringKernel_HistogramFiller_HistogramFiller2D_h */

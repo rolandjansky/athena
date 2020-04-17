@@ -216,7 +216,6 @@ bool fillFromScalarIndependentScopes( ToolHandle<GenericMonitoringTool>& monTool
 
 bool fill2D( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
 
-
   auto fill = [&]() {
     //! [fill2D_correct]
     // For 2D histogram to be filled the two histogrammed variables need to be grouped.
@@ -266,6 +265,29 @@ bool fill2D( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
 
   return true;
 }
+
+
+bool fillProfile( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
+
+  auto fill = [&]() {
+    auto pt = Monitored::Scalar<double>( "pt", 3.0 );
+    auto eta = Monitored::Scalar( "Eta", 0.2 );
+    auto group = Monitored::Group( monTool, eta, pt );
+    return 1;
+  };
+
+  auto check = [&](size_t N) {
+    VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/pt_vs_Eta", 1 ) ) EXPECTED( 0 );
+    VALUE( contentInBin1DHist( histSvc, "/EXPERT/TestGroup/pt_vs_Eta", 2 ) ) EXPECTED( 3 );
+    VALUE( getHist( histSvc, "/EXPERT/TestGroup/pt_vs_Eta" )->GetEntries() ) EXPECTED( N );
+  };
+
+  resetHists( histSvc ); check(fill());
+  resetHists( histSvc ); check(fill_mt(fill));
+
+  return true;
+}
+
 
 bool fillExplicitly( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
   resetHists( histSvc );
@@ -726,6 +748,8 @@ int main() {
   assert( fillFromScalarIndependentScopes( validMon, histSvc ) );
   log << MSG::DEBUG << "fill2D" << endmsg;
   assert( fill2D( validMon, histSvc ) );
+  log << MSG::DEBUG << "fillProfile" << endmsg;
+  assert( fillProfile( validMon, histSvc ) );
   log << MSG::DEBUG << "fillExplicitly" << endmsg;
   assert( fillExplicitly( validMon, histSvc ) );
   log << MSG::DEBUG << "fillWithCutMask" << endmsg;

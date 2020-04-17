@@ -12,6 +12,7 @@
 #include "CxxUtils/AthUnlikelyMacros.h"
 
 #include "TH1.h"
+#include "TProfile.h"
 #include "THashList.h"
 
 namespace Monitored {
@@ -137,6 +138,25 @@ namespace Monitored {
     }
 
     /**
+     * Perform generic histogram fill with weight
+     */
+    template<typename H, typename ...Ts>
+    void doFill(H* hist, double weight, const Ts&... v) {
+      hist->Fill(toFill(v)..., weight);
+    }
+
+    /**
+     * Perform TProfile fill with weight
+     */
+    template<typename X, typename Y>
+    void doFill(TProfile* hist, [[maybe_unused]] double weight, const X& x, const Y& y) {
+      // TProfile does not support string as y-value. It would never be called that way
+      // but is required to make the pack expansion compile in HistogramFiller::fill
+      if constexpr(std::is_same_v<std::string,Y>) return;
+      else hist->Fill(toFill(x), y, weight);
+    }
+
+    /**
      * Generic histogram filling helper
      *
      * Works for any dimension and double/string-valued entries.
@@ -163,9 +183,9 @@ namespace Monitored {
           if ( ATH_UNLIKELY(fillWillRebinHistogram(hist, std::index_sequence_for<Vs...>{},
                                                    toFill(get(v,i))...)) ){
             oh_scoped_lock_histogram lock;
-            hist->Fill( toFill(get(v,i))..., weight(i) );
+            doFill(hist, weight(i), get(v,i)...);
           }
-          else hist->Fill( toFill(get(v,i))..., weight(i) );
+          else doFill(hist, weight(i), get(v,i)...);
         }
       }
       return fills;
