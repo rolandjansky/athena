@@ -86,6 +86,8 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   mutable std::mutex m_mutex{};
   mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
   mutable std::array<std::atomic_int, SCT_Monitoring::N_REGIONS_INC_GENERAL> m_nMaskedLinks ATLAS_THREAD_SAFE;
+  // For coverage check because it is time consuming and run at the first event of each lumi block.
+  mutable std::array<std::atomic_bool, SCT_Monitoring::NBINS_LBs+1> m_firstEventOfLB ATLAS_THREAD_SAFE;
 
   BooleanProperty m_makeConfHisto{this, "MakeConfHisto", true};
   BooleanProperty m_coverageCheck{this, "CoverageCheck", true};
