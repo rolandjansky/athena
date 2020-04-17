@@ -17,5 +17,7 @@ else:
     eflowRecAODList += [ "xAOD::PFOAuxContainer#JetETMissChargedParticleFlowObjectsAux."]
     eflowRecAODList += [ "xAOD::PFOAuxContainer#JetETMissNeutralParticleFlowObjectsAux."+excludeList]
 
-
+if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
+    eflowRecAODList += [ "xAOD::CaloClusterContainer#PFCaloCluster"]
+    eflowRecAODList += [ "xAOD::CaloClusterAuxContainer#PFCaloClusterAux."]
     
