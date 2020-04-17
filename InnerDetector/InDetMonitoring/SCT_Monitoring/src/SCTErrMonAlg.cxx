@@ -17,6 +17,9 @@ SCTErrMonAlg::SCTErrMonAlg(const string& name, ISvcLocator* pSvcLocator)
   for (int reg{0}; reg<N_REGIONS_INC_GENERAL; reg++) {
     m_nMaskedLinks[reg] = 0;
   }
+  for (int lb{0}; lb<=NBINS_LBs; lb++) {
+    m_firstEventOfLB[lb].store(true, std::memory_order_relaxed);
+  }
 }
 
 StatusCode SCTErrMonAlg::initialize() {
@@ -258,7 +261,9 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
     }
   }
   
-  if (m_coverageCheck) {
+  // Coverage check is time consuming and run at the first event of each lumi block.
+  if (m_coverageCheck and m_firstEventOfLB[pEvent->lumiBlock()]) {
+    m_firstEventOfLB[pEvent->lumiBlock()] = false;
     ATH_MSG_DEBUG("Detector Coverage calculation starts" );
 
     static const string names[numberOfProblemForCoverage] = {
