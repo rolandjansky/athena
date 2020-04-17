@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file RootUtils/src/TSMethodCall.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -14,6 +13,8 @@
 #include "RootUtils/TSMethodCall.h"
 #include "TMethod.h"
 #include "TError.h"
+#include "TInterpreter.h"
+#include "CxxUtils/checker_macros.h"
 
 
 namespace RootUtils {
@@ -24,6 +25,7 @@ namespace RootUtils {
  */
 TSMethodCall::TSMethodCall()
   : m_cls(nullptr),
+    m_meth (std::make_unique<TMethodCall>()),
     m_initialized(false)
 {
 }
@@ -36,7 +38,7 @@ TSMethodCall::TSMethodCall (const TSMethodCall& other)
   : m_cls (other.m_cls),
     m_fname (other.m_fname),
     m_args (other.m_args),
-    m_meth (other.m_meth),
+    m_meth (std::make_unique<TMethodCall> (*other.m_meth)),
     m_initialized (false)
 {
   // Don't copy m_tsMeth.
@@ -52,12 +54,25 @@ TSMethodCall& TSMethodCall::operator= (const TSMethodCall& other)
     m_cls = other.m_cls;
     m_fname = other.m_fname;
     m_args = other.m_args;
-    m_meth = other.m_meth;
+    *m_meth = *other.m_meth;
     m_initialized = false;
 
     // Don't copy m_tsMeth.
   }
   return *this;
+}
+
+
+/**
+ * @brief Destructor.
+ */
+TSMethodCall::~TSMethodCall()
+{
+  // Don't try to run the TMethodCall destructor if gCling is gone.
+  TInterpreter* cling ATLAS_THREAD_SAFE = gCling;
+  if (!cling) {
+    m_meth.release();
+  }
 }
 
 
@@ -94,9 +109,9 @@ TMethodCall* TSMethodCall::call()
     std::lock_guard<std::mutex> lock (m_mutex);
     // cppcheck-suppress identicalInnerCondition; false positive
     if (!m_initialized) {
-      m_meth.InitWithPrototype (m_cls, m_fname.c_str(), m_args.c_str(),
+      m_meth->InitWithPrototype (m_cls, m_fname.c_str(), m_args.c_str(),
                                 false, ROOT::kExactMatch);
-      if (!m_meth.IsValid()) {
+      if (!m_meth->IsValid()) {
         ::Warning ("RootUtils::Type",
                    "Can't get method for type `%s': %s (%s).",
                    m_cls->GetName(), m_fname.c_str(), m_args.c_str());
@@ -105,10 +120,10 @@ TMethodCall* TSMethodCall::call()
     }
   }
 
-  if (!m_meth.IsValid()) return nullptr;
+  if (!m_meth->IsValid()) return nullptr;
 
   if (m_tsMeth.get() == 0)
-    m_tsMeth.reset (new TMethodCall (m_meth));
+    m_tsMeth.reset (new TMethodCall (*m_meth));
 
   return m_tsMeth.get();
 }
