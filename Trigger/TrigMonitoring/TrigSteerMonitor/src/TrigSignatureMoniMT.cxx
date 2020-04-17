@@ -549,7 +549,6 @@ StatusCode TrigSignatureMoniMT::initBunchHist(LockedHandle<TH2>& hist, SG::ReadH
   return StatusCode::SUCCESS;
 }
 
-
 TrigSignatureMoniMT::RateHistogram::~RateHistogram(){
   delete m_bufferHistogram.get();
 }
@@ -590,13 +589,6 @@ void TrigSignatureMoniMT::RateHistogram::startTimer(unsigned int duration, unsig
 
 void TrigSignatureMoniMT::RateHistogram::stopTimer() {
   if (m_timer) {
-    m_stopCallback = true;
-
-    // wait for the pending signals to be stopped
-    while (m_stopCallback) {
-      usleep(m_duration*50*1000); //microseconds
-    }
-
     m_timer.reset();
     time_t t = time(0);
     unsigned int interval;
@@ -619,13 +611,10 @@ void TrigSignatureMoniMT::RateHistogram::callback() const {
   unsigned int newinterval;
   unsigned int oldinterval;
 
-  if (m_timeDivider->isPassed(t, newinterval, oldinterval)) {
+  if ( m_timeDivider->isPassed(t, newinterval, oldinterval) ) {
     updatePublished(m_duration);
   }
 
-  //stop callback if timer is going to be deleted
-  //else schedule itself in another 1/20 of the integration period in milliseconds
-  if (bool exp=true; not m_stopCallback.compare_exchange_strong(exp,false)) {
-	m_timer->start(m_duration*50);
-  }
+  //schedule itself in another 1/20 of the integration period in milliseconds
+  if ( m_timer ) m_timer->start(m_duration*50);
 }

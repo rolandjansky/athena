@@ -67,7 +67,6 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
     mutable LockedHandle<TH2> m_bufferHistogram;
     mutable LockedHandle<TH2> m_histogram;
     std::mutex m_mutex;
-    mutable std::atomic_bool m_stopCallback {false};
     std::unique_ptr<Athena::AlgorithmTimer> m_timer;
     std::unique_ptr<TimeDivider> m_timeDivider;
     unsigned int m_duration;
