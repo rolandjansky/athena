@@ -5,15 +5,15 @@
 #ifndef TrigEgammaMatchingTool_H
 #define TrigEgammaMatchingTool_H
 
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-//#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 #include <iostream>
 
-#include "TrigDecisionTool/TrigDecisionTool.h"
+
 
 namespace Trig{
 class TrigEgammaMatchingTool : 

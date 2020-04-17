@@ -25,9 +25,10 @@ namespace Trig{
 
         public:
             virtual StatusCode initialize() = 0;
+            
             virtual bool match(const xAOD::Egamma *,const std::string&) const=0;
             virtual bool match(const xAOD::Egamma *,const std::string&, const TrigCompositeUtils::Decision *&) const=0;
-
+    
 
     };
 }

@@ -236,7 +236,21 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
     if( m_tp ){
         
         if( info.trigType == "electron" ){
-
+            // HLT Electron
+            {
+                std::vector<const xAOD::Electron*> el_vec;
+                std::vector<const xAOD::Egamma*> eg_vec;
+                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,TrigDefs::includeFailedDecisions ,match()->key("Electron") );      
+                for( auto &featLinkInfo : vec ){
+                    const auto *feat = *(featLinkInfo.link);
+                    if(!feat) continue;
+                    // If not pass, continue
+                    el_vec.push_back(feat);
+                    eg_vec.push_back(feat);
+                }
+                fillShowerShapes( trigger, eg_vec, true );
+                fillTracking( trigger, el_vec, true );
+            }
 
         }else{
           ATH_MSG_WARNING( "Chain type not Electron for TP trigger" );
@@ -293,21 +307,57 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
 
 
         if ( info.trigType == "electron" ){
-            // L2 Electron
             
+            // L2 Electron
+            {
+                std::vector<const xAOD::TrigElectron*> el_vec;
+                auto vec =  tdt()->features<xAOD::TrigElectronContainer>(trigger,TrigDefs::includeFailedDecisions ,match()->key("L2Electron") );      
+                for( auto &featLinkInfo : vec ){
+                    const auto *feat = *(featLinkInfo.link);
+                    if(!feat) continue;
+                    // If not pass, continue
+                    el_vec.push_back(feat);
+                }
+                fillL2Electron( trigger, el_vec );
+            }
+ 
+
             // HLT Electron
+            {
+                std::vector<const xAOD::Electron*> el_vec;
+                std::vector<const xAOD::Egamma*> eg_vec;
+                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,TrigDefs::includeFailedDecisions ,match()->key("Electron") );      
+                ATH_MSG_DEBUG("AKI JOAO  == ELECTRON VEC SIZE IS = " <<vec.size());
+                for( auto &featLinkInfo : vec ){
+                    const auto *feat = *(featLinkInfo.link);
+                    if(!feat) continue;
+                    // If not pass, continue
+                    el_vec.push_back(feat);
+                    eg_vec.push_back(feat);
+                }
+                fillShowerShapes( trigger, eg_vec, true );
+                fillTracking( trigger, el_vec, true );
+            }
+
 
         }else if ( info.trigType == "photon"){
-            // L2 Photon
-            
             // HLT Photon
-
+            {
+                std::vector<const xAOD::Egamma*> ph_vec;
+                auto vec =  tdt()->features<xAOD::PhotonContainer>(trigger,TrigDefs::includeFailedDecisions ,match()->key("Photon") );      
+                for( auto &featLinkInfo : vec ){
+                    const auto *feat = *(featLinkInfo.link);
+                    if(!feat) continue;
+                    // If not pass, continue
+                    ph_vec.push_back(feat);
+                }
+                fillShowerShapes( trigger, ph_vec, true );
+            }
         }else{
             ATH_MSG_INFO( "Chain type not specified" );
         }
 
     }
-  
   
   }
 }

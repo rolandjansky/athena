@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
+ * (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TrigEgammaMatchingToolMT_H
 #define TrigEgammaMatchingToolMT_H
@@ -29,21 +29,18 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool, public virtual ITrigEgamma
         virtual ~TrigEgammaMatchingToolMT() override;
         virtual StatusCode initialize() override;
 
-        std::string key( std::string ) const;
+
+        virtual bool match(const xAOD::Egamma *,const std::string&) const override;
+        virtual bool match(const xAOD::Egamma *,const std::string&, const TrigCompositeUtils::Decision *&) const override;
         
-        bool match(const xAOD::Egamma *,const std::string&) const override;
-        bool match(const xAOD::Egamma *,const std::string&, const TrigCompositeUtils::Decision *&) const override;
-
+        std::string key( std::string ) const;
         template<class CONTAINER> bool ancestorPassed( const TrigCompositeUtils::Decision*, const std::string&trigger , const std::string&key) const;
-
         template<class OBJECT> const OBJECT* getFeature( const TrigCompositeUtils::Decision * ) const;
         template<class OBJECT> std::vector<const OBJECT*> getFeatures( const TrigCompositeUtils::Decision * ) const;
         template<class OBJECT> const OBJECT* getFeature( const TrigCompositeUtils::Decision *, const std::string &trigger, const std::string &key ) const;
     
     
     private:
-
-
         
         bool matchHLTElectron(const xAOD::Electron *,const std::string &, const TrigCompositeUtils::Decision *&) const;
         bool matchHLTPhoton(  const xAOD::Photon   *,const std::string &, const TrigCompositeUtils::Decision *&) const;
