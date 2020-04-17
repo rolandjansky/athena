@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -223,7 +223,7 @@ SolenoidalIntersector::circularArcLength(double 	endRadius,
 	double	sinDeltaPhi	= sinPhiIntersect*cosPhi - cosPhiIntersect*sinPhi;
 	if (std::abs(sinDeltaPhi) > 0.1)
 	{
-	    deltaPhi = asin(sinDeltaPhi);
+	    deltaPhi = std::asin(sinDeltaPhi);
 	}
 	else
 	{

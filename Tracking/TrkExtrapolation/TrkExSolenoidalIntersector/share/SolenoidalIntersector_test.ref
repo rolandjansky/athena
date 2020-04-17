@@ -24,8 +24,6 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ToolSvc.Trk::So...   INFO SolenoidalIntersector::initialize() - package version TrkExSolenoidalIntersector-00-00-00
 ToolSvc.Trk::So...   INFO Retrieved service MagFieldSvc = ServiceHandle('MagField::AtlasFieldSvc/AtlasFieldSvc')
-ToolSvc.Trk::So...   INFO Retrieved service MagFieldSvc = ServiceHandle('MagField::AtlasFieldSvc/AtlasFieldSvc')
-ToolSvc.Trk::So...   INFO Retrieved tool RungeKuttaIntersector = PrivateToolHandle('Trk::RungeKuttaIntersector/RungeKuttaIntersector')
 AtlasFieldSvc        INFO handling incidents ...
 AtlasFieldSvc        INFO importCurrents() ...
 AtlasFieldSvc        INFO Initializing the field map (solenoidCurrent=7730 toroidCurrent=20400)
@@ -35,7 +33,6 @@ AtlasFieldSvc        INFO Currents imported and map initialized
 AtlasFieldSvc        INFO BeginRun incident handled
 AtlasFieldSvc        INFO incidents handled successfully
 test_plane
- SolenoidParametrization: centralField      2T  - please be patient while the solenoid is parametrised !! 
 test_line
 test_cylinder
 test_disc
