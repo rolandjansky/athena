@@ -211,7 +211,24 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
 	constants.emplace_back( pixelID.get_compact() );
 
 	std::stringstream moduleConstants(moduleString[1]);
-	while (std::getline(moduleConstants,buffer,',')) { constants.emplace_back(std::atof(buffer.c_str())); }
+	std::vector<float> moduleConstantsVec;
+	while (std::getline(moduleConstants,buffer,',')) {  moduleConstantsVec.emplace_back(std::atof(buffer.c_str())); }
+
+	// Format v1 with no incident angle dependance
+	if(moduleConstantsVec.size()==4){
+	  constants.emplace_back(0); // period
+	  constants.emplace_back(0); // delta_x_slope
+	  constants.emplace_back(moduleConstantsVec[0]); // delta_x_offset
+	  constants.emplace_back(moduleConstantsVec[1]); // delta_error_x
+	  constants.emplace_back(0); // delta_y_slope
+	  constants.emplace_back(moduleConstantsVec[2]); // delta_y_offset
+	  constants.emplace_back(moduleConstantsVec[3]); // delta_error_y
+	}
+
+	// Format v2 with incident angle dependance
+	else if(moduleConstantsVec.size()==7){
+	  for( auto& x : moduleConstantsVec ) constants.emplace_back(x);
+	}
 
       }
 

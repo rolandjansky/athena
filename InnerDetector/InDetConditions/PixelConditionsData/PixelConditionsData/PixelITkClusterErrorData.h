@@ -24,11 +24,16 @@ class PixelITkClusterErrorData {
 
     /** Methods to access the calibration data */ 
 
-    std::pair<double,double> getDelta(const Identifier* pixelId) const;
+    std::pair<double,double> getDelta(const Identifier* pixelId,
+                                      int sizePhi, double angle,
+                                      int sizeZ, double eta) const;
     std::pair<double,double> getDeltaError(const Identifier* pixelId) const;
-    std::map< const Identifier, std::tuple<double,double,double,double> > getConstMap() const {return m_constmap;}
+    std::map< const Identifier, std::vector<double> > getConstMap() const {return m_constmap;}
 
-    void setDeltaError(const Identifier* pixelId, double delta_x, double error_x, double delta_y, double error_y );
+    void setDeltaError(const Identifier* pixelId,
+                       double period,
+                       double delta_x_slope, double delta_x_offset, double error_x,
+                       double delta_y_slope, double delta_y_offset, double error_y );
         
     void print(std::string file) const;
     void load(std::string file);
@@ -37,7 +42,7 @@ class PixelITkClusterErrorData {
      void initialize();
 
      // map to store all ITk Analogue Clustering constants and errors
-     std::map< const Identifier, std::tuple<double,double,double,double> > m_constmap;
+     std::map< const Identifier, std::vector<double> > m_constmap;
 
      StoreGateSvc* m_detStore;
      const PixelID* m_pixelID;
