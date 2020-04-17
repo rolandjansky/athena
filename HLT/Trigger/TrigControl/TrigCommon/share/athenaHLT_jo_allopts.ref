@@ -1,166 +1,167 @@
 <Configuration>
   <HLTMPPUApplication>
-    <childLogName>athenaHLT:</childLogName>
-    <numForks>4</numForks>
-    <InfoServiceLibrary>MonSvcInfoService</InfoServiceLibrary>
-    <softTimeoutFraction>0.95</softTimeoutFraction>
-    <dontPublishIS>0</dontPublishIS>
-    <HLTImplementationLibraries>
-      <library>TrigPSC</library>
-    </HLTImplementationLibraries>
-    <UID>HLTMPPy</UID>
-    <HardTimeout>777</HardTimeout>
-    <finalizeTimeout>120</finalizeTimeout>
-    <numberOfEventSlots>2</numberOfEventSlots>
-    <DataSourceLibrary>DFDcmEmuBackend</DataSourceLibrary>
-    <maximumHltResultMb>42</maximumHltResultMb>
-    <numberOfAthenaMTThreads>2</numberOfAthenaMTThreads>
     <DataSource>
       <HLTDFFileBackend>
-        <preload>False</preload>
-        <numEvents>3</numEvents>
-        <start_id>1</start_id>
-        <library>DFDcmEmuBackend</library>
-        <fileOffset>-1</fileOffset>
         <UID>DataSource-is-DCM</UID>
-        <compressionLevel>2</compressionLevel>
-        <loopOverFiles>False</loopOverFiles>
-        <skipEvents>7</skipEvents>
         <compressionFormat>ZLIB</compressionFormat>
-        <outputFileName>out.data</outputFileName>
-        <rosHitStatFileName>ros_hitstats</rosHitStatFileName>
+        <compressionLevel>2</compressionLevel>
+        <extraL1Robs />
         <fileList>
           <file>/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1</file>
         </fileList>
-        <extraL1Robs />
+        <fileOffset>-1</fileOffset>
+        <library>DFDcmEmuBackend</library>
+        <loopOverFiles>False</loopOverFiles>
+        <numEvents>3</numEvents>
+        <outputFileName>out.data</outputFileName>
+        <preload>False</preload>
+        <rosHitStatFileName>ros_hitstats</rosHitStatFileName>
+        <skipEvents>7</skipEvents>
+        <start_id>1</start_id>
       </HLTDFFileBackend>
     </DataSource>
+    <DataSourceLibrary>DFDcmEmuBackend</DataSourceLibrary>
+    <HLTImplementationLibraries>
+      <library>TrigPSC</library>
+    </HLTImplementationLibraries>
+    <HardTimeout>777</HardTimeout>
     <InfoService>
       <HLTMonInfoImpl>
-        <UID>hltMonSvc</UID>
-        <library>MonSvcInfoService</library>
         <ConfigurationRules>
           <ConfigurationRuleBundle>
-            <UID>HltpuConfigurationRuleBundle</UID>
             <Rules>
               <ConfigurationRule>
                 <ExcludeFilter />
+                <IncludeFilter>.*</IncludeFilter>
                 <Name>Dumm</Name>
-                <UID>HltpuOHRule</UID>
                 <Parameters>
                   <OHPublishingParameters>
+                    <NumberOfSlots>5</NumberOfSlots>
+                    <OHServer>${TDAQ_OH_SERVER=HLT-Histogramming}</OHServer>
                     <PublishInterval>5</PublishInterval>
                     <ROOTProvider>${TDAQ_APPLICATION_NAME}</ROOTProvider>
-                    <OHServer>${TDAQ_OH_SERVER=HLT-Histogramming}</OHServer>
                     <UID>HltpuOHPublishingParameters</UID>
-                    <NumberOfSlots>5</NumberOfSlots>
                   </OHPublishingParameters>
                 </Parameters>
-                <IncludeFilter>.*</IncludeFilter>
+                <UID>HltpuOHRule</UID>
               </ConfigurationRule>
               <ConfigurationRule>
                 <ExcludeFilter />
+                <IncludeFilter>.*</IncludeFilter>
                 <Name>DummDumm</Name>
-                <UID>HltpuISRule</UID>
                 <Parameters>
                   <ISPublishingParameters>
+                    <ISServer>${TDAQ_IS_SERVER=DF}</ISServer>
+                    <NumberOfSlots>1</NumberOfSlots>
                     <PublishInterval>10</PublishInterval>
                     <UID>HltpuISPublishingParameters</UID>
-                    <NumberOfSlots>1</NumberOfSlots>
-                    <ISServer>${TDAQ_IS_SERVER=DF}</ISServer>
                   </ISPublishingParameters>
                 </Parameters>
-                <IncludeFilter>.*</IncludeFilter>
+                <UID>HltpuISRule</UID>
               </ConfigurationRule>
             </Rules>
+            <UID>HltpuConfigurationRuleBundle</UID>
           </ConfigurationRuleBundle>
         </ConfigurationRules>
+        <UID>hltMonSvc</UID>
+        <library>MonSvcInfoService</library>
       </HLTMonInfoImpl>
     </InfoService>
+    <InfoServiceLibrary>MonSvcInfoService</InfoServiceLibrary>
+    <UID>HLTMPPy</UID>
+    <childLogName>athenaHLT:</childLogName>
+    <dontPublishIS>0</dontPublishIS>
+    <finalizeTimeout>120</finalizeTimeout>
+    <getNextTimeout>1000</getNextTimeout>
+    <maximumHltResultMb>42</maximumHltResultMb>
+    <numForks>4</numForks>
+    <numberOfAthenaMTThreads>2</numberOfAthenaMTThreads>
+    <numberOfEventSlots>2</numberOfEventSlots>
+    <softTimeoutFraction>0.95</softTimeoutFraction>
   </HLTMPPUApplication>
   <Partition>
-    <UID>mypart</UID>
     <TriggerConfiguration>
       <TriggerConfiguration>
         <L1TriggerConfiguration>
           <L1TriggerConfiguration>
             <ConfigureLvl1MenuFrom>DB</ConfigureLvl1MenuFrom>
             <Lvl1BunchGroupKey>0</Lvl1BunchGroupKey>
-            <UID>L1TrigConf</UID>
             <Lvl1PrescaleKey>0</Lvl1PrescaleKey>
+            <UID>L1TrigConf</UID>
           </L1TriggerConfiguration>
         </L1TriggerConfiguration>
+        <TriggerDBConnection>
+          <TriggerDBConnection>
+            <Alias>TRIGGERDB</Alias>
+            <Name>dummy</Name>
+            <Password />
+            <Server>TRIGGERDB</Server>
+            <SuperMasterKey>0</SuperMasterKey>
+            <Type>Coral</Type>
+            <User />
+          </TriggerDBConnection>
+        </TriggerDBConnection>
+        <UID>JobOptionsTriggerConfig-1</UID>
         <hlt>
           <HLTImplementationJobOptions>
+            <HLTCommonParameters>
+              <HLTCommonParameters>
+                <jobOptionsSvcType>TrigConf::JobOptionsSvc</jobOptionsSvcType>
+                <messageSvcType>TrigMessageSvc</messageSvcType>
+              </HLTCommonParameters>
+            </HLTCommonParameters>
+            <UID>HLTImplementationJobOptions-1</UID>
+            <jobOptionsPath>dummy.py</jobOptionsPath>
             <libraries>
               <library>TrigServices</library>
               <library>TrigPSC</library>
             </libraries>
+            <logLevels>
+              <logLevel>ERROR</logLevel>
+              <logLevel>FATAL</logLevel>
+            </logLevels>
+            <postCommands>
+              <postCommand>x=2</postCommand>
+            </postCommands>
             <preCommands>
               <preCommand>x=1</preCommand>
               <preCommand>y=2</preCommand>
               <preCommand>_run_number=360026</preCommand>
             </preCommands>
-            <showInclude>false</showInclude>
-            <postCommands>
-              <postCommand>x=2</postCommand>
-            </postCommands>
-            <UID>HLTImplementationJobOptions-1</UID>
-            <HLTCommonParameters>
-              <HLTCommonParameters>
-                <messageSvcType>TrigMessageSvc</messageSvcType>
-                <jobOptionsSvcType>TrigConf::JobOptionsSvc</jobOptionsSvcType>
-              </HLTCommonParameters>
-            </HLTCommonParameters>
-            <logLevels>
-              <logLevel>ERROR</logLevel>
-              <logLevel>FATAL</logLevel>
-            </logLevels>
             <pythonSetupFile>TrigPSC/TrigPSCPythonSetup.py</pythonSetupFile>
-            <jobOptionsPath>dummy.py</jobOptionsPath>
+            <showInclude>false</showInclude>
           </HLTImplementationJobOptions>
         </hlt>
-        <UID>JobOptionsTriggerConfig-1</UID>
-        <TriggerDBConnection>
-          <TriggerDBConnection>
-            <Name>dummy</Name>
-            <Server>TRIGGERDB</Server>
-            <Alias>TRIGGERDB</Alias>
-            <User />
-            <Password />
-            <Type>Coral</Type>
-            <SuperMasterKey>0</SuperMasterKey>
-          </TriggerDBConnection>
-        </TriggerDBConnection>
       </TriggerConfiguration>
     </TriggerConfiguration>
+    <UID>mypart</UID>
   </Partition>
   <ROS2ROBS />
 </Configuration>
 <RunParams>
-  <totalTime>0</totalTime>
-  <run_type>Physics</run_type>
-  <run_number>360026</run_number>
-  <timeEOR>1/1/70 01:00:00</timeEOR>
-  <timeSOR>05/09/18 12:30:52.000000</timeSOR>
-  <stream>physics_EnhancedBias</stream>
-  <trigger_type>0</trigger_type>
   <T0_project_tag>data18_13TeV</T0_project_tag>
-  <det_mask>0000000000000001c10069fffffffff7</det_mask>
   <beam_energy>6500</beam_energy>
   <beam_type>1</beam_type>
-  <lumiblock>151</lumiblock>
+  <det_mask>0000000000000001c10069fffffffff7</det_mask>
   <filename_tag />
+  <lumiblock>151</lumiblock>
   <max_events>0</max_events>
   <recording_enabled>0</recording_enabled>
+  <run_number>360026</run_number>
+  <run_type>Physics</run_type>
+  <stream>physics_EnhancedBias</stream>
+  <timeEOR>1/1/70 01:00:00</timeEOR>
+  <timeSOR>05/09/18 12:30:52.000000</timeSOR>
+  <totalTime>0</totalTime>
+  <trigger_type>0</trigger_type>
 </RunParams>
 <Magnets>
-  <ToroidsCurrent>
-    <ts>05/09/18 12:30:52.000000</ts>
-    <value>20400</value>
-  </ToroidsCurrent>
   <SolenoidCurrent>
     <ts>05/09/18 12:30:52.000000</ts>
     <value>7730</value>
   </SolenoidCurrent>
+  <ToroidsCurrent>
+    <ts>05/09/18 12:30:52.000000</ts>
+    <value>20400</value>
+  </ToroidsCurrent>
 </Magnets>
