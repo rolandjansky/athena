@@ -17,7 +17,7 @@ DirectPhotonFilter::DirectPhotonFilter(const std::string& name, ISvcLocator* pSv
   declareProperty("AllowSUSYDecay",m_AllowSUSYDecay = false);
 
   // Backward compatibility aliases
-  declareProperty("Ptcut", m_Ptmin = std::vector<double>(m_NPhotons, 10000.));
+  declareProperty("Ptcut", m_Ptmin);
 }
 
 StatusCode DirectPhotonFilter::filterInitialize() {
