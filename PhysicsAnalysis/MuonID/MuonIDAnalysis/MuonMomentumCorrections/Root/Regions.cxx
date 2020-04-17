@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -7,28 +7,28 @@
 #include <cstdlib>
 #include <cmath>
 #include "MuonMomentumCorrections/Regions.h"
-
-using namespace std;
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include <TString.h> // for Form
 
 void Regions::PrintRegions() const {
+	MsgStream log(Athena::getMessageSvc(), "Regions");
     if(m_doMacroRegions){
-	for(map<int, int>::const_iterator it = m_macroRegionIdxMap.begin();
+	for(std::map<int, int>::const_iterator it = m_macroRegionIdxMap.begin();
 	    it!=m_macroRegionIdxMap.end(); ++it){
 	    int bReg = it->first, mReg = it->second;
-	    cout<<"Base region n "<<bReg<<": "<<endl
+	    log<<MSG::INFO<<"Base region n "<<bReg<<": "
 		     <<"phi_min="<<m_phi_min[bReg]<<", phi_max="<<m_phi_max[bReg]
-		     <<", eta_min="<<m_eta_min[bReg]<<", eta_max="<<m_eta_max[bReg];
-	    if(m_loadNames) cout<<", name="<<m_names[bReg];
-	    cout<<endl<<"included in Macro region N "<<mReg<<" with innerEta="<<m_macroRegionInnerEta[mReg];
-	    if(m_loadNames) cout<<", name="<<m_macroRegionName[mReg];
-	    cout<<endl;
+		     <<", eta_min="<<m_eta_min[bReg]<<", eta_max="<<m_eta_max[bReg]<<endmsg;
+	    if(m_loadNames) log<<MSG::INFO<<", name="<<m_names[bReg]<<endmsg;
+	    log<<MSG::INFO<<"included in Macro region N "<<mReg<<" with innerEta="<<m_macroRegionInnerEta[mReg]<<endmsg;
+	    if(m_loadNames) log<<MSG::INFO<<", name="<<m_macroRegionName[mReg]<<endmsg;
 	}
     } else {
 	for(int bReg=0; bReg<m_nb_regions; ++bReg){
-	    cout<<"Base region n "<<bReg<<": phi_min="<<m_phi_min[bReg]<<", phi_max="<<m_phi_max[bReg]
-		<<", eta_min="<<m_eta_min[bReg]<<", eta_max="<<m_eta_max[bReg];
-	    if(m_loadNames) cout<<", name="<<m_names[bReg];
-	    cout<<endl;
+	    log<<MSG::INFO<<"Base region n "<<bReg<<": phi_min="<<m_phi_min[bReg]<<", phi_max="<<m_phi_max[bReg]
+		<<", eta_min="<<m_eta_min[bReg]<<", eta_max="<<m_eta_max[bReg]<<endmsg;
+	    if(m_loadNames) log<<MSG::INFO<<", name="<<m_names[bReg]<<endmsg;
 	}
     }
 }
@@ -38,46 +38,38 @@ unsigned int Regions::GetNRegions() const {
     else return m_nb_regions;
 }
 
-Regions::Regions(string inRegionFile, int doMacroRegionsFlag){
+Regions::Regions(const std::string& inRegionFile, int doMacroRegionsFlag){
     m_eta_min.clear(); m_eta_max.clear(); m_phi_min.clear(); m_phi_max.clear();
     m_loadNames = false;
     m_doMacroRegions = false;
     m_useAbsEta = false; 
-    verb = false;
-    string tmpname;
+    std::string tmpname;
     double tmpval;
     int i=0;
     
-    ifstream inFile(inRegionFile.c_str());
+    std::ifstream inFile(inRegionFile.c_str());
     if(!inFile.good()){
-	cerr<<__FILE__<<" line:"<<__LINE__<<" "<<"ERROR:: File "<<inRegionFile<<" NOT FOUND!!"<<endl;
-	exit(-1);
+    	throw std::runtime_error(Form("File: %s, Line: %d\nRegions::Regions() - File %s NOT FOUND!!", __FILE__, __LINE__, inRegionFile.c_str()));
     } else {
 	while(!inFile.eof()){
 	    tmpval=0; tmpname="";
 	    if(i==0){
 		getline(inFile,tmpname);
 		//Check if I am loading the name of the regions in the file
-		if(tmpname.find("name") != string::npos && !m_loadNames) m_loadNames=true;
-		if(verb) cout<<"tmpname: "<<tmpname<<endl;
+		if(tmpname.find("name") != std::string::npos && !m_loadNames) m_loadNames=true;
 	    } else {
 		inFile>>tmpval;
 		if(inFile.eof()) break;//this will break immediatly as soon as the new line is empty
 		m_eta_min.push_back(tmpval);
-		if(verb) cout<<"i="<<i<<"; eta min: "<<tmpval<<endl;
 		inFile>>tmpval;
 		m_eta_max.push_back(tmpval);
-		if(verb) cout<<"i="<<i<<"; eta max: "<<tmpval<<endl;
 		inFile>>tmpval;
 		m_phi_min.push_back(tmpval);
-		if(verb) cout<<"i="<<i<<"; phi min: "<<tmpval<<endl;
 		inFile>>tmpval;
 		m_phi_max.push_back(tmpval);
-		if(verb) cout<<"i="<<i<<"; phi max: "<<tmpval<<endl;
 		if(m_loadNames){//Fill the name vector only if you have them!
 		    inFile>>tmpname;
 		    m_names.push_back(tmpname);	
-		    if(verb) cout<<"tmpname: "<<tmpname<<endl;
 		}
 	    }
 	    ++i;
@@ -85,34 +77,27 @@ Regions::Regions(string inRegionFile, int doMacroRegionsFlag){
     }
     inFile.close();
     m_nb_regions = (int)m_eta_min.size();
-    std::cout << std::endl << m_nb_regions << std::endl << std::endl;
     if(doMacroRegionsFlag){//In case I want macroRegions, I need to define the criteria here
 	m_doMacroRegions =true;
 	switch(doMacroRegionsFlag){
 	case 1:
-	    if(verb) cout<<"collectMacroRegionsSL()"<<endl;
 	    //Collects all the Large and Small sectors if they belong to the same eta bin
 	    collectMacroRegionsSL(); break;
 	case 2:
-	    if(verb) cout<<"collectMacroRegionsSL_SplitBAR()"<<endl;
 	    //Large,Small sectors split plus Feet(12+14) and 11+15 sector split in Barrel
 	    collectMacroRegionsSL_SplitBAR(); break;
 	case 3:
-	    if(verb) cout<<"collectMacroRegionsSL_UpDn()"<<endl;
 	    //Collects all the Large and Small, Up and Down sectors if they belong to the same eta bin
 	    collectMacroRegionsSL_UpDn(); break;
 	case 4: 
-	    if(verb) cout<<"using std::abs(eta)"<<endl;
 	    m_useAbsEta = true; 
 	    m_doMacroRegions =false; //not really using macroRegions
 	    break;
 	case 5: 
-	    if(verb) cout<<"using sectors!"<<endl;
 	    useSectors(); break;
 	    break;
 	default:
-	    cerr<<"ERROR: doMacroRegionFlag="<<doMacroRegionsFlag<<" not defined!"<<endl<<endl;
-	    exit(-1); break;
+	    throw std::runtime_error(Form("File: %s, Line: %d\nRegions::Regions() - doMacroRegionFlag=%i not defined!", __FILE__, __LINE__, doMacroRegionsFlag));
 	}
     }
 }
@@ -137,8 +122,9 @@ int Regions::GetRegion(double eta, const double phi) const{
     }
 
     if(ret_k == -1){
-	cerr<<__FILE__<<" "<<__LINE__<<" WARNING: Region corresponding to Eta="<<eta<<", Phi="<<phi<<" NOT FOUND!"<<endl;
-	return -1;
+        MsgStream log(Athena::getMessageSvc(), "Regions");
+        log<<MSG::WARNING<<"GetRegion() - Region corresponding to Eta="<<eta<<", Phi="<<phi<<" NOT FOUND!"<<endmsg;
+        return -1;
     }
     if(m_doMacroRegions) return m_macroRegionIdxMap.find(ret_k)->second;
     return ret_k;	
@@ -151,7 +137,8 @@ float Regions::GetRegionDeltaEta(const int r_i) const{ //Return Eta range of the
 	if(r_i >= 0 && r_i < m_nb_regions)
 	    return std::abs(m_eta_max[r_i] - m_eta_min[r_i]);	
     }
-    cerr<<__FILE__<<" "<<__LINE__<<" WARNING: Region Inner Eta corresponding to Region index="<<r_i<<" NOT FOUND!"<<endl;
+    MsgStream log(Athena::getMessageSvc(), "Regions");
+    log<<MSG::WARNING<<"GetRegionDeltaEta() - Region Inner Eta corresponding to Region index="<<r_i<<" NOT FOUND!"<<endmsg;
     return -999.;
 }
 
@@ -164,27 +151,30 @@ float Regions::GetRegionInnerEta(const int r_i) const{//Return Eta closer to the
 	    else return m_eta_max[r_i];
 	}
     }
-    cerr<<__FILE__<<" "<<__LINE__<<" WARNING: Region Inner Eta corresponding to Region index="<<r_i<<" NOT FOUND!"<<endl;
+    MsgStream log(Athena::getMessageSvc(), "Regions");
+    log<<MSG::WARNING<<"GetRegionInnerEta() - Region Inner Eta corresponding to Region index="<<r_i<<" NOT FOUND!"<<endmsg;
     return -999.;
 }
 
 
-string Regions::GetRegionName(const int r_i) const{
+std::string Regions::GetRegionName(const int r_i) const{
+	MsgStream log(Athena::getMessageSvc(), "Regions");
     if(m_loadNames){
-	if(m_doMacroRegions) {
-	    if(r_i>=0 && r_i < (int)m_macroRegionName.size()) return m_macroRegionName[r_i];
-	} else {
-	    if(r_i>=0 && r_i < m_nb_regions) return m_names[r_i];
-	}
-	cerr<<__FILE__<<" "<<__LINE__<<" WARNING: Region Name corresponding to Region index="<<r_i<<" NOT FOUND!"<<endl;
+        if(m_doMacroRegions) {
+            if(r_i>=0 && r_i < (int)m_macroRegionName.size()) return m_macroRegionName[r_i];
+        } else {
+            if(r_i>=0 && r_i < m_nb_regions) return m_names[r_i];
+        }
+        log<<MSG::WARNING<<"GetRegionName() - Region Name corresponding to Region index="<<r_i<<" NOT FOUND!"<<endmsg;
     }
-    cerr<<__FILE__<<" "<<__LINE__<<" WARNING: Region Names are not set!"<<endl;
+    log<<MSG::WARNING<<"GetRegionName() - Region Names not set!"<<endmsg;
     return "NAN";
 }
 
-string Regions::GetRegionName(const double eta, const double phi) const{  
+std::string Regions::GetRegionName(const double eta, const double phi) const{  
     if(m_loadNames) return GetRegionName(GetRegion(eta, phi));
-    cerr<<__FILE__<<" "<<__LINE__<<" WARNING: Region Names are not set!"<<endl;
+    MsgStream log(Athena::getMessageSvc(), "Regions");
+    log<<MSG::WARNING<<"GetRegionName() - Region Names not set!"<<endmsg;
     return "NAN";
 }
 
@@ -198,7 +188,7 @@ void Regions::collectMacroRegionsSL(){
 	    etaMin = m_eta_min[k];	etaMax = m_eta_max[k];
 	    deltaEta = std::abs(m_eta_max[k] - m_eta_min[k]);
 	    //One of the following is true
-	    string macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
+	    std::string macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("BL"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("ES"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("BS"));
@@ -211,15 +201,11 @@ void Regions::collectMacroRegionsSL(){
 		m_macroRegionDeltaEta.push_back(deltaEta);
 	    }
 	    macroRegionIdx+=2;
-	    if(verb) cout<<"k="<<k<<": etaMin="<<etaMin<<"; etaMax="<<etaMax
-			      <<"; m_macroRegionName.size()="<<m_macroRegionName.size()
-			      <<"; macroRegionIdx"<<macroRegionIdx<<"; m_macroRegionInnerEta["<<macroRegionIdx<<"]="
-			      <<m_macroRegionInnerEta[macroRegionIdx]<<endl;
 	}
 
-	if( m_names[k].find("EL") != string::npos || m_names[k].find("BL") != string::npos)
+	if( m_names[k].find("EL") != std::string::npos || m_names[k].find("BL") != std::string::npos)
 	    m_macroRegionIdxMap[k] = macroRegionIdx-2;//Large sectors
-	if( m_names[k].find("ES") != string::npos || m_names[k].find("BS") != string::npos)
+	else if( m_names[k].find("ES") != std::string::npos || m_names[k].find("BS") != std::string::npos)
 	    m_macroRegionIdxMap[k] = macroRegionIdx-1;//Small sectors	
     }
 }
@@ -234,7 +220,7 @@ void Regions::collectMacroRegionsSL_UpDn(){
 	    etaMin = m_eta_min[k];	etaMax = m_eta_max[k];
 	    deltaEta = std::abs(m_eta_max[k] - m_eta_min[k]);
 	    //One of the following is true
-	    string macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
+	    std::string macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("BL"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("ES"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("BS"));
@@ -249,22 +235,18 @@ void Regions::collectMacroRegionsSL_UpDn(){
 		m_macroRegionDeltaEta.push_back(deltaEta);
 	    }
 	    macroRegionIdx+=4;
-	    if(verb) cout<<"k="<<k<<": etaMin="<<etaMin<<"; etaMax="<<etaMax
-			      <<"; m_macroRegionName.size()="<<m_macroRegionName.size()
-			      <<"; macroRegionIdx"<<macroRegionIdx<<"; m_macroRegionInnerEta["<<macroRegionIdx<<"]="
-			      <<m_macroRegionInnerEta[macroRegionIdx]<<endl;
 	}
-	if( m_names[k].find("EL") != string::npos || m_names[k].find("BL") != string::npos){//Large sectors
-	    if(m_names[k].find("11") != string::npos || m_names[k].find("13") != string::npos || 
-	       m_names[k].find("15") != string::npos ) {
+	if( m_names[k].find("EL") != std::string::npos || m_names[k].find("BL") != std::string::npos){//Large sectors
+	    if(m_names[k].find("11") != std::string::npos || m_names[k].find("13") != std::string::npos || 
+	       m_names[k].find("15") != std::string::npos ) {
 		m_macroRegionIdxMap[k] = macroRegionIdx-4;//Down Large sectors (within 10 to 16)
 	    } else {
 		m_macroRegionIdxMap[k] = macroRegionIdx-2; //Up, large sectors
 	    }
 	}
-	if( m_names[k].find("ES") != string::npos || m_names[k].find("BS") != string::npos){//Small sectors
-	    if(m_names[k].find("10") != string::npos || m_names[k].find("12") != string::npos || 
-	       m_names[k].find("14") != string::npos || m_names[k].find("16") != string::npos ) {
+	else if( m_names[k].find("ES") != std::string::npos || m_names[k].find("BS") != std::string::npos){//Small sectors
+	    if(m_names[k].find("10") != std::string::npos || m_names[k].find("12") != std::string::npos || 
+	       m_names[k].find("14") != std::string::npos || m_names[k].find("16") != std::string::npos ) {
 		m_macroRegionIdxMap[k] = macroRegionIdx-3; //Down Small sectors (from 10 to 16). Should I remove 10 and 16? ++++++
 	    } else {
 		m_macroRegionIdxMap[k] = macroRegionIdx-1; ; //Up, Small sectors
@@ -282,7 +264,7 @@ void Regions::useSectors(){
 	    etaMin = m_eta_min[k];	etaMax = m_eta_max[k];
 	    deltaEta = std::abs(m_eta_max[k] - m_eta_min[k]);
 	    //One of the following is true
-	    string macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
+	    std::string macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("BL"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("ES"));
 	    macroRegName = macroRegName.substr(0, m_names[k].find("BS"));
@@ -297,22 +279,18 @@ void Regions::useSectors(){
 		m_macroRegionDeltaEta.push_back(deltaEta);
 	    }
 	    macroRegionIdx+=4;
-	    if(verb) cout<<"k="<<k<<": etaMin="<<etaMin<<"; etaMax="<<etaMax
-			      <<"; m_macroRegionName.size()="<<m_macroRegionName.size()
-			      <<"; macroRegionIdx"<<macroRegionIdx<<"; m_macroRegionInnerEta["<<macroRegionIdx<<"]="
-			      <<m_macroRegionInnerEta[macroRegionIdx]<<endl;
 	}
-	if( m_names[k].find("EL") != string::npos || m_names[k].find("BL") != string::npos){//Large sectors
-	    if(m_names[k].find("11") != string::npos || m_names[k].find("13") != string::npos || 
-	       m_names[k].find("15") != string::npos ) {
+	if( m_names[k].find("EL") != std::string::npos || m_names[k].find("BL") != std::string::npos){//Large sectors
+	    if(m_names[k].find("11") != std::string::npos || m_names[k].find("13") != std::string::npos || 
+	       m_names[k].find("15") != std::string::npos ) {
 		m_macroRegionIdxMap[k] = macroRegionIdx-4;//Down Large sectors (within 10 to 16)
 	    } else {
 		m_macroRegionIdxMap[k] = macroRegionIdx-2; //Up, large sectors
 	    }
 	}
-	if( m_names[k].find("ES") != string::npos || m_names[k].find("BS") != string::npos){//Small sectors
-	    if(m_names[k].find("10") != string::npos || m_names[k].find("12") != string::npos || 
-	       m_names[k].find("14") != string::npos || m_names[k].find("16") != string::npos ) {
+	else if( m_names[k].find("ES") != std::string::npos || m_names[k].find("BS") != std::string::npos){//Small sectors
+	    if(m_names[k].find("10") != std::string::npos || m_names[k].find("12") != std::string::npos || 
+	       m_names[k].find("14") != std::string::npos || m_names[k].find("16") != std::string::npos ) {
 		m_macroRegionIdxMap[k] = macroRegionIdx-3; //Down Small sectors (from 10 to 16). Should I remove 10 and 16? ++++++
 	    } else {
 		m_macroRegionIdxMap[k] = macroRegionIdx-1; ; //Up, Small sectors
@@ -330,8 +308,8 @@ void Regions::collectMacroRegionsSL_SplitBAR(){
 	if( etaMin != m_eta_min[k] || etaMax !=m_eta_max[k] ){ //Build a new macroRegion
 	    etaMin = m_eta_min[k];	etaMax = m_eta_max[k];
 	    deltaEta = std::abs(m_eta_max[k] - m_eta_min[k]);
-	    string macroRegName ="";
-	    if(m_names[k].find("EL")!= string::npos || m_names[k].find("ES") != string::npos){		
+	    std::string macroRegName ="";
+	    if(m_names[k].find("EL")!= std::string::npos || m_names[k].find("ES") != std::string::npos){		
 		//We are in the End-Cap sectors so we split only Large and Small sectors
 		macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
 		macroRegName = macroRegName.substr(0, m_names[k].find("ES"));
@@ -359,23 +337,19 @@ void Regions::collectMacroRegionsSL_SplitBAR(){
 		}
 		macroRegionIdx+=4;
 	    }
-	    if(verb) cout<<"k="<<k<<": etaMin="<<etaMin<<"; etaMax="<<etaMax<<"; short macroRegName="<<macroRegName
-			      <<"; m_macroRegionName.size()="<<m_macroRegionName.size()
-			      <<"; macroRegionIdx"<<macroRegionIdx<<"; m_macroRegionInnerEta["<<macroRegionIdx<<"]="
-			      <<m_macroRegionInnerEta[macroRegionIdx]<<endl;
 	}
-	if( m_names[k].find("EL") != string::npos){//End-Cap Large sectors
+	if( m_names[k].find("EL") != std::string::npos){//End-Cap Large sectors
 	    m_macroRegionIdxMap[k] = macroRegionIdx-2;
-	} else if( m_names[k].find("ES") != string::npos){//End-Cap Small sectors
+	} else if( m_names[k].find("ES") != std::string::npos){//End-Cap Small sectors
 	    m_macroRegionIdxMap[k] = macroRegionIdx-1; //
-	} else if (m_names[k].find("BL") != string::npos){//Barrel Large sectors
-	    if(m_names[k].find("11") != string::npos || m_names[k].find("15") != string::npos ) {
+	} else if (m_names[k].find("BL") != std::string::npos){//Barrel Large sectors
+	    if(m_names[k].find("11") != std::string::npos || m_names[k].find("15") != std::string::npos ) {
 		m_macroRegionIdxMap[k] = macroRegionIdx-2;//Barrel Large sectors with different alignment (11,15)
 	    } else {
 		m_macroRegionIdxMap[k] = macroRegionIdx-4; //Standard Barrel Large sectors
 	    }	    
-	} else if( m_names[k].find("BS") != string::npos){//Barrel Small sectors
-	    if(m_names[k].find("12") != string::npos || m_names[k].find("14") != string::npos ) {
+	} else if( m_names[k].find("BS") != std::string::npos){//Barrel Small sectors
+	    if(m_names[k].find("12") != std::string::npos || m_names[k].find("14") != std::string::npos ) {
 		m_macroRegionIdxMap[k] = macroRegionIdx-1; //Feet Small sectors (12+14, Down).
 	    } else {
 		m_macroRegionIdxMap[k] = macroRegionIdx-3; //All standard Barrel Small sectors
