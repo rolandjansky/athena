@@ -9,9 +9,8 @@
 #include "AthContainers/ConstDataVector.h"
 
 // Local includes
-#include "AssociationUtils/MuJetOverlapTool.h"
+#include "AssociationUtils/MuPFJetOverlapTool.h"
 #include "AssociationUtils/DeltaRMatcher.h"
-#include "AssociationUtils/MuJetGhostDRMatcher.h"
 
 namespace
 {
@@ -25,37 +24,28 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   // Constructor
   //---------------------------------------------------------------------------
-  MuJetOverlapTool::MuJetOverlapTool(const std::string& name)
+  MuPFJetOverlapTool::MuPFJetOverlapTool(const std::string& name)
     : BaseOverlapTool(name)
   {
-    declareProperty("BJetLabel", m_bJetLabel = "",
-                    "Input b-jet flag. Disabled by default.");
-    declareProperty("NumJetTrk", m_numJetTrk = 3,
+    declareProperty("NumJetTrk", m_numJetTrk = 4,
                     "Min number of jet tracks to keep jet and remove muon");
-    declareProperty("ApplyRelPt", m_applyRelPt = false,
-                    "Toggle mu/jet relative PT requirements to prioritize jet");
-    declareProperty("MuJetPtRatio", m_muJetPtRatio = 0.5,
-                    "Mu/jet PT ratio threshold to remove a jet");
-    declareProperty("MuJetTrkPtRatio", m_muJetTrkPtRatio = 0.7,
-                    "Mu/jetTrk PT ratio threshold to remove a jet");
     declareProperty("JetNumTrackDecoration", m_jetNumTrkDec = "",
                     "User-defined decoration for jet numTrack");
     declareProperty("JetSumTrackPTDecoration", m_jetSumTrkPtDec = "",
                     "User-defined decoration for jet sumTrackPT");
-    declareProperty("UseGhostAssociation", m_useGhostAssociation = true,
-                    "Activate ghost-association mapping for jet removals");
-    declareProperty("InnerDR", m_innerDR = 0.2,
-                    "Flat inner cone for removing jets");
-    declareProperty("OuterDR", m_outerDR = 0.4,
-                    "Flat outer cone for removing muons");
-    declareProperty("UseSlidingDR", m_useSlidingDR = false,
-                    "Enables sliding dR outer cone = c1 + c2/MuPt");
-    declareProperty("SlidingDRC1", m_slidingDRC1 = 0.04,
-                    "The constant offset for sliding dR");
-    declareProperty("SlidingDRC2", m_slidingDRC2 = 10.*GeV,
-                    "The inverse muon pt factor for sliding dR");
-    declareProperty("SlidingDRMaxCone", m_slidingDRMaxCone = 0.4,
-                    "Maximum allowed size of sliding dR cone");
+    declareProperty("ConeDR", m_coneDR = 0.4,
+                    "Cone for removing jets");
+    declareProperty("MuPFJet_lowNtrk_x1", m_muPFJet_lowNtrk_x1 = 0.7,"");
+    declareProperty("MuPFJet_lowNtrk_x2", m_muPFJet_lowNtrk_x2 = 0.85,"");
+    declareProperty("MuPFJet_lowNtrk_y0", m_muPFJet_lowNtrk_y0 = 15.*GeV,"");
+    declareProperty("MuPFJet_lowNtrk_y1", m_muPFJet_lowNtrk_y1 = 15.*GeV,"");
+    declareProperty("MuPFJet_lowNtrk_y2", m_muPFJet_lowNtrk_y2 = 30.*GeV,"");
+    declareProperty("MuPFJet_highNtrk_x1", m_muPFJet_highNtrk_x1 = 0.6,"");
+    declareProperty("MuPFJet_highNtrk_x2", m_muPFJet_highNtrk_x2 = 0.9,"");
+    declareProperty("MuPFJet_highNtrk_y0", m_muPFJet_highNtrk_y0 = 5.*GeV,"");
+    declareProperty("MuPFJet_highNtrk_y1", m_muPFJet_highNtrk_y1 = 5.*GeV,"");
+    declareProperty("MuPFJet_highNtrk_y2", m_muPFJet_highNtrk_y2 = 30.*GeV,"");
+
     declareProperty("UseRapidity", m_useRapidity = true,
                     "Calculate delta-R using rapidity");
   }
@@ -63,44 +53,24 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   // Initialize
   //---------------------------------------------------------------------------
-  StatusCode MuJetOverlapTool::initializeDerived()
+  StatusCode MuPFJetOverlapTool::initializeDerived()
   {
-    // Initialize the b-jet helper
-    if(!m_bJetLabel.empty()) {
-      ATH_MSG_DEBUG("Configuring btag-aware OR with btag label: " << m_bJetLabel);
-      m_bJetHelper = std::make_unique<BJetHelper>(m_bJetLabel);
-    }
 
-    // Initialize the matcher for the 'inner' cone.
-    if(m_useGhostAssociation) {
-      ATH_MSG_DEBUG("Configuring ghost association + dR matching for jet-mu OR "
-                    "with inner cone size " << m_innerDR);
-      m_dRMatchCone1 = std::make_unique<MuJetGhostDRMatcher>(m_innerDR, m_useRapidity);
-    }
-    else {
-      ATH_MSG_DEBUG("Configuring mu-jet inner cone size " << m_innerDR);
-      m_dRMatchCone1 = std::make_unique<DeltaRMatcher>(m_innerDR, m_useRapidity);
-    }
-
-    // Use sliding dR or flat dR for the 'outer' cone.
-    if(m_useSlidingDR) {
-      ATH_MSG_DEBUG("Configuring sliding outer cone for mu-jet OR with " <<
-                    "constants C1 = " << m_slidingDRC1 << ", C2 = " <<
-                    m_slidingDRC2 << ", MaxCone = " << m_slidingDRMaxCone);
-      m_dRMatchCone2 =
-        std::make_unique<SlidingDeltaRMatcher>
-          (m_slidingDRC1, m_slidingDRC2, m_slidingDRMaxCone, m_useRapidity);
-    }
-    else {
-      ATH_MSG_DEBUG("Configuring mu-jet outer cone size " << m_outerDR);
-      m_dRMatchCone2 = std::make_unique<DeltaRMatcher>(m_outerDR, m_useRapidity);
-    }
+    ATH_MSG_DEBUG("Configuring mu-pflow-jet cone size " << m_coneDR);
+    m_dRMatchCone = std::make_unique<DeltaRMatcher>(m_coneDR, m_useRapidity);
 
     // Additional config printouts
-    ATH_MSG_DEBUG("Mu-jet matching config: NumJetTrk " << m_numJetTrk <<
-                  " ApplyRelPt " << m_applyRelPt <<
-                  " MuJetPtRatio " << m_muJetPtRatio <<
-                  " MuJetTrkPtRatio " << m_muJetTrkPtRatio);
+    ATH_MSG_DEBUG("PFlow jet removal which are identified as muons config: NumJetTrk " << m_numJetTrk <<
+                  " MuPFJet_lowNtrk_x1 " << m_muPFJet_lowNtrk_x1 <<
+                  " MuPFJet_lowNtrk_x2 " << m_muPFJet_lowNtrk_x2 <<
+                  " MuPFJet_lowNtrk_y0 " << m_muPFJet_lowNtrk_y0 <<
+                  " MuPFJet_lowNtrk_y1 " << m_muPFJet_lowNtrk_y1 <<
+                  " MuPFJet_lowNtrk_y2 " << m_muPFJet_lowNtrk_y2 <<
+                  " MuPFJet_highNtrk_x1 " << m_muPFJet_highNtrk_x1 <<
+                  " MuPFJet_highNtrk_x2 " << m_muPFJet_highNtrk_x2 <<
+                  " MuPFJet_highNtrk_y0 " << m_muPFJet_highNtrk_y0 <<
+                  " MuPFJet_highNtrk_y1 " << m_muPFJet_highNtrk_y1 <<
+                  " MuPFJet_highNtrk_y2 " << m_muPFJet_highNtrk_y2);
     if(!m_jetNumTrkDec.empty()) {
       ATH_MSG_DEBUG("Using user-defined JetNumTrackDecoration " << m_jetNumTrkDec);
     }
@@ -114,7 +84,7 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   // Identify overlaps
   //---------------------------------------------------------------------------
-  StatusCode MuJetOverlapTool::
+  StatusCode MuPFJetOverlapTool::
   findOverlaps(const xAOD::IParticleContainer& cont1,
                const xAOD::IParticleContainer& cont2) const
   {
@@ -137,7 +107,7 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   // Identify overlaps
   //---------------------------------------------------------------------------
-  StatusCode MuJetOverlapTool::
+  StatusCode MuPFJetOverlapTool::
   findOverlaps(const xAOD::MuonContainer& muons,
                const xAOD::JetContainer& jets) const
   {
@@ -156,42 +126,45 @@ namespace ORUtils
     }
 
     // Remove suspicious jets that overlap with muons.
-    for(const auto muon : muons){
+    for(const xAOD::Muon* muon : muons){
       if(!m_decHelper->isSurvivingObject(*muon)) continue;
 
-      for(const auto jet : jets){
+      for(const xAOD::Jet* jet : jets){
         if(!m_decHelper->isSurvivingObject(*jet)) continue;
-
-        // Don't reject user-defined b-tagged jets
-        if(m_bJetHelper && m_bJetHelper->isBJet(*jet)) continue;
 
         // Get the number of tracks and the sumPT of those tracks
         int nTrk = getNumTracks(*jet, vtxIdx);
         float sumTrkPt = getSumTrackPt(*jet, vtxIdx);
 
-        // Don't reject jets with high track multiplicity and
-        // high relative PT ratio
-        bool highNumTrk = nTrk >= m_numJetTrk;
-        bool highRelPt = (muon->pt()/jet->pt() < m_muJetPtRatio ||
-                          muon->pt()/sumTrkPt < m_muJetTrkPtRatio);
-        if(highNumTrk && (!m_applyRelPt || highRelPt)) continue;
-
-        if(m_dRMatchCone1->objectsMatch(*muon, *jet)){
-          ATH_CHECK( handleOverlap(jet, muon) );
+        // Find muon ID track pT
+        float mu_id_pt(0);
+        typedef ElementLink<xAOD::TrackParticleContainer> TrackLink;
+        if(muon->isAvailable<TrackLink>("inDetTrackParticleLink")){
+          const TrackLink link = muon->auxdata<TrackLink>("inDetTrackParticleLink");
+          if(link.isValid() && muon->auxdata<unsigned short>("muonType")!=xAOD::Muon::SiliconAssociatedForwardMuon){
+            mu_id_pt=(*link)->pt();
+          }
         }
-      }
-    }
 
-    // Remove muons from remaining overlapping jets
-    for(const auto jet : jets){
-      if(!m_decHelper->isSurvivingObject(*jet)) continue;
+        // Find muon topoetcone40
+        static const SG::AuxElement::ConstAccessor< float > topoetcone40_acc("topoetcone40");
+        float mu_topoetcone40 = topoetcone40_acc(*muon);
 
-      for(const auto muon : muons){
-        if(!m_decHelper->isSurvivingObject(*muon)) continue;
-
-        if(m_dRMatchCone2->objectsMatch(*muon, *jet)){
-          ATH_CHECK( handleOverlap(muon, jet) );
+        bool removeJet=false;
+        if(m_dRMatchCone->objectsMatch(*muon, *jet)){
+          // determine if we are in the low or high nTrk
+          if (nTrk < m_numJetTrk){
+            if (mu_topoetcone40 < m_muPFJet_lowNtrk_y0) removeJet=true;
+            if (mu_topoetcone40<m_muPFJet_lowNtrk_y0+(m_muPFJet_lowNtrk_y2-m_muPFJet_lowNtrk_y1)/(m_muPFJet_lowNtrk_x2-m_muPFJet_lowNtrk_x1)*(mu_id_pt/sumTrkPt-m_muPFJet_lowNtrk_x1)) removeJet=true;
+            if (mu_id_pt/sumTrkPt>m_muPFJet_lowNtrk_x2) removeJet=true;
+          }else{
+            if (mu_topoetcone40 < m_muPFJet_highNtrk_y0) removeJet=true;
+            if (mu_topoetcone40<m_muPFJet_highNtrk_y0+(m_muPFJet_highNtrk_y2-m_muPFJet_highNtrk_y1)/(m_muPFJet_highNtrk_x2-m_muPFJet_highNtrk_x1)*(mu_id_pt/sumTrkPt-m_muPFJet_highNtrk_x1)) removeJet=true;
+            if (mu_id_pt/sumTrkPt>m_muPFJet_highNtrk_x2) removeJet=true;
+          }
         }
+        if (removeJet==true) ATH_CHECK( handleOverlap(jet, muon) );
+
       }
     }
 
@@ -201,12 +174,12 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   // Retrieve the primary vertex
   //---------------------------------------------------------------------------
-  const xAOD::Vertex* MuJetOverlapTool::getPrimVtx() const
+  const xAOD::Vertex* MuPFJetOverlapTool::getPrimVtx() const
   {
     const char* contName = "PrimaryVertices";
     const xAOD::VertexContainer* vertices = nullptr;
     if(evtStore()->retrieve(vertices, contName).isSuccess()) {
-      for(auto vtx : *vertices) {
+      for(const xAOD::Vertex* vtx : *vertices) {
         if(vtx->vertexType() == xAOD::VxType::PriVtx)
           return vtx;
       }
@@ -222,27 +195,29 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   // Get the number of tracks in a jet
   //---------------------------------------------------------------------------
-  int MuJetOverlapTool::getNumTracks(const xAOD::Jet& jet, size_t vtxIdx) const
+  int MuPFJetOverlapTool::getNumTracks(const xAOD::Jet& jet, size_t vtxIdx) const
   {
     // Use the user decoration if configured
     if(!m_jetNumTrkDec.empty()) {
-      return jet.auxdata<int>(m_jetNumTrkDec);
+      static const SG::AuxElement::ConstAccessor< int > acc(m_jetNumTrkDec);
+      return acc(jet);
     }
     static const SG::AuxElement::ConstAccessor< std::vector<int> > acc("NumTrkPt500");
-    return acc(jet)[vtxIdx];
+    return acc(jet).at(vtxIdx);
   }
 
   //---------------------------------------------------------------------------
   // Get the sum track pt of a jet
   //---------------------------------------------------------------------------
-  float MuJetOverlapTool::getSumTrackPt(const xAOD::Jet& jet, size_t vtxIdx) const
+  float MuPFJetOverlapTool::getSumTrackPt(const xAOD::Jet& jet, size_t vtxIdx) const
   {
     // Use the user decoration if configured
     if(!m_jetSumTrkPtDec.empty()) {
-      return jet.auxdata<float>(m_jetSumTrkPtDec);
+      static const SG::AuxElement::ConstAccessor< float > acc(m_jetSumTrkPtDec);
+      return acc(jet);
     }
     static const SG::AuxElement::ConstAccessor< std::vector<float> > acc("SumPtTrkPt500");
-    return acc(jet)[vtxIdx];
+    return acc(jet).at(vtxIdx);
   }
 
 } // namespace ORUtils
