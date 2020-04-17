@@ -746,6 +746,13 @@ def _checkattr(attr, required=False):
             raise RuntimeError("Required " + msg)
         return False
     return True
+if hasattr(runArgs, "outputTXTFile"):
+    # counting the number of events in LHE output
+    with open(eventsFile) as f:
+        contents = f.read()
+        count_ev = contents.count("<event>")
+        
+    print "MetaData: %s = %s" % ("Number of produced LHE events ", count_ev)
 
 if _checkattr("description", required=True):
     msg = evgenConfig.description
