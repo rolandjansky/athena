@@ -14,11 +14,10 @@ atlas_add_library( GenInterfacesLib
    GenInterfaces/*.h
    INTERFACE
    PUBLIC_HEADERS GenInterfaces
-   LINK_LIBRARIES ${HEPMC_LIBRARIES} GaudiKernel )
+   LINK_LIBRARIES AtlasHepMCLib GaudiKernel )
 
 atlas_add_dictionary( GenInterfacesDict
    GenInterfaces/GenInterfacesDict.h
    GenInterfaces/selection.xml
-   INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-   LINK_LIBRARIES ${HEPMC_LIBRARIES} GenInterfacesLib )
+   LINK_LIBRARIES AtlasHepMCLib GenInterfacesLib )
 
