@@ -1,22 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 05.06.2006, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-///////////////////////////////////////////////////////////////
-// IMPLEMENTATION OF NON-INLINE METHODS DEFINED IN THE CLASS //
-//                    RtResolutionChebyshev                  //
-///////////////////////////////////////////////////////////////
-
 #include "MdtCalibData/RtResolutionChebyshev.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
+#include <TString.h> // for Form
 
-using namespace std;
 using namespace MuonCalib;
 
 //*****************************************************************************
@@ -25,19 +13,16 @@ using namespace MuonCalib;
 // METHOD _init //
 //////////////////
 void RtResolutionChebyshev::_init(void) {
-  MsgStream log(Athena::getMessageSvc(), "RtResolutionChebyshev");
 
-// check for consistency //
+  // check for consistency //
   if (nPar()<3) {
-    log<<MSG::ERROR << "Not enough parameters!"<<endmsg;
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtResolutionChebyshev::_init() - Not enough parameters!", __FILE__, __LINE__));
   }
   if (parameters()[0]>=parameters()[1]) {
-    log<<MSG::ERROR << "Lower time boundary >= upper time boundary!"<<endmsg;
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtResolutionChebyshev::_init() - Lower time boundary >= upper time boundary!", __FILE__, __LINE__));
   }
 
-// pointer to the chebyshev service //
+  // pointer to the chebyshev service //
   m_Chebyshev = Tschebyscheff_polynomial::get_Tschebyscheff_polynomial();
 
   return;
@@ -49,7 +34,7 @@ void RtResolutionChebyshev::_init(void) {
 // METHOD name //
 /////////////////
 std::string RtResolutionChebyshev::name(void) const {
-  return string("RtResolutionChebyshev");
+  return std::string("RtResolutionChebyshev");
 }
 
 //*****************************************************************************
@@ -76,7 +61,6 @@ double RtResolutionChebyshev::resolution(double t, double /*bgRate*/) const {
   if(t!=tLower() && t!=tUpper()) {
 //get resolution for tmin and tmax to get reasonable boundary conditrions
     double res_min(resolution(tLower())), res_max(resolution(tUpper()));
-    //		cout<<res_min<<" "<<res_max<<endl;
 
 // if x is out of bounds, return 99999 //
     if (t<parameters()[0])
@@ -136,7 +120,7 @@ unsigned int RtResolutionChebyshev::numberOfResParameters(void) const {
 // METHOD resParameters //
 //////////////////////////
 std::vector<double> RtResolutionChebyshev::resParameters(void) const {
-  vector<double> alpha(nPar()-2);
+  std::vector<double> alpha(nPar()-2);
   for (unsigned int k=0; k<alpha.size(); k++) {
     alpha[k] = parameters()[k+2];
   }

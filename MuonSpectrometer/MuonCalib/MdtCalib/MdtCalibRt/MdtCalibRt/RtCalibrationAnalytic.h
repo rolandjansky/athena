@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -373,8 +373,8 @@ private:
 				// it will disappear when the t(r) will be
 				// available in the MuonCalib framework
 
-	void display_segment(MuonCalibSegment * segment,
-						std::ofstream & outfile);
+	void display_segment(MuonCalibSegment* segment,
+						std::ofstream& outfile);
 
     RtRelationLookUp * performParabolicExtrapolation(const bool & min,
                             const bool & max,
