@@ -4,13 +4,6 @@
 
 #include "ZDCHitsTestTool.h"
 
-/*
-#include "GeoAdaptors/GeoLArHit.h"
-#include "LArSimEvent/LArHit.h"
-#include "LArSimEvent/LArHitContainer.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
-#include "HepMC/GenParticle.h"
-*/
 #include "ZDC_SimEvent/ZDC_SimStripHit.h"
 #include "ZDC_SimEvent/ZDC_SimStripHit_Collection.h"
 
