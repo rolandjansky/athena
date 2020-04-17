@@ -12,15 +12,17 @@ class DirectPhotonFilter : public GenFilter {
 public:
 
   DirectPhotonFilter(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual StatusCode filterInitialize();
   virtual StatusCode filterEvent();
 
 private:
 
-  double m_Ptmin;
-  double m_Ptmax;
+  std::vector<double> m_Ptmin;
+  std::vector<double> m_Ptmax;
   double m_EtaRange;
-  int m_NPhotons;
+  size_t m_NPhotons;
   bool m_AllowSUSYDecay;
+  bool m_OrderPhotons;
 
 };
 
