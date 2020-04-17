@@ -303,16 +303,16 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     offline - if true CA contains algorithms that needs to be merged to output stream sequence,
               if false the CA contains a tool that needs to be added to HLT EventLoopMgr
     """
-    from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
+    from TrigEDMConfig import DataScoutingInfo
     from TrigEDMConfig.TriggerEDM import getRun3BSList
 
     # handle the collectiosn defined in the EDM config
-    collectionsToBS = getRun3BSList( ["BS"]+ list(EventBuildingInfo.DataScoutingIdentifiers.keys()) )
+    collectionsToBS = getRun3BSList( ["BS"]+ DataScoutingInfo.getAllDataScoutingIdentifiers() )
 
     ItemModuleDict = OrderedDict()
     for typekey, bsfragments in collectionsToBS:
         # translate readable frament names like BS, CostMonDS names to ROB fragment IDs 0 - for the BS, 1,...- for DS fragments
-        moduleIDs = [ EventBuildingInfo.getFullHLTResultID() if f == 'BS' else EventBuildingInfo.getDataScoutingResultID(f)
+        moduleIDs = [ DataScoutingInfo.getFullHLTResultID() if f == 'BS' else DataScoutingInfo.getDataScoutingResultID(f)
                       for f in bsfragments ]
         ItemModuleDict[typekey] = moduleIDs
 
@@ -324,9 +324,9 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(item)
         typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic)
         if typeName not in list(ItemModuleDict.keys()):
-            ItemModuleDict[typeName] = [EventBuildingInfo.getFullHLTResultID()]
+            ItemModuleDict[typeName] = [DataScoutingInfo.getFullHLTResultID()]
         if typeNameAux not in list(ItemModuleDict.keys()):
-            ItemModuleDict[typeNameAux] = [EventBuildingInfo.getFullHLTResultID()]
+            ItemModuleDict[typeNameAux] = [DataScoutingInfo.getFullHLTResultID()]
 
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
 
