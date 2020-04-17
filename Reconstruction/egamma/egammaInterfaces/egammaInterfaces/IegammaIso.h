@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,16 +21,13 @@
 
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
-#include <vector>
-
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterFwd.h"
-class CaloCellList; 
+class CaloCellContainer;
+class CaloDetDescrManager;
 
 static const InterfaceID IID_IegammaIso("IEgammaIso", 1, 0);
-
 class IegammaIso : virtual public IAlgTool {
-
 
 public:
     /** @brief Virtual destructor */
@@ -46,7 +43,10 @@ public:
         double ehad1=0;
     };
     /** @brief  method: Method to just calculate hadronic leakage*/
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, CaloCellList& had, Info& info) const =0;
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                               const CaloDetDescrManager& cmgr,                                                           
+                               const CaloCellContainer& cellcoll,
+                               Info& info)  const =0;
 };
 
 inline const InterfaceID& IegammaIso::interfaceID()
