@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
                           Generators/GeneratorModules
-                          Generators/AtlasHepMC
                           Generators/GeneratorObjects
                           Generators/AtlasHepMC
                           PRIVATE
