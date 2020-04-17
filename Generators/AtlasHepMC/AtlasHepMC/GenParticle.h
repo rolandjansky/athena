@@ -4,7 +4,6 @@
 #ifndef ATLASHEPMC_GENPARTICLE_H
 #define ATLASHEPMC_GENPARTICLE_H
 #include "HepMC/GenParticle.h"
-
 namespace HepMC {
 typedef GenParticle* GenParticlePtr;
 typedef GenParticle* ConstGenParticlePtr;

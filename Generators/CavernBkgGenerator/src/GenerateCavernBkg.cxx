@@ -64,12 +64,14 @@ GenerateCavernBkg::fillEvt(HepMC::GenEvent* evt) {
   HepMC::set_signal_process_id(evt,-1);
   evt->set_event_number(m_bkgout.ievent());
   HepMC::set_random_states(evt,m_seeds);
+
   for (int i = 1; i <= m_bkgout.npv(); ++i) {
     const CLHEP::HepLorentzVector position(m_bkgout.vx(i)*10., // CLHEP::cm to CLHEP::mm
                                            m_bkgout.vy(i)*10., // CLHEP::cm to CLHEP::mm
                                            m_bkgout.vz(i)*10., // CLHEP::cm to CLHEP::mm
                                            m_bkgout.ptof(i)*299.792458); // CLHEP::ns to CLHEP::mm
     HepMC::GenVertexPtr v = HepMC::newGenVertexPtr(HepMC::FourVector(position.x(),position.y(),position.z(),position.t()), m_bkgout.irp(i));
+
     // Get the mass from the particle property service
     const HepPDT::ParticleData* particle = particleData(abs(m_bkgout.ityp(i)));
     const double mass = particle->mass().value();

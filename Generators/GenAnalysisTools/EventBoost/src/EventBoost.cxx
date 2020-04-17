@@ -196,7 +196,6 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
 
     std::vector<HepMC::GenVertexPtr> vertices_needing_modification;
 
-
     HepMC::GenEvent::vertex_const_iterator v = genEvt->vertices_begin();
     HepMC::GenEvent::vertex_const_iterator vEnd = genEvt->vertices_end();    
     for(; v != vEnd; ++v ) {

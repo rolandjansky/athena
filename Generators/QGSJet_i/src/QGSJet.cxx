@@ -306,6 +306,7 @@ StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt )
   hepio.set_print_inconsistency_errors(0);
   hepio.fill_next_event(evt);
   HepMC::set_random_states(evt, m_seeds );
+
   evt->weights().push_back(1.0); 
   GeVToMeV(evt);
   
