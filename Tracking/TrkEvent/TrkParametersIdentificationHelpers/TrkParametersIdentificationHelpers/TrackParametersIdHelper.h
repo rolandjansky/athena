@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRK_TRACKPARAMETERSIDHELPER_H
@@ -82,13 +82,15 @@ namespace Trk {
 
   inline AtlasDetDescr::AtlasDetTechnology TrackParametersIdHelper::technology( TrackParametersIdentifier id ) const {
     // check if identifier is valid
-    if( !isValid(id) ) return AtlasDetDescr::fUndefined;
+    if( !isValid(id) ) { return AtlasDetDescr::fUndefined;
+}
     return static_cast<AtlasDetDescr::AtlasDetTechnology>(m_technologyField.decode(id));
   }
   
   inline CaloSampling::CaloSample TrackParametersIdHelper::caloSample( TrackParametersIdentifier id ) const {
     // check if identifier is valid
-    if( !isValid(id) ) return CaloSampling::Unknown;
+    if( !isValid(id) ) { return CaloSampling::Unknown;
+}
     return static_cast<CaloSampling::CaloSample>(m_caloSamplingField.decode(id));
   }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,7 +19,8 @@ void Trk::IdentifierExtractor::extract(std::vector<Identifier>& ids, const std::
   for (; it!=itEnd ; it++)
   {
     Identifier id = extract(*it);
-    if( id.is_valid() ) ids.push_back(id);
+    if( id.is_valid() ) { ids.push_back(id);
+}
   }
 }
 

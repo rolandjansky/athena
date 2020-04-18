@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -31,7 +31,8 @@ namespace Trk {
   {
    std::vector<Trk::V0Hypothesis *>::const_iterator itr = rhs.m_v0Hyp.begin(); 
    std::vector<Trk::V0Hypothesis *>::const_iterator itre = rhs.m_v0Hyp.end();
-   for(;itr!=itre;++itr) m_v0Hyp.push_back((*itr)->clone());
+   for(;itr!=itre;++itr) { m_v0Hyp.push_back((*itr)->clone());
+}
   }
 
 //destructor taking care of produced pointers
@@ -41,7 +42,8 @@ namespace Trk {
    std::vector<Trk::V0Hypothesis *>::iterator ie = m_v0Hyp.end();
    for(;i!=ie;++i)
    {
-    if(0!=(*i)) delete (*i);
+    if(0!=(*i)) { delete (*i);
+}
     (*i)=0;
    }
    m_v0Hyp.clear();  
@@ -57,7 +59,8 @@ namespace Trk {
     std::vector<Trk::V0Hypothesis *>::iterator ie = m_v0Hyp.end();
     for(;i!=ie;++i)
     {
-     if(0!=(*i)) delete (*i);
+     if(0!=(*i)) { delete (*i);
+}
      (*i)=0;
     }
     m_v0Hyp.clear();   
@@ -65,7 +68,8 @@ namespace Trk {
 //now copying the rhs content over     
     std::vector<Trk::V0Hypothesis *>::const_iterator itr = rhs.m_v0Hyp.begin(); 
     std::vector<Trk::V0Hypothesis *>::const_iterator itre = rhs.m_v0Hyp.end();
-    for(;itr!=itre;++itr) m_v0Hyp.push_back((*itr)->clone()); 
+    for(;itr!=itre;++itr) { m_v0Hyp.push_back((*itr)->clone()); 
+}
    }
    return *this;    
   }

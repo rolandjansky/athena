@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -134,10 +134,11 @@ MsgStream& Trk::PseudoMeasurementOnTrack::dump( MsgStream& sl ) const
   std::string name(typeid(*this).name());
   sl << "Concrete dump method not implemented - using base class" << std::endl;
   sl << name << "\t  local position = "<< this->localParameters() << std::endl;
-  if (m_globalPosition)
+  if (m_globalPosition) {
     sl << name << "\t  global position ( " << this->globalPosition().x() << " , "
        << this->globalPosition().y() << " , " << this->globalPosition().z()
        << " ) " << std::endl;
+}
   sl << name << "\t  has error matrix: " << std::endl;
   sl << this->localCovariance() << std::endl;
   sl << name << "\t  has associated surface:" << std::endl;
@@ -150,10 +151,11 @@ std::ostream& Trk::PseudoMeasurementOnTrack::dump( std::ostream& sl ) const
   std::string name(typeid(*this).name());
   sl << "Concrete dump method not implemented - using base class" << std::endl;
   sl << name << "\t  local position = "<< this->localParameters() << std::endl;
-  if (m_globalPosition)
+  if (m_globalPosition) {
     sl << name << "\t  global position ( " << this->globalPosition().x() << " , "
        << this->globalPosition().y() << " , " << this->globalPosition().z()<<" ) "
        << std::endl;
+}
   sl << name << "\t  has error matrix: " << std::endl;
   sl << this->localCovariance() << std::endl;
   sl << name << "\t  has associated surface:" << std::endl;

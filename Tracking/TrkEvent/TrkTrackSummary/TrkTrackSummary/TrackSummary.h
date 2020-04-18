@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
 Summary.h  -  description
@@ -322,7 +322,8 @@ inline float Trk::TrackSummary::getPID(const Trk::eProbabilityType& PIDtype) con
         
 inline bool Trk::TrackSummary::update(Trk::SummaryType type, int new_value)
 {     
-    if  (m_information.at(type) != SummaryTypeNotSet) return false;                                                                                                                                                                                               
+    if  (m_information.at(type) != SummaryTypeNotSet) { return false;                                                                                                                                                                                               
+}
     m_information[type]=new_value;
     return true;
 }                                                                                                                                                                                                                                                               

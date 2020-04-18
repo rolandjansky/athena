@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -90,7 +90,8 @@ MsgStream& Trk::operator << ( MsgStream& sl, const Trk::JacobianLocalToCurviline
 	for (int irow = 0; irow<5; irow++){
             for (int icol =0; icol<5; icol++){
                 sl <<  (jac)(irow,icol);
-                if (irow < 4 || icol < 4 ) sl << "     "; 
+                if (irow < 4 || icol < 4 ) { sl << "     "; 
+}
             }
             sl << std::endl;        
         }
@@ -107,7 +108,8 @@ std::ostream& Trk::operator << ( std::ostream& sl, const Trk::JacobianLocalToCur
 	for (int irow = 0; irow<5; irow++){
             for (int icol =0; icol<5; icol++){
                 sl <<  (jac)(irow,icol);
-                if (irow < 4 || icol < 4 ) sl << "     "; 
+                if (irow < 4 || icol < 4 ) { sl << "     "; 
+}
             }
             sl << std::endl;        
         }

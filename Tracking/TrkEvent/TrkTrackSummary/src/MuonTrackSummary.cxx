@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrackSummary/MuonTrackSummary.h"
@@ -20,7 +20,8 @@ unsigned int Trk::MuonTrackSummary::netaHits() const {
   unsigned int count = 0;
   std::vector<ChamberHitSummary>::const_iterator it = m_chamberHitSummary.begin();
   std::vector<ChamberHitSummary>::const_iterator it_end = m_chamberHitSummary.end();
-  for( ;it!=it_end; ++it ) count += it->netaHits();
+  for( ;it!=it_end; ++it ) { count += it->netaHits();
+}
   return count;
 }
 
@@ -28,7 +29,8 @@ unsigned int Trk::MuonTrackSummary::nphiHits() const {
   unsigned int count = 0;
   std::vector<ChamberHitSummary>::const_iterator it = m_chamberHitSummary.begin();
   std::vector<ChamberHitSummary>::const_iterator it_end = m_chamberHitSummary.end();
-  for( ;it!=it_end; ++it ) count += it->nphiHits();
+  for( ;it!=it_end; ++it ) { count += it->nphiHits();
+}
   return count;
 }
 
@@ -36,7 +38,8 @@ unsigned int Trk::MuonTrackSummary::nholes() const {
   unsigned int count = 0;
   std::vector<ChamberHitSummary>::const_iterator it = m_chamberHitSummary.begin();
   std::vector<ChamberHitSummary>::const_iterator it_end = m_chamberHitSummary.end();
-  for( ;it!=it_end; ++it ) count += it->nholes();
+  for( ;it!=it_end; ++it ) { count += it->nholes();
+}
   return count;
 }
 
@@ -44,7 +47,8 @@ unsigned int Trk::MuonTrackSummary::noutliers() const {
   unsigned int count = 0;
   std::vector<ChamberHitSummary>::const_iterator it = m_chamberHitSummary.begin();
   std::vector<ChamberHitSummary>::const_iterator it_end = m_chamberHitSummary.end();
-  for( ;it!=it_end; ++it ) count += it->noutliers();
+  for( ;it!=it_end; ++it ) { count += it->noutliers();
+}
   return count;
 }
 
@@ -52,7 +56,8 @@ unsigned int Trk::MuonTrackSummary::ncloseHits() const {
   unsigned int count = 0;
   std::vector<ChamberHitSummary>::const_iterator it = m_chamberHitSummary.begin();
   std::vector<ChamberHitSummary>::const_iterator it_end = m_chamberHitSummary.end();
-  for( ;it!=it_end; ++it ) count += it->ncloseHits();
+  for( ;it!=it_end; ++it ) { count += it->ncloseHits();
+}
   return count;
 }
 

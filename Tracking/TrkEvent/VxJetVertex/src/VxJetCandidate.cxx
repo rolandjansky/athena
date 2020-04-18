@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -548,7 +548,8 @@ VxVertexOnJetAxis* VxJetCandidate::getPrimaryVertex(void) {//non-const overload
 }
 
 void VxJetCandidate::setPrimaryVertex(const VxVertexOnJetAxis* newPrimary) {
-  if (m_primaryVertex!=nullptr) delete m_primaryVertex;
+  if (m_primaryVertex!=nullptr) { delete m_primaryVertex;
+}
   m_primaryVertex=new VxVertexOnJetAxis(*newPrimary);
 }
 

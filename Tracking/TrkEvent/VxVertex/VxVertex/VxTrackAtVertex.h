@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -162,7 +162,7 @@ namespace Trk
     /**
      * Track Quality (Chi2 and ndf per track in a veretx fit)
      */    
-      const FitQuality trackQuality(void) const;       
+      FitQuality trackQuality(void) const;       
       
     /**
      * Perigee parameters with respect to fitted vertex
@@ -376,15 +376,19 @@ namespace Trk
   
   inline const TrackParameters*  VxTrackAtVertex::initialPerigee(void) const
   {
-    if (m_initialPerigee!=nullptr) return m_initialPerigee;//as default always return the proper object (be consistent!)  
-    if(m_trackOrParticleLink!=nullptr) return m_trackOrParticleLink->parameters();
+    if (m_initialPerigee!=nullptr) { return m_initialPerigee;//as default always return the proper object (be consistent!)  
+}
+    if(m_trackOrParticleLink!=nullptr) { return m_trackOrParticleLink->parameters();
+}
     return nullptr;													    
   }
 
   inline const NeutralParameters*  VxTrackAtVertex::initialNeutralPerigee(void) const
   {
-    if (m_initialNeutralPerigee!=nullptr) return m_initialNeutralPerigee;//as default always return the proper object (be consistent!)  
-    if(m_trackOrParticleLink!=nullptr) return m_trackOrParticleLink->neutralParameters();
+    if (m_initialNeutralPerigee!=nullptr) { return m_initialNeutralPerigee;//as default always return the proper object (be consistent!)  
+}
+    if(m_trackOrParticleLink!=nullptr) { return m_trackOrParticleLink->neutralParameters();
+}
     return nullptr;													    
   }
 
@@ -395,7 +399,8 @@ namespace Trk
 
   inline void VxTrackAtVertex::setImpactPoint3dAtaPlane(const AtaPlane * myIP3dAtaPlane)
   { 
-    if (m_ImpactPoint3dAtaPlane != nullptr) delete m_ImpactPoint3dAtaPlane;
+    if (m_ImpactPoint3dAtaPlane != nullptr) { delete m_ImpactPoint3dAtaPlane;
+}
     m_ImpactPoint3dAtaPlane=myIP3dAtaPlane;
   }  
 
@@ -406,7 +411,8 @@ namespace Trk
 
   inline void VxTrackAtVertex::setImpactPoint3dNeutralAtaPlane(const NeutralAtaPlane * myIP3dNeutralAtaPlane)
   { 
-    if (m_ImpactPoint3dNeutralAtaPlane != nullptr) delete m_ImpactPoint3dNeutralAtaPlane;
+    if (m_ImpactPoint3dNeutralAtaPlane != nullptr) { delete m_ImpactPoint3dNeutralAtaPlane;
+}
     m_ImpactPoint3dNeutralAtaPlane=myIP3dNeutralAtaPlane;
   }  
 
@@ -445,7 +451,7 @@ namespace Trk
    return m_linState;
   }
 
-  inline const FitQuality VxTrackAtVertex::trackQuality(void) const
+  inline FitQuality VxTrackAtVertex::trackQuality(void) const
   {
     return m_fitQuality;
   }
@@ -467,19 +473,22 @@ namespace Trk
 
   inline void VxTrackAtVertex::setPerigeeAtVertex(TrackParameters * perigee)
   {
-    if (m_perigeeAtVertex != nullptr) delete m_perigeeAtVertex;
+    if (m_perigeeAtVertex != nullptr) { delete m_perigeeAtVertex;
+}
     m_perigeeAtVertex = perigee;
   }
 
   inline void VxTrackAtVertex::setPerigeeAtVertex(NeutralParameters * perigee)
   {
-    if (m_neutralPerigeeAtVertex != nullptr) delete m_neutralPerigeeAtVertex;
+    if (m_neutralPerigeeAtVertex != nullptr) { delete m_neutralPerigeeAtVertex;
+}
     m_neutralPerigeeAtVertex = perigee;
   }
   
   inline void VxTrackAtVertex::setLinTrack(LinearizedTrack * myLinTrack)
   {
-    if (m_linState != nullptr) delete m_linState;
+    if (m_linState != nullptr) { delete m_linState;
+}
     m_linState=myLinTrack;
   }
 
@@ -515,12 +524,14 @@ namespace Trk
   
   inline void VxTrackAtVertex::setInitialPerigee(const TrackParameters * perigee)
   {
-   if(m_trackOrParticleLink == nullptr) m_initialPerigee = perigee;
+   if(m_trackOrParticleLink == nullptr) { m_initialPerigee = perigee;
+}
   }
 
   inline void VxTrackAtVertex::setInitialPerigee(const NeutralParameters * perigee)
   {
-   if(m_trackOrParticleLink == nullptr) m_initialNeutralPerigee = perigee;
+   if(m_trackOrParticleLink == nullptr) { m_initialNeutralPerigee = perigee;
+}
   }
   
 /**Overload of << operator for both, MsgStream and std::ostream for debug 

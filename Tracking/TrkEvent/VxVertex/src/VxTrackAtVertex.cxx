@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -347,10 +347,12 @@ namespace Trk {
   MsgStream& VxTrackAtVertex::dump(MsgStream& sl) const {
     sl << "Printing VxTrackAtVertex:" << endmsg;
     const Trk::TrackParameters * inPerigee = this->initialPerigee();
-    if(inPerigee) sl << "Original Perigee: " << *(inPerigee) << endmsg;
-    else sl<<"This VxTrackAtVertex was not created using initial perigee"<<endmsg;
-    if (this->perigeeAtVertex() != nullptr) sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << endmsg;
-    else sl << "Refitted Perigee was not stored in pool file." << endmsg;
+    if(inPerigee) { sl << "Original Perigee: " << *(inPerigee) << endmsg;
+    } else { sl<<"This VxTrackAtVertex was not created using initial perigee"<<endmsg;
+}
+    if (this->perigeeAtVertex() != nullptr) { sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << endmsg;
+    } else { sl << "Refitted Perigee was not stored in pool file." << endmsg;
+}
     sl << m_fitQuality << "\tWeight: " << m_trkWeight << endmsg;
     return sl;
   }
@@ -358,10 +360,12 @@ namespace Trk {
   std::ostream& VxTrackAtVertex::dump(std::ostream& sl) const {
     sl << "Printing VxTrackAtVertex:" << std::endl;
     const Trk::TrackParameters * inPerigee = this->initialPerigee();
-    if(inPerigee) sl << "Original Perigee: " << *(inPerigee) << std::endl;
-    else sl<<"This VxTrackAtVertex was not created using initial perigee"<<std::endl;
-    if (this->perigeeAtVertex() != nullptr) sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << std::endl;
-    else sl << "Refitted Perigee was not stored in pool file." << std::endl;
+    if(inPerigee) { sl << "Original Perigee: " << *(inPerigee) << std::endl;
+    } else { sl<<"This VxTrackAtVertex was not created using initial perigee"<<std::endl;
+}
+    if (this->perigeeAtVertex() != nullptr) { sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << std::endl;
+    } else { sl << "Refitted Perigee was not stored in pool file." << std::endl;
+}
     sl << m_fitQuality << "\tWeight: " << m_trkWeight << std::endl;
     return sl;
   }

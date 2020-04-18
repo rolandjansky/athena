@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VxMultiVertex/MvfFitInfo.h"
@@ -51,14 +51,16 @@ namespace Trk
  
  void MvfFitInfo::setSeedVertex(Amg::Vector3D* seedVertex)
  {
-   if (m_seedVertex!=nullptr) delete m_seedVertex;
+   if (m_seedVertex!=nullptr) { delete m_seedVertex;
+}
    m_seedVertex=seedVertex;
  }
  
  
  void MvfFitInfo::setLinearizationVertex(Amg::Vector3D* linearizationVertex)
  {
-    if (m_linearizationVertex!=nullptr) delete m_linearizationVertex;
+    if (m_linearizationVertex!=nullptr) { delete m_linearizationVertex;
+}
     m_linearizationVertex=linearizationVertex;
  }
  

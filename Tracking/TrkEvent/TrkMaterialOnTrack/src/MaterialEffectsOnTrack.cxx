@@ -83,11 +83,13 @@ Trk::MaterialEffectsOnTrack& Trk::MaterialEffectsOnTrack::operator= (const Trk::
   if (this!=&rhs) {
     Trk::MaterialEffectsBase::operator=(rhs);
 
-    if (m_scatteringAngles) delete m_scatteringAngles;
+    if (m_scatteringAngles) { delete m_scatteringAngles;
+}
     m_scatteringAngles = rhs.m_scatteringAngles ?
       new Trk::ScatteringAngles(*rhs.m_scatteringAngles) : nullptr ;
 
-    if (m_energyLoss) delete m_energyLoss;
+    if (m_energyLoss) { delete m_energyLoss;
+}
     m_energyLoss = rhs.m_energyLoss ?
       rhs.m_energyLoss->clone() : nullptr ;
   }
@@ -97,8 +99,10 @@ Trk::MaterialEffectsOnTrack& Trk::MaterialEffectsOnTrack::operator= (const Trk::
 
 Trk::MaterialEffectsOnTrack::~MaterialEffectsOnTrack()
 {
-  if (m_scatteringAngles) delete m_scatteringAngles;
-  if (m_energyLoss) delete m_energyLoss;
+  if (m_scatteringAngles) { delete m_scatteringAngles;
+}
+  if (m_energyLoss) { delete m_energyLoss;
+}
 }
 
 // Overload of << operator for MsgStream for debug output
@@ -108,10 +112,12 @@ MsgStream& Trk::MaterialEffectsOnTrack::dump ( MsgStream& sl ) const
   Trk::MaterialEffectsBase::dump(sl);
   sl <<"MaterialEffects, Scatterer? : "
      << (scatteringAngles()?"yes:":"none")<<endmsg;
-  if (scatteringAngles()) sl << *scatteringAngles() << endmsg;
+  if (scatteringAngles()) { sl << *scatteringAngles() << endmsg;
+}
   sl <<"MaterialEffects, E-loss ?   : "
      << (energyLoss()?"yes:":"none") <<endmsg;
-  if (energyLoss()) sl << *energyLoss() << endmsg;
+  if (energyLoss()) { sl << *energyLoss() << endmsg;
+}
   return sl; 
 }
 //Overload of << operator for std::ostream for debug output
@@ -121,10 +127,12 @@ std::ostream& Trk::MaterialEffectsOnTrack::dump ( std::ostream& sl ) const
   Trk::MaterialEffectsBase::dump(sl);
   sl <<"MaterialEffects, Scatterer? : "
      << (scatteringAngles()?"yes:":"none")<<std::endl;
-  if (scatteringAngles()) sl << *scatteringAngles() << std::endl;
+  if (scatteringAngles()) { sl << *scatteringAngles() << std::endl;
+}
   sl <<"MaterialEffects, E-loss ?   : "
      << (energyLoss()?"yes:":"none") <<std::endl;
-  if (energyLoss()) sl << *energyLoss() << std::endl;
+  if (energyLoss()) { sl << *energyLoss() << std::endl;
+}
   return sl; 
 }
 
