@@ -20,8 +20,7 @@ namespace Trk
 		if ( isValid() )
 		{
 			const Trk::Track * trk = this->cachedElement();
-			if ( nullptr != trk ) { return dynamic_cast<const Trk::TrackParameters* > ( trk->perigeeParameters() );
-}
+			if ( nullptr != trk ) { return dynamic_cast<const Trk::TrackParameters* > ( trk->perigeeParameters() );}
 			return nullptr;
 		}
 		return nullptr;

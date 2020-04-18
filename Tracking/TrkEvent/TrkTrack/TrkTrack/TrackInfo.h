@@ -393,8 +393,7 @@ inline void Trk::TrackInfo::setTrackProperties(const TrackProperties& property)
 {
   //   std::cout<<"Set track properties "<<std::endl;
   m_properties.set(property);
-  if(property == BremFitSuccessful && m_particleHypo == undefined ) { m_particleHypo = electron;
-}
+  if(property == BremFitSuccessful && m_particleHypo == undefined ) { m_particleHypo = electron;}
 }
 
 inline void Trk::TrackInfo::setPatternRecognitionInfo(const TrackPatternRecoInfo& patternReco) 

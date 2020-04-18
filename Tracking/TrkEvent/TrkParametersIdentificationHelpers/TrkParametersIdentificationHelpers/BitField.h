@@ -36,8 +36,7 @@ namespace Trk {
   template< class T>
   bool BitField<T>::encode( unsigned int value, T& id ) const {
     // check that the value is in range
-    if( value >= m_maxValue ) { return false;
-}
+    if( value >= m_maxValue ) { return false;}
     
     // clear m_bits
     id &= ~m_mask;
@@ -63,8 +62,7 @@ namespace Trk {
     }
     // silly way of calculating 2^m_bits
     m_maxValue = 1;
-    for( unsigned int i=0;i<m_bits;++i ) { m_maxValue *= 2;
-}
+    for( unsigned int i=0;i<m_bits;++i ) { m_maxValue *= 2;}
   }
 }
 

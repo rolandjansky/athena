@@ -140,7 +140,7 @@ inline CompetingRIOsOnTrack::AssignmentProb CompetingRIOsOnTrack::assignmentProb
     assert ( indx < numberOfContainedROTs() );
     if (indx < numberOfContainedROTs() ) {
         return m_assignProb->operator[](indx);
-}
+    }
     return 0; // could consider throwing an exception here - EJWM
 }
 

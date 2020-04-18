@@ -35,10 +35,8 @@ Trk::Perigee Trk::PerigeeFromVertexCreator::createPerigee(Amg::Vector3D& vertex,
   double phi0 = phi - Q*rho;
 
   // check phi0 for [-Pi,+Pi) range
-  while (phi0 > M_PI) { phi0 -= M_PI;
-}
-  while (phi0 < -M_PI) { phi0 += M_PI;
-}
+  while (phi0 > M_PI) { phi0 -= M_PI;}
+  while (phi0 < -M_PI) { phi0 += M_PI;}
 
   return Trk::Perigee(d0,z0,phi0,theta,qOverP,PerigeeSurface());
 }
@@ -66,10 +64,8 @@ Trk::Perigee* Trk::PerigeeFromVertexCreator::createNewPerigee(Amg::Vector3D& ver
   double phi0 = phi - Q*rho;
 
   // check phi0 for [-Pi,+Pi) range
-  while (phi0 > M_PI) { phi0 -= M_PI;
-}
-  while (phi0 < -M_PI) { phi0 += M_PI;
-}
+  while (phi0 > M_PI) { phi0 -= M_PI;}
+  while (phi0 < -M_PI) { phi0 += M_PI;}
 
   return new Trk::Perigee(d0,z0,phi0,theta,qOverP,PerigeeSurface());
 }

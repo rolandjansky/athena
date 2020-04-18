@@ -138,7 +138,7 @@ MsgStream& Trk::PseudoMeasurementOnTrack::dump( MsgStream& sl ) const
     sl << name << "\t  global position ( " << this->globalPosition().x() << " , "
        << this->globalPosition().y() << " , " << this->globalPosition().z()
        << " ) " << std::endl;
-}
+  }
   sl << name << "\t  has error matrix: " << std::endl;
   sl << this->localCovariance() << std::endl;
   sl << name << "\t  has associated surface:" << std::endl;
@@ -155,7 +155,7 @@ std::ostream& Trk::PseudoMeasurementOnTrack::dump( std::ostream& sl ) const
     sl << name << "\t  global position ( " << this->globalPosition().x() << " , "
        << this->globalPosition().y() << " , " << this->globalPosition().z()<<" ) "
        << std::endl;
-}
+  }
   sl << name << "\t  has error matrix: " << std::endl;
   sl << this->localCovariance() << std::endl;
   sl << name << "\t  has associated surface:" << std::endl;

@@ -168,51 +168,36 @@ Trk::TrackStateOnSurface::operator=(Trk::TrackStateOnSurface&& rhs)
 std::string TrackStateOnSurface::dumpType() const{
     std::string type;
     if (m_typeFlags.test(TrackStateOnSurface::Measurement)) {
-      type+="Measurement ";
-}
+      type+="Measurement ";}
     if (m_typeFlags.test(TrackStateOnSurface::InertMaterial)) {
-      type+="InertMaterial ";
-}
+      type+="InertMaterial ";}
     if (m_typeFlags.test(TrackStateOnSurface::BremPoint)) {
-      type+="BremPoint ";
-}
+      type+="BremPoint ";}
     if (m_typeFlags.test(TrackStateOnSurface::Scatterer)) {
-      type+="Scatterer ";
-}
+      type+="Scatterer ";}
     if (m_typeFlags.test(TrackStateOnSurface::Perigee)) {
-      type+="Perigee ";
-}
+      type+="Perigee ";}
     if (m_typeFlags.test(TrackStateOnSurface::Outlier)) {
-      type+="Outlier ";    
-}
+      type+="Outlier ";    }
     if (m_typeFlags.test(TrackStateOnSurface::Hole)) {
-      type+="Hole ";
-}
+      type+="Hole ";}
     if (m_typeFlags.test(TrackStateOnSurface::CaloDeposit)) {
-      type+="CaloDeposit ";
-}
+      type+="CaloDeposit ";}
     if (m_typeFlags.test(TrackStateOnSurface::Parameter)) {
-      type+="Parameter ";
-}
+      type+="Parameter ";}
     if (m_typeFlags.test(TrackStateOnSurface::FitQuality)) {
-      type+="FitQuality ";
-}
+      type+="FitQuality ";}
     if (m_typeFlags.test(TrackStateOnSurface::Alignment)) {
-      type+="Alignment ";
-}
+      type+="Alignment ";}
     return type;
 }
 
 const Surface& 
 TrackStateOnSurface::surface() const {
-  if (m_trackParameters) { return m_trackParameters->associatedSurface();
-}
-  if (m_measurementOnTrack) { return m_measurementOnTrack->associatedSurface();
-}
-  if (m_materialEffectsOnTrack) { return m_materialEffectsOnTrack->associatedSurface();
-}
-  if (m_alignmentEffectsOnTrack) { return m_alignmentEffectsOnTrack->associatedSurface();
-}
+  if (m_trackParameters) { return m_trackParameters->associatedSurface();}
+  if (m_measurementOnTrack) { return m_measurementOnTrack->associatedSurface();}
+  if (m_materialEffectsOnTrack) { return m_materialEffectsOnTrack->associatedSurface();}
+  if (m_alignmentEffectsOnTrack) { return m_alignmentEffectsOnTrack->associatedSurface();}
   throw std::runtime_error("TrackStateOnSurface without Surface!");
   // const Surface* dummy=0;
   // return *dummy;
@@ -222,12 +207,9 @@ bool
 TrackStateOnSurface::isSane() const {
   std::vector<const Surface* > surfaces;
 
-  if (m_trackParameters) { surfaces.push_back(&(m_trackParameters->associatedSurface()));
-}
-  if (m_measurementOnTrack) { surfaces.push_back(&(m_measurementOnTrack->associatedSurface()));
-}
-  if (m_materialEffectsOnTrack) { surfaces.push_back(&(m_materialEffectsOnTrack->associatedSurface()));
-}
+  if (m_trackParameters) { surfaces.push_back(&(m_trackParameters->associatedSurface()));}
+  if (m_measurementOnTrack) { surfaces.push_back(&(m_measurementOnTrack->associatedSurface()));}
+  if (m_materialEffectsOnTrack) { surfaces.push_back(&(m_materialEffectsOnTrack->associatedSurface()));}
   if (m_alignmentEffectsOnTrack) { surfaces.push_back(&(m_alignmentEffectsOnTrack->associatedSurface()));
 }
 
@@ -243,14 +225,22 @@ TrackStateOnSurface::isSane() const {
   
   if (surfacesDiffer){
     std::cerr<<"TrackStateOnSurface::isSane. Surfaces differ! "<<std::endl;
-    if (m_trackParameters) { std::cerr<<"ParamSurf: ["<<&(m_trackParameters->associatedSurface())<<"] "<<m_trackParameters->associatedSurface()<<std::endl;
-}
-    if (m_measurementOnTrack) { std::cerr<<"measSurf: ["<<&(m_measurementOnTrack->associatedSurface())<<"] "<<m_measurementOnTrack->associatedSurface()<<std::endl;
-}
-    if (m_materialEffectsOnTrack) { std::cerr<<"matSurf: ["<<&(m_materialEffectsOnTrack->associatedSurface())<<"] "<<m_materialEffectsOnTrack->associatedSurface()<<std::endl;
-}
-    if (m_alignmentEffectsOnTrack) { std::cerr<<"alignSurf: ["<<&(m_alignmentEffectsOnTrack->associatedSurface())<<"] "<<m_alignmentEffectsOnTrack->associatedSurface()<<std::endl;
-}
+    if (m_trackParameters) {
+      std::cerr << "ParamSurf: [" << &(m_trackParameters->associatedSurface()) << "] "
+                << m_trackParameters->associatedSurface() << std::endl;
+    }
+    if (m_measurementOnTrack) {
+      std::cerr << "measSurf: [" << &(m_measurementOnTrack->associatedSurface()) << "] "
+                << m_measurementOnTrack->associatedSurface() << std::endl;
+    }
+    if (m_materialEffectsOnTrack) {
+      std::cerr << "matSurf: [" << &(m_materialEffectsOnTrack->associatedSurface()) << "] "
+                << m_materialEffectsOnTrack->associatedSurface() << std::endl;
+    }
+    if (m_alignmentEffectsOnTrack) {
+      std::cerr << "alignSurf: [" << &(m_alignmentEffectsOnTrack->associatedSurface()) << "] "
+                << m_alignmentEffectsOnTrack->associatedSurface() << std::endl;
+    }
     return false;
   }
  
@@ -290,24 +280,19 @@ MsgStream& operator << ( MsgStream& sl, const TrackStateOnSurface& tsos)
     {
         sl<<name<<"Detailed dump of contained objects follows:"<<endmsg;
         if ( tsos.fitQualityOnSurface()!=nullptr) { 
-            sl << *(tsos.fitQualityOnSurface() )<<"\n (end of FitQualityOnSurface dump)"<<endmsg;
-}
+            sl << *(tsos.fitQualityOnSurface() )<<"\n (end of FitQualityOnSurface dump)"<<endmsg;}
     
         if ( tsos.trackParameters() !=nullptr) { 
-            sl << *(tsos.trackParameters() )<<"\n (end of TrackParameters dump)"<<endmsg;
-}
+            sl << *(tsos.trackParameters() )<<"\n (end of TrackParameters dump)"<<endmsg;}
     
         if ( tsos.measurementOnTrack()!=nullptr) { 
-            sl << *(tsos.measurementOnTrack() )<<"\n (end of MeasurementBase dump"<<endmsg;
-}
+            sl << *(tsos.measurementOnTrack() )<<"\n (end of MeasurementBase dump"<<endmsg;}
     
         if (tsos.materialEffectsOnTrack()!=nullptr) { 
-            sl << *(tsos.materialEffectsOnTrack() )<<"\n (end of MaterialEffectsBase dump)"<<endmsg;
-}
+            sl << *(tsos.materialEffectsOnTrack() )<<"\n (end of MaterialEffectsBase dump)"<<endmsg;}
         
         if (tsos.alignmentEffectsOnTrack()!=nullptr) { 
-            sl << *(tsos.alignmentEffectsOnTrack() )<<"\n (end of AlignmentEffectsOnTrack dump)"<<endmsg;
-}
+            sl << *(tsos.alignmentEffectsOnTrack() )<<"\n (end of AlignmentEffectsOnTrack dump)"<<endmsg;}
     }
     return sl; 
 }

@@ -25,8 +25,7 @@ Trk::ProjectionMatricesSet::ProjectionMatricesSet(int maxdim) :
     for (int itag = 0, ipos=1; itag<m_maxdim; ++itag, ipos*=2) 
        { bool bit = (imatx & ipos);
          parameterTag[itag] = bit;   
-         if (bit) { ++cols;
-}
+         if (bit) { ++cols;}
        }
      
     Amg::MatrixX* reduction = nullptr;
@@ -51,8 +50,7 @@ Trk::ProjectionMatricesSet::ProjectionMatricesSet(int maxdim) :
            ++reduc;
          }
        else {
-         accessorInt[irow] = reduc;
-}
+         accessorInt[irow] = reduc;}
       }
     
       // the expansion matrix is the transposed reduction matrix
@@ -78,13 +76,11 @@ Trk::ProjectionMatricesSet::~ProjectionMatricesSet()
 {
    std::vector<const Amg::MatrixX*>::const_iterator  matrixIter    = m_expansions.begin();
    std::vector<const Amg::MatrixX*>::const_iterator  matrixIterEnd = m_expansions.end();   
-   for ( ; matrixIter != matrixIterEnd; delete (*matrixIter), ++matrixIter) { ;
-}
+   for ( ; matrixIter != matrixIterEnd; delete (*matrixIter), ++matrixIter) { ;}
 
    matrixIter    = m_reductions.begin();
    matrixIterEnd = m_reductions.end();
-   for ( ; matrixIter != matrixIterEnd; delete (*matrixIter), ++matrixIter) { ;
-}
+   for ( ; matrixIter != matrixIterEnd; delete (*matrixIter), ++matrixIter) { ;}
 
 }
 

@@ -124,15 +124,13 @@ MsgStream& operator << ( MsgStream& sl, const Trk::LocalParameters& lp)
   for (int ipar=0; ipar<lp.dimension(); ++ipar)
     { sl << lp(ipar);
       if (ipar+1 < lp.dimension()) { sl << ", ";
-      } else { sl << ")   - key: "<< lp.m_parameterkey << "(";
-}
+      } else { sl << ")   - key: "<< lp.m_parameterkey << "(";}
     }
    
   for (int itag = 0, ipos=1; itag<5; ++itag, ipos*=2) 
     { bool bit = (lp.m_parameterkey & ipos);
       if (bit) { sl << "1";
-      } else { sl << "0";
-}
+      } else { sl << "0";}
     }
   sl << ")";
   sl.precision (ss); sl<<std::resetiosflags(std::ios::fixed);
@@ -148,8 +146,7 @@ std::ostream& operator << ( std::ostream& sl, const Trk::LocalParameters& lp)
   for (int ipar=0; ipar<lp.dimension(); ++ipar)
     { sl << lp(ipar);
       if (ipar+1 < lp.dimension()) { sl << ", ";
-      } else { sl << ")   - key: "<< lp.m_parameterkey << "(";
-}
+      } else { sl << ")   - key: "<< lp.m_parameterkey << "(";}
     }
    
   for (int itag = 0, ipos=1; itag<5; ++itag, ipos*=2) 

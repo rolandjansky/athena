@@ -19,8 +19,7 @@ void Trk::IdentifierExtractor::extract(std::vector<Identifier>& ids, const std::
   for (; it!=itEnd ; it++)
   {
     Identifier id = extract(*it);
-    if( id.is_valid() ) { ids.push_back(id);
-}
+    if( id.is_valid() ) { ids.push_back(id);}
   }
 }
 
