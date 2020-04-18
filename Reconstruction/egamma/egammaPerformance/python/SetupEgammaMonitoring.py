@@ -6,6 +6,7 @@
 @author B. Laforge
 @brief Example python configuration for the Run III AthenaMonitoring package
 '''
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def BookHistogramPerRegion(groupe,name,particletype,title,path,xbins,xmin,xmax,nregions=3):
     '''
@@ -95,8 +96,7 @@ def MonitorElectronConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the
     # base class configuration following the inputFlags. The returned object
     # is the algorithm.
-    from egammaPerformance.egammaPerformanceConf import MonitorElectronAlgorithm
-
+    MonitorElectronAlgorithm=CompFactory.MonitorElectronAlgorithm
     elLHTightMonAlg = helper.addAlgorithm(MonitorElectronAlgorithm,'elLHTightMonAlg')
     elLHTightTrigMonAlg = helper.addAlgorithm(MonitorElectronAlgorithm,'elLHTightTrigMonAlg')
 
@@ -250,8 +250,8 @@ def MonitorPhotonConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the
     # base class configuration following the inputFlags. The returned object
     # is the algorithm.
-    from egammaPerformance.egammaPerformanceConf import MonitorPhotonAlgorithm
 
+    MonitorPhotonAlgorithm=CompFactory.MonitorPhotonAlgorithm
     phCBTightMonAlg = helper.addAlgorithm(MonitorPhotonAlgorithm,'phCBTightMonAlg')
     phCBTightTrigMonAlg = helper.addAlgorithm(MonitorPhotonAlgorithm,'phCBTightTrigMonAlg')
 

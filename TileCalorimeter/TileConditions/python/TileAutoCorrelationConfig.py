@@ -36,7 +36,7 @@ def TileAutoCorrelationCondAlgCfg(flags, **kwargs):
         else:
             autoCorrelationFolder = folders.addSplitOnline('/TILE/OFL01/NOISE/AUTOCR', '/TILE/OFL02/NOISE/AUTOCR')
 
-        from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerFlt_ as TileCondProxyCoolFlt
+        TileCondProxyCoolFlt=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerFlt>")
         autoCorrelationProxy = TileCondProxyCoolFlt('TileCondProxyCool_NoiseAutoCr', Source = autoCorrelationFolder)
         
         from IOVDbSvc.IOVDbSvcConfig import addFolderList
@@ -44,13 +44,13 @@ def TileAutoCorrelationCondAlgCfg(flags, **kwargs):
 
     elif source == 'FILE':
         # Connect FILE Tile conditions proxies to the algorithm
-        from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerFlt_ as TileCondProxyFileFlt
+        TileCondProxyFileFlt=CompFactory.getComp("TileCondProxyFile<TileCalibDrawerFlt>")
         autoCorrelationProxy = TileCondProxyFileFlt('TileCondProxyFile_NoiseAutoCr', Source = 'TileDefault.acr')
 
     else:
         raise(Exception("Invalid source: %s" % source))
 
-    from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerFlt_ as TileCalibFltCondAlg
+    TileCalibFltCondAlg=CompFactory.getComp("TileCalibCondAlg<TileCalibDrawerFlt>")
     autoCorrelationCondAlg = TileCalibFltCondAlg( name = name,
                                                   ConditionsProxy = autoCorrelationProxy,
                                                   TileCalibData = autoCorrelation)

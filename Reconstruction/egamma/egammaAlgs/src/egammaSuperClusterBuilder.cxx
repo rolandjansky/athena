@@ -189,10 +189,10 @@ bool egammaSuperClusterBuilder::matchesInWindow(const xAOD::CaloCluster *ref,
 }
 
 std::unique_ptr<xAOD::CaloCluster>
-    egammaSuperClusterBuilder::createNewCluster(
-        const std::vector<const xAOD::CaloCluster*>& clusters,
-        const CaloDetDescrManager& mgr,
-        xAOD::EgammaParameters::EgammaType egType) const {
+egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCluster*>& clusters,
+                                            const CaloDetDescrManager& mgr,
+                                            xAOD::EgammaParameters::EgammaType egType) const
+{
 
   const auto acSize = clusters.size();
   if (acSize == 0) {
@@ -200,7 +200,8 @@ std::unique_ptr<xAOD::CaloCluster>
     return nullptr;
   }
 
-  std::unique_ptr<xAOD::CaloCluster> newCluster(CaloClusterStoreHelper::makeCluster(clusters.at(0)->getCellLinks()->getCellContainer()));
+  std::unique_ptr<xAOD::CaloCluster> newCluster(
+    CaloClusterStoreHelper::makeCluster(clusters.at(0)->getCellLinks()->getCellContainer()));
   if (!newCluster) {
     ATH_MSG_ERROR("CaloClusterStoreHelper::makeCluster failed.");
     return nullptr;
@@ -231,7 +232,8 @@ std::unique_ptr<xAOD::CaloCluster>
       cp0.etaEC = dde->eta_raw();
       cp0.phiEC = dde->phi_raw();
     } else {
-      ATH_MSG_WARNING("Couldn't get CaloDetDescrElement from mgr for eta = " << cpRef.etaEC << ", phi = " << cpRef.phiEC);
+      ATH_MSG_WARNING("Couldn't get CaloDetDescrElement from mgr for eta = " << cpRef.etaEC
+                                                                             << ", phi = " << cpRef.phiEC);
     }
   }
 
@@ -252,7 +254,8 @@ std::unique_ptr<xAOD::CaloCluster>
   for (size_t i = 0; i < acSize; i++) {
     //Add te EM cells of the accumulated to the cluster
     if (addEMCellsToCluster(newCluster.get(),clusters[i], cp0).isFailure()) {
-      ATH_MSG_DEBUG("There was problem adding the topocluster cells to the the cluster:  potentially no L2 or L3 cells in cluster");
+      ATH_MSG_DEBUG(
+        "There was problem adding the topocluster cells to the the cluster:  potentially no L2 or L3 cells in cluster");
       return nullptr;
     }
     //Set the element Link to the constitents
@@ -276,7 +279,7 @@ std::unique_ptr<xAOD::CaloCluster>
   }
 
   // Apply SW-style summation of TileGap3 cells (if necessary).
-  if (addTileGap3CellsinWindow(newCluster.get()).isFailure()) {
+  if (addTileGap3CellsinWindow(newCluster.get(),mgr).isFailure()) {
     ATH_MSG_ERROR("Problem with the input cluster when running AddTileGap3CellsinWindow?");
     return nullptr;
   }
@@ -424,7 +427,6 @@ StatusCode egammaSuperClusterBuilder::addL0L1EMCellsToCluster(xAOD::CaloCluster 
     }
 
     if (!addCell) continue;
-
     const CaloDetDescrElement *dde = cell->caloDDE();
     if(!dde){
       continue;
@@ -574,7 +576,8 @@ StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaSuperClusterBuilder::addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster) const{
+StatusCode egammaSuperClusterBuilder::addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster,
+                                                               const CaloDetDescrManager& mgr) const{
   
   if (!myCluster) {
     ATH_MSG_ERROR("Invalid input in addRemainingCellsToCluster");
@@ -597,7 +600,7 @@ StatusCode egammaSuperClusterBuilder::addTileGap3CellsinWindow(xAOD::CaloCluster
 
   const std::vector<CaloSampling::CaloSample> samples = {CaloSampling::TileGap3};
   for ( auto samp : samples ) {
-    myList.select(myCluster->eta0(), myCluster->phi0(), searchWindowEta, searchWindowPhi,samp);
+    myList.select(mgr,myCluster->eta0(), myCluster->phi0(), searchWindowEta, searchWindowPhi,samp);
     cells.insert(cells.end(), myList.begin(), myList.end());
   }
 
@@ -708,6 +711,5 @@ egammaSuperClusterBuilder::findPhiSize(const egammaSuperClusterBuilder::CentralP
     ATH_MSG_WARNING("phiSizeMinusEC is large: " << phiSize.minusEC << ", capping at 1.0");
     phiSize.minusEC = 1.0;
   }
-
   return phiSize;
 }

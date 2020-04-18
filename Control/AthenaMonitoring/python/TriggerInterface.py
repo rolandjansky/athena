@@ -23,10 +23,10 @@ def getTrigDecisionTool(flags):
         getTrigDecisionTool.rv = rv
         return getTrigDecisionTool.rv
 
-    cfgsvc = CompFactory.TrigConf__xAODConfigSvc('xAODConfigSvc')
+    cfgsvc = CompFactory.TrigConf.xAODConfigSvc('xAODConfigSvc')
     rv.addService(cfgsvc)
 
-    tdt = CompFactory.Trig__TrigDecisionTool('TrigDecisionTool')
+    tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
     tdt.TrigConfigSvc = cfgsvc
 
     tdt.NavigationFormat = "TrigComposite" if 'HLTNav_Summary' in flags.Input.Collections else "TriggerElement"

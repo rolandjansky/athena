@@ -28,10 +28,10 @@ def CaloBCIDCoeffsCondAlgCfg (flags):
             result.merge(addFolderList(flags, (('/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>','LAR_OFL','LArShape32MC'),
                                                ('/LAR/ElecCalibOfl/LArPileupAverage','LAR_OFL','LArMinBiasAverageMC')) ))
 
-        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
+        LArMinBiasAverageSymAlg=CompFactory.getComp("LArSymConditionsAlg<LArMinBiasAverageMC,LArMinBiasAverageSym>")
         result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))
 
-        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArShape32MC_LArShape32Sym_ as LArShapeSymAlg
+        LArShapeSymAlg=CompFactory.getComp("LArSymConditionsAlg<LArShape32MC,LArShape32Sym>")
         result.addCondAlgo(LArShapeSymAlg("LArPileUpShapeSymCondAlg",ReadKey="LArShape32",WriteKey="LArShape32Sym"))
 
         ShapeKey = 'LArShape32Sym'
@@ -46,8 +46,7 @@ def CaloBCIDCoeffsCondAlgCfg (flags):
         result.merge(addFolderList(flags, (('/LAR/ElecCalibMC/Shape','LAR_OFL','LArShape32MC'), 
                                            ('/LAR/ElecCalibMC/LArPileupAverage', 'LAR_OFL', 'LArMinBiasAverageMC')) ))
                                
-
-        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
+        LArMinBiasAverageSymAlg=CompFactory.getComp("LArSymConditionsAlg<LArMinBiasAverageMC,LArMinBiasAverageSym>")
         result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))
 
         ShapeKey = 'LArShapeSym'

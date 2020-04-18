@@ -1,6 +1,8 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaCommon.Constants import ERROR
 from AthenaCommon.CFElements import seqAND, parOR
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def setMinimalCaloSetup() :
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -73,10 +75,10 @@ def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_L2CaloEMC
 
 def fastCaloEVCreator():
     InViewRoIs="EMCaloRoIs"
-    fastCaloViewsMaker = EventViewCreatorAlgorithm( "IMfastCalo" )
+    fastCaloViewsMaker = CompFactory.EventViewCreatorAlgorithm( "IMfastCalo" )
     fastCaloViewsMaker.ViewFallThrough = True
     fastCaloViewsMaker.RoIsLink = "initialRoI"
-    fastCaloViewsMaker.RoITool = ViewCreatorInitialROITool()
+    fastCaloViewsMaker.RoITool = CompFactory.ViewCreatorInitialROITool()
     fastCaloViewsMaker.InViewRoIs = InViewRoIs
     fastCaloViewsMaker.Views = "EMCaloViews"
     fastCaloViewsMaker.ViewNodeName = "fastCaloInViewSequence"
@@ -103,8 +105,8 @@ def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_L2C
 def clusterFSInputMaker( ):
   """Creates the inputMaker for FS in menu"""
   RoIs = 'FSJETRoI'
-  from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-  InputMakerAlg = InputMakerForRoI("IMclusterFS", RoIsLink="initialRoI")
+  from AthenaConfiguration.ComponentFactory import CompFactory
+  InputMakerAlg = CompFactory.InputMakerForRoI("IMclusterFS", RoIsLink="initialRoI")
   InputMakerAlg.RoIs=RoIs
   return InputMakerAlg
 

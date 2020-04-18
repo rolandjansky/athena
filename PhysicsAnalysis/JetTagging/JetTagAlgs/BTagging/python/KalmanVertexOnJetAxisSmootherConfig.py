@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 # import the KalmanVertexOnJetAxisSmoother configurable
-Trk__KalmanVertexOnJetAxisSmoother=CompFactory.Trk__KalmanVertexOnJetAxisSmoother
+Trk__KalmanVertexOnJetAxisSmoother=CompFactory.Trk.KalmanVertexOnJetAxisSmoother
 
 def KalmanVertexOnJetAxisSmootherCfg(name, **options):
     acc = ComponentAccumulator()

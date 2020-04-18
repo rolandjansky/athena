@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef REGIONS_H
@@ -41,8 +41,7 @@ public:
           double EtaTanLimit = 2.0;
     void PrintRegions() const;
     unsigned int GetNRegions() const;
-    bool verb;
-    Regions(std::string inRegionFile, int doMacroRegionsFlag = 0);    
+    Regions(const std::string& inRegionFile, int doMacroRegionsFlag = 0);    
     int GetRegion(double eta, const double phi) const;
     float GetRegionDeltaEta(const int r_i) const; //Return Eta span of region
     float GetRegionInnerEta(const int r_i) const; //Return Eta closer to the origin

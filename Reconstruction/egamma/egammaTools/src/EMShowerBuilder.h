@@ -83,8 +83,10 @@ private:
                                const CaloDetDescrManager& cmgr,
                                const CaloCellContainer* cellcoll) const;
     /** @brief calculate Hadronic leakage*/
-    StatusCode CalcHadronicLeakage(xAOD::Egamma* eg,const xAOD::CaloCluster* clus,
-                                        const CaloCellContainer* cellcoll) const ;
+    StatusCode CalcHadronicLeakage(xAOD::Egamma* eg,
+                                   const CaloDetDescrManager& cmgr,
+                                   const xAOD::CaloCluster* clus,
+                                   const CaloCellContainer* cellcoll) const ;
     /** @brief fill shower detail from shower shape calculation*/
     StatusCode FillEMShowerShape(xAOD::Egamma* eg,const IegammaShowerShape::Info& info) const ;
 

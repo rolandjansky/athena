@@ -32,7 +32,7 @@ def MagneticFieldSvcCfg(flags, **kwargs):
       afsArgs.update( UseDCS = True )
     if 'UseDCS' in kwargs:
       afsArgs['UseDCS'] = kwargs['UseDCS']
-    mag_field_svc = CompFactory.MagField__AtlasFieldSvc(**afsArgs)  
+    mag_field_svc = CompFactory.MagField.AtlasFieldSvc(**afsArgs)  
     result.addService(mag_field_svc, primary=True)
 
     # AtlasFieldMapCondAlg - for reading in map
@@ -40,7 +40,7 @@ def MagneticFieldSvcCfg(flags, **kwargs):
       "name": "AtlasFieldMapCondAlg",
     }
     afmArgs.update( UseMapsFromCOOL = True )
-    mag_field_map_cond_alg = CompFactory.MagField__AtlasFieldMapCondAlg(**afmArgs) 
+    mag_field_map_cond_alg = CompFactory.MagField.AtlasFieldMapCondAlg(**afmArgs) 
     result.addCondAlgo(mag_field_map_cond_alg)
     
     # AtlasFieldCacheCondAlg - for reading in current
@@ -57,7 +57,7 @@ def MagneticFieldSvcCfg(flags, **kwargs):
     
     if 'UseDCS' in kwargs:
       afcArgs['UseDCS'] = kwargs['UseDCS']
-    mag_field_cache_cond_alg = CompFactory.MagField__AtlasFieldCacheCondAlg(**afcArgs) 
+    mag_field_cache_cond_alg = CompFactory.MagField.AtlasFieldCacheCondAlg(**afcArgs) 
     result.addCondAlgo(mag_field_cache_cond_alg)
     
     return result 

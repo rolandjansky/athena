@@ -6,7 +6,7 @@ from BTagging.JetFitterFullLinearizedTrackFactoryConfig import JetFitterFullLine
 from BTagging.JetFitterSequentialVertexSmootherConfig import JetFitterSequentialVertexSmootherCfg
 
 # import the SequentialVertexFitter configurable
-Trk__SequentialVertexFitter=CompFactory.Trk__SequentialVertexFitter
+Trk__SequentialVertexFitter=CompFactory.Trk.SequentialVertexFitter
 
 def JetFitterSequentialVertexFitterCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterSequentialVertexFitter tool and returns it.

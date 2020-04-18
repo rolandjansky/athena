@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -11,16 +11,9 @@
 //           04.06.2006 by O. Kortner: bug in constructor fixed.
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-///////////////////////////////////////////////////////////////////////////
-// IMPLEMENTATION OF NON-INLINE METHODS DEFINED IN THE CLASS RtChebyshev //
-///////////////////////////////////////////////////////////////////////////
-
 #include "MdtCalibData/RtChebyshev.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
+#include <TString.h> // for Form
 
-using namespace std;
 using namespace MuonCalib;
 
 //*****************************************************************************
@@ -30,20 +23,16 @@ using namespace MuonCalib;
 //////////////////
 
 void RtChebyshev::_init(void) {
-  MsgStream log(Athena::getMessageSvc(), "RtChebyshev");
 
 // check for consistency //
-  if (nPar()<3) {	
-    log<<MSG::ERROR<< "Not enough parameters!"<<endmsg;
-    exit(1);
+  if (nPar()<3) {
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtChebyshev::_init() - Not enough parameters!", __FILE__, __LINE__));
   }
   if (parameters()[0]>=parameters()[1]) {
-    log<<MSG::ERROR
-       << "Lower time boundary >= upper time boundary!"<<endmsg;
-    exit(1);
+    throw std::runtime_error(Form("File: %s, Line: %d\nRtChebyshev::_init() - Lower time boundary >= upper time boundary!", __FILE__, __LINE__));
   }
 
-// pointer to the chebyshev service //
+  // pointer to the chebyshev service //
   m_Chebyshev = Tschebyscheff_polynomial::get_Tschebyscheff_polynomial();
   
   return;
@@ -55,7 +44,7 @@ void RtChebyshev::_init(void) {
 // METHOD name //
 /////////////////
 std::string RtChebyshev::name(void) const {
-  return string("RtChebyshev");
+  return std::string("RtChebyshev");
 }
 
 //*****************************************************************************
@@ -136,7 +125,7 @@ unsigned int RtChebyshev::numberOfRtParameters(void) const {
 // METHOD rtParameters //
 /////////////////////////
 std::vector<double> RtChebyshev::rtParameters(void) const {
-  vector<double> alpha(nPar()-2);
+  std::vector<double> alpha(nPar()-2);
   for (unsigned int k=0; k<alpha.size(); k++) {
     alpha[k] = parameters()[k+2];
   }

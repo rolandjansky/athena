@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -119,9 +119,7 @@ public:
 	                                ///< track reconstruction;
 	                                ///< warning: the errors of the track
 	                                ///< radii are only approximate
-	void printLevel(int level);
-	                                ///< set the print level, this call
-	                                ///< has no effect
+	void printLevel(int /*level*/){};
 
 private:
 // internal co-ordinate definition //

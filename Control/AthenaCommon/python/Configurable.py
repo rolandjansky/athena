@@ -245,15 +245,17 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
       return d
 
    def __setstate__( self, dct ):
+      #print dct
     # flags are set to neutral, not from pickle except for lockedness
       self._flags = 0
       self._flags |= self._fInitOk
       self._flags &= ~self._fInSetDefaults
-      if dct[ '_fIsLocked' ]:
-          self._flags != self._fIsLocked
-      else:
-          self._flags &= ~self._fIsLocked
-      del dct['_fIsLocked']
+      if '_fIsLocked' in dct: 
+         if dct[ '_fIsLocked' ]:
+            self._flags != self._fIsLocked
+         else:
+            self._flags &= ~self._fIsLocked
+         del dct['_fIsLocked']
       self._flags &= ~self._fIsPrinting
       for (n, v) in dct.items():
 

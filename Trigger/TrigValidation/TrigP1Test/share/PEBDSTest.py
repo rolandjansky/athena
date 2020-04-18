@@ -7,6 +7,7 @@ This test defines its own version of the LS2_v1 menu and the corresponding PEB/D
 and executes several chains testing various types of Partial Event Building and Data Scouting
 '''
 
+from TrigEDMConfig import DataScoutingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu import LS2_v1, EventBuildingInfo, StreamInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
@@ -23,8 +24,8 @@ EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBOne')
 EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBTwo')
 EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBThree')
 EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBFour')
-EventBuildingInfo.DataScoutingIdentifiers['ElectronDSTest'] = 3
-EventBuildingInfo.DataScoutingIdentifiers['ElectronDSPEBTest'] = 3
+DataScoutingInfo.DataScoutingIdentifiers['ElectronDSTest'] = 3
+DataScoutingInfo.DataScoutingIdentifiers['ElectronDSPEBTest'] = 3
 
 # Override the setupMenu function from LS2_v1
 def myMenu():
@@ -117,8 +118,8 @@ def myPebInfoWriterTool(name, eventBuildType):
         return None
 
     # Add Data Scouting HLT result ROB
-    if eventBuildType in EventBuildingInfo.getAllDataScoutingResultIDs():
-        moduleId = EventBuildingInfo.getAllDataScoutingResultIDs()[eventBuildType]
+    if eventBuildType in DataScoutingInfo.getAllDataScoutingResultIDs():
+        moduleId = DataScoutingInfo.getAllDataScoutingResultIDs()[eventBuildType]
         tool.addHLTResultToROBList(moduleId)
 
     return tool

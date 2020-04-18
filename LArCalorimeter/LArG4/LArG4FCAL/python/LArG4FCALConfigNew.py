@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 LArFCALCalculatorBase=CompFactory.LArFCALCalculatorBase
-LArG4__FCAL__LArFCALCalibCalculatorBase=CompFactory.LArG4__FCAL__LArFCALCalibCalculatorBase
+LArG4__FCAL__LArFCALCalibCalculatorBase=CompFactory.LArG4.FCAL.LArFCALCalibCalculatorBase
 from AthenaCommon.SystemOfUnits import mm,deg,ns
 import math
 

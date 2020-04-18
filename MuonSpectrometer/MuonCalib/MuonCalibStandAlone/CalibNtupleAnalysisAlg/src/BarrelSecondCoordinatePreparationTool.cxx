@@ -1,41 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 23.01.2008, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF THE METHODS DEFINED IN THE CLASS ::
-//::      BarrelSecondCoordinatePreparationTool         ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// standard C++ //
 #include <iostream>
 #include <fstream>
 
-// MuonCalib //
 #include "CalibNtupleAnalysisAlg/BarrelSecondCoordinatePreparationTool.h"
-
-//MuonReadoutGeometry
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-
-//MuonCalibITools
 #include "MuonCalibITools/IIdToFixedIdTool.h"
-
-//MuonCalibEventBase
 #include "MuonCalibEventBase/MuonCalibRawRpcHit.h"
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
 
-using namespace std;
 using namespace MuonCalib;
 
 //*****************************************************************************
@@ -144,8 +119,8 @@ void BarrelSecondCoordinatePreparationTool::prepareSegments(
     }
 
 // COLLECT RAW RPC HITS
-    vector<MuonCalibRawRpcHit *> raw_hits;
-    for (vector<MuonCalibRawRpcHit *>::const_iterator it1=raw_RPC_begin_it; it1!=raw_RPC_end_it; it1++) {
+    std::vector<MuonCalibRawRpcHit *> raw_hits;
+    for (std::vector<MuonCalibRawRpcHit *>::const_iterator it1=raw_RPC_begin_it; it1!=raw_RPC_end_it; it1++) {
       raw_hits.push_back(*it1);
     }
 
@@ -174,7 +149,7 @@ void BarrelSecondCoordinatePreparationTool::prepareSegments(
 //:: METHOD handleRPChits ::
 //::::::::::::::::::::::::::
 bool BarrelSecondCoordinatePreparationTool::handleRPChits(MuonCalibSegment & MDT_segment,
-				vector<MuonCalibRawRpcHit *> & raw_hits) {
+				std::vector<MuonCalibRawRpcHit *> & raw_hits) {
   //Segment parameters
   MuonFixedId seg_ID(MDT_segment.mdtHOT()[0]->identify());
 
@@ -217,9 +192,9 @@ bool BarrelSecondCoordinatePreparationTool::handleRPChits(MuonCalibSegment & MDT
   int num_total(0);
   int num_current(0);
 
-  vector<CLHEP::HepVector> RPChits;
-  vector<int> in_seg_sector;
-  vector<int> num_hits_same_layer;
+  std::vector<CLHEP::HepVector> RPChits;
+  std::vector<int> in_seg_sector;
+  std::vector<int> num_hits_same_layer;
 
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
   const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
@@ -228,7 +203,7 @@ bool BarrelSecondCoordinatePreparationTool::handleRPChits(MuonCalibSegment & MDT
     return false; 
   } 
 
-  vector<MuonCalibRawRpcHit *>::iterator raw_it = raw_hits.begin();
+  std::vector<MuonCalibRawRpcHit *>::iterator raw_it = raw_hits.begin();
   while (raw_it != raw_hits.end()) {
     bool bad_hit = false;
     MuonFixedId ID((*raw_it)->identify());
@@ -376,8 +351,8 @@ bool BarrelSecondCoordinatePreparationTool::handleRPChits(MuonCalibSegment & MDT
 /////////////////////////////////////////////
 // Fit by RPC hits                         //
 /////////////////////////////////////////////
-int BarrelSecondCoordinatePreparationTool::rpcFit(vector<CLHEP::HepVector> &RPC_hits,
-				vector<int> in_sect, vector<int> num_same, double max_r,
+int BarrelSecondCoordinatePreparationTool::rpcFit(std::vector<CLHEP::HepVector> &RPC_hits,
+				std::vector<int> in_sect, std::vector<int> num_same, double max_r,
 				CLHEP::HepVector &tr_par, double &angle_err) {
   int ierr(0); // Status of Matrix Inversion
 

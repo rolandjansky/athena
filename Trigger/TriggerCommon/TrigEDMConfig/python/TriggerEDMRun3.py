@@ -14,7 +14,7 @@
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerEDMRun3Config')
 
-from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
+import DataScoutingInfo
 
 def recordable( name ):
     """
@@ -53,7 +53,7 @@ def recordable( name ):
 # be stored in the specified format as well as the category
 # ------------------------------------------------------------
 AllowedOutputFormats = ['BS', 'ESD', 'AODFULL', 'AODSLIM', 'AODVERYSLIM', 'AODBLSSLIM', 'AODLARGE', 'AODSMALL', ]
-AllowedOutputFormats.extend(EventBuildingInfo.getAllDataScoutingIdentifiers())
+AllowedOutputFormats.extend(DataScoutingInfo.getAllDataScoutingIdentifiers())
 
 
 JetVarsToKeep = ['ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m', 'ActiveArea4vec_phi', 'ActiveArea4vec_pt', 'AlgorithmType',
@@ -397,16 +397,6 @@ EDMDetailsRun3[ "xAOD::TrigDecisionAuxInfo" ]         = {'parent':"xAOD::TrigDec
 EDMDetailsRun3[ "xAOD::EnergySumRoIAuxInfo" ]         = {'parent':"xAOD::EnergySumRoI"}
 EDMDetailsRun3[ "xAOD::JetEtRoIAuxInfo" ]             = {'parent':"xAOD::JetEtRoI"}
 EDMDetailsRun3[ "xAOD::CaloClusterTrigAuxContainer" ] = {'parent':"xAOD::CaloClusterContainer"}
-
-
-#-------------------------------------------------------------------------------
-# Truncation thresholds (in bytes) for each HLT result type
-#-------------------------------------------------------------------------------
-TruncationThresholds = {
-    0: 5*(1024**2),  # Main: 5 MB
-    1: 1*(1024**2),  # CostMonDS: 1 MB
-    5: 1*(1024**2),  # JetDS: 1 MB
-}
 
 
 #-------------------------------------------------------------------------------

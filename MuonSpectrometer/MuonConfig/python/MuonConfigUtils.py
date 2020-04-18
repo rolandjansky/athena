@@ -72,7 +72,7 @@ def SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord):
     outstream.ForceRead = True
 
     # Fix for ATLASRECTS-5151
-    Trk__EventCnvSuperTool = CompFactory.Trk__EventCnvSuperTool
+    Trk__EventCnvSuperTool = CompFactory.Trk.EventCnvSuperTool
     cnvTool = Trk__EventCnvSuperTool(name = 'EventCnvSuperTool')
     cnvTool.MuonCnvTool.FixTGCs = True 
     cfg.addPublicTool(cnvTool)

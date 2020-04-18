@@ -1,15 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*********************************************************//
 // DRIFT TUBE SPATIAL RESOLUTION AUTOCALIBRATION ALGORITHM //
 // Author: I.Potrap  (MPI)                                 //
 //*********************************************************//
-
-//////////////////
-// HEADER FILES //
-//////////////////
 
 // standard C++ //
 #include <iostream>
@@ -30,7 +26,6 @@
 #include "MuonCalibStandAloneTools/NtupleSimpleresolutionTool.h"
 #include "MdtCalibIOSvc/MdtCalibInputSvc.h"
 
-
 //root
 #include "TFile.h"
 #include "TH1.h"
@@ -43,11 +38,6 @@
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
 
-////////////////////////
-// NAMESPACE SETTINGS //
-////////////////////////
-
-using namespace std;
 namespace MuonCalib {
 
 const unsigned int NtupleSimpleResolutionTool::MAXNUMHITS=50;
@@ -85,7 +75,7 @@ m_calib_input_svc("MdtCalibInputSvc", n), m_reg_sel_svc("RegionSelectionSvc", n)
 	declareProperty("SuppressionLow", m_SUPPRESS_LOW);
 	m_SUPPRESS_TOP = 0.2;
 	declareProperty("SuppressionTop", m_SUPPRESS_TOP);
-	m_spr_out_name = string("spr_out.root");
+	m_spr_out_name = std::string("spr_out.root");
 	declareProperty("OutputResolutionFunction", m_spr_out_name);
 	}
 
@@ -477,11 +467,11 @@ void NtupleSimpleResolutionTool::end_of_data(const IRtRelation * rt_rel) {
 // SpRes from DistToTrack calculation:
 	spResCalc(false);
 
-	ofstream outfile("spr.out", ios::app);
-	outfile<<m_reg_sel_svc->GetRegionSelection()<<":  NumIt-s ="<<setw(3)<<iteration<<
-		"  conv ="<<setw(6)<<setprecision(2)<<delta_conv<<
-		"  r_conv ="<<setw(6)<<setprecision(2)<<r_conv<<
-		"  NumOfSegments ="<<setw(6)<<m_refitted_segment.size()<<endl;
+	std::ofstream outfile("spr.out", std::ios::app);
+	outfile<<m_reg_sel_svc->GetRegionSelection()<<":  NumIt-s ="<<std::setw(3)<<iteration<<
+		"  conv ="<<std::setw(6)<<std::setprecision(2)<<delta_conv<<
+		"  r_conv ="<<std::setw(6)<<std::setprecision(2)<<r_conv<<
+		"  NumOfSegments ="<<std::setw(6)<<m_refitted_segment.size()<<std::endl;
 	outfile.close();
 
 	delete sprfun_old;
@@ -531,7 +521,7 @@ void NtupleSimpleResolutionTool::end_of_data(const IRtRelation * rt_rel) {
 	// }
 
 // perform sigma-t fit //
-	vector<SamplePoint> point(31);
+	std::vector<SamplePoint> point(31);
 	double r_min(rt_rel->radius(rt_rel->tLower()));
 	double r_max(rt_rel->radius(rt_rel->tUpper()));
 	double bin_width((r_max-r_min)/static_cast<double>(point.size()-1));

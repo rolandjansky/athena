@@ -3,6 +3,8 @@
 from PyUtils.Decorators import memoize
 from AthenaCommon.Logging import logging
 from collections import OrderedDict as odict
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
 import json
 
 def getHLTPrescaleFolderName():
@@ -173,12 +175,14 @@ def getL1ConfigSvc( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
     from AthenaCommon.Logging import log
     from TriggerJobOpts.TriggerFlags import TriggerFlags
-    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
-    from AthenaCommon.AppMgr import theApp
+    from AthenaCommon.Configurable import Configurable
+    print("HERE importing as {}".format(Configurable.configurableRun3Behavior))
     # generate menu file
     generatedFile = generateL1Menu( flags=flags )
 
     # configure config svc
+
+    TrigConf__LVL1ConfigSvc = CompFactory.getComp("TrigConf::LVL1ConfigSvc")
     l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
 
     l1ConfigSvc.ConfigSource = "XML"
@@ -201,7 +205,7 @@ def getL1ConfigSvc( flags = None ):
         l1ConfigSvc.JsonFileName = l1JsonFileName
         log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s", l1JsonFileName )
 
-    theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
+    #theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
     return l1ConfigSvc
 
 
@@ -209,17 +213,18 @@ def getL1ConfigSvc( flags = None ):
 @memoize
 def getHLTConfigSvc( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    from AthenaCommon.Logging import log
-    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__HLTConfigSvc
-    from AthenaCommon.AppMgr import theApp
-    hltConfigSvc = TrigConf__HLTConfigSvc( "HLTConfigSvc" )
+    HLTConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")
+    hltConfigSvc = HLTConfigSvc("HLTConfigSvc")
+
     hltXMLFile = "None"
     hltConfigSvc.ConfigSource = "None"
     hltConfigSvc.XMLMenuFile = hltXMLFile
     hltConfigSvc.InputType = "file"
     hltJsonFileName = getHLTMenuFileName( flags )
     hltConfigSvc.JsonFileName = hltJsonFileName
-    theApp.CreateSvc += [ "TrigConf::HLTConfigSvc/HLTConfigSvc" ]
+    # TODO revisit if needed    
+    #from AthenaCommon.AppMgr import theApp
+    #theApp.CreateSvc += [ "TrigConf::HLTConfigSvc/HLTConfigSvc" ]
     log.info( "Configured HLTConfigSvc with run 2 style input file : %s", hltXMLFile  )
     log.info( "Configured HLTConfigSvc with InputType='file' and JsonFileName=%s", hltJsonFileName )
     return hltConfigSvc
@@ -229,7 +234,7 @@ def getHLTConfigSvc( flags = None ):
 @memoize
 def setupHLTPrescaleCondAlg( flags = None ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__HLTPrescaleCondAlg
+    TrigConf__HLTPrescaleCondAlg = CompFactory.getComp("TrigConf::HLTPrescaleCondAlg")
     hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg( "HLTPrescaleCondAlg" )
 
     tc = getTrigConfigFromFlag( flags )
@@ -254,14 +259,13 @@ def setupHLTPrescaleCondAlg( flags = None ):
     if flags is None: # old style config
         from AthenaCommon.AlgSequence import AthSequencer
         condSequence = AthSequencer("AthCondSeq")
-        condSequence += hltPrescaleCondAlg
+        condSequence += conf2toConfigurable( hltPrescaleCondAlg )
         log.info("Adding HLTPrescaleCondAlg to AthCondSeq")
     return hltPrescaleCondAlg
 
 
 # provide L1 config service in new JO
 def L1ConfigSvcCfg( flags ):
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     acc.addService( getL1ConfigSvc( flags ) )
     return acc
@@ -296,9 +300,6 @@ def HLTPrescaleCondAlgCfg( flags ):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True    
-
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.lock()
     acc = TrigConfigSvcCfg( ConfigFlags )
