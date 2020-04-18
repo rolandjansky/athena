@@ -51,6 +51,7 @@
 #include "xAODTrigger/EmTauRoIContainer.h"
 
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
 #include "xAODTruth/TruthVertexContainer.h"
@@ -351,33 +352,40 @@ StatusCode HLTTauMonTool::fill() {
       //return StatusCode::FAILURE;     
    }
    else{
-     xAOD::TruthParticleContainer::const_iterator truthItr,truth_cont_end = truth_cont->end();
-     for (truthItr=truth_cont->begin(); truthItr != truth_cont_end; ++truthItr){
-      if(abs((*truthItr)->pdgId()) == 15) ATH_MSG_DEBUG("Tau with status " << (*truthItr)->status() << " and charge " << (*truthItr)->charge());
-        if(abs((*truthItr)->pdgId()) == 15  && (*truthItr)->status() == 2) // || (*truthItr)->status() == 10902))
-        {
-          examineTruthTau(**truthItr);
-          float pt  = (*truthItr)->auxdata<float>("pt_vis");
-          float eta = (*truthItr)->auxdata<float>("eta_vis");
-          float phi = (*truthItr)->auxdata<float>("phi_vis");
-          float m   = (*truthItr)->auxdata<float>("m_vis");
-          bool lep = (*truthItr)->auxdata<bool>("IsLeptonicTau");
-          int ntracks = (*truthItr)->auxdata<int>("nTracks");
-          if(pt < m_effOffTauPtCut || lep || fabs(eta) > 2.47 ) continue;
-          if(m_selection_nTrkMax>-1 && ntracks>m_selection_nTrkMax) continue;
-          if(m_selection_nTrkMin>-1 && ntracks<m_selection_nTrkMin) continue;
-          if(m_selection_ptMax>-1 && pt>m_selection_ptMax) continue;
-          if(m_selection_ptMin>-1 && pt<m_selection_ptMin) continue;
-          if(m_selection_absEtaMax>-1 && fabs(eta)>m_selection_absEtaMax) continue;
-          if(m_selection_absEtaMin>-1 && fabs(eta)<m_selection_absEtaMin) continue;
-          if(m_selection_absPhiMax>-1 && fabs(phi)>m_selection_absPhiMax) continue;
-          if(m_selection_absPhiMin>-1 && fabs(phi)<m_selection_absPhiMin) continue;
-          TLorentzVector TruthTauTLV;
-          TruthTauTLV.SetPtEtaPhiM(pt,eta,phi,m);
-          m_true_taus.push_back(TruthTauTLV);
-          m_true_taus_nprong.push_back(ntracks);
-        }
-      }// end if_else sc.isSuccess
+
+     for (auto xTruthParticle : *truth_cont)
+       {
+         if ( xTruthParticle->isTau() )
+           {
+             xAOD::TruthParticle* xTruthTau = new xAOD::TruthParticle();
+             xTruthTau->makePrivateStore( *xTruthParticle );
+
+             if(examineTruthTau(*xTruthTau).isFailure()){
+               delete xTruthTau;
+               continue;
+             }
+             float pt  = xTruthTau->auxdata<double>("pt_vis");
+             float eta = xTruthTau->auxdata<double>("eta_vis");
+             float phi = xTruthTau->auxdata<double>("phi_vis");
+             float m   = xTruthTau->auxdata<double>("m_vis");
+             bool lep = xTruthTau->auxdata<char>("IsLeptonicTau");
+             int ntracks = xTruthTau->auxdata<int>("nTracks");
+             if(pt < m_effOffTauPtCut || lep || fabs(eta) > 2.47 ) continue;
+             if(m_selection_nTrkMax>-1 && ntracks>m_selection_nTrkMax) continue;
+             if(m_selection_nTrkMin>-1 && ntracks<m_selection_nTrkMin) continue;
+             if(m_selection_ptMax>-1 && pt>m_selection_ptMax) continue;
+             if(m_selection_ptMin>-1 && pt<m_selection_ptMin) continue;
+             if(m_selection_absEtaMax>-1 && fabs(eta)>m_selection_absEtaMax) continue;
+             if(m_selection_absEtaMin>-1 && fabs(eta)<m_selection_absEtaMin) continue;
+             if(m_selection_absPhiMax>-1 && fabs(phi)>m_selection_absPhiMax) continue;
+             if(m_selection_absPhiMin>-1 && fabs(phi)<m_selection_absPhiMin) continue;
+             TLorentzVector TruthTauTLV;
+             TruthTauTLV.SetPtEtaPhiM(pt,eta,phi,m);
+             m_true_taus.push_back(TruthTauTLV);
+             m_true_taus_nprong.push_back(ntracks);
+             delete xTruthTau;
+           }
+       }
     }//end if(truth_cont)
   }// end if(m_truth)
 
@@ -2777,51 +2785,61 @@ bool HLTTauMonTool::Selection(const xAOD::EmTauRoI *aTau=NULL){
 // Turn On Curve Methods
 //=================================
 
-void HLTTauMonTool::examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const
+StatusCode HLTTauMonTool::examineTruthTau(const xAOD::TruthParticle& xTruthTau) const
 {
-    xTruthParticle.auxdecor<bool>("IsLeptonicTau") = false;
+
+    if(!xTruthTau.hasDecayVtx()) return StatusCode::FAILURE;
+
+    xTruthTau.auxdecor<char>("IsLeptonicTau") = false;
     
     TLorentzVector VisSumTLV;
-    xTruthParticle.auxdecor<float>("pt_vis") = 0;
-    xTruthParticle.auxdecor<float>("eta_vis") = 0;
-    xTruthParticle.auxdecor<float>("phi_vis") = 0;
-    xTruthParticle.auxdecor<float>("m_vis") = 0;
-    xTruthParticle.auxdecor<int>("childChargeSum") = 0;
-    xTruthParticle.auxdecor<int>("nTracks") = 0;
-   
-    if(!xTruthParticle.hasDecayVtx()) return;
+    xTruthTau.auxdecor<double>("pt_vis") = 0;
+    xTruthTau.auxdecor<double>("eta_vis") = 0;
+    xTruthTau.auxdecor<double>("phi_vis") = 0;
+    xTruthTau.auxdecor<double>("m_vis") = 0;
+    xTruthTau.auxdecor<int>("childChargeSum") = 0;
+    xTruthTau.auxdecor<int>("nTracks") = 0;
+  
     
-    const xAOD::TruthVertex* decayvtx = xTruthParticle.decayVtx();
+    const xAOD::TruthVertex* decayvtx = xTruthTau.decayVtx();
     if(decayvtx)
     {
         const std::size_t nChildren = decayvtx->nOutgoingParticles();
         for ( std::size_t iChild = 0; iChild != nChildren; ++iChild )
         {
             const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
-      if((abs(child->pdgId()) == 12 || abs(child->pdgId()) == 14 || abs(child->pdgId()) == 16)) continue;
-      if(child->status()==3) continue;
-      ATH_MSG_DEBUG("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
-            if ((abs(child->pdgId()) == 11 || abs(child->pdgId()) == 13 || abs(child->pdgId()) == 15)) xTruthParticle.auxdecor<bool>("IsLeptonicTau") = true;
-            VisSumTLV += child->p4();
-            xTruthParticle.auxdecor<int>("childChargeSum") += child->charge();
-      xTruthParticle.auxdecor<int>("nTracks") += abs(child->charge());
+            if( ( abs(child->pdgId()) == 12 || 
+                  abs(child->pdgId()) == 14 || 
+                  abs(child->pdgId()) == 16 ) ) continue;
+                  if(child->status()==3) continue;
+                  ATH_MSG_DEBUG("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
+                  if ( ( abs(child->pdgId()) == 11 || 
+                         abs(child->pdgId()) == 13 || 
+                         abs(child->pdgId()) == 15 ) ) xTruthTau.auxdecor<char>("IsLeptonicTau") = true;
+                     VisSumTLV += child->p4();
+                     xTruthTau.auxdecor<int>("childChargeSum") += child->charge();
+                     xTruthTau.auxdecor<int>("nTracks") += abs(child->charge());
         }
     }
 
-    xTruthParticle.auxdecor<float>("pt_vis")  = (float)VisSumTLV.Pt();
-    xTruthParticle.auxdecor<float>("eta_vis") = (float)VisSumTLV.Eta();
-    xTruthParticle.auxdecor<float>("phi_vis") = (float)VisSumTLV.Phi();
-    xTruthParticle.auxdecor<float>("m_vis")   = (float)VisSumTLV.M();
-    if(xTruthParticle.auxdecor<int>("childChargeSum")!=xTruthParticle.charge() || xTruthParticle.auxdecor<int>("nTracks")%2==0)
-      { 
-  ATH_MSG_WARNING("Strange tau: charge " << xTruthParticle.auxdecor<int>("childChargeSum") << " and " << xTruthParticle.auxdecor<int>("nTracks")  << " tracks");
-  const std::size_t nChildren = decayvtx->nOutgoingParticles();
-  for ( std::size_t iChild = 0; iChild != nChildren; ++iChild )
-    {
-      const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
-      ATH_MSG_WARNING("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
+    xTruthTau.auxdecor<double>("pt_vis")  = VisSumTLV.Pt();
+    xTruthTau.auxdecor<double>("eta_vis") = VisSumTLV.Eta();
+    xTruthTau.auxdecor<double>("phi_vis") = VisSumTLV.Phi();
+    xTruthTau.auxdecor<double>("m_vis")   = VisSumTLV.M();
+
+    if(xTruthTau.auxdecor<int>("childChargeSum")!=xTruthTau.charge() || xTruthTau.auxdecor<int>("nTracks")%2==0)
+    { 
+        ATH_MSG_WARNING("Strange tau: charge " << xTruthTau.auxdecor<int>("childChargeSum") << " and " 
+                                               << xTruthTau.auxdecor<int>("nTracks")  << " tracks");
+        const std::size_t nChildren = decayvtx->nOutgoingParticles();
+        for ( std::size_t iChild = 0; iChild != nChildren; ++iChild )
+        {
+            const xAOD::TruthParticle * child = decayvtx->outgoingParticle(iChild);
+            ATH_MSG_WARNING("child "<< child->pdgId() << ", status "<< child->status() << ", charge "<< child->charge());
+        }
     }
-      }
+
+    return StatusCode::SUCCESS;
 }
 
 
