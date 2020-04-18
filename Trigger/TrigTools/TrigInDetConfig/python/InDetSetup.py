@@ -134,7 +134,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   ToolSvc += InDetPixelGangedAmbiguitiesFinder
 
   #Global keys/names for collections 
-  from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
+  from .InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
   InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization" + signature,
                                                         clusteringTool          = InDetMergedPixelsTool,
