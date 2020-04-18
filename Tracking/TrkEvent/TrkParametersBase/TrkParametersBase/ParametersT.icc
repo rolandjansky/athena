@@ -381,7 +381,7 @@ namespace Trk
     if (updatedCovariance){
       if (updatedCovariance != m_covariance) {
         delete m_covariance;
-}
+      }
       m_covariance = updatedCovariance;
     }
     //position or momentum update needed
@@ -433,8 +433,7 @@ namespace Trk
   {
     float qop = m_parameters[Trk::qOverP];
     // decide the sign of the charge
-    if (qop<0.) { m_chargeDef.setCharge(-1);
-}
+    if (qop<0.) { m_chargeDef.setCharge(-1);}
 
     double p=0.0;
     if (qop!=0.) {
