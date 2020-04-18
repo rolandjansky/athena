@@ -33,9 +33,6 @@ while true; do
     esac
 done
 
-# Fail on errors.
-set -e
-
 if [ -z ${PYTHONDONTWRITEBYTE+x} ]; then export PYTHONDONTWRITEBYTECODE=1; fi # don't write .pyc files, keep source directory clean
 
 menu=$1

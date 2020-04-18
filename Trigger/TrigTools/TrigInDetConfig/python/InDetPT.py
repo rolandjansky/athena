@@ -14,7 +14,7 @@ log = logging.getLogger("InDetPT")
 
 
 #Global keys/names for collections 
-from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
+from .InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
 
 
 
