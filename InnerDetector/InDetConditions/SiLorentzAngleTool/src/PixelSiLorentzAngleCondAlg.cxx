@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelSiLorentzAngleCondAlg.h"
@@ -70,15 +70,6 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     return StatusCode::SUCCESS;
   }
 
-  EventIDBase eidStart;
-  eidStart.set_time_stamp(0);
-  eidStart.set_time_stamp_ns_offset(0);
-  EventIDBase eidStop;
-  eidStop.set_time_stamp(EventIDBase::UNDEFNUM);
-  eidStop.set_time_stamp_ns_offset(EventIDBase::UNDEFNUM);
-  EventIDRange rangePIX{eidStart, eidStop};
-  EventIDRange rangeBField{eidStart, eidStop};
-
   // Read Cond Handle (temperature)
   SG::ReadCondHandle<PixelDCSTempData> readHandleTemp(m_readKeyTemp, ctx);
   const PixelDCSTempData* readCdoTemp(*readHandleTemp);
@@ -86,13 +77,8 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-
-  EventIDRange rangeTemp;
-  if (not readHandleTemp.range(rangeTemp)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleTemp.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Input is " << readHandleTemp.fullKey() << " with the range of " << rangeTemp);
+  writeHandle.addDependency(readHandleTemp);
+  ATH_MSG_DEBUG("Input is " << readHandleTemp.fullKey() << " with the range of " << readHandleTemp.getRange());
 
   // Read Cond Handle (HV)
   SG::ReadCondHandle<PixelDCSHVData> readHandleHV(m_readKeyHV, ctx);
@@ -101,32 +87,24 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeHV;
-  if (not readHandleHV.range(rangeHV)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleHV.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Input is " << readHandleHV.fullKey() << " with the range of " << rangeHV);
-
-  // Combined the validity ranges of temp and HV
-  rangePIX = EventIDRange::intersect(rangeTemp, rangeHV);
-  if (rangePIX.stop().isValid() and rangePIX.start()>rangePIX.stop()) {
-    ATH_MSG_FATAL("Invalid intersection rangePIX: " << rangePIX);
-    return StatusCode::FAILURE;
-  }
+  writeHandle.addDependency(readHandleHV);
+  ATH_MSG_DEBUG("Input is " << readHandleHV.fullKey() << " with the range of " << readHandleHV.getRange());
 
   // Field cache object for field calculations
   MagField::AtlasFieldCache    fieldCache;
   if (m_useMagFieldSvc) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
     // Get field cache object
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandleField{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandleField};
 
     if (fieldCondObj == nullptr) {
         ATH_MSG_ERROR("PixelSiLorentzAngleCondAlg: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
         return StatusCode::FAILURE;
     }
+    //WL: The previous implementation didn't intersect the range of this readHanlde.
+    //I suspect that was a bug. 
+    writeHandle.addDependency(readHandleField);
     fieldCondObj->getInitializedCache (fieldCache);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -138,45 +116,20 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
         ATH_MSG_FATAL("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
       }
-      EventIDRange rangeBFieldSensor;
-      if (not readHandleBFieldSensor.range(rangeBFieldSensor)) {
-        ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleBFieldSensor.key());
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("Input is " << readHandleBFieldSensor.fullKey() << " with the range of " << rangeBFieldSensor);
+      writeHandle.addDependency(readHandleBFieldSensor);
+      ATH_MSG_DEBUG("Input is " << readHandleBFieldSensor.fullKey() << " with the range of " << readHandleBFieldSensor.getRange() );
 
-      // Set the validity ranges of sensor
-      rangeBField = rangeBFieldSensor;
-      if (rangeBField.stop().isValid() and rangeBField.start()>rangeBField.stop()) {
-        ATH_MSG_FATAL("Invalid intersection rangeBField: " << rangeBField);
-        return StatusCode::FAILURE;
-      }
-    }
-  }
+    }//end if useMagFieldDcs
+  }//end if useMagFieldSvc
 
-  // Combined the validity ranges of Pixel and BField if types are the same.
-  EventIDRange rangeW{rangePIX};
-  if (rangePIX.start().isTimeStamp()==rangeBField.start().isTimeStamp() and
-      rangePIX.start().isRunLumi()==rangeBField.start().isRunLumi()) {
-    rangeW = EventIDRange::intersect(rangePIX, rangeBField);
-  }
-  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection rangeW: " << rangeW);
-    return StatusCode::FAILURE;
-  }
 
-  // Get PixelDetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(pixelDetEle.retrieve());
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeDetEle; // Run-LB IOV
-  if (not pixelDetEle.range(rangeDetEle)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << m_pixelDetEleCollKey.key());
-    return StatusCode::FAILURE;
-  }
+  writeHandle.addDependency(pixelDetEle);
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SiLorentzAngleCondData> writeCdo{std::make_unique<SiLorentzAngleCondData>()};
@@ -249,11 +202,12 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record SiLorentzAngleCondData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
+    ATH_MSG_FATAL("Could not record SiLorentzAngleCondData " << writeHandle.key() << " with EventRange " << writeHandle.getRange() << " into Conditions Store");
     return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+    }
+    
+  ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }
