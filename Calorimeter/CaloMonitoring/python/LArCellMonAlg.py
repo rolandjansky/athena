@@ -35,12 +35,12 @@ def LArCellMonConfig(inputFlags):
       from LumiBlockComps.LuminosityCondAlgConfig import  LuminosityCondAlgCfg
       cfg.merge(LuminosityCondAlgCfg(inputFlags))
 
-    from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
-    from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
-    
+    from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
+    filterTool=cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags))
     isCosmics = ( inputFlags.Beam.Type == 'cosmics' ) #will use this switch many times later
 
-    from CaloMonitoring.CaloMonitoringConf import LArCellMonAlg
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    LArCellMonAlg=CompFactory.LArCellMonAlg
     algname='LArCellMonAlg'
     if isCosmics:
         algname=algname+'Cosmics'
@@ -59,13 +59,14 @@ def LArCellMonConfig(inputFlags):
     cfg.merge(acc)
 
      
-    LArCellMonAlg.BadLBTool = GetLArBadLBFilterTool()
+    LArCellMonAlg.BadLBTool = filterTool
     if inputFlags.Input.isMC is True:
         LArCellMonAlg.useBadLBTool=False
     else:
         LArCellMonAlg.useBadLBTool=True
 
-    LArCellMonAlg.ReadyFilterTool = GetAtlasReadyFilterTool()
+    from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
+    LArCellMonAlg.ReadyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
     if isCosmics or inputFlags.Input.isMC is True:
         LArCellMonAlg.useReadyFilterTool = False
     else:

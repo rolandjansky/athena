@@ -2,7 +2,9 @@
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
-from TRT_PAI_Process.TRT_PAI_ProcessConf import TRT_PAI_Process
+#from TRT_PAI_Process.TRT_PAI_ProcessConf import 
+from AthenaConfiguration.ComponentFactory import CompFactory
+TRT_PAI_Process=CompFactory.TRT_PAI_Process
 
 def TRT_PAI_Process_XeToolCfg(flags, name="TRT_PAI_Process_Xe", **kwargs):
     """Return a Xenon-configured TRT_PAI_Process"""

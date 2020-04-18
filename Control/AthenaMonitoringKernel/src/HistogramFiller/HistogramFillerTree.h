@@ -30,7 +30,7 @@ namespace Monitored {
       return new HistogramFillerTree( *this );
     }
 
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       // handling of the cutmask
       auto cutMaskValuePair = getCutMaskFunc();
       if (cutMaskValuePair.first == 0) { return 0; }

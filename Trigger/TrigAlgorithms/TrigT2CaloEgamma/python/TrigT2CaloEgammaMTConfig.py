@@ -1,9 +1,9 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
+
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-T2CaloEgammaReFastAlgo=CompFactory.T2CaloEgammaReFastAlgo
 
 def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
 
@@ -37,7 +37,7 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
     acc.addPublicTool( samph )
 
-    alg = T2CaloEgammaReFastAlgo("FastEMCaloAlgo")
+    alg = CompFactory.T2CaloEgammaReFastAlgo("FastEMCaloAlgo")
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     alg.ClustersName   = recordable('HLT_L2CaloEMClusters')
     alg.RoIs           = roisKey

@@ -37,7 +37,7 @@ namespace Monitored {
       return new HistogramFillerRebinableAxis( *this );
     }
 
-    virtual unsigned fill() override {
+    virtual unsigned fill() const override {
       if (AXIS >= this->m_monVariables.size()) { return 0; }
       if (this->m_monVariables[AXIS].get().size()==0) { return 0; }
 

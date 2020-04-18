@@ -18,6 +18,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/Property.h"
 
 #include "CLHEP/Random/Ranlux64Engine.h"
 
@@ -115,20 +116,33 @@ public:
 
 
 private:
-    typedef	std::vector< std::string >	VStrings;
     /// @name Properties
     //@{
-    /// seeds for the engines, this is a vector of strings of the form "EnginName Seed1 Seed2"
-    VStrings m_streams_seeds;   
-    bool     m_read_from_file;  ///< read engine status from file
-    std::string	m_file_to_read; ///< name of the file to read the engine status from
-    bool m_save_to_file; ///< should current engine status be saved to file ?
-    std::string m_file_to_write; ///< name of the file to save the engine status to.
-    bool m_useOldBrokenSeeding; ///< backward compatibility only, broken 32/64 bits
-    bool m_eventReseed; ///< reseed for every event
-    VStrings m_reseedStreamNames; ///< streams to be reseeded for every event   
-    //@}
+    /// seeds for the engines, this is a vector of strings of the form "EnginName Seed1 Seed2"  
+    StringArrayProperty m_streams_seeds{this,"Seeds",{},
+	"seeds for the engines, a string of the form ['SequenceName [LUXURY luxLevel (range 0:2 default 1)()] "	\
+	  "[OFFSET num] Seed1 Seed2', ...] where OFFSET is an optional integer that allows to change the " \
+	  "sequence of randoms for a given run/event no and SequenceName combination. Notice that " \
+	  "Seed1/Seed2 are dummy when EventReseeding is used",
+	  "Set<std::string>"};
 
+
+    Gaudi::Property<bool> m_read_from_file{this,"ReadFromFile",false,"set/restore the status of the engine from file"};  ///< read engine status from file
+    Gaudi::Property<std::string>  m_file_to_read{this,"FileToRead",this->name()+".out",
+	"name of a ASCII file, usually produced by AtRanLuxGenSvc itself at the end of a job, "	\
+	"containing the information to fully set/restore the status of Ranlux64"
+	}; ///< name of the file to read the engine status from
+    Gaudi::Property<bool> m_save_to_file{this,"SaveToFile", true,"save the status of the engine to file"}; ///< should current engine status be saved to file ?
+    Gaudi::Property<std::string> m_file_to_write{this,"FileToWrite",this->name()+".out",
+	"name of an ASCII file which will be produced on finalize, containing the information to fully set/restore the status"}; ///< name of the file to save the engine status to.
+
+    Gaudi::Property<bool> m_eventReseed{this,"EventReseeding",true,"reseed every event using a hash of run and event numbers"}; ///< reseed for every event
+    StringArrayProperty m_reseedStreamNames{this,"ReseedStreamNames",{}, "the streams we are going to set the seeds of (default: all streams)"};
+    ///< streams to be reseeded for every event   
+
+    Gaudi::Property<bool> m_useOldBrokenSeeding{this,"UseOldBrokenSeeding",false}; ///< backward compatibility only, broken 32/64 bits
+    //@}
+    
     /// optional offsets to combine to run/evt no when reseeding.
     /// Set using OFFSET keyword of the Seeds property
     std::map<std::string, uint32_t> m_reseedingOffsets;

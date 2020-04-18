@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -20,10 +20,6 @@
 //::           NtupleControlHistogramsTool              ::
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 // standard C++ //
 #include <iostream>
 #include <fstream>
@@ -31,10 +27,8 @@
 // CLHEP //
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
-// MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-// MuonCalib //
 #include "MuonCalibStandAloneTools/NtupleControlHistogramsTool.h"
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
@@ -45,16 +39,10 @@
 #include "MdtCalibT0/T0MTHistos.h"
 #include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 #include "MdtCalibIOSvc/MdtCalibInputSvc.h"
-//root;
 #include "TF1.h"
 #include "TTree.h"
 #include "TProfile.h"
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
 
 //*****************************************************************************
@@ -88,19 +76,19 @@ NtupleControlHistogramsTool::NtupleControlHistogramsTool(const std::string & t,
 	m_road_width = 1.0; // by default road width = 1 mm
 	declareProperty("roadWidth", m_road_width);
 
-	m_MDT_ID_helper = string("MDTIDHELPER");
+	m_MDT_ID_helper = std::string("MDTIDHELPER");
 	declareProperty("MDTIdHelper", m_MDT_ID_helper);
 
-	m_RPC_ID_helper = string("RPCIDHELPER");
+	m_RPC_ID_helper = std::string("RPCIDHELPER");
 	declareProperty("RPCIdHelper", m_RPC_ID_helper);
 
-	m_idToFixedIdToolType = string("MuonCalib::IdToFixedIdTool");
+	m_idToFixedIdToolType = std::string("MuonCalib::IdToFixedIdTool");
 	declareProperty("idToFixedIdToolType", m_idToFixedIdToolType);
 
-	m_idToFixedIdToolName = string("MuonCalib_IdToFixedIdTool");
+	m_idToFixedIdToolName = std::string("MuonCalib_IdToFixedIdTool");
 	declareProperty("idToFixedIdToolName", m_idToFixedIdToolName);
 
-	m_ROOT_file_name = string("NtupleControlHistogramsTool.root");
+	m_ROOT_file_name = std::string("NtupleControlHistogramsTool.root");
 	declareProperty("ROOTFileName", m_ROOT_file_name);
 
 /////////////////////////////
@@ -302,8 +290,8 @@ StatusCode NtupleControlHistogramsTool::finalize(void) {
 		station_phi = it->first.GetPhi();
 		station_name = it->first.GetStation();
 		strncpy(station_name_str, id.stationNumberToFixedStationString(it->first.GetStation()).c_str(), 9);
-		ostringstream sw_id;
-		ostringstream hw_id;
+		std::ostringstream sw_id;
+		std::ostringstream hw_id;
 		hw_id<<station_name_str<<abs(station_eta);
 		if(station_eta>0)
 			hw_id<<"A";
@@ -416,7 +404,6 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 ///////////////
 
 	const MuonCalibRawHitCollection *raw_hits(event.rawHitCollection());
-//	const MuonCalibSegment *rpcHits(event.rpcHitCollection());
 	unsigned int ml, ly, tb; // multilayer, layer, tube
 	unsigned int ndof; // number of degrees of freedom of the segment fit
 	int strip, strip2; // rpc strip
@@ -1020,7 +1007,7 @@ void NtupleControlHistogramsTool::createMaps(const MuonFixedId & id) {
 
 // histograms //
 	ToString tostring;
-	string file_dir(id.stationNumberToFixedStationString(id.stationName())
+	std::string file_dir(id.stationNumberToFixedStationString(id.stationName())
 		+"_"+tostring(id.phi())+"_"+tostring(id.eta()));
 	m_tfile->mkdir(file_dir.c_str());
 	m_tfile->cd(file_dir.c_str());

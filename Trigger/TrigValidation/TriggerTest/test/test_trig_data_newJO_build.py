@@ -6,7 +6,7 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-from TrigValTools.TrigValSteering import Test, Step, ExecStep, CheckSteps
+from TrigValTools.TrigValSteering import Test, Step, ExecStep #, CheckSteps
 
 # Copy the job options to the working directory
 copy_jo = ExecStep.ExecStep('CopyJO')
@@ -36,8 +36,14 @@ run_athena.input = ''
 # The full test configuration
 test = Test.Test()
 test.art_type = 'build'
-test.exec_steps = [copy_jo, pickle, run_athena]
-test.check_steps = CheckSteps.default_check_steps(test)
+#test.exec_steps = [copy_jo, pickle, run_athena]
+#test.check_steps = CheckSteps.default_check_steps(test)
+test.exec_steps = [copy_jo]
+test.check_steps = [] 
+
+# Change RegTest pattern
+#regtest = test.get_step('RegTest')
+#regtest.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
 
 import sys
 sys.exit(test.run())

@@ -21,10 +21,10 @@ def TrigMinBias(configFlags):
     alg.triggerList = [ "HLT_mb_sptrk_L1RD0_FILLED"]
     length = len(alg.triggerList)
     mbEffAllGroup.defineHistogram( "PurityAll,whichTrigger",type = 'TEfficiency',title="PurityAll;whichTrigger" ,xbins=length, xmin=0, xmax=length)
-    mbEffAllGroup.defineHistogram( "PurityPassed,whichTrigger",type = 'TEfficiency',title="PurityPassed;whichTrigger",xbins=length, xmin=0, xmax=length, xlabels = alg.triggerList)
+    mbEffAllGroup.defineHistogram( "PurityPassed,whichTrigger",type = 'TEfficiency',title="PurityPassed;whichTrigger",xbins=length, xmin=0, xmax=length, xlabels = list(alg.triggerList))
     mbEffAllGroup.defineHistogram( "EfficiencyAll,whichTrigger",type = 'TEfficiency', title="EfficiencyAll;whichTrigger",xbins=length, xmin=0, xmax=length)
     mbEffAllGroup.defineHistogram( "EfficiencyPassed,whichTrigger",type = 'TEfficiency', title="EfficiencyPassed;whichTrigger", xbins=length, xmin=0, xmax=length)
-    mbEffAllGroup.defineHistogram( "EfficiencyPassed,trigNo",type = 'TEfficiency', title="EfficiencyPassed;trig No.", xbins=length, xmin=0, xmax=length, xlabels = alg.triggerList)
+    mbEffAllGroup.defineHistogram( "EfficiencyPassed,trigNo",type = 'TEfficiency', title="EfficiencyPassed;trig No.", xbins=length, xmin=0, xmax=length, xlabels = list(alg.triggerList))
     mbEffAllGroup.defineHistogram( "whichTrigger",title="count of triggers", xbins=length, xmin=0, xmax=length)
     mbEffAllGroup.defineHistogram( "EfficiencyPassed,trigCount",type = 'TProfile',title="EfficiencyPassed;Trigger;EfficiencyPassed", xbins=length, xmin=0, xmax=length)
 

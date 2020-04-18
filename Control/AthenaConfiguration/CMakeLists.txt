@@ -11,7 +11,8 @@ find_package( six )
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/iconfTool 
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_scripts( share/confTool.py python/iconfTool/iconfTool )
+atlas_install_scripts( share/confTool.py python/iconfTool/iconfTool python/CARunner.py)
+
 atlas_install_data( share/*.ref )
 
 atlas_add_test( ComponentAccumulatorTest
@@ -46,8 +47,3 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
                     POST_EXEC_SCRIPT nopost.sh )
 endif()
 
-# Test AppendToGlobal
-atlas_add_test( appendToGlobalTest
-		SCRIPT athena.py testAppendToGlobals.py
-		ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share::$ENV{JOBOPTSEARCHPATH}"
-		POST_EXEC_SCRIPT nopost.sh )

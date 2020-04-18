@@ -1,29 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 01.03.2006, AUTHORS: OLIVER KORTNER, FELIX RAUSCHER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 #include "MdtCalibFitters/MTStraightLine.h"
 #include "cmath"
 #include <iostream>
-//:::::::::::::::::::::::
-//:: NAMESPACE SETTING ::
-//:::::::::::::::::::::::
 
 using namespace MuonCalib;
-
-//using namespace std;
-
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS MTStraightLine ::
-//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //*****************************************************************************
 

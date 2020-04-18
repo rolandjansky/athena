@@ -26,8 +26,7 @@ def TileTMDBCondAlgCfg(flags, **kwargs):
     tmf = kwargs.get('TileTMDBTMF', 'TileTMDBTMF')
     calib = kwargs.get('TileTMDBCalib', 'TileTMDBCalib')
 
-    from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerFlt_ as TileCalibFltCondAlg
-
+    TileCalibFltCondAlg=CompFactory.getComp("TileCalibCondAlg<TileCalibDrawerFlt>")
     def __addCondAlg(calibData, proxy):
         condAlg = TileCalibFltCondAlg( name = calibData + 'CondAlg',
                                        ConditionsProxy = proxy,
@@ -60,7 +59,7 @@ def TileTMDBCondAlgCfg(flags, **kwargs):
         else:
             raise(Exception("No Tile TMDB folders in %s" % flags.IOVDb.DatabaseInstancea))
 
-        from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerFlt_ as TileCondProxyCoolFlt
+        TileCondProxyCoolFlt=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerFlt>")
         thrProxy = TileCondProxyCoolFlt('TileCondProxyCool_TMDBThreshold', Source = thrFolder)
         delayProxy = TileCondProxyCoolFlt('TileCondProxyCool_TMDBDelay', Source = delayFolder)
         tmfProxy = TileCondProxyCoolFlt('TileCondProxyCool_TMDBTmf', Source = tmfFolder)

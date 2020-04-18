@@ -160,9 +160,9 @@ class ToolSpec(ConfigDict):
         
         
     def toTool(self):
-        from AthenaCommon import CfgMgr
+        from AthenaConfiguration.ComponentFactory import CompFactory
         conf = self.clone(self.name)
-        klass = getattr(CfgMgr,conf.pop('klass')) # remove 'klass'
+        klass = getattr(CompFactory,conf.pop('klass')) # remove 'klass'
         conf.pop('name')
         conf.pop('defineHistoFunc',None) # not used here.
         for k, v in six.iteritems (conf):

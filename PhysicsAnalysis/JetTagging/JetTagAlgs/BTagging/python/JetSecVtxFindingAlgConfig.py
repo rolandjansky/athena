@@ -6,7 +6,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.NewJetFitterVxFinderConfig import NewJetFitterVxFinderCfg
 from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 
-Analysis__JetSecVtxFindingAlg=CompFactory.Analysis__JetSecVtxFindingAlg
+Analysis__JetSecVtxFindingAlg=CompFactory.Analysis.JetSecVtxFindingAlg
 
 def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SVFinder="", Associator="", **options):
     """Adds a SecVtxTool instance and registers it.

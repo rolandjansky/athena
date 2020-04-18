@@ -252,13 +252,13 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
           darray.defineHistogram('Triggers;NoisyEventTrigger',type='TH1I',
                                  title='Trigger fired for RNB flagged events - {0} ; Special trigger fired', 
                                  xbins=siz+1,xmin=0.5,xmax=siz+1.5,
-                                 xlabels=larNoisyROMonAlg.EFNoiseBurstTriggers+["NONE"])
+                                 xlabels=larNoisyROMonAlg.EFNoiseBurstTriggers.append("NONE"))
 
           l1siz=len(larNoisyROMonAlg.L1NoiseBurstTriggers)
           darray.defineHistogram('L1Triggers;NoisyEventL1Term',type='TH1I',
                                  title='L1 term fired for RNB flagged events - {0} ; Special trigger fired', 
                                  xbins=l1siz+1,xmin=0.5,xmax=l1siz+1.5,
-                                 xlabels=larNoisyROMonAlg.L1NoiseBurstTriggers+["NONE"])
+                                 xlabels=larNoisyROMonAlg.L1NoiseBurstTriggers.append("NONE"))
 
     pass
 

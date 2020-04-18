@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-Trk__FullLinearizedTrackFactory=CompFactory.Trk__FullLinearizedTrackFactory
+Trk__FullLinearizedTrackFactory=CompFactory.Trk.FullLinearizedTrackFactory
 
 def JetFitterFullLinearizedTrackFactoryCfg(name, useBTagFlagsDefaults = True, **options):
     """Sets up a JetFitterFullLinearizedTrackFactory tool and returns it.

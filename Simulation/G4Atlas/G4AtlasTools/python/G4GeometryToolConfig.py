@@ -25,7 +25,7 @@ from past.builtins import xrange
 
 
 #put it here to avoid circular import?
-from G4AtlasServices.G4AtlasServicesConf import G4GeometryNotifierSvc
+G4GeometryNotifierSvc=CompFactory.G4GeometryNotifierSvc
 def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs):
     kwargs.setdefault("ActivateLVNotifier", True)
     kwargs.setdefault("ActivatePVNotifier", False)
