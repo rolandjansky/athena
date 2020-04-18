@@ -45,7 +45,7 @@ namespace Trk
  */   
    ExtendedVxCandidate(const Trk::RecVertex& recVertex,
                        const std::vector<Trk::VxTrackAtVertex *>& vxTrackAtVertex,
-                       const Amg::MatrixX * fullCov = 0);
+                       const Amg::MatrixX * fullCov = nullptr);
   
 /**
  * Virtual calss destructor

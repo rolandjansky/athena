@@ -53,14 +53,14 @@ namespace Trk
     * and a linearized track state.
     */
       MVFVxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex,
-		      double ndfPerTrk,Trk::LinearizedTrack * linState=0);
+		      double ndfPerTrk,Trk::LinearizedTrack * linState=nullptr);
    
    /**
     *Constructor requiring a chi2 per track,initial track parameters, track parameters at vertex 
     * and a linearized track state.
     */
       MVFVxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex,  TrackParameters* initialPerigee,
-		      double ndfPerTrk,Trk::LinearizedTrack * linState=0); 
+		      double ndfPerTrk,Trk::LinearizedTrack * linState=nullptr); 
 
     /**
      * Constructor with only trackOrParticleLink (no TrackToVtxLink);

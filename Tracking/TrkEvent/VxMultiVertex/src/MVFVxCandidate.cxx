@@ -19,14 +19,14 @@ namespace Trk {
   
   MVFVxCandidate::MVFVxCandidate() : 
     VxCandidate(),	
-    m_fitInfo(Trk::MvfFitInfo(0,0,0)),
+    m_fitInfo(Trk::MvfFitInfo(nullptr,nullptr,nullptr)),
     m_initialized(false)
     {}
   
   MVFVxCandidate::MVFVxCandidate(const Trk::RecVertex& recVertex,
 				 const std::vector<Trk::VxTrackAtVertex*>& vxTrackAtVertex):
     VxCandidate(recVertex,vxTrackAtVertex),
-    m_fitInfo(Trk::MvfFitInfo(0,0,0)),
+    m_fitInfo(Trk::MvfFitInfo(nullptr,nullptr,nullptr)),
     m_initialized(true){}
   
   MVFVxCandidate::MVFVxCandidate(xAOD::Vertex* constraintVertex,

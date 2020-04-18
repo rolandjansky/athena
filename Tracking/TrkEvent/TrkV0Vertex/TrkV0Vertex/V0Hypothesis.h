@@ -53,7 +53,7 @@ class V0Hypothesis : public ExtendedVxCandidate
  */
    V0Hypothesis(const Trk::RecVertex& recVertex,
                 const std::vector<Trk::VxTrackAtVertex *>& vxTrackAtVertex,
-                const Amg::MatrixX * fullCov = 0,
+                const Amg::MatrixX * fullCov = nullptr,
                 int positiveTrackID = PDG::pi_plus, int negativeTrackID = PDG::pi_minus, int constraintID = PDG::K0);
 
 /**

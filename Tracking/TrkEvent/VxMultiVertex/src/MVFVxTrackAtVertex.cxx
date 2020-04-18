@@ -25,19 +25,19 @@ namespace Trk {
   
   MVFVxTrackAtVertex::MVFVxTrackAtVertex() :
     VxTrackAtVertex(),
-    m_linkToVertices(0) {}
+    m_linkToVertices(nullptr) {}
 
     
   MVFVxTrackAtVertex::MVFVxTrackAtVertex(double chi2PerTrk, TrackParameters * perigeeAtVertex) :
     VxTrackAtVertex(chi2PerTrk,perigeeAtVertex),
-    m_linkToVertices(0) {}
+    m_linkToVertices(nullptr) {}
 
   
   MVFVxTrackAtVertex::MVFVxTrackAtVertex(double chi2PerTrk, TrackParameters * perigeeAtVertex, 
 				   double ndfPerTrk, Trk::LinearizedTrack * linState):
     VxTrackAtVertex(chi2PerTrk,perigeeAtVertex,
 		    ndfPerTrk,linState),
-    m_linkToVertices(0) {}
+    m_linkToVertices(nullptr) {}
   
   //new constructors, including initial perigee state (refitting support)
   //Kirill Prokofiev 27-03-06  
@@ -45,7 +45,7 @@ namespace Trk {
 					 TrackParameters* perigeeAtVertex, 
 					 TrackParameters* initialPerigee):
     VxTrackAtVertex(chi2PerTrk,perigeeAtVertex,initialPerigee),
-    m_linkToVertices(0) {}
+    m_linkToVertices(nullptr) {}
  
   
   MVFVxTrackAtVertex::MVFVxTrackAtVertex(double chi2PerTrk, 
@@ -55,12 +55,12 @@ namespace Trk {
 				   Trk::LinearizedTrack * linState):
     VxTrackAtVertex(chi2PerTrk,perigeeAtVertex,
 		    initialPerigee,ndfPerTrk,linState),
-    m_linkToVertices(0) {}
+    m_linkToVertices(nullptr) {}
 
 
   MVFVxTrackAtVertex::MVFVxTrackAtVertex(Trk::ITrackLink* trackOrParticleLink):
    VxTrackAtVertex(trackOrParticleLink),
-   m_linkToVertices(0) {}
+   m_linkToVertices(nullptr) {}
   
   MVFVxTrackAtVertex::MVFVxTrackAtVertex(Trk::ITrackLink* trackOrParticleLink,
 					 TrackToVtxLink* actuallink):
@@ -100,7 +100,7 @@ namespace Trk {
 //destructor changed
   MVFVxTrackAtVertex::~MVFVxTrackAtVertex() 
   { 
-    if (m_linkToVertices!=0) { m_linkToVertices=0; }//YOU DON'T OWN THE OBJECT: PLEASE PAY ATTENTION
+    if (m_linkToVertices!=nullptr) { m_linkToVertices=nullptr; }//YOU DON'T OWN THE OBJECT: PLEASE PAY ATTENTION
   }
 
 //copy constructor changed

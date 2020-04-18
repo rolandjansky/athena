@@ -8,7 +8,7 @@ namespace Trk
 {
 
 //default constructor, setting all pointers to zero 
- MvfFitInfo::MvfFitInfo():m_constraintVertex(0), m_seedVertex(0), m_linearizationVertex(0)
+ MvfFitInfo::MvfFitInfo():m_constraintVertex(nullptr), m_seedVertex(nullptr), m_linearizationVertex(nullptr)
  {}
  
  MvfFitInfo::MvfFitInfo(xAOD::Vertex* constraintVertex,
@@ -29,9 +29,9 @@ namespace Trk
  }//end of destructor
  
   MvfFitInfo::MvfFitInfo(const MvfFitInfo& rhs):
-   m_constraintVertex(rhs.m_constraintVertex ? new xAOD::Vertex(*rhs.m_constraintVertex) : 0),
-   m_seedVertex(rhs.m_seedVertex ? new Amg::Vector3D(*rhs.m_seedVertex) : 0),
-   m_linearizationVertex(rhs.m_linearizationVertex ? new Amg::Vector3D(*rhs.m_linearizationVertex) : 0)
+   m_constraintVertex(rhs.m_constraintVertex ? new xAOD::Vertex(*rhs.m_constraintVertex) : nullptr),
+   m_seedVertex(rhs.m_seedVertex ? new Amg::Vector3D(*rhs.m_seedVertex) : nullptr),
+   m_linearizationVertex(rhs.m_linearizationVertex ? new Amg::Vector3D(*rhs.m_linearizationVertex) : nullptr)
    {}
   
   MvfFitInfo &  MvfFitInfo::operator= (const MvfFitInfo & rhs)
@@ -39,11 +39,11 @@ namespace Trk
    if (this!=&rhs)
    {
     delete m_constraintVertex;
-    m_constraintVertex = rhs.m_constraintVertex ? new xAOD::Vertex(*rhs.m_constraintVertex) : 0;
+    m_constraintVertex = rhs.m_constraintVertex ? new xAOD::Vertex(*rhs.m_constraintVertex) : nullptr;
     delete m_seedVertex;
-    m_seedVertex = rhs.m_seedVertex? new Amg::Vector3D(*rhs.m_seedVertex) : 0;
+    m_seedVertex = rhs.m_seedVertex? new Amg::Vector3D(*rhs.m_seedVertex) : nullptr;
     delete m_linearizationVertex;
-    m_linearizationVertex = rhs.m_linearizationVertex ? new Amg::Vector3D(*rhs.m_linearizationVertex) : 0;
+    m_linearizationVertex = rhs.m_linearizationVertex ? new Amg::Vector3D(*rhs.m_linearizationVertex) : nullptr;
    }
    return *this;
   }
@@ -51,14 +51,14 @@ namespace Trk
  
  void MvfFitInfo::setSeedVertex(Amg::Vector3D* seedVertex)
  {
-   if (m_seedVertex!=0) delete m_seedVertex;
+   if (m_seedVertex!=nullptr) delete m_seedVertex;
    m_seedVertex=seedVertex;
  }
  
  
  void MvfFitInfo::setLinearizationVertex(Amg::Vector3D* linearizationVertex)
  {
-    if (m_linearizationVertex!=0) delete m_linearizationVertex;
+    if (m_linearizationVertex!=nullptr) delete m_linearizationVertex;
     m_linearizationVertex=linearizationVertex;
  }
  

@@ -62,12 +62,12 @@ namespace Trk {
      /**Constructor*/
      JetVtxParamDefsStrings()
       { 
-        pardefname.push_back("jet_xv");
-        pardefname.push_back("jet_yv");
-        pardefname.push_back("jet_zv");
-        pardefname.push_back("jet_phi");
-        pardefname.push_back("jet_theta");
-	pardefname.push_back("jet_dist");
+        pardefname.emplace_back("jet_xv");
+        pardefname.emplace_back("jet_yv");
+        pardefname.emplace_back("jet_zv");
+        pardefname.emplace_back("jet_phi");
+        pardefname.emplace_back("jet_theta");
+	pardefname.emplace_back("jet_dist");
       }
      
      /**The member*/ 

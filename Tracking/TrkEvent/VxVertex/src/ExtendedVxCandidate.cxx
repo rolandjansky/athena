@@ -10,7 +10,7 @@ namespace Trk
 {
 
 //default constructor for persistensy
-  ExtendedVxCandidate::ExtendedVxCandidate() : VxCandidate(), m_fullCovariance(0)
+  ExtendedVxCandidate::ExtendedVxCandidate() : VxCandidate(), m_fullCovariance(nullptr)
   {}
    
    
@@ -23,12 +23,12 @@ namespace Trk
 
   ExtendedVxCandidate::~ExtendedVxCandidate()
   {
-   if(m_fullCovariance != 0) delete m_fullCovariance;
+   if(m_fullCovariance != nullptr) delete m_fullCovariance;
   }
 
   ExtendedVxCandidate::ExtendedVxCandidate(const ExtendedVxCandidate& rhs):
                                            VxCandidate(rhs),
-                                           m_fullCovariance(rhs.m_fullCovariance ? new Amg::MatrixX(*rhs.m_fullCovariance) : 0)
+                                           m_fullCovariance(rhs.m_fullCovariance ? new Amg::MatrixX(*rhs.m_fullCovariance) : nullptr)
   {}
   
   ExtendedVxCandidate & ExtendedVxCandidate::operator= (const ExtendedVxCandidate & rhs)
@@ -37,7 +37,7 @@ namespace Trk
    {
      this->VxCandidate::operator=(rhs);
      delete m_fullCovariance;
-     m_fullCovariance = rhs.m_fullCovariance ? new Amg::MatrixX(*rhs.m_fullCovariance) : 0;
+     m_fullCovariance = rhs.m_fullCovariance ? new Amg::MatrixX(*rhs.m_fullCovariance) : nullptr;
    }
    return *this;
   }//end of assignement operator
