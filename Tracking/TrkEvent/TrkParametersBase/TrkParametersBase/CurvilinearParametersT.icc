@@ -25,7 +25,8 @@ namespace Trk
   {
    
     // flip the charge according to qOverP
-    if (parameters[6] < 0.) this->m_chargeDef.setCharge(-1);
+    if (parameters[6] < 0.) { this->m_chargeDef.setCharge(-1);
+}
     // assign the parameters
     this->m_parameters[locX]   = 0.;
     this->m_parameters[locY]   = 0.;
@@ -52,10 +53,11 @@ namespace Trk
     this->m_covariance =cov;
     this->m_position=pos;
     // flip the charge according to qOverP
-    if(tqOverP < 0.)
+    if(tqOverP < 0.) {
       this->m_chargeDef.setCharge(-1.);
-    else
+    } else {
       this->m_chargeDef.setCharge(1.);
+}
     
     // assign the parameters
     this->m_parameters[Trk::locX]   = 0.;
@@ -91,8 +93,9 @@ namespace Trk
     this->m_parameters[Trk::phi]    = mom.phi();
     this->m_parameters[Trk::theta]  = mom.theta();
 
-    if(charge == 0.)
+    if(charge == 0.) {
       charge = 1.; // such that below is 1./mom.mag()
+}
     
     this->m_parameters[Trk::qOverP] = charge/mom.mag();
     this->m_position = pos;
@@ -154,26 +157,32 @@ namespace Trk
     
     // make sure we compare objects of same type
     decltype(this) pCasted = dynamic_cast<decltype(this)>(&rhs);
-    if(!pCasted)
+    if(!pCasted) {
       return false;
+}
 
     // comparison to myself?
-    if(pCasted == this)
+    if(pCasted == this) {
       return true;
+}
 
     // compare identifier
-    if(cIdentifier() != pCasted->cIdentifier())
+    if(cIdentifier() != pCasted->cIdentifier()) {
       return false;
+}
 
     // compare UVT frame
     CurvilinearUVT local_curvilinearFrame=curvilinearFrame();
     CurvilinearUVT casted_curvilinearFrame=pCasted->curvilinearFrame();
-    if(!local_curvilinearFrame.curvU().isApprox(casted_curvilinearFrame.curvU(),tolerance))
+    if(!local_curvilinearFrame.curvU().isApprox(casted_curvilinearFrame.curvU(),tolerance)) {
       return false;
-    if(!local_curvilinearFrame.curvV().isApprox(casted_curvilinearFrame.curvV(),tolerance))
+}
+    if(!local_curvilinearFrame.curvV().isApprox(casted_curvilinearFrame.curvV(),tolerance)) {
       return false;
-    if(!local_curvilinearFrame.curvT().isApprox(casted_curvilinearFrame.curvT(),tolerance))
+}
+    if(!local_curvilinearFrame.curvT().isApprox(casted_curvilinearFrame.curvT(),tolerance)) {
       return false;
+}
     
     // compare equality of base class parts
     return ParametersT<DIM,T,S>::operator==(rhs);

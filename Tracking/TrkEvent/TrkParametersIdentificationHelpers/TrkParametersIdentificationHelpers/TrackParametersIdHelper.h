@@ -82,13 +82,15 @@ namespace Trk {
 
   inline AtlasDetDescr::AtlasDetTechnology TrackParametersIdHelper::technology( TrackParametersIdentifier id ) const {
     // check if identifier is valid
-    if( !isValid(id) ) return AtlasDetDescr::fUndefined;
+    if( !isValid(id) ) { return AtlasDetDescr::fUndefined;
+}
     return static_cast<AtlasDetDescr::AtlasDetTechnology>(m_technologyField.decode(id));
   }
   
   inline CaloSampling::CaloSample TrackParametersIdHelper::caloSample( TrackParametersIdentifier id ) const {
     // check if identifier is valid
-    if( !isValid(id) ) return CaloSampling::Unknown;
+    if( !isValid(id) ) { return CaloSampling::Unknown;
+}
     return static_cast<CaloSampling::CaloSample>(m_caloSamplingField.decode(id));
   }
 

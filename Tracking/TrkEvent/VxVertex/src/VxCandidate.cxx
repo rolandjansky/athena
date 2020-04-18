@@ -90,8 +90,9 @@ std::atomic<unsigned int> VxCandidate::s_numberOfInstantiations=0;
     {
       m_recVertex = std::move(rhs.m_recVertex);
       m_vertexType = rhs.m_vertexType;
-      for (Trk::VxTrackAtVertex* tav : m_vxTrackAtVertex)
+      for (Trk::VxTrackAtVertex* tav : m_vxTrackAtVertex) {
         delete tav;
+}
       m_vxTrackAtVertex = std::move(rhs.m_vxTrackAtVertex);
     }
     return *this;

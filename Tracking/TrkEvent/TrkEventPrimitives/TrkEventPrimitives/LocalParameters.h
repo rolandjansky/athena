@@ -188,11 +188,13 @@ inline bool LocalParameters::contains(ParamDefs par) const
 { return (m_parameterkey & (1<< int(par))); }
 
 inline const double& LocalParameters::operator[](ParamDefs par) const
-{ if (m_parameterkey == 31 || m_parameterkey == 1 || m_parameterkey == 3) return Amg::VectorX::operator[](par);
+{ if (m_parameterkey == 31 || m_parameterkey == 1 || m_parameterkey == 3) { return Amg::VectorX::operator[](par);
+}
   return Amg::VectorX::operator[](s_projectionMatrices.accessor(m_parameterkey, par)); }
 
 inline double& LocalParameters::operator[](ParamDefs par)
-{ if (m_parameterkey == 31 || m_parameterkey == 1 || m_parameterkey == 3) return Amg::VectorX::operator[](par);
+{ if (m_parameterkey == 31 || m_parameterkey == 1 || m_parameterkey == 3) { return Amg::VectorX::operator[](par);
+}
    return Amg::VectorX::operator[](s_projectionMatrices.accessor(m_parameterkey, par)); }
         
 inline double LocalParameters::get(ParamDefs par) const { return (*this)[par]; }

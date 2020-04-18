@@ -48,8 +48,9 @@ Trk::VertexOnTrack::VertexOnTrack( const Trk::RecVertex& rvertex,
   m_associatedSurface(perigee.associatedSurface().clone()),
   m_globalPosition(new Amg::Vector3D(perigee.position()))
 {
-  if ( (rvertex.position()-perigee.associatedSurface().center()).mag() > 10e-5 )
+  if ( (rvertex.position()-perigee.associatedSurface().center()).mag() > 10e-5 ) {
     throw GaudiException("Inconsistent input data, Perigee not expressed at vertex!","Trk::VertexOnTrack", StatusCode::RECOVERABLE);
+}
     
   // the local parameters are by definition at (0,0)
   Amg::Vector2D localPosition(0,0);

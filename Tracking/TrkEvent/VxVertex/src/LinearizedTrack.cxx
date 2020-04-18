@@ -101,7 +101,8 @@ namespace Trk {
 				 m_ExpectedPositionAtPOCA,
 				 m_ExpectedMomentumAtPOCA,
 				 m_ConstantTerm); 
-    } else return new LinearizedTrack();				       	   
+    } else { return new LinearizedTrack();				       	   
+}
   }//end of clone method 
   
   const AmgSymMatrix(5) & LinearizedTrack::expectedCovarianceAtPCA() const 

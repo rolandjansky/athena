@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VxVertex/ExtendedVxCandidate.h"
@@ -23,7 +23,8 @@ namespace Trk
 
   ExtendedVxCandidate::~ExtendedVxCandidate()
   {
-   if(m_fullCovariance != nullptr) delete m_fullCovariance;
+   if(m_fullCovariance != nullptr) { delete m_fullCovariance;
+}
   }
 
   ExtendedVxCandidate::ExtendedVxCandidate(const ExtendedVxCandidate& rhs):

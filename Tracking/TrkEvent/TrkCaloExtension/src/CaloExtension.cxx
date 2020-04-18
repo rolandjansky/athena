@@ -19,7 +19,8 @@ namespace Trk {
   CaloExtension::~CaloExtension() {
     delete m_caloEntryLayerIntersection;
     delete m_muonEntryLayerIntersection;
-    for( auto ptr : m_caloLayerIntersections ) delete ptr;
+    for( auto ptr : m_caloLayerIntersections ) { delete ptr;
+}
   }
 
 }

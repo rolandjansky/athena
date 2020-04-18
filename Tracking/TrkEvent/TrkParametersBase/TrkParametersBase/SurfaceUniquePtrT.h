@@ -24,7 +24,8 @@ template <class S>
 class SurfaceDeleter
 {
 public:
-  void operator() (const S* p) { if (p && p->isFree()) delete p; }
+  void operator() (const S* p) { if (p && p->isFree()) { delete p; 
+}}
 };
 
 

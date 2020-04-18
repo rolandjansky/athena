@@ -48,9 +48,9 @@ namespace Trk
     m_surface.reset((surface.isFree() ? surface.clone() : &surface));
     // check qoverp is physical
     double p = 0.;
-    if(qop != 0)
+    if(qop != 0) {
       p = fabs(1./qop);
-    else
+    } else
     {
       // qop is unphysical. No momentum measurement.
       p = INVALID_P;
@@ -98,9 +98,9 @@ namespace Trk
   
     // check qoverp is physical
     double p = 0.;
-    if(qop != 0.)
+    if(qop != 0.) {
       p = fabs(1./qop);
-    else
+    } else
     {
       // qop is unphysical. No momentum measurement.
       p = INVALID_P;
@@ -135,12 +135,14 @@ namespace Trk
     // get the local parameters via the surface
     Amg::Vector2D lPosition;
     const bool ok = m_surface->globalToLocal(position(),momentum(),lPosition);
-    if(not ok)
+    if(not ok) {
       lPosition = Amg::Vector2D (INVALID,INVALID);
+}
 
     // For a neutral particle, last parm should be 1/p rather than q/p.
     double qopnum = this->charge();
-    if (qopnum == 0) qopnum = 1;
+    if (qopnum == 0) { qopnum = 1;
+}
 
     // fill the vector now
     m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], momentum().phi(),
@@ -161,8 +163,9 @@ namespace Trk
     m_chargeDef(1.)
   { 
     // decide the sign of the charge
-    if(qop<0.)
+    if(qop<0.) {
       m_chargeDef.setCharge(-1);
+}
     
     // fill momentum & then position using the surface
     double p=0.0;
@@ -180,8 +183,9 @@ namespace Trk
     // get the local parameters via the surface
     Amg::Vector2D lPosition;
     const bool ok = m_surface->globalToLocal(position(),momentum(),lPosition);
-    if (not ok)
+    if (not ok) {
       lPosition = Amg::Vector2D (INVALID,INVALID);
+}
     
     // fill the vector now
     // cppcheck-suppress constStatement
@@ -201,8 +205,9 @@ namespace Trk
   {
 
     m_surface.reset((rhs.m_surface && rhs.m_surface->isFree() ? rhs.m_surface->clone() : rhs.m_surface.get()));
-    if(rhs.covariance())
+    if(rhs.covariance()) {
       m_covariance = new AmgSymMatrix(DIM)(*rhs.covariance());
+}
   }
 
   // Move constructor
@@ -231,7 +236,8 @@ namespace Trk
       ParametersBase<DIM,T>::operator=(rhs);
      
       // delete the covariance if there
-      if(m_covariance) delete m_covariance;
+      if(m_covariance) { delete m_covariance;
+}
     
       // now assign
       m_parameters = rhs.m_parameters;
@@ -256,7 +262,8 @@ namespace Trk
       ParametersBase<DIM,T>::operator=(std::move(rhs));
 
       
-      if(m_covariance) delete m_covariance;
+      if(m_covariance) { delete m_covariance;
+}
 
       m_parameters = std::move(rhs.m_parameters);
       m_covariance = rhs.m_covariance;
@@ -292,39 +299,47 @@ namespace Trk
 
     // make sure we compare objects of same type
     decltype(this) pCasted = dynamic_cast<decltype(this)>(&rhs);
-    if(!pCasted)
+    if(!pCasted) {
       return false;
+}
 
     // comparison to myself?
-    if(pCasted == this)
+    if(pCasted == this) {
       return true;
+}
     
     // compare parameters
-    if(!parameters().isApprox(pCasted->parameters(),tolerance))
+    if(!parameters().isApprox(pCasted->parameters(),tolerance)) {
       return false;
+}
     
     // compare covariance 
     if(((covariance() != nullptr) &&
 	     (pCasted->covariance() != nullptr) &&
 	     !covariance()->isApprox(*pCasted->covariance(),tolerance))
-       || (!covariance() != !pCasted->covariance()))  // <-- this is: covariance() XOR pCast->covariance()
+       || (!covariance() != !pCasted->covariance())) {  // <-- this is: covariance() XOR pCast->covariance()
       return false;
+}
 
     // compare position
-    if(!position().isApprox(pCasted->position(),tolerance))
+    if(!position().isApprox(pCasted->position(),tolerance)) {
       return false;
+}
 
     // compare momentum
-    if(!momentum().isApprox(pCasted->momentum(),tolerance))
+    if(!momentum().isApprox(pCasted->momentum(),tolerance)) {
       return false;
+}
 
     // compare surfaces
-    if(associatedSurface() != pCasted->associatedSurface())
+    if(associatedSurface() != pCasted->associatedSurface()) {
       return false;
+}
 
     // compare charge definition
-    if(m_chargeDef != pCasted->m_chargeDef)
+    if(m_chargeDef != pCasted->m_chargeDef) {
       return false;
+}
 
     // return compatibility of base class parts
     return true;
@@ -364,15 +379,16 @@ namespace Trk
 
     // update the covariance
     if (updatedCovariance){
-      if (updatedCovariance != m_covariance)
+      if (updatedCovariance != m_covariance) {
         delete m_covariance;
+}
       m_covariance = updatedCovariance;
     }
     //position or momentum update needed
     if (updatePosition){
-      if(m_surface)
+      if(m_surface) {
         m_surface->localToGlobal(this->localPosition(),m_momentum,m_position);
-      else
+      } else
       {
         m_momentum.setZero();
         m_position.setZero();
@@ -417,7 +433,8 @@ namespace Trk
   {
     float qop = m_parameters[Trk::qOverP];
     // decide the sign of the charge
-    if (qop<0.) m_chargeDef.setCharge(-1);
+    if (qop<0.) { m_chargeDef.setCharge(-1);
+}
 
     double p=0.0;
     if (qop!=0.) {
@@ -431,9 +448,9 @@ namespace Trk
     m_momentum = Amg::Vector3D(p*cos(m_parameters[Trk::phi])*sin(m_parameters[Trk::theta]),
 			       p*sin(m_parameters[Trk::phi])*sin(m_parameters[Trk::theta]),
 			       p*cos(m_parameters[Trk::theta]));
-    if (m_surface)
+    if (m_surface) {
       m_surface->localToGlobal(this->localPosition(),m_momentum,m_position);
-    else {
+    } else {
       m_momentum.setZero();
       m_position.setZero();
     }
