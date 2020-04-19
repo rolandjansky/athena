@@ -66,7 +66,7 @@ StatusCode Muon::NSWCalibTool::calibrate( const Muon::MM_RawData* mmRawData, con
   double bfield = (magneticField.x()*std::sin(phi)-magneticField.y()*std::cos(phi))*1000.;
 
   /// swap sign depending on the readout side
-  int gasGap = m_idHelperTool->mmIdHelper().gasGap(mmRawData->identify());
+  int gasGap = m_idHelperSvc->mmIdHelper().gasGap(mmRawData->identify());
   bool changeSign = ( globalPos.z() > 0. ? (gasGap==1 || gasGap==3) : (gasGap==2 || gasGap==4) );
   if (changeSign) bfield = -bfield;
 
