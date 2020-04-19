@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetVariable.h"
@@ -11,6 +11,7 @@ namespace JetVar {
 
     // if known name, return the corresponding dedicated class
     if(name=="e") return new EVar(name);
+    if(name=="et") return new EtVar(name);
     if(name=="pz") return new PzVar(name);
     if(name=="nconstit") return new NconstitVar(name);
     if(name=="abseta") return new AbsEtaVar(name);
