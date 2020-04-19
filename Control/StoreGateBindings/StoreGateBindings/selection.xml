@@ -9,8 +9,4 @@
    <function name="AthenaInternal::py_sg_contains"/>
    <function name="AthenaInternal::py_sg_getitem"/>
    <function name="AthenaInternal::py_sg_clearProxyPayload" />
-   <function name="AthenaInternal::thinContainer" />
-   <function name="AthenaInternal::thinIdxContainer" />
-   <function name="AthenaInternal::thinRemovedIdx" />
-
 </lcgdict>

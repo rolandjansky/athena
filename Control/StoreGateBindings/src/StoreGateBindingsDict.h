@@ -9,7 +9,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
-#include "AthenaKernel/IThinningSvc.h"
 
 struct _object;
 typedef _object PyObject;
@@ -40,17 +39,6 @@ namespace AthenaInternal {
 
   void
   py_sg_clearProxyPayload(StoreGateSvc*, SG::DataProxy*);
-
-  PyObject* thinContainer( IThinningSvc*,
-                           PyObject* container,
-                           PyObject* filter,
-                           int op );
-
-  std::size_t thinIdxContainer( IThinningSvc*,
-                                PyObject* container, 
-                                std::size_t idx );
-
-  std::size_t thinRemovedIdx();
 }
 
 #endif // not STOREGATEBINDINGS_STOREGATEBINDINGSDICT_H 
