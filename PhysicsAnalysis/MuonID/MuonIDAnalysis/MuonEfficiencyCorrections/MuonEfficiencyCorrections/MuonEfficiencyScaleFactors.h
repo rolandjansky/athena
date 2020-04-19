@@ -25,7 +25,7 @@ namespace CP {
         public:
             MuonEfficiencyScaleFactors(const std::string& name);
 
-            virtual ~MuonEfficiencyScaleFactors();
+            virtual ~MuonEfficiencyScaleFactors() = default;
             //Proper constructor for Athena
             ASG_TOOL_CLASS2( MuonEfficiencyScaleFactors, CP::IMuonEfficiencyScaleFactors, CP::ISystematicsTool )
 
@@ -133,6 +133,8 @@ namespace CP {
             
             /// Returns the number of EffiCollections stored in this class
             size_t getNCollections() const;
+            /// Returns a boolean whether the uncorrelation of systematics has been switched on
+            bool uncorrelate_sys() const;
        
     private:
             /// utility method to 'dress' a filename using the path resolver

@@ -40,14 +40,14 @@ alg.ValidationRelease="cJan_2020"
 alg.SGKey = "CalibratedMuons"
 ## Select 30 GeV muons for the high-pt WP only
 alg.MinPt = 3.e3
-alg.MaxEta = 2.5
+#alg.MaxEta = 2.5
 #alg.MinQualit = 1 #Medium
 WPs = [
          # reconstruction WPs
-        "LowPt",
-        "Loose", 
+        #"LowPt",
+        #"Loose", 
         "Medium", 
-        "Tight", 
+        #"Tight", 
         #"HighPt", 
         #"CaloTag",      
          # track-to-vertex-association WPs
@@ -73,13 +73,13 @@ WPs = [
         ]
 for WP in WPs: 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP,
-                                                  Release="191111_Winter_PrecisionZ",
-                                                BreakDownSystematics=False, 
-                                                UncorrelateSystematics=False)]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
-                                                CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/Feb_2020_iso/",
-                                                BreakDownSystematics=False, 
-                                                UncorrelateSystematics=False)]
+                                                 Release="191111_Winter_PrecisionZ",
+                                                 BreakDownSystematics=True, 
+                                                 UncorrelateSystematics=True)]
+    #alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
+    #                                            CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/Feb_2020_iso/",
+    #                                            BreakDownSystematics=False, 
+    #                                            UncorrelateSystematics=False)]
     
 #ToolSvc.MuonEfficiencyTool_CaloTag.ApplyKinematicSystematic = False
 #ToolSvc.MuonEfficiencyTool_CaloTag_190530_r21.ApplyKinematicSystematic = False

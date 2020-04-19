@@ -66,12 +66,10 @@ namespace CP {
         declareProperty("UncorrelateSystematics", m_seperateSystBins);
         declareProperty("BreakDownSystematics", m_breakDownSyst);
     }
-
-    MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors() {
-    }
-    float MuonEfficiencyScaleFactors::lowPtTransition() const{
+   float MuonEfficiencyScaleFactors::lowPtTransition() const{
         return m_lowpt_threshold;
     }
+    bool MuonEfficiencyScaleFactors::uncorrelate_sys() const { return m_seperateSystBins; }
     CP::MuonEfficiencyType MuonEfficiencyScaleFactors::measurement() const{
         return m_Type;
     }
@@ -133,6 +131,10 @@ namespace CP {
         } else {
             ATH_MSG_INFO("JPsi based low pt SF will start to rock below " << m_lowpt_threshold / 1000. << " GeV!");
         }
+        //if (m_seperateSystBins){
+        //    ATH_MSG_WARNING("The uncorrelation of the systematic bins has been enabled. This feature is depreceated for now. Switch off again");
+        //    m_seperateSystBins = false;
+        //}
         std::set<std::string> decorations{
             sf_decoration() ,
             data_effi_decoration(),
@@ -526,7 +528,7 @@ namespace CP {
         m_current_sf = itr->second;
         
         if (m_seperateSystBins && !itr->first.name().empty()){
-            for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
+            for (std::set<SystematicVariation>::const_iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 if ((*t).isToyVariation()) {
                     // First entry corresponds to the bin number and
                     // the second entry to the position in which the map is ordered
@@ -544,7 +546,7 @@ namespace CP {
     }
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(unsigned int Bin) const {
         if (!m_current_sf){
-          throw std::runtime_error("No systematic has been loaded. Cannot return any syst-bin") ;
+           throw std::runtime_error("No systematic has been loaded. Cannot return any syst-bin") ;
            ATH_MSG_FATAL("No systematic has been loaded. Cannot return any syst-bin");
           
         }        

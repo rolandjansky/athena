@@ -35,7 +35,7 @@ namespace TestMuonSF {
     class SFBranches {
         public:
             SFBranches(TTree* tree);
-            virtual ~SFBranches();
+            virtual ~SFBranches()= default;
             virtual std::string name() const =0;
             virtual bool init()=0;
         protected:
@@ -62,7 +62,7 @@ namespace TestMuonSF {
     class TriggerSFBranches: public SFBranches {
         public:
             TriggerSFBranches(TTree* tree, const ToolHandle<CP::IMuonTriggerScaleFactors>& Handle, const std::string& Trigger);
-            virtual ~TriggerSFBranches();
+            virtual ~TriggerSFBranches() = default;
             CP::CorrectionCode fill(const xAOD::MuonContainer* Muons);
             virtual bool init();
             virtual std::string name() const;
@@ -86,7 +86,7 @@ namespace TestMuonSF {
         public:
             MuonEffiBranches(TTree* tree);
             virtual CP::CorrectionCode fill(const xAOD::Muon& muon)=0;
-            virtual ~MuonEffiBranches();
+            ~MuonEffiBranches() = default;
 
     };
     typedef std::unique_ptr<MuonEffiBranches> EffiBranch_Ptr;
@@ -96,13 +96,14 @@ namespace TestMuonSF {
     //###################################################################
     class MuonSFBranches: public MuonEffiBranches {
         public:
-            MuonSFBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle, const std::string& rel_name = "");
-            virtual CP::CorrectionCode fill(const xAOD::Muon& muon);
-
-            virtual bool init();
-            virtual std::string name() const;
+             MuonSFBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle, const std::string& rel_name = "");
+             CP::CorrectionCode fill(const xAOD::Muon& muon) override;
+             virtual ~MuonSFBranches() = default;
+             bool init() override;
+             std::string name() const override;
         private:
             ToolHandle<CP::IMuonEfficiencyScaleFactors> m_handle;
+            bool m_uncorrelate_sys;
             std::string m_release;
 
             //SF's
@@ -114,6 +115,8 @@ namespace TestMuonSF {
                     float mc_eff;
                     float data_eff;
             };
+            
+            CP::CorrectionCode fill_systematic(const xAOD::Muon muon, std::pair<const CP::SystematicSet, MuonSFBranches::SFSet>& set);
             bool AddToTree(const CP::SystematicSet& syst, MuonSFBranches::SFSet& ScaleFactor);
 
             std::map<CP::SystematicSet, SFSet> m_SFs;
@@ -126,10 +129,10 @@ namespace TestMuonSF {
     class MuonReplicaBranches: public MuonEffiBranches {
         public:
             MuonReplicaBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle, const std::string& rel_name = "");
-            virtual CP::CorrectionCode fill(const xAOD::Muon& muon);
+            CP::CorrectionCode fill(const xAOD::Muon& muon) override;
 
-            virtual bool init();
-            virtual std::string name() const;
+            bool init() override;
+            std::string name() const override;
         private:
             ToolHandle<CP::IMuonEfficiencyScaleFactors> m_handle;
             std::string m_release;
@@ -143,10 +146,10 @@ namespace TestMuonSF {
     class MuonInfoBranches: public MuonEffiBranches {
         public:
             MuonInfoBranches(TTree* tree, const ToolHandle<CP::IMuonSelectionTool>& sel_tool);
-            virtual ~MuonInfoBranches();
-            virtual bool init();
-            virtual std::string name() const;
-            virtual CP::CorrectionCode fill(const xAOD::Muon& muon);
+            virtual ~MuonInfoBranches() = default;
+            bool init() override;
+            std::string name() const override;
+            CP::CorrectionCode fill(const xAOD::Muon& muon) override;
 
         private:
             const ToolHandle<CP::IMuonSelectionTool>& m_selection_tool;
@@ -170,7 +173,7 @@ namespace TestMuonSF {
             MuonSFTestHelper(std::shared_ptr<TTree> Tree, const std::string& release_name = "");
             MuonSFTestHelper(TTree*Tree, const std::string& release_name = "");
 
-            ~MuonSFTestHelper();
+            ~MuonSFTestHelper() = default;
 
             //Initialize the tool
             bool init();

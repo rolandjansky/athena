@@ -104,7 +104,7 @@ namespace CP {
     bool HistHandler_TH1::isOverFlowBin(int b) const { return b == 0 || b >= nBins() -1; }
     std::string HistHandler_TH1::GetBinName(unsigned int bin) const {
         TAxis* xAx = GetHist()->GetXaxis();
-        return Form("%s_%.2f-%.2f", xAx->GetTitle(), xAx->GetBinLowEdge(bin), xAx->GetBinUpEdge(bin));
+        return Form("%s_%.2f_to_%.2f", xAx->GetTitle(), xAx->GetBinLowEdge(bin), xAx->GetBinUpEdge(bin));
     }
     CorrectionCode HistHandler_TH1::FindBin(const xAOD::Muon & muon, int & bin) const {
         if (!GetHist()) {
@@ -179,7 +179,7 @@ namespace CP {
         GetHist()->GetBinXYZ(bin, x, y, z);
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
-        return Form("%s_%.2f-%.2f--%s_%.2f-%.2f",
+        return Form("%s_%.2f_to_%.2f_times_%s_%.2f_to_%.2f",
                 //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
                 //yAxis
@@ -254,7 +254,7 @@ namespace CP {
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
         TAxis* zAx = GetHist()->GetZaxis();
-        return Form("%s_%.2f-%.2f--%s_%.2f-%.2f--%s_%.2f-%.2f",
+        return Form("%s_%.2f_to_%.2f_times_%s_%.2f_to_%.2f_times_%s_%.2f_to_%.2f",
         //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
                 //yAxis
@@ -322,7 +322,7 @@ namespace CP {
         GetHist()->GetBinXYZ(bin, x, y, z);
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
-        return Form("%s_%.2f-%.2f--%s_%.2f-%.2f",
+        return Form("%s_%.2f_to_%.2f__times_%s_%.2f_to_%.2f",
         //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
                 //yAxis
