@@ -205,7 +205,8 @@ def getL1ConfigSvc( flags = None ):
         l1ConfigSvc.JsonFileName = l1JsonFileName
         log.info( "For run 3 style menu access configured LVL1ConfigSvc with InputType='file' and JsonFileName=%s", l1JsonFileName )
 
-    #theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
+    from AthenaCommon.AppMgr import theApp
+    theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
     return l1ConfigSvc
 
 
@@ -223,8 +224,8 @@ def getHLTConfigSvc( flags = None ):
     hltJsonFileName = getHLTMenuFileName( flags )
     hltConfigSvc.JsonFileName = hltJsonFileName
     # TODO revisit if needed    
-    #from AthenaCommon.AppMgr import theApp
-    #theApp.CreateSvc += [ "TrigConf::HLTConfigSvc/HLTConfigSvc" ]
+    from AthenaCommon.AppMgr import theApp
+    theApp.CreateSvc += [ "TrigConf::HLTConfigSvc/HLTConfigSvc" ]
     log.info( "Configured HLTConfigSvc with run 2 style input file : %s", hltXMLFile  )
     log.info( "Configured HLTConfigSvc with InputType='file' and JsonFileName=%s", hltJsonFileName )
     return hltConfigSvc
