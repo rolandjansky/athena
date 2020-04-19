@@ -343,12 +343,15 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
           trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
         }
       }
-      // extrapolate track to disk
-      startParameters.reset(m_extrapolator->extrapolate(*firstsipar,
-                                                        *trtDisc,
-                                                        Trk::oppositeMomentum,
-                                                        true,
-                                                        partHyp));
+
+      if (trtDisc) {
+        // extrapolate track to disk
+        startParameters.reset(m_extrapolator->extrapolate(*firstsipar,
+                                                          *trtDisc,
+                                                          Trk::oppositeMomentum,
+                                                          true,
+                                                          partHyp));
+      }
     }
   } else {  // no cosmics
     
