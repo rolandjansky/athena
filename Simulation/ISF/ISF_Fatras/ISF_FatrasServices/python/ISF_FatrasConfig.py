@@ -33,7 +33,7 @@ def fatrasHitCreatorPixelCfg(flags, name="ISF_FatrasHitCreatorPixel", **kwargs):
     # FastHitConvertTool = CompFactory.FastHitConvertTool
     kwargs.setdefault("UseConditionsTool", False)
 
-    iFatras__HitCreatorSilicon = CompFactory.iFatras__HitCreatorSilicon
+    iFatras__HitCreatorSilicon = CompFactory.iFatras.HitCreatorSilicon
     acc.addPublicTool(iFatras__HitCreatorSilicon(name=name, **kwargs))
     return acc
 
@@ -52,7 +52,7 @@ def fatrasHitCreatorSCTCfg(flags, name="ISF_FatrasHitCreatorSCT", **kwargs):
     kwargs.setdefault("CollectionName", hits_collection_name)
     kwargs.setdefault("UseConditionsTool", False)
 
-    iFatras__HitCreatorSilicon = CompFactory.iFatras__HitCreatorSilicon
+    iFatras__HitCreatorSilicon = CompFactory.iFatras.HitCreatorSilicon
     acc.addPublicTool(iFatras__HitCreatorSilicon(name=name, **kwargs))
     return acc
 
@@ -68,7 +68,7 @@ def fatrasHitCreatorTRTCfg(flags, name="ISF_FatrasHitCreatorTRT", **kwargs):
                                                               merger_input_property="TRTUncompressedHits")
     kwargs.setdefault("CollectionName", hits_collection_name)
 
-    iFatras__HitCreatorTRT = CompFactory.iFatras__HitCreatorTRT
+    iFatras__HitCreatorTRT = CompFactory.iFatras.HitCreatorTRT
     acc.addPublicTool(iFatras__HitCreatorTRT(name=name, **kwargs))
     return acc
 
@@ -102,7 +102,7 @@ def fatrasSimHitCreatorIDCfg(flags, name="ISF_FatrasSimHitCreatorID", **kwargs):
 
     kwargs.setdefault("OutputLevel", 3)
 
-    iFatras__SimHitCreatorID = CompFactory.iFatras__SimHitCreatorID
+    iFatras__SimHitCreatorID = CompFactory.iFatras.SimHitCreatorID
     result.addPublicTool(iFatras__SimHitCreatorID(name=name, **kwargs))
     return result
 
@@ -142,13 +142,13 @@ def fatrasSimHitCreatorMSCfg(flags, name="ISF_FatrasSimHitCreatorMS", **kwargs):
     kwargs.setdefault("TGCCollectionName", tgc_hits_collection_name)
     kwargs.setdefault("CSCCollectionName", csc_hits_collection_name)
 
-    Muon__MuonTGMeasurementTool = CompFactory.Muon__MuonTGMeasurementTool
+    Muon__MuonTGMeasurementTool = CompFactory.Muon.MuonTGMeasurementTool
     muon_tgmeasurement_tool = Muon__MuonTGMeasurementTool(name='MuonTGMeasurementTool',
                                                           UseDSManager=True)
     result.addPublicTool(muon_tgmeasurement_tool)
     kwargs.setdefault("MeasurementTool", muon_tgmeasurement_tool)
 
-    iFatras__SimHitCreatorMS = CompFactory.iFatras__SimHitCreatorMS
+    iFatras__SimHitCreatorMS = CompFactory.iFatras.SimHitCreatorMS
     result.addPublicTool(iFatras__SimHitCreatorMS(name=name, **kwargs))
     return result
 
@@ -159,7 +159,7 @@ def fatrasPdgG4ParticleCfg(flags, name="ISF_FatrasPdgG4Particle", **kwargs):
 
     result = ComponentAccumulator()
 
-    iFatras__PDGToG4Particle = CompFactory.iFatras__PDGToG4Particle
+    iFatras__PDGToG4Particle = CompFactory.iFatras.PDGToG4Particle
     result.addPublicTool(iFatras__PDGToG4Particle(name=name, **kwargs))
     return result
 
@@ -175,7 +175,7 @@ def fatrasPhysicsValidationToolCfg(flags, name="ISF_FatrasPhysicsValidationTool"
     result = ComponentAccumulator()
     kwargs.setdefault("ValidationStreamName", "ISFFatras")
 
-    iFatras__PhysicsValidationTool = CompFactory.iFatras__PhysicsValidationTool
+    iFatras__PhysicsValidationTool = CompFactory.iFatras.PhysicsValidationTool
     result.addPublicTool(iFatras__PhysicsValidationTool(name=name, **kwargs))
     return result
 
@@ -186,7 +186,7 @@ def G4RunManagerHelperCfg(flags, name="ISF_G4RunManagerHelper", **kwargs):
 
     result = ComponentAccumulator()
 
-    iGeant4__G4RunManagerHelper = CompFactory.iGeant4__G4RunManagerHelper
+    iGeant4__G4RunManagerHelper = CompFactory.iGeant4.G4RunManagerHelper
     result.addPublicTool(iGeant4__G4RunManagerHelper(name=name, **kwargs))
 
     return result
@@ -198,7 +198,7 @@ def fatrasParticleHelperCfg(flags, name="ISF_ParticleHelper", **kwargs):
 
     result = ComponentAccumulator()
 
-    ISF__ParticleHelper = CompFactory.ISF__ParticleHelper
+    ISF__ParticleHelper = CompFactory.ISF.ParticleHelper
     result.addPublicTool(ISF__ParticleHelper(name=name, **kwargs))
 
     return result
@@ -225,7 +225,7 @@ def fatrasParticleDecayHelperCfg(flags, name="ISF_FatrasParticleDecayHelper", **
     result.merge(acc)
     kwargs.setdefault("PDGToG4ParticleConverter", g4run_man_cfg)
 
-    iFatras__G4ParticleDecayHelper = CompFactory.iFatras__G4ParticleDecayHelper
+    iFatras__G4ParticleDecayHelper = CompFactory.iFatras.G4ParticleDecayHelper
     result.addPublicTool(iFatras__G4ParticleDecayHelper(name=name, **kwargs))
 
     return result
@@ -239,11 +239,13 @@ def fatrasNavigatorCfg(flags, name="ISF_FatrasNavigator", **kwargs):
     mlog.debug('Start configuration')
 
     result = ComponentAccumulator()    
-    # the Navigator (needed for several instances)
-    AtlasTrackingGeometrySvc = CompFactory.AtlasTrackingGeometrySvc
-    kwargs.setdefault("TrackingGeometrySvc", AtlasTrackingGeometrySvc)
 
-    Trk__Navigator = CompFactory.Trk__Navigator
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    acc = TrackingGeometrySvcCfg(flags)
+    kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
+    result.merge(acc)
+
+    Trk__Navigator = CompFactory.Trk.Navigator
     result.addPublicTool(Trk__Navigator(name=name, **kwargs))
 
     return result
@@ -257,7 +259,7 @@ def fatrasEnergyLossUpdatorCfg(flags, name="ISF_FatrasEnergyLossUpdator", **kwar
     kwargs.setdefault("UsePDG_EnergyLossFormula", True)
     kwargs.setdefault("EnergyLossDistribution", 2)
     
-    iFatras__McEnergyLossUpdator = CompFactory.iFatras__McEnergyLossUpdator
+    iFatras__McEnergyLossUpdator = CompFactory.iFatras.McEnergyLossUpdator
     result.addPublicTool(iFatras__McEnergyLossUpdator(name=name, **kwargs))
 
     return result
@@ -269,7 +271,7 @@ def fatrasMultipleScatteringUpdatorCfg(flags, name="ISF_FatrasMultipleScattering
     result = ComponentAccumulator()
     kwargs.setdefault("GaussianMixtureModel", True)
 
-    Trk__MultipleScatteringUpdator = CompFactory.Trk__MultipleScatteringUpdator
+    Trk__MultipleScatteringUpdator = CompFactory.Trk.MultipleScatteringUpdator
     result.addPublicTool(Trk__MultipleScatteringUpdator(name=name, **kwargs))
 
     return result
@@ -281,8 +283,11 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
 
     result = ComponentAccumulator()
 
-    ### to be configured
-    ### from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+    # Geometry Svc
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    acc = TrackingGeometrySvcCfg(flags)
+    kwargs.setdefault("TrackingGeometrySvc", acc.getPrimary())
+    result.merge(acc)
     
     # hadronic interactions
     kwargs.setdefault("HadronicInteraction", True)
@@ -330,11 +335,8 @@ def fatrasMaterialUpdatorCfg(flags, name="ISF_FatrasMaterialUpdator", **kwargs):
     result.merge(acc)
     kwargs.setdefault("ParticleDecayHelper", pdhelper_cfg)
 
-    # MCTruth Process Code
-    ## NOTE to be checked later
-    ## kwargs.setdefault("TrackingGeometrySvc", AtlasTrackingGeometrySvc)
 
-    iFatras__McMaterialEffectsUpdator = CompFactory.iFatras__McMaterialEffectsUpdator
+    iFatras__McMaterialEffectsUpdator = CompFactory.iFatras.McMaterialEffectsUpdator
     result.addPublicTool(iFatras__McMaterialEffectsUpdator(name=name, **kwargs))
 
     return result
@@ -345,7 +347,7 @@ def fatrasChargedPropagatorCfg(flags, name="ISF_FatrasChargedPropagator", **kwar
 
     result = ComponentAccumulator()
     # the charged particle propagator
-    ChargedPropagator = CompFactory.Trk__RungeKuttaPropagator
+    ChargedPropagator = CompFactory.Trk.RungeKuttaPropagator
     result.addPublicTool(ChargedPropagator(name=name, **kwargs))
 
     return result
@@ -363,7 +365,7 @@ def fatrasSTEP_PropagatorCfg(flags, name="ISF_FatrasSTEP_Propagator", **kwargs):
     kwargs.setdefault("SimMatEffUpdator", material_updator)
 
     # the step propagaor
-    StepPropagator = CompFactory.Trk__STEP_Propagator
+    StepPropagator = CompFactory.Trk.STEP_Propagator
     result.addPublicTool(StepPropagator(name=name, **kwargs))
 
     return result
@@ -403,7 +405,7 @@ def fatrasExtrapolatorCfg(flags, name="ISF_FatrasExtrapolator", **kwargs):
     kwargs.setdefault("ResolveMuonStation", True)
     kwargs.setdefault("UseMuonMatApproximation", True)
 
-    TimedExtrapolator = CompFactory.Trk__TimedExtrapolator
+    TimedExtrapolator = CompFactory.Trk.TimedExtrapolator
     result.addPublicTool(TimedExtrapolator(name=name, **kwargs))
 
     return result
@@ -420,7 +422,7 @@ def fatrasKinematicFilterCfg(flags, name="ISF_FatrasKinematicFilter", **kwargs):
 
     kwargs.setdefault("MaxEtaSymmetric", 10.)
 
-    ISF__KinematicParticleFilter = CompFactory.ISF__KinematicParticleFilter
+    ISF__KinematicParticleFilter = CompFactory.ISF.KinematicParticleFilter
     result.addPublicTool(ISF__KinematicParticleFilter(name=name, **kwargs))
 
     return result
@@ -438,7 +440,7 @@ def fatrasConversionCreatorCfg(flags, name="ISF_FatrasConversionCreator", **kwar
     result.merge(acc)
     kwargs.setdefault("PhysicsValidationTool", phys_val_cfg)
 
-    iFatras__PhotonConversionTool = CompFactory.iFatras__PhotonConversionTool
+    iFatras__PhotonConversionTool = CompFactory.iFatras.PhotonConversionTool
     result.addPublicTool(iFatras__PhotonConversionTool(name=name, **kwargs))
 
     return result
@@ -455,7 +457,7 @@ def fatrasG4HadIntProcessorCfg(flags, name="ISF_FatrasG4HadIntProcessor", **kwar
     result.merge(acc)
     kwargs.setdefault("PhysicsValidationTool", phys_val_cfg)
 
-    iFatras__G4HadIntProcessor = CompFactory.iFatras__G4HadIntProcessor
+    iFatras__G4HadIntProcessor = CompFactory.iFatras.G4HadIntProcessor
     result.addPublicTool(iFatras__G4HadIntProcessor(name=name, **kwargs))
 
     return result
@@ -491,7 +493,7 @@ def fatrasProcessSamplingToolCfg(flags, name="ISF_FatrasProcessSamplingTool", **
     result.merge(acc)
     kwargs.setdefault("PhysicsValidationTool", phys_val_cfg)
 
-    iFatras__ProcessSamplingTool = CompFactory.iFatras__ProcessSamplingTool
+    iFatras__ProcessSamplingTool = CompFactory.iFatras.ProcessSamplingTool
     result.addPublicTool(iFatras__ProcessSamplingTool(name=name, **kwargs))
 
     return result
@@ -545,6 +547,6 @@ def fatrasSimToolCfg(flags, name="ISF_FatrasSimTool", **kwargs):
     result.merge(acc)
     kwargs.setdefault("ProcessSamplingTool", proc_samp_cfg)
 
-    iFatras__TransportTool = CompFactory.iFatras__TransportTool
+    iFatras__TransportTool = CompFactory.iFatras.TransportTool
     result.setPrivateTools(iFatras__TransportTool(name=name, **kwargs))
     return result
