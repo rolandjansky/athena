@@ -26,6 +26,11 @@
 + PhysicsAnalysis/AnalysisCommon/PATCore
 + PhysicsAnalysis/AnalysisCommon/PATInterfaces
 + PhysicsAnalysis/D3PDTools/.*
++ PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
++ PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
+#+ PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonEfficiencyCorrections # depends on StoreGate/ReadHandleKey.h
+#+ PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections # depends on StoreGate/ReadHandleKey.h
+#+ PhysicsAnalysis/MuonID/MuonSelectorTools # depends on StoreGate/ReadHandleKey.h
 + Tools/PathResolver
 + Trigger/TrigConfiguration/TrigConfBase
 + Trigger/TrigConfiguration/TrigConfL1Data
