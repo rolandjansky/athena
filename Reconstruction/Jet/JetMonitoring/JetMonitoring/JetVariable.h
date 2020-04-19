@@ -1,7 +1,7 @@
 //  -*- c++ -*- 
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMONITORING_JETVARIABLE_H
@@ -158,13 +158,17 @@ namespace JetVar {
     virtual float value(const xAOD::Jet & j) const { return j.rapidity();}    
   };
   
-  
   struct AbsEtaVar : public Variable {
     using Variable::Variable;
     virtual float value(const xAOD::Jet & j) const { return fabs(j.eta());}    
   };
 
+  struct EtVar : public Variable {
+    using Variable::Variable;
+    virtual float value(const xAOD::Jet & j) const { return j.p4().Et()*m_scale;}
+  };
   
+
 }
 
 #endif
