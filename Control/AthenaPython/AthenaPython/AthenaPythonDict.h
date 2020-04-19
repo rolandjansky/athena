@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPYTHON_ATHENAPYTHONDICT_H
@@ -13,7 +13,6 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IThinningHdlr.h"
 #include "AthenaKernel/ISlimmingHdlr.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/IValgrindSvc.h"
 #include "AthenaKernel/IAthenaSealSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
