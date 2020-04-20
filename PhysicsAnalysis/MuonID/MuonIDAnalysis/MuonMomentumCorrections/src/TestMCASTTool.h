@@ -34,6 +34,8 @@ namespace CP {
     virtual StatusCode finalize();
   
   private:
+    //::: Name of the output file
+    std::string m_Output;
     //::: StoreGate key for the muon container to investigate
     std::string m_sgKey;
     //::: Connection to the smearing tool
