@@ -6,6 +6,8 @@
 #include "tauRecTools/MvaTESEvaluator.h"
 #include "tauRecTools/HelperFunctions.h"
 
+#include <TTree.h>
+
 #include <vector>
 
 //_____________________________________________________________________________
@@ -22,13 +24,17 @@ MvaTESEvaluator::~MvaTESEvaluator()
 //_____________________________________________________________________________
 StatusCode MvaTESEvaluator::initialize(){
   
+  const std::string weightFile = find_file(m_sWeightFileName);
+  m_bdtHelper = std::make_unique<tauRecTools::BDTHelper>();
+  ATH_CHECK(m_bdtHelper->initialize(weightFile));
   return StatusCode::SUCCESS;
 }
 
 //_____________________________________________________________________________
-StatusCode MvaTESEvaluator::initReader(std::unique_ptr<MVAUtils::BDT>& reader,
-                                       std::map<TString, float*>& availableVars,
-                                       MvaInputVariables& vars) const {
+StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
+
+  std::map<TString, float*> availableVars;
+  MvaInputVariables vars;
 
   // Declare input variables to the reader
   if(!m_in_trigger) {
@@ -64,26 +70,6 @@ StatusCode MvaTESEvaluator::initReader(std::unique_ptr<MVAUtils::BDT>& reader,
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.ptDetectorAxis", &vars.ptDetectorAxis) );
     availableVars.insert( std::make_pair("TrigTauJetsAuxDyn.etaDetectorAxis", &vars.etaDetectorAxis) );
   }
-
-  std::string weightFile = find_file(m_sWeightFileName);
-
-  reader = tauRecTools::configureMVABDT( availableVars, weightFile.c_str() );
-  if(reader==nullptr) {
-    ATH_MSG_FATAL("Couldn't configure MVA");
-    return StatusCode::FAILURE;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-//_____________________________________________________________________________
-StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
-
-  std::unique_ptr<MVAUtils::BDT> reader{nullptr};
-  std::map<TString, float*> availableVars;
-  MvaInputVariables vars;
-  if (initReader(reader, availableVars, vars) == StatusCode::FAILURE)
-   return StatusCode::FAILURE;
 
   // Retrieve event info
   const SG::AuxElement::ConstAccessor<float> acc_mu("mu");
@@ -128,7 +114,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     vars.nTracks = (float)xTau.nTracks();
     xTau.detail(xAOD::TauJetParameters::PFOEngRelDiff, vars.PFOEngRelDiff);
     
-    float ptMVA = float( vars.ptCombined * reader->GetResponse() );
+    float ptMVA = float( vars.ptCombined * m_bdtHelper->getResponse(availableVars) );
     if(ptMVA<1) ptMVA=1;
     xTau.setP4(xAOD::TauJetParameters::FinalCalib, ptMVA, vars.etaConstituent, xTau.phiPanTauCellBased(), 0);
 
@@ -145,7 +131,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
     vars.upsilon_cluster = acc_UpsilonCluster(xTau);
     vars.lead_cluster_frac = acc_LeadClusterFrac(xTau);
 
-    float ptMVA = float( vars.ptDetectorAxis * reader->GetResponse() );
+    float ptMVA = float( vars.ptDetectorAxis * m_bdtHelper->getResponse(availableVars) );
     if(ptMVA<1) ptMVA=1;
 
     // this may have to be changed if we apply a calo-only MVA calibration first, followed by a calo+track MVA calibration
