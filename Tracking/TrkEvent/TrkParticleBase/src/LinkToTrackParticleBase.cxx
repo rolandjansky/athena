@@ -21,7 +21,8 @@ namespace Trk
 		if ( isValid() )
 		{
 			const Trk::TrackParticleBase * trk = this->cachedElement();
-			if ( nullptr != trk ) return & ( trk->definingParameters() );
+			if ( nullptr != trk ) { return & ( trk->definingParameters() );
+}
 			return nullptr;
 		}//end of validity check
 		return nullptr;

@@ -44,8 +44,9 @@ Trk::MaterialEffectsBase& Trk::MaterialEffectsBase::operator= (const Trk::Materi
     m_tInX0 = rhs.m_tInX0;
     m_typeFlags = rhs.m_typeFlags;
     // copy only if assoc. surface is free and not part of detStore
-    if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
+    if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement()) {
       delete m_associatedSurface;
+}
     if (rhs.m_associatedSurface) {
       m_associatedSurface = (!rhs.m_associatedSurface->associatedDetectorElement()) ?
         rhs.m_associatedSurface->clone() : rhs.m_associatedSurface;
@@ -56,8 +57,9 @@ Trk::MaterialEffectsBase& Trk::MaterialEffectsBase::operator= (const Trk::Materi
 
 Trk::MaterialEffectsBase::~MaterialEffectsBase()
 {
-  if (m_associatedSurface!=nullptr && m_associatedSurface->associatedDetectorElement()==nullptr)
+  if (m_associatedSurface!=nullptr && m_associatedSurface->associatedDetectorElement()==nullptr) {
     delete m_associatedSurface;
+}
 }
 
 std::string Trk::MaterialEffectsBase::dumpType() const{
@@ -105,9 +107,10 @@ MsgStream& Trk::MaterialEffectsBase::dump ( MsgStream& sl ) const
     if (m_associatedSurface==nullptr) {
       sl << "NULL";
     } else {
-      if (m_associatedSurface->associatedDetectorElement()!=nullptr)
+      if (m_associatedSurface->associatedDetectorElement()!=nullptr) {
         sl << "from detector Element";
-      else sl << associatedSurface() << endmsg;
+      } else { sl << associatedSurface() << endmsg;
+}
     }
     sl << endmsg;
 	return sl; 
@@ -121,9 +124,10 @@ std::ostream& Trk::MaterialEffectsBase::dump ( std::ostream& sl ) const
     if (m_associatedSurface==nullptr) {
       sl << "NULL";
     } else {
-      if (m_associatedSurface->associatedDetectorElement()!=nullptr)
+      if (m_associatedSurface->associatedDetectorElement()!=nullptr) {
         sl << "from detector Element";
-      else sl << associatedSurface() << std::endl;
+      } else { sl << associatedSurface() << std::endl;
+}
     }
     sl << std::endl;
 	return sl; 
