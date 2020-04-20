@@ -67,7 +67,10 @@ class PowhegControl(object):
             if hasattr(run_args, "ecmEnergy"):
                 process_kwargs["beam_energy"] = 0.5 * run_args.ecmEnergy
             if hasattr(run_args, "maxEvents") and run_args.maxEvents > 0:
-                process_kwargs["nEvents"] = int(1.1 * run_args.maxEvents + 0.5)
+                if hasattr(run_args, "outputEVNTFile"):
+                    process_kwargs["nEvents"] = int(1.1 * run_args.maxEvents + 0.5)
+                else:# default nEvents value is maxEvents for lhe-only production
+                    process_kwargs["nEvents"] = run_args.maxEvents
             if hasattr(run_args, "randomSeed"):
                 process_kwargs["random_seed"] = run_args.randomSeed
             if hasattr(run_args, "outputTXTFile"):
