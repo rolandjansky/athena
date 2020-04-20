@@ -18,17 +18,15 @@ namespace top {
 
   ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronCollectionName", "Name of the Electron container");
-    registerParameter("FwdElectronCollectionName",
-                      "Name of the Forward Electrons container, ForwardElectrons or None (default)", "None");
+    registerParameter("FwdElectronCollectionName", "Name of the Forward Electrons container, ForwardElectrons or None (default)", "None");
     registerParameter("MuonCollectionName", "Name of the Muon container");
     registerParameter("PhotonCollectionName", "Name of the Photon container");
     registerParameter("JetCollectionName", "Name of the Jet container");
     registerParameter("LargeJetCollectionName", "Name of the large-R Jet container");
-    registerParameter("LargeJetSubstructure", "Setup to use when applying grooming on the large-R jet");
+    registerParameter("LargeJetSubstructure", "Setup to use when applying grooming on the large-R jet", "None");
     registerParameter("TrackJetCollectionName", "Name of the track Jet container", "None");
     registerParameter("TauCollectionName", "Name of the Tau container");
-    registerParameter("JetGhostTrackDecoName", "Name of the jet decoration that holds the ghost-associated track.",
-                      "None");
+    registerParameter("JetGhostTrackDecoName", "Name of the jet decoration that holds the ghost-associated track.", "None");
 
     registerParameter("TruthCollectionName", "Name of the Truth container");
     registerParameter("TruthElectronCollectionName", "Name of the Truth Electron container", "TruthElectrons");
