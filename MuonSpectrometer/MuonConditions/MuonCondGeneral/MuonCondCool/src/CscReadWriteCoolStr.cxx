@@ -1,28 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscReadWriteCoolStr.cxx - simple example of algorithm demonstrating 
 // read/write of CondStrFile
 // author lampen@physics.arizona.edu
 // Update: Apr 10, 2007. No longer reads - Caleb Parnell-Lampen <lampen@physics.arizona.edu>
+
 #include "GaudiKernel/ISvcLocator.h"
-
 #include "MuonCondData/CscCondParType.h"
-//#include "MuonCondData/CscCalibData.h"
 #include "MuonIdHelpers/CscIdHelper.h"
-
 #include "string.h"
-
 #include "CscReadWriteCoolStr.h"
-
 #include <fstream>
 #include <bitset>
 #include <sstream>
-
 #include "AthenaKernel/errorcheck.h"
 
-using namespace std;
 namespace MuonCalib {
 
   CscReadWriteCoolStr::CscReadWriteCoolStr(const std::string& name, 
@@ -36,8 +30,6 @@ namespace MuonCalib {
                                  m_outFileType("04-00"),
                                  m_condDataContainer(NULL)
   {
-    // declare properties
-
     declareProperty("Write",m_write);
     declareProperty("iFiles",m_ifiles);
 
@@ -49,7 +41,6 @@ namespace MuonCalib {
     
     m_condDataContainer = new CscCondDataContainer() ;
   }
-
 
   CscReadWriteCoolStr::~CscReadWriteCoolStr() {
     delete m_condDataContainer;
@@ -105,12 +96,11 @@ namespace MuonCalib {
 
     StatusCode sc = StatusCode::SUCCESS;
     m_log <<MSG::INFO << "About to insert files" << endmsg;
-    vector<string>::const_iterator fItr = m_ifiles.begin();
-    vector<string>::const_iterator fEnd = m_ifiles.end();
+    std::vector<std::string>::const_iterator fItr = m_ifiles.begin();
+    std::vector<std::string>::const_iterator fEnd = m_ifiles.end();
     for(;fItr != fEnd; fItr++)
     {
-      // ifstream * ifile = new ifstream(fItr->c_str());
-      ifstream ifile(fItr->c_str());
+      std::ifstream ifile(fItr->c_str());
       if(ifile.is_open() && ifile.good())
       {
         if(!procInputStream(/*dynamic_cast<istream*>(ifile)*/ifile).isSuccess())
@@ -131,7 +121,7 @@ namespace MuonCalib {
     return sc;
   }
 
-  StatusCode CscReadWriteCoolStr::procInputStream(istream & input )
+  StatusCode CscReadWriteCoolStr::procInputStream(std::istream & input )
   {
     if(!input.good())
       return StatusCode::RECOVERABLE;
@@ -139,10 +129,10 @@ namespace MuonCalib {
     bool recognizedVersion = false;
     //   bool failedAny = false;
 
-    string junk;
+    std::string junk;
 
     //Get the header
-    string fileVersion;
+    std::string fileVersion;
     input >> fileVersion; 
 
     if(fileVersion == "03-00" || fileVersion == "03-01") //-01 just means we can have bitsets
@@ -170,7 +160,7 @@ namespace MuonCalib {
         int shiftBits  = 0;
 
 
-        string tag;
+        std::string tag;
         input >> tag;
 
         if( tag == "<END_FILE>")
@@ -180,7 +170,7 @@ namespace MuonCalib {
             << endmsg;
           return StatusCode::RECOVERABLE;
         }
-        string nextWord;
+        std::string nextWord;
         input >> nextWord;
         if(nextWord == "<BITS>") {
           input >> nBits;
@@ -189,7 +179,7 @@ namespace MuonCalib {
             return StatusCode::RECOVERABLE;
           }
           input >> shiftBits;
-          string end_bits;
+          std::string end_bits;
           input >> end_bits;
           m_log << MSG::DEBUG << "We've got nbits: " << nBits
             << " and a shift of  " << shiftBits << endmsg;
@@ -201,9 +191,9 @@ namespace MuonCalib {
         else
           m_log << MSG::DEBUG << "No bit settings for this parameter" << endmsg;
 
-        string parName = nextWord;
+        std::string parName = nextWord;
 
-        string cat, dataType;
+        std::string cat, dataType;
 
         StatusCode catSc, dataTypeSc, sizeSc;
 
@@ -272,7 +262,7 @@ namespace MuonCalib {
           int shiftBits  = 0;
 
 
-          string tag;
+          std::string tag;
           input >> tag;
 
           if( tag == "<END_FILE>")
@@ -283,9 +273,9 @@ namespace MuonCalib {
             return StatusCode::RECOVERABLE;
           }
 
-          string nextWord;
+          std::string nextWord;
           input >> nextWord;
-          string parName = nextWord;
+          std::string parName = nextWord;
           if(parName == "<BITS>" || parName == "<DATA>"){
             m_log << MSG::ERROR << "First entry insidet a parameter must be parameter name, not " 
               << parName << endmsg;
@@ -297,7 +287,7 @@ namespace MuonCalib {
           if(nextWord == "<BITS>") {
             input >> nBits;
             input >> shiftBits;
-            string end_bits;
+            std::string end_bits;
             input >> end_bits;
             m_log << MSG::DEBUG << "We've got nbits: " << nBits
               << " and a shift of  " << shiftBits << endmsg;
@@ -311,7 +301,7 @@ namespace MuonCalib {
 
           if(nextWord == "<DATA>"){
 
-            string cat, dataType;
+            std::string cat, dataType;
 
             StatusCode catSc, dataTypeSc, sizeSc;
 
@@ -374,9 +364,9 @@ namespace MuonCalib {
   StatusCode CscReadWriteCoolStr::makeFile() {
     m_log << MSG::INFO << "Writing data from database to file " << m_ofile << endmsg;
 
-    ofstream outFile(m_ofile.c_str());
+    std::ofstream outFile(m_ofile.c_str());
     
-    string dataType ="";
+    std::string dataType ="";
 
     IdContext channelContext = m_muonIdHelperTool->cscIdHelper().channel_context();
 
@@ -388,8 +378,8 @@ namespace MuonCalib {
       outFile << m_outFileType << " <END_HEADER>\n";
     }
 
-    vector<string>::const_iterator parNameItr = m_outParameters.begin();
-    vector<string>::const_iterator parNameEnd = m_outParameters.end();
+    std::vector<std::string>::const_iterator parNameItr = m_outParameters.begin();
+    std::vector<std::string>::const_iterator parNameEnd = m_outParameters.end();
     for(;parNameItr != parNameEnd; parNameItr++) {
 
       m_log << MSG::DEBUG << "Storing " << *parNameItr << endmsg;
@@ -404,7 +394,7 @@ namespace MuonCalib {
 
 
 
-      string cat;
+      std::string cat;
       if(!m_cscCoolStrSvc->getParCat(*parNameItr,cat).isSuccess() ){
         m_log << MSG::ERROR << "Failed getting category for " << *parNameItr
           << endmsg;
@@ -518,7 +508,7 @@ namespace MuonCalib {
             continue;
           }
 
-          string stringId;
+          std::string stringId;
           if(m_outFileType == "03-00"|| m_outFileType== "03-01") {
             if(!m_cscCoolStrSvc->indexToStringId(indxItr,cat,stringId)) {
               m_log << MSG::ERROR << "Failed getting string Id from indxItr " 
@@ -529,7 +519,7 @@ namespace MuonCalib {
           else {
 
 
-            stringstream ss;
+            std::stringstream ss;
             Identifier chanId;
             m_muonIdHelperTool->cscIdHelper().get_id((IdentifierHash)indxItr, chanId, &channelContext);
 
@@ -566,10 +556,10 @@ namespace MuonCalib {
   StatusCode CscReadWriteCoolStr::mergeBits(const uint32_t & inputDatum, 
       const uint32_t & refDatum, uint32_t & newDatum, 
       const int & nBits, const int & bitShift) {
-    bitset<32> newBits(refDatum);
-    bitset<32> inputBits(inputDatum);
+    std::bitset<32> newBits(refDatum);
+    std::bitset<32> inputBits(inputDatum);
 
-    m_log << MSG::DEBUG << "Merging bits from input " <<  hex << inputDatum << " (with offset of " << bitShift << ") and reference " << hex << refDatum << dec << endmsg;
+    m_log << MSG::DEBUG << "Merging bits from input " <<  std::hex << inputDatum << " (with offset of " << bitShift << ") and reference " << std::hex << refDatum << std::dec << endmsg;
 
     if(bitShift + nBits > 32) {
       m_log << MSG::ERROR << "Requesting a bit beyond 32 during bit merging. Probably a bug."

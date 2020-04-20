@@ -1501,10 +1501,6 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
 //--------------------------------------------
 long long int RpcDigitizationTool::PackMCTruth(float proptime, float bctime, float posy, float posz){
 
-
-  //std::cout<<"packing in word "<<proptime << " " <<tof<< std::endl;
-  using namespace std;
-
   // start with proptime: it is usually ~ns. It comes in ns. We express it in ns/10. use only 8 bits
   if (proptime<0)
     {

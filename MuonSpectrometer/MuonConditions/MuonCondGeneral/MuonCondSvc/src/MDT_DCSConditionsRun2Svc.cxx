@@ -1,28 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/MDT_DCSConditionsRun2Svc.h"
-
 #include "MuonCondInterface/IMDT_DCSConditionsRun2Tool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 #include "StoreGate/StoreGateSvc.h"
-
 #include <set>
-
-
 #include <string>
 #include <algorithm>
-
 #include "Identifier/Identifier.h"
 #include "GaudiKernel/Property.h"
-
 #include "Identifier/IdentifierHash.h"
 #include <iostream>
-
-//using namespace std;
-
 
 MDT_DCSConditionsRun2Svc::MDT_DCSConditionsRun2Svc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),

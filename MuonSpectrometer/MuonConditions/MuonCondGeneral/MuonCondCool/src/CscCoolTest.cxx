@@ -1,25 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// CscCoolTest.cxx - simple test of parameter retrieval function getParameter from CscCoolStrSvc
-// January 9, 2007, lampen@physics.arizona.edu
-
 
 #include <fstream>
 #include <string>
 #include <stdlib.h>
 #include <math.h>
 #include "MuonIdHelpers/CscIdHelper.h"
-
-//#include "MuonCondData/CscCondParType.h"
-
 #include "GaudiKernel/MsgStream.h"
-
-
 #include "CscCoolTest.h"
 
-using namespace std;
 using namespace MuonCalib; //So we don't need to type MuonCalib:: in front of CscCondParType::
 
 CscCoolTest::CscCoolTest(const std::string& name, 
@@ -99,7 +89,7 @@ StatusCode CscCoolTest::execute()
     << "\n\tnoise:\t"               << noise 
     << "\n\trms\t"                  << rms
     << "\n\tf001\t"                 << f001
-    << "\n\tstatus:\t"              << hex << static_cast<unsigned int>(status) << dec 
+    << "\n\tstatus:\t"              << std::hex << static_cast<unsigned int>(status) << std::dec 
     << endmsg;
 
   //Applying bit masks to bit-masked status
