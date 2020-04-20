@@ -349,7 +349,6 @@ namespace VKalVrtAthena {
         int barcode = 0;
         if(m_doTruth) 
           {  
-            //HepMC::GenParticle* aTemp_truth = getTrkGenParticle(trk, matchProb);
             const xAOD::TruthParticle* aTemp_truth = getTrkGenParticle( trk );
             if( aTemp_truth )
               {

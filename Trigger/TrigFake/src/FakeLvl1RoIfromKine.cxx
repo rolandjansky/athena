@@ -90,20 +90,6 @@ FakeLvl1RoIfromKine::FakeLvl1RoIfromKine(const std::string& name, const std::str
   declareProperty( "FakeJetRoiLabel",  m_jetRoiLabel ="JET20");
   declareProperty( "FakeTauRoiLabel",  m_tauRoiLabel ="HA10");
 
-  //  HepMC::IO_PDG_ParticleDataTable pdg_io("PDGTABLE");
-  //pdg_io.fill_particle_data_table(&m_particleDataTable);
-  //m_particleDataTable.make_antiparticles_from_particles();
-  //if (m_particleDataTable.empty()) {
-  //  m_log << MSG::WARNING << "failed to find PDG table" << std::endl;
-  //}
-
-  //  HepMC::IO_PDG_ParticleDataTable pdg_io("PDGTABLE");
-  //pdg_io.fill_particle_data_table(&m_particleDataTable);
-  //m_particleDataTable.make_antiparticles_from_particles();
-  //if (m_particleDataTable.empty()) {
-  //  m_log << MSG::WARNING << "failed to find PDG table" << std::endl;
-  //}
-
 }
 
 // DESTRUCTOR:
