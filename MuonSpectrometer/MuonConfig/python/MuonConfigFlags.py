@@ -122,6 +122,10 @@ def createMuonConfigFlags():
     mcf.addFlag("Muon.Align.UseILines", lambda prevFlags: (_muonAlignMode(prevFlags)))
     mcf.addFlag("Muon.Align.UseAsBuilt", lambda prevFlags: (_muonAlignMode(prevFlags)))
 
+    # Muon Trigger Flags
+    mcf.addFlag("Muon.MuonTrigger", False) 
+    mcf.addFlag("Muon.SAMuonTrigger", False) 
+
     # TODO - add configuration for above    
         
     return mcf
