@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,9 +20,6 @@
 #include <vector>
 #include <iostream>
 #include <cassert>
-
-
-#include "TestThinningSvc.icc"
 
 
 class AuxStoreTest
@@ -115,19 +112,12 @@ void compare (const SG::AuxStoreInternal& a,
 void test1()
 {
   std::cout << "test1\n";
-  TestThinningSvc svc;
   SG::ThinningDecisionBase dec;
 
   AuxStoreTest src;
   SG::AuxStoreInternal dst;
 
-  copyAuxStoreThinned (src, dst, static_cast<IThinningSvc*>(nullptr));
-  compare (src, dst);
-
   copyAuxStoreThinned (src, dst, static_cast<const SG::ThinningDecisionBase*>(nullptr));
-  compare (src, dst);
-
-  copyAuxStoreThinned (src, dst, &svc);
   compare (src, dst);
 
   copyAuxStoreThinned (src, dst, &dec);
@@ -160,32 +150,19 @@ void test1()
 
   dec.resize (10);
 
-  copyAuxStoreThinned (src, dst, &svc);
-  compare (src, dst);
-
-  for (int i=0, i1=0; i < 10; ++i) {
-    if (i%2 == 0) {
-      svc.remap (&src, i, i1);
-      ++i1;
-    }
-    else {
-      svc.remap (&src, i, IThinningSvc::RemovedIdx);
+  for (int i=0; i < 10; ++i) {
+    if (i%2 != 0) {
       dec.thin (i);
     }
   }
 
   dec.buildIndexMap();
 
-  copyAuxStoreThinned (src, dst, &svc);
-  compare (src, dst, true);
-
   copyAuxStoreThinned (src, dst, &dec);
   compare (src, dst, true);
 
   SG::AuxStoreInternal dst2;
   src.suppress (ftyp);
-  copyAuxStoreThinned (src, dst2, &svc);
-  compare (src, dst2, true, ftyp);
   copyAuxStoreThinned (src, dst2, &dec);
   compare (src, dst2, true, ftyp);
 }
