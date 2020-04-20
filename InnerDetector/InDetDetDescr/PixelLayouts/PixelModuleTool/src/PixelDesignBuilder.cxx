@@ -239,6 +239,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 
   PixelDiodeMatrix * fullMatrix = buildMatrix( phiPitch, etaPitch, etaPitchLong, etaPitchLongEnd,
 					       circuitsPhi, circuitsEta, rowsPerSensor, colsPerChip);
+  msg(MSG::DEBUG) << "matrix that was build:\n" << fullMatrix->createDebugStringRepr() << endmsg;
 
 
   msg(MSG::DEBUG)<<"readout geo - design " << thick<<" "<<
