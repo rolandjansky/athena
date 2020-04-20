@@ -11,17 +11,22 @@ theJob = AlgSequence()
 # Add the test algorithm:
 from MuonMomentumCorrections.MuonMomentumCorrectionsConf import CP__TestMCASTTool
 alg = CP__TestMCASTTool()
-#alg.MuonCalibrationAndSmearingTool.FilesPath = '/home/artoni/MuonCombinedPerformance/atlas-mcp/MaintainMuonMomentumCorrections/run/temporary_config_files/'
-#alg.MuonCalibrationAndSmearingTool.Release = 'Recs2019_05_30'
 alg.MuonCalibrationAndSmearingTool.OutputLevel = INFO 
 alg.MuonCalibrationAndSmearingTool.AddExtraDecorations = True
 alg.MuonCalibrationAndSmearingTool.doExtraSmearing = False 
 alg.MuonCalibrationAndSmearingTool.do2StationsHighPt = False 
+alg.MuonCalibrationAndSmearingTool.SagittaRelease = 'sagittaBiasDataAll_03_02_19_Data17'
+alg.MuonCalibrationAndSmearingTool.Year = 'Data17'
+alg.MuonCalibrationAndSmearingTool.StatComb = False
+alg.MuonCalibrationAndSmearingTool.SagittaCorr = False 
+alg.MuonCalibrationAndSmearingTool.doSagittaMCDistortion = True
+alg.MuonCalibrationAndSmearingTool.SagittaCorrPhaseSpace = False
 alg.OutputLevel = INFO 
+alg.Output = 'Output_Setup2.root'
 theJob += alg
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = -1
+theApp.EvtMax = 10 
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000
