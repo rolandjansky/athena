@@ -1,0 +1,11 @@
+package DerivationFrameworkInterfaces
+author <James.Catmore@cern.ch>
+
+public
+use AtlasPolicy                 AtlasPolicy-*                   
+use GaudiInterface              GaudiInterface-*                External
+
+private
+use     AtlasReflex     AtlasReflex-*   External -no_auto_imports
+apply_pattern lcgdict dict=DerivationFrameworkInterfaces selectionfile=selection.xml headerfiles="../DerivationFrameworkInterfaces/DerivationFrameworkInterfacesDict.h"
+end_private
