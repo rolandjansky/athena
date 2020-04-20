@@ -826,6 +826,10 @@ double LhoodMM_tools::nfakes(Double_t *poserr, Double_t *negerr) {
      
   }
 
+  //protect against selection strings that don't explicitly require at least
+  //one lepton
+  if (m_minnlep < 1) m_minnlep = 1;
+
   ATH_MSG_VERBOSE("m_minnlep, m_maxnlep = " << m_minnlep << " " << m_maxnlep);
   int minNlep_proc = m_maxnlep;
   int maxNlep_proc = 0;
@@ -1287,8 +1291,6 @@ void LhoodMM_tools::get_init_pars(vector<double> &init_pars, int nlep) {
     }
   }
 
-  ATH_MSG_VERBOSE("no crash yet " );
-
   init_pars[0] = nfakes_std_thisnlep;
   for (unsigned ipar = 1; ipar <= m_real_indices[lepidx].size(); ipar++) {
     init_pars[ipar] = nrf[m_real_indices[lepidx][ipar-1]];
@@ -1308,11 +1310,13 @@ void LhoodMM_tools::get_init_pars(vector<double> &init_pars, int nlep) {
     }
   }
 
-  txt = "testing variable transform: Initial pars: ";
-  for (int i = 0; i < (0x1 << nlep); i++) {
-    txt += std::to_string(init_pars[i]) + " ";
+  if (m_printLevel > 0) {
+    txt = "testing variable transform: Initial pars: ";
+    for (int i = 0; i < (0x1 << nlep); i++) {
+      txt += std::to_string(init_pars[i]) + " ";
+    }
+    ATH_MSG_VERBOSE(txt);
   }
-  ATH_MSG_VERBOSE(txt);
 
   // fix any nan's...
   for (int ipar = 2; ipar < (0x1 << nlep); ipar++) {
@@ -1326,6 +1330,7 @@ void LhoodMM_tools::get_init_pars(vector<double> &init_pars, int nlep) {
 
 void LhoodMM_tools::get_analytic(vector<double>& nrf, const int nlep) {
 
+  m_perfectFit = true;
   ATH_MSG_VERBOSE("just getting started with nlep = "  << nlep);
 
   ATH_MSG_VERBOSE("m_minnlepreg = " << m_minnlep << " m_maxnlep = " << m_maxnlep);
@@ -1458,6 +1463,7 @@ void LhoodMM_tools::get_analytic(vector<double>& nrf, const int nlep) {
   int n_proc_acc = 0;
   for (int ipar = 0;  ipar < (0x1 <<nlep) ; ipar++) {
     nrf[ipar] = nfake_mat(ipar, 0);
+    if (nrf[ipar] < 0) m_perfectFit = false;
     ATH_MSG_VERBOSE("nrf[" << ipar << "] = " << nrf[ipar]);
     FakeBkgTools::FSBitset fakes = ipar;
     FakeBkgTools::FSBitset reals;
