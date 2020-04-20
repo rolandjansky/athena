@@ -16,6 +16,8 @@
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonSimEvent/CSCSimHitCollection.h"
+#include "MuonSimEvent/sTGCSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
 
 // std library includes
 #include <string>
@@ -42,6 +44,8 @@ private:
   StatusCode CSCHitsTruthRelink();
   StatusCode RPCHitsTruthRelink();
   StatusCode TGCHitsTruthRelink();
+  StatusCode STGC_HitsTruthRelink();
+  StatusCode MM_HitsTruthRelink();
 
   SG::ReadHandle<McEventCollection>  m_inputTruthCollection;
   SG::ReadHandle<SiHitCollection>  m_inputBCMHits;
@@ -52,20 +56,27 @@ private:
   SG::ReadHandle<MDTSimHitCollection>  m_inputMDTHits;
   SG::ReadHandle<RPCSimHitCollection>  m_inputRPCHits;
   SG::ReadHandle<TGCSimHitCollection>  m_inputTGCHits;
+  SG::ReadHandle<sTGCSimHitCollection> m_inputSTGCHits;
+  SG::ReadHandle<MMSimHitCollection>   m_inputMMHits;
 
   SG::WriteHandle<McEventCollection> m_outputTruthCollection;
   SG::WriteHandle<SiHitCollection> m_outputBCMHits;
   SG::WriteHandle<SiHitCollection> m_outputPixelHits;
   SG::WriteHandle<SiHitCollection> m_outputSCTHits;
   SG::WriteHandle<TRTUncompressedHitCollection> m_outputTRTHits;
-  SG::WriteHandle<CSCSimHitCollection> m_outputCSCHits;
-  SG::WriteHandle<MDTSimHitCollection> m_outputMDTHits;
-  SG::WriteHandle<RPCSimHitCollection> m_outputRPCHits;
-  SG::WriteHandle<TGCSimHitCollection> m_outputTGCHits;
+  SG::WriteHandle<CSCSimHitCollection>  m_outputCSCHits;
+  SG::WriteHandle<MDTSimHitCollection>  m_outputMDTHits;
+  SG::WriteHandle<RPCSimHitCollection>  m_outputRPCHits;
+  SG::WriteHandle<TGCSimHitCollection>  m_outputTGCHits;
+  SG::WriteHandle<sTGCSimHitCollection> m_outputSTGCHits;
+  SG::WriteHandle<MMSimHitCollection>   m_outputMMHits;
 
   bool m_IsKeepTRTElect;
   int m_PileupPartPDGID;
   bool m_UseTRTHits;
+  bool m_UseCSCHits;
+  bool m_UseSTGCHits;
+  bool m_UseMMHits;
   //---------------------
   //std::string   m_HitName;
   int m_RefBarcode;
