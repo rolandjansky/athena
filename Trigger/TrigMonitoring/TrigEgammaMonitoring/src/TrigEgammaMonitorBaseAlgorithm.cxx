@@ -153,9 +153,7 @@ asg::AcceptData TrigEgammaMonitorBaseAlgorithm::setAccept( const TrigCompositeUt
 
     auto trigger = info.trigName;
    
-    // This should be solved first: https://its.cern.ch/jira/browse/ATR-20588
-    passedL1Calo = true;
-    //passedL1Calo = match()->ancestorPassed<xAOD::EmTauRoI>(td);
+    passedL1Calo = match()->ancestorPassed<TrigRoiDescriptorCollection>( dec , trigger , "initialRois");
 
     if(!info.trigL1){ // HLT item get full decision
         ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");

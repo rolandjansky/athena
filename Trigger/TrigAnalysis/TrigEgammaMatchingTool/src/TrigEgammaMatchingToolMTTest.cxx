@@ -55,23 +55,53 @@ void TrigEgammaMatchingToolMTTest::inspect(const std::string trigger,const xAOD:
       ATH_MSG_INFO( "Matched!");
 
 
-      auto *l1 = m_matchTool->getFeature<xAOD::EmTauRoI>(dec);
-      auto *emCluster = m_matchTool->getFeature<xAOD::TrigEMCluster>( dec );
-      auto trig_el_cont = m_matchTool->getFeatures<xAOD::TrigElectron>( dec );
-      auto cl_cont = m_matchTool->getFeatures<xAOD::CaloCluster>( dec );
-      auto el_cont = m_matchTool->getFeatures<xAOD::Electron>( dec );
+      auto l1_link = m_matchTool->getFeature<TrigRoiDescriptorCollection>(dec, trigger);
+      auto emCluster_link = m_matchTool->getFeature<xAOD::TrigEMClusterContainer>( dec , trigger);
+      auto trig_el_links = m_matchTool->getFeatures<xAOD::TrigElectronContainer>( dec, trigger );
+      auto cl_links = m_matchTool->getFeatures<xAOD::CaloClusterContainer>( dec , trigger);
+      auto el_links = m_matchTool->getFeatures<xAOD::ElectronContainer>( dec , trigger);
 
-      ATH_MSG_INFO( "L1 = " << l1 );
-      ATH_MSG_INFO( "emCluster = "<< emCluster );
-      ATH_MSG_INFO( "TrigElectron container size  is " << trig_el_cont.size());
-      ATH_MSG_INFO( "CaloCluster container size  is " << cl_cont.size());
-      ATH_MSG_INFO( "Electron container size  is " << el_cont.size());
+      if( l1_link.isValid() ){
+        ATH_MSG_INFO( "We found the Roi object link" );
+        // Let's get the EMTau
+        auto l1 = m_matchTool->getL1Feature( l1_link.source );
+        if(l1)
+          ATH_MSG_INFO( "We found the EmTau object" );
+        ATH_MSG_INFO( "L1 object state is assigned as " << (l1_link.state==ActiveState::ACTIVE ? "Active" : "Not active") );
+      }
+
+      if( emCluster_link.isValid() ){
+        ATH_MSG_INFO( "We found the EmCluster object link" );
+        ATH_MSG_INFO( "L2Calo object state is assigned as " << (emCluster_link.state==ActiveState::ACTIVE ? "Active" : "Not active") );
+      }
+
+      if (trig_el_links.size() > 0){
+        ATH_MSG_INFO ( "We found " << trig_el_links.size() << " TrigElectron link objects for this decision souce." );
+        for ( auto featLinkInfo : trig_el_links ){
+          ATH_MSG_INFO( "L2Electron object state is assigned as " << (featLinkInfo.state==ActiveState::ACTIVE ? "Active" : "Not active") );
+        }
+      }
+
+      if (cl_links.size() > 0){
+        ATH_MSG_INFO ( "We found " << cl_links.size() << " CaloCluster link objects for this decision souce." );
+        for ( auto featLinkInfo : cl_links ){
+          ATH_MSG_INFO( "EFCalo object state is assigned as " << (featLinkInfo.state==ActiveState::ACTIVE ? "Active" : "Not active") );
+        }
+      }
+
+      if (el_links.size() > 0){
+        ATH_MSG_INFO ( "We found " << el_links.size() << " CaloCluster link objects for this decision souce." );
+        for ( auto featLinkInfo : el_links ){
+          ATH_MSG_INFO( "EFCalo object state is assigned as " << (featLinkInfo.state==ActiveState::ACTIVE ? "Active" : "Not active") );
+        }
+      }
+      
 
       bool passedHLT    =  m_matchTool->ancestorPassed<xAOD::ElectronContainer> (dec, trigger , "HLT_egamma_Electrons");
       bool passedEFCalo =  m_matchTool->ancestorPassed<xAOD::CaloClusterContainer> (dec, trigger , "HLT_CaloEMClusters");
       bool passedL2     =  m_matchTool->ancestorPassed<xAOD::TrigElectronContainer> (dec, trigger , "HLT_L2Electrons");
       bool passedL2Calo =  m_matchTool->ancestorPassed<xAOD::TrigEMClusterContainer> (dec, trigger , "HLT_L2CaloEMClusters");
-      bool passedL1Calo =  m_matchTool->ancestorPassed<xAOD::EmTauRoIContainer> (dec, trigger , "LVL1EmTauRoIs");
+      bool passedL1Calo =  m_matchTool->ancestorPassed<TrigRoiDescriptorCollection> (dec, trigger , "initialRois");
       
       ATH_MSG_INFO( "L1Calo passed : "<< passedL1Calo   );
       ATH_MSG_INFO( "L2Calo passed : "<< passedL2Calo   );

@@ -251,7 +251,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
                                                                     TrigDefs::allFeaturesOfType,"initialRoI");       
       for( auto &initRoi: initRois ){               
         if( !initRoi.link.isValid() ) continue;      
-        auto feat = match()->getFeature<xAOD::EmTauRoI>( initRoi.source );
+        auto feat = match()->getL1Feature( initRoi.source );
         if(feat)
           l1_vec.push_back(feat);
       }
@@ -314,7 +314,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
                                                                         TrigDefs::allFeaturesOfType,"initialRoI");       
           for( auto &initRoi: initRois ){               
             if( !initRoi.link.isValid() ) continue;      
-            auto feat = match()->getFeature<xAOD::EmTauRoI>( initRoi.source );
+            auto feat = match()->getL1Feature( initRoi.source );
             if(feat)
               l1_vec.push_back(feat);
           }
@@ -340,14 +340,12 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
         // EFCalo
         {
           std::vector<const xAOD::CaloCluster* > clus_vec;
-          auto vec =  tdt()->features<xAOD::CaloClusterContainer>(trigger,TrigDefs::includeFailedDecisions ,match()->key("EFCalo") );      
+          auto vec =  tdt()->features<xAOD::CaloClusterContainer>(trigger,TrigDefs::Physics ,match()->key("EFCalo") );      
           for(auto &featLinkInfo : vec ){                                             
             if(! featLinkInfo.isValid() ) continue;
             const auto *feat = *(featLinkInfo.link);                   
             if(!feat) continue;
-            // Get only passed clusters
-            if (featLinkInfo.state == ActiveState::ACTIVE )
-              clus_vec.push_back(feat);
+            clus_vec.push_back(feat);
           } 
           fillEFCalo( trigger,  clus_vec );
         }
@@ -358,11 +356,12 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
             // L2 Electron
             {
                 std::vector<const xAOD::TrigElectron*> el_vec;
-                auto vec =  tdt()->features<xAOD::TrigElectronContainer>(trigger,TrigDefs::includeFailedDecisions ,match()->key("L2Electron") );      
+                // Get only passed objects
+                auto vec =  tdt()->features<xAOD::TrigElectronContainer>(trigger,TrigDefs::Physics ,match()->key("L2Electron") );      
                 for( auto &featLinkInfo : vec ){
+                    if(! featLinkInfo.isValid() ) continue;
                     const auto *feat = *(featLinkInfo.link);
                     if(!feat) continue;
-                    // If not pass, continue
                     el_vec.push_back(feat);
                 }
                 fillL2Electron( trigger, el_vec );
@@ -373,12 +372,11 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
             {
                 std::vector<const xAOD::Electron*> el_vec;
                 std::vector<const xAOD::Egamma*> eg_vec;
-                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,TrigDefs::includeFailedDecisions ,match()->key("Electron") );      
-                ATH_MSG_DEBUG("AKI JOAO  == ELECTRON VEC SIZE IS = " <<vec.size());
+                auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger, TrigDefs::Physics ,match()->key("Electron") );      
                 for( auto &featLinkInfo : vec ){
+                    if(! featLinkInfo.isValid() ) continue;
                     const auto *feat = *(featLinkInfo.link);
                     if(!feat) continue;
-                    // If not pass, continue
                     el_vec.push_back(feat);
                     eg_vec.push_back(feat);
                 }
@@ -391,11 +389,11 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillDistributions( std::vector< std::pa
             // HLT Photon
             {
                 std::vector<const xAOD::Egamma*> ph_vec;
-                auto vec =  tdt()->features<xAOD::PhotonContainer>(trigger,TrigDefs::includeFailedDecisions ,match()->key("Photon") );      
+                auto vec =  tdt()->features<xAOD::PhotonContainer>(trigger,TrigDefs::Physics ,match()->key("Photon") );      
                 for( auto &featLinkInfo : vec ){
+                    if(! featLinkInfo.isValid() ) continue;
                     const auto *feat = *(featLinkInfo.link);
                     if(!feat) continue;
-                    // If not pass, continue
                     ph_vec.push_back(feat);
                 }
                 fillShowerShapes( trigger, ph_vec, true );

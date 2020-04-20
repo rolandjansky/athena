@@ -43,13 +43,6 @@ StatusCode TrigEgammaMatchingToolMT::initialize()
   ATH_CHECK(tdt().retrieve());
 
   ATH_CHECK( m_emTauRoIKey.initialize() );
-  ATH_CHECK( m_emClusterKey.initialize() );
-  ATH_CHECK( m_trigElectronKey.initialize() );
-  ATH_CHECK( m_trigPhotonKey.initialize() );
-  ATH_CHECK( m_clusterKey.initialize() );
-  ATH_CHECK( m_electronKey.initialize() );
-  ATH_CHECK( m_photonKey.initialize() );
-
   m_keys[ "Electron"]   = "HLT_egamma_Electrons" ;
   m_keys[ "Photon"]     = "HLT_egamma_Photons" ;
   m_keys[ "Track"]      = "";
@@ -122,48 +115,45 @@ bool TrigEgammaMatchingToolMT::match(const xAOD::Egamma *eg,const std::string &t
 bool TrigEgammaMatchingToolMT::matchHLTPhoton(const xAOD::Photon *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec ) const
 { 
   ATH_MSG_DEBUG("Match HLT Photon");
-  return closestObject<xAOD::Photon>( eg, dec, trigger, key("Photon") );
+  return closestObject<xAOD::PhotonContainer>( eg, dec, trigger, key("Photon") );
 }
 
 
 bool TrigEgammaMatchingToolMT::matchHLTElectron(const xAOD::Electron *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec ) const
 { 
   ATH_MSG_DEBUG("Match HLT Electron");
-  return closestObject<xAOD::Electron>( eg, dec , trigger, key("Electron") );
+  return closestObject<xAOD::ElectronContainer>( eg, dec , trigger, key("Electron") );
 }
 
 
 bool TrigEgammaMatchingToolMT::matchHLTCalo(const xAOD::Egamma *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec ) const
 { 
   ATH_MSG_DEBUG("Match HLT Calo");
-  return closestObject<xAOD::CaloCluster>( eg, dec, trigger, key("EFCalo") );
+  return closestObject<xAOD::CaloClusterContainer>( eg, dec, trigger, key("EFCalo") );
 }
 
 
 bool TrigEgammaMatchingToolMT::matchL2Photon(const xAOD::Photon *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec ) const
 {
   ATH_MSG_DEBUG("Match L2 Photon");
-  return closestObject<xAOD::TrigPhoton>( eg, dec, trigger, key("L2Photon") );
+  return closestObject<xAOD::TrigPhotonContainer>( eg, dec, trigger, key("L2Photon") );
 }
   
 
 bool TrigEgammaMatchingToolMT::matchL2Electron(const xAOD::Electron *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec ) const
 {
   ATH_MSG_DEBUG("Match L2 Photon");
-  return closestObject<xAOD::TrigElectron>( eg, dec, trigger, key("L2Electron") );
+  return closestObject<xAOD::TrigElectronContainer>( eg, dec, trigger, key("L2Electron") );
 }
 
 
 bool TrigEgammaMatchingToolMT::matchL2Calo(const xAOD::Egamma *eg,const std::string &trigger, const TrigCompositeUtils::Decision *&dec ) const
 {
   ATH_MSG_DEBUG("Match L2 Calo");
-  return closestObject<xAOD::TrigEMCluster>( eg, dec, trigger, key("L2Calo") );
+  return closestObject<xAOD::TrigEMClusterContainer>( eg, dec, trigger, key("L2Calo") );
 }
   
   
-
-
-
 bool TrigEgammaMatchingToolMT::matchL1( const xAOD::Egamma* eg, const std::string &trigger, const TrigCompositeUtils::Decision *&dec ) const
 {
   ATH_MSG_DEBUG("Match L1 Calo");
