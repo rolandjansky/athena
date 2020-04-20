@@ -1,21 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-// MaterialMapping.cxx, (c) ATLAS Detector software
+// MaterialStepToActsMaterialTrack.cxx, (c) ATLAS Detector software
 //////////////////////////////////////////////////////////////////
 
 // Gaudi Units
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/ITHistSvc.h"
-
-#include "ActsGeometry//MaterialStepToActsMaterialTrack.h"
+// Trk
+#include "ActsGeometry/MaterialStepToActsMaterialTrack.h"
+// Acts
 #include "TrkGeometry/MaterialStep.h"
-#include "TrkGeometry/MaterialStepCollection.h"
 #include "TrkGeometry/MaterialProperties.h"
-// TrkEvent
-#include "TrkNeutralParameters/NeutralParameters.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
@@ -23,14 +21,17 @@
 
 MaterialStepToActsMaterialTrack::MaterialStepToActsMaterialTrack(const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name,pSvcLocator),
+  m_ActsStreamName("Acts"),
   m_ActsFileName("material-tracks"),
-  m_ActsDirName("tracks"),
-  m_ActsTreeName("mat-tracks"),
+  m_ActsTreeName("material-tracks"),
   m_inputMaterialStepCollection("MaterialStepRecords"),
-  m_thistSvc(0)
+  m_thistSvc(0),
+  m_etaCutOff(4.2)
 {
+  declareProperty("ActsMaterialTrackStreamName", m_ActsStreamName);
   declareProperty("ActsMaterialTrackFileName", m_ActsFileName);
-
+  declareProperty("ActsMaterialTrackTreeName", m_ActsTreeName);
+  declareProperty("etaCutOff", m_etaCutOff);
 }
 
 MaterialStepToActsMaterialTrack::~MaterialStepToActsMaterialTrack()
@@ -40,16 +41,14 @@ StatusCode MaterialStepToActsMaterialTrack::initialize()
 {
 
     ATH_MSG_INFO("initialize()");
-
     ATH_CHECK( m_inputMaterialStepCollection.initialize() );
     ATH_CHECK( service("THistSvc", m_thistSvc) );
 
     m_outputTree = new TTree( TString(m_ActsTreeName), "ACTS" );
-    std::string fullName =  "/Acts/"+m_ActsTreeName;
+    std::string fullName =  "/"+m_ActsStreamName+"/"+m_ActsTreeName;
     ATH_CHECK( m_thistSvc->regTree(fullName, m_outputTree) );
 
     /** now add branches and leaves to the tree */
-    // event tree : one entry per event
     m_outputTree->Branch("v_x", &m_v_x);
     m_outputTree->Branch("v_y", &m_v_y);
     m_outputTree->Branch("v_z", &m_v_z);
@@ -80,6 +79,7 @@ StatusCode MaterialStepToActsMaterialTrack::execute()
 
   SG::ReadHandle<Trk::MaterialStepCollection> materialStepCollection(m_inputMaterialStepCollection);
 
+  // resetinitialise the event variables
    m_v_x = 0;
    m_v_y = 0;
    m_v_z = 0;
@@ -94,6 +94,7 @@ StatusCode MaterialStepToActsMaterialTrack::execute()
    m_tX0 = 0;
    m_tL0 = 0;
 
+   // initialise the Interaction step vector
    m_step_x.clear();
    m_step_y.clear();
    m_step_z.clear();
@@ -104,7 +105,6 @@ StatusCode MaterialStepToActsMaterialTrack::execute()
    m_step_Z.clear();
    m_step_rho.clear();
 
-  // clearing the recorded layers per event
   if (materialStepCollection.isValid() && materialStepCollection->size()){
 
     // get the number of material steps
@@ -125,6 +125,12 @@ StatusCode MaterialStepToActsMaterialTrack::execute()
     m_v_eta = direction.eta();
     m_v_phi = direction.phi();
 
+    if ( fabs(m_v_eta) > m_etaCutOff ){
+      ATH_MSG_VERBOSE("[-] Event is outside eta acceptance of " << m_etaCutOff << ". Skipping it.");
+      return StatusCode::SUCCESS;
+    }
+
+    // loop on all the Material Interaction step
     for ( const Trk::MaterialStep* step : *materialStepCollection ) {
       m_step_x.push_back(step->hitX());
       m_step_y.push_back(step->hitY());
@@ -136,6 +142,7 @@ StatusCode MaterialStepToActsMaterialTrack::execute()
       m_step_Z.push_back(step->Z());
       m_step_rho.push_back(step->rho());
 
+      // Update the material crossed by the tracks
       m_tX0 +=step->steplength()/step->x0();
       m_tL0 +=step->steplength()/step->l0();
     }
@@ -146,6 +153,5 @@ StatusCode MaterialStepToActsMaterialTrack::execute()
 
 StatusCode MaterialStepToActsMaterialTrack::finalize()
 {
-  std::cout << "Fin" << std::endl;
   return StatusCode::SUCCESS;
 }

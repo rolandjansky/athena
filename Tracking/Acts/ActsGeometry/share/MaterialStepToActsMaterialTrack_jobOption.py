@@ -1,6 +1,4 @@
-# This job options creates database files of Geantino/MaterialMapping.
-# Mofifled version of Tracking/TrkDetDescr/TrkDetDescrExample/share/MaterialMapping_jobOptions.py. (TrkDetDescrExample-01-00-04)
-# See https://twiki.cern.ch/twiki/bin/view/Atlas/UpgradeSimulationInnerTrackerMigrationRel20p3p3#Creation_of_database_files
+# This job options convert MaterialStepCollection to Material tracks to be used in the Acts MaterialMapping.
 
 # necessity to create a new PoolFileCatalog
 import os
@@ -33,31 +31,44 @@ job = AlgSequence()
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
-svcMgr.THistSvc.Output += ["Acts DATAFILE='material-tracks.root' OPT='RECREATE'" ]
+svcMgr.THistSvc.Output += ["Acts DATAFILE='material-tracks_4.root' OPT='RECREATE'" ]
+svcMgr.MessageSvc.defaultLimit = 9999999
 
-
+# Input file containing the MaterialStepCollection.
 import glob
-FileList = glob.glob("MaterialStepCollection*.root*")
+#FileList = glob.glob("MaterialStepCollection*.root*")
+#FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/*")
 
+#FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/user.tstreble.19401213.MaterialStream._0000*.pool.root")
+#FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/user.tstreble.19401213.MaterialStream._0001*.pool.root")
+#FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/user.tstreble.19401213.MaterialStream._0002*.pool.root")
+#FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/user.tstreble.19401213.MaterialStream._0003*.pool.root")
+FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/user.tstreble.19401213.MaterialStream._0004*.pool.root")
+#FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/user.tstreble.19401213.MaterialStream._0005*.pool.root")
+#FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/user.tstreble.19401213.MaterialStream._0006*.pool.root")
+#FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/user.tstreble.19401213.MaterialStream._0007*.pool.root")
+#FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/user.tstreble.19401213.MaterialStream._0008*.pool.root")
+#FileList = glob.glob("/afs/cern.ch/work/t/tstreble/public/forNoemi/Step3p1_Geantino/user.tstreble.GeantinoMap_22_00_00_MaterialStream/user.tstreble.19401213.MaterialStream._0009*.pool.root")
+
+# Event loop
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = FileList
 if not hasattr(svcMgr, theApp.EventLoop):
      svcMgr += getattr(CfgMgr, theApp.EventLoop)()
 evtloop = getattr(svcMgr, theApp.EventLoop)
 try:
-  evtloop.EventPrintoutInterval = 1000 
+  evtloop.EventPrintoutInterval = 1000
 except Exception, err:
   msg.info('failed suppressing event loop heartbeat. performances might be sub-par... sorry.')
   pass
 
 print "FileList = ", FileList
 
-# Number of events to be processed
+# Number of events to be processed (-1 = all)
 theApp.EvtMax = -1
 
 
-# set up the Material Mapping
+# set up the MaterialStepToActsMaterialTrack
 from ActsGeometry.ActsGeometryConf import MaterialStepToActsMaterialTrack
 alg = MaterialStepToActsMaterialTrack(name ='MaterialStepToActsMaterialTrack')
-
 job += alg

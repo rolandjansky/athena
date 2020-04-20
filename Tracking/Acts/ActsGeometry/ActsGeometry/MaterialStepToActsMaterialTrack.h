@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
-// MaterialMapping.h, (c) ATLAS Detector software
+// MaterialStepToActsMaterialTrack.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MATERIALSTEPTOACTSMATRERIALTRACK_H
@@ -18,7 +18,6 @@
 #include <iostream>
 #include <string>
 #include <map>
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkGeometry/MaterialStepCollection.h"
 
@@ -31,10 +30,10 @@ class ITHistSvc;
 
 /** @class MaterialStepToActsMaterialTrack
 
-A simple algorithm that throws random points through detector and associates them with
-the given/found layer.
+A simple algorithm that convert a MaterialStepCollection from a root file into
+Material tracks (also stored in a root file) to be used in the Acts MaterialMapping.
 
-@author Andreas.Salzburger@cern.ch
+@author corentin.allaire@cern.ch
 
 */
 
@@ -85,8 +84,9 @@ private:
   /** output / input steering */
   SG::ReadHandleKey<Trk::MaterialStepCollection>  m_inputMaterialStepCollection;
   std::string                                m_ActsFileName;
-  std::string                                m_ActsDirName;
+  std::string                                m_ActsStreamName;
   std::string                                m_ActsTreeName;
+  float                                      m_etaCutOff;
   ITHistSvc *                                m_thistSvc;
 
 };
