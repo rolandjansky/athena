@@ -94,6 +94,12 @@ def createMuonRoIUnpackers():
                                                           Decisions="HLTNav_RerunL1MU" )
     return [muUnpacker],[muRerunUnpacker]
 
+def createPrescalingTool():
+    from L1Decoder.L1DecoderMonitoring import PrescalingMonitoring
+
+    prescaler = CompFactory.PrescalingTool(MonTool = PrescalingMonitoring())
+    return prescaler
+
 
 #from L1Decoder.L1DecoderConf import L1TriggerResultMaker
 
@@ -139,6 +145,8 @@ class L1Decoder(CompFactory.L1Decoder) :
             self.roiUnpackers += unpackers
             self.rerunRoiUnpackers += rerunUnpackers
 
+        self.prescaler = createPrescalingTool()
+
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         self.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
         self.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
@@ -177,6 +185,7 @@ def L1DecoderCfg(flags):
     decoderAlg.roiUnpackers += unpackers
     decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
+    decoderAlg.prescaler = createPrescalingTool()
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 
