@@ -78,7 +78,7 @@ class TileDCSCondAlg: public AthReentrantAlgorithm {
     * @param[out] dcsState TileDCSState to store reference HV
     * @param[out] eventRange Event range within which reference HV is valid
     */
-    StatusCode fillReferenceHV(TileDCSState& dcsState, EventIDRange& eventRange, const EventContext& ctx) const;
+    StatusCode fillReferenceHV(TileDCSState& dcsState, SG::WriteCondHandle<TileDCSState>& wh, const EventContext& ctx) const;
 
    /**
     * @ brief Return Tile channel key used as index in internal caches
