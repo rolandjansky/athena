@@ -27,8 +27,9 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 FNAME=[ "/eos/user/l/lmijovic/atlas/nosyn/upgrade/inputs/step3_shared/step3prod_test_18082018/ttbar/step3/DAOD_IDTRKVALID_digi.pool.root" ]
 
 # uncomment to set a single input file via the athena command line options (athena -c "INFILE='blah.root'" )
-#if "INFILE" in globals():
-#      FNAME= [INFILE]
+if "INFILE" in globals():
+      FNAME= [INFILE]
+
 #.......................................................................
 # uncomment to read multiple files:
 #import glob
