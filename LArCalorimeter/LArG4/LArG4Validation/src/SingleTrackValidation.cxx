@@ -334,7 +334,6 @@ StatusCode SingleTrackValidation::execute() {
     Point3D<double>       origin(theParticle->production_vertex()->point3d().x(),
 			    theParticle->production_vertex()->point3d().y(),
 			    theParticle->production_vertex()->point3d().z()); 
-    //HepMC::GenVertex *decayVertex = theParticle->end_vertex();
     double           charge = theParticle->pdg_id() > 0 ? particleData->charge() : - particleData->charge();
     // Put Eta and Phi into the Ntuple
     m_c->phi = theParticle->momentum().phi();

@@ -10,22 +10,6 @@ PileUpType::PileUpType(const McEventCollection * collection) {
 }
 
 
-HepMC::GenEvent::particle_const_iterator PileUpType::signal_particle_begin() const {
-   HepMC::GenEvent::particle_const_iterator it;
-   unsigned int colSize = m_particleList->size();
-   if ( colSize > 0 )  it = (m_particleList->at(0))->particles_begin();
-   return it;
-}
-
-
-HepMC::GenEvent::particle_const_iterator PileUpType::signal_particle_end() const {
-   HepMC::GenEvent::particle_const_iterator it;
-   unsigned int colSize = m_particleList->size();
-   if ( colSize > 0 )  it = (m_particleList->at(0))->particles_end();
-   return it;
-}
-
-
 const HepMC::GenEvent * PileUpType::signal_mc_event() const {
    if ( m_particleList->size() > 0 ) return m_particleList->at(0);
    else return NULL;

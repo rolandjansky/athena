@@ -35,8 +35,6 @@ def LArCellMonConfig(inputFlags):
       from LumiBlockComps.LuminosityCondAlgConfig import  LuminosityCondAlgCfg
       cfg.merge(LuminosityCondAlgCfg(inputFlags))
 
-    from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
-    filterTool=cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags))
     isCosmics = ( inputFlags.Beam.Type == 'cosmics' ) #will use this switch many times later
 
     from AthenaConfiguration.ComponentFactory import CompFactory
@@ -58,19 +56,24 @@ def LArCellMonConfig(inputFlags):
     LArCellMonAlg.LArBadChannelMask=acc.popPrivateTools()
     cfg.merge(acc)
 
-     
-    LArCellMonAlg.BadLBTool = filterTool
-    if inputFlags.Input.isMC is True:
-        LArCellMonAlg.useBadLBTool=False
-    else:
-        LArCellMonAlg.useBadLBTool=True
+    if not isCosmics and not inputFlags.Input.isMC:
+        from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
+        #LArCellMonAlg.FilterTools.append(cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags)))
 
-    from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
-    LArCellMonAlg.ReadyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
-    if isCosmics or inputFlags.Input.isMC is True:
-        LArCellMonAlg.useReadyFilterTool = False
+        # why is there this parallel mechanism to the standard DQ filter chain?
+        LArCellMonAlg.ReadyFilterTool=cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
+        LArCellMonAlg.useReadyFilterTool=True
     else:
-        LArCellMonAlg.useReadyFilterTool = True
+        LArCellMonAlg.useReadyFilterTool=False
+
+    if not inputFlags.Input.isMC:
+        from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
+        #LArCellMonAlg.FilterTools.append(cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags)))
+        # similar to above
+        LArCellMonAlg.BadLBTool=cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags))
+        LArCellMonAlg.useBadLBTool=True
+    else:
+        LArCellMonAlg.useBadLBTool=False
 
 # FIXME: to be added:    if isCosmics or rec.triggerStream()!='CosmicCalo':
     LArCellMonAlg.useBeamBackgroundRemoval = False
@@ -344,113 +347,85 @@ def LArCellMonConfig(inputFlags):
         pass #part loop
 
     #--- group array for threshold dependent histograms
-    etaphiTotalOccupancyMonArray = helper.addArray([LArCellMonAlg.DoEtaPhiTotalOccupancyNames], 
-                                                   LArCellMonAlg,
-                                                   LArCellMonAlg.MonGroupName_OccupancyEtaPhi,
-                                                   '/CaloMonitoring/LArCellMon_NoTrigSel/')
-
-    etaphiPercentageOccupancyMonArray = helper.addArray([LArCellMonAlg.DoEtaPhiPercentageOccupancyNames], ###needs weightedAverage/weightedEff
-                                                        LArCellMonAlg,
-                                                        LArCellMonAlg.MonGroupName_PercentageOccupancyEtaPhi,
-                                                        '/CaloMonitoring/LArCellMon_NoTrigSel/')
-
-    etaOccupancyMonArray = helper.addArray([LArCellMonAlg.DoEtaOccupancyNames], 
-                                           LArCellMonAlg,
-                                           LArCellMonAlg.MonGroupName_OccupancyEta,
-                                           '/CaloMonitoring/LArCellMon_NoTrigSel/')
-
-    phiOccupancyMonArray = helper.addArray([LArCellMonAlg.DoPhiOccupancyNames], 
-                                           LArCellMonAlg,
-                                           LArCellMonAlg.MonGroupName_OccupancyPhi,
-                                           '/CaloMonitoring/LArCellMon_NoTrigSel/')
-
-
-    etaphiTotEnergyMonArray = helper.addArray([LArCellMonAlg.DoEtaPhiTotEnergyNames], 
-                                              LArCellMonAlg,
-                                              LArCellMonAlg.MonGroupName_TotEnergyEtaPhi,
-                                              '/CaloMonitoring/LArCellMon_NoTrigSel/')
-
-    etaphiAvgQualityMonArray = helper.addArray([LArCellMonAlg.DoEtaPhiAvgQualityNames], ##needs weightedAverage
-                                               LArCellMonAlg,
-                                               LArCellMonAlg.MonGroupName_AvgQualityEtaPhi,
-                                               '/CaloMonitoring/LArCellMon_NoTrigSel/')
-
-    etaphiFractionOverQthMonArray = helper.addArray([LArCellMonAlg.DoEtaPhiFractionOverQthNames], ##needs weightedAverage
-                                                    LArCellMonAlg,
-                                                    LArCellMonAlg.MonGroupName_FractionOverQthEtaPhi,
-                                                    '/CaloMonitoring/LArCellMon_NoTrigSel/')
-
-    etaphiAvgTimeMonArray = helper.addArray([LArCellMonAlg.DoEtaPhiAvgTimeNames], ##needs weightedAverage
-                                            LArCellMonAlg,
-                                            LArCellMonAlg.MonGroupName_AvgTimeEtaPhi,
-                                            '/CaloMonitoring/LArCellMon_NoTrigSel/')
-
-    etaphiFractionPastTthMonArray = helper.addArray([LArCellMonAlg.DoEtaPhiFractionPastTthNames], ##needs weightedAverage
-                                                    LArCellMonAlg,
-                                                    LArCellMonAlg.MonGroupName_FractionPastTthEtaPhi,
-                                                    '/CaloMonitoring/LArCellMon_NoTrigSel/')
-
+    allMonArray = helper.addArray([LArCellMonAlg.LayerNames, LArCellMonAlg.ThresholdType], LArCellMonAlg, "allMon", 
+                                    "/CaloMonitoring/LArCellMon_NoTrigSel/")
 
 
     #now histograms
     for part in LArCellMonAlg.LayerNames:
-        etaphiTotalOccupancyMonArray.defineHistogram('celleta_'+part+',cellphi_'+part+';CellOccupancyVsEtaPhi_'+part,
+        allMonArray.defineHistogram('dummy', type='TH1F', xbins=1, xmin=0, xmax=1) # dummy to have at least 1 plot defined
+
+        allMonArray.defineHistogram('celleta,cellphi;CellOccupancyVsEtaPhi',
                                                 title='No. of events in (#eta,#phi) for '+part+';cell #eta;cell #phi',
                                                 type='TH2F', path="2d_Occupancy/",
-                                                cutmask='passThrCut_'+part,
+                                                cutmask='passThrCut',
                                                 xbins = lArCellBinningScheme.etaRange[part],
-                                                ybins = lArCellBinningScheme.phiRange[part])
+                                                ybins = lArCellBinningScheme.phiRange[part],
+                                                pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiTotalOccupancyNames])
 
-        etaphiPercentageOccupancyMonArray.defineHistogram('passThrCut_'+part+',celleta_'+part+',cellphi_'+part+';CellOccupancyFractionVsEtaPhi_'+part,
+        allMonArray.defineHistogram('passThrCut,celleta,cellphi;CellOccupancyFractionVsEtaPhi',
                                                           title='Fraction of events in (#eta,#phi) for '+part+';cell #eta;cell #phi',
                                                           type='TEfficiency', path="2d_Occupancy/",
                                                           xbins = lArCellBinningScheme.etaRange[part],
-                                                          ybins = lArCellBinningScheme.phiRange[part])
+                                                          ybins = lArCellBinningScheme.phiRange[part],
+                                                          pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiPercentageOccupancyNames])
 
-        etaOccupancyMonArray.defineHistogram('celleta_'+part+';CellOccupancyVsEta_'+part, #needs weightedAverage/weightedEff
-                                             title='No. of events in (#eta) for '+part+';cell #eta;',
-                                             type='TH1F', path="1d_Occupancy/",
-                                             xbins = lArCellBinningScheme.etaRange[part])
+        allMonArray.defineHistogram('celleta;CellOccupancyVsEta', #needs weightedAverage/weightedEff
+                                                 title='No. of events in (#eta) for '+part+';cell #eta;',
+                                                 type='TH1F', path="1d_Occupancy/",
+                                                 cutmask='passThrCut',
+                                                 xbins = lArCellBinningScheme.etaRange[part],
+                                                 pattern=[(part, _) for _ in LArCellMonAlg.DoEtaOccupancyNames])
 
-        phiOccupancyMonArray.defineHistogram('cellphi_'+part+';CellOccupancyVsPhi_'+part,
+        allMonArray.defineHistogram('cellphi;CellOccupancyVsPhi',
                                              title='No. of events in (#phi) for '+part+';cell #phi;',
                                              type='TH1F', path="1d_Occupancy/",
-                                             xbins = lArCellBinningScheme.phiRange[part])
+                                             cutmask='passThrCut',
+                                             xbins = lArCellBinningScheme.phiRange[part],
+                                             pattern=[(part, _) for _ in LArCellMonAlg.DoPhiOccupancyNames])
 
-        #we also use this for averageEnergy: it will be derived at post processing stage (averageEnergy also needs #needs weightedAverage)
-        etaphiTotEnergyMonArray.defineHistogram('celleta_'+part+',cellphi_'+part+';TotalEnergyVsEtaPhi_'+part,
+        allMonArray.defineHistogram('celleta,cellphi;TotalEnergyVsEtaPhi',
                                                 title="Total Cell Energy vs (#eta,#phi) in "+part+";cell #eta;cell #phi",
-                                                weight='cellEnergy_'+part,
+                                                weight='cellEnergy',
                                                 type='TH2F', path="2d_TotalEnergy/", 
+                                                cutmask='passThrCut',
                                                 xbins = lArCellBinningScheme.etaRange[part],
-                                                ybins = lArCellBinningScheme.phiRange[part])
+                                                ybins = lArCellBinningScheme.phiRange[part],
+                                                pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiTotEnergyNames])
 
-        etaphiAvgQualityMonArray.defineHistogram('celleta_'+part+',cellphi_'+part+';TotalQualityVsEtaPhi_'+part,
+        allMonArray.defineHistogram('celleta,cellphi;TotalQualityVsEtaPhi',
                                                 title="Cell Quality vs (#eta,#phi) in "+part+";cell #eta;cell #phi",
-                                                weight='cellQuality_'+part,
+                                                weight='cellQuality',
                                                 type='TH2F', path="2d_AvgQuality/", #needs to be divided by '2D_occupancy' at post processing stage
+                                                cutmask='passThrCut',
                                                 xbins = lArCellBinningScheme.etaRange[part],
-                                                ybins = lArCellBinningScheme.phiRange[part])
+                                                ybins = lArCellBinningScheme.phiRange[part],
+                                                pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiAvgQualityNames])
 
-        etaphiAvgTimeMonArray.defineHistogram('celleta_'+part+',cellphi_'+part+';TotalTimeVsEtaPhi_'+part,
+        allMonArray.defineHistogram('celleta,cellphi;TotalTimeVsEtaPhi',
                                               title="Cell Time vs (#eta,#phi) in "+part+";cell #eta;cell #phi",
-                                              weight='cellTime_'+part,
+                                              weight='cellTime',
                                               type='TH2F', path="2d_AvgTime/", #needs to be divided by '2D_occupancy' at post processing stage
+                                                cutmask='passThrCut',
                                               xbins = lArCellBinningScheme.etaRange[part],
-                                              ybins = lArCellBinningScheme.phiRange[part])
+                                              ybins = lArCellBinningScheme.phiRange[part],
+                                              pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiAvgTimeNames])
 
-        etaphiFractionOverQthMonArray.defineHistogram('isPoorQuality_'+part+',celleta_'+part+',cellphi_'+part+';fractionOverQthVsEtaPhi_'+part,
+        allMonArray.defineHistogram('isPoorQuality,celleta,cellphi;fractionOverQthVsEtaPhi',
                                                       title="Fraction of Events in "+part+" for which the Quality Factor exceeds Threshold;cell #eta;cell #phi",
                                                       type='TEfficiency', path="2d_PoorQualityFraction/", 
+                                                cutmask='passThrCut',
                                                       xbins = lArCellBinningScheme.etaRange[part],
-                                                      ybins = lArCellBinningScheme.phiRange[part])
+                                                      ybins = lArCellBinningScheme.phiRange[part],
+                                                      pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiFractionOverQthNames])
 
-        etaphiFractionPastTthMonArray.defineHistogram('isLateTime_'+part+',celleta_'+part+',cellphi_'+part+';fractionPastTththVsEtaPhi_'+part,
+        allMonArray.defineHistogram('isLateTime,celleta,cellphi;fractionPastTththVsEtaPhi',
                                                       title="Fraction of Events in "+part+" for which the Time is further than Threshold;cell #eta;cell #phi",
                                                       type='TEfficiency', path="2d_FractionOutOfTime/", 
+                                                cutmask='passThrCut',
                                                       xbins = lArCellBinningScheme.etaRange[part],
-                                                      ybins = lArCellBinningScheme.phiRange[part])
-
+                                                      ybins = lArCellBinningScheme.phiRange[part],
+                                                      pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiFractionPastTthNames])
 
         pass #part loop for occupancy
 

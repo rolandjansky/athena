@@ -53,7 +53,7 @@ namespace MCTesting {
     }
   };
 
-  //cut-and-paste from HepMC/examples/example_BuildEventFromScratch.cxx
+  //cut-and-paste from HepMC/examples
   HepMC::GenEvent* buildEvent() {
     //
     // In this example we will place the following event into HepMC "by hand"
@@ -69,19 +69,6 @@ namespace MCTesting {
     //  7  !d!     1      1    5,5   -2.445   28.816    6.082   29.552    0.010
     //  8  !u~!    1     -2    5,5    3.962  -49.498  -26.687   56.373    0.006
 
-    // // first we construct a ParticleDataTable with all the particles we need
-    // ParticleDataTable pdt("my particle data table");
-    // // create a particle data entry for the proton and add it to pdt at the
-    // // same time
-    // pdt.insert( new ParticleData( "p+", 2212,   +1, 0.938,  -1, .5 ) );
-    // pdt.insert( new ParticleData( "d",  1,  -2./3., 0,      -1, .5 ) );
-    // pdt.insert( new ParticleData( "u~", -2, -1./3., 0,      -1, .5 ) );
-    // pdt.insert( new ParticleData( "W-", -24,    -1, 80.396,
-    //                    clifetime_from_width(2.06), 1 )    );
-    // pdt.insert( new ParticleData( "gamma", 22,   0, 0,      -1, 1  ) );
-
-    // // print out the GenParticle Data to the screen
-    // //    pdt.print();
 
     // First create the event container, with Signal Process 20, event number 1
     HepMC::GenEvent* evt = new HepMC::GenEvent( 20, 1 );

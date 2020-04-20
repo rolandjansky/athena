@@ -2352,10 +2352,6 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
 
   ATH_MSG_DEBUG("Start getting particles");
 
-  // pileupType.signal_particles(particles, isStable);
-  //pileupType.signal_particles(particles, ifs);
-  //ZH 28.07.2014 Try using TruthUtils instead:
-
   if (mcCollptr->size() >0)
     {
       HepMC::GenEvent::particle_const_iterator istart = mcCollptr->at(0)->particles_begin();

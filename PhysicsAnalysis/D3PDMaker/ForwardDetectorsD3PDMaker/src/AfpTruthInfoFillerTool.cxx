@@ -131,25 +131,19 @@ namespace D3PD {
 
 			HepMC::GenParticle* pi1=0;
 			HepMC::GenParticle* pi2=0;
-			//HepMC::GenParticle* p1=0;
 			HepMC::GenParticle* p2=0;
 
 			int pint = 0;
 			int pcount = 0;
 			
 			LogStream << MSG::DEBUG << " just before " << endmsg;
-			//HepMC::GenParticle* beam_p1 = (**mcTruBeg).beam_particle_1;
 			HepMC::GenParticle* beam_p1 = (**mcTruBeg).beam_particles().first;
-			//HepMC::GenParticle* beam_p2 = (**mcTruBeg).beam_particle_2;
 			HepMC::GenParticle* beam_p2 = (**mcTruBeg).beam_particles().second;
 			
 			LogStream << MSG::DEBUG << " beam1 pointer " << beam_p1 << endmsg;
 			LogStream << MSG::DEBUG << " beam2 pointer " << beam_p2 << endmsg;
 			LogStream << MSG::DEBUG << " just after " << endmsg;
-			
-			//double beam1_energy = beam_p1->momentum().e();
-			//double beam2_energy = beam_p2->momentum().e();
-			
+						
 			double beam1_energy = 0.; //MeV
 			double beam2_energy = 0.; //MeV
 			

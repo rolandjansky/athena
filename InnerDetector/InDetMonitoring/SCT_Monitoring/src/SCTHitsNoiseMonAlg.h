@@ -58,7 +58,6 @@ class SCTHitsNoiseMonAlg : public AthMonitorAlgorithm {
  
   mutable std::shared_mutex m_sharedMutex ATLAS_THREAD_SAFE;
 
-
   struct Data
   {
     std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyM[nThreshes];
@@ -87,10 +86,11 @@ class SCTHitsNoiseMonAlg : public AthMonitorAlgorithm {
     std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1];
   };
   std::unique_ptr<Data> m_data;
-  
+
   
   mutable atomic<int> m_events_lb{0};
   mutable atomic<int> m_eventsTrigger_lb{0};
+
   
   std::vector<int> m_nSP_buf{};   
   mutable atomic<int> m_nSP_pos{0};
@@ -99,7 +99,7 @@ class SCTHitsNoiseMonAlg : public AthMonitorAlgorithm {
   std::vector<int> m_nmaxHits_buf{};
   std::vector<Identifier> m_nmaxModule_buf{};
   std::vector<int> m_nminHits_buf{};
-  std::vector<Identifier> m_nminModule_buf{}; 
+
  
   /// Name of the L1 Type to use for filling the extra NO histograms
   StringProperty m_NOTriggerItem{this, "NOTrigger", "L1_RD0_EMPTY"};

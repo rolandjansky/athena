@@ -41,12 +41,9 @@ myMonGroup = helper.addGroup(
 ### STEP 5 ###
 # Configure histograms
 regionNames = ["EndCapC", "Barrel", "EndCapA"]
-N_REGIONS = len(regionNames)
 s_triggerNames = ["RNDM", "BPTX", "L1CAL", "TGC", "RPC", "MBTS", "COSM", "Calib"]
 N_TRIGGER_TYPES = len(s_triggerNames)
-N_HIT_BINS =  50
-FIRST_HIT_BIN =  0
-LAST_HIT_BIN  = N_HIT_BINS-FIRST_HIT_BIN-1 # This is already defined in SCT_MonitoringNumbers.h
+
 myMonGroup.defineHistogram(varname="trk_N", # ; means alias
                            type="TH1F",
                            title="Number of tracks"+";Number of tracks",
@@ -82,7 +79,7 @@ myMonGroup.defineHistogram(varname="trk_sct_hits", # ; means alias
                            type="TH1F",
                            title="SCT HITS per single Track"+";Num of Hits",
                            path="tracks", # path cannot be "".
-                           xbins=N_HIT_BINS, xmin=FIRST_HIT_BIN, xmax=LAST_HIT_BIN)
+                           xbins=sctMon.N_HIT_BINS, xmin=sctMon.FIRST_HIT_BIN, xmax=sctMon.LAST_HIT_BIN)
 myMonGroup.defineHistogram(varname="trk_eta", # ; means alias
                            type="TH1F",
                            title="Track Eta"+";#eta",
@@ -103,7 +100,7 @@ myMonGroup.defineHistogram(varname="tracksPerRegion", # ; means alias
                            type="TH1F",
                            title="Number of tracks in eta regions",
                            path="tracks", # path cannot be "".
-                           xbins=N_REGIONS, xmin=0, xmax=N_REGIONS, xlabels=regionNames)
+                           xbins=sctMon.N_REGIONS, xmin=0, xmax=sctMon.N_REGIONS, xlabels=regionNames)
 
 
 for region in regionNames:

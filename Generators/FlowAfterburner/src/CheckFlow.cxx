@@ -161,9 +161,6 @@ StatusCode CheckFlow::initialize(){
 }
 
 StatusCode CheckFlow::execute() {
-  //   HepMC::IO_PDG_ParticleDataTable pdg_io("PDGTABLE");
-  //   static HepMC::ParticleDataTable *pp = NULL;
-  //   if (pp == NULL) pp = pdg_io.read_particle_data_table();
   msg(MSG::INFO) << ">>> CheckFlow from execute" << endmsg;
 
   //
