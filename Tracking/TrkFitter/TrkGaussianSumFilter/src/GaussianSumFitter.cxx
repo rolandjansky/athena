@@ -705,17 +705,16 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
     multiComponentState = multiComponentStateOnSurfaceNearestOrigin->components();
   }
   // Extrapolate to perigee, taking material effects considerations into account
-  Trk::MultiComponentState* stateExtrapolatedToPerigee =
-    m_extrapolator->extrapolate(*multiComponentState, perigeeSurface, m_directionToPerigee, false, particleHypothesis)
-      .release();
+  Trk::MultiComponentState stateExtrapolatedToPerigee =
+    m_extrapolator->extrapolate(*multiComponentState, perigeeSurface, m_directionToPerigee, false, particleHypothesis);
 
-  if (!stateExtrapolatedToPerigee) {
+  if (stateExtrapolatedToPerigee.empty()) {
     ATH_MSG_DEBUG("Track could not be extrapolated to perigee... returning 0");
     return nullptr;
   }
 
   // Clean-up & pointer reset
-  if (!multiComponentStateOnSurfaceNearestOrigin && stateExtrapolatedToPerigee != multiComponentState) {
+  if (!multiComponentStateOnSurfaceNearestOrigin) {
     delete multiComponentState;
   }
   multiComponentState = nullptr;
@@ -729,7 +728,7 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
   }
   // Determine the combined state as well to be passed to the MultiComponentStateOnSurface object
   std::unique_ptr<Trk::TrackParameters> combinedPerigee =
-    MultiComponentStateCombiner::combine(*stateExtrapolatedToPerigee, true);
+    MultiComponentStateCombiner::combine(stateExtrapolatedToPerigee, true);
 
   // Perigee is given as an additional MultiComponentStateOnSurface
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);
@@ -739,12 +738,17 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
     // GC: protection against 0-momentum track .. this check should NEVER be needed.
     //    actual cutoff is 0.01eV track
     ATH_MSG_ERROR("makePerigee() about to return with 0 momentum!! Returning null instead");
-    delete stateExtrapolatedToPerigee;
     return nullptr;
   }
 
-  const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface = new MultiComponentStateOnSurface(
-    nullptr, combinedPerigee.release(), stateExtrapolatedToPerigee, nullptr, nullptr, pattern, modeQoverP);
+  const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
+    new MultiComponentStateOnSurface(nullptr,
+                                     combinedPerigee.release(),
+                                     MultiComponentStateHelpers::clone(stateExtrapolatedToPerigee).release(),
+                                     nullptr,
+                                     nullptr,
+                                     pattern,
+                                     modeQoverP);
   ATH_MSG_DEBUG("makePerigee() returning sucessfully!");
   return perigeeMultiStateOnSurface;
 }
