@@ -176,7 +176,7 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   std::vector<Identifier> m_chambersId;
   std::vector<IdentifierHash> m_chambersIdHash;
   //  std::map<std::string,float> m_hitsperchamber_map;//DEV to be put back?
-  std::map<std::string,float> m_tubesperchamber_map; 
+  std::map<std::string,int> m_tubesperchamber_map; 
 
   bool m_doMdtESD ; 
 
@@ -203,7 +203,6 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   std::string getChamberName(const Muon::MdtPrepData*) const;
   std::string getChamberName(Identifier) const;
   StatusCode getChamber(IdentifierHash id, MDTChamber* &chamber) const;
- 
   //Control for which histograms to add
   bool m_do_mdtchamberstatphislice;
   bool m_do_mdtChamberHits;
