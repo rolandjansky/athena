@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaPython/python/Bindings.py
 # @author: Sebastien Binet <binet@cern.ch>
@@ -139,17 +139,6 @@ def py_svc(svcName, createIf=True, iface=None):
             instantiated.
      @param iface: type one wants to cast the service to (can be a string or the
             cppyy type)
-
-    Ex:
-     ## retrieve default interface (ie: GaudiKernel/IService)
-     svc = py_svc('ThinningSvc/AodThinningSvc')
-     assert(type(svc) == cppyy.gbl.IService)
-
-     ## retrieve special interface IThinningSvc
-     ## Warning: a dict has to have been generated beforehand !!
-     svc = py_svc('ThinningSvc/AodThinningSvc', createIf=True,
-                  iface=cppyy.gbl.IThinningSvc)
-     assert(type(svc) == cppyy.gbl.IThinningSvc)
     """
     fullName = svcName
     s        = svcName.split('/')
@@ -303,53 +292,6 @@ def _py_init_StoreGate():
     _py_init_StoreGateSvc()
     from StoreGateBindings.Bindings import StoreGate
     return StoreGate
-
-### pythonizations for IThinningSvc
-@memoize
-def _py_init_ThinningSvc():
-    import cppyy
-    # IThinningSvc bindings from dictionary
-    _load_dict( "libAthenaPythonDict" )
-
-    # we also need StoreGate bindings to be initialized
-    sgbindings = _py_init_StoreGateSvc()  # noqa: F841
-
-    # make sure the global C++ namespace has been created
-    gbl = cppyy.makeNamespace('')
-
-    # make sure AthenaInternal namespace has been created
-    gbl.AthenaInternal = cppyy.makeNamespace('AthenaInternal')
-    
-    #global py_thinning
-    py_thinning = cppyy.gbl.AthenaInternal.thinContainer
-
-    #global py_thinning_idx
-    py_thinning_idx = cppyy.gbl.AthenaInternal.thinIdxContainer
-
-    # retrieve the IThinningSvc class
-    #global IThinningSvc
-    IThinningSvc = cppyy.gbl.IThinningSvc
-    try: IThinningSvc.RemovedIdx = cppyy.gbl.AthenaInternal.thinRemovedIdx()
-    except TypeError: pass
-    
-    # add specialized filter method
-    from operator import isCallable
-    from string import lower
-    def filter( self, container, selection, op = 'and' ):
-        if isCallable(selection):
-            selection = map( selection, container )
-        if   lower(op) == 'and' : op = 0 # IThinningSvc.Operator.And
-        elif lower(op) == 'or'  : op = 1 # IThinningSvc.Operator.Or
-        else                    : op = 0 # IThinningSvc default
-        return py_thinning( self, container, selection, op )
-    IThinningSvc.filter = filter
-
-    # add specialized index method
-    def index( self, container, idx ):
-        return py_thinning_idx( self, container, idx )
-    IThinningSvc.index = index
-
-    return IThinningSvc
 
 ### pythonizations for IIncidentSvc
 @memoize
@@ -940,9 +882,6 @@ def _setup():
     _register = _PyAthenaBindingsCatalog.register
     _register('StoreGateSvc', _py_init_StoreGateSvc)
     _register('StoreGate',    _py_init_StoreGate   )
-
-    _register( 'ThinningSvc', _py_init_ThinningSvc)
-    _register('IThinningSvc', _py_init_ThinningSvc)
 
     _register( 'IncidentSvc', _py_init_IIncidentSvc)
     _register('IIncidentSvc', _py_init_IIncidentSvc)

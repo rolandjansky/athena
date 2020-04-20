@@ -34,27 +34,25 @@ public:
   virtual ~IMaterialMixtureConvolution() = default;
 
   //!< Convolution with full material properties
-  virtual std::unique_ptr<MultiComponentState> update(const MultiComponentState&,
-                                                      const Layer&,
-                                                      PropDirection direction = anyDirection,
-                                                      ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  virtual MultiComponentState update(const MultiComponentState&,
+                                     const Layer&,
+                                     PropDirection direction = anyDirection,
+                                     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   //!< Convolution with pre-measurement-update material properties
-  virtual std::unique_ptr<MultiComponentState> preUpdate(
-    const MultiComponentState&,
-    const Layer&,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  virtual MultiComponentState preUpdate(const MultiComponentState&,
+                                        const Layer&,
+                                        PropDirection direction = anyDirection,
+                                        ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   //!< Convolution with post-measurement-update material properties
-  virtual std::unique_ptr<MultiComponentState> postUpdate(
-    const MultiComponentState&,
-    const Layer&,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  virtual MultiComponentState postUpdate(const MultiComponentState&,
+                                         const Layer&,
+                                         PropDirection direction = anyDirection,
+                                         ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   //!< Retain for now redundant simplified material effects
-  virtual std::unique_ptr<MultiComponentState> simplifiedMaterialUpdate(
+  virtual MultiComponentState simplifiedMaterialUpdate(
     const MultiComponentState& multiComponentState,
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CHAMBERDERIVS_H
@@ -14,8 +14,6 @@
 #include "TMatrixD.h"
 #include "TMatrixDSym.h"
 #include "TMatrixTUtils.h"
-
-using namespace std;
 
 namespace CLHEP {
   class HepSymMatrix;

@@ -23,10 +23,12 @@ void Trk::RoT_Extractor::extract(std::vector<const RIO_OnTrack*>& rots, const st
     if ( convertCompRots && nullptr == rot) {
       const Trk::CompetingRIOsOnTrack *comprot =
         dynamic_cast<const Trk::CompetingRIOsOnTrack*>(*it);
-      if (comprot)
+      if (comprot) {
         rot = &comprot->rioOnTrack(comprot->indexOfMaxAssignProb());
+}
     }
-    if ( nullptr != rot ) rots.push_back(rot);
+    if ( nullptr != rot ) { rots.push_back(rot);
+}
   }
   }
 
@@ -37,8 +39,9 @@ void Trk::RoT_Extractor::extract(const Trk::RIO_OnTrack*& rot,
   if (rot==nullptr) {
     const Trk::CompetingRIOsOnTrack *comprot =
       dynamic_cast<const Trk::CompetingRIOsOnTrack*>(meas);
-    if (comprot)
+    if (comprot) {
       rot = &comprot->rioOnTrack(comprot->indexOfMaxAssignProb());
+}
   }
   }
 
