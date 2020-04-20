@@ -97,7 +97,7 @@ class HLTTauMonTool : public IHLTMonTool {
   const xAOD::EmTauRoI * findLVL1_ROI(const TrigRoiDescriptor * roiDesc);
 
   /// Method for Turn On Curves
-  void examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
+  StatusCode examineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
   StatusCode TruthTauEfficiency(const std::string & trigItem, const std::string & TauCont_type, const std::string & goodTauRefType);
   StatusCode RecoTauEfficiency(const std::string & trigItem);
   StatusCode TauEfficiency(const std::string & trigItem, const std::string & TauDenom, const std::string & goodTauRefType);
