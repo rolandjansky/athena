@@ -35,6 +35,8 @@ if not 'vp1SpacePoints' in dir(): vp1SpacePoints=False
 if not 'vp1Cavern' in dir(): vp1Cavern=False
 if not 'vp1NoAutoConf' in dir(): vp1NoAutoConf=False
 if not 'vp1Trig' in dir(): vp1Trig=False
+if not 'vp1MuonAGDDFiles' in dir(): vp1MuonAGDDFiles=[]
+if not 'vp1MuonAGDD2GeoSwitches' in dir(): vp1MuonAGDD2GeoSwitches=[]
 if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
 if not 'vp1MuonLayout' in dir(): vp1MuonLayout=""
 
@@ -262,17 +264,6 @@ from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 from AthenaCommon.AppMgr import ToolSvc
 
-if vp1Muon and len(vp1NSWAGDDFiles)>0:
-    printfunc ("*** VP1 NOTE *** You specified custom vp1NSWAGDDFiles, creating NSWAGDDTool to read NSWAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1NSWAGDDFiles)))
-    from AthenaCommon.AppMgr import theApp
-    from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
-    AGDD2Geo = AGDDtoGeoSvc()
-    theApp.CreateSvc += ["AGDDtoGeoSvc"]
-    svcMgr += AGDD2Geo
-    from AthenaCommon import CfgMgr
-    from MuonAGDD.MuonAGDDConf import NSWAGDDTool
-    NSWAGDDTool = CfgMgr.NSWAGDDTool("NewSmallWheel", DefaultDetector="Muon", ReadAGDD=False, XMLFiles=vp1NSWAGDDFiles, Volumes=["NewSmallWheel"])
-    AGDD2Geo.Builders += [ NSWAGDDTool ]
 if vp1Muon and vp1MuonLayout!="":
     printfunc ("*** VP1 NOTE *** You specified custom vp1MuonLayout, using %s as muon geometry"%vp1MuonLayout)
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
@@ -291,7 +282,43 @@ if vp1Cavern:
 #  - Major geometry version is greater than 10
 if (vp1Muon):
     from AtlasGeoModel import Agdd2Geo
-    
+    if len(vp1MuonAGDDFiles)>0:
+        printfunc ("*** VP1 NOTE *** You specified custom vp1MuonAGDDFiles, configuring MuonAGDDTool to read MuonAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1MuonAGDDFiles)))
+        if hasattr(svcMgr,"AGDDtoGeoSvc"):
+            for b in getattr(svcMgr,"AGDDtoGeoSvc").Builders:
+                if b.name()=="MuonSpectrometer":
+                    b.ReadAGDD=False
+                    b.XMLFiles=vp1MuonAGDDFiles
+                    if len(vp1MuonAGDD2GeoSwitches)>0:
+                        printfunc ("*** VP1 NOTE *** You specified custom vp1MuonAGDD2GeoSwitches, configuring MuonAGDDTool to build volumes: '%s'"%(', '.join(vp1MuonAGDD2GeoSwitches)))
+                        b.Volumes=vp1MuonAGDD2GeoSwitches
+                    else:
+                        # the default AGDD2GeoSwitches for Run2
+                        b.Volumes=["ECT_Toroids",
+                                   "BAR_Toroid",
+                                   "Feet",
+                                   "RailAssembly",
+                                   "JFSH_Shield",
+                                   "JDSH_Shield",
+                                   "JTSH_Shield",
+                                   "pp2",
+                                   "MBAP_AccessPlatform",
+                                   "MBWH_BigWheels",
+                                   "SADL_CalorimeterSaddle",
+                                   "TBWH_BigWheels",
+                                   "TGC3_BigWheels",
+                                   "TGC1_BigWheels",
+                                   "MDTRail",
+                                   "servicesAtZ0",
+                                   "HFTruckRail",
+                                   "RUN2_Services"]
+    if len(vp1NSWAGDDFiles)>0:
+        printfunc ("*** VP1 NOTE *** You specified custom vp1NSWAGDDFiles, configuring NSWAGDDTool to read NSWAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1NSWAGDDFiles)))
+        if hasattr(svcMgr,"AGDDtoGeoSvc"):
+            for b in getattr(svcMgr,"AGDDtoGeoSvc").Builders:
+                if b.name()=="NewSmallWheel":
+                    b.ReadAGDD=False
+                    b.XMLFiles=vp1NSWAGDDFiles
 
 #MagneticField:
 import MagFieldServices.SetupField
