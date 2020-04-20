@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Simple test of Echo_tf.py
 # $Id: test_Echo_tf.py 573315 2013-12-02 15:45:55Z graemes $
@@ -41,4 +41,7 @@ class Echotest(unittest.TestCase):
             self.assertEqual(isinstance(md, dict), True)
 
 if __name__ == '__main__':
+    if not os.path.isdir('test_Echo'):
+        os.mkdir ('test_Echo')
+    os.chdir ('test_Echo')
     unittest.main()

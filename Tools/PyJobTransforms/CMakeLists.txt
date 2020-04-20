@@ -24,6 +24,7 @@ foreach( test Echo_tf Sleep_tf
          trfValidateRootFile )
    atlas_add_test( ${test}
       SCRIPT test/test_${test}.py
+      PROPERTIES TIMEOUT 300
    )
 endforeach()
 
