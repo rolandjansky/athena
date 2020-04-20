@@ -57,7 +57,6 @@
 + Generators/TruthUtils
 #+ InnerDetector/InDetRecTools/InDetTrackSelectionTool
 #+ InnerDetector/InDetRecTools/TrackVertexAssociationTool
-#+ MuonSpectrometer/MuonIdHelpers
 + MuonSpectrometer/MuonStationIndex
 #+ PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
