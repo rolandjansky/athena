@@ -17,9 +17,9 @@ eflowRecTrack::eflowRecTrack(
     const ElementLink<xAOD::TrackParticleContainer>& trackElemLink,
     const ToolHandle<eflowTrackExtrapolatorBaseAlgTool>& theTrackExtrapolatorTool) :
     m_trackId(-1), m_trackElemLink(trackElemLink), m_track(*trackElemLink), m_type(5),
-    m_pull15(0.0),
-    m_eExpect(1.0), m_varEExpect(0.0),  m_isInDenseEnvironment(false), m_isSubtracted(false), m_hasBin(true),
-    m_layerHED(-1), 
+    m_pull15(0.0),  m_layerHED(-1),
+    m_eExpect(1.0), m_varEExpect(0.0),m_isInDenseEnvironment(false), m_isSubtracted(false),
+    m_hasBin(true),
     m_trackCaloPoints(theTrackExtrapolatorTool->execute(m_track)) {
 }
 
