@@ -508,12 +508,10 @@ namespace MuonCalib {
 		pos[1] = (*particle)->production_vertex()->point3d().y();
 		pos[2] = (*particle)->production_vertex()->point3d().z();
 	      }
-	      //.x(),(*particle)->production_vertex()->point3d().y(), (*particle)->production_vertex()->point3d().z() );
 	      Amg::Vector3D mom( (*particle)->momentum().x(), (*particle)->momentum().y(), (*particle)->momentum().z() );
 	      double kinEnergy( p[3] ) ;
 	      int PDGCode( (*particle)->pdg_id() ) ;
 	    
-	      //	    std::cout << " MuonCalibAlg TruthEvent Muon BARCODE for Event Collection " << (*particle)->barcode() << " energy " <<  kinEnergy << " code " << PDGCode << " pos x " << pos[0] << " pos y " << pos[1] << " pos z " << pos[2] <<std::endl;
 	      MuonCalibTruth* truth = new MuonCalibTruth();
 	    
 	      truth->setPosition(pos);

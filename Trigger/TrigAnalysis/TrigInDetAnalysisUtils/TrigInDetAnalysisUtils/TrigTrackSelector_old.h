@@ -441,24 +441,6 @@ public:
     
     double pT  = q*track->pt();
 
-    //// BP this is slightly confusing, since d0 =? a0?,
-    //// ToolHandle<Trk::ITruthToTrack> truthToTrack;
-    //// const HepMC::GenParticle* particle = track->genParticle();
-    //// const HepMC::GenParticle* gp = track->genParticle();
-    //// boost::scoped_ptr<const Trk::TrackParameters> generatedTrackPerigee( truthToTrack->makePerigeeParameters(particle) );
-    //// const Trk::TrackParameters* generatedTrackPerigee(0);
-    //// cout<<"BP BP here "<<endl;
-    //// if ( gp->production_vertex() ){
-    ////   cout<<"BP BP gp->production_vertex() "<<endl;
-    ////   generatedTrackPerigee = truthToTrack->makePerigeeParameters( gp );
-    ////   if (generatedTrackPerigee == NULL && gp->barcode() > 1000000 ) {
-    ////      std::cout<<"BP No perigee available for interacting truth particle."<<std::endl;
-    ////   }
-    //// }
-
-    //// generatedTrackPerigee = truthToTrack->makePerigeeParameters( gp );
-    //// cout<<"BP BP "<<generatedTrackPerigee->parameters()[Trk::d0]<<endl;
-    //// double d0 = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::d0] : 999.;
 
     double d0  = 0;
 
@@ -509,12 +491,6 @@ public:
     /// the production vertex? or swim the track to the perigee point with respect 
     /// to 0,0 and use the parameters there? 
 
-    /// const HepMC::GenParticle* gp = track->genParticle();
-    /// const HepMC::GenVertex*   gv = gp->production_vertex();
-
-    ////    double x0 = gv->point3d().x();
-    ////    double y0 = gv->point3d().x();
-    ////    double z0 = gv->point3d().z();
 
     /// what to do with these???
 		

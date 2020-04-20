@@ -2917,7 +2917,6 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
   //int nparticle=0;
   for (unsigned int ievt=0; ievt<nb_mc_event; ++ievt){
-    //const HepMC::GenEvent* genEvent = *(gen->begin());
     const HepMC::GenEvent* genEvent = SimTracks->at(ievt);
 
     int nprimperevent=0;
@@ -3024,15 +3023,11 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       m_truthvtx_R->Fill(truthvtx_R);
       m_truthvtx_z->Fill(primaryVtx.z());
 
-      //HepGeom::Point3D<double>  startVertex(particle->production_vertex()->point3d().x(),
-      //particle->production_vertex()->point3d().y(),
-      //particle->production_vertex()->point3d().z());
       Amg::Vector3D  startVertex(particle->production_vertex()->point3d().x(),particle->production_vertex()->point3d().y(),particle->production_vertex()->point3d().z());
       // Detector paper cuts: impact parameter <2 and barcode reasonable
       // JFA (Sep 18, 2008): replace IP cut by cut on difference between primary and track start vertex
       // If (startVertex.perp()>2) isPrimary=false;
       // JFA (Feb. 2, 2009): Replace cut on difference between IP and startvertex by a cut on truth d0
-      //if (genEvent->signal_process_vertex() != 0 && primaryVtx.distance(startVertex) > 2.0) isPrimary=false;
       if (!singPart && fabs(truth_d0corr) > 2.0) isPrimary=false;
       if (particle->barcode()>MAXBARCODE || particle->barcode()==0) isPrimary=false;
       isDetPaperCut=isPrimary;
@@ -3047,9 +3042,6 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       if (reDefGenPhi<0) reDefGenPhi+=2*m_Pi;
 
       if (particle->end_vertex() != 0) {
-	//HepGeom::Point3D<double>  endVertex(particle->end_vertex()->point3d().x(),
-	//particle->end_vertex()->point3d().y(),
-	//particle->end_vertex()->point3d().z());
 
 	Amg::Vector3D  endVertex(particle->end_vertex()->point3d().x(),
 			      particle->end_vertex()->point3d().y(),
@@ -3063,7 +3055,6 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	// Look only for particles interacting inside the ID
 	if(endVertex.perp()<1000 && fabs(endVertex.z())<2500)  {
 	  //log<< MSG::ERROR << "****** Particle with end vertex inside ID ******" << endmsg;
-	  //log << MSG::ERROR<<"PdgCode="<<particle->pdg_id() << ", status=" << particle->status()<< ", barcode=" << particle->barcode()<< ", E = "<< particle->momentum().e()/1000<< ", m = "<< particle->momentum().m()/1000<< ", pT = "<< particle->momentum().perp()/1000<< ", eta = "<<particle->momentum().pseudoRapidity()<< ", phi = "<<particle->momentum().phi()<< ", stavtx = "<<startVertex.perp()<< ", endvtx = "<<endVertex.perp()<< endmsg;
 
 	  // First iteration: Flag if nuclear interaction
 
@@ -3080,7 +3071,6 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 		{
 		  n_out++;
 		}
-	      //log << MSG::ERROR <<"PdgCode="<<(*child)->pdg_id() << ", status=" << (*child)->status() << ", barcode=" << (*child)->barcode()	<< ", E = "<< (*child)->momentum().e()/1000<< ", m = "<< (*child)->momentum().m()/1000<< ", pT = "<< (*child)->momentum().perp()/1000<< ", eta = "<< (*child)->momentum().pseudoRapidity() << ", phi = "<<particle->momentum().phi()<< ", stavtx = "<<(*child)->production_vertex()->point3d().perp()<< endmsg;
 	      mass_final += (*child)->momentum().m()/1000;
 	    }
 	  }
