@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // SUMMARY: This code implements a "particle decayer" to allow us to augment the standard 
@@ -113,7 +113,7 @@ StatusCode ParticleDecayer::changeMass( HepMC::GenParticle* genpart, double newM
    double pz = p*cos(theta);
    //Fill the four-momentum
    const CLHEP::HepLorentzVector updatedLV(px,py,pz,e);
-   genpart->set_momentum(updatedLV);
+   genpart->set_momentum(HepMC::FourVector(updatedLV.x(),updatedLV.y(),updatedLV.z(),updatedLV.e()));
    genpart->set_generated_mass(newMass);
    return StatusCode::SUCCESS;
 }

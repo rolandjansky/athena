@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/NavFourMom
                           GaudiKernel
                           PRIVATE
+                          Generators/AtlasHepMC
                           Control/CxxUtils
                           Generators/GenAnalysisTools/TruthHelper )
 
