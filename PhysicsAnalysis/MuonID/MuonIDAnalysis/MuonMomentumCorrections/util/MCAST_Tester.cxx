@@ -27,16 +27,17 @@
 #include "xAODCore/ShallowCopy.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
+#include "PATInterfaces/SystematicCode.h"
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
 #include "AsgTools/Check.h"
 #include "AsgTools/AnaToolHandle.h"
-#include "PATInterfaces/SystematicCode.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "AsgMessaging/MessageCheck.h"
+
+ANA_MSG_HEADER(msgMMC)
 
 int main( int argc, char* argv[] ) {
 
@@ -190,10 +191,9 @@ int main( int argc, char* argv[] ) {
 
   std::vector< CP::SystematicSet >::const_iterator sysListItr;
 
-  MsgStream log(Athena::getMessageSvc(), "MCAST_Tester");
-  log<<MSG::INFO<<"main() - Systematics are "<<endmsg;
+  msgMMC::ANA_MSG_INFO("main() - Systematics are ");
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr )
-    log<<MSG::INFO<<sysListItr->name()<<endmsg;
+    msgMMC::ANA_MSG_INFO(sysListItr->name());
 
   // branches to be stored
   Float_t InitPtCB( 0. ), InitPtID( 0. ), InitPtMS( 0. );
