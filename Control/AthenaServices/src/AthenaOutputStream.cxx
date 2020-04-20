@@ -598,7 +598,7 @@ StatusCode AthenaOutputStream::write() {
 
    // Connect the output file to the service
    if (!streamer->connectOutput(outputFN).isSuccess()) {
-      ATH_MSG_ERROR("Could not connectOutput");
+      ATH_MSG_FATAL("Could not connectOutput");
       return StatusCode::FAILURE;
    }
    ATH_MSG_DEBUG("connectOutput done for " + outputFN);
@@ -616,9 +616,10 @@ StatusCode AthenaOutputStream::write() {
       ATH_MSG_FATAL("commitOutput failed.");
       failed = true;
    }
-   if (!failed) {
-      m_events++;
+   if (failed) {
+      return(StatusCode::FAILURE);
    }
+   m_events++;
    return(StatusCode::SUCCESS);
 }
 
