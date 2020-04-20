@@ -24,28 +24,7 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "FastCaloSimAthenaPool/FastShowerInfoContainer.h"
 
-/*
-  #if FastCaloSim_project_release_v1 == 12
-  #include "CLHEP/HepPDT/ParticleDataTable.hh"
-  #else
-  #include "HepPDT/ParticleDataTable.hh"
-  #endif
-*/
-/*
-  #include "AtlfastEvent/CollectionDefs.h"
 
-  namespace HepMC_helper{
-  class IMCselector;
-  }
-
-  namespace FastShower{
-  class GridletForger;
-  }
-
-  namespace Atlfast {
-  class TesIO;
-  }
-*/
 
 namespace HepMC {
   class GenParticle;
