@@ -11,11 +11,13 @@ void ChipMap_RD53B::fillChipMap(int eta, int phi, int tot) {
   phi = correctPhi(phi);
   if (phi<0) return;
   
-//   std::cout << "CHECK --> eta/phi = " << eta << "/" << phi << std::endl;
-  
   m_fired_pixels.at(eta).at(phi) = true;
   int mytot = tot/16.+1;
   m_tots.at(eta).at(phi) = mytot>15 ? 15 : mytot;
+  
+  // TESTING
+//   m_tots.at(eta).at(phi) = tot;
+
   m_nfired_pixels++;
 }
 

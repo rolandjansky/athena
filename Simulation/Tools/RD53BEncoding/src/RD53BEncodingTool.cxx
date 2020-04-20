@@ -86,6 +86,10 @@ StatusCode RD53BEncodingTool::addStream(Identifier id, int chips) {
 void RD53BEncodingTool::resetStreamsIfNeeded(int event) {
   if (m_eventsPerStream==1 or (m_eventsPerStream>1 and (event)%m_eventsPerStream==0)) {
     m_stream_map.reset();
+    if (m_testStream) {
+     m_testStreams.clear();
+     m_testCores.clear();
+    }
   }
 }
 
@@ -172,14 +176,14 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
   // they are defined in the RD53B manual 
   // as well as the algorithm
   // https://cds.cern.ch/record/2665301
-  std::string NS_new                = "1" ;
-  std::string NS_old                = "0" ;
-  float NS   = 1.;
-  float TagX = 8.;
-  float TagY = 11.;  
-  float ccol_bits         = 6. ;
-  float crow_bits         = 8. ;
-  float islast_isneighbour = 2. ;
+  std::string NS_new       = "1" ;
+  std::string NS_old       = "0" ;
+  float NS                 =  1. ;
+  float TagX               =  8. ;
+  float TagY               =  11.;  
+  float ccol_bits          =  6. ;
+  float crow_bits          =  8. ;
+  float islast_isneighbour =  2. ;
   
   // the tag is a simple counter from 0 to 207 incrementing every event and wrapping around
   int chiptag = m_testevent-207.*floor(m_testevent/207.);
@@ -373,7 +377,7 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
       // 3) build the stream to add NS+TagX+ccol+islast+isneighbour+crow[opt.]+bitmap+tot
       // 4) add the needed bits to the new stream taking care of how many NS you need
 
-      if (m_testevent>1 and new_event and (m_eventsPerStream==1 or (m_eventsPerStream>1 and event%m_eventsPerStream==0))) {
+      if (event>0 and new_event and (m_eventsPerStream==1 or (m_eventsPerStream>1 and event%m_eventsPerStream==0))) {
 
         // 1) add all the orphans to the stream
         streams.back()+=orphan_bits;
@@ -884,6 +888,17 @@ void RD53BEncodingTool::fillDataRates() {
       }
     }
   }
+  
+  if (m_testStream) {
+    if (int(m_testStreams.back())%64>0) {
+      int orphan_bits = 64-int(m_testStreams.back())%64;
+      for (int orp=0; orp<orphan_bits; orp++)
+        m_testStreamFile << "0";
+      m_testStreamFile << "\n";
+      m_testStreams.back() += float(orphan_bits);
+    }
+  }
+  
   ATH_MSG_DEBUG("In RD53BEncodingAlg::fillDataRates ... done!" );
 }
   
