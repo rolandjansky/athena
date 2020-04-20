@@ -751,8 +751,13 @@ if hasattr(runArgs, "outputTXTFile"):
     with open(eventsFile) as f:
         contents = f.read()
         count_ev = contents.count("<event>")
-        
     print "MetaData: %s = %s" % ("Number of produced LHE events ", count_ev)
+elif hasattr(runArgs, "inputGeneratorFile"):
+    # counting the number of events in LHE output
+    with open(eventsFile) as f:
+        contents = f.read()
+        count_ev = contents.count("<event>")
+    print "MetaData: %s = %s" % ("Number of input LHE events ", count_ev)
 
 if _checkattr("description", required=True):
     msg = evgenConfig.description
