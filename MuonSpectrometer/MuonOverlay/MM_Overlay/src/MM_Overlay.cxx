@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2006, 2007
@@ -76,11 +76,14 @@ namespace Overlay {
      // Use all other values of signal digit :: FIX ME!!
       float time = std::min( sig_time, bkg_time );
       float charge = mainDigit.stripResponseCharge()[0] + ovlDigit.stripResponseCharge()[0];
+      int pos = mainDigit.stripResponsePosition()[0];
       std::vector<float> Time;
       std::vector<float> Charge;
+      std::vector<int> Position;
       Time.push_back(time);
       Charge.push_back(charge);
-      mainDigit = MmDigit(mainDigit.identify(), Time, mainDigit.stripResponsePosition(),Charge,mainDigit.chipResponseTime(),mainDigit.chipResponsePosition(),mainDigit.chipResponseCharge(),mainDigit.stripTimeForTrigger(),mainDigit.stripPositionForTrigger(),mainDigit.stripChargeForTrigger(),mainDigit.MMFE_VMM_idForTrigger(),mainDigit.VMM_idForTrigger());
+      Position.push_back(pos);
+      mainDigit = MmDigit(mainDigit.identify(), Time, Position, Charge, mainDigit.chipResponseTime(), mainDigit.chipResponsePosition(), mainDigit.chipResponseCharge(), mainDigit.stripTimeForTrigger(), mainDigit.stripPositionForTrigger(), mainDigit.stripChargeForTrigger(), mainDigit.MMFE_VMM_idForTrigger(), mainDigit.VMM_idForTrigger());
     }
   }
 
