@@ -308,6 +308,11 @@ StatusCode MagField::AtlasFieldSvc::updateMapFilenames ATLAS_NOT_THREAD_SAFE (IO
 {
     ATH_MSG_INFO( "reading magnetic field map filenames from COOL" );
 
+    ATH_MSG_INFO( "mapHandle isValid " << (int)m_mapHandle.isValid() );
+    ATH_MSG_INFO( "mapHandle key " << m_mapHandle.key() );
+    ATH_MSG_INFO( "mapHandle size " << m_mapHandle->size() );
+
+    
     std::string fullMapFilename("");
     std::string soleMapFilename("");
     std::string toroMapFilename("");

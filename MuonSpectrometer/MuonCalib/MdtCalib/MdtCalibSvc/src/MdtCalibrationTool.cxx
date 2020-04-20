@@ -16,8 +16,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-
 // this package
 #include "MdtCalibSvc/MdtCalibrationTool.h"
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
@@ -43,6 +41,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/PhysicalConstants.h"
+// MagField cache
+#include "MagFieldElements/AtlasFieldCache.h"
 
 //
 // private helper functions
@@ -58,7 +58,8 @@ public:
     return m_muonGeoManager->getMdtReadoutElement( id );
   }
 
-  double applyCorrections( MdtCalibHit &hit,
+  double applyCorrections( MagField::AtlasFieldCache& fieldCache,
+                           MdtCalibHit &hit,
 			   const MdtCalibrationSvcInput &input,
 			   const MdtCalibrationSvcSettings &settings,
 			   double adcCal,
@@ -75,9 +76,6 @@ public:
   MsgStream *m_log; //!< Pointer to MsgStream - MdtCalibrationTool now owns this
   bool m_verbose;   //!< True if we should print MSG::VERBOSE messages
   bool m_debug;     //!< True if we should print MSG::DEBUG messages
-
-  //handle of b-field service - job option
-  ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
   /* T0 Shift Service -- Per-tube offsets of t0 value */
   ServiceHandle<MuonCalib::IShiftMapTools> m_t0ShiftSvc;
@@ -104,7 +102,6 @@ MdtCalibrationTool::Imp::Imp(std::string name) :
   m_log(0),
   m_verbose(false),
   m_debug(false),
-  m_magFieldSvc("AtlasFieldSvc", name),
   m_t0ShiftSvc("MdtCalibrationT0ShiftSvc", name),
   m_tMaxShiftSvc("MdtCalibrationTMaxShiftSvc", name),
   m_doT0Shift(false),
@@ -134,7 +131,6 @@ MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::strin
   declareProperty("DoSlewingCorrection",m_imp->settings.doSlew );
   declareProperty("DoBackgroundCorrection",m_imp->settings.doBkg );
   declareProperty("ResolutionTwinTube",   m_imp->m_resTwin = 1.05, "Twin Tube resolution");
-  declareProperty("MagFieldSvc", m_imp->m_magFieldSvc);
   declareProperty("UpperBoundHitRadius", m_imp->m_unphysicalHitRadiusUpperBound = 20. );
   declareProperty("LowerBoundHitRadius", m_imp->m_unphysicalHitRadiusLowerBound = 0. );
   declareProperty("DoT0Shift", m_imp->m_doT0Shift = false );
@@ -150,6 +146,10 @@ StatusCode MdtCalibrationTool::initialize() {
   ATH_MSG_DEBUG( "Initializing" );
 
   m_imp->settings.initialize();
+
+  // Read handle for AtlasFieldCacheCondObj
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+
   // initialize the MdtIdHelper
   if ( detStore()->retrieve(m_imp->m_mdtIdHelper, "MDTIDHELPER" ).isFailure() ) {
     ATH_MSG_FATAL( "Can't retrieve MdtIdHelper" );
@@ -164,10 +164,6 @@ StatusCode MdtCalibrationTool::initialize() {
   // initialise MuonGeoModel access
   if ( detStore()->retrieve( m_imp->m_muonGeoManager ).isFailure() ) {
     ATH_MSG_FATAL( "Can't retrieve MuonDetectorManager" );
-    return StatusCode::FAILURE;
-  }
-  if ( m_imp->m_magFieldSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Could not find MagFieldSvc" );
     return StatusCode::FAILURE;
   }
 
@@ -336,7 +332,20 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   // apply corrections
   double corTime(0.);
   if ( settings.doCorrections() ) {
-    corTime = m_imp->applyCorrections( hit, inputData, settings,
+
+    MagField::AtlasFieldCache fieldCache;
+    if (settings.doField) {
+      // 
+      // For the moment, use Gaudi Hive for the event context - would need to be passed in from clients
+      SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+      const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+      if (fieldCondObj == nullptr) {
+        ATH_MSG_ERROR("driftRadiusFromTime: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+        return false;
+      }
+      fieldCondObj->getInitializedCache (fieldCache);
+    }
+    corTime = m_imp->applyCorrections( fieldCache, hit, inputData, settings,
 				       adcCal, data.corrections, rtRelation->rt());
   }
 
@@ -675,11 +684,12 @@ double MdtCalibrationTool::tdcBinSize(const Identifier &id) const {
   return 0.78125;  //25/32; exact number: (1000.0/40.079)/32.0
 }
 
-double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
-                                                const MdtCalibrationSvcInput &inputData,
-						const MdtCalibrationSvcSettings &settings,
-						double /*adcCal*/,
-                                                const MuonCalib::MdtCorFuncSet *corrections, const MuonCalib::IRtRelation *rt) const {
+double MdtCalibrationTool::Imp::applyCorrections(MagField::AtlasFieldCache& fieldCache,
+                                                 MdtCalibHit &hit,
+                                                 const MdtCalibrationSvcInput &inputData,
+                                                 const MdtCalibrationSvcSettings &settings,
+                                                 double /*adcCal*/,
+                                                 const MuonCalib::MdtCorFuncSet *corrections, const MuonCalib::IRtRelation *rt) const {
 
   double corTime(0.);
   // apply corrections
@@ -701,7 +711,8 @@ double MdtCalibrationTool::Imp::applyCorrections(MdtCalibHit &hit,
 	double xyz[3] = { (*inputData.pointOfClosestApproach)(0),
 			  (*inputData.pointOfClosestApproach)(1),
 			  (*inputData.pointOfClosestApproach)(2) };
-        m_magFieldSvc->getField(xyz, BGXYZ);
+        fieldCache.getField(xyz, BGXYZ);
+        
 	for (int i=0; i<3; i++) BGXYZ[i] *= 1000.; // convert kT to Tesla
         Amg::Vector3D B_global(BGXYZ[0], BGXYZ[1], BGXYZ[2]);
         Amg::Vector3D B_loc(gToStation.linear()*B_global);

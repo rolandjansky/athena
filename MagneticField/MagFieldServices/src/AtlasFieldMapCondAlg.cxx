@@ -62,6 +62,18 @@ MagField::AtlasFieldMapCondAlg::initialize() {
 }
 
 StatusCode
+MagField::AtlasFieldMapCondAlg::start() {
+    ATH_MSG_INFO ( "start: entering  ");
+    return StatusCode::SUCCESS;
+}
+
+StatusCode
+MagField::AtlasFieldMapCondAlg::stop() {
+    ATH_MSG_INFO ( "stop: entering  ");
+    return StatusCode::SUCCESS;
+}
+
+StatusCode
 MagField::AtlasFieldMapCondAlg::execute(const EventContext& ctx) const {
 
     ATH_MSG_INFO ( "execute: entering  ");
