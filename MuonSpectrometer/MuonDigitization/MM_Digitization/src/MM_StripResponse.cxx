@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_Digitization/MM_StripResponse.h"
-
-using namespace std;
 
 MM_StripResponse::MM_StripResponse() {}
 
@@ -106,10 +104,10 @@ void MM_StripResponse::calculateSummaries(float chargeThreshold) {
 			}
 			if(!found){ // 	// strip not in vector, add new entry
 				m_v_strip.push_back(stripVal);
-				vector<float> qTemp;
+				std::vector<float> qTemp;
 				qTemp.push_back(stripChargeVal);
 				m_v_stripTotalCharge.push_back(qTemp);
-				vector<float> tTemp;
+				std::vector<float> tTemp;
 				tTemp.push_back(timeBin*m_timeResolution);
 				m_v_stripTimeThreshold.push_back(tTemp);
 			}

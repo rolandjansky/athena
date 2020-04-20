@@ -1,10 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// sTgcRdoToPrepDataToolCore.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLCORE
 #define MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLCORE
 
@@ -16,6 +13,7 @@
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "STgcClusterization/ISTgcClusterBuilderTool.h"
 
 class AtlasDetectorID;
 class Identifier;
@@ -30,9 +28,6 @@ namespace MuonGM
 
 namespace Muon 
 {
-  class IMuonRawDataProviderTool;
-  class ISTgcClusterBuilderTool;
-
   /** @class STGC_RawDataToPrepDataTool 
    *  This is the algorithm that convert STGC Raw data  To STGC PRD  as a tool.
    */  
@@ -44,7 +39,7 @@ namespace Muon
       sTgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~sTgcRdoToPrepDataToolCore();
+      virtual ~sTgcRdoToPrepDataToolCore()=default;
       
       /** Standard AthAlgTool initialize method */
       virtual StatusCode initialize() override;

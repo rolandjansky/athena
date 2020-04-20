@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -7,26 +7,13 @@
 #include <list>
 #include <algorithm>
 #include <sstream>
-//#include <iterator>
-
-//Gaudi includes
 #include "GaudiKernel/StatusCode.h"
-
 #include "Identifier/IdentifierHash.h"
-//Muon
 #include "MuonIdHelpers/RpcIdHelper.h"
-//#include "MuonCondInterface/IRpcDetectorStatusDbTool.h"
 #include "MuonCondInterface/IRPCConditionsSvc.h"
-
-/////////////////////////////////////////////////////////
 #include "MuonCondSvc/RPCCondSummarySvc.h"
 #include "Identifier/Identifier.h"
 
-
-
-
-using namespace std;
-// Constructor
 RPCCondSummarySvc::RPCCondSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
   m_reportingServices(name),

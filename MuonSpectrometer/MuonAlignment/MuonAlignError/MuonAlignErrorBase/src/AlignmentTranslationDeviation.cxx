@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignErrorBase/AlignmentTranslationDeviation.h"
 #include <iostream>
 
 using namespace MuonAlign;
-using namespace std;
 
 AlignmentTranslationDeviation::AlignmentTranslationDeviation (Amg::Vector3D u, double sigma, const std::vector<const Trk::RIO_OnTrack*>& hits)
   : m_u(u.unit()),
@@ -15,9 +14,6 @@ AlignmentTranslationDeviation::AlignmentTranslationDeviation (Amg::Vector3D u, d
   m_hits = hits;
   m_hitshash = 0;
   m_hitshashdone = false;
-}
-
-AlignmentTranslationDeviation::~AlignmentTranslationDeviation () {
 }
 
 int AlignmentTranslationDeviation::nPar () const {
@@ -34,6 +30,6 @@ Amg::Transform3D AlignmentTranslationDeviation::getTransform (const std::vector<
 }
 
 void AlignmentTranslationDeviation::print (std::ostream& out) const {
-  out << "A translation along (" << m_u.x() << ", " << m_u.y() << ", " << m_u.z() << ") with sigma=" << m_sigma << " mm applied to " << m_hits.size() << " hits" << endl;
+  out << "A translation along (" << m_u.x() << ", " << m_u.y() << ", " << m_u.z() << ") with sigma=" << m_sigma << " mm applied to " << m_hits.size() << " hits" << std::endl;
 }
 

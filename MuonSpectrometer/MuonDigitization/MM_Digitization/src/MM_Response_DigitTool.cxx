@@ -1,31 +1,26 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_Digitization/MM_DigitToolInput.h"
 #include "MM_Digitization/MM_Response_DigitTool.h"
-
-
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include <iostream>
 #include <vector>
 
 using namespace MuonGM;
-using namespace std;
+
 /*******************************************************************************/
-MM_Response_DigitTool::MM_Response_DigitTool( const std::string& type,
-                                              const std::string& name,
-                                              const IInterface* parent )
-  : AthAlgTool(type,name,parent)
-  , m_muonGeoMgr(0)
-  , m_idHelper(0)
-  , m_rndmEngine(0)
-  , m_rndmEngineName("MuonDigitization")
-  , m_rndmSvc("AtRndmGenSvc", name )
+MM_Response_DigitTool::MM_Response_DigitTool(const std::string& type, const std::string& name, const IInterface* parent) :
+  AthAlgTool(type,name,parent),
+  m_muonGeoMgr(0),
+  m_idHelper(0),
+  m_rndmEngine(0),
+  m_rndmEngineName("MuonDigitization"),
+  m_rndmSvc("AtRndmGenSvc", name )
 {
   declareInterface<IMM_DigitizationTool>(this);
   declareProperty("RndmSvc",    m_rndmSvc,         "Random Number Service used in Muon digitization" );
@@ -34,8 +29,8 @@ MM_Response_DigitTool::MM_Response_DigitTool( const std::string& type,
 /*******************************************************************************/
 MM_DigitToolOutput MM_Response_DigitTool::digitize( /*const MmDigitToolInput& input*/ )
 {
-  vector<float> a, b;
-  vector<int> c;
+  std::vector<float> a, b;
+  std::vector<int> c;
   MM_DigitToolOutput output(false, c, b, a, 1, 1);
   return output;
 }

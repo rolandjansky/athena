@@ -1,38 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// sTgcRdoToPrepDataToolCore.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "sTgcRdoToPrepDataToolCore.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/PropertyMgr.h"
-
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonIdHelper.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 
-// BS access
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-
-// tool for cluster building
-#include "STgcClusterization/ISTgcClusterBuilderTool.h"
-
 using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
-using namespace std;
 
-Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t,
-						   const std::string& n,
-						   const IInterface*  p )
-  :
+Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_muonMgr(0),
   m_fullEventDone(false),
@@ -48,12 +32,6 @@ Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t,
 		  "RDO container to read");
   declareProperty("Merge",  m_merge = true);
   declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
-}
-
-
-Muon::sTgcRdoToPrepDataToolCore::~sTgcRdoToPrepDataToolCore()
-{
-
 }
 
 StatusCode Muon::sTgcRdoToPrepDataToolCore::initialize()
@@ -85,8 +63,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::finalize()
 
 }
 
-StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawDataCollection *rdoColl, 
-							  std::vector<IdentifierHash>& idWithDataVect)
+StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawDataCollection *rdoColl, std::vector<IdentifierHash>& idWithDataVect)
 {
 
   const IdentifierHash hash = rdoColl->identifyHash();
@@ -264,8 +241,8 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
 
   if(m_merge) {
     // merge the eta and phi prds that fire closeby strips or wires
-    vector<Muon::sTgcPrepData*> sTgcStripClusters;
-    vector<Muon::sTgcPrepData*> sTgcWireClusters;
+    std::vector<Muon::sTgcPrepData*> sTgcStripClusters;
+    std::vector<Muon::sTgcPrepData*> sTgcWireClusters;
     //
     // Clusterize strips
     //
