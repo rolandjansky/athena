@@ -8,7 +8,7 @@
 
 // InDet
 #include "InDetTrackingGeometry/TRT_OverlapDescriptor.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 // Trk
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"

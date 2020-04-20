@@ -1,17 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MSVertexRecoTool.h"
-#include "GaudiKernel/MsgStream.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "xAODTracking/Vertex.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
-
-
+#include "TMath.h" // for TMath::Prob()
 
 #define MAXPLANES 100
 
@@ -89,10 +87,7 @@ namespace Muon {
     
   StatusCode MSVertexRecoTool::initialize() {
     
-    if( m_muonIdHelperTool.retrieve().isFailure() ){
-      ATH_MSG_FATAL("Could not get " << m_muonIdHelperTool);      
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_idHelperSvc.retrieve());
 
     if(m_doSystematics) {
       m_rndmEngine = m_rndmSvc->GetEngine("TrackletKiller");
@@ -102,7 +97,7 @@ namespace Muon {
       }
     }
 
-    ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK(m_extrapolator.retrieve() );
     ATH_CHECK(m_xAODContainerKey.initialize());
     ATH_CHECK(m_rpcTESKey.initialize());
     ATH_CHECK(m_tgcTESKey.initialize());
@@ -406,10 +401,12 @@ namespace Muon {
       }//end icl loop
 
       //find the best cluster
-      TrkCluster BestCluster = trkClu[0];
+      
+      TrkCluster* BestClusterptr = &trkClu[0];
       for(int icl=1; icl<ncluster; ++icl) {
-          if(trkClu[icl].ntrks > BestCluster.ntrks) BestCluster = trkClu[icl];
+          if(trkClu[icl].ntrks > BestClusterptr->ntrks) BestClusterptr = &trkClu[icl];
       }
+      TrkCluster BestCluster = *BestClusterptr;
       //store the tracks inside the cluster
       std::vector<Tracklet> unusedTracks;
       for(std::vector<Tracklet>::iterator trkItr=tracks.begin(); trkItr!=tracks.end(); ++trkItr) {
@@ -423,7 +420,7 @@ namespace Muon {
           else unusedTracks.push_back( (*trkItr) );
       }
       //return the best cluster and the unused tracklets
-      tracks = unusedTracks;
+      tracks = std::move(unusedTracks);
       return BestCluster;
   }
 
@@ -431,7 +428,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  std::vector<Muon::MSVertexRecoTool::TrkCluster> MSVertexRecoTool::findTrackClusters(std::vector<Tracklet>& tracks) const {
+  std::vector<Muon::MSVertexRecoTool::TrkCluster> MSVertexRecoTool::findTrackClusters(const std::vector<Tracklet>& tracks) const {
     std::vector<Tracklet> trks = tracks;
     std::vector<TrkCluster> clusters;
     //keep making clusters until there are no more possible
@@ -970,7 +967,7 @@ namespace Muon {
       MyVx = VxMinQuad(tracks);
       std::vector<Tracklet> Tracks = RemoveBadTrk(tracks,MyVx);
       if(tracks.size() == Tracks.size()) break;
-      tracks = Tracks;
+      tracks = std::move(Tracks);
     }
     if(tracks.size() >= 3 && MyVx.x() > 0) {
       float vxtheta = atan2(MyVx.x(),MyVx.z());
@@ -1156,7 +1153,7 @@ namespace Muon {
         Muon::RpcPrepDataCollection::const_iterator rpcItr = (*RpcItr)->begin();
         Muon::RpcPrepDataCollection::const_iterator rpcItrE = (*RpcItr)->end();
         for(; rpcItr != rpcItrE; ++rpcItr) {
-	  if(m_muonIdHelperTool->rpcIdHelper().measuresPhi((*rpcItr)->identify())) {
+	  if(m_idHelperSvc->rpcIdHelper().measuresPhi((*rpcItr)->identify())) {
 	    float rpcEta = (*rpcItr)->globalPosition().eta();
 	    float rpcPhi = (*rpcItr)->globalPosition().phi();
 	    float dphi = phi - rpcPhi;
@@ -1185,7 +1182,7 @@ namespace Muon {
         Muon::TgcPrepDataCollection::const_iterator tgcItr = (*TgcItr)->begin();
         Muon::TgcPrepDataCollection::const_iterator tgcItrE = (*TgcItr)->end();
         for(; tgcItr != tgcItrE; ++tgcItr) {
-	  if(m_muonIdHelperTool->tgcIdHelper().isStrip((*tgcItr)->identify())) {
+	  if(m_idHelperSvc->tgcIdHelper().isStrip((*tgcItr)->identify())) {
 	    float tgcEta = (*tgcItr)->globalPosition().eta();
 	    float tgcPhi = (*tgcItr)->globalPosition().phi();
 	    float dphi = phi - tgcPhi;
@@ -1233,7 +1230,7 @@ namespace Muon {
       if( fabs(dphi) > 0.6 ) continue;
       int nChHits(0);
       Identifier id = (*mdt)->identify();
-      float nTubes = (m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(id) - m_muonIdHelperTool->mdtIdHelper().tubeLayerMin(id) + 1)*(m_muonIdHelperTool->mdtIdHelper().tubeMax(id) - m_muonIdHelperTool->mdtIdHelper().tubeMin(id) + 1);
+      float nTubes = (m_idHelperSvc->mdtIdHelper().tubeLayerMax(id) - m_idHelperSvc->mdtIdHelper().tubeLayerMin(id) + 1)*(m_idHelperSvc->mdtIdHelper().tubeMax(id) - m_idHelperSvc->mdtIdHelper().tubeMin(id) + 1);
       for(; mdt != mdtE; ++mdt) {
         if((*mdt)->adc() < 50) continue;
         if((*mdt)->status() != 1) continue;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // *******************************************************
@@ -76,8 +76,8 @@ private:
 
     enum Jet_t { goodJet, badJet, suspectJet };
 
-    virtual StatusCode registerHist (MonGroup& theGroup, TH1* h1);
-    virtual StatusCode registerHist (MonGroup& theGroup, LWHist* h1);
+    void registerHist (MonGroup& theGroup, TH1* h1);
+    void registerHist (MonGroup& theGroup, LWHist* h1);
 
     void fillJetHistograms();
     void fillGoodJetHistos(const xAOD::Jet *jet);
@@ -91,6 +91,7 @@ private:
     //void fillBadZone(int zone, double w);
     bool passJetQualityCuts(const xAOD::Jet *jet);
     bool passKinematicCuts(const xAOD::Jet *jet);
+    bool passJVTCuts(const xAOD::Jet *jet);
     Jet_t getTaggabilityLabel(const xAOD::Jet *jet);
     bool isTopEvent(); // added by SARA
 
@@ -140,12 +141,15 @@ private:
     double m_ElectronPtVarCone20Cut; // added by SARA
     double m_MuonTopoEtCone20Cut; // added by SARA
     double m_MuonPtVarCone20Cut; // added by SARA
+    double m_MuonPtVarCone30Cut; // added by SARA
     std::string m_ElectronTrigger_2016; // added by SARA
     std::string m_MuonTrigger_2016; // added by SARA
     std::string m_JetTrigger_2016; // added by SARA
     std::string m_ElectronTrigger_2017; // added by SARA
     std::string m_MuonTrigger_2017; // added by SARA
     std::string m_JetTrigger_2017; // added by SARA
+    std::string m_ElectronTrigger_201X; //Wildcard trigger naming HLT_e*
+    std::string m_MuonTrigger_201X; //Wildcard trigger naming HLT_mu*
 
     /** @brief Master kill if no tools found. */
     bool m_switch_off;
@@ -382,6 +386,7 @@ private:
     TH2F_LW* m_jet_2D_all = nullptr;
     TH2F_LW* m_jet_2D_good = nullptr;
     TH2F_LW* m_jet_2D_kinematic = nullptr;
+    TH2F_LW* m_jet_2D_jvt = nullptr;
     TH2F_LW* m_jet_2D_kinematic_LS = nullptr;
     TH2F_LW* m_jet_2D_quality = nullptr;
     TH2F_LW* m_jet_2D_suspect = nullptr;
@@ -447,9 +452,17 @@ private:
     TH2F_LW* m_tracks_fitProb_2D_LS = nullptr;
     TH2F_LW* m_tracks_fitChi2OnNdfMax_2D_LS = nullptr;
 
+    /** NEW 2018: jets taggers in pileup bins histograms */
+    TH1F_LW* m_n_mu = nullptr;
+    TH1F_LW* m_tag_mv_w_mu0_30 = nullptr;
+    TH1F_LW* m_tag_mv_w_mu30_50 = nullptr;
+    TH1F_LW* m_tag_mv_w_mu50_70 = nullptr;
+    
     TH1F_LW* m_efficiency = nullptr;
 
     unsigned int m_lumiBlockNum = 0;
+    double m_mu = 0.; 
+    unsigned int m_runNumber = 0;
 
     MonGroup* m_monGr_shift = nullptr;
     MonGroup* m_monGr_LowStat = nullptr;

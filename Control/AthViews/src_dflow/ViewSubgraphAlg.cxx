@@ -1,37 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ViewSubgraphAlg.h"
 #include "AthViews/ViewHelper.h"
-
-// STL includes
-
-// FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "StoreGate/WriteHandle.h"
 
 namespace AthViews {
 
-///////////////////////////////////////////////////////////////////
-// Public methods: 
-///////////////////////////////////////////////////////////////////
-
-// Constructors
-////////////////
-ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name,
-                                  ISvcLocator* pSvcLocator ) :
-  ::AthAlgorithm( name, pSvcLocator )
+ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name, ISvcLocator* pSvcLocator ) :
+  AthAlgorithm( name, pSvcLocator )
 {
 }
 
-// Destructor
-///////////////
 ViewSubgraphAlg::~ViewSubgraphAlg()
-{}
+{
+}
 
-// Athena Algorithm's Hooks
-////////////////////////////
 StatusCode ViewSubgraphAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
@@ -67,7 +53,7 @@ StatusCode ViewSubgraphAlg::execute()
   }
 
   //Create the views and populate them
-  CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName,      //Base name for all views to use
+  CHECK( ViewHelper::makeAndPopulate( m_viewBaseName,      //Base name for all views to use
                                       viewVector.get(),    //Vector to store views
                                       m_w_int,             //A writehandlekey to use to access the views
                                       ctx,                 //The context of this algorithm
@@ -88,14 +74,14 @@ StatusCode ViewSubgraphAlg::execute()
   }
 
   //Schedule the algorithms in views
-  CHECK( ViewHelper::ScheduleViews( viewVector.get(),       //View vector
+  CHECK( ViewHelper::scheduleViews( viewVector.get(),       //View vector
                                     m_viewNodeName,         //Name of node to attach views to
                                     ctx,                    //Context to attach the views to
                                     m_scheduler.get() ) );  //ServiceHandle for the scheduler
 
   //Store the collection of views
   SG::WriteHandle< ViewContainer > outputViewHandle( m_w_views, ctx );
-  outputViewHandle.record( std::move( viewVector ) );
+  CHECK( outputViewHandle.record( std::move( viewVector ) ) );
 
   return StatusCode::SUCCESS;
 }

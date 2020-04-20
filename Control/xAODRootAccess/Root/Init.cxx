@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: Init.cxx 796983 2017-02-14 05:09:12Z ssnyder $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // System include(s):
 #include <iostream>
@@ -19,18 +15,6 @@
 
 // Local include(s):
 #include "xAODRootAccess/Init.h"
-
-// Integrate with Apple's crash reporter. Taken directly from ROOT's TError.cxx.
-// Disabled for now, as it doesn't seem to make any difference on top of 6.02/12
-// on MacOS X 10.10.4.
-#ifdef __APPLE__
-/*
-extern "C" {
-   static const char* __crashreporter_info__ = 0;
-   asm( ".desc ___crashreporter_info__, 0x10" );
-}
-*/
-#endif // __APPLE__
 
 namespace xAOD {
 
@@ -122,6 +106,19 @@ namespace xAOD {
          return;
       }
 
+#if ROOT_VERSION_CODE == ROOT_VERSION( 6, 14, 4 )
+      // Hide error messages coming from TFormula::Streamer. This is discussed
+      // in the ROOT-9693 and ROOT-9703 Jira tickets.
+      static const char* TFORMULA_ERROR_MESSAGE_PREFIX =
+         "number of dimension computed";
+      if( ( level == kError ) &&
+          ( ! strcmp( location, "TFormula::Streamer" ) ) &&
+          ( ! strncmp( message, TFORMULA_ERROR_MESSAGE_PREFIX,
+                       strlen( TFORMULA_ERROR_MESSAGE_PREFIX ) ) ) ) {
+         return;
+      }
+#endif // ROOT_VERSION
+
       // Construct a string version of the message's level:
       const char* msgLevel = 0;
       if( level >= kFatal ) {
@@ -153,15 +150,6 @@ namespace xAOD {
       if( ! abort ) {
          return;
       }
-
-#ifdef __APPLE__
-      /*
-      if( __crashreporter_info__ ) {
-         delete[] __crashreporter_info__;
-      }
-      __crashreporter_info__ = StrDup( output.str().c_str() );
-      */
-#endif // __APPLE__
 
       // Abort with a stack trace if possible:
       std::cout << std::endl << "Aborting..." << std::endl;

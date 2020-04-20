@@ -647,13 +647,7 @@ jtm += JetTrackSumMomentsTool(
 )
 
 # Jet cluster info.
-jtm += JetClusterMomentsTool(
-  "clsmoms",
-  DoClsPt = True,
-  DoClsSecondLambda = True,
-  DoClsCenterLambda = True,
-  DoClsSecondR = True
-)
+jtm += JetClusterMomentsTool("clsmoms")
 
 jtm += JetVoronoiMomentsTool(
   "voromoms",

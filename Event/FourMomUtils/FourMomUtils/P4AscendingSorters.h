@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // P4AscendingSorters.h
@@ -15,10 +15,7 @@
 #ifndef XAOD_ANALYSIS
 
 // STL includes
-#include <functional> // binary_function
 #include <cmath>
-
-// HepMC / CLHEP includes
 
 // core includes
 #include "CxxUtils/fpcompare.h"
@@ -26,19 +23,11 @@
 // EventKernel includes
 #include "EventKernel/I4Momentum.h"
 
-// Forward declaration
-
 namespace P4Sorters {
-
-typedef std::binary_function< const I4Momentum*,
-            const I4Momentum*,
-            bool
-            >
-        I4MomPredicate_t;
 
 namespace Ascending {
 
-class Px : public I4MomPredicate_t
+class Px
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -46,7 +35,7 @@ public:
   }
 };
 
-class Py : public I4MomPredicate_t
+class Py
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -54,7 +43,7 @@ public:
   }
 };
 
-class Pz : public I4MomPredicate_t
+class Pz
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -63,7 +52,7 @@ public:
 };
 
 
-class Mass : public I4MomPredicate_t
+class Mass
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -71,7 +60,7 @@ public:
   }
 };
 
-class MassSquared : public I4MomPredicate_t
+class MassSquared
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -79,7 +68,7 @@ public:
     }
 };
 
-class Momentum : public I4MomPredicate_t
+class Momentum
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -87,7 +76,7 @@ public:
   }
 };
 
-class MomentumSquared : public I4MomPredicate_t
+class MomentumSquared
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -95,7 +84,7 @@ public:
   }
 };
 
-class Eta : public I4MomPredicate_t
+class Eta
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -103,7 +92,7 @@ public:
   }
 };
 
-class AbsEta : public I4MomPredicate_t
+class AbsEta
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -112,16 +101,7 @@ public:
   }
 };
 
-// not yet...
-//   class Phi : public I4MomPredicate_t
-//   {
-//   public:
-//     bool operator()( const I4Momentum* a, const I4Momentum* b ) {
-//       return CxxUtils::fpcompare::less( a->phi(), b->phi() );
-//     }
-//   };
-
-class Ene : public I4MomPredicate_t
+class Ene
 {
   public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -129,7 +109,7 @@ class Ene : public I4MomPredicate_t
   }
 };
 
-class Et : public I4MomPredicate_t
+class Et
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -137,7 +117,7 @@ public:
   }
 };
 
-class Pt : public I4MomPredicate_t
+class Pt
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -145,7 +125,7 @@ public:
   }
 };
 
-class InvPt : public I4MomPredicate_t
+class InvPt
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -154,7 +134,7 @@ public:
 };
 
 // Are those usefull anyway ??
-class CosTh : public I4MomPredicate_t
+class CosTh
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -162,7 +142,7 @@ public:
   }
 };
 
-class SinTh : public I4MomPredicate_t
+class SinTh
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {
@@ -170,7 +150,7 @@ public:
   }
 };
 
-class CotTh : public I4MomPredicate_t
+class CotTh
 {
 public:
   bool operator()( const I4Momentum* a, const I4Momentum* b ) const {

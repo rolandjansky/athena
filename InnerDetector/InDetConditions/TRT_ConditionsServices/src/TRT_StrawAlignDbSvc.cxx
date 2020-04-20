@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file TRT_StrawAlignDbSvc.cxx
@@ -20,7 +20,7 @@
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 
 TRT_StrawAlignDbSvc::TRT_StrawAlignDbSvc( const std::string& name,
@@ -168,7 +168,7 @@ StatusCode TRT_StrawAlignDbSvc::readTextFile(const std::string& filename)
   // force a call back in the geometry
   int i(0);
   std::list<std::string> keys ;
-  (const_cast<InDetDD::TRT_DetectorManager*>(m_trtman))->align(i,keys) ;
+  (const_cast<InDetDD::TRT_DetectorManager*>(m_trtman))->align(i,keys).ignore() ;
 
   return StatusCode::SUCCESS ;
 }

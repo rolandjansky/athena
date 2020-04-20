@@ -10,11 +10,16 @@ logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-#, RecoFragmentsPool
-#from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFCBInvMassSequence, efLateMuRoISequence, efLateMuSequence
 
+# this must be moved to the HypoTool file:
+def dimuDrComboHypoToolFromDict(chainDict):
+    from DecisionHandling.DecisionHandlingConf import DeltaRRoIComboHypoTool
+    name = chainDict['chainName']
+    tool= DeltaRRoIComboHypoTool(name)
+    tool.DRcut=3.
+    return tool
 
 
 #--------------------------------------------------------
@@ -77,7 +82,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # ----------------------
     def assembleChain(self):                            
         chainSteps = []
-        #log.debug("Assembling leg for chain " + self.chainName)
 
         stepDictionary = self.getStepDictionary()
 
@@ -117,12 +121,13 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "Comb":[['getmuFast', 'getmuComb']],
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
             "ivar":[['getmuFast', 'getmuComb', 'getmuIso']],
-            #FP: this is tmp config for noL1, waiting for serial merging:
-            "noL1":[['getmuFast', 'getmuComb', 'getmuIso'],['getFSmuEFSA', 'getFSmuEFCB', 'getEFCBEmpty']],
+            "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
             "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFMS']],
             "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "invM":[[],['getmuInvM']],
-            "lateMu":[[],['getLateMuRoI','getLateMu']]
+            "lateMu":[[],['getLateMuRoI','getLateMu']],
+            "Dr": [['getmuFastDr', 'getmuCombDr']],
+            "muoncalib":[['getmuFast']]
         }
 
         return stepDictionary
@@ -205,17 +210,18 @@ class MuonChainConfiguration(ChainConfigurationBase):
     def getmuMSEmptyAll(self, stepID):
         return self.getStep(stepID,'muMS_empty',[])
 
-        #--------------------
+    #--------------------
     def getmuMSEmpty(self):
         return self.getmuMSEmptyAll(2)
 
-       #--------------------
+    #--------------------
     def getmuFastEmpty(self):
         return self.getStep(1,'muFast_empty',[])
 
-
+    #--------------------
     def getEFCBEmpty(self):
         return self.getStep(6,'EFCBEmpty',[])
+    
     #--------------------
     def getmuInvM(self):
         return self.getStep(5,'muInvM',[muEFCBInvMSequenceCfg])
@@ -227,3 +233,12 @@ class MuonChainConfiguration(ChainConfigurationBase):
     #--------------------
     def getLateMu(self):
         return self.getStep(2,'muEFLate',[muEFLateSequenceCfg])
+
+    #--------------------
+    def getmuCombDr(self):     
+        step=self.getStep(2, 'muComb', sequenceCfgArray=[muCombSequenceCfg], comboTools=[dimuDrComboHypoToolFromDict])
+        return step
+
+    def getmuFastDr(self):
+        step=self.getStep(1,"mufast", [muFastSequenceCfg], comboTools=[dimuDrComboHypoToolFromDict]  )
+        return step

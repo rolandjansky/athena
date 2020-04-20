@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, InEventReco, getChainStepName, createStepView
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, InEventReco, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -25,16 +25,20 @@ def generateChains( flags, chainDict ):
     cellsname = "CaloCellsFS"
     clustersname = "HLT_CaloTopoClustersFS"
 
-    from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
-    cellmaker=HLTCaloCellMaker("HLTCaloCellMaker_FS")
-    cellmaker.RoIs="FSJETRoI"
-    cellmaker.TrigDataAccessMT=cdaSvc
-    cellmaker.CellsName=cellsname
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
+    cellmaker.RoIs = "FSJETRoI"
+    cellmaker.TrigDataAccessMT = cdaSvc
+    cellmaker.CellsName = cellsname
 
     inEventReco.addRecoAlg(cellmaker)
 
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    inEventReco.mergeReco( CaloTopoClusterCfg(flags,cellsname=cellsname,clustersname=clustersname,doLCCalib=False,sequenceName=inEventReco.recoSeq.name()) )
+    inEventReco.mergeReco( CaloTopoClusterCfg( flags,
+                                    cellsname = cellsname,
+                                    clustersname = clustersname,
+                                    doLCCalib = False,
+                                    sequenceName = inEventReco.recoSeq.name) )
 
     #sequencing of actual jet reconstruction
     from JetRecConfig import JetRecConfig
@@ -58,14 +62,13 @@ def generateChains( flags, chainDict ):
     acc.merge(inEventReco,stepReco.getName())
 
     #hypo
-    from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
-    hypo = TrigJetHypoAlgMT("TrigJetHypoAlgMT_a4tcem_subjesIS")
+    hypo = CompFactory.TrigJetHypoAlgMT("TrigJetHypoAlgMT_a4tcem_subjesIS")
     jetsfullname = jetprefix+TrigAntiKt4EMTopoSubJES.basename+jetsuffix+"Jets"
     hypo.Jets = jetsfullname
     acc.addEventAlgo(hypo)
 
-    jetSequence = MenuSequence( Sequence    = inEventReco.sequence(),
+    jetSequence = CAMenuSequence( Sequence    = inEventReco.sequence(),
                                 Maker       = inEventReco.inputMaker(),
                                 Hypo        = hypo,
                                 HypoToolGen = trigJetHypoToolFromDict,

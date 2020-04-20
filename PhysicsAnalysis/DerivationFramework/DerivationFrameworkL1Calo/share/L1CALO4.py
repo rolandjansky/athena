@@ -4,6 +4,17 @@
 ## Load common flags
 from AthenaCommon.JobProperties import jobproperties as athCommonFlags
 
+## Steer output file
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
+streamName = primDPD.WriteDAOD_L1CALO4.StreamName
+fileName   = buildFileName( primDPD.WriteDAOD_L1CALO4 )
+L1CALO4Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+L1CALO4Stream.AcceptAlgs(["DFL1CALO4_KERN"])
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
 #################
 ### Setup Augmentation tools
 #################
@@ -31,7 +42,7 @@ thinningTools = []
 
 from TrigT1CaloCalibTools.TrigT1CaloCalibToolsConf import DerivationFramework__TriggerTowerThinningAlg
 L1CALO4CaloThinningTool = DerivationFramework__TriggerTowerThinningAlg( name = "L1CALO4CaloThinningTool",
-									ThinService = "L1CALO4ThinningSvc",
+                                                                        StreamName              = streamName,
     									TriggerTowerLocation = "xAODTriggerTowers",
     									MinCaloCellET = 0.8,
     									MinADC = 36,
@@ -67,19 +78,6 @@ ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool(
 svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 
-## Steer output file
-from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
-from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
-streamName = primDPD.WriteDAOD_L1CALO4.StreamName
-fileName   = buildFileName( primDPD.WriteDAOD_L1CALO4 )
-L1CALO4Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-L1CALO4Stream.AcceptAlgs(["DFL1CALO4_KERN"])
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="L1CALO4ThinningSvc", outStreams=[evtStream] )
-
 trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 # Generic event info
@@ -102,7 +100,7 @@ L1CALO4Stream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.")
 L1CALO4Stream.AddItem("xAOD::MissingETContainer#MET_Reference_AntiKt4EMTopo")
 L1CALO4Stream.AddItem("xAOD::MissingETAuxContainer#MET_Reference_AntiKt4EMTopoAux.-ConstitObjectLinks.-ConstitObjectWeights")
 L1CALO4Stream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-L1CALO4Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+L1CALO4Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV")
 L1CALO4Stream.AddItem("xAOD::MissingETAssociationMap#METAssoc_AntiKt4EMTopo")
 L1CALO4Stream.AddItem("xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMTopoAux.")
 L1CALO4Stream.AddItem("xAOD::MissingETContainer#MET_Core_AntiKt4EMTopo")

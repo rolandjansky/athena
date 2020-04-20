@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************
@@ -86,7 +86,6 @@ HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & nam
   m_TriggerChainBjet_x{}, m_TriggerChainMujet_x{},
   m_Chain2Dir{},
   m_Shifter_jSplit{}, m_Expert_jSplit{}, m_Shifter_jUnSplit{},  m_Expert_jUnSplit{}, m_Shifter_mujet{},m_Expert_mujet{},
-  m_vertexContainerKey("PrimaryVertices"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_etCut(10.), m_sv1_infosource("SV1")
 {
@@ -126,7 +125,8 @@ StatusCode HLTBjetMonTool::init() {
   m_sv1_infosource = "SV1";
   ATH_MSG_INFO(" ===> in HLTBjetMonTool::init - SV1  parameters: inputSV1SourceName = "  <<  m_sv1_infosource);
 
-  ATH_CHECK( m_vertexContainerKey.initialize() );
+  ATH_CHECK( m_offlineVertexContainerKey.initialize() );
+  ATH_CHECK( m_onlineVertexContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -581,10 +581,10 @@ StatusCode HLTBjetMonTool::book(){
 
   for (int i =0; i<size_TriggerChainBjet; i++){
     if (!getTDT()->isPassed(m_TriggerChainBjet.at(i))){
-      ATH_MSG_DEBUG( " Trigger chain " << i << " " << m_TriggerChainBjet.at(i) << " not fired." );
+      ATH_MSG_DEBUG( " Trigger chain " << i << " " << m_TriggerChainBjet.at(i) << " has not fired." );
     } else {
       chainName = m_TriggerChainBjet.at(i);
-      ATH_MSG_DEBUG( " Trigger chain " << i << " " << chainName << " fired." );
+      ATH_MSG_DEBUG( " Trigger chain " << i << " " << chainName << " has fired." );
       std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
       ATH_MSG_DEBUG( " In HLTBjetMonTool::fill(): Trigger chain " << chainName << " fired. Size of selectChains " << selectChains.size());
       if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); // test if chain is configured
@@ -593,24 +593,24 @@ StatusCode HLTBjetMonTool::book(){
 
   for (int i =0; i<size_TriggerChainMujet; i++){
     if (!getTDT()->isPassed(m_TriggerChainMujet.at(i))){
-      ATH_MSG_DEBUG( " Trigger chain " << i << " " << m_TriggerChainMujet.at(i) << " not fired." );
+      ATH_MSG_DEBUG( " Trigger chain " << i << " " << m_TriggerChainMujet.at(i) << " has not fired." );
     } else {
       chainName = m_TriggerChainMujet.at(i);
-      ATH_MSG_DEBUG( " Trigger chain " << i << " " << chainName << " fired." );
+      ATH_MSG_DEBUG( " Trigger chain " << i << " " << chainName << " has fired." );
       std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
       ATH_MSG_DEBUG( " In HLTBjetMonTool::fill(): Trigger chain " << chainName << " fired. Size of selectChains " << selectChains.size());
       if ( not selectChains.empty() ) FiredChainNames.push_back(chainName); // test if chain is configured
     } // else
   } // i Mujet
 
-  if ( not  FiredChainNames.empty() ) ATH_MSG_DEBUG( " " << FiredChainNames.size() << " trigger chains fired: " );
+  if ( not  FiredChainNames.empty() ) ATH_MSG_DEBUG( " " << FiredChainNames.size() << " trigger chains have fired: " );
   for (unsigned int i = 0; i< FiredChainNames.size(); i++) {
     ATH_MSG_DEBUG( FiredChainNames.at(i) );
   }
 
   if ( FiredChainNames.empty() ) {
 
-    ATH_MSG_INFO(" ===> No trigger fired neither for TriggerChainBjet of size: " << size_TriggerChainBjet
+    ATH_MSG_INFO(" ===> No trigger has fired neither for TriggerChainBjet of size: " << size_TriggerChainBjet
 		 << " nor for TriggerChainMujet of size: " << size_TriggerChainMujet << " RETURN from HLTBjetMonTool::fill() ! " );
     return StatusCode::SUCCESS;
   } else {
@@ -636,15 +636,56 @@ StatusCode HLTBjetMonTool::book(){
 
     ATH_MSG_DEBUG("  ========= Start retrival of Offline histograms  ========== ");
 
+
     std::string HistDir = "/Offline";
     std::string HistExt = "";
-    // Get offline PV - non FTK
     float offlinepvz(-1.e6);
     bool Eofflinepv(false);
-    const xAOD::VertexContainer* offlinepv = 0;
-    if ( evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices") ) {
-      ATH_CHECK( evtStore()->retrieve(offlinepv, "PrimaryVertices") );
-      ATH_MSG_DEBUG("RETRIEVED OFFLINE standard PV  - size: " << offlinepv->size());
+    float offlinepvzFTK(-1.e6);
+    bool EofflinepvFTK(false);
+
+    if (getTDT()->getNavigationFormat() == "TriggerElement") { // Run 2 access a la Tim Martin
+
+      // Get offline PV - non FTK
+      const xAOD::VertexContainer* offlinepv = 0;
+      if ( evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices") ) {
+	ATH_CHECK( evtStore()->retrieve(offlinepv, "PrimaryVertices") );
+	ATH_MSG_DEBUG("RETRIEVED OFFLINE standard PV  - size: " << offlinepv->size());
+	if ( offlinepv->size() ) {
+	  Eofflinepv = true;
+	  offlinepvz = offlinepv->front()->z();
+	  ATH_MSG_DEBUG(" 1st zPV a la Carlo: " << offlinepvz);
+	  hist("nPV"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(offlinepv->size());
+	  for (unsigned int j = 0; j<offlinepv->size(); j++){
+	    hist("PVx"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepv))[j]->x());
+	    hist("PVy"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepv))[j]->y());
+	    hist("PVz"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepv))[j]->z());
+	  } // j
+	} // if size
+      } // evtStore
+      //
+      
+      // Get offline PV - FTK
+      const xAOD::VertexContainer* offlinepvFTK = 0;
+      if ( evtStore()->contains<xAOD::VertexContainer>("FTK_VertexContainer") ) {
+	ATH_CHECK( evtStore()->retrieve(offlinepvFTK, "FTK_VertexContainer") );
+	ATH_MSG_DEBUG("RETRIEVED OFFLINE FTK PV  - size: " << offlinepvFTK->size());
+	if ( offlinepvFTK->size() ) {
+	  EofflinepvFTK = true;
+	  offlinepvzFTK = offlinepvFTK->front()->z();
+	  if (EofflinepvFTK) ATH_MSG_DEBUG(" 1st zPV FTK a la Carlo: " << offlinepvzFTK);
+	} // if size
+      } // evtStore
+      //
+      
+    } else { // Run3 access a la Tim Martin
+
+      SG::ReadHandle<xAOD::VertexContainer> offlinepv = SG::makeHandle( m_offlineVertexContainerKey);
+      if (! offlinepv.isValid() ) {
+	ATH_MSG_ERROR("evtStore() does not contain VertexContainer Collection with name "<< m_offlineVertexContainerKey);
+	return StatusCode::FAILURE;
+      } // valid
+      ATH_MSG_DEBUG(" Size of the Off-line PV container: " << offlinepv->size() );
       if ( offlinepv->size() ) {
 	Eofflinepv = true;
 	offlinepvz = offlinepv->front()->z();
@@ -656,30 +697,9 @@ StatusCode HLTBjetMonTool::book(){
 	  hist("PVz"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepv))[j]->z());
 	} // j
       } // if size
-    } // evtStore
-    //
-    // Get offline PV - FTK
-    float offlinepvzFTK(-1.e6);
-    bool EofflinepvFTK(false);
-    const xAOD::VertexContainer* offlinepvFTK = 0;
-    if ( evtStore()->contains<xAOD::VertexContainer>("FTK_VertexContainer") ) {
-      ATH_CHECK( evtStore()->retrieve(offlinepvFTK, "FTK_VertexContainer") );
-      ATH_MSG_DEBUG("RETRIEVED OFFLINE FTK PV  - size: " << offlinepvFTK->size());
-      if ( offlinepvFTK->size() ) {
-	EofflinepvFTK = true;
-	offlinepvzFTK = offlinepvFTK->front()->z();
-	if (EofflinepvFTK) ATH_MSG_DEBUG(" 1st zPV FTK a la Carlo: " << offlinepvzFTK);
-	/* for the moment FTK offline vertices are not moniored
-	hist("nPV"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(offlinepvFTK->size());
-	for (unsigned int j = 0; j<offlinepvFTK->size(); j++){
-	  hist("PVxFTK"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepvFTK))[j]->x());
-	  hist("PVyFTK"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepvFTK))[j]->y());
-	  hist("PVzFTK"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepvFTK))[j]->z());
-	} // j
-	*/
-      } // if size
-    } // evtStore
-    //
+
+    } // else Run3
+
 
     ATH_MSG_DEBUG(" ======== Offline histograms are retrieved successfully ! ==== Start online histograms to retrieve ====== ");
 
@@ -783,7 +803,7 @@ StatusCode HLTBjetMonTool::book(){
 
     // Access to Trigger elements
 
-      if (getTDT()->getNavigationFormat() == "TriggerElement") { // Run 2 access
+      if (getTDT()->getNavigationFormat() == "TriggerElement") { // Run 2 access a la Tim Martin
 
 
 	Trig::FeatureContainer fc = m_trigDec->features(trigItem);
@@ -1027,33 +1047,43 @@ StatusCode HLTBjetMonTool::book(){
 
 	// online PV from SG
 
-	SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_vertexContainerKey);
+	int iPV = 0;
+	SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_onlineVertexContainerKey);
 	for (const xAOD::Vertex* vtx : *vtxContainer) {
 	  if (vtx->vertexType() == xAOD::VxType::PriVtx) {
-	    ATH_MSG_DEBUG("        PVz_jet from SG: " << vtx->z());
+	    ATH_MSG_DEBUG("        PVx,PVy,PVz from SG: " << vtx->x() << " " << vtx->y() << " " << vtx->z() );
+	    if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->x());
+	    if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->y());
 	    if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
+	    iPV++;
 	  } // if vtx type
 	} // loop on vtxContainer
+	ATH_MSG_DEBUG("        Number of vertices from SG: " << iPV );
+	if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(iPV);
 
-	
-	  // Jets and PV through jet link
-	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, jetKey);
+	// Jets and PV through jet link
+	//  std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, jetKey);
+	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, m_onlineBjetContainerKey); // TM 240320
 	int ijet = 0;
 	for(const auto jetLinkInfo : onlinejets) {
 	  // jetPt
 	  const xAOD::Jet* jet = *(jetLinkInfo.link);
 	  ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (jet->pt())*1.e-3 << " / " << jet->eta() << " / " << jet->phi());
 	  if(HistJet) hist("jetPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((jet->pt())*1.e-3);
+	  if(HistJet) hist2("jetEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(jet->eta(),jet->phi());
 	  // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
 	  if (ijet == 0) {
-	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "xPrimVx");
+	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "EFHistoPrmVtx"); // CV 200120
+	    ATH_CHECK( vertexLinkInfo.isValid() ) ; // TM 200120
 	    const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
 	    ATH_MSG_DEBUG("        PVz_jet from jet link info: " << vtx->z());
 	    // if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
 	  }
 	  ijet++;
 	} // onlinejets
-	
+	ATH_MSG_DEBUG("                 -   nJet: " << ijet);
+	if(HistJet) hist("nJet"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(ijet);	
+
       } // else Run3 access
       
     } // ichain

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -22,8 +22,8 @@ decription           : Implementation code for multiple scatter effects
 #include <cmath>
 
 Trk::MultipleScatteringEffects::MultipleScatteringEffects(const std::string& type,
-                                                    const std::string& name,
-                                                    const IInterface* parent)
+                                                          const std::string& name,
+                                                          const IInterface* parent)
   : AthAlgTool(type, name, parent)
   , m_multipleScatterLogTermOn(true)
 {
@@ -31,7 +31,7 @@ Trk::MultipleScatteringEffects::MultipleScatteringEffects(const std::string& typ
   declareProperty("MultipleScatterLogarithmicTermOn", m_multipleScatterLogTermOn);
 }
 
-Trk::MultipleScatteringEffects::~MultipleScatteringEffects() {}
+Trk::MultipleScatteringEffects::~MultipleScatteringEffects() = default;
 
 StatusCode
 Trk::MultipleScatteringEffects::initialize()
@@ -48,13 +48,13 @@ Trk::MultipleScatteringEffects::finalize()
   return StatusCode::SUCCESS;
 }
 
-
-void Trk::MultipleScatteringEffects::compute(IMultiStateMaterialEffects::Cache& cache,
-                                               const ComponentParameters& componentParameters,
-                                               const MaterialProperties& materialProperties,
-                                               double pathLength,
-                                               PropDirection /*direction*/,
-                                               ParticleHypothesis /*particleHypothesis*/) const
+void
+Trk::MultipleScatteringEffects::compute(IMultiStateMaterialEffects::Cache& cache,
+                                        const ComponentParameters& componentParameters,
+                                        const MaterialProperties& materialProperties,
+                                        double pathLength,
+                                        PropDirection /*direction*/,
+                                        ParticleHypothesis /*particleHypothesis*/) const
 {
   // Reset the cache
   cache.reset();
@@ -66,7 +66,7 @@ void Trk::MultipleScatteringEffects::compute(IMultiStateMaterialEffects::Cache& 
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters->covariance();
 
   if (!measuredTrackCov) {
-    ATH_MSG_DEBUG( "No measurement associated with track parameters... returning original parameters");
+    ATH_MSG_DEBUG("No measurement associated with track parameters... returning original parameters");
     return;
   }
 
@@ -82,18 +82,14 @@ void Trk::MultipleScatteringEffects::compute(IMultiStateMaterialEffects::Cache& 
   MaterialProperties mprop(materialProperties.thicknessInX0(), 1., 0., 0., 0., 0.);
   double angularVariation = m_msUpdator->sigmaSquare(mprop, p, pathcorrection, Trk::muon);
   ATH_MSG_DEBUG("Sigma squared multiple scattering: " << angularVariation);
-  
-  std::unique_ptr<AmgSymMatrix(5)> deltaCov = std::make_unique<AmgSymMatrix(5)>();
-  deltaCov->setZero();
 
+  AmgSymMatrix(5) deltaCov;
+  deltaCov.setZero();
   // double sign = (direction == Trk::oppositeMomentum) ? 1. : 1.;
   double sinTheta = std::sin(trackParameters->parameters()[Trk::theta]);
-
-  (*deltaCov)(Trk::phi, Trk::phi) += angularVariation / (sinTheta * sinTheta);
-  (*deltaCov)(Trk::theta, Trk::theta) += angularVariation;
-
+  deltaCov(Trk::phi, Trk::phi) += angularVariation / (sinTheta * sinTheta);
+  deltaCov(Trk::theta, Trk::theta) += angularVariation;
   cache.weights.push_back(1.);
   cache.deltaPs.push_back(0.);
-  cache.deltaCovariances.push_back( std::move(deltaCov) );
-
+  cache.deltaCovariances.push_back(std::move(deltaCov));
 }

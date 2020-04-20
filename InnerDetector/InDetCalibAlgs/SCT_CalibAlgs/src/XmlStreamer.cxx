@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *  XmlStreamer.cpp
@@ -13,7 +13,7 @@
 
 typedef std::map<std::string, std::string> Attributes_t;
 typedef std::vector<std::string> NameValue_t;
-static Attributes_t empty;
+static const Attributes_t empty;
 
 namespace SCT_CalibAlgs {
 

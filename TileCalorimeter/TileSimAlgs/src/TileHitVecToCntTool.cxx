@@ -126,7 +126,9 @@ StatusCode TileHitVecToCntTool::initialize() {
   if (m_pileUp || m_rndmEvtOverlay) {
     ATH_MSG_INFO("take events from PileUp service");
 
-    ATH_CHECK(m_mergeSvc.retrieve());
+    if (m_onlyUseContainerName) {
+      ATH_CHECK(m_mergeSvc.retrieve());
+    }
 
     if (m_useTriggerTime) {
       ATH_MSG_INFO(" In case of pileup, the trigger time subtraction is done in PileUpSvc");
@@ -316,7 +318,7 @@ StatusCode TileHitVecToCntTool::createContainers() {
 
 }
 
-StatusCode TileHitVecToCntTool::prepareEvent(unsigned int /*nInputEvents*/) {
+StatusCode TileHitVecToCntTool::prepareEvent(const EventContext& ctx, unsigned int /*nInputEvents*/) {
 
   ATH_MSG_DEBUG("TileHitVecToCntTool prepareEvent initialization started");
 
@@ -325,7 +327,7 @@ StatusCode TileHitVecToCntTool::prepareEvent(unsigned int /*nInputEvents*/) {
   ATH_MSG_DEBUG("TileHitVecToCntTool prepareEvent finished");
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  rngWrapper->setSeed( name(), ctx );
 
   return StatusCode::SUCCESS;
 }
@@ -711,7 +713,7 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
   //  setFilterPassed(true);
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  CLHEP::HepRandomEngine * engine = *rngWrapper;
+  CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(Gaudi::Hive::currentContext());
 
   SubEventIterator iEvt(bSubEvents);
   if (m_rndmEvtOverlay && bunchXing != 0) iEvt = eSubEvents; // in overlay skip all events except BC=0
@@ -773,7 +775,7 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileHitVecToCntTool::processAllSubEvents() {
+StatusCode TileHitVecToCntTool::processAllSubEvents(const EventContext& ctx) {
 
   ATH_MSG_DEBUG("TileHitVecToCntTool processAllSubEvents started");
   typedef PileUpMergeSvc::TimedList<TileHitVector>::type TimedHitContList;
@@ -785,11 +787,11 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
   double eHitTot(0.0);
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-  CLHEP::HepRandomEngine * engine = *rngWrapper;
+  rngWrapper->setSeed( name(), ctx );
+  CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(ctx);
 
   if(!m_onlyUseContainerName && m_rndmEvtOverlay) {
-    auto hitVectorHandles = m_hitVectorKeys.makeHandles();
+    auto hitVectorHandles = m_hitVectorKeys.makeHandles(ctx);
     for (auto & inputHits : hitVectorHandles) {
       if (!inputHits.isValid()) {
         ATH_MSG_ERROR("BAD HANDLE"); //FIXME improve error here
@@ -801,7 +803,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
       this->processHitVectorForOverlay(inputHits.cptr(), nHit, eHitTot);
       if(m_doDigiTruth) this->processHitVectorWithoutPileUp(inputHits.cptr(), nHit, eHitTot, m_hits_DigiHSTruth, engine);
     }
-    ATH_CHECK(this->mergeEvent());
+    ATH_CHECK(this->mergeEvent(ctx));
     return StatusCode::SUCCESS;
   }
 
@@ -862,12 +864,12 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
 
   } // end of the loop over different input hitVectorNames (normal hits and MBTS hits)
 
-  ATH_CHECK(this->mergeEvent());
+  ATH_CHECK(this->mergeEvent(ctx));
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileHitVecToCntTool::mergeEvent() {
+StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
 
   ATH_MSG_DEBUG("Entering mergeEvent in TileHitVecToCntTool");
 
@@ -932,7 +934,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   //std::vector<std::string>::const_iterator hitVecNamesEnd = m_hitVectorNames.end();
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  CLHEP::HepRandomEngine * engine = *rngWrapper;
+  CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(ctx);
   
   TileHitNonConstContainer::iterator collIt_DigiHSTruth; 
   TileHitNonConstContainer::iterator endColl_DigiHSTruth;
@@ -993,7 +995,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
     CHECK(hits->addCollection (coll.release(), hashId++));
   }
 
-  SG::WriteHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  SG::WriteHandle<TileHitContainer> hitContainer(m_hitContainerKey, ctx);
   ATH_CHECK( hitContainer.record(std::move(hits)) );
 
   ATH_MSG_DEBUG("TileHit container registered to the TES with name" << m_hitContainerKey.key());
@@ -1011,7 +1013,7 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
       ATH_CHECK(hits_DigiHSTruth->addCollection (coll.release(), hashId_DigiHSTruth++));
     }
 
-    SG::WriteHandle<TileHitContainer> hitContainer_DigiHSTruth(m_hitContainer_DigiHSTruthKey);
+    SG::WriteHandle<TileHitContainer> hitContainer_DigiHSTruth(m_hitContainer_DigiHSTruthKey, ctx);
     ATH_CHECK( hitContainer_DigiHSTruth.record(std::move(hits_DigiHSTruth)) );
   }
 

@@ -23,9 +23,6 @@
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfStorage/TrigConfCoolFolderSpec.h"
 
-// CTP simulation includes
-#include "TrigT1CTP/ThresholdMap.h"
-
 // COOL includes
 #include "CoraCool/CoraCoolDatabaseSvcFactory.h"
 #include "CoraCool/CoraCoolDatabaseSvc.h"

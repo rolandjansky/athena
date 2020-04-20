@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 782126 2016-11-03 13:55:04Z krasznaa $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( Asg_Test )

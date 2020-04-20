@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Set up custom MET reconstruction algorithms
@@ -109,9 +111,9 @@ METConfigs_Top[met_key].builders['Ele'].PIDSel = 'Electrons.DFCommonElectronsLHT
 
 ######################################## MET FLAGS #######################################
 # Update the common METFlags with the defined configurations
-print "DFMissingET -- Defined custom MET configurations for TOP:"
-for key,cfg in METConfigs_Top.iteritems():
-    print "DFMissingET --    ",key
+print ("DFMissingET -- Defined custom MET configurations for TOP:")
+for key,cfg in METConfigs_Top.items():
+    print ("DFMissingET --    ",key)
     metFlags.METConfigs()[key] = cfg
     metFlags.METOutputList().append(key)
 import METCommon

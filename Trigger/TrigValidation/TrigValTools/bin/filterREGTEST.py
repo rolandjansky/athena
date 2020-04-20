@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 filterREGTEST.py
 Filter to remove DEBUG messages but keep REGTEST messages.
@@ -11,7 +11,7 @@ import re
 
 def main():
    if len(sys.argv)>1:
-      print __doc__
+      print(__doc__)
       return 1
 
    re_debug = re.compile('\S+\s+DEBUG.*')
@@ -20,14 +20,14 @@ def main():
       if re_debug.match(line)!=None and line.find("REGTEST")==-1:
          pass
       else:
-         print line,
+         print(line, end=' ')
          
    return 0
 
 if __name__ == "__main__":
    try:
       sys.exit(main())
-   except IOError, e:
+   except IOError as e:
       (code, msg) = e
       if (code==32): pass   # ignore broken pipe exception
       else: raise e

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTMERGER_H
@@ -13,12 +13,11 @@
 #include "MuonSegment/MuonSegment.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentTriggerHitAssociator.h"
 
 namespace Muon {
-  
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
-  class IMuonSegmentTriggerHitAssociator;
   /**
      @brief tool to remove overlaps between segments
 
@@ -29,13 +28,10 @@ namespace Muon {
     MuonSegmentMerger(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    virtual ~MuonSegmentMerger ();
+    virtual ~MuonSegmentMerger()=default;
     
     /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
  
      /** @brief find segments sharing all MDT hits but different phi hits The caller should NOT take ownership of the segments */
     SegVec findDuplicates( const SegVec& segments ) const;
@@ -48,7 +44,7 @@ namespace Muon {
 
   private:
 
-    ToolHandle<Muon::MuonIdHelperTool>                  m_idHelperTool;     //!< IdHelper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<Muon::IMuonEDMHelperSvc>              m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool

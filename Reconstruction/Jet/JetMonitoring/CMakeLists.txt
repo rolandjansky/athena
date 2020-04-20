@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Reconstruction/Jet/JetUtils
+			  Event/FourMomUtils
                           )
 
 # External dependencies:
@@ -29,7 +30,7 @@ atlas_add_component( JetMonitoring
                      Root/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODHIEvent xAODJet GaudiKernel JetInterface AthContainers AthenaMonitoringLib JetUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODHIEvent xAODJet GaudiKernel JetInterface AthContainers AthenaMonitoringLib JetUtils FourMomUtils)
 
 # Install files from the package:
 atlas_install_headers( JetMonitoring )

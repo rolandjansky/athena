@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AnalysisTest/Readegamma.h"
@@ -7,8 +7,7 @@
 
 StatusCode Readegamma::userInit()
 {
-  m_ntuplePtr -> addItem (m_prefix+"/e", m_nCon,  m_e);
-  return StatusCode::SUCCESS;
+  return m_ntuplePtr -> addItem (m_prefix+"/e", m_nCon,  m_e);
 }
 
 StatusCode Readegamma::userExec(const egamma *val)

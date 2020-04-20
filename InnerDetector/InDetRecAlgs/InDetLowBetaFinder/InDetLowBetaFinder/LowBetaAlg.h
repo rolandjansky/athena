@@ -22,13 +22,13 @@ author Christopher.Marino <Christopher.Marino@cern.ch>
 #define LOWBETAALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "InDetLowBetaInfo/InDetLowBetaContainer.h"
 #include "TrkTrack/TrackCollection.h"
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -82,7 +82,7 @@ namespace InDet
     SG::WriteHandleKey<InDet::InDetLowBetaContainer>  m_InDetLowBetaOutputName; //!< Name of output container to store results
     
     /** trying to get ahold of the TRT calib DB: */
-    ServiceHandle<ITRT_CalDbSvc> m_trtconddbsvc;
+    ToolHandle<ITRT_CalDbTool> m_trtconddbTool;
 
     ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
 

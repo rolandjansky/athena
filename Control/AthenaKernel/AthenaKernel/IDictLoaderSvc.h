@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // IDictLoaderSvc.h 
@@ -29,6 +29,7 @@
 #include "GaudiKernel/ClassID.h"
 
 #include "DataModelRoot/RootType.h"
+#include "CxxUtils/checker_macros.h"
 
 
 class IDictLoaderSvc
@@ -72,7 +73,7 @@ class IDictLoaderSvc
    *         by any necessary means.
    */
   virtual
-  const RootType load_type (const std::string& type_name) = 0;
+  const RootType load_type ATLAS_NOT_THREAD_SAFE (const std::string& type_name) = 0;
 
   /** @brief retrieve a @c RootType by @c std::type_info (auto)loading the
    *         dictionary by any necessary means.

@@ -46,7 +46,7 @@ if(partitionName == "ATLAS"):
                  InDetFlags.doHeavyIon.set_Value_and_Lock(True)
                  InDetFlags.cutLevel = 2
             if RecExOnline.OnlineISConfiguration.GetAtlasReady():
-                print "ATLAS READY, reading express stream"
+                printfunc ("ATLAS READY, reading express stream")
                 streamName = 'express:IDMonDummyStream'
                 streamType = 'express'
                 if obj.T0_project_tag == 'data15_hi':
@@ -55,10 +55,10 @@ if(partitionName == "ATLAS"):
                 #streamName = 'IDTrack:IDMonDummyStream'
                 #streamType = 'calib'
             else:
-                print "ATLAS NOT READY, reading standby stream"
+                printfunc ("ATLAS NOT READY, reading standby stream")
                 streamName = 'Standby:IDMonDummyStream'
         except:
-            print "EXCEPTION"
+            printfunc ("EXCEPTION")
             streamName = 'express:IDMonDummyStream'
     elif obj.T0_project_tag == 'data16_1beam':
         streamName = 'express'
@@ -157,8 +157,6 @@ writeESD          = False
 doAOD             = False
 writeAOD          = False
 IOVDbSvcMessage   = False
-
-abortonuncheckedstatuscode = False
 
 ## ------------------------------------------ flags set in: RecExOnline_recoflags.py (from RecExOnline_jobOptions.py)
 doAllReco   = False

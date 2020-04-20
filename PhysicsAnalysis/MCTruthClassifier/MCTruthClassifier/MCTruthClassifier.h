@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H
@@ -9,40 +9,52 @@ NAME:     MCTruthClassifier.h
 PACKAGE:  atlasoff/PhysicsAnalysis/MCTruthClassifier
 AUTHORS:  O. Fedin
 CREATED:  Sep 2007
-PURPOSE:
-Updated:
-********************************************************************/
+ ********************************************************************/
 
 // INCLUDE HEADER FILES:
 #include "AsgTools/AsgTool.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
-
 // EDM includes
-
-#include "xAODTruth/TruthParticleContainerFwd.h"
-#include "xAODTruth/TruthVertexFwd.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthVertex.h"
+// For making PID selections easier
+#include "TruthUtils/PIDHelpers.h"
 
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
 #include "GeneratorObjects/xAODTruthParticleLink.h"
-#include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
-#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-
-namespace HepMC {
-class GenParticle;
-}
-
-namespace Trk {
-class IParticleCaloExtensionTool;
-}
+#include "HepMC/GenParticle.h"
 #endif
 
+#ifndef GENERATIONBASE
+//EDM includes
+#include "xAODTruth/TruthVertex.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
+#include "xAODEgamma/Electron.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODMuon/Muon.h"
+#include "xAODJet/Jet.h"
+#endif
+
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE)
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
+#include "TrkEventPrimitives/PropDirection.h"
+#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
+#include "AthenaKernel/Units.h"
+#endif
+
+//std includes
+#include <cmath>
+#include <utility>
 class MCTruthClassifier
   : virtual public IMCTruthClassifier
   , public asg::AsgTool
 {
-
   ASG_TOOL_CLASS(MCTruthClassifier, IMCTruthClassifier)
 public:
   // constructor
@@ -58,16 +70,26 @@ public:
 #endif // not XAOD_STANDALONE
     ;
 
-  // Old EDM
-#ifndef XAOD_ANALYSIS
+  /* All get to see these*/
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
+    const xAOD::TruthParticle*,
+    Info* info = nullptr) const override;
+
+  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> checkOrigOfBkgElec(
+    const xAOD::TruthParticle* thePart,
+    Info* info = nullptr) const override;
+
+  virtual const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle*) const override;
+  const xAOD::TruthParticle* getMother(const xAOD::TruthParticle*) const;
+
+#ifndef XAOD_ANALYSIS /*This can not run in Analysis Base*/
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
     const HepMC::GenParticle*,
     Info* info = nullptr) const override;
   bool compareTruthParticles(const HepMC::GenParticle* genPart, const xAOD::TruthParticle* truthPart) const;
 #endif
-  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
-    const xAOD::TruthParticle*,
-    Info* info = nullptr) const override;
+
+#ifndef GENERATIONBASE /*These can not run in Generation only release*/
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
     const xAOD::TrackParticle*,
     Info* info = nullptr) const override;
@@ -87,15 +109,10 @@ public:
   particleTruthClassifier(const xAOD::Jet*, bool DR, Info* info = nullptr) const override;
 
   virtual const xAOD::TruthParticle* getGenPart(const xAOD::TrackParticle*, Info* info = nullptr) const override;
-  const xAOD::TruthParticle* getMother(const xAOD::TruthParticle*) const;
-
-  virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> checkOrigOfBkgElec(
-    const xAOD::TruthParticle* thePart,
-    Info* info = nullptr) const override;
-
-  virtual const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle*) const override;
+#endif
 
 private:
+  /* All get to see these*/
   static float detEta(float x, float y) { return fabs(x - y); }
   static float detPhi(float, float);
   static float rCone(float x, float y) { return sqrt(x * x + y * y); }
@@ -145,44 +162,56 @@ private:
   std::vector<const xAOD::TruthParticle*> findFinalStatePart(const xAOD::TruthVertex*) const;
   //
   static double partCharge(const xAOD::TruthParticle*);
-#ifndef XAOD_ANALYSIS
+
+  /* Private functions */
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Athena Only*/
   bool genPartToCalo(const xAOD::CaloCluster*, const xAOD::TruthParticle*, bool, double&, bool&, Cache* cache) const;
   const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*, bool, Info* info) const;
 #endif
-  //
-  void findAllJetMothers(const xAOD::TruthParticle*, std::set<const xAOD::TruthParticle*>&) const;
-  void findParticleDaughters(const xAOD::TruthParticle*, std::set<const xAOD::TruthParticle*>&) const;
+
+#ifndef GENERATIONBASE /*Disable when no recostruction packages are expected*/
   double fracParticleInJet(const xAOD::TruthParticle*, const xAOD::Jet*, bool DR, bool nparts) const;
   void findJetConstituents(const xAOD::Jet*, std::set<const xAOD::TruthParticle*>& constituents, bool DR) const;
   static double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet& v2);
-  MCTruthPartClassifier::ParticleOrigin defJetOrig(std::set<const xAOD::TruthParticle*>) const;
   //
+#endif
 
+  void findAllJetMothers(const xAOD::TruthParticle*, std::set<const xAOD::TruthParticle*>&) const;
+  void findParticleDaughters(const xAOD::TruthParticle*, std::set<const xAOD::TruthParticle*>&) const;
+  MCTruthPartClassifier::ParticleOrigin defJetOrig(const std::set<const xAOD::TruthParticle*>&) const;
+  //
   /** Return true if genParticle and truthParticle have the same pdgId, barcode and status **/
   static const xAOD::TruthParticle* barcode_to_particle(const xAOD::TruthParticleContainer*, int);
 
-  //------------------------------------------------------------------------
-  //      configurable data members
-  //------------------------------------------------------------------------
+  /* Data members*/
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerKey{
+    this,
+    "xAODTruthParticleContainerName",
+    "TruthParticles",
+    "ReadHandleKey for xAOD::TruthParticleContainer"
+  };
 
-#ifndef XAOD_ANALYSIS
+  float m_pTChargePartCut;
+  float m_pTNeutralPartCut;
+  long m_barcodeShift;
+  long m_barcodeG4Shift;
+  bool m_inclG4part;
+  bool m_inclEgammaPhoton;
+  bool m_inclEgammaFwrdEle;
+  bool m_LQpatch;
+
+#if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*When no Athena Reconstruction packages expected*/
   ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
     this,
     "ParticleCaloExtensionTool",
     "Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"
   };
   ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool{
-    this,
+this,
     "TruthInConeTool",
     "xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool"
   };
 
-  SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthLinkVecReadHandleKey{
-    this,
-    "xAODTruthLinkVector",
-    "xAODTruthLinks",
-    "ReadHandleKey for xAODTruthParticleLinkVector"
-  };
   float m_FwdElectronTruthExtrEtaCut;
   float m_FwdElectronTruthExtrEtaWindowCut;
   float m_partExtrConeEta;
@@ -195,23 +224,19 @@ private:
   bool m_ROICone;
 #endif
 
-  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerKey{
+#ifndef XAOD_ANALYSIS
+  SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthLinkVecReadHandleKey{
     this,
-    "xAODTruthParticleContainerName",
-    "TruthParticles",
-    "ReadHandleKey for xAOD::TruthParticleContainer"
+    "xAODTruthLinkVector",
+    "xAODTruthLinks",
+    "ReadHandleKey for xAODTruthParticleLinkVector"
   };
+#endif
+#ifndef GENERATIONBASE /*Disable when no recostruction packages are expected*/
   float m_deltaRMatchCut;
   float m_deltaPhiMatchCut;
   int m_NumOfSiHitsCut;
-  float m_pTChargePartCut;
-  float m_pTNeutralPartCut;
-  long m_barcodeShift;
-  long m_barcodeG4Shift;
   float m_jetPartDRMatch;
-  bool m_inclG4part;
-  bool m_inclEgammaPhoton;
-  bool m_inclEgammaFwrdEle;
-  bool m_LQpatch;
+#endif
 };
 #endif // MCTRUTHCLASSIFIER_MCTRUTHCLASSIFIER_H

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ StatusCode Trk::BasicValTrkParticleNtupleTool::initialize() {
         return sc;
     }
     // add the ntuple branches (this function has to be called by the client of this tool, if m_bookNewNtuple is set to false...)
-    addNtupleItems(m_nt);
+    ATH_CHECK(addNtupleItems(m_nt));
   }
    
     m_TrackIDcounter = 0;

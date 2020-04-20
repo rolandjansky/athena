@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file StoreGate/exceptions.h
  * @author scott snyder <snyder@bnl.gov>
@@ -279,6 +277,20 @@ public:
    * @brief Constructor.
    */
   ExcInvalidIterator();
+};
+
+
+/**
+ * @brief Exception --- Initialization of InitializedReadHandleKey failed.
+ */
+class ExcBadInitializedReadHandleKey
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  ExcBadInitializedReadHandleKey();
 };
 
 

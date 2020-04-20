@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RadLenNtuple.h"
@@ -43,7 +43,7 @@ namespace G4UA
       m_xcoord = (*p)->production_vertex()->point3d().x();
     }
    
-    ntupleSvc()->writeRecord("/NTUPLES/FILE1/RadLenNtuple/radlen");
+    ntupleSvc()->writeRecord("/NTUPLES/FILE1/RadLenNtuple/radlen").ignore();
 
   }
 

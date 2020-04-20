@@ -17,6 +17,7 @@
 
 #include <list>
 #include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/EventContext.h"
 #include "TrkTrack/Track.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSegment/TrackSegment.h"
@@ -58,15 +59,18 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-        (const Trk::Track&,
+        (const EventContext& ctx,
+         const Trk::Track&,
          InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const = 0;
 
       virtual std::vector<const Trk::MeasurementBase*>& extendTrack
-        (const Trk::TrackParameters&,
+        (const EventContext& ctx,
+         const Trk::TrackParameters&,
          InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const = 0;
 
       virtual Trk::Track* newTrack
-        (const Trk::Track&,
+        (const EventContext& ctx,
+         const Trk::Track&,
          InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const = 0;
 
       ///////////////////////////////////////////////////////////////////
@@ -74,14 +78,15 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       virtual Trk::TrackSegment* findSegment
-        (const Trk::TrackParameters&,
+        (const EventContext& ctx,
+         const Trk::TrackParameters&,
          InDet::ITRT_TrackExtensionTool::IEventData &virt_event_data) const = 0;
 
       ///////////////////////////////////////////////////////////////////
       //  Tool initialisation  for new eevent
       ///////////////////////////////////////////////////////////////////
 
-      virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent() const = 0;
+      virtual std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData> newEvent(const EventContext& ctx) const = 0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status

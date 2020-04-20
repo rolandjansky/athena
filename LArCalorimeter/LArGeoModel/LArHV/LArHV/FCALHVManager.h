@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_FCALHVMANAGER_H
@@ -7,7 +7,7 @@
 
 #include "LArHV/FCALHVModule.h"
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
@@ -56,7 +56,7 @@ class FCALHVManager
   // Get the database payload
   FCALHVPayload *getPayload(const FCALHVLine &) const;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   // Get hvLine for a subgap
   int hvLineNo(const FCALHVLine& line
                , const LArHVIdMapping* hvIdMapping) const;

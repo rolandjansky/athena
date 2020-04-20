@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMOMENTTOOLS_MISSINGCALOCELLLISTTOOL_H
@@ -49,14 +49,6 @@
 class CaloCell;
 class CaloDetDescrManager;
 class ITileBadChanTool ;
-
-namespace std {
-  template<>
-  struct hash<Identifier> {    
-    size_t operator()(Identifier id) const {return static_cast<size_t>(id.get_identifier32().get_compact());}
-  };
-}
-
 
 namespace jet {
   ///////////////////////////////////////////////////  

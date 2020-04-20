@@ -55,6 +55,12 @@ namespace InDet {
                   const IInDetConditionsTool* sctCondTool,
                   const Trk::MagneticFieldProperties* fieldProp);
 
+      
+    /**
+     * Set magnetif field cache
+     */
+    void setFieldCondObj(const  AtlasFieldCacheCondObj* fieldCondObj);
+      
     /**
      * Set cached pointer to Pixel cluster collection in StoreGate
      */

@@ -19,7 +19,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/RecoTools/ITrackToVertex
                           Tracking/TrkEvent/TrkCaloExtension
                           Tracking/TrkEvent/TrkParametersIdentificationHelpers
+			  Tracking/TrkExtrapolation/TrkExUtils
 			  InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
 			  PRIVATE
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloIdentifier
@@ -42,7 +44,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces 
+                          Tracking/TrkTools/TrkToolInterfaces
 			  Control/CxxUtils )
 
 # External dependencies:
@@ -54,7 +56,7 @@ atlas_add_library( TrackToCaloLib
                    PUBLIC_HEADERS TrackToCalo
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers GeoPrimitives xAODCaloEvent GaudiKernel ParticleCaloExtension RecoToolInterfaces 
-		   TrackCaloClusterRecToolsLib TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloUtilsLib InDetReadoutGeometry
+		   TrackCaloClusterRecToolsLib TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloUtilsLib InDetReadoutGeometry TRT_ReadoutGeometry
                    PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaBaseComps AtlasDetDescr FourMomUtils xAODTracking xAODMuon xAODEgamma xAODTruth TrkSurfaces 
                    TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces CxxUtils StoreGateLib EventKernel )
 

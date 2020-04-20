@@ -7,7 +7,7 @@
 atlas_subdir( xAODCaloEvent )
 
 # Extra dependencies, based on what environment we're in:
-if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE )
+if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    set( extra_deps Calorimeter/CaloEvent )
    set( extra_libs CaloEvent )
 endif()
@@ -35,7 +35,7 @@ find_package( Eigen )
 find_package( ROOT COMPONENTS Core GenVector )
 
 # Extra source(s), based on what environment we are in:
-if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE )
+if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    set( extra_sources src/*.cxx )
 endif()
 

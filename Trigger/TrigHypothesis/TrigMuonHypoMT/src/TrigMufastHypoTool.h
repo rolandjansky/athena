@@ -5,13 +5,13 @@
 #ifndef TRIGMUONHYPOMT_TRIGMUFASTHYPOTOOL_H 
 #define TRIGMUONHYPOMT_TRIGMUFASTHYPOTOOL_H 1
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
-#include "DecisionHandling/TrigCompositeUtils.h" 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h" 
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class StoreGateSvc;
 
@@ -99,6 +99,10 @@ class TrigMufastHypoTool: public ::AthAlgTool {
 
     Gaudi::Property<bool>  m_decisionPerCluster { 
 	this, "DecisionPerCluster", true, "Is multiplicity requirement refering to muons ( false ) or RoIs/clusters with muons ( false ), relevant only in when multiplicity > 1" };
+
+    Gaudi::Property< bool > m_doCalib {
+        this, "DoCalib", false, "muoncalib chain" };
+
 
     // Other members:   
     std::vector<size_t> m_bins = {0};

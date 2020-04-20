@@ -3,9 +3,9 @@
 //Author: Will Buttinger
 
 #pragma print off //do not print
-ApplicationMgr.OutputLevel = 0; //NIL ... so ApplicationMgr is silent
+ApplicationMgr.OutputLevel = 0; //NIL to suppress "Welcome" message
 ApplicationMgr.EventLoop = "MinimalEventLoopMgr"; //for minimal service creation
 
-//Quieten the ClassIDSvc too
+//Quieten a few components
 MessageSvc.setWarning = {"ClassIDSvc"};
-
+MessageSvc.setWarning += {"ApplicationMgr"};

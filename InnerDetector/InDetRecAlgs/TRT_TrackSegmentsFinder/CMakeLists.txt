@@ -12,14 +12,17 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           PRIVATE
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           Tracking/TrkEvent/TrkCaloClusterROI
-                          Tracking/TrkEvent/TrkSegment )
+                          Tracking/TrkEvent/TrkSegment
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions)
 
 # Component(s) in the package:
 atlas_add_component( TRT_TrackSegmentsFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces InDetReadoutGeometry TrkCaloClusterROI TrkSegment )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces InDetReadoutGeometry TRT_ReadoutGeometry TrkCaloClusterROI TrkSegment MagFieldElements MagFieldConditions )
 
 # Install files from the package:
 atlas_install_headers( TRT_TrackSegmentsFinder )

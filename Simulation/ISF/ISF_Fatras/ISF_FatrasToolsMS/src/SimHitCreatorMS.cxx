@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// SimHitCreatorMS.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 // class header
 #include "SimHitCreatorMS.h"
@@ -35,8 +31,6 @@
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
 
-#include "MuonTGRecTools/IMuonTGMeasTool.h"
-
 #include "CLHEP/Random/RandLandau.h"
 #include "CLHEP/Random/RandGauss.h"
 
@@ -45,7 +39,7 @@
 iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     const std::string& n,
     const IInterface*  p ) : 
- base_class(t,n,p),
+    base_class(t,n,p),
     m_incidentSvc("IncidentSvc", n),
     m_extrapolator(""),
     m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
@@ -92,56 +86,31 @@ iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     declareProperty("CreateAllMdtHits",             m_createAllMdtHits);
 }
 
-//================ Destructor =================================================
-
-iFatras::SimHitCreatorMS::~SimHitCreatorMS()
-{}
-
-
 //================ Initialisation =================================================
 
 StatusCode iFatras::SimHitCreatorMS::initialize()
 {
 
   // Get Extrapolator from ToolService
-  if (m_extrapolator.retrieve().isFailure()) {
-      ATH_MSG_FATAL(  "[ --- ] Could not retrieve " << m_extrapolator );
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_extrapolator.retrieve());
   // Get IdHelper from ToolService
-  if (m_muonIdHelperTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL(  "[ --- ] Could not retrieve " << m_muonIdHelperTool );
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_idHelperSvc.retrieve());
   // the MS helpers for the different technologies
-  m_mdtHitIdHelper = MdtHitIdHelper::GetHelper(); 
-  m_rpcHitIdHelper = RpcHitIdHelper::GetHelper(); 
-  m_tgcHitIdHelper = TgcHitIdHelper::GetHelper(); 
-  m_cscHitIdHelper = CscHitIdHelper::GetHelper(); 
-  // m_sTgcHitIdHelper = sTgcHitIdHelper::GetHelper(); 
-  // m_mmHitIdHelper = MicromegasHitIdHelper::GetHelper(); 
+  m_mdtHitIdHelper = MdtHitIdHelper::GetHelper();
+  m_rpcHitIdHelper = RpcHitIdHelper::GetHelper(m_idHelperSvc->rpcIdHelper().gasGapMax());
+  m_tgcHitIdHelper = TgcHitIdHelper::GetHelper();
+  m_cscHitIdHelper = CscHitIdHelper::GetHelper();
 
-  if (detStore()->retrieve(m_muonMgr).isFailure()) {
-      ATH_MSG_FATAL( "[ --- ] Cannot retrieve MuonDetectorManager..." );
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_muonMgr));
 
   m_mmOffToSimId = new MM_SimIdToOfflineId(*(m_muonMgr->mmIdHelper())); 
   m_stgcOffToSimId = new sTgcSimIdToOfflineId(*(m_muonMgr->stgcIdHelper())); 
   
- // get measurement tool
-  if (m_measTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL( "[ --- ] Could not find TG measurement tool " );
-      return StatusCode::FAILURE;
-  } else {
-      ATH_MSG_INFO( "[ muhit ] TG measurement tool booked ");
-  }
+  // get measurement tool
+  ATH_CHECK(m_measTool.retrieve());
 
   // Random number service
-  if ( m_randomSvc.retrieve().isFailure() ) {
-      ATH_MSG_ERROR( "[ --- ] Could not retrieve " << m_randomSvc );
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_randomSvc.retrieve());
   //Get own engine with own seeds:
   m_randomEngine = m_randomSvc->GetEngine(m_randomEngineName);
   if (!m_randomEngine) {
@@ -151,19 +120,16 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
 
 
   // Athena/Gaudi framework
-  if (m_incidentSvc.retrieve().isFailure()){
-      ATH_MSG_WARNING("[ sihit ] Could not retrieve " << m_incidentSvc << ". Exiting.");
-      return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_incidentSvc.retrieve());
   // register to the incident service: BeginEvent for TrackCollection
   m_incidentSvc->addListener( this, IncidentType::BeginEvent);
 
   ATH_MSG_INFO( "[ mutrack ] initialize() successful." );
 
-     m_BMGpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG") != -1;
+     m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
       if(m_BMGpresent){
         ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-        m_BMGid = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG");
+        m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
         for(int phi=6; phi<8; phi++) { // phi sectors
           for(int eta=1; eta<4; eta++) { // eta sectors
             for(int side=-1; side<2; side+=2) { // side
@@ -180,14 +146,6 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
 
 
   return StatusCode::SUCCESS;
-}
-
-//================ Finalisation =================================================
-
-StatusCode iFatras::SimHitCreatorMS::finalize()
-{
-    StatusCode sc = AlgTool::finalize();
-    return sc;
 }
 
 //================ Event Initialization =========================================
@@ -291,7 +249,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
     Identifier id(currLay->layerType());
  
     // NSW hits
-    if ( m_muonIdHelperTool->mdtIdHelper().is_mm(id) ||  m_muonIdHelperTool->mdtIdHelper().is_stgc(id) ) {   
+    if ( m_idHelperSvc->mdtIdHelper().is_mm(id) ||  m_idHelperSvc->mdtIdHelper().is_stgc(id) ) {   
       // hit ID
       int simID = offIdToSimId(id);
       // local position : at MTG layer ( corresponds to the middle of the gas gap ) 
@@ -318,12 +276,12 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 
       ATH_MSG_VERBOSE("[ muhit ] NSW hit created.");           
 
-    }  else if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) {    // (A) special treatment for MDTs to find closest channel and nearby hits
+    }  else if (m_idHelperSvc->mdtIdHelper().is_mdt(id)) {    // (A) special treatment for MDTs to find closest channel and nearby hits
       double pitch = 0.;
       // get the identifier 
       Identifier hid = m_measTool->nearestDetEl(currLay,parm,false,pitch);
       // 
-      if (m_muonIdHelperTool->mdtIdHelper().valid(hid)) {
+      if (m_idHelperSvc->mdtIdHelper().valid(hid)) {
 	// create first hit 
 	bool hitCreated = createHit(isp, currLay,parm,hid,timeInfo,pitch, true);
 	if (m_createAllMdtHits) {
@@ -331,30 +289,30 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 	  const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(hid);  
 	  if (!mdtROE) continue;	   
 	  int tMax = mdtROE->getNtubesperlayer();
-	  int tCur = m_muonIdHelperTool->mdtIdHelper().tube(hid);  
+	  int tCur = m_idHelperSvc->mdtIdHelper().tube(hid);  
 	  // recalculate id
 	  int next=-1; 
 	  while (tCur+next>0) {
-	    Identifier nextId = m_muonIdHelperTool->mdtIdHelper().channelID(m_muonIdHelperTool->mdtIdHelper().stationName(hid),
-									m_muonIdHelperTool->mdtIdHelper().stationEta(hid),
-									m_muonIdHelperTool->mdtIdHelper().stationPhi(hid),
-									m_muonIdHelperTool->mdtIdHelper().multilayer(hid),
-									m_muonIdHelperTool->mdtIdHelper().tubeLayer(hid),
+	    Identifier nextId = m_idHelperSvc->mdtIdHelper().channelID(m_idHelperSvc->mdtIdHelper().stationName(hid),
+									m_idHelperSvc->mdtIdHelper().stationEta(hid),
+									m_idHelperSvc->mdtIdHelper().stationPhi(hid),
+									m_idHelperSvc->mdtIdHelper().multilayer(hid),
+									m_idHelperSvc->mdtIdHelper().tubeLayer(hid),
 									tCur+next);
-	    if (!m_muonIdHelperTool->mdtIdHelper().valid(nextId)) break;
+	    if (!m_idHelperSvc->mdtIdHelper().valid(nextId)) break;
 	    hitCreated = createHit(isp, currLay,parm,nextId,timeInfo,pitch,true);
 	    if (!hitCreated) break;
 	    next--;
 	  }
 	  next = 1;
 	  while (tCur+next <= tMax) {
-	    Identifier nextId = m_muonIdHelperTool->mdtIdHelper().channelID(m_muonIdHelperTool->mdtIdHelper().stationName(hid),
-									m_muonIdHelperTool->mdtIdHelper().stationEta(hid),
-									m_muonIdHelperTool->mdtIdHelper().stationPhi(hid),
-									m_muonIdHelperTool->mdtIdHelper().multilayer(hid),
-									m_muonIdHelperTool->mdtIdHelper().tubeLayer(hid),
+	    Identifier nextId = m_idHelperSvc->mdtIdHelper().channelID(m_idHelperSvc->mdtIdHelper().stationName(hid),
+									m_idHelperSvc->mdtIdHelper().stationEta(hid),
+									m_idHelperSvc->mdtIdHelper().stationPhi(hid),
+									m_idHelperSvc->mdtIdHelper().multilayer(hid),
+									m_idHelperSvc->mdtIdHelper().tubeLayer(hid),
 									tCur+next);
-	    if (!m_muonIdHelperTool->mdtIdHelper().valid(nextId)) break;
+	    if (!m_idHelperSvc->mdtIdHelper().valid(nextId)) break;
 	    hitCreated = createHit(isp, currLay,parm,nextId,timeInfo,pitch,true);
 	    if (!hitCreated) break;
 	    next++; 
@@ -382,21 +340,21 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
 					 const Trk::Layer* lay,const Trk::TrackParameters* parm, Identifier id, double globalTimeEstimate, double /* pitch */, bool /* smear */) const
 {
    // MDT SECTION 
-   if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) {
+   if (m_idHelperSvc->mdtIdHelper().is_mdt(id)) {
             
-     int simId = m_mdtHitIdHelper->BuildMdtHitId(m_muonIdHelperTool->mdtIdHelper().stationNameString(m_muonIdHelperTool->mdtIdHelper().stationName(id)),
-						 m_muonIdHelperTool->mdtIdHelper().stationPhi(id), m_muonIdHelperTool->mdtIdHelper().stationEta(id),
-						 m_muonIdHelperTool->mdtIdHelper().multilayer(id), m_muonIdHelperTool->mdtIdHelper().tubeLayer(id),
-						 m_muonIdHelperTool->mdtIdHelper().tube(id));
+     int simId = m_mdtHitIdHelper->BuildMdtHitId(m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id)),
+						 m_idHelperSvc->mdtIdHelper().stationPhi(id), m_idHelperSvc->mdtIdHelper().stationEta(id),
+						 m_idHelperSvc->mdtIdHelper().multilayer(id), m_idHelperSvc->mdtIdHelper().tubeLayer(id),
+						 m_idHelperSvc->mdtIdHelper().tube(id));
      
      ATH_MSG_VERBOSE(  "[ muhit ] Creating MDTSimHit with identifier " <<  simId );
      // local position from the mdt's i
      const MuonGM::MdtReadoutElement* MdtRoEl = m_muonMgr->getMdtReadoutElement(id);
-     if(m_BMGpresent && m_muonIdHelperTool->mdtIdHelper().stationName(id) == m_BMGid ) {
+     if(m_BMGpresent && m_idHelperSvc->mdtIdHelper().stationName(id) == m_BMGid ) {
        auto myIt = m_DeadChannels.find(MdtRoEl->identify());
        if( myIt != m_DeadChannels.end() ){
          if( std::find( (myIt->second).begin(), (myIt->second).end(), id) != (myIt->second).end() ) {
-           ATH_MSG_DEBUG("Skipping tube with identifier " << m_muonIdHelperTool->mdtIdHelper().show_to_string(id) );
+           ATH_MSG_DEBUG("Skipping tube with identifier " << m_idHelperSvc->mdtIdHelper().show_to_string(id) );
            return false;
          }
        }
@@ -423,14 +381,14 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
      } else {
        return false;
      }
-  } else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id)) { 
+  } else if (m_idHelperSvc->rpcIdHelper().is_rpc(id)) { 
     // local position from the rpc's
     const Amg::Vector3D localPos = m_muonMgr->getRpcReadoutElement(id)->globalToLocalCoords(parm->position(),id);
-    int simId = m_rpcHitIdHelper->BuildRpcHitId(m_muonIdHelperTool->rpcIdHelper().stationNameString(m_muonIdHelperTool->rpcIdHelper().stationName(id)),
-						m_muonIdHelperTool->rpcIdHelper().stationPhi(id), m_muonIdHelperTool->rpcIdHelper().stationEta(id),
-						m_muonIdHelperTool->rpcIdHelper().doubletZ(id),   m_muonIdHelperTool->rpcIdHelper().doubletR(id),
-						m_muonIdHelperTool->rpcIdHelper().gasGap(id),     m_muonIdHelperTool->rpcIdHelper().doubletPhi(id),
-						m_muonIdHelperTool->rpcIdHelper().measuresPhi(id));
+    int simId = m_rpcHitIdHelper->BuildRpcHitId(m_idHelperSvc->rpcIdHelper().stationNameString(m_idHelperSvc->rpcIdHelper().stationName(id)),
+						m_idHelperSvc->rpcIdHelper().stationPhi(id), m_idHelperSvc->rpcIdHelper().stationEta(id),
+						m_idHelperSvc->rpcIdHelper().doubletZ(id),   m_idHelperSvc->rpcIdHelper().doubletR(id),
+						m_idHelperSvc->rpcIdHelper().gasGap(id),     m_idHelperSvc->rpcIdHelper().doubletPhi(id),
+						m_idHelperSvc->rpcIdHelper().measuresPhi(id));
     
     ATH_MSG_VERBOSE(  "[ muhit ] Creating RPCSimHit with identifier " <<  simId );
 
@@ -441,7 +399,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
     RPCSimHit rpcHit = RPCSimHit(simId,globalTimeEstimate, localPos, isp.barcode(), localPos, energyDeposit,1.,isp.pdgCode(),isp.momentum().mag() ) ; 
     m_rpcSimHitCollection->Insert(rpcHit); 
 
-  } else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id) && !m_muonIdHelperTool->tgcIdHelper().isStrip(id) ) { 
+  } else if (m_idHelperSvc->tgcIdHelper().is_tgc(id) && !m_idHelperSvc->tgcIdHelper().isStrip(id) ) { 
     
     // take eta hits only
     // local position
@@ -449,9 +407,9 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
     // local direction
     Amg::Vector3D localDir = m_muonMgr->getTgcReadoutElement(id)->globalToLocalTransf(id).rotation()*parm->momentum().normalized();
     
-    int simId = m_tgcHitIdHelper->BuildTgcHitId(m_muonIdHelperTool->tgcIdHelper().stationNameString(m_muonIdHelperTool->tgcIdHelper().stationName(id)),
-						m_muonIdHelperTool->tgcIdHelper().stationPhi(id), m_muonIdHelperTool->tgcIdHelper().stationEta(id),
-						m_muonIdHelperTool->tgcIdHelper().gasGap(id));
+    int simId = m_tgcHitIdHelper->BuildTgcHitId(m_idHelperSvc->tgcIdHelper().stationNameString(m_idHelperSvc->tgcIdHelper().stationName(id)),
+						m_idHelperSvc->tgcIdHelper().stationPhi(id), m_idHelperSvc->tgcIdHelper().stationEta(id),
+						m_idHelperSvc->tgcIdHelper().gasGap(id));
     
     ATH_MSG_VERBOSE(  "[ muhit ] Creating TGCSimHit with identifier " <<  simId );
     
@@ -463,7 +421,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
     // a new simhit
     TGCSimHit tgcHit = TGCSimHit(simId,globalTimeEstimate, localPos, localDir, isp.barcode(), energyDeposit, stepLength ) ;
     m_tgcSimHitCollection->Insert(tgcHit); 
-  } else if (m_muonIdHelperTool->cscIdHelper().is_csc(id)) { 
+  } else if (m_idHelperSvc->cscIdHelper().is_csc(id)) { 
     // one of eta/phi hits only
     
     Amg::Vector3D dir(parm->momentum().normalized());
@@ -491,9 +449,9 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
     else lundcode = 999;
     // else if Trk::nonInteracting  lundcode = 999;
     
-    int simId = m_cscHitIdHelper->BuildCscHitId(m_muonIdHelperTool->cscIdHelper().stationNameString(m_muonIdHelperTool->cscIdHelper().stationName(id)),
-						m_muonIdHelperTool->cscIdHelper().stationPhi(id), m_muonIdHelperTool->cscIdHelper().stationEta(id),
-						m_muonIdHelperTool->cscIdHelper().chamberLayer(id), m_muonIdHelperTool->cscIdHelper().wireLayer(id));
+    int simId = m_cscHitIdHelper->BuildCscHitId(m_idHelperSvc->cscIdHelper().stationNameString(m_idHelperSvc->cscIdHelper().stationName(id)),
+						m_idHelperSvc->cscIdHelper().stationPhi(id), m_idHelperSvc->cscIdHelper().stationEta(id),
+						m_idHelperSvc->cscIdHelper().chamberLayer(id), m_idHelperSvc->cscIdHelper().wireLayer(id));
     
     ATH_MSG_VERBOSE(  "[ muhit ] Creating CSCSimHit with identifier " <<  simId );
     
@@ -553,10 +511,10 @@ void iFatras::SimHitCreatorMS::initDeadChannels(const MuonGM::MdtReadoutElement*
 
   Identifier detElId = mydetEl->identify();
 
-  int name = m_muonIdHelperTool->mdtIdHelper().stationName(detElId);
-  int eta = m_muonIdHelperTool->mdtIdHelper().stationEta(detElId);
-  int phi = m_muonIdHelperTool->mdtIdHelper().stationPhi(detElId);
-  int ml = m_muonIdHelperTool->mdtIdHelper().multilayer(detElId);
+  int name = m_idHelperSvc->mdtIdHelper().stationName(detElId);
+  int eta = m_idHelperSvc->mdtIdHelper().stationEta(detElId);
+  int phi = m_idHelperSvc->mdtIdHelper().stationPhi(detElId);
+  int ml = m_idHelperSvc->mdtIdHelper().multilayer(detElId);
   std::vector<Identifier> deadTubes;
   
     for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
@@ -572,7 +530,7 @@ void iFatras::SimHitCreatorMS::initDeadChannels(const MuonGM::MdtReadoutElement*
         if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
       }
       if(!tubefound) {
-        Identifier deadTubeId = m_muonIdHelperTool->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
+        Identifier deadTubeId = m_idHelperSvc->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
         deadTubes.push_back( deadTubeId );
         ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
                         << "), phi(" << phi << "), eta(" << eta << "), name(" << name

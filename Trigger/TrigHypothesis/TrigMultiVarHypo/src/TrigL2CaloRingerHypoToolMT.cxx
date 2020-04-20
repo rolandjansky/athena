@@ -3,13 +3,13 @@
 */
 
 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/Combinators.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/Combinators.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrigL2CaloRingerHypoToolMT.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 using namespace Monitored;
 using namespace TrigCompositeUtils;

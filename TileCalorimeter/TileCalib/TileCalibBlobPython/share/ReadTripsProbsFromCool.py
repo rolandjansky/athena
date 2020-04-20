@@ -1,30 +1,32 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ./ReadTripsProbsFromCool.py  --schema='COOLOFL_TILE/OFLP200'  --folder='OFL02' --tag='UPD4'
 
-import getopt,sys,os,string
+from __future__ import print_function
+
+import getopt,sys,os
 os.environ['TERM'] = 'linux'
 
 def usage():
-    print "Usage: ",sys.argv[0]," [OPTION] ... "
-    print "Dumps the TileCal drawer trips probabilities from various schemas / folders"
-    print ""
-    print "-h, --help     shows this help"
-    print "-f, --folder=  specify status folder, by default OFL02 "
-    print "-t, --tag=     specify tag to use, f.i. UPD1 or UPD4"
-    print "-r, --run=     specify run  number, by default uses latest iov"
-    print "-l, --lumi=    specify lumi block number, default is 0"
-    print "-s, --schema=  specify schema to use, like 'COOLOFL_TILE/OFLP200' or 'sqlite://;schema=tileSqlite.db;dbname=OFLP200'"
+    print ("Usage: ",sys.argv[0]," [OPTION] ... ")
+    print ("Dumps the TileCal drawer trips probabilities from various schemas / folders")
+    print ("")
+    print ("-h, --help     shows this help")
+    print ("-f, --folder=  specify status folder, by default OFL02 ")
+    print ("-t, --tag=     specify tag to use, f.i. UPD1 or UPD4")
+    print ("-r, --run=     specify run  number, by default uses latest iov")
+    print ("-l, --lumi=    specify lumi block number, default is 0")
+    print ("-s, --schema=  specify schema to use, like 'COOLOFL_TILE/OFLP200' or 'sqlite://;schema=tileSqlite.db;dbname=OFLP200'")
     
 letters = "hr:l:s:t:f:"
 keywords = ["help","run=","lumi=","schema=","tag=","folder="]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetoptError, err:
-    print str(err)
+except getopt.GetoptError as err:
+    print (str(err))
     usage()
     sys.exit(2)
 
@@ -55,11 +57,9 @@ for o, a in opts:
 
 
 from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobPython import TileBchTools
-from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobObjs.Classes import TileCalibUtils
 
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("ReadTripsProbs")
 import logging
 logLevel=logging.DEBUG
@@ -71,7 +71,7 @@ log1.setLevel(logLevel)
 #=== set database
 db = TileCalibTools.openDbConn(schema, 'READONLY')
 folderTag = TileCalibTools.getFolderTag(db, folderPath, tag)
-log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
+log.info("Initializing folder %s with tag %s", folderPath, folderTag)
 
 blobReader = TileCalibTools.TileBlobReader(db, folderPath, folderTag)
 
@@ -81,21 +81,21 @@ tripsCalibDrawer = blobReader.getDrawer(util.trips_ros(), util.trips_drawer(), (
 
 if tripsCalibDrawer.getNChans() != util.max_ros() \
    or tripsCalibDrawer.getObjSizeUint32() != (util.max_drawer() + 1):
-    log.info("There no drawer trips probabilities in tag %s" % (folderTag))
+    log.info("There no drawer trips probabilities in tag %s", folderTag)
     sys.exit(2)
 
 
-print ""
-print "Module\tTrip (probability)"
-print ""
+print ("")
+print ("Module\tTrip (probability)")
+print ("")
 
-for ros in xrange(1, util.max_ros()):
+for ros in range(1, util.max_ros()):
     denominator = tripsCalibDrawer.getData(ros, 0, util.max_drawer())
-    for mod in xrange(0, min(64, TileCalibUtils.getMaxDrawer(ros))):
+    for mod in range(0, min(64, TileCalibUtils.getMaxDrawer(ros))):
         modName = TileCalibUtils.getDrawerString(ros, mod)
         trip = tripsCalibDrawer.getData(ros, 0, mod)
         #log.info("%s\t%s" % (modName, str(float(trip)/ denominator)))
-        print "%s\t%s" % (modName, str(float(trip)/ denominator))
+        print ("%s\t%s" % (modName, str(float(trip)/ denominator)))
 
 
 #=== close DB

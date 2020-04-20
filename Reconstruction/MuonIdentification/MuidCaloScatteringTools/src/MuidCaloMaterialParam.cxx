@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -305,14 +305,14 @@ MuidCaloMaterialParam::createSurface (double eta, double r, double z, double cot
     if (std::abs(eta) < 1.4)
     {
 	Trk::CylinderSurface* surf	= new Trk::CylinderSurface(transform,r,halfZLength);
-	if (m_produceSurfacesDisplay) m_surfaceDisplayTool->process(*surf);
+	if (m_produceSurfacesDisplay) m_surfaceDisplayTool->process(*surf).ignore();
 	return surf;
     }
     else
     {
 	double halfRLength		= halfZLength*r/std::abs(z);
 	Trk::DiscSurface* surf = new Trk::DiscSurface(transform, r-halfRLength, r+halfRLength);
-	if (m_produceSurfacesDisplay) m_surfaceDisplayTool->process(*surf);
+	if (m_produceSurfacesDisplay) m_surfaceDisplayTool->process(*surf).ignore();
 	return surf;
     }
 }

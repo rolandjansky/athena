@@ -53,10 +53,14 @@ class LArRawChannelBuilderAlg : public AthReentrantAlgorithm {
 
   //Other jobOptions:
   Gaudi::Property<float> m_eCutFortQ{this,"ECutFortQ",256.0,"Time and Quality will be computed only for channels with E above this value"};
+  //This flag decides if we compute Q and t for cells with negative energy
+  Gaudi::Property<bool> m_absECutFortQ{this,"absECut",true,"Cut on fabs(E) for Q and t computation"};
   Gaudi::Property<bool> m_useShapeDer{this,"useShapeDer",true,"Use shape derivative in Q-factor computation"};
 
   //The following matters only in the MC case, when we have a 32 sample shapes
   Gaudi::Property<int> m_firstSample{this,"firstSample",0,"first of the 32 sampels of the MC shape to be used"};
+
+  
 
   //Identifier helper
   const LArOnlineID* m_onlineId;

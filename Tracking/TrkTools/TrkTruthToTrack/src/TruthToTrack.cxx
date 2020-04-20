@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define TRUTHTOTRACK_IMP
@@ -30,7 +30,7 @@
 //================================================================
 Trk::TruthToTrack::TruthToTrack(const std::string& type, const std::string& name, const IInterface* parent)
   : ::AthAlgTool(type,name,parent)
-  , m_particleDataTable(0)
+  , m_particleDataTable(nullptr)
   , m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
 {
   declareInterface<ITruthToTrack>(this);
@@ -40,7 +40,7 @@ Trk::TruthToTrack::TruthToTrack(const std::string& type, const std::string& name
 //================================================================
 StatusCode Trk::TruthToTrack::initialize() {
   // get the Particle Properties Service
-  IPartPropSvc* partPropSvc = 0;
+  IPartPropSvc* partPropSvc = nullptr;
   StatusCode sc =  service("PartPropSvc", partPropSvc, true);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Could not initialize Particle Properties Service");
@@ -62,16 +62,16 @@ StatusCode Trk::TruthToTrack::initialize() {
 
 //================================================================
 const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const HepMC::GenParticle* part) const {
-  Trk::TrackParameters *result = 0;
+  Trk::TrackParameters *result = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable) {
-    HepMC::ThreeVector tv = part->production_vertex()->point3d();
+    HepMC::FourVector tv = part->production_vertex()->position();
     Amg::Vector3D hv(tv.x(),tv.y(),tv.z());
-    Amg::Vector3D globalPos = hv;
+    const Amg::Vector3D& globalPos = hv;
     
-    HepMC::FourVector fv = part->momentum();
+    const HepMC::FourVector& fv = part->momentum();
     Amg::Vector3D hv2(fv.px(),fv.py(),fv.pz());
-    Amg::Vector3D globalMom = hv2;
+    const Amg::Vector3D& globalMom = hv2;
       
     int id = part->pdg_id();
     // the table seems to lack antiparticles, thus the use of abs()
@@ -97,14 +97,14 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const He
 
 //================================================================
 const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const xAOD::TruthParticle* part) const {
-  Trk::TrackParameters *result = 0;
+  Trk::TrackParameters *result = nullptr;
 
   if(part && part->hasProdVtx() && m_particleDataTable) {
     Amg::Vector3D hv(part->prodVtx()->x(),part->prodVtx()->y(),part->prodVtx()->z());
-    Amg::Vector3D globalPos = hv;
+    const Amg::Vector3D& globalPos = hv;
     
     Amg::Vector3D hv2(part->p4().Px(),part->p4().Py(),part->p4().Pz());
-    Amg::Vector3D globalMom = hv2;
+    const Amg::Vector3D& globalMom = hv2;
       
     int id = part->pdgId();
     // the table seems to lack antiparticles, thus the use of abs()
@@ -131,11 +131,11 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const xA
 
 //================================================================
 const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const HepMC::GenParticle* part) const {
-  const Trk::TrackParameters* generatedTrackPerigee = 0;
+  const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable && m_extrapolator) {
 
-    std::auto_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
+    std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams.get()) {
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
@@ -155,11 +155,11 @@ const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const HepMC
 
 //================================================================
 const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const xAOD::TruthParticle* part) const {
-  const Trk::TrackParameters* generatedTrackPerigee = 0;
+  const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
   if(part && part->hasProdVtx() && m_particleDataTable && m_extrapolator) {
 
-    std::auto_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
+    std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams.get()) {
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,

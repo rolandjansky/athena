@@ -112,10 +112,8 @@ private:
 	std::vector<uint32_t> m_MissingROBs;
 	/** hash references to BCID */
 	std::vector< std::vector<int> > m_hashSym;
-	/** correction per BCID for each sym cell */
-	std::vector< std::vector<float> > m_corrBCID;
-	/** reference to the corrections for a given BCID */
-	std::vector<float>& m_corrBCIDref;
+	/** corrections for a given BCID */
+	std::vector<float> m_corrBCID;
 	/** index table */
 	std::map<HWIdentifier,int> m_indexset;
         /** current lumi_block */

@@ -1,14 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackSelectorTool.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
@@ -18,6 +13,8 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 
 #include "TrkTrack/Track.h"
+#include "TrkParameters/TrackParameters.h"
+
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include <map>
@@ -26,7 +23,6 @@ namespace Muon {
 
   MuonTrackSelectorTool::MuonTrackSelectorTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
       m_ntotalTracks(0),
@@ -62,15 +58,11 @@ namespace Muon {
     declareProperty("TightSingleStationCuts",             m_tightSingleStationCuts = false );
   }
 
-
-  MuonTrackSelectorTool::~MuonTrackSelectorTool(){}
-
-
   StatusCode MuonTrackSelectorTool::initialize()
   {
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_trackSummaryTool.retrieve() );
 
     return StatusCode::SUCCESS;
@@ -218,12 +210,12 @@ namespace Muon {
       const Identifier& chId = chit->chamberId();
 
 
-      bool isMdt = m_idHelperTool->isMdt(chId);
-      bool isCsc = m_idHelperTool->isCsc(chId);
-      bool isRpc = m_idHelperTool->isRpc(chId);
-      bool isTgc = m_idHelperTool->isTgc(chId);
-      bool issTgc = m_idHelperTool->issTgc(chId);
-      bool isMM   = m_idHelperTool->isMM(chId);
+      bool isMdt = m_idHelperSvc->isMdt(chId);
+      bool isCsc = m_idHelperSvc->isCsc(chId);
+      bool isRpc = m_idHelperSvc->isRpc(chId);
+      bool isTgc = m_idHelperSvc->isTgc(chId);
+      bool issTgc = m_idHelperSvc->issTgc(chId);
+      bool isMM   = m_idHelperSvc->isMM(chId);
 
       // check whether we should use holes in this chamber
       bool useHoles = false;
@@ -239,7 +231,7 @@ namespace Muon {
 
       if( isMdt ){
 
-	MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(chId);
+	MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
 	StationData& stData = stations[stIndex];
 	stData.netaHits  += chit->nhits();
 	if( useHoles ) stData.netaHoles += chit->nholes(); 
@@ -256,7 +248,7 @@ namespace Muon {
 
       }else if ( isCsc || issTgc || isMM ){
 
-	MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(chId);
+	MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
 	StationData& stData = stations[stIndex];
 	stData.netaHits  += chit->etaProjection().nhits;
 	if( useHoles ) {
@@ -270,7 +262,7 @@ namespace Muon {
 
       }else if( isRpc || isTgc ){
 
-	MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(chId);
+	MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chId);
 	StationData& stData = stations[stIndex];
 	stData.netaTrigHits  += chit->etaProjection().nhits > 0 ? 1 : 0;
 	stData.nphiTrigHits  += chit->phiProjection().nhits > 0 ? 1 : 0;

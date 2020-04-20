@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCluster_OnTrackBuilder.h"
@@ -23,85 +23,60 @@ CaloCluster_OnTrackBuilder::CaloCluster_OnTrackBuilder(const std::string& t,
                                                        const std::string& n,
                                                        const IInterface*  p )
 : AthAlgTool(t,n,p),
-  m_calo_dd(0),
-  m_emid(0)
+  m_emid(nullptr)
 {
   declareInterface<ICaloCluster_OnTrackBuilder>(this);
 }
 
-//--------------------------------------------------------------------------------------------
 CaloCluster_OnTrackBuilder::~CaloCluster_OnTrackBuilder() {}
-//--------------------------------------------------------------------------------------------
 
 
-//--------------------------------------------------------------------------------------------
 StatusCode CaloCluster_OnTrackBuilder::initialize() {
-//--------------------------------------------------------------------------------------------
   
   ATH_MSG_INFO("Initializing CaloCluster_OnTrackBuilder");
 
 
-  ATH_CHECK(m_caloCellContainerKey.initialize());
- 
   // Retrieve the updator CaloSurfaceBuilder
   if ( m_calosurf.retrieve().isFailure() ){
     ATH_MSG_FATAL ( "Unable to retrieve the instance " << m_calosurf.name() << "... Exiting!" );
     return StatusCode::FAILURE;
   }
   
-  // retrieve all helpers from det store
-  m_calo_dd = CaloDetDescrManager::instance();
   
   return StatusCode::SUCCESS;
 }
 
-//--------------------------------------------------------------------------------------------
-StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
-//--------------------------------------------------------------------------------------------
-
-
-
-
-
-
-//--------------------------------------------------------------------------------------------
-  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::Egamma* eg, int charge ) const
-//--------------------------------------------------------------------------------------------
-{
-  return buildClusterOnTrack( eg->caloCluster(), charge );
+StatusCode CaloCluster_OnTrackBuilder::finalize() {
+  return StatusCode::SUCCESS;
 }
 
-
-
-//--------------------------------------------------------------------------------------------
-  Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack( const xAOD::CaloCluster* cluster, int charge ) const
-//--------------------------------------------------------------------------------------------
-{
+Trk::CaloCluster_OnTrack* CaloCluster_OnTrackBuilder::buildClusterOnTrack(
+    const xAOD::CaloCluster* cluster, int charge) const {
 
   ATH_MSG_DEBUG("Building Trk::CaloCluster_OnTrack");
   
   if(!m_useClusterPhi && !m_useClusterEta && !m_useClusterEnergy){
     ATH_MSG_WARNING("CaloCluster_OnTrackBuilder is configured incorrectly");  
-    return 0;  
+    return nullptr;  
   }
   
-  if(!cluster) return 0;
+  if(!cluster) return nullptr;
 
   const Trk::Surface* surface = getCaloSurface( cluster );
   
-  if(!surface) return 0;
+  if(!surface) return nullptr;
   
   const Trk::LocalParameters*  lp =getClusterLocalParameters( cluster, surface, charge );
   if (!lp){
     delete surface;
-    return 0;
+    return nullptr;
   }
      
   const  Amg::MatrixX *em  =getClusterErrorMatrix( cluster, surface, charge );  
   if (!em){
     delete surface;
     delete lp;
-    return 0;
+    return nullptr;
   }
   
   Trk::CaloCluster_OnTrack* ccot = new  Trk::CaloCluster_OnTrack( *lp, *em, *surface );
@@ -116,14 +91,10 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
   return ccot;
 }
 
-
-
-//--------------------------------------------------------------------------------------------
 const Trk::Surface*   CaloCluster_OnTrackBuilder::getCaloSurface( const xAOD::CaloCluster* cluster ) const
-//--------------------------------------------------------------------------------------------
 {
  
-  const Trk::Surface* destinationSurface = 0;
+  const Trk::Surface* destinationSurface = nullptr;
   
   // Determine if we want to extrapolate to the barrel or endcap.  If in the crack choose the 
   // detector with largest amount of energy in the second sampling layer 
@@ -137,11 +108,9 @@ const Trk::Surface*   CaloCluster_OnTrackBuilder::getCaloSurface( const xAOD::Ca
 }
 
 
-//--------------------------------------------------------------------------------------------
 const Trk::LocalParameters*   CaloCluster_OnTrackBuilder::getClusterLocalParameters( const xAOD::CaloCluster* cluster, 
                                                                                      const Trk::Surface* surf,
                                                                                      int charge) const
-//--------------------------------------------------------------------------------------------
 {
  
   Amg::Vector3D  surfRefPoint = surf->globalReferencePoint();
@@ -154,22 +123,7 @@ const Trk::LocalParameters*   CaloCluster_OnTrackBuilder::getClusterLocalParamet
   
   double clusterQoverE = cluster->calE() !=0 ? (double)charge/cluster->calE() : 0;
 
-  //std::cout << "   Cluster Energy        "<< cluster->calE() << std::endl;  
-
-/*
-  double correction(0);
-  double phis = CalculatePhis( cluster );
-  int inteta = abs(eta*10);
-  //int intphis = phis*2e3-25; 
-  if (phis < 0 || phis > 74){
-    //intphis = 0; 
-  }
-  if (inteta > 24) inteta = 24;
-  
-  phi += correction * 1e-3 * charge;
-*/
-
-  Trk::LocalParameters* newLocalParameters(0);
+  Trk::LocalParameters* newLocalParameters(nullptr);
  
   if ( xAOD::EgammaHelpers::isBarrel( cluster ) ){
     //Two corindate in a cyclinder are 
@@ -207,25 +161,11 @@ const Trk::LocalParameters*   CaloCluster_OnTrackBuilder::getClusterLocalParamet
 }
 
 
-//--------------------------------------------------------------------------------------------
 const  Amg::MatrixX*   CaloCluster_OnTrackBuilder::getClusterErrorMatrix( const xAOD::CaloCluster* cluster,
                                                                           const Trk::Surface* surf,
                                                                           int ) const
-//--------------------------------------------------------------------------------------------
 {
 
-  
-/*
-  double eta = cluster->eta();
-  int inteta = abs(eta*10);
-  if (inteta > 24) inteta = 24;
-  double phis = CalculatePhis( cluster );
-  int intphis = phis*2e3 ;
-  intphis -= 25;
-  if (phis < 0 || phis > 74){
-    intphis = 0; 
-  }
-*/
   double phierr = 0.1;
   phierr = phierr < 1.e-10 ? 0.1 : pow(phierr,2);
   if(!m_useClusterPhi) phierr = 10;
@@ -288,9 +228,7 @@ const  Amg::MatrixX*   CaloCluster_OnTrackBuilder::getClusterErrorMatrix( const 
 }
 
 
-//--------------------------------------------------------------------------------------------
 double CaloCluster_OnTrackBuilder::getClusterPhiError( const xAOD::CaloCluster* cluster ) const 
-//--------------------------------------------------------------------------------------------
 {
 
   /** Error on theta = C(eta) mrad/sqrt(Energy) */
@@ -306,9 +244,7 @@ double CaloCluster_OnTrackBuilder::getClusterPhiError( const xAOD::CaloCluster* 
 
 }
 
-//--------------------------------------------------------------------------------------------
 double CaloCluster_OnTrackBuilder::electronPhiResolution(double eta, double energy) const
-//--------------------------------------------------------------------------------------------
 {
 
   eta = fabs( eta );
@@ -317,9 +253,7 @@ double CaloCluster_OnTrackBuilder::electronPhiResolution(double eta, double ener
 
 }
 
-//--------------------------------------------------------------------------------------------
 double CaloCluster_OnTrackBuilder::electronPhiResoA(double eta) const
-//--------------------------------------------------------------------------------------------
 {
 
   if ( eta < 0.30 )
@@ -351,9 +285,7 @@ double CaloCluster_OnTrackBuilder::electronPhiResoA(double eta) const
 
 }
 
-//--------------------------------------------------------------------------------------------
 double CaloCluster_OnTrackBuilder::electronPhiResoB(double eta) const
-//--------------------------------------------------------------------------------------------
 {
 
   if ( eta < 0.65 )
@@ -382,62 +314,4 @@ double CaloCluster_OnTrackBuilder::electronPhiResoB(double eta) const
   
 }
 
-// =====================================================================
-double  CaloCluster_OnTrackBuilder::CalculatePhis(const xAOD::CaloCluster* cluster) const
-// =====================================================================
-{
-  if (!cluster) {return -999.;}
-  CaloSampling::CaloSample sam = 
-    xAOD::EgammaHelpers::isBarrel(cluster) ? CaloSampling::EMB2 : CaloSampling::EME2;
-  
-  /* 
-   * From the original (eta,phi) position, find the location
-   * (sampling, barrel/end-cap, granularity)
-   * For this we use the tool egammaEnergyAllSamples
-   * which uses the CaloCluster method inBarrel() and inEndcap()
-   * but also, in case close to the crack region where both 
-   * boolean can be true, the energy reconstructed in the sampling
-   */
-  const double eta = cluster->etaSample(sam);
-  const double phi = cluster->phiSample(sam);
-  if ((eta==0. && phi==0.) || fabs(eta)>100) {return -999.;}
-  int sampling_or_module;
-  bool barrel;
-  CaloCell_ID::SUBCALO subcalo;
-  /* granularity in (eta,phi) in the pre sampler
-   CaloCellList needs both enums: subCalo and CaloSample*/
-  m_calo_dd->decode_sample(subcalo, barrel, sampling_or_module, 
-         (CaloCell_ID::CaloSample) sam);
 
-  /*
-   * Get the corresponding grannularities : needs to know where you are
-                   the easiest is to look for the CaloDetDescrElement*/
-  const CaloDetDescrElement* dde;
-  dde = m_calo_dd->get_element(subcalo,sampling_or_module,barrel,eta,phi);
-  // if object does not exist then return
-  if (!dde) {return -999.;}
-  // local granularity
-  double deta = dde->deta();
-  double dphi = dde->dphi();
-
-  SG::ReadHandle<CaloCellContainer> cellContainer(m_caloCellContainerKey);
-  // check is only used for serial running; remove when MT scheduler used
-  if(!cellContainer.isValid()) {
-    ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_caloCellContainerKey.key());
-    return 0.;
-  }
-
-  CaloLayerCalculator calc;
-  if (calc.fill(cellContainer.cptr(),cluster->etaSample(sam),cluster->phiSample(sam),
-                7*deta,7*dphi,sam).isFailure() ){
-     ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
-  }
-  double etamax = calc.etarmax();
-  double phimax = calc.phirmax();
-
-  if (calc.fill(cellContainer.cptr(),etamax,phimax,3.*deta,7.*dphi,sam).isFailure()){
-    ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
-  }
-  
-  return calc.phis(); 
-}

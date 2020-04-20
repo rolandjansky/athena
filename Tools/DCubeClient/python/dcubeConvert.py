@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##
 # @file DCubeClient/python/dcubeConvert.py
 # @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
@@ -26,7 +26,7 @@ class DCubeConvert( object ):
     # @param new new configuration file
     def __init__( self, old, ref=None, new=None):
 
-        print "dcubeConvert arguments:"
+        print("dcubeConvert arguments:")
         whatOLD = old
         whatREF = ref
         whatNEW = new
@@ -35,14 +35,14 @@ class DCubeConvert( object ):
         if ( not whatNEW ):
             whatNEW = "not specified, will be set to old configuration file"
 
-        print "[01] old dcube configuration file: %s" % str(whatOLD)
-        print "[02]          reference root file: %s" % str(whatREF)
-        print "[03] new dcube configuration file: %s" % str(whatNEW)
+        print("[01] old dcube configuration file: %s" % str(whatOLD))
+        print("[02]          reference root file: %s" % str(whatREF))
+        print("[03] new dcube configuration file: %s" % str(whatNEW))
 
         if ( not new ):
             new = old
             
-        print "will convert old DCubeClient configuration file '%s' and save new configuration to file '%s'" % ( old, new )
+        print("will convert old DCubeClient configuration file '%s' and save new configuration to file '%s'" % ( old, new ))
         
         self.oldURI = os.path.abspath(old)
         self.newURI = os.path.abspath(new)
@@ -51,11 +51,11 @@ class DCubeConvert( object ):
             sys.exit("cannot find old DCubeClient config in path %s - exiting!" % self.oldURI )
 
         if ( self.oldURI == self.newURI ):
-            print "DCubeClient configuration file %s exists and will be overwritten" % self.oldURI
+            print("DCubeClient configuration file %s exists and will be overwritten" % self.oldURI)
         
         if ( ref ):
             self.referenceURI = os.path.abspath( ref )
-            print "will use '%s' as reference root file" % self.referenceURI
+            print("will use '%s' as reference root file" % self.referenceURI)
             if ( not os.path.exists( self.referenceURI ) ):
                 sys.exit("reference file '%s' does not exist!" % self.referenceURI )
         sys.exit( self.convert() )
@@ -76,7 +76,7 @@ class DCubeConvert( object ):
     # @param self "Me, myself and Irene"
     def __parseOLD( self ):
         
-        print "parsing old configuration file %s" % self.oldURI
+        print("parsing old configuration file %s" % self.oldURI)
         
         self.xmlOLD =  xml.dom.minidom.parse(self.oldURI)
         
@@ -87,14 +87,14 @@ class DCubeConvert( object ):
             m = m % (self.__class__.__name__,
                      os.path.basename(self.oldURI)
                      )
-            print m
+            print(m)
             sys.exit(0)
         else:
             
             if ( not self.referenceURI ):
                 self.referenceURI = self.__cdata( self.xmlOLD.getElementsByTagName("reference")[0].childNodes )
 
-            print "OLD: reference URI=%s" % self.referenceURI
+            print("OLD: reference URI=%s" % self.referenceURI)
 
             if ( not os.path.exists(self.referenceURI ) ):
                 sys.exit( "reference root file not exists!")
@@ -102,21 +102,21 @@ class DCubeConvert( object ):
             
             self.refDesc = self.__cdata( self.xmlOLD.getElementsByTagName("ref_desc")[0].childNodes )
 
-            print "OLD: reference description=%s" % self.refDesc
+            print("OLD: reference description=%s" % self.refDesc)
 
             self.monDesc = self.__cdata( self.xmlOLD.getElementsByTagName("mon_desc")[0].childNodes )
 
-            print "OLD: monitored description=%s" % self.monDesc
+            print("OLD: monitored description=%s" % self.monDesc)
             
             self.plimit = self.xmlOLD.getElementsByTagName("plimit")[0]
 
-            print "OLD: plimit attributes fail=%s warn=%s" % ( self.plimit.getAttribute("fail"), self.plimit.getAttribute("warn"))
+            print("OLD: plimit attributes fail=%s warn=%s" % ( self.plimit.getAttribute("fail"), self.plimit.getAttribute("warn")))
 
             self.hists = self.xmlOLD.getElementsByTagName("hist")
 
             i = 1
             for hist in self.hists:
-                print "OLD: [%02d] hist path=%s tests=%s" % ( i, hist.getAttribute("path"), hist.getAttribute("tests") )
+                print("OLD: [%02d] hist path=%s tests=%s" % ( i, hist.getAttribute("path"), hist.getAttribute("tests") ))
                 i += 1
                 
     ## create new XML DOM Document instance 
@@ -172,9 +172,9 @@ class DCubeConvert( object ):
                 path = hist.getAttribute("path").split("/")[1:]
                 tests = hist.getAttribute("tests")
                 self.__attach( path, rootTDir, tests, type )
-                print "NEW: obj type=%s path=%s tests=%s has been added" % ( type, xmlpath, tests) 
+                print("NEW: obj type=%s path=%s tests=%s has been added" % ( type, xmlpath, tests)) 
             else:
-                print "NEW: cannot find object at %s" % xmlpath
+                print("NEW: cannot find object at %s" % xmlpath)
                 
 
         self.refROOT.Close()
@@ -197,11 +197,11 @@ class DCubeConvert( object ):
 
         backup = path + ".bak"
         if ( os.path.exists( backup ) ):
-            print "BCK: backup file exists and will be overwitten!"
+            print("BCK: backup file exists and will be overwitten!")
         try:
             os.rename( path, backup )
         except:
-            print "BCK: creation of backup file failed"
+            print("BCK: creation of backup file failed")
 
 
     ## save new DCubeClient configuration to file
@@ -213,7 +213,7 @@ class DCubeConvert( object ):
             xmlNEW = open( self.newURI, "w+" )
             xmlNEW.writelines( self.xmlNEW.toprettyxml() )
             xmlNEW.close()
-            print "NEW: new config file '%s' has been created" % self.newURI
+            print("NEW: new config file '%s' has been created" % self.newURI)
         except:
             sys.exit("error when saving new configuration file!")
         
@@ -249,11 +249,11 @@ class DCubeConvert( object ):
                 histNode.setAttribute("name", histName)
                 histNode.setAttribute( "type", type)
                 
-                print "NEW: attaching %s '%s' with tests '%s' at TDirectory '%s'" % ( type, histName, tests, where.getAttribute("name"))
+                print("NEW: attaching %s '%s' with tests '%s' at TDirectory '%s'" % ( type, histName, tests, where.getAttribute("name")))
                 where.appendChild( histNode )
                 return
             else:
-                print "unsupported object name='%s' type='%s' found, skipping!" % ( histName, nodeName)
+                print("unsupported object name='%s' type='%s' found, skipping!" % ( histName, nodeName))
         else:
             subDirs = where.getElementsByTagName("TDirectory")
             subDirsDict = { }
@@ -262,14 +262,14 @@ class DCubeConvert( object ):
                 subDirsDict[subDir.getAttribute( "name")] =  subDir 
     
             if ( parent not in subDirsDict ):
-                print "NEW: creating TDirectory name '%s'" % parent
+                print("NEW: creating TDirectory name '%s'" % parent)
                 tdir = self.xmlNEW.createElement( "TDirectory" )
                 tdir.setAttribute("name", parent )
                 where.appendChild( tdir )
-                print "NEW: calling recursive: what '%s' " % str(what[1:])
+                print("NEW: calling recursive: what '%s' " % str(what[1:]))
                 self.__attach( what[1:], tdir, tests, type )
             else:
-                print "NEW: calling recursive: what '%s' " % str(what[1:])
+                print("NEW: calling recursive: what '%s' " % str(what[1:]))
                 self.__attach( what[1:], subDirsDict[parent], tests, type )
         
 
@@ -285,7 +285,7 @@ if __name__ == "__main__":
     new = None
 
     if ( len(sys.argv) == 1 ):
-        print usage
+        print(usage)
         sys.exit(0)
     if ( len(sys.argv) == 2 ):
         old = sys.argv[1]
@@ -306,8 +306,8 @@ if __name__ == "__main__":
         if ( not new and what2.endswith(".xml") ): new = what2
         DCubeConvert(old, ref, new)
     else:
-        print "ERROR: wrong arguments!"
-        print usage
+        print("ERROR: wrong arguments!")
+        print(usage)
         sys.exit(1)
     
         

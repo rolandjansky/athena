@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaOutputStream.h"
@@ -136,11 +136,6 @@ namespace {
 } // anonymous namespace
 
 
-// the global map of event slot mutexes
-// to prevent different streams from writing from the same Store
-std::map< EventContext::ContextID_t, std::mutex > AthenaOutputStream::m_toolMutexMap;
-
-
 //****************************************************************************
 
 
@@ -157,14 +152,14 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
         m_outSeqSvc("OutputStreamSequencerSvc", name),
         m_p2BWritten(string("SG::Folder/") + name + string("_TopFolder"), this),
         m_decoder(string("SG::Folder/") + name + string("_excluded"), this),
-        m_compressionDecoder(string("SG::Folder/") + name + string("_compressed"), this),
+        m_compressionDecoderHigh(string("SG::Folder/") + name + string("_compressed_high"), this),
+        m_compressionDecoderLow(string("SG::Folder/") + name + string("_compressed_low"), this),
         m_transient(string("SG::Folder/") + name + string("_transient"), this),
         m_events(0),
         m_streamer(string("AthenaOutputStreamTool/") + name + string("Tool"), this),
         m_helperTools(this)
 {
    assert(pSvcLocator);
-   declareProperty("ItemList",               m_itemList);
    declareProperty("MetadataItemList",       m_metadataItemList);
    declareProperty("TransientItems",         m_transientItems);
    declareProperty("OutputFile",             m_outputName="DidNotNameOutput.root");
@@ -180,19 +175,22 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
    declareProperty("CheckNumberOfWrites",    m_checkNumberOfWrites=true);
    declareProperty("ExcludeList",            m_excludeList);
    declareProperty("HelperTools",            m_helperTools);
-   declareProperty("CompressionList",        m_compressionList);
+   declareProperty("CompressionListHigh",    m_compressionListHigh);
+   declareProperty("CompressionListLow",     m_compressionListLow);
+   declareProperty("CompressionBitsHigh",    m_compressionBitsHigh = 7);
+   declareProperty("CompressionBitsLow",     m_compressionBitsLow = 15);
    
    // Associate action handlers with the AcceptAlgs,
    // RequireAlgs & VetoAlgs properties
    m_itemList.declareUpdateHandler(&AthenaOutputStream::itemListHandler, this);
    m_excludeList.declareUpdateHandler(&AthenaOutputStream::excludeListHandler, this);
-   m_compressionList.declareUpdateHandler(&AthenaOutputStream::compressionListHandler, this);
+   m_compressionListHigh.declareUpdateHandler(&AthenaOutputStream::compressionListHandlerHigh, this);
+   m_compressionListLow.declareUpdateHandler(&AthenaOutputStream::compressionListHandlerLow, this);
 }
 
 // Standard Destructor
 AthenaOutputStream::~AthenaOutputStream() {
    m_streamerMap.clear();
-   m_toolMutexMap.clear();
 }
 
 // initialize data writer
@@ -334,7 +332,27 @@ StatusCode AthenaOutputStream::initialize() {
       incsvc->addListener(this, IncidentType::BeginProcessing, 100);
       incsvc->addListener(this, IncidentType::EndProcessing, 100);
    }
-   
+
+   // Check compression settings and print some information about the configuration
+   if(m_compressionBitsHigh < 5) {
+     ATH_MSG_INFO("Float compression mantissa bits for high compression " <<
+                  "(" << m_compressionBitsHigh << ") is too low, setting it to 5.");
+     m_compressionBitsHigh = 5;
+   }
+   if(m_compressionBitsLow < m_compressionBitsHigh) {
+     ATH_MSG_INFO("Float compression mantissa bits for low compression " <<
+                  "(" << m_compressionBitsLow << ") is lower than high compression " <<
+                  "(" << m_compressionBitsHigh << ")! Setting it to the high compression value.");
+     m_compressionBitsLow = m_compressionBitsHigh;
+   }
+   if(m_compressionListHigh.value().empty() && m_compressionListLow.value().empty()) {
+     ATH_MSG_VERBOSE("Both high and low float compression lists are empty. Float compression will NOT be applied.");
+   } else {
+     ATH_MSG_INFO("Either high or low (or both) float compression lists are defined. Float compression will be applied.");
+     ATH_MSG_INFO("High compression will use " << m_compressionBitsHigh << " mantissa bits, and " <<
+                  "low compression will use " << m_compressionBitsLow << " mantissa bits.");
+   }
+
    ATH_MSG_DEBUG("End initialize");
    if (baseStatus == StatusCode::FAILURE) return StatusCode::FAILURE;
    return(status);
@@ -383,16 +401,13 @@ void AthenaOutputStream::handle(const Incident& inc)
          ATH_MSG_INFO("Records written: " << m_events);
       }
       if (!m_metadataItemList.value().empty()) {
-         // MN: super global lock - temporary while we review metadata writing
-         static std::mutex      metawrite_mtx;
-         std::lock_guard<std::mutex>   meta_lock( metawrite_mtx );
          m_currentStore = &m_metadataStore;
          StatusCode status = streamer->connectServices(m_metadataStore.type(), m_persName, false);
          if (status.isFailure()) {
             throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
          }
          m_checkNumberOfWrites = false;
-         m_outputAttributes = "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=][DataHeaderSatellites=]";
+         m_outputAttributes = "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=]";
          m_p2BWritten->clear();
          IProperty *pAsIProp(nullptr);
          if ((m_p2BWritten.retrieve()).isFailure() ||
@@ -444,7 +459,6 @@ void AthenaOutputStream::handle(const Incident& inc)
                strm_iter->second->finalizeOutput().ignore();
                strm_iter->second->finalize().ignore();
                m_streamerMap.erase(strm_iter);
-               //m_toolMutexMap.erase( rangeFN );
 	       m_outSeqSvc->publishRangeReport(rangeFN);            
             }
             m_slotRangeMap[ slot ].clear();
@@ -579,19 +593,16 @@ StatusCode AthenaOutputStream::write() {
    // prepare before releasing lock because m_outputAttributes change in metadataStop
    const std::string connectStr = outputFN + m_outputAttributes;
 
-   // MN: lock the event slot so 2 streams don't operate on the same Store 
-   std::lock_guard<std::mutex>   tool_lock( m_toolMutexMap[ slot ] );
-
    // MN: would be nice to release the Stream lock here
-   // lock.unlock(); 
+   // lock.unlock();
 
    // Connect the output file to the service
-   if( !streamer->connectOutput( connectStr ).isSuccess()) {
-      ATH_MSG_ERROR("Could not connectOutput");
+   if (!streamer->connectOutput(outputFN).isSuccess()) {
+      ATH_MSG_FATAL("Could not connectOutput");
       return StatusCode::FAILURE;
    }
-   ATH_MSG_DEBUG("connectOutput done for " + outputFN );
-   StatusCode currentStatus = streamer->streamObjects(objects);
+   ATH_MSG_DEBUG("connectOutput done for " + outputFN);
+   StatusCode currentStatus = streamer->streamObjects(objects, connectStr);
    // Do final check of streaming
    if (!currentStatus.isSuccess()) {
       if (!currentStatus.isRecoverable()) {
@@ -601,13 +612,14 @@ StatusCode AthenaOutputStream::write() {
          ATH_MSG_DEBUG("streamObjects failed.");
       }
    }
-   if( !streamer->commitOutput().isSuccess() ) {
+   if (!streamer->commitOutput().isSuccess()) {
       ATH_MSG_FATAL("commitOutput failed.");
       failed = true;
    }
-   if (!failed) {
-      m_events++;
+   if (failed) {
+      return(StatusCode::FAILURE);
    }
+   m_events++;
    return(StatusCode::SUCCESS);
 }
 
@@ -688,9 +700,12 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
    // We find the matching keys, read the string after "Aux.",
    // tokenize by "." and build an std::set of these to be
    // communicated to IAuxStoreCompression down below
-   std::set<std::string> comp_attr;
+   std::vector<unsigned int> comp_bits{ m_compressionBitsHigh, m_compressionBitsLow };
+   std::vector<std::set<std::string>> comp_attr;
+   comp_attr.resize(2);
    if(item_key.find("Aux.") != string::npos) {
-     for (SG::IFolder::const_iterator iter = m_compressionDecoder->begin(), iterEnd = m_compressionDecoder->end();
+     // First the high compression list
+     for (SG::IFolder::const_iterator iter = m_compressionDecoderHigh->begin(), iterEnd = m_compressionDecoderHigh->end();
             iter != iterEnd; iter++) {
        // First match the IDs for early rejection.
        if (iter->id() != item.id()) {
@@ -711,14 +726,47 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
          std::stringstream ss(comp_str);
          std::string attr;
          while( std::getline(ss, attr, '.') ) {
-            comp_attr.insert(attr);
+            comp_attr[0].insert(attr);
+         }
+       }
+     }
+     // Then the low compression list
+     // Code duplication is not nice but not worth making modular
+     for (SG::IFolder::const_iterator iter = m_compressionDecoderLow->begin(), iterEnd = m_compressionDecoderLow->end();
+            iter != iterEnd; iter++) {
+       // First match the IDs for early rejection.
+       if (iter->id() != item.id()) {
+         continue;
+       }
+       // Then find the compression item key and the compression list string
+       size_t seppos = iter->key().find(".");
+       string comp_item_key{""}, comp_str{""};
+       if(seppos != string::npos) {
+         comp_item_key = iter->key().substr(0, seppos+1);
+         comp_str = iter->key().substr(seppos+1);
+       } else {
+         comp_item_key = iter->key();
+       }
+       // Proceed only if the keys match and the
+       // compression list string is not empty
+       if (!comp_str.empty() && comp_item_key == item_key) {
+         std::stringstream ss(comp_str);
+         std::string attr;
+         while( std::getline(ss, attr, '.') ) {
+            comp_attr[1].insert(attr);
          }
        }
      }
    }
-   ATH_MSG_DEBUG("     Comp Attr: " << comp_attr.size());
-   if ( comp_attr.size() > 0 ) {
-     for(auto attr : comp_attr) {
+   ATH_MSG_DEBUG("     Comp Attr High: " << comp_attr[0].size() << " with " << comp_bits[0] << " mantissa bits.");
+   if ( comp_attr[0].size() > 0 ) {
+     for(auto attr : comp_attr[0]) {
+        ATH_MSG_DEBUG("       >> " << attr);
+     }
+   }
+   ATH_MSG_DEBUG("     Comp Attr Low: " << comp_attr[1].size() << " with " << comp_bits[1] << " mantissa bits.");
+   if ( comp_attr[1].size() > 0 ) {
+     for(auto attr : comp_attr[1]) {
         ATH_MSG_DEBUG("       >> " << attr);
      }
    }
@@ -868,6 +916,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                   }
                   if ( auxcomp ) {
                     auxcomp->setCompressedAuxIDs( comp_attr );
+                    auxcomp->setCompressionBits( comp_bits );
                   }
                }
 
@@ -922,11 +971,20 @@ void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
    }
 }
 
-void AthenaOutputStream::compressionListHandler(Property& /* theProp */) {
+void AthenaOutputStream::compressionListHandlerHigh(Property& /* theProp */) {
    IProperty *pAsIProp(nullptr);
-   if ((m_compressionDecoder.retrieve()).isFailure() ||
-           nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoder)) ||
-           (pAsIProp->setProperty("ItemList", m_compressionList.toString())).isFailure()) {
+   if ((m_compressionDecoderHigh.retrieve()).isFailure() ||
+           nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderHigh)) ||
+           (pAsIProp->setProperty("ItemList", m_compressionListHigh.toString())).isFailure()) {
+      throw GaudiException("Folder property [ItemList] not found", name(), StatusCode::FAILURE);
+   }
+}
+
+void AthenaOutputStream::compressionListHandlerLow(Property& /* theProp */) {
+   IProperty *pAsIProp(nullptr);
+   if ((m_compressionDecoderLow.retrieve()).isFailure() ||
+           nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_compressionDecoderLow)) ||
+           (pAsIProp->setProperty("ItemList", m_compressionListLow.toString())).isFailure()) {
       throw GaudiException("Folder property [ItemList] not found", name(), StatusCode::FAILURE);
    }
 }

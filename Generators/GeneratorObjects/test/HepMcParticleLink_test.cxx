@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -18,7 +18,7 @@
 #include "gtest/gtest.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
@@ -237,7 +237,7 @@ namespace MCTesting {
     ASSERT_LT( gammaLink1, gammaLink11 );  //FIXME weird! Can't check ptr...
     StoreGateSvc* pStore(nullptr);
     ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore(true); // forceRemove=true to remove all proxies
+    pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
     std::cout << "*** HepMcParticleLink_test OK ***" <<std::endl;
   }
 
@@ -260,7 +260,7 @@ namespace MCTesting {
     ASSERT_TRUE( testLink1b.isValid() );
     StoreGateSvc* pStore(nullptr);
     ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore(true); // forceRemove=true to remove all proxies
+    pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
   }
 
   TEST_F(HepMcParticleLink_test, truth_event_link) {
@@ -405,7 +405,7 @@ namespace MCTesting {
 
     StoreGateSvc* pStore(nullptr);
     ASSERT_TRUE(MCTesting::g_svcLoc->service("StoreGateSvc", pStore).isSuccess());
-    pStore->clearStore(true); // forceRemove=true to remove all proxies
+    pStore->clearStore(true).ignore(); // forceRemove=true to remove all proxies
   }
 
 } // <-- namespace MCTesting

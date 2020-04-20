@@ -25,7 +25,7 @@ TBLArCalibDigitContainerCnv::~TBLArCalibDigitContainerCnv()
 StatusCode TBLArCalibDigitContainerCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBLArCalibDigitContainerCnv");
@@ -61,11 +61,4 @@ StatusCode TBLArCalibDigitContainerCnv::PoolToDataObject(DataObject*& pObj,
   }
 
   return StatusCode::SUCCESS; 
-}
-
-StatusCode TBLArCalibDigitContainerCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBLArCalibDigitContainerCnv::DataObjectToPool" );
-  
-  return TBLArCalibDigitContainerCnvBase::DataObjectToPool( pObj, tname) ;
 }

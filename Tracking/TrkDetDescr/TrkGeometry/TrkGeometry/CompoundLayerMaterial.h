@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,9 +33,9 @@ namespace Trk {
         float        valueStep;
         ValueMatrix  valueBinMatrix;
         
-        double value(unsigned char ibin0, unsigned char ibin1) {
+        double value(unsigned char ibin0, unsigned char ibin1) const {
             // allows for single entry
-            if (!valueBinMatrix.size()) return valueMin;
+            if (valueBinMatrix.empty()) return valueMin;
             // get the entry from the matrix
             unsigned int ibin = static_cast<unsigned int>(valueBinMatrix[static_cast<unsigned int>(ibin1)][static_cast<unsigned int>(ibin0)]);
             if (!ibin) return 0.;
@@ -74,7 +74,7 @@ namespace Trk {
         CompoundLayerMaterial(const CompoundLayerMaterial& mprop);
         
         /**Destructor*/
-        virtual ~CompoundLayerMaterial();
+        virtual ~CompoundLayerMaterial() override;
         
         /**Pseudo-Constructor clone()*/ 
         virtual CompoundLayerMaterial* clone() const override;
@@ -86,44 +86,44 @@ namespace Trk {
         virtual CompoundLayerMaterial& operator*=(double scale) override;
     
         /** Return the BinUtility */
-        const BinUtility* binUtility() const override;
+        virtual const BinUtility* binUtility() const override;
         
         /** Update the BinUtility if necessary - passing ownership of the utility class*/
-        virtual void updateBinning(BinUtility* bu) const override;
+        virtual void updateBinning(BinUtility* bu) override;
         
         /**Return method for full material description of the Layer */
         virtual const MaterialProperties* fullMaterial(const Amg::Vector3D& gp) const override;
         
         /** Access the single bin */
-        const MaterialProperties* material(size_t bin0, size_t bin1) const override;
+        virtual const MaterialProperties* material(size_t bin0, size_t bin1) const override;
         
         /** Update the ElementTable */
-        void updateElementTable(const SharedObject<const ElementTable>& set) const;
+        void updateElementTable(const SharedObject<const ElementTable>& set);
               
         /** Get the ElementTable */
         const ElementTable* elementTable() const;
               
         /** Output Method for MsgStream, to be overloaded by child classes */
-        MsgStream& dump(MsgStream& sl) const override;
+        virtual MsgStream& dump(MsgStream& sl) const override;
         
         /** Output Method for std::ostream, to be overloaded by child classes */
-        std::ostream& dump(std::ostream& sl) const override;      
+        virtual std::ostream& dump(std::ostream& sl) const override;      
     
       private:
         friend class ::CompoundLayerMaterialCnv_p1;
 
-        mutable MaterialProperties*                                 m_materialProperties; //!< the ones you return
+         MaterialProperties*                                 m_materialProperties; //!< the ones you return
           
-        mutable BinUtility*                                         m_binUtility;         //!< the helper for the bin finding 
-        mutable ValueStore                                          m_thicknessBins;      //!< thickness parameter
-        mutable ValueStore                                          m_x0Bins;             //!< x0 parameter
-        mutable ValueStore                                          m_l0Bins;             //!< l0 parameter
-        mutable ValueStore                                          m_aBins;              //!< A parameters (averaged)
-        mutable ValueStore                                          m_zBins;              //!< Z parameter (averaged)
-        mutable ValueStore                                          m_rhoBins;            //!< rho parameter (averaged)
-        mutable std::vector< std::vector< MaterialComposition > >   m_composition;        //!< composition matrix
-        bool                                                        m_fullComposition;    //!< full composition calculation
-        mutable SharedObject<const ElementTable>                    m_elementTable;       // the ElementTable (filled/synchronised)
+         BinUtility*                                         m_binUtility;         //!< the helper for the bin finding 
+         ValueStore                                          m_thicknessBins;      //!< thickness parameter
+         ValueStore                                          m_x0Bins;             //!< x0 parameter
+         ValueStore                                          m_l0Bins;             //!< l0 parameter
+         ValueStore                                          m_aBins;              //!< A parameters (averaged)
+         ValueStore                                          m_zBins;              //!< Z parameter (averaged)
+         ValueStore                                          m_rhoBins;            //!< rho parameter (averaged)
+         std::vector< std::vector< MaterialComposition > >   m_composition;        //!< composition matrix
+         bool                                                m_fullComposition;    //!< full composition calculation
+         SharedObject<const ElementTable>                    m_elementTable;       // the ElementTable (filled/synchronised)
     
     
     
@@ -133,10 +133,10 @@ namespace Trk {
     inline const BinUtility* CompoundLayerMaterial::binUtility() const
     { return m_binUtility; }
     
-    inline void CompoundLayerMaterial::updateElementTable(const SharedObject<const ElementTable>& set) const
+    inline void CompoundLayerMaterial::updateElementTable(const SharedObject<const ElementTable>& set) 
     { m_elementTable = set; }
   
-    inline void CompoundLayerMaterial::updateBinning(BinUtility* bu) const
+    inline void CompoundLayerMaterial::updateBinning(BinUtility* bu)
     {  
         if (bu){
             delete m_binUtility;

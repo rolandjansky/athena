@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigSliceSettings.py
@@ -21,24 +21,27 @@ class InDetTrigSliceSettingsDB:
   InDetTrigSliceSettings is instantiated early in the jO (before
   other InDetTrigRecExample files are included)
   for example a preExec line
-  from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings; InDetTrigSliceSettings[('pTmin','bjetVtx')] = 2000.
-  allows testing the bjetVtx instance with as different reconstruction threshold 
+  from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings; InDetTrigSliceSettings[('pTmin','bjetVtx')] = 5000.
+  allows testing the bjetVtx instance with as different reconstruction threshold, as in the Run 2 configureation 
   """
   def __init__(self):
     from AthenaCommon.SystemOfUnits import GeV
     _slices = ['electron','photon',
-               'muon','muonCore','muonIso',
-               'tau','bjet','bphysics','fullScan','minBias','beamgas',
+               'muon', 'muonFS', 'muonCore', 'muonLate', 'muonIso',
+               'tau', 'tauCore', 'tauIso', 
+               # nonsense duplicated tau instances
+               # "tauId", "tauEF", "tauTrk", "tauTrkTwo",
+               'bjet', 'bjetVtx',
+               'bphysics',
+               'fullScan',
+               'fullScan2',           #2GeV threshold for MET
+               'minBias', 'beamgas',
+               'minBias2',            #two pass (low-pt tracking)
+               'minBias400',          #another minBias with 400MeV threshold
                'cosmicsN', 'lowPt',   #these are not real slices, rather different setups of tools
                'hadCalib', 'fullScan500',       #hadCalib instances
-               'minBias2',            #two pass (low-pt tracking)
                'heavyIon', 'heavyIonFS',   #RoI and FS instances for the heavy ion
-               'minBias400',          #another minBias with 400MeV threshold
-               'fullScan2',           #2GeV threshold for MET
-               'tauCore', 'tauIso',
                'beamSpot', 'cosmics',
-               'bjetVtx',
-               'FTK', 'FTKRefit', 'FTKMon',
                'bphysHighPt'
                ]
 
@@ -66,7 +69,7 @@ class InDetTrigSliceSettingsDB:
     #ptmin
     for i in _slices:
       ptmin[i] = 1.*GeV
-    ptmin['tau']=      0.8 * GeV
+    ptmin['tau']=        0.8 * GeV
     ptmin['minBias'] = 0.2 * GeV
     ptmin['minBias2'] = 0.5 * GeV
     ptmin['cosmicsN'] = 0.5 * GeV
@@ -90,7 +93,10 @@ class InDetTrigSliceSettingsDB:
     d0seedmax['bphysics'] = 10.0
     d0seedmax['bphysHighPt'] = 10.0
     d0seedmax['muon'] = 10.0
+    d0seedmax['muonFS'] = 10.0
     d0seedmax['muonCore'] = 10.0
+    d0seedmax['muonLate'] = 10.0
+    # muonIso instance has default 4.0 mm setting
 
     d0seedmax['cosmics'] = 1000.0
     d0seedppsmax['cosmics'] = 1000.0
@@ -108,14 +114,17 @@ class InDetTrigSliceSettingsDB:
     for i in _slices:
       doresmon[i] = False 
     doresmon['muon'] = True
-    doresmon['FTKMon'] = True
     self.db['doResMon']=doresmon
 
     for i in _slices:
       dospphifiltering[i] = True
     # Turn off spacepoint phi filtering for muons
     dospphifiltering['muon'] = False
+    dospphifiltering['muonFS'] = False
     dospphifiltering['muonCore'] = False
+    dospphifiltering['muonLate'] = False
+    # muonIso instance has default sp filtering value of True
+
     dospphifiltering['bphysics'] = False
     dospphifiltering['bphysHighPt'] = False
     self.db['doSpPhiFiltering'] = dospphifiltering
@@ -131,7 +140,11 @@ class InDetTrigSliceSettingsDB:
       checkseedredundancy[i] = False
     checkseedredundancy['electron'] = True
     checkseedredundancy['muon'] = True
+    checkseedredundancy['muonFS'] = True
+    checkseedredundancy['muonLate'] = True
     checkseedredundancy['muonCore'] = True
+    # muonIso instance has default seed redundency of False
+  
     checkseedredundancy['bphysics'] = True
     checkseedredundancy['beamSpot'] = True
     self.db['checkRedundantSeeds'] = checkseedredundancy
@@ -150,7 +163,9 @@ class InDetTrigSliceSettingsDB:
       'electron'  : 0.1,
       'photon'    : 0.1,
       'muon'      : 0.1,
+      'muonFS'    : 0.1,
       'muonCore'  : 0.1,
+      'muonLate'  : 0.1,
       'muonIso'   : 0.35,
       'tau'       : 0.4,
       'bjet'      : 0.2,
@@ -181,7 +196,9 @@ class InDetTrigSliceSettingsDB:
       'electron'  : 0.1,
       'photon'    : 0.1,
       'muon'      : 0.1,
+      'muonFS'    : 0.1,
       'muonCore'  : 0.1,
+      'muonLate'  : 0.1,
       'muonIso'   : 0.35,
       'tau'       : 0.4,
       'bjet'      : 0.201,

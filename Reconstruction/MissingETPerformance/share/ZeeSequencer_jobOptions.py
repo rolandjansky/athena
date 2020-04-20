@@ -18,4 +18,4 @@ topSequence += AthSequencer('ZeeSequence')
 
 topSequence.ZeeSequence += ZeeSequencer
 
-print ZeeSequencer
+printfunc (ZeeSequencer)

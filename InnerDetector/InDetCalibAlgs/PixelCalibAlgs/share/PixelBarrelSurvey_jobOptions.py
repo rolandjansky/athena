@@ -46,7 +46,9 @@ MyAlg = PixelBarrelSurvey()
 # MyAlg.OutputFile = "MyOutputFile.txt"
 # MyAlg.DistoFile = "MyDistoFile.txt"
 # MyAlg.COOL_Tag   = "testtag"
-print MyAlg
+import logging
+logger = logging.getLogger( 'PixelCalibAlgs' )
+logger.info(MyAlg)
 
 #top algorithms to be run
 theApp.TopAlg += [ "PixelBarrelSurvey" ]

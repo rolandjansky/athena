@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ut_xaodrootaccess_tauxstore_test.cxx 697574 2015-09-30 11:58:22Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -18,8 +16,6 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TAuxStore.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
-
-#include "CxxUtils/StrFormat.h"
 
 /// Helper macro for evaluating logical tests
 #define SIMPLE_ASSERT( EXP )                                            \
@@ -75,15 +71,11 @@ int main() {
 
    // Check that it found the two variables that it needed to:
    ::Info( APP_NAME, "Auxiliary variables found on the input:" );
-   std::vector<std::string> vars;
-   for( SG::auxid_t auxid : store.getAuxIDs() ) {
-     vars.push_back (CxxUtils::strformat ("  - name: %s, type: %s",
-                                          reg.getName( auxid ).c_str(),
-                                          reg.getTypeName( auxid ).c_str() ));
-   }
-   std::sort (vars.begin(), vars.end());
-   for (const std::string& s : vars) {
-      ::Info( APP_NAME, "%s", s.c_str());
+   for( auto auxid : store.getAuxIDs() ) {
+      ::Info( APP_NAME, "  - id: %i, name: %s, type: %s",
+              static_cast< int >( auxid ),
+              reg.getName( auxid ).c_str(),
+              reg.getTypeName( auxid ).c_str() );
    }
    SIMPLE_ASSERT( store.getAuxIDs().size() == 2 );
 
@@ -94,26 +86,27 @@ int main() {
    // Make sure that the store now knows about this variable:
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
 
+   // Test the isDecoration(...) function.
    const SG::auxid_t var1Id = reg.findAuxID( "var1" );
    SIMPLE_ASSERT( var1Id != SG::null_auxid );
    const SG::auxid_t var2Id = reg.findAuxID( "var2" );
    SIMPLE_ASSERT( var2Id != SG::null_auxid );
-   assert (!store.isDecoration (var1Id));
-   assert (!store.isDecoration (var2Id));
-   assert ( store.isDecoration (decId));
+   SIMPLE_ASSERT( ! store.isDecoration( var1Id ) );
+   SIMPLE_ASSERT( ! store.isDecoration( var2Id ) );
+   SIMPLE_ASSERT( store.isDecoration( decId ) );
 
    // Check that it can be cleared out:
    SIMPLE_ASSERT (store.clearDecorations() == true);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 2 );
    SIMPLE_ASSERT (store.clearDecorations() == false);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 2 );
-
-   assert (!store.isDecoration (var1Id));
-   assert (!store.isDecoration (var2Id));
-   assert (!store.isDecoration (decId));
+   SIMPLE_ASSERT( ! store.isDecoration( var1Id ) );
+   SIMPLE_ASSERT( ! store.isDecoration( var2Id ) );
+   SIMPLE_ASSERT( ! store.isDecoration( decId ) );
 
    // Try to overwrite an existing variable with a decoration, to check that
    // it can't be done:
+   SIMPLE_ASSERT( var1Id != SG::null_auxid );
    bool exceptionThrown = false;
    try {
       store.getDecoration( var1Id, 2, 2 );
@@ -136,13 +129,13 @@ int main() {
    // Create the decoration again:
    SIMPLE_ASSERT( store.getDecoration( decId, 5, 5 ) != 0 );
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
-
-   assert (!store.isDecoration (var1Id));
-   assert (!store.isDecoration (var2Id));
-   assert ( store.isDecoration (decId));
+   SIMPLE_ASSERT( ! store.isDecoration( var1Id ) );
+   SIMPLE_ASSERT( ! store.isDecoration( var2Id ) );
+   SIMPLE_ASSERT( store.isDecoration( decId ) );
 
    // Try to overwrite an existing variable with a decoration, to check that
    // it can't be done:
+   SIMPLE_ASSERT( var2Id != SG::null_auxid );
    exceptionThrown = false;
    try {
       store.getDecoration( var1Id, 2, 2 );
@@ -171,10 +164,9 @@ int main() {
    // removed. Since this is a "persistent decoration" now:
    SIMPLE_ASSERT (store.clearDecorations() == false);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
-
-   assert (!store.isDecoration (var1Id));
-   assert (!store.isDecoration (var2Id));
-   assert ( store.isDecoration (decId));
+   SIMPLE_ASSERT( ! store.isDecoration( var1Id ) );
+   SIMPLE_ASSERT( ! store.isDecoration( var2Id ) );
+   SIMPLE_ASSERT( store.isDecoration( decId ) );
 
    return 0;
 }

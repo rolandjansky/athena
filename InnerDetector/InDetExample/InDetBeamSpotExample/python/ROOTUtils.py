@@ -1,6 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: ROOTUtils.py 759047 2016-07-01 00:45:13Z beringer $
+
+from __future__ import print_function
+
 """
 Miscellaneous utilities for PyROOT.
 """
@@ -147,7 +150,7 @@ class PlotLibrary:
                     drawText(xtext,ytext,0.06,label)
                     ytext=ytext-0.1
             elif labels!=[]:
-                print "ERROR: can't add labels unless we have an empty pad to use.  Ignoring labels."
+                print ("ERROR: can't add labels unless we have an empty pad to use.  Ignoring labels.")
 
             for o in self.saveAsList:
                 if o[0]=='.':
@@ -262,7 +265,7 @@ def drawLegend(x1,y1,x2,y2,legendList=[],fillColor=0,lineColor=0,textSize=None,p
        NOTE: Must store returned TLegend, otherwise legend will disappear!"""
     nlines = len(legendList)
     if not nlines:
-        print "ERROR: drawLegend called w/o any legend entries"
+        print ("ERROR: drawLegend called w/o any legend entries")
     #maxchar = 0
     #for e in legendList:
     #    maxchar = max(len(e[1]),maxchar)
@@ -287,7 +290,7 @@ def moveStats(h,dx,dy,xw=0,yw=0,label=''):
     ROOT.gPad.Update()    
     st = h.GetListOfFunctions().FindObject('stats')
     if not st:
-        print 'ERROR: No stats found - cannot move it'
+        print ('ERROR: No stats found - cannot move it')
         return
     st.SetTextColor(h.GetLineColor())
     st.SetX1NDC(st.GetX1NDC()+dx)
@@ -302,7 +305,7 @@ def moveStats(h,dx,dy,xw=0,yw=0,label=''):
 
 def atlasLabel(x,y,isPreliminary=False,color=1,offset=0.115,isForApproval=False,energy=8,customstring="",size=0.05):
     if x==None or y==None:
-        print "Must set (x,y) position using --atlasx and --atlasy to add labels.  No ATLAS labels created."
+        print ("Must set (x,y) position using --atlasx and --atlasy to add labels.  No ATLAS labels created.")
         return
     offset = offset/0.05*size
     l = ROOT.TLatex()
@@ -413,6 +416,6 @@ def atlasStyle(protectStyle=True):
 def setStyle(style = None):
     if not style:
         style = atlasStyle()
-    print '\nApplying style %s (%s) ...\n' % (style.GetName(),style.GetTitle())
+    print ('\nApplying style %s (%s) ...\n' % (style.GetName(),style.GetTitle()))
     ROOT.gROOT.SetStyle(style.GetName())
     ROOT.gROOT.ForceStyle()

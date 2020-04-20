@@ -8,8 +8,6 @@ LVL1TGCTrigger.InputData_perEvent = "TGC_DIGITS"
 #  MainAlgorithm for Simulation //
 theApp.TopAlg += ["LVL1TGCTrigger::LVL1TGCTrigger/LVL1TGCTrigger"]
 # properties
-LVL1TGCTrigger.ASDOutDataLocation = "ASDOutDataLocation"
 LVL1TGCTrigger.MuCTPIInput_TGC    = "L1MuctpiStoreTGC"
 # mask file
-LVL1TGCTrigger.MaskFileName = "TrigT1TGCMaskedChannel.db"
 LVL1TGCTrigger.MaskFileName12 = "TrigT1TGCMaskedChannel._12.db"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_MonitoredGroup_h
@@ -18,25 +18,47 @@
 
 namespace Monitored {
   /**
-   * @brief Group local monitoring quantities and retain correlation when filling histograms
+   * @brief %Group of local monitoring quantities and retain correlation when filling histograms
    *
    * In order to maintain correlations when filling histograms (e.g. eta and phi of a track) the
    * monitored quantities need to be grouped within a Monitored::Group. The filling of the
    * histogram occurs when the Monitored::Group object goes out of scope or when fill() is called
    * explicitly.
    *
-   * \code
-   * {
-   *   auto phi = Monitored::Scalar("phi");
-   *   auto eta = Monitored::Scalar("eta");
-   *   auto mon = Monitored::Group(m_monTool, phi, eta);
-   * }
-   * \endcode
+   * The actual histogram definitions, i.e. which variable gets filled into which histogram,
+   * is configured entirely in Python. See GenericMonitoringTool.defineHistogram for the available
+   * options.
+   *
+   * #### Examples
+
+   * %Monitored quantities can be used to fill 2D histograms.
+   * No code change is needed for it however the monitored variables need to be grouped correctly
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fill2D_correct
+   * The same variables can be re-used to perform multiple fill operations:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillFromScalarIndependentScopes
+   * The automatic filling at the end of the scope can be disabled:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillExplicitly_noop
+   * Instead <b>explicit filling</b> can be used:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillExplicitly_fill
+   * Histograms can be <b>filled conditionally</b> with one variable serving as a (boolean) cut mask:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillWithCutMask
+   * The same can be done with a Monitored::Collection:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillWithCutMask_collection
+   * A <b>weight variable</b> can be used for scalars:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillWithWeight
+   * and collections:
+   *   @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillWithWeight_collection
+   *
+   * @see GenericMonitoringTool.defineHistogram
    **/
   class Group {
   public:
     /**
-     * @brief Named constructor
+     * @brief %Group of monitored variables.
+     *
+     * The filling of the associated histograms occurs when the object goes out of scope
+     * or when fill() is called explicitly.
+     *
      * @param tool            a handle to a monitoring tool, if invalid nothing is done
      * @param monitoredGroup  list of variables to be monitored
      **/
@@ -47,10 +69,16 @@ namespace Monitored {
         m_monitoredGroup{monitoredGroup...},
         m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup) : std::vector<std::shared_ptr<Monitored::HistogramFiller>>()) { }
 
-    Group(const ToolHandle<GenericMonitoringTool>& tool, std::vector<std::reference_wrapper<IMonitoredVariable>> monitoredGroup)
+     Group(const ToolHandle<GenericMonitoringTool>& tool, const std::vector<std::reference_wrapper<IMonitoredVariable>>& monitoredGroup)
       : m_tool(tool),
         m_autoFill(true),
         m_monitoredGroup(monitoredGroup),
+        m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup) : std::vector<std::shared_ptr<Monitored::HistogramFiller>>()) { }
+
+     Group(const ToolHandle<GenericMonitoringTool>& tool, std::vector<std::reference_wrapper<IMonitoredVariable>>&& monitoredGroup)
+      : m_tool(tool),
+        m_autoFill(true),
+        m_monitoredGroup(std::move(monitoredGroup)),
         m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_monitoredGroup) : std::vector<std::shared_ptr<Monitored::HistogramFiller>>()) { }
 
     virtual ~Group() {
@@ -67,15 +95,7 @@ namespace Monitored {
      * out of scope. A typical use-pattern is in tight loops in order not to
      * re-create the Monitored::Group object many times:
      *
-     * \code
-     *   auto pt = Monitored::Scalar("pt");
-     *   auto mon = Monitored::Group(m_monTool, pt);
-     *   for (...) {
-     *      pt = ...;    // assign pt
-     *      mon.fill();  // fill pt histogram
-     *   }
-     * \endcode
-     *
+     * @snippet Control/AthenaMonitoringKernel/test/GenericMonFilling_test.cxx fillExplicitly_fill
      **/
     virtual void fill() {
       setAutoFill(false);

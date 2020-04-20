@@ -9,7 +9,7 @@
 
 namespace TrkDriftCircleMath {
 
-  struct SortSegByNumberOfMDTHitsAndChi2 : public std::binary_function<class Segment, class Segment, bool> 
+  struct SortSegByNumberOfMDTHitsAndChi2
   {
     bool operator()(const Segment& seg1, const Segment& seg2 )
     {
@@ -42,7 +42,7 @@ namespace TrkDriftCircleMath {
 
   };
 
-  struct SortSegByNumberOfHitsAndChi2 : public std::binary_function<class Segment, class Segment, bool> 
+  struct SortSegByNumberOfHitsAndChi2
   {
     bool operator()(const Segment& seg1, const Segment& seg2 )
     {

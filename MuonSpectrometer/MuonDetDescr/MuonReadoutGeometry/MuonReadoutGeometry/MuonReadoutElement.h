@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  Common Muon Readout Element properties
  -----------------------------------------
  ***************************************************************************/
-
-//<doc><file>	$Id: MuonReadoutElement.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_MUONREADOUTELEMENT_H
 # define MUONGEOMODEL_MUONREADOUTELEMENT_H
@@ -21,12 +18,9 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
-//<<<<<< PUBLIC VARIABLES >>>>>>
 #define maxfieldindex 10
 
 class GeoPhysVol;
-class IMessageSvc;
-class MsgStream;
 
 namespace MuonGM {
 
@@ -76,8 +70,6 @@ public:
     const Amg::Vector3D globalPosition() const;
     const Amg::Transform3D & absTransform() const;
     const Amg::Transform3D & defTransform() const;
-    const HepGeom::Transform3D & absTransformCLHEP() const;
-    const HepGeom::Transform3D & defTransformCLHEP() const;
 
     //Amdb local (szt) to global coord
     const Amg::Vector3D AmdbLRSToGlobalCoords(Amg::Vector3D x) const;
@@ -164,20 +156,14 @@ public:
    // This creates a new surface. The client is responsible for deleting it.
    inline int cachingFlag() const;
    inline void setCachingFlag(int value);
-   virtual void clearCache() const = 0;
-   virtual void fillCache() const = 0;
-   virtual void refreshCache() const = 0;
-
-  // clean-up internal cache
-   void clear() const;
+   virtual void clearCache() = 0;
+   virtual void fillCache() = 0;
+   virtual void refreshCache() = 0;
 
    const Amg::Transform3D& defTransform(const Identifier&) const
    {return defTransform();};
  
 protected:
-   // Gaudi message service
-   IMessageSvc* m_msgSvc;
-   mutable std::unique_ptr<MsgStream> m_Log ATLAS_THREAD_SAFE;
    double m_Ssize, m_Rsize, m_Zsize, m_LongSsize, m_LongRsize, m_LongZsize;
    //!< size in the specified direction
    bool m_descratzneg;
@@ -189,7 +175,7 @@ protected:
    Identifier m_id;       //!< extended data-collection identifier 
    IdentifierHash m_idhash;   //!< data-collection hash identifier
    IdentifierHash m_detectorElIdhash;   //!< detector element hash identifier 
-   mutable int m_caching;
+   int m_caching;
    //!< 0 if we want to avoid caching geometry info for tracking interface
    int m_indexOfREinMuonStation; //!<  index of this RE in the mother MuonStation
    bool m_hasCutouts; //!<  true is there are cutouts in the readdout-element
@@ -210,8 +196,6 @@ private:
    const MuonStation* m_parentMuonStation; 
    MuonDetectorManager* m_muon_mgr;
 
-   mutable const HepGeom::Transform3D* m_absTransform;
-   mutable const HepGeom::Transform3D* m_defTransform;
 };
 
 const Identifier MuonReadoutElement::identifyATLAS() const    {return m_id;}
@@ -283,17 +267,6 @@ inline const Amg::Transform3D & MuonReadoutElement::absTransform() const
 inline const Amg::Transform3D & MuonReadoutElement::defTransform() const
 {
   return getMaterialGeom()->getDefAbsoluteTransform();
-}
-inline const HepGeom::Transform3D & MuonReadoutElement::absTransformCLHEP() const
-{
-  if( !m_absTransform ) m_absTransform = new HepGeom::Transform3D(Amg::EigenTransformToCLHEP(getMaterialGeom()->getAbsoluteTransform()));
-  return *m_absTransform;
-}
-
-inline const HepGeom::Transform3D & MuonReadoutElement::defTransformCLHEP() const
-{
-  if( !m_defTransform ) m_defTransform = new HepGeom::Transform3D(Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform()));
-  return *m_defTransform;
 }
 
 } // namespace MuonGM

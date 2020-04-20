@@ -1,9 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TOOLS_TFILEACCESSTRACER_H
 #define XAODROOTACCESS_TOOLS_TFILEACCESSTRACER_H
 
@@ -96,9 +94,6 @@ namespace xAOD {
 
       /// Object describing the job's xAOD access statistics
       ReadStats* m_readStats;
-
-      /// Global property for enabling data submission or not
-      static ::Bool_t m_enableDataSumbission;
 
       /// Mutex for modifying the object
       mutable std::mutex m_mutex;

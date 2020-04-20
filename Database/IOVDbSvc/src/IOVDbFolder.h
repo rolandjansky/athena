@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbFolder.h
@@ -103,7 +103,7 @@ public:
   // set poolPayloadRequested flag if a POOL file was referenced
   bool getAddress(const cool::ValidityKey reftime,IAddressCreator* persSvc,
                   const unsigned int poolSvcContext,
-                  IOpaqueAddress*& address,
+                  std::unique_ptr<IOpaqueAddress>& address,
                   IOVRange& range,bool& poolPayloadRequested);
 
   // make summary of usage

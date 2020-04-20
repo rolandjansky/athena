@@ -31,7 +31,7 @@ TEST8ThinningHelper.AppendToStream( TEST8Stream )
 # Note how the thinning service (which must be passed to the tools) is accessed
 from DerivationFrameworkExamples.DerivationFrameworkExamplesConf import DerivationFramework__ThinningToolExample
 TEST8ThinningTool = DerivationFramework__ThinningToolExample( name                    = "TEST8ThinningTool",
-							      ThinningService	      = TEST8ThinningHelper.ThinningSvc(),
+                                                              StreamName              = streamName,
 							      TrackPtCut              = 20000.0)
 ToolSvc += TEST8ThinningTool
 

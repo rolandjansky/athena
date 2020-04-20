@@ -14,7 +14,6 @@ LArRawChannelMonTool_TrigToolName = "Trig::TrigDecisionTool/TrigDecisionTool"
 LArRawChannelMonTool_TriggerChain = "L1_RD0_EMPTY" #"L1_RD0_FILLED"
 
 # --- LArRawChannelMon configuration ---
-ToolSvc += GetAtlasReadyFilterTool()
 from LArMonTools.LArMonToolsConf import LArRawChannelMonTool
 LArRawChannelMon = LArRawChannelMonTool(
     # --- set up mon tool ---

@@ -11,4 +11,4 @@ JetVariablesTool = ConfiguredJetVariablesTool(
     )
 
 ToolSvc += JetVariablesTool
-print      JetVariablesTool
+printfunc (     JetVariablesTool)

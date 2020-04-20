@@ -1,16 +1,21 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
 LArRawDataReadingAlg=CompFactory.LArRawDataReadingAlg
 
-def LArRawDataReadingCfg(configFlags):
+def LArRawDataReadingCfg(configFlags, **kwargs):
     acc=ComponentAccumulator()
     from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
     acc.merge(DetDescrCnvSvcCfg(configFlags))
-    acc.merge(ByteStreamReadCfg(configFlags))    
-    acc.addEventAlgo(LArRawDataReadingAlg())
+    acc.merge(ByteStreamReadCfg(configFlags))
+
+    if configFlags.Overlay.DataOverlay:
+        kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "FREE")
+        kwargs.setdefault("LArRawChannelKey", "")
+
+    acc.addEventAlgo(LArRawDataReadingAlg(**kwargs))
     return acc
 
 

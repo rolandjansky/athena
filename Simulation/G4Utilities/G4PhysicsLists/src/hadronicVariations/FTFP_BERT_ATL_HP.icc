@@ -56,7 +56,6 @@
 #include "G4HadronElasticPhysicsHP.hh"
 #include "G4NeutronTrackingCut.hh"
 
-#include "G4DataQuestionaire.hh"
 #include "G4HadronPhysicsFTFP_BERT_ATL_HP.hh"
 
 #include "G4WarnPLStatus.hh"
@@ -66,7 +65,6 @@ template<class T> TFTFP_BERT_ATL_HP<T>::TFTFP_BERT_ATL_HP(G4int ver):  T()
 {
   // default cut value  (1.0mm) 
   // defaultCutValue = 1.0*CLHEP::mm;
-  G4DataQuestionaire it(photon);
   G4cout << "<<< Geant4 Physics List simulation engine: FTFP_BERT_ATL_HP 2.0"<<G4endl;
   G4cout <<G4endl;
   this->defaultCutValue = 0.7*CLHEP::mm;  

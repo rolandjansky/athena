@@ -23,6 +23,7 @@ json defaultJson() {
   j["title"] = "var";
   j["type"] = "TH1F";
   j["weight"] = "";
+  j["cutMask"] = "";
   j["xarray"] = json::array();
   j["xbins"] = 100;
   j["xlabels"] = json::array();
@@ -35,10 +36,21 @@ json defaultJson() {
   j["ymax"] = 0.0;
   j["ymin"] = 0.0;
   j["yvar"] = "";
+  j["zbins"] = 0;
   j["zlabels"] = json::array();
   j["zmax"] = 0.0;
   j["zmin"] = 0.0;
   j["zvar"] = "";
+  j["Sumw2"] = false;
+  j["kLBNHistoryDepth"] = 0;
+  j["kAddBinsDynamically"] = false;
+  j["kRebinAxes"] = false;
+  j["kCanRebin"] = false;
+  j["kVec"] = false;
+  j["kVecUO"] = false;
+  j["kCumulative"] = false;
+  j["merge"] = "";
+  j["treeDef"] = "";
   return j;
 }
 
@@ -64,10 +76,12 @@ bool parse1D_options() {
   check["xmin"] = -1.0;
   check["xmax"] = 1.0;
   check["title"] = "toptitle; xtitle; ytitle";
-  check["opt"] = "myopt";
+  check["Sumw2"] = true;
+  check["kLBNHistoryDepth"] = 99;
   check["path"] = "mypath/tohistograms";
   check["type"] = "TH1D";
   check["weight"] = "myweight";
+  check["cutMask"] = "mycutmask";
   auto def = HistogramDef::parse(check.dump());
 
   VALUE ( def.ok ) EXPECTED ( true );
@@ -75,10 +89,12 @@ bool parse1D_options() {
   VALUE ( def.xmin ) EXPECTED ( -1.0 );
   VALUE ( def.xmax ) EXPECTED ( 1.0 );
   VALUE ( def.title ) EXPECTED ( "toptitle; xtitle; ytitle" );
-  VALUE ( def.opt ) EXPECTED ( "myopt" );
+  VALUE ( def.Sumw2 ) EXPECTED ( true );
+  VALUE ( def.kLBNHistoryDepth ) EXPECTED ( 99 );
   VALUE ( def.path ) EXPECTED ( "mypath/tohistograms" );
   VALUE ( def.type ) EXPECTED ( "TH1D" );
   VALUE ( def.weight ) EXPECTED ( "myweight" );
+  VALUE ( def.cutMask ) EXPECTED ( "mycutmask" );
 
   return true;
 }

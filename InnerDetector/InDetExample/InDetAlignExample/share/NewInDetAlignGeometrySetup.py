@@ -231,7 +231,7 @@ siAlignment_Options = {
 
 for var in siAlignment_Options:
   if var in dir():
-    print  siAlignment_Options[var], " " ,  eval(var)
+    printfunc ( siAlignment_Options[var], " " ,  eval(var))
     siAlignment_Options[var] = eval(var)
 
 ## InDet alignment Options
@@ -259,10 +259,10 @@ for var in indetAlignment_Options:
 # but we might also need it when the whole Inner Detector is to be aligned
 # in the later one of Pixel or SCT is in principle enough
 if newInDetAlignGeo_Options["alignPixel"] and newInDetAlignGeo_Options["alignSCT"]:
-	print "The silicon is ON"
+	printfunc ("The silicon is ON")
 	newInDetAlignGeo_Options["alignSilicon"] = True
 else:
-	print "The silicon is OFF"
+	printfunc ("The silicon is OFF")
 	newInDetAlignGeo_Options["alignSilicon"] = False
 
 #
@@ -309,7 +309,7 @@ from InDetAlignGeomTools.InDetAlignGeomToolsConf import InDet__InDetAlignModuleT
 alignModuleTool = InDet__InDetAlignModuleTool(name = "InDetAlignModuleTool")
 alignModuleTool.OutputLevel = newInDetAlignGeo_Options["outputLevel"]
 ToolSvc += alignModuleTool
-print alignModuleTool
+printfunc (alignModuleTool)
 
 ########################################################################################
 ####
@@ -317,7 +317,7 @@ print alignModuleTool
 ####
 
 #
-print " <NewInDetAlignGeometrySetup> setting up Pixel Alignment_Options --> PixelGeometryManagerTool"
+printfunc (" <NewInDetAlignGeometrySetup> setting up Pixel Alignment_Options --> PixelGeometryManagerTool")
 if newInDetAlignGeo_Options["alignPixel"]:
 	# Pixel geometry manager tool
 	from InDetAlignGeomTools.InDetAlignGeomToolsConf import InDet__PixelGeometryManagerTool
@@ -377,8 +377,8 @@ if newInDetAlignGeo_Options["alignPixel"]:
 		pixelGeometryManagerTool.SetSoftCutEndcapRotZ = pixelAlignment_Options["pixelSetSoftCutBarrelRotZ"]
 	#
 	ToolSvc += pixelGeometryManagerTool
-	print pixelGeometryManagerTool
-print " <NewInDetAlignGeometrySetup> PixelGeometryManagerTool completed"
+	printfunc (pixelGeometryManagerTool)
+printfunc (" <NewInDetAlignGeometrySetup> PixelGeometryManagerTool completed")
 
 
 
@@ -388,9 +388,9 @@ print " <NewInDetAlignGeometrySetup> PixelGeometryManagerTool completed"
 ####
 
 #
-print " <NewInDetAlignGeometrySetup> setting up SCT Alignment_Options --> SCTGeometryManagerTool"
+printfunc (" <NewInDetAlignGeometrySetup> setting up SCT Alignment_Options --> SCTGeometryManagerTool")
 if newInDetAlignGeo_Options["alignSCT"]:
-	print " <NewInDetAlignGeometrySetup> setting up SCT Alignment_Options "
+	printfunc (" <NewInDetAlignGeometrySetup> setting up SCT Alignment_Options ")
 	# SCT geometry manager tool
 	from InDetAlignGeomTools.InDetAlignGeomToolsConf import InDet__SCTGeometryManagerTool
 	sctGeometryManagerTool = InDet__SCTGeometryManagerTool(name = "SCTGeometryManagerTool")
@@ -447,8 +447,8 @@ if newInDetAlignGeo_Options["alignSCT"]:
 		sctGeometryManagerTool.SetSoftCutEndcapRotZ = sctAlignment_Options["sctSetSoftCutEndcapRotZ"]
 	#
 	ToolSvc += sctGeometryManagerTool
-	print sctGeometryManagerTool
-print " <NewInDetAlignGeometrySetup> SCTGeometryManagerTool completed"
+	printfunc (sctGeometryManagerTool)
+printfunc (" <NewInDetAlignGeometrySetup> SCTGeometryManagerTool completed")
 
 
 ########################################################################################
@@ -485,7 +485,7 @@ if newInDetAlignGeo_Options["alignSilicon"]:
 	siGeometryManagerTool.AlignRotZ = siAlignment_Options["siAlignRotZ"]
 	#
 	ToolSvc += siGeometryManagerTool
-	print siGeometryManagerTool
+	printfunc (siGeometryManagerTool)
 
 
 ########################################################################################
@@ -493,7 +493,7 @@ if newInDetAlignGeo_Options["alignSilicon"]:
 ####    TRT Alignment Geometry Setup
 ####
 
-print " <NewInDetAlignGeometrySetup> setting up TRT Alignment_Options --> TRTGeometryManagerTool"
+printfunc (" <NewInDetAlignGeometrySetup> setting up TRT Alignment_Options --> TRTGeometryManagerTool")
 if newInDetAlignGeo_Options["alignTRT"]:
 	# TRT geometry manager tool
 	from InDetAlignGeomTools.InDetAlignGeomToolsConf import InDet__TRTGeometryManagerTool
@@ -514,7 +514,7 @@ if newInDetAlignGeo_Options["alignTRT"]:
 
 	# TRT alignment degrees of freedom
 	# Barrel
-	print " <NewInDetAlignGeometrySetup> setting up TRT barrel Alignment_Options "
+	printfunc (" <NewInDetAlignGeometrySetup> setting up TRT barrel Alignment_Options ")
 	trtGeometryManagerTool.AlignBarrel = trtAlignment_Options["trtAlignBarrel"]
 	if trtAlignment_Options["trtAlignBarrel"]:
 		trtGeometryManagerTool.AlignBarrelX = trtAlignment_Options["trtAlignBarrelX"]
@@ -537,7 +537,7 @@ if newInDetAlignGeo_Options["alignTRT"]:
 		trtGeometryManagerTool.SetSoftCutBarrelRotZ = trtAlignment_Options["trtSetSoftCutBarrelRotZ"]
 
 	# Endcaps
-	print " <NewInDetAlignGeometrySetup> setting up TRT endcaps Alignment_Options "
+	printfunc (" <NewInDetAlignGeometrySetup> setting up TRT endcaps Alignment_Options ")
 	trtGeometryManagerTool.AlignEndcaps = trtAlignment_Options["trtAlignEndcaps"]
 	if trtAlignment_Options["trtAlignEndcaps"]:
 		trtGeometryManagerTool.AlignEndcapX = trtAlignment_Options["trtAlignEndcapX"]
@@ -560,8 +560,8 @@ if newInDetAlignGeo_Options["alignTRT"]:
 		trtGeometryManagerTool.SetSoftCutEndcapRotZ = trtAlignment_Options["trtSetSoftCutEndcapRotZ"]
 	#
 	ToolSvc += trtGeometryManagerTool
-	print trtGeometryManagerTool
-print " <NewInDetAlignGeometrySetup> TRTGeometryManagerTool completed"
+	printfunc (trtGeometryManagerTool)
+printfunc (" <NewInDetAlignGeometrySetup> TRTGeometryManagerTool completed")
 
 
 ########################################################################################
@@ -598,7 +598,7 @@ if newInDetAlignGeo_Options["alignInDet"]:
 	indetGeometryManagerTool.AlignRotZ = indetAlignment_Options["indetAlignRotZ"]
 	#
 	ToolSvc += indetGeometryManagerTool
-	print indetGeometryManagerTool
+	printfunc (indetGeometryManagerTool)
 
 
 # select geometry manager to be used in the alignment
@@ -643,7 +643,7 @@ if (newInDetAlignGeo_Options["alignInDet"] or newInDetAlignGeo_Options["alignSil
 	siTrkDBTool.AlignmentDBM = newInDetAlignGeo_Options["pixelAlignDBM"]
 	
 	ToolSvc += siTrkDBTool
-	print      siTrkDBTool
+	printfunc (     siTrkDBTool)
 
 ########################
 #### TRT DB Output
@@ -670,7 +670,7 @@ if (newInDetAlignGeo_Options["alignInDet"] or newInDetAlignGeo_Options["alignTRT
 	trtTrkDBTool.WriteOldConstants = newInDetAlignGeo_Options["writeOldConstants"]
 
 	ToolSvc += trtTrkDBTool
-	print      trtTrkDBTool
+	printfunc (     trtTrkDBTool)
 
 ########################
 #### Inner Detector DB Output
@@ -681,7 +681,7 @@ if newInDetAlignGeo_Options["alignInDet"]:
 	indetTrkDBTool.TRTTrkAlignDBTool = trtTrkDBTool
 
 	ToolSvc += indetTrkDBTool
-	print      indetTrkDBTool
+	printfunc (     indetTrkDBTool)
 
 
 # select DB tool to be used in the alignment

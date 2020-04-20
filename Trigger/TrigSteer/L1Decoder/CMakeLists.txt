@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthViews
                           Control/AthenaBaseComps
-                          Control/AthenaMonitoring
+                          Control/AthenaMonitoringKernel
                           Event/xAOD/xAODTrigger
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigConfiguration/TrigConfData
@@ -23,19 +23,22 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigT1/TrigT1Result
                           Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils
                           Trigger/TrigTools/TrigTimeAlgs
                           Trigger/TrigMonitoring/TrigCostMonitorMT )
 
 find_package( CLHEP )
+find_package( nlohmann_json )
+
 
 # Component(s) in the package:
 atlas_add_library( L1DecoderLib
                    src/*.cxx
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PUBLIC_HEADERS L1Decoder
-                   LINK_LIBRARIES GaudiKernel AthViews AthenaBaseComps AthenaMonitoringLib 
+                   LINK_LIBRARIES GaudiKernel AthViews AthenaBaseComps AthenaMonitoringKernelLib 
                    xAODTrigger TrigConfHLTData TrigConfData TrigConfL1Data
-                   TrigSteeringEvent TrigT1Interfaces TrigT1Result DecisionHandlingLib
+                   TrigSteeringEvent TrigT1Interfaces TrigT1Result DecisionHandlingLib TrigCompositeUtilsLib
                    LINK_LIBRARIES ${CLHEP_LIBRARIES}
                    )
                    

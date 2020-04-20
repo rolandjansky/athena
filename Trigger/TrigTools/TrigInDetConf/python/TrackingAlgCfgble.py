@@ -34,18 +34,5 @@ class TrigFastTrackFinder(TrigFastTrackFinderBase):
     if hacktype in remap:
       conftype = remap[hacktype]
       
-    if name.find('TrigFastTrackFinder_FTK')>-1:
-      import re
-      conftype = re.search("FTK.*$",name).group(0)
-        
     TrigFastTrackFinderBase.__init__(self, name, conftype)
-    
-
-from InDetTrigPrepRawDataFormat.InDetTrigPrepRawDataFormatConf import InDet__FTK_TrackMaker
-
-class FTK_TrackMaker(InDet__FTK_TrackMaker):
-  def __init__(self, name="TrackMaker_Muon_FTK", type="muon"):
-
-    InDet__FTK_TrackMaker.__init__(self, name)
-
 

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 Resolve the Current or Next BLK tags to find the beamspot folder tag
 """
@@ -25,4 +28,4 @@ if options.next:
 else:
     tag = COOLUtils.resolveCurrentBeamSpotFolder()
 
-print tag
+print (tag)

@@ -15,8 +15,8 @@
 
 import os
 if os.path.exists('./PoolFileCatalog.xml') :
-   print '[!] PoolFileCatalog exists in the run directory (may use old PFN!)'
-   print '[>] Deleting it now !'
+   printfunc ('[!] PoolFileCatalog exists in the run directory (may use old PFN!)')
+   printfunc ('[>] Deleting it now !')
    os.remove('./PoolFileCatalog.xml')
 
 # set to monte carlo ---------------------------

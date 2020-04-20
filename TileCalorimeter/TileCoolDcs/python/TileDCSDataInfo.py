@@ -1,7 +1,9 @@
 #!/bin/env python
 # Author: nils.gollub@cern.ch
 
-import re, os, sys, string
+from __future__ import print_function
+
+import os
 
 class TileDCSDataInfo:
     """
@@ -71,29 +73,29 @@ class TileDCSDataInfo:
                     "EXT_TEMP1"           : [ LVPS_AI, type_float]}
 
     vars_HV = {}
-    for i in xrange(48):
+    for i in range(48):
         i = str(i+1)
         vars_HV["hvOut"+i] = [ VARS_HV, type_float ]
-    for i in xrange(4):
+    for i in range(4):
         i = str(i+1)
         vars_HV["hvIn"+i]  = [ VARS_HV, type_float ]
-    for i in xrange(7):
+    for i in range(7):
         i = str(i+1)
         vars_HV["volt"+i]  = [ VARS_HV, type_float ]
         vars_HV["temp"+i]  = [ VARS_HV, type_float ]
 
     vars_HVSET = {}
-    for i in xrange(48):
+    for i in range(48):
         i = str(i+1)
         vars_HVSET["Set.hvOut"+i] = [ VARS_HVSET, type_float ]
-    for i in xrange(4):
+    for i in range(4):
         i = str(i+1)
         vars_HVSET["Set.hvIn"+i]  = [ VARS_HVSET, type_float ]
-    for i in xrange(7):
+    for i in range(7):
         i = str(i+1)
         vars_HVSET["Set.volt"+i]  = [ VARS_HVSET, type_float ]
         vars_HVSET["Set.temp"+i]  = [ VARS_HVSET, type_float ]
-    #for i in xrange(2):
+    #for i in range(2):
     #    i = str(i+1)
     #    vars_HVSET["Set.vFix1"+i]  = [ VARS_HVSET, type_float ]
 
@@ -114,15 +116,15 @@ class TileDCSDataInfo:
     def __init__( self, dbstring=None ):
 
         self.vars = {}
-        for var, info in self.vars_LVPS_AI.iteritems():
+        for var, info in list(self.vars_LVPS_AI.items()):
             self.vars[var] = info
-        for var, info in self.vars_LVPS_STATES.iteritems():
+        for var, info in list(self.vars_LVPS_STATES.items()):
             self.vars[var] = info
-        for var, info in self.vars_HV.iteritems():
+        for var, info in list(self.vars_HV.items()):
             self.vars[var] = info
-        for var, info in self.vars_HVSET.iteritems():
+        for var, info in list(self.vars_HVSET.items()):
             self.vars[var] = info
-        for var, info in self.vars_DAQ.iteritems():
+        for var, info in list(self.vars_DAQ.items()):
             self.vars[var] = info
 
         self.folderDrawer_to_channel = {}
@@ -137,13 +139,13 @@ class TileDCSDataInfo:
 
                 keyFolderDrawer = ( folder , drawer)
                 if keyFolderDrawer in self.folderDrawer_to_channel:
-                    raise "trying to generate key twice: ", keyFolderDrawer
+                    raise Exception ("trying to generate key twice: ", keyFolderDrawer)
                 self.folderDrawer_to_channel[ keyFolderDrawer] = int(channel)
                 self.folderDrawer_to_oracleId[keyFolderDrawer] = oracleId
 
                 keyFolderChannel = ( folder , int(channel))
                 if keyFolderChannel in self.folderChannel_to_drawer:
-                    raise "trying to generate key twice: ", keyFolderChannel
+                    raise Exception ("trying to generate key twice: ", keyFolderChannel)
                 self.folderChannel_to_drawer[keyFolderChannel] = drawer
 
         self.dbstring = {"DEFAULT":[],"COOL":[],"ORACLE":[],"TESTBEAM":[]}
@@ -165,10 +167,10 @@ class TileDCSDataInfo:
     def get_channel(self, folder, drawer):
 
         if not self.check_drawer_syntax(drawer):
-            raise "ERROR: drawer not valid: ", drawer
+            raise Exception ("ERROR: drawer not valid: ", drawer)
         key = (folder, drawer )
         if key not in self.folderDrawer_to_channel:
-            print "get_channel WARNING, can not resolve key: ", key
+            print ("get_channel WARNING, can not resolve key: ", key)
             return None
         return self.folderDrawer_to_channel[key]
 
@@ -176,7 +178,7 @@ class TileDCSDataInfo:
 
         key = (folder, channel)
         if key not in self.folderChannel_to_drawer:
-            print "get_drawer WARNING, can not resolve key: ", key
+            print ("get_drawer WARNING, can not resolve key: ", key)
             return None
         return self.folderChannel_to_drawer[key]
 
@@ -187,7 +189,7 @@ class TileDCSDataInfo:
         folder name and the channel number associated to the drawer
         """
         if variable not in self.vars:
-            raise "Variable not known: ", variable
+            raise Exception ("Variable not known: ", variable)
         partition = drawer[0:3]
 
         folderDef = self.vars[variable][0]
@@ -199,7 +201,7 @@ class TileDCSDataInfo:
             folder = folderDef[0]+folderDef[1]
         key = (folder, drawer)
         if key not in self.folderDrawer_to_channel:
-            print "WARNING, can not resolve key: ", key
+            print ("WARNING, can not resolve key: ", key)
             return None
         channel = self.folderDrawer_to_channel[key]
         return (folder, channel)
@@ -209,11 +211,11 @@ class TileDCSDataInfo:
         Returns the type of a variable
         """
         if variable not in self.vars:
-            raise "Variable not known: ", variable
+            raise Exception ("Variable not known: ", variable)
         return self.vars[variable][1]
 
     def get_all_variables(self):
-        return self.vars.keys()
+        return list(self.vars.keys())
 
     def check_drawer_syntax(self, drawer):
         partition = drawer[0:3]
@@ -234,7 +236,7 @@ class TileDCSDataInfo:
         folderDict = {}
         for var in variables:
             if var not in self.vars:
-                print "Unknown variable, IGNORING IT: ", var
+                print ("Unknown variable, IGNORING IT: ", var)
             else:
                 folder, channel = self.get_folder_and_channel(var,drawer)
                 if folder not in folderDict:

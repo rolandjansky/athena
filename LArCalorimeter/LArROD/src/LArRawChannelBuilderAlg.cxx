@@ -23,6 +23,8 @@ StatusCode LArRawChannelBuilderAlg::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));
 
+  const std::string cutmsg = m_absECutFortQ.value() ? " fabs(E) < " : " E < "; 
+  ATH_MSG_INFO("Energy cut for time and quality computation: " << cutmsg << m_eCutFortQ.value() << " MeV");
   return StatusCode::SUCCESS;
 }     
 
@@ -114,7 +116,8 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     uint16_t prov=0xa5; //Means all constants from DB
     if (saturated) prov|=0x0400;
 
-    if (std::fabs(E)>m_eCutFortQ) {
+    const float E1=m_absECutFortQ.value() ? std::fabs(E) : E;
+    if (E1>m_eCutFortQ.value()) {
       ATH_MSG_VERBOSE("Channel " << m_onlineId->channel_name(id) << " gain " << gain << " above threshold for tQ computation");
       prov|=0x2100; // above cut + iteration converged (by definition, if no iteration done)
 

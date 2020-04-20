@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetRec/IParticleExtractor.h"
@@ -8,7 +8,9 @@
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
+#ifndef GENERATIONBASE
 #include "xAODJet/JetTrigAuxContainer.h"
+#endif // NOT GENERATIONBASE
 #include "SGTools/TestStore.h" 
 
 #include "gtest/gtest.h"

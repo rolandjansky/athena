@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -603,28 +603,6 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   //	      << std::endl;
   //}
 
-  //Get the Upper Tracks
-  SG::ReadHandle<TrackCollection> upperTracks{m_upperTracksName};
-  if (not upperTracks.isValid()) {
-    ATH_MSG_ERROR(m_upperTracksName << " could not be retrieved");
-    return StatusCode::RECOVERABLE;
-  }
-  tracksUpper = m_trackSelectionUpper->selectTracks(upperTracks);
-  if (!tracksUpper) {
-    ATH_MSG_DEBUG( "TrackCollection with name "<<m_upperTracksName.key()<<" is NULL" );
-  }
-
-  //Get the Lower Tracks
-  SG::ReadHandle<TrackCollection> lowerTracks{m_lowerTracksName};
-  if (not lowerTracks.isValid()) {
-    ATH_MSG_ERROR(m_lowerTracksName << " could not be retrieved");
-    return StatusCode::RECOVERABLE;
-  }
-  tracksLower = m_trackSelectionLower->selectTracks(lowerTracks);
-  if (!tracksLower) {
-    ATH_MSG_DEBUG( "TrackCollection with name "<<m_lowerTracksName<<" is NULL" );
-  }
-
   if (not m_useCTBSplitTracks){
     //We only need the inputTracks if we're splitting them ourselves
     //Split the tracks.
@@ -648,6 +626,28 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     //		<< " (size: " <<  tracksIn->size() <<" ) splitting completed "                                                                 
     //		<< std::endl;
     //}
+  }
+
+  //Get the Upper Tracks
+  SG::ReadHandle<TrackCollection> upperTracks{m_upperTracksName};
+  if (not upperTracks.isValid()) {
+    ATH_MSG_ERROR(m_upperTracksName << " could not be retrieved");
+    return StatusCode::RECOVERABLE;
+  }
+  tracksUpper = m_trackSelectionUpper->selectTracks(upperTracks);
+  if (!tracksUpper) {
+    ATH_MSG_DEBUG( "TrackCollection with name "<<m_upperTracksName.key()<<" is NULL" );
+  }
+
+  //Get the Lower Tracks
+  SG::ReadHandle<TrackCollection> lowerTracks{m_lowerTracksName};
+  if (not lowerTracks.isValid()) {
+    ATH_MSG_ERROR(m_lowerTracksName << " could not be retrieved");
+    return StatusCode::RECOVERABLE;
+  }
+  tracksLower = m_trackSelectionLower->selectTracks(lowerTracks);
+  if (!tracksLower) {
+    ATH_MSG_DEBUG( "TrackCollection with name "<<m_lowerTracksName<<" is NULL" );
   }
 
   //if (false) {

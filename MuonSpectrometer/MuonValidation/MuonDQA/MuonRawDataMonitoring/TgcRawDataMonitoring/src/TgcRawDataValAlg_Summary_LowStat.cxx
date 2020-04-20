@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,9 +17,6 @@
 // GeoModel
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
 
-// Cabling Service
-//#include "TGCcablingInterface/ITGCcablingServerSvc.h"
-
 #include "Identifier/Identifier.h"
 
 // MuonRDO
@@ -32,22 +29,16 @@
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
-//#include "MuonDQAUtils/TGCDQAUtils.h"
  
 #include "TgcRawDataMonitoring/TgcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include <TError.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
-#include <TF1.h>
+#include <TH1F.h>
+#include <TH2F.h>
 #include <inttypes.h> 
 
 #include <sstream>
-#include <math.h>
-
-using namespace std;
+#include <cmath>
 
 StatusCode 
 TgcRawDataValAlg::bookHistogramsSummary(){
@@ -62,8 +53,8 @@ TgcRawDataValAlg::bookHistogramsSummary(){
   
   std::stringstream ss;
   std::string side[2] = {"A","C"};
-  string wireoccupergasgap  = "Wire_Occupancy_Per_GasGap_";
-  string stripoccupergasgap = "Strip_Occupancy_Per_GasGap_";
+  std::string wireoccupergasgap  = "Wire_Occupancy_Per_GasGap_";
+  std::string stripoccupergasgap = "Strip_Occupancy_Per_GasGap_";
   
   for(int i=0;i<2;i++){// side
     //Summary
@@ -76,11 +67,11 @@ TgcRawDataValAlg::bookHistogramsSummary(){
     ATH_CHECK( tgcprd_summary_ac[i]->regHist(m_tgcsummaryoflog10stripoccupancypergasgap[i]) );
   }// side
   
-  string wireoccuperchamtype  = "Wire_Occupancy_Per_Chamber_Type_Station";
-  string stripoccuperchamtype = "Strip_Occupancy_Per_Chamber_Type_Station";
+  std::string wireoccuperchamtype  = "Wire_Occupancy_Per_Chamber_Type_Station";
+  std::string stripoccuperchamtype = "Strip_Occupancy_Per_Chamber_Type_Station";
 
   int ntype=0;
-  string chamtype[4][6] = {{ "_F_T1", "_E4_T3", "_E3_T6", "_E2_T7", "_E1_T8",  "EMPTY"},
+  std::string chamtype[4][6] = {{ "_F_T1", "_E4_T3", "_E3_T6", "_E2_T7", "_E1_T8",  "EMPTY"},
                            { "_F_T2", "_E5_T4", "_E4_T6", "_E3_T7", "_E2_T8", "_E1_T9"},
                            { "_F_T2", "_E5_T5", "_E4_T6", "_E3_T7", "_E2_T8", "_E1_T9"},
                            {"_F_T10", "_E_T11",  "EMPTY",  "EMPTY",  "EMPTY",  "EMPTY"}};

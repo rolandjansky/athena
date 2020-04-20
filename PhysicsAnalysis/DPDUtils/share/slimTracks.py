@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 ###############################################################
 #
 # Track Slimming 
@@ -13,7 +15,7 @@ class slimTracks( PyAlgorithm ):
         self.name = name
 
     def initialize(self):
-        print "Initializing filterAlg"
+        printfunc ("Initializing filterAlg")
         return True
 
     def execute(self):

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import sys
 import os, os.path
 
@@ -8,7 +10,7 @@ from GoodRunsLists.GoodRunsListTool import getObjectOfClass,createAndVerifyGRL
 if __name__ == "__main__":
 
   if len(sys.argv) < 2:
-    print "usage: ", sys.argv[0], "<grlcollection> [<filenameprefix>]"
+    print ("usage: ", sys.argv[0], "<grlcollection> [<filenameprefix>]")
     sys.exit(1)
 
   ## interpret cmd line arguments
@@ -21,26 +23,27 @@ if __name__ == "__main__":
 
   ## get list of GRL configrations to process
   grlConfCollection = officialGRLs.collection
-  print "\n>> Found %d GRL configuration(s) to process." % len(grlConfCollection)
+  print ("\n>> Found %d GRL configuration(s) to process." % len(grlConfCollection))
 
   xmlfiles = []
   allOk = True
   for grlConf in grlConfCollection:
-    print "\n>> ========================================================================================="
-    print ">> Now processing GRL configuration: \'%s\'" % grlConf
-    print ">> =========================================================================================\n"
+    print ("\n>> =========================================================================================")
+    print (">> Now processing GRL configuration: \'%s\'" % grlConf)
+    print (">> =========================================================================================\n")
     ok,xmlfile = createAndVerifyGRL(grlConf,prefix)
     allOk = allOk and ok
     xmlfiles.append(xmlfile)
 
-  print "\n>> ========================================================================================="
+  print ("\n>> =========================================================================================")
   if allOk: 
-    print ">> All GRLs generated okay."
-    print ">> Produced following set of xml files:"
-    print xmlfiles
+    print (">> All GRLs generated okay.")
+    print (">> Produced following set of xml files:")
+    print (xmlfiles)
   else: 
-    print ">> ERROR: problem generating one or more good run lists."
-  print ">> =========================================================================================\n"
+    print (">> ERROR: problem generating one or more good run lists.")
+  print (">> =========================================================================================\n")
 
-  if allOk: print "ErrorCode=0 (OK)"
+  if allOk:
+    print ("ErrorCode=0 (OK)")
 

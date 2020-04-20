@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////
@@ -7,7 +7,8 @@
 ////// Author: N.Bernard <nathan.rogers.bernard@cern.ch>
 ///////////////////////////////////////////////////////////////////////////
 #include "MuonLinearSegmentMakerUtilities/ClusterNtuple.h"
-
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include <iostream>
 #include <TTree.h>
 
@@ -100,7 +101,8 @@ namespace ClusterSeg {
 
   bool ClusterNtuple::read( std::vector<Cluster*>& clusters) {
     if( nclusters == 0 ) {
-      std::cout << " ntuple not initialized for reading " << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"ClusterNtuple::read");
+      if(log.level()<=MSG::DEBUG) log << MSG::DEBUG << " ntuple not initialized for reading " << endmsg;
       return false;
     }
     

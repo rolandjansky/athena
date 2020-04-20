@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # listDatasets.py - from an input list of GUIDs, gets a corresponding list of DQ2 datasets.
 import cx_Oracle
 import os, getopt
 import re
 import sys, signal
-import commands
 import random
 
 try:
@@ -19,13 +20,13 @@ try:
    from dq2.common.DQException import *
    from dq2.location.client.LocationClient import LocationClient
 except ImportError:
-   print "Environment not set [error importing DQ2 dependencies]!"
-   print "Try setting PYTHONPATH to the dq2-client directory."
+   print ("Environment not set [error importing DQ2 dependencies]!")
+   print ("Try setting PYTHONPATH to the dq2-client directory.")
    sys.exit(1)
 
 # Usage summary
 def _usage(exit = None):
-   print """Command line options: [-h | --help], [-n | --nevnt], [-l | --lfn], [-g | --guid], [-s | --schema] <schema name>, [-c | --collection] <collection name (comma separated)>."""
+   print ("""Command line options: [-h | --help], [-n | --nevnt], [-l | --lfn], [-g | --guid], [-s | --schema] <schema name>, [-c | --collection] <collection name (comma separated)>.""")
    if exit != None:
       sys.exit()
 
@@ -59,11 +60,11 @@ def main():
    try:
       optlist, args = getopt.getopt( sys.argv[1:], _useropts, _userlongopts )
    except getopt.error:
-      print sys.exc_value
+      print (sys.exc_value)
       _usage( 2 )
 
    if args:
-      print "Unhandled arguments:", args
+      print ("Unhandled arguments:", args)
       _usage( 2 )
 
    for opt, arg in optlist:
@@ -82,8 +83,8 @@ def main():
          countNumber = True
 
    if (len(Collections)==0):
-      print "No collections specified on relational DB"
-      print "--> The python variable Collections is not set"
+      print ("No collections specified on relational DB")
+      print ("--> The python variable Collections is not set")
       sys.exit()
 
    #newTuple = {}
@@ -91,7 +92,7 @@ def main():
    numberDict = {}
    for coll in Collections:
       level = "  COLL (TAB="+coll+") "
-      if (debugFlag): print "  BEGIN ", level
+      if (debugFlag): print ("  BEGIN ", level)
 
       attributes = "COLLECTION_NAME,DATA_TABLE_NAME,LINKS_TABLE_NAME"
       if (schema !=""):
@@ -99,23 +100,23 @@ def main():
       else:
          querySql = "SELECT "+attributes+" from pool_collections where collection_name=\'" + coll + "\'"
 
-      #print level, "query = ", querySql
+      #print (level, "query = ", querySql)
       cursor.execute(querySql)
       returnSql = cursor.fetchall()
-      #print level, "Resultset = ", returnSql
+      #print (level, "Resultset = ", returnSql)
       #make sure we only get one table name back
       if len(returnSql) == 0:
-         print level, "problem executing query " + querySql
-         print level, "no table names returned in output:" + str(returnSql)
-         print level, "--> Skipping coll"
+         print (level, "problem executing query " + querySql)
+         print (level, "no table names returned in output:" + str(returnSql))
+         print (level, "--> Skipping coll")
          continue
       if len(returnSql) > 1:
-         print level, "problem executing query " + querySql
-         print level, "too many table names in output:" + str(returnSql)
-         print level, "--> Skipping coll"
+         print (level, "problem executing query " + querySql)
+         print (level, "too many table names in output:" + str(returnSql))
+         print (level, "--> Skipping coll")
          continue
  
-      #print returnSql
+      #print (returnSql)
       dataTableName = returnSql[0][1]
       linksTableName = returnSql[0][2]
 
@@ -146,19 +147,19 @@ def main():
          
          guidList =[]
          linkIdDict = {}
-         #print queryID
-         #print returnSqlId
+         #print (queryID)
+         #print (returnSqlId)
          for element in returnSqlId:
             linkId = element[0]
             element = element[1].strip()
             element = element.split("][")[0].split("=")[1]
             guidList.append(element)
             linkIdDict[element] = linkId
-         print ""
-         print str(len(guidList)) + " unique guids found in collection " + coll
-         #print guidList
-         #print linkIdDict
-         if (debugFlag): print guidList
+         print ("")
+         print (str(len(guidList)) + " unique guids found in collection " + coll)
+         #print (guidList)
+         #print (linkIdDict)
+         if (debugFlag): print (guidList)
          
             
                                                                                                                                            
@@ -168,12 +169,12 @@ def main():
          fileList = []
 
          for guid in guidList:
-            if (debugFlag): print "Processing GUID = " + guid
+            if (debugFlag): print ("Processing GUID = " + guid)
             vuid = dq.contentClient.queryDatasetsWithFileByGUID(guid)
-            if (debugFlag): print "VUID(S) = " + str(vuid)
+            if (debugFlag): print ("VUID(S) = " + str(vuid))
             if len(vuid) == 0:
-               print "Error: guid " + guid + " returned by query is not registered in any DQ2 dataset!"
-               print "Skipping to next file..."
+               print ("Error: guid " + guid + " returned by query is not registered in any DQ2 dataset!")
+               print ("Skipping to next file...")
                continue
             else: 
                #for each dataset vuid
@@ -181,7 +182,7 @@ def main():
                   #get the dataset name
                   dataset = dq.repositoryClient.resolveVUID(v)
                   name = dataset.get('dsn')
-                  if (debugFlag): print "dataset name = " + str(name)
+                  if (debugFlag): print ("dataset name = " + str(name))
                   #if the dataset isn't a _tid dataset, ignore, else do stuff.
                   if (re.search(r'tid',name)):
                      continue
@@ -193,13 +194,13 @@ def main():
                         dataset_names.append(name)
          #it appears that you need to send the vuid to queryFilesInDataset as a list-type
          #"files" contains a tuple of the lfns for all of the (one) dataset
-         #print "guids = " +str(guidList)
-         print "Getting files for VUIDs"
-         #print "getting files for VUIDs=" + str(keptVuids) 
+         #print ("guids = " +str(guidList))
+         print ("Getting files for VUIDs")
+         #print ("getting files for VUIDs=" + str(keptVuids) )
          files = dq.contentClient.queryFilesInDataset(keptVuids)
-         #print files
+         #print (files)
          #now just need to get the corresponding lfn for a given guid
-         print str(len(guidList)) + " GUID:LFN pairs found:"
+         print (str(len(guidList)) + " GUID:LFN pairs found:")
          dataDict = {}
          for guid in guidList:
             dataDict[guid]= files[0][guid]['lfn']
@@ -209,54 +210,54 @@ def main():
                countGuids = "SELECT count(OID_1) from " + dataTableName + " where OID_1=\'" + str(linkIdDict[guid]) + "\'"
                cursor.execute(countGuids)
                returnCountGuids = cursor.fetchall()
-               #print returnCountGuids[0][0]
+               #print (returnCountGuids[0][0])
                numberDict[guid] = returnCountGuids[0][0]
          masterDict[coll] = dataDict
     
-      except DQException, e:
-         print "Error", e
+      except DQException as e:
+         print ("Error", e)
 
    for x in masterDict.keys():
-      print ""
-      print "######################################################"
+      print ("")
+      print ("######################################################")
       if (viewLfn) and not (viewGuid):
-         print "LFNs found for collection " + x
-         print "######################################################"
+         print ("LFNs found for collection " + x)
+         print ("######################################################")
          total = 0
          if (countNumber):
             for y in masterDict[x].keys():
-               print masterDict[x][y] + "\t" + str(numberDict[y])
+               print (masterDict[x][y] + "\t" + str(numberDict[y]))
                total = total + numberDict[y]
          else:
             for y in masterDict[x].keys():
-               print masterDict[x][y]
+               print (masterDict[x][y])
       elif (viewLfn) and (viewGuid):
-         print "LFNs & GUIDs found for collection " + x
-         print "######################################################"
+         print ("LFNs & GUIDs found for collection " + x)
+         print ("######################################################")
          total = 0
          if (countNumber):
             for y in masterDict[x].keys():
-               print y + "\t" + masterDict[x][y] + "\t" + str(numberDict[y])
+               print (y + "\t" + masterDict[x][y] + "\t" + str(numberDict[y]))
                total = total + numberDict[y]
          else:
             for y in masterDict[x].keys():
-               print y + "\t" + masterDict[x][y]
+               print (y + "\t" + masterDict[x][y])
       elif (viewGuid) and not (viewLfn):
-         print "GUIDs found for collection " + x
-         print "######################################################"
+         print ("GUIDs found for collection " + x)
+         print ("######################################################")
          total = 0
          if (countNumber):
             for y in masterDict[x].keys():
-               print y + "\t" + str(numberDict[y])
+               print (y + "\t" + str(numberDict[y]))
                total = total + numberDict[y]
          else:
             for y in masterDict[x].keys():
-               print y 
+               print (y )
          
-      print "#########################################"
-      print "Total number of events loaded = " + str(total)
-      print "#########################################"
-      print " "
+      print ("#########################################")
+      print ("Total number of events loaded = " + str(total))
+      print ("#########################################")
+      print (" ")
          
 
 if __name__ == '__main__':

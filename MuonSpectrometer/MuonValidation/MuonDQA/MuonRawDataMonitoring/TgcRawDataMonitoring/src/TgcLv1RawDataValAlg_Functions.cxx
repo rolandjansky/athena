@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,13 +29,9 @@
 
 #include <TH1.h>
 #include <TH2.h>
-#include <TList.h>
 #include <TBox.h>
-#include <TMath.h>
 #include <inttypes.h> 
 #include <TProfile.h>
-
-using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////
 // RoI Eta&Phi extractor function

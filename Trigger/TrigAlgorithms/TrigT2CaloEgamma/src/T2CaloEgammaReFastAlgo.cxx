@@ -17,10 +17,10 @@
 #include "T2CaloEgammaReFastAlgo.h"
 #include "TrigT2CaloCommon/IReAlgToolCalo.h"
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
-#include "TrigT2CaloCommon/phiutils.h"
+#include "CxxUtils/phihelper.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 class ISvcLocator;
 
@@ -69,8 +69,8 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
       etamin = std::max(-2.5, roiDescriptor->eta() - m_etaWidth);
       etamax = std::min(2.5, roiDescriptor->eta() + m_etaWidth);
 
-      phimin = HLT::wrap_phi(roiDescriptor->phi() - m_phiWidth);
-      phimax = HLT::wrap_phi(roiDescriptor->phi() + m_phiWidth);
+      phimin = CxxUtils::wrapToPi(roiDescriptor->phi() - m_phiWidth);
+      phimax = CxxUtils::wrapToPi(roiDescriptor->phi() + m_phiWidth);
 
       etaL1 = roiDescriptor->eta();
       phiL1 = roiDescriptor->phi();
@@ -79,8 +79,8 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
       etamin = std::max(-2.5, m_l1eta - m_etaWidth);
       etamax = std::min(2.5, static_cast<double>(m_l1eta) + m_etaWidth);
 
-      phimin = HLT::wrap_phi(m_l1phi - m_phiWidth);
-      phimax = HLT::wrap_phi(static_cast<double>(m_l1phi) + m_phiWidth);
+      phimin = CxxUtils::wrapToPi(m_l1phi - m_phiWidth);
+      phimax = CxxUtils::wrapToPi(static_cast<double>(m_l1phi) + m_phiWidth);
 
       etaL1 = m_l1eta;
       phiL1 = m_l1phi;

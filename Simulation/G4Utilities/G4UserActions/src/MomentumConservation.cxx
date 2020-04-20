@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MomentumConservation.h"
@@ -10,7 +10,7 @@
 //#include "G4FourVector.hh"
 #include <iostream>
 
-#include "AsgTools/MsgStreamMacros.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace G4UA
 {

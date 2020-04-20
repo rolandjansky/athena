@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
      
 ///////////////////////////////////////////////////////////////////
 //   Implementation file for class SiSpacePointsSeedMaker_ATLxk
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // AlgTool used for TRT_DriftCircleOnTrack object production
 ///////////////////////////////////////////////////////////////////
@@ -57,6 +55,10 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
   }    
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	ATH_CHECK( m_fieldCondObjInputKey.initialize() );
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   // PRD-to-track association (optional)
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
   
@@ -64,17 +66,12 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
   //
   buildFrameWork();
 
-  // Get output print level
-  //
-  m_outputlevel = msg().level()-MSG::DEBUG;
-  if (m_outputlevel<=0) {
+  if (msgLvl(MSG::DEBUG)) { 
     EventData data;
     initializeEventData(data);
     data.nprint=0;
     dump(data, msg(MSG::DEBUG));
   }
-
-  m_initialized = true;
 
   return sc;
 }
@@ -92,7 +89,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteration) const
+void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, EventData& data, int iteration) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -112,7 +109,21 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
 
     double f[3], gP[3] ={10.,10.,0.};
     if (m_fieldServiceHandle->solenoidOn()) {
-      m_fieldServiceHandle->getFieldZR(gP,f);
+
+      MagField::AtlasFieldCache    fieldCache;
+      // Get field cache object
+      SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+      const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+      if (fieldCondObj == nullptr) {
+          ATH_MSG_ERROR("SiSpacePointsSeedMaker_ATLxk: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+          return;
+      }
+      fieldCondObj->getInitializedCache (fieldCache);
+
+      //    MT version uses cache, temporarily keep old version
+      if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP,f);
+      else                                m_fieldServiceHandle->getFieldZR(gP,f);
+
       data.K = 2./(300.*f[2]);
     } else {
       data.K = 2./(300.* 5. );
@@ -143,7 +154,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -155,7 +166,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
   //
   if (!m_dbm && m_pixel) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsPixel) {
@@ -184,12 +195,12 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
     }
     ++data.r_first;
   }
-
+  
   // Get sct space points containers from store gate 
   //
   if (!m_dbm && m_sct) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsSCT) {
@@ -214,7 +225,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
     //
     if (m_useOverlap && !data.checketa) {
 
-      SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap{m_spacepointsOverlap};
+      SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap{m_spacepointsOverlap, ctx};
       if (spacepointsOverlap.isValid()) {
   
         for (const Trk::SpacePoint* sp: *spacepointsOverlap) {
@@ -234,12 +245,12 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
       }
     }
   }
-
+  
   // Get pixels space points containers from store gate for DBM reconstruction
   //
   if (m_dbm) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsPixel) {
@@ -275,7 +286,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(EventData& data, int iteratio
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
-(EventData& data,
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
 {
   if (not data.initialized) initializeEventData(data);
@@ -296,7 +307,22 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   double f[3], gP[3] ={10.,10.,0.};
 
   if (m_fieldServiceHandle->solenoidOn()) {
-    m_fieldServiceHandle->getFieldZR(gP,f);
+
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    if (fieldCondObj == nullptr) {
+        ATH_MSG_ERROR("SiSpacePointsSeedMaker_ATLxk: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+        return;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    //   MT version uses cache, temporarily keep old version
+    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP,f);
+    else                                m_fieldServiceHandle->getFieldZR(gP,f);
+
     data.K = 2./(300.*f[2]);
   } else {
     data.K = 2./(300.* 5. );
@@ -325,7 +351,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   //
   if (m_pixel && !vPixel.empty()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if ( spacepointsPixel.isValid() ) {
       SpacePointContainer::const_iterator spce = spacepointsPixel->end();
 
@@ -353,7 +379,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   //
   if (m_sct && !vSCT.empty()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
       SpacePointContainer::const_iterator spce = spacepointsSCT->end();
 
@@ -384,7 +410,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
-(EventData& data,
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
  const IRoiDescriptor& IRD) const
 {
@@ -392,7 +418,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
 
   if (not data.initialized) initializeEventData(data);
 
-  newRegion(data, vPixel, vSCT);
+  newRegion(ctx, data, vPixel, vSCT);
   data.trigger = true;
 
   double dzdrmin = 1./tan(2.*atan(exp(-IRD.etaMinus())));
@@ -439,7 +465,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find2Sp(EventData& data, const std::li
   }
   data.i_seed_Pro = data.l_seeds_Pro.begin();
   
-  if (m_outputlevel<=0) {
+
+  if (msgLvl(MSG::DEBUG)) {
     data.nprint=1;
     dump(data, msg(MSG::DEBUG));
   }
@@ -450,7 +477,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find2Sp(EventData& data, const std::li
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(const EventContext&, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -474,9 +501,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(EventData& data, const std::li
     production3Sp(data);
   }
   data.i_seed_Pro = data.l_seeds_Pro.begin();
-  data.seed_Pro = data.seeds_Pro.begin();
 
-  if (m_outputlevel<=0) {
+  
+  if (msgLvl(MSG::DEBUG)) {
     data.nprint=1;
     dump(data, msg(MSG::DEBUG));
   }
@@ -487,7 +514,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(EventData& data, const std::li
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double* ZVertex) const
+void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(const EventContext&, EventData& data, const std::list<Trk::Vertex>& lv, const double* ZVertex) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -513,9 +540,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(EventData& data, const std::li
     production3Sp(data);
   }
   data.i_seed_Pro = data.l_seeds_Pro.begin();
-  data.seed_Pro = data.seeds_Pro.begin();
 
-  if (m_outputlevel<=0) {
+  if (msgLvl(MSG::DEBUG)) {  
     data.nprint=1;
     dump(data, msg(MSG::DEBUG));
   }
@@ -527,7 +553,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(EventData& data, const std::li
 // Variable means (2,3,4,....) any number space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_ATLxk::findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_ATLxk::findVSp(const EventContext&, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -551,9 +577,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::findVSp(EventData& data, const std::li
     production3Sp(data);
   }
   data.i_seed_Pro = data.l_seeds_Pro.begin();
-  data.seed_Pro = data.seeds_Pro.begin();
 
-  if (m_outputlevel<=0) {
+  if (msgLvl(MSG::DEBUG)) { 
     data.nprint=1;
     dump(data, msg(MSG::DEBUG));
   }
@@ -756,7 +781,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::findNext(EventData& data) const
   else if (data.mode==5 or data.mode==6) production3Sp(data);
 
   data.i_seed_Pro = data.l_seeds_Pro.begin();
-  data.seed_Pro = data.seeds_Pro.begin();
   ++data.nlist;
 }                       
 
@@ -807,7 +831,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   } else if (m_ptmin < 100.) {
     m_ptmin = 100.;
   }
-
   if (m_diversss < m_diver   ) m_diversss = m_diver;
   if (m_divermax < m_diversss) m_divermax = m_diversss;
 
@@ -1011,11 +1034,11 @@ void  InDet::SiSpacePointsSeedMaker_ATLxk::convertToBeamFrameWork
 void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
-  std::list<InDet::SiSpacePointForSeed*>::iterator r, re;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r, re;
 
   int  ir0 =     0;
   bool ibl = false;
-
+  
   for (int i=data.r_first; i<m_r_size;  ++i) {
 
     if (!data.r_map[i]) continue;
@@ -1062,24 +1085,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists(EventData& data) const
       ++data.nsaz;
       data.rfz_Sorted[n].push_back(*r);
       if (!data.rfz_map[n]++) data.rfz_index[data.nrfz++] = n;
-      
-      if (!data.iteration && (*r)->spacepoint->clusterList().second == 0 && z>=3 && z<=7) { 
-        z<=4 ? z=0 : z>=6 ? z=2 : z=1;
-
-        // Azimuthal angle and Z-coordinate sort for fast vertex search
-        //
-        f = static_cast<int>(F*m_sFv);
-        if (f < 0) {
-          f += m_fvNmax;
-        } else if (f> m_fvNmax) {
-          f -= m_fvNmax;
-        }
-
-        n = f*SizeZV+z;
-        ++data.nsazv;
-        data.rfzv_Sorted[n].push_back(*r);
-        if (!data.rfzv_map[n]++) data.rfzv_index[data.nrfzv++] = n;
-      }
     }
   }
   if (!m_sct && ir0 && static_cast<float>(ir0)*m_r_rstep < 43.) {
@@ -1127,7 +1132,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production2Sp(EventData& data) const
 {
   if (data.nsazv<2) return;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0,r0e,r,re;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0,r0e,r,re;
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -1230,11 +1235,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production2Sp(EventData& data) const
 void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp(EventData& data) const
 {
   if (data.nsaz<3) return;
-  data.seeds_Pro.clear();
 
   const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
-  std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
-  int nseed = 0;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
+  int    nseed =    0;
+  data.endlist = true;
 
   // Loop thorugh all azimuthal regions
   //
@@ -1266,12 +1271,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp(EventData& data) const
       } 
       if (!data.trigger) production3Sp       (data, rb, rbe, rt, rte, NB, NT, nseed);
       else               production3SpTrigger(data, rb, rbe, rt, rte, NB, NT, nseed);
-
-      if (!data.endlist) {
-        data.fNmin=f;
-        data.zMin = z;
-        return;
-      } 
+    }
+    if (nseed>=m_maxsize) {
+      data.endlist=false;
+      data.fNmin  =  f+1;
+      return;
     }
   }
   data.endlist = true;
@@ -1283,40 +1287,45 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp(EventData& data) const
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
- int NB, int NT, int& nseed) const
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
+ const int NB, const int NT, int& nseed) const
 {
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
-  if (!data.endlist) {
-    r0 = data.rMin;
-    data.endlist = true;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+
+  float rmin =  40.;
+  float rmax = 140.;
+  if((*r0)->spacepoint->clusterList().second) {
+    rmin = 280.;
+    rmax = 540.;
   }
 
-  float ipt2K = data.ipt2K;
-  float ipt2C = data.ipt2C;
-  float COFK  = data.COFK;
-  float imaxp = m_diver;
-  float imaxs = m_divermax;
+  for(; r0!=rbe[0]; ++r0) {if((*r0)->radius() > rmin) break;}
+  rt[0] = r0; ++rt[0];
 
+  const float& ipt2K = data.ipt2K;
+  const float& ipt2C = data.ipt2C;
+  const float& COFK  = data.COFK;
+  const float& imaxp = m_diver;
+  const float& imaxs = m_divermax;
+  const float& zmin  = data.zminU;
+  const float& zmax  = data.zmaxU;
+  const float& dzdrmax = data.dzdrmax;
+  const float& dzdrmin = data.dzdrmin;
   data.CmSp.clear();
 
   // Loop through all trigger space points
   //
   for (; r0!=rbe[0]; ++r0) {
 
-    data.nOneSeeds = 0;
-    data.mapOneSeeds_Pro.clear();
+    const float& R  = (*r0)->radius();
+    if(R > rmax) break;
 
-    float R  = (*r0)->radius();
-
-    const Trk::Surface* sur0 = (*r0)->sur();
-    const Trk::Surface* surn = (*r0)->sun();
-    float               X    = (*r0)->x();
-    float               Y    = (*r0)->y();
-    float               Z    = (*r0)->z();
+    const float&        X    = (*r0)->x();
+    const float&        Y    = (*r0)->y();
+    const float&        Z    = (*r0)->z();
     int                 Nb   = 0;
 
     // Bottom links production
@@ -1325,25 +1334,24 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 
       for (r=rb[i]; r!=rbe[i]; ++r) {
   
-        float Rb =(*r)->radius();
+        const float& Rb =(*r)->radius();
         float dR = R-Rb;
 
         if (dR > m_drmax) {
           rb[i]=r;
           continue;
         }
+
         if (dR < m_drmin || (data.iteration && (*r)->spacepoint->clusterList().second)) break;
-        if ((*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
 
-        float Tz = (Z-(*r)->z())/dR;
-        float aTz =fabs(Tz);
-
-        if (aTz < data.dzdrmin or aTz > data.dzdrmax) continue;
+        const float Tz = (Z-(*r)->z())/dR;
+        if (Tz < dzdrmin or Tz > dzdrmax) continue;
   
         // Comparison with vertices Z coordinates
         //
-        float Zo = Z-R*Tz;
-        if (!isZCompatible(data, Zo, Rb, Tz)) continue;
+        const float Zo = Z-R*Tz;
+	if(Zo > zmax || Zo < zmin) continue;
+        //if (!isZCompatible(data, Zo, Rb, Tz)) continue;
         data.SP[Nb] = (*r);
         if (++Nb==m_maxsizeSP) goto breakb;
       }
@@ -1367,16 +1375,15 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         }
         if (dR>m_drmax) break;
 
-        if ( (*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
 
-        float Tz = ((*r)->z()-Z)/dR, aTz =fabs(Tz);
-
-        if (aTz < data.dzdrmin or aTz > data.dzdrmax) continue;
+        float Tz = ((*r)->z()-Z)/dR;
+	if (Tz < dzdrmin or Tz > dzdrmax) continue;
 
         // Comparison with vertices Z coordinates
         //
         float Zo = Z-R*Tz;
-        if (!isZCompatible(data, Zo, R, Tz)) continue;
+ 	if(Zo > zmax || Zo < zmin) continue;
+	//if (!isZCompatible(data, Zo, R, Tz)) continue;
         data.SP[Nt] = (*r);
         if (++Nt==m_maxsizeSP) goto breakt;
       }
@@ -1404,7 +1411,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       if (i < Nb) tz = -tz;
 
       data.Tz[i]   = tz;
-      data.Zo[i] = Z-R*tz;
+      data.Zo[i]   = Z-R*tz;
       data.R [i]   = dr;
       data.U [i]   = x*r2;
       data.V [i]   = y*r2;
@@ -1412,7 +1419,10 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
     }
     covr0      *= .5;
     covz0      *= 2.;
-   
+
+    data.nOneSeeds = 0;
+    data.mapOneSeeds_Pro.clear();
+
     // Three space points comparison
     //
     for (int b=0; b<Nb; ++b) {
@@ -1461,12 +1471,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
     }
     fillSeeds(data);
     nseed += data.fillOneSeeds;
-    if (nseed>=m_maxsize) {
-      data.endlist=false;
-      ++r0;
-      data.rMin = r0;
-      return;
-    }
   }
 }
 
@@ -1476,19 +1480,25 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
- int NB, int NT, int& nseed) const
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
+ const int NB, const int NT, int& nseed) const
 {
   constexpr float pi2 = 2.*M_PI;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
-  if (!data.endlist) {
-    r0 = data.rMin;
-    data.endlist = true;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+
+  float rmin =  40.;
+  float rmax = 140.;
+  if((*r0)->spacepoint->clusterList().second) {
+    rmin = 280.;
+    rmax = 540.;
   }
+
+  for(; r0!=rbe[0]; ++r0) {if((*r0)->radius() > rmin) break;}
+  rt[0] = r0; ++rt[0];
 
   float ipt2K = data.ipt2K;
   float ipt2C = data.ipt2C;
@@ -1506,6 +1516,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
     data.mapOneSeeds_Pro.clear();
   
     float R  = (*r0)->radius();
+    if(R>rmax) break;
 
     const Trk::Surface* sur0 = (*r0)->sur();
     float               X    = (*r0)->x();
@@ -1654,12 +1665,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
     }
     fillSeeds(data);
     nseed += data.fillOneSeeds;
-    if (nseed>=m_maxsize) {
-      data.endlist=false;
-      ++r0;
-      data.rMin = r0;
-      return;
-    } 
   }
 }
 
@@ -1711,10 +1716,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
   float ub   = SPb->quality();
   float u0   = SP0->quality();
 
-  std::sort(data.CmSp.begin(), data.CmSp.end(), comCurvature());
+  if(data.CmSp.size() > 2) std::sort(data.CmSp.begin(), data.CmSp.end(), comCurvature());
+
   std::vector<std::pair<float,InDet::SiSpacePointForSeed*>>::iterator j,jn,i = data.CmSp.begin(), ie = data.CmSp.end();
   jn=i;
-      
+
   for (; i!=ie; ++i) {
 
     float u    = (*i).second->param();
@@ -1726,9 +1732,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
     float               Ri   = (*i).second->radius();
     float               Ci1  =(*i).first-dC;
     float               Ci2  =(*i).first+dC;
-    float               Rmi  = 0.;
-    float               Rma  = 0.;
-    bool                in   = false;
     
     if      (!pixb) u-=400.;
     else if ( pixt) u-=200.;
@@ -1742,26 +1745,15 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
       
       float Rj = (*j).second->radius();
       if (fabs(Rj-Ri) < m_drmin) continue;
-
-      if (in) {
-        if      (Rj > Rma) Rma = Rj;
-        else if (Rj < Rmi) Rmi = Rj;
-        else continue;
-        if ((Rma-Rmi) > 20.) {
-          u-=200.;
-          break;
-        }
-      } else {
-        in=true;
-        Rma=Rmi=Rj;
-        u-=200.;
-      }
+      u -= 200.;
+      break;
     }
+
     if (u > data.umax) continue;
+    
     if (pixb!=pixt) {
       if (u > 0. || (u > ub && u > u0 && u > (*i).second->quality()) ) continue;
     }
-
     if (!pixb && Im > m_diversss && u > Im-500.) continue;
 
     newOneSeed(data, SPb, SP0, (*i).second, Zob, u);
@@ -1789,6 +1781,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillSeeds(EventData& data) const
   for (; l!=le; ++l) {
 
     float w = (*l).first;
+
     s       = (*l).second;
     if (l!=lf && s->spacepoint0()->radius() < 43. && w > -200.) continue;
     if (!s->setQuality(w)) continue;
@@ -1802,16 +1795,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillSeeds(EventData& data) const
       data.i_seede_Pro = data.l_seeds_Pro.end();
     }
     
-    if      (s->spacepoint0()->spacepoint->clusterList().second) w-=3000.;
-    else if (s->spacepoint1()->spacepoint->clusterList().second) w-=2000.;
-    else if (s->spacepoint2()->spacepoint->clusterList().second) w-=1000.;
-
-    data.seeds_Pro.insert(std::make_pair(w, s));
-    ++data.fillOneSeeds;
+   ++data.fillOneSeeds;
   }
 }
 
-const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_ATLxk::next(EventData& data) const
+const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_ATLxk::next(const EventContext&, EventData& data) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -1821,8 +1809,7 @@ const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_ATLxk::next(EventD
         findNext(data);
         if (data.i_seed_Pro==data.i_seede_Pro) return nullptr;
       }
-      ++data.i_seed_Pro;
-    } while (!(*data.seed_Pro++).second->set3(data.seedOutput));
+    } while (!(*data.i_seed_Pro++).set3(data.seedOutput));
     return &data.seedOutput;
   } else {
     if (data.i_seed_Pro==data.i_seede_Pro) {
@@ -1836,10 +1823,11 @@ const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_ATLxk::next(EventD
 }
 
 bool InDet::SiSpacePointsSeedMaker_ATLxk::isZCompatible  
-(EventData& data, float& Zv, float& R, float& T) const
+(EventData& data, const float& Zv, const float& R, const float& T) const
 {
   if (Zv < data.zminU or Zv > data.zmaxU) return false;
   if (not data.isvertex) return true;
+  if (data.l_vertex.empty()) return false;
 
   float dZmin = std::numeric_limits<float>::max();
   for (const float& v: data.l_vertex) {
@@ -1847,7 +1835,10 @@ bool InDet::SiSpacePointsSeedMaker_ATLxk::isZCompatible
     if (dZ >= dZmin) break;
     dZmin = dZ;
   }
-  return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
+
+  //return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
+  //(Minor) speed-up: Avoid calculation of sqrt, compare squares
+  return dZmin*dZmin < (m_dzver+m_dzdrver*R)*(m_dzver+m_dzdrver*R)*(1.+T*T);
 }
 
 ///////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -2327,18 +2327,17 @@ namespace Trk
 
     // entranceParameters are at the MS entrance surface (0 if perigee downstream)
     TrackSurfaceIntersection* entranceIntersection = 0;
-    const TrackParameters* entranceParameters = 0;
+    std::unique_ptr<const TrackParameters> entranceParameters;
     MsgStream log(msgSvc(), name());
     if (m_calorimeterVolume->inside(startParameters.position())) {
-      const TrackParameters* innerParameters = fitParameters.trackParameters(log,
+      std::unique_ptr<const TrackParameters> innerParameters(fitParameters.trackParameters(log,
                                                                              *innerMeasurement,
-                                                                             false);
-      if (!innerParameters) innerParameters = startParameters.clone();
-      entranceParameters = m_extrapolator->extrapolateToVolume(*innerParameters,
+                                                                             false));
+      if (!innerParameters) innerParameters.reset(startParameters.clone());
+      entranceParameters.reset( m_extrapolator->extrapolateToVolume(*innerParameters,
                                                                            *m_spectrometerEntrance,
                                                                            anyDirection,
-                                                                           Trk::nonInteracting);
-      delete innerParameters;
+                                                                           Trk::nonInteracting));
       if (entranceParameters) {
         startDirection = entranceParameters->momentum().unit();
         startPosition = entranceParameters->position();
@@ -2363,31 +2362,33 @@ namespace Trk
     }
 
     // insert a material delimiter after the last measurement (endParameters)
-    const TrackParameters* outerParameters = fitParameters.trackParameters(log,
+    std::unique_ptr<const TrackParameters> outerParameters(fitParameters.trackParameters(log,
                                                                            *outerMeasurement,
-                                                                           false);
-    if (!outerParameters) outerParameters = startParameters.clone();
+                                                                           false));
+    if (!outerParameters) outerParameters.reset(startParameters.clone());
     const Surface& endSurface = *measurements.back()->surface();
-    const TrackParameters* endParameters =
+    std::unique_ptr<const TrackParameters> endParameters(
       m_extrapolator->extrapolate(*outerParameters,
                                               endSurface,
                                               anyDirection,
                                               false,
-                                              particleHypothesis);
-    if (!endParameters) {
-      endParameters = m_extrapolator->extrapolate(*outerParameters,
+                                              particleHypothesis));
+   if (endParameters.get() == outerParameters.get()) throw std::logic_error("Extrapolator returned input parameters.");
+
+   if (!endParameters) {
+      endParameters.reset(m_extrapolator->extrapolate(*outerParameters,
                                                               endSurface,
                                                               anyDirection,
                                                               false,
-                                                              Trk::nonInteracting);
-      if (!endParameters) {
+                                                              Trk::nonInteracting));
+     if (endParameters.get() == outerParameters.get()) throw std::logic_error("Extrapolator returned input parameters.");
+
+     if (!endParameters) {
         // failed extrapolation
         m_messageHelper->printWarning(4);
-        endParameters = outerParameters;
+        endParameters = std::move(outerParameters);
       }
     }
-    if (endParameters != outerParameters) delete outerParameters;
-
     // insert delimiter
     const TrackSurfaceIntersection endIntersection(endParameters->position(),
                                                    endParameters->momentum().unit(),
@@ -2411,11 +2412,11 @@ namespace Trk
     }
 
 // correct track parameters for high momentum track (otherwise Eloss is too large)
-    endParameters = (endParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
-                                                                               parameterVector[Trk::loc2],
-                                                                               parameterVector[Trk::phi],
-                                                                               parameterVector[Trk::theta],
-                                                                               parameterVector[Trk::qOverP], 0);
+    endParameters.reset((endParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
+                                                                                   parameterVector[Trk::loc2],
+                                                                                   parameterVector[Trk::phi],
+                                                                                   parameterVector[Trk::theta],
+                                                                                   parameterVector[Trk::qOverP], 0));
 
     if (entranceParameters) {
       const Surface& entranceSurface = entranceParameters->associatedSurface();
@@ -2527,8 +2528,6 @@ namespace Trk
 
     // memory management
     ATH_MSG_VERBOSE(" spectrometer: mem management");
-    delete endParameters;
-    delete entranceParameters;
     deleteMaterial(spectrometerMaterial, garbage);
 
     materialAggregation(measurements, ParticleMasses().mass[particleHypothesis]);

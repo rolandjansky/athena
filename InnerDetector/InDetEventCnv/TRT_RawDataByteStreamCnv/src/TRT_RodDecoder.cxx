@@ -27,7 +27,7 @@
 /*
  * TRT Specific detector manager to get layout information
  */
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"  
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"  
 
 #include "PathResolver/PathResolver.h"
 #include <fstream>

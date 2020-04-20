@@ -24,12 +24,12 @@ except Exception:
 
 ### NTUP->NTUP
 ntupFlags=jobproperties.NTUPtoNTUPProdFlags
-print "Content of rec.NTUPScripts = %s", ntupFlags.NTUPScripts
+printfunc ("Content of rec.NTUPScripts = %s", ntupFlags.NTUPScripts)
 if ntupFlags.NTUPScripts()!=[]:
   for ntup in ntupFlags.NTUPScripts():
       NTUPName = str(ntup)
-      print "Including %s...",NTUPName
+      printfunc ("Including %s...",NTUPName)
       include(ntup)
       pass
 else:
-  print "no scripts in NTUPScripts..."
+  printfunc ("no scripts in NTUPScripts...")

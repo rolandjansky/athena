@@ -24,7 +24,7 @@
 #include "./groupsMatcherFactoryMT.h"
 #include "./svec2dvec.h"
 
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;

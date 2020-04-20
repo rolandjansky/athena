@@ -27,8 +27,8 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/TRT_DetElementCollection.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementCollection.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "DetDescrConditions/AlignableTransform.h"
 #include "StoreGate/ReadCondHandleKey.h"
 

@@ -129,6 +129,7 @@ FLAG_DATA=0
 FLAG_TEST=0
 ERRORS=""
 DETDESCRTAG=""
+MUONLAYOUT=""
 NSWAGDDFILE=""
 GLOBCONDTAG=""
 SKIPEVENTS=""
@@ -166,7 +167,6 @@ FLAG_MC=0
 FLAG_FATRAS=0
 FLAG_NOGUI=0
 FLAG_CGAL=0
-FLAG_NSW=0
 FLAG_SLHC=0
 #FLAG_CUSTOMGEOMETRY=0 # currently not used
 FLAG_ADVANCED_ANTIALIASING=0
@@ -307,8 +307,6 @@ while [ $i -le $# ]; do
 	FLAG_NOGUI=1
     elif [ "x${arg}" == "x-cgal" ]; then
 	FLAG_CGAL=1
-    elif [ "x${arg}" == "x-nsw" ]; then
-	FLAG_NSW=1
     elif [ "x${arg}" == "x-slhc" ]; then
         echo "SLHC"
         FLAG_SLHC=1
@@ -330,6 +328,11 @@ while [ $i -le $# ]; do
 	DETDESCRTAG_2=${arg:9:$((${#arg}-9))}
 	if [ "x$DETDESCRTAG_2" == "x" ]; then
 	    ERRORS="$ERRORS\nNeed argument to -detdescr. Example: -detdescr=ATLAS-GEO-20-00-01"
+	fi
+    elif [ "x${arg:0:12}" == "x-muonLayout=" ]; then
+	MUONLAYOUT=${arg:12:$((${#arg}-12))}
+	if [ "x$MUONLAYOUT" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -muonLayout. Example: -muonLayout=MuonSpectrometer-R.09.00.AsymNSW"
 	fi
     elif [ "x${arg:0:9}" == "x-nswagdd=" ]; then
 	NSWAGDDFILE=${arg:9:$((${#arg}-9))}
@@ -920,6 +923,10 @@ if [ "x$DETDESCRTAG" != "x" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}DetDescrVersion=\"$DETDESCRTAG\""
 fi
+if [ "x$MUONLAYOUT" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1MuonLayout=\"$MUONLAYOUT\""
+fi
 if [ "x$NSWAGDDFILE" != "x" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1NSWAGDDFiles=[\"${NSWAGDDFILE}\"]"
@@ -1039,10 +1046,6 @@ fi
 if [ "x$FLAG_FATRAS" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1Fatras=True"
-fi
-if [ "x$FLAG_NSW" != "x0" ]; then
-    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
-    OPTS="${OPTS}vp1NSW=True"
 fi
 if [ "x$FLAG_SLHC" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi

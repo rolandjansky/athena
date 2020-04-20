@@ -16,8 +16,8 @@ atlas_depends_on_subdirs( PRIVATE
                           PhysicsAnalysis/MCTruthClassifier
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloUtils
-                          Calorimeter/CaloEvent
-                          Control/AthenaKernel
+			  Calorimeter/CaloDetDescr
+		    	  Control/AthenaKernel
                           Control/StoreGate
                           Event/FourMomUtils
                           Event/xAOD/xAODTracking
@@ -43,15 +43,10 @@ atlas_add_component( egammaAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS 
 		     LINK_LIBRARIES AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel 
-		     MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib CaloRecLib AthenaKernel  StoreGateLib 
+		     MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib CaloDetDescrLib AthenaKernel  StoreGateLib 
 		     xAODTracking InDetReadoutGeometry EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils
 		     TrkToolInterfaces InDetRecToolInterfaces FourMomUtils RecoToolInterfaces TrkTrack 
 		     TrkPseudoMeasurementOnTrack InDetConversionFinderToolsLib TrkCaloExtension)
 	     
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
-# Check python syntax on Config files
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*Config.py
-                POST_EXEC_SCRIPT nopost.sh )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

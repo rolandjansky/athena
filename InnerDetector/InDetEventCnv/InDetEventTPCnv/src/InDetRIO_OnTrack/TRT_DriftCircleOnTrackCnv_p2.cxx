@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -63,9 +63,9 @@ void TRT_DriftCircleOnTrackCnv_p2::transToPers( const InDet::TRT_DriftCircleOnTr
   // added in 12.5
   persObj->m_timeOverThreshold = static_cast<float>(transObj->timeOverThreshold());
 
-  const std::string trtCircleContName{"TRT_DriftCircles"};
+  static const SG::InitializedReadHandleKey<InDet::TRT_DriftCircleContainer> trtCircleContName ("TRT_DriftCircles");
   ElementLink<InDet::TRT_DriftCircleContainer>::index_type hashAndIndex{0};
   bool isFound{m_eventCnvTool->getHashAndIndex<InDet::TRT_DriftCircleContainer, InDet::TRT_DriftCircleOnTrack>(transObj, trtCircleContName, hashAndIndex)};
-  persObj->m_prdLink.m_contName = (isFound ? trtCircleContName : "");
+  persObj->m_prdLink.m_contName = (isFound ? trtCircleContName.key() : "");
   persObj->m_prdLink.m_elementIndex = hashAndIndex;
 }

@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // HardTruthThinning, (c) ATLAS Detector software
 // Author: Frank Paige
-// ThinningSvc tool to use with CompactHardTruth and truth jets.
+// Thinning tool to use with CompactHardTruth and truth jets.
 // Selects:
 //   (1) Stable TruthEvent particles matching HardTruth barcodes.
 //   (2) Constituents of truth jets.
@@ -30,40 +30,46 @@
 #define DERIVATIONFRAMEWORK_HARDTRUTHTHINNINGTOOL_H
 
 #include <string>
+#include <atomic>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "DerivationFrameworkMCTruth/DecayGraphHelper.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthVertexContainer.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
-class IThinningSvc;
+#include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ThinningHandleKey.h"
+
 
 namespace DerivationFramework {
     
-  class HardTruthThinning : public AthAlgTool, public IThinningTool {
+  class HardTruthThinning : public extends<AthAlgTool, IThinningTool> {
   public:
 
     HardTruthThinning(const std::string& t, const std::string& n, const IInterface* p);
-    ~HardTruthThinning();
-    StatusCode initialize();
-    StatusCode finalize();
-    virtual StatusCode doThinning() const;
+    virtual ~HardTruthThinning();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode doThinning() const override;
+
     int getDescendants(const xAOD::TruthParticle* p,
                        std::vector<const xAOD::TruthParticle*>& d) const;
     void printxAODTruth(long long evnum,
                         const xAOD::TruthParticleContainer* truths) const;
 
   private:
-
-    // handle to the thinning service
-    ServiceHandle<IThinningSvc> m_thinningSvc;
-
     SG::ReadHandleKey<xAOD::EventInfo>    m_evt  {this, "EvtInfo", "EventInfo", "EventInfo name"};
-    // TruthParticle container names
-    std::string m_truthParticleName;
-    std::string m_truthVertexName;
+
+    StringProperty m_streamName
+      { this, "StreamName", "", "Name of the stream being thinned" };
+    SG::ThinningHandleKey<xAOD::TruthParticleContainer> m_truthParticleName
+      { this, "TruthParticles", "", "truth particle container name" };
+    SG::ThinningHandleKey<xAOD::TruthVertexContainer> m_truthVertexName
+      { this, "TruthVertices", "", "truth vertex container name" };
+
     std::string m_hardParticleName;
 
     // TruthJet name and parameters
@@ -76,9 +82,9 @@ namespace DerivationFramework {
     float m_isolPtCut;
 
     // Counters
-    mutable int m_evtCount;
+    mutable std::atomic<int> m_evtCount;
     int m_maxCount;
-    mutable int m_errCount;
+    mutable std::atomic<int> m_errCount;
 
     // Special particles to keep (with descendants)
     std::vector<int> m_keepIds;

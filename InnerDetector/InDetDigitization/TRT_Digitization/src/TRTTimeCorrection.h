@@ -6,8 +6,7 @@
 #define TRT_DIGITIZATION_TRTTIMECORRECTION_H
 
 #include <vector>
-#include "GaudiKernel/ServiceHandle.h"
-
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "AthenaKernel/MsgStreamMember.h"
 #include "Identifier/Identifier.h"
 
@@ -17,7 +16,6 @@ namespace InDetDD {
 }
 
 class TRTDigSettings;
-class ITRT_CalDbSvc;
 class TRT_ID;
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -29,10 +27,10 @@ class TRTTimeCorrection {
 
 public:
 
-  TRTTimeCorrection(const std::string& name,
-                    const TRTDigSettings* digset,
+  TRTTimeCorrection(const TRTDigSettings* digset,
                     const InDetDD::TRT_DetectorManager* detmgr,
-                    const TRT_ID*);
+                    const TRT_ID*,
+                    const ITRT_CalDbTool*);
 
   ~TRTTimeCorrection();
 
@@ -145,7 +143,7 @@ private:
   bool m_timeShiftPhiSectSymmetry;
   bool m_getT0FromData;
 
-  ServiceHandle< ITRT_CalDbSvc > m_trtcaldbsvc;
+  const ITRT_CalDbTool* m_trtcaldbtool;
 
   mutable Athena::MsgStreamMember m_msg;
 

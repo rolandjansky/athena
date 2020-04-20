@@ -89,8 +89,9 @@ def createTriggerFlags():
     # use or not frontier proxies
     flags.addFlag('Trigger.triggerUseFrontier', False)
 
-    # the configuration name, see TriggerFlags for full info
-    flags.addFlag('Trigger.triggerConfig', 'MCRECO:DEFAULT')
+    # the configuration source
+    # see https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerConfigFlag
+    flags.addFlag('Trigger.triggerConfig', 'FILE')
 
     # name of the trigger menu
     flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1')

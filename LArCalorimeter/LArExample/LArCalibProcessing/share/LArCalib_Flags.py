@@ -67,7 +67,7 @@ class LArCalib_Flags:
         
 
 def LArCalibFolderTag(folder,tag):
-    return join(split(folder, '/'),'') + tag
+    return ''.join(folder.split('/')) + tag
     
 
 class FolderTagResover:
@@ -87,7 +87,7 @@ class FolderTagResover:
           return folder.resolveTag(globalTag)
         except:  
           # new folder, should "create a tag"
-          return join(split(foldername, '/'),'') + '-UPD3-00'
+          return ''.join(foldername.split('/')) + '-UPD3-00'
           
             
     def getFolderTagSuffix(self,foldername,globalTag=LArCalib_Flags.globalFlagDB):

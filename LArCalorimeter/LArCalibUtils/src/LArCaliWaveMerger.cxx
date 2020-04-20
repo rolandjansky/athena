@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCaliWaveMerger.h"
@@ -26,8 +26,8 @@ StatusCode LArCaliWaveMerger::stop()
   
   // create empty LArCaliWaveContainer to store all LArCaliWave
   LArCaliWaveContainer* mergedCaliWaveContainer = new LArCaliWaveContainer();
-  mergedCaliWaveContainer->setGroupingType(m_groupingType,msg());
-  mergedCaliWaveContainer->initialize();  
+  ATH_CHECK ( mergedCaliWaveContainer->setGroupingType(m_groupingType,msg()) );
+  ATH_CHECK ( mergedCaliWaveContainer->initialize() );
 
   std::vector<std::string>::const_iterator key_it   = m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e = m_keylist.end();

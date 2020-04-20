@@ -1,7 +1,5 @@
-// -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SiSpacePointMakerTool_H
@@ -31,6 +29,9 @@ namespace InDet {
 }
 
 namespace InDet {
+  
+  constexpr size_t nNeighbours{6};
+  
   /**
    * @class SiSpacePointMakerTool
    * Used by SiTrackerSpacePointFinder.
@@ -64,12 +65,19 @@ namespace InDet {
     Trk::SpacePoint* makeSCT_SpacePoint(const InDet::SiCluster& cluster1, const InDet::SiCluster& cluster2, 
                                         const Amg::Vector3D& vertexVec,
                                         const InDetDD::SiDetectorElement* element1, const InDetDD::SiDetectorElement* element2, double stripLengthGapTolerance) const;
+    
+    Trk::SpacePoint* makeSCT_SpacePoint(InDet::SCTinformation&,InDet::SCTinformation&,IdentifierHash,IdentifierHash,double,double) const;
 
     /// Convert clusters to space points: SCT_Clusters -> SCT_SpacePoints
     void fillSCT_SpacePointCollection(const InDet::SCT_ClusterCollection* clusters1,
                                       const InDet::SCT_ClusterCollection* clusters2, double min, double max, bool allClusters,
                                       const Amg::Vector3D& vertexVec, const InDetDD::SiDetectorElementCollection* elements,
                                       SpacePointCollection* spacepointCollection) const;
+
+    void fillSCT_SpacePointCollection(std::array<const InDetDD::SiDetectorElement*, nNeighbours>&,
+                                      std::array<const SCT_ClusterCollection*, nNeighbours>&,
+                                      std::array<double, 14>&,bool,const Amg::Vector3D&,
+                                      SpacePointCollection*,SpacePointOverlapCollection*) const;
 
     /// Convert clusters to space points: PixelClusters -> PixelSpacePoints
     void fillPixelSpacePointCollection(const InDet::PixelClusterCollection* clusters,
@@ -87,6 +95,8 @@ namespace InDet {
                                                 double max2, bool allClusters, const Amg::Vector3D& vertexVec ,
                                                 const InDetDD::SiDetectorElementCollection* elements,
                                                 SpacePointOverlapCollection* spacepointOverlapCollection) const;
+
+    
 
   private:
     /// @name Cut parameters
@@ -140,19 +150,22 @@ namespace InDet {
     /// Guarded by m_mutex in const methods.
     mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE;
 
+    /// update range accordingly to the gap between the stereo modules
+    void updateRange(const InDetDD::SiDetectorElement* element1, 
+                     const InDetDD::SiDetectorElement* element2, 
+                     double& stripLengthGapTolerance, double& min, double& max) const;    
+    
     /// Get stripLengthGapTolerance and return offset value for two SiDetectorElement's
-    double offset(const InDetDD::SiDetectorElement* element1, const InDetDD::SiDetectorElement* element2, double& stripLengthGapTolerance) const;
-
-    /// Get stripLengthGapTolerance for two SiDetectorElement's
-    void offset(double& stripLengthGapTolerance, const InDetDD::SiDetectorElement* element1, const InDetDD::SiDetectorElement* element2) const;
+    double offset(const InDetDD::SiDetectorElement* element1, 
+                  const InDetDD::SiDetectorElement* element2, 
+                  double& stripLengthGapTolerance) const;
 
     /// Not implemented yet
-    bool fillSCT_Information(const InDet::SCT_ClusterCollection* clusters1, const InDet::SCT_ClusterCollection* clusters2,
+    bool fillSCT_Information(const InDet::SCT_ClusterCollection* clusters1, 
+                             const InDet::SCT_ClusterCollection* clusters2,
                              const Amg::Vector3D& vertexVec,
                              const InDetDD::SiDetectorElementCollection* elements) const;
-
-    /// Convert clusters to space points using CacheEntry
-    void makeSCT_SpacePoints(const double stripLengthGapTolerance) const;
+                             
   };
 }
 

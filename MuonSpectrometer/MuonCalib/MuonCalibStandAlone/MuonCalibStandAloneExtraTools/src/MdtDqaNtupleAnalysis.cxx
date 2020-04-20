@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 13.08.2008, AUTHORs: SILVESTRO DI LUISE -  MAURO IODICE
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #include "MuonCalibStandAloneExtraTools/MdtDqaNtupleAnalysis.h"
 
@@ -30,11 +26,10 @@
 #include "MuonCalibEventBase/MuonCalibPattern.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-
 #include "TKey.h"
-
-using namespace std;
+#include "TF1.h"
+#include "TH1F.h"
+#include "TH2F.h"
 
 namespace MuonCalib {
 
@@ -55,7 +50,7 @@ StatusCode MdtDqaNtupleAnalysis::initialize(RegionSelectionSvc *reg_sel_svc, His
   m_ADCCUT=ADCCUT;
   
   PhiEtaNameConverter phiEtaConverter;
-  string testName="BIL1A01";
+  std::string testName="BIL1A01";
   MDTName NameConverter(testName);
   m_SectorMin = 20;
   m_SectorMax = 0;
@@ -78,7 +73,7 @@ StatusCode MdtDqaNtupleAnalysis::initialize(RegionSelectionSvc *reg_sel_svc, His
 void MdtDqaNtupleAnalysis::handleEvent( const MuonCalibEvent& event, int /*eventnumber*/, 
 const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){    
   
- string histoType;
+ std::string histoType;
 
  TFile *mdtDqaRoot =  m_histoManager->rootFile();
 
@@ -151,22 +146,22 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
      if(rphi2>= m_SectorMin && rphi2<=m_SectorMax) doSector=true;
      if(!doSector) continue;
 
-     string region = chamb.getRegion();
+     std::string region = chamb.getRegion();
      // THE FOLLOWING ASSIGNMENT TO Endcap Chambers can change if, 
      // for example, BEE or BIS7,8 chambers have to be assigned to Endcap
 
-     string stn = id.stationNumberToFixedStationString(rstn);
-     string side=chamb.getSide();
+     std::string stn = id.stationNumberToFixedStationString(rstn);
+     std::string side=chamb.getSide();
      int rside = 1;
      if(chamb.isBackward()) rside=-1; 
      
-     string phisec;
+     std::string phisec;
      if(rphi2<10) phisec = "0"+ts(rphi2);
      if(rphi2>=10) phisec = ts(rphi2);
 
      int absEta=chamb.getOnlineEta();
      //format BIL5A03
-     string chamberName = chamb.getOnlineName();
+     std::string chamberName = chamb.getOnlineName();
 
      //-- Multiplicity
      int iside = 1;
@@ -216,8 +211,8 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
        h2->Fill( (float)tube, layMl );
      }
 
-     string chamberDirName = m_histoManager->GetMdtDirectoryName(chamb);
-     string expertDirName = chamberDirName+"/Expert";
+     std::string chamberDirName = m_histoManager->GetMdtDirectoryName(chamb);
+     std::string expertDirName = chamberDirName+"/Expert";
      TDirectory *expertRootDir = mdtDqaRoot->GetDirectory(expertDirName.c_str());
 
      expertRootDir->cd();
@@ -271,18 +266,18 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
 
      // OVERVIEW
       // region Overview plot
-     string stationLayer = "UNDEFINED";
+     std::string stationLayer = "UNDEFINED";
      if(chamb.isInner()) stationLayer = "Inner";
      if(chamb.isMiddle()) stationLayer = "Middle";
      if(chamb.isOuter()) stationLayer = "Outer";
      if(chamb.isExtra()) stationLayer = "extra";  //for now, extra station stored in middle station histogram
 
-     string tit2="";
-     if(region=="Barrel") tit2+="B";
-     else tit2+="E";
+     std::string title2="";
+     if(region=="Barrel") title2+="B";
+     else title2+="E";
      
-     tit2+=side;
-     tit2+="_";
+     title2+=side;
+     title2+="_";
 
      histoType = "A_HitsPerML_"+stationLayer;
      h2 = (TH2F*) m_histoManager->GetMdtHisto(histoType,region,side);
@@ -334,8 +329,8 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
  //---- Fill Multiplicity ---------
  TH1F *hmulti;
 
- string side="C";
- string region = "Barrel";
+ std::string side="C";
+ std::string region = "Barrel";
 
  for (int nregions=0;nregions<2;nregions++) {
    if (nregions==1) region = "Endcap";
@@ -359,7 +354,7 @@ const std::vector<MuonCalibSegment *> &/*segments*/,unsigned int /*position*/){
 	   
 	   if (multi !=0 ){
 	     MuonFixedId id;
-	     string stn=id.stationNumberToFixedStationString(istation+1);
+	     std::string stn=id.stationNumberToFixedStationString(istation+1);
 	     
 	     MDTName chamb_mult(stn,ieta+1,side,isec+1);
 	     
@@ -412,15 +407,15 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
   
   if (doTubeEfficiency) {
   // LOOP over chambers and apply algorithms per chamber.
-    string region;
-    string sector;
-    string chamber;
-    string regionDirName;
-    string sectorDirName;
-    string chamberDirName;
-    string deadStatusDirName;
-    string expertDirName;
-    string effiDirName;
+    std::string region;
+    std::string sector;
+    std::string chamber;
+    std::string regionDirName;
+    std::string sectorDirName;
+    std::string chamberDirName;
+    std::string deadStatusDirName;
+    std::string expertDirName;
+    std::string effiDirName;
     TDirectory *RegionDir;
     TDirectory *SectorDir;
     TDirectory *ChamberDir;
@@ -490,7 +485,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	//
 	// APPLY ALGORITHMS TO chamber histograms HERE 
 	//
-	string histoName;
+	std::string histoName;
 	
 	TH1F *heffiEntries;
 	TH1F *heffiCounts;
@@ -638,7 +633,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
     double minEntries = 1000.;
     double entries(0);
 
-    string histoName;
+    std::string histoName;
     TH1F *hh;
     TH1F *htpar;
     TH1F *hapar;
@@ -660,13 +655,13 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
     AdcpfitDefault[2]= 0.;
     AdcpfitDefault[3]= 0.;
     
-    string region;
-    string sector;
-    string chamber;
-    string chamberType;
-    string regionDirName;
-    string sectorDirName;
-    string chamberDirName;
+    std::string region;
+    std::string sector;
+    std::string chamber;
+    std::string chamberType;
+    std::string regionDirName;
+    std::string sectorDirName;
+    std::string chamberDirName;
     TDirectory *RegionDir;
     TDirectory *SectorDir;
     TDirectory *ChamberDir;
@@ -677,8 +672,8 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
       if (iregion==3) region="Endcap_A";
       if (iregion==4) region="Endcap_C";
       
-      string Region="Barrel";
-      string Side="A";
+      std::string Region="Barrel";
+      std::string Side="A";
       if (iregion==3||iregion==4 ) Region="Endcap";
       if (iregion==2||iregion==4 ) Side="C";
       
@@ -700,7 +695,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	int KMAX=3;
 	if(iregion>2) KMAX=4;
 	for (int k=1;k<=KMAX;k++) {
-	  string stationLayer;
+	  std::string stationLayer;
 	  if (k==1)  stationLayer = "Inner";
 	  if (k==2)  stationLayer = "Middle";
 	  if (k==3)  stationLayer = "Outer";
@@ -740,14 +735,14 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	  ChamberDir->cd();
 	  chamberType = chamber.substr(0,3);
 	  MDTName chamb(chamber);
-	  string side = chamb.getSide();
-	  string stationLayer = "UNDEFINED";
+	  std::string side = chamb.getSide();
+	  std::string stationLayer = "UNDEFINED";
 	  if(chamb.isInner()) stationLayer = "Inner";
 	  if(chamb.isMiddle()) stationLayer = "Middle";
 	  if(chamb.isOuter()) stationLayer = "Outer";
 	  if(chamb.isExtra()) stationLayer = "extra";
-	  string hnamet0Sect=regionDirName+"/t0PerSector_"+stationLayer;
-	  string hnametdriftSect=regionDirName+"/tdriftPerSector_"+stationLayer;
+	  std::string hnamet0Sect=regionDirName+"/t0PerSector_"+stationLayer;
+	  std::string hnametdriftSect=regionDirName+"/tdriftPerSector_"+stationLayer;
 	  TH2F *ht0Sect = (TH2F*) f->Get(hnamet0Sect.c_str());
 	  TH2F *htdriftSect = (TH2F*) f->Get(hnametdriftSect.c_str());
 	  
@@ -785,8 +780,8 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	      if (ML==1) chamberDqaDb->SetML1(t0,tdrift,chi2ndof,t0err,tdrifterr );
 	      if (ML==2) chamberDqaDb->SetML2(t0,tdrift,chi2ndof,t0err,tdrifterr );
 	      // here add t0 and tdrift to the Sector OVERVIEW histograms :
-	      string hnamet0=sectorDirName+"/OVERVIEW/t0PerML"+chamberType;
-	      string hnametdrift=sectorDirName+"/OVERVIEW/tdriftPerML"+chamberType;
+	      std::string hnamet0=sectorDirName+"/OVERVIEW/t0PerML"+chamberType;
+	      std::string hnametdrift=sectorDirName+"/OVERVIEW/tdriftPerML"+chamberType;
 	      if (chamberType=="BOG" || chamberType=="BOF") {
 		hnamet0=sectorDirName+"/OVERVIEW/t0PerMLBOGBOF";
 		hnametdrift=sectorDirName+"/OVERVIEW/tdriftPerMLBOGBOF";
@@ -876,12 +871,12 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
   if (doResidualsFit) {
   // LOOP over chambers and apply algorithms per chamber.
   //
-    string region;
-    string sector;
-    string chamber;
-    string regionDirName;
-    string sectorDirName;
-    string chamberDirName;
+    std::string region;
+    std::string sector;
+    std::string chamber;
+    std::string regionDirName;
+    std::string sectorDirName;
+    std::string chamberDirName;
     TDirectory *RegionDir;
     TDirectory *SectorDir;
     TDirectory *ChamberDir;
@@ -923,7 +918,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	  //
 	  // APPLY ALGORITHMS TO chamber histograms HERE 
 	  //
-	  string histoName;
+	  std::string histoName;
 	  
 	  TH2F *hsegResid;
 	  
@@ -1004,8 +999,8 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
     // TO BE ACTIVATED VIA JOB_OPTION - still to do
     //
   if ( WriteMdtDqaDbToTextFile ) {
-    string mdtDqaTextFileName = m_outputFileName+".txt";
-    ofstream outputFile(mdtDqaTextFileName.c_str());
+    std::string mdtDqaTextFileName = m_outputFileName+".txt";
+    std::ofstream outputFile(mdtDqaTextFileName.c_str());
     std::vector<MdtDqaDb*>::iterator it;
     for (it = m_MdtDqaDbList.begin();
 	 it!=m_MdtDqaDbList.end();++it) {

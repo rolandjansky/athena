@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_HIT_RELOCATION_H
 #define MUON_HIT_RELOCATION_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MuonSimEvent/MdtHitIdHelper.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
@@ -14,6 +15,7 @@
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 // Histograms quantities related to G4 Hits in the Atlas
 // Detector.  Used to validate GeoModel + much more.
@@ -47,6 +49,7 @@ private:
     CscHitIdHelper* m_cmuonHelper;
     sTgcHitIdHelper* m_stmuonHelper;
     MicromegasHitIdHelper* m_mmmuonHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
 };
 

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 ###############################################################
 # author Caleb Lampen lampen@physics.arizona.edu 
 #
@@ -80,7 +82,7 @@ if('tagsToWrite' not in dir()):
       ]
 
 if(len(tagsToWrite) != len(FoldersToWrite)):
-  print "FATAL - tagsToWrite and FoldersToWrite must have same number of entries!"
+  printfunc ("FATAL - tagsToWrite and FoldersToWrite must have same number of entries!")
 
 ##IMPORTANT!!!! - Make sure all folders you need to write OR read from COOL 
 # are added at bottom of this file!
@@ -108,9 +110,9 @@ GlobalFlags.DetGeo.set_atlas()
 if(readDb == "OFLP200"):
   GlobalFlags.DataSource.set_geant4()
 elif(readDb == "COMP200"): 
-  GlobalFlags.DataSource.set_data();
+  GlobalFlags.DataSource.set_data()
 else:
-  print "ERROR! readDb = " + readDb + " is invalid! Must be either COMP200 or OFLP200!"
+  printfunc ("ERROR! readDb = " + readDb + " is invalid! Must be either COMP200 or OFLP200!")
 
 #inc ("RecExCommon/RecExCommon_flags.py")
 include ("RecExCond/RecExCommon_flags.py")
@@ -173,7 +175,7 @@ if(IOVRunEnd > 0):
 from IOVDbSvc.CondDB import conddb
 conddb.setGlobalTag(CoolGlobalTag)
 if(forceRunNumber > 0):
-  Service("IOVDbSvc").forceRunNumber = forceRunNumber;
+  Service("IOVDbSvc").forceRunNumber = forceRunNumber
   Service("IOVDbSvc").forceLumiblockNumber = 1
 
 #conddb.setGlobalTag("COMCOND-006-00")
@@ -198,11 +200,11 @@ from MuonCondSvc.CscCondDB import cscCondDB
 #Stop caching since we aren't interested in reading it out right now
 #cscCondDB.useLocalFile()
 #cscCondDB.SetupForNewFolder()
-if(doMerge == True):
+if(doMerge is True):
   cscCondDB.CscCoolStrSvc.DoCaching = True
   cscCondDB.CscCoolStrSvc.DoMerge = True
 else:
-  print "WARNING no merging/caching"
+  printfunc ("WARNING no merging/caching")
   cscCondDB.CscCoolStrSvc.DoCaching = False
   cscCondDB.CscCoolStrSvc.DoMerge = False
 
@@ -212,7 +214,7 @@ if(MergeFromLocalFile):
 
 
 if(writeNewFolder):
-  print "Setting up for new folder"
+  printfunc ("Setting up for new folder")
   cscCondDB.SetupForNewFolder()
 
 

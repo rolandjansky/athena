@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 // $Id$
 /**
@@ -805,6 +805,7 @@ inline
 ConcurrentBitset::bit_t
 ConcurrentBitset::nBlocks (bit_t nbits)
 {
+  if (nbits == 0) return 1;
   return (nbits+BLOCKSIZE-1) / BLOCKSIZE;
 }
 

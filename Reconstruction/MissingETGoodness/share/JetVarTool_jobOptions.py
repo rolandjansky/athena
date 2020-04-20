@@ -31,7 +31,7 @@ if cfgKeyStore.isInInput ('CaloCellContainer', 'AllCalo'):
 
 
     BadCellCorrT.CellCalibrator = cellcalibtool
-    ##print BadCellCorrT
+    ##printfunc (BadCellCorrT)
     ##toolist += [BadCellCorrT]
     
     make_JetMomentGetter("AntiKt4TopoJets",[atool4,cqual_tool,BadCellCorrT])
@@ -54,6 +54,6 @@ JetVarTool = ConfiguredJetVarTool(
 
     )
 ToolSvc += JetVarTool
-print      JetVarTool
+printfunc (     JetVarTool)
 
 

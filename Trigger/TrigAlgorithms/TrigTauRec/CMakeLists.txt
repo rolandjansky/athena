@@ -23,12 +23,13 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODTracking
                           Reconstruction/Particle
                           Tracking/TrkEvent/VxVertex
-                          Trigger/TrigT1/TrigT1Interfaces )
+                          Trigger/TrigT1/TrigT1Interfaces 
+                          Control/AthAnalysisBaseComps)
 
 # Component(s) in the package:
 atlas_add_component( TrigTauRec
                      src/*.cxx src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel LumiBlockCompsLib tauRecToolsLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloEvent EventKernel NavFourMom xAODJet xAODTau xAODTracking Particle VxVertex TrigT1Interfaces )
+                     LINK_LIBRARIES GaudiKernel LumiBlockCompsLib tauRecToolsLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloEvent EventKernel NavFourMom xAODJet xAODTau xAODTracking Particle VxVertex TrigT1Interfaces AthAnalysisBaseCompsLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

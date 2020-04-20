@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimData/InDetSimData.h"
@@ -24,8 +24,9 @@ InDetSimDataCnv_p2::persToTrans(const InDetSimData_p2* persObj, InDetSimData* tr
 {
   MSG_VERBOSE(log,"InDetSimDataCnv_p2::persToTrans called ");
   std::vector<InDetSimData::Deposit> deposits;
-  deposits.reserve( persObj->m_enDeposits.size() );
-  for (unsigned int icount=0; icount < persObj->m_enDeposits.size(); icount++) {
+  const unsigned int ndeposits = persObj->m_enDeposits.size();
+  deposits.reserve( ndeposits );
+  for (unsigned int icount=0; icount < ndeposits; icount++) {
     HepMcParticleLink mcLink (m_sg);
     HepMcPLCnv.persToTrans(&(persObj->m_links[icount]),&mcLink, log);
     deposits.emplace_back (mcLink, persObj->m_enDeposits[icount]);
@@ -38,18 +39,18 @@ InDetSimDataCnv_p2::persToTrans(const InDetSimData_p2* persObj, InDetSimData* tr
 void
 InDetSimDataCnv_p2::transToPers(const InDetSimData* transObj, InDetSimData_p2* persObj, MsgStream &log)
 {
-   MSG_VERBOSE(log,"InDetSimDataCnv_p2::transToPers called ");
-   HepMcParticleLinkCnv_p2 HepMcPLCnv;
+  MSG_VERBOSE(log,"InDetSimDataCnv_p2::transToPers called ");
+  HepMcParticleLinkCnv_p2 HepMcPLCnv;
 
-   persObj->m_word = transObj->word();
-   const std::vector<InDetSimData::Deposit> &dep(transObj->getdeposits());
-   persObj->m_links.resize(dep.size() );
-   persObj->m_enDeposits.resize(dep.size() );
-   depositIterator it=dep.begin();
-   for (int icount=0; it != dep.end(); it++, icount++) {
-     HepMcPLCnv.transToPers(&(dep[icount].first), &(persObj->m_links[icount]), log);
-     persObj->m_enDeposits[icount] = dep[icount].second;
-   }
+  persObj->m_word = transObj->word();
+  const std::vector<InDetSimData::Deposit> &dep(transObj->getdeposits());
+  const unsigned int ndeposits = dep.size();
+  persObj->m_links.resize(ndeposits);
+  persObj->m_enDeposits.resize(ndeposits);
+  for (unsigned int icount(0); icount < ndeposits; ++icount) {
+    HepMcPLCnv.transToPers(&(dep[icount].first), &(persObj->m_links[icount]), log);
+    persObj->m_enDeposits[icount] = dep[icount].second;
+  }
 }
 
 void InDetSimDataCnv_p2::setCurrentStore (IProxyDict* store)

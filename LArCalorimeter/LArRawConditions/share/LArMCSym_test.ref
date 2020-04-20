@@ -1,0 +1,3 @@
+LArRawConditions/LArMCSym_test
+LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
+test1

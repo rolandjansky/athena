@@ -339,13 +339,6 @@ void TGCDoubletSB::doCoincidenceInSubMatrix(const int block, TGCHitPattern** LCO
 
 bool TGCDoubletSB::element(bool A, bool B, bool C, bool D)
 {
-  if(tgcArgs()->STRICTWD()) {
-    if(m_SType == WIREGROUP) return (A & D);
-  }
-  if (tgcArgs()->STRICTSD()) {
-    if(m_SType == STRIP) return (A & D);
-  }
-  
   return ((A & C)|( A & D)|( B & D));
 }
 

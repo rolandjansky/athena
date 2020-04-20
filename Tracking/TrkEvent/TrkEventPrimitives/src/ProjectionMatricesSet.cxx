@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,11 +25,11 @@ Trk::ProjectionMatricesSet::ProjectionMatricesSet(int maxdim) :
     for (int itag = 0, ipos=1; itag<m_maxdim; ++itag, ipos*=2) 
        { bool bit = (imatx & ipos);
          parameterTag[itag] = bit;   
-         if (bit) ++cols;
+         if (bit) { ++cols;}
        }
      
-    Amg::MatrixX* reduction = 0;
-    Amg::MatrixX* expansion = 0;
+    Amg::MatrixX* reduction = nullptr;
+    Amg::MatrixX* expansion = nullptr;
       
     if (cols){      
       // rows and cols - initialized to zero
@@ -49,8 +49,8 @@ Trk::ProjectionMatricesSet::ProjectionMatricesSet(int maxdim) :
            accessorInt[irow] = -100;
            ++reduc;
          }
-       else
-         accessorInt[irow] = reduc;
+       else {
+         accessorInt[irow] = reduc;}
       }
     
       // the expansion matrix is the transposed reduction matrix
@@ -76,11 +76,11 @@ Trk::ProjectionMatricesSet::~ProjectionMatricesSet()
 {
    std::vector<const Amg::MatrixX*>::const_iterator  matrixIter    = m_expansions.begin();
    std::vector<const Amg::MatrixX*>::const_iterator  matrixIterEnd = m_expansions.end();   
-   for ( ; matrixIter != matrixIterEnd; delete (*matrixIter), ++matrixIter) ;
+   for ( ; matrixIter != matrixIterEnd; delete (*matrixIter), ++matrixIter) { ;}
 
    matrixIter    = m_reductions.begin();
    matrixIterEnd = m_reductions.end();
-   for ( ; matrixIter != matrixIterEnd; delete (*matrixIter), ++matrixIter) ;
+   for ( ; matrixIter != matrixIterEnd; delete (*matrixIter), ++matrixIter) { ;}
 
 }
 

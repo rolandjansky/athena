@@ -41,7 +41,7 @@ public:
   typedef std::pair< std::string, std::ostream* > NamedStream;
   typedef std::multimap< int, NamedStream > StreamMap;
   typedef std::multimap< StatusCode, Message > MessageMap;
-  typedef std::map< std::string, int > ThresholdMap;
+  typedef std::map< std::string, int, std::less<> > ThresholdMap;
 
   // Default constructor.
   LoggedMessageSvc( const std::string& name, ISvcLocator* svcloc );
@@ -83,7 +83,7 @@ public:
   virtual void eraseMessage( const StatusCode& code, const Message& message );
 
   // Implementation of IMessageSvc::insertStream()
-  virtual void insertStream( int message_type, const std::string& name, std::ostream* stream );
+  virtual void insertStream( int message_type, std::string name, std::ostream* stream );
 
   // Implementation of IMessageSvc::eraseStream()
   virtual void eraseStream();
@@ -112,13 +112,13 @@ public:
   virtual int outputLevel()   const;
 
   // Implementation of IMessageSvc::ouputLevel()
-  virtual int outputLevel(const std::string& source)   const;
+  virtual int outputLevel(std::string_view source)   const;
 
   // Implementation of IMessageSvc::setOuputLevel()
   virtual void setOutputLevel(int new_level);
 
   // Implementation of IMessageSvc::setOuputLevel()
-  virtual void setOutputLevel(const std::string& source, int new_level);
+  virtual void setOutputLevel(std::string_view source, int new_level);
 
   // Implementation of IInterface::queryInterface()
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvUnknown);

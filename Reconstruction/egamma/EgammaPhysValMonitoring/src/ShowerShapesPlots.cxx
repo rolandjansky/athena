@@ -1,56 +1,58 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
 
 #include "ShowerShapesPlots.h"
 
 namespace Egamma{
 
 
-  ShowerShapesPlots::ShowerShapesPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
-												       m_sParticleType(sParticleType),
-												       hadleak(0), 
-												       middlee(0), 
-												       reta37 (0), 
-												       reta33 (0), 
-												       weta1  (0), 
-												       weta2  (0), 
-												       demax1 (0), 
-												       demax2 (0), 
-												       de     (0), 
-												       fracs1 (0), 
-												       wtots1 (0), 
-												       f1     (0), 
-												       pos7   (0), 
-												       clusiso(0), 
-												       hadleakvset(0),  
-												       middleevset(0), 
-												       reta37vset (0), 
-												       reta33vset (0), 
-												       weta1vset  (0), 
-												       weta2vset  (0), 
-												       demax1vset (0), 
-												       demax2vset (0), 
-												       devset     (0), 
-												       fracs1vset (0), 
-												       wtots1vset (0), 
-												       f1vset     (0), 
-												       pos7vset   (0), 
-												       clusisovset(0),
-												       hadleakvseta(0),
-												       middleevseta(0),
-												       reta37vseta(0),
-												       reta33vseta(0),
-												       weta1vseta(0),
-												       weta2vseta(0),
-												       demax1vseta(0),
-												       demax2vseta(0),
-												       devseta(0),
-												       fracs1vseta(0),
-												       wtots1vseta(0),
-												       f1vseta(0),
-												       pos7vseta(0),
-												       clusisovseta(0)
+  ShowerShapesPlots::ShowerShapesPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType):PlotBase(pParent, sDir), 
+												       m_sParticleType(std::move(sParticleType)),
+												       hadleak(nullptr), 
+												       middlee(nullptr), 
+												       reta37 (nullptr), 
+												       reta33 (nullptr), 
+												       weta1  (nullptr), 
+												       weta2  (nullptr), 
+												       demax1 (nullptr), 
+												       demax2 (nullptr), 
+												       de     (nullptr), 
+												       fracs1 (nullptr), 
+												       wtots1 (nullptr), 
+												       f1     (nullptr), 
+												       pos7   (nullptr), 
+												       clusiso(nullptr), 
+												       hadleakvset(nullptr),  
+												       middleevset(nullptr), 
+												       reta37vset (nullptr), 
+												       reta33vset (nullptr), 
+												       weta1vset  (nullptr), 
+												       weta2vset  (nullptr), 
+												       demax1vset (nullptr), 
+												       demax2vset (nullptr), 
+												       devset     (nullptr), 
+												       fracs1vset (nullptr), 
+												       wtots1vset (nullptr), 
+												       f1vset     (nullptr), 
+												       pos7vset   (nullptr), 
+												       clusisovset(nullptr),
+												       hadleakvseta(nullptr),
+												       middleevseta(nullptr),
+												       reta37vseta(nullptr),
+												       reta33vseta(nullptr),
+												       weta1vseta(nullptr),
+												       weta2vseta(nullptr),
+												       demax1vseta(nullptr),
+												       demax2vseta(nullptr),
+												       devseta(nullptr),
+												       fracs1vseta(nullptr),
+												       wtots1vseta(nullptr),
+												       f1vseta(nullptr),
+												       pos7vseta(nullptr),
+												       clusisovseta(nullptr)
 
   {}	
 
@@ -108,8 +110,10 @@ namespace Egamma{
 
     float eta2 = fabs (egamma.caloCluster()->etaBE (2));  
     float et37 = egamma.caloCluster()->e() / cosh (eta2);
-    float ethad(0),ethad1(0);
-    float raphad(0), raphad1(0);
+    float ethad(0);
+    float ethad1(0);
+    float raphad(0);
+    float raphad1(0);
     if(egamma.showerShapeValue(ethad, xAOD::EgammaParameters::ethad )){
       raphad = et37 > 0. ? ethad / et37 : 0.;
     }
@@ -121,7 +125,9 @@ namespace Egamma{
     hadleakvset->Fill(hadrleak, egamma.pt()*0.001);
     hadleakvseta->Fill(hadrleak, egamma.eta());
 
-    float e277(0),e237(0),e233(0);
+    float e277(0);
+    float e237(0);
+    float e233(0);
 
     if(egamma.showerShapeValue(e277, xAOD::EgammaParameters::e277 ) &&
        egamma.showerShapeValue(e237, xAOD::EgammaParameters::e237 ) &&
@@ -140,7 +146,8 @@ namespace Egamma{
       reta33vseta->Fill(rateta33, egamma.eta());
     }
 
-    float shweta1(0),shweta2(0);
+    float shweta1(0);
+    float shweta2(0);
     if(egamma.showerShapeValue(shweta1, xAOD::EgammaParameters::weta1 )&&
        egamma.showerShapeValue(shweta2, xAOD::EgammaParameters::weta2 )){
       weta1->Fill(shweta1);
@@ -151,7 +158,9 @@ namespace Egamma{
       weta2vseta->Fill(shweta2, egamma.eta());
     }
     
-    float emax(0),emin(0),emax2(0);
+    float emax(0);
+    float emin(0);
+    float emax2(0);
     if(egamma.showerShapeValue(emax, xAOD::EgammaParameters::emaxs1 )&&
        egamma.showerShapeValue(emin, xAOD::EgammaParameters::emins1 )&&
        egamma.showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1 )){
@@ -169,7 +178,10 @@ namespace Egamma{
       devseta->Fill( (emax2 - emin) * 0.001, egamma.eta()); // use more official GeV
     }
 
-    float shfracs1(0),shwtots1(0),fracf1(0),difpos7(0);
+    float shfracs1(0);
+    float shwtots1(0);
+    float fracf1(0);
+    float difpos7(0);
 
     if(egamma.showerShapeValue(shfracs1, xAOD::EgammaParameters::fracs1 )){
       fracs1->Fill(shfracs1);
@@ -196,7 +208,8 @@ namespace Egamma{
     }
   
   
-    float topoEtconeIso(0), shetcone20(0);
+    float topoEtconeIso(0);
+    float shetcone20(0);
     if(egamma.isolationValue(shetcone20,   xAOD::Iso::topoetcone20)){ //rel20
 //    if(egamma.isolationValue(shetcone20,   xAOD::EgammaParameters::topoetcone20)){//re;19
       topoEtconeIso = et37!=0. ? shetcone20/et37 : 0.; 

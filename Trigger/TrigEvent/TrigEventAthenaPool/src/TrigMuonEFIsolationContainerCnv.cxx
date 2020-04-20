@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEFIsolationContainerCnv.h"
@@ -42,10 +42,10 @@ TrigMuonEFIsolationContainer* TrigMuonEFIsolationContainerCnv::createTransient()
   TrigMuonEFIsolationContainer* trans_cont(0);
 
   if ( compareClassGuid(p2_guid) ) {
-    std::auto_ptr< TrigMuonEFIsolationContainer_p2 > col_vect( this->poolReadObject< TrigMuonEFIsolationContainer_p2 >() );
+    std::unique_ptr< TrigMuonEFIsolationContainer_p2 > col_vect( this->poolReadObject< TrigMuonEFIsolationContainer_p2 >() );
     trans_cont = TPconverter_p2.createTransient( col_vect.get(), mlog );
   } else if ( compareClassGuid(p1_guid) ) {
-    std::auto_ptr< TrigMuonEFIsolationContainer_p1 > col_vect( this->poolReadObject< TrigMuonEFIsolationContainer_p1 >() );
+    std::unique_ptr< TrigMuonEFIsolationContainer_p1 > col_vect( this->poolReadObject< TrigMuonEFIsolationContainer_p1 >() );
     trans_cont = TPconverter_p1.createTransient( col_vect.get(), mlog );
   } else {
       

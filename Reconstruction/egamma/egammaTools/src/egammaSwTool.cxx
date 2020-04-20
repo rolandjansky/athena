@@ -83,7 +83,7 @@ StatusCode egammaSwTool::execute(const EventContext& ctx, xAOD::CaloCluster *clu
   ATH_MSG_DEBUG("Executing egammaSwTool");
   
   // protection against bad clusters
-  if (cluster==0) return StatusCode::SUCCESS;
+  if (cluster==nullptr) return StatusCode::SUCCESS;
 
   xAOD::CaloCluster::ClusterSize requestedSize = cluster->clusterSize();
   switch (requestedSize) {
@@ -128,7 +128,7 @@ StatusCode egammaSwTool::execute(const EventContext& ctx, xAOD::CaloCluster* clu
   ATH_MSG_DEBUG("Executing egammaSwTool");
   
   // protection against bad clusters
-  if (cluster==0) return StatusCode::SUCCESS;
+  if (cluster==nullptr) return StatusCode::SUCCESS;
 
   if(isBarrel){
 

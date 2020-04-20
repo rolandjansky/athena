@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // IOVDbFolder.cxx - helper class for IOVDbSvc to manage folder & data cache
@@ -661,7 +661,7 @@ bool
 IOVDbFolder::getAddress(const cool::ValidityKey reftime,
                              IAddressCreator* persSvc,
                              const unsigned int poolSvcContext,
-                             IOpaqueAddress*& address,
+                             std::unique_ptr<IOpaqueAddress>& address,
                              IOVRange& range, bool& poolPayloadReq) {
 
   ++m_ncacheread;
@@ -800,41 +800,39 @@ IOVDbFolder::getAddress(const cool::ValidityKey reftime,
 
   // turn the data into an IOpaqueAddress
   strAddress=m_addrheader+strAddress;
-  if (StatusCode::SUCCESS!=persSvc->createAddress(0,0,strAddress,address)) {
+  IOpaqueAddress* addrp = nullptr;
+  if (StatusCode::SUCCESS!=persSvc->createAddress(0,0,strAddress,addrp)) {
     ATH_MSG_ERROR( "Could not get IOpaqueAddress from string address "<< strAddress );
     return false;
   }
-  GenericAddress* gAddr=dynamic_cast<GenericAddress*>(address);
+  address = std::unique_ptr<IOpaqueAddress>(addrp);
+  GenericAddress* gAddr=dynamic_cast<GenericAddress*>(address.get());
   if (!gAddr) {
     ATH_MSG_ERROR( "Could not cast IOpaqueAddress to GenericAddress");
     return false;
   }
   // create a new GenericAddress to set pool context
   if (m_foldertype==AttrListColl) {
-    CondAttrListCollAddress* addr=new CondAttrListCollAddress(*gAddr);
+    auto addr = std::make_unique<CondAttrListCollAddress>(*gAddr);
     addr->setAttrListColl(attrListColl);
-    delete address;
-    address=addr;
+    address = std::move(addr);
   } else if (m_foldertype==PoolRefColl || m_foldertype==PoolRef) {
-    CondAttrListCollAddress* addr=new CondAttrListCollAddress(gAddr->svcType(),
-                                                              gAddr->clID(),gAddr->par()[0],gAddr->par()[1],
-                                                              poolSvcContext,gAddr->ipar()[1]);
-    delete address;
+    auto addr = std::make_unique<CondAttrListCollAddress>(gAddr->svcType(),
+                                                          gAddr->clID(),gAddr->par()[0],gAddr->par()[1],
+                                                          poolSvcContext,gAddr->ipar()[1]);
     if (m_foldertype==PoolRefColl) {
       addr->setAttrListColl(attrListColl);
     }
-    address=addr;
+    address = std::move(addr);
     poolPayloadReq=true;
   } else if (m_foldertype==AttrList) {
-    AthenaAttrListAddress* addr=new AthenaAttrListAddress(*gAddr);
+    auto addr = std::make_unique<AthenaAttrListAddress>(*gAddr);
     addr->setAttrList(attrList);
-    delete address;
-    address=addr;
+    address = std::move(addr);
   } else if (m_foldertype==CoraCool || m_foldertype==CoolVector) {
-    CondAttrListVecAddress* addr=new CondAttrListVecAddress(*gAddr);
+    auto addr = std::make_unique<CondAttrListVecAddress>(*gAddr);
     addr->setAttrListVec(attrListVec);
-    delete address;
-    address=addr;
+    address = std::move(addr);
   }
   return true;
 }

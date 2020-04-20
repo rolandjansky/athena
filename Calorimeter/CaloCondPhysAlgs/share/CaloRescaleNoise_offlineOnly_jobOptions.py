@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloRescaleNoise
@@ -19,22 +20,21 @@ if 'GlobalTag' not in dir():
 if 'Geometry' not in dir():
    Geometry = 'ATLAS-GEO-20-00-00'
 
-print "RunNumber ",RunNumber
-print "LumiBlock ",LumiBlock
+printfunc ("RunNumber ",RunNumber)
+printfunc ("LumiBlock ",LumiBlock)
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(RunNumber)
 
-from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
 trigDB=indirectOpen('COOLONL_TRIGGER/CONDBR2',oracle=True)
 trigfolder=trigDB.getFolder('/TRIGGER/LUMI/LBLB')
 runiov=(RunNumber << 32)+ LumiBlock
-print " runiov ", runiov
+printfunc (" runiov ", runiov)
 obj=trigfolder.findObject(runiov,0)
 payload=obj.payload()
-TimeStamp=payload['StartTime']/1000000000L
+TimeStamp=payload['StartTime']/1000000000
 trigDB.closeDatabase()
 
 # this setting is just to get directly pileup noise as b and write back the same in the database...
@@ -43,12 +43,12 @@ jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.)
 
 #TimeStamp = 1274368420
 
-print " TimeStamp : ",TimeStamp
+printfunc (" TimeStamp : ",TimeStamp)
 
 
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = True
-from AthenaCommon.Resilience import treatException,protectedInclude
+from AthenaCommon.Resilience import protectedInclude
 protectedInclude( "PerfMonComps/PerfMonSvc_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags
@@ -129,7 +129,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
    ServiceMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellnoise_data.root' OPT='RECREATE'"];
+ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellnoise_data.root' OPT='RECREATE'"]
 
 
 #--------------------------------------------------------------

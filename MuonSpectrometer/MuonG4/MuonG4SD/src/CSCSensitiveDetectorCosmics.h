@@ -61,9 +61,11 @@ We describe in the following, how each field of the identifier is retrieved.
 
 #include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimEvent/CscHitIdHelper.h"
+#include <gtest/gtest_prod.h>
 
 class CSCSensitiveDetectorCosmics : public G4VSensitiveDetector {
-    
+ FRIEND_TEST( CSCSensitiveDetectorCosmicstest, Initialize );
+ FRIEND_TEST( CSCSensitiveDetectorCosmicstest, ProcessHits );    
 public:
     /** construction/destruction */
     CSCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName);

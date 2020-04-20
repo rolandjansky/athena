@@ -50,6 +50,9 @@ StatusCode InDet::SiSpacePointsSeedMaker_Trigger::initialize()
     return StatusCode::FAILURE;
   }    
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
+  ////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCondObjInputKey.initialize());
+  ////////////////////////////////////////////////////////////////////////////////
 
   // Build framework
   //
@@ -83,7 +86,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_Trigger::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(EventData& data, int) const
+void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(const EventContext& ctx, EventData& data, int) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -95,7 +98,22 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(EventData& data, int) const
   double f[3], gP[3] ={10.,10.,0.};
 
   if (m_fieldServiceHandle->solenoidOn()) {
-    m_fieldServiceHandle->getFieldZR(gP,f);
+
+    MagField::AtlasFieldCache    fieldCache;
+
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SiSpacePointsSeedMaker_Trigger: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return; 
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    //   MT version uses cache, temporarily keep old version
+    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, f);
+    else                                m_fieldServiceHandle->getFieldZR(gP, f);
+
     data.K = 2./(300.*f[2]);
   } else {
     data.K = 2./(300.* 5.);
@@ -110,7 +128,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(EventData& data, int) const
   //
   if (m_pixel) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsPixel) {
@@ -136,7 +154,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(EventData& data, int) const
   //
   if (m_sct) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsSCT) {
@@ -161,7 +179,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(EventData& data, int) const
     //
     if (m_useOverlap) {
 
-      SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap{m_spacepointsOverlap};
+      SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap{m_spacepointsOverlap, ctx};
       if (spacepointsOverlap.isValid()) {
  
         for (const Trk::SpacePoint* sp: *spacepointsOverlap) {
@@ -189,7 +207,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(EventData& data, int) const
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
-(EventData& data, const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
+(const EventContext& ctx, EventData& data, const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -201,7 +219,22 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
 
   double f[3], gP[3] ={10.,10.,0.};
   if (m_fieldServiceHandle->solenoidOn()) {
-    m_fieldServiceHandle->getFieldZR(gP, f);
+
+    MagField::AtlasFieldCache    fieldCache;
+
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SiSpacePointsSeedMaker_Trigger: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    //   MT version uses cache, temporarily keep old version
+    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, f);
+    else                                m_fieldServiceHandle->getFieldZR(gP, f);
+
     data.K = 2./(300.*f[2]);
   } else {
     data.K = 2./(300.* 5.);
@@ -216,7 +249,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
   //
   if (m_pixel && vPixel.size()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
       SpacePointContainer::const_iterator spce = spacepointsPixel->end();
 
@@ -244,7 +277,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
   //
   if (m_sct && vSCT.size()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
       SpacePointContainer::const_iterator spce = spacepointsSCT->end();
 
@@ -275,13 +308,13 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
-(EventData& data,
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
  const IRoiDescriptor& IRD) const
 {
   if (not data.initialized) initializeEventData(data);
 
-  newRegion(data, vPixel, vSCT);
+  newRegion(ctx, data, vPixel, vSCT);
 
   data.trigger = true;
 
@@ -338,7 +371,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::find2Sp(EventData& data, const std::
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(const EventContext&, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -369,9 +402,9 @@ void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(EventData& data, const std::
   }
 }
 
-void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
+void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
 {
-  find3Sp(data, lv);
+  find3Sp(ctx, data, lv);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -380,7 +413,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::find3Sp(EventData& data, const std::
 // Variable means (2,3,4,....) any number space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_Trigger::findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_Trigger::findVSp(const EventContext&, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -828,7 +861,7 @@ void  InDet::SiSpacePointsSeedMaker_Trigger::convertToBeamFrameWork
 void InDet::SiSpacePointsSeedMaker_Trigger::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
-  std::list<InDet::SiSpacePointForSeed*>::iterator r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i!= m_r_size;  ++i) {
 
@@ -920,7 +953,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::production2Sp(EventData& data) const
 {
   if (data.nsazv<2) return;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0,r0e,r,re;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0,r0e,r,re;
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -1024,7 +1057,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::production3Sp(EventData& data) const
   if (data.nsaz<3) return;
 
   const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
-  std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
+  std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -1073,13 +1106,13 @@ void InDet::SiSpacePointsSeedMaker_Trigger::production3Sp(EventData& data) const
 
 void InDet::SiSpacePointsSeedMaker_Trigger::production3Sp
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed) const
 {
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {
     r0 = data.rMin;
     data.endlist = true;
@@ -1275,15 +1308,15 @@ void InDet::SiSpacePointsSeedMaker_Trigger::production3Sp
 
 void InDet::SiSpacePointsSeedMaker_Trigger::production3SpTrigger
 (EventData& data, 
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed) const
 {
   constexpr float pi2 = 2.*M_PI;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {
     r0 = data.rMin;
     data.endlist = true;
@@ -1520,7 +1553,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newOneSeed
   }
 }
 
-const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_Trigger::next(EventData& data) const
+const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_Trigger::next(const EventContext&, EventData& data) const
 {
   if (not data.initialized) initializeEventData(data);
 

@@ -1,5 +1,9 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #No input file -> use MC event selector
 import AthenaCommon.AtlasUnixGeneratorJob
+
+from AthenaCommon                       import CfgMgr
 
 from AthenaCommon.GlobalFlags import GlobalFlags
 GlobalFlags.DetGeo.set_commis()
@@ -33,8 +37,7 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
 
-## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 theApp.EvtMax=10
 

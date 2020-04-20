@@ -31,8 +31,9 @@ def bJetStep1Sequence():
     jetsKey = "HLT_AntiKt4EMTopoJets_subjesgscIS_ftf"
     prmVtxKey = "HLT_EFHistoPrmVtx"
 
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
     InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2", RoIsLink="initialRoI" )
+    InputMakerAlg.RoITool = ViewCreatorInitialROITool()
     InputMakerAlg.Views = "FullScanBjetView"
     InputMakerAlg.InViewRoIs = "FullScanRoI"
     InputMakerAlg.ViewFallThrough = True
@@ -44,6 +45,7 @@ def bJetStep1Sequence():
     # Jet Selector
     from TrigBjetHypo.TrigBjetHypoConf import TrigJetSelectorMT
     jetSelector = TrigJetSelectorMT( "BJetSelector" )
+    jetSelector.JetMaxEta = 2.9
     jetSelector.InputJets = jetsKey
     jetSelector.InputVertex = prmVtxKey
     jetSelector.OutputJets = recordable( outputJetName )
@@ -79,17 +81,15 @@ def bJetStep2Sequence():
     roisLink = "step1RoI"
     prmVtxKey = "HLT_EFHistoPrmVtx"
 
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets, ViewCreatorInitialROITool
     InputMakerAlg = EventViewCreatorAlgorithmWithJets( "IMBJet_step3",RoIsLink=roisLink )
     InputMakerAlg.ViewFallThrough = True
     InputMakerAlg.RequireParentView = True
+    InputMakerAlg.RoITool = ViewCreatorInitialROITool() # NOT USED! TO BE REPLACED WITH NEW TOOL ON CONVERTING EventViewCreatorAlgorithmWithJets -> EventViewCreatorAlgorithm
     InputMakerAlg.Views = "BTagViews"
     InputMakerAlg.InViewRoIs = "InViewRoIs"
     InputMakerAlg.InViewJets = "InViewJets"
         
-    # View Test Algorithm
-    import AthenaCommon.CfgMgr as CfgMgr
-    viewTestAlg = CfgMgr.AthViews__ViewTestAlg( "view_testBjet2" )
 
     # Second stage of Fast Tracking and Precision Tracking
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetTrackingConfiguration import getSecondStageBjetTracking
@@ -99,8 +99,7 @@ def bJetStep2Sequence():
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
     flavourTaggingAlgs = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
 
-
-    preAlgs = [ viewTestAlg ]
+    preAlgs = []
 
     bJetBtagSequence = seqAND( "bJetBtagSequence", preAlgs + secondStageAlgs + flavourTaggingAlgs )
     InputMakerAlg.ViewNodeName = "bJetBtagSequence"

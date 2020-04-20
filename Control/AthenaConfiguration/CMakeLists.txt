@@ -11,7 +11,8 @@ find_package( six )
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/iconfTool 
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
-atlas_install_scripts( share/confTool.py python/iconfTool/iconfTool )
+atlas_install_scripts( share/confTool.py python/iconfTool/iconfTool python/CARunner.py)
+
 atlas_install_data( share/*.ref )
 
 atlas_add_test( ComponentAccumulatorTest
@@ -26,15 +27,17 @@ atlas_add_test( AthConfigFlagsTest
    SCRIPT python -m unittest AthenaConfiguration.AthConfigFlags
    POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( AllConfigFlagsTest_EVNT_test
-   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_EVNT.py
-   PROPERTIES TIMEOUT 300  )
+if( NOT GENERATIONBASE )
+    atlas_add_test( AllConfigFlagsTest_EVNT_test
+                    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_EVNT.py
+                    PROPERTIES TIMEOUT 300  )
 
-atlas_add_test( AllConfigFlagsTest_HITS_test
-   SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_HITS.py
-   PROPERTIES TIMEOUT 300  )
+    atlas_add_test( AllConfigFlagsTest_HITS_test
+                    SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_HITS.py
+                    PROPERTIES TIMEOUT 300  )
+endif()
 
-if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthSimulation" )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
     atlas_add_test( AllConfigFlagsTest_RDO_test
                     SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/python/testAllConfigFlags_RDO.py
                     PROPERTIES TIMEOUT 300  )
@@ -44,8 +47,3 @@ if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthSimulation" )
                     POST_EXEC_SCRIPT nopost.sh )
 endif()
 
-# Test AppendToGlobal
-atlas_add_test( appendToGlobalTest
-		SCRIPT athena.py testAppendToGlobals.py
-		ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share::$ENV{JOBOPTSEARCHPATH}"
-		POST_EXEC_SCRIPT nopost.sh )

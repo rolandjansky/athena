@@ -1,19 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackPerformance/MuonTrackPerformanceAlg.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonSegment/MuonSegment.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -25,7 +20,6 @@
 MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
   m_eventInfo(0),
-  m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   m_truthTool("Muon::MuonTrackTruthTool/MuonTrackTruthTool"),
   m_summaryHelperTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
@@ -98,7 +92,7 @@ StatusCode MuonTrackPerformanceAlg::initialize()
   m_debug = m_log->level() <= MSG::DEBUG;
   m_verbose = m_log->level() <= MSG::VERBOSE;
 
-  ATH_CHECK(m_idHelperTool.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_printer.retrieve());
   ATH_CHECK(m_edmHelperSvc.retrieve());
 
@@ -124,9 +118,9 @@ StatusCode MuonTrackPerformanceAlg::initialize()
   ATH_CHECK(m_eventInfoKey.initialize());
 
   ATH_CHECK(m_mcEventColl.initialize(m_doTruth));
-  if(!(m_idHelperTool->hasSTgc() && m_idHelperTool->hasMM())) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
+  if(!(m_idHelperSvc->hasSTgc() && m_idHelperSvc->hasMM())) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
   if(m_doTruth) ATH_CHECK(m_muonSimData.initialize());
-  ATH_CHECK(m_cscSimData.initialize(m_doTruth && m_idHelperTool->hasCSC()));
+  ATH_CHECK(m_cscSimData.initialize(m_doTruth && m_idHelperSvc->hasCSC()));
   ATH_CHECK(m_trackRecord.initialize(m_doTruth));
 
   return StatusCode::SUCCESS; 
@@ -161,17 +155,17 @@ bool MuonTrackPerformanceAlg::handleSegmentTruth( const std::vector<const Muon::
       if( trackTruth.mdts.missedChambers.size() > 0 ){
       	if( m_debug ) *m_log << MSG::DEBUG << "Missing mdt chamber " << endmsg;
       }
-      if(m_idHelperTool->hasCSC()){
+      if(m_idHelperSvc->hasCSC()){
 	if( trackTruth.cscs.missedChambers.size() > 0 ){
 	  if( m_debug ) *m_log << MSG::DEBUG << "Missing csc chamber " << endmsg;
 	}
       }
-      if(m_idHelperTool->hasSTgc()){
+      if(m_idHelperSvc->hasSTgc()){
 	if( trackTruth.stgcs.missedChambers.size() > 0 ){
 	  if( m_debug ) *m_log << MSG::DEBUG << "Missing stgc chamber " << endmsg;
 	}
       }
-      if(m_idHelperTool->hasMM()){
+      if(m_idHelperSvc->hasMM()){
 	if( trackTruth.mms.missedChambers.size() > 0 ){
 	  if( m_debug ) *m_log << MSG::DEBUG << "Missing mm chamber " << endmsg;
 	}
@@ -309,10 +303,10 @@ bool MuonTrackPerformanceAlg::goodTruthTrack( const Muon::IMuonTrackTruthTool::T
     if( trackRecord->GetMomentum().mag() < m_momentumCutSim ) return false; 
   }
   if( !selectPdg(trackRecord->GetPDGCode()) ) return false;
-  if( m_isCombined && fabs(trackRecord->GetMomentum().eta()) > 2.5 ) return false;
+  if( m_isCombined && fabs(trackRecord->GetMomentum().eta()) > 2.8 ) return false;
   int hits = entry.mdtHits.size();
-  if(m_idHelperTool->hasCSC()) hits += entry.cscHits.size();
-  if(m_idHelperTool->hasMM()) hits += entry.mmHits.size();
+  if(m_idHelperSvc->hasCSC()) hits += entry.cscHits.size();
+  if(m_idHelperSvc->hasMM()) hits += entry.mmHits.size();
   return (hits > 4);
 }
 
@@ -335,7 +329,7 @@ bool MuonTrackPerformanceAlg::handleTrackTruth( const TrackCollection& trackColl
     muonSimData.push_back(simDataMap.cptr());
   }
   const CscSimDataCollection* cscSimData=NULL;
-  if(m_idHelperTool->hasCSC()){
+  if(m_idHelperSvc->hasCSC()){
     SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData);
     if(!cscSimDataMap.isValid()){
       ATH_MSG_WARNING(cscSimDataMap.key()<<" not valid");
@@ -731,44 +725,44 @@ std::string MuonTrackPerformanceAlg::print( const Muon::IMuonTrackTruthTool::Tru
   MuonSimDataCollection::const_iterator mit_end =  trackTruth.mdtHits.end();
   for( ;mit!=mit_end;++mit ) allIds.insert(mit->first);
 
-  if(m_idHelperTool->hasCSC()){
+  if(m_idHelperSvc->hasCSC()){
     CscSimDataCollection::const_iterator cit =  trackTruth.cscHits.begin();
     CscSimDataCollection::const_iterator cit_end =  trackTruth.cscHits.end();
-    for( ;cit!=cit_end;++cit ) allIds.insert(m_idHelperTool->layerId(cit->first));
+    for( ;cit!=cit_end;++cit ) allIds.insert(m_idHelperSvc->layerId(cit->first));
   }
-  if(m_idHelperTool->hasSTgc()){
+  if(m_idHelperSvc->hasSTgc()){
     mit =  trackTruth.stgcHits.begin();
     mit_end =  trackTruth.stgcHits.end();
-    for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperTool->layerId(mit->first));
+    for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperSvc->layerId(mit->first));
   }
-  if(m_idHelperTool->hasMM()){
+  if(m_idHelperSvc->hasMM()){
     mit =  trackTruth.mmHits.begin();
     mit_end =  trackTruth.mmHits.end();
-    for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperTool->layerId(mit->first));
+    for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperSvc->layerId(mit->first));
   }
 
   mit =  trackTruth.rpcHits.begin();
   mit_end =  trackTruth.rpcHits.end();
-  for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperTool->layerId(mit->first));
+  for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperSvc->layerId(mit->first));
 
   mit =  trackTruth.tgcHits.begin();
   mit_end =  trackTruth.tgcHits.end();
-  for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperTool->layerId(mit->first));
+  for( ;mit!=mit_end;++mit ) allIds.insert(m_idHelperSvc->layerId(mit->first));
 
     
   std::set<Identifier>::iterator it = allIds.begin();
   std::set<Identifier>::iterator it_end = allIds.end();
   for( ;it!=it_end;++it ){
     Identifier id = *it;
-    Identifier chId = m_idHelperTool->chamberId(id);
-    bool measuresPhi = m_idHelperTool->measuresPhi(id);
+    Identifier chId = m_idHelperSvc->chamberId(id);
+    bool measuresPhi = m_idHelperSvc->measuresPhi(id);
     if( measuresPhi ) {
       ++nhitsCompIds[chId].first;
     }else{
       ++nhitsCompIds[chId].second;
     }
 
-    if( m_idHelperTool->isTrigger(chId) ) {
+    if( m_idHelperSvc->isTrigger(chId) ) {
       if( measuresPhi  ){
 	++triggerIds[chId].first;
 	++nphi;
@@ -812,13 +806,13 @@ std::string MuonTrackPerformanceAlg::print( const Muon::IMuonTrackTruthTool::Tru
   std::map<Identifier,std::pair<int,int> >::iterator iit_end = precisionIds.end();
   for( ;iit!=iit_end;++iit ){
     sout.setf(std::ios::left);
-    sout << "  " << std::setw(32) << m_idHelperTool->toStringChamber(iit->first) 
+    sout << "  " << std::setw(32) << m_idHelperSvc->toStringChamber(iit->first) 
 	 << " hits: eta " << std::setw(3) << iit->second.second << " phi " << std::setw(3) << iit->second.first << std::endl;
   }
   iit = triggerIds.begin();
   iit_end = triggerIds.end();
   for( ;iit!=iit_end;++iit ){
-    sout << "  " << std::setw(32) << m_idHelperTool->toStringChamber(iit->first) 
+    sout << "  " << std::setw(32) << m_idHelperSvc->toStringChamber(iit->first) 
 	 << " hits: eta " << std::setw(3) << nhitsCompIds[iit->first].second 
 	 << " phi " << std::setw(3) << nhitsCompIds[iit->first].first
 	 << "   stations: Eta " << iit->second.second << " Phi " << iit->second.first << std::endl;
@@ -1078,14 +1072,14 @@ std::string MuonTrackPerformanceAlg::printTrackCounters( bool doSecondaries ) co
 std::pair<int,int> MuonTrackPerformanceAlg::countHitsInChamber( const Identifier& chId, const std::set<Identifier>& hitIds ) const {
 
   // loop over hits in set, calculate their chID and compare it with the input chamber
-  int nhitsPhi = m_idHelperTool->isMdt(chId) ? -1 : 0;
+  int nhitsPhi = m_idHelperSvc->isMdt(chId) ? -1 : 0;
   int nhitsEta = 0;
   std::set<Identifier>::const_iterator it = hitIds.begin();
   std::set<Identifier>::const_iterator it_end = hitIds.end();
   for( ;it!=it_end;++it ){
-    Identifier ch = m_idHelperTool->chamberId(*it);
+    Identifier ch = m_idHelperSvc->chamberId(*it);
     if( ch == chId ) {
-      if( m_idHelperTool->measuresPhi(*it) ) ++nhitsPhi;
+      if( m_idHelperSvc->measuresPhi(*it) ) ++nhitsPhi;
       else                                   ++nhitsEta;
     }
   }
@@ -1112,7 +1106,7 @@ bool MuonTrackPerformanceAlg::insertChamber( const Identifier& chId, const std::
     std::set<Identifier>::const_iterator it = hits.begin();
     std::set<Identifier>::const_iterator it_end = hits.end();
     for( ;it!=it_end;++it ){
-      Identifier ch = m_idHelperTool->chamberId(*it);
+      Identifier ch = m_idHelperSvc->chamberId(*it);
       if( ch == chId ) {
 	chamberData.hits.insert(*it);
 	++nhits;
@@ -1143,7 +1137,7 @@ bool MuonTrackPerformanceAlg::insertStationLayers( const std::set<Identifier>& c
   std::set<Identifier>::const_iterator chit = chIds.begin();
   std::set<Identifier>::const_iterator chit_end = chIds.end();
   for( ;chit!=chit_end;++chit ){
-    Muon::MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(*chit);
+    Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(*chit);
     if( !exclusionList.count(stIndex) ) layers.insert(stIndex);
   }
   
@@ -1157,9 +1151,9 @@ bool MuonTrackPerformanceAlg::insertStationLayers( const std::vector<MuonTrackPe
   std::vector<ChamberData>::const_iterator chit = chambers.begin();
   std::vector<ChamberData>::const_iterator chit_end = chambers.end();
   for( ;chit!=chit_end;++chit ) {
-    bool isTrigger = m_idHelperTool->isTrigger(chit->chId);
+    bool isTrigger = m_idHelperSvc->isTrigger(chit->chId);
     if( (usePrecision && isTrigger) || (!usePrecision && !isTrigger) ) continue;
-    chIds.insert(m_idHelperTool->chamberId(chit->chId));
+    chIds.insert(m_idHelperSvc->chamberId(chit->chId));
   }
   return insertStationLayers(chIds,exclusionList,layers);
 }
@@ -1171,25 +1165,25 @@ MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::evaluateTrackTruthO
 
   // handle missing chambers
   insertTechnology( truthTrack.mdts.missedChambers, truthTrack.mdts.missedHits, m_minMdtHits, 0, trackData->missingChambers );
-  if(m_idHelperTool->hasCSC()) insertTechnology( truthTrack.cscs.missedChambers, truthTrack.cscs.missedHits, m_minCscEtaHits, m_minCscPhiHits, trackData->missingChambers );
-  if(m_idHelperTool->hasSTgc()) insertTechnology( truthTrack.stgcs.missedChambers, truthTrack.stgcs.missedHits, m_minsTgcEtaHits, m_minsTgcPhiHits, trackData->missingChambers );
-  if(m_idHelperTool->hasMM()) insertTechnology( truthTrack.mms.missedChambers, truthTrack.mms.missedHits, m_minMMEtaHits, 0, trackData->missingChambers );
+  if(m_idHelperSvc->hasCSC()) insertTechnology( truthTrack.cscs.missedChambers, truthTrack.cscs.missedHits, m_minCscEtaHits, m_minCscPhiHits, trackData->missingChambers );
+  if(m_idHelperSvc->hasSTgc()) insertTechnology( truthTrack.stgcs.missedChambers, truthTrack.stgcs.missedHits, m_minsTgcEtaHits, m_minsTgcPhiHits, trackData->missingChambers );
+  if(m_idHelperSvc->hasMM()) insertTechnology( truthTrack.mms.missedChambers, truthTrack.mms.missedHits, m_minMMEtaHits, 0, trackData->missingChambers );
   insertTechnology( truthTrack.rpcs.missedChambers, truthTrack.rpcs.missedHits, m_minRpcEtaHits, m_minRpcPhiHits, trackData->missingChambers );
   insertTechnology( truthTrack.tgcs.missedChambers, truthTrack.tgcs.missedHits, m_minTgcEtaHits, m_minTgcPhiHits, trackData->missingChambers );
 
   // handle wrong chambers
   insertTechnology( truthTrack.mdts.wrongChambers, truthTrack.mdts.wrongHits, m_minMdtHits, 0, trackData->wrongChambers );
-  if(m_idHelperTool->hasCSC()) insertTechnology( truthTrack.cscs.wrongChambers, truthTrack.cscs.wrongHits, m_minCscEtaHits, m_minCscPhiHits, trackData->wrongChambers );
-  if(m_idHelperTool->hasSTgc()) insertTechnology( truthTrack.stgcs.wrongChambers, truthTrack.stgcs.wrongHits, m_minsTgcEtaHits, m_minsTgcPhiHits, trackData->wrongChambers );
-  if(m_idHelperTool->hasMM()) insertTechnology( truthTrack.mms.wrongChambers, truthTrack.mms.wrongHits, m_minMMEtaHits, 0, trackData->wrongChambers );
+  if(m_idHelperSvc->hasCSC()) insertTechnology( truthTrack.cscs.wrongChambers, truthTrack.cscs.wrongHits, m_minCscEtaHits, m_minCscPhiHits, trackData->wrongChambers );
+  if(m_idHelperSvc->hasSTgc()) insertTechnology( truthTrack.stgcs.wrongChambers, truthTrack.stgcs.wrongHits, m_minsTgcEtaHits, m_minsTgcPhiHits, trackData->wrongChambers );
+  if(m_idHelperSvc->hasMM()) insertTechnology( truthTrack.mms.wrongChambers, truthTrack.mms.wrongHits, m_minMMEtaHits, 0, trackData->wrongChambers );
   insertTechnology( truthTrack.rpcs.wrongChambers, truthTrack.rpcs.wrongHits, m_minRpcEtaHits, m_minRpcPhiHits, trackData->wrongChambers );
   insertTechnology( truthTrack.tgcs.wrongChambers, truthTrack.tgcs.wrongHits, m_minTgcEtaHits, m_minTgcPhiHits, trackData->wrongChambers );
 
   // handle layer information for precision chambers
   std::set<Muon::MuonStationIndex::StIndex> dummyList;
   insertStationLayers( truthTrack.mdts.matchedChambers, dummyList, trackData->layers );
-  if(m_idHelperTool->hasCSC()) insertStationLayers( truthTrack.cscs.matchedChambers, dummyList, trackData->layers );
-  if(m_idHelperTool->hasMM()) insertStationLayers( truthTrack.mms.matchedChambers, dummyList, trackData->layers );
+  if(m_idHelperSvc->hasCSC()) insertStationLayers( truthTrack.cscs.matchedChambers, dummyList, trackData->layers );
+  if(m_idHelperSvc->hasMM()) insertStationLayers( truthTrack.mms.matchedChambers, dummyList, trackData->layers );
   
   insertStationLayers( trackData->missingChambers, trackData->layers, trackData->missingLayers, true );
   insertStationLayers( trackData->wrongChambers, trackData->layers, trackData->wrongLayers,true );
@@ -1197,7 +1191,7 @@ MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::evaluateTrackTruthO
   // handle layer information for precision chambers
   insertStationLayers( truthTrack.rpcs.matchedChambers, dummyList, trackData->layersTrigger );
   insertStationLayers( truthTrack.tgcs.matchedChambers, dummyList, trackData->layersTrigger );
-  if(m_idHelperTool->hasSTgc()) insertStationLayers( truthTrack.stgcs.matchedChambers, dummyList, trackData->layersTrigger );
+  if(m_idHelperSvc->hasSTgc()) insertStationLayers( truthTrack.stgcs.matchedChambers, dummyList, trackData->layersTrigger );
 
   insertStationLayers( trackData->missingChambers, trackData->layersTrigger, trackData->missingLayersTrigger, false );
   insertStationLayers( trackData->wrongChambers, trackData->layersTrigger, trackData->wrongLayersTrigger, false );
@@ -1258,12 +1252,12 @@ std::string MuonTrackPerformanceAlg::print( const MuonTrackPerformanceAlg::Track
     std::vector<ChamberData>::const_iterator chIt = trackData.missingChambers.begin();
     std::vector<ChamberData>::const_iterator chIt_end = trackData.missingChambers.end();
     for( ;chIt!=chIt_end;++chIt ){
-      sout << "    " << m_idHelperTool->toStringChamber(chIt->chId) << " hits " << chIt->hits.size() << std::endl;
+      sout << "    " << m_idHelperSvc->toStringChamber(chIt->chId) << " hits " << chIt->hits.size() << std::endl;
       if( m_doTrackDebug >= 6 ){
 	std::set<Identifier>::const_iterator hit = chIt->hits.begin();
 	std::set<Identifier>::const_iterator hit_end = chIt->hits.end();
 	for( ;hit!=hit_end;++hit ){
-	  sout << "          " << m_idHelperTool->toString(*hit) << std::endl;
+	  sout << "          " << m_idHelperSvc->toString(*hit) << std::endl;
 	}
       }
     }
@@ -1274,12 +1268,12 @@ std::string MuonTrackPerformanceAlg::print( const MuonTrackPerformanceAlg::Track
     std::vector<ChamberData>::const_iterator chIt = trackData.wrongChambers.begin();
     std::vector<ChamberData>::const_iterator chIt_end = trackData.wrongChambers.end();
     for( ;chIt!=chIt_end;++chIt ){
-      sout << "    " << m_idHelperTool->toStringChamber(chIt->chId) << " hits " << chIt->hits.size() << std::endl;
+      sout << "    " << m_idHelperSvc->toStringChamber(chIt->chId) << " hits " << chIt->hits.size() << std::endl;
       if( m_doTrackDebug >= 6 ){
 	std::set<Identifier>::const_iterator hit = chIt->hits.begin();
 	std::set<Identifier>::const_iterator hit_end = chIt->hits.end();
 	for( ;hit!=hit_end;++hit ){
-	  sout << "          " << m_idHelperTool->toString(*hit) << std::endl;
+	  sout << "          " << m_idHelperSvc->toString(*hit) << std::endl;
 	}
       }
     }
@@ -1348,31 +1342,31 @@ MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::createTrackData( co
   MuonSimDataCollection::const_iterator mit =  trackTruth.mdtHits.begin();    
   MuonSimDataCollection::const_iterator mit_end =  trackTruth.mdtHits.end();
   for( ;mit!=mit_end;++mit ) {
-    Identifier chId = m_idHelperTool->chamberId(mit->first);
+    Identifier chId = m_idHelperSvc->chamberId(mit->first);
     chambers[chId].insert(mit->first);
   }
 
-  if(m_idHelperTool->hasCSC()){
+  if(m_idHelperSvc->hasCSC()){
     CscSimDataCollection::const_iterator cit =  trackTruth.cscHits.begin();
     CscSimDataCollection::const_iterator cit_end =  trackTruth.cscHits.end();
     for( ;cit!=cit_end;++cit ) {
-      Identifier chId = m_idHelperTool->chamberId(cit->first);
-      chambers[chId].insert(m_idHelperTool->layerId(cit->first));
+      Identifier chId = m_idHelperSvc->chamberId(cit->first);
+      chambers[chId].insert(m_idHelperSvc->layerId(cit->first));
     }
   }
-  if(m_idHelperTool->hasSTgc()){
+  if(m_idHelperSvc->hasSTgc()){
     mit =  trackTruth.stgcHits.begin();
     mit_end =  trackTruth.stgcHits.end();
     for( ;mit!=mit_end;++mit ) {
-      Identifier chId = m_idHelperTool->chamberId(mit->first);
+      Identifier chId = m_idHelperSvc->chamberId(mit->first);
       chambers[chId].insert(mit->first);
     }
   }
-  if(m_idHelperTool->hasMM()){
+  if(m_idHelperSvc->hasMM()){
     mit =  trackTruth.mmHits.begin();
     mit_end =  trackTruth.mmHits.end();
     for( ;mit!=mit_end;++mit ) {
-      Identifier chId = m_idHelperTool->chamberId(mit->first);
+      Identifier chId = m_idHelperSvc->chamberId(mit->first);
       chambers[chId].insert(mit->first);
     }
   }
@@ -1380,14 +1374,14 @@ MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::createTrackData( co
   mit =  trackTruth.rpcHits.begin();
   mit_end =  trackTruth.rpcHits.end();
   for( ;mit!=mit_end;++mit ) {
-    Identifier chId = m_idHelperTool->chamberId(mit->first);
+    Identifier chId = m_idHelperSvc->chamberId(mit->first);
     chambers[chId].insert(mit->first);
   }
 
   mit =  trackTruth.tgcHits.begin();
   mit_end =  trackTruth.tgcHits.end();
   for( ;mit!=mit_end;++mit ) {
-    Identifier chId = m_idHelperTool->chamberId(mit->first);
+    Identifier chId = m_idHelperSvc->chamberId(mit->first);
     chambers[chId].insert(mit->first);
   }
 
@@ -1399,22 +1393,22 @@ MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::createTrackData( co
     ChamberData chamberData;
     unsigned int minEtaHits = 0;
     unsigned int minPhiHits = 0;
-    if( m_idHelperTool->isMdt(chIt->first) ) {
+    if( m_idHelperSvc->isMdt(chIt->first) ) {
       minEtaHits = m_minMdtHits;
       minPhiHits = m_minMdtHits;
-    }else if( m_idHelperTool->isRpc(chIt->first) ){
+    }else if( m_idHelperSvc->isRpc(chIt->first) ){
       minEtaHits = m_minRpcEtaHits;
       minPhiHits = m_minRpcPhiHits;
-    }else if( m_idHelperTool->isTgc(chIt->first) ) {
+    }else if( m_idHelperSvc->isTgc(chIt->first) ) {
       minEtaHits = m_minTgcEtaHits;
       minPhiHits = m_minTgcPhiHits;
-    }else if( m_idHelperTool->issTgc(chIt->first) ) {
+    }else if( m_idHelperSvc->issTgc(chIt->first) ) {
       minEtaHits = m_minsTgcEtaHits;
       minPhiHits = m_minsTgcPhiHits;
-    }else if( m_idHelperTool->isMM(chIt->first) ) {
+    }else if( m_idHelperSvc->isMM(chIt->first) ) {
       minEtaHits = m_minMMEtaHits;
       minPhiHits = m_minMMEtaHits;
-    }else  if( m_idHelperTool->isCsc(chIt->first) ) {
+    }else  if( m_idHelperSvc->isCsc(chIt->first) ) {
       minEtaHits = m_minCscEtaHits;
       minPhiHits = m_minCscPhiHits;
     }else{
@@ -1423,8 +1417,8 @@ MuonTrackPerformanceAlg::TrackData* MuonTrackPerformanceAlg::createTrackData( co
     }
     if( insertChamber( chIt->first, chIt->second,minEtaHits,minPhiHits,chamberData ) ){
       trackData->missingChambers.push_back(chamberData);
-      Muon::MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(chIt->first);
-      if( m_idHelperTool->isTrigger(chIt->first) ) trackData->missingLayersTrigger.insert(stIndex);
+      Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(chIt->first);
+      if( m_idHelperSvc->isTrigger(chIt->first) ) trackData->missingLayersTrigger.insert(stIndex);
       else                                         trackData->missingLayers.insert(stIndex);
     }
   }

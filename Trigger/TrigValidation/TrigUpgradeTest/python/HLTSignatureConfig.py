@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -8,13 +9,16 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 import sys
 
-HLTTest__TestRecoAlg, HLTTest__TestHypoAlg=CompFactory.getComps("HLTTest__TestRecoAlg","HLTTest__TestHypoAlg",)
+HLTTest__TestHypoAlg=CompFactory.getComps.HLTTest.TestHypoAlg
+HLTTest__TestRecoAlg=CompFactory.getComps.HLTTest.TestRecoAlg
+
+
 
 UseThisLinkName="initialRoI"
 #UseThisLinkName="feature"
 
 
-HLTTest__TestInputMaker=CompFactory.HLTTest__TestInputMaker
+HLTTest__TestInputMaker=CompFactory.HLTTest.TestInputMaker
 def InputMakerForInitialRoIAlg(name):
     return HLTTest__TestInputMaker(name, RoIsLink="initialRoI", LinkName="initialRoI")
 
@@ -61,7 +65,6 @@ def MuHypo(name):
 
 def makeMuSequence(ConfigFlags, name,step):
     return makeSequence(ConfigFlags, name,step, signature="mu")
-
 
 
 ## ##### electron signatures

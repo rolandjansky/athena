@@ -48,7 +48,7 @@ for obj in Objects:
         #if (p.startswith("EC") or p.startswith("HEC") or p.startswith("FCAL")): doCW=True
         if (p.startswith("HEC") or p.startswith("FCAL")): doCW=True
     if doCW and doCWxtalk:
-        print "ERROR: Can't do CaliWave patching for partitions",Partitions,"in one go."
+        printfunc ("ERROR: Can't do CaliWave patching for partitions",Partitions,"in one go.")
         sys.exit(-1)
 
 inputFolders=[]
@@ -70,10 +70,10 @@ ccs="<channelSelection>"+sel+"</channelSelection>"
 from LArCalibProcessing.extractFolderInfo import *
 folderInfo=extractFolderInfo(InputDB,globaltag,inputFolders,Runnumber,sel)
 if folderInfo is None:
-    print "Failed to inspect database",InputDB
+    printfunc ("Failed to inspect database",InputDB)
     sys.exit(-1)
 
-print folderInfo
+printfunc (folderInfo)
 import AthenaCommon.AtlasUnixGeneratorJob #use MC event selector
 
 ## get a handle to the default top-level algorithm sequence
@@ -126,7 +126,7 @@ IOVend=0
 OutputObjectSpec=[]
 OutputTagSpec=[]
 
-print folderInfo
+printfunc (folderInfo)
 
 for f in folderInfo:
   fn=f[0]
@@ -135,7 +135,7 @@ for f in folderInfo:
   tag=f[3]
   since=f[4]
   until=f[5]
-  print "Working on folder",fn,"IOV:",since,"-",until
+  printfunc ("Working on folder",fn,"IOV:",since,"-",until)
   OutputObjectSpec+=["#".join((type,key,fn))]
   OutputTagSpec+=[tag]
   if since<IOVstart: IOVstart=since
@@ -143,7 +143,7 @@ for f in folderInfo:
   conddb.addFolder("",fn+"<key>"+key+"Input</key><tag>"+tag+"</tag><db>"+InputDB+"</db>"+ccs)
 
 
-print OutputObjectSpec
+printfunc (OutputObjectSpec)
 
 
 i=0

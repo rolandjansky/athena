@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_GenericMonitoringTool_h
@@ -22,13 +22,12 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
-/**
- * Here, by forward declaring these two classes, which appear as parameters and values
- * in GenericMonitoringTool functions only as pointers (not as the objects themselves),
- * we can avoid including those class headers here, moving them to the implementation
- * file instead. This prevents external dependancy of the public-facing tool on the
- * internals of AthenaMonitoringKernel.
- */
+
+/* Here, by forward declaring these two classes, which appear as parameters and values
+   in GenericMonitoringTool functions only as pointers (not as the objects themselves),
+   we can avoid including those class headers here, moving them to the implementation
+   file instead. This prevents external dependancy of the public-facing tool on the
+   internals of AthenaMonitoringKernel. */
 namespace Monitored {
   /** Forward declaration of HistogramFiller for pointers in GenericMonitoringTool functions */
   class HistogramFiller;
@@ -82,9 +81,6 @@ namespace Monitored {
  * Optionally, a colon-separated list of bin labels ("bin1:bin2:bin3:") can be provided (at least one
  * colon is required). In case of a 2D histogram the labels are assigned consecutively to the x-axis 
  * and then y-axis bins.
- *
- * @author Tomasz Bold
- * @author Piotr Sarna
  */
 class GenericMonitoringTool : public AthAlgTool {
 public:
@@ -95,7 +91,7 @@ public:
   virtual StatusCode stop() override;
 
   /// Retrieve the histogram fillers
-  std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) const;
+  std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const;
   /// Book histograms
   StatusCode book();
   /// Overrride configured booking path
@@ -112,7 +108,6 @@ private:
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
 
   std::unordered_map<std::string, std::vector<std::shared_ptr<Monitored::HistogramFiller>>> m_fillerMap; //!< map from variables to fillers
-
 };
 
 /**

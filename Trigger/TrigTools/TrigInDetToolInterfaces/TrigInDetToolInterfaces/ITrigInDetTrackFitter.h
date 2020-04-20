@@ -19,8 +19,7 @@ class ITrigInDetTrackFitter: virtual public IAlgTool
   static const InterfaceID& interfaceID() {
     return IID_ITrigInDetTrackFitter;
   }
-  virtual void fit(TrigInDetTrackCollection*) = 0;
-  virtual void fit(const TrackCollection&, TrackCollection&, const Trk::ParticleHypothesis& matEffects) = 0;
+  virtual void fit(const TrackCollection&, TrackCollection&, const Trk::ParticleHypothesis& matEffects) const = 0;
 };
 
 #endif

@@ -32,9 +32,12 @@ private:
   int m_nCount;
 
   int m_firstEv;
+  int m_newRunNumber;
 
   bool m_corHepMC;
   bool m_corEvtID;
+  bool m_corRunNumber;
+  std::string m_inputKeyName;  
 };
 
 

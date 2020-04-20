@@ -49,6 +49,7 @@ macro( _add_test name )
       SOURCES test/${name}.cxx
       LINK_LIBRARIES TestTools StoreGateLib GeoPrimitives IdDictParser
       GaudiKernel InDetIdentifier TrkGeometry ISF_FatrasEventTPCnv 
+      LOG_IGNORE_PATTERN "^ *DEBUG |Strip range"
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 endmacro( _add_test )
 

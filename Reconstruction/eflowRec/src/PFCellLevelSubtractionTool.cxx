@@ -36,6 +36,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <map>
 
 
 using namespace eflowSubtract;
@@ -175,7 +176,7 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
     continue;
     }
     
-    const std::vector<std::pair<eflowTrackClusterLink*,bool> >& matchedTrackList = thisEflowCaloObject->efRecLink();
+    const std::vector<std::pair<eflowTrackClusterLink*,float> >& matchedTrackList = thisEflowCaloObject->efRecLink();
 
     int nTrackMatches = thisEflowCaloObject->nTracks();
     
@@ -351,65 +352,77 @@ void PFCellLevelSubtractionTool::performSubtraction() {
 
     ATH_MSG_DEBUG("About to perform subtraction for this eflowCaloObject");
 
-    const std::vector<std::pair<eflowTrackClusterLink*, bool> >& matchedTrackList = thisEflowCaloObject->efRecLink();
+    const std::vector<std::pair<eflowTrackClusterLink*, float> >& matchedTrackList = thisEflowCaloObject->efRecLink();
 
+    /* Check if we can annihilate right away */
     if (canAnnihilated(expectedEnergy, expectedSigma, clusterEnergy)) {
-
-      /* Check if we can annihilate right away */
+      
       std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterList;
       unsigned nCluster = thisEflowCaloObject->nClusters();
-      for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) {
-        clusterList.push_back(std::pair(thisEflowCaloObject->efRecCluster(iCluster)->getCluster(),false));
-      }
-      Subtractor::annihilateClusters(clusterList);
+      for (unsigned iCluster = 0; iCluster < nCluster; ++iCluster) clusterList.push_back(std::pair(thisEflowCaloObject->efRecCluster(iCluster)->getCluster(),false));
+
+      Subtractor::annihilateClusters(clusterList);      
 
       //Now we should mark all of these clusters as being subtracted
-      pfSubtractionStatusSetter.markSubtractionStatus(clusterList, *thisEflowCaloObject);
+      pfSubtractionStatusSetter.markAnnihStatus(*thisEflowCaloObject);
 
     } else {
 
       /* Subtract the track from all matched clusters */
       
       for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
-	eflowRecTrack* efRecTrack = (matchedTrackList[iTrack].first)->getTrack();
+	      eflowRecTrack* efRecTrack = (matchedTrackList[iTrack].first)->getTrack();
 	
-	ATH_MSG_DEBUG("Have got eflowRecTrack number " << iTrack << " for this eflowCaloObject");
+	      ATH_MSG_DEBUG("Have got eflowRecTrack number " << iTrack << " for this eflowCaloObject");
 	
-	/* Can't subtract without e/p */
-	if (!efRecTrack->hasBin()) {
-	  continue;
-	}
+	      /* Can't subtract without e/p */
+	      if (!efRecTrack->hasBin()) {
+	        continue;
+	      }
      
-	if (efRecTrack->isInDenseEnvironment()) continue;
+	      if (efRecTrack->isInDenseEnvironment()) continue;
 
-	ATH_MSG_DEBUG("Have bin and am not in dense environment for this eflowCaloObject");
+	      ATH_MSG_DEBUG("Have bin and am not in dense environment for this eflowCaloObject");
       
-	std::vector<eflowRecCluster*> matchedClusters;
-	matchedClusters.clear();
-	std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
-	for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
+	      std::vector<eflowRecCluster*> matchedClusters;
+	      matchedClusters.clear();
+	      std::vector<eflowTrackClusterLink*> links = efRecTrack->getClusterMatches();
+	      for (auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
 
-	ATH_MSG_DEBUG("Have filled matchedClusters list for this eflowCaloObject");
+	      ATH_MSG_DEBUG("Have filled matchedClusters list for this eflowCaloObject");
 	
-	std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
-	for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(std::pair(thisEFlowRecCluster->getCluster(),false));
+	      std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
+        std::map<xAOD::CaloCluster*, double> clusterEnergyMap;
+	      for (auto thisEFlowRecCluster : matchedClusters) {
+          xAOD::CaloCluster* thisCluster = thisEFlowRecCluster->getCluster();
+          clusterSubtractionList.push_back(std::pair(thisCluster,false));
+          clusterEnergyMap[thisCluster] = thisCluster->e();
+        }
 
-	ATH_MSG_DEBUG("Have filled clusterSubtractionList for this eflowCaloObject");
+	      ATH_MSG_DEBUG("Have filled clusterSubtractionList for this eflowCaloObject");
       
-	Subtractor::subtractTracksFromClusters(efRecTrack, clusterSubtractionList);
-	//Now need to mark which clusters were modified in the subtraction procedure
-	pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
+	      Subtractor::subtractTracksFromClusters(efRecTrack, clusterSubtractionList);
 	
-	ATH_MSG_DEBUG("Have performed subtraction for this eflowCaloObject");
+	      ATH_MSG_DEBUG("Have performed subtraction for this eflowCaloObject");
       
-	/* Annihilate the cluster(s) if the remnant is small (i.e. below k*sigma) */
-	if (canAnnihilated(0, expectedSigma, clusterEnergy)) {
-	  Subtractor::annihilateClusters(clusterSubtractionList);
-	  //Now we should mark all of these clusters as being subtracted
-	  pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
-	}
+	      /* Annihilate the cluster(s) if the remnant is small (i.e. below k*sigma) */
+	      if (canAnnihilated(0, expectedSigma, clusterEnergy)) {
+	        Subtractor::annihilateClusters(clusterSubtractionList);
+	        //Now we should mark all of these clusters as being subtracted
+          pfSubtractionStatusSetter.markAnnihStatus(*thisEflowCaloObject);	       
+	      }
+        else{
+          std::vector<float> clusterSubtractedEnergyRatios;
+          for (auto thisCluster: clusterSubtractionList) {
+            if (fabs(thisCluster.first->e() - clusterEnergyMap[thisCluster.first]) > 0.0001) clusterSubtractedEnergyRatios.push_back(thisCluster.first->e()/clusterEnergyMap[thisCluster.first]);
+            else clusterSubtractedEnergyRatios.push_back(NAN);
+          }
+
+	        pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject);
 	
-	ATH_MSG_DEBUG("Have checked if can annihilate clusters for this eflowCaloOject");
+        } 
+	
+	      ATH_MSG_DEBUG("Have checked if can annihilate clusters for this eflowCaloOject");
       
       }
     }

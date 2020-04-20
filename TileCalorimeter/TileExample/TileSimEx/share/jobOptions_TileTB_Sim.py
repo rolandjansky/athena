@@ -157,12 +157,12 @@ pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="
 
 # 50 GeV pions
 #pg.sampler.pid = 211
-#pg.sampler.pos = PG.PosSampler(x=-27500, y=[-10,15], z=[-15,15], t=-27500)
+#pg.sampler.pos = PG.PosSampler(x=-27500, y=[-20,20], z=[-20,20], t=-27500)
 #pg.sampler.mom = PG.EEtaMPhiSampler(energy=50000, eta=0, phi=0)
 
 # 100 GeV electrons - use for sampling faction calculation
 #pg.sampler.pid = 11
-#pg.sampler.pos = PG.PosSampler(x=-27500, y=[-20,20], z=[-15,15], t=-27500)
+#pg.sampler.pos = PG.PosSampler(x=-27500, y=[-20,20], z=[-20,20], t=-27500)
 #pg.sampler.mom = PG.EEtaMPhiSampler(energy=100000, eta=0, phi=0)
 
 if not 'PID' in dir():
@@ -197,7 +197,7 @@ try:
     from AthenaCommon.CfgGetter import getAlgorithm
     topSeq += getAlgorithm("BeamEffectsAlg")
 except:
-    print "can not import BeamEffectsAlg algorithm"
+    printfunc ("can not import BeamEffectsAlg algorithm")
 
 include('G4AtlasApps/Tile2000_2003.flat.configuration.py')#HACK - has to be here for TBDetDescrLoader
 
@@ -237,7 +237,7 @@ if 'DoBirk' in dir():
     SD.DoBirk = DoBirk
 if 'TileUshape' in dir():
     SD.Ushape=TileUshape
-print SD
+printfunc (SD)
 
 ## VP1 algorithm for visualization
 if 'VP1' in dir():

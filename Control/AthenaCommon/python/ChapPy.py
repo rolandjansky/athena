@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file : ChapPy.py
 # @author: Sebastien Binet <binet@cern.ch> 
@@ -32,9 +32,10 @@ def dump( buf, stdout = sys.stdout ):
     fname = None
     if isinstance(buf, str):
         fname = buf
+    from builtins import file
     if six.PY3:
         import io
-        file = io.IOBase
+        file = io.IOBase # noqa: F811
     if isinstance(buf, file):
         fname = buf.name
     with open(fname, 'r') as fd:
@@ -275,7 +276,7 @@ class AthenaApp(object):
     def __init__(self, cmdlineargs=None):
 
         import tempfile
-        self._jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py')
+        self._jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py', mode='w+')
         if cmdlineargs is None:
             cmdlineargs = []
         if isinstance(cmdlineargs, basestring):
@@ -291,7 +292,7 @@ class AthenaApp(object):
     def __lshift__(self, o):
         if isinstance(o, str):
             import textwrap
-            self._jobo.write(textwrap.dedent(o).encode())
+            self._jobo.write(textwrap.dedent(o))
             self._jobo.flush()
             return
         raise TypeError('unexpected type %s'%type(o))

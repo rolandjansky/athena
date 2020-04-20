@@ -214,9 +214,6 @@ SiRegionSelectorTable::createTable()
 						    << ", rMin = " << rMin/CLHEP::mm << " mm, rMax = " << rMax/CLHEP::mm << " mm"  
 						    << endmsg;
 
-
-      //      if   ( manager->isPixel() ) std::cout << "SUTT-DBM " << smod << std::endl;
-
     }
   }
 

@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsTools
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRawEvent/InDetRawData
                           MagneticField/MagFieldInterfaces
@@ -24,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           PRIVATE
+			  Luminosity/LumiBlockData
                           Control/AthenaKernel
                           Control/AthContainers
                           DetectorDescription/Identifier
@@ -48,7 +50,12 @@ atlas_add_component( SCT_Monitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetReadoutGeometry InDetPrepRawData MagFieldInterfaces ITrackToVertex TrkTrack TrkToolInterfaces CommissionEvent AthenaKernel AthContainers Identifier InDetIdentifier InDetRawData InDetRIO_OnTrack LWHists PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint TrkTrackSummary )
+                     PUBLIC_HEADERS SCT_Monitoring
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetReadoutGeometry SCT_ReadoutGeometry InDetPrepRawData MagFieldInterfaces ITrackToVertex TrkTrack TrkToolInterfaces CommissionEvent AthenaKernel AthContainers Identifier InDetIdentifier InDetRawData InDetRIO_OnTrack LWHists PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint TrkTrackSummary )
+
+atlas_add_dictionary( SCT_MonitoringDict
+                      SCT_Monitoring/SCT_MonitoringDict.h
+                      SCT_Monitoring/selection.xml )
 
 # Run tests:
 atlas_add_test( SCTLorentzMonAlg_test
@@ -58,4 +65,3 @@ atlas_add_test( SCTLorentzMonAlg_test
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
-

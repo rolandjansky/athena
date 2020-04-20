@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from MuonCalibStandAloneTools.MuonCalibStandAloneToolsConf import *
 
@@ -71,5 +73,5 @@ def CreateCalibTool(CalibrationTool):
 	elif CalibrationTool == "ResidualVsTimeTool":
 		return MuonCalib__NtupleResidualVsTimeTool()
 	else:
-		print "WARNING: Unnknown tool name '" + CalibrationTool + "'!"
+		print ("WARNING: Unnknown tool name '" + CalibrationTool + "'!")
 		return None

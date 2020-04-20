@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 729225 2016-03-11 16:24:53Z krasznaa $
 ################################################################################
 # Package: Navigation
 ################################################################################
@@ -44,11 +43,10 @@ atlas_add_test( NavigableIterator_test
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers TestTools 
    StoreGateLib GaudiKernel Navigation
-   EXTRA_PATTERNS "JobOptionsSvc +INFO"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( AthenaBarCodeImpl_test
    SOURCES test/AthenaBarCodeImpl_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} Navigation
-   EXTRA_PATTERNS "found service JobIDSvc" )
+   POST_EXEC_SCRIPT nopost.sh )

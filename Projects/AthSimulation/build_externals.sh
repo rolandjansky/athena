@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script building all the externals necessary for the nightly build.
 #
 
@@ -22,7 +24,7 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=(-DLCG_VERSION_NUMBER=96 -DLCG_VERSION_POSTFIX="")
+EXTRACMAKE=(-DLCG_VERSION_NUMBER=97 -DLCG_VERSION_POSTFIX="")
 while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)
@@ -88,10 +90,8 @@ fi
 # Create some directories:
 mkdir -p ${BUILDDIR}/{src,install}
 
-# Set some environment variables that the builds use internally:
-export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
-export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
+# Get the version of AthSimulation for the build.
+version=`cat ${thisdir}/version.txt`
 
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts
@@ -115,17 +115,16 @@ ${scriptsdir}/checkout_atlasexternals.sh \
     -s ${BUILDDIR}/src/AthSimulationExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthSimulationExternals.log
 
 # Build AthSimulationExternals:
-export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthSimulationExternals
 ${scriptsdir}/build_atlasexternals.sh \
     -s ${BUILDDIR}/src/AthSimulationExternals \
     -b ${BUILDDIR}/build/AthSimulationExternals \
-    -i ${BUILDDIR}/install/AthSimulationExternals/${NICOS_PROJECT_VERSION} \
+    -i ${BUILDDIR}/install \
     -p AthSimulationExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    ${EXTRACMAKE[@]/#/-x } -v ${NICOS_PROJECT_VERSION} || ((ERROR_COUNT++))
+    ${EXTRACMAKE[@]/#/-x } -v ${version} || ((ERROR_COUNT++))
 
 # Get the "platform name" from the directory created by the AthSimulationExternals
 # build:
-platform=$(cd ${BUILDDIR}/install/AthSimulationExternals/${NICOS_PROJECT_VERSION}/InstallArea;ls)
+platform=$(cd ${BUILDDIR}/install/AthSimulationExternals/${version}/InstallArea;ls)
 
 # Read in the tag/branch to use for Gaudi:
 GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
@@ -136,12 +135,12 @@ ${scriptsdir}/checkout_Gaudi.sh \
     -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
 
 # Build Gaudi:
-export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI
 ${scriptsdir}/build_Gaudi.sh \
     -s ${BUILDDIR}/src/GAUDI \
     -b ${BUILDDIR}/build/GAUDI \
-    -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
-    -e ${BUILDDIR}/install/AthSimulationExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
+    -i ${BUILDDIR}/install \
+    -e ${BUILDDIR}/install/AthSimulationExternals/${version}/InstallArea/${platform} \
+    -v ${version} \
     -p AthSimulationExternals -f ${platform} ${EXTRACMAKE[@]/#/-x } \
     ${RPMOPTIONS} -t ${BUILDTYPE} || ((ERROR_COUNT++))
 

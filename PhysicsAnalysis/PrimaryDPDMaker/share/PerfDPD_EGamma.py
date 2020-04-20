@@ -173,7 +173,7 @@ ToolSvc += DESDM_EGAMMACellsInConeThinningPh
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EGammaTracksThinning
 DESDM_EGAMMATracksThinningTool = DerivationFramework__EGammaTracksThinning(  name = "DESDM_EGAMMATracksThinning",
-                                                                       ThinningService = "DESDM_EGAMMAThinningSvc",
+                                                                       StreamName = primDPD.WriteDESDM_EGAMMAStream.StreamName,
                                                                        tracksCollectionName   = "Tracks" ,
                                                                        electronContainerName = "Electrons",
                                                                        photonContainerName   = "Photons",
@@ -182,60 +182,11 @@ DESDM_EGAMMATracksThinningTool = DerivationFramework__EGammaTracksThinning(  nam
                                                                        )
 ToolSvc += DESDM_EGAMMATracksThinningTool
 
-# ========>>> Egamma PrepRawData thinning =======================
-        
-# from RegionSelector.RegionSelectorConf import RegSelSvc
-# svcMgr += RegSelSvc("RegSelSvcInEGammaStream")
-# svcMgr.RegSelSvcInEGammaStream.enableID    = True
-# svcMgr.RegSelSvcInEGammaStream.enablePixel = True
-# svcMgr.RegSelSvcInEGammaStream.enableSCT   = True
-# svcMgr.RegSelSvcInEGammaStream.enableTRT   = True
-    
-# from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-# PixelRegionSelectorTable = SiRegionSelectorTable(name        = "PixRegSelectorTableForEgamma",
-#                                                  ManagerName = "Pixel",
-#                                                  DeltaZ      = 225 * Units.mm,  # Z vertex extent = +- this value.
-#                                                  OutputFile  = "RoITablePixel.txt",
-#                                                  PrintHashId = True,
-#                                                  PrintTable  = False)
-# ToolSvc += PixelRegionSelectorTable
-# print      PixelRegionSelectorTable
-    
-# from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-# SCT_RegionSelectorTable = SiRegionSelectorTable(name        = "SCT_RegSelectorTableForEgamma",
-#                                                 ManagerName = "SCT",
-#                                                 DeltaZ      = 225 * Units.mm,  # Z vertex extent = +- this value.
-#                                                 OutputFile  = "RoITableSCT.txt",
-#                                                 PrintHashId = True,
-#                                                 PrintTable  = False)
-# ToolSvc += SCT_RegionSelectorTable
-# print      SCT_RegionSelectorTable
-    
-# from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
-# TRT_RegionSelectorTable = TRT_RegionSelectorTable(name        = "TRT_RegSelectorTableForEgamma",
-#                                                   ManagerName = "TRT",
-#                                                   DeltaZ      = 225 * Units.mm,  # Z vertex extent = +- this value.
-#                                                   OutputFile  = "RoITableTRT.txt",
-#                                                   PrintHashId = True,
-#                                                   PrintTable  = False)
-# ToolSvc += TRT_RegionSelectorTable
-# print      TRT_RegionSelectorTable
-
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EGammaPrepRawDataThinning
-# DESDM_EGAMMAEGammaPrepRawDataThinningTool = DerivationFramework__EGammaPrepRawDataThinning(  name = "DESDM_EGAMMAEGammaPrepRawDataThinning",                                                                                             
-#                                                                                              ThinningService = "DESDM_EGAMMAThinningSvc",
-#                                                                                              RegSelSvc = "RegSelSvcInEGammaStream",
-#                                                                                              deltaR  = 0.5,
-#                                                                                              minEtEg = 0.
-#                                                                                              )
-# ToolSvc += DESDM_EGAMMAEGammaPrepRawDataThinningTool
-
-
 # ========>>> Trigger Tower thinning ===================================
 
 from TrigT1CaloCalibTools.TrigT1CaloCalibToolsConf import DerivationFramework__TriggerTowerThinningAlg
 DESDM_EGAMMAL1CaloThinning = DerivationFramework__TriggerTowerThinningAlg( name = "DESDM_EGAMMAL1CaloThinning",
-                                                                           ThinService = "DESDM_EGAMMAThinningSvc",
+                                                                           StreamName = primDPD.WriteDESDM_EGAMMAStream.StreamName,
                                                                            TriggerTowerLocation = "xAODTriggerTowers",
                                                                            MinCaloCellET = 0.8,
                                                                            MinADC = 36,
@@ -284,10 +235,8 @@ StreamDESDM_EGAMMA.AcceptAlgs(["DESDM_EGAMMAKernel"])
 	
 # Thinning service name must match the one passed to the thinning tools
 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="DESDM_EGAMMAThinningSvc", outStreams=[evtStream] )
 
 from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 
@@ -1006,7 +955,7 @@ outList = CfgItemList( 'EGAMMA',
     'xAOD::VertexAuxContainer#HLT_xAOD__VertexContainer_SecondaryVertexAux.',
     'xAOD::VertexAuxContainer#HLT_xAOD__VertexContainer_xPrimVxAux.',
     'xAOD::VertexAuxContainer#MSDisplacedVertexAux.',
-    'xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex',
+    'xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV',
     'xAOD::VertexAuxContainer#TauSecondaryVerticesAux.-vxTrackAtVertex',
     'TrigOperationalInfoCollection#HLT_TrigOperationalInfoCollection_EXPRESS_OPI_HLT',
     'TRT_BSErrContainer#TRT_ByteStreamErrs',

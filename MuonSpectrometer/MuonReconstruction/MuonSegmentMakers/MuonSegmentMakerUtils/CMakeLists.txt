@@ -7,7 +7,7 @@ atlas_subdir( MuonSegmentMakerUtils )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          MuonSpectrometer/MuonIdHelpers
+                          MuonSpectrometer/MuonStationIndex
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
                           Tracking/TrkEvent/TrkEventPrimitives
                           PRIVATE
@@ -19,6 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( MuonSegmentMakerUtils
                    src/*.cxx
                    PUBLIC_HEADERS MuonSegmentMakerUtils
-                   LINK_LIBRARIES MuonSegment TrkEventPrimitives MuonIdHelpersLib
+                   LINK_LIBRARIES MuonSegment TrkEventPrimitives MuonStationIndexLib
                    PRIVATE_LINK_LIBRARIES MuonCompetingRIOsOnTrack MuonRIO_OnTrack TrkRIO_OnTrack )
 

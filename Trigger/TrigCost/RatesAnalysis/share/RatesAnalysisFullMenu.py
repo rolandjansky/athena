@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 if __name__=='__main__':
@@ -26,6 +26,7 @@ if __name__=='__main__':
   parser.add_argument('--MCCrossSection', default=0.0, type=float, help='For MC input: Cross section of process in nb')
   parser.add_argument('--MCFilterEfficiency', default=1.0, type=float, help='For MC input: Filter efficiency of any MC filter (0.0 - 1.0)')
   parser.add_argument('--MCKFactor', default=1.0, type=float, help='For MC input: Additional multiplicitive fudge-factor to the supplied cross section.')
+  parser.add_argument('--MCIgnoreGeneratorWeights', action='store_true', help='For MC input: Flag to disregard any generator weights.')
   #
   parser.add_argument('--maxEvents', type=int, help='Maximum number of events to process')
   parser.add_argument('--loglevel', type=int, default=3, help='Verbosity level')
@@ -55,6 +56,8 @@ if __name__=='__main__':
 
   # Initialize configuration object, add accumulator, merge, and run.
   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+  from AthenaConfiguration.ComponentFactory import CompFactory
+
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
   cfg = MainServicesSerialCfg()
   cfg.merge(PoolReadCfg(ConfigFlags))
@@ -68,14 +71,12 @@ if __name__=='__main__':
   from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
   cfg.merge(MetaDataSvcCfg(ConfigFlags))
 
-  from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigTool
-  trigcfgtool = TrigConf__xAODConfigTool('xAODConfigTool')
-  cfg.addPublicTool(trigcfgtool);
+  cfgsvc = CompFactory.TrigConf.xAODConfigSvc('xAODConfigSvc')
+  cfg.addService(cfgsvc)
 
-  from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
   from TrigEDMConfig.TriggerEDM import EDMLibraries
-  tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-  tdt.ConfigTool = trigcfgtool
+  tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
+  tdt.TrigConfigSvc = cfgsvc
   tdt.NavigationFormat = "TrigComposite"
   tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
   cfg.addPublicTool(tdt)
@@ -103,6 +104,7 @@ if __name__=='__main__':
   ebw.MCCrossSection = xsec
   ebw.MCFilterEfficiency = fEff
   ebw.MCKFactor = args.MCKFactor
+  ebw.MCIgnoreGeneratorWeights = args.MCIgnoreGeneratorWeights
   cfg.addPublicTool(ebw)
 
   from RatesAnalysis.RatesAnalysisConf import FullMenu
@@ -119,6 +121,7 @@ if __name__=='__main__':
   rates.EnableLumiExtrapolation = args.disableLumiExtrapolation
   rates.EnhancedBiasRatesTool = ebw
   rates.TrigDecisionTool = tdt
+  rates.TrigConfigSvc = cfgsvc
   cfg.addEventAlgo(rates)
 
   # Setup for accessing bunchgroup data from the DB

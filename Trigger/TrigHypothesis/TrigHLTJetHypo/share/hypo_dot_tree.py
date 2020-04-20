@@ -1,6 +1,7 @@
+from __future__ import print_function
+
 import os
 import re
-import subprocess
 
 indir = '/tmp/peter'
 outdir = '/tmp/peter'
@@ -39,11 +40,11 @@ def get_tree_fns():
         r'^HypoTree_TrigJetHypoAlgMT.HLT')
 
     fns = os.listdir(indir)
-    print fns
+    print (fns)
     fns = [f for f in fns if fn_re.match(f)]
-    print len(fns), ' files were identified'
+    print (len(fns), ' files were identified')
 
-    print fns
+    print (fns)
     fns = [os.path.join(indir, fn) for fn in fns]
     return fns
 
@@ -68,7 +69,7 @@ def write_dotscript(fn):
     out_fn = make_out_fn(fn)
     with open(out_fn, 'w') as ofile:
         ofile.write(script)
-    print 'wrote ', out_fn
+    print ('wrote ', out_fn)
     
 
     
@@ -85,7 +86,7 @@ def main():
     #    p = subprocess.Popen(['dot', '-T', 'eps', dfn, '-o',  pdffn])
     #    p.communicate()
         
-    #    print 'done with ', dfn
-    #print 'end of main'
+    #    print ('done with ', dfn)
+    #print ('end of main')
 if __name__ == '__main__':
     main()

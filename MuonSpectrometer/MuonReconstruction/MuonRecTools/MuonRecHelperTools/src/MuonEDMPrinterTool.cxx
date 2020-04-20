@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
 #include "MuonRecHelperTools/MuonEDMHelperSvc.h"
-
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
@@ -33,9 +30,6 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
-#include "Identifier/Identifier.h"
-
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 #include <algorithm>
 #include <iostream>
@@ -45,47 +39,26 @@ namespace Muon {
 
   MuonEDMPrinterTool::MuonEDMPrinterTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa), 
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_summaryHelper("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
   {
     declareInterface<MuonEDMPrinterTool>(this);
-    declareProperty( "MuonIdHelperTool",    m_idHelper);
     declareProperty( "MuonTrackSummaryHelperTool", m_summaryHelper);
   }
 
-
-  MuonEDMPrinterTool::~MuonEDMPrinterTool(){}
-
-
   StatusCode MuonEDMPrinterTool::initialize()
   {
-    if ( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
+    ATH_CHECK(AthAlgTool::initialize());
   
-    if (m_idHelper.retrieve().isFailure()){
-      ATH_MSG_WARNING("Could not get " << m_idHelper); 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_CHECK(m_summaryHelper.retrieve());
 
-    
-    if (m_edmHelperSvc.retrieve().isFailure()){
-      ATH_MSG_WARNING("Could not get " << m_edmHelperSvc); 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_summaryHelper.retrieve().isFailure()){
-      ATH_MSG_WARNING("Could not get " << m_summaryHelper); 
-      return StatusCode::FAILURE;
-    }
- 
     ATH_CHECK(m_DetectorManagerKey.initialize());
+    ATH_CHECK(m_mdtKey.initialize());
+    ATH_CHECK(m_rpcKey.initialize());
+    ATH_CHECK(m_tgcKey.initialize());
   
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonEDMPrinterTool::finalize()
-  {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
 
@@ -108,9 +81,9 @@ namespace Muon {
     std::vector<ChamberHitSummary>::const_iterator chit_last = chit_end - 1;
     for( ;chit!=chit_end;++chit ){
       const Identifier& chId = chit->chamberId();
-      bool isMdt = m_idHelper->isMdt(chId);
+      bool isMdt = m_idHelperSvc->isMdt(chId);
     
-      sout << "  " << std::setw(35) << m_idHelper->toStringChamber(chId);
+      sout << "  " << std::setw(35) << m_idHelperSvc->toStringChamber(chId);
     
       const ChamberHitSummary::Projection& first  = isMdt ? chit->mdtMl1() : chit->etaProjection();
       const ChamberHitSummary::Projection& second = isMdt ? chit->mdtMl2() : chit->phiProjection();
@@ -341,8 +314,8 @@ namespace Muon {
 	if( crot ) id = crot->containedROTs().front()->identify();
       }
       if( !id.is_valid() ) continue;
-      bool measuresPhi = m_idHelper->measuresPhi(id);
-      bool isTrigger   = m_idHelper->isTrigger(id);
+      bool measuresPhi = m_idHelperSvc->measuresPhi(id);
+      bool isTrigger   = m_idHelperSvc->isTrigger(id);
       if( measuresPhi )    ++nphi;
       else if( !isTrigger) ++neta;
 
@@ -361,7 +334,7 @@ namespace Muon {
       }
     }
 
-    sout << m_idHelper->toStringChamber(chid);
+    sout << m_idHelperSvc->toStringChamber(chid);
 
     const Trk::FitQuality* fq = segment.fitQuality();
     if( fq ) {
@@ -400,7 +373,7 @@ namespace Muon {
     std::ostringstream sout;
 
     Identifier id = prd.identify();
-    sout << m_idHelper->toString( id ) << "  ";
+    sout << m_idHelperSvc->toString( id ) << "  ";
 
     const Amg::Vector3D* pos = 0;
     const MuonCluster* cl = dynamic_cast<const MuonCluster*>(&prd);
@@ -667,13 +640,13 @@ namespace Muon {
     const Trk::PrepRawData* firstPrd = 0;
     if( !intersect.prepRawDataVec().empty() && intersect.prepRawDataVec().front() ){
       firstPrd = intersect.prepRawDataVec().front();
-      chIdString = m_idHelper->toStringChamber(firstPrd->identify());
+      chIdString = m_idHelperSvc->toStringChamber(firstPrd->identify());
       chTheta = firstPrd->detectorElement()->center().theta();
       chPhi = firstPrd->detectorElement()->center().phi();
     }else{
       return chIdString;
     }
-    Identifier chId = m_idHelper->chamberId(firstPrd->identify());
+    Identifier chId = m_idHelperSvc->chamberId(firstPrd->identify());
     int neta = 0;
     int nphi = 0;
     bool isMdt = false;
@@ -690,9 +663,9 @@ namespace Muon {
 	continue;
       }
       const Identifier& id = prd->identify();
-      if( m_idHelper->measuresPhi(id) ) ++nphi;
+      if( m_idHelperSvc->measuresPhi(id) ) ++nphi;
       else                              ++neta;
-      if( !isMdt && m_idHelper->isMdt(id) ) isMdt = true;
+      if( !isMdt && m_idHelperSvc->isMdt(id) ) isMdt = true;
 
       if( !detEls.count(prd->detectorElement()) ) {
 	detEls.insert(prd->detectorElement());
@@ -705,14 +678,14 @@ namespace Muon {
 	    ATH_MSG_DEBUG("Cannot retrieve DetectorManager ");
 	  } else {
 
-            Identifier idml1 = m_idHelper->mdtIdHelper().channelID(id,1,1,1);
-            Identifier idml2 = m_idHelper->mdtIdHelper().channelID(id,2,1,1);
+            Identifier idml1 = m_idHelperSvc->mdtIdHelper().channelID(id,1,1,1);
+            Identifier idml2 = m_idHelperSvc->mdtIdHelper().channelID(id,2,1,1);
             const MuonGM::MdtReadoutElement* detEl1 = MuonDetMgr->getMdtReadoutElement( idml1 );
             const MuonGM::MdtReadoutElement* detEl2 = 0;
-            if (m_idHelper->mdtIdHelper().numberOfMultilayers(id) == 2){
+            if (m_idHelperSvc->mdtIdHelper().numberOfMultilayers(id) == 2){
               detEl2 = MuonDetMgr->getMdtReadoutElement( idml2 );
             }else{
-              ATH_MSG_DEBUG("A single multilayer for this station " << m_idHelper->toString(id));
+              ATH_MSG_DEBUG("A single multilayer for this station " << m_idHelperSvc->toString(id));
             }	
             if( detEl1 /** && !detEls.count(detEl)**/ ){
               detEls.insert(detEl1);
@@ -725,7 +698,7 @@ namespace Muon {
               nchannelsEta += detEl2->getNLayers()*detEl2->getNtubesperlayer();
             }
           }
-	}else if( m_idHelper->isTgc(id) ){
+	}else if( m_idHelperSvc->isTgc(id) ){
 	  const MuonGM::TgcReadoutElement* detEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(prd->detectorElement());
           if(detEl) {
 	    for( int i=1;i<=detEl->Ngasgaps();++i ) {
@@ -733,7 +706,7 @@ namespace Muon {
 	      nchannelsPhi += detEl->nStrips(i);
 	    }
           }
-	}else if( m_idHelper->isRpc(id) ){
+	}else if( m_idHelperSvc->isRpc(id) ){
 	  const MuonGM::RpcReadoutElement* detEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(prd->detectorElement());
           if(detEl) {
 	    nchannelsPhi += detEl->Nphigasgaps()*detEl->NphiStripPanels()*detEl->NphiStrips();
@@ -748,49 +721,52 @@ namespace Muon {
 
 
     if( isMdt ){
+      SG::ReadHandle<MdtPrepDataContainer> rh_mdt(m_mdtKey);
       const MdtPrepDataContainer* mdtPrdContainer = 0;
-      std::string key = "MDT_DriftCircles";
-      if(evtStore()->retrieve(mdtPrdContainer,key).isFailure()) {
-        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      if(!rh_mdt.isValid()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << m_mdtKey.key());
       }else{
+	mdtPrdContainer = rh_mdt.cptr();
         IdentifierHash hash_id;
-        m_idHelper->mdtIdHelper().get_module_hash(chId,hash_id );
+        m_idHelperSvc->mdtIdHelper().get_module_hash(chId,hash_id );
         MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
         if( colIt != mdtPrdContainer->end() ) nchHitsEta = (*colIt)->size();
         else 	  ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
       }
-    }else if( m_idHelper->isRpc(chId) ){
+    }else if( m_idHelperSvc->isRpc(chId) ){
+      SG::ReadHandle<RpcPrepDataContainer> rh_rpc(m_rpcKey);
       const RpcPrepDataContainer* rpcPrdContainer = 0;
-      std::string key = "RPC_Measurements";
-      if(evtStore()->retrieve(rpcPrdContainer,key).isFailure()) {
-        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      if(!rh_rpc.isValid()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << m_rpcKey.key());
       }else{
+	rpcPrdContainer = rh_rpc.cptr();
         IdentifierHash hash_id;
-        m_idHelper->rpcIdHelper().get_module_hash(chId,hash_id );
+        m_idHelperSvc->rpcIdHelper().get_module_hash(chId,hash_id );
         RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(hash_id);
         if( colIt != rpcPrdContainer->end() ) {
           RpcPrepDataCollection::const_iterator rpcIt = (*colIt)->begin();
           RpcPrepDataCollection::const_iterator rpcIt_end = (*colIt)->end();
           for( ;rpcIt!=rpcIt_end;++rpcIt ){
-            if( m_idHelper->measuresPhi((*rpcIt)->identify()) ) ++nchHitsPhi;
+            if( m_idHelperSvc->measuresPhi((*rpcIt)->identify()) ) ++nchHitsPhi;
             else                                                ++nchHitsEta;
           }
         }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
       }
-    }else if( m_idHelper->isTgc(chId) ){
+    }else if( m_idHelperSvc->isTgc(chId) ){
+      SG::ReadHandle<TgcPrepDataContainer> rh_tgc(m_tgcKey);
       const TgcPrepDataContainer* tgcPrdContainer = 0;
-      std::string key = "TGC_Measurements";
-      if(evtStore()->retrieve(tgcPrdContainer,key).isFailure()) {
-        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      if(!rh_tgc.isValid()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << m_tgcKey.key());
       }else{
+	tgcPrdContainer = rh_tgc.cptr();
         IdentifierHash hash_id;
-        m_idHelper->tgcIdHelper().get_module_hash(chId,hash_id );
+        m_idHelperSvc->tgcIdHelper().get_module_hash(chId,hash_id );
         TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(hash_id);
         if( colIt != tgcPrdContainer->end() ) {
           TgcPrepDataCollection::const_iterator tgcIt = (*colIt)->begin();
           TgcPrepDataCollection::const_iterator tgcIt_end = (*colIt)->end();
           for( ;tgcIt!=tgcIt_end;++tgcIt ){
-            if( m_idHelper->measuresPhi((*tgcIt)->identify()) ) ++nchHitsPhi;
+            if( m_idHelperSvc->measuresPhi((*tgcIt)->identify()) ) ++nchHitsPhi;
             else                                                ++nchHitsEta;
           }
         }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
@@ -889,7 +865,7 @@ namespace Muon {
 	rpcTimes.reserve(nhits);
 	std::vector<const MuonClusterOnTrack*>::const_iterator itR = rots.begin(), itR_end = rots.end();
 	for ( ; itR != itR_end; ++itR ) {
-	  Identifier layerId = m_idHelper->layerId((*itR)->identify());
+	  Identifier layerId = m_idHelperSvc->layerId((*itR)->identify());
 	  layers.insert(layerId);
 	  const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(*itR);
 	  const RpcPrepData* rpcPRD = rpc ? rpc->prepRawData() : 0;
@@ -917,10 +893,10 @@ namespace Muon {
       const Trk::PseudoMeasurementOnTrack* pseudo = dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(&measurement);
       if( pseudo ) idStr = "pseudo measurement";
       else idStr = "no Identifier";
-    }else if( !m_idHelper->mdtIdHelper().is_muon(id) ) {
+    }else if( !m_idHelperSvc->isMuon(id) ) {
       idStr = "Id hit"; 
     }else{
-      idStr = m_idHelper->toString( id );
+      idStr = m_idHelperSvc->toString( id );
     }
 
     return idStr;

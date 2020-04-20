@@ -68,7 +68,8 @@ def getGenParticleFilters():
         from AthenaCommon.BeamFlags import jobproperties
         if jobproperties.Beam.beamType() != "cosmics":
             genParticleFilterList += ['ISF_ParticlePositionFilterDynamic']
-            if (not simFlags.CavernBG.statusOn) or simFlags.CavernBG.get_Value() == 'Signal':
+            if (not simFlags.CavernBG.statusOn or simFlags.CavernBG.get_Value() == 'Signal') and\
+               not (simFlags.SimulateCavern.statusOn and simFlags.SimulateCavern.get_Value()):
                 genParticleFilterList += ['ISF_EtaPhiFilter']
     genParticleFilterList += ['ISF_GenParticleInteractingFilter']
     return genParticleFilterList
@@ -221,7 +222,9 @@ def getMC15aPlusTruthService(name="ISF_MC15aPlusTruthService", **kwargs):
 
 
 def getMC15aPlusLLPTruthService(name="ISF_MC15aPlusLLPTruthService", **kwargs):
-    kwargs.setdefault('TruthStrategies', ['ISF_MCTruthStrategyGroupID_MC15',
+    kwargs.setdefault('TruthStrategies', ['ISF_KeepLLPDecayChildrenStrategy',
+                                          'ISF_KeepLLPHadronicInteractionChildrenStrategy',
+                                          'ISF_MCTruthStrategyGroupID_MC15',
                                           'ISF_MCTruthStrategyGroupIDHadInt_MC15',
                                           'ISF_MCTruthStrategyGroupCaloMuBrem', #FIXME this should be ISF_MCTruthStrategyGroupCaloMuBrem_MC15!!
                                           'ISF_MCTruthStrategyGroupCaloDecay_MC15',

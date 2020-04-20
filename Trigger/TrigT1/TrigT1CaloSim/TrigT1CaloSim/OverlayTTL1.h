@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -33,7 +33,7 @@
 #include <vector>
 
 // Athena/Gaudi
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "Identifier/Identifier.h"
 
 //Calorimeter tower includes
@@ -43,25 +43,14 @@
 namespace LVL1
 {
 
-class OverlayTTL1 : public AthAlgorithm
+class OverlayTTL1 : public AthReentrantAlgorithm
 {
 public:
-  //-------------------------
-  // Constructors/Destructors
-  //-------------------------
   OverlayTTL1(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~OverlayTTL1();
 
-  // These are disallowed
-  OverlayTTL1(const OverlayTTL1&) = delete;
-  OverlayTTL1& operator=(const OverlayTTL1&) = delete;
-
-  //------------------------------------------------------
-  // Methods used by Athena to run the algorithm
-  //------------------------------------------------------
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  // main AthReentrantAlgorithm methods
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
   // locations of background TTL1 data
@@ -82,13 +71,23 @@ private:
   SG::WriteHandleKey<TileTTL1Container> m_outputTileTTL1Key{this,"OutputTileTTL1Key","TileTTL1Cnt","WriteHandleKey for Output TileTTL1Container"};
   SG::WriteHandleKey<TileTTL1Container> m_outputTileMBTSTTL1Key{this,"OutputTileMBTSTTL1Key","TileTTL1MBTS","WriteHandleKey for Output MBTS TileTTL1Container"};
 
-  /** overlay amplitudes from other TTL1 */
-  void groupLArTowers(SG::ReadHandle<LArTTL1Container>& towers, std::map<Identifier, std::vector<const LArTTL1*>> &towerMap) const;
-  void groupTileTowers(SG::ReadHandle<TileTTL1Container>& towers, std::map<Identifier, std::vector<const TileTTL1*>> &towerMap) const;
+  // overlay amplitudes from other TTL1
+  void groupLArTowers(const LArTTL1Container *towers,
+                      std::map<Identifier, std::vector<const LArTTL1*>> &towerMap) const;
+  void groupTileTowers(const TileTTL1Container *towers,
+                       std::map<Identifier, std::vector<const TileTTL1*>> &towerMap) const;
 
-  /** specialised overlay functions */
-  StatusCode overlayLArTTL1(const SG::ReadHandleKey<LArTTL1Container> &bkgKey, const SG::ReadHandleKey<LArTTL1Container> &signalKey, const SG::WriteHandleKey<LArTTL1Container> &outputKey, const std::string &label);
-  StatusCode overlayTileTTL1(const SG::ReadHandleKey<TileTTL1Container> &bkgKey, const SG::ReadHandleKey<TileTTL1Container> &signalKey, const SG::WriteHandleKey<TileTTL1Container> &outputKey, const std::string &label);
+  // specialised overlay functions
+  StatusCode overlayLArTTL1(const EventContext& ctx,
+                            const SG::ReadHandleKey<LArTTL1Container> &bkgKey,
+                            const SG::ReadHandleKey<LArTTL1Container> &signalKey,
+                            const SG::WriteHandleKey<LArTTL1Container> &outputKey,
+                            const std::string &label) const;
+  StatusCode overlayTileTTL1(const EventContext& ctx,
+                             const SG::ReadHandleKey<TileTTL1Container> &bkgKey,
+                             const SG::ReadHandleKey<TileTTL1Container> &signalKey,
+                             const SG::WriteHandleKey<TileTTL1Container> &outputKey,
+                             const std::string &label) const;
 };
 
 } // namespace LVL1

@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # !!! UNTESTED !!!
+
+
+from __future__ import print_function
 
 
 """
 Update beamspot ntuple for cool for runs that are in the calib loop or have exited in the last 24 hours
 """
 
-print 'Updating COOL ntuple ...'
+print ('Updating COOL ntuple ...')
 
 import cx_Oracle
 import time
@@ -23,8 +26,8 @@ try:
     #oracle = cx_Oracle.connect(dsn="ATLAS_COOLREADER_U",user="ATLAS_COOL_GLOBAL_W")
     oracle = cx_Oracle.connect(dsn="ATLAS_COOLPROD",user="ATLAS_COOL_READER_U",password="LMXTPRO4RED")
     cur = oracle.cursor()
-except Exception,e:
-    print e
+except Exception as e:
+    print (e)
     sys.exit('ERROR: Unable to connect to ATLAS_COOLPROD database') 
 
 
@@ -32,8 +35,8 @@ except Exception,e:
 try:
     d = cur.execute("SELECT RUN FROM ATLAS_COOL_GLOBAL.NEMOP_RUN WHERE ACTIVE=1 AND RUNTYPE LIKE 'Physics' AND STATE=2")
     runsCalib = [r[0] for r in sorted(d)]
-except Exception,e:
-    print e
+except Exception as e:
+    print (e)
     sys.exit('Unable to retrieve runs in calibration loop')
     
 # Look back 24 hours (+ half hour safety) from now (last time cron ran).
@@ -45,8 +48,8 @@ try:
     cur = oracle.cursor()
     d = cur.execute("SELECT RUN FROM ATLAS_COOL_GLOBAL.NEMOP_RUN WHERE ACTIVE=1 AND RUNTYPE LIKE 'Physics' AND STATE=4 AND UTIME>%s" % limit)
     runsExited = [r[0] for r in sorted(d)]
-except Exception,e:
-    print e
+except Exception as e:
+    print (e)
     sys.exit('Unable to retrieve runs exiting calibration loop')
 
 # Get lowest run in calib loop or having left since last cron

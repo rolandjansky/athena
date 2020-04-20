@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # This script reads metadata from a given file
+
+from __future__ import print_function
 
 import sys
 import json
@@ -162,17 +164,20 @@ def _main():
 
 	if output is None:
 		if is_json:
-			print(json.dumps(metadata, indent= indent))
+			print(json.dumps(metadata, indent=indent))
 		else:
-			print(_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8, ascii = not sys.stdout.isatty()))
+			enc = sys.stdout.encoding.lower()
+			ascii = not sys.stdout.isatty() or enc.find('ansi') >= 0 or enc.find('ascii') >= 0
+			pp=_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8, ascii = True)
+			print(_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8, ascii = ascii))
 
 	else:
 		if is_json:
 			with open(output, 'w') as fd:
-				print >> fd, json.dumps(metadata, indent=indent)
+				print (json.dumps(metadata, indent=indent), file=fd)
 		else:
 			with open(output, 'w') as fd:
-				print >> fd, _tree_print(metadata, indent = indent, pad = 18, dict_sort = 'key', list_max_items = 8, ascii = True)
+				print (_tree_print(metadata, indent = indent, pad = 18, dict_sort = 'key', list_max_items = 8, ascii = True), file=fd)
 
 	msg.info('Done!')
 

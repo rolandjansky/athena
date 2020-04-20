@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 import sys,pickle,os
 
 HIProjTag="data[0-9][0-9]_hi" # Only for Pb-Pb and p-Pb collisions (this regular expression matches with both "data11_hi" and "data11_hip")
@@ -30,20 +33,20 @@ OutputsVsStreams={
 # Ntuples
     'outputNTUP_TRIGFile': {'dstype': 'NTUP_TRIG', 'ifMatch': '(?!.*DRAW.*)(.*express.*|.*physics_MinBias.*|.*physics_HardProbes.*|.*physics_UPC.*)',
                             'HumanOutputs': 'always produced for express. Produced for MinBias, HardProbes and UPC in early hip running'},
-    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*EnhancedBias.*|.*MuonswBeam.*|.*physics_Muons\..*|.*physics_L1TT.*|.*physics_L1Muon\..*|.*physics_HLTPassthrough\..*|.*physics_IDCosmic\..*)',
+    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*EnhancedBias.*|.*MuonswBeam.*|.*physics_Muons\\..*|.*physics_L1TT.*|.*physics_L1Muon\\..*|.*physics_HLTPassthrough\\..*|.*physics_IDCosmic\\..*)',
                                  'HumanOutputs': 'produced for EnhancedBias, Muon, L1TT and L1Muon, IDCosmic and HLTPassthrough streams, not for HI'},
-    'outputNTUP_TRIGMUFile': {'dstype': 'NTUP_TRIGMU', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_L1Muon\..*|.*physics_IDCosmic\..*|.*physics_HLTPassthrough\..*)',
+    'outputNTUP_TRIGMUFile': {'dstype': 'NTUP_TRIGMU', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_L1Muon\\..*|.*physics_IDCosmic\\..*|.*physics_HLTPassthrough\\..*)',
                                  'HumanOutputs': 'produced for L1Muon, IDCosmic and HLTPassthrough streams, not for HI'},
     'outputNTUP_SCTFile': {'dstype': 'NTUP_SCT', 'ifMatch': cphipProjTag+'(?!.*DRAW.*)(.*express.*|.*Background.*)',
                            'HumanOutputs': 'produced for express and Background stream'},
     'outputNTUP_BKGDFile': {'dstype': 'NTUP_BKGD', 'ifMatch': '(?!.*DRAW.*)(.*Background.*)',
                             'HumanOutputs': 'produced for Background stream'},
 
-    'outputNTUP_EGAMMAFile': {'dstype': 'NTUP_EGAMMA', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*|.*physics_Muons\..*|.*physics_JetTauEtmiss.*)',
+    'outputNTUP_EGAMMAFile': {'dstype': 'NTUP_EGAMMA', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*|.*physics_Muons\\..*|.*physics_JetTauEtmiss.*)',
                                  'HumanOutputs': 'produced for Egamma, Muons and physics_JetTauEtmiss streams, not for HI'},
-    'outputNTUP_PHYSICSFile': {'dstype': 'NTUP_PHYSICS', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*|.*physics_Muons\..*|.*physics_JetTauEtmiss.*)',
+    'outputNTUP_PHYSICSFile': {'dstype': 'NTUP_PHYSICS', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*|.*physics_Muons\\..*|.*physics_JetTauEtmiss.*)',
                                  'HumanOutputs': 'produced for Egamma, Muons and physics_JetTauEtmiss streams, not for HI'},
-    'outputNTUP_SUSYFile': {'dstype': 'NTUP_SUSY', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*|.*physics_Muons\..*|.*physics_JetTauEtmiss.*)',
+    'outputNTUP_SUSYFile': {'dstype': 'NTUP_SUSY', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*|.*physics_Muons\\..*|.*physics_JetTauEtmiss.*)',
                                  'HumanOutputs': 'produced for Egamma, Muons and physics_JetTauEtmiss streams, not for HI'},
 
 # Commissioning DESDs:    
@@ -51,7 +54,7 @@ OutputsVsStreams={
                                  'HumanOutputs': 'produced for cosmics runs, for CosmicMuons and MuonswBeam streams.'},
     'outputDESD_TILECOMMFile' : {'dstype': 'DESD_TILECOMM', 'ifMatch': cmProjTag+'(?!.*DRAW.*)(.*CosmicMuons.*)',
                                  'HumanOutputs': 'produced for cosmics runs, for CosmicMuons streams.'},
-    'outputDESD_CALOCOMMFile' : {'dstype': 'DESD_CALOCOMM', 'ifMatch': cmProjTag+'(?!.*DRAW.*)(.*L1Calo\..*|.*L1CaloEM.*)',
+    'outputDESD_CALOCOMMFile' : {'dstype': 'DESD_CALOCOMM', 'ifMatch': cmProjTag+'(?!.*DRAW.*)(.*L1Calo\\..*|.*L1CaloEM.*)',
                                  'HumanOutputs': 'produced for cosmics runs, for L1Calo and L1CaloEM'},
     'outputDESD_IDCOMMFile'   : {'dstype': 'DESD_IDCOMM', 'ifMatch': cmProjTag+'(?!.*DRAW.*)(.*IDCosmic.*|.*CosmicMuons.*)',
                                  'HumanOutputs': 'produced for cosmics runs, for IDCosmic and CosmicMuons streams.'},
@@ -70,21 +73,21 @@ OutputsVsStreams={
     'outputDESD_WENUFile'   : {'dstype': 'DESD_WENU',   'ifMatch': ppProjTag+'(.*DRAW_WENU.*)','HumanOutputs': 'produced when reconstructing DRAW_WENU'},
     'outputDAOD_WENUFile'   : {'dstype': 'DAOD_WENU',   'ifMatch': ppProjTag+'(.*DRAW_WENU.*)','HumanOutputs': 'produced when reconstructing DRAW_WENU'},
     #DESD production
-    'outputDESDM_RPVLLFile': {'dstype': 'DESDM_RPVLL','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_JetTauEtmiss.*|.*physics_Egamma.*|.*physics_Muons\..*)',
+    'outputDESDM_RPVLLFile': {'dstype': 'DESDM_RPVLL','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_JetTauEtmiss.*|.*physics_Egamma.*|.*physics_Muons\\..*)',
                               'HumanOutputs': 'produced for collision runs, for physics_JetTauEtMiss, physics_Egamma and physics_Muons streams.'},
     'outputDESDM_EGAMMAFile': {'dstype': 'DESDM_EGAMMA','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*)', 'HumanOutputs': 'produced for collision runs, for physics_Egamma streams.'},
     'outputDESD_CALJETFile': {'dstype': 'DESD_CALJET',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_JetTauEtmiss.*)', 'HumanOutputs': 'produced for collision runs, for the physics_JetTauEtMiss stream.'},
     'outputDESDM_TRACKFile' : {'dstype': 'DESDM_TRACK', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_JetTauEtmiss.*)', 'HumanOutputs': 'produced for collision runs, for the physics_JetTauEtMiss stream.'},
     'outputDESD_SGLELFile'  : {'dstype': 'DESD_SGLEL',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*)', 'HumanOutputs': 'produced for collision runs, for the physics_Egamma stream.'},
-    'outputDESD_SGLMUFile'  : {'dstype': 'DESD_SGLMU',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Muons\..*)', 'HumanOutputs': 'produced for collision runs, for the physics_Muons streams.'},
+    'outputDESD_SGLMUFile'  : {'dstype': 'DESD_SGLMU',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Muons\\..*)', 'HumanOutputs': 'produced for collision runs, for the physics_Muons streams.'},
     #'outputDESDM_METFile'    : {'dstype': 'DESDM_MET',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_JetTauEtmiss.*)', 'HumanOutputs': 'produced for collision runs, for physics_JetETMiss stream'},
     'outputDESD_PHOJETFile' : {'dstype': 'DESD_PHOJET', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma.*)', 'HumanOutputs': 'produced for collision runs, for the physics_Egamma stream.'},
     'outputDESD_MBIASFile'  : {'dstype': 'DESD_MBIAS',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_MinBias.*)', 'HumanOutputs': 'produced for collision runs, for the physics_MinBias stream.'},
     #RAW skims 
-   'outputDRAW_ZMUMUFile'  : {'dstype': 'DRAW_ZMUMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Muons\..*)','HumanOutputs': 'produced for collision runs, for the physics_Muons stream.'},
-   'outputDRAW_ZEEFile'    : {'dstype': 'DRAW_ZEE',   'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma\..*)','HumanOutputs': 'produced for collision runs, for the physics_Egamma stream.'}, 
-   'outputDRAW_WMUNUFile'  : {'dstype': 'DRAW_WMUNU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Muons\..*)','HumanOutputs': 'produced for collision runs, for the physics_Muons stream.'},
-   'outputDRAW_WENUFile'   : {'dstype': 'DRAW_WENU',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma\..*)','HumanOutputs': 'produced for collision runs, for the physics_Egamma stream.'},
+   'outputDRAW_ZMUMUFile'  : {'dstype': 'DRAW_ZMUMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Muons\\..*)','HumanOutputs': 'produced for collision runs, for the physics_Muons stream.'},
+   'outputDRAW_ZEEFile'    : {'dstype': 'DRAW_ZEE',   'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma\\..*)','HumanOutputs': 'produced for collision runs, for the physics_Egamma stream.'}, 
+   'outputDRAW_WMUNUFile'  : {'dstype': 'DRAW_WMUNU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Muons\\..*)','HumanOutputs': 'produced for collision runs, for the physics_Muons stream.'},
+   'outputDRAW_WENUFile'   : {'dstype': 'DRAW_WENU',  'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Egamma\\..*)','HumanOutputs': 'produced for collision runs, for the physics_Egamma stream.'},
    
 
     #Special heavy ion outputs:
@@ -102,9 +105,9 @@ OutputsVsStreams={
 #Print for debugging...
 ## for outputKey in OutputsVsStreams.keys():
 ##     try:
-##         print outputKey,":",OutputsVsStreams[outputKey]['ifMatch']
+##         print (outputKey,":",OutputsVsStreams[outputKey]['ifMatch'])
 ##     except:
-##         print outputKey,": always produced"
+##         print (outputKey,": always produced")
 
 
 
@@ -112,8 +115,8 @@ OutputsVsStreams={
 def GetProcessConfigs(release,patcharea):
     rel=str(release)
     pa=str(patcharea)
-    #print "Got release",release
-    #print "Got Patch area",pa
+    #print ("Got release",release)
+    #print ("Got Patch area",pa)
     processConfigs = {}
 
     # HIST merging
@@ -196,17 +199,17 @@ def GetProcessConfigs(release,patcharea):
 
 if __name__ == '__main__':
     if len(sys.argv)<7 or len(sys.argv)>9:
-        print "##############"
-        print "Application to create or update AMI tags (for manager only)\n"
-        print "Usage:"
-        print "UploadAMITag.py <login> <password> inputDictionary.pickle create_AMITag <release> <description> [patcharea] [updateConditionsTag]"
-        print "or"
-        print "UploadAMITag.py <login> <password> inputDictionary.pickle update_AMITag <release> <description> [patcharea] [updateConditionsTag]"
-        print "\nTo create inputDictionary.pickle, execute:"
-        print "Reco_trf.py"
-        print "or"
-        print "CmdToPickledDic.py <command>"
-        print "##############"
+        print ("##############")
+        print ("Application to create or update AMI tags (for manager only)\n")
+        print ("Usage:")
+        print ("UploadAMITag.py <login> <password> inputDictionary.pickle create_AMITag <release> <description> [patcharea] [updateConditionsTag]")
+        print ("or")
+        print ("UploadAMITag.py <login> <password> inputDictionary.pickle update_AMITag <release> <description> [patcharea] [updateConditionsTag]")
+        print ("\nTo create inputDictionary.pickle, execute:")
+        print ("Reco_trf.py")
+        print ("or")
+        print ("CmdToPickledDic.py <command>")
+        print ("##############")
         sys.exit(0)
 
 
@@ -220,9 +223,9 @@ if __name__ == '__main__':
     if len(sys.argv)>7:
         patcharea=str(sys.argv[7])
         if not os.access(patcharea,os.R_OK):
-            print "WARNING Can't access patch area at",patcharea
+            print ("WARNING Can't access patch area at",patcharea)
         if not patcharea.startswith("/afs/cern.ch/"):
-            print "WARNING Patch area does not start with /afs/cern.ch/ ???"
+            print ("WARNING Patch area does not start with /afs/cern.ch/ ???")
         if len(sys.argv)>8:    
             try:
                 updateConditionsTag = int(sys.argv[8])
@@ -247,7 +250,7 @@ if __name__ == '__main__':
     if amiTag.startswith("f") or amiTag.startswith("v"):
         specialT0Setup=specialT0Setup_Frontier
         if amiTag.startswith("v"):
-            print "INFO: This v-tag is being created with specialT0Setup =",specialT0Setup
+            print ("INFO: This v-tag is being created with specialT0Setup =",specialT0Setup)
 
     process=None
     if inPickleFile.endswith('.pickle'): process='reco'
@@ -267,7 +270,7 @@ if __name__ == '__main__':
     #Check if release exists
     relSp=release.split("-")
     if len(relSp)!=2:
-        s="ERROR: Expected parameter 'release' in the form Project-number, got "+releases
+        s="ERROR: Expected parameter 'release' in the form Project-number, got "+release
         raise RuntimeError(s)
     relProj=relSp[0]
     relNbr=relSp[1]
@@ -279,20 +282,20 @@ if __name__ == '__main__':
             s="ERROR Release directory " + relPath + " does not exists"
             #raise RuntimeError(s)
         #else:
-        #    print "Found",relPath
+        #    print ("Found",relPath)
     #Release exists in both releases and builds area if we reach this point
 
     # Forcing histmerge to be in 64 bits
     if process=='histmerge':
         release=release+",64"
-        print "INFO: Enforcing histmerge tag to be in 64 bits"
+        print ("INFO: Enforcing histmerge tag to be in 64 bits")
         
 
     processConfigs=GetProcessConfigs(release,patcharea)
     humanReadableOutputs=""
 
     if process=='reco':
-        f = open(inPickleFile, 'r')
+        f = open(inPickleFile, 'rb')
         startingDic = pickle.load(f)
         f.close()
 
@@ -320,48 +323,48 @@ if __name__ == '__main__':
         from PATJobTransforms.Configuration import ConfigDic
         didConditionsUpdate=False
         for key in startingDic.keys():
-            if ConfigDic.has_key(key) and hasattr(ConfigDic[key],"isInput"):
+            if key in ConfigDic and hasattr(ConfigDic[key],"isInput"):
                 inputDic[key]={}
-            elif ConfigDic.has_key(key) and hasattr(ConfigDic[key],"isOutput") and (key!="tmpESD" and key!="tmpAOD"):
+            elif key in ConfigDic and hasattr(ConfigDic[key],"isOutput") and (key!="tmpESD" and key!="tmpAOD"):
                 try:
-                    #print "key: " , key , " isOutput"
+                    #print ("key: " , key , " isOutput")
                     outputDic[key]=OutputsVsStreams[key]
                 except:
-                    print "Known outputs defined in the OutputsVsStreams dictionnary are:"
-                    print OutputsVsStreams
+                    print ("Known outputs defined in the OutputsVsStreams dictionnary are:")
+                    print (OutputsVsStreams)
                     raise RuntimeError("Don't know what to do with out key %s, please add it to OutputsVsStreams to use it"%key)
             elif key=='autoConfiguration' and updateConditionsTag and 'Conditions' in currentConditionsTag: # legacy: used for autoconfiguration of conditions like COMCOND-ES1P*-005-04
                 if(startingDic[key].find(currentConditionsTag)>=0):
-                    print '*** autoConfiguration: %s (CURRENT) is already specified ***' % (currentConditionsTag)
+                    print ('*** autoConfiguration: %s (CURRENT) is already specified ***' % (currentConditionsTag))
                 elif(startingDic[key].find('ConditionsTag')>=0): # ConditionsTag is already defined.
                     autoConfs = startingDic[key].split(',')
                     for i in range(len(autoConfs)):
                         if(autoConfs[i][0:13]=='ConditionsTag'):
-                            print '*** autoConfiguration: %s is replaced by %s (CURRENT) ***' % (autoConfs[i], currentConditionsTag)
+                            print ('*** autoConfiguration: %s is replaced by %s (CURRENT) ***' % (autoConfs[i], currentConditionsTag))
                             autoConfs[i] = currentConditionsTag
                         if(i==0): startingDic[key] = autoConfs[i]
                         else: startingDic[key] += ','+autoConfs[i]
                 else: # ConditionsTag is not yet defined.
-                    print '*** autoConfiguration: %s (CURRENT) is appended ***' % (currentConditionsTag)
+                    print ('*** autoConfiguration: %s (CURRENT) is appended ***' % (currentConditionsTag))
                     startingDic[key] += ','+currentConditionsTag
                 configDic[key]=startingDic[key]
                 didConditionsUpdate=True
 
             elif key=='conditionsTag' and updateConditionsTag:
                 if(startingDic[key].find(currentConditionsTag)>=0):
-                    print '*** conditionsTag: %s (CURRENT) is already specified ***' % (currentConditionsTag)
+                    print ('*** conditionsTag: %s (CURRENT) is already specified ***' % (currentConditionsTag))
                 else:
-                    print '*** conditionsTag: %s is replaced by %s (CURRENT) ***' % (startingDic[key], currentConditionsTag)
+                    print ('*** conditionsTag: %s is replaced by %s (CURRENT) ***' % (startingDic[key], currentConditionsTag))
                     startingDic[key]=currentConditionsTag
                 configDic[key]=startingDic[key]
                 didConditionsUpdate=True
             else:
                 configDic[key]=startingDic[key]
-                #print "key: " , key , " is neiter input nor output..."
+                #print ("key: " , key , " is neiter input nor output...")
 
         if updateConditionsTag and not didConditionsUpdate:
             # update conditions
-            print '*** conditionsTag: %s (CURRENT) is appended ***' % (currentConditionsTag)
+            print ('*** conditionsTag: %s (CURRENT) is appended ***' % (currentConditionsTag))
             configDic['conditionsTag']=currentConditionsTag
     
         #Special treatment for maxEvents and AMITag, in configDic
@@ -398,13 +401,13 @@ if __name__ == '__main__':
 #    try:
 #        from pyAMI.pyAMI import AMI
 #    except ImportError:
-#        print "WARNING unable to import AMI from pyAMI with standard $PYTHONPATH."
-#        print "Will manually add ZSI and 4suite, then try again..."
+#        print ("WARNING unable to import AMI from pyAMI with standard $PYTHONPATH.")
+#        print ("Will manually add ZSI and 4suite, then try again...")
 #        import sys
 #        sys.path.insert(0,'/afs/cern.ch/atlas/offline/external/ZSI/2.1-a1/lib/python')
 #        sys.path.insert(0,'/afs/cern.ch/sw/lcg/external/4suite/1.0.2_python2.5/slc4_ia32_gcc34/lib/python2.5/site-packages')
 #        from pyAMI.pyAMI import AMI
-#    print "import pyAMI was succesful"
+#    print ("import pyAMI was succesful")
 #    amiclient=AMI(False)
 
 #    import setup_pyAMI
@@ -412,8 +415,8 @@ if __name__ == '__main__':
     try:
         from pyAMI.client import AMIClient
     except ImportError:
-        print "WARNING unable to import AMIClient from pyAMI"
-    print "import pyAMI4 was successful"    
+        print ("WARNING unable to import AMIClient from pyAMI")
+    print ("import pyAMI4 was successful"    )
     amiclient=AMIClient(False)
 
     #------------------------
@@ -438,7 +441,7 @@ if __name__ == '__main__':
         if not amiTag.startswith("x"):
             c['ConditionsTag']='Auto-config. See dataset info.'
 
-    #print c['Human-readable outputs']
+    #print (c['Human-readable outputs'])
 
     
     #Upload info to AMI
@@ -449,12 +452,12 @@ if __name__ == '__main__':
         for k in c.keys():
             l.append(k+'='+c[k])
 
-        #print "command is: "
-        #print "l=",l
+        #print ("command is: ")
+        #print ("l=",l)
         result=amiclient.execute(l)
-        print "\n\n###############################################"
-        print "#  Succesfully created new tag %s !!   :-)  #"%amiTag
-        print "###############################################\n\n"        
+        print ("\n\n###############################################")
+        print ("#  Succesfully created new tag %s !!   :-)  #"%amiTag)
+        print ("###############################################\n\n"        )
 
 
     elif doWhat=="update":
@@ -482,17 +485,17 @@ if __name__ == '__main__':
             if n<nKeys: tmp+=s
         l.append(tmp)
         
-        #print "l=",l
+        #print ("l=",l)
         result=amiclient.execute(l)
-        print "\n\n#####################################################"
-        print "#  Succesfully updated existing tag %s !!!   :-)  #"%amiTag
-        print "#####################################################\n\n"        
+        print ("\n\n#####################################################")
+        print ("#  Succesfully updated existing tag %s !!!   :-)  #"%amiTag)
+        print ("#####################################################\n\n"        )
 
     else:
         raise SyntaxError("Don't know what to do... amiTagTmp='%s'  doWhat='%s'"%(amiTagTmp,doWhat))
             
-    print "To see the corresponding command, do:"
-    print "GetCommand.py AMI=%s \n"%amiTag
-    print "or go to:"
-    print "http://ami.in2p3.fr/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?linkId=501"
-    print "\n"
+    print ("To see the corresponding command, do:")
+    print ("GetCommand.py AMI=%s \n"%amiTag)
+    print ("or go to:")
+    print ("http://ami.in2p3.fr/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?linkId=501")
+    print ("\n")

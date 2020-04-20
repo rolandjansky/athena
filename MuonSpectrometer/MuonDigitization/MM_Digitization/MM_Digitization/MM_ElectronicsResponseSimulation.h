@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_ELECTRONICSRESPONSESIMULATION_H
@@ -23,20 +23,7 @@
 
 */
 
-
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/Service.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "GaudiKernel/StatusCode.h"
-
-
-/// ROOT
-#include <TROOT.h>
-#include <TH1.h>
-#include <TH1F.h>
-#include <TH2F.h>
 #include <TF1.h>
-#include <TMath.h>
 
 /// STD'S
 #include <algorithm>
@@ -57,16 +44,6 @@
 //VMM Mapping
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
 
-using std::vector;
-using std::cout;
-using std::endl;
-
-/// ROOT Classed
-class TF1;
-class TH1;
-class TH1F;
-class TH2F;
-
 class MM_ElectronicsResponseSimulation {
 
 public :
@@ -79,10 +56,11 @@ public :
   void initialize();
 
   void clearValues ();
-  void vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip);
-  void vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip);
-  MM_DigitToolOutput getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput);
-  MM_DigitToolOutput getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput);
+  void vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor);
+  void vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor);
+
+  MM_DigitToolOutput getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput, const float thresholdScaleFactor);
+  MM_DigitToolOutput getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput, const float thresholdScaleFactor);
 
   MM_ElectronicsToolTriggerOutput getTheFastestSignalInVMM(const MM_DigitToolOutput & ElectronicThresholdOutput, const int chMax, const int stationEta);
   int getIdTheFastestSignalInVMM(float time, int VMM_id, std::vector<int> trigger_VMM_id, const std::vector<float> ElectronicsThreshold_stripTime, float timeWindowLower, float timeWindowUpper);

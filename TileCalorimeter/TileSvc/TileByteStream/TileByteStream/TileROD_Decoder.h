@@ -154,7 +154,8 @@ class TileROD_Decoder: public AthAlgTool {
                         typename TileROD_Helper::ContainerForCollection<COLLECTION>::type* container = nullptr) const;
     uint32_t fillCollectionHLT(const ROBData * rob,
                                TileCellCollection & v,
-                               D0CellsHLT& d0cells) const;
+                               D0CellsHLT & d0cells,
+                               TileCellCollection * MBTS) const;
     void fillCollectionL2(const ROBData * rob, TileL2Container & v) const;
     void fillCollectionL2ROS(const ROBData * rob, TileL2Container & v) const;
     void fillTileLaserObj(const ROBData * rob, TileLaserObject & v) const;
@@ -169,7 +170,7 @@ class TileROD_Decoder: public AthAlgTool {
         m_Rw2Cell[section].push_back(vec[i]);
       }
     }
-    void loadMBTS_Ptr(TileCellCollection* col, std::map<unsigned int, unsigned int>& mapMBTS, int MBTS_channel);
+    void loadMBTS(std::map<unsigned int, unsigned int>& mapMBTS, int MBTS_channel);
     inline const TileHWID* getTileHWID() const { return m_tileHWID;}
     inline const TileFragHash* hashFunc() const { return &m_hashFunc; }
 
@@ -194,26 +195,12 @@ class TileROD_Decoder: public AthAlgTool {
     int getWarningCounter();
 
     const TileHid2RESrcID * getHid2reHLT() {
-      if (!m_hid2reHLT) initHid2reHLT();
       return m_hid2reHLT;
     }
 
     const TileHid2RESrcID * getHid2re() {
+      std::lock_guard<std::mutex> lock (m_HidMutex);
       if (!m_hid2re) initHid2re();
-      return m_hid2re;
-    }
-
-    const TileHid2RESrcID * getHid2re(int swtRODId) {
-      if (!m_hid2re) {
-        switch (swtRODId) {
-          case 0:
-           initHid2re();
-           break;
-          case 1:
-           initTileMuRcvHid2re();
-           break;
-        }
-      }
       return m_hid2re;
     }
 
@@ -477,7 +464,8 @@ class TileROD_Decoder: public AthAlgTool {
                           bool correctAmplitude,
                           const FRwChVec & pChannel,
                           TileCellCollection& v, const uint16_t DQuality,
-                          D0CellsHLT& d0cells) const;
+                          D0CellsHLT& d0cells,
+                          TileCellCollection * MBTS) const;
 
     inline void make_copy(const ROBData * rob, pBeamVec & pBeam, TileBeamElemCollection& v) const;
     inline void make_copy(const ROBData * rob, pBeamVec & pBeam, TileDigitsCollection& v) const;
@@ -561,6 +549,9 @@ class TileROD_Decoder: public AthAlgTool {
     // Mutex protecting access to weight vectors.
     mutable std::mutex m_OFWeightMutex;
 
+    // Mutex protecting access to m_hid2re.
+    mutable std::mutex m_HidMutex;
+
     // fast decoding
     std::vector<int> m_Rw2Cell[4];
     std::vector<int> m_Rw2Pmt[4];
@@ -568,9 +559,6 @@ class TileROD_Decoder: public AthAlgTool {
     TileFragHash m_hashFunc;
     bool m_of2Default;
 
-    // FIXME: Non-MT safe members --- used only by trigger, not offline.
-    // Pointer to a MBTS cell collection
-    TileCellCollection* m_MBTS;
     // Map from frag id to MBTS idx
     std::map<unsigned int, unsigned int> m_mapMBTS;
     // index of the MBTS channel
@@ -585,7 +573,6 @@ class TileROD_Decoder: public AthAlgTool {
     std::vector<int> m_list_of_masked_drawers;
     void initHid2re();
     void initHid2reHLT();
-    void initTileMuRcvHid2re();
 
     unsigned int m_maxChannels;
     bool m_checkMaskedDrawers;

@@ -1,8 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
  #=======================================================================
 # File:   FastSimulationConfig/python/FastSimulationFlags.py
 #=======================================================================
+
+from __future__ import print_function
+
 """ FastSimulation specific flags and job properties.  
 
 """
@@ -12,16 +15,15 @@ __author__  = 'M. Duehrssen'
 __version__="$Revision: 1.4 $"
 __doc__="Fast simulation specific flags . "
 
-from AthenaCommon.Constants import *
+#from AthenaCommon.Constants import *
 
 #=======================================================================
 # imports
 #=======================================================================
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
-from AthenaCommon.JobProperties import jobproperties
 
 from CaloRec.CaloCellFlags import jobproperties
-from FatrasExample.FatrasKeys import FatrasKeyFlags
+import FatrasExample.FatrasKeys # noqa: F401
 
 class JobPropertyWithForward(JobProperty):
     """ special flag class that forwards a set to true or false to other properties
@@ -31,12 +33,12 @@ class JobPropertyWithForward(JobProperty):
     def Forward_Value(self):
         return self.get_Value()
     def _do_action(self):
-        print "Set",self._context_name,"=",self.get_Value()
+        print ("Set",self._context_name,"=",self.get_Value())
         for prop in self._forwardProperties:
-            if prop.statusOn==False or self.AlwaysForward:
-                print " ->",prop._context_name,"=",prop.get_Value(),": now set to",self.Forward_Value()
+            if prop.statusOn is False or self.AlwaysForward:
+                print (" ->",prop._context_name,"=",prop.get_Value(),": now set to",self.Forward_Value())
                 prop.set_Value(self.Forward_Value())
-                print " =>",prop._context_name,"=",prop.get_Value()
+                print (" =>",prop._context_name,"=",prop.get_Value())
     def _undo_action(self):
         self._do_action()
 

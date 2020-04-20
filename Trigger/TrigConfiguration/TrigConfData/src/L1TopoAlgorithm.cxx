@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1TopoAlgorithm.h"
@@ -7,29 +7,54 @@
 TrigConf::L1TopoAlgorithm::L1TopoAlgorithm()
 {}
 
-TrigConf::L1TopoAlgorithm::L1TopoAlgorithm(const boost::property_tree::ptree & data) 
-   : DataStructure(data)
-{}
+TrigConf::L1TopoAlgorithm::L1TopoAlgorithm(const std::string & algoName, AlgorithmType algoType, const boost::property_tree::ptree & data) 
+   : DataStructure(data),
+     m_type(algoType)
+{
+   m_name = algoName;
+   update();
+}
 
 TrigConf::L1TopoAlgorithm::~L1TopoAlgorithm()
 {}
 
+std::string
+TrigConf::L1TopoAlgorithm::className() const {
+   return "L1TopoAlgorithm";
+}
+
+void
+TrigConf::L1TopoAlgorithm::update()
+{
+   if(! isInitialized() || empty() ) {
+      return;
+   }
+   if( m_type == AlgorithmType::DECISION ) {
+      for( auto & o : getList("output")) {
+         m_outputs.push_back(o.getValue());
+      }
+   } else {
+      m_outputs.push_back(getAttribute("output"));
+   }
+}
+
+
 unsigned int
 TrigConf::L1TopoAlgorithm::algId() const
 {
-   return m_data.get_child("algId").get_value<unsigned int>();
+   return getAttribute<unsigned int>("algId");
 }
 
-const std::string &
-TrigConf::L1TopoAlgorithm::name() const
-{
-   return m_data.get_child("name").data();
-}
-
-const std::string &
+TrigConf::L1TopoAlgorithm::AlgorithmType
 TrigConf::L1TopoAlgorithm::type() const
 {
-   return m_data.get_child("type").data();
+   return m_type;
+}
+
+const std::string &
+TrigConf::L1TopoAlgorithm::klass() const
+{
+   return getAttribute("type");
 }
 
 
@@ -39,10 +64,10 @@ TrigConf::L1TopoAlgorithm::inputs() const
    return getList("fixedParameters.inputs");
 }
 
-TrigConf::DataStructure 
+const std::vector<std::string> & 
 TrigConf::L1TopoAlgorithm::outputs() const
 {
-   return getObject("fixedParameters.outputs");
+   return m_outputs;
 }
 
 std::vector<TrigConf::DataStructure> 

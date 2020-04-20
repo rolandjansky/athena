@@ -18,13 +18,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigTimeAlgs
                           PRIVATE
                           Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils
                           LumiBlock/LumiBlockComps
                           Tools/PathResolver
                           PRIVATE
                           GaudiKernel 
                           Control/AthViews
                           Control/AthContainers
-                          Control/AthenaMonitoring
+                          Control/AthenaMonitoringKernel
                           )
 
 # Component(s) in the package:
@@ -37,7 +38,7 @@ atlas_add_library( TrigMultiVarHypoLib
                    LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent 
                    TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib 
                    DecisionHandlingLib LumiBlockCompsLib PathResolver 
-                   AthenaMonitoringLib
+                   AthenaMonitoringKernelLib TrigCompositeUtilsLib
                    PRIVATE_LINK_LIBRARIES GaudiKernel AthViews )
 
 
@@ -45,8 +46,8 @@ atlas_add_component(  TrigMultiVarHypo
                       src/components/*.cxx
                       LINK_LIBRARIES AsgTools xAODTrigCalo xAODTrigRinger TrigCaloEvent 
                       TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib GaudiKernel 
-                      TrigMultiVarHypoLib DecisionHandlingLib LumiBlockCompsLib 
-                      PathResolver AthenaMonitoringLib) 
+                      TrigMultiVarHypoLib DecisionHandlingLib LumiBlockCompsLib TrigCompositeUtilsLib
+                      PathResolver AthenaMonitoringKernelLib) 
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

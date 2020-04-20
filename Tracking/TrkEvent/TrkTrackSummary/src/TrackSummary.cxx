@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           Summary.cxx  -  description
@@ -23,7 +23,7 @@ Trk::TrackSummary::TrackSummary()
     m_dedx(-1),
     m_nhitsdedx(-1),
     m_nhitsoverflowdedx(-1),
-    m_idHitPattern(0),m_indetTrackSummary(0),m_muonTrackSummary(0)
+    m_idHitPattern(0),m_indetTrackSummary(nullptr),m_muonTrackSummary(nullptr)
 {
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new TrackSummary, so increment total count
@@ -37,7 +37,7 @@ Trk::TrackSummary::TrackSummary( const std::vector<int>& information, const std:
     m_dedx(dedx),
     m_nhitsdedx(nhitsdedx),
     m_nhitsoverflowdedx(noverflowdedx),
-    m_idHitPattern( hitPattern.to_ulong() ),m_indetTrackSummary(0),m_muonTrackSummary(0)
+    m_idHitPattern( hitPattern.to_ulong() ),m_indetTrackSummary(nullptr),m_muonTrackSummary(nullptr)
 {
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new TrackSummary, so increment total count
@@ -58,10 +58,12 @@ Trk::TrackSummary::TrackSummary( const TrackSummary& rhs )
 #endif        
   if( rhs.m_indetTrackSummary ) {
     m_indetTrackSummary = new InDetTrackSummary(*rhs.m_indetTrackSummary);
-  } else m_indetTrackSummary = 0;
+  } else { m_indetTrackSummary = nullptr;
+}
   if( rhs.m_muonTrackSummary ) {
     m_muonTrackSummary = new MuonTrackSummary(*rhs.m_muonTrackSummary);
-  } else m_muonTrackSummary = 0;
+  } else { m_muonTrackSummary = nullptr;
+}
 }
 
 Trk::TrackSummary& Trk::TrackSummary::operator=(const TrackSummary& rhs) {
@@ -73,9 +75,9 @@ Trk::TrackSummary& Trk::TrackSummary::operator=(const TrackSummary& rhs) {
     m_nhitsoverflowdedx = rhs.m_nhitsoverflowdedx;
     m_idHitPattern = rhs.m_idHitPattern;
     delete m_indetTrackSummary;
-    m_indetTrackSummary = rhs.m_indetTrackSummary ? new InDetTrackSummary(*rhs.m_indetTrackSummary) : 0;
+    m_indetTrackSummary = rhs.m_indetTrackSummary ? new InDetTrackSummary(*rhs.m_indetTrackSummary) : nullptr;
     delete m_muonTrackSummary;
-    m_muonTrackSummary = rhs.m_muonTrackSummary ? new MuonTrackSummary(*rhs.m_muonTrackSummary) : 0;
+    m_muonTrackSummary = rhs.m_muonTrackSummary ? new MuonTrackSummary(*rhs.m_muonTrackSummary) : nullptr;
   }
   return *this;
 }
@@ -96,19 +98,24 @@ Trk::TrackSummary& Trk::TrackSummary::operator+=(const TrackSummary& ts)
     {       
         for (int i=0;i<numberOfTrackSummaryTypes;++i) {
           // if added number is <0, leave as is (this also catches the case where both are <0)
-          if (ts.m_information[i]<0) continue;
+          if (ts.m_information[i]<0) { continue;
+}
        
-          if (m_information[i]<0) m_information[i]++; 
+          if (m_information[i]<0) { m_information[i]++; 
+}
            m_information[i]+= ts.m_information[i];
         }
-        for (int i=0;i<numberOfeProbabilityTypes;++i) m_eProbability[i] *= ts.m_eProbability[i];
+        for (int i=0;i<numberOfeProbabilityTypes;++i) { m_eProbability[i] *= ts.m_eProbability[i];
+}
         if (m_dedx<0 && ts.m_dedx>=0) {
           m_dedx=ts.m_dedx;
           m_nhitsdedx=ts.m_nhitsdedx;
 	  m_nhitsoverflowdedx = ts.m_nhitsoverflowdedx;
         }
-        if (!m_muonTrackSummary)  m_muonTrackSummary  = ts.m_muonTrackSummary  ? new MuonTrackSummary(*ts.m_muonTrackSummary) : 0; 
-        if (!m_indetTrackSummary) m_indetTrackSummary = ts.m_indetTrackSummary ? new InDetTrackSummary(*ts.m_indetTrackSummary) :0;
+        if (!m_muonTrackSummary) {  m_muonTrackSummary  = ts.m_muonTrackSummary  ? new MuonTrackSummary(*ts.m_muonTrackSummary) : nullptr; 
+}
+        if (!m_indetTrackSummary) { m_indetTrackSummary = ts.m_indetTrackSummary ? new InDetTrackSummary(*ts.m_indetTrackSummary) :nullptr;
+}
 	// FIXME - do we need to support adding of extension objects? How would this even work?
     }
     return *this;
@@ -207,10 +214,10 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
       }
     }
     out << "\n";
-    if (0!=trackSum.indetTrackSummary()){
+    if (nullptr!=trackSum.indetTrackSummary()){
         out<<*(trackSum.indetTrackSummary());
     }
-    if (0!=trackSum.muonTrackSummary()){
+    if (nullptr!=trackSum.muonTrackSummary()){
         out<<*(trackSum.muonTrackSummary());
     }
   return out;

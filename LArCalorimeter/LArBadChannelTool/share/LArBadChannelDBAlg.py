@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #No input file -> use MC event selector
 
 if 'DBInstance' not in dir():
@@ -27,7 +29,6 @@ if "IOVEndLB" not in dir():
 if "sqlite" not in dir():
     sqlite="BadChannels.db"
 
-from string import *
 import AthenaCommon.AtlasUnixGeneratorJob
 
 from AthenaCommon.GlobalFlags import  globalflags
@@ -75,8 +76,7 @@ svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01"
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
 
-## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 theApp.EvtMax=1
 
@@ -95,7 +95,7 @@ condSeq = AthSequencer("AthCondSeq")
 condSeq+=theLArBadChannelCondAlg
 
 OutputList=[ "CondAttrListCollection#"+Folder ]
-Tag=join(split(Folder, '/'),'') + TagPostfix
+Tag=''.join(Folder.split ('/')) + TagPostfix
 OutputTagList=[Tag] 
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
@@ -117,6 +117,7 @@ svcMgr.IOVRegistrationSvc.RecreateFolders = False #Allow add in a second tag
 svcMgr.DetectorStore.Dump=True
 
 
+from AthenaCommon                       import CfgMgr
 svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
 
 

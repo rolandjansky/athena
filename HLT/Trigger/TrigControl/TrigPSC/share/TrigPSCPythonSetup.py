@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 ## @file   TrigPSCPythonSetup.py
@@ -76,13 +76,10 @@ else:
    del logLevel
 
    from AthenaCommon.Logging import logging
-   log = logging.getLogger('TrigPSCPythonSetup')
+   psclog = logging.getLogger('TrigPSCPythonSetup')
 
    ## file inclusion and tracing
    from AthenaCommon.Include import IncludeError, include
-
-   ## properties of the application manager
-   theApp.StatusCodeCheck = False     # enabled via TriggerFlags.Online.doValidation (see below)
 
    ## set resource limits
    from AthenaCommon.ResourceLimits import SetMaxLimits
@@ -97,14 +94,14 @@ else:
       print(" +------------------------------------------------+ ")
       print(" ---> Command = %s" % PscConfig.optmap['PRECOMMAND'])
       try:
-         exec PscConfig.optmap['PRECOMMAND']
-      except Exception, e:
+         exec(PscConfig.optmap['PRECOMMAND'])
+      except Exception as e:
          if isinstance( e, IncludeError ):
-            print(sys.exc_type, e)
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.INCLUDE_ERROR
             sys.exit( theApp._exitstate )         
          elif isinstance( e, ImportError ):
-            print(sys.exc_type, e)
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.IMPORT_ERROR
             sys.exit( theApp._exitstate )
          raise
@@ -120,7 +117,7 @@ else:
    ### run user jobOptions file -------------------------------------------------
    try:
       include( "%s" % PscConfig.optmap['JOBOPTIONSPATH'] )
-   except Exception, e:
+   except Exception as e:
       if isinstance(e,SystemExit):
          raise
 
@@ -137,6 +134,7 @@ else:
       print('Shortened traceback (most recent user call last):')
       print(''.join( traceback.format_list( short_tb )), end=' ')
       print(''.join( traceback.format_exception_only( exc_info[0], exc_info[1] )), end= '')
+      sys.stdout.flush()
 
       # additional processing to get right error codes
       import AthenaCommon.ExitCodes as ExitCodes
@@ -163,14 +161,14 @@ else:
       print(" +------------------------------------------------+ ")
       print(" ---> Command = ", PscConfig.optmap['POSTCOMMAND'])
       try:
-         exec PscConfig.optmap['POSTCOMMAND']
-      except Exception, e:
+         exec(PscConfig.optmap['POSTCOMMAND'])
+      except Exception as e:
          if isinstance( e, IncludeError ):
-            print(sys.exc_type, e)
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.INCLUDE_ERROR
             sys.exit( ExitCodes.INCLUDE_ERROR )
          elif isinstance( e, ImportError ):
-            print(sys.exc_type, e)
+            print(sys.exc_info()[0], e)
             theApp._exitstate = ExitCodes.IMPORT_ERROR
             sys.exit( ExitCodes.IMPORT_ERROR )
          raise
@@ -179,32 +177,25 @@ else:
       print(" +------------------------------------------------+ ")
       print("\n")
 
-   ### final tweaks -------------------------------------------------------------
-
-   from TriggerJobOpts.TriggerFlags import TriggerFlags
-   if TriggerFlags.Online.doValidation():
-      theApp.StatusCodeCheck = True
-
-   del TriggerFlags
-
    ### Dump properties and convert to JSON if requested -------------------------
    if PscConfig.dumpJobProperties:
       from AthenaCommon import ConfigurationShelve
       from TrigConfIO.JsonUtils import create_joboptions_json
       ConfigurationShelve.storeJobOptionsCatalogue('HLTJobOptions.pkl')
       fname = 'HLTJobOptions'
-      with open(fname+'.pkl') as f:
-         import cPickle
-         jocat = cPickle.load(f)   # basic job properties
-         jocfg = cPickle.load(f)   # some specialized services
+      with open(fname+'.pkl', "rb") as f:
+         import pickle
+         jocat = pickle.load(f)   # basic job properties
+         jocfg = pickle.load(f)   # some specialized services
          jocat.update(jocfg)       # merge the two dictionaries
-         log.info('Dumping joboptions to "%s.json"', fname)
+         psclog.info('Dumping joboptions to "%s.json"', fname)
          create_joboptions_json(jocat, fname+".json")
 
       if PscConfig.exitAfterDump:
          theApp.exit(0)
+   else:
+      # storeJobOptionsCatalogue calls setup() itself, so we only need it here
+      theApp.setup()
 
-   del log
-
-   ### setup everything ---------------------------------------------------------
-   theApp.setup()
+   ### Cleanup
+   del psclog

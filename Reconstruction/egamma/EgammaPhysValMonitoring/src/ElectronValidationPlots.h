@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_ELECTRONVALIDATIONPLOTS_H
@@ -18,7 +18,7 @@
 
 class ElectronValidationPlots:public PlotBase {
     public:
-      ElectronValidationPlots(PlotBase* pParent, std::string sDir);
+      ElectronValidationPlots(PlotBase* pParent, const std::string& sDir);
       void fill(const xAOD::Electron& electron, bool isPrompt);
 
       std::string m_sParticleType;

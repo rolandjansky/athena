@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -69,7 +69,7 @@ class SCTCalib : public AthAlgorithm {
       ~SCTCalib() = default;
       virtual StatusCode initialize() override;
       virtual StatusCode execute() override;
-      virtual StatusCode stop() override;
+      virtual StatusCode stop ATLAS_NOT_THREAD_SAFE () override;
       virtual StatusCode finalize() override;
 
    private:
@@ -252,17 +252,17 @@ class SCTCalib : public AthAlgorithm {
 
       // Methods implemented
       StatusCode prepareHV();
-      StatusCode doHVPrintXML(const std::pair<int, int>& timeInterval, const std::pair<int, int>& lbRange, Identifier);
+      void doHVPrintXML(const std::pair<int, int>& timeInterval, const std::pair<int, int>& lbRange, Identifier);
 
       bool       notEnoughStatistics(const int required, const int obtained, const std::string& histogramName="HIST") const;
 
-      StatusCode getNoisyStrip();
-      StatusCode getDeadStrip();
-      StatusCode getNoiseOccupancy();
-      StatusCode getRawOccupancy();
-      StatusCode getEfficiency();
-      StatusCode getBSErrors();
-      StatusCode getLorentzAngle();
+      StatusCode getNoisyStrip ATLAS_NOT_THREAD_SAFE ();
+      StatusCode getDeadStrip ATLAS_NOT_THREAD_SAFE ();
+      StatusCode getNoiseOccupancy ATLAS_NOT_THREAD_SAFE ();
+      StatusCode getRawOccupancy ATLAS_NOT_THREAD_SAFE ();
+      StatusCode getEfficiency ATLAS_NOT_THREAD_SAFE ();
+      StatusCode getBSErrors ATLAS_NOT_THREAD_SAFE ();
+      StatusCode getLorentzAngle ATLAS_NOT_THREAD_SAFE ();
 
       // To handle XML file for DB
       StatusCode openXML4DB(std::ofstream&, const char*, const char*, IOVTime, IOVTime) const;
@@ -296,7 +296,8 @@ class SCTCalib : public AthAlgorithm {
       addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList, bool isNoisy, bool isNew) const;
 
       StatusCode
-      writeModuleListToCool(const std::map<Identifier, std::set<Identifier>>& moduleListAll,
+      writeModuleListToCool ATLAS_NOT_THREAD_SAFE
+                           (const std::map<Identifier, std::set<Identifier>>& moduleListAll,
                             const std::map<Identifier, std::set<Identifier>>& moduleListNew,
                             const std::map<Identifier, std::set<Identifier>>& moduleListRef);
       std::string

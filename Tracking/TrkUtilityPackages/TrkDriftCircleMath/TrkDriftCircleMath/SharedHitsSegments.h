@@ -11,7 +11,7 @@
 namespace TrkDriftCircleMath {
   /** counts the number of hits shared by the two segments */
   
-  struct SharedHitsSegments : public std::binary_function<class Segment, class Segment, unsigned int> {
+  struct SharedHitsSegments {
 
     SharedHitsSegments( bool onlyOnTrack=false ) : m_mode(onlyOnTrack),m_shared{},
 			m_onlySeg1{},

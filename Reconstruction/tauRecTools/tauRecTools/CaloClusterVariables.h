@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERVARIABLES_H
@@ -13,7 +13,6 @@ typedef xAOD::CaloVertexedCluster CaloVertexedClusterType;
 #else
 typedef xAOD::CaloVertexedTopoCluster CaloVertexedClusterType;
 #endif
-//#include "CaloEvent/CaloVertexedCluster.h"
 #include "CxxUtils/fpcompare.h"
 #include "xAODTau/TauJet.h"
 
@@ -31,7 +30,7 @@ public:
     ~CaloClusterVariables() {
     }
 
-    bool update(const xAOD::TauJet& pTau, bool inAODmode=false); //!< update the internal variables for the given tau
+    bool update(const xAOD::TauJet& pTau); //!< update the internal variables for the given tau
 
     void setVertexCorrection(bool flag) {m_doVertexCorrection=flag;}
 
@@ -51,9 +50,6 @@ public:
     double totalEnergy()     { return m_totEnergy; }
     double effectiveEnergy() { return m_effEnergy; }
 
-    //cells
-    unsigned int numCells() { return m_numCells; }
-
 private:
     int m_numConstit;
     int m_effNumConstit_int;
@@ -64,7 +60,6 @@ private:
     double m_effMass;
     double m_totEnergy;
     double m_effEnergy;
-    unsigned int m_numCells;
 
     /** Calculate the geometrical center of the tau constituents */
     TLorentzVector calculateTauCentroid(int nConst, const std::vector<CaloVertexedClusterType>& constituents);

@@ -1,8 +1,11 @@
 # necessity to create a new PoolFileCatalog
+import logging
+logger = logging.getLogger( 'MaterialMapping_jobOptions' )
+
 import os
 if os.path.exists('./PoolFileCatalog.xml') :
-   print '[!] PoolFileCatalog exists in the run directory (may use old PFN!)'
-   print '[>] Deleting it now !'
+   logger.info( '[!] PoolFileCatalog exists in the run directory (may use old PFN!)' )
+   logger.info( '[>] Deleting it now !' )
    os.remove('./PoolFileCatalog.xml')
 
 ###############################################################
@@ -75,7 +78,7 @@ TrkDetFlags.TRT_BarrelLayerMaterialBinsPhi          = 1
 TrkDetFlags.TRT_EndcapLayerMaterialBinsPhi          = 1
 TrkDetFlags.InDetPassiveLayerMaterialBinsPhi        = 1
 
-print TrkDetFlags
+logger.info( TrkDetFlags )
 
 doWriteToCool    = True
 

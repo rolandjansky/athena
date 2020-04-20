@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRunClusterCorrections.cxx,v 1.7 2009-05-20 20:48:52 ssnyder Exp $
@@ -75,7 +75,7 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
 /**
  * @brief Standard initialize method.
  */
-StatusCode CaloRunClusterCorrections::initialize()
+StatusCode CaloRunClusterCorrections::initialize ATLAS_NOT_THREAD_SAFE /*Can Register callbacks but no need to be thread safe*/ ()
 {
   // Fetch services used.
   CHECK( m_jos.retrieve() );
@@ -200,7 +200,7 @@ CaloRunClusterCorrections::setCaloCellContainerName
  * @brief Parse the supplied correction specification and create
  *        the Tools vector.  Do not actually create the tools yet.
  */
-StatusCode CaloRunClusterCorrections::parseCorrspecs()
+StatusCode CaloRunClusterCorrections::parseCorrspecs ATLAS_NOT_THREAD_SAFE ()
 {
   size_t ispec = 0;
   while (ispec < m_corrspecs.size()) {
@@ -363,7 +363,7 @@ StatusCode CaloRunClusterCorrections::parseKeeplist()
  * @brief Create all tools that we can during initialization.
  *        Set up to create remaining tools during a callback.
  */
-StatusCode CaloRunClusterCorrections::createTools ()
+StatusCode CaloRunClusterCorrections::createTools ATLAS_NOT_THREAD_SAFE /*Binds to callback*/()
 {
   // Set to true if creation of any tools is deferred to a callback.
   bool any_cb = false;
@@ -435,7 +435,7 @@ StatusCode CaloRunClusterCorrections::createTools ()
  * has been registered (see comment in @c createTools).
  */
 void
-CaloRunClusterCorrections::registerCallbacks()
+CaloRunClusterCorrections::registerCallbacks ATLAS_NOT_THREAD_SAFE /*Registers callback*/ ()
 {
   if (m_folderName.size()) { //COOL inline storage
 
@@ -526,7 +526,7 @@ StatusCode CaloRunClusterCorrections::makeTool (Tool& tool)
  * (or after the DB is accessed for the first time).
  */
 StatusCode
-CaloRunClusterCorrections::updateTools (IOVSVC_CALLBACK_ARGS_P( i, keys))
+CaloRunClusterCorrections::updateTools ATLAS_NOT_THREAD_SAFE /*callbacks*/ (IOVSVC_CALLBACK_ARGS_P( i, keys))
 {
   REPORT_MESSAGE(MSG::DEBUG) << "In IOV Callback method updateTools";
 
@@ -602,7 +602,7 @@ CaloRunClusterCorrections::updateTools (IOVSVC_CALLBACK_ARGS_P( i, keys))
  * setting of the @c region property.
  */
 StatusCode 
-CaloRunClusterCorrections::clsnameFromDBConstants (Tool& tool)
+CaloRunClusterCorrections::clsnameFromDBConstants ATLAS_NOT_THREAD_SAFE (Tool& tool)
 {
   const Tool& ctool = tool;
   const CaloRec::ToolConstants& tc = *ctool.dbconstants;
@@ -666,7 +666,7 @@ CaloRunClusterCorrections::clsnameFromDBConstants (Tool& tool)
  * exist in the @c ToolConstants structure, use instead the longest
  * matching prefix.
  */
-StatusCode CaloRunClusterCorrections::fixPrefix (Tool& tool)
+StatusCode CaloRunClusterCorrections::fixPrefix ATLAS_NOT_THREAD_SAFE (Tool& tool)
 {
   const Tool& ctool = tool;
   typedef CaloRec::ToolConstants::Maptype Maptype;
@@ -751,7 +751,7 @@ StatusCode CaloRunClusterCorrections::fixPrefix (Tool& tool)
  * @brief Fill in @c m_toolorder to run corrections in the proper order.
  */
 StatusCode
-CaloRunClusterCorrections::orderCorrections (bool allowMissing)
+CaloRunClusterCorrections::orderCorrections ATLAS_NOT_THREAD_SAFE (bool allowMissing)
 {
   // Clear out any previous setting.
   m_toolorder.clear();
@@ -862,9 +862,9 @@ bool CaloRunClusterCorrections::ToolorderSort::operator() (int a, int b) const
  * @param out[out] The retrieved parameter.
  */
 StatusCode
-CaloRunClusterCorrections::getConstant (const Tool& tool,
-                                        const std::string& pname,
-                                        int& out)
+CaloRunClusterCorrections::getConstant ATLAS_NOT_THREAD_SAFE (const Tool& tool,
+                                                              const std::string& pname,
+                                                              int& out)
 {
   if (!tool.dbconstants.isValid()) {
     REPORT_ERROR(StatusCode::FAILURE)

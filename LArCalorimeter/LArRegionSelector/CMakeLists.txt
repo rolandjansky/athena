@@ -10,7 +10,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaBaseComps
                           DetectorDescription/Identifier
+                          DetectorDescription/IRegionSelector
                           DetectorDescription/RegionSelector
+                          DetectorDescription/RegSelLUT
+			  InnerDetector/InDetConditions/PixelConditionsData
                           GaudiKernel
                           PRIVATE
                           Calorimeter/CaloDetDescr
@@ -30,7 +33,7 @@ atlas_add_component( LArRegionSelector
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps Identifier RegionSelectorLib GaudiKernel CaloDetDescrLib CaloTTDetDescr CaloTriggerToolLib StoreGateLib SGtests ByteStreamData ByteStreamData_test LArIdentifier LArRawUtilsLib LArCablingLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps Identifier RegionSelectorLib GaudiKernel CaloDetDescrLib CaloTTDetDescr CaloTriggerToolLib StoreGateLib SGtests ByteStreamData ByteStreamData_test LArIdentifier LArRawUtilsLib LArCablingLib PixelConditionsData )
 
 # Install files from the package:
 atlas_install_headers( LArRegionSelector )

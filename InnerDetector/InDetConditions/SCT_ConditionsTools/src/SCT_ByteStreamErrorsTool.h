@@ -30,6 +30,7 @@
 
 ///Gaudi includes
 #include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/EventIDBase.h"
 
 ///STL includes
 #include <array>
@@ -37,6 +38,7 @@
 #include <map>
 #include <mutex>
 #include <vector>
+#include <functional>
 
 /** forward declarations */
 class SCT_ID;
@@ -44,7 +46,21 @@ class SCT_ID;
 /**
  * @class SCT_ByteStreamErrorsTool
  * Tool that keeps track of modules that give rise to errors in the bytestram.
-**/
+ *
+ * The API offers two levels of access, 1) by identifier 2) for "all event"
+ * In 1st case the information from entire event is used via the cache if IDC
+ * container that keeps an information about errors for so far decoded SCT data.
+ * That access pattern is identical for HLT and offline use-case. Missing data in the cache is sign of error.
+ *
+ * The 2nd patter is to request error information for the whole event.
+ * In case of trigger these methods can in fact return information for the fragment of the detector data.
+ * This depends on the IDC container that the tool is configured to read.
+ *
+ * There are two levels of caching involved in data access.
+ * First the IDC stores actual BS error codes in the event-wide container called cache. Even if the IDC container may be different, this cache remains the same for the whole event.
+ * Secondly the tool itself has a cache that is essentially needed to avoid going to the event store for the IDC container for each call.
+ * Inside this local cache object derived information is stored to speed up calls like isGood.
+ **/
 
 class SCT_ByteStreamErrorsTool: public extends<AthAlgTool, ISCT_ByteStreamErrorsTool> {
 
@@ -65,11 +81,8 @@ public:
   virtual bool isGood(const IdentifierHash& elementIdHash) const override;
   virtual bool isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const override;
   
-  const std::set<IdentifierHash> getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
-  const std::set<IdentifierHash> getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
-
-  const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets(const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
-  const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* getErrorSets() const override; // Used by SCTRawDataProviderTool and others
+  std::set<IdentifierHash> getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
+  std::set<IdentifierHash> getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
 
   virtual unsigned int tempMaskedChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
   virtual unsigned int tempMaskedChips(const Identifier& moduleId) const override;
@@ -80,28 +93,55 @@ private:
 
   ToolHandle<ISCT_ConfigurationConditionsTool> m_config{this, "ConfigTool",
       "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
+
   const SCT_ID* m_sct_id{nullptr};
   IdContext m_cntx_sct;
 
   SG::ReadHandleKey<IDCInDetBSErrContainer> m_bsIDCErrContainerName{this, "IDCByteStreamErrContainer", "SCT_ByteStreamErrs", "SCT BS error key for IDC variant"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
-  // Mutex to protect the contents.
-  mutable std::mutex m_mutex{};
-  struct CacheEntry {
-    EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
-    std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES> m_bsErrors; // Used by getErrorSet, addError, resetSets
-    std::map<Identifier, unsigned int> m_tempMaskedChips;
-    std::map<Identifier, unsigned int> m_abcdErrorChips;
-  };
-  mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
+  mutable std::mutex m_cacheMutex{};
+  struct IDCCacheEntry {
+    EventContext::ContextEvt_t eventId = EventContext::INVALID_CONTEXT_EVT; // invalid event ID for the start
+    const IDCInDetBSErrContainer_Cache* IDCCache = nullptr;
+    // infomations in granularity of Chips
+    // misisng value mean that the map need updating
+    // 0 as the value denotes no error
+    std::map<Identifier, unsigned int> tempMaskedChips;
+    std::map<Identifier, unsigned int> abcdErrorChips;
+
+    void reset( EventContext::ContextEvt_t evtId, const IDCInDetBSErrContainer_Cache* cache) {
+      eventId = evtId;
+      IDCCache   = cache;
+      tempMaskedChips.clear();
+      abcdErrorChips.clear();
+    }
+
+    bool needsUpdate( const EventContext& ctx) const {
+      return eventId != ctx.evt() or eventId == EventContext::INVALID_CONTEXT_EVT;
+    }
+    
+  };
+  mutable SG::SlotSpecificObj<IDCCacheEntry> m_eventCache ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
+
+  /**
+   * Obtains container form the SG, if it is missing it will complain (hard-coded 3 times per job) and return nullptr
+   **/
+  [[nodiscard]] const IDCInDetBSErrContainer* getContainer(const EventContext& ctx) const;
   mutable std::atomic_uint m_nRetrievalFailure{0};
 
-  StatusCode fillData(const EventContext& ctx) const;
+  /**
+   * Return cache for the current event
+   * If, for current slot, the cache is outdated it is retrieved from the IDC collection.
+   * If the IDC is missing nullptr is returned.
+   **/
+  [[nodiscard]] IDCCacheEntry* getCacheEntry(const EventContext& ctx) const;
 
-  void addError(const IdentifierHash& id, int errorType, const EventContext& ctx) const;
-  void resetSets(const EventContext& ctx) const;
+  /**
+   * Updates information per module & ABCD chip
+   **/
+  StatusCode fillData(const EventContext& ctx) const;
 
   bool isGoodChip(const Identifier& stripId, const EventContext& ctx) const;
   int getChip(const Identifier& stripId, const EventContext& ctx) const;
@@ -109,8 +149,12 @@ private:
   // For isRODSimulatedData, HVisOn and isCondensedReadout
   const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const;
 
-  const std::map<Identifier, unsigned int>& getTempMaskedChips(const EventContext& ctx) const;
-  const std::map<Identifier, unsigned int>& getAbcdErrorChips(const EventContext& ctx) const;
+  /**
+   * Method that returns BS Error code from the map passed @rag where-Expected
+   * If the information is initially missing, the cache update is triggered
+   **/
+  std::pair<StatusCode, unsigned int> getErrorCodeWithCacheUpdate( const Identifier& id, const EventContext& ctx, std::map<Identifier, unsigned int>& whereExected ) const;
+
 };
 
 #endif // SCT_ByteStreamErrorsTool_h

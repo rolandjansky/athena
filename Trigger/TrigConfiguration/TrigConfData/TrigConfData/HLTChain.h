@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_HLTCHAIN_H
@@ -15,7 +15,7 @@ namespace TrigConf {
     * Provides access to the name and counter of the HLT chain, to 
     * the seeding L1 item and to the connected output streams and chain groups.
     */
-   class Chain final : virtual public DataStructure {
+   class Chain final : public DataStructure {
    public:
 
       /** Constructor */
@@ -29,8 +29,7 @@ namespace TrigConf {
       /** Destructor */
       virtual ~Chain();
 
-      /** Accessor to the chain name */      
-      const std::string & name() const;
+      virtual std::string className() const override;
 
       /** Accessor to the chain counter
        *
@@ -55,6 +54,10 @@ namespace TrigConf {
 
       /** Accessor to the groups this chain belongs to */
       std::vector<std::string> groups() const;
+
+   private:
+      void update() override;
+
    };
 
 }

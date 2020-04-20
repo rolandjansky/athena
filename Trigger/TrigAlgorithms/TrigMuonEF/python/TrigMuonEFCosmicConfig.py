@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # TrigMuonEF configurables
@@ -422,42 +422,4 @@ class TrigMuonEFTrackBuilderCosmicConfig ():
     def __init__( self, name="TrigMuonEFTrackBuilderCosmic" ):
 
         raise RuntimeError("TrigMuonEFTrackBuilder no longer supported in release 19 (or later) due to removal of MooTrackSteering from the release.")
-
-#class TrigMuonEFExtrapolatorCosmicConfig (TrigMuonEFExtrapolator):
-#    __slots__ = ()
-#
-#    def __init__( self, name="TrigMuonEFExtrapolatorCosmic" ):
-#        super( TrigMuonEFExtrapolatorConfig, self ).__init__( name )#
-#
-#        from MuidCombinedTools.MuidCombinedToolsConf import Rec__MuidBackTracker
-#        TMEFBackTracker = Rec__MuidBackTracker(name = 'TMEFBackTracker',
-#                                               TrackBuilder = TMEFCombinedTrackBuilderCosmic)
-#        self.BackTrackerTool  = TMEFBackTracker
-#        self.histoPathBase = ""	
-#        validation_sa = TrigMuonEFExtrapolatorValidationMonitoring()
-#        online_sa     = TrigMuonEFExtrapolatorOnlineMonitoring()
-
-#        self.AthenaMonTools = [ validation_sa, online_sa ]
-
-#class TrigMuonEFCombinerCosmicConfig (TrigMuonEFCombiner):
-#    __slots__ = ()#
-#
-#    def __init__( self, name="TrigMuonEFCombinerCosmic" ):
-#        super( TrigMuonEFCombinerConfig, self ).__init__( name )##
-#
-#        from MuidCombinedTools.MuidCombinedToolsConf import Rec__MuidMatchMaker
-#        TMEFMatchMaker = Rec__MuidMatchMaker(name = 'TMEFMatchMaker',
-#                                             CaloTSOS = TMEFCaloTrackStateOnSurface,
-#                                             TrackBuilder = TMEFCombinedTrackBuilderCosmic)
-#        self.MatchMakerTool  = TMEFMatchMaker
-#        self.IdTracks = "InDetTrigTrackSlimmer_Muon_EFID"
-#        self.histoPathBase = ""
-#        validation_cb = TrigMuonEFCombinerValidationMonitoring()
-#        online_cb     = TrigMuonEFCombinerOnlineMonitoring()#
-#
-#        self.AthenaMonTools = [ validation_cb, online_cb ]
-
-
-
-
 

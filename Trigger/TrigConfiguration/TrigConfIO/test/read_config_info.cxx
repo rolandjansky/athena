@@ -57,7 +57,7 @@ int main() {
 
 
    bool itemAccessTest = true;
-   for(const auto & item : l1menu ) {
+   for(auto & item : l1menu ) {
       item.name(); item.ctpId(); item.definition(); item.triggerType();
    }
    for(const auto & thr : l1menu.thresholds("EM") ) {

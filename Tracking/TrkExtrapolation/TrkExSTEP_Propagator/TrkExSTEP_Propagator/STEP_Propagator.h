@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,9 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IPropagator.h"
+
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h" //TrackParameters typedef
@@ -35,6 +37,9 @@
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 namespace Trk {
   class Surface;
@@ -150,7 +155,7 @@ namespace Trk {
     /** AlgTool finalize method */
     virtual StatusCode finalize() override final;
 
-
+      
     /** Main propagation method for ParametersBase. Use StraightLinePropagator for neutrals */
     /*
       const Trk::ParametersBase*
@@ -169,37 +174,40 @@ namespace Trk {
       propagate (const Trk::NeutralParameters&,
                  const Trk::Surface&,
                  Trk::PropDirection,
-                 Trk::BoundaryCheck,
+                 const Trk::BoundaryCheck&,
                  bool rC=false) const override final;
 
 
     /** Propagate parameters and covariance without returning the Jacobian */
     virtual Trk::TrackParameters*
-      propagate (const Trk::TrackParameters&         trackParameters,
-                 const Trk::Surface&                 targetSurface,
-                 Trk::PropDirection            propagationDirection,
-                 Trk::BoundaryCheck            boundaryCheck,
-                 const      MagneticFieldProperties& magneticFieldProperties,
-                 ParticleHypothesis            particle,
-                 bool                          returnCurv = false,
-                 const Trk::TrackingVolume*          tVol = 0) const override final;
+   propagate (const EventContext&                 ctx,
+               const Trk::TrackParameters&         trackParameters,
+               const Trk::Surface&                 targetSurface,
+               Trk::PropDirection                  propagationDirection,
+               const Trk::BoundaryCheck&           boundaryCheck,
+               const      MagneticFieldProperties& magneticFieldProperties,
+               ParticleHypothesis                  particle,
+               bool                                returnCurv = false,
+               const Trk::TrackingVolume*          tVol       = nullptr) const override final;
 
     /** Propagate parameters and covariance with search of closest surface */
     virtual  Trk::TrackParameters*    
-      propagate  (const Trk::TrackParameters&        trackParameters,
-                  std::vector<Trk::DestSurf>&        targetSurfaces,
-                  Trk::PropDirection                 propagationDirection,
-                  const MagneticFieldProperties&     magneticFieldProperties,
-                  ParticleHypothesis                 particle,
-                  std::vector<unsigned int>&         solutions,
-                  double&                            path,
-                  bool                               usePathLimit = false,
-                  bool                               returnCurv = false,
-                  const Trk::TrackingVolume*          tVol = 0) const override final;       
+    propagate  (const EventContext&                ctx,
+                const Trk::TrackParameters&        trackParameters,
+                std::vector<Trk::DestSurf>&        targetSurfaces,
+                Trk::PropDirection                 propagationDirection,
+                const MagneticFieldProperties&     magneticFieldProperties,
+                ParticleHypothesis                 particle,
+                std::vector<unsigned int>&         solutions,
+                double&                            path,
+                bool                               usePathLimit = false,
+                bool                               returnCurv = false,
+                const Trk::TrackingVolume*         tVol = nullptr) const override final;       
 
     /** Propagate parameters and covariance with search of closest surface */
     virtual  Trk::TrackParameters*    
-      propagateT  (const Trk::TrackParameters&        trackParameters,
+      propagateT  (const EventContext&                ctx,
+                   const Trk::TrackParameters&        trackParameters,
                    std::vector<Trk::DestSurf>&        targetSurfaces,
                    Trk::PropDirection                 propagationDirection,
                    const MagneticFieldProperties&     magneticFieldProperties,
@@ -212,8 +220,10 @@ namespace Trk {
                    std::vector<Trk::HitInfo>*& hitVector) const override final;
 
     /** Propagate parameters and covariance with search of closest surface and material collection */
+    using Trk::IPropagator::propagateM;
     virtual Trk::TrackParameters*    
-      propagateM  (const Trk::TrackParameters&        trackParameters,
+      propagateM  (const EventContext&                ctx,
+                   const Trk::TrackParameters&        trackParameters,
                    std::vector<Trk::DestSurf>&        targetSurfaces,
                    Trk::PropDirection                 propagationDirection,
                    const MagneticFieldProperties&     magneticFieldProperties,
@@ -229,10 +239,11 @@ namespace Trk {
 
     /** Propagate parameters and covariance, and return the Jacobian. WARNING: Multiple Scattering is not included in the Jacobian! */
     virtual  Trk::TrackParameters*
-      propagate (const Trk::TrackParameters&         trackParameters,
+      propagate (const EventContext&                 ctx,
+                 const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
                  Trk::PropDirection                  propagationDirection,
-                 Trk::BoundaryCheck                  boundaryCheck,
+                 const Trk::BoundaryCheck&           boundaryCheck,
                  const MagneticFieldProperties&      magneticFieldProperties,
                  Trk::TransportJacobian*&            jacobian,
                  double&                             pathLimit,
@@ -242,11 +253,13 @@ namespace Trk {
 
 
     /** Propagate parameters only */
+    using Trk::IPropagator::propagateParameters;
     virtual Trk::TrackParameters*
-      propagateParameters (const Trk::TrackParameters&         trackParameters,
+      propagateParameters (const EventContext&                 ctx,
+                           const Trk::TrackParameters&         trackParameters,
                            const Trk::Surface&                 targetSurface,
                            Trk::PropDirection                  propagationDirection,
-                           Trk::BoundaryCheck                  boundaryCheck,
+                           const Trk::BoundaryCheck&           boundaryCheck,
                            const MagneticFieldProperties&      magneticFieldProperties,
                            ParticleHypothesis                  particle,
                            bool                                returnCurv = false,
@@ -255,43 +268,49 @@ namespace Trk {
 
     /** Propagate parameters and return Jacobian. WARNING: Multiple Scattering is not included in the Jacobian! */
     virtual Trk::TrackParameters*
-      propagateParameters (const Trk::TrackParameters&         trackParameters,
+      propagateParameters (const EventContext&                 ctx,
+                           const Trk::TrackParameters&         trackParameters,
                            const Trk::Surface&                 targetSurface,
                            Trk::PropDirection                  propagationDirection,
-                           Trk::BoundaryCheck                  boundaryCheck,
+                           const Trk::BoundaryCheck&           boundaryCheck,
                            const MagneticFieldProperties&      magneticFieldProperties,
                            Trk::TransportJacobian*&            jacobian,
                            ParticleHypothesis                  particle,
                            bool                                returnCurv = false,
-                           const Trk::TrackingVolume*          tVol = 0) const override final;       
+                           const Trk::TrackingVolume*          tVol = nullptr) const override final;       
 
 
     /** Propagate parameters and return path (Similar to propagateParameters */
+    using Trk::IPropagator::intersect;
     virtual const IntersectionSolution*
-      intersect (const Trk::TrackParameters&         trackParameters,
+      intersect (const EventContext&                 ctx,
+                 const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
                  const Trk::MagneticFieldProperties& magneticFieldProperties,
                  ParticleHypothesis                  particle,
-                 const Trk::TrackingVolume*          tVol = 0) const override final;       
+                 const Trk::TrackingVolume*          tVol = nullptr) const override final;       
 
     /** Intersection and propagation:
      */
-
-    virtual const TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
-                                                             const TrackSurfaceIntersection*    trackIntersection,
-                                                             const double               qOverP,
-                                                             const MagneticFieldProperties& mft,
-                                                             ParticleHypothesis       particle) const override final; 
+    using Trk::IPropagator::intersectSurface;
+    virtual const TrackSurfaceIntersection* intersectSurface(const EventContext&              ctx,
+                                                             const Surface&                   surface,
+                                                             const TrackSurfaceIntersection*  trackIntersection,
+                                                             const double                     qOverP,
+                                                             const MagneticFieldProperties&   mft,
+                                                             ParticleHypothesis               particle) const override final; 
 
     /** Return a list of positions along the track */
+    using Trk::IPropagator::globalPositions;
     virtual void
-      globalPositions (std::list<Amg::Vector3D>&  positionsList,
-                       const TrackParameters&           trackParameters,
-                       const MagneticFieldProperties&   magneticFieldProperties,
-                       const CylinderBounds&            cylinderBounds,
-                       double                           maxStepSize,
-                       ParticleHypothesis               particle,
-                       const Trk::TrackingVolume*       tVol = 0) const override final;       
+    globalPositions (const EventContext&            ctx,
+                     std::list<Amg::Vector3D>&      positionsList,
+                     const TrackParameters&         trackParameters,
+                     const MagneticFieldProperties& magneticFieldProperties,
+                     const CylinderBounds&          cylinderBounds,
+                     double                         maxStepSize,
+                     ParticleHypothesis             particle,
+                     const Trk::TrackingVolume*     tVol = 0) const override final;       
 
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -349,6 +368,7 @@ namespace Trk {
       Trk::EnergyLoss                m_combinedEloss;
       Trk::MaterialInteraction       m_matInt;
       std::vector<std::pair<int,std::pair<double,double> > > m_currentDist;
+      MagField::AtlasFieldCache    m_fieldCache;
 
       Cache(){
         m_currentDist.reserve(100);
@@ -366,7 +386,7 @@ namespace Trk {
                            Trk::PropDirection                  propagationDirection,
                            const MagneticFieldProperties&      magneticFieldProperties,
                            ParticleHypothesis                  particle,
-                           Trk::BoundaryCheck                  boundaryCheck,
+                           const Trk::BoundaryCheck&                  boundaryCheck,
                            double*                             Jacobian,
                            bool                                returnCurv=false) const;
 
@@ -432,9 +452,10 @@ namespace Trk {
     // Output: BG, which contains Bx, By, Bz, dBx/dx, dBx/dy, dBx/dz, dBy/dx, dBy/dy, dBy/dz, dBz/dx, dBz/dy, dBz/dz
     /////////////////////////////////////////////////////////////////////////////////
     void
-      getMagneticField(const Amg::Vector3D&  position,
-                       bool            getGradients,
-                       float*          BG) const;
+    getMagneticField(Cache& cache,
+                     const Amg::Vector3D&  position,
+                     bool            getGradients,
+                     float*          BG) const;
 
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -523,8 +544,8 @@ namespace Trk {
                                                   bool                     usePathLimit,
                                                   bool                     returnCurv=false) const;
 
-    void getField        (double*,double*        ) const;
-    void getFieldGradient(double*,double*,double*) const;
+    void getField        (Cache& cache, double*,double*        ) const;
+    void getFieldGradient(Cache& cache, double*,double*,double*) const;
 
 
     double                         m_tolerance;         //!< Error tolerance. Low tolerance gives high accuracy
@@ -555,23 +576,37 @@ namespace Trk {
     ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
     MagField::IMagFieldSvc*                m_fieldService;
 
-
+      // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+    void getFieldCacheObject(Cache& cache, const EventContext& ctx) const;      
   };
   /////////////////////////////////////////////////////////////////////////////////
   // Inline methods for magnetic field information
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline void STEP_Propagator::getField(double* R,double* H) const
+  inline void STEP_Propagator::getField        (Cache& cache, double* R, double* H) const
   {
-    //if(m_solenoid) return m_fieldService->getFieldZR(R,H);
-    return    m_fieldService->getField  (R,H);
+
+      // getFieldZR has been turned off for Step: if(m_solenoid) return m_fieldService->getFieldZR(R,H);
+
+      // MT version uses cache, temporarily keep old version
+      if (cache.m_fieldCache.useNewBfieldCache()) cache.m_fieldCache.getField  (R, H);
+      else                                        m_fieldService->getField  (R, H);
   }
 
-  inline void STEP_Propagator::getFieldGradient(double* R,double* H,double* dH) const
+  inline void STEP_Propagator::getFieldGradient(Cache& cache, double* R, double* H, double* dH) const
   {
-    //if(m_solenoid) return m_fieldService->getFieldZR(R,H,dH);
-    return    m_fieldService->getField  (R,H,dH);
+
+      // getFieldZR has been turned off for Step: if(m_solenoid) return m_fieldService->getFieldZR(R,H,dH);
+      
+      // MT version uses cache, temporarily keep old version
+      if (cache.m_fieldCache.useNewBfieldCache()) cache.m_fieldCache.getField  (R, H, dH);
+      else                                        m_fieldService->getField  (R, H, dH);
+
+      
   }
 }
+
+
 
 #endif // STEP_Propagator_H

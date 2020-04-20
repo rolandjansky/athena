@@ -13,6 +13,7 @@
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IRegistry.h"
+#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
 
@@ -45,7 +46,7 @@ const CLID& T_AthenaPoolCnvBase<T>::classID() {
 }
 //__________________________________________________________________________
 template <class T>
-StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPers(DataObject* pObj, const std::string&/* key*/) {
+StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPers(DataObject* pObj, IOpaqueAddress*& /*pAddr*/) {
    const std::string className = ClassName<T>::name();
    if (!m_classDesc) {
       ATH_MSG_DEBUG("Retrieve class description for class (type/key) " << className << "/" << pObj->name());
@@ -55,7 +56,7 @@ StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPers(DataObject* pObj, const std:
 }
 //__________________________________________________________________________
 template <class T>
-StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(DataObject* pObj, const std::string& key) {
+StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(IOpaqueAddress* pAddr, DataObject* pObj) {
    const std::string className = ClassName<T>::name();
    T* obj = nullptr;
    bool success = SG::fromStorable(pObj, obj);
@@ -63,19 +64,20 @@ StatusCode T_AthenaPoolCnvBase<T>::DataObjectToPool(DataObject* pObj, const std:
       ATH_MSG_ERROR("failed to cast to T for class (type/key) " << className << "/" << pObj->name());
       return(StatusCode::FAILURE);
    }
-   setPlacement(key);
-   Token* token = m_athenaPoolCnvSvc->registerForWrite(m_placement, obj, m_classDesc);
+   Placement placement = setPlacement(pObj->name(), *pAddr->par());
+   Token* token = m_athenaPoolCnvSvc->registerForWrite(&placement, obj, m_classDesc);
    // Null/empty token means ERROR
    if (token == nullptr || token->classID() == Guid::null()) {
       ATH_MSG_ERROR("failed to get Token for class (type/key) " << className << "/" << pObj->name());
       return(StatusCode::FAILURE);
    }
    // Update IOpaqueAddress for this object.
-   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pObj->registry()->address());
+   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
    if (tokAddr != nullptr) {
-      tokAddr->setToken(token); token = nullptr; // Token will be inserted into DataHeader, which takes ownership
-   } else { // No address (e.g. satellite DataHeader), delete Token
+      tokAddr->setToken(token); token = nullptr;
+   } else {
       delete token; token = nullptr;
+      return(StatusCode::FAILURE);
    }
    return(StatusCode::SUCCESS);
 }
@@ -100,7 +102,7 @@ StatusCode T_AthenaPoolCnvBase<T>::PoolToDataObject(DataObject*& pObj,
 }
 //__________________________________________________________________________
 template <class T>
-void T_AthenaPoolCnvBase<T>::setPlacement(const std::string& key) {
+Placement T_AthenaPoolCnvBase<T>::setPlacement(const std::string& key, const std::string& output) {
    const std::string typenm = ClassName<T>::name();
-   setPlacementWithType(typenm, key);
+   return(setPlacementWithType(typenm, key, output));
 }

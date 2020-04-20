@@ -84,8 +84,11 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, **kwargs):
 
     if 'FillHistogramsPerMBTS' in kwargs:
         fillHistogramPerMBTS = kwargs['FillHistogramsPerMBTS']
-    else:
+    elif hasattr(tileMBTSMonAlg,"_descriptors"): #GaudiConfig2 config
+        fillHistogramPerMBTS = tileMBTSMonAlg._descriptors['FillHistogramsPerMBTS'].default
+    else: #Run1/2 config
         fillHistogramPerMBTS = tileMBTSMonAlg.getDefaultProperty('FillHistogramsPerMBTS')
+
 
     # 1) Configure histogram with TileMBTSMonAlg algorithm execution time
     executeTimeGroup = helper.addGroup(tileMBTSMonAlg, 'TileMBTSMonExecuteTime', 'Tile/')
@@ -104,20 +107,20 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, **kwargs):
     # 2) Configure MBTS occupancy histogram
     occupancyGroup = helper.addGroup(tileMBTSMonAlg, 'TileOccupancyMBTS', 'Tile')
     occupancyGroup.defineHistogram('EnergyCounter;Occupancy', path = 'MBTS/Cell', type='TH1F', weight = 'SummaryEnergy',
-                                   labels = labelsMBTS, title = 'Run ' + run + ': MBTS Occupancy',
+                                   xlabels = labelsMBTS, title = 'Run ' + run + ': MBTS Occupancy',
                                    xbins = numberOfMBTS, xmin = 0, xmax = numberOfMBTS)
 
     # 3) Configure summary energy histogram
     energySummaryGroup = helper.addGroup(tileMBTSMonAlg, 'TileEnergySummaryMBTS', 'Tile')
     energySummaryGroup.defineHistogram('EnergyCounter,SummaryEnergy;SummaryEnergy', path = 'MBTS/Cell', type='TProfile',
                                        title = 'Run ' + run + ': Average MBTS Energy;;Average Energy [pC]',
-                                       labels = labelsMBTS, xbins = numberOfMBTS, xmin = 0, xmax = numberOfMBTS)
+                                       xlabels = labelsMBTS, xbins = numberOfMBTS, xmin = 0, xmax = numberOfMBTS)
 
     # 4) Configure histogram with average MBTS time (energy above threshold)
     timeSummaryGroup = helper.addGroup(tileMBTSMonAlg, 'TileTimeSummaryMBTS', 'Tile')
     timeSummaryGroup.defineHistogram('TimeCounter,SummaryTime;SummaryTime', path = 'MBTS/Cell', type='TProfile',
                                      title = 'Run ' + run + ': Average MBTS Time (Energy above threshold);;Average Time [ns]',
-                                     labels = labelsMBTS, xbins = numberOfMBTS, xmin = 0, xmax = numberOfMBTS)
+                                     xlabels = labelsMBTS, xbins = numberOfMBTS, xmin = 0, xmax = numberOfMBTS)
 
     # 5) Configure histogram with time of MBTS on A side
     timeAGroup = helper.addGroup(tileMBTSMonAlg, 'TileTimeMBTSA', 'Tile')
@@ -146,10 +149,9 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, **kwargs):
                                           opt = 'kAddBinsDynamically')
 
     # 9) Configure histogram with coincident Hits (energy) between two MBTS counters
-    labelsCoincidentMBTS = labelsMBTS + labelsMBTS
     coincidentHitsGroup = helper.addGroup(tileMBTSMonAlg, 'TileCoincidentHitsMBTS', 'Tile')
     coincidentHitsGroup.defineHistogram('CoincidentCounter1,CoincidentCounter2;CoincidentEnergyHits',
-                                        path = 'MBTS/Cell', type='TH2F', labels = labelsCoincidentMBTS,
+                                        path = 'MBTS/Cell', type='TH2F', xlabels = labelsMBTS, ylabels = labelsMBTS,
                                         title = 'Run ' + run + ': Coincident Hits (energy) between two MBTS counters',
                                         xbins = numberOfMBTS, xmin = 0, xmax = numberOfMBTS,
                                         ybins = numberOfMBTS, ymin = 0, ymax = numberOfMBTS)
@@ -160,10 +162,9 @@ def _TileMBTSMonitoringConfigCore(helper, algConfObj, runNumber, **kwargs):
     errorLabels = ['General', 'Global CRC', 'ROD CRC', 'Frontend CRC', 'BCID', 'Header Format',
                    'Header Parity', 'Sample Format', 'Sample Parity', 'Memory Parity']
     numberOfErrors = len(errorLabels)
-    errorLabelsMBTS = labelsMBTS + errorLabels
     errorsGroup = helper.addGroup(tileMBTSMonAlg, 'TileErrorsMBTS', 'Tile')
-    errorsGroup.defineHistogram('ErrorCounter,Error;ReadOutErrors',
-                                path = 'MBTS/Digit', type='TH2F', labels = errorLabelsMBTS,
+    errorsGroup.defineHistogram('ErrorCounter,Error;ReadOutErrors', path = 'MBTS/Digit',
+                                type='TH2F', xlabels = labelsMBTS, ylabels = errorLabels,
                                 title = 'Run ' + run + ': Tile Readout Errors for MBTS counters',
                                 xbins = numberOfMBTS, xmin = 0, xmax = numberOfMBTS,
                                 ybins = numberOfErrors, ymin = 0, ymax = numberOfErrors)

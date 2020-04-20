@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 ###############################################################
 # author Caleb Lampen lampen@physics.arizona.edu 
 #
@@ -35,8 +37,8 @@ topSequence = AlgSequence()
 from AthenaCommon.GlobalFlags import GlobalFlags
 #GlobalFlags.DetGeo.set_atlas()
 #GlobalFlags.DataSource.set_geant4()
-GlobalFlags.DetGeo.set_commis();
-GlobalFlags.DataSource.set_data();
+GlobalFlags.DetGeo.set_commis()
+GlobalFlags.DataSource.set_data()
 #inc ("RecExCommon/RecExCommon_flags.py")
 include ("RecExCond/RecExCommon_flags.py")
 

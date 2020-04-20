@@ -73,8 +73,18 @@ public:
     
 private:
     // private methods
-    void			etaFixedBin(double) const;
-    void			etaVariableBin(double) const;
+
+    // local communication for linear eta interpolation (bins and weights)
+    struct BinsWeights
+    {
+      int	       		etaBin1;
+      int			etaBin2;
+      double		etaWeight1;
+      double		etaWeight2;
+    };
+
+    BinsWeights			etaFixedBin(double) const;
+    BinsWeights			etaVariableBin(double) const;
     double			meanEnergyLoss(double,double) const;
     std::pair<double,double>	meanEnergyLossError(double,double) const;
     double			mopEnergyLoss(double,double) const;
@@ -96,12 +106,6 @@ private:
     double			m_etaOffset;
     double			m_inverseWidth;
     
-    // local communication for linear eta interpolation (bins and weights)
-    mutable int	       		m_etaBin1;
-    mutable int			m_etaBin2;
-    mutable double		m_etaWeight1;
-    mutable double		m_etaWeight2;
-
     // ============ Mean parametrization coefficients ============= //
     double			m_meanEnergyLossP0[26];
     double			m_meanEnergyLossP1[26];

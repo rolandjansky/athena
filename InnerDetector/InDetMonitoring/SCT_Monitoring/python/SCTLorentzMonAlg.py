@@ -71,8 +71,7 @@ def SCTLorentzMonAlgConfig(inputFlags):
     ### STEP 5 ###
     # Configure histograms
     N_BARRELS = 4
-    nSidesInclBoth = 2 # 0: Side 0, 1: Side 1
-    #bothSides = 2
+    nSides = 2 # 0: Side 0, 1: Side 1
     nSurfaces = 2 # 0: 100, 1: 111
     surfaceNames = ["_100",   "_111"]
     surfaceNames2 = ["_100_",   "_111_"]
@@ -80,7 +79,7 @@ def SCTLorentzMonAlgConfig(inputFlags):
     sideNames = ["_0", "_1"]
     for l in range(N_BARRELS):
         for iSurface in range(nSurfaces):
-            for side in range(nSidesInclBoth):
+            for side in range(nSides):
                 xVar = "phiToWafer_"+str(l)+surfaceNames[iSurface]+sideNames[side]
                 yVar = "nStrip_"+str(l)+surfaceNames[iSurface]+sideNames[side]
                 histTitle = surfaceTitles[iSurface]+"Inc. Angle vs nStrips for Layer Side"+str(l)+str(side)

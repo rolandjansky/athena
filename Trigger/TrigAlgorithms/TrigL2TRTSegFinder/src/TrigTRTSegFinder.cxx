@@ -8,6 +8,7 @@
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TrigL2TRTSegFinder/TrigTRTSegFinder.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
@@ -236,8 +237,8 @@ HLT::ErrorCode TrigTRTSegFinder::hltExecute(const HLT::TriggerElement* inputTE,
   }
 
   std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
-     event_data = m_segmentsmaker->newRegion(listTrtIds);
-  m_segmentsmaker->find(*event_data);
+     event_data = m_segmentsmaker->newRegion(Gaudi::Hive::currentContext(), listTrtIds);
+  m_segmentsmaker->find(Gaudi::Hive::currentContext(), *event_data);
 
   Trk::Segment* segment = 0;
   m_nsegments           = 0;

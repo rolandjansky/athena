@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##
 # @file DCubeClient/python/DCubePHPWriter.py
 # @author Krzyszotf Daniel Ciba (Krzysztof.Ciba@NOSPAMgmail.com)
@@ -26,20 +26,6 @@ class DCubePHPWriter( DCubeObject ):
     def __init__( self, parsed ):
         super( DCubePHPWriter, self ).__init__( self )
         self.opts, self.args = parsed
-
-        self.server = self.opts.server
-        if ( not os.path.isdir( self.server ) ):
-            self.server = os.path.dirname( self.server )
-
-        self.debug( "server %s" % self.server )
-        self.debug( "output %s" % os.path.dirname( os.path.abspath( self.opts.output ) ) )
-
-        #self.server = self.__relpath( self.server, os.path.dirname(self.opts.output ) ) 
-
-        #if ( self.server == "..") : self.server = "../"
-        #self.server = "./" + self.server
-        #self.info( "server relative path %s" % self.server )
-
         
 
     ## give relative path between target and base
@@ -59,7 +45,7 @@ class DCubePHPWriter( DCubeObject ):
         target_list = (os.path.abspath(target)).split(os.sep)
 
         for i in range(min(len(base_list), len(target_list))):
-            if base_list[i] <> target_list[i]: break
+            if base_list[i] != target_list[i]: break
             else:
                 i+=1
 
@@ -110,7 +96,7 @@ class DCubePHPWriter( DCubeObject ):
     # @param self "Me, myself and Irene"
     def __bodyPHP( self ):
         out  = "/* ADD TO include_path TO LOCAL INSTALLATION OF DCUBE PHP PART */\n"
-        out += "$where = \"%s\";\n" % self.server
+        out += "$where = \"DCubeServer\";\n"
         out += "set_include_path($where);\n";
         out += "require \"dcube.php\";\n\n";
  
@@ -123,7 +109,7 @@ class DCubePHPWriter( DCubeObject ):
     # @param self "Me, myself and Irene"
     def __bodyLOG( self ):
         out  = "/* ADD TO include_path TO LOCAL INSTALLATION OF DCUBE PHP PART */\n";
-        out += "$where = \"%s\";\n" % self.server
+        out += "$where = \"DCubeServer\";\n"
         out += "set_include_path($where);\n"
         out += "require \"rw.php\";\n\n"
         out += "$log_file = \"%s\";\n" % os.path.basename(self.opts.log)
@@ -177,8 +163,8 @@ class test_DCubePHPWriter( unittest.TestCase ):
     # @param self "Me, myself and Irene"
     def test_02_writer( self ):
         phpWriter = DCubePHPWriter( self.parsed )
-        print phpWriter.dcubePHP( )
-        print phpWriter.dcubeLOG( )
+        print(phpWriter.dcubePHP( ))
+        print(phpWriter.dcubeLOG( ))
     
 
 ## test suite execution

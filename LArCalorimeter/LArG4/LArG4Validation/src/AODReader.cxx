@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -195,7 +195,7 @@ StatusCode AODReader::execute()
 			m_truth_pz = 0;
 		}
 		// writing a record
-		ntupleSvc()->writeRecord(m_nt);
+		ATH_CHECK(ntupleSvc()->writeRecord(m_nt));
 		msg(MSG::VERBOSE) << "n tuple entry writed" << endmsg;
     }
   }

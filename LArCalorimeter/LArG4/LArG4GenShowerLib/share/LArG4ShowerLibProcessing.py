@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: LArG4ShowerLibProcessing.py 711210 2015-11-27 15:56:00Z jchapman $
@@ -6,13 +7,16 @@
 # python script for merging libs
 #
 
+from __future__ import print_function
+
 __version__ = '$Revision: 711210 $'
 __author__  = 'Radist Morse radist.morse@gmail.com'
 __doc__     = 'Script for merging FS libs'
 
 import sys
 from optparse import OptionParser
-from LArG4GenShowerLib.LArG4ShowerLibFunctions import *
+from LArG4GenShowerLib.LArG4ShowerLibFunctions import \
+     EtaEnergyShowerLib, TestShowerLib, FCALDistShowerLib, FCALDistEtaShowerLib
 
 usage = "usage: %prog [options] lib1 [lib2 ...]"
 
@@ -35,13 +39,13 @@ parser.set_defaults(info = False, add = False, output = "", scale = 0.0, moveD =
 (options, args) = parser.parse_args()
 
 if len(args) == 0:
-    print "ERROR: No input specified"
+    print ("ERROR: No input specified")
     sys.exit(1)
 
 libs = []
 
 for filename in args:
-    print "INFO: Reading file",filename
+    print ("INFO: Reading file",filename)
     tmplib = EtaEnergyShowerLib()
     if tmplib.readFromFile(filename) :
         libs.append(tmplib)
@@ -61,57 +65,57 @@ if (options.truncate > 0) :
 
 if (options.info) :
     for arg,lib in zip(args,libs) :
-        print "LIB",arg
+        print ("LIB",arg)
         lib.printInfo()
 
 if (options.add and len(libs) > 1) :
-    print "INFO: Adding libs"
+    print ("INFO: Adding libs")
     outlib = libs[0].__class__()
     if not outlib.fromLibs(libs) :
-        print "ABORTING"
+        print ("ABORTING")
         sys.exit(1)
     del libs
     libs = []
     libs.append(outlib)
 
 if (options.scale > 0) :
-    print "Scaling to",options.scale
+    print ("Scaling to",options.scale)
     libs[0].scaleEnergy(options.scale)
 
 if (len(options.moveD) > 0) :
     for move in options.moveD :
-        print "Moving bin:",move
+        print ("Moving bin:",move)
         movl = map(float,move.split(":"))
         if not libs[0].moveDist(*movl) :
-            print "WARNING: no",movl[0],"in lib"
+            print ("WARNING: no",movl[0],"in lib")
 
 if (len(options.moveE) > 0) :
     for move in options.moveE :
-        print "Moving bin:",move
+        print ("Moving bin:",move)
         movl = map(float,move.split(":"))
         if not libs[0].moveEta(*movl) :
-            print "WARNING: no",movl[0],"in lib"
+            print ("WARNING: no",movl[0],"in lib")
 
 if (len(options.removeD) > 0) :
     for move in options.removeD :
-        print "Removing bin:",move
+        print ("Removing bin:",move)
         movl = float(move)
         if not libs[0].removeDist(movl) :
-            print "WARNING: no",movl,"in lib"
+            print ("WARNING: no",movl,"in lib")
 
 if (len(options.removeE) > 0) :
     for move in options.removeE :
-        print "Removing bin:",move
+        print ("Removing bin:",move)
         movl = float(move)
         if not libs[0].removeEta(movl) :
-            print "WARNING: no",movl,"in lib"
+            print ("WARNING: no",movl,"in lib")
 
 if (len(options.output) > 0) :
-    print "INFO: Saving file",options.output
+    print ("INFO: Saving file",options.output)
     libs[0].writeToFile(options.output)
 
 if (options.draw) :
-    print "INFO: Drawing lib",options.output
+    print ("INFO: Drawing lib",options.output)
     from ROOT import TCanvas
     from ROOT import gROOT, gStyle,gPad
     gROOT.Reset()

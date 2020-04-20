@@ -1,12 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-
-try:
-    from TrigTileMuId.TrigTileMuIdConf import TrigTileRODMuAlg
-except:
-    mlog.error("could not load TrigTileMuIdConf")
-    import traceback
-    print traceback.format_exc()
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 class TrigTileRODMuAlg_L2(TrigTileRODMuAlg):

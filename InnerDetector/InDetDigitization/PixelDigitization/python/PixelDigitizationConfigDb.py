@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool,addService,addAlgorithm
 
@@ -11,7 +11,6 @@ addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationToolSplitNoM
 addAlgorithm("PixelDigitization.PixelDigitizationConfig.PixelDigitizationHS"  , "PixelDigitizationHS")
 addAlgorithm("PixelDigitization.PixelDigitizationConfig.PixelDigitizationPU"  , "PixelDigitizationPU")
 addTool("PixelDigitization.PixelDigitizationConfig.getPixelRange", "PixelRange")
-addService("PixelDigitization.PixelDigitizationConfig.ChargeCollProbSvc","ChargeCollProbSvc")
 addTool("PixelDigitization.PixelDigitizationConfig.SensorSimPlanarTool","SensorSimPlanarTool")
 addTool("PixelDigitization.PixelDigitizationConfig.SensorSim3DTool","SensorSim3DTool")
 addTool("PixelDigitization.PixelDigitizationConfig.SensorSimTool","SensorSimTool")
@@ -27,4 +26,6 @@ addTool("PixelDigitization.PixelDigitizationConfig.EndcapRD53SimTool","EndcapRD5
 addTool("PixelDigitization.PixelDigitizationConfig.PixelOverlayDigitizationTool", "PixelOverlayDigitizationTool")
 addAlgorithm("PixelDigitization.PixelDigitizationConfig.PixelOverlayDigitization", "PixelOverlayDigitization")
 addTool("PixelDigitization.PixelDigitizationConfig.EnergyDepositionTool", "EnergyDepositionTool")
+addTool("PixelDigitization.PixelDigitizationConfig.RadDamageUtil", "RadDamageUtil")
+addTool("PixelDigitization.PixelDigitizationConfig.EfieldInterpolator", "EfieldInterpolator")
 

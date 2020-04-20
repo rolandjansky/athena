@@ -10,11 +10,13 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( test/*.py )
 
-atlas_add_test( EVNT_InputGeo_test
-                SCRIPT test/AtlasGeometryConfig_EVNT_test.py
-                PROPERTIES TIMEOUT 300 )
+if( NOT GENERATIONBASE )
+  atlas_add_test( EVNT_InputGeo_test
+                  SCRIPT test/AtlasGeometryConfig_EVNT_test.py
+                  PROPERTIES TIMEOUT 300 )
+endif()
 
-if( NOT SIMULATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
   atlas_add_test( AtlasGeoModelConfig    SCRIPT python -m AtlasGeoModel.GeoModelConfig POST_EXEC_SCRIPT nopost.sh )
   atlas_add_test( HITS_InputGeo_test
                   SCRIPT test/AtlasGeometryConfig_HITS_test.py

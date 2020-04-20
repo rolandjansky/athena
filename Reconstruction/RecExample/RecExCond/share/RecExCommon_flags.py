@@ -136,8 +136,7 @@ RecExCommonFlags = {
       'doDumpTES' : False, # if dump storegate transient event store
       'doDumpTDS' : False, # if dump storegate transient detector store
       'doFloatingPointException' : True, # if enable floating-point exception
-      'abortOnUncheckedStatusCode' : True, # if enable abort on unchecked status code
-      'doDumpPoolInputContent' : False, # if dump pool input object list 
+      'doDumpPoolInputContent' : False, # if dump pool input object list
       'doDumpProperties' : False, # if dump all algs properties
       'doDetailedAuditor' : False, # if monitor alg/tools and services memory and CPU time
       'doSGAuditor' : False, # if monitor data flow, see https://twiki.cern.ch/twiki/bin/view/Atlas/DataFlowMonitoring 
@@ -855,6 +854,7 @@ if not rec.doInDet:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
    DetFlags.ID_setOff()
    from InDetRecExample.InDetJobProperties import InDetFlags
    InDetFlags.Enabled=False
@@ -881,6 +881,7 @@ if not rec.doCalo:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
    DetFlags.Calo_setOff()
    try:
       from CaloRec.CaloRecFlags import jobproperties
@@ -893,6 +894,7 @@ if not rec.doMuon:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
    DetFlags.Muon_setOff()
    #FIXME redundant
    recAlgs.doTrackRecordFilter=False
@@ -901,6 +903,7 @@ if not rec.doMuon:
 
 if not rec.doMuon and not rec.doCalo and not rec.doInDet:
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
 
 if not rec.doJetMissingETTag:
    recAlgs.doMissingET=False
@@ -958,6 +961,7 @@ if not rec.doTrigger:
    #DR should use finer grain
    #rec.doDPD=False
    rec.doTagRawSummary=False
+   rec.doBeamBackgroundFiller=False
 
    #FIXME a separate container to be used eventually
    recAlgs.doTrigger=False

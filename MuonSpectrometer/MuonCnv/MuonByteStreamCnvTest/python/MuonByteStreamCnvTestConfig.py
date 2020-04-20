@@ -2,7 +2,7 @@
 
 from AthenaCommon import CfgMgr
 
-def getMdtRdoToMdtDigitAlg(name="MdtRdoToMdtDigitOverlayAlg", **kwargs):
+def getMdtRdoToMdtDigitAlg(name="MdtRdoToMdtDigitAlg", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
         kwargs.setdefault("MdtRdoContainer", overlayFlags.bkgPrefix() + "MDTCSM")
@@ -14,7 +14,7 @@ def getMdtRdoToMdtDigitAlg(name="MdtRdoToMdtDigitOverlayAlg", **kwargs):
     return CfgMgr.MdtRdoToMdtDigit(name, **kwargs)
 
 
-def getRpcRdoToRpcDigitAlg(name="RpcRdoToRpcDigitOverlayAlg", **kwargs):
+def getRpcRdoToRpcDigitAlg(name="RpcRdoToRpcDigitAlg", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
         kwargs.setdefault("RpcRdoContainer", overlayFlags.bkgPrefix() + "RPCPAD")
@@ -26,7 +26,7 @@ def getRpcRdoToRpcDigitAlg(name="RpcRdoToRpcDigitOverlayAlg", **kwargs):
     return CfgMgr.RpcRdoToRpcDigit(name, **kwargs)
 
 
-def getTgcRdoToTgcDigitAlg(name="TgcRdoToTgcDigitOverlayAlg", **kwargs):
+def getTgcRdoToTgcDigitAlg(name="TgcRdoToTgcDigitAlg", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
         kwargs.setdefault("TgcRdoContainer", overlayFlags.bkgPrefix() + "TGCRDO")
@@ -38,7 +38,7 @@ def getTgcRdoToTgcDigitAlg(name="TgcRdoToTgcDigitOverlayAlg", **kwargs):
     return CfgMgr.TgcRdoToTgcDigit(name, **kwargs)
 
 
-def getSTGC_RdoToDigitAlg(name="STGC_RdoToDigitOverlayAlg", **kwargs):
+def getSTGC_RdoToDigitAlg(name="STGC_RdoToDigitAlg", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
         kwargs.setdefault("sTgcRdoContainer", overlayFlags.bkgPrefix() + "sTGCRDO")
@@ -50,7 +50,7 @@ def getSTGC_RdoToDigitAlg(name="STGC_RdoToDigitOverlayAlg", **kwargs):
     return CfgMgr.STGC_RdoToDigit(name, **kwargs)
 
 
-def getMM_RdoToDigitAlg(name="MM_RdoToDigitOverlayAlg", **kwargs):
+def getMM_RdoToDigitAlg(name="MM_RdoToDigitAlg", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
         kwargs.setdefault("MmRdoContainer", overlayFlags.bkgPrefix() + "MMRDO")
@@ -129,43 +129,3 @@ def getSigTgcDigitToTgcRDO(name="SigTgcDigitToTgcRDO", **kwargs):
     kwargs.setdefault("InputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
     kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGCRDO")
     return CfgMgr.TgcDigitToTgcRDO(name, **kwargs)
-
-
-def getOverlayCscDigitToCscRDO(name="OverlayCscDigitToCscRDO", **kwargs):
-    kwargs.setdefault("CscDigitToRDOTool","CscDigitToCscRDOTool4")
-    return CfgMgr.CscDigitToCscRDO(name, **kwargs)
-
-
-def getOverlayMdtDigitToMdtRDO(name="OverlayMdtDigitToMdtRDO", **kwargs):
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("InputObjectName",overlayFlags.outputStore()+"+MDT_DIGITS")
-    kwargs.setdefault("OutputObjectName",overlayFlags.outputStore()+"+MDTCSM")
-    return CfgMgr.MdtDigitToMdtRDO(name, **kwargs)
-
-
-def getOverlayRpcDigitToRpcRDO(name="OverlayRpcDigitToRpcRDO", **kwargs):
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("InputObjectName",overlayFlags.outputStore()+"+RPC_DIGITS")
-    kwargs.setdefault("OutputObjectName",overlayFlags.outputStore()+"+RPCPAD")
-    return CfgMgr.RpcDigitToRpcRDO(name, **kwargs)
-
-
-def getOverlayTgcDigitToTgcRDO(name="OverlayTgcDigitToTgcRDO", **kwargs):
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("InputObjectName",overlayFlags.outputStore()+"+TGC_DIGITS")
-    kwargs.setdefault("OutputObjectName",overlayFlags.outputStore()+"+TGCRDO")
-    return CfgMgr.TgcDigitToTgcRDO(name, **kwargs)
-
-
-def getOverlaySTGC_DigitToRDO(name="OverlaySTGC_DigitToRDO", **kwargs):
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("InputObjectName",overlayFlags.outputStore()+"+sTGC_DIGITS")
-    kwargs.setdefault("OutputObjectName",overlayFlags.outputStore()+"+STGCRDO")
-    return CfgMgr.STGC_DigitToRDO(name, **kwargs)
-
-
-def getOverlayMM_DigitToRDO(name="OverlayMM_DigitToRDO", **kwargs):
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("InputObjectName",overlayFlags.outputStore()+"+MM_DIGITS")
-    kwargs.setdefault("OutputObjectName",overlayFlags.outputStore()+"+MMRDO")
-    return CfgMgr.MM_DigitToRDO(name, **kwargs)

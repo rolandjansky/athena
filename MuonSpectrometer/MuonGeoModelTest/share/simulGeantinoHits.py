@@ -1,15 +1,15 @@
 if not 'DetDescrVersion' in dir():
     DetDescrVersion="ATLAS-GEO-20-00-01"
-    print "MuonGeoModelTest/simulGeantinoHits Setting now DetDescrVersion to ", DetDescrVersion
+    printfunc ("MuonGeoModelTest/simulGeantinoHits Setting now DetDescrVersion to ", DetDescrVersion)
 else:
-    print "MuonGeoModelTest/simulGeantinoHits DetDescrVersion already set to ", DetDescrVersion
+    printfunc ("MuonGeoModelTest/simulGeantinoHits DetDescrVersion already set to ", DetDescrVersion)
 
 # now it's necessary to specify the global condition tag
 if not 'ConditionsTag' in dir():
    ConditionsTag="OFLCOND-MC12b-SIM-00"
-   print "MuonGeoModelTest/simulGeantinoHits Setting now ConditionsTag to ", ConditionsTag
+   printfunc ("MuonGeoModelTest/simulGeantinoHits Setting now ConditionsTag to ", ConditionsTag)
 else:
-   print "MuonGeoModelTest/simulGeantinoHits ConditionsTag already set to ", ConditionsTag
+   printfunc ("MuonGeoModelTest/simulGeantinoHits ConditionsTag already set to ", ConditionsTag)
 
 #--- Algorithm sequence ---------------------------------------
 from AthenaCommon.AlgSequence import AlgSequence

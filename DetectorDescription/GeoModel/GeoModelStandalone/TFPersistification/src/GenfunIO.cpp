@@ -1,6 +1,4 @@
-#define private public
 #include "GeoGenericFunctions/AbsFunction.h"
-#undef  private
 
 #include "TFPersistification/GenFunctionInterpreter.h"
 #include "TFPersistification/GenFunctionPersistifier.h"

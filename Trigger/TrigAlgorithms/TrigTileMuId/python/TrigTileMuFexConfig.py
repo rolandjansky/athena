@@ -1,17 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #from TrigTileMuId.TrigTileMuIdConf import TrigTileMuFex
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr
 from TrigTileMuId.TrigTileMuIdMonitoring import *
-
-#from AthenaCommon.AppMgr import *
-try:
-    from TrigTileMuId.TrigTileMuIdConf import TrigTileMuFex
-except:
-    mlog.error("could not load TrigTileMuIdConf")
-    import traceback
-    print traceback.format_exc()
 
 
 class TrigTileMuFexConfig (TrigTileMuFex):

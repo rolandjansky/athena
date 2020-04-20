@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
 # @file DCubeClient/python/DCubeValid.py
@@ -75,7 +75,7 @@ class DCubeValid( object ):
             self.__xmlfile = xmlfile
             self.__parse( xmlfile )
         else:
-            print "DCubeValid.xml not found in InstallArea nor DCubeClient install directories, wrong installation?"
+            print("DCubeValid.xml not found in InstallArea nor DCubeClient install directories, wrong installation?")
             sys.exit( -1 )
 
     ##
@@ -256,7 +256,7 @@ class test_DCubeValid( unittest.TestCase ):
         self.assertEqual( "numbered" in nightlies, True )
         self.assertEqual( "pcache" in nightlies, True )
         self.assertEqual( "NN.N.NX" in nightlies, True )
-        print nightlies
+        print(nightlies)
 
     ## installs()
     # @param self "Me, myself and Irene"
@@ -282,7 +282,7 @@ class test_DCubeValid( unittest.TestCase ):
     ## str()
     # @param self "Me, myself and Irene"
     def test_06_str( self ):
-        print self.cv
+        print(self.cv)
    
         
 ## test suite execution

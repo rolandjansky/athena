@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Script for checking the yield and skimming efficiency for derived data formats
+
+from __future__ import print_function
 
 # needed python imports
 import sys, os, argparse, subprocess
@@ -19,54 +21,54 @@ parser.add_argument('-v', '--verbose', action='store_true', default=False, help=
 parser.add_argument('-q', '--quick', action='store_true', default=False, help='Quick mode, skips ARQ call and uses local pickle file from previous query')
 
 args = parser.parse_args()
-#print args
+#print (args)
 
 if args.quick:
-    print "Quick mode: will use pickle file on disk from previous query, will not call ARQ"
+    print ("Quick mode: will use pickle file on disk from previous query, will not call ARQ")
 else:
     # run the query - all of the retrieved data is stored in a pickle file on disk
     cmd = "AtlRunQuery.py \"find run %s and ready and st %s 100k+ / show lumi\"" % (args.runs, args.stream)
     if args.verbose:
-        print "Will now execute the following ARQ query:"
-        print "   %s" % cmd
+        print ("Will now execute the following ARQ query:")
+        print ("   %s" % cmd)
     env = os.environ.copy()
     output = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
     if args.verbose:
         for line in output.stdout.readlines():
-            print "   %s" % line.rstrip()
-    print "Retrieved ARQ results"
+            print ("   %s" % line.rstrip())
+    print ("Retrieved ARQ results")
 
-print "Will now open the pickle file containing the needed lumi info"
+print ("Will now open the pickle file containing the needed lumi info")
 
 # read in the pickle file with the results
 import pickle
-f = open("data/atlrunquery.pickle")
+f = open("data/atlrunquery.pickle", 'rb')
 d = pickle.load(f)
 
-print "Loaded pickle file containing info for %d runs" % len(d['Run'])
+print ("Loaded pickle file containing info for %d runs" % len(d['Run']))
 
 lumiPerRun = {}
 eventsPerRun = {}
 selectedEventsPerRun = {}
 
 for run in d['Run']:
-    print "Will now sum up integrated luminosity for run %d" % run
+    print ("Will now sum up integrated luminosity for run %d" % run)
     # calculate the integrated luminosity based on the length of the LBs and the inst lumi per LB
     lbDict = d[run]['#LB']
     lumiTag = [key for key in d[run] if 'ofllumi:0:' in key][0]
-    print "  Using lumi tag: %s" % lumiTag
+    print ("  Using lumi tag: %s" % lumiTag)
     lumiDict = d[run][lumiTag]
-    print lumiDict
+    print (lumiDict)
     integratedLumi = 0
     for lb in range(1,len(lbDict)):
-        print "lb: %d" % lb
-        print "lumiDict[lb-1]:"
-        print lumiDict[lb-1]
-        #print "Will now add lumi for LB %d with length %f and lumi %f" % (lb, lbDict[1][lb]-lbDict[1][lb-1], lumiDict[lb-1]['value'])
+        print ("lb: %d" % lb)
+        print ("lumiDict[lb-1]:")
+        print (lumiDict[lb-1])
+        #print ("Will now add lumi for LB %d with length %f and lumi %f" % (lb, lbDict[1][lb]-lbDict[1][lb-1], lumiDict[lb-1]['value']))
         #integratedLumi += lumiDict[lb-1]['value']*(lbDict[1][lb]-lbDict[1][lb-1]) # this was good for online lumi which comes in std query.. /CO
         integratedLumi += float(lumiDict[lb-1]['value']) # this already has integrated lumi per LB, I guess? /CO
-        #print "  LB %d: integrated lumi = %f" % (lb, integratedLumi)
-    print " => Done: %f x 10^30 cm^-2" % (integratedLumi)
+        #print ("  LB %d: integrated lumi = %f" % (lb, integratedLumi))
+    print (" => Done: %f x 10^30 cm^-2" % (integratedLumi))
     lumiPerRun[run] = integratedLumi
 
 # now go to AMI to get the event yields for the datasets you're interested in
@@ -80,16 +82,16 @@ for run in d['Run']:
     pattern = "data15_13TeV.%08d.physics_Main.merge.DESDM_RPVLL" % run
     pattern += '.f%_m%'
     dslist = AtlasAPI.list_datasets(client, patterns = pattern, fields = ['events'], type = 'DESDM_RPVLL')
-    #print dslist
+    #print (dslist)
     if len(dslist) > 0:
-        print dslist[0]['events']
+        print (dslist[0]['events'])
         selectedEventsPerRun[run] = dslist[0]['events']
     pattern = "data15_13TeV.%08d.physics_Main.merge.AOD" % run
     pattern += '.f%_m%'
     dslist = AtlasAPI.list_datasets(client, patterns = pattern, fields = ['events'], type = 'AOD')
-    #print dslist
+    #print (dslist)
     if len(dslist) > 0:
-        print dslist[0]['events']
+        print (dslist[0]['events'])
         eventsPerRun[run] = dslist[0]['events']
 
 import ROOT as r

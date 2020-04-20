@@ -6,7 +6,7 @@
 #define TAUMONITORALGORITHM_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TRandom3.h"
 
@@ -14,6 +14,7 @@
 #include "StoreGate/ReadHandleKey.h"
 
 #include "xAODTau/TauJetContainer.h" 
+
 
 class tauMonitorAlgorithm : public AthMonitorAlgorithm {
 public:

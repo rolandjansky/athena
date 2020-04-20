@@ -15,7 +15,7 @@ RegionSelectionSvc.Region = "[B??]"
 # RegionSelectionSvc.Region = "[BIR,6,1]"
 RegionSelectionSvc.PrintList = True
 ServiceMgr += RegionSelectionSvc
-print RegionSelectionSvc
+printfunc (RegionSelectionSvc)
 ##################################USER SETTINGS#################################
 
 #select calibration algoritm
@@ -329,10 +329,10 @@ if CalibrationAlgorithm == "Display":
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++### Setup Athena common flags
 
 
-print CalibrationTool
-print MdtCalibOutputDbSvc
-print ServiceMgr
-print MdtCalibInputSvc
-print AlgSequence()
+printfunc (CalibrationTool)
+printfunc (MdtCalibOutputDbSvc)
+printfunc (ServiceMgr)
+printfunc (MdtCalibInputSvc)
+printfunc (AlgSequence())
 from ROOT import gROOT, TCanvas, TF1
 

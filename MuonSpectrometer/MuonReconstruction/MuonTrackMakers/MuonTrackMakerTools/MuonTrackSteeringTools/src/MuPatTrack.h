@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATTRACK_H
@@ -7,7 +7,7 @@
 
 #include "MuPatSegment.h"
 #include "MuPatCandidateBase.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 

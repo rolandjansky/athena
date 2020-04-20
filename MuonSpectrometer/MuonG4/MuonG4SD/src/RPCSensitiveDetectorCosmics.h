@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @class RPCSensitiveDetectorCosmics
@@ -91,13 +91,16 @@ We describe here how each field of the identifier is determined.
 
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
+#include <gtest/gtest_prod.h>
 
 class RPCSensitiveDetectorCosmics : public G4VSensitiveDetector {
+FRIEND_TEST( RPCSensitiveDetectorCosmicstest, Initialize );
+FRIEND_TEST( RPCSensitiveDetectorCosmicstest, ProcessHits );
 
 public:
     /** construction/destruction */
-    RPCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName);
-    ~RPCSensitiveDetectorCosmics() {}
+    RPCSensitiveDetectorCosmics(const std::string& name, const std::string& hitCollectionName, unsigned int nGasGaps);
+    ~RPCSensitiveDetectorCosmics()=default;
 
     /** member functions */
     void Initialize(G4HCofThisEvent*) override final;
@@ -105,9 +108,9 @@ public:
     
 private:
     /** member data */
-    SG::WriteHandle<RPCSimHitCollection>  m_myRPCHitColl;
+    SG::WriteHandle<RPCSimHitCollection> m_myRPCHitColl;
     RpcHitIdHelper* m_muonHelper;
-    double                     m_globalTime;
+    double m_globalTime;
     bool m_isGeoModel;
     Amg::Vector3D m_mom;           
     double m_momMag;           

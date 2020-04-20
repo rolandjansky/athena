@@ -23,6 +23,10 @@ def  EDMDecodingVersion():
         # Check HLT ROD version in first event of first input file
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         inputFileName = athenaCommonFlags.FilesInput()[0]
+        if not inputFileName and athenaCommonFlags.isOnline():
+            log.info("Online reconstruction mode, no input file available. Leaving default TriggerFlags.EDMDecodingVersion=%d", TriggerFlags.EDMDecodingVersion())
+            return
+
         import eformat
         from libpyeformat_helper import SubDetector
         bs = eformat.istream(inputFileName)
@@ -501,6 +505,7 @@ class HLTTriggerResultGetter(Configured):
                                                           'features':edmlist})
             tHLT.ActInPlace=True
             slimmerHLT.ThinningTool = tHLT
+            slimmerHLT.ExtraInputs = [('xAOD::TrigNavigation','StoreGateSvc+TrigNavigation')]
             topSequence += slimmerHLT
             log.info("Configured slimming of HLT")
             print(slimmerHLT.ThinningTool)  # noqa: ATL901

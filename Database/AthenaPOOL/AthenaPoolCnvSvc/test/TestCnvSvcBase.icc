@@ -25,14 +25,7 @@ public:
       m_name (name)
   {}
   
-  virtual StatusCode disconnectOutput() override
-  { std::abort(); }
-   virtual const std::string& getOutputConnectionSpec() const override
-  { std::abort(); }
-  virtual std::string getOutputContainer(const std::string& /*typeName*/,
-                                         const std::string& /*key*/ = "") const override
-  { std::abort(); }
-  virtual pool::DbType technologyType(const std::string& /*containerName*/) const override
+  virtual StatusCode disconnectOutput(const std::string& /*outputFile*/) override
   { std::abort(); }
   virtual IPoolSvc* getPoolSvc() override
   { std::abort(); }
@@ -57,11 +50,13 @@ public:
                                     std::string& /*refAddress*/) override
   
   { std::abort(); }
+  virtual StatusCode decodeOutputSpec(std::string& /*connectionSpec*/, int& /*outputTech*/) const override
+  { std::abort(); }
   virtual StatusCode makeServer(int /*num*/) override
   { std::abort(); }
   virtual StatusCode makeClient(int /*num*/) override
   { std::abort(); }
-  virtual StatusCode cleanUp() override
+  virtual StatusCode cleanUp(const std::string& /*connection*/) override
   { std::abort(); }
   virtual StatusCode setInputAttributes(const std::string& /*fileName*/) override
   { std::abort(); }

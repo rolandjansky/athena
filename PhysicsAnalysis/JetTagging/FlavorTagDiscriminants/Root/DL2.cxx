@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/DL2.h"
@@ -16,7 +16,9 @@ namespace FlavorTagDiscriminants {
   DL2::DL2(const lwt::GraphConfig& graph_config,
            const std::vector<DL2InputConfig>& inputs,
            const std::vector<DL2TrackSequenceConfig>& track_sequences,
-           FlipTagConfig flipConfig):
+           FlipTagConfig flipConfig,
+           std::map<std::string, std::string> out_remap,
+           OutputType output_type):
     m_input_node_name(""),
     m_graph(new lwt::LightweightGraph(graph_config)),
     m_variable_cleaner(nullptr)
@@ -54,17 +56,44 @@ namespace FlavorTagDiscriminants {
     // set up outputs
     for (const auto& out_node: graph_config.outputs) {
       std::string node_name = out_node.first;
+
       OutNode node;
       for (const std::string& element: out_node.second.labels) {
         std::string name = node_name + "_" + element;
+
+        // let user rename the output
+        auto replacement_itr = out_remap.find(name);
+        if (replacement_itr != out_remap.end()) {
+          name = replacement_itr->second;
+          out_remap.erase(replacement_itr);
+        }
+
         // for the spring 2019 retraining campaign we're stuck with
         // doubles. Hopefully at some point we can move to using
         // floats.
-        SG::AuxElement::Decorator<double> d(name);
-        node.emplace_back(
-          element, [d](const SG::AuxElement& e, double v){ d(e) = v;});
+        if (output_type == OutputType::DOUBLE) {
+          SG::AuxElement::Decorator<double> d(name);
+          node.emplace_back(
+            element, [d](const SG::AuxElement& e, double v){ d(e) = v;});
+        } else if (output_type == OutputType::FLOAT) {
+          SG::AuxElement::Decorator<float> f(name);
+          node.emplace_back(
+            element, [f](const SG::AuxElement& e, double v){ f(e) = v;});
+        } else {
+          throw std::logic_error("Unknown output type");
+        }
       }
       m_decorators[node_name] = node;
+    }
+
+    // we want to make sure every remapping was used
+    if (out_remap.size() > 0) {
+      std::string outputs;
+      for (const auto& item: out_remap) {
+        outputs.append(item.first);
+        if (item != *out_remap.rbegin()) outputs.append(", ");
+      }
+      throw std::logic_error("found unused output remapping(s): " + outputs);
     }
   }
   void DL2::decorate(const xAOD::Jet& jet) const {

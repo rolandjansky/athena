@@ -26,8 +26,6 @@
 
 //xAOD
 #include "xAODBase/IParticle.h"
-#include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccessInterfaces/TVirtualEvent.h"
 
 // Qt
 #include <QtGui/QColor>

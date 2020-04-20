@@ -328,7 +328,6 @@ try:
         #topSequence.CombinedMuonTracksTruthAlg.OutputLevel = VERBOSE
         #ToolSvc += CfgMgr.Trk__TrackParticleCaloExtensionTool("TrackParticleCaloExtensionTool",OutputLevel = VERBOSE)
         #ToolSvc.MuonCombinedTrackFitter.OutputLevel = VERBOSE
-        #ToolSvc.OutwardsTrackCleaner.OutputLevel = VERBOSE
         #ToolSvc.MuidTrackCleaner.OutputLevel = VERBOSE
         #ToolSvc += CfgMgr.Rec__MuidCaloMaterialParam("MuidCaloMaterialParam",OutputLevel = VERBOSE)
         #ToolSvc += CfgMgr.Rec__MuidCaloTrackStateOnSurface("MuidCaloTrackStateOnSurface",OutputLevel = VERBOSE)

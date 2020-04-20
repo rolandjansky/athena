@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
-                          MuonSpectrometer/MuonIdHelpers
+                          MuonSpectrometer/MuonStationIndex
                           PRIVATE
                           Event/EventPrimitives
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -30,6 +30,6 @@ atlas_add_library( MuonLinearSegmentMakerUtilities
                    PUBLIC_HEADERS MuonLinearSegmentMakerUtilities
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${GSL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthContainers GeoPrimitives GaudiKernel MuonIdHelpersLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthContainers GeoPrimitives GaudiKernel MuonStationIndexLib
                    PRIVATE_LINK_LIBRARIES ${GSL_LIBRARIES} EventPrimitives MuonReadoutGeometry MuonSegment TrkSurfaces TrkEventPrimitives TrkRIO_OnTrack )
 

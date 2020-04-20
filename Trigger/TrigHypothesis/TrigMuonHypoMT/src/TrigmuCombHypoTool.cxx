@@ -2,9 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaMonitoring/Monitored.h"
-#include "DecisionHandling/Combinators.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "TrigCompositeUtils/Combinators.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigmuCombHypoTool.h"
 
 using namespace TrigCompositeUtils;

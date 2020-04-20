@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -111,10 +111,10 @@ public:
     //! interface for update for reference-track KF, not implemented.
     virtual std::pair<AmgVector(5), AmgSymMatrix(5)>* updateParameterDifference (const AmgVector(5)&, const AmgSymMatrix(5)&, 
                                                                                  const Amg::VectorX&, const Amg::MatrixX&, 
-                                                                                 const int&, Trk::FitQualityOnSurface*&, bool ) const  override final {return 0;}
+                                                                                 const int&, Trk::FitQualityOnSurface*&, bool ) const  override final {return nullptr;}
 
     //! give back how updator is configured for inital weights
-    virtual const std::vector<double>  initialErrors() const  override final;
+    virtual std::vector<double>  initialErrors() const  override final;
 
 private:
     //! common maths calculation code for addToState and removeFromState

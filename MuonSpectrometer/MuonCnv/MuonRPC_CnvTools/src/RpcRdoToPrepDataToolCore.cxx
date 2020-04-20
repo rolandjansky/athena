@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -182,9 +182,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::initialize() {
   }
   
 
-  if (m_RPCInfoFromDb){
-    ATH_CHECK(m_readKey.initialize());
-  }
+  ATH_CHECK(m_readKey.initialize(m_RPCInfoFromDb));
 
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() );

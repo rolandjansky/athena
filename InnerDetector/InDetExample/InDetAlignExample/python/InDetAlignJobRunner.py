@@ -1,13 +1,17 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: InDetAlignJobRunner.py,v 1.6 2008-07-31 18:02:08 beringer Exp $
 # Written by Juerg Beringer in April 2008.
+
+from __future__ import print_function
 
 import math
 import os
 import socket
-import commands
 import time
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 # Default template of job submission script
@@ -97,7 +101,7 @@ class InDetAlignJobRunner:
         options = self.options.keys()
         options.sort()
         for o in options:
-            print "%-20s = %-30s  # %s" % (o,self.options[o],self.optionDescription.get(o,'')) 
+            print ("%-20s = %-30s  # %s" % (o,self.options[o],self.optionDescription.get(o,'')) )
 
 
     def addFiles(self,fileList):
@@ -107,11 +111,11 @@ class InDetAlignJobRunner:
 
     def configureJob(self,jobnr):
         """Configure options for job number jobnr."""
-        if jobnr in self.jobs: raise InDetAlignJobRunnerError, 'Job number %s already configured' % jobnr
+        if jobnr in self.jobs: raise InDetAlignJobRunnerError ('Job number %s already configured' % jobnr)
 
         # Check if any input files are available for this job
         iFirst = self.options['filesPerJob']*jobnr
-        if iFirst >= len(self.inputfiles): raise InDetAlignJobRunnerError, 'jobnr too high for available number of files'
+        if iFirst >= len(self.inputfiles): raise InDetAlignJobRunnerError ('jobnr too high for available number of files')
         iLast = iFirst + self.options['filesPerJob']
         if iLast > len(self.inputfiles): iLast=len(self.inputfiles)
 
@@ -123,7 +127,7 @@ class InDetAlignJobRunner:
         
         # Check if job's output files exist already in order to prevent overwriting of data
         for f in ('outputfile', 'histfile', 'logfile'):
-            if os.access(self.options[f],os.F_OK): raise InDetAlignJobRunnerError, 'File %s exists already' % self.options[f]
+            if os.access(self.options[f],os.F_OK): raise InDetAlignJobRunnerError ('File %s exists already' % self.options[f])
 
         # Make sure start directory where script and config files will be written to exists
         os.system('mkdir -p %(startdir)s' % self.options)
@@ -152,12 +156,12 @@ class InDetAlignJobRunner:
         script = open(self.options['scriptfile'],'w')
         script.write(self.options['scriptTemplate'] % self.options)
         script.close()
-        os.chmod(self.options['scriptfile'],0755)
+        os.chmod(self.options['scriptfile'],0o755)
 
 
     def submitBackground(self,jobnr):
         """Execute a configured job in the background"""
-        if not jobnr in self.jobs: raise InDetAlignJobRunnerError, 'Job number %s is not yet configured' % jobnr
+        if not jobnr in self.jobs: raise InDetAlignJobRunnerError ('Job number %s is not yet configured' % jobnr)
         scriptfile = self.jobs[jobnr]['scriptfile']
         logfile = self.jobs[jobnr]['logfile']
         os.system(scriptfile+' >& '+logfile+' &')
@@ -165,21 +169,21 @@ class InDetAlignJobRunner:
 
     def submitLSF(self,jobnr):
         """Execute a configured job as a LSF batch job"""
-        if not jobnr in self.jobs: raise InDetAlignJobRunnerError, 'Job number %s is not yet configured' % jobnr
+        if not jobnr in self.jobs: raise InDetAlignJobRunnerError ('Job number %s is not yet configured' % jobnr)
         batchCmd = 'bsub -q %(batchQueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % self.jobs[jobnr]
-        print batchCmd
+        print (batchCmd)
         os.system(batchCmd)
 
 
     def run(self):
         """Run all jobs either in batch or in the background, as specified by option batchType."""
         batchType = self.options['batchType']    # Currently the same for all jobs
-        if not batchType in ('LSF','background','configureOnly'): raise InDetAlignJobRunnerError, 'Cannot run job type %s' % type
+        if not batchType in ('LSF','background','configureOnly'): raise InDetAlignJobRunnerError ('Cannot run job type %s' % type)
         filesPerJob = self.options['filesPerJob']
         njobs = int(math.ceil(float(len(self.inputfiles))/filesPerJob))
         self.options['njobs'] = njobs
         for i in range(njobs):
-            print '\nSubmitting job %s (using batchType=%s) ...' % (i,batchType)
+            print ('\nSubmitting job %s (using batchType=%s) ...' % (i,batchType))
             self.configureJob(i)
             if batchType=='LSF': self.submitLSF(i)
             if batchType=='background': self.submitBackground(i)
@@ -189,8 +193,8 @@ class InDetAlignJobRunner:
     def getRunningLSFJobs(self):
         """Get list of jobs submitted by this InDetAlignJobRunner that are still running"""
         runningJobs = [ ]
-        jobnamecol = commands.getoutput("bjobs 2>&1 | tail +2 | cut -c 60- | awk '{print $1}'").split()
-        #jobnamecol = commands.getoutput("cat bjobs.log | tail +2 | cut -c 60- | awk '{print $1}'").split()
+        jobnamecol = subprocess.getoutput("bjobs 2>&1 | tail +2 | cut -c 60- | awk '{print $1}'").split()
+        #jobnamecol = subprocess.getoutput("cat bjobs.log | tail +2 | cut -c 60- | awk '{print $1}'").split()
         for j in jobnamecol:
             if j in self.jobNames: runningJobs.append(j)
         return runningJobs
@@ -199,13 +203,13 @@ class InDetAlignJobRunner:
     def wait(self):
         """Wait until all jobs have completed (currently only implemented for LSF batch jobs)."""
         batchType = self.options['batchType']    # Currently the same for all jobs
-        if batchType != 'LSF': raise InDetAlignJobRunnerError, 'wait() is not yet implemented for %s' % batchType
+        if batchType != 'LSF': raise InDetAlignJobRunnerError ('wait() is not yet implemented for %s' % batchType)
         while 1:
             time.sleep(30)    # Give LSF time to see recently submitted jobs
             runningJobs = self.getRunningLSFJobs()
             if not runningJobs: break
-            print
-            print time.asctime(),' Waiting for %2s job(s) (%s)' % (len(runningJobs),runningJobs)
+            print()
+            print (time.asctime(),' Waiting for %2s job(s) (%s)' % (len(runningJobs),runningJobs))
         self.log('InDetAlignJobRunner: finished','',outputfiles=self.getOutputFiles())
 
 
@@ -231,7 +235,7 @@ class InDetAlignJobRunner:
                         msg += "\n    %-30s = %s" % (i,data[k][i])
                 else:
                     msg += "\n\n%-15s = %s" % (k,data[k])
-            #print msg
+            #print (msg)
             os.system('echo "%s" | mail -s "%s" "%s"' % (msg,subject,self.options['logmail']))
 
 
@@ -239,7 +243,7 @@ class InDetAlignJobRunner:
 # Test code
 #
 if __name__ == '__main__':
-    print 'Testing InDetAlignJobRunner:'
+    print ('Testing InDetAlignJobRunner:')
     t = InDetAlignJobRunner(batchType='configureOnly')
     t.addFiles([1,2,3])
     t.showOptions()

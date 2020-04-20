@@ -1,80 +1,80 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import sys
-import os
-import types
-
-import AthenaCommon.SystemOfUnits as Units
-from AthenaPython.PyAthena import StatusCode
-import AthenaPython.PyAthena as PyAthena
-from PyCool import cool,coral
+from __future__ import print_function
 
 def ChooseOptionFromList(sTitle,sMessage,sPrompt,sChoiceList,iPlusMinus,bPlusMinus,optionDict):
 
-    print ""
-    print sTitle
+    print ("")
+    print (sTitle)
 
-    if bPlusMinus==False:
+    if bPlusMinus is False:
         for index,s in enumerate(sChoiceList):
-            print "%3d : %-20s" % (index+iPlusMinus,s)
+            print ("%3d : %-20s" % (index+iPlusMinus,s))
     else:
         for index,s in enumerate(sChoiceList):
-            print "%3d/%3d : %-20s" % (index+iPlusMinus,-index,s)
+            print ("%3d/%3d : %-20s" % (index+iPlusMinus,-index,s))
 
     # option menu
     sMenu=""
     for s,v in optionDict:
         sMenu=sMenu+s+" "+v+"   "
-    if sMenu!="": print "\n"+sMenu
+    if sMenu!="":
+        print ("\n"+sMenu)
 
     bValidResponse=False
-    while bValidResponse==False:
+    while bValidResponse is False:
 
-        print " .. "+sPrompt+" > ",
+        print (" .. "+sPrompt+" > ", end='')
         tty = open("/dev/tty", "r+")
         rep=tty.readline()
         rep=rep.strip()
 
         # response is in option list
         for s,v in optionDict:
-            if rep==s: return rep
+            if rep==s:
+                return rep
 
         # convert response to integer
         try:
             iResponse=int(rep)
             
             # reponse in indexes
-            if bPlusMinus==False:
-                if iResponse in range(iPlusMinus, len(sChoiceList)+iPlusMinus): return iResponse
+            if bPlusMinus is False:
+                if iResponse in range(iPlusMinus, len(sChoiceList)+iPlusMinus):
+                    return iResponse
 
             # reponse in indexes
-            if bPlusMinus==True:
-                if iResponse in range(iPlusMinus, len(sChoiceList)+iPlusMinus+1): return iResponse
-                if iResponse in range(-len(sChoiceList)+iPlusMinus,iPlusMinus-1): return iResponse
+            if bPlusMinus is True:
+                if iResponse in range(iPlusMinus, len(sChoiceList)+iPlusMinus+1):
+                    return iResponse
+                if iResponse in range(-len(sChoiceList)+iPlusMinus,iPlusMinus-1):
+                    return iResponse
 
-            print "WARNING : response out of range"
+            print ("WARNING : response out of range")
                 
-        except:
-            print "???"
+        except Exception:
+            print ("???")
 
         
 def TypeEnterToContinue(sMessage):
 
-    if sMessage!="": print sMessage
-    print " .. Type ENTER to continue  > ",
+    if sMessage!="":
+        print (sMessage)
+    print (" .. Type ENTER to continue  > ", end='')
     tty = open("/dev/tty", "r+")
-    rep=tty.readline()
+    tty.readline()
 
 
 def YesNoQuestion(sMessage):
 
-    print ""
-    print sMessage+" [y/n] :",
+    print ("")
+    print (sMessage+" [y/n] :", end='')
     tty = open("/dev/tty", "r+")
     rep=tty.readline()
     rep=rep.strip()
     
-    if rep=="y" or rep=="Y": return 1
+    if rep=="y" or rep=="Y":
+        return 1
     return 0
 
 

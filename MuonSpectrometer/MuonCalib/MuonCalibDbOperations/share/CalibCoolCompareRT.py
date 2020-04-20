@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import sys
 import getopt
 
@@ -14,7 +16,7 @@ def printhelp(argv0):
 	
 theArgs=sys.argv[1:]
 
-for i in xrange(2):
+for i in range(2):
 	optlist, args = getopt.getopt(theArgs, 'hs:f:t:')
 	
 	for opt, oa in optlist:
@@ -50,11 +52,11 @@ if len(theArgs)!=1:
 	
 outfile_nm=theArgs[0]
 
-print cool_database_strings
-print cool_folders
-print cool_tags
-print run_numbers
-print outfile_nm
+print (cool_database_strings)
+print (cool_folders)
+print (cool_tags)
+print (run_numbers)
+print (outfile_nm)
 
 sys.argv=[sys.argv[0], '-b']
 
@@ -68,11 +70,11 @@ cool_rts=[]
 
 outfile=TFile(outfile_nm, "RECREATE")
 
-for i in xrange(2):
+for i in range(2):
 	outfile.mkdir("graphs_"+str(i)).cd()
 	if not cool_tags[i]:
 		cool_tags[i] = GetFolderTag(cool_database_strings[i], cool_folders[i])
-	print "Cool database: " + cool_database_strings[i] + " " + cool_folders[i] + " " + cool_tags[i] + " " + str(run_numbers[i])
+	print ("Cool database: " + cool_database_strings[i] + " " + cool_folders[i] + " " + cool_tags[i] + " " + str(run_numbers[i]))
 	cool_rts.append(ReadRtCool(cool_database_strings[i], cool_folders[i], cool_tags[i], run_numbers[i])[1])
 
 
@@ -92,12 +94,12 @@ n_tubes=[]
 t=[]
 v=[]
 r=array('f', 13*[0.0])
-for i in xrange(13):
+for i in range(13):
 	r[i]=float(i+1)
 tree.Branch("r", r, "r[13]/F")
 #validflag=[]
 #adc=[]
-for i in xrange(2):
+for i in range(2):
 	t.append(array('f', 13*[0.0]))
 	v.append(array('f', 13*[0.0]))
 	tree.Branch("t_" + str(i), t[-1], "t_" + str(i) + "[13]/F")
@@ -110,14 +112,14 @@ for ident in all_stations:
 		station_nm[i]=nm[i]
 	station_phi[0]=up.stationPhi()
 	station_eta[0]=up.stationEta()
-	for i in xrange(2):
+	for i in range(2):
 		if not ident in cool_rts[i]:
-			for j in xrange(13):
+			for j in range(13):
 				t[i][j]=-9e9
 				v[i][j]=-9e9
 			continue
 		theRt=cool_rts[i][ident]
-		for j in xrange(13):
+		for j in range(13):
 			t[i][j]=theRt.Eval(float(j+1))
 			v[i][j]=1/theRt.Derivative(float(j+1))
 			

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Dump beam spot in a COOL SQLite file (using AtlCoolTool).
+
+from __future__ import print_function
 
 __author__  = 'Juerg Beringer'
 __version__ = '$Id: dumpBeamSpot.py 217369 2009-10-05 18:43:35Z atlidbs $'
@@ -25,19 +27,19 @@ if options.connstring:
     dbconn = args[0]
 else:
     dbconn = "sqlite://;schema="+args[0]+";dbname="+options.dbname
-print "\nUsing database connection:",dbconn
+print ("\nUsing database connection:",dbconn)
 
 tool = AtlCoolTool.AtlCoolTool(dbconn)
 tool.usetag(options.tag)   # Must always set tag
 
 if options.folderinfo:
-    print
-    print tool.listinfo(folder)
-    print
-    print tool.lstags(folder)
-    print
+    print()
+    print (tool.listinfo(folder))
+    print()
+    print (tool.lstags(folder))
+    print()
     exit()
 
-print "\nUsing folder:",folder
-print tool.more(folder)
-print
+print ("\nUsing folder:",folder)
+print (tool.more(folder))
+print()

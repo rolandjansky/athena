@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef SimpleSTgcClusterBuilderTool_h
 #define SimpleSTgcClusterBuilderTool_h
 
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "STgcClusterization/ISTgcClusterBuilderTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
@@ -34,33 +34,27 @@ namespace Muon
     SimpleSTgcClusterBuilderTool(const std::string&, const std::string&, const IInterface*);
     
     /** Default destructor */
-    virtual ~SimpleSTgcClusterBuilderTool();
+    virtual ~SimpleSTgcClusterBuilderTool()=default;
 
     /** standard initialize method */
     virtual StatusCode initialize();
-    
-    /** standard finalize method */
-    virtual StatusCode finalize();
 
     StatusCode getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
-			   std::vector<Muon::sTgcPrepData*>& clustersVect);
+			   std::vector<Muon::sTgcPrepData*>& clustersVect)const;
 
   private: 
 
     double m_chargeCut;
-    bool m_allowHoles;
+    unsigned int m_maxHoleSize;
 
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-
-    std::vector<std::set<unsigned int>> m_clustersStripNum[3][5];
-    std::vector<std::vector<Muon::sTgcPrepData>> m_clusters[3][5];
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     /// private functions
     void dumpStrips( std::vector<Muon::sTgcPrepData>& stripsVect,
-		     std::vector<Muon::sTgcPrepData*>& clustersVect );
+		     std::vector<Muon::sTgcPrepData*>& clustersVect )const;
   
-    bool addStrip(Muon::sTgcPrepData& strip);
+    bool addStrip(const Muon::sTgcPrepData& strip,std::vector<std::set<unsigned int>> clustersStripNum[2][4], 
+                  std::vector<std::vector<Muon::sTgcPrepData>> clusters[2][4])const;
 
 
   };

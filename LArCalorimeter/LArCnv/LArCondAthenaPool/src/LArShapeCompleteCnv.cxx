@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -51,25 +51,15 @@ LArShapeCompleteCnv::createTransient ()
 
   MsgStream log(msgSvc(), "LArShapeCompleteCnv" ); 
   if( compareClassGuid(p2_guid) ) {  
-    std::auto_ptr< LArShapeSubset_p2 > col_vect( poolReadObject< LArShapeSubset_p2 >() );  
+    std::unique_ptr< LArShapeSubset_p2 > col_vect( poolReadObject< LArShapeSubset_p2 >() );  
     log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 
     return TPconverter2.createTransient( col_vect.get(), log );
   } 
   else if( compareClassGuid(p1_guid) ) {  
     log << MSG::ERROR << "Sorry if you really want to read LArShapeSubset_p1 you will need to provide a legacy converter" << endmsg;
-    // using auto_ptr ensures deletion of the persistent object
-    //std::auto_ptr< LArShapeSubset_p1 > col_vect( poolReadObject< LArShapeSubset_p1 >() );
-    //log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 
-    //return TPconverter1.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(p0_guid) ) {
     log << MSG::ERROR << "Sorry if you really want to read the very old LArShapeSubset you will need to provide a legacy converter" << endmsg;
-    // subset from before TP separation
-    //log << MSG::DEBUG << "Reading LArShapeSubset (original)" << endmsg; 
-    //std::auto_ptr< LArConditionsSubset<LArShapeP> > subset ( poolReadObject< LArConditionsSubset<LArShapeP> >() );
-    // Here we must convert from LArShapeP to LArShapeP1
-    //log << MSG::VERBOSE << "subset ptr " << subset.get() << endmsg; 
-    //return (createTransient(subset.get()));
   } 
   throw std::runtime_error("Unsupported persistent version of LArShapeCompleteCnv");
 }
@@ -95,72 +85,16 @@ void
 LArShapeCopy::copyOldtoNew(const LArConditionsSubset<LArShapeP>* oldShape,
 			   LArConditionsSubset<LArShapeP1>* newShape)
 {
-    // Get the number of febs and corrections
-    unsigned int nFebs       = oldShape->m_subset.size();
-    unsigned int nCorrs      = oldShape->m_correctionVec.size();
+  newShape->assign (*oldShape,
+                    [] (const LArShapeP from,
+                        LArShapeP1& to)
+                    {
+                      to.m_vShape.assign (from.m_vShape.begin(),
+                                          from.m_vShape.end());
 
-    //log << MSG::DEBUG << "LArShapeCompleteCnv::createTransient oldShape 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endmsg; 
-
-    // Copy conditions
-
-    // Resize subset
-    newShape->m_subset.resize(nFebs);
-    
-    // Loop over febs
-    for (unsigned int i = 0; i < nFebs; ++i){
-        newShape->m_subset[i].first = oldShape->m_subset[i].first;
-	unsigned nChannels=oldShape->m_subset[i].second.size();
-        newShape->m_subset[i].second.resize(nChannels);
-        // Loop over channels in feb
-        for (unsigned int j = 0; j < nChannels; ++j){
-            // reserve space for shape vec
-            unsigned int nShapes = oldShape->m_subset[i].second[j].m_vShape.size();
-            newShape->m_subset[i].second[j].m_vShape.resize(nShapes);
-            // Loop over shapes per channel
-            for (unsigned int k = 0; k < nShapes; ++k){
-                newShape->m_subset[i].second[j].m_vShape[k] = 
-                    oldShape->m_subset[i].second[j].m_vShape[k];
-            }
-            // reserve space for shape der vec
-            unsigned int nShapeDers = oldShape->m_subset[i].second[j].m_vShapeDer.size();
-            newShape->m_subset[i].second[j].m_vShapeDer.resize(nShapeDers);
-            // Loop over shapeders per channel
-            for (unsigned int k = 0; k < nShapeDers; ++k){
-                newShape->m_subset[i].second[j].m_vShapeDer[k] = 
-                  toFloat (oldShape->m_subset[i].second[j].m_vShapeDer[k]);
-            }
-        }
-    }
-
-    //log << MSG::DEBUG << "LArShapeCompleteCnv::createTransient oldShape 2 " << oldShape << endmsg; 
-
-    // Copy corrections
-    newShape->m_correctionVec.resize(nCorrs);
-
-    // Loop over corrections
-    for (unsigned int i = 0; i < nCorrs; ++i){
-        newShape->m_correctionVec[i].first = oldShape->m_correctionVec[i].first;
-        // reserve space for shape vec
-        unsigned int nShapes = oldShape->m_correctionVec[i].second.m_vShape.size();
-        newShape->m_correctionVec[i].second.m_vShape.resize(nShapes);
-        // Loop over shapes per channel
-        for (unsigned int k = 0; k < nShapes; ++k){
-            newShape->m_correctionVec[i].second.m_vShape[k] = 
-                oldShape->m_correctionVec[i].second.m_vShape[k];
-        }
-        // reserve space for shape der vec
-        unsigned int nShapeDers = oldShape->m_correctionVec[i].second.m_vShapeDer.size();
-        newShape->m_correctionVec[i].second.m_vShapeDer.resize(nShapeDers);
-        // Loop over shapeders per channel
-        for (unsigned int k = 0; k < nShapeDers; ++k){
-            newShape->m_correctionVec[i].second.m_vShapeDer[k] = 
-                oldShape->m_correctionVec[i].second.m_vShapeDer[k];
-        }
-    }
-
-    // Copy the rest
-    newShape->m_gain          = oldShape->m_gain; 
-    newShape->m_channel       = oldShape->m_channel;
-    newShape->m_groupingType  = oldShape->m_groupingType;
+                      unsigned int nShapeDers = from.m_vShapeDer.size();
+                      to.m_vShapeDer.resize (nShapeDers);
+                      for (size_t k = 0; k < nShapeDers; k++)
+                        to.m_vShapeDer[k] = toFloat (from.m_vShapeDer[k]);
+                    });
 }

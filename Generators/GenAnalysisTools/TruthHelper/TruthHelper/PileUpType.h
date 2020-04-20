@@ -21,8 +21,8 @@
 #define TRUTHHELPER_PILEUPTYPE_H
 
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <vector>
 

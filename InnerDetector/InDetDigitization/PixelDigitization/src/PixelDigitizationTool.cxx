@@ -1,18 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-////////////////////////////////////////////////////////////////////////////
-// PixelDigitizationTool.cxx
-//   Implementation file for class PixelDigitizationTool
-////////////////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-////////////////////////////////////////////////////////////////////////////
 #include "PixelDigitizationTool.h"
-
 #include "SiDigitization/SiChargedDiodeCollection.h"
-
-// Random Number Generation
 #include "AthenaKernel/RNGWrapper.h"
 #include "CLHEP/Random/RandomEngine.h"
 
@@ -31,21 +22,17 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
 StatusCode PixelDigitizationTool::initialize() {
   ATH_MSG_DEBUG("PixelDigitizationTool::Initialize()");
 
-  // Initialize services
-  CHECK(m_mergeSvc.retrieve());
-
-  // Initialize random number generator
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
   ATH_CHECK(m_rndmSvc.retrieve());
 
-  CHECK(detStore()->retrieve(m_detID,"PixelID"));
+  ATH_CHECK(detStore()->retrieve(m_detID,"PixelID"));
   ATH_MSG_DEBUG("Pixel ID helper retrieved");
 
-  // Initialize tools
-  CHECK(m_chargeTool.retrieve());
-
-  CHECK(m_fesimTool.retrieve());
-  
-  CHECK(m_energyDepositionTool.retrieve());
+  ATH_CHECK(m_chargeTool.retrieve());
+  ATH_CHECK(m_fesimTool.retrieve());
+  ATH_CHECK(m_energyDepositionTool.retrieve());
 
   // check the input object name
   if (m_hitsContainerKey.key().empty()) {
@@ -55,12 +42,8 @@ StatusCode PixelDigitizationTool::initialize() {
   if(m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
   ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
 
-  // Initialize ReadHandleKey
   ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
-  // Initialize ReadCondHandleKey
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
-
-  // Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());
   ATH_CHECK(m_simDataCollKey.initialize());
 
@@ -77,17 +60,17 @@ StatusCode PixelDigitizationTool::finalize() {
 //=======================================
 // P R O C E S S   S U B E V E N T S
 //=======================================
-StatusCode PixelDigitizationTool::processAllSubEvents() {
+StatusCode PixelDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   // Prepare event
   ATH_MSG_DEBUG("Prepare event");
-  CHECK(prepareEvent(0));
+  ATH_CHECK(prepareEvent(ctx, 0));
 
   // Get the container(s)
   typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
-    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
+    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey, ctx);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get Pixel SiHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
       return StatusCode::FAILURE;
@@ -115,7 +98,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
     }
   }
   // Digitize hits
-  CHECK(digitizeEvent());
+  ATH_CHECK(digitizeEvent(ctx));
 
   ATH_MSG_DEBUG("Digitize success!");
   return StatusCode::SUCCESS;
@@ -124,10 +107,10 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
 //=======================================
 // D I G I T I Z E   E V E N T (main)
 //=======================================
-StatusCode PixelDigitizationTool::digitizeEvent() {
+StatusCode PixelDigitizationTool::digitizeEvent(const EventContext& ctx) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::digitizeEvent()");
 
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
   if (not pixelDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
@@ -143,8 +126,8 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
   // Set the RNG to use for this event.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
+  rngWrapper->setSeed( name(), ctx );
+  CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(ctx);
 
   TimedHitCollection<SiHit>::const_iterator firstHit, lastHit;
   
@@ -155,9 +138,8 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
     // Create the identifier for the collection
     ATH_MSG_DEBUG("create ID for the hit collection");
-    const PixelID* PID = static_cast<const PixelID*>(m_detID);
-    Identifier id = PID->wafer_id((*firstHit)->getBarrelEndcap(),(*firstHit)->getLayerDisk(),(*firstHit)->getPhiModule(),(*firstHit)->getEtaModule());
-    IdentifierHash wafer_hash = PID->wafer_hash(id);
+    Identifier id = m_detID->wafer_id((*firstHit)->getBarrelEndcap(),(*firstHit)->getLayerDisk(),(*firstHit)->getPhiModule(),(*firstHit)->getEtaModule());
+    IdentifierHash wafer_hash = m_detID->wafer_hash(id);
 
     // Get the det element from the manager
     const InDetDD::SiDetectorElement* sielement = elements->getDetectorElement(wafer_hash);
@@ -184,7 +166,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
         ATH_MSG_DEBUG("Running sensor simulation.");
 
         //Deposit energy in sensor
-        CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions, rndmEngine));
+        ATH_CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions, rndmEngine));
 
         //Create signal in sensor, loop over collection of loaded sensorTools
         for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
@@ -214,7 +196,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
       ATH_MSG_DEBUG("Executing tool " << m_fesimTool[itool]->name());
       m_fesimTool[itool]->process(*chargedDiodes,*RDOColl, rndmEngine);
     }
-    CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
+    ATH_CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
 
     ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
     addSDO(chargedDiodes.get());
@@ -248,7 +230,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
             ATH_MSG_DEBUG("Executing tool " << m_fesimTool[itool]->name());
             m_fesimTool[itool]->process(*chargedDiodes,*RDOColl, rndmEngine);
           }
-          CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
+          ATH_CHECK(m_rdoContainer->addCollection(RDOColl,RDOColl->identifyHash()));
 
           ATH_MSG_DEBUG("Pixel RDOs '" << RDOColl->identifyHash() << "' added to container");
           addSDO(chargedDiodes.get());
@@ -316,15 +298,15 @@ void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
 //=======================================
 // P R E P A R E   E V E N T
 //=======================================
-StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
+StatusCode PixelDigitizationTool::prepareEvent(const EventContext& ctx, unsigned int) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::prepareEvent()");
 
   // Prepare event
-  m_rdoContainer = SG::makeHandle(m_rdoContainerKey);
+  m_rdoContainer = SG::makeHandle(m_rdoContainerKey, ctx);
   ATH_CHECK(m_rdoContainer.record(std::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max())));
   ATH_MSG_DEBUG("PixelRDO_Container " << m_rdoContainer.name() << " registered in StoreGate");
 
-  m_simDataColl = SG::makeHandle(m_simDataCollKey);
+  m_simDataColl = SG::makeHandle(m_simDataCollKey, ctx);
   ATH_CHECK(m_simDataColl.record(std::make_unique<InDetSimDataCollection>()));
   ATH_MSG_DEBUG("InDetSimDataCollection " << m_simDataColl.name() << " registered in StoreGate");
 
@@ -339,11 +321,11 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
 //=======================================
 // M E R G E   E V E N T
 //=======================================
-StatusCode PixelDigitizationTool::mergeEvent() {
+StatusCode PixelDigitizationTool::mergeEvent(const EventContext& ctx) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::mergeEvent()");
 
   // Digitize hits
-  CHECK(digitizeEvent());
+  ATH_CHECK(digitizeEvent(ctx));
 
   for (std::vector<SiHitCollection*>::iterator it = m_hitCollPtrs.begin();it!=m_hitCollPtrs.end();it++) {
     (*it)->Clear();
@@ -365,7 +347,6 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterat
   if (m_HardScatterSplittingMode==1 &&  m_HardScatterSplittingSkipper) { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode==1 && !m_HardScatterSplittingSkipper) { m_HardScatterSplittingSkipper=true; }
 
-
   typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
   TimedHitCollList hitCollList;
 
@@ -375,8 +356,7 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterat
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_VERBOSE(hitCollList.size() << " SiHitCollections with key " <<
-		    m_inputObjectName << " found");
+    ATH_MSG_VERBOSE(hitCollList.size() << " SiHitCollections with key " << m_inputObjectName << " found");
   }
 
   TimedHitCollList::iterator iColl(hitCollList.begin());
@@ -385,15 +365,11 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterat
   for( ; iColl != endColl; iColl++){
     SiHitCollection *hitCollPtr = new SiHitCollection(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
-    ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() <<
-		  " hits");
-    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
-		    << " index: " << timeIndex.index()
-		    << " type: " << timeIndex.type());
+    ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() << " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time() << " index: " << timeIndex.index() << " type: " << timeIndex.type());
     m_timedHits->insert(timeIndex, hitCollPtr);
     m_hitCollPtrs.push_back(hitCollPtr);
   }
-
   return StatusCode::SUCCESS;
 }
 

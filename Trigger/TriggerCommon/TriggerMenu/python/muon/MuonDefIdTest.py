@@ -170,17 +170,6 @@ class L2EFChain_mu(L2EFChainDef):
     from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
     theTrigEFIDDataPrep_Muon = TrigEFIDSequence("Muon","muon","DataPrep").getSequence()
     
-    #if "L2StarA" in self.chainPart['L2IDAlg']:                           # ---> this is Run1 tracking - keep it here
-    #  from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonA
-    #  theTrigL2SiTrackFinder_MuonA = TrigL2SiTrackFinder_MuonA()
-    #  from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_muonIsoA
-    #  theTrigL2SiTrackFinder_muonIsoA = TrigL2SiTrackFinder_muonIsoA()
-    #  id_alg_output = "STRATEGY_A" #depends on id_alg
-    #else:
-    #  logMuonDef.error("Chain built with %s but so far only L2StarA,B and C are supported." % (self.chainPart['L2IDAlg']))
-    #  return False
-    
-    #id_alg_output = "STRATEGY_A"  
     id_alg_output = "TrigFastTrackFinder_Muon" 
     if "muComb" in self.chainPart['L2CBAlg']:
       muCombThresh = self.getMuCombThresh()
@@ -229,10 +218,6 @@ class L2EFChain_mu(L2EFChainDef):
 
     if (self.doOvlpRm):
       self.L2sequenceList += [[['L2_mu_step1'], [theL2OvlpRmConfig_mufast ],'L2_step1a_wOvlpRm']]
-      #self.L2sequenceList += [[['L2_muon_standalone_wOvlpRm'],           # ---> this is Run1 tracking - keep it here
-      #                         [theTrigL2SiTrackFinder_MuonA, 
-      #                          theL2CombinedAlg, theL2CombinedHypo],
-      #                         'L2_step1a_wOvlpRm']]
       self.L2sequenceList += [[['L2_step1a_wOvlpRm'], theTrigEFIDDataPrep_Muon+
                                [theTrigFastTrackFinder_Muon, theL2CombinedAlg, theL2CombinedHypo],
                                'L2_step1b_wOvlpRm']]
@@ -240,11 +225,6 @@ class L2EFChain_mu(L2EFChainDef):
 
       EFinputTE = 'L2_step2_wOvlpRm'
     else:
-      #self.L2sequenceList += [[['L2_mu_step1'],                          # ---> this is Run1 tracking - keep it here
-      #                           [theTrigL2SiTrackFinder_MuonA, 
-      #                            theL2CombinedAlg, theL2CombinedHypo],
-      #                            #],
-      #                           'L2_mu_step2']]
       self.L2sequenceList += [[['L2_mu_step1'],
                                 theTrigEFIDDataPrep_Muon+
                                [theTrigFastTrackFinder_Muon,
@@ -349,13 +329,6 @@ class L2EFChain_mu(L2EFChainDef):
       logMuonDef.error("Chain built with %s but so far only l2muonSA is supported." % (self.chainPart['L2SAAlg']))
       return False
 
-    from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonA     # ---> this is Run1 tracking - keep it here
-    theTrigL2SiTrackFinder_MuonA = TrigL2SiTrackFinder_MuonA()
-    from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonB
-    theTrigL2SiTrackFinder_MuonB = TrigL2SiTrackFinder_MuonB()
-    from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonC
-    theTrigL2SiTrackFinder_MuonC = TrigL2SiTrackFinder_MuonC()
-
     from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
     theTrigFastTrackFinder_Muon = TrigFastTrackFinder_Muon()
     from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
@@ -403,22 +376,12 @@ class L2EFChain_mu(L2EFChainDef):
                              [theL2StandAloneAlg , theL2StandAloneHypo],
                              'L2_mu_step1']] 
 
-    EFinputTE = ''
-
-    if "L2Star" in self.chainPart['L2IDAlg']:                             # ---> this is Run1 tracking - keep it here
-      self.L2sequenceList += [[['L2_mu_step1'],
-                               [theTrigL2SiTrackFinder_MuonA, 
-                                theTrigL2SiTrackFinder_MuonB,
-                                theTrigL2SiTrackFinder_MuonC, 
-                                theL2CombinedAlg, theL2CombinedHypo],
-                               'L2_mu_step2']]
-    else:
-      self.L2sequenceList += [[['L2_mu_step1'],
-                                theTrigEFIDDataPrep_Muon+
-                               [theTrigFastTrackFinder_Muon,
-                                theL2CombinedAlg,
-                                theL2CombinedHypo],
-                                'L2_mu_step2']]
+    self.L2sequenceList += [[['L2_mu_step1'],
+                              theTrigEFIDDataPrep_Muon+
+                             [theTrigFastTrackFinder_Muon,
+                              theL2CombinedAlg,
+                              theL2CombinedHypo],
+                              'L2_mu_step2']]
 
     EFinputTE = 'L2_mu_step2'
 

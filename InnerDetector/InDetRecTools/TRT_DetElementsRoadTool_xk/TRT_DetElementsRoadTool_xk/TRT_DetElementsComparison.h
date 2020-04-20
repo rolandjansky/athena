@@ -5,6 +5,9 @@
 #ifndef  TRT_DetElementsComparison_h
 #define  TRT_DetElementsComparison_h
 
+#include "TrkParameters/TrackParameters.h"
+
+
 namespace InDet{
 
   ///////////////////////////////////////////////////////////////////

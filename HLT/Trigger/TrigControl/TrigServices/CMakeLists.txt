@@ -5,24 +5,6 @@
 # Declare the package name:
 atlas_subdir( TrigServices )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaInterprocess
-                          Control/AthenaKernel
-                          Control/AthenaMonitoring
-                          Control/CxxUtils
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/ByteStreamCnvSvcBase
-                          Event/ByteStreamData
-                          Event/EventInfoUtils
-                          Event/xAOD/xAODEventInfo
-                          GaudiKernel
-                          HLT/Trigger/TrigControl/TrigKernel
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigOutputHandling )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -38,9 +20,9 @@ atlas_add_component( TrigServices
                      ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES
                      ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} ${CORAL_LIBRARIES}
-                     AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringLib AthenaPoolUtilities
-                     ByteStreamCnvSvcBaseLib ByteStreamData EventInfoUtils GaudiKernel StoreGateLib TrigKernel
-                     TrigOutputHandlingLib TrigSteeringEvent xAODEventInfo )
+                     AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib AthenaPoolUtilities
+                     ByteStreamCnvSvcBaseLib ByteStreamData EventInfoUtils GaudiKernel RDBAccessSvcLib StoreGateLib TrigKernel
+                     TrigOutputHandlingLib TrigSteeringEvent xAODEventInfo xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py

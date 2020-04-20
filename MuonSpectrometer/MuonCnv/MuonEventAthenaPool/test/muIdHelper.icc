@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonIdHelpers/MuonIdHelperSvc.h"
@@ -34,11 +34,11 @@ Muon::MuonIdHelperSvc* muIdHelperSvc()
   assert ( sg->record (std::move (tgc_id), "TGCIDHELPER") );
 
   Muon::MuonIdHelperSvc* muIdSvc = new Muon::MuonIdHelperSvc("MuonIdHelperSvc", svcLoc);
-  muIdSvc->setProperty("HasSTgc", false);
-  muIdSvc->setProperty("HasMM", false);
+  assert ( muIdSvc->setProperty("HasSTgc", false).isSuccess() );
+  assert ( muIdSvc->setProperty("HasMM", false).isSuccess() );
   assert ( muIdSvc->initialize().isSuccess() );
   ISvcManager* svcmgr = dynamic_cast<ISvcManager*>( svcLoc );
-  svcmgr->addService( muIdSvc );
+  assert ( svcmgr->addService( muIdSvc ).isSuccess() );
   return muIdSvc;
 }
 

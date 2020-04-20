@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ template<class T>
 using SharedObject = std::shared_ptr<T>;
 
 template<typename T>
-auto do_not_delete = [](T*) {};
+const auto do_not_delete = [](T*) {};
 
 } // end of namespace
 

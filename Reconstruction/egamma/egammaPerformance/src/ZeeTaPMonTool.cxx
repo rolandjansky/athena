@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -77,7 +77,8 @@ ZeeTaPMonTool::~ZeeTaPMonTool()
 StatusCode ZeeTaPMonTool::bookHistograms()
 {
   ATH_MSG_DEBUG("ZeeTaPMonTool::bookHistograms()");
-  int start, end;
+  int start;
+  int end;
   start = 0;
   end = ENDCAP;
 
@@ -183,7 +184,7 @@ StatusCode ZeeTaPMonTool::fillHistograms()
   }
   
   // Get electron container
-  const xAOD::ElectronContainer* electron_container=0;
+  const xAOD::ElectronContainer* electron_container=nullptr;
   sc = m_storeGate->retrieve(electron_container, m_ElectronContainer);
   if(sc.isFailure() || !electron_container){
     ATH_MSG_VERBOSE("no electron container found in TDS");
@@ -196,9 +197,10 @@ StatusCode ZeeTaPMonTool::fillHistograms()
 
   int ngood_el = 0;
   int n_tot = 0;
-  float lead_et=-999, subl_et=-999;
-  const xAOD::Electron *lead_el = 0;
-  const xAOD::Electron *subl_el = 0;
+  float lead_et=-999;
+  float subl_et=-999;
+  const xAOD::Electron *lead_el = nullptr;
+  const xAOD::Electron *subl_el = nullptr;
 
   for (; e_iter!=e_end; e_iter++) {
 

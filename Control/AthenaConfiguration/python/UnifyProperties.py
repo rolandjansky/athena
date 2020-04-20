@@ -48,7 +48,7 @@ def unifyAppendDict(prop1,prop2):
     #Unify two dictionaries by appending. Throws on conflicting keys
     #find conflicting keys
     doubleKeys= set(prop1.keys()) & set(prop2.keys())
-    for k in doubleKeys():
+    for k in doubleKeys:
         if prop1[k]!= prop2[k]:
             from AthenaConfiguration.Deduplication import DeduplicationFailed
             raise DeduplicationFailed("Map-property defined multiple times with conflicting values for key %s" % k)
@@ -66,7 +66,7 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "EvtPersistencySvc.CnvServices":unifySet,
                "PoolSvc.ReadCatalog":unifySet,
                "ProxyProviderSvc.ProviderNames":unifySet,
-               "TagInfoMgr.ExtraTagValuePairs":unifySetOfPairs,
+               "TagInfoMgr.ExtraTagValuePairs":unifyAppendDict,
                "AthenaOutputStream.ItemList":unifySet,
                "AthenaPoolCnvSvc.PoolAttributes":unifySet,
                "*.HypoTools": unifySet,
@@ -76,10 +76,10 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "dummyService.AList": unifySet,
                "dummyTool.BList" : unifySet,
                "*.InputMakerInputDecisions": unifySet,
-               "*.InputMakerOutputDecisions": unifySet,
                "AddressRemappingSvc.TypeKeyRenameMaps": unifySet,
                "AuditorSvc.Auditors": unifySet,
                "MetaDataSvc.MetaDataTools": unifySet,
+               "ByteStreamAddressProviderSvc.TypeNames": unifySet,
                }
 
 def setUnificationFunction(key, function):

@@ -8,12 +8,8 @@
 export EVENTS=20
 export THREADS=2
 export SLOTS=2
-export JOBOPTION="TrigUpgradeTest/full_menu.py"
+export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
 export EXTRA="isOnline=True;doEmptyMenu=True;doWriteBS=False;doWriteRDOTrigger=True;"
-
-# This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
-export REGTESTEXP="leaving with code"
-export REGTESTREF=`find_data.py TrigUpgradeTest/dummy_regtest.ref`
 
 # Skip dumping chain counts because this test doesn't produce the histogram including them
 export SKIP_CHAIN_DUMP=1

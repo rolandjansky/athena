@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetIdentifier/SCT_ID.h"
@@ -15,16 +15,26 @@
 #include "SpacePointConversionUtils.h"
 #include "IRegionSelector/IRegSelSvc.h"
 
+#include "IRegionSelector/IRegSelTool.h"
+
 #include "TrigSpacePointConversionTool.h"
+
+
 
 TrigSpacePointConversionTool::TrigSpacePointConversionTool(const std::string& t, 
 					     const std::string& n,
-					     const IInterface*  p ) : AthAlgTool(t,n,p),
-								      m_layerNumberTool("TrigL2LayerNumberTool")
-								      {
+					     const IInterface*  p ) : 
+  AthAlgTool(t,n,p),
+  m_layerNumberTool("TrigL2LayerNumberTool"),
+  m_regsel_pix( "RegSelTool/RegSelTool_Pixel", this),
+  m_regsel_sct( "RegSelTool/RegSel_SCT", this)
+{
   declareInterface< ITrigSpacePointConversionTool >( this );
 
-  declareProperty( "RegionSelectorService",  m_regionSelectorName = "RegSelSvc" );
+  //  declareProperty( "RegionSelectorService",  m_regionSelectorName = "RegSelSvc" );
+  declareProperty( "RegSel_Pixel",           m_regsel_pix);
+  declareProperty( "RegSel_SCT",             m_regsel_sct);
+
   declareProperty( "DoPhiFiltering",         m_filter_phi = true );
   declareProperty( "UseBeamTilt",            m_useBeamTilt = true );
   declareProperty( "UseNewLayerScheme",      m_useNewScheme = false );
@@ -39,11 +49,14 @@ StatusCode TrigSpacePointConversionTool::initialize() {
 
   ATH_MSG_INFO("In initialize...");
 
-  sc = serviceLocator()->service( m_regionSelectorName, m_regionSelector);
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL("Unable to retrieve RegionSelector Service  " << m_regionSelectorName);
-    return sc;
-  }
+  //  sc = serviceLocator()->service( m_regionSelectorName, m_regionSelector);
+  //  if ( sc.isFailure() ) {
+  //    ATH_MSG_FATAL("Unable to retrieve RegionSelector Service  " << m_regionSelectorName);
+  //    return sc;
+  //  }
+
+  ATH_CHECK(m_regsel_pix.retrieve());
+  ATH_CHECK(m_regsel_sct.retrieve());
 
   sc=m_layerNumberTool.retrieve();
   if(sc.isFailure()) {
@@ -90,7 +103,7 @@ StatusCode TrigSpacePointConversionTool::finalize() {
 
 
 StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& internalRoI, 
-							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct) {
+							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct) const {
 
   output.clear();
   
@@ -103,9 +116,13 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
   std::vector<IdentifierHash> listOfPixIds;
   std::vector<IdentifierHash> listOfSctIds;
         
-  m_regionSelector->DetHashIDList(PIXEL, internalRoI, listOfPixIds); 
-  m_regionSelector->DetHashIDList(SCT, internalRoI, listOfSctIds); 
+  //  m_regionSelector->DetHashIDList(PIXEL, internalRoI, listOfPixIds); 
+  //  m_regionSelector->DetHashIDList(SCT, internalRoI, listOfSctIds); 
 
+  m_regsel_pix->HashIDList( internalRoI, listOfPixIds );
+  m_regsel_sct->HashIDList( internalRoI, listOfSctIds );
+
+ 
   int offsets[3];
 
   offsets[0] = m_layerNumberTool->offsetEndcapPixels();
@@ -137,7 +154,7 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
 }
 
 
-void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePointBase>& output) {
+void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePointBase>& output) const {
 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };  
   const Amg::Vector3D &vertex = beamSpotHandle->beamPos();
@@ -149,7 +166,7 @@ void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePoint
 }
 
 
-void TrigSpacePointConversionTool::transformSpacePoints(std::vector<TrigSiSpacePointBase>& output) {
+void TrigSpacePointConversionTool::transformSpacePoints(std::vector<TrigSiSpacePointBase>& output) const {
 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
   const Amg::Vector3D &origin = beamSpotHandle->beamPos();

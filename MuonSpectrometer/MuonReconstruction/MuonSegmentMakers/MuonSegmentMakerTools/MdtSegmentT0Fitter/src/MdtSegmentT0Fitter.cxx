@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/ListItem.h"
 #include "MdtSegmentT0Fitter/MdtSegmentT0Fitter.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -17,8 +14,6 @@
 #include "MdtCalibData/IRtResolution.h"
 #include "MdtCalibData/MdtRtRelation.h"
 
-
-
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 
@@ -27,10 +22,6 @@
 #include <atomic>
 #include <mutex>
 
-#include "TTree.h"
-#include "TROOT.h"
-#include "TMath.h"
-#include "TVirtualFitter.h"
 #include "TMinuit.h"
 // tdc count bin size -- seems to be unused -> commenting for the moment as it would be wrong
 // #define TDCBINSIZE 0.78125   //1tdc=0.78125ns; 1tdc=0.1953125ns for BMG!
@@ -57,9 +48,7 @@ namespace TrkDriftCircleMath {
 
   static MdtSegmentT0Fitter::MdtSegmentT0FcnData* g_fcnData ATLAS_THREAD_SAFE = nullptr; ///< Data to pass to/from TMinuit fcn. Guarded with mutex.
   static std::mutex g_fcnDataMutex; ///< Mutex to protect g_fcnData access
-	
-//	int count;
-    
+	    
   MdtSegmentT0Fitter::MdtSegmentT0Fitter(const std::string& ty,const std::string& na,const IInterface* pa)
   : AthAlgTool(ty,na,pa),
     DCSLFitter(), 

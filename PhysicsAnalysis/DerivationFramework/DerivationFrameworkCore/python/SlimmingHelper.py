@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ####################################################################
 # SlimmingHelper.py
@@ -33,6 +33,8 @@
 # as described above. If the user attempts to do this the output data
 # may be unreadable.
 ####################################################################
+
+from __future__ import print_function
 
 from DerivationFrameworkCore.CompulsoryContent import *
 from DerivationFrameworkCore.ContentHandler import *
@@ -210,7 +212,7 @@ class SlimmingHelper:
                         ["TruthTaus","xAOD::TruthParticleContainer"],
                         ["TruthTausAux","xAOD::TruthParticleAuxContainer"]
 			]:
-                        if not self.AppendToDictionary.has_key(_cont):
+                        if _cont not in  self.AppendToDictionary:
                                 self.AppendToDictionary[_cont]=_type
                 # Process the master list...
                                                                        
@@ -294,14 +296,14 @@ class SlimmingHelper:
                                 badItemsXAOD.append(item)
                 if (len(badItemsWildcards)>0):
                         msg.error("These static items contain wildcards: not permitted")
-                        print badItemsWildcards
+                        print (badItemsWildcards)
                         raise RuntimeError("Static content list contains wildcards")
                 if (len(badItemsXAOD)>0):
                         msg.error("These static items are xAOD collections: not permitted")
-                        print badItemsXAOD
+                        print (badItemsXAOD)
                         raise RuntimeError("Static content list contains xAOD collections")             
                 #Prevent any more modifications As they will be completely ignored, and hard to debug
-                print self.ExtraVariables,dir(self.ExtraVariables)
+                print (self.ExtraVariables,dir(self.ExtraVariables))
 
                 self.StaticContent.lock()
                 self.ExtraVariables.lock()
@@ -361,10 +363,10 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets":
                         from DerivationFrameworkJetEtMiss.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent
                         #from DerivationFrameworkCore.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent
-                        if not self.AppendToDictionary.has_key("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"):
+                        if "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" not in  self:
                                 self.AppendToDictionary["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]='xAOD::JetContainer'
                                 self.AppendToDictionary["AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
-                        if not self.AppendToDictionary.has_key("AntiKt10TruthTrimmedPtFrac5SmallR20Jets"):
+                        if "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" not in self:
                                 self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"]="xAOD::JetContainer"
                                 self.AppendToDictionary["AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux"]='xAOD::JetAuxContainer'
                         items.extend(AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent)

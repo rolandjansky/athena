@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -9,14 +9,10 @@
  -------------------------------------------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: TgcDetectorElement.cxx,v 1.1 2009-05-20 15:24:08 tcorneli Exp $
-//<version>	$Name: not supported by cvs2svn $
-
 #include "MuonReadoutGeometry/TgcDetectorElement.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkSurfaces/Surface.h"
-#include "GaudiKernel/MsgStream.h"
 
 namespace MuonGM {
 
@@ -36,10 +32,7 @@ const Trk::SurfaceBounds& TgcDetectorElement::bounds() const
 {return m_tgcre->bounds();}
 
 const Amg::Vector3D& TgcDetectorElement::center() const
-{
-    //    msg(MSG::INFO)<<"Test from TgcDetectorElement::center()"<<endmsg;
-    
-return m_tgcre->center();}
+{return m_tgcre->center();}
 
 const Amg::Vector3D& TgcDetectorElement::normal() const
 {return m_tgcre->normal();}
@@ -67,7 +60,7 @@ const Amg::Vector3D&
 TgcDetectorElement::normal(const Identifier& id) const
   {return m_tgcre->normal(id);}
 
-const std::vector<const Trk::Surface*>& 
+std::vector<const Trk::Surface*>
 TgcDetectorElement::surfaces() const
 {return m_tgcre->surfaces();}
 

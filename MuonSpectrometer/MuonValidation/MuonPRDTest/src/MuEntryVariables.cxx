@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuEntryVariables.h"
@@ -15,7 +15,7 @@
 StatusCode MuEntryVariables::fillVariables(const MuonGM::MuonDetectorManager* MuonDetMgr)
 {
 
-  ATH_MSG_INFO("do fillNSWMuEntryVariables()");
+  ATH_MSG_DEBUG("do fillNSWMuEntryVariables()");
   ATH_MSG_VERBOSE("MuonDetectorManager from Conditions Store accessed" << MuonDetMgr);
 
   CHECK( this->clearVariables() );

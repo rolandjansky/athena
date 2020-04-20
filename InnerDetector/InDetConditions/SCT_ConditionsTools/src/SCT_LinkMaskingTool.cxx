@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_LinkMaskingTool.h"
@@ -61,7 +61,7 @@ bool SCT_LinkMaskingTool::isGood(const Identifier& elementId, InDetConditions::H
 // Is a wafer with this IdentifierHash good?
 bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
   Identifier elementId{m_sctHelper->wafer_id(hashId)};
-  return isGood(elementId, ctx);
+  return isGood(elementId, ctx, InDetConditions::SCT_SIDE);
 }
 
 bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId) const {

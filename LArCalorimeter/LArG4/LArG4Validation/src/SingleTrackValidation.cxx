@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SingleTrackValidation.h"
@@ -572,7 +572,7 @@ StatusCode SingleTrackValidation::execute() {
       }
     }
 
-    ntupleSvc()->writeRecord(m_c->nt);
+    ATH_CHECK(ntupleSvc()->writeRecord(m_c->nt));
       
   }
 

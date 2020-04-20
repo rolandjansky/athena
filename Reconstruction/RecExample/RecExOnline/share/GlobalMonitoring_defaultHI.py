@@ -26,7 +26,7 @@ partitionName     = os.environ.get("TDAQ_PARTITION", "ATLAS")
 publishNumber     = os.environ.get("GLOBAL_JOB_NUMBER", "1")
 publishName       = os.environ.get("TDAQ_APPLICATION_NAME", "GlobalMonitoring")
 
-print publishName
+printfunc (publishName)
 isserverName = 'Histogramming-Global-iss'  # Ak: 26-05-2014 - needed to write out the gathere hsitograms to the correct server
 
 #streamName       = 'MinBias'
@@ -53,10 +53,10 @@ if (partitionName == 'ATLAS'):
         #streamName        = 'Main' # Switching due to missingg Minbias stream -= 13/06/2015 AK
         try:
             if RecExOnline.OnlineISConfiguration.GetAtlasReady():
-                print "ATLAS READY, reading express stream"
+                printfunc ("ATLAS READY, reading express stream")
                 streamName = 'express'
             else:
-                print "ATLAS NOT READY, reading standby stream"
+                printfunc ("ATLAS NOT READY, reading standby stream")
                 ### streamName = 'standby'
                 ### streamName = 'physics_Standby'
                 streamName = 'Standby'
@@ -79,8 +79,8 @@ if (partitionName != 'ATLAS'):
     isserverName    = 'Histogramming'
 
 
-print "GlobalMonitoring : streamName streamLogic= ",streamName,streamLogic
-print "publishName      : ",publishName
+printfunc ("GlobalMonitoring : streamName streamLogic= ",streamName,streamLogic)
+printfunc ("publishName      : ",publishName)
 
 
 #import time
@@ -88,23 +88,25 @@ print "publishName      : ",publishName
 #tosleep = myfloat*5
 #time.sleep(tosleep)
 
-import commands
-pids=commands.getoutput("/sbin/pidof -o %u python" % os.getpid()).split(" ")
-print "pids",pids
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
+pids=subprocess.getoutput("/sbin/pidof -o %u python" % os.getpid()).split(" ")
+printfunc ("pids",pids)
 
 for pid in pids:
-  print "pid",pid
+  printfunc ("pid",pid)
   #if (False):
   #if (1):
   if (0):
-    print "pid = ",pid
-    #thisnumber=commands.getoutput("grep GLOBAL_JOB_NUMBER /proc/%u/fd/1 -m 1 | cut -f2 -d'='" % int(pid))
-    thisname=commands.getoutput("grep TDAQ_APPLICATION_NAME /proc/%u/fd/1 -m 1 | cut -f2 -d'='" % int(pid))
-    print "thisname = ",thisname
-    print "publishName = ",publishName
+    printfunc ("pid = ",pid)
+    #thisnumber=subprocess.getoutput("grep GLOBAL_JOB_NUMBER /proc/%u/fd/1 -m 1 | cut -f2 -d'='" % int(pid))
+    thisname=subprocess.getoutput("grep TDAQ_APPLICATION_NAME /proc/%u/fd/1 -m 1 | cut -f2 -d'='" % int(pid))
+    printfunc ("thisname = ",thisname)
+    printfunc ("publishName = ",publishName)
     if (thisname == publishName):
-      print "found a match! Will Kill pid = ",pid
-      killreturn = commands.getoutput("kill %u" % int(pid))
+      printfunc ("found a match! Will Kill pid = ",pid)
+      killreturn = subprocess.getoutput("kill %u" % int(pid))
 
 
 useAtlantisEmon   = False
@@ -158,8 +160,6 @@ writeESD          = False
 doAOD             = False
 writeAOD          = False
 IOVDbSvcMessage   = False
-
-abortonuncheckedstatuscode = False
 
 ## ------------------------------------------ flags set in: RecExOnline_recoflags.py (from RecExOnline_jobOptions.py)
 doAllReco   = True
@@ -246,7 +246,7 @@ DQMonFlags.doLVL1CaloMon.set_Value_and_Lock(False)
 ### DQMonFlags.doMuonTrkPhysMon.set_Value_and_Lock(False) #xx
 DQMonFlags.doMuonTrkPhysMon.set_Value_and_Lock(True) #xx
 ### DQMonFlags.doJetTagMon.set_Value_and_Lock(False)
-#print "#### yunju Here is DQMonFlags.monManEnvironment:"+DQMonFlags.monManEnvironment
+#printfunc ("#### yunju Here is DQMonFlags.monManEnvironment:"+DQMonFlags.monManEnvironment)
 ## for egmma monitoring in lxplus
 #DQMonFlags.monManEnvironment.set_Value_and_Lock('tier0')
 

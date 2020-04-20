@@ -1,26 +1,23 @@
-atlas_subdir(CrestApi )
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-atlas_depends_on_subdirs( PRIVATE Database/APR/FileCatalog)
+# Set the name of the package.
+atlas_subdir( CrestApi )
 
-#External dependencies:
-find_package(CURL)
+# External dependencies.
+find_package( CURL )
 find_package( nlohmann_json )
+find_package( Boost )
 
-find_package(Boost REQUIRED)
-
-set(CXX_FILESYSTEM_LIBRARIES stdc++fs)
-
-atlas_add_library(CrestApi
-   src/CrestApi.cxx CrestApi/CrestApi.h
+# Component(s) in the package.
+atlas_add_library( CrestApi
+   CrestApi/CrestApi.h src/CrestApi.cxx
    PUBLIC_HEADERS CrestApi
-   INCLUDE_DIRS nlohmann_json::nlohmann_json
-   LINK_LIBRARIES ${CURL_LIBRARIES} ${CXX_FILESYSTEM_LIBRARIES} nlohmann_json::nlohmann_json
-   Boost::regex Boost::filesystem Boost::system Boost::thread
-)
+   LINK_LIBRARIES nlohmann_json::nlohmann_json
+   PRIVATE_INCLUDE_DIRS ${CURL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+   PRIVATE_LINK_LIBRARIES ${CURL_LIBRARIES} ${Boost_LIBRARIES} -lstdc++fs )
 
-atlas_add_test(test  
-                SOURCES test/test.cxx CrestApi/CrestApi.h
-		PUBLIC_HEADERS CrestApi
-		INCLUDE_DIRS nlohmann_json::nlohmann_json CrestApi
-		LINK_LIBRARIES nlohmann_json::nlohmann_json CrestApi
-		POST_EXEC_SCRIPT nopost.sh )
+# Test(s) in the package.
+atlas_add_test( test
+   SOURCES test/test.cxx
+   LINK_LIBRARIES CrestApi
+   POST_EXEC_SCRIPT nopost.sh )

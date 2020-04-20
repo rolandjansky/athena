@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -22,9 +22,7 @@
 #include <cstdlib>
 
 // Athena //
-
-#include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 // MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
@@ -64,19 +62,20 @@
 //:: NAMESPACE SETTINGS ::
 //::::::::::::::::::::::::
 
-using namespace std;
 namespace MuonCalib {
 
 //*****************************************************************************
-
 // constructor
-
 MdtDqaTubeEfficiency::MdtDqaTubeEfficiency(float nsigma, float chi2Cut,
                  bool defaultResol, float adcCut, bool GTFitON, 
                  bool useNewCalibConstants, bool useTimeCorrections) : 
-  m_muonIdHelperTool(NULL), m_detMgr(NULL), m_id_tool(NULL), p_reg_sel_svc(NULL), p_calib_input_svc(NULL),
-  m_histoManager(NULL),
-  m_qfitter(NULL),
+  m_idHelper(nullptr),
+  m_detMgr(nullptr),
+  m_id_tool(nullptr),
+  p_reg_sel_svc(nullptr),
+  p_calib_input_svc(nullptr),
+  m_histoManager(nullptr),
+  m_qfitter(nullptr),
   m_nb_stations(-1)
 {
   m_nsigma = nsigma;
@@ -91,19 +90,17 @@ MdtDqaTubeEfficiency::MdtDqaTubeEfficiency(float nsigma, float chi2Cut,
 //:::::::::::::::::
 //:: METHOD init ::
 //:::::::::::::::::
-StatusCode MdtDqaTubeEfficiency::initialize(const Muon::MuonIdHelperTool *muonIdHelperTool, const MuonGM::MuonDetectorManager *detMgr, 
+StatusCode MdtDqaTubeEfficiency::initialize(const Muon::IMuonIdHelperSvc *idHelper, const MuonGM::MuonDetectorManager *detMgr, 
 					    const MuonCalib::IIdToFixedIdTool *id_tool, RegionSelectionSvc *reg_sel_svc,
 					    MdtCalibInputSvc *calib_input_svc, HistogramManager *histoManager) {
-  m_muonIdHelperTool = muonIdHelperTool;
+  m_idHelper = idHelper;
   m_detMgr = detMgr; 
   m_id_tool = id_tool;
   p_reg_sel_svc = reg_sel_svc;
   p_calib_input_svc = calib_input_svc;
   m_histoManager = histoManager;
-  
-  //ToString ts;
 
-  string RegionName = p_reg_sel_svc->GetRegionSelection();
+  std::string RegionName = p_reg_sel_svc->GetRegionSelection();
 
   const std::vector<MuonCalib::NtupleStationId> stationsInRegion = p_reg_sel_svc->GetStationsInRegions();
 
@@ -120,21 +117,21 @@ StatusCode MdtDqaTubeEfficiency::initialize(const Muon::MuonIdHelperTool *muonId
   }
 
   for (int istation=0;istation<m_nb_stations;istation++) {
-    string stationNameString = stationsInRegion.at(istation).regionId();
-    string chamberType = stationNameString.substr(0,3);
+    std::string stationNameString = stationsInRegion.at(istation).regionId();
+    std::string chamberType = stationNameString.substr(0,3);
     int phi_id = stationsInRegion.at(istation).GetPhi();
     int eta_id = stationsInRegion.at(istation).GetEta();
 
-    Identifier station_id = m_muonIdHelperTool->mdtIdHelper().elementID(chamberType, eta_id, phi_id);
+    Identifier station_id = m_idHelper->mdtIdHelper().elementID(chamberType, eta_id, phi_id);
     int stationIntId = static_cast<int>(station_id.get_identifier32().get_compact());
-    int numberOfML = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(station_id);
+    int numberOfML = m_idHelper->mdtIdHelper().numberOfMultilayers(station_id);
     
     for (int multilayer=1;multilayer<=numberOfML; multilayer++) {
-      Identifier MdtML = m_muonIdHelperTool->mdtIdHelper().multilayerID(station_id, multilayer);
-      int layerMin = m_muonIdHelperTool->mdtIdHelper().tubeLayerMin(MdtML);
-      int layerMax = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(MdtML);
-      int tubeMin = m_muonIdHelperTool->mdtIdHelper().tubeMin(MdtML);
-      int tubeMax = m_muonIdHelperTool->mdtIdHelper().tubeMax(MdtML);
+      Identifier MdtML = m_idHelper->mdtIdHelper().multilayerID(station_id, multilayer);
+      int layerMin = m_idHelper->mdtIdHelper().tubeLayerMin(MdtML);
+      int layerMax = m_idHelper->mdtIdHelper().tubeLayerMax(MdtML);
+      int tubeMin = m_idHelper->mdtIdHelper().tubeMin(MdtML);
+      int tubeMax = m_idHelper->mdtIdHelper().tubeMax(MdtML);
       m_nb_layers_tubes[istation][0] = stationIntId;
       m_nb_layers_tubes[istation][1] = layerMax-layerMin+1;
       m_nb_layers_tubes[istation][1+multilayer] = tubeMax-tubeMin+1;
@@ -143,20 +140,6 @@ StatusCode MdtDqaTubeEfficiency::initialize(const Muon::MuonIdHelperTool *muonId
   
   return StatusCode::SUCCESS;
 }  //end MdtDqaTubeEfficiency::initialize
-
-//*****************************************************************************
-
-//:::::::::::::::::::::
-//:: METHOD finalize ::
-//:::::::::::::::::::::
-StatusCode MdtDqaTubeEfficiency::finalize() {
-  /****
-       Here I have removed everything : 
-       I don't know why the m_mdtIdHelper here gets corrupted!!!
-  ****/
-
-  return StatusCode::SUCCESS;
-}
 
 //*****************************************************************************
 
@@ -211,7 +194,7 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
     // 
     int phi  = Mid.phi();
     int eta  = Mid.eta();
-    string stationNameStr = Mid.stationNameString();
+    std::string stationNameStr = Mid.stationNameString();
 
     // 
     // Check that all the hits in the segment belongs to the same chamber :
@@ -236,7 +219,7 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
     // 
     // Get numberOfMultiLayers, numberOfLayers, numberOfTubes :
     // 
-    int stationIntId = static_cast<int>(m_muonIdHelperTool->mdtIdHelper(). elementID(stationNameStr,eta,phi).get_compact());
+    int stationIntId = static_cast<int>(m_idHelper->mdtIdHelper(). elementID(stationNameStr,eta,phi).get_compact());
     Identifier station_id = m_id_tool->fixedIdToId(Mid);
     
     int numberOfML, numberOfLayers, numberOfTubes[2];
@@ -264,15 +247,15 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 
     // Get Histograms
     TFile *mdtDqaRoot =  m_histoManager->rootFile();
-    string region = chamb.getRegion();
-    string side = chamb.getSide();
+    std::string region = chamb.getRegion();
+    std::string side = chamb.getSide();
 
     PhiEtaNameConverter phiEtaConverter;
-    string chamberType = chamb.getName();
+    std::string chamberType = chamb.getName();
 
-    string chamberDirName = m_histoManager->GetMdtDirectoryName(chamb);
-    string effiDirName = chamberDirName+"/Efficiency";
-    string expertDirName = chamberDirName+"/Expert";
+    std::string chamberDirName = m_histoManager->GetMdtDirectoryName(chamb);
+    std::string effiDirName = chamberDirName+"/Efficiency";
+    std::string expertDirName = chamberDirName+"/Expert";
     
     TDirectory *chamberRootDir = mdtDqaRoot->GetDirectory(chamberDirName.c_str());
     TDirectory *effiRootDir = mdtDqaRoot->GetDirectory(effiDirName.c_str());
@@ -283,7 +266,7 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
       return StatusCode::FAILURE;
     }
 
-    string histoName;
+    std::string histoName;
     TH1F* heffiEntries;
     TH1F* heffiCounts;
     TH2F* heffiVsRadius;
@@ -320,7 +303,6 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 	GTFitter->setRtRelation(GTFitRt);
 	// here a method on GTFitter should be implemented to setResolution !
 	// something like
-	// GlobalTimeFitter::setResolution( IRtResolution * GTFitResol) 
       }
       
       toffset = GTFitter->GTFit(&segment);
@@ -428,7 +410,7 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
     for (int multilayer=1; multilayer<=numberOfML; multilayer++) {  // LOOP OVER MULTILAYERS
       
       const MuonGM::MdtReadoutElement *MdtRoEl = 
-	m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(station_id,multilayer,1,1) );
+	m_detMgr->getMdtReadoutElement( m_idHelper->mdtIdHelper().channelID(station_id,multilayer,1,1) );
     
       //loop over layers
       for (int layer=1; layer<=numberOfLayers; layer++) {   // LOOP OVER LAYERS
@@ -496,7 +478,7 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 	  MTStraightLine tube = MTStraightLine( tube_position, tube_direction,
 						Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0) );
 
-	  double distance = TMath::Abs(track1.signDistFrom(tube));
+	  double distance = std::abs(track1.signDistFrom(tube));
 	  
 	  if ( distance < (MdtRoEl->innerTubeRadius()) ){
 	    int traversedTube = k+1;
@@ -549,15 +531,15 @@ StatusCode MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent &event,
 		    MTStraightLine tube = MTStraightLine( tube_position, tube_direction,
 							  Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0) );
                 
-		    double distance = TMath::Abs(track1.signDistFrom(tube));
-		    double hitRadius = TMath::Abs(hit->driftRadius());
+		    double distance = std::abs(track1.signDistFrom(tube));
+		    double hitRadius = std::abs(hit->driftRadius());
 		    double resol = hit->driftRadiusError();
 		    double resid = distance-hitRadius;
 		    if(heffiVsRadius) heffiVsRadius->Fill(distance, resid);
 		    float averageExtrapolError = 0.090; // ..an educated guess!
 		    float sig = sqrt(resol*resol + averageExtrapolError*averageExtrapolError);
 		    
-		    if ( m_nsigma>0. && TMath::Abs(resid) < m_nsigma*sig ) hit_tube.push_back( tubeHit );
+		    if ( m_nsigma>0. && std::abs(resid) < m_nsigma*sig ) hit_tube.push_back( tubeHit );
 		  } // END NEW HIT FOUND
 		} // close IF the Hit is found
 	      } // close IF the hit is in the same chamber, same layer
@@ -619,8 +601,8 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
   for ( int istation=0; istation<m_nb_stations; istation++ ) {
     int phi = stationsInRegion.at(istation).GetPhi();
     int eta = stationsInRegion.at(istation).GetEta();
-    string stationNameString = stationsInRegion.at(istation).regionId();
-    string chamberType = stationNameString.substr(0,3);
+    std::string stationNameString = stationsInRegion.at(istation).regionId();
+    std::string chamberType = stationNameString.substr(0,3);
     
     MDTName chamb(chamberType,phi,eta);
 
@@ -629,7 +611,6 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
     // with istation following the same order of stationsInRegion.at(istation)
     // ...if this is not the case, then the service m_mdtIdHelper should be used
     // matching the stationIntId :
-    // int stationIntId = (int) m_muonIdHelperTool->mdtIdHelper().elementID(chamberType, eta, phi);
     int numberOfML = 0;
     int numberOfTubes[2];
     int numberOfLayers = m_nb_layers_tubes[istation][1];
@@ -638,14 +619,14 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
     if (numberOfTubes[0]>0 || numberOfTubes[1]>0 ) numberOfML = 1;
     if (numberOfTubes[0]>0 && numberOfTubes[1]>0 ) numberOfML = 2;
     
-    string region= chamb.getRegion();
-    string side=chamb.getSide();
+    std::string region= chamb.getRegion();
+    std::string side=chamb.getSide();
     
     PhiEtaNameConverter phiEtaConverter;
-    string chamberDirName = m_histoManager->GetMdtDirectoryName(chamb);
+    std::string chamberDirName = m_histoManager->GetMdtDirectoryName(chamb);
     
-    string effiDirName = chamberDirName+"/Efficiency";
-    string expertDirName = chamberDirName+"/Expert";
+    std::string effiDirName = chamberDirName+"/Efficiency";
+    std::string expertDirName = chamberDirName+"/Expert";
     TDirectory *chamberRootDir = mdtDqaRoot->GetDirectory(chamberDirName.c_str());
     TDirectory *effiRootDir = mdtDqaRoot->GetDirectory(effiDirName.c_str());
     TDirectory *expertRootDir = mdtDqaRoot->GetDirectory(expertDirName.c_str());
@@ -654,7 +635,7 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
       return StatusCode::FAILURE;
     }
     
-    string histoName;
+    std::string histoName;
     TH1F *heffiEntries;
     TH1F *heffiCounts;
 
@@ -702,7 +683,7 @@ StatusCode MdtDqaTubeEfficiency::analyseSegments(const std::vector<MuonCalibSegm
 	    // Fill MdtDqa Histos
 	    //
 
-	    string histoName;
+	    std::string histoName;
 	    TH1F *heffi;
 	    chamberRootDir->cd();
 	    histoName = "b_EfficiencyPerTube";

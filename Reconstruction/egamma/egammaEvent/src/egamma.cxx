@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // INCLUDE HEADER FILES:
@@ -53,7 +53,7 @@ egamma::~egamma()
 {
   if(m_egPID) {
     delete m_egPID; 
-    m_egPID = 0;
+    m_egPID = nullptr;
   }
 }
 
@@ -125,12 +125,12 @@ egamma::fillToken(INavigationToken& theToken) const
   //////////////////////////
 
   const Rec::TrackParticle* aTrack = this->trackParticle();  
-  if ( aTrack != 0 )
+  if ( aTrack != nullptr )
     {
       // check requested object type with token type
       NavigationToken<Rec::TrackParticle>* trackToken =
 	dynamic_cast< NavigationToken<Rec::TrackParticle>* >(&theToken);
-      if ( trackToken != 0 )
+      if ( trackToken != nullptr )
 	{
 	  // request is honored
 	  trackToken->setObject(aTrack);
@@ -143,7 +143,7 @@ egamma::fillToken(INavigationToken& theToken) const
 	  NavigationToken<Rec::TrackParticle,double>* parTrackToken =
 	    dynamic_cast< NavigationToken<Rec::TrackParticle,double>* >
 	    (&theToken);
-	  if ( parTrackToken != 0 )
+	  if ( parTrackToken != nullptr )
 	    {
 	      parTrackToken->setObject(aTrack);
 	      checkFlag = true;
@@ -165,12 +165,12 @@ egamma::fillToken(INavigationToken& theToken) const
   //////////////////////
 
   const CaloCluster* aCluster = this->cluster();
-  if ( aCluster != 0 )
+  if ( aCluster != nullptr )
     {
       // check on requested type
       NavigationToken<CaloCluster>* clusToken =
 	dynamic_cast< NavigationToken<CaloCluster>* >(&theToken);
-      if ( clusToken != 0 )
+      if ( clusToken != nullptr )
         {
           clusToken->setObject(aCluster);
           checkFlag = true;
@@ -180,7 +180,7 @@ egamma::fillToken(INavigationToken& theToken) const
 	{ 
 	  NavigationToken<CaloCluster,double>* parClusToken =
 	    dynamic_cast< NavigationToken<CaloCluster,double>* >(&theToken);
-	  if ( parClusToken != 0 )
+	  if ( parClusToken != nullptr )
 	    {
 	      parClusToken->setObject(aCluster);
 	      checkFlag = true;
@@ -195,7 +195,7 @@ egamma::fillToken(INavigationToken& theToken) const
   // Pass on the token to composite constituents: ie. CaloCluster! //
   ///////////////////////////////////////////////////////////////////
 
-  if ( aCluster!= 0 ) aCluster->fillToken(theToken);
+  if ( aCluster!= nullptr ) aCluster->fillToken(theToken);
 
   //////////////////
   // At this point no request for concrete egamma constituents has been
@@ -204,10 +204,8 @@ egamma::fillToken(INavigationToken& theToken) const
   /////////////////
 
   // try for generic type requests
-  if ( aTrack  != 0 ) theToken.trySetObject(aTrack);
-  if ( aCluster!= 0 ) theToken.trySetObject(aCluster);
-
-  return;
+  if ( aTrack  != nullptr ) theToken.trySetObject(aTrack);
+  if ( aCluster!= nullptr ) theToken.trySetObject(aCluster);
 }
 
 ////////////////////////////////
@@ -223,12 +221,12 @@ void egamma::fillToken(INavigationToken& theToken,
   // First check on track //
   //////////////////////////
   const Rec::TrackParticle* aTrack = this->trackParticle();  
-  if ( aTrack != 0 )
+  if ( aTrack != nullptr )
     {
       // check requested object type with token type
       NavigationToken<Rec::TrackParticle>* trackToken =
 	dynamic_cast< NavigationToken<Rec::TrackParticle>* >(&theToken);
-      if ( trackToken != 0 )
+      if ( trackToken != nullptr )
 	{
 	  // request is honored
 	  trackToken->setObject(aTrack);
@@ -241,7 +239,7 @@ void egamma::fillToken(INavigationToken& theToken,
 	  NavigationToken<Rec::TrackParticle,double>* parTrackToken =
 	    dynamic_cast< NavigationToken<Rec::TrackParticle,double>* >
 	    (&theToken);
-	  if ( parTrackToken != 0 )
+	  if ( parTrackToken != nullptr )
 	    {
 	      // no weight change in propagation
 	      parTrackToken->setObject(aTrack,
@@ -259,12 +257,12 @@ void egamma::fillToken(INavigationToken& theToken,
   //////////////////////
 
   const CaloCluster* aCluster = this->cluster();  
-  if ( aCluster != 0 )
+  if ( aCluster != nullptr )
     {
       // check on requested type
       NavigationToken<CaloCluster>* clusToken =
 	dynamic_cast< NavigationToken<CaloCluster>* >(&theToken);
-      if ( clusToken != 0 )
+      if ( clusToken != nullptr )
         {
           clusToken->setObject(aCluster);
 	  checkFlag = true;
@@ -274,7 +272,7 @@ void egamma::fillToken(INavigationToken& theToken,
 	{ 
 	  NavigationToken<CaloCluster,double>* parClusToken =
 	    dynamic_cast< NavigationToken<CaloCluster,double>* >(&theToken);
-	  if ( parClusToken != 0 )
+	  if ( parClusToken != nullptr )
 	    {
 	      parClusToken->setObject(aCluster,
 				      boost::any_cast<double>(theWeight));
@@ -290,7 +288,7 @@ void egamma::fillToken(INavigationToken& theToken,
   // Pass on the token to composite constituents: ie. CaloCluster! //
   ///////////////////////////////////////////////////////////////////
 
-  if ( aCluster != 0 )  aCluster->fillToken(theToken,theWeight);
+  if ( aCluster != nullptr )  aCluster->fillToken(theToken,theWeight);
 
 
   //////////////////
@@ -300,10 +298,8 @@ void egamma::fillToken(INavigationToken& theToken,
   /////////////////
 
   // try for generic type requests
-  if ( aTrack   != 0 ) theToken.trySetObject(aTrack,  theWeight);
-  if ( aCluster != 0 ) theToken.trySetObject(aCluster,theWeight);
-
-  return;
+  if ( aTrack   != nullptr ) theToken.trySetObject(aTrack,  theWeight);
+  if ( aCluster != nullptr ) theToken.trySetObject(aCluster,theWeight);
 }
 
 // ==========================================================
@@ -326,7 +322,7 @@ double egamma::egammaID(egammaPIDObs::PID idflag) const
   // set as double to work for IsEM but also for all weights as likelihood
   //
 
-  return m_egPID->egammaID(idflag, 0);
+  return m_egPID->egammaID(idflag, nullptr);
 }
 
 // ==========================================================
@@ -357,10 +353,7 @@ bool egamma::author(const unsigned int author) const
   // method to check the author
   //
 
-  if ( m_author & author ) 
-    return true;
-  else 
-    return false;
+  return (m_author & author) != 0;
 }
 
 // ==========================================================
@@ -370,7 +363,7 @@ const CaloCluster*  egamma::cluster() const
   // method to acces the cluster object
   //
 
-  return (m_cluster.isValid()) ? *m_cluster : 0;
+  return (m_cluster.isValid()) ? *m_cluster : nullptr;
 } 
 
 
@@ -380,7 +373,7 @@ const CaloRings*  egamma::rings() const
   // methods to access RingerRings
   //
 
-  return (m_rings.isValid()) ? *m_rings : 0;
+  return (m_rings.isValid()) ? *m_rings : nullptr;
 }
 
 const ElementLink<CaloRingsContainer>& egamma::ringsElementLink() const 
@@ -402,9 +395,9 @@ const Rec::TrackParticle* egamma::trackParticle (unsigned int index) const
   //
 
   if(index < m_trackParticle.size()){
-    return ((m_trackParticle.at(index)).isValid()) ? *(m_trackParticle.at(index)) : 0;
+    return ((m_trackParticle.at(index)).isValid()) ? *(m_trackParticle.at(index)) : nullptr;
   }else{
-    return 0;
+    return nullptr;
   }
 }   
 
@@ -418,9 +411,9 @@ unsigned int egamma::nTrackParticles() const
 const Trk::VxCandidate* egamma::conversion (unsigned int index) const
 { 
   if(index < m_conversion.size()){
-    return ((m_conversion.at(index)).isValid()) ? *(m_conversion.at(index)) : 0;
+    return ((m_conversion.at(index)).isValid()) ? *(m_conversion.at(index)) : nullptr;
   }else{
-    return 0;
+    return nullptr;
   }
 }   
 
@@ -654,7 +647,7 @@ const egPID* egamma::pid() const
 // ==========================================================
 void egamma::set_pid(egPID* ptr) 
 { 
-  if (m_egPID != 0) delete m_egPID;
+  if (m_egPID != nullptr) delete m_egPID;
   m_egPID = ptr; 
 }
 
@@ -781,7 +774,7 @@ unsigned int egamma::isem(unsigned int mask,
   // and returns the corresponding decoded value
   //
 
-  return m_egPID->isEM(mask, pid, 0); 
+  return m_egPID->isEM(mask, pid, nullptr); 
 } 
 
 
@@ -805,7 +798,7 @@ unsigned int egamma::isemse(unsigned int mask) const
   // and returns the corresponding decoded value
   //
 
-  return m_egPID->isEMsofte(mask, 0); 
+  return m_egPID->isEMsofte(mask, nullptr); 
 } 
 
 
@@ -841,7 +834,7 @@ unsigned int egamma::isgoodoq(unsigned int mask, bool *found) const
 const egDetail* egamma::detail (int i) const
 {
   if (i < 0 || i >= (int)m_egDetails.size())
-    return 0;
+    return nullptr;
   return *m_egDetails[i];
 }
 
@@ -869,7 +862,7 @@ const egDetail* egamma::detail (const std::string& className,
     }
   }
 //   return ptr;
-  return 0;
+  return nullptr;
 }
 
 // ==========================================================
@@ -908,7 +901,7 @@ egamma::detailValue (egammaParameters::ParamDef key,
 {
   size_t nsize = m_egDetails.size();
 
-  const egDetail* ptr = 0;
+  const egDetail* ptr = nullptr;
   for (size_t i = 0; i < nsize; i++) {
     if (m_egDetails[i].isValid()) {
       if (name.empty()) {

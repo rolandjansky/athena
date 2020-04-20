@@ -1,20 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////////////
-// NAME:     MuonEventInfoMonTool.cxx 
-// Author:   N. Benekos(Illinois) 
-// March 2008
-///////////////////////////////////////////////////////////////////////////////////
-   
 
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaMonitoring/LogFileMsgStream.h"
- 
-#include "TTree.h"
-#include "TString.h"
 
 #include "MuonDQAMonitoring/MuonEventInfoMonTool.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -30,10 +20,6 @@
 #include "TrigT1Result/CTP_Decoder.h"
 
 #include <sstream>
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TMath.h>
-#include <TF1.h>
 #include <sys/types.h>
 
 namespace MuonDQA { 
@@ -52,32 +38,18 @@ namespace MuonDQA {
     declareProperty("TriggerTagAdd", m_TriggerTagAdd = true);
   }
   /*---------------------------------------------------------*/
-  
- 
-  /*---------------------------------------------------------*/
-  MuonEventInfoMonTool::~MuonEventInfoMonTool()
-    /*---------------------------------------------------------*/
-  {
-    ATH_MSG_INFO(" deleting MuonEventInfoMonTool ");
-  }
- 
+
   /*---------------------------------------------------------*/
   StatusCode MuonEventInfoMonTool:: initialize()
     /*---------------------------------------------------------*/
   {
-    StatusCode sc;
-    sc = ManagedMonitorToolBase::initialize();
-    if(!sc.isSuccess()) return sc;
+    ATH_CHECK(ManagedMonitorToolBase::initialize());
 
     ATH_MSG_INFO( "initialize MuonEventInfoMonTool" );
  
     // The StoreGateSvc is where event-by-event information is stored.
-    sc = service( "StoreGateSvc", m_eventStore);
-    if( sc.isFailure() ) {
-      ATH_MSG_FATAL( name() << ": Unable to locate Service StoreGateSvc" );
-      return sc;
-    }
-    //    ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
+    ATH_CHECK(service( "StoreGateSvc", m_eventStore));
+
     return StatusCode::SUCCESS;
   }
  

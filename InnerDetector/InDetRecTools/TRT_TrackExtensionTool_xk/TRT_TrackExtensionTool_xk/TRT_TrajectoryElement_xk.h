@@ -17,13 +17,16 @@
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkToolInterfaces/IPatternParametersUpdator.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TRT_TrackExtensionTool_xk/TRT_ExtensionDriftCircleLink_xk.h"
+// MagField cache
+#include "MagFieldElements/AtlasFieldCache.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 class TRT_ID;
 
@@ -68,7 +71,7 @@ namespace InDet{
          double                             );
 
       void set
-	(const Trk::MagneticFieldProperties&,const MagField::IMagFieldSvc*);
+      (const Trk::MagneticFieldProperties&,const MagField::IMagFieldSvc*, const AtlasFieldCacheCondObj* );
 
       bool initiateForPrecisionSeed     (bool,const InDetDD::TRT_BaseElement*&,
 					 InDet::TRT_DriftCircleCollection::const_iterator&,
@@ -145,6 +148,7 @@ namespace InDet{
       const Trk::IRIO_OnTrackCreator       *             m_riomakerN  ; 
       Trk::MagneticFieldProperties                       m_fieldprop  ;
       const MagField::IMagFieldSvc*                      m_fieldService;
+      MagField::AtlasFieldCache                          m_fieldCache;
 
       ///////////////////////////////////////////////////////////////////
       // Comments

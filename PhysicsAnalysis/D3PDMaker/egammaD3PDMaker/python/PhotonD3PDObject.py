@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file egammaD3PDMaker/python/PhotonD3PDObject.py
 # @author Haifeng Li <Haifeng.Li@cern.ch>, scott snyder <snyder@bnl.gov>
@@ -70,17 +69,6 @@ PhotonD3PDObject.defineBlock (0, 'Conversion0',
                               egammaD3PDMaker.egammaConversion0FillerTool,
                               )
 
-defineBlockAndAlg \
-        (PhotonD3PDObject,
-        999, 'TimeCorr',
-        D3PDMakerCoreComps.AuxDataFillerTool,
-        'egammaTimeCorrConfig',
-        AuxPrefix = auxprefix,
-        Vars = ['corr_cl_time #Corrected cluster time',
-                'corr_cl_time_err #Corrected cluster time error', 
-                'corr_cl_time_flags #Time correction flags',
-                'raw_cl_time #Raw cluster time',
-        ])
 defineBlockAndAlg \
         (PhotonD3PDObject,
         999, 'MaxEcell',
@@ -297,7 +285,7 @@ ConversionVertexTrackParticleAssociation = \
 # otherwise, we don't make this block.
 def _cvAssocLevel (reqlev, args):
     if reqlev < 10: return False
-    if not args.has_key ('target'): return False
+    if 'target' not in args: return False
     args['Target'] = args['target']
     del args['target']
     return True

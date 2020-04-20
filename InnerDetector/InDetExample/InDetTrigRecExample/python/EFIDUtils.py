@@ -67,7 +67,7 @@ def debuglevel(level=2):
     steeringEF = job.TrigSteer_HLT
     steeringEF.OutputLevel=level
     import re
-    exp=re.compile("EFID|FTF|IDTrig|FTK|L2ID")
+    exp=re.compile("EFID|FTF|IDTrig|L2ID")
     pokus=None
     reftoconf=list()
     reftoname=list()

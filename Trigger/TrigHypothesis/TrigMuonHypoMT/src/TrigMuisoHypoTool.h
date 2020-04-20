@@ -5,9 +5,9 @@
 #ifndef TRIGMUONHYPOMT_TRIGMUISOHYPOTOOL_H 
 #define TRIGMUONHYPOMT_TRIGMUISOHYPOTOOL_H 1
 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h" 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h" 
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "xAODTrigMuon/L2IsoMuonContainer.h"
 
 

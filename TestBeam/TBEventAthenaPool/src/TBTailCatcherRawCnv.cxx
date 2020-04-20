@@ -25,7 +25,7 @@ TBTailCatcherRawCnv::~TBTailCatcherRawCnv()
 StatusCode TBTailCatcherRawCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBTailCatcherRawCnv");
@@ -61,11 +61,4 @@ StatusCode TBTailCatcherRawCnv::PoolToDataObject(DataObject*& pObj,
   }
 
   return StatusCode::SUCCESS; 
-}
-
-StatusCode TBTailCatcherRawCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBTailCatcherRawCnv::DataObjectToPool" );
-  
-  return TBTailCatcherRawCnvBase::DataObjectToPool( pObj, tname) ;
 }

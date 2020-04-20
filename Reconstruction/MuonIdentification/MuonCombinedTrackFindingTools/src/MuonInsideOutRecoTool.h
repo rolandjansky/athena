@@ -1,42 +1,43 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONINSIDEOUTRECOTOOL_H
 #define MUON_MUONINSIDEOUTRECOTOOL_H
 
-#include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
 #include "MuonLayerEvent/MuonLayerRecoData.h"
 #include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "xAODTracking/VertexContainer.h"
+
+
 
 #include <vector>
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonLayerSegmentFinderTool.h"
+#include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
+#include "MuonCombinedToolInterfaces/IMuonLayerAmbiguitySolverTool.h"
+#include "MuonCombinedToolInterfaces/IMuonCandidateTrackBuilderTool.h"
+#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
+#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
+#include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 namespace Muon {
   struct MuonCandidate;
   struct MuonLayerPrepRawData;
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-  class IMuonLayerSegmentFinderTool;
-  class IMuonLayerSegmentMatchingTool;
-  class IMuonLayerAmbiguitySolverTool;
-  class IMuonCandidateTrackBuilderTool;
-  class IMuonRecoValidationTool;
-  class ITrackAmbiguityProcessorTool;
-}
-
-namespace Rec {
-  class ICombinedMuonTrackBuilder;
 }
 
 namespace Trk {
   class Track;
-  class ITrackAmbiguityProcessorTool;
+  class IExtendedTrackSummaryTool;
 }
 
 static const InterfaceID IID_MuonInsideOutRecoTool("MuonCombined::MuonInsideOutRecoTool",1,0);
@@ -48,9 +49,8 @@ namespace MuonCombined {
 
     /** Default AlgTool functions */
     MuonInsideOutRecoTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonInsideOutRecoTool();
+    virtual ~MuonInsideOutRecoTool()=default;
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
 
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonInsideOutRecoTool; }
@@ -85,8 +85,7 @@ namespace MuonCombined {
       bool getLayerDataTech( int sector, Muon::MuonStationIndex::TechnologyIndex technology, Muon::MuonStationIndex::DetectorRegionIndex regionIndex,
 			     Muon::MuonStationIndex::LayerIndex layerIndex, const Muon::MuonPrepDataContainer< COL >* input, std::vector<const COL*>& output );
 
-    /** tool handles */
-    ToolHandle<Muon::MuonIdHelperTool>               m_idHelper; 
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer; 
     ToolHandle<Muon::IMuonLayerSegmentFinderTool>    m_segmentFinder;
     ToolHandle<Muon::IMuonLayerSegmentMatchingTool>  m_segmentMatchingTool;
@@ -96,6 +95,8 @@ namespace MuonCombined {
     ToolHandle<Rec::ICombinedMuonTrackBuilder>       m_trackFitter;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool>    m_trackAmbiguityResolver;
     ToolHandle<Muon::MuonLayerHashProviderTool>      m_layerHashProvider;
+    ToolHandle<Trk::IExtendedTrackSummaryTool>       m_trackSummaryTool;    
+    
     /** id pt cut */
     double m_idTrackMinPt;
     bool m_ignoreSiAssocated;

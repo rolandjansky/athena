@@ -285,7 +285,7 @@ from FatrasExample.FatrasValidation import FatrasValidationFlags
 if FatrasFlags.RefittingID() and not FatrasFlags.ReconstructionID():
    FatrasValidationFlags.Refitting                = True
    if FatrasFlags.SingleTrackSimulation() and abs(FatrasSingleTrackSimulationFlags.ParticleType()) == 221:
-      print 'Warning: Fatras Standalone Refit does not work for Pions!'
+      printfunc ('Warning: Fatras Standalone Refit does not work for Pions!')
 #FatrasValidationFlags.Simulation               = True
 #FatrasValidationFlags.Refitting                = True
 #FatrasValidationFlags.Residuals                = True

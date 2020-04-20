@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -66,8 +66,8 @@ Trk::CaloCluster_OnTrack& Trk::CaloCluster_OnTrack::operator=(const Trk::CaloClu
 {
   if ( &cot != this) {
     if (m_surface && m_surface->isFree()) {delete m_surface;}  
-    if (m_globalpos) delete m_globalpos;
-    if (m_eloss)     delete m_eloss;
+    if (m_globalpos) { delete m_globalpos;}
+    if (m_eloss) {     delete m_eloss;}
     Trk::MeasurementBase::operator=(cot);
     m_surface =  cot.m_surface? (cot.m_surface->isFree() ? cot.m_surface->clone():cot.m_surface) : nullptr;
     m_globalpos = cot.m_globalpos ? new Amg::Vector3D(*cot.m_globalpos) : nullptr;

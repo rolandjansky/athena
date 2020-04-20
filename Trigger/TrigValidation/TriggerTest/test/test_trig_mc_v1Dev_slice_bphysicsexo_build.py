@@ -10,11 +10,11 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athena'
-ex.job_options = 'TrigUpgradeTest/full_menu.py'
+ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'mubphysics'
 ex.threads = 1
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1\';doEmptyMenu=True;doBphysicsSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"'
+ex.args = '-c "setMenu=\'LS2_v1\';doEmptyMenu=True;doBphysicsSlice=True;doMuonSlice=True;doWriteBS=False;doWriteRDOTrigger=True;"'
 
 test = Test.Test()
 test.art_type = 'build'

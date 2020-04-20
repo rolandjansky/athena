@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -163,7 +163,7 @@ public:
                                     const IOVTime& /*time*/,
                                     IOVRange& /*range*/,
                                     std::string& /*tag*/,
-                                    IOpaqueAddress*& /*ioa*/) override;
+                                    std::unique_ptr<IOpaqueAddress>& /*ioa*/) override;
 
   virtual StatusCode setRange      (const CLID& /*clid*/,
                                     const std::string& /*dbKey*/,
@@ -190,19 +190,10 @@ public:
   virtual bool dropObject(const std::string& /*key*/,
                           const bool /*resetCache*/=false) override
   { std::abort(); }
-
-
-private:
-  std::unique_ptr<IOpaqueAddress> m_addr1;
-  std::unique_ptr<IOpaqueAddress> m_addr2;
-  std::unique_ptr<IOpaqueAddress> m_addr3;
 };
 
 
 TestDBSvc::TestDBSvc()
-  : m_addr1 (std::make_unique<TestAddress> (1)),
-    m_addr2 (std::make_unique<TestAddress> (2)),
-    m_addr3 (std::make_unique<TestAddress> (3))
 {
 }
 
@@ -212,26 +203,26 @@ StatusCode TestDBSvc::getRange (const CLID& /*clid*/,
                                 const IOVTime& time,
                                 IOVRange& range,
                                 std::string& /*tag*/,
-                                IOpaqueAddress*& ioa)
+                                std::unique_ptr<IOpaqueAddress>& ioa)
 {
   uint32_t lbn = time.event();
 
   if (lbn >= 10 && lbn < 20) {
     range = IOVRange (IOVTime (10, 10), IOVTime (10, 20));
-    ioa = m_addr1.get();
+    ioa = std::make_unique<TestAddress> (1);
     return StatusCode::SUCCESS;
   }
 
   if (lbn >= 30 && lbn < 40) {
     range = IOVRange (IOVTime (10, 30), IOVTime (10, lbn+1));
-    ioa = m_addr2.get();
+    ioa = std::make_unique<TestAddress> (2);
     return StatusCode::SUCCESS;
   }
 
   if (lbn >= 50) {
     range = IOVRange (IOVTime (10, 50),
                       IOVTime (10, IOVTime::MAXEVENT));
-    ioa = m_addr3.get();
+    ioa = std::make_unique<TestAddress> (3);
     return StatusCode::SUCCESS;
   }
 

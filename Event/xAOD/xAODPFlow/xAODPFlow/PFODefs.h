@@ -176,7 +176,7 @@ namespace PFODetails
   };
 
   /** This enum is used to label the lepton type of the neutral PFO */
-  enum PFOLeptonType{
+  enum PFOLeptonType : unsigned int {
     PFO_electron = 0,
     PFO_muon,
     PFO_tau,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -883,10 +883,11 @@ std::map<std::string, std::string> parse(const std::string& list)
   TIter next(TString(list).Tokenize(","));
   while (TObjString* sObj = (TObjString*) next())
     {
-      TString item(sObj->GetString());
+      const TString& item(sObj->GetString());
       std::cout << "item: '" << item << "'" << std::endl;
       TObjArray* item_list = TString(item).Tokenize(":");
-      std::string key, value;
+      std::string key;
+      std::string value;
       if (item_list->GetEntries() == 1) {
 	key = "amount";
 	value = static_cast<TObjString*>(item_list->At(0))->GetString().Data();
@@ -917,8 +918,8 @@ egammaLayerRecalibTool::create(const std::string& type, const std::string& args)
   std::string amount_name = "";
   std::string type_name = "";
 
-  GetAmountBase* amount_getter = 0;
-  InputModifier* modifier = 0;
+  GetAmountBase* amount_getter = nullptr;
+  InputModifier* modifier = nullptr;
 
   if (args_map.find("amount") != args_map.end()) {
     std::string amount_str = args_map["amount"];
@@ -958,7 +959,7 @@ egammaLayerRecalibTool::create(const std::string& type, const std::string& args)
       TH1F* histo = dynamic_cast<TH1F*>(f.Get(args_map["histo"].c_str()));
 
       if(histo){
-	histo->SetDirectory(0);
+	histo->SetDirectory(nullptr);
 	amount_getter = new GetAmountHisto1D(*histo);
       }
       else{assert(false); }

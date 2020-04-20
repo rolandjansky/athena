@@ -1,8 +1,14 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os
-import sys, string, commands
+import sys, string
 from datetime import datetime
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ## Needed to correct ROOT behavior; see below
 CWD = os.getcwd()
@@ -88,8 +94,8 @@ class FileStagerTool:
       outFile = open(outputFile,'w')
       outFile.write(printlist)
       outFile.close()
-      print "Sample list has been written to <%s>. Goodbye.\n" % outputFile
-    else: print printlist + "\n"
+      print ("Sample list has been written to <%s>. Goodbye.\n" % outputFile)
+    else: print (printlist + "\n")
 
   def GetSampleList(self):
     return self.sampleList
@@ -119,22 +125,22 @@ class FileStagerTool:
     # last fallback
     try:
       defaultTmpdir = os.environ['TMPDIR'] 
-    except Exception,inst:
+    except Exception as inst:
       pass
     # cern lxbatch
     try:
       defaultTmpdir = os.environ['WORKDIR']
-    except Exception,inst:
+    except Exception as inst:
       pass
     # osg
     try:
       defaultTmpdir = os.environ['OSG_WN_TMP']
-    except Exception,inst:
+    except Exception as inst:
       pass
     # lcg
     try:
       defaultTmpdir = os.environ['EDG_WL_SCRATCH']
-    except Exception,inst:
+    except Exception as inst:
       pass
 
     # use given tmpdir
@@ -181,7 +187,7 @@ class FileStagerTool:
         stderr = stderr.replace(baseTmpdir,self.LogfileDir)
         stdout = stdout.replace(baseTmpdir,self.LogfileDir)
       
-      #print "TStageManager::getFile()   : Waiting till <%s> is staged." % (self.sampleList[0])
+      #print ("TStageManager::getFile()   : Waiting till <%s> is staged." % (self.sampleList[0]))
 
       if (True):
         stageman = TStageManager.instance()
@@ -218,15 +224,15 @@ class FileStagerTool:
     return doStaging
 
   def CheckGrid(self):
-    (retcode,output) = commands.getstatusoutput("grid-proxy-info -exists")
+    (retcode,output) = subprocess.getstatusoutput("grid-proxy-info -exists")
     if (retcode!=0):
-      print "\nFileStager.FileStagerTool() : ERROR : grid proxy certificate not found."
+      print ("\nFileStager.FileStagerTool() : ERROR : grid proxy certificate not found.")
     return retcode
 
   def TryGridRestart(self):
     #os.environ['X509_USER_PROXY'] = self.gridCertificate
-    (retcode,output) = commands.getstatusoutput("voms-proxy-init -voms atlas -noregen")
+    (retcode,output) = subprocess.getstatusoutput("voms-proxy-init -voms atlas -noregen")
     if (retcode!=0):
-      print "\nFileStager.FileStagerTool() : ERROR : grid proxy restart failed. Exiting."
+      print ("\nFileStager.FileStagerTool() : ERROR : grid proxy restart failed. Exiting.")
     return retcode
 

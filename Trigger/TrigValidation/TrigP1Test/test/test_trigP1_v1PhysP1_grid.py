@@ -14,16 +14,16 @@
 # art-output: *.root
 # art-output: *.pmon.gz
 # art-output: *perfmon*
+# art-output: prmon*
 # art-output: *.check*
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
-ex.job_options = 'TrigUpgradeTest/full_menu.py'
+ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'grid'

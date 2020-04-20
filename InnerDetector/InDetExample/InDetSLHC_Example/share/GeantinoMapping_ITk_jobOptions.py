@@ -50,7 +50,7 @@ if 'myPt' not in dir() :
 if 'myGeo' not in dir() :
     myGeo = 'ATLAS-P2-ITK-01-00-00_VALIDATION'
 
-print 'Random seeds and offset as calcluated by jobOptions ', myRandomSeed1, ' ', myRandomSeed2, ' offset - ', myRandomOffset
+printfunc ('Random seeds and offset as calcluated by jobOptions ', myRandomSeed1, ' ', myRandomSeed2, ' offset - ', myRandomOffset)
 
 
 # Set everything to ATLAS
@@ -61,7 +61,7 @@ include("InDetSLHC_Example/preInclude.SLHC.py")
 include("InDetSLHC_Example/preInclude.SiliconOnly.py")
 # the global flags
 globalflags.ConditionsTag = 'OFLCOND-MC12-ITK-26-80-25'
-print globalflags.ConditionsTag
+printfunc (globalflags.ConditionsTag)
 
 
 #--- AthenaCommon flags ---------------------------------------

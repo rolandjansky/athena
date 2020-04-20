@@ -27,7 +27,7 @@
 #include "TrkExUtils/RealQuadraticEquation.h"
 // InDet
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "InDetSimEvent/TRTUncompressedHit.h"
 #include "InDetSimEvent/TRTHitIdHelper.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"

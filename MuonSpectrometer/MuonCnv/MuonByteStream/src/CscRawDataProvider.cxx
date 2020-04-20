@@ -14,7 +14,7 @@
 Muon::CscRawDataProvider::CscRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_rawDataTool     ("Muon::CSC_RawDataProviderTool/CscRawDataProviderTool", this),
+  m_rawDataTool     ("Muon::CSC_RawDataProviderToolMT/CscRawDataProviderTool", this),
   m_regionSelector  ("RegSelSvc",name)
 {
   declareProperty ("ProviderTool", m_rawDataTool);
@@ -40,8 +40,8 @@ StatusCode Muon::CscRawDataProvider::initialize() {
   // We only need the region selector in RoI seeded mode
   if(m_seededDecoding) ATH_CHECK( m_regionSelector.retrieve() );
 
-  ATH_CHECK( m_ALineKey.initialize() ); // !!! REMOVEME: when MuonDetectorManager in cond store
-    
+  ATH_CHECK( m_ALineKey.initialize(m_seededDecoding) ); // !!! REMOVEME: when MuonDetectorManager in cond store
+
   return StatusCode::SUCCESS;
 }
 

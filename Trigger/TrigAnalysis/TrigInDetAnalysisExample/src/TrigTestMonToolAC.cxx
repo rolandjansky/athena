@@ -38,7 +38,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
      m_fileopen(false),
      m_requireDecision(false),
      m_containTracks(false),
-     m_filter_on_roi(false)
+     m_filter_on_roi(false),
+     m_legacy(true)
 {
   msg(MSG::WARNING) << "TrigTestMonToolAC::TrigTestMonToolAC() compiled: " << __DATE__ << " " << __TIME__ << endmsg;
 
@@ -94,6 +95,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
   declareProperty( "SelectTruthPdgId", m_selectTruthPdgId = 0 );
 
   declareProperty( "KeepAllEvents", m_keepAllEvents = false );
+
+  declareProperty( "Leagacy", m_legacy = true );
   
   msg(MSG::INFO) << "TrigTestMonToolAC::TrigTestMonToolAC() " << gDirectory->GetName() << endmsg;
 
@@ -270,23 +273,44 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 	
 	msg(MSG::INFO) << "[91;1m"  << "booking a Tier0 chain " << m_chainNames[i] << " [m" << endmsg;
 	
-	m_sequences.push_back( new AnalysisConfig_Tier0(m_chainNames[i], 
-							m_chainNames[i], "", "",
-							m_chainNames[i], "", "",
-							&m_roiInfo,
-							filterTest, filterRef, 
-							dR_matcher,
-							new Analysis_Tier0(m_chainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
+	//	std::cout  << "[91;1m"  << "booking a Tier0 chain " << m_chainNames[i] << " [m" << std::endl;
+
+	//	if ( m_legacy && m_tdt->getNavigationFormat() == "TriggerElement" ) { 
+	if ( m_tdt->getNavigationFormat() == "TriggerElement" ) { 
+	
+	  m_sequences.push_back( new AnalysisConfig_Tier0(m_chainNames[i], 
+							  m_chainNames[i], "", "",
+							  m_chainNames[i], "", "",
+							  &m_roiInfo,
+							  filterTest, filterRef, 
+							  dR_matcher,
+							  new Analysis_Tier0(m_chainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
+	  
+	  /// should the tracks be completely contained ? 
+	  
+	  dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->containTracks( m_containTracks );	
+	  
+	}
+	else { 
+	  
+	  m_sequences.push_back( new AnalysisConfigMT_Tier0(m_chainNames[i], 
+							    m_chainNames[i], "", "",
+							    m_chainNames[i], "", "",
+							    &m_roiInfo,
+							    filterTest, filterRef, 
+							    dR_matcher,
+							    new Analysis_Tier0(m_chainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
+	
+	  /// should the tracks be completely contained ? 
+	  
+	  dynamic_cast<AnalysisConfigMT_Tier0*>(m_sequences.back())->containTracks( m_containTracks );	
+	
+	}
 	
 	/// add the meta data
 	
 	m_sequences.back()->releaseData(m_releaseMetaData);	
 	
-	/// should the tracks be completely contained ? 
-
-	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->containTracks( m_containTracks );	
-
-
       }
       
     }

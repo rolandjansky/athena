@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -31,7 +31,6 @@ namespace Trk {
 
 class IMultiStateMeasurementUpdator;
 class MultiComponentStateOnSurface;
-class IMultiComponentStateCombiner;
 class IMultiStateExtrapolator;
 
 class TrackFitInputPreparator;
@@ -49,7 +48,7 @@ public:
   GaussianSumFitter(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GaussianSumFitter(){};
+  virtual ~GaussianSumFitter() = default;
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;
@@ -125,8 +124,6 @@ private:
                                                     "Trk::ForwardGsfFitter/ForwardGsfFitter",
                                                     "" };
   ToolHandle<IGsfSmoother> m_gsfSmoother{ this, "GsfSmoother", "Trk::GsfSmoother/GsfSmoother", "" };
-  ToolHandle<IMultiComponentStateCombiner>
-    m_stateCombiner{ this, "StateCombiner", "Trk::MultiComponentStateCombiner/GSFMultiComponentStateCombiner", "" };
 
   bool m_reintegrateOutliers;
   bool m_makePerigee;

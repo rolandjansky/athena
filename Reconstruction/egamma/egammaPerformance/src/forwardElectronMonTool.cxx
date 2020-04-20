@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -113,7 +113,8 @@ forwardElectronMonTool::~forwardElectronMonTool()
 StatusCode forwardElectronMonTool::bookHistograms()
 {
   ATH_MSG_DEBUG("forwardElectronMonTool::bookHistograms()");
-  int start, end;
+  int start;
+  int end;
   start = ENDCAP;
   end = FORWARD;
 
@@ -215,7 +216,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
   }
 
   // Get electron container
-  const xAOD::ElectronContainer* electron_container=0;
+  const xAOD::ElectronContainer* electron_container=nullptr;
   sc = m_storeGate->retrieve(electron_container, m_ForwardElectronContainer);
   if(sc.isFailure() || !electron_container){
     ATH_MSG_VERBOSE("no electron container found in TDS");
@@ -237,7 +238,8 @@ StatusCode forwardElectronMonTool::fillHistograms()
 
   int n_tot = 0;
   int n_tot_tight = 0;
-  std::vector<int> n_el, n_el_tight;
+  std::vector<int> n_el;
+  std::vector<int> n_el_tight;
   n_el.resize(NREGION,0);
   n_el_tight.resize(NREGION,0);
 

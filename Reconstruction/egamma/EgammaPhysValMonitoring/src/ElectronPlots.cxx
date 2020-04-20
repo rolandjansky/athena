@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ElectronPlots.h"
@@ -18,8 +18,8 @@ using namespace MCTruthPartClassifier;
 
 namespace Egamma{
 
-ElectronPlots::ElectronPlots(PlotBase* pParent, std::string sDir, 
-			     std::string sParticleType):PlotBase(pParent, sDir),
+ElectronPlots::ElectronPlots(PlotBase* pParent, const std::string& sDir, 
+			     const std::string& sParticleType):PlotBase(pParent, sDir),
 							m_oKinAllRecoPlots(this, "All/KinPlots/", "All Reco "+ sParticleType +" Electron"),
 							m_oShowerShapesAllRecoPlots(this, "All/ShowerShapesPlots/","All Reco "+ sParticleType +" Electron"  ),
 							m_oIsolationAllRecoPlots(this, "All/IsolationPlots/", "All Reco "+ sParticleType +"  Electron" ),
@@ -34,8 +34,8 @@ ElectronPlots::ElectronPlots(PlotBase* pParent, std::string sDir,
 							m_oKinIsoLHLoosePlots(this, "IsoLHLoose/KinPlots/", "LHLoose "+ sParticleType +"   Electron"),
                                                         m_oKinIsoLHMediumPlots(this, "IsoLHMedium/KinPlots/", "LHMedium "+ sParticleType +"   Electron"),
                                                         m_oKinIsoLHTightPlots(this, "IsoLHTight/KinPlots/", "LHTight "+ sParticleType +"   Electron"),
-						        nParticles(0),
-							nTypeParticles(0),
+						        nParticles(nullptr),
+							nTypeParticles(nullptr),
 							m_sParticleType(sParticleType)
 {}	
 

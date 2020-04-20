@@ -27,6 +27,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 namespace Trk 
 {
   /** 
@@ -60,13 +61,10 @@ namespace Trk
   /** @brief the Calo Extension tool*/
   ToolHandle<Trk::IParticleCaloExtensionTool> m_particleCaloExtensionTool {this,
       "LastCaloExtentionTool", "Trk::CaloExtensionBuilderTool"};
-  
-  ///Manages the track selection. It should be able to handle both pflow and tau selections
-  ToolHandle<InDet::IInDetTrackSelectionTool> m_TrkSelection {this,
-      "TrkSelection", "TrkSelectionCaloExtensionBuilder", "Tool that handles the track selection"};
 
-  ToolHandle<Trk::ITrackSelectorTool> m_TrkDetailedSelection {this,
-      "TrkDetailedSelection", "TrkDetailedSelectionCaloExtensionBuilder", "Tool that handles the detailed track selection"};
+  ///Manages the track selection. It should be able to handle both pflow and tau selections
+   ToolHandle<InDet::IInDetTrackSelectionTool> m_TrkSelection {this,
+      "TrkSelection", "TrkSelectionCaloExtensionBuilder", "Tool that handles the track selection"};
 
   ///output particle calo extension collection 
   SG::WriteHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,
@@ -74,11 +72,7 @@ namespace Trk
 
   ///input Track collection and vertex
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrkPartContainerKey {this,
-      "TrkPartContainerName", "InDetTrackParticles", "Container of tracks"};
-
-  ///input Vertex collection
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,
-      "vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+      "TrkPartContainerName", "InDetTrackParticles", "Container of tracks"};  
 
   // For P->T converters of ID tracks with Pixel
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, 
@@ -86,6 +80,8 @@ namespace Trk
   // For P->T converters of ID tracks with SCT
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, 
     "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+  // For P->T converters of ID tracks with TRT
+  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer"}; 
  
   };
 }

@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script building all the externals necessary for the nightly build.
 #
 
@@ -22,7 +24,7 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=(-DLCG_VERSION_NUMBER=96 -DLCG_VERSION_POSTFIX="")
+EXTRACMAKE=(-DLCG_VERSION_NUMBER=97 -DLCG_VERSION_POSTFIX="")
 while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)
@@ -96,10 +98,8 @@ fi
 # Create some directories:
 mkdir -p ${BUILDDIR}/{src,install}
 
-# Set some environment variables that the builds use internally:
-export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
-export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
+# Get the version of Athena for the build.
+version=`cat ${thisdir}/version.txt`
 
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts
@@ -139,13 +139,12 @@ ${scriptsdir}/checkout_atlasexternals.sh \
 
 
 ## Build AthenaExternals:
-export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaExternals
 ${scriptsdir}/build_atlasexternals.sh \
     -s ${BUILDDIR}/src/AthenaExternals \
     -b ${BUILDDIR}/build/AthenaExternals \
-    -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
+    -i ${BUILDDIR}/install \
     -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION} \
+    -v ${version} \
     ${EXTRACMAKE[@]/#/-x } || ((ERROR_COUNT++))
 
 {
@@ -159,7 +158,7 @@ ${scriptsdir}/build_atlasexternals.sh \
 
 # Get the "platform name" from the directory created by the AthenaExternals
 # build:
-platform=$(cd ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea;ls)
+platform=$(cd ${BUILDDIR}/install/AthenaExternals/${version}/InstallArea;ls)
 
 # Read in the tag/branch to use for Gaudi:
 GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
@@ -178,12 +177,12 @@ ${scriptsdir}/checkout_Gaudi.sh \
 }
 
 # Build Gaudi:
-export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI
 ${scriptsdir}/build_Gaudi.sh \
     -s ${BUILDDIR}/src/GAUDI \
     -b ${BUILDDIR}/build/GAUDI \
-    -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
-    -e ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
+    -i ${BUILDDIR}/install \
+    -e ${BUILDDIR}/install/AthenaExternals/${version}/InstallArea/${platform} \
+    -v ${version} \
     -p AthenaExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE} \
     ${EXTRACMAKE[@]/#/-x } || ((ERROR_COUNT++))
 

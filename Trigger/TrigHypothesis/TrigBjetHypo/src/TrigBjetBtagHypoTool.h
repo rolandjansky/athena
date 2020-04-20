@@ -20,14 +20,14 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
 
 // Are these new?
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgTool.h" 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 

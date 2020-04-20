@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonClusterization/TgcHitClustering.h"
@@ -26,18 +26,18 @@ namespace Muon {
     clustersPhi.clear();
     channelsEta.clear();
     channelsPhi.clear();
-    channelsEta.resize(m_muonIdHelperTool->tgcIdHelper().channelMax()+2);
-    channelsPhi.resize(m_muonIdHelperTool->tgcIdHelper().channelMax()+2);
+    channelsEta.resize(m_tgcIdHelper->channelMax()+2);
+    channelsPhi.resize(m_tgcIdHelper->channelMax()+2);
     std::vector<Triplet>* channelsPtr = 0;
     for( ; cit!=cit_end;++cit ) {
       const Muon::TgcPrepData* prd = *cit;
       if( !prd ) continue;
 
       const Identifier& id = prd->identify();
-      bool measuresPhi = m_muonIdHelperTool->tgcIdHelper().isStrip(id); // like measuresPhi()
+      bool measuresPhi = m_tgcIdHelper->isStrip(id); // like measuresPhi()
       std::vector<TgcClusterObj>& clusters = measuresPhi ? clustersPhi : clustersEta;
-      int channel = m_muonIdHelperTool->tgcIdHelper().channel(id); // between 1 and 135!
-      int gasgap = m_muonIdHelperTool->tgcIdHelper().gasGap(id);
+      int channel = m_tgcIdHelper->channel(id); // between 1 and 135!
+      int gasgap = m_tgcIdHelper->gasGap(id);
 	
       if(measuresPhi) channelsPtr = &channelsPhi;
       else            channelsPtr = &channelsEta;
@@ -118,8 +118,8 @@ namespace Muon {
 	    TgcClusterObj::HitIt h_end = cluster.hitList.end();
 	    for( ;h!=h_end;++h ) {
 	      const Identifier& cid = (*h)->identify();
-	      int ch = m_muonIdHelperTool->tgcIdHelper().channel(cid);
-	      int gp = m_muonIdHelperTool->tgcIdHelper().gasGap(cid);
+	      int ch = m_tgcIdHelper->channel(cid);
+	      int gp = m_tgcIdHelper->gasGap(cid);
 	      Triplet& trip = (*channelsPtr)[ch];
 	      if( gp==1 )      trip.first  = currentClusterId;
 	      else if( gp==2 ) trip.second = currentClusterId;
@@ -188,8 +188,8 @@ namespace Muon {
       for( ;hit!=hit_end;++hit ){	
 	const Muon::TgcPrepData& prd = **hit;
 	const Identifier& id = prd.identify();
-	std::cout << "   hit " << m_muonIdHelperTool->tgcIdHelper().gasGap(id) << " " << m_muonIdHelperTool->tgcIdHelper().channel(id)-1;
-	bool measuresPhi = m_muonIdHelperTool->tgcIdHelper().isStrip(id); 
+	std::cout << "   hit " << m_tgcIdHelper->gasGap(id) << " " << m_tgcIdHelper->channel(id)-1;
+	bool measuresPhi = m_tgcIdHelper->isStrip(id);
 	if(measuresPhi) std::cout << " phi" << std::endl;
 	else            std::cout << " eta" << std::endl;
       }
@@ -205,8 +205,8 @@ namespace Muon {
       for( ;hit!=hit_end;++hit ){	
 	const Muon::TgcPrepData& prd = **hit;
 	const Identifier& id = prd.identify();
-	std::cout << "   hit " << m_muonIdHelperTool->tgcIdHelper().gasGap(id) << " " << m_muonIdHelperTool->tgcIdHelper().channel(id)-1;
-	bool measuresPhi = m_muonIdHelperTool->tgcIdHelper().isStrip(id); 
+	std::cout << "   hit " << m_tgcIdHelper->gasGap(id) << " " << m_tgcIdHelper->channel(id)-1;
+	bool measuresPhi = m_tgcIdHelper->isStrip(id);
 	if(measuresPhi) std::cout << " phi" << std::endl;
 	else            std::cout << " eta" << std::endl;
       }

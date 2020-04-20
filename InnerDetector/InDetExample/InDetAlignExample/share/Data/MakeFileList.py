@@ -1,8 +1,11 @@
-#!/afs/cern.ch/sw/lcg/external/Python/2.5.4/slc4_ia32_gcc34/bin/python
+#!/usr/bin/env python
 #################################################################
 #         Script to run obtain the events per file              #
 #                 only runs with root files                     #
 #################################################################
+
+from __future__ import print_function
+
 import os
 import PyUtils.PoolFile as PF
 
@@ -48,10 +51,10 @@ else:
 	
 for Path in paths:
    if "castor" in Path:
-      print "Reading castor directory. Please wait..."
+      print ("Reading castor directory. Please wait...")
       inputfiles = os.popen("rfdir "+ Path).read().splitlines()
    else:
-      print "Reading directory. Please wait..."
+      print ("Reading directory. Please wait...")
       inputfiles = os.popen("ls -l "+ Path).read().splitlines()
 
    for line in inputfiles:
@@ -62,19 +65,19 @@ for Path in paths:
             if ReadNEvents:
                poolFile = PF.PoolFile(fullFilename)
                numEvents = int(poolFile.dataHeader.nEntries)
-               print filename
-               print numEvents
+               print (filename)
+               print (numEvents)
                   
                if numEvents > EventCut:
                   outputText.write(fullFilename + '\t' + str(numEvents) + '\n')
                else:
-                  print "File with few events, skipping..."
+                  print ("File with few events, skipping...")
             else:
                if not PoolFileCatalog :
                   outputText.write(fullFilename + '\n') 
                if PoolFileCatalog :
-                  print " Creating as PoolFileToCatalogue Please wait..."
-                  print "  pool_insertFileToCatalog ", fullFilename
+                  print (" Creating as PoolFileToCatalogue Please wait...")
+                  print ("  pool_insertFileToCatalog ", fullFilename)
                   if numline==1:
                      outputText.write(" pool_insertFileToCatalog "+ fullFilename + ' ')
                   else:
@@ -83,9 +86,9 @@ for Path in paths:
                numline=numline+1 
 				
          except IOError:
-            print "problem reading file " + filename + ", skipping..."
+            print ("problem reading file " + filename + ", skipping...")
       else:
-         print filename + " is not a root file, skipping... "
+         print (filename + " is not a root file, skipping... ")
             
 outputText.close()
 
@@ -97,7 +100,7 @@ outputText.close()
 if PoolFileCatalog:
   outputText = open(OutputFile, "r")
   command = outputText.read()  # store the content in a variable
-  print "command: ", command
+  print ("command: ", command)
   os.system(command)
   outputText.close()
 

@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    $Id: Analysis_Tier0.cxx   Thu 18 May 2017 15:35:34 CEST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 

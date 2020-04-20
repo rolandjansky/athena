@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -114,15 +114,15 @@ def setupCommonServices():
     svcMgr += TrigEventSelectorByteStream("EventSelector", ByteStreamInputSvc = svcMgr.ByteStreamInputSvc)
     theApp.EvtSel = "EventSelector"
 
-    # make the HltEventLoopMgr service available
-    svcMgr.HltEventLoopMgr = theApp.service( "HltEventLoopMgr" )     # already instantiated
-    svcMgr.HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
-    svcMgr.HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
-    svcMgr.HltEventLoopMgr.EvtSel = svcMgr.EventSelector
-    svcMgr.HltEventLoopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
-
-    # Time to wait before closing DB connections (see ATR-8907)
-    svcMgr.HltEventLoopMgr.dbConnIdleWaitSec = 6
+    # Online event loop manager
+    from TrigServices.TrigServicesConfig import HltEventLoopMgr
+    loopMgr = HltEventLoopMgr("HltEventLoopMgr")
+    loopMgr.WhiteboardSvc = "EventDataSvc"
+    loopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+    loopMgr.EvtSel = svcMgr.EventSelector
+    loopMgr.OutputCnvSvc = svcMgr.ByteStreamCnvSvc
+    svcMgr += loopMgr
+    theApp.EventLoop = loopMgr.name()
 
     from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
     svcMgr.HltEventLoopMgr.ResultMaker = HLTResultMTMakerCfg()
@@ -140,7 +140,6 @@ def setupCommonServices():
 
     # Explicitly set a few OutputLevels (needed because some services are created in
     # different order when running with the PSC)
-    svcMgr.StatusCodeSvc.OutputLevel = theApp.OutputLevel
     svcMgr.IncidentSvc.OutputLevel = theApp.OutputLevel
     svcMgr.ProxyProviderSvc.OutputLevel = theApp.OutputLevel
     svcMgr.StoreGateSvc.OutputLevel = theApp.OutputLevel
@@ -181,14 +180,11 @@ def setupCommonServicesEnd():
     log.info('Configure core services for online running')
 
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
-    svcMgr.CoreDumpSvc.CallOldHandler = True
+    svcMgr.CoreDumpSvc.CallOldHandler = False
+    svcMgr.CoreDumpSvc.StackTrace = True
     svcMgr.CoreDumpSvc.FatalHandler = 0   # no extra fatal handler
-    svcMgr.CoreDumpSvc.TimeOut = 60000000000        # no timeout for stack trace generation -> changed to 60s (ATR17112)
+    svcMgr.CoreDumpSvc.TimeOut = 60000000000        # timeout for stack trace generation changed to 60s (ATR-17112)
 
-    # Disable StatusCodeSvc (causes problems with shutting down children at stop in HLTPU)
-    svcMgr.StatusCodeSvc.SuppressCheck = True
-    svcMgr.StatusCodeSvc.AbortOnError = False
-        
     svcMgr.IOVSvc.updateInterval = "RUN"
     svcMgr.IOVSvc.preLoadData = True
     svcMgr.IOVSvc.preLoadExtensibleFolders = False  # ATR-19392

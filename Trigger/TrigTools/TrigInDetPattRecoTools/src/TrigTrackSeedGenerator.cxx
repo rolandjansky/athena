@@ -99,10 +99,10 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
 
 }
 
-void TrigTrackSeedGenerator::createSeeds() {
+void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 
-  m_zMinus = m_settings.roiDescriptor->zedMinus() - m_zTol;
-  m_zPlus  = m_settings.roiDescriptor->zedPlus() + m_zTol;
+  m_zMinus = roiDescriptor->zedMinus() - m_zTol;
+  m_zPlus  = roiDescriptor->zedPlus() + m_zTol;
   
   for(INTERNAL_TRIPLET_BUFFER::iterator it=m_triplets.begin();it!=m_triplets.end();++it) {
     delete (*it).second;
@@ -190,7 +190,7 @@ void TrigTrackSeedGenerator::createSeeds() {
 	  int nI = m_nInner;
 	  int nO = m_nOuter;
 	      
-	  nSP += processSpacepointRange(layerJ, rm, zm, checkPSS, delta);
+	  nSP += processSpacepointRange(layerJ, rm, zm, checkPSS, delta, roiDescriptor);
 
 	  if(m_nInner > nI) m_innerMarkers.push_back(m_nInner);
 	  if(m_nOuter > nO) m_outerMarkers.push_back(m_nOuter);
@@ -207,8 +207,7 @@ void TrigTrackSeedGenerator::createSeeds() {
 	if(m_nInner != 0 && m_nOuter != 0) {
 	  INTERNAL_TRIPLET_BUFFER tripletVec;
 	    
-	  createTripletsNew(spm, m_nInner, m_nOuter, tripletVec);
-	  //createTriplets(spm, m_nInner, m_nOuter, tripletVEc);
+	  createTripletsNew(spm, m_nInner, m_nOuter, tripletVec, roiDescriptor);
 	    
 	  if(!tripletVec.empty()) storeTriplets(tripletVec);	
 	  tripletVec.clear();
@@ -227,14 +226,14 @@ void TrigTrackSeedGenerator::createSeeds() {
 
 }
 
-void TrigTrackSeedGenerator::createSeedsZv() {
+void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, const std::vector<float>& vZv) {
   
   for(INTERNAL_TRIPLET_BUFFER::iterator it=m_triplets.begin();it!=m_triplets.end();++it) {
     delete (*it).second;
   }
   m_triplets.clear();
 
-  if(m_settings.m_vZv.empty()) return;
+  if(vZv.empty()) return;
 
   int nLayers = (int) m_settings.m_layerGeometry.size();
 
@@ -270,7 +269,7 @@ void TrigTrackSeedGenerator::createSeedsZv() {
 
 	  INTERNAL_TRIPLET_BUFFER tripletVec;
 
-	  for(auto zVertex : m_settings.m_vZv) {//loop over zvertices
+	  for(const auto zVertex : vZv) {//loop over zvertices
 
 	    int nSP=0;
 	    m_nInner = 0;
@@ -301,7 +300,7 @@ void TrigTrackSeedGenerator::createSeedsZv() {
 
 	    }//loop over inner/outer layers
 	    if(m_nInner != 0 && m_nOuter != 0) {
-	      createTriplets(spm, m_nInner, m_nOuter, tripletVec);
+	      createTriplets(spm, m_nInner, m_nOuter, tripletVec, roiDescriptor);
 	    }
 	  }//loop over zvertices
 	  if(!tripletVec.empty()) storeTriplets(tripletVec);
@@ -523,7 +522,7 @@ bool TrigTrackSeedGenerator::getSpacepointRange(int lJ, const std::vector<const 
   return true;
 }
 
-int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, bool checkPSS, const SP_RANGE& delta) {
+int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, bool checkPSS, const SP_RANGE& delta, const IRoiDescriptor* roiDescriptor) {
 
   int nSP=0;
 
@@ -554,7 +553,7 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, b
     
     float z0  = zm - rm*tau;
     if (m_settings.m_doubletFilterRZ) {
-      if (!RoiUtil::contains( *(m_settings.roiDescriptor), z0, tau)) continue;
+      if (!RoiUtil::contains( *roiDescriptor, z0, tau)) continue;
     }
     
     float t = isBarrel ? dz*dR_i : dZ/dr;
@@ -608,7 +607,7 @@ int TrigTrackSeedGenerator::processSpacepointRangeZv(float rm, float zm, bool ch
 }
 
 void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int nInner, int nOuter,
-					    INTERNAL_TRIPLET_BUFFER& output) {
+					    INTERNAL_TRIPLET_BUFFER& output, const IRoiDescriptor* roiDescriptor) {
 
 
   if(nInner==0 || nOuter==0) return;
@@ -765,12 +764,11 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
       //5. phi0 cut
 
-      if (!m_settings.roiDescriptor->isFullscan()) {
+      if (!roiDescriptor->isFullscan()) {
         const double uc = 2*B*pS_r - A;
         const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
-        // if(!m_settings.roiDescriptor->containsPhi(phi0)) {
-        if ( !RoiUtil::containsPhi( *(m_settings.roiDescriptor), phi0 ) ) {
+        if ( !RoiUtil::containsPhi( *roiDescriptor, phi0 ) ) {
           continue;
         }
       }
@@ -800,7 +798,7 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 }
 
 void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, int nInner, int nOuter,
-					       INTERNAL_TRIPLET_BUFFER& output) {
+					       INTERNAL_TRIPLET_BUFFER& output, const IRoiDescriptor* roiDescriptor) {
 
   if(nInner==0 || nOuter==0) return;
 
@@ -1052,12 +1050,12 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 
       //5. phi0 cut
 
-      if (!m_settings.roiDescriptor->isFullscan()) {
+      if (!roiDescriptor->isFullscan()) {
 
         const double uc = 2*d0_partial;
         const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
-        if ( !RoiUtil::containsPhi( *(m_settings.roiDescriptor), phi0 ) ) {
+        if ( !RoiUtil::containsPhi( *roiDescriptor, phi0 ) ) {
           continue;
         }
       }

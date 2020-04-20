@@ -1,11 +1,17 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.JetBTaggerAlgConfig import JetBTaggerAlgCfg
 from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
+from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
 from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
+from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
+from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
+from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
+from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
     result=ComponentAccumulator()
@@ -23,7 +29,7 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
       #IP3D
       #Same as IP2D. Revisit JetTagCalibCondAlg.cxx if not.
 
-      JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
+      JetTagCalibCondAlg=CompFactory.Analysis.JetTagCalibCondAlg
       jettagcalibcondalg = "JetTagCalibCondAlg"
       readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
       connSchema = "GLOBAL_OFL"
@@ -47,17 +53,22 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = []):
 
     return result
 
+def registerJetCollectionEL(flags, JetCollection, TimeStamp):
+    ItemList = []
+    # btaggingLink
+    suffix = ".".join(['btaggingLink'+ ts for ts in TimeStamp])
+    ItemList.append('xAOD::JetContainer#'+JetCollection+'Jets.' + suffix)
+    ItemList.append('xAOD::JetAuxContainer#'+JetCollection+'JetsAux.'+ suffix)
 
-def registerOutputContainersForJetCollection(flags, JetCollection, suffix = ''):
+    return ItemList
+
+def registerOutputBTaggingContainers(flags, JetCollection, suffix = ''):
       """Registers the jet collection to various containers in BTaggingFlags which govern which
       containers will be parsed to the output xAOD and ESD files. This used to happen in
       ./share/BTagging_jobOptions.py.
 
       input: JetCollection:       The name of the jet collection."""
       ItemList = []
-      # btaggingLink
-      ItemList.append('xAOD::JetContainer#'+JetCollection+'Jets.btaggingLink' + suffix)
-      ItemList.append('xAOD::JetAuxContainer#'+JetCollection+'JetsAux.btaggingLink'+ suffix)
 
       OutputFilesSVname = "SecVtx"
       OutputFilesJFVxname = "JFVtx"
@@ -68,12 +79,7 @@ def registerOutputContainersForJetCollection(flags, JetCollection, suffix = ''):
       OutputFilesBaseNameJFSecVtx = "xAOD::BTagVertexContainer#"
       OutputFilesBaseAuxNameJFSecVtx= "xAOD::BTagVertexAuxContainer#"
 
-      if suffix:
-          suffix = '_' + suffix
-
-      author = flags.BTagging.OutputFiles.Prefix + JetCollection + suffix
-      ItemList.append(OutputFilesBaseName + author)
-      ItemList.append(OutputFilesBaseAuxName + author + 'Aux.-BTagTrackToJetAssociatorBB')
+      author = flags.BTagging.OutputFiles.Prefix + JetCollection
       # SecVert
       ItemList.append(OutputFilesBaseNameSecVtx + author + OutputFilesSVname)
       ItemList.append(OutputFilesBaseAuxNameSecVtx + author + OutputFilesSVname + 'Aux.-vxTrackAtVertex')
@@ -81,37 +87,61 @@ def registerOutputContainersForJetCollection(flags, JetCollection, suffix = ''):
       ItemList.append(OutputFilesBaseNameJFSecVtx + author + OutputFilesJFVxname)
       ItemList.append(OutputFilesBaseAuxNameJFSecVtx + author + OutputFilesJFVxname + 'Aux.')
 
+      if suffix:
+          author += '_' + suffix
+
+      ItemList.append(OutputFilesBaseName + author)
+      # jetLink
+      jetLink = '.jetLink'
+      ItemList.append(OutputFilesBaseName+author+jetLink)
+      ItemList.append(OutputFilesBaseAuxName+author+jetLink)
+
+      ItemList.append(OutputFilesBaseAuxName + author + 'Aux.-BTagTrackToJetAssociatorBB')
+
       return ItemList
 
 def BTagRedoESDCfg(flags, jet, extraContainers=[]):
     acc=ComponentAccumulator()
 
-    #Delete BTagging container read from input ESD
-    AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
-    AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMTopoJets.btaggingLink->AntiKt4EMTopoJets.btaggingLink_old']
-    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo->BTagging_AntiKt4EMTopo_old']
-    acc.addService(AddressRemappingSvc)
-    acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
+    acc.merge(RenameInputContainerCfg("old"))
 
     #Register input ESD container in output
-    ESDItemList = registerOutputContainersForJetCollection(flags, jet)
+    ESDItemList = registerOutputBTaggingContainers(flags, jet)
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList+extraContainers))
 
     return acc
 
-def BTagESDtoESDCfg(flags, jet, new):
+def BTagESDtoESDCfg(flags, jet, timestamp):
     acc=ComponentAccumulator()
 
-    #Register input ESD container in output
-    ESDItemList = registerOutputContainersForJetCollection(flags, jet)
-
+    ESDItemList = []
     #Register new ouput ESD container
-    ESDnewItemList = registerOutputContainersForJetCollection(flags, jet, new)
+    for ts in timestamp:
+        ESDItemList += registerOutputBTaggingContainers(flags, jet, ts)
+
+    ESDItemList += registerJetCollectionEL(flags, jet, timestamp)
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList+ESDnewItemList))
+    acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList))
+
+    return acc
+
+def RenameInputContainerCfg(suffix):
+    acc=ComponentAccumulator()
+
+    #Delete BTagging container read from input ESD
+    AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
+    AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMTopoJets.btaggingLink->AntiKt4EMTopoJets.btaggingLink_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo->BTagging_AntiKt4EMTopo_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.->BTagging_AntiKt4EMTopo_' + suffix+"Aux."]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexContainer#BTagging_AntiKt4EMTopoSecVtx->BTagging_AntiKt4EMTopoSecVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::VertexAuxContainer#BTagging_AntiKt4EMTopoSecVtxAux.->BTagging_AntiKt4EMTopoSecVtx_' + suffix+"Aux."]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexContainer#BTagging_AntiKt4EMTopoJFVtx->BTagging_AntiKt4EMTopoJFVtx_' + suffix]
+    AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::BTagVertexAuxContainer#BTagging_AntiKt4EMTopoJFVtxAux.->BTagging_AntiKt4EMTopoJFVtx_' + suffix+"Aux."]
+    acc.addService(AddressRemappingSvc)
+    acc.addService(ProxyProviderSvc(ProviderNames = [ "AddressRemappingSvc" ]))
 
     return acc
 
@@ -138,8 +168,8 @@ def BTagCfg(inputFlags,**kwargs):
     GeometryDBSvc=CompFactory.GeometryDBSvc
     result.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     
-    from AthenaCommon import CfgGetter
-    result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    result.merge(PixelGeometryCfg( inputFlags ))
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
     result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL'))
@@ -147,7 +177,7 @@ def BTagCfg(inputFlags,**kwargs):
     #result.merge(addFolders(inputFlags,['/GLOBAL/TrackingGeo/LayerMaterialV2'],'GLOBAL_ONL'))
     result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
     
-    MagField__AtlasFieldSvc=CompFactory.MagField__AtlasFieldSvc
+    MagField__AtlasFieldSvc=CompFactory.MagField.AtlasFieldSvc
     kwargs.setdefault( "UseDCS", True )
     result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
     del kwargs['UseDCS']
@@ -161,16 +191,18 @@ def BTagCfg(inputFlags,**kwargs):
 
     #Should be parameters
     JetCollection = ['AntiKt4EMTopo','AntiKt4EMPFlow']
-    taggerList = inputFlags.BTagging.run2TaggersList
-    taggerList += ['MultiSVbb1','MultiSVbb2']
 
+    TrainedTaggers = inputFlags.BTagging.run2TaggersList + ['MultiSVbb1','MultiSVbb2']
+    result.merge(JetTagCalibCfg(inputFlags, TaggerList = TrainedTaggers))
 
     for jet in JetCollection:
+        taggerList = inputFlags.BTagging.run2TaggersList
+        taggerList += ['MultiSVbb1','MultiSVbb2']
         if timestamp:
             #Time-stamped BTagging container (21.2)
-            for ts in timestamp:
-              result.merge(BTagESDtoESDCfg(inputFlags, jet, ts))
+            result.merge(BTagESDtoESDCfg(inputFlags, jet, timestamp))
             kwargs['TimeStamp'] = timestamp
+            result.merge(RenameInputContainerCfg("old"))
         else:
             extraCont = []
             if splitAlg:
@@ -185,25 +217,90 @@ def BTagCfg(inputFlags,**kwargs):
                 extraCont.append(AuxSecVtx + author + 'SecVtxMTAux.-vxTrackAtVertex')
                 extraCont.append(SecVtx + author + 'MSVMT')
                 extraCont.append(AuxSecVtx + author + 'MSVMTAux.-vxTrackAtVertex')
+                extraCont.append("xAOD::BTaggingContainer#" + author + 'MT')
+                extraCont.append("xAOD::BTaggingAuxContainer#" + author + 'MTAux.')
             result.merge(BTagRedoESDCfg(inputFlags, jet, extraCont))
 
         if splitAlg:
+            timestamp = kwargs.get('TimeStamp', None)
+            if not timestamp:
+                timestamp = ['']
+            else:
+                del kwargs['TimeStamp']
+
+            postTagDL2JetToTrainingMap={
+                'AntiKt4EMPFlow': [
+                #'BTagging/201903/smt/antikt4empflow/network.json',
+                'BTagging/201903/rnnip/antikt4empflow/network.json',
+                'BTagging/201903/dl1r/antikt4empflow/network.json',
+                'BTagging/201903/dl1/antikt4empflow/network.json',
+                #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+                ]
+            }
+
+            if jet in postTagDL2JetToTrainingMap:
+                #Remove DL1 and RNNIP from taggers list, those taggers are run with HighLevelBTagAlg
+                taggerList.remove('RNNIP')
+                taggerList.remove('DL1')
+
             #Track Association
+            TrackToJetAssociators = ['BTagTrackToJetAssociator', 'BTagTrackToJetAssociatorBB']
+
             kwargs['Release'] = '22'
-            result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociator', **kwargs))
+            result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", 'BTagTrackToJetAssociator', **kwargs))
             kwargs['Release'] = '21'
-            #result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociator', **kwargs))
-            result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", jet+'Jets.BTagTrackToJetAssociatorBB', **kwargs))
+            #result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", 'BTagTrackToJetAssociator', **kwargs))
+            result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", 'BTagTrackToJetAssociatorBB', **kwargs))
             del kwargs['Release']
 
-            #Sec vertexing
-            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'JetFitter', jet+'Jets.BTagTrackToJetAssociator'))
-            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'SV1', jet+'Jets.BTagTrackToJetAssociator'))
-            result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'MSV', jet+'Jets.BTagTrackToJetAssociatorBB'))
+            #Sec vertex finding
+            SecVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
+            for k, v in SecVertexingAndAssociators.items():
+                if v not in TrackToJetAssociators:
+                    raise RuntimeError( v + ' is not configured')
+                result.merge(JetSecVtxFindingAlgCfg(inputFlags, jet, "InDetTrackParticles", k, v))
 
-        result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
+                #Sec vertexing
+                result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", k, v))
 
-    result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList))
+            #result.merge(JetSecVertexingAlgCfg(inputFlags, jet, "InDetTrackParticles", 'MSV', 'BTagTrackToJetAssociatorBB'))
+
+            #BTagging
+            for ts in timestamp:
+                result.merge(JetBTaggingAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, SVandAssoc = SecVertexingAndAssociators, TimeStamp = ts, **kwargs))
+
+            if jet in postTagDL2JetToTrainingMap:
+                #Track Augmenter
+                result.merge(BTagTrackAugmenterAlgCfg(inputFlags))
+
+                for ts in timestamp:
+                    #HighLevel taggers can not be run with time stamped containers
+                    if ts == "":
+                        result.merge(RunHighLevelTaggersCfg(inputFlags, jet, 'BTagTrackToJetAssociator', postTagDL2JetToTrainingMap[jet], ts))
+
+        else:
+            result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, **kwargs))
+
+    return result
+
+def RunHighLevelTaggersCfg(inputFlags, JetCollection, Associator, TrainingMaps, TimeStamp):
+    result = ComponentAccumulator()
+
+    from AthenaCommon.AlgSequence import AthSequencer
+
+    BTagCollection = 'BTagging_'+JetCollection
+    sequenceName = BTagCollection + "_HLTaggers"
+    if TimeStamp:
+            BTagCollection += '_' + TimeStamp
+            sequenceName += '_' + TimeStamp
+
+    HLBTagSeq = AthSequencer(sequenceName)
+    HLBTagSeq.Sequential = True
+    result.addSequence(HLBTagSeq)
+
+    result.merge(BTagHighLevelAugmenterAlgCfg(inputFlags, sequenceName, BTagCollection = BTagCollection, Associator = Associator, **kwargs) )
+    for dl2 in TrainingMaps:
+        result.merge(HighLevelBTagAlgCfg(inputFlags, sequenceName, BTagCollection, dl2) )
 
     return result
 
@@ -249,9 +346,11 @@ if __name__=="__main__":
         cfgFlags.Concurrency.NumConcurrentEvents = args.nThreads
         from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
         acc=MainServicesThreadedCfg(cfgFlags)
+        acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
     else:
         from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
         acc=MainServicesSerialCfg()
+        acc.getService("MessageSvc").Format = "% F%80W%S%7W%R%T %0W%M"
 
     # Prevent the flags from being modified
     cfgFlags.lock()

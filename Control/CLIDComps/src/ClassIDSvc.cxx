@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>  /* distance */
@@ -245,7 +245,7 @@ StatusCode
 ClassIDSvc::finalize()
 {
   if (m_outputFileName != "NULL") {
-    ofstream outfile( m_outputFileName.c_str());
+    ofstream outfile( m_outputFileName );
     if ( !outfile ) {
       error() << "unable to open output CLIDDB file: " 
               << m_outputFileName << endmsg;
@@ -306,18 +306,8 @@ void ClassIDSvc::handle(const Incident &inc)
 /// Standard Constructor
 ClassIDSvc::ClassIDSvc(const std::string& name,ISvcLocator* svc)
   : Service(name,svc),
-    m_outputFileName("NULL"),
     m_clidDBPath(System::getEnv("DATAPATH"))
 {
-  // Property Default values
-  m_DBFiles.push_back("clid.db");
-    
-  // Get user's input	
-  declareProperty("CLIDDBFiles",  m_DBFiles, 
-		  "list of db files with (CLID, class_name) entries. Loaded at init in svc maps. Files are looked up in DATAPATH");
-  declareProperty("OutputFileName",  m_outputFileName,
-		  "path to clid.db file in which write at finalize entries in m_clidMap. Default ('NULL') is not to write output clid.db");
-
 }
 
 
@@ -414,8 +404,8 @@ ClassIDSvc::fillDB() {
                   << " using DATAPATH [" << System::getEnv("DATAPATH") 
                   << "] ----- SKIPPING" << endmsg;
       } else {
-	std::list<DirSearchPath::path>::const_iterator p(paths.begin()), pe(paths.end());
-	while (p!=pe) allOK &= processCLIDDB((*p++).c_str());
+        std::list<DirSearchPath::path>::const_iterator p(paths.begin()), pe(paths.end());
+        while (p!=pe) allOK &= processCLIDDB((*p++).c_str());
       }
     }
   }

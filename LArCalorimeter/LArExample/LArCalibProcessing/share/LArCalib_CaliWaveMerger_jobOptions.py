@@ -9,11 +9,11 @@
 ###########################################################################
 
 if not 'PoolFileList' in dir():
-	print "Please provide a PoolFileList!"
+	printfunc ("Please provide a PoolFileList!")
 	theApp.exit()
 	
 if not 'ContainerKeyList' in dir():
-	print "Please provide a ContainerKeyList!"
+	printfunc ("Please provide a ContainerKeyList!")
 	theApp.exit()
 
 if not 'PoolFileDir' in dir():

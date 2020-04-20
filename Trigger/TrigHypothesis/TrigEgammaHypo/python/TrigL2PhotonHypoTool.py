@@ -1,8 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoTool
+
 from AthenaCommon.SystemOfUnits import GeV
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaCommon.Include import Include 
+# flake8: noqa 
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigL2PhotonHypoTool')
 
@@ -11,8 +13,8 @@ def TrigL2PhotonHypoToolFromDict( chainDict ):
     thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in chainDict['chainParts']], [])
 
     name = chainDict['chainName']
-
-    tool = TrigL2PhotonHypoTool(name)
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tool = CompFactory.TrigL2PhotonHypoTool(name)
 
     monTool = GenericMonitoringTool("MonTool"+name)
     monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Photon Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative")
@@ -20,7 +22,7 @@ def TrigL2PhotonHypoToolFromDict( chainDict ):
     monTool.defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="L2Photon Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5)
     monTool.defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="L2Photon Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2)
 
-    monTool.HistPath = 'L2PhotonHypo/'+tool.name()
+    monTool.HistPath = 'L2PhotonHypo/'+tool.getName()
     tool.MonTool = monTool
 
     nt = len( thresholds )

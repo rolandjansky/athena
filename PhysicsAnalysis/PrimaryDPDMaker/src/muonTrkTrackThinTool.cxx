@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -14,9 +14,10 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "AthenaKernel/IThinningSvc.h"
 // StoreGate
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 #include "PrimaryDPDMaker/muonTrkTrackThinTool.h"
@@ -34,11 +35,8 @@ muonTrkTrackThinTool::muonTrkTrackThinTool(const std::string& name,ISvcLocator* 
   m_All(0),
   m_pass(0),
   m_trackAll(0),
-  m_trackpass(0),
-  m_EventCounter(0),
-  m_thinningSvc(nullptr)
+  m_trackpass(0)
 {
-  declareProperty("TrackCollectionKey", m_trackCollKey="MuonSpectrometerTracks");
 }
   
 // Destructor
@@ -49,13 +47,7 @@ muonTrkTrackThinTool::~muonTrkTrackThinTool() {
 StatusCode muonTrkTrackThinTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize() ...");
-
-  StatusCode  sc;
-  sc = service("ThinningSvc", m_thinningSvc);
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("ThinningSvc not found");
-    return sc;
-  }
+  ATH_CHECK( m_trackCollKey.initialize (m_streamName) );
   return StatusCode::SUCCESS;
 }
 
@@ -71,16 +63,12 @@ StatusCode muonTrkTrackThinTool::finalize()
 // The thinning itself
 StatusCode muonTrkTrackThinTool::execute()
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   
-  const TrackCollection* alltracks = 0;
-  CHECK( evtStore()->retrieve( alltracks, m_trackCollKey ) );
-  if (!alltracks){
-    ATH_MSG_DEBUG( "------------- No Track Collection to filter of type: " <<  m_trackCollKey);
-    return StatusCode::SUCCESS;
-  }
+  SG::ThinningHandle<TrackCollection> alltracks (m_trackCollKey, ctx);
 
   if (alltracks->size() == 0){
-    ATH_MSG_DEBUG( "------------- Track Collection is empty, collection type: " <<  m_trackCollKey);
+    ATH_MSG_DEBUG( "------------- Track Collection is empty, collection type: " <<  m_trackCollKey.key());
     return StatusCode::SUCCESS;
   }
 
@@ -102,10 +90,10 @@ StatusCode muonTrkTrackThinTool::execute()
     m_pass++;
     const xAOD::TrackParticle* muon_tp = 0;
     //Needed the below 'if' statements to separate trackparticle cases
-    if (m_trackCollKey == "MuonSpectrometerTracks")
+    if (m_trackCollKey.key() == "MuonSpectrometerTracks")
       muon_tp = muon->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
 
-    if (m_trackCollKey == "CombinedMuonTracks")
+    if (m_trackCollKey.key() == "CombinedMuonTracks")
       muon_tp = muon->trackParticle(xAOD::Muon::CombinedTrackParticle);
 
     if (!muon_tp) {
@@ -128,11 +116,8 @@ StatusCode muonTrkTrackThinTool::execute()
     }
   }//close muon loop
 
-      
-  if (m_thinningSvc->filter(*alltracks, mask_t).isFailure()) {
-    ATH_MSG_ERROR("------------- Application of thinning service failed! ");
-    return StatusCode::FAILURE;
-  }
+
+  alltracks.keep (mask_t);
   
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/HECHVSubgap.h"
@@ -64,7 +64,7 @@ void HECHVSubgap::voltage_current(double& voltage, double&current) const {
  current = payload->current;
 }
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 int HECHVSubgap::hvLineNo(const LArHVIdMapping* hvIdMapping) const {
   return hvIdMapping
     ? m_c->module->getManager().hvLineNo(*this,hvIdMapping)

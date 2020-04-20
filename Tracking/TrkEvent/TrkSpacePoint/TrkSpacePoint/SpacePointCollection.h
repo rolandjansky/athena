@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -75,8 +75,8 @@ class SpacePointCollection
 	///////////////////////////////////////////////////////////////////
 	private:
 	
-	SpacePointCollection();
-	SpacePointCollection &operator=(const SpacePointCollection&);
+	SpacePointCollection() = delete;
+	SpacePointCollection &operator=(const SpacePointCollection&) = delete;
 	
 	///////////////////////////////////////////////////////////////////
 	// Private data:

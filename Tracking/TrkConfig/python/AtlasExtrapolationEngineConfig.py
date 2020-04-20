@@ -28,7 +28,7 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
     result.addPublicTool(rungeKuttaPropagator) #TODO remove one day
       
     # from the Propagator create a Propagation engine to handle path length
-    Trk__PropagationEngine=CompFactory.Trk__PropagationEngine
+    Trk__PropagationEngine=CompFactory.Trk.PropagationEngine
     staticPropagator = Trk__PropagationEngine(name = nameprefix+'StaticPropagation')
     # give the tools it needs 
     staticPropagator.Propagator               = rungeKuttaPropagator
@@ -38,7 +38,7 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
     result.addPublicTool(staticPropagator) #TODO remove one day
        
     # load the material effects engine
-    Trk__MaterialEffectsEngine=CompFactory.Trk__MaterialEffectsEngine
+    Trk__MaterialEffectsEngine=CompFactory.Trk.MaterialEffectsEngine
     materialEffectsEngine = Trk__MaterialEffectsEngine(name = nameprefix+'MaterialEffects')
     # configure output formatting               
     materialEffectsEngine.OutputPrefix        = '[ME] - '
@@ -47,7 +47,7 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
 
         
     # load the static navigation engine
-    Trk__StaticNavigationEngine=CompFactory.Trk__StaticNavigationEngine
+    Trk__StaticNavigationEngine=CompFactory.Trk.StaticNavigationEngine
     staticNavigator = Trk__StaticNavigationEngine(name = nameprefix+'StaticNavigation')
     # give the tools it needs 
     staticNavigator.PropagationEngine        = staticPropagator
@@ -61,7 +61,7 @@ def AtlasExtrapolationEngineCfg( flags, name = 'Extrapolation', nameprefix='Atla
     result.addPublicTool(staticNavigator) #TODO remove one day
     
     # load the Static ExtrapolationEngine
-    Trk__StaticEngine=CompFactory.Trk__StaticEngine
+    Trk__StaticEngine=CompFactory.Trk.StaticEngine
     staticExtrapolator = Trk__StaticEngine(name = nameprefix+'StaticExtrapolation')
     # give the tools it needs 
     staticExtrapolator.PropagationEngine        = staticPropagator

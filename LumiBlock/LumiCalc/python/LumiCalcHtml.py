@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 import cgi, os, sys
 import re
 import string
@@ -40,11 +43,11 @@ class LumiCalc:
         shutil.copyfile(self.updateScript, self.workdir+'/'+self.updateScript)
 
         # Make sure it is executable
-        os.chmod(self.workdir+'/'+self.updateScript, 0755)
+        os.chmod(self.workdir+'/'+self.updateScript, 0o755)
 
         # Also the recovery script        
         shutil.copyfile(self.recoverScript, self.workdir+'/'+self.recoverScript)
-        os.chmod(self.workdir+'/'+self.recoverScript, 0755)
+        os.chmod(self.workdir+'/'+self.recoverScript, 0o755)
 
     def cleanUp(self):
 
@@ -257,69 +260,82 @@ class LumiCalc:
         for line in open(self.workdir+'/output.txt').readlines():
             m=matchrun.search(line)
             if m:
-                if self.verbose: print 'Found run/lbstart/lbend:', m.group(1), m.group(2), m.group(3)
+                if self.verbose:
+                    print ('Found run/lbstart/lbend:', m.group(1), m.group(2), m.group(3))
                 currentrun = m.group(1)
                 self.runset.add(currentrun)
 
             m=matchlumidel.search(line)
             if m:
-                if self.verbose: print 'Found lumiDel:', m.group(1), 'in run', currentrun
+                if self.verbose:
+                    print ('Found lumiDel:', m.group(1), 'in run', currentrun)
                 self.lumidel[currentrun] = float(m.group(1)) + self.lumidel.get(currentrun, 0.)
                 
             m=matchlumirec.search(line)
             if m:
-                if self.verbose: print 'Found lumiRec:', m.group(1), 'in run', currentrun
+                if self.verbose:
+                    print ('Found lumiRec:', m.group(1), 'in run', currentrun)
                 self.lumirec[currentrun] = float(m.group(1)) + self.lumirec.get(currentrun, 0.)
         
             m=matchlumipre.search(line)
             if m:
-                if self.verbose: print 'Found lumiPre:', m.group(1), 'in run', currentrun
+                if self.verbose:
+                    print ('Found lumiPre:', m.group(1), 'in run', currentrun)
                 self.lumipre[currentrun] = float(m.group(1)) + self.lumipre.get(currentrun, 0.)
         
             m=matchlumilar.search(line)
             if m:
-                if self.verbose: print 'Found lumiLar:', m.group(1), 'in run', currentrun
+                if self.verbose:
+                    print ('Found lumiLar:', m.group(1), 'in run', currentrun)
                 self.lumilar[currentrun] = float(m.group(1)) + self.lumilar.get(currentrun, 0.)
         
             m = matchgoodlb.search(line)
             if m:
-                if self.verbose: print 'Found goodLB:', m.group(1), 'in run', currentrun
+                if self.verbose:
+                    print ('Found goodLB:', m.group(1), 'in run', currentrun)
                 self.goodlb[currentrun] = int(m.group(1)) + self.goodlb.get(currentrun, 0)
 
             m = matchbadlb.search(line)
             if m:
-                if self.verbose: print 'Found badLB:', m.group(1), 'in run', currentrun
+                if self.verbose:
+                    print ('Found badLB:', m.group(1), 'in run', currentrun)
                 self.badlb[currentrun] = int(m.group(1)) + self.badlb.get(currentrun, 0)
 
             # Match end-of-job totals
             m=matchtotlumidel.search(line)
             if m:
-                if self.verbose: print 'Found Total lumiDel:', m.group(1)
+                if self.verbose:
+                    print ('Found Total lumiDel:', m.group(1))
                 self.lumidel['Total'] = float(m.group(1)) + self.lumidel.get('Total', 0.)
         
             m=matchtotlumirec.search(line)
             if m:
-                if self.verbose: print 'Found Total lumiRec:', m.group(1)
+                if self.verbose:
+                    print ('Found Total lumiRec:', m.group(1))
                 self.lumirec['Total'] = float(m.group(1)) + self.lumirec.get('Total', 0.)
         
             m=matchtotlumipre.search(line)
             if m:
-                if self.verbose: print 'Found Total lumiPre:', m.group(1)
+                if self.verbose:
+                    print ('Found Total lumiPre:', m.group(1))
                 self.lumipre['Total'] = float(m.group(1)) + self.lumipre.get('Total', 0.)
         
             m=matchtotlumilar.search(line)
             if m:
-                if self.verbose: print 'Found Total lumiLar:', m.group(1)
+                if self.verbose:
+                    print ('Found Total lumiLar:', m.group(1))
                 self.lumilar['Total'] = float(m.group(1)) + self.lumilar.get('Total', 0.)
         
             m = matchtotgoodlb.search(line)
             if m:
-                if self.verbose: print 'Found Total goodLB:', m.group(1), 'in run', currentrun
+                if self.verbose:
+                    print ('Found Total goodLB:', m.group(1), 'in run', currentrun)
                 self.goodlb['Total'] = int(m.group(1)) + self.goodlb.get('Total', 0)
 
             m = matchtotbadlb.search(line)
             if m:
-                if self.verbose: print 'Found Total badLB:', m.group(1), 'in run', currentrun
+                if self.verbose:
+                    print ('Found Total badLB:', m.group(1), 'in run', currentrun)
                 self.badlb['Total'] = int(m.group(1)) + self.badlb.get('Total', 0)
 
             m = matchrealtime.search(line)
@@ -524,11 +540,11 @@ class LumiCalc:
         self.f.write( '</body></html>\n' )
 
     def printRedirect(self, outfile='LumiCalcWorking.py'):
-        print 'Content-Type: text/html'
-        print # Blank line, end of headers
-        print '<html><head>'
-        print '<meta http-equiv="Refresh" content="0; url=/results/'+self.subdir+'/'+outfile+'">'
-        print '</head></html>'
+        print ('Content-Type: text/html')
+        print ()# Blank line, end of headers
+        print ('<html><head>')
+        print ('<meta http-equiv="Refresh" content="0; url=/results/'+self.subdir+'/'+outfile+'">')
+        print ('</head></html>')
         
 # Run from command line    
 if __name__ == "__main__":

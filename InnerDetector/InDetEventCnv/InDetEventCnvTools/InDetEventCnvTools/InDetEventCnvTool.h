@@ -12,6 +12,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
@@ -23,10 +24,7 @@ class IdentifierHash;
 class IdDictManager;
 class PixelID;
 class SCT_ID;
-
-namespace InDetDD {
-  class TRT_DetectorManager;
-}
+class TRT_ID;
 
 namespace Trk {
   class TrkDetElementBase;
@@ -87,9 +85,10 @@ namespace InDet {
 
     /** use the passed IdentifierHash to get SiDetectorElement for SCT*/
     const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash& waferHash) const;
+
+    /** use the passed IdentifierHash to get TRTDetectorElement for TRT*/
+    const InDetDD::TRT_BaseElement* getTRTDetectorElement(const IdentifierHash& HashId) const;
   
-    std::string  m_trtMgrLocation;                 //!< Location of TRT Manager
-    const InDetDD::TRT_DetectorManager* m_trtMgr;  //!< TRT Detector Manager
     bool m_setPrepRawDataLink;                     //!< if true, attempt to recreate link to PRD
 
 
@@ -97,6 +96,7 @@ namespace InDet {
     const AtlasDetectorID* m_IDHelper;
     const PixelID* m_pixelHelper;
     const SCT_ID* m_SCTHelper;
+    const TRT_ID* m_TRTHelper;
   
     // added to check TRT existence (SLHC geo check)
     const IdDictManager* m_idDictMgr;
@@ -107,6 +107,7 @@ namespace InDet {
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+    SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
   };
 
 }

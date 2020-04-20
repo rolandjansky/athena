@@ -169,7 +169,7 @@ class TrigL2MuonSAMTConfig(MuonSA.MuFastSteering):
             self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
         else:
             self.StationFitter.PtFromAlphaBeta.useCscPt = True
-            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
+            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = False
 
 
 class TrigL2MuonSAConfig(MuonSA.MuFastSteering):

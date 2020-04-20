@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ Trk::BevelledCylinderVolumeBounds&
 }
 
 
-const std::vector<const Trk::Surface*>* Trk::BevelledCylinderVolumeBounds::decomposeToSurfaces(const Amg::Transform3D& transform) const
+const std::vector<const Trk::Surface*>* Trk::BevelledCylinderVolumeBounds::decomposeToSurfaces ATLAS_NOT_THREAD_SAFE (const Amg::Transform3D& transform) const
 {
     std::vector<const Trk::Surface*>* retsf = new std::vector<const Trk::Surface*>;
     // memory optimisation (reserve a save number of 20)
@@ -387,10 +387,10 @@ Trk::Volume* Trk::BevelledCylinderVolumeBounds::subtractedVolume() const
   if (m_type<1) return nullptr; 
 
   double tp = tan(m_halfPhiSector);
-  Trk::Volume* volIn = 0; 
-  Trk::Volume* volOut = 0; 
+  Trk::Volume* volIn = nullptr; 
+  Trk::Volume* volOut = nullptr; 
   if ( m_type==1 || m_type==3 ) {   // cut inner cylinder  
-    volIn = new Trk::Volume(0,new Trk::CuboidVolumeBounds(m_innerRadius,m_innerRadius*tp+0.1,m_halfZ + 0.1) );
+    volIn = new Trk::Volume(nullptr,new Trk::CuboidVolumeBounds(m_innerRadius,m_innerRadius*tp+0.1,m_halfZ + 0.1) );
   }
   if ( m_type>1 ) { 
     double hz = m_outerRadius*(1./cos(m_halfPhiSector)-1.); 
@@ -400,7 +400,7 @@ Trk::Volume* Trk::BevelledCylinderVolumeBounds::subtractedVolume() const
   
   if (!volIn)  return volOut;
   else if (!volOut) return  volIn;
-  return new Trk::Volume(0, new Trk::CombinedVolumeBounds(volIn,volOut,false));
+  return new Trk::Volume(nullptr, new Trk::CombinedVolumeBounds(volIn,volOut,false));
 }
 
 // ostream operator overload

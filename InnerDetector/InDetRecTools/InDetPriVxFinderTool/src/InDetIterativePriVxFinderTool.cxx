@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -186,7 +186,7 @@ InDetIterativePriVxFinderTool::findVertex(const TrackCollection* trackTES)
       }
       if (selectionPassed) {
         ElementLink<TrackCollection> link;
-        link.setElement(const_cast<Trk::Track*>(*itr));
+        link.setElement(*itr);
         Trk::LinkToTrack* linkTT = new Trk::LinkToTrack(link);
         linkTT->setStorableObject(*trackTES);
         selectedTracks.push_back(linkTT);
@@ -227,7 +227,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
 
       if (selectionPassed) {
         ElementLink<Trk::TrackParticleBaseCollection> link;
-        link.setElement(const_cast<Trk::TrackParticleBase*>(*itr));
+        link.setElement(*itr);
         Trk::LinkToTrackParticleBase* linkTT = new Trk::LinkToTrackParticleBase(link);
         linkTT->setStorableObject(*trackTES);
         selectedTracks.push_back(linkTT);
@@ -279,7 +279,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
 
       if (selectionPassed) {
         ElementLink<xAOD::TrackParticleContainer> link;
-        link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
+        link.setElement(*itr);
         Trk::LinkToXAODTrackParticle* linkTT = new Trk::LinkToXAODTrackParticle(link);
         linkTT->setStorableObject(*trackParticles);
         selectedTracks.push_back(linkTT);

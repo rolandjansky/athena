@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,16 +13,17 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
-#include "AthenaKernel/IThinningSvc.h"
 
 #include "TLorentzVector.h"
 
 #include "TrkTrack/TrackCollection.h" 
 #include "TrkTrack/Track.h" 
+#include "StoreGate/ThinningHandleKey.h"
+#include "StoreGate/ThinningHandle.h"
 
 namespace DerivationFramework {
 
-  class EGammaTracksThinning:public AthAlgTool, public IThinningTool{
+  class EGammaTracksThinning:public extends<AthAlgTool, IThinningTool> {
 
   public:
 
@@ -30,15 +31,17 @@ namespace DerivationFramework {
                    const std::string& name, 
                    const IInterface* parent);
     
-    ~EGammaTracksThinning(){}
-    StatusCode initialize();
-    StatusCode finalize();
-    StatusCode doThinning() const ;
+    virtual  ~EGammaTracksThinning(){}
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode doThinning() const override;
     
   private:
     
-    ServiceHandle<IThinningSvc> m_thinningSvc;
-    std::string m_tracksCollectionName;
+    StringProperty m_streamName
+      { this, "StreamName", "", "Name of the stream being thinned" };
+    SG::ThinningHandleKey<TrackCollection> m_tracksCollectionName
+      { this, "tracksCollectionName", "Tracks", "" };
     std::string m_electronsContainerName;
     std::string m_photonsContainerName;
     double m_dr;
@@ -49,7 +52,8 @@ namespace DerivationFramework {
                               double maxDeltaR) const ;
     
 
-    StatusCode thinTracks( const TrackCollection * trackCont , const std::set<int>& goodTracks ) const ;
+    StatusCode thinTracks( SG::ThinningHandle<TrackCollection>& trackCont ,
+                           const std::set<int>& goodTracks ) const ;
         
   };  
 }

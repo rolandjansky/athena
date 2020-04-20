@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
@@ -6,7 +8,7 @@ def applyPFOAugmentation(sequence=DerivationFrameworkJob):
 
     # simple set up -- either the alg exists and contains the tool, in which case we exit
     if hasattr(sequence,"PFlowAugmentation"):
-        print "PFlowCommon: PFlowAugmentation already scheduled on sequence", sequence.name
+        print ("PFlowCommon: PFlowAugmentation already scheduled on sequence", sequence.name)
         return
     else:
         # otherwise schedule it

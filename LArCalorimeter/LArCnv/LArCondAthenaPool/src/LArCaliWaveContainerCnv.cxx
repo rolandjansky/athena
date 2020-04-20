@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -8,12 +8,7 @@
  * @author Ilija Vukotic <ivukotic@cern.ch>
  */
 
-#define private public
-#define protected public
 #include "LArRawConditions/LArConditionsSubset.h"
-#undef private
-#undef protected  
-
 #include "LArCaliWaveContainerCnv.h"
 #include "LArCondTPCnv/LArCaliWaveSubsetCnv_p1.h"
 #include "LArCondTPCnv/LArCaliWaveSubsetCnv_p2.h"
@@ -41,16 +36,16 @@ LArCaliWaveContainerCnv::createTransient ()
 	static pool::Guid   p0_guid("ECB4AD6C-FF3A-4255-A0E3-7BD566B96A77");
 	
     if( compareClassGuid(p2_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< LArCaliWaveSubset_p2 > col_vect( poolReadObject< LArCaliWaveSubset_p2 >() );
+        // using unique_ptr ensures deletion of the persistent object
+        std::unique_ptr< LArCaliWaveSubset_p2 > col_vect( poolReadObject< LArCaliWaveSubset_p2 >() );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p2" << endmsg; 
 		LArCaliWaveTransType* transObj = TPconverter2.createTransient( col_vect.get(), log );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p2 Success !" << endmsg;
         return transObj;
     }    
 	else if( compareClassGuid(p1_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< LArCaliWaveSubset_p1 > col_vect( poolReadObject< LArCaliWaveSubset_p1 >() );
+        // using unique_ptr ensures deletion of the persistent object
+        std::unique_ptr< LArCaliWaveSubset_p1 > col_vect( poolReadObject< LArCaliWaveSubset_p1 >() );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p1" << endmsg; 
 		LArCaliWaveTransType* transObj = TPconverter1.createTransient( col_vect.get(), log );
         log << MSG::DEBUG << "READING LArCaliWaveSubset_p1 Success !" << endmsg;
@@ -60,7 +55,7 @@ LArCaliWaveContainerCnv::createTransient ()
         MsgStream log(msgSvc(), "LArCaliWaveContainerCnv" ); 
         log << MSG::DEBUG << " READING LArCaliWaveSubset (before TP split)" << endmsg; 
 
-        std::auto_ptr< LArConditionsSubset<LArCaliWaveVec> > subset ( poolReadObject< LArConditionsSubset<LArCaliWaveVec> >() );
+        std::unique_ptr< LArConditionsSubset<LArCaliWaveVec> > subset ( poolReadObject< LArConditionsSubset<LArCaliWaveVec> >() );
         
         return (createTransient(subset.get()));
     } 
@@ -78,33 +73,10 @@ LArCaliWaveContainerCnv::createTransient(LArConditionsSubset<LArCaliWaveVec>* or
     log << MSG::DEBUG << "LArCaliWaveContainerCnv::createTransient orig " << orig << endmsg; 
 
     LArConditionsSubset<LArCaliWaveVec>* result = new LArConditionsSubset<LArCaliWaveVec>();
-    
-    // Copy from orig to result
-	
-    result->m_gain          = orig->m_gain; 
-    result->m_channel       = orig->m_channel;
-    result->m_groupingType  = orig->m_groupingType;
-	
-	
-	for (unsigned int w=0;w<orig->m_subset.size();++w){ // copy of subset
-		std::vector<LArCaliWaveVec> ochvec;
-		for (unsigned int q=0;q<orig->m_subset[w].second.size();++q){
-			ochvec.push_back(orig->m_subset[w].second[q]);
-			}
-		unsigned int ofebid=orig->m_subset[w].first;
-		std::pair<unsigned int, std::vector<LArCaliWaveVec> > opair(ofebid,ochvec);
-		result->m_subset.push_back(opair);
-		}
-		
-	
-	for(unsigned int w=0;w<orig->m_correctionVec.size();++w){ // copy of correctionVec
-		LArCaliWaveVec ovec=orig->m_correctionVec[w].second;
-		unsigned int ofebid=orig->m_correctionVec[w].first;
-		std::pair<unsigned int, LArCaliWaveVec> opair(ofebid, ovec);
-		result->m_correctionVec.push_back(opair);
-		}		
-	
-	result->m_subsetMap.swap(orig->m_subsetMap); // copy of subsetMap (what's this?)
+    result->assign (*orig,
+                    [] (const LArCaliWaveVec& from,
+                        LArCaliWaveVec& to)
+                    { to = from; });
 	
     return (result);
 }

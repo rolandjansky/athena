@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLinearSegmentMakerUtilities/Fit2D.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "gsl/gsl_statistics.h"
 #include "gsl/gsl_fit.h"
 #include <sstream>
@@ -70,6 +72,7 @@ done:
 
 void Fit2D::fitPoint(PointArray& points, double fExclChi2, bool bDump, SimpleStats& stats)
 {
+    MsgStream log(Athena::getMessageSvc(),"Fit2D::fitPoint(");
     double *y = new double[points.size()];
     double *w = new double[points.size()];
     for (;;)
@@ -104,19 +107,19 @@ void Fit2D::fitPoint(PointArray& points, double fExclChi2, bool bDump, SimpleSta
                     fMaxChi2 = points[iPt]->fChi2;
                     iPtMax = iPt;
                 }
-                if (bDump)
+                if (bDump && log.level()<=MSG::DEBUG)
                 {
-                    std::cout << "idx=" << points[iPt]->nIdx
+                    log << MSG::DEBUG  << "idx=" << points[iPt]->nIdx
                     << ", y=" << y[i]
                     << ", w=" << w[i]
                     << ", chi2=" << points[iPt]->fChi2
-                    << std::endl;
+                    << endmsg;
                 }
                 i++;
             }
         }
-        if (bDump)
-            std::cout << stats.toString() << std::endl;
+        if (bDump && log.level()<=MSG::DEBUG)
+	  log << MSG::DEBUG << stats.toString() << endmsg;
         if (fMaxChi2 < fExclChi2 || stats.n <= 2)
             break;
         points[iPtMax]->bExclude = true;
@@ -128,6 +131,7 @@ done:
 
 void Fit2D::fitLine(Fit2D::PointArray& points, double fExclChi2, bool bDump, LinStats& stats)
 {
+  MsgStream log(Athena::getMessageSvc(),"Fit2D::fitLine(");
     double *x = new double[points.size()];
     double *y = new double[points.size()];
     double *w = new double[points.size()];
@@ -154,8 +158,8 @@ void Fit2D::fitLine(Fit2D::PointArray& points, double fExclChi2, bool bDump, Lin
                         &stats.fCov[0][0], &stats.fCov[0][1], &stats.fCov[1][1],
                         &stats.fChi2);
         stats.fCov[1][0] = stats.fCov[0][1];
-        if (bDump)
-            std::cout << stats.toString() << std::endl;
+        if (bDump && log.level()<=MSG::DEBUG)
+	  log << MSG::DEBUG << stats.toString() << endmsg;
 
         double fY, fYerr, fMaxChi2 = 0;
         int i = 0, iPtMax = 0;
@@ -171,15 +175,15 @@ void Fit2D::fitLine(Fit2D::PointArray& points, double fExclChi2, bool bDump, Lin
                     fMaxChi2 = points[iPt]->fChi2;
                     iPtMax = iPt;
                 }
-                if (bDump)
+                if (bDump && log.level()<=MSG::DEBUG)
                 {
-                    std::cout << "idx=" << points[iPt]->nIdx
+                    log << MSG::DEBUG << "idx=" << points[iPt]->nIdx
                     << ", x=" << x[i]
                     << ", y=" << y[i]
                     << ", w=" << w[i]
                     << ", Y=" << fY
                     << ", chi2=" << points[iPt]->fChi2
-                    << std::endl;
+                    << endmsg;
                 }
                 i++;
             }

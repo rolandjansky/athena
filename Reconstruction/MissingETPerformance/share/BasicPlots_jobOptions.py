@@ -39,4 +39,4 @@ BasicPlotsTool = ConfiguredBasicPlotsTool(
     )
 
 ToolSvc += BasicPlotsTool
-print      BasicPlotsTool
+printfunc (     BasicPlotsTool)

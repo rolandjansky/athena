@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import unittest
 import ROOT
@@ -97,7 +97,7 @@ class TestEgammaResolution(unittest.TestCase):
         f = ROOT.TFile(rootfile)
         tree = f.Get("test_resolution_nonregression_data_run1")
 
-        for ievent in xrange(tree.GetEntries()):
+        for ievent in range(tree.GetEntries()):
 
             tree.GetEntry(ievent)
             resolution = self.tool_run1.getResolution(tree.ptype,

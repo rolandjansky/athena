@@ -1,13 +1,14 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from MuonConfig.MuonCalibConfig import MdtCalibrationToolCfg, MdtCalibrationDbToolCfg
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO should maybe shift this elsewhere?
-Muon__MdtDriftCircleOnTrackCreator=CompFactory.Muon__MdtDriftCircleOnTrackCreator
-Muon__CscClusterOnTrackCreator, Muon__MuonClusterOnTrackCreator=CompFactory.getComps("Muon__CscClusterOnTrackCreator","Muon__MuonClusterOnTrackCreator",)
-Trk__RIO_OnTrackCreator=CompFactory.Trk__RIO_OnTrackCreator
-Muon__TriggerChamberClusterOnTrackCreator=CompFactory.Muon__TriggerChamberClusterOnTrackCreator
+Muon__MdtDriftCircleOnTrackCreator=CompFactory.Muon.MdtDriftCircleOnTrackCreator
+Muon__CscClusterOnTrackCreator=CompFactory.Muon.CscClusterOnTrackCreator
+Muon__MuonClusterOnTrackCreator=CompFactory.Muon.MuonClusterOnTrackCreator
+Trk__RIO_OnTrackCreator=CompFactory.Trk.RIO_OnTrackCreator
+Muon__TriggerChamberClusterOnTrackCreator=CompFactory.Muon.TriggerChamberClusterOnTrackCreator
 
 def TriggerChamberClusterOnTrackCreatorCfg(flags, name="TriggerChamberClusterOnTrackCreator", **kwargs):
     result=ComponentAccumulator()
@@ -23,29 +24,25 @@ def CscClusterOnTrackCreatorCfg(flags,name="CscClusterOnTrackCreator", **kwargs)
 
     result=ComponentAccumulator()    
     acc = QratCscClusterFitterCfg(flags)
-    qrat = acc.getPrimary()
-    result.addPublicTool(qrat)
+    qrat = acc.popPrivateTools()
     result.merge(acc)
     kwargs.setdefault("CscClusterFitter", qrat )
     
     acc = CalibCscStripFitterCfg(flags)
-    strip_fitter = acc.getPrimary()
-    result.addPublicTool(strip_fitter)
+    strip_fitter = acc.popPrivateTools()
     result.merge(acc)
     kwargs.setdefault("CscStripFitter", strip_fitter)
     
     acc = CscClusterUtilToolCfg(flags)
-    cluster_util_tool = acc.getPrimary()
+    cluster_util_tool = acc.popPrivateTools()
     kwargs.setdefault("CscClusterUtilTool", cluster_util_tool )
-    result.addPublicTool(cluster_util_tool)
     result.merge(acc)
     
     if not flags.Input.isMC: # collisions real data or simulated first data
         # scale CSC and hit errors 
         kwargs.setdefault("ErrorScalerBeta", 0.070 )
 
-    csc_cluster_creator = Muon__CscClusterOnTrackCreator(name,**kwargs)
-    result.addPublicTool(csc_cluster_creator, primary=True)
+    result.setPrivateTools(Muon__CscClusterOnTrackCreator(name,**kwargs))
     
     return result
 

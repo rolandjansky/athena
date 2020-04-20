@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_STRIPRESPONSESIMULATION_H
@@ -24,28 +24,22 @@ Comments to be added here...
 
 */
 
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/Service.h"
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "GaudiKernel/StatusCode.h"
-
 /// ROOT
-#include <TROOT.h>
 #include <TFile.h>
 #include <TF1.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TRandom.h>
+#include <TH1F.h>
+#include <TH2F.h>
 #include <TRandom3.h>
-#include <TCanvas.h>
-#include <TMath.h>
-#include <TGraph.h>
 
 /// Projects
 #include "MM_Digitization/MM_DigitToolInput.h"
 #include "MM_Digitization/MM_StripToolOutput.h"
 #include "MM_Digitization/MM_IonizationCluster.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/Service.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "GaudiKernel/StatusCode.h"
 
 /// STD'S
 #include <algorithm>
@@ -57,15 +51,6 @@ Comments to be added here...
 #include <string>
 #include <sstream>
 #include <sys/stat.h>
-
-using std::vector;
-using std::cout;
-using std::endl;
-
-/// ROOT Classed
-class TF1;
-class TRandom;
-class TRandom3;
 
 class MM_DigitToolInput;
 class MM_StripToolOutput;
@@ -94,18 +79,19 @@ public :
   inline void setCrossTalk1 (float val) { m_crossTalk1 = val; };
   inline void setCrossTalk2 (float val) { m_crossTalk2 = val; };
   inline void setDriftGapWidth (float val) {m_driftGapWidth = val;};
+  inline void setAvalancheGain(float val) {m_avalancheGain = val;}
 
   float getQThreshold    () const { return m_qThreshold;      };
   float getDriftGapWidth () const { return m_driftGapWidth;   };
   float getDriftVelocity () const { return m_driftVelocity;   };
 
-  vector <float> getTStripElectronicsAbThr() const { return m_tStripElectronicsAbThr;};
-  vector <float> getQStripElectronics() const { return m_qStripElectronics;};
-  vector <float> getFinaltStripNoSlewing() const { return m_finaltStripNoSlewing;};
-  vector < vector <float> > getFinalqStrip() const { return m_finalqStrip;};
-  vector < vector <float> > getFinaltStrip() const { return m_finaltStrip;};
-  vector <int>   getNStripElectronics() const { return m_nStripElectronics;};
-  vector <int>   getFinalNumberofStrip() const { return m_finalNumberofStrip;};
+  std::vector <float> getTStripElectronicsAbThr() const { return m_tStripElectronicsAbThr;};
+  std::vector <float> getQStripElectronics() const { return m_qStripElectronics;};
+  std::vector <float> getFinaltStripNoSlewing() const { return m_finaltStripNoSlewing;};
+  std::vector < std::vector <float> > getFinalqStrip() const { return m_finalqStrip;};
+  std::vector < std::vector <float> > getFinaltStrip() const { return m_finaltStrip;};
+  std::vector <int>   getNStripElectronics() const { return m_nStripElectronics;};
+  std::vector <int>   getFinalNumberofStrip() const { return m_finalNumberofStrip;};
 
   //Declaring the Message method for further use
   MsgStream& msg(const MSG::Level lvl) const { return m_msg << lvl ; }
@@ -141,25 +127,25 @@ private:
   float m_interactionDensityMean;
   float m_interactionDensitySigma;
 
-  vector <int>   m_finalNumberofStrip;
-  vector <int>   m_nStripElectronics;
-  vector < vector <float> > m_finalqStrip;
-  vector < vector <float> > m_finaltStrip;
-  vector <float> m_finaltStripNoSlewing;
-  vector <float> m_tStripElectronicsAbThr;
-  vector <float> m_qStripElectronics;
+  std::vector <int>   m_finalNumberofStrip;
+  std::vector <int>   m_nStripElectronics;
+  std::vector < std::vector <float> > m_finalqStrip;
+  std::vector < std::vector <float> > m_finaltStrip;
+  std::vector <float> m_finaltStripNoSlewing;
+  std::vector <float> m_tStripElectronicsAbThr;
+  std::vector <float> m_qStripElectronics;
 
-  vector <int> m_stripNumber;
-  vector <int> m_firstq;
-  vector <float> m_qstrip;
-  vector <float> m_cntTimes;
-  vector <float> m_tStrip;
-  vector <float> m_qStrip;
-  vector <float> m_time;  //Drift velocity [mm/ns]
-  vector <int> m_numberofStrip;
+  std::vector <int> m_stripNumber;
+  std::vector <int> m_firstq;
+  std::vector <float> m_qstrip;
+  std::vector <float> m_cntTimes;
+  std::vector <float> m_tStrip;
+  std::vector <float> m_qStrip;
+  std::vector <float> m_time;  //Drift velocity [mm/ns]
+  std::vector <int> m_numberofStrip;
 
-  vector <float> m_clusterelectrons;
-  vector <float> m_l;
+  std::vector <float> m_clusterelectrons;
+  std::vector <float> m_l;
 
   /// ToDo: random number from custom functions
   TF1 *m_polyaFunction;

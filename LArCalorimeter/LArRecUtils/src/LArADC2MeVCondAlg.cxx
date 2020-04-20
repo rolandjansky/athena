@@ -66,7 +66,7 @@ StatusCode LArADC2MeVCondAlg::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_useFEBGainThresholds)  ATH_CHECK(m_febConfigKey.initialize());
+  ATH_CHECK(m_febConfigKey.initialize(m_useFEBGainThresholds));
 
   return StatusCode::SUCCESS;
 }

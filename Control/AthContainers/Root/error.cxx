@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthContainers/error.cxx
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>, scott snyder <snyder@bnl.gov>
@@ -16,12 +15,40 @@
 # include <cstdlib>
 # include <cxxabi.h>
 #endif
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 
 #ifdef XAOD_STANDALONE
 
 
 namespace AthContainers_detail {
+
+
+/// Code mimicking Athena's message formatting, in standalone builds
+void reportErrorStandalone (const std::string& context,
+                            const std::string& file, int line,
+                            const std::string& msg) {
+
+  // Make sure that the message's source/location is not longer than a
+  // pre-set maximum value.
+  std::string source (context);
+  static constexpr std::size_t CONTEXT_WIDTH = 18;
+  if (source.size() > CONTEXT_WIDTH) {
+    source = source.substr(0, CONTEXT_WIDTH - 3);
+    source += "...";
+  }
+
+  // Print the message to stdout/std::cout.
+  std::ostringstream output;
+  output << std::setiosflags(std::ios::left)
+         << std::setw(CONTEXT_WIDTH) << source << "  ERROR "
+         << file << ":" << line << ": "
+         << msg;
+  std::cout << output.str() << std::endl;
+  return;
+}
 
 
 /**

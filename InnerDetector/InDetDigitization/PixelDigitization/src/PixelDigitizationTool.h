@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file PixelDigitization/PixelDigitizationTool.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date January, 2020
+ * @brief Handle pixel digitization
+ */
 
-///////////////////////////////////////////////////////////////////
-// PixelDigitizationTool.h
-//   Header file for class PixelDigitizationTool
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef PIXELDIGITIZATION_PIXELDIGITIZATIONTOOL_H
 #define PIXELDIGITIZATION_PIXELDIGITIZATIONTOOL_H
 
@@ -40,12 +40,12 @@ class PixelDigitizationTool : public PileUpToolBase {
     PixelDigitizationTool(const std::string &type, const std::string &name, const IInterface *pIID);
 
     virtual StatusCode initialize() override;
-    virtual StatusCode processAllSubEvents() override;
+    virtual StatusCode processAllSubEvents(const EventContext& ctx) override;
     virtual StatusCode finalize() override;
 
-    virtual StatusCode prepareEvent(unsigned int) override;
-    StatusCode digitizeEvent();
-    virtual StatusCode mergeEvent() override;
+    virtual StatusCode prepareEvent(const EventContext& ctx, unsigned int) override;
+    StatusCode digitizeEvent(const EventContext& ctx);
+    virtual StatusCode mergeEvent(const EventContext& ctx) override;
     virtual StatusCode processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) override final;
 
   protected:
@@ -71,7 +71,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     bool                                       m_HardScatterSplittingSkipper{false};
     Gaudi::Property<bool>                      m_onlyHitElements{this, "OnlyHitElements", false, "Process only elements with hits"};
 
-    const PixelID            *m_detID{};
+    const PixelID *m_detID{};
 
 
     TimedHitCollection<SiHit> *m_timedHits{};
@@ -85,7 +85,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
     ServiceHandle <PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
 
-    Gaudi::Property<bool>          m_createNoiseSDO{this, "CreateNoiseSDO",   false,  "Set create noise SDO flag"};
+    Gaudi::Property<bool> m_createNoiseSDO{this, "CreateNoiseSDO",   false,  "Set create noise SDO flag"};
 
 };
 

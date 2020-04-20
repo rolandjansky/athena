@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file POOL2EI_Lib.py
 # @purpose provide components to get EventIndex data from pool files
@@ -15,8 +15,9 @@ __doc__ = "provide components to POOL2EI"
 
 ### imports --------------------------------------------------------------------
 import AthenaPython.PyAthena as PyAthena
-from compressB64 import compressB64
-from EI_Lib import EIrecord, IOV
+from .compressB64 import compressB64
+from .EI_Lib import EIrecord, IOV
+import six
 
 import time
 StatusCode = PyAthena.StatusCode
@@ -113,7 +114,7 @@ class POOL2EI(PyAthena.Alg):
                     import re
                     self._dsname = re.sub('_tid[0-9]{8}_[0-9]{2}', '', self._dsname)
                     self._dsname = re.sub('_sub[0-9]{10}', '', self._dsname)
-                    self._dsname = re.sub('\/$', '', self._dsname)
+                    self._dsname = re.sub('\\/$', '', self._dsname)
                 except:
                     _info('## Unable to get dataset name from realDatasetsIn or realDatasets')
                 
@@ -236,7 +237,7 @@ class POOL2EI(PyAthena.Alg):
         msg = self.msg
         try:
             obj = store[metadata_name]
-        except KeyError,err:
+        except KeyError as err:
             msg.warning('could not retrieve [{}]'.format(metadata_name))
             return ([],[])
         msg.info('processing container [{}]'.format(obj.folderName()))
@@ -258,14 +259,14 @@ class POOL2EI(PyAthena.Alg):
             # names
             chan_names = []
             sz = payload.name_size()
-            for idx in xrange(sz):
+            for idx in range(sz):
                 chan = payload.chanNum(idx)
                 chan_name = payload.chanName(chan)
                 chan_names.append(chan_name)
                 
             # iovs
             sz = payload.iov_size()
-            for idx in xrange(sz):
+            for idx in range(sz):
                 chan = payload.chanNum(idx)
                 iov_range = payload.iovRange(chan)
                 iov_start = iov_range.start()
@@ -282,7 +283,7 @@ class POOL2EI(PyAthena.Alg):
             # attrs
             attrs = [] # can't use a dict as spec.name() isn't unique
             sz = payload.size()
-            for idx in xrange(sz):
+            for idx in range(sz):
                 chan = payload.chanNum(idx)
                 attr_list = payload.attributeList(chan)
                 attr_data = []
@@ -363,7 +364,7 @@ class POOL2EI(PyAthena.Alg):
                                     r'[[]VALUE=(?P<value>.*?)[]]').match
             params = []
             guids = []
-            for i in xrange(pool.GetEntries()):
+            for i in range(pool.GetEntries()):
                 if pool.GetEntry(i)>0:
                     pool_string = pool.db_string
                     # take string until \0 is found
@@ -472,7 +473,7 @@ class POOL2EI(PyAthena.Alg):
         ccmax = 0
         gtd_method = True                         # by default, use getChainDetails for L2,EF,HLT
         try:
-            for i in xrange(names.size()):
+            for i in range(names.size()):
                 name = names.at(i)
                 if level1:
                     cc = self.trigDec.ExperimentalAndExpertMethods().getItemConfigurationDetails(name).ctpId()
@@ -867,7 +868,7 @@ class POOL2EI(PyAthena.Alg):
                         tk=prv.getToken()
                         match = self._re_pool_token(tk)
                     if not match:
-                        msg.warning('Provenance token can not be parsed: {}'.format(tk))
+                        self.msg.warning('Provenance token can not be parsed: {}'.format(tk))
                         continue
                     d = match.groupdict()
                     key=prv.getKey()
@@ -922,14 +923,14 @@ class POOL2EI(PyAthena.Alg):
         del dh
 
         if  self._eif is not None:
-            for sr,v in stream_refs.iteritems():
+            for sr,v in six.iteritems(stream_refs):
                 try:
                     eirec[sr] = v
                 except:
                     _info("Unable to insert " + sr + " in stream references with value "+v)
                     pass
             idx=1
-            for sr,v in Pstream_refs.iteritems():
+            for sr,v in six.iteritems(Pstream_refs):
                 try:
                     eirec['Snam{:d}'.format(idx)] = sr
                     eirec['Sref{:d}'.format(idx)] = v

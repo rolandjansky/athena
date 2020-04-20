@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import urllib, re, string, os, time
 from eventLookupClient import eventLookupClient
@@ -64,7 +66,7 @@ class countGuidsClient(eventLookupClient):
       tokpat = re.compile(r'([0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12})')
       for line in self.output:
          if re.search(self.errorPattern, line, re.I):
-            #print " -- Error line matched: " + line
+            #print (" -- Error line matched: " + line)
             return None
          if stage == "readGuids":
             try:

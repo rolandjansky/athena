@@ -118,7 +118,7 @@ StatusCode TrigCOOLUpdateHelper::readFolderInfo()
 }
 
 StatusCode TrigCOOLUpdateHelper::resetFolders(const std::vector<std::string>& folders,
-                                              EventID::number_type currentRun,
+                                              EventIDBase::number_type currentRun,
                                               bool dropObject)
 {
   if (folders.empty()) return StatusCode::SUCCESS;
@@ -133,7 +133,7 @@ StatusCode TrigCOOLUpdateHelper::resetFolders(const std::vector<std::string>& fo
 }
 
 StatusCode TrigCOOLUpdateHelper::resetFolder(const std::string& folder,
-                                             EventID::number_type currentRun,
+                                             EventIDBase::number_type currentRun,
                                              bool dropObject)
 {
   // Force a reset of folders by setting an IOVRange in the past

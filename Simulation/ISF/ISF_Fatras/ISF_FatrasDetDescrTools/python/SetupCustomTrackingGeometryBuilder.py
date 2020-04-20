@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # SetupCustomTrackingGeometry
 class SetupCustomTrackingGeometry():
@@ -31,7 +31,7 @@ class SetupCustomTrackingGeometry():
         from AthenaCommon.AppMgr import theApp
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         
-        import AthenaCommon.AtlasUnixStandardJob
+        import AthenaCommon.AtlasUnixStandardJob # noqa: F401
         
         # Create DetDescrCnvSvc and add to SvcMgr
         from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc

@@ -4,8 +4,8 @@
 #ifndef TRIGUPGRADETEST_ITESTHYPOTOOL_H
 #define TRIGUPGRADETEST_ITESTHYPOTOOL_H 1
 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "GaudiKernel/IAlgTool.h"
 
 namespace HLTTest {

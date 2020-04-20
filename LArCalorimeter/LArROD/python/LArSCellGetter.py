@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies LArSCell getting
 
@@ -24,7 +24,8 @@ class LArSCellGetter ( Configured )  :
                 from LArL1Sim.LArSCL1Getter import LArSCL1Getter
                 theLArSCL1Getter = LArSCL1Getter()
             except Exception as configException:
-                print configException
+                import traceback
+                mlog.error(traceback.format_exc())
                 mlog.error("could not get handle to LArDigitGetter Quit")
                 return False
             if not theLArSCL1Getter.usable():
@@ -46,7 +47,6 @@ class LArSCellGetter ( Configured )  :
 # Only MC case
 
         if True :
-
                 from LArROD.LArRODConf import LArSuperCellBuilderDriver
                 theLArSCellBuilder=LArSuperCellBuilderDriver("LArSuperCellBuilder")
 
@@ -68,6 +68,7 @@ class LArSCellGetter ( Configured )  :
                 from LArROD.LArRODConf import LArRawChannelBuilderToolOFC
                 theLArRawChannelBuilderToolOFC=LArRawChannelBuilderToolOFC('LArRawChannelBuilderSCToolOFC')
                 theLArRawChannelBuilderToolOFC.OFCTool=theLArOFCSCTool
+                theLArRawChannelBuilderToolOFC.ECut=-99999.0
                 theLArRawChannelBuilderToolOFC.KeyShape = "LArShapeSC"
                 ToolSvc+=theLArRawChannelBuilderToolOFC 
                 theLArSCellBuilder.BuilderTools += [theLArRawChannelBuilderToolOFC]

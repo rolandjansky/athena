@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -6,27 +6,38 @@ from AthenaCommon.Constants import DEBUG, INFO
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
 class MuonPrdCacheNames(object):
-    MdtCache  = "MdtPrdCache"
-    CscCache  = "CscPrdCache"
-    RpcCache  = "RpcPrdCache"
-    TgcCache  = "TgcPrdCache"
-    sTgcCache = "sTgcPrdCache"
-    MmCache   = "MmPrdCache"  
+    MdtCache       = "MdtPrdCache"
+    CscCache       = "CscPrdCache"
+    CscStripCache  = "CscStripPrdCache"
+    RpcCache       = "RpcPrdCache"
+    TgcCache       = "TgcPrdCache"
+    sTgcCache      = "sTgcPrdCache"
+    MmCache        = "MmPrdCache"
+    RpcCoinCache   = "RpcCoinCache"  
+    TgcCoinCache   = "TgcCoinCache"
 
 ## This configuration function creates the IdentifiableCaches for PRD
 #
 # The function returns a ComponentAccumulator which should be loaded first
 # If a configuration wants to use the cache, they need to use the same names as defined here
 def MuonPrdCacheCfg():
+    # Use MuonGeometryFlags to identify which configuration is being used
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
     acc = ComponentAccumulator()
 
     MuonPRDCacheCreator=CompFactory.MuonPRDCacheCreator
-    cacheCreator = MuonPRDCacheCreator(MdtCacheKey  = MuonPrdCacheNames.MdtCache,
-                                       CscCacheKey  = MuonPrdCacheNames.CscCache,
-                                       RpcCacheKey  = MuonPrdCacheNames.RpcCache,
-                                       TgcCacheKey  = MuonPrdCacheNames.TgcCache,
-                                       sTgcCacheKey = MuonPrdCacheNames.sTgcCache,
-                                       MmCacheKey   = MuonPrdCacheNames.MmCache)
+    cacheCreator = MuonPRDCacheCreator(CscStripCacheKey  = (MuonPrdCacheNames.CscStripCache if MuonGeometryFlags.hasCSC() else ""),
+                                       MdtCacheKey       = MuonPrdCacheNames.MdtCache,
+                                       CscCacheKey       = (MuonPrdCacheNames.CscCache if MuonGeometryFlags.hasCSC() else ""),
+                                       RpcCacheKey       = MuonPrdCacheNames.RpcCache,
+                                       TgcCacheKey       = MuonPrdCacheNames.TgcCache,
+                                       sTgcCacheKey      = (MuonPrdCacheNames.sTgcCache if MuonGeometryFlags.hasSTGC() else ""),
+                                       MmCacheKey        = (MuonPrdCacheNames.MmCache if MuonGeometryFlags.hasMM() else ""),
+                                       TgcCoinCacheKey   = MuonPrdCacheNames.TgcCoinCache,
+                                       RpcCoinCacheKey   = MuonPrdCacheNames.RpcCoinCache,
+                                       )
+
     acc.addEventAlgo( cacheCreator, primary=True )
     return acc
 
@@ -48,7 +59,7 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    Muon__RpcRdoToPrepDataToolMT=CompFactory.Muon__RpcRdoToPrepDataToolMT
+    Muon__RpcRdoToPrepDataToolMT=CompFactory.Muon.RpcRdoToPrepDataToolMT
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name = "RpcRdoToRpcPrepDataTool")
     if flags.Common.isOnline: 
         RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
@@ -82,7 +93,7 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    Muon__TgcRdoToPrepDataToolMT=CompFactory.Muon__TgcRdoToPrepDataToolMT
+    Muon__TgcRdoToPrepDataToolMT=CompFactory.Muon.TgcRdoToPrepDataToolMT
     TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataToolMT(name           = "TgcRdoToTgcPrepDataTool")
     acc.addPublicTool( TgcRdoToTgcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -116,7 +127,7 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    Muon__MdtRdoToPrepDataToolMT=CompFactory.Muon__MdtRdoToPrepDataToolMT
+    Muon__MdtRdoToPrepDataToolMT=CompFactory.Muon.MdtRdoToPrepDataToolMT
     MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name = "MdtRdoToMdtPrepDataTool")
     acc.addPublicTool( MdtRdoToMdtPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -142,15 +153,15 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     from MuonConfig.MuonCablingConfig import CSCCablingConfigCfg # Not yet been prepared
     acc.merge( CSCCablingConfigCfg(flags) )
 
-    from MuonConfig.MuonCalibConfig import CscCoolStrSvcCfg
-    acc.merge( CscCoolStrSvcCfg(flags)  )
+    from MuonConfig.MuonCondAlgConfig import CscCondDbAlgCfg
+    acc.merge( CscCondDbAlgCfg(flags)  )
 
     # Make sure muon geometry is configured
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     acc.merge(MuonGeoModelCfg(flags))
 
     # Get the RDO -> PRD tool
-    Muon__CscRdoToCscPrepDataToolMT=CompFactory.Muon__CscRdoToCscPrepDataToolMT
+    Muon__CscRdoToCscPrepDataToolMT=CompFactory.Muon.CscRdoToCscPrepDataToolMT
     CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool")
     acc.addPublicTool( CscRdoToCscPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
@@ -255,8 +266,7 @@ def muonRdoDecodeTestData( forTrigger = False ):
     cfg.merge(cscbuildingAcc)
 
     # Need to add POOL converter  - may be a better way of doing this?
-    from AthenaCommon import CfgMgr
-    cfg.addService( CfgMgr.AthenaPoolCnvSvc() )
+    cfg.addService( CompFactory.AthenaPoolCnvSvc() )
     cfg.getService("EventPersistencySvc").CnvServices += [ "AthenaPoolCnvSvc" ]
 
     log.info('Print Config')

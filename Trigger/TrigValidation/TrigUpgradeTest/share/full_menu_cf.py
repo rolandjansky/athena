@@ -1,12 +1,14 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
 createHLTMenuExternally=True # menu will be build up explicitly here 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 ##########################################
 # menu
@@ -229,7 +231,7 @@ if opt.doMETSlice == True:
 
     metCellStep = ChainStep("Step1_met_cell", [metCellSeq])
     metClusterPufitStep          = ChainStep("Step1_met_clusterpufit", [metClusterPufitSeq])
-    comboStep_cell_clusterpufit  = ChainStep("Step1_combo_cell_clusterpufit", [metCellSeq, metClusterPufitSeq], multiplicity=[2])
+    comboStep_cell_clusterpufit  = ChainStep("Step1_combo_cell_clusterpufit", [metCellSeq, metClusterPufitSeq], multiplicity=[1,1])
 
     metChains = [
         makeChain(name="HLT_xe65_L1XE50",         L1Thresholds=["XE50"], ChainSteps=[metCellStep]),
@@ -282,8 +284,8 @@ if opt.doCombinedSlice == True:
 
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence
 
-    comboStep_et_mufast           = ChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=[2])
-    comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=[2])
+    comboStep_et_mufast           = ChainStep("Step1_et_mufast", [fastCaloSeq, muFastSequence()], multiplicity=[1,1])
+    comboStep_mufast_etcut1_step1 = ChainStep("Step1_mufast_etcut1", [muFastSequence(), fastCaloSeq], multiplicity=[1,1])
 
 
     comboChains =  [ makeChain(name='HLT_e3_etcut_mu6_L1EM8I_MU10', L1Thresholds=["EM8I", "MU10"],  ChainSteps=[comboStep_et_mufast ])]
@@ -332,10 +334,11 @@ else:
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Configurable import Configurable
-Configurable.configurableRun3Behavior+=1
+Configurable.configurableRun3Behavior=1
 acc, edmSet = triggerOutputCfg(ConfigFlags, decObj, decObjHypoOut, summaryMakerAlg)
-Configurable.configurableRun3Behavior-=1
-acc.appendToGlobals()
+Configurable.configurableRun3Behavior=0
+from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+appendCAtoAthena(acc)
 
 ##########################################
 # Print top sequence for debugging

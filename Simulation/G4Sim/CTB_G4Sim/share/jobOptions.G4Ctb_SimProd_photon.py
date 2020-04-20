@@ -48,9 +48,9 @@ SimFlags.ParticlePDG.set_Value('22')
 #
 # - Option:  we reduce the beam spot for all the photon runs  
 #---------- 
-if SimFlags.ParticleGeneratorOrders().has_key('vertY:'):
+if 'vertY:' in SimFlags.ParticleGeneratorOrders():
     SimFlags.ParticleGeneratorOrders()['vertY:']='  flat -5. 5.'
-if SimFlags.ParticleGeneratorOrders().has_key('vertZ:'):
+if 'vertZ:' in SimFlags.ParticleGeneratorOrders():
     SimFlags.ParticleGeneratorOrders()['vertZ:']='  flat -5. 5.'
 
 # - Option:  run with a given energy distribution for the photon :

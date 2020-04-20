@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCompactCellTool_test.cxx,v 1.12 2009-03-31 19:04:04 ssnyder Exp $
 /**
  * @file  CaloCompactCellTool_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -791,14 +790,14 @@ void test_one (int n,
     dump_cells (*cont);
 
   CaloCompactCellContainer ccc;
-  tool.getPersistent (*cont, &ccc, dec, version);
+  assert (tool.getPersistent (*cont, &ccc, dec, version));
 
   if (dump)
     dump_packed (ccc);
 
   CaloCellContainer* cont2 = new CaloCellContainer (SG::VIEW_ELEMENTS);
   SG::Arena::Push push (*arena);
-  tool.getTransient (ccc, cont2);
+  assert (tool.getTransient (ccc, cont2));
 
   if (dump)
     dump_cells (*cont2);
@@ -824,11 +823,11 @@ void test_supercells (int version,
   //dump_cells (*cont);
 
   CaloCompactCellContainer ccc;
-  tool.getPersistent (*cont, &ccc, nullptr, version);
+  assert (tool.getPersistent (*cont, &ccc, nullptr, version));
 
   CaloCellContainer* cont2 = new CaloCellContainer (SG::VIEW_ELEMENTS);
   SG::Arena::Push push (*arena);
-  tool.getTransient (ccc, cont2);
+  assert (tool.getTransient (ccc, cont2));
   //dump_cells (*cont2);
 
   compare_containers (cont, cont2, true, version);
@@ -905,7 +904,7 @@ CaloCellPacker_400_500_test::test_fin (const CaloCompactCellContainer&
 {
   CaloCellContainer cont2 (SG::VIEW_ELEMENTS);
   SG::Arena::Push push (*arena);
-  tool.getTransient (ccc2, &cont2);
+  assert (tool.getTransient (ccc2, &cont2));
 }
 
 
@@ -1085,7 +1084,7 @@ void test_errs (const std::vector<CaloCell*>& cells,
   printf ("*** test_errs\n");
   CaloCellContainer* cont = fill_cells (10000, cells, true, true, rng);
   CaloCompactCellContainer ccc;
-  tool.getPersistent (*cont, &ccc, nullptr, CaloCompactCellTool::VERSION_501);
+  assert (tool.getPersistent (*cont, &ccc, nullptr, CaloCompactCellTool::VERSION_501));
 
   typedef CaloCellPacker_400_500_test T;
 
@@ -1106,7 +1105,7 @@ void test_errs (const std::vector<CaloCell*>& cells,
   rng.seed = 101;
   CaloCellContainer* cont2 = fill_cells (10000, cells, true, false, rng);
   CaloCompactCellContainer ccc2;
-  tool.getPersistent (*cont2, &ccc2, nullptr, CaloCompactCellTool::VERSION_500);
+  assert (tool.getPersistent (*cont2, &ccc2, nullptr, CaloCompactCellTool::VERSION_500));
   T::test_fin (ccc2, tool);
 
   delete cont;
@@ -1276,14 +1275,14 @@ void timetests (IdDictParser* parser, int nrep)
   CaloCompactCellContainer ccc;
   getrusage (RUSAGE_SELF, &ru0);
   for (int i=0; i < nrep; i++)
-    tool.getPersistent (*cont, &ccc, nullptr);
+    assert (tool.getPersistent (*cont, &ccc, nullptr));
   getrusage (RUSAGE_SELF, &ru1);
 
   SG::Arena::Push push (*arena);
   CaloCellContainer* cont2 = new CaloCellContainer (SG::VIEW_ELEMENTS);
   getrusage (RUSAGE_SELF, &ru2);
   for (int i = 0; i < nrep; i++) {
-    tool.getTransient (ccc, cont2);
+    assert (tool.getTransient (ccc, cont2));
     cont2->clear();
     arena->reset();
   }

@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloGeoHelpers
                           Control/AthenaBaseComps
+                          Control/CxxUtils
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigRinger
                           GaudiKernel
@@ -23,13 +24,15 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/IRegionSelector
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigTools/TrigT2CaloCalibration
-                          Trigger/TrigTools/TrigTimeAlgs )
+                          Trigger/TrigTools/TrigTimeAlgs 
+			  Reconstruction/egamma/egammaUtils
+			  )
 
 # Component(s) in the package:
 atlas_add_component( TrigT2CaloEgamma
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloEvent CaloGeoHelpers xAODTrigCalo xAODTrigRinger GaudiKernel TrigT2CaloCommonLib TrigSteeringEvent CaloDetDescrLib CaloIdentifier AthLinks IRegionSelector TrigT1Interfaces TrigT2CaloCalibrationLib TrigTimeAlgsLib )
+                     LINK_LIBRARIES CaloEvent CaloGeoHelpers xAODTrigCalo xAODTrigRinger GaudiKernel TrigT2CaloCommonLib TrigSteeringEvent CaloDetDescrLib CaloIdentifier AthLinks IRegionSelector TrigT1Interfaces TrigT2CaloCalibrationLib TrigTimeAlgsLib egammaUtils)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

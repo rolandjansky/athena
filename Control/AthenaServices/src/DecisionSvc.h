@@ -27,7 +27,7 @@
  * @author S.Binet<binet@cern.ch>
  * @author B.Radics<radbal@cern.ch>
  */
-class DecisionSvc : public extends<AthService, IDecisionSvc>
+class ATLAS_CHECK_THREAD_SAFETY DecisionSvc : public extends<AthService, IDecisionSvc>
 { 
 
 public: 

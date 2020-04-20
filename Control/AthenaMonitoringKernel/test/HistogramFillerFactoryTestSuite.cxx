@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -29,7 +29,7 @@
 #include "../src/HistogramFiller/CumulativeHistogramFiller1D.h"
 #include "../src/HistogramFiller/VecHistogramFiller1D.h"
 #include "../src/HistogramFiller/VecHistogramFiller1DWithOverflows.h"
-#include "../src/HistogramFiller/HistogramFillerRebinable1D.h"
+#include "../src/HistogramFiller/HistogramFillerRebinable.h"
 #include "../src/HistogramFiller/HistogramFillerProfile.h"
 #include "../src/HistogramFiller/HistogramFiller2D.h"
 #include "../src/HistogramFiller/HistogramFiller2DProfile.h"
@@ -38,6 +38,7 @@
 
 #include "mocks/MockGenericMonitoringTool.h"
 #include "mocks/MockITHistSvc.h"
+#include "mocks/MockHistogramDef.h"
 
 using namespace std;
 using namespace Monitored;
@@ -47,8 +48,8 @@ class HistogramProviderGetter : public HistogramFiller {
     HistogramProviderGetter(const HistogramFiller& hf) 
       : HistogramFiller(hf) {}
 
-    virtual unsigned fill() { return 0; }
-    virtual HistogramFiller* clone() { return nullptr; }
+    virtual unsigned fill() const { return 0; }
+    virtual HistogramFiller* clone() const { return nullptr; }
 
     std::shared_ptr<IHistogramProvider> histogramProvider() { return m_histogramProvider; }
 };
@@ -85,98 +86,118 @@ class HistogramFillerFactoryTestSuite {
   private:
     void beforeEach() {
       m_gmTool.reset(new MockGenericMonitoringTool());
+      m_histDef.reset(new MockHistogramDef());
     }
 
     void afterEach() {
     }
 
     void test_shouldCreateStaticHistogramFiller1D() {
-      performCreateFillerAndVerify<HistogramFiller1D, StaticHistogramProvider>("TH1F", "");
+      performCreateFillerAndVerify<HistogramFiller1D, StaticHistogramProvider>();
     }
 
     void test_shouldCreateStaticCumulativeHistogramFiller1D() {
-      performCreateFillerAndVerify<CumulativeHistogramFiller1D, StaticHistogramProvider>("TH1F", "kCumulative");
+      m_histDef->kCumulative = true;
+      performCreateFillerAndVerify<CumulativeHistogramFiller1D, StaticHistogramProvider>();
     }
 
     void test_shouldCreateStaticVecHistogramFiller1DWithOverflows() {
-      performCreateFillerAndVerify<VecHistogramFiller1DWithOverflows, StaticHistogramProvider>("TH1F", "kVecUO");
+      m_histDef->kVecUO = true;
+      performCreateFillerAndVerify<VecHistogramFiller1DWithOverflows, StaticHistogramProvider>();
     }
 
     void test_shouldCreateStaticVecHistogramFiller1D() {
-      performCreateFillerAndVerify<VecHistogramFiller1D, StaticHistogramProvider>("TH1F", "kVec");
+      m_histDef->kVec = true;
+      performCreateFillerAndVerify<VecHistogramFiller1D, StaticHistogramProvider>();
     }
 
     void test_shouldCreateStaticHistogramFillerRebinable1D() {
-      performCreateFillerAndVerify<HistogramFillerRebinable1D, StaticHistogramProvider>("TH1F", "kAddBinsDynamically");
+      m_histDef->kAddBinsDynamically = true;
+      performCreateFillerAndVerify<HistogramFillerRebinable1D, StaticHistogramProvider>();
     }
 
     void test_shouldCreateStaticHistogramFiller2D() {
-      performCreateFillerAndVerify<HistogramFiller2D, StaticHistogramProvider>("TH2D", "");
+      m_histDef->type = "TH2D";
+      performCreateFillerAndVerify<HistogramFiller2D, StaticHistogramProvider>();
     }
 
     void test_shouldCreateStaticHistogramFillerProfile() {
-      performCreateFillerAndVerify<HistogramFillerProfile, StaticHistogramProvider>("TProfile", "");
+      m_histDef->type = "TProfile";
+      performCreateFillerAndVerify<HistogramFillerProfile, StaticHistogramProvider>();
     }
 
     void test_shouldCreateStaticHistogramFiller2DProfile() {
-      performCreateFillerAndVerify<HistogramFiller2DProfile, StaticHistogramProvider>("TProfile2D", "");
+      m_histDef->type = "TProfile2D";
+      performCreateFillerAndVerify<HistogramFiller2DProfile, StaticHistogramProvider>();
     }
 
     void test_shouldCreateStaticHistogramFillerEfficiency() {
-      performCreateFillerAndVerify<HistogramFillerEfficiency, StaticHistogramProvider>("TEfficiency", "");
+      m_histDef->type = "TEfficiency";
+      performCreateFillerAndVerify<HistogramFillerEfficiency, StaticHistogramProvider>();
     }
 
     void test_shouldCreateLumiblockHistogramFiller1D() {
-      performCreateFillerAndVerify<HistogramFiller1D, LumiblockHistogramProvider>("TH1F", "kLBNHistoryDepth=10");
+      m_histDef->kLBNHistoryDepth = 10;
+      performCreateFillerAndVerify<HistogramFiller1D, LumiblockHistogramProvider>();
     }
 
     void test_shouldCreateLumiblockCumulativeHistogramFiller1D() {
-      performCreateFillerAndVerify<CumulativeHistogramFiller1D, LumiblockHistogramProvider>("TH1F", "kCumulative, kLBNHistoryDepth=10");
+      m_histDef->kCumulative = true;
+      m_histDef->kLBNHistoryDepth = 10;
+      performCreateFillerAndVerify<CumulativeHistogramFiller1D, LumiblockHistogramProvider>();
     }
 
     void test_shouldCreateLumiblockVecHistogramFiller1DWithOverflows() {
-      performCreateFillerAndVerify<VecHistogramFiller1DWithOverflows, LumiblockHistogramProvider>("TH1F", "kVecUO, kLBNHistoryDepth=10");
+      m_histDef->kVecUO = true;
+      m_histDef->kLBNHistoryDepth = 10;
+      performCreateFillerAndVerify<VecHistogramFiller1DWithOverflows, LumiblockHistogramProvider>();
     }
 
     void test_shouldCreateLumiblockVecHistogramFiller1D() {
-      performCreateFillerAndVerify<VecHistogramFiller1D, LumiblockHistogramProvider>("TH1F", "kVec, kLBNHistoryDepth=10");
+      m_histDef->kVec = true;
+      m_histDef->kLBNHistoryDepth = 10;
+      performCreateFillerAndVerify<VecHistogramFiller1D, LumiblockHistogramProvider>();
     }
 
     void test_shouldCreateLumiblockHistogramFillerRebinable1D() {
-      performCreateFillerAndVerify<HistogramFillerRebinable1D, LumiblockHistogramProvider>("TH1F", "kAddBinsDynamically, kLBNHistoryDepth=10");
+      m_histDef->kAddBinsDynamically = true;
+      m_histDef->kLBNHistoryDepth = 10;
+      performCreateFillerAndVerify<HistogramFillerRebinable1D, LumiblockHistogramProvider>();
     }
 
     void test_shouldCreateLumiblockHistogramFiller2D() {
-      performCreateFillerAndVerify<HistogramFiller2D, LumiblockHistogramProvider>("TH2D", "kLBNHistoryDepth=10");
+      m_histDef->type = "TH2D";
+      m_histDef->kLBNHistoryDepth = 10;
+      performCreateFillerAndVerify<HistogramFiller2D, LumiblockHistogramProvider>();
     }
 
     void test_shouldCreateLumiblockHistogramFillerProfile() {
-      performCreateFillerAndVerify<HistogramFillerProfile, LumiblockHistogramProvider>("TProfile", "kLBNHistoryDepth=10");
+      m_histDef->type = "TProfile";
+      m_histDef->kLBNHistoryDepth = 10;
+      performCreateFillerAndVerify<HistogramFillerProfile, LumiblockHistogramProvider>();
     }
 
     void test_shouldCreateLumiblockHistogramFiller2DProfile() {
-      performCreateFillerAndVerify<HistogramFiller2DProfile, LumiblockHistogramProvider>("TProfile2D", "kLBNHistoryDepth=10");
+      m_histDef->type = "TProfile2D";
+      m_histDef->kLBNHistoryDepth = 10;
+      performCreateFillerAndVerify<HistogramFiller2DProfile, LumiblockHistogramProvider>();
     }
 
     void test_shouldCreateLumiblockHistogramFillerEfficiency() {
-      performCreateFillerAndVerify<HistogramFillerEfficiency, LumiblockHistogramProvider>("TEfficiency", "kLBNHistoryDepth=10");
+      m_histDef->type = "TEfficiency";
+      m_histDef->kLBNHistoryDepth = 10;
+      performCreateFillerAndVerify<HistogramFillerEfficiency, LumiblockHistogramProvider>();
     }
 
 
   // ==================== Helper methods ====================
   private:
     template<class FillerType, class ProviderType>
-    void performCreateFillerAndVerify(string histogramType, string options) {
-      HistogramDef histogramDef;
-      histogramDef.type = histogramType;
-      histogramDef.opt = options;
-      histogramDef.xbins = 1;
-      histogramDef.ybins = 1;
-
+    void performCreateFillerAndVerify() {
       HistogramFillerFactory testObj(m_gmTool.get(), "HistogramFillerFactoryTestSuite");
-
-      HistogramFiller* const result = testObj.create(histogramDef);
+      HistogramFiller* const result = testObj.create(*m_histDef);
       VALUE(dynamic_cast<FillerType*>(result)) NOT_EXPECTED(nullptr);
+
       HistogramProviderGetter providerGetter(*result);
       IHistogramProvider* const provider = providerGetter.histogramProvider().get();
       VALUE(dynamic_cast<ProviderType*>(provider)) NOT_EXPECTED(nullptr);
@@ -212,6 +233,7 @@ class HistogramFillerFactoryTestSuite {
     MsgStream m_log;
 
     shared_ptr<MockGenericMonitoringTool> m_gmTool;
+    shared_ptr<HistogramDef> m_histDef;
 };
 
 int main() {

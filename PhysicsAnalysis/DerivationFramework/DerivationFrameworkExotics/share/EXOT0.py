@@ -14,6 +14,16 @@ from DerivationFrameworkCore.WeightMetadata import *
 exot0Seq = CfgMgr.AthSequencer("EXOT0Sequence")
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT0Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT0Stream )
+EXOT0Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT0Stream.AcceptAlgs(["EXOT0Kernel"])
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # THINNING TOOLS
 #====================================================================
 
@@ -22,7 +32,7 @@ thinningTools = []
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT0MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                       = "EXOT0MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT0ThinningSvc",
+                                                                            StreamName              = streamName,
                                                                             MuonKey                 = "Muons",
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                             ConeSize                =  0.4)
@@ -32,7 +42,7 @@ thinningTools.append(EXOT0MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT0ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT0ElectronTPThinningTool",
-                                                                                        ThinningService         = "EXOT0ThinningSvc",
+                                                                                        StreamName              = streamName,
                                                                                         SGKey                   = "Electrons",
                                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                         ConeSize                =  0.4)
@@ -42,7 +52,7 @@ thinningTools.append(EXOT0ElectronTPThinningTool)
 # truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT0TruthTool = DerivationFramework__MenuTruthThinning(name                  = "EXOT0TruthTool",
-                                                        ThinningService       = "EXOT0ThinningSvc",
+                                                        StreamName            = streamName,
                                                         WritePartons          = False,
                                                         WriteHadrons          = False,
                                                         WriteBHadrons         = False,
@@ -71,7 +81,7 @@ truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.p
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT0TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT0TruthTool2",
-                                                            ThinningService              = "EXOT0ThinningSvc",
+                                                            StreamName                   = streamName,
                                                             ParticleSelectionString      = truth_cond_Lepton,
                                                             PreserveDescendants          = False,
                                                             PreserveGeneratorDescendants = True,
@@ -104,19 +114,6 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += exot0Seq
 exot0Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT0Kernel_skim", SkimmingTools = [EXOT0SkimmingTool])
 exot0Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT0Kernel", ThinningTools = thinningTools)
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT0Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT0Stream )
-EXOT0Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT0Stream.AcceptAlgs(["EXOT0Kernel"])
-# Thinning 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT0ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

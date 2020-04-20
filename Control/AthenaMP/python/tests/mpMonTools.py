@@ -1,22 +1,27 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    mpMonTools.py
 # @purpose: Library for mp performance monitoring of AthenaMP
 # @author:  Mous Tatarkhanov <tmmous@cern.ch>
 # @date:    December 2009
 
+from __future__ import print_function
+
 __version__ = "$Revision: 329336 $"
 __author__  = "Mous Tatarkhanov <tmmous@cern.ch>"
 
 import sys
 import os
-import subprocess
-import commands
 import signal
 import time
 import array
 import copy
-    
+import six
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
+
 
 T0 = time.time()
 numa_T0 = T0
@@ -68,8 +73,8 @@ def init_mp_stat():
     init_numa = list(get_numastat())
     init_numa[0] = numa_T0
     
-    print "initial_mem=%s" % init_mem
-    print "initial_numa=%s" % list(init_numa)
+    print ("initial_mem=%s" % init_mem)
+    print ("initial_numa=%s" % list(init_numa))
     
     init_mem = get_memstat()
 
@@ -112,46 +117,46 @@ class ProcDict(dict):
         try:
             pass
             #private, shared = _get_shared_private_mem(self.pid)
-        except Exception, e:
-            print "## Caught exception [%s] !!" % str(e.__class__)
-            print "## What:", e
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+        except Exception as e:
+            print ("## Caught exception [%s] !!" % str(e.__class__))
+            print ("## What:", e)
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
         self["private"].append(private)
         self["shared"].append(shared)  
     
     def proc_ps_stat(self):
         """ ps statistics for this process of pid """
-        out = commands.getoutput("ps --pid %i -o pid,state,vsize,rss,sz,start,cputime,etime" % self.pid)
+        out = subprocess.getoutput("ps --pid %i -o pid,state,vsize,rss,sz,start,cputime,etime" % self.pid)
         lines = out.splitlines()
         if len(lines) > 1:
             self.add_ps_line(lines[1])
         else:
-            print "there is no process with pid: [%i]", self.pid
+            print ("there is no process with pid: [%i]", self.pid)
             return False
         return True  
     
     def children_exist(self):
         """ figures out weather the np kids were spawned for mother mpid""" 
-        sc, out = commands.getstatusoutput("ps --ppid %i -o pid,start" % self.pid)
+        sc, out = subprocess.getstatusoutput("ps --ppid %i -o pid,start" % self.pid)
         if sc is not 0:
-            #print "   children_exist: Error, sc=%i" % sc
+            #print ("   children_exist: Error, sc=%i" % sc)
             return False
  
         ps_lines = out.splitlines()
         nc = len(ps_lines)-1
-        print "  children_exist().nbr of children = %i" % nc
+        print ("  children_exist().nbr of children = %i" % nc)
         if nc > 0 :
-            print "%i children workers exist. Creating ProcDicts..." % nc
+            print ("%i children workers exist. Creating ProcDicts..." % nc)
             ps_lines.pop(0)
             for line in ps_lines:
                 ps_str = line.split()
                 cpid = int(ps_str[0])
                 ProcDict(cpid, start_time = _seconds(ps_str[1]))
-                print "..... child [%i] added" %  cpid
+                print ("..... child [%i] added" %  cpid)
             return nc
         else:
-            #print "no children exist for parent: %s " % self.pid
+            #print ("no children exist for parent: %s " % self.pid)
             return False
 
 
@@ -207,7 +212,7 @@ class CPSummary(dict):
             self['vmem'].append(mp_stat['cpid'][pid].vmem)
             self['rss'].append(mp_stat['cpid'][pid].rss)
         for pid in self.cpid_list:
-            print "  %s/%s exists ->" % (dir,pid), os.path.exists(os.path.join(dir,"%s" % pid)) #FIX: add the extraction from cpid's logs.
+            print ("  %s/%s exists ->" % (dir,pid), os.path.exists(os.path.join(dir,"%s" % pid))) #FIX: add the extraction from cpid's logs.
             out_path = os.path.join(dir, "%s" % pid, 'stdout')
             err_path = os.path.join(dir, "%s" % pid, 'stderr')
 
@@ -270,13 +275,13 @@ def _seconds(time_str): #handles time in "H:M:S" and "M:S" format
         return 3600*int(time_nums[0])+60*int(time_nums[1]) + int(time_nums[2])
     elif (len(time_nums)==2):
         return 60*int(time_nums[0]) + int(time_nums[1])
-    print "ERROR: _seconds() returning - 0"
+    print ("ERROR: _seconds() returning - 0")
     return 0
     
 def get_numastat():
-    sc,out=commands.getstatusoutput("numastat")
+    sc,out=subprocess.getstatusoutput("numastat")
     if sc==256:
-        print "mjMonTools.get_numastat: numastat is not working! zeroes will be returned"
+        print ("mjMonTools.get_numastat: numastat is not working! zeroes will be returned")
         return (0,0,0,0,0,0,0)
     else:
         lines = out.splitlines()
@@ -291,7 +296,7 @@ def get_numastat():
         
 def save_numastat():
     current_numa = get_numastat()
-    #print "current_numa=%s" % list(current_numa)
+    #print ("current_numa=%s" % list(current_numa))
 
     _numa_stat = (
         mp_stat['numa']['Time'],
@@ -304,18 +309,18 @@ def save_numastat():
         )
     
     change_numa = subList(current_numa,init_numa)
-    print "NUMA_CHANGE=%s" % change_numa
+    print ("NUMA_CHANGE=%s" % change_numa)
     return [_numa_stat[i].append(change_numa[i]) for i in range(len(change_numa))]
     
 def print_memstat(msg =""):
     mem = get_memstat()
     t = time.time() - T0;
     save_numastat()
-    print msg + " [T=%i sec]" % t + " USED[%i Mb][change: %i Mb] - FREE[%i Mb][change: %i Mb]" % ( 
-        mem["USED"], mem["USED"]-init_mem["USED"], mem["FREE"], mem["FREE"]-init_mem["FREE"])
+    print (msg + " [T=%i sec]" % t + " USED[%i Mb][change: %i Mb] - FREE[%i Mb][change: %i Mb]" % ( 
+        mem["USED"], mem["USED"]-init_mem["USED"], mem["FREE"], mem["FREE"]-init_mem["FREE"]))
 
 def get_memstat():
-    out=commands.getoutput("free -m")
+    out=subprocess.getoutput("free -m")
     mem = dict()
     lines = out.splitlines()
     mem_strs = lines[1].split()
@@ -326,7 +331,7 @@ def get_memstat():
     mem_strs = lines[2].split()
     mem['USED'] = int(mem_strs[2])
     mem['FREE'] = int(mem_strs[3])
-    #print "mem: [%s Mbs]" %  mem
+    #print ("mem: [%s Mbs]" %  mem)
     return mem
 
 init_mem = get_memstat()
@@ -334,46 +339,46 @@ init_mem = get_memstat()
 def meanList(num_list):
     """finds average value of the number list"""
     if len(num_list) == 0:
-        print "meanList: WARNING - empty list, returning 0.0"
+        print ("meanList: WARNING - empty list, returning 0.0")
         return 0.0
     return float(sum(num_list)) / len(num_list)
     
 def sumList(l1, l2):
     """sum up values of two lists l1 + l2"""
     if len(l1) is not len(l2):
-        print "sumList: WARNING: len(l1) not equals len(l2)"
+        print ("sumList: WARNING: len(l1) not equals len(l2)")
         n = len(l1) if len(l2) > len(l1) else len(l2)
     else:
         n = len(l1)
 
     sum = list()
-    for i  in xrange(n):
+    for i  in range(n):
         sum.append(l1[i] + l2[i])
     return sum
 
 def subList(l1, l2): 
     """subtract values of two lists: l1 - l2"""
     if len(l1) is not len(l2):
-        print "subList: WARNING: len(l1) not equals len(l2)"
+        print ("subList: WARNING: len(l1) not equals len(l2)")
         n = len(l1) if len(l2) > len(l1) else len(l2)
     else:
         n = len(l1)
 
     sub = list()
-    for i  in xrange(n):
+    for i  in range(n):
         sub.append(l1[i] - l2[i])
     return sub
         
 def get_spike(l):
-    #print " get_spike:",
-    #print " e0 = ",  l[0]/1024, "Mb", 
-    #print " eN = ",  l[-1]/1024, "Mb",
-    #print " max = ", max(l)/1024, "Mb", 
-    #print " min = ", min(l)/1024, "Mb", 
-    #print " e0 - eN = ",  (l[0] - l[-1])/1024, "Mb",
-    #print " e0 - min = ", (l[0] - min(l))/1024, "Mb",
-    #print " eN - min = ", (l[-1] - min(l))/1024, "Mb",
-    #print " return  max - min =", (max(l) - min(l))/1024, "Mb"
+    #print (" get_spike:",)
+    #print (" e0 = ",  l[0]/1024, "Mb",  end='')
+    #print (" eN = ",  l[-1]/1024, "Mb", end='')
+    #print (" max = ", max(l)/1024, "Mb", end='' )
+    #print (" min = ", min(l)/1024, "Mb",  end='')
+    #print (" e0 - eN = ",  (l[0] - l[-1])/1024, "Mb", end='')
+    #print (" e0 - min = ", (l[0] - min(l))/1024, "Mb", end='')
+    #print (" eN - min = ", (l[-1] - min(l))/1024, "Mb", end='')
+    #print (" return  max - min =", (max(l) - min(l))/1024, "Mb")
     return max(l) - min(l)   
 
 def prepare_mp_stat():
@@ -395,19 +400,19 @@ def prepare_mp_stat():
 
 
 def print_summary():
-    print "===== MOTHER PROCESS SUMMARY ====="
+    print ("===== MOTHER PROCESS SUMMARY =====")
     for (k, v) in mp_stat['mp_summary'].items():
-        print "mp_summary['%s']=%s " % (k, v)
+        print ("mp_summary['%s']=%s " % (k, v))
 
-    print "===== CHILDREN PROCESS SUMMARY ==="
+    print ("===== CHILDREN PROCESS SUMMARY ===")
     for (k, v) in mp_stat['cp_summary'].items():
-        print "cp_summary['%s']=%s " % (k, v)
+        print ("cp_summary['%s']=%s " % (k, v))
 
         
 ################## children tools ######################
 def children_working(ppid):
     """ ps statistics for children of ppid. returns False if no children exist """
-    out = commands.getoutput("ps --ppid %i -o pid,state,vsize,rss,sz,start,cputime,etime" % ppid)
+    out = subprocess.getoutput("ps --ppid %i -o pid,state,vsize,rss,sz,start,cputime,etime" % ppid)
     ps_lines = out.splitlines()
     ps_lines.pop(0)
         
@@ -417,10 +422,10 @@ def children_working(ppid):
             pid = int(ps_str[0])
             if pid in mp_stat["cpid"].keys():
                 mp_stat["cpid"][pid].add_ps_line(line)
-            #print "child_stat.appended for kid: %i" % pid       
+            #print ("child_stat.appended for kid: %i" % pid       )
         return True #ps returns something -> children still exist   
     else:
-        print " mpMonTools.children_working: no children exist for parent: %i" % ppid
+        print (" mpMonTools.children_working: no children exist for parent: %i" % ppid)
         return False #ps returns nothing -> children either weren't born or died.           
     return False
 
@@ -439,34 +444,34 @@ def summarize_proc_stat():
 
 def children_born(log, mpid, np):
     """ figures out weather the np kids were spawned for mother mpid""" 
-    sc,out = commands.getstatusoutput("ps --ppid %i -o pid,start" % mpid)
+    sc,out = subprocess.getstatusoutput("ps --ppid %i -o pid,start" % mpid)
     if sc is not 0:
-        print "   mpMonTools.children_born: no kids yet... Error, sc=%i" % sc
+        print ("   mpMonTools.children_born: no kids yet... Error, sc=%i" % sc)
         return False
 
     ps_lines = out.splitlines()
-    #print "ps_lines=", ps_lines
+    #print ("ps_lines=", ps_lines)
     nc = len(ps_lines)-1
     
-    print " children_exist: nbr of children = [%i]" % nc
+    print (" children_exist: nbr of children = [%i]" % nc)
     if grepValue(log, "FIRSTEVENT_ELAP_TIME") is None:
         return False
     else:
         pass
 
     if nc>=np : #nbr of children is equal to nbr of procs required 
-        print "%i children workers forked! Registering them (creating ProcDicts) ..." % np
+        print ("%i children workers forked! Registering them (creating ProcDicts) ..." % np)
         ps_lines.pop(0)
         for line in ps_lines:
             ps_str = line.split()
             pid = int(ps_str[0])
-            print "child [%i] born" % pid, 
+            print ("child [%i] born" % pid, )
             if grepExist(log, "%i-%i" % (mpid, pid)):
                 ProcDict(pid, start_time = _seconds(ps_str[1]))
-                print "..... child WORKER [%i] added" %  pid
+                print ("..... child WORKER [%i] added" %  pid)
         return True
     else:
-        print "no children exist for parent: %s " % mpid
+        print ("no children exist for parent: %s " % mpid)
     return False
 
 
@@ -474,13 +479,13 @@ def children_born(log, mpid, np):
 def grepExist(log, field):
     """grep check for the existance of the unique field in the log 
     """
-    #print "grepping %s in %s" % (field, log)
-    sc,out = commands.getstatusoutput( "grep %s %s" % (field, log))
+    #print ("grepping %s in %s" % (field, log))
+    sc,out = subprocess.getstatusoutput( "grep %s %s" % (field, log))
     if sc==256:
-        print "grepExist: FALSE: grep %s %s failed with sc=%i" % (field, log, sc)
+        print ("grepExist: FALSE: grep %s %s failed with sc=%i" % (field, log, sc))
         return False
     line = out.splitlines()[0]
-    print "grepExist: TRUE: sc=%i grepped-line=%s" % (sc,line)
+    print ("grepExist: TRUE: sc=%i grepped-line=%s" % (sc,line))
     return True
     
 def grepValue(log, field, sep='='):
@@ -488,17 +493,17 @@ def grepValue(log, field, sep='='):
        Example: out = 'Py:EventLoopMgr      INFO EvtMax  =  123456  something'      
        grepValue(log, "EvtMax", sep="=") = '123456' 
     """
-    sc,out = commands.getstatusoutput( "grep %s %s" % (field, log))
+    sc,out = subprocess.getstatusoutput( "grep %s %s" % (field, log))
     if sc!=0:
-        print "grepping %s in %s failed" % (field, log)
+        print ("grepping %s in %s failed" % (field, log))
         return None
     line = out.splitlines()[0]
-    print "grepped-line=%s" % line
+    print ("grepped-line=%s" % line)
     import re 
-    vexpr = '\s*'+ sep+ '\s*(\d*\.?\d+)' #vexpr = '\s*'+ sep+ '\s*(\d+)'
+    vexpr = '\\s*'+ sep+ '\\s*(\\d*\\.?\\d+)' #vexpr = '\\s*'+ sep+ '\\s*(\\d+)'
     m = re.search( field + vexpr, line)
     value = m.group(1)
-    print "grepValue:[%s], line=%s" % (value,line)
+    print ("grepValue:[%s], line=%s" % (value,line))
     return value
 
 def grepValueList(log, search_str, field ='', sep='='):
@@ -506,9 +511,9 @@ def grepValueList(log, search_str, field ='', sep='='):
        Example: out = 'Py:EventLoopMgr      INFO EvtMax  =  123456  something'      
        grepValue(log, "EvtMax", sep="=") = '123456' 
     """
-    sc,out = commands.getstatusoutput( "grep %s %s" % (search_str, log))
+    sc,out = subprocess.getstatusoutput( "grep %s %s" % (search_str, log))
     if sc!=0:
-        print "grepping %s in %s failed with sc=%s" % (search_str, log, sc), "out=%s" % out
+        print ("grepping %s in %s failed with sc=%s" % (search_str, log, sc), "out=%s" % out)
         return []
 
     if field =='':
@@ -516,15 +521,15 @@ def grepValueList(log, search_str, field ='', sep='='):
 
     value_list = []
     
-    #print "grepped lines = %s" % out
+    #print ("grepped lines = %s" % out)
 
     import re 
-    vexpr = '\s*'+ sep+ '\s*(\d*\.?\d+)'
+    vexpr = '\\s*'+ sep+ '\\s*(\\d*\\.?\\d+)'
     for line in out.splitlines():
-        print "grepped-line=%s" % line
+        print ("grepped-line=%s" % line)
         m = re.search( field + vexpr, line)
         value = m.group(1)
-        print "grepValue:[%s], line=%s" % (value,line)
+        print ("grepValue:[%s], line=%s" % (value,line))
         value_list.append(value)
     return value_list
 
@@ -533,22 +538,22 @@ def grepPath(log, field, sep=':'):
        Example: out = 'Py:EventLoopMgr      INFO master workdir: /tmp/athena-mp-tmp-tmmous/22590-1261097934  smthng'      
        grepPath(log, "workdir", sep=":") = '/tmp/athena-mp-tmp-tmmous/22590-1261097934' 
     """
-    sc,out = commands.getstatusoutput( "grep %s %s" % (field, log))
+    sc,out = subprocess.getstatusoutput( "grep %s %s" % (field, log))
     if sc!=0:
-        print "grepping %s in %s failed" % (field, log)
+        print ("grepping %s in %s failed" % (field, log))
         return None
     line = out.splitlines()[0]
     import re 
-    vexpr = '\s*'+ sep+ '\s*([^\s]+)'
+    vexpr = '\\s*'+ sep+ '\\s*([^\\s]+)'
     m = re.search( field + vexpr, line)
     path = m.group(1)
     return path
 
 
 def grepWorkerPathes(log, field = "WORKER_STDOUT", sep=':'):
-    sc,out = commands.getstatusoutput( "grep %s %s" % (field, log))
+    sc,out = subprocess.getstatusoutput( "grep %s %s" % (field, log))
     if sc!=0:
-        print "grepping %s in %s failed" % (field, log)
+        print ("grepping %s in %s failed" % (field, log))
         return None
 
     workers = dict()
@@ -558,11 +563,11 @@ def grepWorkerPathes(log, field = "WORKER_STDOUT", sep=':'):
     #    return []
 
     import re
-    vexpr = '\s*'+ sep+ '\s*([^\s]+)'
+    vexpr = '\\s*'+ sep+ '\\s*([^\\s]+)'
     
     for  line in out.splitlines():
         rout = re.search( field + vexpr, line)
-        rpid = re.search( 'WORKER_PID'  +  '\s*'+ '=' + '\s*([^\s]+)', line)
+        rpid = re.search( 'WORKER_PID'  +  '\\s*'+ '=' + '\\s*([^\\s]+)', line)
         path = rout.group(1)
         pid = rpid.group(1)
 
@@ -571,9 +576,9 @@ def grepWorkerPathes(log, field = "WORKER_STDOUT", sep=':'):
     return workers
 
 def grepWorkerStat(log, search_str = "WORKER_EVENT_STAT", fields=['elap_time',],  sep='='):
-    sc,out = commands.getstatusoutput( "grep %s %s" % (search_str, log))
+    sc,out = subprocess.getstatusoutput( "grep %s %s" % (search_str, log))
     if sc!=0:
-        print "grepping %s in %s failed" % (search_str, log)
+        print ("grepping %s in %s failed" % (search_str, log))
         return None
 
     worker_stat = dict()
@@ -585,7 +590,7 @@ def grepWorkerStat(log, search_str = "WORKER_EVENT_STAT", fields=['elap_time',],
     #    return []
 
     import re
-    vexpr = '\s*'+ sep+ '\s*([^\s]+)'
+    vexpr = '\\s*'+ sep+ '\\s*([^\\s]+)'
     
     for  line in out.splitlines():
         for field in fields:
@@ -599,7 +604,7 @@ def extractWorkersStat(mlog):
     """extract event based statistics of the WORKER using methods implemented above"""
     paths_dict = grepWorkerPathes(mlog)
     worker_stat = dict()
-    for pid,path in paths_dict.iteritems():
+    for pid,path in six.iteritems(paths_dict):
         worker_stat[pid] = grepWorkerStat(path, fields=['evt', 'cpu', 'elap_time', 'elap_os_time', 'system_time', 'user_time'])
     return worker_stat
 
@@ -616,12 +621,12 @@ def writeOutWorkersStat(mlog):
     os.mkdir("stat-%s" % ppid )
     os.chdir("stat-%s" % ppid )
 
-    for pid,stat in ws.iteritems():
+    for pid,stat in six.iteritems(ws):
         rows = list() 
         for i in range( 1 + len(stat['evt'])):
             rows.append('');
 
-        for field,values in stat.iteritems():
+        for field,values in six.iteritems(stat):
             rows[0] = "%s\t%s" % (rows[0], field)
             i=1
             for value in values:
@@ -643,7 +648,7 @@ def writeOutWorkersStat(mlog):
 def launch_athenaMP2(cmd, job, np, ne):
     """"launching cmd: athena.py --nprocs=$np -c EvtMax=$ne $jobo  1> mp.output/stdout_$jobo.$np.$ne   2> mp.output/stderr_$jobo.$np.$ne""" 
     
-    print "job command and options as template: %s" % cmd
+    print ("job command and options as template: %s" % cmd)
     from string import Template
     arg_template= Template(cmd)
     arg_str = arg_template.substitute(MAXEVT=np*ne, NPROCS=np, JOBO=job)
@@ -657,7 +662,7 @@ def launch_athenaMP2(cmd, job, np, ne):
     stderr_name = os.path.join(output_dir, "stderr.mp.%s.%i.%i"  % (job,np,ne))
 
     if not os.path.exists(job):
-        print "job options file %s doesn't exist" % job
+        print ("job options file %s doesn't exist" % job)
         return None
     import shutil
     shutil.copy(job, output_dir)
@@ -666,7 +671,7 @@ def launch_athenaMP2(cmd, job, np, ne):
     STDOUT_FILE = open(stdout_name , "w")
     STDERR_FILE = open(stderr_name,  "w")
     
-    print "<<<LAUNCH>>>: %s" % proc_args
+    print ("<<<LAUNCH>>>: %s" % proc_args)
     mproc = subprocess.Popen( proc_args, 
                              stdout=STDOUT_FILE, 
                              stderr=STDERR_FILE,
@@ -684,11 +689,11 @@ def launch_athenaMP(jobo, np, ne):
     output_dir = "mp.output"
     stdout_name = os.path.join(output_dir, "stdout.mp.%s.%i.%i"  % (jobo,np,ne))
     stderr_name = os.path.join(output_dir, "stderr.mp.%s.%i.%i"  % (jobo,np,ne))
-    print "launching: athena.py --nprocs=%i -c EvtMax=%i %s \
-        1> %s   2> %s" % (np, np*ne, jobo, stdout_name, stderr_name)
+    print ("launching: athena.py --nprocs=%i -c EvtMax=%i %s \
+        1> %s   2> %s" % (np, np*ne, jobo, stdout_name, stderr_name))
 
     if not os.path.exists(jobo):
-        print "job options file doesn't exist"
+        print ("job options file doesn't exist")
         return None
 
     if not os.path.isdir(output_dir):
@@ -720,30 +725,30 @@ def stop_proc(proc):
             pid = proc.pid 
             if proc.poll() is None: os.kill(pid, signal.SIGKILL); 
             proc.wait();
-        print "process %s  terminated" % pid 
-    except Exception, e:
-        print "## Caught exception [%s] !!" % str(e.__class__),"  ## What:",e
-        print sys.exc_info()[0], sys.exc_info()[1]
+        print ("process %s  terminated" % pid )
+    except Exception as e:
+        print ("## Caught exception [%s] !!" % str(e.__class__),"  ## What:",e)
+        print (sys.exc_info()[0], sys.exc_info()[1])
         return False
     pid_list.remove(pid)
     return True
 
 def stop_proc_tree(pid):
     """ Terminate/kill recursively process tree by pid. Be precautious using this!"""
-    out = commands.getoutput("ps --ppid %i" % pid)
+    out = subprocess.getoutput("ps --ppid %i" % pid)
     lines = out.splitlines(); lines.pop(0) #remove header
     try:
         if len(lines) > 0: 
             for line in lines:
                 cpid = int(line.split()[0])
-                print "child [%i:%i] being terminated..." % (pid, cpid)
+                print ("child [%i:%i] being terminated..." % (pid, cpid))
                 stop_proc_tree(cpid)
         if  pid in pid_list: pid_list.remove(pid) 
         os.kill(pid, signal.SIGKILL); #os.waitpid(pid, 0);
-        print "[%i] - terminated." % pid 
-    except Exception, e:
-        print "[%i] - dead #while killing caught exception [%s] !!" % (pid, str(e.__class__)),"  ## What:",e
-        #print sys.exc_info()[0], sys.exc_info()[1]
+        print ("[%i] - terminated." % pid )
+    except Exception as e:
+        print ("[%i] - dead #while killing caught exception [%s] !!" % (pid, str(e.__class__)),"  ## What:",e)
+        #print (sys.exc_info()[0], sys.exc_info()[1])
         return False
     return True
 
@@ -759,11 +764,11 @@ def stop_athenaMP(mproc):
             pid = mproc.pid;
             if mproc.poll() is None: os.kill(pid, signal.SIGKILL); 
             mproc.wait();
-        print "process %s  terminated" % pid 
+        print ("process %s  terminated" % pid )
         return True
-    except Exception, e:
-        print "## Caught exception [%s] !!" % str(e.__class__),"  ## What:",e
-        print sys.exc_info()[0], sys.exc_info()[1]
+    except Exception as e:
+        print ("## Caught exception [%s] !!" % str(e.__class__),"  ## What:",e)
+        print (sys.exc_info()[0], sys.exc_info()[1])
         return False
     return False
 
@@ -778,10 +783,10 @@ def launch_sar(log, time_step):
      `sar -bBcdqrRuvwWy -I SUM -I XALL -n ALL -P ALL` = `sar -A`
     """
     sar_args = [ "sar", "-bBrvwu", "-o", log, "%i"% time_step, "0" ]
-    print "launching: %s %s %s %s %s %s" % tuple(sar_args)    
-    sc,out = commands.getstatusoutput('sar -b 1 1')
+    print ("launching: %s %s %s %s %s %s" % tuple(sar_args)    )
+    sc,out = subprocess.getstatusoutput('sar -b 1 1')
     if sc!=0:
-        print 'launching failed - sar do not work on this system - please install if available!'
+        print ('launching failed - sar do not work on this system - please install if available!')
         return None
     FNULL = open('/dev/null', 'w')
     proc = subprocess.Popen(sar_args, 
@@ -793,8 +798,8 @@ def launch_sar(log, time_step):
                             )
 
     FNULL.close()
-    print "sc=%i" % sc
-    print "out=%s" % out
+    print ("sc=%i" % sc)
+    print ("out=%s" % out)
 
     pid_list.append(proc.pid)
     return proc
@@ -812,32 +817,32 @@ def _num(str):
         
 def get_sar_stat(log, key):
     """ get statistics by issueing this cmd: `sar -key $log`"""
-    print 'launching cmd: sar %s -f %s' % (key, log)        
-    sc,out = commands.getstatusoutput("sar %s -f %s" % (key,log) )
+    print ('launching cmd: sar %s -f %s' % (key, log)        )
+    sc,out = subprocess.getstatusoutput("sar %s -f %s" % (key,log) )
     if sc!=0:
-        print "launching failed - either file %s does not exist or sar does not work on this system - please check!" % log
+        print ("launching failed - either file %s does not exist or sar does not work on this system - please check!" % log)
         return None
     sar_dict = dict()
-    #print"##################################"; print "out=\n", out; print "################################################"
+    #print"(##################################"; print "out=\n", out; print "################################################")
 
     lines = out.splitlines()
-    print "trim1=", lines.pop(0)#trimming output
-    print "trim2=", lines.pop(0)#trimming output
+    print ("trim1=", lines.pop(0))#trimming output
+    print ("trim2=", lines.pop(0))#trimming output
 
     avg_line = lines.pop(); #trimming avg line at the end 
-    print "avg_line1=", avg_line
+    print ("avg_line1=", avg_line)
     
     hstrs = lines.pop(0).replace('%', 'p').replace('/', 'p').split() #trimming header strings and replacing '%' and '/' to satisfy ROOT 
     hstrs[0] = "Time"
-    print "Sar statistics fields found: ", hstrs
+    print ("Sar statistics fields found: ", hstrs)
 
-    #print"##################################"; print "lines=\n", lines; print "################################################"
+    #print("##################################"); print ("lines=\n", lines; print "################################################)"
     
     for hstr in hstrs:
         sar_dict[hstr] = list()
     for line in lines:
         lstrs = line.split()
-        print "lstrs=", lstrs
+        print ("lstrs=", lstrs)
         for i,hstr in enumerate(hstrs):
             if i!=0:
                 sar_dict[hstr].append( _num(lstrs[i]) )
@@ -859,53 +864,55 @@ def get_full_sar_stat(log):
   ##############sysstat and other linux commands wrappers########
 
 def _meminfo():
-    out=commands.getoutput("cat /proc/meminfo")
+    out=subprocess.getoutput("cat /proc/meminfo")
     lines = out.splitlines()
     mem=dict()
+    Kb = 1024
     mem['total']= int(lines[0].split()[1]) / Kb
     mem['free'] = int(lines[1].split()[1]) / Kb
     mem['buffers']= int(lines[2].split()[1]) / Kb
     mem['cached'] = int(lines[3].split()[1]) / Kb
-    print "meminfo.real_total: [%i Mb]", mem['total'] 
-    print "meminfo.free: [%i Mb]", mem['free']
-    print "meminfo.cached: [%i Mb]", mem['cached'] 
-    print "meminfo.buffers: [%i Mb]", mem['buffers']
+    print ("meminfo.real_total: [%i Mb]", mem['total'] )
+    print ("meminfo.free: [%i Mb]", mem['free'])
+    print ("meminfo.cached: [%i Mb]", mem['cached'] )
+    print ("meminfo.buffers: [%i Mb]", mem['buffers'])
     return mem
 
 def _get_iostat():
-    out=commands.getoutput("iostat")
+    out=subprocess.getoutput("iostat")
     io = dict()
     lines = out.splitlines()
     strs = lines[1].split()
     io['used'] = int(strs[2])
+    mem = dict()
     mem['free'] = int(strs[3])
     mem['cached'] = int(strs[5])
     mem['buffers'] = int(strs[6])
     mem_strs = lines[2].split()
     mem['USED'] = int(strs[2])
     mem['FREE'] = int(strs[3])
-    #print "mem: [%s Mbs]" %  mem
+    #print ("mem: [%s Mbs]" %  mem)
     return io
 def _used_mem():
-    out=commands.getoutput("free -m")
+    out=subprocess.getoutput("free -m")
     mem_strs = out.splitlines()[2].split()
     used_mem = int(mem_strs[2]) 
-    print "used_mem: [%i Mb]" % used_mem
+    print ("used_mem: [%i Mb]" % used_mem)
     return used_mem            
 def _free_mem():
-    out=commands.getoutput("free -m")
+    out=subprocess.getoutput("free -m")
     mem_strs = out.splitlines()[2].split()
     free_mem  = int(mem_strs[3]) 
-    print "free_mem: [%i Mb]" % free_mem
+    print ("free_mem: [%i Mb]" % free_mem)
     return free_mem
 
 def _launch_iostat(log, time_step):
-    print 'launching cmd: iostat $TIME_STEP -d -x > iostat.$jobo.$np.$ne &'
-    sc,out = commands.getstatusoutput( "iostat" )
+    print ('launching cmd: iostat $TIME_STEP -d -x > iostat.$jobo.$np.$ne &')
+    sc,out = subprocess.getstatusoutput( "iostat" )
     if sc!=0:
-        print 'launching failed - iostat do not work on this system'
+        print ('launching failed - iostat do not work on this system')
         return None
-    file = open(log, "w")
+    f_iostat = open(log, "w")
     iostat_proc = subprocess.Popen(
         [ "iostat",  "%i" % time_step, "-d", "-x"], 
         executable="iostat", 
@@ -913,13 +920,13 @@ def _launch_iostat(log, time_step):
         shell=False, 
         close_fds = True)
 
-    file.close()
+    f_iostat.close()
     return iostat_proc  
 def _launch_vmstat(log, time_step):
-    print 'launching cmd: vmstat $TIME_STEP -n > vmstat.$jobo.$np.$ne &'        
-    sc,out = commands.getstatusoutput( "vmstat -V" )
+    print ('launching cmd: vmstat $TIME_STEP -n > vmstat.$jobo.$np.$ne &'        )
+    sc,out = subprocess.getstatusoutput( "vmstat -V" )
     if sc!=0:
-        print 'launching failed - vmstat do not work on this system'
+        print ('launching failed - vmstat do not work on this system')
         return None
     file = open(log, "w")
     proc = subprocess.Popen([ "vmstat", "%i" % time_step, "-n" ], 
@@ -931,7 +938,7 @@ def _launch_vmstat(log, time_step):
     return proc
 def __create_childProcDicts(ppid):
     """ creates stats dictionary with """
-    out = commands.getoutput("ps --ppid %i -o pid, start" % ppid)
+    out = subprocess.getoutput("ps --ppid %i -o pid, start" % ppid)
     ps_lines = out.splitlines()
     ps_lines.pop(0)
     
@@ -941,19 +948,19 @@ def __create_childProcDicts(ppid):
             ps_str = line.split()
             pid = int(ps_str[0])
             ProcDict(pid, start_time = _seconds(ps_str[1]))
-            print "ppid: [%i]: child [%i] added" % (ppid, pid)
+            print ("ppid: [%i]: child [%i] added" % (ppid, pid))
     else: 
-        print "no children exist for parent: %s " % ppid
+        print ("no children exist for parent: %s " % ppid)
 
 
 #######  adopted from AthenaMP/PyComps ###################
 def print_shared_private(pid):
-    print "CPROC-SHARED_PRIVATE_MEM for pid: [%i]" % pid
+    print ("CPROC-SHARED_PRIVATE_MEM for pid: [%i]" % pid)
     for line in open("/proc/%i/status" % pid):
         if line.startswith('Vm'):
                 print(line.strip())
     private,shared=_get_shared_private_mem()
-    print "pid:[%i] ===> private: %s MB | shared: %s MB" % (pid, private/1024., shared /1024.)
+    print ("pid:[%i] ===> private: %s MB | shared: %s MB" % (pid, private/1024., shared /1024.))
 def _get_shared_private_mem(pid='self'):
     """ Finds proc's shared and private memory size from /proc/pid/statm  and /proc/pid/smaps dir
        Coppied from AthenaMP/PyComps.py"""
@@ -981,9 +988,9 @@ def _get_shared_private_mem(pid='self'):
             pss_adjust=0.5 #add 0.5KiB as this average error due to trunctation
             Pss=sum([float(line.split()[1])+pss_adjust for line in pss_lines])
             shared = Pss - private
-    elif (2,6,1) <= kv <= (2,6,9):
-        shared=0 #lots of overestimation, but what can we do?
-        private = rss
+    #elif (2,6,1) <= kv <= (2,6,9):
+    #    shared=0 #lots of overestimation, but what can we do?
+    #    private = rss
     else:
         shared=int(open(statm_name).readline().split()[2])
         shared*=PAGESIZE
@@ -996,7 +1003,7 @@ def _get_shared_private_mem(pid='self'):
 
 def _createRootFile(outName):
     """creating carcasus of report ROOT file"""
-    print "create ROOT file..."
+    print ("create ROOT file...")
     from PerfMonAna.PyRootLib import importRoot
     from ROOT import TTree
     import array
@@ -1096,12 +1103,12 @@ def _createRootFile(outName):
     outFile.cd()
     outFile.Write()
     outFile.Close()
-    print "create ROOT file... [DONE]" 
+    print ("create ROOT file... [DONE]" )
     return
 
 def createRootFile(outName, np):
     """creating structure of ROOT-report file from mp_stat dictionary """
-    print "create ROOT file..."
+    print ("create ROOT file...")
 
     from PerfMonAna.PyRootLib import importRoot
     from ROOT import TTree
@@ -1122,18 +1129,18 @@ def createRootFile(outName, np):
             elif isinstance(mp_stat[t][b][0], float):
                 tree.Branch(b, d,'float/F')
             else:
-                #print "branch [%s] is not int or float type" % b
+                #print ("branch [%s] is not int or float type" % b)
                 tree.Branch(b, i, 'int/I')
         tree.Write()
     outFile.Write()
     outFile.Close()
-    print "create ROOT file... [DONE]"
+    print ("create ROOT file... [DONE]")
 
 
 def fillRootTree(tree, stat, np):
-    #print "writing %s statistics Tree:" % tree.GetName(),
+    #print ("writing %s statistics Tree:" % tree.GetName(), end='')
     branches = stat.keys()
-    #print "    branches=", branches, "...", 
+    #print ("    branches=", branches, "...", end='')
     nbr  = len(branches)
     array_list = list()
 
@@ -1149,63 +1156,61 @@ def fillRootTree(tree, stat, np):
             nums =  array.array('i', [0])
             array_list.append(nums)
         else:
-            #print "branch [%s] is not int or float type" % branch
+            #print ("branch [%s] is not int or float type" % branch)
             nums = array.array('i', [-1])
             array_list.append(nums)
         tree.SetBranchAddress(branch, array_list[-1]);
         
-    for index in xrange(len(stat[branches[0]])):
+    for index in range(len(stat[branches[0]])):
         for array_index, branch in enumerate(branches):
             array_list[array_index][0] = stat[branch][index] if array_list[array_index][0] is not -1 else -1
         tree.Fill()
-    #print "[DONE]"
+    #print ("[DONE]")
 
 
 
 def writeRootFile(outName, np):
     """writes statistics into ROOT file"""
-    print "write ROOT file %s...", outName 
+    print ("write ROOT file %s...", outName )
     createRootFile(outName, np)
     from ROOT import TFile, TTree
     import array
     outFile = TFile( outName, 'update' )
 
     stat_keys = mp_stat.keys()
-    #print "mp_stat.keys()", stat_keys
+    #print ("mp_stat.keys()", stat_keys)
     for key in stat_keys:
-        #print " writing [%s]" % key
+        #print (" writing [%s]" % key)
         tree = outFile.Get( "%s" %   key )
         fillRootTree(tree, mp_stat[key], np)
         tree.Write()
 
     outFile.Write()
     outFile.Close()        
-    print "write ROOT file... [DONE]" 
+    print ("write ROOT file... [DONE]" )
     return
 
 def mergeRootFiles(file, ne):
     import glob
     file_list = glob.glob1(os.getcwd(), "%s.*.%i.root" % (file, ne) )
-    import commands
     cmd = "hadd -f6 mp_stat.%s.ne%i" % (file, ne)
     for f in file_list:
         cmd = cmd + ' ' + f 
-    sc, out = commands.getstatusoutput(cmd)
+    sc, out = subprocess.getstatusoutput(cmd)
 
 def mergeRootOutput(output_file, jobo, np_list, ne):
-    import commands
     from ROOT import TFile, TTree
     #output_file = "merged.%s.ne%i.root" % (jobo, ne)
     cmd = "hadd -f6 %s" % output_file
     for np in np_list:
         # here we copy mp_summary and cp_summary trees in each root file from /$np dir into root dir for further merging
         file = "mp.%s.%i.%i.root" % (jobo, np, ne)
-        print " ---> processing file = %s" % file
+        print (" ---> processing file = %s" % file)
         #here we form the command for merging
         cmd = cmd + " %s" % file
 
-    print "issueing root files merging command:[%s]" % cmd
-    sc, out = commands.getstatusoutput(cmd)
+    print ("issuing root files merging command:[%s]" % cmd)
+    sc, out = subprocess.getstatusoutput(cmd)
     return #output_file
 
 def _createGlobalRootFile(file, ne):
@@ -1214,13 +1219,13 @@ def _createGlobalRootFile(file, ne):
     file_list = glob.glob1(os.getcwd(), "%s.*.%i.root" % (file, ne) )
     outFile = TFile ("%s.%i.root" % (file, ne), 'RECREATE' )    
     for f in file_list:
-        print "Copying trees from [%s]" % f
+        print ("Copying trees from [%s]" % f)
         tf = TFile (f, 'READ' )
         mpt = tf.Get("mp_summary")
         cpt = tf.Get("cp_summary")
         outFile.cd('/')
         dir = "%s" % f.replace(file, "").split(".")[1]
-        print "   creating dir for np = %s" % dir
+        print ("   creating dir for np = %s" % dir)
         outFile.mkdir(dir) # creating dir for np
         outFile.cd(dir)
         mpTree = mpt.CloneTree(); mpTree.Write()
@@ -1242,7 +1247,7 @@ def _createGlobalRootFile(file, ne):
 
 
 def report2(root_file, ne = 0, comments=""):
-    print'  mpMonTools.report(): root_file=', root_file
+    print('  mpMonTools.report(): root_file=', root_file)
     from ROOT import TFile, TTree, TBranch, TCanvas, TPad, TGraph, TLegend, TMultiGraph, gStyle, TLatex, TPaveLabel, TPaveText, TH2I, TMath
 
     def getTreeList(tree, column, condition):
@@ -1272,11 +1277,11 @@ def report2(root_file, ne = 0, comments=""):
                     formula = param[0]
                     condition = param[1]
                 else:
-                    print "MakeMG: ", formula, condition
+                    print ("MakeMG: ", formula, condition)
                     formula = param
                     condition = ""
 
-                print "name=%s, tree=%s, formula=%s, condition=%s" % (name, tree.GetName(), formula, condition) 
+                print ("name=%s, tree=%s, formula=%s, condition=%s" % (name, tree.GetName(), formula, condition) )
            
                 #g = makeGraph(tree, name, formula, condition, color=clr)
                 tree.Draw(formula, condition, "goff")
@@ -1291,7 +1296,7 @@ def report2(root_file, ne = 0, comments=""):
 
         if graph_data['type'] is 'list':
             for name, (lx,ly) in graph_data['data'].items():
-                print "name=%s" % name; print lx; print ly
+                print ("name=%s" % name); print (lx); print (ly)
                 clr+=1
                 g = TGraph( len(lx), array.array('f', lx), array.array('f', ly) )
                 g.SetName(name); g.SetLineColor(clr); g.SetLineWidth(1); g.SetMarkerColor(clr); 
@@ -1302,9 +1307,9 @@ def report2(root_file, ne = 0, comments=""):
         if graph_data['type'] is 'array':
             clr = 1
             g_list = list()
-            data = arrayd['data']
+            data = graph_data['data']
             for name,(x,y) in graph_data['data'].items():
-                print x; print y
+                print (x); print (y)
                 clr+=1;
                 g = TGraph(len(x), x, y)
                 g.SetName(name); g.SetLineColor(clr); g.SetLineWidth(1); g.SetMarkerColor(clr) 
@@ -1314,7 +1319,7 @@ def report2(root_file, ne = 0, comments=""):
         if graph_data['type'] is 'text':
             title.DrawPaveLabel(0.1,0.93,0.9,0.99, graph_data['title'], "brNDC")
             for s in graph_data['data']:
-                print "graph_data['data']=%s" % s
+                print ("graph_data['data']=%s" % s)
                 mp_pt.AddText(s)             
             mp_pt.SetTextAlign(12);
             mp_pt.SetTextSize(0.04)
@@ -1359,7 +1364,7 @@ def report2(root_file, ne = 0, comments=""):
     c = TCanvas("mpr", "AthenaMP-mp-scaling-charts", 10, 10, 800, 1024)
     c.SetFillColor(17);  c.SetBorderSize(1); c.cd()
  
-    tfile = TFile(root_file, "READ"); print "   root compression factor = ", tfile.GetCompressionFactor()
+    tfile = TFile(root_file, "READ"); print ("   root compression factor = ", tfile.GetCompressionFactor())
     mpSumTree = tfile.Get("mp_summary")
     cpSumTree = tfile.Get("cp_summary")
     ioTree = tfile.Get("io")
@@ -1368,7 +1373,7 @@ def report2(root_file, ne = 0, comments=""):
 
     if ne is 0:
         ne = int(root_file.split('.')[-2].replace('ne', ''))
-        print "extracted ne=[%i]" % ne
+        print ("extracted ne=[%i]" % ne)
 
 ##### FORMING THE DATA FOR ROOT Graphing-Charting-Histogramming #####    
     np_list = list(set(getTreeList(cpSumTree, 'np', ''))); np_list.sort() #uniqeify and sort np_list
@@ -1446,8 +1451,8 @@ def report2(root_file, ne = 0, comments=""):
             txt_dict[s] += "%10.1f" % getTreeList(mpSumTree, s, "np==%i" % int(np) )[0]
             ltxt_dict[s].append( "%10.1f" % getTreeList(mpSumTree, s, "np==%i" % int(np))[0] )
 
-    print "np_list=%s\n etime_stdev=%s \n cpu_time_stdev=%s" % (np_list, elap_time_stdev, cpu_time_stdev)
-    print "elap-cpu=%s" % (elap_cpu_time)
+    print ("np_list=%s\n etime_stdev=%s \n cpu_time_stdev=%s" % (np_list, elap_time_stdev, cpu_time_stdev))
+    print ("elap-cpu=%s" % (elap_cpu_time))
     
     #mn = 7; mt=10000
     from socket import gethostname
@@ -1690,33 +1695,33 @@ def report2(root_file, ne = 0, comments=""):
     gStyle.SetMarkerStyle(21)
     gStyle.SetMarkerColor(2)
     gStyle.SetMarkerSize(0.4)
-    print "gStyle.Set done"
+    print ("gStyle.Set done")
 
     title = TPaveLabel(0.1,0.98,0.9,1, "Athena MP Plots");
     title.SetFillColor(42); title.SetTextFont(40); 
-    #title.Draw();print "title Drawn"
+    #title.Draw();print ("title Drawn")
 
     mgs =  list()  #List of TMultiGraphs
     ls =   list()  #List of TLegends
     gs =   list()  #List of TGraph
 
-    for j in xrange(ppc):
+    for j in range(ppc):
         y_factor = 0.99;   x1 = 0.01; x2 = 0.99;  y1 = y_factor - (y_factor-0.01)*(j+1)/float(ppc); y2 = y_factor - (y_factor-0.01)*j/float(ppc)
-        print "x1,y1,x2,y2",  x1, y1, x2, y2 
+        print ("x1,y1,x2,y2",  x1, y1, x2, y2 )
         pad = TPad("pad%i" % j, "pad%i" % j,   x1, y1, x2, y2,   33); pad.Draw()
         pads.append(pad);
     
     num_cans = len(graph_list) /(cpp*ppc) if len(graph_list) % (cpp*ppc)==0 else len(graph_list)/(cpp*ppc) + 1 
     graph_list += [None,]* (num_cans*cpp*ppc - len(graph_list))
-    print "number of pages/canvases in report = ", num_cans
+    print ("number of pages/canvases in report = ", num_cans)
     
     pdf_file = root_file
     for s in ['merged.', '.py', '.root']:
         pdf_file = pdf_file.replace(s, '')
     pdf_file ="%s.pdf" % pdf_file
 
-    for i in xrange(num_cans):
-        for j in xrange(ppc):
+    for i in range(num_cans):
+        for j in range(ppc):
             graph = graph_list[ppc*i+j]
             if graph is None:
                 continue
@@ -1731,18 +1736,18 @@ def report2(root_file, ne = 0, comments=""):
             pads[j].SetRightMargin(0.2)
             l = TLegend(0.82,0.20,0.99,0.89); ls.append(l) 
             mg = TMultiGraph(); mgs.append(mg)
-            print "graph=", graph
+            print ("graph=", graph)
             gs.append(MakeMultiGraph(graph, mg, l))
 
         c.Update()
         if i == 0:
-            print "pdf.start"
+            print ("pdf.start")
             c.Print(pdf_file+'(', 'pdf') #start page
         elif i < num_cans-1:
-            print "pdf.body"
+            print ("pdf.body")
             c.Print(pdf_file, 'pdf')    #body pages
         else:
-            print "pdf.end"
+            print ("pdf.end")
             c.Print(pdf_file + ')', 'pdf') #end page
         c.SaveAs("%s.%i.png" % (pdf_file, i))
         for pad in pads:
@@ -1750,7 +1755,7 @@ def report2(root_file, ne = 0, comments=""):
 
 
 def report(root_file, ne = 0, comments=""):
-    print'  mpMonTools.report(): root_file=', root_file
+    print('  mpMonTools.report(): root_file=', root_file)
     from ROOT import TFile, TTree, TBranch, gPad, TCanvas, TPad,TProfile, TGraph, TLegend, TLegendEntry, TMultiGraph, gStyle, TLatex, TPaveLabel, TPaveText, TH2I, TMath
 
     def getTreeList(tree, column, condition):
@@ -1783,11 +1788,11 @@ def report(root_file, ne = 0, comments=""):
                     formula = param[0]
                     condition = param[1]
                 else:
-                    print "MakeMG: ", formula, condition
+                    print ("MakeMG: ", formula, condition)
                     formula = param
                     condition = ""
 
-                print "PROFILE: name=%s, tree=%s, formula=%s, condition=%s" % (name, tree.GetName(), formula, condition) 
+                print ("PROFILE: name=%s, tree=%s, formula=%s, condition=%s" % (name, tree.GetName(), formula, condition) )
                 
                 hprof = TProfile(
                         "%s" % name, 
@@ -1802,7 +1807,7 @@ def report(root_file, ne = 0, comments=""):
                     tpl[-1].Draw()
                     draw_option="PSAME"
                 else:
-                    print "PROFILE: %s 'PSAME' clr=%i " % (name, clr)
+                    print ("PROFILE: %s 'PSAME' clr=%i " % (name, clr))
                     tpl[-1].Draw("PSAME")
                 le = l.AddEntry(tpl[-1], name)
                 le.SetFillColor(0)
@@ -1819,23 +1824,23 @@ def report(root_file, ne = 0, comments=""):
                     formula = param[0]
                     condition = param[1]
                 else:
-                    print "MakeMG: ", formula, condition
+                    print ("MakeMG: ", formula, condition)
                     formula = param
                     condition = ""
                 
                 if tree is None:
-                    print "name=%s -> TTree DOESN't EXIST" % name
+                    print ("name=%s -> TTree DOESN't EXIST" % name)
                     continue
 
-                print "name=%s, tree=%s, formula=%s, condition=%s" % (name, tree.GetName(), formula, condition), 
+                print ("name=%s, tree=%s, formula=%s, condition=%s" % (name, tree.GetName(), formula, condition), end='')
                 tree.Draw(formula, condition,   "goff")
                 
                 selection_size = tree.GetSelectedRows()
                 if selection_size==-1:
-                    print "-> SKIPPED (DO NOT EXIST): SELECTION_SIZE=%i" % selection_size 
+                    print ("-> SKIPPED (DO NOT EXIST): SELECTION_SIZE=%i" % selection_size )
                     continue
                 else:
-                    print "-> SELECTION_SIZE=%i" % selection_size 
+                    print ("-> SELECTION_SIZE=%i" % selection_size )
                     pass
 
                 g = TGraph(selection_size, tree.GetV2(), tree.GetV1()); gl.append(g)
@@ -1851,7 +1856,7 @@ def report(root_file, ne = 0, comments=""):
                 
         if graph_data['type'] is 'list':
             for name, (lx,ly) in graph_data['data'].items():
-                print "name=%s" % name; print lx; print ly
+                print ("name=%s" % name); print (lx); print (ly)
                 clr+=1
                 g = TGraph( len(lx), array.array('f', lx), array.array('f', ly) )
                 g.SetName(name); g.SetLineColor(clr); g.SetLineWidth(1); g.SetMarkerColor(clr); 
@@ -1862,9 +1867,9 @@ def report(root_file, ne = 0, comments=""):
         if graph_data['type'] is 'array':
             clr = 1
             g_list = list()
-            data = arrayd['data']
+            data = graph_data['data']
             for name,(x,y) in graph_data['data'].items():
-                print x; print y
+                print (x); print (y)
                 clr+=1;
                 g = TGraph(len(x), x, y)
                 g.SetName(name); g.SetLineColor(clr); g.SetLineWidth(1); g.SetMarkerColor(clr) 
@@ -1874,7 +1879,7 @@ def report(root_file, ne = 0, comments=""):
         if graph_data['type'] is 'text':
             title.DrawPaveLabel(0.1,0.93,0.9,0.99, graph_data['title'], "brNDC")
             for s in graph_data['data']:
-                print "graph_data['data']=%s" % s
+                print ("graph_data['data']=%s" % s)
                 mp_pt.AddText(s)             
             mp_pt.SetTextAlign(12);
             mp_pt.SetTextSize(0.04)
@@ -1903,8 +1908,8 @@ def report(root_file, ne = 0, comments=""):
             return []
         
         if mg.GetListOfGraphs() is None:
-            print "MultiGraph: Empty",
-            print "mg=%s" % mg.GetName()
+            print ("MultiGraph: Empty",)
+            print ("mg=%s" % mg.GetName())
             return[]
 
         if 'goptions' in graph_data.keys():
@@ -1925,18 +1930,18 @@ def report(root_file, ne = 0, comments=""):
     c = TCanvas("mp_can", "AthenaMP-mp-scaling-charts", 1, 1, 800, 1024)
     c.SetFillColor(0);  c.SetBorderSize(1); c.cd()
  
-    tfile = TFile(root_file, "READ"); print "   root compression factor = ", tfile.GetCompressionFactor()
+    tfile = TFile(root_file, "READ"); print ("   root compression factor = ", tfile.GetCompressionFactor())
     mpSumTree = tfile.Get("mp_summary")
     cpSumTree = tfile.Get("cp_summary")
     ioTree = tfile.Get("io")
     cpuTree = tfile.Get("cpu")
     memTree = tfile.Get("mem")
     numaTree = tfile.Get("numa")
-    print "numaTree=%s" % numaTree
+    print ("numaTree=%s" % numaTree)
 
     if ne is 0:
         ne = int(root_file.split('.')[-2].replace('ne', ''))
-        print "extracted ne=[%i]" % ne
+        print ("extracted ne=[%i]" % ne)
 
 ##### FORMING THE DATA FOR ROOT Graphing-Charting-Histogramming #####    
     np_list = list(set(getTreeList(cpSumTree, 'np', ''))); np_list.sort() #uniqeify and sort np_list
@@ -2014,17 +2019,17 @@ def report(root_file, ne = 0, comments=""):
         np_txt += "%10s" % np
         for s in mp_lb:
             gtl = getTreeList(mpSumTree, s, "np==%i" % int(np) )
-            print "%s: getTreeList: %s" % (s,gtl), 
+            print ("%s: getTreeList: %s" % (s,gtl), end='')
             gtl_avg = meanList(gtl)
-            print " avg=%10.1f" % gtl_avg
+            print (" avg=%10.1f" % gtl_avg)
             txt_dict[s] += "%10.1f" % gtl_avg
             ltxt_dict[s].append( "%10.1f" % gtl_avg)
         ltxt_dict["total_rate"].append("%10.1f" % 
                     ( 60.0*float(np)*float(ne)/ float(ltxt_dict["m_par_time"][-1]) )
                     ) 
 
-    print "np_list=%s\n etime_stdev=%s \n cpu_time_stdev=%s" % (np_list, elap_time_stdev, cpu_time_stdev)
-    print "elap-cpu=%s" % (elap_cpu_time)
+    print ("np_list=%s\n etime_stdev=%s \n cpu_time_stdev=%s" % (np_list, elap_time_stdev, cpu_time_stdev))
+    print ("elap-cpu=%s" % (elap_cpu_time))
     
     #mn = 7; mt=10000
     from socket import gethostname
@@ -2323,33 +2328,33 @@ def report(root_file, ne = 0, comments=""):
     gStyle.SetMarkerStyle(21)
     gStyle.SetMarkerColor(2)
     gStyle.SetMarkerSize(0.3)
-    print "gStyle.Set done"
+    print ("gStyle.Set done")
 
     title = TPaveLabel(0.1,0.98,0.9,1, "Athena MP Plots");
     title.SetFillColor(0); title.SetTextFont(40); 
-    #title.Draw();print "title Drawn"
+    #title.Draw();print ("title Drawn")
 
     mgs =  list()  #List of TMultiGraphs
     ls =   list()  #List of TLegends
     gs =   list()  #List of TGraph
 
-    for j in xrange(ppc):
+    for j in range(ppc):
         y_factor = 0.99;   x1 = 0.01; x2 = 0.99;  y1 = y_factor - (y_factor-0.01)*(j+1)/float(ppc); y2 = y_factor - (y_factor-0.01)*j/float(ppc)
-        print "x1,y1,x2,y2",  x1, y1, x2, y2 
+        print ("x1,y1,x2,y2",  x1, y1, x2, y2 )
         pad = TPad("pad%i" % j, "pad%i" % j,   x1, y1, x2, y2,   10); pad.Draw()
         pads.append(pad);
     
     num_cans = len(graph_list) /(cpp*ppc) if len(graph_list) % (cpp*ppc)==0 else len(graph_list)/(cpp*ppc) + 1 
     graph_list += [None,]* (num_cans*cpp*ppc - len(graph_list))
-    print "number of pages/canvases in report = ", num_cans
+    print ("number of pages/canvases in report = ", num_cans)
     
     pdf_file = root_file
     for s in ['merged.', '.py', '.root']:
         pdf_file = pdf_file.replace(s, '')
     pdf_file ="%s.pdf" % pdf_file
     tpl = list()
-    for i in xrange(num_cans):
-        for j in xrange(ppc):
+    for i in range(num_cans):
+        for j in range(ppc):
             graph = graph_list[ppc*i+j]
             if graph is None:
                 continue
@@ -2365,18 +2370,18 @@ def report(root_file, ne = 0, comments=""):
             l = TLegend(0.82,0.20,0.99,0.89); ls.append(l) 
             #tpl = list()#TProfile list    
             mg = TMultiGraph(); mgs.append(mg)
-            print "graph=", graph
+            print ("graph=", graph)
             gs.append(MakeMultiGraph(c, pads[j],graph, mg, l, tpl))
 
         c.Update()
         if i == 0:
-            print "pdf.start"
+            print ("pdf.start")
             c.Print(pdf_file+'(', 'pdf') #start page
         elif i < num_cans-1:
-            print "pdf.body"
+            print ("pdf.body")
             c.Print(pdf_file, 'pdf')    #body pages
         else:
-            print "pdf.end"
+            print ("pdf.end")
             c.Print(pdf_file + ')', 'pdf') #end page
         #c.SaveAs("%s.%i.png" % (pdf_file, i))
         #c.SaveAs("%s.%i.C" % (pdf_file, i))
@@ -2389,7 +2394,7 @@ def report(root_file, ne = 0, comments=""):
     pads[0].SetRightMargin(0.2)
     draw_option=""
     for tp in tpl:
-        print " TProfile: %s" % tp.GetName()
+        print (" TProfile: %s" % tp.GetName())
         if draw_option=="":
             tp.Draw()
             draw_option="PSAME"

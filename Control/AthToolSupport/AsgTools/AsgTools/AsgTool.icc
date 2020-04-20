@@ -1,9 +1,11 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: AsgTool.icc 613791 2014-08-28 09:56:34Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_ASGTOOL_ICC
 #define ASGTOOLS_ASGTOOL_ICC
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
 // Local include(s):
 #include "AsgTools/PropertyMgr.h"
@@ -12,25 +14,10 @@
 namespace asg {
 
    template< class T >
-   Property* AsgTool::declareProperty( const std::string& name, T& loc,
-                                       const std::string& ) {
-
-      // Declare the property using the property manager:
-      return m_ppropmgr->declareProperty( name, loc );
-   }
-
-   template< class T >
-   StatusCode AsgTool::setProperty( const std::string& name, const T& val ) {
-
-      // Set the property using the property manager:
-      return m_ppropmgr->setProperty( name, val );
-   }
-
-   template< class T >
    const T* AsgTool::getProperty( const std::string& name ) const {
 
       // Get the property object (if it exists):
-      const Property* prop = m_ppropmgr->getProperty( name );
+      const Property* prop = m_properties->getProperty( name );
       if( ! prop ) {
          ATH_MSG_WARNING( "Property with name \"" << name << "\" not found" );
          return 0;
@@ -51,9 +38,9 @@ namespace asg {
 
 } // namespace asg
 
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Property.h"
@@ -86,6 +73,6 @@ namespace asg {
 
 } // namespace asg
 
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
 #endif // not ASGTOOLS_ASGTOOL_ICC

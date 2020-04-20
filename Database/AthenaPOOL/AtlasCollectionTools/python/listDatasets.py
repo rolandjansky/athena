@@ -1,15 +1,20 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # listDatasets.py - from an input list of GUIDs, gets a corresponding list of DQ2 datasets.
+
+from __future__ import print_function
 
 import os
 import re
 import sys, signal
-import commands
 import random
 import getopt
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 try:
    import dq2.clientapi.cli.cliutil
@@ -20,15 +25,15 @@ try:
    from dq2.common.DQException import *
    from dq2.location.client.LocationClient import LocationClient
 except ImportError:
-   print "Environment not set [error importing DQ2 dependencies]!"
-   print "Try setting PYTHONPATH to the dq2-client directory."
+   print ("Environment not set [error importing DQ2 dependencies]!")
+   print ("Try setting PYTHONPATH to the dq2-client directory.")
    sys.exit(1)
 
 
 def usage():
    """
    listDatasets.py --colls <list of collections> OR listDatasets.py --guids <list of guids>  """
-   print usage.__doc__
+   print (usage.__doc__)
 
 def fillMaps(guids):
 
@@ -71,10 +76,10 @@ def fillMaps(guids):
       for guid in dsguids[ds]:
          try: 
             info = filelist[guid]
-            #print guid,info['lfn']
+            #print (guid,info['lfn'])
             lfnmap[guid] = info['lfn']
-            #print "DS="+ds+"; GUID="+guid+"; LFN="+info['lfn']
-            #print "(" + str(cnt) + ") LFN=" + info['lfn'] + "; DS=" + ds
+            #print ("DS="+ds+"; GUID="+guid+"; LFN="+info['lfn'])
+            #print ("(" + str(cnt) + ") LFN=" + info['lfn'] + "; DS=" + ds)
          except:
             pass
 
@@ -90,8 +95,8 @@ def main():
    try:
       longopts = ['guids=','colls=']
       opts,args=getopt.getopt(sys.argv[1:],'',longopts)
-   except getopt.GetoptError,e:
-      print e
+   except getopt.GetoptError as e:
+      print (e)
       usage()
       sys.exit(0)
 
@@ -118,7 +123,7 @@ def main():
         for collection in collections:
           coll_name = collection[:-5]
           command_string = "CollListFileGUID.exe -src " + coll_name + " RootCollection"
-          guid_string = commands.getoutput(command_string)
+          guid_string = subprocess.getoutput(command_string)
           clfgout = guid_string.split('\n')
           for line in clfgout:
             words = line.split()
@@ -131,11 +136,11 @@ def main():
             guids += [words[1]]
  
         if len(guids) == 0:
-          print "Error: query returned no files"
+          print ("Error: query returned no files")
           sys.exit(1)
 
       elif len(guids) == 0:
-        print "Error: Did not specify properly input"
+        print ("Error: Did not specify properly input")
         usage()
         sys.exit(1)
 
@@ -143,19 +148,19 @@ def main():
          dsets = {}
          (dsets,lfnmap) = fillMaps(refguids[ref])
          cnt = 0
-         print "\nINFORMATION FOR REF = ",ref,"\n"
+         print ("\nINFORMATION FOR REF = ",ref,"\n")
          for guid in refguids[ref]:
             dslist = ""
             for ds in dsets[guid]:
                if dslist != "" : dslist += ", "
                dslist += ds
             if dslist == "" : dslist = "NONE FOUND"
-            print "(" + str(guid) + ") LFN=" + lfnmap[guid] + "; DS=(" + str(len(dsets[guid])) + ") " + dslist
+            print ("(" + str(guid) + ") LFN=" + lfnmap[guid] + "; DS=(" + str(len(dsets[guid])) + ") " + dslist)
  
       sys.exit(0)
 
-   except DQException, e:
-      print "Error", e
+   except DQException as e:
+      print ("Error", e)
 
 if __name__ == '__main__':
     main()

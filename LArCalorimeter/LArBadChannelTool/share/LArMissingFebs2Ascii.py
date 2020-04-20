@@ -1,9 +1,11 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 if 'DBInstance' not in dir():
    DBInstance="CONDBR2"
 
 if 'sqlite' in dir():
     dbStr="<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db>"
-    if not 'tag' in dir():
+    if 'tag' not in dir():
         tag="LARBadChannelsOflMissingFEBs-UPD4-00"
 else:
     dbStr="<db>COOLOFL_LAR/"+DBInstance+"</db>"
@@ -60,8 +62,7 @@ svcMgr.EventSelector.FirstLB           = LBNumber
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
 
-## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")

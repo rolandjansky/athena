@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkInDet/EGammaTracksThinning.h"
@@ -7,21 +7,18 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 DerivationFramework::EGammaTracksThinning::EGammaTracksThinning(const std::string& type, 
                                                     const std::string& name, 
                                                     const IInterface* parent) :
-  AthAlgTool(type, name, parent),
-  m_thinningSvc( "ThinningSvc", name ),
-  m_tracksCollectionName("Tracks"),
+  base_class(type, name, parent),
   m_electronsContainerName("Electrons"),
   m_photonsContainerName("Photons"),
   m_dr(0.5),
   m_minEtEg(0)
 {
-  declareInterface<DerivationFramework::IThinningTool>(this);
-  declareProperty("ThinningService", m_thinningSvc);
-  declareProperty("tracksCollectionName" , m_tracksCollectionName = "Tracks");
   declareProperty("electronContainerName", m_electronsContainerName = "Electrons");
   declareProperty("photonContainerName"  , m_photonsContainerName   = "Photons");
   declareProperty("deltaR"               , m_dr=0.5);
@@ -30,6 +27,7 @@ DerivationFramework::EGammaTracksThinning::EGammaTracksThinning(const std::strin
 
 StatusCode DerivationFramework::EGammaTracksThinning::initialize(){
 
+  ATH_CHECK( m_tracksCollectionName.initialize (m_streamName) );
   return StatusCode::SUCCESS;
 }
 
@@ -38,24 +36,16 @@ StatusCode DerivationFramework::EGammaTracksThinning::finalize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
+StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   // retrieve the tracks collection
 
-  const TrackCollection* trackCollection = evtStore()->retrieve< const TrackCollection >( m_tracksCollectionName );
-  if ( !trackCollection ) 
-    {
-      ATH_MSG_WARNING( "Container '" << m_tracksCollectionName  
-                       << "' could not be retrieved from StoreGate !" 
-                       << " Will NOT use this container for thinning in all subsequent processing!!!"
-                       << " Please fix your job options..." );
-      return StatusCode::FAILURE;
-    }
-  else
-    {
-      ATH_MSG_DEBUG( "Container '" << m_tracksCollectionName << "' retrieved from StoreGate" );      
-    }
-
+  SG::ThinningHandle<TrackCollection> trackCollection
+    (m_tracksCollectionName, ctx);
+  ATH_MSG_DEBUG( "Container '" << m_tracksCollectionName.key() << "' retrieved from StoreGate" );      
+  
   // retrieve the electron collection
 
   const xAOD::ElectronContainer* electronContainer = evtStore()->retrieve < const xAOD::ElectronContainer > (m_electronsContainerName);
@@ -101,7 +91,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
           
           // get the list of tracks associated to this object
 
-          std::set<int> eg_trackList =  findGoodTracks(trackCollection, (*eleItr)->p4(), m_dr );
+          std::set<int> eg_trackList =  findGoodTracks(trackCollection.cptr(), (*eleItr)->p4(), m_dr );
 
           // update the global list of tracks to keep
 
@@ -124,7 +114,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
           
           // get the list of tracks associated to this object
 
-          std::set<int> eg_trackList =  findGoodTracks(trackCollection, (*phoItr)->p4(), m_dr );
+          std::set<int> eg_trackList =  findGoodTracks(trackCollection.cptr(), (*phoItr)->p4(), m_dr );
 
           // update the global list of tracks to keep
 
@@ -196,7 +186,7 @@ std::set<int> DerivationFramework::EGammaTracksThinning::findGoodTracks(const Tr
 // thinning
 // =======================================================
 
-StatusCode DerivationFramework::EGammaTracksThinning::thinTracks( const TrackCollection * trackCollection , 
+StatusCode DerivationFramework::EGammaTracksThinning::thinTracks( SG::ThinningHandle<TrackCollection>& trackCollection , 
                                                                   const std::set<int>& goodTrackIDs ) const
 {
   
@@ -237,7 +227,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::thinTracks( const TrackCol
                 << " rejected " << nReject );
   
   // Perform the actual thinning
-  ATH_CHECK( m_thinningSvc->filter(*trackCollection, mask, IThinningSvc::Operator::Or) );
+  trackCollection.thin (mask);
     
   ///Return
   return sc;    

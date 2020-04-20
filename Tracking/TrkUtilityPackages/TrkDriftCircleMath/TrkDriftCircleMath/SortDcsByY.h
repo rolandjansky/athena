@@ -13,7 +13,7 @@
 
 namespace TrkDriftCircleMath {
 
-  struct SortDcsByY : public std::binary_function<class DriftCircle, class DriftCircle, bool> {
+  struct SortDcsByY {
     bool operator()(const DriftCircle& dc1, const DriftCircle& dc2 ) const {
       if( dc1.id() == dc2.id() ) return false;
       if (CxxUtils::fpcompare::less (dc1.y(), dc2.y())) return true;
@@ -23,23 +23,14 @@ namespace TrkDriftCircleMath {
  
   };
 
-  struct SortDcsOnTrackByY : public std::binary_function<class DCOnTrack, class DCOnTrack, bool> {
-    bool operator()(const DCOnTrack& dc1, const DCOnTrack& dc2 ) const { 
-      if( dc1.id() == dc2.id() ) return false;      
-      if (CxxUtils::fpcompare::less (dc1.y(), dc2.y())) return true;
-      if (CxxUtils::fpcompare::less (dc2.y(), dc1.y())) return false;
-      return CxxUtils::fpcompare::less (dc1.x(), dc2.x()); 
-    }
-  };
-
-  struct SameTube : public std::binary_function<class DriftCircle, class DriftCircle, bool> {
+  struct SameTube {
     bool operator()(const DriftCircle& dc1, const DriftCircle& dc2 ) const {
       if( dc1.id() == dc2.id() ) return true;
       return false;
     }
   };
   
-  struct NeighbourTube : public std::binary_function<class DriftCircle, class DriftCircle, bool> {
+  struct NeighbourTube {
     bool operator()(const DriftCircle& dc1, const DriftCircle& dc2 ) const {
       
       // check whether this is not the same tube

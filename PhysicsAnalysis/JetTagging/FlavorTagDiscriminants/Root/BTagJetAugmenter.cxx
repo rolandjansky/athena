@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FlavorTagDiscriminants/BTagJetAugmenter.h"
@@ -60,7 +60,7 @@ namespace {
 
 }
 
-BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::FlipTagConfig f):
+BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminants::FlipTagConfig f):
   m_pt_uncalib("pt_btagJes"),
   m_eta_uncalib("eta_btagJes"),
   m_abs_eta_uncalib("absEta_btagJes"),
@@ -93,7 +93,7 @@ BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::FlipTagConfig f):
   m_sv1_vertices(sv(f) + "_vertices"),
   m_sv1_nVtx(sv(f) + "_nVtx"),
   m_sv1_isDefaults(sv(f) + "_isDefaults"),
-  m_jet_track_links("BTagTrackToJetAssociator"),
+  m_jet_track_links(associator),
   m_secondaryVtx_isDefaults(jfSvNew(f) + "_isDefaults"),
   m_secondaryVtx_nTrks(jfSvNew(f) + "_nTracks"),
   m_secondaryVtx_m(jfSvNew(f) + "_mass"),
@@ -122,15 +122,133 @@ BTagJetAugmenter::BTagJetAugmenter(FlavorTagDiscriminants::FlipTagConfig f):
 BTagJetAugmenter::~BTagJetAugmenter() = default;
 BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
+std::string BTagJetAugmenter::get_pt_uncalib_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_pt_uncalib.auxid() );
+}
+
+std::string BTagJetAugmenter::get_eta_uncalib_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_eta_uncalib.auxid() );
+}
+
+std::string BTagJetAugmenter:: get_abs_eta_uncalib_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_abs_eta_uncalib.auxid() );
+}
+
+std::string BTagJetAugmenter::get_ip2d_nTrks_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_ip2d_nTrks.auxid() );
+}
+
+std::string BTagJetAugmenter::get_ip2d_isDefaults_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_ip2d_isDefaults.auxid() );
+}
+
+std::string BTagJetAugmenter::get_ip2d_cu_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_ip2d_cu.auxid() );
+}
+
+std::string BTagJetAugmenter::get_ip2d_bu_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_ip2d_bu.auxid() );
+}
+
+std::string BTagJetAugmenter::get_ip2d_bc_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_ip2d_bc.auxid() );
+}
+
+std::string BTagJetAugmenter::get_ip3d_nTrks_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_ip3d_nTrks.auxid() );
+} 
+
+std::string BTagJetAugmenter::get_ip3d_isDefaults_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_ip3d_isDefaults.auxid() );
+}
+
+std::string BTagJetAugmenter::get_ip3d_cu_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_ip3d_cu.auxid() );
+}
+
+std::string BTagJetAugmenter::get_ip3d_bu_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_ip3d_bu.auxid() );
+}
+
+std::string BTagJetAugmenter::get_ip3d_bc_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_ip3d_bc.auxid() );
+}
+
+std::string BTagJetAugmenter::get_jf_isDefaults_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_jf_isDefaults.auxid() );
+}
+
+std::string BTagJetAugmenter::get_jf_deltaR_key()  {
+  return SG::AuxTypeRegistry::instance().getName( m_jf_deltaR.auxid() );
+}
+
+std::string BTagJetAugmenter::get_sv1_isDefaults_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_sv1_isDefaults.auxid() );
+}
+
+std::string BTagJetAugmenter::get_secondaryVtx_isDefaults_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_isDefaults.auxid() );
+}
+
+std::string BTagJetAugmenter::get_secondaryVtx_nTrks_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_nTrks.auxid() );
+}
+
+std::string BTagJetAugmenter::get_secondaryVtx_m_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_m.auxid() );
+}
+
+std::string BTagJetAugmenter::get_secondaryVtx_E_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_E.auxid() );
+}
+
+std::string BTagJetAugmenter::get_secondaryVtx_EFrac_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_EFrac.auxid() );
+}
+  
+std::string BTagJetAugmenter::get_secondaryVtx_L3d_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_L3d.auxid() );
+}
+
+std::string BTagJetAugmenter::get_secondaryVtx_Lxy_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_Lxy.auxid() );
+}
+
+std::string BTagJetAugmenter::get_secondaryVtx_min_trk_flightDirRelEta_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_min_trk_flightDirRelEta.auxid() );
+}
+
+std::string BTagJetAugmenter::get_secondaryVtx_max_trk_flightDirRelEta_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_max_trk_flightDirRelEta.auxid() );
+}
+
+std::string BTagJetAugmenter::get_secondaryVtx_avg_trk_flightDirRelEta_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_avg_trk_flightDirRelEta.auxid() );
+}
+
+std::string BTagJetAugmenter::get_min_trk_flightDirRelEta_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_min_trk_flightDirRelEta.auxid() );
+}
+
+std::string BTagJetAugmenter::get_max_trk_flightDirRelEta_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_max_trk_flightDirRelEta.auxid() );
+}
+
+std::string BTagJetAugmenter::get_avg_trk_flightDirRelEta_key()  {
+  return SG::AuxTypeRegistry::instance().getName( m_avg_trk_flightDirRelEta.auxid() );
+}
+
+std::string BTagJetAugmenter::get_smt_isDefaults_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_smt_isDefaults.auxid() );
+}
+
+std::string BTagJetAugmenter::get_rnnip_isDefaults_key() {
+  return SG::AuxTypeRegistry::instance().getName( m_rnnip_isDefaults.auxid() );
+}
+
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
 
-  const xAOD::BTagging* btag_ptr = jet.btagging();
-  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
-  const xAOD::BTagging& btag = *btag_ptr;
-
-  m_pt_uncalib(btag) = uncalibrated_jet.pt();
-  m_eta_uncalib(btag) = uncalibrated_jet.eta();
-  m_abs_eta_uncalib(btag) = std::abs(uncalibrated_jet.eta());
+  augmentBtagJes(jet, uncalibrated_jet);
 
   // pass off to calibrated jet function
   augment(jet);
@@ -152,6 +270,18 @@ void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {
   m_ip3d_cu(btag) = std::log(m_ip3d_pc(btag) / m_ip3d_pu(btag));
   m_ip3d_bu(btag) = std::log(m_ip3d_pb(btag) / m_ip3d_pu(btag));
   m_ip3d_bc(btag) = std::log(m_ip3d_pb(btag) / m_ip3d_pc(btag));
+
+}
+void BTagJetAugmenter::augmentBtagJes(const xAOD::Jet &target,
+                                      const xAOD::Jet &uncalib) {
+
+  const xAOD::BTagging* btag_ptr = target.btagging();
+  if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
+  const xAOD::BTagging& btag = *btag_ptr;
+
+  m_pt_uncalib(btag) = uncalib.pt();
+  m_eta_uncalib(btag) = uncalib.eta();
+  m_abs_eta_uncalib(btag) = std::abs(uncalib.eta());
 
 }
 

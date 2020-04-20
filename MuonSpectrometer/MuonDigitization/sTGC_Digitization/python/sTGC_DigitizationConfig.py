@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import sTGC_Digitization job properties
@@ -30,6 +30,12 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
     kwargs.setdefault("OutputSDOName", "sTGC_SDO")
     kwargs.setdefault("doToFCorrection", True)
+    kwargs.setdefault("SmearingTool","STgcCalibSmearingTool")
+    if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
+        kwargs.setdefault("UseMcEventCollectionHelper",True)
+    else:
+        kwargs.setdefault("UseMcEventCollectionHelper",False)
+     
     return CfgMgr.sTgcDigitizationTool(name,**kwargs)
 
 def getSTGCRange(name="sTgcRange", **kwargs): 
@@ -59,5 +65,7 @@ def getSTGC_OverlayDigitizer(name="STGC_OverlayDigitizer", **kwargs):
     is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
     if is_hive:
         kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+        # Set common overlay extra inputs
+        kwargs.setdefault("ExtraInputs", [("McEventCollection", "TruthEvent")])
 
     return CfgMgr.sTGC_Digitizer(name,**kwargs)

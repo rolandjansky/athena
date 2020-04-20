@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -60,7 +60,7 @@ int main() {
                       "xAODTrigBphysDict", "xAODTrigMissingETDict", "xAODTrigEgammaDict", "xAODTrigMuonDict", "xAODTrigCaloDict",
                       "xAODTrigMinBiasDict", "xAODBTaggingDict",
                                                  "xAODHIEventDict"};
-    AAH::setProperty(tdt,"Navigation.Dlls",EDMLibraries);
+    AAH::setProperty(tdt,"Navigation.Dlls",EDMLibraries).ignore();
     POOL::TEvent::EReadMode mode = POOL::TEvent::kPOOLAccess; //use POOL mode for full offline release
 #else
     POOL::TEvent::EReadMode mode = POOL::TEvent::kClassAccess; //use fast xAODRootAccess mode in analysis release
@@ -68,10 +68,10 @@ int main() {
 
     //loop over input file with POOL
     POOL::TEvent evt(mode);
-    evt.readFrom( fileName );
+    evt.readFrom( fileName ).ignore();
     evt.getEntry(0);
 
-    tdt.retrieve();
+    tdt.retrieve().ignore();
 
     for(int i=0;i < 10 /*evt.getEntries()*/; i++) {
         if( evt.getEntry(i) < 0) { std::cout << "Failed to read event " << i << std::endl; continue; }
@@ -149,7 +149,7 @@ int main() {
 
     }
 
-    app->finalize(); //optional trigger finalization of all services and tools created by the Gaudi Application
+    app->finalize().ignore(); //optional trigger finalization of all services and tools created by the Gaudi Application
     return 0;
 }
 

@@ -19,7 +19,7 @@ log = logging.getLogger("testAthenaTrigBStoESD.py:")
 #      exit(-1)
 #   elif (len(bsfiles)>1):
 #      log.warning("Multiple input BS files found, taking last one: " + bsfiles[-1])
-#      print "All matches to pattern '" + pattern + "': ", bsfiles
+#      printfunc ("All matches to pattern '" + pattern + "': ", bsfiles)
 #      acf.BSRDOInput=[bsfiles[-1]]
 #   else:
 #      log.info("Using input BS file " + bsfiles[0])
@@ -82,9 +82,6 @@ include ("RecExCond/RecExCommon_flags.py")
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
-
-#Don't abort on status code error
-StatusCodeSvc.AbortOnError=False
 
 #-------------------------------------------------------------
 # Disable overly verbose and problematic ChronoStatSvc print-out

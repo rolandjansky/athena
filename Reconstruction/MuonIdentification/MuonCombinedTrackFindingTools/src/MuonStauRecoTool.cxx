@@ -1,23 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonStauRecoTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
-#include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
-#include "MuonCombinedToolInterfaces/IMuonLayerAmbiguitySolverTool.h"
-#include "MuonCombinedToolInterfaces/IMuonCandidateTrackBuilderTool.h"
-#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
-#include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
-#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-#include "TrkToolInterfaces/IUpdator.h"
-#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
@@ -36,7 +21,6 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
-#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/IRtRelation.h"
@@ -57,7 +41,6 @@ namespace MuonCombined {
 
   MuonStauRecoTool::MuonStauRecoTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
     m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
@@ -75,7 +58,6 @@ namespace MuonCombined {
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
 
-    declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonEDMPrinterTool",m_printer );
     declareProperty("MuonSegmentMaker",m_segmentMaker );    
     declareProperty("MuonSegmentMakerT0Fit",m_segmentMakerT0Fit );    
@@ -103,20 +85,9 @@ namespace MuonCombined {
     declareProperty("IgnoreSiAssociatedCandidates", m_ignoreSiAssocated = true );
   }
 
-  MuonStauRecoTool::~MuonStauRecoTool() { }
-
-  StatusCode MuonStauRecoTool::finalize() {
-    if( m_doTruth ){
-      for( auto summary : m_truthMatchingCounters ){
-        ATH_MSG_INFO(" Reco efficiency for pdgID " << summary.first << " " << summary.second.summary() );
-      }
-    }
-    return StatusCode::SUCCESS;
-  }
-
   StatusCode MuonStauRecoTool::initialize() {
 
-    ATH_CHECK(m_idHelper.retrieve());    
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
@@ -138,8 +109,6 @@ namespace MuonCombined {
       // add pdgs from jobO to set
       for( auto pdg : m_pdgsToBeConsidered.value() ) {
         m_selectedPdgs.insert(pdg);
-        // add truth matching counters for the selected PDGs
-        m_truthMatchingCounters[std::abs(pdg)];
       }
     }
     return StatusCode::SUCCESS;
@@ -147,8 +116,8 @@ namespace MuonCombined {
 
   void MuonStauRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
 					 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) {
-    //Maybe we'll need this later, I wouldn't be surprised if the PRDs are retrieved somewhere down the chain
-    //For now it's just a placeholder though
+    // Maybe we'll need this later, I wouldn't be surprised if the PRDs are retrieved somewhere down the chain
+    // For now it's just a placeholder though
     if(!prdData.mdtPrds) ATH_MSG_DEBUG("empty PRDs passed");
     extend(inDetCandidates, tagMap, combTracks, meTracks, segments);
   }
@@ -203,10 +172,6 @@ namespace MuonCombined {
       return;
     }      
 
-    // setup truth matching counters
-    TruthMatchingCounters* truthMatchingCounter = getTruthMatchingCounters(truthInfo.get());
-    if( truthMatchingCounter ) truthMatchingCounter->fillTruth();
-
     // get intersections which precision layers in the muon system 
     const Muon::MuonSystemExtension* muonSystemExtension = indetCandidate.getExtension();
 
@@ -221,13 +186,11 @@ namespace MuonCombined {
 
     // exit if no MuonSystemExtension was found
     if( !muonSystemExtension ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost due to missing extension " << endmsg;
       return;
     }
     
     // fill validation content
     if( !m_recoValidationTool.empty() ) m_recoValidationTool->addTrackParticle( indetTrackParticle, *muonSystemExtension );
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(0);
 
 
     /** STAGE 1
@@ -236,10 +199,8 @@ namespace MuonCombined {
 
     AssociatedData associatedData;
     if( !extractTimeMeasurements(*muonSystemExtension,associatedData) ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after extractTimeMeasurements " << endmsg;
       return;
     }
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(1);
 
     
     /** STAGE 2 
@@ -248,11 +209,9 @@ namespace MuonCombined {
 
     CandidateVec candidates;
     if( !createCandidates(associatedData,candidates) ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after createCandidates " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,0);
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(2);
 
 
     /** STAGE 3
@@ -260,11 +219,9 @@ namespace MuonCombined {
     */
 
     if( !refineCandidates(candidates) ) {
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after refineCandidates " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,1);
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(3);
 
 
     /** STAGE 4 
@@ -272,11 +229,9 @@ namespace MuonCombined {
     */
 
     if( !combineCandidates(indetTrackParticle,candidates) ){
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after combination " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,2);
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(4);
 
 
     /** STAGE 5
@@ -284,11 +239,9 @@ namespace MuonCombined {
     */
 
     if( !resolveAmbiguities(candidates) ){
-      if( (m_doSummary || msgLvl(MSG::DEBUG) ) && truthMatchingCounter ) msg(MSG::INFO) << " Truth matched track lost after ambiguity solving " << endmsg;
       return;
     }
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,3);
-    if( truthMatchingCounter ) truthMatchingCounter->fillStage(5);
 
 
     /** STAGE 6
@@ -431,19 +384,19 @@ namespace MuonCombined {
       
       // get Identifier and skip pseudo measurements, ID hits and all but MDT/RPC hits
       Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-      if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
 
       // extract time measurements for RPCs
-      if( m_idHelper->isMdt(id) ) {
+      if( m_idHelperSvc->isMdt(id) ) {
 
         // MDTs
         const Muon::MdtDriftCircleOnTrack* mdt = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(meas);
         if( !mdt ) continue;
         
         if( m_segmentMDTT ){
-          int chIndexWithBIR = m_idHelper->chamberIndex(mdt->identify());
+          int chIndexWithBIR = m_idHelperSvc->chamberIndex(mdt->identify());
           if( chIndexWithBIR == Muon::MuonStationIndex::BIL ){
-            std::string stName = m_idHelper->chamberNameString(id);
+            std::string stName = m_idHelperSvc->chamberNameString(id);
             if( stName[2] == 'R' ){          
               chIndexWithBIR += 1000;
             }
@@ -460,7 +413,7 @@ namespace MuonCombined {
           float ie = 0.;
           float er = -1;
           float sh = 0;
-          bool isEta = !m_idHelper->measuresPhi(id); 
+          bool isEta = !m_idHelperSvc->measuresPhi(id);
           float propTime = 0;
           float tof = calculateTof(1,distance);
 
@@ -507,14 +460,14 @@ namespace MuonCombined {
                           << " err " << er << " intrinsic " << tres << " track " << trackTimeRes );
 
           float beta = calculateBeta(time+tof,distance);
-          ATH_MSG_VERBOSE("  adding " << m_idHelper->toString(id) << " distance " << distance << " time " << time << " beta" << beta << " diff " << fabs(beta-betaSeed));
+          ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toString(id) << " distance " << distance << " time " << time << " beta" << beta << " diff " << fabs(beta-betaSeed));
           if( fabs(beta-betaSeed) > m_mdttBetaAssociationCut ) continue;
 
 
           hits.push_back(Muon::TimePointBetaFitter::Hit(distance,time,er));
           candidate.stauHits.push_back(MuGirlNS::StauHit(tech, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime));
         }
-      }else if( m_idHelper->isRpc(id) ){
+      }else if( m_idHelperSvc->isRpc(id) ){
         
         // treat CompetingMuonClustersOnTrack differently than RpcClusterOnTrack
         std::vector<const Muon::MuonClusterOnTrack*> clusters;
@@ -525,8 +478,8 @@ namespace MuonCombined {
           const Muon::RpcClusterOnTrack* rpc = dynamic_cast<const Muon::RpcClusterOnTrack*>(meas);
           if( rpc ) clusters.push_back(rpc);
         }
-        Identifier chamberId = m_idHelper->chamberId(id);
-        bool measuresPhi = m_idHelper->measuresPhi(id);
+        Identifier chamberId = m_idHelperSvc->chamberId(id);
+        bool measuresPhi = m_idHelperSvc->measuresPhi(id);
         auto pos = rpcPrdsPerChamber.find(chamberId);
         if( pos == rpcPrdsPerChamber.end() ) {
           if( measuresPhi ) rpcPrdsPerChamber[chamberId] = std::make_tuple(pars,clusters,RpcClVec());
@@ -535,7 +488,7 @@ namespace MuonCombined {
           RpcClVec& clVec = measuresPhi ? std::get<1>(pos->second) : std::get<2>(pos->second);
           clVec.insert(clVec.end(),clusters.begin(),clusters.end());
         }
-      }else if( m_idHelper->isCsc(id) ) {
+      }else if( m_idHelperSvc->isCsc(id) ) {
         const Muon::CscClusterOnTrack* csc = dynamic_cast<const Muon::CscClusterOnTrack*>(meas);
 
         MuGirlNS::StauHitTechnology tech = MuGirlNS::CSC_STAU_HIT;
@@ -548,7 +501,7 @@ namespace MuonCombined {
         float ie = 0.;
         float er = -1;
         float sh = 0;
-        bool isEta = !m_idHelper->measuresPhi(id); 
+        bool isEta = !m_idHelperSvc->measuresPhi(id);
         float propTime = 0;
         float tof = calculateTof(1,distance);
         candidate.stauHits.push_back(MuGirlNS::StauHit(tech, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime));
@@ -582,12 +535,12 @@ namespace MuonCombined {
       float er = result.error;
       rpcTimeCalibration(id,time,er);
       float sh = 0;
-      bool isEta = !m_idHelper->measuresPhi(id); 
+      bool isEta = !m_idHelperSvc->measuresPhi(id);
       if(isEta) tech=MuGirlNS::RPCETA_STAU_HIT;
       float propTime = 0;
       float tof = calculateTof(1,distance);
       float beta = calculateBeta(time+tof,distance);
-      ATH_MSG_VERBOSE("  adding " << m_idHelper->toString(id) << " distance " << distance << " time " << time << " beta" << beta << " diff " << fabs(beta-betaSeed));
+      ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toString(id) << " distance " << distance << " time " << time << " beta" << beta << " diff " << fabs(beta-betaSeed));
 
       if( fabs(beta-betaSeed) > m_mdttBetaAssociationCut ) return;
 
@@ -656,10 +609,10 @@ namespace MuonCombined {
         // calibrate MDT
         std::shared_ptr<const Muon::MdtDriftCircleOnTrack> calibratedMdt(m_mdtCreatorStau->correct( *mdt.prepRawData(), pars, &calibrationStrategy, betaSeed )); 
         if( !calibratedMdt.get() ){
-          ATH_MSG_WARNING("Failed to recalibrate existing MDT on track " << m_idHelper->toString(id) );
+          ATH_MSG_WARNING("Failed to recalibrate existing MDT on track " << m_idHelperSvc->toString(id) );
           continue;
         }
-        ATH_MSG_VERBOSE(" recalibrated MDT " << m_idHelper->toString(id) << " r " << calibratedMdt->driftRadius() << " " << Amg::error(calibratedMdt->localCovariance(),Trk::locR)
+        ATH_MSG_VERBOSE(" recalibrated MDT " << m_idHelperSvc->toString(id) << " r " << calibratedMdt->driftRadius() << " " << Amg::error(calibratedMdt->localCovariance(),Trk::locR)
                         << " old r " << mdt.driftRadius() << " " << Amg::error(mdt.localCovariance(),Trk::locR) << " r_track " << pars.parameters()[Trk::locR]
                         << " residual " << fabs(mdt.driftRadius())-fabs(pars.parameters()[Trk::locR]) );
 
@@ -676,8 +629,8 @@ namespace MuonCombined {
         double dr = Amg::error(calibratedMdt->localCovariance(),Trk::locR);
 
         // create identifier
-        TrkDriftCircleMath::MdtId mdtid( m_idHelper->mdtIdHelper().isBarrel(id),m_idHelper->mdtIdHelper().multilayer(id)-1,
-                                         m_idHelper->mdtIdHelper().tubeLayer(id)-1, m_idHelper->mdtIdHelper().tube(id)-1 );
+        TrkDriftCircleMath::MdtId mdtid( m_idHelperSvc->mdtIdHelper().isBarrel(id),m_idHelperSvc->mdtIdHelper().multilayer(id)-1,
+                                         m_idHelperSvc->mdtIdHelper().tubeLayer(id)-1, m_idHelperSvc->mdtIdHelper().tube(id)-1 );
 
         // create new DriftCircle
         TrkDriftCircleMath::DriftCircle dc( lpos, r, dr, TrkDriftCircleMath::DriftCircle::InTime, mdtid, index, &mdt );
@@ -731,12 +684,9 @@ namespace MuonCombined {
         // calibrate MDT with nominal timing
         std::shared_ptr<const Muon::MdtDriftCircleOnTrack> calibratedMdt(m_mdtCreator->correct( *mdt->prepRawData(), *pars, &calibrationStrategy, betaSeed )); 
         if( !calibratedMdt.get() ){
-          ATH_MSG_WARNING("Failed to recalibrate existing MDT on track " << m_idHelper->toString(id) );
+          ATH_MSG_WARNING("Failed to recalibrate existing MDT on track " << m_idHelperSvc->toString(id) );
           continue;
         }
-        // if( fabs( fabs(calibratedMdt->driftRadius())-fabs(mdt->driftRadius() ) ) > 0.01 ){
-        //   ATH_MSG_INFO("Detecting large drift radius change after recalibration: drift time " << calibratedMdt->driftTime() << " old " << mdt->driftTime() );
-        // }
         float distance = pars->position().mag();
         float time = 0.;
 
@@ -746,7 +696,7 @@ namespace MuonCombined {
         float ie = 0.;
         float er = -1;
         float sh = 0;
-        bool isEta = !m_idHelper->measuresPhi(id); 
+        bool isEta = !m_idHelperSvc->measuresPhi(id);
         float propTime = 0;
         float tof = calculateTof(1,distance);
       
@@ -765,7 +715,7 @@ namespace MuonCombined {
         float tres = rres/drdt;
         float TlocR = rtRelation->tr()->tFromR(fabs(locR), out_of_bound_flag);
         float trackTimeRes = errR/drdt;
-        float tofShiftFromBeta = 0.;//muonBetaCalculationUtils.calculateTof(betaSeed,distance)-tof;
+        float tofShiftFromBeta = 0.;  // muonBetaCalculationUtils.calculateTof(betaSeed,distance)-tof;
         er = sqrt(tres*tres+trackTimeRes*trackTimeRes);
         mdtTimeCalibration(id,driftTime,er);
         time = driftTime - TlocR + tofShiftFromBeta;
@@ -776,7 +726,7 @@ namespace MuonCombined {
         bool isSelected = fabs(beta-betaSeed) < m_mdttBetaAssociationCut;
 
         if( msgLvl(MSG::DEBUG) ){
-          msg(MSG::DEBUG) << m_idHelper->toString(id) << std::setprecision(2) 
+          msg(MSG::DEBUG) << m_idHelperSvc->toString(id) << std::setprecision(2) 
                           << " segment: after fit " << std::setw(5) << chi2NdofSegmentFit << " ndof " << std::setw(2) << ndofFit;
           if( segment.ndof() != ndofFit ) msg(MSG::DEBUG) << " after outlier " << std::setw(5) << chi2NdofSegmentFit << " ndof " << std::setw(2) << ndofFit;
           msg(MSG::DEBUG) << " driftR " << std::setw(4) << dc.r() << " rline " << std::setw(5) << rline
@@ -1016,7 +966,7 @@ namespace MuonCombined {
                       << " beta " << newCandidate->betaFitResult.beta << " chi2/ndof " << newCandidate->betaFitResult.chi2PerDOF() );
         // if the fit was successfull add the candidate to the candidate vector
         if( newCandidate->betaFitResult.status != 0 ){
-	  newCandidate->combinedTrack=nullptr; //no track exists at this stage
+	  newCandidate->combinedTrack=nullptr; // no track exists at this stage
 	  candidates.push_back(newCandidate);
 	}
       }
@@ -1298,7 +1248,7 @@ namespace MuonCombined {
         for( const auto& prd : (*hit)->tgc->etaCluster.hitList ) handleCluster(*prd,clusters);
       }else if( (*hit)->prd ){
         Identifier id = (*hit)->prd->identify();
-        if( m_idHelper->isMdt(id) ) handleMdt( static_cast<const Muon::MdtPrepData&>(*(*hit)->prd),mdts);
+        if( m_idHelperSvc->isMdt(id) ) handleMdt( static_cast<const Muon::MdtPrepData&>(*(*hit)->prd),mdts);
         else                        handleCluster( static_cast<const Muon::MuonCluster&>(*(*hit)->prd),clusters);
       }
     }
@@ -1352,7 +1302,7 @@ namespace MuonCombined {
     auto addRpc = [&rpcPrdsPerChamber,this]( const Trk::PrepRawData* prd ){
       const Muon::RpcPrepData* rpcPrd = dynamic_cast<const Muon::RpcPrepData*>(prd);
       if( rpcPrd ) {
-        Identifier chamberId = m_idHelper->chamberId(rpcPrd->identify());
+        Identifier chamberId = m_idHelperSvc->chamberId(rpcPrd->identify());
         rpcPrdsPerChamber[chamberId].push_back(rpcPrd);
       }
     };
@@ -1362,7 +1312,7 @@ namespace MuonCombined {
     std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
     for( ;hit!=hit_end;++hit ) {
       
-      if( (*hit)->tgc || !(*hit)->prd || !m_idHelper->isRpc((*hit)->prd->identify()) ) continue;
+      if( (*hit)->tgc || !(*hit)->prd || !m_idHelperSvc->isRpc((*hit)->prd->identify()) ) continue;
       addRpc((*hit)->prd);
     }
 
@@ -1378,14 +1328,13 @@ namespace MuonCombined {
     std::map<Identifier, std::vector<const Muon::RpcPrepData*> >::iterator chit_end = rpcPrdsPerChamber.end();
     for( ;chit!=chit_end;++chit ){
       // cluster hits
-      Muon::RpcHitClusteringObj clustering(m_idHelper.get());
-      //clustering.debug = true;
+      Muon::RpcHitClusteringObj clustering(&m_idHelperSvc->rpcIdHelper());
       if( !clustering.cluster( chit->second ) ){
         ATH_MSG_WARNING("Clustering failed");
         return;
       }
 
-      ATH_MSG_DEBUG(" " << m_idHelper->toStringChamber(chit->first) << " clustered RPCs: " << chit->second.size() 
+      ATH_MSG_DEBUG(" " << m_idHelperSvc->toStringChamber(chit->first) << " clustered RPCs: " << chit->second.size() 
                     << " eta clusters " << clustering.clustersEta.size() << " phi clusters " << clustering.clustersPhi.size() );
       createRpcTimeMeasurementsFromClusters(intersection,clustering.clustersEta,maximumData.rpcTimeMeasurements);
       createRpcTimeMeasurementsFromClusters(intersection,clustering.clustersPhi,maximumData.rpcTimeMeasurements);
@@ -1403,7 +1352,7 @@ namespace MuonCombined {
         ATH_MSG_WARNING("Cluster without hits: " << cluster.hitList.size());
         continue;
       }
-      ATH_MSG_DEBUG("  new cluster: " << m_idHelper->toString(cluster.hitList.front()->identify()) << " size " << cluster.hitList.size() );
+      ATH_MSG_DEBUG("  new cluster: " << m_idHelperSvc->toString(cluster.hitList.front()->identify()) << " size " << cluster.hitList.size() );
         
       // create the ROTs
       std::vector<const Muon::MuonClusterOnTrack*> clusters;
@@ -1411,7 +1360,7 @@ namespace MuonCombined {
         const Muon::MuonClusterOnTrack* rot(m_muonPRDSelectionTool->calibrateAndSelect( intersection, *rpc ));
         if( rot ) {
           clusters.push_back(rot);
-          ATH_MSG_DEBUG("   strip " << m_idHelper->toString(rot->identify()) << " time " << static_cast<const Muon::RpcClusterOnTrack*>(rot)->time());
+          ATH_MSG_DEBUG("   strip " << m_idHelperSvc->toString(rot->identify()) << " time " << static_cast<const Muon::RpcClusterOnTrack*>(rot)->time());
         }
       }
       // get the timing result for the cluster
@@ -1507,11 +1456,11 @@ namespace MuonCombined {
         // treat the case that the hit is a composite TGC hit
         if( (*hit)->tgc && !(*hit)->tgc->phiCluster.hitList.empty() ){
           Identifier id = (*hit)->tgc->phiCluster.hitList.front()->identify();
-          if( m_idHelper->layerIndex(id) != intersection.layerSurface.layerIndex ) continue;
+          if( m_idHelperSvc->layerIndex(id) != intersection.layerSurface.layerIndex ) continue;
           for( const auto& prd : (*hit)->tgc->phiCluster.hitList ) handleCluster(*prd,phiClusterOnTracks);
         }else if( (*hit)->prd ){
           Identifier id = (*hit)->prd->identify();
-          if( m_idHelper->layerIndex(id) != intersection.layerSurface.layerIndex ) continue;
+          if( m_idHelperSvc->layerIndex(id) != intersection.layerSurface.layerIndex ) continue;
           handleCluster( static_cast<const Muon::MuonCluster&>(*(*hit)->prd),phiClusterOnTracks);
         }
       }

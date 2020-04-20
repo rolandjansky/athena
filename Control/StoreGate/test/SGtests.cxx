@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -10,7 +10,6 @@
 
 #undef NDEBUG
 
-// $Id: SGtests.cxx,v 1.42 2009-01-09 21:24:20 calaf Exp $
 
 // INCLUDES
 #include <algorithm>
@@ -597,7 +596,7 @@ namespace Athena_test {
     assert (sg.proxy(d1) == dp);
     assert (sg.proxy(b1) == dpB);
 
-    sg.clearStore();
+    sg.clearStore().ignore();
     assert (sg.retrieve(d1, "dd").isSuccess());
     assert (sg.retrieve(b1, "dd").isSuccess());
     //    assert (d1 == b1);
@@ -606,8 +605,8 @@ namespace Athena_test {
     assert (sg.proxy(d1) == dp);
     assert (sg.proxy(b1) == dpB);
 
-    sg.removeDataAndProxy(d1);
-    sg.removeDataAndProxy(b1);
+    sg.removeDataAndProxy(d1).ignore();
+    sg.removeDataAndProxy(b1).ignore();
     //FIXME WHY?
     delete pIOA;
     delete pIOAB;
@@ -1105,7 +1104,7 @@ namespace Athena_test {
     assert (proxy106 == nullptr);
     std::cout << "<<< test duplicate error\n";
 
-    rSG.clearStore();
+    rSG.clearStore().ignore();
     assert (obj101->refCount() == 1);
     assert (obj102->refCount() == 1);
     assert (obj103->refCount() == 1);
@@ -1119,7 +1118,7 @@ namespace Athena_test {
     assert (proxy101->refCount() == 3);
     assert (proxy101->isConst());
 
-    rSG.clearStore();
+    rSG.clearStore().ignore();
 
     SG::DataProxy* proxy101b = rSG.recordObject (obj101, "obj101", false, true);
     assert (proxy101 == proxy101b);

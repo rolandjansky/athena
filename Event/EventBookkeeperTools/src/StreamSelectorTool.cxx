@@ -105,22 +105,10 @@ StatusCode StreamSelectorTool::postNext() const {
            ATH_MSG_ERROR("Stream decision for " << m_streamName << " does not exist in input");
          }
       }
-      // Get pointer to metadata store
-      ServiceHandle<StoreGateSvc> mstore("StoreGateSvc/MetaDataStore",this->name());
-      ATH_CHECK(mstore.retrieve());
-      xAOD::CutBookkeeperContainer* fileBook = nullptr;
-      if (mstore->retrieve(fileBook,m_cutflow->SGKey()).isSuccess())
-      {
-         xAOD::CutBookkeeperContainer::iterator it = fileBook->begin();
-         xAOD::CutBookkeeperContainer::iterator ite = fileBook->end();
-         while (it != ite) {
-            if ((*it)->uniqueIdentifier()==m_cutid) {
-               ATH_MSG_DEBUG(this->name()<<": For "<<m_streamName<<" cutflow events = " 
-                                   << (*it)->nAcceptedEvents());
-               break;
-            }
-            ++it;
-         }
+
+      uint64_t nAcceptedEvents = m_cutflow->getNAcceptedEvents(m_cutid);
+      if (nAcceptedEvents != std::numeric_limits<uint64_t>::max()) {
+        ATH_MSG_DEBUG(name() << ": For " << m_streamName << " cutflow events = " << nAcceptedEvents); 
       }
    }
    else {

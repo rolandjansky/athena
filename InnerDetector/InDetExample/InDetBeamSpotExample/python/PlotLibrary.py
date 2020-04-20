@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 A library with miscellaneous beam spot related utilities and plots.
 """
@@ -27,7 +30,7 @@ def LHCBeamSpotSize(lhcTimeString,     # E.g. ['Apr 4 14:27:30 2010'] (list)
                     betaGamma = 3730.  # Default value of betaGamma for 7 TeV
                     ):
     lhcTime = array([ mktime(strptime(s,'%b %d %H:%M:%S %Y')) for s in lhcTimeString])
-    print lhcTime
+    print (lhcTime)
 
     # Normalized emittance quoted in um rad; lhcEps arrays are emittance in m rad
     lhcEps1 = lhcEmit1 * 1.0e-6 / betaGamma
@@ -35,13 +38,13 @@ def LHCBeamSpotSize(lhcTimeString,     # E.g. ['Apr 4 14:27:30 2010'] (list)
 
     # Beam sizes in mm
     lhcSigmaBeam1 = sqrt(lhcBeta1*lhcEps1) * 1.0e3
-    print 'Size of beam 1 (mm): ',lhcSigmaBeam1
+    print ('Size of beam 1 (mm): ',lhcSigmaBeam1)
     lhcSigmaBeam2 = sqrt(lhcBeta2*lhcEps2) * 1.0e3
-    print 'Size of beam 2 (mm): ',lhcSigmaBeam2
+    print ('Size of beam 2 (mm): ',lhcSigmaBeam2)
 
     # Beam spot size in mm
     lhcSigma = 1. / sqrt(1./lhcSigmaBeam1**2 + 1./lhcSigmaBeam2**2)
-    print 'Beam spot size (mm): ',lhcSigma
+    print ('Beam spot size (mm): ',lhcSigma)
 
     # Draw on existing plot
     gr = ROOTUtils.protect( ROOT.TGraph(len(lhcTime),lhcTime,lhcSigma) )

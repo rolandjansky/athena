@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,33 +10,41 @@
 #define DERIVATIONFRAMEWORK_JETTRACKPARTICLETHINNING_H
 
 #include <string>
+#include <atomic>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "StoreGate/ThinningHandleKey.h"
 
 namespace ExpressionParsing {
   class ExpressionParser;
 }
 
-class IThinningSvc;
-
 namespace DerivationFramework {
 
-  class JetTrackParticleThinning : public AthAlgTool, public IThinningTool {
+  class JetTrackParticleThinning : public extends<AthAlgTool, IThinningTool> {
     public: 
       JetTrackParticleThinning(const std::string& t, const std::string& n, const IInterface* p);
-      ~JetTrackParticleThinning();
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode doThinning() const;
+      virtual ~JetTrackParticleThinning();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
+      virtual StatusCode doThinning() const override;
 
     private:
-      ServiceHandle<IThinningSvc> m_thinningSvc;
-      mutable unsigned int m_ntot, m_npass;
-      std::string m_jetSGKey, m_inDetSGKey, m_selectionString;
-      bool m_and;
-      ExpressionParsing::ExpressionParser *m_parser;
+      mutable std::atomic<unsigned int> m_ntot, m_npass;
+      std::string m_jetSGKey;
+      StringProperty m_streamName
+        { this, "StreamName", "", "Name of the stream being thinned" };
+      SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_inDetSGKey
+        { this, "InDetTrackParticlesKey", "InDetTrackParticles", "" };
+      StringProperty m_selectionString
+        { this, "SelectionString", "", "" };
+      StringProperty m_trackSelectionString
+        { this, "TrackSelectionString", "", "" };
+      std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
+      std::unique_ptr<ExpressionParsing::ExpressionParser> m_trackParser;
   }; 
 }
 

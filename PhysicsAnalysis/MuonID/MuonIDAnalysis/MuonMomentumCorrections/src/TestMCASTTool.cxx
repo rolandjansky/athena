@@ -6,6 +6,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
 
+
 // Local include(s):
 #include "TestMCASTTool.h"
 #include <cmath>
@@ -14,33 +15,55 @@ namespace CP {
 
 TestMCASTTool::TestMCASTTool( const std::string& name, ISvcLocator* svcLoc ) :
   AthAlgorithm( name, svcLoc ),
-  m_Tool( "CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this ),
-  m_eta(-99.), m_phi(-99.), m_pt(-99.), m_ptcorr(-99.), m_ptdiff(-99.), m_ptdiffabs(-99.), m_ptid(-99.), m_ptms(-99.)
+  m_MCaSTool( "CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this )
 {
 
   declareProperty( "SGKey", m_sgKey = "Muons" );
-  declareProperty( "MuonCalibrationAndSmearingTool", m_Tool );
+  declareProperty( "MuonCalibrationAndSmearingTool", m_MCaSTool );
 
-  m_smearfile = NULL;
-  m_smeartree = NULL;
+  m_DebugFile = NULL;
+  m_DebugTree = NULL;
+  m_Combined = NULL;
+  m_InnerDet = NULL;
+  m_MSExtr = NULL;
+  m_MSOnlyExtr = NULL;
 
 }
 
 StatusCode TestMCASTTool::initialize() {
   ATH_MSG_INFO( "Initialising - Package version: " << PACKAGE_VERSION );
   ATH_MSG_DEBUG( "SGKey = " << m_sgKey );
-  ATH_MSG_DEBUG( "MuonCalibrationAndSmearingTool   = " << m_Tool );
-  ATH_CHECK( m_Tool.retrieve() );
-  m_smearfile = new TFile( "smearingtrees.root","RECREATE","Smearing and non-Smearing of Muons" );
-  m_smeartree = new TTree( "SmearTree", "This Tree contains the information of the muon after smearing effects" );
-  m_smeartree->Branch( "eta",&m_eta,"eta/F" );
-  m_smeartree->Branch( "phi",&m_phi,"phi/F" );
-  m_smeartree->Branch( "pt",&m_pt,"pt/F" );
-  m_smeartree->Branch( "ptid",&m_ptid,"ptid/F" );
-  m_smeartree->Branch( "ptms",&m_ptms,"ptms/F" );
-  m_smeartree->Branch( "ptcorr",&m_ptcorr,"ptcorr/F" );
-  m_smeartree->Branch( "ptdiff",&m_ptdiff,"ptdiff/F" );
-  m_smeartree->Branch( "ptdiffabs",&m_ptdiffabs,"ptdiffabs/F" );
+  ATH_MSG_DEBUG( "MuonCalibrationAndSmearingTool   = " << m_MCaSTool );
+  ATH_CHECK( m_MCaSTool.retrieve() );
+
+  const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
+  const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
+  m_sysList = CP::make_systematics_vector(recommendedSystematics);
+  m_sysList.push_back(CP::SystematicSet());
+
+  for(std::vector<CP::SystematicSet>::iterator sysItr = m_sysList.begin() + 1; sysItr != m_sysList.end(); ++sysItr) {
+    std::string syst_name = ( *sysItr ).name();
+    m_sysNames.push_back(syst_name);
+  }
+
+  std::vector<std::string> empty_list;
+
+  m_Combined = std::make_unique<MMCTest::TrackInfo>("CB", m_sysNames);
+  m_InnerDet = std::make_unique<MMCTest::TrackInfo>("ID", m_sysNames);
+  m_MSExtr = std::make_unique<MMCTest::TrackInfo>("ME", m_sysNames);
+  m_MSOnlyExtr = std::make_unique<MMCTest::TrackInfo>("MSOE", empty_list);
+
+  m_DebugFile = new TFile( "MCaST_Debug.root", "RECREATE", "Smearing and non-Smearing of Muons" );
+  m_DebugTree = new TTree( "CorrectionsTree", "This Tree contains the information of the muon after smearing effects" );
+
+  m_DebugTree->Branch("Muon_Sel_Category_Raw", &m_SelCategoryRaw);
+  m_DebugTree->Branch("Muon_Sel_Category", &m_SelCategory);
+
+  m_Combined->Register(m_DebugTree);
+  m_InnerDet->Register(m_DebugTree);
+  m_MSExtr->Register(m_DebugTree);
+  m_MSOnlyExtr->Register(m_DebugTree);
+
   return StatusCode::SUCCESS;
 }
 
@@ -48,7 +71,8 @@ StatusCode TestMCASTTool::execute() {
   //---\\---// Retrieving muons from container
   const xAOD::MuonContainer* muons = 0;
   ATH_CHECK( evtStore()->retrieve( muons, m_sgKey ) );
-  ATH_MSG_INFO( "Number of muons: " << muons->size() );
+  ATH_MSG_DEBUG( "Number of muons: " << muons->size() );
+
   //---\\---// Looping over muons
   xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
   xAOD::MuonContainer::const_iterator mu_end = muons->end();
@@ -59,46 +83,65 @@ StatusCode TestMCASTTool::execute() {
   ATH_CHECK( evtStore()->record(mymuonsaux,"CalibMuonsAux.") );
   mymuons->setStore(mymuonsaux);
 
+  m_Combined->Reset();
+  m_InnerDet->Reset();
+  m_MSExtr->Reset();
+  m_MSOnlyExtr->Reset();
 
-  for( ; mu_itr != mu_end; ++mu_itr ) {
+
+  for(; mu_itr != mu_end; ++mu_itr) {
+
     //---\\---// Simple preselection
-    if( ( *mu_itr )->muonType() != xAOD::Muon::Combined ) continue;  
-    //---\\---// Printing info
-    ATH_MSG_INFO( "Analizing muon #" << mu_itr - muons->begin() );
-    ATH_MSG_INFO( std::setw( 30 ) << "Selected muon: eta = " << std::setw( 8 ) << ( *mu_itr )->eta() << ", phi = " << std::setw( 8 ) << ( *mu_itr )->phi() << ", pt = " << std::setw( 8 ) << ( *mu_itr )->pt() );
-    m_eta = ( *mu_itr )->eta();
-    m_phi = ( *mu_itr )->phi();
-    m_pt = ( *mu_itr )->pt();
+    if((*mu_itr)->muonType() != xAOD::Muon::Combined) continue;  
+
+    const xAOD::TrackParticle* cbTrack = (*mu_itr)->trackParticle(xAOD::Muon::CombinedTrackParticle);
+    if(cbTrack) m_Combined->Fill(cbTrack);
+
+    const xAOD::TrackParticle* idTrack = (*mu_itr)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+    if(idTrack) m_InnerDet->Fill(idTrack);
+
+    const xAOD::TrackParticle* meTrack = NULL;
+    try {
+      meTrack = (*mu_itr)->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+    } catch (SG::ExcBadAuxVar& b) { meTrack = (*mu_itr)->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); }
+    if(meTrack) m_MSExtr->Fill(meTrack);
+
+    const xAOD::TrackParticle* msoeTrack = NULL;
+    try {
+      msoeTrack = (*mu_itr)->trackParticle(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle);
+    } catch (SG::ExcBadAuxVar& b) { msoeTrack = (*mu_itr)->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); }
+    if(msoeTrack) m_MSOnlyExtr->Fill(msoeTrack);
+
     //---\\---// Calibrating muon
     ATH_MSG_DEBUG( "Calibrating muon" ); 
-    xAOD::Muon* mu = 0;
-    if( m_Tool->correctedCopy( **mu_itr, mu ) == CP::CorrectionCode::Error  ) {
-      ATH_MSG_WARNING( "Failed to correct the muon!" );
-      continue;
-    }
-    xAOD::Muon* mymuon = new xAOD::Muon();
-    mymuon->makePrivateStore( **mu_itr );
-    mymuons->push_back( mymuon );
-    if( m_Tool->applyCorrection( *mymuon ) == CP::CorrectionCode::Error ) {
-      ATH_MSG_WARNING( "Problem applying muon calibration" );
+    for(std::vector<CP::SystematicSet>::iterator sysItr = m_sysList.begin() + 1; sysItr != m_sysList.end(); ++sysItr) {
+      if( m_MCaSTool->applySystematicVariation(*sysItr) != CP::SystematicCode::Ok) {
+        continue;
+      }
+      xAOD::Muon* mu = 0;
+      if(m_MCaSTool->correctedCopy(**mu_itr, mu) == CP::CorrectionCode::Error) {
+        ATH_MSG_WARNING( "Failed to correct the muon!" );
+        continue;
+      }
+
+      std::string syst_name = ( *sysItr ).name();
+
+      m_SelCategoryRaw = mu->auxdata<int>("raw_MCaST_Category");
+      m_SelCategory = mu->auxdata<int>("MCaST_Category");
+      m_Combined->SetCalibPt(mu->pt(), syst_name);
+      m_InnerDet->SetCalibPt(mu->auxdata<float>("InnerDetectorPt"), syst_name);
+      m_MSExtr->SetCalibPt(mu->auxdata<float>("MuonSpectrometerPt"), syst_name);
+      delete mu;
     }
 
-    ATH_MSG_INFO( std::setw( 30 ) << "Calibrated muon: eta = " << std::setw( 8 ) << mu->eta() << ", phi = " << std::setw( 8 ) << mu->phi() << ", pt = " << std::setw( 8 ) << mu->pt() );
-    ATH_MSG_INFO( "Calibration result: original pt = " << ( *mu_itr )->pt() << " / corrected pt = " << mu->pt() );
-    ATH_MSG_INFO( "Calibration result: ID pt = " << mu->auxdata< float >( "InnerDetectorPt" ) );
-    ATH_MSG_INFO( "Calibration result: ME pt = " << mu->auxdata< float >( "MuonSpectrometerPt" ) );
-    //---\\---// Remove calibrated muon
-    m_ptcorr = mu->pt();
-    m_ptdiff = m_pt - m_ptcorr;
-    m_ptdiffabs = std::abs( m_pt - m_ptcorr );
-    m_smeartree->Fill();
-    delete mu;
+    m_DebugTree->Fill();
   }
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode TestMCASTTool::finalize() {
-  m_smearfile->Write();
+  m_DebugFile->Write();
   return StatusCode::SUCCESS;
 }
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ skimming
@@ -7,6 +7,8 @@
 #   skimmingTools_lep = DerivationFrameworkTop.TOPQCommonSelection.setup_lep('TOPQ1', ToolSvc)
 #   skimmingTools_jet = DerivationFrameworkTop.TOPQCommonSelection.setup_jet('TOPQ1', ToolSvc)
 #====================================================================
+
+from __future__ import print_function
 
 #================================
 # SKIMMING SELECTIONS
@@ -123,7 +125,7 @@ def setup_lep(TOPQname, ToolSvc):
    
   skimmingTools_lep.append(TOPQStringSkimmingTool_lep)
    
-  print TOPQname+".py", TOPQname+"StringSkimmingTool_lep: ", TOPQStringSkimmingTool_lep
+  print (TOPQname+".py", TOPQname+"StringSkimmingTool_lep: ", TOPQStringSkimmingTool_lep)
    
   return skimmingTools_lep
 # end setup_lep(TOPQname, ToolSvc)
@@ -167,7 +169,7 @@ def setup_jet(TOPQname, ToolSvc):
   
   skimmingTools_jet.append(TOPQStringSkimmingTool_jet)
   
-  print TOPQname+".py", TOPQname+"StringSkimmingTool_jet: ", TOPQStringSkimmingTool_jet
+  print (TOPQname+".py", TOPQname+"StringSkimmingTool_jet: ", TOPQStringSkimmingTool_jet)
      
   return skimmingTools_jet
 # end setup_jet(TOPQname, ToolSvc)   

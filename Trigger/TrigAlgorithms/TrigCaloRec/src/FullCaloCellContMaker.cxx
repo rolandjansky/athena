@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -197,13 +197,6 @@ StatusCode FullCaloCellContMaker::addFullLArCells(CaloCellContainer& pCaloCellCo
 
   // noise suppression
   if(m_do_LArCells_noise_suppression!=0){
-    //const CaloDetDescrManager* m_CaloDetDescrManager = CaloDetDescrManager::instance();
-    //if ( m_CaloDetDescrManager == 0 )
-    //  {
-	//std::cout << "ERROR : cannot allocate CaloDetDescrManager"
-	 //    << endmsg;
-//	return StatusCode::FAILURE;
- //     }
 
     for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) { // Main Loop
       //const CaloDetDescrElement* caloDDE = (*m_it)->caloDDE();

@@ -69,7 +69,7 @@ namespace InDet {
     const SCT_ID*                       m_id; 
     //! the RDO container
     SCT_RDO_Container*                  m_container;
-    InDetBSErrContainer*                m_bsErrCont;
+    IDCInDetBSErrContainer*             m_bsErrCont;
     std::string                         m_RDO_Key;
     std::string                         m_bsErrCont_Key;
 

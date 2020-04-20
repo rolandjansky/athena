@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,7 +23,7 @@ LArDAC2uAMCCnv::createTransient ()
     // subset from before TP separation    
     MsgStream log(msgSvc(), "LArDAC2uAMCCnv" ); 
     log << MSG::DEBUG << "Reading LArDAC2uASubset (original)" << endmsg;     
-    std::auto_ptr< LArConditionsSubset<LArDAC2uAP> > subset ( poolReadObject< LArConditionsSubset<LArDAC2uAP> >() );
+    std::unique_ptr< LArConditionsSubset<LArDAC2uAP> > subset ( poolReadObject< LArConditionsSubset<LArDAC2uAP> >() );
     return (createTransient(subset.get()));
     
   } 

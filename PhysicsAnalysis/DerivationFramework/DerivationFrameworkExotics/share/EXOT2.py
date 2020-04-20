@@ -43,7 +43,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 EXOT2SkimmingTool = DerivationFramework__xAODStringSkimmingTool(    name = "EXOT2SkimmingTool",
                                                                         expression = expression)
 ToolSvc += EXOT2SkimmingTool
-print EXOT2SkimmingTool
+printfunc (EXOT2SkimmingTool)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   

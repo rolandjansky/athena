@@ -50,20 +50,6 @@ DerivationFrameworkJob += STDM6Sequence
 
 
 #====================================================================
-# SET UP STREAM
-#====================================================================
-#streamName = derivationFlags.WriteDAOD_STDM6Stream.StreamName
-#fileName   = buildFileName( derivationFlags.WriteDAOD_STDM6Stream )
-#STDM6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-#STDM6Stream.AcceptAlgs(["STDM6Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="STDM6ThinningSvc", outStreams=[evtStream] )
-
-#====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper

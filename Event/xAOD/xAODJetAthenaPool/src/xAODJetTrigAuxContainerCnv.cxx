@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODJetAuxContainerCnv.cxx 588765 2014-03-21 13:30:28Z delsart $
 
-#ifndef SIMULATIONBASE
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE))
 
 // Local include(s):
 #include "xAODJetTrigAuxContainerCnv.h"
@@ -37,4 +37,4 @@ createPersistentWithKey( xAOD::JetTrigAuxContainer* trans,
 }
 
 
-#endif // SIMULATIONBASE
+#endif // NOT SIMULATIONBASE OR GENERATIONBASE

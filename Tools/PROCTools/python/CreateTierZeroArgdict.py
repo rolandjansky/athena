@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # WriteTierZeroArgdict.py
 #
@@ -12,6 +12,8 @@
 # Examples of usage:  python CreateTierZeroArgdict.py f622 data15_13TeV.00284473.physics_Main.daq.RAW data15_13TeV.00284473.physics_Main.daq.RAW._lb0267._SFO-3._0001.data 
 #                     python CreateTierZeroArgdict.py --maxEvents 20 --jobnr 1 --ncores 4 --NoMergeTypeList AOD,ESD,DRAW_EGZ,DRAW_EMU,DRAW_TAUMUH,DRAW_ZMUMU f622 data15_13TeV.00284473.physics_Main.daq.RAW data15_13TeV.00284473.physics_Main.daq.RAW._lb0267._SFO-3._0001.data 
 
+
+from __future__ import print_function
 
 import os, sys, json, traceback, re, argparse
 from pprint import pprint as pp
@@ -53,7 +55,7 @@ args = parser.parse_args()
 
 import pyAMI.client 
 
-#print "args: ",args
+#print ("args: ",args)
 
 # positional arguments
 amitag= args.amitag 
@@ -124,7 +126,7 @@ def evalDatasetNameFion(dsname,dsfionstr):
             pairs = pairs[2:]
         newdsname = '.'.join(parts)
     else :
-        prnt("ERROR >>> unexpected dsnamefion syntax")
+        print("ERROR >>> unexpected dsnamefion syntax")
         raise Exception('error')
     return newdsname
 
@@ -143,7 +145,7 @@ if __name__ == '__main__':
             else:
                 pass
         else: 
-            prnt("WARNING >>> input file name does not have the expected format - no partition identifiers separated by '._' found in the inputfilename lbXXXX._SFO-X._XXXX, ._lb0000._SFO-0._0000.job,<jobnr>.log will be used instead for the log file name")
+            print("WARNING >>> input file name does not have the expected format - no partition identifiers separated by '._' found in the inputfilename lbXXXX._SFO-X._XXXX, ._lb0000._SFO-0._0000.job,<jobnr>.log will be used instead for the log file name")
             pass
     except:
         pass 
@@ -165,7 +167,7 @@ if __name__ == '__main__':
     # must be specified as a comma separated list of types (parameter to this script) 
     if ncores>1: 
         for mergetype in NoMergeTypeList.split(","):
-            if phconfig.has_key("athenaMPMergeTargetSize") : 
+            if "athenaMPMergeTargetSize" in phconfig: 
                 phconfig["athenaMPMergeTargetSize"].update({mergetype:0.0})
             else: 
                 phconfig["athenaMPMergeTargetSize"]={mergetype:0.0}
@@ -178,12 +180,12 @@ if __name__ == '__main__':
     jobargdict.update(phconfig)
     
     #checking if AMI tag contains empty 'inputBSFile' dictionary 
-    if ami_tag_content.get('inputs',{}).has_key('inputBSFile'):
+    if 'inputBSFile' in ami_tag_content.get('inputs',{}):
         # if yes - writing the inputfile into the argument dictionary according to the Tier-0 nomenclature
         if not ami_tag_content.get('inputs',{})['inputBSFile'] :
             jobargdict['inputBSFile']=[dsname+'#'+inputflname]
         else :
-            print "ERROR - not recognized inputs in AMI tag; script works only for the following AMI tag configuration of the inputs \n 'inputs': {'inputBSFile': {}}"
+            print ("ERROR - not recognized inputs in AMI tag; script works only for the following AMI tag configuration of the inputs \n 'inputs': {'inputBSFile': {}}")
             sys.exit(1)
     
     # starting translating the output dataset names form the ifMatch expressions specified in the AMI tag  
@@ -219,7 +221,7 @@ if __name__ == '__main__':
             # apply default nomenclature
             pcs=dsname.split('.')
             if len(pcs)<5 : 
-                print "Dataset name must have at least 5 parts separated by comma to comply with Tier-0 naming convention: <project>.<runnr>.<stream>.<granularity>.<type>"
+                print ("Dataset name must have at least 5 parts separated by comma to comply with Tier-0 naming convention: <project>.<runnr>.<stream>.<granularity>.<type>")
                 sys.exit(1)
             pcs[3]=taskstep
             pcs[4]=dstp
@@ -243,18 +245,18 @@ if __name__ == '__main__':
     jobargdictfile.close()
     
 
-    print "####################################################################" 
-    print "#\n# To run a local job:"
-    print "#\n# 1. Copy the following files into a directory from which you intend to run your job:\n#    %s\n#    %s " %(jsonflname,inputflname)
-    print "#\n# 2. Setup the environment: \n#    source "+ ami_tag_content.get('trfsetupcmd',{})   
-    print "#\n# 3. Run the job: \n#    python -u `which "+ami_tag_content.get('transformation',{})+"` --argJSON="+jsonflname+" &> "+logfilename 
-    print "#"
-    print "####################################################################" 
-    print "#\n# Note aside: to copy inputfiles from EOS (if still present there) one can usually use commands like:"
-    print "#    xrdcp -f --nopbar root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/%s/%s/%s/%s/%s %s" % (dsname.split(".")[0],dsname.split(".")[2],dsname.split(".")[1],dsname,inputflname,inputflname)
-    print "#\n# OR from castor disk - assuming the file is STAGED:"
-    print "#     export STAGE_SVCCLASS=t0atlas" 
-    print "#     rfcp /castor/cern.ch/grid/atlas/rucio/raw/%s/%s/%s/%s/%s ." % (dsname.split(".")[0],dsname.split(".")[2],dsname.split(".")[1],dsname,inputflname)
-    print "#"
-    print "####################################################################" 
+    print ("####################################################################" )
+    print ("#\n# To run a local job:")
+    print ("#\n# 1. Copy the following files into a directory from which you intend to run your job:\n#    %s\n#    %s " %(jsonflname,inputflname))
+    print ("#\n# 2. Setup the environment: \n#    source "+ ami_tag_content.get('trfsetupcmd',{})   )
+    print ("#\n# 3. Run the job: \n#    python -u `which "+ami_tag_content.get('transformation',{})+"` --argJSON="+jsonflname+" &> "+logfilename )
+    print ("#")
+    print ("####################################################################" )
+    print ("#\n# Note aside: to copy inputfiles from EOS (if still present there) one can usually use commands like:")
+    print ("#    xrdcp -f --nopbar root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/%s/%s/%s/%s/%s %s" % (dsname.split(".")[0],dsname.split(".")[2],dsname.split(".")[1],dsname,inputflname,inputflname))
+    print ("#\n# OR from castor disk - assuming the file is STAGED:")
+    print ("#     export STAGE_SVCCLASS=t0atlas" )
+    print ("#     rfcp /castor/cern.ch/grid/atlas/rucio/raw/%s/%s/%s/%s/%s ." % (dsname.split(".")[0],dsname.split(".")[2],dsname.split(".")[1],dsname,inputflname))
+    print ("#")
+    print ("####################################################################" )
     

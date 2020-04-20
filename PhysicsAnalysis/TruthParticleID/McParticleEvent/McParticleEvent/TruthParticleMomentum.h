@@ -18,7 +18,7 @@
 // HepMC / CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include "EventKernel/I4Momentum.h"
 
 // Forward declaration

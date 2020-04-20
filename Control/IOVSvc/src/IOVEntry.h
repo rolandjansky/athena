@@ -60,7 +60,7 @@ public:
 
   ~IOVEntry() { delete m_range; }
 
-  IOVRange* range() const { return m_range; }
+  const IOVRange* range() const { return m_range; }
   void setRange( IOVRange* range) { m_range=range; }
 
   SG::DataProxy* proxy() { return m_proxy; }

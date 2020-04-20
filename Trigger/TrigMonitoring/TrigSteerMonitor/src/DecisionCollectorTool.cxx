@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionCollectorTool.h"
@@ -15,38 +15,31 @@ StatusCode DecisionCollectorTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode DecisionCollectorTool::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-StatusCode DecisionCollectorTool::getSequencesPerEvent( std::set<std::string>& output ) const {
+void DecisionCollectorTool::getSequencesPerEvent( std::set<std::string>& output ) const {
   for (auto decisionKey: m_decisionsKey) {
     auto handle = SG::makeHandle( decisionKey );
     if ( handle.isValid() ) {
       output.insert(decisionKey.key());
     }
   }
-  return StatusCode::SUCCESS;
 }
 
-StatusCode DecisionCollectorTool::getSequencesNames( std::set<std::string>& output ) const {
+void DecisionCollectorTool::getSequencesNames( std::set<std::string>& output ) const {
   for (auto decisionKey: m_decisionsKey) {
     output.insert(decisionKey.key());
   }
-  return StatusCode::SUCCESS;
 }
 
-StatusCode DecisionCollectorTool::getDecisions( std::vector<TrigCompositeUtils::DecisionID>& output ) const {
+void DecisionCollectorTool::getDecisions( std::vector<TrigCompositeUtils::DecisionID>& output ) const {
   for (auto decisionKey: m_decisionsKey ) {
     auto handle = SG::makeHandle( decisionKey );
     if ( handle.isValid() ) {
       for ( const TrigCompositeUtils::Decision* d : *handle.cptr() )  {	
-	output.insert( output.end(), 
-		       TrigCompositeUtils::decisionIDs( d ).begin(),
-		       TrigCompositeUtils::decisionIDs( d ).end() );
+        output.insert( output.end(),
+                       TrigCompositeUtils::decisionIDs( d ).begin(),
+                       TrigCompositeUtils::decisionIDs( d ).end() );
       }
       ATH_MSG_DEBUG("Collected from decision container " << decisionKey.key() <<  " objects " <<handle.cptr()->size()  << " accumulated decisions " << output.size() );
     }
   }
-  return StatusCode::SUCCESS;
 }

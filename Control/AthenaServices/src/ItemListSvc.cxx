@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ItemListSvc.cxx 
@@ -73,6 +73,7 @@ StatusCode ItemListSvc::finalize()
 // add item to list for stream
 StatusCode ItemListSvc::addStreamItem(const std::string& stream, const std::string& itemname)
 {
+  lock_t lock (m_mutex);
   // Add to stream list
   // Check if item is already present
   std::map<std::string, std::set<std::string> >::iterator it = m_streamItems.find(stream);
@@ -95,6 +96,7 @@ StatusCode ItemListSvc::addStreamItem(const std::string& stream, const std::stri
 // remove item from list for stream
 StatusCode ItemListSvc::removeStreamItem(const std::string& stream, const std::string& itemname)
 {
+  lock_t lock (m_mutex);
   std::map<std::string, std::set<std::string> >::iterator it = m_streamItems.find(stream);
   if (it == m_streamItems.end()) {
     ATH_MSG_INFO("Tried to remove non-existing item " << itemname << " for " << stream);
@@ -110,6 +112,7 @@ StatusCode ItemListSvc::removeStreamItem(const std::string& stream, const std::s
 // simple test to see if item or (stream,item) is already being written
 bool ItemListSvc::containsItem(const std::string& itemname, const std::string& stream) const
 {
+  lock_t lock (m_mutex);
   bool contains=false;
   std::map<std::string, std::set<std::string> >::const_iterator it = m_streamItems.begin();
   while (it != m_streamItems.end()) {
@@ -124,6 +127,7 @@ bool ItemListSvc::containsItem(const std::string& itemname, const std::string& s
 // This returns all the streams that an item was written to
 std::vector<std::string> ItemListSvc::getStreamsForItem(const std::string& itemname) const
 {
+  lock_t lock (m_mutex);
   std::vector<std::string> t;
   std::map<std::string, std::set<std::string> >::const_iterator it = m_streamItems.begin();
   while (it != m_streamItems.end()) {
@@ -136,6 +140,7 @@ std::vector<std::string> ItemListSvc::getStreamsForItem(const std::string& itemn
 // This returns the items that were output to a certain stream
 std::vector<std::string> ItemListSvc::getItemsForStream(const std::string& stream) const
 {
+  lock_t lock (m_mutex);
   std::vector<std::string> t;
   std::map<std::string, std::set<std::string> >::const_iterator it = m_streamItems.find(stream);
   if (it != m_streamItems.end()) std::copy(it->second.begin(), it->second.end(),t.begin());

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################################################
 #
@@ -8,6 +8,8 @@
 # Date :   March  2009
 #
 ##############################################################################################
+
+from __future__ import print_function
 
 from AthenaCommon.SystemOfUnits import *  # loads MeV etc...
 from AthenaCommon.Constants import *      # Loads DEBUG INFO etc..
@@ -173,7 +175,7 @@ class METRefGetter_newplup ( Configured ):
                 theMETRefAlgMu.UseCells = True
         except: 					       
             mlog.error("could not import MissingET.METRefAlg")    
-            print traceback.format_exc()		       
+            mlog.error (traceback.format_exc())
             return False	
 	#------------------------------------------------------------------------------------------------
         # configure the tools: METRefinedEleTool => calibrator Tool for ATLFASTII
@@ -199,8 +201,8 @@ class METRefGetter_newplup ( Configured ):
             theMETRefinedEleTool.CalibToolName           = 'H1WeightToolCSC12Generic/'+ calibtool_name
             theMETRefinedEleTool.BackNavigationTo	 = "Cell"    # to "Cell"
             theMETRefinedEleTool.MissingETOutKey     	 = "MET_RefEle"+self.suffix
-            print "******************* key = "+theMETRefinedEleTool.MissingETOutKey
-            print "******************* key2 = "+theMETRefinedEleTool.MissingETOutKey
+            print ("******************* key = "+theMETRefinedEleTool.MissingETOutKey)
+            print ("******************* key2 = "+theMETRefinedEleTool.MissingETOutKey)
             #-----------------
             from MissingET.MissingETConf import METClusterResolverTool
             theMETEleResolver = METClusterResolverTool("EleResolve"+self.suffix)
@@ -236,7 +238,7 @@ class METRefGetter_newplup ( Configured ):
 
         except: 							     
             mlog.error("could not get handle to METRefinedEleTool Quit")      
-            print traceback.format_exc()				     
+            mlog.error (traceback.format_exc())
             return False						     
  	
 	# add cellcalibtool				  		   
@@ -289,7 +291,7 @@ class METRefGetter_newplup ( Configured ):
 	    								     
             except:								       
             	mlog.error("could not get handle to METRefinedTauTool Quit")	       
-            	print traceback.format_exc()					       
+            	mlog.error (traceback.format_exc())
             	return False							       
 	
 	    # add cellcalibtool 					    
@@ -353,7 +355,7 @@ class METRefGetter_newplup ( Configured ):
             theMETRefinedJetTool.CalibToolName     = 'H1WeightToolCSC12Generic/'+ calibtool_name
         except:
             mlog.error("could not get handle to METRefinedJetTool Quit")  	   
-            print traceback.format_exc()			  		   
+            mlog.error (traceback.format_exc())
             return False
 
         # add cellcalibtool				  		   
@@ -409,7 +411,7 @@ class METRefGetter_newplup ( Configured ):
                 theMETSoftJetsTool.CalibToolName     = 'H1WeightToolCSC12Generic/'+ calibtool_name
             except:
                 mlog.error("could not get handle to METSoftJetsTool Quit")  	   
-                print traceback.format_exc()			  		   
+                mlog.error (traceback.format_exc())
                 return False
 
             # add cellcalibtool				  		   
@@ -462,7 +464,7 @@ class METRefGetter_newplup ( Configured ):
                         theMETRefAlg += theMETRefMuonSpectroTool
                     except:
                         mlog.error("could not get handle to METRefinedMuonTool Quit")
-                        print traceback.format_exc()
+                        mlog.error (traceback.format_exc())
                         return False
             except: 					       
                 mlog.error("could not import DetFlags")    
@@ -498,7 +500,7 @@ class METRefGetter_newplup ( Configured ):
         
         except: 						  		   
             mlog.error("could not get handle to METRefinedClusterTool Quit")  	   
-            print traceback.format_exc()			  		   
+            mlog.error (traceback.format_exc())
             return False	
 	    
         # add cellcalibtool				  		   
@@ -531,7 +533,7 @@ class METRefGetter_newplup ( Configured ):
             																	   
             except:								       
             	mlog.error("could not get handle to METRefinedClusterTool Quit")       
-            	print traceback.format_exc()					       
+            	mlog.error (traceback.format_exc())
             	return False	    
 	    	
             # add cellcalibtool 					       
@@ -563,7 +565,7 @@ class METRefGetter_newplup ( Configured ):
         
             except:								       
             	mlog.error("could not get handle to METRefinedClusterTool Quit")       
-            	print traceback.format_exc()					       
+            	mlog.error (traceback.format_exc())
             	return False	    
 	    	
             # add cellcalibtool 					       
@@ -624,7 +626,7 @@ class METRefGetter_newplup ( Configured ):
 
             except:								 
             	mlog.error("could not get handle to METMuonTool Quit")      
-            	print traceback.format_exc()					 
+            	mlog.error (traceback.format_exc())
             	return False							 
  	
 	    # add the METMuonTool to list of tools 
@@ -658,7 +660,7 @@ class METRefGetter_newplup ( Configured ):
             theMETAlg=METAlg("METAlg"+self.suffix)
         except:
             mlog.error("could not import MissingET.METAlg")    
-            print traceback.format_exc()		       
+            mlog.error(traceback.format_exc())
             return False
 	#------------------------------------------------------------------------------------------------
         try:								     
@@ -690,7 +692,7 @@ class METRefGetter_newplup ( Configured ):
             theMETAlg += theMETCryoTopoTool
         except: 							        
             mlog.error("could not get handle to METCryoTopoTool Quit")	        
-            print traceback.format_exc()
+            mlog.error(traceback.format_exc())
             return False
 
 	#------------------------------------------------------------------------------------------------
@@ -778,7 +780,7 @@ class METRefGetter_newplup ( Configured ):
 
         except:
             mlog.error("could not get handle to METRefFinal Quit")  	   
-            print traceback.format_exc()			  		   
+            mlog.error(traceback.format_exc())
             return False					  		   
 
 	# add METFinalTool to list of tools 

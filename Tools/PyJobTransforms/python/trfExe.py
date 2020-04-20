@@ -1,5 +1,8 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from __future__ import print_function
 from future.utils import iteritems
+import six
 
 from past.builtins import basestring
 
@@ -8,8 +11,6 @@ from builtins import next
 from builtins import object
 from builtins import range
 from builtins import int
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfExe
 #
@@ -29,6 +30,7 @@ import signal
 import subprocess
 import sys
 import time
+import six
 
 import logging
 from fnmatch import fnmatch
@@ -47,6 +49,20 @@ import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfValidation as trfValidation
 import PyJobTransforms.trfArgClasses as trfArgClasses
 import PyJobTransforms.trfEnv as trfEnv
+
+
+# Depending on the setting of LANG, sys.stdout may end up with ascii or ansi
+# encoding, rather than utf-8.  But Athena uses unicode for some log messages
+# (another example of Gell-Mann's totalitarian principle) and that will result
+# in a crash with python 3.  In such a case, force the use of a utf-8 encoded
+# output stream instead.
+def _encoding_stream (s):
+    if six.PY2: return s
+    enc = s.encoding.lower()
+    if enc.find('ascii') >= 0 or enc.find('ansi') >= 0:
+        return open (s.fileno(), 'w', encoding='utf-8')
+    return s
+
 
 ## @note This class contains the configuration information necessary to run an executor.
 #  In most cases this is simply a collection of references to the parent transform, however,
@@ -655,13 +671,14 @@ class scriptExecutor(transformExecutor):
         self._echologger = logging.getLogger(self._name)
         self._echologger.setLevel(logging.INFO)
         self._echologger.propagate = False
-        
-        self._exeLogFile = logging.FileHandler(self._logFileName, mode='w')
+
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        self._exeLogFile = logging.FileHandler(self._logFileName, mode='w', **encargs)
         self._exeLogFile.setFormatter(logging.Formatter('%(asctime)s %(message)s', datefmt='%H:%M:%S'))
         self._echologger.addHandler(self._exeLogFile)
         
         if self._echoOutput:
-            self._echostream = logging.StreamHandler(sys.stdout)
+            self._echostream = logging.StreamHandler(_encoding_stream(sys.stdout))
             self._echostream.setFormatter(logging.Formatter('%(name)s %(asctime)s %(message)s', datefmt='%H:%M:%S'))
             self._echologger.addHandler(self._echostream)
 
@@ -692,14 +709,17 @@ class scriptExecutor(transformExecutor):
             msg.info('execOnly flag is set - execution will now switch, replacing the transform')
             os.execvp(self._cmd[0], self._cmd)
 
+        encargs = {}
+        if not six.PY2:
+            encargs = {'encoding' : 'utf8'}
         try:
-            p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
+            p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1, **encargs)
             if self._memMonitor:
                 try:
                     self._memSummaryFile = 'prmon.summary.' + self._name + '.json'
                     memMonitorCommand = ['prmon', '--pid', str(p.pid), '--filename', 'prmon.full.' + self._name, 
                                          '--json-summary', self._memSummaryFile, '--interval', '30']
-                    mem_proc = subprocess.Popen(memMonitorCommand, shell = False, close_fds=True)
+                    mem_proc = subprocess.Popen(memMonitorCommand, shell = False, close_fds=True, **encargs)
                     # TODO - link mem.full.current to mem.full.SUBSTEP
                 except Exception as e:
                     msg.warning('Failed to spawn memory monitor for {0}: {1}'.format(self._name, e))
@@ -840,7 +860,7 @@ class athenaExecutor(scriptExecutor):
 
         if perfMonFile:
             self._perfMonFile = None
-            msg.warning("Resource monitoring from PerfMon is now deprecated")
+            msg.debug("Resource monitoring from PerfMon is now deprecated")
         
         # SkeletonFile can be None (disable) or a string or a list of strings - normalise it here
         if isinstance(skeletonFile, basestring):

@@ -10,6 +10,7 @@ then
 fi
 
 echo "configuration stored in the pickle"
-confTool.py --print test.pkl
-echo "running athena " 
-athena test.pkl
+confTool.py --printConf test.pkl
+echo "Executing the pickle file " 
+CARunner.py test.pkl 10
+

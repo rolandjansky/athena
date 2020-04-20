@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 LSFJobRunner is a JobRunner for running jobs with the HTCondor batch system.
 
@@ -39,13 +42,13 @@ class HTCondorJobRunner(JobRunner):
     def submitJob(self,jobConfig):
         """Submit a JobRunner job as a LSF batch job."""
         condorScript = condorScriptTemplate % jobConfig 
-        print condorScript
+        print (condorScript)
         script = open('condorSubmit.sub','w')
         script.write(condorScript)
         script.close()
-        os.chmod('condorSubmit.sub',0755)
+        os.chmod('condorSubmit.sub',0o755)
         #batchCmd = 'bsub -L /bin/bash -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
         batchCmd = 'condor_submit condorSubmit.sub'
-        print batchCmd 
+        print (batchCmd )
         os.system(batchCmd)
         return None

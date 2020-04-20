@@ -27,6 +27,9 @@ atlas_depends_on_subdirs(
    DetectorDescription/Identifier
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack
    LArCalorimeter/LArGeoModel/LArReadoutGeometry
    MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -62,7 +65,7 @@ atlas_add_library( VP1Utils VP1Utils/*.h src/*.cxx src/*.cpp
    PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${COIN3D_LIBRARIES}
    ${EIGEN_LIBRARIES} CaloIdentifier CaloTTDetDescr CxxUtils AtlasDetDescr
    GeoModelUtilities GeoSpecialShapes Identifier InDetIdentifier
-   InDetReadoutGeometry InDetRIO_OnTrack LArReadoutGeometry
+   InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry InDetRIO_OnTrack LArReadoutGeometry
    MuonReadoutGeometry MuonRIO_OnTrack TileDetDescr TrkSurfaces
    TrkRIO_OnTrack VP1HEPVis )
 endif()

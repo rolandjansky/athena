@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaConditions/EMClusterEnergyErrorsMatrix.h"
 #include <cmath>
+#include <utility>
 
 // Constructors
 EMClusterEnergyErrorsMatrix::EMClusterEnergyErrorsMatrix() : 
@@ -14,7 +15,7 @@ EMClusterEnergyErrorsMatrix::EMClusterEnergyErrorsMatrix() :
 
 EMClusterEnergyErrorsMatrix::EMClusterEnergyErrorsMatrix(const std::vector<EMAPMatrixAxis> &axes, 
 							 std::string textDescription) : 
-  EMClusterErrorsMatrix(axes, textDescription)
+  EMClusterErrorsMatrix(axes, std::move(textDescription))
 {
 }
 

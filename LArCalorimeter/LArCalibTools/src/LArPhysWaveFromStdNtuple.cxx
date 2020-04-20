@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArPhysWaveFromStdNtuple.h"
@@ -80,8 +80,8 @@ StatusCode LArPhysWaveFromStdNtuple::stop()
 
   // Create new LArPhysWaveContainer
   LArPhysWaveContainer* larPhysWaveContainerNew = new LArPhysWaveContainer();
-  larPhysWaveContainerNew->setGroupingType(m_groupingType, msg());
-  larPhysWaveContainerNew->initialize();
+  ATH_CHECK ( larPhysWaveContainerNew->setGroupingType(m_groupingType, msg()) );
+  ATH_CHECK ( larPhysWaveContainerNew->initialize() );
 
   unsigned int hwid;
   unsigned int uflag;

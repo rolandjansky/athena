@@ -1,19 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGCONFDATA_DATASTRUCTURE
-#define TRIGCONFDATA_DATASTRUCTURE
+#ifndef TRIGCONFDATA_DATASTRUCTURE_H
+#define TRIGCONFDATA_DATASTRUCTURE_H
 
 /**
- * @file TrigConfData/DataStructure.h
- * @author J. Stelzer
- * @date Feb 2019
  * @brief Base class for Trigger configuration data and wrapper around underlying representation
  */
 
 #include <iostream>
 #include <vector>
+#include <memory>
+#include <type_traits>
 #include "boost/property_tree/ptree.hpp"
 
 namespace TrigConf {
@@ -42,16 +41,29 @@ namespace TrigConf {
       /** Default constructor, leading to an uninitialized configuration object */
       DataStructure();
 
+      DataStructure(const DataStructure&) = default;
+      DataStructure(DataStructure&&) = default;
+
+      DataStructure& operator=(const DataStructure&) = default;
+      DataStructure& operator=(DataStructure&&) = default;
+
       /** Constructor initialized with configuration data 
        * @param data Reference to the data container 
        */
-      DataStructure(const ptree &);
+      DataStructure(const ptree & data);
+      DataStructure(ptree && data);
 
       /** Destructor */
       virtual ~DataStructure();
 
       /** @brief Setting the configuration data */
       void setData(const ptree & data);
+      void setData(ptree && data);
+
+      /** A string that is the name of the class */
+      virtual std::string className() const;
+
+      virtual const std::string & name() const final;
 
       /** Clearing the configuration data
        * 
@@ -60,7 +72,12 @@ namespace TrigConf {
       void clear();
 
       /** Access to the underlying data, if needed */
-      ptree data() const { return m_data; }
+      const ptree & data() const {
+         if( ! isInitialized() ) {
+            throw std::runtime_error("Trying to access data of uninitialized object of type " + className());
+         }
+         return ownsData() ? *m_dataSPtr.get() : *m_dataPtr;
+      }
 
       /** Check for attribute
        * @return true if the structure is just a value
@@ -73,7 +90,12 @@ namespace TrigConf {
        * For instance when the json structure contains an array of values (ptree only works with strings) which
        * one retrieved via @c getList, then the values in the vector<@c DataStructure> can be accessed using getValue
        */
-      std::string getValue() const;
+      std::string getValue() const;  // this will be removed in the next MR (TrigSignatureMoniMT still depends on it)
+
+      template<class T>
+      T getValue() const {
+         return data().get_value<T>();
+      }
 
       /** Check for attribute
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
@@ -96,7 +118,20 @@ namespace TrigConf {
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
        * @param ignoreIfMissing Controls the behavior in case of missing configuration child
        */
-      std::string getAttribute(const std::string & key, bool ignoreIfMissing = false, const std::string & def = "") const;
+      template<class T>
+      T getAttribute(const std::string & key, bool ignoreIfMissing = false, const T & def = T()) const {
+         const auto & obj = data().get_child_optional(key);
+         if( !obj ) {
+            if( ignoreIfMissing ) {
+               return def;
+            } else {
+               throw std::runtime_error(className() + "#" + name() + ": structure '" + key + "' does not exist" );
+            }
+         }
+         return obj.get().get_value<T>();
+      }
+
+      const std::string & getAttribute(const std::string & key, bool ignoreIfMissing = false, const std::string & def = "") const;
 
       /** Access to array structure
        * @param pathToChild The path to the configuration child, relative to the current one in form "path.to.child"
@@ -133,14 +168,20 @@ namespace TrigConf {
       /** Access to initialized state */
       explicit operator bool() const { return m_initialized; }
       bool isValid() const { return m_initialized; }
+      bool isInitialized() const { return m_initialized; }
 
       /** Check if children exist */
-      bool empty() const { return m_data.empty(); }
+      bool empty() const { return data().empty(); }
 
       /* Print this object including children
        * @param os The output stream
        */
-      void print(std::ostream & os = std::cout) const;
+      void printRaw(std::ostream & os = std::cout) const;
+
+      /* Print this object including children
+       * @param os The output stream
+       */
+      virtual void print(std::ostream & os = std::cout) const;
 
       /** Static function to print a @c ptree object
        * @param key The key of this data as found in the parent structure
@@ -153,6 +194,10 @@ namespace TrigConf {
                                uint level = 0,
                                std::ostream & os = std::cout);
 
+      bool ownsData() const {
+         return (bool)m_dataSPtr;
+      }
+
    protected:
 
       /** Update the internal data after modification of the data object
@@ -163,7 +208,10 @@ namespace TrigConf {
 
       bool m_initialized { false }; //!< if initialized, the underlying ptree is has been assigned to (can be empty)
 
-      ptree m_data; //!< object holding the configuration data
+      std::shared_ptr<ptree> m_dataSPtr { nullptr }; // used when owning the tree
+      const ptree * m_dataPtr { nullptr }; // used when not owning the tree
+
+      std::string m_name{""}; // most objects are named
    
    };
 

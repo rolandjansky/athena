@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 include.block("EventOverlayJobTransforms/ConfiguredOverlayMT_jobOptions.py")
 
@@ -40,10 +40,10 @@ job += CfgGetter.getAlgorithm("CopyTimings")
 import AthenaPoolCnvSvc.ReadAthenaPoolDouble
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-OverlayEventSelector = ServiceMgr.DoubleEventSelector
-OverlayEventSelector.PrimaryInputCollections = athenaCommonFlags.PoolRDOInput()
-OverlayEventSelector.SecondaryaryInputCollections = athenaCommonFlags.PoolHitsInput()
-OverlayEventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
+ServiceMgr.DoubleEventSelector.InputCollections = athenaCommonFlags.PoolRDOInput()
+ServiceMgr.SecondaryEventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
+if athenaCommonFlags.SkipEvents.statusOn:
+    ServiceMgr.DoubleEventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 # Properly generate event context
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp

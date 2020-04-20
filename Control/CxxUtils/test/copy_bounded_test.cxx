@@ -13,9 +13,6 @@
 
 #undef NDEBUG
 
-// Disable this test entirely for the xAOD standalone builds:
-#ifndef XAOD_STANDALONE
-
 #include "CxxUtils/copy_bounded.h"
 #include "boost/range/iterator_range.hpp"
 #include "boost/range/algorithm/fill.hpp"
@@ -130,12 +127,6 @@ void test1()
   test1a<std::list<int>, arange>::test();
   test1a<std::vector<int>, arange>::test();
 }
-
-#else
-
-void test1() {}
-
-#endif // not XAOD_STANDALONE
 
 int main()
 {

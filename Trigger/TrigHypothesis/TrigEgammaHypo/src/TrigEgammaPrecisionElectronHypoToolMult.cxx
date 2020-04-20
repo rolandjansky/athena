@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include "DecisionHandling/Combinators.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/Combinators.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigEgammaPrecisionElectronHypoToolMult.h"
 
 using namespace TrigCompositeUtils;
@@ -23,7 +23,7 @@ StatusCode TrigEgammaPrecisionElectronHypoToolMult::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEgammaPrecisionElectronHypoToolMult::decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input )  const {
+StatusCode TrigEgammaPrecisionElectronHypoToolMult::decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& ctx)  const {
   HLT::Index2DVec passingSelection( m_subTools.size() );
   ATH_MSG_DEBUG( "Applying selection of multiplicity " << m_subTools.size() );
 
@@ -32,7 +32,7 @@ StatusCode TrigEgammaPrecisionElectronHypoToolMult::decide( std::vector<ITrigEga
     size_t electronIndex{ 0 };
     for ( auto iIter =  input.begin(); iIter != input.end(); ++iIter, ++electronIndex ) {
       if ( passed( m_decisionId.numeric(), iIter->previousDecisionIDs ) ) {
-	if ( tool->decide( *iIter ) ) 
+	if ( tool->decide( *iIter,ctx) ) 
 	  passingSelection[ cutIndex ].push_back( electronIndex );
       }
     }

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 if 'OutputFile' not in dir():
     OutputFile="bc_output.txt"
 
@@ -9,7 +11,7 @@ if 'DBString' not in dir():
 
 if 'sqlite' in dir():
     dbStr="<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db>"
-    if not 'tag' in dir():
+    if 'tag' not in dir():
         tag="LARBadChannelsOflBadChannels-UPD4-00"
 else:
     dbStr=DBString+DBInstance+"</db>"
@@ -19,16 +21,16 @@ if 'tag' in dir():
 else:
     tagStr=""
 
-if not 'IOVEndRun' in dir():
+if 'IOVEndRun' not in dir():
    IOVEndRun = -1
 
-if not 'IOVEndLB' in dir():
+if 'IOVEndLB' not in dir():
    IOVEndLB = -1
 
-if not 'folderStr' in dir():
+if 'folderStr' not in dir():
    folderStr="/LAR/BadChannelsOfl/BadChannels"
 
-if not 'ExecutiveSummaryFile' in dir():
+if 'ExecutiveSummaryFile' not in dir():
     ExecutiveSummaryFile=""
 
 
@@ -76,7 +78,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()  
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 
 from AthenaCommon.AlgSequence import AthSequencer

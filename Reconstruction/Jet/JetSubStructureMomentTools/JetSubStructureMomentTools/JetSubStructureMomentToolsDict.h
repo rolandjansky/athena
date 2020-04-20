@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETSUBSTRUCTUREMOMENTTOOLS_JETSUBSTRUCTUREMOMENTTOOLSDICT_H
@@ -24,6 +24,8 @@
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 #include "JetSubStructureMomentTools/KtDeltaRTool.h"
 #include "JetSubStructureMomentTools/PlanarFlowTool.h"
+#include "JetSubStructureMomentTools/SoftDropObservablesTool.h"
+#include "JetSubStructureMomentTools/MultiplicitiesTool.h"
 #include "JetSubStructureMomentTools/SubjetMakerTool.h"
 #include "JetSubStructureMomentTools/CenterOfMassShapesTool.h"
 #include "JetSubStructureMomentTools/ISubjetRecorderTool.h"

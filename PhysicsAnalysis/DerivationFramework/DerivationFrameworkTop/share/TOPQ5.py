@@ -84,7 +84,7 @@ TOPQ5JpsiFinder = Analysis__JpsiFinder(
   useMCPCuts                  = False )
 
 ToolSvc += TOPQ5JpsiFinder
-print      TOPQ5JpsiFinder
+printfunc (     TOPQ5JpsiFinder)
 
 #--------------------------------------------------------------------
 ## 3/ setup the vertex reconstruction "call" tool(s). They are part of the derivation framework.
@@ -105,7 +105,7 @@ TOPQ5_Reco_mumu = DerivationFramework__Reco_mumu(
   DoVertexType           = 7)
 
 ToolSvc += TOPQ5_Reco_mumu
-print TOPQ5_Reco_mumu
+printfunc (TOPQ5_Reco_mumu)
 
 #--------------------------------------------------------------------
 ## 4/ setup the vertex selection and augmentation tool(s). These tools decorate the vertices with
@@ -131,7 +131,7 @@ TOPQ5_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
   DoVertexType          = 7)
 
 ToolSvc += TOPQ5_Select_Jpsi2mumu
-print TOPQ5_Select_Jpsi2mumu
+printfunc (TOPQ5_Select_Jpsi2mumu)
 
 #====================================================================
 # SKIMMING TOOLS
@@ -145,7 +145,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 TOPQ5_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "TOPQ5_SelectEvent",
                                                                 expression = jpsiExpression)
 ToolSvc += TOPQ5_SelectEvent
-print TOPQ5_SelectEvent
+printfunc (TOPQ5_SelectEvent)
 
 skimmingTools_lep.append(TOPQ5_SelectEvent)
 
@@ -153,7 +153,7 @@ skimmingTools_lep.append(TOPQ5_SelectEvent)
 # THINNING TOOLS
 #====================================================================
 import DerivationFrameworkTop.TOPQCommonThinning
-thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ5',TOPQ5ThinningHelper.ThinningSvc(), ToolSvc)
+thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ5',streamName, ToolSvc)
 
 #====================================================================
 # CREATE THE KERNEL(S)

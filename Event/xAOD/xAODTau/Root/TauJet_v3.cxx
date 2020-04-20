@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauJet_v3.cxx 725228 2016-02-19 22:59:42Z griffith $
@@ -188,10 +188,10 @@ namespace xAOD {
 
   
   void TauJet_v3::setP4(double pt, double eta, double phi, double m)  {
-    static Accessor< float > acc1( "pt" );
-    static Accessor< float > acc2( "eta" );
-    static Accessor< float > acc3( "phi" );
-    static Accessor< float > acc4( "m" );
+    static const Accessor< float > acc1( "pt" );
+    static const Accessor< float > acc2( "eta" );
+    static const Accessor< float > acc3( "phi" );
+    static const Accessor< float > acc4( "m" );
     acc1( *this )=pt;
     acc2( *this )=eta;
     acc3( *this )=phi;
@@ -260,7 +260,7 @@ namespace xAOD {
   bool TauJet_v3::hasDiscriminant( TauJetParameters::TauID discID ) const
   {
     // Get the discriminant accessor:
-    Accessor< float >* acc = xAODTau::discriminantAccessorV3( discID );
+    const Accessor< float >* acc = xAODTau::discriminantAccessorV3( discID );
     if( ! acc ) return false;
     return true;
   }
@@ -271,7 +271,7 @@ namespace xAOD {
   //-------------------------------------------------------------------------
   double TauJet_v3::discriminant( TauJetParameters::TauID discriminant ) const {
     // Get the discriminant accessor:
-    Accessor< float >* acc = xAODTau::discriminantAccessorV3( discriminant );
+    const Accessor< float >* acc = xAODTau::discriminantAccessorV3( discriminant );
     if( ! acc ) return -1111.0;
     
     // Retrieve the discriminant value:
@@ -292,7 +292,7 @@ namespace xAOD {
     bool TauJet_v3::isTau(
             TauJetParameters::IsTauFlag flag ) const
     {
-      static Accessor< uint32_t > acc( "isTauFlags" );
+      static const Accessor< uint32_t > acc( "isTauFlags" );
       std::bitset<32> isTauFlags( acc( *this ) );
       return isTauFlags[flag];
     }
@@ -300,7 +300,7 @@ namespace xAOD {
     void TauJet_v3::setIsTau(
             TauJetParameters::IsTauFlag flag, bool value )
     {
-      static Accessor< uint32_t > acc( "isTauFlags" );
+      static const Accessor< uint32_t > acc( "isTauFlags" );
       std::bitset<32> isTauFlags( acc( *this ) );
       isTauFlags[flag] = value;
       acc( *this ) = isTauFlags.to_ulong();
@@ -313,7 +313,7 @@ namespace xAOD {
     // void TauJet_v3::setFlag(
     //         TauJetParameters::VetoFlags flag, bool value )
     // {
-    //   static Accessor< uint32_t > acc( "vetoFlags" );
+    //   static const Accessor< uint32_t > acc( "vetoFlags" );
     //   std::bitset<32> vetoFlags( acc( *this ) );
     //   vetoFlags[flag] = value;
     //   acc( *this ) = vetoFlags.to_ulong();
@@ -322,7 +322,7 @@ namespace xAOD {
     // bool TauJet_v3::flag(
     //         TauJetParameters::VetoFlags flag ) const
     // {
-    //   static Accessor< uint32_t > acc( "vetoFlags" );
+    //   static const Accessor< uint32_t > acc( "vetoFlags" );
     //   std::bitset<32> vetoFlags( acc( *this ) );
     //   return vetoFlags[flag];
     // }
@@ -334,7 +334,7 @@ namespace xAOD {
   //-------------------------------------------------------------------------
   bool TauJet_v3::detail( TauJetParameters::Detail detail, int& value ) const {
     // Get the detail accessor:
-    Accessor< int >* acc = xAODTau::detailsAccessorV3<int>( detail );
+    const Accessor< int >* acc = xAODTau::detailsAccessorV3<int>( detail );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;    
 
@@ -348,7 +348,7 @@ namespace xAOD {
   //-------------------------------------------------------------------------
   bool TauJet_v3::detail( TauJetParameters::Detail detail, float& value ) const {
     // Get the detail accessor:
-    Accessor< float >* acc = xAODTau::detailsAccessorV3<float>( detail );
+    const Accessor< float >* acc = xAODTau::detailsAccessorV3<float>( detail );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;    
 
@@ -363,7 +363,7 @@ namespace xAOD {
   bool TauJet_v3::detail( TauJetParameters::Detail detail, const IParticle* &value ) const {
     // Get the detail accessor:
     value=0;
-    Accessor< ElementLink<IParticleContainer> >* acc = xAODTau::detailsAccessorV3<ElementLink<IParticleContainer> >( detail );
+    const Accessor< ElementLink<IParticleContainer> >* acc = xAODTau::detailsAccessorV3<ElementLink<IParticleContainer> >( detail );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;    
 
@@ -409,7 +409,7 @@ namespace xAOD {
   //-------------------------------------------------------------------------
   bool TauJet_v3::panTauDetail( TauJetParameters::PanTauDetails panTauDetail, int& value ) const {
     // Get the panTauDetail accessor:
-    Accessor< int >* acc = xAODTau::panTauDetailsAccessorV3<int>( panTauDetail );
+    const Accessor< int >* acc = xAODTau::panTauDetailsAccessorV3<int>( panTauDetail );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;    
 
@@ -423,7 +423,7 @@ namespace xAOD {
   //-------------------------------------------------------------------------
   bool TauJet_v3::panTauDetail( TauJetParameters::PanTauDetails panTauDetail, float& value ) const {
     // Get the panTauDetail accessor:
-    Accessor< float >* acc = xAODTau::panTauDetailsAccessorV3<float>( panTauDetail );
+    const Accessor< float >* acc = xAODTau::panTauDetailsAccessorV3<float>( panTauDetail );
     if( ! acc ) return false;
     if( ! acc->isAvailable( *this ) ) return false;    
 
@@ -458,7 +458,7 @@ namespace xAOD {
   // 				     tauTrackLinks,
   // 				     setTauTrackLinks )
 
-  static SG::AuxElement::Accessor< TauJet_v3::TauTrackLinks_t > tauTrackAcc( "tauTrackLinks" );
+  static const SG::AuxElement::Accessor< TauJet_v3::TauTrackLinks_t > tauTrackAcc( "tauTrackLinks" );
 
   const TauJet_v3::TauTrackLinks_t& TauJet_v3::allTauTrackLinks() const {
     return tauTrackAcc(*this);
@@ -620,7 +620,7 @@ namespace xAOD {
   				     clusterLinks,
   				     setClusterLinks )
 
-  static SG::AuxElement::Accessor< TauJet_v3::IParticleLinks_t > clusterAcc( "clusterLinks" );
+  static const SG::AuxElement::Accessor< TauJet_v3::IParticleLinks_t > clusterAcc( "clusterLinks" );
 
 
   const IParticle* TauJet_v3::cluster( size_t i) const {
@@ -657,7 +657,7 @@ namespace xAOD {
   				     pi0Links,
   				     setPi0Links )
 
-  static SG::AuxElement::Accessor< TauJet_v3::IParticleLinks_t > pi0Acc( "pi0Links" );
+  static const SG::AuxElement::Accessor< TauJet_v3::IParticleLinks_t > pi0Acc( "pi0Links" );
 
 
   const IParticle* TauJet_v3::pi0( size_t i) const {
@@ -694,7 +694,7 @@ namespace xAOD {
   				     jetLink,
   				     setJetLink )
 
-  static SG::AuxElement::Accessor< TauJet_v3::JetLink_t > jetAcc( "jetLink" );
+  static const SG::AuxElement::Accessor< TauJet_v3::JetLink_t > jetAcc( "jetLink" );
 
   const Jet* TauJet_v3::jet() const {
    return ( *jetAcc( *this ) );
@@ -715,7 +715,7 @@ namespace xAOD {
   				     vertexLink,
   				     setVertexLink )
 
-  static SG::AuxElement::Accessor< TauJet_v3::VertexLink_t > vertexAcc( "vertexLink" );
+  static const SG::AuxElement::Accessor< TauJet_v3::VertexLink_t > vertexAcc( "vertexLink" );
 
   const Vertex* TauJet_v3::vertex() const {
    return ( *vertexAcc( *this ) );
@@ -736,7 +736,7 @@ namespace xAOD {
   				     secondaryVertexLink,
   				     setSecondaryVertexLink )
 
-  static SG::AuxElement::Accessor< TauJet_v3::VertexLink_t > secondaryVertexAcc( "secondaryVertexLink" );
+  static const SG::AuxElement::Accessor< TauJet_v3::VertexLink_t > secondaryVertexAcc( "secondaryVertexLink" );
 
   const Vertex* TauJet_v3::secondaryVertex() const {
    return ( *secondaryVertexAcc( *this ) );
@@ -761,7 +761,7 @@ namespace xAOD {
   
 
 
-  static SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > hadronicPFOAcc( "hadronicPFOLinks" );
+  static const SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > hadronicPFOAcc( "hadronicPFOLinks" );
   
   const PFO* TauJet_v3::hadronicPFO( size_t i ) const {
    return ( *hadronicPFOAcc( *this )[ i ] );
@@ -790,7 +790,7 @@ namespace xAOD {
   
 
 
-  static SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > shotPFOAcc( "shotPFOLinks" );
+  static const SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > shotPFOAcc( "shotPFOLinks" );
   
   const PFO* TauJet_v3::shotPFO( size_t i ) const {
    return ( *shotPFOAcc( *this )[ i ] );
@@ -820,7 +820,7 @@ namespace xAOD {
   
 
 
-  static SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > chargedPFOAcc( "chargedPFOLinks" );
+  static const SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > chargedPFOAcc( "chargedPFOLinks" );
   
   const PFO* TauJet_v3::chargedPFO( size_t i ) const {
    return ( *chargedPFOAcc( *this )[ i ] );
@@ -851,7 +851,7 @@ namespace xAOD {
   
 
 
-  static SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > neutralPFOAcc( "neutralPFOLinks" );
+  static const SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > neutralPFOAcc( "neutralPFOLinks" );
   
   const PFO* TauJet_v3::neutralPFO( size_t i ) const {
    return ( *neutralPFOAcc( *this )[ i ] );
@@ -882,7 +882,7 @@ namespace xAOD {
   
 
 
-  static SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > pi0PFOAcc( "pi0PFOLinks" );
+  static const SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > pi0PFOAcc( "pi0PFOLinks" );
   
   const PFO* TauJet_v3::pi0PFO( size_t i ) const {
    return ( *pi0PFOAcc( *this )[ i ] );
@@ -916,7 +916,7 @@ namespace xAOD {
   
 
 
-  static SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > protoChargedPFOAcc( "protoChargedPFOLinks" );
+  static const SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > protoChargedPFOAcc( "protoChargedPFOLinks" );
   
   const PFO* TauJet_v3::protoChargedPFO( size_t i ) const {
    return ( *protoChargedPFOAcc( *this )[ i ] );
@@ -946,7 +946,7 @@ namespace xAOD {
   
 
 
-  static SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > protoNeutralPFOAcc( "protoNeutralPFOLinks" );
+  static const SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > protoNeutralPFOAcc( "protoNeutralPFOLinks" );
   
   const PFO* TauJet_v3::protoNeutralPFO( size_t i ) const {
    return ( *protoNeutralPFOAcc( *this )[ i ] );
@@ -977,7 +977,7 @@ namespace xAOD {
   
 
 
-  static SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > protoPi0PFOAcc( "protoPi0PFOLinks" );
+  static const SG::AuxElement::Accessor< TauJet_v3::PFOLinks_t > protoPi0PFOAcc( "protoPi0PFOLinks" );
   
   const PFO* TauJet_v3::protoPi0PFO( size_t i ) const {
    return ( *protoPi0PFOAcc( *this )[ i ] );

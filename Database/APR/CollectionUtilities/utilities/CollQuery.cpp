@@ -288,7 +288,7 @@ int main(int argc, const char *argv[])
   std::cout << "Number of attributes is: " 
   << description.numberOfAttributeColumns() << std::endl;
 */
-         auto_ptr<pool::ICollectionQuery>  collQuery( collection->newQuery() );
+         unique_ptr<pool::ICollectionQuery>  collQuery( collection->newQuery() );
          if (queryinfo.hasQual("-query")) {
             log << coral::Debug << ">> Creating query for the collection " << coral::MessageStream::endmsg;
          }

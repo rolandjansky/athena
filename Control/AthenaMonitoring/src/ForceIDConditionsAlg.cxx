@@ -7,5 +7,6 @@
 StatusCode ForceIDConditionsAlg::initialize() {
   ATH_CHECK( m_pixelDetEleCollKey.initialize() );
   ATH_CHECK( m_SCTDetEleCollKey.initialize() );
+  ATH_CHECK( m_trtDetEleContKey.initialize() );
   return StatusCode::SUCCESS;
 }

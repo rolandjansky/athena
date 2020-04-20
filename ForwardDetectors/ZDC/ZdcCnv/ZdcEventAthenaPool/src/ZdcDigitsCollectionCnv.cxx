@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ZdcEventTPCnv/ZdcDigitsCollectionCnv_p1.h"
@@ -27,7 +27,7 @@ ZdcDigitsCollection* ZdcDigitsCollectionCnv::createTransient() {
 
     static const pool::Guid   p1_guid("B77B5F9A-1C29-4D74-A107-B3C71680C029");
     if( this->compareClassGuid(p1_guid)) {
-      std::auto_ptr< ZdcDigitsCollection_p1 >   col_vect( this->poolReadObject< ZdcDigitsCollection_p1 >() );
+      std::unique_ptr< ZdcDigitsCollection_p1 >   col_vect( this->poolReadObject< ZdcDigitsCollection_p1 >() );
       trans_cont = converter_p1.createTransient(col_vect.get(), mlog );
     }
     else {

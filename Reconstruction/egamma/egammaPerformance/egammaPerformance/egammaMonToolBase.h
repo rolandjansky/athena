@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -43,15 +43,15 @@ class egammaMonToolBase : public ManagedMonitorToolBase
   bool hasBadLar();
   int  GetRegion(float eta);
   int  GetForwardRegion(float eta);
-  void bookTH1F(TH1* &h, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbins, float low, float high);
-  void bookTH2F(TH2* &h, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbinsx, float xlow, float xhigh, int nbinsy, float ylow, float yhigh);
-  void bookTProfile(TProfile* &h, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbins, float xlow, float xhigh, float ylow, float yhigh);
-  void bookTH1FperRegion(std::vector<TH1*> &vhist, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbins, float low, float high, unsigned int min_region, unsigned int max_region);
-  void bookTH2FperRegion(std::vector<TH2*> &vhist, MonGroup& mygroup, const std::string hname, const std::string htitle, int nbinsx, float xlow, float xhigh, int nbinsy, float ylow, float yhigh, unsigned int min_region, unsigned int max_region);
+  void bookTH1F(TH1* &h, MonGroup& mygroup, const std::string& hname, const std::string& htitle, int nbins, float low, float high);
+  void bookTH2F(TH2* &h, MonGroup& mygroup, const std::string& hname, const std::string& htitle, int nbinsx, float xlow, float xhigh, int nbinsy, float ylow, float yhigh);
+  void bookTProfile(TProfile* &h, MonGroup& mygroup, const std::string& hname, const std::string& htitle, int nbins, float xlow, float xhigh, float ylow, float yhigh);
+  void bookTH1FperRegion(std::vector<TH1*> &vhist, MonGroup& mygroup, const std::string& hname, const std::string& htitle, int nbins, float low, float high, unsigned int min_region, unsigned int max_region);
+  void bookTH2FperRegion(std::vector<TH2*> &vhist, MonGroup& mygroup, const std::string& hname, const std::string& htitle, int nbinsx, float xlow, float xhigh, int nbinsy, float ylow, float yhigh, unsigned int min_region, unsigned int max_region);
   void fillTH1FperRegion(std::vector<TH1*> &vhist, unsigned int ir, float x);
   void fillTH2FperRegion(std::vector<TH2*> &vhist, unsigned int ir, float x, float y);
   void fillEfficiencies(TH1* h, TH1* href);
-  bool hasGoodTrigger(std::string comment);
+  bool hasGoodTrigger(const std::string& comment);
 
   // Data members
   StoreGateSvc * m_storeGate;

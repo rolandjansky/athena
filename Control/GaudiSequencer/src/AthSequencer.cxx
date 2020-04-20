@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthSequencer.cxx
@@ -60,8 +60,6 @@ AthSequencer::AthSequencer( const std::string& name,
 {
   
   // Declare AthSequencer properties with their defaults
-  declareProperty( "Members", m_names,
-                   "Algorithm names (of the form '<cppType>/<instanceName>')" );
   m_names.declareUpdateHandler( &AthSequencer::membershipHandler, this );
 
   declareProperty( "Atomic", m_atomic=false, "Atomic sequence: don't unroll in MT");
@@ -368,7 +366,7 @@ AthSequencer::decodeMemberNames( )
 void
 AthSequencer::membershipHandler( Property& /* theProp */ )
 {
-  if ( isInitialized() ) decodeMemberNames();
+  if ( isInitialized() ) decodeMemberNames().ignore();
 }
 
 /**

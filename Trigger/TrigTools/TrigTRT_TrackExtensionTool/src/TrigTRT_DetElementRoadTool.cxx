@@ -5,7 +5,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "Identifier/IdentifierHash.h" 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrigTRT_TrackExtensionTool/TrigTRT_TrackExtensionGeometry.h"
 #include "TrigTRT_TrackExtensionTool/TrigTRT_DetElementRoadTool.h"

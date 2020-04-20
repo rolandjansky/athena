@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // DataHandle<> is not thread-safe.
@@ -38,7 +38,6 @@ bool operator==(const MyDataObj& lhs, const MyDataObj& rhs) {
 typedef std::list<int> IntList;
 /** @file DataHandle_test.cxx  unit test for DataHandle
  * @author ATLAS Collaboration
- * $Id: DataHandle_test.cxx,v 1.15 2008-05-22 22:52:12 calaf Exp $
  ***************************************************************************/
 
 #include "AthenaKernel/CLASS_DEF.h"
@@ -122,7 +121,7 @@ namespace Athena_test {
   {
     DataHandle<MyDataObj> dh (vp[0]);
     assert (vp[0]->refCount() == 1);
-    dh.setState (vp[0]);
+    assert (dh.setState (vp[0]).isSuccess());
     assert (vp[0]->refCount() == 1);
     DataHandle<MyDataObj> dh2 (dh);
     assert (vp[0]->refCount() == 2);
@@ -146,17 +145,17 @@ namespace Athena_test {
     dh2++;
     assert (vp[0]->refCount() == 1);
 
-    dh.setState (vp[0]);
+    assert (dh.setState (vp[0]).isSuccess());
     assert (vp[0]->refCount() == 2);
     SG::ConstProxyIterator it = mp.begin();
-    dh3.setState (it, mp.end());
+    assert (dh3.setState (it, mp.end()).isSuccess());
     assert (vp[0]->refCount() == 2);
     for (int i=1; i < 4; i++)
       assert (vp[i]->refCount() == 0);
     dh3++;
     assert (vp[0]->refCount() == 1);
     assert (vp[1]->refCount() == 1);
-    dh2.setState (vp[1]);
+    assert (dh2.setState (vp[1]).isSuccess());
     ++dh3;
     for (int i=0; i < 3; i++)
       assert (vp[i]->refCount() == 1);
@@ -164,44 +163,44 @@ namespace Athena_test {
     for (int i=0; i < 4; i++)
       vp[i]->addRef();
 
-    dh.setState (vp[1]);
+    assert (dh.setState (vp[1]).isSuccess());
     assert (vp[0]->refCount() == 1);
     assert (vp[1]->refCount() == 3);
     assert (vp[2]->refCount() == 2);
     assert (vp[3]->refCount() == 1);
-    dh.setState (vp[0]);
+    assert (dh.setState (vp[0]).isSuccess());
     assert (vp[3]->refCount() == 1);
     for (int i=0; i < 3; i++)
       assert (vp[i]->refCount() == 2);
     it++; it++;
-    dh.setState (it, mp.end());
+    assert (dh.setState (it, mp.end()).isSuccess());
     assert (vp[0]->refCount() == 1);
     assert (vp[1]->refCount() == 2);
     assert (vp[2]->refCount() == 3);
     assert (vp[3]->refCount() == 1);
     --it;
-    dh.setState (it, mp.end());
+    assert (dh.setState (it, mp.end()).isSuccess());
     assert (vp[0]->refCount() == 1);
     assert (vp[1]->refCount() == 3);
     assert (vp[2]->refCount() == 2);
     assert (vp[3]->refCount() == 1);
-    dh.setState (vp[0]);
+    assert (dh.setState (vp[0]).isSuccess());
     assert (vp[3]->refCount() == 1);
     for (int i=0; i < 3; i++)
       assert (vp[i]->refCount() == 2);
 
     const DataHandle<MyDataObj> dh4;
-    dh4.setState (vp[0]);
+    assert (dh4.setState (vp[0]).isSuccess());
     assert (vp[0]->refCount() == 3);
     assert (vp[1]->refCount() == 2);
     assert (vp[2]->refCount() == 2);
     assert (vp[3]->refCount() == 1);
-    dh4.setState (it, mp.end());
+    assert (dh4.setState (it, mp.end()).isSuccess());
     assert (vp[0]->refCount() == 2);
     assert (vp[1]->refCount() == 3);
     assert (vp[2]->refCount() == 2);
     assert (vp[3]->refCount() == 1);
-    dh4.setState (vp[0]);
+    assert (dh4.setState (vp[0]).isSuccess());
     assert (vp[0]->refCount() == 3);
     assert (vp[1]->refCount() == 2);
     assert (vp[2]->refCount() == 2);

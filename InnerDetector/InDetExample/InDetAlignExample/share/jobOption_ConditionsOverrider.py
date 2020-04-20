@@ -58,10 +58,10 @@ if loadInDetRec_Options["siPoolFile"]:
   from AthenaCommon.AppMgr import ServiceMgr
   ServiceMgr += CondProxyProvider()
   ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
-  print 'Loading initial alignment File'
+  printfunc ('Loading initial alignment File')
   ServiceMgr.CondProxyProvider.InputCollections = [ loadInDetRec_Options["siPoolFile"] ]
   ServiceMgr.CondProxyProvider.OutputLevel=INFO
-  print ServiceMgr.CondProxyProvider
+  printfunc (ServiceMgr.CondProxyProvider)
   IOVSvc = Service("IOVSvc")
   IOVSvc.preLoadData = True
 
@@ -97,9 +97,9 @@ if loadInDetRec_Options["readConstantsFromPool"]:
   ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
   # set this to the file containing AlignableTransform objects
   ServiceMgr.CondProxyProvider.InputCollections += loadInDetRec_Options["inputPoolFiles"]
-  print "INPUT POOL FILES COLLECTION", ServiceMgr.CondProxyProvider.InputCollections 
+  printfunc ("INPUT POOL FILES COLLECTION", ServiceMgr.CondProxyProvider.InputCollections )
   ServiceMgr.CondProxyProvider.OutputLevel = DEBUG
-  print ServiceMgr.CondProxyProvider
+  printfunc (ServiceMgr.CondProxyProvider)
   # this preload causes callbacks for read in objects to be activated,
   # allowing GeoModel to pick up the transforms
   ServiceMgr.IOVSvc.preLoadData = True
@@ -115,7 +115,7 @@ if loadInDetRec_Options["errorScalingTag"]:
     #conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+loadInDetRec_Options["errorScalingTag"]+';dbname=OFLP200</dbConnection>/Indet/TrkErrorScaling','IndetTrkErrorScaling_nominal',True ); 
     conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+loadInDetRec_Options["errorScalingTag"]+';dbname=CONDBR2</dbConnection>/Indet/TrkErrorScaling','IndetTrkErrorScaling_nominal',True );
     #conddb.addFolderWithTag(loadInDetRec_Options["errorScalingTag"],'/Indet/TrkErrorScaling','IndetTrkErrorScaling_nominal',True );
-    print "INFO:: ErrorScaling from local Database"
+    printfunc ("INFO:: ErrorScaling from local Database")
   else:
     conddb.addOverride('/Indet/TrkErrorScaling',loadInDetRec_Options["errorScalingTag"])
 #Added if you put an empty ErrorScalingTag
@@ -148,15 +148,14 @@ InDetRotErrorScalingTool = Trk__RIO_OnTrackErrorScalingTool( name = 'RIO_OnTrack
 #InDetRotErrorScalingTool.overrideScalePix=30
 
 ToolSvc += InDetRotErrorScalingTool
-print InDetRotErrorScalingTool
+printfunc (InDetRotErrorScalingTool)
 
   
 # Correct TRT calibration for cosmics
 if loadInDetRec_Options["TRTCalibTextFile"] and loadInDetRec_Options["Cosmics"]:
   from AthenaCommon.AppMgr import ToolSvc
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-  TRTCalibDBSvc=TRT_CalDbSvc()
-  ServiceMgr+=TRTCalibDBSvc
+  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+  TRTCalibDBTool=TRT_CalDbTool(name="TRT_CalDbTool")
   
   conddb.blockFolder("/TRT/Calib/RT" )
   conddb.blockFolder("/TRT/Calib/T0" )
@@ -181,23 +180,23 @@ if doJiveXML:
 
 #Run Digital
 if loadInDetRec_Options["DigitalClustering"]:
-    print "##### INFO: Running with Digital clustering"
+    printfunc ("##### INFO: Running with Digital clustering")
     ToolSvc.InDetPixelClusterOnTrackTool.PositionStrategy=0
     ToolSvc.InDetPixelClusterOnTrackTool.ErrorStrategy=1
 
 
 
 if loadInDetRec_Options["inputBowingDatabase"]:
-  print "INFO:: parsed: ",loadInDetRec_Options["inputBowingDatabase"]
+  printfunc ("INFO:: parsed: ",loadInDetRec_Options["inputBowingDatabase"])
   if ".db" in loadInDetRec_Options["inputBowingDatabase"]:
-    print "INFO:: blocking IBLDist Folder"
+    printfunc ("INFO:: blocking IBLDist Folder")
     conddb.blockFolder("/Indet/IBLDist")
-    print "INFO:: Adding folder with tag"
+    printfunc ("INFO:: Adding folder with tag")
     from IOVDbSvc.CondDB import conddb
     conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+loadInDetRec_Options["inputBowingDatabase"]+';dbname=CONDBR2</dbConnection>/Indet/IBLDist','IndetIBLDist',True);
     #conddb.addFolderWithTag(loadInDetRec_Options["errorScalingTag"],'/Indet/TrkErrorScaling','IndetTrkErrorScaling_nominal',True );
-    print "INFO:: IBL Bowing from local Database"
+    printfunc ("INFO:: IBL Bowing from local Database")
   else:
-    print "INFO:: Overriding Database Tag"
+    printfunc ("INFO:: Overriding Database Tag")
     conddb.addOverride('/Indet/IBLDist',loadInDetRec_Options["inputBowingDatabase"])
 

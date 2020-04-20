@@ -10,7 +10,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include <iostream>
 //#include <math.h>
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 static const InterfaceID IID_ITRT_FillCablingData_DC2
                             ("TRT_FillCablingData_DC2", 1, 0);

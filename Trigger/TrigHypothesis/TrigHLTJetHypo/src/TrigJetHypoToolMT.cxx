@@ -20,8 +20,8 @@
 #include "./DebugInfoCollector.h"
 #include "./xAODJetCollector.h"
 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;
@@ -101,6 +101,8 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
     return StatusCode::FAILURE;
   }
 
+
+  std::size_t decision_count{0};
   if (pass) {
     if (jetCollector.empty()) {
       ATH_MSG_ERROR("HypoTool passed the event for " <<
@@ -113,7 +115,12 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
     // pairs of const xAOD::Jet* (first) and mutable Decision* (second)
 
     auto participating_jets = jetCollector.xAODJets();
-    
+    if (infocollector) {
+      infocollector->
+	collect(name(),
+		"no of xAODJets " + std::to_string(participating_jets.size()));
+    }
+
     for (auto& pair : jetHypoInputs) { 
       auto it = std::find(participating_jets.begin(),
                           participating_jets.end(),
@@ -124,20 +131,29 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
         // Add this HypoTool's ID to this Decision object. 
 
         TrigCompositeUtils::addDecisionID(getId().numeric(), pair.second);
+	++decision_count;
       }
     }
   }
 
+  // accumulateTime(steady_clock::now() - t);
+
+  
+  std::string msg =
+    "hypo testing done: no of input jets " + std::to_string(jets->size())
+    + " no of particlating jets " + std::to_string(jetCollector.size())
+    + " decision count " + std::to_string(decision_count) 
+    +  " pass ";
+  if (pass) {msg += "true"; } else { msg += "false";}
+  
+
+  ATH_MSG_DEBUG(msg);
+
+
   if (infocollector){
+    infocollector->collect("TrigJetHypoToolMT", msg);
     infocollector->write();
   }
-
-  // accumulateTime(steady_clock::now() - t);
-  
-  ATH_MSG_DEBUG("hypo testing done chain  "
-                << " no of input jets " << jets->size()
-                << " no of particlating jets " << jetCollector.size()
-                << " pass " << pass );
   return StatusCode::SUCCESS;
 }
 

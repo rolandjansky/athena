@@ -196,24 +196,6 @@ class useNewRPCCabling(_modifier):
         if hasattr(muonCnvFlags,'RpcCablingMode'):
             muonCnvFlags.RpcCablingMode.set_Value_and_Lock('new')
 
-class openThresholdRPCCabling(_modifier):
-    """
-    RPC cabling need to tell CMA to use open thresholds
-    see http://alxr.usatlas.bnl.gov/lxr/source/atlas/MuonSpectrometer/MuonCablings/RPCcabling/src/EtaCMA.cxx#448
-    and other entries at http://alxr.usatlas.bnl.gov/lxr/ident?i=cosmic
-    """
-    def postSetup(self):
-        if not TriggerFlags.doMuon():
-            return
-
-        from MuonCnvExample.MuonCnvFlags import muonCnvFlags
-        if muonCnvFlags.RpcCablingMode=='new':
-            from MuonRPC_Cabling.MuonRPC_CablingConfig import MuonRPC_CablingSvc
-            MuonRPC_CablingSvc.CosmicConfiguration = True
-        else:
-            from RPCcabling.RPCcablingConfig import RPCcablingSvc
-            RPCcablingSvc.CosmicConfiguration = True
-
 class MdtCalibFromDB(_modifier):
     """
     setup MDT calibration from DB instead of ascii
@@ -788,33 +770,18 @@ class rewriteLVL1(_modifier):
     Rewrite LVL1 (use together with rerunLVL1)
     """
     # Example:
-    # athena -c "testPhysicsV3=1;rerunLVL1=1;rewriteLVL1=1;doLVL2=False;doEF=False;BSRDOInput='input.data'" TriggerJobOpts/runHLT_standalone.py
+    # athenaHLT -c "setMenu='PhysicsP1_pp_run3_v1';rerunLVL1=True;rewriteLVL1=True;" --filesInput=input.data TriggerJobOpts/runHLT_standalone.py
+
+    def preSetup(self):
+        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup
+        L1ByteStreamEncodersRecExSetup()
 
     def postSetup(self):
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-        # Process all events
-        theApp.EvtMax = -1
         TriggerFlags.writeBS = True
-
-        athenaCommonFlags.BSRDOOutput = 'AppName=Athena, OutputDirectory=./, FileTag=testWrite'
-        # Persistent BS construction and intialization
-        from ByteStreamCnvSvc import WriteByteStream
-        StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
-
-        # Bytestream conversion
-        StreamBSFileOutput.ItemList += [ "ROIB::RoIBResult#*" ]
-
-        # Merge with original bytestream
-        from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMergeOutputSvc
-        svcMgr += ByteStreamMergeOutputSvc(ByteStreamOutputSvc='ByteStreamEventStorageOutputSvc',
-                                           ByteStreamInputSvc='ByteStreamInputSvc',
-                                           overWriteHeader=True)
-
-        StreamBSFileOutput.OutputFile = "ByteStreamMergeOutputSvc"
-        svcMgr.ByteStreamCnvSvc.ByteStreamOutputSvcList=['ByteStreamMergeOutputSvc']
+        svcMgr.HltEventLoopMgr.RewriteLVL1 = True
 
 
 class writeBS(_modifier):
@@ -1100,6 +1067,7 @@ class fpeAuditor(_modifier):
         theApp.AuditServices = True
         theApp.AuditTools = True
         svcMgr.AuditorSvc += CfgMgr.FPEAuditor()
+        svcMgr.AuditorSvc.FPEAuditor.NStacktracesOnFPE=1
 
 class athMemAuditor(_modifier):
     """

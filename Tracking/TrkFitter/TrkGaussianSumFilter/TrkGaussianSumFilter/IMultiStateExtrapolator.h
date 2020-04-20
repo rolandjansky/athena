@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *********************************************************************************
                         IMultiStateExtrapolator.h  -  description
                         ------------------------------------------
 begin                : Tuesday 25th January 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
+author               : atkinson,Morley,Anastopoulos
 decription           : Extrapolation of a MultiComponentState to a destination
                        surface
 ================================================================================= */
@@ -24,8 +23,8 @@ decription           : Extrapolation of a MultiComponentState to a destination
 #include "TrkSurfaces/BoundaryCheck.h"
 
 #include "GaudiKernel/IAlgTool.h"
-#include <vector>
 #include <memory>
+#include <vector>
 namespace Trk {
 
 class IPropagator;
@@ -40,50 +39,51 @@ class IMultiStateExtrapolator : virtual public IAlgTool
 {
 public:
   /** Virtual destructor */
-  virtual ~IMultiStateExtrapolator(){};
+  virtual ~IMultiStateExtrapolator() = default;
 
   /** AlgTool interface method */
   static const InterfaceID& interfaceID() { return IID_IMultiStateExtrapolator; };
 
   /** Extrapolation of a MutiComponentState to a destination surface (1) */
-  virtual std::unique_ptr<MultiComponentState> extrapolate(
+  virtual MultiComponentState extrapolate(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
-  /** - Extrapolation of a MultiComponentState to destination surface without material effects (2) */
-  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
+  /** - Extrapolation of a MultiComponentState to destination surface without material effects (2)
+   */
+  virtual MultiComponentState extrapolateDirectly(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   /** Configured AlgTool extrapolation method (1) */
-  virtual std::unique_ptr<MultiComponentState> extrapolate(
+  virtual MultiComponentState extrapolate(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
-  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
+  virtual MultiComponentState extrapolateDirectly(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
-    BoundaryCheck boundaryCheck = true,
+    const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
-  virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> extrapolateM( 
+  virtual std::unique_ptr<std::vector<const Trk::TrackStateOnSurface*>> extrapolateM(
     const MultiComponentState&,
     const Surface&,
     PropDirection dir = anyDirection,
-    BoundaryCheck bcheck = true,
+    const BoundaryCheck& bcheck = true,
     ParticleHypothesis particle = nonInteracting) const = 0;
 };
 

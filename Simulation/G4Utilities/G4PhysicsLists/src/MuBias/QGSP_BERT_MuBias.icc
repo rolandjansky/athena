@@ -66,7 +66,6 @@
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
-#include "G4DataQuestionaire.hh"
 #include "HadronPhysicsQGSP_BERT_MuBias.hh"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -74,7 +73,6 @@
 template<class T> TQGSP_BERT_MuBias<T>::TQGSP_BERT_MuBias(G4int ver):  T()
 {
 
-  G4DataQuestionaire it(photon);
   G4cout << "<<< Geant4 Physics List simulation engine: QGSP_BERT_MuBias 3.4"<<G4endl;
   G4cout <<G4endl;
 

@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 761516 2016-07-13 06:43:14Z krasznaa $
 ################################################################################
 # Package: MuonIdHelpers
 ################################################################################
@@ -16,6 +15,7 @@ if( NOT XAOD_STANDALONE )
       DetectorDescription/AtlasDetDescr
       DetectorDescription/IdDict
       DetectorDescription/Identifier
+      MuonSpectrometer/MuonStationIndex
       PRIVATE
       DetectorDescription/IdDictParser
       GaudiKernel )
@@ -25,7 +25,7 @@ endif()
 if( NOT XAOD_STANDALONE )
    set( extra_sources src/*.cxx )
    set( extra_libraries
-      LINK_LIBRARIES AthenaKernel AthenaBaseComps AtlasDetDescr IdDict Identifier
+      LINK_LIBRARIES AthenaKernel AthenaBaseComps AtlasDetDescr IdDict Identifier MuonStationIndexLib
       PRIVATE_LINK_LIBRARIES IdDictParser GaudiKernel )
 endif()
 
@@ -39,15 +39,15 @@ atlas_add_library( MuonIdHelpersLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonIdHelpers
       src/components/*.cxx
-      LINK_LIBRARIES MuonIdHelpersLib )
+      LINK_LIBRARIES MuonIdHelpersLib MuonStationIndexLib )
 
    atlas_add_dictionary( MuonIdHelpersDict
       MuonIdHelpers/MuonIdHelpersDict.h
       MuonIdHelpers/selection.xml
-      LINK_LIBRARIES MuonIdHelpersLib )
+      LINK_LIBRARIES MuonIdHelpersLib MuonStationIndexLib )
 
    atlas_add_test( muon_id_test
                 SOURCES
                 test/muon_id_test.cxx
-                LINK_LIBRARIES Identifier IdDictParser GaudiKernel MuonIdHelpersLib )
+                LINK_LIBRARIES Identifier IdDictParser GaudiKernel MuonIdHelpersLib MuonStationIndexLib )
 endif()

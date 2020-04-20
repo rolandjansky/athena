@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file StoreGate/test/exceptions_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -31,6 +29,7 @@ void test1()
   std::cout << SG::ExcNullUpdateHandle(123, "foo", "FooSvc").what() << "\n";
   std::cout << SG::ExcNonConstHandleKey (123, "foo", "FooSvc").what() << "\n";
   std::cout << SG::ExcInvalidIterator().what() << "\n";
+  std::cout << SG::ExcBadInitializedReadHandleKey().what() << "\n";
 }
 
 

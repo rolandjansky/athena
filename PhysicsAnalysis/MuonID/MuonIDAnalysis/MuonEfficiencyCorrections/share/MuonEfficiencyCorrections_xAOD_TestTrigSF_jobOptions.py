@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #!/usr/bin/env python
 import os
@@ -15,7 +15,7 @@ elif os.path.isdir('input'):
         inputFiles += ['input/%s' %(f)]
 
 else:
-    print 'Missing input files - OK for pathena'
+    printfunc ('Missing input files - OK for pathena')
 
 #------------------------------------------------------------------------------
 def getMuonTriggers():
@@ -70,7 +70,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 ServiceMgr.EventSelector.InputCollections = inputFiles
-print ServiceMgr.EventSelector.InputCollections
+printfunc (ServiceMgr.EventSelector.InputCollections)
 
 if 'EvtMax' in dir():
     theApp.EvtMax = EvtMax

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaTrkRefitterTool.h"
@@ -40,7 +40,7 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type,
   :
   AthAlgTool(type, name, parent),
   m_ParticleHypothesis(Trk::electron), 
-  m_idHelper(0) 
+  m_idHelper(nullptr) 
 {
   declareInterface< IegammaTrkRefitterTool >(this) ;
 }
@@ -90,7 +90,7 @@ StatusCode  egammaTrkRefitterTool::refitElectronTrack(const EventContext& ctx,
 {
   ATH_MSG_DEBUG("Refitting a track associated  with an electron");
   // protection against bad pointers
-  if (eg==0) return StatusCode::SUCCESS;
+  if (eg==nullptr) return StatusCode::SUCCESS;
   // Set the pointer to the egamma object. 
   cache.electron = eg;
   const xAOD::TrackParticle *trackParticle = eg->trackParticle();
@@ -213,38 +213,38 @@ const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(const Trk
 { 
   ATH_MSG_DEBUG("Getting the final track parameters"); 
   
-  if (track == 0 ){
+  if (track == nullptr ){
     ATH_MSG_DEBUG("Track == 0  returning  0"); 
-    return 0;
+    return nullptr;
   }
   
   const DataVector<const Trk::TrackStateOnSurface>* oldTrackStates = track->trackStateOnSurfaces();
-  if (oldTrackStates == 0)
+  if (oldTrackStates == nullptr)
   {
     ATH_MSG_DEBUG("Track has no TSOS vector! Skipping track, returning 0.");
-    return 0;
+    return nullptr;
   }
   
-  const Trk::TrackParameters* lastValidTrkParameters(0);  
+  const Trk::TrackParameters* lastValidTrkParameters(nullptr);  
   for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); 
         rItTSoS != oldTrackStates->rend(); ++rItTSoS)
   { 
-    if (lastValidTrkParameters!=0){
+    if (lastValidTrkParameters!=nullptr){
       break;
     }
     if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && 
-         (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0)
+         (*rItTSoS)->trackParameters()!=nullptr && (*rItTSoS)->measurementOnTrack()!=nullptr)
     {
       lastValidTrkParameters = (*rItTSoS)->trackParameters()->clone();
     }
   }
     
-  if (lastValidTrkParameters!=0){
+  if (lastValidTrkParameters!=nullptr){
     ATH_MSG_DEBUG ("Last Valid Trk Q/P" << lastValidTrkParameters->parameters()[Trk::qOverP] );
     return lastValidTrkParameters;
   }
   ATH_MSG_DEBUG("Last Track Parameters");  
-  return 0;
+  return nullptr;
 }
 
 double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track) const {
@@ -280,10 +280,10 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
     * some not. For the ones that are not put them in a vector of unique_ptr which
     * we will also return to the caller*/
 
-  if (track && track->trackParameters() && track->trackParameters()->size() > 0) {
+  if (track && track->trackParameters() && !track->trackParameters()->empty()) {
     std::unique_ptr<const Trk::VertexOnTrack> vot (provideVotFromBeamspot(ctx,track));
     // fill the beamSpot if you have it
-    if (vot.get()!=nullptr){
+    if (vot!=nullptr){
       collect.m_trash.push_back(std::move(vot));
       collect.m_measurements.push_back(collect.m_trash.back().get());
     }
@@ -298,11 +298,11 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
     ATH_MSG_WARNING("Could not extract MeasurementBase from track");
     return collect;
   }
-  if (m_useClusterPosition && eg){
+  if (m_useClusterPosition && eg->caloCluster()){
     int charge(0);
     if( track->perigeeParameters() ) charge  = (int)track->perigeeParameters()->charge(); 
-    std::unique_ptr<const Trk::CaloCluster_OnTrack> ccot (m_CCOTBuilder->buildClusterOnTrack(eg,charge));
-    if (ccot.get()!=nullptr){
+    std::unique_ptr<const Trk::CaloCluster_OnTrack> ccot (m_CCOTBuilder->buildClusterOnTrack(eg->caloCluster(),charge));
+    if (ccot!=nullptr){
       collect.m_trash.push_back(std::move(ccot));
       collect.m_measurements.push_back(collect.m_trash.back().get());
     }
@@ -340,14 +340,14 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Ev
   Amg::Vector3D BSC(beamX, beamY, z0);
   ATH_MSG_DEBUG("constructing beam point (x,y,z) = ( "<<beamX<<" , "<<beamY<<" , "<<z0<<" )");
 
-  const Trk::PerigeeSurface * surface = 0;
+  const Trk::PerigeeSurface * surface = nullptr;
    
   // covariance matrix of the beam-spot
   AmgSymMatrix(2)  beamSpotCov;
   beamSpotCov.setZero();
   beamSpotCov(0,0) = beamSigmaX * beamSigmaX;
   beamSpotCov(1,1) = beamSigmaY * beamSigmaY; 
-  Amg::Vector3D globPos(BSC);
+  const Amg::Vector3D& globPos(BSC);
   surface = new Trk::PerigeeSurface(globPos);
   
   // create a measurement for the beamspot

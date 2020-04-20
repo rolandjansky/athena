@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloRescaleNoise
@@ -21,19 +22,16 @@ if 'GlobalTag' not in dir():
 if 'Geometry' not in dir():
    Geometry = 'ATLAS-GEO-10-00-00'
 
-print "RunNumber ",RunNumber
-print "LumiBlock ",LumiBlock
+printfunc ("RunNumber ",RunNumber)
+printfunc ("LumiBlock ",LumiBlock)
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(RunNumber)
 
 
-from PyCool import cool
-from CoolConvUtilities.AtlCoolLib import indirectOpen
-
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = True
-from AthenaCommon.Resilience import treatException,protectedInclude
+from AthenaCommon.Resilience import protectedInclude
 protectedInclude( "PerfMonComps/PerfMonSvc_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags
@@ -49,7 +47,6 @@ globalflags.DataSource.set_Value_and_Lock('data')
 import AthenaCommon.AtlasUnixGeneratorJob
 
 # Get a handle to the default top-level algorithm sequence
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
@@ -113,7 +110,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
    ServiceMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='pedestalshift_data.root' OPT='RECREATE'"];
+ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='pedestalshift_data.root' OPT='RECREATE'"]
 
 
 #--------------------------------------------------------------

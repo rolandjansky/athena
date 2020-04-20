@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 LSFJobRunner is a JobRunner for running jobs with the LSF batch system.
 
@@ -30,6 +33,6 @@ class LSFJobRunner(JobRunner):
     def submitJob(self,jobConfig):
         """Submit a JobRunner job as a LSF batch job."""
         batchCmd = 'bsub -L /bin/bash -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
-        print batchCmd
+        print (batchCmd)
         os.system(batchCmd)
         return None

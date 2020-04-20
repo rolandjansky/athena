@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -93,7 +93,7 @@ StatusCode MissingETPerformance::execute() {return CBNT_execute();}
 
 StatusCode MissingETPerformance::CBNT_initialize() {
 
-  CBNT_initializeBeforeEventLoop();
+  ATH_CHECK( CBNT_initializeBeforeEventLoop() );
 
   ATH_MSG_DEBUG( "Initializing MissingETPerformance"  );
 

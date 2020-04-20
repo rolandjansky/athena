@@ -18,8 +18,14 @@ def main():
   import re
   serializable_names = []
   serializable_names_no_label = []
+  #Check for duplicates
+  if len(set(TriggerHLTListRun3))!=len(TriggerHLTListRun3):
+    log.error("Duplicates in TriggerHLTListRun3")
+    import collections
+    for item, count in collections.Counter(TriggerHLTListRun3).items():
+        if count > 1:
+          log.error(str(count) + "x: " + str(item))
   for TriggerSerializable in TriggerHLTListRun3:
-    #print TriggerSerializable
     serializable_name = TriggerSerializable[0]
     serializable_name_no_label = re.sub(r"\#.*", "", serializable_name)
     if '#' not in serializable_name:

@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
                           Tracking/TrkEvent/TrkMeasurementBase
                           PRIVATE
-                          MuonSpectrometer/MuonIdHelpers )
+                          MuonSpectrometer/MuonStationIndex )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
@@ -22,10 +22,10 @@ atlas_add_library( MuonRecValidationNtuples
                    src/*.cxx
                    PUBLIC_HEADERS MuonRecValidationNtuples
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives MuonLayerEvent TrkMeasurementBase MuonIdHelpersLib MuonRecHelperToolsLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives MuonLayerEvent TrkMeasurementBase MuonStationIndexLib MuonRecHelperToolsLib )
 
 atlas_add_executable( MuonInsideOutValidation
                       exe/MuonInsideOutValidation.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives MuonLayerEvent TrkMeasurementBase MuonIdHelpersLib MuonRecValidationNtuples MuonRecHelperToolsLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives MuonLayerEvent TrkMeasurementBase MuonStationIndexLib MuonRecValidationNtuples MuonRecHelperToolsLib )
 

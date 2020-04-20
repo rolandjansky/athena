@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## Trig_reco_tf.py
 ## - based on PyJobTransforms/Reco_tf.py
@@ -46,11 +46,11 @@ def getTransform():
     #BSRDOtoRAW is new option for trigger transform
     #runs primarily using athenaHLT
     #literalRunargs used for when running with athena
-    executorSet.add(trigRecoExecutor(name = 'BSRDOtoRAW', skeletonFile = 'TrigUpgradeTest/full_menu.py',
+    executorSet.add(trigRecoExecutor(name = 'BSRDOtoRAW', skeletonFile = 'TriggerJobOpts/runHLT_standalone.py',
                                      exe = 'setsid athenaHLT.py', 
                                      # setsid is needed to fix the process-group id of child processes to be the same as mother process; discussed in https://its.cern.ch/jira/browse/ATR-20513 
                                      substep = 'b2r', tryDropAndReload = False,
-                                     inData = ['BS_RDO', 'RDO'], outData = ['BS', 'HIST_HLTMON','HIST_DEBUGSTREAMMON'], 
+                                     inData = ['BS_RDO', 'RDO'], outData = ['BS', 'BS_TRIGCOST', 'HIST_HLTMON','HIST_DEBUGSTREAMMON'],
                                      perfMonFile = 'ntuple_BSRDOtoRAW.pmon.gz',
                                      literalRunargs = ['writeBS = runArgs.writeBS',
                                                        'from AthenaCommon.AthenaCommonFlags import jobproperties as jps',
@@ -65,7 +65,7 @@ def getTransform():
     #runs in athena and will succeed if input BS file has costmon enabled
     executorSet.add(trigCostExecutor(name = 'RAWtoCOST', skeletonFile = 'TrigCostMonitor/readTrigCost.py',
                                      substep = 'r2c',
-                                     inData = ['BS'], outData = ['NTUP_TRIGCOST','NTUP_TRIGRATE','NTUP_TRIGEBWGHT'],
+                                     inData = ['BS_TRIGCOST'], outData = ['NTUP_TRIGCOST','NTUP_TRIGRATE','NTUP_TRIGEBWGHT'],
                                      perfMonFile = 'ntuple_RAWtoCOST.pmon.gz',
                                      literalRunargs = ['BSRDOInput = runArgs.inputBSFile',
                                                        'EvtMax = runArgs.maxEvents']))
@@ -138,6 +138,7 @@ def getTransform():
     #now add specific trigger arguments
     #  putting this last makes them appear last in the help so easier to find
     addTriggerArgs(trf.parser)
+    addTrigCostArgs(trf.parser)
     addTriggerDBArgs(trf.parser)
     addDebugArgs(trf.parser)
 
@@ -160,26 +161,15 @@ def addTriggerArgs(parser):
     parser.add_argument('--outputBSFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='output', runarg=True, type='bs'),
                         help='Output bytestream file', group='Trigger')
+    #select output stream in  BS file
+    #athenaHLT writes All streams into one file, but this can't be proceesed by standard reco if it contains events in only PEB streams
+    #by defualt selects the Main stream, as likely the most needed option, but can ber reverted to All or any other stream chosen
+    parser.add_argument('--streamSelection', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='select output stream in  BS file (default: \"Main\"). Specify \"All\" to disable splitting (standard reco will fail on any events with only PEB data)', group='Trigger', default=trfArgClasses.argString("Main", runarg=True))
     #HLT out histogram file, if defined renames expert-monitoring file that is produced automatically
     parser.add_argument('--outputHIST_HLTMONFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
                         help='Output HLTMON file', group='Trigger')    
-    #NTUP_TRIG is used for COST monitoring - used in the reco release
-    parser.add_argument('--outputNTUP_TRIGFile', nargs='+', 
-                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False), 
-                        help='D3PD output NTUP_TRIG file (can be made in substeps e2d,a2d)', group='Trigger')
-    #NTUP_COST is used for COST monitoring - used in the reco release
-    parser.add_argument('--outputNTUP_TRIGCOSTFile', nargs='+', 
-                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False), 
-                        help='D3PD output NTUP_TRIGCOST file', group='Trigger')
-    #NTUP_RATE is used for COST monitoring - used in the reco release
-    parser.add_argument('--outputNTUP_TRIGRATEFile', nargs='+', 
-                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False), 
-                        help='D3PD output NTUP_TRIGRATE file', group='Trigger')
-    #NTUP_TRIGEBWGHT is used for COST monitoring - used in the reco release
-    parser.add_argument('--outputNTUP_TRIGEBWGHTFile', nargs='+', 
-                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False), 
-                        help='D3PD output NTUP_TRIGEBWGHT file', group='Trigger')
     #Trigger Configuration String as used in reco Steps
     parser.add_argument('--triggerConfig', nargs='+', metavar='substep=TRIGGERCONFIG',
                         type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=True, separator='='),
@@ -194,6 +184,39 @@ def addTriggerArgs(parser):
     #For prodsys to make sure uses inputBS_RDOFile rather than inputBSFile when running the b2r step
     parser.add_argument('--prodSysBSRDO', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='For prodsys to make sure uses inputBS_RDOFile rather than inputBSFile when running the b2r step', group='Trigger')
+
+
+def addTrigCostArgs(parser):
+    # Use arggroup to get these arguments in their own sub-section (of --help)
+    parser.defineArgGroup('TrigCost', 'Specific options related to the trigger costmon steps in trigger reprocessings')
+
+    #without a outputBS_TRIGCOSTFile name specified then it will not be possible to run any further COST mon if the BS is slimmed to a specific stream
+    parser.add_argument('--outputBS_TRIGCOSTFile', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='output', runarg=True, type='bs'),
+                        help='Output bytestream file of COST stream', group='TrigCost')
+    #input BS file for the TRIGCOST step (name just to be unique identifier)
+    parser.add_argument('--inputBS_TRIGCOSTFile', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input', runarg=True, type='bs'),
+                        help='Input bytestream file of COST stream', group='TrigCost')
+    #For prodsys to make sure uses inputBS_TRIGCOSTFile rather than inputBSFile when running the r2c step
+    parser.add_argument('--prodSysBSTRIGCOST', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='For prodsys to make sure uses inputBS_TRIGCOSTFile rather than inputBSFile when running the r2c step', group='TrigCost')
+    #NTUP_TRIG is used for COST monitoring - used in the reco release
+    parser.add_argument('--outputNTUP_TRIGFile', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
+                        help='D3PD output NTUP_TRIG file (can be made in substeps e2d,a2d)', group='TrigCost')
+    #NTUP_COST is used for COST monitoring - used in the reco release
+    parser.add_argument('--outputNTUP_TRIGCOSTFile', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
+                        help='D3PD output NTUP_TRIGCOST file', group='TrigCost')
+    #NTUP_RATE is used for COST monitoring - used in the reco release
+    parser.add_argument('--outputNTUP_TRIGRATEFile', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
+                        help='D3PD output NTUP_TRIGRATE file', group='TrigCost')
+    #NTUP_TRIGEBWGHT is used for COST monitoring - used in the reco release
+    parser.add_argument('--outputNTUP_TRIGEBWGHTFile', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
+                        help='D3PD output NTUP_TRIGEBWGHT file', group='TrigCost')
 
 
 def addTriggerDBArgs(parser):

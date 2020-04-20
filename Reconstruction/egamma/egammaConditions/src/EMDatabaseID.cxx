@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <cstdlib>
 #include <iostream>
 #include <sstream>
-#include <cstdlib>
+#include <utility>
 
 #include "egammaConditions/EMDatabaseID.h"
 
@@ -22,32 +23,32 @@ EMDatabaseID::EMDatabaseID(const EMDatabaseID& ob)
 EMDatabaseID::EMDatabaseID(std::string s)
 {
   //  clear();
-  setUniqueID(s);
+  setUniqueID(std::move(s));
 }
 
 /** Constructor via unique id-string*/
 EMDatabaseID::EMDatabaseID(EMDatabaseIDDescriptor &id)
 {
-  if (id.SimSWV=="")	set(id.Object, id.Container, id.Type, id.Channel, id.Author, id.RecoSWV, id.Tag, id.runStart, id.runEnd);
+  if (id.SimSWV.empty())	set(id.Object, id.Container, id.Type, id.Channel, id.Author, id.RecoSWV, id.Tag, id.runStart, id.runEnd);
   else			set(id.Object, id.Container, id.Type, id.Channel, id.Author, id.RecoSWV, id.Tag, id.SimSWV);
 }
 
 EMDatabaseID::EMDatabaseID(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, long start, long end)
 {
   //  clear(); // not needed; set overwrites everything
-  set(Object, Container, Type, Channel, Author, RecoSWV, Tag, start, end);
+  set(std::move(Object), std::move(Container), std::move(Type), std::move(Channel), std::move(Author), std::move(RecoSWV), std::move(Tag), start, end);
 }
 	
 EMDatabaseID::EMDatabaseID(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, std::string SimSWV)
 {
   //  clear();
-  set(Object, Container, Type, Channel, Author, RecoSWV, Tag, SimSWV);
+  set(std::move(Object), std::move(Container), std::move(Type), std::move(Channel), std::move(Author), std::move(RecoSWV), std::move(Tag), std::move(SimSWV));
 }
 
 EMDatabaseID::EMDatabaseID(std::string Object, std::string Type, std::string Tag)
 {
   //  clear();
-  set(Object, "", Type, "", "", "", Tag, "");
+  set(std::move(Object), "", std::move(Type), "", "", "", std::move(Tag), "");
 }
 	
 EMDatabaseID::~EMDatabaseID()
@@ -78,13 +79,13 @@ bool EMDatabaseID::operator == (const EMDatabaseID& ob) const
 
 bool EMDatabaseID::isInSubgroup(const EMDatabaseID& ob) const
 {
-  if ((m_idDes.Object	!= ob.m_idDes.Object)		&& (ob.m_idDes.Object!="") && (m_idDes.Object!="")) 	return false;
-  if ((m_idDes.Container!= ob.m_idDes.Container)		&& (ob.m_idDes.Container!="") && (m_idDes.Container!="")) 	return false;
-  if ((m_idDes.Type	!= ob.m_idDes.Type)		&& (ob.m_idDes.Type!="") && (m_idDes.Type!="")) 		return false;
-  if ((m_idDes.Channel	!= ob.m_idDes.Channel)		&& (ob.m_idDes.Channel!="") && (m_idDes.Channel!=""))	return false;
-  if ((m_idDes.Author	!= ob.m_idDes.Author)		&& (ob.m_idDes.Author!="") && (m_idDes.Author!="")) 	return false;
-  if ((m_idDes.RecoSWV	!= ob.m_idDes.RecoSWV)		&& (ob.m_idDes.RecoSWV!="") && (m_idDes.RecoSWV!=""))	return false;
-  if ((m_idDes.Tag	!= ob.m_idDes.Tag)		&& (ob.m_idDes.Tag!="") && (m_idDes.Tag!=""))	return false;
+  if ((m_idDes.Object	!= ob.m_idDes.Object)		&& (!ob.m_idDes.Object.empty()) && (!m_idDes.Object.empty())) 	return false;
+  if ((m_idDes.Container!= ob.m_idDes.Container)		&& (!ob.m_idDes.Container.empty()) && (!m_idDes.Container.empty())) 	return false;
+  if ((m_idDes.Type	!= ob.m_idDes.Type)		&& (!ob.m_idDes.Type.empty()) && (!m_idDes.Type.empty())) 		return false;
+  if ((m_idDes.Channel	!= ob.m_idDes.Channel)		&& (!ob.m_idDes.Channel.empty()) && (!m_idDes.Channel.empty()))	return false;
+  if ((m_idDes.Author	!= ob.m_idDes.Author)		&& (!ob.m_idDes.Author.empty()) && (!m_idDes.Author.empty())) 	return false;
+  if ((m_idDes.RecoSWV	!= ob.m_idDes.RecoSWV)		&& (!ob.m_idDes.RecoSWV.empty()) && (!m_idDes.RecoSWV.empty()))	return false;
+  if ((m_idDes.Tag	!= ob.m_idDes.Tag)		&& (!ob.m_idDes.Tag.empty()) && (!m_idDes.Tag.empty()))	return false;
   return true;
 }
 
@@ -95,13 +96,13 @@ void EMDatabaseID::set(const EMDatabaseID& ob)
 
 void EMDatabaseID::set(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, long start, long end)
 {
-  m_idDes.Object	= beautify(Object);
-  m_idDes.Container	= beautify(Container);
-  m_idDes.Type		= beautify(Type);
-  m_idDes.Channel	= beautify(Channel);
-  m_idDes.Author	= beautify(Author);
-  m_idDes.RecoSWV	= beautify(RecoSWV);
-  m_idDes.Tag	= beautify(Tag);
+  m_idDes.Object	= beautify(std::move(Object));
+  m_idDes.Container	= beautify(std::move(Container));
+  m_idDes.Type		= beautify(std::move(Type));
+  m_idDes.Channel	= beautify(std::move(Channel));
+  m_idDes.Author	= beautify(std::move(Author));
+  m_idDes.RecoSWV	= beautify(std::move(RecoSWV));
+  m_idDes.Tag	= beautify(std::move(Tag));
   m_idDes.runStart	= start;
   m_idDes.runEnd	= end;
   m_idDes.SimSWV	= "";
@@ -109,22 +110,22 @@ void EMDatabaseID::set(std::string Object, std::string Container, std::string Ty
 
 void EMDatabaseID::set(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, std::string SimSWV)
 {
-  m_idDes.Object	= beautify(Object);
-  m_idDes.Container	= beautify(Container);
-  m_idDes.Type		= beautify(Type);
-  m_idDes.Channel	= beautify(Channel);
-  m_idDes.Author	= beautify(Author);
-  m_idDes.RecoSWV	= beautify(RecoSWV);
-  m_idDes.Tag	= beautify(Tag);
+  m_idDes.Object	= beautify(std::move(Object));
+  m_idDes.Container	= beautify(std::move(Container));
+  m_idDes.Type		= beautify(std::move(Type));
+  m_idDes.Channel	= beautify(std::move(Channel));
+  m_idDes.Author	= beautify(std::move(Author));
+  m_idDes.RecoSWV	= beautify(std::move(RecoSWV));
+  m_idDes.Tag	= beautify(std::move(Tag));
   m_idDes.runStart	= 0;
   m_idDes.runEnd	= 0;
-  m_idDes.SimSWV	= beautify(SimSWV);
+  m_idDes.SimSWV	= beautify(std::move(SimSWV));
 }
 
 // for object retrieval
 void EMDatabaseID::set(std::string Object, std::string Type, std::string Tag)
 {
-  set(Object, "", Type, "", "", "", Tag, "");
+  set(std::move(Object), "", std::move(Type), "", "", "", std::move(Tag), "");
 }
 
 void EMDatabaseID::clear()
@@ -143,26 +144,25 @@ void EMDatabaseID::clear()
 
 bool EMDatabaseID::isMCData() const	
 {
-  if (m_idDes.SimSWV=="") return false; 
-  return true;
+  return m_idDes.SimSWV != "";
 }
 
 bool EMDatabaseID::isComplete() const
 {	
-  if (m_idDes.Object=="") 	return false;
-  if (m_idDes.Container=="")	return false;
-  if (m_idDes.Type=="") 		return false;
-  if (m_idDes.Channel=="")	return false;
-  if (m_idDes.Author=="")	 	return false;
-  if (m_idDes.RecoSWV=="")	return false;
-  if (m_idDes.Tag=="")		return false;
-  if ((m_idDes.runStart==0) && (m_idDes.runEnd==0) && (m_idDes.SimSWV==""))	return false;
+  if (m_idDes.Object.empty()) 	return false;
+  if (m_idDes.Container.empty())	return false;
+  if (m_idDes.Type.empty()) 		return false;
+  if (m_idDes.Channel.empty())	return false;
+  if (m_idDes.Author.empty())	 	return false;
+  if (m_idDes.RecoSWV.empty())	return false;
+  if (m_idDes.Tag.empty())		return false;
+  if ((m_idDes.runStart==0) && (m_idDes.runEnd==0) && (m_idDes.SimSWV.empty()))	return false;
   return true;
 }
 
 std::string EMDatabaseID::getUniqueID() const
 {
-  if (isComplete()==false)
+  if (!isComplete())
     {
       std::cout<<"EMDatabaseID::Error: Request UniqueID for non complete object."<<std::endl;
       return "";
@@ -174,13 +174,13 @@ std::string EMDatabaseID::getUniqueID() const
   return s;
 }
 
-bool EMDatabaseID::setUniqueID(std::string s)
+bool EMDatabaseID::setUniqueID(const std::string& s)
 {
   std::string n;
   int step=0;
-  for (unsigned int i=0; i<s.size(); i++)
+  for (char i : s)
     {
-      if (s[i]=='_')
+      if (i=='_')
 	{
 	  step++;
 	  if (step==1) object(n);	
@@ -193,7 +193,7 @@ bool EMDatabaseID::setUniqueID(std::string s)
 	  n="";
 	} else
 	{
-	  n+=s[i];	
+	  n+=i;	
 	}
     }
   step++;
@@ -225,10 +225,10 @@ int EMDatabaseID::setRunOrMCSWV(std::string n)
   return 0;
 }
 
-std::string EMDatabaseID::beautify(std::string s) const
+std::string EMDatabaseID::beautify(const std::string& s) const
 {
   std::string n;
-  for (unsigned int i=0; i<s.size(); i++)	if ((s[i]!=' ') && (s[i]!='_') && (s[i]!='/') && (s[i]!='\\')) n+=s[i];
+  for (char i : s)	if ((i!=' ') && (i!='_') && (i!='/') && (i!='\\')) n+=i;
   return n;
 }
 

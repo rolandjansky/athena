@@ -101,8 +101,8 @@ namespace VKalVrtAthena {
       Vpos.setY( vtx->y() );
       Vpos.setZ( vtx->z() );
 
-      HepMC::ThreeVector Dist( PrimVrt.x()-Vpos.x(),PrimVrt.y()-Vpos.y(),PrimVrt.z()-Vpos.z() );
-      if( Dist.r()<0.01 ) continue; // skip if this vertex is at the PV
+      double Distr=std::sqrt( std::pow(PrimVrt.x()-Vpos.x(),2)+std::pow(PrimVrt.y()-Vpos.y(),2)+std::pow(PrimVrt.z()-Vpos.z(),2));
+      if(Distr<0.01 ) continue; // skip if this vertex is at the PV
       
       // if in the future, I require a cut on the SiHits or BLayerHits
       // I will have to change the logic
@@ -126,7 +126,7 @@ namespace VKalVrtAthena {
                      <<  Vpos.y()  <<  ","
                      <<  Vpos.z()  <<  ","
                      <<  FidCut    <<  ","
-                     <<  Dist.r() );
+                     <<  Distr );
 
       
 
@@ -230,9 +230,8 @@ namespace VKalVrtAthena {
 	      end.setX( vtx->x() );
 	      end.setY( vtx->y() );
 	      end.setZ( vtx->z() );
-	      HepMC::ThreeVector len( Vpos.x()-end.x(),Vpos.y()-end.y(),Vpos.z()-end.z() );
-
-	      length = len.r();
+          double lenr=std::sqrt( std::pow(Vpos.x()-end.x(),2)+std::pow(Vpos.y()-end.y(),2)+std::pow(Vpos.z()-end.z(),2));
+	      length = lenr;
 
 	    } //end vtx
 

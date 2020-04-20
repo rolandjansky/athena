@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///============================================================
@@ -21,7 +21,6 @@
 #ifndef TRIGT2BEAMSPOT_T2TRACKMANAGER_H
 #define TRIGT2BEAMSPOT_T2TRACKMANAGER_H
 
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrkTrack/TrackCollection.h"
 #include "AthContainers/ConstDataVector.h"
 
@@ -43,12 +42,7 @@ namespace PESA
 
     ~T2TrackManager();
 
-    // Later, should have a function to clean a track collection of
-    // unwanted, poor quality, tracks:
-    // TrigInDetTrackCollection * cleanTracks(TrigInDetTrackCollection * cluster);
-    
     // Return a vector of sub-clusters
-    std::vector< ConstDataVector<TrigInDetTrackCollection> > split( const TrigInDetTrackCollection& cluster);
     std::vector< ConstDataVector<TrackCollection> >          split( const TrackCollection& cluster);
 
     // Get and Set parameters

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventTagUtils/RegistrationStreamTrig.h"
@@ -42,7 +42,6 @@ RegistrationStreamTrig::RegistrationStreamTrig(const std::string& name,
     :
     AthAlgorithm(name,pSvcLocator),
     m_pOutputStore("StoreGateSvc/MetaDataStore", name),
-    m_pInputStore("StoreGateSvc/InputMetaDataStore", name),
     m_trigConfSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
     m_run(0),
     m_lb(0)
@@ -61,12 +60,6 @@ RegistrationStreamTrig::initialize()
    if (0 == m_pOutputStore || sc.isFailure()) {
      ATH_MSG_ERROR("Could not find metadata store, MetaDataStore");
      return(sc);
-   }
-
-   sc = m_pInputStore.retrieve();
-   if (0 == m_pInputStore || sc.isFailure()) {
-      ATH_MSG_ERROR("Could not find InputMetaDataStore");
-      return(sc);
    }
 
    if ( m_gettriggerconf ) {

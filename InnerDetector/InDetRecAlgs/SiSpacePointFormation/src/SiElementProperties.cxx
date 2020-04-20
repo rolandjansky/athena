@@ -55,7 +55,7 @@ SiElementProperties::SiElementProperties(const IdentifierHash&			idHash,
 
     // Find half width of wafer at centre
 
-    m_halfWidth = (element.design().minWidth()+element.design().maxWidth())/4 
+    m_halfWidth = (element.design().minWidth()+element.design().maxWidth())*.25 
 		  + epsilonWidth;        // add a bit for safety.
 }
 

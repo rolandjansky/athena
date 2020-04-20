@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef EGAMMAMVACALIB_EGAMMAMVACALIBTOOL_H
 #define EGAMMAMVACALIB_EGAMMAMVACALIBTOOL_H
@@ -89,7 +89,7 @@ private:
 
   /// a function called by initialize to setup the BDT, funcs, and shifts.
   StatusCode setupBDT(const egammaMVAFunctions::funcMap_t& funcLibrary,
-		      std::string fileName);
+		      const std::string& fileName);
 
   /// a utility to get a TString out of an TObjString pointer
   const TString& getString(TObject* obj) const;

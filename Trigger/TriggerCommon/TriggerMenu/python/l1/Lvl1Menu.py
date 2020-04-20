@@ -104,7 +104,7 @@ class Lvl1Menu:
 
 
     def readMenuFromXML(self,inputFile):
-        from XMLMenuReader import readMenuFromXML
+        from .XMLMenuReader import readMenuFromXML
         readMenuFromXML(self, inputFile)
 
     def printCabling(self):

@@ -1,6 +1,6 @@
 
 //
-//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 
 #include "GoogleTestTools/InitGaudiGoogleTest.h"
@@ -33,19 +33,16 @@ namespace Athena_test {
     virtual void SetUp() override {
 
       ServiceHandle<IJobOptionsSvc> joSvc( "JobOptionsSvc",
-					   "MyPackageAlgTest" );
+                                           "MyPackageAlgTest" );
       joSvc->addPropertyToCatalogue( "MyPackageAlg",
-				     StringProperty( "MyProperty",
-						     Gaudi::Utils::toString( 21 ) ) );
+                                     StringProperty( "MyProperty", Gaudi::Utils::toString( 21 ) ) ).ignore();
       joSvc->addPropertyToCatalogue( "MyPackageAlg",
-				     StringProperty( "MyTool",
-						     "MyPackageTool/AnotherName" ) );
+                                     StringProperty( "MyTool", "MyPackageTool/AnotherName" ) ).ignore();
       joSvc->addPropertyToCatalogue( "MyPackageAlg.AnotherName",
-				     StringProperty( "Property",
-						     Gaudi::Utils::toString( 42.0 ) ) );
+                                     StringProperty( "Property", Gaudi::Utils::toString( 42.0 ) ) ).ignore();
       IAlgorithm* ialg= Algorithm::Factory::create( "MyPackageAlg",
-						    "MyPackageAlg",
-						    Gaudi::svcLocator() ).release();
+                                                    "MyPackageAlg",
+                                                    Gaudi::svcLocator() ).release();
       myAlg= dynamic_cast<Gaudi::Algorithm*>( ialg );
 
     }
@@ -104,4 +101,3 @@ int main( int argc, char **argv ) {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
-

@@ -103,8 +103,8 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const Trk::TrackingVolume& f
     // ----------------------------------------------------------------------------------------
     // create a MaterialLayer as a boundary
     if (buildBoundaryLayer){
-        auto bSurfacesFirst  =  firstVol.boundarySurfaces();
-        auto bSurfacesSecond =  secondVol.boundarySurfaces();
+        const auto& bSurfacesFirst  =  firstVol.boundarySurfaces();
+        const auto& bSurfacesSecond =  secondVol.boundarySurfaces();
         // get the boundary surfaces
         const Trk::Surface& firstFaceSurface  = bSurfacesFirst[firstFace]->surfaceRepresentation(); 
         const Trk::Surface& secondFaceSurface  = bSurfacesSecond[secondFace]->surfaceRepresentation(); 

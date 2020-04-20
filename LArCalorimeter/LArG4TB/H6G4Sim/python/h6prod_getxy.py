@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import os, sys, string
+from __future__ import print_function
+
 from math import sqrt
 import ROOT
 from array import array
-from math import sqrt
 
 
 def getXYInPolygon(s,nev0=1500):
@@ -18,14 +18,14 @@ def drawXYInPolygon(nev0=1500):
   nevtot = 0
   nevinwin = 0
   xset,yset,nset = getXYSetInPolygon(nev0)
-  print "Number of points ", len(xset), len(yset)
+  print ("Number of points ", len(xset), len(yset))
   #histXY = ROOT.TH2F( 'clusE',   'clusE',   500, -500.0, 500.0, 500, -500., 500. )
   histXY = ROOT.TH2F( 'clusE',   'clusE',   2000, -800.0, 800.0, 2000, -800., 800. )
   histXY.SetStats(0)
   histXY.SetTitle("")
   for i in range(0,len(xset)):
-    #print "nrun:",i+1,"    xCryo:",xset[i], "yTable:",yset[i]
-    print 'nrun %3d   xCryo %5d   yTable %5d  nev %5d' % (i+1,xset[i], yset[i], nset[i])
+    #print ("nrun:",i+1,"    xCryo:",xset[i], "yTable:",yset[i])
+    print ('nrun %3d   xCryo %5d   yTable %5d  nev %5d' % (i+1,xset[i], yset[i], nset[i]))
     nevtot = nevtot + nset[i]
     dist = sqrt(xset[i]*xset[i] + (70-yset[i])*(70-yset[i]))
     if dist < 300:
@@ -36,12 +36,12 @@ def drawXYInPolygon(nev0=1500):
   c0.SetFillColor(10)
   c0.SetFillStyle(0)
   c0.cd()
-  ROOT.gPad.SetGrid();
-  ROOT.gPad.SetLeftMargin(0.12);
-  ROOT.gPad.SetRightMargin(0.12);
-  ROOT.gPad.SetTopMargin(0.12);
-  ROOT.gPad.SetBottomMargin(0.12);
-  tc = ROOT.TEllipse(0,70,300);
+  ROOT.gPad.SetGrid()
+  ROOT.gPad.SetLeftMargin(0.12)
+  ROOT.gPad.SetRightMargin(0.12)
+  ROOT.gPad.SetTopMargin(0.12)
+  ROOT.gPad.SetBottomMargin(0.12)
+  tc = ROOT.TEllipse(0,70,300)
   tc.SetFillStyle(0)
   tc.SetLineWidth(2)
   histXY.SetMarkerStyle(20)
@@ -62,9 +62,9 @@ def drawXYInPolygon(nev0=1500):
 
   #for i in range(0,500):
     #x,y = getXYInPolygon(i)
-    #print "nrun:",i+1,"    xCryo:",x, "yTable:",y
+    #print ("nrun:",i+1,"    xCryo:",x, "yTable:",y)
 
-  print "nevtot:",nevtot, "in win:",nevinwin
+  print ("nevtot:",nevtot, "in win:",nevinwin)
   return c0, histXY, tc, myPoly
 
 
@@ -98,7 +98,7 @@ def getXYSetInPolygon(nev0=1500):
   y_Ytop = 700
   n_Ybot = nev0*2
   y_Ybot = -400
-  print "Initial number of events:", nev0, "y_Ytop:",y_Ytop, "n_Ytop:",n_Ytop, "y_Ybot:",y_Ybot, "n_Ybot:",n_Ybot
+  print ("Initial number of events:", nev0, "y_Ytop:",y_Ytop, "n_Ytop:",n_Ytop, "y_Ybot:",y_Ybot, "n_Ybot:",n_Ybot)
   # - - - - - -
   # - 2 3 4 - -
   # - 1 + 5 - -
@@ -110,13 +110,13 @@ def getXYSetInPolygon(nev0=1500):
   nset = []
   xset.append(x0)
   yset.append(y0)
-  #nset.append((n_Ytop+(y0-400)*(n_Ytop-n_Ybot)/800)/100*100);
-  nset.append( (n_Ybot+(y0-y_Ybot)*(n_Ytop-n_Ybot)/(y_Ytop-y_Ybot))/10*10 );
+  #nset.append((n_Ytop+(y0-400)*(n_Ytop-n_Ybot)/800)/100*100)
+  nset.append( (n_Ybot+(y0-y_Ybot)*(n_Ytop-n_Ybot)/(y_Ytop-y_Ybot))/10*10 )
   for iRound in range(1,1000):
     boxSide = 1+iRound*2
     nPoints = (boxSide-1)*4
-    #print "----------------------------------------"
-    #print "iRound:", iRound, " boxSide ", boxSide, "nPoints ", nPoints
+    #print ("----------------------------------------")
+    #print ("iRound:", iRound, " boxSide ", boxSide, "nPoints ", nPoints)
     nGoodPoints = 0
     for iPoint in range(0, nPoints):
       boxSideNum = iPoint/(boxSide-1)
@@ -135,15 +135,15 @@ def getXYSetInPolygon(nev0=1500):
         iY = y0 - iRound*dy
       mt = ROOT.TMath
       result = mt.IsInside(iX, iY, poly_np, poly_x, poly_y)
-      #print "iPoint ", iPoint," from nPoints ",nPoints, " boxSideNum:",boxSideNum, " mod:", boxSideStep, " iX:", iX, " iY:", iY, result
+      #print ("iPoint ", iPoint," from nPoints ",nPoints, " boxSideNum:",boxSideNum, " mod:", boxSideStep, " iX:", iX, " iY:", iY, result)
       if result == 1:
         nGoodPoints += 1
         xset.append(iX)
         yset.append(iY)
-        nset.append( (n_Ybot+(iY-y_Ybot)*(n_Ytop-n_Ybot)/(y_Ytop-y_Ybot))/10*10 );
-    #print "nGoodPoints:", nGoodPoints, " nPoints:", nPoints
+        nset.append( (n_Ybot+(iY-y_Ybot)*(n_Ytop-n_Ybot)/(y_Ytop-y_Ybot))/10*10 )
+    #print ("nGoodPoints:", nGoodPoints, " nPoints:", nPoints)
     if nGoodPoints == 0:
-      break;
+      break
 
   return xset, yset, nset
 
@@ -160,10 +160,10 @@ def getXYSetInPolygon(nev0=1500):
   #ss = s%(nx*ny)
   #iy=ss/nx
   #ix=ss%nx
-  ##print seed,ix,iy
+  ##print (seed,ix,iy)
   #x=xmin+ix*dx
   #y=ymin+iy*dy
-  ##print "s:",s,"nx:", nx, "ny:",ny, "nx*ny:",nx*ny,"ix:",ix,"iy:",iy,"x:",x,"y:",y, "ss",ss
+  ##print ("s:",s,"nx:", nx, "ny:",ny, "nx*ny:",nx*ny,"ix:",ix,"iy:",iy,"x:",x,"y:",y, "ss",ss)
   #return x,y
 
 
@@ -191,12 +191,12 @@ def getXYSetInPolygon(nev0=1500):
       #x=xmin+ix*dx
       #y=ymin+iy*dy
       #dist = sqrt((x-x0)*(x-x0)+(y-y0)*(y-y0))
-      ##print "ix, iy",ix, iy, "x,y", x,y, "dist", dist
+      ##print ("ix, iy",ix, iy, "x,y", x,y, "dist", dist)
       #if dist <= r0:
         #xset.append(x)
         #yset.append(y)
   #ss = s%(len(xset))
-  ##print "s:",s+1,"ntot:",ntot,"len_xyset;",len(xset), "ss:",ss, "xy:",xset[ss], yset[ss]
-  #print "nrun:",s+1,"    xCryo:",xset[ss], "yTable:",yset[ss]
+  ##print ("s:",s+1,"ntot:",ntot,"len_xyset;",len(xset), "ss:",ss, "xy:",xset[ss], yset[ss])
+  #print ("nrun:",s+1,"    xCryo:",xset[ss], "yTable:",yset[ss])
   #return xset[ss], yset[ss]
 

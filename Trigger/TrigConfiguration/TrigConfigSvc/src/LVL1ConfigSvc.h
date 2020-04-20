@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_LVL1ConfigSvc
@@ -39,37 +39,54 @@ namespace TrigConf {
       // Access functions described by ILVL1ConfigSvc:
       const Muctpi* muctpiConfig() const { return m_muctpi; }
       const CTPConfig* ctpConfig() const { return m_ctpConfig; }
-      const ThresholdConfig* thresholdConfig() const { return m_thrcfg; }
+      const ThresholdConfig* thresholdConfig() const;
       const BunchGroupSet* bunchGroupSet() const;
-      uint32_t lvl1PrescaleKey() const { return m_prescaleSetID; }
+      uint32_t lvl1PrescaleKey() const { return static_cast<uint32_t>(m_prescaleSetID); }
 
    private:
 
-      StatusCode writeConfigToDetectorStore();
+      // loads Run-2-style menu (xml) and keeps in memory to be
+      // provided to clients of the L1 configuration via the access methods above
+      StatusCode loadRun2StyleMenu();
 
-      // jobProperties
+      // loads Run-3-style menu (json) and writes it to the detector
+      // store to be read by clients of the L1 configuration from there
+      StatusCode loadRun3StyleMenu();
+
+      /*
+        Run 2-style menu (xml) initialization and loading
+
+        This is still needed in the transition period and even
+        afterwards still for reading Run 2 menu configuration. It
+
+        * verifies and manipulates the job properties related to the Run 2 menu
+        * calls loading Run 2 Style menu (xml) from either file or DB
+      */
+      StatusCode initializeRun2StyleMenu();
+
+      /*
+        Run 3-style menu (json) initialization and loading
+
+        * verifies and manipulates the job properties related to the Run 3 menu
+        * calls loading Run 3 Style menu (json) from either file or DB
+      */
+      StatusCode initializeRun3StyleMenu();
+
+
+      // jobProperties for Run 3 style menu
       Gaudi::Property< std::string > m_inputType { this, "InputType", "file", "file (json file), db (Trigger DB), cool (keys from cool, content from Trigger DB), none (no menu)" };
-      Gaudi::Property< std::string > m_l1FileName { this, "JsonFileName", "L1Menu.json", "file name of L1 json file, needed if InputType is file" };
+      Gaudi::Property< std::string > m_l1FileName { this, "JsonFileName", "", "file name of L1 json file, needed if InputType is file" };
       Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias, needed if InputType is db" };
       Gaudi::Property< unsigned int > m_smk { this, "SMK", 0, "DB smk, needed if InputType is db" };
 
-      //SG::WriteHandleKey<TrigConf::L1Menu> m_l1MenuKey{"DetectorStore+L1TriggerMenu"};
-
-
-
-      ::StoreGateSvc* m_detectorStore;
-      
-      // the configuration
-      CTPConfig*       m_ctpConfig;
-      ThresholdConfig* m_thrcfg;
-      Muctpi*          m_muctpi;
+      // Run 2 style configuration
+      CTPConfig*       m_ctpConfig { nullptr };
+      Muctpi*          m_muctpi { nullptr };
 
       // Properties:
-      //int m_masterID;
-      int m_prescaleSetID;
-      int m_bunchgroupSetID;
-      BooleanProperty m_dumpTTVmap;
-
+      Gaudi::Property< int > m_prescaleSetID { this, "DBLVL1PSKey", 0, "L1 Prescale key"  };
+      Gaudi::Property< int > m_bunchgroupSetID { this, "DBBGSKey", 0, "L1 Bunchgroup key"  };
+      Gaudi::Property< bool > m_dumpTTVmap { this, "DumpTTVmap", false, "Dump threshold vector"  };
    };
 
 }

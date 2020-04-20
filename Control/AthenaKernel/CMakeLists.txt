@@ -10,6 +10,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/CxxUtils
    Control/DataModelRoot
+   Control/RootUtils
    GaudiKernel
    PRIVATE
    AtlasTest/TestTools
@@ -34,6 +35,7 @@ atlas_add_library( AthenaKernel
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS} 
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${UUID_LIBRARIES} CxxUtils DataModelRoot
+   RootUtils
    GaudiKernel ${RT_LIBRARY}
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES}
    ${CMAKE_DL_LIBS} )
@@ -50,12 +52,12 @@ atlas_install_joboptions( share/*.txt )
 # Test(s) in the package:
 atlas_add_test( getMessageSvc_test
    SOURCES test/getMessageSvc_test.cxx
-   EXTRA_PATTERNS "^Wall clock time"
+   LOG_IGNORE_PATTERN "^Wall clock time"
    LINK_LIBRARIES GaudiKernel TestTools AthenaKernel )
 
 atlas_add_test( MsgStreamMember_test
    SOURCES test/MsgStreamMember_test.cxx
-   EXTRA_PATTERNS "^Wall clock time |ref count"
+   LOG_IGNORE_PATTERN "^Wall clock time |ref count"
    LINK_LIBRARIES TestTools AthenaKernel )
 
 atlas_add_test( AthenaPackageInfo_test
@@ -98,7 +100,7 @@ atlas_add_test( RCUObject_test
 
 atlas_add_test( CondCont_test
    SOURCES test/CondCont_test.cxx
-   LINK_LIBRARIES AthenaKernel )
+   LINK_LIBRARIES AthenaKernel TestTools )
 
 atlas_add_test( CLIDRegistry_test
    SOURCES test/CLIDRegistry_test.cxx
@@ -155,3 +157,7 @@ atlas_add_test( ThinningCache_test
 atlas_add_test( getThinningCache_test
   SOURCES test/getThinningCache_test.cxx
   LINK_LIBRARIES AthenaKernel TestTools )
+
+  atlas_add_test( AlgorithmTimer_test
+  SOURCES test/AlgorithmTimer_test.cxx
+  LINK_LIBRARIES AthenaKernel )

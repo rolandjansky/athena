@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.Include import Include, IncludeError, include
+from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
 
 include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
@@ -37,10 +37,10 @@ def LArAutoCorrTotalCondAlgDefault():
     if larRODFlags.doOFCPileupOptimization():
         if larRODFlags.NumberOfCollisions():
             theAutoCorrTotalCondAlg.Nminbias=larRODFlags.NumberOfCollisions()
-            mlog.info("  setup for  Ncollisions %f   deltaBunch %f" % (larRODFlags.NumberOfCollisions(), jobproperties.Beam.bunchSpacing()))
+            mlog.info("  setup for  Ncollisions %f   deltaBunch %f", larRODFlags.NumberOfCollisions(), jobproperties.Beam.bunchSpacing())
         else:
             theAutoCorrTotalCondAlg.Nminbias=jobproperties.Beam.numberOfCollisions()
-            mlog.info("  setup for  Ncollisions %f   deltaBunch %f" % (jobproperties.Beam.numberOfCollisions(), jobproperties.Beam.bunchSpacing()))
+            mlog.info("  setup for  Ncollisions %f   deltaBunch %f", jobproperties.Beam.numberOfCollisions(), jobproperties.Beam.bunchSpacing())
     else:
         theAutoCorrTotalCondAlg.Nminbias=0
         mlog.info("  setup for computing total noise autocorrelation without pileup")

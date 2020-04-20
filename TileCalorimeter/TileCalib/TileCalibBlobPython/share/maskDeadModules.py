@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # File:    maskDeadModules.py
 # Purpose: Mask a dead module over a range.  A new IOV gets created in the process.
@@ -16,11 +16,10 @@
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
-from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
-from TileCalibBlobObjs.Classes import *
-import os
+from TileCalibBlobObjs.Classes import TileBchPrbs, TileBchDecoder, \
+     TileCalibUtils
 
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 import logging
 log = getLogger("writeBch")
 log.setLevel(logging.DEBUG)
@@ -44,10 +43,13 @@ until=(run1,lum1)
 comment=sys.argv[7]
 
 #.. very basic input validation
-if ros<1 or ros>4:  raise Exception("Invalid ros=%i" % ros)
-if mod<0 or mod>63: raise Exception("Invalid module=%i" % mod)
-if run1<run:        raise Exception("Invalid validity range: %i < %i" % (run1,run))
-log.info("ros=%i mod=%i since=%s until=%s comment=%s" % (ros,mod,since,until,comment) )
+if ros<1 or ros>4:
+  raise Exception("Invalid ros=%i" % ros)
+if mod<0 or mod>63:
+  raise Exception("Invalid module=%i" % mod)
+if run1<run:
+  raise Exception("Invalid validity range: %i < %i" % (run1,run))
+log.info("ros=%i mod=%i since=%s until=%s comment=%s", ros,mod,since,until,comment)
 
 #===================================================================
 #====================== FILL DB BELOW ==============================
@@ -62,7 +64,7 @@ mgr = TileBchTools.TileBchMgr()
 mgr.setLogLvl(logging.DEBUG)
 
 #=== initialize bch mgr with conditions from DB
-log.info("Initializing with conditions from tag=%s and time=%s" % (folderTag, since))
+log.info("Initializing with conditions from tag=%s and time=%s", folderTag, since)
 mgr.initialize(db, folder, folderTag, since)
 
 #=== Tuples of empty channels
@@ -76,7 +78,7 @@ mgr.listBadAdcs()
 ### Mask channels as NoHV
 
 #.. loop over channels to be updated
-#for adc in xrange(0,2):
+#for adc in range(0,2):
 #  for mod in range(38, 42) + range(54, 58):
 #    #.. apply updates
 #    mgr.delAdcProblem(3, mod, 4, adc, TileBchPrbs.GeneralMaskChannel)
@@ -84,7 +86,7 @@ mgr.listBadAdcs()
 
 for ichan in range(0,48):
   if (ros<3 and ichan not in emptyChannelLongBarrel) or (ros>2 and ichan not in emptyChannelExtendedBarrel):
-    log.info("Masking channel %i off" % ichan)
+    log.info("Masking channel %i off", ichan)
     mgr.addAdcProblem( ros, mod, ichan, 0, TileBchPrbs.NoHV)
     mgr.addAdcProblem( ros, mod, ichan, 1, TileBchPrbs.NoHV)
 

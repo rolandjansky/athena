@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-
-// IMuonResonanceSelectionTool.h
 
 #ifndef IMuonResonanceSelectionTool_H
 #define IMuonResonanceSelectionTool_H
@@ -14,9 +11,9 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "TrigMuonMatching/ITrigMuonMatching.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "PATInterfaces/SystematicVariation.h"

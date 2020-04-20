@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_SHOWERSHAPESPLOTS_H
@@ -12,7 +12,7 @@ namespace Egamma{
   
 class ShowerShapesPlots:public PlotBase {
     public:
-      ShowerShapesPlots(PlotBase* pParent, std::string sDir, std::string sParticleType);
+      ShowerShapesPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
       void fill(const xAOD::Egamma& egamma);
       
       std::string m_sParticleType;

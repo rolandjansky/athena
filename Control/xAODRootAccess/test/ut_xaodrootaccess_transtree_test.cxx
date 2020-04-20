@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodrootaccess_transtree_test.cxx 796448 2017-02-09 18:28:08Z ssnyder $
-
 // System include(s):
 #include <memory>
 
@@ -14,6 +12,7 @@
 #include <TTree.h>
 #include <TH1.h>
 #include <TDirectory.h>
+#include <TSystem.h>
 
 // Local include(s):
 #include "xAODRootAccess/Init.h"
@@ -29,23 +28,12 @@ int main() {
    // Initialise the environment:
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
 
-   // The files used in the test:
-   const char* ref = getenv ("ATLAS_REFERENCE_DATA");
-   std::string FPATH =
-     ref ? ref : "/afs/cern.ch/atlas/project/PAT";
-   std::string FNAME1 = FPATH + "/xAODs/r5787/"
-      "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD."
-      "e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
-      "AOD.01597980._000098.pool.root.1";
-   std::string FNAME2 = FPATH + "/xAODs/r5787/"
-      "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD."
-      "e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
-      "AOD.01597980._000420.pool.root.1";
-
    // Open it using a TFile:
-   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME1.c_str(), "READ" ) );
+   std::unique_ptr< ::TFile > ifile( ::TFile::Open( "$ASG_TEST_FILE_MC",
+                                                    "READ" ) );
    if( ! ifile.get() ) {
-     ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file: %s" ), FNAME1.c_str() );
+      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file: %s" ),
+               gSystem->Getenv( "ASG_TEST_FILE_MC" ) );
       return 1;
    }
 
@@ -54,13 +42,13 @@ int main() {
    if( ! tree ) {
       ::Error( APP_NAME,
                XAOD_MESSAGE( "Couldn't create transient tree from file: %s" ),
-               FNAME1.c_str() );
+               gSystem->Getenv( "ASG_TEST_FILE_MC" ) );
       return 1;
    }
 
    // Make a test plot:
-   tree->Draw( "ElectronCollection.eta()-"
-               "ElectronCollection.trackParticle().eta()>>dummyHist1" );
+   tree->Draw( "Electrons.eta()-"
+               "Electrons.trackParticle().eta()>>dummyHist1" );
    ::TH1* dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist1" ) );
    if( ! dummyHist ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist1\"" ) );
@@ -71,29 +59,30 @@ int main() {
    // Clean up the event tree memory:
    xAOD::ClearTransientTrees();
 
-   // Set up a chain with this one file:
-   ::TChain eventChain( "CollectionTree" );
-   eventChain.Add( FNAME1.c_str() );
-   eventChain.Add( FNAME2.c_str() );
+   {
+      // Set up a chain with this one file:
+      ::TChain eventChain( "CollectionTree" );
+      eventChain.Add( "$ASG_TEST_FILE_MC" );
 
-   // Create a transient tree using it:
-   tree = xAOD::MakeTransientTree( &eventChain );
-   if( ! tree ) {
-      ::Error( APP_NAME,
-               XAOD_MESSAGE( "Couldn't create transient tree from TChain "
-                             "input" ) );
-      return 1;
-   }
+      // Create a transient tree using it:
+      tree = xAOD::MakeTransientTree( &eventChain );
+      if( ! tree ) {
+         ::Error( APP_NAME,
+                  XAOD_MESSAGE( "Couldn't create transient tree from TChain "
+                                "input" ) );
+         return 1;
+      }
 
-   // Make a test plot:
-   tree->Draw( "ElectronCollection.eta()-"
-               "ElectronCollection.trackParticle().eta()>>dummyHist2" );
-   dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist2" ) );
-   if( ! dummyHist ) {
-      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist2\"" ) );
-      return 1;
+      // Make a test plot:
+      tree->Draw( "Electrons.eta()-"
+                  "Electrons.trackParticle().eta()>>dummyHist2" );
+      dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist2" ) );
+      if( ! dummyHist ) {
+         ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist2\"" ) );
+         return 1;
+      }
+      //dummyHist->Print( "all" );
    }
-   //dummyHist->Print( "all" );
 
    // Clean up the event tree memory:
    xAOD::ClearTransientTrees();
@@ -104,7 +93,7 @@ int main() {
       ::Error( APP_NAME,
                XAOD_MESSAGE( "Couldn't create transient metadata tree from "
                              "file: %s" ),
-               FNAME1.c_str() );
+               gSystem->Getenv( "ASG_TEST_FILE_MC" ) );
       return 1;
    }
 
@@ -117,28 +106,29 @@ int main() {
    }
    //dummyHist->Print( "all" );
 
-   // Set up a chain with this one file:
-   ::TChain metaChain( "MetaData" );
-   metaChain.Add( FNAME1.c_str() );
-   metaChain.Add( FNAME2.c_str() );
+   {
+      // Set up a chain with this one file:
+      ::TChain metaChain( "MetaData" );
+      metaChain.Add( "$ASG_TEST_FILE_MC" );
 
-   // Create a transient tree using it:
-   tree = xAOD::MakeTransientMetaTree( &metaChain );
-   if( ! tree ) {
-      ::Error( APP_NAME,
-               XAOD_MESSAGE( "Couldn't create transient metadata tree from "
-                             "TChain input" ) );
-      return 1;
-   }
+      // Create a transient tree using it:
+      tree = xAOD::MakeTransientMetaTree( &metaChain );
+      if( ! tree ) {
+         ::Error( APP_NAME,
+                  XAOD_MESSAGE( "Couldn't create transient metadata tree from "
+                                "TChain input" ) );
+         return 1;
+      }
 
-   // Make a test plot:
-   tree->Draw( "TriggerMenu.l1psk()>>dummyHist4" );
-   dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist4" ) );
-   if( ! dummyHist ) {
-      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist4\"" ) );
-      return 1;
+      // Make a test plot:
+      tree->Draw( "TriggerMenu.l1psk()>>dummyHist4" );
+      dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist4" ) );
+      if( ! dummyHist ) {
+         ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist4\"" ) );
+         return 1;
+      }
+      //dummyHist->Print( "all" );
    }
-   //dummyHist->Print( "all" );
 
    // Clean up the metadata tree memory:
    xAOD::ClearTransientTrees();
@@ -147,8 +137,8 @@ int main() {
    xAOD::TTransTrees tt = xAOD::MakeTransientTrees( ifile.get() );
 
    // And make some test plots:
-   tt.eventTree()->Draw( "ElectronCollection.eta()-"
-                         "ElectronCollection.trackParticle().eta()"
+   tt.eventTree()->Draw( "Electrons.eta()-"
+                         "Electrons.trackParticle().eta()"
                          ">>dummyHist5" );
    dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist5" ) );
    if( ! dummyHist ) {

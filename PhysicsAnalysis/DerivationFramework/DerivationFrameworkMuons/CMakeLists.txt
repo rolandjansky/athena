@@ -33,12 +33,16 @@ find_package( CLHEP )
 
 # Component(s) in the package:
 atlas_add_library( DerivationFrameworkMuonsLib
-                   src/*.cxx
-                   PUBLIC_HEADERS DerivationFrameworkMuons
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES CaloEvent CaloGeoHelpers AthenaBaseComps xAODCaloEvent xAODMuon GaudiKernel RecoToolInterfaces ExpressionEvaluationLib TrigDecisionToolLib TrigMuonMatchingLib ICaloTrkMuIdTools TrkExInterfaces
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel xAODEventInfo xAODTracking xAODTruth )
+   DerivationFrameworkMuons/*.h src/*.cxx
+   PUBLIC_HEADERS DerivationFrameworkMuons
+   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
+   LINK_LIBRARIES CaloEvent CaloGeoHelpers AthenaBaseComps xAODCaloEvent
+   xAODMuon GaudiKernel RecoToolInterfaces ExpressionEvaluationLib
+   TrigDecisionToolLib TrigMuonMatchingLib ICaloTrkMuIdTools 
+   TrkExInterfaces InDetTrackSelectionToolLib
+   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel xAODEventInfo
+   xAODTracking xAODTruth MCTruthClassifierLib FourMomUtils)
 
 atlas_add_component( DerivationFrameworkMuons
                      src/components/*.cxx

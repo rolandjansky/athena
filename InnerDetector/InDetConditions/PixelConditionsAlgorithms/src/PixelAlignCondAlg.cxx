@@ -4,16 +4,14 @@
 
 #include "PixelAlignCondAlg.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include <memory>
 
 PixelAlignCondAlg::PixelAlignCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_writeKey{"PixelAlignmentStore", "PixelAlignmentStore"}
 {
-  declareProperty("WriteKey", m_writeKey);
 }
 
 StatusCode PixelAlignCondAlg::initialize()
@@ -207,8 +205,3 @@ StatusCode PixelAlignCondAlg::execute()
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelAlignCondAlg::finalize()
-{
-  ATH_MSG_DEBUG("finalize " << name());
-  return StatusCode::SUCCESS;
-}

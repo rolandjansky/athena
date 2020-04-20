@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSGEOMETRYCONTEXT_H
@@ -14,8 +14,8 @@
 
 #include <memory>
 
-struct ActsGeometryContext {
-
+class ActsGeometryContext {
+public:
   bool construction{false};
 
   std::unique_ptr<const ActsAlignmentStore> ownedAlignmentStore{nullptr};

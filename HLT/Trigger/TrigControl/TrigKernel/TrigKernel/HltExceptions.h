@@ -20,6 +20,16 @@ namespace hltonl {
         const char* what() const noexcept override {return "No more events to be processed";}
     };
     /**
+     * @class NoEventsTemporarily
+     * @brief Thrown if the event source cannot provide new events temporarily, e.g. when trigger is on hold
+     */
+    class NoEventsTemporarily : public std::exception {
+      public:
+        NoEventsTemporarily() {}
+        virtual ~NoEventsTemporarily() {}
+        const char* what() const noexcept override {return "No events can be provided temporarily";}
+    };
+    /**
      * @class EventSourceCorrupted
      * @brief Thrown if event source keeps throwing exceptions when new event is requested
      */

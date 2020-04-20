@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignmentData/MuonAlignmentPar.h"
@@ -7,11 +7,6 @@
 MuonAlignmentPar::MuonAlignmentPar() :
   m_Jff(0), m_Jzz(0), m_Job(0), m_isNew(false)
 { }
-
-MuonAlignmentPar::~MuonAlignmentPar() 
-{ }
-
-
 
 void MuonAlignmentPar::setAmdbId(std::string type, int jff, int jzz, int job) 
 {
@@ -23,7 +18,7 @@ void MuonAlignmentPar::setAmdbId(std::string type, int jff, int jzz, int job)
   return;
 }
 
-void MuonAlignmentPar::getAmdbId(std::string& type, int& jff, int& jzz, int& job) 
+void MuonAlignmentPar::getAmdbId(std::string& type, int& jff, int& jzz, int& job) const
 {
   type = m_Type;
   jff  = m_Jff;

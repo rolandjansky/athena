@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONCHAMBERLAYERDESCRIPTION_H
 #define MUON_MUONCHAMBERLAYERDESCRIPTION_H
 
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonDetDescrUtils/MuonChamberLayerDescriptor.h"
 #include <vector>
 

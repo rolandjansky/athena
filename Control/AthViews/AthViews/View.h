@@ -9,8 +9,10 @@
 
 #include "AthenaKernel/IProxyDict.h"
 #include "AthViews/SimpleView.h"
+#include "AthViews/DebugView.h"
 #include "AthLinks/ElementLink.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+
 // DECLARATIONS
 namespace SG {
   class DataProxy;
@@ -27,10 +29,16 @@ public:
   virtual ~View ();
   View (const View&) = delete;
   View& operator= (const View&) = delete;
-  
+
+#ifdef ATHVIEWS_DEBUG
+  void impl ( DebugView* impl ) { m_implementation = impl; }
+  DebugView* impl (void ) { return m_implementation; }
+  const DebugView* impl ( void ) const { return m_implementation; }
+#else
   void impl ( SimpleView* impl ) { m_implementation = impl; }
   SimpleView* impl (void ) { return m_implementation; }
   const SimpleView* impl ( void ) const { return m_implementation; }
+#endif
   size_t viewID() const{ return m_index; }
 
   /**
@@ -122,7 +130,12 @@ public:
   const ElementLink<TrigRoiDescriptorCollection>& getROI() const { return m_implementation->getROI(); };
 
 private:
+
+#ifdef ATHVIEWS_DEBUG
+  DebugView *m_implementation;
+#else
   SimpleView *m_implementation;
+#endif
   size_t m_index;
 };
 } // EOF SG namespace
@@ -170,6 +183,5 @@ public:
 CONTAINER_IS_SEQUENCE(ViewContainer)
 
 CLASS_DEF( ViewContainer , 1160627009 , 1 )
-
 
 #endif

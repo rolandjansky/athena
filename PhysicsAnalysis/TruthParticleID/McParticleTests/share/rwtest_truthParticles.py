@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import user
-import commands
 import os
 import sys
 from AthenaCommon import ChapPy
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###-----------------------------------------------------
 ## For compatibility with ATN tests
@@ -22,9 +27,9 @@ def timeofday():
 
 uuid = "%s_%s" % (os.getpid(),timeofday())
 
-print "#"*80
-print "## testing TruthParticleContainer (read/write) persistency..."
-print "## Job uuid:",uuid
+print ("#"*80)
+print ("## testing TruthParticleContainer (read/write) persistency...")
+print ("## Job uuid:",uuid)
 bench = BenchSequence( "TruthParticleContainer (read/write) persistency" )
 
 ###-----------------------------------------------------
@@ -48,9 +53,9 @@ evtMax = 100
 
 def doReadWriteTest( genName = "TruthParticles", evtMax = 100 ):
     ###-----------------------------------------------------
-    print "\n"
-    print "#"*80
-    print "## Preparing input data... [%s]" % genName
+    print ("\n")
+    print ("#"*80)
+    print ("## Preparing input data... [%s]" % genName)
     templateJobO = """
 OUTPUT='%(OutputFile)s';
 DUMP=True;
@@ -70,9 +75,9 @@ include( 'McParticleTests/iotest_WriteGenEvent_jobOptions.py' );
         return ScOutput(sc, "ERROR")
 
     ###-----------------------------------------------------
-    print "\n"
-    print "#"*80
-    print "## Testing [writing-%s]..." % genName
+    print ("\n")
+    print ("#"*80)
+    print ("## Testing [writing-%s]..." % genName)
     templateJobO = """
 INPUT=['%(InputFile)s'];
 OUTPUT= '%(OutputFile)s';
@@ -103,12 +108,12 @@ jobproperties.PerfMonFlags.OutputFile = '%(PmonFile)s';
                                                                    uuid))
         outFile = workDir("out.write.mcaod.%s.%s.perfmon.root"    %(genName,
                                                                     uuid))
-        commands.getoutput( "perfmon.py %s -o %s" % ( inFile, outFile ) )
+        subprocess.getoutput( "perfmon.py %s -o %s" % ( inFile, outFile ) )
 
     ###-----------------------------------------------------
-    print "\n"
-    print "#"*80
-    print "## Testing [reading-%s]..." % genName
+    print ("\n")
+    print ("#"*80)
+    print ("## Testing [reading-%s]..." % genName)
     templateJobO = """
 INPUT=['%(InputFile)s'];
 OUTPUT= '%(OutputFile)s';
@@ -138,19 +143,19 @@ jobproperties.PerfMonFlags.OutputFile = '%(PmonFile)s';
                                                                    uuid))
         outFile = workDir("out.read.mcaod.%s.%s.perfmon.root"    %(genName,
                                                                    uuid))
-        commands.getoutput( "perfmon.py %s -o %s" % ( inFile, outFile ) )
+        subprocess.getoutput( "perfmon.py %s -o %s" % ( inFile, outFile ) )
 
     ###-----------------------------------------------------
-    print "\n"
-    print "#"*80
+    print ("\n")
+    print ("#"*80)
     return doMcAodTupleValidation(
         outFiles['ref'].replace(".pool", ".tuple.root"),
         outFiles['chk'].replace(".pool", ".tuple.root")
         )
 
 bench += doReadWriteTest( evtMax = evtMax )
-print ""
-print "#"*80
+print ("")
+print ("#"*80)
 bench.printStatus()
-print "## Bye."
-print "#"*80
+print ("## Bye.")
+print ("#"*80)

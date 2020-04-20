@@ -144,9 +144,9 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
 
     double phi1 = tgcFitResult.tgcMid1[1];
     double phi2 = tgcFitResult.tgcMid2[1];
-    if ( tgcFitResult.tgcMid1[3]==0. || tgcFitResult.tgcMid2[3]==0. ) {
-      if ( tgcFitResult.tgcMid1[3] != 0. ) phi = phi1;
-      if ( tgcFitResult.tgcMid2[3] != 0. ) phi = phi2;
+    if ( isZero(tgcFitResult.tgcMid1[3]) || isZero(tgcFitResult.tgcMid2[3]) ) {
+      if ( !isZero(tgcFitResult.tgcMid1[3]) ) phi = phi1;
+      if ( !isZero(tgcFitResult.tgcMid2[3]) ) phi = phi2;
     } else if( phi1*phi2 < 0 && std::abs(phi1)>(CLHEP::pi/2.) ) {
       double tmp1 = (phi1>0)? phi1 - CLHEP::pi : phi1 + CLHEP::pi;
       double tmp2 = (phi2>0)? phi2 - CLHEP::pi : phi2 + CLHEP::pi;
@@ -156,8 +156,8 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
       phi  = (phi2+phi1)/2.;     
     }
     
-    if ( MiddleZ==0. ) {
-      if ( tgcFitResult.tgcMid1[0]!=0 && tgcFitResult.tgcMid2[0]!=0 ) {
+    if ( isZero(MiddleZ) ) {
+      if ( !isZero(tgcFitResult.tgcMid1[0]) && !isZero(tgcFitResult.tgcMid2[0]) ) {
 	trackPattern.etaMap = (tgcFitResult.tgcMid1[0]+tgcFitResult.tgcMid2[0])/2;
       } else {
 	trackPattern.etaMap = (tgcFitResult.tgcMid1[0]!=0)? 
@@ -167,19 +167,19 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
   
     double etaInner = 0.;
     double etaMiddle = 0.;
-    if (MiddleZ!=0.) {
+    if ( !isZero(MiddleZ) ) {
       double theta = atan(MiddleR/fabsf(MiddleZ));
       etaMiddle = -log(tan(theta/2.))*MiddleZ/fabsf(MiddleZ);
     }
 
-    if (InnerZ!=0.) {
+    if ( !isZero(InnerZ) ) {
       double theta = atan(InnerR/fabsf(InnerZ));
       etaInner = -log(tan(theta/2.))*InnerZ/fabsf(InnerZ);
     }
     
-    if (MiddleZ!=0.) trackPattern.etaMap = etaMiddle;  
-    else if (InnerZ!=0.) trackPattern.etaMap = etaInner;      
-    if (tgcFitResult.tgcInn[3]!=0.) phi = tgcFitResult.tgcInn[1];
+    if ( !isZero(MiddleZ) ) trackPattern.etaMap = etaMiddle;  
+    else if ( !isZero(InnerZ) ) trackPattern.etaMap = etaInner;      
+    if ( !isZero(tgcFitResult.tgcInn[3]) ) phi = tgcFitResult.tgcInn[1];
 
     if ( phim > CLHEP::pi+0.1 ) phim = phim - 2*CLHEP::pi;
     if ( phim >= 0 ) trackPattern.phiMap = (phi>=0.)? phi - phim : phim - fabs(phi);
@@ -343,7 +343,7 @@ double TrigL2MuonSA::AlphaBetaEstimate::computeRadius(double InnerSlope, double 
 double TrigL2MuonSA::AlphaBetaEstimate::computeRadius3Points(double InnerZ, double InnerR, 
                                                                double EEZ, double EER,
                                                                double MiddleZ, double MiddleR)
-{
+const {
   double radius_EE;
 
   double a3;
@@ -377,7 +377,7 @@ double TrigL2MuonSA::AlphaBetaEstimate::computeRadius3Points(double InnerZ, doub
   return radius_EE;
 }
 
-double TrigL2MuonSA::AlphaBetaEstimate::calcDistance(double x1,double y1,double x2,double y2,double x3,double y3)    {
+double TrigL2MuonSA::AlphaBetaEstimate::calcDistance(double x1,double y1,double x2,double y2,double x3,double y3)   const {
   double xm1=(x1+x2)/2;
   double xm2=(x2+x3)/2;
   double ym1=(y1+y2)/2;

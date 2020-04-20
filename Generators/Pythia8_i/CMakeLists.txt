@@ -9,6 +9,7 @@ atlas_subdir( Pythia8_i )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Generators/GeneratorModules
+                          Generators/AtlasHepMC
                           PRIVATE
                           GaudiKernel
                           Generators/GeneratorObjects
@@ -20,7 +21,8 @@ find_package( CLHEP )
 find_package( Lhapdf )
 find_package( Pythia8 )
 
-add_definitions(-DPY8VERSION=\"${PYTHIA8_VERSION}\")
+# The _VERSION variable is unreliable.
+add_definitions(-DPY8INCLUDE_DIR=\"${PYTHIA8_INCLUDE_DIR}\")
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
 #
@@ -4728,6 +4728,9 @@ def format_obj (x, name=None):
         acls=getattr(PyAthena, 'PyDumper::PySTLAdaptor<std::set<unsigned int>')
         if acls:
             return str(list(toiter1(acls(x))))
+
+    if tname.startswith ('std::pair<') or tname.startswith ('pair<'):
+        return '(' + format_obj(x.first, name) + ', ' + format_obj(x.second, name) + ')'
 
     if tname == 'Trk::VxTrackAtVertex':
         fout = StringIO()

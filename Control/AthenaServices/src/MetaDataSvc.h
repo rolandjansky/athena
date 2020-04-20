@@ -41,7 +41,7 @@ template <class TYPE> class SvcFactory;
 /** @class MetaDataSvc
  *  @brief This class provides the interface to the LCG POOL persistency software.
  **/
-class MetaDataSvc : public ::AthService,
+class ATLAS_CHECK_THREAD_SAFETY MetaDataSvc : public ::AthService,
 	virtual public IAddressProvider,
 	virtual public IIncidentListener,
         virtual public IMetadataTransition,

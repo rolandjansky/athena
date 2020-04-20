@@ -1,8 +1,9 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include <vector>
 #include "TH1D.h"
-#include "TMath.h"
-
-using namespace std;
 
 TrkD3PDsPlotsMaker(){
 
@@ -16,88 +17,88 @@ TrkD3PDsPlotsMaker(){
   
   // Declare ntuple variables we're interested in
   int mu_moore_n;
-  vector<float>* mu_moore_pt = new vector<float>;
-  vector<float>* mu_moore_eta = new vector<float>;
-  vector<float>* mu_moore_phi_wrtBL = new vector<float>;
-  vector<float>* mu_moore_chi2 = new vector<float>;
-  vector<int>*	mu_moore_ndof = new vector<int>;
-  vector<int>*	mu_moore_nBLHits = new vector<int>;
-  vector<int>*	mu_moore_nPixHits = new vector<int>;
-  vector<int>*	mu_moore_nSCTHits = new vector<int>;
-  vector<int>*	mu_moore_nTRTHits = new vector<int>;
-  vector<int>*	mu_moore_nTRTHighTHits = new vector<int>;
-  vector<int>*	mu_moore_nPixHoles = new vector<int>;
-  vector<int>*	mu_moore_nSCTHoles = new vector<int>;
-  vector<int>*	mu_moore_nTRTHoles = new vector<int>;
-  vector<int>*	mu_moore_nMDTHits = new vector<int>;
-  vector<int>*	mu_moore_nCSCEtaHits = new vector<int>;
-  vector<int>*	mu_moore_nCSCPhiHits = new vector<int>;
-  vector<int>*	mu_moore_nRPCEtaHits = new vector<int>;
-  vector<int>*	mu_moore_nRPCPhiHits = new vector<int>;
-  vector<int>*	mu_moore_nTGCEtaHits = new vector<int>;
-  vector<int>*	mu_moore_nTGCPhiHits = new vector<int>;
-  vector<int>*	mu_moore_nHits = new vector<int>;
-  vector<int>*	mu_moore_nHoles = new vector<int>;  
+  std::vector<float>* mu_moore_pt = new std::vector<float>;
+  std::vector<float>* mu_moore_eta = new std::vector<float>;
+  std::vector<float>* mu_moore_phi_wrtBL = new std::vector<float>;
+  std::vector<float>* mu_moore_chi2 = new std::vector<float>;
+  std::vector<int>*	mu_moore_ndof = new std::vector<int>;
+  std::vector<int>*	mu_moore_nBLHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nPixHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nSCTHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nTRTHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nTRTHighTHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nPixHoles = new std::vector<int>;
+  std::vector<int>*	mu_moore_nSCTHoles = new std::vector<int>;
+  std::vector<int>*	mu_moore_nTRTHoles = new std::vector<int>;
+  std::vector<int>*	mu_moore_nMDTHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nCSCEtaHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nCSCPhiHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nRPCEtaHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nRPCPhiHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nTGCEtaHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nTGCPhiHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nHits = new std::vector<int>;
+  std::vector<int>*	mu_moore_nHoles = new std::vector<int>;  
   
   int mu_n;
-  vector<float>* mu_pt = new vector<float>;
-  vector<float>* mu_eta = new vector<float>;
-  vector<float>* mu_phi_wrtBL = new vector<float>;
-  vector<float>* mu_chi2 = new vector<float>;
-  vector<int>*	mu_ndof = new vector<int>;
-  vector<int>*	mu_nBLHits = new vector<int>;
-  vector<int>*	mu_nPixHits = new vector<int>;
-  vector<int>*	mu_nSCTHits = new vector<int>;
-  vector<int>*	mu_nTRTHits = new vector<int>;
-  vector<int>*	mu_nTRTHighTHits = new vector<int>;
-  vector<int>*	mu_nPixHoles = new vector<int>;
-  vector<int>*	mu_nSCTHoles = new vector<int>;
-  vector<int>*	mu_nTRTHoles = new vector<int>;
-  vector<int>*	mu_nMDTHits = new vector<int>;
-  vector<int>*	mu_nCSCEtaHits = new vector<int>;
-  vector<int>*	mu_nCSCPhiHits = new vector<int>;
-  vector<int>*	mu_nRPCEtaHits = new vector<int>;
-  vector<int>*	mu_nRPCPhiHits = new vector<int>;
-  vector<int>*	mu_nTGCEtaHits = new vector<int>;
-  vector<int>*	mu_nTGCPhiHits = new vector<int>;
-  vector<int>*	mu_nHits = new vector<int>;
-  vector<int>*	mu_nHoles = new vector<int>; 
+  std::vector<float>* mu_pt = new std::vector<float>;
+  std::vector<float>* mu_eta = new std::vector<float>;
+  std::vector<float>* mu_phi_wrtBL = new std::vector<float>;
+  std::vector<float>* mu_chi2 = new std::vector<float>;
+  std::vector<int>*	mu_ndof = new std::vector<int>;
+  std::vector<int>*	mu_nBLHits = new std::vector<int>;
+  std::vector<int>*	mu_nPixHits = new std::vector<int>;
+  std::vector<int>*	mu_nSCTHits = new std::vector<int>;
+  std::vector<int>*	mu_nTRTHits = new std::vector<int>;
+  std::vector<int>*	mu_nTRTHighTHits = new std::vector<int>;
+  std::vector<int>*	mu_nPixHoles = new std::vector<int>;
+  std::vector<int>*	mu_nSCTHoles = new std::vector<int>;
+  std::vector<int>*	mu_nTRTHoles = new std::vector<int>;
+  std::vector<int>*	mu_nMDTHits = new std::vector<int>;
+  std::vector<int>*	mu_nCSCEtaHits = new std::vector<int>;
+  std::vector<int>*	mu_nCSCPhiHits = new std::vector<int>;
+  std::vector<int>*	mu_nRPCEtaHits = new std::vector<int>;
+  std::vector<int>*	mu_nRPCPhiHits = new std::vector<int>;
+  std::vector<int>*	mu_nTGCEtaHits = new std::vector<int>;
+  std::vector<int>*	mu_nTGCPhiHits = new std::vector<int>;
+  std::vector<int>*	mu_nHits = new std::vector<int>;
+  std::vector<int>*	mu_nHoles = new std::vector<int>; 
    
   int mu_mboy_n;
-  vector<float>* mu_mboy_pt = new vector<float>;
-  vector<float>* mu_mboy_eta = new vector<float>;
-  vector<float>* mu_mboy_phi_wrtBL = new vector<float>;
-  vector<float>* mu_mboy_chi2 = new vector<float>;
-  vector<int>*	mu_mboy_ndof = new vector<int>;
-  vector<int>*	mu_mboy_nBLHits = new vector<int>;
-  vector<int>*	mu_mboy_nPixHits = new vector<int>;
-  vector<int>*	mu_mboy_nSCTHits = new vector<int>;
-  vector<int>*	mu_mboy_nTRTHits = new vector<int>;
-  vector<int>*	mu_mboy_nTRTHighTHits = new vector<int>;
-  vector<int>*	mu_mboy_nPixHoles = new vector<int>;
-  vector<int>*	mu_mboy_nSCTHoles = new vector<int>;
-  vector<int>*	mu_mboy_nTRTHoles = new vector<int>;
-  vector<int>*	mu_mboy_nMDTHits = new vector<int>;
-  vector<int>*	mu_mboy_nCSCEtaHits = new vector<int>;
-  vector<int>*	mu_mboy_nCSCPhiHits = new vector<int>;
-  vector<int>*	mu_mboy_nRPCEtaHits = new vector<int>;
-  vector<int>*	mu_mboy_nRPCPhiHits = new vector<int>;
-  vector<int>*	mu_mboy_nTGCEtaHits = new vector<int>;
-  vector<int>*	mu_mboy_nTGCPhiHits = new vector<int>;
-  vector<int>*	mu_mboy_nHits = new vector<int>;
-  vector<int>*	mu_mboy_nHoles = new vector<int>;
+  std::vector<float>* mu_mboy_pt = new std::vector<float>;
+  std::vector<float>* mu_mboy_eta = new std::vector<float>;
+  std::vector<float>* mu_mboy_phi_wrtBL = new std::vector<float>;
+  std::vector<float>* mu_mboy_chi2 = new std::vector<float>;
+  std::vector<int>*	mu_mboy_ndof = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nBLHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nPixHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nSCTHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nTRTHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nTRTHighTHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nPixHoles = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nSCTHoles = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nTRTHoles = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nMDTHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nCSCEtaHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nCSCPhiHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nRPCEtaHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nRPCPhiHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nTGCEtaHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nTGCPhiHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nHits = new std::vector<int>;
+  std::vector<int>*	mu_mboy_nHoles = new std::vector<int>;
    
   int mc_n;
-  vector<float>* mc_gen_pt = new vector<float>;
-  vector<float>* mc_gen_eta = new vector<float>;
-  vector<float>* mc_gen_phi = new vector<float>;
-  vector<int>* mc_gen_type = new vector<int>;
+  std::vector<float>* mc_gen_pt = new std::vector<float>;
+  std::vector<float>* mc_gen_eta = new std::vector<float>;
+  std::vector<float>* mc_gen_phi = new std::vector<float>;
+  std::vector<int>* mc_gen_type = new std::vector<int>;
 
   int ms_entry_truth_n;
-  vector<int>* ms_entry_truth_pdgId = new vector<int>;
-  vector<float>* ms_entry_truth_eta = new vector<float>;
-  vector<float>* ms_entry_truth_phi = new vector<float>;
-  vector<float>* ms_entry_truth_pt = new vector<float>;
+  std::vector<int>* ms_entry_truth_pdgId = new std::vector<int>;
+  std::vector<float>* ms_entry_truth_eta = new std::vector<float>;
+  std::vector<float>* ms_entry_truth_phi = new std::vector<float>;
+  std::vector<float>* ms_entry_truth_pt = new std::vector<float>;
   
   tree->SetBranchAddress("mu_moore_n",&mu_moore_n);
   tree->SetBranchAddress("mu_moore_pt",&mu_moore_pt);
@@ -295,12 +296,12 @@ TrkD3PDsPlotsMaker(){
   h_eff_eta_mu->Sumw2();
   h_eff_eta_mboy->Sumw2();
     
-  vector<TH1D*> mu_moore;
-  vector<TH1D*> mu;
-  vector<TH1D*> mu_mboy;
-  vector<TH1D*> mc;
-  vector<TString> names;
-  vector<TString> mc_names;
+  std::vector<TH1D*> mu_moore;
+  std::vector<TH1D*> mu;
+  std::vector<TH1D*> mu_mboy;
+  std::vector<TH1D*> mc;
+  std::vector<TString> names;
+  std::vector<TString> mc_names;
   
   mu_moore.push_back(h_mu_moore_n);
   mu_moore.push_back(h_mu_moore_pt);
@@ -529,28 +530,28 @@ TrkD3PDsPlotsMaker(){
         int muonmu = -1, muonmu_moore = -1, muonmu_mboy = -1;
 
         for(unsigned int k=0 ; k<mu_moore_n; k++ ){
-          if (TMath::Sqrt((mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          if (std::sqrt((mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                    (mu_moore_eta->at(k) - mc_gen_eta->at(j)) * (mu_moore_eta->at(k) - mc_gen_eta->at(j))) < deltaR) {
           muonmu_moore = k;
-          deltaR = TMath::Sqrt((mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          deltaR = std::sqrt((mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                         (mu_moore_eta->at(k) - mc_gen_eta->at(j)) * (mu_moore_eta->at(k) - mc_gen_eta->at(j)));
           }
         }
         deltaR = 0.1;
         for(unsigned int k=0 ; k<mu_n; k++ ){
-          if (TMath::Sqrt((mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          if (std::sqrt((mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                    (mu_eta->at(k) - mc_gen_eta->at(j)) * (mu_eta->at(k) - mc_gen_eta->at(j))) < deltaR) {
           muonmu = k;
-          deltaR = TMath::Sqrt((mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          deltaR = std::sqrt((mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                         (mu_eta->at(k) - mc_gen_eta->at(j)) * (mu_eta->at(k) - mc_gen_eta->at(j)));
           }
         }
         deltaR = 0.1;
         for(unsigned int k=0 ; k<mu_mboy_n; k++ ){
-          if (TMath::Sqrt((mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          if (std::sqrt((mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                    (mu_mboy_eta->at(k) - mc_gen_eta->at(j)) * (mu_mboy_eta->at(k) - mc_gen_eta->at(j))) < deltaR) {
           muonmu_mboy = k;
-          deltaR = TMath::Sqrt((mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
+          deltaR = std::sqrt((mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - mc_gen_phi->at(j)) +
                         (mu_mboy_eta->at(k) - mc_gen_eta->at(j)) * (mu_mboy_eta->at(k) - mc_gen_eta->at(j)));
           }
         }
@@ -599,28 +600,28 @@ TrkD3PDsPlotsMaker(){
         int muonmu = -1, muonmu_moore = -1, muonmu_mboy = -1;
 
         for(unsigned int k=0 ; k<mu_moore_n; k++ ){
-          if (TMath::Sqrt((mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          if (std::sqrt((mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                    (mu_moore_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_moore_eta->at(k) - ms_entry_truth_eta->at(j))) < deltaR) {
           muonmu_moore = k;
-          deltaR = TMath::Sqrt((mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          deltaR = std::sqrt((mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_moore_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                         (mu_moore_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_moore_eta->at(k) - ms_entry_truth_eta->at(j)));
           }
         }
         deltaR = 0.1;
         for(unsigned int k=0 ; k<mu_n; k++ ){
-          if (TMath::Sqrt((mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          if (std::sqrt((mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                    (mu_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_eta->at(k) - ms_entry_truth_eta->at(j))) < deltaR) {
           muonmu = k;
-          deltaR = TMath::Sqrt((mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          deltaR = std::sqrt((mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                         (mu_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_eta->at(k) - ms_entry_truth_eta->at(j)));
           }
         }
         deltaR = 0.1;
         for(unsigned int k=0 ; k<mu_mboy_n; k++ ){
-          if (TMath::Sqrt((mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          if (std::sqrt((mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                    (mu_mboy_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_mboy_eta->at(k) - ms_entry_truth_eta->at(j))) < deltaR) {
           muonmu_mboy = k;
-          deltaR = TMath::Sqrt((mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
+          deltaR = std::sqrt((mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) * (mu_mboy_phi_wrtBL->at(k) - ms_entry_truth_phi->at(j)) +
                         (mu_mboy_eta->at(k) - ms_entry_truth_eta->at(j)) * (mu_mboy_eta->at(k) - ms_entry_truth_eta->at(j)));
           }
         }

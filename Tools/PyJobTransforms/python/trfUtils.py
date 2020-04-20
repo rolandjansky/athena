@@ -6,9 +6,10 @@ from builtins import object
 from future import standard_library
 standard_library.install_aliases()
 from builtins import map
+import six
 
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
@@ -244,13 +245,15 @@ def asetupReport():
             setupMsg += '\t%s=%s\n' % (eVar, os.environ[eVar])
     # Look for patches so that the job can be rerun
     if 'WorkDir_DIR' in os.environ and os.access(os.environ['WorkDir_DIR'], os.R_OK):
-        setupMsg += "\n\tPatch packages are:\n"
-        try:
-            cmd = ['lstags']
-            lstagsOut = Popen(cmd, shell = False, stdout = PIPE, stderr = STDOUT, bufsize = 1).communicate()[0]
-            setupMsg +=  "\n".join([ "\t\t{0}".format(pkg) for pkg in lstagsOut.decode().split("\n") ])
-        except (CalledProcessError, OSError) as e:
-            setupMsg += 'Execution of lstags failed: {0}'.format(e)
+        pass
+        # lstags is obsolete with git releases.
+        # setupMsg += "\n\tPatch packages are:\n"
+        # try:
+        #     cmd = ['lstags']
+        #     lstagsOut = Popen(cmd, shell = False, stdout = PIPE, stderr = STDOUT, bufsize = 1).communicate()[0]
+        #     setupMsg +=  "\n".join([ "\t\t{0}".format(pkg) for pkg in lstagsOut.decode().split("\n") ])
+        # except (CalledProcessError, OSError) as e:
+        #     setupMsg += 'Execution of lstags failed: {0}'.format(e)
     else:
         setupMsg+= "No readable patch area found"
 
@@ -319,7 +322,8 @@ def shQuoteStrings(strArray = sys.argv):
 #  @note This is useful so that multiple parts of code can co-operatively take lines from the file
 def lineByLine(filename, strip=True, removeTimestamp=True, substepName=None):
     linecounter = 0
-    f = open(filename, 'r')
+    encargs = {} if six.PY2 else {'encoding' : 'utf8'}
+    f = open(filename, 'r', **encargs)
     for line in f:
         linecounter += 1
         if substepName and isinstance(substepName, basestring):    # Remove substepName only if caller provides that string.
@@ -555,7 +559,7 @@ def pickledDump(argdict):
             theArgumentDictionary[k] = getattr(v, "dumpvalue", v.value)
         else:
             theArgumentDictionary[k] = v
-    with open(argdict['dumpPickle'], 'w') as pickleFile:
+    with open(argdict['dumpPickle'], 'wb') as pickleFile:
         import pickle as pickle
         pickle.dump(theArgumentDictionary, pickleFile)
 

@@ -5,7 +5,7 @@
 #define TRIGEGAMMAHYPO_ITRIGPRECISIONPHOTONHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 
 /**

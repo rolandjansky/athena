@@ -17,6 +17,11 @@
 
 #include "TTree.h"
 
+// this mutex is used to protect access to the metadata trees
+namespace {
+  static std::mutex s_metadataMutex;
+}
+
 namespace Monitored {
   /**
    * @brief Implementation of IHistogramProvider for offline histograms
@@ -65,11 +70,11 @@ namespace Monitored {
 	      return objcacheref.object;
       }
 
-      std::string conv = m_histDef->convention;
       std::string lbString;
-      if ( conv.find("run")!=std::string::npos ) {
+      HistogramDef::RunPeriod period = m_histDef->runperiod;
+      if ( period == HistogramDef::RunPeriod::Run ) {
         lbString = "";
-      } else if ( conv.find("lowStat")!=std::string::npos ) {
+      } else if ( period == HistogramDef::RunPeriod::LowStat ) {
         const unsigned lbBase = lumiBlock-(lumiBlock%20);
         lbString = "/lowStat_LB"+std::to_string(lbBase+1)+"-"+std::to_string(lbBase+20);
       } else {
@@ -109,6 +114,7 @@ namespace Monitored {
      *
      */ 
     void storeMetadata() const {
+      std::scoped_lock<std::mutex> metadataLock(s_metadataMutex);
       for (const auto &path : m_storedPaths) {
         //std::cout << "Path " << path << std::endl;
         size_t pos = path.find_last_of('/');
@@ -116,12 +122,15 @@ namespace Monitored {
         std::string treePath = splitPath.first + "/metadata";
         auto &histSvc = m_gmTool->histogramService();
         std::string interval;
-        std::string conv = m_histDef->convention;
         char triggerData[] = "<none>";
-        char mergeData[] = "<default>";
-        if (conv.find("run") != std::string::npos) {
+        const std::string mergeDataStr = m_histDef->merge == "" ? "<default>" : m_histDef->merge;
+        std::vector<char> mergeData{mergeDataStr.begin(), mergeDataStr.end()};
+        mergeData.push_back('\0');
+
+        HistogramDef::RunPeriod period = m_histDef->runperiod;
+        if (period == HistogramDef::RunPeriod::Run) {
           interval = "run";
-        } else if (conv.find("lowStat") != std::string::npos) {
+        } else if (period == HistogramDef::RunPeriod::LowStat) {
           interval = "lowStat";
         } else {
           interval = "lumiBlock";
@@ -132,7 +141,7 @@ namespace Monitored {
           tree->Branch("Name", &(splitPath.second[0]), "Name/C");
           tree->Branch("Interval", &(interval[0]), "Interval/C");
           tree->Branch("TriggerChain", triggerData, "TriggerChain/C");
-          tree->Branch("MergeMethod", mergeData, "MergeMethod/C");
+          tree->Branch("MergeMethod", mergeData.data(), "MergeMethod/C");
           tree->Fill();
 
           if (!histSvc->regTree(treePath, std::move(tree))) {
@@ -146,7 +155,7 @@ namespace Monitored {
             tree->SetBranchAddress("Name", &(splitPath.second[0]));
             tree->SetBranchAddress("Interval", &(interval[0]));
             tree->SetBranchAddress("TriggerChain", triggerData);
-            tree->SetBranchAddress("MergeMethod", mergeData);
+            tree->SetBranchAddress("MergeMethod", mergeData.data());
             tree->Fill();
           } else {
             MsgStream log(Athena::getMessageSvc(), "OfflineHistogramProvider");

@@ -82,7 +82,7 @@ if (isOnline and isOfflineTest):
 
 
 # ----------------------------- Printout
-print "CHECK POINT PRINTING"
+printfunc ("CHECK POINT PRINTING")
 globalflags.print_JobProperties()
 
 

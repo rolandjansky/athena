@@ -37,12 +37,12 @@ if jetFlags.useTruth():
             inputcontent = objKeyStore['inputFile'].list()
             for t in inputcontent :
                 if tname in t:
-                    print 'Truth collection %s already exists, no need to rebuild it' % tname
+                    printfunc ('Truth collection %s already exists, no need to rebuild it' % tname)
                     collExists=True
                     break
         if collExists: continue
         f=jtm.addJetFinder(tname,"AntiKt", R,"truth", ptmin= HIJetFlags.TruthJetPtMin())
-        print 'Adding %s' %tname
+        printfunc ('Adding %s' %tname)
         AddToOutputList(tname)
         jtm.HIJetRecs+=[f]
 
@@ -151,9 +151,9 @@ if HIJetFlags.DoHIBTagging():
             jetname.JetModifiers += [ btagger ]
             jetname.lock()
             if BTaggingFlags.OutputLevel < 3:
-              print ConfInstance.getJetCollectionTool(jet[:-4])
+              printfunc (ConfInstance.getJetCollectionTool(jet[:-4]))
           except AttributeError as error:
-            print '#BTAG# --> ' + str(error)
+            printfunc ('#BTAG# --> ' + str(error))
             NotInJetToolManager.append(AuthorSubString[i])
 
       if len(NotInJetToolManager) > 0:

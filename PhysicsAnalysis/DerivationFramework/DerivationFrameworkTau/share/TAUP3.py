@@ -15,32 +15,35 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkTau.TauCommon import *
 
 # ==========================================================================================================================
+# Set up stream
+# ==========================================================================================================================
+streamName                                       = derivationFlags.WriteDAOD_TAUP3Stream.StreamName
+fileName                                         = buildFileName( derivationFlags.WriteDAOD_TAUP3Stream )
+TAUP3Stream                                      = MSMgr.NewPoolRootStream( streamName, fileName )
+TAUP3Stream.AcceptAlgs(["TAUP3Kernel"])
+
+augStream                                        = MSMgr.GetStream( streamName )
+evtStream                                        = augStream.GetEventStream()
+
+# ==========================================================================================================================
 # Thinning tool
 # ==========================================================================================================================
 # MET/Jet tracks
 thinning_expression                              = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-TAUP3MetTPThinningTool                           = DerivationFramework__TrackParticleThinning(
-                                                     name                      = "TAUP3MetTPThinningTool",
-                                                     ThinningService           = "TAUP3ThinningSvc",
-                                                     SelectionString           = thinning_expression,
-                                                     InDetTrackParticlesKey    = "InDetTrackParticles",
-                                                     ApplyAnd                  = True)
-ToolSvc                                         += TAUP3MetTPThinningTool
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 TAUP3JetTPThinningTool                           = DerivationFramework__JetTrackParticleThinning(
                                                      name                      = "TAUP3JetTPThinningTool",
-                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     StreamName                = streamName,
                                                      JetKey                    = "AntiKt4LCTopoJets",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles",
-                                                     ApplyAnd                  = True)
+                                                     TrackSelectionString      = thinning_expression)
 ToolSvc                                         += TAUP3JetTPThinningTool
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 TAUP3CaloClusterThinning                         = DerivationFramework__CaloClusterThinning(
                                                      name                      = "TAUP3ClusterThinning",
-                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     StreamName                = streamName,       
                                                      SGKey                     = "TauJets",
                                                      TopoClCollectionSGKey     = "CaloCalTopoClusters")
 ToolSvc                                         += TAUP3CaloClusterThinning
@@ -49,7 +52,7 @@ ToolSvc                                         += TAUP3CaloClusterThinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 TAUP3ElectronTPThinningTool                      = DerivationFramework__EgammaTrackParticleThinning(
                                                      name                      = "TAUP3ElectronTPThinningTool",
-                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     StreamName              = streamName,
                                                      SGKey                     = "Electrons",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles")
 ToolSvc                                         += TAUP3ElectronTPThinningTool
@@ -58,7 +61,7 @@ ToolSvc                                         += TAUP3ElectronTPThinningTool
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 TAUP3MuonTPThinningTool                          = DerivationFramework__MuonTrackParticleThinning(
                                                      name                      = "TAUP3MuonTPThinningTool",
-                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     StreamName              = streamName,
                                                      MuonKey                   = "Muons",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles")
 ToolSvc                                         += TAUP3MuonTPThinningTool
@@ -67,7 +70,7 @@ ToolSvc                                         += TAUP3MuonTPThinningTool
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 TAUP3TauTPThinningTool                           = DerivationFramework__TauTrackParticleThinning(
                                                      name                      = "TAUP3TauTPThinningTool",
-                                                     ThinningService           = "TAUP3ThinningSvc",
+                                                     StreamName              = streamName,
                                                      TauKey                    = "TauJets",
                                                      InDetTrackParticlesKey    = "InDetTrackParticles",
                                                      ConeSize                  = 0.6)
@@ -107,23 +110,6 @@ DerivationFrameworkJob                          += CfgMgr.DerivationFramework__D
                                                                                   TAUP3MuonTPThinningTool,
                                                                                   TAUP3TauTPThinningTool],
                                                      AugmentationTools         = augmentationTools)
-
-# ==========================================================================================================================
-# Set up stream
-# ==========================================================================================================================
-streamName                                       = derivationFlags.WriteDAOD_TAUP3Stream.StreamName
-fileName                                         = buildFileName( derivationFlags.WriteDAOD_TAUP3Stream )
-TAUP3Stream                                      = MSMgr.NewPoolRootStream( streamName, fileName )
-TAUP3Stream.AcceptAlgs(["TAUP3Kernel"])
-
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream                                        = MSMgr.GetStream( streamName )
-evtStream                                        = augStream.GetEventStream()
-svcMgr                                          += createThinningSvc(
-                                                     svcName                   = "TAUP3ThinningSvc",
-                                                     outStreams                = [evtStream])
 
 # ==========================================================================================================================
 # Add the containers to the output stream (slimming done here)

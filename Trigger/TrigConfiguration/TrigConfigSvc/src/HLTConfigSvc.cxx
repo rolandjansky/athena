@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // class declaration
@@ -57,16 +57,8 @@ using namespace TrigConf;
 
 HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
    base_class(name, pSvcLocator),
-   m_eventStore(0),
-   m_currentLumiblock(0),
-   m_currentPSS(0),
-   m_setMergedHLT(true),
-   m_doMon(false),
-   m_partition(""),
-   m_histProp_timePrescaleUpdate(Gaudi::Histo1DDef("Time for prescale update",0,200,100)),
-   m_hist_timePrescaleUpdate(0),
-   m_hist_prescaleLB(0),
-   m_PartitionName("")
+   m_eventStore( "StoreGateSvc/StoreGateSvc",  name ),
+   m_histProp_timePrescaleUpdate(Gaudi::Histo1DDef("Time for prescale update",0,200,100))
 {
    base_class::declareCommonProperties();
 
@@ -293,8 +285,8 @@ HLTConfigSvc::initialize() {
       ATH_MSG_INFO("Fired Incident 'TrigConf' - " << incname);
    }
 
-   CHECK(service("StoreGateSvc", m_eventStore, /*createIf=*/false));
-   
+   CHECK( m_eventStore.retrieve() );
+
    ATH_MSG_INFO("finish initialize");
 
    return StatusCode::SUCCESS;
@@ -355,7 +347,7 @@ TrigConf::HLTConfigSvc::applyPrescaleSet(const TrigConf::HLTPrescaleSet& pss) {
 
   ATH_MSG_INFO("Applying PSK " << pss.id() << " to menu ");
   const EventInfo* pEvent(0);
-  if (   m_eventStore && m_eventStore->retrieve(pEvent).isSuccess() ) {
+  if ( m_eventStore->retrieve(pEvent).isSuccess() ) {
      ATH_MSG_INFO("on event " << *pEvent->event_ID());
   }
 

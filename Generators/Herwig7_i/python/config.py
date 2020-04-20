@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## \file Herwig7_i/python/config.py
 ## \brief Python functions that are usable in the Herwig 7 jobOptions
 ## \author Daniel Rauch (daniel.rauch@desy.de)
 ##
+
+from __future__ import print_function
 
 ## Choose symmetric collider energy
 def energy_cmds(sqrts):
@@ -486,4 +488,4 @@ if __name__ == "__main__":
     sqrts = 14000
     if len(sys.argv) > 1:
         sqrts = float(sys.argv[1])
-    print energy_cmds(sqrts)
+    print (energy_cmds(sqrts))

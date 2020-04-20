@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBjetMonitorAlgorithm.h"
@@ -19,13 +19,11 @@ TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISv
   ,m_doRandom(true)
   ,m_allChains{}
   ,m_muonContainerKey("Muons")
-  ,m_vertexContainerKey("PrimaryVertices")
   ,m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
   ,m_doRun2(false)
 {
   declareProperty ("AllChains", m_allChains);
   declareProperty("MuonContainerName",m_muonContainerKey);
-  declareProperty("VertexContainerName",m_vertexContainerKey);
   declareProperty("doRun2",m_doRun2);
 }
 
@@ -35,7 +33,10 @@ TrigBjetMonitorAlgorithm::~TrigBjetMonitorAlgorithm() {}
 
 StatusCode TrigBjetMonitorAlgorithm::initialize() {
   ATH_CHECK( m_muonContainerKey.initialize() );
-  ATH_CHECK( m_vertexContainerKey.initialize() );
+
+  ATH_CHECK( m_offlineVertexContainerKey.initialize() );
+  ATH_CHECK( m_onlineVertexContainerKey.initialize() );
+
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -51,9 +52,9 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   auto OffyVtx = Monitored::Scalar<float>("Off_yVtx",0.0);
   auto OffzVtx = Monitored::Scalar<float>("Off_zVtx",0.0);
 
-  SG::ReadHandle<xAOD::VertexContainer> offlinepv(m_vertexContainerKey, ctx);
+  SG::ReadHandle<xAOD::VertexContainer> offlinepv = SG::makeHandle( m_offlineVertexContainerKey, ctx );
   if (! offlinepv.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain VertexContainer Collection with name "<< m_vertexContainerKey);
+    ATH_MSG_ERROR("evtStore() does not contain VertexContainer Collection with name "<< m_offlineVertexContainerKey);
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG(" Size of the Off-line PV container: " << offlinepv->size() );
@@ -62,8 +63,9 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     OffxVtx = (*(offlinepv))[j]->x();
     OffyVtx = (*(offlinepv))[j]->y();
     OffzVtx = (*(offlinepv))[j]->z();
+    fill("TrigBjetMonitor",OffxVtx,OffyVtx,OffzVtx);
   }
-  fill("TrigBjetMonitor",OffNVtx,OffxVtx,OffyVtx,OffzVtx);
+  fill("TrigBjetMonitor",OffNVtx);
   
 
   // print the trigger chain names 
@@ -281,7 +283,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	// bjet chains
 	if (bjetChain) {
 	  // online PV 
-	  SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_vertexContainerKey, ctx);
+	  SG::ReadHandle<xAOD::VertexContainer> vtxContainer = SG::makeHandle( m_onlineVertexContainerKey, ctx );
 	  int nPV = 0;
 	  for (const xAOD::Vertex* vtx : *vtxContainer) {
 	    if (vtx->vertexType() == xAOD::VxType::PriVtx) {
@@ -318,7 +320,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
 	  // Jets and PV through jet link
 	  // std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName, TrigDefs::Physics, jetKey);
-	  std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName, TrigDefs::Physics);
+	  std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName, TrigDefs::Physics, m_onlineBjetContainerKey);
 	  // std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigName);
 	  int ijet = 0;
 	  std::string nJetH = "nJet_"+trigName;
@@ -346,7 +348,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    fill("TrigBjetMonitor",jetEta,jetPhi);
 	    // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
 	    if (ijet == 0) {
-	      auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "xPrimVx");
+	      auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "EFHistoPrmVtx"); // CV 200120
+	      ATH_CHECK( vertexLinkInfo.isValid() ) ; // TM 200120
 	      const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
 	      NameH = "PVz_jet_"+trigName;
 	      ATH_MSG_DEBUG( " NameH: " << NameH  );

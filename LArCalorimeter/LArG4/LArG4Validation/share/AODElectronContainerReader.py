@@ -1,7 +1,5 @@
 #!/usr/bin/env physh
-
-#
-# $Id: AODElectronContainerReader.py,v 1.0 2010-08-12 13:00:12 Morse Exp $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # python script for launching AODReader job
 #
@@ -22,7 +20,7 @@ parser.add_option("-o","--outputFile",dest="output",default='ntuple.root',help="
 
 for arg in args :
 	if (not isfile (arg)) :
-		print "ERROR: wrong input: nonexistent file:",arg
+		printfunc ("ERROR: wrong input: nonexistent file:",arg)
 		exit(1)
 
 from AthenaCommon.AppMgr import ServiceMgr

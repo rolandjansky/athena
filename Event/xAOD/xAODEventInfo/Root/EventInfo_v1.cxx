@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020, 2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfo_v1.cxx 729717 2016-03-14 18:52:01Z ssnyder $
-
 // System include(s):
+#include <atomic>
 #include <iostream>
 #include <iomanip>
 #include <stdexcept>
@@ -45,6 +44,22 @@ namespace xAODEventInfoPrivate {
    std::ostream& operator<<( std::ostream& out, const std::set< T >& s ) {
 
       return out << std::vector< T >( begin( s ), end( s ) );
+   }
+
+   /// Function that would be possible to use to debug what client is trying
+   /// to access pileup values from an @c xAOD::EventInfo object, before they
+   /// would have been set.
+   void pileupUnsetHook() {
+      static std::atomic< bool > uninitPileupAccessPrinted = false;
+      if( ! uninitPileupAccessPrinted ) {
+         std::cout << "xAOD::EventInfo WARNING Uninitialised pileup value was "
+                      "accessed.\n"
+                      "                        Debug it by breaking on "
+                      "xAODEventInfoPrivate::pileupUnsetHook function calls!"
+                   << std::endl;
+         uninitPileupAccessPrinted = true;
+      }
+      return;
    }
 
 } // private namespace
@@ -344,13 +359,47 @@ namespace xAOD {
    //          Implementation of the pileup information functions
    //
 
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, float,
-                                         actualInteractionsPerCrossing,
-                                         setActualInteractionsPerCrossing )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, float,
-                                         averageInteractionsPerCrossing,
-                                         setAverageInteractionsPerCrossing )
-   
+   /// Accessor for "actualInteractionsPerCrossing"
+   static const SG::AuxElement::Accessor< float >
+      accActualInteractionsPerCrossing( "actualInteractionsPerCrossing" );
+   /// Accessor for "averageInteractionsPerCrossing"
+   static const SG::AuxElement::Accessor< float >
+      accAverageInteractionsPerCrossing( "averageInteractionsPerCrossing" );
+
+   float EventInfo_v1::actualInteractionsPerCrossing() const {
+
+      // If the value is not available, then return 0.0, but allow users to
+      // find out about this issue.
+      if( ! accActualInteractionsPerCrossing.isAvailable( *this ) ) {
+         xAODEventInfoPrivate::pileupUnsetHook();
+         return 0.0f;
+      }
+      return accActualInteractionsPerCrossing( *this );
+   }
+
+   void EventInfo_v1::setActualInteractionsPerCrossing( float value ) {
+
+      accActualInteractionsPerCrossing( *this ) = value;
+      return;
+   }
+
+   float EventInfo_v1::averageInteractionsPerCrossing() const {
+
+      // If the value is not available, then return 0.0, but allow users to
+      // find out about this issue.
+      if( ! accAverageInteractionsPerCrossing.isAvailable( *this ) ) {
+         xAODEventInfoPrivate::pileupUnsetHook();
+         return 0.0f;
+      }
+      return accAverageInteractionsPerCrossing( *this );
+   }
+
+   void EventInfo_v1::setAverageInteractionsPerCrossing( float value ) {
+
+      accAverageInteractionsPerCrossing( *this ) = value;
+      return;
+   }
+
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, unsigned long long,
                                          pileUpMixtureIDLowBits,
                                          setPileUpMixtureIDLowBits )
@@ -596,7 +645,7 @@ namespace xAOD {
 
       return;
    }
-   
+
    const std::string& EventInfo_v1::PileUpType2Name(PileUpType typ)
    {
       static const std::string typNam[PileUp_NTYPES+1] = {
@@ -609,7 +658,7 @@ namespace xAOD {
       int  t = (typ==Unknown)? 0: (int)typ+1;
       assert( t <= PileUp_NTYPES );
       return typNam[t];
-   } 
+   }
 
    EventInfo_v1::PileUpType EventInfo_v1::PileUpInt2Type(unsigned short typ)
    {
@@ -619,7 +668,7 @@ namespace xAOD {
       int t = (typ==99)? 0: (int)typ+1;
       assert( t <= PileUp_NTYPES );
       return typEnum[t];
-   } 
+   }
 
    //
    /////////////////////////////////////////////////////////////////////////////
@@ -1024,7 +1073,7 @@ namespace xAOD {
 
 
        // Return the stream:
-       return out;  
+       return out;
    }
 
    /// This operator is provided to make it convenient to compare two

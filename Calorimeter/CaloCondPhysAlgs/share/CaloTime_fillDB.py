@@ -1,12 +1,16 @@
 #!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import os,sys,commands
+from __future__ import print_function
+
+import sys
+import six
 
 def usage():
-   print "Syntax for open-end IoV time constant update"
-   print " The first parameter is the run number of IoV start, the second parameter is the lumiblock number for IoV start"
-   print " The third and fourth parameters are the Run/lb for IoV end (if run is -1, uses open ended IoV)"
-   print " the fifth and sixth parameters are the inputfile for allconstants and runconstants"
+   print ("Syntax for open-end IoV time constant update")
+   print (" The first parameter is the run number of IoV start, the second parameter is the lumiblock number for IoV start")
+   print (" The third and fourth parameters are the Run/lb for IoV end (if run is -1, uses open ended IoV)")
+   print (" the fifth and sixth parameters are the inputfile for allconstants and runconstants")
 
 if len(sys.argv)<7:
    usage()
@@ -17,8 +21,8 @@ lbkSince = sys.argv[2]
 runUntil = sys.argv[3]
 lbkUntil = sys.argv[4]
 
-print "runSince ", runSince, lbkSince
-print "runUntil ", runUntil, lbkUntil
+print ("runSince ", runSince, lbkSince)
+print ("runUntil ", runUntil, lbkUntil)
 
 import cppyy
 from PyCool import cool
@@ -39,11 +43,11 @@ iovUntil_con = CaloCondTools.iovFromRunLumi(runUntil,lbkUntil)
 iovMin = cool.ValidityKeyMin
 iovMax = cool.ValidityKeyMax
 
-print " iovSince_con ", iovSince_con
-print " iovUntil_con ", iovUntil_con
+print (" iovSince_con ", iovSince_con)
+print (" iovUntil_con ", iovUntil_con)
 
-print " iovMin ", iovMin
-print " iovMax ", iovMax
+print (" iovMin ", iovMin)
+print (" iovMax ", iovMax)
 
 lbkdown = 0
 lbkup = 4294967295
@@ -78,13 +82,13 @@ try:
     #=== create the folder
     folderPath = CaloCondTools.getCaloPrefix()+"LAR/TimeCorrectionOfl/NonRunCon"
     folderTag  = tagCon
-    print "Filling COOL folder ", folderPath, " with tag ", folderTag   
+    print ("Filling COOL folder ", folderPath, " with tag ", folderTag   )
     desc = CaloCondTools.getAthenaFolderDescr()
     try:
         folder = db.getFolder(folderPath)
-    except Exception, e:
-        log.warning("Folder %s not found, creating it..." % folderPath)
-        print "Folder ", folderPath, " not found, creating it... " 
+    except Exception:
+        log.warning("Folder %s not found, creating it...", folderPath)
+        print ("Folder ", folderPath, " not found, creating it... " )
         folderSpec = cool.FolderSpecification(cool.FolderVersioning.SINGLE_VERSION, spec)
         folder = db.createFolder(folderPath, folderSpec, desc, True)
         
@@ -125,52 +129,52 @@ try:
                     3 : (31872, 141440, defVecLAr_1 , 'EMEC, z>0'),
                  }
 
-    print "before fill virtual database"
-    for systemId, info in systemDict.iteritems():
-     print "before fill virtual database for sysId=", systemId
+    print ("before fill virtual database")
+    for systemId, info in six.iteritems (systemDict):
+     print ("before fill virtual database for sysId=", systemId)
      if (systemId<=3) :
-        print "Creating BLOB for Calo sysId=", systemId
+        print ("Creating BLOB for Calo sysId=", systemId)
         nChannel = info[0]
         defVec   = info[2]
         sysName  = info[3]
-        log.info("Creating BLOB for %s" % sysName)
+        log.info("Creating BLOB for %s", sysName)
         data_vir = cool.Record( spec )
         blob_vir = data_vir['CaloCondBlob16M']
         flt_vir = g.CaloCondBlobFlt.getInstance(blob_vir)
         flt_vir.init(defVec,nChannel,1,author,comment)
 
-        log.info("Committing BLOB for %s" % sysName)
+        log.info("Committing BLOB for %s", sysName)
         channelId = cool.ChannelId(systemId)
-        log.info("Cool channel ID %s" % channelId)
+        log.info("Cool channel ID %s", channelId)
         folder.storeObject(iovMin, iovMax, data_vir, channelId, folderTag)
 
-    print "after fill virtual database"
+    print ("after fill virtual database")
 
     fltDict_1 = {}
-    print "Prepare BLOB for Calo"
-    for systemId, info in systemDict.iteritems():
-     print "before check sysId=", systemId 
+    print ("Prepare BLOB for Calo")
+    for systemId, info in six.iteritems (systemDict):
+     print ("before check sysId=", systemId )
      if (systemId<=3) :
-        print "Creating BLOB for Calo sysId=", systemId 
+        print ("Creating BLOB for Calo sysId=", systemId )
         nChannel = info[0]
         defVec   = info[2]
         sysName  = info[3]
-        log.info("Creating BLOB for %s" % sysName)
+        log.info("Creating BLOB for %s", sysName)
         data = cool.Record( spec )
         blob = data['CaloCondBlob16M']
         flt = g.CaloCondBlobFlt.getInstance(blob)
         flt.init(defVec,nChannel,1,author,comment)
         fltDict_1[systemId] = [data,flt]
         kbSize = float(blob.size()) / 1024
-        print "BLOB size is ", kbSize, " KB"
+        print ("BLOB size is ", kbSize, " KB")
         mbSize = float(kbSize) / 1024
-        print "BLOB size is ", mbSize, " MB"
+        print ("BLOB size is ", mbSize, " MB")
 
 
     #=== read time values from file
-    print "before read time values from file"
+    print ("before read time values from file")
     lines = open(inputFile_con,"r").readlines()
-    print "before enter file line loop"
+    print ("before enter file line loop")
     for line in lines:
         fields = line.split()
         
@@ -200,32 +204,32 @@ try:
         enePar15   = float(fields[26])
 
         if not hash==hash_check:
-           print "hash!=hash_check:", hash , hash_check
+           print ("hash!=hash_check:", hash , hash_check)
            continue
 
         if systemId==0:
            if hash>=31872:
-             print "hash>=31872 for hash ", hash , ", sys ", systemId
+             print ("hash>=31872 for hash ", hash , ", sys ", systemId)
              continue
 
         if systemId==1:
            if hash>=54784:
-             print "hash>=54784 for hash ", hash , ", sys ", systemId
+             print ("hash>=54784 for hash ", hash , ", sys ", systemId)
              continue
 
         if systemId==2:
            if hash>=54784:
-             print "hash>=54784 for hash ", hash , ", sys ", systemId
+             print ("hash>=54784 for hash ", hash , ", sys ", systemId)
              continue
 
         if systemId==3:
            if hash>=31872:
-             print "hash>=31872 for hash ", hash , ", sys ", systemId
+             print ("hash>=31872 for hash ", hash , ", sys ", systemId)
              continue
 
-        print systemId, hash, hash_check, gain, febchanOffset, errPar1, errPar2, enePar1, enePar2, enePar3, enePar4, enePar5, enePar6, enePar7, enePar8, enePar9, enePar10, enePar11, enePar12, enePar13, enePar14, enePar15
+        print (systemId, hash, hash_check, gain, febchanOffset, errPar1, errPar2, enePar1, enePar2, enePar3, enePar4, enePar5, enePar6, enePar7, enePar8, enePar9, enePar10, enePar11, enePar12, enePar13, enePar14, enePar15)
 
-        print "before get flt"
+        print ("before get flt")
         flt = fltDict_1[systemId][1]
         flt.setData(hash,gain,0,febchanOffset)
         flt.setData(hash,gain,1,errPar1)
@@ -246,23 +250,23 @@ try:
         flt.setData(hash,gain,16,enePar14)
         flt.setData(hash,gain,17,enePar15)
 
-    print "outside file line loop"
+    print ("outside file line loop")
 
     #=== write to DB
-    print "Committing BLOB for Calo"
-    for systemId, dataList in fltDict_1.iteritems():
+    print ("Committing BLOB for Calo")
+    for systemId, dataList in six.iteritems (fltDict_1):
       if (systemId<=3):
         sysName  = systemDict[systemId][3]
-        log.info("Committing BLOB for %s" % sysName)
+        log.info("Committing BLOB for %s", sysName)
         channelId = cool.ChannelId(systemId)
-        log.info("Cool channel ID %s" % channelId)
+        log.info("Cool channel ID %s", channelId)
         data = dataList[0]
         folder.storeObject(iovSince_con, iovUntil_con, data, channelId, folderTag)
 
-except Exception, e:
+except Exception as e:
     log.fatal("Exception caught: fill LAR/TimeCorrectionOfl/NonRunCon")
-    print "Exception caught: fill LAR/TimeCorrectionOfl/NonRunCon"
-    print e
+    print ("Exception caught: fill LAR/TimeCorrectionOfl/NonRunCon")
+    print (e)
 
 try:
     #=== creating folder specifications
@@ -272,13 +276,13 @@ try:
     #=== create the folder
     folderPath = CaloCondTools.getCaloPrefix()+"LAR/TimeCorrectionOfl/RunCon"
     folderTag  = tagRun
-    print "Filling COOL folder ", folderPath,  "with tag ", folderTag
+    print ("Filling COOL folder ", folderPath,  "with tag ", folderTag)
     desc = CaloCondTools.getAthenaFolderDescr()
     try:
         folder = db.getFolder(folderPath)
-    except Exception, e:
-        log.warning("Folder %s not found, creating it..." % folderPath)
-        print "Folder ", folderPath, " not found, creating it... " 
+    except Exception:
+        log.warning("Folder %s not found, creating it...", folderPath)
+        print ("Folder ", folderPath, " not found, creating it... " )
          
         folder = db.createFolder(folderPath, spec, desc, cool.FolderVersioning.MULTI_VERSION, True)
 
@@ -296,7 +300,7 @@ try:
     defVecLAr_2.push_back(gainDefVec_2)
 
     # fill database with virtual value 
-    print "before fill virtual database"
+    print ("before fill virtual database")
     nChannel = 116 #  0-31: Barrel C; 32-63: Barrel A; 64-88: EMEC; 89-113: EMEA; 
     channelId = cool.ChannelId(1)
     data_vir = cool.Record( spec )
@@ -304,26 +308,26 @@ try:
     flt_vir = g.CaloCondBlobFlt.getInstance(blob_vir)
     flt_vir.init(defVecLAr_2,nChannel,1,author,comment)
     folder.storeObject(iovMin, iovMax, data_vir, channelId, folderTag)
-    print "after fill virtual database"
+    print ("after fill virtual database")
 
     run_list  = []
     lines = open(inputFile_run,"r").readlines()
 
-    print "before fill run_list"
+    print ("before fill run_list")
     for line in lines:
         fields = line.split()
         run = int(fields[0])
         if run_list.count(run)==0:  
            run_list.append(run)
 
-    print "after fill run_list"
+    print ("after fill run_list")
     run_list.sort()
-    print "number of runs: ", len(run_list)
-    print "run_list: ", run_list
+    print ("number of runs: ", len(run_list))
+    print ("run_list: ", run_list)
 
     fltDict_2 = {}
     for runId in run_list:
-        print "Creating BLOB for run ", runId 
+        print ("Creating BLOB for run ", runId )
         nChannel = 116 #  0-31: Barrel C; 32-63: Barrel A; 64-88: EMEC; 89-113: EMEA; 
         data = cool.Record( spec )
         blob = data['CaloCondBlob16M']
@@ -331,12 +335,12 @@ try:
         flt.init(defVecLAr_2,nChannel,1,author,comment)
         fltDict_2[runId] = [data,flt]
         kbSize = float(blob.size()) / 1024.
-        print "BLOB size is ", kbSize, " kB"
+        print ("BLOB size is ", kbSize, " kB")
         mbSize = float(kbSize) / 1024
-        print "BLOB size is ", mbSize, " MB"
+        print ("BLOB size is ", mbSize, " MB")
 
     
-    print "before enter file line loop"
+    print ("before enter file line loop")
     for line in lines:
         fields = line.split()
 
@@ -360,23 +364,23 @@ try:
         flt.setData(ftID,gain2,0,runOffsetLow)
         flt.setData(ftID,gain2,1,runEntryLow)
 
-        print runId, ftID, runOffsetHigh, runEntryHigh,  runOffsetMed, runEntryMed, runOffsetLow, runEntryLow
+        print (runId, ftID, runOffsetHigh, runEntryHigh,  runOffsetMed, runEntryMed, runOffsetLow, runEntryLow)
 
-    print "after enter file line loop"
+    print ("after enter file line loop")
 
-    for runId, dataList in fltDict_2.iteritems():
-        print "Committing BLOB for run ", runId
+    for runId, dataList in six.iteritems (fltDict_2):
+        print ("Committing BLOB for run ", runId)
         iovSince_run = CaloCondTools.iovFromRunLumi(runId,lbkdown)
         iovUntil_run = CaloCondTools.iovFromRunLumi(runId,lbkup)
         channelId = cool.ChannelId(1) 
-        print "Cool channel ID ", channelId  
+        print ("Cool channel ID ", channelId  )
         data = dataList[0]
         folder.storeObject(iovSince_run, iovUntil_run, data, channelId, folderTag)
 
-except Exception, e:
+except Exception as e:
     log.fatal("Exception caught: LAR/TimeCorrectionOfl/RunCon")
-    print "Exception caught: LAR/TimeCorrectionOfl/RunCon"
-    print e
+    print ("Exception caught: LAR/TimeCorrectionOfl/RunCon")
+    print (e)
 
 #=== close the database
 db.closeDatabase()

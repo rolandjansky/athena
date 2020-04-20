@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*************************************************************************************
@@ -16,7 +16,7 @@ decription           : Class description for convolution of GSF material mixture
 
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -24,7 +24,6 @@ decription           : Class description for convolution of GSF material mixture
 namespace Trk {
 
 class IMultiStateMaterialEffectsUpdator;
-class MultiComponentState;
 class Layer;
 
 class GsfMaterialMixtureConvolution
@@ -46,53 +45,42 @@ public:
   virtual StatusCode finalize() override;
 
   //!< Convolution with full material properties
-  virtual std::unique_ptr<MultiComponentState> 
-    update(const MultiComponentState&,
-           const Layer&,
-           PropDirection direction = anyDirection,
-           ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+  virtual MultiComponentState update(
+    const MultiComponentState&,
+    const Layer&,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Convolution with pre-measurement-update material properties
-  virtual std::unique_ptr<MultiComponentState> 
-    preUpdate(const MultiComponentState&,
-              const Layer&,
-              PropDirection direction = anyDirection,
-              ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+  virtual MultiComponentState preUpdate(const MultiComponentState&,
+                                        const Layer&,
+                                        PropDirection direction = anyDirection,
+                                        ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Convolution with post-measurement-update material properties
-  virtual std::unique_ptr<MultiComponentState> 
-    postUpdate(const MultiComponentState&,
-               const Layer&,
-               PropDirection direction = anyDirection,
-               ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+  virtual MultiComponentState postUpdate(const MultiComponentState&,
+                                         const Layer&,
+                                         PropDirection direction = anyDirection,
+                                         ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   //!< Retain for now redundant simplified material effects
-  virtual std::unique_ptr<MultiComponentState> 
-    simplifiedMaterialUpdate(const MultiComponentState& multiComponentState,
-                             PropDirection direction = anyDirection,
-                             ParticleHypothesis particleHypothesis = nonInteracting) const override final;
+  virtual MultiComponentState simplifiedMaterialUpdate(
+    const MultiComponentState& multiComponentState,
+    PropDirection direction = anyDirection,
+    ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
 private:
-  ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ 
-    this,
-    "MaterialEffectsUpdator",
-    "Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",
-    ""
-  };
-  ToolHandle<IMultiComponentStateCombiner> m_stateCombiner{
-    this,
-    "MultiComponentStateCombiner",
-    "Trk::MultiComponentStateCombiner/MultiComponentStateCombiner",
-    ""
-  };
- 
+  ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ this,
+                                                           "MaterialEffectsUpdator",
+                                                           "Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",
+                                                           "" };
+
   ToolHandle<IMultiComponentStateMerger> m_stateMerger{
     this,
     "MultiComponentStateMerger",
     "Trk::QuickCloseComponentsMultiStateMerger/MaterialConvolutionMerger",
     ""
   };
-
 };
 
 } // end Trk namespace

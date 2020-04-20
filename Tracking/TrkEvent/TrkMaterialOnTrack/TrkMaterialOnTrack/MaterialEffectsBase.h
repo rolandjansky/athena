@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -149,9 +149,9 @@ inline double Trk::MaterialEffectsBase::thicknessInX0() const
 
 inline bool Trk::MaterialEffectsBase::type(const Trk::MaterialEffectsBase::MaterialEffectsType& type) const
 {
-    if (type==NumberOfMaterialEffectsTypes) return false;
-    if ((1<<static_cast<int>(type))&m_typeFlags) return true;
-    return false;
+    if (type==NumberOfMaterialEffectsTypes) { return false;
+}
+    return ((1<<static_cast<int>(type))&m_typeFlags) != 0;
 }
 
 #endif // TRKMATERIALONTRACK_MATERIALEFFECTSBASE_H

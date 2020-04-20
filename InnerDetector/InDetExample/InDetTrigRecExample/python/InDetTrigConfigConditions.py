@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -55,14 +55,101 @@ class PixelConditionsServicesSetup:
   def createTool(self):
     from AthenaCommon.AppMgr import ToolSvc
 
-    ########################
-    # DCS Conditions Setup #
-    ########################
+    #############################
+    # Setup Pixel Configuration #
+    #############################
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
 
     from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.GlobalFlags import globalflags
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
+    useNewDeadmapFormat = False
+    useNewChargeFormat  = False
+
+    if not useNewDeadmapFormat:
+      if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
+        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
+
+    if not hasattr(condSeq, 'PixelConfigCondAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+
+      useCablingConditions = False
+      IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
+      rodIDForSingleLink40=0
+      if (globalflags.DataSource()=='geant4'):
+        # ITk:
+        if geoFlags.isSLHC():
+          IdMappingDat = "ITk_Atlas_IdMapping.dat"
+          if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
+            IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
+          elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
+            IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
+          elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
+            IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
+          elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
+            IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
+        elif (geoFlags.isIBL() == False):
+          IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
+        else:
+          # Planar IBL
+          if (geoFlags.IBLLayout() == "planar"):
+            if (geoFlags.isDBM() == True):
+              IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
+            else:
+              IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
+          # Hybrid IBL plus DBM
+          elif (geoFlags.IBLLayout() == "3D"):
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
+        
+      elif (globalflags.DataSource=='data'):
+        from RecExConfig.AutoConfiguration import GetRunNumber
+        runNum = GetRunNumber()
+        if (runNum<222222):
+          useCablingConditions = False
+          IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+          rodIDForSingleLink40=1300000
+        else:
+          useCablingConditions = True
+          rodIDForSingleLink40=1300000
+          # Even though we are reading from COOL, set the correct fallback map.
+          if (runNum >= 344494):
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
+          elif (runNum >= 314940 and runNum < 344494):
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_314940.dat"
+          elif (runNum >= 289350 and runNum < 314940): # 2016
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
+          elif (runNum >= 222222 and runNum < 289350): # 2015
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
+          else:
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                    UseDeadmapConditions=self.usePixMap,
+                                    UseDCSStateConditions=self.useDCS,
+                                    UseDCSStatusConditions=self.useDCS,
+                                    UseTDAQConditions=self.useTDAQ,     # should be false. This is only valid in RUN-1.
+                                    ReadDeadMapKey="/PIXEL/PixMapOverlay",
+                                    UseCalibConditions=True,
+                                    UseCablingConditions=useCablingConditions,
+                                    CablingMapFileName=IdMappingDat)
+
+
+    #########################
+    # Deadmap Setup (RUN-3) #
+    #########################
+    if useNewDeadmapFormat:
+      if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+        conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+      if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+        condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+
+    ########################
+    # DCS Conditions Setup #
+    ########################
     PixelHVFolder = "/PIXEL/DCS/HV"
     PixelTempFolder = "/PIXEL/DCS/TEMPERATURE"
     PixelDBInstance = "DCS_OFL"
@@ -83,8 +170,14 @@ class PixelConditionsServicesSetup:
         conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
       if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
         conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+
+    if not hasattr(condSeq, 'PixelDCSCondStateAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
       condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+
+    if not hasattr(condSeq, 'PixelDCSCondStatusAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
+      condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
 
     if not hasattr(condSeq, 'PixelDCSCondHVAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
@@ -92,48 +185,31 @@ class PixelConditionsServicesSetup:
 
     if not hasattr(condSeq, 'PixelDCSCondTempAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
-      condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder, UseConditions=True)
+      condSeq += PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder)
 
     #########################
     # TDAQ Conditions Setup #
     #########################
     TrigPixelTDAQConditionsTool = None
+    PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
     if self.useTDAQ:
-      PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
       PixelTDAQInstance = "TDAQ_ONL"
-
       if not conddb.folderRequested(PixelTDAQFolder):
         conddb.addFolder(PixelTDAQInstance, PixelTDAQFolder, className="CondAttrListCollection")
 
-      if not hasattr(condSeq, "PixelTDAQCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
-
-    ############################
-    # DeadMap Conditions Setup #
-    ############################
-    PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
-    if self.usePixMap:
-      if not (conddb.folderRequested(PixelDeadMapFolder) or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay",PixelDeadMapFolder, className='CondAttrListCollection')
+    if not hasattr(condSeq, "PixelTDAQCondAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+      condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
 
     ############################
     # Conditions Summary Setup #
     ############################
     # This is future replacement of the PixelConditionsSummaryTool...
-    if not hasattr(condSeq, 'PixelConfigCondAlg'):
-      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                    UseDeadMap=self.usePixMap,
-                                    ReadDeadMapKey=PixelDeadMapFolder,
-                                    UseCalibConditions=True)
 
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     TrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'), 
-                                                                UseDCSState=self.useDCS, 
-                                                                UseByteStream=self.useBS, 
-                                                                UseTDAQ=self.useTDAQ, 
-                                                                UseDeadMap=self.usePixMap)
+                                                                UseByteStream=self.useBS)
+
     if self.useDCS and not self.onlineMode:
       TrigPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON' ]
       TrigPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING' ]
@@ -145,13 +221,52 @@ class PixelConditionsServicesSetup:
     #####################
     # Calibration Setup #
     #####################
-    if not conddb.folderRequested("/PIXEL/PixCalib"):
-      conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+    if not useNewChargeFormat:
+      if not conddb.folderRequested("/PIXEL/PixCalib"):
+        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+      if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+        condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+    else:
+      if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
+        conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
+      if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
+        condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
 
-    if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-      condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+    #####################
+    # Cabling map Setup #
+    #####################
+    if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+      conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
+    if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+      condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+
+    if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
+      if not (globalflags.DataSource() == 'geant4'):
+        conddb.addFolder("PIXEL", "/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
+      else:
+        conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
+
+    if not hasattr(condSeq, 'PixelReadoutSpeedAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
+      condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
+
+    if (globalflags.DataSource=='data'):
+      if not conddb.folderRequested("/PIXEL/CablingMap"):
+        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList")
+
+    if not hasattr(condSeq, 'PixelCablingCondAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
+      condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
+                                     MappingFile=IdMappingDat,
+                                     RodIDForSingleLink40=rodIDForSingleLink40)
+
+    #############################
+    # Offline calibration Setup #
+    #############################
     if not conddb.folderRequested("/PIXEL/PixReco"):
       conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixReco","/PIXEL/PixReco",className="DetCondCFloat") 
 
@@ -279,10 +394,9 @@ class SCT_ConditionsToolsSetup:
     summaryToolWoFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
     condTools = []
     for condToolHandle in self.summaryTool.ConditionsTools:
-      condTool = condToolHandle.typeAndName
-      if condTool not in condTools:
-        if condTool != self.flaggedTool.getFullName():
-          condTools.append(condTool)
+      if condToolHandle not in condTools:
+        if not "SCT_FlaggedConditionTool" in condToolHandle.getFullName():
+          condTools.append(condToolHandle)
     summaryToolWoFlagged.ConditionsTools = condTools
     if self._print:  print (summaryToolWoFlagged)
     return summaryToolWoFlagged
@@ -300,7 +414,7 @@ class SCT_ConditionsToolsSetup:
       # Otherwise, SCT_FlaggedCondData created by SCT_Clusterization
     if self._print:  print (flaggedTool)
     if not (flaggedTool.getFullName() in self.summaryTool.ConditionsTools):
-      self.summaryTool.ConditionsTools+=[flaggedTool.getFullName()]
+      self.summaryTool.ConditionsTools+=[flaggedTool]
       return flaggedTool
 
   def initConfigTool(self, instanceName):
@@ -520,12 +634,6 @@ class TRTConditionsServicesSetup:
 
     # Calibration DB Service
     from AthenaCommon.AppMgr import ServiceMgr
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-    #InDetTRTCalDbSvc = TRT_CalDbSvc(self.instanceName('TRT_CalDbSvc'))    #
-    InDetTRTCalDbSvc = TRT_CalDbSvc('TRT_CalDbSvc')
-    ServiceMgr += InDetTRTCalDbSvc
-    if self._print:
-        print (InDetTRTCalDbSvc)
 
     # Dead/Noisy Straw Lists
     if not conddb.folderRequested('/TRT/Cond/Status'):
@@ -590,15 +698,6 @@ class TRTConditionsServicesSetup:
     #
     InDetTRTConditionsServices=[]
 
-    # Dead/Noisy Straw Service
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-    InDetTRTStrawStatusSummarySvc = \
-        TRT_StrawStatusSummarySvc(name=self.instanceName("InDetTRTStrawStatusSummarySvc"))
-    ServiceMgr += InDetTRTStrawStatusSummarySvc
-    InDetTRTConditionsServices.append(InDetTRTStrawStatusSummarySvc)
-
-    if self._print:
-      print (InDetTRTStrawStatusSummarySvc)
     
     # Services which only run on raw data
     if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):

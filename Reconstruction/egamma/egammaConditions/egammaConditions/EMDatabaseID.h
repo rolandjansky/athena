@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 #define EMDATABASEID_H
 
 #include <string>
+#include <utility>
 
 struct EMDatabaseIDDescriptor
 {
@@ -77,25 +78,25 @@ public:
   void clear();
 
   /** Access to single identifier. Note, that characters '_',' ','/' and '\\' are deleted internally*/
-  void object(std::string s) 		{	m_idDes.Object = beautify(s);}
+  void object(std::string s) 		{	m_idDes.Object = beautify(std::move(s));}
   /** Access to single identifier. Note, that characters '_',' ','/' and '\\' are deleted internally*/
-  void container(std::string s) 	{	m_idDes.Container = beautify(s);}
+  void container(std::string s) 	{	m_idDes.Container = beautify(std::move(s));}
   /** Access to single identifier. Note, that characters '_',' ','/' and '\\' are deleted internally*/
-  void type(std::string s) 		{	m_idDes.Type = beautify(s);}
+  void type(std::string s) 		{	m_idDes.Type = beautify(std::move(s));}
   /** Access to single identifier. Note, that characters '_',' ','/' and '\\' are deleted internally*/
-  void channel(std::string s) 	{	m_idDes.Channel = beautify(s);}
+  void channel(std::string s) 	{	m_idDes.Channel = beautify(std::move(s));}
   /** Access to single identifier. Note, that characters '_',' ','/' and '\\' are deleted internally*/
-  void author(std::string s) 		{	m_idDes.Author = beautify(s);}
+  void author(std::string s) 		{	m_idDes.Author = beautify(std::move(s));}
   /** Access to single identifier. Note, that characters '_',' ','/' and '\\' are deleted internally*/
-  void recoSWV(std::string s) 	{	m_idDes.RecoSWV = beautify(s);}
+  void recoSWV(std::string s) 	{	m_idDes.RecoSWV = beautify(std::move(s));}
   /** Access to single identifier. Note, that characters '_',' ','/' and '\\' are deleted internally*/
-  void tag(std::string s) 	{	m_idDes.Tag = beautify(s);}
+  void tag(std::string s) 	{	m_idDes.Tag = beautify(std::move(s));}
   /** Access to single identifier. If you set start and end-run numbers you also choose 
       that you want to store run-data*/
   void run(long start, long end) 	{	m_idDes.runStart = start; m_idDes.runEnd = end; m_idDes.SimSWV=""; }
   /** Access to single identifier. Note, that characters '_',' ','/' and '\\' are deleted internally. If you choose the Software-Version which is used for 
       simulation you also choose that you want to store MC-related data*/
-  void simSWV(std::string s) 		{	m_idDes.SimSWV = beautify(s); m_idDes.runStart = 0; m_idDes.runEnd = 0;}
+  void simSWV(std::string s) 		{	m_idDes.SimSWV = beautify(std::move(s)); m_idDes.runStart = 0; m_idDes.runEnd = 0;}
 
   /** converts the given string to runNumbers or Softwareversion. return 0 in case of failure. returns 1 in case of run and 2 inclase of MCDataset */
   int setRunOrMCSWV(std::string s);
@@ -129,7 +130,7 @@ public:
   std::string getUniqueID() const;
   /** Set the unique ID-String and initialize the object. Returns true if everything went fine, i.e. all
       parameters/formatation was ok*/
-  bool setUniqueID(std::string s); // note that this is an "init"-like operation
+  bool setUniqueID(const std::string& s); // note that this is an "init"-like operation
 
   // the functions below are to simplify the storage and retrieval
 
@@ -144,7 +145,7 @@ public:
 
 private:
   /** deletes characters '_',' ','/' and '\\' out of the string*/
-  std::string beautify(std::string s) const;
+  std::string beautify(const std::string& s) const;
   /** converts int to string */
   std::string intToString(long l) const;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -7,15 +7,9 @@
 // -----------------------------------------
 // ******************************************************************************
 
-
-//<doc><file> $Id: TgcReadoutParams.cxx,v 1.2 2009-02-24 16:47:48 dwright Exp $
-//<version>   $Name: not supported by cvs2svn $
-
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <string>
 #include <stdexcept>
@@ -56,10 +50,6 @@ TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float
     } else
       m_nWires[2][iGang] = 0;
   }
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
-  if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
-  m_Log = std::make_unique<MsgStream>(m_msgSvc, "TgcReadoutParams");
 }
 
 
@@ -106,10 +96,6 @@ TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float
       m_stripPositionOnLargeBase[iStrip] = SLARGE[iStrip];
       m_stripPositionOnShortBase[iStrip] = SSHORT[iStrip];
     }
-    ISvcLocator* svcLocator = Gaudi::svcLocator();
-    StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
-    if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
-    m_Log = std::make_unique<MsgStream>(m_msgSvc, "TgcReadoutParams");
 }
 
 
@@ -150,10 +136,9 @@ float TgcReadoutParams::wirePitch() const
 
 int TgcReadoutParams::nGangs(int gasGap) const
 {
-    if (gasGap<1 || gasGap>MaxNGaps)
-    {
-	(*m_Log) <<MSG::WARNING<<"TgcReadoutParams::nGangs("
-                 <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
+    if (gasGap<1 || gasGap>MaxNGaps) {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutParams");
+      log << MSG::WARNING<<"TgcReadoutParams::nGangs(" <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap index is incorrect");
 #endif
@@ -164,10 +149,9 @@ int TgcReadoutParams::nGangs(int gasGap) const
 
 int TgcReadoutParams::totalWires(int gasGap) const
 {
-    if (gasGap<1 || gasGap>MaxNGaps)
-    {
-        (*m_Log) <<MSG::WARNING<<"TgcReadoutParams::totalWires("
-	       <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
+    if (gasGap<1 || gasGap>MaxNGaps) {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutParams");
+      log << MSG::WARNING<<"TgcReadoutParams::totalWires(" <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap index is incorrect");
 #endif
@@ -178,10 +162,9 @@ int TgcReadoutParams::totalWires(int gasGap) const
 
 int TgcReadoutParams::nWires(int gasGap, int gang) const
 {
-    if (gasGap<1 || gasGap>MaxNGaps  || gang<1 || gang>MaxNGangs)
-    {
-        (*m_Log) <<MSG::WARNING<<"TgcReadoutParams::nWires gasGap "
-	       <<gasGap<<" or gang "<<gang<<" out of allowed range"<<endmsg;
+    if (gasGap<1 || gasGap>MaxNGaps  || gang<1 || gang>MaxNGangs) {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutParams");
+      log << MSG::WARNING<<"TgcReadoutParams::nWires gasGap " <<gasGap<<" or gang "<<gang<<" out of allowed range"<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap or wire gang index are incorrect");
 #endif
@@ -192,10 +175,9 @@ int TgcReadoutParams::nWires(int gasGap, int gang) const
 
 int TgcReadoutParams::gangOffset(int gasGap) const
 {
-    if (gasGap<1 || gasGap>MaxNGaps)
-    {
-        (*m_Log) <<MSG::WARNING<<"TgcReadoutParams::gangOffset("
-               <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
+    if (gasGap<1 || gasGap>MaxNGaps) {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutParams");
+      log << MSG::WARNING<<"TgcReadoutParams::gangOffset(" <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap index is incorrect");
 #endif
@@ -207,10 +189,9 @@ int TgcReadoutParams::gangOffset(int gasGap) const
 // Access to strip parameters
 int TgcReadoutParams::nStrips(int gasGap) const
 {
-    if (gasGap<1 || gasGap>MaxNGaps)
-    {
-        (*m_Log) <<MSG::WARNING<<"TgcReadoutParams::nStrips("
-	       <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
+    if (gasGap<1 || gasGap>MaxNGaps) {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutParams");
+      log << MSG::WARNING<<"TgcReadoutParams::nStrips(" <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap index is incorrect");
 #endif
@@ -221,10 +202,9 @@ int TgcReadoutParams::nStrips(int gasGap) const
 
 float TgcReadoutParams::stripOffset(int gasGap) const
 {
-    if (gasGap<1 || gasGap>MaxNGaps)
-    {
-        (*m_Log) <<MSG::WARNING<<"TgcReadoutParams::stripOffset("
-	       <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
+    if (gasGap<1 || gasGap>MaxNGaps) {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutParams");
+      log << MSG::WARNING<<"TgcReadoutParams::stripOffset(" <<gasGap<<") gasGap out of allowed range: 1-"<<MaxNGaps<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input gas gap index is incorrect");
 #endif
@@ -244,11 +224,10 @@ float TgcReadoutParams::stripPositionOnLargeBase(int istrip) const
     // all gas gaps have the same n. of strips (=> check the first one)
     if (istrip <= m_nStrips[0]+1) return m_stripPositionOnLargeBase[istrip-1];
     else {
-        (*m_Log) <<MSG::WARNING
-	       <<"Input strip n. "<<istrip
-	       <<" out of range in TgcReadoutParams::stripPositionOnLargeBase for TgcReadoutParams of name/type "
-	       <<m_chamberName<<"/"<<m_chamberType<<"  - Nstrips = "<<m_nStrips[0]<<" MaxNStrips = "
-	       <<MaxNStrips<<endmsg;
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutParams");
+      log << MSG::WARNING <<"Input strip n. "<<istrip
+      <<" out of range in TgcReadoutParams::stripPositionOnLargeBase for TgcReadoutParams of name/type "
+      <<m_chamberName<<"/"<<m_chamberType<<"  - Nstrips = "<<m_nStrips[0]<<" MaxNStrips = " <<MaxNStrips<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input strip index >= m_nStrips[0]+1 (remember that positions on short/large bases are given for 33 elements [begin of each strip + end of last one])");
 #endif
@@ -260,11 +239,10 @@ float TgcReadoutParams::stripPositionOnShortBase(int istrip) const
 {
     // all gas gaps have the same n. of strips (=> check the first one)
     if (istrip <= m_nStrips[0]+1) return m_stripPositionOnShortBase[istrip-1];
-    else
-    {
-        (*m_Log) <<MSG::WARNING
-	       <<"Input strip n. "<<istrip<<" out of range in TgcReadoutParams::stripPositionOnShortBase for TgcReadoutParams of name/type "
-                 <<m_chamberName<<"/"<<m_chamberType<<"  - Nstrips = "<<m_nStrips[0]<<" MaxNStrips = "<<MaxNStrips<<endmsg;
+    else {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutParams");
+      log << MSG::WARNING <<"Input strip n. "<<istrip<<" out of range in TgcReadoutParams::stripPositionOnShortBase for TgcReadoutParams of name/type "
+      <<m_chamberName<<"/"<<m_chamberType<<"  - Nstrips = "<<m_nStrips[0]<<" MaxNStrips = "<<MaxNStrips<<endmsg;
 #ifndef NDEBUG
         throw std::out_of_range("input strip index >= m_nStrips[0]+1 (remember that positions on short/large bases are given for 33 elements [begin of each strip + end of last one])");
 #endif  

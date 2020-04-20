@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMISSINGET_TOOL_H 
@@ -56,8 +56,8 @@ protected:
   std::string& getDir();
   TH1* hist(const std::string&);
   TH2* hist2(const std::string&);
-  StatusCode addHistogram(TH1 *);
-  StatusCode addHistogram(TH2 *);
+  void addHistogram(TH1 *);
+  void addHistogram(TH2 *);
   
   StatusCode trigMissingETPlots(MissingETData *);
 

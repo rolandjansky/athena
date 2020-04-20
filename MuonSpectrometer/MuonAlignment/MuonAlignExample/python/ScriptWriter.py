@@ -1,8 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os
 import sys
-import commands
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 #from IOFiles import IOFiles
 from Jobs import JobThread,LocalJobList,SgeJobList,LxbatchJobList,PathenaJobList,PbsJobList
@@ -32,7 +37,7 @@ class ScriptWriter:
         self.extInputFiles = []
 
         #if iterator.doAccumulate:
-        print "creating directories in ",self.IterPath
+        print ("creating directories in ",self.IterPath)
         if not os.path.isdir(self.IterPath):
             os.mkdir(self.IterPath)
         if not os.path.isdir(self.ScriptDir):
@@ -111,7 +116,7 @@ class ScriptWriter:
         # cleanup and close file
         jobrun.write(self.cleanupStr())
         jobrun.close()
-        os.chmod(jobrun.name,0744)
+        os.chmod(jobrun.name,0o744)
 
         return jobrun
 
@@ -121,7 +126,7 @@ class ScriptWriter:
 
         self.setCPU(iteration,iCPU)
 
-        print "in ScriptWriter.runScript"
+        print ("in ScriptWriter.runScript")
 
         # run setup script
         if not isinstance(jobList,PathenaJobList):
@@ -134,9 +139,9 @@ class ScriptWriter:
                or isinstance(jobList,PbsJobList):
             tmpdir = "$TMPDIR"
         elif isinstance(jobList,PathenaJobList):
-            ret, out=commands.getstatusoutput("echo $PWD")
+            ret, out=subprocess.getstatusoutput("echo $PWD")
             tmpdir = out
-            print "tmpdir: ",tmpdir
+            print ("tmpdir: ",tmpdir)
         else:
             tmpdir = "\"/tmp/\"$USER"
         
@@ -157,10 +162,10 @@ class ScriptWriter:
         jobstring += self.setInputJobOptionsStr()
         
         # copy input files
-        print "inputDataMap: ",inputDataMap,", itertor.runMode: ",iterator.runMode
+        print ("inputDataMap: ",inputDataMap,", itertor.runMode: ",iterator.runMode)
 
         if inputDataMap and iterator.runMode!='prun':
-            print "copying inputFilelistStr"
+            print ("copying inputFilelistStr")
             jobstring += self.copyInputFilelistStr(inputDataMap)
         
         # copy athena command
@@ -184,14 +189,14 @@ class ScriptWriter:
             jobrun.write(self.cleanupStr())
 
         jobrun.close()
-        os.chmod(jobrun.name,0744)
+        os.chmod(jobrun.name,0o744)
 
-        print "returning from runScript"
+        print ("returning from runScript")
         return jobrun
 
     def pathenaPostJobScript(self):
         
-        print "in pathenaPostJobScript"
+        print ("in pathenaPostJobScript")
 
         self.setSolve()
 
@@ -218,7 +223,7 @@ class ScriptWriter:
         jobrun=self.initJobScript("postjobscript")
         jobrun.write(jobstring)
         jobrun.close()
-        os.chmod(jobrun.name,0744)
+        os.chmod(jobrun.name,0o744)
 
         return jobrun
 
@@ -250,7 +255,7 @@ class ScriptWriter:
         return retstring
 
     def setCurrentDirStr(self):
-        ret, out=commands.getstatusoutput("echo $PWD")
+        ret, out=subprocess.getstatusoutput("echo $PWD")
         return "cd "+out+"\n\n"
     
     def setCoralEnvStr(self,outputPath):
@@ -365,7 +370,7 @@ class ScriptWriter:
 
     def athenaCommandStr(self,inputDataMap,doSolve,job=0):
         
-        print "athenaCommandStr"
+        print ("athenaCommandStr")
 
         iterator=self.iterator
         iteration=self.iteration
@@ -411,9 +416,9 @@ class ScriptWriter:
 
         jobstring = ""
         
-        print "doSolve: ",doSolve
+        print ("doSolve: ",doSolve)
         if doSolve:
-            print "adding matrixfiles"
+            print ("adding matrixfiles")
             if inputDataMap:
                 #jobstring += "\necho \"inputMatrixFiles="+self.inputFiles('matrix').replace('"','\"')+"\">"+inputDataMap
                 f = open(self.ScriptDir+"/"+inputDataMap,"a")
@@ -426,13 +431,13 @@ class ScriptWriter:
                 execstring += ";inputVectorFiles="+self.inputFiles('vector')
                 execstring += ";inputHitmapFiles="+self.inputFiles('hitmap')
         execstring += "'"
-        print "jobstring: ",jobstring
+        print ("jobstring: ",jobstring)
 
         if inputDataMap and iterator.runMode!='prun':
             execstring += " "+inputDataMap
         execstring += " MuonAlignExample/"+self.iterator.runargsJobOption
 
-        print "execstring: ",execstring
+        print ("execstring: ",execstring)
 
         if not doSolve and iterator.files!=NotImplemented:
             jobstring += "\n"+iterator.files.scpString(job,iterator.nFilesPerJob)+"\n"
@@ -520,7 +525,7 @@ class ScriptWriter:
             else:
                 jobstring += execstring
  
-        print "nCpus: ",iterator.nCPUs
+        print ("nCpus: ",iterator.nCPUs)
         if (iterator.runMode == 'local' and \
                 (iterator.nCPUs == 1 or not iterator.doAccumulate)):
             jobstring += " 2>&1 |tee "
@@ -531,13 +536,13 @@ class ScriptWriter:
         return jobstring
         
     def prunExecStr(self):
-        print "in prunExecStr"
+        print ("in prunExecStr")
         if self.execString=='':
-            print "no prun exec!"
+            print ("no prun exec!")
             return
         retstr ="\nrm -f runathena.sh"
         retstr+="\necho \"athena.py -c \'inputFile=\\\"\'\$1\'\\\".split(\\\",\\\")\' "+self.execString+"\" > runathena.sh\n"
-        print "retstr: ",retstr
+        print ("retstr: ",retstr)
 
         return retstr
 
@@ -716,27 +721,27 @@ class ScriptWriter:
     def inputFiles(self,filetype):
         """Method which writes the input vector, matrix, and hitmap files needed for solving jobs."""
         
-        print "\n\n\ngetting inputFiles\n\n\n"
+        print ("\n\n\ngetting inputFiles\n\n\n")
 
         if filetype!="matrix" and filetype!="vector" and filetype!="hitmap":
-            print "Error: filetype should be matrix, vector, or hitmap, exiting..."
+            print ("Error: filetype should be matrix, vector, or hitmap, exiting...")
             sys.exit()
 
         jobName  = self.JobName            
 
-        print "MatrixDir: ",self.MatrixDir
+        print ("MatrixDir: ",self.MatrixDir)
         import glob
-        print "looking for: ",self.MatrixDir+"*"+filetype+"*bin*"
+        print ("looking for: ",self.MatrixDir+"*"+filetype+"*bin*")
 
         filenames = glob.glob(self.MatrixDir+"*"+filetype+"*bin*")
         filenames.sort()
-        print "filenames: ",filenames
+        print ("filenames: ",filenames)
 
         if self.MatrixDir.find("/") != -1:
             filenames = map(lambda filename: filename.rsplit("/",1)[1], filenames)
             filestring = str(filenames).replace(",",",\n")
             filestring = str(filenames).replace("'","\"")
             
-        print "filestring: ",filestring
+        print ("filestring: ",filestring)
         return filestring
     

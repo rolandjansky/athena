@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import user
 import os
 import sys
-import commands
 from AthenaCommon import ChapPy
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###-----------------------------------------------------
 ## For compatibility with ATN tests
@@ -16,9 +21,9 @@ from TestTools.iobench import ScOutput
 from TestTools.iobench import BenchSequence
 from McParticleTests.tests import doTupleValidation
 
-print "#"*80
-print "## testing McEventCollection (read/write) persistency..."
-print "#"*80
+print ("#"*80)
+print ("## testing McEventCollection (read/write) persistency...")
+print ("#"*80)
 bench = BenchSequence( "McEventCollection (read/write) ASCII persistency" )
 
 ###-----------------------------------------------------
@@ -35,9 +40,9 @@ def doReadWriteTest( genName = "pythia", evtMax = 100 ):
     """A simple wrapper around the read/write tests..."""
     genName = genName.lower()
     ###-----------------------------------------------------
-    print ""
-    print "#"*80
-    print "## Testing [writing-%s]..." % genName
+    print ("")
+    print ("#"*80)
+    print ("## Testing [writing-%s]..." % genName)
     templateJobO = """
 OUTPUT='%(OutputFile)s';
 DUMPTUPLE=True;
@@ -66,12 +71,12 @@ jobproperties.PerfMonFlags.OutputFile = '%(PmonFile)s';
     else:
         inFile  = workDir(    "write.genevent.%s.pmon.gz"   % genName)
         outFile = workDir("out.write.genevent.%s.pmon.root" % genName)
-        print commands.getoutput( "perfmon.py %s -o %s" % ( inFile, outFile ) )
+        print (subprocess.getoutput( "perfmon.py %s -o %s" % ( inFile, outFile ) ))
                                  
     ###-----------------------------------------------------
-    print ""
-    print "#"*80
-    print "## Testing [ASCII-writing-%s (1)]..." % genName
+    print ("")
+    print ("#"*80)
+    print ("## Testing [ASCII-writing-%s (1)]..." % genName)
     templateJobO = """
 INPUT=%(InputFile)s;
 OUTPUT='%(OutputFile)s';
@@ -96,9 +101,9 @@ include( 'McParticleAlgs/GenEventAsciiWriter_jobOptions.py' );
         return ScOutput(sc, "ERROR")
                                  
     ###-----------------------------------------------------
-    print ""
-    print "#"*80
-    print "## Testing [ASCII-writing-%s (2)]..." % genName
+    print ("")
+    print ("#"*80)
+    print ("## Testing [ASCII-writing-%s (2)]..." % genName)
     templateJobO = """
 INPUT=%(InputFile)s;
 OUTPUT='%(OutputFile)s';
@@ -123,9 +128,9 @@ include( 'McParticleAlgs/GenEventAsciiWriter_jobOptions.py' );
         return ScOutput(sc, "ERROR")
                                  
     ###-----------------------------------------------------
-    print "\n"
-    print "#"*80
-    print "## Testing [ASCII-reading-%s]..." % genName
+    print ("\n")
+    print ("#"*80)
+    print ("## Testing [ASCII-reading-%s]..." % genName)
     templateJobO = """
 INPUT=%(InputFiles)s;
 include( 'McAsciiEventSelector/Example_McAsciiReader_jobOptions.py' );
@@ -148,8 +153,8 @@ include( 'McAsciiEventSelector/Example_McAsciiReader_jobOptions.py' );
         return ScOutput(sc, "ERROR")
 
     ###-----------------------------------------------------
-    print "\n"
-    print "#"*80
+    print ("\n")
+    print ("#"*80)
     return ScOutput(0, "OK")
 
 ###-----------------------------------------------------
@@ -161,13 +166,13 @@ for genName in [
     try:
         bench += doReadWriteTest( genName, evtMax )
     except KeyboardInterrupt:
-        print "\n*** user hit Ctrl-C ! ***"
-        print "*** skipping test [%s] ***" % genName
+        print ("\n*** user hit Ctrl-C ! ***")
+        print ("*** skipping test [%s] ***" % genName)
         continue
     pass
 
-print ""
-print "#"*80
+print ("")
+print ("#"*80)
 bench.printStatus()
-print "## Bye."
-print "#"*80
+print ("## Bye.")
+print ("#"*80)

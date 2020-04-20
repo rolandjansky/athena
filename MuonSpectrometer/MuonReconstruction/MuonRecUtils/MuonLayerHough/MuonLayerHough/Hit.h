@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONHOUGH_HIT_H
@@ -8,7 +8,8 @@
 #include <functional>
 #include <map>
 #include "CxxUtils/fpcompare.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
+
 namespace Trk {
   class PrepRawData;
 }
@@ -169,7 +170,7 @@ namespace MuonHough {
   };
 
   /// struct to sort the hits
-  struct SortHitsPerLayer : public std::binary_function<class Hit, class Hit, bool>  {
+  struct SortHitsPerLayer {
     bool operator()(const Hit& hit1, const Hit& hit2 ) const {
       return compare(hit1.ymin, hit2.ymin, hit1.layer, hit2.layer, hit1.debugInfo(), hit2.debugInfo() );  
     }

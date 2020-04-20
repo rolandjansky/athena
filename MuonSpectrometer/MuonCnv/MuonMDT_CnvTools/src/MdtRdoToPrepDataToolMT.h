@@ -10,6 +10,7 @@
 #define MUONMdtRdoToPrepDataToolMT_H
 
 #include "MdtRdoToPrepDataToolCore.h"
+#include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
 
 namespace Muon 
 {
@@ -41,6 +42,10 @@ namespace Muon
       
   protected:
     virtual SetupMdtPrepDataContainerStatus setupMdtPrepDataContainer() override;
+
+  private:
+    /// This is the key for the cache for the MDT PRD containers, can be empty
+    SG::UpdateHandleKey<MdtPrepDataCollection_Cache> m_prdContainerCacheKey ;
   }; 
 } // end of namespace
 

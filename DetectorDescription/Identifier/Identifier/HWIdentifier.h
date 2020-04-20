@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //<doc><file>	$Id: HWIdentifier.h,v 1.3 2004-02-24 13:52:15 schaffer Exp $
@@ -27,6 +27,21 @@ public:
     explicit HWIdentifier(Identifier32::value_type value);
     explicit HWIdentifier(int value);
 };
+
+
+// Define a hash functional
+
+namespace std {
+template<>
+struct hash<HWIdentifier>
+{
+  size_t operator()(const HWIdentifier& id) const
+  {
+    return static_cast<size_t>(id.get_compact());
+  }
+};
+}
+
 
 
 inline HWIdentifier::HWIdentifier()

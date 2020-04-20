@@ -2,6 +2,8 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # encoding: utf-8
+from __future__ import print_function
+
 """
 MaterialValidation.py
 
@@ -30,7 +32,7 @@ def main(argv=None):
     try:
         try:
             opts, args = getopt.getopt(argv[1:], "ho:v", ["help", "output="])
-        except getopt.error, msg:
+        except getopt.error as msg:
             raise Usage(msg)
     
         # option processing
@@ -42,9 +44,9 @@ def main(argv=None):
             if option in ("-o", "--output"):
                 output = value
     
-    except Usage, err:
-        print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
-        print >> sys.stderr, "\t for help use --help"
+    except Usage as err:
+        print (sys.argv[0].split("/")[-1] + ": " + str(err.msg),file=sys.stderr)
+        print ("\t for help use --help", file=sys.stderr)
         return 2
          
     inputfiles  =''
@@ -88,13 +90,13 @@ def main(argv=None):
     if numPlots > 2 :
         numRows = 2
         numCols = numPlots//2 + numPlots%2
-    
-    print '[>] Files to be processed :', filelist
-    print '[>] Trees to be drawn     :', len(treelist)
-    print '[>] Profiles to be made   :', parslist
-    print '[>] Going to be saved as  :', saveaslist        
-    print '[>] Number of cols/rows   :',numCols,', ',numRows
-    
+
+    print ('[>] Files to be processed :', filelist)
+    print ('[>] Trees to be drawn     :', len(treelist))
+    print ('[>] Profiles to be made   :', parslist)
+    print ('[>] Going to be saved as  :', saveaslist        )
+    print ('[>] Number of cols/rows   :',numCols,', ',numRows)
+
     # get the file and the associated dictionaries
     canvasDict = {}
     canvasTotalDict = {}
@@ -164,8 +166,8 @@ def main(argv=None):
 
         # fileNum
         fileNum += 1
-        print '[>] Next file, switching to same option (',fileNum,')'
-                
+        print ('[>] Next file, switching to same option (',fileNum,')')
+
 
 def splitInputArgs(argstring):
     # split the keyword off
@@ -184,7 +186,7 @@ def plotProfile(canvas,pad,tree,param,fileNum):
     tmpCanv.cd()
     tree.Draw(param+'>>'+tprofname+'(200)','','prof,goff')
 
-    print '[>] In plotProfile() with option :',fileNum
+    print ('[>] In plotProfile() with option :',fileNum)
 
     if pad > 0:
         canvas.cd(pad)
@@ -195,7 +197,7 @@ def plotProfile(canvas,pad,tree,param,fileNum):
 
 #    lower = tprofile.GetBinLowEdge(1)
 #    upper = tprofile.GetBinLowEdge(201)
-#    print lower,upper
+#    print (lower,upper)
 #    h1 = tprofile.ProjectionX('h1')
 
 #    if fileNum == 1 # for full comparison plot with 2 histos
@@ -261,7 +263,7 @@ def plotStack(canvas,pad,tree1,tree2,param,fileNum,outpath):
     tprofile1new = gDirectory.Get(tprofname1new)
     tprofile2new = gDirectory.Get(tprofname2new)
 
-    print '[>] In plotStack() with option :',fileNum
+    print ('[>] In plotStack() with option :',fileNum)
 
     if pad > 0:
         canvas.cd(pad)
@@ -275,7 +277,7 @@ def plotStack(canvas,pad,tree1,tree2,param,fileNum,outpath):
 
     title = tree1.GetName().split('_')[1] + ' TOTAL'
     ts.SetTitle(title)
-    print '[>] Stack:', tree1.GetName().split('_')[1], '  newmin =', newmin, '  newmax =', newmax
+    print ('[>] Stack:', tree1.GetName().split('_')[1], '  newmin =', newmin, '  newmax =', newmax)
     h1st.GetXaxis().SetTitle(param.split(':')[1])
     h1st.GetYaxis().SetTitle(param.split(':')[0])
     h2st.GetXaxis().SetTitle(param.split(':')[1])

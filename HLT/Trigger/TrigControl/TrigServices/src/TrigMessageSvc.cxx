@@ -10,7 +10,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/System.h"
 #include "AthenaInterprocess/Incidents.h"
-#include "AthenaMonitoring/OHLockedHist.h"
+#include "AthenaMonitoringKernel/OHLockedHist.h"
 
 #include "ers/ers.h"
 
@@ -431,7 +431,7 @@ int TrigMessageSvc::outputLevel() const
   return m_outputLevel;
 }
 
-int TrigMessageSvc::outputLevel(const std::string& source) const
+int TrigMessageSvc::outputLevel(std::string_view source) const
 {
   std::unique_lock<std::recursive_mutex> lock(m_thresholdMapMutex);
   auto it = m_thresholdMap.find(source);
@@ -443,16 +443,15 @@ void TrigMessageSvc::setOutputLevel(int new_level)
   m_outputLevel = new_level;
 }
 
-void TrigMessageSvc::setOutputLevel(const std::string& source, int level)
+void TrigMessageSvc::setOutputLevel(std::string_view source, int level)
 {
   std::unique_lock<std::recursive_mutex> lock(m_thresholdMapMutex);
 
   // only write if we really have to...
-  auto i = m_thresholdMap.find(source);
-  if (i == m_thresholdMap.end()) {
-    m_thresholdMap[source] = level;
-  }
-  else if (i->second != level) {
+  auto i = m_thresholdMap.find( source );
+  if ( i == m_thresholdMap.end() ) {
+    m_thresholdMap.emplace( source, level );
+  } else if ( i->second != level ) {
     i->second = level;
   }
 }

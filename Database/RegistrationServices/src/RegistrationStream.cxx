@@ -10,7 +10,6 @@
  * collection. Selection criteria may be applied to accept or reject
  * events.
  *
- * $Id: RegistrationStream.cxx,v 1.73 2009-04-28 19:04:06 cranshaw Exp $
  *
  */
 
@@ -37,10 +36,8 @@
 #include "DBDataModel/CollectionMetadata.h"
 
 #include <cassert>
-//  #include <iostream>
 #include <string>
 #include <vector>
-#include <map>
 #include <typeinfo>
 
 // Standard Constructor
@@ -92,51 +89,22 @@ StatusCode
 RegistrationStream::initialize() 
 {
 
-    StatusCode status(StatusCode::FAILURE);
-    StatusCode baseStatus = this->FilteredAlgorithm::initialize();
-
-    ATH_MSG_DEBUG ("In initialize ");
+    ATH_CHECK( this->FilteredAlgorithm::initialize() );
 
     // set up the SG service:
     evtStore().setName (m_storeName);
-    StatusCode sc = evtStore().retrieve();
-    if ( !sc.isSuccess() ) {
-      ATH_MSG_ERROR ("Could not locate default store ("<<m_storeName<<")");
-      return sc;
-    }
-    else {
-      ATH_MSG_DEBUG ("Found " << m_storeName << " store.");
-    }
-    assert( evtStore() );
+    ATH_CHECK( evtStore().retrieve() );
+    ATH_MSG_DEBUG ("Found " << m_storeName << " store.");
 
     // get Tool
-    status = m_regTool.retrieve();
-    if (!status.isSuccess()) {
-      ATH_MSG_ERROR (" Can't get IRegistrationStreamTool");
-      return(StatusCode::FAILURE);
-    } 
-
-    if (!status.isSuccess()) {
-      ATH_MSG_ERROR (" Tool initialization failed");
-      return(StatusCode::FAILURE);
-    } 
-    else {
-      ATH_MSG_DEBUG (" Tool initialized");
-    }
+    ATH_CHECK( m_regTool.retrieve() );
 
     // Register this algorithm for 'I/O' events
     ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
-    status = iomgr.retrieve();
-    if (!status.isSuccess()) {
-       ATH_MSG_FATAL("Cannot get the IoComponentMgr");
-       return(status);
-    }
-    status = iomgr->io_register(this);
-    if (!status.isSuccess()) {
-       ATH_MSG_FATAL("Could not register myself with the IoComponentMgr");
-       return(status);
-    }
-    if (!iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputCollection).isSuccess()) {
+    ATH_CHECK( iomgr.retrieve() );
+    ATH_CHECK( iomgr->io_register(this) );
+
+    if (iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputCollection).isFailure()) {
       ATH_MSG_FATAL("Could not register [" << m_outputCollection << "] for output !");
       return StatusCode::FAILURE;
     }
@@ -144,32 +112,14 @@ RegistrationStream::initialize()
     // Tell the tool which metadata to pick up
     m_regTool->setCollMetadataKeys(getCollMetadataKeys());
 
-    ATH_MSG_DEBUG ("End initialize ");
-  
-    if (status == StatusCode::FAILURE || baseStatus == StatusCode::FAILURE) return StatusCode::FAILURE;
-    return status;
+    return StatusCode::SUCCESS;
 }
 
 
-// terminate data writer
-StatusCode 
-RegistrationStream::finalize() 
-{
-  ATH_MSG_DEBUG ("In finalize");
-  unsigned long count = m_regTool->release();
-  while (count > 1) {
-     ATH_MSG_DEBUG ("Tool has ref count " << count << " after release");
-     count = m_regTool->release();
-  }
-  m_regTool.release();
-  return StatusCode::SUCCESS;
-}
-
-StatusCode 
+StatusCode
 RegistrationStream::stop() 
 {
-  StatusCode sc = m_regTool->commit();
-  if (!sc.isSuccess()) ATH_MSG_INFO("Unable to commit");
+  if (m_regTool->commit().isFailure()) ATH_MSG_INFO("Unable to commit");
   return StatusCode::SUCCESS;
 }
 
@@ -216,9 +166,9 @@ void
 RegistrationStream::itemListHandler( Property& /* theProp */ )
 {
   //assuming concrete SG::Folder also has an itemList property
-  IProperty *pAsIProp(0);
+  IProperty *pAsIProp(nullptr);
   if ((m_2BRegistered.retrieve()).isFailure() ||
-      0 == (pAsIProp=dynamic_cast<IProperty*>(&*m_2BRegistered)) ||
+      nullptr == (pAsIProp=dynamic_cast<IProperty*>(&*m_2BRegistered)) ||
       (pAsIProp->setProperty(m_itemList)).isFailure())
     throw GaudiException("Could not set itemList property", name(),
                         StatusCode::FAILURE);
@@ -305,7 +255,7 @@ StatusCode RegistrationStream::getRefs(std::vector< std::pair<std::string,std::s
 	std::string rkey = i->key(); 
 
 	// Retrieve DataHeader to check if it is input
-	const DataHeader* hdr=0;
+	const DataHeader* hdr=nullptr;
 	if (i->key() == "*") {
 	    // For wildcard key, must go and fetch all DataHeaders  
 	    const DataHandle<DataHeader> beg; 
@@ -328,7 +278,7 @@ StatusCode RegistrationStream::getRefs(std::vector< std::pair<std::string,std::s
 		    }
 		}
 	    }
-	    if (hdr==0) {
+	    if (hdr==nullptr) {
 	        if (evtStore()->retrieve(hdr, "EventSelector").isFailure()) {
 	          ATH_MSG_DEBUG ("Could not retrieve DataHeader with key EventSelector.");
 	          continue;
@@ -361,19 +311,19 @@ StatusCode RegistrationStream::getRefs(std::vector< std::pair<std::string,std::s
 	}
 	
 	// Check that dataheader ptr is valid before going further
-        if (hdr==0) {
+        if (hdr==nullptr) {
 	  ATH_MSG_WARNING ("Did not find requested DataHeader in Storegate");
 	  continue;
 	}
         
         // Now look for the processtag/name of the DataHeader
         std::string ptag("Unknown");
-	std::string ref("");
+        std::string ref("");
         // if hdr has process tag, take that as name
         if (hdr->begin()==hdr->end()) {
            if (hdr->getProcessTag().size()>0) ptag = hdr->getProcessTag();
            const Token* token = hdr->begin()->getToken();
-	   ref = token != 0 ? token->toString() : "";
+	   ref = token != nullptr ? token->toString() : "";
         }
         // or take the key of the DataHeaderElement for the DataHeader
         else if (hdr->begin()!=hdr->end()) {
@@ -385,7 +335,7 @@ StatusCode RegistrationStream::getRefs(std::vector< std::pair<std::string,std::s
                  ) { 
                       ptag = dheit->getKey();
                       const Token* token = dheit->getToken();
-	              ref = token != 0 ? token->toString() : "";
+	              ref = token != nullptr ? token->toString() : "";
                    }
               ++dheit;
            }
@@ -398,7 +348,7 @@ StatusCode RegistrationStream::getRefs(std::vector< std::pair<std::string,std::s
 	
         // Update ref token to handle fast merged files.
         SG::DataProxy* dhProxy = evtStore()->proxy(hdr);
-        if (dhProxy != 0 && dhProxy->address() != 0) {
+        if (dhProxy != nullptr && dhProxy->address() != nullptr) {
           ref  = dhProxy->address()->par()[0];
         }
 
@@ -413,7 +363,7 @@ StatusCode RegistrationStream::getRefs(std::vector< std::pair<std::string,std::s
             // grab refs for those
 	    for (; it!=last; ++it) {
                 const Token* token = (*it).getToken();
-	        const std::string ref = token != 0 ? token->toString() : "";
+	        const std::string ref = token != nullptr ? token->toString() : "";
 	        ATH_MSG_DEBUG ("Found ref for input header " << ref);
                 bool inselected = m_writeAllProvFlag.value() || 
                                   m_provInclude.find(it->getKey()) != m_provInclude.end();
@@ -500,15 +450,4 @@ std::vector<std::string> RegistrationStream::getCollMetadataKeys()
 
     }
     return cmdKeys;
-}
-
-StatusCode RegistrationStream::io_reinit() 
-{
-   ATH_MSG_DEBUG("I/O reinitialization...");
-   return StatusCode::SUCCESS;
-}
-
-StatusCode RegistrationStream::io_finalize() {
-   ATH_MSG_INFO("I/O finalization...");
-   return StatusCode::SUCCESS;
 }

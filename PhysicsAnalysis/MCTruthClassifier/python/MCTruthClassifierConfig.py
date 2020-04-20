@@ -3,10 +3,6 @@
 __doc__ = "Tool configuration to instantiate MCTruthClassifier with default configurations."
 
 #---------------------------------------
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
-MCTruthClassifier=CompFactory.MCTruthClassifier
-from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
 
 def MCTruthClassifierCfg(flags, **kwargs):
     """ 
@@ -21,15 +17,20 @@ def MCTruthClassifierCaloTruthMatchCfg(flags, **kwargs):
     This is the default configuration allowing all options.
     By default, it does calo truth matching.
     """
-
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc=ComponentAccumulator()
 
     if "ParticleCaloExtensionTool" not in kwargs:
+        from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
         extAcc = ParticleCaloExtensionToolCfg(flags)
         kwargs["ParticleCaloExtensionTool"] = extAcc.popPrivateTools()
         acc.merge(extAcc)
 
     kwargs.setdefault("barcodeG4Shift", flags.Sim.SimBarcodeOffset + 1)
+
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    MCTruthClassifier=CompFactory.MCTruthClassifier
+
     acc.setPrivateTools(MCTruthClassifier(**kwargs))
     return acc
 
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     from AthenaCommon.Logging import log, logging
     from AthenaCommon.Constants import DEBUG
     from AthenaCommon.Configurable import Configurable
-    from AthenaConfiguration.ComponentAccumulator import printProperties
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, printProperties
     Configurable.configurableRun3Behavior = 1
     log.setLevel(DEBUG)
 

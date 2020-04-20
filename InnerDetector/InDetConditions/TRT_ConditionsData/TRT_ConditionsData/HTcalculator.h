@@ -28,11 +28,11 @@
 class HTcalculator {
  public:
 
-  HTcalculator();
-  virtual ~HTcalculator();
+  HTcalculator()=default;
+  virtual ~HTcalculator()=default;
 
   void checkInitialization();  
-  float Limit( float prob);  
+  float Limit( float prob) const;  
   // set constants to hard coded defaults
   void setDefaultCalibrationConstants();
 
@@ -46,7 +46,6 @@ class HTcalculator {
 
  private:
 
-  bool m_HasBeenInitialized;
 
   static const int N_GAS = 3;
   static const int N_DET = 3;
@@ -73,7 +72,6 @@ class HTcalculator {
   static const int SIZE_OF_HEADER = sizeof(float) * 4;
   static const int SIZE_OF_BLOB     = sizeof(float) *( (N_PAR2*N_DET));
 
-  bool m_datainplace;
 
 };  
 

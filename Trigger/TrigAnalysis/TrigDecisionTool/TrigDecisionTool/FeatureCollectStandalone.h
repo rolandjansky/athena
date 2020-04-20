@@ -42,7 +42,6 @@
 
 #include "TrigNavStructure/TrigNavStructure.h"
 
-#include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/Check.h"
 
 #include "TrigNavStructure/TypedHolder.h"

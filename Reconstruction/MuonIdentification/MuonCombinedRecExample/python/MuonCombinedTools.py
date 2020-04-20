@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
@@ -79,19 +79,32 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
         kwargs.setdefault("FillTimingInformation",False)
         kwargs.setdefault("MuonSelectionTool", "")
         kwargs.setdefault("UseCaloCells", False)
+        kwargs.setdefault("TrackSegmentAssociationTool", "")
     else:
         getPublicTool("MuonMomentumBalanceSignificanceTool")
         getPublicTool("MuonScatteringAngleSignificanceTool")
         getPublicTool("MuonCaloParticleCreator")
+    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    from AthenaCommon.AppMgr import ToolSvc
+    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
 
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
     kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
+def ExtrapolateMuonToIPTool(name="ExtrapolateMuonToIPTool",**kwargs):
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("TrackSummaryTool", getPublicTool("MuonTrackSummaryTool"))
+    else:
+        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        from AthenaCommon.AppMgr import ToolSvc
+        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+    return CfgMgr.ExtrapolateMuonToIPTool(name,**kwargs)
+
 def MuonCandidateTool(name="MuonCandidateTool",**kwargs):
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("ExtrapolationStrategy", 1 )
-
+        kwargs.setdefault("TrackExtrapolationTool", getPublicTool("ExtrapolateMuonToIPTool"))
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         trigTrackBuilder = getPublicToolClone("TrigCombinedMuonTrackBuilder","CombinedMuonTrackBuilder",
                                               TrackSummaryTool=getPublicTool("MuonTrackSummaryTool"))

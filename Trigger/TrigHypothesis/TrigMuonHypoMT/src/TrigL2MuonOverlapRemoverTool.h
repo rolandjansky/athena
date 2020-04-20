@@ -1,16 +1,16 @@
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONOVERLAPREMOVER_TRIGL2MUONOVERLAPREMOVERTOOL_H 
 #define TRIGL2MUONOVERLAPREMOVER_TRIGL2MUONOVERLAPREMOVERTOOL_H 1
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "DecisionHandling/TrigCompositeUtils.h" 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h" 
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class StoreGateSvc;
 
@@ -93,8 +93,8 @@ class TrigL2MuonOverlapRemoverTool: public ::AthAlgTool {
     double invMass(double m1, double pt1, double eta1, double phi1,
                    double m2, double pt2, double eta2, double phi2) const;
 
-    virtual StatusCode chooseBestMuon(std::vector<L2SAMuonOverlapInfo>& toolInput, std::vector<L2SAMuonOverlapInfo>& uniqueMuon, std::vector<unsigned int> mufastResult) const;
-    virtual StatusCode chooseBestMuon(std::vector<L2CBMuonOverlapInfo>& toolInput, std::vector<L2CBMuonOverlapInfo>& uniqueMuon, std::vector<unsigned int> mucombResult) const;
+    virtual void chooseBestMuon(std::vector<L2SAMuonOverlapInfo>& toolInput, std::vector<L2SAMuonOverlapInfo>& uniqueMuon, std::vector<unsigned int> mufastResult) const;
+    virtual void chooseBestMuon(std::vector<L2CBMuonOverlapInfo>& toolInput, std::vector<L2CBMuonOverlapInfo>& uniqueMuon, std::vector<unsigned int> mucombResult) const;
 
 
   private:

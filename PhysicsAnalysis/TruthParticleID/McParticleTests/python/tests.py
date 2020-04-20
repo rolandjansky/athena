@@ -1,6 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.Logging import logging
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 def makeGenEvents( genName    = "Pythia",
                    genProcess = "ttbar",
@@ -11,14 +17,14 @@ def makeGenEvents( genName    = "Pythia",
     msg = logging.getLogger( "McParticleTests" )
     
     if genName.lower() not in [ "pythia", "herwig" ]:
-        raise RuntimeError, "Unknown GENERATOR [%s]" % str(genName)
+        raise RuntimeError ("Unknown GENERATOR [%s]" % str(genName))
     if genProcess not in ["ttbar", "HiggsTo4Leptons", "Z+j"]:
-        raise RuntimeError, "Unknown PROCESS [%s]" % str(genProcess)
+        raise RuntimeError ("Unknown PROCESS [%s]" % str(genProcess))
 
     if genName.lower() == "pythia":
         try:
             from Pythia_i.Pythia_iConf import Pythia
-        except ImportError, err:
+        except ImportError as err:
             msg.warning( "Could not load module Pythia_iConf" )
             raise err
         
@@ -117,7 +123,7 @@ def makeGenEvents( genName    = "Pythia",
                 "pydat3 mdme 189 1 0"
                 ]
         else:
-            raise RuntimeError, "Unknown PROCESS [%s]" % str(genProcess)
+            raise RuntimeError ("Unknown PROCESS [%s]" % str(genProcess))
 
         # Some ISR,FSR,MultipleInteractions and Hadronization parameters
         genAlg.PythiaCommand += [
@@ -133,7 +139,7 @@ def makeGenEvents( genName    = "Pythia",
     elif genName.lower() == "herwig":
         try:
             from Herwig_i.Herwig_iConf  import Herwig
-        except ImportError, err:
+        except ImportError as err:
             msg.warning( "Could not load module Herwig_iConf" )
             raise err
         genAlg = Herwig(cfgGenName)
@@ -148,11 +154,11 @@ def makeGenEvents( genName    = "Pythia",
             genAlg.HerwigCommand = ["iproc 1706","modpdf 10042",
                                     "autpdf HWLHAPDF" ]
         else:
-            raise RuntimeError, "Unknown PROCESS [%s]" % str(genProcess)
+            raise RuntimeError ("Unknown PROCESS [%s]" % str(genProcess))
         pass
         
     else:
-        raise RuntimeError, "Unknown GENERATOR [%s]" % str(genName)
+        raise RuntimeError ("Unknown GENERATOR [%s]" % str(genName))
 
     return genAlg
 
@@ -164,9 +170,9 @@ def doFloatValidation( refFileName, chkFileName ):
     import math, os
     from TestTools.iobench import ScOutput
     
-    print "## float validation :"
-    print "## -ref: %s" % refFileName
-    print "## -chk: %s" % chkFileName
+    print ("## float validation :")
+    print ("## -ref: %s" % refFileName)
+    print ("## -chk: %s" % chkFileName)
 
     refFile = open( refFileName, "r" )
     chkFile = open( chkFileName, "r" )
@@ -181,7 +187,7 @@ def doFloatValidation( refFileName, chkFileName ):
     fltPrecision = [ 1.19209e-06 ] * 3 + [ 1.19209e-02 ] + [ 1.5e2 ]
     #fltPrecision = [1.5e-2, 1.5e-2, 1.5e-2, 1.5e-2, 1.5e-2]
     #fltPrecision = [ 1. ] * 5
-    print "## float precision: %r" % fltPrecision
+    print ("## float precision: %r" % fltPrecision)
     
     out = []
     nErrors = 0
@@ -216,11 +222,11 @@ def doFloatValidation( refFileName, chkFileName ):
                     break
     if nErrors == 0:
         sc = 0
-        print "==> (float) Validation [OK]"
+        print ("==> (float) Validation [OK]")
     else:
         sc = 1
-        print "## Errors during validation:",nErrors
-        print "==> (float) Validation [ERROR]"
+        print ("## Errors during validation:",nErrors)
+        print ("==> (float) Validation [ERROR]")
         
     return ScOutput( sc,os.linesep.join(out) )
 
@@ -237,36 +243,36 @@ def doTupleValidation( refFileName, chkFileName, diffFileName = None ):
         diffFileName = os.path.join( os.path.dirname(refFileName),
                                      "diff."+os.path.basename(refFileName) )
 
-    print "## tuple validation :"
-    print "## -ref:  %s" % refFileName
-    print "## -chk:  %s" % chkFileName
-    print "## -diff: %s" % diffFileName
+    print ("## tuple validation :")
+    print ("## -ref:  %s" % refFileName)
+    print ("## -chk:  %s" % chkFileName)
+    print ("## -diff: %s" % diffFileName)
 
     import sys
     oldArgs = sys.argv
     sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]
 
-    print "## loading ROOT..."
+    print ("## loading ROOT...")
     import ROOT
-    print "## loading ROOT... [DONE]"
+    print ("## loading ROOT... [DONE]")
     sys.argv = oldArgs
     del oldArgs
     ROOT.gROOT.SetStyle("Plain")
     ROOT.gStyle.SetOptStat(111111)
     
-    print "## opening tuple files..."
+    print ("## opening tuple files...")
     refFile = ROOT.TFile( refFileName, "READ" )
     chkFile = ROOT.TFile( chkFileName, "READ" )
-    print "## opening tuple files... [DONE]"
+    print ("## opening tuple files... [DONE]")
 
     refTree = refFile.Get( "hepmc" )
     chkTree = chkFile.Get( "hepmc" )
     nEntries = refTree.GetEntries()
-    print "## ref tuple [%i] entries" % nEntries
-    print "## chk tuple [%i] entries" % chkTree.GetEntries()
+    print ("## ref tuple [%i] entries" % nEntries)
+    print ("## chk tuple [%i] entries" % chkTree.GetEntries())
     assert( nEntries == chkTree.GetEntries() )
 
-    from AthenaCommon.SystemOfUnits import MeV,GeV
+    from AthenaCommon.SystemOfUnits import GeV
     nBins = 1000
     xMin  = -2.*GeV
     xMax  = +2.*GeV
@@ -283,12 +289,12 @@ def doTupleValidation( refFileName, chkFileName, diffFileName = None ):
         refTree.LoadTree(iEntry)
         nb = refTree.GetEntry(iEntry)
         if nb <= 0:
-            print "## Could not load [ref] entry [%i] !!" % iEntry
+            print ("## Could not load [ref] entry [%i] !!" % iEntry)
             continue
         chkTree.LoadTree(iEntry)
         nb = chkTree.GetEntry(iEntry)
         if nb <= 0:
-            print "## Could not load [chk] entry [%i] !!" % iEntry
+            print ("## Could not load [chk] entry [%i] !!" % iEntry)
             continue
         nParts = refTree.nParts
         assert(nParts == chkTree.nParts)
@@ -309,7 +315,8 @@ def doTupleValidation( refFileName, chkFileName, diffFileName = None ):
     out = []
     nErrors = 0
     c = ROOT.TCanvas('c_diff', 'Differences')
-    c.Divide(2,3); i = 1
+    c.Divide(2,3)
+    i = 1
     for k in hKeys:
         c.cd(i).SetLogy()
         h = histos[k]
@@ -334,7 +341,7 @@ def doTupleValidation( refFileName, chkFileName, diffFileName = None ):
                  " U-flow: %f" % data[3],
                  " O-flow: %f" % data[4]
                  ]
-        print os.linesep.join( out[outBeg+1:len(out)] )
+        print (os.linesep.join( out[outBeg+1:len(out)] ))
         pass
     c.Print( diffFileName.replace(".root", ".pdf"),
              "Landscape" )
@@ -348,11 +355,11 @@ def doTupleValidation( refFileName, chkFileName, diffFileName = None ):
     
     if nErrors == 0:
         sc = 0
-        print "==> (tuple) Validation [OK]"
+        print ("==> (tuple) Validation [OK]")
     else:
         sc = 1
-        print "## Errors during validation:",nErrors
-        print "==> (tuple) Validation [ERROR]"
+        print ("## Errors during validation:",nErrors)
+        print ("==> (tuple) Validation [ERROR]")
         
     return ScOutput( sc,os.linesep.join(out) )
 
@@ -368,36 +375,36 @@ def doMcAodTupleValidation( refFileName, chkFileName, diffFileName = None ):
         diffFileName = os.path.join( os.path.dirname(refFileName),
                                      "diff."+os.path.basename(refFileName) )
 
-    print "## tuple validation :"
-    print "## -ref:  %s" % refFileName
-    print "## -chk:  %s" % chkFileName
-    print "## -diff: %s" % diffFileName
+    print ("## tuple validation :")
+    print ("## -ref:  %s" % refFileName)
+    print ("## -chk:  %s" % chkFileName)
+    print ("## -diff: %s" % diffFileName)
 
     import sys
     oldArgs = sys.argv
     sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]
 
-    print "## loading ROOT..."
+    print ("## loading ROOT...")
     import ROOT
-    print "## loading ROOT... [DONE]"
+    print ("## loading ROOT... [DONE]")
     sys.argv = oldArgs
     del oldArgs
     ROOT.gROOT.SetStyle("Plain")
     ROOT.gStyle.SetOptStat(111111)
     
-    print "## opening tuple files..."
+    print ("## opening tuple files...")
     refFile = ROOT.TFile( refFileName, "READ" )
     chkFile = ROOT.TFile( chkFileName, "READ" )
-    print "## opening tuple files... [DONE]"
+    print ("## opening tuple files... [DONE]")
 
     refTree = refFile.Get( "mcaod" )
     chkTree = chkFile.Get( "mcaod" )
     nEntries = refTree.GetEntries()
-    print "## ref tuple [%i] entries" % nEntries
-    print "## chk tuple [%i] entries" % chkTree.GetEntries()
+    print ("## ref tuple [%i] entries" % nEntries)
+    print ("## chk tuple [%i] entries" % chkTree.GetEntries())
     assert( nEntries == chkTree.GetEntries() )
 
-    from AthenaCommon.SystemOfUnits import MeV,GeV
+    from AthenaCommon.SystemOfUnits import MeV
     nBins = 1000
     xMin  = -0.2*MeV
     xMax  = +0.2*MeV
@@ -413,12 +420,12 @@ def doMcAodTupleValidation( refFileName, chkFileName, diffFileName = None ):
         refTree.LoadTree(iEntry)
         nb = refTree.GetEntry(iEntry)
         if nb <= 0:
-            print "## Could not load [ref] entry [%i] !!" % iEntry
+            print ("## Could not load [ref] entry [%i] !!" % iEntry)
             continue
         chkTree.LoadTree(iEntry)
         nb = chkTree.GetEntry(iEntry)
         if nb <= 0:
-            print "## Could not load [chk] entry [%i] !!" % iEntry
+            print ("## Could not load [chk] entry [%i] !!" % iEntry)
             continue
         nParts = refTree.nParts
         assert(nParts == chkTree.nParts)
@@ -466,7 +473,7 @@ def doMcAodTupleValidation( refFileName, chkFileName, diffFileName = None ):
                  " U-flow: %f" % data[3],
                  " O-flow: %f" % data[4]
                  ]
-        print os.linesep.join( out[outBeg+1:len(out)] )
+        print (os.linesep.join( out[outBeg+1:len(out)] ))
         pass
 
     pdfFileName = diffFileName.replace(".root", '.ps' )
@@ -476,12 +483,12 @@ def doMcAodTupleValidation( refFileName, chkFileName, diffFileName = None ):
     for c in canvas:
         c.Print( pdfFileName, pdfOrientation )
     canvas[0].Print( pdfFileName + "]", pdfOrientation )
-    import commands
-    sc,out = commands.getstatusoutput(
+    sc,out = subprocess.getstatusoutput(
         "ps2pdf %s %s" % ( pdfFileName,
                            pdfFileName.replace( ".ps", ".pdf" ) )
         )
-    if os.path.exists( pdfFileName ): os.remove( pdfFileName )
+    if os.path.exists( pdfFileName ):
+        os.remove( pdfFileName )
     
     diffRootFile = ROOT.TFile( diffFileName, "RECREATE" )
     diffRootFile.cd()
@@ -492,11 +499,11 @@ def doMcAodTupleValidation( refFileName, chkFileName, diffFileName = None ):
     
     if nErrors == 0:
         sc = 0
-        print "==> (tuple) Validation [OK]"
+        print ("==> (tuple) Validation [OK]")
     else:
         sc = 1
-        print "## Errors during validation:",nErrors
-        print "==> (tuple) Validation [ERROR]"
+        print ("## Errors during validation:",nErrors)
+        print ("==> (tuple) Validation [ERROR]")
         
     return ScOutput( sc,os.linesep.join(out) )
 

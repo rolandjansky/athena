@@ -55,6 +55,9 @@ class MenuConnectorsCollection(object):
         self.connectors = odict()
         self.inverseLookup = {}
 
+    def __iter__(self):
+        return iter(self.connectors.values())
+
     def addConnector(self, connDef):
         name, cformat, ctype, legacy, boardName = map(connDef.__getitem__,["name", "format", "type", "legacy", "board"])
 
@@ -111,8 +114,7 @@ class MenuConnectorsCollection(object):
                 thr = re.match(r"^ZB_\d?(?P<thr>\w*)",zbThr).groupdict()["thr"] # extract the threshold
                 if thr not in connDef["thresholds"]:
                     raise RuntimeError("Connector %s contains zero bias threshold %s but not the corresponding threshold %s" % (name, zbThr, thr))
-                tl = TriggerLine( name = zbThr, startbit = 30, nbits = 1)
-                newConnector.addTriggerLine(tl)
+                newConnector.addTriggerLine( TriggerLine( name = zbThr, startbit = 30, nbits = 1) )
             except KeyError:
                 # for connectors without zeroBias threshold
                 pass
@@ -139,15 +141,23 @@ class Connector(object):
         self.name    = name
         self.cformat = CFormat.from_str(cformat)
         self.ctype   = CType.from_str(ctype)
-        self.legacy  = legacy
+        self.legacy  = bool(legacy)
         self.triggerLines = []
 
     def addTriggerLine(self, tl):
         self.triggerLines.append( tl )
 
+    def isLegacy(self):
+        return self.legacy
+
+    def triggerThresholds(self):
+        return [x.name for x in self.triggerLines]
+
     def json(self):
         confObj = odict()
         confObj["type"] = str(self.ctype)
+        if self.legacy:
+            confObj["legacy"] = self.legacy
         confObj["triggerlines"] = [tl.json() for tl in self.triggerLines]
         return confObj
 
@@ -164,10 +174,16 @@ class ElectricalConnector(Connector):
     def addTriggerLine(self, tl, fpga, clock):
         self.triggerLines[fpga][clock].append( tl )
 
+    def triggerThresholds(self):
+        thr = self.triggerLines[0][0] + self.triggerLines[0][1] + self.triggerLines[1][0] + self.triggerLines[1][1]
+        return [x.name for x in thr]
+
     def json(self):
         confObj = odict()
         confObj["type"] = str(self.ctype)
-        confObj["triggerlines"] = {}
+        if self.legacy:
+            confObj["legacy"] = self.legacy
+        confObj["triggerlines"] = odict()
         for fpga in [0,1]:
             fpgas = "fpga%i" % fpga
             confObj["triggerlines"][fpgas] = odict()

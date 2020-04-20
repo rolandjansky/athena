@@ -4,9 +4,6 @@
 
 #include "tauRecTools/TauCalibrateLC.h"
 #include "tauRecTools/TauCommonCalcVars.h"
-#include "tauRecTools/TauGenericPi0Cone.h"
-#include "tauRecTools/TauIDPileupCorrection.h"
-#include "tauRecTools/TauTrackFilter.h"
 #include "tauRecTools/TauSubstructureVariables.h"
 #include "tauRecTools/TauRecToolBase.h"
 #include "tauRecTools/ITauToolBase.h"
@@ -15,7 +12,6 @@
 #include "tauRecTools/TauTrackRNNClassifier.h"
 #include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
-#include "tauRecTools/TauChargedPFOCreator.h"
 #include "tauRecTools/TauWPDecorator.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
@@ -35,10 +31,6 @@
 
 #pragma link C++ class TauCalibrateLC+;
 #pragma link C++ class TauCommonCalcVars+;
-#pragma link C++ class TauGenericPi0Cone+;
-#pragma link C++ class TauConversion+;
-#pragma link C++ class TauIDPileupCorrection+;
-#pragma link C++ class TauTrackFilter+;
 #pragma link C++ class TauSubstructureVariables+;
 #pragma link C++ class TauRecToolBase+;
 #pragma link C++ class ITauToolBase+;
@@ -49,7 +41,6 @@
 #pragma link C++ class tauRecTools::TrackRNN+;
 #pragma link C++ class tauRecTools::TauTrackRNNClassifier+;
 #pragma link C++ class CombinedP4FromRecoTaus+;
-#pragma link C++ class TauChargedPFOCreator+;
 #pragma link C++ class TauWPDecorator+;
 #pragma link C++ class TauJetBDTEvaluator+;
 #pragma link C++ class TauIDVarCalculator+;

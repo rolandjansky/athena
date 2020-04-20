@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "PrescalingTool.h"
 #include "AthenaKernel/SlotSpecificObj.h"
@@ -7,7 +7,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/Ranlux64Engine.h"
 
-std::function< CLHEP::HepRandomEngine*(void) > PSTRanluxFactory = [](void)->CLHEP::HepRandomEngine*{
+const std::function< CLHEP::HepRandomEngine*(void) > PSTRanluxFactory = [](void)->CLHEP::HepRandomEngine*{
    return new CLHEP::Ranlux64Engine();
 };
 
@@ -55,6 +55,9 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
       ATH_MSG_ERROR("Failed to retrieve HLTPrescalesSet " << hltPrescaleSet->name());
       return StatusCode::FAILURE;
    }
+
+   // access to psk
+   ATH_MSG_DEBUG("Using HLT PSK " << hltPrescaleSet->psk());
 
    // prepare the result
    remainActive.reserve( initiallyActive.size() );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFOATTLISTTOOL_H 
@@ -42,6 +42,8 @@ public:
   const coral::AttributeListSpecification& getAttributeSpecification();
   const AthenaAttributeList getAttributeList(const xAOD::EventInfo& einfo);
   const AthenaAttributeList getAttributeList(const EventInfo& einfo);
+
+  std::unique_ptr<AthenaAttributeList> getAttributeListPtr(const xAOD::EventInfo& einfo);
 
 protected:
 

@@ -305,19 +305,14 @@ if __name__=='__main__':
     #ConfigFlags.Input.isMC = True
 
     # MC input files proposed by Tim Martin in https://its.cern.ch/jira/browse/ATR-19881 for Run-3
-    # file = '/afs/cern/ch/user/t/tamartin/public/ESD.pool.root'
-    # file = '/afs/cern/ch/user/t/tamartin/public/AOD.pool.root'
-    # file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/legacy.AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/AOD.pool.root'
     # file to be run w/ doRun2 = False
-    # file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/build.AOD.pool.root'
     # file = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nightly_2019-10-20T2130/AOD.pool.root'
-    file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_131119/AOD.pool.root'
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_MT_240919/AOD.pool.root'
+    file = '/afs/cern.ch/work/e/enagy/public/ARTfiles/MCtest290120.AOD.pool.root'
     # file to be run w/ doRun2 = True
     # file = '/afs/cern.ch/work/e/enagy/public/GenerateAOD/Gen_ST_240919/AOD.pool.root'
     # file = '/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/2019-09-16T2129/TrigAnalysisTest/test_trigAna_q221_RDOtoAOD_mt1_build/AOD.pool.root'
-    # file = '/afs/cern.ch/work/e/enagy/public/Run3TrigFeatureAccessTest_1/run/mt.AOD.pool.root'
     ConfigFlags.Input.Files = [file]
     ConfigFlags.Input.isMC = True
 

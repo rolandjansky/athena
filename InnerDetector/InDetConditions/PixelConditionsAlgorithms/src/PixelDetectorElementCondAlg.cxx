@@ -4,7 +4,7 @@
 
 #include "PixelDetectorElementCondAlg.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkSurfaces/Surface.h"
@@ -13,7 +13,6 @@
 
 PixelDetectorElementCondAlg::PixelDetectorElementCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
-  , m_readKey{"PixelAlignmentStore", "PixelAlignmentStore"}
 {
   declareProperty("ReadKey", m_readKey);
 }
@@ -133,9 +132,3 @@ StatusCode PixelDetectorElementCondAlg::execute(const EventContext& ctx) const
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelDetectorElementCondAlg::finalize()
-{
-  ATH_MSG_DEBUG("finalize " << name());
-
-  return StatusCode::SUCCESS;
-}

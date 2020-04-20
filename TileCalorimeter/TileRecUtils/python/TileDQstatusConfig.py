@@ -50,7 +50,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
     kwargs.setdefault('name', name)
 
     if not (flags.Input.isMC or flags.Overlay.DataOverlay or flags.Input.Format.lower() == 'pool'):
-        if flags.Tile.RunType == 'PHY':
+        if flags.Tile.RunType == 'PHY' or flags.Tile.TimingType == 'GAP/LAS':
             beamElemContainer = ""
         else:
             beamElemContainer = 'TileBeamElemCnt'
@@ -61,6 +61,11 @@ def TileDQstatusAlgCfg(flags, **kwargs):
             digitsContainer = ""
 
         rawChannelContainer = 'TileRawChannelCnt'
+
+    elif flags.Overlay.DataOverlay and flags.Detector.OverlayTile:
+        beamElemContainer = ''
+        digitsContainer = flags.Overlay.BkgPrefix + 'TileDigitsCnt'
+        rawChannelContainer = flags.Overlay.BkgPrefix + 'TileRawChannelCnt'
 
     else:
         beamElemContainer = ""

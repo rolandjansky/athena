@@ -1,13 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
+from AthenaCommon.SystemOfUnits import ns
 from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.DetFlags import DetFlags
 
-# import the base class
-from LArRecUtils.LArRecUtilsConf import LArAutoCorrTotalTool
             
 def LArAutoCorrTotalSCToolDefault (name="LArAutoCorrTotalSCToolDefault", **kw):
     # call base class constructor
@@ -40,16 +38,16 @@ def LArAutoCorrTotalSCToolDefault (name="LArAutoCorrTotalSCToolDefault", **kw):
     if larRODFlags.doOFCMixedOptimization():
         tool.UseMixedOFCOpt = True
         tool.NMinBias=jobproperties.Beam.numberOfCollisions()
-        print 'Number of Ncollisions : ',jobproperties.Beam.numberOfCollisions()
-        mlog.info("  setup for  Ncollisions %f   deltaBunch %f and OFC *MIXED* optimization" % (jobproperties.Beam.numberOfCollisions(), jobproperties.Beam.bunchSpacing()))
+        print ('Number of Ncollisions : ',jobproperties.Beam.numberOfCollisions())
+        mlog.info("  setup for  Ncollisions %f   deltaBunch %f and OFC *MIXED* optimization", jobproperties.Beam.numberOfCollisions(), jobproperties.Beam.bunchSpacing())
     else:        
         if larRODFlags.doOFCPileupOptimization():
             if larRODFlags.NumberOfCollisions():
                 tool.NMinBias=larRODFlags.NumberOfCollisions()
-                mlog.info("  setup for  Ncollisions %f   deltaBunch %f" % (larRODFlags.NumberOfCollisions(), jobproperties.Beam.bunchSpacing()))
+                mlog.info("  setup for  Ncollisions %f   deltaBunch %f", larRODFlags.NumberOfCollisions(), jobproperties.Beam.bunchSpacing())
             else:
                 tool.NMinBias=jobproperties.Beam.numberOfCollisions()
-                mlog.info("  setup for  Ncollisions %f   deltaBunch %f" % (jobproperties.Beam.numberOfCollisions(), jobproperties.Beam.bunchSpacing()))
+                mlog.info("  setup for  Ncollisions %f   deltaBunch %f", jobproperties.Beam.numberOfCollisions(), jobproperties.Beam.bunchSpacing())
         else:
             tool.NMinBias=0
             mlog.info("  setup for computing total noise autocorrelation without pileup")

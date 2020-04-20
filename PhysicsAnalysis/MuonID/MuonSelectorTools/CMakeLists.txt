@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 777718 2016-10-11 16:52:13Z krasznaa $
 ################################################################################
 # Package: MuonSelectorTools
 ################################################################################
@@ -18,8 +17,10 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Control/StoreGate
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATCore
+   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PRIVATE
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
@@ -28,21 +29,21 @@ atlas_depends_on_subdirs(
    ${extra_deps} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Hist RIO )
+find_package( ROOT COMPONENTS Core Hist RIO TMVA )
 
 # Libraries in the package:
 atlas_add_library( MuonSelectorToolsLib
    MuonSelectorTools/*.h Root/*.cxx
    PUBLIC_HEADERS MuonSelectorTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon PATCoreLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODMuon PATCoreLib MuonAnalysisInterfacesLib StoreGateLib
    PRIVATE_LINK_LIBRARIES xAODTracking PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonSelectorTools
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps GaudiKernel xAODCore xAODMuon
-      MuonSelectorToolsLib )
+      LINK_LIBRARIES AthenaBaseComps GaudiKernel xAODCore xAODEventInfo xAODMuon MuonAnalysisInterfacesLib
+      MuonSelectorToolsLib StoreGateLib )
 endif()
 
 atlas_add_dictionary( MuonSelectorToolsDict
@@ -56,7 +57,16 @@ if( XAOD_STANDALONE )
       util/MuonSelectorToolsTester.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon
-      xAODTracking xAODCore MuonSelectorToolsLib )
+      xAODTracking xAODCore MuonSelectorToolsLib StoreGateLib )
+endif()
+
+
+# Test(s) in the package: 
+if( XAOD_STANDALONE )
+   atlas_add_test( ut_MuonSelectorToolsTester_data
+      SOURCES test/ut_MuonSelectorToolsTester_data.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools StoreGateLib )
 endif()
 
 # Install files from the package:

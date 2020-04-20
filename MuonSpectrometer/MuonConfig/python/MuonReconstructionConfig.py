@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Core configuration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -10,7 +10,6 @@ from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 
 
 def MuonReconstructionCfg(flags):
-    # TODO - add lots! 
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
     result=ComponentAccumulator()
     result.merge( MuonSegmentFindingCfg(flags) )
@@ -19,39 +18,52 @@ def MuonReconstructionCfg(flags):
     
 if __name__=="__main__":
     # To run this, do e.g. 
-    # python ../athena/MuonSpectrometer/MuonConfig/python/MuonReconstructionConfig.py
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
+    # python -m MuonConfig.MuonReconstructionConfig --run --threads=1
+    from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneConfigFlags, SetupMuonStandaloneOutput, SetupMuonStandaloneCA
 
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    args = SetupMuonStandaloneArguments()
+    ConfigFlags = SetupMuonStandaloneConfigFlags(args)
+    cfg = SetupMuonStandaloneCA(args,ConfigFlags)
+          
+    # Run the actual test.
+    acc = MuonReconstructionCfg(ConfigFlags)
+    cfg.merge(acc)
     
-    ConfigFlags.Detector.GeometryMDT   = True 
-    ConfigFlags.Detector.GeometryTGC   = True
-    ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Muon.doCSCs = False # FIXME - this does not yet work. Need to investigate why.
-    ConfigFlags.Detector.GeometryRPC   = True 
+    if args.threads>1 and args.forceclone:
+        from AthenaCommon.Logging import log
+        log.info('Forcing track building cardinality to be equal to '+str(args.threads))
+        # We want to force the algorithms to run in parallel (eventually the algorithm will be marked as cloneable in the source code)
+        AlgResourcePool = CompFactory.AlgResourcePool
+        cfg.addService(AlgResourcePool( OverrideUnClonable=True ) )
+        track_builder = acc.getPrimary()
+        track_builder.Cardinality=args.threads
+            
+    # This is a temporary fix - it should go someplace central as it replaces the functionality of addInputRename from here:
+    # https://gitlab.cern.ch/atlas/athena/blob/master/Control/SGComps/python/AddressRemappingSvc.py
+    ProxyProviderSvc = CompFactory.ProxyProviderSvc
+    pps = ProxyProviderSvc()
+    AddressRemappingSvc = CompFactory.AddressRemappingSvc
+    ars=AddressRemappingSvc()
+    pps.ProviderNames += [ 'AddressRemappingSvc' ]
+    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("TrackCollection", "MuonSpectrometerTracks", "MuonSpectrometerTracks_old") ]
     
-    log.setLevel(DEBUG)
-    from AthenaCommon.Logging import log
-    log.debug('About to set up Segment Finding.')
-    
-    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.3/v1/myESD.pool.root"]
-    ConfigFlags.lock()
-
-    cfg=ComponentAccumulator()
+    cfg.addService(pps)
+    cfg.addService(ars)
 
     # This is a temporary fix! Should be private!
-    Muon__MuonEDMHelperSvc=CompFactory.Muon__MuonEDMHelperSvc
+    Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     cfg.addService( muon_edm_helper_svc )
 
-    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg.merge(PoolReadCfg(ConfigFlags))
-
-    cfg.merge(MuonReconstructionCfg(ConfigFlags))
+    itemsToRecord = ["Trk::SegmentCollection#MuonSegments", "Trk::SegmentCollection#NCB_MuonSegments"]
+    itemsToRecord += ["TrackCollection#MuonSpectrometerTracks"] 
+    SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
+    
+    cfg.printConfig(withDetails = True, summariseProps = True)
               
-    f=open("MuonSegmentFinding.pkl","wb")
+    f=open("MuonReconstruction.pkl","wb")
     cfg.store(f)
     f.close()
+    
+    if args.run:
+        cfg.run(20)

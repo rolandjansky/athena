@@ -7,15 +7,15 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 # Compiled beam effects methods
 # for documentation of method X, see Simulation__X._propertyDocDct
-Simulation__GenEventValidityChecker=CompFactory.Simulation__GenEventValidityChecker
-Simulation__GenEventRotator=CompFactory.Simulation__GenEventRotator
-Simulation__GenEventVertexPositioner=CompFactory.Simulation__GenEventVertexPositioner
-Simulation__VertexBeamCondPositioner=CompFactory.Simulation__VertexBeamCondPositioner
-Simulation__VertexPositionFromFile=CompFactory.Simulation__VertexPositionFromFile
-Simulation__CrabKissingVertexPositioner=CompFactory.Simulation__CrabKissingVertexPositioner
-Simulation__LongBeamspotVertexPositioner=CompFactory.Simulation__LongBeamspotVertexPositioner
+Simulation__GenEventValidityChecker=CompFactory.Simulation.GenEventValidityChecker
+Simulation__GenEventRotator=CompFactory.Simulation.GenEventRotator
+Simulation__GenEventVertexPositioner=CompFactory.Simulation.GenEventVertexPositioner
+Simulation__VertexBeamCondPositioner=CompFactory.Simulation.VertexBeamCondPositioner
+Simulation__VertexPositionFromFile=CompFactory.Simulation.VertexPositionFromFile
+Simulation__CrabKissingVertexPositioner=CompFactory.Simulation.CrabKissingVertexPositioner
+Simulation__LongBeamspotVertexPositioner=CompFactory.Simulation.LongBeamspotVertexPositioner
 # For the Algorithm
-Simulation__BeamEffectsAlg=CompFactory.Simulation__BeamEffectsAlg
+Simulation__BeamEffectsAlg=CompFactory.Simulation.BeamEffectsAlg
 
 
 # possible components from BeamEffectsConf
@@ -113,7 +113,6 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
      # Set (todo) the appropriate manipulator tools
     manipulators = []
     manipulators.append(makeValidityChecker())
-    manipulators.append(makeGenEventRotator())
     manipulators.append(toolVertexPositioner) 
     # manipulators.append(makeGenEventBeamEffectBooster()) # todo segmentation violation
     # manipulators.append(makeVertexPositionFromFile()) # todo

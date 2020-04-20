@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,7 +8,7 @@
 // ROOT  
 #include "TBaseClass.h"
 #include "TClass.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TClassTable.h"
 #include "TDataType.h"
 #include "TDataMember.h"
@@ -477,21 +477,33 @@ const std::type_info& fundamental_type(const std::string& name)
 
 
 //____________________________________________________________________________
+TScopeAdapter::TScopeAdapter( const std::string& name, Bool_t load ) :
+      fName( name )
+{
+  Init (name, load, false);
+}
+
+
+//____________________________________________________________________________
 TScopeAdapter::TScopeAdapter( const std::string& name, Bool_t load, Bool_t quiet ) :
       fName( name )
 {
-   // Bool_t load = kTRUE; Bool_t quiet = kFALSE;  // MN: move to parameters later
-   const string anonnmsp("(anonymous)");
+  Int_t oldEIL = gErrorIgnoreLevel;
+  if( quiet )  gErrorIgnoreLevel = 3000;
+  Init (name, load, quiet);
+  gErrorIgnoreLevel = oldEIL;
+}
 
-   // cout << "INFO: RootType::RootType() creating for type=" << name << endl;
-   Int_t oldEIL = gErrorIgnoreLevel;
-   if( quiet )  gErrorIgnoreLevel = 3000;
+
+//____________________________________________________________________________
+void TScopeAdapter::Init( const std::string& name, Bool_t load, Bool_t quiet )
+{
+   const string anonnmsp("(anonymous)");
 
    if( !load ) {
       // let GetClass() have a crack at it first, to prevent accidental loading
       TClass* klass = TClass::GetClass( name.c_str(), load, quiet );
       if( klass ) {
-         gErrorIgnoreLevel = oldEIL;
          fClass = klass;
          return;
       }
@@ -500,26 +512,17 @@ TScopeAdapter::TScopeAdapter( const std::string& name, Bool_t load, Bool_t quiet
       const string scoped_name = Name( Reflex::SCOPED );
       fClass = TClassRef( scoped_name.c_str() );
       if( fClass.GetClass() ) {
-         // cout << "INFO: RootType::RootType(): found TClass for '" << scoped_name << "'" << endl;
-         gErrorIgnoreLevel = oldEIL;
          return;
       }
    }
    
    // now check if GetClass failed because of lack of dictionary or it is maybe not a class at all
    if( gROOT->GetType(name.c_str()) ) {
-         isFundamental = true;
-   //} else if( name.substr( name.length() - anonnmsp.length() ) == anonnmsp ||
+         fIsFundamental = true;
    } else if( TEnum::GetEnum(name.c_str()) ) {
       // MN: enum, or anonymous type that could be an enum.  for the moment mark it as fundamental
-      isFundamental = true;
-      // cout << "DEBUG: RootType::RootType():  ignoring " << name << endl;
-   } else {
-      // cout << "WARNING!: RootType::RootType(): Cannot get the ROOT dictionary for <" << name << ">"
-      //     << " (load=" << load << ")" << endl;
+      fIsFundamental = true;
    }
-
-   gErrorIgnoreLevel = oldEIL;
 }
 
 
@@ -534,7 +537,7 @@ TScopeAdapter::TScopeAdapter( const std::type_info &typeinfo )
       size_t len = sizeof(buff);
       int    status = 0;
       fName = __cxxabiv1::__cxa_demangle(typeinfo.name(), buff, &len, &status);
-      isFundamental = true;
+      fIsFundamental = true;
    }
 }
 
@@ -547,10 +550,17 @@ TScopeAdapter::TScopeAdapter( const TMemberAdapter& mb ) :
 }
 
 //____________________________________________________________________________
-TScopeAdapter TScopeAdapter::ByName(
+TScopeAdapter TScopeAdapter::ByName ATLAS_NOT_THREAD_SAFE (
       const std::string& name, Bool_t load, Bool_t quiet )
 {
-   return TScopeAdapter(name, load, quiet);
+   return TScopeAdapter (name, load, quiet);
+}
+
+//____________________________________________________________________________
+TScopeAdapter TScopeAdapter::ByNameNoQuiet (
+      const std::string& name, Bool_t load )
+{
+   return TScopeAdapter (name, load);
 }
 
 //____________________________________________________________________________
@@ -558,7 +568,7 @@ TScopeAdapter TScopeAdapter::TypeAt( size_t nth )
 {
    const char *class_name = gClassTable->At( nth );
    // prevent autoloading, as it could change gClassTable 
-   return class_name? TScopeAdapter( string(class_name), false, false ) : TScopeAdapter(); 
+   return class_name? TScopeAdapter( string(class_name), false ) : TScopeAdapter(); 
 }
 
 //____________________________________________________________________________
@@ -566,7 +576,10 @@ size_t TScopeAdapter::TypeSize()
 {
 // return total number of types in the system (this is stupid, as the number
 // of types is dynamic ...)
-   return gClassTable ? gClassTable->Classes() : 0;
+  // ??? The THREAD_SAFE here is in principle wrong.
+  // However, in practice it should be ok, and heads off a big mess downstream.
+  TClassTable* tab ATLAS_THREAD_SAFE = gClassTable;
+  return tab ? tab->Classes() : 0;
 }
 
 //____________________________________________________________________________
@@ -644,7 +657,7 @@ void TScopeAdapter::Destruct(void *place) const
 //____________________________________________________________________________
 const type_info& TScopeAdapter::TypeInfo() const
 {
-   if (isFundamental) { // Fundamentals have no fClass.GetClass()
+   if (fIsFundamental) { // Fundamentals have no fClass.GetClass()
       return fundamental_type(fName);
    }
    return  *fClass.GetClass()->GetTypeInfo();
@@ -656,7 +669,7 @@ TPropertyListAdapter TScopeAdapter::Properties() const
 {
 // Reflex properties are more or less related to ROOT attributes: the names
 // may be different (see map_property() above)
-   return isFundamental? TPropertyListAdapter(0) : fClass->GetAttributeMap();
+   return fIsFundamental? TPropertyListAdapter(0) : fClass->GetAttributeMap();
 }
 
 //____________________________________________________________________________
@@ -691,7 +704,7 @@ Bool_t TScopeAdapter::IsTopScope() const
 
 Bool_t TScopeAdapter::IsFundamental() const
 {
-   return isFundamental;
+   return fIsFundamental;
 //   return fClass.GetClass()? fClass.GetClass()->Property() & kIsFundamental : false;
 }
 
@@ -837,7 +850,7 @@ TScopeAdapter::operator Bool_t() const
 {
 // check the validity of this scope (class)
    if( fName.empty() )      return false;
-   if( isFundamental )      return true;
+   if( fIsFundamental )     return true;
 
    // MN: rewriting this method to avoid premature header parsing
    TClass* klass = fClass.GetClass();
@@ -875,10 +888,8 @@ Bool_t TScopeAdapter::IsComplete() const
 // verify whether the dictionary of this class is fully available
    Bool_t b = kFALSE;
 
-   Int_t oldEIL = gErrorIgnoreLevel;
-   gErrorIgnoreLevel = 3000;
    std::string scname = Name( Reflex::SCOPED );
-   TClass* klass = TClass::GetClass( scname.c_str() );
+   TClass* klass = TClass::GetClass( scname.c_str(), true, true );
    if ( klass && klass->GetClassInfo() )     // works for normal case w/ dict
       b = gInterpreter->ClassInfo_IsLoaded( klass->GetClassInfo() );
    else {      // special case for forward declared classes
@@ -888,7 +899,6 @@ Bool_t TScopeAdapter::IsComplete() const
          gInterpreter->ClassInfo_Delete( ci );    // we own the fresh class info
       }
    }
-   gErrorIgnoreLevel = oldEIL;
    return b;
 }
 

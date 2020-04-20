@@ -29,7 +29,7 @@ if os.environ.has_key("CALIBMERGE_PEEKRUN"):
 else:
   peekrun=2147483647
 
-print "Peeking input database at run",peekrun
+printfunc ("Peeking input database at run",peekrun)
 
 folderInfo=extractFolderInfo(inputDB,runnumber=peekrun)
 
@@ -91,13 +91,13 @@ for f in folderInfo:
   tag=f[3]
   since=f[4]
   until=f[5]
-  print "Working on folder",fn,"Tag",tag,"Type",type,"Key",key#,"IOV:",since,"-",until
+  printfunc ("Working on folder",fn,"Tag",tag,"Type",type,"Key",key#,"IOV:",since,"-",until)
 
   if sgKeys.has_key(type):
     if key in sgKeys[type]:
-      print "StoreGate key",key,"appeared multiple times for type",type,
+      printfunc ("StoreGate key",key,"appeared multiple times for type",type,)
       key=key+str(len(sgKeys[type]))
-      print "Changed to",key
+      printfunc ("Changed to",key)
       pass
     sgKeys[type].append(key)
     pass
@@ -132,26 +132,26 @@ svcMgr.EventSelector.RunNumber = peekrun
 
 OutputFileRec="LArConditionsRec_"+str(runNoForFileName)+".pool.root"
 if os.access(OutputFileRec,os.F_OK):
-  print "File",OutputFileRec,"exists already, removing ...."
+  printfunc ("File",OutputFileRec,"exists already, removing ....")
   os.remove(OutputFileRec)
 
 OutputFileCalib="LArConditionsCalib_"+str(runNoForFileName)+".pool.root"
 if os.access(OutputFileCalib,os.F_OK):
-  print "File",OutputFileCalib,"exists already, removing ...."
+  printfunc ("File",OutputFileCalib,"exists already, removing ....")
   os.remove(OutputFileCalib)
 
 
-print svcMgr.IOVDbSvc.Folders
+printfunc (svcMgr.IOVDbSvc.Folders)
 
-print "============ Reco ============="
-print outObjectsRec
-print outTagsRec
-print "============ Calib ============="
-print outObjectsCalib
-print outTagsCalib
+printfunc ("============ Reco =============")
+printfunc (outObjectsRec)
+printfunc (outTagsRec)
+printfunc ("============ Calib =============")
+printfunc (outObjectsCalib)
+printfunc (outTagsCalib)
 
 if len(outObjectsRec)==0 and len(outObjectsCalib)==0:
-  print "Nothing to do, exiting"
+  printfunc ("Nothing to do, exiting")
   sys.exit(0)
 
 from LArCalibTools.LArCalibToolsConf import LArBlockCorrections

@@ -1,0 +1,6 @@
+{
+    "fullList" : [ "a", "b", "c" ],
+    "emptyList" : [],
+    "nonEmptyAtt" : "abcd",
+    "emptyAtt" : ""
+}

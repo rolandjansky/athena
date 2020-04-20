@@ -201,11 +201,9 @@ ConcurrentBitset::Impl::count() const
   }
   return n;
 }
-#endif
 /**
  * @brief Count the number of 1 bits in the set.
  */
-#if HAVE_FUNCTION_MULTIVERSIONING
 __attribute__ ((target ("default")))
 #endif
 ConcurrentBitset::bit_t

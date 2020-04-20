@@ -3,7 +3,7 @@
 ## \file Herwig7Config.py
 ## \brief Python convenience snippets providing re-usable bits of settings for use in the jobOptions
 
-import Herwig7Utils as hw7Utils
+from . import Herwig7Utils as hw7Utils
 
 ## Configuration base class for %Herwig7
 class Hw7Config(object):
@@ -433,3 +433,5 @@ set /Herwig/Particles/pbar-:PDF /Herwig/Partons/BudnevPDF
 set /Herwig/Generators/EventGenerator:EventHandler:CascadeHandler:MPIHandler NULL
 
 """
+
+

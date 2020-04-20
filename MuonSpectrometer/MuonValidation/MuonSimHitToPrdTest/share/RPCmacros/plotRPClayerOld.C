@@ -1,26 +1,25 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include <TCanvas.h>
 #include <TBox.h>
 #include <TH2F.h>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <math.h>
-
+#include <cmath>
 
 void plotRPClayerOld(Int_t inputLayer)
 {
   TCanvas* cLayer = new TCanvas("","",900,700);
-  //return;
-  //Double_t M_PI=acos(-1.);
-  Double_t hphimin = -TMath::Pi()-TMath::Pi()/10.;
-  Double_t hphimax =  TMath::Pi()+TMath::Pi()/10.;
+  Double_t hphimin = -M_PI-M_PI/10.;
+  Double_t hphimax =  M_PI+M_PI/10.;
   TH2F* hLayer = new TH2F("hLayer","hLayer",100,-1.07,1.07,100,hphimin,hphimax);
   hLayer->Draw();
   TBox * t = new TBox();
-  //t->SetLineStyle(1);
   t->SetLineWidth(2);
   t->SetLineColor(kBlack);
-  //t->SetFillColor(kWhite);
   t->SetFillStyle(0);
     
   std::string STRING;
@@ -43,19 +42,14 @@ void plotRPClayerOld(Int_t inputLayer)
 	{
 	    ss.clear();
 	    getline(infile,STRING); // Saves the line in STRING.
-	    //std::cout<<" now reading <"<<STRING<<">"<<std::endl; // Prints our STRING.
 	    if (STRING.substr(0,1)!=laySTRING) 
 	    {
-	      //std::cout<<"not a layer 1 panel; skipping"<<std::endl;
 	      continue; // skip comments
 	    }
 	    else 
 	    {
 	      ++nPanels;
-	      //STRING = "1 BML phi [7.2.-7.1.2.1.1.1.1.1.56] 1644724956 -1.0666 -1.0289 -0.1988 -0.0013";
-	      //STRING = "1 BML phi [7.2.-7.1.2.1.1.1.1.1.56] 1644724956";
 	      ss<<STRING;
-	      //ss>>layerRPC>>stName>>viewName>>stringId;
 	      std::cout<<" STRING = <"<<STRING<<">"<<std::endl;
 	      
 	      ss>>layerRPC>>stName>>viewName>>stringId>>panelID>>etamin>>etamax>>phimin>>phimax>>zmin>>zmax;
@@ -65,7 +59,6 @@ void plotRPClayerOld(Int_t inputLayer)
 	      <<std::endl;
 	      
 	      t->DrawBox(etamin,phimin,etamax,phimax);
-	      //DrawRpcPanel(cLayer,etamin,etamax,phimin,phimax);
 	    }
 	    //	    if (nPanels>1) break;
 	}

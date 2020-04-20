@@ -16,8 +16,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/RootUtils
                           Trigger/TrigEvent/TrigSteeringEvent
                           Event/xAOD/xAODTrigCalo
+                          Event/xAOD/xAODTrigRinger
                           Event/xAOD/xAODTrigEgamma
-			  Event/xAOD/xAODEgamma
+                          Event/xAOD/xAODEgamma
                           Event/xAOD/xAODTrigger
                           Event/xAOD/xAODTracking
                           Trigger/TrigDataAccess/TrigSerializeResult
@@ -27,8 +28,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTau
                           Event/xAOD/xAODTrigBphys
                           Event/xAOD/xAODJet
+                          Event/xAOD/xAODBTagging
                           Trigger/TrigSteer/DecisionHandling
-                          Control/AthenaMonitoring
+                          Trigger/TrigSteer/TrigCompositeUtils
+                          Control/AthenaMonitoringKernel
                           Trigger/TrigMonitoring/TrigCostMonitorMT
                           Trigger/TrigAlgorithms/TrigPartialEventBuilding
                           Trigger/TrigDataAccess/TrigSerializeTP
@@ -45,7 +48,7 @@ atlas_add_library( TrigOutputHandlingLib
                    PUBLIC_HEADERS TrigOutputHandling
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel AthViews AthenaBaseComps RootUtils TrigSteeringEvent TrigSerializeResultLib TrigConfData
-                   xAODTrigCalo xAODTrigEgamma xAODEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET DecisionHandlingLib AthenaMonitoringLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot )
+                   xAODTrigCalo xAODTrigRinger xAODTrigEgamma xAODEgamma xAODBTagging xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET DecisionHandlingLib AthenaMonitoringKernelLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot TrigCompositeUtilsLib )
 
 atlas_add_component( TrigOutputHandling
                      src/components/*.cxx
@@ -53,6 +56,7 @@ atlas_add_component( TrigOutputHandling
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.py )
 
 # Tests:
 atlas_add_test( void_record_test
@@ -70,7 +74,7 @@ atlas_add_test( serial_deserial_test
       SOURCES test/serial_deserial_test.cxx
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
       LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} xAODTrigEgamma xAODEgamma TrigSteeringEvent
-            AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore TrigOutputHandlingLib
+            AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore TrigOutputHandlingLib TrigCompositeUtilsLib
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 300
@@ -80,7 +84,7 @@ atlas_add_test( schema_evolution_test
       SOURCES test/schema_evolution_test.cxx
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
       LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} xAODTrigEgamma xAODEgamma
-            AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore TrigOutputHandlingLib
+            AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore TrigOutputHandlingLib TrigCompositeUtilsLib
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 300

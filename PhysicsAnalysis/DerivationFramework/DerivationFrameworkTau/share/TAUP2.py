@@ -32,29 +32,21 @@ TAUP2Stream.AcceptAlgs(["TAUP2Kernel"])
 # 
 # # MET/Jet tracks
 # thinning_expression                              = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-# TAUP2MetTPThinningTool                           = DerivationFramework__TrackParticleThinning(
-#                                                      name                      = "TAUP2MetTPThinningTool",
-#                                                      ThinningService           = TAUP2ThinningHelper.ThinningSvc(),
-#                                                      SelectionString           = thinning_expression,
-#                                                      InDetTrackParticlesKey    = "InDetTrackParticles",
-#                                                      ApplyAnd                  = True)
-# ToolSvc                                         += TAUP2MetTPThinningTool
 # 
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 # TAUP2JetTPThinningTool                           = DerivationFramework__JetTrackParticleThinning(
 #                                                      name                      = "TAUP2JetTPThinningTool",
-#                                                      ThinningService           = TAUP2ThinningHelper.ThinningSvc(),
+#                                                      StreamName                = streamName,
 #                                                      JetKey                    = "AntiKt4LCTopoJets",
 #                                                      InDetTrackParticlesKey    = "InDetTrackParticles",
-#                                                      ApplyAnd                  = True)
+#                                                      TrackSelectionString      = thinning_expression)
 # ToolSvc                                         += TAUP2JetTPThinningTool
 # 
 # # Tracks associated with electrons
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 # TAUP2ElectronTPThinningTool                      = DerivationFramework__EgammaTrackParticleThinning(
 #                                                      name                      = "TAUP2ElectronTPThinningTool",
-#                                                      ThinningService           = TAUP2ThinningHelper.ThinningSvc(),
+#                                                      StreamName                = streamName,
 #                                                      SGKey                     = "Electrons",
 #                                                      InDetTrackParticlesKey    = "InDetTrackParticles")
 # ToolSvc                                         += TAUP2ElectronTPThinningTool
@@ -63,7 +55,7 @@ TAUP2Stream.AcceptAlgs(["TAUP2Kernel"])
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 # TAUP2MuonTPThinningTool                          = DerivationFramework__MuonTrackParticleThinning(
 #                                                      name                      = "TAUP2MuonTPThinningTool",
-#                                                      ThinningService           = TAUP2ThinningHelper.ThinningSvc(),
+#                                                      StreamName                = streamName,
 #                                                      MuonKey                   = "Muons",
 #                                                      InDetTrackParticlesKey    = "InDetTrackParticles")
 # ToolSvc                                         += TAUP2MuonTPThinningTool
@@ -72,7 +64,7 @@ TAUP2Stream.AcceptAlgs(["TAUP2Kernel"])
 # from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 # TAUP2TauTPThinningTool                           = DerivationFramework__TauTrackParticleThinning(
 #                                                      name                      = "TAUP2TauTPThinningTool",
-#                                                      ThinningService           = TAUP2ThinningHelper.ThinningSvc(),
+#                                                      StreamName                = streamName,,
 #                                                      TauKey                    = "TauJets",
 #                                                      InDetTrackParticlesKey    = "InDetTrackParticles",
 #                                                      ConeSize                  = 0.6)

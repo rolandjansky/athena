@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCREATORTOOL_H
@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonCreatorTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
@@ -22,8 +22,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "MuonCombinedToolInterfaces/IMuonMomentumBalanceSignificance.h"
 #include "MuonCombinedToolInterfaces/IMuonScatteringAngleSignificance.h" 
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h" 
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h" 
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -31,6 +30,17 @@
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 #include "xAODMuon/MuonSegmentAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
+#include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
+#include "MuidInterfaces/IMuonTrackQuery.h"
+#include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
+#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
+
+#include "TrackSegmentAssociationTool.h"
 
 #include "TrkSegment/Segment.h"
 #include "MuonSegment/MuonSegment.h"
@@ -41,24 +51,17 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
+
 namespace Muon {
-  class MuonEDMPrinterTool;
   class MuonSegment;
-  class TrackSegmentAssociationTool;
 }
-namespace Trk {
-  class ITrackParticleCreatorTool;
-  class ITrackAmbiguityProcessorTool;
-  class IPropagator;
-  class ITrkMaterialProviderTool;
-}
-namespace Rec {
-  class IMuonPrintingTool;
-  class IMuonMeanMDTdADCFiller;  
-  class IMuonTrackQuery;
+namespace Trk
+{
+  class IExtendedTrackSummaryTool;
 }
 namespace MuonCombined {
-  class IMuonCombinedTagTool;
   class StacoTag;
   class CombinedFitTag;
   class MuGirlTag;
@@ -73,10 +76,9 @@ namespace MuonCombined {
 
   public:
     MuonCreatorTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonCreatorTool(void); // destructor
+    ~MuonCreatorTool()=default;
   
     StatusCode initialize();
-    StatusCode finalize();
 
     /** IMuonCreatorTool interface: build muons from ID and MS candidates */    
     void create( const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates, std::vector<const InDetCandidateToTagMap*> tagMaps,
@@ -95,7 +97,7 @@ namespace MuonCombined {
 
     void addMuGirl( xAOD::Muon& muon, const MuGirlTag* tag, OutputData& outputData ) const;
 
-    void addMuGirlLowBeta( xAOD::Muon& muon, MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData ) const;
+    void addMuGirlLowBeta( xAOD::Muon& muon, const MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData ) const;
 
     void addSegmentTag( xAOD::Muon& muon, const SegmentTag* tag ) const;
     void addCaloTag( xAOD::Muon& muon, const CaloTag* tag ) const;
@@ -110,10 +112,12 @@ namespace MuonCombined {
     /// takes ownership of the track
     ElementLink<xAOD::TrackParticleContainer>
       createTrackParticleElementLink( ElementLink<TrackCollection> trackLink,
-        xAOD::TrackParticleContainer& trackParticleContainer) const ;
+				      xAOD::TrackParticleContainer& trackParticleContainer,
+				      TrackCollection* trackCollection = 0) const ;
 
     ElementLink<xAOD::MuonSegmentContainer> createMuonSegmentElementLink( ElementLink<Trk::SegmentCollection> segLink,
-        xAOD::MuonSegmentContainer& xaodSegments) const ;
+									  xAOD::MuonSegmentContainer& xaodSegments,
+									  Trk::SegmentCollection* muonSegmentCollection = 0) const ;
 
   private:
     void resolveOverlaps( const InDetCandidateCollection* inDetCandidates, const MuonCandidateCollection* muonCandidates, std::vector<const InDetCandidateToTagMap*> tagMaps,
@@ -167,9 +171,6 @@ namespace MuonCombined {
     /// Can enabled this for debugging - will add extra information not for production
     bool m_fillExtraELossInfo;
     
-    /// Since the Calo information can come from various sources, make sure that we don't overwrite once 'best' source added.
-    mutable bool m_haveAddedCaloInformation;
-    
     /// configure whether to use the updated extrapolated track for a combined fit or not
     bool m_useUpdatedExtrapolatedTrack;
 
@@ -196,7 +197,7 @@ namespace MuonCombined {
     //bool m_fillMuonTruthLinks;
     
     // helpers, managers, tools
-    ToolHandle<Muon::MuonIdHelperTool>            m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<Muon::MuonEDMPrinterTool>          m_printer;
     ServiceHandle<Muon::IMuonEDMHelperSvc>        m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
@@ -204,8 +205,7 @@ namespace MuonCombined {
     ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
     ToolHandle<Trk::IParticleCaloExtensionTool>   m_caloExtTool;
     ToolHandle<Trk::ITrackParticleCreatorTool>    m_particleCreator;
-    // FIXME mutable
-    mutable ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
+    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
     ToolHandle<Trk::IPropagator>                  m_propagator;
     ToolHandle<xAOD::IMuonDressingTool>           m_muonDressingTool;
     ToolHandle<Rec::IMuonMomentumBalanceSignificance> m_momentumBalanceTool;
@@ -216,6 +216,7 @@ namespace MuonCombined {
     ToolHandle<Trk::ITrkMaterialProviderTool>     m_caloMaterialProvider;
     ToolHandle<Muon::TrackSegmentAssociationTool> m_trackSegmentAssociationTool;
     ToolHandle<Rec::IMuonTrackQuery>              m_trackQuery;
+    ToolHandle<Trk::IExtendedTrackSummaryTool>    m_trackSummaryTool;
     Rec::CaloCellCollector                        m_cellCollector;
     SG::ReadHandleKey<CaloCellContainer>          m_cellContainerName{this,"CaloCellContainer","AllCalo","calo cells"};
     SG::ReadCondHandleKey<CaloNoise>              m_caloNoiseKey{this,"CaloNoise","","CaloNoise object to use, or blank."};

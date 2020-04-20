@@ -1,26 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EXTRAPOLATEMUONTOIPTOOL_H
 #define EXTRAPOLATEMUONTOIPTOOL_H
 
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include <atomic>
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 
-namespace Trk{
-  class IExtrapolator;
-}
-namespace Muon{
-  class MuonEDMPrinterTool;
-}
+#include <atomic>
 
 /**
    Tool to extrapolate tracks in the muon system to the IP. Internally uses IMuonTrackThroughCalo for 
@@ -35,7 +31,7 @@ class ExtrapolateMuonToIPTool : virtual public Muon::IMuonTrackExtrapolationTool
   ExtrapolateMuonToIPTool(const std::string&, const std::string&, const IInterface*);
 
   /** Destructor */
-  virtual ~ExtrapolateMuonToIPTool();
+  virtual ~ExtrapolateMuonToIPTool()=default;
 
   /** initialize */
   virtual StatusCode initialize();
@@ -68,6 +64,7 @@ class ExtrapolateMuonToIPTool : virtual public Muon::IMuonTrackExtrapolationTool
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
     "Handle to the service providing the IMuonEDMHelperSvc interface" };               //!< muon EDM helper tool
   ToolHandle<Muon::MuonEDMPrinterTool>   m_printer;              //!< muon EDM printer tool
+  ToolHandle<Trk::ITrackSummaryTool> m_trackSummary {this,"TrackSummaryTool","Trk::TrackSummaryTool/MuidTrackSummaryTool"};
 
   mutable std::atomic_uint m_nextrapolations;
   mutable std::atomic_uint m_failedClosestPars;

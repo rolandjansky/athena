@@ -25,6 +25,9 @@ public:
 
  private:
   SG::ReadHandleKey<xAOD::MissingETContainer> m_metContainerKey { this, "METContainer", "MET_Reference_AntiKt4EMTopo", "Name of MET  container" };
+  SG::ReadHandleKey<xAOD::MissingETContainer> m_metCaloContainerKey { this, "METCaloContainer", "MET_Calo", "Name of METCalo  container" };
+  SG::ReadHandleKey<xAOD::MissingETContainer> m_metAKt4EMTopoContainerKey { this, "METAntiKt4EMTopoContainer", "MET_Reference_AntiKt4EMTopo", "Name of MET  container" };
+
 
   Gaudi::Property<std::string> m_metTotalKey { this, "metTotalKey", "FinalTrk", "Subkey for total MET" };
 

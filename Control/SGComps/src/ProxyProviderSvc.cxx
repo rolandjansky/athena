@@ -50,11 +50,7 @@ const SG::BaseInfoBase* getBaseInfo (CLID clid)
 
 ProxyProviderSvc::ProxyProviderSvc(const std::string& name, 
                                    ISvcLocator* svcLoc): 
-  base_class(name, svcLoc),
-  m_pDataLoader(0)
-{
-  declareProperty("ProviderNames", m_providerNames,
-                  "names of the services to be use as address providers");
+  base_class(name, svcLoc){
   m_providerNames.declareUpdateHandler(&ProxyProviderSvc::providerNamesPropertyHandler, this);
 }
 
@@ -261,7 +257,7 @@ SG::DataProxy*
 ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
 				IProxyRegistry& store)
 {
-  if ( !m_providers.empty() && store.storeID() != StoreID::SIMPLE_STORE ) {
+  if ( !m_providers.empty() ) {
     const EventContext& ctx = contextFromStore (store);
     SG::TransientAddress pTAd (id, key);
     pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());

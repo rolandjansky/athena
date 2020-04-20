@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -103,16 +103,25 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
 				  const std::string& parentNode,
 				  const std::string& connName) override;
 
+  std::string getChildTag(const std::string& childNode,
+			  const std::string& parentTag,
+			  const std::string& parentNode,
+			  const std::string& connName,
+			  bool force);
+
   std::unique_ptr<IRDBQuery> getQuery(const std::string& node,
 				      const std::string& tag,
 				      const std::string& tag2node,
 				      const std::string& connName) override;
 
-  RDBTagDetails getTagDetails(const std::string& tag,
-			      const std::string& connName = "ATLASDD") override;
+  void getTagDetails(RDBTagDetails& tagDetails,
+                     const std::string& tag,
+                     const std::string& connName = "ATLASDD") override;
 
   void getAllLeafNodes(std::vector<std::string>& list,
 		       const std::string& connName = "ATLASDD");
+
+  std::vector<std::string> getLockedSupportedTags(const std::string& connName = "ATLASDD");
 
   inline MsgStream& msgStream() { return msg(); }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**@class MuonSegmentRegionRecoveryTool
@@ -21,6 +21,7 @@
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
@@ -34,27 +35,25 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkGeometry/TrackingVolume.h" 
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
 #include "MuonCondData/MdtCondDbData.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "MuonPrepRawData/CscPrepDataCollection.h"
-// New Small Wheel
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
 #include "MuonPrepRawData/MMPrepDataCollection.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "IRegionSelector/RegSelEnums.h"
 
 #include "MuonTrackMakerUtils/TrackStateOnSurfaceComparisonFunction.h"
@@ -64,29 +63,12 @@
 #include <vector>
 #include <map>
 
-class MsgStream;
-
-class MdtIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
-class CscIdHelper;
-// New Small Wheel
-class sTgcIdHelper;
-class MMIdHelper;
-
-class IRegSelSvc;
 class IRoiDescriptor;
-class ITrackingGeometrySvc;
-class MuonStationIntersectSvc;
-class MdtCondDbData;
-
 
 namespace Trk {
   class Track;
   class TrkDetElementBase;
   class MeasurementBase;
-  class TrackStateOnSurface;
-  class TrackStateOnSurface;
 }
 
 namespace Muon {
@@ -177,8 +159,7 @@ namespace Muon {
       {this, "Fitter", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};            
     ServiceHandle<MuonStationIntersectSvc>        m_intersectSvc
       {this, "MuonStationIntersectSvc", "MuonStationIntersectSvc"};            
-    ToolHandle<MuonIdHelperTool>        m_idHelperTool
-      {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};            //!< IdHelper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<IMuonHitSummaryTool>        m_hitSummaryTool
       {this, "HitSummaryTool", "Muon::MuonHitSummaryTool/MuonHitSummaryTool"};            //!< hit summary tool
     ServiceHandle<IRegSelSvc>         m_regionSelector
@@ -188,6 +169,8 @@ namespace Muon {
       "Handle to the service providing the IMuonEDMHelperSvc interface" };           //!< EDM Helper tool
     ToolHandle<MuonEDMPrinterTool>        m_printer
         {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //<! tool to print EDM objects    
+    ToolHandle<Trk::IExtendedTrackSummaryTool>        m_trackSummaryTool    
+        {this, "TrackSummaryTool", "MuonTrackSummaryTool"};
     SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
     //properties
     Gaudi::Property<double>                                 m_deta        {this, "DeltaEtaRegion", 0.05}; 

@@ -32,7 +32,6 @@ sequence of sequences.
 """
 
 from TriggerMenu.commonUtils  import makeCaloSequences
-from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
 
 class AlgList(object):
     def __init__(self, alg_list, alias, attach_to=''):
@@ -94,7 +93,6 @@ class JetSequencesBuilder(object):
                        'cmfs2': self.make_cmfs2,  # cluster maker full scan
                        'ed': self.make_ed,  # energy density
                        'sk': self.make_sk,  # SoftKiller
-                       'ftk': self.make_ftk,  # run algos for ftk track finding and xaod conversion
                        'tm': self.make_tm, # track moments helper
                        'jr': self.make_jr_clusters,  # jet rec
                        'hijr': self.make_hijr,  # hi jet rec
@@ -158,8 +156,6 @@ class JetSequencesBuilder(object):
             # ('tc', 'FS'): ['fs', 'cmfs', 'ed', 'jr'],
             #('tc', 'FS', False): ['fs2', 'ed', 'jr'],
             ('tc','FS',False,'notrk'): ['fs2','cmfs1','cmfs2','ed','jr'],
-            ('tc','FS',False,'ftk'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
-            ('tc','FS',False,'ftkrefit'): ['fs2','cmfs1','cmfs2','ed','ftk','tm','jr'],
             # ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
             ('tc', 'PS', False, 'notrk'): ['ps', 'cm', 'jr'],
             ('ion', 'FS', False, 'notrk'): ['fs2','cmfs1','hicm','hijr'],
@@ -167,8 +163,6 @@ class JetSequencesBuilder(object):
             ('tc', 'FS', True, 'notrk'): ['fs2', 'cmfs1', 'cmfs2','ed', 'tr'],
             # SoftKiller topoclusters, no need for EventDensity for rho*area subtraction
             ('sktc','FS',False, 'notrk'):    ['fs2','cmfs1','cmfs2','sk','jr'],
-            ('sktc','FS',False, 'ftk'):      ['fs2','cmfs1','cmfs2','sk','ftk','tm','jr'],
-            ('sktc','FS',False,' ftkrefit'): ['fs2','cmfs1','cmfs2','sk','ftk','tm','jr'],
             }.get((data_type,
                    scan_type,
                    do_trimming,trkopt), [])
@@ -294,25 +288,6 @@ class JetSequencesBuilder(object):
         [algs.extend(f()) for f in (self.alg_factory.energyDensityAlg,)]
 
         return AlgList(algs, alias=alias)
-
-    def make_ftk(self):
-        """Return FTK sequence"""
-        alias = 'ftktracking'
-        
-        ftkopt = self.chain_config.menu_data.trkopt
-        if ftkopt == 'ftk': 
-            ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
-        elif ftkopt == 'ftkrefit':
-            ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx", "refit"]).getSequence()
-            alias = 'ftkrefittracking'
-        ftkalgo_list = []
-
-        for seq in ftksequence_list:
-                for a in seq:
-                        print ("adding ftk algo ", a)
-                        ftkalgo_list.append(AlgStringProxy(a))
-
-        return AlgList(ftkalgo_list, alias=alias)
 
     def make_tm(self):
         """make track moment helpers Alglist"""

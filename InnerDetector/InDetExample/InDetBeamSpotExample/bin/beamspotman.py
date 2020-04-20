@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 beamspotman is a command line utility to do typical beam spot related tasks.
 """
@@ -52,7 +55,7 @@ beamspottag = ''
 backuppath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/backup'
 archivepath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/archive'
 
-import sys, os, stat,commands
+import sys, os, stat
 import re
 import subprocess
 import time
@@ -63,6 +66,10 @@ from InDetBeamSpotExample.PostProcessing import doPostProcessing
 from InDetBeamSpotExample import BeamSpotPostProcessing
 from InDetBeamSpotExample import COOLUtils
 from InDetBeamSpotExample import DiskUtils
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 from optparse import Option, OptionParser, OptionGroup
 def check_commsep(option, opt, value):
@@ -147,11 +154,11 @@ if not options.expertmode:
         sys.exit('ERROR: You must run this command in the production directory %s' % options.proddir)
     if not os.path.exists(produserfile):
         sys.exit('ERROR: Authorization file unreadable or does not exists %s' % produserfile)
-    if not commands.getoutput('grep `whoami` %s' % produserfile):
+    if not subprocess.getoutput('grep `whoami` %s' % produserfile):
         sys.exit('ERROR: You are not authorized to run this command (user name must be listed in produser file %s)' % produserfile)
 else:
     if os.path.realpath(os.getcwd()) != os.path.realpath(options.proddir):
-        print 'WARNING: You are not running in the production directory %s' % options.proddir
+        print ('WARNING: You are not running in the production directory %s' % options.proddir)
 
 
 #
@@ -170,12 +177,12 @@ def getT0DbConnection():
     try:
         oracle = cx_Oracle.connect(dbname)
     except:
-        print 'ERROR: First connection attempt to Tier-0 Oracle database failed; will retry in 10s ...'
+        print ('ERROR: First connection attempt to Tier-0 Oracle database failed; will retry in 10s ...')
         try:
             time.sleep(10)
             oracle = cx_Oracle.connect(dbname)
-        except Exception,e:
-            print e
+        except Exception as e:
+            print (e)
             sys.exit('ERROR: Unable to connect to Tier-0 Oracle database')
     if not oracle:
         sys.exit('ERROR: Unable to connect to Tier-0 Oracle database (invalid cx_Oracle connection)')
@@ -186,12 +193,12 @@ def getTaskManager():
     try:
         return TaskManager(options.dbconn)
     except:
-        print 'ERROR: Unable to access task manager database %s' % options.dbconn
+        print ('ERROR: Unable to access task manager database %s' % options.dbconn)
         sys.exit(1)
 
 def fail(message):
-    print
-    print 'ERROR:', message
+    print()
+    print ('ERROR:', message)
     sys.exit(1)
 
 def dataset_from_run_and_tag(run, tag):
@@ -223,7 +230,7 @@ def run_jobs(script, ds_name, task_name, params, *args):
         arg_list.append('--test')
     arg_list.extend([script, ds_name, task_name])
 
-    print subprocess.list2cmdline(arg_list)
+    print (subprocess.list2cmdline(arg_list))
     subprocess.check_call(arg_list)
 
 
@@ -240,15 +247,15 @@ if cmd == 'upload' and len(cmdargs) == 1:
     except:
         fail('Unable to determine COOL upload password')
 
-    print
-    print 'Beam spot file:   ', dbfile
-    print 'Uploading to tag: ', options.beamspottag
+    print()
+    print ('Beam spot file:   ', dbfile)
+    print ('Uploading to tag: ', options.beamspottag)
     os.system('dumpBeamSpot.py -d %s -t %s %s' % (
         options.srcdbname,
         options.srctag,
         dbfile))
 
-    print
+    print()
     stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (
         '--batch' if options.batch else '',
         ('--ignoremode %s' % options.ignoremode) if options.ignoremode else '',
@@ -357,7 +364,7 @@ if cmd=='backup' and len(args)==2:
             baklog = d+'/backup.log'
             if os.path.exists(baklog):
                 cmd = 'find %s  -maxdepth 1 -newer %s' % (d,baklog)
-                (status,output) = commands.getstatusoutput(cmd)
+                (status,output) = subprocess.getstatusoutput(cmd)
                 status = status >> 8
                 if status:
                     sys.exit("ERROR: Error executing %s" % cmd)
@@ -368,13 +375,13 @@ if cmd=='backup' and len(args)==2:
             pass
         else:
             dirlist.append(d)
-    print '\nFound %i directories for backup:\n' % len(dirlist)
+    print ('\nFound %i directories for backup:\n' % len(dirlist))
     for d in dirlist:
-        print '  %s' % d
+        print ('  %s' % d)
     if options.archive:
-        print '\n****************************************************************'
-        print 'WARNING: ARCHIVING - DIRECTORIES WILL BE DELETED AFTER BACKUP!!!'
-        print '****************************************************************'
+        print ('\n****************************************************************')
+        print ('WARNING: ARCHIVING - DIRECTORIES WILL BE DELETED AFTER BACKUP!!!')
+        print ('****************************************************************')
     if not options.batch:
         a = raw_input('\nARE YOU SURE [n] ? ')
         if a!='y':
@@ -388,7 +395,7 @@ if cmd=='backup' and len(args)==2:
             outname = d.replace('/','-')+'.tar.gz'
             path = backuppath
 
-        print '\nBacking up  %s  -->  %s/%s ...\n' % (d,path,outname)
+        print ('\nBacking up  %s  -->  %s/%s ...\n' % (d,path,outname))
 
         status = os.system('tar czf %s/%s %s' % (tmpdir,outname,d)) >> 8
         if status:
@@ -401,7 +408,7 @@ if cmd=='backup' and len(args)==2:
             status = os.system('xrdcp -f %s/%s root://eosatlas.cern.ch/%s/%s' % (tmpdir,outname,path,outname)) >> 8
             if status:
               # Continue to try other files if one failed to upload to EOS
-              print '\nERROR: Unable to copy file to EOS to %s/%s' % (path,outname)
+              print ('\nERROR: Unable to copy file to EOS to %s/%s' % (path,outname))
               continue
 
         os.system('rm %s/%s' % (tmpdir,outname))
@@ -410,7 +417,7 @@ if cmd=='backup' and len(args)==2:
             sys.exit('\nERROR: Could not update backup log file')
 
         if options.archive:
-            print '\nWARNING: DELETION OF SOURCE FILES NOT YET IMPLEMENTED\n'
+            print ('\nWARNING: DELETION OF SOURCE FILES NOT YET IMPLEMENTED\n')
     sys.exit(0)
 
 
@@ -419,8 +426,9 @@ if cmd=='backup' and len(args)==2:
 #
 if cmd == 'lsbackup' and not cmdargs:
     path = archivepath if options.archive else backuppath
-    print 'Backup directory:', path
-    for f in DiskUtils.from_directory(path): print f
+    print ('Backup directory:', path)
+    for f in DiskUtils.from_directory(path):
+        print (f)
     sys.exit(0)
 
 
@@ -430,25 +438,26 @@ if cmd == 'lsbackup' and not cmdargs:
 if cmd == 'show' and len(cmdargs)==1:
     run = cmdargs[0]
 
-    print 'Base path:     ', options.eospath
-    print 'Project tag:   ', options.project
-    print 'Stream:        ', options.stream
-    print
-    print 'Files available (filtered by: {}):'.format(options.filter)
-    print '---------------'
+    print ('Base path:     ', options.eospath)
+    print ('Project tag:   ', options.project)
+    print ('Stream:        ', options.stream)
+    print()
+    print ('Files available (filtered by: {}):'.format(options.filter))
+    print ('---------------')
 
     fs = DiskUtils.FileSet.from_ds_info(run,
             project=options.project,
             stream=options.stream,
             base=options.eospath)
-    for f in fs.matching(options.filter): print f
+    for f in fs.matching(options.filter):
+        print (f)
 
-    print
-    print 'Beam spot tasks:'
-    print '---------------'
+    print()
+    print ('Beam spot tasks:')
+    print ('---------------')
     with getTaskManager() as taskman:
         for t in taskman.taskIterDict(qual=["where DSNAME like '%%%s%%' order by UPDATED" % run]):
-            print '%-45s %-45s  %4s job(s), last update %s' % (t['DSNAME'],t['TASKNAME'],t['NJOBS'],time.ctime(t['UPDATED']))
+            print ('%-45s %-45s  %4s job(s), last update %s' % (t['DSNAME'],t['TASKNAME'],t['NJOBS'],time.ctime(t['UPDATED'])))
     sys.exit(0)
 
 
@@ -473,10 +482,10 @@ if cmd == 'postproc' and len(cmdargs) in [2,3]:
     #   $0 -z POSTPROCSTEPS postproc DSNAME TASKNAME
     steps = options.postprocsteps if len(cmdargs) < 3 else cmdargs[2].split(',')
     if steps:
-        print 'Executing postprocessing tasks:', steps
+        print ('Executing postprocessing tasks:', steps)
     else:
-        print 'Executing postprocessing tasks as specified in task database'
-    print
+        print ('Executing postprocessing tasks as specified in task database')
+    print()
 
     with getTaskManager() as taskman:
         try:
@@ -485,7 +494,7 @@ if cmd == 'postproc' and len(cmdargs) in [2,3]:
                     taskname,
                     confirmWithUser=not options.batch,
                     addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
+        except TaskManagerCheckError as e:
             fail(e)
         for taskName in taskList:
             t = taskman.getTaskDict(taskName[0], taskName[1])
@@ -503,15 +512,15 @@ if cmd=='upload' and len(args)==3:
     with getTaskManager() as taskman:
         try:
             [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
-            print e
+        except TaskManagerCheckError as e:
+            print (e)
             sys.exit(1)
         if not options.beamspottag:
             sys.exit('ERROR: No beam spot tag specified')
 
         dbfile = glob.glob('%s/%s/*-beamspot.db' % (dsname,task))
         if len(dbfile)!=1:
-            print 'ERROR: Missing or ambiguous input COOL file:',dbfile
+            print ('ERROR: Missing or ambiguous input COOL file:',dbfile)
             sys.exit()
 
         try:
@@ -520,9 +529,9 @@ if cmd=='upload' and len(args)==3:
         except:
             sys.exit('ERROR: Unable to determine COOL upload password')
 
-        print '\nData set:         ',dsname
-        print 'Beam spot file:   ',dbfile[0]
-        print 'Uploading to tag: ',options.beamspottag
+        print ('\nData set:         ',dsname)
+        print ('Beam spot file:   ',dbfile[0])
+        print ('Uploading to tag: ',options.beamspottag)
         os.system('dumpBeamSpot.py -d %s -t %s %s' % (options.srcdbname,options.srctag,dbfile[0]))
 
         if options.ignoremode:
@@ -537,14 +546,14 @@ if cmd=='upload' and len(args)==3:
         stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail  %s %s --folder /Indet/Beampos --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W %s' % (batchmode,ignoremode,options.srctag,options.beamspottag,options.destdbname,dbfile[0],options.srcdbname,passwd))
 
         if stat:
-            print "\n\nERROR: UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n"
+            print ("\n\nERROR: UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n")
             sys.exit(1)
 
         # Record upload information, both in task DB (field COOLTAGS) and in upload flag file
         uploadflag = dbfile[0]+'.uploaded'
         stat = os.system('echo "`date`   %s" >> %s' % (options.beamspottag,uploadflag) )
         if stat:
-            print "ERROR: Uploading was successful, but unable to set upload flag", uploadflag 
+            print ("ERROR: Uploading was successful, but unable to set upload flag", uploadflag )
 
         cooltags = options.beamspottag
 
@@ -562,7 +571,7 @@ if cmd=='upload' and len(args)==3:
         if not ('UPD' in options.beamspottag and 'UPD' in nextbeamspot):
             nextbeamspot = ''
         if nextbeamspot != '':
-            print 'Additionally uploading to Next tag: ',nextbeamspot
+            print ('Additionally uploading to Next tag: ',nextbeamspot)
             cooltags = appendUnique(cooltags, nextbeamspot)
 
         # Upload tag(s) to TaskManager
@@ -579,32 +588,32 @@ if cmd=='dq2get' and len(args)==3:
     try:
         with getTaskManager() as taskman:
             [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,addWildCards=not options.nowildcards)
-    except TaskManagerCheckError, e:
-        print e
+    except TaskManagerCheckError as e:
+        print (e)
         sys.exit(1)
     dir = os.path.join(dsname, task)
     griddsname = '%s.%s-%s' % (options.griduser,dsname,task)
     path = os.path.join(dir, griddsname)
     if os.path.exists(path):
-        print 'ERROR: Path exists already:',path
+        print ('ERROR: Path exists already:',path)
         sys.exit(1)
-    print 'Extracing into %s/%s ...' % (dir,griddsname)
+    print ('Extracting into %s/%s ...' % (dir,griddsname))
     stat = os.system('cd %s; dq2-get -T 6,6 %s' % (dir,griddsname))
     if stat:
-        print "ERROR: Problem occurred while extracting data set - task status not changed"
+        print ("ERROR: Problem occurred while extracting data set - task status not changed")
 
     statfile = glob.glob('%s/000/*.status.SUBMITTED' % (dir))
     if len(statfile)!=1:
-        print "ERROR: Unable to uniquely identfying status - giving up. Candidate status files are:"
-        print statfile
+        print ("ERROR: Unable to uniquely identfying status - giving up. Candidate status files are:")
+        print (statfile)
         sys.exit(1)
     os.system('rm %s' % statfile[0])
     basename = statfile[0][:-17]
     os.system('touch %s.exit.0' % basename)
     os.system('touch %s.COMPLETED' % basename)
-    print "\nSuccessfully downloaded data set",griddsname
+    print ("\nSuccessfully downloaded data set",griddsname)
     os.system('du -hs %s' % path)
-    print
+    print()
     sys.exit(0)
 
 
@@ -615,8 +624,8 @@ if cmd=='queryT0' and len(args)==3:
     try:
         with getTaskManager() as taskman:
             [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,addWildCards=not options.nowildcards)
-    except TaskManagerCheckError, e:
-        print e
+    except TaskManagerCheckError as e:
+        print (e)
         sys.exit(1)
     tags = task.split('.')[-1]
     # FIXME: change the following to automatically determine from the input files of the DB_BEAMSPOT job?
@@ -628,7 +637,7 @@ if cmd=='queryT0' and len(args)==3:
         else:
           t0TaskName = '%s.recon.AOD.%s.beamspotproc.task' % (dsname,tags)
 
-    print 'Querying Tier-0 database for task',t0TaskName,'...'
+    print ('Querying Tier-0 database for task',t0TaskName,'...')
     oracle = getT0DbConnection()
     cur = oracle.cursor()
     try:
@@ -636,15 +645,15 @@ if cmd=='queryT0' and len(args)==3:
         sql = str("SELECT status FROM tasks WHERE taskname='%s' AND tasktype='beamspotproc'" % t0TaskName)  # Oracle doesn't want unicode
         cur.execute(sql)
         r = cur.fetchall()
-    except Exception,e:
-        print e
+    except Exception as e:
+        print (e)
         sys.exit('ERROR: Unable to retrieve status of task %s' % t0TaskName)
     if len(r)==0:
         sys.exit('ERROR: No such task found: %s' % t0TaskName)
     if len(r)>1:
         sys.exit('ERROR: %i tasks found - unable to determine task status' % len(r))
     status = r[0][0]
-    print '\nTask status = %s\n' % status
+    print ('\nTask status = %s\n' % status)
     if status=='FINISHED' or  status=='TRUNCATED':
         sys.exit(0)
     else:
@@ -654,7 +663,7 @@ if cmd=='queryT0' and len(args)==3:
 #
 # Run command over set of matching tasks
 #
-print len(args)
+print (len(args))
 if cmd=='runCmd' and len(args)==4:
     dssel = args[1]
     tasksel = args[2]
@@ -667,11 +676,11 @@ if cmd=='runCmd' and len(args)==4:
         qual.append("and COOLTAGS like '%%%s%%'" % options.beamspottag)
     #qual.append("order by RUNNR desc")
     qual.append("order by RUNNR")
-    print 'Running command\n'
-    print '   ',cmd % ({'DSNAME': 'DSNAME', 'TASKNAME': 'TASKNAME', 'RUNNR': 'RUNNR', 'FULLDSNAME': 'FULLDSNAME'})
-    print '\nover the following datasets / tasks:\n'
-    print '    %-10s   %-40s   %s' % ('Run','Dataset','Task')
-    print '    %s' % (74*'-')
+    print ('Running command\n')
+    print ('   ',cmd % ({'DSNAME': 'DSNAME', 'TASKNAME': 'TASKNAME', 'RUNNR': 'RUNNR', 'FULLDSNAME': 'FULLDSNAME'}))
+    print ('\nover the following datasets / tasks:\n')
+    print ('    %-10s   %-40s   %s' % ('Run','Dataset','Task'))
+    print ('    %s' % (74*'-'))
 
     taskList = []
     with getTaskManager() as taskman:
@@ -680,13 +689,13 @@ if cmd=='runCmd' and len(args)==4:
 
             # Deal with express vs minBias in 900 GeV runs
             if options.nominbias and dsname.find('physics_MinBias') :
-                print 'Warning: changing physics_MinBias in dsname to express_express'
+                print ('Warning: changing physics_MinBias in dsname to express_express')
                 dsname = dsname.replace('physics_MinBias','express_express')
                 t['DSNAME'] = dsname
 
             runnr = t['RUNNR']
             taskname = t['TASKNAME']
-            print '    %-10s   %-40s   %s'% (runnr,dsname,taskname)
+            print ('    %-10s   %-40s   %s'% (runnr,dsname,taskname))
 
             if options.excludeiftask:
                 if options.nowildcards:
@@ -695,35 +704,35 @@ if cmd=='runCmd' and len(args)==4:
                 else:
                     n = taskman.getNTasks(["where DSNAME ='%s' and TASKNAME like '%%%s%%'" % (dsname,options.excludeiftask)])
                 if n!=0:
-                    print '    ==> SKIPPING - %i matching tasks found' % n
+                    print ('    ==> SKIPPING - %i matching tasks found' % n)
                     continue
 
             if options.excludeds:
                 excludeList = options.excludeds.split(',')
                 for s in excludeList:
                     if s in dsname:
-                        print '    ==> SKIPPING dataset'
+                        print ('    ==> SKIPPING dataset')
                         continue
 
             if options.dslist:
-                stat, out = commands.getstatusoutput('grep -c %s %s' % (dsname, options.dslist))
+                stat, out = subprocess.getstatusoutput('grep -c %s %s' % (dsname, options.dslist))
                 if stat==2: # Missing file etc
-                    print out
+                    print (out)
                     sys.exit(1)
 
                 try:
                     if int(out)==0:
-                        print '    ==> SKIPPING - dataset %s not found in %s' % (dsname, options.dslist)
+                        print ('    ==> SKIPPING - dataset %s not found in %s' % (dsname, options.dslist))
                         continue
                 except ValueError: # Some other error
-                    print out
+                    print (out)
                     sys.exit(1)
 
                 del stat, out
                 # # Find full dtasetname from file
-                stat, out = commands.getstatusoutput('grep %s %s' % (dsname, options.dslist))
+                stat, out = subprocess.getstatusoutput('grep %s %s' % (dsname, options.dslist))
                 if stat==2: # Missing file etc
-                    print out
+                    print (out)
                     sys.exit(1)
 
                 t['FULLDSNAME'] = out.strip()
@@ -731,22 +740,22 @@ if cmd=='runCmd' and len(args)==4:
             taskList.append(t)
 
     if not taskList:
-        print '\nNo jobs need to be run.\n'
+        print ('\nNo jobs need to be run.\n')
         sys.exit(0)
 
-    print '\n%i datasets / tasks selected.\n' % len(taskList)
+    print ('\n%i datasets / tasks selected.\n' % len(taskList))
     if not options.batch:
         a = raw_input('\nARE YOU SURE [n] ? ')
         if a!='y':
             sys.exit('ERROR: Running of monitoring tasks aborted by user')
-        print
+        print()
     for t in taskList:
         fullcmd = cmd % t
-        print '\nExecuting:  ',fullcmd,' ...'
+        print ('\nExecuting:  ',fullcmd,' ...')
         sys.stdout.flush()
         os.system(fullcmd)
 
-    print
+    print()
     sys.exit(0)
 
 
@@ -761,9 +770,9 @@ if cmd=='runMonJobs' and len(args)<3:
     if not options.beamspottag:
         sys.exit('ERROR: No beam spot tag specified')
 
-    print 'Running the following monitoring tasks for tasks of type %s:\n' % options.runtaskname
-    print '       %-10s  %s' % ('RUN','MONITORING TASK')
-    print '    %s' % (60*'-')
+    print ('Running the following monitoring tasks for tasks of type %s:\n' % options.runtaskname)
+    print ('       %-10s  %s' % ('RUN','MONITORING TASK'))
+    print ('    %s' % (60*'-'))
 
     onDiskCode = TaskManager.OnDiskCodes['ALLONDISK']
     taskList = []
@@ -781,21 +790,21 @@ if cmd=='runMonJobs' and len(args)<3:
 
             try:
                 m = taskman.taskIterDict('*',['where RUNNR =',DbParam(runnr),'and DSNAME =',DbParam(dsname),'and TASKNAME =',DbParam(monTaskName),'order by UPDATED desc']).next()
-                print '       %-10s  %s'% (runnr,monTaskName)
+                print ('       %-10s  %s'% (runnr,monTaskName))
             except:
-                print '    *  %-10s  %s'% (runnr,'--- no monitoring task found ---')
+                print ('    *  %-10s  %s'% (runnr,'--- no monitoring task found ---'))
                 taskList.append(t)
                 pass
 
     if not taskList:
-        print '\nNo jobs need to be run.\n'
+        print ('\nNo jobs need to be run.\n')
         sys.exit(0)
 
     if not options.batch:
         a = raw_input('\nARE YOU SURE [n] ? ')
         if a!='y':
             sys.exit('ERROR: Running of monitoring tasks aborted by user')
-        print
+        print()
 
     oracle = getT0DbConnection()
     for t in taskList:
@@ -825,7 +834,7 @@ if cmd=='runMonJobs' and len(args)<3:
             filter = 'ESD'
             t0dsname = '%s.recon.ESD.%s' % (dsname, datatag)
 
-        print '\nRunning monitoring job for run %s:' % runnr
+        print ('\nRunning monitoring job for run %s:' % runnr)
 
         submitjob=True
         eospath=options.eospath
@@ -833,41 +842,41 @@ if cmd=='runMonJobs' and len(args)<3:
         # with EOS this is no longer necessary.
         r=[]
         if int(runnr)<240000:
-            print '... Querying T0 database for replication of %s' % t0dsname
+            print ('... Querying T0 database for replication of %s' % t0dsname)
             cur = oracle.cursor()
             cur.execute("select DATASETNAME,PSTATES from DATASET where DATASETNAME like '%s' and PSTATES like '%%replicate:done%%'" % t0dsname)
             r = cur.fetchall()
             if not r:
-                print '    WARNING: input data not yet replicated - please retry later'
+                print ('    WARNING: input data not yet replicated - please retry later')
                 submitjob=False
         else:
-            print '... Querying T0 database for completion of merging jobs of %s' % t0dsname
+            print ('... Querying T0 database for completion of merging jobs of %s' % t0dsname)
             cur = oracle.cursor()
             origt0TaskName='%s.recon.AOD.%s%%.aodmerge.task' % (dsname,datatag)
             cur.execute("select status from tasks where taskname like '%s' and tasktype='aodmerge'" % origt0TaskName)
             r = cur.fetchall()
             if not r:
-                print '    WARNING: can\'t get status of merge job for %s, running on un-merged samples instead' % origt0TaskName
+                print ('    WARNING: can\'t get status of merge job for %s, running on un-merged samples instead' % origt0TaskName)
                 eospath='/eos/atlas/atlastier0/tzero/prod'
             elif not (r[0][0]=='FINISHED' or r[0][0]=='TRUNCATED'):
-                print '    Merge job for taskname %s is not finished yet, has status %s, running on un-merged samples instead.' % (origt0TaskName, r[0][0])
+                print ('    Merge job for taskname %s is not finished yet, has status %s, running on un-merged samples instead.' % (origt0TaskName, r[0][0]))
                 eospath='/eos/atlas/atlastier0/tzero/prod'
             else:
-                print '    Merge job is finished, launching jobs.'
+                print ('    Merge job is finished, launching jobs.')
             submitjob=True
 
         if submitjob:
             if int(runnr)<240000:
-                print '   ',r
-            print '... Submitting monitoring task'
+                print ('   ',r)
+            print ('... Submitting monitoring task')
             cmd = 'beamspotman --eospath=%s -p %s -s %s -f \'.*\\.%s\\..*\' -t %s --montaskname %s runMon %i %s' % (eospath,ptag,stream,filter,bstag,monTaskName,int(runnr),datatag)
-            print cmd
+            print (cmd)
             sys.stdout.flush()
             status = os.system(cmd) >> 8   # Convert to standard Unix exit code
             if status:
-                print '\nERROR: Job submission returned error - exit code %i\n'
+                print ('\nERROR: Job submission returned error - exit code %i\n')
 
-    print
+    print()
     sys.exit(0)
 
 
@@ -876,21 +885,21 @@ if cmd=='runMonJobs' and len(args)<3:
 #
 if cmd=='archive' and len(args)==3:
     if not options.batch:
-        print '\nWARNING: If you confirm below, each of the following datasets will:'
-        print '         - be archived to EOS'
+        print ('\nWARNING: If you confirm below, each of the following datasets will:')
+        print ('         - be archived to EOS')
         if options.resultsondisk:
-            print '         - will be marked as RESULTSONDISK in the task database'
-            print '         - all except the results files *** WILL BE DELETED ***'
+            print ('         - will be marked as RESULTSONDISK in the task database')
+            print ('         - all except the results files *** WILL BE DELETED ***')
         else:
-            print '         - will be marked as ARCHIVED in the task database'
-            print '         - all its files *** WILL BE DELETED ***'
-        print
+            print ('         - will be marked as ARCHIVED in the task database')
+            print ('         - all its files *** WILL BE DELETED ***')
+        print()
 
     with getTaskManager() as taskman:
         try:
             taskList = getFullTaskNames(taskman,args[1],args[2],confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
-        except TaskManagerCheckError, e:
-            print e
+        except TaskManagerCheckError as e:
+            print (e)
             sys.exit(1)
 
         tmpdir = '/tmp'
@@ -904,18 +913,18 @@ if cmd=='archive' and len(args)==3:
 
             # Check that task files are still on disk, so we're not overwriting an earlier archive
             if t['ONDISK'] != onDiskCode:
-                print 'Skipping task %s / %s status %s (task files must be on disk)' % (dsname,taskname,getKey(TaskManager.OnDiskCodes,t['ONDISK']))
-                print
+                print ('Skipping task %s / %s status %s (task files must be on disk)' % (dsname,taskname,getKey(TaskManager.OnDiskCodes,t['ONDISK'])))
+                print()
                 continue
 
             dir = '%s/%s' % (dsname,taskname)
             outname = dir.replace('/','-')+time.strftime('-%G_%m_%d.tar.gz')
-            print 'Archiving task %s / %s ...' % (dsname,taskname)
-            print '    --> %s/%s ...' % (path,outname)
+            print ('Archiving task %s / %s ...' % (dsname,taskname))
+            print ('    --> %s/%s ...' % (path,outname))
 
             # Paranoia check against later catastrophic delete
             if dir=='.' or dir=='*':
-                print '\n**** FATAL ERROR: Very dangerous value of task directory found: %s - ABORTING' % dir
+                print ('\n**** FATAL ERROR: Very dangerous value of task directory found: %s - ABORTING' % dir)
                 sys.exit(1)
 
             # If expected directory exists, tar up files, write to EOS, mark as archived, and delete
@@ -941,9 +950,9 @@ if cmd=='archive' and len(args)==3:
                 else:
                     os.system('rm -rf %s' % dir)
             else:
-                print '\n**** ERROR: No task directory',dir,'\n'
+                print ('\n**** ERROR: No task directory',dir,'\n')
 
-            print
+            print()
     sys.exit(0)
 
 #
@@ -961,7 +970,7 @@ if cmd=='resubmit' and len(args) in [3,4]:
     #   $0 -q QUEUE resubmit DSNAME TASKNAME
     queue = args[3] if len(args) == 4 else options.batch_queue
     if not queue:
-        print 'ERROR: No queue was specified (use -q)'
+        print ('ERROR: No queue was specified (use -q)')
         sys.exit(1)
 
     basepath = os.path.join(os.getcwd(), dsname, taskname)
@@ -981,7 +990,7 @@ queue
     for dir in dircontents:
         if not os.path.isdir(os.path.join(basepath, dir)):
             continue
-        print dir
+        print (dir)
         jobname = dir
         if (options.montaskname in taskname.split('.')) or options.legacy_mon:
            jobname = '-'.join([dsname, taskname, 'lb' + dir])
@@ -995,12 +1004,12 @@ queue
           if re.search('COMPLETED',f) or re.search('POSTPROCESSING',f):
             with open(os.path.join(fullpath, jobname + '.exitstatus.dat')) as statusFile:
                 status = statusFile.read(1)
-            print status
+            print (status)
             if status != "0":
               isFailed  = True
               isRunning = False
         if options.resubRunning  and isRunning:
-          print "Will resubmit running job"
+          print ("Will resubmit running job")
         elif (isRunning or not isFailed) and not options.resubAll:
           continue
        
@@ -1027,19 +1036,19 @@ queue
         jobConfig['scriptfile'] = '%(jobdir)s/%(jobname)s.sh' % jobConfig
 
         condorScript = condorScriptTemplate % jobConfig
-        print condorScript
+        print (condorScript)
         script = open('condorSubmit.sub','w')
         script.write(condorScript)
         script.close()
-        os.chmod('condorSubmit.sub',0755)
+        os.chmod('condorSubmit.sub',0o755)
         #batchCmd = 'bsub -L /bin/bash -q %(batchqueue)s -J %(jobname)s -o %(logfile)s %(scriptfile)s' % jobConfig
         batchCmd = 'condor_submit condorSubmit.sub'
 
-        print batchCmd
+        print (batchCmd)
         os.system(batchCmd)
 
     with getTaskManager() as taskman:
-        print taskman.getStatus(dsname, taskname)
+        print (taskman.getStatus(dsname, taskname))
         taskman.setStatus(dsname, taskname, TaskManager.StatusCodes['RUNNING'] )
 
     sys.exit(0)
@@ -1069,7 +1078,7 @@ if cmd=='reproc' and len(args)==5:
                 p = s.split('=',1)
                 params[p[0].strip()] = eval(p[1].strip())
             except:
-                print '\nERROR parsing user parameter',p,'- parameter will be ignored'
+                print ('\nERROR parsing user parameter',p,'- parameter will be ignored')
 
     # TODO: Is this still needed?
     # if options.rucio:
@@ -1158,9 +1167,9 @@ if cmd=='reproc' and len(args)==5:
             #runner.showParams()
             try:
                 runner.configure()
-            except Exception,e:
-                print "ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?"
-                print "DEBUG: Exception =",e
+            except Exception as e:
+                print ("ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?")
+                print ("DEBUG: Exception =",e)
             else:
                 taskman.addTask(dsname, taskname, jobopts, runner.getParam('release'), runner.getNJobs(), runner.getParam('taskpostprocsteps'), comment=cmd)
                 runner.run()
@@ -1198,17 +1207,17 @@ if cmd=='runaod' and len(args)==5:
                 p = s.split('=',1)
                 params[p[0].strip()] = eval(p[1].strip())
             except:
-                print '\nERROR parsing user parameter',p,'- parameter will be ignored'
+                print ('\nERROR parsing user parameter',p,'- parameter will be ignored')
 
     lbMap = {}
     backend = DiskUtils.EOS() if options.eos else None
     fs = DiskUtils.FileSet.from_input(inputdata, backend=backend)
-    print "****************************************************"
-    print "*************** printing files *********************"
-    print fs
+    print ("****************************************************")
+    print ("*************** printing files *********************")
+    print (fs)
     fs = fs.matching(options.filter)
     for f, lbs in fs.with_lumi_blocks(options.lbfilemap):
-        print f, lbs
+        print (f, lbs)
         lbMap[f] = lbs
         files.append(f)
     if not files: fail('No files were found.')
@@ -1237,7 +1246,7 @@ if cmd=='runaod' and len(args)==5:
                 # if we're passing in a file with acqFlags, and we're checking those flags,
                 # then skip any points that don't have acqFlag=1.0
                 if not options.noCheckAcqFlag and len(tokens)>=5 and abs(float(tokens[4])-1.)>0.001:
-                    print "Point is not stationary -- skipping job %d" % jobId
+                    print ("Point is not stationary -- skipping job %d" % jobId)
                     continue
 
                 # Find real LBs covering time period of pseudo LB.  Assumes pLBs in nsec
@@ -1268,7 +1277,7 @@ if cmd=='runaod' and len(args)==5:
             try:
                 lbs = sorted(lbMap[f])
             except KeyError:
-                print 'WARNING: No mapping for file %s.  Skipping' % f.split('/')[-1]
+                print ('WARNING: No mapping for file %s.  Skipping' % f.split('/')[-1])
                 continue
                 #sys.exit('No mapping for file %s' % f.split('/')[-1])
 
@@ -1328,9 +1337,9 @@ if cmd=='runaod' and len(args)==5:
             else:
                 try:
                     runner.configure()
-                except Exception,e:
-                    print "ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?"
-                    print "DEBUG: Exception =",e
+                except Exception as e:
+                    print ("ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?")
+                    print ("DEBUG: Exception =",e)
                 else:
                     taskman.addTask(dsname, taskname, jobopts, runner.getParam('release'), runner.getNJobs(), runner.getParam('taskpostprocsteps'), comment=cmd)
                     runner.run()
@@ -1352,8 +1361,8 @@ if cmd=='dqflag' and len(args)==2:
     except:
         sys.exit('ERROR: Unable to determine DQ COOL upload password')
 
-    print '\nBeam spot DQ file:   ',dbfile
-    print 'Uploading to tag: ',options.dqtag
+    print ('\nBeam spot DQ file:   ',dbfile)
+    print ('Uploading to tag: ',options.dqtag)
 
     if options.ignoremode:
         ignoremode = '--ignoremode %s' % options.ignoremode
@@ -1365,9 +1374,9 @@ if cmd=='dqflag' and len(args)==2:
     else:
         batchmode = ''
 
-    print
+    print()
     cmd = 'dq_defect_copy_defect_database.py --intag %s --outtag %s "sqlite://;schema=%s;dbname=%s" "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=%s;"' %(options.srcdqtag, options.dqtag, dbfile[0], options.srcdqdbname, options.destdqdbname) 
-    print cmd
+    print (cmd)
 
     stat = os.system(cmd)
 
@@ -1375,7 +1384,7 @@ if cmd=='dqflag' and len(args)==2:
     #stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s %s --folder /GLOBAL/DETSTATUS/SHIFTOFL --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_GLOBAL_W %s' % (batchmode,ignoremode,options.srcdqtag,options.dqtag,options.destdqdbname,dbfile,options.srcdqdbname,passwd))
 
     if stat:
-        print "\n\nERROR: UPLOADING DQ FLAG TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n"
+        print ("\n\nERROR: UPLOADING DQ FLAG TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n")
         sys.exit(1)
     sys.exit(0)
 
@@ -1386,8 +1395,8 @@ if cmd=='dqflag' and len(args)==3:
     try:
         with getTaskManager() as taskman:
             [(dsname,task)] = getFullTaskNames(taskman,args[1],args[2],requireSingleTask=True,confirmWithUser=not options.batch,addWildCards=not options.nowildcards)
-    except TaskManagerCheckError, e:
-        print e
+    except TaskManagerCheckError as e:
+        print (e)
         sys.exit(1)
 
     if not options.dqtag:
@@ -1395,7 +1404,7 @@ if cmd=='dqflag' and len(args)==3:
 
     dbfile = glob.glob('%s/%s/*-dqflags.db' % (dsname,task))
     if len(dbfile)!=1:
-        print 'ERROR: Missing or ambiguous input COOL DQ file:',dbfile
+        print ('ERROR: Missing or ambiguous input COOL DQ file:',dbfile)
         sys.exit()
 
     try:
@@ -1404,9 +1413,9 @@ if cmd=='dqflag' and len(args)==3:
     except:
         sys.exit('ERROR: Unable to determine DQ COOL upload password')
 
-    print '\nData set:         ',dsname
-    print 'Beam spot DQ file:  ',dbfile[0]
-    print 'Uploading to tag:   ',options.dqtag
+    print ('\nData set:         ',dsname)
+    print ('Beam spot DQ file:  ',dbfile[0])
+    print ('Uploading to tag:   ',options.dqtag)
 
     if options.ignoremode:
         ignoremode = '--ignoremode %s' % options.ignoremode
@@ -1418,20 +1427,20 @@ if cmd=='dqflag' and len(args)==3:
         batchmode = ''
 
     cmd = 'dq_defect_copy_defect_database.py --intag %s --outtag %s "sqlite://;schema=%s;dbname=%s" "oracle://ATLAS_COOLWRITE;schema=ATLAS_COOLOFL_GLOBAL;dbname=%s;"' %(options.srcdqtag, options.dqtag, dbfile[0], options.srcdqdbname, options.destdqdbname) 
-    print "Running %s" % cmd
+    print ("Running %s" % cmd)
     stat = os.system(cmd)
 
     # Old DQ flags
     #stat = os.system('/afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail  %s %s --folder /GLOBAL/DETSTATUS/SHIFTOFL --tag %s --retag %s --destdb %s %s %s ATLAS_COOLWRITE ATLAS_COOLOFL_GLOBAL_W %s' % (batchmode,ignoremode,options.srcdqtag,options.dqtag,options.destdqdbname,dbfile[0],options.srcdqdbname,passwd))
     if stat:
-        print "\n\nERROR: UPLOADING DQ FLAG TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n"
+        print ("\n\nERROR: UPLOADING DQ FLAG TO COOL FAILED - PLEASE CHECK CAREFULLY!\n\n")
         sys.exit(1)
 
     # Record upload information in upload flag file
     uploadflag = dbfile[0]+'.uploaded'
     stat = os.system('echo "`date`   %s" >> %s' % (options.dqtag,uploadflag) )
     if stat:
-        print "ERROR: Uploading DQ flag was successful, but unable to set upload flag", uploadflag
+        print ("ERROR: Uploading DQ flag was successful, but unable to set upload flag", uploadflag)
 
     sys.exit(0)
 
@@ -1473,9 +1482,9 @@ if cmd=='runBCIDJobs' and len(args)<3:
     if not options.beamspottag:
         sys.exit('ERROR: No beam spot tag specified')
 
-    print 'Running the following BCID tasks for tasks of type %s:\n' % options.runtaskname
-    print '       %-10s  %s' % ('RUN','BCID TASK')
-    print '    %s' % (60*'-')
+    print ('Running the following BCID tasks for tasks of type %s:\n' % options.runtaskname)
+    print ('       %-10s  %s' % ('RUN','BCID TASK'))
+    print ('    %s' % (60*'-'))
 
     taskList = []
     with getTaskManager() as taskman:
@@ -1491,21 +1500,21 @@ if cmd=='runBCIDJobs' and len(args)<3:
 
             try:
                 m = taskman.taskIterDict('*',['where RUNNR =',DbParam(runnr),'and DSNAME =',DbParam(dsname),'and TASKNAME =',DbParam(bcidTaskName),'order by UPDATED desc']).next()
-                print '       %-10s  %s'% (runnr,bcidTaskName)
+                print ('       %-10s  %s'% (runnr,bcidTaskName))
             except:
-                print '    *  %-10s  %s'% (runnr,'--- no BCID task found ---')
+                print ('    *  %-10s  %s'% (runnr,'--- no BCID task found ---'))
                 taskList.append(t)
                 pass
 
     if not taskList:
-        print '\nNo jobs need to be run.\n'
+        print ('\nNo jobs need to be run.\n')
         sys.exit(0)
 
     if not options.batch:
         a = raw_input('\nARE YOU SURE [n] ? ')
         if a!='y':
             sys.exit('ERROR: Running of BCID tasks aborted by user')
-        print
+        print()
 
     oracle = getT0DbConnection()
     for t in taskList:
@@ -1529,25 +1538,25 @@ if cmd=='runBCIDJobs' and len(args)<3:
             filter = 'ESD'
             t0dsname = '%s.recon.ESD.%s' % (dsname, datatag)
 
-        print '\nRunning BCID job for run %s:' % runnr
+        print ('\nRunning BCID job for run %s:' % runnr)
 
-        print '... Querying T0 database for replication of %s' % t0dsname
+        print ('... Querying T0 database for replication of %s' % t0dsname)
         cur = oracle.cursor()
         cur.execute("select DATASETNAME,PSTATES from DATASET where DATASETNAME like '%s' and PSTATES like '%%replicate:done%%'" % t0dsname)
         r = cur.fetchall()
         if not r:
-            print '    WARNING: input data not yet replicated - please retry later'
+            print ('    WARNING: input data not yet replicated - please retry later')
         else:
-            print '   ',r
-            print '... Submitting BCID task'
+            print ('   ',r)
+            print ('... Submitting BCID task')
             cmd = 'beamspotman.py -p %s -s %s -f \'.*\\.%s\\..*\' --bcidtaskname %s runBCID %i %s' % (ptag,stream,filter,'BCID.'+taskName,int(runnr),datatag)
-            print '    %s' % cmd
+            print ('    %s' % cmd)
             sys.stdout.flush()
             status = os.system(cmd) >> 8   # Convert to standard Unix exit code
             if status:
-                print '\nERROR: Job submission returned error - exit code %i\n'
+                print ('\nERROR: Job submission returned error - exit code %i\n')
 
-    print
+    print()
     sys.exit(0)
 #
 #  Create an sqlite file containing a MC (OFLP200) tag a la beamSpot_set.py
@@ -1580,13 +1589,13 @@ if cmd=='mctag' and len(args)<12:
                        tiltXErr=0., tiltYErr=0.,
                        sigmaXYErr=0.)
 
-    print '* MC beamspot tag written to db=OFLP200, tag=%s in %s ' %(options.beamspottag, dbfile)
-    print '  - AtlCoolConsole.py "sqlite://;schema=' + dbfile + ';dbname=OFLP200"'
-    print '* To upload to oracle use:'
-    print '  - beamspotman.py --srctag %s -t %s --srcdbname OFLP200 --destdbname OFLP200 upload %s' %(options.beamspottag, options.beamspottag, dbfile)
-    print '  - /afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s OFLP200 ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W <passwd>' %(dbfile)
+    print ('* MC beamspot tag written to db=OFLP200, tag=%s in %s ' %(options.beamspottag, dbfile))
+    print ('  - AtlCoolConsole.py "sqlite://;schema=' + dbfile + ';dbname=OFLP200"')
+    print ('* To upload to oracle use:')
+    print ('  - beamspotman.py --srctag %s -t %s --srcdbname OFLP200 --destdbname OFLP200 upload %s' %(options.beamspottag, options.beamspottag, dbfile))
+    print ('  - /afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py --nomail %s OFLP200 ATLAS_COOLWRITE ATLAS_COOLOFL_INDET_W <passwd>' %(dbfile))
     sys.exit(0)
 
 
-print 'ERROR: Illegal command or number of arguments ({})'.format(' '.join(args))
+print ('ERROR: Illegal command or number of arguments ({})'.format(' '.join(args)))
 sys.exit(1)

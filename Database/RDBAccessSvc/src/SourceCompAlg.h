@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RDBACCESSSVC_SOURCECOMPALG_H
@@ -8,14 +8,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
-#include <memory>
 #include <string>
-#include <map>
+#include <fstream>
 #include <vector>
 
-typedef std::map<std::string,IRDBRecordset_ptr> NodeToRecordsetMap;
-typedef std::shared_ptr<NodeToRecordsetMap> NodeToRecordsetMap_ptr;
-typedef std::vector<NodeToRecordsetMap_ptr> NodeToRecordsetMapsVec;
+class RDBAccessSvc;
 
 class SourceCompAlg : public AthAlgorithm 
 {
@@ -28,8 +25,19 @@ class SourceCompAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  std::string m_globalTag;
-  NodeToRecordsetMapsVec m_recoMaps;
+  Gaudi::Property<std::string> m_globalTag {this
+      , "GlobalTag"
+      , ""
+      , "Global geometry tag. If empty, all locked and supported tags will be compared"};
+
+  std::vector<std::string> m_connNames{"Session1","Session2"};
+
+  std::vector<std::string> getGlobalTags(RDBAccessSvc* rdbAccessSvc
+					 , std::ofstream& log);
+
+  void compareGlobalTags(const std::vector<std::string>& globalTags
+			 , RDBAccessSvc* rdbAccessSvc
+			 , std::ofstream& log);
 };
 
 #endif

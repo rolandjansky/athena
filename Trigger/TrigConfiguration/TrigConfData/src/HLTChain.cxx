@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/HLTChain.h"
@@ -9,34 +9,44 @@ TrigConf::Chain::Chain()
 
 TrigConf::Chain::Chain(const boost::property_tree::ptree & data) 
    : DataStructure(data)
-{}
+{
+   update();
+}
+
+void
+TrigConf::Chain::update()
+{
+   if(! isInitialized() || empty() ) {
+      return;
+   }
+   m_name = getAttribute("name");
+}
 
 TrigConf::Chain::~Chain()
 {}
 
-
-const std::string &
-TrigConf::Chain::name() const
-{
-   return m_data.get_child("name").data();
+std::string
+TrigConf::Chain::className() const {
+   return "Chain";
 }
+
 
 unsigned int
 TrigConf::Chain::counter() const
 {
-   return m_data.get_child("counter").get_value<unsigned int>();
+   return getAttribute<unsigned int>("counter");
 }
 
 unsigned int
 TrigConf::Chain::namehash() const
 {
-   return m_data.get_child("nameHash").get_value<unsigned int>();
+   return getAttribute<unsigned int>("nameHash");
 }
 
 const std::string &
 TrigConf::Chain::l1item() const
 {
-   return m_data.get_child("l1item").data();
+   return getAttribute("l1item");
 }
 
 
@@ -49,7 +59,7 @@ TrigConf::Chain::l1thresholds() const
    if( !thrs.empty() ) {
       thrV.reserve(thrs.size());
       for( auto & thr : thrs ) {
-         thrV.emplace_back( thr.getValue() );
+         thrV.emplace_back( thr.getValue<std::string>() );
       }
    } 
    return thrV;
@@ -60,7 +70,7 @@ std::vector<TrigConf::DataStructure>
 TrigConf::Chain::streams() const
 {
    std::vector<DataStructure> strlist;
-   const auto & streams = m_data.get_child("streams");
+   const auto & streams = data().get_child("streams");
    strlist.reserve(streams.size());
 
    for( auto & strData : streams )
@@ -81,7 +91,7 @@ TrigConf::Chain::groups() const
          if (group.hasAttribute("name")) {
             grouplist.emplace_back( group["name"] );
          } else if (group.isValue()) {
-            grouplist.emplace_back( group.getValue() );
+            grouplist.emplace_back( group.getValue<std::string>() );
          }
       }
    } 

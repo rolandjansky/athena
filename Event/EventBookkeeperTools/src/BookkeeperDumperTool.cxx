@@ -16,11 +16,20 @@
 BookkeeperDumperTool::BookkeeperDumperTool(const std::string &name)
   : asg::AsgMetadataTool(name)
 {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   declareInterface< ::IMetaDataTool >( this );
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 }
 
+
+StatusCode BookkeeperDumperTool::initialize()
+{
+  if (m_standaloneMode.value()) {
+    ATH_CHECK(beginInputFile());
+  }
+
+  return StatusCode::SUCCESS;
+}
 
 
 StatusCode BookkeeperDumperTool::beginInputFile()
@@ -41,7 +50,7 @@ StatusCode BookkeeperDumperTool::beginInputFile()
                    << " nc=" << cbk->nChildren());
     }
   } else {
-    ATH_MSG_INFO("No complete CutBookkeepers found: " << inputMetaStore()->dump());
+    ATH_MSG_INFO("No complete CutBookkeepers found");
   }
 
   // Incomplete CutBookkeepers
@@ -60,7 +69,7 @@ StatusCode BookkeeperDumperTool::beginInputFile()
                    << " nc=" << cbk->nChildren());
     }
   } else {
-    ATH_MSG_INFO("No incomplete CutBookkeepers found: " << inputMetaStore()->dump());
+    ATH_MSG_INFO("No incomplete CutBookkeepers found");
   }
 
   // Complete PDF CutBookkeepers
@@ -79,7 +88,7 @@ StatusCode BookkeeperDumperTool::beginInputFile()
                    << " nc=" << cbk->nChildren());
     }
   } else {
-    ATH_MSG_INFO("No PDF CutBookkeepers found: " << inputMetaStore()->dump());
+    ATH_MSG_INFO("No PDF CutBookkeepers found");
   }
   
   // Incomplete PDF CutBookkeepers
@@ -98,7 +107,7 @@ StatusCode BookkeeperDumperTool::beginInputFile()
                    << " nc=" << cbk->nChildren());
     }
   } else {
-    ATH_MSG_INFO("No incomplete PDF CutBookkeepers found: " << inputMetaStore()->dump());
+    ATH_MSG_INFO("No incomplete PDF CutBookkeepers found");
   }
 
   return StatusCode::SUCCESS;

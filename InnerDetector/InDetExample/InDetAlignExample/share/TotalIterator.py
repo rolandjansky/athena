@@ -1,9 +1,12 @@
-#!/afs/cern.ch/sw/lcg/external/Python/2.5.4/slc4_ia32_gcc34/bin/python
+#!/usr/bin/env python
 # =====================================================================
 # Iterates in two steps
 # 1) L11 (RunIterator_L11) with no LB splitting 
 # 2) L16 (RunIterator_L16) with the possibility of LB splitting
 # =====================================================================
+
+from __future__ import print_function
+
 import os
 import sys
 
@@ -69,10 +72,10 @@ if (userUseLBselector):
 #  copy the two RunIterators                             #
 ##########################################################           
 os.system("get_files -jo InDetAlignExample/RunIterator_L11.py > /dev/null")
-print os.system("get_files -jo InDetAlignExample/RunIterator_L11.py")
+print (os.system("get_files -jo InDetAlignExample/RunIterator_L11.py"))
 
 os.system("get_files -jo InDetAlignExample/RunIterator_L16.py > /dev/null")
-print os.system("get_files -jo InDetAlignExample/RunIterator_L16.py")
+print (os.system("get_files -jo InDetAlignExample/RunIterator_L16.py"))
 
 
 
@@ -102,12 +105,13 @@ with open(userFile, 'rb') as inFile:
         for line in inFile:
             whereLB = line.find("_lb") 
             thisLB = int(line[whereLB+3:whereLB+7])
-            #print whereLB, thisLB
+            #print (whereLB, thisLB)
             if ((initialLB <= thisLB and thisLB <=finalLB) or userUseLBselector):
                 outFile.write(line)
                 writtenLines += 1
             if (thisLB > upperLB): upperLB = thisLB
-        if (writtenLines>0): print " <LumiBlockIterator> ouput file ", outputFileName, " has ", writtenLines, " lines"
+        if (writtenLines>0):
+            print (" <LumiBlockIterator> ouput file ", outputFileName, " has ", writtenLines, " lines")
         if (writtenLines > 0): 
             ListOfDaughterFiles.append(outputFileName)
             ListOfNFiles.append(writtenLines)
@@ -119,7 +123,7 @@ with open(userFile, 'rb') as inFile:
         ListOfLBranges.append(initialLB)
         ListOfLBranges.append(finalLB)
         
-    print " <LumiBlockIterator> Lumiblock file splitting completed. In total ", len(ListOfDaughterFiles) ," daughter files with active LumiBlocks have been created"
+    print (" <LumiBlockIterator> Lumiblock file splitting completed. In total ", len(ListOfDaughterFiles) ," daughter files with active LumiBlocks have been created")
     
 #############################################################
 # Execute first the L11 (no LB splitting)                   #
@@ -138,7 +142,8 @@ if (len(userErrorScalingTag)>0): execCommandOptions1 = execCommandOptions1 + " -
 if (len(usernEvents)>0):execCommandOptions1 = execCommandOptions1 + " --nEvents " + usernEvents 
 execCommandOptions1 = execCommandOptions1 + " --isData True" 
 if (len(userPtMin)>0): execCommandOptions1 = execCommandOptions1 + " --ptmin " + userPtMin
-if (debug): print " <LumiBlockIterator> execCommandOptions1 = ", execCommandOptions1
+if (debug):
+    print (" <LumiBlockIterator> execCommandOptions1 = ", execCommandOptions1)
 if (len(userBowingDB)>0):  execCommandOptions2 = execCommandOptions2 + " --inputBowingDb "+userBowingDB 
 
 execCommandOptions0 = " --inputList " + userFile
@@ -153,7 +158,8 @@ if (len(userQueue)>0): execCommandOptions0 = execCommandOptions0 + " --queue " +
 
 execCommandOptions = execCommandOptions0 + execCommandOptions1 + execCommandOptions2 + execCommandOptions3
 
-if (debug): print " <LumiBlockIterator> execCommandOptions = ", execCommandOptions 
+if (debug):
+    print (" <LumiBlockIterator> execCommandOptions = ", execCommandOptions )
 
 outcommandFile.write("python RunIterator_L11.py "+execCommandOptions+"\n\n\n\n")
 
@@ -162,8 +168,8 @@ os.system("python RunIterator_L11.py "+execCommandOptions)
 lastIterID = int(usernIter)-1
 userConstantsFile = os.getcwd() + "/Iter" + str(lastIterID) + "_" + theTail + "/Iter"+ str(lastIterID) +"_AlignmentConstants.root"
 userBowingDB = os.getcwd() + "/Iter" + str(lastIterID) + "_" + theTail + "/mycool.db"
-print " -- L11 constants file: ", userConstantsFile
-print " -- "
+print (" -- L11 constants file: ", userConstantsFile)
+print (" -- ")
 #exit()
 
 #############################################################
@@ -185,17 +191,18 @@ if len(ListOfDaughterFiles) > 0:
     if (len(usernEvents)>0):execCommandOptions1 = execCommandOptions1 + " --nEvents " + usernEvents 
     execCommandOptions1 = execCommandOptions1 + " --isData True" 
     if (len(userPtMin)>0): execCommandOptions1 = execCommandOptions1 + " --ptmin " + userPtMin
-    if (debug): print " <LumiBlockIterator> execCommandOptions1 = ", execCommandOptions1
+    if (debug):
+        print (" <LumiBlockIterator> execCommandOptions1 = ", execCommandOptions1)
     if (len(userBowingDB)>0):  execCommandOptions2 = execCommandOptions2 + " --inputBowingDb "+userBowingDB     
         
     for daughterFile in ListOfDaughterFiles:
-        print "\n  <LumiBlockIterator> going to process lumiblocks in file ",  daughterFile
+        print ("\n  <LumiBlockIterator> going to process lumiblocks in file ",  daughterFile)
         whereLB = daughterFile.find("LB_")
         whereDotTxt = daughterFile.find(".txt")
         theTail = daughterFile[whereLB:whereDotTxt]
         if (len(userSuffix)>0): theTail = userSuffix + "_L16_" + daughterFile[whereLB:whereDotTxt]
         
-        #if (debug): print " <LumiBlockIterator> theTail = ", theTail
+        #if (debug): print (" <LumiBlockIterator> theTail = ", theTail)
 
         execCommandOptions0 = " --inputList " + daughterFile
         execCommandOptions0 = execCommandOptions0 + " --suffix " + theTail
@@ -216,7 +223,8 @@ if len(ListOfDaughterFiles) > 0:
         # build the command options for RunIterator
         execCommandOptions = execCommandOptions0 + execCommandOptions1 + execCommandOptions2 + execCommandOptions3
 
-        if (debug): print " <LumiBlockIterator> execCommandOptions = ", execCommandOptions 
+        if (debug):
+            print (" <LumiBlockIterator> execCommandOptions = ", execCommandOptions )
         outcommandFile.write("python RunIterator_L16.py "+execCommandOptions+" &"+"\n\n\n\n\n\n")
         os.system("python RunIterator_L16.py "+execCommandOptions+" &")
 

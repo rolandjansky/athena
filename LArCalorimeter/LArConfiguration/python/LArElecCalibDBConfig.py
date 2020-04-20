@@ -6,26 +6,29 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,ConfigurationError
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolderList
 
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArDAC2uAMC_LArDAC2uASym_ as LArDAC2uASymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasMC_LArMinBiasSym_ as LArMinBiasSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArNoiseMC_LArNoiseSym_ as LArNoiseSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArRampMC_LArRampSym_ as LArRampSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArfSamplMC_LArfSamplSym_ as LArfSamplSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LAruA2MeVMC_LAruA2MeVSym_ as LAruA2MeVSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArAutoCorrMC_LArAutoCorrSym_ as LArAutoCorrSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArShape32MC_LArShape32Sym_ as LArShapeSymAlg
-from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMphysOverMcalMC_LArMphysOverMcalSym_ as LArMPhysOverMcalSymAlg
+
+#Import LArSymConditionsAlgs: Templated on the payload-type they handle
+#These algs are mostly needed for MC processing
+LArDAC2uASymAlg         =  CompFactory.getComp("LArSymConditionsAlg<LArDAC2uAMC, LArDAC2uASym>")                     
+LArMinBiasAverageSymAlg =  CompFactory.getComp("LArSymConditionsAlg<LArMinBiasAverageMC, LArMinBiasAverageSym>")     
+LArMinBiasSymAlg        =  CompFactory.getComp("LArSymConditionsAlg<LArMinBiasMC, LArMinBiasSym>")                   
+LArNoiseSymAlg          =  CompFactory.getComp("LArSymConditionsAlg<LArNoiseMC, LArNoiseSym>")                       
+LArRampSymAlg           =  CompFactory.getComp("LArSymConditionsAlg<LArRampMC, LArRampSym>")                         
+LArfSamplSymAlg         =  CompFactory.getComp("LArSymConditionsAlg<LArfSamplMC, LArfSamplSym>")                     
+LArAutoCorrSymAlg       =  CompFactory.getComp("LArSymConditionsAlg<LArAutoCorrMC, LArAutoCorrSym>")                 
+LAruA2MeVSymAlg         =  CompFactory.getComp("LArSymConditionsAlg<LAruA2MeVMC, LAruA2MeVSym>")                     
+LArShapeSymAlg          =  CompFactory.getComp("LArSymConditionsAlg<LArShape32MC, LArShape32Sym>")                   
+LArMPhysOverMcalSymAlg  =  CompFactory.getComp("LArSymConditionsAlg<LArMphysOverMcalMC, LArMphysOverMcalSym>")       
 
 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrCondFlatAlg
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LAruA2MeVFlat_ as LAruA2MeVCondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArDAC2uAFlat_ as LArDAC2uACondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArPedestalFlat_ as LArPedestalCondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArRampFlat_ as LArRampCondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArMphysOverMcalFlat_ as LArMphysOverMcalCondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArOFCFlat_ as LArOFCCondAlg 
-from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArShapeFlat_ as LArShapeCondAlg
+LArHVScaleCorrCondFlatAlg  =  CompFactory.getComp("LArFlatConditionsAlg<LArHVScaleCorrFlat>")
+LAruA2MeVCondAlg           =  CompFactory.getComp("LArFlatConditionsAlg<LAruA2MeVFlat>")
+LArDAC2uACondAlg           =  CompFactory.getComp("LArFlatConditionsAlg<LArDAC2uAFlat>")
+LArPedestalCondAlg         =  CompFactory.getComp("LArFlatConditionsAlg<LArPedestalFlat>")
+LArRampCondAlg             =  CompFactory.getComp("LArFlatConditionsAlg<LArRampFlat>")
+LArMphysOverMcalCondAlg    =  CompFactory.getComp("LArFlatConditionsAlg<LArMphysOverMcalFlat>")
+LArOFCCondAlg              =  CompFactory.getComp("LArFlatConditionsAlg<LArOFCFlat>")
+LArShapeCondAlg            =  CompFactory.getComp("LArFlatConditionsAlg<LArShapeFlat>")
 
 
 
@@ -63,6 +66,15 @@ def LArElecCalibDBRun2Cfg(ConfigFlags,condObjs):
 
 
     for condData in condObjs:
+        if condData == "fSampl" and ConfigFlags.Overlay.DataOverlay:
+            LArMCSymCondAlg = CompFactory.LArMCSymCondAlg
+            result.addCondAlgo(LArMCSymCondAlg(ReadKey="LArOnOffIdMap"))
+            from IOVDbSvc.IOVDbSvcConfig import addFolders
+            # TODO: does this need to be configurable?
+            result.merge(addFolders(ConfigFlags, "/LAR/ElecCalibMC/fSampl", "LAR_OFL", className="LArfSamplMC", tag="LARElecCalibMCfSampl-G496-19213-FTFP_BERT_BIRK", db="OFLP200"))
+            result.addCondAlgo(LArfSamplSymAlg(ReadKey="LArfSampl", WriteKey="LArfSamplSym"))
+            continue
+
         try:
             outputKey,fldr,calg=_larCondDBFoldersDataR2[condData]
         except KeyError:
@@ -75,15 +87,21 @@ def LArElecCalibDBRun2Cfg(ConfigFlags,condObjs):
             fldr="/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+ConfigFlags.LAr.OFCShapeFolder
             dbString="<db>COOLOFL_LAR/CONDBR2</db>"
             persClass="LArOFCComplete"
+            calg = None
+            if ConfigFlags.Overlay.DataOverlay and ConfigFlags.LAr.OFCShapeFolder == "4samples1phase":
+                dbString+="<tag>LARElecCalibOflOFCPhysWaveRTM4samples1phase-RUN2-UPD4-00</tag>"
         if len(ConfigFlags.LAr.OFCShapeFolder)>0 and condData=="Shape":
             fldr="/LAR/ElecCalibOfl/Shape/RTM/"+ConfigFlags.LAr.OFCShapeFolder
             dbString="<db>COOLOFL_LAR/CONDBR2</db>"
             persClass="LArShapeComplete"
-        
+            calg = None
+            if ConfigFlags.Overlay.DataOverlay and ConfigFlags.LAr.OFCShapeFolder == "4samples1phase":
+                dbString+="<tag>LARElecCalibOflShapeRTM4samples1phase-RUN2-UPD4-00</tag>"
 
         iovDbSvc.Folders.append(fldr+dbString)# (addFolder(ConfigFlags,fldr,"LAR_ONL",'CondAttrListCollection'))
         condLoader.Load.append((persClass,fldr))
-        result.addCondAlgo(calg (ReadKey=fldr, WriteKey=outputKey))
+        if calg is not None:
+            result.addCondAlgo(calg (ReadKey=fldr, WriteKey=outputKey))
 
     return result
 

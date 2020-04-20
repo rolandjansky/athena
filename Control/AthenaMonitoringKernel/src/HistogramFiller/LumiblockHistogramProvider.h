@@ -32,7 +32,11 @@ namespace Monitored {
     LumiblockHistogramProvider(GenericMonitoringTool* const gmTool, 
         std::shared_ptr<HistogramFactory> factory, 
         const HistogramDef& histDef)
-      : IHistogramProvider(), m_gmTool(gmTool), m_factory(factory), m_histDef(new HistogramDef(histDef)), m_historyDepth(parseHistoryDepth(histDef)) {}
+      : IHistogramProvider()
+      , m_gmTool(gmTool)
+      , m_factory(factory)
+      , m_histDef(new HistogramDef(histDef))
+      {}
 
     /**
      * @brief Getter of ROOT object 
@@ -43,51 +47,25 @@ namespace Monitored {
      * @return ROOT object
      */
     TNamed* histogram() override {
-      const unsigned lumiBlock = m_gmTool->lumiBlock();
-      const unsigned lumiPage = lumiBlock/m_historyDepth;
-      const unsigned minLumi = lumiPage * m_historyDepth;
-      const unsigned maxLumi = minLumi + m_historyDepth - 1;
-
       HistogramDef def = *m_histDef;
-      
+
+      const unsigned lumiBlock = m_gmTool->lumiBlock();
+      const int historyDepth = def.kLBNHistoryDepth;
+      if (historyDepth<=0) {
+        throw HistogramException("Histogram >"+ def.path + "< has invalid kLBNHistoryDepth.");
+      }
+      const unsigned lumiPage = lumiBlock/historyDepth;
+      const unsigned minLumi = lumiPage * historyDepth;
+      const unsigned maxLumi = minLumi + historyDepth - 1;
+
       def.alias = def.alias + "(" + std::to_string(minLumi) + "-" + std::to_string(maxLumi) + ")";
 
       return m_factory->create(def);
     }
   private:
-    /**
-     * @brief Parser for kLBNHistoryDepth option
-     * 
-     * kLBNHistoryDepth should be defined as unsigned integer eg. kLBNHistoryDepth=10
-     * 
-     * @return User defined LBN history depth
-     * @throws HistogramException if kLBNHistoryDepth cannot be properly parsed
-     */
-    static unsigned parseHistoryDepth(const HistogramDef& histDef) {
-      const std::string sizeKey = "kLBNHistoryDepth=";
-      const std::size_t sizeKeyPosition = histDef.opt.find(sizeKey);
-
-      if (sizeKeyPosition == std::string::npos) {
-        throw HistogramException("Lumiblock histogram >"+ histDef.path + "< NOT define kLBNHistoryDepth");
-      }
-
-      const std::size_t sizeStartPosition = sizeKeyPosition + sizeKey.length();
-      const std::size_t sizeStopPosition = histDef.opt.find_first_not_of("1234567890", sizeStartPosition);
-      const std::size_t sizeLength = sizeStopPosition - sizeStartPosition;
-
-      if (sizeLength == 0) {
-        throw HistogramException("Lumiblock histogram >"+ histDef.path + "< NOT define valid kLBNHistoryDepth");
-      }
-
-      const std::string sizeStrValue = histDef.opt.substr(sizeStartPosition, sizeLength);
-
-      return std::stoul(sizeStrValue);
-    }
-
     GenericMonitoringTool* const m_gmTool;
     std::shared_ptr<HistogramFactory> m_factory;
     std::shared_ptr<HistogramDef> m_histDef;
-    unsigned m_historyDepth;
   };
 }
 

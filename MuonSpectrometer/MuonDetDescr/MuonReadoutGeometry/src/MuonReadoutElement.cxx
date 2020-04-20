@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -17,11 +17,7 @@
 
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/StraightLineSurface.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
+#include <TString.h> // for Form
 
 namespace MuonGM {
 
@@ -31,7 +27,7 @@ namespace MuonGM {
     : TrkDetElementBase(pv),
       m_Ssize(-9999.), m_Rsize(-9999.), m_Zsize(-9999.), m_LongSsize(-9999.),
       m_LongRsize(-9999.), m_LongZsize(-9999.), m_caching(-1), 
-      m_eta(-1), m_phi(-1), m_id_max_init_field(-1), m_absTransform(nullptr),m_defTransform(nullptr)
+      m_eta(-1), m_phi(-1), m_id_max_init_field(-1)
   {
     m_stationS = 0.;
     m_zi = zi;
@@ -50,20 +46,11 @@ namespace MuonGM {
     m_nCSCinStation = 0;
     m_nRPCinStation = 0;
     m_nTGCinStation = 0;
-    ISvcLocator* svcLocator = Gaudi::svcLocator();
-    StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
-    if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
-    m_Log = std::make_unique<MsgStream>(m_msgSvc, "MuonReadoutElement");
   }
 
 
   MuonReadoutElement::~MuonReadoutElement()
   {
-  }
-
-  void MuonReadoutElement::clear() const {
-    delete m_absTransform; m_absTransform = nullptr;
-    delete m_defTransform; m_defTransform = nullptr;    
   }
 
   const Amg::Vector3D MuonReadoutElement::globalPosition() const
@@ -94,7 +81,7 @@ namespace MuonGM {
 	if (m_statname.substr(2,1) == "E" || m_statname.substr(2,1) == "F" || m_statname.substr(2,1) == "G") return false;
 	if (m_statname.substr(2,1) == "M" || m_statname.substr(2,1) == "R") return true;
       }
-    std::cerr<<" MuonReadoutElement - is this Station  in a largeSector ???? - DEFAULT answer is NO"<<std::endl;
+    throw std::runtime_error(Form("File: %s, Line: %d\nMuonReadoutElement::largeSector() - is this Station in a largeSector ???? - DEFAULT answer is NO", __FILE__, __LINE__));
     return false;
   }
 
@@ -140,37 +127,8 @@ namespace MuonGM {
 
   PVConstLink MuonReadoutElement::parentStationPV() const
   {
-    //  std::cout<<" Looking for parent of MuonReadoutElement named "
-    //           <<getStationName()<<"/"<<getTechnologyName()
-    //           <<" located at zi/fi "<<getAmdbZi()<<"/"<<getAmdbFi()<<std::endl;
-
     return m_parentStationPV;
   }
-
-  // Amg::Vector3D MuonReadoutElement::parentStationPos() const
-  // {
-  //   //    std::cout<<"MuonReadoutElement::parentStationPos() "<<std::endl;
-  //   HepGeom::Point3D<double> pos(0.,0.,0.);
-  //   HepGeom::Point3D<double> st_centre_chFrame(0.,0.,0.);
-
-  //   PVConstLink par = parentStationPV();
-  //   if (par == PVConstLink(0)) {
-  //     std::cerr<<"MuonReadoutElement::parentStationPos() *** parent not found"<<std::endl;
-  //     throw;
-  //   }
-    
-  //   Query<unsigned int > c = parentStationPV()->indexOf(getMaterialGeom());
-  //   if (c.isValid())
-  //     {
-  //       //        std::cout<<" index of child is "<<c<<std::endl;
-  //       HepGeom::Transform3D par_to_child = par->getXToChildVol( c );
-  //       //        std::cout<<" centre of the child in the Station frame "<<par_to_child*HepGeom::Point3D<double>(0.,0.,0.)<<std::endl;
-  //       st_centre_chFrame = (par_to_child.inverse())*HepGeom::Point3D<double>(0.,0.,0.);
-  //       //        std::cout<<" centre of the station in the RE frame is "<<st_centre_chFrame<<std::endl;
-  //     }
-  //   pos = absTransformCLHEP()*st_centre_chFrame;
-  //   return Amg::Vector3D(pos.x(),pos.y(),pos.z());
-  // }
 
   int MuonReadoutElement::getIndexOfREinMuonStation() const
   {
@@ -181,8 +139,7 @@ namespace MuonGM {
   {
     PVConstLink par = parentStationPV();
     if (par == PVConstLink(0)) {
-      std::cerr<<"MuonReadoutElement::setIndexOfREinMuonStation() *** parent station not found"<<std::endl;
-      throw;
+      throw std::runtime_error(Form("File: %s, Line: %d\nMuonReadoutElement::setIndexOfREinMuonStation() - parent station not found", __FILE__, __LINE__));
     }
     Query<unsigned int > c = par->indexOf(getMaterialGeom());
     if (c.isValid())
@@ -196,8 +153,7 @@ namespace MuonGM {
   {
     PVConstLink par = parentStationPV();
     if (par == PVConstLink(0)) {
-      std::cerr<<"MuonReadoutElement::parentStationPos() *** parent not found"<<std::endl;
-      throw;
+      throw std::runtime_error(Form("File: %s, Line: %d\nMuonReadoutElement::toParentStation() - parent not found", __FILE__, __LINE__));
     }
     
     GeoTrf::Transform3D par_to_child = GeoTrf::Transform3D::Identity();
@@ -252,7 +208,6 @@ namespace MuonGM {
     if (smallSector()) phi = phi+M_PI/8.;
     Amg::Vector3D Saxis = Amg::Vector3D(-sin(phi), cos(phi), 0.);
     Amg::Vector3D scVec = Amg::Vector3D(scentre.x(), scentre.y(), 0.);
-    //std::cout<<"  MuonReadoutElement::parentStation_s_amdb() phi "<<phi<<" Saxis "<<Saxis.x()<<" "<<Saxis.y()<<std::endl;
     double s = scVec.x()*Saxis.x()+scVec.y()*Saxis.y();
     return s;    
   }
@@ -268,7 +223,7 @@ namespace MuonGM {
 
     HepGeom::Point3D<double> p(x[0],x[1],x[2]);
     HepGeom::Transform3D msToGlobal = parentMuonStation()->getTransform(); // native_MuonStation to global 
-    HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt) 
+    const HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt) 
     HepGeom::Point3D<double> p2 = msToGlobal*(msToAmdb->inverse())*p;
     return Amg::Vector3D(p2.x(),p2.y(),p2.z());
   }
@@ -276,7 +231,7 @@ namespace MuonGM {
   const Amg::Transform3D MuonReadoutElement::AmdbLRSToGlobalTransform() const {
 
     HepGeom::Transform3D msToGlobal = parentMuonStation()->getTransform(); // native_MuonStation to global 
-    HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)  
+    const HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)  
     return Amg::CLHEPTransformToEigen(msToGlobal*(msToAmdb->inverse()));
   }
 
@@ -284,7 +239,7 @@ namespace MuonGM {
 
     HepGeom::Point3D<double> p(x[0],x[1],x[2]);
     HepGeom::Transform3D msToGlobal = parentMuonStation()->getTransform(); // native_MuonStation to global 
-    HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)
+    const HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)
     HepGeom::Point3D<double> p2 = (*msToAmdb)*(msToGlobal.inverse())*p;
     return Amg::Vector3D(p2.x(),p2.y(),p2.z());
   }
@@ -292,7 +247,7 @@ namespace MuonGM {
   const Amg::Transform3D MuonReadoutElement::GlobalToAmdbLRSTransform() const {
 
     HepGeom::Transform3D msToGlobal = parentMuonStation()->getTransform(); // native_MuonStation to global 
-    HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)  
+    const HepGeom::Transform3D* msToAmdb = parentMuonStation()->getNativeToAmdbLRS(); //native_MuonStation to Amdb local (szt)  
     return Amg::CLHEPTransformToEigen((*msToAmdb)*(msToGlobal.inverse()));
   }
 } // namespace MuonGM

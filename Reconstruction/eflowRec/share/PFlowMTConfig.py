@@ -233,6 +233,7 @@ PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgori
 
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
    PFOChargedCreatorAlgorithm.PFOOutputName="EOverPChargedParticleFlowObjects"
+   PFOChargedCreatorAlgorithm.EOverPMode=True
 
 topSequence += PFOChargedCreatorAlgorithm
 
@@ -243,6 +244,10 @@ if jobproperties.eflowRecFlags.useCalibHitTruth:
    
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
    PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
+   PFONeutralCreatorAlgorithm.EOverPMode=True
+
+if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
+    PFONeutralCreatorAlgorithm.AddShowerSubtractedClusters = True
 
 topSequence += PFONeutralCreatorAlgorithm
 

@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaLayerRecalibTool/corr_HV_EMBPS.h"
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
 #include <string>
 
 #include <TProfile2D.h>
@@ -44,7 +44,7 @@ corr_HV_EMBPS::~corr_HV_EMBPS()
 //===============================================================================
 float corr_HV_EMBPS::getCorr(int run, float eta,float phi) const
 {
-   if (fabs(eta) > 1.5) return 1.;
+   if (std::fabs(eta) > 1.5) return 1.;
    if (run<200804) return 1.;
    int iperiod;
    if (run<204932) iperiod=0;
@@ -101,7 +101,7 @@ float corr_HV_EMBPS::getRecoCorrection(float hv,float eta) const
       float nominal = 2000.;
       float T = 88.37;
 
-      int ieta=(fabs(eta)/0.025);
+      int ieta=(std::fabs(eta)/0.025);
       float d;
       if (ieta>=0 && ieta<16)        d = 0.196; //cm
       else if (ieta>=16 && ieta<32)  d = 0.193; //cm
@@ -109,7 +109,7 @@ float corr_HV_EMBPS::getRecoCorrection(float hv,float eta) const
       else  d = 0.190; //cm
 
       if (hv>(nominal-2.)) return 1.;
-      double efield=fabs(hv)/(d*1e+3);
+      double efield=std::fabs(hv)/(d*1e+3);
       double enominal=nominal/(d*1e+3);
       double scale=Respo(efield, enominal,T);
 
@@ -141,7 +141,7 @@ float corr_HV_EMBPS::vdrift(float e, float tempe) const
   const float T = tempe;
   static const float P[6] = {-0.01481,-0.0075,0.141,12.4,1.627,0.317};
   if ( e < -999.) return 0.;
-  float vd = (P[0]*T+1)*( P[2]*e*log(1+ (P[3]/e)) + P[4]*pow(e,P[5])) + P[1]*T; // vdrift formula walcowialk mm/micro_s
+  float vd = (P[0]*T+1)*( P[2]*e*std::log(1+ (P[3]/e)) + P[4]*std::pow(e,P[5])) + P[1]*T; // vdrift formula walcowialk mm/micro_s
   return vd;
 }
 

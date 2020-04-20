@@ -10,7 +10,7 @@
 #include "./Tree.h"
 #include "./JetGroupProduct.h"
 #include "./JetGroupIndAllocator.h"
-
+#include "./xAODJetCollector.h"
 #include <string>
 
 using TreeVec = std::vector<std::size_t>;
@@ -29,18 +29,19 @@ class FastReducer {
  public:
 
   FastReducer(const HypoJetGroupCIter& groups_b,
-	      const HypoJetGroupCIter& groups_e,
-	      const ConditionsMT& conditionObjects,
-	      const Tree& conditionsTree,
-	      const std::vector<std::vector<int>>& sharedConditions,
-	      const Collector& collector);
+              const HypoJetGroupCIter& groups_e,
+              const ConditionsMT& conditionObjects,
+              const Tree& conditionsTree,
+              const std::vector<std::vector<int>>& sharedConditions,
+              xAODJetCollector& jetCollector,
+              const Collector& collector);
 
 
   /** determine whether a set of jets satisfies all hypo conditions.
    if pass, return a vector of jets that passes the Conditions.
   */
   
-  std::optional<HypoJetVector> passingJets() const;
+  bool pass() const;
  
   std::string toString() const;
 
@@ -89,13 +90,13 @@ class FastReducer {
    in preparration for testing against parent conditions.
   */
   
-  bool findInitialJobGroups(const std::vector<int>& leaves,
+  bool findInitialJetGroups(const std::vector<int>& leaves,
 			    const HypoJetGroupCIter& groups_b,
 			    const HypoJetGroupCIter& groups_e,
 			    const Collector& collector);
   
   
-  bool propagateJobGroups(const Collector& collector);
+  bool propagateJetGroups(const Collector& collector);
   
   
   bool propagate_(std::size_t child,
@@ -110,7 +111,9 @@ class FastReducer {
 		      const HypoJetVector& jg,
 		      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
 
-  void setPassingJets(); 
-		  
+  void collectLeafJets(xAODJetCollector& jetCollector,
+		       const Collector& collector) const;
+
+
 };
 #endif

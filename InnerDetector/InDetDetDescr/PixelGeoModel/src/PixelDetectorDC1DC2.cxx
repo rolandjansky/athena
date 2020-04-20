@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file is basically a concatenation of all the *.cxx files.
@@ -9,9 +9,9 @@
 #include "PixelDetectorDC1DC2.h"
 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDiodeMatrix.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/PixelID.h"
@@ -2095,8 +2095,7 @@ PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager() {
   //
   // retrieve the pointer to the DD manager
   //
-    m_pDetStore->retrieve(m_pDDmgr);  
-    StatusCode sc = m_pDetStore->retrieve(m_pDDmgr);  
+    StatusCode sc = m_pDetStore->retrieve(m_pDDmgr);
     if (sc.isFailure()) {
       std::cout << "Cannot retrieve PixelDetectorManager" << std::endl;
     } 

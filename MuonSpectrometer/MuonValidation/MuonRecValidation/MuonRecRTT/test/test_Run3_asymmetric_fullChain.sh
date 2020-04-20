@@ -17,6 +17,7 @@ Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Over
           --geometryVersion 'default:ATLAS-R3-2021-01-00-00_VALIDATION' \
           --AMI=s3512 \
           --maxEvents 25 \
+          --imf False \
           --outputHITSFile OUT_HITS.root &> ${LOG_SIM}
 exit_code=$?
 echo  "art-result: ${exit_code} Sim_tf.py"
@@ -33,8 +34,11 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 
 #####################################################################
 # now use the produced HITS file and run digitisation
+# (since the 21.X and master branches use a different Geant4 version, we use the HITS file produced in 21.X
+# to avoid tiny differences in the number of secondary particles and hit positions and start from the same HITS file)
 LOG_DIGI="log_Run3_asymmetric_digi.log"
-Digi_tf.py --inputHITSFile OUT_HITS.root \
+Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v1.root \
+           --imf False \
            --outputRDOFile OUT_RDO.root &> ${LOG_DIGI}
 exit_code=$?
 echo  "art-result: ${exit_code} Digi_tf.py"
@@ -55,6 +59,7 @@ LOG_RECO="log_Run3_asymmetric_reco.log"
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --preExec "from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.setDefaults();muonRecFlags.doFastDigitization=False;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);from RecExConfig.RecFlags import rec;rec.doTrigger=False;rec.doEgamma=True;rec.doLucid=True;rec.doZdc=True;rec.doJetMissingETTag=True" \
            --autoConfiguration everything \
+           --imf False \
            --outputESDFile OUT_ESD.root &> ${LOG_RECO}
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"

@@ -1,7 +1,9 @@
 // -*- C++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+
 /*! \file Herwig7.cxx
  *  \brief Implementation of the Herwig 7 Athena interface.
  *  \author Daniel Rauch (daniel.rauch@desy.de)
@@ -31,10 +33,30 @@
 #include "boost/thread/thread.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
+#include "boost/foreach.hpp"
+#define foreach BOOST_FOREACH
 
 
 // Setup HepMC traits definition for ThePEG's converter to work
 #include "ThePEG/Vectors/HepMCConverter.h"
+#ifdef HWVER_IS_72
+namespace ThePEG {
+  template<>
+  struct HepMCTraits<HepMC::GenEvent>
+    : public HepMCTraitsBase<HepMC::GenEvent,
+                             HepMC::GenParticle,
+                             HepMC::GenParticle *,
+                             HepMC::GenVertex,
+                             HepMC::GenVertex *,
+                             HepMC::Polarization,
+                             HepMC::PdfInfo>
+  {
+    static bool hasUnits() {
+      return true;
+    }
+  };
+}
+#else
 namespace ThePEG {
   template<>
   struct HepMCTraits<HepMC::GenEvent>
@@ -45,14 +67,11 @@ namespace ThePEG {
                              HepMC::PdfInfo>
   {
     static bool hasUnits() {
-      #ifdef HEPMC_HAS_UNITS
       return true;
-      #else
-      return false;
-      #endif
     }
   };
 }
+#endif
 
 
 using namespace std;
@@ -142,7 +161,7 @@ StatusCode Herwig7::genInitialize() {
     const string sharepath = "/InstallArea/" + cmtconfig + "/share";
     const string libpath = "/InstallArea/" + cmtconfig + "/lib";
     // Prepend to the repository and loader command file search paths
-    for (const string& p : cmtpaths) {
+    foreach (const string& p, cmtpaths) {
       const string cmtsharepath = p + sharepath;
       ATH_MSG_DEBUG("Appending " + cmtsharepath + " to ThePEG repository and command file search paths");
       reposearchpaths = reposearchpaths + (reposearchpaths.length() == 0 ? "" : ":") + cmtsharepath;

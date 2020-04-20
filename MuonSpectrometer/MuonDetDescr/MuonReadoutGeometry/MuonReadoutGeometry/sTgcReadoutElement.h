@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  sTgc Readout Element properties
  -----------------------------------------
 ***************************************************************************/
-
-//<doc><file>	$Id: sTgcReadoutElement.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_STGCREADOUTELEMENT_H
 # define MUONGEOMODEL_STGCREADOUTELEMENT_H
@@ -20,6 +17,7 @@
 
 #include "MuonIdHelpers/sTgcIdHelper.h"
 
+class BLinePar;
 
 namespace Trk{
   class PlaneSurface;
@@ -46,15 +44,15 @@ namespace MuonGM {
     ~sTgcReadoutElement();                  
 
     /** function to be used to check whether a given Identifier is contained in the readout element */
-    bool containsId(Identifier id) const;
+    virtual bool containsId(Identifier id) const override;
 
     /** distance to readout. 
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** strip number corresponding to local position. 
 	Should be renamed to channelNumber : the only public access for all hit types */
-    int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** Channel pitch. Gives full pitch for strips, width of a full wire group
     Gives the Height of a pad */
@@ -62,7 +60,7 @@ namespace MuonGM {
      
     /** strip position - should be renamed to channel position
 	If the strip number is outside the range of valid strips, the function will return false */
-    bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const;
+    virtual bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
 
     /** pad number corresponding to local position */
     int padNumber( const Amg::Vector2D& pos, const Identifier& id) const;
@@ -74,20 +72,20 @@ namespace MuonGM {
     bool padCorners ( const Identifier& id, std::vector<Amg::Vector2D> &corners) const;
 
     /** number of layers in phi/eta projection */
-    int numberOfLayers( bool ) const;
+    virtual int numberOfLayers( bool ) const override;
 
     /** number of strips per layer */
-    int numberOfStrips( const Identifier& layerId )   const;
-    int numberOfStrips( int , bool measuresPhi ) const;
+    virtual int numberOfStrips( const Identifier& layerId )   const override;
+    virtual int numberOfStrips( int , bool measuresPhi ) const override;
 
     /** space point position for a given pair of phi and eta identifiers 
 	The LocalPosition is expressed in the reference frame of the phi surface.
 	If one of the identifiers is outside the valid range, the function will return false */
-    bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const;
+    virtual bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const override;
 
     /** Global space point position for a given pair of phi and eta identifiers 
 	If one of the identifiers is outside the valid range, the function will return false */
-    bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const;
+    virtual bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const override;
 
     /** space point position for a pair of phi and eta local positions and a layer identifier 
 	The LocalPosition is expressed in the reference frame of the phi projection.
@@ -98,26 +96,26 @@ namespace MuonGM {
     Amg::Vector3D localToGlobalCoords(Amg::Vector3D locPos, Identifier id) const;
 
     /** @brief function to fill tracking cache */
-    void         fillCache() const;
-    void         refreshCache() const {clearCache(); fillCache();}
+    virtual void         fillCache() override;
+    virtual void         refreshCache() override {clearCache(); fillCache();}
 
     /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
-    int surfaceHash( const Identifier& id ) const;
+    virtual int surfaceHash( const Identifier& id ) const override;
 
     /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
     int surfaceHash( int gasGap, int channelType) const;
 
     /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
-    int layerHash( const Identifier& id ) const;
+    virtual int layerHash( const Identifier& id ) const override;
 
     /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
     // int layerHash( int gasGap) const;        // does not fit in the scheme ( layer hash needs to follow surface hash )
   
     /** returns the hash function to be used to look up the surface boundary for a given identifier */
-    int  boundaryHash(const Identifier& id) const;  
+    virtual int  boundaryHash(const Identifier& id) const override;
 
     /** @brief returns whether the current identifier corresponds to a phi measurement */
-    bool measuresPhi(const Identifier& id) const;
+    virtual bool measuresPhi(const Identifier& id) const override;
 
     /** @brief initialize the design classes for this readout element */
     void initDesign(double largeX, double smallX, double lengthY, double stripPitch, double wirePitch,
@@ -131,6 +129,7 @@ namespace MuonGM {
 
     /** returns the MuonChannelDesign class for the given identifier */
     const MuonPadDesign* getPadDesign( const Identifier& id ) const;
+    MuonPadDesign* getPadDesign( const Identifier& id );
 
     /** returns the MuonChannelDesign */
     const MuonPadDesign* getPadDesign( int gasGap ) const;
@@ -142,6 +141,15 @@ namespace MuonGM {
     void setChamberLayer(int ml) {m_ml=ml;}
 
     //double getSectorOpeningAngle(bool isLargeSector);
+
+    inline double getALine_rots() const;
+    inline double getALine_rotz() const;
+    inline double getALine_rott() const;
+    inline bool has_ALines() const;
+    inline bool has_BLines() const;
+    void setDelta(double, double, double, double, double, double);
+    void setBLinePar(BLinePar* bLine);
+    inline void clearBLinePar();
 
   private:
 
@@ -158,6 +166,15 @@ namespace MuonGM {
 
     int m_sTGC_type;
 
+    double m_rots;
+    double m_rotz;
+    double m_rott;
+
+    bool m_hasALines;
+    bool m_hasBLines;
+
+    HepGeom::Transform3D* m_delta;
+
     //const double m_largeSectorOpeningAngle = 28.0;
     //const double m_smallSectorOpeningAngle = 17.0;
 
@@ -170,9 +187,29 @@ namespace MuonGM {
     std::vector<double> m_PadminHalfY;
     std::vector<double> m_PadmaxHalfY;
 
+    BLinePar* m_BLinePar;
+
     // transforms (RE->layer)
     Amg::Transform3D m_Xlg[4];
   };
+
+  void sTgcReadoutElement::clearBLinePar()
+  { m_BLinePar = 0;}
+
+  double sTgcReadoutElement::getALine_rots() const
+  { return m_rots;}
+
+  double sTgcReadoutElement::getALine_rotz() const
+  { return m_rotz;}
+
+  double sTgcReadoutElement::getALine_rott() const
+  { return m_rott;}
+
+  bool sTgcReadoutElement::has_ALines() const 
+  { return m_hasALines;}
+
+  bool sTgcReadoutElement::has_BLines() const
+  { return m_hasBLines;}
 
   inline int sTgcReadoutElement::surfaceHash( const Identifier& id ) const {
     return surfaceHash(manager()->stgcIdHelper()->gasGap(id),manager()->stgcIdHelper()->channelType(id));
@@ -212,6 +249,11 @@ namespace MuonGM {
     return 0;
   }
 
+  inline MuonPadDesign* sTgcReadoutElement::getPadDesign( const Identifier& id ) {
+    if (manager()->stgcIdHelper()->channelType(id)==0) return &(m_padDesign[manager()->stgcIdHelper()->gasGap(id)-1]);
+    return 0;
+  }
+
   inline const MuonChannelDesign* sTgcReadoutElement::getDesign( int gasGap, int channelType ) const {
     if (channelType==1) return &(m_etaDesign[gasGap-1]);
     if (channelType==2) return &(m_phiDesign[gasGap-1]);
@@ -238,60 +280,6 @@ namespace MuonGM {
     if( !design ) return -1;
     return design->channelNumber(pos);
 
-  }
-
-  inline double sTgcReadoutElement::channelPitch( const Identifier& id ) const {
-
-    if (manager()->stgcIdHelper()->channelType(id)==0){
-    const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) {
-      (*m_Log)  << MSG::WARNING << "no pad Design" << endmsg;
-      return -1;
-    }
-      return design->channelWidth( Amg::Vector2D (0,0),0);
-    }
-
-    const MuonChannelDesign* design = getDesign(id);
-    if( !design ) return -1;
-
-    if (manager()->stgcIdHelper()->channelType(id)==1) //sTGC strips
-      return design->inputPitch;
-    else if (manager()->stgcIdHelper()->channelType(id)==2) //sTGC wires
-      return design->inputPitch * design->groupWidth; // wire Pitch * number of wires in a group
-    else return -1;
-
-  }
-
-  inline int sTgcReadoutElement::padNumber( const Amg::Vector2D& pos, const Identifier& id) const {
-
-    const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) {
-      (*m_Log)  << MSG::WARNING << "no pad Design" << endmsg;
-      return -1;
-    }
-    std::pair<int,int> pad(design->channelNumber(pos));
-    (*m_Log)  << MSG::DEBUG << "pad numbers from MuonPadDesign " <<pad.first <<"  " << pad.second << "  "<<endmsg;
-
-    if (pad.first>0 && pad.second>0) {
-
-      Identifier padID=manager()->stgcIdHelper()->padID( manager()->stgcIdHelper()->stationName(id),
-							 manager()->stgcIdHelper()->stationEta(id),
-							 manager()->stgcIdHelper()->stationPhi(id),
-							 manager()->stgcIdHelper()->multilayer(id),
-							 manager()->stgcIdHelper()->gasGap(id),
-							 0, pad.first, pad.second, true );     
-      int channel = manager()->stgcIdHelper()->channel(padID);
-      int padEta = manager()->stgcIdHelper()->padEta(padID);
-      int padPhi = manager()->stgcIdHelper()->padPhi(padID);
-      if( padEta != pad.first || padPhi != pad.second ){
-	(*m_Log)  << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " " << padPhi << endmsg;
-	return -1;
-      }
-      return channel;
-    } 
-    (*m_Log)  << MSG::WARNING << "bad channelNumber" << endmsg;
-
-    return -1; 
   }
 
   inline bool sTgcReadoutElement::stripPosition( const Identifier& id, Amg::Vector2D& pos ) const {

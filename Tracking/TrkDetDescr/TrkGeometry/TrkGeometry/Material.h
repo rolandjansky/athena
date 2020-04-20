@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ namespace Trk {
       MaterialComposition(const std::vector<unsigned char>& iel, const std::vector<unsigned char>& ifrac)
       {
          reserve(iel.size());
-         for (std::size_t elvc =0; elvc < iel.size() && ifrac.size(); ++elvc )
+         for (std::size_t elvc =0; elvc < iel.size() && !ifrac.empty(); ++elvc )
               push_back( ElementFraction(iel[elvc],ifrac[elvc]) );
      }
 
@@ -118,14 +118,14 @@ namespace Trk {
   class Material {
     public :  
       // standard x0, l0, A, Z, rho description
-      mutable float  X0;
-      mutable float  L0;
-      mutable float  A;
-      mutable float  Z;
-      mutable float  rho;
-      mutable float  dEdX;
-      mutable float  zOaTr;
-      mutable MaterialComposition* composition;
+     float  X0;
+     float  L0;
+     float  A;
+     float  Z;
+     float  rho;
+     float  dEdX;
+     float  zOaTr;
+     MaterialComposition* composition;
 
       /** Default Constructor needed for POOL */
       Material() :
@@ -136,7 +136,7 @@ namespace Trk {
         rho(0.),
         dEdX(0.),
         zOaTr(0.),
-        composition(0)
+        composition(nullptr)
       {}    
 
       /** Constructor with arguments */
@@ -146,7 +146,7 @@ namespace Trk {
                float iZ,
                float iRho,
                float idEdX = 0., 
-               MaterialComposition* mc = 0) :
+               MaterialComposition* mc = nullptr) :
         X0(iX0),
         L0(iL0),
         A(iA),
@@ -167,7 +167,7 @@ namespace Trk {
         rho(amc.rho),
         dEdX(amc.dEdX),
         zOaTr(amc.zOaTr),
-        composition( amc.composition ? new MaterialComposition(*amc.composition) : 0 )
+        composition( amc.composition ? new MaterialComposition(*amc.composition) : nullptr )
       {}
 
 	/** Move Constructor */
@@ -181,14 +181,14 @@ namespace Trk {
         zOaTr(amc.zOaTr),
         composition(amc.composition)	
       {
-	amc.composition = nullptr;
+        amc.composition = nullptr;
       }
 
 
       /** Destructor - delete the composition if there */
       ~Material() { 
-	if (composition)
-	  delete composition;
+        if (composition)
+          delete composition;
       }
 
       /** Assignment operator */
@@ -202,27 +202,27 @@ namespace Trk {
               dEdX        = amc.dEdX;  
               zOaTr       = amc.zOaTr;  
               delete composition;
-              composition =  amc.composition ? new MaterialComposition(*amc.composition) : 0;
+              composition =  amc.composition ? new MaterialComposition(*amc.composition) : nullptr;
           }
           return (*this);
       }
 
-	/** Move Assignment operator */
+      /** Move Assignment operator */
       Material& operator=(Material&& amc)
       {
-	X0 = amc.X0;
+        X0 = amc.X0;
         L0 = amc.L0;
         A = amc.A;
         Z = amc.Z;
         rho = amc.rho;
         dEdX = amc.dEdX;
         zOaTr = amc.zOaTr;
-	if(composition && composition != amc.composition){
-	  delete composition;
-	}
-	composition = amc.composition;
-	amc.composition = nullptr;
-	return *this;
+        if(composition && composition != amc.composition){
+          delete composition;
+        }
+        composition = amc.composition;
+        amc.composition = nullptr;
+        return *this;
       }
 
       /** scaling method */
@@ -240,7 +240,6 @@ namespace Trk {
           sout << "(" << X0 << " | " << L0 << " | " << A << " | " << Z << " | " << rho <<")";
           return sout.str();
       }
-
   };
 
   inline Material* Material::scale( float sf) const {

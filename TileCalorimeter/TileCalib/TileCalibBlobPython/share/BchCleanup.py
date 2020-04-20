@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # File:    BchCleanup.py
 # Package: TileCalibBlobPython
@@ -12,24 +12,26 @@
 #
 # WARNING: options explained in usage() have not been tested!!!   Probably they WON'T work as expected!!
 
-import getopt,sys,os,string
+from __future__ import print_function
+
+import getopt,sys
 
 def usage():
-    print "Usage: ",sys.argv[0]," [OPTION] ... "
-    print """Uses bch-input-sqlite.db file as input, joins adjacent IOVs with same contents, keeping the
-            comments from the earliest one.  Results written to bch-output-sqlite.db"""
-    print ""
-    print "-h, --help       shows this help"
-    print "-f, --folder=    specify status folder to use ONL01, OFL01 or OFL02 "
-    print "-t, --tag=       specify tag to use, f.i. UPD1 or UPD4"
-    print "-o, --outtag=    specify output tag to be used for cleaned up result, f.i. UPD4-99"
-    print "-i, --instance=  specify DB instance (CONDBR2 or COMP200 or OFLP200)"
-    print ""
+    print ("Usage: ",sys.argv[0]," [OPTION] ... ")
+    print ("""Uses bch-input-sqlite.db file as input, joins adjacent IOVs with same contents, keeping the
+            comments from the earliest one.  Results written to bch-output-sqlite.db""")
+    print ("")
+    print ("-h, --help       shows this help")
+    print ("-f, --folder=    specify status folder to use ONL01, OFL01 or OFL02 ")
+    print ("-t, --tag=       specify tag to use, f.i. UPD1 or UPD4")
+    print ("-o, --outtag=    specify output tag to be used for cleaned up result, f.i. UPD4-99")
+    print ("-i, --instance=  specify DB instance (CONDBR2 or COMP200 or OFLP200)")
+    print ("")
 
 def showAdcProblems(mgr,ros,mod):
     modName = TileCalibUtils.getDrawerString(ros,mod)        
-    for chn in xrange(TileCalibUtils.max_chan()):
-        for adc in xrange(TileCalibUtils.max_gain()):
+    for chn in range(TileCalibUtils.max_chan()):
+        for adc in range(TileCalibUtils.max_gain()):
 
             stat = mgr.getAdcStatus(ros,mod,chn,adc)
             prbs = mgr.getAdcProblems(ros,mod,chn,adc)
@@ -55,7 +57,7 @@ def writeMergedIOV(ros,mod,since,until):
     """ Writes out blob into folder fdout, at channel related to
         ros,mod and with validity range given by since,until
         """
-    log.info("Writing merged IOV: [%i,%i]-[%i,%i)" % ((since>>32),(since&0xffffffff),(until>>32),(until&0xffffffff)))
+    log.info("Writing merged IOV: [%i,%i]-[%i,%i)", (since>>32),(since&0xffffffff),(until>>32),(until&0xffffffff))
 
     chanNum = TileCalibUtils.getDrawerIdx(ros,mod)
     #iov1 = TileCalibTools.getCoolValidityKey(since,False)
@@ -65,10 +67,10 @@ def writeMergedIOV(ros,mod,since,until):
 
     ## setup output zero-size blob
     #newBlob = blobWriter.getDrawer(ros,mod)
-    #for chn in xrange(TileCalibUtils.max_chan()):
+    #for chn in range(TileCalibUtils.max_chan()):
     #    #.. Bch blobs store one extra bit pattern for channel status
-    #    for adc in xrange(TileCalibUtils.max_gain()+1):
-    #        for idx in xrange(1):
+    #    for adc in range(TileCalibUtils.max_gain()+1):
+    #        for idx in range(1):
     #            val = bchDrawer.getData(chn, adc, idx)
     #            log.info("ros=%i mod=%i chn=%i adc=%i val=%i" % (ros,mod,chn,adc,val))
     #            newBlob.setData(chn,adc,idx,val)
@@ -85,8 +87,8 @@ def writeMergedIOV(ros,mod,since,until):
         runUntil += 1
         lumUntil = 0
 
-    msg = 'AtlCoolCopy.exe \"%s\" \"%s\" -folder /TILE/OFL02/STATUS/ADC  -tag TileOfl02StatusAdc-RUN2-UPD4-08 -rls %i %i -rlu %i %i -alliov -outtag %s -ch1 %i -ch2 %i -nrls %i %i -nrlu %i %i\n' % (ischema,oschema,runSince,lumSince,runSince,lumSince+1,outtagFull,chanNum,chanNum,runSince,lumSince,runUntil,lumUntil)
-    log.info(msg)
+    msg = 'AtlCoolCopy \"%s\" \"%s\" -folder /TILE/OFL02/STATUS/ADC  -tag %s -rls %i %i -rlu %i %i -alliov -outtag %s -ch %i -nrls %i %i -nrlu %i %i' % (ischema,oschema,folderTag,runSince,lumSince,runSince,lumSince+1,outtagFull,chanNum,runSince,lumSince,runUntil,lumUntil)
+    print(msg)
 
 
 ### Main entry point for execution
@@ -97,18 +99,18 @@ if __name__ == "__main__":
   keywords = ["help","tag=","folder=","outtag=","instance="]
   try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-  except getopt.GetoptError, err:
-    print str(err)
+  except getopt.GetoptError as err:
+    print (str(err))
     usage()
     sys.exit(2)
 
   # defaults 
   instance='OFLP200'
   folderPath =  "/TILE/OFL02/STATUS/ADC"
-  tag = "SDR-BS8T-09"
+  tag = "OFLCOND-MC16-SDR-28"
   outtag = "test"
 
-  print 'opts:',opts
+  print ('opts:',opts)
   for o, a in opts:
     if o in ("-f","--folder"):
         folderPath = "/TILE/%s/STATUS/ADC" % a
@@ -131,21 +133,21 @@ if __name__ == "__main__":
         assert False, "unhandled option"
 
 
-  from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+  from TileCalibBlobPython.TileCalibLogger import getLogger
   log = getLogger("BchCleanup")
   import logging
   log.setLevel(logging.INFO)
 
   ischema = 'sqlite://;schema=bch-input-sqlite.db;dbname='+instance
   oschema = 'sqlite://;schema=bch-output-sqlite.db;dbname='+instance
-  log.info("ischema=%s" % ischema)
-  log.info("oschema=%s" % oschema)
+  log.info("ischema=%s",ischema)
+  log.info("oschema=%s", oschema)
 
 
   from TileCalibBlobPython import TileCalibTools
   from TileCalibBlobPython import TileBchTools
-  from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
-  from TileCalibBlobObjs.Classes import *
+  from TileCalibBlobObjs.Classes import TileCalibUtils, TileBchDecoder, \
+       TileCalibDrawerBch, TileBchStatus
 
   #=== open databases
   idb = TileCalibTools.openDbConn(ischema,'READONLY')
@@ -163,7 +165,7 @@ if __name__ == "__main__":
 #  outFolder = odb.getFolder(folderPath)
 
   #-- initialize BchMgr from input DB
-  log.info("Input folder for cleaning: %s with tag %s" % (folderPath, folderTag))
+  log.info("Input folder for cleaning: %s with tag %s", folderPath, folderTag)
 
   ##=== Dump the current isBad definition
   #isBadDef = mgr.getAdcProblems(0,1,0,0)
@@ -173,6 +175,8 @@ if __name__ == "__main__":
   #    msg = "- %2i (%s)" % (prbCode,prbDesc)
   #    log.info( msg )
   #log.info( "\n" )
+  msg = 'AtlCoolCopy \"%s\" \"%s\" -folder /TILE/OFL02/STATUS/ADC  -tag %s -outtag %s -ch1 0 -ch2 19 -create' % (ischema,oschema,folderTag,outtagFull)
+  print(msg)
 
 
   #=== Loop over DB contents
@@ -183,21 +187,27 @@ if __name__ == "__main__":
   #=== isAffected = has a problem not included in isBad definition
   #=== isGood = has no problem at all
 
-  rosinput = int(sys.argv[1])
-  log.info("rosinput=%i"%rosinput)
+  rosinput = int(sys.argv[1]) if len(sys.argv)>1 else 0
+  log.info("rosinput=%i", rosinput)
+  if rosinput==0:
+      rosmin=1
+      rosmax=5
+  else:
+      rosmin=rosinput
+      rosmax=rosinput+1
 
-  for ros in xrange(rosinput,rosinput+1):
-    for mod in xrange(0, min(64,TileCalibUtils.getMaxDrawer(ros))):
+  for ros in range(rosmin,rosmax):
+    for mod in range(0, min(64,TileCalibUtils.getMaxDrawer(ros))):
 
       modName = TileCalibUtils.getDrawerString(ros,mod)        
-      log.info(40*'='+" ros %d, drawer %s" % (ros, modName))
+      log.info(40*'='+" ros %d, drawer %s", ros, modName)
 
       dbobjs = blobReader.getDBobjsWithinRange(ros, mod)
-      if dbobjs == None:
+      if dbobjs is None:
         raise Exception("No DB objects retrieved for ros=%d mod=%d (%s)" % (ros,mod,modName))
 
-      #print "# IOVs: %d - will try to print container below..." % len(dbobjs)
-      #print dbobjs
+      #print ("# IOVs: %d - will try to print container below..." % len(dbobjs))
+      #print (dbobjs)
 
       #.. keep track of validity range of identical and adjacent sets of conditions
       mergedSince = mergedUntil = None
@@ -234,41 +244,47 @@ if __name__ == "__main__":
         calibDrawer = None
 
         if iovCounter%10 == 0:
-           log.info("Heartbeat %d: blob size=%d - [%d,%d]-[%d,%d)"
-                    % ( iovCounter, blob.size(), run, lum, (objuntil>>32), (objuntil&0xFFFFFFFF) ) )
+           log.info("Heartbeat %d: blob size=%d - [%d,%d]-[%d,%d)",
+                    iovCounter, blob.size(), run, lum, (objuntil>>32), (objuntil&0xFFFFFFFF) )
         else:
-           log.debug("blob size=%d - [%d,%d]-[%d,%d)"
-                      % ( blob.size(), run, lum, (objuntil>>32), (objuntil&0xFFFFFFFF)) )
+           log.debug("blob size=%d - [%d,%d]-[%d,%d)",
+                      blob.size(), run, lum, (objuntil>>32), (objuntil&0xFFFFFFFF))
 
         if blob.size() == 596:
             try:
                 calibDrawer = TileCalibDrawerBch.getInstance(blob)
-            except Exception, err:
-                log.error("ros=%i mod=%i last read: runPrev=%i lumPrev=%i\n %s"
-                          % (ros, mod, runPrev, lumPrev, str(err)))
+            except Exception as err:
+                log.error("ros=%i mod=%i last read: runPrev=%i lumPrev=%i\n %s",
+                          ros, mod, runPrev, lumPrev, str(err))
 
         if calibDrawer is None:
             #.. Non-existent, zero-sized or invalid blobs
             if calibDrawerPrev is None:
                 # push upper limit to current IOV's upper limit
                 mergedUntil = objuntil
-                if blob is None:  log.warning( "extending IOV due to non-existent blob!!!" )
-                elif blob.size()==0: log.info( "extending IOV due to zero-size blob!!!"    )
-                else:             log.warning( "extending IOV due to invalid-size blob!!!" )
+                if blob is None:
+                    log.warning( "extending IOV due to non-existent blob!!!" )
+                elif blob.size()==0:
+                    log.info( "extending IOV due to zero-size blob!!!"    )
+                else:
+                    log.warning( "extending IOV due to invalid-size blob!!!" )
                 continue
 
             else:
                 # non-identical blobs: write previous blob with new saved validity range...  
-                log.info("types: %s  %s" % ( type(blob), type(calibDrawerPrev)) )
+                log.info("types: %s  %s", type(blob), type(calibDrawerPrev))
                 #writeMergedIOV(outFolder, outtagFull, ros, mod, calibDrawerPrev, mergedSince, mergedUntil)
                 writeMergedIOV(ros, mod, mergedSince, mergedUntil)
                 # ...and then start a new IOV based on current blob's validity range
                 mergedSince = objsince
                 mergedUntil = objuntil
-                tempRunLum = (mergedSince>>32, mergedSince&0xffffffff)
-                if blob is None:  log.warning( "Starting new IOV at: [%d,%d] (non-existent blob!!!)" % tempRunLum )
-                elif blob.size()==0: log.info( "Starting new IOV at: [%d,%d] (zero-size blob!!!)"    % tempRunLum )
-                else:             log.warning( "Starting new IOV at: [%d,%d] (invalid-size blob!!!)" % tempRunLum )
+                tempRunLum = "Starting new IOV at: [%d,%d]" % (mergedSince>>32, mergedSince&0xffffffff)
+                if blob is None:
+                    log.warning( "%s (non-existent blob!!!)", tempRunLum )
+                elif blob.size()==0:
+                    log.info( "%s (zero-size blob!!!)", tempRunLum )
+                else:
+                    log.warning( "%s (invalid-size blob!!!)", tempRunLum )
                 continue
 
         #.. Only good calibDrawers reach here
@@ -282,7 +298,8 @@ if __name__ == "__main__":
         log.debug("TileBchMgr initialized.")
 
         #.. for first IOV, print status summary
-        if objPrev is None: showAdcProblems(mgr,ros,mod)
+        if objPrev is None:
+            showAdcProblems(mgr,ros,mod)
 
         #.. comparing current and previous blobs ===============
         identical = True
@@ -293,8 +310,8 @@ if __name__ == "__main__":
           else:
             sizelo = calibDrawerPrev.getObjSizeByte()/4
             sizehi = calibDrawer.getObjSizeByte()/4
-            if (sizelo <> sizehi):
-              log.error("Object sizes are different for ROS %s (%s %s) drawer %s" % (ros, sizelo, sizehi, modName))
+            if (sizelo != sizehi):
+              log.error("Object sizes are different for ROS %s (%s %s) drawer %s", ros, sizelo, sizehi, modName)
 
             typelo = calibDrawerPrev.getObjType()
             typehi = calibDrawer.getObjType()
@@ -303,20 +320,20 @@ if __name__ == "__main__":
             #nc = flt.getNChans()
             #ng = flt.getNGains()
 
-            if (typelo <> typehi):
-              log.error("Object types %s %s are different" % (typelo, typehi))
+            if (typelo != typehi):
+              log.error("Object types %s %s are different", typelo, typehi)
               sys.exit()
 
             #=== get all problems of this module
             #showAdcProblems(mgr,ros,mod)
 
             #.. check for identical conditions
-            for chn in xrange(TileCalibUtils.max_chan()):
+            for chn in range(TileCalibUtils.max_chan()):
               #  chnName = " %2i" % chn
               #if identical:
-              for adc in xrange(TileCalibUtils.max_gain()):
+              for adc in range(TileCalibUtils.max_gain()):
                 #if identical:
-                  for ind in xrange(1):  # 4 values per channel/adc
+                  for ind in range(1):  # 4 values per channel/adc
 
                     #=== build status from both adc and channel bits
                     adcBits = calibDrawer.getData(chn, adc, ind)
@@ -335,7 +352,7 @@ if __name__ == "__main__":
 
                     if not (status==statusPrev): 
                       identical = False
-                      log.info("chn=%i adc=%i ind=%i - vlo=%i, vhi=%i, diffs=%i %i" % (chn, adc, ind, adclo+chnlo, adchi+chnhi, adclo-adchi, chnlo-chnhi))
+                      log.info("chn=%i adc=%i ind=%i - vlo=%i, vhi=%i, diffs=%i %i", chn, adc, ind, adclo+chnlo, adchi+chnhi, adclo-adchi, chnlo-chnhi)
                       #break
 
           #.. at this point, merge if obj is identical to objPrev
@@ -345,14 +362,14 @@ if __name__ == "__main__":
           else:
             showAdcProblems(mgr,ros,mod)
             # non-identical blobs: write previous blob with new saved validity range...  
-            log.info("types: %s  %s" % ( type(blob), type(calibDrawerPrev)) )
+            log.info("types: %s  %s", type(blob), type(calibDrawerPrev))
             writeMergedIOV(ros, mod, mergedSince, mergedUntil)
             #writeMergedIOV(outFolder,outtagFull,ros,mod,calibDrawerPrev,mergedSince,mergedUntil)
             # ...and then start a new IOV based on current blob's validity range
             mergedSince = objsince
             mergedUntil = objuntil
-            log.info("Starting new IOV at: [%d,%d]"
-              % (mergedSince>>32, mergedSince&0xffffffff) )
+            log.info("Starting new IOV at: [%d,%d]",
+              mergedSince>>32, mergedSince&0xffffffff)
 
       #.. end of loop over dbobjs
 
@@ -365,7 +382,8 @@ if __name__ == "__main__":
   #log.info("listing bad channels")
   #mgr.listBadAdcs()
 
+#  from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
 #  blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
 
   #=== close DB
-  db.closeDatabase()
+  idb.closeDatabase()

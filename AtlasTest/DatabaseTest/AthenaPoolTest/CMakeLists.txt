@@ -93,17 +93,17 @@ athenapooltest_run_test( AthenaPoolTestRead AthenaPoolTestRead
 
 # Write with DoubleEventSelector
 athenapooltest_run_test( AthenaPoolTestWriteDoubleSelector AthenaPoolTestWriteDoubleSelector
-                         "'^..DoubleEvent|^..AthenaPoolTest'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..AthenaPoolTest'"
                          DEPENDS AthenaPoolTestRead)
 athenapooltest_run_test( AthenaPoolTestReadDoubleSelector AthenaPoolTestReadDoubleSelector
-                         "'^..DoubleEvent|^..AthenaPoolTest'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..AthenaPoolTest'"
                          DEPENDS AthenaPoolTestWriteDoubleSelector )
 
 # Add on test of navigation still using simple objects:
 # AthenaPoolTestWrite - Step2 - rewrite part in another file
 # DoubleEventSelector
 athenapooltest_run_test( AthenaPoolTestStep2WriteDoubleSelector AthenaPoolTestStep2WriteDoubleSelector
-                         "'^..DoubleEvent|^..AthenaPoolTest'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..AthenaPoolTest'"
                          DEPENDS AthenaPoolTestReadDoubleSelector )
 # normal EventSelector
 athenapooltest_run_test( AthenaPoolTestStep2Write AthenaPoolTestStep2Write
@@ -150,15 +150,15 @@ athenapooltest_run_test( LArCellContRead LArCellContReader_jobOptions
 
 # Read two RDOs with the DoubleEventSelector
 athenapooltest_run_test( ReadRDODoubleSelector ReadRDODoubleSelector
-                         "'^..DoubleEvent|^..RDOReader'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..RDOReader'"
                          DEPENDS LArCellContRead )
 athenapooltest_run_test( ReadCombinedRDO ReadCombinedRDO
-                         "'^..DoubleEvent|^..LArCellContFake|^..InDetRawDataFak'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..LArCellContFake|^..InDetRawDataFak'"
                          DEPENDS ReadRDODoubleSelector )
 
 # Test basic overlay algorithms with DoubleEventSelector
 athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverlayTest
-                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1|Found HelperTools'"
+                         "'^..DoubleEvent|^..SecondaryEvent|^..AthenaPoolAddr|^..Stream1|Found HelperTools'"
                          DEPENDS ReadCombinedRDO )
 
 # AthenaMT test for DoubleEventSelector

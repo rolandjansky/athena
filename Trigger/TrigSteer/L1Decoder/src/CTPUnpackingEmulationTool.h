@@ -7,7 +7,7 @@
 
 #include "CTPUnpackingToolBase.h"
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 class CTPUnpackingEmulationTool  : public CTPUnpackingToolBase {
 

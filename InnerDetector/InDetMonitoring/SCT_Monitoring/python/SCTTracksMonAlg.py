@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 '''@file SCTTracksMonAlg.py
 @author Ken Kreul
@@ -29,6 +29,17 @@ def SCTTracksMonAlgConfig(inputFlags):
     # is the algorithm.
     from AthenaConfiguration.ComponentFactory import CompFactory
     myMonAlg = helper.addAlgorithm(CompFactory.SCTTracksMonAlg, 'SCTTracksMonAlg')
+
+    if inputFlags.Beam.Type=='collisions':
+        from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
+        myMonAlg.FilterTools += [GetFilledBunchFilterTool()]
+
+    doTrigger = False
+    if not inputFlags.isMC:
+        if inputFlags.Trigger.doHLT:
+            doTrigger = True
+    myMonAlg.doTrigger = doTrigger
+
     # # If for some really obscure reason you need to instantiate an algorithm
     # # yourself, the AddAlgorithm method will still configure the base 
     # # properties and add the algorithm to the monitoring sequence.
@@ -83,73 +94,72 @@ def SCTTracksMonAlgConfig(inputFlags):
     FIRST_HIT_BIN =  0
     LAST_HIT_BIN  = N_HIT_BINS-FIRST_HIT_BIN-1 # This is already defined in SCT_MonitoringNumbers.h
     myMonGroup.defineHistogram(varname="trk_N", # ; means alias
-                                           type="TH1F",
-                                           title="Number of tracks"+";Number of Tracks",
-                                           path="tracks", # path cannot be "".
-                                           xbins=400, xmin=0., xmax=4000.)
+                               type="TH1F",
+                               title="Number of tracks"+";Number of Tracks",
+                               path="tracks", # path cannot be "".
+                               xbins=400, xmin=0., xmax=4000.)
     myMonGroup.defineHistogram(varname="trk_chi2", # ; means alias
-                                           type="TH1F",
-                                           title="Track #chi^{2} div ndf"+";Number of track #chi^{2}/NDF",
-                                           path="tracks", # path cannot be "".
-                                           xbins=150, xmin=0., xmax=150.)
+                               type="TH1F",
+                               title="Track #chi^{2} div ndf"+";Number of track #chi^{2}/NDF",
+                               path="tracks", # path cannot be "".
+                               xbins=150, xmin=0., xmax=150.)
     myMonGroup.defineHistogram(varname="trk_d0", # ; means alias
-                                           type="TH1F",
-                                           title="Track d0"+";d0 [mm]",
-                                           path="tracks", # path cannot be "".
-                                           xbins=160, xmin=-40., xmax=40.)
+                               type="TH1F",
+                               title="Track d0"+";d0 [mm]",
+                               path="tracks", # path cannot be "".
+                               xbins=160, xmin=-40., xmax=40.)
     myMonGroup.defineHistogram(varname="trk_z0", # ; means alias
-                                           type="TH1F",
-                                           title="Track z0"+";z0 [mm]",
-                                           path="tracks", # path cannot be "".
-                                           xbins=200, xmin=-200., xmax=200.)
+                               type="TH1F",
+                               title="Track z0"+";z0 [mm]",
+                               path="tracks", # path cannot be "".
+                               xbins=200, xmin=-200., xmax=200.)
     myMonGroup.defineHistogram(varname="trk_phi", # ; means alias
-                                           type="TH1F",
-                                           title="Track Phi"+";#phi [rad]",
-                                           path="tracks", # path cannot be "".
-                                           xbins=160, xmin=-4., xmax=4.)
+                               type="TH1F",
+                               title="Track Phi"+";#phi [rad]",
+                               path="tracks", # path cannot be "".
+                               xbins=160, xmin=-4., xmax=4.)
     myMonGroup.defineHistogram(varname="trk_pt", # ; means alias
-                                           type="TH1F",
-                                           title="Track P_{T}"+";P_{T} [GeV]",
-                                           path="tracks", # path cannot be "".
-                                           xbins=150, xmin=0., xmax=150.)
-
+                               type="TH1F",
+                               title="Track P_{T}"+";P_{T} [GeV]",
+                               path="tracks", # path cannot be "".
+                               xbins=150, xmin=0., xmax=150.)
     myMonGroup.defineHistogram(varname="trk_sct_hits", # ; means alias
-                                           type="TH1F",
-                                           title="SCT HITS per single Track"+";Num of Hits",
-                                           path="tracks", # path cannot be "".
-                                           xbins=N_HIT_BINS, xmin=FIRST_HIT_BIN, xmax=LAST_HIT_BIN)
+                               type="TH1F",
+                               title="SCT HITS per single Track"+";Num of Hits",
+                               path="tracks", # path cannot be "".
+                               xbins=N_HIT_BINS, xmin=FIRST_HIT_BIN, xmax=LAST_HIT_BIN)
     myMonGroup.defineHistogram(varname="trk_eta", # ; means alias
-                                           type="TH1F",
-                                           title="Track Eta"+";#eta",
-                                           path="tracks", # path cannot be "".
-                                           xbins=160, xmin=-4., xmax=4.)
+                               type="TH1F",
+                               title="Track Eta"+";#eta",
+                               path="tracks", # path cannot be "".
+                               xbins=160, xmin=-4., xmax=4.)
                                            
     myMonGroup.defineHistogram(varname="trackTriggers", # ; means alias
-                                           type="TH1I",
-                                           title="Tracks for different trigger types",
-                                           path="tracks", # path cannot be "".
-                                           xbins=N_TRIGGER_TYPES, xmin=-0.5, xmax=7.5, labels=s_triggerNames)
+                               type="TH1I",
+                               title="Tracks for different trigger types",
+                               path="tracks", # path cannot be "".
+                               xbins=N_TRIGGER_TYPES, xmin=-0.5, xmax=7.5, xlabels=s_triggerNames)
     myMonGroup.defineHistogram(varname="region"+","+"hitsRegion"+";"+"SCTTrackRate", # ; means alias
-                                           type="TProfile",
-                                           title="Track per event for SCT regions",
-                                           path="tracks", # path cannot be "".
-                                           xbins=3, xmin=0.0, xmax=3.0, labels=regionNames) #LABELS have to be added
+                               type="TProfile",
+                               title="Track per event for SCT regions",
+                               path="tracks", # path cannot be "".
+                               xbins=3, xmin=0.0, xmax=3.0, xlabels=regionNames)
     myMonGroup.defineHistogram(varname="tracksPerRegion", # ; means alias
-                                           type="TH1F",
-                                           title="Number of tracks in eta regions",
-                                           path="tracks", # path cannot be "".
-                                           xbins=N_REGIONS, xmin=0, xmax=N_REGIONS, labels=regionNames)
+                               type="TH1F",
+                               title="Number of tracks in eta regions",
+                               path="tracks", # path cannot be "".
+                               xbins=N_REGIONS, xmin=0, xmax=N_REGIONS, xlabels=regionNames)
 
 
     for region in regionNames:
         myMonGroup.defineHistogram(varname="total"+region+"Residual",
-                                    title="Overall Residual Distribution for the "+region+";Residual [mm]",
-                                    type="TH1F", path="tracks",
-                                    xbins=100, xmin=-0.5, xmax=0.5)
+                                   title="Overall Residual Distribution for the "+region+";Residual [mm]",
+                                   type="TH1F", path="tracks",
+                                   xbins=100, xmin=-0.5, xmax=0.5)
         myMonGroup.defineHistogram(varname="total"+region+"Pull",
-                                    title="Overall Pull Distribution for the "+region+";Pull",
-                                    type="TH1F", path="tracks",
-                                    xbins=100, xmin=-5, xmax=5)
+                                   title="Overall Pull Distribution for the "+region+";Pull",
+                                   type="TH1F", path="tracks",
+                                   xbins=100, xmin=-5, xmax=5)
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     # and the sequence containing the created algorithms. If we haven't called
@@ -173,8 +183,7 @@ if __name__ == "__main__":
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    #ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
-    ConfigFlags.Input.Files = [" /afs/cern.ch/work/k/kkreul/Qual/data18_13TeV.00364485.express_express.merge.RAW/data18_13TeV.00364485.express_express.merge.RAW._lb0706._SFO-3._0001.1 "]
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root"]
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'SCTTracksMonOutput.root'
     ConfigFlags.GeoModel.Align.Dynamic = False

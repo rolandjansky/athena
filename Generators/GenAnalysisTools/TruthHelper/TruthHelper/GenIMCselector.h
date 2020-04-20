@@ -5,7 +5,7 @@
 #ifndef TRUTHHELPER_GENIMCSELECTOR_H
 #define TRUTHHELPER_GENIMCSELECTOR_H
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include <functional>
 
 namespace TruthHelper {
@@ -13,7 +13,7 @@ namespace TruthHelper {
 
   // Interface/base class for HepMC::GenParticle selectors
   /// @deprecated Use the functions in TruthUtils instead
-  class GenIMCselector : public std::unary_function<HepMC::GenParticle*, bool> {
+  class GenIMCselector {
   public:
 
     // Virtual destructor to allow inheritance

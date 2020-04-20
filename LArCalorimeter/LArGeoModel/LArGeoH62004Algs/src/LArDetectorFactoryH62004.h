@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArDetectorFactoryH62004_h
@@ -30,7 +30,7 @@ namespace LArGeo {
     //
     virtual const LArDetectorManager * getDetectorManager() const;
     // Additional creation of CaloDDE for ColdTC
-    StatusCode storeDDE();
+    void storeDDE();
     
     
   private:  

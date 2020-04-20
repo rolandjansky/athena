@@ -30,7 +30,7 @@
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
 #include "TRT_ConditionsServices/ITRT_AlignDbSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 //Forward declaration

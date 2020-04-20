@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKEVENTCNVTOOLS_ITRKEVENTCNVTOOL
@@ -10,6 +10,7 @@
 
 #include "AthLinks/ElementLink.h"
 #include "StoreGate/StoreGate.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
@@ -54,7 +55,7 @@ class ITrkEventCnvTool : virtual public IAlgTool
         template <class CONT, class ROT> void prepareRIO_OnTrackElementLink(ROT* rot) const;
         /**This templated method will return the hashAndIndex of the passed RIO_OnTrack.*/
         template <class CONT, class ROT> bool getHashAndIndex(const ROT* rot,
-                                                              const std::string contName,
+                                                              const SG::ReadHandleKey<CONT>& contName,
                                                               typename ElementLink<CONT>::index_type& hashAndIndex) const;
         
         /** Take the passed RoT and prepare the PRD ElementLink for writing to disk.

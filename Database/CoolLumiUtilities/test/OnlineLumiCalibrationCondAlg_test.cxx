@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file CoolLumiUtilities/test/OnlineLumiCalibrationCondAlg_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -12,6 +10,11 @@
 
 
 #undef NDEBUG
+
+// Disable checking due to use of AttributeList.
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "../src/OnlineLumiCalibrationCondAlg.h"
 #include "CoolLumiUtilities/OnlineLumiCalibrationCondData.h"
 #include "AthenaKernel/DummyRCUSvc.h"

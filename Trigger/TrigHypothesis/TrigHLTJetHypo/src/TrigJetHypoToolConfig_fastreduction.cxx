@@ -16,7 +16,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 #include "./groupsMatcherFactoryMT.h"
 
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;
@@ -36,15 +36,20 @@ TrigJetHypoToolConfig_fastreduction::~TrigJetHypoToolConfig_fastreduction(){
 StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
 
   if(m_conditionMakers.size() != m_treeVec.size()){
+    ATH_MSG_ERROR("No. of conditions mismatch with tree vector size");
     return StatusCode::FAILURE;
   }
   
   if(m_conditionMakers.size() < 2){ // first  node is root, need more
+    ATH_MSG_ERROR("No. of conditions < 2");
     return StatusCode::FAILURE;
   }
   
   // gymnastics as cannot pass vecor<vecotr<int>> as a Gaudi::Property
-  if(m_sharedNodesVec.empty()){return StatusCode::FAILURE;}
+  if(m_sharedNodesVec.empty()){
+    ATH_MSG_ERROR("shared node vector empty");
+
+    return StatusCode::FAILURE;}
 
   std::vector<int> shared;
   for(const auto& i : m_sharedNodesVec){

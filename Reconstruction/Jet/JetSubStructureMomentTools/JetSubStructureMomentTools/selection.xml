@@ -18,6 +18,8 @@
 <class name="PlanarFlowTool"/>
 <class name="QwTool"/>
 <class name="ShowerDeconstructionTool"/>
+<class name="SoftDropObservablesTool"/>
+<class name="MultiplicitiesTool"/>
 <class name="SubjetFinderTool"/>
 <class name="SubjetMakerTool"/>
 <class name="SubjetRecorderTool"/>

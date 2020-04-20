@@ -91,7 +91,7 @@ class FastReductionLabeledCompTests(CombinationsTests) :
         
     def make_helper_tools(self):
 
-        setter1 = ConditionsToolSetterTree('treeConditionsTreeSetter')
+        setter1 = ConditionsToolSetterTree('dummyChainName')
         helper1 =  trigJetHypoToolHelperFromDict_(self.chain_label,
                                                   self.chain_name,
                                                   setter1)
@@ -109,7 +109,7 @@ class FastReductionLabeledCompTests(CombinationsTests) :
         helper0 = AlwaysSameHelperTool()
         helper0.passflag = False                
 
-        setter0 = ConditionsToolSetterFastReduction('frConditionsTreeSetter')
+        setter0 = ConditionsToolSetterFastReduction('dummyChainName')
         helper0 =  trigJetHypoToolHelperFromDict_(self.chain_label,
                                                   self.chain_name,
                                                   setter0)
@@ -147,7 +147,7 @@ def JetHypoExerciserCompareCfg(label,
 
     jetHypoExerciserAlg.event_generator = event_generator
     
-    jetHypoExerciserAlg.visit_debug = True
+    jetHypoExerciserAlg.visit_debug = True  #  more evebt debug if True
     
     jetHypoExerciserAlg.logname = test_conditions.logname
     
@@ -163,8 +163,8 @@ if __name__ == "__main__":
     doSimpleGen = True
     useEtNotE = True
     if doSimpleGen:
-        n_signal = 5
-        n_background = 20
+        n_signal = 6
+        n_background = 10
         bkgdEmax = 50000.
         useEtNotE = True
         event_generator = make_simple_event_generator(
@@ -203,10 +203,11 @@ if __name__ == "__main__":
     
         mult_string = '_s%s_%s_%s_%s_%s_b%s' % tuple(s_params)
         
-    # label_ind = 22  # <- good foor testing  with simplegen, s=5,6
-    # label_ind = 25 # <- debug label
-    # label_ind =  26 # <- and
-    label_ind = 21
+    # label_ind = 22  # simplegen, s=5,6
+    # label_ind = 25 # debug label
+    # label_ind =  26 # and
+    # label_ind = 21 # quadjet
+    label_ind = 12   # multithreshold
     label = test_strings[label_ind]
     lfn = 'test_case.txt'
     if(not os.path.exists(lfn)):
@@ -218,6 +219,7 @@ if __name__ == "__main__":
     fn_frag = {
         0: 'simple1condComp',
         1: 'simple2condComp',
+        12: 'NoRootNeeded',
         21: 'QFBComp',
         22: 'QFBCompLow',
         23: 'dijet',

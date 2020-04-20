@@ -18,7 +18,6 @@
 #include "tauEventTPCnv/TauDetailsContainer_p1.h"
 #include "tauEventTPCnv/TauCommonDetails_p2.h"
 #include "tauEventTPCnv/TauCommonExtraDetails_p1.h"
-#include "tauEventTPCnv/PanTauDetails_p1.h"
 #include "tauEventTPCnv/TauPi0Details_p2.h"
 #include "tauEventTPCnv/TauPi0Candidate_p1.h"
 #include "tauEventTPCnv/TauPi0Cluster_p1.h"
@@ -49,9 +48,6 @@ private:
 
     ///Tau extra common details
     std::vector<TauCommonExtraDetails_p1> m_tauCommonExtraDetails;
-    
-    ///PanTauDetails
-    std::vector<PanTauDetails_p1> m_PanTauDetails;
 
     ///TauPi0Details
     std::vector<TauPi0Details_p2> m_TauPi0Details;

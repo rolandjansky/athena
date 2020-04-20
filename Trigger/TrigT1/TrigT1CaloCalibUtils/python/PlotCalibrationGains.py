@@ -1,6 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 #from ROOT import gRandom,TCanvas,TH1F,TH2F
 import ROOT
@@ -90,8 +92,8 @@ class L1CaloGeometryConvertor:
          dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200'
          try:
            db = dbSvc.openDatabase(dbString, False)        
-         except Exception, e:
-           print 'Error: Problem opening database', e
+         except Exception as e:
+           print ('Error: Problem opening database', e)
            sys.exit(1)
 
          folder_name = "/TRIGGER/Receivers/RxPpmIdMap"
@@ -106,8 +108,8 @@ class L1CaloGeometryConvertor:
 
          try:
            itr=folder.browseObjects(startValKey, endValKey, chsel)
-         except Exception, e:
-           print e
+         except Exception as e:
+           print (e)
            sys.exit(1)
 
          for row in itr:
@@ -116,14 +118,14 @@ class L1CaloGeometryConvertor:
            PPMId = hex(int(payload['ppmid']))
            self.receiver_to_ppm_map[ReceiverId]= PPMId
   
-#         print self.receiver_to_ppm_map
+#         print (self.receiver_to_ppm_map)
          # close database
          db.closeDatabase()
 
 
      def getPPMfromReceiver(self,ReceiverId):
      
-       if self.receiver_to_ppm_map.has_key(ReceiverId):
+       if ReceiverId in self.receiver_to_ppm_map:
          return self.receiver_to_ppm_map[ReceiverId]
        else:
          return None	 
@@ -133,7 +135,7 @@ class L1CaloGeometryConvertor:
        ReceiverChannels = [item[0] for item in self.receiver_to_ppm_map.items() if item[1]==PPMId]       
 
        if strategy_string == None:
-         print " Warning! in getReceiverfromPPM no runtype given, using default!"
+         print (" Warning! in getReceiverfromPPM no runtype given, using default!")
          return ReceiverChannels[0]
 
        if self.isPPMFCAL(PPMId) and self.isCoolHad(PPMId):      # pick correct FCAL23 channel
@@ -163,7 +165,7 @@ class L1CaloGeometryConvertor:
 	 
 
      def getCoolEm(self,i_eta,i_phi):
-          if self.list_of_channels_em.has_key((str(i_eta),str(i_phi))) == True:
+          if (str(i_eta),str(i_phi)) in self.list_of_channels_em:
               cool = self.list_of_channels_em[(str(i_eta),str(i_phi))]
               cool.rstrip()
               cool.lstrip()
@@ -173,7 +175,7 @@ class L1CaloGeometryConvertor:
      
      
      def getCoolHad(self,i_eta,i_phi):
-          if self.list_of_channels_had.has_key((str(i_eta),str(i_phi))) == True:
+          if (str(i_eta),str(i_phi)) in self.list_of_channels_had:
               cool = self.list_of_channels_had[(str(i_eta),str(i_phi))]
               cool.rstrip()
               cool.lstrip()
@@ -263,7 +265,7 @@ class L1CaloGeometryConvertor:
        elif cabling[2] == 2:
          return 'EMB'
        else:
-         print "Error in GetOverlapLayer, can't determine layer!"
+         print ("Error in GetOverlapLayer, can't determine layer!")
          return None        
 
      def getFCAL23RecEta(self,RecCoolId):
@@ -353,8 +355,8 @@ class GainReader:
        dbString='sqlite://;schema='+name+';dbname=L1CALO'
        try:
          db = dbSvc.openDatabase(dbString, False)        
-       except Exception, e:
-         print 'Error: Problem opening database', e
+       except Exception as e:
+         print ('Error: Problem opening database', e)
          sys.exit(1)
 
        folder_name = '/TRIGGER/L1Calo/V1/Results/EnergyScanResults'
@@ -369,8 +371,8 @@ class GainReader:
 
        try:
          itr=folder.browseObjects(startValKey, endValKey, chsel)
-       except Exception, e:
-         print e
+       except Exception as e:
+         print (e)
          sys.exit(1)
 
        for row in itr:
@@ -380,7 +382,7 @@ class GainReader:
          self.measured_chi2[CoolId]   = payload['Chi2']
          self.measured_offset[CoolId] = payload['Offset']
   
-#       print self.measured_gains
+#       print (self.measured_gains)
 
        folder_gen_name = '/TRIGGER/L1Calo/V1/Results/EnergyScanRunInfo'
        folder_gen=db.getFolder(folder_gen_name)
@@ -391,10 +393,10 @@ class GainReader:
            payload = row.payload()
            self.run_nr   = payload['RunNumber']
            self.strategy = payload['GainStrategy']
-         print "Run nr. = ", self.run_nr , " Strategy = ", self.strategy
+         print ("Run nr. = ", self.run_nr , " Strategy = ", self.strategy)
 
        except:                                     # Doesn't seem to catch C++ exceptions :-(
-         print "Warning, in LoadGainsSqlite can't get runtype info! Hope this is not serious!"
+         print ("Warning, in LoadGainsSqlite can't get runtype info! Hope this is not serious!")
 
 
        # close database
@@ -408,8 +410,8 @@ class GainReader:
        dbString='sqlite://;schema='+name+';dbname=L1CALO'
        try:
          db = dbSvc.openDatabase(dbString, False)        
-       except Exception, e:
-         print 'Error: Problem opening database', e
+       except Exception as e:
+         print ('Error: Problem opening database', e)
          sys.exit(1)
 
        folder_name = '/TRIGGER/L1Calo/V1/Results/EnergyScanResults'
@@ -424,8 +426,8 @@ class GainReader:
 
        try:
          itr=folder.browseObjects(startValKey, endValKey, chsel)
-       except Exception, e:
-         print e
+       except Exception as e:
+         print (e)
          sys.exit(1)
 
        for row in itr:
@@ -433,7 +435,7 @@ class GainReader:
          payload = row.payload()
          self.reference_gains[CoolId]=payload['Slope']
   
-#       print self.measured_gains
+#       print (self.measured_gains)
        # close database
        db.closeDatabase()
 
@@ -446,8 +448,8 @@ class GainReader:
        dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200'
        try:
          db = dbSvc.openDatabase(dbString, False)        
-       except Exception, e:
-         print 'Error: Problem opening database', e
+       except Exception as e:
+         print ('Error: Problem opening database', e)
          sys.exit(1)
 
        folder_name = "/TRIGGER/Receivers/Factors/CalibGains"
@@ -462,8 +464,8 @@ class GainReader:
 
        try:
          itr=folder.browseObjects(startValKey, endValKey, chsel)
-       except Exception, e:
-         print e
+       except Exception as e:
+         print (e)
          sys.exit(1)
 
        for row in itr:
@@ -477,13 +479,13 @@ class GainReader:
              self.reference_gains[PPMId]=gain
            else:
              if mapping_tool.getReceiverfromPPM(PPMId,self.strategy) == ReceiverId:  # correct receiver?
-#               print "Using receiver nr.", ReceiverId, "for PPM nr.",PPMId
+#               print ("Using receiver nr.", ReceiverId, "for PPM nr.",PPMId)
                self.reference_gains[PPMId]=gain
 #             else:
-#               print "Skipping receiver nr.", ReceiverId, "for PPM nr.",PPMId
+#               print ("Skipping receiver nr.", ReceiverId, "for PPM nr.",PPMId)
    
   
- #      print self.reference_gains
+ #      print (self.reference_gains)
        # close database
        db.closeDatabase()
 
@@ -570,7 +572,7 @@ class EmPartitionPlots:
           self.his_partitions[0].Fill(gain)
           self.his_partitions[partition].Fill(gain)
         else:
-          print "Warning in EmPartitionPlots, nonexisting partition!"  
+          print ("Warning in EmPartitionPlots, nonexisting partition!"  )
 	  
 
 class HadPartitionPlots:
@@ -615,7 +617,7 @@ class HadPartitionPlots:
           self.his_partitions[0].Fill(gain)
           self.his_partitions[partition].Fill(gain)
         else:
-          print "Warning in HadPartitionPlots, nonexisting partition!"  
+          print ("Warning in HadPartitionPlots, nonexisting partition!"  )
   
 
 def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=False,isInputSqlite=False,isRefXml=False,isRefSqlite=False,isRefOracle=False):
@@ -673,28 +675,28 @@ def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=Fa
   drifted_towers_file = open('drifted_towers.txt','w')
   
   if isInputXml == True:
-    print "Taking input from xml file: ", input_file_name
+    print ("Taking input from xml file: ", input_file_name)
     receiver_gains.LoadGainsXml(input_file_name)
   elif isInputSqlite == True:
-    print "Taking input from Sqlite file: ", input_file_name
+    print ("Taking input from Sqlite file: ", input_file_name)
     receiver_gains.LoadGainsSqlite(input_file_name)
   else:
-    print "No option for input file selected, assuming sqlite file energyscanresults.sqlite"
+    print ("No option for input file selected, assuming sqlite file energyscanresults.sqlite")
     receiver_gains.LoadGainsSqlite("energyscanresults.sqlite")
          
 
   if isRefXml == True:
-    print "Taking reference from Xml file: ",reference_file_name
+    print ("Taking reference from Xml file: ",reference_file_name)
     receiver_gains.LoadReferenceXml(reference_file_name)
   elif isRefSqlite == True:
-    print "Taking reference from Sqlite file: ",reference_file_name
+    print ("Taking reference from Sqlite file: ",reference_file_name)
     receiver_gains.LoadReferenceSqlite(reference_file_name)
   elif isRefOracle == True:
-    print "Taking reference from Oracle"
+    print ("Taking reference from Oracle")
     geometry_convertor.LoadReceiverPPMMap()
     receiver_gains.LoadReferenceOracle(geometry_convertor)
   else:
-    print " No option for reference file, assuming Oracle"
+    print (" No option for reference file, assuming Oracle")
     geometry_convertor.LoadReceiverPPMMap()
     receiver_gains.LoadReferenceOracle(geometry_convertor)
           
@@ -782,7 +784,7 @@ def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=Fa
 	    
 
 	   
-#print measured_gains	 
+#print (measured_gains	 )
   c1.cd()
   ROOT.gPad.SetLogy(0)
 
@@ -990,11 +992,11 @@ def PlotCalibrationGains(input_file_name="",reference_file_name="",isInputXml=Fa
   bad_gain_file.close()
   drifted_towers_file.close()  
 
-  print "finished!"
+  print ("finished!")
 
 if __name__ == "__main__":
 
-  print "Starting plot_gains_xml"
+  print ("Starting plot_gains_xml")
 
   parser = OptionParser()
   

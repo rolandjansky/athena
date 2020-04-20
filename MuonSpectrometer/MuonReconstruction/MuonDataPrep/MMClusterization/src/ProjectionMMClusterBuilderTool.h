@@ -4,16 +4,16 @@
 #ifndef ProjectionMMClusterBuilderTool_h
 #define ProjectionMMClusterBuilderTool_h
 
-#include "GaudiKernel/ToolHandle.h"
+#include <numeric>
+#include <string>
+#include <vector>
+
 #include "MMClusterization/IMMClusterBuilderTool.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include <numeric>
-
-#include "TMath.h"
-
-
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class MmIdHelper;
 namespace MuonGM
@@ -22,7 +22,7 @@ namespace MuonGM
 }
 
 //
-// Simple clusterization tool for MicroMegas
+// fixed angle projection cluster builder tool for MicroMegas
 //
 namespace Muon
 {
@@ -40,26 +40,28 @@ namespace Muon
     virtual StatusCode initialize() override;
     
     /**Interface fuction to IMMClusterBuilderTool; calling function manages the pointers inside clustersVec  */
-    virtual
-    StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<Muon::MMPrepData*>& clustersVec) override;
+
+    virtual StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, std::vector<Muon::MMPrepData*>& clustersVec) const override;
 
   private: 
 
-    /// Muon Detector Descriptor
-    const MuonGM::MuonDetectorManager* m_muonMgr;
-    const MmIdHelper* m_mmIdHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    double m_vDrift,m_tmin,m_tmax;
+    double m_tmin,m_tmax,m_tOffset;
     double m_p0,m_p1,m_p2; //correction factors for charge dependence
 
+    int m_t0;
 
-    StatusCode calculateCorrection(const std::vector<Muon::MMPrepData> &prdsOfLayer,std::vector<double>& v_posxc,std::vector<double>& v_cor);
-    StatusCode doFineScan(std::vector<int>& flag,const std::vector<double>& v_posxc, const std::vector<double>& v_cor, std::vector<int>& idx_selected);   
-    StatusCode doPositionCalculation(std::vector<double>& v_posxc, const std::vector<double>& v_cor, const std::vector<int> idx_selected,double& xmean, double& xmeanErr, double &  qtot,const std::vector<Muon::MMPrepData>& prdsOfLayer);
+    uint m_minClusterSize;
+
+
+    StatusCode calculateCorrection(const std::vector<Muon::MMPrepData> &prdsOfLayer,std::vector<double>& v_posxc,std::vector<double>& v_cor) const ;
+    StatusCode doFineScan(std::vector<int>& flag,const std::vector<double>& v_posxc, const std::vector<double>& v_cor, std::vector<int>& idx_selected) const ;   
+    StatusCode doPositionCalculation(std::vector<double>& v_posxc, const std::vector<double>& v_cor, const std::vector<int> idx_selected,double& xmean, double& xmeanErr, double &  qtot,const std::vector<Muon::MMPrepData>& prdsOfLayer) const;
     
-    StatusCode writeNewPrd(std::vector<Muon::MMPrepData*>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer);
+    StatusCode writeNewPrd(std::vector<Muon::MMPrepData*>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer) const ;
     
-    double getSigma(double correction);
+    double getSigma(double correction)const;
 
 };
 

@@ -1,20 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <iostream>
-#include <math.h>
-#include <float.h>
 #include "JetSubStructureMomentTools/SubjetFinderTool.h"
-#include "JetEDM/JetConstituentFiller.h"
 #include "JetEDM/FastJetUtils.h"
 #include "JetSubStructureUtils/SubjetFinder.h"
-#include "fastjet/ClusterSequence.hh"
-#include "xAODJet/JetContainer.h"
-#include "xAODJet/JetAuxContainer.h"
-
-using namespace std;
-using fastjet::PseudoJet;
 
 SubjetFinderTool::SubjetFinderTool(std::string name) : 
   JetSubStructureMomentToolsBase(name) 
@@ -35,7 +25,7 @@ int SubjetFinderTool::modifyJet(xAOD::Jet &jet) const {
 
   // Run it
   JetSubStructureUtils::SubjetFinder subjetFinder(fjalg, m_jetrad, m_ptmin, m_exclusivenjets);
-  vector<fastjet::PseudoJet> subjets = subjetFinder.result(jet);
+  std::vector<fastjet::PseudoJet> subjets = subjetFinder.result(jet);
 
   // Record
   m_subjetrecorder->recordSubjets(subjets, jet);

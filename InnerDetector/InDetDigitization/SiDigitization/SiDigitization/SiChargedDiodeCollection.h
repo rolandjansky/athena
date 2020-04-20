@@ -15,7 +15,7 @@
 // Davide Costanzo. Revisited version. 04-03-03
 //    - added a Identifier wafer_id to the private members
 //    - added a IdHelper to the private members
-//    - constructor modified to initialiaze wafer_id and IdHelper
+//    - constructor modified to initialize wafer_id and IdHelper
 //    - replaced <list> with <map> and use the compact id of the 
 //      SiChargedDiode to map them.
 //    - Inherit from Identifiable to enforce the identify() method
@@ -37,7 +37,7 @@
 
 // STL includes
 #include <atomic>
-#include <map>
+#include <set>
 #include <memory>
 
 class AtlasDetectorID;
@@ -65,8 +65,46 @@ typedef std::unordered_map<InDetDD::SiCellId,
                             std::pair<const InDetDD::SiCellId, SiChargedDiode> > >
   SiChargedDiodeMap;
 
+
 // Iterator typedef to make it easier
 typedef SiChargedDiodeMap::iterator SiChargedDiodeIterator;
+
+
+
+//
+// A normal iteration over a SiChargedDiodeCollection will use
+// the unordered_map, so the ordering is not defined.  The observed
+// ordering can (and does) change depending on the compiler and library
+// version used.  In some cases, though, we are sensitive to the
+// order of iteration, for example in cases where we generate a random
+// number for each element of the collection.  To get results which
+// are identical across compilers, we need to instead do the iteration
+// in a well-defined order.
+//
+// This can be done using the methods sortedBegin and sortedEnd instead
+// of begin and end.  These work by maintaining a std::set of pointers
+// to the diodes, sorted by the diode number.  In order to avoid paying
+// the penalty for maintaining the sorted set when we don't need to, we only
+// start maintaining it the first time that it's requested.
+struct SiChargedDiodeOrderedSetCompare
+{
+  size_t operator() (const SiChargedDiode* a,
+                     const SiChargedDiode* b) const
+  {
+    return a->diode().word() < b->diode().word();
+  }
+};
+
+
+
+typedef std::set<SiChargedDiode*,
+                 SiChargedDiodeOrderedSetCompare,
+                 SG::ArenaPoolSTLAllocator<SiChargedDiode*> >
+  SiChargedDiodeOrderedSet;
+                 
+
+// Iterator typedef to make it easier
+typedef SiChargedDiodeOrderedSet::iterator SiChargedDiodeOrderedIterator;
 
 class SiChargedDiodeCollection : Identifiable {
   ///////////////////////////////////////////////////////////////////
@@ -132,6 +170,8 @@ class SiChargedDiodeCollection : Identifiable {
   bool AlreadyHit(const Identifier & id);
   SiChargedDiodeIterator begin();
   SiChargedDiodeIterator end();
+  SiChargedDiodeOrderedIterator orderedBegin();
+  SiChargedDiodeOrderedIterator orderedEnd();
   bool empty() const; // Test if there is anything in the collection.
 
   // return a Charged diode given its CellId, NULL if doesn't exist
@@ -145,6 +185,7 @@ class SiChargedDiodeCollection : Identifiable {
  private:
   SiChargedDiodeCollection(const SiChargedDiodeCollection&);
   SiChargedDiodeCollection &operator=(const SiChargedDiodeCollection&);
+  void order();
   
   ///////////////////////////////////////////////////////////////////
   // Private data:
@@ -158,6 +199,7 @@ class SiChargedDiodeCollection : Identifiable {
   //SiChargedDiodeMap is empty.
   SiTotalCharge::alloc_t m_allocator; 
   SiChargedDiodeMap m_chargedDiodes; // list of SiChargedDiodes 
+  SiChargedDiodeOrderedSet m_orderedChargedDiodes; // list of SiChargedDiodes 
   const InDetDD::SiDetectorElement* m_sielement; // detector element
 };
 
@@ -215,6 +257,22 @@ inline SiChargedDiodeIterator SiChargedDiodeCollection::begin()
 inline SiChargedDiodeIterator SiChargedDiodeCollection::end() 
 {
   return m_chargedDiodes.end();
+}
+
+inline SiChargedDiodeOrderedIterator SiChargedDiodeCollection::orderedBegin() 
+{
+  if (m_orderedChargedDiodes.empty() && !m_chargedDiodes.empty()) {
+    order();
+  }
+  return m_orderedChargedDiodes.begin();
+}
+
+inline SiChargedDiodeOrderedIterator SiChargedDiodeCollection::orderedEnd() 
+{
+  if (m_orderedChargedDiodes.empty() && !m_chargedDiodes.empty()) {
+    order();
+  }
+  return m_orderedChargedDiodes.end();
 }
 
 inline bool SiChargedDiodeCollection::empty() const {

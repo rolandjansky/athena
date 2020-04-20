@@ -9,10 +9,10 @@
  **/
 
 #include "TRT_ConditionsSummarySvc.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 //Gaudi includes
 #include "StoreGate/StoreGateSvc.h"

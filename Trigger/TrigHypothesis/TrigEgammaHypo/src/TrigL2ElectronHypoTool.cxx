@@ -3,9 +3,9 @@
 */
 
 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/Combinators.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/Combinators.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigL2ElectronHypoTool.h"
 

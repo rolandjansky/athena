@@ -6,8 +6,7 @@
 
 
 TrigMuonMonitorAlgorithm ::  TrigMuonMonitorAlgorithm(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthMonitorAlgorithm(name, pSvcLocator),
-    m_MuonContainerKey("Muons")
+  : AthMonitorAlgorithm(name, pSvcLocator)
 {}
 
 
@@ -28,6 +27,11 @@ StatusCode TrigMuonMonitorAlgorithm :: fillHistograms(const EventContext& ctx) c
     //// Overall monitoring ////
     ATH_CHECK(fillVariables(ctx));
 
+    //// Per chain monitoring ////
+    for(const std::string& chain : m_monitored_chains){
+      ATH_CHECK( fillVariablesPerChain(ctx, chain) );
+    }
+
 
     //// Per offline muon monitoring ////
     SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
@@ -36,10 +40,15 @@ StatusCode TrigMuonMonitorAlgorithm :: fillHistograms(const EventContext& ctx) c
       return StatusCode::FAILURE;
     }
     std::vector<const xAOD::Muon*> probes;
-    selectMuons(muons, probes);
+    ATH_CHECK(selectMuons(muons, probes));
 
     for(const xAOD::Muon* mu : probes){
-      fillVariablesPerOfflineMuon(ctx, mu);
+      ATH_CHECK( fillVariablesPerOfflineMuon(ctx, mu) );
+
+      //// Per offline muon per chain monitoring ////
+      for(const std::string& chain : m_monitored_chains){
+	ATH_CHECK( fillVariablesPerOfflineMuonPerChain(ctx, mu, chain) );
+      }
     }
 
   }
@@ -56,11 +65,13 @@ bool TrigMuonMonitorAlgorithm :: selectEvents() const {
 }
 
 
-bool TrigMuonMonitorAlgorithm :: selectMuons(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const {
+StatusCode TrigMuonMonitorAlgorithm :: selectMuons(SG::ReadHandle<xAOD::MuonContainer> &muons, std::vector<const xAOD::Muon*> &probes) const {
   for (const xAOD::Muon* mu : *muons) {
-    probes.push_back(mu);
+    if(mu->muonType()<=m_muontype){
+      probes.push_back(mu);
+    }
   }
-  return true;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -70,5 +81,13 @@ StatusCode TrigMuonMonitorAlgorithm :: fillVariables(const EventContext& ) const
 
 
 StatusCode TrigMuonMonitorAlgorithm :: fillVariablesPerOfflineMuon(const EventContext&, const xAOD::Muon* ) const {
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigMuonMonitorAlgorithm :: fillVariablesPerChain(const EventContext&, const std::string&) const {
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigMuonMonitorAlgorithm :: fillVariablesPerOfflineMuonPerChain(const EventContext&, const xAOD::Muon* , const std::string&) const {
   return StatusCode::SUCCESS;
 }

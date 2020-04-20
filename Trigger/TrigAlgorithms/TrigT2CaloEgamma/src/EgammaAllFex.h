@@ -23,7 +23,7 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
-#include "TrigT2CaloCommon/phiutils.h"
+#include "CxxUtils/phihelper.h"
 
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
@@ -62,7 +62,7 @@ class EgammaAllFex: public IAlgToolCalo {
 		       double etamin, double etamax, 
 		       double phimin, double phimax) { 
       TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax,
-                             HLT::phimean(phimin,phimax), phimin, phimax);
+                             CxxUtils::phiMean(phimin,phimax), phimin, phimax);
       return execute( rtrigEmCluster, roi, caloDDENull, nullptr );
     }
 

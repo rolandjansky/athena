@@ -1,5 +1,5 @@
  /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaMVACalibTool.h"
@@ -82,7 +82,7 @@ StatusCode egammaMVACalibTool::finalize()
 }
 
 StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& funcLibrary,
-					std::string fileName)
+					const std::string& fileName)
 {
 
   ATH_MSG_DEBUG("Trying to open " << fileName);
@@ -102,7 +102,7 @@ StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& fun
   }
   
   m_hPoly.reset(static_cast<TH2Poly*>(hPoly->Clone()));
-  m_hPoly->SetDirectory(0);
+  m_hPoly->SetDirectory(nullptr);
 
   // Load variables
   TObjArray *variablesTmp = nullptr;
@@ -154,7 +154,8 @@ StatusCode egammaMVACalibTool::setupBDT(const egammaMVAFunctions::funcMap_t& fun
 
   // Loop simultaneously over trees, variables and shifts
   // Define the BDTs, the list of variables and the shift for each BDT
-  TObjString *str2, *shift;
+  TObjString *str2;
+  TObjString *shift;
   TTree *tree;
   TIter nextTree(trees.get());
   TIter nextVariables(variables.get());

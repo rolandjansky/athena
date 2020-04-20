@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # This script sets up the build enironment for an AthDataQuality
 # build.
 #
@@ -41,9 +43,6 @@ env_setup() {
     fi
 
     # Set up the environment for the build:
-    export NICOS_PROJECT_VERSION=`cat ${AthDataQualitySrcDir}/version.txt`
-    export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-    export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
     export NICOS_PROJECT_HOME=${BUILDDIR}/install/AthDataQuality
 
     # Set up the environment variables for finding LCG and the TDAQ externals:

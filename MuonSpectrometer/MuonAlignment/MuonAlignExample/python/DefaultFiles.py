@@ -1,10 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os
 import glob
 import sys
-import commands
 from socket import gethostname
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 class Files:
     """ Class used to store information for files. """
@@ -29,17 +34,17 @@ class Files:
             if inputPath.find('/castor/')>-1 :
                 
                 # always try ESD first (?)
-                ret, out = commands.getstatusoutput("nsls "+inputPath+" | grep ESD")
+                ret, out = subprocess.getstatusoutput("nsls "+inputPath+" | grep ESD")
                 if len(out.split('\n'))==0:
-                    ret, out = commands.getstatusoutput("nsls "+inputPath+" | grep root")
+                    ret, out = subprocess.getstatusoutput("nsls "+inputPath+" | grep root")
                 filenames = out.split('\n')
                 newfilenames=[]
-                print "filenames: ",filenames
+                print ("filenames: ",filenames)
                 for file in filenames:
-                    print "file: ",file
+                    print ("file: ",file)
                     newfile=inputPath+"/"+file
                     newfilenames.append(newfile)
-                    print "newfile: ",newfile                
+                    print ("newfile: ",newfile                )
                 self.castor=True
                 filenames=newfilenames
             elif scpHost=='':
@@ -56,7 +61,7 @@ class Files:
 
                 outputstring = output[0]
                 if outputstring == '':
-                    print "problem with filelist"
+                    print ("problem with filelist")
                     sys.exit(3)
                 while outputstring.partition('\n')[1] != '':
                     outputfile = inputPath+"/"+outputstring.partition('\n')[0]
@@ -75,7 +80,7 @@ class Files:
             self.filesWithoutPath    += filenamesWithoutPath
 
         if len(self.files)<1:
-            print "no files found in inputPath: ",self.inputFilePath
+            print ("no files found in inputPath: ",self.inputFilePath)
             sys.exit(34)
 
     def scpString(self,iCPU=-1,nFiles=-1):
@@ -83,20 +88,20 @@ class Files:
         if self.scpHost=="" :
             return ""
 
-        print "nFiles: ",nFiles
+        print ("nFiles: ",nFiles)
         if nFiles>-1 and iCPU>-1:
             first = iCPU*nFiles
             last = first+nFiles
             files = self.files[first:last]
         else:
             files = self.files[:]
-        print "files: ",files
+        print ("files: ",files)
 
         filestring = str(files).replace("[","").replace("]","").replace("'","").replace(",","\n")
-        print "filestring: ",filestring
+        print ("filestring: ",filestring)
 
         host=gethostname().strip()
-        print "...host...",host,"...scpHost...",self.scpHost,"..."
+        print ("...host...",host,"...scpHost...",self.scpHost,"...")
         if (host != self.scpHost) :
             outputfilefull=str(filestring.partition('\n')[0]).lstrip()
             file=outputfilefull.rsplit("/",1)[1]
@@ -120,22 +125,22 @@ class Files:
 
     def writeFile(self,iterator,iCPU=-1,path="."):
 
-        print "in writeFile"
+        print ("in writeFile")
 
         if self.scpHost=="":
             tmpFileList = self.files
         else:
             tmpFileList = self.filesWithoutPath
 
-        print "tmpFileList: ",tmpFileList
+        print ("tmpFileList: ",tmpFileList)
         nFiles=iterator.nFilesPerJob
-        print "nFiles ",nFiles," nFilesPerJob ",iCPU
+        print ("nFiles ",nFiles," nFilesPerJob ",iCPU)
         if nFiles>-1 and iCPU>-1:
             first = iCPU*nFiles
             last = first+nFiles
-            print "first: ",first,", last: ",last
+            print ("first: ",first,", last: ",last)
             files = tmpFileList[first:last]
-            print "files: ",files
+            print ("files: ",files)
         elif nFiles>-1 and iCPU==-1 :
             files = tmpFileList[0:nFiles]
         else:
@@ -144,10 +149,10 @@ class Files:
         if len(files) == 0:
             return ""
 
-        print "scpHost: ",self.scpHost
-        print "gethostname: ",gethostname().strip()
+        print ("scpHost: ",self.scpHost)
+        print ("gethostname: ",gethostname().strip())
         if self.scpHost!="" and gethostname().strip()!=self.scpHost:
-            print "files: ",files
+            print ("files: ",files)
             newfiles = []
             for file in files:
                 newfiles.append("/tmp/roberth/"+file)
@@ -155,7 +160,7 @@ class Files:
         else:
             filestring = str(files).replace(",",",\n")
 
-        print "filestring: ",filestring
+        print ("filestring: ",filestring)
 
         if self.castor:
             filestring = filestring.replace("/castor","rfio:/castor")
@@ -193,7 +198,7 @@ class DefaultFiles (Files):
         elif format=="ESD":
             inputFilePath=["path/to/esd"]
         else:
-            print "bad file format!  must be RAW, RDO, or ESD!"            
+            print ("bad file format!  must be RAW, RDO, or ESD!"            )
         obj = Files("dataset",format,inputFilePath,scpHost,geometry,conditionsTag,nfiles,
                     datasetdef)
         return obj
@@ -209,7 +214,7 @@ class DefaultFiles (Files):
             fileType      = 'RDO'
             nfiles        = 31
             if type=="dataset":
-                print "no dataset definition for this sample"
+                print ("no dataset definition for this sample")
         elif name=='L1_MC_EC_noCSC_bnl':
             inputFilePath = ["/usatlas/u/roberth/scratch0/samples/ECID_20GeV_noCSC"]
             scpHost       = ""
@@ -217,7 +222,7 @@ class DefaultFiles (Files):
             fileType      = 'RDO'
             nfiles        = 31
             if type=="dataset":
-                print "no dataset definition for this sample"
+                print ("no dataset definition for this sample")
         elif name=='g4digi':
             inputFilePath = ["/afs/cern.ch/user/r/roberth/scratch0/g4digi"]
             scpHost       = ""
@@ -225,7 +230,7 @@ class DefaultFiles (Files):
             fileType      = 'RDO'
             nfiles        = 1
             if type=="dataset":
-                print "no dataset definition for this sample"
+                print ("no dataset definition for this sample")
         elif name=='g4digi_bnl':
             inputFilePath = ["/usatlas/u/roberth/scratch0/samples/g4digi"]
             scpHost       = ''
@@ -233,7 +238,7 @@ class DefaultFiles (Files):
             fileType      = 'RDO'
             nfiles        = 1
             if type=="dataset":
-                print "no dataset definition for this sample"
+                print ("no dataset definition for this sample")
         elif name=='121080':
             inputFilePath = ["/castor/cern.ch/grid/atlas/DAQ/2009/00121080/physics_RPCwBeam"]
             scpHost       = ''
@@ -408,7 +413,7 @@ class DefaultFiles (Files):
             
 
         else:
-            print "bad name"            
+            print ("bad name"            )
             
         if type=="dataset" and inputFilePath==[]:
             if fileType=="RAW":
@@ -422,7 +427,7 @@ class DefaultFiles (Files):
                 inputFilePath = ["/data/data10_7TeV.0015221.physics_MuonswBeam.merge.DESD_SGLMUf238_m428"]
                 scpHost       = "terrier09"
             else:
-                print "bad file format!  Use RAW, RDO, or ESD!"
+                print ("bad file format!  Use RAW, RDO, or ESD!")
 
         obj = Files(type,fileType,inputFilePath,scpHost,geometry,conditionsTag,nfiles,
                     datasetdef)

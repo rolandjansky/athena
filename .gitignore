@@ -11,6 +11,8 @@
 .asetup*
 .cproject
 *.kdevelop
+*.orig
+*.bak
 #Binary formats
 *.so*
 *.out

@@ -1,8 +1,10 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -15,7 +17,7 @@ viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride
 topSequence += viewSeq
 
 from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
-roiCollectionName =  mapThresholdToL1RoICollection("EM")  
+roiCollectionName =  mapThresholdToL1RoICollection("EM")
 
 # View maker alg
 from AthenaCommon import CfgMgr
@@ -35,7 +37,7 @@ allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, S
 if TriggerFlags.doID:
 
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
-  
+
   viewAlgs = makeInDetAlgs("FS", rois= roiCollectionName)
 
   for viewAlg in viewAlgs:
@@ -44,15 +46,15 @@ if TriggerFlags.doID:
 
   #Adding vertexing
   from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-
-  #TODO need to change the name of the output vertex collection to something recordable
-  vtxAlgs = makeVertices( "egamma", "HLT_xAODTracks_FS", "HLT_xPrimVx"  )
+  # TODO need to change the name of the output vertex collection to something recordable
+  # what is this actually testing ? why do we have FS tracks with egamma and aprimary vertex ???
+  vtxAlgs = makeVertices( "bjet", "HLT_IDTrack_FS_FTF", "HLT_xPrimVx"  )
   allViewAlgorithms += vtxAlgs
 
 
-   #Adding precision tracking
-  from TrigUpgradeTest.InDetPT import makeInDetPrecisionTracking
-  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "egamma", inputFTFtracks="TrigFastTrackFinder_Tracks_FS" )
+  from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
+  #Adding precision tracking
+  PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjet", inputFTFtracks="TrigFastTrackFinder_Tracks_Bjet" )
 
   allViewAlgorithms += PTAlgs
 
@@ -60,7 +62,7 @@ if TriggerFlags.doID:
   prefixName = "InDetTrigMT"
   from TrigVertexFitter.TrigVertexFitterConf import TrigPrimaryVertexFitter
   primaryVertexFitter = TrigPrimaryVertexFitter(  name = prefixName + "VertexFitter",
-                                                   zVariance=3.0, 
+                                                   zVariance=3.0,
                                                    CreateTrackLists=True )
 
   #Can it be added to the service when we need to make it private?
@@ -76,8 +78,8 @@ if TriggerFlags.doID:
                                                         MonTool = toolMon,
                                                         nSplitVertices      = 1,        # Turn on (>1) or off vertex splitting
                                                         ReclusterSplit      = False,    # Recluster split track collections before vertex fitting
-                                                        WeightClusterZ      = True,     # Use the track Z0 weighted cluster Z position as seed            
-                                                        
+                                                        WeightClusterZ      = True,     # Use the track Z0 weighted cluster Z position as seed
+
                                                         TotalNTrackMin      = 4,        # Minimum number of tracks required in an event
                                                         TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
                                                         TrackSeedPt         = 0.7,      # Minimum track pT to be considered for seeding a vertex fit
@@ -89,12 +91,12 @@ if TriggerFlags.doID:
                                                         TrackMinNDF         = 2.0,      # Minimum track NDF to be considered for vertexing
                                                         TrackMinQual        = 0.0,      # Minimum track chi^2/NDF to be considered for vertexing
                                                         TrackMaxQual        = 10.0,     # Maximum track chi^2/NDF to be considered for vertexing
-                                                        TrackMinChi2Prob    = -10.0,    # Minimum track cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh 
+                                                        TrackMinChi2Prob    = -10.0,    # Minimum track cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh
                                                         TrackMinSiHits      = 7,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
                                                         TrackMinPIXHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
                                                         TrackMinSCTHits     = 0,        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
                                                         TrackMinTRTHits     = -10,      # Minimum # track TRT hits to be considered for vertexing
-                                                        
+
                                                         VertexMinNTrk       = 2,        # Minimum # tracks in a cluster to be considered for vertexing
                                                         VertexMaxNTrk       = 100,      # Maximum # tracks in a cluster to be considered for vertexing (saves on time!)
                                                         VertexMaxXerr       = 1.,       # Maximum resulting X error on vertex fit for "good" vertices
@@ -102,11 +104,11 @@ if TriggerFlags.doID:
                                                         VertexMaxZerr       = 10.,      # Maximum resulting Z error on vertex fit for "good" vertices
                                                         VertexMinQual       = 0.0,      # Minimum resulting chi^2/NDF on vertex fit for "good" vertices
                                                         VertexMaxQual       = 100.0,    # Maximum resulting chi^2/NDF on vertex fit for "good" vertices
-                                                        VertexMinChi2Prob   = -10.0,    # Minimum cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh      
+                                                        VertexMinChi2Prob   = -10.0,    # Minimum cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh
                                                         VertexBCIDMinNTrk   = 10,       # Minimum # tracks in a vertex to be used for per-BCID monitoring
                                                         PrimaryVertexFitter = primaryVertexFitter )
-      
-  ToolSvc += InDetTrigMTBeamSpotTool 
+
+  ToolSvc += InDetTrigMTBeamSpotTool
 
 
 
@@ -117,17 +119,20 @@ if TriggerFlags.doID:
                                                    MonTool = alg,
                                                    vertexCollName      = "TrigBeamSpotVertex", # Output vertex collection Name
                                                    TrackCollections  = [ PTTracks[-1] ],   #For now using PT tracks as a test but FTF should be enough
-                                                   BeamSpotTool = InDetTrigMTBeamSpotTool )   
+                                                   BeamSpotTool = InDetTrigMTBeamSpotTool )
 
 
 
   allViewAlgorithms += InDetTrigMTBeamSpotAlg
 
-if TriggerFlags.doCalo:
-  from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
-  algo=T2CaloEgamma_ReFastAlgo("testFastAlgo")
+  from TrigT2MinBias.TrigT2MinBiasConf import MbtsFexMT
+  alg=MbtsFexMT()
+  allViewAlgorithms += alg
 
-  algo.RoIs="EMViewRoIs"
-  allViewAlgorithms += algo
 
-viewSeq += allViewAlgorithms
+  if TriggerFlags.doCalo:
+    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+    algo=T2CaloEgamma_ReFastAlgo("testFastAlgo")
+    algo.RoIs="EMViewRoIs"
+    allViewAlgorithms += algo
+    viewSeq += allViewAlgorithms

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the Fast Pixel Digitization code.
@@ -34,38 +34,127 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     #################################
     # Config pixel conditions setup #
     #################################
+    from IOVDbSvc.CondDB import conddb
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-    if not hasattr(condSeq, 'PixelConfigCondAlg'):
+    #################
+    # Module status #
+    #################
+    useNewChargeFormat  = False
+
+    if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+
+        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
+        rodIDForSingleLink40=0
+        # ITk:
+        if geoFlags.isSLHC():
+            IdMappingDat = "ITk_Atlas_IdMapping.dat"
+            if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
+                IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
+            elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
+                IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
+            elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
+                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
+            elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
+                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
+        elif (geoFlags.isIBL() == False):
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
+        else:
+            # Planar IBL
+            if (geoFlags.IBLLayout() == "planar"):
+                if (geoFlags.isDBM() == True):
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
+                else:
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
+            # Hybrid IBL plus DBM
+            elif (geoFlags.IBLLayout() == "3D"):
+                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
+        
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                      UseDeadMap=False,
-                                      ReadDeadMapKey="/PIXEL/PixMapOverlay",
-                                      UseCalibConditions=True)
+                                      UseDeadmapConditions=False,
+                                      UseDCSStateConditions=False,
+                                      UseDCSStatusConditions=False,
+                                      UseTDAQConditions=False,
+                                      UseCalibConditions=True,
+                                      UseCablingConditions=False,
+                                      CablingMapFileName=IdMappingDat)
 
     #FIXME: at some point we should move away from being dependent on the experimentalDigi flags.
     if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() and not 'doFastPixelDigi' in digitizationFlags.experimentalDigi():
         PixelConfigCondAlg.UseCalibConditions=False
     else:
+        #####################
+        # Calibration Setup #
+        #####################
+        if not useNewChargeFormat:
+            if not conddb.folderRequested("/PIXEL/PixCalib"):
+                conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+            if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+                condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
+        else:
+            if not conddb.folderRequested("/PIXEL/ChargeCalibration"):
+                conddb.addFolder("PIXEL_OFL", "/PIXEL/ChargeCalibration", className="CondAttrListCollection")
+            if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
+                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
+                condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
+
+        #####################
+        # Cabling map Setup #
+        #####################
+        if (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+            conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
+
+            if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+                condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+
+        if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
+            conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
+
+        if not hasattr(condSeq, 'PixelReadoutSpeedAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
+            condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
+
+        if not hasattr(condSeq, 'PixelCablingCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
+            condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
+                                           MappingFile=IdMappingDat,
+                                           RodIDForSingleLink40=rodIDForSingleLink40)
+
+        if not conddb.folderRequested('/PIXEL/PixdEdx'):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixdEdx", className="AthenaAttributeList")
+
+        if not conddb.folderRequested("/PIXEL/PixReco"):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
+
+        if not conddb.folderRequested("/Indet/PixelDist"):
+            conddb.addFolder("INDET", "/Indet/PixelDist", className="DetCondCFloat")
+
+        if not hasattr(condSeq, 'PixelOfflineCalibCondAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelOfflineCalibCondAlg
+            condSeq += PixelOfflineCalibCondAlg(name="PixelOfflineCalibCondAlg", ReadKey="/PIXEL/PixReco")
+            PixelOfflineCalibCondAlg.InputSource = 2
+
+        if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+            from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
+        if not hasattr(condSeq, 'PixelDistortionAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
+            condSeq += PixelDistortionAlg(name="PixelDistortionAlg")
+
+        if not hasattr(condSeq, 'PixeldEdxAlg'):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixeldEdxAlg
+            condSeq += PixeldEdxAlg(name="PixeldEdxAlg")
+            PixeldEdxAlg.ReadFromCOOL = True
+
         from AthenaCommon.AppMgr import ToolSvc
         if not hasattr(ToolSvc, "PixelRecoDbTool"):
             from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
             ToolSvc += PixelRecoDbTool()
         ToolSvc.PixelRecoDbTool.InputSource = 1
-
-        #####################
-        # Calibration setup #
-        #####################
-        from IOVDbSvc.CondDB import conddb
-        if not conddb.folderRequested("/PIXEL/PixCalib"):
-            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
-
-        if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
-            condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
-
-        if not conddb.folderRequested('/PIXEL/ReadoutSpeed'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/ReadoutSpeed")
 
     from AthenaCommon import CfgMgr
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)

@@ -73,6 +73,11 @@ atlas_add_test( ViewNestFail SCRIPT test/test_view_nest_fail.sh
                 PROPERTIES PASS_REGULAR_EXPRESSION "Execution of algorithm nest_alg failed"
                 TIMEOUT 300 )
 
+option( ATHVIEWS_DEBUG "Build debugging version" OFF )
+if( ATHVIEWS_DEBUG )
+  add_compile_definitions( ATHVIEWS_DEBUG )
+endif()
+
 # Install files from the package:
 atlas_install_headers( AthViews )
 atlas_install_joboptions( share/*.py )

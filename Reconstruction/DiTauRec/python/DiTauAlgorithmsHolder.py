@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-from AthenaCommon.Constants import *
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 cached_instances = {}
 

@@ -25,7 +25,9 @@
 
 // HepMC / CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Polarization.h"
+#include "AtlasHepMC/Flow.h"
 
 // Gaudi includes
 
@@ -45,7 +47,6 @@
 #include "McParticleEvent/TruthEtIsolations.h"
 
 // Forward declaration
-namespace HepMC { class GenEvent; }
 namespace Trk   { class RecVertex; }
 class TruthParticleContainer;
 

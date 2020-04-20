@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactoryH62003.h"
@@ -106,7 +106,7 @@ void LArGeo::LArDetectorFactoryH62003::create( GeoPhysVol* a_container )
     }
   }
 
-  detStore->record(fcalDetectorManager,fcalDetectorManager->getName());
+  detStore->record(fcalDetectorManager,fcalDetectorManager->getName()).ignore();
   m_detectorManager = new LArDetectorManager(0,0,0,fcalDetectorManager);
   m_detectorManager->addTreeTop(Envelope);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloSimEventTPCnv/CaloCalibrationHitContainerCnv_p1.h"
@@ -31,15 +31,15 @@ CaloCalibrationHitContainer* CaloCalibrationHitContainerCnv::createTransient() {
     static const pool::Guid  p0_guid("33CDAED0-F472-47D2-8F28-27C6D6761F35");
 
     if( this->compareClassGuid(p3_guid)) {
-      std::auto_ptr< CaloCalibrationHitContainer_p3 >   col_vect( this->poolReadObject< CaloCalibrationHitContainer_p3 >() );
+      std::unique_ptr< CaloCalibrationHitContainer_p3 >   col_vect( this->poolReadObject< CaloCalibrationHitContainer_p3 >() );
       trans_cont = converter_p3.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(p2_guid)) {
-      std::auto_ptr< CaloCalibrationHitContainer_p2 >   col_vect( this->poolReadObject< CaloCalibrationHitContainer_p2 >() );
+      std::unique_ptr< CaloCalibrationHitContainer_p2 >   col_vect( this->poolReadObject< CaloCalibrationHitContainer_p2 >() );
       trans_cont = converter_p2.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(p1_guid)) {
-        std::auto_ptr< CaloCalibrationHitContainer_p1 >   col_vect( this->poolReadObject< CaloCalibrationHitContainer_p1 >() );
+        std::unique_ptr< CaloCalibrationHitContainer_p1 >   col_vect( this->poolReadObject< CaloCalibrationHitContainer_p1 >() );
         trans_cont = converter_p1.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(p0_guid)) {

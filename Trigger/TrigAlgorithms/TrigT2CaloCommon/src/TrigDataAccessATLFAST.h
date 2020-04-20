@@ -52,7 +52,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "TrigT2CaloCommon/phiutils.h"
+#include "CxxUtils/phihelper.h"
 
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
@@ -145,14 +145,14 @@ class TrigDataAccessATLFAST: virtual public ITrigDataAccess, public AthAlgTool,
 			       const double etamin, const double etamax, 
 			       const double phimin, const double phimax,
 			       const DETID detid=TTEM) { 
-      TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, HLT::phimean(phimin,phimax), phimin, phimax);
+      TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, CxxUtils::phiMean(phimin,phimax), phimin, phimax);
       RegionSelectorListID(sampling, roi, detid);
     }
     
     void RegionSelectorRobID (const int sampling, const double etamin,
 			      const double etamax, const double phimin, const double phimax,
 			      const DETID detid=TTEM, bool /* fetchROBs*/ = true) { 
-      TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, HLT::phimean(phimin,phimax), phimin, phimax);
+      TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, CxxUtils::phiMean(phimin,phimax), phimin, phimax);
       RegionSelectorRobID(sampling, roi, detid);
     }
 
@@ -161,7 +161,7 @@ class TrigDataAccessATLFAST: virtual public ITrigDataAccess, public AthAlgTool,
 				       const double etamin, const double etamax, 
 				       const double phimin, const double phimax,
 				       const DETID detid=TTEM){
-      TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, HLT::phimean(phimin,phimax), phimin, phimax);
+      TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, CxxUtils::phiMean(phimin,phimax), phimin, phimax);
       RegionSelector(sampling, roi, detid);
     };
 	

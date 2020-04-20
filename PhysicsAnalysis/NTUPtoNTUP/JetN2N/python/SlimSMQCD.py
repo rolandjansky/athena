@@ -1,21 +1,23 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 def doSlimSMQCD(treeName,outputFile,inputFiles,year):
     from ROOT import TChain
-    from ROOT import TH1F
     from ROOT import TFile
     from ROOT import ROOT
     #import rootlogon
     ROOT.gROOT.SetBatch(1)
 
     import sys
-    print "sys.argv = ", sys.argv
+    print ("sys.argv = ", sys.argv)
 
-    if not len(sys.argv)>=2:  raise(Exception, "Must specify inputFiles as argument!")
+    if not len(sys.argv)>=2:
+        raise Exception ("Must specify inputFiles as argument!")
 
     #inputFiles = sys.argv[1].split(',')
     inputFiles = inputFiles
-    print "inputFiles = ", inputFiles
+    print ("inputFiles = ", inputFiles)
 
     #get main tree
     ch = TChain(treeName)
@@ -23,7 +25,7 @@ def doSlimSMQCD(treeName,outputFile,inputFiles,year):
         ch.Add(file)
 
     nEntries = ch.GetEntries()
-    #print "nEntries = ", nEntries
+    #print ("nEntries = ", nEntries)
 
     #*****set branches*****
 
@@ -35,11 +37,11 @@ def doSlimSMQCD(treeName,outputFile,inputFiles,year):
     #event information
     if year == '2011':
        for branch in SlimSMQCDBranchesList2011:
-         print branch
+         print (branch)
          ch.SetBranchStatus(branch,1)
     else:
        for branch in SlimSMQCDBranchesList:
-         print branch
+         print (branch)
          ch.SetBranchStatus(branch,1)
 
     #*****set branches end*****
@@ -76,7 +78,7 @@ def doSlimSMQCD(treeName,outputFile,inputFiles,year):
     #weight=[0,0,0]
 
     #event selection
-    for i in xrange(nEntries):
+    for i in range(nEntries):
         ch.GetEntry(i)
         #evnum[1]+=1
         #if hasattr(ch,"mcevt_weight") \
@@ -94,14 +96,14 @@ def doSlimSMQCD(treeName,outputFile,inputFiles,year):
     newFile.cd()
     ch_new.Write()
     #nEntriesNew = ch_new.GetEntries()
-    #print "nEntriesForNewFile = ", nEntriesNew
+    #print ("nEntriesForNewFile = ", nEntriesNew)
 
     #check cut flow at D3PD level
     #if chCutFlow.GetEntries() != 0:
-    #    for i in xrange (chCutFlow.GetEntries()):
+    #    for i in range (chCutFlow.GetEntries()):
     #        chCutFlow.GetEntry(i)
     #        cutFlowName=chCutFlow.name
-    #        for j in xrange(cutFlowName.size()):
+    #        for j in range(cutFlowName.size()):
     #            if cutName.at(j) == "AllExecutedEvents":
     #                evnum[0]+=chCutFlow.nAcceptedEvents.at(j)
     #                weight[0]+=chCutFlow.nWeightedAcceptedEvents.at(j)
@@ -123,18 +125,19 @@ def doSlimSMQCD(treeName,outputFile,inputFiles,year):
 
     # cut flow histgrams
     #newFile.cd()
+    #from ROOT import TH1F
     #h_evnum=TH1F("evnum","evnum",len(cutName),0,len(cutName))
     #h_weight=TH1F("weight","weight",len(cutName),0,len(cutName))
-    #print ""
-    #print "******Cut Flow for ",outFile, "******"
-    #print "%10s %10s %12s" % ("CutName", "Events", "Weights")
-    #for i in xrange(len(cutName)):
-    #    print "%10s %10d %12.2f" % (cutName[i], evnum[i], weight[i])
+    #print ("")
+    #print ("******Cut Flow for ",outFile, "******")
+    #print ("%10s %10s %12s" % ("CutName", "Events", "Weights"))
+    #for i in range(len(cutName)):
+    #    print ("%10s %10d %12.2f" % (cutName[i], evnum[i], weight[i]))
     #    h_evnum.GetXaxis().SetBinLabel(i+1,cutName[i])
     #    h_evnum.SetBinContent(i+1,evnum[i])
     #    h_weight.GetXaxis().SetBinLabel(i+1,cutName[i])
     #    h_weight.SetBinContent(i+1,weight[i])
-    #print "****************************"
-    #print ""
+    #print ("****************************")
+    #print ("")
     #h_evnum.Write()
     #h_weight.Write()

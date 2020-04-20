@@ -43,7 +43,7 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags)) 
 
     # Setup the RPC ROD decoder
-    Muon__RpcROD_Decoder=CompFactory.Muon__RpcROD_Decoder
+    Muon__RpcROD_Decoder=CompFactory.Muon.RpcROD_Decoder
     RPCRodDecoder = Muon__RpcROD_Decoder(name	     = "RpcROD_Decoder" )
 
     # RAW data provider tool needs ROB data provider service (should be another Config function?)
@@ -52,9 +52,11 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    Muon__RPC_RawDataProviderToolMT=CompFactory.Muon__RPC_RawDataProviderToolMT
+    keyName = flags.Overlay.BkgPrefix + "RPCPAD" if flags.Detector.OverlayRPC else "RPCPAD"
+    Muon__RPC_RawDataProviderToolMT=CompFactory.Muon.RPC_RawDataProviderToolMT
     MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
-                                                               Decoder = RPCRodDecoder )
+                                                                 Decoder = RPCRodDecoder,
+                                                                 RdoLocation = keyName )
     if forTrigger:
         MuonRpcRawDataProviderTool.RpcContainerCacheKey   = MuonCacheNames.RpcCache
         MuonRpcRawDataProviderTool.WriteOutRpcSectorLogic = False
@@ -62,7 +64,7 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addPublicTool( MuonRpcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Setup the RAW data provider algorithm
-    Muon__RpcRawDataProvider=CompFactory.Muon__RpcRawDataProvider
+    Muon__RpcRawDataProvider=CompFactory.Muon.RpcRawDataProvider
     RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider",
                                                   ProviderTool = MuonRpcRawDataProviderTool )
 
@@ -86,7 +88,7 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags)) 
 
     # Setup the TGC ROD decoder
-    Muon__TGC_RodDecoderReadout=CompFactory.Muon__TGC_RodDecoderReadout
+    Muon__TGC_RodDecoderReadout=CompFactory.Muon.TGC_RodDecoderReadout
     TGCRodDecoder = Muon__TGC_RodDecoderReadout(name = "TgcROD_Decoder")
 
     # RAW data provider tool needs ROB data provider service (should be another Config function?)
@@ -95,9 +97,11 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    Muon__TGC_RawDataProviderToolMT=CompFactory.Muon__TGC_RawDataProviderToolMT
+    keyName = flags.Overlay.BkgPrefix + "TGCRDO" if flags.Detector.OverlayTGC else "TGCRDO"
+    Muon__TGC_RawDataProviderToolMT=CompFactory.Muon.TGC_RawDataProviderToolMT
     MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderToolMT(name    = "TGC_RawDataProviderToolMT",
-                                                               Decoder = TGCRodDecoder )
+                                                                 Decoder = TGCRodDecoder,
+                                                                 RdoLocation = keyName )
 
     if forTrigger:
         MuonTgcRawDataProviderTool.TgcContainerCacheKey   = MuonCacheNames.TgcCache
@@ -105,7 +109,7 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addPublicTool( MuonTgcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Setup the RAW data provider algorithm
-    Muon__TgcRawDataProvider=CompFactory.Muon__TgcRawDataProvider
+    Muon__TgcRawDataProvider=CompFactory.Muon.TgcRawDataProvider
     TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
                                                   ProviderTool = MuonTgcRawDataProviderTool )
     
@@ -138,9 +142,11 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    Muon__MDT_RawDataProviderToolMT=CompFactory.Muon__MDT_RawDataProviderToolMT
+    keyName = flags.Overlay.BkgPrefix + "MDTCSM" if flags.Detector.OverlayMDT else "MDTCSM"
+    Muon__MDT_RawDataProviderToolMT=CompFactory.Muon.MDT_RawDataProviderToolMT
     MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderToolMT(name    = "MDT_RawDataProviderToolMT",
-                                                                 Decoder = MDTRodDecoder)
+                                                                 Decoder = MDTRodDecoder,
+                                                                 RdoLocation = keyName)
 
     if forTrigger:
         MuonMdtRawDataProviderTool.CsmContainerCacheKey = MuonCacheNames.MdtCsmCache
@@ -148,7 +154,7 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addPublicTool( MuonMdtRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
 
     # Setup the RAW data provider algorithm
-    Muon__MdtRawDataProvider=CompFactory.Muon__MdtRawDataProvider
+    Muon__MdtRawDataProvider=CompFactory.Muon.MdtRawDataProvider
     MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
                                                   ProviderTool = MuonMdtRawDataProviderTool )
 
@@ -168,7 +174,7 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     acc.merge(MuonGeoModelCfg(flags)) 
 
     # Setup the CSC ROD decoder
-    Muon__CscROD_Decoder=CompFactory.Muon__CscROD_Decoder
+    Muon__CscROD_Decoder=CompFactory.Muon.CscROD_Decoder
     CSCRodDecoder = Muon__CscROD_Decoder(name	     = "CscROD_Decoder" )
 
     # RAW data provider tool needs ROB data provider service (should be another Config function?)
@@ -177,16 +183,18 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    Muon__CSC_RawDataProviderToolMT=CompFactory.Muon__CSC_RawDataProviderToolMT
+    keyName = flags.Overlay.BkgPrefix + "CSCRDO" if flags.Detector.OverlayCSC else "CSCRDO"
+    Muon__CSC_RawDataProviderToolMT=CompFactory.Muon.CSC_RawDataProviderToolMT
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name    = "CSC_RawDataProviderToolMT",
-                                                               Decoder = CSCRodDecoder)
+                                                                 Decoder = CSCRodDecoder,
+                                                                 RdoLocation = keyName)
     if forTrigger:
         MuonCscRawDataProviderTool.CscContainerCacheKey = MuonCacheNames.CscCache
 
     acc.addPublicTool( MuonCscRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Setup the RAW data provider algorithm
-    Muon__CscRawDataProvider=CompFactory.Muon__CscRawDataProvider
+    Muon__CscRawDataProvider=CompFactory.Muon.CscRawDataProvider
     CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
                                                   ProviderTool = MuonCscRawDataProviderTool )
 

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -10,14 +10,26 @@
 '''
 
 def TgcRawDataMonitoringConfig(inputFlags):
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    result = ComponentAccumulator()
+
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    result.merge(MagneticFieldSvcCfg(inputFlags))
+
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    result.merge(AtlasGeometryCfg(inputFlags))
+
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    trackGeomCfg = TrackingGeometrySvcCfg(inputFlags)
+    geom_svc = trackGeomCfg.getPrimary() 
+    geom_svc.GeometryBuilder.Compactify = False ######## To avoid crash ########
+    result.merge(trackGeomCfg)
 
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TgcRawDataMonitorCfg')
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
     tgcRawDataMonAlg = helper.addAlgorithm(CompFactory.TgcRawDataMonitorAlgorithm,'TgcRawDataMonAlg')
-
-    tgcRawDataMonAlg.TagAndProbe = False
 
     tgcRawDataMonAlg.TagTrigList = 'HLT_mu26_ivarmedium'
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu26_ivarmedium'
@@ -26,101 +38,104 @@ def TgcRawDataMonitoringConfig(inputFlags):
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu6_L1MU6'
     tgcRawDataMonAlg.TagTrigList += ',HLT_mu20_mu8noL1;HLT_mu20'
 
-    # Run 2 containers?
     if 'HLT_xAOD__MuonContainer_MuonEFInfo' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.MuonEFContainerName='HLT_xAOD__MuonContainer_MuonEFInfo'
+    if 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
+        tgcRawDataMonAlg.AnaTgcPrd=True
     
     mainDir = 'Muon/MuonRawDataMonitoring/TGC/'
-    pi = 3.14159265359
+    import math
 
     trigPath = 'Trig/'
 
     myGroup = helper.addGroup(tgcRawDataMonAlg,'TgcRawDataMonitor',mainDir)
 
-    myGroup.defineHistogram('thrNumber_barrel',title='thrNumber_barrel;thrNumber;Events',
-                            path=trigPath,xbins=16,xmin=0.0,xmax=16.0)
-    myGroup.defineHistogram('thrNumber_endcap',title='thrNumber_endcap;thrNumber;Events',
-                            path=trigPath,xbins=16,xmin=0.0,xmax=16.0)
-    myGroup.defineHistogram('thrNumber_forward',title='thrNumber_forward;thrNumber;Events',
-                            path=trigPath,xbins=16,xmin=0.0,xmax=16.0)
+    myGroup.defineHistogram('roi_thr;MuonRoI_Thresholds_RPC',title='MuonRoI Thresholds RPC;MuonRoI Threshold number;Number of events',
+                            cutmask='roi_rpc',path=trigPath,xbins=20,xmin=-0.5,xmax=19.5)
+    myGroup.defineHistogram('roi_thr;MuonRoI_Thresholds_TGC',title='MuonRoI Thresholds TGC;MuonRoI Threshold number;Number of events',
+                            cutmask='roi_tgc',path=trigPath,xbins=20,xmin=-0.5,xmax=19.5)
 
-    array = helper.addArray([16],tgcRawDataMonAlg,'TgcRawDataMonitor')
+    myGroup.defineHistogram('lb,roi_phi_barrel;MuonRoI_PhiVsLB_Barrel_sideA',title='MuonRoI PhiVsLB Barrel sideA;Luminosity block;Trigger sector',type='TH2F',
+                            cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=8,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('lb,roi_phi_barrel;MuonRoI_PhiVsLB_Barrel_sideC',title='MuonRoI PhiVsLB Barrel sideC;Luminosity block;Trigger sector',type='TH2F',
+                            cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=8,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
 
-    array.defineHistogram('roiEta,roiPhi',title='roiEta2Phi;roiEta;roiPhi',type='TH2F',path=mainDir+trigPath,
-                          xbins=100,xmin=-2.5,xmax=2.5,
-                          ybins=48,ymin=-pi,ymax=pi)
+    myGroup.defineHistogram('lb,roi_phi_endcap;MuonRoI_PhiVsLB_Endcap_sideA',title='MuonRoI PhiVsLB Endcap sideA;Luminosity block;Trigger sector',type='TH2F',
+                            cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('lb,roi_phi_endcap;MuonRoI_PhiVsLB_Endcap_sideC',title='MuonRoI PhiVsLB Endcap sideC;Luminosity block;Trigger sector',type='TH2F',
+                            cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=48,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+
+    myGroup.defineHistogram('lb,roi_phi_forward;MuonRoI_PhiVsLB_Forward_sideA',title='MuonRoI PhiVsLB Forward sideA;Luminosity block;Trigger sector',type='TH2F',
+                            cutmask='roi_sideA',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=24,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('lb,roi_phi_forward;MuonRoI_PhiVsLB_Forward_sideC',title='MuonRoI PhiVsLB Forward sideC;Luminosity block;Trigger sector',type='TH2F',
+                            cutmask='roi_sideC',path=trigPath,xbins=100,xmin=-0.5,xmax=99.5,ybins=24,ymin=-math.pi,ymax=math.pi,opt='kAddBinsDynamically')
     
-    array.defineHistogram('roiEta',title='roiEta;roiEta;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=100,xmin=-2.5,xmax=2.5)
+    for n in range(1,16):
+        myGroup.defineHistogram('roi_eta;MuonRoI_Eta_Thr'+str(n),title='MuonRoI Eta Thr'+str(n)+';MuonRoI Eta;Number of events',
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+        myGroup.defineHistogram('roi_phi_rpc;MuonRoI_Phi_RPC_Thr'+str(n),title='MuonRoI Phi RPC Thr'+str(n)+';MuonRoI Phi;Number of events',
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=32,xmin=-math.pi,xmax=math.pi)
+        myGroup.defineHistogram('roi_phi_tgc;MuonRoI_Phi_TGC_Thr'+str(n),title='MuonRoI Phi TGC Thr'+str(n)+';MuonRoI Phi;Number of events',
+                                cutmask='thrmask'+str(n),path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+        myGroup.defineHistogram('roi_eta,roi_phi;MuonRoI_EtaVsPhi_Thr'+str(n),type='TH2F',
+                                title='MuonRoI Eta vs Phi Thr'+str(n)+';MuonRoI Eta;MuonRoI Phi',cutmask='thrmask'+str(n),path=trigPath,
+                                xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_pt_rpc;MuonRoI_Eff_Pt_RPC_Thr'+str(n),title='MuonRoI_Eff_Pt_RPC_Thr'+str(n)+';Offline muon pT [GeV];Efficiency',
+                                type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_pt_tgc;MuonRoI_Eff_Pt_TGC_Thr'+str(n),title='MuonRoI_Eff_Pt_TGC_Thr'+str(n)+';Offline muon pT [GeV];Efficiency',
+                                type='TEfficiency',path=trigPath,xbins=50,xmin=0,xmax=50)
+        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_phi_rpc;MuonRoI_Eff_Phi_RPC_Thr'+str(n),title='MuonRoI_Eff_Phi_RPC_Thr'+str(n)+';Offline muon phi [rad.];Efficiency',
+                                type='TEfficiency',path=trigPath,xbins=32,xmin=-math.pi,xmax=math.pi)
+        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_phi_tgc;MuonRoI_Eff_Phi_TGC_Thr'+str(n),title='MuonRoI_Eff_Phi_TGC_Thr'+str(n)+';Offline muon phi [rad.];Efficiency',
+                                type='TEfficiency',path=trigPath,xbins=48,xmin=-math.pi,xmax=math.pi)
+        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_eta;MuonRoI_Eff_Eta_Thr'+str(n),title='MuonRoI_Eff_Eta_Thr'+str(n)+';Offline muon eta;Efficiency',
+                                type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5)
+        myGroup.defineHistogram('muon_l1passThr'+str(n)+',muon_eta,muon_phi;MuonRoI_Eff_EtaVsPhi_Thr'+str(n),title='MuonRoI_Eff_EtaVsPhi_Thr'+str(n)+';Offline muon eta; Offline muon phi',
+                                type='TEfficiency',path=trigPath,xbins=100,xmin=-2.5,xmax=2.5,ybins=48,ymin=-math.pi,ymax=math.pi)
+        
 
-    array.defineHistogram('roiPhi_barrel_A',title='roiPhi_barrel_A;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=16,xmin=-pi,xmax=pi)
-    array.defineHistogram('roiPhi_endcap_A',title='roiPhi_endcap_A;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=48,xmin=-pi,xmax=pi)
-    array.defineHistogram('roiPhi_forward_A',title='roiPhi_forward_A;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=24,xmin=-pi,xmax=pi)
+    hitPath = 'Hit/'
+    myGroup.defineHistogram('hit_n;TgcPrd_nHits',title='TgcPrd_nHits;Number of hits;Number of events',
+                            path=hitPath,xbins=100,xmin=0,xmax=1000,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('hit_bunch;TgcPrd_Timing',title='TgcPrd_Timing;Timing;Number of events',
+                            path=hitPath,xbins=4,xmin=-1.5,xmax=1.5,xlabels=['Previous','Current','Next'])
 
-    array.defineHistogram('roiPhi_barrel_C',title='roiPhi_barrel_C;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=16,xmin=-pi,xmax=pi)
-    array.defineHistogram('roiPhi_endcap_C',title='roiPhi_endcap_C;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=48,xmin=-pi,xmax=pi)
-    array.defineHistogram('roiPhi_forward_C',title='roiPhi_forward_C;roiPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=24,xmin=-pi,xmax=pi)
-
-    array.defineHistogram('bcID_barrel',title='trig2bcid_barrel;BCID;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=4000,xmin=0,xmax=4000)
-    array.defineHistogram('bcID_endcap',title='trig2bcid_endcap;BCID;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=4000,xmin=0,xmax=4000)
-    array.defineHistogram('bcID_forward',title='trig2bcid_forward;BCID;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=4000,xmin=0,xmax=4000)
+    coinPath = 'Coin/'
+    myGroup.defineHistogram('coin_n;TgcCoin_nCoins',title='TgcPrd_nCoins;Number of coincidences;Number of events',
+                            path=coinPath,xbins=100,xmin=0,xmax=1000,opt='kAddBinsDynamically')
+    myGroup.defineHistogram('coin_bunch;TgcCoin_Timing',title='TgcCoin_Timing;Timing;Number of events',
+                            path=coinPath,xbins=4,xmin=-1.5,xmax=1.5,xlabels=['Previous','Current','Next'])
     
-    array.defineHistogram('muEta,muPhi',title='muEta2Phi;muEta;muPhi',type='TH2F',path=mainDir+trigPath,
-                          xbins=100,xmin=-2.5,xmax=2.5,
-                          ybins=48,ymin=-pi,ymax=pi)
-
-    array.defineHistogram('muEta',title='muEta;muEta;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=100,xmin=-2.5,xmax=2.5)
-
-    array.defineHistogram('muPt_barrel',title='muPt_barrel;muPt;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=40,xmin=0,xmax=40)
-    array.defineHistogram('muPt_endcap',title='muPt_endcap;muPt;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=40,xmin=0,xmax=40)
-    array.defineHistogram('muPt_forward',title='muPt_forward;muPt;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=40,xmin=0,xmax=40)
-
-    array.defineHistogram('muPhi_barrel_A',title='muPhi_barrel_A;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=16,xmin=-pi,xmax=pi)
-    array.defineHistogram('muPhi_endcap_A',title='muPhi_endcap_A;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=48,xmin=-pi,xmax=pi)
-    array.defineHistogram('muPhi_forward_A',title='muPhi_forward_A;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=24,xmin=-pi,xmax=pi)
-
-    array.defineHistogram('muPhi_barrel_C',title='muPhi_barrel_C;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=16,xmin=-pi,xmax=pi)
-    array.defineHistogram('muPhi_endcap_C',title='muPhi_endcap_C;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=48,xmin=-pi,xmax=pi)
-    array.defineHistogram('muPhi_forward_C',title='muPhi_forward_C;muPhi;Events',type='TH1F',path=mainDir+trigPath,
-                          xbins=24,xmin=-pi,xmax=pi)
-
-
-    return helper.result()
+    acc = helper.result()
+    result.merge(acc)
+    return result
     
 if __name__=='__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior = 1
 
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import INFO
+    from AthenaCommon.Constants import INFO,DEBUG
     log.setLevel(INFO)
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    nightly = '/afs/cern.ch/user/e/ebergeas/work/public/triggermonitoring/nigtly_2019-08-24T2130/'
-    file = 'AOD.pool.root'
-    ConfigFlags.Input.Files = [nightly+file]
+    import glob
+
+    inputs = glob.glob('/data01/masato/L1MuonDevRun3/athenaMT/run_mc_zmumu_normal/*/tmp.ESD')
+    # inputs = glob.glob('/data01/masato/L1MuonDevRun3/athenaMT/run_mc_zmumu_normal/*/AOD*')
+    # inputs = glob.glob('/data01/masato/L1MuonDevRun3/athenaMT/mc_scan_normal/*/tmp.ESD')
+
+    ConfigFlags.Input.Files = inputs
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
-    
+
+    ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"
+
     ConfigFlags.lock()
+    ConfigFlags.dump()
+
+    from AthenaCommon.AppMgr import ServiceMgr
+    ServiceMgr.Dump = False
 
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -128,8 +143,9 @@ if __name__=='__main__':
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     tgcRawDataMonitorAcc = TgcRawDataMonitoringConfig(ConfigFlags)
+    tgcRawDataMonitorAcc.OutputLevel = DEBUG
     cfg.merge(tgcRawDataMonitorAcc)
 
-    cfg.printConfig(withDetails=False)
+    cfg.printConfig(withDetails=True, summariseProps = True)
 
     cfg.run()

@@ -24,11 +24,12 @@
 #include "../CaloTopoTowerAlg.h"
 #include "CaloRec/Blob2ToolConstants.h"
 #include "../CaloCellFastCopyTool.h"
-#include "../CaloClusterCellLinksUpdater.h"
 #include "../CaloTowerxAODFromCells.h"
 #include "../CaloTowerxAODFromClusters.h"
 #include "../CaloClusterSnapshot.h"
 #include "../CaloBCIDAvgAlg.h"
+#include "../CaloBCIDCoeffsCondAlg.h"
+#include "../CaloBCIDLumiCondAlg.h"
 #include "../CaloCellDumper.h"
 #include "../CaloThinCellsByClusterAlg.h"
 #include "../CaloThinCellsBySamplingAlg.h"
@@ -47,7 +48,6 @@ DECLARE_COMPONENT( CaloConstCellMaker )
 DECLARE_COMPONENT( CaloClusterCorrDBWriter )
 DECLARE_COMPONENT( CaloClusterCorrDumper )
 DECLARE_COMPONENT( CaloTopoTowerAlg )
-DECLARE_COMPONENT( CaloClusterCellLinksUpdater )
 
 DECLARE_COMPONENT( CaloTowerxAODFromCells )
 DECLARE_COMPONENT( CaloTowerxAODFromClusters )
@@ -70,6 +70,8 @@ DECLARE_COMPONENT( CaloCellFastCopyTool )
 DECLARE_COMPONENT( CaloClusterSnapshot )
 
 DECLARE_COMPONENT( CaloBCIDAvgAlg )
+DECLARE_COMPONENT( CaloBCIDCoeffsCondAlg )
+DECLARE_COMPONENT( CaloBCIDLumiCondAlg )
 
 DECLARE_COMPONENT (CaloCellDumper)
 

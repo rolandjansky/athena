@@ -14,6 +14,7 @@
 # art-output: *.root
 # art-output: *.pmon.gz
 # art-output: *perfmon*
+# art-output: prmon*
 # art-output: *.check*
 # art-athena-mt: 12
 
@@ -27,7 +28,6 @@ ex.forks = 2
 ex.threads = 6
 ex.concurrent_events = 2 # three threads per event
 ex.args = '-c \'concurrent=True\''
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 test = Test.Test()
 test.art_type = 'grid'

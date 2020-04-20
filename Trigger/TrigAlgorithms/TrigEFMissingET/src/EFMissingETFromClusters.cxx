@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -17,9 +17,6 @@ PURPOSE:  Updates TrigMissingETHelper using info from topo. clusters
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "CxxUtils/sincosf.h"
-
-#include "EventKernel/ISignalState.h"
-#include "EventKernel/SignalStateHelper.h"
 
 #include <cmath>
 #include <string>

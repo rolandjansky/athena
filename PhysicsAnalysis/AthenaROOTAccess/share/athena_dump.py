@@ -68,10 +68,22 @@ ServiceMgr.EventSelector.InputCollections = [ input_file ]
 
 from AthenaROOTAccess.dumpers import *
 from PyKernel import PyKernel
+import six
 
-if not globals().has_key ('onlykeys'):
+import bz2
+if six.PY2:
+    bz2_file = bz2.BZ2File
+else:
+    class bz2_file (bz2.BZ2File):
+        def __init__ (self, *args):
+            bz2.BZ2File.__init__ (self, *args)
+            return
+        def write (self, s):
+            return bz2.BZ2File.write (self, s.encode())
+
+if 'onlykeys' not in globals():
     onlykeys = []
-if not globals().has_key ('onlytypes'):
+if 'onlytypes' not in globals():
     onlytypes = []
 
 from AthenaPython import PyAthena
@@ -80,9 +92,8 @@ class Dumper (PyAthena.Alg):
         PyAthena.Alg.__init__ (self, name)
         #self.f = open ('dump.out', 'w')
         #self.f_rand = open ('dump-rand.out', 'w')
-        import bz2
-        self.f = bz2.BZ2File ('dump.out.bz2', 'w')
-        self.f_rand = bz2.BZ2File ('dump-rand.out.bz2', 'w')
+        self.f = bz2_file ('dump.out.bz2', 'w')
+        self.f_rand = bz2_file ('dump-rand.out.bz2', 'w')
         self.evdump = Evdump (self.f, self.f_rand,
                               onlykeys = onlykeys, onlytypes = onlytypes)
         self.retr = PyKernel.retrieve

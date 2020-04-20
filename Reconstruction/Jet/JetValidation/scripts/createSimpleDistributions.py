@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # External dependencies
 import ROOT
@@ -31,8 +33,8 @@ args = parser.parse_args()
 
 inFileList = args.inputFile.split(',')
 
-print "inFileList ", inFileList
-print 'outputFile', args.outputFile
+print ("inFileList ", inFileList)
+print ('outputFile', args.outputFile)
 
 inChain = ROOT.TChain(args.treeName)
 
@@ -63,7 +65,7 @@ if args.histoType == "leadingJetSel":
 else:
     histoAdder = addAllHistos
     
-print "Adding branches..."
+print ("Adding branches...")
 for aBranch in sorted(tree.GetSetOfTreeBranchNames()):
     
     if any( aBranch.startswith( p ) for p in patterns):
@@ -73,21 +75,21 @@ if args.binDic :
     if os.path.exists(args.binDic):
         builder.readHistoBins( args.binDic )
     else:
-        print "ERROR : requested to read binning from non existent file : ", args.binDic
+        print ("ERROR : requested to read binning from non existent file : ", args.binDic)
         exit(2)
 
         
-print "\nRunning event loop..."
+print ("\nRunning event loop...")
 builder.eventLoop()
-print "Done event loop!"
+print ("Done event loop!")
 
 ## #builder.dumpAllHistosToFile(pdfName)
 builder.saveHistos(args.outputFile)
 if args.savePDF:
-    print "Building a structured pdf..."
+    print ("Building a structured pdf...")
     builder.dumpStructuredPDF(args.outputFile.replace('.root','.pdf'))
 if args.saveBinning:
-    print "Saving histo binning..."
+    print ("Saving histo binning...")
     builder.saveHistoBins(args.outputFile.replace('.root','.pck'))
 
 #inChain.Close()

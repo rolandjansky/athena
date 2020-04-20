@@ -95,15 +95,15 @@ yields
 and therefore
 
 ```math
-  0 = s{\mathbf{\Phi}_j}^\mathrm{T}{V_\mu}^{-1}(\mathbf{E_T}_\mu + \mathbf{\Phi}_k\mathcal{E}_k) + \delta_{jk}\mathcal{E}_k - {\langle E_T \rangle}_\mathrm{tower} \\
-  0 = (s{\mathbf{\Phi}_j}^\mathrm{T}{V_\mu}^{-1}\mathbf{\Phi}_k + \delta_{jk})\mathcal{E}_k + s{\mathbf{\Phi}_j}^\mathrm{T}{V_\mu}^{-1}\mathbf{E_T}_\mu - {\langle E_T \rangle}_\mathrm{tower}.
+  0 = s{\mathbf{\Phi}_j}^\mathrm{T}{V_\mu}^{-1}(\mathbf{E_T}_\mu + \mathbf{\Phi}_k\mathcal{E}_k) + \frac{\delta_{jk}\mathcal{E}_k}{V_\mathrm{tower}} - \frac{{\langle E_T \rangle}_\mathrm{tower}}{V_\mathrm{tower}} \\
+  0 = (s{\mathbf{\Phi}_j}^\mathrm{T}{V_\mu}^{-1}\mathbf{\Phi}_k + \frac{\delta_{jk}}{V_\mathrm{tower}})\mathcal{E}_k + s{\mathbf{\Phi}_j}^\mathrm{T}{V_\mu}^{-1}\mathbf{E_T}_\mu - \frac{{\langle E_T \rangle}_\mathrm{tower}}{V_{tower}}.
 ```
 The minimisation solution can therefore be written as the matrix equation
 
 ```math
   X_{ij}\mathcal{E}_j = c_i \\
-  X_{ij} = s{\mathbf{\Phi}_i}^\mathrm{T}{V_\mu}^{-1}\mathbf{\Phi}_j + \delta_{ij} \\
-  c_i    = {\langle E_T \rangle}_\mathrm{tower} - s{\mathbf{\Phi}_j}^\mathrm{T}{V_\mu}^{-1}\mathbf{E_T}_\mu \\
+  X_{ij} = s{\mathbf{\Phi}_i}^\mathrm{T}{V_\mu}^{-1}\mathbf{\Phi}_j + \frac{\delta_{ij}}{V_\mathrm{tower}} \\
+  c_i    = \frac{{\langle E_T \rangle}_\mathrm{tower}}{V_\mathrm{tower}} - s{\mathbf{\Phi}_j}^\mathrm{T}{V_\mu}^{-1}\mathbf{E_T}_\mu \\
   \mathcal{E}_j = X_{ij}^{-1} c_{i} 
 ```
 These corrections can then be applied to the original hard-scatter objects

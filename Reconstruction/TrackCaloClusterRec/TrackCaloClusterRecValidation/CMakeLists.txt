@@ -46,5 +46,5 @@ atlas_add_component( TrackCaloClusterRecValidation
                      AthenaBaseComps AthenaMonitoringLib xAODCore xAODTracking xAODTruth xAODPFlow GaudiKernel TrkValHistUtils InDetPhysValMonitoringLib
                      AsgTools AthenaKernel GeoPrimitives EventPrimitives xAODBase xAODParticleEvent xAODEventInfo xAODJet PathResolver)
 # Install files from the package:
-atlas_install_runtime( share/*.xml  share/*.xsl )
+atlas_install_runtime( share/*.xml)
 

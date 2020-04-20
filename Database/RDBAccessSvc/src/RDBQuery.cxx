@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RDBQuery.h"
@@ -20,6 +20,8 @@
 #include "CoralBase/Exception.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
+
+#include "CxxUtils/checker_macros.h"
 
 RDBQuery::RDBQuery(RDBAccessSvc* accessSvc
 		   , coral::ISessionProxy* session
@@ -102,7 +104,7 @@ void RDBQuery::execute()
       m_query->addToOrderList(upperName + "_DATA." + m_orderField);
 
     // ... Define conditions
-    coral::AttributeList bindsData;
+    coral::AttributeList bindsData ATLAS_THREAD_SAFE;
     bindsData.extend<std::string>("tagID");
 
     std::string queryStructCondition = upperName +"_DATA2TAG." + upperName + "_TAG_ID =:tagID";

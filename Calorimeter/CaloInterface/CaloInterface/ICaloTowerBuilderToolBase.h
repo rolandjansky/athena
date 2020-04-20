@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOINTERFACE_ICALOTOWERBUILDERTOOLBASE_H
@@ -21,6 +21,7 @@
 #include "CaloEvent/CaloTowerSeg.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 
@@ -58,7 +59,7 @@ class ICaloTowerBuilderToolBase : virtual public IAlgTool
   virtual StatusCode execute(CaloTowerContainer* theContainer,
                              const CaloCellContainer* theCell=0,
                              const CaloTowerSeg::SubSeg* subseg = 0) const = 0;
-  virtual StatusCode initialize() =0;
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () =0;
 
   virtual StatusCode initializeTool() = 0;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -33,7 +33,6 @@ MuonAlignmentCondAlg::MuonAlignmentCondAlg(const std::string& name,
   m_ILineRequested = false;
 
   m_parlineFolder.clear();
-  declareProperty("ParlineFolders",  m_parlineFolder);
   declareProperty("DumpALines",      m_dumpALines=false);
   declareProperty("DumpBLines",      m_dumpBLines=false);
   declareProperty("DumpILines",      m_dumpILines=false);
@@ -235,22 +234,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
   // FIRST Update the MuonDetectorManager and THEN record the ALine.
   // =======================
 
-  ALineMapContainer*  alineDataTemp = new ALineMapContainer;
-  for (auto elem: *writeALineCdo.get() ) {
-    // new Aline
-    ALinePar* newALine = new ALinePar();
-    std::string stationType; int jff; int jzz; int job;
-    elem.second->getAmdbId(stationType, jff, jzz, job);
-    newALine->setAmdbId(stationType, jff, jzz, job);
-    float s; float z; float t; float ths; float thz; float tht;	  
-    elem.second->getParameters(s, z, t, ths, thz, tht);
-    newALine->setParameters(s, z, t, ths, thz, tht);
-
-    newALine->isNew(elem.second->isNew());
-    alineDataTemp->insert(std::make_pair(elem.first,(ALinePar*)newALine));
-  }
-
-  if (m_muonDetMgrDS->updateAlignment(alineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
+  // FIXME: const_cast
+  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAlignment(*writeALineCdo).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
   else ATH_MSG_DEBUG("updateAlignment DONE" );
   // if (m_muonDetMgrDS->updateAlignment(writeALineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
   // else ATH_MSG_DEBUG("updateAlignment DONE" );
@@ -268,21 +253,9 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
   // =======================
   // FIRST Update the MuonDetectorManager and THEN record the BLine.
   // =======================
-  BLineMapContainer*  blineDataTemp = new BLineMapContainer;
-  for (auto elem: *writeBLineCdo.get() ) {
-    // new Bline
-    BLinePar* newBLine = new BLinePar();
-    std::string stationType; int jff; int jzz; int job;
-    elem.second->getAmdbId(stationType, jff, jzz, job);
-    newBLine->setAmdbId(stationType, jff, jzz, job);
-    newBLine->setParameters(elem.second->bz(), elem.second->bp(), elem.second->bn(), 
-  			    elem.second->sp(), elem.second->sn(), elem.second->tw(), 
-  			    elem.second->pg(), elem.second->tr(), elem.second->eg(), 
-  			    elem.second->ep(), elem.second->en());
-    newBLine->isNew(elem.second->isNew());
-    blineDataTemp->insert(std::make_pair(elem.first,(BLinePar*)newBLine));
-  }
-  if (m_muonDetMgrDS->updateDeformations(blineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
+
+  // FIXME: const_cast
+  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateDeformations(*writeBLineCdo).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
   else ATH_MSG_DEBUG("updateDeformations DONE" );
   // if (m_muonDetMgrDS->updateDeformations(writeBLineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
   // else ATH_MSG_DEBUG("updateDeformations DONE" );
@@ -657,42 +630,32 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
 	// new Aline
 	++nDecodedLines;
 	++nNewDecodedALines;
-	ALinePar* newALine = new ALinePar();
-	newALine->setAmdbId(stationType, jff, jzz, job);
-	newALine->setParameters(s,z,t,ths,thz,tht);
-	newALine->isNew(true);	  
-	iALineMap ialine;
-	if((ialine = writeALineCdo->find(id)) != writeALineCdo->end()) {
+	ALinePar newALine;
+	newALine.setAmdbId(stationType, jff, jzz, job);
+	newALine.setParameters(s,z,t,ths,thz,tht);
+	newALine.isNew(true);
+        if (!writeALineCdo->insert_or_assign (id, std::move(newALine)).second) {
 	  ATH_MSG_WARNING("More than one (A-line) entry in folder " << folderName << 
 			  " for  " << stationType <<
 			  " at Jzz/Jff " << jzz << "/" << jff <<
 			  " --- keep the latest one");
-          ALinePar* oldALinePar =  (*ialine).second;
-          writeALineCdo->erase(id);
-          delete oldALinePar; oldALinePar=nullptr;
 	  --nNewDecodedALines;
 	}
-	writeALineCdo->insert(std::make_pair(id,(ALinePar*)newALine));
 
 	if (hasBLine && thisRowHasBLine) {
 	  // new Bline
 	  ++nNewDecodedBLines;
-	  BLinePar* newBLine = new BLinePar();
-	  newBLine->setAmdbId(stationType, jff, jzz, job);
-	  newBLine->setParameters(bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en);
-	  newBLine->isNew(true);
-	  iBLineMap ibline;
-	  if((ibline = writeBLineCdo->find(id)) != writeBLineCdo->end()) {
+	  BLinePar newBLine;
+	  newBLine.setAmdbId(stationType, jff, jzz, job);
+	  newBLine.setParameters(bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en);
+	  newBLine.isNew(true);
+          if (!writeBLineCdo->insert_or_assign (id, std::move(newBLine)).second) {
 	    ATH_MSG_WARNING("More than one (B-line) entry in folder " << folderName <<
 			    " for  " << stationType <<
 			    " at Jzz/Jff " << jzz << "/" << jff <<
 			    " --- keep the latest one");
-	    BLinePar* oldBLinePar =  (*ibline).second;
-	    writeBLineCdo->erase(id);
-	    delete oldBLinePar; oldBLinePar=nullptr;
 	    --nNewDecodedBLines;
 	  }
-	  writeBLineCdo->insert(std::make_pair(id,(BLinePar*)newBLine));
 	}
       }
     }
@@ -901,23 +864,17 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
 	// new Iline
 	++nDecodedLines;
 	++nNewDecodedILines;
-	CscInternalAlignmentPar* newILine = new CscInternalAlignmentPar();
-	newILine->setAmdbId(stationType, jff, jzz, job, jlay);
-	newILine->setParameters(tras,traz,trat,rots,rotz,rott);
-	newILine->isNew(true);	  
-	iCscInternalAlignmentMap iiline;
-	if((iiline = writeCdo->find(id)) != writeCdo->end()) {
+	CscInternalAlignmentPar newILine;
+	newILine.setAmdbId(stationType, jff, jzz, job, jlay);
+	newILine.setParameters(tras,traz,trat,rots,rotz,rott);
+	newILine.isNew(true);
+        if (!writeCdo->insert_or_assign (id, newILine).second) {
 	  ATH_MSG_WARNING("More than one (I-line) entry in folder " << folderName << 
 			  " for  " << stationType <<
 			  " at Jzz/Jff/Jlay " << jzz << "/" << jff << "/" << jlay <<
 			  " --- keep the latest one");
-	  CscInternalAlignmentPar* oldCscInternalAlignmentPar =  (*iiline).second;
-	  writeCdo->erase(id);
-	  delete oldCscInternalAlignmentPar; oldCscInternalAlignmentPar=nullptr;
 	  --nNewDecodedILines;
 	}
-	//	m_ilineData->insert(std::make_pair(id,(CscInternalAlignmentPar*)newILine));
-	writeCdo->insert(std::make_pair(id,(CscInternalAlignmentPar*)newILine));
       }
     }
   }
@@ -932,22 +889,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
   // FIRST update MuonDetectorManager and THEN record the output cond object.
   // =======================
 
-  CscInternalAlignmentMapContainer*  ilineDataTemp = new CscInternalAlignmentMapContainer;
-  for (auto elem: *writeCdo.get() ) {
-    // new Iline
-    CscInternalAlignmentPar* newILine = new CscInternalAlignmentPar();
-    std::string stationType; int jff; int jzz; int job; int jlay;
-    elem.second->getAmdbId(stationType, jff, jzz, job, jlay);
-    newILine->setAmdbId(stationType, jff, jzz, job, jlay);
-    float tras; float traz; float trat; float rots; float rotz; float rott;	  
-    elem.second->getParameters(tras,traz,trat,rots,rotz,rott);
-    newILine->setParameters(tras,traz,trat,rots,rotz,rott);
-
-    newILine->isNew(elem.second->isNew());
-    ilineDataTemp->insert(std::make_pair(elem.first,(CscInternalAlignmentPar*)newILine));
-  }
-
-  if (m_muonDetMgrDS->updateCSCInternalAlignmentMap(ilineDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
+  // FIXME: const_cast
+  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateCSCInternalAlignmentMap(*writeCdo).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
   else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE" );
   // if (m_muonDetMgrDS->updateCSCInternalAlignmentMap(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
   // else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE" );
@@ -1062,16 +1005,11 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName)
 	ATH_MSG_VERBOSE("Station type jff jzz "  << stationType  << jff << " " << jzz  );
         ++nDecodedLines;
         ++nNewDecodedAsBuilt;
-        ciMdtAsBuiltMap iasbuild;
-        if((iasbuild = writeCdo->find(id)) != writeCdo->end()) {
+        if (!writeCdo->insert_or_assign (id, xPar).second) {
 	  ATH_MSG_WARNING( "More than one (As-built) entry in folder "<<folderName<<" for  "
                            << stationType<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- keep the latest one" );
-	  MdtAsBuiltPar* oldMdtAsBuiltPar =  (*iasbuild).second;
-	  writeCdo->erase(id);
-	  delete oldMdtAsBuiltPar; oldMdtAsBuiltPar=nullptr;
           --nNewDecodedAsBuilt;
         }
-	writeCdo->insert(std::make_pair(id,new MdtAsBuiltPar(xPar)));
       }
     }
   }
@@ -1086,13 +1024,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName)
   // FIRST update MuonDetectorManager and THEN record the output cond object.
   // =======================
 
-  MdtAsBuiltMapContainer*  AsBuiltDataTemp = new MdtAsBuiltMapContainer;
-  for (auto elem: *writeCdo.get() ) {
-    // AsBuiltDataTemp->insert(std::make_pair(elem.first,(CscInternalAlignmentPar*)newILine));
-    AsBuiltDataTemp->insert(std::make_pair(elem.first,new MdtAsBuiltPar(*(elem.second))));
-  }
-
-  if (m_muonDetMgrDS->updateAsBuiltParams(AsBuiltDataTemp).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
+  // FIXME: const_cast
+  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAsBuiltParams(*writeCdo).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
   else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );
   // if (m_muonDetMgrDS->updateAsBuiltParams(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
   // else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );
@@ -1117,15 +1050,13 @@ void MuonAlignmentCondAlg::dumpALines(const std::string& folderName,
 
   ATH_MSG_INFO("dumping A-lines for folder " << folderName);
   ATH_MSG_INFO("A type jff jzz job s(cm)  z(cm)  t(cm)  ths(rad)  thz(rad)  tht(rad)  ID");
-  
-  for (auto aline : *writeALineCdo) {
-    Identifier ALineId = aline.first;
-    ALinePar* ALine = aline.second;
+
+  for (const auto& [ALineId, ALine] : *writeALineCdo) {
     std::string stationType;
     int jff,jzz,job;
-    ALine->getAmdbId(stationType,jff,jzz,job);
+    ALine.getAmdbId(stationType,jff,jzz,job);
     float s,z,t,ths,thz,tht;
-    ALine->getParameters(s,z,t,ths,thz,tht);
+    ALine.getParameters(s,z,t,ths,thz,tht);
     
     ATH_MSG_INFO("A " << std::setiosflags(std::ios::fixed|std::ios::right)
 		 << std::setw(4) << stationType  <<" " 
@@ -1151,14 +1082,12 @@ void MuonAlignmentCondAlg::dumpBLines(const std::string& folderName,
   ATH_MSG_INFO( "dumping B-lines for folder " << folderName);
   ATH_MSG_INFO( "B type jff jzz job bs       bp        bn        sp        sn        tw        pg        tr        eg        ep        en        ID");
   
-  for (auto bline : *writeBLineCdo) {
-    Identifier BLineId = bline.first;
-    BLinePar* BLine = bline.second;
+  for (const auto& [BLineId, BLine] : *writeBLineCdo) {
     std::string stationType;
     int jff,jzz,job;
-    BLine->getAmdbId(stationType,jff,jzz,job);
+    BLine.getAmdbId(stationType,jff,jzz,job);
     float bs,bp,bn,sp,sn,tw,pg,tr,eg,ep,en;
-    BLine->getParameters(bs,bp,bn,sp,sn,tw,pg,tr,eg,ep,en);
+    BLine.getParameters(bs,bp,bn,sp,sn,tw,pg,tr,eg,ep,en);
     
     ATH_MSG_INFO( "B " << std::setiosflags(std::ios::fixed|std::ios::right)
 		  << std::setw(4) << stationType  <<" " 
@@ -1187,14 +1116,12 @@ void MuonAlignmentCondAlg::dumpILines(const std::string& folderName,
   ATH_MSG_INFO( "dumping I-lines for folder " << folderName);
   ATH_MSG_INFO( "I \ttype\tjff\tjzz\tjob\tjlay\ttras\ttraz\ttrat\trots\trotz\trott");
   
-  for (auto iline : *writeCdo) {
-    Identifier ILineId = iline.first;
-    CscInternalAlignmentPar* ILine = iline.second;
+  for (const auto& [ILineId, ILine] : *writeCdo) {
     std::string stationType;
     int jff,jzz,job,jlay;
-    ILine->getAmdbId(stationType,jff,jzz,job,jlay);
+    ILine.getAmdbId(stationType,jff,jzz,job,jlay);
     float tras,traz,trat,rots,rotz,rott;
-    ILine->getParameters(tras,traz,trat,rots,rotz,rott);
+    ILine.getParameters(tras,traz,trat,rots,rotz,rott);
     
     ATH_MSG_INFO( "I\t" << std::setiosflags(std::ios::fixed|std::ios::right)
 		  << std::setw(4) << stationType  <<"\t" 
@@ -1245,21 +1172,18 @@ void MuonAlignmentCondAlg::setALinesFromAscii(ALineMapContainer* writeALineCdo) 
       
       // loop through A-line container and find the correct one
       std::string testStationType;
-      int testJff,testJzz,testJob;
-      ALinePar* ALine(0);
-      for (auto aline : *writeALineCdo) {
-	aline.second->getAmdbId(testStationType,testJff,testJzz,testJob);
+      for (auto& [id, ALine] : *writeALineCdo) {
+        int testJff,testJzz,testJob;
+	ALine.getAmdbId(testStationType,testJff,testJzz,testJob);
 	if (testStationType==name &&
 	    testJff        == jff &&
-	    testJzz        == jzz) {
-	  ALine = aline.second;
-	  break;
-	}
+	    testJzz        == jzz)
+        {
+          // set parameter if you found it
+          ALine.setParameters(tras,traz,trat,rots,rotz,rott);
+          break;
+        }
       }
-
-      // set parameter if you found it
-      if (ALine) 
-	ALine->setParameters(tras,traz,trat,rots,rotz,rott);      
     }
   }
   return;
@@ -1289,21 +1213,17 @@ void MuonAlignmentCondAlg::setAsBuiltFromAscii(MdtAsBuiltMapContainer* writeCdo)
           ATH_MSG_ERROR( "Invalid MDT identifiers: sta=" << stName << " eta=" << jzz << " phi=" << jff  );
            continue;
         }
-        std::map<Identifier,MdtAsBuiltPar*>::iterator ci = writeCdo->begin();
-        if((ci = writeCdo->find(id)) != writeCdo->end())
+        if (writeCdo->insert_or_assign (id, xPar).second)
         {
-          ATH_MSG_DEBUG( "Updating extisting entry in AsBuilt container for Station " <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff  );
-          ATH_MSG_DEBUG( "That is strange since it's read from ASCII so this station is listed twice!"  );
-          MdtAsBuiltPar* oldAsBuilt =  (*ci).second;
-          writeCdo->erase(id);
-          delete oldAsBuilt; oldAsBuilt=nullptr;
-        } else {
           ATH_MSG_DEBUG( "New entry in AsBuilt container for Station "
                          <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_idHelperSvc->mdtIdHelper().show_to_string(id) );
         }
-	  writeCdo->insert(std::make_pair(id,new MdtAsBuiltPar(xPar)));
-	  ++count;
-	}
+        else {
+          ATH_MSG_DEBUG( "Updating existing entry in AsBuilt container for Station " <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff  );
+          ATH_MSG_DEBUG( "That is strange since it's read from ASCII so this station is listed twice!"  );
+        }
+        ++count;
+      }
     }
   }
   ATH_MSG_INFO( "Parsed AsBuilt parameters: " << count  );

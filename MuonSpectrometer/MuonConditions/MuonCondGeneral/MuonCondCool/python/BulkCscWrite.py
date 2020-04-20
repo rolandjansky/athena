@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os
 import subprocess
@@ -32,10 +34,10 @@ def WriteBulk(
   readFileName = "mycool.db"
 
   if(outputFileName == readFileName):
-    print "ERROR! you cannont use " + readFileName + " as the output!"
+    print ("ERROR! you cannont use " + readFileName + " as the output!")
 
   if os.path.exists(outputFileName):
-    print "Output file " + outputFileName + " already exists! Remove it to continue."
+    print ("Output file " + outputFileName + " already exists! Remove it to continue.")
     return
 
 
@@ -44,8 +46,8 @@ def WriteBulk(
   #Check that input files follow correct syntax
   for file in inputFiles:
     if( file[-4:] != ".cal"):
-      print file +  " does not follow allowed form <runNumber>.cal!"
-      print "Quitting."
+      print (file +  " does not follow allowed form <runNumber>.cal!")
+      print ("Quitting.")
       return
 
   #loop over files, adding each one to coolout.db
@@ -83,7 +85,7 @@ def WriteBulk(
     #Use last run number before this one as reference for merging
     forceRunNumber = str(int(runNumber) -1)
     athOpt += "forceRunNumber = " + forceRunNumber + "; "
-    if( useFileRunAsIOVEnd == True):
+    if( useFileRunAsIOVEnd is True):
       athOpt += "IOVRunStart = " + prevRunNumber + "; "
       #athOpt += "IOVRunEnd = " + runNumber + "; "
     else :
@@ -105,20 +107,20 @@ def WriteBulk(
 
 
     #run athena
-    print "****************************************"
-    print "Starting run on " + runNumber 
+    print ("****************************************")
+    print ("Starting run on " + runNumber )
     cmdArgs = ["athena.py", "-c" , athOpt , jobOptions]
-    print "args are " + str(cmdArgs)
+    print ("args are " + str(cmdArgs))
     sys.stdout.flush()
-    retcode = subprocess.Popen(cmdArgs,stdout = logFile, stderr = subprocess.STDOUT).wait()
+    subprocess.Popen(cmdArgs,stdout = logFile, stderr = subprocess.STDOUT).wait()
     logFile.close()
-    print "****************************************"
+    print ("****************************************")
 
 
     prevRunNumber = runNumber
 
 
-  print "All done!"
+  print ("All done!")
 
   
 def rnum(fileName):

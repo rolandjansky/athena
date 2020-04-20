@@ -1,7 +1,8 @@
-#!/afs/cern.ch/sw/lcg/external/Python/2.5.4p2/slc4_ia32_gcc34/bin/python
+#/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-#/usr/bin/python
+from __future__ import print_function
+
 import os
 import sys
 import re
@@ -34,7 +35,7 @@ CoolMergeByDefault = False
 
 
 def updateList(oldListPath,newList):
-  print 'updating file list'
+  print ('updating file list')
   #update the old file list
   outFile = open(oldListPath, 'w')
   outFile.write(newList)
@@ -44,7 +45,7 @@ def updateList(oldListPath,newList):
 #It creates a bash script which can setup the job, run it, and do post job
 #processing. The bash script is submitted to lxbatch
 def runCalib(calType, runNumber,workDir,castorCopyCmd):
-  #print 'running calib'
+  #print ('running calib')
   #initialize based on calibration type
   scriptDir = '${HOME}/CSC/run/'
   if calType == 'pulser':
@@ -65,7 +66,7 @@ def runCalib(calType, runNumber,workDir,castorCopyCmd):
   outputDir = workDir +"/CalibResults"
   bsDir = workDir +"/Bytestream"
 
-  print 'outputDir = ' + outputDir
+  print ('outputDir = ' + outputDir)
 
 
   #Setup finished email message
@@ -111,22 +112,22 @@ def runCalib(calType, runNumber,workDir,castorCopyCmd):
   
   #For reference tag, we actually want the IOV to start just after the LAST run number
   #Get old run numbers
-  infile = open(runListFile,"r")
+  infile = open(runListFile,"rb")
   runList = pickle.load(infile)
   runList.sort()
-  print "got runs"
-  print runList
+  print ("got runs")
+  print (runList)
   infile.close()
 
 
   if(runNumber in runList):
-    print "Mailing message"
+    print ("Mailing message")
     message =["mail","-s",\
         '"New castor run directory found for previously processed run ' + str(runNumber) + '"',\
         responsiblePerson,\
         "<",\
         "runAlreadyProcessed.mail"]
-    print message
+    print (message)
     subprocess.call(message)
     sys.exit()
 
@@ -151,7 +152,7 @@ def runCalib(calType, runNumber,workDir,castorCopyCmd):
   else:
     #No problem, update run list
     runList += [runNumber]
-    outfile = open(runListFile,"w")
+    outfile = open(runListFile,"wb")
     pickle.dump(runList,outfile)
     outfile.close()
 
@@ -232,7 +233,7 @@ def runCalib(calType, runNumber,workDir,castorCopyCmd):
       + 'rm -rf ' + scriptDir +"runningCalibration" + runNumber +'\n'
 
   #Write bashfile
-  print "Printing bash file to: " +bashFilePath
+  print ("Printing bash file to: " +bashFilePath)
   bashFile = open(bashFilePath, 'w')
   bashFile.write(bashFileContents)
   bashFile.close()
@@ -251,7 +252,7 @@ def runCalib(calType, runNumber,workDir,castorCopyCmd):
 #Main program#############################
 #########################################
 
-print 'running'  
+print ('running'  )
 #first command line argument should be the calibration type, pulser or ped.
 try:
   calType = sys.argv[1]
@@ -271,10 +272,10 @@ try:
     #calibRe = re.compile('data10_.*pedCSC.*\.data')
     calibRe = re.compile('data1.*_calib.*calibration_pedCSC\.daq\.RAW.*\.data')
   else:
-    print 'Need to specify pulser or ped'
+    print ('Need to specify pulser or ped')
     os._exit(0)
 except:
-  print 'Need to specify pulser or ped'
+  print ('Need to specify pulser or ped')
   os._exit(0) 
 
 
@@ -282,12 +283,12 @@ except:
 #If already running, stop
 testFile = glob.glob("/afs/cern.ch/user/m/muoncali/CSC/run/runningCalibration*")
 if(testFile):
-  print 'already running: ' + str(testFile)
+  print ('already running: ' + str(testFile))
   sys.exit()
 
 
 #Get the current list of directories in castor
-print 'rfdir ' + calibFileDir
+print ('rfdir ' + calibFileDir)
 currentLs = os.popen('rfdir ' + calibFileDir).read()
 
 os.popen('touch testing')
@@ -298,7 +299,7 @@ oldLs = inFile.read()
 
 inFile.close()
 
-print 'checking for changes'
+print ('checking for changes')
 
 import datetime
 now = datetime.datetime.now()
@@ -306,7 +307,7 @@ today = now.day
 
 #Check if there are any changes between the lists
 if(oldLs != currentLs):
-  print 'There has been a change'
+  print ('There has been a change')
   currentDirList = currentLs.split('\n')
   oldDirList = oldLs.split('\n')
 
@@ -314,38 +315,38 @@ if(oldLs != currentLs):
   runningDir = ""
   #Run on any new directories
   for Dir in currentDirList:
-    #print 'Checking ' + Dir
+    #print ('Checking ' + Dir)
     if Dir not in oldDirList:
-      print "**********************************************************"
+      print ("**********************************************************")
       splitDir = Dir.split()
       day = int(splitDir[-3])
       DirName =splitDir[-1]   #last ' ' delimited word in line is Dirname
 
-      print splitDir
+      print (splitDir)
       timediff = today - day
       if(timediff > 7 or timediff < -23):
-        print timediff
+        print (timediff)
 
-        print "Found old dir " + DirName + ", but its over at least a week old, so we're skipping it"
+        print ("Found old dir " + DirName + ", but its over at least a week old, so we're skipping it")
 
         continue
 
 
 
-      print "day is " + str(day)
+      print ("day is " + str(day))
 
-      #print 'Dirname is ' + DirName
+      #print ('Dirname is ' + DirName)
       cmd = 'rfdir ' + calibFileDir + DirName
       fileList = os.popen(cmd).read().split('\n')
 
       nFiles = len(fileList) -1
-      print "found " + str(nFiles) + " files"
+      print ("found " + str(nFiles) + " files")
 
       runNumber = DirName
 
       #prepare output directory
       outputDirFull = outputDir + 'Run_' + runNumber
-      print 'outputDirFull is ' + outputDirFull
+      print ('outputDirFull is ' + outputDirFull)
 
       #Loop through files in directory. 
       #Start building castor copy cmd
@@ -356,45 +357,45 @@ if(oldLs != currentLs):
       for file in fileList:
         fileName = (file.split(' '))[-1]  #last ' ' delimited word in line is fileName
         if(fileName != ""):
-          print "fileName: " +fileName
+          print ("fileName: " +fileName)
           ThisCalibDir = re.match(calibRe,fileName)
           if(nFiles < numFilesToRun):
-            print "only " +str(nFiles) + " files. Breaking."
+            print ("only " +str(nFiles) + " files. Breaking.")
             if(ThisCalibDir):
-              print "There is a calib dir, but it only has " + str(nFiles) \
-                  + " file. Will not process."
+              print ("There is a calib dir, but it only has " + str(nFiles)
+                     + " file. Will not process.")
               updateRunList = False
             break;
           if(ThisCalibDir):
             fullPath = calibFileDir + DirName + '/' + fileName 
             castorCopyCmd += "\nxrdcp root://castoratlas/" + fullPath + " ${bytestreamDir}";
-            #print 'found ' + fullPath
+            #print ('found ' + fullPath)
           else:
             break
 
-      print "found " + str(nFiles) + " files"
+      print ("found " + str(nFiles) + " files")
 
       #only run if have enough files
       if(nFiles >= numFilesToRun):
         #Comment next 4 lines out if you want to run on multiple runs at once
         if(runningDir):
           updateRunList = False
-          print "Found new calibration directory to run on (" +DirName + "), but already running on " + runningDir
+          print ("Found new calibration directory to run on (" +DirName + "), but already running on " + runningDir)
           continue
-        print 'running on ' + DirName
+        print ('running on ' + DirName)
 
         if(nFiles > numFilesToRun):
-          print 'WARNING! Found ' + str(nFiles) + ' calib files, when only ' + str(numFilesToRun) + ' were expected!'
+          print ('WARNING! Found ' + str(nFiles) + ' calib files, when only ' + str(numFilesToRun) + ' were expected!')
 
 
         if( os.path.exists(outputDirFull)):
-          print "There is already a directory for run number " + runNumber
-          print "Will not run on this pedestal run"
+          print ("There is already a directory for run number " + runNumber)
+          print ("Will not run on this pedestal run")
           continue
 
 
         if(ThisCalibDir):
-          print castorCopyCmd
+          print (castorCopyCmd)
           #updateList(oldListFilePath,currentLs)
           #os.makedirs(outputDirFull+"/Bytestream")
           os.makedirs(outputDirFull+"/CalibResults")
@@ -410,11 +411,11 @@ if(oldLs != currentLs):
   if( updateRunList):
     #We update the run list so long as there are no runs on it that we expect to run on in the future.
     #The safest thing to do is to wait until all runs are processed.  
-    print "No unprocessed or currently being processed calibration runs. Will update run list."
+    print ("No unprocessed or currently being processed calibration runs. Will update run list.")
     updateList(oldListFilePath,currentLs)
   else:
-    print "NOT updating run list"
+    print ("NOT updating run list")
 
 else:
-  print 'No changes between old and new runs'
+  print ('No changes between old and new runs')
   pass

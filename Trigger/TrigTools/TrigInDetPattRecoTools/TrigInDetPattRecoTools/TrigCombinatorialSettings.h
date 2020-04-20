@@ -35,7 +35,6 @@ public:
     m_zvError = 10.0;
 
     m_layerGeometry.clear();
-    m_vZv.clear();
   }
 
   int m_maxBarrelPix, m_minEndcapPix, m_maxEndcapPix, m_maxSiliconLayer;
@@ -55,9 +54,7 @@ public:
 
   float m_zvError;
 
-  const IRoiDescriptor* roiDescriptor;
   std::vector<TRIG_INDET_SI_LAYER> m_layerGeometry;
-  std::vector<float> m_vZv;
 } TRIG_COMBINATORIAL_SETTINGS;
 
 

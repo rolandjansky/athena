@@ -1,16 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloLayerCalculator_test.cxx,v 1.3 2008-08-22 04:05:04 ssnyder Exp $
 /**
  * @file  CaloLayerCalculator_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date March, 2006
  * @brief Component test for CaloLayerCalculator.
  */
+
 #ifndef XAOD_STANDALONE
 #undef NDEBUG
+
+//This is a test so no need to be thread safe
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 
 #include "CaloUtils/CaloLayerCalculator.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
@@ -50,7 +55,7 @@ bool is_equal (double x1, double x2)
 }
 
 
-static CaloPhiRange range;
+static const CaloPhiRange range;
 static const float deta = 0.025f;
 static const float dphi = static_cast<float> (2*M_PI / 256);
 
@@ -202,8 +207,8 @@ const CaloCellContainer* fill_cells (CaloTester& tester)
 void test1 (const CaloCellContainer* cells)
 {
   CaloLayerCalculator calc;
-  calc.fill (cells, clust1_eta0, clust1_phi0,
-             5*deta, 5*dphi, CaloSampling::EMB2);
+  assert( calc.fill (cells, clust1_eta0, clust1_phi0,
+                     5*deta, 5*dphi, CaloSampling::EMB2) );
   clust1_check (calc);
 
   std::unique_ptr<xAOD::CaloCluster> clust (CaloClusterStoreHelper::makeCluster (cells));
@@ -223,8 +228,8 @@ void test1 (const CaloCellContainer* cells)
              5*deta, 5*dphi, CaloSampling::EMB2);
   clust1_check (calc, 0.75);
 
-  calc.fill (cells, clust2_eta0, clust2_phi0,
-             5*deta, 5*dphi, CaloSampling::EMB2);
+  assert( calc.fill (cells, clust2_eta0, clust2_phi0,
+                     5*deta, 5*dphi, CaloSampling::EMB2) );
   clust2_check (calc);
 }
 
@@ -242,7 +247,7 @@ int main()
   assert ( svcLoc->service("StoreGateSvc", sg).isSuccess() );
 
   CaloTester tester;
-  tester.record_mgr();
+  assert ( tester.record_mgr() );
   const CaloCellContainer* cells = fill_cells (tester);
   assert (sg->record (cells, "cells").isSuccess());
 

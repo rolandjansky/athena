@@ -20,7 +20,7 @@
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CaloEvent/CaloBCIDAverage.h"
 
@@ -45,6 +45,8 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
                                        const IRoiDescriptor& roi,
                                        TileCellCollection& loadedCells ) override;
   
+  virtual StatusCode loadMBTS ( const EventContext& context,
+                                                    TileCellCollection& loadedCells ) override;
 
 
   
@@ -107,6 +109,8 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   std::mutex m_initMutex; // this will be gone once we move to new conditions
   std::mutex m_dataPrepMutex; // this will be gone when reg sel & Rob DP will become thread safe
   std::mutex m_getCollMutex; // this will be gone
+  std::mutex m_lardecoderProtect;  // protection for the larRodDecoder
+  std::mutex m_tiledecoderProtect;  // protection for the tileRodDecoder
 
   unsigned int lateInit();
   bool m_lateInitDone = false;
@@ -141,6 +145,8 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
 				const IRoiDescriptor& roi, 
 				DETID detector );
 
+  unsigned int prepareMBTSCollections( const EventContext& context );
+
   unsigned int prepareFullCollections( const EventContext& context );
 
   unsigned int prepareLArFullCollections( const EventContext& context );
@@ -148,6 +154,8 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
 
   std::vector<uint32_t> m_vrodid32fullDet;
   std::vector<uint32_t> m_vrodid32tile;
+  std::vector<unsigned int> m_mbts_add_rods;
+  const std::vector<unsigned int>* m_mbts_rods;
   std::vector<IdentifierHash> m_rIdstile;
   std::vector<std::vector<uint32_t> > m_vrodid32fullDetHG;
   size_t m_nSlots;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################
 # Bookkeeper tool for skimming #
@@ -13,6 +13,7 @@
 #  2) implement a base class to PyAthena.Alg skims, in order to bookkeep the cut-flow of each skims
 #  3) persistify the bookkeeping info in metadata during finalize() stage.
 
+from __future__ import print_function
 
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 
@@ -31,16 +32,16 @@ class Bookkeeper( PyAthena.Alg ):
         from AthenaCommon.AlgSequence import AlgSequence
         theJob = AlgSequence()
         for Stream in MSMgr.StreamList:
-            print "Stream :%s "%Stream.Name
-            print "AcceptedAlgs are:"
+            print ("Stream :%s "%Stream.Name)
+            print ("AcceptedAlgs are:")
             skimNameList=Stream.Stream.AcceptAlgs
             for skimName in skimNameList:
                 skim=getattr(theJob,skimName)
                 if isinstance(skim,PyAthena.Alg):
                     self.skimList.append(skim)
-                    print " -%s (accepted)"%skimName
+                    print (" -%s (accepted)"%skimName)
                 else:
-                    print "WARNING: %s will be ignored by the bookkeeper... (only PyAthena.Alg skims are supported)"%skimName
+                    print ("WARNING: %s will be ignored by the bookkeeper... (only PyAthena.Alg skims are supported)"%skimName)
         return StatusCode.Success
 
     def execute(self):
@@ -48,12 +49,12 @@ class Bookkeeper( PyAthena.Alg ):
         #Or better, go through this stuff every time a skim is added to the MSMgr
             
         for skim in self.skimList:
-            print skim.filterPassed()
+            print (skim.filterPassed())
         self.evtCount+=1
         return StatusCode.Success
             
     def finalize(self):
-        print "processed %i events."%self.evtCount
+        print ("processed %i events."%self.evtCount)
         return StatusCode.Success
 
 

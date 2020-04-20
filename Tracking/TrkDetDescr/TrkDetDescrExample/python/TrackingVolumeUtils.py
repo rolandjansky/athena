@@ -1,4 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 import math
 from ROOT import *
@@ -6,8 +7,8 @@ from ROOT import *
 def drawTrackingVolume(g4Tree,tgTree,saveLocation) :
     
     tvname = g4Tree.GetName()
-    print '----------------------------------------------------------------'
-    print '  TrackingVolume: ', tvname
+    print ('----------------------------------------------------------------')
+    print ('  TrackingVolume: ', tvname)
     
     tvCanvas = TCanvas(tvname,tvname,100,100,800,1000)
     tvCanvas.Divide(2,3)

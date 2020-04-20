@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCOMBINEDDEBUGGERTOOL_H
@@ -10,6 +10,8 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include <vector>
+
+#include "CxxUtils/checker_macros.h"
 
 class ITHistSvc;
 class TH1D;
@@ -31,7 +33,7 @@ namespace MuonCombined {
 
   static const InterfaceID IID_MuonCombinedDebuggerTool("MuonCombined::MuonCombinedDebuggerTool", 1, 0);
 
-  class MuonCombinedDebuggerTool: public AthAlgTool
+  class ATLAS_NOT_THREAD_SAFE MuonCombinedDebuggerTool: public AthAlgTool // the MuonCombinedDebuggerTool can only be used when running with one thread
   {
     
   public:

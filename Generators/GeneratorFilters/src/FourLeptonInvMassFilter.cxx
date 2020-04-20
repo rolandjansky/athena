@@ -6,8 +6,6 @@
 
 #include <math.h>
 
-using HepMC::GenVertex;
-using HepMC::GenParticle;
 
 FourLeptonInvMassFilter::FourLeptonInvMassFilter(const std::string& name, ISvcLocator* pSvcLocator) : 
   GenFilter(name,pSvcLocator) {

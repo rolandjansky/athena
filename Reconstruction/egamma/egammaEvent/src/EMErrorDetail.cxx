@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaEvent/EMErrorDetail.h"
@@ -85,7 +85,7 @@ void EMErrorDetail::set_parameterInt(egammaParameters::ParamDef key, int value, 
   }
 
   if ( p == m_parametersInt.end() ) {
-    m_parametersInt.push_back( elParams(key,value) );
+    m_parametersInt.emplace_back(key,value );
   }
   else {
     if ( overwrite ) {
@@ -112,7 +112,7 @@ void EMErrorDetail::set_parameter(egammaParameters::ParamDef key, double value, 
   }
 
   if ( p == m_parameters.end() ) {
-    m_parameters.push_back( elParams(key,value) );
+    m_parameters.emplace_back(key,value );
   }
   else {
     if ( overwrite ) {
@@ -128,7 +128,7 @@ void EMErrorDetail::set_parameter(egammaParameters::ParamDef key, double value, 
 // =======================================================================
 bool EMErrorDetail::isElectron(const egamma* eg, bool forcePhoton) const
 {
-  return (!forcePhoton && ((eg->conversion() != 0) || (eg->trackParticle() != 0)));
+  return (!forcePhoton && ((eg->conversion() != nullptr) || (eg->trackParticle() != nullptr)));
 }
 
 // =======================================================================
@@ -176,7 +176,7 @@ double EMErrorDetail::getClusterEnergyError(const egamma* eg,
   EMClusterErrorsParametrizations::PHOTON;
 
   const CaloCluster* aCluster = eg->cluster();
-  if (aCluster == NULL || pars == NULL) return 1e-3; // in merging, use cluster energy
+  if (aCluster == nullptr || pars == nullptr) return 1e-3; // in merging, use cluster energy
 
   // note, the parametrization is in cluster eta, not pointing eta 
   return pars->getEnergyMatrix(tp).getError(aCluster->eta(), aCluster->energy());
@@ -195,7 +195,7 @@ double EMErrorDetail::getClusterEtaError(const egamma* eg,
   const CaloCluster* aCluster = eg->cluster();
   double eta = (aCluster) ?  caloEta(eg, aCluster->eta()) : 0;
   if (fabs(eta) > 8) eta = 8.0;
-  if (pars == NULL) {
+  if (pars == nullptr) {
     // fall back to hardcoded old-style errors.
     //    const double clusterEnergyGeV = aCluster->energy()/1000.0; //GeV
     const double clusterEnergyGeV = 100.0; //GeV - just use 100 as the default
@@ -220,7 +220,7 @@ double EMErrorDetail::getClusterPhiError(const egamma* eg,
   EMClusterErrorsParametrizations::PHOTON;
 
   const CaloCluster* aCluster = eg->cluster();
-  if (aCluster == NULL || pars == NULL) return 1e10; // use track phi
+  if (aCluster == nullptr || pars == nullptr) return 1e10; // use track phi
 
   // note, the parametrization is really only in energy; eta is ignored
   return pars->getPhiMatrix(tp).getError(caloEta(eg, aCluster->eta()), aCluster->energy());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -55,7 +55,7 @@ SCT_ByteStreamErrorsTool::finalize() {
 
 /** Used by ConditionsSummayTool to decide whether to call isGood() for a particular
  * detector element.
- * Iin principle we could report about modules and/or strips too, and
+ * In principle we could report about modules and/or strips too, and
  * use the id helper to navigate up or down the hierarchy to the wafer,
  * but in practice we don't want to do the time-consuming isGood() for 
  * every strip, so lets only report about wafers..
@@ -66,22 +66,67 @@ SCT_ByteStreamErrorsTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return (h==InDetConditions::SCT_SIDE or h==InDetConditions::SCT_CHIP);
 }
 
+const IDCInDetBSErrContainer* SCT_ByteStreamErrorsTool::getContainer(const EventContext& ctx) const {
+  SG::ReadHandle<IDCInDetBSErrContainer> idcErrCont(m_bsIDCErrContainerName, ctx);
+  /** When running over ESD files without BSErr container stored, don't 
+   * want to flood the user with error messages. Should just have a bunch
+   * of empty sets, and keep quiet.
+   */
+  if (not idcErrCont.isValid()) {
+    m_nRetrievalFailure++;
+    if (m_nRetrievalFailure<=3) {
+      ATH_MSG_INFO("SCT_ByteStreamErrorsTool Failed to retrieve BS error container "
+		   << m_bsIDCErrContainerName.key()
+                   << " from StoreGate.");
+      if (m_nRetrievalFailure==3) {
+	ATH_MSG_INFO("SCT_ByteStreamErrorsTool This message on retrieval failure of " << m_bsIDCErrContainerName.key() << " is suppressed.");
+      }
+    }
+    return nullptr;
+  }
+  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool IDC Container fetched " << m_bsIDCErrContainerName.key() );
+  return idcErrCont.cptr();
+}
+
 ///////////////////////////////////////////////////////////////////////////
+SCT_ByteStreamErrorsTool::IDCCacheEntry* SCT_ByteStreamErrorsTool::getCacheEntry(const EventContext& ctx) const {
+  IDCCacheEntry* cacheEntry = m_eventCache.get( ctx );
+  if( cacheEntry->needsUpdate( ctx ) ) {
+    auto idcErrContPtr = getContainer( ctx );
+    if ( idcErrContPtr == nullptr ) {     // missing or not, the cache needs to be reset
+      cacheEntry->reset( ctx.evt(), nullptr );
+    } else {
+      cacheEntry->reset( ctx.evt(), idcErrContPtr->cache() );
+    }
+    ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool Cache for the event reset " << cacheEntry->eventId  << " with IDC container" << idcErrContPtr );
+  }
+  return cacheEntry;
+}
 
 /** this is the principle method which can be accessed via 
  * the ConditionsSummaryTool to decide if a wafer is good - in this
  * case we want to return false if the wafer has an error that would 
  * result in bad hits or no hits for that event */
- 
 bool 
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
-  const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>* errorSets{getErrorSets(ctx)};
+  {
+    std::lock_guard<std::mutex> lock{m_cacheMutex};
+    ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool isGood called for " << elementIdHash );
+    auto idcCachePtr = getCacheEntry(ctx)->IDCCache;
+    if ( idcCachePtr == nullptr ) {
+      ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool No cache! " );
+      return true;
+    }
 
-  bool result{true};
-  for (SCT_ByteStreamErrors::errorTypes badError: SCT_ByteStreamErrors::BadErrors) {
-    result = (errorSets->at(badError).count(elementIdHash)==0);
-    if (not result) return result;
-  }
+    auto errorCode = idcCachePtr->retrieve(elementIdHash);
+  
+    for(auto badError : SCT_ByteStreamErrors::BadErrors) {
+      if(errorCode == badError) {
+	ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool Bad Error " << errorCode  << " for ID " << elementIdHash );
+	return false;
+      }
+    }
+  } // end of cache operations protection via m_cacheMutex, following code has own protection
   
   // If all 6 chips of a link issue ABCD errors or are bad chips or temporarily masked chips, the link is treated as bad one. 
   const Identifier wafer_id{m_sct_id->wafer_id(elementIdHash)};
@@ -101,7 +146,7 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const Even
   }
   if (allChipsBad) return false;
   
-  return result;
+  return true;
 }
 
 bool
@@ -129,7 +174,6 @@ SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, const EventContext
 bool
 SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
-
   return isGood(elementId, ctx, h);
 }
 
@@ -217,20 +261,6 @@ SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId, const EventContext&
   return chip;
 }
 
-/////////////////////////////////////////////////////////////////////////
-
-/** reset everything at the start of every event. */
-
-void 
-SCT_ByteStreamErrorsTool::resetSets(const EventContext& ctx) const {
-  // m_mutex should be locked by a public method.
-  CacheEntry* ent{m_cache.get(ctx)};
-  for (int errType{0}; errType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errType++) {
-    ent->m_bsErrors[errType].clear();
-  }
-  return;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////
 
 /** The accessor method that can be used by clients to 
@@ -238,157 +268,89 @@ SCT_ByteStreamErrorsTool::resetSets(const EventContext& ctx) const {
  * e.g. for monitoring plots.
  */
 
-const std::set<IdentifierHash>
+std::set<IdentifierHash>
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) const {
-  std::lock_guard<std::mutex> lock{m_mutex};
-  CacheEntry* ent{m_cache.get(ctx)};
+  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool getErrorSet  " << errorType );
+  std::set<IdentifierHash> result;
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
-    StatusCode sc{fillData(ctx)};
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("fillData in getErrorSet fails");
+    auto idcErrCont = getContainer( ctx );
+    if ( idcErrCont != nullptr  ) {
+      const std::vector<std::pair<size_t, uint64_t>> errorcodesforView = idcErrCont->getAll();
+      for (const auto& [hashId, errCode] : errorcodesforView) {
+	if (  SCT_ByteStreamErrors::hasError( errCode, static_cast<SCT_ByteStreamErrors::ErrorType>( errorType ) ) ) {
+	  result.insert(hashId);
+	}
+      }
     }
-    return ent->m_bsErrors[errorType];
   }
-  return {};
+  return result;
 }
 
-const std::set<IdentifierHash> 
+std::set<IdentifierHash> 
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   return getErrorSet(errorType, ctx);
 }
 
-/** The accessor method that can be used by clients to 
- * retrieve sets of IdHashes of wafers.
- * e.g. for isGood method.
- */
-
-const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>*
-SCT_ByteStreamErrorsTool::getErrorSets(const EventContext& ctx) const {
-  std::lock_guard<std::mutex> lock{m_mutex};
-  StatusCode sc{fillData(ctx)};
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("fillData in getErrorSet fails");
-    return nullptr;
-  }
-  CacheEntry* ent{m_cache.get(ctx)};
-  return &(ent->m_bsErrors);
-}
-
-const std::array<std::set<IdentifierHash>, SCT_ByteStreamErrors::NUM_ERROR_TYPES>*
-SCT_ByteStreamErrorsTool::getErrorSets() const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  return getErrorSets(ctx);
-}
-
 ////////////////////////////////////////////////////////////////////////
 
 /** this function is used to populate the data of this tool from 
- * the InDetBSErrContainer in StoreGate, loops through container,
- * calls addError() for each entry.
+ * the InDetBSErrContainer in StoreGate
  */
 
 StatusCode
 SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
-  // m_mutex should be locked by a public method.
-  CacheEntry* ent{m_cache.get(ctx)};
-  if (ent->m_evt == ctx.evt()) {
-    // Cache is valid
+
+  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool fillData  ");
+
+  const IDCInDetBSErrContainer* idcErrCont = getContainer( ctx );
+  if ( idcErrCont == nullptr ) {
     return StatusCode::SUCCESS;
   }
 
-  resetSets(ctx);
-  ent->m_tempMaskedChips.clear();
-  ent->m_abcdErrorChips.clear();
+  auto cacheEntry = getCacheEntry( ctx );
 
-  SG::ReadHandle<IDCInDetBSErrContainer> idcErrCont (m_bsIDCErrContainerName, ctx);
-
-  /** When running over ESD files without BSErr container stored, don't 
-   * want to flood the user with error messages. Should just have a bunch
-   * of empty sets, and keep quiet.
-   */
-  if (not idcErrCont.isValid()) {
-    m_nRetrievalFailure++;
-    if (m_nRetrievalFailure<=3) {
-      ATH_MSG_INFO("Failed to retrieve BS error container "
-                   << m_bsIDCErrContainerName.key()
-                   << " from StoreGate.");
-      if (m_nRetrievalFailure==3) {
-        ATH_MSG_INFO("This message on retrieval failure of " << m_bsIDCErrContainerName.key() << " is suppressed.");
-      }
-    }
-    return StatusCode::SUCCESS;
-  }
-  
   /** OK, so we found the StoreGate container, now lets iterate
    * over it to populate the sets of errors owned by this Tool.
    */
-  ATH_MSG_DEBUG("size of error container is " << idcErrCont->maxSize());
-  const std::vector<std::pair<size_t, int>> errorcodesforView = idcErrCont->getAll();
+  ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool size of error container is " << idcErrCont->maxSize());
+  const std::vector<std::pair<size_t, uint64_t>> errorcodesforView = idcErrCont->getAll();
 
-  for (const auto& [errCode, hashId] : errorcodesforView) {
+  for (const auto& [ hashId, errCode ] : errorcodesforView) {
 
-    addError(hashId, errCode, ctx);
     Identifier wafer_id{m_sct_id->wafer_id(hashId)};
     Identifier module_id{m_sct_id->module_id(wafer_id)};
 
+    if ( errCode == idcErrCont->emptyValue() ) continue; // not filled == all was ok in deciding
+
+    ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool filling event cache for module " << module_id  << " ec " << errCode );
+
     int side{m_sct_id->side(m_sct_id->wafer_id(hashId))};
-
-    if ((errCode >= SCT_ByteStreamErrors::ABCDError_Chip0 and
-         errCode<= SCT_ByteStreamErrors::ABCDError_Chip5)) {
-      ent->m_abcdErrorChips[module_id] |= (1 << (errCode - SCT_ByteStreamErrors::ABCDError_Chip0 + side * 6));
-    } else if (errCode>= SCT_ByteStreamErrors::TempMaskedChip0 and
-               errCode<= SCT_ByteStreamErrors::TempMaskedChip5) {
-      ent->m_tempMaskedChips[module_id] |= (1 << (errCode- SCT_ByteStreamErrors::TempMaskedChip0 + side * 6));
-    } else {
-      std::pair<bool, bool> badLinks{m_config->badLinks(hashId, ctx)};
-      bool result{(side == 0 ? badLinks.first : badLinks.second) and (badLinks.first xor badLinks.second)};
-      if (result) {
-        /// error in a module using RX redundancy - add an error for the other
-        /// link as well!!
-        /// However, ABCDError_Chip0-ABCDError_Chip5 and
-        /// TempMaskedChip0-TempMaskedChip5 are not common for two links.
-        if (side == 0) {
-          IdentifierHash otherSide{IdentifierHash(hashId + 1)};
-          addError(otherSide, errCode, ctx);
-          ATH_MSG_DEBUG("Adding error to side 1 for module with RX redundancy " << otherSide);
-        } else if (side == 1) {
-          IdentifierHash otherSide{IdentifierHash(hashId - 1)};
-          addError(otherSide, errCode, ctx);
-          ATH_MSG_DEBUG("Adding error to side 0 for module with RX redundancy " << otherSide);
-        }
-      }
+    if ( errCode & SCT_ByteStreamErrors::ABCDErrorMask() ) {
+      cacheEntry->abcdErrorChips[module_id] |= (1 << (errCode - SCT_ByteStreamErrors::ABCDError_Chip0 + side * 6));
+    } else if (errCode & SCT_ByteStreamErrors::TempMaskedChipsMask()) {
+      cacheEntry->tempMaskedChips[module_id] |= (1 << (errCode- SCT_ByteStreamErrors::TempMaskedChip0 + side * 6));
     }
-  }
 
-  ent->m_evt = ctx.evt();
+  }
 
   return StatusCode::SUCCESS;
-}
-
-/** The following method is used to populate 
- *  the sets of IdHashes for wafers with errors. 
- *  It is called by the fillData() method, which reads the 
- *  InDetBSErrContainer from StoreGate.
- */
-
-void 
-SCT_ByteStreamErrorsTool::addError(const IdentifierHash& id, int errorType, const EventContext& ctx) const {
-  // m_mutex should be locked by a public method.
-  CacheEntry* ent{m_cache.get(ctx)};
-  if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
-    ent->m_bsErrors[errorType].insert(id);
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleId, const EventContext& ctx) const {
-  std::lock_guard<std::mutex> lock{m_mutex};
-  const std::map<Identifier, unsigned int>& v_tempMaskedChips{getTempMaskedChips(ctx)};
-  std::map<Identifier, unsigned int>::const_iterator it{v_tempMaskedChips.find(moduleId)};
-  if (it!=v_tempMaskedChips.end()) return it->second;
-  return 0;
+  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool tempMaskedChips  ");
+  std::lock_guard<std::mutex> lock{m_cacheMutex};
+  auto cacheEntry = getCacheEntry(ctx);
+  if ( cacheEntry->IDCCache == nullptr ) return 0;
+
+  auto [status, bsErrorCode] = getErrorCodeWithCacheUpdate( moduleId, ctx, cacheEntry->tempMaskedChips);
+  if ( status.isFailure() ) {
+    ATH_MSG_ERROR("SCT_ByteStreamErrorsTool Failure getting temp masked chip errors");
+  }
+  return bsErrorCode;
+
 }
 
 unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleId) const {
@@ -397,11 +359,16 @@ unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleI
 }
 
 unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const {
-  std::lock_guard<std::mutex> lock{m_mutex};
-  const std::map<Identifier, unsigned int>& v_abcdErrorChips{getAbcdErrorChips(ctx)};
-  std::map<Identifier, unsigned int>::const_iterator it{v_abcdErrorChips.find(moduleId)};
-  if (it!=v_abcdErrorChips.end()) return it->second;
-  return 0;
+  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool abcdErrorChips  ");
+  std::lock_guard<std::mutex> lock{m_cacheMutex};
+  auto cacheEntry = getCacheEntry(ctx);
+  if ( cacheEntry->IDCCache == nullptr ) return 0;
+
+  auto [status, bsErrorCode] = getErrorCodeWithCacheUpdate( moduleId, ctx, cacheEntry->abcdErrorChips);
+  if ( status.isFailure() ) {
+    ATH_MSG_ERROR("SCT_ByteStreamErrorsTool Failure getting ABC chip errors");
+  }
+  return bsErrorCode;
 }
 
 unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId) const {
@@ -409,28 +376,34 @@ unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId
   return abcdErrorChips(moduleId, ctx);
 }
 
+std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCacheUpdate( const Identifier& moduleId, const EventContext& ctx,
+											   std::map<Identifier, unsigned int>& whereExected ) const {
+  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool getErrorCodeWithCacheUpdate  " << moduleId );
+  auto it{ whereExected.find( moduleId ) };
+  if ( it != whereExected.end() ) return std::make_pair(StatusCode::SUCCESS, it->second);
+
+  // even if there are no errors for this module at all filled
+  // we want the entry of value 0 so we know we walked over it and do not need to invoke filling again
+  // and and do not need to do it again
+  whereExected[moduleId] = 0;
+
+  // the content is missing, look for actual errors
+  StatusCode sc{fillData(ctx)};
+  if (sc.isFailure()) {
+    return std::make_pair(StatusCode::FAILURE, 0);
+  }
+  // handle situation when the cache does not contain desired datum after the update
+  it = whereExected.find( moduleId );
+  if ( it == whereExected.end() ) {
+    ATH_MSG_ERROR("After fillData in abcdErrorChips, cache does not have an infomation about the " << moduleId);
+    ATH_MSG_ERROR("Likely cause is a request for for different region");
+    std::make_pair(StatusCode::FAILURE, 0);
+  }
+  return std::make_pair(StatusCode::SUCCESS, it->second);
+}
+
 const InDetDD::SiDetectorElement* SCT_ByteStreamErrorsTool::getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const {
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey, ctx};
   if (not condData.isValid()) return nullptr;
   return condData->getDetectorElement(waferHash);
-}
-
-const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getTempMaskedChips(const EventContext& ctx) const { 
-  // m_mutex should be locked by a public method.
-  StatusCode sc{fillData(ctx)};
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("fillData in getTempMaskedChips fails");
-  }
-  CacheEntry* ent{m_cache.get(ctx)};
-  return ent->m_tempMaskedChips;
-}
-
-const std::map<Identifier, unsigned int>& SCT_ByteStreamErrorsTool::getAbcdErrorChips(const EventContext& ctx) const {
-  // m_mutex should be locked by a public method.
-  StatusCode sc{fillData(ctx)};
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("fillData in getAbcdErrorChips fails");
-  }
-  CacheEntry* ent{m_cache.get(ctx)};
-  return ent->m_abcdErrorChips;
 }

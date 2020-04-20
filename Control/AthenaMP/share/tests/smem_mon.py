@@ -7,6 +7,8 @@
 # @endcode
 #
 
+from __future__ import print_function
+
 
 __version__ = "$Revision: 000001 $"
 __author__  = "Mous Tatarkhanov <tmmous@cern.ch>"
@@ -15,7 +17,10 @@ from optparse import OptionParser
 
 import sys, os
 import time, operator
-import commands 
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 smem_exe = "/afs/cern.ch/user/t/tmmous/smem-0.9/smem" 
 smem_log = "smem_log"
@@ -30,12 +35,12 @@ def smem(ppid = None, message = None):
 
     if message is not None:
         cmd = "echo %s >> %s" % (message, smem_log)
-        out = commands.getoutput(cmd)
+        out = subprocess.getoutput(cmd)
 
     cmd = "%s -P athena.py -s pid >> %s" % (smem_exe, smem_log) 
-    out += commands.getoutput(cmd)
+    out += subprocess.getoutput(cmd)
     
-    print "smem: %s" % out
+    print ("smem: %s" % out)
     
     if ps_line_nbr(ppid) > 0:
         return True
@@ -43,38 +48,35 @@ def smem(ppid = None, message = None):
         return False
 
 def ps_line_nbr(ppid):
-    import commands
     cmd = "ps --ppid %s -o pid,state,vsize,rss,sz,start,cputime,etime " % ppid
-    (sc, out) = commands.getstatusoutput(cmd)
+    (sc, out) = subprocess.getstatusoutput(cmd)
     
     if (sc != 0):
-        print "%s\n" % cmd
-        print " PS> ERRROR... sc=%i" % sc
-        print " out=%s" % out 
+        print ("%s\n" % cmd)
+        print (" PS> ERRROR... sc=%i" % sc)
+        print (" out=%s" % out )
         return 0
     
-    print ">PS sc=%i" % sc
-    print "%s" % out
+    print (">PS sc=%i" % sc)
+    print ("%s" % out)
 
     
     ln = len(out.splitlines()) - 1
-    print "line_nbr=", ln
+    print ("line_nbr=", ln)
     return ln
 
 def get_cpu(pid):
-    import commands
     cmd = "ps --pid %i -o psr" % pid
-    #print ">%s" % cmd
-    out = commands.getoutput(cmd)
+    #print (">%s" % cmd)
+    out = subprocess.getoutput(cmd)
     cpu = int(out.splitlines()[1].split()[0])
-    #print "pid: [%i] has cpu: [%i]" % (pid, cpu)
+    #print ("pid: [%i] has cpu: [%i]" % (pid, cpu))
     return cpu
 
 def set_proc_affinity(pid, cpu):
-    import commands
     cmd = "taskset -pc %i %i" % (cpu, pid)
-    #print "> taskset -pc %i %i" % (cpu, pid)                                                                                                       
-    st,out = commands.getstatusoutput(cmd)
+    #print ("> taskset -pc %i %i" % (cpu, pid)                                                                                                       )
+    st,out = subprocess.getstatusoutput(cmd)
     return st
 
 time_list = list()
@@ -140,13 +142,13 @@ if __name__ == "__main__":
     smem_ppid = options.ppid
     smem_time_step = float(options.time_step)
 
-    print "smem log_file = [%s]" % smem_log
-    print "smem exe_file = [%s]" % smem_exe
-    print "smem ppid = [%s]" % smem_ppid
-    print "smem time_step = [%.1f]" % smem_time_step
+    print ("smem log_file = [%s]" % smem_log)
+    print ("smem exe_file = [%s]" % smem_exe)
+    print ("smem ppid = [%s]" % smem_ppid)
+    print ("smem time_step = [%.1f]" % smem_time_step)
 
     if os.path.exists(smem_log):
-        print "  given smem_log name %s exists.. renaming it to old.%s" % (smem_log, smem_log)
+        print ("  given smem_log name %s exists.. renaming it to old.%s" % (smem_log, smem_log))
         os.rename(smem_log, "OLD.%s" % smem_log)
     
     t0 = time.time()

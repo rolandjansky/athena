@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -114,7 +114,7 @@ void test1()
   assert ( k1.mode() == Gaudi::DataHandle::Writer);
   assert ( k1[0].key() == "MyObj");
   // need to setup conditions store
-  /* assert ( */ k1[0].initialize() /* .isSuccess())*/ ;
+  /* assert ( */ k1[0].initialize().ignore() /* .isSuccess())*/ ;
 
   try {
     std::vector<SG::WriteCondHandle<MyObj> > h1( k1.makeHandles() );

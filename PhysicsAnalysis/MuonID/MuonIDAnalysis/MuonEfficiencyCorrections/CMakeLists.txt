@@ -19,36 +19,38 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Control/StoreGate
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODMuon
+   Event/xAOD/xAODJet
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/AnalysisCommon/PileupReweighting
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PRIVATE
    Control/AthContainers
    Event/xAOD/xAODTrigger
+   Event/FourMomUtils
    Tools/PathResolver
    ${extra_dep} )
 
 # External dependencies:
-find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree RIO Hist Physics )
+
 
 # Libraries in the package:
 atlas_add_library( MuonEfficiencyCorrectionsLib
    MuonEfficiencyCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonEfficiencyCorrections
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEventInfo
-   xAODMuon PATInterfaces
+   INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon xAODEventInfo MuonAnalysisInterfacesLib PATInterfaces StoreGateLib
    PRIVATE_LINK_LIBRARIES xAODTrigger PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonEfficiencyCorrections
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon PATInterfaces AthContainers
-      AthenaBaseComps GaudiKernel MuonEfficiencyCorrectionsLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODJet PATInterfaces AthContainers MuonAnalysisInterfacesLib
+      AthenaBaseComps GaudiKernel MuonEfficiencyCorrectionsLib StoreGateLib )
 endif()
 
 atlas_add_dictionary( MuonEfficiencyCorrectionsDict
@@ -61,16 +63,18 @@ macro( _add_exec name )
    atlas_add_executable( ${name}
       util/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon
-      PATInterfaces xAODCore AsgAnalysisInterfaces PileupReweightingLib MuonEfficiencyCorrectionsLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon MuonAnalysisInterfacesLib
+      PATInterfaces xAODCore AsgAnalysisInterfaces PileupReweightingLib MuonEfficiencyCorrectionsLib StoreGateLib )
 endmacro( _add_exec )
 
 if( XAOD_STANDALONE )
-   _add_exec( MuonEfficiencyCorrectionsRootCoreTest )
-   _add_exec( MuonEfficiencyCorrectionsSFFilesTest )
+   _add_exec( MuonEfficiencyScaleFactorsTest )
+   _add_exec( MuonEfficiencyScaleFactorsSFFileTester )
    _add_exec( MuonTriggerSFRootCoreTest )
-   _add_exec( MuonTriggerSFRootCoreTest_maskFeet )
+   _add_exec( MuonTriggerSFFilesTest )
+   _add_exec( MuonTriggerSFConfGenerator )
 endif()
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )

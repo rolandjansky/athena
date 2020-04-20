@@ -1,13 +1,11 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // Dear emacs, this is -*- c++ -*-
 
-// $Id: JetTrigAuxContainer_v2.h 2017-02-12 16:52 sschramm $
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef XAODJET_VERSIONS_JETTRIGAUXCONTAINER_V2_H
 #define XAODJET_VERSIONS_JETTRIGAUXCONTAINER_V2_H
-#ifndef SIMULATIONBASE
 
 // System include(s):
 #include <vector>
@@ -62,6 +60,5 @@ namespace xAOD {
 // Declare the inheritance of the class:
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::JetTrigAuxContainer_v2, xAOD::ByteStreamAuxContainer_v1 );
-#endif
 
-#endif // XAODJET_VERSIONS_JETAUXCONTAINER_V2_H
+#endif // XAODJET_VERSIONS_JETTRIGAUXCONTAINER_V2_H

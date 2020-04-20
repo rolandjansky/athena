@@ -130,16 +130,31 @@ InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",
 from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
 sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
 sct_ConfigurationConditionsToolSetup.setup()
+from SCT_ConditionsTools.SCT_ReadCalibDataToolSetup import SCT_ReadCalibDataToolSetup
+sct_ReadCalibDataToolSetup = SCT_ReadCalibDataToolSetup()
+sct_ReadCalibDataToolSetup.setup()
+from SCT_ConditionsTools.SCT_MonitorConditionsToolSetup import SCT_MonitorConditionsToolSetup
+sct_MonitorConditionsToolSetup = SCT_MonitorConditionsToolSetup()
+sct_MonitorConditionsToolSetup.setup()
 from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
 sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
 sct_ByteStreamErrorsToolSetup.setConfigTool(sct_ConfigurationConditionsToolSetup.getTool())
 sct_ByteStreamErrorsToolSetup.setup()
+from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+sct_DCSConditionsToolSetup.setup()
+from SCT_ConditionsTools.SCT_TdaqEnabledToolSetup import SCT_TdaqEnabledToolSetup
+sct_TdaqEnabledToolSetup = SCT_TdaqEnabledToolSetup()
+sct_TdaqEnabledToolSetup.setup()
 from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
 sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged")
 sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
-sct_ConditionsSummaryToolSetupWithoutFlagged.ConditionsTools=[sct_ByteStreamErrorsToolSetup.getTool().getFullName(),
-                                                              sct_ConfigurationConditionsToolSetup.getTool().getFullName()]
-
+sct_ConditionsSummaryToolSetupWithoutFlagged.ConditionsTools=[sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
+                                                              sct_ReadCalibDataToolSetup.getTool().getFullName(),
+                                                              sct_MonitorConditionsToolSetup.getTool().getFullName(),
+                                                              sct_ByteStreamErrorsToolSetup.getTool().getFullName(),
+                                                              sct_DCSConditionsToolSetup.getTool().getFullName(),
+                                                              sct_TdaqEnabledToolSetup.getTool().getFullName()]
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name = "InDetSCT_ClusteringTool",
                                                     OutputLevel = INFO,
@@ -181,8 +196,12 @@ sct_FlaggedConditionToolSetup.setup()
 sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
 sct_ConditionsSummaryToolSetup.setup()
 SCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
-SCT_ConditionsSummaryTool.ConditionsTools=[sct_ByteStreamErrorsToolSetup.getTool().getFullName(),
-                                           sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
+SCT_ConditionsSummaryTool.ConditionsTools=[sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
+                                           sct_ReadCalibDataToolSetup.getTool().getFullName(),
+                                           sct_MonitorConditionsToolSetup.getTool().getFullName(),
+                                           sct_ByteStreamErrorsToolSetup.getTool().getFullName(),
+                                           sct_DCSConditionsToolSetup.getTool().getFullName(),
+                                           sct_TdaqEnabledToolSetup.getTool().getFullName(),
                                            sct_FlaggedConditionToolSetup.getTool().getFullName()]
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConditionsSummaryTestAlg
 topSequence += SCT_ConditionsSummaryTestAlg(SCT_ConditionsSummaryTool=SCT_ConditionsSummaryTool)

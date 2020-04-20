@@ -1,10 +1,15 @@
-# $Id: CMakeLists.txt 730170 2016-03-15 16:32:19Z krasznaa $
 ################################################################################
 # Package: CaloEvent
 ################################################################################
 
 # Declare the package name:
 atlas_subdir( CaloEvent )
+
+# Extra dependencies, based on the environment:
+set( extra_deps )
+if( NOT GENERATIONBASE )
+   set( extra_deps LArCalorimeter/LArRawConditions ) # not ideal... LAr should depend on Calo
+endif()
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
@@ -24,12 +29,11 @@ atlas_depends_on_subdirs(
    Event/EventKernel
    Event/FourMom
    Event/NavFourMom
-   LArCalorimeter/LArRawConditions #not ideal .. LAr should depend on Calo. 
+   ${extra_deps}
    PRIVATE
    AtlasTest/TestTools
    Control/StoreGate
    DetectorDescription/IdDictParser
-   LArCalorimeter/LArRawConditions
    GaudiKernel )
 
 # External dependencies:
@@ -55,53 +59,53 @@ atlas_add_dictionary( CaloEventDict
 
 # Helper variable:
 set( _patterns
-   "^lar decode|^HistogramPersis.* INFO|initialize_from_dict|mask/zero|^JobOptionsSvc +INFO|channel range|GP:===========|^AtlasDetectorID::" )
+   "^lar decode|initialize_from_dict|mask/zero|channel range|^AtlasDetectorID::" )
 
 # Test(s) in the package:
 atlas_add_test( CaloCellContainer_test
    SOURCES test/CaloCellContainer_test.cxx
    LINK_LIBRARIES CaloDetDescrLib CaloIdentifier TestTools IdDictParser
    GaudiKernel CaloEvent
-   EXTRA_PATTERNS "${_patterns}"
+   LOG_IGNORE_PATTERN "${_patterns}"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( CaloConstCellContainer_test
    SOURCES test/CaloConstCellContainer_test.cxx
    LINK_LIBRARIES CaloDetDescrLib CaloIdentifier TestTools IdDictParser
    GaudiKernel CaloEvent
-   EXTRA_PATTERNS "${_patterns}"
+   LOG_IGNORE_PATTERN "${_patterns}"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( CaloTowerContainer_test
    SOURCES test/CaloTowerContainer_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} TestTools CaloEvent  ${CLHEP_LIBRARIES}
-   EXTRA_PATTERNS "${_patterns}" )
+   LOG_IGNORE_PATTERN "${_patterns}" )
 
 atlas_add_test( CaloTopoTowerContainer_test
    SOURCES test/CaloTopoTowerContainer_test.cxx
    LINK_LIBRARIES TestTools StoreGateLib GaudiKernel CaloEvent ${CLHEP_LIBRARIES}
-   EXTRA_PATTERNS "${_patterns}"
+   LOG_IGNORE_PATTERN "${_patterns}"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share:${CMAKE_JOBOPT_OUTPUT_DIRECTORY}:$ENV{JOBOPTSEARCHPATH}" )
 
 atlas_add_test( CaloCellPrefetchIterator_test
    SOURCES test/CaloCellPrefetchIterator_test.cxx
    LINK_LIBRARIES CaloDetDescrLib CaloIdentifier TestTools IdDictParser
    GaudiKernel CaloEvent
-   EXTRA_PATTERNS "${_patterns}"
+   LOG_IGNORE_PATTERN "${_patterns}"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( CaloSamplingData_test
    SOURCES test/CaloSamplingData_test.cxx
    LINK_LIBRARIES CaloEvent
-   EXTRA_PATTERNS "${_patterns}" )
+   LOG_IGNORE_PATTERN "${_patterns}" )
 
 atlas_add_test( CaloTowerSeg_test
    SOURCES test/CaloTowerSeg_test.cxx
    LINK_LIBRARIES CaloEvent
-   EXTRA_PATTERNS "${_patterns}" )
+   LOG_IGNORE_PATTERN "${_patterns}" )
 
 atlas_add_test( CaloTester_test
    SOURCES test/CaloTester_test.cxx
    LINK_LIBRARIES CaloEvent
-   EXTRA_PATTERNS "${_patterns}" )
+   LOG_IGNORE_PATTERN "${_patterns}" )

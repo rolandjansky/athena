@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GRAPH_HH_TAURECTOOLS
@@ -63,13 +63,12 @@ namespace lwtDev {
     size_t m_n_outputs;
   };
 
-  typedef std::map<std::string, MatrixXd> MatMap;
   // sequence nodes
   class ISequenceNode
   {
   public:
     virtual ~ISequenceNode() {}
-    virtual MatrixXd scan(const ISource&, MatMap& inp, MatMap& out) const = 0;
+    virtual MatrixXd scan(const ISource&) const = 0;
     virtual size_t n_outputs() const = 0;
   };
 
@@ -77,7 +76,7 @@ namespace lwtDev {
   {
   public:
     InputSequenceNode(size_t index, size_t n_outputs);
-    virtual MatrixXd scan(const ISource&, MatMap& inp, MatMap& out) const override;
+    virtual MatrixXd scan(const ISource&) const override;
     virtual size_t n_outputs() const override;
   private:
     size_t m_index;
@@ -87,23 +86,32 @@ namespace lwtDev {
   class SequenceNode: public ISequenceNode, public INode
   {
   public:
-    SequenceNode(const RecurrentStack*, const std::map<std::string, ISequenceNode*> sources);
-    virtual MatrixXd scan(const ISource&, MatMap& inp, MatMap& out) const override;
+    SequenceNode(const RecurrentStack*, const ISequenceNode* source);
+    virtual MatrixXd scan(const ISource&) const override;
     virtual VectorXd compute(const ISource&) const override;
     virtual size_t n_outputs() const override;
   private:
     const RecurrentStack* m_stack;
-    const std::map<std::string, ISequenceNode*> m_sources;
+    const ISequenceNode* m_source;
   };
 
   class TimeDistributedNode: public ISequenceNode
   {
   public:
     TimeDistributedNode(const Stack*, const ISequenceNode* source);
-    virtual MatrixXd scan(const ISource&, MatMap& inp, MatMap& out) const override;
+    virtual MatrixXd scan(const ISource&) const override;
     virtual size_t n_outputs() const override;
   private:
     const Stack* m_stack;
+    const ISequenceNode* m_source;
+  };
+  class SumNode: public INode
+  {
+  public:
+    SumNode(const ISequenceNode* source);
+    virtual VectorXd compute(const ISource&) const override;
+    virtual size_t n_outputs() const override;
+  private:
     const ISequenceNode* m_source;
   };
 

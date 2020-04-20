@@ -3,7 +3,7 @@
 */
 #include "MissingETMonitoring/METMonitorAlgorithm.h" 
 #include "xAODMissingET/MissingET.h" 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "xAODJet/Jet.h" 
 
 
@@ -58,6 +58,9 @@ StatusCode METMonitoringAlg::initialize() {
     }
   }
   ATH_CHECK(m_metContainerKey.initialize());
+  ATH_CHECK(m_metCaloContainerKey.initialize());
+  ATH_CHECK(m_metAKt4EMTopoContainerKey.initialize());
+
   ATH_CHECK(m_jetContainerKey.initialize());
   if (m_doJetCleaning) {    
     ATH_MSG_DEBUG("::initializing JetCleaningTool"); 
@@ -80,16 +83,33 @@ StatusCode METMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
     ATH_MSG_ERROR("evtStore() does not contain MET Collection with name "<< m_metContainerKey);
     return StatusCode::FAILURE;
   }
-   
-  if (m_dometcut && (*metContainer)[m_metTotalKey]->met() < m_metcut*GeV) return StatusCode::SUCCESS;
+ SG::ReadHandle<xAOD::MissingETContainer> metCaloContainer(m_metCaloContainerKey,ctx);
+  if (!metCaloContainer.isValid() ) {
+    ATH_MSG_ERROR("evtStore() does not contain METCalo Collection with name "<< m_metCaloContainerKey);
+    return StatusCode::FAILURE;
+  }
 
+ SG::ReadHandle<xAOD::MissingETContainer> metAKt4EMTopoContainer(m_metAKt4EMTopoContainerKey,ctx);
+  if (!metCaloContainer.isValid() ) {
+    ATH_MSG_ERROR("evtStore() does not contain METAKt4EMTopo Collection with name "<< m_metAKt4EMTopoContainerKey);
+    return StatusCode::FAILURE;
+  }
+
+  bool isMETtopocalo = false;
+  for (const auto& key : m_metKeys) {
+    if (key == "MET_Topo") isMETtopocalo = true;    
+  }
+    if (isMETtopocalo){
+      if (m_dometcut && (*metAKt4EMTopoContainer)[m_metTotalKey]->met() < m_metcut*GeV) return StatusCode::SUCCESS;
+    }  else {
+      if (m_dometcut && (*metContainer)[m_metTotalKey]->met() < m_metcut*GeV) return StatusCode::SUCCESS;
+    }
   for (const auto& metKey : m_metKeys)       
     { 
       const std::string& xaod_subkey = key2SubSkeyMap.at(metKey).second;
       const xAOD::MissingET* xMissEt = (*metContainer)[xaod_subkey];
       if (xMissEt) {          
 	std::string name = metKey + "_et";
-	//	  std::cout<<"name "<<name<<std::endl;
 	auto et = Monitored::Scalar<double>(name,-1.0);
 	name = metKey + "_ex";
 	auto ex = Monitored::Scalar<double>(name,-1.0);
@@ -122,7 +142,7 @@ StatusCode METMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
     }
 
   for (const auto& calString : m_calStrings) {
-     const xAOD::MissingET* xmetCal = (*metContainer)[calString];
+     const xAOD::MissingET* xmetCal = (*metCaloContainer)[calString];
      if (xmetCal){
        std::string name = "MET_"+calString + "_et";
        auto et = Monitored::Scalar<double>(name,-1.0);
@@ -139,7 +159,22 @@ StatusCode METMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
        et = xmetCal->met() / GeV;
        phi = xmetCal->phi();
        sumet = xmetCal->sumet() / GeV;
-       if (m_alltrigger)fill("METMonitor",ex,ey,et,phi,sumet); 
+
+        if (m_alltrigger &&  m_doBadJets == false) {
+	  fill("METMonitor",ex,ey,et,phi,sumet);
+	} else if (m_doBadJets) { 
+	  if (!isGoodEvent(ctx)) {
+	    fill("METMonitor",ex,ey,et,phi,sumet); 		
+	  }
+	} else if (m_doJetCleaning && m_doBadJets == false) { 
+	  if (isGoodEvent(ctx)) {
+	    fill("METMonitor",ex,ey,et,phi,sumet); 
+
+	  }
+	} else {
+	  fill("METMonitor",ex,ey,et,phi,sumet);
+	}
+       
      }
    }
   return StatusCode::SUCCESS;

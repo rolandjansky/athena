@@ -55,6 +55,8 @@ class Identifier;
 #include "GaudiKernel/IIncidentListener.h"
 
 
+#include "CxxUtils/checker_macros.h"
+
 typedef std::vector< std::vector<float> > VectorContainer;
 typedef std::vector< float >              SingleContainer;
 
@@ -62,9 +64,10 @@ enum VALUE_ENUM{BADVALUE=-999,BADVALUE_TO_RETURN=-1};
 enum DATABASE_ENUM{iADC2MEV,iSIGMANOISE,iAUTOCORR,iOFC,iSHAPE,
 		   iMINBIASRMS,iFSAMPL,nDATABASE};
 
-class CaloNoiseTool: public AthAlgTool,
-	             virtual public ICaloNoiseTool,
-		     public IIncidentListener 
+class ATLAS_NOT_THREAD_SAFE /*It registers callbacks*/ CaloNoiseTool :
+        public AthAlgTool,
+        virtual public ICaloNoiseTool,
+		    public IIncidentListener 
 {
 private: 
   typedef float (CaloNoiseTool::*GETNOISE_CDDE)(const CaloDetDescrElement*,

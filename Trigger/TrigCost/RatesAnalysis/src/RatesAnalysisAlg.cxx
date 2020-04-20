@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // RatesAnalysis includes
@@ -7,6 +7,8 @@
 #include "EventInfo/EventStreamInfo.h"
 
 #include "xAODEventInfo/EventInfo.h"
+
+#include "TrigConfL1Data/BunchGroupSet.h"
 
 //uncomment the line below to use the HistSvc for outputting trees and histograms
 #include "GaudiKernel/ITHistSvc.h"
@@ -23,7 +25,8 @@ RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLo
   m_eventCounter(0),
   m_weightedEventCounter(0),
   m_scalingHist(nullptr),
-  m_bcidHist(nullptr)
+  m_bcidHist(nullptr),
+  m_metadataTree(nullptr)
 {}
 
 RatesAnalysisAlg::~RatesAnalysisAlg() {}
@@ -136,6 +139,7 @@ StatusCode RatesAnalysisAlg::newTrigger(const std::string& name,
     m_autoTriggers.push_back(name);
   } else if (method == kEXISTING) {
     m_existingTriggers[name] = m_tdt->getChainGroup(name);
+    m_lowerTrigger[name] = seedName;
   }
 
   // Add this trigger to its groups
@@ -284,16 +288,16 @@ StatusCode RatesAnalysisAlg::checkExistingTrigger(const std::string& name, const
   return StatusCode::SUCCESS;
 }
 
-StatusCode RatesAnalysisAlg::setTriggerDesicison(const std::string& name, const bool triggerIsPassed) {
+StatusCode RatesAnalysisAlg::setTriggerDesicison(const std::string& name, const bool triggerIsPassed, const bool triggerIsActive) {
   // Currently - we call execute on setPassed, so the user would be unable to overwrite a decision set e.g. by the TDT.
   // so for now we only accept positive decisions here.
-  if (triggerIsPassed) {
+  if (triggerIsPassed || triggerIsActive) {
     const auto iterator = m_triggers.find(name);
     if (iterator == m_triggers.end()) {
       ATH_MSG_ERROR("Cannot find trigger " << name << " did you call newTrigger for this in initialize?");
       return StatusCode::FAILURE;
     }
-    iterator->second->setPassedAndExecute(triggerIsPassed, m_weightingValues); // There is logic in the RatesTrigger to prevent multiple calls per event by accident.
+    iterator->second->setPassedAndExecute(triggerIsPassed, triggerIsActive, m_weightingValues); // There is logic in the RatesTrigger to prevent multiple calls per event by accident.
     m_activatedTriggers.insert( iterator->second.get() );
   }
   return StatusCode::SUCCESS;
@@ -316,6 +320,10 @@ StatusCode RatesAnalysisAlg::initialize() {
 
   ATH_CHECK( m_tdt.retrieve() );
   m_tdt->ExperimentalAndExpertMethods()->enable();
+
+  if(!m_configSvc.empty()) {
+    ATH_CHECK( m_configSvc.retrieve() );
+  }
 
   ATH_CHECK( m_enhancedBiasRatesTool.retrieve() ); 
 
@@ -406,10 +414,13 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
 
   if (m_doHistograms) {
     ATH_MSG_DEBUG("################## Registering normalisation histogram:");
-    m_scalingHist = new TH1D("normalisation","normalisation;;sample walltime [s]",1,0.,1.);
-    ATH_CHECK( histSvc()->regHist(std::string("/RATESTREAM/normalisation"), m_scalingHist) );
+    m_scalingHist = new TH1D("normalisation",";;",3,0.,3.);
+    ATH_CHECK( histSvc()->regHist("/RATESTREAM/normalisation", m_scalingHist) );
     m_bcidHist = new TH1D("bcid",";BCID;Events",3565,-.5,3564.5);
-    ATH_CHECK( histSvc()->regHist(std::string("/RATESTREAM/bcid"), m_bcidHist) );
+    ATH_CHECK( histSvc()->regHist("/RATESTREAM/bcid", m_bcidHist) );
+    ATH_MSG_DEBUG("################## Registering metadata tree histogram:");
+    ATH_CHECK( histSvc()->regTree("/RATESTREAM/metadata", std::make_unique<TTree>("metadata", "metadata")) );
+    ATH_CHECK( histSvc()->getTree("/RATESTREAM/metadata", m_metadataTree) );
     if (m_triggers.size()) {
     ATH_MSG_DEBUG("################## Registering trigger histograms:");
       for (const auto& trigger : m_triggers) {
@@ -510,7 +521,9 @@ StatusCode RatesAnalysisAlg::execute() {
 
   if (m_doHistograms) {
     m_bcidHist->Fill(eventInfo->bcid(), m_weightingValues.m_enhancedBiasWeight);
-    m_scalingHist->Fill(m_weightingValues.m_eventLiveTime);
+    m_scalingHist->Fill(0.5, m_weightingValues.m_eventLiveTime); // Walltime
+    m_scalingHist->Fill(1.5, 1.); // Total events
+    m_scalingHist->Fill(2.5, m_weightingValues.m_enhancedBiasWeight); // Total events weighted
   }
 
   // Some debug info
@@ -524,7 +537,13 @@ StatusCode RatesAnalysisAlg::execute() {
 
 StatusCode RatesAnalysisAlg::executeTrigDecisionToolTriggers() {
   for (const auto& trigger : m_existingTriggers) {
-    ATH_CHECK( setTriggerDesicison(trigger.first, trigger.second->isPassed()) );
+    const bool passed = trigger.second->isPassed();
+    // L1 chains are always active, HLT chains are active if their L1 passed.
+    const std::string& lower = m_lowerTrigger[trigger.first];
+    // Expect this find operation to fail for L1 chains (lower = "")
+    const std::unordered_map<std::string, const Trig::ChainGroup*>::const_iterator it = m_existingTriggers.find(lower);
+    const bool active = (it == m_existingTriggers.end() ? true : it->second->isPassed());
+    ATH_CHECK( setTriggerDesicison(trigger.first, passed, active) );
   }
   return StatusCode::SUCCESS;
 }
@@ -568,6 +587,8 @@ StatusCode RatesAnalysisAlg::finalize() {
   printTarget();
   printStatistics();
   ATH_MSG_INFO("##################");
+
+  writeMetadata();
 
   return StatusCode::SUCCESS;
 }
@@ -667,4 +688,64 @@ uint32_t RatesAnalysisAlg::getLevel(const std::string& name) const {
   if (name.find("HLT_") != std::string::npos) return 2;
   if (name.find("L1_") != std::string::npos) return 1;
   return 2;
+}
+
+void RatesAnalysisAlg::writeMetadata() {
+  if (!m_metadataTree) {
+    return;
+  }
+
+  m_metadataTree->Branch("targetMu", &m_targetMu);
+  m_metadataTree->Branch("targetBunches", &m_targetBunches);
+  m_metadataTree->Branch("targetLumi", &m_targetLumi);
+
+  std::vector<std::string> triggers;
+  std::vector<std::string> lowers;
+  std::vector<double> prescales;
+  triggers.reserve(m_existingTriggers.size());
+  lowers.reserve(m_existingTriggers.size());
+  prescales.reserve(m_existingTriggers.size());
+  for (const auto& entry : m_existingTriggers) {
+    triggers.push_back( entry.first );
+    lowers.push_back( m_lowerTrigger[entry.first] );
+    prescales.push_back( entry.second->getPrescale() );
+  }
+  m_metadataTree->Branch("triggers", &triggers);
+  m_metadataTree->Branch("lowers", &lowers);
+  m_metadataTree->Branch("prescales", &prescales);
+
+  std::vector<int32_t> bunchGroups;
+  bunchGroups.reserve(16);
+  uint32_t masterKey = 0;
+  uint32_t hltPrescaleKey = 0;
+  uint32_t lvl1PrescaleKey = 0;
+
+  if(m_configSvc.isValid()) {
+    const TrigConf::BunchGroupSet* bgs = m_configSvc->bunchGroupSet();
+    for (const TrigConf::BunchGroup& bg : bgs->bunchGroups()) {
+      bunchGroups.push_back(bg.bunches().size());
+    }
+    masterKey = m_configSvc->masterKey();
+    hltPrescaleKey = m_configSvc->hltPrescaleKey();
+    lvl1PrescaleKey = m_configSvc->lvl1PrescaleKey();
+  }
+
+  if (bunchGroups.size() == 0) {
+    for (size_t i = 0; i < 16; ++i) {
+      bunchGroups.push_back(0);
+    }
+  }
+  m_metadataTree->Branch("bunchGroups", &bunchGroups);
+
+  m_metadataTree->Branch("masterKey", &masterKey);
+  m_metadataTree->Branch("lvl1PrescaleKey", &lvl1PrescaleKey);
+  m_metadataTree->Branch("hltPrescaleKey", &hltPrescaleKey);
+
+  std::string atlasProject = std::getenv("AtlasProject");
+  std::string atlasVersion = std::getenv("AtlasVersion");
+  m_metadataTree->Branch("AtlasProject", &atlasProject);
+  m_metadataTree->Branch("AtlasVersion", &atlasVersion);
+
+  m_metadataTree->Fill();
+
 }

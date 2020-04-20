@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,16 +17,7 @@
 class ILumiBlockMuTool: virtual public IAlgTool {
 
  public:
-
-  // Gaudi Boilerplate
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID ILumiBlockMuTool( "ILumiBlockMuTool", 1, 0);
-    return ILumiBlockMuTool;
-  }
-
-  // Standard tool methods
-  virtual StatusCode initialize () = 0;
-  virtual StatusCode finalize() = 0;
+  DeclareInterfaceID(ILumiBlockMuTool, 1, 0);
 
   // Interface
   virtual float averageInteractionsPerCrossing() const = 0;

@@ -1,6 +1,6 @@
-#! /usr/bin/env python
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#! /usr/bin/env python
 
 """
 Take an input EVNT file and run Rivet on it

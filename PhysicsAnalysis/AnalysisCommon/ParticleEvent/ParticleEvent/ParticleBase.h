@@ -85,7 +85,7 @@ inline void ParticleBase::set_origin(const VxContainer* const theContainer, int 
 }
 inline void ParticleBase::set_origin(const VxContainer* theContainer, const Trk::VxCandidate * vertex )
 {
-  m_origin.toContainedElement(*theContainer, const_cast<Trk::VxCandidate*> (vertex));
+  m_origin.toContainedElement(*theContainer, vertex);
 }
 inline void ParticleBase::set_origin(const ElementLink<VxContainer>& origin)
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -208,8 +208,8 @@ StatusCode LArConditionsTestAlg::execute()
 
 StatusCode LArConditionsTestAlg::finalize()
 {
-    if(m_testFill)    testFillIOVDb(); 
-    if(m_testReadDB)  testDbObjectRead(); 
+    if(m_testFill)    ATH_CHECK(testFillIOVDb());
+    if(m_testReadDB)  ATH_CHECK(testDbObjectRead());
     return StatusCode::SUCCESS; 
 } 
 

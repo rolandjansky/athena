@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcDigitizationTool.h"
@@ -43,7 +43,9 @@ StatusCode TgcDigitizationTool::initialize()
   ATH_CHECK(detStore()->retrieve(m_mdManager));
   ATH_MSG_DEBUG("Retrieved MuonDetectorManager from DetectorStore.");
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   //initialize the TgcIdHelper
   m_idHelper = m_mdManager->tgcIdHelper();
@@ -109,7 +111,7 @@ StatusCode TgcDigitizationTool::initialize()
 }
 
 //--------------------------------------------
-StatusCode TgcDigitizationTool::prepareEvent(unsigned int)
+StatusCode TgcDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int)
 {
   m_TGCHitCollList.clear();
   m_thpcTGC = new TimedHitCollection<TGCSimHit>();
@@ -160,10 +162,10 @@ StatusCode TgcDigitizationTool::processBunchXing(int bunchXing,
 }
 
 //--------------------------------------------
-StatusCode TgcDigitizationTool::mergeEvent() {
+StatusCode TgcDigitizationTool::mergeEvent(const EventContext& ctx) {
   ATH_MSG_DEBUG("TgcDigitizationTool::mergeEvent()");
 
-  ATH_CHECK(digitizeCore());
+  ATH_CHECK(digitizeCore(ctx));
   // reset the pointer (delete null pointer should be safe)
   delete m_thpcTGC;
   m_thpcTGC = 0;
@@ -180,13 +182,13 @@ StatusCode TgcDigitizationTool::mergeEvent() {
 }
 
 //_____________________________________________________________________________
-StatusCode TgcDigitizationTool::processAllSubEvents() {
+StatusCode TgcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   ATH_MSG_DEBUG("TgcDigitizationTool::processAllSubEvents()");
   //merging of the hit collection in getNextEvent method
   if(!m_thpcTGC) {
-    ATH_CHECK(getNextEvent());
+    ATH_CHECK(getNextEvent(ctx));
   }
-  ATH_CHECK(digitizeCore());
+  ATH_CHECK(digitizeCore(ctx));
   // reset the pointer (delete null pointer should be safe)
   delete m_thpcTGC;
   m_thpcTGC = 0;
@@ -205,7 +207,7 @@ StatusCode TgcDigitizationTool::finalize() {
 
 //_____________________________________________________________________________
 // Get next event and extract collection of hit collections:
-StatusCode TgcDigitizationTool::getNextEvent()
+StatusCode TgcDigitizationTool::getNextEvent(const EventContext& ctx)
 {
   // initialize pointer
   m_thpcTGC = nullptr;
@@ -215,7 +217,7 @@ StatusCode TgcDigitizationTool::getNextEvent()
   
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
-    SG::ReadHandle<TGCSimHitCollection> hitCollection(m_hitsContainerKey);
+    SG::ReadHandle<TGCSimHitCollection> hitCollection(m_hitsContainerKey, ctx);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get TGCSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
       return StatusCode::FAILURE;
@@ -261,19 +263,19 @@ StatusCode TgcDigitizationTool::getNextEvent()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcDigitizationTool::digitizeCore() const {
+StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
+  rngWrapper->setSeed( name(), ctx );
+  CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(ctx);
 
   // create and record the Digit container in StoreGate
-  SG::WriteHandle<TgcDigitContainer> digitContainer(m_outputDigitCollectionKey);
+  SG::WriteHandle<TgcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<TgcDigitContainer>(m_idHelper->module_hash_max())));
   ATH_MSG_DEBUG ( "TgcDigitContainer recorded in StoreGate." );
 
   // Create and record the SDO container in StoreGate
-  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey);
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "TgcSDOCollection recorded in StoreGate." );
 
@@ -365,7 +367,7 @@ StatusCode TgcDigitizationTool::digitizeCore() const {
 	}
 	
 	if(!duplicate) {
-          static double invalid_pos = -99999.;
+          static const double invalid_pos = -99999.;
           Amg::Vector3D gpos(invalid_pos,invalid_pos,invalid_pos);
           const MuonGM::TgcReadoutElement *tgcChamber = m_mdManager->getTgcReadoutElement(newDigiId);
           if(tgcChamber) {

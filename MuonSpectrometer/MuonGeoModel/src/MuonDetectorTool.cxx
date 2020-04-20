@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/MuonDetectorTool.h" 
@@ -131,27 +131,7 @@ StatusCode
 MuonDetectorTool::initialize()
 {
     ATH_MSG_INFO("Initializing ...");
-
-    // Incident Svc 
-    ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
-    ATH_CHECK( incidentSvc.retrieve() );
-    //Cannot remove DE at End of Event (potentially before other components performe some clean-up still using DE) 
-    //StoreCleared still takes place at each event and as soon as the event store is cleared
-    incidentSvc->addListener(this, "StoreCleared");    
-    
     return StatusCode::SUCCESS;
-}
-
-void MuonDetectorTool::handle(const Incident& inc)
-{
-    //go to StoreCleared
-    if (inc.type()=="StoreCleared" && m_fillCache_initTime ==0 && m_manager!=0)
-    {
-        // Do clear cache built up during the event ...
-      ATH_MSG_DEBUG ("Clearing cache at end of event after EventStore is cleared"); 
-      //only for Mdt tubes which are able to rebuild cache on demand 
-      m_manager->clearMdtCache();
-    }
 }
 
 /**
@@ -231,7 +211,7 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
   
   // Get the detector configuration.
   IGeoModelSvc *geoModel;
-  service ("GeoModelSvc",geoModel);
+  ATH_CHECK(service ("GeoModelSvc",geoModel));
   
   std::string AtlasVersion = geoModel->atlasVersion();
   std::string MuonVersion  = geoModel->muonVersionOverride();
@@ -253,7 +233,7 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
     {
       ATH_MSG_DEBUG("Detector Information coming from the database (job options IGNORED)" );
       IRDBAccessSvc *accessSvc;
-      service("RDBAccessSvc",accessSvc);
+      ATH_CHECK(service("RDBAccessSvc",accessSvc));
       IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("MuonSwitches", detectorKey, detectorNode);
       if ((*switchSet).size()==0) return StatusCode::FAILURE;
       const IRDBRecord    *switches   = (*switchSet)[0];
@@ -335,7 +315,7 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory)
   
   if ( 0 == m_detector ) {
     IRDBAccessSvc* access = 0;
-    service("RDBAccessSvc",access);
+    ATH_CHECK(service("RDBAccessSvc",access));
     
     // MuonDetectorFactory001 theFactory(detStore().operator->());
     

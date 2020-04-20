@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // class TBXCryYTableRead 
@@ -64,7 +64,7 @@ StatusCode TBXCryYTableRead::execute()
     ATH_MSG_DEBUG ( "Run, mom. from EventInfo: "<<m_nRun<<","<<m_beamMom);
     // Get xcryo and ytable from a file
     float xFile, yFile, eFile;
-    getXcryoYtable(xFile, yFile, eFile);
+    ATH_CHECK(getXcryoYtable(xFile, yFile, eFile));
     if(m_beamMom != eFile) {
        ATH_MSG_WARNING ( "Energy from file: "<<eFile<<" is different than from bytestream: "<<m_beamMom<<"  !!!");
        ATH_MSG_WARNING ( "Using value from file !!!");

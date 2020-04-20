@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTDATAPREPARATOR_H
@@ -34,15 +34,12 @@
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
 #include "RegionSelector/IRegSelSvc.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 namespace TrigL2MuonSA {
 
-class MuFastDataPreparator: public AthAlgTool
-{
+class MuFastDataPreparator: public AthAlgTool {
  public:
   
   MuFastDataPreparator(const std::string& type,
@@ -91,10 +88,8 @@ class MuFastDataPreparator: public AthAlgTool
   bool isRpcFakeRoi() {return m_isRpcFakeRoi;}
 
  private:
-  
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
   ServiceHandle<IRegSelSvc> m_regionSelector;
 

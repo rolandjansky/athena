@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file to run:
@@ -152,7 +153,7 @@ for o in [ o for o in OldGlobalFlags if o in dir() ]:
 #  Run the fast sim 
 #--------------------------------------------------------------
 
-print " Now do the FastSim ....."
+printfunc (" Now do the FastSim .....")
 
 #--------------------------------------------------------------
 # FastHitConv
@@ -166,7 +167,7 @@ job=AlgSequence()
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-print "Digitization jobProperties values (after FastCaloSim setup):"
+printfunc ("Digitization jobProperties values (after FastCaloSim setup):")
 #DetFlags.Print()
 #GlobalFlags.Print()
 #digitization.print_JobProperties()
@@ -177,12 +178,12 @@ from AthenaCommon.AppMgr import ServiceMgr
 from FastCaloSimHit.FastCaloSimHitConf import FastHitConv
 theFastHitConv=FastHitConv("MyFastHitConv")
 #job += FastHitConv( "MyFastHitConv" )   # 1 alg, named "FastHitConv"
-topSequence.insert(0,theFastHitConv);
+topSequence.insert(0,theFastHitConv)
 
 job.MyFastHitConv.OutputLevel = ALL
 job.OutputLevel = DEBUG
 
-print topSequence
+printfunc (topSequence)
 
 from CaloRec.CaloCellFlags import jobproperties
 jobproperties.CaloCellFlags.doFastCaloSim = True
@@ -194,7 +195,7 @@ theCaloCellGetter=CaloCellGetter()
 #jobproperties.CaloCellFlags.doFastCaloSim = False
 #theCaloCellGetter._CaloCellMakerHandle.OutputLevel = 2
 
-print "Set the TileHitVectors and LArHitContainers"
+printfunc ("Set the TileHitVectors and LArHitContainers")
 
 topSequence.TileHitVecToCnt.TileHitVectors+=["TileHitVec_Fast"]
 
@@ -205,8 +206,8 @@ topSequence.digitmaker1.ForWardHitContainerName = "LArHitFCAL_FastComb" # It rea
 
 
 # Print out job sequence
-print " The jobsequence is now:"
-print job
+printfunc (" The jobsequence is now:")
+printfunc (job)
 
-print " ... and the topsequence:"
-print topSequence
+printfunc (" ... and the topsequence:")
+printfunc (topSequence)

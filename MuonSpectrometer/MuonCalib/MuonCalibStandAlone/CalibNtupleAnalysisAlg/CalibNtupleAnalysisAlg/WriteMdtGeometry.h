@@ -7,8 +7,8 @@
 
 //athena
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h" 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/ServiceHandle.h" 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace coral {
   class IRelationalDomain;
@@ -33,7 +33,7 @@ class WriteMdtGeometry : public AthAlgorithm {
   /** Algorithm Constructor */
   WriteMdtGeometry(const std::string &name, ISvcLocator *pSvcLocator);
   /** Algorithm destrucrtor*/
-  ~WriteMdtGeometry();
+  ~WriteMdtGeometry()=default;
 //=============================public members===================================
   /** Is called at the beginning of the analysis */
   StatusCode initialize();
@@ -41,26 +41,20 @@ class WriteMdtGeometry : public AthAlgorithm {
   inline StatusCode execute() {
     return StatusCode::SUCCESS;
   }
-  /** finalize functions */
-  inline StatusCode finalize() {
-    return StatusCode::SUCCESS;
-  }
 //============================private members===================================
  private:
   coral::Context *m_context;
   coral::IRelationalDomain& domain( const std::string &connectionString );
   void loadServices();
-  coral::ISessionProxy *m_session;
+  
   std::string m_connectionString;
   std::string m_WorkingSchema;
   std::string m_username, m_password;
-  std::string m_MDT_ID_helper; // name of the MDT ID helper
   std::string m_idToFixedIdToolType; // type of the muon fixed id tool
   std::string m_idToFixedIdToolName; // name of the muon fixed id tool
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+  coral::ISessionProxy *m_session;
   const MuonGM::MuonDetectorManager *m_detMgr; // pointer to the muon
-						     // detector manager
   const IIdToFixedIdTool *m_id_tool; // identifier converter
 		
   inline bool fill_db(coral::ITableDataEditor& editor);

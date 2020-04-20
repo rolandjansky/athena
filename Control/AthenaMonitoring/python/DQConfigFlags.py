@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -27,7 +27,9 @@ def createDQConfigFlags():
     acf.addFlag('DQ.disableAtlasReadyFilter', False)
     acf.addFlag('DQ.enableLumiAccess', True)
     acf.addFlag('DQ.FileKey', 'CombinedMonitoring')
-    acf.addFlag('DQ.useTrigger', True)
+    from PyUtils.moduleExists import moduleExists
+    hlt_exists = moduleExists ('TrigHLTMonitoring')
+    acf.addFlag('DQ.useTrigger', hlt_exists)
 
     # temp thing for steering from inside old-style ...
     acf.addFlag('DQ.isReallyOldStyle', False)
@@ -36,8 +38,10 @@ def createDQConfigFlags():
     for flag in _steeringFlags + _lowLevelSteeringFlags:
         acf.addFlag('DQ.Steering.' + flag, True)
     # HLT steering ...
-    from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import createHLTDQConfigFlags
-    acf.join(createHLTDQConfigFlags())
+    from PyUtils.moduleExists import moduleExists
+    if moduleExists ('TrigHLTMonitoring'):
+        from TrigHLTMonitoring.TrigHLTMonitorAlgorithm import createHLTDQConfigFlags
+        acf.join(createHLTDQConfigFlags())
     return acf
 
 def createComplexDQConfigFlags():

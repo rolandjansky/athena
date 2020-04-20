@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKEVENTCNVTOOLS_IEVENTCNVSUPERTOOL
@@ -8,6 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 
 #include "AthLinks/ElementLink.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class Identifier;
 class AtlasDetectorID;
@@ -42,7 +43,7 @@ namespace Trk
 
     /**This templated method will return the hashAndIndex of the passed RIO_OnTrack.*/
     template <class CONT, class ROT> bool getHashAndIndex(const ROT* rot,
-                                                          const std::string contName,
+                                                          const SG::ReadHandleKey<CONT>& contName,
                                                           typename ElementLink<CONT>::index_type& hashAndIndex) const;
 
     /** returns false if e.g. no ID geometry available*/

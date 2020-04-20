@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import AthenaCommon.SystemOfUnits as Units
+from __future__ import print_function
+
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
 import sys,os
-from PyCool import cool,coral
+from PyCool import cool
 import cppyy
 
 import LArBadChannelBrowserTools
@@ -82,10 +83,10 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
         dbstring="COOLONL_LAR/CONDBR2"
         try:
             self.db = self.dbSvc.openDatabase(dbstring,True)
-        except Exception,e:
-            print 'Problem opening database',e
+        except Exception as e:
+            print ('Problem opening database',e)
             sys.exit(-1)
-        print "Opened database",dbstring
+        print ("Opened database",dbstring)
 
         # -----------------------------------------------------------
         # Initialize onlineID from detector store
@@ -158,7 +159,8 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
         # -----------------------------------------------------------
         # Select the tag 
         iSelectedTag=LArBadChannelBrowserTools.ChooseOptionFromList("Tag list : ","","",listOfTags,+1,False,{})
-        if iSelectedTag<1: return
+        if iSelectedTag<1:
+            return
         self.selectedTag=listOfTags[iSelectedTag-1]
 
         # -----------------------------------------------------------
@@ -196,7 +198,8 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
 
                 if endOfModif=='q': 
                     sDBName=os.environ["PWD"]+"/MissingFebUpdate.db"
-                    if os.path.isfile(sDBName): os.remove(sDBName)        
+                    if os.path.isfile(sDBName):
+                        os.remove(sDBName)        
                     dbstring="sqlite://;schema="+sDBName+";dbname=BADCHAN"
                     self.dbBrowserMissingFeb.MissingFeb_SaveMissingFebCorrectionsToDatabase(dbstring,self.dbSvc,self.dbFolderName,self.selectedTag)
                     self.dbBrowserMissingFeb.MissingFeb_CheckSavedDatabaseContent(dbstring,self.dbSvc,self.dbFolderName,self.selectedTag)
@@ -215,12 +218,14 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
             
             if repCoolChan=="a":
                 iAbortConfirmation=LArBadChannelBrowserTools.YesNoQuestion("Are you sure you want to quit ? ")
-                if iAbortConfirmation==1: return
+                if iAbortConfirmation==1:
+                    return
             elif repCoolChan=="q":
-                print " SAUVEGARDE FINALE"
+                print (" SAUVEGARDE FINALE")
                 if self.folderId==BAD_CHANNEL:
                     sDBName=os.environ["PWD"]+"/BadChannelUpdate.db"
-                    if os.path.isfile(sDBName): os.remove(sDBName)        
+                    if os.path.isfile(sDBName):
+                        os.remove(sDBName)        
                     dbstring="sqlite://;schema="+sDBName+";dbname=BADCHAN"
                     self.dbBrowserBadChan.BadChan_SaveBadChannelCorrectionsToDatabase(dbstring,self.dbSvc,self.dbFolderName,self.selectedTag)
                     self.dbBrowserBadChan.BadChan_CheckSavedDatabaseContent(dbstring,self.dbSvc,self.dbFolderName,self.selectedTag)
@@ -249,9 +254,9 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
         # Get Folder
         try:
             f = self.db.getFolder(folderName)
-            print "Analysing Folder " + str(folderName)
-        except:
-            print "Skipping " + str(folderName)
+            print ("Analysing Folder " + str(folderName))
+        except Exception:
+            print ("Skipping " + str(folderName))
             return
 
         # get tags
@@ -261,29 +266,31 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
         sIOVBeginEnd={}
         for tag in tags:
 
-            nobjs = f.countObjects( cool.ValidityKeyMin,
-                                    cool.ValidityKeyMax,
-                                    cool.ChannelSelection.all(),
-                                    tag)
+            f.countObjects( cool.ValidityKeyMin,
+                            cool.ValidityKeyMax,
+                            cool.ChannelSelection.all(),
+                            tag)
       
             objs = f.browseObjects( cool.ValidityKeyMin,
                                     cool.ValidityKeyMax,
                                     cool.ChannelSelection.all(),
                                     tag)
-            iObjet = 0
             while objs.hasNext():
                 obj = objs.next()
 
-                if obj.channelId()>iMaxChannelNumber: iMaxChannelNumber=obj.channelId()
+                if obj.channelId()>iMaxChannelNumber:
+                    iMaxChannelNumber=obj.channelId()
 
                 keyTag=tag
-                if not sIOVBeginEnd.has_key(keyTag): sIOVBeginEnd[keyTag]={}
+                if keyTag not in sIOVBeginEnd:
+                    sIOVBeginEnd[keyTag]={}
 
                 keyChan=obj.channelId()
-                if not sIOVBeginEnd[keyTag].has_key(keyChan): sIOVBeginEnd[keyTag][keyChan]=[]
+                if keyChan not in  sIOVBeginEnd[keyTag]:
+                    sIOVBeginEnd[keyTag][keyChan]=[]
 
                 sIOVBeginEnd[keyTag][keyChan].append((obj.since()>>32%0x100000000,obj.until()>>32%0x100000000))
-#                print "IOV : ",obj.channelId()," :  ",obj.since()>>32," ",obj.until()>>32
+#                print ("IOV : ",obj.channelId()," :  ",obj.since()>>32," ",obj.until()>>32)
                 
             objs.close()
 
@@ -299,9 +306,9 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
         # Get Folder
         try:
             f = self.db.getFolder(folderName)
-            print "Analysing Folder " + str(folderName)
-        except:
-            print "Skipping " + str(folderName)
+            print ("Analysing Folder " + str(folderName))
+        except Exception:
+            print ("Skipping " + str(folderName))
             return
 
         # get tags
@@ -309,14 +316,15 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
         
         for tag in tags:
 
-            if tag!=tagName: continue
+            if tag!=tagName:
+                continue
 
-            print "-> tag : ",tag
+            print ("-> tag : ",tag)
                
-            nobjs = f.countObjects( cool.ValidityKeyMin,
-                                    cool.ValidityKeyMax,
-                                    cool.ChannelSelection.all(),
-                                    tag)
+            f.countObjects( cool.ValidityKeyMin,
+                            cool.ValidityKeyMax,
+                            cool.ChannelSelection.all(),
+                            tag)
       
             objs = f.browseObjects( cool.ValidityKeyMin,
                                     cool.ValidityKeyMax,
@@ -329,11 +337,11 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
                 # Select cool channel vs IOV
                 if (obj.since()>>32%0x100000000)==tagIOVNumber[obj.channelId()]:
 
-                    print "Found object", iObjet,
-                    print "since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']',
-                    print "until [r,l]: [", obj.until() >> 32,',',obj.until()%0x100000000,']',
-                    print "payload", obj.payload(),
-                    print "chan",obj.channelId()
+                    print ("Found object", iObjet, end='')
+                    print ("since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']', end='')
+                    print ("until [r,l]: [", obj.until() >> 32,',',obj.until()%0x100000000,']', end='')
+                    print ("payload", obj.payload(), end='')
+                    print ("chan",obj.channelId())
 
                     payload=obj.payload()
 
@@ -344,9 +352,9 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
                         sChannelKey=obj.channelId()
                         sChannelName=self.dbBrowserMissingFeb.MissingFeb_SetBadChannelDataFromPayload(sChannelKey,payload)
 
-                    print sChannelKey,"  ",sChannelName
+                    print (sChannelKey,"  ",sChannelName)
                     channelNameDict[sChannelKey]=sChannelName
-                    print str(channelNameDict)
+                    print (str(channelNameDict))
 
                 iObjet=iObjet+1
 
@@ -363,10 +371,10 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
         
         try:
             dbase = dbSvc.openDatabase(dbName,False)
-        except Exception,e:
-            print 'Problem opening database',e
+        except Exception as e:
+            print ('Problem opening database',e)
             sys.exit(-1)
-        print "Opened database",dbName
+        print ("Opened database",dbName)
 
         # Loop over folders
         folders = dbase.listAllNodes()
@@ -374,20 +382,22 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
             # Get Folder
             try:
                 f = dbase.getFolder(ff)
-                print "Analysing Folder " + str(ff)
-            except:
-                print "Skipping " + str(ff)
+                print ("Analysing Folder " + str(ff))
+            except Exception:
+                print ("Skipping " + str(ff))
                 continue
         
             # get tags
             tags  = f.listTags()
 
             # SES
-            if tags.size()==0: tags.push_back("notag")
+            if tags.size()==0:
+                tags.push_back("notag")
 
 
-            print "for tags ",
-            for tag in tags: print tag
+            print ("for tags ",)
+            for tag in tags:
+                print (tag)
 
 
             for tag in tags:
@@ -396,7 +406,7 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
                                         cool.ValidityKeyMax,
                                         cool.ChannelSelection.all())
                 
-                print "number of objects", nobjs
+                print ("number of objects", nobjs)
             
                 objs = f.browseObjects( cool.ValidityKeyMin,
                                         cool.ValidityKeyMax,
@@ -404,11 +414,11 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
                 i = 0
                 while objs.hasNext():
                     obj = objs.next()
-                    print "Found object", i,
-                    print "since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']',
-                    print "until [r,l]: [", obj.until() >> 32,',',obj.until()%0x100000000,']',
-                    print "payload", obj.payload(),
-                    print "chan",obj.channelId() 
+                    print ("Found object", i, end='')
+                    print ("since [r,l]: [", obj.since() >> 32,',',obj.since()%0x100000000,']', end='')
+                    print ("until [r,l]: [", obj.until() >> 32,',',obj.until()%0x100000000,']', end='')
+                    print ("payload", obj.payload(), end='')
+                    print ("chan",obj.channelId() )
                     i += 1
 
 #                    payloadDict[obj.channelId()]=obj.payload()

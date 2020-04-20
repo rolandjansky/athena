@@ -12,6 +12,8 @@ import os
 import json
 
 from TrigValTools.TrigValSteering.Common import get_logger
+from PyUtils.Decorators import memoize
+from AthenaCommon.Utils.unixtools import FindFile
 
 
 input_json = 'TrigValTools/TrigValInputs.json'
@@ -71,21 +73,18 @@ class TrigValInput(object):
         return True
 
 
+@memoize
 def load_input_json():
     '''Reads the json file with input definitions and returns the data as dictionary'''
 
     log = get_logger()
 
-    import subprocess
-    cmd = 'find_data.py {}'.format(input_json)
-    input_json_fullpath = subprocess.check_output(cmd, shell=True).strip()
-    log.debug('Reading %s', input_json_fullpath)
-
-    if not os.path.isfile(input_json_fullpath):
-        log.error('Failed to determine full path for input JSON %s',
-                  input_json)
+    input_json_fullpath = FindFile(input_json, os.environ['DATAPATH'].split(os.pathsep), os.R_OK)
+    if not input_json_fullpath:
+        log.error('Failed to determine full path for input JSON %s', input_json)
         return None
 
+    log.debug('Reading %s', input_json_fullpath)
     with open(input_json_fullpath) as data_file:
         return json.load(data_file)
 

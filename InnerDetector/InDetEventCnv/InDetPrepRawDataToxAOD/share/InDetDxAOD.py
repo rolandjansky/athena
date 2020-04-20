@@ -48,6 +48,12 @@ printIdTrkDxAODConf = InDetDxAODFlags.PrintIdTrkDxAODConf()  # True
 # Create split-tracks if running on cosmics
 makeSplitTracks = InDetDxAODFlags.MakeSplitCosmicTracks() and athCommonFlags.Beam.beamType() == 'cosmics'
 
+# general skimming based on this string input
+skimmingExpression = InDetDxAODFlags.SkimmingExpression() # *empty string*
+
+# thinning of pixel clusters
+pixelClusterThinningExpression = InDetDxAODFlags.PixelClusterThinningExpression() # *empty string*
+
 ## Autoconfiguration adjustements
 isIdTrkDxAODSimulation = False
 if (globalflags.DataSource == 'geant4'):
@@ -89,9 +95,9 @@ if dumpTrtInfo:
     TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
     ServiceMgr += TRTStrawNeighbourSvc
 
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-    TRTCalibDBSvc=TRT_CalDbSvc()
-    ServiceMgr += TRTCalibDBSvc
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+    TRTCalibDBTool=TRT_CalDbTool()
+
 
 #Setup charge->ToT back-conversion to restore ToT info as well
 if dumpPixInfo: 
@@ -313,6 +319,13 @@ if TrtZSel or TrtJSel:
         print JPSI_SkimmingTool
 
 
+if skimmingExpression: 
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+    stringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "stringSkimmingTool",
+                                                                     expression = skimmingExpression)
+    
+    ToolSvc += stringSkimmingTool 
+
 
 DRAW_ZMUMU_SkimmingTool=None
 if DRAWZSel:
@@ -360,8 +373,10 @@ if dumpTrtInfo:
         print xAOD_TRT_PrepDataToxAOD.properties()
 
     # to store dEdx info
-    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
     TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
+    from InDetRecExample.TrackingCommon import getInDetTRT_LocalOccupancy
+    TRT_dEdx_Tool.TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy()
     ToolSvc += TRT_dEdx_Tool
 
     # to get shared hit info
@@ -412,9 +427,18 @@ if dumpPixInfo:
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "PixelConfigCondAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+      condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                    UseDCSStateConditions=True,
+                                    UseDCSStatusConditions=True)
+
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
       condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+    if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
+      condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
 
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
@@ -461,6 +485,7 @@ if not hasattr(svcMgr, 'DecisionSvc'):
 svcMgr.DecisionSvc.CalcStats = True
 
 
+from InDetRecExample import TrackingCommon
 # Add the TSOS augmentation tool to the derivation framework
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
 DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
@@ -470,7 +495,8 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           StoreSCT   = dumpSctInfo,
                                                           StorePixel = dumpPixInfo,
                                                           IsSimulation = isIdTrkDxAODSimulation,
-                                                           AssociationTool = InDetPrdAssociationTool,
+                                                          AssociationTool = InDetPrdAssociationTool,
+                                                          TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if dumpTrtInfo else "",
                                                           OutputLevel = INFO)
 
 if dumpTrtInfo:
@@ -495,6 +521,7 @@ if makeSplitTracks:
                                                           StorePixel = dumpPixInfo,
                                                           PixelMsosName = 'Pixel_SplitTracks_MSOSs',
                                                           IsSimulation = isIdTrkDxAODSimulation,
+                                                          TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if dumpTrtInfo else "",
                                                           OutputLevel = INFO)
     ToolSvc += DFTSOS_SplitTracks
     augmentationTools += [DFTSOS_SplitTracks]
@@ -556,15 +583,6 @@ if dumpLArCollisionTime:
             print lArCollisionTimeDecorator
             print lArCollisionTimeDecorator.properties()
 
-# Add decoration with truth parameters if running on simulation
-if isIdTrkDxAODSimulation:
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
-    TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
-                                                                        TruthParticleContainerName = "TruthParticles",
-                                                                        DecorationPrefix = "")
-    ToolSvc += TruthDecor
-    augmentationTools.append(TruthDecor)
-    print TruthDecor
 
 #====================================================================
 # Skimming Tools
@@ -578,6 +596,8 @@ if TrtJSel:
 if DRAWZSel:
   skimmingTools.append(DRAW_ZMUMU_SkimmingTool)
 
+if skimmingExpression:
+    skimmingTools.append(stringSkimmingTool)
 
 #minimumbiasTrig = '(L1_RD0_FILLED)'
 #
@@ -596,12 +616,46 @@ thinningTools = []
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThinningTool",
-                                                                 ThinningService         = "IDTRKThinningSvc",
+                                                                 StreamName              = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName,
                                                                  SelectionString         = thinTrackSelection,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                 InDetTrackStatesPixKey       = "PixelMSOSs"       if dumpPixInfo else "" ,
+                                                                 InDetTrackMeasurementsPixKey = "PixelClusters"    if dumpPixInfo else "",
+                                                                 InDetTrackStatesSctKey       = "SCT_MSOSs"        if dumpSctInfo else "",
+                                                                 InDetTrackMeasurementsSctKey = "SCT_Clusters"     if dumpSctInfo else "",
+                                                                 InDetTrackStatesTrtKey       = "TRT_MSOSs"        if dumpTrtInfo else "",
+                                                                 InDetTrackMeasurementsTrtKey = "TRT_DriftCircles" if dumpTrtInfo else "",
                                                                  ThinHitsOnTrack = thinHitsOnTrack)
 ToolSvc += IDTRKThinningTool
 thinningTools.append(IDTRKThinningTool)
+
+if pixelClusterThinningExpression: 
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
+    trackMeasurementThinningTool = DerivationFramework__TrackMeasurementThinning( 
+        name                          = "TrackMeasurementThinningTool",
+        ThinningService               = "IDTRKThinningSvc",
+        SelectionString               = pixelClusterThinningExpression,
+        TrackMeasurementValidationKey = "PixelClusters",
+        ApplyAnd                      = False)
+
+    ToolSvc += trackMeasurementThinningTool 
+    thinningTools.append(trackMeasurementThinningTool)
+
+# Add decoration with truth parameters if running on simulation
+if DerivationFrameworkIsMonteCarlo:
+  # add track parameter decorations to truth particles but only if the decorations have not been applied already
+  import InDetPhysValMonitoring.InDetPhysValDecoration
+  meta_data = InDetPhysValMonitoring.InDetPhysValDecoration.getMetaData()
+  from AthenaCommon.Logging import logging
+  logger = logging.getLogger( "DerivationFramework" )
+  if len(meta_data) == 0 :
+    truth_track_param_decor_alg = InDetPhysValMonitoring.InDetPhysValDecoration.getInDetPhysValTruthDecoratorAlg()
+    if  InDetPhysValMonitoring.InDetPhysValDecoration.findAlg([truth_track_param_decor_alg.getName()]) == None :
+      topSequence += truth_track_param_decor_alg
+    else :
+      logger.info('Decorator %s already present not adding again.' % (truth_track_param_decor_alg.getName() ))
+  else :
+    logger.info('IDPVM decorations to track particles already applied to input file not adding again.')
 
 #====================================================================
 # Create the derivation Kernel and setup output stream
@@ -636,12 +690,11 @@ streamName = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTRKVALIDStream )
 IDTRKVALIDStream = MSMgr.NewPoolRootStream( streamName, fileName )
 IDTRKVALIDStream.AcceptAlgs(["DFTSOS_KERN"])
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="IDTRKThinningSvc", outStreams=[evtStream] )
 
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+excludedVtxAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
 # Add generic event information
 IDTRKVALIDStream.AddItem("xAOD::EventInfo#*")
@@ -660,7 +713,7 @@ if makeSplitTracks:
 
 # Add vertices
 IDTRKVALIDStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDTRKVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+IDTRKVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux."+excludedVtxAuxData)
 
 # Add links and measurements
 IDTRKVALIDStream.AddItem("xAOD::TrackStateValidationContainer#*")

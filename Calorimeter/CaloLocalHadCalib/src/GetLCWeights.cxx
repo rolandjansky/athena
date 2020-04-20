@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -52,9 +52,7 @@ GetLCWeights::GetLCWeights(const std::string& name,
     m_NormalizationType("Lin"),
     m_NormalizationTypeNumber(0),
     m_ClassificationType("None"),
-    m_ClassificationTypeNumber(0),
-    m_calo_dd_man(0),
-    m_calo_id(0)
+    m_ClassificationTypeNumber(0)
 {
  
   std::vector<Gaudi::Histo1DDef> dims(7);
@@ -163,10 +161,6 @@ GetLCWeights::~GetLCWeights()
 
 StatusCode GetLCWeights::initialize()
 {
-  // pointer to detector manager:
-  m_calo_dd_man = CaloDetDescrManager::instance(); 
-
-  m_calo_id = m_calo_dd_man->getCaloCell_ID();
 
   m_outputFile = new TFile(m_outputFileName.c_str(),"RECREATE");
   m_outputFile->cd();
@@ -371,11 +365,14 @@ StatusCode GetLCWeights::execute()
   }
 
   std::vector<ClusWeight *> cellVector[CaloCell_ID::NSUBCALO];
-  
+ 
+  const CaloCell_ID*               calo_id  = nullptr;
+  ATH_CHECK(detStore()->retrieve(calo_id,"CaloCell_ID"));   
+ 
   for(int ic=0;ic<CaloCell_ID::NSUBCALO; ic++) {
     unsigned int maxHashSize(0);
     IdentifierHash myHashMin,myHashMax;
-    m_calo_id->calo_cell_hash_range (ic,myHashMin,myHashMax);
+    calo_id->calo_cell_hash_range (ic,myHashMin,myHashMax);
     maxHashSize = myHashMax-myHashMin;
     cellVector[ic].resize(maxHashSize,0);
   }
@@ -397,8 +394,8 @@ StatusCode GetLCWeights::execute()
     if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {
       double emFrac=-999; 
       if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,emFrac)){
-	ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR( "Failed to retrieve cluster moment ENG_CALIB_FAC_EM");
+        return StatusCode::FAILURE;
       }
       if (m_ClassificationTypeNumber == GetLCDefs::PARTICLEID_EM && emFrac < 0.5 )
 	eC = 0;
@@ -416,7 +413,7 @@ StatusCode GetLCWeights::execute()
       Identifier myId = pCell->ID();
       IdentifierHash myHashId;
       int otherSubDet(0);
-      myHashId = m_calo_id->subcalo_cell_hash(myId,otherSubDet);
+      myHashId = calo_id->subcalo_cell_hash(myId,otherSubDet);
       ClusWeight * myClus = new ClusWeight();
       myClus->iClus = iClus;
       myClus->weight = cellIter.weight();
@@ -443,7 +440,7 @@ StatusCode GetLCWeights::execute()
     for(;chIter!=chIterE;chIter++)  {
       Identifier myId = (*chIter)->cellID();
       int otherSubDet;
-      IdentifierHash myHashId = m_calo_id->subcalo_cell_hash(myId,otherSubDet);
+      IdentifierHash myHashId = calo_id->subcalo_cell_hash(myId,otherSubDet);
       if ( myHashId != CaloCell_ID::NOT_VALID ) {
 	ClusWeight * theList = cellVector[otherSubDet][(unsigned int)myHashId];
 	while ( theList ) {
@@ -538,7 +535,7 @@ StatusCode GetLCWeights::execute()
 	      if ( myCDDE->volume() > 0 ) {
 		IdentifierHash myHashId;
 		int otherSubDet(0);
-		myHashId = m_calo_id->subcalo_cell_hash(myId,otherSubDet);
+		myHashId = calo_id->subcalo_cell_hash(myId,otherSubDet);
 		unsigned int iW = iphiCell*neta*nside+ietaCell*nside+isideCell;
 		if ( iW >= m_weight[caloSample].size() ) {
 		  ATH_MSG_WARNING( " Index out of bounds " <<

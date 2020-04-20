@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p5.h" 
@@ -364,9 +364,6 @@ void CaloClusterContainerCnv_p5::transToPers(const CaloClusterContainer* trans,
   short index=0;
   for(;it!=it_e;++it,++itp) {  // LOOP over clusters
     const CaloCluster& cl = **it;
-    //CaloClusterChangeSignalState statechange (&cl, P4SignalState::CALIBRATED);
-     P4SignalState::State oldstate=(*it)->signalState();
-    (*it)->setSignalState(P4SignalState::CALIBRATED);
     index++;
     transToPers(&cl,&(*itp),
                 showerLinkState,
@@ -473,8 +470,6 @@ void CaloClusterContainerCnv_p5::transToPers(const CaloClusterContainer* trans,
        float dphi = CaloPhiRange::diff ( cl.m_rawPhi, cl.phi());
        tmp_rawEtaPhiM.push_back( dphi);
        tmp_rawEtaPhiM.push_back( cl.m_rawM);
-
-       (*it)->setSignalState(oldstate); //Change back to org signal state
    } // end of loop over clusters
 
    
@@ -542,7 +537,8 @@ void CaloClusterContainerCnv_p5::transToPers(const CaloCluster* trans,
   pers->m_clusterSize=trans->getClusterSize();
  
   //Convert base class and element links
-  m_P4EEtaPhiMCnv.transToPers((P4EEtaPhiM*)trans,&pers->m_P4EEtaPhiM,log);
+  P4EEtaPhiM tmp = *trans;
+  m_P4EEtaPhiMCnv.transToPers(&tmp,&pers->m_P4EEtaPhiM,log);
   m_showerElementLinkCnv.transToPers(showerLinkState, trans->m_dataLink, pers->m_dataLink,log);
   m_cellElementLinkCnv.transToPers(cellLinkState, trans->m_cellLink, pers->m_cellLink,log);
 }

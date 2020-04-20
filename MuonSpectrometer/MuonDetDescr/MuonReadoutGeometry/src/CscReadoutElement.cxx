@@ -1,24 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/***************************************************************************
- Csc Readout
- -----------------------------------------
- ***************************************************************************/
-
-//<doc><file>	$Id: CscReadoutElement.cxx,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-
-#include "GaudiKernel/MsgStream.h"
 
 #include "MuonAlignmentData/CscInternalAlignmentPar.h"
 
@@ -27,8 +15,9 @@
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "MuonAlignmentData/CscInternalAlignmentPar.h"
 #include "MuonAlignmentData/CorrContainer.h"
-
-#define CscReadout_verbose false
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include <TString.h> // for Form
 
 namespace MuonGM {
 
@@ -57,37 +46,26 @@ CscReadoutElement::CscReadoutElement(GeoVFullPhysVol* pv, std::string stName,
       int lgg = 0;
       int llay = 0;
       std::string::size_type npos;
-      //            std::cerr<<" N. of child in a CSC = nchildvol "<<nchildvol<<std::endl;
       for (unsigned ich=0; ich<nchildvol; ich++) {
         PVConstLink pc = pvc->getChildVol(ich);        
         std::string childname = (pc->getLogVol())->getName();
-        //                std::cerr<<" child n. "<<ich<<" named "<<childname<<std::endl;                
         llay ++;
         int nch1 = pc->getNChildVols();
-        //  std::cerr<<" navigating CSC named "
-        //           <<tname<<" child "
-        //           <<ich<<" is a layer with tag "<<llay<<" number of child "<<nch1<<std::endl;
         lgg = 3;
         for (int ngv=0; ngv<nch1; ngv++) {
           PVConstLink pcgv = pc->getChildVol(ngv);
           std::string childname1 = (pcgv->getLogVol())->getName();
-          //   std::cerr<<ngv<<" one level deeper  name is "<<childname1<<std::endl;
                     
           if ((npos = childname1.find("CscArCO2")) != std::string::npos ) {
-            //     std::cerr<<" navigating Csc named "
-            //              <<tname<<" child "
-            //              <<ngv<<" is a gas volume  with tag "
-            //              <<lgg<<std::endl;
             const GeoTrf::Vector3D trans =  
                (pvc->getXToChildVol(ich)*pc->getXToChildVol(ngv)).translation();
             m_wireplanez[lgg] = trans.x();
-	    //std::cerr<<lgg<<" gg - depth is at "<< m_wireplanez[lgg]<<std::endl;
             lgg --;
           }
         }
       }
     } else {
-      std::cerr<<"Cannot perform a dynamic cast ! "<<std::endl;
+      throw std::runtime_error(Form("File: %s, Line: %d\nCscReadoutElement::CscReadoutElement() - Cannot perform a dynamic cast !", __FILE__, __LINE__));
     }
   } else {
     // hard wire for the moment
@@ -173,10 +151,11 @@ const Amg::Vector3D CscReadoutElement::wireLayerPos(int gg) const
 {
     const Amg::Vector3D localP = localWireLayerPos(gg);
     const Amg::Transform3D cscTrans = absTransform();
-    if (CscReadout_verbose) {
-        std::cout<<"CscReadoutElement::wireLayerPos got localWireLayerPos "<<localP<<std::endl;
-    }
-    return cscTrans * localP;    
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+    if (log.level()<=MSG::VERBOSE) log << "CscReadoutElement::wireLayerPos got localWireLayerPos " << localP << endmsg;
+#endif
+    return cscTrans* localP;    
 }
 
 double CscReadoutElement::cathodeReadoutPitch(int /*chLayer*/, int measuresPhi) const
@@ -378,11 +357,6 @@ double CscReadoutElement::stripLength(int chamberLayer, int measuresPhi,
                    (tan(alpha)+1.0/tan(beta));
   }
 
-  //std::cout << " small Width = " << smallWidth << std::endl;
-  //std::cout << " big Width = " << bigWidth << std::endl;
-  //std::cout << " efective length = " << chamberLength << std::endl;
-  //std::cout << " tan(beta) = " << tan (beta) << std::endl;
-
   double pos = stripWidth * (stripNumber-0.5-numberOfStrips/2.0);
   epsilon = lengthCorrection(measuresPhi,pos);
   double stripPos = fabs(pos);
@@ -423,10 +397,6 @@ double CscReadoutElement::lengthCorrection(int measuresPhi, double stripPos) con
   double bigWidth = 2*(bigLength + 0.5*smallWidth/tan(beta)+0.5*gslWidth*tan(alpha)) /
                    (tan(alpha)+1.0/tan(beta));
   double shortLength  = bigLength - (bigWidth-gslWidth)*tan(alpha)/2.;
-
-  //std::cout << " efective short length = " << shortLength << std::endl;
-  //std::cout << " effective small top Width = " << gslWidth << std::endl;
-  //std::cout << " tan (alpha) = " << tan(alpha) << std::endl;
 
   if (measuresPhi == 1) {
      if ( fabs(stripPos) > (gslWidth/2.) ) 
@@ -499,17 +469,6 @@ const Amg::Vector3D CscReadoutElement::nominalLocalStripPos(int eta, int chamber
 	else
 	   y = -stripWidth*(strip - 0.5 - nStrips/2.0);
     }
-
-//     std::cout<<" eta, chLayer, wLayer, measphi, strip "
-//              <<eta<<" "<<chamberLayer<<" "<<wireLayer<<" "<<measPhi<<" "<<strip
-//              <<" *** length(), roxacellWidth(), lengthOfStrip, epsilon "<<length()<<" "
-//              <<roxacellWidth()<<" "<<lengthOfStrip<<" "<<epsilon<<" z = "<<z<<std::endl;
-
-    //std::cout << "strip, number of strips, correction, length, width = " << strip 
-    //            << " " << nStrips << " " << epsilon << " " << lengthOfStrip 
-    //           << " " << stripWidth << " CLHEP::mm" << std::endl;
-
-    //std::cout << "local coordinates (CLHEP::mm) = " << x << " " << y << " " << z << std::endl;
 
     return Amg::Vector3D(x,y,z);
 }
@@ -640,7 +599,9 @@ double CscReadoutElement::sinStereo(const Identifier & id) const {
 
 
 void CscReadoutElement::doTests() {
-
+#ifndef NDEBUG
+  MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+  if (log.level()<=MSG::VERBOSE) {
   int eta[2]       = {1,-1};
   int maxStrips[2] = {192,48};
   int chamberLayer = 1;
@@ -650,15 +611,17 @@ void CscReadoutElement::doTests() {
         for (int ilayer=1; ilayer<=wireLayer; ++ilayer) {
            int strips[3] = {1, maxStrips[measPhi]/2, maxStrips[measPhi]};
            for (int i=0; i<3; i++){
-	     int istrip = strips[i];
+             int istrip = strips[i];
              Amg::Vector3D npos = nominalLocalStripPos(eta[ieta],chamberLayer,ilayer,measPhi,istrip);
-             if (CscReadout_verbose) std::cout << "the nominal positions = " << npos.x() << " " << npos.y() << " " << npos.z() << std::endl; 
-             Amg::Vector3D  pos = localStripPos(eta[ieta],chamberLayer,ilayer,measPhi,istrip);
-             if (CscReadout_verbose) std::cout << "the positions = " << pos.x() << " " << pos.y() << " " << pos.z() << std::endl;
-          }
+             Amg::Vector3D pos = localStripPos(eta[ieta],chamberLayer,ilayer,measPhi,istrip);
+             log << MSG::VERBOSE << "the nominal positions = " << npos.x() << " " << npos.y() << " " << npos.z() << endmsg;
+             log << MSG::VERBOSE << "the positions = " << pos.x() << " " << pos.y() << " " << pos.z() << endmsg;
+           }
         }
      }
   }
+  }
+#endif
 }
 
 void  CscReadoutElement::setIdentifier(Identifier id)
@@ -668,18 +631,16 @@ void  CscReadoutElement::setIdentifier(Identifier id)
     IdentifierHash collIdhash = 0;
     IdentifierHash detIdhash = 0;
     // set parent data collection hash id 
-    int gethash_code = idh->get_module_hash(id, collIdhash);
-    if (gethash_code != 0) 
-	(*m_Log) <<MSG::WARNING
-	       <<"CscReadoutElement --  collection hash Id NOT computed for id = "
-	       <<idh->show_to_string(id)<<std::endl;
+    if (idh->get_module_hash(id, collIdhash) != 0) {
+      MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+      if (log.level()<=MSG::WARNING) log << MSG::WARNING<<"collection hash Id NOT computed for id = "<<idh->show_to_string(id)<<endmsg;
+    }
     m_idhash = collIdhash;
     // set readout element hash id 
-    gethash_code = idh->get_detectorElement_hash(id, detIdhash);
-    if (gethash_code != 0) 
-	(*m_Log) <<MSG::WARNING
-	       <<"CscReadoutElement --  detectorElement hash Id NOT computed for id = "
-	       <<idh->show_to_string(id)<<endmsg;
+    if (idh->get_detectorElement_hash(id, detIdhash) != 0) {
+      MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+      if (log.level()<=MSG::WARNING) log << MSG::WARNING<<"detectorElement hash Id NOT computed for id = "<<idh->show_to_string(id)<<endmsg;
+    }
     m_detectorElIdhash = detIdhash;
 
 }
@@ -716,8 +677,8 @@ void CscReadoutElement::setCscInternalAlignmentParams()
 
   if (manager()->CscInternalAlignmentContainer() == NULL)
   {
-      (*m_Log) <<MSG::DEBUG<<"No CscInternalAlignmenContainer has been built - nothing to do in CscReadouElement::setCscInternalAlignmentParams"<<endmsg;
-
+    MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<<"No CscInternalAlignmenContainer has been built - nothing to do in CscReadouElement::setCscInternalAlignmentParams"<<endmsg;
     return;
   }
   
@@ -729,11 +690,8 @@ void CscReadoutElement::setCscInternalAlignmentParams()
     {
       Identifier idp = idh->parentID(identify());
       Identifier id = idh->channelID(idp, 2, wlay, 0, 1);
-      // Identifier idProlay = idh->channelID(getStationName().substr(0,3), 
-      //                                getAmdbZi(), 
-      //                                getAmdbFi(), 
-      //                                2, wlay, 0, 1); 
-	(*m_Log) <<MSG::DEBUG <<"in setCscInternalAlignmentParams for wlay="<<wlay<<" : w-lay identifier = "
+      MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<<"in setCscInternalAlignmentParams for wlay="<<wlay<<" : w-lay identifier = "
 	       <<idh->show_to_string(id)<<" this cscRE "
 	       <<idh->show_to_string(identify())<<" it's parent "
 	       <<idh->show_to_string(idp)<<endmsg;
@@ -742,7 +700,7 @@ void CscReadoutElement::setCscInternalAlignmentParams()
     }
   // 
 }
-void CscReadoutElement::setCscInternalAlignmentPar(CscInternalAlignmentPar* x)
+void CscReadoutElement::setCscInternalAlignmentPar(const CscInternalAlignmentPar& x)
 {
 
   // get id helper 
@@ -753,27 +711,30 @@ void CscReadoutElement::setCscInternalAlignmentPar(CscInternalAlignmentPar* x)
   int jzz = 0;
   int job = 0;
   int wlayer = 0;
-  x->getAmdbId(stName, jff, jzz, job, wlayer);
+  x.getAmdbId(stName, jff, jzz, job, wlayer);
   float s_trans =0.;
   float z_trans =0.;
   float t_trans =0.;
   float s_rot   =0.;
   float z_rot   =0.;
   float t_rot   =0.;
-  x->getParameters(s_trans,
-		   z_trans,
-		   t_trans,
-		   s_rot  ,
-		   z_rot  ,
-		   t_rot  );
+  x.getParameters(s_trans,
+                  z_trans,
+                  t_trans,
+                  s_rot  ,
+                  z_rot  ,
+                  t_rot  );
   bool notAllowedWLayer = (wlayer>4 || wlayer<1);
 
   if (stName != getStationName().substr(0,3) || jff != getStationPhi() || jzz != getStationEta() || notAllowedWLayer ) 
     {
-      (*m_Log) <<MSG::WARNING<<"Trying to set the following CSC internal A-line "<<stName
+      MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+      if (log.level()<=MSG::WARNING) {
+        log << MSG::WARNING<<"Trying to set the following CSC internal A-line "<<stName
 	     <<" fi/zi/job/wLayer "<<jff<<"/"<<jzz<<"/"<<job<<"/"<<wlayer
 	     <<" for Csc readout Element "<<idh->show_to_string(identify())<<endmsg;
-      (*m_Log) <<MSG::WARNING<<"Inconsistent CSC int. Aline assignment - Internal alignment will not be applied "<<endmsg;
+        log<<MSG::WARNING<<"Inconsistent CSC int. Aline assignment - Internal alignment will not be applied "<<endmsg;
+      }
       return;
     }
       m_cscIntTransl[wlayer-1][0]=s_trans; 
@@ -781,11 +742,16 @@ void CscReadoutElement::setCscInternalAlignmentPar(CscInternalAlignmentPar* x)
       m_cscIntTransl[wlayer-1][2]=t_trans; 
       m_cscIntRot[wlayer-1][0]=s_rot; 
       m_cscIntRot[wlayer-1][1]=z_rot; 
-      m_cscIntRot[wlayer-1][2]=t_rot; 
-	for (unsigned int j=0; j<3; ++j){  
-	  (*m_Log) <<MSG::DEBUG<<"<CscReadoutElement::setCscInternalAlignmentPar()>: m_cscIntTransl["<<(wlayer-1)<<"]["<<j<<"]: "<<m_cscIntTransl[(wlayer-1)][j]<<endmsg;
-	  (*m_Log) <<MSG::DEBUG<<"<CscReadoutElement::setCscInternalAlignmentPar()>: m_cscIntRot["<<(wlayer-1)<<"]["<<j<<"]: "<<m_cscIntRot[(wlayer-1)][j]<<endmsg;
-	}  
+      m_cscIntRot[wlayer-1][2]=t_rot;
+#ifndef NDEBUG
+      MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+      if (log.level()<=MSG::DEBUG) {
+        for (unsigned int j=0; j<3; ++j){
+          log<<MSG::DEBUG<<"<CscReadoutElement::setCscInternalAlignmentPar()>: m_cscIntTransl["<<(wlayer-1)<<"]["<<j<<"]: "<<m_cscIntTransl[(wlayer-1)][j]<<endmsg;
+          log<<MSG::DEBUG<<"<CscReadoutElement::setCscInternalAlignmentPar()>: m_cscIntRot["<<(wlayer-1)<<"]["<<j<<"]: "<<m_cscIntRot[(wlayer-1)][j]<<endmsg;
+        }
+      }
+#endif
 
   return;
 }
@@ -846,23 +812,23 @@ CscReadoutElement::nominalTransform(int gasGap, int measPhi) const
 {
     Amg::RotationMatrix3D muonTRotation( localToGlobalTransf(gasGap).rotation() );
     Amg::RotationMatrix3D surfaceTRotation;
-    //04/10/2006 - understood that the new tracking convention must be: locZ // inf. mom tracks;
-    //             locY  on the meas. surface, in the eta direction, pointing toward the large width for trapezoidal chambers 
-    //surfaceTRotation = Amg::RotationMatrix3D(-muonTRotation.colY(), -muonTRotation.colZ(), muonTRotation.colX());
     surfaceTRotation.col(0) = muonTRotation.col(1);
     surfaceTRotation.col(1) = muonTRotation.col(2);
     surfaceTRotation.col(2) = muonTRotation.col(0);
     if (measPhi == 0) surfaceTRotation = surfaceTRotation*Amg::AngleAxis3D(M_PI/2.,Amg::Vector3D(0.,0.,1.));
 
-    //without internal alignment you get just the following (commented) line
-    //transfPtr = new Amg::Transform3D( surfaceTRotation, localToGlobalTransf(gasGap).translation() );
     Amg::Transform3D transfPtr_orig(surfaceTRotation);
-    transfPtr_orig *= Amg::Translation3D(localToGlobalTransf(gasGap).translation()); 
-       (*m_Log) <<MSG::DEBUG<<"nominalTransform+++++++++++Original Tranformation ++++++++++++++++++++++"<<endmsg; 
-       (*m_Log) <<MSG::DEBUG<<(transfPtr_orig)(0,0)<<" "<<(transfPtr_orig)(0,1)<<" "<<(transfPtr_orig)(0,2)<<" "<<(transfPtr_orig)(0,3)<<endmsg; 
-       (*m_Log) <<MSG::DEBUG<<(transfPtr_orig)(1,0)<<" "<<(transfPtr_orig)(1,1)<<" "<<(transfPtr_orig)(1,2)<<" "<<(transfPtr_orig)(1,3)<<endmsg; 
-       (*m_Log) <<MSG::DEBUG<<(transfPtr_orig)(2,0)<<" "<<(transfPtr_orig)(2,1)<<" "<<(transfPtr_orig)(2,2)<<" "<<(transfPtr_orig)(2,3)<<endmsg; 
-       (*m_Log) <<MSG::DEBUG<<"+++++ transf ends "<<endmsg; 
+    transfPtr_orig *= Amg::Translation3D(localToGlobalTransf(gasGap).translation());
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+    if (log.level()<=MSG::DEBUG) {
+      log<<MSG::DEBUG<<"nominalTransform+++++++++++Original Tranformation ++++++++++++++++++++++"<<endmsg; 
+      log<<MSG::DEBUG<<(transfPtr_orig)(0,0)<<" "<<(transfPtr_orig)(0,1)<<" "<<(transfPtr_orig)(0,2)<<" "<<(transfPtr_orig)(0,3)<<endmsg; 
+      log<<MSG::DEBUG<<(transfPtr_orig)(1,0)<<" "<<(transfPtr_orig)(1,1)<<" "<<(transfPtr_orig)(1,2)<<" "<<(transfPtr_orig)(1,3)<<endmsg; 
+      log<<MSG::DEBUG<<(transfPtr_orig)(2,0)<<" "<<(transfPtr_orig)(2,1)<<" "<<(transfPtr_orig)(2,2)<<" "<<(transfPtr_orig)(2,3)<<endmsg; 
+      log<<MSG::DEBUG<<"+++++ transf ends "<<endmsg;
+     }
+#endif
     return transfPtr_orig;
 }
 const Amg::Vector3D CscReadoutElement::stripPosOnTrackingSurface(Identifier id) const
@@ -890,13 +856,14 @@ CscReadoutElement::originForInternalALines(int gasGap) const
 }
 
 
-void CscReadoutElement::fillCache() const
+void CscReadoutElement::fillCache()
 {
 
 
   if( !m_surfaceData ) m_surfaceData = new SurfaceData();
   else{
-    (*m_Log) <<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
+    MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+    if (log.level()<=MSG::WARNING) log << MSG::WARNING << "calling fillCache on an already filled cache" << endmsg;
     return;
   }
   const CscIdHelper* idh = manager()->cscIdHelper();
@@ -972,6 +939,37 @@ bool CscReadoutElement::containsId(Identifier id) const
     else return false;
     
     return true;
+}
+
+double CscReadoutElement::distanceToReadout( const Amg::Vector2D& , const Identifier& ) const {
+  MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+  if (log.level()<=MSG::WARNING) log << MSG::WARNING << " distanceToReadout::dummy routine " << endmsg;
+  return 0.;
+}
+
+int CscReadoutElement::stripNumber( const Amg::Vector2D& , const Identifier&  ) const { 
+  MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+  if (log.level()<=MSG::WARNING) log << MSG::WARNING << " stripNumber::dummy routine " << endmsg;
+  return 1;
+}
+
+bool CscReadoutElement::stripPosition( const Identifier& id, Amg::Vector2D& pos ) const {
+  /** please don't copy the inefficient code below!! Look at the RpcReadoutElement for a proper implementation */
+  Amg::Vector3D gpos = stripPos(id);  
+  if( !surface(id).globalToLocal(gpos,gpos,pos) ) {
+    MsgStream log(Athena::getMessageSvc(),"CscReadoutElement");
+    if (log.level()<=MSG::WARNING) log << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(id).transform().inverse()*gpos << endmsg;
+    return false;
+  }
+  return true;
+}
+
+bool CscReadoutElement::spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const {
+  Amg::Vector2D phiPos;
+  Amg::Vector2D etaPos;
+  if( !stripPosition(phiId,phiPos) || !stripPosition(etaId,etaPos) ) return false;
+  spacePointPosition(phiPos,etaPos,pos);
+  return true;
 }
 
 } // namespace MuonGM

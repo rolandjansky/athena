@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSpacePointCountsCnv.h"
@@ -40,17 +40,17 @@ TrigSpacePointCounts* TrigSpacePointCountsCnv::createTransient() {
   static pool::Guid p0_guid("1BCAD9FD-DAFE-4E50-9A37-C75E822E6D02");
  
   if(compareClassGuid(p3_guid)) {
-    std::auto_ptr<TrigSpacePointCounts_p3 > pers_ptr( poolReadObject< TrigSpacePointCounts_p3 >() );
+    std::unique_ptr<TrigSpacePointCounts_p3 > pers_ptr( poolReadObject< TrigSpacePointCounts_p3 >() );
     TrigSpacePointCountsCnv_p3 converter;
     return converter.createTransient( pers_ptr.get(), mlog );
   } 
   if(compareClassGuid(p2_guid)) {
-    std::auto_ptr<TrigSpacePointCounts_p2 > pers_ptr( poolReadObject< TrigSpacePointCounts_p2 >() );
+    std::unique_ptr<TrigSpacePointCounts_p2 > pers_ptr( poolReadObject< TrigSpacePointCounts_p2 >() );
     TrigSpacePointCountsCnv_p2 converter;
     return converter.createTransient( pers_ptr.get(), mlog );
   } 
   if(compareClassGuid(p1_guid)) {
-    std::auto_ptr<TrigSpacePointCounts_p1 > pers_ptr( poolReadObject< TrigSpacePointCounts_p1 >() );
+    std::unique_ptr<TrigSpacePointCounts_p1 > pers_ptr( poolReadObject< TrigSpacePointCounts_p1 >() );
     TrigSpacePointCountsCnv_p1 converter;
     return converter.createTransient( pers_ptr.get(), mlog );
   }

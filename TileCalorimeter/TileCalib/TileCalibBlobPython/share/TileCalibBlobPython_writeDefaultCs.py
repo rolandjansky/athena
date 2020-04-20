@@ -1,13 +1,12 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_writeDefaults.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-26
 # change Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
 from TileCalibBlobPython import TileCalibTools, TileCalibDefaultWriter
-from TileCalibBlobObjs.Classes import *
 
 # choose if we want to write defaults for simulation or for real data
 Simulation = True

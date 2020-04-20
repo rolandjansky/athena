@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # Apply ICellWeightTools to each cell in  the new Container
 CaloCellMaker.CaloCellMakerToolNames += ["CaloCellContainerCorrectorTool/FakeProblemsTool"]
 ToolSvc.FakeProblemsTool.CellCorrectionToolNames = [ "CaloCellWeightCorrection/LoopWeightTool" ]
@@ -5,6 +7,7 @@ ToolSvc.FakeProblemsTool.CellCorrectionToolNames = [ "CaloCellWeightCorrection/L
 # Fake HV problems and readout problems
 ToolSvc.LoopWeightTool.CellWeightToolNames = ["LArCellFakeProbHV/fakehv", "LArCellFakeProbElectronics/fakeEle","TileCellFakeProb/faketile"]
 
+from CaloIdentifier import SUBCALO 
 # ToolSvc.LoopWeightTool.CellWeightToolNames = ["LArCellFakeProbElectronics/fakeEle"]
 # ToolSvc.FakeProblemsTool.CaloNums = [ SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.LARFCAL ]
 ToolSvc.FakeProblemsTool.CaloNums = [ SUBCALO.NSUBCALO ]

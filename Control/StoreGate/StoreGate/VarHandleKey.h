@@ -203,8 +203,8 @@ private:
 
 
   /// Don't allow calling these.
-  virtual void setKey(const DataObjID& key) const override final;
-  virtual void updateKey(const std::string& key) const override final;
+  virtual void setKey(DataObjID key) const override final;
+  virtual void updateKey(std::string key) const override final;
 
 
   /**

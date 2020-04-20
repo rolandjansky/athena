@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used for TOPQ truth tools / augmentation
@@ -6,6 +6,8 @@
 #  from DerivationFrameworkTop.TOPQCommonTruthTools import *
 #  TOPQXSequence += TOPQCommonTruthKernel
 #====================================================================
+
+from __future__ import print_function
 
 #================================
 # IMPORTS
@@ -24,7 +26,7 @@ def setup(ToolSvc):
   TOPQClassifier = MCTruthClassifier( name                      = "TOPQClassifier",
                                        ParticleCaloExtensionTool = "" )
   ToolSvc += TOPQClassifier
-  print "TOPQClassifier: ", TOPQClassifier
+  print ("TOPQClassifier: ", TOPQClassifier)
 
 
   #===============================================================================
@@ -38,7 +40,7 @@ def setup(ToolSvc):
                                  MCTruthClassifier = TOPQClassifier)
   ToolSvc += TOPQClassificationDecorator
   augmentationTools.append(TOPQClassificationDecorator)
-  print "TOPQClassificationDecorator: ", TOPQClassificationDecorator
+  print ("TOPQClassificationDecorator: ", TOPQClassificationDecorator)
 
   #==============================================================================
   # Schedule the tool for adding new truth collection
@@ -58,7 +60,7 @@ def setup(ToolSvc):
                   RunClassifier           = True)
   ToolSvc += TOPQTauTool
   augmentationTools.append(TOPQTauTool)
-  print "TOPQTauTool: ", TOPQTauTool
+  print ("TOPQTauTool: ", TOPQTauTool)
 
   #==============================================================================
   # BACKGROUND ELECTRON DECORATION TYPE/ORIGIN
@@ -71,7 +73,7 @@ def setup(ToolSvc):
                                     MCTruthClassifierTool = BkgElectronMCTruthClassifier)
   ToolSvc += BkgElectronClassificationTool
   augmentationTools.append(BkgElectronClassificationTool)
-  print "BkgElectronClassificationTool: ", BkgElectronClassificationTool
+  print ("BkgElectronClassificationTool: ", BkgElectronClassificationTool)
 
 
   #==============================================================================
@@ -92,7 +94,7 @@ def setup(ToolSvc):
   TOPQBoostedHadTopAndTopPairFilterAugmentation.FilterTool_High = TOPQboostedtopfiltertool
   ToolSvc += TOPQBoostedHadTopAndTopPairFilterAugmentation
   augmentationTools.append(TOPQBoostedHadTopAndTopPairFilterAugmentation)
-  print "TOPQBoostedHadTopAndTopPairFilterAugmentationTool: ", TOPQBoostedHadTopAndTopPairFilterAugmentation
+  print ("TOPQBoostedHadTopAndTopPairFilterAugmentationTool: ", TOPQBoostedHadTopAndTopPairFilterAugmentation)
 
 
   #==============================================================================
@@ -109,7 +111,7 @@ def setup(ToolSvc):
   TOPQTopHFFilterAugmentation.FilterTool = TOPQtthffiltertool
   ToolSvc += TOPQTopHFFilterAugmentation
   augmentationTools.append(TOPQTopHFFilterAugmentation)
-  print "TOPQTopHFFilterAugmentationTool: ", TOPQTopHFFilterAugmentation
+  print ("TOPQTopHFFilterAugmentationTool: ", TOPQTopHFFilterAugmentation)
 
   #==============================================================================
   # HEAVY FLAVOR DECORATIONS (ttbar)
@@ -129,12 +131,12 @@ def setup(ToolSvc):
       from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HadronOriginClassifier
       TOPQhadronorigintool = DerivationFramework__HadronOriginClassifier("TOPQHadronOriginClassifier",DSID=int(f.mc_channel_number[0]))
       ToolSvc += TOPQhadronorigintool
-      print "TOPQhadronorigintool: ", TOPQhadronorigintool
+      print ("TOPQhadronorigintool: ", TOPQhadronorigintool)
       from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HadronOriginDecorator
       TOPQhadronorigindecorator = DerivationFramework__HadronOriginDecorator(name = "TOPQHadronOriginDecorator")
       TOPQhadronorigindecorator.ToolName = TOPQhadronorigintool
       ToolSvc += TOPQhadronorigindecorator
-      print "TOPQhadronorigindecorator: ", TOPQhadronorigindecorator
+      print ("TOPQhadronorigindecorator: ", TOPQhadronorigindecorator)
       augmentationTools.append(TOPQhadronorigindecorator)
 
   #==============================================================================
@@ -149,13 +151,13 @@ def setup(ToolSvc):
   if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):
     TOPQTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="TOPQTauTruthMatchingTool")
     ToolSvc += TOPQTauTruthMatchingTool
-    print "TOPQTauTruthMatchingTool: ", TOPQTauTruthMatchingTool
+    print ("TOPQTauTruthMatchingTool: ", TOPQTauTruthMatchingTool)
     TOPQTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name                 = "TOPQTauTruthMatchingWrapper",
                                                                                 TauTruthMatchingTool = TOPQTauTruthMatchingTool,
                                                                                 TauContainerName     = "TauJets")
     ToolSvc += TOPQTauTruthMatchingWrapper
     augmentationTools.append(TOPQTauTruthMatchingWrapper)
-    print "TOPQTauTruthMatchingWrapperTool: ", TOPQTauTruthMatchingWrapper
+    print ("TOPQTauTruthMatchingWrapperTool: ", TOPQTauTruthMatchingWrapper)
 
   #=============
   # RETURN TOOLS
@@ -184,7 +186,7 @@ import DerivationFrameworkCore.LHE3WeightMetadata
 #     # can't yet use the PathResolver right now - doing it with environment variables
 #     #Prefix = os.getenv("AtlasArea")
 #     #infile = Prefix+'/PhysicsAnalysis/DerivationFramework/DerivationFrameworkHiggs/share/HiggsMCsamples.cfg'
-#     print 'Found path to HiggsMCsamples.cfg configuration file (using PathResolver): '+infile
+#     print ('Found path to HiggsMCsamples.cfg configuration file (using PathResolver): '+infile)
 #     ## use the config file with ROOT TEnv class
 #     import ROOT
 #     higgs_env = ROOT.TEnv()

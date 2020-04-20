@@ -1,15 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  The sTgc detector = an assembly module = STGC in amdb 
  ----------------------------------------------------
 ***************************************************************************/
-
-
-//<doc><file>	$Id: sTgcReadoutElement.cxx,v 1.5 2009-05-13 15:03:47 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -19,7 +15,6 @@
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
@@ -30,18 +25,27 @@
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
 #include "AGDDModel/AGDDParameterStore.h"
-
-#define sTgcReadout_verbose false
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include <TString.h> // for Form
 
 namespace MuonGM {
 
   sTgcReadoutElement::sTgcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 					 int zi, int fi, int mL, bool is_mirrored,
 					 MuonDetectorManager* mgr)
-    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
+    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
+      m_BLinePar(0)
   {
-    m_ml = mL;
+    m_rots = 0.;
+    m_rotz = 0.;
+    m_rott = 0.;
 
+    m_hasALines = false;
+    m_hasBLines = false;
+    m_delta = NULL;
+    m_ml = mL;
+    
     // get the setting of the caching flag from the manager
     setCachingFlag(mgr->cachingFlag());
 
@@ -49,7 +53,6 @@ namespace MuonGM {
     std::string sName = vName.substr(vName.find("-")+1);
     std::string fixName = (sName[1]=='L') ? "STL" : "STS";
 	
-    //setStationName(stName);
     setStationName(fixName);
     setStationEta(zi);
     setStationPhi(fi);
@@ -59,29 +62,22 @@ namespace MuonGM {
     Identifier id = mgr->stgcIdHelper()->channelID(fixName,zi,fi,mL,1,2,1);
     setIdentifier(id);
 
-    //m_nlayers=0;
-
     sTGCDetectorHelper sTGC_helper;
 
     std::string sTGCname = std::string("sTG1-")+sName;
-    
-    (*m_Log)  << MSG::DEBUG << "sTGCname: " << sTGCname << endmsg;
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "sTGCname: " << sTGCname << endmsg;
     sTGCDetectorDescription *sTGC = sTGC_helper.Get_sTGCDetectorType(sTGCname);
-    if(sTGC)
-      (*m_Log)  << MSG::DEBUG << "Found sTGC detector: " << sTGCname << " " << sTGC << endmsg;
-
+    if(sTGC && log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Found sTGC detector: " << sTGCname << " " << sTGC << endmsg;
     static const int nLayers = 4;
-
     for(int layer = 0; layer < nLayers; layer++){
       double length = sTGC->Length(); //Distance between parallel sides of the trapezoid
-
       double ysFrame = sTGC->ysFrame(); //Frame thickness on short parallel edge
       double ylFrame = sTGC->ylFrame(); //Frame thickness on long parallel edge
-
-      (*m_Log)  << MSG::DEBUG << "length: " << length << " ysFrame: " << ysFrame << " ylFrame: " << ylFrame << endmsg; 
-
+      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "length: " << length << " ysFrame: " << ysFrame << " ylFrame: " << ylFrame << endmsg; 
     }
-
+#endif
     
     if (mgr->MinimalGeoFlag() == 0) {
       if (GeoFullPhysVol* pvc = dynamic_cast<GeoFullPhysVol*> (pv)) {
@@ -91,11 +87,15 @@ namespace MuonGM {
 	for (unsigned ich=0; ich<nchildvol; ++ich) {
 	  PVConstLink pc = pvc->getChildVol(ich);
 	  std::string childname = (pc->getLogVol())->getName();
-	  (*m_Log)  << MSG::DEBUG << "Volume Type: " << pc->getLogVol()->getShape()->type() << endmsg;
+#ifndef NDEBUG
+	  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Volume Type: " << pc->getLogVol()->getShape()->type() << endmsg;
+#endif
 	  if ((npos = childname.find("Sensitive")) != std::string::npos ) {
 	    llay ++;
             if (llay > 4) {
-	      (*m_Log)  << MSG::WARNING << "number of sTGC layers > 4: increase transform array size"<< endmsg;
+#ifndef NDEBUG
+	      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "number of sTGC layers > 4: increase transform array size"<< endmsg;
+#endif
               continue;
 	    }
 	    m_Xlg[llay-1] = pvc->getXToChildVol(ich);
@@ -103,12 +103,9 @@ namespace MuonGM {
 	}
         m_nlayers=llay;
       } else {
-	(*m_Log)  << MSG::WARNING << "Cannot read the GeoModel tree" << endmsg;
+        throw std::runtime_error(Form("File: %s, Line: %d\nsTgcReadoutElement::sTgcReadoutElement() - Cannot perform a dynamic cast !", __FILE__, __LINE__));
       }
-    }
-
-    //fillCache();
-    
+    }    
   }
 
 
@@ -125,18 +122,16 @@ namespace MuonGM {
     IdentifierHash collIdhash = 0;
     IdentifierHash detIdhash = 0;
     // set parent data collection hash id
-    int gethash_code = idh->get_module_hash(id, collIdhash);
-    if (gethash_code != 0) 
-      (*m_Log) <<MSG::WARNING
-     	     <<"sTgcReadoutElement --  collection hash Id NOT computed for id = "
-     	     <<idh->show_to_string(id)<<endmsg;
+    if (idh->get_module_hash(id, collIdhash) != 0) {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING << "setIdentifier -- collection hash Id NOT computed for id = " << idh->show_to_string(id) << endmsg;
+    }
     m_idhash = collIdhash;
-    // // set RE hash id 
-    gethash_code = idh->get_detectorElement_hash(id, detIdhash);
-    if (gethash_code != 0) 
-      (*m_Log) <<MSG::WARNING
-     	     <<"sTgcReadoutElement --  detectorElement hash Id NOT computed for id = "
-     	     <<idh->show_to_string(id)<<endmsg;
+    // set RE hash id 
+    if (idh->get_detectorElement_hash(id, detIdhash) != 0) {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING << "setIdentifier -- detectorElement hash Id NOT computed for id = " << idh->show_to_string(id) << endmsg;
+    }
     m_detectorElIdhash = detIdhash;
   }
 
@@ -146,26 +141,29 @@ namespace MuonGM {
                                       double /*stripWidth*/, double /*wireWidth*/, double thickness) {
 
 
-    // int sector=getStationName().substr(2,1)=="L" ? 1 : 0;
     char sector_l=getStationName().substr(2,1)=="L" ? 'L' : 'S';
 
-    int stEta=abs(getStationEta());
+    int stEta=std::abs(getStationEta());
     int Etasign=getStationEta()/stEta;
     std::string side;
     if (Etasign > 0) side="A";
     else side="C"; //This needs to be checked 
 
     sTGCDetectorHelper aHelper;
-    (*m_Log)  << MSG::DEBUG<< "station name" << getStationName()<<endmsg;
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "station name" << getStationName()<<endmsg;
+#endif
 
     sTGCDetectorDescription* stgc = aHelper.Get_sTGCDetector(sector_l,stEta,getStationPhi(),m_ml,side.back());
+#ifndef NDEBUG
     if (stgc) 
-      (*m_Log)  << MSG::DEBUG
-	      << "Found sTGC Detector " << stgc->GetName() << endmsg;
+      log << MSG::DEBUG << "Found sTGC Detector " << stgc->GetName() << endmsg;
     else {
-      (*m_Log)  << MSG::DEBUG << "No sTGC Detector" << endmsg;
-      (*m_Log)  << MSG::DEBUG << sector_l <<"  " << getStationEta() << " " << getStationPhi() << "  " <<m_ml << " "<<sector_l <<endmsg;
+      log << MSG::DEBUG << "No sTGC Detector" << endmsg;
+      log << MSG::DEBUG << sector_l <<"  " << getStationEta() << " " << getStationPhi() << "  " <<m_ml << " "<<sector_l <<endmsg;
     }
+#endif
 
     auto tech=stgc->GetTechnology();
 
@@ -243,19 +241,19 @@ namespace MuonGM {
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
       m_etaDesign[il].inputWidth = stgc->stripWidth();
       if (!tech){
-	(*m_Log) <<MSG::ERROR <<"Failed To get Technology for stgc element :" << stgc->GetName() << endmsg;      
-	m_etaDesign[il].thickness = 0;
+        throw std::runtime_error(Form("File: %s, Line: %d\nsTgcReadoutElement::initDesign() - Failed To get Technology for stgc element: %s", __FILE__, __LINE__, stgc->GetName().c_str()));
       }
       else{
-	m_etaDesign[il].thickness = stgc->GetTechnology()->gasThickness;//+stgc->GetTechnology()->pcbThickness;
+	     m_etaDesign[il].thickness = stgc->GetTechnology()->gasThickness;//+stgc->GetTechnology()->pcbThickness;
       }
 	
       // These values depend on local geometry. When using DiamondBounds for QL3, the origin (0,0) is not at the center of the gas volume, but rather where the yCutout begins.
       if (m_sTGC_type == 3) m_etaDesign[il].firstPos = -(m_etaDesign[il].xSize -yCutout) + m_etaDesign[il].firstPitch;
       else m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + m_etaDesign[il].firstPitch;
 
-      (*m_Log)  << MSG::DEBUG
-	      << "firstPos: " << m_etaDesign[il].firstPos << endmsg;
+#ifndef NDEBUG
+      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "firstPos: " << m_etaDesign[il].firstPos << endmsg;
+#endif
       m_etaDesign[il].sAngle = 0.;
       m_etaDesign[il].signY  = 1 ;
       
@@ -263,9 +261,10 @@ namespace MuonGM {
            
       m_nStrips.push_back(m_etaDesign[il].nch);
       
-      (*m_Log) <<MSG::DEBUG
-	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << endmsg;
-      
+#ifndef NDEBUG
+      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << endmsg;
+#endif
+
     }
 
     for (int il=0; il<m_nlayers; il++) {
@@ -299,9 +298,9 @@ namespace MuonGM {
 
       m_nWires.push_back(m_phiDesign[il].nGroups); // number of nWireGroups
 
-      (*m_Log) <<MSG::DEBUG
-	     <<"initDesign:" << getStationName()<< " layer " << il << ", wireGang pitch " << m_phiDesign[il].inputPitch << ", nWireGangs "<< m_phiDesign[il].nch << endmsg;
-
+#ifndef NDEBUG
+      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "initDesign:" << getStationName()<< " layer " << il << ", wireGang pitch " << m_phiDesign[il].inputPitch << ", nWireGangs "<< m_phiDesign[il].nch << endmsg;
+#endif
     }
 
     for (int il=0; il<m_nlayers; il++) {
@@ -361,21 +360,26 @@ namespace MuonGM {
       m_padDesign[il].sAngle = 0.;            // handled by surface rotation
       m_padDesign[il].signY  = 1 ;
 
-
-	
-	(*m_Log)  << MSG::DEBUG<<"initDesign stationname "<<getStationName()<<" layer " << il << ",pad phi angular width " << m_padDesign[il].inputPhiPitch << ", eta pad size "<< m_padDesign[il].inputRowPitch <<"  Length: "<< m_padDesign[il].Length<<" sWidth: "<< m_padDesign[il].sWidth<<" lWidth: "<<m_padDesign[il].lWidth<<" firstPhiPos:"<<m_padDesign[il].firstPhiPos<<" padEtaMin:"<<m_padDesign[il].padEtaMin<<" padEtaMax:"<<m_padDesign[il].padEtaMax<<" firstRowPos:"<<m_padDesign[il].firstRowPos<<" inputRowPitch:"<<m_padDesign[il].inputRowPitch<<" thickness:"<<m_padDesign[il].thickness<<" sPadWidth: " <<m_padDesign[il].sPadWidth<<" lPadWidth: "<< m_padDesign[il].lPadWidth<<" xFrame: "<< m_padDesign[il].xFrame <<" ysFrame: "<< m_padDesign[il].ysFrame<<" ylFrame: "<< m_padDesign[il].ylFrame << " yCutout: "<< m_padDesign[il].yCutout<<endmsg;
-
-
+#ifndef NDEBUG
+      if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "initDesign stationname "<<getStationName()<<" layer " << il << ",pad phi angular width " 
+        << m_padDesign[il].inputPhiPitch << ", eta pad size "<< m_padDesign[il].inputRowPitch <<"  Length: "<< m_padDesign[il].Length<<" sWidth: "
+        << m_padDesign[il].sWidth<<" lWidth: "<<m_padDesign[il].lWidth<<" firstPhiPos:"<<m_padDesign[il].firstPhiPos<<" padEtaMin:"
+        <<m_padDesign[il].padEtaMin<<" padEtaMax:"<<m_padDesign[il].padEtaMax<<" firstRowPos:"<<m_padDesign[il].firstRowPos<<" inputRowPitch:"
+        <<m_padDesign[il].inputRowPitch<<" thickness:"<<m_padDesign[il].thickness<<" sPadWidth: " <<m_padDesign[il].sPadWidth<<" lPadWidth: "
+        << m_padDesign[il].lPadWidth<<" xFrame: "<< m_padDesign[il].xFrame <<" ysFrame: "<< m_padDesign[il].ysFrame<<" ylFrame: "
+        << m_padDesign[il].ylFrame << " yCutout: "<< m_padDesign[il].yCutout<<endmsg;
+#endif
 
     }
 
   }
 
-  void sTgcReadoutElement::fillCache() const
+  void sTgcReadoutElement::fillCache()
   {
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
-      (*m_Log) <<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
       return;
     }
 
@@ -411,13 +415,11 @@ namespace MuonGM {
 					Amg::Translation3D(0,0.,-offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout)*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
-      else (*m_Log) <<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Wire Geometry not Created!" << endmsg;
+      else throw std::runtime_error(Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Wire Geometry not Created!", __FILE__, __LINE__, m_sTGC_type));
 
       // is this cache really needed ? 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
-
-      //std::cerr<<"center of wire plane, layer:"<<layer<<","<< m_surfaceData->m_layerCenters.back().perp()<< std::endl;
 
       // strip plane moved along normal, pad plane in the opposite direction
       // We no longer want the readout elements to be seperated by the gas gas volume
@@ -441,7 +443,7 @@ namespace MuonGM {
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
 					Amg::Translation3D(shift,0.,-offset + m_halfX[layer] - m_etaDesign[layer].yCutout)*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
-      else (*m_Log) <<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Strip Geometry not Created!" << endmsg;
+      else std::runtime_error(Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Strip Geometry not Created!", __FILE__, __LINE__, m_sTGC_type));
 
       // is this cache really needed ? 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
@@ -462,14 +464,14 @@ namespace MuonGM {
 					Amg::Translation3D(-shift,0.,-offset + m_PadhalfX[layer] - m_padDesign[layer].yCutout)*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
-      else (*m_Log) <<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Pad Geometry not Created!" << endmsg;
+      else std::runtime_error(Form("File: %s, Line: %d\nsTgcReadoutElement::fillCache() - sTGC_type %d is not valid! Pad Geometry not Created!", __FILE__, __LINE__, m_sTGC_type));
 
       // is this cache really needed ? 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
 
       // update the padDesign info
-      const MuonGM::MuonPadDesign* padDesign=this->getPadDesign(id);
+      MuonGM::MuonPadDesign* padDesign=this->getPadDesign(id);
       if (padDesign) padDesign->setR(m_surfaceData->m_layerCenters.back().perp());
 
     }
@@ -498,14 +500,99 @@ namespace MuonGM {
   Amg::Vector3D sTgcReadoutElement::localToGlobalCoords(Amg::Vector3D locPos, Identifier id) const
   {
     int gg = manager()->stgcIdHelper()->gasGap(id);
-    
     Amg::Vector3D  locP = m_Xlg[gg-1]*locPos;
-    (*m_Log)  << MSG::DEBUG << "locPos in the gg      r.f. "<<locPos<<endmsg;
-    (*m_Log)  << MSG::DEBUG << "locP in the multilayer r.f. "<<locP<<endmsg;
-    
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+    if (log.level()<=MSG::DEBUG) {
+      log << MSG::DEBUG << "locPos in the gg      r.f. "<<locPos<<endmsg;
+      log << MSG::DEBUG << "locP in the multilayer r.f. "<<locP<<endmsg;
+    }
+#endif
     return absTransform()*locP;
   }
 
+  void sTgcReadoutElement::setDelta(double tras, double traz, double trat,
+                                  double rots, double rotz, double rott)
+  {
+    m_rots = rots;
+    m_rotz = rotz;
+    m_rott = rott;
 
+    HepGeom::Transform3D delta = HepGeom::Transform3D::Identity;
+     if (std::abs(tras)+std::abs(traz)+std::abs(trat)+(std::abs(rots)+std::abs(rotz)+std::abs(rott))*1000. > 0.01)
+    {
+       // compute the delta transform
+       delta = HepGeom::TranslateX3D(tras)*HepGeom::TranslateY3D(traz)*
+                     HepGeom::TranslateZ3D(trat)*HepGeom::RotateX3D(rots)*
+                    HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
+       m_hasALines = true;
+    }
+  }
+
+  void sTgcReadoutElement::setBLinePar(BLinePar* bLine)
+  {
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Setting B-line for "<<getStationName().substr(0,3)<<" at eta/phi "<<getStationEta()<<"/"<<getStationPhi()<<endmsg;
+#endif    
+    m_BLinePar = bLine;
+  }
+
+  double sTgcReadoutElement::channelPitch( const Identifier& id ) const {
+
+    if (manager()->stgcIdHelper()->channelType(id)==0){
+    const MuonPadDesign* design = getPadDesign(id);
+    if( !design ) {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING << "no pad Design" << endmsg;
+      return -1;
+    }
+      return design->channelWidth( Amg::Vector2D (0,0),0);
+    }
+
+    const MuonChannelDesign* design = getDesign(id);
+    if( !design ) return -1;
+
+    if (manager()->stgcIdHelper()->channelType(id)==1) //sTGC strips
+      return design->inputPitch;
+    else if (manager()->stgcIdHelper()->channelType(id)==2) //sTGC wires
+      return design->inputPitch * design->groupWidth; // wire Pitch * number of wires in a group
+    else return -1;
+
+  }
+
+  int sTgcReadoutElement::padNumber( const Amg::Vector2D& pos, const Identifier& id) const {
+
+    const MuonPadDesign* design = getPadDesign(id);
+    if( !design ) {
+      MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+      log << MSG::WARNING << "no pad Design" << endmsg;
+      return -1;
+    }
+    std::pair<int,int> pad(design->channelNumber(pos));
+
+    if (pad.first>0 && pad.second>0) {
+
+      Identifier padID=manager()->stgcIdHelper()->padID( manager()->stgcIdHelper()->stationName(id),
+               manager()->stgcIdHelper()->stationEta(id),
+               manager()->stgcIdHelper()->stationPhi(id),
+               manager()->stgcIdHelper()->multilayer(id),
+               manager()->stgcIdHelper()->gasGap(id),
+               0, pad.first, pad.second, true );     
+      int channel = manager()->stgcIdHelper()->channel(padID);
+      int padEta = manager()->stgcIdHelper()->padEta(padID);
+      int padPhi = manager()->stgcIdHelper()->padPhi(padID);
+      if( padEta != pad.first || padPhi != pad.second ){
+        MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+        log << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " " << padPhi << endmsg;
+        return -1;
+      }
+      return channel;
+    } 
+    MsgStream log(Athena::getMessageSvc(),"sTgcReadoutElement");
+    log << MSG::WARNING << "bad channelNumber" << endmsg;
+
+    return -1; 
+  }
 
 } // namespace MuonGM

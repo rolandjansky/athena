@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Job options file for CaloRescaleNoise
@@ -11,7 +12,6 @@ RunNumber = 154757
 LumiBlock = 1
 Geometry = 'ATLAS-GEO-01-00-00'
 
-from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
 trigDB=indirectOpen('COOLONL_TRIGGER/COMP200',oracle=True)
@@ -19,18 +19,18 @@ trigfolder=trigDB.getFolder('/TRIGGER/LUMI/LBLB')
 runiov=(RunNumber << 32)+ LumiBlock
 obj=trigfolder.findObject(runiov,0)
 payload=obj.payload()
-TimeStamp=payload['StartTime']/1000000000L
+TimeStamp=payload['StartTime']/1000000000
 trigDB.closeDatabase()
 
 
-print " TimeStamp : ",TimeStamp
+printfunc (" TimeStamp : ",TimeStamp)
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(RunNumber)
 
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = True
-from AthenaCommon.Resilience import treatException,protectedInclude
+from AthenaCommon.Resilience import protectedInclude
 protectedInclude( "PerfMonComps/PerfMonSvc_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags
@@ -110,7 +110,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
    ServiceMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellnoise_data.root' OPT='RECREATE'"];
+ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='cellnoise_data.root' OPT='RECREATE'"]
 
 
 #--------------------------------------------------------------

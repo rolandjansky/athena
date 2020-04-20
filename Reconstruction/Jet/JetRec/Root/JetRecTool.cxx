@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetRecTool.cxx
@@ -7,7 +7,9 @@
 #include "JetRec/JetRecTool.h"
 #include <iomanip>
 #include "xAODJet/JetAuxContainer.h"
+#ifndef GENERATIONBASE
 #include "xAODJet/JetTrigAuxContainer.h"
+#endif //GENERATIONBASE
 #include <fstream>
 
 #include "xAODBase/IParticleHelpers.h"
@@ -186,10 +188,6 @@ StatusCode JetRecTool::initialize() {
       ATH_MSG_INFO(prefix << "Extracting input type from primary label.");
       ATH_MSG_INFO(prefix << "Input label: " << label);
       m_inputtype = xAOD::JetInput::inputType(label);
-      if ( m_inputtype == xAOD::JetInput::Uncategorized ) {
-        ATH_MSG_ERROR("Invalid label for first pseudojet getter: " << label);
-        rstat = StatusCode::FAILURE;
-      }
     } else {
       m_ghostlabs.push_back(label);
     }
@@ -326,13 +324,47 @@ const JetContainer* JetRecTool::build() const {
   ATH_MSG_DEBUG("Building jets with " << name() << ".");
   ++m_nevt;
 
-  std::unique_ptr<JetContainer> pjets = fillOutputContainer();
+  std::unique_ptr<xAOD::JetContainer> pjets = fillOutputContainer();
+
+  SG::WriteHandle<xAOD::JetContainer> jetsHandle(m_outcoll);
+
+  // Record the jet collection.
+  if(m_trigger){
+    #ifndef GENERATIONBASE
+    std::unique_ptr<xAOD::JetTrigAuxContainer> pjetsaux(dynamic_cast<xAOD::JetTrigAuxContainer*>( pjets->getStore() ));
+    ATH_MSG_DEBUG("Check Aux store: " << pjets.get() << " ... " << &pjets->auxbase() << " ... " << pjetsaux.get() );
+    if ( pjetsaux.get() == nullptr ) {
+      ATH_MSG_ERROR("Unable to retrieve Aux container");
+      return 0;
+    }
+    ATH_MSG_VERBOSE("Recording new Jet and Aux container.");
+    if(jetsHandle.record(std::move(pjets), std::move(pjetsaux)).isFailure()){
+      // TODO - put this back how it was
+      ATH_MSG_ERROR("Unable to write new Jet collection and aux store to event store: " << m_outcoll.key());
+      return 0;
+    }
+    #endif
+  }
+  else{
+    std::unique_ptr<xAOD::JetAuxContainer> pjetsaux(dynamic_cast<xAOD::JetAuxContainer*>( pjets->getStore() ));
+    ATH_MSG_DEBUG("Check Aux store: " << pjets.get() << " ... " << &pjets->auxbase() << " ... " << pjetsaux.get() );
+    if ( pjetsaux.get() == nullptr ) {
+      ATH_MSG_ERROR("Unable to retrieve Aux container");
+      return 0;
+    }
+    ATH_MSG_VERBOSE("Recording new Jet and Aux container.");
+    if(jetsHandle.record(std::move(pjets), std::move(pjetsaux)).isFailure()){
+      ATH_MSG_ERROR("Unable to write new Jet collection and aux store to event store: " << m_outcoll.key());
+      return 0;
+    }
+  }
+  ATH_MSG_DEBUG("Created new Jet collection in event store: " << m_outcoll.key());
 
   // Modify jets.
   unsigned int nmod = m_modifiers.size();
   if ( nmod ) {
     m_modclock.Start(false);
-    if ( pjets == nullptr ) {
+    if ( !jetsHandle.isValid() ) {
       ATH_MSG_WARNING("There is no jet collection to modify.");
     } else {
       ATH_MSG_DEBUG("Executing " << nmod << " jet modifiers.");
@@ -342,7 +374,7 @@ const JetContainer* JetRecTool::build() const {
         m_modclocks[iclk].Start(false);
         ATH_MSG_DEBUG("  Executing modifier " << imod->name());
         ATH_MSG_VERBOSE("    @ " << *imod);
-        if((*imod)->modify(*pjets).isFailure())
+        if((*imod)->modify(*jetsHandle).isFailure())
           ATH_MSG_DEBUG("    Modifier returned FAILURE!");
         m_modclocks[iclk++].Stop();
       }
@@ -354,7 +386,7 @@ const JetContainer* JetRecTool::build() const {
   unsigned int ncon = m_consumers.size();
   if ( ncon ) {
     m_conclock.Start(false);
-    if ( pjets == nullptr ) {
+    if ( !jetsHandle.isValid() ) {
       ATH_MSG_WARNING("There is no jet collection to consume");
     } else {
       ATH_MSG_DEBUG("Executing " << ncon << " jet consumers.");
@@ -364,7 +396,7 @@ const JetContainer* JetRecTool::build() const {
         m_conclocks[iclk].Start(false);
         ATH_MSG_DEBUG("  Executing consumer " << icon->name());
         ATH_MSG_VERBOSE("    @ " << *icon);
-        (*icon)->process(*pjets) ;
+        (*icon)->process(*jetsHandle) ;
         m_conclocks[iclk++].Stop();
       }
     }
@@ -373,7 +405,7 @@ const JetContainer* JetRecTool::build() const {
 
   m_totclock.Stop();
 
-  return pjets.release();
+  return jetsHandle.isValid() ? &(*jetsHandle) : 0;
 }
 
 //**********************************************************************
@@ -383,38 +415,11 @@ int JetRecTool::execute() const {
     ATH_MSG_WARNING("Execute requested before initialization.");
     return 1;
   }
-  std::unique_ptr<const xAOD::JetContainer> pjets(build());
-  if ( pjets.get() == nullptr ) {
+
+  if ( build() == nullptr ) {
     ATH_MSG_ERROR("Unable to retrieve container");
     return 1;
   }
-  if ( m_trigger ) {
-    return record<xAOD::JetTrigAuxContainer>(std::move(pjets));
-  } 
-
-  return record<xAOD::JetAuxContainer>(std::move(pjets));
-}
-
-//**********************************************************************
-
-template <typename TAux>
-
-int JetRecTool::record(std::unique_ptr<const xAOD::JetContainer> pjets) const {
-  SG::WriteHandle<xAOD::JetContainer> h_out(m_outcoll);
-
-  // This isn't very nice, because we take ownership, but the store wasn't owned before...
-  std::unique_ptr<const TAux> pjetsaux(dynamic_cast<const TAux*>( pjets->getStore() ));
-  ATH_MSG_DEBUG("Check Aux store: " << pjets.get() << " ... " << &pjets->auxbase() << " ... " << pjetsaux.get() );
-  if ( pjetsaux.get() == nullptr ) {
-    ATH_MSG_ERROR("Unable to retrieve Aux container");
-    return 2;
-  }
-  ATH_MSG_VERBOSE("Recording new Jet and Aux container.");
-  if ( ! h_out.put(std::move(pjets), std::move(pjetsaux)) ) {
-    ATH_MSG_ERROR("Unable to write new Jet collection and aux store to event store: " << m_outcoll.key());
-    return 3;
-  }
-  ATH_MSG_DEBUG("Created new Jet collection in event store: " << m_outcoll.key());
   return 0;
 }
 
@@ -567,7 +572,9 @@ std::unique_ptr<xAOD::JetContainer> JetRecTool::makeOutputContainer() const{
   if ( m_outcoll.key().size() ) {
     if(m_trigger) {
       ATH_MSG_DEBUG("Attaching online Aux container.");
+#ifndef GENERATIONBASE
       pjets->setStore(new xAOD::JetTrigAuxContainer);
+#endif
     } else {
       ATH_MSG_DEBUG("Attaching offline Aux container.");
       pjets->setStore(new xAOD::JetAuxContainer);

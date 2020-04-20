@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyAthena.FilePeekerLib
 # @purpose provide components to peek into pool files
@@ -14,6 +14,8 @@ __doc__ = "provide components to peek into pool files"
 ### imports --------------------------------------------------------------------
 import AthenaPython.PyAthena as PyAthena
 StatusCode = PyAthena.StatusCode
+
+import six
 
 
 ### helper functions ----------------------------------------------------------
@@ -171,6 +173,8 @@ class FilePeeker(PyAthena.Alg):
         except KeyError:
             msg.warning('could not retrieve [%s]', metadata_name)
             return
+        if str(obj).find('MetaCont') >= 0:
+            obj = obj.get (obj.sources()[0])
         msg.info('processing container [%s]', obj.folderName())
         data = []
         payloads = obj.payloadContainer()
@@ -366,7 +370,7 @@ class FilePeeker(PyAthena.Alg):
                 return (_typename(clid) or str(clid), # str or keep the int?
                         sgkey)
             item_list = esi.item_list()
-            item_list = map(_make_item_list, item_list)
+            item_list = list(map(_make_item_list, item_list))
             peeked_data['eventdata_items'] = item_list
             # print ("======",len(item_list))
             peeked_data['lumi_block'] = esi.lumi_blocks()
@@ -493,7 +497,7 @@ class FilePeeker(PyAthena.Alg):
         def mergeMultipleDict(inDicts):
             outDict={}
             for d in inDicts:
-                for k,o in d.iteritems():
+                for k,o in six.iteritems(d):
                     if k not in outDict:
                         outDict[k]=o
             if len(outDict)==0:

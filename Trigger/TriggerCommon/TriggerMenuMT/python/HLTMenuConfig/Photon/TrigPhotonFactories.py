@@ -11,60 +11,22 @@ Offline configurations are available here:
 
 """
 from egammaAlgs import egammaAlgsConf
-from egammaTools import egammaToolsConf
-from egammaRec.Factories import AlgFactory, ToolFactory, FcnWrapper
-#from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egammaRecFlags
+from egammaRec.Factories import AlgFactory,  FcnWrapper
 
-from egammaTools.egammaToolsFactories import egammaSwTool, egammaMVASvc, EGammaAmbiguityTool, EMTrackMatchBuilder, EMConversionBuilder, PhotonPIDBuilder, EMFourMomBuilder
+from egammaTools.egammaToolsFactories import egammaSwTool, egammaMVASvc, EGammaAmbiguityTool,  EMConversionBuilder
 
+# Tools and funtions from TrigEgammaFactories
+from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigEMClusterTool, TrigEMShowerBuilder ,TrigEgammaDecorationTools, TrigPhotonDecorationTools, TrigEMTrackMatchBuilder
 
 # Load TrigEgammaKeys where we store the container names and other TrigEgamma configuration values
 from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
 
-from egammaCaloTools.egammaCaloToolsFactories import egammaShowerShape, egammaIso
-from CaloIdentifier import SUBCALO 
-
-TrigEMShowerBuilder = ToolFactory( egammaToolsConf.EMShowerBuilder,
-         CellsName = 'CaloCells',
-         CaloNums  = [SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.TILE],
-         ShowerShapeTool      = egammaShowerShape,
-         HadronicLeakageTool  = egammaIso,
-         Print = False)
-
-from CaloTools.CaloToolsConf import CaloAffectedTool
-
-TrigEgammaOQFlagsBuilder = ToolFactory( egammaToolsConf.egammaOQFlagsBuilder,
-        QCellCut = 4000.,
-        QCellHECCut = 60000.,
-        QCellSporCut = 4000.,
-        LArQCut = 0.8,
-        TCut = 10.,
-        TCutVsE = 2.,
-        RcellCut = 0.8,
-        CellsName = 'CaloCells',
-        affectedTool = CaloAffectedTool())
 
 # Decoration tools for egamma and photon objects:
 # Copying from https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/egamma/egammaRec/python/topoEgammaGetter.py#L28
-def TrigEgammaDecorationTools():
-    #Return a list with the tools that decorate both electrons and photons. 
-    return [ EMFourMomBuilder(), TrigEMShowerBuilder() ] 
-
-def TrigPhotonDecorationTools():
-    #Return a list with the tools that decorate only photons
-    return [ PhotonPIDBuilder() ]
 
 
-# This is an instance of TrigEMClusterTool to be used at TrigTopoEgammaPhotons
-TrigEMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
-        name = 'TrigEMClusterTool',
-        OutputClusterContainerName = TrigEgammaKeys.TrigEMClusterToolOutputContainer, 
-        OutputTopoSeededClusterContainerName = TrigEgammaKeys.outputTopoSeededClusterKey,
-        ClusterCorrectionTool = egammaSwTool,
-        doSuperCluster = True,
-        MVACalibSvc = egammaMVASvc                             
-        )
 # Factory for egamaRecBuilder/TrigEgammaRecPhoton
 TrigEgammaRecPhoton = AlgFactory( egammaAlgsConf.egammaRecBuilder,
         name = 'TrigEgammaRecPhoton' ,
@@ -73,7 +35,7 @@ TrigEgammaRecPhoton = AlgFactory( egammaAlgsConf.egammaRecBuilder,
         doTrackMatching = False,
         doConversions = False,
         ## Builder tools
-        TrackMatchBuilderTool = EMTrackMatchBuilder, # Don't want to use these for trigger....
+        TrackMatchBuilderTool = TrigEMTrackMatchBuilder, # Don't want to use these for trigger....
         ConversionBuilderTool = EMConversionBuilder,  # Don't want to use these for trigger....
         doAdd = False,
         )
@@ -100,6 +62,7 @@ TrigTopoEgammaPhotons = AlgFactory( egammaAlgsConf.topoEgammaBuilder,
         PhotonOutputName = TrigEgammaKeys.outputPhotonKey,  
         AmbiguityTool = EGammaAmbiguityTool,
         EMClusterTool = TrigEMClusterTool,
+        EMShowerTool=TrigEMShowerBuilder,
         egammaTools = FcnWrapper(TrigEgammaDecorationTools),
         PhotonTools = FcnWrapper(TrigPhotonDecorationTools),
         doAdd = False,

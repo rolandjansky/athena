@@ -1,25 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ********************************************************************
-//
-// NAME:     CscCalibMonToolBase.cxx
-// PACKAGE:  MuonCalibMonitoring  
-//
-// AUTHOR:  Caleb Parnell-Lampen <lampen@physics.arizona.edu>
-//
-// ********************************************************************
 
 #include <sstream>
 
-
 #include "CscCalibMonToolBase.h"
 
-using namespace std;
-
-    CscCalibMonToolBase::CscCalibMonToolBase(const std::string & type, const std::string & name, const IInterface* parent)
-: ManagedMonitorToolBase(type, name, parent), 
+CscCalibMonToolBase::CscCalibMonToolBase(const std::string & type, const std::string & name, const IInterface* parent) :
+    ManagedMonitorToolBase(type, name, parent), 
     m_maxHashId(0),
     m_maxChamId(0),
     m_numBad(0), 
@@ -43,10 +31,8 @@ using namespace std;
     m_laySummHistName("spectrum"), 
     m_laySummHistTitle(""), 
     m_histCol(kAzure +1),
-    //m_histCol(kOrange -9),
     m_histColAlert(kRed),
     m_monGroupVec(NULL),
-    m_cscCoolSvc(NULL),
     m_statDbColl(NULL)
 {
    
@@ -65,20 +51,16 @@ using namespace std;
     declareProperty("DoStatDb", m_doStatDb = true);
 }
 
-CscCalibMonToolBase::~CscCalibMonToolBase()
-{
-  ATH_MSG_INFO( " deleting CscCalibMonToolBase "  );
-}
 /*-----------------------------------------------------*/
 StatusCode CscCalibMonToolBase::initialize()
 {
   // init message stream -  Part 1: Get the messaging service, print where you are
   ATH_MSG_INFO( "CscCalibMonToolBase : in initialize()"  );
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_MSG_DEBUG( " Found the MuonIdHelperTool. "  );
 
-  ATH_CHECK( service("MuonCalib::CscCoolStrSvc",m_cscCoolSvc) );
+  ATH_CHECK( m_readKey.initialize() );
 
   //m_generic_path_csccalibmonitoring = "Muon/MuonCalibrationMonitoring/CSC";
   m_generic_path_csccalibmonitoring = "MUON_CSC";
@@ -90,35 +72,35 @@ StatusCode CscCalibMonToolBase::initialize()
 
   //Loop through ids to find out what hash range we're working on, and to 
   //initialize histograms.
-  IdContext chanContext = m_muonIdHelperTool->cscIdHelper().channel_context();
-  vector<Identifier> ids = m_muonIdHelperTool->cscIdHelper().idVector();
-  vector<Identifier>::const_iterator chamItr = ids.begin();
-  vector<Identifier>::const_iterator chamEnd = ids.end();
+  IdContext chanContext = m_idHelperSvc->cscIdHelper().channel_context();
+  std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
+  std::vector<Identifier>::const_iterator chamItr = ids.begin();
+  std::vector<Identifier>::const_iterator chamEnd = ids.end();
   m_maxHashId = 0;
   m_maxChamId = 0;
   for(; chamItr != chamEnd; chamItr++)
   {
     IdentifierHash chamberHash;
-    m_muonIdHelperTool->cscIdHelper().get_module_hash(*chamItr,chamberHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamberHash);
     if(chamberHash > m_maxChamId)
       m_maxChamId = chamberHash;
 
-    vector<Identifier> stripVect;
-    m_muonIdHelperTool->cscIdHelper().idChannels(*chamItr,stripVect);
-    vector<Identifier>::const_iterator stripItr = stripVect.begin();
-    vector<Identifier>::const_iterator stripEnd = stripVect.end();
+    std::vector<Identifier> stripVect;
+    m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
+    std::vector<Identifier>::const_iterator stripItr = stripVect.begin();
+    std::vector<Identifier>::const_iterator stripEnd = stripVect.end();
     for(;stripItr != stripEnd; stripItr++)
     {
       IdentifierHash stripHash;
-      m_muonIdHelperTool->cscIdHelper().get_channel_hash(*stripItr,stripHash);
-      bool measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(*stripItr);
+      m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
+      bool measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(*stripItr);
 
       //Find maximum hash   
       if((unsigned int)stripHash > m_maxHashId)
         m_maxHashId = (int)stripHash;
 
       if(m_expectedChamberLayer 
-          == (unsigned int)m_muonIdHelperTool->cscIdHelper().chamberLayer(*stripItr) 
+          == (unsigned int)m_idHelperSvc->cscIdHelper().chamberLayer(*stripItr) 
         )
       {
         ATH_MSG_VERBOSE( "hash " << (int)stripHash << " is expected" );
@@ -152,14 +134,13 @@ StatusCode CscCalibMonToolBase::finalize()
   delete [] m_detailedHashIds;
   delete m_statDbColl;
 
-  ManagedMonitorToolBase::finalize();    
-  return StatusCode::SUCCESS;
+  return ManagedMonitorToolBase::finalize();
 }//end finalize()
 
 
 StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollection, 
-    string dataTypeName, string dataTypeTitle, string categoryName, string categoryTitle, 
-    string axisLabel, int numBins, float lowBound, float highBound, string parDir,  
+    std::string dataTypeName, std::string dataTypeTitle, std::string categoryName, std::string categoryTitle, 
+    std::string axisLabel, int numBins, float lowBound, float highBound, std::string parDir,  
     uint16_t toSkip)
 {        
   //toSkip bitmask:
@@ -194,24 +175,24 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
   bool allGood = true;
 
 
-  string nameStart =  dataTypeName ;
+  std::string nameStart =  dataTypeName ;
   if(categoryName != "" )
     nameStart += "_" + categoryName;
 
-  string titleStart = categoryTitle + " " + dataTypeTitle;
-  string yaxis= "", xaxis = "";
+  std::string titleStart = categoryTitle + " " + dataTypeTitle;
+  std::string yaxis= "", xaxis = "";
 
   ATH_MSG_DEBUG( "In bookHistCollection for " << nameStart << " series."  );
 
   if(!((toSkip>>6) &0x1)){
     histCollection->cscSpec.resize(2,NULL);
     for(int measuresPhi =0; measuresPhi <=1; measuresPhi++) {
-      string name = "h_" + nameStart+ "_" + (measuresPhi ? "phi" : "eta") + "_spectrum" ;
-      string title = titleStart +" " + (measuresPhi ? "Phi Strips" : "Eta Strips") + " spectrum";
+      std::string name = "h_" + nameStart+ "_" + (measuresPhi ? "phi" : "eta") + "_spectrum" ;
+      std::string title = titleStart +" " + (measuresPhi ? "Phi Strips" : "Eta Strips") + " spectrum";
       TH1F * specHist = new TH1F(name.c_str(), title.c_str(), numBins, lowBound, highBound);
       specHist->GetYaxis()->SetTitle("Counts");
       specHist->GetXaxis()->SetTitle(axisLabel.c_str());
-      string specPath = getFullPath( getGeoPath(), "OverviewSpectra", parDir);
+      std::string specPath = getFullPath( getGeoPath(), "OverviewSpectra", parDir);
       MonGroup monGroup( this, specPath, run, ATTRIB_MANAGED);
       StatusCode sc = monGroup.regHist(specHist);
 
@@ -231,8 +212,8 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
 
   if(m_makeHashHists && !(toSkip & 0x1))
   {
-    string name = "h_" + nameStart + "_" + m_hashName;
-    string title = categoryTitle + " " + dataTypeTitle + " "  + m_hashTitle;
+    std::string name = "h_" + nameStart + "_" + m_hashName;
+    std::string title = categoryTitle + " " + dataTypeTitle + " "  + m_hashTitle;
     yaxis = axisLabel;
     xaxis = "Channel Hash ID";
     TH1F * hashHist = new TH1F(name.c_str(), title.c_str(), m_maxHashId+1,0,m_maxHashId+1);
@@ -240,7 +221,7 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     hashHist->GetYaxis()->SetTitle(yaxis.c_str());
     hashHist->SetFillColor(m_histCol);
 
-    string hashPath = getFullPath( getGeoPath(), "FullViewHash", parDir);
+    std::string hashPath = getFullPath( getGeoPath(), "FullViewHash", parDir);
     MonGroup monGroup( this, hashPath, run, ATTRIB_MANAGED);
     ATH_MSG_DEBUG( "Registering " << name  );
     if (!monGroup.regHist(hashHist).isSuccess())
@@ -256,8 +237,8 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
   if(m_makeAllChan1dHists && !((toSkip>>6) & 0x1))
   {
 
-    string name = "h_" + nameStart + "_" + m_allChan1dName;
-    string title = categoryTitle + " " + dataTypeTitle + " "  + m_allChan1dTitle;
+    std::string name = "h_" + nameStart + "_" + m_allChan1dName;
+    std::string title = categoryTitle + " " + dataTypeTitle + " "  + m_allChan1dTitle;
     yaxis = axisLabel;
     xaxis = "Chamber";
     int nxbins  = 26146;// 4 layers, 192 channels each, with 32 chambers + 2 "extra" chambers" 
@@ -269,7 +250,7 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     allChan1dHistX->GetXaxis()->SetTitle(xaxis.c_str());
     allChan1dHistX->GetYaxis()->SetTitle(yaxis.c_str());
 
-    string allChan1dPath = getFullPath( getGeoPath(), "FullView1d", parDir);
+    std::string allChan1dPath = getFullPath( getGeoPath(), "FullView1d", parDir);
     MonGroup monGroup( this, allChan1dPath, run, ATTRIB_MANAGED );
     ATH_MSG_DEBUG( "Registering " << name  );
     if (!monGroup.regHist(allChan1dHistX).isSuccess())
@@ -303,8 +284,8 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
   if(m_makeAllChan2dHists && !((toSkip>>6) & 0x1))
   {
 
-    string name = "h_" + nameStart + "_" + m_allChan2dName;
-    string title = categoryTitle + " " + dataTypeTitle + " " + m_allChan2dTitle;
+    std::string name = "h_" + nameStart + "_" + m_allChan2dName;
+    std::string title = categoryTitle + " " + dataTypeTitle + " " + m_allChan2dTitle;
     //yaxis = "sector  + 0.2 * (layer - 1) + 0.1";     
     yaxis = "Sector/Layer";
     xaxis = "Strip Number (Negative for Transverse Strips)";
@@ -337,7 +318,7 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     allChan2dHist->GetXaxis()->SetTitle(xaxis.c_str());
     allChan2dHist->GetYaxis()->SetTitle(yaxis.c_str());
 
-    string allChan2dPath = getFullPath( getGeoPath(), "FullView2d", parDir);
+    std::string allChan2dPath = getFullPath( getGeoPath(), "FullView2d", parDir);
     MonGroup monGroup( this, allChan2dPath, run, ATTRIB_MANAGED);
     ATH_MSG_DEBUG( "Registering " << name  );
     if (!monGroup.regHist(allChan2dHist).isSuccess())
@@ -352,8 +333,8 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
 
   if(m_makeChamProfs && !((toSkip >> 1) & 0x1) )
   {
-    string name = "h_" + nameStart + "_" + m_chamProfName;
-    string title = titleStart + " " + m_chamProfTitle;
+    std::string name = "h_" + nameStart + "_" + m_chamProfName;
+    std::string title = titleStart + " " + m_chamProfTitle;
     yaxis = "Average " + axisLabel;
     xaxis = "Sector * eta";
     int numSectors = 16;
@@ -363,7 +344,7 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     chamProf->GetYaxis()->SetTitle(yaxis.c_str());
 
     ATH_MSG_DEBUG( "Registering " << name  );
-    string path = getFullPath( getGeoPath(), "Profiles", parDir);
+    std::string path = getFullPath( getGeoPath(), "Profiles", parDir);
     MonGroup monGroup( this, path, run, ATTRIB_MANAGED);
     if (!monGroup.regHist(chamProf).isSuccess())
     {
@@ -375,8 +356,8 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
   }
   if(m_makeLayHists && !((toSkip >> 2) & 0x1) )
   {
-    string namePrefix = nameStart + "_" + m_layHistName;
-    string titlePrefix = titleStart + " " + m_layHistTitle;
+    std::string namePrefix = nameStart + "_" + m_layHistName;
+    std::string titlePrefix = titleStart + " " + m_layHistTitle;
     yaxis = axisLabel;
     xaxis = "Channel";
 
@@ -392,8 +373,8 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
 
   if(m_makeChamSummHists && !((toSkip >> 3) & 0x1) )
   {
-    string namePrefix = nameStart + "_" + m_chamSummHistName;
-    string titlePrefix = titleStart + " " + m_chamSummHistTitle;
+    std::string namePrefix = nameStart + "_" + m_chamSummHistName;
+    std::string titlePrefix = titleStart + " " + m_chamSummHistTitle;
     yaxis = "";
     xaxis = axisLabel;
 
@@ -410,8 +391,8 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
 
   if(m_makeChamHists && !((toSkip >> 7) & 0x1) )
   {
-    string namePrefix = nameStart + "_" + m_chamHistName;
-    string titlePrefix = titleStart + " " + m_chamHistTitle;
+    std::string namePrefix = nameStart + "_" + m_chamHistName;
+    std::string titlePrefix = titleStart + " " + m_chamHistTitle;
     yaxis = "";
     xaxis = axisLabel;
 
@@ -428,8 +409,8 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
 
   if(m_makeLaySummHists && !((toSkip >> 4) & 0x1) )
   {
-    string namePrefix = nameStart + "_" + m_laySummHistName;
-    string titlePrefix = titleStart + " " + m_laySummHistTitle;
+    std::string namePrefix = nameStart + "_" + m_laySummHistName;
+    std::string titlePrefix = titleStart + " " + m_laySummHistTitle;
     yaxis = "";
     xaxis = axisLabel;
 
@@ -449,8 +430,8 @@ StatusCode CscCalibMonToolBase::bookHistCollection(HistCollection * histCollecti
     return StatusCode::FAILURE;
 }//end bookHistCollection
 
-StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::string parDir,/* MonGroup &monGroup,*/ std::vector<TH1F*> & histVector, string namePrefix, string titlePrefix,
-    string xaxis, string yaxis, 
+StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::string parDir,/* MonGroup &monGroup,*/ std::vector<TH1F*> & histVector, std::string namePrefix, std::string titlePrefix,
+    std::string xaxis, std::string yaxis, 
     bool chanView, bool ignoreY,  unsigned int numBins,
     float lowBound, float highBound)
 {
@@ -460,28 +441,28 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
 
   //unsigned int numStrips;
   int stationSize, stationPhi, stationEta, sector;
-  string stationName;
-  string orientationName = "prec";
-  string orientationTitle = "Precision Direction";
+  std::string stationName;
+  std::string orientationName = "prec";
+  std::string orientationTitle = "Precision Direction";
 
   int numHists = 32 * ( (ignoreY) ? 4 : 8);
   histVector.resize(numHists,NULL); 
 
   ATH_MSG_DEBUG( "Allocated space for " << numHists << " histograms" );
 
-  vector<Identifier> ids = m_muonIdHelperTool->cscIdHelper().idVector();
-  vector<Identifier>::const_iterator chamItr = ids.begin();
-  vector<Identifier>::const_iterator chamEnd = ids.end();
+  std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
+  std::vector<Identifier>::const_iterator chamItr = ids.begin();
+  std::vector<Identifier>::const_iterator chamEnd = ids.end();
   for(; chamItr != chamEnd; chamItr++)
   {
     IdentifierHash chamHash;
-    m_muonIdHelperTool->cscIdHelper().get_module_hash(*chamItr,chamHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamHash);
     ATH_MSG_DEBUG( "Booking histograms for chamber with hash " << (int)chamHash  );
 
-    stationSize = m_muonIdHelperTool->cscIdHelper().stationName(*chamItr); 
-    stationName = m_muonIdHelperTool->cscIdHelper().stationNameString(stationSize);
-    stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(*chamItr);
-    stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(*chamItr); 
+    stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); 
+    stationName = m_idHelperSvc->cscIdHelper().stationNameString(stationSize);
+    stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
+    stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr); 
     sector = getSector(stationPhi,stationSize);
     for(unsigned int orientationItr = 0; orientationItr < 2; orientationItr++)
     {
@@ -516,15 +497,15 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
                          << " With highbound/lowbound/nbins "  
                          << highBound << "/" << lowBound << "/" << numBins  );
 
-        stringstream nameStream;
-        nameStream.setf(ios::right, ios::adjustfield);
+        std::stringstream nameStream;
+        nameStream.setf(std::ios::right, std::ios::adjustfield);
         nameStream << namePrefix; 
         nameStream << "_" << orientationName <<  "_eta_";
         nameStream << ((stationEta == 1) ? "1" : "0");
-        nameStream << "_sector_" << setw(2) << setfill('0') <<  sector;
+        nameStream << "_sector_" << std::setw(2) << std::setfill('0') <<  sector;
         nameStream << "_layer_"  << layItr; 
 
-        stringstream titleStream;
+        std::stringstream titleStream;
         titleStream << titlePrefix << ", " << orientationTitle; 
         titleStream << ", Sector " << sector;
         titleStream <<", Eta " << stationEta;
@@ -567,8 +548,8 @@ StatusCode CscCalibMonToolBase::bookLayHists(std::string histTypeDir, std::strin
 
 //NOTE: Chanview mode isn't implemented!
 StatusCode CscCalibMonToolBase::bookChamHists(std::string histTypeDir, std::string parTypeDir, std::vector<TH1F*>&  histVector, 
-    string namePrefix, string titlePrefix,
-    string xaxis, string yaxis, bool chanView, 
+    std::string namePrefix, std::string titlePrefix,
+    std::string xaxis, std::string yaxis, bool chanView, 
     bool ignoreY, unsigned int numBins, 
     float lowBound, float highBound)
 {
@@ -586,26 +567,25 @@ StatusCode CscCalibMonToolBase::bookChamHists(std::string histTypeDir, std::stri
   //Book a set of channel view histograms.
   //unsigned int numStrips;
   int stationSize, stationPhi, stationEta, sector;
-  string stationName;
-  string orientationName = "prec";
-  string orientationTitle = "Precision Direction";
+  std::string stationName;
+  std::string orientationName = "prec";
+  std::string orientationTitle = "Precision Direction";
 
-  //histVector = new std::vector<TH1F*>; 
   int numHists = (ignoreY) ? 32 : 64; //32 chambers, 2 orientations
   histVector.resize(numHists,NULL);
 
-  vector<Identifier> ids = m_muonIdHelperTool->cscIdHelper().idVector();
-  vector<Identifier>::const_iterator chamItr = ids.begin();
-  vector<Identifier>::const_iterator chamEnd = ids.end();
+  std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
+  std::vector<Identifier>::const_iterator chamItr = ids.begin();
+  std::vector<Identifier>::const_iterator chamEnd = ids.end();
   for(; chamItr != chamEnd; chamItr++)
   {
     IdentifierHash chamHash;
-    m_muonIdHelperTool->cscIdHelper().get_module_hash(*chamItr,chamHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamHash);
     ATH_MSG_DEBUG( "Booking histograms for chamber with hash " << (int)chamHash  );
 
-    stationSize = m_muonIdHelperTool->cscIdHelper().stationName(*chamItr); //50
-    stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(*chamItr);
-    stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(*chamItr); 
+    stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); //50
+    stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
+    stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr); 
     sector = getSector(stationPhi,stationSize);
 
     for(unsigned int orientationItr = 0; orientationItr < 2; orientationItr++)
@@ -633,14 +613,14 @@ StatusCode CscCalibMonToolBase::bookChamHists(std::string histTypeDir, std::stri
         }
       }
 
-      stringstream nameStream;
-      nameStream.setf(ios::right, ios::adjustfield);
+      std::stringstream nameStream;
+      nameStream.setf(std::ios::right, std::ios::adjustfield);
       nameStream << namePrefix << "_" << orientationName <<  "_eta_" 
         << ((stationEta == 1) ? "1" : "0") << "_sector_" 
-        << setw(2) << setfill('0')
+        << std::setw(2) << std::setfill('0')
         << sector ; 
 
-      stringstream titleStream;
+      std::stringstream titleStream;
 
       titleStream << titlePrefix << ", " << orientationTitle 
         << ", Eta " << stationEta
@@ -659,7 +639,7 @@ StatusCode CscCalibMonToolBase::bookChamHists(std::string histTypeDir, std::stri
 
       histVector[chamIndex] = hist;
 
-      string path = getFullPath(getGeoPath(stationEta,sector), histTypeDir, parTypeDir);
+      std::string path = getFullPath(getGeoPath(stationEta,sector), histTypeDir, parTypeDir);
 
       MonGroup monGroup( this, path ,run, ATTRIB_MANAGED);
       if (!monGroup.regHist(hist).isSuccess())
@@ -683,14 +663,17 @@ StatusCode CscCalibMonToolBase::bookHistograms()
     if(m_doStatDb){
       //This is a histogram collection both derived classes will probably like
 
+      SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+      const CscCondDbData* readCdo{*readHandle};
+
       m_statDbColl = new HistCollection(m_maxHashId +1);
-      string statDbName = "stat_cool";
-      string statDbTitle = "Status Word Value From COOL";
-      string statDbAxisLabel = "Stat Word Value";
+      std::string statDbName = "stat_cool";
+      std::string statDbTitle = "Status Word Value From COOL";
+      std::string statDbAxisLabel = "Stat Word Value";
       unsigned int statDbNumBins = 8;
       float statDbMin = -0.5;
       float statDbMax = 7.5;
-      string statDbSubDir = "StatCool";
+      std::string statDbSubDir = "StatCool";
 
       StatusCode sc = bookHistCollection(m_statDbColl, statDbName, statDbTitle, "", "",
           statDbAxisLabel, statDbNumBins, statDbMin, statDbMax, statDbSubDir);
@@ -701,8 +684,8 @@ StatusCode CscCalibMonToolBase::bookHistograms()
       //Loop through channels retrieving status words
       for(unsigned int chanItr = 0; chanItr <= m_maxHashId; chanItr++){
         if(m_expectedHashIdsAll.count(chanItr)) {
-          uint8_t statWord;
-          if(!(m_cscCoolSvc->getStatus(statWord, chanItr)).isSuccess()){
+          int statWord;
+          if(!readCdo->readChannelStatus(chanItr, statWord).isSuccess()){
             ATH_MSG_WARNING( "Failed to retrieve statword for hashId " 
                              << chanItr  );
           }
@@ -745,10 +728,10 @@ StatusCode CscCalibMonToolBase::procHistograms()
 
     CscCalibResultContainer::const_iterator parItr = calibContainer->begin();
     CscCalibResultContainer::const_iterator parEnd = calibContainer->end();
-    for(;parItr != parEnd ; parItr++)
-      handleParameter(*parItr);
-
-    postProc();
+    for(;parItr != parEnd ; parItr++) {
+      ATH_CHECK( handleParameter(*parItr) );
+    }
+    ATH_CHECK( postProc() );
   }
   return StatusCode::SUCCESS;
 }//end procHistograms  
@@ -800,7 +783,10 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
 
   //Start with expected channels, remove whenever one is found, leftover are
   //missing channels
-  set<int> missingChannels = procParameterInput->expectedChannels;
+  std::set<int> missingChannels = procParameterInput->expectedChannels;
+
+  SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+  const CscCondDbData* readCdo{*readHandle};
 
   //--Cycle through values and fill histograms
   int numFailures = 0, maxFailures = 10;
@@ -822,7 +808,7 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
     if(procParameterInput->dbName != "")
     {
       //Get expected value from database
-      if(!(m_cscCoolSvc->getParameter(oldVal, procParameterInput->dbName, hashId)).isSuccess())
+      if(!(readCdo->readChannelParam(hashId, oldVal, procParameterInput->dbName)).isSuccess())
       {
         numFailures++;
         ATH_MSG_WARNING( "CscCalibMonToolBase :  Failed to retrieve parameter"
@@ -891,8 +877,8 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
 
   if(missingChannels.size() !=0)
   {
-    set<int>::const_iterator chanItr = missingChannels.begin();
-    set<int>::const_iterator chanEnd = missingChannels.end();
+    std::set<int>::const_iterator chanItr = missingChannels.begin();
+    std::set<int>::const_iterator chanEnd = missingChannels.end();
     for(;chanItr != chanEnd; chanItr++)
     {
       if(procParameterInput->missingChans != NULL)
@@ -940,50 +926,46 @@ StatusCode CscCalibMonToolBase::copyDataToHists(HistCollection * histCollection)
                  << " chamber spectrum " << (int)doChamSummary
                  );
 
-  //cout << "TEST! hash " << (int)(histCollection->hashHist != NULL) << endl;
-  //cout << "TEST! layHist " << (int)(histCollection->layHistVect != NULL) << endl;
-  //cout << "TEST! laySumm " << ((histCollection->laySummVect != NULL) ? 1 : 0 )<< endl;
-
   //For shorter lines:
   std::vector<float> & data = histCollection->data; 
   std::vector<float> & errors = histCollection->errors;
 
   //Loop through all channels, and copy relevant data from channel to histogram.
-  vector<Identifier> ids = m_muonIdHelperTool->cscIdHelper().idVector();
-  vector<Identifier>::const_iterator chamItr = ids.begin();
-  vector<Identifier>::const_iterator chamEnd = ids.end();
+  std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
+  std::vector<Identifier>::const_iterator chamItr = ids.begin();
+  std::vector<Identifier>::const_iterator chamEnd = ids.end();
   for(; chamItr != chamEnd; chamItr++)
   {
     IdentifierHash chamHash;
-    m_muonIdHelperTool->cscIdHelper().get_module_hash(*chamItr,chamHash);
+    m_idHelperSvc->cscIdHelper().get_module_hash(*chamItr,chamHash);
     ATH_MSG_DEBUG( "Copying data to histograms for chamber with hash" << (int)chamHash );
 
-    unsigned int stationSize = m_muonIdHelperTool->cscIdHelper().stationName(*chamItr); //51 = large, 50 = small
+    unsigned int stationSize = m_idHelperSvc->cscIdHelper().stationName(*chamItr); //51 = large, 50 = small
 
-    unsigned int stationPhi = m_muonIdHelperTool->cscIdHelper().stationPhi(*chamItr);
-    int stationEta = m_muonIdHelperTool->cscIdHelper().stationEta(*chamItr); 
+    unsigned int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(*chamItr);
+    int stationEta = m_idHelperSvc->cscIdHelper().stationEta(*chamItr); 
     unsigned int sector = getSector(stationPhi,stationSize);
     int sectorIndex = sector * stationEta; //Histogram will go from -16 to +16. Bin 0 ignored.
 
 
 
-    vector<Identifier> stripVect;
-    m_muonIdHelperTool->cscIdHelper().idChannels(*chamItr,stripVect);
-    vector<Identifier>::const_iterator stripItr = stripVect.begin();
-    vector<Identifier>::const_iterator stripEnd = stripVect.end();
+    std::vector<Identifier> stripVect;
+    m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
+    std::vector<Identifier>::const_iterator stripItr = stripVect.begin();
+    std::vector<Identifier>::const_iterator stripEnd = stripVect.end();
     for(;stripItr != stripEnd; stripItr++)
     { 
-      unsigned int chamberLayer = m_muonIdHelperTool->cscIdHelper().chamberLayer(*stripItr);
+      unsigned int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(*stripItr);
       if(chamberLayer != 2)
         continue;
-      int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(*stripItr);
+      int measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(*stripItr);
       if(histCollection->ignoreY && measuresPhi)
         continue;
 
       IdentifierHash stripHash;
-      m_muonIdHelperTool->cscIdHelper().get_channel_hash(*stripItr,stripHash);
-      unsigned int layer = m_muonIdHelperTool->cscIdHelper().wireLayer(*stripItr);    
-      unsigned int strip = m_muonIdHelperTool->cscIdHelper().strip(*stripItr);
+      m_idHelperSvc->cscIdHelper().get_channel_hash(*stripItr,stripHash);
+      unsigned int layer = m_idHelperSvc->cscIdHelper().wireLayer(*stripItr);    
+      unsigned int strip = m_idHelperSvc->cscIdHelper().strip(*stripItr);
       float secLayer = (((float)stationEta*sector) + 0.2 * ((float)layer - 1) + 0.1);     
       float datum = data.at(stripHash);
 
@@ -1130,12 +1112,12 @@ std::string CscCalibMonToolBase::getEndCap(int eta)
 //This provides a centralized location to change the layout of the root output file.
 std::string CscCalibMonToolBase::getGeoPath( int eta, int sector,  int wireLayer, int measuresPhi, int channel )
 {
-  stringstream ss;
+  std::stringstream ss;
 
-  static string histStr = "/_hists";
-  static string errorDir = "/ERROR";
+  static std::string histStr = "/_hists";
+  static std::string errorDir = "/ERROR";
 
-  ss << setfill('0');//so we can have uniform numbers
+  ss << std::setfill('0');//so we can have uniform numbers
 
 
   if( eta == -9999 ) //CSC Wide
@@ -1144,7 +1126,7 @@ std::string CscCalibMonToolBase::getGeoPath( int eta, int sector,  int wireLayer
     return ss.str(); 
   }
 
-  string endCap = getEndCap(eta);
+  std::string endCap = getEndCap(eta);
   if(endCap == "ERROR")
   {
     ATH_MSG_ERROR( "Eta " << eta << " is invalid. "  );
@@ -1165,7 +1147,7 @@ std::string CscCalibMonToolBase::getGeoPath( int eta, int sector,  int wireLayer
     return errorDir;
   }
 
-  ss << "/Sector" << setw(2) << sector;
+  ss << "/Sector" << std::setw(2) << sector;
 
   if(wireLayer == -9999)//Sector (chamber) wide histrogram
   {
@@ -1208,7 +1190,7 @@ std::string CscCalibMonToolBase::getGeoPath( int eta, int sector,  int wireLayer
   }
 
 
-  ss << "/Channel" << setw( measuresPhi ? 2 : 3 ) << channel;
+  ss << "/Channel" << std::setw( measuresPhi ? 2 : 3 ) << channel;
 
   return ss.str();
 }//end getGeoPath 
@@ -1217,7 +1199,7 @@ std::string CscCalibMonToolBase::getGeoPath( int eta, int sector,  int wireLayer
 //Produces a full path for a histogram to be placed.
 std::string CscCalibMonToolBase::getFullPath(std::string geoPath, std::string histTypeDir, std::string parTypeDir)
 {
-  stringstream ss; 
+  std::stringstream ss; 
 
   ss << m_generic_path_csccalibmonitoring << geoPath;
 

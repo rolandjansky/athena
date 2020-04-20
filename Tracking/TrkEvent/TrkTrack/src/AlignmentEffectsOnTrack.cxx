@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
@@ -41,7 +41,7 @@ Trk::AlignmentEffectsOnTrack& Trk::AlignmentEffectsOnTrack::operator=(const Trk:
     m_sigmaDeltaTranslation = rhs.m_sigmaDeltaTranslation; 
     m_deltaAngle = rhs.m_deltaAngle; 
     m_sigmaDeltaAngle = rhs.m_sigmaDeltaAngle;
-    if ( m_surface->isFree() ) delete m_surface;
+    if ( m_surface->isFree() ) { delete m_surface;}
     m_surface = ( rhs.m_surface->isFree() ? rhs.m_surface->clone() : rhs.m_surface );
     m_affectedTSOS = rhs.m_affectedTSOS ;
   }
@@ -50,7 +50,7 @@ Trk::AlignmentEffectsOnTrack& Trk::AlignmentEffectsOnTrack::operator=(const Trk:
 
 Trk::AlignmentEffectsOnTrack::~AlignmentEffectsOnTrack(){
   if ( m_surface && m_surface->isFree() ) { 
-    delete m_surface; m_surface = 0;
+    delete m_surface; m_surface = nullptr;
   }
 }
 

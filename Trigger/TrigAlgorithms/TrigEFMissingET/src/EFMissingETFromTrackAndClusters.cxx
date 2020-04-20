@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -21,8 +21,6 @@ CREATED:  Aug 05, 2018
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "CxxUtils/sincosf.h"
 
-#include "EventKernel/ISignalState.h"
-#include "EventKernel/SignalStateHelper.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 
 #include <cmath>
@@ -328,7 +326,6 @@ StatusCode EFMissingETFromTrackAndClusters::execute(xAOD::TrigMissingET * /* met
 
 
 
-    //CaloClusterChangeSignalStateList stateHelperList;
     std::vector<fastjet::PseudoJet> clusters;
     clusters.reserve(caloCluster->size());
     for(auto clust: *caloCluster) {

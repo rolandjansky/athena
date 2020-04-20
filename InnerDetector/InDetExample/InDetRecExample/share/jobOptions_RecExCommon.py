@@ -140,14 +140,14 @@ recAlgs.doTrackParticleCellAssociation.set_Value_and_Lock(False)
 #--------------------------------------------------------------
 
 from AthenaCommon.GlobalFlags import globalflags
-print "globalflags configuration:"
-print globalflags
+printfunc ("globalflags configuration:")
+printfunc (globalflags)
 
-print "detflags configuration:"
+printfunc ("detflags configuration:")
 DetFlags.Print()
 
-print "rec configuration:"
-print rec
+printfunc ("rec configuration:")
+printfunc (rec)
 
 #--------------------------------------------------------------
 # Load InDet configuration

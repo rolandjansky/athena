@@ -5,5 +5,5 @@ CellsCleanerTool = ConfiguredCellsCleanerTool(
     )
 
 ToolSvc += CellsCleanerTool
-print      CellsCleanerTool
+printfunc (     CellsCleanerTool)
 

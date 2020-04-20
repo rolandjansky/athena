@@ -12,7 +12,9 @@ elif ( globalflags.DataSource == 'data' ) :
 if hasattr(ServiceMgr,'PixelByteStreamErrorsSvc'):
     PixelByteStreamErrorsSvc = ServiceMgr.PixelByteStreamErrorsSvc
     theApp.CreateSvc += [ ServiceMgr.PixelByteStreamErrorsSvc.getFullName() ]
-    print PixelByteStreamErrorsSvc
+    import logging
+    logger = logging.getLogger( 'PixelCalibAlgs' )
+    logger.info(PixelByteStreamErrorsSvc)
     # Due to a "feature" in the BS encoder for simulation, the information of the BS error service
     # is not reliable on MC data.
     if ( globalflags.DataSource == 'geant4' ) :

@@ -7,14 +7,14 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/WriteCondHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TRT_ConditionsData/AliveStraws.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
-namespace InDetDD {
-  class TRT_DetectorManager;
-}
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
+
 class TRT_ID;
 
 class TRTStrawCondAlg : public AthAlgorithm
@@ -34,8 +34,9 @@ class TRTStrawCondAlg : public AthAlgorithm
  private:
   ServiceHandle<ICondSvc> m_condSvc;
   SG::ReadCondHandleKey<StrawStatusContainer> m_strawReadKey{this,"StrawReadKey","/TRT/Cond/Status","Straw Status in-key"};
+  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
   SG::WriteCondHandleKey<TRTCond::AliveStraws> m_strawWriteKey{this,"StrawWriteKey","AliveStraws","AliveStraws out-key"};
-  const InDetDD::TRT_DetectorManager* m_detManager;
+
   ToolHandle<ITRT_StrawStatusSummaryTool> m_strawStatus;
   const TRT_ID *m_trtId;
   bool m_isGEANT4;

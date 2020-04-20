@@ -10,6 +10,7 @@
 # @endcode
 #
 
+from __future__ import print_function
 
 __version__ = "$Revision: 285809 $"
 __author__  = "Mous Tatarkhanov <tmmous@cern.ch>"
@@ -39,9 +40,9 @@ if __name__ == "__main__":
         
     log_file = options.log_file
 
-    print "log_file = %s" % log_file
+    print ("log_file = %s" % log_file)
     if not os.path.exists(log_file):
-        print "log_file doesn't exist. Please give valid parent process log file"
+        print ("log_file doesn't exist. Please give valid parent process log file")
         str(parser.print_help() or "")
         sys.exit(1)
     

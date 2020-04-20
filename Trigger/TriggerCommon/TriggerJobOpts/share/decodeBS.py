@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 import six
@@ -9,7 +9,14 @@ ItemList = []
 if 'OutputItemList' in globals().keys():
     ItemList = globals()['OutputItemList']
 
+# Parse option to specify HLT result module ID for decoding
+HLTModuleID = 0
+if 'ModuleID' in globals().keys():
+    HLTModuleID = globals()['ModuleID']
+
 # Set message limit to unlimited when general DEBUG is requested
+from AthenaCommon.AppMgr import theApp
+from AthenaCommon.Constants import DEBUG
 msgSvc = theApp.service("MessageSvc")
 if msgSvc.OutputLevel<=DEBUG :
     msgSvc.defaultLimit = 0
@@ -37,20 +44,21 @@ from AthenaCommon.CFElements import seqAND
 decoder = HLTResultMTByteStreamDecoderAlg()
 
 deserialiser = TriggerEDMDeserialiserAlg("TrigDeserialiser")
-
-costDataDeserialiser = TriggerEDMDeserialiserAlg("CostDataTrigDeserialiser")
-from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
-costDataDeserialiser.ModuleID=EventBuildingInfo.DataScoutingIdentifiers["CostMonDS"]
+deserialiser.ModuleID = HLTModuleID
 
 decodingSeq = seqAND("Decoding")
 decodingSeq += decoder
 decodingSeq += deserialiser
-decodingSeq += costDataDeserialiser
 topSequence += decodingSeq
+
+# Configure output file name
+outputFileName = 'ESD.pool.root' if HLTModuleID==0 else 'ESD.Module{:d}.pool.root'.format(HLTModuleID)
+athenaCommonFlags.PoolESDOutput = outputFileName
+ConfigFlags.Output.ESDFileName = outputFileName
 
 # Create OutputStream for ESD writing
 from OutputStreamAthenaPool.CreateOutputStreams import createOutputStream
-StreamESD = createOutputStream("StreamESD","ESD.pool.root",True)
+StreamESD = createOutputStream("StreamESD", ConfigFlags.Output.ESDFileName, True)
 topSequence.remove( StreamESD )
 outSequence.remove( StreamESD )
 

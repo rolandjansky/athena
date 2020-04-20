@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LumiBlockComps/CreateLumiBlockCollectionFromFile.h"
+#include "CreateLumiBlockCollectionFromFile.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
@@ -10,42 +10,34 @@
 
 #include "xAODLuminosity/LumiBlockRangeContainer.h"
 #include "xAODLuminosity/LumiBlockRangeAuxContainer.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoolKernel/IObject.h"
-#include "CoralBase/Blob.h"
 
-
-CreateLumiBlockCollectionFromFile::CreateLumiBlockCollectionFromFile(const std::string& name, ISvcLocator* pSvcLocator) :
+CreateLumiBlockCollectionFromFile::CreateLumiBlockCollectionFromFile(const std::string& name, ISvcLocator* pSvcLocator)
 // ********************************************************************************************************************
-  AthAlgorithm(name, pSvcLocator), m_lastRun(9999999), m_lastLumiBlock(9999999),
-  m_lastIOVTime(0), m_numExpected(0),m_metaStore("StoreGateSvc/MetaDataStore", name)
+  : AthAlgorithm(name, pSvcLocator)
+  , m_lastRun(9999999)
+  , m_lastLumiBlock(9999999)
+  , m_lastIOVTime(0)
+  , m_metaStore("StoreGateSvc/MetaDataStore", name)
 {
-  declareProperty("streamName",m_streamName="");
-  declareProperty("channelNumber",m_channel=0);
-  declareProperty("LBCollName",m_LBColl_name = "LumiBlocks");
-  declareProperty("unfinishedLBCollName",m_unfinishedLBColl_name = "IncompleteLumiBlocks");
-  declareProperty("suspectLBCollName",m_suspectLBColl_name = "SuspectLumiBlocks");
-  declareProperty("DBfolderName",m_folderName="/GLOBAL/FILECOUNT/PROMPT");
-  declareProperty("checkEventsExpected",m_checkEventsExpected=true);
 }
 
-StatusCode CreateLumiBlockCollectionFromFile::initialize(){
+StatusCode CreateLumiBlockCollectionFromFile::initialize()
 //*******************************************************
-
+{
   ATH_MSG_INFO( "initialize() and create listeners" );
 
   ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_rchk.initialize());
 
-  // Locate the StoreGateSvc and initialize our local ptr
-  // ****************************************************
   ATH_CHECK( m_metaStore.retrieve() );
 
-  // Set to be listener for end of event
+  // Set to be listener for MetaDataStop
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
   ATH_CHECK( incSvc.retrieve() );
   incSvc->addListener(this, "MetaDataStop", 50); // pri has to be > 20 to be 
-                                                  // before MetaDataSvc and AthenaOutputStream.
+                                                 // before MetaDataSvc and AthenaOutputStream.
 
   ServiceHandle<IIoComponentMgr> ioMgr("IoComponentMgr", this->name());
   ATH_CHECK( ioMgr.retrieve() );
@@ -53,29 +45,20 @@ StatusCode CreateLumiBlockCollectionFromFile::initialize(){
     ATH_MSG_FATAL("Could not register myself with the IoComponentMgr");
     return(StatusCode::FAILURE);
   }
-
+  
   m_LumiBlockInfo.clear();
 
-  const DataHandle<CondAttrListCollection> aptr;
-  if(m_folderName.empty()) {
-     ATH_MSG_INFO( "No folderName specified" );
+  if(m_streamName.empty()) {
+    ATH_MSG_INFO( "No streamName specified" );
   }
-  else if(m_streamName.empty()) {
-     ATH_MSG_INFO( "No streamName specified" );
-  }
-  else if (detStore()->contains<CondAttrListCollection>(m_folderName)) {
-    CHECK(detStore()->regFcn(&CreateLumiBlockCollectionFromFile::updateCache, this , aptr, m_folderName));
-  }
-  else {
-    ATH_MSG_FATAL( "detStore() does not contain folder " << m_folderName );
-  }
+
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode CreateLumiBlockCollectionFromFile::execute() {
+StatusCode CreateLumiBlockCollectionFromFile::execute()
 //*******************************************************
-
+{
   ATH_MSG_VERBOSE( "execute()" );
 
   // Check for event header
@@ -94,8 +77,9 @@ StatusCode CreateLumiBlockCollectionFromFile::execute() {
     RLBMap::iterator mitr;
     mitr=m_LumiBlockInfo.find(iovtime);
     if (mitr==m_LumiBlockInfo.end()) {
-      ATH_MSG_INFO( "Fill LumiBlockInfo with numExpected="<<m_numExpected );
-      inOut lbInOut(m_numExpected,1);
+      uint32_t nEvents = getNEventsFromDb();
+      ATH_MSG_INFO( "Fill LumiBlockInfo with NEvents="<<nEvents);
+      inOut lbInOut(nEvents,1);
       m_LumiBlockInfo[iovtime] = lbInOut;
     }
     else {
@@ -110,13 +94,13 @@ StatusCode CreateLumiBlockCollectionFromFile::execute() {
     m_LumiBlockInfo[m_lastIOVTime].second++;
   }
   
-  return (StatusCode::SUCCESS);
+  return StatusCode::SUCCESS;
 }
 
 //*****************************************************
-StatusCode CreateLumiBlockCollectionFromFile::finalize() {
+StatusCode CreateLumiBlockCollectionFromFile::finalize()
 // *****************************************************
-
+{
   ATH_MSG_VERBOSE( "finalize()" );
   return StatusCode::SUCCESS;
 }
@@ -167,14 +151,13 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
     ATH_MSG_INFO( "Number of Complete LumiBlocks:" << piovComplete->size() );
     xAOD::LumiBlockRangeContainer::const_iterator it;
     for(it=piovComplete->begin(); it!=piovComplete->end(); it++) {
-      msg(MSG::INFO) << "\t [ ("
-	  << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-	  << "):("
-	  << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-	  << ") eventsSeen = " << (*it)->eventsSeen()
-	  << ", eventsExpected = " << (*it)->eventsExpected()
-	  << " ]"
-	  << endmsg;
+      ATH_MSG_INFO("\t [ ("
+		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << "):("
+		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << ") eventsSeen = " << (*it)->eventsSeen()
+		   << ", eventsExpected = " << (*it)->eventsExpected()
+		   << " ]");
     }
   }
 
@@ -182,14 +165,13 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
     ATH_MSG_INFO( "Number of Unfinished LumiBlocks:" << piovUnfinished->size() );
     xAOD::LumiBlockRangeContainer::const_iterator it;
     for(it=piovUnfinished->begin(); it!=piovUnfinished->end(); it++) {
-      msg(MSG::INFO) << "\t [ ("
-	  << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-	  << "):("
-	  << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-	  << ") eventsSeen = " << (*it)->eventsSeen()
-	  << ", eventsExpected = " << (*it)->eventsExpected()
-	  << " ]"
-	  << endmsg;
+      ATH_MSG_INFO("\t [ ("
+		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << "):("
+		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << ") eventsSeen = " << (*it)->eventsSeen()
+		   << ", eventsExpected = " << (*it)->eventsExpected()
+		   << " ]");
     }
   }
 
@@ -197,17 +179,15 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
     ATH_MSG_INFO( "Number of Suspect LumiBlocks:"  << piovSuspect->size() );
     xAOD::LumiBlockRangeContainer::const_iterator it;
     for(it=piovSuspect->begin(); it!=piovSuspect->end(); it++) {
-      msg(MSG::INFO) << "\t [ ("
-	  << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-	  << "):("
-	  << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
-	  << ") eventsSeen = " << (*it)->eventsSeen()
-	  << ", eventsExpected = " << (*it)->eventsExpected()
-	  << " ]"
-	  << endmsg;
+      ATH_MSG_INFO("\t [ ("
+		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << "):("
+		   << (*it)->startRunNumber()  << "," << (*it)->startLumiBlockNumber()
+		   << ") eventsSeen = " << (*it)->eventsSeen()
+		   << ", eventsExpected = " << (*it)->eventsExpected()
+		   << " ]");
     }
   }
-  
 
   // Store the LumiBlockCollection in the metadata store
   // =======================================================
@@ -231,46 +211,31 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
   m_LumiBlockInfo.clear();
   return StatusCode::SUCCESS;
 }
-// *******************************************************************
-void CreateLumiBlockCollectionFromFile::handle(const Incident& inc) {
-// ********************************************************************
 
+// *******************************************************************
+void CreateLumiBlockCollectionFromFile::handle(const Incident& inc)
+// ********************************************************************
+{
   if(inc.type() == "MetaDataStop") {
-    finishUp();
+    ATH_MSG_INFO(  " finishUp: write lumiblocks to meta data store " );
+    if(m_LumiBlockInfo.size()>0) {
+      if(fillLumiBlockCollection().isFailure()) {
+	ATH_MSG_ERROR( "Could not fill lumiblock collections" );
+      }
+    }
   }
   else {
     ATH_MSG_INFO( "Unknown Incident: " << inc.type() );
   }
- 
 }
 
-// *******************************************************************
-void CreateLumiBlockCollectionFromFile:: finishUp() {
-// ********************************************************************
+uint32_t CreateLumiBlockCollectionFromFile::getNEventsFromDb()
+{
+  uint32_t nEvents{0};
 
-    ATH_MSG_INFO(  " finishUp: write lumiblocks to meta data store " );
-    if(m_LumiBlockInfo.size()>0) {
-      StatusCode sc=fillLumiBlockCollection();
-        if (sc.isFailure()) {
-          ATH_MSG_ERROR( "Could not fill lumiblock collections in finishUp()" );
-        }
-    }
-}
+  if (m_streamName.empty()) return nEvents;
 
-
-StatusCode CreateLumiBlockCollectionFromFile::updateCache(IOVSVC_CALLBACK_ARGS) {
-
-  // Check if we have anything to do
-  // Shouldn't actually get a callback if this folder doesn't exist...
-
-  ATH_MSG_INFO( "In updateCache callback" );
-  m_numExpected = 0;
-
-  if (m_folderName.empty()) return StatusCode::SUCCESS;
-  if(m_streamName=="") return StatusCode::SUCCESS;
-  ATH_MSG_INFO( "folder is not empty" );
-  const CondAttrListCollection* attrListColl = 0;
-  CHECK(detStore()->retrieve(attrListColl, m_folderName));
+  SG::ReadCondHandle<CondAttrListCollection> attrListColl(m_rchk);
 
   CondAttrListCollection::const_iterator it = attrListColl->begin();
   CondAttrListCollection::const_iterator last  = attrListColl->end();
@@ -282,7 +247,6 @@ StatusCode CreateLumiBlockCollectionFromFile::updateCache(IOVSVC_CALLBACK_ARGS) 
       std::string theName = nitr->second;        
       ATH_MSG_INFO( "channel " << chan << " name " << theName);
       if(theName==m_streamName) {
-        m_channel = chan;
         match=it;
         break;
       }         
@@ -290,28 +254,24 @@ StatusCode CreateLumiBlockCollectionFromFile::updateCache(IOVSVC_CALLBACK_ARGS) 
   }
   // Make sure we found it
   if (match == last) {
-    ATH_MSG_WARNING( "Stream " << m_streamName << " not found in " << m_folderName << "!" );
-    m_numExpected = 0;
-    return StatusCode::SUCCESS;
+    ATH_MSG_WARNING( "Stream " << m_streamName << " not found in /GLOBAL/FILECOUNT/PROMPT !" );
+    return nEvents;
   }
 
   // OK, get number of events
-  std::ostringstream attrStr1;
-  (*match).second.toOutputStream( attrStr1 );
-
   const coral::AttributeList& attrList = (*match).second;
 
   // Check data availability
   if (attrList["NEventRec"].isNull()) {
     ATH_MSG_WARNING( " NEventRec not in database. Set it to 0 " );
-    return StatusCode::SUCCESS;
+    return nEvents;
   }
 
   cool::Int32 nev = attrList["NEventRec"].data<cool::Int32>();
-  m_numExpected = (uint32_t) nev;
+  nEvents = (uint32_t) nev;
   ATH_MSG_INFO( "database returns NEventRec=" << nev );
 
- return StatusCode::SUCCESS;
+  return nEvents;
 }
 
 

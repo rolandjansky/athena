@@ -9,11 +9,11 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrigTimeAlgs/TrigTimeStamp.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/IHLTOutputTool.h"
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 /**
  * @class TriggerSummaryAlg
  * @brief In addition, a merged decisions collection is prepared. But not currently written.

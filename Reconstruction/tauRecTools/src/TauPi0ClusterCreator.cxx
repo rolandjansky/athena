@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -12,7 +12,6 @@
 //-----------------------------------------------------------------------------
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
-//#include "CaloGeoHelpers/CaloSampling.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODJet/Jet.h"
 
@@ -27,7 +26,6 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauPi0ClusterCreator::TauPi0ClusterCreator( const string& name) :
-
     TauRecToolBase(name)
     , m_clusterEtCut(500.)
 {
@@ -53,12 +51,6 @@ StatusCode TauPi0ClusterCreator::finalize()
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0ClusterCreator::eventInitialize() 
-{
-
-    return StatusCode::SUCCESS;
-}
-
 StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer,
 							  xAOD::PFOContainer& hadronicClusterPFOContainer,
 							  xAOD::CaloClusterContainer& pi0CaloClusterContainer,
@@ -74,23 +66,14 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
     // Any tau needs to have PanTauCellBasedProto 4mom. Set it to 0 before nTrack cut
     pTau.setP4(xAOD::TauJetParameters::PanTauCellBasedProto, 0.0, 0.0, 0.0, 0.0);
 
-    //---------------------------------------------------------------------
     // only run shower subtraction on 1-5 prong taus 
-    //---------------------------------------------------------------------
     if (pTau.nTracks() == 0 || pTau.nTracks() >5 ) {
         return StatusCode::SUCCESS;
     }
     ATH_MSG_DEBUG("ClusterCreator: new tau. \tpt = " << pTau.pt() << "\teta = " << pTau.eta() << "\tphi = " << pTau.phi() << "\tnprongs = " << pTau.nTracks());
 
-    //---------------------------------------------------------------------
-    // TODO: May want to use tau vertex in the future to calculate some cluster moments (DELTA_THETA, etc.).
-    // Doesn't help now, since all moments are calculated wrt 0.0.0 atm.
-    //---------------------------------------------------------------------
-
     // Retrieve Ecal1 shots and match them to clusters
-    //---------------------------------------------------------------------
     // pPi0ClusterContainer from CaloClusterMaker
-
     std::vector<const xAOD::PFO*> shotVector;
     unsigned nShots = pTau.nShotPFOs();
     for(unsigned iShot=0;iShot<nShots;++iShot){
@@ -234,23 +217,6 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
     return StatusCode::SUCCESS;
 }
 
-
-StatusCode TauPi0ClusterCreator::eventFinalize() 
-{
-    // pt sort container at the end of the event
-    // if(m_pOutputPi0CaloClusterContainer->size()) AnalysisUtils::Sort::pT(m_pOutputPi0CaloClusterContainer);
-
-    //----------------------------------------------------------------------
-    // Register cluster container in StoreGate
-    //----------------------------------------------------------------------
-  //CHECK( CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),
-  //m_pOutputPi0CaloClusterContainer,
-  //                                                m_outputPi0ClusterContainerName,
-  //                                                msg()));
-  
-    return StatusCode::SUCCESS;
-}
-
 // Functions used to calculate BDT variables other than those provided by the CaloClusterMomentsMaker
 float TauPi0ClusterCreator::getEM1CoreFrac(
     const xAOD::CaloCluster* pi0Candidate)
@@ -270,7 +236,7 @@ float TauPi0ClusterCreator::getEM1CoreFrac(
         sumEPosCellsEM1 += cellE;
         float cellEtaWRTCluster = cellInCluster->eta()-pi0Candidate->eta();
         float cellPhiWRTCluster = P4Helpers::deltaPhi(cellInCluster->phi(), pi0Candidate->phi());
-        if(fabs(cellPhiWRTCluster) > 0.05 || fabs(cellEtaWRTCluster) > 2 * 0.025/8.) continue;
+        if(std::abs(cellPhiWRTCluster) > 0.05 || std::abs(cellEtaWRTCluster) > 2 * 0.025/8.) continue;
         coreEnergy+=cellE;
     }
     if(sumEPosCellsEM1<=0.) return 0.;
@@ -413,7 +379,7 @@ vector<float> TauPi0ClusterCreator::get1stEtaMomWRTCluster(
 
     for(int iLayer=0;iLayer<4;++iLayer){
         if(sumEInLayer[iLayer]!=0) 
-            firstEtaWRTClusterPositionInLayer[iLayer]/=fabs(sumEInLayer[iLayer]);
+            firstEtaWRTClusterPositionInLayer[iLayer]/=std::abs(sumEInLayer[iLayer]);
         else firstEtaWRTClusterPositionInLayer[iLayer]=0.;
     }
     return firstEtaWRTClusterPositionInLayer;
@@ -445,7 +411,7 @@ vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster(
 
       for(int iLayer=0;iLayer<4;++iLayer){
             if(sumEInLayer[iLayer]!=0) 
-                secondEtaWRTClusterPositionInLayer[iLayer]/=fabs(sumEInLayer[iLayer]);
+                secondEtaWRTClusterPositionInLayer[iLayer]/=std::abs(sumEInLayer[iLayer]);
             else secondEtaWRTClusterPositionInLayer[iLayer]=0.;
       }
       return secondEtaWRTClusterPositionInLayer;

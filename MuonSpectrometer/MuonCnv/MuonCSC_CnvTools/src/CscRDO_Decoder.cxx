@@ -10,11 +10,8 @@
 /** constructor */ 
 Muon::CscRDO_Decoder::CscRDO_Decoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  base_class(type,name,parent),
-     m_cabling( "CSCcablingSvc" ,name),
-     m_cscCalibTool( "CscCalibTool") {
-  
-  declareProperty("CscCalibTool",        m_cscCalibTool );
+  : base_class(type,name,parent)
+{  
 }
 
 StatusCode Muon::CscRDO_Decoder::initialize()

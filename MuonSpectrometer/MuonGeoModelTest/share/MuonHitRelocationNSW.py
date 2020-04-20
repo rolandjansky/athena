@@ -21,9 +21,9 @@ if not 'NSWsetup' in dir():
 
 if not 'ConditionsTag' in dir():
     ConditionsTag = "OFLCOND-DR-BS900-A1-01"
-    print "MuonGeoModelTest/MuonHitRelocation Setting now ConditionsTag to ", ConditionsTag
+    printfunc ("MuonGeoModelTest/MuonHitRelocation Setting now ConditionsTag to ", ConditionsTag)
 else:
-    print "MuonGeoModelTest/MuonHitRelocation ConditionsTag already set to ", ConditionsTag
+    printfunc ("MuonGeoModelTest/MuonHitRelocation ConditionsTag already set to ", ConditionsTag)
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.ConditionsTag = ConditionsTag
 
@@ -34,9 +34,9 @@ if NSWsetup:
 
 if not 'inputHits' in dir():
     inputHits="atlasG4.NSWgeantinohits.pool.root"
-    print "inputHits not known yet - setting to ", inputHits 
+    printfunc ("inputHits not known yet - setting to ", inputHits )
 else:
-    print "inputHits already known and equal to ", inputHits 
+    printfunc ("inputHits already known and equal to ", inputHits )
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = [ inputHits ]
@@ -51,7 +51,7 @@ MessageSvc.defaultLimit = 9999999
 theApp.HistogramPersistency = "ROOT"
 ServiceMgr.NTupleSvc.Output = [ "FILE DATAFILE='Relocated.atlasG4.NSWgeantinohits.root' OPT='NEW'" ]
 
-print "Reading alignment constants from DB"
+printfunc ("Reading alignment constants from DB")
 from IOVDbSvc.CondDB import conddb
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL',className='CondAttrListCollection')
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA',className='CondAttrListCollection')
@@ -74,7 +74,7 @@ from MuonGeoModelTest.MuonGeoModelTestConf import MuonHitRelocation
 MuonHitRelocation = MuonHitRelocation()
 MuonHitRelocation.OutputLevel=VERBOSE
 
-print MuonHitRelocation
+printfunc (MuonHitRelocation)
 
 ######################################################
 ############### HERE DEFINE THE SEQUENCE #############
@@ -84,19 +84,19 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += MuonHitRelocation
 
-print " "
-print "List of all Dlls"
-print theApp.Dlls
-print " "
-print "List of all Ext services"
-print theApp.ExtSvc
-print " "
-print "List of all top algorithms"
-print theApp.TopAlg
+printfunc (" ")
+printfunc ("List of all Dlls")
+printfunc (theApp.Dlls)
+printfunc (" ")
+printfunc ("List of all Ext services")
+printfunc (theApp.ExtSvc)
+printfunc (" ")
+printfunc ("List of all top algorithms")
+printfunc (theApp.TopAlg)
 
-#print "Print here Top Sequence" 
-#print topSequence
-#print "Print here Service Manager" 
-#print ServiceMgr
+#printfunc ("Print here Top Sequence" )
+#printfunc (topSequence)
+#printfunc ("Print here Service Manager" )
+#printfunc (ServiceMgr)
 
 

@@ -168,6 +168,11 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::initialize()
   
   magneticFieldInit();
 
+  ////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCondObjInputKey.initialize());
+  ////////////////////////////////////////////////////////////////////////////////
+
+  
   // Get propagator tool
   //
   if(m_proptool.retrieve().isFailure()) {
@@ -223,7 +228,7 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::initialize()
   if(msgLvl(MSG::DEBUG)){ dumpconditions(msg(MSG::DEBUG));  msg(MSG::DEBUG) << endmsg;}
 
   //initlialize readhandlekey
-  ATH_CHECK(m_inputClusterContainerName.initialize());
+  ATH_CHECK(m_inputClusterContainerName.initialize(m_searchInCaloROI));
 
 
   return sc;
@@ -328,7 +333,7 @@ std::ostream& InDet::TRT_SeededTrackFinder_ATL::dump( std::ostream& out ) const
 ///////////////////////////////////////////////////////////////////
 
 std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>
-InDet::TRT_SeededTrackFinder_ATL::newEvent(SiCombinatorialTrackFinderData_xk& combinatorialData) const
+InDet::TRT_SeededTrackFinder_ATL::newEvent(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& combinatorialData) const
 {
 
   ///Get the seeds
@@ -337,7 +342,7 @@ InDet::TRT_SeededTrackFinder_ATL::newEvent(SiCombinatorialTrackFinderData_xk& co
                                                                                   m_seedmaker->newEvent());
   // New event for track finder tool
   //
-  m_tracksfinder->newEvent(event_data_p->combinatorialData());
+  m_tracksfinder->newEvent(ctx, event_data_p->combinatorialData());
 
 
   // Print event information 
@@ -351,7 +356,7 @@ InDet::TRT_SeededTrackFinder_ATL::newEvent(SiCombinatorialTrackFinderData_xk& co
   if(m_searchInCaloROI ) {
 
 
-    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputClusterContainerName);
+    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputClusterContainerName, ctx);
 
     if (calo.isValid()) {
        event_data_p->caloF().reserve( calo->size());
@@ -373,7 +378,7 @@ InDet::TRT_SeededTrackFinder_ATL::newEvent(SiCombinatorialTrackFinderData_xk& co
 
 ///////////////////////////////////////////////////////////////////////
 std::unique_ptr<InDet::ITRT_SeededTrackFinder::IEventData>
-InDet::TRT_SeededTrackFinder_ATL::newRegion(SiCombinatorialTrackFinderData_xk& combinatorialData,
+InDet::TRT_SeededTrackFinder_ATL::newRegion(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& combinatorialData,
                                             const std::vector<IdentifierHash>& listOfPixIds,
                                             const std::vector<IdentifierHash>& listOfSCTIds) const
 {
@@ -383,7 +388,7 @@ InDet::TRT_SeededTrackFinder_ATL::newRegion(SiCombinatorialTrackFinderData_xk& c
 
   // New event for track finder tool
   //
-  m_tracksfinder->newEvent(event_data_p->combinatorialData());
+  m_tracksfinder->newEvent(ctx, event_data_p->combinatorialData());
 
 
   // Print event information
@@ -413,7 +418,8 @@ void InDet::TRT_SeededTrackFinder_ATL::endEvent(InDet::ITRT_SeededTrackFinder::I
 // starting from an intial track segment
 ///////////////////////////////////////////////////////////////////
 
-std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(InDet::ITRT_SeededTrackFinder::IEventData &virt_event_data,
+std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const EventContext& ctx,
+                                                                  InDet::ITRT_SeededTrackFinder::IEventData &virt_event_data,
                                                                   const Trk::TrackSegment& tS) const
 {
   InDet::TRT_SeededTrackFinder_ATL::EventData &event_data = EventData::getPrivateEventData(virt_event_data);
@@ -463,7 +469,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(InDet::ITRT_Se
   }
 
 
-  aSiTrack = findTrack(event_data, newPerPar.get(), tS);
+  aSiTrack = findTrack(ctx, event_data, newPerPar.get(), tS);
   if((aSiTrack.size()==0)&&(m_bremCorrect)){
     if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "==============================================================" << endmsg;
@@ -474,7 +480,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(InDet::ITRT_Se
       msg(MSG::VERBOSE) << "Modified TRT Track Parameters for brem. " << endmsg;
       msg(MSG::VERBOSE) << (*modTP) << endmsg;
     }
-    aSiTrack = findTrack(event_data, modTP, tS);
+    aSiTrack = findTrack(ctx, event_data, modTP, tS);
     delete modTP;
     if(aSiTrack.size()==0){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not create track states on surface for this track after all!"<<endmsg;
@@ -493,8 +499,10 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(InDet::ITRT_Se
 ///////////////////////////////////////////////////////////////////
 
 std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
-(InDet::TRT_SeededTrackFinder_ATL::EventData &event_data,
- const Trk::TrackParameters* initTP,const Trk::TrackSegment& tS) const
+(const EventContext& ctx,
+ InDet::TRT_SeededTrackFinder_ATL::EventData &event_data,
+ const Trk::TrackParameters* initTP,
+ const Trk::TrackSegment& tS) const
 {
   SiCombinatorialTrackFinderData_xk& combinatorialData=event_data.combinatorialData();
   //Return list copied by value (fix!!) 
@@ -503,11 +511,23 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
   
   //Get the seeds
   std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> >
-     SpE = m_seedmaker->find2Sp(*initTP,event_data.spacePointFinderEventData());                //Get a list of SP pairs
+      SpE = m_seedmaker->find2Sp(ctx, *initTP,event_data.spacePointFinderEventData());                //Get a list of SP pairs
 
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "---------------> SP SEED LIST SIZE " << SpE.size() << endmsg;
   if(SpE.size()==0){return associatedSiTrack;}
 
+  // Get AtlasFieldCache
+  MagField::AtlasFieldCache fieldCache;
+
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("InDet::SiTrackMaker_xk::getTracks: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return associatedSiTrack;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
+  
+  
   //
   // --------------- loop over the found seeds
   //
@@ -539,13 +559,13 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     }
 
     ///List of space points in the current seed, starting from the one at the smaller radius
-    std::list<const Trk::SpacePoint*> SpList;
-    SpList.push_back(pSP.second); SpList.push_back(pSP.first);
-    if(!newClusters(SpList,event_data)) {
+    std::vector<const Trk::SpacePoint*> SpVec;
+    SpVec.push_back(pSP.second); SpVec.push_back(pSP.first);
+    if(!newClusters(SpVec,event_data)) {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Seed SPs already used by a single track. Ignore..." << endmsg; 
       continue;
     }
-    if(!newSeed(SpList,event_data)) {
+    if(!newSeed(SpVec,event_data)) {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Seed SPs already used by other tracks. Ignore..." << endmsg; 
       continue;
     }
@@ -555,7 +575,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     //
     //if(m_fieldtool->solenoidOn()){
     if(m_fieldService->solenoidOn()){
-      bool seedGood = checkSeed(SpList,tS,initTP);
+      bool seedGood = checkSeed(SpVec,tS,initTP);
       if(!seedGood && m_propR) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Seed not consistent with TRT segment. Ignore..." << endmsg; 
 	continue;
@@ -566,7 +586,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     // ----------------Get new better track parameters using the SP seed
     //
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Get better track parameters using the seed" << endmsg;
-    double newTheta = getNewTheta(SpList);
+    double newTheta = getNewTheta(SpVec);
 
     const AmgVector(5)& iv = initTP->parameters();
 
@@ -677,7 +697,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
 
     //Get list of InDet Elements
     std::list<const InDetDD::SiDetectorElement*> DE;
-    m_roadmaker->detElementsRoad(*per,Trk::alongMomentum,DE);
+    m_roadmaker->detElementsRoad(ctx, fieldCache, *per,Trk::alongMomentum,DE);
     delete per;
     if( int(DE.size()) < m_nclusmin){ //Not enough detector elements to satisfy the minimum number of clusters requirement. Stop
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Too few detector elements, not expected" << endmsg;
@@ -725,7 +745,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     // --------------- Get the Si extensions using the combinatorial track finding tool
     //
     std::list<Amg::Vector3D> Gp;
-    aTracks = m_tracksfinder->getTracks(combinatorialData, *mesTP, SpList, Gp, DE, m_trackquality);
+    aTracks = m_tracksfinder->getTracks(combinatorialData, *mesTP, SpVec, Gp, DE, m_trackquality);
     if(int(aTracks.size())==0) {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No tracks found by the combinatorial track finder!"<<endmsg;
     }
@@ -877,13 +897,13 @@ const Trk::TrackParameters* InDet::TRT_SeededTrackFinder_ATL::addNoise
 ///////////////////////////////////////////////////////////////////
 
 double
-InDet::TRT_SeededTrackFinder_ATL::getNewTheta(std::list<const Trk::SpacePoint*>& lsp) const
+InDet::TRT_SeededTrackFinder_ATL::getNewTheta(std::vector<const Trk::SpacePoint*>& vsp) const
 {
   double theta = 0.;
   std::vector<double> rad;
   std::vector<double> zl;
 
-  std::list<const Trk::SpacePoint*>::const_iterator isp=lsp.begin(), ispe=lsp.end();
+  std::vector<const Trk::SpacePoint*>::const_iterator isp=vsp.begin(), ispe=vsp.end();
   const std::size_t ispMax=std::distance(isp,ispe);
   rad.reserve(ispMax);
   zl.reserve(ispMax);
@@ -904,7 +924,7 @@ InDet::TRT_SeededTrackFinder_ATL::getNewTheta(std::list<const Trk::SpacePoint*>&
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_SeededTrackFinder_ATL::checkSeed
-     (std::list<const Trk::SpacePoint*>& lsp,const Trk::TrackSegment& tS,const Trk::TrackParameters* tP) const
+     (std::vector<const Trk::SpacePoint*>& vsp,const Trk::TrackSegment& tS,const Trk::TrackParameters* tP) const
 {
   bool isGood = true;
   int nEC = 0; double gz = 0.;
@@ -935,7 +955,7 @@ bool InDet::TRT_SeededTrackFinder_ATL::checkSeed
     double theta = 0.;
     std::vector<double> rad;
     std::vector<double> zl;
-    std::list<const Trk::SpacePoint*>::const_iterator isp=lsp.begin(), ispe=lsp.end();
+    std::vector<const Trk::SpacePoint*>::const_iterator isp=vsp.begin(), ispe=vsp.end();
     const std::size_t ispMax=std::distance(isp,ispe);
     rad.reserve(ispMax);
     zl.reserve(ispMax);
@@ -1042,14 +1062,14 @@ void  InDet::TRT_SeededTrackFinder_ATL::clusterTrackMap(Trk::Track* Tr,
 // Reject seeds that all SPs belong to one and the same track
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::list<const Trk::SpacePoint*>& Sp,
+bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::vector<const Trk::SpacePoint*>& Sp,
                                                    InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
 {
   const Trk::PrepRawData* prd   [ 40];
   const Trk::Track*       trk[2][200];
   std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator 
      t[40],te = event_data.clusterTrack().end();
-  std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
+  std::vector<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
   int n = 0;
 
   //If at least one of the clusters in the seed is not used by a track the seed is good
@@ -1101,7 +1121,7 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::list<const Trk::Sp
 // Reject seeds that all SPs have been already used by other tracks
 ///////////////////////////////////////////////////////////////////
 
- bool InDet::TRT_SeededTrackFinder_ATL::newSeed(const std::list<const Trk::SpacePoint*>& Sp,
+ bool InDet::TRT_SeededTrackFinder_ATL::newSeed(const std::vector<const Trk::SpacePoint*>& Sp,
                                                 InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const
 {
   const Trk::PrepRawData* prd   [ 40];
@@ -1109,7 +1129,7 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::list<const Trk::Sp
   std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator 
      tt,t[40],te = event_data.clusterTrack().end();
 
-  std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
+  std::vector<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
   int n  = 0;
   int nc = 0;
   for(; s!=se; ++s) {

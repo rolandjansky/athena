@@ -20,7 +20,7 @@
 #include "TProfile.h"
 #include "TProfile2D.h"
 
-#include "../src/HistogramFiller/HistogramFillerRebinable1D.h"
+#include "../src/HistogramFiller/HistogramFillerRebinable.h"
 
 #include "mocks/MockHistogramProvider.h"
 #include "mocks/MockMonitoredVariable.h"
@@ -35,23 +35,23 @@ class HistogramFillerRebinable1DTestSuite {
   private:
     list<function<void(void)>> registeredTestCases() {
       return {
-        REGISTER_TEST_CASE(test_shouldKeepNumberOfBeansForValueInHistogramsRange),
-        REGISTER_TEST_CASE(test_shouldDoubleNumberOfBeansForBoundaryValueOf3),
+        REGISTER_TEST_CASE(test_shouldKeepNumberOfBinsForValueInHistogramsRange),
+        REGISTER_TEST_CASE(test_shouldDoubleNumberOfBinsForBoundaryValueOf3),
 
-        REGISTER_TEST_CASE(test_shouldDoubleNumberOfBeansForValueSlightlySmallerThan5),
-        REGISTER_TEST_CASE(test_shouldQuadrupleNumberOfBeansForBoundaryValueOf5),
-        REGISTER_TEST_CASE(test_shouldQuadrupleNumberOfBeansForValueSlightlyBiggerThan5),
+        REGISTER_TEST_CASE(test_shouldDoubleNumberOfBinsForValueSlightlySmallerThan5),
+        REGISTER_TEST_CASE(test_shouldQuadrupleNumberOfBinsForBoundaryValueOf5),
+        REGISTER_TEST_CASE(test_shouldQuadrupleNumberOfBinsForValueSlightlyBiggerThan5),
 
-        REGISTER_TEST_CASE(test_shouldQuadrupleNumberOfBeansForValueSlightlySmallerThan9),
-        REGISTER_TEST_CASE(test_shouldOctupleNumberOfBeansForBoundaryValueOf9),
-        REGISTER_TEST_CASE(test_shouldOctupleNumberOfBeansForValueSlightlyBiggerThan9),
+        REGISTER_TEST_CASE(test_shouldQuadrupleNumberOfBinsForValueSlightlySmallerThan9),
+        REGISTER_TEST_CASE(test_shouldOctupleNumberOfBinsForBoundaryValueOf9),
+        REGISTER_TEST_CASE(test_shouldOctupleNumberOfBinsForValueSlightlyBiggerThan9),
       };
     }
 
   // ==================== Test code ====================
   private:
     void beforeEach() {
-        m_histogramDef.opt = "kAddBinsDynamically";
+        m_histogramDef.kAddBinsDynamically = true;
         m_histogramProvider.reset(new MockHistogramProvider());
         m_monitoredVariable.reset(new MockMonitoredVariable(""));
         m_histogram.reset(new TH1D("MockHistogram", "Mock Histogram", 8, 1.0, 3.0));
@@ -64,7 +64,7 @@ class HistogramFillerRebinable1DTestSuite {
     void afterEach() {
     }
 
-    void test_shouldKeepNumberOfBeansForValueInHistogramsRange() {
+    void test_shouldKeepNumberOfBinsForValueInHistogramsRange() {
       m_monitoredVariable->mock_getVectorRepresentation = []() -> vector<double> {
         return { 2.9 };
       };
@@ -81,7 +81,7 @@ class HistogramFillerRebinable1DTestSuite {
       VALUE(m_histogram->GetBinContent(8)) EXPECTED(1.0);
     }
 
-    void test_shouldDoubleNumberOfBeansForBoundaryValueOf3() {
+    void test_shouldDoubleNumberOfBinsForBoundaryValueOf3() {
       m_monitoredVariable->mock_getVectorRepresentation = []() -> vector<double> {
         return { 3.0 };
       };
@@ -98,7 +98,7 @@ class HistogramFillerRebinable1DTestSuite {
       VALUE(m_histogram->GetBinContent(9)) EXPECTED(1.0);
     }
 
-    void test_shouldDoubleNumberOfBeansForValueSlightlySmallerThan5() {
+    void test_shouldDoubleNumberOfBinsForValueSlightlySmallerThan5() {
       m_monitoredVariable->mock_getVectorRepresentation = []() -> vector<double> {
         return { 4.9 };
       };
@@ -115,7 +115,7 @@ class HistogramFillerRebinable1DTestSuite {
       VALUE(m_histogram->GetBinContent(16)) EXPECTED(1.0);
     }
 
-    void test_shouldQuadrupleNumberOfBeansForBoundaryValueOf5() {
+    void test_shouldQuadrupleNumberOfBinsForBoundaryValueOf5() {
       m_monitoredVariable->mock_getVectorRepresentation = []() -> vector<double> {
         return { 5.0 };
       };
@@ -132,7 +132,7 @@ class HistogramFillerRebinable1DTestSuite {
       VALUE(m_histogram->GetBinContent(17)) EXPECTED(1.0);
     }
 
-    void test_shouldQuadrupleNumberOfBeansForValueSlightlyBiggerThan5() {
+    void test_shouldQuadrupleNumberOfBinsForValueSlightlyBiggerThan5() {
       m_monitoredVariable->mock_getVectorRepresentation = []() -> vector<double> {
         return { 5.1 };
       };
@@ -149,7 +149,7 @@ class HistogramFillerRebinable1DTestSuite {
       VALUE(m_histogram->GetBinContent(17)) EXPECTED(1.0);
     }
 
-    void test_shouldQuadrupleNumberOfBeansForValueSlightlySmallerThan9() {
+    void test_shouldQuadrupleNumberOfBinsForValueSlightlySmallerThan9() {
       m_monitoredVariable->mock_getVectorRepresentation = []() -> vector<double> {
         return { 8.9 };
       };
@@ -166,7 +166,7 @@ class HistogramFillerRebinable1DTestSuite {
       VALUE(m_histogram->GetBinContent(32)) EXPECTED(1.0);
     }
 
-    void test_shouldOctupleNumberOfBeansForBoundaryValueOf9() {
+    void test_shouldOctupleNumberOfBinsForBoundaryValueOf9() {
       m_monitoredVariable->mock_getVectorRepresentation = []() -> vector<double> {
         return { 9.0 };
       };
@@ -183,7 +183,7 @@ class HistogramFillerRebinable1DTestSuite {
       VALUE(m_histogram->GetBinContent(33)) EXPECTED(1.0);
     }
 
-    void test_shouldOctupleNumberOfBeansForValueSlightlyBiggerThan9() {
+    void test_shouldOctupleNumberOfBinsForValueSlightlyBiggerThan9() {
       m_monitoredVariable->mock_getVectorRepresentation = []() -> vector<double> {
         return { 9.1 };
       };

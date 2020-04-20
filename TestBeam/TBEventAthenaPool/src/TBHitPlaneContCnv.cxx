@@ -25,7 +25,7 @@ TBHitPlaneContCnv::~TBHitPlaneContCnv()
 StatusCode TBHitPlaneContCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBHitPlaneContCnv");
@@ -61,11 +61,4 @@ StatusCode TBHitPlaneContCnv::PoolToDataObject(DataObject*& pObj,
   }
 
   return StatusCode::SUCCESS; 
-}
-
-StatusCode TBHitPlaneContCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBHitPlaneContCnv::DataObjectToPool" );
-  
-  return TBHitPlaneContCnvBase::DataObjectToPool( pObj, tname) ;
 }

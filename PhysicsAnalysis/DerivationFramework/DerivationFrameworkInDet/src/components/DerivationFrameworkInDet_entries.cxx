@@ -12,7 +12,6 @@
 #include "DerivationFrameworkInDet/UnassociatedHitsGetterTool.h"
 #include "DerivationFrameworkInDet/LArCollisionTimeDecorator.h"
 #include "DerivationFrameworkInDet/EGammaTracksThinning.h"
-#include "DerivationFrameworkInDet/EGammaPrepRawDataThinning.h"
 #include "DerivationFrameworkInDet/TrackMeasurementThinning.h"
 #include "DerivationFrameworkInDet/EventInfoPixelDecorator.h"
 #include "DerivationFrameworkInDet/PixelNtupleMaker.h"
@@ -34,7 +33,6 @@ DECLARE_COMPONENT( UnassociatedHitsDecorator )
 DECLARE_COMPONENT( DerivationFramework::UnassociatedHitsGetterTool )
 DECLARE_COMPONENT( LArCollisionTimeDecorator )
 DECLARE_COMPONENT( EGammaTracksThinning )
-DECLARE_COMPONENT( EGammaPrepRawDataThinning )
 DECLARE_COMPONENT( TrackMeasurementThinning )
 DECLARE_COMPONENT( EventInfoPixelDecorator )
 DECLARE_COMPONENT( PixelNtupleMaker )

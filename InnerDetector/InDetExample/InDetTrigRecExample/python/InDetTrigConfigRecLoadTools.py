@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from __future__ import print_function
@@ -744,26 +744,37 @@ if InDetTrigFlags.loadSummaryTool():
             conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTValue")):
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
 
-
-  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy
+  from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
+  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy,TRT_ToT_dEdx
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   # Calibration DB Tool
   from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
   InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
-  from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy",
+  TRT_RDO_Key = "TRT_RDOs"
+  if globalflags.DataSource == 'data':
+      TRT_RDO_Key = TrigTRTKeys.RDOs
+      
+
+  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrig_TRT_LocalOccupancy",
                                                           isTrigger = True,
-                                                          TRT_RDOContainerName="TRT_RDOs_EF",
+                                                          TRT_RDOContainerName = TRT_RDO_Key,
+                                                          TRT_DriftCircleCollection = TrigTRTKeys.DriftCircles,
                                                           TRTCalDbTool = InDetTRTCalDbTool,
                                                           TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
   ToolSvc += InDetTrigTRT_LocalOccupancy
 
+  InDetTrigTRT_ToT_dEdx = TRT_ToT_dEdx(name = "InDetTrig_TRT_ToT_dEdx",
+                                       TRTStrawSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
+                                       TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy)
+  ToolSvc += InDetTrigTRT_ToT_dEdx
+  
   
   InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
                                                                 TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
                                                                 TRTStrawSummaryTool= InDetTrigTRTStrawStatusSummaryTool,
                                                                 OccupancyUsedInPID = True,
+                                                                TRT_ToT_dEdx_Tool = InDetTrigTRT_ToT_dEdx,
                                                                 isData = (globalflags.DataSource == 'data'))
 
   ToolSvc += InDetTrigTRT_ElectronPidTool

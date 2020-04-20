@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-import re,sys,commands,os
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
+import re,sys,os
 from string import *
+import six
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 def getOutputDictFromAMI(tag):
@@ -11,9 +19,9 @@ def getOutputDictFromAMI(tag):
         amires = AMI().execute(["ListConfigurationTag","-configTag=%s" % tag])
         d = amires.getDict()['rowset_%s'%tag][tag]
         outDict = eval(d.get('outputs','None'))
-    except Exception,e:
-        print "Failed to get OutputDict from AMI"
-        print e
+    except Exception as e:
+        print ("Failed to get OutputDict from AMI")
+        print (e)
         return None
     return outDict
 
@@ -26,10 +34,10 @@ def getTaskNamesFromCastor():
     for d in cdirs:
         proj=d.split("/")[-1]
         cmd="nsls "+d
-        (stat,out)=commands.getstatusoutput(cmd)
+        (stat,out)=subprocess.getstatusoutput(cmd)
         if stat!=0:
-            print "ERROR, could not get list of streams from castor directory",d
-            print out
+            print ("ERROR, could not get list of streams from castor directory",d)
+            print (out)
             return None
         for stream in out.split(os.linesep):
             tasknames.add(proj+".00000000."+stream+".merge.RAW")
@@ -39,50 +47,50 @@ def getTaskNamesFromCastor():
 
 if __name__=='__main__':
     if len(sys.argv)!=2:
-        print "Syntax:"
-        print sys.argv[0],"<ami-tag>"
+        print ("Syntax:")
+        print (sys.argv[0],"<ami-tag>")
         sys.exit(-1)
 
     tag=sys.argv[1]
-    print "ifmatch matrix for AMI configuration tag",tag
+    print ("ifmatch matrix for AMI configuration tag",tag)
 
     outDict=getOutputDictFromAMI(tag) 
     if outDict is None:
         sys.exit(-1)
 
-    #print outDict
+    #print (outDict)
 
     taskNames=getTaskNamesFromCastor()
     if taskNames is None:
         sys.exit(-1)
 
-    #print streamList
+    #print (streamList)
 
     matrix=dict()
     for taskname in taskNames:
         matrix[taskname]=dict()
 
-    for name,outDef in outDict.iteritems():
-        if outDef.has_key('ifMatch'):
-            print "\n"+name+" ["+ outDef['ifMatch'] +"]"
+    for name,outDef in six.iteritems (outDict):
+        if 'ifMatch' in outDef:
+            print ("\n"+name+" ["+ outDef['ifMatch'] +"]")
             for taskname in taskNames:
                 if re.match(outDef['ifMatch'],taskname):
-                    print "\t",taskname," MATCH"
+                    print ("\t",taskname," MATCH")
                     matrix[taskname][name]=True
                 else:
                     matrix[taskname][name]=False
 
 
  
-    print "Inverse Matrix:"
-    for tn,ops in matrix.iteritems():
-        print tn[:-9]+": ",
-        #print " %30s :" % tn[:-9],
-        for nm,s in ops.iteritems():
+    print ("Inverse Matrix:")
+    for tn,ops in six.iteritems (matrix):
+        print (tn[:-9]+": ", end='')
+        #print (" %30s :" % tn[:-9], end='')
+        for nm,s in six.iteritems (ops):
             if s:
-                print nm[6:-4]+" ",
-                #print "%8s " % nm[6:-4],
+                print (nm[6:-4]+" ", end='')
+                #print ("%8s " % nm[6:-4], end='')
             #else:
-            #    print "        ",
-        print ""
+            #    print ("        ", end='')
+        print ("")
         

@@ -1,4 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -22,7 +25,7 @@ from past.builtins import xrange
 
 
 #put it here to avoid circular import?
-from G4AtlasServices.G4AtlasServicesConf import G4GeometryNotifierSvc
+G4GeometryNotifierSvc=CompFactory.G4GeometryNotifierSvc
 def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs):
     kwargs.setdefault("ActivateLVNotifier", True)
     kwargs.setdefault("ActivatePVNotifier", False)
@@ -344,36 +347,37 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
         outerRadii[i] = AtlasOuterR1
 
     ## World R range
-    routValue = ConfigFlags.Sim.WorldRRange
-    if ConfigFlags.Sim.WorldRRange > max(AtlasOuterR1, AtlasOuterR2):
-        for i in xrange(4, 14):
-            outerRadii[i] = routValue
-    else:
-        raise RuntimeError('getATLASEnvelope: ERROR ConfigFlags.Sim.WorldRRange must be > %f. Current value %f' % (max(AtlasOuterR1, AtlasOuterR2), routValue) )
+    if ConfigFlags.Sim.WorldRRange:
+        routValue = ConfigFlags.Sim.WorldRRange
+        if ConfigFlags.Sim.WorldRRange > max(AtlasOuterR1, AtlasOuterR2):
+            for i in xrange(4, 14):
+                outerRadii[i] = routValue
+        else:
+            raise RuntimeError('getATLASEnvelope: ERROR ConfigFlags.Sim.WorldRRange must be > %f. Current value %f' % (max(AtlasOuterR1, AtlasOuterR2), routValue) )
     kwargs.setdefault("OuterRadii", outerRadii)
 
     ## ZSurfaces
     zSurfaces = [-26046., -23001., -23001., -22031., -22031., -12899., -12899., -6741., -6741.,  6741.,  6741.,  12899., 12899., 22031., 22031., 23001., 23001., 26046.] # FIXME units mm??
-
+    
     if ConfigFlags.Detector.SimulateForward:
         zSurfaces[0]  = -400000.
         zSurfaces[17] =  400000.
 
     #leave a check in for WorldRrange and WorldZrange?
-    #if simFlags.WorldZRange.statusOn:
-
-    if ConfigFlags.Sim.WorldZRange < 26046.:
-          raise RuntimeError('getATLASEnvelope: ERROR ConfigFlags.Sim.WorldZRange must be > 26046. Current value: %f' % ConfigFlags.Sim.WorldZRange)
-    zSurfaces[17] =  ConfigFlags.Sim.WorldZRange + 100.
-    zSurfaces[16] =  ConfigFlags.Sim.WorldZRange + 50.
-    zSurfaces[15] =  ConfigFlags.Sim.WorldZRange + 50.
-    zSurfaces[14] =  ConfigFlags.Sim.WorldZRange
-    zSurfaces[13] =  ConfigFlags.Sim.WorldZRange
-    zSurfaces[0] =  -ConfigFlags.Sim.WorldZRange - 100.
-    zSurfaces[1] =  -ConfigFlags.Sim.WorldZRange - 50.
-    zSurfaces[2] =  -ConfigFlags.Sim.WorldZRange - 50.
-    zSurfaces[3] =  -ConfigFlags.Sim.WorldZRange
-    zSurfaces[4] =  -ConfigFlags.Sim.WorldZRange
+    if ConfigFlags.Sim.WorldZRange:
+        print (ConfigFlags.Sim.WorldZRange)
+        if ConfigFlags.Sim.WorldZRange < 26046.:
+              raise RuntimeError('getATLASEnvelope: ERROR ConfigFlags.Sim.WorldZRange must be > 26046. Current value: %f' % ConfigFlags.Sim.WorldZRange)
+        zSurfaces[17] =  ConfigFlags.Sim.WorldZRange + 100.
+        zSurfaces[16] =  ConfigFlags.Sim.WorldZRange + 50.
+        zSurfaces[15] =  ConfigFlags.Sim.WorldZRange + 50.
+        zSurfaces[14] =  ConfigFlags.Sim.WorldZRange
+        zSurfaces[13] =  ConfigFlags.Sim.WorldZRange
+        zSurfaces[0] =  -ConfigFlags.Sim.WorldZRange - 100.
+        zSurfaces[1] =  -ConfigFlags.Sim.WorldZRange - 50.
+        zSurfaces[2] =  -ConfigFlags.Sim.WorldZRange - 50.
+        zSurfaces[3] =  -ConfigFlags.Sim.WorldZRange
+        zSurfaces[4] =  -ConfigFlags.Sim.WorldZRange
 
     kwargs.setdefault("ZSurfaces", zSurfaces)
     accSubDetectors, SubDetectorList = generateSubDetectorList(ConfigFlags) 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -38,7 +38,6 @@ TauTrackFinder::TauTrackFinder(const std::string& name ) :
     declareProperty("removeDuplicateCoreTracks", m_removeDuplicateCoreTracks = true);
     declareProperty("BypassSelector", m_bypassSelector = false);
     declareProperty("BypassExtrapolator", m_bypassExtrapolator = false);
-    // declareProperty("tauParticleCache", m_ParticleCacheKey);
 
     // initialize samplings
     m_EMSamplings = {CaloSampling::EME1, CaloSampling::EMB1};
@@ -52,24 +51,16 @@ TauTrackFinder::~TauTrackFinder() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauTrackFinder::initialize() {
 
-    // Get the TrackSelectorTool
+    // retrieve tools
     ATH_CHECK( m_trackSelectorTool_tau.retrieve() );
-
-    // Get the TJVA
     ATH_CHECK( m_trackToVertexTool.retrieve() );
     ATH_CHECK( m_caloExtensionTool.retrieve() );
-
-    ATH_CHECK( m_trackPartInputContainer.initialize(!m_trackPartInputContainer.key().empty()) );
-
-    ATH_CHECK(m_ParticleCacheKey.initialize(!m_ParticleCacheKey.key().empty()));
-  
-    if(m_caloExtensionTool.retrieve().isFailure()){
-        ATH_MSG_ERROR("initialize: Cannot retrieve " << m_caloExtensionTool);
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_VERBOSE("Successfully retrieved Extrapolation tool "
-                << m_caloExtensionTool.typeAndName());
-    }
+    
+    // initialize ReadHandleKey
+    // allow empty for trigger
+    ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
+    // use CaloExtensionTool when key is empty 
+    ATH_CHECK( m_ParticleCacheKey.initialize(SG::AllowEmpty) );
 
     return StatusCode::SUCCESS;
 }
@@ -80,17 +71,7 @@ StatusCode TauTrackFinder::finalize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::eventInitialize() {
-    return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::eventFinalize() {
-    return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
+StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, const xAOD::TrackParticleContainer* trackContainer) {
 
   ElementLink< xAOD::TauTrackContainer > link = pTau.allTauTrackLinksNonConst().at(0);//we don't care about this specific link, just the container
   xAOD::TauTrackContainer* tauTrackCon = link.getDataNonConstPtr();
@@ -104,20 +85,24 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
   std::vector<const xAOD::TrackParticle*> wideTracks;
   std::vector<const xAOD::TrackParticle*> otherTracks;
   
-  const xAOD::TrackParticleContainer* trackParticleCont = 0;
-
-  if (m_trackPartInputContainer.key().empty())   {
-    ATH_CHECK(tauEventData()->getObject( "TrackContainer", trackParticleCont ));    
-    //ATH_CHECK(tauEventData()->getObject( "TauTrackContainer", tauTrackCon ));
-  }
-  else {
-    // Get the track particle container from StoreGate   
+  const xAOD::TrackParticleContainer* trackParticleCont = nullptr; 
+  
+  if (! m_trackPartInputContainer.empty()) { // MT version of trigger or offline
     SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
     if (!trackPartInHandle.isValid()) {
       ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << trackPartInHandle.key());
       return StatusCode::FAILURE;
     }
     trackParticleCont = trackPartInHandle.cptr();
+  }
+  else { // coule be possible in trigger
+    if (trackContainer != nullptr) { 
+      trackParticleCont = trackContainer;
+    }
+    else {
+      ATH_MSG_WARNING("No track container found");
+      return StatusCode::FAILURE;
+    }
   }
 
   // get the primary vertex
@@ -127,7 +112,6 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
   getTauTracksFromPV(pTau, *trackParticleCont, pVertex, tauTracks, wideTracks, otherTracks);
 
-  this->resetDeltaZ0Cache();
   // remove core and wide tracks outside a maximal delta z0 wrt lead core track                                                                                
   if (m_applyZ0cut) {
     this->removeOffsideTracksWrtLeadTrk(tauTracks, wideTracks, otherTracks, pVertex, m_z0maxDelta);
@@ -221,9 +205,6 @@ StatusCode TauTrackFinder::execute(xAOD::TauJet& pTau) {
   pTau.setDetail(xAOD::TauJetParameters::nChargedTracks, (int) pTau.nTracks());
   pTau.setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) pTau.nTracks(xAOD::TauJetParameters::classifiedIsolation));
 
-  /// was
-  // for (unsigned int i = 0; i < otherTracks.size(); ++i)
-  //     details->addOtherTrk(trackParticleCont, otherTracks.at(i));
   for (unsigned int i = 0; i < otherTracks.size(); ++i) {
     const xAOD::TrackParticle* trackParticle = otherTracks.at(i);
 
@@ -275,7 +256,6 @@ TauTrackFinder::TauTrackType TauTrackFinder::tauTrackType( const xAOD::TauJet& p
         const xAOD::TrackParticle& trackParticle,
         const xAOD::Vertex* primaryVertex)
 {
-    //ATH_MSG_VERBOSE("tau axis:" << pTau.hlv().perp()<< " " << pTau.hlv().eta() << " " << pTau.hlv().phi()  << " " << pTau.hlv().e() );
     double dR = Tau1P3PKineUtils::deltaR(pTau.eta(),pTau.phi(),trackParticle.eta(),trackParticle.phi());
 
     if (dR > m_maxJetDr_wide) return NotTauTrack;
@@ -321,11 +301,8 @@ void TauTrackFinder::getTauTracksFromPV( const xAOD::TauJet& pTau,
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
 
-    //apparently unused: const int numOfsampEM = 4;
-
     Trk::TrackParametersIdHelper parsIdHelper;
 
-    //    for (unsigned int itr = 0; itr < 10 && itr < pTau.nAllTracks(); ++itr) {
     int trackIndex = -1;
     const Trk::CaloExtension * caloExtension = nullptr;
     std::unique_ptr<Trk::CaloExtension> uniqueExtension ;
@@ -364,13 +341,16 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
           caloExtension = uniqueExtension.get();
         }
 
-        const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();
-
-        if (!caloExtension or clParametersVector.empty() )
+        if (!caloExtension)
         { 
             ATH_MSG_DEBUG("Track extrapolation failed");
         }
         else {
+            const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();
+            if (clParametersVector.empty()) {
+              ATH_MSG_DEBUG("Track extrapolation failed");
+            }
+
             ATH_MSG_DEBUG("Scanning samplings");
             bool validECal = false;
             bool validHCal = false;
@@ -402,7 +382,7 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
                 if( validECal and validHCal ) break;
             }
             // EM failure warn if within acceptance 
-            if( not validECal and abs(orgTrack->pt()) < 2.48 ){
+            if( not validECal and std::abs(orgTrack->pt()) < 2.48 ){
                 ATH_MSG_DEBUG("Failed extrapolation to ECal");
             }
             // Had failure warn if enough pt to reach HCal
@@ -436,17 +416,9 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
                            double maxDeltaZ0)
 {
     float MAX=1e5;
-    this->resetDeltaZ0Cache();
 
     // need at least one core track to have a leading trk to compare with
     if (tauTracks.size()<1) return;
-
-    //check if position is available for origin
-    /** FIXME: This causes compilation error after eigen migration
-    if (tauOrigin)
-        if (!tauOrigin->position())
-            tauOrigin = 0;
-    */
 
     // get lead trk parameters
     const xAOD::TrackParticle *leadTrack = tauTracks.at(0);
@@ -457,18 +429,15 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
     ATH_MSG_VERBOSE("before z0 cut: #coreTracks=" << tauTracks.size() << ", #wideTracks=" << wideTracks.size() << ", #otherTracks=" << otherTracks.size());
 
     std::vector<const xAOD::TrackParticle*>::iterator itr;
-
-    // check core tracks
+    
     // skip leading track, because it is the reference
     itr = tauTracks.begin()+1;
     while (itr!=tauTracks.end()) {
         float z0 = getZ0(*itr, tauOrigin);
         float deltaZ0=z0 - z0_leadTrk;
-
         ATH_MSG_VERBOSE("core Trks: deltaZ0= " << deltaZ0);
-        m_vDeltaZ0coreTrks.push_back(deltaZ0);
 
-        if ( fabs(deltaZ0) < maxDeltaZ0 ) {++itr;}
+        if ( std::abs(deltaZ0) < maxDeltaZ0 ) {++itr;}
         else {
             if (m_storeInOtherTrks) otherTracks.push_back(*itr);
             itr = tauTracks.erase(itr); //remove from core track collection
@@ -480,11 +449,9 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
     while (itr!=wideTracks.end()) {
         float z0 = getZ0(*itr, tauOrigin);
         float deltaZ0=z0 - z0_leadTrk;
-
         ATH_MSG_VERBOSE("wide Trks: deltaZ0= " << deltaZ0);
-        m_vDeltaZ0wideTrks.push_back(deltaZ0);
 
-        if ( fabs(deltaZ0) < maxDeltaZ0 ) { ++itr; }
+        if ( std::abs(deltaZ0) < maxDeltaZ0 ) { ++itr; }
         else {
             if (m_storeInOtherTrks) otherTracks.push_back(*itr);
             itr = wideTracks.erase(itr); //remove from wide track collection
@@ -520,22 +487,5 @@ float TauTrackFinder::getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex
     delete perigee; //cleanup necessary to prevent mem leak
 
     return z0;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void TauTrackFinder::getDeltaZ0Values(std::vector<float>& vDeltaZ0coreTrks, std::vector<float>& vDeltaZ0wideTrks)
-{
-  vDeltaZ0coreTrks.clear();
-  vDeltaZ0coreTrks = m_vDeltaZ0coreTrks;
-
-  vDeltaZ0wideTrks.clear();
-  vDeltaZ0wideTrks = m_vDeltaZ0wideTrks;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void TauTrackFinder::resetDeltaZ0Cache()
-{
-    m_vDeltaZ0coreTrks.clear();
-    m_vDeltaZ0wideTrks.clear();
 }
 #endif

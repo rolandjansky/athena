@@ -82,17 +82,6 @@ def setupMenu():
         ]
 
 
-    if TriggerFlags.doFTK():
-        TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
-
-            ['mu26_ivarmedium_FTK_L1MU20MU21_FTK',   'L1_MU20_FTK', ['L1_MU20_FTK'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-            ['mu6_idperf_FTK_L1MU6_FTK',             'L1_MU6_FTK',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
-            ['mu6_idperf_FTKRefit_L1MU6_FTK',        'L1_MU6_FTK',            [], [PhysicsStream, 'express'], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
-#            ['mu22_mu8noL1_FTKFS_L1MU20MU21_FTK',    'L1_MU20MU21_FTK', ['L1_MU20_FTK',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_FTKFS']]],
-          ['mu22_mu8noL1_FTKFS_L1MU20_FTK',    'L1_MU20_FTK', [], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1_FTKFS']]],
-            ]
-
-
 
     TriggerFlags.JetSlice.signatures = [   
        
@@ -217,6 +206,12 @@ def setupMenu():
 
         #low pT
         ['xe35',                                   'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe30_cell_L1XE10',                       'L1_XE10',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe30_mht_L1XE10',                        'L1_XE10',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe30_pufit_L1XE10',                        'L1_XE10',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe30_trkmht_L1XE10',                        'L1_XE10',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe30_pufit_xe30_L1XE10', 'L1_XE10', ['L1_XE10','L1_XE10'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe30_pufit','xe30_L1XE10'] ]],
+
 			 ]
 
     if TriggerFlags.doFTK():

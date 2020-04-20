@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 compNames_all = [ "PreSamplB", "EMB1", "EMB2", "EMB3",   # LAr barrel
                   "PreSamplE", "EME1", "EME2", "EME3",   # LAr EM endcap
@@ -67,10 +68,7 @@ met_alt_algorithms_shifter = [
 
 met_alt_algorithms_expert = [
         "mht_em",
-        "trkmht_FS",
-        "trkmht_FTK",
-        "trktc_FS",
-        "trktc_FTK"
+        "trkmht_FS"
 ]
 
 # algorithms in Run1
@@ -81,8 +79,8 @@ met_alt_algorithms_expert = [
 def HLTMETMonitoringTool():
 	from TrigMETMonitoring.TrigMETMonitoringConf import HLTMETMonTool
 	from TrigHLTMonitoring.HLTMonTriggerList import hltmonList # access to central tool
-	print "shifter list " 
-	print hltmonList.monitoring_met_shifter
+	print ("shifter list " )
+	print (hltmonList.monitoring_met_shifter)
 	HLTMETMon = HLTMETMonTool(name          = 'HLTMETMon',
                                   histoPathBase = "/Trigger/HLT", 
                                   MonPathBase   = "/HLT/METMon",

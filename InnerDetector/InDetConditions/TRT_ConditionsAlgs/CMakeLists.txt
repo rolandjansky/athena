@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
 		          Database/AthenaPOOL/AthenaPoolUtilities
 			  DetectorDescription/DetDescrCond/DetDescrConditions 
 			  DetectorDescription/GeoModel/GeoModelUtilities )
@@ -27,7 +28,7 @@ atlas_add_component( TRT_ConditionsAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib TRT_ConditionsData InDetIdentifier
-                                               InDetReadoutGeometry AthenaPoolUtilities DetDescrConditions GeoModelUtilities )
+                                               InDetReadoutGeometry TRT_ReadoutGeometry AthenaPoolUtilities DetDescrConditions GeoModelUtilities )
 
 
 # Install files from the package:

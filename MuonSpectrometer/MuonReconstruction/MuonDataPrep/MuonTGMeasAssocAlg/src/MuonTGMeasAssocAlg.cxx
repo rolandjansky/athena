@@ -431,7 +431,8 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
 	  if (detVols->size() ) detVol = detVols->front();
 	  if (!detVols->size() ) {
 	    ATH_MSG_ERROR( "missing station?" << segment->globalPosition() );  
-	    std::vector<const Trk::RIO_OnTrack*> rots = segment->containedROTs();
+	    std::vector<const Trk::RIO_OnTrack*> rots;
+	    for(unsigned int irot=0;irot<segment->numberOfContainedROTs();irot++) rots.push_back(segment->rioOnTrack(irot));
 	    if ( rots.size() > 0 ) {
 	      Identifier id = rots[0]->identify();
 	      Amg::Vector3D pos(0., 0., 0.);
@@ -475,10 +476,7 @@ StatusCode Muon::MuonTGMeasAssocAlg::storeSegments() {
 	    //					           new std::vector<const Trk::RIO_OnTrack*>(segment->containedROTs()),
 	    //						  new Trk::FitQuality( *(segment->fitQuality())) );
 	    DataVector<const Trk::MeasurementBase>* meas= new DataVector<const Trk::MeasurementBase>;
-	    if (segment->containedROTs().size()) {
-	      const std::vector<const Trk::RIO_OnTrack*> rots=segment->containedROTs();
-	      for (unsigned int im=0;im<rots.size();im++) meas->push_back(rots[im]);
-	    } 
+	    for(unsigned int irot=0;irot<segment->numberOfContainedROTs();irot++) meas->push_back(segment->rioOnTrack(irot));
 
 	    Trk::LocalDirection dir;
 	    plane->globalToLocalDirection(layPar->momentum(),dir);

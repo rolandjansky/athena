@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArOFCBin_PhysCaliTdiffFromStdNtuple.h"
@@ -75,11 +75,11 @@ StatusCode LArOFCBin_PhysCaliTdiffFromStdNtuple::stop()
 
   // Create new objects
   LArOFCBinComplete *larOFCParams = new LArOFCBinComplete();
-  larOFCParams->setGroupingType(m_groupingType, msg());
-  larOFCParams->initialize();
+  ATH_CHECK ( larOFCParams->setGroupingType(m_groupingType, msg()) );
+  ATH_CHECK ( larOFCParams->initialize() );
   LArPhysCaliTdiffComplete *larTdiffParams = new LArPhysCaliTdiffComplete();
-  larTdiffParams->setGroupingType(m_groupingType, msg());
-  larTdiffParams->initialize();
+  ATH_CHECK ( larTdiffParams->setGroupingType(m_groupingType, msg()) );
+  ATH_CHECK ( larTdiffParams->initialize() );
 
 
   unsigned int hwid;

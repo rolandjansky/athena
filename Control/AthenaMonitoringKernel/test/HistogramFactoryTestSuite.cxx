@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -14,11 +14,13 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "CxxUtils/ubsan_suppress.h"
 
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TInterpreter.h"
 
 #include "AthenaMonitoringKernel/HistogramDef.h"
 
@@ -116,9 +118,9 @@ class HistogramFactoryTestSuite {
     }
 
     void test_shouldRegisterAndReturnTEfficiencyHistogram() {
-      TEfficiency* const graph = createHistogram<TEfficiency>("TEfficiency");
-      // VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/TEfficiency")) EXPECTED(true);
-      VALUE(graph) NOT_EXPECTED(nullptr);
+      TEfficiency* const efficiency = createEfficiency();
+      VALUE(m_histSvc->existsEfficiency("/HistogramFactoryTestSuite/TEfficiency")) EXPECTED(true);
+      VALUE(efficiency) NOT_EXPECTED(nullptr);
     }
 
     void test_shouldThrowExceptionForUnknownHistogramType() {
@@ -217,7 +219,7 @@ class HistogramFactoryTestSuite {
     void test_shouldSetExtendAxesWhenkCanRebinIsSet() {
       HistogramDef histogramDef = defaultHistogramDef("TH1F");
       histogramDef.alias = "allAxesRebinAlias";
-      histogramDef.opt = "kCanRebin";
+      histogramDef.kCanRebin = true;
       TH1F* const histogram = dynamic_cast<TH1F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->CanExtendAllAxes()) EXPECTED(true);
@@ -226,7 +228,7 @@ class HistogramFactoryTestSuite {
     void test_shouldNotSetExtendAxesWhenkCanRebinIsNotSet() {
       HistogramDef histogramDef = defaultHistogramDef("TH1F");
       histogramDef.alias = "noAxesRebinAlias";
-      histogramDef.opt = "";
+      histogramDef.kCanRebin = false;
       TH1F* const histogram = dynamic_cast<TH1F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->CanExtendAllAxes()) EXPECTED(false);
@@ -235,7 +237,7 @@ class HistogramFactoryTestSuite {
     void test_shouldSetSumw2WhenSumw2IsSet() {
       HistogramDef histogramDef = defaultHistogramDef("TH1F");
       histogramDef.alias = "Sumw2ActiveAlias";
-      histogramDef.opt = "Sumw2";
+      histogramDef.Sumw2 = true;
       TH1F* const histogram = dynamic_cast<TH1F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->GetSumw2N()) EXPECTED(3);
@@ -244,7 +246,7 @@ class HistogramFactoryTestSuite {
     void test_shouldNotSetSumw2WhenSumw2IsNotSet() {
       HistogramDef histogramDef = defaultHistogramDef("TH1F");
       histogramDef.alias = "Sumw2InactiveAlias";
-      histogramDef.opt = "";
+      histogramDef.Sumw2 = false;
       TH1F* const histogram = dynamic_cast<TH1F*>(m_testObj->create(histogramDef));
  
       VALUE(histogram->GetSumw2N()) EXPECTED(0);
@@ -261,6 +263,7 @@ class HistogramFactoryTestSuite {
       result.title = histogramType;
       result.xbins = 1;
       result.ybins = 1;
+      result.zbins = 0;
 
       return result;
     }
@@ -271,17 +274,28 @@ class HistogramFactoryTestSuite {
       return dynamic_cast<HistogramType*>(m_testObj->create(histogramDef));
     }
 
+    TEfficiency* createEfficiency() {
+      HistogramDef histogramDef = defaultHistogramDef("TEfficiency");
+      histogramDef.ybins = 0;
+      histogramDef.zbins = 0;
+      return dynamic_cast<TEfficiency*>(m_testObj->create(histogramDef));
+    }
+
     void clearHistogramService() {
       for (string histName : m_histSvc->getHists()) {
-        m_histSvc->deReg(histName);
+        assert(m_histSvc->deReg(histName).isSuccess());
       }
 
       for (string treeName : m_histSvc->getTrees()) {
-        m_histSvc->deReg(treeName);
+        assert(m_histSvc->deReg(treeName).isSuccess());
       }
 
       for (string graphName : m_histSvc->getGraphs()) {
-        m_histSvc->deReg(graphName);
+        assert(m_histSvc->deReg(graphName).isSuccess());
+      }
+
+      for (string efficiencyName : m_histSvc->getEfficiencies()) {
+        assert(m_histSvc->deReg(efficiencyName).isSuccess());
       }
     }
 
@@ -321,6 +335,7 @@ class HistogramFactoryTestSuite {
 };
 
 int main() {
+  CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
   ISvcLocator* pSvcLoc;
 
   if (!Athena_test::initGaudi("GenericMon.txt", pSvcLoc)) {

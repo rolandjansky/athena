@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODJetAthenaPoolTPCnv.cxx 797270 2017-02-15 00:03:55Z khoo $
-#ifndef SIMULATIONBASE
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE))
 // Gaudi/Athena include(s):
 #include "AthenaKernel/TPCnvFactory.h"
 
@@ -19,4 +19,4 @@ DECLARE_TPCNV_FACTORY( xAODJetTrigAuxContainerCnv_v1,
                        xAOD::JetTrigAuxContainer,
                        xAOD::JetTrigAuxContainer_v1,
                        Athena::TPCnvVers::Old )
-#endif //ifndef SIMULATIONBASE
+#endif //ifndef SIMULATIONBASE OR GENERATIONBASE

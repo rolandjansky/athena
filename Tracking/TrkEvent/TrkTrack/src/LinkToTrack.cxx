@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/LinkToTrack.h"
@@ -20,10 +20,10 @@ namespace Trk
 		if ( isValid() )
 		{
 			const Trk::Track * trk = this->cachedElement();
-			if ( 0 != trk ) return dynamic_cast<const Trk::TrackParameters* > ( trk->perigeeParameters() );
-			return 0;
+			if ( nullptr != trk ) { return dynamic_cast<const Trk::TrackParameters* > ( trk->perigeeParameters() );}
+			return nullptr;
 		}
-		return 0;
+		return nullptr;
 	}//end of parameters method
 
         Trk::LinkToTrack* Trk::LinkToTrack::clone() const

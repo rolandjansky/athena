@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,6 +15,7 @@
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "egammaRecEvent/egammaRecContainer.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloUtils/CaloCellDetPos.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "egammaInterfaces/IegammaSwTool.h"
@@ -23,6 +24,7 @@
 
 #include <memory>
 
+class CaloDetDescrManager;
 /** Base class for electronSuperClusterBuilder and photonSuperClusterBuilder.
  *  The inheritance should be private. This class should never be instantiated
  *  by itself, and hence has no interface class
@@ -34,16 +36,18 @@ protected:
   egammaSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   /** should be called by the derived class in the initialize phase */
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
   /** Is clus in window center around ref? */
   bool matchesInWindow(const xAOD::CaloCluster *ref,
-		       const xAOD::CaloCluster *clus) const;
+                       const xAOD::CaloCluster *clus) const;
 
   /** Creates a new supercluster out of the input cluster */
   // not const because it calls CalibrateCluster
-  std::unique_ptr<xAOD::CaloCluster> createNewCluster(const std::vector<const xAOD::CaloCluster*>& clusters,
-						      xAOD::EgammaParameters::EgammaType egType);
+  std::unique_ptr<xAOD::CaloCluster>
+  createNewCluster(const std::vector<const xAOD::CaloCluster*>& clusters,
+                   const CaloDetDescrManager& mgr,
+                   xAOD::EgammaParameters::EgammaType egType) const;
 
   // some constants to use
   static constexpr float s_cellEtaSize = 0.025;
@@ -87,38 +91,41 @@ private:
   
   /** Find the size of the cluster */  
   PhiSize findPhiSize(const CentralPosition& cp0,
-		      const xAOD::CaloCluster* cluster) const;
+                      const xAOD::CaloCluster* cluster) const;
 
   
   /** Add the EM cells from reference cluster to self; eta and phi are the ones to use for limiting size. 
       This excludes L1 (which is done as a separate step). note, use raw eta and phi! */
   StatusCode addEMCellsToCluster(xAOD::CaloCluster* newCluster,
-				 const xAOD::CaloCluster* ref,
-				 const CentralPosition& cp0) const;
+                                 const xAOD::CaloCluster* ref,
+                                 const CentralPosition& cp0) const;
 
   /** Add the preshower and L1 EM cells from reference cluster to self; note, use raw eta and phi! */
   StatusCode addL0L1EMCellsToCluster(xAOD::CaloCluster* newCluster,
 				     const xAOD::CaloCluster* ref,
 				     const CentralPosition& cp0,
 				     const PhiSize& phiSize) const;
-  
+ 
+  /** functions to add all tile Gap 3 cells in a window*/
+  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster,
+                                      const CaloDetDescrManager& mgr) const;
+
   /** function to calibrate the new clusters energy */
   StatusCode calibrateCluster(xAOD::CaloCluster* newCluster,
-			      const xAOD::EgammaParameters::EgammaType egType) ;
-  // not const because it calls fillPositionsInCalo
-
+                              const CaloDetDescrManager& mgr,
+                              const xAOD::EgammaParameters::EgammaType egType) const ;
 
   /** function to decorate the calo cluster with position variables */
-  StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster); 
+  StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster,
+                                 const CaloDetDescrManager& mgr) const ;
   // above can't be const because m_caloCellDetPos acceses are not const
 
   /** functions to refine position in eta1*/
-  StatusCode refineEta1Position(xAOD::CaloCluster* cluster) const ;
-  StatusCode makeCorrection1(xAOD::CaloCluster* cluster,    
-			     const CaloSampling::CaloSample sample) const ;
-  
-  /** functions to add all tile Gap 3 cells in a window*/
-  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster) const;
+  StatusCode refineEta1Position(xAOD::CaloCluster* cluster,
+                                const CaloDetDescrManager& mgr) const;
+  StatusCode makeCorrection1(xAOD::CaloCluster* cluster,
+                             const CaloDetDescrManager& mgr,
+                             const CaloSampling::CaloSample sample) const;
 
   // these are calculated window values for the windows in which cells of topoclusters are edded
   float m_addCellsWindowEtaBarrel; //!< half of addCells window size, converted to units of eta

@@ -1,4 +1,6 @@
-// $Id: AsgTool.cxx 745115 2016-05-05 15:59:29Z ssnyder $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // System include(s):
 #include <iostream>
@@ -7,7 +9,7 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolStore.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 
 
 namespace asg {
@@ -57,76 +59,46 @@ const IInterface* getParent (const std::string& s)
 }
 
 } // anonymous namespace
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
 
 namespace asg {
 
    AsgTool::AsgTool( const std::string& name )
       : AsgToolBase(
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
                     getType(name), getName(name), getParent(name)
-#elif defined(ASGTOOL_STANDALONE)
-                    this
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#else // not XAOD_STANDALONE
+                    name
+#endif // not XAOD_STANDALONE
                     )
-#ifdef ASGTOOL_STANDALONE
-      , m_name( name ), m_ppropmgr( new PropertyMgr() ), m_event()
-#endif // ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
+      , m_event()
+#endif // XAOD_STANDALONE
    {
-#ifdef ASGTOOL_STANDALONE
-     msg().declarePropertyFor (*this);
-      
-#endif // ASGTOOL_STANDALONE
       ToolStore::put( this ).ignore(); // Register the tool in the ToolStore
    }
 
    AsgTool::~AsgTool() {
 
-#ifdef ASGTOOL_STANDALONE
-      
-      delete m_ppropmgr;
-#endif // ASGTOOL_STANDALONE
       ToolStore::remove( this ).ignore(); // Remove the tool from the ToolStore
    }
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
    SgTEvent* AsgTool::evtStore() const {
 
       return &m_event;
    }
 
-   /// See the comments for PropertyMgr::setProperty to see why this
-   /// function specialisation is needed, and why it has this exact form.
-   ///
-   /// @param name The name of the string property to set
-   /// @param value The value of the string property to set
-   /// @returns <code>StatusCode::SUCCESS</code> if the call was successful,
-   ///          <code>StatusCode::FAILURE</code> otherwise
-   ///
-   StatusCode AsgTool::setProperty( const std::string& name,
-                                    const char* value ) {
-
-      // Set the property using the property manager:
-      return m_ppropmgr->setProperty( name, value );
-   }
-
    PropertyMgr* AsgTool::getPropertyMgr() {
 
-      return m_ppropmgr;
+     return m_properties;
    }
 
    const PropertyMgr* AsgTool::getPropertyMgr() const {
 
-      return m_ppropmgr;
-   }
-
-   const std::string& AsgTool::name() const {
-
-      return m_name;
+     return m_properties;
    }
 
    void AsgTool::setName( const std::string& name ) {
@@ -135,7 +107,7 @@ namespace asg {
       return;
    }
 
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
    /// Instead of using this, weirdly named function, user code should get
    /// the string name of the current minimum message level (in case they

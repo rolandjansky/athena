@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValMET.h 
@@ -20,7 +18,7 @@
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "JetInterface/IJetUpdateJvt.h"
@@ -36,9 +34,6 @@
 class IMETMaker;
 class IAsgElectronLikelihoodTool;
 class IAsgPhotonIsEMSelector;
-namespace CP {
-  class IMuonSelectionTool;
-}
 namespace TauAnalysisTools {
   class ITauSelectionTool;
 }
@@ -91,8 +86,6 @@ class PhysValMET
   PhysValMET();
 
   // Containers
-  std::string m_metName;
-  std::string m_jetColl;
   std::string m_eleColl;
   std::string m_gammaColl;
   std::string m_tauColl;
@@ -105,7 +98,7 @@ class PhysValMET
   bool Accept(const xAOD::Photon* ph);
   bool Accept(const xAOD::TauJet* tau);
   bool Accept(const xAOD::Muon* muon);
-  bool Accept(const xAOD::Jet* jet, double JvtCut);
+  bool Accept(const xAOD::Jet* jet, double JvtCut, ToolHandle<IJetUpdateJvt>* jvtTool);
 
   // vector of collections
   std::vector <std::string> m_types;
@@ -158,14 +151,15 @@ class PhysValMET
 
   std::vector<std::string> m_dir_met;
 
-  ToolHandle<CP::IMuonSelectionTool> m_muonSelTool;
-  ToolHandle<IAsgElectronLikelihoodTool> m_elecSelLHTool;
-  ToolHandle<IAsgPhotonIsEMSelector>     m_photonSelIsEMTool;
-  ToolHandle<IJetUpdateJvt> m_jvtTool;
-  ToolHandle<IMETMaker> m_metmaker;
-  ToolHandle<IMETMaker> m_metmakerTopo;
-  ToolHandle<IMETMaker> m_metmakerPFlow;
-  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelTool            {this, "MuonSelectionTool",        "", "Muon selection tool"};
+  ToolHandle<IAsgElectronLikelihoodTool> m_elecSelLHTool      {this, "ElectronLHSelectionTool",  "", "Electron likelihood selection tool"};
+  ToolHandle<IAsgPhotonIsEMSelector> m_photonSelIsEMTool      {this, "PhotonIsEMSelectionTool" , "", "Photon selection tool"};
+  ToolHandle<IJetUpdateJvt> m_jvtToolEM                       {this, "JVTToolEMTopo",            "", "JVT tool for EMTopo jets"};
+  ToolHandle<IJetUpdateJvt> m_jvtToolPFlow                    {this, "JVTToolEMPFlow",           "", "JVT tool forEMPFlow jets"};
+  ToolHandle<IMETMaker> m_metmakerTopo                        {this, "METMakerTopo",             "", "METMaker for EMTopo jets"};
+  ToolHandle<IMETMaker> m_metmakerPFlow                       {this, "METMakerPFlow",            "", "METMaker for EMPFlow jets"};
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool{this, "TauSelectionTool",         "", "Tau selection tool"};
+  ToolHandle<IMETMaker>* m_metmaker;
 }; 
 
 // I/O operators

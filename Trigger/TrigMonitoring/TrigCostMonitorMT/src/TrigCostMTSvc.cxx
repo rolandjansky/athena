@@ -61,7 +61,10 @@ StatusCode TrigCostMTSvc::initialize() {
 
 StatusCode TrigCostMTSvc::finalize() {
   ATH_MSG_DEBUG("TrigCostMTSvc finalize()");
-  if (m_saveHashes) TrigConf::HLTUtils::hashes2file();
+  if (m_saveHashes) {
+    TrigConf::HLTUtils::hashes2file();
+    ATH_MSG_INFO("Calling hashes2file, saving dump of job's HLT hashing dictionary to disk.");
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -172,6 +175,10 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     return StatusCode::SUCCESS;
   }
 
+  // As we will miss the AuditType::After of the DecisionSummaryMakerAlg (which is calling this TrigCostMTSvc::endEvent), let's add it now.
+  // This will be our canonical final timestamps for measuring this event. Similar was done for L1Decoder at the start
+  ATH_CHECK(processAlg(context, m_decisionSummaryMakerAlgName, AuditType::After));
+
   // Reset eventMonitored flags
   m_eventMonitored[ context.slot() ] = false;
 
@@ -201,21 +208,12 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     {
       tbb::concurrent_hash_map<AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare>::const_accessor stopTimeAcessor;
       if (m_algStopTime.retrieve(ai, stopTimeAcessor).isFailure()) {
-        if (ai.m_caller == m_decisionSummaryMakerAlgName) {
-          // TrigCostMTSvc::endEvent is called by the DecisionSummaryMakerAlg. So we don't expect to find an end time for this alg.
-          // But also, "right now" is an appropriate stop time for this alg. So we keep gotStopTime=true and use the TrigTimeStamp initialised to "now".
-          TrigTimeStamp now;
-          stopTime = now.microsecondsSinceEpoch();
-          ATH_MSG_DEBUG("Setting stop time of '" << m_decisionSummaryMakerAlgName << "' to 'now' (" << stopTime << ")");
-        } else {
-          ATH_MSG_DEBUG("No end time for '" << ai.m_caller << "', '" << ai.m_store << "'");
-        }
+        ATH_MSG_DEBUG("No end time for '" << ai.m_caller << "', '" << ai.m_store << "'");
       } else { // retrieve was a success
         stopTime = stopTimeAcessor->second.microsecondsSinceEpoch();
       }
       // stopTimeAcessor goes out of scope - lock released
     }
-
 
     // Make a new TrigComposite to persist monitoring payload for this alg
     xAOD::TrigComposite* tc = new xAOD::TrigComposite();

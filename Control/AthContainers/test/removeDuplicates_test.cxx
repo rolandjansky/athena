@@ -3,9 +3,6 @@
 */
 
 
-// Disable this test in standalone compilation:
-#ifndef XAOD_STANDALONE
-
 #define DO_REMOVE_DUPLICATES 1
 #include <cassert>
 #include "AthContainers/DataVector.h"
@@ -27,11 +24,3 @@ int main() {
   cout << "<--- ~DataVector returns" <<endl;
   return 0;
 }
-
-#else
-
-int main() {
-   return 0;
-}
-
-#endif // not XAOD_STANDALONE

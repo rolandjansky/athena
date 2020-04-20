@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,24 +20,16 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
 #include <inttypes.h>
 
 #include <sstream>
 #include <algorithm>
 #include <fstream>
 
-using namespace std;
-
-
 // New Sort Segments in the MDT Endcap into Sides and MDT Stations
 void
 MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *newsegment,
-                                       vector<const Muon::MuonSegment*> (&sortedSegments)[2][4]){
+                                       std::vector<const Muon::MuonSegment*> (&sortedSegments)[2][4]){
     
   // Loop over all segments in event
   xAOD::MuonSegmentContainer::const_iterator mdtseg_itr = newsegment->begin();
@@ -57,6 +49,10 @@ MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *newsegm
     // Loop through contained ROTs and identify used stations
     for(unsigned int iROT=0; iROT<segm->numberOfContainedROTs(); ++iROT){
       const Trk::RIO_OnTrack* rio = segm->rioOnTrack(iROT);
+      if(!rio){
+	ATH_MSG_DEBUG("No RIO");
+	continue;
+      }
       Identifier id = rio->identify();
       
       // Identify MDT Endcap Segments

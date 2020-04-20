@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -781,7 +781,7 @@ StatusCode D2PDJetSelector::processObject( const Jet* jet,
       // Do selections for jets with a different SignalState
       //----------------------------------------------------------
       P4SignalState::State originalSignalState = jet->signalState();
-      SignalStateHelper sigstateH( jet, (P4SignalState::State)m_signalState );
+      SignalStateConstHelper sigstateH( jet, (P4SignalState::State)m_signalState );
       ATH_MSG_DEBUG ( "Setting a new SignalState for this jet! Will apply the selections for the new SignalState!" );
       
       // transverse energy selection
@@ -846,7 +846,7 @@ StatusCode D2PDJetSelector::processObject( const Jet* jet,
         }
       // Now, revert the jet SignalState to the original one
       // done automatically when sigstateH go away.
-      SignalStateHelper sigstateH2( jet, originalSignalState );
+      SignalStateConstHelper sigstateH2( jet, originalSignalState );
       ATH_MSG_DEBUG ( "Reverting the jet to the original SignalState!" );
       if (isPassed) m_nJetsPassed++;
     }

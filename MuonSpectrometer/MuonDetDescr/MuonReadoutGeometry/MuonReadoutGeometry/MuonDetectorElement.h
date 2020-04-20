@@ -1,15 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  Common Muon Detector Element properties
  -----------------------------------------
  ***************************************************************************/
-
-//<doc><file>	$Id: MuonDetectorElement.h 
-//<version>	$Name: not supported by cvs2svn $
-
 
 //!  A MuonDetectorElement Class
 /*!
@@ -20,7 +16,6 @@
   methods will delegate the job to the appropriate MuonReadoutElement.  
 */
 
-
 #ifndef MUONGEOMODEL_MUONDETECTORELEMENT_H
 # define MUONGEOMODEL_MUONDETECTORELEMENT_H
 
@@ -30,9 +25,6 @@
 #include "Identifier/IdentifierHash.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
-
-class IMessageSvc;
-class MsgStream;
 class GeoPhysVol;
 
 namespace MuonGM {
@@ -75,22 +67,11 @@ public:
    virtual unsigned int nRPCinStation() const = 0;     
 
 protected:    
-   // Gaudi message service
-   IMessageSvc* m_msgSvc;
-   mutable std::unique_ptr<MsgStream> m_Log ATLAS_THREAD_SAFE;
-   // compute from MuonStation ---- 
-   //    double m_Ssize, m_Rsize, m_Zsize, m_LongSsize, 
-   //    m_LongRsize, m_LongZsize; //!< size in the specified direction
    inline const MuonDetectorManager* manager() const; 
-   // hold in RE --- std::string       m_techname; //!< MDT or RPC or TGC or CSC plus a two digits subtype; example RPC17
-   // hold in RE --- std::string       m_statname; //!< examples are BMS5, CSS1, EML1
    Identifier        m_id;       //!< extended data-collection identifier 
    IdentifierHash    m_idhash;   //!< data-collection hash identifier
 
    unsigned int m_nREinDetectorElement;
-
-   bool m_debug;
-   bool m_verbose;
     
 private:
 

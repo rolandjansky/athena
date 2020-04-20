@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import user
 import os
 import sys
@@ -22,16 +24,16 @@ def timeofday():
 
 uuid = "%s_%s" % (os.getpid(),timeofday())
 
-print "#"*80
-print "## testing McEventCollection I/O..."
-print "## Job uuid:",uuid
+print ("#"*80)
+print ("## testing McEventCollection I/O...")
+print ("## Job uuid:",uuid)
 benchSequence = BenchSequence( "McEventCollection I/O" )
 
 EVTMAX = 100
 NTIMES = 1
 
 ###-----------------------------------------------------
-print "## Testing [writing]..."
+print ("## Testing [writing]...")
 jobOptions = [
     ChapPy.JobOptionsCmd("OUTPUT=\"%s\"" % workDir("mc.io.event.%s.pool"%uuid)),
     ChapPy.JobOptionsCmd("DUMP=False"),
@@ -48,8 +50,8 @@ bench = iobench.AthBench( athena,
                           logFile = workDir("write.%s.log" %
                                             os.path.basename(workDir("mc.io.event.%s.pool"%uuid))) )
 
-## print "## bench:"
-## print bench.athena
+## print ("## bench:")
+## print (bench.athena)
 bench.run()
 
 #bench.ioStats( [ "McEventCollection#GEN_EVENT" ], "w" )
@@ -58,9 +60,9 @@ bench.stats()
 
 ###-----------------------------------------------------
 
-print "\n\n"
-print "#"*80
-print "## Testing [reading]..."
+print ("\n\n")
+print ("#"*80)
+print ("## Testing [reading]...")
 jobOptions = [
     ChapPy.JobOptionsCmd("INPUT=[\"%s\"]"%workDir("mc.io.event.%s.pool"%uuid)),
     ChapPy.JobOptionsCmd("DUMP=False"),
@@ -74,8 +76,8 @@ bench = iobench.AthBench( athena,
                           nTimes = NTIMES,
                           logFile = workDir("read.%s.log" %
                                             os.path.basename(workDir("mc.io.event.%s.pool"%uuid))) )
-#print "## bench:"
-#print bench.athena
+#print ("## bench:")
+#print (bench.athena)
 bench.run()
 
 #bench.ioStats( [ "McEventCollection#GEN_EVENT" ], "r" )
@@ -83,8 +85,8 @@ bench.run()
 bench.save( "iobench-genevent-%ievts.read.%s.log" % (athena.EvtMax,uuid) )
 bench.stats()
 
-print ""
-print "#"*80
+print ("")
+print ("#"*80)
 benchSequence.printStatus()
-print "## Bye."
-print "#"*80
+print ("## Bye.")
+print ("#"*80)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -19,10 +19,11 @@
 #ifndef EMAPMATRIX_H
 #define EMAPMATRIX_H
 
-#include <string>
 #include <iostream>
-#include <vector>
 #include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "GaudiKernel/StatusCode.h"
 
@@ -35,7 +36,7 @@ public:
       @param name :	Name of axis, e.g. "Eta"
       @param bins : stl std::vector with binning values - must be in increasing order
   */		
-  EMAPMatrixAxis(std::string name, const std::vector <double> &bins): m_name(name), m_vecBins(bins) {};
+  EMAPMatrixAxis(std::string name, const std::vector <double> &bins): m_name(std::move(name)), m_vecBins(bins) {};
 
 		
   /** Default Destructor */
@@ -77,7 +78,7 @@ public:
   /** Constructor with std::vector of axes to define dimensions and binnging of this matrix
       @param axes: std::vector of EMAPMatrixAxis objects
   */
-  EMAPMatrix(std::vector<EMAPMatrixAxis> axes, std::string textDescription);
+  EMAPMatrix(const std::vector<EMAPMatrixAxis>& axes, const std::string& textDescription);
   /** Constructor with std::vector of axes to define dimensions and binnging of this matrix
       @param axes: std::vector of EMAPMatrixAxis objects
       @emptyObject: Standard object which is used to fill the matrix if it is supposed to be empty/cleaned*/
@@ -167,7 +168,7 @@ public:
   EMAPMatrixAxis  getAxis(unsigned int i) const	{	return m_axis[i];}
 				
   /** return the std::vector<T> which contains all content information of the matrix. Note that the binning and dimensions is not coded inside*/
-  const std::vector<T> getValues() const 	{	return m_matrix;}
+  std::vector<T> getValues() const 	{	return m_matrix;}
 
 		
   // Clearing functions
@@ -180,7 +181,7 @@ public:
   bool isInRange(std::vector<double> x) const;
 		
   /** The user can add a Description of what this matrix contains and how it was produced, e.g. cuts*/
-  void setTextDescription(std::string text);
+  void setTextDescription(const std::string& text);
   /** The user can add a Description of what this matrix contains and how it was produced, e.g. cuts*/
   std::string getTextDescription() const;
 		

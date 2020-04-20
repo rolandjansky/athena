@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL
@@ -12,7 +12,8 @@
 #include "TrigT1TGC/TGCASDOut.h"
 #include "TrigT1TGC/TGCEvent.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
-#include "TrigT1TGC/TGCSLSelectorOut.hh"
+#include "TrigT1TGC/TGCSLSelectorOut.hh"// for Run2
+#include "TrigT1TGC/TGCTrackSelectorOut.h"// for Run3
 #include "TrigT1TGC/TGCElectronicsSystem.hh"
 #include "TrigT1TGC/TGCTimingManager.hh"
 #include "TrigT1TGC/TGCDatabaseManager.hh"
@@ -20,20 +21,12 @@
 #include "TrigT1TGC/TGCNumbering.hh"
 #include "TrigT1TGC/TrigT1TGC_ClassDEF.h"
 #include "TrigT1TGC/TGCNumbering.hh"
-#include "TrigT1TGC/TGCCoincidence.hh"
 #include "TrigT1TGC/TGCTMDBOut.h"
 
-// Tile-Muon
-#include "TileEvent/TileMuContainer.h"
-#include "TileEvent/TileMuonReceiverObj.h"
-
-
 // Athena/Gaudi
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
 
 // Other stuff
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
@@ -56,9 +49,9 @@
 
 namespace LVL1TGCTrigger {
 
-  ///////////////////////////////////////////////////////////////////////////
-  LVL1TGCTrigger::LVL1TGCTrigger::LVL1TGCTrigger(const std::string& name, ISvcLocator* pSvcLocator):
-    AthAlgorithm(name,pSvcLocator),
+  /////////////////////////////////////////////////////////////////////////////////
+  LVL1TGCTrigger::LVL1TGCTrigger(const std::string& name, ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name,pSvcLocator),
     m_cabling(0),
     m_bctagInProcess(0),
     m_db(0),
@@ -66,13 +59,10 @@ namespace LVL1TGCTrigger {
     m_system(0),
     m_nEventInSector(0),
     m_innerTrackletSlotHolder( tgcArgs() ),
-    m_log( msgSvc(), name ),
     m_debuglevel(false)
   {
-    
   }
-  
-  
+
   ////////////////////////////////////////////////////////////
   LVL1TGCTrigger::~LVL1TGCTrigger()
   {
@@ -90,79 +80,48 @@ namespace LVL1TGCTrigger {
       delete m_db;
       m_db =0;
     }
-    
   }
-  
-  
+
   ////////////////////////////////////////////////////////////
   StatusCode LVL1TGCTrigger::initialize()
   {
-    // init message stram
-    
-    m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug
-    
-    ATH_MSG_DEBUG("LVL1TGCTrigger::initialize() called");
-    
-    m_tgcArgs.set_STRICTWD( m_STRICTWD.value() );
-    m_tgcArgs.set_STRICTWT( m_STRICTWT.value() );
-    m_tgcArgs.set_STRICTSD( m_STRICTSD.value() );
-    m_tgcArgs.set_STRICTST( m_STRICTST.value() );
-    m_tgcArgs.set_OUTCOINCIDENCE( m_OUTCOINCIDENCE.value() );
+    ATH_MSG_DEBUG("LVL1TGCTrigger::initialize()");
+
+    m_debuglevel = (msgLevel() <= MSG::DEBUG); // save if threshold for debug
+
+    m_tgcArgs.set_MSGLEVEL(msgLevel());
     m_tgcArgs.set_SHPT_ORED( m_SHPTORED.value() );
     m_tgcArgs.set_USE_INNER( m_USEINNER.value() );
     m_tgcArgs.set_INNER_VETO( m_INNERVETO.value() && m_tgcArgs.USE_INNER() );
     m_tgcArgs.set_TILE_MU( m_TILEMU.value() && m_tgcArgs.USE_INNER() );
-    m_tgcArgs.set_USE_CONDDB( true );
+    m_tgcArgs.set_USE_CONDDB( m_USE_CONDDB.value() );
     m_tgcArgs.set_useRun3Config( m_useRun3Config.value() );
-    
-    // TrigConfigSvc
-    StatusCode sc = m_configSvc.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("Could not connect to " << m_configSvc.typeAndName());
-    }
-    else {
-      ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName());
-    }
-    
-    // clear Masked channel
-    m_MaskedChannel.clear();
-    
-    if (m_tgcArgs.OUTCOINCIDENCE()) m_tgcArgs.set_TGCCOIN( new TGCCoincidences() );
 
-    if (m_CurrentBunchTag>0) ATH_MSG_DEBUG("---> Take hits with CURRENT banch tag = " << m_CurrentBunchTag);
-    ATH_MSG_DEBUG("OutputRdo " << m_OutputTgcRDO.value());
-    
+    // initialize to read condition DB key of TGCTriggerData
     ATH_CHECK( m_readCondKey.initialize() );
     
     // initialize TGCDataBase
-    m_db = new TGCDatabaseManager(&m_tgcArgs,m_readCondKey,m_VerCW);
-    
-    // try to initialize the TGCcabling
-    sc = getCabling();
-    if(sc.isFailure()) {
-      ATH_MSG_DEBUG("TGCcablingServerSvc not yet configured; postone TGCcabling initialization at first event.");
-    }
+    m_db = new TGCDatabaseManager(&m_tgcArgs, m_readCondKey, m_VerCW);
 
+    // initialize the TGCcabling
+    ATH_CHECK(getCabling());
+
+    // read and write handle key
+    ATH_CHECK(m_keyTgcDigit.initialize());
+    ATH_CHECK(m_keyTileMu.initialize());
     ATH_CHECK(m_muctpiPhase1Key.initialize(tgcArgs()->useRun3Config()));
     ATH_CHECK(m_muctpiKey.initialize(!tgcArgs()->useRun3Config()));
-    
+
+    // clear mask channel map
+    m_MaskedChannel.clear();
+
     return StatusCode::SUCCESS;
   }
-  
+
   ////////////////////////////////////////////////
   StatusCode LVL1TGCTrigger::finalize()
   {
     ATH_MSG_DEBUG("LVL1TGCTrigger::finalize() called" << " m_nEventInSector = " << m_nEventInSector);
-    
-    // clear and delete TGCCOIN
-    if (m_tgcArgs.OUTCOINCIDENCE()) {
-      if (m_tgcArgs.TGCCOIN()->size()) {
-        for(std::vector<TGCCoincidence*>::iterator iss=m_tgcArgs.TGCCOIN()->begin(); iss!=m_tgcArgs.TGCCOIN()->end(); iss++)
-          delete (*iss);
-      }
-      m_tgcArgs.TGCCOIN()->clear();
-    }
-    m_tgcArgs.clear();
     
     if (m_db) delete m_db;
     m_db = 0 ;
@@ -173,8 +132,7 @@ namespace LVL1TGCTrigger {
     
     return StatusCode::SUCCESS;
   }
-  
-  
+
   ////////////////////////////////////////////
   StatusCode LVL1TGCTrigger::execute()
   {
@@ -223,12 +181,12 @@ namespace LVL1TGCTrigger {
       }
     }
     
-    const DataHandle<TgcDigitContainer> tgc_container;
-    sc = evtStore()->retrieve(tgc_container, m_keyTgcDigit);
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL("Cannot retrieve TGC Digit Container");
-      return sc;
+    SG::ReadHandle<TgcDigitContainer> readTgcDigitContainer( m_keyTgcDigit );
+    if(!readTgcDigitContainer.isValid()){
+      ATH_MSG_ERROR("Cannot retrieve TgcDigitContainer");
+      return StatusCode::FAILURE;
     }
+    const TgcDigitContainer* tgc_container = readTgcDigitContainer.cptr();
     
     LVL1MUONIF::Lvl1MuCTPIInputPhase1* muctpiinputPhase1 = nullptr;
     LVL1MUONIF::Lvl1MuCTPIInput* muctpiinput = nullptr;
@@ -267,8 +225,8 @@ namespace LVL1TGCTrigger {
     
     return sc;
   }
-  
-  StatusCode LVL1TGCTrigger::processOneBunch(const DataHandle<TgcDigitContainer>& tgc_container,
+
+  StatusCode LVL1TGCTrigger::processOneBunch(const TgcDigitContainer* tgc_container,
                                              LVL1MUONIF::Lvl1MuCTPIInput* muctpiinput,
                                              LVL1MUONIF::Lvl1MuCTPIInputPhase1* muctpiinputPhase1)
   {
@@ -288,12 +246,6 @@ namespace LVL1TGCTrigger {
     // process trigger electronics emulation...
     m_TimingManager->increaseBunchCounter();
     m_system->distributeSignal(&event);
-    
-    // clear TGCCOIN
-    if (m_tgcArgs.OUTCOINCIDENCE() && (m_tgcArgs.TGCCOIN()->size() >0 )) {
-      for(std::vector<TGCCoincidence*>::iterator iss=m_tgcArgs.TGCCOIN()->begin(); iss!=m_tgcArgs.TGCCOIN()->end(); iss++) delete (*iss);
-      m_tgcArgs.TGCCOIN()->clear();
-    }
     
     // EIFI trigger bits for SL are cleared.
     m_innerTrackletSlotHolder.clearTriggerBits();
@@ -353,12 +305,14 @@ namespace LVL1TGCTrigger {
           if (m_OutputTgcRDO.value()) recordRdoSL(sector, subsystem);
 
           TGCSLSelectorOut* selectorOut = sector->getSL()->getSelectorOutput();
+	  std::shared_ptr<TGCTrackSelectorOut>  trackSelectorOut;
+	  sector->getSL()->getTrackSelectorOutput(trackSelectorOut); 
 
           if(sector->getRegionType()==Endcap){
             if(m_tgcArgs.useRun3Config()){
               LVL1MUONIF::Lvl1MuEndcapSectorLogicDataPhase1 sldata;
               tgcsystem = LVL1MUONIF::Lvl1MuCTPIInputPhase1::idEndcapSystem();
-              if(selectorOut!=0) FillSectorLogicData(&sldata,selectorOut,subsystem);
+              if(trackSelectorOut!=0) FillSectorLogicData(&sldata,trackSelectorOut.get());
               muctpiinputPhase1->setSectorLogicData(sldata,tgcsystem,subsystem,sectoraddr_endcap++,muctpiBcId);
             }else{
               LVL1MUONIF::Lvl1MuEndcapSectorLogicData sldata;
@@ -370,7 +324,7 @@ namespace LVL1TGCTrigger {
             if(m_tgcArgs.useRun3Config()){
               LVL1MUONIF::Lvl1MuForwardSectorLogicDataPhase1 sldata;
               tgcsystem = LVL1MUONIF::Lvl1MuCTPIInputPhase1::idForwardSystem();
-              if(selectorOut!=0) FillSectorLogicData(&sldata,selectorOut,subsystem);
+              if(trackSelectorOut!=0) FillSectorLogicData(&sldata,trackSelectorOut.get());
               muctpiinputPhase1->setSectorLogicData(sldata,tgcsystem,subsystem,sectoraddr_forward++,muctpiBcId);
             }else{
               LVL1MUONIF::Lvl1MuForwardSectorLogicData sldata;
@@ -380,10 +334,17 @@ namespace LVL1TGCTrigger {
             }
           }
 
+	  //** Selector in  Run2
           // delete selectorOut
           sector->getSL()->eraseSelectorOut();
           if (selectorOut != 0 ) delete selectorOut;
           selectorOut=0;
+	  
+	  //** Selector in  Run3
+          // delete selectorOut
+	  trackSelectorOut.get()->reset();
+
+
         } // k Module
       } // j Octant
     } // i Side
@@ -395,7 +356,7 @@ namespace LVL1TGCTrigger {
   
   
   ////////////////////////////////////////////////////////
-  void LVL1TGCTrigger::doMaskOperation(const DataHandle<TgcDigitContainer>& tgc_container,
+  void LVL1TGCTrigger::doMaskOperation(const TgcDigitContainer* tgc_container,
                                        std::map<Identifier, int>& TgcDigitIDs)
   {
     std::map<Identifier, int>::iterator itCh;
@@ -575,43 +536,33 @@ namespace LVL1TGCTrigger {
 
   ////////////////////////////////////////////////////////
   void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicDataPhase1 *sldata,
-                                           const TGCSLSelectorOut* selectorOut, unsigned int subsystem)
+                                           const TGCTrackSelectorOut *trackSelectorOut)
   {
     // M.Aoki (26/10/2019)
     // this function will be updated for Run3-specific configuration such as quality flags, 15 thresholds
-    
-    if(selectorOut ==0) return;
-    int Zdir= (subsystem==LVL1MUONIF::Lvl1MuCTPIInputPhase1::idSideA() ? 1 : -1);
+    if(trackSelectorOut ==0) return;
 
     sldata->clear2candidatesInSector();// for temporary
 
     const int muctpiBcId_offset = TgcDigit::BC_CURRENT;
     sldata->bcid(m_bctagInProcess - muctpiBcId_offset);
 
-    if ((selectorOut->getNCandidate()) >= 1) {
-      sldata->roi(0,((selectorOut->getR(0))<<2)+(selectorOut->getPhi(0)));
-      //      ovl --> veto
-      //      sldata->ovl(0,0);
-      if (selectorOut->getInnerVeto(0)) sldata->ovl(0,1);
-      else                              sldata->ovl(0,0);
-      sldata->pt(0,selectorOut->getPtLevel(0));
-      sldata->charge(0, getCharge(selectorOut->getDR(0),Zdir));
-    } else {
-      // no entry
+    for(int trackNumber=0;trackNumber!=trackSelectorOut->getNCandidate();trackNumber++){
+
+      sldata->roi(trackNumber,((trackSelectorOut->getR(trackNumber))<<2)+(trackSelectorOut->getPhi(trackNumber)));
+      sldata->pt(trackNumber,trackSelectorOut->getPtLevel(trackNumber));
+      if (trackSelectorOut->getInnerVeto(trackNumber)) sldata->ovl(trackNumber,1);
+      else                                             sldata->ovl(trackNumber,0);
+      sldata->charge(trackNumber, trackSelectorOut->getCharge(trackNumber));
+      sldata->bw2or3(trackNumber, trackSelectorOut->getCoincidenceType(trackNumber));
+      sldata->goodmf(trackNumber, trackSelectorOut->getGoodMFFlag(trackNumber));
+      sldata->innercoin(trackNumber, trackSelectorOut->getInnerCoincidenceFlag(trackNumber));
     }
-    if ((selectorOut->getNCandidate()) == 2) {
-      sldata->roi(1,((selectorOut->getR(1))<<2)+(selectorOut->getPhi(1)));
-      //      ovl --> veto
-      //      sldata->ovl(1,0);
-      if (selectorOut->getInnerVeto(1)) sldata->ovl(1,1);
-      else                              sldata->ovl(1,0);
-      sldata->pt(1,selectorOut->getPtLevel(1));
-      sldata->charge(1, getCharge(selectorOut->getDR(1),Zdir));
-    }
-    sldata->set2candidates(0);// not used for TGC
-    sldata->clear2candidates(0);// not used for TGC
-    sldata->set2candidates(1);// not used for TGC
-    sldata->clear2candidates(1);// not used for TGC
+    for(int trackNumber=0;trackNumber!=TGCTrackSelectorOut::NCandidateInTrackSelector;trackNumber++){
+      sldata->set2candidates(trackNumber);// not used for TGC
+      sldata->clear2candidates(trackNumber);// not used for TGC
+    } 
+
   }
 
   //////////////////////////////////////////
@@ -1247,10 +1198,10 @@ namespace LVL1TGCTrigger {
   }
   
   ///////////////////////////////////////////////////////////
-  
   StatusCode LVL1TGCTrigger::getCabling()
   {
-    ATH_MSG_DEBUG("start getCabling()");
+    ATH_MSG_DEBUG("LVL1TGCTrigger::getCabling()");
+
     // TGCcablingSvc
     // get Cabling Server Service
     const ITGCcablingServerSvc* TgcCabGet = 0;
@@ -1311,6 +1262,8 @@ namespace LVL1TGCTrigger {
     m_TimingManager->setBunchCounter(0);
     m_nEventInSector = 0;
 
+    ATH_MSG_DEBUG("finished LVL1TGCTrigger::getCabling()");
+
     return sc;
   }
 
@@ -1323,14 +1276,12 @@ namespace LVL1TGCTrigger {
     // clear TMDB
     tmdb->eraseOutput();
     
-    // retrive TileMuonReceiverContainer
-    const DataHandle<TileMuonReceiverContainer> tileMuRecCont;
-    sc = evtStore()->retrieve(tileMuRecCont, m_keyTileMu);
-
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve Tile Muon Receiver Container.");
-      return sc;
+    SG::ReadHandle<TileMuonReceiverContainer> readTileMuonReceiverContainer(m_keyTileMu);
+    if(!readTileMuonReceiverContainer.isValid()){
+      ATH_MSG_ERROR("Cannot retrieve Tile Muon Receiver Container.");
+      return StatusCode::FAILURE;
     }
+    const TileMuonReceiverContainer* tileMuRecCont = readTileMuonReceiverContainer.cptr();
 
     // loop over all TileMuonReceiverObj in container
     TileMuonReceiverContainer::const_iterator tmItr = tileMuRecCont->begin();

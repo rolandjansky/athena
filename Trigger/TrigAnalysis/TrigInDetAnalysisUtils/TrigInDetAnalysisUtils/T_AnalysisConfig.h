@@ -302,7 +302,10 @@ protected:
   /// new MT feature access
 
   template<class Collection>
-  bool selectTracks( TrigTrackSelector* selector, const ElementLink<TrigRoiDescriptorCollection>& roi_link,  const std::string& key="" )  {
+  bool selectTracks( TrigTrackSelector* selector, 
+		     //		     const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> roi_link,  
+		     const ElementLink<TrigRoiDescriptorCollection>& roi_link,
+		     const std::string& key="" )  {
 
 
     /// will need this printout for debugging the feature access, so leave this commented 
@@ -322,7 +325,9 @@ protected:
     std::pair< typename Collection::const_iterator, 
 	       typename Collection::const_iterator > itrpair;
 
-    itrpair = (*m_tdt)->associateToEventView( SG::ReadHandle<Collection>(key), roi_link );
+    SG::ReadHandle<Collection> handle(key);
+
+    itrpair = (*m_tdt)->associateToEventView( handle, roi_link );
                       
     if ( itrpair.first != itrpair.second ) {
       selector->selectTracks( itrpair.first, itrpair.second );

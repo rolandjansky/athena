@@ -8,7 +8,7 @@ from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
-Analysis__BTagSecVertexing=CompFactory.Analysis__BTagSecVertexing
+Analysis__BTagSecVertexing=CompFactory.Analysis.BTagSecVertexing
 
 def BTagSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
     """Adds a SecVtxTool instance and registers it.
@@ -42,10 +42,11 @@ def BTagSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
     secVtxFinderTrackNameList.append('BTagTrackToJetAssociator')
     secVtxFinderxAODBaseNameList.append('SV1')
 
-    inDetVKalMultiVxInJetTool = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalMultiVxInJet", MSV = True))
-    secVtxFinderList.append(inDetVKalMultiVxInJetTool)
-    secVtxFinderTrackNameList.append('BTagTrackToJetAssociatorBB')
-    secVtxFinderxAODBaseNameList.append('MSV')
+    #Keep this commented out for the moment: ATLASRECTS-5247
+    #inDetVKalMultiVxInJetTool = acc.popToolsAndMerge(InDetVKalVxInJetToolCfg("IDVKalMultiVxInJet", MSV = True))
+    #secVtxFinderList.append(inDetVKalMultiVxInJetTool)
+    #secVtxFinderTrackNameList.append('BTagTrackToJetAssociatorBB')
+    #secVtxFinderxAODBaseNameList.append('MSV')
 
     varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 
@@ -55,8 +56,8 @@ def BTagSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
     options.setdefault('SecVtxFinderList', secVtxFinderList)
     options.setdefault('SecVtxFinderTrackNameList', secVtxFinderTrackNameList)
     options.setdefault('SecVtxFinderxAODBaseNameList', secVtxFinderxAODBaseNameList)
-    options.setdefault('PrimaryVertexName',BTaggingFlags.PrimaryVertexCollectionName)
-    options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
+    options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
+    options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
     options['BTagJFVtxCollectionName'] = btagname + OutputFilesJFVxname
     options['BTagSVCollectionName'] = btagname + OutputFilesSVname
     options.setdefault('JetFitterVariableFactory', jetFitterVF)

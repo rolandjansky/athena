@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -67,7 +67,7 @@ namespace TrigTauEmul {
     //m_l1xe_tools = m_registry->GetL1XeTools();
     //_l1muon_tools = m_registry->GetL1MuonTools()
     
-    initializeTools();
+    initializeTools().ignore();
   }
 
   Level1EmulationTool::~Level1EmulationTool(){
@@ -426,7 +426,7 @@ namespace TrigTauEmul {
     return true;
   }
 
-  StatusCode Level1EmulationTool::PrintCounters() {
+  void Level1EmulationTool::PrintCounters() {
     MY_MSG_INFO("");
     MY_MSG_INFO("-- Counts for the considered tools --");
     std::ostringstream headers;
@@ -443,7 +443,6 @@ namespace TrigTauEmul {
     MY_MSG_INFO(headers.str());
     MY_MSG_INFO(line_tools.str());
     MY_MSG_INFO(line_counts.str());
-    return StatusCode::SUCCESS;
   }
 
 

@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 """
 Compare beamspot DQ defects between various databases and tags
@@ -42,11 +44,11 @@ def main():
     f1 = "%s::%s" % (db1, options.folder)
     f2 = "%s::%s" % (db2, options.folder)
 
-    print "="*100
-    print "Comparing: "
-    print "  * ", f1, options.tag1
-    print "  * ", f2, options.tag2
-    print "="*100
+    print ("="*100)
+    print ("Comparing: ")
+    print ("  * ", f1, options.tag1)
+    print ("  * ", f2, options.tag2)
+    print ("="*100)
 
     if options.runMin is not None:
         runs = options.runMin
@@ -78,7 +80,7 @@ def main():
         # Check for IOVs with different status (one of which is non-zero)
         if (t1.status == 0 or t2.status == 0) and (t1.status != t2.status):
             if options.statusonly and not options.summary:
-                print since, until, t1.status, t2.status
+                print (since, until, t1.status, t2.status)
             ar2.add(since.run)
 
         # Check for differences in all fields 
@@ -91,14 +93,14 @@ def main():
                 #if field in ['sigmaX', 'sigmaY'] and abs(t1[i]-t2[i]) > 0.2e-3:
                 #if field in ['sigmaZ'] and abs(t1[i]-t2[i])/t1[i] > 0.002:
                     if not options.summary:
-                        print since, until, field, t1[i], t2[i]
+                        print (since, until, field, t1[i], t2[i])
                     affected_runs.add(since.run)
 
     # Print results
     if not options.statusonly:
-        print "Runs with differences (%s):" % len(affected_runs), ", ".join(map(str, sorted(affected_runs)))
+        print ("Runs with differences (%s):" % len(affected_runs), ", ".join(map(str, sorted(affected_runs))))
 
-    print "Runs with different status (and one non-zero):", ", ".join(map(str, sorted(ar2)))
+    print ("Runs with different status (and one non-zero):", ", ".join(map(str, sorted(ar2))))
 
 if __name__ == "__main__":
     main()

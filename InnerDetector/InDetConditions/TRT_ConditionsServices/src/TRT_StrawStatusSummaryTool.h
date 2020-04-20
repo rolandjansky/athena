@@ -1,6 +1,7 @@
+
 //Dear emacs this is -*-c++-*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_STRAWSTATUSSUMMARYTOOL_H
@@ -21,7 +22,7 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" 
 //#include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "InDetIdentifier/TRT_ID.h"
-//#include "InDetReadoutGeometry/TRT_BaseElement.h"
+//#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 
@@ -63,6 +64,7 @@ class TRT_StrawStatusSummaryTool: public extends<AthAlgTool, ITRT_StrawStatusSum
   virtual bool get_statusHT(Identifier offlineId) const override {
     return get_statusHT(offlineId,Gaudi::Hive::currentContext());
   }
+  virtual const StrawStatusContainer* getStrawStatusHTContainer() const override;
 
   virtual int getStatus(Identifier offlineId,const EventContext& ) const override;
   virtual int getStatusPermanent(Identifier offlineId, const EventContext&) const override;

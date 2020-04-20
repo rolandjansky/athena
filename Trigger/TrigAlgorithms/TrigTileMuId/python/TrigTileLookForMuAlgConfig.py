@@ -1,12 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-
-try:
-    from TrigTileMuId.TrigTileMuIdConf import TrigTileLookForMuAlg
-except:
-    mlog.error("could not load TrigTileMuIdConf")
-    import traceback
-    print traceback.format_exc()
 
 from AthenaCommon.SystemOfUnits import MeV
 

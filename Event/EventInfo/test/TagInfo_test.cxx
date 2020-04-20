@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_SUITE(TagInfoTest)
     //add multiple tags
     //add tags, deliberately disordered
     TagInfo::NameTagPairVec insertionTagPairs{{"tag0","reference0"},{"tag1", "reference1"},{"ztag","zreference"},{"atag", "areference"}};
-    std::for_each(insertionTagPairs.begin(), insertionTagPairs.end(),[&t](auto &x){t.addTag(x);});
+    std::for_each(insertionTagPairs.begin(), insertionTagPairs.end(),[&t](auto &x){t.addTag(x).ignore();});
     auto allInsertedTags=insertionTagPairs;
     allInsertedTags.push_back(updatedNamePair); //allTags now contains all the tags we inserted (not in the same order, though)
     TagInfo::NameTagPairVec returnMultipleTagPairs;
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_SUITE(TagInfoTest)
     //add multiple tags
     //add tags, deliberately disordered
     TagInfo::NameTagPairVec insertionTagPairs{{"tag0","reference0"},{"tag1", "reference1"},{"ztag","zreference"},{"atag", "areference"}};
-    std::for_each(insertionTagPairs.begin(), insertionTagPairs.end(),[&t](auto &x){t.addInputTag(x);});
+    std::for_each(insertionTagPairs.begin(), insertionTagPairs.end(),[&t](auto &x){t.addInputTag(x).ignore();});
     auto allInsertedTags=insertionTagPairs;
     allInsertedTags.push_back(updatedNamePair); //allTags now contains all the tags we inserted (not in the same order, though)
     TagInfo::NameTagPairVec returnMultipleTagPairs;
@@ -138,8 +138,8 @@ BOOST_AUTO_TEST_SUITE(TagInfoTest)
     //add tags, deliberately disordered
     TagInfo::NameTagPairVec tagPairs{{"tag0","3reference0"},{"tag1", "2reference1"},{"atag","1areference"}};
     TagInfo::NameTagPairVec inputTagPairs{{"itag0","3reference0i"},{"itag1", "2reference1i"},{"iatag","1areferencei"}};
-    std::for_each(tagPairs.begin(), tagPairs.end(),[&t](auto &x){t.addTag(x);});
-    std::for_each(inputTagPairs.begin(), inputTagPairs.end(),[&t](auto &x){t.addInputTag(x);});
+    std::for_each(tagPairs.begin(), tagPairs.end(),[&t](auto &x){t.addTag(x).ignore();});
+    std::for_each(inputTagPairs.begin(), inputTagPairs.end(),[&t](auto &x){t.addInputTag(x).ignore();});
     BOOST_TEST(t.findTag("tag1") == "2reference1");
     BOOST_TEST(t.findInputTag("iatag") == "1areferencei");
     std::sort(tagPairs.begin(),tagPairs.end());

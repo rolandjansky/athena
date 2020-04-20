@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file:    JetExamples/python/JetTesters.py
 ## @purpose: Algs to quickly dump jet collection content intot txt files and/or ntuples
@@ -6,6 +6,8 @@
 ##
 ##
 ##
+
+from __future__ import print_function
 
 __doc__     = '''Algs to quickly dump jet variables intot txt files and/or ntuples.
 
@@ -203,7 +205,7 @@ class JetConstituents(JetTestTool):
         self.c_default_e = self.makeBranch("const0_default_e", vect)        
 
     def processJet(self, i, jet):
-        print 'ERROR  JetTesters.py, JetConstituents : does not weork with Run2 software !!'
+        print ('ERROR  JetTesters.py, JetConstituents : does not weork with Run2 software !!')
         # this is run 1 : this won't work
         ## it0 = ROOT.JetConstituentIterator.first(jet,0)
         ## itD = ROOT.JetConstituentIterator.first(jet)

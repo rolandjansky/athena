@@ -91,8 +91,7 @@ namespace LVL1MUCTPI {
           * It is the predicate used to find an InputSector if the corresponding
           * pointer to the Sector is given.
           */
-         class Sector_eq : 
-            public std::unary_function< SectorLogicReader::InputSector* , bool > {
+ 	 class Sector_eq {
 
          public:
             Sector_eq( Sector* sectorToSearch) : 

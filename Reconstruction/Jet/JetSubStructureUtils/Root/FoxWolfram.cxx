@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureUtils/FoxWolfram.h"
 #include "TLorentzVector.h"
-#include "./BoostToCenterOfMass.h"
+#include "JetSubStructureUtils/BoostToCenterOfMass.h"
 
 using namespace std;
 using namespace JetSubStructureUtils;

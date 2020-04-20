@@ -1,17 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
 
 #include "KinematicsPlots.h"
 
 namespace Egamma{
 
-  KinematicsPlots::KinematicsPlots(PlotBase* pParent, std::string sDir, std::string sParticleType):PlotBase(pParent, sDir), 
-												   m_sParticleType(sParticleType),
-												   et(0),
-												   eta(0),
-												   phi(0),
-												   etvseta(0)
+  KinematicsPlots::KinematicsPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType):PlotBase(pParent, sDir), 
+												   m_sParticleType(std::move(sParticleType)),
+												   et(nullptr),
+												   eta(nullptr),
+												   phi(nullptr),
+												   etvseta(nullptr)
   {}
 
   void KinematicsPlots::initializePlots(){

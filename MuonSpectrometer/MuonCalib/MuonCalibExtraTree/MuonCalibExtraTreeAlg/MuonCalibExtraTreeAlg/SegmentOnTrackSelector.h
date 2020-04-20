@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_SegmentOnTrackSelector_h
@@ -15,7 +15,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonCalibExtraTreeAlg/ISegmentOnTrackSelector.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Trk {
   class Track;
@@ -49,7 +49,7 @@ class SegmentOnTrackSelector: public AthAlgTool, virtual public ISegmentOnTrackS
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
     "Handle to the service providing the IMuonEDMHelperSvc interface" };
   ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 		
   //internal data structures
   std::vector<std::set<MuonFixedId> > m_segment_hits;

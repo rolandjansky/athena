@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,7 +16,7 @@
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
 // Local include(s):
-#include "xAODForward/AFPSiHitContainer.h"
+#include "xAODForward/versions/AFPSiHitContainer_v1.h"
 #include "xAODForward/versions/AFPTrack_v1.h"
 
 namespace xAOD
@@ -34,7 +34,7 @@ namespace xAOD
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (AFPTrack_v1, int, algID, setAlgID)
 
   AUXSTORE_OBJECT_SETTER_AND_GETTER (AFPTrack_v1, std::vector< AFPTrack_v1::AFPHitLink_t >, hits, setHits)
-  static SG::AuxElement::Accessor< std::vector<AFPTrack_v1::AFPHitLink_t> > hitsAcc( "hits" );
+  static const SG::AuxElement::Accessor< std::vector<AFPTrack_v1::AFPHitLink_t> > hitsAcc( "hits" );
 
   void AFPTrack_v1::addHit( const AFPHitLink_t& link )
   {

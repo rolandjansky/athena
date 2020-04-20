@@ -34,8 +34,7 @@ def createLArRoI_Map( flags ):
 def trigCaloDataAccessSvcCfg( flags ):    
 
     acc = ComponentAccumulator()
-    from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
-    svc = TrigCaloDataAccessSvc()
+    svc = CompFactory.TrigCaloDataAccessSvc()
 
     # since the svc depends on calo geometry configure it here
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
@@ -60,7 +59,7 @@ def trigCaloDataAccessSvcCfg( flags ):
     from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
     acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     import math
     mon = GenericMonitoringTool("TrigCaloDataAccessSvcMon")
     mon.defineHistogram("TIME_locking_LAr_RoI",
@@ -87,9 +86,7 @@ def trigCaloDataAccessSvcCfg( flags ):
 
 
 if __name__ == "__main__":
-    from AthenaCommon.Configurable import Configurable
 
-    Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = defaultTestFiles.RAW

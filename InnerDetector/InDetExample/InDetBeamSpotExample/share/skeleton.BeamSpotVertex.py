@@ -14,7 +14,7 @@ if not 'runArgs' in dir():
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import AthenaPoolCnvSvc.ReadAthenaPool
-print runArgs
+print (runArgs)
 
 if hasattr(runArgs,"InputDESDM_BEAMSPOTFile"):
     #athenaCommonFlags.PoolDPDInput.set_Value_and_Lock( runArgs.inputDPDFile )
@@ -49,8 +49,8 @@ else:
 # Extra inputs from the command line for the jobConfig settings
 if hasattr(runArgs,"jobConfig"):
     if len(runArgs.jobConfig) > 0:
-        print "JobConfig Modifications"
-        print runArgs.jobConfig
+        print ("JobConfig Modifications")
+        print (runArgs.jobConfig)
         for i in runArgs.jobConfig:
           exec(i)
           
@@ -75,35 +75,35 @@ from InDetRecExample.InDetKeys import InDetKeys
 #Run first options
 if hasattr(runArgs,"preExec"):
     if len(runArgs.preExec) > 0:
-        print "PreExec Modifications"
-        print runArgs.preExec
+        print ("PreExec Modifications")
+        print (runArgs.preExec)
         for i in runArgs.preExec:
             exec(i)
                                         
 
 if hasattr(runArgs,"topOptions"):
     if len(runArgs.topOptions) >0 :
-        print "Including: JobOption", runArgs.topOptions
+        print ("Including: JobOption", runArgs.topOptions)
         for i in runArgs.topOptions:
             include(i)
     else:
-        print "No jobOption specified"
+        print ("No jobOption specified")
 else:
-    print "No jobOption specified"
+    print ("No jobOption specified")
 
 
 #Run any last options
 if hasattr(runArgs,"postExec"):
     if len(runArgs.postExec) > 0:
-        print "PostExec Modifications"
-        print runArgs.postExec
+        print ("PostExec Modifications")
+        print (runArgs.postExec)
         for i in runArgs.postExec:
             exec(i)
                                       
 
-print "JobConfig at end of BeamSpotVertex.py"
-print jobConfig
+print ("JobConfig at end of BeamSpotVertex.py")
+print (jobConfig)
 
-print InDetKeys
+print (InDetKeys)
 
 

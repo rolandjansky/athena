@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/CscPrepData.h"
@@ -205,7 +205,7 @@ Muon::CscPrepDataContainer* Muon::CscPrepDataContainerCnv_p1::createTransient(co
             return 0;
         } 
     }
-    std::auto_ptr<Muon::CscPrepDataContainer> trans(new Muon::CscPrepDataContainer(m_cscId->module_hash_max()));
+    std::unique_ptr<Muon::CscPrepDataContainer> trans(new Muon::CscPrepDataContainer(m_cscId->module_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

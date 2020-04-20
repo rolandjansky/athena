@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -31,6 +31,7 @@
 #include <vector>
 #include <iomanip>
 #include <map>
+#include <cstring>
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "CLHEP/Geometry/Point3D.h"
@@ -42,6 +43,59 @@ namespace Trk {
     static void extract(std::vector<const RIO_OnTrack*>& rots, const std::vector<const MeasurementBase*>& measurements);
   };
 
+}
+
+
+// summary types for which statistics are gathered.
+// should be synchronised with ETrackSummaryTypes
+const Trk::SummaryType InDet::TrackStatHelper::s_summaryTypes[kNSummaryTypes] = {
+   Trk::numberOfInnermostPixelLayerHits,
+   Trk::numberOfInnermostPixelLayerSharedHits,
+   Trk::numberOfInnermostPixelLayerOutliers,
+   Trk::numberOfPixelHits,
+   Trk::numberOfPixelSharedHits,
+   Trk::numberOfPixelHoles,
+   Trk::numberOfGangedPixels,
+   Trk::numberOfSCTHits,
+   Trk::numberOfSCTSharedHits,
+   Trk::numberOfSCTHoles,
+   Trk::numberOfSCTDoubleHoles,
+   Trk::numberOfTRTHits,
+   Trk::numberOfTRTOutliers,
+   Trk::numberOfTRTHighThresholdHits,
+   Trk::numberOfTRTHighThresholdOutliers,
+   Trk::numberOfOutliersOnTrack,
+   Trk::numberOfDBMHits
+};
+
+// Table column labels. should be synchronised with ETrackSummaryTypes
+const char * const InDet::TrackStatHelper::s_summaryTypeName[kNSummaryTypes] = {
+   "blay",
+   "shrd",
+   "outl",
+   "pix",
+   "shrd",
+   "hole",
+   "gang",
+   "SCT",
+   "shrd",
+   "hole",
+   "DHole",
+   "TRT",
+   "outl",
+   "TRHi",
+   "outl",
+   "alloutl",
+   "DBM"};
+
+std::string InDet::TrackStatHelper::getSummaryTypeHeader() {
+   std::stringstream out;
+   for (unsigned int stype_i=0; stype_i < kNSummaryTypes; ++stype_i ) {
+      if (0 != strcmp("DBM",s_summaryTypeName[stype_i])){
+         out << std::setw(std::max(6,static_cast<int>(strlen(s_summaryTypeName[stype_i])+1))) << s_summaryTypeName[stype_i];
+      }
+   }
+   return out.str();
 }
 
 
@@ -82,22 +136,31 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 				      const AtlasDetectorID              * const idHelper, 
 				      const PixelID                      * pixelID, 
 				      const SCT_ID                       * sctID,
-				      Trk::IExtendedTrackSummaryTool     * trkSummaryTool,
+				      const Trk::IExtendedTrackSummaryTool* trkSummaryTool,
 				      bool                               useTrackSummary,
 				      unsigned int                       * inTimeStart,
-				      unsigned int                       * inTimeEnd)
+				      unsigned int                       * inTimeEnd) const
 {
 
-  m_rttMap.clear();
+  recoToTruthMap rttMap;
   
   recoToTruthMap::const_iterator imap;
   
   m_events ++;
   
   float Eta = 0;
-  int Region = 0;
+  InDet::eta_region Region = ETA_ALL;
   int Author = 0;
   int recoClassification = 0;
+  bool truth_missing=false;
+
+  TracksCounter       tracks;
+  HitsCounter         hits;
+  TrackSummaryCounter trackSummarySum;
+  bool                author_found [Trk::TrackInfo::NumberOfTrackFitters];
+  std::bitset<Trk::TrackInfo::NumberOfTrackRecoInfo>   reco_info;
+  std::bitset<Trk::TrackInfo::NumberOfTrackProperties> pattern_properties;
+  for (unsigned int i=0; i < Trk::TrackInfo::NumberOfTrackFitters; ++i) { author_found[i]=false; }
 
   // ------------ reconstructed tracks -----------------
   for (const Trk::Track* track : rec) {
@@ -107,9 +170,10 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     int thisEventIndex = -999;
     
     Author = track->info().trackFitter();
-    if (Author > 0 && Author < Trk::TrackInfo::NumberOfTrackFitters && !m_author_found[Author]){
-      m_author_found[Author]  = true;
-      m_author_string[Author] = track->info().dumpInfo();
+    if (Author > 0 && Author < Trk::TrackInfo::NumberOfTrackFitters){
+      author_found[Author]  = true;
+      reco_info |= track->info().patternRecognition();
+      pattern_properties |= track->info().properties();
     }
     else {
       //FIX author_problem++;
@@ -137,7 +201,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 
     if (!truthMap) {
       // no truthmap
-      m_truthMissing=true;
+      truth_missing=true;
     }
     else {
       ElementLink<TrackCollection> tracklink;
@@ -150,7 +214,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	trtruth=found->second;
 	HepMcParticleLink hmpl = trtruth.particleLink();
 	thisEventIndex = hmpl.eventIndex();
-	m_rttMap.insert(std::pair<HepMcParticleLink,float>(hmpl,trtruth.probability()));
+	rttMap.insert(std::pair<HepMcParticleLink,float>(hmpl,trtruth.probability()));
 	// ME: remember prob
 	trprob = trtruth.probability();
       }
@@ -160,13 +224,13 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     
     if(!PassTrackCuts(para)) continue;
     
-    m_tracks_rec[TRACK_ALL][Region]++;
-    m_tracks_rec[TRACK_ALL][ETA_ALL]++;
+    tracks.m_counter[kTracks_rec][TRACK_ALL][Region]++;
+    tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_ALL]++;
     // signal only tracks for the denominator in signal efficiencies
     if (thisEventIndex==0)
       {
-	m_tracks_rec[TRACK_ALL_SIGNAL][Region]++;
-	m_tracks_rec[TRACK_ALL_SIGNAL][ETA_ALL]++;
+	tracks.m_counter[kTracks_rec][TRACK_ALL_SIGNAL][Region]++;
+	tracks.m_counter[kTracks_rec][TRACK_ALL_SIGNAL][ETA_ALL]++;
       }
     
     // process track summary
@@ -179,22 +243,8 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
           cleanup = trkSummaryTool->summary(*track,prd_to_track_map);
           summary=cleanup.get();
        }
-	
-      if (summary)
-	{
-	  for (int stype=0; stype < Trk::numberOfTrackSummaryTypes; stype++) {
-	    int value = summary->get(static_cast<Trk::SummaryType>(stype));
 
-	    //value is -1 if undefined
-	    if (value>0) { 
-	      m_TrackSummarySum [TRACK_ALL][Region][stype] += value; 
-	      m_n_TrackSummaryOK[TRACK_ALL][Region][stype] ++; 
-	    }
-	    else {
-	      m_n_TrackSummaryBAD [TRACK_ALL][Region][stype] ++; 
-	    }
-	  }
-	}
+       setSummaryStat(TRACK_ALL, Region, summary, trackSummarySum);
     }
       
     // check if current reco track has more than a specified fraction of hits
@@ -202,47 +252,25 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     // track in the statistics report.]	
       
     if (!truthMap) {
-      m_truthMissing=true;
+      truth_missing=true;
     }
     else {// no truthmap
 	
       if (found == truthMap->end()) {
 	// m_truthMissing=true;
 	// no truth might happen with new truth !
-	m_tracks_rec[TRACK_NOHEPMCPARTICLELINK][Region]++;
-	m_tracks_rec[TRACK_NOHEPMCPARTICLELINK][ETA_ALL]++;
-	if (summary) {
-	  for (int type=0; type < Trk::numberOfTrackSummaryTypes; type++) {
-	    int value = summary->get(static_cast<Trk::SummaryType>(type));
-	    if (value>0) { 
-	      m_TrackSummarySum [TRACK_NOHEPMCPARTICLELINK][Region][type] += value; 
-	      m_n_TrackSummaryOK[TRACK_NOHEPMCPARTICLELINK][Region][type] ++; 
-	    }
-	    else {
-	      m_n_TrackSummaryBAD [TRACK_NOHEPMCPARTICLELINK][Region][type] ++; 
-	    }
-	  }
-	}
+	tracks.m_counter[kTracks_rec][TRACK_NOHEPMCPARTICLELINK][Region]++;
+	tracks.m_counter[kTracks_rec][TRACK_NOHEPMCPARTICLELINK][ETA_ALL]++;
+        setSummaryStat(TRACK_NOHEPMCPARTICLELINK, Region, summary, trackSummarySum);
       }
       else{   // no link  
 	  
 	// ME : change logic, secondaries from G4 processes are truncated, so Barcode 0 is possible 
 	const HepMcParticleLink HMPL=trtruth.particleLink();
 	if (! HMPL.isValid()) {
-	  m_tracks_rec[TRACK_NOHEPMCPARTICLELINK][Region]++;
-	  m_tracks_rec[TRACK_NOHEPMCPARTICLELINK][ETA_ALL]++;
-	  if (summary) {
-	    for (int type=0; type < Trk::numberOfTrackSummaryTypes; type++) {
-	      int value = summary->get(static_cast<Trk::SummaryType>(type));
-	      if (value>0) { 
-		m_TrackSummarySum [TRACK_NOHEPMCPARTICLELINK][Region][type] += value; 
-		m_n_TrackSummaryOK[TRACK_NOHEPMCPARTICLELINK][Region][type] ++; 
-	      }
-	      else {
-		m_n_TrackSummaryBAD [TRACK_NOHEPMCPARTICLELINK][Region][type] ++; 
-	      }
-	    }
-	  }
+	  tracks.m_counter[kTracks_rec][TRACK_NOHEPMCPARTICLELINK][Region]++;
+	  tracks.m_counter[kTracks_rec][TRACK_NOHEPMCPARTICLELINK][ETA_ALL]++;
+          setSummaryStat(TRACK_NOHEPMCPARTICLELINK, Region, summary, trackSummarySum);
 	}
 	else {
 	  //classify track as coming from primary, secondary or truncated gen particle
@@ -252,46 +280,24 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	    
 	  if (trprob < m_cuts.fakeTrackCut)
 	    {
-	      m_tracks_rec[TRACK_LOWTRUTHPROB][Region]++;
-	      m_tracks_rec[TRACK_LOWTRUTHPROB][ETA_ALL]++;
+	      tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB][Region]++;
+	      tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB][ETA_ALL]++;
 	      if (thisEventIndex==0)
 		{
-		  m_tracks_rec[TRACK_LOWTRUTHPROB_SIGNAL][Region]++;
-		  m_tracks_rec[TRACK_LOWTRUTHPROB_SIGNAL][ETA_ALL]++;
+		  tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB_SIGNAL][Region]++;
+		  tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB_SIGNAL][ETA_ALL]++;
 		}
-	      if (summary) {
-		for (int type=0; type < Trk::numberOfTrackSummaryTypes; type++) {
-		  int value = summary->get(static_cast<Trk::SummaryType>(type));
-		  if (value>0) { 
-		    m_TrackSummarySum [TRACK_LOWTRUTHPROB][Region][type] += value; 
-		    m_n_TrackSummaryOK [TRACK_LOWTRUTHPROB][Region][type] ++; 
-		  }
-		  else {
-		    m_n_TrackSummaryBAD [TRACK_LOWTRUTHPROB][Region][type] ++; 
-		  }
-		}
-	      }
+              setSummaryStat(TRACK_LOWTRUTHPROB, Region, summary, trackSummarySum);
 	    }
 	  if (trprob < m_cuts.fakeTrackCut2) {
-	    m_tracks_rec[TRACK_LOWTRUTHPROB2][Region]++;
-	    m_tracks_rec[TRACK_LOWTRUTHPROB2][ETA_ALL]++;
+	    tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB2][Region]++;
+	    tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB2][ETA_ALL]++;
 	    if (thisEventIndex==0)
 	      {
-		m_tracks_rec[TRACK_LOWTRUTHPROB2_SIGNAL][Region]++;
-		m_tracks_rec[TRACK_LOWTRUTHPROB2_SIGNAL][ETA_ALL]++;
+		tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB2_SIGNAL][Region]++;
+		tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB2_SIGNAL][ETA_ALL]++;
 	      }
-	    if (summary) {
-	      for (int type=0; type < Trk::numberOfTrackSummaryTypes; type++) {
-		int value = summary->get(static_cast<Trk::SummaryType>(type));
-		if (value>0) { 
-		  m_TrackSummarySum [TRACK_LOWTRUTHPROB2][Region][type] += value; 
-		  m_n_TrackSummaryOK[TRACK_LOWTRUTHPROB2][Region][type] ++; 
-		}
-		else {
-		  m_n_TrackSummaryBAD [TRACK_LOWTRUTHPROB2][Region][type] ++; 
-		}
-	      }
-	    }
+            setSummaryStat(TRACK_LOWTRUTHPROB2, Region, summary, trackSummarySum);
 	  }
 	} // end else on !isVadid
       }
@@ -299,6 +305,11 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       
     // ------------------ hits on reconstructed tracks ---------------
       
+    EHitsCounter part_type = ( recoClassification==TRACK_PRIMARY
+                               ? kHits_pri
+                               : ( recoClassification==TRACK_SECONDARY
+                                   ? kHits_sec
+                                   : kNHitsCounter));
     for (const Trk::TrackStateOnSurface* hit : *track->trackStateOnSurfaces()) {
       if(hit){ 
 	const Trk::MeasurementBase* mesh =hit->measurementOnTrack();
@@ -319,123 +330,73 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	    if (!hit->type(Trk::TrackStateOnSurface::Measurement)) 
 	      continue;
 	      
-	    m_hits_rec[HIT_ALL][Region]++;
-	    m_hits_rec[HIT_ALL][ETA_ALL]++;
-	      
-	    if(recoClassification==TRACK_PRIMARY){
-	      m_hits_pri[HIT_ALL][Region]++;
-	      m_hits_pri[HIT_ALL][ETA_ALL]++;
-	    }
-	    if(recoClassification==TRACK_SECONDARY){
-	      m_hits_sec[HIT_ALL][Region]++;
-	      m_hits_sec[HIT_ALL][ETA_ALL]++;
+	    hits.m_counter[kHits_rec][HIT_ALL][Region]++;
+	    hits.m_counter[kHits_rec][HIT_ALL][ETA_ALL]++;
+	    if(part_type<kNHitsCounter){
+	      hits.m_counter[part_type][HIT_ALL][Region]++;
+	      hits.m_counter[part_type][HIT_ALL][ETA_ALL]++;
 	    }
 	      
-	      
-	    Identifier id = rio->identify();
-	    if (idHelper->is_trt(id)){	      
-	      m_hits_rec[HIT_TRT_ALL][Region]++;
-	      m_hits_rec[HIT_TRT_ALL][ETA_ALL]++;
-	      if(recoClassification==TRACK_PRIMARY){
-		m_hits_pri[HIT_TRT_ALL][Region]++;
-		m_hits_pri[HIT_TRT_ALL][ETA_ALL]++;
-	      }
-	      if(recoClassification==TRACK_SECONDARY){
-		m_hits_sec[HIT_TRT_ALL][Region]++;
-		m_hits_sec[HIT_TRT_ALL][ETA_ALL]++;
-	      }	
-	    }
+            Identifier id = rio->identify();
+            int HitDet    = HIT_UNKNOWN;
+            int HitLayer  = N_HITTYPES;
+            bool part_type_for_all=true;
+            if (idHelper->is_trt(id)){
+               HitDet=HIT_TRT_ALL;
+            }
+            else if (idHelper->is_sct(id)){
+              HitDet=HIT_SCT_ALL;
+              if (sctID) {
+                switch (sctID->layer_disk(id)) {
+                case 0: HitLayer = HIT_SCT1; break;
+                case 1: HitLayer = HIT_SCT2; break;
+                case 2: HitLayer = HIT_SCT3; break;
+                case 3: HitLayer = HIT_SCT4; break;
+                case 4: case 5: case 6: case 7: case 8: HitLayer = HIT_SCT5TO9; break;
+                default: HitLayer = HIT_UNKNOWN; break;
+                }
+              }
+            }
+            else if (idHelper->is_pixel(id)){
+              part_type_for_all=false;
+              if (pixelID && pixelID->is_dbm(id)) {
+                 HitDet = HIT_DBM_ALL;
+                 switch (pixelID->layer_disk(id)) {
+                 case 0:  HitLayer = HIT_DBM1; break;
+                 case 1:  HitLayer = HIT_DBM2; break;
+                 case 2:  HitLayer = HIT_DBM3; break;
+                 default: HitLayer = HIT_UNKNOWN;
+                 }
+              }
+              else {
+                HitDet = HIT_PIXEL_ALL;
+                if (pixelID) {
+                  switch (pixelID->layer_disk(id)) {
+                  case 0:  HitLayer = HIT_PIX1; break;
+                  case 1:  HitLayer = HIT_PIX2; break;
+                  case 2:  HitLayer = HIT_PIX3; break;
+                  default: HitLayer = HIT_UNKNOWN;
+                  }
+                }
+              }
+            }
 
-	    else if (idHelper->is_sct(id)){
-	      m_hits_rec[HIT_SCT_ALL][Region]++;
-	      m_hits_rec[HIT_SCT_ALL][ETA_ALL]++;
-		 
-	      if(recoClassification==TRACK_PRIMARY){
-		m_hits_pri[HIT_SCT_ALL][Region]++;
-		m_hits_pri[HIT_SCT_ALL][ETA_ALL]++;
-	      }
-	      if(recoClassification==TRACK_SECONDARY){
-		m_hits_sec[HIT_SCT_ALL][Region]++;
-		m_hits_sec[HIT_SCT_ALL][ETA_ALL]++;
-	      }
-	      int HitLayer = HIT_UNKNOWN;
-	      if (sctID) {
-		switch (sctID->layer_disk(id)) {
-		case 0: HitLayer = HIT_SCT1; break;
-		case 1: HitLayer = HIT_SCT2; break;
-		case 2: HitLayer = HIT_SCT3; break;
-		case 3: HitLayer = HIT_SCT4; break;
-		case 4: case 5: case 6: case 7: case 8: HitLayer = HIT_SCT5TO9; break;
-		default: HitLayer = HIT_UNKNOWN;
-		}
-	      }
-	      m_hits_rec[HitLayer][Region]++;
-	      m_hits_rec[HitLayer][ETA_ALL]++;
-		 
-	      if(recoClassification==TRACK_PRIMARY){
-		m_hits_pri[HitLayer][Region]++;
-		m_hits_pri[HitLayer][ETA_ALL]++;
-	      }
-	      if(recoClassification==TRACK_SECONDARY){
-		m_hits_sec[HitLayer][Region]++;
-		m_hits_sec[HitLayer][ETA_ALL]++;
-	      }
+            hits.m_counter[kHits_rec][HitDet][Region]++;
+            hits.m_counter[kHits_rec][HitDet][ETA_ALL]++;
+            if(part_type_for_all && part_type<kNHitsCounter){
+               hits.m_counter[part_type][HitDet][Region]++;
+               hits.m_counter[part_type][HitDet][ETA_ALL]++;
+            }
 
-	    }
-	    else if (idHelper->is_pixel(id)){
-              int HitLayer = HIT_UNKNOWN;
-	      if (pixelID && pixelID->is_dbm(id)) {
-              	m_hits_rec[HIT_DBM_ALL][Region]++;
-               	m_hits_rec[HIT_DBM_ALL][ETA_ALL]++;                
-               	switch (pixelID->layer_disk(id)) {
-               	case 0:  HitLayer = HIT_DBM1; break;
-               	case 1:  HitLayer = HIT_DBM2; break;
-               	case 2:  HitLayer = HIT_DBM3; break;
-               	default: HitLayer = HIT_UNKNOWN;
-		}
-	      }
-	      else {
-		m_hits_rec[HIT_PIXEL_ALL][Region]++;
-		m_hits_rec[HIT_PIXEL_ALL][ETA_ALL]++;
-
-		if (pixelID) {
-		  switch (pixelID->layer_disk(id)) {
-		  case 0:  HitLayer = HIT_PIX1; break;
-		  case 1:  HitLayer = HIT_PIX2; break;
-		  case 2:  HitLayer = HIT_PIX3; break;
-		  default: HitLayer = HIT_UNKNOWN;
-		  }
-		}
-	      }
-	      m_hits_rec[HitLayer][Region]++;
-	      m_hits_rec[HitLayer][ETA_ALL]++;
-
-	      if(recoClassification==TRACK_PRIMARY){
-		m_hits_pri[HitLayer][Region]++;
-		m_hits_pri[HitLayer][ETA_ALL]++;
-	      }
-	      if(recoClassification==TRACK_SECONDARY){
-		m_hits_sec[HitLayer][Region]++;
-		m_hits_sec[HitLayer][ETA_ALL]++;
-	      }
-
-
-	    }
-	    else {
-	      m_hits_rec[HIT_UNKNOWN][Region]++;
-	      m_hits_rec[HIT_UNKNOWN][ETA_ALL]++;
-
-	      if(recoClassification==TRACK_PRIMARY){
-		m_hits_pri[HIT_UNKNOWN][Region]++;
-		m_hits_pri[HIT_UNKNOWN][ETA_ALL]++;
-	      }
-	      if(recoClassification==TRACK_SECONDARY){
-		m_hits_sec[HIT_UNKNOWN][Region]++;
-		m_hits_sec[HIT_UNKNOWN][ETA_ALL]++;
-	      }
-		  
-	    }
-	  }
+            if (HitLayer<N_HITTYPES) {
+               hits.m_counter[kHits_rec][HitLayer][Region]++;
+               hits.m_counter[kHits_rec][HitLayer][ETA_ALL]++;
+               if(part_type<kNHitsCounter){
+                  hits.m_counter[part_type][HitLayer][Region]++;
+                  hits.m_counter[part_type][HitLayer][ETA_ALL]++;
+               }
+            }
+          }
 	}
       }
     }
@@ -444,7 +405,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
   // ------------------------- generated tracks, including pileup -----------------------------
   
   Eta = 0;
-  Region = 0;
+  Region = ETA_ALL;
   int classification=-999;
   for (std::vector <std::pair<HepMC::GenParticle *,int> >::const_iterator truth = gen.begin(); truth != gen.end();  ++truth) {
     classification=-999; 
@@ -464,21 +425,21 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       {
 	continue; // Only want to tally tracks that are within the detector volume.
       }
-    m_tracks_gen[TRACK_ALL][Region]++;
-    m_tracks_gen[TRACK_ALL][ETA_ALL] ++;
-    if (inTimePileup) m_tracks_gen[TRACK_ALL_SIGNAL][ETA_ALL]++; // "SIGNAL" is misnomer here
-    if (inTimePileup) m_tracks_gen[TRACK_ALL_SIGNAL][Region]++;
+    tracks.m_counter[kTracks_gen][TRACK_ALL][Region]++;
+    tracks.m_counter[kTracks_gen][TRACK_ALL][ETA_ALL] ++;
+    if (inTimePileup) tracks.m_counter[kTracks_gen][TRACK_ALL_SIGNAL][ETA_ALL]++; // "SIGNAL" is misnomer here
+    if (inTimePileup) tracks.m_counter[kTracks_gen][TRACK_ALL_SIGNAL][Region]++;
 
     //classify gen as primary, secondary or truncated
     classification = ClassifyParticle(particle,1.);
     
     if(classification==TRACK_PRIMARY){
-      m_tracks_gen[TRACK_PRIMARY][ETA_ALL] ++;
-      m_tracks_gen[TRACK_PRIMARY][Region]++;
+      tracks.m_counter[kTracks_gen][TRACK_PRIMARY][ETA_ALL] ++;
+      tracks.m_counter[kTracks_gen][TRACK_PRIMARY][Region]++;
     }
     if(classification==TRACK_SECONDARY){
-      m_tracks_gen[TRACK_SECONDARY][ETA_ALL] ++;
-      m_tracks_gen[TRACK_SECONDARY][Region]++;
+      tracks.m_counter[kTracks_gen][TRACK_SECONDARY][ETA_ALL] ++;
+      tracks.m_counter[kTracks_gen][TRACK_SECONDARY][Region]++;
     }
     
     //see if gen track has at least 1 matching reco track with high enough probability
@@ -486,9 +447,9 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     int nmatched = 0;
     
     HepMcParticleLink hmpl2(particle,truth->second);
-    recoToTruthMap::iterator rttIter=m_rttMap.find(hmpl2);
-    if(rttIter != m_rttMap.end()){
-      for(imap = m_rttMap.lower_bound(hmpl2); imap !=m_rttMap.upper_bound(hmpl2); ++imap){
+    recoToTruthMap::iterator rttIter=rttMap.find(hmpl2);
+    if(rttIter != rttMap.end()){
+      for(imap = rttMap.lower_bound(hmpl2); imap !=rttMap.upper_bound(hmpl2); ++imap){
 	if(imap->second > m_cuts.matchTrackCut){
 	  matched = true;
 	  nmatched++;
@@ -496,31 +457,31 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       }
     }
     if (matched) {
-      m_tracks_gen[TRACK_MATCHED][Region]++;
-      m_tracks_gen[TRACK_MATCHED][ETA_ALL]++;
+      tracks.m_counter[kTracks_gen][TRACK_MATCHED][Region]++;
+      tracks.m_counter[kTracks_gen][TRACK_MATCHED][ETA_ALL]++;
       if (inTimePileup)
 	{
-	  m_tracks_gen[TRACK_MATCHED_SIGNAL][Region]++;
-	  m_tracks_gen[TRACK_MATCHED_SIGNAL][ETA_ALL]++;
+	  tracks.m_counter[kTracks_gen][TRACK_MATCHED_SIGNAL][Region]++;
+	  tracks.m_counter[kTracks_gen][TRACK_MATCHED_SIGNAL][ETA_ALL]++;
 	}
       if(nmatched > 1){
-	m_tracks_gen[TRACK_MULTMATCH][Region] += nmatched-1;
-	m_tracks_gen[TRACK_MULTMATCH][ETA_ALL]+= nmatched-1;
+	tracks.m_counter[kTracks_gen][TRACK_MULTMATCH][Region] += nmatched-1;
+	tracks.m_counter[kTracks_gen][TRACK_MULTMATCH][ETA_ALL]+= nmatched-1;
       }
       if(classification==TRACK_PRIMARY){
-	m_tracks_gen[TRACK_MATCHED_PRIMARY][Region]++;
-	m_tracks_gen[TRACK_MATCHED_PRIMARY][ETA_ALL]++;
+	tracks.m_counter[kTracks_gen][TRACK_MATCHED_PRIMARY][Region]++;
+	tracks.m_counter[kTracks_gen][TRACK_MATCHED_PRIMARY][ETA_ALL]++;
 	if(nmatched > 1){
-	  m_tracks_gen[TRACK_MULTMATCH_PRIMARY][Region]  += nmatched-1;
-	  m_tracks_gen[TRACK_MULTMATCH_PRIMARY][ETA_ALL] += nmatched-1;
+	  tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_PRIMARY][Region]  += nmatched-1;
+	  tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_PRIMARY][ETA_ALL] += nmatched-1;
 	}
       }
       if(classification==TRACK_SECONDARY){
-	m_tracks_gen[TRACK_MATCHED_SECONDARY][Region]++;
-	m_tracks_gen[TRACK_MATCHED_SECONDARY][ETA_ALL]++;
+	tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][Region]++;
+	tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][ETA_ALL]++;
 	if(nmatched > 1){
-	  m_tracks_gen[TRACK_MULTMATCH_SECONDARY][Region]  += nmatched-1;
-	  m_tracks_gen[TRACK_MULTMATCH_SECONDARY][ETA_ALL] += nmatched-1;
+	  tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_SECONDARY][Region]  += nmatched-1;
+	  tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_SECONDARY][ETA_ALL] += nmatched-1;
 	}
       }
     }	
@@ -530,7 +491,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
   // For efficiencies.
   
   Eta = 0;
-  Region = 0;
+  Region = ETA_ALL;
   classification=-999;
   
   for (std::vector <std::pair<HepMC::GenParticle *,int> >::const_iterator truth = gen.begin(); truth != gen.end();  ++truth) 
@@ -553,19 +514,19 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	{
 	  continue; // Only want to tally tracks that are within the detector volume.
 	}
-      m_tracks_gen_signal[TRACK_ALL][ETA_ALL] ++;
-      m_tracks_gen_signal[TRACK_ALL][Region]++;
+      tracks.m_counter[kTracks_gen_signal][TRACK_ALL][ETA_ALL] ++;
+      tracks.m_counter[kTracks_gen_signal][TRACK_ALL][Region]++;
       
       //classify gen partilce as primary, secondary or truncated
       classification = ClassifyParticle(particle,1.);
       
       if(classification==TRACK_PRIMARY){
-	m_tracks_gen_signal[TRACK_PRIMARY][ETA_ALL] ++;
-	m_tracks_gen_signal[TRACK_PRIMARY][Region]++;
+	tracks.m_counter[kTracks_gen_signal][TRACK_PRIMARY][ETA_ALL] ++;
+	tracks.m_counter[kTracks_gen_signal][TRACK_PRIMARY][Region]++;
       }
       if(classification==TRACK_SECONDARY){
-	m_tracks_gen_signal[TRACK_SECONDARY][ETA_ALL] ++;
-	m_tracks_gen_signal[TRACK_SECONDARY][Region]++;
+	tracks.m_counter[kTracks_gen_signal][TRACK_SECONDARY][ETA_ALL] ++;
+	tracks.m_counter[kTracks_gen_signal][TRACK_SECONDARY][Region]++;
       }
       
       //see if gen track has at least 1 matching reco track with high enough probability
@@ -573,9 +534,9 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       int nmatched = 0;
       
       HepMcParticleLink hmpl2(particle,truth->second);
-      recoToTruthMap::iterator rttIter=m_rttMap.find(hmpl2);
-      if(rttIter != m_rttMap.end()){
-	for(imap = m_rttMap.lower_bound(hmpl2); imap !=m_rttMap.upper_bound(hmpl2); ++imap){
+      recoToTruthMap::iterator rttIter=rttMap.find(hmpl2);
+      if(rttIter != rttMap.end()){
+	for(imap = rttMap.lower_bound(hmpl2); imap !=rttMap.upper_bound(hmpl2); ++imap){
 	  if(imap->second > m_cuts.matchTrackCut){
 	    matched = true;
 	    nmatched++;
@@ -583,323 +544,322 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	}
       }
       if (matched) {
-	m_tracks_gen_signal[TRACK_MATCHED][Region]++;
-	m_tracks_gen_signal[TRACK_MATCHED][ETA_ALL]++;
+	tracks.m_counter[kTracks_gen_signal][TRACK_MATCHED][Region]++;
+	tracks.m_counter[kTracks_gen_signal][TRACK_MATCHED][ETA_ALL]++;
 	if(nmatched > 1){
-	  m_tracks_gen_signal[TRACK_MULTMATCH][Region] += nmatched-1;
-	  m_tracks_gen_signal[TRACK_MULTMATCH][ETA_ALL]+= nmatched-1;
+	  tracks.m_counter[kTracks_gen_signal][TRACK_MULTMATCH][Region] += nmatched-1;
+	  tracks.m_counter[kTracks_gen_signal][TRACK_MULTMATCH][ETA_ALL]+= nmatched-1;
 	}
 	if(classification==TRACK_PRIMARY){
-	  m_tracks_gen_signal[TRACK_MATCHED_PRIMARY][Region]++;
-	  m_tracks_gen_signal[TRACK_MATCHED_PRIMARY][ETA_ALL]++;
+	  tracks.m_counter[kTracks_gen_signal][TRACK_MATCHED_PRIMARY][Region]++;
+	  tracks.m_counter[kTracks_gen_signal][TRACK_MATCHED_PRIMARY][ETA_ALL]++;
 	  if(nmatched > 1){
-	    m_tracks_gen_signal[TRACK_MULTMATCH_PRIMARY][Region]  += nmatched-1;
-	    m_tracks_gen_signal[TRACK_MULTMATCH_PRIMARY][ETA_ALL] += nmatched-1;
+	    tracks.m_counter[kTracks_gen_signal][TRACK_MULTMATCH_PRIMARY][Region]  += nmatched-1;
+	    tracks.m_counter[kTracks_gen_signal][TRACK_MULTMATCH_PRIMARY][ETA_ALL] += nmatched-1;
 	  }
 	}
 	if(classification==TRACK_SECONDARY){
-	  m_tracks_gen_signal[TRACK_MATCHED_SECONDARY][Region]++;
-	  m_tracks_gen_signal[TRACK_MATCHED_SECONDARY][ETA_ALL]++;
+	  tracks.m_counter[kTracks_gen_signal][TRACK_MATCHED_SECONDARY][Region]++;
+	  tracks.m_counter[kTracks_gen_signal][TRACK_MATCHED_SECONDARY][ETA_ALL]++;
 	  if(nmatched > 1){
-	    m_tracks_gen_signal[TRACK_MULTMATCH_SECONDARY][Region]  += nmatched-1;
-	    m_tracks_gen_signal[TRACK_MULTMATCH_SECONDARY][ETA_ALL] += nmatched-1;
+	    tracks.m_counter[kTracks_gen_signal][TRACK_MULTMATCH_SECONDARY][Region]  += nmatched-1;
+	    tracks.m_counter[kTracks_gen_signal][TRACK_MULTMATCH_SECONDARY][ETA_ALL] += nmatched-1;
 	  }
 	}
       }	
     }  
+
+  if (truth_missing) {
+     m_truthMissing = truth_missing;
+  }
+  m_tracks          += tracks;
+  m_hits            += hits;
+  m_trackSummarySum += trackSummarySum;
+  for (unsigned int i=0; i < Trk::TrackInfo::NumberOfTrackFitters; ++i) {
+     if (author_found[i]) {
+        m_author_found[i] = author_found[i];
+     }
+  }
+  {
+     std::lock_guard<std::mutex> lock(m_authorMutex);
+     m_recoInfo          |= reco_info;
+     m_patternProperties |= pattern_properties;
+  }
 }
 
 void InDet::TrackStatHelper::reset(){
   m_events = 0;
+  m_hits.reset();
+  m_tracks.reset();
+  m_trackSummarySum.reset();
 
-  for (int i=0; i<N_TRACKTYPES; i++) {
-    for (int j=0; j<N_ETAREGIONS; j++){
-      m_tracks_rec[i][j]=0;
-      m_tracks_gen[i][j]=0;
-      m_tracks_gen_signal[i][j]=0;
-      for (int type=0; type < Trk::numberOfTrackSummaryTypes; type++) {
-	m_TrackSummarySum   [i][j][type] = 0;
-	m_n_TrackSummaryOK  [i][j][type] = 0;
-	m_n_TrackSummaryBAD [i][j][type] = 0;
-      }
-    }
-  }
-
-  for (int i=0; i<N_HITTYPES; i++) {
-    for (int j=0; j<N_ETAREGIONS; j++) {
-      m_hits_rec[i][j]=0;
-      m_hits_pri[i][j]=0;
-      m_hits_sec[i][j]=0;
-      
-    }
-  }
-
-
-  
-  for (int i=0; i<Trk::TrackInfo::NumberOfTrackFitters; i++)
+  for (int i=0; i<Trk::TrackInfo::NumberOfTrackFitters; i++) {
     m_author_found[i] = false;
-
+  }
   m_truthMissing=false;
 }
 
 
-void InDet::TrackStatHelper::print(){
+void InDet::TrackStatHelper::print(MsgStream &out) const {
 
-  std::cout << " Printing Statistics for " << key();
+  out << " Printing Statistics for " << key();
 
-  std::cout << "TrackCollection \"" << key() << "\" " << std::endl ;
+  out << "TrackCollection \"" << key() << "\" " << "\n" ;
 
   if (m_events > 0) {
-    std::cout << "(TrackAuthors:";
+    out << "(TrackAuthors:";
+    std::vector<std::string> author_string;
+    author_string.reserve(Trk::TrackInfo::NumberOfTrackFitters);
+    for (int i=0; i<Trk::TrackInfo::NumberOfTrackFitters; ++i) {
+       author_string.push_back( Trk::TrackInfo(static_cast<Trk::TrackInfo::TrackFitter>(i),
+                                               Trk::undefined,
+                                               m_patternProperties,
+                                               m_recoInfo).dumpInfo() );
+    }
     for (int i=0; i<Trk::TrackInfo::NumberOfTrackFitters; i++){
       if (m_author_found[i]){
-	std::cout << " " << m_author_string[i];
+	out << " " << author_string[i];
       }
     }
-    std::cout << " )" << std::endl
+    out << " )" << std::endl
 	      << "TrackTruthCollection \"" << Truthkey() << "\"" << std::endl;
  
     if (m_truthMissing)
       {
 	if (m_careAboutTruth)
-	  std::cout << " WARNING: TrackTruth missing for part of this TrackCollection, no efficiencies or fakerates included.!" << std::endl; 
+	  out << " WARNING: TrackTruth missing for part of this TrackCollection, no efficiencies or fakerates included.!" << std::endl;
 	else
-	  std::cout << " INFO: Intentionally no TrackTruth for this TrackCollection, no efficiencies or fakerates included." << std::endl;
+	  out << " INFO: Intentionally no TrackTruth for this TrackCollection, no efficiencies or fakerates included." << std::endl;
       }
     if (!m_truthMissing)
       {
-	std::cout << " \t\t\t  ................................tracks................................" << std::endl;
-	std::cout << " \t\t\tn/event\tSEff.pr\tSEff.sd\tSLowP1\tSLowP2\tLowP1\tLowP2\tnoLink\tmultM\t" << std::endl;
-	std::cout << " total     "; printRegion1(ETA_ALL);
-	std::cout << " in barrel "; printRegion1(ETA_BARREL);
-	std::cout << " in trans. "; printRegion1(ETA_TRANSITION);
-	std::cout << " in endcap "; printRegion1(ETA_ENDCAP);
-	std::cout << " in DBM    "; printRegion1(ETA_DBM);
+	out << " \t\t\t  ................................tracks................................" << std::endl;
+	out << " \t\t\tn/event\tSEff.pr\tSEff.sd\tSLowP1\tSLowP2\tLowP1\tLowP2\tnoLink\tmultM\t" << std::endl;
+	out << " total     "; printRegion1(out,ETA_ALL);
+	out << " in barrel "; printRegion1(out,ETA_BARREL);
+	out << " in trans. "; printRegion1(out,ETA_TRANSITION);
+	out << " in endcap "; printRegion1(out,ETA_ENDCAP);
+	out << " in forwa."; printRegion1(out,ETA_DBM);
 
 	      }
     else // no truth
       {
-	std::cout << "\t" << "tracks, n/event:" << std::endl;
-	std::cout << "\t\t" << "total" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
-	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks_rec[TRACK_ALL][ETA_ALL]/(float) m_events << std::endl << std::setprecision(-1);
-	std::cout << "\t\t" << "in barrel" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
-	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks_rec[TRACK_ALL][ETA_BARREL]/(float) m_events << std::endl << std::setprecision(-1);
-	std::cout << "\t\t" << "in trans." << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
-	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks_rec[TRACK_ALL][ETA_TRANSITION]/(float) m_events << std::endl << std::setprecision(-1);
-	std::cout << "\t\t" << "in endcap" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
-	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks_rec[TRACK_ALL][ETA_ENDCAP]/(float) m_events << std::endl << std::setprecision(-1);
-	std::cout << "\t\t" << "in DBM" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
-          std::setw(7) << std::setprecision(2) << "\t" << m_tracks_rec[TRACK_ALL][ETA_DBM]/(float) m_events << std::endl << std::setprecision(-1);
+	out << "\t" << "tracks, n/event:" << std::endl;
+	out << "\t\t" << "total" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
+	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_ALL]/(float) m_events << std::endl << std::setprecision(-1);
+	out << "\t\t" << "in barrel" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
+	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_BARREL]/(float) m_events << std::endl << std::setprecision(-1);
+	out << "\t\t" << "in trans." << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
+	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_TRANSITION]/(float) m_events << std::endl << std::setprecision(-1);
+	out << "\t\t" << "in endcap" << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
+	  std::setw(7) << std::setprecision(2) << "\t" << m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_ENDCAP]/(float) m_events << std::endl << std::setprecision(-1);
+	out << "\t\t" << "in forwa." << std::setiosflags(std::ios::fixed | std::ios::showpoint) <<
+          std::setw(7) << std::setprecision(2) << "\t" << m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_DBM]/(float) m_events << std::endl << std::setprecision(-1);
       }
-    std::cout << " \t\t\t ....................................hits/track............................" << std::endl;
-    std::cout << " \t\t\t\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws\tDBM\tDBM1\tDBM2\tDBM3" << std::endl;
-    std::cout << " total     "; printRegion2(ETA_ALL, (float) m_tracks_rec[TRACK_ALL][ETA_ALL]);
-    std::cout << " in barrel "; printRegion2(ETA_BARREL, (float) m_tracks_rec[TRACK_ALL][ETA_BARREL]);
-    std::cout << " in trans. "; printRegion2(ETA_TRANSITION, (float) m_tracks_rec[TRACK_ALL][ETA_TRANSITION] );
-    std::cout << " in endcap "; printRegion2(ETA_ENDCAP, (float) m_tracks_rec[TRACK_ALL][ETA_ENDCAP] );
-    std::cout << " in DBM    "; printRegion2(ETA_DBM, (float) m_tracks_rec[TRACK_ALL][ETA_DBM] );
+    out << " \t\t\t ....................................hits/track............................" << std::endl;
+    out << " \t\t\t\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws" << std::endl;
+    out << " total     "; printRegion2(out,ETA_ALL, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_ALL]);
+    out << " in barrel "; printRegion2(out,ETA_BARREL, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_BARREL]);
+    out << " in trans. "; printRegion2(out,ETA_TRANSITION, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_TRANSITION] );
+    out << " in endcap "; printRegion2(out,ETA_ENDCAP, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_ENDCAP] );
+    out << " in forwa. "; printRegion2(out,ETA_DBM, (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][ETA_DBM] );
 
   }
   else
-    std::cout << ": NO EVENTS PROCESSED! " << std::endl;
+    out << ": NO EVENTS PROCESSED! " << std::endl;
 }
 
-void InDet::TrackStatHelper::printRegion1(enum eta_region region){
-  std::cout  <<  std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(7) << std::setprecision(2)
-	     << "\t" << m_tracks_rec[TRACK_ALL][region]/(float) m_events;
+void InDet::TrackStatHelper::printRegion1(MsgStream &out, enum eta_region region) const {
+  out  <<  std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(7) << std::setprecision(2)
+	     << "\t" << m_tracks.m_counter[kTracks_rec][TRACK_ALL][region]/(float) m_events;
  
-  if (m_tracks_gen_signal[TRACK_PRIMARY][region]) {
-    std::cout << "\t" <<  std::setprecision(4) 
-	      << m_tracks_gen_signal[TRACK_MATCHED_PRIMARY][region]/ (float) m_tracks_gen_signal[TRACK_PRIMARY][region]     // track efficiency wrt. gen primary in signal
-	      <<  std::setprecision(2); 
+  if (m_tracks.m_counter[kTracks_gen_signal][TRACK_PRIMARY][region]) {
+    out << "\t" <<  std::setprecision(4)
+        << m_tracks.m_counter[kTracks_gen_signal][TRACK_MATCHED_PRIMARY][region]/ (float) m_tracks.m_counter[kTracks_gen_signal][TRACK_PRIMARY][region]     // track efficiency wrt. gen primary in signal
+        <<  std::setprecision(2);
   }
   else {
-    std::cout  << "\t" << "n/a" ;
+    out  << "\t" << "n/a" ;
   }
-  if (m_tracks_gen_signal[TRACK_SECONDARY][region]) {
-    std::cout << "\t" <<  std::setprecision(4) 
-	      << m_tracks_gen_signal[TRACK_MATCHED_SECONDARY][region]/ (float) m_tracks_gen_signal[TRACK_SECONDARY][region]     // track efficiency wrt. gen secondary in signal
-	      <<  std::setprecision(2);
+  if (m_tracks.m_counter[kTracks_gen_signal][TRACK_SECONDARY][region]) {
+    out << "\t" <<  std::setprecision(4)
+        << m_tracks.m_counter[kTracks_gen_signal][TRACK_MATCHED_SECONDARY][region]/ (float) m_tracks.m_counter[kTracks_gen_signal][TRACK_SECONDARY][region]     // track efficiency wrt. gen secondary in signal
+        <<  std::setprecision(2);
   }
   else {
-    std::cout  << "\t" << "n/a" ;
+    out  << "\t" << "n/a" ;
   }
   
-  if (m_tracks_rec[TRACK_ALL_SIGNAL][region]) {	
-    std::cout << "\t" << 100*(m_tracks_rec[TRACK_LOWTRUTHPROB_SIGNAL][region]/ (float) m_tracks_rec[TRACK_ALL_SIGNAL][region]) << "%"  // track fake rate for signal only
-	      << "\t" << 100*(m_tracks_rec[TRACK_LOWTRUTHPROB2_SIGNAL][region]/ (float) m_tracks_rec[TRACK_ALL_SIGNAL][region]) << "%";  // track fake rate for signal only
+  if (m_tracks.m_counter[kTracks_rec][TRACK_ALL_SIGNAL][region]) {
+    out << "\t" << 100*(m_tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB_SIGNAL][region]/ (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL_SIGNAL][region]) << "%"  // track fake rate for signal only
+        << "\t" << 100*(m_tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB2_SIGNAL][region]/ (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL_SIGNAL][region]) << "%";  // track fake rate for signal only
   }
   else {
-    std::cout  << "\t" << "n/a\tn/a" ;
+    out  << "\t" << "n/a\tn/a" ;
   }
   
-  if (m_tracks_rec[TRACK_ALL][region]) {	
-    std::cout << "\t" << 100*(m_tracks_rec[TRACK_LOWTRUTHPROB][region]/ (float) m_tracks_rec[TRACK_ALL][region]) << "%"  // track fake rate 
-	      << "\t" << 100*(m_tracks_rec[TRACK_LOWTRUTHPROB2][region]/ (float) m_tracks_rec[TRACK_ALL][region]) << "%"  // track fake rate 
-	      << "\t" << 100*(m_tracks_rec[TRACK_NOHEPMCPARTICLELINK][region]/ (float) m_tracks_rec[TRACK_ALL][region])  << "%" // rate of tracks without HepMcParticleLink
-	      << "\t" << 100*(m_tracks_gen[TRACK_MULTMATCH][region]/ (float) m_tracks_rec[TRACK_ALL][region])  << "%"; // rate of tracks matched to the same truth track
-    
+  if (m_tracks.m_counter[kTracks_rec][TRACK_ALL][region]) {
+    out << "\t" << 100*(m_tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB][region]/ (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][region]) << "%"  // track fake rate
+        << "\t" << 100*(m_tracks.m_counter[kTracks_rec][TRACK_LOWTRUTHPROB2][region]/ (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][region]) << "%"  // track fake rate
+        << "\t" << 100*(m_tracks.m_counter[kTracks_rec][TRACK_NOHEPMCPARTICLELINK][region]/ (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][region])  << "%" // rate of tracks without HepMcParticleLink
+        << "\t" << 100*(m_tracks.m_counter[kTracks_gen][TRACK_MULTMATCH][region]/ (float) m_tracks.m_counter[kTracks_rec][TRACK_ALL][region])  << "%"; // rate of tracks matched to the same truth track
+
   }
   else{
-    std::cout  << "\tn/a\tn/a\tn/a";
+    out  << "\tn/a\tn/a\tn/a";
   }
-  std::cout << std::endl << std::setprecision(-1);
+  out << std::endl << std::setprecision(-1);
 }
 
-void InDet::TrackStatHelper::printRegion2(enum eta_region region, float denominator){
-  std::cout  <<  std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(7) << std::setprecision(2);
+void InDet::TrackStatHelper::printRegion2(MsgStream &out, enum eta_region region, float denominator) const {
+  out  <<  std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(7) << std::setprecision(2);
   if (denominator > 0) {     
-    std::cout << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(4) << std::setprecision(1)
-	      <<"    \t\t" << float(m_hits_rec[HIT_ALL    ][region]/denominator) << std::setprecision(2) 
-	      << "\t" << float(m_hits_rec[HIT_PIX1   ][region]/denominator)
-	      << "\t" << float(m_hits_rec[HIT_PIX2   ][region]/denominator)
-	      << "\t" << float(m_hits_rec[HIT_PIX3   ][region]/denominator)
-	      << "\t" << float(m_hits_rec[HIT_SCT1   ][region]/denominator)
-	      << "\t" << float(m_hits_rec[HIT_SCT2   ][region]/denominator)
-	      << "\t" << float(m_hits_rec[HIT_SCT3   ][region]/denominator)
-	      << "\t" << float(m_hits_rec[HIT_SCT4   ][region]/denominator)
-	      << "\t" << float(m_hits_rec[HIT_SCT5TO9][region]/denominator)
-	      << "\t" << float(m_hits_rec[HIT_TRT_ALL][region]/denominator)
-              << "\t" << float(m_hits_rec[HIT_DBM_ALL][region]/denominator)
-              << "\t" << float(m_hits_rec[HIT_DBM1][region]/denominator)
-              << "\t" << float(m_hits_rec[HIT_DBM2][region]/denominator)
-              << "\t" << float(m_hits_rec[HIT_DBM3][region]/denominator)
-
+    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(4) << std::setprecision(1)
+	      <<"    \t\t" << float(m_hits.m_counter[kHits_rec][HIT_ALL    ][region]/denominator) << std::setprecision(2)
+	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_PIX1   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_PIX2   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_PIX3   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_SCT1   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_SCT2   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_SCT3   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_SCT4   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_SCT5TO9][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_rec][HIT_TRT_ALL][region]/denominator)
 	      << std::endl << std::setprecision(-1);
   }
   else {
-    std::cout << " Unable to calculate: Denominator=0." << std::endl << std::setprecision(-1);
+    out << " Unable to calculate: Denominator=0." << std::endl << std::setprecision(-1);
   } 
 }
 
-bool InDet::TrackStatHelper::printTrackSummaryRegion(enum track_types track_type ,
-						     enum eta_region eta_region )
+bool InDet::TrackStatHelper::printTrackSummaryRegion(MsgStream &out,
+                                                     enum track_types track_type ,
+						     enum eta_region eta_region ) const
 {
-  long ex_denom =  m_n_TrackSummaryOK[track_type][eta_region][Trk::numberOfPixelHits] + m_n_TrackSummaryBAD[track_type][eta_region][Trk::numberOfPixelHits];
+  long ex_denom =  m_trackSummarySum.m_counter[kNTrackSummaryOK][track_type][eta_region][kNumberOfPixelHits]
+                 + m_trackSummarySum.m_counter[kNTrackSummaryBAD][track_type][eta_region][kNumberOfPixelHits];
   if (ex_denom > 0)
     {
-      std::cout << std::setiosflags(std::ios::fixed | std::ios::showpoint) 
-		<< std::setw(8) << track_types_string[track_type] 
-		<< std::setw(25) << key();
+      out << std::setiosflags(std::ios::fixed | std::ios::showpoint)
+          << std::setw(8) << track_types_string[track_type]
+          << std::setw(25) << key();
       
       if (m_events)
-	std::cout << std::setw(6)  << std::setprecision(2) << m_tracks_rec[track_type][eta_region]/(float) m_events;
+	out << std::setw(6)  << std::setprecision(2) << m_tracks.m_counter[kTracks_rec][track_type][eta_region]/(float) m_events;
       else
-	std::cout << std::setw(6) << "n/a";
-      
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfInnermostPixelLayerHits );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfInnermostPixelLayerSharedHits );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfInnermostPixelLayerOutliers);
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfPixelHits  );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfPixelSharedHits );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfPixelHoles   );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfGangedPixels  );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfSCTHits );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfSCTSharedHits );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfSCTHoles );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfSCTDoubleHoles);
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfTRTHits   );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfTRTOutliers );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfTRTHighThresholdHits  );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfTRTHighThresholdOutliers );
-      std::cout << std::setw(9)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfOutliersOnTrack );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfDBMHits );
-      std::cout << std::endl << std::setprecision(-1);
+	out << std::setw(6) << "n/a";
+      for (unsigned int stype_i=0; stype_i< kNSummaryTypes; ++stype_i) {
+         if (0 != strcmp("DBM",s_summaryTypeName[stype_i])){
+            out << std::setw(std::max(6,static_cast<int>(strlen(s_summaryTypeName[stype_i])+1)))
+                << std::setprecision(2); printTrackSummaryAverage(out, track_type , eta_region, stype_i );
+         }
+      }
+      out << std::endl << std::setprecision(-1);
       return true; // yes, printed output
     }
   else
     return false; // no, didn't print output
 }
 
-  void InDet::TrackStatHelper::printTrackSummaryAverage(enum track_types track_type ,
-						      enum eta_region eta_region, int summary_type )
+void InDet::TrackStatHelper::printTrackSummaryAverage(MsgStream &out,
+                                                      enum track_types track_type ,
+                                                      enum eta_region eta_region,
+                                                      int summary_type ) const
 {
-  long denom =  m_n_TrackSummaryOK[track_type][eta_region][summary_type] + m_n_TrackSummaryBAD[track_type][eta_region][summary_type];
+  assert( summary_type < kNSummaryTypes);
+  long denom =  m_trackSummarySum.m_counter[kNTrackSummaryOK][track_type][eta_region][summary_type]
+              + m_trackSummarySum.m_counter[kNTrackSummaryBAD][track_type][eta_region][summary_type];
 
   if (denom > 0) {
-    std::cout << float ( m_TrackSummarySum[track_type][eta_region][summary_type]/ (float) denom);
+    out << float ( m_trackSummarySum.m_counter[kTrackSummarySum][track_type][eta_region][summary_type]/ (float) denom);
   }
   else {
-    std::cout << "n/a";
+    out << "n/a";
   }
 }
 
-void InDet::TrackStatHelper::printSecondary(){
-  std::cout << "TrackCollection \"" << key() << "\" " << std::endl;
+void InDet::TrackStatHelper::printSecondary(MsgStream &out) const {
+  out << "TrackCollection \"" << key() << "\" " << std::endl;
   if (m_events > 0) {
-    std::cout << "(TrackAuthors:";
+    out << "(TrackAuthors:";
+    std::vector<std::string> author_string;
+    author_string.reserve(Trk::TrackInfo::NumberOfTrackFitters);
+    for (int i=0; i<Trk::TrackInfo::NumberOfTrackFitters; i++) {
+       author_string.push_back( Trk::TrackInfo(static_cast<Trk::TrackInfo::TrackFitter>(i),
+                                               Trk::undefined,
+                                               m_patternProperties,
+                                               m_recoInfo).dumpInfo() );
+    }
     for (int i=0; i<Trk::TrackInfo::NumberOfTrackFitters; i++){
       if (m_author_found[i]){
-	std::cout << " " << m_author_string[i];
+	out << " " << author_string[i];
       }
     }
-    std::cout << " )" << std::endl
+    out << " )" << std::endl
 	      << "TrackTruthCollection \"" << Truthkey() << "\"" << std::endl;
  
     if (m_truthMissing)
       {
 	if (m_careAboutTruth)
-	  std::cout << " WARNING: TrackTruth missing for part of this TrackCollection --> No secondaries information printed!" << std::endl; 
+	  out << " WARNING: TrackTruth missing for part of this TrackCollection --> No secondaries information printed!" << std::endl;
 	else
-	  std::cout << " INFO: Intentionally no TrackTruth for this TrackCollection. (No secondaries information printed.)" << std::endl;
+	  out << " INFO: Intentionally no TrackTruth for this TrackCollection. (No secondaries information printed.)" << std::endl;
       }
     if (!m_truthMissing)
       {
-	std::cout << " \t\t\t\t      ......................truth mached tracks statistics....................." << std::endl;
-	std::cout << " \t\t\t\tn/event\teff.\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws\tDBMall\tDBM1\tDBM2\tDBM3" << std::endl;
+	out << " \t\t\t\t      ......................truth mached tracks statistics....................." << std::endl;
+	out << " \t\t\t\tn/event\teff.\ttotal\tPIX1\tPIX2\tPIX3\tSCT1\tSCT2\tSCT3\tSCT4\tSCT5to9\tStraws" << std::endl;
 	
 	
-	std::cout << " total secondaries    ";
-	printRegionSecondary( ETA_ALL,        (float) (m_tracks_gen[TRACK_MATCHED_SECONDARY][ETA_ALL]       +m_tracks_gen[TRACK_MULTMATCH_SECONDARY][ETA_ALL]) );
-	std::cout << " secondaries in barrel ";
-	printRegionSecondary( ETA_BARREL,     (float) (m_tracks_gen[TRACK_MATCHED_SECONDARY][ETA_BARREL]    +m_tracks_gen[TRACK_MULTMATCH_SECONDARY][ETA_BARREL]) );
-	std::cout << " secondaries in trans. ";
-	printRegionSecondary( ETA_TRANSITION, (float) (m_tracks_gen[TRACK_MATCHED_SECONDARY][ETA_TRANSITION]+m_tracks_gen[TRACK_MULTMATCH_SECONDARY][ETA_TRANSITION]) );
-	std::cout << " secondaries in endcap ";
-	printRegionSecondary( ETA_ENDCAP,     (float) (m_tracks_gen[TRACK_MATCHED_SECONDARY][ETA_ENDCAP]    +m_tracks_gen[TRACK_MULTMATCH_SECONDARY][ETA_ENDCAP]) );
-	std::cout << " secondaries in DBM ";
-        printRegionSecondary( ETA_DBM,     (float) (m_tracks_gen[TRACK_MATCHED_SECONDARY][ETA_DBM]    +m_tracks_gen[TRACK_MULTMATCH_SECONDARY][ETA_DBM]) );
+	out << " total secondaries    ";
+	printRegionSecondary(out, ETA_ALL,        (float) (m_tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][ETA_ALL]       +m_tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_SECONDARY][ETA_ALL]) );
+	out << " secondaries in barrel ";
+	printRegionSecondary(out, ETA_BARREL,     (float) (m_tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][ETA_BARREL]    +m_tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_SECONDARY][ETA_BARREL]) );
+	out << " secondaries in trans. ";
+	printRegionSecondary(out, ETA_TRANSITION, (float) (m_tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][ETA_TRANSITION]+m_tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_SECONDARY][ETA_TRANSITION]) );
+	out << " secondaries in endcap ";
+	printRegionSecondary(out, ETA_ENDCAP,     (float) (m_tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][ETA_ENDCAP]    +m_tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_SECONDARY][ETA_ENDCAP]) );
+	out << " secondaries in forwa. ";
+        printRegionSecondary(out, ETA_DBM,     (float) (m_tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][ETA_DBM]    +m_tracks.m_counter[kTracks_gen][TRACK_MULTMATCH_SECONDARY][ETA_DBM]) );
       }
   }
-  else std::cout << ": NO EVENTS PROCESSED! " << std::endl;
+  else out << ": NO EVENTS PROCESSED! " << std::endl;
 }
 
-void InDet::TrackStatHelper::printRegionSecondary(enum eta_region region, float denominator){
-  std::cout  <<  std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(7) << std::setprecision(2)
-	     << "\t" << m_tracks_gen[TRACK_MATCHED_SECONDARY][region]/(float) m_events;                                              // tracks / event
-  if (m_tracks_gen[TRACK_SECONDARY][region]) {
-    std::cout << "\t" << m_tracks_gen[TRACK_MATCHED_SECONDARY][region]/ (float) m_tracks_gen[TRACK_SECONDARY][region];                 // track efficiency
+void InDet::TrackStatHelper::printRegionSecondary(MsgStream &out,
+                                                  enum eta_region region,
+                                                  float denominator) const {
+  out  <<  std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(7) << std::setprecision(2)
+	     << "\t" << m_tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][region]/(float) m_events;                                              // tracks / event
+  if (m_tracks.m_counter[kTracks_gen][TRACK_SECONDARY][region]) {
+    out << "\t" << m_tracks.m_counter[kTracks_gen][TRACK_MATCHED_SECONDARY][region]/ (float) m_tracks.m_counter[kTracks_gen][TRACK_SECONDARY][region];                 // track efficiency
   }
   else {
-    std::cout << "\t" << "n/a" ;
+    out << "\t" << "n/a" ;
   }
  
   if (denominator > 0) {     
-    std::cout << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(4) << std::setprecision(1)
-	      <<"   " << float(m_hits_sec[HIT_ALL    ][region]/denominator) << std::setprecision(2) 
-	      << "\t" << float(m_hits_sec[HIT_PIX1   ][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_PIX2   ][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_PIX3   ][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_SCT1   ][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_SCT2   ][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_SCT3   ][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_SCT4   ][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_SCT5TO9][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_TRT_ALL][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_DBM_ALL][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_DBM1][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_DBM2][region]/denominator)
-	      << "\t" << float(m_hits_sec[HIT_DBM3][region]/denominator)
+    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setw(4) << std::setprecision(1)
+	      <<"   " << float(m_hits.m_counter[kHits_sec][HIT_ALL    ][region]/denominator) << std::setprecision(2)
+	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_PIX1   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_PIX2   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_PIX3   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_SCT1   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_SCT2   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_SCT3   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_SCT4   ][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_SCT5TO9][region]/denominator)
+	      << "\t" << float(m_hits.m_counter[kHits_sec][HIT_TRT_ALL][region]/denominator)
 	      << std::endl << std::setprecision(-1);
   }
   else {
-    std::cout << " Unable to calculate: Denominator=0." << std::endl << std::setprecision(-1);
+    out << " Unable to calculate: Denominator=0." << std::endl << std::setprecision(-1);
   } 
 }
 
 
 
-bool InDet::TrackStatHelper::PassTrackCuts(const Trk::TrackParameters *para){
+bool InDet::TrackStatHelper::PassTrackCuts(const Trk::TrackParameters *para) const {
   bool passed = false;
   if(para->pT() >  m_cuts.minPt && fabs(para->eta()) < m_cuts.maxEtaDBM)passed = true;
 
@@ -908,7 +868,7 @@ bool InDet::TrackStatHelper::PassTrackCuts(const Trk::TrackParameters *para){
 
 }
 
-int InDet::TrackStatHelper::ClassifyParticle( const HepMC::GenParticle *particle, const double prob){
+int InDet::TrackStatHelper::ClassifyParticle( const HepMC::GenParticle *particle, const double prob) const {
 
   int partClass=-999;
 

@@ -44,6 +44,9 @@ atlas_depends_on_subdirs(
    Event/EventPrimitives
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
    MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
    MuonSpectrometer/MuonIdHelpers
@@ -123,10 +126,10 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
       SOURCES test/${name}.cxx
       LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} GaudiKernel TrkSurfaces TrkEventTPCnv TestTools
       StoreGateLib TPTools AGDDKernel AtlasDetDescr 
-      IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry
+      IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry
       MuonAGDDDescription MuonReadoutGeometry MuonIdHelpersLib
       TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv AthenaKernel
-      EXTRA_PATTERNS "MultiRange built successfully|element hash max"
+      LOG_IGNORE_PATTERN "MultiRange built successfully|element hash max|DEBUG|Strip range"
       PROPERTIES TIMEOUT 300 )
    set_target_properties ( MuonEventTPCnv_${name} PROPERTIES ENABLE_EXPORTS True )
 

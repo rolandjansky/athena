@@ -55,7 +55,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (
 # Keep tracks associated with muons
 EXOT5MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(
     name                    = 'EXOT5MuonTPThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     MuonKey                 = 'Muons',
     InDetTrackParticlesKey  = 'InDetTrackParticles')
 ToolSvc += EXOT5MuonTPThinningTool
@@ -64,7 +64,7 @@ thinningTools.append(EXOT5MuonTPThinningTool)
 # Keep tracks associated with electrons
 EXOT5ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
     name                    = 'EXOT5ElectronTPThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     SGKey                   = 'Electrons',
     GSFTrackParticlesKey    = 'GSFTrackParticles',
     InDetTrackParticlesKey  = 'InDetTrackParticles')
@@ -74,7 +74,7 @@ thinningTools.append(EXOT5ElectronTPThinningTool)
 # Keep tracks associated with taus
 EXOT5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(
     name                    = 'EXOT5TauTPThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     TauKey                  = 'TauJets',
     InDetTrackParticlesKey  = 'InDetTrackParticles')
 ToolSvc += EXOT5TauTPThinningTool
@@ -83,7 +83,7 @@ thinningTools.append(EXOT5TauTPThinningTool)
 # Keep tracks associated with jets
 #EXOT5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
     #name                    = 'EXOT5JetTPThinningTool',
-    #ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    #StreamName              = stream_name,
     #JetKey                  = 'AntiKt4EMTopoJets',
     #InDetTrackParticlesKey  = 'InDetTrackParticles',
     #SelectionString         = 'AntiKt4EMTopoJets.pt > 20*GeV')
@@ -93,7 +93,7 @@ thinningTools.append(EXOT5TauTPThinningTool)
 # Keep tracks with pT > 10 GeV for isolated track veto
 EXOT5TPThinningTool = DerivationFramework__TrackParticleThinning(
     name                    = 'EXOT5TPThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     SelectionString         = 'InDetTrackParticles.pt > 10*GeV',
     InDetTrackParticlesKey  = 'InDetTrackParticles')
 ToolSvc += EXOT5TPThinningTool
@@ -106,7 +106,7 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloConf import \
 # Keep clusters associated to electrons
 EXOT5ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(
     name                    = 'EXOT5ElectronCCThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     SGKey                   = 'Electrons',
     CaloClCollectionSGKey   = 'egammaClusters',
     TopoClCollectionSGKey   = 'CaloCalTopoClusters',
@@ -117,7 +117,7 @@ thinningTools.append(EXOT5ElectronCCThinningTool)
 # Keep clusters associated to photons
 EXOT5PhotonCCThinningTool = DerivationFramework__CaloClusterThinning(
     name                    = 'EXOT5PhotonCCThinningTool',
-    ThinningService         = EXOT5ThinningHelper.ThinningSvc(),
+    StreamName              = stream_name,
     SGKey                   = 'Photons',
     CaloClCollectionSGKey   = 'egammaClusters',
     TopoClCollectionSGKey   = 'CaloCalTopoClusters',
@@ -151,7 +151,7 @@ if DerivationFrameworkIsMonteCarlo:
 
     EXOT5MCThinningTool = DerivationFramework__MenuTruthThinning(
         name                       = 'EXOT5MCThinningTool',
-        ThinningService            = 'EXOT5ThinningSvc',
+        StreamName                 = streamName,
         WriteEverything            = False,
         WritePartons               = False,
         PartonPtThresh             = -1.0,

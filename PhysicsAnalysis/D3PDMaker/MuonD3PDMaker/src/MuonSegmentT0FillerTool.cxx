@@ -77,11 +77,10 @@ void MuonSegmentT0FillerTool::MuonboyT0CSCSegment(const Muon::MuonSegment* pMuon
    float Alternative_t0      = 0. ;
    float Alternative_t0sqr   = 0. ;
    float Alternative_t0Error = 0. ;
-   const std::vector<const Trk::RIO_OnTrack*> pRIOSet = pMuonSegment->containedROTs();
-   std::vector<const Trk::RIO_OnTrack*>::const_iterator pRIO_OnTrackIter = pRIOSet.begin();
-   for (; pRIO_OnTrackIter!=pRIOSet.end(); ++pRIO_OnTrackIter){
-     if ( (*pRIO_OnTrackIter) ){
-       const Trk::PrepRawData* pPrepRawData =(*pRIO_OnTrackIter)->prepRawData () ;
+   for(unsigned int irot=0;irot<pMuonSegment->numberOfContainedROTs();irot++){
+     const Trk::RIO_OnTrack* pRIO_OnTrack=pMuonSegment->rioOnTrack(irot);
+     if ( (pRIO_OnTrack) ){
+       const Trk::PrepRawData* pPrepRawData =(pRIO_OnTrack)->prepRawData () ;
        if ( pPrepRawData ){
          const Muon::CscPrepData* pPrepData = dynamic_cast<const Muon::CscPrepData*>(pPrepRawData);
          if ( pPrepData ){

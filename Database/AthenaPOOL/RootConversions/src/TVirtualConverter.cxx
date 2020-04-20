@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TVirtualConverter.cxx,v 1.8 2009-02-27 22:26:51 ssnyder Exp $
 /**
  * @file TVirtualConverter.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,7 +15,7 @@
 #include "TClass.h"
 #include "TBaseClass.h"
 #include "TDataMember.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TDataType.h"
 #include "TBuffer.h"
 #include "TError.h"

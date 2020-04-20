@@ -8,7 +8,7 @@
 
 #include "PathResolver/PathResolver.h"
 #include "tauRecTools/TauJetRNN.h"
-
+#include "tauRecTools/HelperFunctions.h"
 
 TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name)
     : TauRecToolBase(name), m_net_0p(nullptr), m_net_1p(nullptr), m_net_3p(nullptr) {
@@ -180,18 +180,20 @@ StatusCode TauJetRNNEvaluator::get_clusters(
         return StatusCode::FAILURE;
     }
 
-    for (const auto jc : jet_seed->getConstituents()) {
-        auto cl = dynamic_cast<const xAOD::CaloCluster *>(jc->rawConstituent());
-        if (!cl) {
-            ATH_MSG_ERROR("Calorimeter cluster is invalid.");
-            return StatusCode::FAILURE;
-        }
+    xAOD::JetConstituentVector vec = jet_seed->getConstituents();
+    xAOD::JetConstituentVector::iterator jc = vec.begin();
+    xAOD::JetConstituentVector::iterator jcE = vec.end();
+    for( ; jc!=jcE; ++jc){
 
-        // Select clusters in cone centered on the tau detector axis
-        const auto lc_p4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
-        if (lc_p4.DeltaR(cl->p4()) < m_max_cluster_dr) {
-            clusters.push_back(cl);
-        }
+      const xAOD::CaloCluster *cl = nullptr;
+      ATH_CHECK(tauRecTools::GetJetConstCluster(jc, cl));
+      // Skip if charged pfo
+      if (!cl){ continue; }
+      // Select clusters in cone centered on the tau detector axis
+      const auto lc_p4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
+      if (lc_p4.DeltaR(cl->p4()) < m_max_cluster_dr) {
+	clusters.push_back(cl);
+      }
     }
 
     // Sort by descending et

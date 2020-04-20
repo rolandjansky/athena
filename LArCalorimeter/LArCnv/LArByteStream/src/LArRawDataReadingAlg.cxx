@@ -19,27 +19,14 @@ LArRawDataReadingAlg::LArRawDataReadingAlg(const std::string& name, ISvcLocator*
   AthReentrantAlgorithm(name, pSvcLocator) {}
 
   StatusCode LArRawDataReadingAlg::initialize() {
-  if (m_rawChannelKey.key().size()>0) {
-    ATH_CHECK(m_rawChannelKey.initialize());
-  }
-  else {
-    m_doRawChannels=false;
-  }
+  m_doRawChannels = !m_rawChannelKey.empty();
+  ATH_CHECK(m_rawChannelKey.initialize(m_doRawChannels));
 
-  if (m_digitKey.key().size()>0) {
-    ATH_CHECK(m_digitKey.initialize());
-  }
-  else {
-    m_doDigits=false;
-  }
+  m_doDigits = !m_digitKey.empty();
+  ATH_CHECK(m_digitKey.initialize(m_doDigits));
 
-  if (m_febHeaderKey.key().size()>0) {
-    ATH_CHECK(m_febHeaderKey.initialize());
-  }
-  else {
-    m_doFebHeaders=false;
-  }
-  
+  m_doFebHeaders = !m_febHeaderKey.empty();
+  ATH_CHECK(m_febHeaderKey.initialize(m_doFebHeaders));  
 
   ATH_CHECK(m_robDataProviderSvc.retrieve());
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));  

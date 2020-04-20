@@ -21,7 +21,7 @@
 #include "CLHEP/Random/RandFlat.h"
 
 // To get TRT dig. settings:
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include <vector>
 #include <map>

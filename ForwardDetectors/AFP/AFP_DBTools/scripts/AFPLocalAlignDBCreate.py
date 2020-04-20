@@ -1,8 +1,9 @@
 #!/bin/env python
 
+from __future__ import print_function
+
 # Taken from InnerDetector/InDetRecTools/TRT_ElectronPidTools/DatabaseTools/WritePyCoolAll.py
 
-import json
 import sys
 
 from AFP_DBTools.AFPDBBase import AFPDBRecordBase, AFPDBTableBase
@@ -56,7 +57,7 @@ def main():
     try:
         import os
         os.remove(dbFile)
-    except:
+    except IOError:
         pass
 
     # get database service and open database
@@ -66,10 +67,10 @@ def main():
     dbString = "sqlite://;schema=%s;dbname=%s" % (dbFile, dbName)
     try:
         db = dbSvc.createDatabase(dbString)
-    except Exception, e:
-        print 'Problem creating database', e
+    except Exception as e:
+        print ('Problem creating database', e)
         sys.exit(-1)
-    print "Created database", dbString
+    print ("Created database", dbString)
     
     filler = AFPLocalAlignmentFiller()
     for statID in range (0, 4):
@@ -84,9 +85,9 @@ def main():
             rec.shiftZ = +fstatID - (flayID/10)
             rec.alpha = -fstatID + (flayID/10)
 
-            filler.records.append(rec);
+            filler.records.append(rec)
     
-    print filler.serialiseTable()
+    print (filler.serialiseTable())
 
     filler.iovStartRun = 305359
     filler.iovStartLumiBlock = 0
@@ -100,7 +101,7 @@ def main():
     filler.saveToDB()
     
 
-    print "\nClose database"
+    print ("\nClose database")
     db.closeDatabase()
 
 

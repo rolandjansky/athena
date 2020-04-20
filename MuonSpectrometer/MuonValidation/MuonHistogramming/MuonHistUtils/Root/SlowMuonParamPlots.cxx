@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHistUtils/SlowMuonParamPlots.h"
-#include "TMath.h"
+#include "TMath.h" // for TMath::Prob()
 
 namespace Muon{
 

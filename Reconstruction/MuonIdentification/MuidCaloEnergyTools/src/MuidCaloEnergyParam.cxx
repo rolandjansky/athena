@@ -34,10 +34,6 @@ MuidCaloEnergyParam::MuidCaloEnergyParam (const std::string&type,
 	m_binWidth(0.),
 	m_etaOffset(0.),
 	m_inverseWidth(0.),
-	m_etaBin1(0),
-	m_etaBin2(0),
-	m_etaWeight1(0.),
-	m_etaWeight2(0.),
 	m_etaGranularity(0.)
 {
     declareInterface<IMuidCaloEnergyParam>(this);
@@ -429,67 +425,67 @@ MuidCaloEnergyParam::mopDepositedEnergy(double trackMomentum,
     return caloEnergy;
 }
 
-void
-MuidCaloEnergyParam::etaFixedBin(double eta) const
+  MuidCaloEnergyParam::BinsWeights MuidCaloEnergyParam::etaFixedBin(double eta) const
 {
+  MuidCaloEnergyParam::BinsWeights BW;
     eta			= fabs(eta);
     double offsetEta1	= eta - m_etaOffset;
     double offsetEta2	= eta + m_etaOffset;
-    m_etaWeight2	= 0.5;
+    BW.etaWeight2	= 0.5;
     if (offsetEta2 < m_binWidth)	// first (i.e. central) bin #0 - no interpolation
     {
-	m_etaBin1	= 0;
-	m_etaBin2	= 0;
+	BW.etaBin1	= 0;
+	BW.etaBin2	= 0;
     }
     else if (offsetEta1 >= 2.50)	// last bin #25 (eta > 2.5) - no interpolation
     {
-	m_etaBin1	= 25;
-	m_etaBin2	= 25;
+	BW.etaBin1	= 25;
+	BW.etaBin2	= 25;
     }
     else if (m_smoothingFraction > 0.)
     {
 	double eta1	= floor(m_inverseWidth*offsetEta1);
-	m_etaBin1	= static_cast<int> (eta1);
+	BW.etaBin1	= static_cast<int> (eta1);
 	double eta2	= floor(m_inverseWidth*offsetEta2);
-	m_etaBin2	= static_cast<int> (eta2);
-	if (m_etaBin2 > m_etaBin1) m_etaWeight2 = (m_inverseWidth*offsetEta2 - eta2)/m_smoothingFraction;
+	BW.etaBin2	= static_cast<int> (eta2);
+	if (BW.etaBin2 > BW.etaBin1) BW.etaWeight2 = (m_inverseWidth*offsetEta2 - eta2)/m_smoothingFraction;
     }
     else
     {
 	double eta1	= floor(m_inverseWidth*eta);
-	m_etaBin1	= static_cast<int> (eta1);
-	m_etaBin2	= m_etaBin1;
+	BW.etaBin1	= static_cast<int> (eta1);
+	BW.etaBin2	= BW.etaBin1;
     }
 
-    m_etaWeight1	= 1. - m_etaWeight2;
+    BW.etaWeight1	= 1. - BW.etaWeight2;
+    return BW;
 }
 
-void
-MuidCaloEnergyParam::etaVariableBin(double eta) const
+MuidCaloEnergyParam::BinsWeights MuidCaloEnergyParam::etaVariableBin(double eta) const
 {
     eta			= fabs(eta);
     if (eta < 1.05)			// barrel: contains the variable bin region
     {
 	if (eta < 0.75)			// identical to fixed binning
 	{
-	    etaFixedBin(eta);
+	    return etaFixedBin(eta);
 	}
 	else if (eta < 0.80)		// wide bin#7
 	{
-	    etaFixedBin(0.75);
+	    return etaFixedBin(0.75);
 	}
 	else if (eta < 1.00)		// similar to fixed binning (with half bin offset)
 	{
-	    etaFixedBin(eta - 0.5*m_binWidth);
+	    return etaFixedBin(eta - 0.5*m_binWidth);
 	}
 	else				// wide bin#9
 	{
-	    etaFixedBin(0.95);
+	    return etaFixedBin(0.95);
 	}
     }
     else				// endcap: fixed binning (with full bin offset)
     {
-	etaFixedBin(eta - m_binWidth);
+	return etaFixedBin(eta - m_binWidth);
     }
 }
 
@@ -498,20 +494,20 @@ MuidCaloEnergyParam::meanEnergyLoss(double eta, double momentum) const
 {
     // Mean Energy Loss parametrization with asymmetric gaussian fit
     //  tabulated coefficients for function [0]+[1]*Log(0.0067*p*p)+[2]*p with GeV units
-    etaVariableBin(eta);
-    double p0			= m_etaWeight1*m_meanEnergyLossP0[m_etaBin1] +
-				  m_etaWeight2*m_meanEnergyLossP0[m_etaBin2];
-    double p1			= m_etaWeight1*m_meanEnergyLossP1[m_etaBin1] +
-				  m_etaWeight2*m_meanEnergyLossP1[m_etaBin2];
-    double p2			= m_etaWeight1*m_meanEnergyLossP2[m_etaBin1] +
-				  m_etaWeight2*m_meanEnergyLossP2[m_etaBin2];
+  MuidCaloEnergyParam::BinsWeights BW = etaVariableBin(eta);
+    double p0			= BW.etaWeight1*m_meanEnergyLossP0[BW.etaBin1] +
+				  BW.etaWeight2*m_meanEnergyLossP0[BW.etaBin2];
+    double p1			= BW.etaWeight1*m_meanEnergyLossP1[BW.etaBin1] +
+				  BW.etaWeight2*m_meanEnergyLossP1[BW.etaBin2];
+    double p2			= BW.etaWeight1*m_meanEnergyLossP2[BW.etaBin1] +
+				  BW.etaWeight2*m_meanEnergyLossP2[BW.etaBin2];
     double parametrisedDeposit	= p0*Units::GeV +
                                   p1*Units::GeV*log(0.0067*momentum*momentum/Units::GeV/Units::GeV) +
 				  p2*momentum;
  
     //  additional offset from high-statistics Z->mumu MC (measured by Peter K 30/11/2011, 03/2012)
     //  NOTE:  constant bin width used here
-    etaFixedBin(eta);
+    BW = etaFixedBin(eta);
     // mc11 tune
 //     double fixFromPeter[26]	= { -0.203781 , -0.146775 , -0.0952301 , -0.186141 , -0.180687 ,
 // 				    -0.225095 , -0.195912 , -0.221158  , -0.198556 , -0.271551 ,
@@ -526,8 +522,8 @@ MuidCaloEnergyParam::meanEnergyLoss(double eta, double momentum) const
 				    -0.312171 , -0.352982 , -0.303020 , -0.357250 , -0.396249 ,
 				    -0.433535 , -0.417214 , -0.424093 , -0.415557 , -0.325372 ,
 				    -0.553009 };
-    double fix			=  m_etaWeight1*fixFromPeter[m_etaBin1] +
-				   m_etaWeight2*fixFromPeter[m_etaBin2];
+    double fix			=  BW.etaWeight1*fixFromPeter[BW.etaBin1] +
+				   BW.etaWeight2*fixFromPeter[BW.etaBin2];
     parametrisedDeposit		+= fix*Units::GeV;
     
     return parametrisedDeposit;
@@ -536,15 +532,15 @@ MuidCaloEnergyParam::meanEnergyLoss(double eta, double momentum) const
 std::pair<double,double>
 MuidCaloEnergyParam::meanEnergyLossError(double eta, double momentum) const
 {
-    etaVariableBin(eta);
-    double left_p0	= m_etaWeight1*m_meanEnergyLossErrorLeftP0[m_etaBin1] +
-			  m_etaWeight2*m_meanEnergyLossErrorLeftP0[m_etaBin2];
-    double left_p1	= m_etaWeight1*m_meanEnergyLossErrorLeftP1[m_etaBin1] +
-			  m_etaWeight2*m_meanEnergyLossErrorLeftP1[m_etaBin2];
-    double right_p0	= m_etaWeight1*m_meanEnergyLossErrorRightP0[m_etaBin1] +
-			  m_etaWeight2*m_meanEnergyLossErrorRightP0[m_etaBin2];
-    double right_p1	= m_etaWeight1*m_meanEnergyLossErrorRightP1[m_etaBin1] +
-			  m_etaWeight2*m_meanEnergyLossErrorRightP1[m_etaBin2];
+  MuidCaloEnergyParam::BinsWeights BW = etaVariableBin(eta);
+    double left_p0	= BW.etaWeight1*m_meanEnergyLossErrorLeftP0[BW.etaBin1] +
+			  BW.etaWeight2*m_meanEnergyLossErrorLeftP0[BW.etaBin2];
+    double left_p1	= BW.etaWeight1*m_meanEnergyLossErrorLeftP1[BW.etaBin1] +
+			  BW.etaWeight2*m_meanEnergyLossErrorLeftP1[BW.etaBin2];
+    double right_p0	= BW.etaWeight1*m_meanEnergyLossErrorRightP0[BW.etaBin1] +
+			  BW.etaWeight2*m_meanEnergyLossErrorRightP0[BW.etaBin2];
+    double right_p1	= BW.etaWeight1*m_meanEnergyLossErrorRightP1[BW.etaBin1] +
+			  BW.etaWeight2*m_meanEnergyLossErrorRightP1[BW.etaBin2];
     double sigma_left	= left_p0*Units::GeV + left_p1*momentum;
     double sigma_right	= right_p0*Units::GeV + right_p1*momentum;
 
@@ -556,20 +552,20 @@ MuidCaloEnergyParam::mopEnergyLoss(double eta, double momentum) const
 {
     // Mop Energy Loss parametrization with asymmetric gaussian fit in the mop region
     //  tabulated coefficients for function [0]+[1]*Log(0.0067*p*p)+[2]*p with GeV units
-    etaVariableBin(eta);
-    double p0			= m_etaWeight1*m_mopEnergyLossP0[m_etaBin1] +
-				  m_etaWeight2*m_mopEnergyLossP0[m_etaBin2];
-    double p1			= m_etaWeight1*m_mopEnergyLossP1[m_etaBin1] +
-				  m_etaWeight2*m_mopEnergyLossP1[m_etaBin2] ;
-    double p2			= m_etaWeight1*m_mopEnergyLossP2[m_etaBin1] +
-				  m_etaWeight2*m_mopEnergyLossP2[m_etaBin2];
+    MuidCaloEnergyParam::BinsWeights BW = etaVariableBin(eta);
+    double p0			= BW.etaWeight1*m_mopEnergyLossP0[BW.etaBin1] +
+				  BW.etaWeight2*m_mopEnergyLossP0[BW.etaBin2];
+    double p1			= BW.etaWeight1*m_mopEnergyLossP1[BW.etaBin1] +
+				  BW.etaWeight2*m_mopEnergyLossP1[BW.etaBin2] ;
+    double p2			= BW.etaWeight1*m_mopEnergyLossP2[BW.etaBin1] +
+				  BW.etaWeight2*m_mopEnergyLossP2[BW.etaBin2];
     double parametrisedDeposit	= p0*Units::GeV +
                                   p1*Units::GeV*log(0.0067*momentum*momentum/Units::GeV/Units::GeV) +
 				  p2*momentum;
  
     //  additional offset from high-statistics Z->mumu MC (measured by Peter K 30/11/2011)
     //  NOTE:  constant bin width used here
-    etaFixedBin(eta);
+    BW = etaFixedBin(eta);
     // mc11 tune
 //     double fixFromPeter[26]	= { -0.203781 , -0.146775 , -0.0952301 , -0.186141 , -0.180687 ,
 // 				    -0.225095 , -0.195912 , -0.221158  , -0.198556 , -0.271551 ,
@@ -585,8 +581,8 @@ MuidCaloEnergyParam::mopEnergyLoss(double eta, double momentum) const
 				    -0.433535 , -0.417214 , -0.424093 , -0.415557 , -0.325372 ,
 				    -0.553009 };
 
-    double fix			=  m_etaWeight1*fixFromPeter[m_etaBin1] +
-				   m_etaWeight2*fixFromPeter[m_etaBin2];
+    double fix			=  BW.etaWeight1*fixFromPeter[BW.etaBin1] +
+				   BW.etaWeight2*fixFromPeter[BW.etaBin2];
     parametrisedDeposit		+= fix*Units::GeV;
     
     return parametrisedDeposit;
@@ -596,11 +592,11 @@ double
 MuidCaloEnergyParam::mopEnergyLossError(double eta, double momentum) const
 {
     eta			= fabs(eta);
-    etaVariableBin(eta);
-    double sigma_p0	= m_etaWeight1*m_mopEnergyLossErrorP0[m_etaBin1] +
-			  m_etaWeight2*m_mopEnergyLossErrorP0[m_etaBin2];
-    double sigma_p1	= m_etaWeight1*m_mopEnergyLossErrorP1[m_etaBin1] +
-			  m_etaWeight2*m_mopEnergyLossErrorP1[m_etaBin2];
+    MuidCaloEnergyParam::BinsWeights BW = etaVariableBin(eta);
+    double sigma_p0	= BW.etaWeight1*m_mopEnergyLossErrorP0[BW.etaBin1] +
+			  BW.etaWeight2*m_mopEnergyLossErrorP0[BW.etaBin2];
+    double sigma_p1	= BW.etaWeight1*m_mopEnergyLossErrorP1[BW.etaBin1] +
+			  BW.etaWeight2*m_mopEnergyLossErrorP1[BW.etaBin2];
     double sigma	= sigma_p0*Units::GeV + sigma_p1*momentum;
 
     // fix for mc11 as underestimate in barrel, overestimate in endcap
@@ -621,13 +617,13 @@ MuidCaloEnergyParam::symmetricMopEnergyLoss(double eta, double momentum) const
 {
     // Mop Energy Loss parametrization with symmetric gaussian fit in the mop region
     //  new coefficients with symmetric fits
-    etaVariableBin(eta);
-    double p0			= m_etaWeight1*m_mopSymmetricEnergyLossP0[m_etaBin1] +
-				  m_etaWeight2*m_mopSymmetricEnergyLossP0[m_etaBin2];
-    double p1			= m_etaWeight1*m_mopSymmetricEnergyLossP1[m_etaBin1] +
-				  m_etaWeight2*m_mopSymmetricEnergyLossP1[m_etaBin2];
-    double p2			= m_etaWeight1*m_mopSymmetricEnergyLossP2[m_etaBin1] +
-				  m_etaWeight2*m_mopSymmetricEnergyLossP2[m_etaBin2];
+  MuidCaloEnergyParam::BinsWeights BW = etaVariableBin(eta);
+    double p0			= BW.etaWeight1*m_mopSymmetricEnergyLossP0[BW.etaBin1] +
+				  BW.etaWeight2*m_mopSymmetricEnergyLossP0[BW.etaBin2];
+    double p1			= BW.etaWeight1*m_mopSymmetricEnergyLossP1[BW.etaBin1] +
+				  BW.etaWeight2*m_mopSymmetricEnergyLossP1[BW.etaBin2];
+    double p2			= BW.etaWeight1*m_mopSymmetricEnergyLossP2[BW.etaBin1] +
+				  BW.etaWeight2*m_mopSymmetricEnergyLossP2[BW.etaBin2];
     double parametrisedDeposit	= p0*Units::GeV +
                                   p1*Units::GeV*log(0.0067*momentum*momentum/Units::GeV/Units::GeV) +
 				  p2*momentum;

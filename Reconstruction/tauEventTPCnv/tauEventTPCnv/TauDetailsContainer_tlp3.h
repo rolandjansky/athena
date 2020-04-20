@@ -18,7 +18,6 @@
 #include "tauEventTPCnv/TauDetailsContainer_p1.h"
 #include "tauEventTPCnv/TauCommonDetails_p2.h"
 #include "tauEventTPCnv/TauCommonExtraDetails_p1.h"
-#include "tauEventTPCnv/PanTauDetails_p1.h"
 #include "TrkEventTPCnv/VxVertex/RecVertex_p1.h"
 #include "TrkEventTPCnv/VxVertex/Vertex_p1.h"
 #include "TrkEventTPCnv/TrkEventPrimitives/FitQuality_p1.h"
@@ -45,9 +44,6 @@ private:
 
     ///Tau extra common details
     std::vector<TauCommonExtraDetails_p1> m_tauCommonExtraDetails;
-    
-    ///PanTauDetails
-    std::vector<PanTauDetails_p1> m_PanTauDetails;
 
     ///Rec vertex
     std::vector<Trk::RecVertex_p1> m_recVertices;

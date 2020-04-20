@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
-#Exampel command: UploadAMITag.larcaf.py wlampl xxx create_c909 AtlasProduction_20.1.5.6 noisebursts
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
+#Example command: UploadAMITag.larcaf.py wlampl xxx create_c909 AtlasProduction_20.1.5.6 noisebursts
  
 
-import sys,pickle
+import sys
 
 patcharea='/afs/cern.ch/user/l/larcomm/w0/digitMon/LArCAF'
 setupScript='/afs/cern.ch/atlas/tzero/software/setup/setuptrf.sh'
@@ -70,13 +74,13 @@ description_var = '. Used in production from Feb 2015 onwards.'
 
 if __name__ == '__main__':
     if len(sys.argv)==1:
-        print "##############"
-        print "Application to create or update AMI tags (for manager only)\n"
-        print "Usage:"
-        print "UploadAMITag.py <login> <password> create_AMITag <release> <process>"
-        print "or"
-        print "UploadAMITag.py <login> <password> update_AMITag <release> <process>"
-        print "##############"
+        print ("##############")
+        print ("Application to create or update AMI tags (for manager only)\n")
+        print ("Usage:")
+        print ("UploadAMITag.py <login> <password> create_AMITag <release> <process>")
+        print ("or")
+        print ("UploadAMITag.py <login> <password> update_AMITag <release> <process>")
+        print ("##############")
         sys.exit(0)
 
 
@@ -110,12 +114,12 @@ if __name__ == '__main__':
     #try:
     #    import pyAMI.client
     #except ImportError:
-    #    print "WARNING unable to import AMI from pyAMI with standard $PYTHONPATH."
-    #    print "Will manually add pyAMI, then try again..."
+    #    print ("WARNING unable to import AMI from pyAMI with standard $PYTHONPATH.")
+    #    print ("Will manually add pyAMI, then try again...")
     #    import sys
     #    sys.path.insert(0,'/afs/cern.ch/atlas/software/tools/pyAMI/5.0.0/lib')
     #    import pyAMI.client
-    #print "import pyAMI was succesful"
+    #print ("import pyAMI was succesful")
     #amiclient=pyAMI.client.Client('atlas')
 
 
@@ -151,25 +155,25 @@ if __name__ == '__main__':
 
     #Upload info to AMI
     if doWhat=="create":
-        l=['AddAMITag']
+        l=['AddAMITag'] # noqa: E741
         for k in s.keys():
             l.append(k+"=\""+s[k]+"\"")
         for k in c.keys():
             l.append(k+"=\""+c[k]+"\"")
             
-        print "l=",l
+        print ("l=",l)
         result=amiclient.execute(l)
         
-        print " ================================================ "
+        print (" ================================================ ")
 
-        print result
-        print "\n\n###############################################"
-        print "#  Successfully created new tag %s !!   :-)  #"%amiTag
-        print "###############################################\n\n"        
+        print (result)
+        print ("\n\n###############################################")
+        print ("#  Successfully created new tag %s !!   :-)  #"%amiTag)
+        print ("###############################################\n\n"        )
 
 
     elif doWhat=="update":
-        l=['UpdateAMITag']
+        l=['UpdateAMITag'] # noqa: E741
         for k in s.keys():
             l.append(k+'='+s[k])
 
@@ -182,7 +186,8 @@ if __name__ == '__main__':
         for k in c.keys():
             tmp+=k
             n+=1
-            if n<nKeys: tmp+=s
+            if n<nKeys:
+                tmp+=s
         l.append(tmp)
 
         n=0
@@ -190,23 +195,24 @@ if __name__ == '__main__':
         for k in c.keys():
             tmp+=c[k]
             n+=1
-            if n<nKeys: tmp+=s
+            if n<nKeys:
+                tmp+=s
         l.append(tmp)
         
-        #print "l=",l
+        #print ("l=",l)
         result=amiclient.execute(l)
-        print result
+        print (result)
 
 
-        print "\n\n#####################################################"
-        print "#  Succesfully updated existing tag %s !!!   :-)  #"%amiTag
-        print "#####################################################\n\n"        
+        print ("\n\n#####################################################")
+        print ("#  Succesfully updated existing tag %s !!!   :-)  #"%amiTag)
+        print ("#####################################################\n\n"        )
 
     else:
         raise SyntaxError("Don't know what to do... amiTagTmp='%s'  doWhat='%s'"%(amiTagTmp,doWhat))
             
-    print "To see the corresponding command, do:"
-    print "GetCommand.py AMI=%s \n"%amiTag
-    print "or go to:"
-    print "http://ami.in2p3.fr/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?linkId=501"
-    print "\n"
+    print ("To see the corresponding command, do:")
+    print ("GetCommand.py AMI=%s \n"%amiTag)
+    print ("or go to:")
+    print ("http://ami.in2p3.fr/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?linkId=501")
+    print ("\n")

@@ -1,14 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackExtrapolationTool.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
 
@@ -18,25 +12,18 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/DistanceSolution.h"
 
-#include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkTrack/Track.h"
 
 #include "TrkSurfaces/PerigeeSurface.h"
 
-#include "TrkTrack/Track.h"
-#include "TrkTrack/TrackStateOnSurface.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkVolumes/BoundarySurface.h"
 
-#include "TrkTrack/Track.h"
 #include <map>
-
-
 
 namespace Muon {
 
@@ -47,8 +34,7 @@ namespace Muon {
       m_muonExtrapolator2("Trk::Extrapolator/MuonExtrapolator"),
       m_magFieldSvc("AtlasFieldSvc",na),
       m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",na),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonTrackExtrapolationTool>(this);
     declareProperty( "MagFieldSvc",         m_magFieldSvc );
@@ -61,16 +47,12 @@ namespace Muon {
     declareProperty( "MuonSystemEntranceName", m_msEntranceName = "MuonSpectrometerEntrance" );
   }
 
-
-  MuonTrackExtrapolationTool::~MuonTrackExtrapolationTool(){}
-
-
   StatusCode MuonTrackExtrapolationTool::initialize()
   {
 
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     if( !m_atlasExtrapolator.empty() ) ATH_CHECK( m_atlasExtrapolator.retrieve() );
     if( !m_muonExtrapolator.empty() ) ATH_CHECK( m_muonExtrapolator.retrieve() );
     if( !m_muonExtrapolator2.empty() ) ATH_CHECK( m_muonExtrapolator2.retrieve() );
@@ -79,11 +61,6 @@ namespace Muon {
 
     if( m_cosmics ) ATH_MSG_DEBUG("Running in cosmics mode" );
     
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonTrackExtrapolationTool::finalize()
-  {
     return StatusCode::SUCCESS;
   }
 
@@ -215,8 +192,8 @@ namespace Muon {
 	  const Trk::MeasurementBase* meas = (*tit)->measurementOnTrack();
 	  if( meas ){
 	    Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-	    if( m_idHelper->isMuon(id) ) {
-	      msg() << MSG::VERBOSE << " " << m_idHelper->toString(id); 
+	    if( m_idHelperSvc->isMuon(id) ) {
+	      msg() << MSG::VERBOSE << " " << m_idHelperSvc->toString(id); 
 
 	    }
 	  } 
@@ -249,7 +226,7 @@ namespace Muon {
 	}
 	
 	Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-	if( !m_idHelper->isMuon(id) ) continue;
+	if( !m_idHelperSvc->isMuon(id) ) continue;
 	
 	closestPars = pars;
 	

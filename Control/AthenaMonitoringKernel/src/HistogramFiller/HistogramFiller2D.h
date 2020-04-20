@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_HistogramFiller_HistogramFiller2D_h
@@ -7,102 +7,85 @@
 
 #include "TH2.h"
 
-#include <boost/range/combine.hpp>
 #include "AthenaMonitoringKernel/HistogramFiller.h"
-
+#include "HistogramFillerUtils.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
+#include "GaudiKernel/MsgStream.h"
 
 namespace Monitored {
+
   /**
-   * @brief Filler for plain 2D histogram
+   * @brief Generic filler for 2D histogram
+   *
+   * @tparam H  Type of 2D histogram (TH2, TProfile)
    */
-  class HistogramFiller2D : public HistogramFiller {
+  template<typename H>
+  class HistogramFiller2DGeneric : public HistogramFiller {
   public:
-    HistogramFiller2D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
+    HistogramFiller2DGeneric(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller(definition, provider) {}
 
-    virtual HistogramFiller2D* clone() override {
-      return new HistogramFiller2D( *this );
+    virtual HistogramFiller2DGeneric* clone() const override {
+      return new HistogramFiller2DGeneric( *this );
     }
+    
+    virtual unsigned fill() const override {
+      if (ATH_UNLIKELY(m_monVariables.size() != 2)) return 0;
 
+      const IMonitoredVariable& var1 = m_monVariables[0].get();
+      const IMonitoredVariable& var2 = m_monVariables[1].get();
+      const size_t size1 = var1.size();
+      const size_t size2 = var2.size();
 
-    virtual unsigned fill() override {
-      if (m_monVariables.size() != 2) {
+      if (ATH_UNLIKELY(size1 == 0 || size2 == 0)) {
+        // nothing to do
         return 0;
       }
 
-      // handling of the weight
-      std::function<double(size_t)> weightAccessor = [] (size_t ){ return 1.0; };  // default is always 1.0
-      std::vector<double> weightVector;
-      if ( m_monWeight != nullptr ) {
-	weightVector = m_monWeight->getVectorRepresentation();
-	weightAccessor = [&](size_t i){
-	  if ( weightVector.size() == 1 )
-	    return weightVector[0];
-	  return weightVector[i];
-	};
+      if (ATH_UNLIKELY(size1 > 1 && size2 > 1 && size1 != size2)) {
+        MsgStream log(Athena::getMessageSvc(), "HistogramFiller2D");
+        log << MSG::ERROR << "Mismatch of provided vector sizes "
+            << size1 << "," << size2 << " for " << m_histDef->alias << endmsg;
+        return 0;
       }
 
-      struct Extractor {
-	std::function<double(size_t)> doublesAccessor = nullptr;
-	std::function<const char*(size_t)> stringsAccessor = nullptr;
-	std::vector<double> doublesVector;
-	std::vector<std::string> stringsVector;
-	size_t size() const {
-	  return std::max( doublesVector.size(), stringsVector.size() );
-	}
-      };
-      Extractor value1;
-      Extractor value2;
-      auto prepareExtractor = [&]( Extractor& ex, int index ) {
-	if ( not m_monVariables[index].get().hasStringRepresentation() ) {
-	  ex.doublesVector = m_monVariables[index].get().getVectorRepresentation();
-	  ex.doublesAccessor = [&](size_t i){
-	    if ( ex.doublesVector.size() == 1 )
-	      return ex.doublesVector[0];
-	    return ex.doublesVector[i];
-	  };
-	} else {
-	  ex.stringsVector = m_monVariables[index].get().getStringVectorRepresentation();
-	  ex.stringsAccessor = [&]( size_t i) {
-	    if ( ex.stringsVector.size() == 1 )
-	      return ex.stringsVector[0].c_str();
-	    return ex.stringsVector[i].c_str();
-	  };
-	}
-      };
-      prepareExtractor( value1, 0 );
-      prepareExtractor( value2, 1 );
-
-
-
-
-      // rather unpleaseant code but I did not want complicate it further
-      // we need to handle now 4 cases,
-      // double-double, string-double, double-string and string-string in calling the fill, we always pass the weigh
-      const size_t maxsize = std::max( value1.size(), value2.size() );
-      if ( value1.doublesAccessor and value2.doublesAccessor )
-	fill( maxsize, value1.doublesAccessor, value2.doublesAccessor, weightAccessor );
-      else if ( value1.stringsAccessor and value2.doublesAccessor )
-	fill( maxsize, value1.stringsAccessor, value2.doublesAccessor, weightAccessor );
-      else if ( value1.doublesAccessor and value2.stringsAccessor )
-	fill( maxsize, value1.doublesAccessor, value2.stringsAccessor, weightAccessor );
-      else
-	fill( maxsize, value1.stringsAccessor, value2.stringsAccessor, weightAccessor );
-      return maxsize;
-    }
-
-  protected:
-    template<typename F1, typename F2, typename F3>
-    void fill( size_t n, F1 f1, F2 f2, F3 f3 ) {
-
-      std::lock_guard<std::mutex> lock(*(this->m_mutex));
-      auto histogram = this->histogram<TH2>();
-      for ( size_t i = 0; i < n; ++i ) {
-	histogram->Fill( f1(i), f2(i), f3(i) );
+      std::function<bool(size_t)> cutMaskAccessor;
+      if (m_monCutMask) {
+        // handling of the cutmask
+        auto cutMaskValuePair = getCutMaskFunc();
+        if (cutMaskValuePair.first == 0) { return 0; }
+        if (ATH_UNLIKELY(size1 > 1 && size2 > 1 &&
+                         cutMaskValuePair.first > 1 && size1 != cutMaskValuePair.first)) {
+          MsgStream log(Athena::getMessageSvc(), "HistogramFiller2D");
+          log << MSG::ERROR << "CutMask does not match the size of plotted variable: "
+              << cutMaskValuePair.first << " " << size1 << endmsg;
+          return 0;
+        }
+        cutMaskAccessor = cutMaskValuePair.second;
       }
-    }
 
+      if (m_monWeight) {
+        const std::vector<double> weightVector{m_monWeight->getVectorRepresentation()};
+        auto weightAccessor = [&](size_t i){ return weightVector[i]; };
+
+        if (ATH_UNLIKELY(size1 > 1 && size2 > 1 &&
+                         weightVector.size() > 1 && size1 != weightVector.size())) {
+          MsgStream log(Athena::getMessageSvc(), "HistogramFiller2D");
+          log << MSG::ERROR << "Weight does not match the size of plotted variable: "
+              << weightVector.size() << " " << size1 << endmsg;
+          return 0;
+        }
+        // Need to fill here while weightVector is still in scope
+        if (not m_monCutMask) return HistogramFiller::fill<H>(weightAccessor, detail::noCut, var1, var2);
+        else                  return HistogramFiller::fill<H>(weightAccessor, cutMaskAccessor, var1, var2);
+      }
+
+      if (not m_monCutMask) return HistogramFiller::fill<H>(detail::noWeight, detail::noCut, var1, var2);
+      else                  return HistogramFiller::fill<H>(detail::noWeight, cutMaskAccessor, var1, var2);
+    }
   };
+
+  typedef HistogramFiller2DGeneric<TH2> HistogramFiller2D;
 }
 
 #endif /* AthenaMonitoringKernel_HistogramFiller_HistogramFiller2D_h */

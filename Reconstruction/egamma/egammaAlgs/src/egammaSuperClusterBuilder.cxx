@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaSuperClusterBuilder.h"
@@ -42,65 +42,58 @@ namespace {
    * direction, and finding the centers of those cells.  Then we use
    * the larger of these for the symmetric range.
    */
-  void etaphi_range (double eta,
-		     double phi,
-		     CaloCell_ID::CaloSample sampling,
-		     double& deta,
-		     double& dphi)
-  {
-    deta = 0;
-    dphi = 0;
-    // Get the DD element for the central cell.
-    const CaloDetDescrManager* dd_man = CaloDetDescrManager::instance();
-    const CaloDetDescrElement* elt = dd_man->get_element_raw(sampling, eta, phi);
-    if (!elt) return;
+void etaphi_range(const CaloDetDescrManager& dd_man, double eta, double phi,
+                  CaloCell_ID::CaloSample sampling, double& deta,
+                  double& dphi) {
+  deta = 0;
+  dphi = 0;
+  // Get the DD element for the central cell.
+  const CaloDetDescrElement* elt = dd_man.get_element_raw(sampling, eta, phi);
+  if (!elt)
+    return;
 
-    // Should be smaller than the eta half-width of any cell.
-    constexpr double eps = 0.001;
+  // Should be smaller than the eta half-width of any cell.
+  constexpr double eps = 0.001;
 
-    // Now look in the negative eta direction.
-    const CaloDetDescrElement* elt_l = dd_man->get_element_raw(sampling,
-							       eta - elt->deta() - eps,
-							       phi);
-    double deta_l = 0; // Eta difference on the low (left) side.
-    if (elt_l){
-      deta_l = std::abs (eta - elt_l->eta_raw()) + eps;
-    }
-    // Now look in the positive eta direction.
-    const CaloDetDescrElement* elt_r = dd_man->get_element_raw(sampling,
-							       eta + elt->deta() + eps,
-							       phi);
-    double deta_r = 0; // Eta difference on the high (right) side.
-    if (elt_r){
-      deta_r = std::abs (eta - elt_r->eta_raw()) + eps;
-    }
-  
-    // Total deta is twice the maximum.
-    deta = 2 * std::max (deta_r, deta_l);
-    // Now for the phi variation.
-    // The phi size can change as a function of eta, but not of phi.
-    // Thus we have to look again at the adjacent eta cells, and
-    // take the largest variation.
-    // Now look in the negative eta direction.
-    elt_l = dd_man->get_element_raw(sampling,
-				    eta - elt->deta() - eps,
-				    CaloPhiRange::fix (phi - elt->dphi() - eps));
-    
-    double dphi_l = 0; // Phi difference on the low-eta () side.
-    if (elt_l){
-      dphi_l = std::abs (CaloPhiRange::fix (phi - elt_l->phi_raw())) + eps;
-    }
-    // Now look in the positive eta direction.
-    elt_r = dd_man->get_element_raw(sampling,
-				    eta + elt->deta() + eps,
-				    CaloPhiRange::fix (phi - elt->dphi() - eps));
-    double dphi_r = 0; // Phi difference on the positive (down) side.
-    if (elt_r){
-      dphi_r = std::abs (CaloPhiRange::fix (phi - elt_r->phi_raw())) + eps;
-    }
-    // Total dphi is twice the maximum.
-    dphi = 2 * std::max (dphi_l, dphi_r);
+  // Now look in the negative eta direction.
+  const CaloDetDescrElement* elt_l =
+      dd_man.get_element_raw(sampling, eta - elt->deta() - eps, phi);
+  double deta_l = 0; // Eta difference on the low (left) side.
+  if (elt_l) {
+    deta_l = std::abs(eta - elt_l->eta_raw()) + eps;
   }
+  // Now look in the positive eta direction.
+  const CaloDetDescrElement* elt_r =
+      dd_man.get_element_raw(sampling, eta + elt->deta() + eps, phi);
+  double deta_r = 0; // Eta difference on the high (right) side.
+  if (elt_r) {
+    deta_r = std::abs(eta - elt_r->eta_raw()) + eps;
+  }
+
+  // Total deta is twice the maximum.
+  deta = 2 * std::max(deta_r, deta_l);
+  // Now for the phi variation.
+  // The phi size can change as a function of eta, but not of phi.
+  // Thus we have to look again at the adjacent eta cells, and
+  // take the largest variation.
+  // Now look in the negative eta direction.
+  elt_l = dd_man.get_element_raw(sampling, eta - elt->deta() - eps,
+                                  CaloPhiRange::fix(phi - elt->dphi() - eps));
+
+  double dphi_l = 0; // Phi difference on the low-eta () side.
+  if (elt_l) {
+    dphi_l = std::abs(CaloPhiRange::fix(phi - elt_l->phi_raw())) + eps;
+  }
+  // Now look in the positive eta direction.
+  elt_r = dd_man.get_element_raw(sampling, eta + elt->deta() + eps,
+                                  CaloPhiRange::fix(phi - elt->dphi() - eps));
+  double dphi_r = 0; // Phi difference on the positive (down) side.
+  if (elt_r) {
+    dphi_r = std::abs(CaloPhiRange::fix(phi - elt_r->phi_raw())) + eps;
+  }
+  // Total dphi is twice the maximum.
+  dphi = 2 * std::max(dphi_l, dphi_r);
+}
 }
 
 
@@ -165,7 +158,7 @@ StatusCode egammaSuperClusterBuilder::initialize() {
 }
 
 bool egammaSuperClusterBuilder::matchesInWindow(const xAOD::CaloCluster *ref,
-						const xAOD::CaloCluster *clus) const
+                                                const xAOD::CaloCluster *clus) const
 {
   //First the case where we are both endcap and barrel, i.e in the crack
   //Check around both measurements of the seed
@@ -197,7 +190,8 @@ bool egammaSuperClusterBuilder::matchesInWindow(const xAOD::CaloCluster *ref,
 
 std::unique_ptr<xAOD::CaloCluster>
 egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCluster*>& clusters,
-                                            xAOD::EgammaParameters::EgammaType egType)
+                                            const CaloDetDescrManager& mgr,
+                                            xAOD::EgammaParameters::EgammaType egType) const
 {
 
   const auto acSize = clusters.size();
@@ -206,7 +200,8 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
     return nullptr;
   }
 
-  std::unique_ptr<xAOD::CaloCluster> newCluster(CaloClusterStoreHelper::makeCluster(clusters.at(0)->getCellLinks()->getCellContainer()));
+  std::unique_ptr<xAOD::CaloCluster> newCluster(
+    CaloClusterStoreHelper::makeCluster(clusters.at(0)->getCellLinks()->getCellContainer()));
   if (!newCluster) {
     ATH_MSG_ERROR("CaloClusterStoreHelper::makeCluster failed.");
     return nullptr;
@@ -220,14 +215,9 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   CentralPosition cp0 = cpRef;
 
   //Get the hotest in raw co-ordinates
-  const CaloDetDescrManager* mgr = CaloDetDescrManager::instance();
-  if (!mgr) {
-    ATH_MSG_ERROR("Couldn't create instance of CaloDetDescrManager this should never happen");
-    return nullptr;
-  }
   if (cp0.emaxB > 0) {
     CaloCell_ID::CaloSample xsample = CaloCell_ID::EMB2;
-    const CaloDetDescrElement* dde = mgr->get_element(xsample, cpRef.etaB, cpRef.phiB);
+    const CaloDetDescrElement* dde = mgr.get_element(xsample, cpRef.etaB, cpRef.phiB);
     if (dde) {
       cp0.etaB = dde->eta_raw();
       cp0.phiB = dde->phi_raw();
@@ -237,12 +227,13 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   }
   if (cp0.emaxEC > 0) {
     CaloCell_ID::CaloSample xsample = CaloCell_ID::EME2;
-    const CaloDetDescrElement* dde = mgr->get_element(xsample, cpRef.etaEC, cpRef.phiEC);
+    const CaloDetDescrElement* dde = mgr.get_element(xsample, cpRef.etaEC, cpRef.phiEC);
     if (dde) {
       cp0.etaEC = dde->eta_raw();
       cp0.phiEC = dde->phi_raw();
     } else {
-      ATH_MSG_WARNING("Couldn't get CaloDetDescrElement from mgr for eta = " << cpRef.etaEC << ", phi = " << cpRef.phiEC);
+      ATH_MSG_WARNING("Couldn't get CaloDetDescrElement from mgr for eta = " << cpRef.etaEC
+                                                                             << ", phi = " << cpRef.phiEC);
     }
   }
 
@@ -263,7 +254,8 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   for (size_t i = 0; i < acSize; i++) {
     //Add te EM cells of the accumulated to the cluster
     if (addEMCellsToCluster(newCluster.get(),clusters[i], cp0).isFailure()) {
-      ATH_MSG_DEBUG("There was problem adding the topocluster cells to the the cluster:  potentially no L2 or L3 cells in cluster");
+      ATH_MSG_DEBUG(
+        "There was problem adding the topocluster cells to the the cluster:  potentially no L2 or L3 cells in cluster");
       return nullptr;
     }
     //Set the element Link to the constitents
@@ -275,7 +267,7 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   }
 
   // Now calculate the cluster size; use that for restricting the L1 cells
-  PhiSize phiSize = findPhiSize(cp0, newCluster.get());
+  PhiSize phiSize = findPhiSize(cp0,newCluster.get());
 
   // now add L1 cells
   for (size_t i = 0; i < acSize; i++) {
@@ -287,7 +279,7 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   }
 
   // Apply SW-style summation of TileGap3 cells (if necessary).
-  if (addTileGap3CellsinWindow(newCluster.get()).isFailure()) {
+  if (addTileGap3CellsinWindow(newCluster.get(),mgr).isFailure()) {
     ATH_MSG_ERROR("Problem with the input cluster when running AddTileGap3CellsinWindow?");
     return nullptr;
   }
@@ -312,12 +304,12 @@ egammaSuperClusterBuilder::createNewCluster(const std::vector<const xAOD::CaloCl
   }
 
   // Apply correction  calibration
-  if (calibrateCluster(newCluster.get(), egType).isFailure()) {
+  if (calibrateCluster(newCluster.get(), mgr, egType).isFailure()) {
     ATH_MSG_WARNING("There was problem calibrating the object");
     return nullptr;
   }
   // return the new cluster
-  return newCluster;  
+  return newCluster;
 }
 
 StatusCode egammaSuperClusterBuilder::addEMCellsToCluster(xAOD::CaloCluster *newCluster,
@@ -435,7 +427,6 @@ StatusCode egammaSuperClusterBuilder::addL0L1EMCellsToCluster(xAOD::CaloCluster 
     }
 
     if (!addCell) continue;
-
     const CaloDetDescrElement *dde = cell->caloDDE();
     if(!dde){
       continue;
@@ -466,9 +457,10 @@ StatusCode egammaSuperClusterBuilder::addL0L1EMCellsToCluster(xAOD::CaloCluster 
 
 
 StatusCode egammaSuperClusterBuilder::calibrateCluster(xAOD::CaloCluster* newCluster,
-						       const xAOD::EgammaParameters::EgammaType egType) {
+                                                       const CaloDetDescrManager& mgr,
+                                                       const xAOD::EgammaParameters::EgammaType egType) const{
 
-  ATH_CHECK(refineEta1Position(newCluster));
+  ATH_CHECK(refineEta1Position(newCluster,mgr));
   //Save the state before the corrections
   newCluster->setAltE(newCluster->e());
   newCluster->setAltEta(newCluster->eta());
@@ -480,7 +472,7 @@ StatusCode egammaSuperClusterBuilder::calibrateCluster(xAOD::CaloCluster* newClu
   newCluster->setRawEta(newCluster->eta());
   newCluster->setRawPhi(newCluster->phi());
   //
-  ATH_CHECK(fillPositionsInCalo(newCluster));
+  ATH_CHECK(fillPositionsInCalo(newCluster,mgr));
   //At this point we do not have the final tracks vertices attached on the cluster/ new egamma Rec Object.
   //So We will need at the end to do the final update in the EMClusterTool
   //For now apply just cluster info only calibration.
@@ -489,28 +481,31 @@ StatusCode egammaSuperClusterBuilder::calibrateCluster(xAOD::CaloCluster* newClu
   return StatusCode::SUCCESS;
 }
 // ==========================================================================
-StatusCode egammaSuperClusterBuilder::fillPositionsInCalo(xAOD::CaloCluster* cluster){
+StatusCode egammaSuperClusterBuilder::fillPositionsInCalo(xAOD::CaloCluster* cluster,
+                                                          const CaloDetDescrManager& mgr ) const {
   const bool isBarrel = xAOD::EgammaHelpers::isBarrel(cluster);
   CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
   // eta and phi of the cluster in the calorimeter frame
-  double eta, phi;
-  m_caloCellDetPos.getDetPosition(sample, cluster->eta(), cluster->phi(), eta, phi); 
+  double eta;
+  double phi;
+  m_caloCellDetPos.getDetPosition(mgr, sample, cluster->eta(), cluster->phi(), eta, phi); 
   cluster->insertMoment(xAOD::CaloCluster::ETACALOFRAME,eta);
   cluster->insertMoment(xAOD::CaloCluster::PHICALOFRAME,phi);
   //  eta in the second sampling
-  m_caloCellDetPos.getDetPosition(sample, cluster->etaBE(2), cluster->phiBE(2), eta, phi);
+  m_caloCellDetPos.getDetPosition(mgr,sample, cluster->etaBE(2), cluster->phiBE(2), eta, phi);
   cluster->insertMoment(xAOD::CaloCluster::ETA2CALOFRAME,eta);
   cluster->insertMoment(xAOD::CaloCluster::PHI2CALOFRAME,phi);
   //  eta in the first sampling 
   sample = isBarrel ? CaloCell_ID::EMB1 : CaloCell_ID::EME1;
-  m_caloCellDetPos.getDetPosition(sample, cluster->etaBE(1), cluster->phiBE(1),eta, phi);
+  m_caloCellDetPos.getDetPosition(mgr,sample, cluster->etaBE(1), cluster->phiBE(1),eta, phi);
   cluster->insertMoment(xAOD::CaloCluster::ETA1CALOFRAME,eta);
   cluster->insertMoment(xAOD::CaloCluster::PHI1CALOFRAME,phi);
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaSuperClusterBuilder::refineEta1Position(xAOD::CaloCluster* cluster) const {
+StatusCode egammaSuperClusterBuilder::refineEta1Position(xAOD::CaloCluster* cluster,
+                                                         const CaloDetDescrManager& mgr) const {
   
   // This only makes sense if we have cells there
   if (!cluster->hasSampling(CaloSampling::EMB1) &&  !cluster->hasSampling(CaloSampling::EME1)) {
@@ -520,17 +515,18 @@ StatusCode egammaSuperClusterBuilder::refineEta1Position(xAOD::CaloCluster* clus
   //Now calculare the position using cells in barrel or endcap  or both
   const double aeta=fabs(cluster->etaBE(2));
   if(aeta<1.6 && cluster->hasSampling(CaloSampling::EMB1)){
-    ATH_CHECK(makeCorrection1(cluster,CaloSampling::EMB1));
+    ATH_CHECK(makeCorrection1(cluster,mgr,CaloSampling::EMB1));
   }
   if(aeta>1.3 && cluster->hasSampling(CaloSampling::EME1)){
-    ATH_CHECK(makeCorrection1(cluster,CaloSampling::EME1));
+    ATH_CHECK(makeCorrection1(cluster,mgr,CaloSampling::EME1));
   }
   return StatusCode::SUCCESS;
 
 }
 
-StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster,    
-						      const CaloSampling::CaloSample sample) const {
+StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster,
+                                                  const CaloDetDescrManager& mgr,    
+                                                  const CaloSampling::CaloSample sample) const {
 
   //Protections.
   ATH_MSG_DEBUG("Hottest cell in layer 1 ATLAS co-ordinates (eta,phi): (" << cluster->etamax(sample) 
@@ -542,16 +538,11 @@ StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster
     return StatusCode::SUCCESS;
   }
   //Get the hotest in raw co-ordinates
-  const CaloDetDescrManager* mgr = CaloDetDescrManager::instance();
-  if (!mgr) {
-    ATH_MSG_ERROR("Couldn't create instance of CaloDetDescrManager this should never happen");
-    return StatusCode::FAILURE;
-  }
   //
   //We have two kinds of enums ...
   CaloCell_ID::CaloSample xsample = (sample == CaloSampling::EMB1) ? CaloCell_ID::EMB1 :CaloCell_ID::EME1;
   //
-  const CaloDetDescrElement* dde = mgr->get_element (xsample, cluster->etamax(sample), cluster->phimax(sample));
+  const CaloDetDescrElement* dde = mgr.get_element (xsample, cluster->etamax(sample), cluster->phimax(sample));
   if (!dde) {
     ATH_MSG_WARNING("Couldn't get CaloDetDescrElement from mgr for: cluster->etamax(sample): " 
 		    << cluster->etamax(sample) <<" cluster->phimax(sample): " << cluster->phimax(sample) << 
@@ -564,9 +555,10 @@ StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster
   ATH_MSG_DEBUG("Hottest cell in layer 1 Calo co-ordinates (eta,phi): (" << etamax << " , " << phimax << ")");
   //  
   //now Locate the +-1 range
-  double detastr(-999), dphistr(-999);
+  double detastr(-999);
+  double dphistr(-999);
   //Raw co-ordinates used here
-  etaphi_range(etamax, phimax,xsample,detastr, dphistr);
+  etaphi_range(mgr,etamax, phimax,xsample,detastr, dphistr);
   //
   //Given the range refine the position employing the smaller window
   if (detastr > 0 && dphistr > 0) {
@@ -584,7 +576,8 @@ StatusCode egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaSuperClusterBuilder::addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster) const{
+StatusCode egammaSuperClusterBuilder::addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster,
+                                                               const CaloDetDescrManager& mgr) const{
   
   if (!myCluster) {
     ATH_MSG_ERROR("Invalid input in addRemainingCellsToCluster");
@@ -607,7 +600,7 @@ StatusCode egammaSuperClusterBuilder::addTileGap3CellsinWindow(xAOD::CaloCluster
 
   const std::vector<CaloSampling::CaloSample> samples = {CaloSampling::TileGap3};
   for ( auto samp : samples ) {
-    myList.select(myCluster->eta0(), myCluster->phi0(), searchWindowEta, searchWindowPhi,samp);
+    myList.select(mgr,myCluster->eta0(), myCluster->phi0(), searchWindowEta, searchWindowPhi,samp);
     cells.insert(cells.end(), myList.begin(), myList.end());
   }
 
@@ -652,7 +645,7 @@ egammaSuperClusterBuilder::findCentralPosition(const std::vector<const xAOD::Cal
 
 egammaSuperClusterBuilder::PhiSize
 egammaSuperClusterBuilder::findPhiSize(const egammaSuperClusterBuilder::CentralPosition& cp0,
-				       const xAOD::CaloCluster* cluster) const
+                                       const xAOD::CaloCluster* cluster) const
 {
 
   PhiSize phiSize;
@@ -718,6 +711,5 @@ egammaSuperClusterBuilder::findPhiSize(const egammaSuperClusterBuilder::CentralP
     ATH_MSG_WARNING("phiSizeMinusEC is large: " << phiSize.minusEC << ", capping at 1.0");
     phiSize.minusEC = 1.0;
   }
-
   return phiSize;
 }

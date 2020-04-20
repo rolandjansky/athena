@@ -100,7 +100,8 @@ private:
 
   
   /// property: the services declared as providers
-  StringArrayProperty m_providerNames;
+  StringArrayProperty m_providerNames{this,"ProviderNames",{},
+      "names of the services to be use as address providers","Set<std::string>"};
   /// the handler for m_providerNames
   void providerNamesPropertyHandler( Property& theProp );
   
@@ -109,7 +110,7 @@ private:
   /// the providers we know about. WE DON'T OWN THEM
   std::list<IAddressProvider*> m_providers; 
   /// Persistency Service
-  IConversionSvc* m_pDataLoader;   
+  IConversionSvc* m_pDataLoader{nullptr};   
 
   /// List of pending stores on which to run preLoadProxies().
   std::vector<IProxyRegistry*> m_pendingLoad;

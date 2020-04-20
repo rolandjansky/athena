@@ -1,15 +1,12 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TEvent.h 796516 2017-02-10 04:45:05Z ssnyder $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_TEVENT_H
 #define XAODROOTACCESS_TEVENT_H
 
 // STL include(s):
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 #include <vector>
@@ -44,6 +41,9 @@ namespace xAODPrivate {
    class THolderBucket;
    class TLoader;
 }
+namespace CP {
+   class xAODWriterAlg;
+}
 
 namespace xAOD {
 
@@ -73,9 +73,6 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 796516 $
-   /// $Date: 2017-02-10 05:45:05 +0100 (Fri, 10 Feb 2017) $
-   ///
    class TEvent : public TVirtualEvent,
                   public IProxyDict {
 
@@ -87,6 +84,7 @@ namespace xAOD {
       friend class xAOD::TTreeMgr;
       friend class xAODPrivate::THolderBucket;
       friend class xAODPrivate::TLoader;
+      friend class CP::xAODWriterAlg;
 
    public:
       /// Auxiliary store "mode"
@@ -269,6 +267,14 @@ namespace xAOD {
       /// Function returning the key describing a known object
       const std::string& getName( uint32_t hash ) const override;
 
+      /// Internal function for recording an object into the output
+      // Declared public so we can call it from python.
+      TReturnCode record( void* obj, const std::string& typeName,
+                          const std::string& key,
+                          ::Int_t basketSize, ::Int_t splitLevel,
+                          ::Bool_t overwrite = kFALSE,
+                          ::Bool_t metadata = kFALSE,
+                          ::Bool_t isOwner = kTRUE );
    protected:
       /// Function for retrieving an output object in a non-template way
       void* getOutputObject( uint32_t key,
@@ -346,18 +352,6 @@ namespace xAOD {
                                   const std::type_info& ti,
                                   ::Bool_t silent = kFALSE,
                                   ::Bool_t metadata = kFALSE );
-
-   public:
-      // Make this public for calling from python.
-      /// Internal function for recording an object into the output
-      TReturnCode record( void* obj, const std::string& typeName,
-                          const std::string& key,
-                          ::Int_t basketSize, ::Int_t splitLevel,
-                          ::Bool_t overwrite = kFALSE,
-                          ::Bool_t metadata = kFALSE,
-                          ::Bool_t isOwner = kTRUE );
-
-   protected:
       /// Internal function for adding an auxiliary store object to the output
       TReturnCode record( TAuxStore* store, const std::string& key,
                           ::Int_t basketSize, ::Int_t splitLevel,
@@ -400,8 +394,8 @@ namespace xAOD {
                                   ::Bool_t metadata = kFALSE ) const;
 
       /// Definition of the internal data structure type
-      typedef std::map< std::string,
-                        TVirtualManager* > Object_t;
+      typedef std::unordered_map< std::string,
+                                  TVirtualManager* > Object_t;
       /// Definition of the structure type holding on to listeners
       typedef std::vector< TVirtualIncidentListener* > Listener_t;
 
@@ -450,13 +444,13 @@ namespace xAOD {
       EventFormat* m_outputEventFormat;
 
       /// Rules for selecting which auxiliary branches to write
-      std::map< std::string, std::set< std::string > > m_auxItemList;
+      std::unordered_map< std::string, std::set< std::string > > m_auxItemList;
 
       /// Listeners who should be notified when certain incidents happen
       Listener_t m_listeners;
 
       /// Container name re-mapping rules
-      std::map< std::string, std::string > m_nameRemapping;
+      std::unordered_map< std::string, std::string > m_nameRemapping;
 
       /// @name Variable(s) used in the IProxyDict implementation
       /// @{
@@ -490,9 +484,7 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Include the template implementation(s):
-#ifndef __GCCXML__
-#   include "TEvent.icc"
-#endif // __GCCXML__
+// Include the template implementation(s).
+#include "TEvent.icc"
 
 #endif // XAODROOTACCESS_TEVENT_H

@@ -5,6 +5,9 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoToolMT
 
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
 from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
+from  TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
+    ConditionsToolSetterFastReduction,
+    )
 
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
@@ -44,6 +47,7 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
 
     # debug flag to be relayed to C++ objects
     tool = None
+
     if toolSetter is None:
         toolSetter = ConditionsToolSetterTree(chain_name)
         tree.accept(modifier=toolSetter)
@@ -51,13 +55,16 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
     else:
 
         if toolSetter.__class__.__name__ in (
-                'ConditionsToolSetterFlowNetwork',
-                'ConditionsToolSetterFastReduction'):
+                'ConditionsToolSetterFastReduction',):
             toolSetter.mod(tree)
             tool = toolSetter.tool
+
+        elif toolSetter.__class__.__name__ in (
+                    'ConditionsToolSetterTree',):
+                tree.accept(modifier=toolSetter)
+                tool = tree.tool
         else:
             toolSetter = ConditionsToolSetterTree(chain_name)
-            tree.accept(modifier=toolSetter)
             tool = tree.tool
 
     log.info(visitor.report())
@@ -71,6 +78,8 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     by TrigJetHypoToolMT to  devide whether an event passes.
     A Helper Tool returned by this function may be the root of a Helper
     Tool tree structure."""
+
+    log.info('trigJetHypoToolFromDictc chainDict %s', str(chain_dict))
 
     try:
         chain_label = chainDict2jetLabel(chain_dict)
@@ -86,12 +95,17 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
         raise e
     
     chain_name = chain_dict['chainName']
+
+    toolSetter=ConditionsToolSetterFastReduction(chain_name)
     return trigJetHypoToolHelperFromDict_(chain_label,
-                                          chain_name)
- 
+                                          chain_name,
+                                          toolSetter)
+     
 
 def  trigJetHypoToolFromDict(chain_dict):
     """Produce  a jet trigger hypo tool from a chainDict"""
+
+    log.info('trigJetHypoToolFromDict chainDict %s', str(chain_dict))
 
     chain_name = chain_dict['chainName']
     tool = TrigJetHypoToolMT(name=chain_name)
@@ -101,7 +115,7 @@ def  trigJetHypoToolFromDict(chain_dict):
     tool.helper_tool = trigJetHypoToolHelperFromDict(chain_dict)
 
     # controls whether debug visitor is sent to helper tool
-    debug = False
+    debug = False  # SET TO False WHEN COMMITTING
     tool.visit_debug = debug
     
     log.info('%s', tool)
@@ -113,7 +127,7 @@ class TestStringMethods(unittest.TestCase):
     def testValidConfigs(self):
         from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import (
             dictFromChainName,)
-        chain_names = ('HLT_j0_vbenf_L1J20',)
+        chain_names = ('HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',)
         wid = max(len(c) for c in chain_names)
         for chain_name in chain_names:
             chain_dict = dictFromChainName(chain_name)
@@ -146,9 +160,8 @@ def _tests():
     )
     for cn in chain_names:
         chain_dict = chainNameDecoder.getChainDict(cn)
-        print(chain_dict)
-        tool = trigJetHypoToolFromDict(chain_dict)
-        print('tool:\n', tool)
+
+        trigJetHypoToolFromDict(chain_dict)
         
 
 if __name__ == '__main__':

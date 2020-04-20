@@ -9,7 +9,7 @@
 
 
 #Adding new monitoring tool
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 #monTool = GenericMonitoringTool("MonTool")
 
 
@@ -366,7 +366,7 @@ class T2VertexBeamSpotAlgMonitoring(GenericMonitoringTool):
                                              title="EventStatistics",
                                              xbins=9, xmin=-0.5, xmax=8.5, opt='kLBN',
                                              #labels='All input : Has input TE : Has ROI : Has tracks : Has seed tracks : Has  enough tracks : Has track Z cluster : Has vertex : Has good vertex' )
-                                             labels= ['All input', 'Has input TE', 'Has ROI',  'Has tracks', 'Has seed tracks',  'Has  enough tracks', 'Has track Z cluster', 'Has vertex', 'Has good vertex'] )
+                                             xlabels= ['All input', 'Has input TE', 'Has ROI',  'Has tracks', 'Has seed tracks',  'Has  enough tracks', 'Has track Z cluster', 'Has vertex', 'Has good vertex'] )
 
         self.defineHistogram('nTotalTracks', path='EXPERT', type='TH1F',
                                              title="nTotalTracks; N all tracks per event; Number of events",

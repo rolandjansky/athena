@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TGCSectorLogic.cxx,v 1.14 2009-03-15 18:07:55 isaya Exp $
 #include "TrigT1TGC/TGCSectorLogic.hh"
 #include "TrigT1TGC/TGCElectronicsSystem.hh"
 #include "TrigT1TGC/TGCHighPtBoard.hh"
@@ -13,6 +12,9 @@
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
+
+//for Run3
+#include "TrigT1TGC/TGCTrackSelectorOut.h"
 
 #include <iostream>
 
@@ -27,17 +29,18 @@ namespace LVL1TGCTrigger {
     m_NumberOfWireHighPtBoard(0), 
     m_SSCController(tgcargs,this), 
     m_matrix(tgcargs,this),
-    m_mapInner(0),
+    m_mapEIFI(0),
     m_mapTileMu(0),
     m_pTMDB(0),
-    m_preSelector(this), 
-    m_selector(this), 
-    m_selectorOut(0),
+    m_preSelector(this), // for Run2 
+    m_selector(this),//for Run2  
+    m_selectorOut(0), //for Run2
+    m_trackSelector(this),// for Run3
     m_wordTileMuon(0),
     m_wordInnerStation(0),
     m_stripHighPtBoard(0),
     m_stripHighPtChipOut(0),
-    m_useInner(false),
+    m_useEIFI(false),
     m_useTileMu(false),
     m_tgcArgs(tgcargs)
 {
@@ -63,8 +66,11 @@ namespace LVL1TGCTrigger {
 
   m_SSCController.setRegion(regionIn);
 
-  m_useInner  = tgcArgs()->USE_INNER() && (m_region==ENDCAP); 
+  m_useEIFI  = tgcArgs()->USE_INNER() && (m_region==ENDCAP); 
   m_useTileMu = tgcArgs()->TILE_MU() && (m_region==ENDCAP); 
+  
+  m_trackSelectorOut.reset(new TGCTrackSelectorOut());//for Run3
+
 }
 
 TGCSectorLogic::~TGCSectorLogic()
@@ -73,17 +79,17 @@ TGCSectorLogic::~TGCSectorLogic()
 }
 
 void TGCSectorLogic::setRPhiMap(const TGCRPhiCoincidenceMap* map,
-				const TGCInnerCoincidenceMap* mapI)
+				const TGCEIFICoincidenceMap* mapI)
 {
   m_matrix.setRPhiMap(map);
-  m_mapInner = mapI;
-  if (m_mapInner ==0) m_useInner = false;
+  m_mapEIFI = mapI;
+  if (m_mapEIFI ==0) m_useEIFI = false;
 }
 
-void TGCSectorLogic::setInnerMap(const TGCInnerCoincidenceMap* mapI)
+void TGCSectorLogic::setEIFIMap(const TGCEIFICoincidenceMap* mapI)
 {
-  m_mapInner = mapI;
-  if (m_mapInner ==0) m_useInner = false;
+  m_mapEIFI = mapI;
+  if (m_mapEIFI ==0) m_useEIFI = false;
 }
 
 void TGCSectorLogic::setTileMuMap(const TGCTMDB* tmdb,
@@ -108,6 +114,11 @@ void TGCSectorLogic::setStripHighPtBoard(TGCHighPtBoard* highPtBoard)
 TGCSLSelectorOut* TGCSectorLogic::getSelectorOutput() const
 {
   return m_selectorOut;
+}
+
+  void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const
+{
+  trackSelectorOut=m_trackSelectorOut;
 }
 
 void TGCSectorLogic::eraseSelectorOut()
@@ -175,12 +186,15 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
       }
     }
     ////////////////////////////////////////////
-    // do coincidence with Inner Tracklet and/or TileMu
-    if (m_useInner) doInnerCoincidence(readCondKey, SSCid, coincidenceOut);
+    // do coincidence with Inner Tracklet of EIFI and/or TileMu
+    if (m_useEIFI){ 
+      if(!tgcArgs()->useRun3Config()){doInnerCoincidence(readCondKey, SSCid, coincidenceOut);}
+      else{/*InnerCoincidence Algorithm for Run3 will be implemented;*/}
+    }
 
     if(coincidenceOut){
-      if(tgcArgs()->useRun3Config()){/*trackSelector.input(coincidenceOut);*/}// TrackSelector for Run3
-      else{m_preSelector.input(coincidenceOut);}
+      if(tgcArgs()->useRun3Config()){m_trackSelector.input(coincidenceOut);}// TrackSelector for Run3
+      else{m_preSelector.input(coincidenceOut);}// TrackSelector for Run2
       // coincidenceOut will be deleted 
       //  in m_preSelector.input() if coincidenceOut has no hit
       //  in m_preSelector.select() if if coincidenceOut has hit
@@ -190,11 +204,8 @@ void TGCSectorLogic::clockIn(const SG::ReadCondHandleKey<TGCTriggerData> readCon
   SSCCOut=0;
 
   if(tgcArgs()->useRun3Config()){
-    /*
-   if(trackSelectorOut!=0){delete trackSelectorOut;}//NEW
-   trackSelectorOut = new TGCTrackSelectorOut;//NEW
-   trackSelector.select(trackSelectorOut);//NEW
-    */
+    //Track selector in Run3. max 4 tracks ,which are send to MUCTPI, are selected. 
+    m_trackSelector.select(m_trackSelectorOut);
   }
   else{
 #ifdef TGCDEBUG
@@ -301,14 +312,14 @@ TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right):
      m_NumberOfWireHighPtBoard(right.m_NumberOfWireHighPtBoard),
      m_SSCController(right.tgcArgs(),this), 
      m_matrix(right.tgcArgs(),this),
-     m_mapInner(right.m_mapInner),
+     m_mapEIFI(right.m_mapEIFI),
      m_mapTileMu(right.m_mapTileMu), m_pTMDB(right.m_pTMDB),
      m_preSelector(this), m_selector(this),
      m_selectorOut(0),
      m_wordTileMuon(0), m_wordInnerStation(0),
      m_stripHighPtBoard(right.m_stripHighPtBoard), 
      m_stripHighPtChipOut(0),
-     m_useInner(right.m_useInner), m_useTileMu(right.m_useTileMu), m_tgcArgs(right.m_tgcArgs)
+     m_useEIFI(right.m_useEIFI), m_useTileMu(right.m_useTileMu), m_tgcArgs(right.m_tgcArgs)
 {
   for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
       m_wireHighPtBoard[i] = 0;
@@ -337,7 +348,7 @@ TGCSectorLogic::operator=(const TGCSectorLogic& right)
     m_octantId=right.m_octantId;
     m_region=right.m_region;
     m_NumberOfWireHighPtBoard=right.m_NumberOfWireHighPtBoard;
-    m_mapInner=right.m_mapInner;
+    m_mapEIFI=right.m_mapEIFI;
     m_mapTileMu=right.m_mapTileMu;
     m_pTMDB=right.m_pTMDB;
     delete m_selectorOut;
@@ -346,7 +357,7 @@ TGCSectorLogic::operator=(const TGCSectorLogic& right)
     m_wordInnerStation=0;
     m_stripHighPtBoard=right.m_stripHighPtBoard;  
     m_stripHighPtChipOut=0;
-    m_useInner=right.m_useInner;
+    m_useEIFI=right.m_useEIFI;
     m_useTileMu=right.m_useTileMu;
     for( int i = 0; i < m_SSCController.getNumberOfWireHighPtBoard(); i += 1) {
       m_wireHighPtBoard[i]   = right.m_wireHighPtBoard[i];
@@ -397,7 +408,7 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
   }
 
   // check if inner is used for the ptLevel
-  bool validInner = (m_mapInner->getFlagPT(pt, ssc, m_sectorId) == 1);
+  bool validInner = (m_mapEIFI->getFlagPT(pt, ssc, m_sectorId) == 1);
 
   // check if TileMu is used for the ptLevel
   bool validTileMu = false;
@@ -405,7 +416,7 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
   
   int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
   // check if inner is used for the roi 
-  if (validInner) validInner = (m_mapInner->getFlagROI(pos, ssc, m_sectorId) == 1);
+  if (validInner) validInner = (m_mapEIFI->getFlagROI(pos, ssc, m_sectorId) == 1);
  
   // check if TileMu is used for the roi 
   if (validTileMu) validTileMu = (m_mapTileMu->getFlagROI(pos, ssc, m_sectorId, m_sideId) == 1);
@@ -423,13 +434,13 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
 	bool isHitWire = false;
         
 	for (size_t bit=0; (!isHitWire) && (bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS); bit++){
-	  isHitWire =   m_mapInner->getTriggerBit(iSlot, ssc, m_sectorId, reg, TGCInnerTrackletSlot::WIRE, bit)
+	  isHitWire =   m_mapEIFI->getTriggerBit(iSlot, ssc, m_sectorId, reg, TGCInnerTrackletSlot::WIRE, bit)
 	    &&   hit->getTriggerBit(reg,TGCInnerTrackletSlot::WIRE,bit) ;
 	}
 	// Strip
 	bool isHitStrip = false;
 	for (size_t bit=0; (!isHitStrip) && (bit< TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS); bit++){
-	  isHitStrip =  m_mapInner->getTriggerBit(iSlot, ssc, m_sectorId, reg, TGCInnerTrackletSlot::STRIP, bit)
+	  isHitStrip =  m_mapEIFI->getTriggerBit(iSlot, ssc, m_sectorId, reg, TGCInnerTrackletSlot::STRIP, bit)
 	    && hit->getTriggerBit(reg,TGCInnerTrackletSlot::STRIP,bit);
 	}
 	isHitInner = isHitWire && isHitStrip;
@@ -513,7 +524,7 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
   
   while (innerVeto && validInner && (pt>1) ) {
     pt = pt-1;
-    validInner = (m_mapInner->getFlagPT(pt, ssc, m_sectorId) == 1);
+    validInner = (m_mapEIFI->getFlagPT(pt, ssc, m_sectorId) == 1);
   }
   while (m_useTileMu && validTileMu && (pt>1) ){
     pt = pt-1;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TFile.h"
@@ -15,6 +15,7 @@
 #include "TChain.h"
 #include "TPaveStats.h"
 #include "TProfile.h"
+#include "TMath.h" // for TF1 formulas
 
 #include <vector>
 #include <iostream>
@@ -22,8 +23,6 @@
 #include <sstream>
 #include <stdlib.h>
 #include <cmath>
-
-using namespace std;
 
 const bool USETGCETA=true;
 
@@ -736,122 +735,6 @@ void makeMDTResPlots(TFile* outputHists)
   return;
 
 }
-
-/*
-//________________________________________________________________________
-void makeWidthPlots(TFile* outputHists, const string& type)
-{
-  gStyle->SetOptStat(1);
-  gStyle->SetOptFit(111);
-
-  TF1***   fits=new TF1**[2];
-  TH1F**** slices=new TH1F***[2];
-  TH1F***  hSigmas=new TH1F**[2];
-
-  TH2F*** hists;
-  if      (type=="EndcapAC")   hists=ecHistsCSC;
-  else if (type=="LargeSmall") hists=lgsmHistsCSC;
-  else cout<<"bad type"<<endl;
-
-  int nplots=2;  
-  for (int iplot=0;iplot<nplots;iplot++) {
-    
-    fits  [iplot]=new TF1*  [NYX];
-    slices[iplot]=new TH1F**[NYX];
-    hSigmas[iplot]=new TH1F*[NYX];
-    
-    for (int iyx=NYX-1;iyx>=0;iyx--) {
-      double fitrange=(iyx==0)?40.:80.;
-      stringstream fitname; fitname<<"fit_"<<iplot<<"_"<<iyx;
-      //fits[iplot][iyx]=new TF1(fitname.str().c_str(),"[0]*exp(-0.5*((x-[1])/[2])^2)+[3]*[0]*exp(-0.5*((x-[4])/[5])^2)",-fitrange,fitrange);
-      fits[iplot][iyx]=new TF1(fitname.str().c_str(),"gaus",-fitrange,fitrange);
-      TObjArray aSlices;
-      hists[iplot][iyx]->FitSlicesY(fits[iplot][iyx],0,NMOM,0,"QNR",&aSlices);
-      const int nSlices=aSlices.GetEntriesFast();
-      slices[iplot][iyx]=new TH1F*[nSlices];
-      for (int islice=0;islice<nSlices;islice++) {
-	slices[iplot][iyx][islice]=(TH1F*)aSlices[islice]->Clone();
-      }
-      string hname=hists[iplot][iyx]->GetName()+string("_2");      
-      hSigmas[iplot][iyx]=(TH1F*)gDirectory->Get(hname.c_str())->Clone((hists[iplot][iyx]->GetName()+string("_sigma")).c_str());
-      
-    }
-  }
-
-  TCanvas* ctmp=new TCanvas("ctmp","ctmp");
-  TF1*** fits1OverP=new TF1**[NYX];
-  TPaveStats*** paves=new TPaveStats**[NYX];
-  double min[2]={999.,999.};
-  double max[2]={0.,  0.};
-  for (int iyx=NYX-1;iyx>=0;iyx--) {
-    fits1OverP[iyx]=new TF1*[2];
-    paves[iyx]=new TPaveStats*[2];    
-    
-    // fit to 1/p and get min/max
-    for (int iplot=0;iplot<nplots;iplot++) {
-      for (int ibin=0;ibin<(int)hSigmas[iplot][iyx]->GetNbinsX();ibin++) {
-	double bc=hSigmas[iplot][iyx]->GetBinContent(ibin+1);
-	if (bc>max[iyx])        max[iyx]=bc;
-	if (bc>0.&&bc<min[iyx]) min[iyx]=bc;	
-      }
-      stringstream fitname; fitname<<"fit1OverP_"<<iyx<<"_ecAC"<<iplot;
-      //fits1OverP[iyx][iplot]=new TF1(fitname.str().c_str(),"[0]+[1]/(x-3.)",9.,mommax);
-      fits1OverP[iyx][iplot]=new TF1(fitname.str().c_str(),"TMath::Sqrt([0]*[0]+[1]*[1]/(x-3.5)/(x-3.5))",9.,mommax);
-
-      hSigmas[iplot][iyx]->Fit(fits1OverP[iyx][iplot],"RQ");
-
-      ctmp->Update();
-      paves[iyx][iplot]=(TPaveStats*)hSigmas[iplot][iyx]->FindObject("stats");
-      if (iplot==0) {
-	paves[iyx][iplot]->SetY1NDC(0.8);
-	paves[iyx][iplot]->SetY2NDC(1.0);
-      }
-      if (iplot==1) {
-	paves[iyx][iplot]->SetY1NDC(0.6);
-	paves[iyx][iplot]->SetY2NDC(0.8);
-      }
-      paves[iyx][iplot]->SetTextColor(twocolors[iplot]);
-      ctmp->Modified();    
-    }
-    if (max[iyx]>0.) max[iyx]*=1.1; else max[iyx]*=0.8;
-    if (min[iyx]<0.) min[iyx]*=1.1; else min[iyx]*=0.8;
-  }
-  delete ctmp;
-
-  TCanvas* canv=new TCanvas("canv","canv");
-  canv->SetFillColor(10);
-  canv->Divide(NYX,1);
-  int ixy=0;
-  for (int iyx=NYX-1;iyx>=0;iyx--,ixy++) {
-    canv->cd(ixy+1);
-    for (int iplot=0;iplot<nplots;iplot++) {
-      hSigmas[iplot][iyx]->SetMinimum(min[iyx]);
-      hSigmas[iplot][iyx]->SetMaximum(1.1*max[iyx]);
-      hSigmas[iplot][iyx]->SetLineColor(twocolors[iplot]);
-      
-      fits1OverP[iyx][iplot]->SetLineWidth(2);
-      fits1OverP[iyx][iplot]->SetLineColor(twocolors[iplot]);
-      
-      if (iplot==0) hSigmas[iplot][iyx]->Draw();
-      else          hSigmas[iplot][iyx]->Draw("same");
-      fits1OverP[iyx][iplot]->Draw("same");
-    }
-  }
-  string detStr=(DOCSC)?"CSC":"MDT";
-  if (DOBEE) detStr="BEE";
-  if (type=="EndcapAC")
-    canv->Print((outputdir+"/"+detStr+"_EndcapACWidth.eps").c_str());
-  else if (type=="LargeSmall")
-    canv->Print((outputdir+"/"+detStr+"_LgSmWidth.eps").c_str());
-  else
-    cout<<"bad type"<<endl;
-    
-  delete canv;
-  delete [] hSigmas;
-
-  return;
-}
-*/
 
 //________________________________________________________________________
 void makeWidthPlots(TFile* outputHists, const string& type)

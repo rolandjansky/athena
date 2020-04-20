@@ -25,6 +25,8 @@
 #include "TrkPatternParameters/NoiseOnSurface.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+// MagField cache
+#include "MagFieldElements/AtlasFieldCache.h"
 
 #include <any>
 
@@ -412,6 +414,7 @@ namespace InDet{
       Trk::NoiseOnSurface                         m_noise       ; 
       const InDet::SiTools_xk*                    m_tools       ; 
       const MagField::IMagFieldSvc*               m_fieldService;
+      MagField::AtlasFieldCache                   m_fieldCache;
       const Trk::IPatternParametersUpdator*       m_updatorTool ;
       const Trk::IPatternParametersPropagator*    m_proptool    ;
       const Trk::IRIO_OnTrackCreator*             m_riotool     ;

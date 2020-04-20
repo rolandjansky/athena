@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -475,7 +475,7 @@ const char * TileRawChannelBuilder::BadPatternName(float ped) {
 }
 
     
-void TileRawChannelBuilder::build(const TileDigitsCollection* coll)
+StatusCode TileRawChannelBuilder::build(const TileDigitsCollection* coll)
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
   int frag = coll->identify();
@@ -514,11 +514,17 @@ void TileRawChannelBuilder::build(const TileDigitsCollection* coll)
 
     }
 
-    StatusCode sc = m_rawChannelCnt->push_back (rch);
-    if (sc.isFailure()) {
-      REPORT_ERROR(sc) << "push_back failed.";
-    }
+    ATH_CHECK( m_rawChannelCnt->push_back (rch) );
   }
+
+  IdentifierHash hash = m_rawChannelCnt->hashFunc().hash(coll->identify());
+  TileRawChannelCollection* rawChannelCollection = m_rawChannelCnt->indexFindPtr(hash);
+  rawChannelCollection->setLvl1Id(coll->getLvl1Id());
+  rawChannelCollection->setLvl1Type(coll->getLvl1Type());
+  rawChannelCollection->setDetEvType(coll->getDetEvType());
+  rawChannelCollection->setRODBCID(coll->getRODBCID());
+
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TileRawChannelBuilder::commitContainer()

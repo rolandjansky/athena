@@ -37,6 +37,7 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include <fstream>
 
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
@@ -380,7 +381,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
 
   bool m_ignoreCSC;
-
+  ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool;
 
 };
 

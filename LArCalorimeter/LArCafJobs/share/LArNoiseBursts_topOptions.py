@@ -1,15 +1,10 @@
-import os
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-
-# etse a handle on the ServiceManager which holds all the services
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 # Event selector
 import AthenaPoolCnvSvc.ReadAthenaPool
-
-# Particle Properties
-from PartPropSvc.PartPropSvcConf import PartPropSvc
 
 from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
 AthenaEventLoopMgr.OutputLevel = WARNING
@@ -50,8 +45,6 @@ include ("RecExCommon/RecExCommon_topOptions.py")
 # End of B.Trocme 11/2014 modification
 #topSequence.LArNoisyROAlg.BadFEBCut = 2000
 #topSequence.LArNoisyROAlg.SaturatedCellQualityCut = 111165535
-
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 #Necessary DLL's 
 theApp.Dlls += [ "LArRawUtils","LArROD", "LArTools"]

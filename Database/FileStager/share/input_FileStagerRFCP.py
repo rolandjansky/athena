@@ -9,7 +9,7 @@ if ('sampleList' in dir()) or ('sampleFile' in dir()):
   if ('sampleList' in dir()):
     stagetool = FileStagerTool(sampleList=sampleList)
   elif ('sampleFile' in dir()):
-    print "FileStager() : Processing sample file : %s" % sampleFile
+    printfunc ("FileStager() : Processing sample file : %s" % sampleFile)
     stagetool = FileStagerTool(sampleFile=sampleFile)
   
   ## Configure rf copy command used by the stager; default is 'lcg-cp -v --vo altas -t 1200'
@@ -28,7 +28,7 @@ if ('sampleList' in dir()) or ('sampleFile' in dir()):
   thejob = AlgSequence()
   
   ## check if collection names begin with "gridcopy"
-  print "FileStager() : doStaging ?", stagetool.DoStaging()
+  printfunc ("FileStager() : doStaging ?", stagetool.DoStaging())
   
   ## Import file stager algorithm
   from FileStager.FileStagerConf import FileStagerAlg
@@ -69,7 +69,7 @@ if ('sampleList' in dir()) or ('sampleFile' in dir()):
   try:
     svcMgr = theApp.serviceMgr()
     svcMgr.EventSelector.InputCollections = ic
-  except Exception,inst:
+  except Exception as inst:
     pass
   
   ## else athenaCommonFlags
@@ -78,14 +78,14 @@ if ('sampleList' in dir()) or ('sampleFile' in dir()):
       ## the Input AOD File(s)
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       athenaCommonFlags.PoolAODInput = ic
-    except Exception,inst:
+    except Exception as inst:
       pass
   else:
     try:
       ## the Input ESD File(s)
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       athenaCommonFlags.PoolESDInput = ic
-    except Exception,inst:
+    except Exception as inst:
       pass
   
   

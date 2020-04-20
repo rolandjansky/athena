@@ -1,17 +1,14 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Set the minimum required CMake version:
+# Set up the project.
 cmake_minimum_required( VERSION 3.6 )
-
-# Read in the project's version from a file called version.txt. But let it be
-# overridden from the command line if necessary.
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-set( ATHDATAQUALITY_PROJECT_VERSION ${_version}
-   CACHE STRING "Version of the AthDataQuality project to build" )
+project( AthDataQuality VERSION ${_version} LANGUAGES CXX )
 unset( _version )
 
 # Set the version of tdaq-common to use for the build:
-set( TDAQ-COMMON_VERSION "03-04-01" CACHE STRING
+set( TDAQ-COMMON_VERSION "04-00-00" CACHE STRING
    "The version of tdaq-common to use for the build" )
 set( TDAQ-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}"
@@ -23,7 +20,7 @@ find_package( AtlasCMake REQUIRED )
 # Build the project against LCG:
 set( LCG_VERSION_POSTFIX ""
    CACHE STRING "Version postfix for the LCG release to use" )
-set( LCG_VERSION_NUMBER 96
+set( LCG_VERSION_NUMBER 97
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
@@ -41,9 +38,7 @@ list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 atlas_ctest_setup()
 
 # Set up a work directory project:
-atlas_project( AthDataQuality ${ATHDATAQUALITY_PROJECT_VERSION}
-   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
-   LANGUAGES CXX )
+atlas_project( PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
 # Generate the environment setup for the externals, to be used during the build:
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
@@ -54,10 +49,6 @@ if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
    get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
    list( APPEND _replacements ${_buildDir}
       "\${AthDataQuality_DIR}/../../../.." )
-endif()
-if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
-   list( APPEND _replacements $ENV{NICOS_PROJECT_RELNAME}
-      "\${AthDataQuality_VERSION}" )
 endif()
 if( NOT "$ENV{TDAQ_RELEASE_BASE}" STREQUAL "" )
    list( APPEND _replacements $ENV{TDAQ_RELEASE_BASE}

@@ -1,45 +1,23 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 import sys
 import os
 import logging
 import argparse
-import re
 import shutil
 import subprocess
 import json
-from contextlib import contextmanager
-
-
-@contextmanager
-def remember_cwd():
-    '''Simple pushd/popd replacement from https://stackoverflow.com/a/169112'''
-    curdir = os.getcwd()
-    try:
-        yield
-    finally:
-        os.chdir(curdir)
-
-
-def package_prefix(package):
-    '''Returns a prefix included in names of all tests from the given package'''
-    from TrigValTools.TrigValSteering.Common import package_prefix_dict
-    if package == 'ALL':
-        return '({})'.format('|'.join(package_prefix_dict.values()))
-    elif package in package_prefix_dict.keys():
-        return package_prefix_dict[package]
-    else:
-        return None
+from TrigValTools.TrigARTUtils import package_prefix, find_scripts, remember_cwd
 
 
 def minimal_pattern(package):
-    dict = {'TriggerTest':      None,
-            'TrigP1Test':       None,
-            'TrigAnalysisTest': 'trigAna_q221_RDOtoRDOTrig_mt1_build',
-            'TrigUpgradeTest':  '(trigUpgr_full_menu_build|trigUpgr_newJO_build|trigUpgr_full_menu_cf_configOnly_build)'}
+    dict = {'TriggerTest':      '(test_trig_data_v1Dev_build|test_trig_data_newJO_build)',
+            'TrigP1Test':       'test_trigP1_v1Dev_build',
+            'TrigAnalysisTest': 'test_trigAna_RDOtoRDOTrig_mt1_build',
+            'TrigUpgradeTest':  None}
     if package == 'ALL':
         return '({})'.format('|'.join([v for v in dict.values() if v]))
     elif package in dict and dict[package] is not None:
@@ -47,32 +25,6 @@ def minimal_pattern(package):
     else:
         logging.error("Minimal set of tests for %s is not defined.", package)
         exit(1)
-
-
-def duplicate_filename(list, filename):
-    for path in list:
-        if os.path.basename(path) == filename:
-            return True
-    return False
-
-
-def find_scripts(patterns):
-    scripts = []
-    for path in os.environ['PATH'].split(':'):
-        try:
-            files = os.listdir(path)
-        except OSError:
-            continue
-        for filename in files:
-            matched = True
-            for patt in patterns:
-                if re.search(patt, filename) is None:
-                    matched = False
-                    break
-            if matched and not duplicate_filename(scripts, filename):
-                scripts.append(path+'/'+filename)
-    scripts.sort()
-    return scripts
 
 
 def get_parser():

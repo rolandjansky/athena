@@ -1557,7 +1557,6 @@ EDMLibraries = [ 'TrigSteeringEvent', 'TrigMuonEvent',
 		 'tauEventTPCnvDict',          'RecTPCnvDict',
 		 'TrigMonitoringEventTPCnvDict',
 		 'OLD_RecTPCnvDict',
-                 'TrigCosmicEvent',
 #
 		 #'TrigCombinedEventTPCnv1Dict',     'TrigCaloEventTPCnv1Dict',          
                  #'TrigDecisionEventTPCnv1Dict',     'TrigInDetEventTPCnv1Dict',

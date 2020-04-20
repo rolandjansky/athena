@@ -1,19 +1,23 @@
 #!/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import os,sys,commands
+from __future__ import print_function
+
+import sys
 import math
+import six
 
 def usage():
-   print "Syntax for UPD4 open-end IoV noise update"
-   print " The first parameter is the run number of IoV start, the second parameter is the lumiblock number for IoV start"
-   print " The third and fourth parameter are the Run/lb for IoV end (if run is -1, uses open ended IoV)"
-   print " The fifth parameter is the upd4 tag name"
-   print " The sixth parameter is input text file name (default calonoise.txt)"
-   print " The seventh parameter is output sqlite file name (default caloSqlite.db)"
-   print " The eigth parameter is output DB  name (default CONDBR2)"
-   print " The nineth parameter is output folder name (default /LAR/NoiseOfl/CellNoise) "
-   print " The tenth parameter is mu (default 30)"
-   print " The eleventh parameter is dt (default 25)"
+   print ("Syntax for UPD4 open-end IoV noise update")
+   print (" The first parameter is the run number of IoV start, the second parameter is the lumiblock number for IoV start")
+   print (" The third and fourth parameter are the Run/lb for IoV end (if run is -1, uses open ended IoV)")
+   print (" The fifth parameter is the upd4 tag name")
+   print (" The sixth parameter is input text file name (default calonoise.txt)")
+   print (" The seventh parameter is output sqlite file name (default caloSqlite.db)")
+   print (" The eigth parameter is output DB  name (default CONDBR2)")
+   print (" The nineth parameter is output folder name (default /LAR/NoiseOfl/CellNoise) ")
+   print (" The tenth parameter is mu (default 30)")
+   print (" The eleventh parameter is dt (default 25)")
 
 
 if len(sys.argv)<6:
@@ -46,7 +50,7 @@ else:
    folderPath = "/LAR/NoiseOfl/CellNoise"
 
 if len(sys.argv)>10:
-   mu = int(sys.argv[10]
+   mu = int(sys.argv[10])
 else:         
    mu = -1
 
@@ -61,10 +65,10 @@ else:
    dt = -1
 
 
-print "input:  ",inputFile
-print "runUntil ", runUntil, lbkUntil
-print "output:",filename
-print "input:  ",inputFile
+print ("input:  ",inputFile)
+print ("runUntil ", runUntil, lbkUntil)
+print ("output:",filename)
+print ("input:  ",inputFile)
 
 import ROOT
 import cppyy
@@ -79,13 +83,13 @@ from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 #=== IOV range
 iovSince = CaloCondTools.iovFromRunLumi(runSince,lbkSince)
 iovUntil = cool.ValidityKeyMax
-print " iovUntil max ",iovUntil
+print (" iovUntil max ",iovUntil)
 if int(runUntil) > 0:
-   print " use run number to define iobUntil ", runUntil
+   print (" use run number to define iobUntil ", runUntil)
    iovUntil = CaloCondTools.iovFromRunLumi(runUntil,lbkUntil)
 
-print " iovSince ", iovSince
-print " iovUntil ", iovUntil
+print (" iovSince ", iovSince)
+print (" iovUntil ", iovUntil)
 
 #=== values for the comment channel
 author   = "gunal"
@@ -107,7 +111,7 @@ log = CaloCondLogger.getLogger("CaloNoiseWriter")
 dbSvc = cool.DatabaseSvcFactory.databaseService()
 try:
    db=dbSvc.openDatabase("sqlite://;schema="+filename+";dbname="+dbname, False)
-except:
+except Exception:
    db=dbSvc.createDatabase("sqlite://;schema="+filename+";dbname="+dbname)
    
 try:
@@ -118,12 +122,12 @@ try:
 
     #=== create the folder
     folderTag  = tag
-    log.info( "Filling COOL folder %s with tag %s" % ( folderPath, folderTag ))
+    log.info( "Filling COOL folder %s with tag %s", folderPath, folderTag )
     desc = CaloCondTools.getAthenaFolderDescr()
     try:
         folder = db.getFolder(folderPath)
-    except Exception, e:
-        log.warning("Folder %s not found, creating it..." % folderPath)
+    except Exception:
+        log.warning("Folder %s not found, creating it...", folderPath)
         #folder = db.createFolder(folderPath, spec, desc, cool.FolderVersioning.MULTI_VERSION, True)
         folder = db.createFolder(folderPath, fspec, desc, True)
         
@@ -158,28 +162,26 @@ try:
                    48 : ( 5184,      0, defVecTile, 'TILE'     ) 
                    }
     fltDict = {}
-    for systemId, info in systemDict.iteritems():
+    for systemId, info in six.iteritems (systemDict):
      if (systemId<48) :
         nChannel = info[0] 
         defVec   = info[2]
         sysName  = info[3]
-        log.info("Creating BLOB for %s" % sysName)
+        log.info("Creating BLOB for %s", sysName)
         data = cool.Record( spec )
         blob = data['CaloCondBlob16M']
         flt = ROOT.CaloCondBlobFlt.getInstance(blob)
         flt.init(defVec,nChannel,1,author,comment)
         fltDict[systemId] = [data,flt]
         mbSize = float(blob.size()) / 1024.
-        log.info("---> BLOB size is %4.1f kB" % mbSize)
+        log.info("---> BLOB size is %4.1f kB", mbSize)
 
     #=== read noise values from file
     lines = open(inputFile,"r").readlines()
     for line in lines:
         fields = line.split()
         if len(fields) < 5:
-           log.info("---> wrong line length %d entries " % len(fields))
-           log.info("---> on line %d " % lcount)
-           lcount +=1
+           log.info("---> wrong line length %d entries ", len(fields))
            continue
         pass   
         systemId = int(fields[0])
@@ -206,18 +208,18 @@ try:
         flt.setData(hash,gain,1,noiseB)
         
     #=== write to DB
-    for systemId, dataList in fltDict.iteritems():
+    for systemId, dataList in six.iteritems (fltDict):
       if (systemId<48):
         sysName  = systemDict[systemId][3]
-        log.info("Committing BLOB for %s" % sysName)
+        log.info("Committing BLOB for %s", sysName)
         channelId = cool.ChannelId(systemId)
-        log.info("Cool channel ID %s" % channelId)
+        log.info("Cool channel ID %s", channelId)
         data = dataList[0]
         folder.storeObject(iovSince, iovUntil, data, channelId, folderTag)
         
-except Exception, e:
+except Exception as e:
     log.fatal("Exception caught:")
-    print e
+    print (e)
 
 #=== close the database
 db.closeDatabase()

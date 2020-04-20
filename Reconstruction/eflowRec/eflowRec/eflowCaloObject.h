@@ -54,9 +54,10 @@ public:
     }
   }
 
-  /* For a specific eflowTrackClusterLink indicate whether or not it has been fully/partially subtracted via the bool */
-  /* True indicates it has been fully or partially subtracted, whilst false indicates it has not been modified at all */
-  void setTrackClusterLinkSubtractionStatus(unsigned int index, bool status) { m_trackClusterLinks[index].second = status; }
+  /* For a specific eflowTrackClusterLink indicate whether or not it has been fully/partially subtracted by setting the energy ratio
+  ** of subtracted cluster energy to original cluster enegry.
+  A value other than nan indicates it has been fully or partially subtracted */
+  void setTrackClusterLinkSubtractionStatus(unsigned int index, float energyRatio) { m_trackClusterLinks[index].second = energyRatio; }
   
   /* Track accessor methods */
   eflowRecTrack* efRecTrack(int i) const { return m_eflowRecTracks[i]; }
@@ -70,7 +71,7 @@ public:
 
 
   /* Link accessor methods */
-  std::vector<std::pair<eflowTrackClusterLink*,bool> > efRecLink() const { return m_trackClusterLinks; }
+  std::vector<std::pair<eflowTrackClusterLink*,float> > efRecLink() const { return m_trackClusterLinks; }
   void clearLinks() { m_trackClusterLinks.clear(); }
 
   /* Calculate total tracks energy, total tracks energy variance, total cluster energy for subtraction */
@@ -82,14 +83,17 @@ public:
 
 private:
 
-  void addTrackClusterLink(eflowTrackClusterLink* trackClusterLink) { m_trackClusterLinks.push_back(std::pair(trackClusterLink,false)); }
+  void addTrackClusterLink(eflowTrackClusterLink* trackClusterLink) { m_trackClusterLinks.push_back(std::pair(trackClusterLink,NAN)); }
 
  private:
   /* Vector of clusters */
   std::vector<eflowRecCluster*> m_eflowRecClusters;
 
-  /* Vector of track-cluster matches - the bool is to be used to indicate whether a cluster was subtracted or not */
-  std::vector<std::pair<eflowTrackClusterLink*,bool> > m_trackClusterLinks;
+  /* Vector of track-cluster matches - the float is to be used to indicate the ratio of subtracted cluster energy
+  ** to original unsubtracted cluster energy. It is initialiased to nan, and you hence one can use isNan to verify
+  ** whether the cluster was subtracted or not (we leave it as nan it not).
+  */
+  std::vector<std::pair<eflowTrackClusterLink*,float> > m_trackClusterLinks;
 
   /* Vector of tracks */
   std::vector<eflowRecTrack*> m_eflowRecTracks;

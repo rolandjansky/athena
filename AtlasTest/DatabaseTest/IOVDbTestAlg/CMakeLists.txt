@@ -29,22 +29,17 @@ atlas_add_component( IOVDbTestAlg
                      LINK_LIBRARIES ${CORAL_LIBRARIES} IOVDbTestConditions AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities EventInfo )
 
 # Install files from the package:
-atlas_install_headers( IOVDbTestAlg )
 atlas_install_joboptions( share/*.py )
 
 function (iovdbtestalg_run_test testName jo)
   cmake_parse_arguments( ARG "" "DEPENDS" "" ${ARGN} )
 
-  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/iovdbtestalg_test.sh.in
-                  ${CMAKE_CURRENT_BINARY_DIR}/iovdbtestalg_${testName}.sh
-                  @ONLY )
   atlas_add_test( ${testName}
-                  SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/iovdbtestalg_${testName}.sh
-                  ENVIRONMENT 
-                    ATLAS_REFERENCE_TAG=IOVDbTestAlg/IOVDbTestAlg-01-00-00
-                  POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post_check_with_select.sh ${testName} ^..IOVDbTestAlg "
+                  SCRIPT "athena.py IOVDbTestAlg/${jo}.py"
+                  LOG_SELECT_PATTERN "^IOVDbTestAlg"
                   PROPERTIES TIMEOUT 300
-                   )
+                  ENVIRONMENT "POOL_OUTMSG_LEVEL=4"
+                  )
   if( ARG_DEPENDS )
     set_tests_properties( IOVDbTestAlg_${testName}_ctest
                           PROPERTIES DEPENDS IOVDbTestAlg_${ARG_DEPENDS}_ctest )

@@ -101,13 +101,6 @@ if rec.doESDReconstruction():
     from RecAlgs.RecAlgsConf import EventInfoUnlocker
     topSequence+=EventInfoUnlocker("UnlockEventInfo")
 
-try:
-    if rec.abortOnUncheckedStatusCode():
-      svcMgr.StatusCodeSvc.AbortOnError=True
-      logRecExCommon_topOptions.info("Abort on unchecked status code enabled !")
-except Exception:
-    logRecExCommon_topOptions.info("Did not enable aboort on unchecked status code")
-
 if rec.readESD():
     rec.readRDO = False
 
@@ -145,13 +138,12 @@ if rec.doFileMetaData():
 
 #Output file TagInfo and metadata
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", jobproperties.Beam.beamType()]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(jobproperties.Beam.energy())]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["triggerStreamOfFile", str(rec.triggerStream())]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["project_name", str(rec.projectName())]
-#if rec.AMITag()!="": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AtlasRelease_" + rec.OutputFileNameForRecoStep(), rec.AtlasReleaseVersion() ]
-
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": jobproperties.Beam.beamType(),
+                                            "beam_energy": str(jobproperties.Beam.energy()),
+                                            "triggerStreamOfFile": str(rec.triggerStream()),
+                                            "project_name": str(rec.projectName()),
+                                            "AtlasRelease_" + rec.OutputFileNameForRecoStep(): rec.AtlasReleaseVersion()
+                                            })
 # Build amitag list
 amitag = ""
 from PyUtils.MetaReaderPeeker import metadata
@@ -162,9 +154,9 @@ except:
 
 # append new if previous exists otherwise take the new alone 
 if amitag != "":
-  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", metadata['AMITag'] + "_" + rec.AMITag() ]
+  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : metadata['AMITag'] + "_" + rec.AMITag()})
 else:
-  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", rec.AMITag() ]
+  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
 
 
 
@@ -172,14 +164,14 @@ AODFix_addMetaData()
 RecoFix_addMetaData()
 
 if rec.oldFlagCompatibility:
-    print "RecExCommon_flags.py flags values:"
+    printfunc ("RecExCommon_flags.py flags values:")
     try:
         for o in RecExCommonFlags.keys():
-            exec 'print "%s =",%s ' % (o,o)
+            printfunc ("%s =" % o, globals()[o])
     except Exception:
-        print "WARNING RecExCommonFlags not available, cannot delete"
+        printfunc ("WARNING RecExCommonFlags not available, cannot delete")
 else:
-    print "Old flags have been deleted"
+    printfunc ("Old flags have been deleted")
 
 # end flag settings section
 ##########################################################################
@@ -394,8 +386,8 @@ elif rec.readAOD():
 
 
 if rec.OutputLevel() <= DEBUG:
-    print " Initial content of objKeyStore "
-    print objKeyStore
+    printfunc (" Initial content of objKeyStore ")
+    printfunc (objKeyStore)
 
 # typical objKeyStore usage
 # objKeyStore.addStreamESD("Type1","Key1"] )
@@ -478,51 +470,13 @@ if globalflags.InputFormat.is_bytestream():
         # --> AK
     else:
         logRecExCommon_topOptions.info("Read ByteStream file(s)")
-        if rec.readTAG():
-            # FIXME need cleaner merger between ReadAthenaPool.py and ReadByteStream.py
+        from ByteStreamCnvSvc import ReadByteStream
 
-            # for EventType
-            from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc
-            svcMgr += ByteStreamCnvSvc()
-            #EventPersistencySvc = svcMgr.EventPersistencySvc
-            svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
-
-            # ByteStreamAddressProviderSvc
-            from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-            svcMgr += ByteStreamAddressProviderSvc()
-            ByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
-
-            # proxy provider
-            from SGComps.SGCompsConf import ProxyProviderSvc
-            svcMgr += ProxyProviderSvc()
-
-            #specific for tag
-            from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamNavigationProviderSvc
-            svcMgr += ByteStreamNavigationProviderSvc( "ByteStreamNavigationProviderSvc" )
-
-            import AthenaPoolCnvSvc.ReadAthenaPool
-
-            svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamNavigationProviderSvc" ]
-
-            EventSelector = svcMgr.EventSelector
-            # List of input collections:
-            EventSelector.InputCollections = athenaCommonFlags.FilesInput()
-            # Type of input collections:
-            EventSelector.CollectionType = "ExplicitROOT"
-            # Query applied to event tag collection metadata:
-            EventSelector.Query = athenaCommonFlags.PoolInputQuery()
-            EventSelector.RefName = "StreamRAW"
-
-
-        else: #Regular offline case:
-            from ByteStreamCnvSvc import ReadByteStream
-
-
-            # Specify input file
-            if len(athenaCommonFlags.FilesInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
-            elif len(athenaCommonFlags.BSRDOInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+        # Specify input file
+        if len(athenaCommonFlags.FilesInput())>0:
+            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+        elif len(athenaCommonFlags.BSRDOInput())>0:
+            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
 
     if globalflags.DataSource()=='geant4':
         logRecExCommon_topOptions.info("DataSource is 'geant4'")
@@ -681,7 +635,7 @@ if rec.doWriteBS() and not recAlgs.doTrigger():
 
 pdr.flag_domain('tagraw')
 ## add in RawInfoSummaryForTagWriter
-if rec.doESD() and not rec.readESD() and rec.doTagRawSummary():
+if rec.doESD() and not rec.readESD() and (rec.doBeamBackgroundFiller() or rec.doTagRawSummary()):
     try:
         include("EventTagRawAlgs/RawInfoSummaryForTagWriter_jobOptions.py")
     except:
@@ -691,7 +645,7 @@ if rec.doESD() and not rec.readESD() and rec.doTagRawSummary():
     pass
 # write the background word into EventInfo (Jamie Boyd)
 # need to go here for ordering reasons...
-if rec.doESD() and not rec.readESD():
+if rec.doESD() and not rec.readESD() and rec.doBeamBackgroundFiller():
     try:
         protectedInclude ("RecBackgroundAlgs/RecBackground_jobOptions.py")
     except Exception:
@@ -729,12 +683,12 @@ if globalflags.InputFormat.is_bytestream() and disableRPC:
    newList=[]
    for i in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
       if i.startswith("Rpc"):
-         print "removing from ByteStreamAddressProviderSvc ",i
+         printfunc ("removing from ByteStreamAddressProviderSvc ",i)
       else:
          newList+=[i]
 
    svcMgr.ByteStreamAddressProviderSvc.TypeNames=newList
-   print svcMgr.ByteStreamAddressProviderSvc.TypeNames
+   printfunc (svcMgr.ByteStreamAddressProviderSvc.TypeNames)
 
 # do it now, because monitoring is actually adding stuff to ByteStreamAddressProvider
 if globalflags.InputFormat.is_bytestream():
@@ -906,7 +860,7 @@ if rec.doWriteTAG():
         rec.doWriteTAG=False
         treatException("Could not include EventTagAlgs/EventTag_jobOptions.py. Disable TAG writing")
 else: # minimal TAG to be written into AOD
-    print "Using EventInfoAttList"
+    printfunc ("Using EventInfoAttList")
 
 if rec.doWriteRDO():
     #Create output StreamRDO
@@ -1041,7 +995,6 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthMasterSeq")
         seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
-        seq+=topSequence.TrigConfDataIOVChanger
         seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker
@@ -1050,8 +1003,8 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
         seq += TriggerSelectorAlg('TriggerAlg1')
         seq.TriggerAlg1.TriggerSelection = rec.triggerFilterList()
         pass
-    except Exception, e:
-        logRecExCommon_topOptions.error('Trigger filtering not set up, reason: ' + `e`)
+    except Exception as e:
+        logRecExCommon_topOptions.error('Trigger filtering not set up, reason: %s' % e)
         pass
 ##--------------------------------------------------------
 
@@ -1170,7 +1123,7 @@ if rec.doWriteESD():
 
     # consistency check : make sure oks streamESD==CILMergeESD and included in transient
     #FIXME many problem. #* to remove, datavector to be removed plus basic thing missing
-    print "DRDR now consistency checks with three list"
+    printfunc ("DRDR now consistency checks with three list")
     streamesd=objKeyStore['streamESD']()
     transient=objKeyStore['transient']()
     mergeesd=CILMergeESD()
@@ -1602,7 +1555,7 @@ if not rec.oldFlagCompatibility:
             if i in varInit:
                 logRecExCommon_topOptions.warning("Variable %s has been re-declared, forbidden !" % i)
     except Exception:
-        print "WARNING RecExCommonFlags not available, cannot check"
+        printfunc ("WARNING RecExCommonFlags not available, cannot check")
 
 
 
@@ -1664,7 +1617,7 @@ try:
         # Define the output file name
         StreamTAG.OutputCollection = athenaCommonFlags.PoolTAGOutput()
         logRecExCommon_topOptions.info("StreamTAG Itemlist dump:")
-        print StreamTAG.ItemList
+        printfunc (StreamTAG.ItemList)
 
 except Exception:
     treatException ("problem setting up TAG output")

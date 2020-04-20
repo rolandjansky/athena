@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // RootNtupleEventSelector.cxx 
@@ -21,7 +21,7 @@
 #include "TROOT.h"
 #include "RootUtils/TBranchElementClang.h"
 #include "TClass.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TFile.h"
 #include "TKey.h"
 #include "TLeaf.h"

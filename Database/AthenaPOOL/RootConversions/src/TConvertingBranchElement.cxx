@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TConvertingBranchElement.cxx,v 1.16 2009-04-08 19:19:51 ssnyder Exp $
 /**
  * @file TConvertingBranchElement.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -22,7 +21,7 @@
 #include "TVirtualCollectionProxy.h"
 #include "TVirtualCollectionIterators.h"
 #include "TBranchRef.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TBasket.h"
 #include "TError.h"
 #include "TStreamerInfo.h"

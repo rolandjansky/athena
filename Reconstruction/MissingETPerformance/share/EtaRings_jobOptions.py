@@ -6,4 +6,4 @@ EtaRingsTool = ConfiguredEtaRingsTool(
     )
 
 ToolSvc += EtaRingsTool
-print      EtaRingsTool
+printfunc (     EtaRingsTool)

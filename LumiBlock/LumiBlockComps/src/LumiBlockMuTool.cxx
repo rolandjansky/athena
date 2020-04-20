@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LumiBlockComps/LumiBlockMuTool.h"
+#include "LumiBlockMuTool.h"
 
 //--------------------------------------------------
 
 LumiBlockMuTool::LumiBlockMuTool(const std::string& type,
 				 const std::string& name,
 				 const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_MCLumiBlockHack(false)
 {
   declareInterface<ILumiBlockMuTool>(this);
@@ -21,13 +21,6 @@ LumiBlockMuTool::initialize()
 {
   ATH_MSG_DEBUG("LumiBlockMuTool::initialize() begin");
   ATH_CHECK(m_eventInfoKey.initialize());
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-LumiBlockMuTool::finalize()
-{
-  ATH_MSG_DEBUG("LumiBlockMuTool::finalize()");
   return StatusCode::SUCCESS;
 }
 

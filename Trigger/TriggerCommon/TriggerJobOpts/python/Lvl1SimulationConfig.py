@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 def Lvl1SimulationSequence( flags = None ):
@@ -16,7 +16,7 @@ def Lvl1SimulationSequence( flags = None ):
     #
     from AthenaCommon.Logging import logging
     log = logging.getLogger('TriggerJobOpts.Lvl1Simulation')
-
+    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     from AthenaCommon.CFElements import seqAND
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.AlgSequence import AthSequencer
@@ -27,7 +27,7 @@ def Lvl1SimulationSequence( flags = None ):
     TriggerFlags.outputLVL1configFile = None
     log.info("setting up LVL1ConfigSvc, including the menu generation")
     from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
-    svcMgr += getL1ConfigSvc()
+    svcMgr += conf2toConfigurable(getL1ConfigSvc())
     
     from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
     caloTowerMaker              = Run2TriggerTowerMaker("Run2TriggerTowerMaker25ns")
@@ -82,8 +82,6 @@ def Lvl1SimulationSequence( flags = None ):
         conddb.addFolder( "TRIGGER_OFL", l1calofolder )
     # muons
     
-    from AthenaCommon.Include import include ## TODO, see if can be replaced by new JO
-    include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )    
     from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MuonRdoToMuonDigitTool
     MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (DecodeMdtRDO = False,
                                                      DecodeRpcRDO = True,
@@ -95,7 +93,9 @@ def Lvl1SimulationSequence( flags = None ):
                                                      mdtRdoDecoderTool="",
                                                      cscRdoDecoderTool="",
                                                      stgcRdoDecoderTool="",
-                                                     mmRdoDecoderTool="")
+                                                     mmRdoDecoderTool="",
+                                                     RpcDigitContainer = "RPC_DIGITS_L1",
+                                                     TgcDigitContainer = "TGC_DIGITS_L1")
     
     MuonRdoToMuonDigitTool.cscCalibTool = "CscCalibTool"
     from AthenaCommon.AppMgr import ToolSvc
@@ -125,16 +125,14 @@ def Lvl1SimulationSequence( flags = None ):
                   Hardware          = True, # not sure if needed, not there in old config, present in JO
                   DataDetail        = False,
                   RPCbytestream     = False,
-                  RPCbytestreamFile = ""),
+                  RPCbytestreamFile = "",
+                  RPCDigitContainer = "RPC_DIGITS_L1"),
         
         # based on Trigger/TrigT1/TrigT1TGC/python/TrigT1TGCConfig.py
         # interesting is that this JO sets inexisting properties, commented out below
         LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
-                                       InputData_perEvent  = "TGC_DIGITS", 
-                                      # ASDOutDataLocation = "ASDOutDataLocation",
-                                      # MuonTrigConfig     = "/Run/MuonTrigConfig",
+                                       InputData_perEvent  = "TGC_DIGITS_L1", 
                                        MuCTPIInput_TGC     = "L1MuctpiStoreTGC",
-                                       MaskFileName        = "TrigT1TGCMaskedChannel.db",
                                        MaskFileName12      = "TrigT1TGCMaskedChannel._12.db"),
         muctpi
     ])

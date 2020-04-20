@@ -57,7 +57,7 @@ Trk::TrapezoidBounds::TrapezoidBounds(const TrapezoidBounds& trabo)
 {}
 
 // destructor
-Trk::TrapezoidBounds::~TrapezoidBounds() {}
+Trk::TrapezoidBounds::~TrapezoidBounds() = default;
 
 Trk::TrapezoidBounds&
 Trk::TrapezoidBounds::operator=(const TrapezoidBounds& trabo)

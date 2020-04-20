@@ -62,7 +62,7 @@ atlas_add_test( CaloLayerCalculator_test
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier
    StoreGateLib xAODCaloEvent GaudiKernel TestTools IdDictParser CaloUtilsLib
-   EXTRA_PATTERNS "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
+   LOG_IGNORE_PATTERN "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( CaloVertexedCell_test
@@ -70,7 +70,7 @@ atlas_add_test( CaloVertexedCell_test
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier
    StoreGateLib GaudiKernel TestTools IdDictParser CaloUtilsLib
-   EXTRA_PATTERNS "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
+   LOG_IGNORE_PATTERN "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( CaloVertexedCluster_test
@@ -78,17 +78,17 @@ atlas_add_test( CaloVertexedCluster_test
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloDetDescrLib CaloIdentifier StoreGateLib
    xAODCaloEvent GaudiKernel TestTools IdDictParser CaloUtilsLib
-   EXTRA_PATTERNS "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
+   LOG_IGNORE_PATTERN "^lar decode|mask/zero|initialize_from_dict|^ channel range|^AtlasDetectorID::"
    ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 atlas_add_test( CaloTowerStore_test
    SCRIPT test/CaloTowerStore_test.sh
-   EXTRA_PATTERNS "Reading file|Unable to locate catalog|Cache alignment"
+   LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment"
    PROPERTIES TIMEOUT 500 )
 
 atlas_add_test( CaloTowerBuilderTool_test
    SCRIPT test/CaloTowerBuilderTool_test.sh
-   EXTRA_PATTERNS "Reading file|Unable to locate catalog|Cache alignment"
+   LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment"
    ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-11"
    PROPERTIES TIMEOUT 500 )
 

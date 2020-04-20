@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -78,7 +78,7 @@ double egPID::egammaID(egammaPIDObs::PID key, bool *found) const
     
     for (;p !=m_egammaID.end(); p++) {
       if ( (*p).first == key ){
-	if (found != NULL) {
+	if (found != nullptr) {
 	  *found = true;
 	}
 	return (*p).second;
@@ -86,7 +86,7 @@ double egPID::egammaID(egammaPIDObs::PID key, bool *found) const
       }
     }
 
-    if (found != NULL) {
+    if (found != nullptr) {
       *found = false;
     }
     return egammaPIDObs::EgPidUndefined;
@@ -117,7 +117,7 @@ bool egPID::set_egammaID(egammaPIDObs::PID key, double value)
     }
     
     if ( p == m_egammaID.end() ) {
-      m_egammaID.push_back( elParams(key,value) );
+      m_egammaID.emplace_back(key,value );
     }
     else {
       (*p).second = value;
@@ -143,7 +143,7 @@ bool egPID::set_egammaIDint(egammaPIDObs::PID key, unsigned int value)
   }
 
   if ( p == m_egammaIDint.end() ) {
-    m_egammaIDint.push_back( elParams(key,value) );
+    m_egammaIDint.emplace_back(key,value );
   }
   else {
     (*p).second = value;
@@ -198,14 +198,14 @@ unsigned int egPID::egammaIDint(egammaPIDObs::PID key, bool *found) const
  
   for (;p !=m_egammaIDint.end(); p++) {
     if ( (*p).first == key ){
-      if (found != NULL) {
+      if (found != nullptr) {
 	*found = true;
       }
       return (*p).second;
     }
   }
   
-  if (found != NULL) {
+  if (found != nullptr) {
     *found = false;
   }
   return egammaPIDObs::EgPidUndefined;

@@ -15,17 +15,8 @@
 #include "CoralBase/Blob.h"
 
 PixelCablingCondAlg::PixelCablingCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
-  m_pixelID(nullptr),
-  m_condSvc("CondSvc", name),
-  m_useConditions(true),
-  m_rodidForSingleLink40(0),
-  m_dump_map_to_file(false)
+  ::AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty("MappingFile", m_final_mapping_file="PixelCabling/Pixels_Atlas_IdMapping_2016.dat");
-  declareProperty("UseConditions", m_useConditions);
-  declareProperty("RodIDForSingleLink40", m_rodidForSingleLink40);
-  declareProperty("DumpMapToFile", m_dump_map_to_file);
 }
 
 StatusCode PixelCablingCondAlg::initialize() {
@@ -34,13 +25,19 @@ StatusCode PixelCablingCondAlg::initialize() {
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
   ATH_CHECK(m_condSvc.retrieve());
+  ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_readoutspeedKey.initialize());
-  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK(m_readKey.initialize(!m_readKey.empty()));
 
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
+  }
+
+  if (!m_recordInInitialize.value()) {
+    ATH_MSG_WARNING("Special treatment disabled.");
+    return StatusCode::SUCCESS;
   }
 
   ATH_MSG_WARNING("Special treatment: Once RegionSelectorTable is fixed, these lines should be removed.");
@@ -124,10 +121,10 @@ StatusCode PixelCablingCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelCablingCondAlg::execute() {
+StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("PixelCablingCondAlg::execute()");
 
-  SG::WriteCondHandle<PixelCablingCondData> writeHandle(m_writeKey);
+  SG::WriteCondHandle<PixelCablingCondData> writeHandle(m_writeKey, ctx);
   ATH_MSG_DEBUG("Conditions updates every event!!! This should be avoided once RegionSelectorTable is fixed!!");
 //   if (writeHandle.isValid()) {
 //     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
@@ -158,15 +155,17 @@ StatusCode PixelCablingCondAlg::execute() {
   std::string DCSname;
   std::string line;
 
+  SG::ReadCondHandle<PixelModuleData>moduleData(m_moduleDataKey, ctx);
+
   // For debugging purposes
   std::ofstream output_mapping_file_raw;
-  if (m_dump_map_to_file) { output_mapping_file_raw.open("pixel_cabling_map_raw.txt"); }
+  if (moduleData->getCablingMapToFile()) { output_mapping_file_raw.open("pixel_cabling_map_raw.txt"); }
   std::ofstream output_mapping_file_interpreted;
-  if (m_dump_map_to_file) { output_mapping_file_interpreted.open("pixel_cabling_map_interpreted.txt"); }
+  if (moduleData->getCablingMapToFile()) { output_mapping_file_interpreted.open("pixel_cabling_map_interpreted.txt"); }
 
   std::stringstream instr;
-  if (m_useConditions) {
-    SG::ReadCondHandle<AthenaAttributeList> readHandle(m_readKey);
+  if (moduleData->getUseCablingConditions()) {
+    SG::ReadCondHandle<AthenaAttributeList> readHandle(m_readKey, ctx);
     const AthenaAttributeList* readCdo = *readHandle; 
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
@@ -189,24 +188,24 @@ StatusCode PixelCablingCondAlg::execute() {
     instr.str(std::string(p_cabling,blob_cabling.size())); 
   }
   else {
-    std::string filename = PathResolverFindCalibFile(m_final_mapping_file);
+    std::string filename = PathResolverFindCalibFile(moduleData->getCablingMapFileName());
     if (filename.size()==0) {
-      ATH_MSG_FATAL("Mapping File: " << m_final_mapping_file << " not found!");
+      ATH_MSG_FATAL("Mapping File: " << moduleData->getCablingMapFileName() << " not found!");
       return StatusCode::FAILURE;
     }
     std::ifstream fin(filename.c_str());
     if (!fin) { return StatusCode::FAILURE; }
     instr << fin.rdbuf();
-    ATH_MSG_DEBUG("Refilled pixel cabling from file \"" << m_final_mapping_file << "\"");
+    ATH_MSG_DEBUG("Refilled pixel cabling from file \"" << moduleData->getCablingMapFileName() << "\"");
   }
 
   // Each entry in the mapping is sepated by a newline.
   // Loop over all lines and parse the values
-  std::map<uint32_t,bool> rodReadoutMap = SG::ReadCondHandle<PixelReadoutSpeedData>(m_readoutspeedKey)->getReadoutMap();
+  std::map<uint32_t,bool> rodReadoutMap = SG::ReadCondHandle<PixelReadoutSpeedData>(m_readoutspeedKey, ctx)->getReadoutMap();
 
   while (instr.good() && getline(instr, line)) {
 
-    if (m_dump_map_to_file) { output_mapping_file_raw << line << std::endl; }
+    if (moduleData->getCablingMapToFile()) { output_mapping_file_raw << line << std::endl; }
 
     // Skip empty lines and comments (i.e. starting with a hash or a space)
     if (line.empty()) { continue; }
@@ -222,7 +221,7 @@ StatusCode PixelCablingCondAlg::execute() {
     parse >> barrel_ec >> layer_disk >> phi_module >> eta_module >> std::hex >> robid >> rodid >> sl_40_fmt >> sl_40_link >> sl_80_fmt >> sl_80_link >> DCSname;
 
     // Debug
-    if (m_dump_map_to_file) {
+    if (moduleData->getCablingMapToFile()) {
       output_mapping_file_interpreted << barrel_ec << "\t" << layer_disk << "\t" << phi_module << "\t"
                                       << eta_module << "\t" << std::hex << robid << "\t" << rodid << "\t"
                                       << sl_40_fmt << "\t" << sl_40_link << "\t" << sl_80_fmt << "\t"
@@ -293,7 +292,7 @@ StatusCode PixelCablingCondAlg::execute() {
         << ", eta_module: " << eta_module << ", phi_module: " << phi_module << ", linknumber: 0x" << std::hex << linknumber);
   }
 
-  if (m_dump_map_to_file) {
+  if (moduleData->getCablingMapToFile()) {
     output_mapping_file_raw.close();
     output_mapping_file_interpreted.close();
   }
@@ -310,7 +309,3 @@ StatusCode PixelCablingCondAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelCablingCondAlg::finalize() {
-  ATH_MSG_DEBUG("PixelCablingCondAlg::finalize()");
-  return StatusCode::SUCCESS;
-}

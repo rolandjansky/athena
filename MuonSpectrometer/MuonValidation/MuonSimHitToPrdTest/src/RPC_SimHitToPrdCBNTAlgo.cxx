@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimHitToPrdTest/RPC_SimHitToPrdCBNTAlgo.h"
@@ -13,11 +13,9 @@
 #include "MuonRDO/RpcPadContainer.h" 
 #include "MuonPrepRawData/RpcPrepDataContainer.h" 
 
-#include "Identifier/Identifier.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "GeoAdaptors/GeoMuonHits.h"
 
 #include "GaudiKernel/NTuple.h"
@@ -39,10 +37,7 @@ public:
   Clockwork();
 
   // Destructor:
-  ~Clockwork();
-
-
-
+  ~Clockwork()=default;
 
   // Point to NTuple:
   NTuple::Tuple  *nt;
@@ -157,12 +152,6 @@ RPC_SimHitToPrdCBNTAlgo::Clockwork::Clockwork() : nt(NULL)
 {
 }
 
-
-RPC_SimHitToPrdCBNTAlgo::Clockwork::~Clockwork() {
-}
-
-
-
 // Algorithm constructor
 RPC_SimHitToPrdCBNTAlgo::RPC_SimHitToPrdCBNTAlgo(const std::string &name, ISvcLocator *pSvcLocator): 
   AthAlgorithm(name, pSvcLocator) 
@@ -186,9 +175,6 @@ RPC_SimHitToPrdCBNTAlgo::RPC_SimHitToPrdCBNTAlgo(const std::string &name, ISvcLo
 
 }
 
-RPC_SimHitToPrdCBNTAlgo::~RPC_SimHitToPrdCBNTAlgo() 
-{ }
-
 // Initialize method
 
 StatusCode RPC_SimHitToPrdCBNTAlgo::initialize()
@@ -204,7 +190,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::initialize()
       return sc;
   }
   
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
    
   // book ntuple 
   NTupleFilePtr     file(ntupleSvc(),"/NTUPLES/FILE");
@@ -442,7 +428,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::execute()
 	}
     }
 
-  ntupleSvc()->writeRecord(m_c->nt);
+  ATH_CHECK(ntupleSvc()->writeRecord(m_c->nt));
   return StatusCode::SUCCESS;  
 }
 
@@ -461,10 +447,8 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doMCtruth()
      ATH_MSG_WARNING ( " Cannot retrieve McEventCollection" ); 
      return  StatusCode::SUCCESS; 
   } 
-  //ATH_MSG_DEBUG ("McEventCollection->size() : " << mcEvent->size() ) ;  
 
   DataVector<HepMC::GenEvent>::const_iterator e;
-  //if (mcEvent->size()!=1) return StatusCode::SUCCESS;
 
   long eventCounter=0;  
   Amg::Vector3D direction (0.,0.,0.);
@@ -482,7 +466,6 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doMCtruth()
 	float yv = -999999.;
 	float zv = -999999.;
 	float tv = -999999.;
-	//std::cout<<"do we come here ??"<<std::endl;
 // the following lines give troubles  - protect them 
 	if ((**p).production_vertex())
 	  {
@@ -490,18 +473,13 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doMCtruth()
 	    yv = (**p).production_vertex()->point3d().y();
 	    zv = (**p).production_vertex()->point3d().z();
 	    tv = (**p).production_vertex()->position().t();
-	    //	    std::cout<<"do we get the vertex time = ??"<<std::endl;
 	  }
  	float xd = (**p).momentum().px();
  	float yd = (**p).momentum().py();
  	float zd = (**p).momentum().pz();
-	//std::cout<<"do we come here 1??"<<std::endl;
  	float mag = sqrt(xd*xd + yd*yd + zd*zd);
 	if (fabs(mag)>0.001) 
 	{
-	    //direction.setX(xd/mag);
-	    //direction.setY(yd/mag);
-	    //direction.setZ(zd/mag);
 	    
 	    direction[0]=(xd/mag);
 	    direction[1]=(yd/mag);
@@ -528,16 +506,10 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doMCtruth()
 	 ++ipart;
         ATH_MSG_DEBUG("Event # "<<eventCounter 
 		      <<" vertex at "<<xv<<" "<<yv<<" "<<zv<<" produced at time = "<<tv
-		      //<<" direction theta/eta/phi = "<<direction.theta()<<" "<<direction.pseudoRapidity()<<" "<<direction.phi()
 		      <<" direction theta/eta/phi = "<<direction.theta()<<" "<<direction.phi()
 		      <<" p = "<<sqrt(xd*xd+yd*yd+zd*zd)<<" pdgId = "<< pdgId <<" Status "<<status);
     }
   }
-
-  //  // temporary   {{{{
-  //  m_c->run   = 99999999;
-  //  m_c->event = eventCounter;
-  //  // end of temp }}}}
 
   m_c->m_npartStored=ipart;
   ATH_MSG_DEBUG ("out of doMCtruth" ); 
@@ -568,7 +540,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCSimHit()
  	
         int StationName = -1 ;
 
-        if (m_muonHelper==0) m_muonHelper = RpcHitIdHelper::GetHelper();
+        if (m_muonHelper==0) m_muonHelper = RpcHitIdHelper::GetHelper(m_idHelperSvc->rpcIdHelper().gasGapMax());
         std::string stationName = m_muonHelper->GetStationName(idHit);
         int         stationEta  = m_muonHelper->GetZSector    (idHit);
         int         stationPhi  = m_muonHelper->GetPhiSector  (idHit);
@@ -680,11 +652,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCDigit()
     return StatusCode::RECOVERABLE;
   }
   ATH_MSG_DEBUG ( "RpcDigitContainer size: "  << digitContainer->size() ); 
-   
-  //std::cout << "RpcDigitContainer size: "  << digitContainer->size() << std::endl ; 
-  
-  
-  
+
   int myCounter = 0;
   int myCounterColl = 0;
   for (RpcDigitContainer::const_iterator containerit = digitContainer->begin() ; containerit != digitContainer->end() ; ++containerit)  
@@ -694,19 +662,17 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCDigit()
     
  	 Identifier digit_id = (*rpcdigit)->identify(); 
 	 
-// 	
  	 m_c->m_digit_time[myCounter] = (*rpcdigit)->time(); 
 
-         
- 	 m_c->m_digit_station    [myCounter] = m_muonIdHelperTool->rpcIdHelper().stationName(digit_id); 
- 	 m_c->m_digit_eta        [myCounter] = m_muonIdHelperTool->rpcIdHelper().stationEta(digit_id); 
- 	 m_c->m_digit_phi        [myCounter] = m_muonIdHelperTool->rpcIdHelper().stationPhi(digit_id); 
- 	 m_c->m_digit_doubletR   [myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletR(digit_id); 
- 	 m_c->m_digit_doubletZ   [myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletZ(digit_id); 
- 	 m_c->m_digit_doubletPhi [myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletPhi(digit_id); 
- 	 m_c->m_digit_gasGap     [myCounter] = m_muonIdHelperTool->rpcIdHelper().gasGap(digit_id);  
- 	 m_c->m_digit_measuresPhi[myCounter] = m_muonIdHelperTool->rpcIdHelper().measuresPhi(digit_id); 
- 	 m_c->m_digit_strip      [myCounter] = m_muonIdHelperTool->rpcIdHelper().strip(digit_id); 
+ 	 m_c->m_digit_station    [myCounter] = m_idHelperSvc->rpcIdHelper().stationName(digit_id); 
+ 	 m_c->m_digit_eta        [myCounter] = m_idHelperSvc->rpcIdHelper().stationEta(digit_id); 
+ 	 m_c->m_digit_phi        [myCounter] = m_idHelperSvc->rpcIdHelper().stationPhi(digit_id); 
+ 	 m_c->m_digit_doubletR   [myCounter] = m_idHelperSvc->rpcIdHelper().doubletR(digit_id); 
+ 	 m_c->m_digit_doubletZ   [myCounter] = m_idHelperSvc->rpcIdHelper().doubletZ(digit_id); 
+ 	 m_c->m_digit_doubletPhi [myCounter] = m_idHelperSvc->rpcIdHelper().doubletPhi(digit_id); 
+ 	 m_c->m_digit_gasGap     [myCounter] = m_idHelperSvc->rpcIdHelper().gasGap(digit_id);  
+ 	 m_c->m_digit_measuresPhi[myCounter] = m_idHelperSvc->rpcIdHelper().measuresPhi(digit_id); 
+ 	 m_c->m_digit_strip      [myCounter] = m_idHelperSvc->rpcIdHelper().strip(digit_id); 
       
  	 // get the digit position 
  	 const MuonGM::RpcReadoutElement* descriptor =  m_muonMgr->getRpcReadoutElement(digit_id); 
@@ -727,7 +693,6 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCDigit()
 			<<	 m_c->m_digit_measuresPhi[myCounter]<<" "
 			<<	 m_c->m_digit_strip[myCounter] );
 	 ++myCounter; 
-	 //	 ATH_MSG_DEBUG ( " digit number  " << myCounter<< " id = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(digit_id) ); 
        } //end of rpcdigit container loop 
        ++myCounterColl;
      } //end of container iteration loop      
@@ -754,7 +719,6 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCRDO()
      return sc_read; 
   } 
   ATH_MSG_DEBUG ("m_rpcRDO size: "  << rpcRDO->size() ) ;
-  //std::cout << "rpcRDO size: "  << rpcRDO->size() << std::endl ;  
 
 // Access by Collection
 
@@ -862,8 +826,6 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCPrep()
      return  StatusCode::RECOVERABLE; 
   }  
   ATH_MSG_DEBUG ("m_rpc_container->size() : " << rpc_container->size() ) ; 
-  //std::cout << "rpc_container->size() : " << rpc_container->size() << std::endl ;  
-
 
   int myCounter = 0;
   int myCollCounter = 0;
@@ -875,15 +837,15 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCPrep()
 	 Identifier prd_id = (*rpcPrd)->identify(); 
 	
 	 m_c->m_prd_time[myCounter] = (*rpcPrd)->time(); 
-	 m_c->m_prd_station[myCounter] = m_muonIdHelperTool->rpcIdHelper().stationName(prd_id); 
-	 m_c->m_prd_eta[myCounter] = m_muonIdHelperTool->rpcIdHelper().stationEta(prd_id); 
-	 m_c->m_prd_phi[myCounter] = m_muonIdHelperTool->rpcIdHelper().stationPhi(prd_id); 
-	 m_c->m_prd_doubletR[myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletR(prd_id); 
-	 m_c->m_prd_doubletZ[myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_id); 
-	 m_c->m_prd_doubletPhi[myCounter] = m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_id); 
-	 m_c->m_prd_gasGap[myCounter] = m_muonIdHelperTool->rpcIdHelper().gasGap(prd_id);  
-	 m_c->m_prd_measuresPhi[myCounter] = m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id); 
-	 m_c->m_prd_strip[myCounter] = m_muonIdHelperTool->rpcIdHelper().strip(prd_id); 
+	 m_c->m_prd_station[myCounter] = m_idHelperSvc->rpcIdHelper().stationName(prd_id); 
+	 m_c->m_prd_eta[myCounter] = m_idHelperSvc->rpcIdHelper().stationEta(prd_id); 
+	 m_c->m_prd_phi[myCounter] = m_idHelperSvc->rpcIdHelper().stationPhi(prd_id); 
+	 m_c->m_prd_doubletR[myCounter] = m_idHelperSvc->rpcIdHelper().doubletR(prd_id); 
+	 m_c->m_prd_doubletZ[myCounter] = m_idHelperSvc->rpcIdHelper().doubletZ(prd_id); 
+	 m_c->m_prd_doubletPhi[myCounter] = m_idHelperSvc->rpcIdHelper().doubletPhi(prd_id); 
+	 m_c->m_prd_gasGap[myCounter] = m_idHelperSvc->rpcIdHelper().gasGap(prd_id);  
+	 m_c->m_prd_measuresPhi[myCounter] = m_idHelperSvc->rpcIdHelper().measuresPhi(prd_id); 
+	 m_c->m_prd_strip[myCounter] = m_idHelperSvc->rpcIdHelper().strip(prd_id); 
 	 m_c->m_prd_triggerInfo[myCounter] = (*rpcPrd)->triggerInfo(); 
 	 m_c->m_prd_ambigFlag[myCounter] = (*rpcPrd)->ambiguityFlag(); 
     
@@ -917,17 +879,4 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCPrep()
   ATH_MSG_DEBUG ("out of doRPCPrep" ); 
   return StatusCode::SUCCESS;  
 }
-
-
-
-// Finalize method
-StatusCode RPC_SimHitToPrdCBNTAlgo::finalize()
-{
-   
-  ATH_MSG_INFO ( "in finalize()" );
-
-  return StatusCode::SUCCESS;
-}
-
-
 

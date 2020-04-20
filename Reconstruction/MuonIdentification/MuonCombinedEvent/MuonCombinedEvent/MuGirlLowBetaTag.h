@@ -62,7 +62,7 @@ namespace MuonCombined {
     MuGirlNS::CandidateSummary* getStauSummary();
     
     void setStauExtras(MuGirlNS::StauExtras* stauExtras);
-    MuGirlNS::StauExtras* getStauExtras();
+    MuGirlNS::StauExtras* getStauExtras() const;
     
     void setRHExtras(MuGirlNS::RHExtras* rhExtras);
     MuGirlNS::RHExtras* getRHExtras();
@@ -122,7 +122,7 @@ namespace MuonCombined {
   inline MuGirlNS::CandidateSummary* MuGirlLowBetaTag::getStauSummary() {return m_stauSummary;}
   
   inline void MuGirlLowBetaTag::setStauExtras(MuGirlNS::StauExtras* stauExtras) {m_stauExtras = stauExtras;}
-  inline MuGirlNS::StauExtras* MuGirlLowBetaTag::getStauExtras() {return m_stauExtras;}
+  inline MuGirlNS::StauExtras* MuGirlLowBetaTag::getStauExtras() const {return m_stauExtras;}
   
   inline void MuGirlLowBetaTag::setRHExtras(MuGirlNS::RHExtras* rhExtras) {m_rhExtras = rhExtras;}
   inline MuGirlNS::RHExtras* MuGirlLowBetaTag::getRHExtras() {return m_rhExtras;}

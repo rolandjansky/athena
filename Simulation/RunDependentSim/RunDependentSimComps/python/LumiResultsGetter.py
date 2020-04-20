@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # module LumiResultsGetter
 # Tool that gets all data for the RunDependentMC configuration.
+
+from __future__ import print_function
 
 import sys
 from PyCool import cool
@@ -31,14 +33,14 @@ class coolLumiResultsGetter(coolLumiCalc):
         kwkeep = kw.copy()
         kw.update({'readoracle':False,'loglevel':1,'detStatus':"",'detStatusTag':""})#supply defaults
         kw.update(kwkeep) #restore user choices
-        print "Trying to open", cooldbconn
+        print ("Trying to open", cooldbconn)
         coolLumiCalc.__init__(self, cooldbconn, **kw)
         #also need the online database
         try:
-            print "Now trying to open", self.lumidbname
+            print ("Now trying to open", self.lumidbname)
             self.cooldblumi=indirectOpen(self.lumidbname,True,kw.get('readoracle',False),kw.get('loglevel',1)>1)
-        except Exception, e:
-            print e
+        except Exception as e:
+            print (e)
             sys.exit(-1)
         pass
     
@@ -76,7 +78,7 @@ class coolLumiResultsGetter(coolLumiCalc):
         # setup the triggerlevel
         triggerlevel=self.triggerLevel(triggername)
         if triggerlevel != 1:
-            raise "Please use a L1 trigger for this tool."
+            raise Exception("Please use a L1 trigger for this tool.")
         totalL=0
         totaltime=0.
         totalacc=3*[0]
@@ -90,18 +92,20 @@ class coolLumiResultsGetter(coolLumiCalc):
         for lbinfo in lblist:            
             # get the trigger configuration for this run
             runstat,chainnums,hltprescale=self._getChains(lbinfo.run,triggername,triggerlevel)
-            if (self.loglevel>1): print "L1 chain number", chainnums[0]
+            if (self.loglevel>1):
+                print ("L1 chain number", chainnums[0])
             if (runstat):
                 since,until=lbinfo.IOVRange()
                 # check for detector status requirements
                 if (self.detstatus!=""):
                     if (self.loglevel>0):
-                        print lbinfo, ": Applying detector status cuts: %s" % self.detstatus
+                        print (lbinfo, ": Applying detector status cuts: %s" % self.detstatus)
                     gooddetstatus=statusCutsToRange(self.detstatusdb,'/GLOBAL/DETSTATUS/LBSUMM',since,until,self.detstatustag,self.detstatus)
                 else:
                     gooddetstatus=RangeList(since,until)
                     
-                if (self.loglevel>1): print "LumiB  L1-Acc  L1-pre  LiveTime  MeanInts IntL/ub-1"
+                if (self.loglevel>1):
+                    print ("LumiB  L1-Acc  L1-pre  LiveTime  MeanInts IntL/ub-1")
                 # get and cache the LVL1 prescales for this run; note these can have >1 LB intervals
                 l1precache=IOVCache()
                 itr=folderL1PRESCALE.browseObjects(since,until-1,cool.ChannelSelection(chainnums[0]))
@@ -124,7 +128,7 @@ class coolLumiResultsGetter(coolLumiCalc):
                     l1lbiter.goToNext()
                     lblbobj=l1lbiter.currentRef()
                     if (lblbobj.since()!=l1countobj.since()):
-                        raise "L1 counter/lumiblock synchronisation error.  Cannot get length of Lumiblocks!"
+                        raise Exception("L1 counter/lumiblock synchronisation error.  Cannot get length of Lumiblocks!")
                     l1payload=l1countobj.payload()
                     lblbpayload =lblbobj.payload()
                     l1acc=l1payload['L1Accept']
@@ -147,7 +151,8 @@ class coolLumiResultsGetter(coolLumiCalc):
                         try:
                             (lumi,evtsbx)=lumicache.find(l1countobj.since())
                         except TypeError:
-                            if (self.lumimethod != 'EXTERNAL'): print "WARNING: No payload in", self.lumifoldername, "for run", lbinfo.run, "[", lb, "]!"
+                            if (self.lumimethod != 'EXTERNAL'):
+                                print ("WARNING: No payload in", self.lumifoldername, "for run", lbinfo.run, "[", lb, "]!")
                             lumi=0
                             evtsbx=0
                             pass
@@ -159,19 +164,25 @@ class coolLumiResultsGetter(coolLumiCalc):
                             livetime=livefrac*l1dt
                             if self.useprescale:
                                 intlumi=(lumi*livetime)/(1.0 * l1prescale)
-                                if not (intlumi >= 0): print "WARNING:",lbinfo.run,"[",lb,"]: bad lumi, prescale or livetime found:(IL,LV):", lumi,livetime
+                                if not (intlumi >= 0):
+                                    print ("WARNING:",lbinfo.run,"[",lb,"]: bad lumi, prescale or livetime found:(IL,LV):", lumi,livetime)
                             else:
                                 intlumi=(lumi*livetime)
-                                if not (intlumi >= 0): print "WARNING:",lbinfo.run,"[",lb,"]: bad lumi or livetime found:(IL,LV)", lumi,livetime
+                                if not (intlumi >= 0):
+                                    print ("WARNING:",lbinfo.run,"[",lb,"]: bad lumi or livetime found:(IL,LV)", lumi,livetime)
                                 
-                            if (self.loglevel>1): print "%5i %7i %8i %8.2f %8.7f %10.1f" % (lb,l1acc,l1prescale,livetime,evtsbx,intlumi)
+                            if (self.loglevel>1):
+                                print ("%5i %7i %8i %8.2f %8.7f %10.1f" % (lb,l1acc,l1prescale,livetime,evtsbx,intlumi))
                         elif (lumi is not None):
                             intlumi=(lumi*livetime)
-                            if (self.loglevel>1): print "%5i %7i %8i %8s %8.7f %10.if <missing prescale>" %(lb,l1acc,"??",livetime,evtsbx,intlumi)
-                            if not (intlumi >= 0): print "WARNING:",lbinfo.run,"[",lb,"]: bad lumi or livetime found:(IL,LV)", lumi,livetime
+                            if (self.loglevel>1):
+                                print ("%5i %7i %8i %8s %8.7f %10.if <missing prescale>" %(lb,l1acc,"??",livetime,evtsbx,intlumi))
+                            if not (intlumi >= 0):
+                                print ("WARNING:",lbinfo.run,"[",lb,"]: bad lumi or livetime found:(IL,LV)", lumi,livetime)
                         else:
                             intlumi=0
-                            if (self.loglevel>1): print "%5i %7i %8i %8s %8s %10s <missing prescale>" %(lb,l1acc,"??",livetime,"??","??")
+                            if (self.loglevel>1):
+                                print ("%5i %7i %8i %8s %8s %10s <missing prescale>" %(lb,l1acc,"??",livetime,"??","??"))
                         lumiResults.append( (lbinfo.run, int(lb), lumiResult(intlumi,l1acc,0,0,livetime,1,0), evtsbx, l1tstart ) )   
                         # accumulate statistics
                         totalacc[0]+=l1acc
@@ -184,9 +195,10 @@ class coolLumiResultsGetter(coolLumiCalc):
                     pass
                 l1countitr.close()
             else:
-                print "WARNING: Trigger not defined for run",lbinfo.run
+                print ("WARNING: Trigger not defined for run",lbinfo.run)
                 pass
-            if (self.loglevel>0): print "Running total after %24s:" % lbinfo, " %7i events; %8.2f seconds; %10.1f (nb^-1)" % (totalacc[0],totaltime,totalL)
+            if (self.loglevel>0):
+                print ("Running total after %24s:" % lbinfo, " %7i events; %8.2f seconds; %10.1f (nb^-1)" % (totalacc[0],totaltime,totalL))
             pass #end of loop over iovs
         return lumiResults
     

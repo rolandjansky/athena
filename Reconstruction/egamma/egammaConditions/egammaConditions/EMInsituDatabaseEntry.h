@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ class EMInsituDatabaseEntry
 
   int		whichTypeAmI()
   {
-    if (m_vecInt_Info.size()>0) return m_vecInt_Info[0];
+    if (!m_vecInt_Info.empty()) return m_vecInt_Info[0];
     return -1;
   }
 		

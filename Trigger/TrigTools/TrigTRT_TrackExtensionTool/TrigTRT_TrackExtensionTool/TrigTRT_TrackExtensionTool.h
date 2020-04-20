@@ -13,7 +13,7 @@
 #include "TrigInDetToolInterfaces/ITrigDkfTrackMakerTool.h"
 
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TrigTRT_TrackExtensionTool/TrigTRT_DetElementRoadTool.h"
 #include "TrigInDetToolInterfaces/ITrigTRT_DriftCircleProvider.h"
 //#include "RegionSelector/IRegSelSvc.h"

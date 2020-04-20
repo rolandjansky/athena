@@ -1,20 +1,18 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# The minimum required CMake version:
+# Set up the project.
 cmake_minimum_required( VERSION 3.6 )
-
-# Read in the project's version from a file called version.txt. But let it be
-# overridden from the command line if necessary.
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-set( ATHENA_PROJECT_VERSION ${_version}
-   CACHE STRING "Version of the Athena project to build" )
+project( Athena VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
 
 # Set the versions of the TDAQ externals to pick up for the build:
 if( NOT LCG_NIGHTLY )
    if( NOT "$ENV{LCG_NIGHTLY}" STREQUAL "" )
-       set( LCG_NIGHTLY $ENV{LCG_NIGHTLY} CACHE STRING "LCG nightly build flavor" )
-       message( STATUS "Using LCG_NIGHTLY: ${LCG_NIGHTLY}" )
+      set( LCG_NIGHTLY $ENV{LCG_NIGHTLY} CACHE STRING
+         "LCG nightly build flavor" )
+      message( STATUS "Using LCG_NIGHTLY: ${LCG_NIGHTLY}" )
    endif()
 endif()
 
@@ -26,9 +24,9 @@ if( LCG_NIGHTLY )
     set( TDAQ_VERSION "99-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 else()
-    set( TDAQ-COMMON_VERSION "03-04-01" CACHE STRING
+    set( TDAQ-COMMON_VERSION "04-00-00" CACHE STRING
        "The version of tdaq-common to use for the build" )
-    set( TDAQ_VERSION "08-03-01" CACHE STRING
+    set( TDAQ_VERSION "09-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 endif()
 
@@ -68,18 +66,10 @@ set( OpenBlasEnvironment_DIR "${CMAKE_SOURCE_DIR}/cmake"
 mark_as_advanced( OpenBlasEnvironment_DIR )
 find_package( OpenBlasEnvironment )
 
-# Load all the files from the externals/ subdirectory:
-file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
-foreach( _external ${_externals} )
-   include( ${_external} )
-   get_filename_component( _extName ${_external} NAME_WE )
-   string( TOUPPER ${_extName} _extNameUpper )
-   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
-   unset( _extName )
-   unset( _extNameUpper )
-endforeach()
-unset( _external )
-unset( _externals )
+# Set up where to find the AthenaPoolUtilitiesTest CMake code.
+set( AthenaPoolUtilitiesTest_DIR
+   "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
+   CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
 
 # Make the local CMake files visible to AtlasCMake.
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
@@ -87,15 +77,9 @@ list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 # Set up CTest:
 atlas_ctest_setup()
 
-# Declare project name and version
-atlas_project( Athena ${ATHENA_PROJECT_VERSION}
-   USE AthenaExternals ${AthenaExternals_VERSION}
-   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
-   LANGUAGES C CXX Fortran )
-
-# Install the external configurations:
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
-   DESTINATION ${CMAKE_INSTALL_CMAKEDIR} USE_SOURCE_PERMISSIONS )
+# Set up the "ATLAS project".
+atlas_project( USE AthenaExternals ${AthenaExternals_VERSION}
+   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
 # Generate the environment setup for the externals, to be used during the build:
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
@@ -105,10 +89,6 @@ set( _replacements )
 if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
    get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
    list( APPEND _replacements ${_buildDir} "\${Athena_DIR}/../../../.." )
-endif()
-if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
-   list( APPEND _replacements $ENV{NICOS_PROJECT_RELNAME}
-      "\${Athena_VERSION}" )
 endif()
 
 # Now generate and install the installed setup files:

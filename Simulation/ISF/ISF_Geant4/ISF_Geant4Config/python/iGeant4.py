@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from Gaudi.Configuration import *
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.BeamFlags import jobproperties
@@ -37,7 +39,7 @@ class iGeant4:
     Geant4SimService = iGeant4__Geant4SimSvc('ISFG4SimSvc', **kwargs)
 
     # DEBUG: dump Geant4SimService
-    print Geant4SimService
+    print (Geant4SimService)
 
     svcMgr += Geant4SimService
     self.__simSvc__ = Geant4SimService

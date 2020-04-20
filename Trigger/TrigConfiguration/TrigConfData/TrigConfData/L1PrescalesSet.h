@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1PRESCALESSET_H
@@ -29,6 +29,8 @@ namespace TrigConf {
 
       /** Constructor */
       L1PrescalesSet();
+      L1PrescalesSet(const L1PrescalesSet &) = default;
+      L1PrescalesSet(L1PrescalesSet&&) = default;
 
       /** Constructor initialized with configuration data 
        * @param data The data containing the L1 prescales 
@@ -38,11 +40,12 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1PrescalesSet();
 
-      /** name of the prescale set */
-      std::string name() const;
-
       /** number of L1 prescales */
       std::size_t size() const;
+
+      /** setter and getter for the L1 prescale key */
+      unsigned int psk() const;
+      void setPSK(unsigned int psk);
 
       const L1Prescale & prescale(const std::string & itemName) const;
 
@@ -50,6 +53,9 @@ namespace TrigConf {
 
       /** Update the internal prescale map after modification of the data object */
       virtual void update();
+
+      /** the prescale key */
+      unsigned int m_psk {0};
 
       // maps L1 item names to prescales 
       std::map<std::string, L1Prescale> m_prescales;

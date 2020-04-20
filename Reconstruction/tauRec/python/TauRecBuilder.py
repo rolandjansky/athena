@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -21,7 +21,7 @@ from AthenaCommon.BeamFlags import jobproperties
 import traceback
 
 from RecExConfig.Configured import Configured
-from TauRecConfigured import TauRecConfigured
+from .TauRecConfigured import TauRecConfigured
 
 # global tauRec config keys
 _outputType = "xAOD::TauJetContainer"
@@ -73,7 +73,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         
         #switch off TJVA if jet reco don't use tracks.
         from JetRec.JetRecFlags import jetFlags
-        if not jetFlags.useTracks():
+        if not tauFlags.isStandalone() and not jetFlags.useTracks():
             self.do_TJVA = False  # switch off TJVA
         
         tools = []
@@ -86,7 +86,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             doMVATrackClassification = jobproperties.tauRecFlags.tauRecMVATrackClassification()
             doRNNTrackClassification = jobproperties.tauRecFlags.tauRecRNNTrackClassification()
 
-            if InDetFlags.doVertexFinding():
+            if tauFlags.isStandalone() or InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA))
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(not doMVATrackClassification) ))
@@ -97,41 +97,16 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
                 tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             tools.append(taualgs.getCellVariables())
             tools.append(taualgs.getElectronVetoVars())
-            #
-            tools.append(taualgs.getTauTrackFilter())
-            tools.append(taualgs.getTauGenericPi0Cone())
-            #
-            #tools.append(taualgs.getPi0EflowCreateROI())
             tools.append(taualgs.getTauShotFinder()) 
             if self.doPi0Clus:
                 tools.append(taualgs.getPi0ClusterFinder())
             
-            #####################################################################
-            ## Tau Conversation Finder (found no one talking here...)
-            ## TODO: talk with KG about the status of the new PhotonConversionFinder 
-            ## new PhotonConversionFinder is currently disabled (time consumption!)
-            ## old one is still in use
-            import tauRec.TauConversionAlgorithms
-            from tauRec.tauRecFlags import jobproperties
-            if jobproperties.tauRecFlags.useNewPIDBasedConvFinder():
-                #Needs to run alone
-                tools.append(tauRec.TauConversionAlgorithms.getTauConversionTaggerTool())
-            # are these even used? Probably not any more
-            # else:
-                #Need to run together, they will select either PID or vertex based on another flag
-                #tools.append(tauRec.TauConversionAlgorithms.getPhotonConversionTool())
-                #tools.append(tauRec.TauConversionAlgorithms.getTauConversionFinderTool())
-
-            # tools.append(taualgs.getContainerLock())
-
-            ################################
-
             from tauRec.tauRecFlags import tauFlags
             tools+=tauFlags.tauRecToolsDevToolList()
                         
         except Exception:
             mlog.error("could not append tools to TauBuilder")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
         
         # run first part of Tau Builder
@@ -183,7 +158,7 @@ class TauRecPi0EflowProcessor ( TauRecConfigured ) :
             )
         except Exception:
             mlog.error("could not get handle to TauProcessor")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
              
         tools = []
@@ -199,7 +174,7 @@ class TauRecPi0EflowProcessor ( TauRecConfigured ) :
             
         except Exception:
             mlog.error("could not append tools to TauProcessor")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False   
         
         TauRecConfigured.WrapTauRecToolExecHandle(self, self.TauProcessorToolHandle())
@@ -247,7 +222,7 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
         
         except Exception:
             mlog.error("could not get handle to TauProcessorTool")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
              
         tools = []
@@ -310,7 +285,7 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
         
         except Exception:
             mlog.error("could not append tools to TauProcessor")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         self

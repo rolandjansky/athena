@@ -49,7 +49,7 @@ if hasattr(runArgs,"preExec"):
 ## Pre-include
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
-        print "preInclude",fragment
+        printfunc ("preInclude",fragment)
         include(fragment)
 
 #========================================================

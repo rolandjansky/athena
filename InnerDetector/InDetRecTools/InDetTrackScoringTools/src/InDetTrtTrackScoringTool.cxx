@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackScoringTools/InDetTrtTrackScoringTool.h"
@@ -237,7 +237,7 @@ Trk::TrackScore InDet::InDetTrtTrackScoringTool::TRT_ambigScore( const Trk::Trac
   if ( iTRT_Hits > 0 && m_maxTrtRatio > 0) {
     // get expected number of TRT hits
     double nTrtExpected = 30.;
-    nTrtExpected = m_selectortool->minNumberDCs(const_cast<const Trk::TrackParameters*>(track.trackParameters()->front()));
+    nTrtExpected = m_selectortool->minNumberDCs(track.trackParameters()->front());
     ATH_MSG_VERBOSE( "Expected number of TRT hits: " << nTrtExpected << " for eta: "
 					       << fabs(track.trackParameters()->front()->eta()) );
     double ratio = iTRT_Hits / nTrtExpected;

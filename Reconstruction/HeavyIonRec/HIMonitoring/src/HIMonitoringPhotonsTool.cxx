@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -78,20 +78,24 @@ HIMonitoringPhotonsTool::
   m_f1_low = -0.05;
   m_f1_high = 0.60;
 
+  StatusCode sc;
   m_photonLooseIsEMSelector = new AsgPhotonIsEMSelector("PhotonLooseIsEMSelector");
-  m_photonLooseIsEMSelector->setProperty("isEMMask", egammaPID::PhotonLoose);
-  m_photonLooseIsEMSelector->setProperty("ConfigFile",
-                                         "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf");
+  sc &= m_photonLooseIsEMSelector->setProperty("isEMMask", egammaPID::PhotonLoose);
+  sc &= m_photonLooseIsEMSelector->setProperty("ConfigFile",
+                                               "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf");
   if (!m_photonLooseIsEMSelector->initialize().isSuccess()) {
     Fatal("MyFunction", "Failed to initialize PhotonLooseIsEMSelector ");
   }
 
   m_photonTightIsEMSelector = new AsgPhotonIsEMSelector("PhotonTightIsEMSelector");
-  m_photonTightIsEMSelector->setProperty("isEMMask", egammaPID::PhotonTight);
-  m_photonTightIsEMSelector->setProperty("ConfigFile",
+  sc &= m_photonTightIsEMSelector->setProperty("isEMMask", egammaPID::PhotonTight);
+  sc &= m_photonTightIsEMSelector->setProperty("ConfigFile",
                                          "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf");
   if (!m_photonTightIsEMSelector->initialize().isSuccess()) {
     Fatal("MyFunction", "Failed to initialize PhotonTightIsEMSelector ");
+  }
+  if (sc.isFailure()) {
+    Warning("MyFunction", "Failed to set some properties");
   }
 }
 

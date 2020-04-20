@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 787358 2016-11-30 13:39:02Z krasznaa $
 ################################################################################
 # Package: TrigAnalysisTest
 ################################################################################
@@ -50,13 +49,6 @@ atlas_add_library( TrigAnalysisTestLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODMuon xAODTrigBphys
    xAODTrigMissingET ${extra_libs} )
 
-if( NOT XAOD_STANDALONE )
-   atlas_add_component( TrigAnalysisTest
-      src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigDecisionToolLib
-      TrigAnalysisTestLib )
-endif()
-
 # Test(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_test( ut_triggers_fired
@@ -70,10 +62,9 @@ if( XAOD_STANDALONE )
 endif()
 
 # Install files from the package:
-atlas_install_python_modules( python/__init__.py python/PassedTriggerFilter.py )
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( test/*.xml share/*py Testing/*.conf )
-atlas_install_scripts( Testing/*.sh bin/*.py test/exec*.sh test/test*.sh test/test*.py )
+atlas_install_scripts( bin/*.py test/exec*.sh test/test*.sh test/test*.py )
 atlas_install_data( share/*.ref )
 
 # Unit tests:

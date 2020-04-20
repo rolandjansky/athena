@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # SkimNTUP_ProdFlags.py for NTUP->NTUP
 #
+
+from __future__ import print_function
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
@@ -110,4 +112,4 @@ _importFlagsFromModule ('ExoticsN2N.ExoticsN2NProdFlags')
 # Jet D3PDs
 _importFlagsFromModule ('JetN2N.JetN2NProdFlags')
 
-print 'Known NTUPs are', listAllKnownSkimNTUP
+print ('Known NTUPs are', listAllKnownSkimNTUP)

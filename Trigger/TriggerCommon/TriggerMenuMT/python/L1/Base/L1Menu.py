@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from .CTP import CTP
 from .Items import MenuItemsCollection
@@ -84,4 +84,25 @@ class L1Menu(object):
 
     def setupCTPMonitoring(self):
         self.ctp.setupMonitoring(self.items, self.thresholds)
+        
+    def check(self):
+        from collections import defaultdict as dd
+        missing = dd(list)
+        allThresholds = set([thr.name for thr in self.thresholds])
+        allUsedThresholds = set()
+        for item in self.items:
+            for thrName in item.thresholdNames():
+                allUsedThresholds.add(thrName)
+                if thrName not in allThresholds:
+                    missing[thrName].append(item.name) 
+                
+        for thrName in sorted(missing.keys()):
+            log.warning("Threshold %s (used by %s) is not defined in the menu", thrName,",".join(missing[thrName]))
+
+        if len(missing)>0:
+            unusedThresholds = allThresholds.difference(allUsedThresholds)
+            log.info("The following thresholds are unused")
+            log.info("EM: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("EM")]))
+            log.info("HA: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("HA")]))
+            log.info("J: %s", ", ".join([thr for thr in unusedThresholds if thr.startswith("J")]))
         

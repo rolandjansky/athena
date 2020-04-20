@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # TileBchTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-12-17
 #
@@ -16,9 +16,10 @@ Python module for managing TileCal ADC status words.
 
 import cppyy
 
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobObjs.Classes import TileBchStatus, TileCalibUtils, \
+     TileBchPrbs, TileBchDecoder
 from TileCalibBlobPython import TileCalibTools
-from TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
+from TileCalibBlobPython.TileCalibTools  import MINRUN, MINLBK, MAXRUN, MAXLBK
 from TileCalibBlobPython.TileCalibLogger import TileCalibLogger
 
 #
@@ -68,8 +69,8 @@ class TileBchMgr(TileCalibLogger):
         #=== try to open the db
         try:
             if not db.isOpen():
-                raise "DB not open: ", db.databaseId()
-        except Exception, e:
+                raise Exception ("DB not open: ", db.databaseId())
+        except Exception as e:
             self.log().critical( e )
             return
 
@@ -78,26 +79,27 @@ class TileBchMgr(TileCalibLogger):
         if ros==-2:
             ros=0
             module=TileCalibUtils.definitions_draweridx()
-            self.log().info("Updating dictionary from \'%s\'" % db.databaseName())
-            self.log().info("... using tag \'%s\', run-lumi=%s" % (tag,runLumi))
+            self.log().info("Updating dictionary from \'%s\'", db.databaseName())
+            self.log().info("... using tag \'%s\', run-lumi=%s", tag,runLumi)
             self.__multiVersion = reader.folderIsMultiVersion()
             self.__comment = reader.getComment(runLumi)
-            self.log().info("... comment: %s" % self.__comment)
+            self.log().info("... comment: %s", self.__comment)
 
         #=== loop over the whole detector
         rosmin = ros if ros>=0 else 0
         rosmax = ros+1 if ros>=0 else TileCalibUtils.max_ros()
-        for ros in xrange(rosmin,rosmax):
+        for ros in range(rosmin,rosmax):
             modmin = module if module>=0 else 0
             modmax = module+1 if module>=0 else TileCalibUtils.getMaxDrawer(ros)
-            for mod in xrange(modmin,modmax):
+            for mod in range(modmin,modmax):
                 bch = reader.getDrawer(ros, mod, runLumi, False)
                 if bch is None:
-                    if fillTable>=0: self.log().warning("Missing IOV in condDB: ros=%i mod=%i runLumi=%s" % (ros,mod,runLumi))
+                    if fillTable>=0:
+                        self.log().warning("Missing IOV in condDB: ros=%i mod=%i runLumi=%s", ros,mod,runLumi)
                     continue
                 bchDecoder = TileBchDecoder(bch.getBitPatternVersion())
-                for chn in xrange(TileCalibUtils.max_chan()):
-                    for adc in xrange(TileCalibUtils.max_gain()):
+                for chn in range(TileCalibUtils.max_chan()):
+                    for adc in range(TileCalibUtils.max_gain()):
                         #=== adc bits
                         adcBits = bch.getData(chn,adc,0)
                         #=== channel bits (works always due to default policy)
@@ -122,7 +124,8 @@ class TileBchMgr(TileCalibLogger):
 
     #____________________________________________________________________
     def updateFromDb(self, db, folderPath, tag, runLumi, fillTable=1, mode=None, ros=-1, module=-1):
-        if mode: self.__mode = mode
+        if mode:
+            self.__mode = mode
         self.__updateFromDb(db, folderPath, tag, runLumi, fillTable, ros, module)
 
     #____________________________________________________________________
@@ -136,7 +139,8 @@ class TileBchMgr(TileCalibLogger):
         self.log().info("Initializing from database, resetting all changes!")
         #=== initialize reference to current status
         self.__runLumi = runLumi
-        if mode: self.__mode = mode
+        if mode:
+            self.__mode = mode
         fT = -1
         if self.__mode<0: # silent mode
             self.__mode = -self.__mode
@@ -235,7 +239,7 @@ class TileBchMgr(TileCalibLogger):
             partname = str(module[0:3])
             ros = part_dict[partname]
             drawer = int(module[3:])-1
-        except Exception, e:
+        except Exception:
             drawer = -1
         if drawer<0 or drawer>63:
             self.log().critical( "Invalid module name %s" % module )
@@ -312,12 +316,12 @@ class TileBchMgr(TileCalibLogger):
         self.log().info("==============================================================")
         self.log().info("                 Current list of affected ADCs               " )
         self.log().info("==============================================================")
-        for ros in xrange(rosBeg,rosEnd):
-            for mod in xrange(modBeg, min(modEnd,TileCalibUtils.getMaxDrawer(ros))):
+        for ros in range(rosBeg,rosEnd):
+            for mod in range(modBeg, min(modEnd,TileCalibUtils.getMaxDrawer(ros))):
                 modName = TileCalibUtils.getDrawerString(ros,mod)        
-                for chn in xrange(TileCalibUtils.max_chan()):
+                for chn in range(TileCalibUtils.max_chan()):
                     chnName = "channel %2i" % chn
-                    for adc in xrange(TileCalibUtils.max_gain()):
+                    for adc in range(TileCalibUtils.max_gain()):
                         gainName = "LG:"
                         if adc:
                             gainName = "HG:"
@@ -341,15 +345,16 @@ class TileBchMgr(TileCalibLogger):
         """
         diffCnt = 0
         allGood = True
-        for chn in xrange(TileCalibUtils.max_chan()):
-            for adc in xrange(TileCalibUtils.max_gain()):
+        for chn in range(TileCalibUtils.max_chan()):
+            for adc in range(TileCalibUtils.max_gain()):
                 idx = self.__getAdcIdx(ros,drawer,chn,adc)
                 newStatus = self.__newStat[idx]
                 #=== count differences between old and new
                 if newStatus!=self.__oldStat[idx]:
                     diffCnt+=1
                 #=== invalidate allGood if one ADC is not good
-                if not newStatus.isGood(): allGood = False
+                if not newStatus.isGood():
+                    allGood = False
         if diffCnt>0 and allGood:
             return -1
         return diffCnt
@@ -368,13 +373,13 @@ class TileBchMgr(TileCalibLogger):
         """
         parser = TileCalibTools.TileASCIIParser(fileName,'Bch')
         dict = parser.getDict()
-        self.log().info("Updating dictionary from file with %i entries" % len(dict))
-        self.log().info("... filename: %s" % fileName )
-        for key, stat in dict.iteritems():
+        self.log().info("Updating dictionary from file with %i entries", len(dict))
+        self.log().info("... filename: %s", fileName )
+        for key, stat in list(dict.items()):
             ros = key[0]
             mod = key[1]
             chn = key[2]
-            for adc in xrange(2):
+            for adc in range(2):
                 status = TileBchStatus()
                 status+=self.getAdcStatus(ros,mod,chn,adc)
                 if adc < len(stat):
@@ -382,9 +387,12 @@ class TileBchMgr(TileCalibLogger):
                 else:
                     statInt=0
                 #=== temporary convention
-                if statInt==0: pass
-                elif statInt==1: status += TileBchPrbs.IgnoredInHlt
-                else             : status += int(stat[adc])
+                if statInt==0:
+                    pass
+                elif statInt==1:
+                    status += TileBchPrbs.IgnoredInHlt
+                else:
+                    status += int(stat[adc])
                 self.setAdcStatus(ros,mod,chn,adc,status)
 
     #____________________________________________________________________
@@ -401,8 +409,8 @@ class TileBchMgr(TileCalibLogger):
         #=== check db status
         try:
             if not db.isOpen():
-                raise "DB not open: ", db.databaseId()
-        except Exception, e:
+                raise Exception ("DB not open: ", db.databaseId())
+        except Exception as e:
             raise( e )
 
         multiVersion = self.__multiVersion
@@ -416,7 +424,7 @@ class TileBchMgr(TileCalibLogger):
                 justBefore[1] = MAXLBK                                
             justBefore = tuple(justBefore)
             if self.__mode!=2:
-                self.log().info("Reading db state just before %s, i.e. at %s" % (since,justBefore))
+                self.log().info("Reading db state just before %s, i.e. at %s", since,justBefore)
                 self.__updateFromDb(db, folderPath, tag, justBefore, 0)
             else:
                 self.log().info("Using previous bad channel list from input DB")
@@ -425,15 +433,15 @@ class TileBchMgr(TileCalibLogger):
             if self.__mode!=2:
                 reader = TileCalibTools.TileBlobReader(db,folderPath,tag)
                 multiVersion = reader.folderIsMultiVersion()
-            self.log().info("Filling db from %s, resetting old status cache" % list(since))
+            self.log().info("Filling db from %s, resetting old status cache", list(since))
             self.__oldStat = len(self.__oldStat) * [TileBchStatus()]
 
         #=== print status information
-        self.log().info("Committing changes to DB \'%s\'" % db.databaseId())
-        self.log().info("... using tag \'%s\' and [run,lumi] range: [%i,%i] - [%i,%i]"
-                 % (tag,since[0],since[1],until[0],until[1]))
-        self.log().info("... author : \'%s\'" % author  )
-        self.log().info("... comment: \'%s\'" % comment )
+        self.log().info("Committing changes to DB \'%s\'", db.databaseId())
+        self.log().info("... using tag \'%s\' and [run,lumi] range: [%i,%i] - [%i,%i]",
+                 tag,since[0],since[1],until[0],until[1])
+        self.log().info("... author : \'%s\'", author  )
+        self.log().info("... comment: \'%s\'", comment )
 
         #=== default for drawer initialization
         loGainDefVec = cppyy.gbl.std.vector('unsigned int')()
@@ -450,12 +458,13 @@ class TileBchMgr(TileCalibLogger):
         
         #=== loop over the whole detector
         writer = TileCalibTools.TileBlobWriter(db,folderPath,'Bch',multiVersion)
-        if len(comment): writer.setComment(author, comment)
+        if len(comment):
+            writer.setComment(author, comment)
         bchDecoder = TileBchDecoder(bitPatVer)
         nUpdates = 0
         goodComment = True
-        for ros in xrange(0,TileCalibUtils.max_ros()):
-            for mod in xrange(TileCalibUtils.getMaxDrawer(ros)):
+        for ros in range(0,TileCalibUtils.max_ros()):
+            for mod in range(TileCalibUtils.getMaxDrawer(ros)):
                 modName = TileCalibUtils.getDrawerString(ros,mod)
                 nChange = self.checkModuleForChanges(ros,mod)
                 if nChange == 0:
@@ -463,20 +472,20 @@ class TileBchMgr(TileCalibLogger):
                     continue
                 if nChange==-1:
                     nUpdates += 1
-                    self.log().info("Drawer %s reset to GOOD"%(modName)) 
+                    self.log().info("Drawer %s reset to GOOD", modName)
                     if modName not in comment and not ("ONL" not in folderPath or "syncALL" not in comment):
                         goodComment = False
-                        self.log().error("Comment string - '%s' - doesn't contain drawer %s" %(comment,modName)) 
+                        self.log().error("Comment string - '%s' - doesn't contain drawer %s", comment,modName)
                     writer.zeroBlob(ros,mod)
                 else:
                     nUpdates += 1
-                    self.log().info("Applying %2i changes to drawer %s" %(nChange,modName)) 
+                    self.log().info("Applying %2i changes to drawer %s", nChange,modName)
                     if modName not in comment and ("ONL" not in folderPath or "syncALL" not in comment):
                         goodComment = False
-                        self.log().error("Comment string - '%s' - doesn't contain drawer %s" %(comment,modName)) 
+                        self.log().error("Comment string - '%s' - doesn't contain drawer %s", comment,modName)
                     drawer = writer.getDrawer(ros,mod)
                     drawer.init(defVec,TileCalibUtils.max_chan(),bitPatVer)
-                    for chn in xrange(TileCalibUtils.max_chan()):
+                    for chn in range(TileCalibUtils.max_chan()):
                         #=== get low gain bit words
                         wordsLo = bchDecoder.encode(self.getAdcStatus(ros,mod,chn,0))
                         chBits = wordsLo[0]
@@ -491,18 +500,18 @@ class TileBchMgr(TileCalibLogger):
                         drawer.setData(chn,2,0, chBits)
                         #=== synchronizing channel status in low and high gain
                         if wordsLo[0] != chBits:
-                           self.log().info("Drawer %s ch %2d - sync LG status with HG "%(modName,chn))
+                           self.log().info("Drawer %s ch %2d - sync LG status with HG ", modName,chn)
                            status = TileBchStatus( bchDecoder.decode(chBits,loBits) )
                            self.setAdcStatus(ros,mod,chn,0,status)
                         if wordsHi[0] != chBits:
-                           self.log().info("Drawer %s ch %2d - sync HG status with LG "%(modName,chn))
+                           self.log().info("Drawer %s ch %2d - sync HG status with LG ", modName,chn)
                            status = TileBchStatus( bchDecoder.decode(chBits,hiBits) )
                            self.setAdcStatus(ros,mod,chn,1,status)
 
         #=== register
         if nUpdates>0:
             if goodComment:
-                self.log().info("Attempting to register %i modified drawers..." % nUpdates)
+                self.log().info("Attempting to register %i modified drawers..." , nUpdates)
                 writer.register(since,until,tag)
             else:
                 self.log().error("Aborting update due to errors in comment string") 

@@ -128,8 +128,8 @@ namespace InDet {
     }
 
     m_bsErrCont = nullptr;
-    if (!evtStore()->transientContains<InDetBSErrContainer>(m_bsErrCont_Key)) {
-      m_bsErrCont = new InDetBSErrContainer();
+    if (!evtStore()->transientContains<IDCInDetBSErrContainer>(m_bsErrCont_Key)) {
+      m_bsErrCont = new IDCInDetBSErrContainer(m_id->wafer_hash_max(), std::numeric_limits<int>::min());
       if (evtStore()->record(m_bsErrCont, m_bsErrCont_Key, true, true).isFailure()) {
         ATH_MSG_FATAL("Unable to record " << m_bsErrCont_Key);
         return StatusCode::FAILURE;
@@ -181,7 +181,7 @@ namespace InDet {
     // ask SCTRawDataProviderTool to decode it and to fill the IDC
     StatusCode scon = StatusCode::FAILURE;
     if (m_container){
-      scon =  m_rawDataTool->convert(listOfRobf,*m_container,m_bsErrCont);
+      scon =  m_rawDataTool->convert(listOfRobf,*m_container,*m_bsErrCont);
       if (scon==StatusCode::FAILURE)
 	msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
     }

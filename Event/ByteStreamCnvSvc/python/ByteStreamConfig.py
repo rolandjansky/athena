@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -10,24 +10,28 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     """
     Creates accumulator for BS reading
     """
-    filenames = inputFlags.Input.Files
-
-    
 
     acc = ComponentAccumulator()
     
     ByteStreamCnvSvc, ByteStreamEventStorageInputSvc, EventSelectorByteStream=CompFactory.getComps("ByteStreamCnvSvc","ByteStreamEventStorageInputSvc","EventSelectorByteStream",)
 
-    xAODMaker__EventInfoSelectorTool, =CompFactory.getComps("xAODMaker__EventInfoSelectorTool",)
-    xconv = xAODMaker__EventInfoSelectorTool()
-
-    eventSelector = EventSelectorByteStream("EventSelector")
-    eventSelector.HelperTools += [xconv]
-    acc.addService( eventSelector )
-    acc.setAppProperty( "EvtSel", eventSelector.name() )
+    if inputFlags.Input.SecondaryFiles:
+        filenames = inputFlags.Input.SecondaryFiles
+        eventSelector = EventSelectorByteStream("SecondaryEventSelector", IsSecondary=True)
+        acc.addService( eventSelector )
+    else:
+        filenames = inputFlags.Input.Files
+        xAODMaker__EventInfoSelectorTool = CompFactory.xAODMaker.EventInfoSelectorTool
+        xconv = xAODMaker__EventInfoSelectorTool()
+        eventSelector = EventSelectorByteStream("EventSelector")
+        eventSelector.HelperTools += [xconv]
+        acc.addService( eventSelector )
+        acc.setAppProperty( "EvtSel", eventSelector.name )
 
     bsInputSvc = ByteStreamEventStorageInputSvc( "ByteStreamInputSvc" )
     bsInputSvc.FullFileName = filenames
+    if inputFlags.Overlay.DataOverlay:
+        bsInputSvc.EventInfoKey = inputFlags.Overlay.BkgPrefix + "EventInfo"
     acc.addService( bsInputSvc )
 
     EvtPersistencySvc=CompFactory.EvtPersistencySvc
@@ -35,8 +39,8 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     acc.addService( eventPersistencySvc )
     
     bsCnvSvc = ByteStreamCnvSvc()
-    eventSelector.ByteStreamInputSvc = bsInputSvc.name()
-    eventPersistencySvc.CnvServices = [ bsCnvSvc.name() ]
+    eventSelector.ByteStreamInputSvc = bsInputSvc.name
+    eventPersistencySvc.CnvServices = [ bsCnvSvc.name ]
     acc.addService( bsCnvSvc )
 
     ROBDataProviderSvc=CompFactory.ROBDataProviderSvc
@@ -53,12 +57,9 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     acc.merge(MetaDataSvcCfg(inputFlags, ["IOVDbMetaDataTool", "ByteStreamMetadataTool"]))
     
     proxy = ProxyProviderSvc()
-    proxy.ProviderNames += [ bsAddressProviderSvc.name() ]
+    proxy.ProviderNames += [ bsAddressProviderSvc.name ]
     acc.addService( proxy )
 
-    ByteStreamAttListMetadataSvc=CompFactory.ByteStreamAttListMetadataSvc
-    acc.addService( ByteStreamAttListMetadataSvc() )
-    
     bsCnvSvc.InitCnvs += [ "EventInfo",]
 
     return acc

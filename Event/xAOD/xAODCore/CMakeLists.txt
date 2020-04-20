@@ -21,6 +21,7 @@ atlas_depends_on_subdirs(
    Control/AthContainersInterfaces
    Control/AthLinks
    Control/CxxUtils
+   Control/RootUtils
    AtlasTest/TestTools
    ${extra_deps} )
 
@@ -39,7 +40,7 @@ atlas_add_library( xAODCore
    ${xAODCoreDictSource}
    PUBLIC_HEADERS xAODCore
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks CxxUtils
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks CxxUtils RootUtils
    ${extra_libs} )
 
 atlas_add_dictionary( xAODCoreRflxDict

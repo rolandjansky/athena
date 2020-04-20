@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h"
@@ -299,13 +299,16 @@ double TFCS1DFunctionHistogram::get_inverse(double rnd) const
   {
    //find the first HistoContent element that is larger than rnd:
    vector<float>::const_iterator larger_element = std::upper_bound(m_HistoContents.begin(), m_HistoContents.end(), rnd);
-   int index=larger_element-m_HistoContents.begin();
+   size_t index=larger_element-m_HistoContents.begin();
+   if (index>=m_HistoContents.size()) {
+      --index;
+   }
    double y=m_HistoContents[index];
    double x1=m_HistoBorders[index];
    double x2=m_HistoBorders[index+1];
    double y1=m_HistoContents[index-1];
    double y2=y;
-   if((index+1)==((int)m_HistoContents.size()-1))
+   if((index+1)==(m_HistoContents.size()-1))
    {
     x2=m_HistoBorders[m_HistoBorders.size()-1];
     y2=m_HistoContents[m_HistoContents.size()-1];

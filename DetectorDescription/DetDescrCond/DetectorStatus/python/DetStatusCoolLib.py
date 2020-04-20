@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # DetStatusCoolLib.py
 # python functions for dealing with detector status read from COOL
@@ -6,7 +6,7 @@
 
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen,RangeList
-from DetectorStatus.DetStatusLib import DetStatusNames,DetStatusReq
+from DetectorStatus.DetStatusLib import DetStatusReq
 
 def statusCutsToRange(dbconn,foldername,since,until,tag,statusreq):
     """Return a RangeList giving the good IOV range corresponding to the
@@ -35,7 +35,7 @@ def statusCutsToRange(dbconn,foldername,since,until,tag,statusreq):
 
 def testStatusCutsToRange():
     dbconn=indirectOpen('COOLOFL_GLOBAL/COMP200')
-    myrange=statusCutsToRange(dbconn,'/GLOBAL/DETSTATUS/LBSUMM',0,cool.ValidityKeyMax,'TRTB 3')
+    statusCutsToRange(dbconn,'/GLOBAL/DETSTATUS/LBSUMM',0,cool.ValidityKeyMax,'TRTB 3')
             
 if __name__=='__main__':
     testStatusCutsToRange()

@@ -16,7 +16,7 @@
 #include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h"
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "TrkToolInterfaces/IPixelToTPIDTool.h"
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 
 
 #include <vector>

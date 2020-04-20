@@ -55,14 +55,11 @@ TriggerFlags.AODEDMSet="AODSLIM"
 #from ParticleBuilderOptions.AODFlags import AODFlags 
 #AODFlags.FastSimulation=False 
 # see comments in https://savannah.cern.ch/bugs/?83735
-#print AODFlags.Print()
+#printfunc (AODFlags.Print())
 
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
-
-# abort when there is an unchecked status code
-StatusCodeSvc.AbortOnError=False
 
 include("TriggerTest/TriggerTestCommon.py")
 

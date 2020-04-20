@@ -49,18 +49,18 @@ allFeatureNames=[]
 allFeatureDefaultValues=[]
 allfeatureDefaultValueSmearingSigma=[]
 allFeatureTypes=[]
-for k, v in featureDefaultValue.iteritems():
+for k, v in featureDefaultValue.items():
     allFeatureNames.append(k)
     allFeatureDefaultValues.append(v)
     if k in featureDefaultValueSmearingSigma :
         allfeatureDefaultValueSmearingSigma.append(featureDefaultValueSmearingSigma[k])
     else :
-        print "PanTau_Main_TopOptions ERROR: no sigma for default value smearing for feature ", k
+        printfunc ("PanTau_Main_TopOptions ERROR: no sigma for default value smearing for feature ", k)
         allfeatureDefaultValueSmearingSigma.append(0.)
     if k in featureType:
         allFeatureTypes.append(featureType[k])
     else:
-        print "PanTau_Main_TopOptions ERROR: no type for feature called ", k
+        printfunc ("PanTau_Main_TopOptions ERROR: no type for feature called ", k)
 
 panTauValidationFlags.AllFeatureNames                       = allFeatureNames
 panTauValidationFlags.AllFeatureDefaultValues               = allFeatureDefaultValues

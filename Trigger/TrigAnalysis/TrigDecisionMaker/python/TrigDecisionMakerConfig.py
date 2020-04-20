@@ -141,6 +141,7 @@ class WritexAODTrigDecision ( object ) :
 
         from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigDecisionCnvAlg
         alg = xAODMaker__TrigDecisionCnvAlg()
+        alg.ExtraOutputs = [('xAOD::TrigDecision','StoreGateSvc+xTrigDecision')]
 
         # In order for the conversion to work we need to setup the TrigDecisionTool such that it uses the old decision
         ToolSvc.TrigDecisionTool.UseAODDecision = True
@@ -154,7 +155,9 @@ class WritexAODTrigDecision ( object ) :
         TopAlg += alg
         
         from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigNavigationCnvAlg
-        TopAlg += xAODMaker__TrigNavigationCnvAlg()
+        navAlg = xAODMaker__TrigNavigationCnvAlg()
+        navAlg.ExtraOutputs = [('xAOD::TrigNavigation','StoreGateSvc+TrigNavigation')]
+        TopAlg += navAlg
 
         log.info('TrigDecision writing to xAOD enabled')
 
@@ -167,6 +170,7 @@ class WriteTrigDecision ( object ) :
         TopAlg = AlgSequence()
 
         self.TrigDecMaker    = TrigDecisionMaker('TrigDecMaker')
+        self.TrigDecMaker.ExtraOutputs = [('TrigDec::TrigDecision', 'StoreGateSvc+TrigDecision')]
 
         TopAlg += self.TrigDecMaker
 

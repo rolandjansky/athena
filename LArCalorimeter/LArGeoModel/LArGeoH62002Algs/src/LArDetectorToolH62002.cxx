@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorToolH62002.h"
@@ -51,13 +51,13 @@ LArDetectorToolH62002::create()
   
   // Get the detector configuration.
   IGeoDbTagSvc *geoDbTag;
-  service ("GeoModelSvc",geoDbTag);
+  ATH_CHECK(service ("GeoModelSvc",geoDbTag));
   
   std::string AtlasVersion = geoDbTag->atlasVersion();
   std::string LArVersion   = geoDbTag->LAr_VersionOverride();
 
   IRDBAccessSvc *accessSvc;
-  service("RDBAccessSvc",accessSvc);
+  ATH_CHECK(service("RDBAccessSvc",accessSvc));
 
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
@@ -109,7 +109,8 @@ LArDetectorToolH62002::create()
     }
     // Register the H62002Node instance with the Transient Detector Store
     theExpt->addManager(theLArFactory.getDetectorManager());
-    detStore()->record(theLArFactory.getDetectorManager(),theLArFactory.getDetectorManager()->getName());
+    ATH_CHECK(detStore()->record(theLArFactory.getDetectorManager(),
+                                 theLArFactory.getDetectorManager()->getName()));
 
 
     return StatusCode::SUCCESS;

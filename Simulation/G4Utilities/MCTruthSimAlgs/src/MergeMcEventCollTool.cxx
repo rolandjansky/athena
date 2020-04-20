@@ -149,7 +149,7 @@ StatusCode MergeMcEventCollTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeMcEventCollTool::prepareEvent(unsigned int nInputEvents) {
+StatusCode MergeMcEventCollTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents) {
   //clear the background classification map
   m_backgroundClassificationMap.clear();
   m_newevent=true;
@@ -168,7 +168,7 @@ StatusCode MergeMcEventCollTool::prepareEvent(unsigned int nInputEvents) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeMcEventCollTool::processAllSubEvents() {
+StatusCode MergeMcEventCollTool::processAllSubEvents(const EventContext& /*ctx*/) {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
   if(!m_pMergeSvc) {
     if (!(m_pMergeSvc.retrieve()).isSuccess()) {
@@ -267,7 +267,7 @@ StatusCode MergeMcEventCollTool::processBunchXing(int bunchXing,
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeMcEventCollTool::mergeEvent() {
+StatusCode MergeMcEventCollTool::mergeEvent(const EventContext& /*ctx*/) {
   ATH_MSG_DEBUG( "mergeEvent" );
   if(m_nBkgEventsReadSoFar+1<m_nInputMcEventColls) {
     ATH_MSG_WARNING( "mergeEvent: Expected " << m_nInputMcEventColls << " subevents, but only saw " << m_nBkgEventsReadSoFar+1 << "! The job will probably crash now..." );

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # @file showReleaseNotes.py
 # @purpose Display important notes/announcments (if any) about the current release
 # @author Will Buttinger
@@ -21,7 +21,7 @@ def main():
    if notesFile=="": return 0 #no notes to display
 
    with open(notesFile) as f: 
-      print f.read()
+      print(f.read())
 
 
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -134,9 +134,10 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     if isOverlay() :
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         if overlayFlags.isOverlayMT():
-            kwargs.setdefault('RandomDigitContainer',  overlayFlags.bkgPrefix() + 'LArDigitContainer_MC' )
+            kwargs.setdefault("OnlyUseContainerName", False)
+            kwargs.setdefault('InputDigitContainer',  overlayFlags.bkgPrefix() + 'LArDigitContainer_MC' )
         else:
-            kwargs.setdefault('RandomDigitContainer', 'LArDigitContainer_MC' )
+            kwargs.setdefault('InputDigitContainer', 'LArDigitContainer_MC' )
 
     # ADC2MeVCondAlgo
     from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
@@ -192,6 +193,5 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     return CfgMgr.LArPileUpTool(name, **kwargs)
 
 def getLArDigitMaker(name="digitmaker1" , **kwargs):
-    print "in getLArDigitMaker "
     kwargs.setdefault('LArPileUpTool', 'LArPileUpTool')
     return CfgMgr.LArDigitMaker(name, **kwargs)

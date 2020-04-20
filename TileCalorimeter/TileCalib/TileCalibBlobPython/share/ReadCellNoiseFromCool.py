@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # ReadFloatFromCaloCool.py
 # Carlos.Solans <Carlos.Solans@cern.ch>
@@ -11,33 +11,35 @@
 # These are: ratio between first and second gaussian, RMS of the first gaussian, and RMS of the second gaussian
 # change Yuri Smirnov <iouri.smirnov@cern.ch> 2014-12-24
 
-import getopt,sys,os,string
+from __future__ import print_function
+
+import getopt,sys,os
 os.environ['TERM'] = 'linux'
 
 def usage():
-    print "Usage: ",sys.argv[0]," [OPTION] ... "
-    print "Dumps noise constants from online or offline folders / tags"
-    print ""
-    print "-h, --help      shows this help"
-    print "-s, --schema=   specify schema to use, ONL or OFL for RUN1 or ONL2 or OFL2 for RUN2 or MC"
-    print "-f, --folder=   specify status folder to use f.i. /TILE/OFL02/NOISE/CELL or /CALO/Noise/CellNoise "
-    print "-t, --tag=      specify tag to use, f.i. UPD1 or UPD4 or tag suffix like 14TeV-N200_dT50-01"
-    print "-r, --run=      specify run  number, by default uses latest iov"
-    print "-l, --lumi=     specify lumi block number, default is 0"
-    print "-n, --channel=  specify cool channel to read (48 by defalt)"
-    print "-c, --cell=     specify cell hash (0-5183), default is -1, means all cells"
-    print "-g, --gain=     specify gain to print (0-3), default is -1, means all gains"
-    print "-i, --index=    specify parameter index (0-4), default is -1, means all parameters"
-    print "-b, --brief     print only numbers without character names"
-    print "-d, --double    print values with double precision"
+    print ("Usage: ",sys.argv[0]," [OPTION] ... ")
+    print ("Dumps noise constants from online or offline folders / tags")
+    print ("")
+    print ("-h, --help      shows this help")
+    print ("-s, --schema=   specify schema to use, ONL or OFL for RUN1 or ONL2 or OFL2 for RUN2 or MC")
+    print ("-f, --folder=   specify status folder to use f.i. /TILE/OFL02/NOISE/CELL or /CALO/Noise/CellNoise ")
+    print ("-t, --tag=      specify tag to use, f.i. UPD1 or UPD4 or tag suffix like 14TeV-N200_dT50-01")
+    print ("-r, --run=      specify run  number, by default uses latest iov")
+    print ("-l, --lumi=     specify lumi block number, default is 0")
+    print ("-n, --channel=  specify cool channel to read (48 by defalt)")
+    print ("-c, --cell=     specify cell hash (0-5183), default is -1, means all cells")
+    print ("-g, --gain=     specify gain to print (0-3), default is -1, means all gains")
+    print ("-i, --index=    specify parameter index (0-4), default is -1, means all parameters")
+    print ("-b, --brief     print only numbers without character names")
+    print ("-d, --double    print values with double precision")
     
 letters = "hs:t:f:r:l:n:c:g:i:bd"
 keywords = ["help","schema=","tag=","folder=","run=","lumi=","channel=","cell=","gain=","index=","brief","double"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetoptError, err:
-    print str(err)
+except getopt.GetoptError as err:
+    print (str(err))
     usage()
     sys.exit(2)
 
@@ -100,20 +102,24 @@ log = CaloCondLogger.getLogger("ReadCellNoise")
 if schema=='ONL': # shortcut for COOLONL_CALO/COMP200
     schema='COOLONL_CALO/COMP200'
     folderPath='/CALO/Noise/CellNoise'
-    if tag=='UPD4': tag='UPD1-00' # change default to latest RUN1 tag
+    if tag=='UPD4':
+        tag='UPD1-00' # change default to latest RUN1 tag
 elif schema=='ONL2': # shortcut for COOLONL_CALO/CONDBR2
     schema='COOLONL_CALO/CONDBR2'
     folderPath='/CALO/Noise/CellNoise'
-    if tag=='UPD4': tag='RUN2-UPD1-00' # change default to latest RUN2 tag
+    if tag=='UPD4':
+        tag='RUN2-UPD1-00' # change default to latest RUN2 tag
 elif schema=='OFL': # shortcut for COOLOFL_TILE/COMP200 or COOLOFL_LAR/COMP200
     if chan!=48:
         schema='COOLOFL_LAR/COMP200'
         folderPath='/LAR/NoiseOfl/CellNoise'
-        if tag=='UPD4': tag='UPD4-02' # change default to latest RUN1 tag
+        if tag=='UPD4':
+            tag='UPD4-02' # change default to latest RUN1 tag
     else:
         schema='COOLOFL_TILE/COMP200'
         folderPath='/TILE/OFL02/NOISE/CELL'
-        if tag=='UPD4': tag='UPD4-10' # change default to latest RUN1 tag
+        if tag=='UPD4':
+            tag='UPD4-10' # change default to latest RUN1 tag
 elif schema=='OFL2': # shortcut for COOLOFL_TILE/CONDBR2 or COOLOFL_LAR/CONDBR2
     if chan!=48:
         schema='COOLOFL_LAR/CONDBR2'
@@ -124,11 +130,13 @@ elif schema=='OFL2': # shortcut for COOLOFL_TILE/CONDBR2 or COOLOFL_LAR/CONDBR2
 elif schema=='ONLMC': # shortcut for COOLONL_CALO/OFLP200 
     schema='COOLONL_CALO/OFLP200'
     folderPath='/CALO/Noise/CellNoise'
-    if tag=='UPD4': tag='IOVDEP-10' # change default to tag used in DC14
+    if tag=='UPD4':
+        tag='IOVDEP-10' # change default to tag used in DC14
 elif schema=='OFLMC': # shortcut for COOLOFL_CALO/OFLP200
     schema='COOLOFL_CALO/OFLP200'
     folderPath='/CALO/Ofl/Noise/CellNoise'
-    if tag=='UPD4': tag='IOVDEP-10' # change default to tag used in DC14
+    if tag=='UPD4':
+        tag='IOVDEP-10' # change default to tag used in DC14
 elif schema=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200
     if chan!=48:
         schema='COOLOFL_LAR/OFLP200'
@@ -136,7 +144,8 @@ elif schema=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200
     else:
         schema='COOLOFL_TILE/OFLP200'
         folderPath='/TILE/OFL02/NOISE/CELL'
-    if tag=='UPD4': tag='OFLCOND-RUN12-SDR-31' # change default to tag used in MC15
+    if tag=='UPD4':
+        tag='OFLCOND-RUN12-SDR-31' # change default to tag used in MC15
 
 if run<222222 or 'COMP200' in schema:
     cabling = 'RUN1'
@@ -162,7 +171,7 @@ elif folderPath.startswith('/CALO'):
 elif folderPath.startswith('/LAR'):
     folderTag = 'LARNoiseOflCellNoise-'+tag
 
-log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
+log.info("Initializing folder %s with tag %s", folderPath, folderTag)
 
 folder = db.getFolder(folderPath)
 
@@ -192,7 +201,7 @@ elif ncell>hashMgrDef.getHashMax():
     hashMgr=hashMgrBC
 else:
     hashMgr=hashMgrDef
-log.info("Using %s CellMgr with hashMax %d" % (hashMgr.getGeometry(),hashMgr.getHashMax()))
+log.info("Using %s CellMgr with hashMax %d", hashMgr.getGeometry(),hashMgr.getHashMax())
 
 if cell<0 or cell>=ncell:
     cellmin=0
@@ -219,24 +228,30 @@ if brief or doubl:
   name1 = ["","","0.0     "]
   names = []
   dm=" "
-  for i in xrange(indexmax): names += [""]
+  for i in range(indexmax):
+      names += [""]
 else:
   name1 = ["Noise cell ", "gain ","0.00    "]
   names = ["RMS ", "pileup ", "RMS1 ", "RMS2 ", "Ratio "]
-  for i in xrange(len(names),indexmax): names += ["c"+str(i)+" "]
+  for i in range(len(names),indexmax):
+      names += ["c"+str(i)+" "]
   dm="\t"
-for cell in xrange(cellmin,cellmax):
+for cell in range(cellmin,cellmax):
   if tile and len(name1[0]):
     name1[0] = "%s %6s hash " % hashMgr.getNames(cell) 
-  for gain in xrange(gainmin,gainmax):
+  for gain in range(gainmin,gainmax):
     msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
-    for index in xrange(indexmin,indexmax):
+    for index in range(indexmin,indexmax):
       v=blobFlt.getData(cell, gain, index)
-      if doubl: msg += "%s%s%s" % (names[index],"{0:<15.10g}".format(v).ljust(15),dm)
-      elif v<5.e-7: msg += "%s%s%s" % (names[index],name1[2],dm)
-      elif v<1: msg += "%s%8.6f%s" % (names[index],v,dm)
-      else: msg += "%s%s%s" % (names[index],"{0:<8.7g}".format(v).ljust(8),dm)
-    print msg
+      if doubl:
+          msg += "%s%s%s" % (names[index],"{0:<15.10g}".format(v).ljust(15),dm)
+      elif v<5.e-7:
+          msg += "%s%s%s" % (names[index],name1[2],dm)
+      elif v<1:
+          msg += "%s%8.6f%s" % (names[index],v,dm)
+      else:
+          msg += "%s%s%s" % (names[index],"{0:<8.7g}".format(v).ljust(8),dm)
+    print (msg)
 
 #=== close DB
 db.closeDatabase()

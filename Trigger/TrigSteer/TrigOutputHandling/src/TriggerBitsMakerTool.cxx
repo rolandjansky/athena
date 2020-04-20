@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigOutputHandling/TriggerBitsMakerTool.h"
 #include "TrigConfHLTData/HLTUtils.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
@@ -26,6 +26,7 @@ StatusCode TriggerBitsMakerTool::start() {
   ATH_CHECK( hltMenuHandle.isValid() );
   ATH_MSG_INFO("Configuring from " << m_HLTMenuKey << " with " << hltMenuHandle->size() << " chains");
 
+  m_mapping.clear();
   m_largestBit = 0;
   for (const TrigConf::Chain& ch : *hltMenuHandle) {
     ATH_MSG_DEBUG( "Chain " << ch.name() << " will flip " << ch.counter() <<  " bit" );
@@ -63,8 +64,12 @@ StatusCode TriggerBitsMakerTool::preInsertCheck(const std::string& chain, const 
     [&](const std::pair<TrigCompositeUtils::DecisionID, uint32_t>& m) { return m.second == bit; }
   );
   if (checkIt != m_mapping.end()) {
-    ATH_MSG_ERROR( "Multiple chains " << TrigConf::HLTUtils::hash2string(checkIt->first) 
+    ATH_MSG_ERROR( "Multiple chains " << HLT::Identifier(checkIt->first) 
       << " and " << chain << " are both configured with ChainCounter:" << bit);
+    return StatusCode::FAILURE;
+  }
+  if (chain.empty()) {
+    ATH_MSG_ERROR( "Trying to register an empty string as a Chain." );
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -128,15 +133,15 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
   decisionIDs(HLTRerun, rerunIDs);
 
   for ( DecisionID chain: passRawIDs ) {
-    ATH_CHECK(setBit(chain, HLTPassRawCategory, passRaw));
+    ATH_CHECK(setBit(chain, passRaw));
   }
 
   for ( DecisionID chain: prescaledIDs ) {
-    ATH_CHECK(setBit(chain, HLTPrescaledCategory, prescaled));
+    ATH_CHECK(setBit(chain, prescaled));
   }
 
   for ( DecisionID chain: rerunIDs ) {
-    ATH_CHECK(setBit(chain, HLTRerunCategory, rerun));
+    ATH_CHECK(setBit(chain, rerun));
   }
 
   return StatusCode::SUCCESS;
@@ -183,12 +188,12 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill, const Eve
 }
 
 StatusCode TriggerBitsMakerTool::setBit(const TrigCompositeUtils::DecisionID chain,
-  const BitCategory category,
   boost::dynamic_bitset<uint32_t>& resultToFill) const
 {
-  // FP TMP chain ID manipulation for leg Identifiers/ to be checked by Tim
-  if (TrigCompositeUtils::isLegId(HLT::Identifier(chain)) )
+  // Ignore per-leg IDs, only use chain-IDs
+  if (TrigCompositeUtils::isLegId(HLT::Identifier(chain)) ) {
     return StatusCode::SUCCESS;
+  }
 
   auto mappingIter = m_mapping.find( chain );
   // each chain has to have the counter
@@ -197,14 +202,10 @@ StatusCode TriggerBitsMakerTool::setBit(const TrigCompositeUtils::DecisionID cha
     return StatusCode::FAILURE;
   }
   const int chainBitPosition = mappingIter->second;
-  static const std::vector<std::string> bitCategoryStr {"PassRaw","Prescaled","Rerun"};
-  ATH_MSG_DEBUG("Setting bit " << chainBitPosition << " corresponding to chain "
-    << HLT::Identifier(chain) << " in BitCategory " << bitCategoryStr.at(category));
-  switch (category) {
-    case HLTPassRawCategory: resultToFill.set(chainBitPosition); break;
-    case HLTPrescaledCategory: resultToFill.set(chainBitPosition); break;
-    case HLTRerunCategory: resultToFill.set(chainBitPosition); break;
-    default: ATH_MSG_ERROR("Unknown BitCategory"); return StatusCode::FAILURE; break;
+  ATH_MSG_DEBUG("Setting bit " << chainBitPosition << " corresponding to chain "<< HLT::Identifier(chain));
+  if (resultToFill.test(chainBitPosition)) {
+    ATH_MSG_WARNING(HLT::Identifier(chain) << " is setting its trigger bit " << chainBitPosition << " more than once");
   }
+  resultToFill.set(chainBitPosition);
   return StatusCode::SUCCESS;
 }

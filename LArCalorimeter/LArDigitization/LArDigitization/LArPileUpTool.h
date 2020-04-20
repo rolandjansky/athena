@@ -24,6 +24,7 @@
 
 #include "LArElecCalib/ILArNoise.h"
 #include "LArElecCalib/ILArAutoCorrNoiseTool.h"
+#include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArfSampl.h"
@@ -58,7 +59,6 @@ class LArHEC_ID;
 class LArFCAL_ID;
 class CaloCell_ID;
 class LArDigit;
-class ILArOFC;
 class CaloDetDescrManager;
 namespace CLHEP {
   class HepRandomEngine;
@@ -79,15 +79,15 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   virtual StatusCode initialize() override final;
 
-  virtual StatusCode prepareEvent(unsigned int nInputEvents) override final;
+  virtual StatusCode prepareEvent(const EventContext& ctx, unsigned int nInputEvents) override final;
 
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode mergeEvent(const EventContext& ctx) override final;
 
   virtual StatusCode processBunchXing(int bunchXing,
                                       SubEventIterator bSubEvents,
                                       SubEventIterator eSubEvents) override final;
 
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
   virtual StatusCode fillMapFromHit(StoreGateSvc* seStore,float tbunch,bool isSignal) override final;
 
@@ -104,14 +104,14 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   StatusCode AddHit(const Identifier cellId, const float energy, const float time, const bool iSignal);
 
 
-  StatusCode MakeDigit(const Identifier & cellId,
+  StatusCode MakeDigit(const EventContext& ctx, const Identifier & cellId,
 		       HWIdentifier & ch_id,
 		       const std::vector<std::pair<float,float> >* TimeE,
 		       const LArDigit * rndm_digit, CLHEP::HepRandomEngine * engine,
 		       const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr);
 
 
-  StatusCode ConvertHits2Samples(const Identifier & cellId, HWIdentifier ch_id,
+  StatusCode ConvertHits2Samples(const EventContext& ctx, const Identifier & cellId, HWIdentifier ch_id,
                    CaloGain::CaloGain igain,
                    //const std::vector<std::pair<float,float> >  *TimeE);
                    const std::vector<std::pair<float,float> >  *TimeE,  std::vector<double> &sampleList);
@@ -153,6 +153,8 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
       "Name of input hit vectors (default=[LArHitEMB, LArHitEMEC, LArHitHEC, LArHitFCAL])" };  //!< vector with the names of LArHitContainers to use
   SG::ReadHandleKeyArray<LArHitFloatContainer> m_hitFloatContainerKeys{this, "LArHitFloatContainers", {"LArHitEMB", "LArHitEMEC", "LArHitHEC", "LArHitFCAL"},
       "Name of input hit vectors (default=[LArHitEMB, LArHitEMEC, LArHitHEC, LArHitFCAL])" };  //!< vector with the names of LArHitFloatContainers to use
+  SG::ReadHandleKey<LArDigitContainer> m_inputDigitContainerKey{this, "InputDigitContainer", "",
+      "Name of input digit container"}; // input digit container name 
   std::vector <std::string> m_hitContainerNames; // hit container name list
 
 //
@@ -226,9 +228,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   Gaudi::Property<bool> m_isMcOverlay{this, "isMcOverlay", false,
       "Is input Overlay from MC or data (default=false, from data)"};             // true if input RDO for overlay are from MC, false if from data
   bool m_useBad{true};
-  Gaudi::Property<std::string> m_RandomDigitContainer{this, "RandomDigitContainer", "LArDigitContainer_Random",
-      "Name of random digit container"}; // random digit container name list
-
   Gaudi::Property<bool> m_useMBTime{this, "UseMBTime", false,
       "use detailed hit time from MB events in addition to bunch crossing time for pileup (default=false)"};
   Gaudi::Property<bool> m_recordMap{this, "RecordMap", true,
@@ -251,6 +250,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
  
   SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoiseSym","SG Key of ILArNoise object"};
   SG::ReadCondHandleKey<ILArfSampl>   m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
+  SG::ReadCondHandleKey<ILArOFC>      m_OFCKey{this, "OFCKey", "LArOFC", "SG Key of OFC conditions object"};
   SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
   SG::ReadCondHandleKey<ILArShape>    m_shapeKey{this,"ShapeKey","LArShapeSym","SG Key of LArShape object"};
   SG::ReadCondHandleKey<LArADC2MeV>   m_adc2mevKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
@@ -288,8 +288,6 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   std::vector<float> m_energySum_DigiHSTruth;
   int m_nhit_tot{0};
   float m_trigtime{0};
-
-  const ILArOFC* m_larOFC{};
 
 };
 

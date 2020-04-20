@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -10,6 +10,7 @@ import os
 import sys
 import signal
 import subprocess
+import time
 from enum import Enum
 from threading import Timer
 from TrigValTools.TrigValSteering.Common import get_logger, art_result
@@ -30,12 +31,16 @@ class Step(object):
         self.type = None
         self.executable = None
         self.args = ''
+        self.cmd_suffix = None
         self.output_stream = self.OutputStream.FILE_ONLY
         self.log_file_name = None
         self.result = None
         self.auto_report_result = False
         self.required = False
+        self.depends_on_previous = False
         self.timeout = None
+        self.prmon = False
+        self.prmon_interval = 5  # monitoring interval in seconds
 
     def get_log_file_name(self):
         return self.log_file_name or self.name+'.log'
@@ -124,8 +129,28 @@ class Step(object):
 
         return proc.returncode
 
+    def __start_prmon(self):
+        self.log.debug('Starting prmon for pid %d', os.getpid())
+        prmon_cmd = 'prmon --pid {:d} --interval {:d}'.format(os.getpid(), self.prmon_interval)
+        prmon_cmd +=' --filename prmon.{name:s}.txt --json-summary prmon.summary.{name:s}.json'.format(name=self.name)
+        return subprocess.Popen(prmon_cmd, shell=True)
+
+    def __stop_prmon(self, prmon_proc):
+        self.log.debug('Stopping prmon')
+        try:
+            prmon_proc.send_signal(signal.SIGUSR1)
+            countWait = 0
+            while (not prmon_proc.poll()) and countWait < 10:
+                time.sleep(0.1)
+                countWait += 1
+        except OSError as err:
+            self.log.warning('Error while stopping prmon: %s', err)
+            pass
+
     def run(self, dry_run=False):
         cmd = '{} {}'.format(self.executable, self.args)
+        if self.cmd_suffix:
+            cmd += self.cmd_suffix
         if self.output_stream == self.OutputStream.NO_PRINT:
             cmd += ' >/dev/null 2>&1'
         elif self.output_stream == self.OutputStream.FILE_ONLY:
@@ -139,12 +164,28 @@ class Step(object):
         if dry_run:
             self.result = 0
         else:
+            if self.prmon:
+                prmon_proc = self.__start_prmon()
             if self.timeout:
                 self.result = self.__execute_with_timeout(cmd, self.timeout)
             else:
                 self.result = subprocess.call(cmd, shell=True)
+            if self.prmon:
+                self.__stop_prmon(prmon_proc)
+
         if self.auto_report_result:
             self.report_result()
+
+        # Print full log to stdout for failed steps if running in CI
+        if self.required \
+                and self.result != 0 \
+                and os.environ.get('gitlabTargetBranch') \
+                and self.output_stream==self.OutputStream.FILE_ONLY:
+            self.log.error('Step failure while running in CI. Printing full log %s', self.get_log_file_name())
+            with open(self.get_log_file_name()) as log_file:
+                log=log_file.read()
+                print(log)  # noqa: ATL901
+
         return self.result, cmd
 
 

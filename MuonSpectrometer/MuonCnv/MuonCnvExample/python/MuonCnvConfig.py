@@ -47,3 +47,8 @@ def CscDigitToCscRDO(name,**kwargs):
     kwargs.setdefault("CscDigitToRDOTool", "CscDigitToCscRDOTool")
     from AthenaCommon import CfgMgr
     return CfgMgr.CscDigitToCscRDO(name,**kwargs)
+
+def CscDigitToCscRDO4(name="CscDigitToCscRDO",**kwargs):
+    kwargs.setdefault("CscDigitToRDOTool", "CscDigitToCscRDOTool4")
+    from AthenaCommon import CfgMgr
+    return CfgMgr.CscDigitToCscRDO(name,**kwargs)

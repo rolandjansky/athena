@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetCalibTools/JetCalibrationTool.h"
@@ -193,7 +193,10 @@ int main (int argc, char* argv[])
             startingScale.setAttribute(*calibJet,xAOD::JetFourMom_t(pt,eta,0,massForScan));
 
             // Jet kinematics set, now apply calibration
-            calibTool->modify(*calibJets);
+            if (calibTool->modify(*calibJets).isFailure()) {
+              std::cout << "Failed to apply jet calibration" << std::endl;
+              return 6;
+            }
 
             // Calculate the scale factors
             const double JMS     = calibJet->m()/startingScale(*jet).mass();

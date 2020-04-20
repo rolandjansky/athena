@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RATESANALYSIS_RATESTRIGGER_H
@@ -41,18 +41,18 @@ class RatesTrigger : public RatesHistoBase {
 
   RatesTrigger& operator=(const RatesTrigger&) = delete;
 
-  virtual void reset() { m_pass = false; } //!< If I was used in an event, reset me.
+  virtual void reset(); //!< If I was used in an event, reset me.
 
-  void setSeedsFromRandom(const bool i) { m_seedsFromRandom = i; } //!< Set if this trigger is to behave as if it seeds from a random L1 item
+  void setSeedsFromRandom(const bool i); //!< Set if this trigger is to behave as if it seeds from a random L1 item
   
-  void setPassed(const bool i = true, const bool unbiasedEvent = false); //!< Set the pass/fail bool. Execute needs to be called separately afterwards.
+  void setPassed(const bool passed = true, const bool active = true, const bool unbiasedEvent = false); //!< Set the pass/fail bool. Execute needs to be called separately afterwards.
 
   /**
    * @brief Set the pass/fail bool and immediately call execute. Should only be done once per event.
    * @param i If the trigger passed or failed the event
    * @weights Struct of weighting information for the event
    */
-  void setPassedAndExecute(const bool i, const WeightingValuesSummary_t& weights);
+  void setPassedAndExecute(const bool passed, const bool active, const WeightingValuesSummary_t& weights);
 
   /**
    * @brief Execute trigger rate emulation. If the trigger passed, add to its rate the effective number of events it is accepting.
@@ -61,15 +61,15 @@ class RatesTrigger : public RatesHistoBase {
    */
   virtual void execute(const WeightingValuesSummary_t& weights);
 
-  size_t getSeedHash() const { return m_seedHash; } //<! Get the hash of the name of the seed of this trigger.
+  size_t getSeedHash() const; //<! Get the hash of the name of the seed of this trigger.
 
-  const std::string& getSeedName() const { return m_seed; } //!< Get the name of the seed of this trigger
+  const std::string& getSeedName() const; //!< Get the name of the seed of this trigger
 
-  double getSeedPrescale() const { return m_seedPrescale; } //!< Get the prescale of the seed of this trigger
+  double getSeedPrescale() const; //!< Get the prescale of the seed of this trigger
 
-  size_t getHash() const { return m_nameHash; } //!< Get the hash of the name of this trigger
+  size_t getHash() const; //!< Get the hash of the name of this trigger
 
-  const std::string& getName() const { return m_name; } //!< Get the name of this trigger
+  const std::string& getName() const; //!< Get the name of this trigger
 
   /**
    * @brief Gets the triggers prescale
@@ -77,19 +77,21 @@ class RatesTrigger : public RatesHistoBase {
    */
   double getPrescale(const bool includeExpress = false) const;
 
-  bool getPassed() const { return m_pass; } //!< If the trigger passed in the event
+  bool getPassed() const; //!< If the trigger passed in the event
 
-  bool getDisabled() const { return (isZero(m_prescale) || isZero(m_seedPrescale)); } //!< If I or my seed were prescaled out
+  bool getActive() const; //!< If the trigger passed in the event
 
-  void setUniqueGroup(const RatesGroup* unique) { m_uniqueGroup = unique; } //!< If I have a group which is calculating my unique rate.
+  bool getDisabled() const; //!< If I or my seed were prescaled out
 
-  void setCoherentFactor(const double lowestCommonPrescale) { m_coherentFactor = lowestCommonPrescale; } //!< If i'm in a CPS group, set the lowest commons PS factor of the group
+  void setUniqueGroup(const RatesGroup* unique); //!< If I have a group which is calculating my unique rate.
 
-  void setCPS(const std::string& group) { m_CPSID = std::hash<std::string>{}(group); } //!< If I'm in a CPS group, set the group name (I'll keep a copy of the hash)
+  void setCoherentFactor(const double lowestCommonPrescale); //!< If i'm in a CPS group, set the lowest commons PS factor of the group
+
+  void setCPS(const std::string& group); //!< If I'm in a CPS group, set the group name (I'll keep a copy of the hash)
   
-  size_t getCPSID() const { return m_CPSID; } //!< Get the hash of my CPS group name
+  size_t getCPSID() const; //!< Get the hash of my CPS group name
   
-  double getCoherentFactor() const { return m_coherentFactor; } //!< Get the lowest common prescale factor of all triggers in my CPS group
+  double getCoherentFactor() const; //!< Get the lowest common prescale factor of all triggers in my CPS group
 
   const std::string printConfig() const; //!< Prints the RatesTrigger's configuration
 
@@ -110,11 +112,14 @@ class RatesTrigger : public RatesHistoBase {
  protected: 
 
   bool m_pass; //!< Did the trigger pass or not?
+  bool m_active; //!< Was the trigger active? (Did it run)
   bool m_seedsFromRandom; //!< Does this trigger seed from a random trigger? If so it should only be exposed to unbiased events
   double m_rateAccumulator; //!< Weighted events passed
   double m_rateAccumulator2; //!< Weighted events passed squared
   double m_rateExpressAccumulator; //!< Weighted express stream events 
   double m_rateExpressAccumulator2; //!< Weighted express stream events squared
+  double m_ratesActive; // Active events
+  double m_ratesActive2; // Active events squared
 
   size_t m_CPSID; //!< If I'm in a coherent prescale group, my group's ID (hash of the group name)
   double m_coherentFactor; //!< If I'm in a coherent prescale group, the prescale of the lowest non-disabled chain in the group 
@@ -134,7 +139,6 @@ class RatesTrigger : public RatesHistoBase {
   const ExtrapStrat_t m_extrapolationStrategy; //!< How this trigger is to scale with luminosity
 
 }; 
-
 
 #endif //> !RATESANALYSIS_RATESTRIGGER_H
 

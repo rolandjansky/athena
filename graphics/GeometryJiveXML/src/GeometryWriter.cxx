@@ -18,18 +18,17 @@
 #include "LArReadoutGeometry/LArDetectorManager.h"
 // #include "GeoModelKernel/GeoPVConstLink.h"
 // #include "GeoModelKernel/GeoTube.h"
-// #include "GeoModelKernel/GeoTrd.h"
+#include "GeoModelKernel/GeoTrd.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
 
 #include <fstream>
 
@@ -122,13 +121,10 @@ namespace JiveXML {
     }
     
     if ( detStore()->retrieve(m_lar_manager, "LArMgr").isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve LArDetectorManager" << endmsg;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve LArDetectorManager for MBTS" << endmsg;
     } else {	
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved LArDetectorManager" << endmsg;
-      // temporarily disable writting MBTS geometry. Non-trivial migration CLHEP->Eigen                                    //   jpt 19Dec13  
-      /*
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved LArDetectorManager for MBTS" << endmsg;
       writeMBTSGeometry(outputFile);
-	 */
     }
     writeFooter(outputFile);
     outputFile.close();
@@ -583,8 +579,8 @@ namespace JiveXML {
 	      << " sampling=\"" << (i < 3 ? i : 3)  << "\" region=\"" << 0 << "\""
 	      << " rMin=\"" << (descriptor->rcenter(i)-descriptor->dr(i)/2.)/10. << "\""
 	      << " rMax=\"" << (descriptor->rcenter(i)+descriptor->dr(i)/2.)/10. << "\""
-	      << " zMin=\"" << (descriptor->zcenter(i)-descriptor->dz(i))/10. << "\""
-	      << " zMax=\"" << (descriptor->zcenter(i)+descriptor->dz(i))/10. << "\""
+	      << " zMin=\"" << (descriptor->zcenter(i)-descriptor->dz(i)/2.)/10. << "\""
+	      << " zMax=\"" << (descriptor->zcenter(i)+descriptor->dz(i)/2.)/10. << "\""
 	      << " eta=\"" << (i < 3 ? tileIdHelper->eta_min(descriptor->identify())-i+2 : i) << "\""
 	      << " phi0=\"" << descriptor->phi_min() << "\""
 	      << " nphi=\"" << descriptor->n_phi() << "\""
@@ -600,8 +596,8 @@ namespace JiveXML {
 	      << " sampling=\"" << i << "\" region=\"" << 0 << "\""
 	      << " rMin=\"" << (descriptor->rcenter(i)-descriptor->dr(i)/2.)/10. << "\""
 	      << " rMax=\"" << (descriptor->rcenter(i)+descriptor->dr(i)/2.)/10. << "\""
-	      << " zMin=\"" << (descriptor->zcenter(i)-descriptor->dz(i))/10. << "\""
-	      << " zMax=\"" << (descriptor->zcenter(i)+descriptor->dz(i))/10. << "\""
+	      << " zMin=\"" << (descriptor->zcenter(i)-descriptor->dz(i)/2.)/10. << "\""
+	      << " zMax=\"" << (descriptor->zcenter(i)+descriptor->dz(i)/2.)/10. << "\""
 	      << " eta0=\"" << descriptor->eta_min(i) << "\""
 	      << " deta=\"" << descriptor->deta(i) << "\""
 	      << " neta=\"" << descriptor->n_eta(i) << "\""
@@ -797,75 +793,105 @@ namespace JiveXML {
     }
   }
   
-  // temporarily disable writting MBTS geometry. Non-trivial migration CLHEP->Eigen                               
-  //   jpt 19Dec13   
-  /*
   void GeometryWriter::writeMBTSGeometry(std::ofstream &out) {
-    PVConstLink myVol = m_lar_manager->getTreeTop(1U);
-    for (unsigned int c=0; c< myVol->getNChildVols();c++) 
-    {
-       PVConstLink child = myVol->getChildVol(c);
-       if((child->getLogVol())->getName()=="MBTS_mother")
-       {
-    	  int sampling=0,numPhi=0;
-    	  std::string stringOfNames="";
+	 //  volume hierarchy tree leading from MBTS_mother to scintillators:
+	 //  MBTS_mother                                                                                                  
+	 //    MBTSAirEnv <--- 8 copies                                                                               
+	 //      MBTSAluEnv                                                                                               
+	 //        MBTSAirInAlu                                                                                           
+	 //          MBTS1                                                                                                
+	 //          MBTS2 
+	 //          MBTSPlug2In <--- skip this one
 
-	  //    	  HepGeom::Scale3D     scale;
-	  //    	  HepGeom::Rotate3D    rotate;
-	  //    	  HepGeom::Translate3D translate;
-	  //// no equivalent classes after Eigen migration ???
-          // those don't exist:
-	  //Amg::Scale3D     scale;
-	  //Amg::Rotate3D     rotate;
-	  //Amg::Transform3D  translate;
-	  Amg::Transform3D   scale;
-          Amg::Transform3D   rotate;
-	  Amg::Transform3D  translate;
+	 PVConstLink myVol = m_lar_manager->getTreeTop(1U);
+	 for (unsigned int c=0; c< myVol->getNChildVols();c++) 
+	 {
+		PVConstLink child = myVol->getChildVol(c);
+		if((child->getLogVol())->getName()=="MBTS_mother")
+		{
+		   int sampling=0,numPhi=0;
+		   std::string stringOfNames="";
 
-    	  (child->getX()).getDecomposition(scale, rotate, translate);
-    	  double zlocation = translate.dz();
-    	  if(zlocation<0) 
-    	     zlocation=-zlocation;
-    	  for (unsigned int cc=0; cc< child->getNChildVols();cc++) 
-    	  {
-    	     if(((child->getChildVol(cc))->getLogVol())->getName()=="MBTS1")
-    	        numPhi++;
-    	  }
-    	  for (unsigned int cc=0; cc< child->getNChildVols();cc++) 
-    	  {
-    	     PVConstLink childschild = child->getChildVol(cc);
-    	     if((childschild->getLogVol())->getShape()->typeID() == GeoTrd::getClassTypeID() )
-    	     {
-    	  	std::string currentName = (childschild->getLogVol())->getName();
-    	  	if(stringOfNames.find(currentName,0) == std::string::npos)
-    	  	{
-    	  	  stringOfNames+=" " + currentName;
-    	  	  Amg::Translate3D translateToChild;
-    	  	  (child->getXToChildVol(cc)).getDecomposition(scale, rotate, translateToChild);
-    	  	  const GeoTrd* theTrd = dynamic_cast<const GeoTrd*> ((childschild->getLogVol())->getShape());
-    	  	  double rho=pow(translateToChild.dx(),2.0) + pow(translateToChild.dy(),2.0);
-    	  	  rho=pow(rho,0.5);
-    	  	  double RMin=rho-theTrd->getZHalfLength();
-    	  	  double RMax=rho+theTrd->getZHalfLength();
-    	  	  double zmovement=translateToChild.dz();
-    	  	  double zthickness=theTrd->getXHalfLength1();
-    	  	  out << "<AEndcapCryostat c=\"HCAL\" n=\"Minimum Bias Trigger Scintillators\""
-    	  	      << " sampling=\"" << sampling << "\" region=\"" << 0 << "\""
-    	  	      << " rMin=\"" << RMin/10. << "\""
-    	  	      << " rMax=\"" << RMax/10. << "\""
-    	  	      << " zMin=\"" << (zlocation+zmovement-zthickness)/10. << "\""
-    	  	      << " zMax=\"" << (zlocation+zmovement+zthickness)/10. << "\""
-    	  	      << " neta=\"" << "1" << "\""
-    	  	      << " nphi=\"" << numPhi << "\""
-    	  	      << " />" << std::endl;
-    	  	  sampling++;
-    	  	} 
-    	     }
-    	  }
-       }
-    }
+		   GeoTrf::Vector3D translate = (child->getX()).translation(); // vector from origin to MBTS_mother
+
+		   double zlocation = translate.z();
+		   if(zlocation<0) 
+			  zlocation=-zlocation;
+
+		   GeoTrf::Transform3D transformToScin; // for calculating the vector from MBTS_mother to MBTS scintilators
+
+		   PVConstLink pvAirEnv = 0;
+		   for (unsigned int cc=0; cc< child->getNChildVols();cc++) {
+			  if(((child->getChildVol(cc))->getLogVol())->getName()=="MBTSAirEnv") {
+				 pvAirEnv = child->getChildVol(cc);
+				 transformToScin = child->getXToChildVol(cc);
+				 numPhi++;
+			  }
+		   } 
+		   if(!pvAirEnv) {
+			  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not find MBTSAirEnv" << endmsg;
+			  return;
+		   }
+
+		   PVConstLink pvAluEnv = 0;
+		   for (unsigned int ichildAirEnv=0; ichildAirEnv<pvAirEnv->getNChildVols(); ichildAirEnv++) {
+			  if(((pvAirEnv->getChildVol(ichildAirEnv))->getLogVol())->getName()=="MBTSAluEnv") {
+				 pvAluEnv = pvAirEnv->getChildVol(ichildAirEnv);
+				 transformToScin = transformToScin * pvAirEnv->getXToChildVol(ichildAirEnv);
+			  }
+		   } 
+		   if(!pvAluEnv) {
+			  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not find MBTSAluEnv" << endmsg;
+			  return;
+		   }
+
+		   PVConstLink pvAirInAlu = 0;
+		   for (unsigned int ichildAluEnv=0; ichildAluEnv<pvAluEnv->getNChildVols(); ichildAluEnv++) {
+			  if(((pvAluEnv->getChildVol(ichildAluEnv))->getLogVol())->getName()=="MBTSAirInAlu") {
+				 pvAirInAlu = pvAluEnv->getChildVol(ichildAluEnv);
+				 transformToScin = transformToScin * pvAluEnv->getXToChildVol(ichildAluEnv);
+			  }
+		   }
+		   if(!pvAirInAlu) {
+			  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not find MBTSAirInAlu" << endmsg;
+			  return;
+		   }
+
+		   for (unsigned int ichildAirInAlu=0; ichildAirInAlu<pvAirInAlu->getNChildVols(); ichildAirInAlu++) {
+			  PVConstLink childschild = pvAirInAlu->getChildVol(ichildAirInAlu);
+			  if((childschild->getLogVol())->getShape()->typeID() == GeoTrd::getClassTypeID() )
+			  {
+				 std::string currentName = (childschild->getLogVol())->getName();
+				 if(currentName!="MBTS1" && currentName!="MBTS2") continue;
+				 if(stringOfNames.find(currentName,0) == std::string::npos)
+				 {
+					stringOfNames+=" " + currentName;
+					GeoTrf::Vector3D translateToScin = (transformToScin * pvAirInAlu->getXToChildVol(ichildAirInAlu)).translation();
+					const GeoTrd* theTrd = dynamic_cast<const GeoTrd*> ((childschild->getLogVol())->getShape());
+					double rho=pow(translateToScin.x(),2.0) + pow(translateToScin.y(),2.0);
+					rho=pow(rho,0.5);
+					double RMin=rho-theTrd->getZHalfLength();
+					double RMax=rho+theTrd->getZHalfLength();
+					double zmovement=translateToScin.z();
+					double zthickness=theTrd->getXHalfLength1();
+					out << "<AEndcapCryostat c=\"HCAL\" n=\"Minimum Bias Trigger Scintillators\""
+					   << " sampling=\"" << sampling << "\" region=\"" << 0 << "\""
+					   << " rMin=\"" << RMin/10. << "\""
+					   << " rMax=\"" << RMax/10. << "\""
+					   << " zMin=\"" << (zlocation+zmovement-zthickness)/10. << "\""
+					   << " zMax=\"" << (zlocation+zmovement+zthickness)/10. << "\""
+					   << " neta=\"" << "1" << "\""
+					   << " nphi=\"" << numPhi << "\""
+					   << " />" << std::endl;
+					sampling++;
+				 } 
+			  }
+		   }
+
+
+		}
+	 }
   }
- */ // end of MBTS code
 
   void GeometryWriter::writeFooter(std::ofstream &out) {
 

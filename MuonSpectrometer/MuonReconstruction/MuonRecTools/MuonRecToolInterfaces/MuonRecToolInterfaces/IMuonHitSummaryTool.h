@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONHITSUMMARYTOOL_H
 #define MUON_IMUONHITSUMMARYTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 #include <set>
 #include <map>
 #include <iostream>

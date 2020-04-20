@@ -3,7 +3,7 @@
 */
 // TrigUpgradeTest includes
 #include "TestHypoTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 using namespace TrigCompositeUtils;
 

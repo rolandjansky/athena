@@ -24,7 +24,7 @@ def TilePulseForTileMuonReceiverCfg(flags, **kwargs):
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
     acc.merge( TileInfoLoaderCfg(flags) )
     infoLoader = acc.getService('TileInfoLoader')
-    pedestal = infoLoader.getDefaultProperty('MuRcvPed')
+    pedestal = infoLoader._descriptors['MuRcvPed'].default
 
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
@@ -115,8 +115,9 @@ def TilePulseForTileMuonReceiverOutputCfg(flags, **kwargs):
         muRcvRawChCnt = muRcvRawChCnt.split('+').pop()
         outputItemList += ['TileRawChannelContainer#' + muRcvRawChCnt]
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge( OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge( OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
 
     return acc
 

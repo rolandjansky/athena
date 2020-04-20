@@ -1,6 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import sys,os
 sys.argv += [ '-b' ] # tell ROOT to not use graphics
@@ -17,7 +19,7 @@ def diffTTree(tOld,tNew,details=None):
     if nOld != nNew:
         msg="Different number of entries: %i vs %i. Comparing first %i" % \
             (nOld,nNew,n)
-        print msg
+        print(msg)
         if details is not None: details.write(msg+"\n")
 
     leavesOld=tOld.GetListOfLeaves()
@@ -44,7 +46,7 @@ def diffTTree(tOld,tNew,details=None):
         msg="The following variables exist in only one tree, not compared:\n"
         for d in diffLeaves:
              msg+=d+"\n"
-        print msg
+        print(msg)
         if details is not None: details.write(msg)
 
     nGood=0
@@ -65,7 +67,7 @@ def diffTTree(tOld,tNew,details=None):
                 msg+= "RunNbr: %i vs %i, EventNbr: %i vs %i" % \
                 (runOld, runNew, evOld, evNew)
                 msg+="\nStop comparison now."
-                print msg
+                print(msg)
                 if details is not None:
                     details.write(msg+"\n")
                 break
@@ -104,9 +106,9 @@ def diffTTree(tOld,tNew,details=None):
                 if details is not None:
                     details.write(diffmsg+"\n")
                 else:
-                    print diffmsg
+                    print(diffmsg)
 
-                if diffSummary.has_key(name):
+                if name in diffSummary:
                     diffSummary[name]+=1
                 else:
                     diffSummary[name]=1
@@ -116,13 +118,13 @@ def diffTTree(tOld,tNew,details=None):
             nGood+=1
 
     msg="Found %i identical events and %i different events" % (nGood,nBad)
-    print msg
+    print(msg)
     if details is not None:
         details.write(msg+"\n")
         
-    for n,v in diffSummary.iteritems():
+    for n,v in diffSummary.items():
         msg="\tName: %s: %i Events differ" % (n,v)
-        print msg
+        print(msg)
         if details is not None:
             details.write(msg+"\n")
 
@@ -131,7 +133,7 @@ def diffTTree(tOld,tNew,details=None):
 if __name__=='__main__':
 
     if len(sys.argv)<3 or len(sys.argv)>4 or sys.argv[1]=="-help":
-        print "Usage:",sys.argv[0],"File1 File2 <treename>"
+        print("Usage:",sys.argv[0],"File1 File2 <treename>")
         sys.exit(-1)
 
     fnOld=sys.argv[1]
@@ -142,30 +144,30 @@ if __name__=='__main__':
         treename="POOLCollectionTree"
 
     if not os.access(fnOld,os.R_OK):
-        print "Can't access file",fnOld
+        print("Can't access file",fnOld)
         sys.exit(-1)
         
     if not os.access(fnNew,os.R_OK):
-        print "Can't access file",fnNew
+        print("Can't access file",fnNew)
         sys.exit(-1)
 
 
     fOld = TFile(fnOld)
     if fOld is None:
-        print "Failed to open file",fnOld
+        print("Failed to open file",fnOld)
         
     tOld = fOld.Get(treename)
     if tOld is None:
-        print "Tree",treename,"not found in file",fnOld
+        print("Tree",treename,"not found in file",fnOld)
         sys.exit(-1)
 
     fNew = TFile(fnNew)
     if fNew is None:
-        print "Failed to open file",fnNew
+        print("Failed to open file",fnNew)
 
     tNew = fNew.Get(treename)
     if fNew is None:
-        print  "Tree",treename,"not found in file",fnNew
+        print("Tree",treename,"not found in file",fnNew)
  
     ndiff=diffTTree(tOld,tNew)
 

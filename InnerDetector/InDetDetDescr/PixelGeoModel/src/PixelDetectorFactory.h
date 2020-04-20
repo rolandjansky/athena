@@ -8,7 +8,7 @@
 
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h" 
 // readout includes:
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 class PixelSwitches;

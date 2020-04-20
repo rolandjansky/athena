@@ -14,7 +14,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
-                          Trigger/TrigSteer/DecisionHandling )
+                          Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -25,7 +26,7 @@ atlas_add_library( TrigHLTJetHypoLib
                    src/TrigHLTJetHypoUtils/*.cxx
                    PUBLIC_HEADERS TrigHLTJetHypo
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib DecisionHandlingLib
+                   LINK_LIBRARIES xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib DecisionHandlingLib TrigCompositeUtilsLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_component( TrigHLTJetHypo
@@ -41,5 +42,8 @@ atlas_add_test( flake8
 
 		      
 # Install files from the package:
-atlas_install_python_modules( python/*.py ) 
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} ) 
 
+atlas_add_test( flake8_share
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6  ${CMAKE_CURRENT_SOURCE_DIR}/share
+                POST_EXEC_SCRIPT nopost.sh )

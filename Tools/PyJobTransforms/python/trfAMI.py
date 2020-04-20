@@ -223,19 +223,18 @@ class TagInfo(object):
 ## @brief Get an AMI client
 #  @note Always return a client to the primary replica.
 #  The caller is allowed to update the replica via the 
-#  config.endpoint value.
+#  config.endpoints value.
 #  @returns pyAMI.client.Client instance
-def getAMIClient():
+def getAMIClient(endpoints = ['atlas-replica','atlas']):
     msg.debug('Getting AMI client...')
-    endpoint = 'atlas'
     
     try:
         from pyAMI.client import Client
     except ImportError:
         raise TransformAMIException(AMIerrorCode, 'Import of pyAMI modules failed.')
         
-    msg.debug("Attempting to get AMI client for endpoint {0}".format(endpoint))
-    amiclient = Client(endpoint, ignore_proxy = True)
+    msg.debug("Attempting to get AMI client for endpoints {0}".format(endpoints))
+    amiclient = Client(endpoints, ignore_proxy = True)
     return amiclient
 
 ## @brief Get list of characters of ProdSys tags
@@ -408,7 +407,7 @@ def get_ami_tag(client, tag, suppressNonJobOptions = True):
 
         msg.debug(command)
 
-        return client.execute(command, format = 'dom_object').get_rows('amiTagInfo')
+        return client.execute(command, format = 'dict_object').get_rows('amiTagInfo')
 
 def remove_enclosing_quotes(s):
     try:
@@ -444,14 +443,6 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
             raise TransformAMIException(AMIerrorCode, 'Invalid AMI tag ({0}).'.format(tag))
             
         msg.debug("Error may not be fatal - will try AMI replica catalog")
-        try:
-            amiclient.config.endpoint = 'atlas-replica'
-#            result = pyAMI.atlas.api.get_ami_tag(amiclient, tag)
-            result = get_ami_tag(amiclient, tag, suppressNonJobOptions)
-        except pyAMI.exception.Error as e:
-            msg.error('An exception occured when connecting to the AMI replica catalog: {0}'.format(e))
-            raise TransformAMIException(AMIerrorCode, 'Getting tag info from AMI failed (tried both primary and replica). '
-                                        'See logfile for exception details.')
 
     try:
         trf = TrfConfig()

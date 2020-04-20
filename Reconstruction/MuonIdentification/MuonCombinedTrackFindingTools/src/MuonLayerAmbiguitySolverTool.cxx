@@ -1,15 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerAmbiguitySolverTool.h"
 
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentMatchingTool.h"
-#include "MuonRecToolInterfaces/IMuonSegmentTrackBuilder.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
-#include "MuonIdHelpers/MuonStationIndexHelpers.h"
 #include "MuonLayerEvent/MuonCandidate.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "MuonSegment/MuonSegment.h"
@@ -43,12 +37,6 @@ namespace Muon {
     declareProperty("MuonSegmentMatchingTool",    m_segmentMatchingTool );
     declareProperty("MuonSegmentTrackBuilder",    m_muonTrackBuilder );
     declareProperty("MuonEDMPrinterTool",m_printer );    
-  }
-
-  MuonLayerAmbiguitySolverTool::~MuonLayerAmbiguitySolverTool() { }
-
-  StatusCode MuonLayerAmbiguitySolverTool::finalize() {
-    return StatusCode::SUCCESS;
   }
 
   StatusCode MuonLayerAmbiguitySolverTool::initialize() {

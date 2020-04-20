@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # this file do not work out of the box
+
+from __future__ import print_function
 
 import ROOT
 from array import array
@@ -39,7 +41,7 @@ assert ct_sys_christophe
 def qsum_histograms(histo1, histo2):
     new_histo = histo1.Clone()
     new_histo.Reset()
-    for ibin in xrange(histo1.GetNbinsX() + 2):
+    for ibin in range(histo1.GetNbinsX() + 2):
         value1 = histo1.GetBinContent(ibin)
         central_value = histo1.GetBinCenter(ibin)
         ibin2 = histo2.FindBin(central_value)
@@ -127,7 +129,7 @@ def merge_histograms(old, new, merge_error=True):
     UNDERFLOW = 0
     OVERFLOW = new.GetNbinsX() + 1
 
-    for iold in xrange(1, old.GetNbinsX()):
+    for iold in range(1, old.GetNbinsX()):
         l = old.GetBinLowEdge(iold)
         r = l + old.GetBinWidth(iold)
 
@@ -151,7 +153,7 @@ def merge_histograms(old, new, merge_error=True):
             break
     last_old = iold
 
-    for inew in xrange(1, new.GetNbinsX() + 1):
+    for inew in range(1, new.GetNbinsX() + 1):
         l = new.GetBinLowEdge(inew)
         r = l + new.GetBinWidth(inew)
         new_binning.append((l, r))
@@ -163,7 +165,7 @@ def merge_histograms(old, new, merge_error=True):
         new_values.append(old.GetBinContent(remainer))
         new_errors.append(old.GetBinError(remainer))
 
-    for iold in xrange(last_old, old.GetNbinsX() + 1):
+    for iold in range(last_old, old.GetNbinsX() + 1):
         l = old.GetBinLowEdge(iold)
         r = l + old.GetBinWidth(iold)
 
@@ -225,7 +227,7 @@ histo_ct.SetName("ctZee_errStat")
 # this created a file structured as the official one, with empty directories
 #output_file = create_structured_file("calibration_constants_run2.root")
 import shutil
-print old_filename
+print (old_filename)
 shutil.copy2(old_filename, "xxx.root")
 output_file = ROOT.TFile("xxx.root", "update")
 create_new_directories(output_file)

@@ -11,8 +11,8 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
-#include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "iPatGeometry/PixelTrapezoid.h"
 #include "iPatGeometry/SiliconDetectorBuilder.h"

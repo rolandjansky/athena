@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -242,27 +242,23 @@ StatusCode TrigVsOfflineMissingETTool::CBNT_initialize()
   return sc;
 }
 
-StatusCode TrigVsOfflineMissingETTool::addHistogram(TH1 *h1) {
+void TrigVsOfflineMissingETTool::addHistogram(TH1 *h1) {
 
-  if(!h1) return StatusCode::FAILURE;
+  if(!h1) return;
 
-  StatusCode sc = StatusCode::SUCCESS;
   std::string dir = m_curdir;
   std::string name = h1->GetName();
   std::string reg = dir + name;
   if(m_thistSvc->regHist(reg,h1).isFailure()) {
     msg() << MSG::ERROR << "Couldn't register 1d histogram \"" << name << "\" in " << dir << endmsg;
-    sc = StatusCode::FAILURE;
   }
   msg() << MSG::DEBUG << "Registered 1d histogram \"" << name << "\" in " << dir << endmsg;
-  return sc;
 }
 
-StatusCode TrigVsOfflineMissingETTool::addHistogram(TH2 *h2) {
+void TrigVsOfflineMissingETTool::addHistogram(TH2 *h2) {
 
-  if(!h2) return StatusCode::FAILURE;
+  if(!h2) return;
 
-  StatusCode sc = StatusCode::SUCCESS;
   std::string dir = m_curdir;
   std::string name = h2->GetName();
   std::string reg = dir + name;
@@ -270,7 +266,6 @@ StatusCode TrigVsOfflineMissingETTool::addHistogram(TH2 *h2) {
     msg() << MSG::ERROR << "Couldn't register 2d histogram \"" << name << "\" in " << dir << endmsg;
   }
   msg() << MSG::DEBUG << "Registered 2d histogram \"" << name << "\" in " << dir << endmsg;
-  return sc;
 }
 
 TH1* TrigVsOfflineMissingETTool::hist(const std::string& hist) {

@@ -1,9 +1,12 @@
-#!/afs/cern.ch/sw/lcg/external/Python/2.5.4/slc4_ia32_gcc34/bin/python
+#!usr/bin/env python
 # =====================================================================
 # Setup L1 alignment
 # Main script to run the NewInDetIterator
 # run with ./RunIterator.py
 # =====================================================================
+
+from __future__ import print_function
+
 import os
 import sys
 
@@ -214,5 +217,5 @@ errorScalingTag = ''
 MonitoringScript = ""
 
 os.system("get_files -jo InDetAlignExample/NewInDetIterator.py >/dev/null")
-print os.system("get_files -jo InDetAlignExample/NewInDetIterator.py")
-execfile("NewInDetIterator.py")
+print (os.system("get_files -jo InDetAlignExample/NewInDetIterator.py"))
+exec(compile(open('NewInDetIterator.py').read()))

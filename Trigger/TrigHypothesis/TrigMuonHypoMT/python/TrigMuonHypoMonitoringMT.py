@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 class TrigMufastHypoMonitoring(GenericMonitoringTool):
     def __init__ (self, name):
@@ -110,40 +110,22 @@ class TrigMuisoHypoMonitoring(GenericMonitoringTool):
                              xbins=200, xmin=0., xmax=15.)
 
 
-class TrigMuonEFMSonlyHypoMonitoring(GenericMonitoringTool):
+class TrigMuonEFHypoMonitoring(GenericMonitoringTool):
 
-    def __init__ (self, name="TrigMuonEFMSonlyHypoMonitoring"):
-        super(TrigMuonEFMSonlyHypoMonitoring, self).__init__(name)
+    def __init__ (self, name="TrigMuonEFHypoMonitoring"):
+        super(TrigMuonEFHypoMonitoring, self).__init__(name)
 
-        self.defineHistogram('Pt', type='TH1F', path='EXPERT', title="P_{T} reconstruction from #TrigMuonEFMSonlyHypo; P_{T} (MeV)",
+        self.defineHistogram('Pt', type='TH1F', path='EXPERT', title="P_{T} reconstruction from #TrigMuonEFHypo; P_{T} (MeV)",
                              xbins=200, xmin=-100, xmax=100)
-        self.defineHistogram('Eta', type='TH1F', path='EXPERT', title="Eta reconstruction from #TrigMuonEFMSonlyHypo; Eta",
+        self.defineHistogram('Eta', type='TH1F', path='EXPERT', title="Eta reconstruction from #TrigMuonEFHypo; Eta",
                              xbins=100, xmin=-3.2, xmax=3.2)
-        self.defineHistogram('Phi', type='TH1F', path='EXPERT', title="Phi reconstruction from #TrigMuonEFMSonlyHypo; Phi",
+        self.defineHistogram('Phi', type='TH1F', path='EXPERT', title="Phi reconstruction from #TrigMuonEFHypo; Phi",
                              xbins=100, xmin=-3.15, xmax=3.15)
-        self.defineHistogram('Pt_sel', type='TH1F', path='EXPERT', title="Selected P_{T} reconstruction from #TrigMuonEFMSonlyHypo; P_{T} (MeV)",
+        self.defineHistogram('Pt_sel', type='TH1F', path='EXPERT', title="Selected P_{T} reconstruction from #TrigMuonEFHypo; P_{T} (MeV)",
                              xbins=200, xmin=-100, xmax=100)
-        self.defineHistogram('Eta_sel', type='TH1F', path='EXPERT', title="Selected Eta reconstruction from #TrigMuonEFMSonlyHypo; Eta",
+        self.defineHistogram('Eta_sel', type='TH1F', path='EXPERT', title="Selected Eta reconstruction from #TrigMuonEFHypo; Eta",
                              xbins=100, xmin=-3.2, xmax=3.2)
-        self.defineHistogram('Phi_sel', type='TH1F', path='EXPERT', title="Selected Phi reconstruction from #TrigMuonEFMSonlyHypo; Phi",
-                             xbins=100, xmin=-3.15, xmax=3.15)
-
-class TrigMuonEFCombinerHypoMonitoring(GenericMonitoringTool):
-
-    def __init__ (self, name="TrigMuonEFCombinerHypoMonitoring"):
-        super(TrigMuonEFCombinerHypoMonitoring, self).__init__(name)
-
-        self.defineHistogram('Pt', type='TH1F', path='EXPERT', title="P_{T} reconstruction from #TrigMuonEFCombinerHypo; P_{T} (MeV)",
-                             xbins=200, xmin=-100, xmax=100)
-        self.defineHistogram('Eta', type='TH1F', path='EXPERT', title="Eta reconstruction from #TrigMuonEFCombinerHypo; Eta",
-                             xbins=100, xmin=-3.2, xmax=3.2)
-        self.defineHistogram('Phi', type='TH1F', path='EXPERT', title="Phi reconstruction from #TrigMuonEFCombinerHypo; Phi",
-                             xbins=100, xmin=-3.15, xmax=3.15)
-        self.defineHistogram('Pt_sel', type='TH1F', path='EXPERT', title="Selected P_{T} reconstruction from #TrigMuonEFCombinerHypo; P_{T} (MeV)",
-                             xbins=200, xmin=-100, xmax=100)
-        self.defineHistogram('Eta_sel', type='TH1F', path='EXPERT', title="Selected Eta reconstruction from #TrigMuonEFCombinerHypo; Eta",
-                             xbins=100, xmin=-3.2, xmax=3.2)
-        self.defineHistogram('Phi_sel', type='TH1F', path='EXPERT', title="Selected Phi reconstruction from #TrigMuonEFCombinerHypo; Phi",
+        self.defineHistogram('Phi_sel', type='TH1F', path='EXPERT', title="Selected Phi reconstruction from #TrigMuonEFHypo; Phi",
                              xbins=100, xmin=-3.15, xmax=3.15)
 
 

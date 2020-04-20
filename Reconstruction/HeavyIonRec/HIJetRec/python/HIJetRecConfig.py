@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from HIJetRec.HIJetRecFlags import HIJetFlags
 import AthenaCommon.SystemOfUnits as Units
 from RecExConfig.RecFlags import rec
@@ -7,7 +9,7 @@ from JetRec.JetRecFlags import jetFlags
 
 def SetHIPMode() :
     if not rec.doHIP() : return
-    print 'Setting HIJetRec in HIPMode'
+    print ('Setting HIJetRec in HIPMode')
     HIJetFlags.HarmonicsForSubtraction.set_Value_and_Lock([])
     HIJetFlags.ExtraFlowMoments.set_Value_and_Lock(False)
     HIJetFlags.SeedPtMin.set_Value_and_Lock(8*Units.GeV)
@@ -15,7 +17,7 @@ def SetHIPMode() :
     HIJetFlags.TrackJetPtMin.set_Value_and_Lock(4*Units.GeV)
 
 def SetDebugMode():
-    print 'Setting HIJetRec in DEBUG mode'
+    print ('Setting HIJetRec in DEBUG mode')
     HIJetFlags.ExtraFlowMoments.set_Value_and_Lock(True)
     HIJetFlags.RecoOutputPtMin.set_Value_and_Lock(8*Units.GeV)
     HIJetFlags.WriteSeeds.set_Value_and_Lock(True)

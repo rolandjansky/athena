@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from CaloTrackingGeometry.CaloTrackingGeometryConf import CaloSurfaceBuilder
 # provide generic configuration of CaloSurfaceBuilder tool
@@ -16,7 +16,7 @@ class CaloSurfaceBuilderBase ( CaloSurfaceBuilder )  :
         mlog.info("Setting up CaloSurfaceBuilder/"+name+" with depth "+depth)   
 
         if name=="CaloSurfaceBuilderBaseUNSET":
-            raise RuntimeError, "CaloSurfaceBuilderBaseUNSET should not be called with default name"            
+            raise RuntimeError ("CaloSurfaceBuilderBaseUNSET should not be called with default name")
 
         if depth=="CDTBunset":
             mlog.info( "depth not explictly set. OK only for copy")

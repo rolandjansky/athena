@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthDictLoaderSvc.cxx 
@@ -148,7 +148,7 @@ AthDictLoaderSvc::has_type (CLID clid)
  *         by any necessary means.
  */
 const RootType
-AthDictLoaderSvc::load_type (const std::string& type_name)
+AthDictLoaderSvc::load_type ATLAS_NOT_THREAD_SAFE (const std::string& type_name)
 {
   ATH_MSG_DEBUG ("loading [" << type_name << "]...");
 

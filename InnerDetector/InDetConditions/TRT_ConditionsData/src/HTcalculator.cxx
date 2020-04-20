@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TRT_ConditionsData/HTcalculator.h"
 #include "AthenaKernel/getMessageSvc.h"
@@ -7,34 +7,11 @@
 #include <iostream>
 
 
-/*****************************************************************************\
-|*%%%  Default Constructor  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-\*****************************************************************************/
-
-HTcalculator::HTcalculator()
-{
-  m_datainplace = false;
-  m_HasBeenInitialized=0;
-}
-
-/*****************************************************************************\
-|*%%%  Default Destructor  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
-\*****************************************************************************/
-
-HTcalculator::~HTcalculator(){
-  //Nothing here yet
-}
-
 void HTcalculator::checkInitialization(){
-  if( not m_HasBeenInitialized ) {
-    MsgStream log(Athena::getMessageSvc(),"HTcalculator");
-    log << MSG::WARNING <<  "The HTcalculator is about to be used uninitialized - Loading default" << endmsg;
-    setDefaultCalibrationConstants();
-    m_HasBeenInitialized=1;
-  }
+//No op
 }
 
-float HTcalculator::Limit(float prob){
+float HTcalculator::Limit(float prob) const{
   if( prob > 1.0 ){
     return 1.0;
   }
@@ -54,7 +31,6 @@ float HTcalculator::getProbHT(
       float pTrk, Trk::ParticleHypothesis hypothesis,
       int TrtPart, int GasType, int StrawLayer,
       float ZR, float rTrkWire, float Occupancy, bool hasTrackPars = true ) const {
-
 
   //FIXME: This setup the Troels constants. THIS OVERRIDES CURRENT DB!!!
   // setDefaultCalibrationConstants();
@@ -158,10 +134,12 @@ float HTcalculator::pHTvsPGOG(int TrtPart, int GasType, float p, float mass, flo
 
 
 StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
-   MsgStream log(Athena::getMessageSvc(),"HTcalculator");
    if ( channel_values->size() < 1){
-      log << MSG::ERROR << " There are no Pid channels available!!" << endmsg;
-      return StatusCode::FAILURE;
+     MsgStream log(Athena::getMessageSvc(),"HTcalculator");
+     log << MSG::WARNING << " There are no Pid channels available!!" << endmsg;
+     log << MSG::WARNING <<  "The HTcalculator is about to be used uninitialized - Loading default" << endmsg;
+     setDefaultCalibrationConstants();
+     return StatusCode::SUCCESS;
    }
 
    CondAttrListVec::const_iterator first_channel = channel_values->begin();
@@ -519,7 +497,6 @@ StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
     }
    } 
   
-   m_HasBeenInitialized=1;
    return StatusCode::SUCCESS;
 }
 
@@ -541,12 +518,9 @@ void HTcalculator::setDefaultCalibrationConstants(){
     the addresses of the various arrays inside the HTBlob, and NEVER otherwise!
     
   \*****************************************************************************/
-	//FIXME
-  if (m_datainplace) return;  // Just to load 1 time
   
   MsgStream log(Athena::getMessageSvc(),"HTcalculator");
   log << MSG::WARNING << " HT PID DB is NOT available. Set hard-coded PID calibration constants. Derived from Run1 Data Zee and Zmumu 50 ns." << endmsg;
-  m_HasBeenInitialized=1;
 
 // Expanding to a 2D fit (gamma,occupancy) for three types of gases: Xenon, Argon, Krypton:
 // ----------------------------------------------------------------------------------------
@@ -651,6 +625,5 @@ void HTcalculator::setDefaultCalibrationConstants(){
   }
  
 
-  m_datainplace = true;
 
 }

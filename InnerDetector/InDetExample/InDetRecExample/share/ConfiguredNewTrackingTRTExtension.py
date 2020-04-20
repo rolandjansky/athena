@@ -38,37 +38,32 @@ class  ConfiguredNewTrackingTRTExtension:
          if doPhase:
 
            from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionToolCosmics
-           InDetTRTExtensionToolPhase = InDet__TRT_TrackExtensionToolCosmics(name                  = 'InDetTRT_ExtensionToolPhase',
-                                                                             Propagator            = InDetPropagator,
-                                                                             Extrapolator          = InDetExtrapolator,
-                                                                             TRT_ClustersContainer = InDetKeys.TRT_DriftCirclesUncalibrated(),
-                                                                             SearchNeighbour       = False, #needs debugging!!!
-                                                                             RoadWidth             = 20.)
+           InDetTRTExtensionToolPhase = TrackingCommon.getInDetTRT_ExtensionToolPhase()
 
-           ToolSvc += InDetTRTExtensionToolPhase
-      
 
            from TRT_TrackExtensionAlg.TRT_TrackExtensionAlgConf import InDet__TRT_TrackExtensionAlg
            InDetTRTExtensionPhase    = InDet__TRT_TrackExtensionAlg (name                   = 'InDetTRT_ExtensionPhase'+NewTrackingCuts.extension(),
                                                                      InputTracksLocation    = SiTrackCollection,
                                                                      ExtendedTracksLocation = OutputExtendedTracks,
                                                                      TrackExtensionTool     = InDetTRTExtensionToolPhase)
-           
+
            topSequence += InDetTRTExtensionPhase
            if (InDetFlags.doPrintConfigurables()):
-            print InDetTRTExtensionPhase
-           
-         #
-         else: 
+            printfunc (InDetTRTExtensionPhase)
+
+         else:
+          cuts_args = {}
+          if NewTrackingCuts is not None :
+             cuts_args={'TrackingCuts': NewTrackingCuts}
           from TRT_TrackExtensionAlg.TRT_TrackExtensionAlgConf import InDet__TRT_TrackExtensionAlg
-          InDetTRTExtension    = InDet__TRT_TrackExtensionAlg (name                   = 'InDetTRT_Extension'+NewTrackingCuts.extension(),
-                                                              InputTracksLocation    = SiTrackCollection,
-                                                              ExtendedTracksLocation = OutputExtendedTracks,
-                                                              TrackExtensionTool     = InDetTRTExtensionTool)
+          InDetTRTExtension = InDet__TRT_TrackExtensionAlg(name                   = 'InDetTRT_Extension'+NewTrackingCuts.extension(),
+                                                           InputTracksLocation    = SiTrackCollection,
+                                                           ExtendedTracksLocation = OutputExtendedTracks,
+                                                           TrackExtensionTool     = TrackingCommon.getInDetTRT_ExtensionTool(**cuts_args))
           #InDetTRTExtension.OutputLevel = VERBOSE
           topSequence += InDetTRTExtension
           if (InDetFlags.doPrintConfigurables()):
-            print InDetTRTExtension
+            printfunc (InDetTRTExtension)
    
       #
       # ------------ Track Extension Processor
@@ -86,7 +81,7 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                        ToolForCompTRT_DriftCircles = InDetCompetingTRT_DC_Tool )
             ToolSvc += InDetCompetingRotCreator
             if (InDetFlags.doPrintConfigurables()):
-               print InDetCompetingRotCreator
+               printfunc (InDetCompetingRotCreator)
             #
             from TrkDeterministicAnnealingFilter.TrkDeterministicAnnealingFilterConf import Trk__DeterministicAnnealingFilter
             InDetExtensionFitter =  Trk__DeterministicAnnealingFilter( name = 'InDetDAF'+NewTrackingCuts.extension(),
@@ -98,7 +93,7 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                        OutlierCutValue                = 0.01 )
             ToolSvc += InDetExtensionFitter
             if (InDetFlags.doPrintConfigurables()):
-               print InDetExtensionFitter
+               printfunc (InDetExtensionFitter)
          else:
             from AthenaCommon import CfgGetter
             InDetExtensionFitter = CfgGetter.getPublicTool('InDetTrackFitter' if NewTrackingCuts.mode() != "LowPt" else  'InDetTrackFitterLowPt')
@@ -107,48 +102,10 @@ class  ConfiguredNewTrackingTRTExtension:
          # --- load scoring for extension
          #
          if InDetFlags.doCosmics():
-            from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetCosmicScoringTool
-            InDetExtenScoringTool = InDet__InDetCosmicScoringTool(name                 = 'InDetCosmicExtenScoringTool',
-                                                                  nWeightedClustersMin = 0,
-                                                                  minTRTHits           = NewTrackingCuts.minTRTonTrk(),
-                                                                  SummaryTool          = InDetTrackSummaryTool)
-            
+            InDetExtenScoringTool = TrackingCommon.getInDetCosmicExtenScoringTool(NewTrackingCuts)
          else:
-            have_calo_rois = InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn()
-            from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-            InDetExtenScoringTool = InDet__InDetAmbiScoringTool(name                    = 'InDetExtenScoringTool'+NewTrackingCuts.extension(),
-                                                                Extrapolator            = InDetExtrapolator,
-                                                                SummaryTool             = InDetTrackSummaryTool,
-                                                                DriftCircleCutTool      = InDetTRTDriftCircleCut,
-                                                                useAmbigFcn             = True,  # this is NewTracking  
-                                                                useTRT_AmbigFcn         = False,
-                                                                minPt                   = NewTrackingCuts.minPT(),
-                                                                maxRPhiImp              = NewTrackingCuts.maxPrimaryImpact(),
-                                                                maxZImp                 = NewTrackingCuts.maxZImpact(),
-                                                                maxEta                  = NewTrackingCuts.maxEta(),
-                                                                minSiClusters           = NewTrackingCuts.minClusters(),
-                                                                minPixel                = NewTrackingCuts.minPixel(),
-                                                                maxSiHoles              = NewTrackingCuts.maxHoles(),
-                                                                maxPixelHoles           = NewTrackingCuts.maxPixelHoles(),
-                                                                maxSCTHoles             = NewTrackingCuts.maxSCTHoles(),
-                                                                maxDoubleHoles          = NewTrackingCuts.maxDoubleHoles(),
-                                                                usePixel                = NewTrackingCuts.usePixel(),
-                                                                useSCT                  = NewTrackingCuts.useSCT(),
-                                                                minTRTonTrk             = NewTrackingCuts.minTRTonTrk(),
-                                                                minTRTPrecisionFraction = NewTrackingCuts.minTRTPrecFrac(),
-                                                                doEmCaloSeed            = have_calo_rois)
-            if not InDetExtenScoringTool.doEmCaloSeed:
-               InDetExtenScoringTool.InputEmClusterContainerName = ''
-            
-            
-            if InDetFlags.trackFitterType() in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
-               InDetExtenScoringTool.minTRTPrecisionFraction = 0.2
+            InDetExtenScoringTool = TrackingCommon.getInDetExtenScoringTool(NewTrackingCuts)
 
-         #InDetExtenScoringTool.OutputLevel = VERBOSE 
-         ToolSvc += InDetExtenScoringTool
-         if (InDetFlags.doPrintConfigurables()):
-            print InDetExtenScoringTool     
-         
          #
          # --- output track collection
          #
@@ -180,7 +137,7 @@ class  ConfiguredNewTrackingTRTExtension:
    
           topSequence += InDetExtensionProcessorPhase
           if (InDetFlags.doPrintConfigurables()):
-              print InDetExtensionProcessorPhase
+              printfunc (InDetExtensionProcessorPhase)
 
          else:
 
@@ -207,7 +164,7 @@ class  ConfiguredNewTrackingTRTExtension:
           topSequence += InDetExtensionProcessor
 
           if (InDetFlags.doPrintConfigurables()):
-             print InDetExtensionProcessor
+             printfunc (InDetExtensionProcessor)
          
          # --- Delete Resolved Si tracks and extension map
          from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg         

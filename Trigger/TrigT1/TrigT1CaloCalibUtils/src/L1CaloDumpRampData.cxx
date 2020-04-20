@@ -106,7 +106,7 @@ StatusCode L1CaloDumpRampData::finalize()
     // overlay the fit function
     auto attrListIt = energyScanResults->chanAttrListPair(coolId);
     if(attrListIt != energyScanResults->end()) {
-      auto attrList = attrListIt->second;
+      const auto& attrList = attrListIt->second;
       double slope = attrList["Slope"].data<double>();
       double offset = attrList["Offset"].data<double>();
       double chi2 = attrList["Chi2"].data<double>();

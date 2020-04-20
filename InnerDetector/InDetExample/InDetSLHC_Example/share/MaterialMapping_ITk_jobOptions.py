@@ -5,8 +5,8 @@
 # necessity to create a new PoolFileCatalog
 import os
 if os.path.exists('./PoolFileCatalog.xml') :
-   print '[!] PoolFileCatalog exists in the run directory (may use old PFN!)'
-   print '[>] Deleting it now !'
+   printfunc ('[!] PoolFileCatalog exists in the run directory (may use old PFN!)')
+   printfunc ('[>] Deleting it now !')
    os.remove('./PoolFileCatalog.xml')
 
 ###############################################################
@@ -83,7 +83,7 @@ TrkDetFlags.SCT_EndcapLayerMaterialBinsPhi          = 50
 # TrkDetFlags.TRT_EndcapLayerMaterialBinsPhi          = 50
 TrkDetFlags.InDetPassiveLayerMaterialBinsPhi        = 50
 
-print TrkDetFlags
+printfunc (TrkDetFlags)
 
 doWriteToCool    = True
 

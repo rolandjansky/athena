@@ -1,32 +1,33 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_TrackSegmentsFinder_H
 #define TRT_TrackSegmentsFinder_H
 
 #include <string>
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include <atomic>
+
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
-#include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h" 
-#include "StoreGate/DataHandle.h"
+#include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 namespace InDet {
 
 
   // Class-algorithm for track finding in TRT
-  // 
-  class TRT_TrackSegmentsFinder : public AthAlgorithm 
+  //
+  class TRT_TrackSegmentsFinder : public AthReentrantAlgorithm
     {
-    
-      ///////////////////////////////////////////////////////////////////
-      // Public methods:
-      ///////////////////////////////////////////////////////////////////
-      
     public:
-      
+
       ///////////////////////////////////////////////////////////////////
       // Standard Algotithm methods
       ///////////////////////////////////////////////////////////////////
@@ -34,46 +35,39 @@ namespace InDet {
       TRT_TrackSegmentsFinder(const std::string &name, ISvcLocator *pSvcLocator);
       virtual ~TRT_TrackSegmentsFinder() {};
       StatusCode initialize();
-      StatusCode execute();
+      StatusCode execute(const EventContext &ctx) const;
       StatusCode finalize();
-
-      ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
-      ///////////////////////////////////////////////////////////////////
-
-      MsgStream&    dump     (MsgStream&    out) const;
-      std::ostream& dump     (std::ostream& out) const;
 
     protected:
 
-      ///////////////////////////////////////////////////////////////////
-      // Protected data 
-      ///////////////////////////////////////////////////////////////////
-     
-      bool                                m_useCaloSeeds     ;
-      int                                 m_outputlevel      ;  // Print level for debug
-      int                                 m_nprint           ; // Kind of  print
-      int                                 m_nsegments        ; // Number segments
-      int                                 m_nsegmentsTotal   ; // Number segments
-      int                                 m_minNumberDCs     ; // Min. number of DriftCircles
-      double                              m_ClusterEt        ; // Min. Et of seed calo cluster
-
-      SG::WriteHandle<Trk::SegmentCollection> m_foundSegments; // Name of segments location
-      SG::ReadHandle<CaloClusterROI_Collection> m_calo;        // Calo clusters collection Handle
-      
-      ToolHandle<ITRT_TrackSegmentsMaker> m_segmentsMakerTool; // TRT segments maker
-      ToolHandle<ITRT_DetElementsRoadMaker>     m_roadtool   ; // TRT road maker tool
-
-
-      ///////////////////////////////////////////////////////////////////
-      // Protected methods
-      ///////////////////////////////////////////////////////////////////
-
       MsgStream&    dumptools(MsgStream&    out) const;
-      MsgStream&    dumpevent(MsgStream&    out) const;
+      MsgStream&    dumpevent(MsgStream&    out, int nsegments) const;
+
+      Gaudi::Property<bool>                         m_useCaloSeeds
+       {this, "useCaloSeeds",          false,  "Use calo seeds to find TRT segments"};
+
+      Gaudi::Property<int>                          m_minNumberDCs
+       {this, "MinNumberDriftCircles", 9,      "Minimum number of DriftCircles for a TRT segment."};
+
+      Gaudi::Property<double>                       m_ClusterEt
+       {this, "CaloClusterEt",         3000.0, "Minimum ET of calo clusters in MeV too seed the TRT segment finder."};
+
+      SG::ReadHandleKey<CaloClusterROI_Collection>  m_caloKey
+       {this, "InputClusterContainerName", "InDetCaloClusterROIs", "Location of the optional Calo cluster seeds."};
+
+      SG::WriteHandleKey<Trk::SegmentCollection>    m_foundSegmentsKey
+       {this, "SegmentsLocation", "TRTSegments", "Storegate key of the found TRT segments."};
+
+      ToolHandle<ITRT_TrackSegmentsMaker>           m_segmentsMakerTool
+       {this, "SegmentsMakerTool", "InDet::TRT_TrackSegmentsMaker_ATLxk", "TRT segments maker tool." };
+
+      ToolHandle<ITRT_DetElementsRoadMaker>         m_roadtool
+       {this, "RoadTool", "InDet::TRT_DetElementsRoadMaker_xk", "Tool to build roads in the TRT."};
+
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+        
+      mutable std::atomic<int>                      m_nsegmentsTotal {}  ; // statistics about number of segments
 
     };
-  MsgStream&    operator << (MsgStream&   ,const TRT_TrackSegmentsFinder&);
-  std::ostream& operator << (std::ostream&,const TRT_TrackSegmentsFinder&); 
 }
 #endif // TRT_TrackSegmentsFinder_H

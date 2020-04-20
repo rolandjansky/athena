@@ -1,5 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 
 class GoodRunsListConfig:
   def __init__(self):
@@ -33,13 +34,13 @@ class GoodRunsListConfig:
 
 
   def Summary(self):
-    print 'Name         : %s' % (self.name)
-    print 'Tool         : %s' % (self.querytool)
-    print 'File         : %s' % (self.listname)
-    print 'Show         : %s' % (self.show)
-    print 'DQ folder    : %s' % (self.dqfolder)
-    print 'Query        :'
-    print self.getsearchquery()
+    print ('Name         : %s' % (self.name))
+    print ('Tool         : %s' % (self.querytool))
+    print ('File         : %s' % (self.listname))
+    print ('Show         : %s' % (self.show))
+    print ('DQ folder    : %s' % (self.dqfolder))
+    print ('Query        :')
+    print (self.getsearchquery())
     return
 
 
@@ -53,7 +54,7 @@ class GoodRunsListConfig:
             toexclude = '\\' + '\\'.join(self.dqignore)
         else:
             toexclude = ''
-        print 'to exclude', toexclude
+        print ('to exclude', toexclude)
         for i, q in enumerate(arr):
             qsplit = q.split()
             if len(qsplit) > 0:
@@ -73,7 +74,7 @@ class GoodRunsListConfig:
 
 
   def getparseddqflags(self):
-    from CoolRunQuery.AtlRunQueryLib import DQSelector,DQCondition,AtlRunQueryOptions
+    from CoolRunQuery.AtlRunQueryLib import DQSelector,AtlRunQueryOptions
     from CoolRunQuery.AtlRunQueryParser import ArgumentParser
 
     ## let atlrunquery do first parse of arguments

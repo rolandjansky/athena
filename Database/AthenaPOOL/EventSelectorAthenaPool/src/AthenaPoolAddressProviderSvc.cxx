@@ -34,7 +34,6 @@ AthenaPoolAddressProviderSvc::AthenaPoolAddressProviderSvc(const std::string& na
 	m_clidSvc("ClassIDSvc", name),
 	m_guid() {
    declareProperty("DataHeaderKey",       m_dataHeaderKey = "EventSelector");
-   declareProperty("DataHeaderIterator",  m_dataHeaderIterator = false);
    declareProperty("AttributeListKey",    m_attrListKey = "");
 }
 //________________________________________________________________________________
@@ -124,21 +123,7 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
    }
 
    Guid thisFile = Guid::null();
-   long int oid2 = 0L;
    const DataHeader* dataHeader = nullptr;
-   if (m_dataHeaderIterator) { // Get oid2 (event file entry number) from DataHeader proxy
-      const SG::DataProxy* dhProxy = eventStore()->proxy(ClassID_traits<DataHeader>::ID(), m_dataHeaderKey.value());
-      if (dhProxy != nullptr && dhProxy->address() != nullptr) {
-         Token token;
-         token.fromString(*dhProxy->address()->par());
-         thisFile = token.dbID();
-         oid2 = token.oid().second;
-      }
-      SG::ReadHandle<DataHeader> copiedDataHeader(thisFile.toString(), m_metaDataStore->name());
-      if (copiedDataHeader.isValid()) {
-         dataHeader = copiedDataHeader.cptr();
-      }
-   }
    if (dataHeader == nullptr) { // New file (or reading DataHeader)
       SG::ReadHandle<DataHeader> eventDataHeader(m_dataHeaderKey.value(), eventStore()->name());
       if (!eventDataHeader.isValid()) {
@@ -146,13 +131,6 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
          return(StatusCode::FAILURE);
       }
       dataHeader = eventDataHeader.cptr();
-      if (m_dataHeaderIterator) {
-         std::unique_ptr<DataHeader> dataHeaderCopy(new DataHeader(*eventDataHeader.cptr()));
-         SG::WriteHandle<DataHeader> wh(thisFile.toString(), m_metaDataStore->name());
-         if (!wh.record(std::move(dataHeaderCopy)).isSuccess()) {
-            ATH_MSG_WARNING("Can't copy event DataHeader to MetaData store.");
-         }
-      }
    }
    // second data header
    if (m_attrListKey.value() != "") {
@@ -179,9 +157,6 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
    }
    ATH_MSG_DEBUG("The current Event contains: " << dataHeader->size() << " objects");
    for (const auto& element : *dataHeader) {
-      if (m_dataHeaderIterator) { // Get oid2 (event file entry number) from DataHeader proxy
-         const_cast<Token*>(element.getToken())->oid().second = oid2;
-      }
       SG::TransientAddress* tadd = element.getAddress();
       if (tadd->clID() == ClassID_traits<DataHeader>::ID()) { // self reference
          delete tadd; tadd = nullptr;

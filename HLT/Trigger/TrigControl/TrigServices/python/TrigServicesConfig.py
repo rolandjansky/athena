@@ -3,7 +3,7 @@
 # @file: TrigServicesConfig.py
 # @purpose: customized configurables
 
-from TrigServicesConf import TrigCOOLUpdateHelper as _TrigCOOLUpdateHelper
+from TrigServices.TrigServicesConf import TrigCOOLUpdateHelper as _TrigCOOLUpdateHelper
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigCOOLUpdateHelper')
  
@@ -13,7 +13,7 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
    def __init__(self, name='TrigCOOLUpdateHelper'):
       super(TrigCOOLUpdateHelper, self).__init__(name)
 
-      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
       self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
       self.MonTool.defineHistogram('TIME_CoolFolderUpdate', path='EXPERT', type='TH1F',
                                    title='Time for conditions update;time [ms]',
@@ -52,7 +52,7 @@ def setupMessageSvc():
    MessageSvc = svcMgr.MessageSvc
    MessageSvc.OutputLevel = theApp.OutputLevel
 
-   MessageSvc.Format       = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
+   MessageSvc.Format       = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
    # Add timestamp when running in partition
    if os.environ.get('TDAQ_PARTITION','') != 'athenaHLT':
       MessageSvc.Format = "%t  " + MessageSvc.Format
@@ -88,13 +88,13 @@ def setupMessageSvc():
    MessageSvc.statLevel = WARNING
 
 # online ROB data provider service
-from TrigServicesConf import HltROBDataProviderSvc as _HltROBDataProviderSvc
+from TrigServices.TrigServicesConf import HltROBDataProviderSvc as _HltROBDataProviderSvc
 class HltROBDataProviderSvc(_HltROBDataProviderSvc):
    __slots__ = ()
 
    def __init__(self, name='ROBDataProviderSvc'):
       super(HltROBDataProviderSvc, self).__init__(name)
-      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
       self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
       self.MonTool.Histograms = [ 
          defineHistogram('TIME_ROBReserveData', path='EXPERT', type='TH1F',
@@ -116,4 +116,27 @@ class HltROBDataProviderSvc(_HltROBDataProviderSvc):
                          title='Number of received ROBs for collect call;number',
                          xbins=100, xmin=0, xmax=2500)
          ]
+      return
+
+# online event loop manager
+from TrigServices.TrigServicesConf import HltEventLoopMgr as _HltEventLoopMgr
+class HltEventLoopMgr(_HltEventLoopMgr):
+   __slots__ = ()
+
+   def __init__(self, name='HltEventLoopMgr'):
+      super(HltEventLoopMgr, self).__init__(name)
+      from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+      self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
+      self.MonTool.defineHistogram('ErrorAlgName,ErrorCode', path='EXPERT', type='TH2I',
+                                   title='Error StatusCodes per algorithm;Algorithm name;StatusCode',
+                                   xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
+      self.MonTool.defineHistogram('TotalTime', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (all events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=10000)
+      self.MonTool.defineHistogram('TotalTimeAccepted', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (accepted events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=10000)
+      self.MonTool.defineHistogram('TotalTimeRejected', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (rejected events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=10000)
       return

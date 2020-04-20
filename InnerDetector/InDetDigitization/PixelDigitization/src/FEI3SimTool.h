@@ -1,6 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file PixelDigitization/FEI3SimTool.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date January, 2020
+ * @brief FEI3 simulation
+ */
 
 #ifndef PIXELDIGITIZATION_FEI3SimTool_H
 #define PIXELDIGITIZATION_FEI3SimTool_H
@@ -23,6 +29,7 @@ class FEI3SimTool:public FrontEndSimTool {
 
     int relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, CLHEP::HepRandomEngine *rndmEngine) const;
     int relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID, CLHEP::HepRandomEngine *rndmEngine) const;
+    int relativeBunch2018(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID, CLHEP::HepRandomEngine *rndmEngine) const;
 
 };
 

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "TrkEventPrimitives/LocalParameters.h"
@@ -42,8 +42,10 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
   m_detEl( RIO->detectorElement() )
 {
   m_rio.setElement(RIO);
-  const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>(&(m_detEl->surface(RIO->identify())));
-  if (slsf) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(slsf->localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ)));
+  if (m_detEl->surface(RIO->identify()).type()==Trk::Surface::Line){
+    const Trk::StraightLineSurface& slsf =static_cast<const Trk::StraightLineSurface&>((m_detEl->surface(RIO->identify())));
+    m_globalPosition.store(std::unique_ptr<const Amg::Vector3D>(slsf.localToGlobal(driftRadius, predictedTrackDirection, predictedLocZ)));
+  } 
   Amg::Vector3D  loc_gDirection = predictedTrackDirection; 
   const double dr = driftRadius[Trk::driftRadius];
   //scaling the direction with drift radius   
@@ -100,8 +102,8 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack
 InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack( const InDet::TRT_DriftCircleOnTrack& rot):
 	Trk::RIO_OnTrack(rot),
   m_globalPosition{},
-  m_localAngle(rot.m_localAngle.load()),
-  m_positionAlongWire(rot.m_positionAlongWire.load()),
+  m_localAngle(rot.m_localAngle),
+  m_positionAlongWire(rot.m_positionAlongWire),
   m_rio(rot.m_rio),
   m_idDE(rot.m_idDE),
   m_status(rot.m_status),
@@ -125,8 +127,8 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const I
       m_globalPosition.release().reset();
     }
     m_rio                   = rot.m_rio;
-    m_localAngle            = rot.m_localAngle.load();
-    m_positionAlongWire     = rot.m_positionAlongWire.load();
+    m_localAngle            = rot.m_localAngle;
+    m_positionAlongWire     = rot.m_positionAlongWire;
     m_idDE                  = rot.m_idDE;
     m_status                = rot.m_status;
     m_highLevel             = rot.m_highLevel;
@@ -143,8 +145,8 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( InDet::
     Trk::RIO_OnTrack::operator= (rot);
     m_globalPosition        = std::move(rot.m_globalPosition);
     m_rio                   = rot.m_rio;
-    m_localAngle            = rot.m_localAngle.load();
-    m_positionAlongWire     = rot.m_positionAlongWire.load();
+    m_localAngle            = rot.m_localAngle;
+    m_positionAlongWire     = rot.m_positionAlongWire;
     m_idDE                  = rot.m_idDE;
     m_status                = rot.m_status;
     m_highLevel             = rot.m_highLevel;

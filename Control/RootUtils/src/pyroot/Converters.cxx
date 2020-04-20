@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file RootUtils/src/pyroot/Converters.cxx
  * @author scott snyder, Wim Lavrijsen
@@ -27,7 +26,7 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "TTupleOfInstances.h"
 #include "TCustomPyTypes.h"
 
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TDataType.h"
 #include "TROOT.h"
 #include "TClass.h"
@@ -39,6 +38,8 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include <string.h>
 #include <utility>
 #include <sstream>
+
+using namespace RootUtils;
 
 
 namespace RootUtils {

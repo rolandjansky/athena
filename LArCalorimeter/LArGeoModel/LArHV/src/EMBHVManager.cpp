@@ -24,7 +24,9 @@
 #include "LArCabling/LArHVCablingTool.h"
 
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 #include "LArRecConditions/LArHVIdMapping.h"
+#endif
 #endif
 
 #include "Identifier/HWIdentifier.h"
@@ -287,6 +289,7 @@ EMBHVPayload* EMBHVManager::getPayload(const EMBHVElectrode &electrode) const {
 }
 
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 int EMBHVManager::hvLineNo(const EMBHVElectrode& electrode
 			   , int gap
 			   , const LArHVIdMapping* hvIdMapping) const
@@ -361,3 +364,6 @@ int EMBHVManager::hvLineNo(const EMBHVElectrode& electrode
   return m_c->hvId->can_node(id)*1000 + m_c->hvId->hv_line(id);
 }
 #endif
+#endif
+
+

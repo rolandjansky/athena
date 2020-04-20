@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "MuonTrackSteering.h"
 #include "MuonTrackSteeringStrategy.h"
-
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
@@ -21,7 +19,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 
-
 #include <sstream>
 #include <iomanip>
 #include <cmath>
@@ -35,7 +32,8 @@ namespace Muon {
   //----------------------------------------------------------------------------------------------------------
 
   MuonTrackSteering::MuonTrackSteering(const std::string& t,const std::string& n,const IInterface* p)
-    : AthAlgTool(t,n,p), m_combinedSLOverlaps(false)
+    : AthAlgTool(t,n,p),
+      m_combinedSLOverlaps(false)
   {
     declareInterface<IMuonTrackFinder>(this);
 
@@ -60,6 +58,7 @@ namespace Muon {
     ATH_CHECK( m_ambiTool.retrieve() );
     ATH_CHECK( m_mooBTool.retrieve() );
     ATH_CHECK( m_trackRefineTool.retrieve() );
+    ATH_CHECK( m_trackSummaryTool.retrieve() );
     ATH_CHECK( decodeStrategyVector( m_stringStrategies ) );
     if( m_outputSingleStationTracks ){
       ATH_CHECK( m_segmentFitter.retrieve() );
@@ -573,7 +572,6 @@ namespace Muon {
           result = refined;
         }
       }
-
       // Post-processing : ambiguity resolution
       if(msgLvl(MSG::DEBUG) && result && !result->empty()){
         msg(MSG::DEBUG)  << "Initial track collection for strategy: " << strategy.getName()
@@ -595,7 +593,6 @@ namespace Muon {
           result = resolved;
         }
       }
-
       if( result && !result->empty()) resultAll->insert(resultAll->end(),result->begin(),result->end());
 
       delete result;
@@ -646,6 +643,11 @@ namespace Muon {
             if(recoveredTrack){
               delete segmentTrack;
               segmentTrack = recoveredTrack;
+            }
+
+            // generate a track summary for this track 
+            if (m_trackSummaryTool.isEnabled()) {
+              m_trackSummaryTool->computeAndReplaceTrackSummary(*segmentTrack, nullptr, false);
             }
 
             MuPatTrack* can = m_candidateTool->createCandidate( **sit, segmentTrack );
@@ -931,10 +933,18 @@ namespace Muon {
         // To remove warning. It seems, that is thread-safe
         // It is very bad way to use const_cast
         Trk::Track* track ATLAS_THREAD_SAFE = const_cast<Trk::Track*>( &(*cit)->releaseTrack() );
+        // add track summary to this track
+        if (m_trackSummaryTool.isEnabled()) {
+          m_trackSummaryTool->computeAndReplaceTrackSummary(*track, nullptr, false);
+        }
         result->push_back( track );
       }
       else {
         Trk::Track* track ATLAS_THREAD_SAFE = const_cast<Trk::Track*>( &(*cit)->track() );
+        // add track summary to this track
+        if (m_trackSummaryTool.isEnabled()) {
+          m_trackSummaryTool->computeAndReplaceTrackSummary(*track, nullptr, false);
+        }
         result->push_back( track );
       }
     }

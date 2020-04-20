@@ -87,8 +87,7 @@ char find_typecode (const std::type_info& ti)
  * $Revision: 672209 $
  * $Date$
  */
-class NameMatches : public std::unary_function< std::string,
-                                                bool > {
+class NameMatches {
 public:
    /// Constructor
    NameMatches( const std::string& name ) : m_name( name ) {}

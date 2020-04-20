@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // std
@@ -56,7 +56,7 @@ StatusCode MdtCalibrationShiftMapBase::initializeMap() {
 StatusCode MdtCalibrationShiftMapBase::dumpMapAsFile() {
   /* initialize map if it's not there */
   if (!m_mapIsInitialized) {
-    initializeMap();
+    ATH_CHECK(initializeMap());
   }
 
   /* write the map to a file */

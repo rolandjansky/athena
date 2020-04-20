@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Start from the base CERN CentOS 7 image.
 FROM cern/cc7-base:latest
@@ -8,9 +8,10 @@ USER root
 WORKDIR /root
 
 # Install some additional packages.
-RUN yum -y install which sclo-git25 wget tar atlas-devel libuuid-devel texinfo python2-pip \
-           redhat-lsb-core libX11-devel libXpm-devel libXft-devel             \
-           libXext-devel openssl-devel glibc-devel rpm-build libcurl-devel && \
+RUN yum -y install which sclo-git25 wget tar atlas-devel libuuid-devel texinfo \
+           python2-pip redhat-lsb-core libX11-devel libXpm-devel libXft-devel  \
+           libXext-devel openssl-devel glibc-devel rpm-build libcurl-devel     \
+           mesa-libGL-devel && \
     yum clean all
 
 # Set up the ATLAS user, and give it super user rights.

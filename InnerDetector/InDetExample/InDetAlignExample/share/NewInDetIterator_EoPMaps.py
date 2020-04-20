@@ -4,6 +4,8 @@
 #             Vicente Lacuesta [started 12-03-2008]             #
 #################################################################
 
+from __future__ import print_function
+
 import os, string, time, datetime
 import sys
 
@@ -19,7 +21,7 @@ import sys
 # Don not edit the lines below unless you know what you're doing!
 #
 
-print "Output saved in:",OutputPath
+print ("Output saved in:",OutputPath)
 
 # AW: moved that one to python dir such that it can be imported from anywhere
 from InDetAlignExample.NewInDet_IteratorClasses import *
@@ -37,11 +39,11 @@ from InDetAlignExample.NewInDet_IteratorClasses_EoverPMaps import *
 ATHENACFG = getAthenaConfig(ASetupOptions)
 
 if runMode == 'batch':
-	print "E over P map jobs will run in Lxbatch"
+	print ("E over P map jobs will run in Lxbatch")
 elif runMode == ' local':
-	print "E over P map jobs will run on local machine"
+	print ("E over P map jobs will run on local machine")
 
-print
+print()
 
 
 
@@ -54,25 +56,25 @@ if os.path.isdir("%s" % OutputPath):
 		countdir += 1
 	os.rename("%s" % OutputPath,"%s-%s-%d/" % (OutputPath[:-1], datetime.date.today(), countdir))
 	
-	print "WARNING: %s directory exists" % OutputPath
+	print ("WARNING: %s directory exists" % OutputPath)
 	
-	print "Renamed to %s-%s-%d" % (OutputPath[:-1], datetime.date.today(), countdir)
+	print ("Renamed to %s-%s-%d" % (OutputPath[:-1], datetime.date.today(), countdir))
 os.mkdir(OutputPath)
 
 for data in DataToRun:
-	print "----------------------------------------------"
-	print "Number of CPUs used to process the sample " + data.getName() + ": " + str(data.getCPUs(0))
-	print "----------------------------------------------"
+	print ("----------------------------------------------")
+	print ("Number of CPUs used to process the sample " + data.getName() + ": " + str(data.getCPUs(0)))
+	print ("----------------------------------------------")
 
 	if data.getEvents(0)!=-1:
-		print "Number of events per CPU: " +  str(data.getEventsPerCPU(0))
+		print ("Number of events per CPU: " +  str(data.getEventsPerCPU(0)))
 	else:
-		print "Number of events per CPU: All" 
+		print ("Number of events per CPU: All" )
 
 	os.mkdir(OutputPath+data.getName()+'/')
 	if not os.path.isdir(OutputPath+'/logs'):
 		os.mkdir(OutputPath+'/logs')
-	print "Processing..."
+	print ("Processing...")
 	# Get the Input file
 	dataFiles = SortCpus(data.getCPUs(0)
 				  ,""
@@ -158,8 +160,8 @@ monitoringMerge = mergeScriptEoverPMaps(OutputPath = OutputPath
 monitoringMerge.write()
 monitoringMerge.send(runMode)
 
-#	print "  Iteration %d finished: %5.3f seconds \n" % (iteration,(time.time()-IterStartTime))
-#	print "----------------------------------------------"
+#	print ("  Iteration %d finished: %5.3f seconds \n" % (iteration,(time.time()-IterStartTime)))
+#	print ("----------------------------------------------")
 #
 #	info.write("\n")
 #	info.write("----------------------------------------------\n")
@@ -175,9 +177,9 @@ monitoringMerge.send(runMode)
 ## =======================
 ##if MonitoringScript == True:
 #if False:
-#	print
-#	print "Comparing the Monitoring Files"
-#	print
+#	print()
+#	print ("Comparing the Monitoring Files")
+#	print()
 #	info.write('\n')
 #	info.write("Comparing the Monitoring Files \n" )
 #	info.write("\n")
@@ -190,9 +192,9 @@ monitoringMerge.send(runMode)
 #	compareMonitoring.write()
 #	compareMonitoring.send(runMode)
 #
-#	print
-#	print "Processed %d iterations !!!" % Iterations
-#	print "  %5.3f  seconds" % (time.time()-StartTime)
+#	print()
+#	print ("Processed %d iterations !!!" % Iterations)
+#	print ("  %5.3f  seconds" % (time.time()-StartTime))
 #
 #info=open(OutputPath+"/info.txt",'a')
 #info.write('\n')

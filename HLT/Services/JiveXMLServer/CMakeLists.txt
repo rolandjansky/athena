@@ -5,11 +5,6 @@
 # Declare the package name:
 atlas_subdir( JiveXMLServer )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          graphics/JiveXML )
-
 # External dependencies:
 find_package( tdaq COMPONENTS ipc cmdline owl omniORB4 omnithread)
 find_package( tdaq-common COMPONENTS ers)

@@ -23,6 +23,9 @@ _doTJVA = True
 _doPi0Clus = taujp.tauRecFlags.doPi0() #False by default
 _doPi0Clus = True 
 
+# Change jet seed (default AntiKt4LCTopoJets)
+# taujp.tauRecFlags.tauRecSeedJetCollection.set_Value_and_Lock("AntiKt4LCTopoJets")
+
 # the TauCoreBuilder
 from tauRec.TauRecBuilder import TauRecCoreBuilder
 TauRecCoreBuilder(doPi0Clus=_doPi0Clus, doTJVA=_doTJVA)

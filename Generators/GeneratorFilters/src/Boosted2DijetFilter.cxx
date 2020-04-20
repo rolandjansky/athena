@@ -25,9 +25,6 @@
 #include "CxxUtils/BasicTypes.h"
 #include "TLorentzVector.h"
 
-
-using HepMC::GenVertex;
-using HepMC::GenParticle;
 //--------------------------------------------------------------------------
 Boosted2DijetFilter::Boosted2DijetFilter(const std::string& name, 
 			   ISvcLocator* pSvcLocator): GenFilter(name,pSvcLocator) {

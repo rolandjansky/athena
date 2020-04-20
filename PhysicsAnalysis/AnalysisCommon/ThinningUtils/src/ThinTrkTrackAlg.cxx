@@ -94,6 +94,7 @@ StatusCode ThinTrkTrackAlg::initialize(){
 
     ATH_CHECK(m_pixelDetEleCollKey.initialize());
     ATH_CHECK(m_SCTDetEleCollKey.initialize());
+    ATH_CHECK(m_trtDetEleContKey.initialize()); 
 
     if (m_streamName.empty()) {
       ATH_MSG_ERROR( "StreamName property was not initialized" );

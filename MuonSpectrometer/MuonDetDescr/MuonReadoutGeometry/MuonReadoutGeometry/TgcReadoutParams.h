@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ******************************************************************************
-// -----------------------------------------
-// ******************************************************************************
-
-//<doc><file> $Id: TgcReadoutParams.h,v 1.2 2009-02-24 16:47:20 dwright Exp $
-//<version>   $Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_TGCREADOUTPARAMS_H
 #define MUONGEOMODEL_TGCREADOUTPARAMS_H
@@ -39,9 +32,6 @@
 
 #include <string>
 #include <memory>
-#include "AthenaKernel/CLASS_DEF.h"
-
-class IMessageSvc;
 
 namespace MuonGM {
 
@@ -84,10 +74,6 @@ public:
    float physicalDistanceFromBase() const;
    float stripPositionOnLargeBase(int strip) const;
    float stripPositionOnShortBase(int strip) const;
-protected:
-  // Gaudi message service
-  IMessageSvc* m_msgSvc;
-  mutable std::unique_ptr<MsgStream> m_Log ATLAS_THREAD_SAFE;
 
 private:
 

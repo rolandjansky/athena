@@ -1,17 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/ShowerDeconstructionTool.h"
 //#include "JetSubStructureUtils/ShowerDeconstruction.h" 
 
-using namespace std;
-using fastjet::PseudoJet;
-
 ShowerDeconstructionTool::ShowerDeconstructionTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  ATH_MSG_DEBUG("Initializing ShowerDeconstruction tool.");
 }
 
 int ShowerDeconstructionTool::modifyJet(xAOD::Jet &/*jet*/) const {

@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 __author__  = 'Radist Morse radist.morse@gmail.com'
 
@@ -36,7 +38,7 @@ def parseRoots(filename) :
 			rf.markersize  = float(line[5])
 			rf.legendname  = " ".join(line[6:])
 			parsedRoots.append(rf)
-			print "Found rootfile '"+rf.filename+"' added as '"+rf.legendname+"'"
+			print ("Found rootfile '"+rf.filename+"' added as '"+rf.legendname+"'")
 		if line[0] == "restrict" :
 			re = RestrictEntry()
 			abs = False
@@ -58,10 +60,10 @@ def parseRoots(filename) :
 					rech.rangeList += re.rangeList
 					re.rangeList = []
 			if (len(re.rangeList) > 0) : #no restriction for this variable yet. add it.
-				print "A restriction found for variable",str(re)
+				print ("A restriction found for variable",str(re))
 				rstrict.append(re)
 		else :
-			print "WARNING: unknown key:", line[0]
+			print ("WARNING: unknown key:", line[0])
 			continue
 	for pr in parsedRoots : #apply global restrictions on every plot
 		for re in parsedRestricts :
@@ -123,25 +125,25 @@ class RestrictEntry :
 		parsed = rang.split("..")
 		try :
 			parsed[0] = float(parsed[0])
-		except :
+		except ValueError:
 			parsed[0] = -999999.9
 		try :
 			parsed[1] = float(parsed[1])
-		except :
+		except ValueError:
 			parsed[1] = 9999999.9
 		self.rangeList.append(parsed[0:2])
 	def addRangeAbs(self,rang) :
 		parsed = rang.split("..")
 		try :
 			parsed[0] = float(parsed[0])
-		except :
+		except ValueError:
 			parsed[0] = 0.0
 		try :
 			parsed[1] = float(parsed[1])
-		except :
+		except ValueError:
 			parsed[1] = 9999999.9
 		if (parsed[0] < 0) or (parsed[1] <= 0) :
-			print "WARNING: The absolute range is not valid: less then zero. Ignore."
+			print ("WARNING: The absolute range is not valid: less then zero. Ignore.")
 			return
 		rang = str(parsed[0])+".."+str(parsed[1])
 		rang2 = str(-parsed[1])+".."+str(-parsed[0])
@@ -174,10 +176,10 @@ def parsePlots(filename,varCaption) :
 					varcap = var.lstrip("+")
 				pe.axis_captions[var.lstrip("+")]=varcap
 			if (pe.vars_to_draw[0].startswith("+")) and ((pe.givenmin < 0) or (pe.givenmax < 0)) :
-				print "WARNING: Boundaries are less the zero, while the variable is absolute. Ignore."
+				print ("WARNING: Boundaries are less the zero, while the variable is absolute. Ignore.")
 				pe.givenmin = 0.0
 				pe.givenmax = 0.0
-			print "Found 1D histogram:",pe.vars_to_draw[0],[pe.givenmin,pe.givenmax]
+			print ("Found 1D histogram:",pe.vars_to_draw[0],[pe.givenmin,pe.givenmax])
 			parsedPlots.append(pe)
 		elif line[0] == "prof" :
 			pe.vars_to_draw.extend(line[1:3])
@@ -193,10 +195,10 @@ def parsePlots(filename,varCaption) :
 					varcap = var.lstrip("+")
 				pe.axis_captions[var.lstrip("+")]=varcap
 			if (pe.vars_to_draw[0].startswith("+")) and ((pe.givenmin < 0) or (pe.givenmax < 0)) :
-				print "WARNING: Boundaries are less the zero, while the variable is absolute. Ignore."
+				print ("WARNING: Boundaries are less the zero, while the variable is absolute. Ignore.")
 				pe.givenmin = 0.0
 				pe.givenmax = 0.0
-			print "Found 1D profile:",pe.vars_to_draw[1],"vs",pe.vars_to_draw[0],[pe.givenmin,pe.givenmax]
+			print ("Found 1D profile:",pe.vars_to_draw[1],"vs",pe.vars_to_draw[0],[pe.givenmin,pe.givenmax])
 			parsedPlots.append(pe)
 		elif line[0] == "hist2d" :
 			pe = PlotEntry()
@@ -212,7 +214,7 @@ def parsePlots(filename,varCaption) :
 				if (varcap == "") :
 					varcap = var.lstrip("+")
 				pe.axis_captions[var.lstrip("+")]=varcap
-			print "Found 2D histogram:",pe.vars_to_draw
+			print ("Found 2D histogram:",pe.vars_to_draw)
 			parsedPlots.append(pe)
 		elif line[0] == "prof2d" :
 			pe.vars_to_draw.extend(line[1:4])
@@ -228,7 +230,7 @@ def parsePlots(filename,varCaption) :
 				if (varcap == "") :
 					varcap = var.lstrip("+")
 				pe.axis_captions[var.lstrip("+")]=varcap
-			print "Found 2D profile:",pe.vars_to_draw[2],"vs",pe.vars_to_draw[0:2]
+			print ("Found 2D profile:",pe.vars_to_draw[2],"vs",pe.vars_to_draw[0:2])
 			parsedPlots.append(pe)
 		elif line[0] == "restrict" :
 			re = RestrictEntry()
@@ -251,15 +253,15 @@ def parsePlots(filename,varCaption) :
 					rech.rangeList += re.rangeList
 					re.rangeList = []
 			if (len(re.rangeList) > 0) : #no restriction for this variable yet. add it.
-				print "A restriction found for variable",str(re)
+				print ("A restriction found for variable",str(re))
 				rstrict.append(re)
 		elif line[0] == "axisname" :
 			if (len(parsedPlots) == 0) : #no plots yet. drop the name
-				print "WARNING: axisname shouldn't be before plots"
+				print ("WARNING: axisname shouldn't be before plots")
 				continue
 			parsedPlots[-1].axis_captions[line[1].lstrip("+")] = " ".join(line[2:]).replace("%","#")
 		else :
-			print "WARNING: unknown key:", line[0]
+			print ("WARNING: unknown key:", line[0])
 			continue
 	for pe in parsedPlots : #apply global restrictions on every plot
 		for re in parsedRestricts :
@@ -313,8 +315,8 @@ def fillPlots(plots,plotopts,rootopts,eventVal) :
 						if (eventval == "False") :
 							try: #then try the event itself
 								eventval = event.__getattr__(rest.var)
-							except: #nothing found
-								print "ERROR: Non-existent variable in plot restrict:", rest.var
+							except AttributeError: #nothing found
+								print ("ERROR: Non-existent variable in plot restrict:", rest.var)
 								import sys
 								sys.exit(1)
 						if not rest.checkVar(eventval) : #variable is not in the range list
@@ -326,8 +328,8 @@ def fillPlots(plots,plotopts,rootopts,eventVal) :
 						if (eventval == "False") :
 							try: #then try the event itself
 								eventval = event.__getattr__(rest.var)
-							except: #nothing found
-								print "ERROR: Non-existent variable in rootfile restrict:", rest.var
+							except Exception: #nothing found
+								print ("ERROR: Non-existent variable in rootfile restrict:", rest.var)
 								import sys
 								sys.exit(1)
 						if not rest.checkVar(eventval) : #variable is not in the range list
@@ -349,8 +351,8 @@ def fillPlots(plots,plotopts,rootopts,eventVal) :
 					if (eventval == "False") :
 						try: #then try the event itself
 							eventval = event.__getattr__(locvar)
-						except: #nothing found
-							print "ERROR: Non-existent variable:", locvar
+						except AttributeError: #nothing found
+							print ("ERROR: Non-existent variable:", locvar)
 							import sys
 							sys.exit(1)
 					if (eventval < 0) :
@@ -455,11 +457,11 @@ def drawPlots(plots,plotopts,rootopts,output,optzero,optmean,opth,optw) :
 	
 	#drawing hists
 	for plotopt in plotopts :
-		print "Drawing",plotopt.display_name
+		print ("Drawing",plotopt.display_name)
 		num += 1
 		if (num > maxperlist and output != "DISPLAY") : #end of a current PS page
 			ps.NewPage()
-			print "new page"
+			print ("new page")
 			num = 1
 		canv.cd(num)
 		gPad.SetLogy(plotopt.logy)
@@ -467,7 +469,6 @@ def drawPlots(plots,plotopts,rootopts,output,optzero,optmean,opth,optw) :
 		
 		entries = {}
 		valuemax = -999999.9
-		valuemin = 999999.9
 		entryZ = 0
 		
 		for rootopt in rootopts : #get the max entries
@@ -478,13 +479,13 @@ def drawPlots(plots,plotopts,rootopts,output,optzero,optmean,opth,optw) :
 		for rootopt in rootopts : #get the max entries
 			plot = plots[plotopt][rootopt]
 			if (plotopt.profile) :
-				print rootopt.legendname,"is a profile: no need to scale"
+				print (rootopt.legendname,"is a profile: no need to scale")
 			else :
 				if not (entries[rootopt] == 0) :
-					print "scaling",rootopt.legendname,"to",entryZ/entries[rootopt]
+					print ("scaling",rootopt.legendname,"to",entryZ/entries[rootopt])
 					plot.Scale(entryZ/entries[rootopt])
 				else :
-					print rootopt.legendname,"is an empty hist, no scale"
+					print (rootopt.legendname,"is an empty hist, no scale")
 
 		for rootopt in rootopts : #get the highest peak
 			if (plots[plotopt][rootopt].GetMaximum() > valuemax) :
@@ -497,7 +498,7 @@ def drawPlots(plots,plotopts,rootopts,output,optzero,optmean,opth,optw) :
 			if (rootopt.markerstyle > 0) : #not filler
 				continue
 			plot = plots[plotopt][rootopt]
-			print "Drawing filler from",rootopt.legendname
+			print ("Drawing filler from",rootopt.legendname)
 			if optzero :
 				if (plotopt.logy == 1) :
 					plot.SetMinimum(1.0)
@@ -521,7 +522,7 @@ def drawPlots(plots,plotopts,rootopts,output,optzero,optmean,opth,optw) :
 			leg.AddEntry(plot,prname,"L")
 			if (rootopt.markerstyle == 0) : #filler
 				continue #fillers are already drawn
-			print "Drawing plot from",rootopt.legendname
+			print ("Drawing plot from",rootopt.legendname)
 			if optzero :
 				if (plotopt.logy == 1) :
 					plot.SetMinimum(1.0)

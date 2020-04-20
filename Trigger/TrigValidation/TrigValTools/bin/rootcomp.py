@@ -9,32 +9,7 @@ from __future__ import print_function
 import sys
 import os
 import os.path
-
-def lsroot(dir):
-   """Return list of all keys in 'dir' (recursively)"""
-
-   import ROOT
-   
-   def dols(dir, keys):
-      """Do the recursive traversal"""
-      dirList = dir.GetListOfKeys()
-      for k in dirList:
-         kname = k.GetName()
-         if k.GetClassName()=="TDirectoryFile" or k.GetClassName()=="TDirectory":
-            dir.cd(kname)
-            dols(ROOT.gDirectory, keys)
-         else:
-            keys += [dir.GetPath()+"/"+kname]
-      
-      dir.cd("..")
-      return
-
-   keys = []
-   basedir = dir.GetPath().rstrip("/") + "/"
-   dols(dir,keys)
-
-   # Return sorted list with base directory removed
-   return sorted([k.replace(basedir,"") for k in keys])
+from TrigValTools.TrigRootUtils import lsroot
 
 
 def diffFiles(ref,file,opts):
@@ -165,6 +140,7 @@ def main():
       opts.skip += ["ErrorCodes_vs_Chains_"]
       opts.skip += ["Initital_RoIs_phi_vs_eta"]
       opts.skip += ["Time$","time_","Time_", "_time"]
+      opts.skip += ["HltEventLoopMgr/TotalTime"]
       opts.skip += ["Unpck$"]
       opts.skip += ["BufFreeCnt$", "CalEvtSize$"]     # muon calibration buffer
       opts.skip += ["/TrigMemMonitor/"]               # memory monitor
@@ -172,6 +148,7 @@ def main():
       opts.skip += ["GeneralOpInfo"]                  # release number, etc.
       opts.skip += ["MessageSvc/MessageCount"]        # MessageSvc
       opts.skip += ["TrigSteer_.*/Rate"]              # Rate monitoring
+      opts.skip += ["TrigSignatureMoniMT/.*Rate"]     # Rate monitoring
       opts.skip += ["IOVDbRunRange","IOVDbBytesRead"] # conditions data IOVs and size
       opts.skip += ["TrigOpMonitor/.*BytesRead"]      # conditions data size
       opts.skip += ["/ROBMonitor/DataVolumeFractionForSD"]  # Volume data fraction profile diff

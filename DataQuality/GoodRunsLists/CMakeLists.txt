@@ -76,7 +76,7 @@ atlas_add_test( GRLSelectionTool_test
    PROPERTIES TIMEOUT 300 )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( scripts/define* scripts/create* scripts/merge*
    scripts/verify* scripts/overlap* scripts/diff* )
 atlas_install_xmls(

@@ -31,7 +31,7 @@ def TileInfoLoaderCfg(flags, **kwargs):
             kwargs['NoiseScaleIndex'] = 1 # Noise for Optimal Filter without iterations
 
 
-    if flags.Input.isMC and 'TileHitVec' in flags.Input.Collections:
+    if (flags.Input.isMC or flags.Detector.OverlayTile) and ('TileHitVec' in flags.Input.Collections or 'TileHitVec' in flags.Input.SecondaryCollections):
 
         G4Version = flags.Sim.G4Version
         G4VersionMajor, G4VersionMinor = G4Version.split(".")[1:3]

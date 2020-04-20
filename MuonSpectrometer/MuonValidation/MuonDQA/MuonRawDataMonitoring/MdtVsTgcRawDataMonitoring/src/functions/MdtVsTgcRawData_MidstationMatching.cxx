@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,24 +22,17 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "muonEvent/MuonContainer.h"
 
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
 #include <inttypes.h>
 
 #include <sstream>
 #include <algorithm>
 #include <fstream>
 
-using namespace std;
-
 // Use Midstation Segments to look for additional Midstation Segments
 // Only the Midstation covers some trajectories so normal SegmTracks cannot be constructed
 void
-MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],
-                                           vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4],
+MdtVsTgcRawDataValAlg::MidstationOnlyCheck(std::vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],
+                                           std::vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4],
                                            const Muon::TgcPrepDataContainer *tgc_prepcontainer){
   // Define Cuts:
   // Cut for matching Segments
@@ -85,7 +78,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
     bool skipSegm;int nDisqualifiedSegm; // used when checking the disqualified list for a segment
     
     // Make copy of disqualifiedSegment vector array
-    vector<const Muon::MuonSegment*> copyDisqualifiedSegments;
+    std::vector<const Muon::MuonSegment*> copyDisqualifiedSegments;
     nDisqualifiedSegm=disqualifiedSegments[i][2].size();
     for(int ndis=0;ndis<nDisqualifiedSegm;ndis++)copyDisqualifiedSegments.push_back(disqualifiedSegments[i][2].at(ndis));
     
@@ -108,6 +101,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       // Loop through contained ROTs and identify used stations
       for(unsigned int iROT=0; iROT<segm0->numberOfContainedROTs(); ++iROT) {
         const Trk::RIO_OnTrack* rio = segm0->rioOnTrack(iROT);
+	if(!rio) continue;
         Identifier id = rio->identify();
         stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
         
@@ -160,6 +154,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       // Loop through contained ROTs and identify used stations
       for(unsigned int iROT=0; iROT<segm1->numberOfContainedROTs(); ++iROT){
         const Trk::RIO_OnTrack* rio = segm1->rioOnTrack(iROT);
+	if(!rio) continue;
         Identifier id = rio->identify();
         stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
         bool isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(id);
@@ -307,9 +302,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       ////////////////////////////////////////////////////////////////////////
       // Check which PRD matches Segm1
       // Initialise hit registered arrays
-      // bool hitregistered[9][2]       = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
       bool sectorhitregistered[9][2] = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
-      vector<const Muon::TgcPrepData*> tpdVector[2];
+      std::vector<const Muon::TgcPrepData*> tpdVector[2];
       
       // Loop over TGC Prep Data container
       Muon::TgcPrepDataContainer::const_iterator prepit_end=tgc_prepcontainer->end();
@@ -412,7 +406,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       // Find vector of PRD which forms a coherent line in the vicinity of Segm1
 
       // Variables to hold best PRD matching results
-      vector<const Muon::TgcPrepData*> *bestTPDmatches[2];
+      std::vector<const Muon::TgcPrepData*> *bestTPDmatches[2];
       bestTPDmatches[0] = 0;
       bestTPDmatches[1] = 0;
       if(bestTPDmatches[0]->size()>0) bestTPDmatches[0]->clear();
@@ -429,20 +423,17 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
         int nTPD = tpdVector[k].size();
         for(int iTPD1=0;iTPD1<nTPD;iTPD1++){
           // Variables to hold matches found for this PRD
-          vector<const Muon::TgcPrepData*> *thisTPDmatches;
+          std::vector<const Muon::TgcPrepData*> *thisTPDmatches;
 	  thisTPDmatches = 0;
 	  if(thisTPDmatches->size()>0) thisTPDmatches->clear();
           int thisTPDlayerMatches[9] = {0,0,0,0,0,0,0,0,0}; 
           
           // Get position variables
-          //const Trk::GlobalPosition prdPos1 = tpdVector[k].at(iTPD1)->globalPosition();
           const Amg::Vector3D prdPos1 = tpdVector[k].at(iTPD1)->globalPosition();
           
-	  //float prd1Rho = abs(prdPos1.perp());
           float prd1Phi = prdPos1.phi();
           float prd1Z   = prdPos1.z();
           if(prd1Phi<0)prd1Phi+=2*M_PI;
-          //Trk::GlobalDirection prd1PosZunit(prdPos1/abs(prd1Z));
           Amg::Vector3D prd1PosZunit(prdPos1/abs(prd1Z));
           
           // Get id values
@@ -457,7 +448,6 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
             if(iTPD2==iTPD1)continue;// do not check PRD against itself
             
             // Get position variables
-            //const Trk::GlobalPosition prdPos2 = tpdVector[k].at(iTPD2)->globalPosition();
             const Amg::Vector3D prdPos2 = tpdVector[k].at(iTPD2)->globalPosition(); 
 	    float prd2Rho = abs(prdPos2.perp());
             float prd2Phi = prdPos2.phi();
@@ -466,7 +456,6 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
             
             // Extrapolate PRD1 to PRD2 Z position
             float dZ = abs(prd2Z)- abs(prd1Z);
-            //Trk::GlobalPosition prdExtrPos = ((prdPos1)+((prd1PosZunit)*dZ));
             Amg::Vector3D prdExtrPos = ((prdPos1)+((prd1PosZunit)*dZ));
             
             // Get extrapolated variables

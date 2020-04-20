@@ -4,7 +4,7 @@
 #
 # Written by Juerg Beringer in December 2010.
 #
-print "InDetBeamSpotExample INFO Using $Id $"
+printfunc ("InDetBeamSpotExample INFO Using $Id $")
 
 
 # Default values (please put a default for EACH jobConfig parameter

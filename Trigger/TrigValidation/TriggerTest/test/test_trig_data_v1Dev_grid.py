@@ -14,13 +14,14 @@
 # art-output: *.root
 # art-output: *.pmon.gz
 # art-output: *perfmon*
+# art-output: prmon*
 # art-output: *.check*
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athena'
-ex.job_options = 'TrigUpgradeTest/full_menu.py'
+ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
 ex.threads = 1
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1

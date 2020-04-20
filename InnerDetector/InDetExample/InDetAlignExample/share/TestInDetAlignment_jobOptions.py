@@ -131,14 +131,14 @@ if DetFlags.detdescr.pixel_on():
     job += TestSiAlignment("TestPixelAlignment")
     job.TestPixelAlignment.ManagerName="Pixel"
     job.TestPixelAlignment.LongPrintOut=False
-    print job.TestPixelAlignment
+    printfunc (job.TestPixelAlignment)
 
 if DetFlags.detdescr.SCT_on():
     from InDetDetDescrExample.InDetDetDescrExampleConf import TestSiAlignment
     job += TestSiAlignment("TestSCT_Alignment")
     job.TestSCT_Alignment.ManagerName="SCT"
     job.TestSCT_Alignment.LongPrintOut=False
-    print job.TestSCT_Alignment
+    printfunc (job.TestSCT_Alignment)
 
 if DetFlags.detdescr.TRT_on():
     from InDetDetDescrExample.InDetDetDescrExampleConf import TestTRT_Alignment
@@ -148,7 +148,7 @@ if DetFlags.detdescr.TRT_on():
     #job.TestTRT_Alignment.TestAllElements = False
     #job.TestTRT_Alignment.HardwiredShifts = False
     #job.TestTRT_Alignment.Precision = 6
-    print job.TestTRT_Alignment
+    printfunc (job.TestTRT_Alignment)
 
 
 #--------------------------------------------------------------

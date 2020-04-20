@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#ifndef SIMULATIONBASE
+#if !defined(SIMULATIONBASE) and !defined(GENERATIONBASE)
 #include "xAODPFlow/PFO.h"
-#endif //SIMULATIONBASE
+#endif // not SIMULATIONBASE or GENERATIONBASE
 
 namespace xAOD {
 
@@ -47,14 +47,14 @@ namespace xAOD {
         } 
         return;
       }
-#ifndef SIMULATIONBASE
+#if !defined(SIMULATIONBASE) and !defined(GENERATIONBASE)
       case Type::ParticleFlow: {
         const xAOD::PFO *pfo = dynamic_cast<const xAOD::PFO*>(part);
         if(pfo->ptEM()!=0) constit.SetCoordinates( pfo->ptEM(), pfo->etaEM(), pfo->phiEM(), pfo->mEM() );
         else constit.SetCoordinates( 0, 1, 1, 0 ); // To avoid Warnings from root.
         return;
       }
-#endif //SIMULATIONBASE
+#endif // not SIMULATIONBASE or GENERATIONBASE
       default: 
         break;// fall back on default kinematics
       }

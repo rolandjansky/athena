@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file EventCommonD3PDMaker/src/FourMomFillerTool.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -14,8 +13,6 @@
 #include "FourMomFillerTool.h"
 #include "EventKernel/INavigable4Momentum.h"
 #include "EventKernel/I4Momentum.h"
-#include "EventKernel/ISignalState.h"
-#include "EventKernel/SignalStateHelper.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "TLorentzVector.h"
@@ -48,9 +45,6 @@ FourMomFillerTool::FourMomFillerTool (const std::string& type,
   m_do_rect     = true;
   book().ignore(); // Avoid coverity warnings.
 
-  declareProperty ("SignalState",   m_signalState = P4SignalState::UNKNOWN,
-                   "Signal state of the object to read.  "
-                   "Use the default of UNKNOWN to not change the state.");
   declareProperty ("WriteE",        m_do_E        = false);
   declareProperty ("WriteP",        m_do_p        = false);
   declareProperty ("WriteEt",       m_do_Et       = false);
@@ -120,19 +114,6 @@ StatusCode FourMomFillerTool::book()
  */
 StatusCode FourMomFillerTool::fill (const I4Momentum& p)
 {
-  SignalStateHelper sshelper (static_cast<P4SignalState::State>(m_signalState));
-  if (m_signalState != P4SignalState::UNKNOWN) {
-    const ISignalState* ss = dynamic_cast<const ISignalState*> (&p);
-    if (ss)
-      sshelper.controlObject (ss);
-    else {
-      REPORT_MESSAGE (MSG::WARNING)
-        << "Requested signal state " << m_signalState
-        << " for object of type " << typeid(p).name()
-        << "; but it does not derive from ISignalState.";
-    }
-  }
-
   FILL_BODY(p.p(), p.pt(), p.tanTh());
 
   return StatusCode::SUCCESS;
@@ -155,13 +136,6 @@ StatusCode FourMomFillerTool::fill (const INavigable4Momentum& p)
  */
 StatusCode FourMomFillerTool::fill (const CLHEP::HepLorentzVector& p)
 {
-  if (m_signalState != P4SignalState::UNKNOWN) {
-    REPORT_MESSAGE (MSG::WARNING)
-      << "Requested signal state " << m_signalState
-      << " for object of type " << typeid(p).name()
-      << "; but it does not derive from ISignalState.";
-  }
-
   FILL_BODY(p.mag(), p.perp(), std::tan(p.theta()));
 
   return StatusCode::SUCCESS;
@@ -184,13 +158,6 @@ StatusCode FourMomFillerTool::fill (const xAOD::IParticle& p)
  */
 StatusCode FourMomFillerTool::fill (const TLorentzVector& p)
 {
-  if (m_signalState != P4SignalState::UNKNOWN) {
-    REPORT_MESSAGE (MSG::WARNING)
-      << "Requested signal state " << m_signalState
-      << " for object of type " << typeid(p).name()
-      << "; but it does not derive from ISignalState.";
-  }
-
   double pt = p.Pt();
 
   if (m_do_E)        *m_E     = static_cast<float> (p.E());

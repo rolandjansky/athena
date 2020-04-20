@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # specified DetStatusMap output
@@ -22,9 +22,9 @@ class DetStatusMapGetter ( Configured )  :
         # now configure the algorithm
         try:        
             from DetectorStatus.DetectorStatusConf import DetStatusAlg               
-        except:
+        except Exception:
             mlog.error("could not import DetStatusAlg")
-            print traceback.format_exc()
+            mlog.error (traceback.format_exc())
             return False
 
         # sets up cond db
@@ -35,7 +35,7 @@ class DetStatusMapGetter ( Configured )  :
 
         # instantiate algorithm with default properties
         theDetStatusAlg=DetStatusAlg(Write=True)
-        self._DetStatusAlgHandle = theDetStatusAlg ;
+        self._DetStatusAlgHandle = theDetStatusAlg
 
 
         # register output in objKeyStore
@@ -52,7 +52,7 @@ class DetStatusMapGetter ( Configured )  :
 
         mlog.info(" now adding to topSequence")        
         from __main__ import topSequence
-        topSequence += theDetStatusAlg ;
+        topSequence += theDetStatusAlg
         
         return True
 

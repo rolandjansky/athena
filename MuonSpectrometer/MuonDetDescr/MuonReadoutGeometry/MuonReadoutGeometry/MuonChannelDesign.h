@@ -140,7 +140,11 @@ namespace MuonGM {
     // As such,our calculations are in 1D and do not require the use of the angle
     // We are commenting out instead of removing while we come to a permanent solution
     // Alexandre Laurier September 12 2018
-    Amg::Vector2D chLoc( pos.x()-chPos.x() , pos.y()-chPos.y());
+
+    //In the new geometry from November 2019 the layers are not anymore tilted, therefore we need
+    //to introduce the correction for the stereo angle in the distance
+    //Patrick Scholer March 18 2020
+    Amg::Vector2D chLoc( (pos.x()-pos.y()*tan(sAngle))-chPos.x() , pos.y()-chPos.y());
     if ( validMode && fabs(chLoc.x()) > 0.5*channelWidth( pos) ) {
       MsgStream log(Athena::getMessageSvc(),"MuonChannelDesign");
       if (log.level()<=MSG::INFO) log << MSG::INFO << "Problem in identification of the channel: distance to nearest channel, channel width: "

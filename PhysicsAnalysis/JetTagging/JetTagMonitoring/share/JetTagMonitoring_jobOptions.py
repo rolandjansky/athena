@@ -63,11 +63,11 @@ else:
 
 jetTagMonTool.UseTrigDecisionTool = True # added by SARA
 if DQMonFlags.useTrigger() and hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
-    print "jetTagMonTool will use TrigDecisionTool instance: %s" % DQMonFlags.nameTrigDecTool()
+    printfunc ("jetTagMonTool will use TrigDecisionTool instance: %s" % DQMonFlags.nameTrigDecTool())
 #    jetTagMonTool.TrigDecisionTool = getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
     jetTagMonTool.UseTrigDecisionTool = True
 else:
-    print "WARNING!!! jetTagMonTool will NOT use TrigDecisionTool."
+    printfunc ("WARNING!!! jetTagMonTool will NOT use TrigDecisionTool.")
     jetTagMonTool.UseTrigDecisionTool = False
 
 if (rec.triggerStream()=='express'): # added by SARA # don't require trigger if running on express stream
@@ -79,6 +79,8 @@ jetTagMonTool.JetTrigger_2016 = "HLT_j15"; # added by SARA
 jetTagMonTool.ElectronTrigger_2017 = "HLT_e28_lhtight_nod0_ivarloose"; # added by SARA
 jetTagMonTool.MuonTrigger_2017 = "HLT_mu26_ivarmedium"; # added by SARA
 jetTagMonTool.JetTrigger_2017 = "HLT_j15"; # added by SARA
+jetTagMonTool.ElectronTrigger_201X = "HLT_e[2-9][0-9]_.*"; # electrons 20-99 GeV
+jetTagMonTool.MuonTrigger_201X = "HLT_mu.*"; # muons *all* GeV
 
 #ToolSvc += jetTagMonTool
 monManJetTag.AthenaMonTools += [ jetTagMonTool ]

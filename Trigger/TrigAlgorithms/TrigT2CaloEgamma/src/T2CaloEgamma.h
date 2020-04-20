@@ -25,7 +25,6 @@
 
 #include <string>
 #include "TrigT2CaloCommon/T2CaloBase.h"
-#include "egammaInterfaces/Iegammaqweta2c.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 
@@ -96,8 +95,6 @@ class T2CaloEgamma: public T2CaloBase {
     bool m_storeCells;
     /** container pointer */
     CaloCellContainer* m_Container;
-    /** Correction tool for the cluster width */
-    ToolHandle<Iegammaqweta2c> m_egammaqweta2c;
 
     /* Variables to calculate Z0 position */
     std::vector<float> m_rhoFirstLayer, m_rhoMiddleLayer, m_zFirstLayer, m_zMiddleLayer;

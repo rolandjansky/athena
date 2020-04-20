@@ -15,18 +15,6 @@ using std::string;
 
 //**********************************************************************
 
-JetRecAlg::JetRecAlg(const std::string& name, 
-                           ISvcLocator* pSvcLocator )
-  : ::AthAlgorithm( name, pSvcLocator ) { 
-  //declareProperty( "Tools", m_exetools);
-}
-
-//**********************************************************************
-
-JetRecAlg::~JetRecAlg() { }
-
-//**********************************************************************
-
 StatusCode JetRecAlg::initialize() {
 
   ATH_CHECK(m_jetprovider.retrieve());
@@ -51,29 +39,24 @@ StatusCode JetRecAlg::finalize() {
 
 //**********************************************************************
 
-StatusCode JetRecAlg::execute() {  
+StatusCode JetRecAlg::execute(const EventContext& ctx) const {
+  // Get JetContainer by running fastjet, grooming or copying existing jets...
+  // Pass in the WriteHandle so that the provider can do the record, and we
+  // needn't know the type of the jet aux container
+  // We can subsequently access the jets from the handle and don't have to
+  // worry about memory management.
+  SG::WriteHandle<xAOD::JetContainer> jetContHandle(m_output,ctx);
+  ATH_CHECK( m_jetprovider->getAndRecordJets(jetContHandle) );
 
-  // Build JetContainer by running fastjet, grooming or copying existing jets...
-  std::unique_ptr<xAOD::JetContainer>  jets( m_jetprovider->build() );
-  if(jets==nullptr){
-    ATH_MSG_ERROR("Builder tool "<< m_jetprovider->name() << "  returned a null pointer");
-    return StatusCode::FAILURE;
-  }
-  std::unique_ptr<xAOD::JetAuxContainer>  auxCont( dynamic_cast<xAOD::JetAuxContainer *>(jets->getStore() ) );  
+  ATH_MSG_DEBUG("Created jet container of size "<< jetContHandle->size() << "  | writing to "<< m_output.key() );
 
-  
+  ATH_MSG_DEBUG("Applying jet modifiers to " << m_output.key());
+
   // Calculate moments, calibrate, sort, filter...  -----------
   for(const ToolHandle<IJetModifier> t : m_modifiers){
-    ATH_CHECK(t->modify(*jets));
+    ATH_CHECK(t->modify(*jetContHandle));
   }
 
-
-  ATH_MSG_DEBUG("Done jet finding "<< jets->size() << "  | writing to "<< m_output.key() );
-  
-  // Write out JetContainer and JetAuxContainer
-  SG::WriteHandle<xAOD::JetContainer> jetContHandle(m_output);
-  ATH_CHECK( jetContHandle.record(std::move(jets), std::move(auxCont) ) );
-  
   return StatusCode::SUCCESS;
 
 }

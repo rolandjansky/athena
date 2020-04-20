@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ namespace Trk
 		double theta,
 		double qop, 
 		const S& surface,
-		AmgSymMatrix(DIM)* covariance = 0);
+		AmgSymMatrix(DIM)* covariance = nullptr);
   
     /** Constructor with parameters - extract position and momentum */
     ParametersT(const AmgVector(DIM)& parameters,
@@ -133,7 +133,7 @@ namespace Trk
     virtual const Amg::Vector3D& momentum() const override final {return m_momentum;}
 
     /** Return the measurementFrame of the parameters */
-    const Amg::RotationMatrix3D measurementFrame() const override;
+    Amg::RotationMatrix3D measurementFrame() const override;
   
   protected:
     template<typename pars> friend class ::TrackParametersCovarianceCnv;

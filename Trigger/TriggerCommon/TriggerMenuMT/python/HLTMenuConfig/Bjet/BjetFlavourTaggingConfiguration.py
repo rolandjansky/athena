@@ -1,4 +1,5 @@
 
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 #from AthenaCommon.Constants import DEBUG
 
 def getFlavourTagging( inputJets, inputVertex, inputTracks ):
@@ -9,6 +10,11 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     bTagFex.JetKey = inputJets
     bTagFex.PriVtxKey = inputVertex
     bTagFex.TracksKey = inputTracks
+    bTagFex.OutputBTagging = recordable( "HLT_BTagging" )
+
+    from TrigBjetHypo.TrigBtagFexMTConfig import TrigBtagFexMT_OnlineMonitoring
+    bTagFex.MonTool = TrigBtagFexMT_OnlineMonitoring()
+
     algSequence.append( bTagFex )
 
     return algSequence

@@ -4,8 +4,8 @@
 
 #include "GaudiKernel/Property.h"
 #include "TrigEgammaPrecisionElectronHypoAlgMT.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthViews/ViewHelper.h"
 
 using namespace TrigCompositeUtils;
@@ -95,7 +95,7 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
 
    
   for ( auto& tool: m_hypoTools ) {
-    ATH_CHECK( tool->decide( toolInput ) );
+    ATH_CHECK( tool->decide( toolInput, context ) );
   }
  
   ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );

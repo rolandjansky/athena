@@ -1,8 +1,9 @@
+from __future__ import print_function
+
 import os
 import re
-import subprocess
 from collections import defaultdict
-from hypo_dot_tree import *
+from hypo_dot_tree import get_node_lines
 
 indir = '/tmp/peter'
 outdir = '/tmp/peter'
@@ -10,12 +11,9 @@ outdir = '/tmp/peter'
 def dot_event(fn, lines):
     dot_0 = ['digraph G{']
     dot_1 = []
-    #print 'pritn lines'
-    #for l in lines: print l
+    #print ('pritn lines')
+    #for l in lines: print (l)
     #assert False
-    timedict = defaultdict(float)
-    unitsdict = defaultdict(set)
-    passdict = defaultdict(set)
     for l in lines:
         tokens = l.split()
         scenario = tokens[0].split('.')[-1]
@@ -36,7 +34,8 @@ def dot_event(fn, lines):
                                                   proctime, units, ncalls)
 
         color='red'
-        if pass_flag: color = 'green'
+        if pass_flag:
+            color = 'green'
         if idn != '0':
             dot_0.append('%s -> %s;' % (pid, idn))
         dot_1.append('%s [label=%s color=%s];' % (idn, label, color))
@@ -52,11 +51,11 @@ def get_event_fns():
 
     
     fns = os.listdir(indir)
-    print fns
+    print (fns)
     fns = [f for f in fns if fn_re.match(f)]
-    print len(fns), ' files were identified'
+    print (len(fns), ' files were identified')
 
-    print fns
+    print (fns)
     fns = [os.path.join(indir, fn) for fn in fns]
     return fns
 
@@ -81,8 +80,8 @@ def dot_event_info(lines):
 
     info_list = []
     for k, ll in sorter.items():
-        print k
-        print ll
+        print (k)
+        print (ll)
         scenario_set = set([l[0] for l in ll])
         idn_set = set([l[1] for l in ll])
         pid_set = set([l[2] for l in ll])
@@ -113,14 +112,15 @@ def make_dotevent_script(event_info):
     dot_0 = ['digraph G{']
     dot_1 = []
 
-    print event_info
+    print (event_info)
     for scenario, pass_str, tot_time, units, idn, pid, n_calls in event_info:
 
         label = '"%s %s%s %s (%s) %s call(s)"' % (scenario, '\\', 'n',
                                                   tot_time, units, n_calls)
 
         color='red'
-        if pass_str == 'pass': color='green'
+        if pass_str == 'pass':
+            color='green'
         if idn != '0':
             dot_0.append('%s -> %s;' % (pid, idn))
         dot_1.append('%s [label=%s color=%s];' % (idn, label, color))
@@ -143,7 +143,7 @@ def write_eventdotscript(fn):
     out_fn = make_eventout_fn(fn)
     with open(out_fn, 'w') as ofile:
         ofile.write(script)
-    print 'wrote ', out_fn
+    print ('wrote ', out_fn)
     
 def main():
     fns =  get_event_fns()

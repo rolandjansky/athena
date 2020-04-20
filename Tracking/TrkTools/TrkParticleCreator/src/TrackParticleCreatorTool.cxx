@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -45,10 +45,11 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
-#include <map>
-#include <vector>
 #include <algorithm>
 #include <cassert>
+#include <map>
+#include <memory>
+#include <vector>
 
 // helper methods to print messages 
 template<class T>
@@ -101,10 +102,6 @@ namespace Trk
     : base_class(t,n,p),
       m_detID(nullptr),
       m_pixelID(nullptr),
-      m_trackSummaryTool    ("Trk::TrackSummaryTool/AtlasTrackSummaryTool"),
-      m_extrapolator        ("Trk::Extrapolator/AtlasExtrapolator"),
-      m_trackToVertex       ("Reco::TrackToVertex/TrackToVertex"),
-      m_hitSummaryTool      ("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
       m_magFieldSvc         ("AtlasFieldSvc", n),
       m_IBLParameterSvc("IBLParameterSvc",n),
       m_copyExtraSummaryName {"eProbabilityComb","eProbabilityHT","TRTTrackOccupancy","TRTdEdx","TRTdEdxUsedHits"},
@@ -122,13 +119,9 @@ namespace Trk
       m_expressPerigeeToBeamSpot(true),
       m_perigeeExpression("BeamLine")
     {
-      declareProperty("TrackSummaryTool",       m_trackSummaryTool );
-      declareProperty("MuonSummaryTool",       m_hitSummaryTool );
       declareProperty("ForceTrackSummaryUpdate",  m_forceTrackSummaryUpdate );
       declareProperty("ComputeAdditionalInfo",  m_computeAdditionalInfo);
       declareProperty("UpdateTrack",  m_updateTrack=true );
-      declareProperty("Extrapolator",   m_extrapolator );
-      declareProperty("TrackToVertex",            m_trackToVertex );
       declareProperty("MagFieldSvc",              m_magFieldSvc);
       declareProperty("UseTrackSummaryTool" , m_useTrackSummaryTool);
       declareProperty("UseMuonSummaryTool" , m_useMuonSummaryTool);
@@ -255,8 +248,8 @@ namespace Trk
             errors.push_back(eprob_to_copy);
           }
           else {
-            m_decorateSummaryTypes.push_back( std::make_pair(SG::AuxElement::Decorator<uint8_t>(extra_summary_type_iter->first),
-                                                             extra_summary_type_iter->second));  
+            m_decorateSummaryTypes.emplace_back(SG::AuxElement::Decorator<uint8_t>(extra_summary_type_iter->first),
+                                                             extra_summary_type_iter->second);  
           }
         }
         else {
@@ -264,7 +257,7 @@ namespace Trk
             m_copyEProbabilities.push_back(eprob_iter->second.first);
           }
           else{
-            m_decorateEProbabilities.push_back( std::make_pair(SG::AuxElement::Decorator<float>(eprob_iter->first),eprob_iter->second.first)); 
+            m_decorateEProbabilities.emplace_back(SG::AuxElement::Decorator<float>(eprob_iter->first),eprob_iter->second.first); 
           }
         }
       }
@@ -376,7 +369,7 @@ namespace Trk
         m_trackSummaryTool->updateTrack(nonConstTrack);
       }
       summary.reset(m_trackSummaryTool->createSummary(*track));
-      if (summary.get() == nullptr) {
+      if (summary == nullptr) {
         ATH_MSG_DEBUG ("No proper TrackSummary was returned. Creating TrackParticle with a dummy TrackSummary");
         summary = std::make_unique<Trk::TrackSummary>();
       } // else ATH_MSG_VERBOSE("Got Summary for Track" );
@@ -386,7 +379,7 @@ namespace Trk
         summary = std::make_unique<Trk::TrackSummary>(*track->trackSummary());
       } else {
         ATH_MSG_VERBOSE("No proper TrackSummaryTool found. Creating TrackParticle with a dummy TrackSummary");
-        summary.reset(new Trk::TrackSummary);
+        summary = std::make_unique<Trk::TrackSummary>();
       }
     }
     if (m_forceTrackSummaryUpdate || m_updateTrack) {
@@ -474,7 +467,7 @@ namespace Trk
                              << ", Z " << tsos->trackParameters()->position().z() );
 
             // we are not interested in keeping measurement parameters after any second perigee
-            if (parameters.size() > 0) haveFirstMeasurementParameters = true;
+            if (!parameters.empty()) haveFirstMeasurementParameters = true;
           }
       }
 
@@ -633,10 +626,10 @@ namespace Trk
                 float theta = -1000;
                 if (element)
                   {
-                    Amg::Vector3D my_track = tp->momentum();
-                    Amg::Vector3D my_normal = element->normal();
-                    Amg::Vector3D my_phiax = element->phiAxis();
-                    Amg::Vector3D my_etaax = element->etaAxis();
+                    const Amg::Vector3D& my_track = tp->momentum();
+                    const Amg::Vector3D& my_normal = element->normal();
+                    const Amg::Vector3D& my_phiax = element->phiAxis();
+                    const Amg::Vector3D& my_etaax = element->etaAxis();
                     // track component on etaAxis:
                     float trketacomp = my_track.dot(my_etaax);
                     // track component on phiAxis:
@@ -665,7 +658,7 @@ namespace Trk
                 surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
                 if (m_detID->is_pixel(surfaceID))
                   {
-                    InDet::SiWidth width = pixelCluster->width();
+                    const InDet::SiWidth& width = pixelCluster->width();
                     zWidth = static_cast<int>(width.colRow().y());
                   }
 
@@ -768,7 +761,7 @@ namespace Trk
                          << ", Z " << tsos->trackParameters()->position().z() );
         
         // we are not interested in keeping measurement parameters after any second perigee
-        if (parameters.size() > 0) haveFirstMeasurementParameters = true;
+        if (!parameters.empty()) haveFirstMeasurementParameters = true;
       }
     }
 
@@ -822,7 +815,7 @@ namespace Trk
      
     if (!trackparticle){
       ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");
-      return 0;
+      return nullptr;
     }
 
     trackparticle->setTrackLink( *(trackParticle.trackElementLink()) );
@@ -842,7 +835,7 @@ namespace Trk
  
     if (!trackparticle){
       ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");
-      return 0;
+      return nullptr;
     }
    
     trackparticle->setTrackLink( trackLink );
@@ -860,7 +853,7 @@ namespace Trk
     xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle;
     if (!trackparticle){
       ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");
-      return 0;
+      return nullptr;
     }
     /*
      * The following needs care as in one case the ownership 
@@ -914,7 +907,7 @@ namespace Trk
                                                      const Trk::Perigee* &aPer) const
   {
     aPer = track->perigeeParameters();
-    if (aPer==0)
+    if (aPer==nullptr)
       {
         ATH_MSG_VERBOSE ("Track has no perigee parameters.");
         return false;
@@ -1093,7 +1086,7 @@ namespace Trk
     }
   }
 
-  const InDet::BeamSpotData* TrackParticleCreatorTool::CacheBeamSpotData(const EventContext &ctx) const {
+  const InDet::BeamSpotData* TrackParticleCreatorTool::CacheBeamSpotData(const ::EventContext &ctx) const {
     // if (ctx.evt() == m_lastEvent) return m_lastBeamSpot;
     return m_trackToVertex->GetBeamSpotData(ctx);
     // m_lastEvent = ctx.evt();

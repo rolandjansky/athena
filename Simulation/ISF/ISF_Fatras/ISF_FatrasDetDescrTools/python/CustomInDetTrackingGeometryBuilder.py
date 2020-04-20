@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # CustomInDetTrackingGeometry module
@@ -8,10 +8,10 @@
 #
 ######################################################
 
+from __future__ import print_function
+
 # import the Extrapolator configurable
 from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__StagedTrackingGeometryBuilder
-
-from AthenaCommon.SystemOfUnits import *
 
 # define the class
 class CustomInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuilder ):
@@ -37,7 +37,7 @@ class CustomInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuilder )
         ISF_InputLayerMaterialProvider = iFatras__InputLayerMaterialProvider( name = namePrefix+'ISF_InputLayerMaterialProvider')
         #ISF_InputLayerMaterialProvider.OutputLevel = 1
         ToolSvc += ISF_InputLayerMaterialProvider
-        print ISF_InputLayerMaterialProvider
+        print (ISF_InputLayerMaterialProvider)
         
         # beampipe        
         from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__BeamPipeBuilder
@@ -47,7 +47,7 @@ class CustomInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuilder )
         BeamPipeBuilder.BeamPipeMaterialBinsZ   = TrkDetFlags.BeamPipeLayerMaterialBinsZ()
         BeamPipeBuilder.OutputLevel             = TrkDetFlags.InDetBuildingOutputLevel()
         ToolSvc += BeamPipeBuilder
-        print BeamPipeBuilder
+        print (BeamPipeBuilder)
         
         # the layer providers 
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerProvider 
@@ -117,7 +117,7 @@ class CustomInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuilder )
 
             ## add it to tool service
             #ToolSvc += IBLLayerBuilder
-            #print IBLLayerBuilder
+            #print (IBLLayerBuilder)
 
             ## the layer providers 
             #IBLLayerProvider = Trk__LayerProvider(name=namePrefix+'IBLLayerProvider') 
@@ -283,7 +283,7 @@ class CustomInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuilder )
             # add it to tool service
 
             ToolSvc += PixelLayerBuilder
-            print PixelLayerBuilder
+            print (PixelLayerBuilder)
 
             # the layer providers 
             PixelLayerProvider = Trk__LayerProvider(name=namePrefix+'PixelLayerProvider') 
@@ -432,7 +432,7 @@ class CustomInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuilder )
             SCT_LayerBinning = 2
             # SCT -> ToolSvc                             
             ToolSvc += SCT_LayerBuilder  
-            print SCT_LayerBuilder
+            print (SCT_LayerBuilder)
 
             # the layer providers 
             SCT_LayerProvider = Trk__LayerProvider(name=namePrefix+'SCT_LayerProvider') 
@@ -447,7 +447,7 @@ class CustomInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuilder )
                         
         TRT_LayerBuilder = None
         if buildCustomTRT:
-            print "No TRT for the moment"
+            print ("No TRT for the moment")
             # TRT building
         #from InDetTrackingGeometry.InDetTrackingGeometryConf import InDet__TRT_LayerBuilder
             #TRT_LayerBuilder = InDet__TRT_LayerBuilder(name=namePrefix+'TRT_LayerBuilder')

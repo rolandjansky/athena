@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODBase/IParticleContainer.h"
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
+#ifndef GENERATIONBASE
 #include "xAODJet/JetTrigAuxContainer.h"
+#endif
 #include "SGTools/TestStore.h" 
 
 #include "gtest/gtest.h"
@@ -49,7 +51,9 @@ JetContainer* makeJetContainer_(const std::vector<JetFourMom_t>& v,
                                 bool storeIt=true) {
   JetContainer* jc = new JetContainer;
   if (isTrigger){
+#ifndef GENERATIONBASE
     jc->setStore(new xAOD::JetTrigAuxContainer);
+#endif
   } else {
     jc->setStore(new xAOD::JetAuxContainer);
   }
@@ -117,7 +121,7 @@ TEST_F(JetTest, jetFunctions) {
   EXPECT_TRUE(true);
 }
 
-
+#ifndef GENERATIONBASE
 TEST_F(JetTest, triggerJetFunctions) {
 
   std::vector<JetFourMom_t> outMomenta;
@@ -135,8 +139,8 @@ TEST_F(JetTest, triggerJetFunctions) {
 
   EXPECT_TRUE(true);
 }
+#endif
 
-  
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest( &argc, argv );
   // SGTest::TestStore testStore;

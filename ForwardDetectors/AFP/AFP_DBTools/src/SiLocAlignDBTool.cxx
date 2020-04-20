@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -74,7 +74,7 @@ namespace AFP
   {
     // read database content
     boost::property_tree::ptree inputData;
-    const coral::AttributeList attrList = m_conditionsData->coralList();
+    const coral::AttributeList& attrList = m_conditionsData->coralList();
     std::stringstream inputJSON (attrList["data"].data<std::string>());
     boost::property_tree::read_json(inputJSON, inputData);
     boost::property_tree::ptree& payload = inputData.get_child("data_array");

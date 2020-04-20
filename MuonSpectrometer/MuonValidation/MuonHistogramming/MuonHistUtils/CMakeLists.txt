@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkValidation/TrkValHistUtils
                           PRIVATE
                           DetectorDescription/GeoPrimitives
-                          MuonSpectrometer/MuonIdHelpers
+                          MuonSpectrometer/MuonStationIndex
                           ${extra_deps} )
 
 # External dependencies:
@@ -36,6 +36,6 @@ atlas_add_library( MuonHistUtils
                    PUBLIC_HEADERS MuonHistUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODTracking xAODTrigMuon xAODTrigger xAODTruth TrkValHistUtils MuonIdHelpersLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODTracking xAODTrigMuon xAODTrigger xAODTruth TrkValHistUtils MuonStationIndexLib
                    PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives ${extra_libs} )
 

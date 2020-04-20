@@ -6,7 +6,7 @@ from InDetTrackSelectionTool import InDetTrackSelectionToolConf
 # Use the appropriate containers based on what config is desired
 trackvtxcontainers = {
     "offline":  ("InDetTrackParticles","PrimaryVertices"),
-    "ftf":      ("HLT_xAODTracks_FS","HLT_EFHistoPrmVtx"),
+    "ftf":      ("HLT_IDTrack_FS_FTF","HLT_EFHistoPrmVtx"),
     }
 
 # PFTrackSelector

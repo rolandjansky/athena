@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -23,14 +23,12 @@
 
 #include "MuonCondInterface/CscICoolStrSvc.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
-//#include "MuonCondSvc/CscCoolStrSvc.h"
 
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <bitset>
 #include <inttypes.h>
-//#include <math>
 
 #include "CscCalcSlope.h"
 #include "BipolarFit.h"
@@ -39,16 +37,12 @@
 #include "CscCalibData/CscCalibReportContainer.h"
 #include "CscCalibData/CscCalibReportSlope.h"
 
-
-using namespace std;
-
 namespace MuonCalib {
 
-  CscCalcSlope::CscCalcSlope(const string& name, ISvcLocator* pSvcLocator) :
+  CscCalcSlope::CscCalcSlope(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
     m_storeGate(NULL),
     m_cscCalibTool(NULL),
-    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc",name),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder"),
     m_chronoSvc(NULL),
     m_outputFileName("output.cal"),
@@ -74,22 +68,13 @@ namespace MuonCalib {
     m_numBits(12)
   {
     declareProperty("OutputFile", m_outputFileName = "");
-    //declareProperty("FitCutoff",m_fitCutoff=0);
     declareProperty("IgnoreDatabaseError",m_ignoreDatabaseError = false); //Set to true to ignore database errors
     declareProperty("TitlePrefix",m_titlePrefix = "");		//Prefix appended to title of histograms and graphs
     declareProperty("TitlePostfix",m_titlePostfix = ""); 	//Postfix appended to title of histograms and graphs
 
-    //Don't put the min at 0! At least some offset!
-    //declareProperty("FitMin",m_calFuncMin=2);
-    //declareProperty("EdgeChanFitMin", m_calFuncEdgeChanMin = 6);
-    //declareProperty("FitMax",m_calFuncMax=31.5);
-
     //test parameters
     declareProperty("DoBipolarFit", m_doBipolarFit = true);
     declareProperty("DoCrossTalkFix",m_doCrossTalkFix = true);
-
-    //declareProperty("DoPulserLinearityCorrection",m_doPulserFactor = true);
-    //declareProperty("PulserLinearityFile", m_pulserFactorFile = "pulserFactors.txt");
 
     declareProperty("GetPedFromFile",m_pedFile = false);
     declareProperty("PedFileName",m_pedFileName = "");
@@ -115,8 +100,6 @@ namespace MuonCalib {
        (-20 since V^2 gives power disipation)
 
        */
-    //declareProperty("CalibFitFunction", m_calFitFunc = "-20*TMath::Log10((x-[0])/[1])");
-    //declareProperty("CalibFitFunction", m_calFitFunc = "-20*TMath::Log10((x-[0])/[1])");
 
     declareProperty("FindPeakTime", m_findPeakTime = true);
     declareProperty("DoBitHists", m_doBitHists = true);
@@ -150,8 +133,6 @@ namespace MuonCalib {
     m_crossTalkFix[23] = 0.9743144079;
   }
 
-  CscCalcSlope::~CscCalcSlope() {}
-
   StatusCode CscCalcSlope::initialize()
   {
     MsgStream mLog( msgSvc(), name() );
@@ -160,76 +141,22 @@ namespace MuonCalib {
 
     //*******Register services and tools *********/ 	
     // Store Gate active store
-    StatusCode sc = serviceLocator()->service("StoreGateSvc", m_storeGate);
-    if (sc != StatusCode::SUCCESS )
-    {
-      mLog << MSG::FATAL << " Cannot get StoreGateSvc " << endmsg;
-      return StatusCode::FAILURE ;
-    }
+    ATH_CHECK(serviceLocator()->service("StoreGateSvc", m_storeGate));
 
-cerr << "detstore" << endl;
-    StoreGateSvc* detStore = 0;
-    sc = serviceLocator()->service("DetectorStore", detStore);
-
-    if(!sc.isSuccess()) 
-    {
-      mLog << MSG::FATAL << " DetectorStore not found" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    
-cerr << "idhelper" << endl;
-
- ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
  
-cerr << "chorno" << endl;
-    sc = service("ChronoStatSvc",m_chronoSvc);    
-    if(sc.isFailure())
-    {
-      mLog << MSG::FATAL << "Cannot retrieve ChronoStatSvc!" << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(service("ChronoStatSvc",m_chronoSvc));
 
-    /*sc = service("THistSvc", m_thistSvc);
-      if(sc.isFailure())
-      {
-      mLog << MSG::FATAL << "Cannot retrieve THistSvc!" << endmsg;
-      return StatusCode::FAILURE;
-      }*/
+    IToolSvc* toolSvc=nullptr;
+    ATH_CHECK(service("ToolSvc",toolSvc));
 
-cerr << "toolsvc" << endl;
-    IToolSvc* toolSvc;
-    sc = service("ToolSvc",toolSvc);
-    if(sc.isFailure())
-    {
-      mLog << MSG::FATAL << "Unable to retrieve ToolSvc" << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(toolSvc->retrieveTool("CscCalibTool",m_cscCalibTool));
 
-cerr << "calibtool" << endl;
-    sc = toolSvc->retrieveTool("CscCalibTool",m_cscCalibTool);
-    if(sc.isFailure())
-    {
-      mLog << MSG::FATAL << "Unable to retrieve CscCalibTool" << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-
-
-cerr << "decoder tool" << endl;
-    if (m_cscRdoDecoderTool.retrieve().isFailure()){
-      mLog << MSG::FATAL << "Cannot retrieve Csc_Rdo_Decoder Tool!" << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_cscRdoDecoderTool.retrieve());
 
     mLog << MSG::INFO <<"Finished initializing services. " << endmsg; 
-cerr << "done init services" << endl;
     //*****Initialize internal variables and histograms*******/	
     m_ampProfs = new std::map<int, TProfile* >();
-    //m_ampHists = new DataVector<TH1F>();
-    //m_pulserLevels = new DataVector< std::vector<int> >;
-    //m_adcValues = new DataVector< std::vector<double> >; 
-    //m_adcErrors = new DataVector< std::vector<double> >;
-
     //Setup lookup table for pulser levels
     m_dbLevels.resize(64);
     for(unsigned int pulserLevel=0; pulserLevel < 64; pulserLevel++)
@@ -240,30 +167,17 @@ cerr << "done init services" << endl;
     if(m_doBitHists) m_bitHists = new DataVector<TH1I>(SG::VIEW_ELEMENTS);
     //Loop through ids to find out what hash range we're working on, and to 
     //initialize histograms.
-    vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
-    vector<Identifier>::const_iterator chamItr = ids.begin();
-    vector<Identifier>::const_iterator chamEnd = ids.end();
+    std::vector<Identifier> ids = m_idHelperSvc->cscIdHelper().idVector();
+    std::vector<Identifier>::const_iterator chamItr = ids.begin();
+    std::vector<Identifier>::const_iterator chamEnd = ids.end();
     m_maxStripHash = 0;
     for(; chamItr != chamEnd; chamItr++)
     {
       std::vector<Identifier> stripVect;
       m_idHelperSvc->cscIdHelper().idChannels(*chamItr,stripVect);
 
-      /*
-         vector<vector<float> >  chamberDbs;
-         for(unsigned int layItr = 0; layItr <4; layItr++)
-         {
-         vector<float> layerDbs;
-         for(unsigned int pulserLevel=0;pulserLevel< 64;pulserLevel++)
-         {
-         layerDbs.push_back(pulserLevel*.5);
-         }
-         chamberDbs.push_back(layerDbs);
-         }
-         m_dbLevels.push_back(chamberDbs);*/
-
-      vector<Identifier>::const_iterator stripItr = stripVect.begin();
-      vector<Identifier>::const_iterator stripEnd = stripVect.end();
+      std::vector<Identifier>::const_iterator stripItr = stripVect.begin();
+      std::vector<Identifier>::const_iterator stripEnd = stripVect.end();
       for(;stripItr != stripEnd; stripItr++)
       {
         IdentifierHash stripHash;
@@ -290,7 +204,7 @@ cerr << "done init services" << endl;
           sprintf(bitName, "bitHist%d",(int)stripHash);
           sprintf(titleSeed, "Bit histogram for eta %d, sector %d, layer %d%c strip %d", 
               stationEta,(2*stationPhi+50 - stationName),wireLayer,orientation,stripNumber);
-          string title = m_titlePrefix + titleSeed + m_titlePostfix;
+          std::string title = m_titlePrefix + titleSeed + m_titlePostfix;
           TH1I* hist = new TH1I(bitName, title.c_str(), m_numBits, 0, m_numBits); //12 bits
           hist->GetXaxis()->SetTitle("Bit");
           hist->GetYaxis()->SetTitle("Counts");
@@ -301,27 +215,21 @@ cerr << "done init services" << endl;
 
     m_fitReturns = new std::vector<float>;
     m_fitReturns->resize(m_maxStripHash+1,0);
-    /*m_allowedStrips = new bool[m_maxStripHash+1]*/;
 
     m_calGraphs = new DataVector<TGraphErrors>(SG::VIEW_ELEMENTS);
     for(unsigned int chanItr =0; chanItr <= m_maxStripHash; chanItr++)
     {
       m_calGraphs->push_back(NULL);
-      /*IdentifierHash stripHash =chanItr;
-        Identifier stripId;
-        IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();
-        m_idHelperSvc->cscIdHelper().get_id(stripHash, stripId, &channelContext);
-        m_allowedStrips[chanItr] = (m_idHelperSvc->cscIdHelper().chamberLayer(stripId) == m_expectedChamberLayer);*/
     }
 
 
     if(m_pedFile)
     {
       mLog << MSG::INFO << "Opening pedestal file" << endmsg;
-      ifstream in(m_pedFileName.c_str());
+      std::ifstream in(m_pedFileName.c_str());
       int stripHash;
       double ped,noise;//,pedError,noiseError;
-      string buff;
+      std::string buff;
       in >> buff >> buff >> buff >> buff >> buff ;// skip header 
       m_peds = new float[m_maxStripHash+1];
       m_noises = new float[m_maxStripHash+1];
@@ -340,23 +248,11 @@ cerr << "done init services" << endl;
     }
     else
     {
-      if(m_cscCoolStrSvc.retrieve().isFailure())
-      {
-        mLog << MSG::FATAL << "Unable to retrieve CscCoolStrSvc" << endmsg;
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(m_readKey.initialize());
     }
 
-    /*for(unsigned int stripItr = 0 ; stripItr < m_maxStripHash+1; stripItr++)
-      {
-      m_pulserLevels->push_back(new std::vector<int> );
-      m_adcValues->push_back(new std::vector<double> );
-      m_adcErrors->push_back(new std::vector<double> );
-      }//End strip loop*/
     mLog << MSG::INFO << "Counted " << m_maxStripHash +1 << " strips." << endmsg;
 
-    //m_fracProfs = new DataVector<DataVector<TProfile> >();
-    //m_fracGraphs = new DataVector<DataVector<TGraph> >();
     m_slopes = new CscCalibResultCollection("pslope");
     m_intercepts = new CscCalibResultCollection("pinter");
 
@@ -400,8 +296,6 @@ cerr << "done init services" << endl;
 
     bool thereIsAFatal=false;
 
-    //makeCalibPoints(); 
-
     //calculateParameters() finds means and fits gain curves from the data in 
     ///m_adcValues and/or m_allPeaktsHist 
     sc =calculateParameters();
@@ -426,15 +320,10 @@ cerr << "done init services" << endl;
       thereIsAFatal = true;
     }
 
-    //delete m_ampHists;
-    //delete m_pulserLevels;
-    //delete m_adcValues;
-    //delete m_adcErrors;
-
     delete m_peakTimeProf;
 
     delete [] m_crossTalkFix;
-    mLog <<MSG::DEBUG  << "Finished finalize()" << endl;
+    mLog <<MSG::DEBUG  << "Finished finalize()" << endmsg;
 
     if(thereIsAFatal)
       return StatusCode::FAILURE; 
@@ -460,9 +349,11 @@ cerr << "done init services" << endl;
     {
       mLog << MSG::FATAL << "Could not find event" << endmsg;
       return StatusCode::FAILURE;
-    }
+    }  
 
-    //	mLog << MSG::INFO <<"Got raw data " << endmsg;
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey}; 
+    const CscCondDbData* readCdo{*readHandle};
+       
     //Loop over RODs (data from 2 chambers), each of which is in
     //a single CscRawaData collection
     CscRawDataContainer::const_iterator rodItr = fullRDO->begin();
@@ -481,14 +372,13 @@ cerr << "done init services" << endl;
         {
           mLog <<MSG::INFO << "New pulser level found. (" << pulserLevel <<")." << endmsg;
 
-          //m_ampHists->clear();
-          map<int,TProfile*>::iterator alreadyExistingProfile = m_ampProfs->find(pulserLevel);
+          std::map<int,TProfile*>::iterator alreadyExistingProfile = m_ampProfs->find(pulserLevel);
 
           if(alreadyExistingProfile == m_ampProfs->end())
           {//No previous profile for this amplitude exists
 
             mLog << MSG::DEBUG << " creating new amplitude profile" << endmsg;
-            stringstream name, title;
+            std::stringstream name, title;
             name << "ampProf_" << pulserLevel;
             title << m_titlePrefix << "Amplitudes For Pulser Level " << pulserLevel << m_titlePostfix;
             m_currentAmpProf = new TProfile(name.str().c_str(), title.str().c_str(), 
@@ -496,7 +386,7 @@ cerr << "done init services" << endl;
             m_currentAmpProf->GetXaxis()->SetTitle("Channel (Hash Id)");
             m_currentAmpProf->GetYaxis()->SetTitle("Amplitude (ADC value)");
             mLog << MSG::DEBUG << "Adding new amplitude profile" << endmsg;
-            m_ampProfs->insert(pair<int, TProfile*>( pulserLevel, m_currentAmpProf));
+            m_ampProfs->insert(std::pair<int, TProfile*>( pulserLevel, m_currentAmpProf));
           }
           else
           {
@@ -516,25 +406,12 @@ cerr << "done init services" << endl;
         CscRawDataCollection::const_iterator clusEnd = rod->end();
         for(; clusItr!=clusEnd ; clusItr++)
         {
-          //mLog << MSG::INFO<< " converting cluster" << endmsg;
           const CscRawData * cluster = (*clusItr); //Note: For a pulser or ped run, the "cluster" 
           //is the size of an entire layer
           int numStrips = cluster->width();
           int samplesPerStrip = (cluster->samples()).size()/numStrips;
 
           IdContext channelContext = m_idHelperSvc->cscIdHelper().channel_context();	
-          /*
-             Identifier startId;
-             m_idHelperSvc->cscIdHelper().get_id(hashStart, startId, &channelContex);
-
-          //check the chamber layer.
-          int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(startId) << endmsg;
-          if(chamberLayer != m_expectedChamberLayer)
-          {
-          m_log << MSG::ERROR << "A chamber with a chamber layer of " << chamberLayer << " was found. "
-          << m_expectedChamberLayer << " was expected. Something is probably wrong." << endmsg;
-          continue;
-          } */
 
           for(int stripItr = 0; stripItr <numStrips; stripItr++)
           {
@@ -564,13 +441,8 @@ cerr << "done init services" << endl;
             bool isThisLayerPulsed = (pulsedWireLayer >> currentWireLayer)&0x1;
             if(isThisLayerPulsed)
             {
-              /*Usefull for debug, but slows things down a surprising amount
-                if(!m_idHelperSvc->cscIdHelper().valid(stripId))
-                {
-                mLog << MSG::ERROR << stripId.getString() << " is not a valid id!" << endmsg;
-                }*/
 
-              vector<uint16_t> samples;
+              std::vector<uint16_t> samples;
               cluster->samples(stripItr,samplesPerStrip,samples); //Retrieve samples for a single strip
 
               float ped;
@@ -582,8 +454,7 @@ cerr << "done init services" << endl;
               }
               else{
 
-                if(StatusCode::SUCCESS != m_cscCoolStrSvc->getParameter(ped,"ped",stripHash))
-                {
+                if(!readCdo->readChannelPed(stripHash, ped).isSuccess()){
                   ped = 2054;
                   mLog << (m_ignoreDatabaseError ? MSG::WARNING :  MSG::ERROR) 
                     << "Failed at getting pedestal from COOL for hash " << stripHash << endmsg;
@@ -593,8 +464,7 @@ cerr << "done init services" << endl;
                 }
                 else
                   mLog << MSG::VERBOSE << "Got pedestal of " << ped << endmsg;
-                if(StatusCode::SUCCESS != m_cscCoolStrSvc->getParameter(
-                      noise, "noise", stripHash))
+                if(!readCdo->readChannelNoise(stripHash, noise).isSuccess())
                 {
                   noise = .001;
                   mLog << (m_ignoreDatabaseError ? MSG::WARNING : MSG::ERROR) << "Failed at getting noise from COOL for hash " << stripHash << endmsg;
@@ -709,7 +579,6 @@ cerr << "done init services" << endl;
       if(true)//stripHash < 50 || stripHash%1000 == 0)
       {
         mLog << MSG::INFO << "Analyzing strip with hash " << stripHash << " out of " << m_maxStripHash << endmsg; 
-        //mLog <<MSG::DEBUG << (float)clock()/((float)CLOCKS_PER_SEC) << " is the time " << endmsg;
       }
 
       //**Now tackle slope calculation
@@ -727,18 +596,6 @@ cerr << "done init services" << endl;
       int stationPhi = m_idHelperSvc->cscIdHelper().stationPhi(id);
       int stationEta = m_idHelperSvc->cscIdHelper().stationEta(id);
       int stripNumber = m_idHelperSvc->cscIdHelper().strip(id);
-
-
-      //Decide if we're fitting to an edge strip or not, which
-      //use different TF1s
-      /*
-      TF1 * myFunc = NULL;
-      if(stripNumber <= 2 || stripNumber >= 191)
-        myFunc = edgeFunc;
-      else
-        myFunc = simpleFunc;
-        */
-
 
       IdentifierHash chamHash;
       m_idHelperSvc->cscIdHelper().get_module_hash(id,chamHash);
@@ -775,7 +632,7 @@ cerr << "done init services" << endl;
       sprintf(calName, "calGraph%u",stripHash);
       sprintf(titleSeed, "Calgraph for eta %d, sector %d, layer %d%c, strip %d",stationEta,(2*stationPhi+50 - stationName),wireLayer,orientation, stripNumber);
       calGraph->SetName(calName);
-      string title = m_titlePrefix + titleSeed + m_titlePostfix;
+      std::string title = m_titlePrefix + titleSeed + m_titlePostfix;
       calGraph->SetTitle(title.c_str());
       calGraph->GetYaxis()->SetTitle("ADC counts");
       calGraph->GetXaxis()->SetTitle("Attenuation (-db)");
@@ -794,8 +651,8 @@ cerr << "done init services" << endl;
       //}
       mLog << MSG::DEBUG << "Number of ampProfs " << m_ampProfs->size() << endmsg;
       int calPointItr = 0;
-      map<int, TProfile*>::const_iterator ampProfItr = m_ampProfs->begin();
-      map<int, TProfile*>::const_iterator ampProfEnd = m_ampProfs->end();
+      std::map<int, TProfile*>::const_iterator ampProfItr = m_ampProfs->begin();
+      std::map<int, TProfile*>::const_iterator ampProfEnd = m_ampProfs->end();
       for(; ampProfItr != ampProfEnd; ampProfItr++)
       {
         if(!ampProfItr->second){
@@ -844,7 +701,7 @@ cerr << "done init services" << endl;
              << "\tlastVal = " << lastVal
              << ";lastDrop " << lastDrop << "; thisDrop " << thisDrop << endmsg;
             if(thisDrop > m_minDeltaAdc && lastDrop > m_minDeltaAdc){
-              mLog << MSG::DEBUG << "Found fitMin!" << std::endl;
+              mLog << MSG::DEBUG << "Found fitMin!" << endmsg;
               foundMin = true;
               fitMinX = attenValue;
             }
@@ -861,10 +718,7 @@ cerr << "done init services" << endl;
 
           calGraph->SetPoint(calPointItr,attenValue,adcValue);
           calGraph->SetPointError(calPointItr,0.01,adcError);
-          //calGraph->SetPoint(calPointItr,adcValue,attenValue);
-          //calGraph->SetPointError(calPointItr,adcError,0.01);
           calPointItr++;
-          //fittedFunction->GetParError(1));	//WARNING: Assumed small charge error
         }//done if(entries >0)
 
       }//Done ampProfItr loop
@@ -921,7 +775,7 @@ cerr << "done init services" << endl;
 
         invertedSlope = 1/slope;
 
-        cerr << "Inserting calgraph in for hash " << stripHash << endl;
+        mLog << MSG::ERROR << "Inserting calgraph in for hash " << stripHash << endmsg;
         (*m_calGraphs)[stripHash] = calGraph;
 
         mLog << MSG::DEBUG << "StripHash: " << stripHash << "; slope: " <<slope  
@@ -970,7 +824,7 @@ cerr << "done init services" << endl;
     MsgStream mLog( msgSvc(), name() );
     //***Take conditions data held in summary histograms and  print to the calibration file***//
     mLog << MSG::INFO << "Parameters calculated, preparing to outputing to file: " << m_outputFileName << endmsg;
-    ofstream out;
+    std::ofstream out;
     out.open(m_outputFileName.c_str());
     if(!out.is_open())
     {
@@ -1052,7 +906,7 @@ cerr << "done init services" << endl;
 
     bool thereIsAnError = false;
 
-    string histKey = "cscSlopeCalibReport";
+    std::string histKey = "cscSlopeCalibReport";
     mLog <<MSG::DEBUG << "Recording calibration graphs to TDS with key " 
       << histKey << endmsg;
 
@@ -1102,7 +956,7 @@ cerr << "done init services" << endl;
   StatusCode CscCalcSlope::calOutput3() {
     MsgStream mLog( msgSvc(), name() );
 
-    ofstream out;
+    std::ofstream out;
     out.open(m_outputFileName.c_str());
     if(!out.is_open())
     {
@@ -1112,9 +966,6 @@ cerr << "done init services" << endl;
     out << "03-00 <END_HEADER>";
 
     outputParameter3(*m_slopes, out);
-    //outputParameter3(*m_intercepts, out);
-    //if(m_peakTimes)
-    //  outputParameter3(*m_peakTimes, out);
     out << "\n<END_FILE>";
     out.close();
 
@@ -1124,10 +975,13 @@ cerr << "done init services" << endl;
   }
 
 
-  void CscCalcSlope::outputParameter3(const CscCalibResultCollection & results, ofstream & out){
+  void CscCalcSlope::outputParameter3(const CscCalibResultCollection & results, std::ofstream & out){
     MsgStream mLog( msgSvc(), name() );
 
     mLog << MSG::INFO << "Printing out parameter " << results.parName() << endmsg;
+
+    SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey}; 
+    const CscCondDbData* readCdo{*readHandle};
 
     out << "\n";
     out << "<NEW_PAR> " << results.parName() << "\n";
@@ -1140,7 +994,7 @@ cerr << "done init services" << endl;
       double value = (*resItr)->value();
       std::string idString;
 
-      m_cscCoolStrSvc->indexToStringId(hashId, "CHANNEL", idString);
+      readCdo->indexToStringId(&m_idHelperSvc->cscIdHelper(), hashId, "CHANNEL", idString).ignore();
 
       out << idString << " " << value << "\n";
     }

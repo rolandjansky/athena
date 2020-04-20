@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SRC_TIMEANDADCFITTER_H
 #define SRC_TIMEANDADCFITTER_H
 
-#include "TMath.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -17,14 +16,7 @@
 #include <TString.h>
 #include <vector>
 #include "TH1.h"
-#include "TH2.h"
-#include "TH3.h"
-#include "TF1.h"
 #include "TObjArray.h"
-
-
-//using namespace std;
-
 
 class TimeAndAdcFitter {
 public:

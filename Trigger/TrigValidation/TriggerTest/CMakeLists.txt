@@ -9,6 +9,7 @@ atlas_subdir( TriggerTest )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.cxx Testing/*.conf )
 atlas_install_scripts( test/exec*.sh test/test*.sh test/test*.py )
+atlas_install_data( share/*.ref )
 
 # Unit tests:
 atlas_add_test( flake8_test_dir

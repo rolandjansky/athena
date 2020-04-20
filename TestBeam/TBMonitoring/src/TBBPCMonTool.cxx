@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -396,7 +396,7 @@ StatusCode TBBPCMonTool::fillHists()
   if(m_fake_detector) FillRandomDetect();
 
   if(this->histsNotBooked()) {
-    this->mybookHists();
+    ATH_CHECK(this->mybookHists());
   }
 
   if(m_bpcnum==0) {

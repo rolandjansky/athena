@@ -28,7 +28,6 @@
 
 
 
-class PileUpMergeSvc;
 class IAtRndmGenSvc;
 class ITriggerTime;
 class CaloCell_SuperCell_ID;
@@ -120,7 +119,6 @@ class LArSCL1Maker : public AthAlgorithm,
 
 
   IChronoStatSvc*              m_chronSvc;
-  PileUpMergeSvc*              m_mergeSvc;
   ServiceHandle<IAtRndmGenSvc> m_atRndmGenSvc;
   std::string                  m_rndmEngineName;
   CLHEP::HepRandomEngine*      m_rndmEngine;

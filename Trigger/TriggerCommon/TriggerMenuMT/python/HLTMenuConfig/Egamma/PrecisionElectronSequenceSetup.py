@@ -7,7 +7,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
 
 
 def precisionElectronSequence(ConfigFlags):
@@ -15,8 +15,9 @@ def precisionElectronSequence(ConfigFlags):
     InViewRoIs = "precisionElectron"
     # EVCreator:
     precisionTrackViewsMaker = EventViewCreatorAlgorithm("IMprecisionTrack")
-    precisionTrackViewsMaker.RoIsLink = "initialRoI" # -||-
-    precisionTrackViewsMaker.InViewRoIs = InViewRoIs # contract with the precisionCalo
+    precisionTrackViewsMaker.RoIsLink = "initialRoI"
+    precisionTrackViewsMaker.RoITool = ViewCreatorInitialROITool()
+    precisionTrackViewsMaker.InViewRoIs = InViewRoIs
     precisionTrackViewsMaker.Views = "precisionElectronViews" #precisionTrackViews
     precisionTrackViewsMaker.ViewFallThrough = True
     precisionTrackViewsMaker.RequireParentView = True
@@ -49,4 +50,5 @@ def precisionElectronMenuSequence():
                           Sequence    = electronPrecisionAthSequence,
                           Hypo        = thePrecisionElectronHypo,
                           HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict )
+
 

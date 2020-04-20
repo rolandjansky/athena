@@ -32,7 +32,7 @@ namespace Muon {
     // resolution of the single channel, and the vector of firing strips
     //
     virtual StatusCode getClusters(std::vector<Muon::sTgcPrepData>& stripsVect, 
-				   std::vector<Muon::sTgcPrepData*>& clustersVect)=0;
+				   std::vector<Muon::sTgcPrepData*>& clustersVect)const=0;
     
   };
 }

@@ -21,13 +21,13 @@ InDetPriVxFinderToolSplit = InDet__InDetIterativePriVxFinderTool( name   = "InDe
 
 ToolSvc += InDetPriVxFinderToolSplit
 if (InDetFlags.doPrintConfigurables()):
-    print InDetPriVxFinderToolSplit
+    printfunc (InDetPriVxFinderToolSplit)
 
 InDetPriVxFinder.VertexFinderTool       = InDetPriVxFinderToolSplit
 InDetPriVxFinder.VxCandidatesOutputName = "SplitVxCandidates"
 InDetPriVxFinder.doVertexSorting        = False
 if (InDetFlags.doPrintConfigurables()):
-    print InDetPriVxFinder
+    printfunc (InDetPriVxFinder)
 
 from InDetVertexSplitter.InDetVertexSplitterConf import InDet__InDetVertexSplitterHist
 InDetVertexSplitterHist = InDet__InDetVertexSplitterHist()
@@ -35,7 +35,7 @@ InDetVertexSplitterHist = InDet__InDetVertexSplitterHist()
 InDetVertexSplitterHist.OutputLevel = jobConfig['outputlevel']
 
 topSequence += InDetVertexSplitterHist
-print          InDetVertexSplitterHist
+printfunc (         InDetVertexSplitterHist)
 
 from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import THistSvc

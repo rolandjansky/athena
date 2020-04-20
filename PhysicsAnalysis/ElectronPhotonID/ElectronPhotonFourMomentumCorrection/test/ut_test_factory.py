@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 import ROOT
 import unittest
 
@@ -36,7 +36,7 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertAlmostEqual(ph.caloCluster().auxdata("float")("phiCalo"), phi)
         self.assertAlmostEqual(ph.e(), e, delta=0.01)
         self.assertEqual(ph.caloCluster().e(), e)
-        for i in xrange(3):
+        for i in range(3):
             self.assertGreater(ph.caloCluster().energyBE(i), 0)
 
     def test_converted(self):
@@ -60,7 +60,7 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertAlmostEqual(ph.caloCluster().auxdata("float")("phiCalo"), phi)
         self.assertAlmostEqual(ph.e(), e, delta=0.01)
         self.assertEqual(ph.caloCluster().e(), e)
-        for i in xrange(3):
+        for i in range(3):
             self.assertGreater(ph.caloCluster().energyBE(i), 0)
 
     def test_photon(self):

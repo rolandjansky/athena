@@ -1,6 +1,8 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 include.block("LArRecUtils/LArADC2MeVTool_jobOptions.py")
 
-print " WARNING obsolete jobOption. Please use python class to configure LArADC2MeVTool"
+printfunc (" WARNING obsolete jobOption. Please use python class to configure LArADC2MeVTool")
 
 from AthenaCommon.AppMgr import ToolSvc
 from LArRecUtils.LArRecUtilsConf import LArADC2MeVTool

@@ -19,18 +19,23 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfoUtils
                           )
 
+atlas_add_library( EventInfoMgtLib
+                   INTERFACE
+                   PUBLIC_HEADERS EventInfoMgt
+                   LINK_LIBRARIES AthenaKernel GaudiKernel )
+
 # Component(s) in the package:
 atlas_add_component( EventInfoMgt
                      src/TagInfoMgr.cxx
                      src/EventInfoMgt_entries.cxx
                      LINK_LIBRARIES AthenaKernel GaudiKernel 
                      SGTools StoreGateLib SGtests AthenaBaseComps
-                     AthenaPoolUtilities EventInfo EventInfoUtils )
+                     AthenaPoolUtilities EventInfo EventInfoUtils IOVDbMetaDataToolsLib )
 
 # Install files from the package:
 atlas_install_headers( EventInfoMgt )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/EventInfoMgt_jobOptions.py share/TagInfoMgr_jobOptions.py )
+atlas_install_joboptions( share/EventInfoMgt_jobOptions.py )
 atlas_install_scripts( share/dumpRunNumber.py )
 
 atlas_add_test( TagInfoMgrCfg

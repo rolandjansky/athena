@@ -13,10 +13,10 @@
  *********************************************************************/
 
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 #include "ITrigMissingETHypoToolMT.h"

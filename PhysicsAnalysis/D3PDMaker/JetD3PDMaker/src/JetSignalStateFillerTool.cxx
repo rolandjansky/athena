@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -104,7 +104,7 @@ StatusCode JetSignalStateFillerTool::book()
  */
 StatusCode JetSignalStateFillerTool::fill (const Jet& p)
 {
-  SignalStateHelper t(&p, P4SignalState::State(m_sigstate));
+  SignalStateConstHelper t(&p, P4SignalState::State(m_sigstate));
   
   if (m_do_E)        *m_E     = p.e();
   if (m_do_p)        *m_p     = p.p();

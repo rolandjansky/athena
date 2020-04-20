@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSERVICES_TRIGMESSAGESVC_H
 #define TRIGSERVICES_TRIGMESSAGESVC_H
@@ -55,7 +55,7 @@ class TH2I;
  */
 class TrigMessageSvc : public extends<Service, IMessageSvc, IIncidentListener> {
 public:
-  typedef std::map<std::string, int> ThresholdMap;
+  typedef std::map<std::string, int, std::less<> > ThresholdMap;
 
   TrigMessageSvc(const std::string& name, ISvcLocator* svcloc);
 
@@ -71,7 +71,7 @@ public:
   virtual void reportMessage(const char* source, int type, const char* message) override;
   virtual void reportMessage(const std::string& source, int type,
                              const std::string& message) override;
-  virtual std::ostream* defaultStream ATLAS_NOT_THREAD_SAFE() const override
+  virtual std::ostream* defaultStream ATLAS_NOT_CONST_THREAD_SAFE() const override
   {
     return m_defaultStream;
   }
@@ -82,9 +82,9 @@ public:
   }
 
   virtual int outputLevel() const override;
-  virtual int outputLevel(const std::string& source) const override;
+  virtual int outputLevel(std::string_view source) const override;
   virtual void setOutputLevel(int new_level) override;
-  virtual void setOutputLevel(const std::string& source, int new_level) override;
+  virtual void setOutputLevel(std::string_view source, int new_level) override;
   virtual int messageCount(MSG::Level logLevel) const override;
 
   virtual bool useColor() const override { return m_color; }
@@ -96,7 +96,7 @@ public:
   virtual void eraseMessage() override { NOTSUPPORTED; }
   virtual void eraseMessage(const StatusCode&) override { NOTSUPPORTED; }
   virtual void eraseMessage(const StatusCode&, const Message&) override { NOTSUPPORTED; }
-  virtual void insertStream(int, const std::string&, std::ostream*) override { NOTSUPPORTED; }
+  virtual void insertStream(int, std::string, std::ostream*) override { NOTSUPPORTED; }
   virtual void eraseStream() override { NOTSUPPORTED; }
   virtual void eraseStream(int) override { NOTSUPPORTED; }
   virtual void eraseStream(int, std::ostream*) override { NOTSUPPORTED; }

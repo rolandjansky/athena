@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/Combinators.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/Combinators.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigEgammaPrecisionElectronHypoToolInc.h"
 
@@ -16,7 +16,10 @@ TrigEgammaPrecisionElectronHypoToolInc::TrigEgammaPrecisionElectronHypoToolInc( 
 		    const std::string& name, 
 		    const IInterface* parent ) 
   : base_class( type, name, parent ),
-    m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
+    m_decisionId( HLT::Identifier::fromToolName( name ) ) 
+   {
+        declareProperty("ElectronLHSelector"        ,m_egammaElectronLHTool   );
+    }
 
 StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
   ATH_MSG_DEBUG( "Initialization completed successfully"   );    
@@ -29,6 +32,10 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
     ATH_MSG_ERROR(  " There are no cuts set (EtaBins property is an empty list)" );
     return StatusCode::FAILURE;
   }
+
+  // Now we try to retrieve the ElectronPhotonSelectorTools that we will use to apply the electron Identification. This is a *must*
+  ATH_MSG_DEBUG( "Retrieving egammaElectronLHTool..."  );
+  CHECK( m_egammaElectronLHTool.retrieve() );
 
   unsigned int nEtaBin = m_etabin.size();
   ATH_CHECK( m_eTthr.size() == nEtaBin-1 );
@@ -46,7 +53,7 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
 TrigEgammaPrecisionElectronHypoToolInc::~TrigEgammaPrecisionElectronHypoToolInc(){}
 
 
-bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input ) const {
+bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input,const EventContext& ) const {
 
   bool pass = false;
 
@@ -60,7 +67,7 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   auto monitorIt    = Monitored::Group( m_monTool, 
 					       dEta, dPhi, 
                                                etaBin, monEta,
-					       monPhi,PassedCuts );
+					       monPhi,PassedCuts);
  // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 
@@ -79,6 +86,7 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   // fill local variables for RoI reference position
   double etaRef = roiDescriptor->eta();
   double phiRef = roiDescriptor->phi();
+  ATH_MSG_DEBUG("etaRef: "<<etaRef);
   // correct phi the to right range ( probably not needed anymore )   
   if ( fabs( phiRef ) > M_PI ) phiRef -= 2*M_PI; // correct phi if outside range
 
@@ -86,8 +94,11 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   auto pClus = input.electron->caloCluster();
   
   float absEta = fabs( pClus->eta() );
-  const int cutIndex = findCutIndex( absEta );
   
+  ATH_MSG_DEBUG("absEta: "<<absEta);
+
+  const int cutIndex = findCutIndex( absEta );
+  ATH_MSG_DEBUG("cutIndex: "<<cutIndex);  
 
   
   dEta =  pClus->eta() - etaRef;
@@ -134,14 +145,74 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   }
   PassedCuts = PassedCuts + 1; // ET_em
   
-  // got this far => passed!
-  pass = true;
+ 
+// This is the last step. So pass is going to be the result of LH
+  asg::AcceptData accept =  m_egammaElectronLHTool->accept(input.electron); 
+  pass = (bool) accept;
+
+  ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << pass);
+
+
+  float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
+    Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
+
+    
+  // variables based on HCAL
+  // transverse energy in 1st scintillator of hadronic calorimeter/ET
+  input.electron->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
+  // transverse energy in hadronic calorimeter/ET
+  input.electron->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
+
+  // variables based on S2 of EM CAL
+  // E(7*7) in 2nd sampling
+  input.electron->showerShapeValue(e277, xAOD::EgammaParameters::e277);
+  // E(3*7)/E(7*7) in 2nd sampling
+  input.electron->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
+  // E(3*3)/E(3*7) in 2nd sampling
+  input.electron->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi);
+  // shower width in 2nd sampling
+  input.electron->showerShapeValue(weta2c, xAOD::EgammaParameters::weta2);
+
+  // variables based on S1 of EM CAL
+  // fraction of energy reconstructed in the 1st sampling
+  input.electron->showerShapeValue(f1, xAOD::EgammaParameters::f1);
+  // shower width in 3 strips in 1st sampling
+  input.electron->showerShapeValue(weta1c, xAOD::EgammaParameters::weta1);
+  // E of 2nd max between max and min in strips [NOT USED]
+  // eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
+  // (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
+  input.electron->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
+  // E(2nd max)-E(min) in strips
+  input.electron->showerShapeValue(DeltaE, xAOD::EgammaParameters::DeltaE);
+  // total shower width in 1st sampling
+  input.electron->showerShapeValue(wtot, xAOD::EgammaParameters::wtots1);
+  // E(+/-3)-E(+/-1)/E(+/-1)
+  input.electron->showerShapeValue(fracm, xAOD::EgammaParameters::fracs1);
+
+  ATH_MSG_DEBUG( "  Rhad1  " << Rhad1 ) ;
+  ATH_MSG_DEBUG( "  Rhad   " << Rhad ) ;
+  ATH_MSG_DEBUG( "  e277   " << e277 ) ;
+  ATH_MSG_DEBUG( "  Reta   " << Reta ) ;
+  ATH_MSG_DEBUG( "  Rphi   " << Rphi ) ;
+  ATH_MSG_DEBUG( "  weta2c " << weta2c ) ;
+  ATH_MSG_DEBUG( "  f1     " << f1 ) ;
+  ATH_MSG_DEBUG( "  weta1c " << weta1c ) ;
+  ATH_MSG_DEBUG( "  Eratio " << Eratio ) ;
+  ATH_MSG_DEBUG( "  DeltaE " << DeltaE ) ;
+  ATH_MSG_DEBUG( "  wtot   " << wtot ) ;
+  ATH_MSG_DEBUG( "  fracm  " << fracm ) ;
+
+
+  if ( !pass ){
+      ATH_MSG_DEBUG("REJECT Likelihood failed");
+  } else {
+      ATH_MSG_DEBUG("ACCEPT Likelihood passed");
+  }
 
   // Reach this point successfully  
   ATH_MSG_DEBUG( "pass = " << pass );
 
   return pass;
- 
 }
 
 int TrigEgammaPrecisionElectronHypoToolInc::findCutIndex( float eta ) const {
@@ -155,10 +226,10 @@ int TrigEgammaPrecisionElectronHypoToolInc::findCutIndex( float eta ) const {
 }
 
 
-StatusCode TrigEgammaPrecisionElectronHypoToolInc::decide( std::vector<ElectronInfo>& input )  const {
+StatusCode TrigEgammaPrecisionElectronHypoToolInc::decide( std::vector<ElectronInfo>& input,const EventContext& ctx )  const {
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
-      if ( decide( i ) ) {
+      if ( decide( i, ctx ) ) {
 	addDecisionID( m_decisionId, i.decision );
       }
     }

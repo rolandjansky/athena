@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// PROJECTS
@@ -7,11 +7,13 @@
 #include "MM_Digitization/MM_IonizationCluster.h"
 #include "MM_Digitization/MM_StripResponse.h"
 #include "PathResolver/PathResolver.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include<map>
 #include<algorithm>
 
-using namespace std;
+#include "TMath.h" // for TF1 formulas
+#include <TGraph.h>
 
 /*
 
@@ -36,7 +38,7 @@ MM_StripsResponseSimulation::MM_StripsResponseSimulation():
 	m_driftVelocity(0),              // 0.047
 
 	// Other variables
-	m_avalancheGain(1.16e4),
+	m_avalancheGain(8.0e3),
 	m_maxPrimaryIons(300),
 	m_interactionDensityMean( 16.15 / 5. ),  //   16.15 interactions per 5 mm traversed
 	m_interactionDensitySigma( 4.04 / 5. ),  //   Spread in this number.
@@ -109,7 +111,7 @@ void MM_StripsResponseSimulation::initFunctions()
 	m_lorentzAngleFunction = new TF1("lorentzAngleFunction","[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x",0,2);
 	m_lorentzAngleFunction->SetParameters(0,58.87, -2.983, -10.62, 2.818);
 
-	m_longitudinalDiffusionFunction = new TF1("longdiff","gaus", 0., 5.);
+	m_longitudinalDiffusionFunction = new TF1("longdiff","gaus", -5., 5.);
 
 	m_transverseDiffusionFunction = new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
 
@@ -176,19 +178,19 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 	ATH_MSG_DEBUG("Starting to calculate strips that got fired");
 
 	float eventTime = digiInput.eventTime();
-	float theta = incidentAngleXZ * M_PI/180.0; // Important for path length and strip distribution
-	float alpha = incidentAngleYZ * M_PI/180.0; // Important for path length
+	float theta = incidentAngleXZ * Gaudi::Units::degree; // Important for path length and strip distribution
+	float alpha = incidentAngleYZ * Gaudi::Units::degree; // Important for path length
 
 
 	int nPrimaryIons = 0;
 
-	m_random->SetSeed((int)fabs(hitx*10000));
+	m_random->SetSeed((int)std::abs(hitx*10000));
 
 	Amg::Vector3D b = digiInput.magneticField() * 1000.;
 
 	// Still need to understand which sign is which... But I think this is correct...
 
-	float lorentzAngle = ( b.y()>0. ?  1.  :  -1. ) * m_lorentzAngleFunction->Eval( fabs( b.y() ) ) * TMath::DegToRad() ; // in radians
+	float lorentzAngle = ( b.y()>0. ?  1.  :  -1. ) * m_lorentzAngleFunction->Eval( std::abs( b.y() ) ) * TMath::DegToRad() ; // in radians
 
 	m_mapOf2DHistograms["lorentzAngleVsTheta"]->Fill(lorentzAngle,theta);
 	m_mapOf2DHistograms["lorentzAngleVsBy"]->Fill(lorentzAngle,b.y());
@@ -197,10 +199,10 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 	ATH_MSG_DEBUG("LorentzAngle vs theta: " <<lorentzAngle <<" " <<theta);
     ATH_MSG_DEBUG("Function pointer points to " << m_interactionDensityFunction);
 
-	float pathLengthTraveled = ( 1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
+	float pathLengthTraveled = ( 1. / m_interactionDensityFunction->GetRandom() ) * -1. * std::log( m_random->Uniform() );
 
-	float pathLength  = m_driftGapWidth/TMath::Cos(theta); // Increasing path length based on XZ angle
-	pathLength       /= TMath::Cos(alpha);                 // Further increasing path length for YZ angle
+	float pathLength  = m_driftGapWidth/std::cos(theta); // Increasing path length based on XZ angle
+	pathLength       /= std::cos(alpha);                 // Further increasing path length for YZ angle
 
 	m_mapOf2DHistograms["pathLengthVsTheta"]->Fill(pathLength, theta);
 	m_mapOf2DHistograms["pathLengthVsAlpha"]->Fill(pathLength, alpha);
@@ -270,7 +272,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 		//---
 		m_IonizationClusters.push_back(IonizationCluster);
 
-		pathLengthTraveled +=  (1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
+		pathLengthTraveled +=  (1. / m_interactionDensityFunction->GetRandom() ) * -1. * std::log( m_random->Uniform() );
 
 		ATH_MSG_DEBUG("Path length traveled: " << pathLengthTraveled);
 

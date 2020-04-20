@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h" 
 #include "AthenaBaseComps/AthService.h" 
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetTestPixelLayer/InDetTestPixelLayerTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
@@ -115,20 +115,20 @@ namespace InDet {
 
   const Trk::ResidualPull* InDet::InDetTestPixelLayerTool::pixelLayerHitResidual(const Trk::Track* track, int pixelLayer) const
   {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    CacheEntry* ent{m_cache.get(ctx)};
-    std::unique_lock lock{ent->m_mutex};
-    ent->checkEvent(ctx);
+    // This will be slow if called repeatedly.
+    // There used to be some caching here.
+    // But that introduces much compexity for the MT case, and this method
+    // is in fact never actually used from anywhwere in Athena.
+    // In any case, rather than using caching, it would be better to return
+    // the cached information directly to the caller.
+    // So just remove the caching for now.
+    // If this is ever a performance issue, then the interface here
+    // should be reworked.
+    PixelLayerResidualPullMap pull_map = pixelLayerHitResiduals(track);
 
-    // check to see if this trackparticle is the one that's already cached
-    if(track != ent->m_cached_track_residual){
-      pixelLayerHitResiduals(track);
-      ent->m_cached_track_residual = track;
-    }
-
-    PixelLayerResidualPullMap::iterator pixelLayerIter = ent->m_residual_map.begin();
-    for(int i=0; i<pixelLayer && pixelLayerIter!=ent->m_residual_map.end(); i++) ++pixelLayerIter;
-    if(pixelLayerIter == ent->m_residual_map.end()) return nullptr;
+    PixelLayerResidualPullMap::iterator pixelLayerIter = pull_map.begin();
+    for(int i=0; i<pixelLayer && pixelLayerIter!=pull_map.end(); i++) ++pixelLayerIter;
+    if(pixelLayerIter == pull_map.end()) return nullptr;
 
     return pixelLayerIter->second;
   }
@@ -146,27 +146,24 @@ namespace InDet {
 
   }
 
-  void InDet::InDetTestPixelLayerTool::pixelLayerHitResiduals(const Trk::TrackParticleBase* trackparticle) const
+  PixelLayerResidualPullMap
+  InDet::InDetTestPixelLayerTool::pixelLayerHitResiduals(const Trk::TrackParticleBase* trackparticle) const
   {
     
     const Trk::Track* track = trackparticle->originalTrack();
     
     if (!track) {
       msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endmsg;
-      return;
+      return PixelLayerResidualPullMap();
     }
 
     return(this->pixelLayerHitResiduals(track));
 
   }
 
-  void InDet::InDetTestPixelLayerTool::pixelLayerHitResiduals(const Trk::Track* track) const
+  PixelLayerResidualPullMap
+  InDet::InDetTestPixelLayerTool::pixelLayerHitResiduals(const Trk::Track* track) const
   {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    CacheEntry* ent{m_cache.get(ctx)};
-    std::unique_lock lock{ent->m_mutex};
-    ent->checkEvent(ctx);
-
     PixelIDLayerComp layercomp(m_pixelId);
     PixelLayerResidualPullMap pull_map(layercomp);
 
@@ -202,16 +199,11 @@ namespace InDet {
       }
     }
   
-    ent->m_residual_map = pull_map;
+    return pull_map;
   }
 
   bool InDet::InDetTestPixelLayerTool::expectHitInPixelLayer(const Trk::Track* track, int pixel_layer, bool recompute) const
   {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    CacheEntry* ent{m_cache.get(ctx)};
-    std::unique_lock lock{ent->m_mutex};
-    ent->checkEvent(ctx);
-    
     int ehbl = -1;
     const Trk::TrackSummary* ts =  track->trackSummary();
     if(ts){
@@ -222,8 +214,6 @@ namespace InDet {
       if(ts){
 	ehbl = ts->get(Trk::expectInnermostPixelLayerHit);
 	if(0==ehbl || 1==ehbl ){
-	  ent->m_cachedTrkParam = nullptr;
-	  ent->m_cachedFracGood = -1.;
 	  ATH_MSG_DEBUG("Found expectHitInPixelLayer info in TrackSummary: return cached value" );
 	  return (bool)ehbl;
 	}
@@ -236,8 +226,6 @@ namespace InDet {
     // now check to see if the previous computation exists - if so, and if we already
     // know there's a hole, then don't bother.
     if(ehbl==0 && pixel_layer==0){
-      ent->m_cachedTrkParam = nullptr;
-      ent->m_cachedFracGood = -1.;
       ATH_MSG_DEBUG("Found expectHitInPixelLayer info in TrackSummary, and hole known to exist.  Returning cached value.");
       return (bool)ehbl;
     }
@@ -250,8 +238,6 @@ namespace InDet {
     
     if (!mp)
       {
-	ent->m_cachedTrkParam = nullptr;
-	ent->m_cachedFracGood = -1.;
 	ATH_MSG_WARNING("Found Track with no perigee parameters: no b-layer info will be provided " );
 	return false;
       } 
@@ -268,14 +254,7 @@ namespace InDet {
     // Need to (re)compute iff we do expect a B-layer hit.  If the previous calculation already
     // determined that we don't expect a hit, then we still won't expect one.
 
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    CacheEntry* ent{m_cache.get(ctx)};
-    std::unique_lock lock{ent->m_mutex};
-    ent->checkEvent(ctx);
-
     if(!track){
-      ent->m_cachedTrkParam = nullptr;
-      ent->m_cachedFracGood = -10.;
       ATH_MSG_WARNING("Not a valid TrackParticle: no b-layer info will be provided");
       return false;
     }
@@ -289,8 +268,6 @@ namespace InDet {
     if(!recompute && pixel_layer==0){
       if(ts){
 	if(0==ehbl || 1==ehbl ){
-	  ent->m_cachedTrkParam = nullptr;
-	  ent->m_cachedFracGood = -9.;
 	  ATH_MSG_DEBUG("Found expectHitInPixelLayer info in TrackSummary: return cached value" );
 	  return (bool)ehbl;
 	}
@@ -303,8 +280,6 @@ namespace InDet {
     // now check to see if the previous computation exists - if so, and if we already
     // know there's a hole, then don't bother.
     if(ehbl==0 && pixel_layer==0){
-      ent->m_cachedTrkParam = nullptr;
-      ent->m_cachedFracGood = -8.;
       ATH_MSG_DEBUG("Found expectHitInPixelLayer info in TrackSummary, and hole known to exist.  Returning cached value.");
       return (bool)ehbl;
     }
@@ -317,8 +292,6 @@ namespace InDet {
 
     if(!mp)
       {
-	ent->m_cachedTrkParam = nullptr;
-	ent->m_cachedFracGood = -7.;
 	ATH_MSG_WARNING("Found TrackParticle with no perigee parameters: no b-layer info will be provided");
 	return false;
       } 
@@ -333,13 +306,6 @@ namespace InDet {
 
   bool InDet::InDetTestPixelLayerTool::expectHitInPixelLayer(const Trk::TrackParameters* trackpar, int pixel_layer) const
   {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    CacheEntry* ent{m_cache.get(ctx)};
-    std::unique_lock lock{ent->m_mutex};
-    ent->checkEvent(ctx);
-
-    ent->m_cachedTrkParam = nullptr;
-    ent->m_cachedFracGood = -1.;
     if(!m_configured){
       ATH_MSG_WARNING("Unconfigured tool, unable to compute expectHitInPixelLayer");
       return false;
@@ -348,18 +314,17 @@ namespace InDet {
 
     bool expect_hit = false; /// will be set to true if at least one good module is passed
 
-    std::vector<const Trk::TrackParameters*> pixelLayerParam;
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > pixelLayerParam;
     if(!this->getPixelLayerParameters(trackpar, pixelLayerParam)){
       ATH_MSG_WARNING("Failed to get pixel layer parameters!");
       return false;	
     }
-    std::vector<const Trk::TrackParameters*>::const_iterator it = pixelLayerParam.begin();
 
     // now, figure out which layer we're supposed to be checking.
     PixelIDVec pixvec;
-    for(it = pixelLayerParam.begin(); it !=pixelLayerParam.end(); ++it){
-      if( !((*it)->associatedSurface().associatedDetectorElement())) continue;
-      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+    for (std::unique_ptr<const Trk::TrackParameters>& p : pixelLayerParam) {
+      if( !(p->associatedSurface().associatedDetectorElement())) continue;
+      Identifier id = p->associatedSurface().associatedDetectorElement()->identify();
       pixvec.push_back(id);
     }
     std::sort(pixvec.begin(),pixvec.end(),PixelIDLayerComp(m_pixelId));
@@ -373,10 +338,10 @@ namespace InDet {
       return expect_hit;
     }
 
-    for(it = pixelLayerParam.begin(); it !=pixelLayerParam.end(); ++it){
+    for (std::unique_ptr<const Trk::TrackParameters>& p : pixelLayerParam) {
       
-      if( !((*it)->associatedSurface().associatedDetectorElement())) continue;
-      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+      if( !(p->associatedSurface().associatedDetectorElement())) continue;
+      Identifier id = p->associatedSurface().associatedDetectorElement()->identify();
 
       // need to check that this is the "correct" pixel layer....
       if(!IsInCorrectLayer(id,pixvec,pixel_layer)) continue;
@@ -385,13 +350,11 @@ namespace InDet {
 
 	if( m_checkActiveAreas ){
 
-	  if( isActive(*it) ){
+	  if( isActive(p.get()) ){
 
 	    if(m_checkDeadRegions){
 
-	      double fracGood = getFracGood(*it, m_phiRegionSize, m_etaRegionSize);
-	      ent->m_cachedTrkParam = *it;
-	      ent->m_cachedFracGood = fracGood;
+	      double fracGood = getFracGood(p.get(), m_phiRegionSize, m_etaRegionSize);
 	      if(fracGood>m_goodFracCut && fracGood>=0){
 		ATH_MSG_DEBUG("Condition Summary: b-layer good");
 		expect_hit=true;  /// pass good module -> hit is expected on pixelLayer
@@ -422,15 +385,8 @@ namespace InDet {
 	ATH_MSG_DEBUG(__LINE__ << "b-layer not good");
       }
 
-      // do this down below for now....
-      //delete *it;
-
     } /// pixelLayer param
 
-
-    for(it = pixelLayerParam.begin(); it !=pixelLayerParam.end(); ++it){
-      delete *it;
-    }
 
     return expect_hit;
   }
@@ -438,11 +394,6 @@ namespace InDet {
 
   bool InDet::InDetTestPixelLayerTool::expectHit(const Trk::TrackParameters* trackpar) const
   {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    CacheEntry* ent{m_cache.get(ctx)};
-    std::unique_lock lock{ent->m_mutex};
-    ent->checkEvent(ctx);
-
     bool expect_hit = false; /// will be set to true if at least one good module is passed
 
     Identifier id = trackpar->associatedSurface().associatedDetectorElement()->identify();
@@ -452,8 +403,6 @@ namespace InDet {
       if(m_checkDeadRegions){
 
 	double fracGood = getFracGood(trackpar, m_phiRegionSize, m_etaRegionSize);
-	ent->m_cachedTrkParam = trackpar;
-	ent->m_cachedFracGood = fracGood;
 	if(fracGood>m_goodFracCut && fracGood>=0){
 	  ATH_MSG_DEBUG("Condition Summary: b-layer good");
 	  expect_hit=true;  /// pass good module -> hit is expected on pixelLayer
@@ -503,16 +452,14 @@ namespace InDet {
     }
 
 
-    std::vector<const Trk::TrackParameters*> pixelLayerParam;
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > pixelLayerParam;
     if(!this->getPixelLayerParameters(trackpar, pixelLayerParam)) return -5.;	
-
-    std::vector<const Trk::TrackParameters*>::const_iterator it = pixelLayerParam.begin();
 
     // now, figure out which layer we're supposed to be checking.
     PixelIDVec pixvec;
-    for(it = pixelLayerParam.begin(); it !=pixelLayerParam.end(); ++it){
-      if( !((*it)->associatedSurface().associatedDetectorElement())) continue;
-      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+    for (std::unique_ptr<const Trk::TrackParameters>& p : pixelLayerParam) {
+      if( !(p->associatedSurface().associatedDetectorElement())) continue;
+      Identifier id = p->associatedSurface().associatedDetectorElement()->identify();
       pixvec.push_back(id);
     }
     std::sort(pixvec.begin(),pixvec.end(),PixelIDLayerComp(m_pixelId));
@@ -520,18 +467,18 @@ namespace InDet {
     // if we're asking for a layer that doesn't exist in the extrapolation, then return.
     if(pixel_layer >= (int)pixvec.size()) return -7.;
 
-    for(it = pixelLayerParam.begin(); it !=pixelLayerParam.end(); ++it){
+    for (std::unique_ptr<const Trk::TrackParameters>& p : pixelLayerParam) {
 
-      if( !((*it)->associatedSurface().associatedDetectorElement())) continue;
-      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+      if( !(p->associatedSurface().associatedDetectorElement())) continue;
+      Identifier id = p->associatedSurface().associatedDetectorElement()->identify();
 
       if(!IsInCorrectLayer(id,pixvec,pixel_layer)) continue;
 
       if( m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE) ){
 
-	  if( isActive(*it) ){
+          if( isActive(p.get()) ){
 
-	      return getFracGood(*it, m_phiRegionSize, m_etaRegionSize);
+	      return getFracGood(p.get(), m_phiRegionSize, m_etaRegionSize);
 
 	  }
 	  else{
@@ -543,20 +490,10 @@ namespace InDet {
 	ATH_MSG_DEBUG(__LINE__ << "b-layer not good");
       }
 
-      delete *it;
-
     } /// pixelLayer param
 
 
     return -3.;
-  }
-
-  double InDet::InDetTestPixelLayerTool::getFracGood() const {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    CacheEntry* ent{m_cache.get(ctx)};
-    std::unique_lock lock{ent->m_mutex};
-    ent->checkEvent(ctx);
-    return ent->m_cachedFracGood;
   }
 
   bool InDet::InDetTestPixelLayerTool::isActive(const Trk::TrackParameters* trackpar) const
@@ -648,16 +585,13 @@ namespace InDet {
       return false;
     }
 
-    std::vector<const Trk::TrackParameters*> pixelLayerParam;
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > pixelLayerParam;
     if(!getPixelLayerParameters(trackpar, pixelLayerParam)) return false;
 
-    std::vector<const Trk::TrackParameters*>::const_iterator it = pixelLayerParam.begin();
-    for(; it !=pixelLayerParam.end(); ++it){
-
-      const Trk::TrackParameters* trkParam = *it;           
+    for (std::unique_ptr<const Trk::TrackParameters>& trkParam : pixelLayerParam) {
       TrackStateOnPixelLayerInfo pixelLayerInfo;
         
-      double fracGood = getFracGood(trkParam, m_phiRegionSize, m_etaRegionSize);
+      double fracGood = getFracGood(trkParam.get(), m_phiRegionSize, m_etaRegionSize);
       pixelLayerInfo.goodFraction(fracGood);
 
       Identifier id = trkParam->associatedSurface().associatedDetectorElement()->identify();
@@ -735,18 +669,16 @@ namespace InDet {
       }
 
       infoList.push_back(pixelLayerInfo);
-
-      delete trkParam;
-
     } /// pixelLayer param
 
     return true;
 
   }
  
-  bool InDet::InDetTestPixelLayerTool::getPixelLayerParameters(const Trk::TrackParameters* trackpar,
-							       std::vector<const Trk::TrackParameters*>& pixelLayerParam) const{
-
+  bool InDet::InDetTestPixelLayerTool::getPixelLayerParameters
+    (const Trk::TrackParameters* trackpar,
+     std::vector<std::unique_ptr<const Trk::TrackParameters> >& pixelLayerParam) const
+  {
     //// Cylinder bigger than the b-layer ////
     ATH_MSG_DEBUG("Trying to extrapolate to pixelLayer");
     Amg::Transform3D* surfTrans = new Amg::Transform3D();
@@ -756,7 +688,7 @@ namespace InDet {
 						      10000.0);
 
     // extrapolate stepwise to this parameter (be careful, sorting might be wrong)
-    const std::vector<const Trk::TrackParameters*>* paramList =
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
       m_extrapolator->extrapolateStepwise(*trackpar,
 					  BiggerThanPixelLayerSurface,
 					  Trk::alongMomentum,
@@ -765,42 +697,37 @@ namespace InDet {
 
 
 
-   if(!paramList){
+   if(paramList.empty()){
      ATH_MSG_DEBUG("No parameter returned by propagator ");
      ATH_MSG_VERBOSE("dumping track parameters " <<*trackpar);
      return false;
    }
 
-   ATH_MSG_DEBUG(" Number of generated parameters by propagator: " << paramList->size() );
+   ATH_MSG_DEBUG(" Number of generated parameters by propagator: " << paramList.size() );
 
 
-   int s_int = 0; 
-   for (std::vector<const Trk::TrackParameters*>::const_iterator it = paramList->begin();
-	it != paramList->end(); ++it){
-
+   int s_int = 0;
+   for (std::unique_ptr<const Trk::TrackParameters>& p : paramList) {
      ATH_MSG_DEBUG( s_int++ << "th surface : ");
 
      Identifier id;
-     if( !( (*it)->associatedSurface().associatedDetectorElement() !=0 && 
-	 (*it)->associatedSurface().associatedDetectorElement()->identify() !=0 ) ){  
-       delete *it;
+     if( !( p->associatedSurface().associatedDetectorElement() !=0 && 
+	 p->associatedSurface().associatedDetectorElement()->identify() !=0 ) )
+     {  
        continue;
      }
 
-     id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+     id = p->associatedSurface().associatedDetectorElement()->identify();
      if (!m_idHelper->is_pixel(id)){
-       delete *it;
        continue;
      }
 
      ATH_MSG_DEBUG("Found pixel module : " << id.get_compact());
 
-     pixelLayerParam.push_back((*it));
+     pixelLayerParam.push_back (std::move (p));
    } /// all params
 
-   delete paramList;
    return true;
-
   }
 
 
@@ -944,28 +871,6 @@ namespace InDet {
 
   bool InDetTestPixelLayerTool::IsInSameLayer(Identifier& id1, Identifier& id2) const{
     return ((m_pixelId->barrel_ec(id1) == m_pixelId->barrel_ec(id2)) && (m_pixelId->layer_disk(id1) == m_pixelId->layer_disk(id2)));
-  }
-
-  double InDetTestPixelLayerTool::getExtrapolPixelEta() const{
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    CacheEntry* ent{m_cache.get(ctx)};
-    std::unique_lock lock{ent->m_mutex};
-    ent->checkEvent(ctx);
-
-    if (ent->m_cachedTrkParam==nullptr) return -9999.;
-    const Amg::Vector3D& globPos = ent->m_cachedTrkParam->position();
-    return globPos.eta();
-  }
-
-  double InDetTestPixelLayerTool::getExtrapolPixelPhi() const{
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    CacheEntry* ent{m_cache.get(ctx)};
-    std::unique_lock lock{ent->m_mutex};
-    ent->checkEvent(ctx);
-
-    if (ent->m_cachedTrkParam==nullptr) return -9999.;
-    const Amg::Vector3D& globPos = ent->m_cachedTrkParam->position();
-    return globPos.phi();
   }
 
 } //end namespace

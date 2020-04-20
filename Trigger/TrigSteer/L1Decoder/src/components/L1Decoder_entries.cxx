@@ -18,7 +18,7 @@
 #include "../PrescalingTool.h"
 #include "../PrescalingEmulationTool.h"
 #include "../CreateFullScanRoI.h"
-
+#include "../L1TriggerResultMaker.h"
 
 DECLARE_COMPONENT( L1CaloDecoder )
 DECLARE_COMPONENT( FakeRoI )
@@ -40,3 +40,4 @@ DECLARE_COMPONENT( PrescalingTool )
 DECLARE_COMPONENT( PrescalingEmulationTool )
 DECLARE_COMPONENT( RerunRoIsUnpackingTool )
 DECLARE_COMPONENT( CreateFullScanRoI )
+DECLARE_COMPONENT( L1TriggerResultMaker )

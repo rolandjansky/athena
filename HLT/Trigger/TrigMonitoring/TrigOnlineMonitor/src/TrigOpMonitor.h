@@ -15,7 +15,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IOVRange.h"
-#include "EventInfo/EventID.h"
+#include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -79,7 +79,7 @@ private:
   TProfile* m_lumiHist{nullptr};
   TProfile* m_muHist{nullptr};
 
-  EventID::number_type m_previousLB{0};                     //!< LB of previous event
+  EventIDBase::number_type m_previousLB{0};                 //!< LB of previous event
   std::unordered_map<std::string, IOVRange> m_currentIOVs;  //!< current IOVs managed by IOVDbSvc
   std::unordered_map<std::string, FolderHist> m_folderHist; //!< histograms for COOL folders
   std::string m_histPath;                                   //!< histogram booking path

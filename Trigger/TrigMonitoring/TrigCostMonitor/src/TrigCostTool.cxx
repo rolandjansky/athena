@@ -289,7 +289,7 @@ StatusCode TrigCostTool::fillHists()
 
   ScopeTimer scopeTimer(m_timer);
 
-  xAOD::EventInfo* eventInfo = 0;
+  const xAOD::EventInfo* eventInfo = 0;
   if(evtStore() -> retrieve(eventInfo).isFailure()) {
     ATH_MSG_WARNING("Failed to read event info - set state to inactive. CostMon is now DISABLED.");
     m_active = false;
@@ -553,7 +553,7 @@ bool TrigCostTool::preSelector()
 }
 
 //---------------------------------------------------------------------------------------
-void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
+void TrigCostTool::ProcessConfig(const xAOD::EventInfo* info)
 { 
   //
   // Process configuration

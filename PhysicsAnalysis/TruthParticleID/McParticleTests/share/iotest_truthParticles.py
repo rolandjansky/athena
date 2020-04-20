@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import user
 import os, time
 import sys
@@ -27,16 +29,16 @@ uuid = "%s_%s" % (os.getpid(),timeofday())
 genEventFile = workDir("mc.event.%s.pool"%uuid)
 mcAodFile    = workDir("mc.aod.%s.pool"%uuid)
 
-print "#"*80
-print "## testing TruthParticleContainer I/O..."
-print "## Job uuid:",uuid
+print ("#"*80)
+print ("## testing TruthParticleContainer I/O...")
+print ("## Job uuid:",uuid)
 benchSequence = BenchSequence( "TruthParticleContainer I/O" )
 
 ###-----------------------------------------------------
 if os.path.exists(genEventFile):
-    print "## Re-using input data..."
+    print ("## Re-using input data...")
 else:
-    print "## Preparing input data..."
+    print ("## Preparing input data...")
     jobOptions = [
         ChapPy.JobOptionsCmd( "OUTPUT=\"%s\"" % genEventFile ),
         ChapPy.JobOptionsCmd( "DUMP=False" ),
@@ -49,9 +51,9 @@ else:
     pass
 
 ###-----------------------------------------------------
-print "\n\n"
-print "#"*80
-print "## Testing [writing]..."
+print ("\n\n")
+print ("#"*80)
+print ("## Testing [writing]...")
 jobOptions = [
     ChapPy.JobOptionsCmd( "INPUT=[\"%s\"]" % genEventFile ),
     ChapPy.JobOptionsCmd( "OUTPUT=\"%s\""  % mcAodFile ),
@@ -74,9 +76,9 @@ bench.save( workDir("iobench-truthparticles-%ievts.write.log"%athena.EvtMax) )
 bench.stats()
 
 ###-----------------------------------------------------
-print "\n\n"
-print "#"*80
-print "## Testing [reading]..."
+print ("\n\n")
+print ("#"*80)
+print ("## Testing [reading]...")
 jobOptions = [
     ChapPy.JobOptionsCmd( "INPUT=[\"%s\"]" % mcAodFile ),
     ChapPy.JobOptionsCmd( "DUMP=False" ),
@@ -97,8 +99,8 @@ bench.ioStats( [ "TruthParticleContainer#SpclMC" ], "w" )
 bench.save( workDir("iobench-truthparticles-%ievts.read.log"%athena.EvtMax) )
 bench.stats()
 
-print ""
-print "#"*80
+print ("")
+print ("#"*80)
 benchSequence.printStatus()
-print "## Bye."
-print "#"*80
+print ("## Bye.")
+print ("#"*80)

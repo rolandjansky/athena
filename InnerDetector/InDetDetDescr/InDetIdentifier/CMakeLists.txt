@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( Boost COMPONENTS unit_test_framework )
 
 # Component(s) in the package:
 atlas_add_library( InDetIdentifier
@@ -34,9 +35,12 @@ atlas_add_dictionary( InDetIdentifierDict
                       InDetIdentifier/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasDetDescr IdDict Identifier IdDictParser GaudiKernel InDetIdentifier )
-
-atlas_add_executable( test_indet_id
-                      test/test_indet_id.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasDetDescr IdDict Identifier IdDictParser GaudiKernel InDetIdentifier )
-
+                      
+atlas_add_test( SCT_ID_test                
+                SOURCES
+                test/SCT_ID_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}  
+                LINK_LIBRARIES ${Boost_LIBRARIES} AtlasDetDescr IdDict Identifier IdDictParser GaudiKernel InDetIdentifier 
+                POST_EXEC_SCRIPT "nopost.sh"                
+                )
+set_target_properties( InDetIdentifier_SCT_ID_test  PROPERTIES ENABLE_EXPORTS True )

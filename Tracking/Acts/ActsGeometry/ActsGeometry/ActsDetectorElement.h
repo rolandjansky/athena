@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSDETECTORELEMENT_H
@@ -9,7 +9,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 // ACTS
 #include "Acts/Geometry/DetectorElementBase.hpp"
@@ -132,8 +132,6 @@ private:
   mutable std::mutex m_cacheMutex;
   mutable std::shared_ptr<const Acts::Transform3D> m_defTransform;
 
-  const ActsTrackingGeometrySvc* m_trackingGeometrySvc;
-  
   Identifier m_explicitIdentifier;
 
   // this is threadsafe!

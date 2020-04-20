@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //#####################################################
@@ -30,8 +30,7 @@ TBBeamQualityTool::~TBBeamQualityTool()
 StatusCode TBBeamQualityTool::initialize()
   
 {
-  this->initializeTool();
-  return StatusCode::SUCCESS;
+  return this->initializeTool();
 }
 
 StatusCode TBBeamQualityTool::initializeTool()

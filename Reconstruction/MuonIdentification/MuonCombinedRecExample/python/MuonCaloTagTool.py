@@ -44,7 +44,7 @@ def TrackDepositInCaloTool( name ='TrackDepositInCaloTool', **kwargs ):
     return CfgMgr.TrackDepositInCaloTool(name,**kwargs)
 
 def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
-    kwargs.setdefault("TrackEnergyInCaloTool", getPrivateTool("TrackEnergyInCaloTool") )
+    kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
 
 def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):  

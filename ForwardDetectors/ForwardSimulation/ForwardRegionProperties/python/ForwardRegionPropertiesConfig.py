@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.SystemOfUnits import *
+#from AthenaCommon.SystemOfUnits import *
 
 def getForwardRegionProperties(name="ForwardRegionProperties", **kwargs):
     # Settings of optics to be used
@@ -34,11 +36,11 @@ def getForwardRegionProperties(name="ForwardRegionProperties", **kwargs):
                         elif float(f.infos['beam_energy'])>100.:
                             twiss_energy = '%1.1fTeV'%(float(f.infos['beam_energy'])*0.000001)
                 except AssertionError:
-                    print "ForwardRegionPropertiesConfig.py ERROR Failed to open input file: %s", inputfile
+                    print ("ForwardRegionPropertiesConfig.py ERROR Failed to open input file: %s", inputfile)
                     pass
         twiss_beta = '%07.2fm'%(0.001*simFlags.TwissFileBeta())
         if not (simFlags.TwissFileNomReal.statusOn and simFlags.TwissFileVersion.statusOn):
-            print "ForwardRegionPropertiesConfig.py ERROR Need to either provide file names or set file name and file version flags."
+            print ("ForwardRegionPropertiesConfig.py ERROR Need to either provide file names or set file name and file version flags.")
             raise Exception('Not enough information to locate Twiss files. Need to either provide file names or set file name and file version flags.')
         twiss_nomreal = simFlags.TwissFileNomReal()
         twiss_version = simFlags.TwissFileVersion()
@@ -47,7 +49,7 @@ def getForwardRegionProperties(name="ForwardRegionProperties", **kwargs):
         import re,math
         twiss_beam1 = os.path.join(twiss_path, twiss_energy, twiss_beta, twiss_nomreal, twiss_version, 'beam1.tfs')
         twiss_beam2 = os.path.join(twiss_path, twiss_energy, twiss_beta, twiss_nomreal, twiss_version, 'beam2.tfs')
-        twiss_momentum =  math.sqrt(float(re.findall("\d+.\d+", twiss_energy)[0])**2 - (0.938e-3)**2)*1e3
+        twiss_momentum =  math.sqrt(float(re.findall("\\d+.\\d+", twiss_energy)[0])**2 - (0.938e-3)**2)*1e3
     else:
         # Have to sort out twiss momentum based on file name
         tmp = twiss_beam1.split('TeV')[0]
@@ -57,14 +59,14 @@ def getForwardRegionProperties(name="ForwardRegionProperties", **kwargs):
         else:
             while True:
                 try:
-                    tmp_energy = float( tmp[tmp_spot:] )
+                    tmp_energy = float( tmp[tmp_spot:] ) # noqa: F841
                     tmp_spot -= 1
                 except ValueError:
                     twiss_energy = float( tmp[tmp_spot+1:] )
                     break
                 pass
         import re,math
-        twiss_momentum =  math.sqrt(float(re.findall("\d+.\d+", twiss_energy)[0])**2 - (0.938e-3)**2)*1e3
+        twiss_momentum =  math.sqrt(float(re.findall("\\d+.\\d+", twiss_energy)[0])**2 - (0.938e-3)**2)*1e3
 
     # properties of the field set according to the optics settings above
     kwargs.setdefault("twissFileB1", twiss_beam1)

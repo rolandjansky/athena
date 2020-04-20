@@ -38,7 +38,7 @@ atlas_add_library( TrigConfIOSA
 
 atlas_add_executable( TestTriggerMenuAccess utils/TestTriggerMenuAccess.cxx 
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-  LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfData TrigConfIO
+  LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfDataSA TrigConfIOSA
   )
 
 atlas_add_executable( TriggerMenuRW utils/TriggerMenuRW.cxx 
@@ -52,11 +52,12 @@ atlas_install_scripts( scripts/*.py )
 atlas_install_data( data/*.json data/*.xml )
 atlas_install_joboptions( share/*.py )
 
+# => disabling this test for now until I find a better way to store the test menus
 # Test(s) in the package.
-atlas_add_test( ReadTriggerConfig
-  SOURCES test/read_config_info.cxx
-  LINK_LIBRARIES TrigConfData TrigConfIO
-  ENVIRONMENT "TESTFILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/test/data"
-  POST_EXEC_SCRIPT nopost.sh
-  )
+# atlas_add_test( ReadTriggerConfig
+#   SOURCES test/read_config_info.cxx
+#   LINK_LIBRARIES TrigConfData TrigConfIO
+#   ENVIRONMENT "TESTFILEPATH=${CMAKE_CURRENT_SOURCE_DIR}/test/data"
+#   POST_EXEC_SCRIPT nopost.sh
+#   )
 

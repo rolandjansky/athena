@@ -1,22 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/***************************************************************************
-MuonSegmentPerformanceAlg
-***************************************************************************/
 
 #include "MuonSegmentPerformanceAlg.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
+#include "MuonStationIndex/MuonStationIndex.h"
+
 MuonSegmentPerformanceAlg::MuonSegmentPerformanceAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : 
   AthAlgorithm(name, pSvcLocator),
   m_writeToFile (false),
   m_segmentKey("MuonSegments"),
   m_truthSegmentKey( "MuonTruthSegments"),
-  m_nevents(0),
-  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+  m_nevents(0)
 {
   declareProperty("SegmentLocation",      m_segmentKey);
   declareProperty("TruthSegmentLocation", m_truthSegmentKey);
@@ -27,7 +24,6 @@ MuonSegmentPerformanceAlg::MuonSegmentPerformanceAlg(const std::string& name, IS
  
 StatusCode MuonSegmentPerformanceAlg::initialize()
 {
-  ATH_CHECK(m_idHelper.retrieve());
 
   // initialize cuts, please make sure the number of bins and the sizes of the cuts + string are always the same
   unsigned int nbins = 3;
@@ -67,11 +63,6 @@ StatusCode MuonSegmentPerformanceAlg::execute()
       ATH_MSG_WARNING("bad index " << chIndex );
       continue;
     }
-    //if( seg->pt() < 5000. || fabs(seg->eta()) > 2.5 ) continue;
-    //const int& theType   = seg->auxdata<int>("truthType");
-    //const int& theOrigin = seg->auxdata<int>("truthOrigin");
-    //if( theType != 6 && theType != 7 ) continue;
-    //if( theOrigin == 0 || theOrigin > 17 ) continue;
     unsigned int index = 0;
     if( seg->nPrecisionHits() < 3 ) continue;
     while( seg->nPrecisionHits() > m_nhitCuts[index] && index < m_nhitCuts.size()-1 ) ++index;
@@ -82,7 +73,6 @@ StatusCode MuonSegmentPerformanceAlg::execute()
       if(Muon::MuonStationIndex::chName(static_cast<Muon::MuonStationIndex::ChIndex>(chIndex))=="CSS") ATH_MSG_WARNING(" CSS with more than 4 layers ");
       if(Muon::MuonStationIndex::chName(static_cast<Muon::MuonStationIndex::ChIndex>(chIndex))=="CSL") ATH_MSG_WARNING(" CSL with more than 4 layers ");
     }
-    // if( seg->isAvailable< ElementLink< xAOD::MuonSegmentContainer > >("recoSegment") ){
     const ElementLink< xAOD::MuonSegmentContainer >& recoLink = seg->auxdata< ElementLink< xAOD::MuonSegmentContainer > >("recoSegmentLink");
     if( recoLink.isValid() ) {
       ++m_nfound[index][chIndex];
@@ -93,16 +83,11 @@ StatusCode MuonSegmentPerformanceAlg::execute()
                     << " nprec " << seg->nPrecisionHits() << " nphi " << seg->nPhiLayers() << " nTrigEta " << seg->nTrigEtaLayers() );
       missedSegment = true;
     }
-    //}
   }
   if(missedSegment) ATH_MSG_DEBUG(" Dump Fake segments " );
 
   for( const auto& seg : *segments ){
     if( matchedSegments.count(seg) ) continue;
-    // if( seg->isAvailable< ElementLink< xAOD::MuonSegmentContainer > >("truthSegment") ){
-    // const ElementLink< xAOD::MuonSegmentContainer >& truthLink = seg->auxdata< ElementLink< xAOD::MuonSegmentContainer > >("truthSegmentLink");
-    // if( truthLink.isValid() ) continue;
-    // }
     int chIndex = seg->chamberIndex();
     if( chIndex < 0 || chIndex >= Muon::MuonStationIndex::ChIndexMax ){
       ATH_MSG_WARNING("bad index " << chIndex );

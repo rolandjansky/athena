@@ -2,6 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <memory>
 #include "JetRec/JetClusterer.h"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -14,7 +15,6 @@
 
 #include "JetEDM/FastJetUtils.h"
 #include "JetEDM/PseudoJetVector.h"
-//#include "JetEDM/ClusterSequence.h"
 
 #include "JetRec/PseudoJetTranslator.h"
 
@@ -35,14 +35,6 @@ namespace JetClustererHelper {
       seeds.push_back(irun);
   }  
 }
-
-
-JetClusterer::JetClusterer(std::string name)
-: AsgTool(name)
-{
-
-}
-
 
 StatusCode JetClusterer::initialize() {
 
@@ -68,28 +60,31 @@ StatusCode JetClusterer::initialize() {
   // Input DataHandles
   ATH_CHECK( m_eventinfokey.initialize() );
   ATH_CHECK( m_inputPseudoJets.initialize() );
-  m_finalPSeudoJets = m_inputPseudoJets.key() +"FinalPJ";
+  m_finalPseudoJets = m_inputPseudoJets.key() +"FinalPJ";
 
   return StatusCode::SUCCESS;
 }
 
 
-xAOD::JetContainer* JetClusterer::build() const {
-
-  // Build the container to be returned 
-  std::unique_ptr<xAOD::JetContainer>  jets = std::make_unique<xAOD::JetContainer>() ;
-  jets->setStore(new xAOD::JetAuxContainer);  
+std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > JetClusterer::getJets() const {
+  // Return this in case of any problems
+  auto nullreturn = std::make_pair(std::unique_ptr<xAOD::JetContainer>(nullptr), std::unique_ptr<SG::IAuxStore>(nullptr));
 
   // -----------------------
   // retrieve input
   SG::ReadHandle<PseudoJetContainer> pjContHandle(m_inputPseudoJets);
   if(!pjContHandle.isValid()) {
     ATH_MSG_ERROR("No valid PseudoJetContainer with key "<< m_inputPseudoJets.key());
-    return nullptr;
+    return nullreturn;
   }
 
-  const PseudoJetVector* pseudoJetVector = pjContHandle->casVectorPseudoJet();
+  // Build the container to be returned 
+  // Avoid memory leaks with unique_ptr
+  auto jets = std::make_unique<xAOD::JetContainer>();
+  auto auxCont = std::make_unique<xAOD::JetAuxContainer>();
+  jets->setStore(auxCont.get());
 
+  const PseudoJetVector* pseudoJetVector = pjContHandle->casVectorPseudoJet();
 
   // -----------------------
   // Build the cluster sequence
@@ -104,8 +99,8 @@ xAOD::JetContainer* JetClusterer::build() const {
     ATH_MSG_DEBUG("Creating input area cluster sequence");
     bool seedsok=true;
     fastjet::AreaDefinition adef = buildAreaDefinition(seedsok);
-    if(seedsok) clSequence = new fastjet::ClusterSequenceArea(*pseudoJetVector, jetdef, adef);
-    else return nullptr;
+    if(seedsok) {clSequence = new fastjet::ClusterSequenceArea(*pseudoJetVector, jetdef, adef);}
+    else {return nullreturn;}
   }
 
   
@@ -140,14 +135,16 @@ xAOD::JetContainer* JetClusterer::build() const {
 
   // -------------------------------------
   // record final PseudoJetVector
-  SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPSeudoJets);
+  SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPseudoJets);
   if(!pjVectorHandle.record(std::move(pjVector))){
-    ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPSeudoJets);
-    return nullptr;
+    ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPseudoJets);
+    return nullreturn;
   }
 
   ATH_MSG_DEBUG("Reconstructed jet count: " << jets->size() <<  "  clusterseq="<<clSequence);
-  return jets.release();  
+  // Return the jet container and aux, use move to transfer
+  // ownership of pointers to caller
+  return std::make_pair(std::move(jets), std::move(auxCont));
 }
 
 

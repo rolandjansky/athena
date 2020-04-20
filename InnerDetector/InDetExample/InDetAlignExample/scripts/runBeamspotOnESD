@@ -3,6 +3,8 @@
 #
 # Written by Juerg Beringer in July 2008.
 
+from __future__ import print_function
+
 import sys
 import glob
 import os
@@ -12,7 +14,7 @@ from InDetAlignExample.InDetAlignJobRunner import InDetAlignJobRunner as JobRunn
 from InDetAlignExample.InDetAlignJobRunner import InDetAlignJobRunnerError as JobRunnerError
 
 if len(sys.argv)<=2:
-    print "Usage: runBeamspotOnESD name castorpath [alignmentConstantFile]"
+    print ("Usage: runBeamspotOnESD name castorpath [alignmentConstantFile]")
     exit(1)
 name = sys.argv[1]
 castorPath = sys.argv[2]
@@ -33,10 +35,10 @@ try:
     for f in castorFiles:
         if pattern.search(f):
             esdFiles.append('rfio:'+f)
-    #print "Input file(s) =", esdFiles
+    #print ("Input file(s) =", esdFiles)
 
-    print
-    print "Running over ESD files ..."
+    print()
+    print ("Running over ESD files ...")
     aodrunner = JobRunner(startdirTemplate=workdir+'/%(jobname)s',
                           batchType='LSF',
                           batchQueue='atlasidali',
@@ -67,15 +69,15 @@ athena.py %(configfile)s %(joboptionPath)s
     aodrunner.run()
     aodrunner.wait()
     outputFiles = aodrunner.getOutputFiles()
-    print
-    print "The following AOD files were produced:"
-    print outputFiles
+    print()
+    print ("The following AOD files were produced:")
+    print (outputFiles)
 
     #
     # Determine beamspot using AOD files (single job over all AOD files)
     #
-    print
-    print "Calculating beamspot on AOD files..."
+    print()
+    print ("Calculating beamspot on AOD files...")
     finder = JobRunner(startdirTemplate=workdir,
                        outputfileTemplate='%(startdir)s/vtxbeamspot.db',
                        histfileTemplate='%(startdir)s/vtxbeamspot.root',
@@ -96,10 +98,10 @@ athena.py %(configfile)s %(joboptionPath)s
     finder.run()
     finder.wait()
 
-except JobRunnerError, err:
-    print '\nERROR:',err
-    print
+except JobRunnerError as err:
+    print ('\nERROR:',err)
+    print()
     exit(1)
 
-print
+print()
 os.system('ls -l %s' % workdir)

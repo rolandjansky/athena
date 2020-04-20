@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
-#
-# $Id: LArG4ValidationPlotter.py 505706 2012-06-15 11:48:02Z gsedov $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # python script for drawing LArG4Validation ntuples
 #
@@ -75,28 +73,30 @@ parser.set_defaults(split_canvas="1:1",plots="",files="",outputfile="DISPLAY",di
 split_canv = options.split_canvas.split(":")
 split_canv = map(int,split_canv)
 
-from LArG4Validation.LArG4PlottingScript import *
+from LArG4Validation.LArG4PlottingScript import parseRoots, defaultRoots, \
+     parsePlots, fillPlots, dividePlots, savePlots, drawPlots, PlotEntry, \
+     createPlots
 
 if (len(split_canv) != 2) :
-	print "ERROR: wrong split parameter"
+	printfunc ("ERROR: wrong split parameter")
 	sys.exit(1)
 
 if (options.divide and len(args) < 2) :
-	print "ERROR: must be at least two input files for ratio calculation"
+	printfunc ("ERROR: must be at least two input files for ratio calculation")
 	sys.exit(1)
 
 if isfile(options.files) :
-	print "Parsing file with root parameters:",options.files
+	printfunc ("Parsing file with root parameters:",options.files)
 	parsedRoots = parseRoots(options.files)
 else :
-	print "No root parameters provided, using default"
+	printfunc ("No root parameters provided, using default")
 	parsedRoots = defaultRoots(args)
 
 if isfile(options.plots) :
-	print "Parsing file with plots parameters:",options.plots
+	printfunc ("Parsing file with plots parameters:",options.plots)
 	parsedPlots = parsePlots(options.plots,varname)
 else :
-	print "No plots parameters provided, using default"
+	printfunc ("No plots parameters provided, using default")
 	parsedPlots = []
 	parsedRestricts = []
 	for var in ["erec","cpu"] :
@@ -129,37 +129,37 @@ maxperlist = split_canv[0]*split_canv[1]
 numplots = len(parsedPlots)
 
 if (options.outputfile == "DISPLAY") and (numplots > maxperlist) :
-	print "ERROR: too many hists to print to display"
+	printfunc ("ERROR: too many hists to print to display")
 	sys.exit(1)
 
-from ROOT import TFile, TTree
+from ROOT import TFile
 
 #opening root files
 for rootopt in parsedRoots :
 	if not isfile(rootopt.filename) :
-		print "ERROR: unexistent file:",rootopt.filename
+		printfunc ("ERROR: unexistent file:",rootopt.filename)
 		sys.exit(1)
 	root = TFile(rootopt.filename,"read")
 	if root.IsOpen() == 0 :
-		print "ERROR: can't open the file:",rootopt.filename
+		printfunc ("ERROR: can't open the file:",rootopt.filename)
 		sys.exit(1)
 	rootopt.rootfile = root
 	rootopt.tree = root.Get("COL/1")
 
-print "Creating plots..."
+printfunc ("Creating plots...")
 plots = createPlots(parsedPlots,parsedRoots)
 
-print "Filling plots..."
+printfunc ("Filling plots...")
 fillPlots(plots,parsedPlots,parsedRoots,eventext)
 
 if (options.divide) :
-	print "Calculating ratio"
+	printfunc ("Calculating ratio")
 	rootopt1 = parsedRoots.pop(0)
 	dividePlots(plots,rootopt1)
 	for rootopt in parsedRoots :
 		rootopt.legendname += " / " + rootopt1.legendname
 
-print "Done!"
+printfunc ("Done!")
 
 if options.outputfile.endswith(".root") :
 	savePlots(plots,options.outputfile)

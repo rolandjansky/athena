@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterContainerCnv_p7.h" 
@@ -388,7 +388,8 @@ void CaloClusterContainerCnv_p7::transToPers(const CaloCluster* trans,
   pers->m_clusterSize=trans->getClusterSize();
  
   //Convert base class and element links
-  m_P4EEtaPhiMCnv.transToPers((P4EEtaPhiM*)trans,&pers->m_P4EEtaPhiM,log);
+  P4EEtaPhiM tmp = *trans;
+  m_P4EEtaPhiMCnv.transToPers(&tmp,&pers->m_P4EEtaPhiM,log);
   m_showerElementLinkCnv.transToPers(&trans->m_dataLink,&pers->m_dataLink,log);
   m_cellElementLinkCnv.transToPers(&trans->m_cellLink,&pers->m_cellLink,log);
   m_barcodeCnv.transToPers(trans, &pers->m_barcode, log);

@@ -26,7 +26,7 @@ namespace Utils {
   }
   
 // Athena has an old version of ASG Tools, so alias the function to something
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
   template< typename T>
       static bool toolStoreContains( const std::string& name ) {
           return asg::ToolStore::contains<T>(name);
@@ -34,7 +34,7 @@ namespace Utils {
 #else
   template< typename T >
       static bool toolStoreContains( const std::string& name ) {
-          return ( dynamic_cast< T* >( asg::ToolStore::get( name ) ) != 0 );
+          return ( dynamic_cast< T* >( asg::ToolStore::get( name, true ) ) != 0 );
       }
 #endif
 

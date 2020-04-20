@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvTool.h 793565 2017-01-23 22:00:14Z leggett $
 #ifndef XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
 #define XAODEVENTINFOCNV_EVENTINFOCNVTOOL_H
 
@@ -13,8 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
 // Beam condition include(s):
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
@@ -22,8 +20,7 @@
 #include "LumiBlockData/LuminosityCondData.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
-#endif
-#endif
+#endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
 
 // xAOD include(s):
 #include "xAODCnvInterfaces/IEventInfoCnvTool.h"
@@ -37,9 +34,6 @@ namespace xAODMaker {
     *         defined in IEventInfoCnvTool.
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-    *
-    * $Revision: 793565 $
-    * $Date: 2017-01-23 23:00:14 +0100 (Mon, 23 Jan 2017) $
     */
    class EventInfoCnvTool : public AthAlgTool,
                             public virtual IEventInfoCnvTool {
@@ -60,15 +54,13 @@ namespace xAODMaker {
                                   const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
    private:
-#ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
       /// Connection to the beam spot service
       SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
       SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey
       { this, "LumiDataKey", "", "SG key for luminosity data" };
-#endif
-#endif
+#endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
 
       /// Internal flag for the availability of the beam conditions service
       bool m_beamCondSvcAvailable;

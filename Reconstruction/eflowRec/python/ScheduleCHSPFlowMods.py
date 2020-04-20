@@ -9,8 +9,7 @@
 
 
 from JetRec.JetRecStandard import jtm
-from AthenaConfiguration.ComponentFactory import CompFactory
-JetToolRunner=CompFactory.JetToolRunner
+from JetRec.JetRecConf import JetToolRunner
 jtm += JetToolRunner("jetconstitCHSPFlow",
                      EventShapeTools=[],
                      Tools=[jtm.JetConstitSeq_PFlowCHS],
@@ -19,11 +18,11 @@ jtm += JetToolRunner("jetconstitCHSPFlow",
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-JetAlgorithm=CompFactory.JetAlgorithm
+from JetRec.JetRecConf import JetAlgorithm
 job += JetAlgorithm("jetalgCHSPFlow",
                     Tools=[jtm.jetconstitCHSPFlow])
 
-ThinNegativeEnergyNeutralPFOsAlg=CompFactory.ThinNegativeEnergyNeutralPFOsAlg
+from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyNeutralPFOsAlg
 CHSnPFOsThinAlg = ThinNegativeEnergyNeutralPFOsAlg(
     "ThinNegativeEnergyNCHSeutralPFOsAlg",
     NeutralPFOsKey="CHSNeutralParticleFlowObjects",

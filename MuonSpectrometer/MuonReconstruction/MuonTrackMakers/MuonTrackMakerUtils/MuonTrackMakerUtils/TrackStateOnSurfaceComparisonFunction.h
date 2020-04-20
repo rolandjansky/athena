@@ -34,13 +34,11 @@
 
 namespace Muon {
 
-  /** Class inheriting from std::binary_function to provide a
-   *     comparison function, or relational definition, for
+  /**
+   * Class implementing a comparison function, or relational definition, for
    *     sorting TrackStateOnSurface objects
    */
-  class TrackStateOnSurfaceComparisonFunction 
-    : public std::binary_function<const Trk::TrackStateOnSurface*,
-                                  const Trk::TrackStateOnSurface*, bool> {
+  class TrackStateOnSurfaceComparisonFunction {
   public:
 
     /** Constructor with the fallback direction to use for ordering */

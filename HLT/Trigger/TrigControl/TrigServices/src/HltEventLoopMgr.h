@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_HLTEVENTLOOPMGR_H
@@ -7,15 +7,17 @@
 
 // Trigger includes
 #include "TrigKernel/ITrigEventLoopMgr.h"
-#include "TrigKernel/HltPscErrorCode.h"
 #include "TrigOutputHandling/HLTResultMTMaker.h"
+#include "TrigSteeringEvent/OnlineErrorCode.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/EventContextClid.h"
 #include "AthenaKernel/Timeout.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "CxxUtils/checker_macros.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -28,9 +30,6 @@
 
 // TDAQ includes
 #include "eformat/write/FullEventFragment.h"
-
-// ROOT includes
-#include <TH2I.h>
 
 // System includes
 #include <atomic>
@@ -48,7 +47,6 @@ class IHiveWhiteBoard;
 class IIncidentSvc;
 class IJobOptionsSvc;
 class IScheduler;
-class ITHistSvc;
 class StoreGateSvc;
 class TrigCOOLUpdateHelper;
 class IIoComponentMgr;
@@ -77,7 +75,6 @@ public:
   /// @name Gaudi state transitions (overriden from AthService)
   ///@{
   virtual StatusCode initialize() override;
-  virtual StatusCode start() override;
   virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
   ///@}
@@ -153,7 +150,7 @@ private:
   /** @brief Handle a failure to process an event
    *  @return FAILURE breaks the event loop
    **/
-  StatusCode failedEvent(hltonl::PSCErrorCode errorCode,
+  StatusCode failedEvent(HLT::OnlineErrorCode errorCode,
                          const EventContext& eventContext);
 
   /// The method executed by the event timeout monitoring thread
@@ -176,21 +173,18 @@ private:
    **/
   StatusCode drainAllSlots();
 
-  /// Register monitoring histograms with THistSvc
-  void bookHistograms();
-
   // ------------------------- Handles to required services/tools --------------
   ServiceHandle<IIncidentSvc>        m_incidentSvc;
   ServiceHandle<IJobOptionsSvc>      m_jobOptionsSvc;
   ServiceHandle<StoreGateSvc>        m_evtStore;
   ServiceHandle<StoreGateSvc>        m_detectorStore;
   ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;
-  ServiceHandle<ITHistSvc>           m_THistSvc;
   ServiceHandle<IIoComponentMgr>     m_ioCompMgr;
   ServiceHandle<IEvtSelector>        m_evtSelector{this, "EvtSel", "EvtSel"};
   ServiceHandle<IConversionSvc>      m_outputCnvSvc{this, "OutputCnvSvc", "OutputCnvSvc"};
   ToolHandle<TrigCOOLUpdateHelper>   m_coolHelper{this, "CoolUpdateTool", "TrigCOOLUpdateHelper"};
   ToolHandle<HLTResultMTMaker>       m_hltResultMaker{this, "ResultMaker", "HLTResultMTMaker"};
+  ToolHandle<GenericMonitoringTool>  m_monTool{this, "MonTool", "", "Monitoring tool"};
 
   SmartIF<IHiveWhiteBoard> m_whiteboard;
   SmartIF<IAlgResourcePool> m_algResourcePool;
@@ -242,8 +236,9 @@ private:
   Gaudi::Property<unsigned long long> m_forceSOR_ns{
     this, "forceStartOfRunTime", 0, "Override SOR time during prepareForRun (epoch in nano-seconds)"};
 
-  Gaudi::Property<unsigned int> m_dbIdleWait{
-    this, "dbConnIdleWaitSec", 0, "Seconds to wait before cleaning idle DB connections"};
+  Gaudi::Property<bool> m_rewriteLVL1{
+    this, "RewriteLVL1", false,
+    "Encode L1 results to ByteStream and write to the output. Possible only with athenaHLT, not online."};
 
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
@@ -251,10 +246,10 @@ private:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoRHKey{
     this, "EventInfoRHKey", "EventInfo", "StoreGate key for reading xAOD::EventInfo"};
 
-  SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1TriggerResultRHKey{
+    this, "L1TriggerResultRHKey", "L1TriggerResult", "StoreGate key for reading L1TriggerResult for RewriteLVL1"};
 
-  // ------------------------- Monitoring histograms ---------------------------
-  TH2I* m_errorCodePerAlg{nullptr}; ///< Non-success StatusCodes per algorithm name
+  SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
 
   // ------------------------- Other private members ---------------------------
   /// typedef used for detector mask fields

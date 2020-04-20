@@ -1,3 +1,6 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+import sys
 from AthenaCommon.Logging import logging
 recoLog = logging.getLogger('LArNoise_fromraw')
 
@@ -21,7 +24,7 @@ athenaCommonFlags.BSRDOInput.set_Value_and_Lock(runArgs.inputBSFile)
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.AutoConfiguration import GetProjectName,ConfigureTriggerStream
-from RecExConfig.AutoConfiguration import GetProjectName,ConfigureGeo
+from RecExConfig.AutoConfiguration import ConfigureGeo
 rec.projectName=GetProjectName()
 
 ## Pre-exec
@@ -60,10 +63,10 @@ ConfigureTriggerStream()
 from AthenaCommon.JobProperties import jobproperties
 if hasattr(runArgs,'geometryVersion'):
     jobproperties.Global.DetDescrVersion = runArgs.geometryVersion
-#    print "I found the geometryVersion of",defaultGeoVersion
+#    printfunc ("I found the geometryVersion of",defaultGeoVersion)
 else:
     defaultGeoVersion="ATLAS-R2-2015-02-00-00"
-    print "No geometryVersion given, use default value of",defaultGeoVersion
+    printfunc ("No geometryVersion given, use default value of",defaultGeoVersion)
     jobproperties.Global.DetDescrVersion = defaultGeoVersion
    
 from AthenaCommon.DetFlags import DetFlags
@@ -100,12 +103,12 @@ from LArConditionsCommon.LArCondFlags import larCondFlags
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 if not hasattr(runArgs,"conditionsTag") or runArgs.conditionsTag=="CURRENT":
-    print "Resolving 'CURRENT' express conditions tag ..."
+    printfunc ("Resolving 'CURRENT' express conditions tag ...")
     sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
     from AtlCoolBKLib import resolveAlias
     resolver=resolveAlias()
     currentGlobalES=resolver.getCurrentES().replace("*","ST")
-    print "Found ",currentGlobalES
+    printfunc ("Found ",currentGlobalES)
     svcMgr.IOVDbSvc.GlobalTag=currentGlobalES
 else:
     svcMgr.IOVDbSvc.GlobalTag=runArgs.conditionsTag
@@ -196,7 +199,7 @@ febSummaryMaker.CheckAllFEB=False
 from LArROD.LArRODFlags import larRODFlags
 larRODFlags.readDigits=True
 larRODFlags.keepDSPRaw = True
-from CaloRec.CaloCellFlags import jobproperties;
+from CaloRec.CaloCellFlags import jobproperties
 jobproperties.CaloCellFlags.doDeadCellCorr.set_Value_and_Lock(True)
 
 from CaloRec.CaloCellGetter import CaloCellGetter

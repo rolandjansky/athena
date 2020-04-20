@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019  CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020  CERN for the benefit of the ATLAS collaboration
  */
 
 /*
@@ -23,7 +23,7 @@ UPDATE : 25/06/2018
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -115,11 +115,13 @@ egammaSelectedTrackCopy::execute()
   auto allTRTTracks = m_AllTRTTracks.buffer();
   auto selectedTRTTracks = m_SelectedTRTTracks.buffer();
 
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );
   // // lets first check which clusters to seed on;
   std::vector<const xAOD::CaloCluster*> passingClusters;
   for (const xAOD::CaloCluster* cluster : *clusterTES) {
     ++allClusters;
-    if (m_egammaCaloClusterSelector->passSelection(cluster)) {
+    if (m_egammaCaloClusterSelector->passSelection(cluster,*calodetdescrmgr)) {
       passingClusters.push_back(cluster);
       ++selectedClusters;
     }
@@ -295,12 +297,11 @@ egammaSelectedTrackCopy::Select(const EventContext& ctx,
   }
   /*
    * Cases where 
-   * - it passes  deltaEta[2] from last measurement 
-   * - and it is still inside the broad preselection window
+   * - it passes  deltaEta[2] from last measurement (rescaling should not affect the eta side)
    * - and we have a cluster with higher Et.
    * Rescale up the track to account for radiative loses and retry
    */
-  if (fabs(deltaEta[2]) < m_narrowDeltaEta && fabs(deltaPhi[2]) < m_broadDeltaPhi && cluster->et() > track->pt()) {
+  if (fabs(deltaEta[2]) < m_narrowDeltaEta && cluster->et() > track->pt()) {
     // Extrapolate from Perigee Rescaled
     std::array<double, 4> etaRes = { -999.0, -999.0, -999.0, -999.0 };
     std::array<double, 4> phiRes = { -999.0, -999.0, -999.0, -999.0 };

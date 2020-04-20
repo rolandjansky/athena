@@ -1,18 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MdtRdoToPrepDataTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #include "MmRdoToPrepDataToolCore.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelper.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
@@ -23,8 +14,6 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
-#include "MMClusterization/IMMClusterBuilderTool.h"
-
 using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
@@ -34,10 +23,11 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
 					       const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_muonMgr(0),
+  m_muonMgr(nullptr),
   m_fullEventDone(false),
-  m_mmPrepDataContainer(0),
-  m_clusterBuilderTool("Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this)
+  m_mmPrepDataContainer(nullptr),
+  m_clusterBuilderTool("Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this),
+  m_calibTool("Muon::NSWCalibTool/NSWCalibTool", this)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
 
@@ -49,25 +39,16 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
   
   declareProperty("MergePrds", m_merge = true);
   declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
-}
-
-
-Muon::MmRdoToPrepDataToolCore::~MmRdoToPrepDataToolCore()
-{
-
+  declareProperty("NSWCalibTool", m_calibTool);
 }
 
 StatusCode Muon::MmRdoToPrepDataToolCore::initialize()
 {  
   ATH_MSG_DEBUG(" in initialize()");
   
-  StatusCode sc = detStore()->retrieve( m_muonMgr );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-    return sc;
-  }
+  ATH_CHECK(detStore()->retrieve(m_muonMgr));
   
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   // check if the initialization of the data container is success
   ATH_CHECK(m_mmPrepDataContainerKey.initialize());
@@ -75,13 +56,6 @@ StatusCode Muon::MmRdoToPrepDataToolCore::initialize()
 
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
-}
-
-StatusCode Muon::MmRdoToPrepDataToolCore::finalize()
-{
-  //  if (0 != m_mmPrepDataContainer) m_mmPrepDataContainer->release();
-  return StatusCode::SUCCESS;
-
 }
 
 StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataCollection *rdoColl, 
@@ -108,9 +82,9 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
     idWithDataVect.push_back(hash);
     
     // set the offline identifier of the collection Id
-    IdContext context = m_muonIdHelperTool->mmIdHelper().module_context();
+    IdContext context = m_idHelperSvc->mmIdHelper().module_context();
     Identifier moduleId;
-    int getId = m_muonIdHelperTool->mmIdHelper().get_id(hash,moduleId,&context);
+    int getId = m_idHelperSvc->mmIdHelper().get_id(hash,moduleId,&context);
     if ( getId != 0 ) {
       ATH_MSG_ERROR("Could not convert the hash Id: " << hash << " to identifier");
     } 
@@ -136,16 +110,14 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
 
     const MM_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
-//    const Identifier elementId = m_muonIdHelperTool->mmIdHelper().elementID(rdoId);
-    ATH_MSG_DEBUG(" dump rdo " << m_muonIdHelperTool->toString(rdoId ));
-    const int time = rdo->time();
-    const int charge = rdo->charge();
+    ATH_MSG_DEBUG(" dump rdo " << m_idHelperSvc->toString(rdoId ));
+    
     int channel = rdo->channel();
     std::vector<Identifier> rdoList;
-    Identifier parentID = m_muonIdHelperTool->mmIdHelper().parentID(rdoId);
-    Identifier layid = m_muonIdHelperTool->mmIdHelper().channelID(parentID, m_muonIdHelperTool->mmIdHelper().multilayer(rdoId), m_muonIdHelperTool->mmIdHelper().gasGap(rdoId),1);
-    Identifier prdId = m_muonIdHelperTool->mmIdHelper().channelID(parentID, m_muonIdHelperTool->mmIdHelper().multilayer(rdoId), m_muonIdHelperTool->mmIdHelper().gasGap(rdoId),channel);
-    ATH_MSG_DEBUG(" channel RDO " << channel << " channel from rdoID " << m_muonIdHelperTool->mmIdHelper().channel(rdoId));
+    Identifier parentID = m_idHelperSvc->mmIdHelper().parentID(rdoId);
+    Identifier layid = m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(rdoId), m_idHelperSvc->mmIdHelper().gasGap(rdoId),1);
+    Identifier prdId = m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(rdoId), m_idHelperSvc->mmIdHelper().gasGap(rdoId),channel);
+    ATH_MSG_DEBUG(" channel RDO " << channel << " channel from rdoID " << m_idHelperSvc->mmIdHelper().channel(rdoId));
     rdoList.push_back(prdId);
 
     // get the local and global positions
@@ -165,16 +137,16 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
       ATH_MSG_WARNING("Could not get the global strip position for MM");
       continue;
     }
+    NSWCalib::CalibratedStrip calibStrip;
+    ATH_CHECK (m_calibTool->calibrate(rdo, globalPos, calibStrip));
 
-//    const Trk::Surface& surf = detEl->surface(rdoId);
-//    const Amg::Vector3D* globalPos = surf.localToGlobal(localPos);
     const Amg::Vector3D globalDir(globalPos.x(), globalPos.y(), globalPos.z());
     Trk::LocalDirection localDir;
     const Trk::PlaneSurface& psurf = detEl->surface(layid);
     Amg::Vector2D lpos;
     psurf.globalToLocal(globalPos,globalPos,lpos);
     psurf.globalToLocalDirection(globalDir, localDir);
-    float inAngle_XZ = fabs( localDir.angleXZ() / CLHEP::degree);
+    float inAngle_XZ = std::abs( localDir.angleXZ() / CLHEP::degree);
    
     ATH_MSG_DEBUG(" Surface centre x " << psurf.center().x() << " y " << psurf.center().y() << " z " << psurf.center().z() );
     ATH_MSG_DEBUG(" localPos x " << localPos.x() << " localPos y " << localPos.y() << " lpos recalculated 0 " << lpos[0] << " lpos y " << lpos[1]);
@@ -184,26 +156,28 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
 
     // get for now a temporary error matrix -> to be fixed
     double resolution = 0.07;
-    if (fabs(inAngle_XZ)>3) resolution = ( -.001/3.*fabs(inAngle_XZ) ) + .28/3.;
+    if (std::abs(inAngle_XZ)>3) resolution = ( -.001/3.*std::abs(inAngle_XZ) ) + .28/3.;
     double errX = 0;
     const MuonGM::MuonChannelDesign* design = detEl->getDesign(layid);
     if( !design ){
-      ATH_MSG_WARNING("Failed to get design for " << m_muonIdHelperTool->toString(layid) );
+      ATH_MSG_WARNING("Failed to get design for " << m_idHelperSvc->toString(layid) );
     }else{
-      errX = fabs(design->inputPitch)/sqrt(12);
+      errX = std::abs(design->inputPitch)/std::sqrt(12);
       ATH_MSG_DEBUG(" strips inputPitch " << design->inputPitch << " error " << errX);
     }
 // add strip width to error
-    resolution = sqrt(resolution*resolution+errX*errX);
+    resolution = std::sqrt(resolution*resolution+errX*errX);
 
-    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+    Amg::MatrixX* cov = new Amg::MatrixX(2,2);
     cov->setIdentity();
-    (*cov)(0,0) = resolution*resolution;  
+    (*cov)(0,0) = calibStrip.resTransDistDrift;  
+    (*cov)(1,1) = calibStrip.resLongDistDrift;
+    localPos.x() += calibStrip.dx;
 
     if(!merge) {
-      prdColl->push_back(new MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge));
+      prdColl->push_back(new MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift));
     } else {
-       MMPrepData mpd = MMPrepData(prdId,hash,localPos,rdoList,cov,detEl,time,charge);
+       MMPrepData mpd = MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
        // set the hash of the MMPrepData such that it contains the correct value in case it gets used in SimpleMMClusterBuilderTool::getClusters
        mpd.setHashAndIndex(hash,0);
        MMprds.push_back(mpd);

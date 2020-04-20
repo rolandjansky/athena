@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,19 +21,13 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
 #include <TH2.h>
-#include <TMath.h>
 #include <TList.h>
 #include <inttypes.h>
 
 #include <sstream>
 #include <algorithm>
 #include <fstream>
-
-using namespace std;
 
 // Function to generate TGC efficiency histograms
 // Selects valid segments and attempts to match them into a track, then looks for TGC hits in the various layers
@@ -46,14 +40,14 @@ MdtVsTgcRawDataValAlg::tgceffcalc(const xAOD::MuonSegmentContainer *newmdtsegmen
   // Declare vector arrays to hold segment pointers
 
   // Holds Segments sorted into MDT Stations on each side
-  vector<const Muon::MuonSegment*> sortedSegments[2][4];           //[AC][MDTStation]
+  std::vector<const Muon::MuonSegment*> sortedSegments[2][4];           //[AC][MDTStation]
   
   // Holds Segments which have been disqualified, any segments in this array are ignored when looping through sortedSegments
-  vector<const Muon::MuonSegment*> DQdisqualifiedSegments[2][4];   //[AC][MDTStation] // Segments which have been disqualified by DQ
-  vector<const Muon::MuonSegment*> MATCHdisqualifiedSegments[2][4];//[AC][MDTStation] // Segments which have been disqualified by DQ or already been included in a track
+  std::vector<const Muon::MuonSegment*> DQdisqualifiedSegments[2][4];   //[AC][MDTStation] // Segments which have been disqualified by DQ
+  std::vector<const Muon::MuonSegment*> MATCHdisqualifiedSegments[2][4];//[AC][MDTStation] // Segments which have been disqualified by DQ or already been included in a track
   
   // Holds Segments which have been matched into a track
-  vector<SegmTrack> matchedSegments[2];             //[AC]
+  std::vector<SegmTrack> matchedSegments[2];             //[AC]
   
   
   //////////////////////////////////////////////////////

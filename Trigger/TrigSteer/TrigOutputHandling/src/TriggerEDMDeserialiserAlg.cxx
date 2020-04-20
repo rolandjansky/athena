@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstring>
@@ -137,7 +137,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
 
     start = toNextFragment( start ); // point the start to the next chunk, irrespectively of what happens in deserialisation below
         
-    RootType classDesc = RootType::ByName( persistentTypeName );
+    RootType classDesc = RootType::ByNameNoQuiet( persistentTypeName );
     ATH_CHECK( classDesc.IsComplete() );
     size_t usedBytes{ bsize };
     void* obj = m_serializerSvc->deserialize( buff.get(), usedBytes, classDesc );
@@ -162,7 +162,7 @@ StatusCode TriggerEDMDeserialiserAlg::deserialise(   const Payload* dataptr  ) c
       classDesc.Destruct( obj );
 
       // from now on in case of T/P class we deal with a new class, the transient one
-      classDesc = RootType::ByName( transientTypeName );
+      classDesc = RootType::ByNameNoQuiet( transientTypeName );
       ATH_CHECK( classDesc.IsComplete() );
       obj = converted;
     }

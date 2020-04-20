@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -11,6 +11,8 @@ import os
 import re
 import subprocess
 import json
+import six
+import glob
 
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
@@ -23,23 +25,27 @@ class RefComparisonStep(Step):
         super(RefComparisonStep, self).__init__(name)
         self.reference = None
         self.input_file = None
+        self.explicit_reference = False  # True if reference doesn't exist at configuration time
 
     def configure(self, test):
         if self.reference is not None:
+            # Do nothing if the reference will be produced later
+            if self.explicit_reference:
+                return super(RefComparisonStep, self).configure(test)
             # Do nothing if the reference exists
             if os.path.isfile(self.reference):
-                return
+                return super(RefComparisonStep, self).configure(test)
             # Try to find the file in DATAPATH
-            full_path = subprocess.check_output('find_data.py {}'.format(self.reference), shell=True).strip()
+            full_path = subprocess.check_output('find_data.py {}'.format(self.reference), shell=True).decode('utf-8').strip()
             if os.path.isfile(full_path):
                 self.log.debug('%s using reference %s', self.name, full_path)
                 self.reference = full_path
-                return
+                return super(RefComparisonStep, self).configure(test)
             else:
                 self.log.warning(
                     '%s failed to find reference %s - wrong path?',
                     self.name, self.reference)
-                return
+                return super(RefComparisonStep, self).configure(test)
 
         if self.input_file is None:
             self.log.error('Cannot configure %s because input_file not specified',
@@ -73,7 +79,7 @@ class RefComparisonStep(Step):
                              art_input_eos, art_input_cvmfs)
             self.reference = None
 
-        super(RefComparisonStep, self).configure(test)
+        return super(RefComparisonStep, self).configure(test)
 
 
 class InputDependentStep(Step):
@@ -95,7 +101,8 @@ class InputDependentStep(Step):
         if not os.path.isfile(self.input_file):
             self.log.debug('Skipping %s because %s does not exist',
                            self.name, self.input_file)
-            return 0, '# (internal) {} -> skipped'.format(self.name)
+            self.result = 0
+            return self.result, '# (internal) {} -> skipped'.format(self.name)
 
         return super(InputDependentStep, self).run(dry_run)
 
@@ -115,6 +122,12 @@ class LogMergeStep(Step):
             self.log_files = []
             for step in test.exec_steps:
                 self.log_files.append(step.name)
+        # Protect against infinite loop
+        if self.merged_name in self.log_files:
+            self.log.error('%s output log name %s is same as one of the input log names.'\
+                           ' This will lead to infinite loop, aborting.', self.name, self.merged_name)
+            self.report_result(1, 'TestConfig')
+            sys.exit(1)
         super(LogMergeStep, self).configure(test)
 
     def process_extra_regex(self):
@@ -126,8 +139,9 @@ class LogMergeStep(Step):
                 self.log_files.append(f)
 
     def merge_logs(self):
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
         try:
-            with open(self.merged_name, 'w') as merged_file:
+            with open(self.merged_name, 'w', **encargs) as merged_file:
                 for log_name in self.log_files:
                     if not os.path.isfile(log_name):
                         if self.warn_if_missing:
@@ -135,7 +149,7 @@ class LogMergeStep(Step):
                             merged_file.write(
                                 '### WARNING Missing {} ###\n'.format(log_name))
                         continue
-                    with open(log_name) as log_file:
+                    with open(log_name, **encargs) as log_file:
                         merged_file.write('### {} ###\n'.format(log_name))
                         for line in log_file:
                             merged_file.write(line)
@@ -176,10 +190,20 @@ class RootMergeStep(Step):
         super(RootMergeStep, self).configure(test)
 
     def run(self, dry_run=False):
+        file_list_to_check = self.input_file.split()
         if os.path.isfile(self.merged_file) and self.rename_suffix:
             old_name = os.path.splitext(self.merged_file)
             new_name = old_name[0] + self.rename_suffix + old_name[1]
             self.executable = 'mv {} {}; {}'.format(self.merged_file, new_name, self.executable)
+            if new_name in file_list_to_check:
+                file_list_to_check.remove(new_name)
+                file_list_to_check.append(self.merged_file)
+        self.log.debug('%s checking if the input files exist: %s', self.name, str(file_list_to_check))
+        for file_name in file_list_to_check:
+            if len(glob.glob(file_name)) < 1:
+                self.log.warning('%s: file %s requested to be merged but does not exist', self.name, file_name)
+                self.result = 1
+                return self.result, '# (internal) {} in={} out={} -> failed'.format(self.name, self.input_file, self.merged_file)
         return super(RootMergeStep, self).run(dry_run)
 
 
@@ -212,6 +236,10 @@ class CheckLogStep(Step):
         self.check_warnings = False
         self.config_file = None
         self.args = '--showexcludestats'
+        # The following three are updated in configure() if not set
+        self.required = None
+        self.auto_report_result = None
+        self.output_stream = None
 
     def configure(self, test):
         if self.config_file is None:
@@ -232,10 +260,14 @@ class CheckLogStep(Step):
             self.args += ' --errors'
         if self.check_warnings:
             self.args += ' --warnings'
-        if self.check_errors and not self.check_warnings:
-            self.output_stream = Step.OutputStream.FILE_AND_STDOUT
-            self.auto_report_result = True
-            self.required = True
+
+        errors_only = self.check_errors and not self.check_warnings
+        if self.output_stream is None:
+            self.output_stream = Step.OutputStream.FILE_AND_STDOUT if errors_only else Step.OutputStream.FILE_ONLY
+        if self.auto_report_result is None:
+            self.auto_report_result = errors_only
+        if self.required is None:
+            self.required = errors_only
 
         self.args += ' --config {} {}'.format(self.config_file, self.log_file)
 
@@ -265,12 +297,14 @@ class RegTestStep(RefComparisonStep):
         if not os.path.isfile(log_file):
             self.log.error('%s input file %s is missing', self.name, log_file)
             return False
-        with open(log_file) as f_in:
-            matches = re.findall('{}.*$'.format(self.regex),
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        with open(log_file, **encargs) as f_in:
+            matches = re.findall('({}.*).*$'.format(self.regex),
                                  f_in.read(), re.MULTILINE)
-            with open(self.input_file, 'w') as f_out:
+            with open(self.input_file, 'w', **encargs) as f_out:
                 for line in matches:
-                    f_out.write(line+'\n')
+                    linestr = str(line[0]) if type(line) is tuple else line
+                    f_out.write(linestr+'\n')
         return True
 
     def rename_ref(self):
@@ -342,11 +376,17 @@ class PerfMonStep(InputDependentStep):
 
     def __init__(self, name='PerfMon'):
         super(PerfMonStep, self).__init__(name)
-        self.input_file = 'ntuple.pmon.gz'
+        self.input_file = None
         self.executable = 'perfmon.py'
         self.args = '-f 0.90'
 
     def configure(self, test):
+        if not self.input_file:
+            num_athenaHLT_steps = sum([1 for step in test.exec_steps if step.type == 'athenaHLT'])
+            if num_athenaHLT_steps > 0:
+                self.input_file = 'athenaHLT_workers/athenaHLT-01/ntuple.pmon.gz'
+            else:
+                self.input_file = 'ntuple.pmon.gz'
         self.args += ' '+self.input_file
         super(PerfMonStep, self).configure(test)
 
@@ -476,6 +516,7 @@ class ZeroCountsStep(Step):
         super(ZeroCountsStep, self).__init__(name)
         self.input_file = 'HLTChain.txt,HLTTE.txt,L1AV.txt'
         self.auto_report_result = True
+        self.required = True
         self.__input_files__ = None
 
     def configure(self, test=None):
@@ -488,7 +529,8 @@ class ZeroCountsStep(Step):
                 self.name, input_file)
             return -1
         lines_checked = 0
-        with open(input_file) as f_in:
+        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        with open(input_file, **encargs) as f_in:
             for line in f_in.readlines():
                 split_line = line.split()
                 lines_checked += 1
@@ -594,6 +636,15 @@ class MessageCountStep(Step):
         return self.result, cmd
 
 
+def produces_log(step):
+    '''
+    Helper function checking whether a Step output_stream value
+    indicates that it will produce a log file
+    '''
+    return step.output_stream == Step.OutputStream.FILE_ONLY or \
+           step.output_stream == Step.OutputStream.FILE_AND_STDOUT
+
+
 def default_check_steps(test):
     '''
     Create the default list of check steps for a test. The configuration
@@ -606,7 +657,7 @@ def default_check_steps(test):
     # Log merging
     if len(test.exec_steps) == 1:
         exec_step = test.exec_steps[0]
-        if exec_step.type == 'athenaHLT':
+        if exec_step.type == 'athenaHLT' and produces_log(exec_step):
             logmerge = LogMergeStep()
             logmerge.merged_name = 'athena.log'
             logmerge.log_files = ['athenaHLT.log']
@@ -620,6 +671,8 @@ def default_check_steps(test):
         logmerge.merged_name = 'athena.log'
         logmerge.log_files = []
         for exec_step in test.exec_steps:
+            if not produces_log(exec_step):
+                continue
             logmerge.log_files.append(exec_step.get_log_file_name())
             if exec_step.type == 'athenaHLT':
                 logmerge.extra_log_regex = 'athenaHLT:.*(.out|.err)'
@@ -636,8 +689,9 @@ def default_check_steps(test):
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
-                    'PhysicsValidation', 'RAWtoALL', 'BSFTKCreator']
+                    'PhysicsValidation', 'RAWtoALL']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
+        reco_tf_logmerge.extra_log_regex = r'athfile-.*\.log\.txt'
         reco_tf_logmerge.merged_name = 'athena.merged.log'
         log_to_zip = reco_tf_logmerge.merged_name
         if log_to_check is not None:
@@ -673,14 +727,6 @@ def default_check_steps(test):
     msgcount = MessageCountStep('MessageCount')
     check_steps.append(msgcount)
 
-    # RegTest
-    regtest = RegTestStep()
-    if log_to_check is not None:
-        regtest.input_base_name = os.path.splitext(log_to_check)[0]
-    if 'athenaHLT' in step_types:
-        regtest.regex = r'(?:HltEventLoopMgr(?!.*athenaHLT-)|REGTEST)'
-    check_steps.append(regtest)
-
     # Tail (probably not so useful these days)
     tail = TailStep()
     if log_to_check is not None:
@@ -713,3 +759,18 @@ def default_check_steps(test):
 
     # return the steps
     return check_steps
+
+
+def add_step_after_type(step_list, ref_type, step_to_add):
+    '''
+    Insert step_to_add into step_list after the last step of type ref_type.
+    If the list has no steps of type ref_type, append step_to_add at the end of the list.
+    '''
+    index_to_add = -1
+    for index, step in enumerate(step_list):
+        if isinstance(step, ref_type):
+            index_to_add = index+1
+    if index_to_add > 0:
+        step_list.insert(index_to_add, step_to_add)
+    else:
+        step_list.append(step_to_add)

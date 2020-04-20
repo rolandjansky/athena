@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAVALIDATION_BASICHISTOGRAMS_H
@@ -8,8 +8,9 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #include "xAODBase/IParticle.h"
 
-#include <string>
 #include <map>
+#include <string>
+#include <utility>
 class ITHistSvc;
 class StatusCode;
 class TH1D;
@@ -26,9 +27,9 @@ namespace egammaMonitoring {
                    std::string folder,
                    ITHistSvc * &rootHistSvc
     ) :
-      m_name(name),
-      m_title(title),
-      m_folder(folder),
+      m_name(std::move(std::move(name))),
+      m_title(std::move(std::move(title))),
+      m_folder(std::move(std::move(folder))),
       m_rootHistSvc(rootHistSvc) {}
 
     virtual StatusCode initializePlots() = 0;

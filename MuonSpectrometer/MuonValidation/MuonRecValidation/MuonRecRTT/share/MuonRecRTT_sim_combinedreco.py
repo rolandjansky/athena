@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #--------------------------------------------------------------------------
 #
 # MuonRec_topOptions.py
@@ -68,7 +69,7 @@ topSequence = AlgSequence()
 ToolSvc = Service("ToolSvc")
 
 # Specify number of events to be processed
-if not 'EvtMax' in dir():
+if 'EvtMax' not in dir():
     EvtMax = 10000
 
 # Optionally run Inner Detector + Muon Spectrometer
@@ -87,7 +88,7 @@ if doMuonIDCombined:
  
 # Select detector description
 
-if not 'DetDescrVersion' in dir():
+if 'DetDescrVersion' not in dir():
     DetDescrVersion="ATLAS-GEO-16-00-00"
 
 # Z -> mu mu RDO input files

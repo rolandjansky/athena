@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCAST_TOOLTESTER_H
@@ -10,8 +10,10 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Local include(s):
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "PATInterfaces/SystematicsUtil.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "TrackInfo.h"
 
 // Root include(s)
 #include "TTree.h"
@@ -19,30 +21,37 @@
 
 namespace CP {
 
-class TestMCASTTool : public AthAlgorithm {
+  class TestMCASTTool : public AthAlgorithm {
+  
+  public:
+    //::: Regular Algorithm constructor
+    TestMCASTTool( const std::string& name, ISvcLocator* svcLoc );
+    //::: Function initialising the algorithm
+    virtual StatusCode initialize();
+    //::: Function executing the algorithm
+    virtual StatusCode execute();
+    //::: Function finalizing the algoritm
+    virtual StatusCode finalize();
+  
+  private:
+    //::: StoreGate key for the muon container to investigate
+    std::string m_sgKey;
+    //::: Connection to the smearing tool
+    ToolHandle< CP::IMuonCalibrationAndSmearingTool > m_MCaSTool;
+  
+    std::vector<std::string> m_sysNames;
+    std::vector< CP::SystematicSet > m_sysList;
 
-public:
-  //::: Regular Algorithm constructor
-  TestMCASTTool( const std::string& name, ISvcLocator* svcLoc );
-  //::: Function initialising the algorithm
-  virtual StatusCode initialize();
-  //::: Function executing the algorithm
-  virtual StatusCode execute();
-  //::: Function finalizing the algoritm
-  virtual StatusCode finalize();
-
-private:
-  //::: StoreGate key for the muon container to investigate
-  std::string m_sgKey;
-  //::: Connection to the smearing tool
-  ToolHandle< CP::IMuonCalibrationAndSmearingTool > m_Tool;
-
-  TFile* m_smearfile;
-  TTree* m_smeartree;
-  Float_t m_eta, m_phi, m_pt, m_ptcorr, m_ptdiff, m_ptdiffabs, m_ptid, m_ptms;
-
-
-}; // class TestMCASTTool
+    TFile* m_DebugFile;
+    TTree* m_DebugTree;
+    int m_SelCategoryRaw, m_SelCategory;
+    std::unique_ptr<MMCTest::TrackInfo> m_Combined;
+    std::unique_ptr<MMCTest::TrackInfo> m_InnerDet;
+    std::unique_ptr<MMCTest::TrackInfo> m_MSExtr;
+    std::unique_ptr<MMCTest::TrackInfo> m_MSOnlyExtr;
+  
+  
+  }; // class TestMCASTTool
 
 } // namespace CP
 

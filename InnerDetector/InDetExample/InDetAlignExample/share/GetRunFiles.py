@@ -5,6 +5,8 @@
 #
 ##--------------------------
 
+from __future__ import print_function
+
 import sys, os, fileinput
 
 ##########################################################
@@ -53,12 +55,12 @@ OutputFile = "Run_" + RunNumber + ".txt"
 if (len(FileLabel)>1): 
     OutputFile = "Run_" + RunNumber + "_" + FileLabel + ".txt"
 
-print " <GetRunFiles> RunNumber    = ", RunNumber
-print " <GetRunFiles> Project      = ", DataProject
-print " <GetRunFiles> Stream       = ", DataStream
-print " <GetRunFiles> DaqMerge     = ", daqmerge
-print " <GetRunFiles> FileLabel    = ", FileLabel
-print " <GetRunFiles> OutputFile   = ", OutputFile
+print (" <GetRunFiles> RunNumber    = ", RunNumber)
+print (" <GetRunFiles> Project      = ", DataProject)
+print (" <GetRunFiles> Stream       = ", DataStream)
+print (" <GetRunFiles> DaqMerge     = ", daqmerge)
+print (" <GetRunFiles> FileLabel    = ", FileLabel)
+print (" <GetRunFiles> OutputFile   = ", OutputFile)
  
 #os.system("ls -l ~/eos/atlas/atlastier0/rucio/%s/%s/00%s/data15_comm.00%s.%s.merge.RAW" %(DataProject, DataStream,  RunNumber, RunNumber,  DataStream))
 os.system("ls -l  ~/eos/atlas/atlastier0/rucio/%s/%s/00%s/%s.00%s.%s.%s.RAW | gawk \'{print \"root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/%s/%s/00%s/%s.00%s.%s.%s.RAW/\"$9}\' > %s"  %(DataProject, DataStream,  RunNumber, DataProject, RunNumber,  DataStream, daqmerge, DataProject, DataStream, RunNumber, DataProject, RunNumber, DataStream, daqmerge, tempOutputFile)) 
@@ -69,16 +71,16 @@ with open (tempOutputFile,'rb') as f:
     for line in f:
         count+=1
         if (count > 1):
-            #print " line: ", count, "  = ",line
+            #print (" line: ", count, "  = ",line)
             outputf.write(line)
         
 outputf.close()
 
 os.system("rm -f %s" %tempOutputFile)
  
-print " File --> ", OutputFile, " has ", count-1, " lines"
+print (" File --> ", OutputFile, " has ", count-1, " lines")
 if (count == 0):
-    print " <GetRunFiles> WARNING: when selecting files make sure what type of folder contains the files: either daq or merge suffix"
+    print (" <GetRunFiles> WARNING: when selecting files make sure what type of folder contains the files: either daq or merge suffix")
 
     
-print " <GetRunFiles> GAME OVER. INSERT COIN. "
+print (" <GetRunFiles> GAME OVER. INSERT COIN. ")

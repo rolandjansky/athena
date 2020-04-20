@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: MultiReaderAlg.py 452707 2011-08-08 11:45:42Z krasznaa $
 
@@ -126,7 +126,7 @@ class MultiReaderAlg( D3PD__MultiReaderAlg ):
         collection getter registry for this tree.
         """
        
-        if conf.properties().has_key( 'CollectionGetterRegistry' ):
+        if 'CollectionGetterRegistry' in conf.properties():
             conf.CollectionGetterRegistry = self._registry
         for c in conf.getAllChildren():
             self._setRegistry( c )

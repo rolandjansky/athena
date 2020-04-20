@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/CaloClusterVariables.h"
-//#include "tauEvent/TauJet.h"
-//#include "boost/foreach.hpp"
-#include "math.h"
+#include <cmath>
 
 const double CaloClusterVariables::DEFAULT = -1111.;
 
@@ -23,7 +21,6 @@ m_totMass(DEFAULT),
 m_effMass(DEFAULT),
 m_totEnergy(DEFAULT),
 m_effEnergy(DEFAULT),
-m_numCells(0),
 m_doVertexCorrection(false) {
 }
 
@@ -31,7 +28,7 @@ m_doVertexCorrection(false) {
 // update/fill the cluster based variables
 //*******************************************
 
-bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
+bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
 
     const xAOD::Jet* pSeed = *pTau.jetLink();
     if(!pSeed) return false;
@@ -40,19 +37,10 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
     xAOD::JetConstituentVector::const_iterator nav_itE = pSeed->getConstituents().end();
     const xAOD::CaloCluster* pCluster;
    
-    unsigned int sumCells = 0;
-
     std::vector<CaloVertexedClusterType> constituents;
     for (; nav_it != nav_itE; ++nav_it) {
       pCluster = dynamic_cast<const xAOD::CaloCluster*> ( (*nav_it)->rawConstituent() );
       if (!pCluster) continue;
-
-      // XXX moved the calculation of num cells up because later on we don't have access to the actual clusters anymore
-      if(!inAODmode) {
-#ifndef XAOD_ANALYSIS
-	sumCells += pCluster->size();
-#endif
-      }
 
       // correct cluster
       if (pTau.vertexLink() && m_doVertexCorrection)
@@ -114,9 +102,6 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
     // Calculate the average radius of the constituents wrt the tau centroid
     this->m_aveRadius = this->m_numConstit > 0 ? sum_radii / this->m_numConstit : DEFAULT;
 
-    // sum of cells for the tau candidate
-    this->m_numCells = sumCells;
-    
     // Effective number of constituents
     this->m_effNumConstit = sum_of_E2 > 0 ? (sum_e * sum_e) / (sum_of_E2) : DEFAULT;
 
@@ -146,13 +131,9 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
       --icount;
 
         double energy = c.e();
-	//XXXchange to use tlorentzvector
         double px = c.p4().Px();
         double py = c.p4().Py();
         double pz = c.p4().Pz();
-        // FF: see comment above
-        //CLHEP::HepLorentzVector constituentHLV(px, py, pz, 1);
-        //sum_radii += centroid.deltaR(constituentHLV);
         double dr = std::sqrt( std::pow(c.eta() - centroid.Eta(),2) + std::pow(c.phi() - centroid.Phi(),2));
         sum_radii += dr;
 
@@ -179,10 +160,9 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, bool inAODmode) {
 }
 
 
-//*****************************************
-// Calculate the geometrical center of the
-// tau constituents
-//*****************************************
+//***********************************************************
+// Calculate the geometrical center of the tau constituents
+//***********************************************************
 TLorentzVector CaloClusterVariables::calculateTauCentroid(int nConst, const std::vector<CaloVertexedClusterType>& constituents) {
 
     double px = 0;

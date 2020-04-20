@@ -52,9 +52,9 @@ svcMgr.ProxyProviderSvc.ProviderNames += [ "MetaDataSvc" ]
 # Add in MetaData Stores
 from StoreGate.StoreGateConf import StoreGateSvc
 if not hasattr (svcMgr, 'InputMetaDataStore'):
-    svcMgr += StoreGateSvc( "MetaDataStore" )
-if not hasattr (svcMgr, 'MetaDataStore'):
     svcMgr += StoreGateSvc( "InputMetaDataStore" )
+if not hasattr (svcMgr, 'MetaDataStore'):
+    svcMgr += StoreGateSvc( "MetaDataStore" )
 
 # enable IOVDbSvc to read metadata
 svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
@@ -67,8 +67,3 @@ if not hasattr (svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
 svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
 if not hasattr (svcMgr.ToolSvc, 'ByteStreamMetadataTool'):
     svcMgr.ToolSvc += CfgMgr.ByteStreamMetadataTool()
-
-# User metadata in FMD
-if not hasattr (svcMgr, 'ByteStreamAttListMetadataSvc'):
-    svcMgr += CfgMgr.ByteStreamAttListMetadataSvc ("ByteStreamAttListMetadataSvc")
-

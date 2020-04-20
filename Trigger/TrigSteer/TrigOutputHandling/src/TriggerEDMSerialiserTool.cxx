@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstring>
@@ -113,7 +113,7 @@ StatusCode TriggerEDMSerialiserTool::addCollectionToSerialise(const std::string&
   ATH_MSG_DEBUG( "Persistent type: " << persistentType );
   ATH_CHECK( persistentType.find("_") != std::string::npos );
 
-  RootType classDesc = RootType::ByName( persistentType );
+  RootType classDesc = RootType::ByNameNoQuiet( persistentType );
   if ( ! classDesc.IsComplete() ) {
     ATH_MSG_ERROR( "The type " << persistentType <<  " is not known to ROOT serialiser" );
     return StatusCode::FAILURE;
@@ -227,7 +227,7 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
     }
     ATH_MSG_DEBUG( "CLID " << clid );
 
-    RootType classDesc = RootType::ByName( cls->GetName() );
+    RootType classDesc = RootType::ByNameNoQuiet( cls->GetName() );
 
     const void* rawptr = auxStoreIO->getIOData( auxVarID );
     ATH_CHECK( rawptr != nullptr );
@@ -261,7 +261,7 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
 
 StatusCode TriggerEDMSerialiserTool::serialiseContainer( void* data, const Address& address, std::vector<uint32_t>& buffer ) const {
 
-  RootType classDesc = RootType::ByName( address.persType );
+  RootType classDesc = RootType::ByNameNoQuiet( address.persType );
   size_t sz=0;
   void* mem = m_serializerSvc->serialize( data, classDesc, sz );
 

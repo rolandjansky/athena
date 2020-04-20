@@ -62,7 +62,7 @@ class MenuThresholdsCollection( object ):
 
     def json(self):
         confObj = odict()
-        for ttype in (ThrType.Run3Types() + ThrType.NIMTypes() + [ThrType.TOPO]):
+        for ttype in (ThrType.Run3Types() + ThrType.NIMTypes() + [ThrType.TOPO, ThrType.MUTOPO, ThrType.MULTTOPO ]):
             confObj[ttype.name] = odict()
             confObj[ttype.name]["type"] = ttype.name
             confObj[ttype.name]["thresholds"] = odict()
@@ -81,7 +81,7 @@ class MenuThresholdsCollection( object ):
 
     def jsonLegacy(self):
         confObj = odict()
-        for ttype in (ThrType.LegacyTypes() + [ThrType.TOPO]):
+        for ttype in (ThrType.LegacyTypes() + [ThrType.R2TOPO]):
             confObj[ttype.name] = odict()
             confObj[ttype.name]["type"] = ttype.name
             confObj[ttype.name]["thresholds"] = odict()
@@ -222,7 +222,7 @@ class LegacyThreshold( Threshold ):
             confObj["thrValues"] = []
             for thrV in self.thresholdValues:
                 confObj["thrValues"].append( odict([
-                    ("et", thrV.value),
+                    ("value", thrV.value),
                     ("isobits", thrV.isobits),
                     ("etamin", thrV.etamin),
                     ("etamax", thrV.etamax),
@@ -231,13 +231,13 @@ class LegacyThreshold( Threshold ):
                     ("priority", thrV.priority)
                 ]) )
         elif self.ttype == ThrType.TAU:
-            confObj["et"] = self.thresholdValues[0].value
+            confObj["value"] = self.thresholdValues[0].value
             confObj["isobits"] = self.thresholdValues[0].isobits
         elif self.ttype == ThrType.JET:
-            confObj["thresholdValues"] = []
+            confObj["thrValues"] = []
             for thrV in self.thresholdValues:
-                confObj["thresholdValues"].append( odict([
-                    ("pt", thrV.value),
+                confObj["thrValues"].append( odict([
+                    ("value", thrV.value),
                     ("etamin", thrV.etamin),
                     ("etamax", thrV.etamax),
                     ("phimin", thrV.phimax),
@@ -246,19 +246,20 @@ class LegacyThreshold( Threshold ):
                 ]) )
         elif self.ttype == ThrType.TE:
             if len(self.thresholdValues)==1:
-                confObj["te"] = self.thresholdValues[0].value
+                confObj["value"] = self.thresholdValues[0].value
             else:
                 confObj["thrValues"] = []
                 for thrV in self.thresholdValues:
                     confObj["thrValues"].append( odict([
-                        ("te", thrV.value),
+                        ("value", thrV.value),
                         ("etamin", thrV.etamin),
                         ("etamax", thrV.etamax),
+                        ("priority", thrV.priority)
                     ]) )
         elif self.ttype == ThrType.XE:
-            confObj["xe"] = self.thresholdValues[0].value
+            confObj["value"] = self.thresholdValues[0].value
         elif self.ttype == ThrType.XS:
-            confObj["xs"] = self.thresholdValues[0].value
+            confObj["value"] = self.thresholdValues[0].value
         else:
             raise RuntimeError("No json implementation for legacy threshold type %s" % self.ttype)
         return confObj
@@ -271,12 +272,24 @@ class EMThreshold (Threshold):
         super(EMThreshold,self).__init__(name = name, ttype = ttype, mapping = mapping, run = 3 if ttype=='eEM' else 2)
         mres = re.match("(?P<type>[A-z]*)[0-9]*(?P<suffix>[VHI]*)",name).groupdict()
         self.suffix = mres["suffix"]
+        self.rhad = "None"
+        self.reta = "None"
+        self.wstot = "None"
 
     def isV(self):
         return 'V' in self.suffix
 
     def isI(self):
         return 'I' in self.suffix
+
+    def setIsolation(self, rhad = "None", reta = "None", wstot = "None"):
+        allowed = [ "None", "Loose", "Medium", "Tight" ]
+        if rhad not in allowed:
+            raise RuntimeError("Threshold %s of type %s: isolation wp %s not allowed for rhad, must be one of %s", self.name, self.ttype, rhad, ', '.join(allowed) )
+        self.rhad = rhad
+        self.reta = reta
+        self.wstot = wstot
+        return self
 
     def addThrValue(self, value, *args, **kwargs):
         # supporting both EM and TAU
@@ -303,13 +316,13 @@ class EMThreshold (Threshold):
     def json(self):
         confObj = odict()
         confObj["mapping"] = self.mapping
-        confObj["rhad"] = 0
-        confObj["reta"] = 0
-        confObj["wstot"] = 0
+        confObj["rhad"] = self.rhad
+        confObj["reta"] = self.reta
+        confObj["wstot"] = self.wstot
         confObj["thrValues"] = []
         for thrV in self.thresholdValues:
             tvco = odict()
-            tvco["et"] = thrV.value
+            tvco["value"] = thrV.value
             tvco["etamin"] = thrV.etamin
             tvco["etamax"] = thrV.etamax
             tvco["priority"] = thrV.priority
@@ -355,7 +368,7 @@ class MuonThreshold( Threshold ):
 
     def setThrValue(self, thr = None, ba = None, ec = None, fw = None):
         """
-        Parameters thr, ba, ec, fw are in pT
+        pT parameters thr, ba, ec, fw are in GeV
         Specifying thr sets all: ba, ec, and fw to that value
         ba, ec, fw can then be used to overwrite it for a certain region
         """
@@ -420,7 +433,7 @@ class TauThreshold( Threshold ):
     def json(self):
         confObj = odict()
         confObj["mapping"] = self.mapping
-        confObj["et"] = self.et
+        confObj["value"] = self.et
         return confObj
 
 
@@ -447,7 +460,7 @@ class JetThreshold( Threshold ):
 
     def json(self):
         confObj = odict()
-        confObj["pt"] = self.pt
+        confObj["value"] = self.pt
         confObj["mapping"] = self.mapping
         if len(self.ranges)==0:
             confObj["ranges"] = [ odict([("etamin", -49),("etamax", 49)]) ]
@@ -471,7 +484,7 @@ class XEThreshold( Threshold ):
 
     def json(self):
         confObj = odict()
-        confObj["xe"] = self.xe
+        confObj["value"] = self.xe
         confObj["mapping"] = self.mapping
         return confObj
 
@@ -634,7 +647,7 @@ class TopoThreshold( Threshold ):
         if ','  in name:
             raise RuntimeError("%s is not a valid topo output name, it should not contain a ','" % name)
         self.algCategory = algCategory
-        super(TopoThreshold,self).__init__(name = name, ttype = 'TOPO', run = 2 if algCategory==AlgCategory.LEGACY else 3)
+        super(TopoThreshold,self).__init__(name = name, ttype = algCategory.key, run = 2 if algCategory==AlgCategory.LEGACY else 3)
         if algCategory not in AlgCategory.getAllCategories():
             raise RuntimeError("%r is not a valid topo category" % algCategory)
 

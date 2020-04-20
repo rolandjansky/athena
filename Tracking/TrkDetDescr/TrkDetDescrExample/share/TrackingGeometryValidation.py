@@ -1,3 +1,4 @@
+from __future__ import print_function
 from array import array
 import math
 from LayerMaterialUtils import *
@@ -49,7 +50,7 @@ lmiListOfKeys = lmiDirectory.GetListOfKeys()
 
 for key in lmiListOfKeys :
    curLayerMap  = lmiDirectory.Get(key.GetName())
-   print 'Processing: ', curLayerMap.GetName()
+   print ('Processing: ', curLayerMap.GetName())
    if curLayerMap.GetName().find('CylinderLayer') > -1 :        
       layershname = curLayerMap.GetName().split('Cylinder')[1]
       g4Tree = TChain(layershname)

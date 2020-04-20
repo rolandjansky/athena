@@ -58,7 +58,7 @@ atlas_add_test( NewtonTrkDistanceFinder_test
                 EventPrimitives
                 xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
                 TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
-                EXTRA_PATTERNS "reading the map|field map" )
+                LOG_IGNORE_PATTERN "reading the map|field map" )
 
 
 atlas_add_test( Trk2dDistanceSeeder_test
@@ -67,7 +67,7 @@ atlas_add_test( Trk2dDistanceSeeder_test
                 EventPrimitives
                 xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
                 TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
-                EXTRA_PATTERNS "reading the map|field map" )
+                LOG_IGNORE_PATTERN "reading the map|field map" )
 
 
 atlas_add_test( SeedNewtonTrkDistanceFinder_test
@@ -76,7 +76,7 @@ atlas_add_test( SeedNewtonTrkDistanceFinder_test
                 EventPrimitives
                 xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
                 TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
-                EXTRA_PATTERNS "reading the map|field map" )
+                LOG_IGNORE_PATTERN "reading the map|field map" )
 
 
 atlas_add_test( Trk2DDistanceFinder_test
@@ -85,7 +85,7 @@ atlas_add_test( Trk2DDistanceFinder_test
                 EventPrimitives
                 xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
                 TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
-                EXTRA_PATTERNS "reading the map|field map" )
+                LOG_IGNORE_PATTERN "reading the map|field map" )
 
 
 atlas_add_test( GaussianTrackDensity_test

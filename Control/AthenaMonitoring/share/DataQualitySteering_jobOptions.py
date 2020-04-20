@@ -4,6 +4,8 @@
 # $Id: DataQualitySteering_jobOptions.py,v 1.15 2009-05-05 08:20:08 sschaetz Exp $
 # ********************************************************************************
 
+import six
+
 # disable TRTEleMon until further notice
 # - PUEO 20140401
 TRTELEMON=False
@@ -136,6 +138,7 @@ if DQMonFlags.doMonitoring():
                           DataType            = DQMonFlags.monManDataType())
          topSequence += LArMon
          include("LArMonTools/LArAllMonitoring_jobOptions.py")
+         include("LArMonitoring/LArMonitoring_jobOption.py")
       except Exception:
          treatException("DataQualitySteering_jobOptions.py: exception when setting up LAr monitoring")
 
@@ -236,7 +239,7 @@ if DQMonFlags.doMonitoring():
    # Trigger chain steering #
    #------------------------#
    trigMap = DQMonFlags.triggerChainMap.get_Value()
-   for toolName, trigChain in trigMap.iteritems():
+   for toolName, trigChain in six.iteritems(trigMap):
       local_logger.debug("Applying trigger %s to %s", trigChain, toolName)
       if hasattr(ToolSvc,toolName):
          tool = getattr(ToolSvc,toolName)

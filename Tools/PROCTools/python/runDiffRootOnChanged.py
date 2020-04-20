@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 import os
-import commands
 from optparse import OptionParser
 
 """
@@ -42,7 +44,7 @@ def diff_root(pool_list,test,ftype):
     outfile = "%s_%s.log" %(test, ftype)
     command =  "acmd.py diff-root %s %s --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings  --entries 10  >> %s" %(pool_list[0], pool_list[1], outfile)
     if options.dryrun:
-        print command
+        print (command)
     else:
         os.system(command)
 
@@ -70,9 +72,9 @@ def get_test_pool_files(logfile, tests):
     for test in tests:
         AOD_list = []
         ESD_list = []
-        print 
-        print
-        print test
+        print()
+        print()
+        print (test)
         f = open(logfile, 'r')
         for line in f:
             if ".pool.root" in line and "open" in line and test in line:
@@ -89,15 +91,15 @@ def get_test_pool_files(logfile, tests):
             AOD_list = guessSecond(AOD_list)
 
         if len(ESD_list) < 2:
-            print "ERROR missing ESD file for diff-root comparison"           
+            print ("ERROR missing ESD file for diff-root comparison"           )
         else:
-            print "INFO evaluate ESD diff-root"
+            print ("INFO evaluate ESD diff-root")
             diff_root(ESD_list, test, "ESD")
 
         if len(AOD_list) < 2:
-            print "ERROR missing AOD file for diff-root comparison"
+            print ("ERROR missing AOD file for diff-root comparison")
         else:  
-            print "INFO evaluate AOD diff-root"
+            print ("INFO evaluate AOD diff-root")
             diff_root(AOD_list, test, "AOD")
 
 
@@ -108,9 +110,9 @@ def test_pool_files(logfile, tests):
         path = "/afs/cern.ch/atlas/project/RTT/prod/Results/tct/REL/20.1.X.Y-VAL/build/x86_64-slc6-gcc48-opt/offline/Tier0ChainTests/%s/" %(test)
         AOD_list = []
         ESD_list = []
-        print 
-        print
-        print test
+        print()
+        print()
+        print (test)
         for rel in rels:
             aod = path.replace("REL",rel)+"myAOD.pool.root"
             esd = path.replace("REL",rel)+"myESD.pool.root"
@@ -121,15 +123,15 @@ def test_pool_files(logfile, tests):
         AOD_list = list(set(AOD_list))
         ESD_list = list(set(ESD_list))
         if len(ESD_list) < 2:
-            print "ERROR missing ESD file for diff-root comparison"           
+            print ("ERROR missing ESD file for diff-root comparison"           )
         else:
-            print "INFO evaluate ESD diff-root"
+            print ("INFO evaluate ESD diff-root")
             diff_root(ESD_list, test, "ESD")
 
         if len(AOD_list) < 2:
-            print "ERROR missing AOD file for diff-root comparison"
+            print ("ERROR missing AOD file for diff-root comparison")
         else:  
-            print "INFO evaluate AOD diff-root"
+            print ("INFO evaluate AOD diff-root")
             diff_root(AOD_list, test, "AOD")
 
 parser=OptionParser(usage="\n ./runDiffRootOnChanged.py --file <file name with full diff-pool log > \n")
@@ -142,10 +144,10 @@ logfile = options.filename
 tests = read_diff_pool_log(logfile)
 
 
-print "INFO following tests changed"
+print ("INFO following tests changed")
 for test in tests:
-    print "    ",test
+    print ("    ",test)
 if tests:
     get_test_pool_files(logfile, tests)
 else:
-    print "All Tests are identical no further checks needed"
+    print ("All Tests are identical no further checks needed")

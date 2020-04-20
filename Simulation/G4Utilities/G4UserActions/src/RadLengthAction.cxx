@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RadLengthAction.h"
@@ -158,7 +158,7 @@ namespace G4UA
     for(it=treeMap.begin(); it!=treeMap.end(); it++){
       std::string filename= "/RadLengthAction/";
       std::string treepath= filename+(*it).first;
-      if (hSvc) hSvc->regTree(treepath.c_str(), treeMap[(*it).first]);
+      if (hSvc) hSvc->regTree(treepath.c_str(), treeMap[(*it).first]).ignore();
       //if (!hSvc) log()<< MSG::ERROR << "Cannot register Tree!" << (*it).first << endreq;
       treeMap[(*it).first]->Branch("EnergyLoss",  &variables[(*it).first].at(0), "EnergyLoss/D");
       treeMap[(*it).first]->Branch("RadLength",   &variables[(*it).first].at(1),  "RadLength/D");

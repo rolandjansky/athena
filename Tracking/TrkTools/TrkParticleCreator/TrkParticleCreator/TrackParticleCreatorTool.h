@@ -148,7 +148,7 @@ class TrackParticleCreatorTool : public extends<AthAlgTool, ITrackParticleCreato
   
   /** Get the name used for the decoration of the track particle with the number of used hits for TRT dE/dx computation.*/
   static const std::string & trtdEdxUsedHitsAuxName() { return s_trtdEdxUsedHitsDecorationName; }
-  virtual const InDet::BeamSpotData* CacheBeamSpotData(const EventContext &ctx) const override;
+  virtual const InDet::BeamSpotData* CacheBeamSpotData(const ::EventContext &ctx) const override;
 
 private:
 
@@ -158,11 +158,19 @@ private:
   const AtlasDetectorID* m_detID;
   const PixelID* m_pixelID;
   
-  ToolHandle< IExtendedTrackSummaryTool > m_trackSummaryTool;
-  ToolHandle< IExtrapolator >  m_extrapolator;
-  ToolHandle< Reco::ITrackToVertex > m_trackToVertex;
-  ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool;
-
+ //Need to change to private when is safe to do so
+  PublicToolHandle<IExtendedTrackSummaryTool> m_trackSummaryTool{this,
+    "TrackSummaryTool","Trk::TrackSummaryTool/AtlasTrackSummaryTool"};
+  
+  PublicToolHandle<IExtrapolator>  m_extrapolator{this,
+    "Extrapolator","Trk::Extrapolator/AtlasExtrapolator"};
+  
+  ToolHandle<Reco::ITrackToVertex> m_trackToVertex{this,
+    "TrackToVertex","Reco::TrackToVertex/TrackToVertex"};
+  ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool{this,
+    "MuonSummaryTool","Muon::MuonHitSummaryTool/MuonHitSummaryTool"};
+ 
+ 
   /** to query magnetic field configuration */
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
   ServiceHandle <IBLParameterSvc> m_IBLParameterSvc;

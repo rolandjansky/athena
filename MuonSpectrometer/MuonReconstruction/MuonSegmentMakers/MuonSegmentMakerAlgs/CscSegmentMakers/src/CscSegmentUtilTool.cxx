@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscSegmentUtilTool.h"
@@ -25,19 +25,16 @@
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 
 #include "CscSegmentMakers/ICscSegmentFinder.h"
-#include "MuonRecToolInterfaces/ICscClusterOnTrackCreator.h"
 #include "CscClusterization/ICscClusterFitter.h"
 #include "CscClusterization/ICscStripFitter.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "TMath.h"
+#include "TMath.h" // for TMath::Landau()
 #include <cmath>
 
 #include <iostream>
 
-using std::string;
 using MuonGM::MuonDetectorManager;
 using MuonGM::CscReadoutElement;
 using Muon::MuonSegment;
@@ -95,10 +92,7 @@ namespace {
 // Constructor.
 CscSegmentUtilTool::CscSegmentUtilTool
 (const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent), 
-    m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", name)
+  : AthAlgTool(type,name,parent)
 {
   declareInterface<ICscSegmentUtilTool>(this);
   declareProperty("max_chisquare_tight", m_max_chisquare_tight = 16.); // 16 for outlier removal...
@@ -118,19 +112,12 @@ CscSegmentUtilTool::CscSegmentUtilTool
   declareProperty("IPconstraint", m_IPconstraint = true);
   declareProperty("IPerror", m_IPerror = 250.);
   declareProperty("allEtaPhiMatches", m_allEtaPhiMatches = true);  
-  declareProperty("rot_creator", m_rotCreator);
   declareProperty("TightenChi2", m_TightenChi2 = true);
   declareProperty("Remove4Overlap", m_remove4Overlap = true);
   declareProperty("Remove3Overlap", m_remove3Overlap = true);
   declareProperty("UnspoiledHits", m_nunspoil = -1);
 
 }
-
-//******************************************************************************
-
-/** destructor */
-CscSegmentUtilTool::~CscSegmentUtilTool()
-{}
 
 /*********************************/
 StatusCode CscSegmentUtilTool::initialize()
@@ -145,7 +132,6 @@ StatusCode CscSegmentUtilTool::initialize()
   ATH_MSG_DEBUG ( "  ROT tan(theta) tolerance: "
                   << m_fitsegment_tantheta_tolerance );
   ATH_MSG_DEBUG ( " cluster_error_scaler " << m_cluster_error_scaler);
-  //ATH_MSG_DEBUG ( "  Precision cluster fitter is " << m_rotCreator->GetICscClusterFitter().typeAndName() );
   ATH_MSG_DEBUG ( "  ROT creator: " << m_rotCreator.typeAndName() );
 
 
@@ -155,22 +141,9 @@ StatusCode CscSegmentUtilTool::initialize()
   if (m_x5data)
     ATH_MSG_DEBUG (" Things for X5Data analysis is applied such as alignment ");
   
-  if ( m_rotCreator.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Could not get " << m_rotCreator ); 
-    return StatusCode::FAILURE;
-  }else{
-    ATH_MSG_DEBUG ( "Got " << m_rotCreator ); 
-  }
+  ATH_CHECK(m_rotCreator.retrieve()); 
 
-  if ( m_idHelper.retrieve().isFailure() ) {
-    ATH_MSG_ERROR ( "Could not get " << m_idHelper ); 
-    return StatusCode::FAILURE;
-  }
-
-  if ( m_cscCoolStrSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL ( "Unable to retrieve pointer to the CSC COLL Conditions Service" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_readKey.initialize());
 
   ATH_CHECK(m_DetectorManagerKey.initialize());
 
@@ -893,13 +866,6 @@ spoiled_count(const ICscSegmentFinder::RioList& rios, int& nspoil, int& nunspoil
 }
 
 //******************************************************************************
-StatusCode CscSegmentUtilTool::finalize() {
-  ATH_MSG_DEBUG ( "Goodbye" );
-  return StatusCode::SUCCESS;
-}
-
-
-//******************************************************************************
 // Build an ATLAS segment.
 // Using the muon convention that x is normal to the plane of measurement:
 // My r segment: (z, dz/dx)
@@ -914,9 +880,6 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
   // chid from any last cluster in given chamber
 
   ATH_MSG_DEBUG ( "Building csc segment." );
-
-  //if(use2Lay) std::cout<<"using 2-layer segments"<<std::endl;
-  //std::cout<<"CscSegmentUtilTool::build_segment in chamber "<<m_idHelper->toString(chid)<<std::endl;
 
   const double pi = acos(-1.0);
   const double pi2 = 0.5*pi;
@@ -1066,7 +1029,8 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
     // Loop over collections in the container.
     ICscSegmentFinder::MbaseList* prios_new = new ICscSegmentFinder::MbaseList;
     ICscSegmentFinder::TrkClusters fitclus;
-    const ICscSegmentFinder::RioList& oldrios = pseg_ref->containedROTs();
+    ICscSegmentFinder::RioList oldrios;
+    for(unsigned int irot=0;irot<pseg_ref->numberOfContainedROTs();irot++) oldrios.push_back(pseg_ref->rioOnTrack(irot));
 
     int cnt =0;
     for ( ICscSegmentFinder::RioList::size_type irio=0; irio<prios->size(); ++irio ) {
@@ -1091,8 +1055,6 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
       // Create new calibrated hit to put into fitclus      
       const CscPrepData* prd = pcl->prepRawData();
       Amg::Vector3D lpos = gToLocal*pcl->globalPosition();
-      // std::cout << " " << m_idHelper->toString(pcl->identify()) << " lpos " << lpos << "  locPos " << prd->localPosition() << std::endl;
-
 
       ATH_MSG_DEBUG ( "    ---+++----> build_segment each rios time " << pcl->time() << " " << prd->time() );
 
@@ -1884,8 +1846,8 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
       const MuonSegment& rsg = **irsg;
       unsigned int nMinRIOs=3;
       if(insegs->use2LayerSegments(1)) nMinRIOs=2;
-      if ( rsg.containedROTs().size()<nMinRIOs){
-	ATH_MSG_DEBUG("only "<<rsg.containedROTs().size()<<", RIO's, insufficient to build the 4d segment from a single eta segment");
+      if ( rsg.numberOfContainedROTs()<nMinRIOs){
+	ATH_MSG_DEBUG("only "<<rsg.numberOfContainedROTs()<<", RIO's, insufficient to build the 4d segment from a single eta segment");
 	continue;
       }
       std::unique_ptr<MuonSegment> pseg(new MuonSegment(rsg));
@@ -1898,8 +1860,8 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
       const MuonSegment& psg = **ipsg;
       unsigned int nMinRIOs=3;
       if(insegs->use2LayerSegments(0)) nMinRIOs=2;
-      if ( psg.containedROTs().size()<nMinRIOs){
-	ATH_MSG_DEBUG("only "<<psg.containedROTs().size()<<", RIO's, insufficient to build the 4d segment from a single phi segment");
+      if ( psg.numberOfContainedROTs()<nMinRIOs){
+	ATH_MSG_DEBUG("only "<<psg.numberOfContainedROTs()<<", RIO's, insufficient to build the 4d segment from a single phi segment");
         continue;
       }
       std::unique_ptr<MuonSegment> pseg(new MuonSegment(psg));
@@ -1956,7 +1918,8 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
   
   const Amg::MatrixX& rcov = rsg.localCovariance();
   const Trk::PlaneSurface& etasrf = rsg.associatedSurface();
-  const ICscSegmentFinder::RioList& etarios = rsg.containedROTs();
+  ICscSegmentFinder::RioList etarios;
+  for(unsigned int irot=0;irot<rsg.numberOfContainedROTs();irot++) etarios.push_back(rsg.rioOnTrack(irot));
   const Trk::FitQuality& rfq = *rsg.fitQuality();
   
   const Trk::FitQuality& phifq = *psg.fitQuality();
@@ -1964,7 +1927,8 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
   double phidir = psg.localDirection().angleXZ();
   const Amg::MatrixX& phicov = psg.localCovariance();
   const Trk::PlaneSurface& phisrf = psg.associatedSurface();
-  const ICscSegmentFinder::RioList& phirios = psg.containedROTs();
+  ICscSegmentFinder::RioList phirios;
+  for(unsigned int irot=0;irot<psg.numberOfContainedROTs();irot++) phirios.push_back(psg.rioOnTrack(irot));
 
   // Fit quality.
   double chsq = rfq.chiSquared() + phifq.chiSquared();
@@ -2061,13 +2025,11 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
         int iw_phi = m_idHelperSvc->cscIdHelper().wireLayer(id_phi);
         
         // Check to see if these are the same layers.
-    // if(use2LaySegs) std::cout<<" id_eta: " << m_idHelper->toString(id_eta) << " " <<" id_phi: " << m_idHelper->toString(id_phi)<<std::endl;
         if (iw_eta != iw_phi){
-            // if(use2LaySegs) std::cout<<"hits in different layers, skip"<<std::endl;
             continue;
         }
-        ATH_MSG_DEBUG ( " id_eta: " << m_idHelper->toString(id_eta) << " " <<
-                        " id_phi: " << m_idHelper->toString(id_phi) );
+        ATH_MSG_DEBUG ( " id_eta: " << m_idHelperSvc->toString(id_eta) << " " <<
+                        " id_phi: " << m_idHelperSvc->toString(id_phi) );
 
 	/* commenting out because : 1/ coverity defect 13763+4 "Unchecked dynamic_cast"
 	   2/ segment finding must be fast, dynamic cast is time consuming, here only used for dbg cout ... 
@@ -2409,8 +2371,10 @@ double CscSegmentUtilTool::
 matchLikelihood(const MuonSegment& rsg, const MuonSegment& psg) const {
 
   // Loop over eta and phi segments.
-  const ICscSegmentFinder::RioList& etarios = rsg.containedROTs();
-  const ICscSegmentFinder::RioList& phirios = psg.containedROTs();
+  ICscSegmentFinder::RioList etarios;
+  for(unsigned int irot=0;irot<rsg.numberOfContainedROTs();irot++) etarios.push_back(rsg.rioOnTrack(irot));
+  ICscSegmentFinder::RioList phirios;
+  for(unsigned int irot=0;irot<psg.numberOfContainedROTs();irot++) etarios.push_back(psg.rioOnTrack(irot));
   int maxeta = etarios.size();
   int maxphi = phirios.size();
 
@@ -2534,23 +2498,14 @@ bool CscSegmentUtilTool::isGood(uint32_t stripHashId) const {
 }
 
 int CscSegmentUtilTool::stripStatusBit ( uint32_t stripHashId ) const {
-  uint32_t status = 0x0;
-  if ( !m_cscCoolStrSvc->getStatus(status,stripHashId) ) {
+
+  SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+  const CscCondDbData* readCdo{*readHandle};
+
+  int status = 0;
+  if(!readCdo->readChannelStatus(stripHashId, status).isSuccess())
     ATH_MSG_WARNING ( " failed to access CSC conditions database - status - "
                       << "strip hash id = " << stripHashId );
-
-    uint8_t status2 = 0x0;
-    if ( (m_cscCoolStrSvc->getStatus(status2,stripHashId)).isFailure() ) {
-      ATH_MSG_WARNING ( " failed to access CSC conditions database old way - status - "
-                        << "strip hash id = " << stripHashId );
-    }else{
-      ATH_MSG_INFO ( " Accessed CSC conditions database old way - status - "
-                     << "strip hash id = " << stripHashId );
-    }
-  } else {
-    ATH_MSG_VERBOSE ( "The status word is " << std::hex << status
-      << " for strip hash = " << std::dec << stripHashId );
-  }
   return status;
 }
 

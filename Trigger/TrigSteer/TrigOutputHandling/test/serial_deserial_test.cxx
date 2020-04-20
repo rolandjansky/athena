@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 
@@ -63,7 +63,7 @@ int main() {
   VALUE( ser == nullptr ) EXPECTED ( false );
 
   TriggerEDMDeserialiserAlg deser ("deserialiser", pSvcLoc);  deser.addRef();
-  deser.sysInitialize();
+  VALUE( deser.sysInitialize() ) EXPECTED ( StatusCode::SUCCESS );
 
   // TODO simplify :-) ?
   auto runAlg = [&](TriggerEDMDeserialiserAlg& alg, const EventContext& ctx) {
@@ -83,7 +83,7 @@ int main() {
     auto hltres = new HLT::HLTResultMT();
     VALUE( ser->fill( *hltres, ctx ) ) EXPECTED ( StatusCode::SUCCESS );
 
-    pStore->clearStore();
+    pStore->clearStore().ignore();
     // now objects are only in serialised form in HLTResultMT object
 
     VALUE( pStore->record( hltres, "HLTResultMT" ) ) EXPECTED ( StatusCode::SUCCESS );
@@ -93,7 +93,7 @@ int main() {
     testTrigCompositeContainerReadAndCheck(pStore);
     testRoIDescriptorReadAndCheck(pStore);
     // see if we have ownership issues
-    pStore->clearStore();
+    pStore->clearStore().ignore();
   }
 
   delete ser;

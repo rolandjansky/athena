@@ -95,7 +95,7 @@ def getBjetBtagHypoConfiguration( name,conf_dict ):
 #    tool.MonTool = ""
 #    from TriggerJobOpts.TriggerFlags import TriggerFlags
 #    if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-#        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+#        from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #        monTool = GenericMonitoringTool("MonTool"+name)
 #        monTool.Histograms = []
 

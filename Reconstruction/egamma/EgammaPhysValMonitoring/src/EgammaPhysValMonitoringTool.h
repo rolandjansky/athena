@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EgammaPhysValMonitoringTool.h 
@@ -84,7 +84,7 @@ class EgammaPhysValMonitoringTool
  private: 
 
   /// Default constructor: 
-  EgammaPhysValMonitoringTool();
+  EgammaPhysValMonitoringTool() = delete;
 
   StatusCode fillRecoElecHistograms(const xAOD::TruthParticleContainer* truthParticles);
   StatusCode fillRecoFrwdElecHistograms(const xAOD::TruthParticleContainer* truthParticles);

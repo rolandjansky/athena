@@ -323,7 +323,7 @@ namespace NSWL1{
     @brief whether all pad indices of one trigger are a subset of another one
     A functor used to remove redundancies 3/4 from 4/4
     */
-    struct TrigIsSubsetOf : public std::unary_function<const SingleWedgePadTrigger &, bool> {
+    struct TrigIsSubsetOf {
         std::vector< size_t > indices; // indices of the pads from the four layers
         TrigIsSubsetOf(const SingleWedgePadTrigger &tr) : indices(tr.padIndices()) {
             assert(indices.size() ==4);                        // we want to use it with the 4 out of 4 triggers

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -394,7 +394,7 @@ def find_files( filename, dirlist, access, depth ):
     <depth> < 0 : treated as = 0
     <depth> > 0 : descend deeper into the directory tree up to max <depth> levels.
     It returns a list of filenames with full pathnames. If none is found, an empty list is returned."""
-    return map( lambda arg : os.path.join( arg[0], arg[1] ), find_files_split( filename, dirlist, access, depth ) )
+    return list (map( lambda arg : os.path.join( arg[0], arg[1] ), find_files_split( filename, dirlist, access, depth ) ))
 
 
 def find_file_env( filename, env_var_name, access = os.R_OK, sep = defaultPathSeps, depth = 0 ):

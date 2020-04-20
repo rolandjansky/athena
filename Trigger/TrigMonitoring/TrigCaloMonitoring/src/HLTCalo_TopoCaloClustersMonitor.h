@@ -1,14 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCALOMONITORING_HLTCALO_TOPOCALOCLUSTERSMONITOR_H
 #define TRIGCALOMONITORING_HLTCALO_TOPOCALOCLUSTERSMONITOR_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "LumiBlockData/BunchCrossingCondData.h"
 
 class HLTCalo_TopoCaloClustersMonitor : public AthMonitorAlgorithm {
 
@@ -22,6 +24,8 @@ public:
   virtual float calculateDeltaPhi( float phi_1, float phi_2 ) const;
 
 private:
+
+  SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
 
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_HLT_cont_key;
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_OFF_cont_key;

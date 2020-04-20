@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODMUON_XAODMUONDICT_H
@@ -33,9 +33,9 @@
 #include "AthLinks/DataLink.h"
 #include "AthLinks/ElementLink.h"
 
-#ifndef XAOD_ANALYSIS
+#if !(defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))
 #include "TrkSegment/SegmentCollection.h"
-#endif // not XAOD_ANALYSIS
+#endif // not XAOD_ANALYSIS or GENERATIONBASE
 
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODMUON {
@@ -64,13 +64,13 @@ namespace {
       // Instantiations of links used by this package
       ElementLink< xAOD::CaloClusterContainer >                                   i1;
       ElementLink< xAOD::TrackParticleContainer >                                 i2;
-#ifndef XAOD_ANALYSIS
+#if !(defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))
       // These lines are still needed in order for Reflex to see the
       // member variable of xAOD::MuonSegmentAuxContainer_v1 correctly.
       Trk::SegmentCollection                                                      c3;
       ElementLink< Trk::SegmentCollection >                                       i3;
       std::vector<ElementLink< Trk::SegmentCollection > >                         i4;
-#endif // not XAOD_ANALYSIS
+#endif // not (defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))
    };
 }
 

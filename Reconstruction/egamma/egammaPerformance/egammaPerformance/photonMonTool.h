@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -12,20 +12,21 @@
 #ifndef photonMonTool_H
 #define photonMonTool_H
 
-#include "egammaPerformance/egammaMonToolBase.h"
+#include "AthenaMonitoring/AthenaMonManager.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "egammaPerformance/egammaMonToolBase.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include <vector>
-#include <string>
+#include "xAODEventInfo/EventInfo.h"
 #include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 class photonHist
 {
@@ -155,7 +156,7 @@ class photonHist
     m_hLB_NConv(nullptr),
     m_hLB_fConv(nullptr)
     {
-      m_nameOfPhotonType = name;
+      m_nameOfPhotonType = std::move(name);
       m_lumiBlockNumber = 0;
       m_nPhotonsInCurrentLB = 0;
       m_nPhotonsInCurrentLBUnconv = 0;

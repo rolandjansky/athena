@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,7 +16,8 @@
 
 #include "boost/property_tree/ptree.hpp"
 
-#include "TrigConfData/DataStructure.h"
+#include "TrigConfData/L1Menu.h"
+#include "TrigConfData/HLTMenu.h"
 
 
 namespace TrigConf {
@@ -58,7 +59,7 @@ namespace TrigConf {
        * @return true if loading was successfull
        */
       bool loadL1Menu ( unsigned int smk,
-                        DataStructure & l1menu ) const;
+                        L1Menu & l1menu ) const;
 
       /**
        * @brief Load content from the Trigger DB into an HLTMenu for a given SuperMasterKey (SMK)
@@ -67,7 +68,7 @@ namespace TrigConf {
        * @return true if loading was successfull
        */
       bool loadHLTMenu ( unsigned int smk,
-                         DataStructure & hltmenu ) const;
+                         HLTMenu & hltmenu ) const;
 
    };
 

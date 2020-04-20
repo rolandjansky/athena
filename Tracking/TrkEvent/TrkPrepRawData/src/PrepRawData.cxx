@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ namespace Trk{
         m_clusId(0), 
         m_localPos(),
         m_rdoList(),  
-        m_localCovariance(0),
+        m_localCovariance(nullptr),
         m_indexAndHash()
     {
 #ifndef NDEBUG
@@ -101,7 +101,7 @@ namespace Trk{
         m_clusId(RIO.m_clusId), 
         m_localPos( RIO.m_localPos ),
         m_rdoList(RIO.m_rdoList),  
-        m_localCovariance( RIO.m_localCovariance ? new Amg::MatrixX(*RIO.m_localCovariance) : 0 ),
+        m_localCovariance( RIO.m_localCovariance ? new Amg::MatrixX(*RIO.m_localCovariance) : nullptr ),
         m_indexAndHash(RIO.m_indexAndHash)
     {
 #ifndef NDEBUG
@@ -132,7 +132,7 @@ namespace Trk{
             m_rdoList = RIO.m_rdoList;
             m_localPos = RIO.m_localPos;
             delete m_localCovariance;
-            m_localCovariance = RIO.m_localCovariance ? new Amg::MatrixX(*RIO.m_localCovariance) : 0;
+            m_localCovariance = RIO.m_localCovariance ? new Amg::MatrixX(*RIO.m_localCovariance) : nullptr;
             m_indexAndHash = RIO.m_indexAndHash;
         }
         return *this;
@@ -160,7 +160,7 @@ namespace Trk{
         stream<< Amg::toString(this->localPosition())<<"), ";
 
         stream << "Local Covariance = (";
-        if ( this->m_localCovariance !=0 )
+        if ( this->m_localCovariance !=nullptr )
         {
           stream<<Amg::toString(this->localCovariance())<<"), ";
         } else {
@@ -170,8 +170,9 @@ namespace Trk{
         stream << "RDO List = [";
         std::vector<Identifier>::const_iterator rdoIt    = this->rdoList().begin();
         std::vector<Identifier>::const_iterator rdoItEnd = this->rdoList().end();
-        for (;rdoIt!=rdoItEnd;++rdoIt)
+        for (;rdoIt!=rdoItEnd;++rdoIt) {
           stream<<rdoIt->getString()<<", ";
+}
         stream << "], ";
 
         stream<<"}"<<endmsg;        
@@ -186,7 +187,7 @@ namespace Trk{
 
         stream<<Amg::toString(this->localPosition())<<"), ";
         stream << "Local Covariance = (";
-        if ( this->m_localCovariance !=0 )
+        if ( this->m_localCovariance !=nullptr )
         {
           stream<<Amg::toString(this->localCovariance())<<"), ";
         } else {
@@ -194,7 +195,8 @@ namespace Trk{
         }
         stream << "Collection Hash: " << m_indexAndHash.collHash() << "\tIndex in collection: " << m_indexAndHash.objIndex() << std::endl;
         stream << "RDO List = [";
-        for (std::vector<Identifier>::const_iterator it=m_rdoList.begin(); it != m_rdoList.end(); it++)  stream << *it << std::endl;
+        for (std::vector<Identifier>::const_iterator it=m_rdoList.begin(); it != m_rdoList.end(); it++) {  stream << *it << std::endl;
+}
         stream << "], ";
         return stream;
     } 

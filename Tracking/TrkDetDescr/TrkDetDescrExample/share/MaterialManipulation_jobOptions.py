@@ -38,7 +38,10 @@ TrkDetFlags.MaterialStoreGateKey        = '/GLOBAL/TrackingGeo/BinnedLayerMateri
 TrkDetFlags.MaterialDatabaseLocalPath    = '' 
 TrkDetFlags.MaterialDatabaseLocalName    = 'AtlasLayerMaterial-'+DetDescrVersion+'.db'
 TrkDetFlags.MaterialMagicTag             = InputMagicTag
-print TrkDetFlags
+
+import logging
+logger = logging.getLogger( 'MaterialManipulation_jobOptions' )
+logger.info(TrkDetFlags)
 
 # we need the conditions interface
 from IOVDbSvc.CondDB import conddb

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVectorConvert.cxx,v 1.3 2007-12-18 13:27:44 dquarrie Exp $
 /**
  * @file DataModelAthenaPool/src/DataVectorConvert.cxx
  * @author scott snyder
@@ -14,7 +13,7 @@
 #include "DataModelAthenaPool/DataVectorConvert.h"
 #include "TClass.h"
 #include "TBuffer.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TMemberStreamer.h"
 #include "TStreamerElement.h"
 #include "TStreamerInfo.h"

@@ -1,9 +1,13 @@
 #!/usr/bin/env physh
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import sys
 from os.path import isfile
 from optparse import OptionParser
 from random import randint
+from math import sqrt
 
 usage = "usage: %prog [options] input1 [input2...]"
 
@@ -20,7 +24,7 @@ parser.set_defaults(part=[],outfile="genevents.ascii",numevents=0,draw=False,exe
 del args[0]
 
 if len(args) == 0 :
-    print "ERROR: No input! Aborting"
+    print ("ERROR: No input! Aborting")
     sys.exit(1)
 
 stpoints = []
@@ -28,7 +32,7 @@ globallinever = ""
 #reading input
 for infilename in args :
     #opening file
-    print "Opening file",infilename
+    print ("Opening file",infilename)
     infile = open(infilename)
     #first line is empty
     infile.readline()
@@ -36,10 +40,10 @@ for infilename in args :
     if (globallinever == "") :
         globallinever = linever
     linehead = infile.readline().rstrip("\n")
-    #print linehead,linever
+    #print (linehead,linever)
     #must be FS SP header OR normal HepMC GenEvent header
     if (( not linever.startswith("HepMC::Version")) or (linehead != "HepMC::IO_GenEvent-START_EVENT_LISTING") or (linever != globallinever)) :
-        print >> sys.stderr, "ERROR: Wrong input:",infilename,"omitting"
+        print ("ERROR: Wrong input:",infilename,"omitting", file=sys.stderr)
         continue
     #starting the loop
     stpointsloc = []
@@ -50,7 +54,7 @@ for infilename in args :
         line3 = infile.readline()
         #checking every event for being single particle event
         if (line[0] != "E") or (line1[0] != "U") or (line2[0] != "V") or (line3[0] != "P") :
-            print "ERROR:",infilename,"is not a valid file!"
+            print ("ERROR:",infilename,"is not a valid file!")
             sys.exit(1)
         stpoint = [line,line1,line2,line3]
         stpointsloc.append(stpoint)
@@ -62,12 +66,12 @@ for infilename in args :
         tfile.close()
 
 if len(stpoints) == 0 :
-    print "ERROR: no events found is not a valid file!"
+    print ("ERROR: no events found is not a valid file!")
     sys.exit(1)
 
 #creating an output stream
 if isfile(options.outfile) :
-    print "WARNING: File",options.outfile,"already exists."
+    print ("WARNING: File",options.outfile,"already exists.")
 outdata = open(options.outfile,"w")
 outdata.write("\n")
 outdata.write(globallinever)
@@ -76,7 +80,7 @@ outdata.write("\nHepMC::IO_GenEvent-START_EVENT_LISTING\n")
 
 stpsize = len(stpoints)
 if (options.numevents > stpsize) :
-    print "WARNING: requested number of events is bigger then provided in input files"
+    print ("WARNING: requested number of events is bigger then provided in input files")
     options.numevents = 0
 
 if (options.numevents == 0) :
@@ -86,7 +90,7 @@ if (options.numevents == 0) :
 i = 0
 while i < options.numevents :
     if (stpsize == 0) :
-        print "INFO: We've run out of starting point.\nIt's okay if you didn't specify -t option, but may mean that you do not have enough otherwise."
+        print ("INFO: We've run out of starting point.\nIt's okay if you didn't specify -t option, but may mean that you do not have enough otherwise.")
         break
     rand = randint(0,stpsize-1)
     stpoint = stpoints.pop(rand) #take a random event
@@ -112,7 +116,7 @@ while i < options.numevents :
 
 outdata.write("HepMC::IO_GenEvent-END_EVENT_LISTING")
 outdata.close()
-print "INFO: Written", i, "starting points"
+print ("INFO: Written", i, "starting points")
 
 ## Algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence

@@ -16,6 +16,7 @@ endif()
 atlas_depends_on_subdirs(
   PUBLIC
   Control/AthLinks
+  Control/AthContainers
   Control/AthToolSupport/AsgTools
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODJet
@@ -44,7 +45,7 @@ atlas_add_library( JetRecLib
   PUBLIC_HEADERS JetRec
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
   PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AsgTools
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AthContainers AsgTools
   xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
   JetInterface
   PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} CxxUtils xAODBase xAODCore
@@ -81,11 +82,13 @@ atlas_add_test(PseudoJetContainerOffline
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
 
+if ( NOT GENERATIONBASE )
 atlas_add_test(PseudoJetContainerTrigger
   SOURCES
   test/PseudoJetContainerTriggerTest.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+endif()
 
 atlas_add_test(ExtractorUnitTests
   SOURCES
@@ -98,7 +101,11 @@ atlas_add_test(JetClustererTest
     test/JetClustererTest.cxx
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
-  
+
+if ( NOT GENERATIONBASE )
+   atlas_add_test(JetRecAlg_Test SCRIPT share/JetRecAlgTestCfg.py )
+endif()
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

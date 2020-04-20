@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,6 +50,9 @@ StatusCode InDet::SiSpacePointsSeedMaker_HeavyIon::initialize()
     return StatusCode::FAILURE;
   }    
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
+////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCondObjInputKey.initialize());
+////////////////////////////////////////////////////////////////////////////////
 
   // Build framework
   //
@@ -83,19 +86,34 @@ StatusCode InDet::SiSpacePointsSeedMaker_HeavyIon::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent(EventData& data, int) const
+void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent(const EventContext& ctx, EventData& data, int) const
 {
   if (not data.initialized) initializeEventData(data);
 
   data.trigger = false;
   if (!m_pixel && !m_sct) return;
   erase(data);
-  buildBeamFrameWork(data);
+  buildBeamFrameWork(ctx, data);
 
   double f[3], gP[3] ={10.,10.,0.};
 
   if (m_fieldServiceHandle->solenoidOn()) {
-    m_fieldServiceHandle->getFieldZR(gP,f);
+
+    MagField::AtlasFieldCache    fieldCache;
+
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SiSpacePointsSeedMaker_HeavyIon: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    //   MT version uses cache, temporarily keep old version
+    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP,f);
+    else                                m_fieldServiceHandle->getFieldZR(gP,f);
+
     data.K = 2./(300.*f[2]);
   } else {
     data.K = 2./(300.* 5. );
@@ -110,7 +128,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent(EventData& data, int) cons
   //
   if (m_pixel) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsPixel) {
@@ -133,7 +151,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent(EventData& data, int) cons
   //
   if (m_sct) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsSCT) {
@@ -159,7 +177,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent(EventData& data, int) cons
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
-(EventData& data, 
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const
 {
   if (not data.initialized) initializeEventData(data);
@@ -168,12 +186,27 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
   if (!m_pixel && !m_sct) return;
   erase(data);
 
-  buildBeamFrameWork(data);
+  buildBeamFrameWork(ctx, data);
 
   double f[3], gP[3] ={10.,10.,0.};
 
   if (m_fieldServiceHandle->solenoidOn()) {
-    m_fieldServiceHandle->getFieldZR(gP,f);
+
+    MagField::AtlasFieldCache    fieldCache;
+
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SiSpacePointsSeedMaker_HeavyIon: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    //   MT version uses cache, temporarily keep old version
+    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, f);
+    else                                m_fieldServiceHandle->getFieldZR(gP, f);
+
     data.K = 2./(300.*f[2]);
   } else {
     data.K = 2./(300.* 5.);
@@ -188,7 +221,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
   //
   if (m_pixel && vPixel.size()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
       SpacePointContainer::const_iterator spce = spacepointsPixel->end();
 
@@ -216,7 +249,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
   //
   if (m_sct && vSCT.size()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
       SpacePointContainer::const_iterator spce = spacepointsSCT->end();
 
@@ -247,11 +280,11 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
-(EventData& data,
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
  const IRoiDescriptor&) const
 {
-  newRegion(data, vPixel, vSCT);
+  newRegion(ctx, data, vPixel, vSCT);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -295,7 +328,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::find2Sp(EventData& data, const std:
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_HeavyIon::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_HeavyIon::find3Sp(const EventContext&, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -326,9 +359,9 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::find3Sp(EventData& data, const std:
   }
 }
 
-void InDet::SiSpacePointsSeedMaker_HeavyIon::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
+void InDet::SiSpacePointsSeedMaker_HeavyIon::find3Sp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
 {
-  find3Sp(data, lv);
+  find3Sp(ctx, data, lv);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -337,7 +370,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::find3Sp(EventData& data, const std:
 // Variable means (2,3,4,....) any number space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_HeavyIon::findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_HeavyIon::findVSp(const EventContext&, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -717,9 +750,9 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::buildFrameWork()
 // Initiate beam frame work for seed generator
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_HeavyIon::buildBeamFrameWork(EventData& data) const
-{ 
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey};
+void InDet::SiSpacePointsSeedMaker_HeavyIon::buildBeamFrameWork(const EventContext& ctx, EventData& data) const
+{
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
 
   const Amg::Vector3D& cb = beamSpotHandle->beamPos();
   double tx = tan(beamSpotHandle->beamTilt(0));
@@ -767,7 +800,7 @@ void  InDet::SiSpacePointsSeedMaker_HeavyIon::convertToBeamFrameWork
 void InDet::SiSpacePointsSeedMaker_HeavyIon::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
-  std::list<InDet::SiSpacePointForSeed*>::iterator r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i<m_r_size; ++i) {
     if (!data.r_map[i]) continue;
@@ -812,7 +845,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::fillLists(EventData& data) const
 	data.rfzv_Sorted[n].push_back(*r);
         if (!data.rfzv_map[n]++) data.rfzv_index[data.nrfzv++] = n;
       }
-      data.r_Sorted[i].erase(r++);
+      r = data.r_Sorted[i].erase(r);
     }
     data.r_map[i] = 0;
   }
@@ -860,7 +893,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production2Sp(EventData& data) cons
 {
   if (data.nsazv<2) return;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0,r0e,r,re;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0,r0e,r,re;
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -959,7 +992,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp(EventData& data) cons
   if (data.nsaz<3) return;
 
   const int ZI[SizeZ] = {5,6,7,8,9,10,4,3,2,1,0};
-  std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
+  std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -1008,13 +1041,13 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp(EventData& data) cons
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed) const
 {
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {r0 = data.rMin; data.endlist = true;}
 
   // Loop through all trigger space points
@@ -1179,15 +1212,15 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed) const
 {
   constexpr float pi2 = 2.*M_PI;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {
     r0 = data.rMin;
     data.endlist = true;
@@ -1379,13 +1412,13 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
 
 void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpNoVertex
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed) const
 {
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {
     r0 = data.rMin;
     data.endlist = true;
@@ -1594,7 +1627,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newOneSeed
   }
 }
 
-const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_HeavyIon::next(EventData& data) const
+const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_HeavyIon::next(const EventContext&, EventData& data) const
 {
   if (not data.initialized) initializeEventData(data);
 

@@ -7,13 +7,8 @@
 # The name of the package:
 atlas_subdir( L1Common )
 
-# In release mode, stop here:
-if( ATLAS_RELEASE_MODE )
-   return()
-endif()
-
 # Find the necessary externals:
-find_package( PythonInterp )
+find_package( Python COMPONENTS Interpreter )
 
 # The generator used to produce header files:
 set( _generator ${CMAKE_CURRENT_SOURCE_DIR}/scripts/XMLtoHeader.py )
@@ -25,16 +20,16 @@ atlas_install_scripts( ${_generator} )
 add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/L1Common
    COMMAND ${CMAKE_COMMAND} -E make_directory
    ${CMAKE_CURRENT_BINARY_DIR}/L1Common
-   COMMAND ${PYTHON_EXECUTABLE} ${_generator}
+   COMMAND ${Python_EXECUTABLE} ${_generator}
    -o ${CMAKE_CURRENT_BINARY_DIR}/L1Common/L1Common
    -i ${CMAKE_CURRENT_SOURCE_DIR}/schema/L1Specifications.xml
    COMMAND ${CMAKE_COMMAND} -E make_directory
    ${CMAKE_INCLUDE_OUTPUT_DIRECTORY}/L1Common
-   COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/L1Common/*.h
+   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/L1Common/*.h
    ${CMAKE_INCLUDE_OUTPUT_DIRECTORY}/L1Common
    COMMAND ${CMAKE_COMMAND} -E make_directory
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1Common
-   COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/L1Common/*.py
+   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/L1Common/*.py
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1Common
    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/schema/L1Specifications.xml )
 add_custom_target( L1CommonGen ALL DEPENDS
@@ -43,9 +38,11 @@ add_dependencies( Package_L1Common L1CommonGen )
 
 # And install them:
 install( DIRECTORY ${CMAKE_INCLUDE_OUTPUT_DIRECTORY}/L1Common
-   DESTINATION include )
+   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+   OPTIONAL )
 install( DIRECTORY ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1Common
    DESTINATION ${CMAKE_INSTALL_PYTHONDIR}
+   OPTIONAL
    PATTERN "__init__.py" EXCLUDE )
 
 # Install the python code of the package:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,13 +10,14 @@
 // which removes all ID tracks which do not pass a user-defined cut
 
 #include "DerivationFrameworkInDet/MuonTrackParticleThinning.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
 #include <string>
 
@@ -24,24 +25,17 @@
 DerivationFramework::MuonTrackParticleThinning::MuonTrackParticleThinning(const std::string& t,
                                                                           const std::string& n,
                                                                           const IInterface* p ) :
-AthAlgTool(t,n,p),
-m_thinningSvc("ThinningSvc",n),
+base_class(t,n,p),
 m_ntot(0),
 m_npass(0),
 m_muonSGKey(""),
-m_inDetSGKey("InDetTrackParticles"),
 m_selectionString(""),
 m_coneSize(-1.0),
-m_and(false),
 m_parser(0)
 {
-    declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("ThinningService", m_thinningSvc);
     declareProperty("MuonKey", m_muonSGKey);
-    declareProperty("InDetTrackParticlesKey", m_inDetSGKey);
     declareProperty("SelectionString", m_selectionString);
     declareProperty("ConeSize", m_coneSize);
-    declareProperty("ApplyAnd", m_and);
 }
 
 // Destructor
@@ -53,10 +47,8 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::initialize()
 {
     // Decide which collections need to be checked for ID TrackParticles
     ATH_MSG_VERBOSE("initialize() ...");
-    if (m_inDetSGKey=="") {
-        ATH_MSG_FATAL("No inner detector track collection provided for thinning.");
-        return StatusCode::FAILURE;
-    } else {ATH_MSG_INFO("Using " << m_inDetSGKey << "as the source collection for inner detector track particles");}
+    ATH_CHECK( m_inDetSGKey.initialize (m_streamName) );
+    ATH_MSG_INFO("Using " << m_inDetSGKey.key() << "as the source collection for inner detector track particles");
     if (m_muonSGKey=="") {
         ATH_MSG_FATAL("No muon collection provided for thinning.");
         return StatusCode::FAILURE;
@@ -87,12 +79,11 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::finalize()
 // The thinning itself
 StatusCode DerivationFramework::MuonTrackParticleThinning::doThinning() const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+
     // Retrieve main TrackParticle collection
-    const xAOD::TrackParticleContainer* importedTrackParticles;
-    if (evtStore()->retrieve(importedTrackParticles,m_inDetSGKey).isFailure()) {
-        ATH_MSG_ERROR("No TrackParticle collection with name " << m_inDetSGKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
-    }
+    SG::ThinningHandle<xAOD::TrackParticleContainer> importedTrackParticles
+      (m_inDetSGKey, ctx);
     
     // Check the event contains tracks
     unsigned int nTracks = importedTrackParticles->size();
@@ -132,7 +123,7 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::doThinning() const
 	      if ((*muIt)->inDetTrackParticleLink().isValid()) {
 		//This line prevents SiliconAssociatedForwardMuon from being used unless we're skimming InDetForwardTrackParticles
 		//since their track links point to this container while all others point to InDetTrackParticles
-		if ((*muIt)->muonType()==xAOD::Muon::SiliconAssociatedForwardMuon &&  m_inDetSGKey != "InDetForwardTrackParticles")
+		if ((*muIt)->muonType()==xAOD::Muon::SiliconAssociatedForwardMuon &&  m_inDetSGKey.key() != "InDetForwardTrackParticles")
 		  {
 		    ATH_MSG_DEBUG("Skipping Forward Muon since we are not skimming InDetForwardParticles");
 		  }
@@ -142,13 +133,13 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::doThinning() const
 		  mask[index] = true;
 		}
 	      }
-	        if (m_coneSize>0.0) tInC.select(*muIt,m_coneSize,importedTrackParticles,mask); // check tracks in a cone around the muon if req'd
+	        if (m_coneSize>0.0) tInC.select(*muIt,m_coneSize,importedTrackParticles.cptr(),mask); // check tracks in a cone around the muon if req'd
 	      }
     } else { // check only muons passing user selection string
         for (std::vector<const xAOD::Muon*>::iterator muIt = muToCheck.begin(); muIt!=muToCheck.end(); ++muIt) {
 	    if ((*muIt)->inDetTrackParticleLink().isValid()) {
 	      
-	      if ((*muIt)->muonType()==xAOD::Muon::SiliconAssociatedForwardMuon &&  m_inDetSGKey != "InDetForwardTrackParticles")
+	      if ((*muIt)->muonType()==xAOD::Muon::SiliconAssociatedForwardMuon &&  m_inDetSGKey.key() != "InDetForwardTrackParticles")
 		{
 		  ATH_MSG_DEBUG("Skipping Forward Muon since we are not skimming InDetForwardParticles");
 		}
@@ -158,7 +149,7 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::doThinning() const
 		mask[index] = true;
 	      }
 	    } 	
-	    if (m_coneSize>0.0) tInC.select(*muIt,m_coneSize,importedTrackParticles,mask); // check tracks in a cone around the muon if req'd	
+	    if (m_coneSize>0.0) tInC.select(*muIt,m_coneSize,importedTrackParticles.cptr(),mask); // check tracks in a cone around the muon if req'd	
         }
     }
 
@@ -167,18 +158,7 @@ StatusCode DerivationFramework::MuonTrackParticleThinning::doThinning() const
         if (mask[i]) ++m_npass;
     }
     // Execute the thinning service based on the mask. Finish.
-    if (m_and) {
-        if (m_thinningSvc->filter(*importedTrackParticles, mask, IThinningSvc::Operator::And).isFailure()) {
-                ATH_MSG_ERROR("Application of thinning service failed! ");
-                return StatusCode::FAILURE;
-        }
-    }
-    if (!m_and) {
-        if (m_thinningSvc->filter(*importedTrackParticles, mask, IThinningSvc::Operator::Or).isFailure()) {
-                ATH_MSG_ERROR("Application of thinning service failed! ");
-                return StatusCode::FAILURE;
-        }
-    }
+    importedTrackParticles.keep (mask);
 
     return StatusCode::SUCCESS;
 }

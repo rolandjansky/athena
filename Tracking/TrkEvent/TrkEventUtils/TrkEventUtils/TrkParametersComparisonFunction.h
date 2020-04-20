@@ -16,7 +16,7 @@ namespace Trk {
 
   /** 
     @class TrkParametersComparisonFunction 
-    @brief std::binary_function for parameter position comparisons,
+    @brief function for parameter position comparisons,
            now implemented as hidden template with ComparisonFunction<TrackParameters>.
     
     @author Andreas.Salzburger@cern.ch

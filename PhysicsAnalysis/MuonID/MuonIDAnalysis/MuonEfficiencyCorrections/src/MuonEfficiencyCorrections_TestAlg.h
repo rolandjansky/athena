@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef CPTOOLTESTS_MuonEfficiencyCorrections_TESTALG
@@ -9,10 +7,18 @@
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "AsgTools/ToolHandleArray.h"
+
+#include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
+
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 namespace CP {
@@ -29,21 +35,35 @@ namespace CP {
             virtual StatusCode initialize();
             /// Function executing the algorithm
             virtual StatusCode execute();
+            virtual ~MuonEfficiencyCorrections_TestAlg() {
+            }
 
         private:
+            SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
             /// muon container
             std::string m_sgKey;
+            ServiceHandle<ITHistSvc> m_histSvc;
+
+            ToolHandleArray<IMuonEfficiencyScaleFactors> m_effi_SF_tools;
+            ToolHandleArray<IMuonEfficiencyScaleFactors> m_comparison_tools;
 
             /// Scale factor tool
-            ToolHandle<IMuonEfficiencyScaleFactors> m_sf_Tool;
-            ToolHandle<IMuonEfficiencyScaleFactors> m_isosf_Tool;
-            ToolHandle<IMuonEfficiencyScaleFactors> m_ttvasf_Tool;
-            ToolHandle<IMuonTriggerScaleFactors> m_trigsf_Tool;
             ToolHandle<IPileupReweightingTool> m_prw_Tool;
+            ToolHandle<IMuonSelectionTool> m_sel_tool;
 
+            std::unique_ptr<TestMuonSF::MuonSFTestHelper> m_test_helper;
+            std::unique_ptr<TestMuonSF::MuonSFTestHelper> m_comparison_helper;
+
+            std::string m_first_release_name;
+            std::string m_second_release_name;
+            
+            float m_pt_cut;
+            float m_eta_cut;
+            int m_muon_quality;
+            
+            unsigned long long m_evNumber;
     };
-// class MuonEfficiencyCorrections_TestAlg
 
-}// namespace CP
+} // namespace CP
 
 #endif //CPTOOLTESTS_MuonEfficiencyCorrections_TESTALG

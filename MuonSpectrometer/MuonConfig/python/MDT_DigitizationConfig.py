@@ -1,16 +1,12 @@
 """Define methods to construct configured MDT Digitization tools and algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-from MDT_Digitization.MDT_DigitizationConf import (
-    MdtDigitizationTool, MDT_Response_DigiTool, RT_Relation_DB_DigiTool, MDT_Digitizer
-)
-PileUpXingFolder=CompFactory.PileUpXingFolder
-from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg, MdtOverlayDigitToMdtRDOCfg
+from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg
 from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
@@ -33,11 +29,13 @@ def MDT_RangeToolCfg(flags, name="MDT_Range", **kwargs):
     kwargs.setdefault("LastXing",  MDT_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0)
     kwargs.setdefault("ItemList", ["MDTSimHitCollection#MDT_Hits"])
+    PileUpXingFolder=CompFactory.PileUpXingFolder
     return PileUpXingFolder(name, **kwargs)
 
 
 def RT_Relation_DB_DigiToolCfg(flags, name="RT_Relation_DB_DigiTool", **kwargs):
     """Return an RT_Relation_DB_DigiTool"""
+    RT_Relation_DB_DigiTool = CompFactory.RT_Relation_DB_DigiTool
     return RT_Relation_DB_DigiTool(name, **kwargs)
 
 
@@ -45,11 +43,12 @@ def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
     """Return a configured MDT_Response_DigiTool"""
     QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig") == "True")
     kwargs.setdefault("DoQballGamma", QballConfig)
+    MDT_Response_DigiTool = CompFactory.MDT_Response_DigiTool
     return MDT_Response_DigiTool(name, **kwargs)
 
 
-def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
-    """Return ComponentAccumulator with configured MdtDigitizationTool"""
+def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
+    """Return ComponentAccumulator with common MdtDigitizationTool config"""
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
     acc = MdtCondDbAlgCfg(flags)
     kwargs.setdefault("MaskedStations", [])
@@ -63,34 +62,39 @@ def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", MDT_FirstXing())
         kwargs.setdefault("LastXing", MDT_LastXing())
+    MdtDigitizationTool = CompFactory.MdtDigitizationTool
+    acc.setPrivateTools(MdtDigitizationTool(name, **kwargs))
+    return acc
+
+
+def MDT_DigitizationToolCfg(flags, name="MdtDigitizationTool", **kwargs):
+    """Return ComponentAccumulator with configured MdtDigitizationTool"""
     kwargs.setdefault("OutputObjectName", "MDT_DIGITS")
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "MDT_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "MDT_SDO")
-    acc.setPrivateTools(MdtDigitizationTool(name, **kwargs))
-    return acc
+    return MDT_DigitizationToolCommonCfg(flags, name, **kwargs)
 
 
-def MDT_OverlayDigitizationToolCfg(flags, name="MDT_OverlayDigitizationTool",**kwargs):
+def MDT_OverlayDigitizationToolCfg(flags, name="Mdt_OverlayDigitizationTool", **kwargs):
     """Return ComponentAccumulator with MdtDigitizationTool configured for Overlay"""
-    acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "MDT_DIGITS")
-    kwargs.setdefault("GetT0FromBD", flags.Detector.Overlay)
-    if not flags.Overlay.DataOverlay:
-        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "MDT_SDO")
-    return acc
+    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MDT_DIGITS")
+    kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "MDT_SDO")
+    kwargs.setdefault("GetT0FromBD", flags.Detector.OverlayMDT and not flags.Input.isMC)
+    return MDT_DigitizationToolCommonCfg(flags, name, **kwargs)
 
 
 def MDT_OutputCfg(flags):
     """Return ComponentAccumulator with Output for MDT. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["MdtCsmContainer#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["MuonSimDataCollection#*"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["MdtCsmContainer#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["MuonSimDataCollection#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 
@@ -110,7 +114,15 @@ def MDT_OverlayDigitizationBasicCfg(flags, **kwargs):
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(MDT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
-    acc.addEventAlgo(MDT_Digitizer(**kwargs))
+
+    if flags.Concurrency.NumThreads > 0:
+       kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
+
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
+    MDT_Digitizer = CompFactory.MDT_Digitizer
+    acc.addEventAlgo(MDT_Digitizer(name="MDT_OverlayDigitizer", **kwargs))
     return acc
 
 
@@ -122,24 +134,9 @@ def MDT_DigitizationCfg(flags, **kwargs):
     return acc
 
 
-def MDT_OverlayDigitizationCfg(flags, **kwargs):
-    """Return ComponentAccumulator with MDT Overlay digitization and Output"""
-    acc = MDT_OverlayDigitizationBasicCfg(flags, **kwargs)
-    acc.merge(MDT_OutputCfg(flags))
-    return acc
-
-
 def MDT_DigitizationDigitToRDOCfg(flags):
     """Return ComponentAccumulator with MDT digitization and Digit to MDTCSM RDO"""
     acc = MDT_DigitizationCfg(flags)
     acc.merge(MDTCablingConfigCfg(flags))
     acc.merge(MdtDigitToMdtRDOCfg(flags))
-    return acc
-
-
-def MDT_OverlayDigitizationDigitToRDOCfg(flags):
-    """Return ComponentAccumulator with MDT Overlay digitization and Digit to MDTCSM RDO"""
-    acc = MDT_OverlayDigitizationCfg(flags)
-    acc.merge(MDTCablingConfigCfg(flags))
-    acc.merge(MdtOverlayDigitToMdtRDOCfg(flags))
     return acc

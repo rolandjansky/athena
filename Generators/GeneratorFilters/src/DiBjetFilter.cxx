@@ -27,9 +27,6 @@
 #include "TRandom3.h"
 #include "TLorentzVector.h"
 
-
-using HepMC::GenVertex;
-using HepMC::GenParticle;
 //--------------------------------------------------------------------------
 DiBjetFilter::DiBjetFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name,pSvcLocator)

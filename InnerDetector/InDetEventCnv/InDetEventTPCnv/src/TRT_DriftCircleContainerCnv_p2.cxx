@@ -10,7 +10,6 @@
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleCnv_p2.h"
 #include "InDetEventTPCnv/TRT_DriftCircleContainerCnv_p2.h"
 #include "AthAllocators/DataPool.h"
@@ -24,8 +23,9 @@
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-
+#include "AthenaKernel/errorcheck.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // #define IDJUMP 0x400
 
@@ -126,6 +126,15 @@ void  TRT_DriftCircleContainerCnv_p2::persToTrans(const InDet::TRT_DriftCircleCo
     // So here we loop over all collection and extract their channels
     // from the vector.
 
+    const InDetDD::TRT_DetElementCollection* elements(nullptr);
+    if (m_useDetectorElement) {
+      SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+      elements = (*trtDetEleHandle)->getElements();
+      if (not trtDetEleHandle.isValid() or elements==nullptr) {
+        log << MSG::FATAL << m_trtDetEleContKey.fullKey() << " is not available." << endmsg;
+        return;
+      }
+    }
 
     InDet::TRT_DriftCircleCollection* coll = 0;
 
@@ -149,7 +158,7 @@ void  TRT_DriftCircleContainerCnv_p2::persToTrans(const InDet::TRT_DriftCircleCo
         coll->setIdentifier(collID);
         unsigned int nchans           = pcoll.m_size;
         coll->resize(nchans);
-	const InDetDD::TRT_BaseElement* detEl =  m_trtMgr->getElement(collIDHash);
+        const InDetDD::TRT_BaseElement* detEl = (elements==nullptr ? nullptr : elements->getDetectorElement(collIDHash));
         // Fill with channels:
         // This is used to read the vector of errMat
         // values and lenght of the value are specified in separate vectors
@@ -238,15 +247,18 @@ StatusCode TRT_DriftCircleContainerCnv_p2::initialize(MsgStream &log) {
    //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the TRT_ID helper." << endmsg;
    //   }
 
-   sc = detStore->retrieve(m_trtMgr);
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get TRT_DetectorDescription" << endmsg;
-      return sc;
-   }
+   CHECK(m_trtDetEleContKey.initialize(m_useDetectorElement));
 
    //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
 }
 
+// Methods for test/TRT_DriftCircleContainerCnv_p2_test.cxx                                                                      
+void TRT_DriftCircleContainerCnv_p2::setIdHelper(const TRT_ID* trt_id) {
+  m_trtId = trt_id;
+}
 
+void TRT_DriftCircleContainerCnv_p2::setUseDetectorElement(const bool useDetectorElement) {
+  m_useDetectorElement = useDetectorElement;
+}
 

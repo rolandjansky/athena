@@ -3,6 +3,8 @@
 # @file mp_basic_test.py
 # @purpose: simple file to create a few elephantino events with athena-mp
 
+from __future__ import print_function
+
 input_file_name = 'my.data.pool'
 output_file_name= 'reaccessed.my.data.pool'
 
@@ -18,11 +20,11 @@ OUTPUT='%(input_file_name)s'
 """ % globals()
 app.include('AthExThinning/AthExThinning_makeData.py')
 
-print "=== create an elephantino file..."
+print ("=== create an elephantino file...")
 rc = app.run(stdout=os.devnull)
 if rc:
     raise RuntimeError(rc)
-print "=== create an elephantino file... [ok]"
+print ("=== create an elephantino file... [ok]")
 
 
 app = accp.AthenaApp(cmdlineargs=['--nprocs=-1'])
@@ -35,31 +37,29 @@ OUTPUT='%(output_file_name)s'
 app.include('AthExThinning/ReadNonThinnedData_jobOptions.py')
 
 mp_logfile = open('mp.elephantino.readback.logfile.txt', 'w+')
-print "=== read the elephantino file back (with athena-mp)... (logfile=%s)" % (mp_logfile.name,)
+print ("=== read the elephantino file back (with athena-mp)... (logfile=%s)" % (mp_logfile.name,))
 rc = app.run(stdout=mp_logfile)
 if rc:
     raise RuntimeError(rc)
-print "=== read the elephantino file back (with athena-mp)... [ok]"
+print ("=== read the elephantino file back (with athena-mp)... [ok]")
 
 input_file  = af.fopen(input_file_name).infos
 output_file = af.fopen(output_file_name).infos
 
-print ":"*80
-print "::: results:"
+print (":"*80)
+print ("::: results:")
 
-print """\
+print ("""\
 input_file: [%s]
   nentries: %s""" % (
   input_file['file_name'],
-  input_file['nentries'],
-  )
+  input_file['nentries']))
 
-print """\
+print ("""\
 output_file: [%s]
    nentries: %s""" % (
    output_file['file_name'],
-   output_file['nentries'],
-   )
+   output_file['nentries']))
 
-print "::: bye."
-print ":"*80
+print ("::: bye.")
+print (":"*80)

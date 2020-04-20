@@ -2,10 +2,10 @@
 
 __doc__ = "ToolFactories to instantiate all egammaCaloTools with default configuration"
 __author__ = "Bruno Lenzi , Christos Anastopoulos"
-from egammaRec.Factories import FcnWrapper, ToolFactory
+from egammaRec.Factories import  ToolFactory
 from egammaTrackTools import egammaTrackToolsConf
 from egammaRec import egammaKeys
-from egammaTools.InDetTools import egammaCaloExtrapolator,egammaExtrapolator
+from egammaTools.egammaExtrapolators import egammaCaloExtrapolator,egammaExtrapolator
 import AthenaCommon.CfgMgr as CfgMgr
 
 EMLastCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool,

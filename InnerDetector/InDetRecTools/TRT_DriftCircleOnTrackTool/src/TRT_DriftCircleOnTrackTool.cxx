@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool.h"
-#include "InDetReadoutGeometry/TRT_EndcapElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkRIO_OnTrack/check_cast.h"
 
@@ -46,14 +46,11 @@ StatusCode InDet::TRT_DriftCircleOnTrackTool::initialize()
   StatusCode sc = AlgTool::initialize(); 
 
   // get the error scaling tool
-  if (!m_trtErrorScalingKey.key().empty()) {
-    ATH_CHECK(m_trtErrorScalingKey.initialize());
-    ATH_MSG_DEBUG("Detected need for scaling trt errors.");
+  ATH_CHECK(m_trtErrorScalingKey.initialize(!m_trtErrorScalingKey.key().empty()));
+  ATH_CHECK(m_lumiDataKey.initialize ( !m_lumiDataKey.key().empty() && !m_trtErrorScalingKey.key().empty()));
+  if (m_lumiDataKey.key().empty()) {
+     ATH_MSG_INFO("Luminosity conditions data key not set. No mu correction." );
   }
-  if (!m_eventInfoKey.key().empty()){
-    ATH_CHECK(m_eventInfoKey.initialize());
-  }
-
   return sc;
 }
 
@@ -112,13 +109,11 @@ const InDet::TRT_DriftCircleOnTrack* InDet::TRT_DriftCircleOnTrackTool::correct
     cov = DC->localCovariance();
   } else             {
 
-    SG::ReadHandle< xAOD::EventInfo>  eventInfo (m_eventInfoKey);
-    double mu;
-    if (!eventInfo.isValid()) {
-      ATH_MSG_ERROR("Cant retrieve EventInfo"); 
-      mu = 0.;
-    } else {
-      mu = eventInfo->averageInteractionsPerCrossing();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    double mu=0.;
+    if (!m_lumiDataKey.empty()) {
+       SG::ReadCondHandle<LuminosityCondData> lumiData (m_lumiDataKey,ctx);
+       mu = lumiData->lbAverageInteractionsPerCrossing();
     }
 
     bool endcap = false;

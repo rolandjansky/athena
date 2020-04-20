@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: EventInfoCnvTool.cxx 793565 2017-01-23 22:00:14Z leggett $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -63,12 +61,10 @@ namespace xAODMaker {
 
       // Declare the interface(s) provided by the tool:
       declareInterface< IEventInfoCnvTool >( this );
-#ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
       // Declare the tool's properties:
       declareProperty( "DisableBeamSpot", m_disableBeamSpot );
-#endif
-#endif
+#endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
    }
 
    StatusCode EventInfoCnvTool::initialize() {
@@ -76,8 +72,7 @@ namespace xAODMaker {
       // Greet the user:
       ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
 
-#ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
       // Check if the beam position will be available or not:
       if( detStore()->contains< AthenaAttributeList >( INDET_BEAMPOS ) ) {
          m_beamCondSvcAvailable = true;
@@ -99,8 +94,7 @@ namespace xAODMaker {
 #else
       //do nothing, lumi and beam conditions not available
 
-#endif
-#endif
+#endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -196,8 +190,7 @@ namespace xAODMaker {
       // Copy/calculate the pileup information:
       if( ! pileUpInfo ) {
          bool haveLumi = false;
-#ifndef XAOD_ANALYSIS
-#ifndef SIMULATIONBASE
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
          if (!m_lumiDataKey.empty()) {
            SG::ReadCondHandle<LuminosityCondData> lumiData (m_lumiDataKey, ctx);
            if (lumiData->lbAverageLuminosity() != 0 ||
@@ -215,8 +208,7 @@ namespace xAODMaker {
            }
            haveLumi = true;
          }
-#endif
-#endif
+#endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
          if (!haveLumi) {
             xaod->setActualInteractionsPerCrossing(
                aod->actualInteractionsPerCrossing() );
@@ -310,7 +302,7 @@ namespace xAODMaker {
          xaod->setSubEvents( subEvents );
       }
 
-#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE)
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
       // Fill the beam spot variables if the necessary service is available:
       if( m_beamCondSvcAvailable && ( ! pileUpInfo ) ) {
          SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
@@ -327,7 +319,7 @@ namespace xAODMaker {
       }
 #else
       (void)ctx; // silence "unused" compiler warnings
-#endif
+#endif // not XAOD_ANALYSIS or SIMULATIONBASE or GENERATIONBASE
 
       // Finish with some printout:
       ATH_MSG_VERBOSE( "Finished conversion" << *xaod );

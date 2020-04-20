@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ class FitQuality;
       Segment( const LocalParameters& locpars,
                const Amg::MatrixX& locerr,
                DataVector<const MeasurementBase>* measurements,
-               FitQuality* fitq=0,Author author=AuthorUnknown);
+               FitQuality* fitq=nullptr,Author author=AuthorUnknown);
   
       /** Destructor */
       virtual ~Segment();
@@ -166,9 +166,10 @@ inline bool Segment::hasContainedMeasurements() const
 }
  
 inline const MeasurementBase* Segment::measurement(unsigned int indx) const
- { if (m_containedMeasBases && indx<m_containedMeasBases->size())
+ { if (m_containedMeasBases && indx<m_containedMeasBases->size()) {
       return m_containedMeasBases->operator[](indx);
-   return 0;
+}
+   return nullptr;
  }
  
 inline unsigned int Segment::numberOfMeasurementBases() const

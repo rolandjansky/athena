@@ -22,5 +22,5 @@ StatusCode MergeRecoTimingObj::initialize() {
 
 StatusCode MergeRecoTimingObj::execute() {
   ATH_MSG_DEBUG("execute()");
-  return m_mergeTool->processAllSubEvents();
+  return m_mergeTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }

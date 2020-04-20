@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_writeOfc.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-19
@@ -8,7 +8,7 @@
 
 import cppyy
 
-from PyCool import cool, coral
+from PyCool import cool
 from TileCalibBlobPython import TileCalibTools, TileCalibLogger
 import re
 
@@ -18,7 +18,7 @@ import re
 #===
 #==================================================
 #=== Input files with OFCs
-ofcDataPath = "/afs/cern.ch/user/t/tiledaq/public/tilercd/tile-5.3.0.0/TileDSPofc/v4r3p3/share/"
+ofcDataPath = "/afs/cern.ch/user/t/tiledaq/public/tilercd/tile-7.1.0.0/TileDSPofc/share/"
 ofcFiles = [ofcDataPath+'W_OF2_PHYSICS_7s.dat',
             ofcDataPath+'W_OF1_PHYSICS_7s.dat',
             ofcDataPath+'W_OF2_LED_7s.dat',
@@ -26,7 +26,7 @@ ofcFiles = [ofcDataPath+'W_OF2_PHYSICS_7s.dat',
             ofcDataPath+'W_OF2_CIS_7s.dat',
             ofcDataPath+'W_OF1_CIS_7s.dat']
 #=== pattern to decode filenames
-re_fileName = re.compile("W_(OF\d)_(.*)_7s\.dat")
+re_fileName = re.compile("W_(OF\\d)_(.*)_7s\\.dat")
 
 #=== IOV range for all folders
 iovSince = cool.ValidityKeyMin
@@ -59,7 +59,7 @@ folderSpec = cool.FolderSpecification(folderMode, spec)
 
 #=== loop over all input files
 for fileName in [ofcFiles[0]]:
-    log.info( "Reading file: %s" % fileName )
+    log.info( "Reading file: %s", fileName )
 
     #=== determine COOL folder from input file name
     fileNameParts = re_fileName.search(fileName).groups()
@@ -70,12 +70,12 @@ for fileName in [ofcFiles[0]]:
         ofRun="LAS"
     objVersion = int(ofMethod[2])
     folderPath = TileCalibTools.getTilePrefix(False)+"FILTER/"+ofMethod+"/"+ofRun
-    log.info( "Filling COOL folder %s" % ( folderPath ) )
+    log.info( "Filling COOL folder %s", folderPath )
     desc = TileCalibTools.getAthenaFolderDescr()
     folder = db.createFolder(folderPath, folderSpec, desc, True)
 
     #=== loop over all drawers (COOL channels)
-    for chan in xrange(276):
+    for chan in range(276):
         
         data = cool.Record( spec )
         blob = data['TileCalibBlobOfc']
@@ -87,9 +87,9 @@ for fileName in [ofcFiles[0]]:
             drawerOfc = g.TileCalibDrawerOfc.getInstance(blob,objVersion,7,-2001,1,2)
             #=== set phases as ints: phase[ns] * 10
             phases = g.std.vector('float')()
-            for phase in xrange(-1000,1001):
+            for phase in range(-1000,1001):
                 phases.push_back(phase/10.)
-            drawerOfc.setPhases(0,0,phases);
+            drawerOfc.setPhases(0,0,phases)
     
             #=== read file and fill OFCs
             phase   = -1000
@@ -101,24 +101,26 @@ for fileName in [ofcFiles[0]]:
 
                 #=== check for consistency
                 if phase>1000:
-                    raise ("Phase out of range: %i" % phase)
+                    raise Exception("Phase out of range: %i" % phase)
                 phaseF=phase/10.
 
                 ofc = line.split()
                 #=== fill OFCs depending on OF version number
                 if objVersion==1:
-                    if len(ofc)!=3: raise ("OF1, but len(ofc)=%i" % len(ofc))
+                    if len(ofc)!=3:
+                        raise Exception ("OF1, but len(ofc)=%i" % len(ofc))
                     drawerOfc.setOfc(drawerOfc.FieldA,channel,adc,phaseF,sample,float(ofc[0]))
                     drawerOfc.setOfc(drawerOfc.FieldB,channel,adc,phaseF,sample,float(ofc[1]))
                     drawerOfc.setOfc(drawerOfc.FieldG,channel,adc,phaseF,sample,float(ofc[2]))
                 elif objVersion==2:
-                    if len(ofc)!=4: raise ("OF2, but len(ofc)=%i" % len(ofc))
+                    if len(ofc)!=4:
+                        raise Exception ("OF2, but len(ofc)=%i" % len(ofc))
                     drawerOfc.setOfc(drawerOfc.FieldA,channel,adc,phaseF,sample,float(ofc[0]))
                     drawerOfc.setOfc(drawerOfc.FieldB,channel,adc,phaseF,sample,float(ofc[1]))
                     drawerOfc.setOfc(drawerOfc.FieldC,channel,adc,phaseF,sample,float(ofc[2]))
                     drawerOfc.setOfc(drawerOfc.FieldG,channel,adc,phaseF,sample,float(ofc[3]))
                 else:
-                    raise ("Impossible objVersion: %i" % objVersion)
+                    raise Exception ("Impossible objVersion: %i" % objVersion)
 
                 #=== increment counters
                 adc += 1

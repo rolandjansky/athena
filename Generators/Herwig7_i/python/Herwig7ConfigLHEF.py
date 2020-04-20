@@ -1,7 +1,5 @@
 #! /usr/bin/env python
 
-##  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
 ## \file Herwig7ConfigLHEF.py
 ## \brief Configuration class for showering LHE files from MG5_aMC@NLO or PowhegBox
 ## \author Daniel Rauch (daniel.rauch@desy.de)

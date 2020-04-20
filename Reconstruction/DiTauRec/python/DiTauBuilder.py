@@ -1,9 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-import os
-
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaCommon.GlobalFlags import globalflags
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.Configured import Configured
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPCSensitiveDetector.h"
@@ -17,12 +17,12 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 // construction/destruction
-RPCSensitiveDetector::RPCSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
+RPCSensitiveDetector::RPCSensitiveDetector(const std::string& name, const std::string& hitCollectionName, unsigned int nGasGaps)
   : G4VSensitiveDetector( name )
   , m_myRPCHitColl( hitCollectionName )
   , m_isGeoModel(true)
 {
-  m_muonHelper = RpcHitIdHelper::GetHelper();
+  m_muonHelper = RpcHitIdHelper::GetHelper(nGasGaps);
 }
 
 void RPCSensitiveDetector::Initialize(G4HCofThisEvent*)
@@ -200,6 +200,8 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
         rpcIsRotated ? gasGap = 2 : gasGap = 1;
       } else if (copyNo ==2) {
         rpcIsRotated ? gasGap = 1 : gasGap = 2;
+      } else if (copyNo ==3) {
+        gasGap = 3;
       }
     } else if((npos = volName.find("gas volume")) != std::string::npos) {
 

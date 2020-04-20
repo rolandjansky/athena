@@ -37,9 +37,9 @@ if isMC:
     simulationFlavour = af.fileinfos['metadata']['/Simulation/Parameters']['SimulationFlavour']
     isFullSim = simulationFlavour in ('default', 'MC12G4', 'FullG4')
 
-print "EGammaCommon: isMC = ", isMC
+print("EGammaCommon: isMC = ", isMC)
 if isMC: 
-    print "EGammaCommon: isFullSim = ", isFullSim
+    print("EGammaCommon: isFullSim = ", isFullSim)
 
 if isFullSim:
 #from AthenaCommon.GlobalFlags import globalflags
@@ -48,7 +48,7 @@ if isFullSim:
     from ElectronPhotonShowerShapeFudgeTool.ElectronPhotonShowerShapeFudgeToolConf import ElectronPhotonShowerShapeFudgeTool
     DF_ElectronPhotonShowerShapeFudgeTool = ElectronPhotonShowerShapeFudgeTool(Preselection=16)
     ToolSvc += DF_ElectronPhotonShowerShapeFudgeTool
-    print DF_ElectronPhotonShowerShapeFudgeTool
+    print(DF_ElectronPhotonShowerShapeFudgeTool)
 
 
 #====================================================================
@@ -163,7 +163,7 @@ ElectronPassLHVeryLoose = DerivationFramework__AsgSelectionToolWrapper( name = "
                                                                         StoreGateEntryName = "DFCommonElectronsLHVeryLoose",
                                                                         ContainerName = "Electrons")
 ToolSvc += ElectronPassLHVeryLoose
-print ElectronPassLHVeryLoose
+print(ElectronPassLHVeryLoose)
 
 # decorate electrons with the output of LH loose
 ElectronPassLHLoose = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassLHLoose",
@@ -172,7 +172,7 @@ ElectronPassLHLoose = DerivationFramework__AsgSelectionToolWrapper( name = "Elec
                                                                     StoreGateEntryName = "DFCommonElectronsLHLoose",
                                                                     ContainerName = "Electrons")
 ToolSvc += ElectronPassLHLoose
-print ElectronPassLHLoose
+print(ElectronPassLHLoose)
 
 # decorate electrons with the output of LH medium
 ElectronPassLHMedium = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassLHMedium",
@@ -181,7 +181,7 @@ ElectronPassLHMedium = DerivationFramework__AsgSelectionToolWrapper( name = "Ele
                                                                      StoreGateEntryName = "DFCommonElectronsLHMedium",
                                                                      ContainerName = "Electrons")
 ToolSvc += ElectronPassLHMedium
-print ElectronPassLHMedium
+print(ElectronPassLHMedium)
 
 # decorate electrons with the output of LH tight
 ElectronPassLHTight = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassLHTight",
@@ -190,7 +190,7 @@ ElectronPassLHTight = DerivationFramework__AsgSelectionToolWrapper( name = "Elec
                                                                     StoreGateEntryName = "DFCommonElectronsLHTight",
                                                                     ContainerName = "Electrons")
 ToolSvc += ElectronPassLHTight
-print ElectronPassLHTight
+print(ElectronPassLHTight)
 
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
@@ -204,7 +204,7 @@ ElectronPassIsEMLoose = DerivationFramework__EGSelectionToolWrapper( name = "Ele
                                                                      ContainerName = "Electrons")
 
 ToolSvc += ElectronPassIsEMLoose
-print ElectronPassIsEMLoose
+print(ElectronPassIsEMLoose)
 
 # decorate electrons with the output of IsEM medium
 ElectronPassIsEMMedium = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassIsEMMedium",
@@ -216,7 +216,7 @@ ElectronPassIsEMMedium = DerivationFramework__EGSelectionToolWrapper( name = "El
 
 
 ToolSvc += ElectronPassIsEMMedium
-print ElectronPassIsEMMedium
+print(ElectronPassIsEMMedium)
 
 # decorate electrons with the output of IsEM tight
 ElectronPassIsEMTight = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassIsEMTight",
@@ -227,7 +227,7 @@ ElectronPassIsEMTight = DerivationFramework__EGSelectionToolWrapper( name = "Ele
                                                                      ContainerName = "Electrons")
 
 ToolSvc += ElectronPassIsEMTight
-print ElectronPassIsEMTight
+print(ElectronPassIsEMTight)
 
 # decorate electrons with the output of MultiLepton
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__AsgSelectionToolWrapper
@@ -237,7 +237,7 @@ ElectronPassML = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronP
                                                                StoreGateEntryName = "DFCommonElectronsML",
                                                                ContainerName = "Electrons")
 ToolSvc += ElectronPassML
-print ElectronPassML
+print(ElectronPassML)
 
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
@@ -260,7 +260,7 @@ else:
                                                                        StoreGateEntryName = "DFCommonPhotonsIsEMLoose",
                                                                        ContainerName = "Photons")
 ToolSvc += PhotonPassIsEMLoose
-print PhotonPassIsEMLoose
+print(PhotonPassIsEMLoose)
  
 # decorate photons with the output of IsEM tight
 # on full-sim MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
@@ -280,7 +280,7 @@ else:
                                                                        StoreGateEntryName = "DFCommonPhotonsIsEMTight",
                                                                        ContainerName = "Photons")
 ToolSvc += PhotonPassIsEMTight
-print PhotonPassIsEMTight
+print(PhotonPassIsEMTight)
 
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
@@ -303,7 +303,7 @@ if  rec.doTruth():
 
 
     ToolSvc += BkgElectronClassificationTool
-    print BkgElectronClassificationTool
+    print(BkgElectronClassificationTool)
     EGAugmentationTools.append(BkgElectronClassificationTool)
 
     # Decorate egammaTruthParticles with truth-particle-level etcone20,30,40
@@ -317,7 +317,7 @@ if  rec.doTruth():
                                   IsolationVarNamePrefix = 'etcone',
                                   ChargedParticlesOnly   = False)
     ToolSvc += TruthEgetIsolationTool
-    print TruthEgetIsolationTool
+    print(TruthEgetIsolationTool)
     EGAugmentationTools.append(TruthEgetIsolationTool)
 
     # Decorate egammaTruthParticles with truth-particle-level ptcone20,30,40
@@ -329,7 +329,7 @@ if  rec.doTruth():
                                   IsolationVarNamePrefix = 'ptcone',
                                   ChargedParticlesOnly   = True)
     ToolSvc += TruthEgptIsolationTool
-    print TruthEgptIsolationTool
+    print(TruthEgptIsolationTool)
     EGAugmentationTools.append(TruthEgptIsolationTool)
     
     # Compute the truth-particle-level energy density in the central eta region

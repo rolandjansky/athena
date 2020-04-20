@@ -16,7 +16,7 @@ using eformat::helper::SourceIdentifier;
 Muon::TgcRawDataProvider::TgcRawDataProvider(const std::string& name,
         ISvcLocator* pSvcLocator) :
         AthAlgorithm(name, pSvcLocator),
-        m_rawDataTool     ("Muon::TGC_RawDataProviderTool/TgcRawDataProviderTool", this),
+        m_rawDataTool     ("Muon::TGC_RawDataProviderToolMT/TgcRawDataProviderTool", this),
         m_regionSelector  ("RegSelSvc",name)
 {
     declareProperty ("ProviderTool", m_rawDataTool);

@@ -25,7 +25,7 @@ TBBPCRawContCnv::~TBBPCRawContCnv()
 StatusCode TBBPCRawContCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBBPCRawContCnv");
@@ -61,11 +61,4 @@ StatusCode TBBPCRawContCnv::PoolToDataObject(DataObject*& pObj,
   }
 
   return StatusCode::SUCCESS; 
-}
-
-StatusCode TBBPCRawContCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBBPCRawContCnv::DataObjectToPool" );
-  
-  return TBBPCRawContCnvBase::DataObjectToPool( pObj, tname) ;
 }

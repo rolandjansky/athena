@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/RpcHitIdHelper.h"
@@ -13,9 +13,21 @@ RpcHitIdHelper::RpcHitIdHelper() : HitIdHelper()
   Initialize();
 }
 
+RpcHitIdHelper::RpcHitIdHelper(unsigned int nGasGaps) : HitIdHelper()
+{
+  InitializeStationName();
+  Initialize(nGasGaps);
+}
+
 RpcHitIdHelper* RpcHitIdHelper::GetHelper()
 {
   if (!m_help) m_help = new RpcHitIdHelper();
+  return m_help;
+}
+
+RpcHitIdHelper* RpcHitIdHelper::GetHelper(unsigned int nGasGaps)
+{
+  if (!m_help) m_help = new RpcHitIdHelper(nGasGaps);
   return m_help;
 }
 
@@ -24,12 +36,12 @@ static char v2[] = {'I','M','O','E','1','2','3','4','S'};
 static char v3[] = {'S','L','E','R','F','G'};
 
 
-void RpcHitIdHelper::Initialize()
+void RpcHitIdHelper::Initialize(unsigned int nGasGaps)
 {
   InitializeField("PhiSector",1,8);
   InitializeField("ZSector",-8,8);
   InitializeField("DoubletR",1,2);
-  InitializeField("GasGapLayer",1,2);
+  InitializeField("GasGapLayer",1,nGasGaps);
   InitializeField("DoubletPhi",1,2);
   InitializeField("DoubletZ",1,3);
   InitializeField("MeasuresPhi",0,1);

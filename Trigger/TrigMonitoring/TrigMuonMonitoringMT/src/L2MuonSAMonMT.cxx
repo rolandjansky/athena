@@ -6,8 +6,7 @@
 
 
 L2MuonSAMonMT :: L2MuonSAMonMT(const std::string& name, ISvcLocator* pSvcLocator )
-  : TrigMuonMonitorAlgorithm(name, pSvcLocator),
-    m_L2MuonSAContainerKey("HLT_MuonL2SAInfo")
+  : TrigMuonMonitorAlgorithm(name, pSvcLocator)
 {}
 
 

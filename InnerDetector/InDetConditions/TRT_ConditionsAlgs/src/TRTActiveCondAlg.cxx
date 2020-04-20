@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTActiveCondAlg.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 
 TRTActiveCondAlg::TRTActiveCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
   : ::AthAlgorithm(name,pSvcLocator),
     m_condSvc("CondSvc",name),
-    m_detManager(nullptr),
     m_strawStatus("TRT_StrawStatusSummaryTool",this),
     m_trtId(0)
 { declareProperty("TRTStrawStatusSummaryTool",m_strawStatus); }
@@ -36,8 +36,8 @@ StatusCode TRTActiveCondAlg::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Detector manager
-  ATH_CHECK(detStore()->retrieve(m_detManager,"TRT"));
+  // Initialize readCondHandle key                                                                                                            
+  ATH_CHECK(m_trtDetEleContKey.initialize());
 
   // TRT ID helper
   ATH_CHECK(detStore()->retrieve(m_trtId,"TRT_ID"));
@@ -93,6 +93,12 @@ StatusCode TRTActiveCondAlg::execute()
   std::vector<std::vector<int> > dummyTableCountAll( writeCdo->getEtaBins().size(), dummyPhiVec );
   std::vector<std::vector<int> > dummyTableCountDead( writeCdo->getEtaBins().size(), dummyPhiVec );
 
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+  const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
+  if (not trtDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
+  }
 
   float rMinEndcap = 617.; 
   float rMaxEndcap = 1106.;
@@ -102,10 +108,15 @@ StatusCode TRTActiveCondAlg::execute()
      for (int i=0; i<=nStrawsInLayer; i++) { 
 
         Identifier id = m_trtId->straw_id(*it, i);	 
+        // Make sure it is a straw_layer id
+        Identifier strawLayerId = m_trtId->layer_id(id);
+        //Get hash Id
+        IdentifierHash hashId = m_trtId->straw_layer_hash(strawLayerId);
+
         bool status = m_strawStatus->get_status(id);
         countAll++; if (status) countDead++;
 
-        const Amg::Vector3D &strawPosition = m_detManager->getElement( id )->center( id );
+        const Amg::Vector3D &strawPosition = elements->getDetectorElement(hashId)->center(id);
         double phi = atan2( strawPosition.y(), strawPosition.x() );
         int phiBin = writeCdo->findPhiBin( phi );
 	if (phiBin<0) { 

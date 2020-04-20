@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # Import MM_Digitization job properties
@@ -30,11 +30,13 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
     kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")
     kwargs.setdefault("OutputSDOName", "MM_SDO")
+    kwargs.setdefault("SmearingTool","MMCalibSmearingTool")
+    if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
+        kwargs.setdefault("UseMcEventCollectionHelper",True)
+    else:
+        kwargs.setdefault("UseMcEventCollectionHelper",False)
 
     return CfgMgr.MM_DigitizationTool(name,**kwargs)
-       #return CfgMgr.MM_PileUpTool(name,**kwargs)
-    #else:
-       #return CfgMgr.MdtDigitizationTool(name,**kwargs)
 
 def getMMRange(name="MMRange", **kwargs):
     # bunch crossing range in ns
@@ -71,5 +73,7 @@ def getMM_OverlayDigitizer(name="MM_OverlayDigitizer", **kwargs):
     is_hive = (concurrencyProps.ConcurrencyFlags.NumThreads() > 0)
     if is_hive:
         kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
+        # Set common overlay extra inputs
+        kwargs.setdefault("ExtraInputs", [("McEventCollection", "TruthEvent")])
 
     return CfgMgr.MM_Digitizer(name,**kwargs)

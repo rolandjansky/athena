@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework includes
@@ -48,33 +48,33 @@ eflowObjectContainer* eflowObjectContainerCnv::createTransient()
 
   } else if ( compareClassGuid(p1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<eflowObjectContainer_p1> persObj( poolReadObject<eflowObjectContainer_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<eflowObjectContainer_p1> persObj( poolReadObject<eflowObjectContainer_p1>() );
     eflowObjectContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), eflowStream );
   } else if (compareClassGuid(p2_guid) ) {
     
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<eflowObjectContainer_p2> persObj( poolReadObject<eflowObjectContainer_p2>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<eflowObjectContainer_p2> persObj( poolReadObject<eflowObjectContainer_p2>() );
     eflowObjectContainerCnv_p2 cnv;
     transObj = cnv.createTransient( persObj.get(), eflowStream );
 
   } else if (compareClassGuid(p3_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object                                                                                                                                                  
-    std::auto_ptr<eflowObjectContainer_p3> persObj( poolReadObject<eflowObjectContainer_p3>() );
+    // using unique_ptr ensures deletion of the persistent object                                                                                                                                                  
+    std::unique_ptr<eflowObjectContainer_p3> persObj( poolReadObject<eflowObjectContainer_p3>() );
     eflowObjectContainerCnv_p3 cnv;
     transObj = cnv.createTransient( persObj.get(), eflowStream );
   } else if (compareClassGuid(p4_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object                                                                                                                                                  
-    std::auto_ptr<eflowObjectContainer_p4> persObj( poolReadObject<eflowObjectContainer_p4>() );
+    // using unique_ptr ensures deletion of the persistent object                                                                                                                                                  
+    std::unique_ptr<eflowObjectContainer_p4> persObj( poolReadObject<eflowObjectContainer_p4>() );
     eflowObjectContainerCnv_p4 cnv;
     transObj = cnv.createTransient( persObj.get(), eflowStream );
   }  else if (compareClassGuid(p5_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object                                                                                                                                                  
-    std::auto_ptr<eflowObjectContainer_p5> persObj( poolReadObject<eflowObjectContainer_p5>() );
+    // using unique_ptr ensures deletion of the persistent object                                                                                                                                                  
+    std::unique_ptr<eflowObjectContainer_p5> persObj( poolReadObject<eflowObjectContainer_p5>() );
     eflowObjectContainerCnv_p5 cnv;
     transObj = cnv.createTransient( persObj.get(), eflowStream );
   }

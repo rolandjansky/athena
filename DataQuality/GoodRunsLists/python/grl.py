@@ -1,12 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 import cherrypy
 import threading
 import sys, os
-import traceback
-import time, datetime
 import multiprocessing
 import xml.etree.cElementTree as ET
 import urllib
@@ -21,7 +19,6 @@ def _do_import_and_get_obj(grlconfmod, grlobj = None):
     return m.__dict__[grlobj]()
 
 def _deep_get_grl_info(grlconf, cooltag, folder):
-    from GoodRunsLists.GoodRunsListTool import getObjectOfClass
     from CoolRunQuery.AtlRunQueryLib import AtlRunQuery, AtlRunQueryOptions
     from CoolRunQuery.AtlRunQueryParser import ArgumentParser
 
@@ -32,16 +29,16 @@ def _deep_get_grl_info(grlconf, cooltag, folder):
     #config.setPrefix('')
 
     query  = config.getsearchquery()
-    print ">> Calling cmd equivalent of: "
-    print "%s \"%s\"" % (config.querytool,query)
+    print (">> Calling cmd equivalent of: ")
+    print ("%s \"%s\"" % (config.querytool,query))
 
     ## atlrunquery parse arguments
     ap = ArgumentParser()
     atlqueryarg = config.querytool + " " + ap.ParseArgument( query )
     (options, args) = AtlRunQueryOptions().parse(atlqueryarg)
 
-    #print atlqueryarg
-    #print options
+    #print (atlqueryarg)
+    #print (options)
 
     ## query gets added to the xml file, in the field query
     proc = multiprocessing.Process(target=AtlRunQuery, args=(options,), 
@@ -49,7 +46,7 @@ def _deep_get_grl_info(grlconf, cooltag, folder):
     proc.start()
     proc.join()
     xmlfile = 'data/'+config.listname
-    #print ">> Good-run list stored as: \'%s\'" % xmlfile
+    #print (">> Good-run list stored as: \'%s\'" % xmlfile)
     return xmlfile
 
 
@@ -62,7 +59,7 @@ def _get_grl_info(grlconf, cooltag, folder, queue = None):
     rv = open(rfile, 'r').read()
     os.chdir(os.environ['TMPDIR'])
     shutil.rmtree(tmpdir)
-    #print rv
+    #print (rv)
     queue.put((rv, rfile))
     return
 
@@ -106,7 +103,6 @@ class GRLGen(object):
     
     @cherrypy.expose
     def index(self):
-        import glob
         rv = ['<html><head>'
             '<title>GRL generator</title>'
             '<script type="text/javascript" src="/static/js/grl.js"><!-- -->'
@@ -122,7 +118,6 @@ class GRLGen(object):
         rv.append('<div><form method="get" action="generate" style="border-width: 2px; border-style:solid">')
         rv.append('Configuration file:&nbsp;<select name="configuration" id="confselect">')
         for f, cn in _get_list_of_grl_classes():
-            cname = os.path.basename(f)
             rv.append('<option value="%(config)s">%(config)s</option>' 
             % {'config': cn})
         rv.append('</select> <a href="javascript:downloadPython()">(Click to download)</a> <br/>\n')
@@ -166,7 +161,7 @@ class GRLGen(object):
     def generate(self, configuration=None, folder='LBSUMM', cooltag='HEAD'):
         if configuration is None:
             return ''
-        with self.genlock as lock:
+        with self.genlock as lock:  # noqa: F841
             q = multiprocessing.Queue()
             proc = multiprocessing.Process(target=_get_grl_info, 
                 args = [os.path.join(GRL_DIRECTORY, configuration),

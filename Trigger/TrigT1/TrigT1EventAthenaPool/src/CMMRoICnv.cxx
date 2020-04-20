@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,8 +38,8 @@ CMMRoI * CMMRoICnv::createTransient()
  
   
   if ( compareClassGuid(p1_guid) ) {
-     // using auto_ptr ensures deletion of the persistent object
-     std::auto_ptr< CMMRoI_p1 > pers_ref( poolReadObject< CMMRoI_p1 >() );
+     // using unique_ptr ensures deletion of the persistent object
+     std::unique_ptr< CMMRoI_p1 > pers_ref( poolReadObject< CMMRoI_p1 >() );
      return m_TPConverter_p1.createTransient( pers_ref.get(), mlog );
   }
   throw std::runtime_error("Unsupported persistent version of CMMRoI");

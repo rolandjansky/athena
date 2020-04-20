@@ -48,18 +48,17 @@ STDM5ThinningHelper.AppendToStream( STDM5Stream )
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 STDM5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "STDM5JetTPThinningTool",
-                                                                        ThinningService         = STDM5ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         JetKey                  = "AntiKt4EMTopoJets",
                                                                         SelectionString         = "AntiKt4EMTopoJets.pt > 15*GeV",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True)
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM5JetTPThinningTool
 
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 STDM5MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "STDM5MuonTPThinningTool",
-                                                                         ThinningService         = STDM5ThinningHelper.ThinningSvc(),
+                                                                         StreamName              = streamName,
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM5MuonTPThinningTool
@@ -67,7 +66,7 @@ ToolSvc += STDM5MuonTPThinningTool
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 STDM5ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(      name                    = "STDM5ElectronTPThinningTool",
-                                                                                     ThinningService         = STDM5ThinningHelper.ThinningSvc(),
+                                                                                     StreamName              = streamName,
                                                                                      SGKey                   = "Electrons",
                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += STDM5ElectronTPThinningTool
@@ -75,7 +74,7 @@ ToolSvc += STDM5ElectronTPThinningTool
 # Tracks associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 STDM5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                    = "STDM5TauTPThinningTool",
-                                                                        ThinningService         = STDM5ThinningHelper.ThinningSvc(),
+                                                                        StreamName              = streamName,
                                                                         TauKey                  = "TauJets",
                                                                         SelectionString         = "TauJets.pt > 15*GeV",
                                                                         ConeSize                = 0.6,
@@ -98,19 +97,19 @@ if globalflags.DataSource()=='geant4':
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     STDM5TruthLepTool = DerivationFramework__GenericTruthThinning(name                         = "STDM5TruthLepTool", 
-                                                                  ThinningService              = STDM5ThinningHelper.ThinningSvc(),
+                                                                  StreamName                   = streamName,
                                                                   ParticleSelectionString      = truth_cond_Lepton,
                                                                   PreserveDescendants          = False,
                                                                   PreserveGeneratorDescendants = False,
                                                                   PreserveAncestors            = True)
     
     STDM5PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "STDM5PhotonThinning",
-                                                                    ThinningService         = STDM5ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     ParticlesKey            = "TruthPhotons", 
                                                                     ParticleSelectionString = photonthinningexpr)
     
     STDM5TruthBosTool = DerivationFramework__GenericTruthThinning(name                         = "STDM5TruthBosTool",
-                                                                  ThinningService              = STDM5ThinningHelper.ThinningSvc(),
+                                                                  StreamName                   = streamName,
                                                                   ParticleSelectionString      = truth_cond_boson,
                                                                   PreserveDescendants          = False,
                                                                   PreserveGeneratorDescendants = True,
@@ -185,12 +184,6 @@ DerivationFrameworkJob += STDM5Sequence
 #fileName   = buildFileName( derivationFlags.WriteDAOD_STDM5Stream )
 #STDM5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 #STDM5Stream.AcceptAlgs(["STDM5Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="STDM5ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

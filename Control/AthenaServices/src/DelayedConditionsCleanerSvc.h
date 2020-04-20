@@ -56,7 +56,7 @@ class DelayedConditionsCleanerSvcProps;
  * The cleaning can optionally be done as an asynchronous TBB job if
  * Async is true and allowAsync=true is passed to @c event.
  */
-class DelayedConditionsCleanerSvc
+class ATLAS_CHECK_THREAD_SAFETY DelayedConditionsCleanerSvc
   : public extends<AthService, IConditionsCleanerSvc>
 {
 public:

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ################################################################
 #
 # job Options fragment to create LArDigits  from LArHits which
@@ -7,7 +8,7 @@
 ################################################################
 
 # overall calorimeter noise options (could be set by top jobOptions)
-if not 'doCaloNoise' in dir():
+if 'doCaloNoise' not in dir():
     doCaloNoise = True
 
 # We also need the conditions svc for MC constants:
@@ -21,11 +22,10 @@ topSequence = AlgSequence()
 #theApp.Dlls += [ "LArTools","LArCalibUtils" ]
 #ToolSvc = Service( "ToolSvc" )
 from Digitization.DigitizationFlags import jobproperties
-from AthenaCommon.ConfigurableDb import getConfigurable
 from AthenaCommon.AppMgr import ToolSvc
 from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
 theADC2MeVTool = LArADC2MeVToolDefault()
-theADC2MeVTool.MCSym=TRUE
+theADC2MeVTool.MCSym=True
 ToolSvc += theADC2MeVTool
 # The following are properties for LArDigitization:
 isOverlay = False
@@ -33,13 +33,13 @@ useLArFloat = True
 # get main tool which does the real work
 from LArDigitization.LArPileUpToolDefault import LArPileUpToolDefault
 theLArPileUpTool = LArPileUpToolDefault(useLArFloat,isOverlay,"LArDigitContainer_MC","LArPileUpTool")
-theLArPileUpTool.UseTriggerTime = TRUE
+theLArPileUpTool.UseTriggerTime = True
 theLArPileUpTool.TriggerTimeToolName = "LArTBH6TriggerTimeTool"
 # ................... electronic noise
 if doCaloNoise:
-    theLArPileUpTool.NoiseOnOff = TRUE    # if true, noise added in all subdetectors
+    theLArPileUpTool.NoiseOnOff = True    # if true, noise added in all subdetectors
 else:
-    theLArPileUpTool.NoiseOnOff = FALSE
+    theLArPileUpTool.NoiseOnOff = False
 
 #
 # --------------------------------------------------------
@@ -103,13 +103,13 @@ theLArPileUpTool.EnergyThresh = -99.
 #
 # .................. switches on the noise 
 #put false if you want cancel the noise in one or several sub-detectors
-theLArPileUpTool.NoiseInEMB   = FALSE; # if false, noise in Barrel is off 
-theLArPileUpTool.NoiseInEMEC  = TRUE; # if false, noise in EndCap is off
-theLArPileUpTool.NoiseInHEC   = TRUE; # if false, noise in HEC  is off 
-theLArPileUpTool.NoiseInFCAL  = TRUE; # if false, noise in FCAL is off
+theLArPileUpTool.NoiseInEMB   = False # if false, noise in Barrel is off 
+theLArPileUpTool.NoiseInEMEC  = True # if false, noise in EndCap is off
+theLArPileUpTool.NoiseInHEC   = True # if false, noise in HEC  is off 
+theLArPileUpTool.NoiseInFCAL  = True # if false, noise in FCAL is off
 #
 # .................... turn on cross-talk in EM calorimeter
-theLArPileUpTool.CrossTalk = TRUE
+theLArPileUpTool.CrossTalk = True
 #
 # ..................... Pile up turned off
 # ... use new calibration classes

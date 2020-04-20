@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @author: Sebastien Binet <binet@cern.ch>
 # @date:   March 2007
 #
 #
 from __future__ import with_statement, print_function
+import six
 
 
 __version__ = "$Revision$"
@@ -28,10 +29,15 @@ __all__ = [
 import sys
 import os
 import shelve
-import whichdb
 
-from Helpers import ShutUp
-from Decorators import forking
+import six
+if six.PY2:
+    from whichdb import whichdb
+else:
+    from dbm import whichdb
+
+from .Helpers import ShutUp
+from .Decorators import forking
 
 ### --- data ------------------------------------------------------------------
 class Units (object):
@@ -550,7 +556,7 @@ class PoolFile(object):
             pass
         
         self.poolFile = None
-        dbFileName = whichdb.whichdb( fileName )
+        dbFileName = whichdb( fileName )
         if not dbFileName in ( None, '' ):
             if self.verbose==True:
                 print("## opening file [%s]..." % str(fileName))
@@ -637,7 +643,7 @@ class PoolFile(object):
                 containers.append(containerName)
                 pass
             pass
-        keys.sort()
+        keys.sort (key = lambda x: x.GetName())
         self.keys = keys
         del containers
         
@@ -688,7 +694,7 @@ class PoolFile(object):
                 if not hasattr(tree, 'GetListOfBranches'):
                     continue
                 branches = tree.GetListOfBranches()
-                ## print "=-=->",name,type(tree).__name__
+                ## print ("=-=->",name,type(tree).__name__)
                 dirType = "T"
                 if name in (PoolOpts.EVENT_DATA, PoolOpts.META_DATA):
                     dirType = "B"
@@ -798,9 +804,9 @@ class PoolFile(object):
                   
         if bufferName == sys.stdout.name:
             bufferName = "/dev/stdout"
-        stdout = open("/dev/stdout", "w")
         out = open( bufferName, "w" )
-        os.dup2( sys.stdout.fileno(), stdout.fileno() )
+        sys.stdout.flush()
+        save_stdout_fileno = os.dup (sys.stdout.fileno())
         os.dup2( out.fileno(),        sys.stdout.fileno() )
 
         out.write( "#" * 80 + os.linesep )
@@ -814,12 +820,12 @@ class PoolFile(object):
             if PoolOpts.isDataHeader(name) or \
                PoolOpts.isData(name):
                 try:
-                    print >> sys.stderr, "=== [%s] ===" % name
+                    print ("=== [%s] ===" % name, file=sys.stderr)
                     tree.Print()
                 except Exception as err:
-                    print >> sys.stderr, "Caught:",err
-                    print >> sys.stderr, sys.exc_info()[0]
-                    print >> sys.stderr, sys.exc_info()[1]
+                    print ("Caught:",err, file=sys.stderr)
+                    print (sys.exc_info()[0], file=sys.stderr)
+                    print (sys.exc_info()[1], file=sys.stderr)
                     pass
                 pass
             pass
@@ -832,8 +838,9 @@ class PoolFile(object):
 ##         out.write( "#" * 80 + os.linesep )
         out.flush()
         if bufferName != "<stdout>":
-            os.dup2( stdout.fileno(), sys.stdout.fileno() )
-            pass
+            out.close()
+            sys.stdout.close()
+            sys.stdout = open (save_stdout_fileno, 'a')
         return
 
     def poolRecord(self, name):
@@ -863,10 +870,10 @@ class PoolFile(object):
          >>> import shelve
          >>> db = shelve.open( 'myfile.dat', 'r' )
          >>> report = db['report']
-         >>> print 'fileSize:',report['fileSize']
-         >>> print 'dataHeader/memSize:',report['dataHeader'].memSize
+         >>> print ('fileSize:',report['fileSize'])
+         >>> print ('dataHeader/memSize:',report['dataHeader'].memSize)
          >>> for d in report['data']:
-         ...   print 'data:',d.name,d.nEntries,d.memSize
+         ...   print ('data:',d.name,d.nEntries,d.memSize)
         """
         import shelve, os
         if os.path.exists (fileName):
@@ -888,19 +895,20 @@ class PoolFile(object):
         import csv, os
         if os.path.exists (fileName):
             os.unlink (fileName)
-        o = csv.writer (open (fileName, 'w'))
+        args = {} if six.PY2 else {'newline' : ''}
+        f = open (fileName, 'w', **args)
+        o = csv.writer (f)
         nentries = self.dataHeader.nEntries
-        map (o.writerow,
-             [ ['file name', self._fileInfos['name']],
-               ['file size', self._fileInfos['size']],
-               ['nbr evts',  self.dataHeader.nEntries],
-               ['mem size', 'disk size', 'mem size nozip', 'items',
-                'container name', 'branch type'],
-               ])
-        map (o.writerow,
-             [ [d.memSize, d.diskSize, d.memSizeNoZip,
-                d.nEntries, d.name, d.dirType]
-               for d in self.data ])
+        o.writerow (['file name', self._fileInfos['name']])
+        o.writerow (['file size', self._fileInfos['size']])
+        o.writerow (['nbr evts',  self.dataHeader.nEntries])
+        o.writerow (['mem size', 'disk size', 'mem size nozip', 'items',
+                     'container name', 'branch type'])
+
+        for d in self.data:
+            o.writerow ([d.memSize, d.diskSize, d.memSizeNoZip,
+                         d.nEntries, d.name, d.dirType])
+        f.close()
         return
 
     def printBreakDown(self, categories=None):
@@ -937,7 +945,7 @@ class PoolFile(object):
         for cat in categories:
             for d in self.data:
                 item = parse( d.name, cat.className, cat.key )
-                #print ": [%s/%s]" % (className, sgKey),
+                #print (": [%s/%s]" % (className, sgKey), end='')
             #for cat in categories:
                 
         return
@@ -959,10 +967,11 @@ class DiffFiles(object):
     terms of containers' content and containers' sizes
     """
 
-    def __init__(self, refFileName, chkFileName, verbose = False, ignoreList = None):
+    def __init__(self, refFileName, chkFileName, verbose = False, ignoreList = None, strict = False):
         object.__init__(self)
 
         self.verbose = verbose
+        self.strict = strict
         refFileName = os.path.expandvars( os.path.expanduser( refFileName ) )
         chkFileName = os.path.expandvars( os.path.expanduser( chkFileName ) )
 
@@ -1041,21 +1050,24 @@ class DiffFiles(object):
 
         if not self.allGood:
             self.summary += [ "=" * 80 ]
-        self.summary += [ "::: comparing common content (mem-size)..." ]
+        self.summary += [ "::: comparing common content (mem-size / disk-size)..." ]
 
         for name in commonContent:
             chkMemSize = self.chkFile.poolRecord(name).memSize
             refMemSize = self.refFile.poolRecord(name).memSize
-            if chkMemSize != refMemSize:
+            chkDiskSize = self.chkFile.poolRecord(name).diskSize
+            refDiskSize = self.refFile.poolRecord(name).diskSize
+
+            if chkMemSize != refMemSize or (self.strict and chkDiskSize != refDiskSize):
                 self.summary += [
-                    "[ERR] %12.3f kb (ref) ==> %12.3f kb (chk) | %s" % \
-                    ( refMemSize, chkMemSize, name )
+                    "[ERR] %12.3f / %12.3f kb (ref) ==> %12.3f / %12.3f kb (chk) | %s" % \
+                    ( refMemSize,refDiskSize,chkMemSize,chkDiskSize, name )
                     ]
                 self.allGood = False
             elif self.verbose:
                 self.summary += [
-                    " [OK] %12.3f kb                                 | %s" % \
-                    ( chkMemSize, name )
+                    " [OK] %12.3f/%12.3f kb                                 | %s" % \
+                    ( chkMemSize, chkDiskSize, name )
                     ]
 
         self.summary += [ "=" * 80 ]

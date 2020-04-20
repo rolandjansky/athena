@@ -1,12 +1,10 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
-from RecExConfig.ObjKeyStore   import cfgKeyStore
-
 
 def getCollectionNameIfInFile(coll_type,coll_name) :
     from RecExConfig.AutoConfiguration import IsInInputFile
     if not IsInInputFile(coll_type,coll_name) :
-        print 'DEBUG getRecTrackParticleNameIfInFile set %s' % coll_name
+        printfunc ('DEBUG getRecTrackParticleNameIfInFile set %s' % coll_name)
         return coll_name
     else :
         return ""
@@ -24,15 +22,15 @@ def getRecVertexNameIfInFile(coll_name) :
 from AthenaCommon.GlobalFlags import globalflags
 is_mc = (globalflags.DataSource == 'geant4')
 
-doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0() ) \
-                    and InDetFlags.doParticleCreation()
-doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() \
+doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() \
+                   or InDetFlags.doLowPtLargeD0() )  and InDetFlags.doParticleCreation()
+doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() and not InDetFlags.doR3LargeD0()\
                     and not InDetFlags.doLowPtLargeD0() and InDetFlags.doParticleConversion()
 
 if doCreation:
-    print "Creating xAOD::TrackParticles from Trk::Tracks"
+    printfunc ("Creating xAOD::TrackParticles from Trk::Tracks")
 if doConversion:
-    print "Converting Rec::TrackParticles to xAOD::TrackParticles"
+    printfunc ("Converting Rec::TrackParticles to xAOD::TrackParticles")
 
 
 
@@ -89,7 +87,7 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
 
     ToolSvc += InDetxAODParticleCreatorTool
     if InDetFlags.doPrintConfigurables():
-        print InDetxAODParticleCreatorTool
+        printfunc (InDetxAODParticleCreatorTool)
     return InDetxAODParticleCreatorTool
 
 
@@ -177,7 +175,8 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
 
 if not InDetFlags.doVertexFinding():
     if (not InDetFlags.doDBMstandalone() and
-        not cfgKeyStore.isInInput ('xAOD::VertexContainer', InDetKeys.xAODVertexContainer())):
+        not IsInInputFile ('xAOD::VertexContainer', InDetKeys.xAODVertexContainer()) and
+        IsInInputFile ('VxContainer', InDetKeys.PrimaryVertices())) :
         if len(getRecVertexNameIfInFile(InDetKeys.PrimaryVertices()))>0 :
             from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__VertexCnvAlg
             xAODVertexCnvAlg = xAODMaker__VertexCnvAlg("VertexCnvAlg")
@@ -187,7 +186,7 @@ if not InDetFlags.doVertexFinding():
             topSequence += xAODVertexCnvAlg
 
     if InDetFlags.doDBMstandalone() or InDetFlags.doDBM():
-        if len(getRecVertexNameIfInFile(InDetKeys.PrimaryVertices()))>0 :
+        if (IsInInputFile ('VxContainer', InDetKeys.PrimaryVertices())) :
             from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__VertexCnvAlg
             xAODVertexCnvAlgDBM = xAODMaker__VertexCnvAlg("VertexCnvAlgDBM")
             xAODVertexCnvAlgDBM.xAODContainerName = InDetKeys.xAODVertexContainer()

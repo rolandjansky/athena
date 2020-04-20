@@ -59,8 +59,8 @@ bool ISF::GenParticlePositionFilter::pass(const HepMC::GenParticle& particle) co
     return false;
   }
 
-  // (x,y,z) position
-  HepMC::ThreeVector pos = vtx->point3d();
+  // (x,y,z,t) position
+  HepMC::FourVector pos = vtx->position();
 
   bool inside = false;
   // check if the particle position is inside (or on surface)

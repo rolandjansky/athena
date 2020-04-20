@@ -56,7 +56,7 @@ Modified :
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 
 
-using namespace HepMC;
+
 using namespace TrigFake; // for Trajectory
 using namespace LVL1;
 

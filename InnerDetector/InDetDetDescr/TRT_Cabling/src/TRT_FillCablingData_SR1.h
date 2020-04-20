@@ -22,7 +22,7 @@
 #include "Identifier/IdContext.h"
 
 #include "TRT_CablingData.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h" 
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h" 
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "eformat/SourceIdentifier.h"  // change to new eformat v3

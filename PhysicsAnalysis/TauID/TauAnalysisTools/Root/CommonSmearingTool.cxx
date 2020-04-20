@@ -212,7 +212,7 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
     }
     
     // veto MVA TES for unreasonably low resolution values
-    bool bVeto = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetUseCaloPtFlag(&xTau);
+    bool bVeto = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->getUseCaloPtFlag(&xTau);
 
     if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
     {

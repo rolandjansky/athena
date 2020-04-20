@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,12 +24,13 @@
 
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/DataObject.h"
 
 #include <vector>
 #include <map>
 #include <algorithm>
-
+#include <sstream>
 
 
 /**
@@ -77,7 +78,7 @@ public:
     ~CondAttrListCollection();
 
     // copy constructor and assignment operator - have to be explicitly 
-    // implemented to control use of the cachced AttributeListSpecification
+    // implemented to control use of the cached AttributeListSpecification
     CondAttrListCollection(const CondAttrListCollection& rhs);
     // no copy with new Gaudi
     CondAttrListCollection& operator=(const CondAttrListCollection& rhs) = delete;
@@ -132,9 +133,9 @@ public:
     bool                 hasUniqueIOV() const;
 
     /// Adding in chan/attrList pairs
-    void                 add(ChanNum chanNum, const AttributeList& attributeList);
+    bool                 add(ChanNum chanNum, const AttributeList& attributeList);
     /// Adding in chan/attrList pairs with shared data
-    void                 addShared(ChanNum chanNum, const AttributeList& attributeList);
+    void                 addShared ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList);
 
     /// Adding in chan/iov range pairs
     void                 add(ChanNum chanNum, const IOVRange& range);
@@ -157,6 +158,9 @@ public:
 
     /// Dump our contents to std::cout
     void                 dump() const;
+
+    /// Dump the contents to std::ostringstream
+    void                 dump(std::ostringstream& stream) const;
 
     /// Equal operator. Compares channels, IOVs and attributes. For
     /// attributes only types and values are compared, not the
@@ -248,9 +252,10 @@ inline CondAttrListCollection::CondAttrListCollection(
       m_spec->extend(aspec.name(),aspec.typeName());
     }
     for (const_iterator itr=rhs.m_attrMap.begin();itr!=rhs.m_attrMap.end();
-       ++itr) {
-      m_attrMap[itr->first]=coral::AttributeList(*m_spec,true);
-      m_attrMap[itr->first].fastCopyData(itr->second);
+       ++itr)
+    {
+      auto newit = m_attrMap.try_emplace (itr->first, *m_spec, true).first;
+      newit->second.fastCopyData(itr->second);
     }
   }
 }
@@ -443,8 +448,8 @@ CondAttrListCollection::hasUniqueIOV() const
 }
 
 /// Adding in chan/attrList pairs: ASSUMED TO BE IN ORDER
-inline void                    
-CondAttrListCollection::add(ChanNum chanNum, const AttributeList& attributeList)
+inline bool                    
+CondAttrListCollection::add ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList)
 {
   if (m_attrMap.size()==0) {   
     m_spec=new coral::AttributeListSpecification();
@@ -455,11 +460,13 @@ CondAttrListCollection::add(ChanNum chanNum, const AttributeList& attributeList)
   }
   m_attrMap[chanNum]=coral::AttributeList(*m_spec,true);
   m_attrMap[chanNum].fastCopyData(attributeList);
+
+  return true;
 }
 
 /// Adding in chan/attrList pairs with shared AttrList: ASSUMED TO BE IN ORDER
 inline void                    
-CondAttrListCollection::addShared(ChanNum chanNum, const AttributeList& attributeList)
+CondAttrListCollection::addShared ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList)
 {
   if (m_attrMap.size()==0) {   
     m_spec=new coral::AttributeListSpecification();
@@ -575,6 +582,32 @@ CondAttrListCollection::dump() const
     }
     
 }
+
+inline void                    
+CondAttrListCollection::dump(std::ostringstream& stream) const
+{
+  stream << m_minRange << " iov size " << m_iovMap.size() << std::endl;
+  // IOVs
+  iov_const_iterator itIOV   = iov_begin();
+  iov_const_iterator lastIOV = iov_end();
+  for(; itIOV != lastIOV; ++itIOV) {
+    stream << "chan, iov: " << (*itIOV).first << " " << (*itIOV).second  << std::endl;
+  }
+  // Attribute list
+  const_iterator itAtt = begin();
+  const_iterator lastAtt = end();
+  for(; itAtt != lastAtt; ++itAtt) {
+    stream << "chan, attr: " << (*itAtt).first << std::endl;
+    (*itAtt).second.toOutputStream(stream) << std::endl;
+  }
+  // channel names
+  name_const_iterator itName   = name_begin();
+  name_const_iterator lastName = name_end();
+  for (; itName != lastName; ++itName) {
+    stream << "chan, name: " << (*itName).first << " " << (*itName).second  << std::endl;
+  }
+}
+
 
 inline
 bool 

@@ -13,7 +13,7 @@ However the core ideas should still be valid throughout Run-3.
 ## InputMaker, reco, and hypo
 
 ```python
-include("TrigUpgradeTest/testHLT_MT.py")
+include("TriggerJobOpts/runHLT_standalone.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -24,7 +24,7 @@ from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
 InputMakerAlg = InputMakerForRoI("MetCellInputMaker", RoIsLink="initialRoI")
 InputMakerAlg.RoIs='METCellRoI'
 InputMakerAlg.InputMakerInputDecisions=[mapThresholdToL1DecisionCollection("XE")]
-InputMakerAlg.InputMakerOutputDecisions=["InputMaker_from_L1MET"]
+InputMakerAlg.InputMakerOutputDecisions="InputMaker_from_L1MET"
 topSequence += InputMakerAlg
 
 from TriggerMenuMT.HLTMenuConfig.MET.METSequences import metCellRecoSequence
@@ -52,7 +52,7 @@ topSequence.L1Decoder.Chains="HLTChains"
 
 ```python 
 
-include("TrigUpgradeTest/testHLT_MT.py")
+include("TriggerJobOpts/runHLT_standalone.py")
 
 METalgorithm = "cell" # or tc, mht, pufit
 
@@ -61,7 +61,7 @@ topSequence = AlgSequence()
 
 import math
 from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc#, TestCaloDataAccess
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 mon = GenericMonitoringTool("CaloDataAccessSvcMon")
 mon.Histograms += [defineHistogram( "TIME_locking_LAr_RoI", path='EXPERT', title="Time spent in unlocking the LAr collection", xbins=100, xmin=0, xmax=100 ),

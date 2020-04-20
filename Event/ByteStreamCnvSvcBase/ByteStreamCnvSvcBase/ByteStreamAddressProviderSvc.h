@@ -44,7 +44,9 @@ public:
 
 private:
    // type and name of the objects to create the address for.
-   std::vector<std::string> m_typeNames;
+   Gaudi::Property<std::vector<std::string> > m_typeNames{this,"TypeNames",{},\
+       "Type and Name of objects to create the address for","Set<std::string>"};
+
 
    ServiceHandle<IClassIDSvc> m_clidSvc;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,12 +21,11 @@
 #ifndef PERSISTENTDATAMODEL_ATHENAATTRIBUTELIST_H
 #define PERSISTENTDATAMODEL_ATHENAATTRIBUTELIST_H 
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/DataObject.h"
 
@@ -47,21 +46,23 @@ class AthenaAttributeList : public coral::AttributeList,
 public:
 
     /// Construct empty attribute list with empty specification.
-    AthenaAttributeList();
+    AthenaAttributeList () ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
     /// Copy attribute lists.
-    explicit AthenaAttributeList(const coral::AttributeList& rhs);
+    explicit AthenaAttributeList(const coral::AttributeList& rhs) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
         
     /// Construct attribute list according to the specification.
     /// The link to the specification is kept internally.
     /// User must make sure that the lifetime of the specification covers
     /// the lifetime of the attribute list.
-    explicit AthenaAttributeList(const coral::AttributeListSpecification& rhs);
+    explicit AthenaAttributeList(const coral::AttributeListSpecification& rhs) ATLAS_CTORDTOR_NOT_THREAD_SAFE ;
+
+    ~AthenaAttributeList() ATLAS_CTORDTOR_NOT_THREAD_SAFE {}
 
     /// print to simulate function provided by old POOL AttributeList
     void print(std::ostream& os) const;
 
-    coral::AttributeList coralList() const {return static_cast<coral::AttributeList>(*this);}
+    const coral::AttributeList& coralList() const {return *static_cast<const coral::AttributeList*>(this);}
 
 };
 

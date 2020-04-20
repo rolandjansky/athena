@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGLHLTJETHYPO_JETCOLLECTOR_H
-#define TRIGLHLTJETHYPO_JETCOLLECTOR_H
+#ifndef TRIGLHLTJETHYPO_XAODJETCOLLECTOR_H
+#define TRIGLHLTJETHYPO_XAODJETCOLLECTOR_H
 
 #include  "xAODJet/Jet.h"
 #include  "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
@@ -25,36 +25,46 @@ class xAODJetCollector {
 public:
 
   void addJets(const HypoJetCIter& begin, const HypoJetCIter& end){
-    HypoJetVector jets(begin, end);
-
-    // determine whether each jet has an associated xAOD::Jet
-    // there are implementations of HypoJet where this is not the case.
+    m_jets.insert(m_jets.end(), begin, end);
+  }
+  
+  std::vector<const xAOD::Jet*> xAODJets() const {
+    
+    HypoJetVector hypoJets(m_jets.begin(), m_jets.end());
     
     auto new_end =
-      std::partition(jets.begin(),
-		     jets.end(),
-		     [](const HypoJet::IJet* j){return (j->xAODJet()).has_value();});
+      std::partition(hypoJets.begin(),
+		     hypoJets.end(),
+		     [](const HypoJet::IJet* j){
+		       return (j->xAODJet()).has_value();});
     // add xAOD::Jet* to m_jets
-    m_jets.reserve(m_jets.size() + (new_end - jets.begin()));
-    std::transform(jets.begin(),
+    std::vector<const xAOD::Jet*> xJets;
+    xJets.reserve(new_end - hypoJets.begin());
+    std::transform(hypoJets.begin(),
 		   new_end,
-		   std::back_inserter(m_jets),
+		   back_inserter(xJets),
 		   [](const pHypoJet j){return *(j->xAODJet());});
-      
+
+    std::set<const xAOD::Jet*> js(xJets.begin(), xJets.end());
+    return std::vector<const xAOD::Jet*> (js.begin(), js.end());
   }
 
-  std::vector<const xAOD::Jet*> xAODJets() const {return m_jets;}
-
+  
+  HypoJetVector hypoJets() const {
+    HypoJetSet js(m_jets.begin(), m_jets.end());
+    return HypoJetVector(js.begin(), js.end());
+  }
+  
   void addOneJet(const pHypoJet jet){
-    auto opt_xAODJet = jet -> xAODJet();
-    if (opt_xAODJet.has_value()){m_jets.push_back(*opt_xAODJet);}
+    m_jets.push_back(jet);
   }
 
   std::size_t size() const {return m_jets.size();}
   bool empty() const {return m_jets.empty();}
  
  private:
-  std::vector<const xAOD::Jet*> m_jets;
+  HypoJetVector m_jets;
+
 };
 
 #endif

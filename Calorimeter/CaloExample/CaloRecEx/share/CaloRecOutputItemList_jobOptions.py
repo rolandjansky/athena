@@ -39,7 +39,7 @@ for theKey in CaloClusterKeys:
 
 CaloESDList+=CaloClusterItemList
 logRecoOutputItemList_jobOptions.info('CaloClusterItemList = ')
-print CaloClusterItemList
+printfunc (CaloClusterItemList)
 
 #CaloTowerContainer needed for jet->cell
 #FIXME
@@ -86,8 +86,8 @@ AODMoments=[#"LATERAL"
             ,"SECOND_LAMBDA"
             ,"CENTER_MAG"
             ,"CENTER_LAMBDA"
-            #,"FIRST_ENG_DENS"
-            #,"ENG_FRAC_MAX" 
+            ,"FIRST_ENG_DENS"
+            ,"ENG_FRAC_MAX" 
             ,"ISOLATION"
             ,"ENG_BAD_CELLS"
             ,"N_BAD_CELLS"

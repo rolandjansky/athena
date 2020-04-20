@@ -1,19 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackToSegmentTool.h"
 
-
-#include "TrkParameters/TrackParameters.h"
-
 #include "MuonSegment/MuonSegment.h"
-
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonStationIntersectSvc/MuonStationIntersectSvc.h"
-#include "MuonStationIntersectSvc/MuonStationIntersect.h"
 
 #include "MuonSegment/MuonSegmentQuality.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
@@ -21,15 +12,15 @@
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/JacobianPhiThetaLocalAngles.h"
 
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "TrkExInterfaces/IPropagator.h"
+
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+
 #include <set>
 
 namespace Muon {
@@ -39,7 +30,6 @@ namespace Muon {
     AthAlgTool(t,n,p),
     m_intersectSvc("MuonStationIntersectSvc", name()),
     m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
 
@@ -47,26 +37,18 @@ namespace Muon {
 
     declareProperty("MuonStationIntersectSvc", m_intersectSvc);
     declareProperty("Propagator",              m_propagator);
-    declareProperty("IdHelper",                m_idHelperTool);
     declareProperty("EDMPrinter",              m_printer);
 
   }
-    
-  MuonTrackToSegmentTool::~MuonTrackToSegmentTool() {
-  }
-  
+
   StatusCode MuonTrackToSegmentTool::initialize() {
     ATH_CHECK(m_DetectorManagerKey.initialize());
-    ATH_CHECK( m_propagator.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_edmHelperSvc.retrieve() );
-    ATH_CHECK( m_intersectSvc.retrieve() );
-    ATH_CHECK( m_printer.retrieve() );
+    ATH_CHECK(m_propagator.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_CHECK(m_intersectSvc.retrieve());
+    ATH_CHECK(m_printer.retrieve());
     if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
-    return StatusCode::SUCCESS;
-  }
-  
-  StatusCode MuonTrackToSegmentTool::finalize(){
     return StatusCode::SUCCESS;
   }
 
@@ -125,16 +107,16 @@ namespace Muon {
 
       // only consider eta hits
       Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-      if( !id.is_valid() || m_idHelperTool->measuresPhi(id) ) continue;
+      if( !id.is_valid() || m_idHelperSvc->measuresPhi(id) ) continue;
 
       double distance = (pars->position()-perigee->position()).dot(dir);
       double weight = 1./meas->localCovariance()(Trk::locX,Trk::locX);
       ATH_MSG_VERBOSE(" distance " << distance << " error " << Amg::error(meas->localCovariance(),Trk::locX)
-		      << " weight " << weight << " " << m_idHelperTool->toString(id));
+		      << " weight " << weight << " " << m_idHelperSvc->toString(id));
       weightedDistanceSquared += distance*weight;
       weightSquared += weight;
-      if( m_idHelperTool->isMdt(id) ){
-	chIds.insert( m_idHelperTool->chamberId(id) );
+      if( m_idHelperSvc->isMdt(id) ){
+	chIds.insert( m_idHelperSvc->chamberId(id) );
 
 	if( !surfaceTransform ){
 	  const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
@@ -146,7 +128,7 @@ namespace Muon {
 	    surfaceTransformToBeDeleted = surfaceTransform;
 	  }
 	}
-      }else if( (m_idHelperTool->isMM(id) || m_idHelperTool->isCsc(id)) && !surfaceTransform ){
+      }else if( (m_idHelperSvc->isMM(id) || m_idHelperSvc->isCsc(id)) && !surfaceTransform ){
 	surfaceTransform = &(meas)->associatedSurface().transform();
       }else if( !surfaceTransform && !backupTransform ) {
 	backupTransform = &(meas)->associatedSurface().transform();

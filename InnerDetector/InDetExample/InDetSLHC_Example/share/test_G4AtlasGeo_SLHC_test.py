@@ -58,15 +58,15 @@ simFlags.EventFilter.set_On()
 
 #     ## Turn off processes other than transport
 #     # TODO! Do this using the UI commands
-#     print "WARNING: the fast physics list is dead! We need to tell this JO to run particle transport only"
+#     printfunc ("WARNING: the fast physics list is dead! We need to tell this JO to run particle transport only")
 # simFlags.InitFunctions.add_function(1, setup_g4geo)
 
 def test_preInit():
-    print "CALLBACK AT PREINIT"
+    printfunc ("CALLBACK AT PREINIT")
 def test_postInit():
-    print "CALLBACK AT POSTINIT"
+    printfunc ("CALLBACK AT POSTINIT")
 def use_geometry_check():
-    print "CALLBACK use_geometry_check"
+    printfunc ("CALLBACK use_geometry_check")
     from G4AtlasApps import AtlasG4Eng
     AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetGeometryCheck(100)
 

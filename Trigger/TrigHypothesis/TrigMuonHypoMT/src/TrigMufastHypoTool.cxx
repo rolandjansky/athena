@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaMonitoring/Monitored.h"
-#include "DecisionHandling/Combinators.h"
+#include "AthenaMonitoringKernel/Monitored.h"
+#include "TrigCompositeUtils/Combinators.h"
 #include "TrigMufastHypoTool.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
@@ -33,6 +33,9 @@ StatusCode TrigMufastHypoTool::initialize()
   if(m_acceptAll) {
      ATH_MSG_DEBUG("AcceptAll = True");
      ATH_MSG_DEBUG("Accepting all the events!");
+  }
+  else if(m_doCalib){
+     ATH_MSG_DEBUG("This is muon calibration chain.");
   }
   else {
      ATH_MSG_DEBUG("AcceptAll = False");
@@ -143,6 +146,12 @@ bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInf
       zatStation = -9999.;
       xatBeam = -9999.;
       zatBeam = -9999.;
+   }
+
+   if(m_doCalib){
+      result = false;
+      ATH_MSG_DEBUG("This muoncalib chain is only monitored.");
+      return result;
    }
 
    //Get the Pt cut for that eta bin
@@ -258,7 +267,7 @@ StatusCode TrigMufastHypoTool::decide(std::vector<MuonClusterInfo>& toolInput) c
    size_t numTrigger = m_ptBins.size(); 
    size_t numMuon = toolInput.size();
    ATH_MSG_DEBUG("Retrieved from TrigMufastHypoAlg and Running TrigMufastHypoTool for selections.");
-
+   
    if ( numTrigger == 1 ) {	// in case of HLT_mu4, HLT_mu6 and so on.
       ATH_MSG_DEBUG("Number of muon event = " << numMuon );
       ATH_MSG_DEBUG("Applying selection of single << " << m_decisionId );

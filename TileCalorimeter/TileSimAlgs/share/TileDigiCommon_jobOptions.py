@@ -42,7 +42,25 @@ if doTileHitToRawChannelDirect:
 
 
 if doTileHitToDigit:
-    
+    # Change default parameters for TileDQstatusAlg.
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay():
+        from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+        dqstatus = TileDQstatusAlgDefault()
+        dqstatus.TileBeamElemContainer=""; # disable reading of trigger type from BeamElem container
+
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        if overlayFlags.isDataOverlay():
+            if overlayFlags.isOverlayMT():
+                dqstatus.TileDigitsContainer = overlayFlags.bkgPrefix() + "TileDigitsCnt"
+                dqstatus.TileRawChannelContainer = overlayFlags.bkgPrefix() + "TileRawChannelCnt"
+            else:
+                dqstatus.TileDigitsContainer = overlayFlags.dataStore() + "+TileDigitsCnt"
+                dqstatus.TileRawChannelContainer = overlayFlags.dataStore() + "+TileRawChannelCnt"
+        else:
+            dqstatus.TileDigitsContainer="";   # disable checking of Digits container size for bi-gain mode
+            dqstatus.TileRawChannelContainer=""; # disable checking of DQstatus for simulated data
+
     from TileSimAlgs.TileDigitsGetter import *
     theTileDigitsGetter=TileDigitsGetter()
     
@@ -53,7 +71,9 @@ if doTileHitToDigit:
     theTileDigitsMaker.RndmEvtOverlay=False
     from Digitization.DigitizationFlags import digitizationFlags
     theTileDigitsMaker.DoHSTruthReconstruction = digitizationFlags.doDigiTruth()
-    
+    if globalflags.isOverlay():
+        theTileDigitsMaker.TileDQstatus = 'TileDQstatus'
+
 if doTileDigitsFromPulse:
     
     import traceback
@@ -69,7 +89,7 @@ if doTileDigitsFromPulse:
 
     except:
         mlog.error("could not import TileSimAlgs.TileDigitsFromPulse")
-        print traceback.format_exc()
+        traceback.print_exc()
 
 
 if doTileDigitToRawChannel:
@@ -107,7 +127,7 @@ if doTileDigitToRawChannel:
                     pat=digitizationFlags.BeamIntensityPattern.get_Value()
                     if len(pat)>1:
                         filled=0
-                        for p in xrange(len(pat)):
+                        for p in range(len(pat)):
                             if float(pat[p]) > 0.0:
                                 if filled > 0:
                                     halfBS/=2.
@@ -209,8 +229,8 @@ if not globalflags.isOverlay():
 include( "TileSimAlgs/TileSamplingFraction_jobOptions.py" )
 
 if jobproperties.TileRecFlags.doTileMF():
-    print  TileRawChannelBuilderMF
+    mlog.info (TileRawChannelBuilderMF)
 if jobproperties.TileRecFlags.doTileOptATLAS():
-    print  TileRawChannelBuilderOptATLAS
+    mlog.info (TileRawChannelBuilderOptATLAS)
 if jobproperties.TileRecFlags.doTileOpt2():
-    print  TileRawChannelBuilderOpt2Filter
+    mlog.info (TileRawChannelBuilderOpt2Filter)

@@ -84,7 +84,7 @@ namespace CP
     void swap(SystematicSet& otherSet);
 
     /// description: clear the set
-    void clear() { return m_sysVariations.clear(); }
+    void clear();
 
   public:
     // Specialized search and filtering methods
@@ -173,17 +173,11 @@ namespace CP
     mutable std::size_t m_hash;
     mutable bool m_hashIsCached;
 
-    /// description: flags this set as already cached using
-    /// its current full set of systematics. Is set to false
-    /// when the set is modified.
-    //bool m_isCached;
-
   };
 
 
   /// SystematicSet hash function for general use
   struct SystematicSetHash
-    : public std::unary_function<SystematicSet, std::size_t>
   {
     std::size_t operator()(const SystematicSet&);
   };

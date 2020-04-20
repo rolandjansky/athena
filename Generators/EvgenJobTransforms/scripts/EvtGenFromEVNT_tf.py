@@ -35,7 +35,6 @@ def main():
 
 def getTransform():
     executorSet = set()
-    print(type(executorSet))
     executorSet.add(athenaExecutor(name = 'EvtGenFromEVNT', skeletonFile = 'EvgenJobTransforms/skeleton.EvtGenFromEVNT.py',inData = ['EVNT'], outData = ['EVNT_MRG']))
 
     trf = transform(executor = executorSet)
@@ -60,3 +59,4 @@ def addMyArgs(parser):
 
 if __name__ == '__main__':
     main()
+

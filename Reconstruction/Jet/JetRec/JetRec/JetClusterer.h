@@ -21,6 +21,7 @@
 #include "StoreGate/ReadHandleKey.h"
 
 #include "JetInterface/IJetProvider.h"
+#include "AsgTools/AsgTool.h"
 
 #include "JetRec/PseudoJetContainer.h"
 #include "JetRec/JetFromPseudojet.h"
@@ -30,20 +31,22 @@
 #include "fastjet/AreaDefinition.hh"
 #include "fastjet/JetDefinition.hh"
 
+#include "xAODJet/JetAuxContainer.h"
 
 class JetClusterer
 : public asg::AsgTool,
-  virtual public IJetProvider {
-ASG_TOOL_CLASS(JetClusterer, IJetProvider)
+  virtual public JetProvider<xAOD::JetAuxContainer> {
+  ASG_TOOL_CLASS(JetClusterer, IJetProvider)
 
 public:
 
-  JetClusterer(std::string name);
+  using asg::AsgTool::AsgTool;
 
-  virtual StatusCode initialize() override;
+  StatusCode initialize() override;
 
-  /// Return the final jets. Can return a void pointer if an error occurs.
-  virtual xAOD::JetContainer* build() const override;
+  /// Return the final jets with their aux store.
+  /// Can return a pair of null pointers if an error occurs.
+  std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > getJets() const override;
 
 
 protected:
@@ -58,7 +61,7 @@ protected:
   SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJets {this, "InputPseudoJets", "inputpseudojet", "input constituents"};
 
   /// used to build the key under which the final PJ will be stored in evtStore() 
-  std::string m_finalPSeudoJets;
+  std::string m_finalPseudoJets;
   
   // Job options.
   Gaudi::Property<std::string>  m_jetalg {this, "JetAlgorithm", "AntiKt", "alg type : AntiKt, Kt, CA..."};

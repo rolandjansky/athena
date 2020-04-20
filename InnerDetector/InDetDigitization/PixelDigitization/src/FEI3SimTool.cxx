@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FEI3SimTool.h"
@@ -84,10 +84,13 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     }
   }
 
-  for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
+  for (SiChargedDiodeOrderedIterator i_chargedDiode=chargedDiodes.orderedBegin();
+       i_chargedDiode!=chargedDiodes.orderedEnd(); ++i_chargedDiode)
+  {
+    SiChargedDiode& diode = **i_chargedDiode;
 
-    Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
-    double charge = (*i_chargedDiode).second.charge();
+    Identifier diodeID = chargedDiodes.getId(diode.diode());
+    double charge = diode.charge();
 
     int circ = m_pixelCabling->getFE(&diodeID,moduleID);
     int type = m_pixelCabling->getPixelType(diodeID);
@@ -96,24 +99,26 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     double th0 = calibData->getAnalogThreshold((int)moduleHash, circ, type);
     double ith0 = calibData->getInTimeThreshold((int)moduleHash, circ, type);
 
-    double threshold = th0+calibData->getAnalogThresholdSigma((int)moduleHash,circ,type)*CLHEP::RandGaussZiggurat::shoot(rndmEngine)+calibData->getAnalogThresholdNoise((int)moduleHash, circ, type)*CLHEP::RandGaussZiggurat::shoot(rndmEngine); // This noise check is unaffected by digitizationFlags.doInDetNoise in 21.0 - see PixelCellDiscriminator.cxx in that branch
+    double thrand1 = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+    double thrand2 = CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+    double threshold = th0+calibData->getAnalogThresholdSigma((int)moduleHash,circ,type)*thrand1+calibData->getAnalogThresholdNoise((int)moduleHash, circ, type)*thrand2; // This noise check is unaffected by digitizationFlags.doInDetNoise in 21.0 - see PixelCellDiscriminator.cxx in that branch
     double intimethreshold = (ith0/th0)*threshold;
 
     if (charge>threshold) {
       int bunchSim = 0;
-      if ((*i_chargedDiode).second.totalCharge().fromTrack()) {
-        if      (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)==2015) { bunchSim = relativeBunch2015((*i_chargedDiode).second.totalCharge(),barrel_ec,layerIndex,moduleIndex, rndmEngine); }
-        else if (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)==2009) { bunchSim = relativeBunch2009(threshold,intimethreshold,(*i_chargedDiode).second.totalCharge(), rndmEngine); }
+      if (diode.totalCharge().fromTrack()) {
+        if      (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)==2015) { bunchSim = relativeBunch2015(diode.totalCharge(),barrel_ec,layerIndex,moduleIndex, rndmEngine); }
+        else if (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)==2009) { bunchSim = relativeBunch2009(threshold,intimethreshold,diode.totalCharge(), rndmEngine); }
       } 
       else {
         if (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)>0) { bunchSim = CLHEP::RandFlat::shootInt(rndmEngine,moduleData->getNumberOfBCID(barrel_ec,layerIndex)); }
       }
 
-      if (bunchSim<0 || bunchSim>moduleData->getNumberOfBCID(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-      else                                                                          { SiHelper::SetBunch((*i_chargedDiode).second,bunchSim); }
+      if (bunchSim<0 || bunchSim>moduleData->getNumberOfBCID(barrel_ec,layerIndex)) { SiHelper::belowThreshold(diode,true,true); }
+      else                                                                          { SiHelper::SetBunch(diode,bunchSim); }
     } 
     else {
-      SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
+      SiHelper::belowThreshold(diode,true,true);
     }
 
     // charge to ToT conversion
@@ -123,23 +128,23 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
     if (nToT<1) { nToT=1; }
 
-    if (nToT<=moduleData->getToTThreshold(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (nToT<=moduleData->getToTThreshold(barrel_ec,layerIndex)) { SiHelper::belowThreshold(diode,true,true); }
 
-    if (nToT>=moduleData->getFEI3Latency(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (nToT>=moduleData->getFEI3Latency(barrel_ec,layerIndex)) { SiHelper::belowThreshold(diode,true,true); }
 
     // Filter events
-    if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
-    if (SiHelper::isDisabled((*i_chargedDiode).second)) { continue; } 
+    if (SiHelper::isMaskOut(diode))  { continue; } 
+    if (SiHelper::isDisabled(diode)) { continue; } 
 
     if (!m_pixelConditionsTool->isActive(moduleHash,diodeID)) {
-      SiHelper::disabled((*i_chargedDiode).second,true,true);
+      SiHelper::disabled(diode,true,true);
       continue;
     }
 
-    int flag  = (*i_chargedDiode).second.flag();
+    int flag  = diode.flag();
     int bunch = (flag>>8)&0xff;
 
-    InDetDD::SiReadoutCellId cellId=(*i_chargedDiode).second.getReadoutCell();
+    InDetDD::SiReadoutCellId cellId=diode.getReadoutCell();
     const Identifier id_readout = chargedDiodes.element()->identifierFromCellId(cellId);
 
     // Front-End simulation
@@ -408,4 +413,279 @@ int FEI3SimTool::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_
   return BCID;
 }
 
+int FEI3SimTool::relativeBunch2018(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID, CLHEP::HepRandomEngine *rndmEngine) const {
+
+  /**
+   * 2020.01.20  Minori.Fujimoto@cern.ch
+   *
+   * The time walk effect is directly tuned with timing scan data (collision) in 2017/18.
+   * https://indico.cern.ch/event/880804/
+   */
+
+  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
+	double prob = 0.0;
+	if (barrel_ec==0 && layer_disk==1) {
+		if (abs(moduleID)==0) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.035; } //ToT=4  
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5  
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6  
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7  
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8  
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9  
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10 
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11 
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12 
+		}
+		if (abs(moduleID)==1) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.035; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+		if (abs(moduleID)==2) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.075; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+		if (abs(moduleID)==3) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.075; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+		if (abs(moduleID)==4) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.060; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+		if (abs(moduleID)==5) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.060; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.010; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+		if (abs(moduleID)==6) {
+			if (totalCharge.charge()<6480.0)       { prob = 0.050; } //ToT=4 
+			else if (totalCharge.charge()<6800.0)  { prob = 0.008; } //ToT=5 
+			else if (totalCharge.charge()<7000.0)  { prob = 0.010; } //ToT=6
+			else if (totalCharge.charge()<9000.0)  { prob = 0.005; } //ToT=7
+			else if (totalCharge.charge()<10000.0) { prob = 0.001; } //ToT=8
+			else if (totalCharge.charge()<11000.0) { prob = 0.001; } //ToT=9
+			else if (totalCharge.charge()<12000.0) { prob = 0.001; } //ToT=10
+			else if (totalCharge.charge()<13000.0) { prob = 0.001; } //ToT=11
+			else if (totalCharge.charge()<14000.0) { prob = 0.001; } //ToT=12
+		}
+	}
+	if (barrel_ec==0 && layer_disk==2) {
+		if (abs(moduleID)==0) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.1012; } //ToT = 6 
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0350; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0250; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==1) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.0978; } //ToT = 6 
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0405; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0250; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==2) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.1012; } //ToT = 6
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0392; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0250; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==3) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.1015; } //ToT = 6
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0390; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0250; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==4) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.0977; }
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; }
+			else if (totalCharge.charge()<5800.0) { prob = 0.0150; } //0.0284
+			else if (totalCharge.charge()<6500.0) { prob = 0.0150; } //0.0307
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==5) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.0966; } //ToT = 6
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0369; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0256; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+		if (abs(moduleID)==6) {
+			if (totalCharge.charge()<5094.9)      { prob = 0.1053; } //ToT = 6
+			else if (totalCharge.charge()<5100.0) { prob = 0.0500; } //ToT = 7
+			else if (totalCharge.charge()<5800.0) { prob = 0.0379; } //ToT = 8
+			else if (totalCharge.charge()<6500.0) { prob = 0.0252; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0200; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0150; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0100; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+		}
+	}
+	if (barrel_ec==0 && layer_disk==3) {
+		if (abs(moduleID)==0) {
+			if (totalCharge.charge()<5055.0)      { prob = 0.1451; } //ToT = 6
+			else if (totalCharge.charge()<5070.0) { prob = 0.0915; } //ToT = 7
+			else if (totalCharge.charge()<5700.0) { prob = 0.0681; } //ToT = 8
+			else if (totalCharge.charge()<6550.0) { prob = 0.0518; } //ToT = 9
+			else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+			else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+			else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+			else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==1) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1418; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.0800; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0600; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0497; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==2) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1481; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.0891; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0627; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0488; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==3) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1590; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.0930; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0635; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0485; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==4) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1590; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.1214; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0776; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0387; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==5) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1518; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.0874; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0603; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0460; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+    if (abs(moduleID)==6) {
+      if (totalCharge.charge()<5055.0)      { prob = 0.1461; } //ToT = 6
+      else if (totalCharge.charge()<5070.0) { prob = 0.0825; } //ToT = 7
+      else if (totalCharge.charge()<5700.0) { prob = 0.0571; } //ToT = 8
+      else if (totalCharge.charge()<6550.0) { prob = 0.0441; } //ToT = 9
+      else if (totalCharge.charge()<7000.0) { prob = 0.0300; } //ToT = 10
+      else if (totalCharge.charge()<7500.0) { prob = 0.0200; } //ToT = 11
+      else if (totalCharge.charge()<8200.0) { prob = 0.0200; } //ToT = 12
+      else if (totalCharge.charge()<9500.0) { prob = 0.0100; } //ToT = 13
+    }
+  }
+  if (abs(barrel_ec)==2 && layer_disk==0) {
+    if      (totalCharge.charge()<5550.0)  { prob = 0.124;} //ToT = 6
+    else if (totalCharge.charge()<6000.0)  { prob = 0.067;} //ToT = 7
+    else if (totalCharge.charge()<6400.0)  { prob = 0.0005;} //ToT = 8
+    else if (totalCharge.charge()<6500.0)  { prob = 0.002;} //ToT = 9
+    else if (totalCharge.charge()<6800.0)  { prob = 0.040;} //ToT = 10
+    else if (totalCharge.charge()<7300.0)  { prob = 0.031;} //ToT = 11
+    else if (totalCharge.charge()<7400.0)  { prob = 0.040;}  //ToT = 12
+    else if (totalCharge.charge()<7500.0)  { prob = 0.001; } //ToT = 13
+  }
+  if (abs(barrel_ec)==2 && layer_disk==1) {
+    if      (totalCharge.charge()<5550.0)  { prob = 0.124;} //ToT = 6
+    else if (totalCharge.charge()<6000.0)  { prob = 0.067;} //ToT = 7
+    else if (totalCharge.charge()<6400.0)  { prob = 0.0005;} //ToT = 8
+    else if (totalCharge.charge()<6500.0)  { prob = 0.002;} //ToT = 9
+    else if (totalCharge.charge()<6800.0)  { prob = 0.040;} //ToT = 10
+    else if (totalCharge.charge()<7300.0)  { prob = 0.031;} //ToT = 11
+    else if (totalCharge.charge()<7400.0)  { prob = 0.040;}  //ToT = 12
+    else if (totalCharge.charge()<7500.0)  { prob = 0.001; } //ToT = 13
+  }
+  if (abs(barrel_ec)==2 && layer_disk==2) {
+    if      (totalCharge.charge()<5400.0)  { prob = 0.180;} //ToT=6
+    else if (totalCharge.charge()<5700.0)  { prob = 0.067;} //ToT=7
+    else if (totalCharge.charge()<5701.0)  { prob = 0.0005;} //ToT=8
+    else if (totalCharge.charge()<5702.0)  { prob = 0.0005;} //ToT=9
+    else if (totalCharge.charge()<5800.0)  { prob = 0.036;} //ToT=10
+    else if (totalCharge.charge()<6000.0)  { prob = 0.031;} //ToT=11
+    else if (totalCharge.charge()<6500.0)  { prob = 0.034;} //ToT=12
+    else if (totalCharge.charge()<7000.0)  { prob = 0.001; } //ToT = 13
+  }
+
+  double G4Time = getG4Time(totalCharge);
+  double rnd    = CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0);    	
+
+  double timeWalk = 0.0;
+  if (rnd<prob) { timeWalk = 25.0; }
+
+  int BCID = static_cast<int>(floor((G4Time+moduleData->getTimeOffset(barrel_ec,layer_disk)+timeWalk)/moduleData->getBunchSpace()));
+
+  return BCID;
+}
 

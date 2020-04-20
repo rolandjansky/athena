@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## root_lsr_rank.py - Brief description of the purpose of this script (Has to be in PROC tools)
 # When run as
@@ -8,7 +8,8 @@
 #
 # it produces a listing of all objects in the HIST file and a hash value for each of them.  This output can then be compared between the clean and patched runs to look 
 # for any changes in HIST output.  Since it's entirely possible to change the HIST output unintentionally without changing the AOD/ESD etc., this catches a new class of potential errors.
-# $Id$
+
+from __future__ import print_function
 
 import ROOT
 import sys, os, operator
@@ -42,7 +43,7 @@ def dumpdir(d):
     thispath = d.GetPath()
     if ':' in thispath:
         thispath = thispath.split(':', 1)[1]
-    #print thispath
+    #print (thispath)
     subdirs = []
     for k in d.GetListOfKeys():
         if not args.metadata and k.GetName() == 'metadata' and k.GetClassName() == 'TTree':
@@ -53,9 +54,9 @@ def dumpdir(d):
             if args.hash:
                 #lhash = ROOT.bufferhash(k)
                 #objsize = (k.GetNbytes()-k.GetKeylen())/8
-                #print (k.GetNbytes()-k.GetKeylen())/8.
+                #print ((k.GetNbytes()-k.GetKeylen())/8.)
                 #buf = ROOT.getbuffer(k); buf.SetSize(objsize)
-                #print buf[objsize-1], objsize
+                #print (buf[objsize-1], objsize)
                 #lhash = zlib.adler32(str(buf))
                 #k.DeleteBuffer()
                 #obj=k.ReadObj(); 
@@ -70,9 +71,9 @@ def dumpdir(d):
             accounting[idxname] = (k.GetObjlen(), k.GetNbytes()-k.GetKeylen())
             hashes[idxname] = lhash
             types[idxname] = k.GetClassName()
-            #print '%s,' % os.path.join(thispath, k.GetName()),
+            #print ('%s,' % os.path.join(thispath, k.GetName()), end='')
             #obj = k.ReadObj(); obj.IsA().Destructor(obj)
-            #print 'OK'
+            #print ('OK')
     for k in subdirs:
         dumpdir(k.ReadObj())
 
@@ -80,7 +81,7 @@ f = ROOT.TFile.Open(args.filename)
 if args.path:
     d = f.Get(args.path.rstrip('/'))
     if not d:
-        print "Can't access path", args.path, "- exiting"
+        print ("Can't access path", args.path, "- exiting")
         sys.exit(1)
 else:
     d = f
@@ -95,7 +96,7 @@ else:
     key=lambda x: (x[0], x[1][1], x[1][0])
 sortedl = sorted(accounting.items(), key=key, reverse=True)
 if args.hash:
-    print '\n'.join('%s %s: %d uncompressed, %d on file (hash %s)' % (types[a], a, b, c, hashes[a]) for a, (b, c) in  sortedl)
+    print ('\n'.join('%s %s: %d uncompressed, %d on file (hash %s)' % (types[a], a, b, c, hashes[a]) for a, (b, c) in  sortedl))
 else:
-    print '\n'.join('%s %s: %d uncompressed, %d on file' % (types[a], a, b, c) for a, (b, c) in  sortedl)
+    print ('\n'.join('%s %s: %d uncompressed, %d on file' % (types[a], a, b, c) for a, (b, c) in  sortedl))
 

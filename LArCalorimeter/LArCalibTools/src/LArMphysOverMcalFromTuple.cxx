@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArMphysOverMcalFromTuple.h"
@@ -68,7 +68,7 @@ StatusCode LArMphysOverMcalFromTuple::stop()
   LArMphysOverMcalComplete* container = new LArMphysOverMcalComplete();
 //  container->setGroupingType(LArConditionsContainerBase::FeedThroughGrouping);
   container->setGroupingType(LArConditionsContainerBase::ExtendedFTGrouping);
-  container->initialize();
+  ATH_CHECK( container->initialize() );
 
   
 

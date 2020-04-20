@@ -5,23 +5,27 @@
 # art-include: master/Athena
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-from TrigValTools.TrigValSteering.Input import get_input
+
+
+def findFile(pattern):
+    return '`find . -name \'{:s}\' | tail -n 1`'.format(pattern)
+
 
 # HLT step (BS->BS)
 hlt = ExecStep.ExecStep()
 hlt.type = 'athenaHLT'
-hlt.job_options = 'TrigUpgradeTest/full_menu.py'
+hlt.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 hlt.input = 'data'
+hlt.max_events = 50
 hlt.args = '-c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
 hlt.args += ' -o output'
-hlt.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
-# Copy BS metadata from input file (needed for reco auto-configuration)
-update_metadata = ExecStep.ExecStep('UpdateMetadata')
-update_metadata.type = 'other'
-update_metadata.executable = 'trigbs_updateBSMetadata.py'
-update_metadata.input = ''
-update_metadata.args = '--copyFrom {:s} --outputName inputForReco `find . -name \'*_HLTMPPy_output.*.data\' | tail -n 1`'.format(get_input('data').paths[0])
+# Extract the physics_Main stream out of the BS file with many streams
+filter_bs = ExecStep.ExecStep('FilterBS')
+filter_bs.type = 'other'
+filter_bs.executable = 'athenaHLT-select-PEB-stream.py'
+filter_bs.input = ''
+filter_bs.args = '-s Main ' + findFile('*_HLTMPPy_output.*.data')
 
 # Tier-0 reco step (BS->ESD->AOD)
 tzrecoPreExec = ' '.join([
@@ -37,7 +41,8 @@ tzreco.type = 'Reco_tf'
 tzreco.threads = 1
 tzreco.input = ''
 tzreco.explicit_input = True
-tzreco.args = '--inputBSFile=inputForReco._0001.data'  # output of the previous step
+tzreco.max_events = 50
+tzreco.args = '--inputBSFile=' + findFile('*.physics_Main*._athenaHLT*.data')  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
 tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''
 tzreco.args += ' --preExec="{:s}"'.format(tzrecoPreExec)
@@ -53,7 +58,7 @@ tzmon.args = '--dqOffByDefault Input.Files="[\'AOD.pool.root\']" DQ.Steering.doH
 # The full test
 test = Test.Test()
 test.art_type = 'build'
-test.exec_steps = [hlt, update_metadata, tzreco, tzmon]
+test.exec_steps = [hlt, filter_bs, tzreco, tzmon]
 test.check_steps = CheckSteps.default_check_steps(test)
 
 # Overwrite default histogram file name for checks

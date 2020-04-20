@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 ##################################################
 ### CompareJetTestFileExec
@@ -56,7 +58,7 @@ args = parser.parse_args()
 
 # reset testedContainers :
 testedContainers = args.containers
-print "Will test ", testedContainers
+print ("Will test ", testedContainers)
 
 from JetValidation.JetTestCheck import *
 

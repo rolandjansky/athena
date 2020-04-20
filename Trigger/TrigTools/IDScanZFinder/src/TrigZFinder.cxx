@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 ////////////////////////////////////////////////////////////////////////////////
 // IdScan: TrigZFinder
@@ -151,22 +151,17 @@ StatusCode TrigZFinder::initialize()
 }
 
 
-TrigVertexCollection* TrigZFinder::findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi)
+
+
+TrigVertexCollection* TrigZFinder::findZ( const std::vector<TrigSiSpacePointBase>& spVec, const IRoiDescriptor& roi) const
 {
 
   TrigVertexCollection* output = new TrigVertexCollection;
 
-  std::vector<vertex>* vertices = findZInternal( spVec, roi);
+  std::vector<vertex>* vertices = findZInternal( spVec, roi );
 
-  ATH_MSG_DEBUG("roi: "    << roi);
-  ATH_MSG_DEBUG("m_NumPhiSlices: " << m_NumPhiSlices);
+  ATH_MSG_DEBUG( "findZ() roi: " << roi );
  
-
-  if ( GetInternalStatus()==-1 ) { 
-    ATH_MSG_WARNING("phi of spacepoint out of range! phi=" << GetReturnValue());
-    ATH_MSG_WARNING("Exiting ZFinder...");
-  }
-
   for ( unsigned int i=0 ; i<vertices->size() ; i++ ) { 
     output->push_back( new TrigVertex( (*vertices)[i]._z, (*vertices)[i]._weight, TrigVertex::NULLID ) );
   }

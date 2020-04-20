@@ -53,6 +53,17 @@ prefixName = ""
 
 ## More fine-tuning available for each tool/alg below (default value shown)
 
+## Steer output file
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
+streamName = primDPD.WriteDAOD_IDNCBStream.StreamName
+fileName   = buildFileName( primDPD.WriteDAOD_IDNCBStream )
+IDNCBStream = MSMgr.NewPoolRootStream( streamName, fileName )
+IDNCBStream.AcceptAlgs(["DFIDNCB_KERN"])
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
 #################
 ### Setup tools
 #################
@@ -61,12 +72,14 @@ if dumpTrtInfo:
     TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
     ServiceMgr += TRTStrawNeighbourSvc
 
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-    TRTCalibDBSvc=TRT_CalDbSvc()
-    ServiceMgr += TRTCalibDBSvc
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+    TRTCalibDBTool=TRT_CalDbTool(name="TRT_CalDbTool")
 
-    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
+
+    from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
     TRT_dEdx_Tool = TRT_ToT_dEdx(name="NCBTRT_ToT_dEdx")
+    from InDetRecExample.TrackingCommon import getInDetTRT_LocalOccupancy
+    TRT_dEdx_Tool.TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy()
     ToolSvc += TRT_dEdx_Tool
 
 #Setup charge->ToT back-conversion to restore ToT info as well
@@ -241,7 +254,7 @@ thinningTools = []
 # TrackParticles directly
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 IDNCBThinningTool = DerivationFramework__TrackParticleThinning(name = "IDNCBThinningTool",
-                                                                 ThinningService         = "IDNCBThinningSvc",
+                                                                 StreamName              = streamName,
                                                                  SelectionString         = thinTrackSelection,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                  ThinHitsOnTrack = thinHitsOnTrack)
@@ -253,28 +266,25 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 
 thin_sct = "SCT_Clusters.bec != 0"
 IDNCBThinningTool_sct = DerivationFramework__TrackMeasurementThinning( name = "IDNCBSCTThinningTool",
-    ThinningService = "IDNCBThinningSvc",
+    StreamName = streamName,
     SelectionString = thin_sct,
-    TrackMeasurementValidationKey = "SCT_Clusters",
-    ApplyAnd = False) 
+    TrackMeasurementValidationKey = "SCT_Clusters")
 ToolSvc += IDNCBThinningTool_sct
 thinningTools.append(IDNCBThinningTool_sct)
 
 thin_pix = "PixelClusters.bec != 0"
 IDNCBThinningTool_pix = DerivationFramework__TrackMeasurementThinning( name = "IDNCBPIXThinningTool",
-    ThinningService = "IDNCBThinningSvc",
+    StreamName = streamName,
     SelectionString = thin_pix,
-    TrackMeasurementValidationKey = "PixelClusters",
-    ApplyAnd = False) 
+    TrackMeasurementValidationKey = "PixelClusters")
 ToolSvc += IDNCBThinningTool_pix
 thinningTools.append(IDNCBThinningTool_pix)
 
 thin_trt = "(TRT_DriftCircles.bec != -2) && (TRT_DriftCircles.layer > 5)"
 IDNCBThinningTool_trt = DerivationFramework__TrackMeasurementThinning( name = "IDNCBTRTThinningTool",
-    ThinningService = "IDNCBThinningSvc",
+    StreamName = streamName,
     SelectionString = thin_trt,
-    TrackMeasurementValidationKey = "TRT_DriftCircles",
-    ApplyAnd = False) 
+    TrackMeasurementValidationKey = "TRT_DriftCircles")
 ToolSvc += IDNCBThinningTool_trt
 thinningTools.append(IDNCBThinningTool_trt)
 
@@ -306,18 +316,6 @@ ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool(
 svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 
-## Steer output file
-from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
-from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
-streamName = primDPD.WriteDAOD_IDNCBStream.StreamName
-fileName   = buildFileName( primDPD.WriteDAOD_IDNCBStream )
-IDNCBStream = MSMgr.NewPoolRootStream( streamName, fileName )
-IDNCBStream.AcceptAlgs(["DFIDNCB_KERN"])
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="IDNCBThinningSvc", outStreams=[evtStream] )
 
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 excludedTRTData = "-T0.-TRTboard.-TRTchip.-bitPattern.-driftTimeToTCorrection.-driftTimeHTCorrection.-highThreshold.-strawnumber"
@@ -345,7 +343,7 @@ IDNCBStream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#*")
 
 # Add vertices
 IDNCBStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDNCBStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+IDNCBStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV")
 
 # Add info about electrons and muons (are small containers)
 IDNCBStream.AddItem("xAOD::MuonContainer#Muons")

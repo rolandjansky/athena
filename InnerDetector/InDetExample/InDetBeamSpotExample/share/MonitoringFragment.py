@@ -5,7 +5,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: MonitoringFragment.py 714548 2015-12-14 16:30:23Z amorley $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: MonitoringFragment.py 714548 2015-12-14 16:30:23Z amorley $")
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)
@@ -29,7 +29,7 @@ if not 'jobpostprocsteps' in jobConfig:              jobConfig['jobpostprocsteps
 #                                        trackContainerName = jobConfig['TrackContainer'],
 #                                        vxContainerName = jobConfig['VertexContainer'],
 #                                        vxContainerWithBeamConstraint = jobConfig['VertexContainerWithBeamConstraint'])
-#print ToolSvc.InDetAlignMonBeamSpot
+#printfunc (ToolSvc.InDetAlignMonBeamSpot)
 
 
 # If doMonitoringGlobal is set, use standard global monitoring from InDetRecExample. Otherwise
@@ -45,7 +45,7 @@ if not jobConfig['doMonitoringGlobal']:
                                                  minTrackPt = jobConfig['MinTrackPt'],
                                                  useBeamspot = jobConfig['useBeamSpot'])
     if jobConfig['UseFilledBCIDsOnly']:
-        print "This is AKMAKMAKM"
+        printfunc ("This is AKMAKMAKM")
         # Selection on non-empty BCIDs
         #include("AthenaMonitoring/FilledBunchFilterTool_jobOptions.py")
 
@@ -60,7 +60,7 @@ if not jobConfig['doMonitoringGlobal']:
         InDetGlobalBeamSpotMonTool.FilterTools += [monFilledBunchFilterTool]
 
 
-    print ToolSvc.InDetGlobalBeamSpotMonTool
+    printfunc (InDetGlobalBeamSpotMonTool)
     
 
     # Monitoring manager and output file
@@ -75,7 +75,7 @@ if not jobConfig['doMonitoringGlobal']:
                                            LumiBlock           = 1)
     #topSequence.BeamSpotMonManager.AthenaMonTools += [ ToolSvc.InDetAlignMonBeamSpot ]
     topSequence.BeamSpotMonManager.AthenaMonTools += [ InDetGlobalBeamSpotMonTool ]
-    print topSequence.BeamSpotMonManager
+    printfunc (topSequence.BeamSpotMonManager)
 
 
     #from GaudiSvc.GaudiSvcConf import THistSvc

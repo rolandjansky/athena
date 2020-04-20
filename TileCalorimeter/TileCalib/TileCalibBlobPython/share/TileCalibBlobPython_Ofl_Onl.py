@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_Ofl_Onl.py
 # Lukas Pribyl
@@ -10,11 +10,10 @@
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
-from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
-from TileCalibBlobObjs.Classes import *
-import os
+from TileCalibBlobObjs.Classes import TileCalibUtils, TileBchDecoder, \
+     TileBchPrbs
 
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("writeBch")
 import logging
 log.setLevel(logging.DEBUG)
@@ -35,7 +34,7 @@ mgr = TileBchTools.TileBchMgr()
 mgr.setLogLvl(logging.DEBUG)
 
 #=== always initialize with no bad channels
-log.info("Initializing with no bad channels at tag=%s and time=%s" % (folderTag, (0, 0)))
+log.info("Initializing with no bad channels at tag=%s and time=%s", folderTag, (0, 0))
 mgr.initialize(db, folder, folderTag, (0, 0))
 
 #=== Tuples of empty channels
@@ -73,7 +72,7 @@ mgrOnl = TileBchTools.TileBchMgr()
 mgrOnl.setLogLvl(logging.DEBUG)
 
 #=== always initialize with no bad channels
-log.info("Initializing with no bad channels at tag=%s and time=%s" % (folderTag, (0, 0)))
+log.info("Initializing with no bad channels at tag=%s and time=%s", folderTag, (0, 0))
 mgrOnl.initialize(db, folder, folderTag, (0, 0))
 
 #=== Add problems with mgrOnl.addAdcProblem(ros, drawer, channel, adc, problem)
@@ -90,9 +89,9 @@ mgrOnl.addAdcProblem(1, 1, 33, 0, TileBchPrbs.IgnoredInDsp)
 # EBC
 
 #--- synchronization with offline folder
-for ros in xrange(1, 5):
-    for mod in xrange(0, 64):
-        for chn in xrange(0, 48):
+for ros in range(1, 5):
+    for mod in range(0, 64):
+        for chn in range(0, 48):
             statlo = mgr.getAdcStatus(ros, mod, chn, 0)
             stathi = mgr.getAdcStatus(ros, mod, chn, 1)
 
@@ -129,6 +128,14 @@ for ros in xrange(1, 5):
                 mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
 
+            #--- add OnlineTimingDmuBcOffset if either of the ADCs has isTimingDmuBcOffset
+            if statlo.isTimingDmuBcOffset() or stathi.isTimingDmuBcOffset():
+                mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+            else:
+                #--- delete OnlineTimingDmuBcOffset if the both ADCs has not isTimingDmuBcOffset
+                mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
 
 log.info("============================")
 log.info("ONL01 and OFL02 synchronized")

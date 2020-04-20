@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Csc2dSegmentMaker.h
 #ifndef Csc2dSegmentMaker_H
 #define Csc2dSegmentMaker_H
 
@@ -14,33 +13,14 @@
 // for each combination.
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h" // separately...
+#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "Identifier/Identifier.h"
 #include "CscSegmentMakers/ICscSegmentFinder.h"
-//#include "MuonCondInterface/CscICoolStrSvc.h"
-// MuonSegmentCombination(Collection).h included
-// and "MuonPrepRawData/CscPrepDataContainer.h"
 
-class ICscClusterFitter;
-class ICscStripFitter;
-class ICscSegmentUtilTool;
-class ICSCConditionsSvc;
-
-
-namespace Muon {
-  class IMuonClusterOnTrackCreator;
-  class MdtDriftCircleOnTrack;
-  class MuonClusterOnTrack;
-  class MuonSegment;
-  class MuonIdHelperTool;
-  class IMuonClusterOnTrackCreator;
-  class MuonEDMPrinterTool;
-}
-namespace Track{
-  class RIO_OnTrack;
-}
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h" 
+#include "CscSegmentMakers/ICscSegmentUtilTool.h"
 
 class Csc2dSegmentMaker : virtual public ICscSegmentFinder, public AthAlgTool {
 
@@ -50,7 +30,7 @@ public:  // methods
   Csc2dSegmentMaker(const std::string&, const std::string&, const IInterface*);
 
   // Destructor.
-  ~Csc2dSegmentMaker();
+  ~Csc2dSegmentMaker()=default;
 
   // Initialization.
   StatusCode initialize();
@@ -69,17 +49,13 @@ private:  // methods
 private:  // data
 
   // Output container.
-  //  MuonSegmentCombinationCollection* m_psegs;
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  std::string m_cscdig_sg_inkey;
+  Gaudi::Property<std::string> m_cscdig_sg_inkey{this, "scdig_sg_inkey", "CSC_Measurements"};
 
-  ToolHandle<ICscSegmentUtilTool> m_segmentTool;  
-  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_cscClusterOnTrackCreator;  
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelper;  
-  ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
-  //ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
-  //ServiceHandle<ICSCConditionsSvc> m_cscCondSvc; //CSC conditions
+  ToolHandle<ICscSegmentUtilTool> m_segmentTool{this, "segmentTool", "CscSegmentUtilTool/CscSegmentUtilTool"};  
+  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_cscClusterOnTrackCreator{this, "cscRotCreator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"};  
+  ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
 
 };
 

@@ -11,10 +11,11 @@ def MuonDQAMonitoringConfig(flags):
         # do not run in RAW->ESD, or AOD-only
         if flags.DQ.Environment not in ('tier0Raw', 'AOD'):
             from MdtRawDataMonitoring.MDTMonitorAlgorithm import MdtMonitoringConfig
-            result.merge(MdtMonitoringConfig(flags))
-
-        from TgcRawDataMonitoring.TgcRawDataMonitorAlgorithm import TgcRawDataMonitoringConfig
+            from RpcRawDataMonitoring.RpcMonitorAlgorithm import RpcMonitoringConfig
+            from TgcRawDataMonitoring.TgcRawDataMonitorAlgorithm import TgcRawDataMonitoringConfig
     
-        result.merge(TgcRawDataMonitoringConfig(flags))
+            result.merge(MdtMonitoringConfig(flags))
+            result.merge(RpcMonitoringConfig(flags))
+            result.merge(TgcRawDataMonitoringConfig(flags))
         
     return result

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -22,12 +22,13 @@
 #include "MuidInterfaces/IMuidTrackIsolation.h"
 #include "TrkTrack/TrackCollection.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "TrkExInterfaces/IIntersector.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace Trk
 {
-    class IIntersector;
     class Surface;
 }
 
@@ -42,7 +43,7 @@ public:
     MuidTrackIsolation(const std::string& type, 
 		       const std::string& name,
 		       const IInterface* parent);
-    ~MuidTrackIsolation(void); // destructor
+    virtual ~MuidTrackIsolation(void) = default; // destructor
   
     StatusCode initialize();
     StatusCode finalize();
@@ -74,11 +75,11 @@ private:
     double				m_etaSafetyFactor;
     SG::ReadHandleKey<TrackCollection>  m_inDetTracksLocation{this,"InDetTracksLocation","Tracks","ID tracks"};
     // FIXME: mutable
-    mutable ToolHandle<Trk::IIntersector>	m_intersector;
-    mutable double			m_maxP;
-    double				m_minPt;
-    double				m_trackCone;
-    bool				m_trackExtrapolation;
+    ToolHandle<Trk::IIntersector>	m_intersector{this,"RungeKuttaIntersector","Trk::RungeKuttaIntersector/RungeKuttaIntersector"};
+    mutable std::atomic<double>	m_maxP;
+    Gaudi::Property<double>	m_minPt{this,"MinPt",1.0*Gaudi::Units::GeV};
+    Gaudi::Property<double>	m_trackCone{this,"TrackCone",0.2};
+    Gaudi::Property<bool>		m_trackExtrapolation{this,"TrackExtrapolation",false};
     
 };
 
@@ -86,7 +87,11 @@ private:
 
 inline double
 MuidTrackIsolation::maxP(void) const
-{ return m_maxP; }
+{ 
+  if (Gaudi::Concurrency::ConcurrencyFlags::concurrent())
+    ATH_MSG_WARNING("MuidTrackIsolation::maxP() does not return trustable value in MT");
+  return m_maxP; 
+}
 
 }	// end of namespace
 

@@ -68,8 +68,6 @@ TriggerFlags.doHLT=True
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
-# abort when there is an unchecked status code
-StatusCodeSvc.AbortOnError=False
 
 #-----------------Monitoring and leak check-----------------
 jobproperties.PerfMonFlags.doMonitoring = True
@@ -87,8 +85,8 @@ Service ("StoreGateSvc" ).ActivateHistory=False
 
 preExec='rec.doFloatingPointException=True'
 
-print AlgSequence()
-print ServiceMgr
+printfunc (AlgSequence())
+printfunc (ServiceMgr)
 
 #-------------------------------------------------------------
 # Disable overly verbose and problematic ChronoStatSvc print-out

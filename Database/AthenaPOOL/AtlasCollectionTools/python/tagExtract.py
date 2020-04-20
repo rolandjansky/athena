@@ -1,15 +1,21 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # @author Marcin Nowak
 # @date 09.2012
 # @brief utility to extract TAG DB Collection to a local ROOT file
 #
 
-import commands, time, tempfile, os, sys, re
+from __future__ import print_function
+
+import time, tempfile, os, sys, re
 from optparse import OptionParser
-from eventLookupClient import eventLookupClient
+from .eventLookupClient import eventLookupClient
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 parser = OptionParser()
 parser.add_option("--server", dest="server", default='atlas-tagservices.cern.ch',
@@ -34,7 +40,7 @@ output = open(options.output, "w")
 starttime = time.time()
 #extract collection from the database
 EL = eventLookupClient()
-print "# Extracting TAG collection into %s" % options.output
+print ("# Extracting TAG collection into %s" % options.output)
 formatparams = dict( server = options.server,
                      cert = EL.certProxyFileName,
                      url = 'tagservices/EventLookup/www/extract',
@@ -50,19 +56,19 @@ if options.taskID:
 didRetry = 0
 while True:
     restarttime = time.time()
-    (rc,out) = commands.getstatusoutput(cmd)
+    (rc,out) = subprocess.getstatusoutput(cmd)
     if rc != 0:
-        print "ERROR!" 
+        print ("ERROR!" )
         code = EL.checkError(out)
         if code:
             sys.exit(code)
-        print out
+        print (out)
         sys.exit(-1)
 
     cmd2 = 'file ' + options.output
-    (rc,out) = commands.getstatusoutput(cmd2)
+    (rc,out) = subprocess.getstatusoutput(cmd2)
     if re.search('empty', out):
-        print "ERROR: Extraction process did not return any data"
+        print ("ERROR: Extraction process did not return any data")
         sys.exit(1)
     if re.search('ASCII', out) or re.search('text', out):
         CF = open(options.output, "r")
@@ -73,20 +79,20 @@ while True:
                 break
         CF.close()
         if found_retry:
-            print line
+            print (line)
             didRetry += 1
             time.sleep(5)
             continue
-        print "Extraction process probably failed with message:"
+        print ("Extraction process probably failed with message:")
         with open(options.output, 'r') as CF:
-            print CF.read()
+            print (CF.read())
         sys.exit(2)
     # finished OK!
     break
 
-print "# %s extracted in %.0ds (may include server queue time)" %(options.output, time.time()-restarttime)
+print ("# %s extracted in %.0ds (may include server queue time)" %(options.output, time.time()-restarttime))
 if didRetry > 0:
-    print "# reqest retried %d time (server busy). Total time %d" % (didRetry, time.time()-starttime)
+    print ("# reqest retried %d time (server busy). Total time %d" % (didRetry, time.time()-starttime))
 
 
 

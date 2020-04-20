@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -11,8 +11,6 @@
 //-----------------------------------------------------------------------------
 
 #include "tauRecTools/TauPi0Selector.h"
-//#include "FourMomUtils/P4Helpers.h"
-//#include "CaloUtils/CaloVertexedCluster.h"
 
 using std::string;
 
@@ -127,7 +125,7 @@ StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer
 
 int TauPi0Selector::getPi0Cluster_etaBin(double Pi0Cluster_eta){
     int Pi0Cluster_etaBin = -1;
-    double Pi0Cluster_noCorr_ABSeta = fabs(Pi0Cluster_eta);
+    double Pi0Cluster_noCorr_ABSeta = std::abs(Pi0Cluster_eta);
 
     if( Pi0Cluster_noCorr_ABSeta < 0.80 ) Pi0Cluster_etaBin = 0;
     else if( Pi0Cluster_noCorr_ABSeta < 1.40 ) Pi0Cluster_etaBin = 1;

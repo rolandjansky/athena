@@ -478,7 +478,7 @@ ExcAtomicMismatch::ExcAtomicMismatch (SG::auxid_t auxid,
 
 
 /// Helper: format exception error string.
-std::string excInvalidThinningTarget_format (CLID clid,
+std::string excInvalidThinningTarget_format (unsigned int clid,
                                              const std::string& key)
 {
   std::ostringstream os;
@@ -494,7 +494,7 @@ std::string excInvalidThinningTarget_format (CLID clid,
  * @param clid The CLID of the requested container.
  * @param key The StoreGate key of the requested container.
  */
-ExcInvalidThinningTarget::ExcInvalidThinningTarget (CLID clid,
+ExcInvalidThinningTarget::ExcInvalidThinningTarget (unsigned int clid,
                                                     const std::string& key)
   : std::runtime_error (excInvalidThinningTarget_format (clid, key))
 {

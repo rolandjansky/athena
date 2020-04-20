@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfIO/JsonFileLoader.h"
@@ -119,7 +119,7 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
    if( ! loadFile( filename, pt, pathToChild) )
       return false;
 
-   data.setData(pt);
+   data.setData(std::move(pt));
 
    return true;
 }

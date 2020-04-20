@@ -1,11 +1,14 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from optparse import OptionParser
-from eventLookupClient import eventLookupClient
+from .eventLookupClient import eventLookupClient
 import sys, re, os, time
 from sys import exit
+import six
 
 PandaSys = '/afs/cern.ch/atlas/offline/external/GRID/DA/panda-client/latest'
 
@@ -15,7 +18,7 @@ PandaSys = '/afs/cern.ch/atlas/offline/external/GRID/DA/panda-client/latest'
 parser = OptionParser()
 parser.add_option("-d", "--debug", dest="debug", default=False, action="store_true",
                   help="enable debug output")
-parser.add_option("-a", "--async", dest="async", default=None, action="store_true",
+parser.add_option("-a", "--async", dest="asyncFlag", default=None, action="store_true",
                   help="OLD mode: asks the server to run EventLookup in background to prevent timeouts for large queries")
 parser.add_option("-f", "--runs_events_file", dest="filename",
                   help="read the list of run-event pairs from FILE", metavar="FILE")
@@ -66,15 +69,15 @@ if options.filename: action += 1
 if options.runs_events: action += 1
 if options.remoteFile: action += 1
 if action > 1:
-   print os.path.basename(sys.argv[0]) + " -e, -f and -g options are exclusive (-h for help)"
+   print (os.path.basename(sys.argv[0]) + " -e, -f and -g options are exclusive (-h for help)")
    exit(11)
 if action == 0:
-   print os.path.basename(sys.argv[0]) + " requires  -e, -f or -g option (-h for help)"
+   print (os.path.basename(sys.argv[0]) + " requires  -e, -f or -g option (-h for help)")
    exit(10)
 
 if options.debug:
-	print "Event numbers: "
-	print runs_events
+	print ("Event numbers: ")
+	print (runs_events)
 	
 if options.workerhost:
    eventLookupClient.workerHost = options.workerhost
@@ -92,25 +95,25 @@ try:
    elif options.remoteFile:
       guids = client.waitForFile(options.remoteFile)
    else:
-      guids = client.doLookup(runs_events, async = options.async,
+      guids = client.doLookup(runs_events, asyncFlag = options.asyncFlag,
                               stream = options.stream, tokens = options.tokens,
                               amitag = options.amitag, extract = options.gettags)
-except KeyboardInterrupt, e:
-   print "Keyboard interrupt " + str(e)
+except KeyboardInterrupt as e:
+   print ("Keyboard interrupt " + str(e))
    exit(100)
 
 # ------  Results processing
 if options.debug:
   for line in client.output:
-      print line.rstrip()	
+      print (line.rstrip()	)
 
 if guids == None:
    code = client.checkError()
    if code:
       exit(code)
-   print "ERROR!  Event lookup probably failed"
+   print ("ERROR!  Event lookup probably failed")
    for line in client.output:
-      print line.rstrip()
+      print (line.rstrip())
    exit(1)
 
 
@@ -121,7 +124,7 @@ def printGUIDsWithDatasets(guids):
     try:
       from pandatools import Client
     except ImportError:
-      if os.environ.has_key('PANDA_SYS'):
+      if 'PANDA_SYS' in os.environ:
          pandapath = os.environ['PANDA_SYS']
       else:
          pandapath = PandaSys
@@ -129,7 +132,7 @@ def printGUIDsWithDatasets(guids):
       try:
          from pandatools import Client
       except ImportError:
-         print "EventLookup failed to import PanDA client, GUID->dataset name resolution disabled"
+         print ("EventLookup failed to import PanDA client, GUID->dataset name resolution disabled")
          return False
 
     # instantiate curl
@@ -141,7 +144,7 @@ def printGUIDsWithDatasets(guids):
     # loop over all GUIDs
     for guid in guids.keys():
         # check existing map to avid redundant lookup
-        if guidLfnMap.has_key(guid):
+        if guid in  guidLfnMap:
             continue
         iLookUp += 1
         if iLookUp % 20 == 0:
@@ -176,27 +179,27 @@ def printGUIDsWithDatasets(guids):
             if not (tmpDsName.startswith('panda') or \
                     tmpDsName.startswith('user') or \
                     tmpDsName.startswith('group') or \
-                    re.search('_sub\d+$',tmpDsName) != None or \
-                    re.search('_dis\d+$',tmpDsName) != None or \
+                    re.search('_sub\\d+$',tmpDsName) != None or \
+                    re.search('_dis\\d+$',tmpDsName) != None or \
                     re.search('_shadow$',tmpDsName) != None \
                     or tmpDsName in checkedDSList ):
                tmpMap = Client.queryFilesInDataset(tmpDsName)
-               for tmpLFN,tmpVal in tmpMap.iteritems():
+               for tmpLFN,tmpVal in six.iteritems(tmpMap):
                    guidLfnMap.setdefault(tmpVal['guid'],[]).append([tmpLFN,tmpDsName])
                checkedDSList.append(tmpDsName)
 
     for guid in guids.keys():
-       print guid, guids[guid], guidLfnMap.setdefault(guid,"")
+       print (guid, guids[guid], guidLfnMap.setdefault(guid,""))
     return True
 
 
       
 # -----  Print out GUIDs
 if len(guids) == 0:
-   print "No GUIDs found"
+   print ("No GUIDs found")
    for line in client.output:
       if re.search("Warning: no TAG collections were found", line):
-         print "Warning: no TAG Collections matched the criteria (run,stream,amitag)"   
+         print ("Warning: no TAG Collections matched the criteria (run,stream,amitag)"   )
 else:
    if type(guids)==type({}):
       # default GUID printout
@@ -204,13 +207,13 @@ else:
          if printGUIDsWithDatasets(guids):
             exit(0)
       for guid in guids.keys():
-         print guid, guids[guid]
+         print (guid, guids[guid])
    else:
       # this is the per-event listing from --gettags option
       (attrNames, attrVals) = guids
-      print "TAG attributes are: " + str(attrNames)
+      print ("TAG attributes are: " + str(attrNames))
       for tag in attrVals:
-         print tag
+         print (tag)
 
 
 

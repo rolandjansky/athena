@@ -4,6 +4,5 @@
 
 
 //simple includes to force the CLASS_DEF etc to be encountered during compile
-
 #include "xAODEventShape/EventShape.h"
 #include "xAODEventShape/EventShapeAuxInfo.h"

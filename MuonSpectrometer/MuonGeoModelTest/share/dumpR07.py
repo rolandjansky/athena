@@ -37,7 +37,7 @@ if not 'ConditionsTag' in dir():
     #ConditionsTag="OFLCOND-SIM-00-00-00" ### for MC condition tags OFLP200 (default DB choice) will work out of teh box
 
 if useAlignData:
-    print "Setting up DB name / Instance to COMP200 (default is OFLP200)"
+    printfunc ("Setting up DB name / Instance to COMP200 (default is OFLP200)")
     conddb.dbname = "COMP200"
     conddb.iovdbsvc.DBInstance="COMP200"
 
@@ -95,7 +95,7 @@ from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.07.00"
 
-print GeoModelSvc
+printfunc (GeoModelSvc)
 
 
 #***************************************************** HERE define alignment data from cond. tags
@@ -167,7 +167,7 @@ MessageSvc.setDebug+=[ "MuonGM::TgcReadoutElement" ]
 MessageSvc.setDebug+=[ "MuonGM::RpcReadoutElement" ]
 MessageSvc.setDebug+=["MGM::MuonDetectorManager::updateAlignment"]
 
-print MuonDetectorTool
+printfunc (MuonDetectorTool)
 
 #***************************************************** HERE setup MuonGMCheck
 from MuonGeoModelTest.MuonGeoModelTestConf import MuonGMCheck
@@ -189,7 +189,7 @@ MuonGMCheck.testCscDetectorElementHash = 0
 
 MuonGMCheck.OutputLevel = INFO
 
-print MuonGMCheck
+printfunc (MuonGMCheck)
 
 
 ######################################################
@@ -200,19 +200,19 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += MuonGMCheck
 
-print " "
-print "List of all Dlls"
-print theApp.Dlls
-print " "
-print "List of all Ext services"
-print theApp.ExtSvc
-print " "
-print "List of all top algorithms"
-print theApp.TopAlg
+printfunc (" ")
+printfunc ("List of all Dlls")
+printfunc (theApp.Dlls)
+printfunc (" ")
+printfunc ("List of all Ext services")
+printfunc (theApp.ExtSvc)
+printfunc (" ")
+printfunc ("List of all top algorithms")
+printfunc (theApp.TopAlg)
 
-#print "Print here Top Sequence" 
-#print topSequence
-#print "Print here Service Manager" 
-#print ServiceMgr
+#printfunc ("Print here Top Sequence" )
+#printfunc (topSequence)
+#printfunc ("Print here Service Manager" )
+#printfunc (ServiceMgr)
 
 

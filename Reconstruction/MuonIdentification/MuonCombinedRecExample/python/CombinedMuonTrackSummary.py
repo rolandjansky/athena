@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ###########################################################################
 #
@@ -30,17 +30,9 @@ ToolSvc += InDet__InDetTrackHoleSearchTool( \
   useSCT                       = DetFlags.haveRIO.SCT_on(),
   CountDeadModulesAfterLastHit = True)
 
-from InDetRecExample.InDetJobProperties import InDetFlags
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-pixelConditionsSummaryToolSetup.setUseConditions(True)
-pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
-pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
-pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
-pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
-pixelConditionsSummaryToolSetup.setup()
-InDetPixelConditionsSummaryTool = pixelConditionsSummaryToolSetup.getTool()
+import InDetRecExample.TrackingCommon as TrackingCommon
+InDetPixelConditionsSummaryTool = TrackingCommon.getInDetPixelConditionsSummaryTool()
+
 
 if muonCombinedRecFlags.useDetailedPixelHoleSearch():
   # now get the InDet tools as used for InDet tracks
@@ -124,23 +116,4 @@ if DetFlags.haveRIO.SCT_on():
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
   ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetSCT_ConditionsSummaryTool
-
-# check configuration
-#print ToolSvc.CombinedMuonIDHoleSearch
-#print ToolSvc.CombinedMuonIDSummaryHelper
-#print ToolSvc.CombinedMuonTrackSummary
-#import sys
-#sys.exit()
-
-#class CombinedMuonTrackSummary( Trk__TrackSummaryTool ):
-
-#  # constructor
-#  def __init__(self, name = 'CombinedMuonTrackSummary'):
-#    global ToolSvc
-#    # call the base class constructor
-#    self.trackSummary = ToolSvc.CombinedMuonTrackSummary
-
-
-
-
 

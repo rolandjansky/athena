@@ -1173,7 +1173,6 @@ class MbMbtsHypoMonitoring(TrigGenericMonitoringToolConfig):
 
 # end of monitoring tools config what foloows are fexes/hypos configs
 #-----------------------------------------------------------------------
-
 class MbMbtsFex( T2MbtsFex ):
     __slots__ = []
     def __init__ (self, name ):

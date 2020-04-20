@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ALFA_RawDataByteStreamCnv/ALFA_RawDataContainerReadOut.h"
@@ -68,7 +68,7 @@ void ALFA_RawDataContainerReadOut::decodeHeader(std::vector<uint32_t>& vData)
 #ifndef NDEBUG
   IMessageSvc* msgSvc = 0;
   ISvcLocator* svcLocator = Gaudi::svcLocator();
-  svcLocator->service("MessageSvc", msgSvc);
+  svcLocator->service("MessageSvc", msgSvc).ignore();
   MsgStream log(msgSvc, "ALFA_RawDataContainerReadOut::decodeHeader");
 #endif
 

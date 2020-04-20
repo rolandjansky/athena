@@ -9,7 +9,7 @@ if ('sampleList' in dir()) or ('sampleFile' in dir()):
   if ('sampleList' in dir()):
     stagetool = FileStagerTool(sampleList=sampleList)
   elif ('sampleFile' in dir()):
-    print "FileStager() : Now processing sample file : %s" % sampleFile
+    printfunc ("FileStager() : Now processing sample file : %s" % sampleFile)
     stagetool = FileStagerTool(sampleFile=sampleFile)
   
   ## Configure copy command used by the stager; default is 'lcg-cp -v --vo altas -t 1200'.
@@ -28,7 +28,7 @@ if ('sampleList' in dir()) or ('sampleFile' in dir()):
   thejob = AlgSequence()
   
   ## check if collection names begin with "gridcopy"
-  print "FileStager() : doStaging ?", stagetool.DoStaging()
+  printfunc ("FileStager() : doStaging ?", stagetool.DoStaging())
   
   ## Import file stager algorithm
   from FileStager.FileStagerConf import FileStagerAlg

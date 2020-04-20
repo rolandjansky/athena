@@ -9,6 +9,7 @@ atlas_subdir( RootConversions )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
+                          Control/RootUtils
                           AtlasTest/TestTools )
 
 # External dependencies:
@@ -19,7 +20,7 @@ atlas_add_library( RootConversions
                    src/*.cxx
                    PUBLIC_HEADERS RootConversions
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools RootUtils )
 
 atlas_add_dictionary( RootConversionsDict
                       RootConversions/RootConversionsDict.h

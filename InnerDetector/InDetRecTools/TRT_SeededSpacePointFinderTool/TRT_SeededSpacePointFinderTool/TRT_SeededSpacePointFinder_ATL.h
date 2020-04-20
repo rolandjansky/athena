@@ -31,6 +31,11 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "TrkEventUtils/PRDtoTrackMap.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <list>
 #include <vector>
@@ -43,8 +48,7 @@ class SiSpacePointsSeed;
 namespace InDet{
 
   /** Sorting function according to space point radial position */
-  class MyNewDataSortPredicate
-    : public std::binary_function<std::pair<const Trk::SpacePoint*,int>, std::pair<const Trk::SpacePoint*,int>, bool> {
+  class MyNewDataSortPredicate {
     public:
     bool operator()(std::pair<const Trk::SpacePoint*,int> sp1, std::pair<const Trk::SpacePoint*,int> sp2) const
       {return (sp1.first)->r() > (sp2.first)->r();}
@@ -93,7 +97,8 @@ namespace InDet{
       /** Main method of seed production                               */
       ///////////////////////////////////////////////////////////////////
 
-      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > find2Sp (const Trk::TrackParameters&,
+      std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > find2Sp (const EventContext& ctx,
+                                                                                    const Trk::TrackParameters&,
                                                                                     ITRT_SeededSpacePointFinder::IEventData &event_data) const;
 
       ///////////////////////////////////////////////////////////////////
@@ -197,6 +202,11 @@ namespace InDet{
       SG::ReadHandleKey<Trk::PRDtoTrackMap>          m_prdToTrackMap
          {this,"PRDtoTrackMap",""};
 
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // Read handle for conditions object to get the field cache
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                            "Name of the Magnetic Field conditions object key"};
+ ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       ///////////////////////////////////////////////////////////////////
       /** Protected methods                                            */
       ///////////////////////////////////////////////////////////////////
@@ -213,7 +223,7 @@ namespace InDet{
       /** Form possible space point combinations within allowed radial and pseudorapidity ranges */
 
       // // // // // // // // // // // // // // // // //
-      void production2Spb (const Trk::TrackParameters&,
+      void production2Spb (const EventContext& ctx, const Trk::TrackParameters&,
                            int,
                            std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > &outputListBuffer,
                            InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const;

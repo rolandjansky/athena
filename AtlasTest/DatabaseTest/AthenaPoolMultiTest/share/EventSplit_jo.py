@@ -47,7 +47,6 @@ svcMgr.PoolSvc.WriteCatalog = "XMLFileCatalog_file:EventSplit.xml"
  
 svcMgr.EventSelector.InputCollections =  ["AthenaPoolMultiTest_Splittable0.root"]
 #svcMgr.EventSelector.CollectionType = "ExplicitROOT"
-svcMgr.AthenaPoolAddressProviderSvc.DataHeaderIterator = False
 
 #--------------------------------------------------------------
 # Private Application Configuration options

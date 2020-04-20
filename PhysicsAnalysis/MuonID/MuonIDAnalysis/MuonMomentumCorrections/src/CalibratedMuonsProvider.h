@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALIBRATEDMUONSPROVIDER
@@ -11,9 +9,11 @@
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include <AsgAnalysisInterfaces/IPileupReweightingTool.h>
 
 namespace CP {
 
@@ -31,11 +31,14 @@ namespace CP {
       virtual StatusCode execute();
 
    private:
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this, "EventInfoContName", "EventInfo", "event info key"};
       /// muon container
       std::string m_inputKey,m_outputKey;
 
       /// Scale factor tool
-      ToolHandle< IMuonCalibrationAndSmearingTool > m_tool;
+      ToolHandle <IMuonCalibrationAndSmearingTool > m_tool;
+      ToolHandle <IPileupReweightingTool> m_prwTool;
+      bool m_useRndNumber;
 
    }; // class 
 

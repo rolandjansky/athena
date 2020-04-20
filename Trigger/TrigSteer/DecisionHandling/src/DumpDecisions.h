@@ -6,7 +6,7 @@
 
 // STL includes
 #include <string>
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 // FrameWork includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 

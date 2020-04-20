@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Disable flake8 checking due to the use of 'exec':
 # flake8: noqa
@@ -26,7 +26,7 @@ class TopoAlgoDef(object):
 
         if '_v7' in TriggerFlags.triggerMenuSetup():
             usev7 = True
-        if 'LS2_v' in TriggerFlags.triggerMenuSetup() or 'pp_run3_v1' in TriggerFlags.triggerMenuSetup():
+        if 'LS2_v' in TriggerFlags.triggerMenuSetup() or 'run3_v1' in TriggerFlags.triggerMenuSetup():
             usev7 = True
         
         _emscale_for_decision = 2 # global scale for EM, TAU        

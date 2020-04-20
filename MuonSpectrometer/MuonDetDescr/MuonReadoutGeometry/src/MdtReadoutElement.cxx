@@ -1,16 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  The Mdt detector = a multilayer = MDT in amdb 
  ----------------------------------------------------
  ***************************************************************************/
-
-//<doc><file>	$Id: MdtReadoutElement.cxx,v 1.4 2009-05-16 13:08:13 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -24,6 +19,10 @@
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelUtilities/GeoGetIds.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include <TString.h> // for Form
 
 #include "MuonAlignmentData/BLinePar.h"
 
@@ -59,18 +58,7 @@ MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
     m_nlayers(-1), m_tubepitch(-9999.), m_tubelayerpitch(-9999.), m_ntubesperlayer(-1),
     m_nsteps(-1), m_ntubesinastep(-1), m_tubelenStepSize(-9999.), m_cutoutShift(-9999.),
     m_endpluglength(-9999.), m_deadlength(-9999.), m_innerRadius(-9999.), m_tubeWallThickness(-9999.),
-    m_deformTransfs(0),
-    m_BLinePar(0),
-    m_elemNormal(0),
-    m_tubeSurfaces(0),
-    m_tubeTransf(0),
-    m_tubeCenter(0),
-    m_tubeBounds(0),
-    m_backupTubeCenter(0),
-    m_backupTubeTransf(0),
-    m_backupDeformTransf(0),
-    m_associatedSurface(0),
-    m_associatedBounds(0)
+    m_BLinePar(0)
 {
   m_multilayer = 0;
 
@@ -85,58 +73,11 @@ MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
   if (zi<0 && !is_mirrored) m_descratzneg = true;
 
   setStationName(stName);
-  m_zsignRO_tubeFrame = 0;
-
-
 }
 
 
 MdtReadoutElement::~MdtReadoutElement()
 {
-  delete m_elemNormal;
-  delete m_associatedSurface;
-  delete m_associatedBounds;
-   
-  if (m_deformTransfs) {
-    for (unsigned int tsf = 0; tsf < m_deformTransfs->size(); ++tsf) delete (*m_deformTransfs)[tsf];
-    delete m_deformTransfs;
-  }
-
-  if (m_tubeSurfaces) {
-    for (unsigned int tsf = 0; tsf < m_tubeSurfaces->size(); ++tsf) delete (*m_tubeSurfaces)[tsf];
-    delete m_tubeSurfaces;
-  }
-   
-  if (m_tubeTransf) {
-    for (unsigned int ttf = 0; ttf < m_tubeTransf->size(); ++ttf) delete (*m_tubeTransf)[ttf];
-    delete m_tubeTransf;
-  }
-
-  if (m_tubeCenter) {
-    for (unsigned int tcf = 0; tcf < m_tubeCenter->size(); ++tcf) delete (*m_tubeCenter)[tcf];
-    delete m_tubeCenter;
-  }
-
-  if (m_tubeBounds) {
-    for (unsigned int tcf = 0; tcf < m_tubeBounds->size(); ++tcf) delete (*m_tubeBounds)[tcf];
-    delete m_tubeBounds;
-  }
-
-  if (m_backupTubeTransf) {
-    for (unsigned int btt = 0; btt < m_backupTubeTransf->size(); ++btt) delete (*m_backupTubeTransf)[btt];
-    delete m_backupTubeTransf;
-  }
-
-  if (m_backupDeformTransf) {
-    for (unsigned int bdt = 0; bdt < m_backupDeformTransf->size(); ++bdt) delete (*m_backupDeformTransf)[bdt];
-    delete m_backupDeformTransf;
-  }
-
-  if (m_backupTubeCenter) {
-    for (unsigned int btc = 0; btc < m_backupTubeCenter->size(); ++btc) delete (*m_backupTubeCenter)[btc];
-    delete m_backupTubeCenter;
-  }
- 
 }    
 
 bool MdtReadoutElement::getWireFirstLocalCoordAlongZ(int tubeLayer, double& coord) const
@@ -164,6 +105,20 @@ double MdtReadoutElement::outerTubeRadius() const
 }
 
 
+void MdtReadoutElement::geoInitDone()
+{
+  m_tubeGeo.resize (m_nlayers * m_ntubesperlayer);
+  m_deformTransf.resize (m_nlayers * m_ntubesperlayer);
+  m_tubeSurfaces.resize (m_nlayers * m_ntubesperlayer);
+
+  int ntot_steps = m_nsteps;
+  if (hasCutouts() && manager()->MinimalGeoFlag() == 0) {
+    ntot_steps =  m_nlayers * m_ntubesperlayer;
+  }
+  m_tubeBounds.resize (ntot_steps);
+}
+
+
 double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
 {
   const MdtIdHelper* idh = manager()->mdtIdHelper();
@@ -173,10 +128,11 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
     int istep = int((tube-1)/m_ntubesinastep);
     if (istep < 0 || istep >= m_nsteps)
     {
-      (*m_Log)  << MSG::WARNING << "getTubeLenght for Element named " << getStationName() << " with tech. "
+      MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+      log << MSG::WARNING << "getTubeLenght for Element named " << getStationName() << " with tech. "
 	      << getTechnologyType() <<" DEid = "<<idh->show_to_string(identify())<< " called with: tubeL, tube " << tubeLayer << " "
 	      << tube << "; step " << istep << " out of range 0-" << m_nsteps-1
-	      << " m_ntubesinastep " << m_ntubesinastep <<endmsg;
+	      << " m_ntubesinastep " << m_ntubesinastep << endmsg;
       istep =  0;
     }
     nominalTubeLength =  m_tubelength[istep];
@@ -185,12 +141,13 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
   double tlength=nominalTubeLength; 
 
   if (hasCutouts()){
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
     if (manager()->MinimalGeoFlag() == 0) {
-	(*m_Log)  << MSG::VERBOSE << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta() << " stPhi " << getStationPhi() 
-		<< "multilayer "<<getMultilayer()<<" has cutouts, check for real tube length for tubeLayer, tube "<< tubeLayer<<" "<<tube<< endmsg;
+      if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta() << " stPhi " << getStationPhi() 
+      << "multilayer "<<getMultilayer()<<" has cutouts, check for real tube length for tubeLayer, tube "<< tubeLayer<<" "<<tube<< endmsg;
       PVConstLink cv = getMaterialGeom(); // it is "Multilayer"
       int nGrandchildren = cv->getNChildVols();
-      (*m_Log)  << MSG::VERBOSE << " nchild = "<<nGrandchildren<<endmsg;
+      if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << " nchild = "<<nGrandchildren<<endmsg;
       if (nGrandchildren <= 0) return tlength;
       // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
       int ii = (tubeLayer-1)*m_ntubesperlayer+tube;
@@ -208,52 +165,43 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
                      }
                      ++kk;
                    }, &*cv);
-        if (found) {
-          (*m_Log)  << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubeLayer 
+        if (found && log.level()<=MSG::DEBUG) {
+          log << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubeLayer 
                     << ") - output match : tube(" << ii%100 << "), layer(" << ii/100 << ")" << endmsg;
         }
       }
-      if (ii>=nGrandchildren) 
-	{
-	  (*m_Log)  << MSG::WARNING << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
+      if (ii>=nGrandchildren) {
+        log << MSG::WARNING << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
 		  << " stPhi " << getStationPhi() << " multilayer "<<getMultilayer()<<" has cutouts, nChild = "<<nGrandchildren
 		  <<" --- getTubeLength is looking for child with index ii="<<ii<<" for tubeL and tube = "<<tubeLayer<<" "<<tube<< endmsg;
-	  (*m_Log)  << MSG::WARNING << "returning nominalTubeLength "<<endmsg; 
-	  //ii = nGrandchildren-1;
+        log << MSG::WARNING << "returning nominalTubeLength "<<endmsg; 
 	  return tlength;
 	}
-      if (ii<=0) 
-	{
-	  (*m_Log)  << MSG::WARNING << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
+      if (ii<=0) {
+        log << MSG::WARNING << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
 		  << " stPhi " << getStationPhi() << " multilayer "<<getMultilayer()<<" has cutouts, nChild = "<<nGrandchildren
 		  <<" --- getTubeLength is looking for child with index ii="<<ii<<" for tubeL and tube = "<<tubeLayer<<" "<<tube<< endmsg;
-	  (*m_Log)  << MSG::WARNING << "returning nominalTubeLength "<<endmsg; 
+        log << MSG::WARNING << "returning nominalTubeLength "<<endmsg; 
 	  return tlength;
 	}
       PVConstLink physChild = cv->getChildVol(ii);
       const GeoShape* shape = physChild->getLogVol()->getShape();
       if (shape==0)  return tlength;
       const GeoTube* theTube = dynamic_cast<const GeoTube*> (shape);
-      if(theTube!=0) {
-	  //theTube->getRMin();
-	  //theTube->getRMax();
-	  tlength = 2.*theTube->getZHalfLength();
-      }
-      else (*m_Log)  << MSG::WARNING << "PhysChild with index "<<ii<<" out of (tubelayer-1)*m_ntubesperlayer+tube with tl="
+      if(theTube!=0) tlength = 2.*theTube->getZHalfLength();
+      else log << MSG::WARNING << "PhysChild with index "<<ii<<" out of (tubelayer-1)*m_ntubesperlayer+tube with tl="
 		   <<tubeLayer<<" tubes/lay="<<m_ntubesperlayer<<" t="<<tube<<" for  MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
 		   << " stPhi " << getStationPhi() << " ml = "<<getMultilayer()<<endmsg;
     }
-    if (fabs(tlength-nominalTubeLength)>0.1)
-    {
-     (*m_Log)  << MSG::DEBUG << "Tube "<<tube<<" in tubeLayer = "<<tubeLayer
+    if (std::abs(tlength-nominalTubeLength)>0.1) {
+     if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "Tube "<<tube<<" in tubeLayer = "<<tubeLayer
 						  <<" is affected by a cutout: eff. length =  "<<tlength<<" while nominal = "<<nominalTubeLength
 						  <<" in station "<< getStationName() << " at Eta/Phi " << getStationEta()
 						  << "/" << getStationPhi() << " ml "<<getMultilayer()
 						  <<endmsg;
     }
-    else 
-      {
-	  (*m_Log)  << MSG::DEBUG << "Tube "<<tube<<" in tubeLayer = "<<tubeLayer
+    else {
+     if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "Tube "<<tube<<" in tubeLayer = "<<tubeLayer
 		  <<" is NOT affected by the cutout: eff. length =  "<<tlength<<" while nominal = "<<nominalTubeLength
 		  <<endmsg;
       }
@@ -264,9 +212,7 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
 
 double MdtReadoutElement::tubeLength(Identifier id) const
 {
-  
   const MdtIdHelper* idh = manager()->mdtIdHelper();
-  //std::cout<<" in tube lenght for channel "<<idh->show_to_string(id)<<std::endl;
   int layer    = idh->tubeLayer(id);
   int tube     = idh->tube(id);
   return getTubeLength(layer, tube);
@@ -292,7 +238,8 @@ double MdtReadoutElement::distanceFromRO(Amg::Vector3D x, Identifier id) const
     double xx = x.x();
     double xy = x.y();
     double xz = x.z();
-    (*m_Log)  << MSG::ERROR
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    log << MSG::WARNING
            << " Distance of Point " << xx << " " << xy << " " << xz
            << " from RO side cannot be calculated (=0) since wirelength = "
            << wlen << endmsg;
@@ -319,16 +266,17 @@ int MdtReadoutElement::isAtReadoutSide(Amg::Vector3D GlobalHitPosition, Identifi
     int tube  = idh->tube(id);
     double distance = distanceFromRO(GlobalHitPosition, id);
     if (distance < 0) {
-        (*m_Log) <<MSG::WARNING
+        MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+        log << MSG::WARNING
            <<"MdtReadoutElement::isAtReadoutSide GlobalHitPosition"
            <<" appears to be outside the tube volume "<<distance<<endmsg;
         return 1;
     }
     else if (distance <= getWireLength(tubel, tube)/2.) return 1;
     else if (distance <  getWireLength(tubel, tube)   ) return -1;
-    else 
-    {
-        (*m_Log) <<MSG::WARNING<<"MdtReadoutElement::isAtReadoutSide "
+    else {
+        MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+        log << MSG::WARNING<<"MdtReadoutElement::isAtReadoutSide "
            <<"GlobalHitPosition appears to be outside the tube volume "
            <<distance<<endmsg;
         return -1;
@@ -338,17 +286,16 @@ int MdtReadoutElement::isAtReadoutSide(Amg::Vector3D GlobalHitPosition, int ml, 
 {
     double distance = distanceFromRO(GlobalHitPosition, ml, tubel, tube);
     if (distance < 0) {
-        (*m_Log) <<MSG::WARNING<<"MdtReadoutElement::isAtReadoutSide "
-           <<"GlobalHitPosition appears to be outside the tube volume "
+        MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+        log << MSG::WARNING<<"isAtReadoutSide() - GlobalHitPosition appears to be outside the tube volume "
            <<distance<<endmsg;
         return 1;
     }
     else if (distance <= getWireLength(tubel, tube)/2.) return 1;
     else if (distance <  getWireLength(tubel, tube)   ) return -1;
-    else 
-    {
-        (*m_Log) <<MSG::WARNING<<"MdtReadoutElement::isAtReadoutSide "
-           <<"GlobalHitPosition appears to be outside the tube volume "
+    else {
+        MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+        log << MSG::WARNING<<"isAtReadoutSide() - GlobalHitPosition appears to be outside the tube volume "
            <<distance<<endmsg;
         return -1;
     }
@@ -374,11 +321,8 @@ double MdtReadoutElement::RODistanceFromTubeCentre(int multilayer, int tubelayer
 {
     // it is a un-signed quantity:
     if (multilayer != m_multilayer) {
-        (*m_Log) <<MSG::ERROR<<"MdtReadoutElement::RODistanceFromTubeCentre "
-               <<"inserted multilayer is not the multilayer of the RE." <<endmsg;
-        throw;
+        throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::RODistanceFromTubeCentre() - inserted multilayer is not the multilayer of the RE.", __FILE__, __LINE__));
     }
-    
     return getWireLength(tubelayer, tube)/2.;
 }
 double MdtReadoutElement::signedRODistanceFromTubeCentre(int multilayer, int tubelayer, int tube) const
@@ -387,36 +331,26 @@ double MdtReadoutElement::signedRODistanceFromTubeCentre(int multilayer, int tub
     // the sign corresponds to the sign of the z coordinate of the RO endplug in the tube
     // reference frame 
     if (multilayer != m_multilayer) {
-        (*m_Log) <<MSG::ERROR<<"MdtReadoutElement::signedRODistanceFromTubeCentre "
-               <<"inserted multilayer is not the multilayer of the RE." <<endmsg;
-        throw;
+        throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::signedRODistanceFromTubeCentre() - inserted multilayer is not the multilayer of the RE.", __FILE__, __LINE__));
     }
 
     int amdb_plus_minus1 = 1;
-    //std::cerr<<"MdtReadoutElement::signedRODistanceFromTubeCentre // zsignRO_tubeFrame = "<<_m_zsignRO_tubeFrame<<std::endl;
-    if ( m_zsignRO_tubeFrame == 0 )
+    if ( !m_zsignRO_tubeFrame.isValid() )
     {
         const MdtIdHelper* idh = manager()->mdtIdHelper();
         Identifier id = idh->channelID(idh->parentID(identify()), multilayer, tubelayer, tube);
-        //std::cerr<<"MdtReadoutElement::signedRODistanceFromTubeCentre // computing for ID = "<<idh->show_to_string(id)<<std::endl;
         const MuonStation*    ms = parentMuonStation();
-        //std::cerr<<"MdtReadoutElement::signedRODistanceFromTubeCentre // MuonStation* = "<<ms<<std::endl;
-        if (fabs(ms->xAmdbCRO()) > 10.) 
+        if (std::abs(ms->xAmdbCRO()) > 10.) 
         {
-            
             Amg::Vector3D tem = Amg::Vector3D(ms->xAmdbCRO(),0.,0.);
-            //std::cerr<<"MdtReadoutElement::signedRODistanceFromTubeCentre // temporary point "<<tem<<std::endl;
-
             Amg::Transform3D amdbToGlobal = Amg::CLHEPTransformToEigen(ms->getAmdbLRSToGlobal());
             Amg::Vector3D temGlo = amdbToGlobal*tem;
-            //std::cerr<<"MdtReadoutElement::signedRODistanceFromTubeCentre // temporary point in glob r.f. "<<temGlo<<std::endl;
             Amg::Vector3D ROtubeFrame = nodeform_globalToLocalCoords(temGlo, id);
-            //std::cerr<<"MdtReadoutElement::signedRODistanceFromTubeCentre // ROtubeFrame= "<<ROtubeFrame<<std::endl;
-            if (ROtubeFrame.z()<0) m_zsignRO_tubeFrame = -1;
-            else m_zsignRO_tubeFrame = 1;
+            if (ROtubeFrame.z()<0) m_zsignRO_tubeFrame.set (-1);
+            else m_zsignRO_tubeFrame.set (1);
         }
     }
-    if ( m_zsignRO_tubeFrame == 0)
+    if ( !m_zsignRO_tubeFrame.isValid())
     { // if no CRO in a chamber in AMDB (BIS in layout R), use the standard convention for RO-HV side
         int sign = 0;
         if (barrel()) 
@@ -447,12 +381,13 @@ double MdtReadoutElement::signedRODistanceFromTubeCentre(int multilayer, int tub
                 else sign = 1;
             }
         }
-        m_zsignRO_tubeFrame = sign;
+        m_zsignRO_tubeFrame.set (sign);
     }
-    amdb_plus_minus1 = m_zsignRO_tubeFrame;
+    amdb_plus_minus1 = *m_zsignRO_tubeFrame.ptr();
     if (amdb_plus_minus1 == 0)
     {
-        (*m_Log) <<MSG::ERROR<<"Unable to get the sign of RO side; signedRODistancefromTubeCenter returns 0"<<endmsg;
+        MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+        log << MSG::WARNING<<"Unable to get the sign of RO side; signedRODistancefromTubeCenter returns 0"<<endmsg;
     }
     
     return amdb_plus_minus1*getWireLength(tubelayer, tube)/2.;
@@ -513,14 +448,16 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 {
     if (multilayer != m_multilayer)
     {
-        (*m_Log) <<MSG::WARNING<<"asking WRONG QUESTION: nodeform_localTubePos with args. ml/tl/t = "<<multilayer<<"/"<<tubelayer<<"/"<<tube
+        MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+        log << MSG::WARNING<<"asking WRONG QUESTION: nodeform_localTubePos with args. ml/tl/t = "<<multilayer<<"/"<<tubelayer<<"/"<<tube
                <<" to MdtReadoutElement "<<getStationName()<<"/"<<getTechnologyName()<<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
                <<" multilayer "<<getMultilayer()<<endmsg;
-        (*m_Log) <<MSG::WARNING<<"will answer for  args:                                  ml/tl/t = "<<getMultilayer()<<"/"<<tubelayer<<"/"<<tube<<endmsg;
+        log << MSG::WARNING<<"will answer for  args:                                  ml/tl/t = "<<getMultilayer()<<"/"<<tubelayer<<"/"<<tube<<endmsg;
         multilayer = m_multilayer;
     }
 #ifndef NDEBUG
-        (*m_Log) <<MSG::VERBOSE<<" Computing LocalTubePos for "
+        MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+        if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<" Computing LocalTubePos for "
                <<getStationName()<<"/"<<getTechnologyName()<<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
                <<" ml/tl/t "<<multilayer<<"/"<<tubelayer<<"/"<<tube<<endmsg;
 #endif
@@ -538,8 +475,10 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 
     if (hasCutouts()) {
       if (manager()->MinimalGeoFlag() == 0) {
-        (*m_Log)  << MSG::DEBUG << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
+#ifndef NDEBUG
+        if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
 						     << " stPhi " << getStationPhi() << " has cutouts, check for real position of tubes " << endmsg;
+#endif
         PVConstLink cv = getMaterialGeom(); // it is "Multilayer"
         int nGrandchildren = cv->getNChildVols();
         // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
@@ -558,10 +497,12 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
                        }
                        ++kk;
                      }, &*cv);
-          if (found) {
-            (*m_Log)  << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubelayer 
+#ifndef NDEBUG
+          if (found && log.level()<=MSG::DEBUG) {
+            log << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubelayer 
                       << ") - output match : tube(" << ii%100 << "), layer(" << ii/100 << ")" << endmsg;
           }
+#endif
         }
         GeoTrf::Transform3D tubeTrans = cv->getXToChildVol(ii);
         PVConstLink tv = cv->getChildVol(ii);
@@ -569,7 +510,10 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 
         if (std::abs(xtube - tubeTrans(0,3)) > maxtol ||
             std::abs(ztube - tubeTrans(2,3)) > maxtol) {
-          (*m_Log) <<MSG::ERROR << "taking localTubepos from RAW geoModel!!! MISMATCH IN local Y-Z (amdb) for a MDT with cutouts "
+#ifdef NDEBUG
+          MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+#endif
+          log << MSG::WARNING << "taking localTubepos from RAW geoModel!!! MISMATCH IN local Y-Z (amdb) for a MDT with cutouts "
                  << endmsg << ": from tube-id and pitch, tube pos = " << xtube
                  << ", " << ytube << ", " << ztube
                  << " but geoModel gives " << tubeTrans(0,3)
@@ -583,13 +527,17 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
                  << m_ntubesperlayer << " tubes per layer."
                  <<endmsg;
         }
-        if (tubeTrans(1,3)> maxtol)
-        {
-	      (*m_Log) <<MSG::DEBUG << "This a tube with cutout stName/Eta/Phi/ml/tl/t = "<<getStationName()<<"/"<<getStationEta()<<"/"<<getStationPhi()<<"/"
-		     <<getMultilayer()<<"/"<<tubelayer<<"/"<<tube<<endmsg;
+        if (tubeTrans(1,3)> maxtol) {
+#ifndef NDEBUG
+          if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "This a tube with cutout stName/Eta/Phi/ml/tl/t = "<<getStationName()<<"/"<<getStationEta()<<"/"<<getStationPhi()<<"/"
+          <<getMultilayer()<<"/"<<tubelayer<<"/"<<tube<<endmsg;
+#endif
             if (std::abs(m_cutoutShift - tubeTrans(1,3)) > maxtol) // check only for tubes actually shifted 
             {
-                (*m_Log) <<MSG::ERROR << "taking localTubepos from RAW geoModel!!! MISMATCH IN local X (amdb) for a MDT with cutouts "
+#ifdef NDEBUG
+              MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+#endif
+              log << MSG::WARNING << "taking localTubepos from RAW geoModel!!! MISMATCH IN local X (amdb) for a MDT with cutouts "
                        << endmsg << ": from tube-id/pitch/cutout  tube pos = " << xtube
                        << ", " << m_cutoutShift  << ", " << ztube
                        << " but geoModel gives " << tubeTrans(0,3)
@@ -637,9 +585,7 @@ const Amg::Vector3D MdtReadoutElement::nodeform_localTubePos(Identifier id) cons
 const Amg::Vector3D MdtReadoutElement::nodeform_tubePos(int multilayer, int tubelayer, int tube) const
 {
     if (multilayer != m_multilayer) {
-        (*m_Log) <<MSG::ERROR<<"MdtReadoutElement::nodeform_tubePos "
-               <<"inserted multilayer is not the multilayer of the RE." <<endmsg;
-        throw;
+        throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::nodeform_tubePos() - inserted multilayer is not the multilayer of the RE.", __FILE__, __LINE__));
     }
 
     const Amg::Vector3D lp = nodeform_localTubePos(multilayer, tubelayer, tube);
@@ -651,26 +597,25 @@ const Amg::Vector3D MdtReadoutElement::nodeform_tubePos(int multilayer, int tube
 const Amg::Vector3D MdtReadoutElement::tubePos(int multilayer, int tubelayer, int tube) const
 {
     if (multilayer != m_multilayer) {
-        (*m_Log) <<MSG::ERROR<<"MdtReadoutElement::tubePos "
-               <<"inserted multilayer is not the multilayer of the RE." <<endmsg;
-        throw;
+        throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::tubePos() - inserted multilayer is not the multilayer of the RE.", __FILE__, __LINE__));
     }
-    #ifndef NDEBUG
-      (*m_Log) <<MSG::VERBOSE<<"in tubePos-- id "<<(manager()->mdtIdHelper())->show_to_string(identify())
-       <<" ml, tl, t = "<<multilayer<<", "<<tubelayer<<", "<<tube<<endmsg;
-      (*m_Log) <<MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) going to look for local coord.s"<<endmsg;    
-    #endif
-      const Amg::Vector3D lp = localTubePos(multilayer, tubelayer, tube);
-    #ifndef NDEBUG
-    (*m_Log) <<MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) going to look for det transform"<<endmsg;
-    #endif
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    if (log.level()<=MSG::VERBOSE) {
+        log << MSG::VERBOSE<<"in tubePos-- id "<<(manager()->mdtIdHelper())->show_to_string(identify())
+        <<" ml, tl, t = "<<multilayer<<", "<<tubelayer<<", "<<tube<<endmsg;
+        log << MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) going to look for local coord.s"<<endmsg;
+    }
+#endif
+    const Amg::Vector3D lp = localTubePos(multilayer, tubelayer, tube);
+#ifndef NDEBUG
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) going to look for det transform"<<endmsg;
+#endif
     const Amg::Transform3D mdtTrans = absTransform();
-    #ifndef NDEBUG
-    (*m_Log) <<MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) got localP and trans "<<endmsg;
-    #endif
-
+#ifndef NDEBUG
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<" MdtReadoutElement::tubePos(ml,tl,t) got localP and trans "<<endmsg;
+#endif
     return mdtTrans * lp;
-
 }
 const Amg::Vector3D MdtReadoutElement::nodeform_tubePos(Identifier id) const
 {
@@ -679,10 +624,12 @@ const Amg::Vector3D MdtReadoutElement::nodeform_tubePos(Identifier id) const
     int layer    = idh->tubeLayer(id);
     int tube     = idh->tube(id);
 #ifndef NDEBUG
-	(*m_Log) <<MSG::VERBOSE<<" Computing tubePos for     id  = "<<idh->show_to_string(id)<<endmsg;
-	(*m_Log) <<MSG::VERBOSE<<" in MdtReadoutElement with id  = "<<idh->show_to_string(identify())<<endmsg;
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    if (log.level()<=MSG::VERBOSE) {
+        log << MSG::VERBOSE<<" Computing tubePos for     id  = "<<idh->show_to_string(id)<<endmsg;
+        log << MSG::VERBOSE<<" in MdtReadoutElement with id  = "<<idh->show_to_string(identify())<<endmsg;
+    }
 #endif
-    
     return nodeform_tubePos(ml, layer, tube);
 }
 const Amg::Vector3D MdtReadoutElement::tubePos(Identifier id) const
@@ -692,10 +639,12 @@ const Amg::Vector3D MdtReadoutElement::tubePos(Identifier id) const
     int layer    = idh->tubeLayer(id);
     int tube     = idh->tube(id);
 #ifndef NDEBUG
-	(*m_Log) <<MSG::VERBOSE<<" Computing tubePos for     id  = "<<idh->show_to_string(id)<<endmsg;
-	(*m_Log) <<MSG::VERBOSE<<" in MdtReadoutElement with id  = "<<idh->show_to_string(identify())<<endmsg;
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    if (log.level()<=MSG::VERBOSE) {
+        log << MSG::VERBOSE<<" Computing tubePos for     id  = "<<idh->show_to_string(id)<<endmsg;
+        log << MSG::VERBOSE<<" in MdtReadoutElement with id  = "<<idh->show_to_string(identify())<<endmsg;
+    }
 #endif
-    
     return tubePos(ml, layer, tube);
 }
 
@@ -763,6 +712,21 @@ MdtReadoutElement::localToGlobalCoords(Amg::Vector3D x, Identifier id) const
   return transform(id)*x;
 }
 
+const Amg::Transform3D
+MdtReadoutElement::globalTransform (const Amg::Vector3D& tubePos,
+                                    const Amg::Transform3D& toDeform) const
+{
+  const Amg::Translation3D xfp(tubePos.x(), tubePos.y(), tubePos.z());
+  return transform()*toDeform*xfp*Amg::AngleAxis3D(90.*CLHEP::deg,Amg::Vector3D(1.,0.,0.));
+}
+
+const Amg::Transform3D
+MdtReadoutElement::globalTransform (const Amg::Vector3D& tubePos) const
+{
+  const Amg::Translation3D xfp(tubePos.x(), tubePos.y(), tubePos.z());
+  return transform()*xfp*Amg::AngleAxis3D(90.*CLHEP::deg,Amg::Vector3D(1.,0.,0.));
+}
+
 const Amg::Vector3D MdtReadoutElement::nodeform_localToGlobalCoords(Amg::Vector3D x, Identifier id) const
 {
     const Amg::Vector3D tp = nodeform_localTubePos(id);
@@ -771,25 +735,18 @@ const Amg::Vector3D MdtReadoutElement::nodeform_localToGlobalCoords(Amg::Vector3
 }
 const Amg::Transform3D MdtReadoutElement::localToGlobalTransf(Identifier id) const
 {
-    // a point at z=-L/2 goes at y=+L/2 
-    const Amg::Vector3D tp = nodeform_localTubePos(id);
-    const Amg::Translation3D xfp(tp.x(), tp.y(), tp.z());
-    const Amg::Transform3D toDeform = fromIdealToDeformed(id);
-    return transform()*toDeform*xfp*Amg::AngleAxis3D(90.*CLHEP::deg,Amg::Vector3D(1.,0.,0.));
+  // a point at z=-L/2 goes at y=+L/2
+  return globalTransform (nodeform_localTubePos(id), fromIdealToDeformed(id));
 }
 const Amg::Transform3D MdtReadoutElement::localToGlobalTransf(int tubeLayer, int tube) const
 {
     // a point at z=-L/2 goes at y=+L/2 
-    const Amg::Vector3D tp = nodeform_localTubePos(getMultilayer(), tubeLayer, tube);
-    const Amg::Translation3D xfp(tp.x(), tp.y(), tp.z());
-    const Amg::Transform3D toDeform = fromIdealToDeformed(getMultilayer(), tubeLayer, tube);
-    return transform()*toDeform*xfp*Amg::AngleAxis3D(90.*CLHEP::deg,Amg::Vector3D(1.,0.,0.));
+  return globalTransform (nodeform_localTubePos(getMultilayer(), tubeLayer, tube),
+                          fromIdealToDeformed(getMultilayer(), tubeLayer, tube));
 }
 const Amg::Transform3D MdtReadoutElement::nodeform_localToGlobalTransf(Identifier id) const
 {
-    const Amg::Vector3D tp = nodeform_localTubePos(id);
-    const Amg::Translation3D xfp(tp.x(), tp.y(), tp.z());
-    return transform()*xfp*Amg::AngleAxis3D(90.*CLHEP::deg,Amg::Vector3D(1.,0.,0.));
+  return globalTransform (nodeform_localTubePos(id));
 }
 
 const Amg::Transform3D 
@@ -832,9 +789,7 @@ const Amg::Vector3D MdtReadoutElement::AmdbLRStubePos(int multilayer,
                                                    int tube) const
 {
    if (multilayer != m_multilayer) {
-        (*m_Log) <<MSG::ERROR<<"MdtReadoutElement::AmdbLRStubePos "
-               <<"inserted multilayer is not the multilayer of the RE." <<endmsg;
-        throw;
+        throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::AmdbLRStubePos() - inserted multilayer is not the multilayer of the RE.", __FILE__, __LINE__));
    }
    const Amg::Vector3D tp = localTubePos(multilayer, tubelayer, tube);
 
@@ -866,12 +821,12 @@ double MdtReadoutElement::getNominalTubeLengthWoCutouts(int tubeLayer, int tube)
   if (m_inBarrel) return m_Ssize;
   else {
     int istep = int((tube-1)/m_ntubesinastep);
-    if (istep < 0 || istep >= m_nsteps)
-    {
-      (*m_Log)  << MSG::WARNING << "getNominalTubeLengthWoCutouts for Element named " << getStationName() << " with tech. "
-	<< getTechnologyType() <<" DEid = "<<idh->show_to_string(identify())<< " called with: tubeL, tube " << tubeLayer << " "
-	<< tube << "; step " << istep << " out of range 0-" << m_nsteps-1
-	<< " m_ntubesinastep " << m_ntubesinastep <<endmsg;
+    if (istep < 0 || istep >= m_nsteps) {
+      MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+      log << MSG::WARNING << "getNominalTubeLengthWoCutouts for Element named " << getStationName() << " with tech. "
+      << getTechnologyType() <<" DEid = "<<idh->show_to_string(identify())<< " called with: tubeL, tube " << tubeLayer << " "
+      << tube << "; step " << istep << " out of range 0-" << m_nsteps-1
+      << " m_ntubesinastep " << m_ntubesinastep <<endmsg;
       istep =  0;
     }
     return  m_tubelength[istep];
@@ -895,72 +850,73 @@ Amg::Vector3D MdtReadoutElement::localNominalTubePosWoCutouts(int tubelayer, int
 
 const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, int tubelayer, int tube) const
 {
-  const MdtIdHelper* idh = manager()->mdtIdHelper();
+  size_t itube = (tubelayer-1)*m_ntubesperlayer + tube - 1;
+  if( itube >= m_deformTransf.size() ) {
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    log << MSG::WARNING <<" geoInfo called with tubeLayer or tube out of range in chamber " 
+        << manager()->mdtIdHelper()->print_to_string(m_id)
+        << " : layer " << tubelayer << " max " << m_nlayers 
+        << " tube " << tube << " max " << m_ntubesperlayer 
+        <<" will compute deformation for first tube in this chamber"<< endmsg;
+    log << MSG::WARNING <<"Please run in DEBUG mode to get extra diagnostic"<<endmsg;
+    itube = 0;
+  }
+
+  const CxxUtils::CachedUniquePtr<Amg::Transform3D>& ptr = m_deformTransf.at (itube);
+  if (!ptr) {
+    Amg::Transform3D trans =
+      deformedTransform (multilayer, tubelayer, tube);
+    ptr.set (std::make_unique<Amg::Transform3D> (trans));
+    if (!m_haveDeformTransf)
+      m_haveDeformTransf = true;
+  }
+  return *ptr;
+}
+
+
+Amg::Transform3D
+MdtReadoutElement::deformedTransform (int multilayer, int tubelayer, int tube) const
+{
   const MuonStation*  ms = parentMuonStation();
   HepGeom::Point3D<double> fpp = ms->getUpdatedBlineFixedPointInAmdbLRS();
   Amg::Vector3D fixedPoint(fpp.x(),fpp.y(),fpp.z());
-
+#ifndef NDEBUG
+  MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+  const MdtIdHelper* idh = manager()->mdtIdHelper();
+#endif
   if ( 
       ( (!(manager()->applyMdtDeformations())) || (!(ms->hasBLines())) ) && 
       ( (!(manager()->applyMdtAsBuiltParams()))|| (!(ms->hasMdtAsBuiltParams())) )  	
      )
     {
-      if (!m_deformTransfs) 
-	{
-	  m_deformTransfs  = new std::vector<Amg::Transform3D *>( 1 );
-    #ifndef NDEBUG
-	    (*m_Log)  << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())<<" created vector of deform-trasf with size 1 - pointer "<<(uintptr_t)m_deformTransfs<<endmsg;
-    #endif
-	}
-      Amg::Transform3D * transf =  (*m_deformTransfs)[0];
-      if( transf ) return *transf;
-      transf = new Amg::Transform3D(Amg::Transform3D::Identity());
-      (*m_deformTransfs)[0] = transf;	
-      #ifndef NDEBUG
-	(*m_Log)  << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())<<" creating deform-trasf as identity for tLayer, tube "<<tubelayer<<" "<<tube
-		<<" globalIndex = "<<0<<" pointer "<<(uintptr_t)transf<<endmsg;
-    #endif
-      return *transf;
+      return Amg::Transform3D::Identity();
     }
   
    
   int ntot_tubes = m_nlayers * m_ntubesperlayer;
-  if (!m_deformTransfs ) {	
-    #ifndef NDEBUG
-      (*m_Log)  << MSG::VERBOSE <<"Creating vector of deform-Transformations for RE "<< idh->show_to_string(identify())
-	      <<" with "<<ntot_tubes << " components"<<endmsg;
-    #endif
-      m_deformTransfs  = new std::vector<Amg::Transform3D *>( ntot_tubes );
-      for (int j=0; j<ntot_tubes; ++j)  (*m_deformTransfs)[j] = 0;
-  }
   int itube = (tubelayer-1)*m_ntubesperlayer + tube - 1;
   if (itube>=ntot_tubes) {
-    (*m_Log)  << MSG::WARNING <<"global index for tubelayer/tube =  "<<tubelayer<<"/"<<tube<<" is "<<itube<<" >=ntot_tubes ="<<ntot_tubes<<" RESETTING global index to 0"<<endmsg;
+#ifdef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+#endif
+    log << MSG::WARNING <<"global index for tubelayer/tube =  "<<tubelayer<<"/"<<tube<<" is "<<itube<<" >=ntot_tubes ="<<ntot_tubes<<" RESETTING global index to 0"<<endmsg;
     itube = 0;
   }
-  Amg::Transform3D * transf =  (*m_deformTransfs)[itube];
-  if( transf ) {
-    #ifndef NDEBUG
-    (*m_Log)  << MSG::VERBOSE <<"RE "<< idh->show_to_string(identify())
-						 <<" reusing deform-trasf for tLayer, tube "<<tubelayer<<" "<<tube<<" globalIndex = "<<itube<<endmsg;
-    #endif
-      return *transf;
-  }
-  
 
   // Chamber parameters
-
   double width_narrow = m_Ssize;
   double width_wide = m_LongSsize;
-  double heightML = m_inBarrel ? m_Zsize : m_Rsize;
-  double thicknessML = m_inBarrel ? m_Rsize : m_Zsize;
   double height    = m_inBarrel ? ms->ZsizeMdtStation() : ms->RsizeMdtStation();
   double thickness = m_inBarrel ? ms->RsizeMdtStation() : ms->ZsizeMdtStation();
-  if (fabs(height-heightML)>10.)  
-    (*m_Log)  << MSG::DEBUG <<"RE "<< idh->show_to_string(identify())
-	    <<"Different ML and MDTStation length in the precision coord.direction  ---  MultiLayerHeight, MDTstationHeigh "
-	    <<heightML<<" "<<height<<" MultiLayerThickness, MDTstationThickness "<<thicknessML<<" "<<thickness<<endmsg;
-									        
+#ifndef NDEBUG
+  double heightML = m_inBarrel ? m_Zsize : m_Rsize;
+  double thicknessML = m_inBarrel ? m_Rsize : m_Zsize;
+  if (std::abs(height-heightML)>10.) {
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG <<"RE "<< idh->show_to_string(identify())
+      <<"Different ML and MDTStation length in the precision coord.direction  ---  MultiLayerHeight, MDTstationHeigh "
+      <<heightML<<" "<<height<<" MultiLayerThickness, MDTstationThickness "<<thicknessML<<" "<<thickness<<endmsg;
+  }
+#endif							        
   // Chamber dimension in Z is defined with extraneous glue width. Correct for it
   double glue = (tubePitch() - 2.*outerTubeRadius());
   height -= glue;
@@ -1044,13 +1000,9 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
     rotation_vector_unit = rotation_vector.unit();
   const Amg::AngleAxis3D wire_rotation(asin(rotation_vector.mag()),rotation_vector_unit);
 
-  transf = new Amg::Transform3D(from_center*wire_rotation*to_center);
-  (*m_deformTransfs)[itube] = transf;
-    (*m_Log)  << MSG::DEBUG <<"RE "<< idh->show_to_string(identify())
-	    <<" created deform-trasf for tLayer, tube "<<tubelayer<<" "<<tube<<" globalIndex = "<<itube<<endmsg;
-
-  return *transf;
+  return Amg::Transform3D(from_center*wire_rotation*to_center);
 }
+
 
 Amg::Vector3D
 MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const
@@ -1125,14 +1077,15 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
 
   Amg::Vector3D deformPos(locAMDBPos);
 
-  //NOTE s0,z0,t0 are the coord. in the amdb frame of this point: the origine of the frame can be different than the fixed point for deformations s0mdt,z0mdt,t0mdt 
+  //NOTE s0,z0,t0 are the coord. in the amdb frame of this point: the origin of the frame can be different than the fixed point for deformations s0mdt,z0mdt,t0mdt 
   //    (always equal to the point at lowest t,z and s=0 of the MDT stack)
   double s0 = locAMDBPos.x();
   double z0 = locAMDBPos.y();
   double t0 = locAMDBPos.z();
 #ifdef TESTBLINES
-  std::cerr<<"** In posOnDefChamWire - width_narrow, width_wide, length, thickness, "<<width_narrow<<" "<<width_wide<<" "<<height<<" "<<thickness<<" "<<std::endl;
-  std::cerr<<"** In posOnDefChamWire - going to correct for B-line the position of Point at "<<s0<<" "<<z0<<" "<<t0<<" in the amdb-szt frame"<<std::endl;
+  MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+  log << MSG::WARNING<<"** In posOnDefChamWire - width_narrow, width_wide, length, thickness, "<<width_narrow<<" "<<width_wide<<" "<<height<<" "<<thickness<<" "<<endmsg;
+  log << MSG::WARNING<<"** In posOnDefChamWire - going to correct for B-line the position of Point at "<<s0<<" "<<z0<<" "<<t0<<" in the amdb-szt frame"<<endmsg;
 #endif
 
   double s0mdt = s0; // always I think ! 
@@ -1141,13 +1094,17 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
   if (fabs(fixedPoint.y())>0.01) z0mdt = z0-fixedPoint.y();
   double t0mdt = t0; // unless in the D section of this station there's a dz diff. from 0 for the innermost MDT multilayer (often in barrel) 
   if (fabs(fixedPoint.z())>0.01) t0mdt = t0-fixedPoint.z();
-  if (z0mdt<0 || t0mdt<0) (*m_Log) <<MSG::WARNING
-				 <<"posOnDefChamStraigthWire: correcting the local position of a point outside the mdt station (2 multilayers) volume -- RE "
-				 << manager()->mdtIdHelper()->show_to_string(identify())<<endmsg
-				 <<"local point: szt="<<s0<<" "<<z0<<" "<<t0
-				 <<" fixedPoint "<<fixedPoint<<endmsg; 
+  if (z0mdt<0 || t0mdt<0) {
+#ifndef TESTBLINES
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+#endif
+    log << MSG::WARNING
+				 <<"posOnDefChamWire: correcting the local position of a point outside the mdt station (2 multilayers) volume -- RE "
+				 << manager()->mdtIdHelper()->show_to_string(identify())
+				 <<" local point: szt="<<s0<<" "<<z0<<" "<<t0<<" fixedPoint "<<fixedPoint<<endmsg;
+  }
 #ifdef TESTBLINES  
-  std::cerr<<"** In posOnDefChamWire - correct for offset of B-line fixed point "<<s0mdt<<" "<<z0mdt<<" "<<t0mdt<<" "<<std::endl;
+  log << MSG::WARNING<<"** In posOnDefChamWire - correct for offset of B-line fixed point "<<s0mdt<<" "<<z0mdt<<" "<<t0mdt<<" "<<endmsg;
 #endif
 
   double ds = 0.;
@@ -1159,7 +1116,7 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
   double z_rel=(z0mdt-height/2.)/(height/2.);
   double t_rel=(t0mdt-thickness/2.)/(thickness/2.);
 #ifdef TESTBLINES  
-  std::cerr<<"** In posOnDefChamWire - width_actual, s_rel, z_rel, t_rel  "<<width_actual<<" "<<s_rel<<" "<<z_rel<<" "<<t_rel<<std::endl;
+  log << MSG::WARNING<<"** In posOnDefChamWire - width_actual, s_rel, z_rel, t_rel  "<<width_actual<<" "<<s_rel<<" "<<z_rel<<" "<<t_rel<<endmsg;
 #endif
   
 
@@ -1174,7 +1131,7 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
     dt -= tw*s_rel*z_rel;
     dz += tw*s_rel*t_rel*thickness/height;
 #ifdef TESTBLINES
-    std::cerr<<"** In posOnDefChamWire: tw="<<tw<<" dt, dz "<<dt<<" "<<dz<<std::endl;
+  log << MSG::WARNING<<"** In posOnDefChamWire: tw="<<tw<<" dt, dz "<<dt<<" "<<dz<<endmsg;
 #endif
   }
 
@@ -1203,7 +1160,7 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
   }
 
 #ifdef TESTBLINES
-  std::cerr<<"posOnDefChamStraighWire: ds,z,t = "<<ds<<" "<<dz<<" "<<dt<<std::endl;
+  log << MSG::WARNING<<"posOnDefChamStraighWire: ds,z,t = "<<ds<<" "<<dz<<" "<<dt<<endmsg;
 #endif
 
   deformPos[0] = s0+ds;
@@ -1218,16 +1175,20 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
 // http://atlas-muon-align.web.cern.ch/atlas-muon-align/endplug/asbuilt.pdf
 void MdtReadoutElement::wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg::Vector3D& locAMDBWireEndN, int multilayer, int tubelayer, int tube) const
 {
-  MdtAsBuiltPar* params = parentMuonStation()->getMdtAsBuiltParams();
+  const MdtAsBuiltPar* params = parentMuonStation()->getMdtAsBuiltParams();
   if (!params) {
-    (*m_Log)  << MSG::WARNING << "Cannot find Mdt AsBuilt parameters for chamber "
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    log << MSG::WARNING << "Cannot find Mdt AsBuilt parameters for chamber "
       << getStationType() << ", eta " << getStationEta() << ", phi " << getStationPhi() << endmsg;
     return;
   }
-  (*m_Log)  << MSG::DEBUG
+#ifndef NDEBUG
+  MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+  if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE
     << "Applying as-built parameters for chamber " << getStationType() << ", eta " << getStationEta() << ", phi " << getStationPhi()
     << " -- multilayer=" << multilayer << " tubelayer=" << tubelayer << " tube=" << tube
     << endmsg;
+#endif
 
   static const int nsid=2;
   MdtAsBuiltPar::tubeSide_t tubeSide[nsid] = { MdtAsBuiltPar::POS, MdtAsBuiltPar::NEG };
@@ -1289,12 +1250,15 @@ void MdtReadoutElement::wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg
 
     // Warn if result of calculation is too far off
     // BIL1A13 has as-built parameters up to 3mm off, giving the size of the cut
-    if ((ret-wireEnd[isid]).mag() > 3.*CLHEP::mm)
-      (*m_Log)  << MSG::WARNING << "Large as-built correction for chamber "
-	<< getStationType() << ", eta " << getStationEta() << ", phi " << getStationPhi()
-	<< ", ML " << multilayer << ", layer " << tubelayer << ", tube " << tube << ", side " << isid
-	<< ", Delta (" << ret.x()-wireEnd[isid].x() << ", " << ret.y()-wireEnd[isid].y() << ", " << ret.z()-wireEnd[isid].z() << ")"
-       	<< endmsg;
+    if ((ret-wireEnd[isid]).mag() > 3.*CLHEP::mm) {
+#ifdef NDEBUG
+      MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+#endif
+      log << MSG::WARNING << "Large as-built correction for chamber "
+      << getStationType() << ", eta " << getStationEta() << ", phi " << getStationPhi()
+      << ", ML " << multilayer << ", layer " << tubelayer << ", tube " << tube << ", side " << isid
+      << ", Delta (" << ret.x()-wireEnd[isid].x() << ", " << ret.y()-wireEnd[isid].y() << ", " << ret.z()-wireEnd[isid].z() << ")"<< endmsg;
+    }
 
     // Save the result
     if (tubeSide[isid]==MdtAsBuiltPar::POS)
@@ -1304,23 +1268,21 @@ void MdtReadoutElement::wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg
   }
 }
 
-void  MdtReadoutElement::setIdentifier(Identifier id)
+void MdtReadoutElement::setIdentifier(Identifier id)
 {
     m_id = id;
     const MdtIdHelper* idh = manager()->mdtIdHelper();
     IdentifierHash collIdhash = 0;
     IdentifierHash detIdhash = 0;
-    int gethash_code = idh->get_module_hash(id, collIdhash);
-    if (gethash_code != 0) 
-	(*m_Log) <<MSG::WARNING
-	       <<"MdtReadoutElement -- collection hash Id NOT computed for id = "
-	       <<idh->show_to_string(id)<<endmsg;
+    if (idh->get_module_hash(id, collIdhash) != 0) {
+      MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+      log << MSG::WARNING << "setIdentifier -- collection hash Id NOT computed for id = " << idh->show_to_string(id) << endmsg;
+    }
     m_idhash = collIdhash;
-    gethash_code = idh->get_detectorElement_hash(id, detIdhash);
-    if (gethash_code != 0) 
-	(*m_Log) <<MSG::WARNING
-	       <<"MdtReadoutElement --  detectorElement hash Id NOT computed for id = "
-	       <<idh->show_to_string(id)<<endmsg;
+    if (idh->get_detectorElement_hash(id, detIdhash) != 0) {
+      MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+      log << MSG::WARNING << "setIdentifier -- detectorElement hash Id NOT computed for id = " << idh->show_to_string(id) << endmsg;
+    }
     m_detectorElIdhash = detIdhash;
 }
 
@@ -1335,15 +1297,16 @@ MdtReadoutElement::transform(const Identifier & id) const
   const MdtIdHelper* idh = manager()->mdtIdHelper();
 
 #ifndef NDEBUG
+  MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
   if ( !idh->valid(id) ) { // is input id valid ? 
-      (*m_Log) <<MSG::WARNING<<"transform requested to RE "
+      log << MSG::WARNING<<"transform requested to RE "
 	     <<idh->show_to_string(identify())<<" named "<<getStationName()
 	     <<" for invalid tube id "
 	     <<idh->show_to_string(id)<<" computing tranform for first tube of this RE"<<endmsg;
       return transform(identify());
   }
   if (!containsId(id)) {
-      (*m_Log) <<MSG::WARNING<<"transform requested to RE "
+      log << MSG::WARNING<<"transform requested to RE "
 	     <<idh->show_to_string(identify())<<" named "<<getStationName()
 	     <<" for not contained tube id "
 	     <<idh->show_to_string(id)<<" computing tranform for first tube of this RE"<<endmsg;
@@ -1355,75 +1318,59 @@ MdtReadoutElement::transform(const Identifier & id) const
   return transform(tubeLayer, tube);
 }
 
+
+std::unique_ptr<MdtReadoutElement::GeoInfo>
+MdtReadoutElement::makeGeoInfo (int tubelayer, int tube) const
+{
+  const Amg::Transform3D& toDeformed = fromIdealToDeformed (getMultilayer(), tubelayer, tube);
+  const Amg::Transform3D transform = globalTransform (nodeform_localTubePos(getMultilayer(), tubelayer, tube),
+                                                      toDeformed);
+  return std::make_unique<GeoInfo> (transform);
+}
+
+
+const MdtReadoutElement::GeoInfo&
+MdtReadoutElement::geoInfo (int tubeLayer, int tube) const
+{
+  size_t itube = (tubeLayer-1)*m_ntubesperlayer + tube - 1;
+  if( itube >= m_tubeGeo.size() ) {
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    log << MSG::WARNING <<" geoInfo called with tubeLayer or tube out of range in chamber " 
+        << manager()->mdtIdHelper()->print_to_string(m_id)
+        << " : layer " << tubeLayer << " max " << m_nlayers 
+        << " tube " << tube << " max " << m_ntubesperlayer 
+        <<" will compute transform for first tube in this chamber"<< endmsg;
+    log << MSG::WARNING <<"Please run in DEBUG mode to get extra diagnostic"<<endmsg;
+    itube = 0;
+  }
+
+  const CxxUtils::CachedUniquePtr<GeoInfo>& ptr = m_tubeGeo.at (itube);
+  if (!ptr) {
+    ptr.set (makeGeoInfo (tubeLayer, tube));
+    if (!m_haveTubeGeo)
+      m_haveTubeGeo = true;
+  }
+  return *ptr;
+}
+
+
 const Amg::Transform3D &
 MdtReadoutElement::transform(int tubeLayer, int tube) const 
 {
-    int ntot_tubes = m_nlayers * m_ntubesperlayer;
-    int itube = (tubeLayer-1)*m_ntubesperlayer + tube - 1;
-    if( itube >= ntot_tubes ) {
-	(*m_Log)  << MSG::WARNING 
-		<<" transform called with tubeLayer or tube out of range in chamber " 
-		<< manager()->mdtIdHelper()->print_to_string(m_id)
-		<< " : layer " << tubeLayer << " max " << m_nlayers 
-		<< " tube " << tube << " max " << m_ntubesperlayer 
-		<<" will compute transform for first tube in this chamber"<< endmsg;
-	(*m_Log)  <<"Please run in DEBUG mode to get extra diagnostic"<<endmsg;
-      itube = 0;
-    }
-
-    if (m_caching >0)
-    {
-        if (!m_tubeTransf) m_tubeTransf = new std::vector<Amg::Transform3D *>( ntot_tubes );
-        Amg::Transform3D * transfPtr = (*m_tubeTransf)[itube];
-        if (!transfPtr) {
-            transfPtr = new Amg::Transform3D(localToGlobalTransf(tubeLayer, tube));
-            (*m_tubeTransf)[itube] = transfPtr;
-        }
-        return *transfPtr;
-    }
-    else
-    {
-        if (!m_tubeTransf) m_tubeTransf = new std::vector<Amg::Transform3D *>;
-        Amg::Transform3D * transfPtr = new Amg::Transform3D(localToGlobalTransf(tubeLayer, tube));
-        m_tubeTransf->push_back(transfPtr);
-        return *transfPtr;
-    }
+  return geoInfo (tubeLayer, tube).m_transform;
 }
 
-void MdtReadoutElement::restoreTubes() const
+void MdtReadoutElement::restoreTubes()
 {
-  if (0==m_backupTubeCenter || 0==m_backupTubeTransf) return;
-
-  for (int i=0;i<(int)(m_backupTubeCenter->size());i++) {
-    if (0!=(*m_backupTubeCenter)[i]) {
-      delete (*m_tubeCenter)[i];
-      (*m_tubeCenter)[i]=(*m_backupTubeCenter)[i];
-    }
-  }
-
-  for (int i=0;i<(int)(m_backupTubeTransf->size());i++) {
-    if (0!=(*m_backupTubeTransf)[i]) {
-      delete (*m_tubeTransf)[i];
-      (*m_tubeTransf)[i]=(*m_backupTubeTransf)[i];
-    }
-  }
-
-  for (int i=0;i<(int)(m_backupDeformTransf->size());i++) {
-    if (0!=(*m_backupDeformTransf)[i]) {
-      delete (*m_deformTransfs)[i];
-      (*m_deformTransfs)[i]=(*m_backupDeformTransf)[i];
-    }
-  }
-
-  delete m_backupTubeCenter;   m_backupTubeCenter=0;  
-  delete m_backupTubeTransf;   m_backupTubeTransf=0;
-  delete m_backupDeformTransf; m_backupDeformTransf=0;
-
-  return;
+  if (m_backupTubeGeo.empty()) return;
+  m_tubeGeo = std::move (m_backupTubeGeo);
+  m_haveTubeGeo = true;
+  m_deformTransf = std::move (m_backupDeformTransf);
+  m_haveDeformTransf = true;
 }
 
 
-void MdtReadoutElement::shiftTube(const Identifier& id) const
+void MdtReadoutElement::shiftTube(const Identifier& id)
 {
   const MdtIdHelper* idh = manager()->mdtIdHelper();
   int mlayer    = idh->multilayer(id);
@@ -1438,39 +1385,22 @@ void MdtReadoutElement::shiftTube(const Identifier& id) const
   
   int itube = (tubeLayer-1)*m_ntubesperlayer + tube - 1;
   
-  if (0==m_backupTubeCenter) {
-    m_backupTubeCenter = new std::vector<Amg::Vector3D *>( ntot_tubes );
-    m_backupTubeTransf = new std::vector<Amg::Transform3D *>( ntot_tubes );   
+  if (m_backupTubeGeo.empty()) {
+    m_backupTubeGeo.resize (ntot_tubes);
   }
 
-  if (0==m_backupDeformTransf && m_deformTransfs) {
-    unsigned int sizeDeformTransf = m_deformTransfs->size();
-    m_backupDeformTransf = new std::vector<Amg::Transform3D *>( sizeDeformTransf );    
-  }
-  
-  // new tube transform (must be done before transform() called)
-  if (0==(*m_backupTubeTransf)[itube]) { 
-    (*m_backupTubeTransf)[itube]=(*m_tubeTransf)[itube];
-    (*m_tubeTransf)[itube]= new Amg::Transform3D(localToGlobalTransf(tubeLayer,tube));
+  if (!m_backupTubeGeo[itube]) {
+    m_backupTubeGeo[itube].store (m_tubeGeo[itube].release());
+    m_tubeGeo[itube].store (makeGeoInfo (tubeLayer, tube));
+    m_haveTubeGeo = true;
   }
 
-  // new tube center
-  if (0==(*m_backupTubeCenter)[itube]) {
-    
-    (*m_backupTubeCenter)[itube]=(*m_tubeCenter)[itube];
-    
-    // double wireTension = 350.;
-    // if (getStationName().substr(0,3) == "BOL") wireTension = 285.;
-    (*m_tubeCenter)[itube]= new Amg::Vector3D(transform(tubeLayer,tube)*Amg::Vector3D(0.,0.,0.));
+  if (m_backupDeformTransf.empty()) {
+    m_backupDeformTransf.resize (ntot_tubes);
   }
 
-  // new deformation transform
-  if (m_deformTransfs) {
-    int jtube=(m_deformTransfs->size()==1) ? 0 : itube;
-    if (0==(*m_backupDeformTransf)[jtube]) { 
-      (*m_backupDeformTransf)[jtube]=(*m_deformTransfs)[jtube];
-      (*m_deformTransfs)[jtube]=0;
-    }
+  if (!m_backupDeformTransf[itube]) {
+    m_backupDeformTransf[itube].store (m_deformTransf[itube].release());
   }
 
   return;
@@ -1483,137 +1413,109 @@ MdtReadoutElement::surface (int tubeLayer, int tube) const
     Identifier id = idh->channelID(idh->parentID(identify()), getMultilayer(), tubeLayer, tube);
     
     int ntot_tubes = m_nlayers * m_ntubesperlayer;
-    if (!m_tubeSurfaces) m_tubeSurfaces = new std::vector<Trk::SaggedLineSurface *>( ntot_tubes );
     int itube = (tubeLayer-1)*m_ntubesperlayer + tube - 1;
     // consistency checks 
     if( itube >= ntot_tubes ) {
-      (*m_Log)  << MSG::WARNING <<"surface called with tubeLayer or tube out of range in chamber " 
-	      << manager()->mdtIdHelper()->print_to_string(m_id)
-              << " : layer " << tubeLayer << " max " << m_nlayers 
-	      << " tube " << tube << " max " << m_ntubesperlayer 
-	      <<" will compute surface for first tube in this chamber"<< endmsg;
-      (*m_Log) <<"Please run in DEBUG mode to get extra diagnostic"<<endmsg;
+      MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+      log << MSG::WARNING <<"surface called with tubeLayer or tube out of range in chamber " 
+      << manager()->mdtIdHelper()->print_to_string(m_id)
+      << " : layer " << tubeLayer << " max " << m_nlayers 
+      << " tube " << tube << " max " << m_ntubesperlayer 
+      <<" will compute surface for first tube in this chamber"<< endmsg;
+      log << MSG::WARNING <<"Please run in DEBUG mode to get extra diagnostic"<<endmsg;
       itube = 0;
     }
 
-    if (m_caching >0)
-    {
-        if (!m_tubeSurfaces) m_tubeSurfaces = new std::vector<Trk::SaggedLineSurface *>( ntot_tubes );
-        Trk::SaggedLineSurface * surfacePtr = (*m_tubeSurfaces)[itube];
-        if (!surfacePtr) {
-	  double wireTension = 350.;
-	  if (getStationName().substr(0,3) == "BOL") wireTension = 285.;
-            surfacePtr = new Trk::SaggedLineSurface(*this, id, getWireLength(tubeLayer, tube), wireTension, linearDensity);
-            (*m_tubeSurfaces)[itube] = surfacePtr;
-        }
-        return *surfacePtr;
+    const CxxUtils::CachedUniquePtr<Trk::SaggedLineSurface>& ptr =
+      m_tubeSurfaces.at(itube);
+    if (!ptr) {
+      double wireTension = 350.;
+      if (getStationName().substr(0,3) == "BOL") wireTension = 285.;
+      ptr.set (std::make_unique<Trk::SaggedLineSurface>(*this, id, getWireLength(tubeLayer, tube), wireTension, linearDensity));
+      if (!m_haveTubeSurfaces)
+        m_haveTubeSurfaces = true;
     }
-    else
-    {
-        if (!m_tubeSurfaces) m_tubeSurfaces = new std::vector<Trk::SaggedLineSurface *>;
-	double wireTension = 350.;
-	if (getStationName().substr(0,3) == "BOL") wireTension = 285.;
-        Trk::SaggedLineSurface * surfacePtr =
-            new Trk::SaggedLineSurface(*this, id, getWireLength(tubeLayer, tube), wireTension, linearDensity);
-        m_tubeSurfaces->push_back(surfacePtr);
-        return *surfacePtr;        
-    }
+    return *ptr;
 }
 const Trk::SaggedLineSurface&
 MdtReadoutElement::surface (const Identifier& id) const
 {
     const MdtIdHelper* idh = manager()->mdtIdHelper();
-
 #ifndef NDEBUG
-  if ( !idh->valid(id) ) { // is input id valid ? 
-      (*m_Log) <<MSG::WARNING<<"surface requested to RE "
-	     <<idh->show_to_string(identify())<<" named "<<getStationName()
-	     <<" for invalid tube id "
-	     <<idh->show_to_string(id)<<" computing surface for first tube of this RE"<<endmsg;
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    if ( !idh->valid(id) ) { // is input id valid ? 
+      log << MSG::WARNING<<"surface requested to RE "
+      <<idh->show_to_string(identify())<<" named "<<getStationName()
+      <<" for invalid tube id "
+      <<idh->show_to_string(id)<<" computing surface for first tube of this RE"<<endmsg;
       return surface(identify());
-  }
-  if (!containsId(id)) {
-      (*m_Log) <<MSG::WARNING<<"surface requested to RE "
-	     <<idh->show_to_string(identify())<<" named "<<getStationName()
-	     <<" for not contained tube id "
-	     <<idh->show_to_string(id)<<" computing surface for first tube of this RE"<<endmsg;
+    }
+    if (!containsId(id)) {
+      log << MSG::WARNING<<"surface requested to RE "
+      <<idh->show_to_string(identify())<<" named "<<getStationName()
+      <<" for not contained tube id "
+      <<idh->show_to_string(id)<<" computing surface for first tube of this RE"<<endmsg;
       return surface(identify());
-  }
+    }
 #endif
     return surface(idh->tubeLayer(id), idh->tube(id));    
 }
 const Trk::CylinderBounds  &
 MdtReadoutElement::bounds(int tubeLayer, int tube) const
-{
-  //std::cout<<"in bounds "<<std::endl;
-  
+{  
     int istep = 0;
     int ntot_steps = m_nsteps;
 
     if (hasCutouts() && manager()->MinimalGeoFlag() == 0) {
       ntot_steps =  m_nlayers * m_ntubesperlayer;
       istep = (tubeLayer-1)*m_ntubesperlayer + tube - 1;
-      //std::cout<<"in bounds for tubeLayer, tube "<<tubeLayer<<" "<<tube<<" istep(since hasCutouts) = "<<istep<<std::endl;
     }
     else
       {
 	if (!m_inBarrel) istep = int((tube-1)/m_ntubesinastep);
-	//std::cout<<"in bounds for tubeLayer, tube "<<tubeLayer<<" "<<tube<<" istep = "<<istep<<std::endl;
 
 	if( istep<0 || istep >= ntot_steps ) {
-	  const MdtIdHelper* idh = manager()->mdtIdHelper();
-	  (*m_Log)  << MSG::WARNING <<"bounds for Element named " << getStationName() << " with tech. "
-		  << getTechnologyType() <<" DEid = "<<idh->show_to_string(identify())<< " called with: tubeL, tube " << tubeLayer << " "
-		  << tube << "; step " << istep << " out of range 0-" << m_nsteps-1
-		  << " m_ntubesinastep " << m_ntubesinastep <<endmsg;
-	  (*m_Log) <<"Please run in DEBUG mode to get extra diagnostic; setting istep = 0"<<endmsg;
+    const MdtIdHelper* idh = manager()->mdtIdHelper();
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    log << MSG::WARNING <<"bounds for Element named " << getStationName() << " with tech. "
+    << getTechnologyType() <<" DEid = "<<idh->show_to_string(identify())<< " called with: tubeL, tube " << tubeLayer << " "
+    << tube << "; step " << istep << " out of range 0-" << m_nsteps-1
+    << " m_ntubesinastep " << m_ntubesinastep <<endmsg;
+	  log << MSG::WARNING <<"Please run in DEBUG mode to get extra diagnostic; setting istep = 0"<<endmsg;
 	  istep = 0;
 	}
       }
 
-    if (m_caching >0)
-    {        
-        if (!m_tubeBounds) m_tubeBounds = new std::vector<Trk::CylinderBounds *>( ntot_steps );
-        Trk::CylinderBounds * boundsPtr = (*m_tubeBounds)[istep];
-        if (!boundsPtr) {
-	  double tubelength = getTubeLengthForCaching(tubeLayer, tube);
-	  boundsPtr = new Trk::CylinderBounds(innerTubeRadius(), 0.5*tubelength - m_deadlength);
-	  (*m_tubeBounds)[istep] = boundsPtr;
-        }
-	else 
-	  {
-	  }
-        return *boundsPtr;
+    const CxxUtils::CachedUniquePtr<Trk::CylinderBounds>& ptr =
+      m_tubeBounds.at(istep);
+    if (!ptr) {
+      double tubelength = getTubeLengthForCaching(tubeLayer, tube);
+      ptr.set (std::make_unique<Trk::CylinderBounds>(innerTubeRadius(), 0.5*tubelength - m_deadlength));
+      if (!m_haveTubeBounds)
+        m_haveTubeBounds = true;
     }
-    else
-    {
-        if (!m_tubeBounds) m_tubeBounds = new std::vector<Trk::CylinderBounds *>;
-	double tubelength = getTubeLengthForCaching(tubeLayer, tube);
-        Trk::CylinderBounds * boundsPtr = new Trk::CylinderBounds(innerTubeRadius(), 0.5*tubelength - m_deadlength);
-        m_tubeBounds->push_back(boundsPtr);
-        return *boundsPtr;
-    }
+    return *ptr;
 }
 const Trk::CylinderBounds  &
 MdtReadoutElement::bounds(const Identifier& id) const
 {
     const MdtIdHelper* idh = manager()->mdtIdHelper();
-
 #ifndef NDEBUG
-  if ( !idh->valid(id) ) { // is input id valid ? 
-      (*m_Log) <<MSG::WARNING<<"bounds requested to RE "
-	     <<idh->show_to_string(identify())<<" named "<<getStationName()
-	     <<" for invalid tube id "
-	     <<idh->show_to_string(id)<<" computing bounds for first tube in this mdt RE"<<endmsg;
-      return bounds(identify());
-  }
-  if (!containsId(id)) {
-      (*m_Log) <<MSG::WARNING<<"bounds requested to RE "
-	     <<idh->show_to_string(identify())<<" named "<<getStationName()
-	     <<" for not contained tube id "
-	     <<idh->show_to_string(id)<<" computing bounds for first tube in this mdt RE"<<endmsg;
-      return bounds(identify());
-  }
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    if ( !idh->valid(id) ) { // is input id valid ? 
+        log << MSG::WARNING<<"bounds requested to RE "
+        <<idh->show_to_string(identify())<<" named "<<getStationName()
+        <<" for invalid tube id "
+        <<idh->show_to_string(id)<<" computing bounds for first tube in this mdt RE"<<endmsg;
+        return bounds(identify());
+    }
+    if (!containsId(id)) {
+        log << MSG::WARNING<<"bounds requested to RE "
+        <<idh->show_to_string(identify())<<" named "<<getStationName()
+        <<" for not contained tube id "
+        <<idh->show_to_string(id)<<" computing bounds for first tube in this mdt RE"<<endmsg;
+        return bounds(identify());
+    }
 #endif
     return bounds(idh->tubeLayer(id), idh->tube(id));
 }
@@ -1621,68 +1523,37 @@ const Amg::Vector3D&
 MdtReadoutElement::center (const Identifier& id) const
 {
     const MdtIdHelper* idh = manager()->mdtIdHelper();
-
 #ifndef NDEBUG
-  if ( !idh->valid(id) ) { // is input id valid ? 
-      (*m_Log) <<MSG::WARNING<<"center requested to RE "
-	     <<idh->show_to_string(identify())<<" named "<<getStationName()
-	     <<" for invalid tube id "
-	     <<idh->show_to_string(id)<<" computing center for first tube in this mdt RE"<<endmsg;
-      return center(identify());
-  }
-  if (!containsId(id)) {
-      (*m_Log) <<MSG::WARNING<<"center requested to RE "
-	     <<idh->show_to_string(identify())<<" named "<<getStationName()
-	     <<" for not contained tube id "
-	     <<idh->show_to_string(id)<<" computing center for first tube in this mdt RE"<<endmsg;
-      return center(identify());
-  }
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    if ( !idh->valid(id) ) { // is input id valid ? 
+        log << MSG::WARNING<<"center requested to RE "
+        <<idh->show_to_string(identify())<<" named "<<getStationName()
+        <<" for invalid tube id "
+        <<idh->show_to_string(id)<<" computing center for first tube in this mdt RE"<<endmsg;
+        return center(identify());
+    }
+    if (!containsId(id)) {
+        log << MSG::WARNING<<"center requested to RE "
+        <<idh->show_to_string(identify())<<" named "<<getStationName()
+        <<" for not contained tube id "
+        <<idh->show_to_string(id)<<" computing center for first tube in this mdt RE"<<endmsg;
+        return center(identify());
+    }
 #endif
     return center (idh->tubeLayer(id), idh->tube(id));
 }
 const Amg::Vector3D&
 MdtReadoutElement::center (int tubeLayer, int tube) const
 {
-    int ntot_tubes = m_nlayers * m_ntubesperlayer;
-    int itube = (tubeLayer-1)*m_ntubesperlayer + tube - 1;
-    // consistency checks 
-    if( itube >= ntot_tubes ) {
-      (*m_Log)  << MSG::WARNING <<"center called with tubeLayer or tube out of range in chamber " 
-	      << manager()->mdtIdHelper()->print_to_string(m_id)
-              << " : layer " << tubeLayer << " max " << m_nlayers 
-	      << " tube " << tube << " max " << m_ntubesperlayer 
-	      <<" will compute center for first tube in this chamber"<< endmsg;
-      (*m_Log) <<"Please run in DEBUG mode to get extra diagnostic"<<endmsg;
-      itube = 0;
-    }
-
-
-    if (m_caching>0)
-    {
-        if (!m_tubeCenter) m_tubeCenter = new std::vector<Amg::Vector3D *>( ntot_tubes );
-        Amg::Vector3D * centerPtr = (*m_tubeCenter)[itube];
-        if (!centerPtr) {
-            centerPtr = new Amg::Vector3D(transform(tubeLayer, tube)*Amg::Vector3D(0.,0.,0.));
-            (*m_tubeCenter)[itube] = centerPtr;
-        }
-        return *centerPtr;
-    }
-    else
-    {
-        if (!m_tubeCenter) m_tubeCenter = new std::vector<Amg::Vector3D *>;
-        Amg::Vector3D * centerPtr = new Amg::Vector3D(transform(tubeLayer, tube)*Amg::Vector3D(0.,0.,0.));
-        m_tubeCenter->push_back(centerPtr);
-        return *centerPtr;
-    }
+    return geoInfo (tubeLayer, tube).m_center;
 }
 const Amg::Vector3D&
 MdtReadoutElement::normal () const
 {
-    if (!m_elemNormal)
-    {
-      m_elemNormal = new Amg::Vector3D( transform().linear()*Amg::Vector3D(1.,0.,0.) );
+    if (!m_elemNormal.isValid()) {
+      m_elemNormal.set (Amg::Vector3D( transform().linear()*Amg::Vector3D(1.,0.,0.)) );
     }
-    return *m_elemNormal;
+    return *m_elemNormal.ptr();
 }
 
 const Amg::Vector3D
@@ -1711,14 +1582,17 @@ MdtReadoutElement::surface() const
       trans3D.pretranslate(transform().translation());
 
       if (MuonReadoutElement::barrel()){
-        m_associatedSurface = new Trk::PlaneSurface(new Amg::Transform3D(trans3D),
-                                                    MuonReadoutElement::getSsize()/2.,
-                                                    MuonReadoutElement::getZsize()/2.);
-      } else {
-        m_associatedSurface = new Trk::PlaneSurface(new Amg::Transform3D(trans3D),
-                                                    MuonReadoutElement::getSsize()/2.,
-                                                    MuonReadoutElement::getLongSsize()/2.,
-                                                    MuonReadoutElement::getRsize()/2.);      
+        m_associatedSurface.set
+          (std::make_unique<Trk::PlaneSurface>(new Amg::Transform3D(trans3D),
+                                               MuonReadoutElement::getSsize()/2.,
+                                               MuonReadoutElement::getZsize()/2.));
+      }
+      else {
+        m_associatedSurface.set
+          (std::make_unique<Trk::PlaneSurface>(new Amg::Transform3D(trans3D),
+                                               MuonReadoutElement::getSsize()/2.,
+                                               MuonReadoutElement::getLongSsize()/2.,
+                                               MuonReadoutElement::getRsize()/2.));
       }
     }
     return *m_associatedSurface;
@@ -1733,257 +1607,126 @@ MdtReadoutElement::center() const
 const Trk::SurfaceBounds&
 MdtReadoutElement::bounds() const
 {
-   if (!m_associatedBounds){
+  if (!m_associatedBounds){
     if (MuonReadoutElement::barrel()){
-        m_associatedBounds = new Trk::RectangleBounds(MuonReadoutElement::getSsize()/2.,                                               
-                                                     MuonReadoutElement::getZsize()/2.);
-      } else {
-        m_associatedBounds = new Trk::TrapezoidBounds(MuonReadoutElement::getSsize()/2.,
-                                                       MuonReadoutElement::getLongSsize()/2.,
-                                                       MuonReadoutElement::getRsize()/2.);      
-      }
-   }
-   return (*m_associatedBounds);
+      m_associatedBounds.set
+        (std::make_unique<Trk::RectangleBounds>(MuonReadoutElement::getSsize()/2.,                                               
+                                                MuonReadoutElement::getZsize()/2.));
+    }
+    else {
+      m_associatedBounds.set
+        (std::make_unique<Trk::TrapezoidBounds> (MuonReadoutElement::getSsize()/2.,
+                                                 MuonReadoutElement::getLongSsize()/2.,
+                                                 MuonReadoutElement::getRsize()/2.));
+    }
+  }
+  return *m_associatedBounds;
 }
 
-void MdtReadoutElement::fillBLineCache() const
+void MdtReadoutElement::fillBLineCache()
 {
-        (*m_Log) <<MSG::DEBUG<<"Filling BLine cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
-               <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
-               <<" ml "<<m_multilayer<<endmsg;
-
+#ifndef NDEBUG
+  MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<<"Filling BLine cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
+    <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi() <<" ml "<<m_multilayer<<endmsg;
+#endif
   for (int tubeL=1; tubeL<=m_nlayers; ++tubeL){
-    for (int tube =1; tube<=m_ntubesperlayer; ++tube)
-    {
+    for (int tube =1; tube<=m_ntubesperlayer; ++tube) {
       fromIdealToDeformed(getMultilayer(), tubeL, tube); 
     }
   }
 }
-void MdtReadoutElement::clearBLineCache() const
+void MdtReadoutElement::clearBLineCache()
 {
-    #ifndef NDEBUG
-        (*m_Log) <<MSG::VERBOSE<<"Clearing BLine cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
-               <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
-               <<" ml "<<m_multilayer<<" pointer to vector or deform-transfs "<<(uintptr_t)m_deformTransfs<<endmsg;
-    #endif
-    if (m_deformTransfs) {
-      #ifndef NDEBUG
-	(*m_Log) <<MSG::VERBOSE<<"non null pointer to the vector of deform-transfs"<<endmsg;
-      #endif
-      if (!m_deformTransfs->empty())
-	{
-	    (*m_Log) <<MSG::VERBOSE<<"vector of deform-transfs has size "<< m_deformTransfs->size()<<endmsg;
-	  for (unsigned int tsf = 0; tsf < m_deformTransfs->size(); ++tsf) {
-	      (*m_Log) <<MSG::VERBOSE<<"vector of deform-transfs - going to delete component  "<<tsf<< m_deformTransfs->size()<<endmsg;
-	    delete (*m_deformTransfs)[tsf];
-	    (*m_deformTransfs)[tsf] = 0;
-	  }    
-	}  
-	delete m_deformTransfs;
-	m_deformTransfs=0;	
+#ifndef NDEBUG
+  MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+  if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<"Clearing BLine cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
+    <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi() <<" ml "<<m_multilayer<<endmsg;
+#endif
+  if (m_haveDeformTransf) {
+    m_haveDeformTransf = false;
+    for (auto& d : m_deformTransf) {
+      d.release();
     }
+  }
 }    
 
-void MdtReadoutElement::clearCache() const
+void MdtReadoutElement::clearCache()
 {
-  // clear base cache
-  MuonReadoutElement::clear();
-
-        (*m_Log) <<MSG::DEBUG<<"Clearing cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
-               <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
-               <<" ml "<<m_multilayer<<endmsg;
-
-
-    if (m_associatedSurface)
-    {
-        delete m_associatedSurface;
-        m_associatedSurface=0;
+#ifndef NDEBUG
+  MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<<"Clearing cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
+    <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi() <<" ml "<<m_multilayer<<endmsg;
+#endif
+  if (m_associatedSurface) {
+    m_associatedSurface.release();
+  }
+#ifndef NDEBUG
+  else {
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<"no associated surface to be deleted"<<endmsg;
+  }
+#endif
+  if (m_associatedBounds) {
+    m_associatedBounds.release();
+  }
+#ifndef NDEBUG
+  else {
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<"no associated bounds to be deleted"<<endmsg;
+  }
+#endif
+  m_elemNormal.reset();
+  if (m_haveTubeSurfaces) {
+    m_haveTubeSurfaces = false;
+    for (auto& s : m_tubeSurfaces) {
+      s.release();
     }
-#ifndef NDEBUG
-    else 
-      {(*m_Log) <<MSG::VERBOSE<<"no associated surface to be deleted"<<endmsg;}
-#endif
-    if (m_associatedBounds) {
-        delete m_associatedBounds;
-        m_associatedBounds =0;
+  }
+  if (m_haveTubeGeo) {
+    m_haveTubeGeo = false;
+    for (auto& g : m_tubeGeo) {
+      g.release();
     }
-#ifndef NDEBUG
-    else 
-      {(*m_Log) <<MSG::VERBOSE<<"no associated bounds to be deleted"<<endmsg;}
-#endif
-
-    if (m_elemNormal) {
-        delete m_elemNormal;
-        m_elemNormal       =0;
+  }
+  if (m_haveTubeBounds) {
+    m_haveTubeBounds = false;
+    for (auto& b : m_tubeBounds) {
+      b.release();
     }
-#ifndef NDEBUG
-    else {(*m_Log) <<MSG::VERBOSE<<"no associated normal to be deleted"<<endmsg;}
-#endif
-    
-    if (m_tubeSurfaces) 
-    {
-        if (!m_tubeSurfaces->empty())
-        {        
-#ifndef NDEBUG
-            (*m_Log) <<MSG::VERBOSE<<"size of vector m_tubeSurfaces "<<m_tubeSurfaces->size()<<endmsg;
-#endif
-            for (unsigned int i=0; i<m_tubeSurfaces->size(); ++i) 
-            {
-                if ( (*m_tubeSurfaces)[i] ) 
-                {            
-                    delete (*m_tubeSurfaces)[i];
-                    (*m_tubeSurfaces)[i] = 0;
-                }
-#ifndef NDEBUG
-                else
-		  { 
-		    (*m_Log) <<MSG::VERBOSE<<"no associated surface at index "<<i<<" to be deleted "<<endmsg;
-		  }
-#endif
-            }
-#ifndef NDEBUG
-            (*m_Log) <<MSG::VERBOSE<<"size of vector m_tubeSurfaces "<<m_tubeSurfaces->size()<<endmsg;
-#endif
-            m_tubeSurfaces->clear();
-        }
-#ifndef NDEBUG
-        else 
-	  {(*m_Log) <<MSG::VERBOSE<<"Empty vector m_tubeSurfaces"<<endmsg;}
-#endif
-        delete m_tubeSurfaces;
-        m_tubeSurfaces =0;
-    }
-#ifndef NDEBUG
-    else  
-      {(*m_Log) <<MSG::VERBOSE<<"Never allocated memory for m_tubeSurfaces"<<endmsg;}
-#endif
-
-    if (m_tubeTransf) 
-    {
-        if (!m_tubeTransf->empty()) 
-        {            
-            for (unsigned int i=0; i<m_tubeTransf->size(); ++i) 
-            {
-                if ( (*m_tubeTransf)[i] ) 
-                {
-                    delete (*m_tubeTransf)[i];
-                    (*m_tubeTransf)[i] = 0;
-                }
-#ifndef NDEBUG
-                else 
-		  {(*m_Log) <<MSG::VERBOSE<<"no associated transform at index "<<i<<" to be deleted "<<endmsg;}
-#endif
-            }
-#ifndef NDEBUG
-            (*m_Log) <<MSG::VERBOSE<<"size of vector m_tubeTransf is "<<m_tubeTransf->size()<<endmsg;
-#endif
-            m_tubeTransf->clear();
-        }
-#ifndef NDEBUG
-        else 
-	  {(*m_Log) <<MSG::VERBOSE<<"Empty vector m_tubeTransf"<<endmsg;}
-#endif
-        delete m_tubeTransf;
-        m_tubeTransf =0;
-    }
-#ifndef NDEBUG
-    else 
-    {(*m_Log) <<MSG::VERBOSE<<"Never allocated memory for m_tubeTransf"<<endmsg;}
-#endif
-
-    if (m_tubeCenter)
-    {
-        if (!m_tubeCenter->empty())
-        {
-            
-            for (unsigned int i=0; i<m_tubeCenter->size(); ++i) 
-            {
-                if ((*m_tubeCenter)[i]) {
-                    delete (*m_tubeCenter)[i];
-                    (*m_tubeCenter)[i] = 0;
-                }
-#ifndef NDEBUG
-                else 
-		  {(*m_Log) <<MSG::VERBOSE<<"no associated tube center at index "<<i<<" to be deleted "<<endmsg;}
-#endif
-            }
-#ifndef NDEBUG
-            (*m_Log) <<MSG::VERBOSE<<"size of vector m_tubeCenter is "<<m_tubeCenter->size()<<endmsg;
-#endif
-            m_tubeCenter->clear();
-        }
-#ifndef NDEBUG
-        else 
-	  {(*m_Log) <<MSG::VERBOSE<<"Empty vector m_tubeCenter"<<endmsg;}
-#endif
-        delete m_tubeCenter;
-        m_tubeCenter = 0;
-    }
-#ifndef NDEBUG
-    else 
-      {(*m_Log) <<MSG::VERBOSE<<"Never allocated memory for m_tubeCenter"<<endmsg;}
-#endif
-
-    if (m_tubeBounds)
-    {
-        if (!m_tubeBounds->empty())
-        {
-            for (unsigned int i=0; i<m_tubeBounds->size(); ++i) 
-            {
-                if ((*m_tubeBounds)[i]) 
-                {
-                    delete (*m_tubeBounds)[i];
-                    (*m_tubeBounds)[i] = 0;
-                }
-#ifndef NDEBUG
-                else 
-		  {(*m_Log) <<MSG::VERBOSE<<"no associated tube bounds at index "<<i<<" to be deleted "<<endmsg;}
-#endif
-            }
-#ifndef NDEBUG
-            (*m_Log) <<MSG::VERBOSE<<"size of vector m_tubeBounds is "<<m_tubeBounds->size()<<endmsg;
-#endif
-            m_tubeBounds->clear();
-        }
-#ifndef NDEBUG
-       else 
-	 {(*m_Log) <<MSG::VERBOSE<<"Empty vector m_tubeBounds"<<endmsg;}
-#endif
-        delete m_tubeBounds;
-        m_tubeBounds = 0;
-    }
-#ifndef NDEBUG
-    else 
-      {(*m_Log) <<MSG::VERBOSE<<"Never allocated memory for m_tubeBounds"<<endmsg;}
-#endif
-
-
-    // reset here the deform-related transforms
-    clearBLineCache();
-
-
+  }
+  // reset here the deform-related transforms
+  clearBLineCache();
 }
-void MdtReadoutElement::setBLinePar(BLinePar* bLine) const
+
+void MdtReadoutElement::setBLinePar(const BLinePar* bLine)
 {
-  (*m_Log) <<MSG::DEBUG<<"Setting B-line for "<<getStationName().substr(0,3)<<" at eta/phi "<<getStationEta()<<"/"<<getStationPhi()<<endmsg;
+#ifndef NDEBUG
+  MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<<"Setting B-line for "<<getStationName().substr(0,3)<<" at eta/phi "<<getStationEta()<<"/"<<getStationPhi()<<endmsg;
+#endif
   m_BLinePar = bLine;
 }
 
-void MdtReadoutElement::fillCache() const
+void MdtReadoutElement::fillCache()
 {
-        (*m_Log) <<MSG::DEBUG<<"Filling cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<<"Filling cache for ReadoutElement "<<getStationName()<<"/"<<getTechnologyName()
                <<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
                <<" ml "<<getMultilayer()<<endmsg;
+#endif
 
+#ifndef NDEBUG
     Trk::PlaneSurface* tmpSurface = (Trk::PlaneSurface*)&surface();//<! filling m_associatedSurface
-    Trk::SurfaceBounds* tmpBounds = NULL;//<! filling m_associatedBounds
+    Trk::SurfaceBounds* tmpBounds = nullptr;//<! filling m_associatedBounds
     if (MuonReadoutElement::barrel()) tmpBounds = (Trk::RectangleBounds*)&bounds();
     else tmpBounds = (Trk::TrapezoidBounds*)&bounds();
-    (*m_Log) <<MSG::VERBOSE<<"global Surface / Bounds pointers "<<tmpSurface<<" "<<tmpBounds<<endmsg;
-    (*m_Log) <<MSG::VERBOSE<<"global Normal "<<normal()<<endmsg;
-
-    Trk::CylinderBounds* tmpCil = NULL;
-    Trk::SaggedLineSurface* tmpSaggL = NULL;
+    if (log.level()<=MSG::VERBOSE) {
+      log << MSG::VERBOSE<<"global Surface / Bounds pointers "<<tmpSurface<<" "<<tmpBounds<<endmsg;
+      log << MSG::VERBOSE<<"global Normal "<<normal()<<endmsg;
+    }
+#endif
+    Trk::CylinderBounds* tmpCil = nullptr;
+    Trk::SaggedLineSurface* tmpSaggL = nullptr;
     Amg::Vector3D myPoint; 
     Amg::Transform3D myTransform;
     for(int tl=1; tl<=getNLayers(); ++tl)
@@ -2009,23 +1752,28 @@ void MdtReadoutElement::fillCache() const
                                found = true;
                              }
                            }, &*cv);
-
-                if (found) {
-                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
-                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
-                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
-                  (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
+#ifndef NDEBUG
+                if (found && log.level()<=MSG::VERBOSE) {
+                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
+                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
+                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
+                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
                 }
+#endif
             } else {
                 // print in order to compute !!!
                 myTransform = transform(tl, tube); //<! filling m_tubeTransf
                 myPoint     = center(tl, tube);    //<! filling m_tubeCenter
                 tmpCil = (Trk::CylinderBounds*)&bounds(tl, tube); //<! filling m_tubeBounds
                 tmpSaggL = (Trk::SaggedLineSurface*)&surface(tl, tube);//<! filling m_tubeSurfaces
-                (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
-                (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
-                (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
-                (*m_Log) <<MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
+#ifndef NDEBUG
+                if (log.level()<=MSG::VERBOSE) {
+                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" transform at origin  "<<myTransform*Amg::Vector3D(0.,0.,0.)<<endmsg;
+                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube center          "<<myPoint<<endmsg;
+                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube bounds pointer  "<<tmpCil<<endmsg;
+                  log << MSG::VERBOSE<<"tubeLayer/tube "<<tl<<" "<<tube<<" tube surface pointer "<<tmpSaggL<<endmsg;
+                }
+#endif
             }
         }
     }

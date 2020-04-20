@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,27 +20,28 @@ void Trk::RoT_Extractor::extract(std::vector<const RIO_OnTrack*>& rots, const st
   for (; it!=itEnd ; it++)
   {
     const Trk::RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*>(*it);
-    if ( convertCompRots && 0 == rot) {
+    if ( convertCompRots && nullptr == rot) {
       const Trk::CompetingRIOsOnTrack *comprot =
         dynamic_cast<const Trk::CompetingRIOsOnTrack*>(*it);
-      if (comprot)
+      if (comprot) {
         rot = &comprot->rioOnTrack(comprot->indexOfMaxAssignProb());
-    }
-    if ( 0 != rot ) rots.push_back(rot);
-  }
-  return;
 }
+    }
+    if ( nullptr != rot ) { rots.push_back(rot);
+}
+  }
+  }
 
 void Trk::RoT_Extractor::extract(const Trk::RIO_OnTrack*& rot,
                                  const Trk::MeasurementBase* meas)
 {
   rot = dynamic_cast<const RIO_OnTrack*>(meas);
-  if (rot==NULL) {
+  if (rot==nullptr) {
     const Trk::CompetingRIOsOnTrack *comprot =
       dynamic_cast<const Trk::CompetingRIOsOnTrack*>(meas);
-    if (comprot)
+    if (comprot) {
       rot = &comprot->rioOnTrack(comprot->indexOfMaxAssignProb());
-  }
-  return;
 }
+  }
+  }
 

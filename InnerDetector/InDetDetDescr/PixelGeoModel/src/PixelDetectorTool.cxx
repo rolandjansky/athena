@@ -10,7 +10,7 @@
 #include "PixelGeometryManager.h" 
 #include "PixelSwitches.h" 
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h" 
+#include "PixelReadoutGeometry/PixelDetectorManager.h" 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "PixelGeoModelAthenaComps.h"

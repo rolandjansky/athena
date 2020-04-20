@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -49,7 +49,7 @@ int main() {
 #   include "SGTiming_test_chk.inc"
 
     start = std::chrono::high_resolution_clock::now();
-    pSG->clearStore();
+    pSG->clearStore().ignore();
     end = std::chrono::high_resolution_clock::now();
     vd_clr.push_back(end-start);
 

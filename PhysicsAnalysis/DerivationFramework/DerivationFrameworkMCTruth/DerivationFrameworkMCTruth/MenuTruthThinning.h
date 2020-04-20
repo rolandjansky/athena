@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,24 +11,27 @@
 
 #include <string>
 #include <unordered_set>
+#include <atomic>
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "DerivationFrameworkMCTruth/DecayGraphHelper.h"
+#include "xAODTruth/TruthVertexContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ThinningHandleKey.h"
 
-class IThinningSvc;
 
 namespace DerivationFramework {
     
-    class MenuTruthThinning : public AthAlgTool, public IThinningTool {
+    class MenuTruthThinning : public extends<AthAlgTool, IThinningTool> {
     public:
         MenuTruthThinning(const std::string& t, const std::string& n, const IInterface* p);
-        ~MenuTruthThinning();
-        StatusCode initialize();
-        StatusCode finalize();
-        virtual StatusCode doThinning() const;
+        virtual ~MenuTruthThinning();
+        virtual StatusCode initialize() override;
+        virtual StatusCode finalize() override;
+        virtual StatusCode doThinning() const override;
+
         bool isAccepted(const xAOD::TruthParticle*) const;
         bool matchHadronIncTau(const xAOD::TruthParticle* part) const;
         bool matchQuarkIncTau(const xAOD::TruthParticle* part) const;
@@ -37,7 +40,8 @@ namespace DerivationFramework {
                               std::vector<int> &targetIDs, std::vector<int> &intermediateIDs,
                               bool targetsAreRange) const;
         bool isLeptonFromTau(const xAOD::TruthParticle*) const;
-        bool isFromTau(const xAOD::TruthParticle*) const;
+        bool isFromTau(const xAOD::TruthParticle*,
+                       std::unordered_set<int>& barcode_trace) const;
         bool isBSM(const xAOD::TruthParticle*) const;
         bool isttHFHadron(const xAOD::TruthParticle*) const;
         bool isBoson(const xAOD::TruthParticle*) const;
@@ -47,9 +51,13 @@ namespace DerivationFramework {
     private:
         // THE MENU
         
-        /// Names of the truth container?
-        std::string m_particlesKey;
-        std::string m_verticesKey;
+        StringProperty m_streamName
+          { this, "StreamName", "", "Name of the stream being thinned" };
+        SG::ThinningHandleKey<xAOD::TruthParticleContainer> m_particlesKey
+          { this, "ParticlesKey", "TruthParticles", "TruthParticle container name" };
+        SG::ThinningHandleKey<xAOD::TruthVertexContainer> m_verticesKey
+          { this, "VerticesKey", "TruthVertices", "TruthVertex container name" };
+
         std::string m_eventsKey;
         
         /// Parameter: Keep partons?
@@ -118,19 +126,13 @@ namespace DerivationFramework {
         bool m_preserveImmediate; // parents, siblings, children only
         bool m_preserveHadVtx; // hadronization vertices for above
         
-        /// for keeping trace of barcodes in order to detect loops
-        mutable std::unordered_set<int> m_barcode_trace;
-        
         // counters
-        mutable unsigned int m_totpart;
-        mutable unsigned int m_removedpart;
-        mutable int m_eventCount;
+        mutable std::atomic<unsigned int> m_totpart;
+        mutable std::atomic<unsigned int> m_removedpart;
+        mutable std::atomic<int> m_eventCount;
         
         /// Parameter: simulation barcode offset
         int m_geantOffset;
-        
-        // handle to the thinning service
-        ServiceHandle<IThinningSvc> m_thinningSvc;
     }; 
 }
 

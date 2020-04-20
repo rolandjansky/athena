@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -154,7 +156,7 @@ if not 'PedRunNumber' in dir():
    PedRunNumber = "1005020_1005021_1005022"
    
 if not 'InputPedPoolFileDir' in dir():
-   InputPedPoolFileDir  = commands.getoutput("pwd")
+   InputPedPoolFileDir  = subprocess.getoutput("pwd")
    
 if not 'InputPedPoolFileName' in dir():
    InputPedPoolFileName = "LArPedestal_" + str(PedRunNumber)+"_"+Partition.replace("*","") + ".pool.root"
@@ -165,10 +167,10 @@ if not 'LArCalibFolderOutputTag' in dir():
    LArCalibFolderOutputTag = '-UPD3-00'    
    
 if not 'OutputCaliWaveRootFileDir' in dir():
-   OutputCaliWaveRootFileDir  = commands.getoutput("pwd")
+   OutputCaliWaveRootFileDir  = subprocess.getoutput("pwd")
    
 if not 'OutputCaliWavePoolFileDir' in dir():
-   OutputCaliWavePoolFileDir  = commands.getoutput("pwd")
+   OutputCaliWavePoolFileDir  = subprocess.getoutput("pwd")
 
 if not 'OutputDB' in dir():
    OutputDB = LArCalib_Flags.OutputDB
@@ -310,13 +312,13 @@ if not 'ReadAutoCorrFromCOOL' in dir():
 ###########################################################################
 
 if not 'OutputOFCRootFileDir' in dir():
-   OutputOFCRootFileDir = commands.getoutput("pwd")
+   OutputOFCRootFileDir = subprocess.getoutput("pwd")
    
 if not 'OutputOFCPoolFileDir' in dir():
-   OutputOFCPoolFileDir = commands.getoutput("pwd")
+   OutputOFCPoolFileDir = subprocess.getoutput("pwd")
 
 if not 'OutputShapePoolFileDir' in dir():
-   OutputShapePoolFileDir = commands.getoutput("pwd")
+   OutputShapePoolFileDir = subprocess.getoutput("pwd")
 
 OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 

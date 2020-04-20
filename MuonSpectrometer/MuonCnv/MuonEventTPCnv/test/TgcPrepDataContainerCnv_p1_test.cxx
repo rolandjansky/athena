@@ -118,7 +118,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
          123+offs);
       coll->push_back (std::move (cl));
     }
-    cont->addCollection (coll.release(), hash);
+    assert(cont->addCollection (coll.release(), hash));
   }
 
   return cont;

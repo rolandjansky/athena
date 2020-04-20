@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef SIMULATIONBASE
 
@@ -152,7 +152,7 @@ TRT_ByteStream_ConditionsSvc::handle(const Incident&)
    this->resetCounts();
 
    if ( m_readCondFromESD )
-      this->readData();
+      this->readData().ignore();
 
    return;
 }

@@ -6,6 +6,7 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool") 
 from AthenaCommon.SystemOfUnits import GeV
+from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigElectronSelectors
 
 def _IncTool(name, threshold, sel):
 
@@ -16,7 +17,7 @@ def _IncTool(name, threshold, sel):
 
     tool = TrigEgammaPrecisionElectronHypoToolInc( name ) 
 
-    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     monTool = GenericMonitoringTool("MonTool_"+name)
     monTool.Histograms = [ defineHistogram('dEta', type='TH1F', path='EXPERT', title="PrecisionElectron Hypo #Delta#eta_{EF L1}; #Delta#eta_{EF L1}", xbins=80, xmin=-0.01, xmax=0.01),
                            defineHistogram('dPhi', type='TH1F', path='EXPERT', title="PrecisionElectron Hypo #Delta#phi_{EF L1}; #Delta#phi_{EF L1}", xbins=80, xmin=-0.01, xmax=0.01),
@@ -28,7 +29,7 @@ def _IncTool(name, threshold, sel):
     cuts=['Input','#Delta #eta EF-L1', '#Delta #phi EF-L1','eta','E_{T}^{EM}']
 
     monTool.Histograms += [ defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="PrecisionElectron Hypo Passed Cuts;Cut",
-                                            xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=cuts) ]
+                                            xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", xlabels=cuts) ]
 
     monTool.HistPath = 'PrecisionElectronHypo/'+tool.name()
     tool.MonTool = monTool
@@ -41,6 +42,8 @@ def _IncTool(name, threshold, sel):
     tool.ETthr          = same( float(threshold) )
     tool.dETACLUSTERthr = 0.1
     tool.dPHICLUSTERthr = 0.1
+    
+    tool.ElectronLHSelector = TrigElectronSelectors(sel)
     #tool.ET2thr         = same( 90.0*GeV )
 
     if sel == 'nocut':
@@ -67,7 +70,7 @@ def _MultTool(name):
 def TrigEgammaPrecisionElectronHypoToolFromDict( d ):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Electron'))]
-    
+
     def __mult(cpart):
         return int( cpart['multiplicity'] )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_RPCCONDDBALG_H
@@ -13,28 +13,16 @@
 
 //Gaudi includes
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 //Athena includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "Identifier/Identifier.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCondData/RpcCondDbData.h"
 #include "MuonCondSvc/MdtStringUtils.h"
-
-//forward declarations
-class Identifier;
-class MuonIdHelper;
-class StatusCode;
-
-namespace Muon {
-  class MuonIdHelperTool;
-}
-
-
 
 class RpcCondDbAlg: public AthReentrantAlgorithm{
 
@@ -57,7 +45,7 @@ private:
     bool m_isRun1{false};   
 
     ServiceHandle<ICondSvc> m_condSvc;
-    ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
  
     SG::WriteCondHandleKey<RpcCondDbData> m_writeKey{this, "WriteKey", "RpcCondDbData", "Key of output RPC condition data"};    
 

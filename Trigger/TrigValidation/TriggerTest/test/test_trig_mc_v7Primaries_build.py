@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-# art-description: Physics v7 TriggerTest on MC
+# art-description: Legacy trigger test on MC with v7 primaries menu
 # art-type: build
-# art-include: 21.1/AthenaP1
-# art-include: 21.0/Athena
-# art-include: 21.3/Athena
 # art-include: master/Athena
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.

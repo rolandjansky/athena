@@ -12,12 +12,8 @@
 #include "TruthUtils/PIDHelpers.h"
 #include "TruthUtils/TruthParticleHelpers.h"
 #include "MCUtils/HepMCUtils.h"
-// #include "MCUtils/Clustering.h"
-
-// Common imports from external namespaces
-//using fastjet::PseudoJet;
-//using fastjet::ClusterSequence;
-
+#include "MCUtils/PIDUtils.h"
+#include "AtlasHepMC/GenEvent.h"
 
 namespace MC {
 

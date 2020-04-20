@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           Reconstruction/Particle
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
@@ -42,7 +43,7 @@ atlas_add_library( InDetTestBLayerLib
                    PUBLIC_HEADERS InDetTestBLayer
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces
-                   PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetIdentifier InDetReadoutGeometry Particle TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack TrkExInterfaces )
+                   PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry Particle TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack TrkExInterfaces )
 
 atlas_add_component( InDetTestBLayer
                      src/components/*.cxx

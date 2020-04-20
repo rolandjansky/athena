@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -38,7 +38,7 @@ ROIB::RoIBResult* RoIBResultCnv::createTransient() {
 
    if( this->compareClassGuid( p1_guid ) ) {
 
-      std::auto_ptr< RoIBResult_p1 > pers_ref( this->poolReadObject< RoIBResult_p1 >() );
+      std::unique_ptr< RoIBResult_p1 > pers_ref( this->poolReadObject< RoIBResult_p1 >() );
       MsgStream log( this->msgSvc(), "RoIBResultCnv" );
       return TPConverter.createTransient( pers_ref.get(), log );
 

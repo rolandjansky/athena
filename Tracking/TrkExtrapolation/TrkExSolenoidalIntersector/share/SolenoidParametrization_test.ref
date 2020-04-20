@@ -30,5 +30,4 @@ AtlasFieldSvc        INFO Initialized the field map from /home/sss/nobackup/atla
 AtlasFieldSvc        INFO Currents imported and map initialized
 AtlasFieldSvc        INFO BeginRun incident handled
 AtlasFieldSvc        INFO incidents handled successfully
- SolenoidParametrization: centralField      2T  - please be patient while the solenoid is parametrised !! 
 test1

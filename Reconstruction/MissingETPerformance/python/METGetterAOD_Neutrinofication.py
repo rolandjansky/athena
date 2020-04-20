@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################################################
 #
@@ -35,7 +35,7 @@ class METGetterAOD ( Configured ):
             theMETAlg=METAlg("METAlg")
         except: 					       
             mlog.error("could not import MissingET.METAlg")    
-            print traceback.format_exc()		       
+            mlog.error (traceback.format_exc()		       )
             return False	
  			      	
 	#------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ class METGetterAOD ( Configured ):
 	    							         
         except: 						  		   
             mlog.error("could not get handle to METRefFinal Quit")  	   
-            print traceback.format_exc()			  		   
+            mlog.error (traceback.format_exc()			  		   )
             return False					  		   
         
 	# add METFinalTool to list of tools 

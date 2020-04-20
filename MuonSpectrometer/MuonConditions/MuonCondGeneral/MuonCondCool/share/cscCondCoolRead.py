@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 ###############################################################
 # author Caleb Lampen lampen@physics.arizona.edu 
 #
@@ -67,9 +69,9 @@ CscReadWriteCoolStr.oFile = output
 #CscDoCalib algorithm
 CscReadWriteCoolStr.OutFileType ="04-00"
 CscReadWriteCoolStr.OutParameters = readPars
-if(forceReadAsChannelCategory):
+#if(forceReadAsChannelCategory):
 
-print 'Preparing commissioning database COMP200 '
+printfunc ('Preparing commissioning database COMP200 ')
 #---Set detector description tag
 DetDescrVersion = "ATLAS-GEONF-08-00-00"
 
@@ -83,7 +85,7 @@ DetDescrVersion = "ATLAS-GEONF-08-00-00"
 #>>elif(readDb == "COMP200"): 
 #>>  GlobalFlags.DataSource.set_data();
 #>>else:
-#>>  print "ERROR! readDb = " + readDb + " is invalid! Must be either COMP200 or OFLP200!"
+#>>  printfunc ("ERROR! readDb = " + readDb + " is invalid! Must be either COMP200 or OFLP200!")
 from AthenaCommon.GlobalFlags import globalflags #GlobalFlags
 globalflags.DetGeo = 'atlas' 
 if(readDb == "OFLP200"):
@@ -91,7 +93,7 @@ if(readDb == "OFLP200"):
 elif(readDb == "COMP200"): 
   globalflags.DataSource = 'data'
 else:
-  print "ERROR! readDb = " + readDb + " is invalid! Must be either COMP200 or OFLP200!"
+  printfunc ("ERROR! readDb = " + readDb + " is invalid! Must be either COMP200 or OFLP200!")
 
 from IOVDbSvc.CondDB import conddb
 include ("RecExCond/RecExCommon_flags.py")
@@ -104,7 +106,7 @@ include ("RecExCond/AllDet_detDescr.py")
 #conddb.setGlobalTag('COMCOND-006-01')
 conddb.setGlobalTag('COMCOND-BLKPS-004-05')
 if(forceRunNumber > 0):
-  Service("IOVDbSvc").forceRunNumber = forceRunNumber;
+  Service("IOVDbSvc").forceRunNumber = forceRunNumber
   Service("IOVDbSvc").forceLumiblockNumber = 1
 
 from MuonCondSvc.CscCondDB import cscCondDB

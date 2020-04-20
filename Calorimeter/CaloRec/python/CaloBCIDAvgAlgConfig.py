@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: CaloRec/python/CaloBCIDAvgAlgConfig.py
 # Created: Mar 2019, sss
@@ -11,7 +11,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def CaloBCIDAvgAlgCfg (flags):
-    from IOVDbSvc.IOVDbSvcConfig import addFolderList
     CaloBCIDAvgAlg=CompFactory.CaloBCIDAvgAlg
 
     result = ComponentAccumulator()
@@ -19,54 +18,10 @@ def CaloBCIDAvgAlgCfg (flags):
     from LArRecUtils.LArRecUtilsConfig import LArMCSymCondAlgCfg
     result.merge (LArMCSymCondAlgCfg (flags))
 
-    if flags.Input.isMC is False:
-        from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
-        result.merge (LuminosityCondAlgCfg (flags))
-        lumiAlg = result.getCondAlgo ('LuminosityCondAlg')
+    from CaloRec.CaloBCIDLumiCondAlgConfig import CaloBCIDLumiCondAlgCfg
+    result.merge (CaloBCIDLumiCondAlgCfg (flags))
 
-        #For data, the regular shape is the 4-sample one used to Q-factor computation by LArRawChannelBuilder
-        #Here we need a 32-sample, symmetrized shape. Therfore the re-key'ing and the dedicated LArPileUpShapeSymCondAlg
-
-        if flags.Common.isOnline:
-            result.merge(addFolderList(flags, (('/LAR/LArPileup/LArPileupShape<key>LArShape32</key>', 'LAR_ONL', 'LArShape32MC'),
-                                               ('/LAR/LArPileup/LArPileupAverage','LAR_ONL','LArMinBiasAverageMC')) ))
-        else:
-            result.merge(addFolderList(flags, (('/LAR/ElecCalibOfl/LArPileupShape<key>LArShape32</key>','LAR_OFL','LArShape32MC'),
-                                               ('/LAR/ElecCalibOfl/LArPileupAverage','LAR_OFL','LArMinBiasAverageMC')) ))
-
-        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
-        result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))
-
-        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArShape32MC_LArShape32Sym_ as LArShapeSymAlg
-        result.addCondAlgo(LArShapeSymAlg("LArPileUpShapeSymCondAlg",ReadKey="LArShape32",WriteKey="LArShape32Sym"))
-
-        alg = CaloBCIDAvgAlg (isMC = False,
-                              LuminosityCondDataKey = lumiAlg.LuminosityOutputKey,
-                              ShapeKey = 'LArShape32Sym')
-
-    else:
-        from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
-        from LArRecUtils.LArRecUtilsConfig import LArOFCCondAlgCfg, LArAutoCorrTotalCondAlgCfg
-        result.merge (LArADC2MeVCondAlgCfg (flags))
-        result.merge (LArOFCCondAlgCfg (flags))
-        result.merge (LArAutoCorrTotalCondAlgCfg (flags))
-
-        # FIXME: Convert to new config  It's also a public tool.
-        from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-        theBunchCrossingTool = BunchCrossingTool()
-
-        result.merge(addFolderList(flags, (('/LAR/ElecCalibMC/Shape','LAR_OFL','LArShape32MC'), 
-                                           ('/LAR/ElecCalibMC/LArPileupAverage', 'LAR_OFL', 'LArMinBiasAverageMC')) ))
-                               
-
-        from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
-        result.addCondAlgo(LArMinBiasAverageSymAlg("LArPileUpAvgSymCondAlg",ReadKey="LArPileupAverage",WriteKey="LArPileupAverageSym"))
-
-        alg = CaloBCIDAvgAlg (isMC = True,
-                              BunchCrossingTool = theBunchCrossingTool,
-                              ShapeKey = 'LArShapeSym')
-
-    result.addEventAlgo (alg)
+    result.addEventAlgo (CaloBCIDAvgAlg())
     return result
 
 
@@ -79,6 +34,8 @@ if __name__ == "__main__":
     ConfigFlags.loadAllDynamicFlags()
 
     only = ['CaloBCIDAvgAlg',
+            'CaloBCIDCoeffsCondAlg',
+            'CaloBCIDLumiCondAlg',
             'CondInputLoader',
             'LuminosityCondAlg-',
             'LArPileUpAvgSymCondAlg',

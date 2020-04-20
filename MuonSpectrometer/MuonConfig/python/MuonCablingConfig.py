@@ -13,6 +13,10 @@ def RPCCablingConfigCfg(flags):
     # TODO check if we actually need this here?
     acc.merge(MuonGeoModelCfg(flags)) 
 
+    RpcCablingCondAlg=CompFactory.RpcCablingCondAlg
+    RpcCablingAlg = RpcCablingCondAlg("RpcCablingCondAlg")
+    acc.addCondAlgo( RpcCablingAlg )
+
     RPCcablingServerSvc=CompFactory.RPCcablingServerSvc
     RPCCablingSvc =  RPCcablingServerSvc()
     RPCCablingSvc.Atlas = True
@@ -27,14 +31,14 @@ def RPCCablingConfigCfg(flags):
     rpcCablingSvc.CorrFileName = 'LVL1confAtlas.corr' 
     rpcCablingSvc.ConfFilePath = 'MuonRPC_Cabling/'
     rpcCablingSvc.RPCTriggerRoadsfromCool = True
-    rpcCablingSvc.CosmicConfiguration     = True  # this was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
+    rpcCablingSvc.CosmicConfiguration     = 'HLT' in flags.IOVDb.GlobalTag  # this was set to true by the modifier openThresholdRPCCabling in runHLT_standalone.py
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     dbName = 'RPC_OFL' if flags.Input.isMC else 'RPC'
     acc.merge(addFolders(flags, 
                          [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI',
                            '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ],
-                         dbName ))
+                         dbName, className='CondAttrListCollection' ))
 
     RPCCablingDbTool=CompFactory.RPCCablingDbTool
     RPCCablingDbTool = RPCCablingDbTool()
@@ -54,7 +58,7 @@ def TGCCablingConfigCfg(flags):
     # TODO check if we actually need this here?
     acc.merge(MuonGeoModelCfg(flags)) 
     
-    LVL1TGC__TGCRecRoiSvc=CompFactory.LVL1TGC__TGCRecRoiSvc
+    LVL1TGC__TGCRecRoiSvc=CompFactory.LVL1TGC.TGCRecRoiSvc
     acc.addService( LVL1TGC__TGCRecRoiSvc() ) 
     
     TGCcablingServerSvc=CompFactory.TGCcablingServerSvc

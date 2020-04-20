@@ -193,8 +193,13 @@ bool MuTagMatchingTool::match( const Trk::TrackParameters*       atSurface,
 
 std::string MuTagMatchingTool::segmentStationString( const Muon::MuonSegment* segment ) const {
   std::string station;
-  
+
   for( unsigned int i = 0; i<segment->numberOfContainedROTs(); ++i ){
+    const Trk::RIO_OnTrack* rot=segment->rioOnTrack(i);
+    if(!rot){
+      ATH_MSG_DEBUG("no ROT");
+      continue;
+    }
     Identifier segID = segment->rioOnTrack(i)->identify();
     if( m_muonIdHelperTool->mdtIdHelper().is_mdt(segID) ){
       station = m_muonIdHelperTool->mdtIdHelper().stationNameString( m_muonIdHelperTool->mdtIdHelper().stationName( segID ) );

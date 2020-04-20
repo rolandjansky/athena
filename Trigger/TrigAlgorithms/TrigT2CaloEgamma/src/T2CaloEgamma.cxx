@@ -32,12 +32,13 @@
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 
-#include "TrigT2CaloCommon/phiutils.h"
+#include "CxxUtils/phihelper.h"
+#include "egammaUtils/egammaqweta2c.h"
 
 class ISvcLocator;
 
 T2CaloEgamma::T2CaloEgamma(const std::string & name, ISvcLocator* pSvcLocator)
-  : T2CaloBase(name, pSvcLocator),  m_calibsBarrel(this), m_calibsEndcap(this), m_storeCells(false), m_egammaqweta2c("egammaqweta2c/egammaqweta2c",this)
+  : T2CaloBase(name, pSvcLocator),  m_calibsBarrel(this), m_calibsEndcap(this), m_storeCells(false)
 {
     declareProperty("TrigEMClusterKey",m_trigEmClusterKey = "TrigT2CaloEgamma");
     declareProperty("L1ForceEta",m_l1eta = -10.0);
@@ -45,7 +46,6 @@ T2CaloEgamma::T2CaloEgamma(const std::string & name, ISvcLocator* pSvcLocator)
     declareProperty("CalibListBarrel",m_calibsBarrel,"list of calib tools for the Barrel clusters");
     declareProperty("CalibListEndcap",m_calibsEndcap,"list of calib tools for the EndCap clusters");
     declareProperty("StoreCells",m_storeCells,"store cells in container attached to RoI");
-    declareProperty("egammaqweta2c",m_egammaqweta2c,"Egamma Weta2 correction");
     declareProperty("RhoFirstLayer",m_rhoFirstLayer);
     declareProperty("RhoMiddleLayer",m_rhoMiddleLayer);
     declareProperty("ZFirstLayer",m_zFirstLayer);
@@ -81,10 +81,6 @@ HLT::ErrorCode T2CaloEgamma::hltInitialize()
   for (; it < m_emAlgTools.end(); it++)
     (*it)->setCellContainerPointer(&m_Container);
 
-  if ( (m_egammaqweta2c.retrieve()).isFailure() ){
-    ATH_MSG_FATAL( "Could not find egammaqweta2c"  );
-    return HLT::TOOL_FAILURE;
-  }
   return HLT::OK;
 }
 
@@ -149,8 +145,8 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
     etamin = std::max( -2.5, roiDescriptor->eta() - m_etaWidth );
     etamax = std::min(  2.5, roiDescriptor->eta() + m_etaWidth );
 
-    phimin = HLT::wrap_phi( roiDescriptor->phi() - m_phiWidth );
-    phimax = HLT::wrap_phi( roiDescriptor->phi() + m_phiWidth );
+    phimin = CxxUtils::wrapToPi( roiDescriptor->phi() - m_phiWidth );
+    phimax = CxxUtils::wrapToPi( roiDescriptor->phi() + m_phiWidth );
 
     etaL1 = roiDescriptor->eta();
     phiL1 = roiDescriptor->phi();
@@ -159,8 +155,8 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
     etamin = std::max( -2.5, m_l1eta-m_etaWidth );
     etamax = std::min(  2.5, m_l1eta+m_etaWidth );
 
-    phimin = HLT::wrap_phi( m_l1phi-m_phiWidth );
-    phimax = HLT::wrap_phi( m_l1phi+m_phiWidth );
+    phimin = CxxUtils::wrapToPi( m_l1phi-m_phiWidth );
+    phimax = CxxUtils::wrapToPi( m_l1phi+m_phiWidth );
 
     etaL1 =  m_l1eta;
     phiL1 =  m_l1phi;
@@ -296,7 +292,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
 
   // Final correction to weta only
   if ( caloDDE != 0 )
-    ptrigEmCluster->setWeta2( m_egammaqweta2c->Correct(ptrigEmCluster->eta(),caloDDE->eta(),ptrigEmCluster->weta2()) );
+    ptrigEmCluster->setWeta2( egammaqweta2c::Correct(ptrigEmCluster->eta(),caloDDE->eta(),ptrigEmCluster->weta2()) );
 
   
   float calZ0 = 0;
@@ -370,8 +366,8 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
       new TrigRoiDescriptor(roiDescriptor->l1Id(), roiDescriptor->roiId(),
 			    ptrigEmCluster->eta(), ptrigEmCluster->eta()-m_etaWidthForID, ptrigEmCluster->eta()+m_etaWidthForID,
 			    ptrigEmCluster->phi(), 
-			    HLT::wrap_phi(ptrigEmCluster->phi()-m_phiWidthForID), 
-			    HLT::wrap_phi(ptrigEmCluster->phi()+m_phiWidthForID), 
+			    CxxUtils::wrapToPi(ptrigEmCluster->phi()-m_phiWidthForID), 
+			    CxxUtils::wrapToPi(ptrigEmCluster->phi()+m_phiWidthForID), 
 			    calZ0 ); // don't specify widths - then we get the default values of  -225, +225 
   }
   else { 
@@ -379,8 +375,8 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
       new TrigRoiDescriptor(roiDescriptor->l1Id(), roiDescriptor->roiId(),
 			    ptrigEmCluster->eta(), ptrigEmCluster->eta()-m_etaWidthForID, ptrigEmCluster->eta()+m_etaWidthForID,
 			    ptrigEmCluster->phi(),
-			    HLT::wrap_phi(ptrigEmCluster->phi()-m_phiWidthForID), 
-			    HLT::wrap_phi(ptrigEmCluster->phi()+m_phiWidthForID) );  
+			    CxxUtils::wrapToPi(ptrigEmCluster->phi()-m_phiWidthForID), 
+			    CxxUtils::wrapToPi(ptrigEmCluster->phi()+m_phiWidthForID) );  
   }
   
   hltStatus = attachFeature(outputTE,newRoiDescriptor,"TrigT2CaloEgamma");

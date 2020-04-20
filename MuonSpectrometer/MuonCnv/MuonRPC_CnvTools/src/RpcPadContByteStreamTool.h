@@ -1,29 +1,26 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPC_CNVTOOLS_RPCPADCONTRAWEVENTTOOL_H
 #define MUONRPC_CNVTOOLS_RPCPADCONTRAWEVENTTOOL_H
 
-#include <stdint.h>
-#include <map>
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 #include "MuonRPC_CnvTools/IRPC_RDOtoByteStreamTool.h"
+
 #include "RPC_Hid2RESrcID.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "ByteStreamData/RawEvent.h" 
-
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-class RpcPadContainer; 
-class MsgStream ; 
-class IRPCcablingSvc;
-//class RPC_Hid2RESrcID;
-
+class RpcPadContainer;
 
 #include <string>
+
 namespace Muon {
 
 /** An AlgTool class to provide conversion from LArRawChannelContainer
@@ -46,29 +43,22 @@ public:
 
   /** constructor
   */
-   RpcPadContByteStreamTool( const std::string& type, const std::string& name,
-        const IInterface* parent ) ;
+  RpcPadContByteStreamTool( const std::string& type, const std::string& name, const IInterface* parent);
 
-  /** destructor 
-  */ 
-  virtual ~RpcPadContByteStreamTool() ;
+  virtual ~RpcPadContByteStreamTool()=default;
 
   /** AlgTool InterfaceID
   */
-  static const InterfaceID& interfaceID( ) ;
+  static const InterfaceID& interfaceID();
 
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
 
-  StatusCode convert(CONTAINER* cont, RawEventWrite* re, MsgStream& log ); 
+  StatusCode convert(CONTAINER* cont, RawEventWrite* re);
 
-private: 
-
-   const IRPCcablingSvc* m_cabling;
+private:
+   SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
    RPC_Hid2RESrcID m_hid2re; 
-   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-     "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-
+   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
    FullEventAssembler<RPC_Hid2RESrcID> m_fea ;    
 };
 }

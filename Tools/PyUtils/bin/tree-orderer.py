@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict
 from timeit import default_timer as timer
@@ -28,6 +28,9 @@ def order_tree(input_file, output_file, reverse_order = False):
         tin.GetEntry(idx)
         if hasattr(tin,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
             event_info = getattr(tin,'xAOD::EventAuxInfo_v1_EventInfoAux.')
+            event_number = event_info.eventNumber
+        elif hasattr(tin,'EventInfoAux.'):
+            event_info = getattr(tin,'EventInfoAux.')
             event_number = event_info.eventNumber
         elif hasattr(tin,'EventInfo_p4_McEventInfo'):
             event_info = getattr(tin,'EventInfo_p4_McEventInfo')

@@ -9,6 +9,8 @@ Common variables and functions used in Trigger ART test steering
 import logging
 import sys
 import os
+from PyUtils.Decorators import memoize
+from AthenaCommon.Utils.unixtools import FindFile
 
 
 # Logging level used across the package
@@ -32,7 +34,7 @@ def get_logger():
     '''Default TrigValSteering logger'''
     logging.basicConfig(stream=sys.stdout,
                         format='%(asctime)s %(name)s %(levelname)-8s %(message)s',
-                        datefmt='%Y-%m-%dT%H%M %Z',
+                        datefmt='%Y-%m-%dT%H%M%S %Z',
                         level=trigvalsteering_logging_level)
     return logging.getLogger('TrigValSteering')
 
@@ -51,3 +53,17 @@ def clear_art_summary():
 
     if os.path.isfile(art_result_summary):
         os.remove(art_result_summary)
+
+
+@memoize
+def check_job_options(jo_path):
+    '''
+    Check if the job options file exists locally or in JOBOPTSEARCHPATH.
+    Returns True if the file is found and False otherwise.
+    '''
+    # Check if job options exists locally
+    if os.path.isfile(jo_path):
+        return True
+    # Try to find the file in JOBOPTSEARCHPATH
+    found = FindFile(jo_path, os.environ['JOBOPTSEARCHPATH'].split(os.pathsep), os.R_OK)
+    return found is not None

@@ -13,13 +13,23 @@ from DerivationFrameworkCore.WeightMetadata import *
 exot14Seq = CfgMgr.AthSequencer("EXOT14Sequence")
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT14Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT14Stream )
+EXOT14Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT14Stream.AcceptAlgs(["EXOT14Kernel"])
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # THINNING TOOLS
 #====================================================================
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT14MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EXOT14MuonTPThinningTool",
-                                                                           ThinningService         = "EXOT14ThinningSvc",
+                                                                           StreamName              = streamName,
                                                                            MuonKey                 = "Muons",
                                                                            InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                            SelectionString         = "Muons.pt > 8*GeV",
@@ -29,7 +39,7 @@ ToolSvc += EXOT14MuonTPThinningTool
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT14ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EXOT14ElectronTPThinningTool",
-                                                                                 ThinningService         = "EXOT14ThinningSvc",
+                                                                                 StreamName              = streamName,
                                                                                  SGKey             	 = "Electrons",
                                                                                  GSFTrackParticlesKey    = "GSFTrackParticles",
                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
@@ -40,7 +50,7 @@ ToolSvc += EXOT14ElectronTPThinningTool
 
 # Tracks associated with Photons
 EXOT14PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "EXOT14PhotonTPThinningTool",
-                                                                               ThinningService         = "EXOT14ThinningSvc",
+                                                                               StreamName              = streamName,
                                                                                SGKey                   = "Photons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                SelectionString         = "Photons.pt > 8*GeV",
@@ -50,7 +60,7 @@ ToolSvc += EXOT14PhotonTPThinningTool
 # Calo Clusters associated with Photons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 EXOT14PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "EXOT14PhotonCCThinningTool",
-                                                                                     ThinningService         = "EXOT14ThinningSvc",
+                                                                                     StreamName              = streamName,
                                                                                      SGKey             	     = "Photons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -61,7 +71,7 @@ ToolSvc += EXOT14PhotonCCThinningTool
 
 # Calo Clusters associated with Electrons
 EXOT14ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "EXOT14ElectronCCThinningTool",
-                                                                                     ThinningService         = "EXOT14ThinningSvc",
+                                                                                     StreamName              = streamName,
                                                                                      SGKey             	     = "Electrons",
                                                                                      CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -77,7 +87,7 @@ if globalflags.DataSource() == 'geant4':
 
     EXOT14MCThinningTool = DerivationFramework__MenuTruthThinning(
         name                       = 'EXOT14MCThinningTool',
-        ThinningService            = 'EXOT14ThinningSvc',
+        StreamName                 = streamName,
         WriteEverything            = False,
         WritePartons               = False,
         PartonPtThresh             = -1.0,
@@ -123,7 +133,7 @@ EXOT14SkimmingTool = DerivationFramework__SkimmingToolEXOT14(
                                                 Triggers = ["L1_XE60", "L1_XE70", "L1_KF-XE55", "L1_KF-XE60", "L1_KF-XE65", "L1_KF-XE75", "HLT_xe70", "HLT_xe80", "HLT_xe90", "HLT_xe100", "HLT_xe80_tc_lcw", "HLT_xe100_tc_lcw"])
 
 ToolSvc += EXOT14SkimmingTool
-print EXOT14SkimmingTool
+printfunc (EXOT14SkimmingTool)
 
 
 #=======================================
@@ -141,7 +151,7 @@ expression += ' && sum( (AntiKt4LCTopoJets.pt > 25*GeV) * abs(AntiKt4LCTopoJets.
 # EXOT14StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(	name = "EXOT14StringSkimmingTool", 
 # 									expression = expression)
 # ToolSvc += EXOT14StringSkimmingTool
-# print EXOT14StringSkimmingTool
+# printfunc (EXOT14StringSkimmingTool)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -157,19 +167,6 @@ DerivationFrameworkJob += exot14Seq
 exot14Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT14Kernel_skim", SkimmingTools = [EXOT14SkimmingTool])
 exot14Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT14Kernel",
                                                           ThinningTools = EXOT14ThinningTools)
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT14Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT14Stream )
-EXOT14Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT14Stream.AcceptAlgs(["EXOT14Kernel"])
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT14ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

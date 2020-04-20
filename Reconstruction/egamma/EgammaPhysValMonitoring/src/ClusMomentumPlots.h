@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_CLUSMOMENTUMPLOTS_H
@@ -13,7 +13,7 @@ namespace Egamma{
   
 class ClusMomentumPlots:public PlotBase {
     public:
-      ClusMomentumPlots(PlotBase* pParent, std::string sDir, std::string sParticleType);
+      ClusMomentumPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
       void fill(const xAOD::Egamma& egamma);
       
       std::string m_sParticleType;

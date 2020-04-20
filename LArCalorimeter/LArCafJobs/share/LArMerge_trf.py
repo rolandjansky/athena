@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 #########################################################################
 ##
 ## Tier-0 LAr SamplesMon file merging transformation
@@ -18,7 +22,7 @@
 ##
 #########################################################################
 
-import sys, string, commands, os, pickle, time, pprint, subprocess
+import sys, os, pickle, pprint, subprocess
 
 #########################################################################
 
@@ -41,13 +45,11 @@ def getFileMap(fname, dsname, nevts=0, guid='') :
 
 def larMerge(dataMap) :
 
-  tstart = time.time()
+  print ("\n##################################################################")
+  print (  "##                 ATLAS Tier0 LAr CAF file Merging             ##")
+  print (  "##################################################################\n")
 
-  print "\n##################################################################"
-  print   "##                 ATLAS Tier0 LAr CAF file Merging             ##"
-  print   "##################################################################\n"
-
-  print "\nFull Tier-0 run options:\n"
+  print ("\nFull Tier-0 run options:\n")
   pprint.pprint(dataMap)
   
   inputList = []
@@ -55,20 +57,20 @@ def larMerge(dataMap) :
 
   for val in dataMap['inputLArFiles'] :
     inputList.append(val.split('#')[1]) 
-    if not inputDSName : dsName = val.split('#')[0]
+    if not inputDSName :
+      inputDSName = val.split('#')[0]
     
-  print "\ninputLArFiles list:\n"
+  print ("\ninputLArFiles list:\n")
   pprint.pprint(inputList)
 
   # output file
   outputDSName = dataMap['outputLArFile'].split('#')[0]
   outputFile = dataMap['outputLArFile'].split('#')[1]
 
-  print '\nOutput file name:', outputFile
+  print ('\nOutput file name:', outputFile)
 
   retcode = 0
   acronym = 'OK'
-  txt = 'trf finished OK'
 
   outFiles = []
   inFiles = []
@@ -79,23 +81,22 @@ def larMerge(dataMap) :
     if os.access(fileName,os.R_OK):
       cmdline.append(fileName)
     else:
-      print 'ERROR : could not open file', fileName
+      print ('ERROR : could not open file', fileName)
       retcode = 74001
       acronym = 'TRF_LAR_FILE_INPUT_ERROR'
-      txt = 'LAr input file not accessible'
       break
     pass
   
   if (retcode==0):
     writepath=os.path.split(outputFile)[0]
-    if writepath=="": writepath="./"
+    if writepath=="":
+      writepath="./"
     if (os.access(writepath,os.W_OK)):
       cmdline.append(outputFile)
     else:
-      print "ERROR, not allowed to write to oututfile", outputFile
+      print ("ERROR, not allowed to write to oututfile", outputFile)
       retcode = 74002
       acronym = 'TRF_LAR_MERGE_ERROR'
-      txt = 'LAR merging error'
       pass
     pass
   
@@ -105,18 +106,17 @@ def larMerge(dataMap) :
 
     try:
       subprocess.check_call(cmdline,stdout=logfile,stderr=subprocess.STDOUT)
-    except Exception,e:
-      print "ERROR exectution of subprocess failed"
-      print e
+    except Exception as e:
+      print ("ERROR exectution of subprocess failed")
+      print (e)
       acronym = 'TRF_LAR_MERGE_ERROR'
-      txt = 'LAR merging error'
       pass
 
     logfile.close()
     logfile=open("log.LArMerge","r")
 
     for line in logfile:
-      print line,
+      print (line, end='')
       if line.startswith("Open file "):
         linetok=line.split(" ")
         inFiles.append(getFileMap(linetok[2], None, nevts=int(linetok[4])))
@@ -139,15 +139,15 @@ def larMerge(dataMap) :
                           'nevents': nEvents,              
                         }
            }              
-  f = open('jobReport.gpickle', 'w')
+  f = open('jobReport.gpickle', 'wb')
   pickle.dump(outMap, f)
   f.close()
 
-  print "\n##################################################################"
-  print   "## End of job."
-  print   "##################################################################\n"
+  print ("\n##################################################################")
+  print (  "## End of job.")
+  print (  "##################################################################\n")
 
-  print outMap
+  print (outMap)
 
 ########################################
 ## main()
@@ -158,8 +158,8 @@ if __name__ == "__main__":
   if len(sys.argv) == 2 and sys.argv[1].startswith('--argdict=') :
     picklefile = sys.argv[1][len('--argdict='):]
     # extract parameters from pickle file
-    print "Using pickled file ", picklefile, " for input parameters"
-    f = open(picklefile, 'r')
+    print ("Using pickled file ", picklefile, " for input parameters")
+    f = open(picklefile, 'rb')
     dataMap = pickle.load(f)
     f.close()
     larMerge(dataMap)
@@ -171,9 +171,9 @@ if __name__ == "__main__":
     dataMap['outputLArFile'] = outputFile
     larMerge(dataMap)
   else :
-    print "Input format wrong --- either have: "
-    print "   --argdict=<pickled-dictionary containing input info> "
-    print "   with key/value pairs: "
-    print "   or (old way): "
-    print "   --inputFiles=file1,file2,...,fileN --outputFile=file"
+    print ("Input format wrong --- either have: ")
+    print ("   --argdict=<pickled-dictionary containing input info> ")
+    print ("   with key/value pairs: ")
+    print ("   or (old way): ")
+    print ("   --inputFiles=file1,file2,...,fileN --outputFile=file")
     exit(1)

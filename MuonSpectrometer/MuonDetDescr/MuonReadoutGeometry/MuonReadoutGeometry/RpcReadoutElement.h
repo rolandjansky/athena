@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  Rpc Readout Element properties
  -----------------------------------------
 ***************************************************************************/
-
-//<doc><file>	$Id: RpcReadoutElement.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_RPCREADOUTELEMENT_H
 # define MUONGEOMODEL_RPCREADOUTELEMENT_H
@@ -88,7 +85,7 @@ namespace MuonGM {
     bool hasDEDontop() const; //!< return whether the RPC is 'up-side-down' 
 
     /** function to be used to check whether a given Identifier is contained in the readout element */
-    bool containsId(Identifier id) const;
+    virtual bool containsId(Identifier id) const override;
 
     /** returns whether the RE is in the ribs of the muon spectrometer */
     bool inTheRibs() const;
@@ -110,32 +107,33 @@ namespace MuonGM {
 
     /** distance to readout. 
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** strip number corresponding to local position. 
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** strip position 
 	If the strip number is outside the range of valid strips, the function will return false */
-    bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const;
+    virtual bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
 
     /** number of layers in phi/eta projection, same for eta/phi planes */
-    int numberOfLayers( bool measPhi = true ) const;
+    virtual int numberOfLayers( bool measPhi = true ) const override;
+    void setNumberOfLayers(const int = 2);
 
     /** number of strips per layer */
-    int numberOfStrips( const Identifier& layerId )   const;
-    int numberOfStrips( int , bool measuresPhi ) const;
+    virtual int numberOfStrips( const Identifier& layerId )   const override;
+    virtual int numberOfStrips( int , bool measuresPhi ) const override;
 
     /** space point position for a given pair of phi and eta identifiers 
 	The LocalPosition is expressed in the reference frame of the phi surface.
 	If one of the identifiers is outside the valid range, the function will return false */
-    bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const;
+    virtual bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const override;
 
 
     /** Global space point position for a given pair of phi and eta identifiers 
 	If one of the identifiers is outside the valid range, the function will return false */
-    bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const;
+    virtual bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const override;
 
     /** space point position for a pair of phi and eta local positions and a layer identifier 
 	The LocalPosition is expressed in the reference frame of the phi projection.
@@ -146,25 +144,25 @@ namespace MuonGM {
     const Amg::Vector3D  REcenter() const;
 
     /** @brief function to fill tracking cache */
-    void         fillCache() const;
-    void         refreshCache() const {clearCache(); fillCache();}
+    virtual void         fillCache() override;
+    virtual void         refreshCache() override {clearCache(); fillCache();}
 
     /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
-    int surfaceHash( const Identifier& id ) const;
+    int surfaceHash( const Identifier& id ) const override;
 
     /** @brief returns the hash to be used to look up the surface and transform in the MuonClusterReadoutElement tracking cache */
     int surfaceHash( int dbPhi, int gasGap, int measPhi) const;
 
     /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
-    int layerHash( const Identifier& id ) const;
+    int layerHash( const Identifier& id ) const override;
     /** @brief returns the hash to be used to look up the normal and center in the MuonClusterReadoutElement tracking cache */
     int layerHash( int dbPhi, int gasGap) const;
   
     /** returns the hash function to be used to look up the surface boundary for a given identifier */
-    int  boundaryHash(const Identifier& id) const;  
+    virtual int  boundaryHash(const Identifier& id) const override;
 
     /** @brief returns whether the current identifier corresponds to a phi measurement */
-    bool measuresPhi(const Identifier& id) const;
+    virtual bool measuresPhi(const Identifier& id) const override;
 
     /** @brief initialize the design classes for this readout element */
     void initDesign();
@@ -245,6 +243,7 @@ namespace MuonGM {
 
     int m_dbR, m_dbZ, m_dbPhi;
     bool m_hasDEDontop;
+    int m_nlayers;  // default=2, all BIS RPCs always have 3 gas gaps
 
     int m_nphigasgaps;
     int m_netagasgaps;
@@ -267,7 +266,7 @@ namespace MuonGM {
     double m_first_etastrip_z[maxetapanels];
     double m_etastrip_s[maxphipanels];
     double m_phistrip_z[maxetapanels];    
-    Amg::Transform3D m_Xlg[2][2];
+    Amg::Transform3D m_Xlg[3][2];
 
     const Amg::Transform3D localToGlobalStripPanelTransf(int dbZ, int dbPhi, int gasGap) const;
     const Amg::Vector3D localStripPanelPos(int dbZ, int dbP, int gg) const; 
@@ -317,18 +316,6 @@ namespace MuonGM {
     return surfaceHash(manager()->rpcIdHelper()->doubletPhi(id),manager()->rpcIdHelper()->gasGap(id),manager()->rpcIdHelper()->measuresPhi(id));
   }
 
-  inline int RpcReadoutElement::surfaceHash( int dbPhi, int gasGap, int measPhi) const {
-    
-    // if there is only one doublet phi we should always use one in the hash calculation
-    if ( m_nphistrippanels == 1 ) dbPhi = 1;
-    if( dbPhi > NphiStripPanels() || gasGap > numberOfLayers(true) ) {
-      (*m_Log)  << MSG::WARNING << " surfaceHash: identifier out of range dbphi " << dbPhi << " max " << NphiStripPanels() 
-	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endmsg;
-      return -1;
-    }
-    return  (dbPhi-1)*(2*NphiStripPanels()) + 2*(gasGap-1) + (measPhi ? 0 : 1);
-  }
-
   inline const Amg::Vector3D  RpcReadoutElement::REcenter()    const { 
     if (NphiStripPanels() == 1) return MuonClusterReadoutElement::center(0);
     return 0.5*(MuonClusterReadoutElement::center(0)+MuonClusterReadoutElement::center(2));
@@ -336,18 +323,6 @@ namespace MuonGM {
 
   inline int RpcReadoutElement::layerHash( const Identifier& id ) const {
     return layerHash(manager()->rpcIdHelper()->doubletPhi(id),manager()->rpcIdHelper()->gasGap(id));
-  }
-
-  inline int RpcReadoutElement::layerHash( int dbPhi, int gasGap) const {
-
-    if ( m_nphistrippanels == 1 ) dbPhi = 1;
-
-    if( dbPhi > NphiStripPanels() || gasGap > numberOfLayers(true) ) {
-      (*m_Log)  << MSG::WARNING << " layerHash: identifier out of range dbphi " << dbPhi << " max " << NphiStripPanels() 
-	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endmsg;
-      return -1;
-    }
-    return (dbPhi-1)*(NphiStripPanels()) + (gasGap-1);
   }
 
   inline int  RpcReadoutElement::boundaryHash(const Identifier& id) const { 
@@ -358,15 +333,6 @@ namespace MuonGM {
     return manager()->rpcIdHelper()->measuresPhi(id);
   }
 
-
-  inline const MuonStripDesign* RpcReadoutElement::getDesign( const Identifier& id ) const {
-    int phipanel = m_nphistrippanels == 1 ? 1 : manager()->rpcIdHelper()->doubletPhi(id);
-    if( phipanel > (int)m_phiDesigns.size() ) {
-      (*m_Log)  << MSG::WARNING << " bad identifier, no MuonStripDesign found " << endmsg;
-      return 0;
-    }
-    return manager()->rpcIdHelper()->measuresPhi(id) ? &m_phiDesigns[phipanel-1] : &m_etaDesigns[phipanel-1];
-  }
   inline double RpcReadoutElement::distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const {
     const MuonStripDesign* design = getDesign(id);
     if( !design ) return 0;
@@ -385,7 +351,8 @@ namespace MuonGM {
     return design->stripPosition(manager()->rpcIdHelper()->strip(id),pos);
   }
 
-  inline int RpcReadoutElement::numberOfLayers( bool ) const { return 2; }
+  inline int RpcReadoutElement::numberOfLayers(bool) const { return m_nlayers; }
+  inline void RpcReadoutElement::setNumberOfLayers(const int nlay) { m_nlayers = nlay; }
 
   inline int RpcReadoutElement::numberOfStrips( const Identifier& layerId )   const {
     return numberOfStrips(1,manager()->rpcIdHelper()->measuresPhi(layerId));

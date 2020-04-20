@@ -1,0 +1,19 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+# File taking care of pointing the downstream projects at the right
+# version of the externals.
+#
+
+# Find Gaudi:
+if( AthGeneration_FIND_QUIETLY )
+   find_package( Gaudi REQUIRED QUIET )
+else()
+   find_package( Gaudi REQUIRED )
+endif()
+
+# Set up the compilation option(s) for AthGeneration.
+set( GENERATIONBASE TRUE CACHE BOOL
+    "Flag specifying that this is a generation release build" )
+if( GENERATIONBASE )
+   add_definitions( -DGENERATIONBASE )
+endif()

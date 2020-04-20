@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os
 import sys
@@ -10,7 +12,7 @@ import sys
 def alleps2gif(setupok,keepeps=True,tareps=True,tardir="MuonRecRTT_epsimages"):
 
   if not setupok:
-    print "Usage: " + sys.argv[0] + " [directory]"
+    print ("Usage: " + sys.argv[0] + " [directory]")
     return
 
   old = ".eps"
@@ -28,7 +30,7 @@ def alleps2gif(setupok,keepeps=True,tareps=True,tardir="MuonRecRTT_epsimages"):
       if not keepeps:
         commands.append("rm " + epsname)
       for command in commands:
-        print "Running: " + command
+        print ("Running: " + command)
         os.system(command)
 
   if keepeps and tareps:
@@ -37,11 +39,11 @@ def alleps2gif(setupok,keepeps=True,tareps=True,tardir="MuonRecRTT_epsimages"):
                  "tar -czf " + tardir + ".tar.gz " + tardir ,
                  "rm -rf " + tardir ]
     for command in commands:
-      print "Running: " + command
+      print ("Running: " + command)
       os.system(command)
 
   if nofiles:
-    print "No " + old + " files in directory."
+    print ("No " + old + " files in directory.")
 
 # -------- Start of running is here ------- #
 
@@ -51,14 +53,14 @@ if len(sys.argv) > 1:
   if len(sys.argv) > 2:
     setupok = False
   else:
-    print "Changing to directory: " + sys.argv[1]
+    print ("Changing to directory: " + sys.argv[1])
     try:
       os.chdir(sys.argv[1])
     except:
-      print "Move to directory " + sys.argv[1] + " failed."
+      print ("Move to directory " + sys.argv[1] + " failed.")
       setupok = False
 else:
-  print "Running in current directory."
+  print ("Running in current directory.")
 
 alleps2gif(setupok)
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -90,7 +90,7 @@ namespace TrigAnalysisTest {
     //    bphys
     // HLT_EFBMuMuXFex
     const xAOD::TrigBphysContainer* HLT_xAOD__TrigBphysContainer_EFBMuMuXFex = 0;
-    eventStore()->retrieve( HLT_xAOD__TrigBphysContainer_EFBMuMuXFex, "HLT_xAOD__TrigBphysContainer_EFBMuMuXFex" );
+    eventStore()->retrieve( HLT_xAOD__TrigBphysContainer_EFBMuMuXFex, "HLT_xAOD__TrigBphysContainer_EFBMuMuXFex" ).ignore();
     cout << "size of HLT_xAOD__TrigBphysContainer_EFBMuMuXFex is " << HLT_xAOD__TrigBphysContainer_EFBMuMuXFex->size() << endl;
     xAOD::TrigBphysContainer::const_iterator TrigBphys_iter;
     for(TrigBphys_iter = HLT_xAOD__TrigBphysContainer_EFBMuMuXFex->begin(); TrigBphys_iter != HLT_xAOD__TrigBphysContainer_EFBMuMuXFex->end(); ++TrigBphys_iter) {
@@ -102,7 +102,7 @@ namespace TrigAnalysisTest {
     //    taus
     // HLT_TrigTauJet
     const xAOD::JetContainer* HLT_xAOD__JetContainer_TrigTauJet = 0;
-    eventStore()->retrieve( HLT_xAOD__JetContainer_TrigTauJet, "HLT_xAOD__JetContainer_TrigTauJet" );//weird name
+    eventStore()->retrieve( HLT_xAOD__JetContainer_TrigTauJet, "HLT_xAOD__JetContainer_TrigTauJet" ).ignore();//weird name
     cout << "HLT_xAOD__JetContainer_TrigTauJet successfully retrieved - size is " << HLT_xAOD__JetContainer_TrigTauJet->size() << " jets" << endl;
     xAOD::JetContainer::const_iterator Jet_iter;
     for(Jet_iter = HLT_xAOD__JetContainer_TrigTauJet->begin(); Jet_iter != HLT_xAOD__JetContainer_TrigTauJet->end(); ++Jet_iter) {
@@ -114,7 +114,7 @@ namespace TrigAnalysisTest {
     //    muons
     // HLT_MuonEFInfo
     const xAOD::MuonContainer* HLT_xAOD__MuonContainer_MuonEFInfo = 0;
-    eventStore()->retrieve( HLT_xAOD__MuonContainer_MuonEFInfo, "HLT_xAOD__MuonContainer_MuonEFInfo");
+    eventStore()->retrieve( HLT_xAOD__MuonContainer_MuonEFInfo, "HLT_xAOD__MuonContainer_MuonEFInfo").ignore();
     cout << "size of HLT_xAOD__MuonContainer_MuonEFInfo is " << HLT_xAOD__MuonContainer_MuonEFInfo->size() << endl;
     xAOD::MuonContainer::const_iterator Muon_iter;
     for(Muon_iter = HLT_xAOD__MuonContainer_MuonEFInfo->begin(); Muon_iter!= HLT_xAOD__MuonContainer_MuonEFInfo->end(); ++Muon_iter) {
@@ -127,7 +127,7 @@ namespace TrigAnalysisTest {
     //    MET
     // HLT_xAOD__TrigMissingETContainer_TrigEFMissingET
     const xAOD::TrigMissingETContainer* HLT_xAOD__TrigMissingETContainer_TrigEFMissingET = 0;
-    eventStore()->retrieve( HLT_xAOD__TrigMissingETContainer_TrigEFMissingET, "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET" );
+    eventStore()->retrieve( HLT_xAOD__TrigMissingETContainer_TrigEFMissingET, "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET" ).ignore();
     xAOD::TrigMissingETContainer::const_iterator TrigMissingET_iter;
     cout << "Size of TrigMissingETContainer is " << HLT_xAOD__TrigMissingETContainer_TrigEFMissingET->size() << endl;
     for(TrigMissingET_iter = HLT_xAOD__TrigMissingETContainer_TrigEFMissingET->begin(); TrigMissingET_iter != HLT_xAOD__TrigMissingETContainer_TrigEFMissingET->end(); ++TrigMissingET_iter) {
@@ -139,7 +139,7 @@ namespace TrigAnalysisTest {
     }
     // HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB
     const xAOD::TrigMissingETContainer* HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB = 0;
-    eventStore()->retrieve( HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB, "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB" );
+    eventStore()->retrieve( HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB, "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB" ).ignore();
     cout << "Size of TrigMissingETContainer is " << HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB->size() << endl;
     for(TrigMissingET_iter = HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB->begin(); TrigMissingET_iter != HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB->end(); ++TrigMissingET_iter) {
       Double_t ex = (*TrigMissingET_iter)->ex();
@@ -150,7 +150,7 @@ namespace TrigAnalysisTest {
     }
     // HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl
     const xAOD::TrigMissingETContainer* HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl = 0;
-    eventStore()->retrieve( HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl, "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl" );
+    eventStore()->retrieve( HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl, "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl" ).ignore();
     cout << "Size of TrigMissingETContainer is " << HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl->size() << endl;
     for(TrigMissingET_iter = HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl->begin(); TrigMissingET_iter != HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl->end(); ++TrigMissingET_iter) {
       Double_t ex = (*TrigMissingET_iter)->ex();

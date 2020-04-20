@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTools/CaloNoiseToolDB.h"
@@ -359,11 +359,11 @@ CaloNoiseToolDB::updateCache()
          }
          if (m_cached==ICalorimeterNoiseTool::TOTALNOISE) {
 	   float hvcorr=1.0;
-           ATH_MSG_DEBUG("hvcorr before " << hvcorr);
+           ATH_MSG_VERBOSE("hvcorr before " << hvcorr);
 	   if (m_rescaleForHV && !isTile) hvcorr=m_larHVCellCorrTool->getCorrection(m_calo_id->cell_id(i));
-           ATH_MSG_DEBUG("hvcorr after " << hvcorr);
+           ATH_MSG_VERBOSE("hvcorr after " << hvcorr);
            float noise = this->getDBNoise(i,caloGain,lumi,hvcorr);
-           ATH_MSG_DEBUG("noise " << igain << " " << i << " " << noise);
+           ATH_MSG_VERBOSE("noise " << igain << " " << i << " " << noise);
            m_noise[igain][i] = noise;
            if (i==0 &&  m_cacheUpdateCounter==0) {
              ATH_MSG_INFO( " NoiseDB parameters for first cell at gain " << igain  );

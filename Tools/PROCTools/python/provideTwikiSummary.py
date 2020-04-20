@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 import os
 
 def readReleaseList():
@@ -20,8 +23,8 @@ def cleanDiffRoot(ref, val,q, ftype, path):
     outfile = "%s_vs_%s_diff-root-%s.%s.txt" %(ref,val,q,ftype)
     if path:
         outfile = "%s/%s_vs_%s/%s" %(path,ref,val,outfile)
-    command = 'cat %s  | grep -v "diff= \[" | grep -v "::sync-" > %s' %(logfile,outfile)
-    #print command
+    command = 'cat %s  | grep -v "diff= \\[" | grep -v "::sync-" > %s' %(logfile,outfile)
+    #print (command)
     os.system(command)
 
 
@@ -32,14 +35,14 @@ def cleanLog(ref, val, path, log):
     if path:
         outfile = "%s/%s_vs_%s/%s" %(path,ref,val,outfile)
     command = 'cat  %s  > %s' %(logfile,outfile)
-    #print command
+    #print (command)
     os.system(command)
 
 
 def execDiffs(ref, val, path=None):
     filename = "%s_vs_%s_tag-diff.txt" %(ref,val)
     command1 = "get-tag-diff.py --ref=%s --chk=%s > %s/%s_vs_%s/%s" %(ref,val,path,ref,val,filename)
-    print command1
+    print (command1)
     os.system(command1)
 
 
@@ -67,7 +70,7 @@ def PrintTwiki(ref, chk, q221, q431):
     path = "https://twiki.cern.ch/twiki/pub/Atlas/Tier0CacheReleases"
 
     twiki = "| [[%s/%s_vs_%s_tag-diff.txt][%s vs %s]] | [[%s/%s_vs_%s_diff-root-q221.ESD.txt][ESD diff]] [[%s/%s_vs_%s_diff-root-q221.AOD.txt][AOD diff]] | [[%s/%s_vs_%s_diff-root-q431.ESD.txt][ESD diff]] [[%s/%s_vs_%s_diff-root-q431.AOD.txt][AOD diff]] | [[%s/%s_vs_%s_RunTier0Test.txt][%s/%s]] | %s |  |" %(path,ref,chk,ref,chk,path,ref,chk,path,ref,chk,path,ref,chk,path,ref,chk,path,ref,chk,q221,q431,status)
-    print twiki
+    print (twiki)
     return 0
 
 
@@ -80,17 +83,17 @@ def execute_all_steps(ref,val,path,log):
     #path = "%s_vs_%s" %(ref,val)
 
     os.system("mkdir %s/%s_vs_%s" %(path,ref,val)) 
-    print "INFO getting Tag diff of %s and %s" %(ref,val)
+    print ("INFO getting Tag diff of %s and %s" %(ref,val))
     execDiffs(ref, val, path)
-    print "INFO providing RunTier0Test log summary"
+    print ("INFO providing RunTier0Test log summary")
     cleanLog(ref,val, path,log)
-    print "INFO providing short q221 ESD diff-root summary"
+    print ("INFO providing short q221 ESD diff-root summary")
     cleanDiffRoot(ref,val,"q221","ESD", path)
-    print "INFO providing short q221 AOD diff-root summary"
+    print ("INFO providing short q221 AOD diff-root summary")
     cleanDiffRoot(ref,val,"q221","AOD", path)
-    print "INFO providing short q431 ESD diff-root summary"
+    print ("INFO providing short q431 ESD diff-root summary")
     cleanDiffRoot(ref,val,"q431","ESD", path)
-    print "INFO providing short q431 AOD diff-root summary"
+    print ("INFO providing short q431 AOD diff-root summary")
     cleanDiffRoot(ref,val,"q431","AOD", path)
 
     q221, q431 = readLogFile(path,log)
@@ -106,7 +109,7 @@ def writeManyFiles(release_list):
             val = release_list[idx+1]
         except:
             return 0
-        #print rel, val
+        #print (rel, val)
         execute_all_steps(ref,val)
 
 from optparse import OptionParser
@@ -122,7 +125,7 @@ parser.add_option("-f","--file" ,type="string"     ,dest="file"  ,default=None  
 
 if options.file:
     release_list = readReleaseList()
-    #print release_list
+    #print (release_list)
     writeManyFiles(release_list)
 
 if options.ref and options.val:

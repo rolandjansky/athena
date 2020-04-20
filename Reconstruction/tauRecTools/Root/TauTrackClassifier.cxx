@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ASG include(s)
-#include "PathResolver/PathResolver.h"
 
 // xAOD include(s)
 #include "xAODTracking/TrackParticle.h"
@@ -14,14 +11,7 @@
 #include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/HelperFunctions.h"
 
-// #include "TMVA/MethodBDT.h"
-// #include "TMVA/Reader.h"
-
 #include <fstream>
-
-//root includes
-#include <TFile.h>
-#include <TTree.h>
 
 using namespace tauRecTools;
 
@@ -65,12 +55,18 @@ StatusCode TauTrackClassifier::initialize()
   return StatusCode::SUCCESS;
 }
 
+
+StatusCode TauTrackClassifier::finalize()
+{
+  return StatusCode::SUCCESS;
+}
+
+    
 //______________________________________________________________________________
 StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau)
 {
   // Get track container via link from tau - instead of using read handle (not written to store yet) 
   // Check that size > 0
-  // ATH_MSG_INFO("track links size = " << xTau.allTauTrackLinks().size() ); 
   ElementLink< xAOD::TauTrackContainer > link;
   xAOD::TauTrackContainer* tauTrackCon = 0;
   if (xTau.allTauTrackLinks().size() > 0) {
@@ -98,6 +94,7 @@ StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau)
   for( const xAOD::TauTrack* trk : xTau.tracks(xAOD::TauJetParameters::classifiedCharged) ){
     charge += trk->track()->charge();
   }
+
   xTau.setCharge(charge);
   xTau.setDetail(xAOD::TauJetParameters::nChargedTracks, (int) xTau.nTracks());
   xTau.setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) xTau.nTracks(xAOD::TauJetParameters::classifiedIsolation));
@@ -126,8 +123,7 @@ TrackMVABDT::TrackMVABDT(const std::string& sName)
   , m_iSignalType(xAOD::TauJetParameters::classifiedCharged)
   , m_iBackgroundType(xAOD::TauJetParameters::classifiedFake)
   , m_iExpectedFlag(xAOD::TauJetParameters::unclassified)
-  , m_rReader(0)
-    //  , m_mParsedVarsBDT({})
+  , m_rReader(nullptr)
   , m_mAvailableVars({})
 {
   declareProperty( "InputWeightsPath", m_sInputWeightsPath );
@@ -135,20 +131,16 @@ TrackMVABDT::TrackMVABDT(const std::string& sName)
   declareProperty( "BackgroundType" , m_iBackgroundType );
   declareProperty( "SignalType", m_iSignalType );
   declareProperty( "ExpectedFlag", m_iExpectedFlag );
-  //  m_mParsedVarsBDT.clear();
 }
 
 //______________________________________________________________________________
 TrackMVABDT::~TrackMVABDT()
 {
-  delete m_rReader;
 }
 
 //______________________________________________________________________________
 StatusCode TrackMVABDT::finalize()
 {
-  delete m_rReader;
-  m_rReader = nullptr;
   for( std::pair<TString, float*> p : m_mAvailableVars ) delete p.second;
   m_mAvailableVars.clear();
   return StatusCode::SUCCESS;
@@ -227,12 +219,11 @@ StatusCode TrackMVABDT::initialize()
 //______________________________________________________________________________
 StatusCode TrackMVABDT::classifyTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau)
 {
-  ATH_CHECK( setVars(xTrack, xTau) );
-
-  //why?
+  /// If TT/IT gives TT, only run TT/CR; otherwise, run IT/FT 
   if (xTrack.flag((xAOD::TauJetParameters::TauTrackFlag) m_iExpectedFlag)==false)
     return StatusCode::SUCCESS;
   
+  ATH_CHECK(setVars(xTrack, xTau));
   double dValue = m_rReader->GetClassification();
   
   xTrack.setFlag((xAOD::TauJetParameters::TauTrackFlag) m_iExpectedFlag, false);
@@ -252,26 +243,8 @@ StatusCode TrackMVABDT::addWeightsFile()
   m_sInputWeightsPath = find_file(m_sInputWeightsPath);
   ATH_MSG_DEBUG("InputWeightsPath: " << m_sInputWeightsPath);
   
-  // if (m_mParsedVarsBDT.empty())
-  // {
-  //   ATH_CHECK(parseVariableContent());
-      
-  //   for (auto i : m_mParsedVarsBDT)
-  //     ATH_MSG_DEBUG(i.first<<" "<<i.second);
-    
-  //   for (size_t i = 0; i < m_mParsedVarsBDT.size(); i++){
-  //     std::string sVarName = m_mParsedVarsBDT[i];
-  //     if (m_mAvailableVars.find(sVarName) == m_mAvailableVars.end())
-  //     {
-  //       ATH_MSG_ERROR("Variable "<<sVarName<<" not in map of available variables");
-  //       return StatusCode::FAILURE;
-  //     }
-  //     reader->AddVariable( sVarName, &(m_mAvailableVars[sVarName]));
-  //   }
-  // }
-
   m_rReader = tauRecTools::configureMVABDT( m_mAvailableVars, m_sInputWeightsPath.c_str() );
-  if(m_rReader==0) {
+  if(m_rReader==nullptr) {
     ATH_MSG_FATAL("Couldn't configure MVA");
     return StatusCode::FAILURE;
   }
@@ -280,58 +253,21 @@ StatusCode TrackMVABDT::addWeightsFile()
 }
 
 //______________________________________________________________________________
-StatusCode TrackMVABDT::parseVariableContent()
-{
-  // // example     <Variable VarIndex="0" Expression="TracksAuxDyn.tauPt" Label="TracksAuxDyn.tauPt" Title="tauPt" Unit="" Internal="TracksAuxDyn.tauPt" Type="F" Min="1.50000762e+04" Max="5.32858625e+05"/>
-  // std::string sLine;
-  // std::ifstream sFileStream (m_sInputWeightsPath);
-  // if (sFileStream.is_open())
-  // {
-  //   while ( getline (sFileStream,sLine) )
-  //   {
-  //     if (sLine.find("/Variables") != std::string::npos)
-  //       break;
-  //     size_t iPosVarindex = sLine.find("VarIndex=");
-	
-  //     if ( iPosVarindex == std::string::npos )
-  //       continue;
-	
-  //     iPosVarindex += 10;
-	
-  //     size_t iPosVarindexEnd = sLine.find("\"",iPosVarindex);
-  //     size_t iPosExpression = sLine.find("Expression=")+12;
-  //     size_t iPosExpressionEnd = sLine.find("\"",iPosExpression);
-	
-  //     int iVarIndex = std::stoi(sLine.substr(iPosVarindex, iPosVarindexEnd-iPosVarindex));
-  //     std::string sExpression = sLine.substr(iPosExpression, iPosExpressionEnd-iPosExpression);
-	
-  //     m_mParsedVarsBDT.insert(std::pair<int, std::string >(iVarIndex,sExpression));
-  //   }
-  //   sFileStream.close();
-  //   return StatusCode::SUCCESS;
-  // }
-
-  // ATH_MSG_ERROR("Unable to open file "<<m_sInputWeightsPath);
-  // return StatusCode::FAILURE;
-  return StatusCode::SUCCESS;
-}
-
-//______________________________________________________________________________
 StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau)
 {
   const xAOD::TrackParticle* xTrackParticle = xTrack.track();
-  uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits), StatusCode::FAILURE );
-  uint8_t iTracksNPixelHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNPixelHits, xAOD::numberOfPixelHits), StatusCode::FAILURE );
-  uint8_t iTracksNPixelSharedHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNPixelSharedHits, xAOD::numberOfPixelSharedHits), StatusCode::FAILURE );
-  uint8_t iTracksNPixelDeadSensors = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNPixelDeadSensors, xAOD::numberOfPixelDeadSensors), StatusCode::FAILURE );
-  uint8_t iTracksNSCTHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNSCTHits, xAOD::numberOfSCTHits), StatusCode::FAILURE );
-  uint8_t iTracksNSCTSharedHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNSCTSharedHits, xAOD::numberOfSCTSharedHits), StatusCode::FAILURE );
-  uint8_t iTracksNSCTDeadSensors = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNSCTDeadSensors, xAOD::numberOfSCTDeadSensors), StatusCode::FAILURE );
-  uint8_t iTracksNTRTHighThresholdHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue( iTracksNTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits), StatusCode::FAILURE );
-  uint8_t iTracksNTRTHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue( iTracksNTRTHits, xAOD::numberOfTRTHits), StatusCode::FAILURE );
-  uint8_t iNumberOfContribPixelLayers = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iNumberOfContribPixelLayers, xAOD::numberOfContribPixelLayers), StatusCode::FAILURE );
-  uint8_t iNumberOfPixelHoles = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iNumberOfPixelHoles, xAOD::numberOfPixelHoles), StatusCode::FAILURE );
-  uint8_t iNumberOfSCTHoles = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iNumberOfSCTHoles, xAOD::numberOfSCTHoles), StatusCode::FAILURE );
+  uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits) );
+  uint8_t iTracksNPixelHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelHits, xAOD::numberOfPixelHits) );
+  uint8_t iTracksNPixelSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelSharedHits, xAOD::numberOfPixelSharedHits) );
+  uint8_t iTracksNPixelDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelDeadSensors, xAOD::numberOfPixelDeadSensors) );
+  uint8_t iTracksNSCTHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTHits, xAOD::numberOfSCTHits) );
+  uint8_t iTracksNSCTSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTSharedHits, xAOD::numberOfSCTSharedHits) );
+  uint8_t iTracksNSCTDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTDeadSensors, xAOD::numberOfSCTDeadSensors) );
+  uint8_t iTracksNTRTHighThresholdHits = 0; ATH_CHECK( xTrackParticle->summaryValue( iTracksNTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits) );
+  uint8_t iTracksNTRTHits = 0; ATH_CHECK( xTrackParticle->summaryValue( iTracksNTRTHits, xAOD::numberOfTRTHits) );
+  uint8_t iNumberOfContribPixelLayers = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfContribPixelLayers, xAOD::numberOfContribPixelLayers) );
+  uint8_t iNumberOfPixelHoles = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfPixelHoles, xAOD::numberOfPixelHoles) );
+  uint8_t iNumberOfSCTHoles = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfSCTHoles, xAOD::numberOfSCTHoles) );
 	
   float fTracksNumberOfInnermostPixelLayerHits = (float)iTracksNumberOfInnermostPixelLayerHits;
   float fTracksNPixelHits = (float)iTracksNPixelHits;
@@ -346,12 +282,13 @@ StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet
   float fTracksNPixHits = fTracksNPixelHits + fTracksNPixelDeadSensors;
   float fTracksNSiHits = fTracksNPixelHits + fTracksNPixelDeadSensors + fTracksNSCTHits + fTracksNSCTDeadSensors;
 
-  float fTracksEProbabilityHT; TRT_CHECK_BOOL( xTrackParticle->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT), StatusCode::FAILURE );
+  float fTracksEProbabilityHT; ATH_CHECK( xTrackParticle->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT) );
 
   float fNumberOfContribPixelLayers = float(iNumberOfContribPixelLayers);
   float fNumberOfPixelHoles = float(iNumberOfPixelHoles);
   float fNumberOfSCTHoles = float(iNumberOfSCTHoles);
 
+  // Could use the same naming convention in the BDT to simplify 
   setVar("TracksAuxDyn.jetSeedPt") = xTau.ptJetSeed();
   setVar("TracksAuxDyn.tauPt") = xTau.ptIntermediateAxis();
   setVar("TracksAuxDyn.tauEta") = xTau.etaIntermediateAxis();
@@ -415,6 +352,4 @@ StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet
 
   return StatusCode::SUCCESS;
   
-  // for (auto eEntry : m_mAvailableVars)
-  //   std::cout << eEntry.first<<": "<<eEntry.second<<"\n";
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTest/LArReadHadDMCoeffFile.h"
@@ -24,7 +24,7 @@ LArReadHadDMCoeffFile::~LArReadHadDMCoeffFile() {}
                             
 StatusCode LArReadHadDMCoeffFile::initialize() {
    ATH_MSG_INFO ( "=== LArReadHadDMCoeffFile::initialize() ===" );
-   initDataFromFile(m_hadDMCoeffFileName);
+   ATH_CHECK(initDataFromFile(m_hadDMCoeffFileName));
 
    if(msgLvl (MSG::DEBUG)) m_data->PrintData();
 

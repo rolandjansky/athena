@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // xAODEventSelector.cxx 
@@ -20,7 +20,6 @@
 #include "TROOT.h"
 #include "RootUtils/TBranchElementClang.h"
 #include "TClass.h"
-#include "TClassEdit.h"
 #include "TFile.h"
 #include "TKey.h"
 #include "TLeaf.h"
@@ -606,7 +605,7 @@ xAODEventSelector::seek (Context& refCtxt, int evtnum) const
     if (!rctx) {
       return StatusCode::FAILURE;
     }
-    rctx->setFile("");
+    ATH_CHECK(rctx->setFile(""));
   }
 
   m_collIdx = coll_idx;

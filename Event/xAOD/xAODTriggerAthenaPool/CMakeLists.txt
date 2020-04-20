@@ -1,23 +1,7 @@
-# $Id: CMakeLists.txt 755768 2016-06-17 13:43:10Z krasznaa $
-################################################################################
-# Package: xAODTriggerAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODTriggerAthenaPool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Trigger/TrigEvent/TrigNavTools
-   PRIVATE
-   Control/AthContainers
-   Control/AthenaKernel
-   Database/AthenaPOOL/AthenaPoolCnvSvc
-   Database/AthenaPOOL/AthenaPoolUtilities
-   Event/xAOD/xAODTrigger )
-
-atlas_install_joboptions( share/*.py )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
@@ -54,25 +38,22 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    LINK_LIBRARIES TrigNavToolsLib AthContainers AthenaKernel AthenaPoolCnvSvcLib
    AthenaPoolUtilities xAODTrigger )
 
-
+# Install files from the package.
+atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
-if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
-   set( AthenaPoolUtilitiesTest_DIR
-      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
-endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODTRIGGERATHENAPOOL_REFERENCE_TAG
        xAODTriggerAthenaPoolReference-01-00-00 )
-  run_tpcnv_test( xAODTriggerAthenaPool_master-20190911   AOD-master-20190911-full
+  run_tpcnv_legacy_test( xAODTriggerAthenaPool_master-20190911   AOD-master-20190911-full
                    REQUIRED_LIBRARIES xAODTriggerAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRIGGERATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( xAODTriggerAthenaPool_20.1.7.2   AOD-20.1.7.2-full
+  run_tpcnv_legacy_test( xAODTriggerAthenaPool_20.1.7.2   AOD-20.1.7.2-full
                    REQUIRED_LIBRARIES xAODTriggerAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRIGGERATHENAPOOL_REFERENCE_TAG} )
 else()
-   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
-endif()   
-                         
+   message( WARNING
+      "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+endif()

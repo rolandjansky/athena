@@ -21,19 +21,19 @@ if InDetFlags.doNtupleCreation():
     ResidualNtupleHelper      = Trk__ResidualValidationNtupleHelper( name = 'InDetResidualValHelper' )
     ToolSvc += ResidualNtupleHelper
     if (InDetFlags.doPrintConfigurables()):
-      print ResidualNtupleHelper
+      print( ResidualNtupleHelper )
     #
     from TrkValTools.TrkValToolsConf import Trk__HitPositionNtupleHelper
     HitPositionNtupleHelper   = Trk__HitPositionNtupleHelper( name = 'InDetHitPosValHelper' )
     ToolSvc += HitPositionNtupleHelper
     if (InDetFlags.doPrintConfigurables()):
-      print HitPositionNtupleHelper
+      print( HitPositionNtupleHelper )
     #
     from TrkValTools.TrkValToolsConf import Trk__TrackPositionNtupleHelper
     TrackPositionNtupleHelper = Trk__TrackPositionNtupleHelper( name = 'InDetTrackPosValHelper' )
     ToolSvc += TrackPositionNtupleHelper
     if (InDetFlags.doPrintConfigurables()):
-      print TrackPositionNtupleHelper
+      print( TrackPositionNtupleHelper )
   
     PixelNtupleHelperToolsList = []
     SCTNtupleHelperToolsList   = []
@@ -54,7 +54,7 @@ if InDetFlags.doNtupleCreation():
     InDetTrackInfoNtupleTool = Trk__TrackInformationNtupleTool(name="InDetTrackInfoNtupleTool")
     ToolSvc += InDetTrackInfoNtupleTool
     if InDetFlags.doPrintConfigurables():
-        print InDetTrackInfoNtupleTool
+        print( InDetTrackInfoNtupleTool )
 
     from TrkValTools.TrkValToolsConf import Trk__PerigeeParametersNtupleTool
     InDetPerigeeNtupleTool = Trk__PerigeeParametersNtupleTool \
@@ -63,7 +63,7 @@ if InDetFlags.doNtupleCreation():
           ExtrapolatorTool         = InDetExtrapolator)
     ToolSvc += InDetPerigeeNtupleTool 
     if InDetFlags.doPrintConfigurables():
-        print InDetPerigeeNtupleTool
+        print( InDetPerigeeNtupleTool )
 
     from TrkValTools.TrkValToolsConf import Trk__MeasurementVectorNtupleTool
     InDetMeastsNtupleTool = Trk__MeasurementVectorNtupleTool(name                     = 'InDetMeastsNtupleTool',
@@ -76,7 +76,7 @@ if InDetFlags.doNtupleCreation():
                                                              DoHoleSearch             = True)
     ToolSvc += InDetMeastsNtupleTool
     if InDetFlags.doPrintConfigurables():
-      print InDetMeastsNtupleTool
+      print( InDetMeastsNtupleTool )
 
     # --- include track selection tool
     from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetTrackSelectorTool
@@ -103,7 +103,7 @@ if InDetFlags.doNtupleCreation():
       
     ToolSvc += TrkValTrackSelectorTool
     if (InDetFlags.doPrintConfigurables()):
-      print TrkValTrackSelectorTool
+      print( TrkValTrackSelectorTool )
 
     # --- include track ntuple alg
 
@@ -117,7 +117,7 @@ if InDetFlags.doNtupleCreation():
                                                                           MaxZStartAll       = 2000000)
       ToolSvc += TrkInDetReconstructableSelector
       if (InDetFlags.doPrintConfigurables()):
-        print TrkInDetReconstructableSelector
+        print( TrkInDetReconstructableSelector )
 
     from TrkValAlgs.TrkValAlgsConf import Trk__TrackValidationNtupleWriter
     TrkValNtupleWriter = Trk__TrackValidationNtupleWriter(name                 = 'InDetValNtupleWriter',
@@ -153,7 +153,7 @@ if InDetFlags.doNtupleCreation():
 
     topSequence += TrkValNtupleWriter
     if (InDetFlags.doPrintConfigurables()):
-      print TrkValNtupleWriter
+      print( TrkValNtupleWriter )
 
   # configure sub detector tracking independent ntuple trees
 
@@ -167,7 +167,7 @@ if InDetFlags.doNtupleCreation():
                                                                SCT_ClusterContainer =  InDetKeys.SCT_Clusters())
     topSequence += SctNtupleWriter
     if (InDetFlags.doPrintConfigurables()):
-      print SctNtupleWriter
+      print( SctNtupleWriter )
  
   # --------------------------------------------      
 
@@ -180,7 +180,7 @@ if InDetFlags.doNtupleCreation():
                                                     MonteCarloCollection = InDetKeys.McEventCollection())
     ToolSvc += InDetPriVxPurityTool
     if (InDetFlags.doPrintConfigurables()):
-      print InDetPriVxPurityTool
+      print( InDetPriVxPurityTool )
 
     from TrkVertexFitterValidation.TrkVertexFitterValidationConf import Trk__PUVertexTest
     InDetVertexNTupleWriter = Trk__PUVertexTest(name = "InDetVertexNTupleWriter",
@@ -195,7 +195,7 @@ if InDetFlags.doNtupleCreation():
                                                 TracksName = InDetKeys.Tracks())
     topSequence += InDetVertexNTupleWriter
     if (InDetFlags.doPrintConfigurables()):
-      print InDetVertexNTupleWriter
+      print( InDetVertexNTupleWriter )
 
   # --------------------------------------------      
 
@@ -209,7 +209,7 @@ if InDetFlags.doNtupleCreation():
                                                       MonteCarloCollection = InDetKeys.McEventCollection())
     topSequence += InDetConversionNTupleWriter
     if (InDetFlags.doPrintConfigurables()):
-      print InDetConversionNTupleWriter
+      print( InDetConversionNTupleWriter )
 
   # --------------------------------------------      
 
@@ -218,7 +218,7 @@ if InDetFlags.doNtupleCreation():
     InDetV0Tools = Trk__V0Tools(name = "InDetV0Tools")
     ToolSvc += InDetV0Tools
     if (InDetFlags.doPrintConfigurables()):
-      print InDetV0Tools
+      print( InDetV0Tools )
 
     from TrkVertexFitterValidation.TrkVertexFitterValidationConf import Trk__V0VertexTest
     InDetV0NTupleWriter = Trk__V0VertexTest(name                 = "InDetV0NTupleWriter",
@@ -236,7 +236,7 @@ if InDetFlags.doNtupleCreation():
 
     topSequence += InDetV0NTupleWriter
     if (InDetFlags.doPrintConfigurables()):
-      print InDetV0NTupleWriter
+      print( InDetV0NTupleWriter )
 
 
   # --- and the setup
@@ -280,7 +280,7 @@ if InDetFlags.doStandardPlots():
 
       ToolSvc+=InDetTrackSelectorToolGood
       if (InDetFlags.doPrintConfigurables()):
-        print      InDetTrackSelectorToolGood
+        print( InDetTrackSelectorToolGood )
 
     # for track selection as done by b-tagging group
       InDetTrackSelectorToolBtag = InDet__InDetDetailedTrackSelectorTool(name                 = "InDetDetailedTrackSelectorToolBtag",
@@ -301,7 +301,7 @@ if InDetFlags.doStandardPlots():
 
       ToolSvc+=InDetTrackSelectorToolBtag
       if (InDetFlags.doPrintConfigurables()):
-        print  InDetTrackSelectorToolBtag
+        print( InDetTrackSelectorToolBtag )
 
     # --- add an AthenaMonManager algorithm to the list of algorithms to be ran
     from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -316,7 +316,7 @@ if InDetFlags.doStandardPlots():
   
     topSequence += InDetTrackPerfMonManager
     if (InDetFlags.doPrintConfigurables()):
-      print InDetTrackPerfMonManager
+      print( InDetTrackPerfMonManager )
     
 
       
@@ -364,9 +364,9 @@ if InDetFlags.doStandardPlots():
 
 #    ToolSvc += InDetStandardPerformanceAll
 #    if (InDetFlags.doPrintConfigurables()):
-#      print    InDetStandardPerformanceAll
+#      print(    InDetStandardPerformanceAll )
 #      if InDetFlags.doDBM():
-#        print InDetStandardPerformanceDBM
+#        print( InDetStandardPerformanceDBM )
         
  #   InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceAll ]
         
@@ -386,7 +386,7 @@ if InDetFlags.doStandardPlots():
         InDetStandardPerformancePseudoTracks.TruthParticleContainerName = "TruthEvent_PU"
       
       if (InDetFlags.doPrintConfigurables()):
-        print    InDetStandardPerformancePseudoTracks
+        print( InDetStandardPerformancePseudoTracks )
       InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformancePseudoTracks ]
 
     # selected tracks passing good quality cuts
@@ -404,7 +404,7 @@ if InDetFlags.doStandardPlots():
                                                                DoTruth             = InDetFlags.doTruth())
     
       if (InDetFlags.doPrintConfigurables()):
-        print    InDetStandardPerformanceGood
+        print( InDetStandardPerformanceGood )
     
       InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceGood ]
 
@@ -422,7 +422,7 @@ if InDetFlags.doStandardPlots():
                                                                DoTruth            = InDetFlags.doTruth())
     
       if (InDetFlags.doPrintConfigurables()):
-        print    InDetStandardPerformanceBtag
+        print(  InDetStandardPerformanceBtag )
     
       InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceBtag ]
 
@@ -440,7 +440,7 @@ if InDetFlags.doStandardPlots():
                                                                       DoTruth            = InDetFlags.doTruth())
     
       if (InDetFlags.doPrintConfigurables()):
-        print    InDetStandardPerformanceGoodIPatRec
+        print(  InDetStandardPerformanceGoodIPatRec )
     
       InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceGoodIPatRec ]
 
@@ -466,7 +466,7 @@ if InDetFlags.doPhysValMon():
                                              LumiBlock           = 1)
   topSequence += InDetPhysValMonManager
   if (InDetFlags.doPrintConfigurables()):
-    print InDetPhysValMonManager
+    print( InDetPhysValMonManager )
 
   from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
   if InDetFlags.doDBMstandalone():
@@ -494,9 +494,9 @@ if InDetFlags.doPhysValMon():
   #ToolSvc += InDetPhysValMonTool
   InDetPhysValMonManager.AthenaMonTools += [InDetPhysValMonTool]
   if (InDetFlags.doPrintConfigurables()):
-    print InDetPhysValMonTool
+    print( InDetPhysValMonTool )
 #    if InDetFlags.doDBM():
-#      print InDetPhysValMonToolDBM
+#      print( InDetPhysValMonToolDBM )
 #monitoring pile-up particles separately if splitReco is used (fast chain)
   if InDetFlags.doSplitReco():
     InDetPhysValMonToolPU = InDetPhysValMonitoringTool (useTrackSelection   = True,
@@ -505,7 +505,7 @@ if InDetFlags.doPhysValMon():
     #ToolSvc += InDetPhysValMonToolPU
     InDetPhysValMonManager.AthenaMonTools += [InDetPhysValMonToolPU]
     if (InDetFlags.doPrintConfigurables()):
-      print InDetPhysValMonToolPU	
+      print( InDetPhysValMonToolPU )
 
   # --- Setup the output histogram file(s)
   if not hasattr(ServiceMgr, 'THistSvc'):

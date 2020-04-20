@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,19 +41,10 @@
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
-#include <TF1.h>
 #include <inttypes.h> 
 #include <TProfile.h>
 
 #include <sstream>
-
-using namespace std;
-
 
 ///////////////////////////////////////////////////////////////////////////
 // TgcLv1RawDataValAlg Constructor

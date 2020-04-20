@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -34,7 +34,8 @@
 using namespace std;
 
 IHLTMonTool::IHLTMonTool(const std::string & type, const std::string & myname, const IInterface* parent)
-  : ManagedMonitorToolBase(type, myname, parent), m_log(0), m_cafonly(0),
+  : ManagedMonitorToolBase(type, myname, parent), 
+    m_log(0), m_cafonly(0),
     m_storeGate("StoreGateSvc",myname),
     m_inputMetaStore("StoreGateSvc/InputMetaDataStore",myname),
     m_configsvc("TrigConf::TrigConfigSvc/TrigConfigSvc",myname), //pickup previously configured configSvc from svcMgr (same as TDT)
@@ -44,6 +45,7 @@ IHLTMonTool::IHLTMonTool(const std::string & type, const std::string & myname, c
   declareProperty("CAFonly", m_cafonly);
   declareProperty("TDT", m_tdthandle);
   declareProperty("TrigConfigTool",m_configTool);
+  declareProperty("TrigConfigSvc",m_configsvc);
   declareProperty("IgnoreTruncationCheck",m_ignoreTruncationCheck=false); //Default check for truncate HLTResult
   m_log = new MsgStream(msgSvc(), name());
 }
@@ -90,6 +92,9 @@ StatusCode IHLTMonTool::initialize() {
   } catch(const GaudiException &e) {
     ATH_MSG_ERROR("Exception thrown: " << e.message());
     return StatusCode::FAILURE;
+  } catch(const std::runtime_error& e) {
+    sc = StatusCode::FAILURE;
+    ATH_MSG_ERROR("Exception thrown: " << e.what());
   } catch(...) {
     ATH_MSG_ERROR("init() from child tool has failed by unknown reasons");
     return StatusCode::FAILURE;
@@ -189,8 +194,6 @@ void IHLTMonTool::addMonGroup(MonGroup *m) {
 void IHLTMonTool::addHistogram(TH1 *h, const std::string &monGroup) {
   if (!h)
     throw GaudiException("Histogram pointer is NULL","HLTMonitoring",StatusCode::FAILURE);
-  //take ownership of the pointer.. in case except is thrown hPtr will delete h
-  //std::auto_ptr<TH1> hPtr = std::auto_ptr<TH1>(h);
   
   std::string theMonGroup;
   
@@ -227,8 +230,6 @@ void IHLTMonTool::addHistogram(TH1 *h, const std::string &monGroup) {
 void IHLTMonTool::addHistogram(TH2 *h, const std::string &monGroup) {
   if (!h)
     throw GaudiException("Histogram pointer is NULL","HLTMonitoring",StatusCode::FAILURE);
-  //take ownership of the pointer.. in case except is thrown hPtr will delete h
-  //std::auto_ptr<TH2> hPtr = std::auto_ptr<TH2>(h);
 
   std::string theMonGroup;
   
@@ -265,8 +266,6 @@ void IHLTMonTool::addTree(TTree *t, const std::string &monGroup) {
   if (!t)
     throw GaudiException("Tree pointer is NULL","HLTMonitoring",StatusCode::FAILURE);
 
-  //take ownership of the pointer.. in case except is thrown tPtr will delete t
-  //std::auto_ptr<TTree> tPtr = std::auto_ptr<TTree>(t);
 
   std::string theMonGroup;
   
@@ -303,8 +302,6 @@ void IHLTMonTool::addGraph(TGraph *g, const std::string &monGroup) {
   if (!g)
     throw GaudiException("Graph pointer is NULL","HLTMonitoring",StatusCode::FAILURE);
 
-  //take ownership of the pointer.. in case except is thrown gPtr will delete g
-  //std::auto_ptr<TGraph> gPtr = std::auto_ptr<TGraph>(g);
 
 
   std::string theMonGroup;
@@ -343,8 +340,6 @@ void IHLTMonTool::addProfile(TProfile *h, const std::string &monGroup) {
   if (!h)
     throw GaudiException("Profile pointer is NULL","HLTMonitoring",StatusCode::FAILURE);
   
-  //take ownership of the pointer.. in case except is thrown hPtr will delete h
-  //std::auto_ptr<TProfile> hPtr = std::auto_ptr<TProfile>(h);
   
 
   std::string theMonGroup;
@@ -648,6 +643,9 @@ StatusCode IHLTMonTool::bookHistograms() {
   } catch(const GaudiException &e) {
     sc = StatusCode::FAILURE;
     ATH_MSG_ERROR("Exception thrown: " << e.message());
+  } catch(const std::runtime_error& e) {
+    sc = StatusCode::FAILURE;
+    ATH_MSG_ERROR("Exception thrown: " << e.what());
   } catch(...) {
     sc =StatusCode::FAILURE;
     ATH_MSG_ERROR("Unknown exception caught, while booking histograms");
@@ -660,15 +658,12 @@ StatusCode IHLTMonTool::fillHistograms() {
   try {
     ATH_MSG_DEBUG("Running fill() for " << name());
    
-    // Do not require check on truncated HLTResult 
-    if(m_ignoreTruncationCheck)
-        sc=fill();
-    else {
     // Require non-truncated HLTResult
-        if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) 
-            ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
-        else 
-            sc= fill();
+    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) {
+      ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
+    }
+    else { 
+      sc = fill();
     }
 
     if (sc.isFailure()) {
@@ -677,12 +672,16 @@ StatusCode IHLTMonTool::fillHistograms() {
   } catch(const GaudiException &e) {
     sc = StatusCode::FAILURE;
     ATH_MSG_ERROR("Exception thrown: " << e.message());
+  } catch(const std::runtime_error& e) {
+    sc = StatusCode::FAILURE;
+    ATH_MSG_ERROR("Exception thrown: " << e.what());
   } catch(...) {
     sc = StatusCode::FAILURE;
     ATH_MSG_ERROR("Unknown exception caught, while filling histograms");
   }
   return sc;
 }
+
 
 StatusCode IHLTMonTool::procHistograms() {
   StatusCode sc = StatusCode::SUCCESS;
@@ -694,6 +693,9 @@ StatusCode IHLTMonTool::procHistograms() {
   } catch(const GaudiException &e) {
     sc = StatusCode::FAILURE;
     ATH_MSG_ERROR("Exception thrown: " << e.message());
+  } catch(const std::runtime_error& e) {
+    sc = StatusCode::FAILURE;
+    ATH_MSG_ERROR("Exception thrown: " << e.what());
   } catch(...) {
     sc = StatusCode::FAILURE;
     ATH_MSG_ERROR("Unknown exception caught, while processing histograms");

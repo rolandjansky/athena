@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODEgamma/EgammaTruthxAODHelpers.h"
@@ -54,10 +54,10 @@ const xAOD::TruthParticle* xAOD::EgammaHelpers::getBkgElectronMother(const xAOD:
 const xAOD::TruthParticle* xAOD::EgammaHelpers::getBkgElectronMother(const xAOD::TruthParticle* truthel, const  int barcodecut/*=0*/){
 
   std::vector<const xAOD::TruthParticle*>  vec = xAOD::EgammaHelpers::getBkgElectronLineage(truthel,barcodecut);
-  if(vec.size()>0){ 
+  if(!vec.empty()){ 
     return vec.back();
   }
-  return 0;
+  return nullptr;
 }
 
 std::vector<const xAOD::TruthParticle*> 

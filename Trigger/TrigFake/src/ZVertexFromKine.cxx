@@ -27,7 +27,7 @@ Modified :
 
 #include "TrigFake/ZVertexFromKine.h"                               
 
-using namespace HepMC;
+
 
       
 ////////////////////////////////////////////////////////////////                               

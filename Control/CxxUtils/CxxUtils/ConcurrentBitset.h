@@ -926,11 +926,9 @@ private:
      */
     __attribute__ ((target ("popcnt")))
     bit_t count() const;
-#endif
     /**
      * @brief Count the number of 1 bits in the set.
      */
-#if HAVE_FUNCTION_MULTIVERSIONING
     __attribute__ ((target ("default")))
 #endif
     bit_t count() const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/FCALHVManager.h"
@@ -19,7 +19,7 @@
 #include "LArCabling/LArHVCablingTool.h"
 #include "Identifier/HWIdentifier.h"
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 #include "LArRecConditions/LArHVIdMapping.h"
 #endif
 
@@ -220,7 +220,7 @@ FCALHVPayload *FCALHVManager::getPayload(const FCALHVLine &line) const {
 }
 
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 int FCALHVManager::hvLineNo(const FCALHVLine& line
 			    , const LArHVIdMapping* hvIdMapping) const
 {

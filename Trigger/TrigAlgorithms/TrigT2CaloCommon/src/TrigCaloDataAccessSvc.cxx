@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigCaloDataAccessSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -344,8 +344,12 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
     m_tileDecoder->loadRw2Cell ( i, tilecell->Rw2CellMap(i) );
     m_tileDecoder->loadRw2Pmt  ( i, tilecell->Rw2PmtMap (i) );
   }
-  m_tileDecoder->loadMBTS_Ptr( tilecell->MBTS_collection(),
-	tilecell->MBTS_map(), tilecell->MBTS_channel() );
+  m_tileDecoder->loadMBTS( tilecell->MBTS_map(), tilecell->MBTS_channel() );
+  m_mbts_rods = tilecell->MBTS_RODs();
+  for(size_t i = 0 ; i < m_mbts_rods->size(); i++)
+  m_mbts_add_rods.insert(m_mbts_add_rods.end(),(*m_mbts_rods).begin(),(*m_mbts_rods).end());
+  sort(m_mbts_add_rods.begin(),m_mbts_add_rods.end());
+  m_mbts_add_rods.erase(std::unique(m_mbts_add_rods.begin(),m_mbts_add_rods.end()),m_mbts_add_rods.end());
   for(unsigned int lcidx=0; lcidx < tilecell->size(); lcidx++){
           TileCellCollection* lcc = tilecell->at(lcidx);
           unsigned int lccsize = lcc->size();
@@ -412,6 +416,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
       LArCellCollection* coll = *it; 
       ATH_MSG_DEBUG( "ROB of ID " << sourceID << " to be decoded"   );
 
+      std::lock_guard<std::mutex> decoderLock( m_lardecoderProtect );
       //TB next two lines seem danger, as they seem to rely on the decoder state 
       m_larDecoder->setsecfeb( larcell->findsec( sourceID ) );
       if ( ! m_larDecoder->check_valid( rob, msg() ) ){
@@ -459,6 +464,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<IdentifierHas
                                                TileCellCont* tilecell ) {
   unsigned int status(0);
   TileROD_Decoder::D0CellsHLT d0cells;
+  TileCellCollection* mbts = tilecell->MBTS_collection();
 
   size_t listIDsize = rIds.size();
   std::vector<unsigned int> tile; tile.push_back(0);
@@ -474,31 +480,32 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<IdentifierHas
                   (tilecell->find(rIds[i]));
           TileCellCollection* col = *it;
           if ( robFrags1.size()!=0 && col != NULL ) {
-          size_t roddatasize = robFrags1[0]->rod_ndata();
-          // insert data into vector (to be removed soon)
-          if (roddatasize < 3) {
-            ATH_MSG_WARNING( "Error reading bytestream"<<
+            size_t roddatasize = robFrags1[0]->rod_ndata();
+            // insert data into vector (to be removed soon)
+            if (roddatasize < 3) {
+              ATH_MSG_WARNING( "Error reading bytestream"<<
                              "event: Empty ROD block (less than 3 words) : 0x"
                              << std::hex << tile[0] << std::dec );
-            msg(MSG::WARNING) << "Error reading bytestream "
+              msg(MSG::WARNING) << "Error reading bytestream "
                               << "event: Empty ROD block (less than 3 words) : 0x"
                               << std::hex << tile[0] << std::dec << endmsg;
-            // Data seems corrupted
-            //m_error|=0x20000000;
-            if ( !tilecell->cached(rIds[i])){
+              // Data seems corrupted
+              //m_error|=0x20000000;
+              if ( !tilecell->cached(rIds[i])){
                   // resets collection
                   //reset_TileCol(col);
-            }
-            robFrags1.clear();
-          } else  {// End of if small size
-          if ( !tilecell->cached(rIds[i]))
-          m_tileDecoder->fillCollectionHLT(robFrags1[0],*col,d0cells);
-          m_tileDecoder->mergeD0cellsHLT(d0cells,*col);
-          // Accumulates superior byte from ROD Decoder
-          //m_error|=m_tileDecoder->report_error();
-          robFrags1.clear();
-          }
-          }
+              }
+              robFrags1.clear();
+            } else  {// End of if small size
+              std::lock_guard<std::mutex> decoderLock { m_tiledecoderProtect };  
+              if ( !tilecell->cached(rIds[i]))
+                m_tileDecoder->fillCollectionHLT(robFrags1[0],*col,d0cells,mbts);
+              m_tileDecoder->mergeD0cellsHLT(d0cells,*col);
+              // Accumulates superior byte from ROD Decoder
+              //m_error|=m_tileDecoder->report_error();
+              robFrags1.clear();
+            } // end of else
+          } // end of if robFrags1.size
   } // End of for through RobFrags
 
   ATH_MSG_DEBUG( "finished decoding" );
@@ -556,7 +563,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
     m_robDataProvider->getROBData( context, requestROBs, robFrags );
   }
   if ( robFrags.empty() && (!requestROBs.empty()) ) {
-    return 0x1; // dummy code
+    return 0x0; // dummy code
   }
 
   auto lockTime = Monitored::Timer ( "TIME_locking_LAr_RoI" );
@@ -615,4 +622,52 @@ unsigned int TrigCaloDataAccessSvc::prepareTileCollections( const EventContext& 
   unsigned int status = convertROBs( rIds, (cache->tileContainer) );
 
   return status;
+}
+
+unsigned int TrigCaloDataAccessSvc::prepareMBTSCollections( const EventContext& context ) {
+
+  // If the full event was already unpacked, don't need to unpack RoI
+  if ( !m_lateInitDone && lateInit() ) {
+    return 0x0; // dummy code
+  }
+  HLTCaloEventCache* cache = m_hLTCaloSlot.get( context );
+  if ( cache->lastFSEvent == context.evt() ) return 0x0;
+
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFrags;
+  {
+    std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
+    m_robDataProvider->addROBData( m_mbts_add_rods );
+  }
+  std::lock_guard<std::mutex> collectionLock { cache->mutex };  
+  std::lock_guard<std::mutex> decoderLock { m_tiledecoderProtect };  
+  TileCellCont* tilecell = cache->tileContainer;
+  cache->tileContainer->eventNumber( context.evt() );
+ 
+  const std::vector<unsigned int>* ids = tilecell->MBTS_IDs();
+  std::vector<IdentifierHash> tileIds;
+  for(size_t i=0;i<ids->size(); i++) tileIds.push_back( (*ids)[i] );
+  unsigned int status = convertROBs( tileIds, (cache->tileContainer) );
+
+  return status;
+}
+
+
+
+StatusCode TrigCaloDataAccessSvc::loadMBTS ( const EventContext& context,
+                                                    TileCellCollection& loadedCells ) {
+
+  ATH_MSG_DEBUG( "MBTS requested for event " << context );
+  unsigned int sc = prepareMBTSCollections(context);
+
+  if ( sc ) return StatusCode::FAILURE;
+
+  HLTCaloEventCache* cache = m_hLTCaloSlot.get( context );
+  std::lock_guard<std::mutex> collectionLock { cache->mutex };  
+  TileCellCont* tilecell = cache->tileContainer;
+  TileCellCollection* mbts = tilecell->MBTS_collection();
+  loadedCells.reserve(mbts->size());
+  for (size_t i=0;i<mbts->size(); ++i)
+        loadedCells.push_back(mbts->at(i));
+  return StatusCode::SUCCESS;
+
 }

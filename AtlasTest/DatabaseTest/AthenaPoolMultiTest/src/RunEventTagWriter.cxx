@@ -99,7 +99,7 @@ StatusCode RunEventTagWriter::execute()
 
   //ATH_CHECK( evtStore()->record(attribList, "RunEventTag") );
   SG::WriteHandle<AthenaAttributeList> attwrite(m_attribList);
-  ATH_CHECK( attwrite.record (std::make_unique<AthenaAttributeList>(*attribList)) );
+  ATH_CHECK( attwrite.record (std::unique_ptr<AthenaAttributeList>(attribList)) );
 
   ATH_MSG_DEBUG( "Printing out attribute list:"  );
   std::ostringstream attribListStream;

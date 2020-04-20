@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventSelectorAthenaPool.cxx
@@ -81,7 +81,12 @@ StoreGateSvc* EventSelectorAthenaPool::eventStore() const {
 }
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::initialize() {
-   ATH_MSG_DEBUG("Initializing " << name());
+   if (m_isSecondary.value()) {
+      ATH_MSG_DEBUG("Initializing secondary event selector " << name());
+   } else {
+      ATH_MSG_DEBUG("Initializing " << name());
+   }
+
    if (!::AthService::initialize().isSuccess()) {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
@@ -425,6 +430,8 @@ StatusCode EventSelectorAthenaPool::queryInterface(const InterfaceID& riid, void
       *ppvInterface = dynamic_cast<IEvtSelectorSeek*>(this);
    } else if (riid == IEventShare::interfaceID()) {
       *ppvInterface = dynamic_cast<IEventShare*>(this);
+   } else if (riid == ISecondaryEventSelector::interfaceID()) {
+      *ppvInterface = dynamic_cast<ISecondaryEventSelector*>(this);
    } else {
       return(::AthService::queryInterface(riid, ppvInterface));
    }
@@ -481,80 +488,15 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
       }
    }
    for (;;) {
-      if (m_headerIterator == nullptr || m_headerIterator->next() == 0) {
-         m_headerIterator = nullptr;
-         // Close previous collection.
-         if (!m_keepInputFilesOpen.value() && m_poolCollectionConverter != nullptr) {
-            m_poolCollectionConverter->disconnectDb().ignore();
-         }
-         delete m_poolCollectionConverter; m_poolCollectionConverter = nullptr;
-         // Assume that the end of collection file indicates the end of payload file.
-         if (m_processMetadata.value()) {
-            // Fire EndInputFile incident
-            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
-            m_incidentSvc->fireIncident(endInputFileIncident);
-         }
-         // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
-         auto old_guid = m_guid;
-         m_guid = Guid::null();
-         disconnectIfFinished( old_guid.toString() );
-         // Open next file from inputCollections list.
-         m_inputCollectionsIterator++;
-         // Create PoolCollectionConverter for input file
-         m_poolCollectionConverter = getCollectionCnv(true);
-         if (m_poolCollectionConverter == nullptr) {
-            // Return end iterator
-            ctxt = *m_endIter;
-            return(StatusCode::FAILURE);
-         }
-         // Get DataHeader iterator
-         m_headerIterator = &m_poolCollectionConverter->executeQuery();
-         continue; // handles empty files
+      // Handle possible file transition
+      StatusCode sc = nextHandleFileTransition(ctxt);
+      if (sc.isRecoverable()) {
+        continue; // handles empty files
       }
-      Guid guid;
-      int tech = 0;
-      if (m_refName.value().empty()) {
-         guid = m_headerIterator->eventRef().dbID();
-         tech = m_headerIterator->eventRef().technology();
-      } else {
-         Token token;
-         m_headerIterator->currentRow().tokenList()[m_refName.value() + "_ref"].setData(&token);
-         guid = token.dbID();
-         tech = token.technology();
+      if (sc.isFailure()) {
+         return StatusCode::FAILURE;
       }
-      if (guid != m_guid) {
-         if (m_guid != Guid::null()) {
-            if (m_processMetadata.value()) {
-               // Fire EndInputFile incident
-               FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
-               m_incidentSvc->fireIncident(endInputFileIncident);
-            }
-            // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
-            auto old_guid = m_guid;
-            m_guid = Guid::null();
-            disconnectIfFinished(old_guid.toString());
-         }
-         m_guid = guid;
-         // Fire BeginInputFile incident if current InputCollection is a payload file;
-         // otherwise, ascertain whether the pointed-to file is reachable before firing any incidents and/or proceeding
-         if (m_collectionType.value() == "ImplicitROOT") {
-            // For now, we can only deal with input metadata from POOL files, but we know we have a POOL file here
-            if (!m_athenaPoolCnvSvc->setInputAttributes(*m_inputCollectionsIterator).isSuccess()) {
-                ATH_MSG_ERROR("Failed to set input attributes.");
-                return(StatusCode::FAILURE);
-            }
-            if (m_processMetadata.value()) {
-               FileIncident beginInputFileIncident(name(), "BeginInputFile", *m_inputCollectionsIterator, "FID:" + m_guid.toString());
-               m_incidentSvc->fireIncident(beginInputFileIncident);
-            }
-         } else {
-            // Check if File is BS
-            if (tech != 0x00001000 && m_processMetadata.value()) {
-               FileIncident beginInputFileIncident(name(), "BeginInputFile", "FID:" + m_guid.toString());
-               m_incidentSvc->fireIncident(beginInputFileIncident);
-            }
-         }
-      }  // end if (guid != m_guid)
+      // Increase event count
       ++m_evtCount;
       if (!m_counterTool.empty() && !m_counterTool->preNext().isSuccess()) {
          ATH_MSG_WARNING("Failed to preNext() CounterTool.");
@@ -567,7 +509,7 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
                while (m_athenaPoolCnvSvc->readData().isSuccess()) {
                   ATH_MSG_VERBOSE("Called last readData, while putting next event in next()");
                }
-// Nothing to do right now, trigger alternative (e.g. caching) here? Currently just fast loop.
+               // Nothing to do right now, trigger alternative (e.g. caching) here? Currently just fast loop.
                sc = m_eventStreamingTool->putEvent(m_evtCount - 1, token.c_str(), token.length() + 1, 0);
             }
             if (!sc.isSuccess()) {
@@ -575,12 +517,14 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
                return(StatusCode::FAILURE);
             }
          } else {
-            if (!eventStore()->clearStore().isSuccess()) {
-               ATH_MSG_WARNING("Cannot clear Store");
-            }
-            if (!recordAttributeList().isSuccess()) {
-               ATH_MSG_ERROR("Failed to record AttributeList.");
-               return(StatusCode::FAILURE);
+            if (!m_isSecondary.value()) {
+               if (!eventStore()->clearStore().isSuccess()) {
+                  ATH_MSG_WARNING("Cannot clear Store");
+               }
+               if (!recordAttributeList().isSuccess()) {
+                  ATH_MSG_ERROR("Failed to record AttributeList.");
+                  return(StatusCode::FAILURE);
+               }
             }
          }
          StatusCode status = StatusCode::SUCCESS;
@@ -619,13 +563,95 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
 StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt, int jump) const {
    if (jump > 0) {
       for (int i = 0; i < jump; i++) {
-         if (!next(ctxt).isSuccess()) {
-            return(StatusCode::FAILURE);
-         }
+         ATH_CHECK(next(ctxt));
       }
       return(StatusCode::SUCCESS);
    }
    return(StatusCode::FAILURE);
+}
+//________________________________________________________________________________
+StatusCode EventSelectorAthenaPool::nextHandleFileTransition(IEvtSelector::Context& ctxt) const
+{
+   // Check if we're at the end of file
+   if (m_headerIterator == nullptr || m_headerIterator->next() == 0) {
+      m_headerIterator = nullptr;
+      // Close previous collection.
+      if (!m_keepInputFilesOpen.value() && m_poolCollectionConverter != nullptr) {
+         m_poolCollectionConverter->disconnectDb().ignore();
+      }
+      delete m_poolCollectionConverter; m_poolCollectionConverter = nullptr;
+      // Assume that the end of collection file indicates the end of payload file.
+      if (m_processMetadata.value()) {
+         // Fire EndInputFile incident
+         FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
+         m_incidentSvc->fireIncident(endInputFileIncident);
+      }
+      // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
+      auto old_guid = m_guid;
+      m_guid = Guid::null();
+      disconnectIfFinished( old_guid.toString() );
+      // Open next file from inputCollections list.
+      m_inputCollectionsIterator++;
+      // Create PoolCollectionConverter for input file
+      m_poolCollectionConverter = getCollectionCnv(true);
+      if (m_poolCollectionConverter == nullptr) {
+         // Return end iterator
+         ctxt = *m_endIter;
+         // This is not a real failure but a Gaudi way of handling "end of job"
+         return StatusCode::FAILURE;
+      }
+      // Get DataHeader iterator
+      m_headerIterator = &m_poolCollectionConverter->executeQuery();
+
+      // Return RECOVERABLE to mark we should still continue
+      return StatusCode::RECOVERABLE;
+   }
+
+   Guid guid;
+   int tech = 0;
+   if (m_refName.value().empty()) {
+      guid = m_headerIterator->eventRef().dbID();
+      tech = m_headerIterator->eventRef().technology();
+   } else {
+      Token token;
+      m_headerIterator->currentRow().tokenList()[m_refName.value() + "_ref"].setData(&token);
+      guid = token.dbID();
+      tech = token.technology();
+   }
+   if (guid != m_guid) {
+      if (m_guid != Guid::null()) {
+         if (m_processMetadata.value()) {
+            // Fire EndInputFile incident
+            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
+            m_incidentSvc->fireIncident(endInputFileIncident);
+         }
+         // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
+         auto old_guid = m_guid;
+         m_guid = Guid::null();
+         disconnectIfFinished(old_guid.toString());
+      }
+      m_guid = guid;
+      // Fire BeginInputFile incident if current InputCollection is a payload file;
+      // otherwise, ascertain whether the pointed-to file is reachable before firing any incidents and/or proceeding
+      if (m_collectionType.value() == "ImplicitROOT") {
+         // For now, we can only deal with input metadata from POOL files, but we know we have a POOL file here
+         if (!m_athenaPoolCnvSvc->setInputAttributes(*m_inputCollectionsIterator).isSuccess()) {
+               ATH_MSG_ERROR("Failed to set input attributes.");
+               return(StatusCode::FAILURE);
+         }
+         if (m_processMetadata.value()) {
+            FileIncident beginInputFileIncident(name(), "BeginInputFile", *m_inputCollectionsIterator, "FID:" + m_guid.toString());
+            m_incidentSvc->fireIncident(beginInputFileIncident);
+         }
+      } else {
+         // Check if File is BS
+         if (tech != 0x00001000 && m_processMetadata.value()) {
+            FileIncident beginInputFileIncident(name(), "BeginInputFile", "FID:" + m_guid.toString());
+            m_incidentSvc->fireIncident(beginInputFileIncident);
+         }
+      }
+   }  // end if (guid != m_guid)
+   return StatusCode::SUCCESS;
 }
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::previous(IEvtSelector::Context& /*ctxt*/) const {
@@ -636,9 +662,7 @@ StatusCode EventSelectorAthenaPool::previous(IEvtSelector::Context& /*ctxt*/) co
 StatusCode EventSelectorAthenaPool::previous(IEvtSelector::Context& ctxt, int jump) const {
    if (jump > 0) {
       for (int i = 0; i < jump; i++) {
-         if (!previous(ctxt).isSuccess()) {
-            return(StatusCode::FAILURE);
-         }
+         ATH_CHECK(previous(ctxt));
       }
       return(StatusCode::SUCCESS);
    }
@@ -957,21 +981,43 @@ StatusCode EventSelectorAthenaPool::recordAttributeList() const {
    const coral::AttributeList& attrList = m_headerIterator->currentRow().attributeList();
    ATH_MSG_DEBUG("AttributeList size " << attrList.size());
    std::unique_ptr<AthenaAttributeList> athAttrList(new AthenaAttributeList(attrList));
-   const pool::TokenList& tokenList = m_headerIterator->currentRow().tokenList();
-   for (pool::TokenList::const_iterator iter = tokenList.begin(), last = tokenList.end(); iter != last; ++iter) {
-      athAttrList->extend(iter.tokenName(), "string");
-      (*athAttrList)[iter.tokenName()].data<std::string>() = iter->toString();
-      ATH_MSG_DEBUG("record AthenaAttribute, name = " << iter.tokenName() << " = " << iter->toString() << ".");
-   }
-   athAttrList->extend("eventRef", "string");
-   (*athAttrList)["eventRef"].data<std::string>() = m_headerIterator->eventRef().toString();
-   ATH_MSG_DEBUG("record AthenaAttribute, name = eventRef = " << m_headerIterator->eventRef().toString() << ".");
+   // Fill the new attribute list
+   ATH_CHECK(fillAttributeList(athAttrList.get(), "", false));
+   // Write the AttributeList
    SG::WriteHandle<AthenaAttributeList> wh(m_attrListKey.value(), eventStore()->name());
    if (!wh.record(std::move(athAttrList)).isSuccess()) {
       ATH_MSG_ERROR("Cannot record AttributeList to StoreGate " << StoreID::storeName(eventStore()->storeID()));
       return(StatusCode::FAILURE);
    }
    return(StatusCode::SUCCESS);
+}
+//__________________________________________________________________________
+StatusCode EventSelectorAthenaPool::fillAttributeList(coral::AttributeList *attrList, const std::string &suffix, bool copySource) const
+{
+   const pool::TokenList& tokenList = m_headerIterator->currentRow().tokenList();
+   for (pool::TokenList::const_iterator iter = tokenList.begin(), last = tokenList.end(); iter != last; ++iter) {
+      attrList->extend(iter.tokenName() + suffix, "string");
+      (*attrList)[iter.tokenName() + suffix].data<std::string>() = iter->toString();
+      ATH_MSG_DEBUG("record AthenaAttribute, name = " << iter.tokenName() + suffix << " = " << iter->toString() << ".");
+   }
+
+   std::string eventRef = "eventRef";
+   if (m_isSecondary.value()) {
+      eventRef.append(suffix);
+   }
+   attrList->extend(eventRef, "string");
+   (*attrList)[eventRef].data<std::string>() = m_headerIterator->eventRef().toString();
+   ATH_MSG_DEBUG("record AthenaAttribute, name = " + eventRef + " = " <<  m_headerIterator->eventRef().toString() << ".");
+
+   if (copySource) {
+      const coral::AttributeList& sourceAttrList = m_headerIterator->currentRow().attributeList();
+      for (const auto &attr : sourceAttrList) {
+         attrList->extend(attr.specification().name() + suffix, attr.specification().type());
+         (*attrList)[attr.specification().name() + suffix] = attr;
+      }
+   }
+
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
 StatusCode EventSelectorAthenaPool::io_reinit() {
@@ -1081,4 +1127,10 @@ bool EventSelectorAthenaPool::disconnectIfFinished( SG::SourceID fid ) const
       }
    }
    return false;
+}
+
+//__________________________________________________________________________
+void EventSelectorAthenaPool::syncEventCount(int count) const
+{
+   m_evtCount = count;
 }

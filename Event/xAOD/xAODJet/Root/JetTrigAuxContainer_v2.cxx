@@ -1,9 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#ifndef SIMULATIONBASE
 // Local include(s):
 #include "xAODJet/versions/JetTrigAuxContainer_v2.h"
 
@@ -20,8 +18,6 @@ namespace xAOD {
       AUX_VARIABLE( eta );
       AUX_VARIABLE( phi );
       AUX_VARIABLE( m );
-      
    }
 
 } // namespace xAOD
-#endif //SIMULATIONBASE

@@ -108,5 +108,3 @@ if pprMonitoringJob.doFineTimePlots:
 #LVL1ConfigSvc = LVL1ConfigSvc('LVL1ConfigSvc')
 #LVL1ConfigSvc.XMLFile = "LVL1config_Physics_pp_v1.xml"
 #ServiceMgr += LVL1ConfigSvc
-
-StatusCodeSvc.AbortOnError=False

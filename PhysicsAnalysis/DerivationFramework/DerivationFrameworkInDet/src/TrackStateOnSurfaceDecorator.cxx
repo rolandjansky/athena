@@ -36,7 +36,7 @@
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkEventUtils/TrackStateOnSurfaceComparisonFunction.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "CommissionEvent/ComTime.h"
@@ -49,7 +49,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkEventPrimitives/PropDirection.h"
 
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"  
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"  
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 #include <vector>
@@ -69,8 +69,8 @@ namespace DerivationFramework {
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    m_trtcaldbSvc("TRT_CalDbSvc",n),
-    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx"),
+    m_trtcaldbTool("TRT_CalDbTool",this),
+    m_TRTdEdxTool("InDet::TRT_ElectronPidTools/TRT_ToT_dEdx"),
     m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -98,13 +98,13 @@ namespace DerivationFramework {
     declareProperty("TrtDriftCirclesName",    m_trtDCName = "TRT_DriftCircles");
     declareProperty("PixelMsosName",          m_pixelMsosName = "PixelMSOSs");
     declareProperty("SctMsosName",            m_sctMsosName = "SCT_MSOSs");
-    declareProperty("TrtMsosName",            m_trtMsosName = "TRT_MSOSs");    
+    declareProperty("TrtMsosName",            m_trtMsosName = "TRT_MSOSs");
 
     // -- Tools 
-    declareProperty("Updator",                m_updator);    
+    declareProperty("Updator",                m_updator);   
     declareProperty("ResidualPullCalculator", m_residualPullCalculator);
     declareProperty("HoleSearch",             m_holeSearchTool);
-    declareProperty("TRT_CalDbSvc",           m_trtcaldbSvc);
+    declareProperty("TRT_CalDbTool",           m_trtcaldbTool);
     declareProperty("TRT_ToT_dEdx",           m_TRTdEdxTool);
     declareProperty("TrackExtrapolator",      m_extrapolator);
     declareProperty("AssociationTool",        m_assoTool);
@@ -147,7 +147,7 @@ namespace DerivationFramework {
     } 
     
     if( m_storeTRT){
-      CHECK(m_trtcaldbSvc.retrieve());
+      CHECK(m_trtcaldbTool.retrieve());
       CHECK(m_assoTool.retrieve());
     }
 
@@ -690,7 +690,7 @@ namespace DerivationFramework {
  
         // Add the drift time for the tracks position -- note the position is biased 
         if (isTRT) {
-          TRTCond::RtRelation const *rtr = m_trtcaldbSvc->getRtRelation(surfaceID);
+          TRTCond::RtRelation const *rtr = m_trtcaldbTool->getRtRelation(surfaceID);
           if(rtr) {
             if (tp){
               msos->auxdata<float>("driftTime") = rtr->drifttime(fabs(tp->parameters()[0]));

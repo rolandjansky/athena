@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 include.block ("DPDUtils/DPDTagTool_jobOptions.py")
 
 ########### DPD analysis Tag options ################

@@ -57,7 +57,7 @@ select=$2
 		diff  -a -b -B  $joblog $reflog |\
 		    # select only the differing lines
 	        egrep -a '^[<>] ' |\
-	        egrep -a ${select} |\
+	        egrep -a "${select}" |\
 		    # ignore file name after Id - needed for EventInfo tests:
 	        egrep -a -v '\$Id:' |\
 		    # Ignore line with 'Release' in it
@@ -69,12 +69,14 @@ select=$2
 		egrep -a -v 'package version' |\
 		    # spurious warning for EventSelector
 		egrep -a -v 'Service already offline' |\
-		egrep -a -v 'Property update|input handles|output handles|Data Deps|in queryInterface|Default to ConversionSvc|entering handle|DEBUG Event type:|handle: Event type:' |\
+		egrep -a -v 'Property update|input handles|output handles|Data Deps|in queryInterface|Default to ConversionSvc|entering handle|DEBUG Event type:|handle: Event type:|Disconnecting input sourceID' |\
 		    # Must remove excess print for CaloShowerContainer
 		egrep -a -v 'CaloShowerContainer' |\
                     # Destructor can be called at different times.
-		egrep -a -v 'DEBUG Calling destructor'|
-		egrep -a -v 'Service base class initialized successfully'
+		egrep -a -v 'DEBUG Calling destructor'|\
+		egrep -a -v 'Service base class initialized successfully'|\
+		egrep -a -v 'DEBUG fillTagInfo:' |\
+		egrep -a -v 'DEBUG Try item:'
 
 	    else 
 #	    echo " post.sh> Now comparing output with reference"

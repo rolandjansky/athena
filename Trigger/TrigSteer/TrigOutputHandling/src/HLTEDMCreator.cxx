@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -76,6 +76,7 @@ StatusCode HLTEDMCreator::initialize()
     
   INIT_XAOD( TrigEMClusterContainer );
   INIT_XAOD( TrigCaloClusterContainer );
+  INIT_XAOD( TrigRingerRingsContainer );
   INIT_XAOD( TrigElectronContainer ); 
   INIT_XAOD( ElectronContainer ); 
   INIT_XAOD( PhotonContainer ); 
@@ -88,9 +89,11 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( L2IsoMuonContainer );
   INIT_XAOD( MuonContainer );
   INIT_XAOD( TauJetContainer );
+  INIT_XAOD( TauTrackContainer );
   INIT_XAOD( JetContainer );
   INIT_XAOD( VertexContainer );
   INIT_XAOD( TrigBphysContainer );  
+  INIT_XAOD( BTaggingContainer );
 
   INIT_XAOD( CaloClusterContainer );
 
@@ -146,7 +149,7 @@ StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::Rea
   StoreGateSvc* sg = evtStore().operator->(); // why the get() method is returing a null ptr is a puzzle, we have to use this ugly call to operator instead of it
   CHECK( sg != nullptr );
   ViewHelper::ViewMerger merger( sg, msg() );
-  merger.mergeViewCollection<type_in_container>( views, inViewKey, context, output );
+  CHECK( merger.mergeViewCollection<type_in_container>( views, inViewKey, context, output ) );
 
   return StatusCode::SUCCESS;
 }
@@ -304,28 +307,30 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
     CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<xAOD::__TYPE> )  ); \
   }
   
-  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer )
-  CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer )
-  CREATE_XAOD( ElectronContainer, ElectronAuxContainer )
-  CREATE_XAOD( PhotonContainer, PhotonAuxContainer )
-  CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer )
-  CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer )
-  CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer )
-  CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer )
-  CREATE_XAOD( TrigMissingETContainer, TrigMissingETAuxContainer )
+  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
+  CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer );
+  CREATE_XAOD( ElectronContainer, ElectronAuxContainer );
+  CREATE_XAOD( PhotonContainer, PhotonAuxContainer );
+  CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer );
+  CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer );
+  CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer );
+  CREATE_XAOD( TrigRingerRingsContainer, TrigRingerRingsAuxContainer );
+  CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer );
+  CREATE_XAOD( TrigMissingETContainer, TrigMissingETAuxContainer );
 
   CREATE_XAOD( L2StandAloneMuonContainer, L2StandAloneMuonAuxContainer );
   CREATE_XAOD( L2CombinedMuonContainer, L2CombinedMuonAuxContainer );
   CREATE_XAOD( L2IsoMuonContainer, L2IsoMuonAuxContainer );
   CREATE_XAOD( MuonContainer, MuonAuxContainer );
   CREATE_XAOD( TauJetContainer, TauJetAuxContainer );
-
+  CREATE_XAOD( TauTrackContainer, TauTrackAuxContainer );
   CREATE_XAOD( CaloClusterContainer, CaloClusterTrigAuxContainer ); // NOTE: Difference in interface and aux
   // After view collections are merged, need to update collection links
 
   CREATE_XAOD( JetContainer, JetAuxContainer );
   CREATE_XAOD( VertexContainer,VertexAuxContainer );
   CREATE_XAOD( TrigBphysContainer, TrigBphysAuxContainer );
+  CREATE_XAOD( BTaggingContainer,BTaggingAuxContainer );
 
   ATH_CHECK( fixLinks() );
   

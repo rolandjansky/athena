@@ -5,10 +5,6 @@
 #include "GeneratorFilters/TopCKMKinFilter.h"
 #include <cmath>
 
-using HepMC::GenVertex;
-using HepMC::GenParticle;
-
-
 TopCKMKinFilter::TopCKMKinFilter(const std::string& fname, ISvcLocator* pSvcLocator)
   : GenFilter(fname, pSvcLocator)
 {

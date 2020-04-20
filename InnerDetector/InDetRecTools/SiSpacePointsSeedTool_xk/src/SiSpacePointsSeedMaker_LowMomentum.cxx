@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -52,6 +52,10 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::initialize()
   }    
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
 
+  ////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCondObjInputKey.initialize());
+  ////////////////////////////////////////////////////////////////////////////////
+
   // PRD-to-track association (optional)
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
 
@@ -87,7 +91,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::finalize()
 // Initialize tool for new event 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(const EventContext& ctx, EventData& data, int) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -103,7 +107,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -114,7 +118,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
   //
   if (m_pixel) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsPixel) {
@@ -141,7 +145,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
   //
   if (m_sct) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
 
       for (const SpacePointCollection* spc: *spacepointsSCT) {
@@ -171,7 +175,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent(EventData& data, int) c
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
-(EventData& data,
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const{
   if (not data.initialized) initializeEventData(data);
 
@@ -187,7 +191,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap  *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -198,7 +202,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
   //
   if (m_pixel && vPixel.size()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel};
+    SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
       SpacePointContainer::const_iterator spce = spacepointsPixel->end();
 
@@ -229,7 +233,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
   //
   if (m_sct && vSCT.size()) {
 
-    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT};
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
 
       SpacePointContainer::const_iterator spce = spacepointsSCT->end();
@@ -262,11 +266,11 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
-(EventData& data,
+(const EventContext& ctx, EventData& data,
  const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
  const IRoiDescriptor&) const
 {
-  newRegion(data, vPixel, vSCT);
+  newRegion(ctx, data, vPixel, vSCT);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -306,7 +310,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find2Sp(EventData& data, const s
 // with three space points with or without vertex constraint
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -323,7 +327,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(EventData& data, const s
     data.endlist = true;
     data.fNmin   = 0;
     data.zMin    = 0;
-    production3Sp(data);
+    production3Sp(ctx, data);
   }
   data.i_seed = data.l_seeds.begin();
 
@@ -333,9 +337,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(EventData& data, const s
   }
 }
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv, const double*) const
 {
-  find3Sp(data, lv);
+  find3Sp(ctx, data, lv);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -344,7 +348,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(EventData& data, const s
 // Variable means (2,3,4,....) any number space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv) const
 {
   if (not data.initialized) initializeEventData(data);
 
@@ -361,7 +365,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp(EventData& data, const s
     data.endlist = true;
     data.fNmin   = 0;
     data.zMin    = 0;
-    production3Sp(data);
+    production3Sp(ctx, data);
   }
   data.i_seed = data.l_seeds.begin();
 
@@ -537,7 +541,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpEvent(EventData& data,
 // Find next set space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::findNext(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::findNext(const EventContext& ctx, EventData& data) const
 {
   if (data.endlist) return;
   
@@ -545,9 +549,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::findNext(EventData& data) const
   if (data.mode==0 || data.mode==1) {
     production2Sp(data);
   } else if (data.mode==2 || data.mode==3) {
-    production3Sp(data);
+    production3Sp(ctx, data);
   } else if (data.mode==5 || data.mode==6) {
-    production3Sp(data);
+    production3Sp(ctx, data);
   }
 
   data.i_seed = data.l_seeds.begin();
@@ -720,18 +724,16 @@ void  InDet::SiSpacePointsSeedMaker_LowMomentum::convertToBeamFrameWork
 void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
 {
   constexpr float pi2 = 2.*M_PI;
-  std::list<InDet::SiSpacePointForSeed*>::iterator r;
   
   for (int i=0; i<m_r_size;  ++i) {
 
     if (!data.r_map[i]) continue;
-    r = data.r_Sorted[i].begin();
 
-    while (r!=data.r_Sorted[i].end()) {
+    for (InDet::SiSpacePointForSeed* r  : data.r_Sorted[i]) {
       
       // Azimuthal angle sort
       //
-      float F = (*r)->phi();
+      float F = r->phi();
       if (F<0.) F+=pi2;
 
       int   f = static_cast<int>(F*m_sF);
@@ -739,7 +741,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
       else if (f > m_fNmax) f = 0;
 
       int z;
-      float Z = (*r)->z();
+      float Z = r->z();
 
       // Azimuthal angle and Z-coordinate sort
       //
@@ -750,10 +752,10 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::fillLists(EventData& data) const
       }
       int n = f*SizeZ+z;
       ++data.nsaz;
-      data.rfz_Sorted[n].push_back(*r);
+      data.rfz_Sorted[n].push_back(r);
       if (!data.rfz_map[n]++) data.rfz_index[data.nrfz++] = n;
-      data.r_Sorted[i].erase(r++);
     }
+    data.r_Sorted[i].clear();
     data.r_map[i] = 0;
   }
   data.nr    = 0;
@@ -798,7 +800,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production2Sp(EventData& data) c
 // Production 3 space points seeds (new version)
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(EventData& data) const
+void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(const EventContext& ctx, EventData& data) const
 {
   if (data.nsaz<3) return;
 
@@ -806,14 +808,29 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(EventData& data) c
   double f[3], gP[3] ={10.,10.,0.};
 
   if (m_fieldServiceHandle->solenoidOn()) {
-    m_fieldServiceHandle->getFieldZR(gP,f);
+
+    MagField::AtlasFieldCache    fieldCache;
+
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("SiSpacePointsSeedMaker_LowMomentum: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      return;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    //   MT version uses cache, temporarily keep old version
+    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, f);
+    else                                m_fieldServiceHandle->getFieldZR(gP, f);
+
     K = 2./(300.*f[2]);
   } else {
     K = 2./(300.* 5. );
   }
 
   const int   ZI[SizeZ]= {5,6,7,8,9,10,4,3,2,1,0};
-  std::list<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
+  std::vector<InDet::SiSpacePointForSeed*>::iterator rt[9],rte[9],rb[9],rbe[9];
   int nseed = 0;
 
   // Loop thorugh all azimuthal regions
@@ -857,17 +874,17 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(EventData& data) c
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp
 (EventData& data,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rbe,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rt ,
- std::list<InDet::SiSpacePointForSeed*>::iterator* rte,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rb ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rbe,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rt ,
+ std::vector<InDet::SiSpacePointForSeed*>::iterator* rte,
  int NB, int NT, int& nseed, float K) const
 {
 
   const float COF  = 134*.07*9.;
   const float COFP = 134*.2*9.;
 
-  std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
+  std::vector<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if (!data.endlist) {
     r0 = data.rMin;
     data.endlist = true;
@@ -1060,12 +1077,12 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newOneSeed
   }
 }
 
-const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_LowMomentum::next(EventData& data) const
+const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_LowMomentum::next(const EventContext& ctx, EventData& data) const
 {
   if (not data.initialized) initializeEventData(data);
 
   if (data.i_seed==data.i_seede) {
-    findNext(data);
+    findNext(ctx, data);
     if (data.i_seed==data.i_seede) return nullptr;
   } 
   return &(*data.i_seed++);

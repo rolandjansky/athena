@@ -32,13 +32,18 @@
 #include "TrigConfL1Data/CTPConfig.h"
 
 #include "TrigSteeringEvent/Chain.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
+#include "TrigDecisionEvent/TrigDecision.h"
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 #include "TrigDecisionTool/Logger.h"
 #include "AsgTools/AsgMessaging.h"
 
+#include "StoreGate/ReadHandleKey.h"
 
+#include "xAODTrigger/TrigCompositeContainer.h"
+#include "xAODTrigger/TrigDecision.h"
+#include "xAODTrigger/TrigNavigation.h"
+#include "EventInfo/EventInfo.h"
 
 namespace HLT {
   class Chain;
@@ -135,6 +140,12 @@ namespace Trig {
     /// Get the event store that the object is using
     EventPtr_t store() const { return m_store; }
 
+    void setDecisionKeyPtr(SG::ReadHandleKey<xAOD::TrigDecision>* k) { m_decisionKeyPtr = k; }
+    void setNavigationKeyPtr(SG::ReadHandleKey<xAOD::TrigNavigation>* k) { m_navigationKeyPtr = k; }
+    void setOldDecisionKeyPtr(SG::ReadHandleKey<TrigDec::TrigDecision>* k) { m_oldDecisionKeyPtr = k; }
+    void setOldEventInfoKeyPtr(SG::ReadHandleKey<EventInfo>* k) { m_oldEventInfoKeyPtr = k; }
+
+    SG::ReadHandleKey<xAOD::TrigDecision>* xAODTrigDecisionKey() { return m_decisionKeyPtr; }
 
     // 
     template<class T>
@@ -199,6 +210,11 @@ namespace Trig {
     const TrigConf::HLTChainList*  m_confChains;            //!< all chains configuration
     mutable const xAOD::TrigCompositeContainer* m_expressStreamContainer;
 
+    SG::ReadHandleKey<xAOD::TrigDecision>* m_decisionKeyPtr; //!< Parent TDT's read handle key
+    SG::ReadHandleKey<TrigDec::TrigDecision>* m_oldDecisionKeyPtr; //!< Parent TDT's read handle key
+    SG::ReadHandleKey<EventInfo>* m_oldEventInfoKeyPtr; //!< Parent TDT's read handle key
+    SG::ReadHandleKey<xAOD::TrigNavigation>* m_navigationKeyPtr; //!< Parent TDT's read handle key
+
     typedef std::unordered_map<std::string, const TrigConf::HLTChain*> ChainHashMap_t;
     ChainHashMap_t     m_mConfChains;            //!< map of conf chains
   
@@ -247,7 +263,7 @@ namespace Trig {
     
     mutable AnyTypeDeleter m_deleteAtEndOfEvent;
 
-    mutable std::recursive_mutex m_cgmMutex; //!< Temporary R3 MT protection only against --threads > 1, not against events in flight > 1
+    mutable std::recursive_mutex m_cgmMutex; //!< R3 MT protection only against --threads > 1. Needs refacotring...
 
 
 

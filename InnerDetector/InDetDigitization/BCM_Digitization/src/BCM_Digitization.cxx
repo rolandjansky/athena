@@ -32,5 +32,5 @@ StatusCode BCM_Digitization::initialize()
 StatusCode BCM_Digitization::execute()
 {
   ATH_MSG_DEBUG ( "execute()" );
-  return m_digTool->processAllSubEvents();
+  return m_digTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }

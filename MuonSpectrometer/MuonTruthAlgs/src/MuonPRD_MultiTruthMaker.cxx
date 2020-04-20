@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
@@ -7,15 +7,8 @@
 
 #include "MuonTruthAlgs/MuonPRD_MultiTruthMaker.h"
 
-#include "Identifier/Identifier.h"
-
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonGeoModel/DetectorElement.h"
-
 #include <iterator>
 #include <typeinfo>
-
-//#include <ext/functional>
 
 //================================================================
 MuonPRD_MultiTruthMaker::MuonPRD_MultiTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -33,7 +26,7 @@ MuonPRD_MultiTruthMaker::MuonPRD_MultiTruthMaker(const std::string &name, ISvcLo
     declareProperty("CSC_SDO_Container",          m_CSC_SimDataMapName="CSC_SDO");
     declareProperty("RPC_SDO_Container",          m_RPC_SimDataMapName="RPC_SDO");
     declareProperty("TGC_SDO_Container",          m_TGC_SimDataMapName="TGC_SDO");
-    declareProperty("STGC_SDO_Container",         m_STGC_SimDataMapName="STGC_SDO");
+    declareProperty("STGC_SDO_Container",         m_STGC_SimDataMapName="sTGC_SDO");
     declareProperty("MM_SDO_Container",           m_MM_SimDataMapName="MM_SDO");
 
   // Output
@@ -50,7 +43,6 @@ StatusCode MuonPRD_MultiTruthMaker::initialize()
 {
   ATH_MSG_DEBUG( "MuonPRD_MultiTruthMaker::initialize()" );
   ATH_CHECK( m_idHelperSvc.retrieve() );
-
   ATH_CHECK(m_MDT_ContainerName.initialize());
   ATH_CHECK(m_CSC_ContainerName.initialize(m_idHelperSvc->hasCSC()));
   ATH_CHECK(m_RPC_ContainerName.initialize());
@@ -69,13 +61,6 @@ StatusCode MuonPRD_MultiTruthMaker::initialize()
   ATH_CHECK(m_TGC_PRD_TruthName.initialize());
   ATH_CHECK(m_STGC_PRD_TruthName.initialize(m_idHelperSvc->hasSTgc()));
   ATH_CHECK(m_MM_PRD_TruthName.initialize(m_idHelperSvc->hasMM()));
-  return StatusCode::SUCCESS;
-}
-
-//================================================================
-StatusCode MuonPRD_MultiTruthMaker::finalize() 
-{
-  ATH_MSG_DEBUG( "MuonPRD_MultiTruthMaker::finalize()" );
   return StatusCode::SUCCESS;
 }
 

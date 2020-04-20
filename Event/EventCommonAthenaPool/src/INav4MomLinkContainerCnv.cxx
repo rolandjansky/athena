@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** INav4MomLinkContainerCnv.cxx
@@ -45,8 +45,8 @@ INav4MomLinkContainer* INav4MomLinkContainerCnv::createTransient()
 
   if( compareClassGuid(p1_guid) )
     {
-      // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr< INav4MomLinkContainer_PERS > col_vect( poolReadObject< INav4MomLinkContainer_PERS >() );
+      // using unique_ptr ensures deletion of the persistent object
+      std::unique_ptr< INav4MomLinkContainer_PERS > col_vect( poolReadObject< INav4MomLinkContainer_PERS >() );
       return m_TPConverter.createTransient( col_vect.get(), log );
     }
   else

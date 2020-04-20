@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_KINEMATICSPLOTS_H
@@ -14,7 +14,7 @@ namespace Egamma{
   
 class KinematicsPlots:public PlotBase {
     public:
-      KinematicsPlots(PlotBase* pParent, std::string sDir, std::string sParticleType);
+      KinematicsPlots(PlotBase* pParent, const std::string& sDir, std::string sParticleType);
       void fill(const xAOD::IParticle& part);
       
       // Reco only information

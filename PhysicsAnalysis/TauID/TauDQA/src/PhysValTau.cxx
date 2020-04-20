@@ -1,7 +1,7 @@
 /////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhysValTau.cxx 
@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // PhysVal includes
-#include "../share/PhysValTau.h"
+#include "PhysValTau.h"
 
 // STL includes
 #include <vector>
@@ -24,7 +24,6 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticle.h"  
 #include "AthenaBaseComps/AthCheckMacros.h"
-#include "xAODRootAccess/TEvent.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -52,11 +51,6 @@ PhysValTau::PhysValTau(const std::string& type,
    declareProperty("PrimitiveTauSelectionTool", m_primTauSel);
    declareProperty("NominalTauSelectionTool", m_nomiTauSel);
 }
-
-// Destructor
-///////////////
-PhysValTau::~PhysValTau()
-{}
 
 // Athena algtool's Hooks
 ////////////////////////////

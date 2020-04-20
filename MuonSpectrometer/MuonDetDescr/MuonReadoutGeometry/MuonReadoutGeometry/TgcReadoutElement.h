@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  Tgc Readout Element properties
  -----------------------------------------
 ***************************************************************************/
-
-//<doc><file>	$Id: TgcReadoutElement.h,v 1.4 2009-03-28 09:18:38 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #ifndef MUONGEOMODEL_TGCREADOUTELEMENT_H
 # define MUONGEOMODEL_TGCREADOUTELEMENT_H
@@ -75,46 +72,46 @@ namespace MuonGM {
 
     /** distance to readout. 
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    inline double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual inline double distanceToReadout( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** strip number corresponding to local position. 
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
-    inline int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const;
+    virtual inline int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const override;
 
     /** strip position 
 	If the strip number is outside the range of valid strips, the function will return false */
-    inline bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const;
+    virtual inline bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const override;
 
     /** returns the hash function to be used to look up the center and the normal of the tracking surface for a given identifier */
-    inline int  layerHash(const Identifier& id)   const; 
+    virtual inline int  layerHash(const Identifier& id)   const override; 
 
     /** returns the hash function to be used to look up the surface and surface transform for a given identifier */
-    inline int  surfaceHash(const Identifier& id) const;  
+    virtual inline int  surfaceHash(const Identifier& id) const override;
   
     /** returns the hash function to be used to look up the surface boundary for a given identifier */
-    inline int  boundaryHash(const Identifier& id) const;  
+    virtual inline int  boundaryHash(const Identifier& id) const override;
   
     /** returns whether the given identifier measures phi or not */
-    inline bool measuresPhi(const Identifier& id) const; 
+    virtual inline bool measuresPhi(const Identifier& id) const override;
 
     /** number of layers in phi/eta projection */
-    inline int numberOfLayers( bool ) const;
+    virtual inline int numberOfLayers( bool ) const override;
 
     /** number of strips per layer */
-    inline int numberOfStrips( const Identifier& layerId )   const;
-    inline int numberOfStrips( int layer, bool ) const;
+    virtual inline int numberOfStrips( const Identifier& layerId )   const override;
+    virtual inline int numberOfStrips( int layer, bool ) const override;
 
     /** space point position for a given pair of phi and eta identifiers 
 	The LocalPosition is expressed in the reference frame of the phi projection.
 	If one of the identifiers is outside the valid range, the function will return false */
-    inline bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const;
+    virtual inline bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const override;
 
     /** Global space point position for a given pair of phi and eta identifiers 
 	If one of the identifiers is outside the valid range, the function will return false */
-    inline bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const;
+    virtual inline bool spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector3D& pos ) const override;
 
     void  setIdentifier(Identifier id);
-    virtual bool containsId(Identifier id) const;
+    virtual bool containsId(Identifier id) const override;
     inline int Ngasgaps    () const;
     inline int NstripPlanes() const;
     inline int NwirePlanes () const;
@@ -268,8 +265,8 @@ namespace MuonGM {
 
     inline const TgcReadoutParams* getReadoutParams() const;
 
-    void         fillCache() const;
-    void         refreshCache() const {clearCache(); fillCache();}
+    virtual void         fillCache() override;
+    virtual void         refreshCache() override {clearCache(); fillCache();}
 
     
   private:
@@ -380,26 +377,6 @@ namespace MuonGM {
   
   bool TgcReadoutElement::measuresPhi(const Identifier& id) const { return manager()->tgcIdHelper()->isStrip(id); } 
 
-  double TgcReadoutElement::distanceToReadout( const Amg::Vector2D& , const Identifier&  ) const {
-    (*m_Log)  << MSG::WARNING << " distanceToReadout::dummy routine " << endmsg;
-    return 0.;
-  }
-
-  int TgcReadoutElement::stripNumber( const Amg::Vector2D& , const Identifier& ) const { 
-    (*m_Log)  << MSG::WARNING << " stripNumber::dummy routine " << endmsg;
-    return 1;
-  }
-
-  bool TgcReadoutElement::stripPosition( const Identifier& id, Amg::Vector2D& pos ) const {
-    /** please don't copy the inefficient code below!! Look at the RpcReadoutElement for a proper implementation */
-    Amg::Vector3D gpos = channelPos(id);  
-    if( !surface(id).globalToLocal(gpos,gpos,pos) ){
-      (*m_Log)  << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(id).transform().inverse()*gpos << std::endl;
-      return false;
-    }
-    return true;
-  }
-
   inline int TgcReadoutElement::numberOfLayers( bool measuresPhi ) const { return measuresPhi? NstripPlanes() : NwirePlanes(); }
 
   inline int TgcReadoutElement::numberOfStrips( const Identifier& id )   const {
@@ -427,18 +404,7 @@ namespace MuonGM {
     pos = absTransform()*lEtapos;
     
     return true;
-  }
-
-  inline bool TgcReadoutElement::spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const {
-    Amg::Vector3D gpos;
-    spacePointPosition(phiId,etaId,gpos);
-    if( !surface(phiId).globalToLocal(gpos,gpos,pos) ){
-      (*m_Log)  << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(phiId).transform().inverse()*gpos << std::endl;
-      return false;
-    }
-    return true;
-  }
-  
+  }  
 
 } // namespace MuonGM
 

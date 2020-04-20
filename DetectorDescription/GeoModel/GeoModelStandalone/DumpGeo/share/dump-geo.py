@@ -1,5 +1,5 @@
 #/*
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #*/
 
 if not 'vp1InputFiles' in dir(): vp1InputFiles = []
@@ -36,9 +36,11 @@ if not 'vp1ToyDetector' in dir(): vp1ToyDetector=False
 if not 'vp1GeoModelStats' in dir(): vp1GeoModelStats=False
 if not 'vp1NoAutoConf' in dir(): vp1NoAutoConf=False
 if not 'vp1Trig' in dir(): vp1Trig=False
-if not 'vp1NSW' in dir(): vp1NSW=False
 if not 'vp1CustomGeometry' in dir(): vp1CustomGeometry=False
 if not 'vp1SLHC' in dir(): vp1SLHC=False
+if not 'vp1MuonAGDDFiles' in dir(): vp1MuonAGDDFiles=[]
+if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
+if not 'vp1MuonLayout' in dir(): vp1MuonLayout=""
 
 def vp1CfgErr(s): print "VP1 CONFIGURATION ERROR: %s" % s
 
@@ -60,10 +62,6 @@ if (vp1FatrasCalo and not vp1Calo):
 if ( vp1FatrasTruthKey != "" and not vp1Fatras ):
     vp1CfgErr("FatrasTruthKey set but Fatras not enabled. Unsetting FatrasTruthKey.")
     vp1FatrasTruthKey=""
-
-if (vp1NSW and not vp1Muon):
-    vp1CfgErr("Muon New Small Wheel (NSW) turned on, but no Muon geometry. Disabling NSW.")
-    vp1NSW=False
 
 #print "*** VP1 NOTE *** setting COIN_GLXGLUE env vars to make screenshots working remotely..."
 #print "*** VP1 NOTE *** COIN_GLXGLUE_NO_GLX13_PBUFFERS=1 - " + "COIN_GLXGLUE_NO_PBUFFERS=1"
@@ -180,7 +178,6 @@ if (vp1ForwardRegion): DetFlags.FwdRegion_setOn()
 else:          DetFlags.FwdRegion_setOff()
 if (vp1ZDC): DetFlags.ZDC_setOn()
 else:          DetFlags.ZDC_setOff()
-if (vp1NSW): DetFlags.Micromegas_setOn() #FIXME - sTGC?
 DetFlags.Print()
 if (vp1CustomGeometry):
     print "Configuring Custom geometry."
@@ -210,6 +207,12 @@ if (vp1SLHC):
   TrkDetFlags.TRT_BuildStrawLayers            = False
   TrkDetFlags.MaterialSource = 'None'
 
+if vp1Muon and vp1MuonLayout!="":
+    print ("*** DumpGeo NOTE *** You specified custom vp1MuonLayout, using %s as muon geometry"%vp1MuonLayout)
+    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+    GeoModelSvc = GeoModelSvc()
+    GeoModelSvc.MuonVersionOverride=vp1MuonLayout
+
 # --- GeoModel
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -238,11 +241,23 @@ if vp1ToyDetector:
 #  - Muon is ON
 #  - Major geometry version is greater than 10
 if (vp1Muon):
-    if (vp1NSW):
-      #DetDescrVersion="ATLAS-GEO-21-00-01"
-      include('MuonGeoModelTest/NSWGeoSetup.py')
 
     from AtlasGeoModel import Agdd2Geo
+
+    if len(vp1MuonAGDDFiles)>0:
+        print ("*** DumpGeo NOTE *** You specified custom vp1MuonAGDDFiles, configuring MuonAGDDTool to read MuonAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1MuonAGDDFiles)))
+        if hasattr(svcMgr,"AGDDtoGeoSvc"):
+            for b in getattr(svcMgr,"AGDDtoGeoSvc").Builders:
+                if b.name()=="MuonSpectrometer":
+                    b.ReadAGDD=False
+                    b.XMLFiles=vp1MuonAGDDFiles
+    if len(vp1NSWAGDDFiles)>0:
+        print ("*** DumpGeo NOTE *** You specified custom vp1NSWAGDDFiles, configuring NSWAGDDTool to read NSWAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1NSWAGDDFiles)))
+        if hasattr(svcMgr,"AGDDtoGeoSvc"):
+            for b in getattr(svcMgr,"AGDDtoGeoSvc").Builders:
+                if b.name()=="NewSmallWheel":
+                    b.ReadAGDD=False
+                    b.XMLFiles=vp1NSWAGDDFiles
 
     # if(vp1FullToroids or vp1NSW):
     #     from AtlasGeoModel import Agdd2Geo

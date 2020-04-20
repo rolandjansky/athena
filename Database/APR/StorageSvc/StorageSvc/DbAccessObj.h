@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbAccessObj.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -21,6 +21,7 @@
 // STL include files
 #include <map>
 #include <utility>
+#include <atomic>
 
 // #define DEBUG_REFCOUNTS
 #ifdef DEBUG_REFCOUNTS
@@ -52,7 +53,7 @@ namespace pool    {
     typedef typename Keys::const_iterator const_iterator;
   private:
     /// Reference counter
-    mutable int           m_refCount;
+    mutable std::atomic<int> m_refCount;
     /// Access mode
     DbAccessMode          m_mode;
     /// Name of the instance
@@ -108,7 +109,7 @@ namespace pool    {
                 << count  
                 << std::endl;
 #endif
-      if ( m_refCount == 0 )    {
+      if ( count == 0 )    {
         delete this;
       }
       return count;

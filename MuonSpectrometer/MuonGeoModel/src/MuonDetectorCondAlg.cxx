@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonGeoModel/MuonDetectorCondAlg.h" 
+#include "MuonGeoModel/MuonDetectorCondAlg.h"
 #include "MuonGeoModel/MuonDetectorFactory001.h"
 #include "MuonGeoModel/MuonDetectorTool.h"
 
@@ -25,7 +25,7 @@ MuonDetectorCondAlg::initialize()
 
   ATH_CHECK(m_condSvc.retrieve());
 
-  // Retrieve the MuonDetectorManager from the detector store to get 
+  // Retrieve the MuonDetectorManager from the detector store to get
   // the applyCscIntAlignment() and applyMdtAsBuiltParams() flags
   std::string managerName="Muon";
   const MuonGM::MuonDetectorManager* MuonDetMgrDS;
@@ -51,13 +51,13 @@ MuonDetectorCondAlg::initialize()
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeDetectorManagerKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
-    
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode MuonDetectorCondAlg::execute()
 {
-  ATH_MSG_DEBUG( "execute " << name() ); 
+  ATH_MSG_DEBUG( "execute " << name() );
 
   // =======================
   // Write ILine Cond Handle
@@ -80,81 +80,63 @@ StatusCode MuonDetectorCondAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  std::unique_ptr<MuonGM::MuonDetectorManager> MuonMgrData = (std::unique_ptr<MuonGM::MuonDetectorManager>) theFactory.getDetectorManager();
+  std::unique_ptr<MuonGM::MuonDetectorManager> MuonMgrData
+    (theFactory.getDetectorManager());
 
-  // =======================
-  // Update Alignment, ALINES
-  // =======================
-  
-  SG::ReadCondHandle<ALineMapContainer> readALinesHandle{m_readALineKey};
-  const ALineMapContainer* readALinesCdo{*readALinesHandle}; 
-  if(readALinesCdo==nullptr){
-    ATH_MSG_ERROR("Null pointer to the read ALINES conditions object");
-    return StatusCode::FAILURE; 
-  } 
-
-  if (MuonMgrData->updateAlignment(readALinesCdo).isFailure()) ATH_MSG_ERROR("Unable to update Alignment" );
-  else ATH_MSG_DEBUG("update Alignment DONE" );
-  
-  // =======================
-  // Update Deformations, BLINES
-  // =======================
-
-  SG::ReadCondHandle<BLineMapContainer> readBLinesHandle{m_readBLineKey};
-  const BLineMapContainer* readBLinesCdo{*readBLinesHandle}; 
-  if(readBLinesCdo==nullptr){
-    ATH_MSG_ERROR("Null pointer to the read BLINES conditions object");
-    return StatusCode::FAILURE; 
-  } 
-  
-  writeHandle.addDependency( readALinesHandle, readBLinesHandle );
-
-  if (MuonMgrData->updateDeformations(readBLinesCdo).isFailure()) ATH_MSG_ERROR("Unable to update Deformations" );
-  else ATH_MSG_DEBUG("update Deformations DONE" );
-  
   // =======================
   // Update CSC Internal Alignment if requested
   // =======================
 
   if (MuonMgrData->applyCscIntAlignment()) {
     SG::ReadCondHandle<CscInternalAlignmentMapContainer> readILinesHandle{m_readILineKey};
-    const CscInternalAlignmentMapContainer* readILinesCdo{*readILinesHandle}; 
-    if(readILinesCdo==nullptr){
-      ATH_MSG_ERROR("Null pointer to the read CSC/ILINES conditions object");
-      return StatusCode::FAILURE; 
-    } 
-    
+    const CscInternalAlignmentMapContainer* readILinesCdo{*readILinesHandle};
+
     writeHandle.addDependency( readILinesHandle );
-    
-    if (MuonMgrData->updateCSCInternalAlignmentMap(readILinesCdo).isFailure()) ATH_MSG_ERROR("Unable to update CSC/ILINES" );
+
+    if (MuonMgrData->updateCSCInternalAlignmentMap(*readILinesCdo).isFailure()) ATH_MSG_ERROR("Unable to update CSC/ILINES" );
     else ATH_MSG_DEBUG("update CSC/ILINES DONE" );
   }
 
   // =======================
-  // Update MdtAsBuiltMapContainer
+  // Update MdtAsBuiltMapContainer if requested BEFORE updating ALINES and BLINES
   // =======================
   if (MuonMgrData->applyMdtAsBuiltParams()) {
     SG::ReadCondHandle<MdtAsBuiltMapContainer> readAsBuiltHandle{m_readAsBuiltKey};
-    const MdtAsBuiltMapContainer* readAsBuiltCdo{*readAsBuiltHandle}; 
-    if(readAsBuiltCdo==nullptr){
-      ATH_MSG_ERROR("Null pointer to the read MDT AsBuilt conditions object");
-      return StatusCode::FAILURE; 
-    } 
-    
+    const MdtAsBuiltMapContainer* readAsBuiltCdo{*readAsBuiltHandle};
     writeHandle.addDependency( readAsBuiltHandle );
 
-    if (MuonMgrData->updateAsBuiltParams(readAsBuiltCdo).isFailure()) ATH_MSG_ERROR("Unable to update MDT AsBuilt parameters" );
+
+    if (MuonMgrData->updateAsBuiltParams(*readAsBuiltCdo).isFailure()) ATH_MSG_ERROR("Unable to update MDT AsBuilt parameters" );
     else ATH_MSG_DEBUG("update MDT AsBuilt parameters DONE" );
   }
+
+  // =======================
+  // Update Alignment, ALINES
+  // =======================
+
+  SG::ReadCondHandle<ALineMapContainer> readALinesHandle{m_readALineKey};
+  if (MuonMgrData->updateAlignment(**readALinesHandle).isFailure()) ATH_MSG_ERROR("Unable to update Alignment" );
+  else ATH_MSG_DEBUG("update Alignment DONE" );
+
+  // =======================
+  // Update Deformations, BLINES
+  // =======================
+
+  SG::ReadCondHandle<BLineMapContainer> readBLinesHandle{m_readBLineKey};
+
+  writeHandle.addDependency( readALinesHandle, readBLinesHandle );
+
+  if (MuonMgrData->updateDeformations(**readBLinesHandle).isFailure()) ATH_MSG_ERROR("Unable to update Deformations" );
+  else ATH_MSG_DEBUG("update Deformations DONE" );
 
   // !!!!!!!! UPDATE ANYTHING ELSE ???????
 
   if (writeHandle.record(std::move(MuonMgrData)).isFailure()) {
-    ATH_MSG_FATAL("Could not record MuonDetectorManager " << writeHandle.key() 
+    ATH_MSG_FATAL("Could not record MuonDetectorManager " << writeHandle.key()
 		  << " with EventRange " << writeHandle.getRange()
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
-  }		  
+  }
   ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;

@@ -1,9 +1,9 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
+
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-T2CaloEgammaReFastAlgo=CompFactory.T2CaloEgammaReFastAlgo
 
 def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
 
@@ -37,7 +37,7 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
     acc.addPublicTool( samph )
 
-    alg = T2CaloEgammaReFastAlgo("FastEMCaloAlgo")
+    alg = CompFactory.T2CaloEgammaReFastAlgo("FastEMCaloAlgo")
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     alg.ClustersName   = recordable('HLT_L2CaloEMClusters')
     alg.RoIs           = roisKey
@@ -46,25 +46,21 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
 
 
     __fex_tools = [ samp2, samp1, sampe, samph] #, ring ]
-   
-    from AthenaCommon.Constants import DEBUG
+
     if doRinger:
       from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
       ringer = RingerReFexConfig('FaAlgoRingerFexConfig')
-      ringer.OutputLevel=DEBUG
-      #ringer.RingsKey= recordable("L2CaloRinger")
-      ringer.RingerKey= "HLT_L2CaloRinger"
+      ringer.RingsKey= recordable("HLT_FastCaloRinger")
       ringer.ClustersName = alg.ClustersName
       acc.addPublicTool( ringer )
       __fex_tools.append(ringer)
- 
+
     alg.IReAlgToolList = __fex_tools
-    
+
     for t in __fex_tools:
         t.trigDataAccessMT = cdaSvc # set data access svc
-        t.OutputLevel = DEBUG
 
-    
+
     # set calibration
     from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaSshapeCalibrationBarrelConfig, EgammaHitsCalibrationBarrelConfig, \
                                                               EgammaGapCalibrationConfig, EgammaTransitionRegionsConfig
@@ -80,5 +76,5 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     alg.CalibListEndcap += [EgammaGapCalibrationConfig()]
 
 
-    acc.addEventAlgo( alg ) 
+    acc.addEventAlgo( alg )
     return acc

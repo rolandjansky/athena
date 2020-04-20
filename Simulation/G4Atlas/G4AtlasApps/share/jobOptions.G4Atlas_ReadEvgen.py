@@ -23,7 +23,7 @@ jobproperties.Global.ConditionsTag = "OFLCOND-RUN12-SDR-21"
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mu_E200_eta0-60-10000.evgen.pool.root']
 athenaCommonFlags.PoolHitsOutput = "test.HITS.pool.root"
-athenaCommonFlags.EvtMax = 3
+athenaCommonFlags.EvtMax = 1
 
 ## Simulation flags
 from G4AtlasApps.SimFlags import simFlags

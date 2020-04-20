@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 from G4AtlasApps import PyG4Atlas, AtlasG4Eng
@@ -71,7 +73,7 @@ def getCosmicFilterTool(name="G4UA::G4CosmicFilterTool", **kwargs):
             kwargs.setdefault("PtMax", simFlags.CosmicFilterPTmax.get_Value())
         kwargs.setdefault("CollectionName",volumes[0])
 
-        print 'G4CosmicFilter: Filter volume is %s' % volumes[0]
+        print ('G4CosmicFilter: Filter volume is %s' % volumes[0])
 
         return  CfgMgr.G4UA__G4CosmicFilterTool(name, **kwargs)
 

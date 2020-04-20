@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """Print number of histograms in ROOT file"""
 
 import sys
@@ -109,24 +109,24 @@ def main():
    if not opts.byAlg: opts.byName = True
 
    if opts.byName==True:
-       for h,v in sorted(hists.iteritems(), key=sortKey):
-           print '%-80s %10s %10s' % (h,v[0],v[1])
+       for h,v in sorted(hists.items(), key=sortKey):
+           print('%-80s %10s %10s' % (h,v[0],v[1]))
 
    if opts.byAlg==True:
        algs = byAlg(hists)
-       for h,v in sorted(algs.iteritems(), key=sortKey):
-           print '%-80s %10s %10s' % (h,v[0],v[1])
+       for h,v in sorted(algs.items(), key=sortKey):
+           print('%-80s %10s %10s' % (h,v[0],v[1]))
 
    if opts.total:
-       print
-       print "Total histograms: %15s" % len(hists)
-       print "Total %sbins:       %15s" % ("filled " if opts.filled else "", sum([h[1] for h in hists.values()]))
+       print()
+       print("Total histograms: %15s" % len(hists))
+       print("Total %sbins:       %15s" % ("filled " if opts.filled else "", sum([h[1] for h in hists.values()])))
 
        
 if __name__ == '__main__':
    try:
       sys.exit(main())
-   except IOError, e:
+   except IOError as e:
       (code, msg) = e
       if (code==32): pass   # ignore broken pipe exception
       else: raise e

@@ -1,7 +1,9 @@
-
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "SCTTracksMonAlg.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "SCT_NameFormatter.h"
 
 #include "AthContainers/DataVector.h"
@@ -145,7 +147,6 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
         if (hasTriggerFired(trig, firedTriggers)) {
             auto trackTriggerAcc{Monitored::Scalar<int>("trackTriggers", trig)};
             fill("SCTTracksMonitor", trackTriggerAcc);
-        } else {
         }
       }
     }
@@ -182,7 +183,9 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
               if (m_doUnbiasedCalc) {
                 if (trkParam) {
                   trkParameters.reset(m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localCovariance())); //need to take ownership of the returned pointer
-                  trkParam = trkParameters.get();
+                  if (trkParameters) {
+                    trkParam = trkParameters.get();
+                  }
                 }
               }
             } else {
@@ -256,6 +259,7 @@ SCTTracksMonAlg::calculatePull(const float residual, const float trkErr, const f
 
 StatusCode
 SCTTracksMonAlg::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
+
   const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadHandle<xAOD::EventInfo> evtInfo = GetEventInfo (ctx);
   if (evtInfo.isValid()) {

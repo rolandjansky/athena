@@ -64,6 +64,9 @@ PartitionsGroupsMatcherMT::match(const HypoJetGroupCIter& groups_b,
     }
 
     // passed....
+    if(collector){
+      collector->collect("PartitionsGroupsMatcherMT", "passed");
+    }
     for(auto iter = groups_b; iter != groups_e; ++iter){
       jetCollector.addJets((*iter).begin(), (*iter).end());
     }

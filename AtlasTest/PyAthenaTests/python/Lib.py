@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyAthenaTests/python/Lib.py
 # @purpose: a set of Py-components to test pyathena
@@ -428,11 +428,6 @@ class Thinner(PyAthena.Alg):
             self.msg.error('Could not retrieve StoreGateSvc !')
             return StatusCode.Failure
 
-        self.thinSvc = PyAthena.py_svc('ThinningSvc/MyThinningSvc')
-        if not self.thinSvc:
-            self.msg.error('Could not retrieve [ThinningSvc/MyThinningSvc] !')
-            return StatusCode.Failure
-        
         self.msg.info('Dumping configuration:')
         self.msg.info('Container type: %s', self.coll_type)
         self.msg.info('Container key:  %s', self.coll_name)
@@ -475,139 +470,6 @@ class Thinner(PyAthena.Alg):
         return StatusCode.Success
 
     pass # class Thinner
-
-### ---------------------------------------------------------------------------
-class BasicThinner(PyAthena.Alg):
-    """A python algorithm to thin basic containers
-    """
-    def __init__(self, name="BasicThinner", **kw):
-        ## init the base class
-        kw['name'] = name
-        super(BasicThinner,self).__init__(**kw)
-
-        ## provide default values for properties
-        self.coll_type = kw.get('coll_type',  'AthExParticles')
-        self.coll_name = kw.get('coll_name',  'athexparticles')
-        self.filter_fct= kw.get('filter_fct', lambda i,x: i%2==0)
-        ## thinning-svc name
-        self.thinSvc   = kw.get('thinSvc', 'ThinningSvc/MyThinningSvc')
-        return
-
-    def initialize(self):
-        self.msg.info('initializing...')
-        self.sg = PyAthena.py_svc('StoreGateSvc')
-        if not self.sg:
-            self.msg.error('Could not retrieve StoreGateSvc !')
-            return StatusCode.Failure
-
-        self.thinSvc = PyAthena.py_svc(self.thinSvc)
-        if not self.thinSvc:
-            self.msg.error('Could not retrieve thinning service!')
-            return StatusCode.Failure
-        
-        self.msg.info('Dumping configuration:')
-        self.msg.info('Container type: %s', self.coll_type)
-        self.msg.info('Container key:  %s', self.coll_name)
-        self.msg.info('Filter: %r',         self.filter_fct.__name__)
-        return StatusCode.Success
-
-    def execute(self):
-        _info = self.msg.info
-        _info('running execute...')
-
-        _info('retrieve [%s/%s]', self.coll_type, self.coll_name)
-        cont = self.sg.retrieve(self.coll_type, self.coll_name)
-        if not cont:
-            self.msg.warning(
-                'Could not retrieve %s at [%s]',
-                self.coll_type,
-                self.coll_name
-                )
-            return StatusCode.Recoverable
-
-        if len(cont) <= 0:
-            self.msg.info('Container "%s/%s" is empty',
-                          self.coll_type, self.coll_name)
-        _info('number of elements before thinning: %i', len(cont))
-
-        predicate = self.filter_fct
-        mask = [ predicate(idx,element) for idx,element in enumerate(cont) ]
-
-        ## apply thinning:
-        if not (self.thinSvc.filter(cont, mask) == StatusCode.Success):
-            self.msg.error("Could not apply thinning !")
-            return StatusCode.Failure
-        
-        _info('number of elements after  thinning: %i',
-              len([m for m in mask if m]))
-        
-        return StatusCode.Success
-
-    def finalize(self):
-        self.msg.info('finalizing...')
-        return StatusCode.Success
-
-    pass # class BasicThinner
-
-### ---------------------------------------------------------------------------
-class ThinChecker(PyAthena.Alg):
-    """A python algorithm to check the output of maybe thinned basic containers
-    """
-    def __init__(self, name="ThinChecker", **kw):
-        ## init the base class
-        kw['name'] = name
-        super(ThinChecker,self).__init__(**kw)
-
-        ## provide default values for properties
-        self.coll_type = kw.get('coll_type',  'AthExParticles')
-        self.coll_name = kw.get('coll_name',  'athexparticles')
-
-        ## storegate
-        self.sg = None
-        return
-
-    def initialize(self):
-        self.msg.info('initializing...')
-        self.sg = PyAthena.py_svc('StoreGateSvc')
-        if not self.sg:
-            self.msg.error('Could not retrieve StoreGateSvc !')
-            return StatusCode.Failure
-
-        self.msg.info('Dumping configuration:')
-        self.msg.info('Container type: %s', self.coll_type)
-        self.msg.info('Container key:  %s', self.coll_name)
-        return StatusCode.Success
-
-    def execute(self):
-        _info = self.msg.info
-        _info('running execute...')
-
-        _info('retrieve [%s/%s]', self.coll_type, self.coll_name)
-        cont = self.sg.retrieve(self.coll_type, self.coll_name)
-        if not cont:
-            self.msg.warning(
-                'Could not retrieve %s at [%s]',
-                self.coll_type,
-                self.coll_name
-                )
-            return StatusCode.Recoverable
-
-        if len(cont) <= 0:
-            self.msg.info('Container "%s/%s" is empty',
-                          self.coll_type, self.coll_name)
-        _info('number of elements : %i', len(cont))
-
-        for idx,e in enumerate(cont):
-            _info( '[%s][%i]: %f %f %f %f', self.coll_name, idx,
-                   e.e(), e.px(), e.py(), e.pz() )
-            pass
-        return StatusCode.Success
-
-    def finalize(self):
-        self.msg.info('finalizing...')
-        return StatusCode.Success
-
-    pass # class ThinChecker
 
 ### ---------------------------------------------------------------------------
 from math import log10

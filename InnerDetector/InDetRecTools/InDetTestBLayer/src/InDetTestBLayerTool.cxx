@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetTestBLayer/InDetTestBLayerTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
@@ -361,24 +361,23 @@ namespace InDet {
     bool expect_hit = false; /// will be set to true if at least on good module is passed
 
     //// Cylinder bigger than the given layer ? ////
-    std::vector<const Trk::TrackParameters*> blayerParam;
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > blayerParam;
     if(!this->getPixelLayerParameters(trackpar, blayerParam,layer)) return false;
 
-    std::vector<const Trk::TrackParameters*>::const_iterator it = blayerParam.begin();
 
-    for(; it !=blayerParam.end(); ++it){
+    for (std::unique_ptr<const Trk::TrackParameters>& p : blayerParam) {
 
-      Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+      Identifier id = p->associatedSurface().associatedDetectorElement()->identify();
 
       if( m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE) ){
 
 	if( m_checkActiveAreas ){
 
-	  if( isActive(*it) ){
+	  if( isActive(p.get()) ){
 
 	    if(m_checkDeadRegions){
 
-	      double fracGood = getFracGood(*it, m_phiRegionSize, m_etaRegionSize);
+	      double fracGood = getFracGood(p.get(), m_phiRegionSize, m_etaRegionSize);
 	      if(fracGood>m_goodFracCut){
 		ATH_MSG_DEBUG("Condition Summary: " << layer_name << " good");
 		expect_hit=true;  /// pass good module -> hit is expected on blayer
@@ -408,8 +407,6 @@ namespace InDet {
       else{
 	ATH_MSG_DEBUG( layer_name << " not good");
       }
-
-      delete *it;
 
     } /// blayer param
 
@@ -554,16 +551,13 @@ namespace InDet {
       return false;
     }
 
-    std::vector<const Trk::TrackParameters*> blayerParam;
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > blayerParam;
     if(!getPixelLayerParameters(trackpar, blayerParam, layer)) return false;
 
-    std::vector<const Trk::TrackParameters*>::const_iterator it = blayerParam.begin();
-    for(; it !=blayerParam.end(); ++it){
-
-      const Trk::TrackParameters* trkParam = *it;
+    for (std::unique_ptr<const Trk::TrackParameters>& trkParam : blayerParam) {
       TrackStateOnBLayerInfo blayerInfo;
 
-      double fracGood = getFracGood(trkParam, m_phiRegionSize, m_etaRegionSize);
+      double fracGood = getFracGood(trkParam.get(), m_phiRegionSize, m_etaRegionSize);
       blayerInfo.goodFraction(fracGood);
 
       Identifier id;
@@ -644,16 +638,17 @@ namespace InDet {
       }
 
       infoList.push_back(blayerInfo);
-
-      delete trkParam;
-
     } /// blayer param
 
     return true;
 
   }
 
-  bool InDet::InDetTestBLayerTool::getPixelLayerParameters(const Trk::TrackParameters* trackpar, std::vector<const Trk::TrackParameters*>& blayerParam, int layer) const{
+  bool InDet::InDetTestBLayerTool::getPixelLayerParameters
+    (const Trk::TrackParameters* trackpar,
+     std::vector<std::unique_ptr<const Trk::TrackParameters> >& blayerParam,
+     int layer) const
+  {
 
     //// Cylinder bigger than the b-layer ////
     ATH_MSG_DEBUG("Trying to extrapolate to Pixel layer " << layer);
@@ -663,7 +658,7 @@ namespace InDet {
 						  10000.0);
 
     // extrapolate stepwise to this parameter (be careful, sorting might be wrong)
-    const std::vector<const Trk::TrackParameters*>* paramList =
+    std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
       m_extrapolator->extrapolateStepwise(*trackpar,
 					  BiggerThanBLayerSurface,
 					  Trk::alongMomentum,
@@ -672,53 +667,47 @@ namespace InDet {
 
 
 
-   if(!paramList){
+   if(paramList.empty()){
      ATH_MSG_DEBUG("No parameter returned by propagator ");
      ATH_MSG_VERBOSE("dumping track parameters " <<*trackpar);
      return false;
    }
 
-   ATH_MSG_DEBUG(" Number of generated parameters by propagator: " << paramList->size() );
+   ATH_MSG_DEBUG(" Number of generated parameters by propagator: " << paramList.size() );
 
 
    int s_int = 0;
-   for (std::vector<const Trk::TrackParameters*>::const_iterator it = paramList->begin();
-	it != paramList->end(); ++it){
+   for (std::unique_ptr<const Trk::TrackParameters>& p : paramList) {
 
      ATH_MSG_DEBUG( s_int++ << "th surface : ");
 
      Identifier id;
-     if( !( (*it)->associatedSurface().associatedDetectorElement() !=0 &&
-	 (*it)->associatedSurface().associatedDetectorElement()->identify() !=0 ) ){
-       delete *it;
+     if( !( p->associatedSurface().associatedDetectorElement() !=0 &&
+	 p->associatedSurface().associatedDetectorElement()->identify() !=0 ) )
+     {
        continue;
      }
 
-     id = (*it)->associatedSurface().associatedDetectorElement()->identify();
+     id = p->associatedSurface().associatedDetectorElement()->identify();
      if (!m_idHelper->is_pixel(id)){
-       delete *it;
        continue;
      }
 
      ATH_MSG_DEBUG("Found pixel module : Associated track parameter");
      if(!m_pixelId->is_barrel(id)){
-       delete *it;
        continue;
      }
      ATH_MSG_DEBUG("Found pixel barrel");
      if(m_pixelId->layer_disk(id)!=layer) {
-       delete *it;
        continue;
      }
 
      ATH_MSG_DEBUG( "Found layer  " <<  layer << " ID: " << id.get_compact() );
-     blayerParam.push_back((*it));
+     blayerParam.push_back (std::move (p));
 
    } /// all params
 
-   delete paramList;
    return true;
-
   }
 
 

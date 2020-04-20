@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DigitizationTool.h"
@@ -18,7 +18,7 @@
 
 // Det Descr includes
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 // Data Handle
 #include "StoreGate/ReadCondHandle.h"
@@ -166,7 +166,9 @@ StatusCode SCT_DigitizationTool::initServices() {
   // SiDigitization.
   ATH_CHECK(detStore()->retrieve(m_detID, "SCT_ID"));
 
-  ATH_CHECK(m_mergeSvc.retrieve());
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
   ATH_CHECK(m_rndmSvc.retrieve());
 
   return StatusCode::SUCCESS;
@@ -185,18 +187,18 @@ StatusCode SCT_DigitizationTool::initDisabledCells() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_DigitizationTool::processAllSubEvents() {
-  if (prepareEvent(0).isFailure()) {
+StatusCode SCT_DigitizationTool::processAllSubEvents(const EventContext& ctx) {
+  if (prepareEvent(ctx, 0).isFailure()) {
     return StatusCode::FAILURE;
   }
   // Set the RNG to use for this event.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
+  rngWrapper->setSeed( name(), ctx );
+  CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(ctx);
 
   ATH_MSG_VERBOSE("Begin digitizeAllHits");
-  if (m_enableHits and (not getNextEvent().isFailure())) {
-    digitizeAllHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi, rndmEngine);
+  if (m_enableHits and (not getNextEvent(ctx).isFailure())) {
+    digitizeAllHits(ctx, &m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi, rndmEngine);
   } else {
     ATH_MSG_DEBUG("no hits found in event!");
   }
@@ -204,7 +206,7 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
 
   // loop over elements without hits
   if (not m_onlyHitElements) {
-    digitizeNonHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, rndmEngine);
+    digitizeNonHits(ctx, &m_rdoContainer, &m_simDataCollMap, &m_processedElements, rndmEngine);
     ATH_MSG_DEBUG("Digitized Elements without Hits");
   }
 
@@ -218,15 +220,15 @@ StatusCode SCT_DigitizationTool::processAllSubEvents() {
 // ======================================================================
 // prepareEvent
 // ======================================================================
-StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
+StatusCode SCT_DigitizationTool::prepareEvent(const EventContext& ctx, unsigned int /*index*/) {
   ATH_MSG_VERBOSE("SCT_DigitizationTool::prepareEvent()");
   // Create the IdentifiableContainer to contain the digit collections Create
   // a new RDO container
-  m_rdoContainer = SG::makeHandle(m_rdoContainerKey);
+  m_rdoContainer = SG::makeHandle(m_rdoContainerKey, ctx);
   ATH_CHECK(m_rdoContainer.record(std::make_unique<SCT_RDO_Container>(m_detID->wafer_hash_max())));
 
   // Create a map for the SDO and register it into StoreGate
-  m_simDataCollMap = SG::makeHandle(m_simDataCollMapKey);
+  m_simDataCollMap = SG::makeHandle(m_simDataCollMapKey, ctx);
   ATH_CHECK(m_simDataCollMap.record(std::make_unique<InDetSimDataCollection>()));
 
   m_processedElements.clear();
@@ -240,20 +242,20 @@ StatusCode SCT_DigitizationTool::prepareEvent(unsigned int /*index*/) {
 // =========================================================================
 // mergeEvent
 // =========================================================================
-StatusCode SCT_DigitizationTool::mergeEvent() {
+StatusCode SCT_DigitizationTool::mergeEvent(const EventContext& ctx) {
   ATH_MSG_VERBOSE("SCT_DigitizationTool::mergeEvent()");
 
   // Set the RNG to use for this event.
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
-  CLHEP::HepRandomEngine *rndmEngine = *rngWrapper;
+  rngWrapper->setSeed( name(), ctx );
+  CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(ctx);
 
   if (m_enableHits) {
-    digitizeAllHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi, rndmEngine);
+    digitizeAllHits(ctx, &m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi, rndmEngine);
   }
 
   if (not m_onlyHitElements) {
-    digitizeNonHits(&m_rdoContainer, &m_simDataCollMap, &m_processedElements, rndmEngine);
+    digitizeNonHits(ctx, &m_rdoContainer, &m_simDataCollMap, &m_processedElements, rndmEngine);
   }
 
   for (SiHitCollection* hit: m_hitCollPtrs) {
@@ -269,7 +271,7 @@ StatusCode SCT_DigitizationTool::mergeEvent() {
   return StatusCode::SUCCESS;
 }
 
-void SCT_DigitizationTool::digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
+void SCT_DigitizationTool::digitizeAllHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
   /////////////////////////////////////////////////
   //
   // In order to process all element rather than just those with hits we
@@ -282,7 +284,7 @@ void SCT_DigitizationTool::digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* r
 
   SiChargedDiodeCollection chargedDiodes;
 
-  while (digitizeElement(&chargedDiodes, thpcsi, rndmEngine)) {
+  while (digitizeElement(ctx, &chargedDiodes, thpcsi, rndmEngine)) {
     ATH_MSG_DEBUG("Hit collection ID=" << m_detID->show_to_string(chargedDiodes.identify()));
 
     hitcount++;  // Hitcount will be a number in the hit collection minus
@@ -320,9 +322,9 @@ void SCT_DigitizationTool::digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* r
 }
 
 // digitize elements without hits
-void SCT_DigitizationTool::digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements, CLHEP::HepRandomEngine * rndmEngine) const {
+void SCT_DigitizationTool::digitizeNonHits(const EventContext& ctx, SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements, CLHEP::HepRandomEngine * rndmEngine) const {
   // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements{sctDetEle.retrieve()};
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
@@ -369,7 +371,7 @@ void SCT_DigitizationTool::digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* r
   return;
 }
 
-bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
+bool SCT_DigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const {
   if (nullptr == thpcsi) {
     ATH_MSG_ERROR("thpcsi should not be nullptr!");
 
@@ -395,7 +397,7 @@ bool SCT_DigitizationTool::digitizeElement(SiChargedDiodeCollection* chargedDiod
   IdentifierHash waferHash{m_detID->wafer_hash(id)};
 
   // Get SCT_DetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
@@ -642,7 +644,7 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
     // Under the current scheme time bin and ERRORS are hard-coded to
     // default values.
     int ERRORS{0};
-    static std::vector<int> dummyvector;
+    static const std::vector<int> dummyvector;
     for (; i_chargedDiode != i_chargedDiode_end; ++i_chargedDiode) {
       unsigned int flagmask{static_cast<unsigned int>((*i_chargedDiode).second.flag() & 0xFE)};
 
@@ -713,15 +715,15 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
 // ------------------------------------------------------------
 // Get next event and extract collection of hit collections:
 // ------------------------------------------------------------
-StatusCode SCT_DigitizationTool::getNextEvent() {
-  ATH_MSG_DEBUG("SCT_DigitizationTool::getNextEvent()");
+StatusCode SCT_DigitizationTool::getNextEvent(const EventContext& ctx) {
+  ATH_MSG_DEBUG("SCT_DigitizationTool::getNextEvent");
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
   // this is a list<pair<time_t, DataLink<SiHitCollection> >
 
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
-    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
+    SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey, ctx);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get SCT SiHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
       return StatusCode::FAILURE;

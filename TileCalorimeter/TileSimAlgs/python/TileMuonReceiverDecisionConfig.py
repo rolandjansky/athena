@@ -61,8 +61,9 @@ def TileMuonReceiverDecisionOutputCfg(flags, **kwargs):
     muRcvContainer = muRcvContainer.split('+').pop()
     outputItemList = ['TileMuonReceiverContainer#' + muRcvContainer]
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge( OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge( OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
 
     return acc
 

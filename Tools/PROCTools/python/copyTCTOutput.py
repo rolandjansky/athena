@@ -1,9 +1,17 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import sys,os,shutil,commands,getFileLists
+from __future__ import print_function
+
+import sys,os,shutil,getFileLists
+from PROCTools.getFileLists import findTCTFiles
 from PROCTools.getFileLists import *
+import six
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 
 def getFileSize(pfn):
@@ -12,26 +20,26 @@ def getFileSize(pfn):
     pos=pfn.rfind(':')
     if pos!=-1:
         pfn=pfn[1+pos:]
-        #print "New pfn:",pfn
+        #print ("New pfn:",pfn)
     if pfn.startswith("/castor/"):
         cmd= "rfstat "+pfn
-        (stat,out)=commands.getstatusoutput(cmd)
+        (stat,out)=subprocess.getstatusoutput(cmd)
         if stat!=0:
-            print "ERROR: ",cmd,"failed."
+            print ("ERROR: ",cmd,"failed.")
             return None
         for l in out.split(os.linesep):
             if l.startswith("Size"):
                 colon=l.index(':')
-                size=long(l[1+colon:].strip())
+                size=int(l[1+colon:].strip())
                 return size
-        print "ERROR: Failed to interpret output of rfstat"
+        print ("ERROR: Failed to interpret output of rfstat")
         return None
     else: #Assume regular file
         try:
             statinfo=os.stat(pfn)
             size=statinfo[6]
         except:
-            print "Can't acess regular file: ",pfn
+            print ("Can't acess regular file: ",pfn)
         return size
 
 
@@ -44,8 +52,8 @@ def freeSpace(p):  #wont' work on afs ..
 
 if __name__=="__main__":
     def usage():
-        print "Copy a full TCT to a (local) disk"
-        print sys.argv[0],"tctpath destpath"
+        print ("Copy a full TCT to a (local) disk")
+        print (sys.argv[0],"tctpath destpath")
 
 
     if len(sys.argv)!=3:
@@ -60,15 +68,15 @@ if __name__=="__main__":
     os.environ['STAGE_HOST']="castoratlast3"
 
     if not os.access(sDir,os.R_OK):
-        print "Can't read from",sDir
+        print ("Can't read from",sDir)
         sys.exit(-1)
 
     if not os.access(dDir,os.W_OK):
         try:
             os.mkdir(dDir)
-        except OSError,why:
-            print "Can't write to",dDir
-            print why
+        except OSError as why:
+            print ("Can't write to",dDir)
+            print (why)
             sys.exit(-1)
 
 
@@ -77,8 +85,8 @@ if __name__=="__main__":
 
     allFilesToCopy=dict()
 
-    print "Searching for files to copy..."
-    for name,tci in ff._commonDirs.iteritems():
+    print ("Searching for files to copy...")
+    for name,tci in six.iteritems (ff._commonDirs):
         filesToCopy=[tci[0].logfile,]
         for p in patterns:
             filesToCopy+=ff.findFilesInDir(tci[0].directory,p)
@@ -87,61 +95,61 @@ if __name__=="__main__":
 
     totalSize=0
     nFiles=0
-    for n,fs in allFilesToCopy.iteritems():
-        #print n
+    for n,fs in six.iteritems (allFilesToCopy):
+        #print (n)
         nFiles+=len(fs)
         for f in fs:
-            #print "  ",f
+            #print ("  ",f)
             totalSize+=getFileSize(f)
 
-    print "Found %i files with a total Size of %.2f MB" % (nFiles, totalSize/(1024.0*1024.0))
-    print "Start Copying:"
+    print ("Found %i files with a total Size of %.2f MB" % (nFiles, totalSize/(1024.0*1024.0)))
+    print ("Start Copying:")
 
 
-    for n,fs in allFilesToCopy.iteritems():
+    for n,fs in six.iteritems (allFilesToCopy):
         if len(fs)>1:
-            print "Working on ",n
+            print ("Working on ",n)
             logpath=fs[0]
             if not logpath.startswith(sDir):
-                print "ERROR, log file path",logpath,"does not start with",sDir
+                print ("ERROR, log file path",logpath,"does not start with",sDir)
                 sys.exit(-1)
             locDir="/".join(logpath[len(sDir):].split("/")[:-1])
-            #print locDir
+            #print (locDir)
             destdir=dDir+locDir
             try:
                 os.makedirs(destdir)
-            except OSError,why:
-                print "Failed to create directory",destdir
-                print why
+            except OSError as why:
+                print ("Failed to create directory",destdir)
+                print (why)
                 sys.exit(-1)
 
             try:
                 shutil.copy2(logpath,destdir+"/"+os.path.basename(logpath))
-            except Exception, why:
-                print "Can't copy log-file to",os.path.basename(logpath)
-                print why
+            except Exception as why:
+                print ("Can't copy log-file to",os.path.basename(logpath))
+                print (why)
                 sys.exit(-1)
 
             for f in fs[1:]:
                 destfile=destdir+"/"+os.path.basename(f)
                 if f. startswith("/castor/"):
-                    #print "Castor copying",f,"to",destfile
+                    #print ("Castor copying",f,"to",destfile)
                     cmd="rfcp "+f+" "+destfile
-                    #print cmd
-                    (stat,out)=commands.getstatusoutput(cmd)
+                    #print (cmd)
+                    (stat,out)=subprocess.getstatusoutput(cmd)
                     if stat!=0:
-                        print out
-                        print "ERROR: ",cmd,"failed."
+                        print (out)
+                        print ("ERROR: ",cmd,"failed.")
                         sys.exit(-1)
                 else: # Regular file
-                    #print "Copying",f,"to",destfile
+                    #print ("Copying",f,"to",destfile)
                     try:
                         shutil.copy2(f,destfile)
-                    except Exception, why:
-                        print "Can't copy file to",os.path.basename(logpath)
-                        print why
+                    except Exception as why:
+                        print ("Can't copy file to",os.path.basename(logpath))
+                        print (why)
                         sys.exit(-1) 
             
-    print "Finished."
+    print ("Finished.")
     
             

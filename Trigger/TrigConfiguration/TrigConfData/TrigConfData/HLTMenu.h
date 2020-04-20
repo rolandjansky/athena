@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_HLTMENU_H
@@ -26,15 +26,18 @@ namespace TrigConf {
        * @param data The data containing the HLT menu 
        */
       HLTMenu(const ptree & data);
+      HLTMenu(const HLTMenu&) = default;
+      HLTMenu(HLTMenu&&) = default;
 
       /** Destructor */
       ~HLTMenu();
 
-      /** Accessor to the menu name */
-      std::string name() const;
-
       /** Accessor to the number of HLT chains */
       std::size_t size() const;
+
+      /** setter and getter for the supermasterkey */
+      unsigned int smk() const;
+      void setSMK(unsigned int psk);
 
       /** Iterator over the HLT chains */
       using const_iterator = ConstIter<ptree, Chain>;
@@ -50,6 +53,15 @@ namespace TrigConf {
        * Needed for range-based loops
        */
       const_iterator end() const;
+
+      /** print overview of L1 Menu */
+      void printMenu(bool full = false) const;
+
+   private:
+      void update() override;
+
+      /** the supermasterkey */
+      unsigned int m_smk {0};
    };
 }
 

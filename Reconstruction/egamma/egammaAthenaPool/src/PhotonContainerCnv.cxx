@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PhotonContainerCnv.cxx 
@@ -55,7 +55,7 @@ PhotonContainer* PhotonContainerCnv::createTransient()
 {
   MsgStream msg( msgSvc(), "PhotonContainerCnv" );
 
-  PhotonContainer *transObj = 0;
+  PhotonContainer *transObj = nullptr;
 
   static pool::Guid tr_guid("B0DC1628-F17C-4951-BC85-55BBECF4D4D1");
   static pool::Guid p1_guid("7D40A2D2-C03C-470C-8F0C-937592D34B5B");

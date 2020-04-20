@@ -1,4 +1,7 @@
-//#include "RPCpanelList.h"
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include <TCanvas.h>
 #include <TBox.h>
 #include <TH2F.h>
@@ -6,23 +9,18 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <math.h>
-#include <TMath.h>
+#include <cmath>
 #include <map>
 #include "plotUtils.C"
 
 
 void plotRPClayer(Int_t inputLayer)
-{
-  //  gStyle->SetOptStat(0);
-  
+{  
   TCanvas* cLayer = new TCanvas("","",800,1000);
-  //return;
-  //Double_t M_PI=acos(-1.);
   cLayer->Divide(2,3);
   
-  Double_t hphimin = -TMath::Pi()-TMath::Pi()/10.;
-  Double_t hphimax =  TMath::Pi()+TMath::Pi()/10.;
+  Double_t hphimin = -M_PI-M_PI/10.;
+  Double_t hphimax =  M_PI+M_PI/10.;
   TH2F* hLayer = new TH2F("hLayer","hLayer",100,-1.2,1.2,100,hphimin,hphimax);
   cLayer->cd(1);  
   hLayer->Draw();
@@ -37,19 +35,15 @@ void plotRPClayer(Int_t inputLayer)
   cLayer->cd(6);  
   hLayer->Draw();
   TBox * t = new TBox();
-  //t->SetLineStyle(1);
   t->SetLineWidth(1);
   t->SetLineColor(kBlack);
-  //t->SetFillColor(kWhite);
   t->SetFillStyle(0);
-  //std::cout<<" going to exit"<<std::endl;
-  //return;
+
     
   RPCpanelList* myPanList = new RPCpanelList();
   myPanList->init();
   cRPCpanelListIterator it = myPanList->begin();
   Int_t nPanels = 0;
-  //return;
  
   double etamin,etamax,phimin,phimax,zmin,zmax;
   std::string stName;
@@ -59,7 +53,6 @@ void plotRPClayer(Int_t inputLayer)
   for (;it!=myPanList->end();++it)
     {
       unsigned long pid = it->first;
-      //std::cout<<" Panel id = "<<pid<<std::endl;
       ++nPanels;
       etamin = myPanList->getEtaMin(pid);
       etamax = myPanList->getEtaMax(pid);
@@ -74,9 +67,6 @@ void plotRPClayer(Int_t inputLayer)
       stringId = myPanList->getStringId(pid);
       stName   = myPanList->getStName(pid);
       int index = myPanList->getIndexInList(pid);
-      //std::cout<<" index in List = "<<index<<std::endl;
-      //std::cout<<layerRPC<<" "<<stName<<" "<<viewString<<" "<<stringId<<" "<<pid<<" "
-      //	       <<etamin<<" "<<etamax<<" "<<phimin<<" "<<phimax<<" "<<zmin<<" "<<zmax<<std::endl;
 
       t->SetLineColor(kBlack);
       if (stName=="BOG")   t->SetLineColor(kBlue);
@@ -103,7 +93,6 @@ void plotRPClayer(Int_t inputLayer)
     }
 
   std::cout<<"Finished; n. of panels found is "<<nPanels<<std::endl;
-  //cLayer->SaveAs((std::string("RPClayerNew")+laySTRING+std::string(".png")).c_str());
   cLayer->SaveAs("RPClayers.png");
 
 
@@ -156,7 +145,6 @@ void plotRPClayer(Int_t inputLayer)
   ifstream infileData;
   infileData.open("ID_Ntrack_HitsOnTrack_GapOnTrack_MergedHistograms.data15_13TeV.00281411.physics_Main.DESDM_MCP.f629.FullRpcMonitoring_v10.txt");
   ifstream infileMC;
-  //  infileMC.open("ID_Ntrack_HitsOnTrack_GapOnTrack_MergedHistograms.mcr147407.Zmumu.simul.s2621_HITS2RDOandPRD_aveffstep2.txt");
   infileMC.open("MonitorESD_GeantinoHits_test125k_condRun00281411_NewMonTag.effPerPanel.txt");
 
 
@@ -239,9 +227,7 @@ void plotRPClayer(Int_t inputLayer)
 	}
     }
   infileData.close();
-  //  unsigned int nPanelsInData = ind;
 
-  //  gStyle->SetOptStat();
   gStyle->SetOptFit(111111);
   gStyle->SetOptStat(111111);
 
@@ -282,10 +268,6 @@ void plotRPClayer(Int_t inputLayer)
   hDataEffPanelThr30->Draw();
   cPanEffFit50->SaveAs("AllPanEffFit50_data.png");
 
-
-  //  return;
-
-  
    Int_t netabins = 28;
    Int_t nphibins = 32;
    Double_t zMinOuter = -13000.;
@@ -416,24 +398,18 @@ void plotRPClayer(Int_t inputLayer)
 		    int indDT = getIndWithID(MCid, effDataMapID, nPanelDataTotal);
 		    if (indDT<0)
 		      {
-			//std::cout<<"ID "<<MCid<<" NOT found in Data Mon file -- index in MC Mon file = "<<ind<<" .... skip "<<std::endl;
 			continue;
 		      }
-		    //std::cout<<"ID "<<MCid<<" found in Data Mon file -- index in MC Mon file = "<<ind<<" in data Mon file = "<<indDT<<" ID in data "<<effDataMapID[indDT]<<std::endl;
 		    if ( effMCMapID[ind]==effDataMapID[indDT] ){
-		      //std::cout<<"more than 25 tracks extrapolated here:  indMC = "<<ind<<" ID = "<<effDataMapID[indDT]<<std::endl;
 		      float resEff = effMCMapNEffP[ind]-effDataMapNEffP[indDT];
 		      float resEffNorm = resEff/sqrt(deffMCMapNEffP[ind]*deffMCMapNEffP[ind]+deffDataMapNEffP[indDT]*deffDataMapNEffP[indDT]);
-		      //std::cout<<" reseff, reseffnorm = "<<resEff<<" "<<resEffNorm<<std::endl;
 		      hres->Fill(resEff);
 		      hresNorm->Fill(resEffNorm);
 		      if ( effDataMapNtrk[indDT]>25 )
 			{
 			  hres25->Fill(resEff);
 			  hresNorm25->Fill(resEffNorm);
-			  //			}
 			  unsigned long ID = MCid;
-			  //std::cout<<" start lookup into the map "<<std::endl;
 			  unsigned short thisLayer = 0;
 			  thisLayer = myPanList->getLayer(ID);
 			  if (thisLayer==0)
@@ -443,8 +419,6 @@ void plotRPClayer(Int_t inputLayer)
 			    }
 			  unsigned short thisView  = 2;
 			  thisView  = myPanList->getView(ID);
-			  //std::cout<<"ID "<<ID<<"found in map - extended id = "<<myPanList->getStringId(ID)<<" index in MC Mon file = "<<ind<<" in data Mon file = "<<indDT<<std::endl;
-			  //std::cout<<" view, layer are = "<<thisView<<" "<<thisLayer<<std::endl;
 			  double phiP = 0.5*( myPanList->getPhiMax(ID)+myPanList->getPhiMin(ID) );
 			  if (phiP > M_PI) phiP = phiP-2.*M_PI;
 			  if (phiP <-M_PI) phiP = phiP+2.*M_PI;
@@ -535,7 +509,6 @@ void plotRPClayer(Int_t inputLayer)
   hresNorm25->Draw();
   creseff->SaveAs("reseff.png");
 
-
   for (short j=0;j<6;++j)
     {
       showMapEffMCData(j+1,true, h_effmapPhiMC[j],h_effmapPhiData[j],h_effmapPhiRes[j],h_effmapPhiResNorm[j]);
@@ -555,10 +528,6 @@ void plotRPClayer(Int_t inputLayer)
   	   <<"DATA ---  with 1 panel-eff                    "<<nPanelDataWith1PanelEff<<"\n"
   	   <<"DATA ---  with 1 gap-eff                      "<<nPanelDataWith1GapEff<<"\n";
 
-
-  
-
-  
 }
 
 void plotRPClayer()

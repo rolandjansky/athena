@@ -14,9 +14,11 @@
 # art-output: *.root
 # art-output: *.pmon.gz
 # art-output: *perfmon*
+# art-output: prmon*
 # art-output: *.check*
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 import os
 
 # To run single-process transform on MCORE sites
@@ -35,6 +37,7 @@ test = Test.Test()
 test.art_type = 'grid'
 test.exec_steps = [rdo2aod]
 test.check_steps = CheckSteps.default_check_steps(test)
+add_analysis_steps(test)
 
 import sys
 sys.exit(test.run())

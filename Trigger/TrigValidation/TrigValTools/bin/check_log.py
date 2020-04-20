@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import re
 import argparse
 import sys
 import os
+import six
 
 desc = 'Tool to check for error messages in a log file. By default ERROR, FATAL \
   and CRITICAL messages are considered. The config file may be used to \
@@ -23,6 +24,7 @@ errorRegex = [
     'tcmalloc\: allocation failed',
     'athenaHLT.py\: error',
     'HLTMPPU.*Child Issue',
+    'HLTMPPU.*Configuration Issue',
     'There was a crash',
     'illegal instruction',
     'failure loading library',
@@ -129,7 +131,8 @@ def scanLogfile():
     msgLevels = re.compile('|'.join(pattern))
     igLevels = re.compile('|'.join(ignorePattern))
     logFileAddress = args.logfile
-    with open(logFileAddress,'r') as logFile:
+    encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+    with open(logFileAddress,'r',**encargs) as logFile:
         tracing = False
         for line in logFile:
             #Tracing only makes sense for errors

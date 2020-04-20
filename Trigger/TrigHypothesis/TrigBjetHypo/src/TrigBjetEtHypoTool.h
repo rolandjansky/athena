@@ -17,12 +17,15 @@
 
 #include "AthenaBaseComps/AthAlgTool.h" 
 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthLinks/ElementLinkVector.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
+
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
 
 class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
 
@@ -30,6 +33,7 @@ class TrigBjetEtHypoTool : virtual public ::AthAlgTool {
   struct TrigBjetEtHypoToolInfo {
     TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
     ElementLink< xAOD::JetContainer > jetEL;
+    ElementLink< xAOD::VertexContainer > vertexEL;
     TrigCompositeUtils::Decision* decision;
   };
 

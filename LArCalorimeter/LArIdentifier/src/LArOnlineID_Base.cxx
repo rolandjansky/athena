@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArIdentifier/LArOnlineID_Base.h"
@@ -1466,16 +1466,22 @@ HWIdentifier LArOnlineID_Base::feedthrough_Id(const HWIdentifier Id) const
   return(result);
 }
 
-std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::feedthrough_begin(void) const
+LArOnlineID_Base::id_iterator LArOnlineID_Base::feedthrough_begin() const
 /*====================================================================*/
 {
   return(m_feedthrough_vec.begin());
 }
 
-std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::feedthrough_end(void) const
+LArOnlineID_Base::id_iterator LArOnlineID_Base::feedthrough_end() const
 /*==================================================================*/
 {
   return(m_feedthrough_vec.end());
+}
+
+LArOnlineID_Base::id_range LArOnlineID_Base::feedthrough_range() const
+/*==================================================================*/
+{
+  return id_range (feedthrough_begin(), feedthrough_end());
 }
 
 
@@ -1977,26 +1983,36 @@ LArOnlineID_Base::size_type LArOnlineID_Base::channelHashMax (void) const
 
 
 
-std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::feb_begin(void) const
+LArOnlineID_Base::id_iterator LArOnlineID_Base::feb_begin() const
 /*====================================================================*/
 {
   return(m_feb_vec.begin());
 }
-std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::feb_end(void) const
+LArOnlineID_Base::id_iterator LArOnlineID_Base::feb_end() const
 /*==================================================================*/
 {
   return(m_feb_vec.end());
 }
+LArOnlineID_Base::id_range LArOnlineID_Base::feb_range() const
+/*==================================================================*/
+{
+  return id_range (feb_begin(), feb_end());
+}
 
-std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::channel_begin(void) const
+LArOnlineID_Base::id_iterator LArOnlineID_Base::channel_begin() const
 /*======================================================================*/
 {
   return(m_channel_vec.begin());
 }
-std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::channel_end(void) const
+LArOnlineID_Base::id_iterator LArOnlineID_Base::channel_end() const
 /*======================================================================*/
 {
   return(m_channel_vec.end());
+}
+LArOnlineID_Base::id_range LArOnlineID_Base::channel_range() const
+/*======================================================================*/
+{
+  return id_range (channel_begin(), channel_end());
 }
 
 int LArOnlineID_Base::barrel_ec(const HWIdentifier id)const

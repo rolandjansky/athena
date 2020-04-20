@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 __doc__ = """JobTransform to run LAr Noise Burst jobs"""
 
 
@@ -39,8 +44,8 @@ if __name__ == '__main__':
 
 
     trf.execute()
-    print "DataDict:"
-    print trf.dataDictionary
+    print ("DataDict:")
+    print (trf.dataDictionary)
 
 
     trf.generateReport()

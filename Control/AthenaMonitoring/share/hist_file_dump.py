@@ -1,10 +1,38 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 import ROOT
 import sys, os, operator
 import argparse
 import zlib
+import json
+
+def fixprecision(x):
+    import math
+    if not isinstance(x, float):
+        return x
+    else:
+        mantissa, exponent = math.frexp(x)
+        return float(str(mantissa)[:16]) * 2**exponent
+
+def jsonfixup(instr):
+    instr = instr.Data()
+    j=json.loads(instr)
+    # the following are very subject to floating point numeric effects
+    for badkey in ('fTsumw', 'fTsumwx', 'fTsumw2', 'fTsumwx2', 'fTsumwy', 'fTsumwy2', 'fTsumwxy',
+                   'fTsumwz', 'fTsumwz2', 'fTsumwxz', 'fTsumwyz' ):
+        if badkey in j:
+            j[badkey] = fixprecision(j[badkey])
+            #print(type(j["fTsumwx"]))
+    for badkey in ('fSumw2',):
+        if badkey in j:
+            j[badkey] = [fixprecision(_) for _ in j[badkey]]
+    # the following ignores small layout fluctuations in TTrees
+    if 'fBranches' in j:
+        for branch in j['fBranches']['arr']:
+            branch['fBasketSeek'] = []
+    return json.dumps(j)
 
 parser=argparse.ArgumentParser()
 parser.add_argument('filename',
@@ -22,6 +50,8 @@ parser.add_argument('--no_onfile', action='store_true',
                     help="Don't show on file size")
 parser.add_argument('--no_inmem', action='store_true',
                     help="Don't show in memory size")
+parser.add_argument('--tree_entries', action='store_true',
+                    help="Use more robust hash of TTree branches + entries")
 args=parser.parse_args()
 
 ordering = args.rankorder
@@ -32,7 +62,17 @@ ROOT.gInterpreter.LoadText("UInt_t bufferhash(TKey* key) { key->SetBuffer(); key
 ROOT.gInterpreter.LoadText("void* getbuffer(TKey* key) { key->SetBuffer(); key->ReadFile(); return (void*) (key->GetBuffer()+key->GetKeylen()); }")
 ROOT.gInterpreter.LoadText("UInt_t bufferhash2(TKey* key) { TObject* obj = key->ReadObj(); TMessage msg(kMESS_OBJECT); msg.WriteObject(obj); UInt_t rv = TString::Hash(msg.Buffer(), msg.Length()); delete obj; return rv; }")
 ROOT.gInterpreter.LoadText("UInt_t bufferhash3(TKey* key) { TObject* obj = key->ReadObj(); UInt_t rv = obj->Hash(); delete obj; return rv; }")
+ROOT.gInterpreter.LoadText("TString getjson(TKey* key) { TObject* obj = key->ReadObj(); auto rv = TBufferJSON::ConvertToJSON(obj); delete obj; return rv; }")
+
 ROOT.gSystem.Load('libDataQualityUtils')
+
+def fuzzytreehash(tkey):
+    t = tkey.ReadObj()
+    rv = zlib.adler32((' '.join(_.GetName() for _ in t.GetListOfBranches()))
+                        + (' '.join(_.GetName() + _.GetTypeName() for _ in t.GetListOfLeaves()))
+                        + ' ' + str(t.GetEntries()))
+    del t
+    return rv
 
 def dumpdir(d):
     thispath = d.GetPath()
@@ -46,8 +86,10 @@ def dumpdir(d):
         if k.GetClassName().startswith('TDirectory'):
             subdirs.append(k)
         else:
-            if args.hash:
-                lhash = ROOT.bufferhash2(k)
+            if args.tree_entries and k.GetClassName() == 'TTree':
+                lhash = fuzzytreehash(k)
+            elif args.hash:
+                lhash = zlib.adler32(jsonfixup(ROOT.getjson(k)))
             else:
                 lhash = 0
             idxname = os.path.join(thispath, k.GetName())
@@ -77,14 +119,14 @@ sortedl = sorted(accounting.items(), key=key, reverse=True)
 if args.hash:
     print('\n'.join(('%s %s: '
                      + ('%d uncompressed' % b if not args.no_inmem else '')
-                     + (', %d on file ' % c if not args.no_onfile else '')
+                     + (', %d on file ' % c if not args.no_onfile else ' ')
                      + '(hash %s)')
                     % (types[a], a, hashes[a]) for a, (b, c) in  sortedl)
           )
 else:
     print('\n'.join(('%s %s: '
                      + ('%d uncompressed' % b if not args.no_inmem else '')
-                     + (', %d on file' % c if not args.no_onfile else ''))
+                     + (', %d on file' % c if not args.no_onfile else ' '))
                     % (types[a], a) for a, (b, c) in  sortedl)
           )
 

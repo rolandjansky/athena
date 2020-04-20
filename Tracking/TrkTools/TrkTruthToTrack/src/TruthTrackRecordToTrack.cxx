@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTruthToTrack/TruthTrackRecordToTrack.h"
@@ -31,7 +31,7 @@
 Trk::TruthTrackRecordToTrack::TruthTrackRecordToTrack(const std::string& type, const std::string& name,
                                             const IInterface* parent)
   : AthAlgTool(type,name,parent),
-    m_particleDataTable(0), 
+    m_particleDataTable(nullptr), 
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
 {
   declareInterface<ITruthToTrack>(this);
@@ -44,7 +44,7 @@ Trk::TruthTrackRecordToTrack::TruthTrackRecordToTrack(const std::string& type, c
 StatusCode Trk::TruthTrackRecordToTrack::initialize() {
 
   // get the Particle Properties Service
-  IPartPropSvc* partPropSvc = 0;
+  IPartPropSvc* partPropSvc = nullptr;
   StatusCode sc =  service("PartPropSvc", partPropSvc, true);
   if (sc.isFailure()) {
     ATH_MSG_ERROR ("Could not initialize Particle Properties Service");
@@ -67,41 +67,26 @@ StatusCode Trk::TruthTrackRecordToTrack::initialize() {
 //================================================================
 const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParameters(const HepMC::GenParticle* part) const {
 
-  if (part == NULL || m_particleDataTable==NULL) return 0;
+  if (part == nullptr || m_particleDataTable==nullptr) return nullptr;
 
-  Trk::TrackParameters *result = 0;
+  Trk::TrackParameters *result = nullptr;
   Amg::Vector3D prodVertexVector;
   Amg::Vector3D globalPos;
   Amg::Vector3D globalMom;
   int id=0;
   double charge = 0.0;
-  const HepPDT::ParticleData* pd = 0;
+  const HepPDT::ParticleData* pd = nullptr;
 
-  /* // -- backup: get the genparticle prod vertex
-  if(part->production_vertex()) {
-    HepMC::ThreeVector tv = part->production_vertex()->point3d();
-    prodVertexVector = CLHEP::Hep3Vector(tv.x(),tv.y(),tv.z());
-    globalPos = prodVertexVector;
-
-    HepMC::FourVector fv = part->momentum();
-    CLHEP::Hep3Vector hv2(fv.px(),fv.py(),fv.pz());
-    globalMom = hv2;
-
-    id = part->pdg_id();
-    // the table seems to lack antiparticles, thus the use of abs()
-    pd = m_particleDataTable->particle(std::abs(id));
-
-  }*/
 
   SG::ReadHandle<TrackRecordCollection> recordCollection(m_reccollkey);
       
   if (recordCollection.isValid()) {
     ATH_MSG_ERROR ("Could not get track record!");
-    return 0;
+    return nullptr;
   }
   ATH_MSG_DEBUG("reading from track record, size=" << recordCollection->size());
 
-  if (recordCollection->size() == 0) ATH_MSG_WARNING ("action required but record size is 0");
+  if (recordCollection->empty()) ATH_MSG_WARNING ("action required but record size is 0");
 
   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
           
@@ -115,7 +100,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
         continue;
       }
 
-      HepMC::ThreeVector tv = (*record).GetPosition();
+      CLHEP::Hep3Vector tv = (*record).GetPosition();
       prodVertexVector = Amg::Vector3D(tv.x(),tv.y(),tv.z());
       globalPos = prodVertexVector;
 
@@ -153,26 +138,26 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 //================================================================
 const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParameters(const xAOD::TruthParticle* part) const {
 
-  if (part == NULL || m_particleDataTable==NULL) return 0;
+  if (part == nullptr || m_particleDataTable==nullptr) return nullptr;
 
-  Trk::TrackParameters *result = 0;
+  Trk::TrackParameters *result = nullptr;
   Amg::Vector3D prodVertexVector;
   Amg::Vector3D globalPos;
   Amg::Vector3D globalMom;
   int id=0;
   double charge = 0.0;
-  const HepPDT::ParticleData* pd = 0;
+  const HepPDT::ParticleData* pd = nullptr;
 
    SG::ReadHandle<TrackRecordCollection> recordCollection(m_reccollkey);
       
   if (recordCollection.isValid()) {
     ATH_MSG_ERROR ("Could not get track record!");
-    return 0;
+    return nullptr;
   }
 
   ATH_MSG_DEBUG("reading from track record, size=" << recordCollection->size());
 
-  if (recordCollection->size() == 0) ATH_MSG_WARNING ("action required but record size is 0");
+  if (recordCollection->empty()) ATH_MSG_WARNING ("action required but record size is 0");
 
   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
           
@@ -186,7 +171,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
         continue;
       }
 
-      HepMC::ThreeVector tv = (*record).GetPosition();
+      CLHEP::Hep3Vector  tv = (*record).GetPosition();
       prodVertexVector = Amg::Vector3D(tv.x(),tv.y(),tv.z());
       globalPos = prodVertexVector;
 
@@ -223,13 +208,13 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
 //================================================================
 const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(const HepMC::GenParticle* part) const {
-  const Trk::TrackParameters* generatedTrackPerigee = 0;
+  const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable && m_extrapolator) {
     
     MsgStream log(msgSvc(), name());
     
-    std::auto_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
+    std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams.get()) {
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
@@ -247,13 +232,13 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
 
 //================================================================
 const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(const xAOD::TruthParticle* part) const {
-  const Trk::TrackParameters* generatedTrackPerigee = 0;
+  const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
   if(part && part->hasProdVtx() && m_particleDataTable && m_extrapolator) {
     
     MsgStream log(msgSvc(), name());
     
-    std::auto_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
+    std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
     if(productionVertexTrackParams.get()) {
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,

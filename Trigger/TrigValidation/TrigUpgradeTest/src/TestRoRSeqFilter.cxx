@@ -5,7 +5,7 @@
 #include <iterator>
 #include <algorithm>
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TestRoRSeqFilter.h"
 
 #include "GaudiKernel/Property.h"

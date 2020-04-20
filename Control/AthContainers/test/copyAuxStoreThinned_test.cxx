@@ -12,8 +12,6 @@
 
 #undef NDEBUG
 
-#ifndef XAOD_STANDALONE
-
 #include "AthContainers/tools/copyAuxStoreThinned.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/AuxTypeRegistry.h"
@@ -197,11 +195,3 @@ int main()
   test1();
   return 0;
 }
-
-#else
-
-int main() {
-   return 0;
-}
-
-#endif // XAOD_STANDALONE

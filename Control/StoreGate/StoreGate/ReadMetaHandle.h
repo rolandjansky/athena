@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_READMETAHANDLE_H
-#define STOREGATE_READMETAHANDLE_H 1
+#define STOREGATE_READMETAHANDLE_H
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/MetaCont.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 
-#include "StoreGate/VarHandleBase.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadMetaHandleKey.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 #include "GaudiKernel/DataHandle.h"
 #include "GaudiKernel/DataObjID.h"
@@ -21,12 +21,11 @@
 #include <string>
 #include <stdexcept>
 
-
 namespace SG {
 
   template <typename T>
-  class ReadMetaHandle : public SG::VarHandleBase {
-
+    class ReadMetaHandle {
+    
   public: 
     typedef T*               pointer_type; // FIXME: better handling of
     typedef const T*   const_pointer_type; //        qualified T type ?
@@ -35,31 +34,25 @@ namespace SG {
 
   public:
     ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key);
-    ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key, 
-                   const EventContext& ctx);
+    ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key
+		   , const EventContext& ctx);
     
-    virtual ~ReadMetaHandle() override {};
+    ~ReadMetaHandle() {};
     
-    // retrieve <T> for current SID in data header
     const_pointer_type retrieve();
-    // retrieve <T> for specified SID
     const_pointer_type retrieve( const SG::SourceID& t);
 
     const_pointer_type  operator->()  { return  retrieve(); }
     const_pointer_type  operator*()   { return  retrieve(); }   
-
     
-    virtual bool isValid() override;
+    bool isValid();
 
   private:
 
     bool initMetaHandle();
         
-    // current SID
     SG::SourceID m_sid;
-    // pinter to container
     const MetaCont<T>*  m_cont {nullptr};
-    // pointer to object in container for current SID
     T* m_ent {nullptr};
     
     const SG::ReadMetaHandleKey<T>& m_hkey;
@@ -69,37 +62,48 @@ namespace SG {
   //------------------------------------------------------------------------
 
   template <typename T>
-  ReadMetaHandle<T>::ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key):
-  ReadMetaHandle(key, Gaudi::Hive::currentContext())
-  { 
-  }
+    ReadMetaHandle<T>::ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key)
+    : ReadMetaHandle(key, Gaudi::Hive::currentContext())
+    { 
+    }
 
   //------------------------------------------------------------------------
 
   template <typename T>
-  ReadMetaHandle<T>::ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key,
-                                    const EventContext& ctx):
-    SG::VarHandleBase( key, &ctx ),
-      m_sid( Atlas::getExtendedEventContext(ctx).proxy()->sourceID() ),
-    m_cont( key.getContainer() ),
-    m_hkey(key)
+  ReadMetaHandle<T>::ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key
+				    , const EventContext& ctx)
+    : m_sid( Atlas::getExtendedEventContext(ctx).proxy()->sourceID() )
+    , m_cont( key.getContainer() )
+    , m_hkey(key)
   {
     MsgStream msg(Athena::getMessageSvc(), "ReadMetaHandle");
-    if (! m_hkey.isInit()) {
+    if (ATH_UNLIKELY(!m_hkey.isInit())) {
       msg << MSG::ERROR 
-          << "ReadMetaHandleKey " << key.objKey() << " was not initialized"
-          << endmsg;
+	  << "ReadMetaHandleKey " << key.objKey() << " was not initialized"
+	  << endmsg;
       throw std::runtime_error("ReadMetaHandle: ReadMetaHandleKey was not initialized");
     }
 
-    if (m_cont == 0) {
-      MsgStream msg(Athena::getMessageSvc(), "ReadMetaHandle");
-      msg << MSG::ERROR
-          << "ReadMetaHandle : ptr to MetaCont<T> is zero"
-          << endmsg;
-      throw std::runtime_error("ReadMetaHandle: ptr to MetaCont<T> is zero");
+    if (ATH_UNLIKELY(m_cont == 0)) {
+      // Try to retrieve it
+      StoreGateSvc* ms = m_hkey.getStore();
+      MetaContBase* cb{nullptr};
+      if(ms->retrieve(cb, m_hkey.key()).isFailure()) {
+	msg << MSG::ERROR
+	    << "can't retrieve " << m_hkey.fullKey()
+            << " via base class" << endmsg;
+        throw std::runtime_error("ReadCondHandle: ptr to CondCont<T> is zero");
+      }
+      else {
+	m_cont = dynamic_cast< MetaCont<T>* > (cb);
+	if(!m_cont) {
+	  msg << MSG::ERROR
+	      << "can't dcast MetaContBase to " << m_hkey.fullKey()
+              << endmsg;
+          throw std::runtime_error("ReadMetaHandle: ptr to MetaCont<T> is zero");
+	}
+      }
     }
-  
   }
 
   //------------------------------------------------------------------------
@@ -109,18 +113,19 @@ namespace SG {
   ReadMetaHandle<T>::initMetaHandle() 
   {
 
-    if (m_ent != 0) return true;
+    if (m_ent) return true;
 
     // Initialize sid from dbKey found at ReadMetaHandleKey initialize
-    m_sid = m_hkey.dbKey();
+//    m_sid = m_hkey.dbKey();    ???? Do I need this ????
 
-    if ( ! m_cont->find(m_sid, m_ent) ) {
+    if ( ATH_UNLIKELY(! m_cont->find(m_sid, m_ent)) ) {
       std::ostringstream ost;
+      m_cont->list(ost);
       MsgStream msg(Athena::getMessageSvc(), "ReadMetaHandle");
       msg << MSG::ERROR 
-          << "ReadMetaHandle: could not find current SourceID " 
-          << m_sid  << " for key " << objKey() << "\n"
-          << endmsg;
+          << "ReadMetaHandle:: could not find current SourceID " 
+          << m_sid  << " for key " << m_hkey.objKey() << "\n"
+          << ost.str() << endmsg;
       m_ent = nullptr;
       return false;
     }
@@ -141,9 +146,7 @@ namespace SG {
       }
     }
 
-    const_pointer_type cobj = 
-      const_cast<const_pointer_type>( m_ent );      
-    return cobj;
+    return m_ent;
   }
 
   //------------------------------------------------------------------------
@@ -163,17 +166,13 @@ namespace SG {
       MsgStream msg(Athena::getMessageSvc(), "ReadMetaHandle");
       msg << MSG::ERROR 
           << "ReadMetaHandle::retrieve() could not find SourceID " 
-          << sid  << " for key " << objKey() << "\n"
-          << "Container contents: \n" 
+          << sid  << " for key " << m_hkey.objKey() << "\n"
           << ost.str()
-          << "\n Done" 
           << endmsg;
       return nullptr;
     }
-  
-    const_pointer_type cobj = const_cast<const_pointer_type>( obj );
 
-    return cobj;
+    return obj;
   }
 
   //---------------------------------------------------------------------------

@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
+#include "TMath.h"
 
 //=============================================
 //======= TFCSLateralShapeParametrizationHitChain =========
@@ -43,6 +44,36 @@ int TFCSLateralShapeParametrizationHitChain::get_number_of_hits(TFCSSimulationSt
   return 1;
 }
 
+float TFCSLateralShapeParametrizationHitChain::getMinWeight() const
+{
+  for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
+    float weight=hitsim->getMinWeight();
+    if(weight>0.) return weight;
+  } 
+  return -1.;
+}
+  
+float TFCSLateralShapeParametrizationHitChain::getMaxWeight() const
+{
+  for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
+    float weight=hitsim->getMaxWeight();
+    if(weight>0.) return weight;
+  }
+  return -1.;
+}
+
+
+float TFCSLateralShapeParametrizationHitChain::get_E_hit(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
+{  
+  const int nhits = get_number_of_hits(simulstate,truth,extrapol);
+  const int sample = calosample();
+  if(nhits<=0 || sample<0) return simulstate.E(sample);
+  const float maxWeight = getMaxWeight();// maxWeight = -1 if  shapeWeight class is not in m_chain  
+  
+  if(maxWeight>0) return simulstate.E(sample)/(maxWeight*nhits); // maxWeight is used only if shapeWeight class is in m_chain
+  else return simulstate.E(sample)/nhits; // Otherwise, old definition of E_hit is used
+}
+
 float TFCSLateralShapeParametrizationHitChain::get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
   if(m_number_of_hits_simul) {
@@ -59,17 +90,25 @@ float TFCSLateralShapeParametrizationHitChain::get_sigma2_fluctuation(TFCSSimula
 
 FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
-  // Call get_number_of_hits() only once, as it could contain a random number
-  int nhit = get_number_of_hits(simulstate, truth, extrapol);
-  if (nhit <= 0) {
-    ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitChain::simulate(): number of hits could not be calculated");
+  const float Elayer=simulstate.E(calosample());
+  if (Elayer == 0) {
+    ATH_MSG_VERBOSE("Elayer=0, nothing to do");
+    return FCSSuccess;
+  }
+  const float Ehit=get_E_hit(simulstate,truth,extrapol);
+  if (Ehit * Elayer <= 0) {
+    ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitChain::simulate(): Ehit and Elayer have different sign! Ehit="<<Ehit<<" Elayer="<<Elayer);
     return FCSFatal;
   }
 
-  const float Elayer=simulstate.E(calosample());
-  const float Ehit=Elayer/nhit;
+  // Call get_number_of_hits() only once inside get_E_hit(...), 
+  // as it could contain a random number
+  int nhit = TMath::Nint(Elayer/Ehit);
+  if(nhit<1) nhit=1;
+
   float sumEhit=0;
 
+  MSG::Level old_level=level();
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) {
     ATH_MSG_DEBUG("E("<<calosample()<<")="<<simulstate.E(calosample())<<" #hits~"<<nhit);
@@ -83,7 +122,7 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     hit.E()=Ehit;
     for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
       if (debug) {
-        if (ihit < 2) hitsim->setLevel(MSG::DEBUG);
+        if (ihit < 2) hitsim->setLevel(old_level);
         else hitsim->setLevel(MSG::INFO);
       }
 
@@ -94,10 +133,17 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
         FCSReturnCode status = hitsim->simulate_hit(hit, simulstate, truth, extrapol);
 
         if (status == FCSSuccess) {
-          if(sumEhit+hit.E()>Elayer) hit.E()=Elayer-sumEhit;//sum of all hit energies needs to be Elayer: correct last hit accordingly
+          //if(sumEhit+hit.E()>Elayer) hit.E()=Elayer-sumEhit;//sum of all hit energies needs to be Elayer: correct last hit accordingly
           break;
         } else {
-          if (status == FCSFatal) return FCSFatal;
+          if (status == FCSFatal) {
+            if (debug) {
+              for(TFCSLateralShapeParametrizationHitBase* reset : m_chain) {
+                reset->setLevel(old_level);
+              }
+            }  
+            return FCSFatal;
+          }  
         }    
 
         if (i == FCS_RETRY_COUNT) {
@@ -107,12 +153,21 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     }
     sumEhit+=hit.E();
     ++ihit;
-    if(ihit>10*nhit) {
-      ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): aborting hit chain, iterated " << 10*nhit << " times, expected " << nhit<<" times. Deposited E("<<calosample()<<")="<<sumEhit);
+    
+    if( (ihit==20*nhit) || (ihit==100*nhit) ) {
+      ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Iterated " << ihit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
+    }                                                                                                                         
+    if(ihit>1000*nhit && ihit>1000) {
+      ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Aborting hit chain, iterated " << 1000*nhit << " times, expected " << nhit <<" times. Deposited E("<<calosample()<<")="<<sumEhit<<" expected E="<<Elayer);
       break;
     }  
-  } while (sumEhit<Elayer);
+  } while (std::abs(sumEhit)<std::abs(Elayer));
 
+  if (debug) {
+    for(TFCSLateralShapeParametrizationHitBase* reset : m_chain) {
+      reset->setLevel(old_level);
+    }
+  }  
   return FCSSuccess;
 }
 

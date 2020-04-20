@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package JobReport
 #
@@ -9,10 +9,10 @@
 
 from __future__ import with_statement, print_function
 import os,sys,re,shutil,traceback, subprocess, itertools
-import cPickle as pickle
+import pickle
 from copy import copy
 from PyJobTransformsCore import AtlasErrorCodes, extraMetadata
-from xmlutil import XMLNode
+from .xmlutil import XMLNode
 
 __all__ = [ 'JobInfo', 'FileInfo', 'TaskInfo', 'JobReport', '_extraMetadataDict' ] 
 
@@ -389,9 +389,8 @@ class JobReport( object ):
     metadata_xml = 'metadata.xml'
     jobinfo_xml = 'jobInfo.xml'
     defaultFilenameBase = 'jobReport'
-    fileExtentions = ( '.txt', '.pickle', '.xml' )
+    fileExtensions = ( '.txt', '.pickle', '.xml' )
     # List of files created by the transform
-    defaultFiles = [ defaultFilenameBase + ext for ext in fileExtentions ] + [ metadata_xml, jobinfo_xml ]
     
     ## @brief Constructor for the JobReport class.
     #  @details A newly instantiated JobReport class is invalid for the purpose for which it was designed as 
@@ -400,6 +399,9 @@ class JobReport( object ):
     #  A JobReport instance may be explicitly created as a container in which other JobReport instances may be 
     #  stored e.g. in composite transforms.
     def __init__( self ):
+        # Can't be at class scope due to py3 scoping rules for comprehensions.
+        JobReport.defaultFiles = [ defaultFilenameBase + ext for ext in fileExtensions ] + [ metadata_xml, jobinfo_xml ]
+
         self.reset()
         self.setCommand()
         # print everything by default

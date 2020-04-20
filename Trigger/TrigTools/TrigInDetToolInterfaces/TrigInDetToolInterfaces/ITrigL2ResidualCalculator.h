@@ -8,7 +8,6 @@
 #include "GaudiKernel/IAlgTool.h"
 #include <vector>
 
-class TrigInDetTrack;
 namespace Trk {
   class Track;
 }
@@ -33,9 +32,7 @@ static const InterfaceID IID_ITrigL2ResidualCalculator("ITrigL2ResidualCalculato
     static const InterfaceID& interfaceID ()   //!< the Tool's interface
       {  return IID_ITrigL2ResidualCalculator; }  	
 
-    virtual StatusCode getResiduals(const TrigInDetTrack*, std::vector<TrigL2HitResidual>&) = 0;
-    virtual StatusCode getUnbiassedResiduals(const TrigInDetTrack*, std::vector<TrigL2HitResidual>&) = 0;
-    virtual StatusCode getUnbiassedResiduals(const Trk::Track&, std::vector<TrigL2HitResidual>&) = 0;
+    virtual StatusCode getUnbiasedResiduals(const Trk::Track&, std::vector<TrigL2HitResidual>&) const = 0;
   };
 
 #endif

@@ -1,6 +1,6 @@
 
 //
-//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 
 #include "GoogleTestTools/InitGaudiGoogleTest.h"
@@ -33,19 +33,16 @@ namespace Athena_test {
     virtual void SetUp() override {
 
       ServiceHandle<IJobOptionsSvc> joSvc( "JobOptionsSvc",
-					   "AthExUnittestAlgTest" );
+                                           "AthExUnittestAlgTest" );
       joSvc->addPropertyToCatalogue( "AthExUnittestAlg",
-				     StringProperty( "MyProperty",
-						     Gaudi::Utils::toString( 21 ) ) );
+                                     StringProperty( "MyProperty", Gaudi::Utils::toString( 21 ) ) ).ignore();
       joSvc->addPropertyToCatalogue( "AthExUnittestAlg",
-				     StringProperty( "MyTool",
-						     "AthExUnittestTool/AnotherName" ) );
+                                     StringProperty( "MyTool","AthExUnittestTool/AnotherName" ) ).ignore();
       joSvc->addPropertyToCatalogue( "AthExUnittestAlg.AnotherName",
-				     StringProperty( "Property",
-						     Gaudi::Utils::toString( 42.0 ) ) );
+                                     StringProperty( "Property", Gaudi::Utils::toString( 42.0 ) ) ).ignore();
       IAlgorithm* ialg= Algorithm::Factory::create( "AthExUnittestAlg",
-						    "AthExUnittestAlg",
-						    Gaudi::svcLocator() ).release();
+                                                    "AthExUnittestAlg",
+                                                    Gaudi::svcLocator() ).release();
       myAlg= dynamic_cast<Gaudi::Algorithm*>( ialg );
 
     }

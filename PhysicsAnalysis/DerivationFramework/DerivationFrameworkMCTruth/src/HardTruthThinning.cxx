@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -15,7 +15,6 @@
 
 #include "DerivationFrameworkMCTruth/HardTruthThinning.h"
 #include "DerivationFrameworkMCTruth/DecayGraphHelper.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 #include "xAODJet/JetContainer.h"
@@ -24,6 +23,8 @@
 #include "AthenaKernel/errorcheck.h"
 #include "HepPID/ParticleIDMethods.hh"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <vector>
 #include <string>
@@ -43,8 +44,7 @@ using Gaudi::Units::GeV;
 
 DerivationFramework::HardTruthThinning::HardTruthThinning(
   const std::string& t, const std::string& n, const IInterface* p ) :
-  AthAlgTool(t,n,p),
-  m_thinningSvc("ThinningSvc",n),
+  base_class(t,n,p),
   m_jetPtCut(0.),
   m_jetEtaCut(5.0),
   m_jetConstPtCut(0.),
@@ -53,15 +53,6 @@ DerivationFramework::HardTruthThinning::HardTruthThinning(
   m_isolPtCut(0),  
   m_maxCount(0)
 {
-  declareInterface<DerivationFramework::IThinningTool>(this);
-  declareProperty("ThinningService", m_thinningSvc);
-
-  declareProperty("TruthParticles", m_truthParticleName,
-                  "truth particle container name");
-
-  declareProperty("TruthVertices", m_truthVertexName,
-                  "truth vertex container name");
-
   declareProperty("HardParticles", m_hardParticleName,
                   "hard particle container name");
 
@@ -110,6 +101,8 @@ DerivationFramework::HardTruthThinning::~HardTruthThinning() {
 StatusCode DerivationFramework::HardTruthThinning::initialize()
 {
   ATH_CHECK( m_evt.initialize() );
+  ATH_CHECK (m_truthParticleName.initialize (m_streamName) );
+  ATH_CHECK (m_truthVertexName.initialize (m_streamName) );
 
   m_evtCount = -1;
   m_errCount = 0;
@@ -140,13 +133,14 @@ StatusCode DerivationFramework::HardTruthThinning::finalize()
 
 StatusCode DerivationFramework::HardTruthThinning::doThinning() const
 {
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   ++m_evtCount;
   bool doPrint = m_evtCount < m_maxCount;
   //bool doExtra = false;
 
 
-  SG::ReadHandle<xAOD::EventInfo> evt(m_evt);
+  SG::ReadHandle<xAOD::EventInfo> evt(m_evt, ctx);
   if(!evt.isValid()) {
     ATH_MSG_ERROR("Failed to retrieve EventInfo");
     return StatusCode::FAILURE;
@@ -158,19 +152,10 @@ StatusCode DerivationFramework::HardTruthThinning::doThinning() const
   xAOD::TruthParticleContainer::const_iterator pItr;
   xAOD::TruthParticleContainer::const_iterator pItrE;
 
-  const xAOD::TruthParticleContainer* inTruthParts = 0;
-  if( evtStore()->retrieve(inTruthParts, m_truthParticleName).isFailure() ){
-    ATH_MSG_ERROR("No TruthParticleContainer found with name "
-                  <<m_truthParticleName);
-    return StatusCode::FAILURE;
-  }
-
-  const xAOD::TruthVertexContainer* inTruthVerts = 0;
-  if( evtStore()->retrieve(inTruthVerts, m_truthVertexName).isFailure() ){
-    ATH_MSG_ERROR("No TruthVertexContainer found with name "
-                  <<m_truthVertexName);
-    return StatusCode::FAILURE;
-  }
+  SG::ThinningHandle<xAOD::TruthParticleContainer> inTruthParts
+    (m_truthParticleName, ctx);
+  SG::ThinningHandle<xAOD::TruthVertexContainer> inTruthVerts
+    (m_truthVertexName, ctx);
 
   const xAOD::TruthParticleContainer* inHardParts = 0;
   if( evtStore()->retrieve(inHardParts, m_hardParticleName).isFailure() ){
@@ -204,7 +189,7 @@ StatusCode DerivationFramework::HardTruthThinning::doThinning() const
 
   // Print full input event
   if( doPrint ){
-    printxAODTruth(evtNum, inTruthParts);
+    printxAODTruth(evtNum, inTruthParts.cptr());
   }
 
 
@@ -354,15 +339,8 @@ StatusCode DerivationFramework::HardTruthThinning::doThinning() const
 
 
   // Execute the thinning service based on the mask. Finish.
-  if(m_thinningSvc->filter(*inTruthParts, partMask, IThinningSvc::Operator::Or).isFailure()) {
-    ATH_MSG_ERROR("Application of thinning service failed for truth particles! ");
-    return StatusCode::FAILURE;
-  }
-
-  if(m_thinningSvc->filter(*inTruthVerts, vertMask, IThinningSvc::Operator::Or).isFailure()) {
-    ATH_MSG_ERROR("Application of thinning service failed for truth vertices! ");
-    return StatusCode::FAILURE;
-  }
+  inTruthParts.keep (partMask);
+  inTruthVerts.keep (vertMask);
 
   // Final statistics
   int outPartNum = 0;

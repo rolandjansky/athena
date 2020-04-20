@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.Include import Include, IncludeError, include
+from AthenaCommon.Include import include
 
 include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
 from AthenaCommon.Logging import logging
@@ -32,10 +32,10 @@ def LArOFCCondAlgDefault():
     if larRODFlags.doOFCPileupOptimization():
         if larRODFlags.NumberOfCollisions():
             theOFCCondAlg.Nminbias=larRODFlags.NumberOfCollisions()
-            mlog.info("  setup for  Ncollisions %f   " % (larRODFlags.NumberOfCollisions()))
+            mlog.info("  setup for  Ncollisions %f   ", larRODFlags.NumberOfCollisions())
         else:
             theOFCCondAlg.Nminbias=jobproperties.Beam.numberOfCollisions()
-            mlog.info("  setup for  Ncollisions %f   " % (jobproperties.Beam.numberOfCollisions()))
+            mlog.info("  setup for  Ncollisions %f   ", jobproperties.Beam.numberOfCollisions())
     else:
         theOFCCondAlg.Nminbias=0
         mlog.info("  setup for no pileup optimization")

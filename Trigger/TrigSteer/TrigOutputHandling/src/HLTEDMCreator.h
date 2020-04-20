@@ -32,6 +32,10 @@
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigCalo/TrigCaloClusterContainer.h"
 #include "xAODTrigCalo/TrigCaloClusterAuxContainer.h"
+// Ringer
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
+#include "xAODTrigRinger/TrigRingerRingsAuxContainer.h"
+
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
@@ -47,12 +51,16 @@
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODTau/TauTrackContainer.h"
+#include "xAODTau/TauTrackAuxContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTaggingAuxContainer.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
@@ -112,6 +120,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( TrigCompositeContainer );
   DEF_XAOD_KEY( TrigEMClusterContainer );
   DEF_XAOD_KEY( TrigCaloClusterContainer );
+  DEF_XAOD_KEY( TrigRingerRingsContainer );
   DEF_XAOD_KEY( TrigElectronContainer );
   DEF_XAOD_KEY( ElectronContainer );
   DEF_XAOD_KEY( PhotonContainer );
@@ -123,9 +132,11 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( L2IsoMuonContainer );
   DEF_XAOD_KEY( MuonContainer );
   DEF_XAOD_KEY( TauJetContainer );
+  DEF_XAOD_KEY( TauTrackContainer );
   DEF_XAOD_KEY( CaloClusterContainer );
   DEF_XAOD_KEY( JetContainer );
   DEF_XAOD_KEY( VertexContainer );
+  DEF_XAOD_KEY( BTaggingContainer );
   DEF_XAOD_KEY( TrigBphysContainer );
 #undef DEF_VIEWS
 #undef DEF_KEY

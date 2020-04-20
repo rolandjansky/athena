@@ -55,12 +55,12 @@ try:
     doSetup
     doSetup()
 except:
-    print "user defined setup method does not exist"
+    printfunc ("user defined setup method does not exist")
 
 
 outputPath = align.outputPath()
 if outputPath and not os.path.isdir(outputPath) :
-    print "creating new directory ",outputPath
+    printfunc ("creating new directory ",outputPath)
     os.mkdir(outputPath)
 
 #from MuonCompetingClustersOnTrackCreator.MuonCompetingClustersOnTrackCreatorConf import Muon__TriggerChamberClusterOnTrackCreator
@@ -70,8 +70,8 @@ if outputPath and not os.path.isdir(outputPath) :
 
 ToolSvc.MuonClusterOnTrackCreator.FixedErrorTgcEta = 80.
 
-#print ToolSvc.DCMathSegmentMaker.MuonCompetingClustersCreator.OutputLevel
-#print ToolSvc
+#printfunc (ToolSvc.DCMathSegmentMaker.MuonCompetingClustersCreator.OutputLevel)
+#printfunc (ToolSvc)
 
 #from AthenaCommon.DetFlags import DetFlags
 #DetFlags.CSC_setOff()
@@ -89,5 +89,5 @@ if align.doVP1():
   from VP1Algs.VP1AlgsConf import VP1Alg
   topSequence += VP1Alg()
 
-print topSequence
-print svcMgr
+printfunc (topSequence)
+printfunc (svcMgr)

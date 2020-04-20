@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.FilePeekerTool
 # @purpose peek into APR files to read in-file metadata without Athena (based on PyAthena.FilePeekerLib code by Sebastian Binet) 
@@ -58,6 +58,9 @@ class FilePeekerTool():
                 guid = d['value']
 
         meta = self.f.Get( 'MetaData' )
+        if not meta:
+            print ('No metadata', file=stdout)
+            return {}
 
         from AthenaPython.FilePeekerLib import toiter
 

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file StoreGate/ReadHandleKey.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -120,6 +118,26 @@ ReadHandleKey<T>::ReadHandleKey( CLID clid,
 {
   auto p = owner->declareProperty(name, *this, doc);
   p->template setOwnerType<OWNER>();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param key The StoreGate key for the object.
+ * @param storeName Name to use for the store, if it's not encoded in sgkey.
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+InitializedReadHandleKey<T>::InitializedReadHandleKey (const std::string& key /*= ""*/,
+                                                       const std::string& storeName /*= StoreID::storeName(StoreID::EVENT_STORE)*/)
+  : ReadHandleKey<T> (key, storeName)
+{
+  if (this->initialize().isFailure()) {
+    throw SG::ExcBadInitializedReadHandleKey();
+  }
 }
 
 

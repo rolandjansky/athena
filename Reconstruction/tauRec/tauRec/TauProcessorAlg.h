@@ -7,12 +7,10 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "tauRecTools/ITauToolExecBase.h"
 #include "tauRecTools/ITauToolBase.h"
 
-#include "tauRecTools/TauEventData.h"
-
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -29,6 +27,7 @@
  */
 
 class ICaloCellMakerTool;
+class CaloCell_ID;
 
 class TauProcessorAlg: public AthAlgorithm
 {
@@ -49,18 +48,14 @@ class TauProcessorAlg: public AthAlgorithm
     private:
        
 	void setEmptyTauTrack( xAOD::TauJet* &tauJet,
-			       xAOD::TauTrackContainer* &tauTrackCont);				 
+			       xAOD::TauTrackContainer* tauTrackCont);				 
 
 	ToolHandleArray<ITauToolBase>  m_tools {this, "TauProcessorTools", {}, "Tools processing taus"};
 
 	double m_maxEta; //!< only build taus with eta_seed < m_maxeta
 	double m_minPt;  //!< only build taus with pt_seed > m_minpt
 
-	bool m_doCreateTauContainers;
-
-        //ToolHandleArray<ITauToolExecBase>  m_tools;
-	TauEventData m_data;
-
+        const CaloCell_ID* m_cellID;
 	/** @brief tool handles */
 	ToolHandle<ICaloCellMakerTool> m_cellMakerTool;
 
@@ -74,6 +69,8 @@ class TauProcessorAlg: public AthAlgorithm
         SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
         /** ReadCondHandleKey for SCT detector elements. This is needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks. */
         SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+        /** ReadCondHandleKey for TRT detector elements. This is needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks. */
+        SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer"}; 
 	
 };
 

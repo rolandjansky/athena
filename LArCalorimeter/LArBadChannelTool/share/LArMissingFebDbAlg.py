@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #No input file -> use MC event selector
 if 'DBInstance' not in dir():
     DBInstance="CONDBR2"
@@ -27,7 +29,6 @@ if "IOVEndLB" not in dir():
 if "sqlite" not in dir():
     sqlite="MissingFEBs.db"
     
-from string import *
 import AthenaCommon.AtlasUnixGeneratorJob
 
 from AthenaCommon.GlobalFlags import  globalflags
@@ -72,8 +73,7 @@ svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2017-04"
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
 
-## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 theApp.EvtMax=1
 
@@ -81,7 +81,7 @@ from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
 theLArBadChannelCondAlg=LArBadFebCondAlg(ReadKey="", InputFileName=InputFile, OutputLevel=DEBUG)
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
-condSeq+=theLArBadFebCondAlg
+condSeq+=theLArBadChannelCondAlg
 
 #Thats the registration algo
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelDBAlg
@@ -91,7 +91,7 @@ theLArDBAlg.FEBFolder=Folder
 topSequence += theLArDBAlg
 
 OutputList=[ "AthenaAttributeList#"+Folder ]
-FEBTag=join(split(Folder, '/'),'') + TagPostfix
+FEBTag = ''.join(Folder.split ('/')) + TagPostfix
 OutputTagList=[FEBTag]
 
 WriteIOV=True
@@ -115,6 +115,7 @@ svcMgr.IOVRegistrationSvc.RecreateFolders = False
 svcMgr.DetectorStore.Dump=True
 
 
+from AthenaCommon                       import CfgMgr
 svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
 
 

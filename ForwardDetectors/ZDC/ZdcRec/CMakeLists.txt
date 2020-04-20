@@ -41,7 +41,9 @@ atlas_add_component( ZdcRec
                      LINK_LIBRARIES ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaBaseComps xAODForward xAODTrigL1Calo ZdcEvent GaudiKernel StoreGateLib SGtests ZdcByteStreamLib ZdcConditions ZdcIdentifier ZdcRecLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
+atlas_add_test( flake8_share
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --ignore=F401,F821,ATL900 ${CMAKE_CURRENT_SOURCE_DIR}/share
+                POST_EXEC_SCRIPT nopost.sh )

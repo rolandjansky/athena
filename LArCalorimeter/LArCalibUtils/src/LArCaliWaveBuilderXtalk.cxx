@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCaliWaveBuilderXtalk.h"
@@ -371,7 +371,9 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
      return StatusCode::FAILURE;
   }
  
-  if (m_event_counter==0) initializeCabling(cabling, clCont);
+  if (m_event_counter==0) {
+    ATH_CHECK ( initializeCabling(cabling, clCont) );
+  }
 
   // Print progression
   if ( m_event_counter < 100 || ( m_event_counter < 1000 && m_event_counter%100==0 ) || m_event_counter%1000==0 ) 

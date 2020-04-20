@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TPyEvent.cxx 649835 2015-02-26 08:19:01Z krasznaa $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // ROOT include(s):
 #include <TClass.h>
@@ -75,6 +71,9 @@ namespace xAOD {
    /// created by the Python interpreter are garbage collected by the Python
    /// interpreter. And we don't want to run into double-deletes.
    ///
+   /// @param dummy Necessary to make sure that this function's signature is
+   ///              distinct from @c xAOD::TEvent::record. So that PyROOT would
+   ///              not mistake them for each other.
    /// @param obj  Typeless pointer to the object that is to be recorded
    /// @param key  The key with which the object is to be recorded
    /// @param type The type name of the object being recorded
@@ -82,10 +81,8 @@ namespace xAOD {
    /// @param splitLevel The split level of the branch created
    /// @returns The usual xAOD::TReturnCode types
    ///
-   /// The dum argument is to ensure that the calling signature for this method
-   /// is distinct from TEvent::record.  Otherwise, pyroot may call the wrong one.
-   ///
-   TReturnCode TPyEvent::record( int /*dum*/, void* obj, const std::string& key,
+   TReturnCode TPyEvent::record( int /*dummy*/, void* obj,
+                                 const std::string& key,
                                  const std::string& type,
                                  ::Int_t basketSize, ::Int_t splitLevel ) {
 

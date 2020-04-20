@@ -25,16 +25,16 @@ class ITrigL2LayerNumberTool : virtual public IAlgTool {
     return IID_ITrigL2LayerNumberTool; 
   }  	
   
-  virtual int maxSiliconLayerNum() = 0;
-  virtual int offsetEndcapPixels() = 0;
-  virtual int offsetBarrelSCT()    = 0;
-  virtual int offsetEndcapSCT()    = 0;
-  virtual void report()            = 0;//prints out the above 
+  virtual int maxSiliconLayerNum() const = 0;
+  virtual int offsetEndcapPixels() const = 0;
+  virtual int offsetBarrelSCT() const    = 0;
+  virtual int offsetEndcapSCT() const    = 0;
+  virtual void report() const            = 0;//prints out the above
 
-  virtual int maxNumberOfUniqueLayers()  = 0;
-  virtual const std::vector<short>* pixelLayers()  = 0; // hashId addressable arrays of layer numbers
-  virtual const std::vector<short>* sctLayers()  = 0; // hashId addressable arrays of layer numbers
-  virtual const std::vector<TRIG_INDET_SI_LAYER>* layerGeometry() = 0;
+  virtual int maxNumberOfUniqueLayers() const  = 0;
+  virtual const std::vector<short>* pixelLayers() const  = 0; // hashId addressable arrays of layer numbers
+  virtual const std::vector<short>* sctLayers() const  = 0; // hashId addressable arrays of layer numbers
+  virtual const std::vector<TRIG_INDET_SI_LAYER>* layerGeometry() const = 0;
 };
 
 #endif

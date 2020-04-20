@@ -1,3 +1,2 @@
 test1
-Athena::getMessageSvc: WARNING MessageSvc not found, will use std::cout
-AuxStoreInterna...  ERROR FILE:LINE (const void*SG::AuxStoreInternal::getIODataInternal(unsigned long, bool) const): Requested variable aFloat (1) doesn't exist
+AuxStoreInterna...  ERROR /atlas/krasznaa/analysisbase/athena/Control/AthContainers/Root/AuxStoreInternal.cxx:420: Requested variable aFloat (1) doesn't exist

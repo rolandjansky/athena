@@ -7,10 +7,8 @@
 
 //coral
 #include "RelationalAccess/IRelationalService.h"
-//#include "RelationalAccess/IConnection.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/ConnectionService.h"
-//#include "RelationalAccess/ISession.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ITransaction.h"
@@ -30,7 +28,6 @@
 
 #include <stdexcept>
 
-// MuonReadoutGeometry //
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -39,38 +36,26 @@
 
 namespace MuonCalib {
 
-WriteMdtGeometry::WriteMdtGeometry(const std::string &name, ISvcLocator *pSvcLocator) : AthAlgorithm(name, pSvcLocator),   m_context( &coral::Context::instance() ) {
-  m_MDT_ID_helper = std::string("MDTIDHELPER");
-  declareProperty("MDTIdHelper", m_MDT_ID_helper);
+WriteMdtGeometry::WriteMdtGeometry(const std::string &name, ISvcLocator *pSvcLocator) : 
+    AthAlgorithm(name, pSvcLocator),
+    m_context( &coral::Context::instance() ),
+    m_idToFixedIdToolType("MuonCalib::IdToFixedIdTool"),
+    m_idToFixedIdToolName("MuonCalib_IdToFixedIdTool"),
+    m_session(nullptr),
+    m_detMgr(nullptr),
+    m_id_tool(nullptr) {
 
-  m_idToFixedIdToolType = std::string("MuonCalib::IdToFixedIdTool");
   declareProperty("idToFixedIdToolType", m_idToFixedIdToolType);
-
-  m_idToFixedIdToolName = std::string("MuonCalib_IdToFixedIdTool");
   declareProperty("idToFixedIdToolName", m_idToFixedIdToolName);
-	
   declareProperty("ConnectionString", m_connectionString);
   declareProperty("WorkingSchema", m_WorkingSchema);
-	
-  //for the sake of coverity
-  m_session=NULL;
-  m_detMgr =NULL;
-  m_id_tool=NULL;
+
 }  //end WriteMdtGeometry::WriteMdtGeometry
 
-WriteMdtGeometry::~WriteMdtGeometry() {
-}
-
 StatusCode WriteMdtGeometry::initialize() {
-// MDT ID helper //
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
-// muon detector manager //
-  ATH_CHECK( detStore()->retrieve(m_detMgr) );
-
-// muon fixed id tool //
-  ATH_CHECK( toolSvc()->retrieveTool(m_idToFixedIdToolType,
-				 m_idToFixedIdToolName, m_id_tool) );
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(detStore()->retrieve(m_detMgr));
+  ATH_CHECK(toolSvc()->retrieveTool(m_idToFixedIdToolType, m_idToFixedIdToolName, m_id_tool));
 	
   loadServices();
 	
@@ -88,12 +73,6 @@ StatusCode WriteMdtGeometry::initialize() {
     CloseConnection(false);	
     return StatusCode::FAILURE;
   }
-//	catch (std::exception &e  )
-//		{
-//		std::cerr << "std::exception : " << e.what() << std::endl;
-//		CloseConnection(false);	
-//		return StatusCode::FAILURE;		
-//		}
   ATH_MSG_INFO( "Initialisation done!" );
   return StatusCode::SUCCESS;
 }  //end WriteMdtGeometry::initialize
@@ -122,21 +101,21 @@ inline bool WriteMdtGeometry::fill_db(coral::ITableDataEditor &editor) {
   rowBuffer.extend<float>("LOC_Z");
   rowBuffer.extend<float>("Y_SPACING");
   //loop on chambers
-  MdtIdHelper::const_id_iterator it     = m_muonIdHelperTool->mdtIdHelper().module_begin();
-  MdtIdHelper::const_id_iterator it_end = m_muonIdHelperTool->mdtIdHelper().module_end();
+  MdtIdHelper::const_id_iterator it     = m_idHelperSvc->mdtIdHelper().module_begin();
+  MdtIdHelper::const_id_iterator it_end = m_idHelperSvc->mdtIdHelper().module_end();
   for( ; it!=it_end;++it ) {
     std::cout<<"."<<std::flush;
-    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(*it,1,1,1));
+    const MuonGM::MdtReadoutElement *detEl = m_detMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(*it,1,1,1));
     if(!detEl) continue;
     //get number of mls;
-    int n_mls=m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(*it);
+    int n_mls=m_idHelperSvc->mdtIdHelper().numberOfMultilayers(*it);
     //fixed id
     MuonFixedId fixed_id(m_id_tool->idToFixedId(*it));
     rowBuffer["CHAMBER"].data<int>() = fixed_id.mdtChamberId().getIdInt();
     //loop on multilayers
     for(int ml=1; ml<=n_mls; ml++) {
       rowBuffer["ML"].data<int>()=ml;
-      const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(*it,ml ,1,1));
+      const MuonGM::MdtReadoutElement *detEl_ml = m_detMgr->getMdtReadoutElement(m_idHelperSvc->mdtIdHelper().channelID(*it,ml ,1,1));
       int n_layers=detEl_ml->getNLayers();
       int n_tubes=detEl_ml->getNtubesperlayer();
       //			if(detEl_ml==NULL) {

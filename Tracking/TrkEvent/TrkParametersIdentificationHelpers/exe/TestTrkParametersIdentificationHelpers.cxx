@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkParametersIdentificationHelpers/TrackParametersIdentificationHelper.h"
@@ -40,7 +40,7 @@ void testCalo() {
     for( unsigned int sample = CaloSampling::PreSamplerB; sample < CaloSampling::Unknown; ++sample ){
       
       for( unsigned int isEntry = 0; isEntry < 2 ; ++isEntry ){
-        bool entry = isEntry == 1 ? true : false;
+        bool entry = isEntry == 1;
         TrackParametersIdentifier id = helper.encode( static_cast<AtlasDetDescr::AtlasDetTechnology>(tech), 
                                                       static_cast<CaloSampling::CaloSample>(sample), entry );
         AtlasDetDescr::AtlasDetTechnology itech = helper.technology(id);
@@ -57,8 +57,8 @@ void testCalo() {
           }
         }else{ 
           ++good;
-          if( isCalo ) ++goodCalo;
-          else {
+          if( isCalo ) { ++goodCalo;
+          } else {
             std::cout << " good but no calo!!! " << std::endl;
             printDetails = true;
           }

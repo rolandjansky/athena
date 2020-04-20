@@ -42,9 +42,9 @@ public:
                       const std::string& name,
                       const IInterface* parent);
   /** Initialize */
-    virtual StatusCode initialize() override final;
+  virtual StatusCode initialize() override final;
 
-  virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/) override final;
+  virtual StatusCode prepareEvent(const EventContext& ctx, unsigned int /*nInputEvents*/) override final;
 
   /** called for each active bunch-crossing to process current SubEvents
       bunchXing is in ns */
@@ -56,7 +56,7 @@ public:
 
   /** called at the end of the subevts loop. Not (necessarily) able to access
       SubEvents (IPileUpTool) */
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode mergeEvent(const EventContext& ctx) override final;
 
   /** alternative interface which uses the PileUpMergeSvc to obtain
   all the required SubEvents.  Reads GEANT4 hits from StoreGate in
@@ -65,16 +65,16 @@ public:
   double has two. This method calls TgcDigitMaker::executeDigi, which
   digitizes every hit, for every readout element, i.e., a sensitive
   volume of a chamber. */
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
   /** Finalize */
   virtual StatusCode finalize() override final;
 
 private:
   /** Get next event and extract collection of hit collections */
-  StatusCode getNextEvent();
+  StatusCode getNextEvent(const EventContext& ctx);
   /** Core part of digitization used by processAllSubEvents and mergeEvent */
-  StatusCode digitizeCore() const;
+  StatusCode digitizeCore(const EventContext& ctx) const;
 
 protected:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""}; // Pile up service

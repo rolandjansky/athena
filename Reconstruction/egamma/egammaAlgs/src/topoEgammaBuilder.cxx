@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "topoEgammaBuilder.h"
@@ -11,7 +11,10 @@
 #include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+
+#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -22,6 +25,7 @@
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
+
 
 // INCLUDE GAUDI HEADER FILES:
 #include <algorithm> 
@@ -35,10 +39,8 @@ topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
 {
 }
 
-// =================================================================
 StatusCode topoEgammaBuilder::initialize()
 {
-  // initialize method
 
   ATH_MSG_DEBUG("Initializing topoEgammaBuilder");
 
@@ -47,10 +49,10 @@ StatusCode topoEgammaBuilder::initialize()
   ATH_CHECK(m_photonSuperClusterRecContainerKey.initialize(m_doPhotons));
   ATH_CHECK(m_electronOutputKey.initialize());
   ATH_CHECK(m_photonOutputKey.initialize());
-  //////////////////////////////////////////////////
   // retrieve tools
   ATH_MSG_DEBUG("Retrieving " << m_egammaTools.size() << " tools for egamma objects");
   ATH_CHECK( m_clusterTool.retrieve() );
+  ATH_CHECK( m_ShowerTool.retrieve() );
   ATH_CHECK( m_egammaTools.retrieve() );
 
   if ( m_doElectrons ){
@@ -176,23 +178,49 @@ StatusCode topoEgammaBuilder::execute(const EventContext& ctx) const{
     }
   }
 
-  if ( m_clusterTool->contExecute(ctx, electrons , photons).isFailure() ){
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );
+
+ 
+  /* 
+   * Shower Shapes
+   */
+  if(m_doElectrons){
+    for (xAOD::Electron* electron : *electronContainer){
+      ATH_CHECK(m_ShowerTool->execute(ctx,*calodetdescrmgr,electron));
+    }
+  }
+  if(m_doPhotons){
+    for (xAOD::Photon* photon : *photonContainer){
+      ATH_CHECK(m_ShowerTool->execute(ctx,*calodetdescrmgr,photon));
+    }
+  }
+  /*
+   * Calibration
+   */
+  if ( m_clusterTool->contExecute(ctx, *calodetdescrmgr,electrons , photons).isFailure() ){
     ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
     return StatusCode::FAILURE;
   }
-
+  /*
+   * Tools for ToolHandleArrays
+   */
+  /* First common photon/electron tools*/
   for (auto& tool : m_egammaTools){
     ATH_CHECK( CallTool(ctx, tool, electrons,photons) );
   }
-
+  /* Tools for only electrons*/
   if(m_doElectrons){
+    /* egammaBaseTools*/
     for (auto& tool : m_electronTools){
       ATH_CHECK( CallTool(ctx, tool, electrons, nullptr) );
     }
   }
+  /* Tools for only photons*/
   if(m_doPhotons){
+    /* egammaBaseTools*/
     for (auto& tool : m_photonTools){
-      CHECK( CallTool(ctx, tool, nullptr, photons) );
+      ATH_CHECK( CallTool(ctx, tool, nullptr, photons) );
     }
   }
   //Do the ambiguity Links
@@ -212,9 +240,9 @@ StatusCode topoEgammaBuilder::doAmbiguityLinks(xAOD::ElectronContainer *electron
   ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
   static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
   ElementLink<xAOD::EgammaContainer> dummylink;
-  for (size_t photonIndex=0; photonIndex < photonContainer->size() ; ++photonIndex) {    
+  for (auto && photonIndex : *photonContainer) {    
 
-    xAOD::Photon* photon = photonContainer->at(photonIndex); 
+    xAOD::Photon* photon = photonIndex; 
     ELink(*photon)=dummylink;
 
     if(photon->author()!= xAOD::EgammaParameters::AuthorAmbiguous){
@@ -236,9 +264,9 @@ StatusCode topoEgammaBuilder::doAmbiguityLinks(xAOD::ElectronContainer *electron
       }
     }
   }
-  for (size_t electronIndex=0; electronIndex < electronContainer->size() ; ++electronIndex) {    
+  for (auto && electronIndex : *electronContainer) {    
 
-    xAOD::Electron* electron = electronContainer->at(electronIndex); 
+    xAOD::Electron* electron = electronIndex; 
     ELink(*electron)=dummylink;
     if(electron->author()!= xAOD::EgammaParameters::AuthorAmbiguous){
       continue;
@@ -370,7 +398,8 @@ bool topoEgammaBuilder::getPhoton(const egammaRec* egRec,
   photon->setVertexLinks( vertexLinks );
 
   // Transfer deltaEta/Phi info
-  float deltaEta = egRec->deltaEtaVtx(), deltaPhi = egRec->deltaPhiVtx();
+  float deltaEta = egRec->deltaEtaVtx();
+  float deltaPhi = egRec->deltaPhiVtx();
   if (!photon->setVertexCaloMatchValue( deltaEta,
                                         xAOD::EgammaParameters::convMatchDeltaEta1) ){
     ATH_MSG_WARNING("Could not transfer deltaEta to photon");
@@ -384,5 +413,3 @@ bool topoEgammaBuilder::getPhoton(const egammaRec* egRec,
   }
   return true;
 }
-
-

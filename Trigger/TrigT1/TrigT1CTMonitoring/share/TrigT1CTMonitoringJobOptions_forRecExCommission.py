@@ -167,8 +167,8 @@ if isOnline:
     svcMgr.ToolSvc += BSMon( FillStateCoolFolderName=UsedFillStateCoolFolderName)
     #    RecMuCTPIByteStreamTool.OutputLevel = INFO #DEBUG
     
-    print topSequence
-    print svcMgr
+    printfunc (topSequence)
+    printfunc (svcMgr)
 
 
    
@@ -194,18 +194,20 @@ if not isOnline:
         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationOnData
         topSequence += CTPSimulationOnData("CTPSimulation")
 
+        # configure simulation histogram output directory
         from AthenaMonitoring.DQMonFlags import DQMonFlags
         histbase = "/" + DQMonFlags.monManFileKey() + "/"
         if DQMonFlags.monManRun():
-            histbase += "run_RUNNR/"
+            from RecExConfig.AutoConfiguration import GetRunNumber
+            histbase += "run_%i/L1" % GetRunNumber()
+        else:
+            histbase += "L1Simulation"
         try:
-            topSequence.CTPSimulation.HistBase = histbase
-        except AttributeError, ex:
-            print ex," ignore for now"
-
-
-    ## AthenaMonManager is the Algorithm that manages many classes inheriting
-    ## from ManagedMonitorToolBase
+            topSequence.CTPSimulation.HistPath = histbase
+        except AttributeError as ex:
+            printfunc (ex," ignore for now")
+            import traceback
+            traceback.print_exc()
 
     ## add an AthenaMonManager algorithm to the list of algorithms to be run
     monMan = AthenaMonManager( name="CTMonManager",
@@ -263,13 +265,10 @@ if not isOnline:
     if 'IS_SIMULATION' not in metadata['eventTypes']:
         from IOVDbSvc.CondDB import conddb
         conddb.addFolder('TRIGGER', '/TRIGGER/LUMI/LBLB') 
-        #conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/BunchGroupContent") # already added by some other alg
         if LHCFillStateAvailable:
             conddb.addFolder('DCS_OFL', "/LHC/DCS/FILLSTATE")
         conddb.addFolder('TDAQ', '/TDAQ/RunCtrl/DataTakingMode', className='AthenaAttributeList')
         conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/RFPhase")
         conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
 
-    # monMan.AthenaMonTools += [ "TrigT1CTMonitoring__BSMonitoring/BSMon" ]
-    #ToolSvc += CTBSMonTool
     monMan.AthenaMonTools += [ CTBSMonTool ]

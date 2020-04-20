@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAlignmentData/BLinePar.h"
@@ -18,10 +18,6 @@ BLinePar::BLinePar():
   m_ep(0.),
   m_en(0.)
 { }
-
-BLinePar::~BLinePar()
-{ }
-
 
 void BLinePar::setParameters(float bz,
 			     float bp,
@@ -58,7 +54,7 @@ void BLinePar::getParameters( float& bz,
 			      float& tr,
 			      float& eg,
 			      float& ep,
-			      float& en )
+			      float& en ) const
 {
   bz = m_bz;
   bp = m_bp;

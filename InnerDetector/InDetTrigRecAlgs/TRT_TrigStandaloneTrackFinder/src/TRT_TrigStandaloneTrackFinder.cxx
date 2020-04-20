@@ -19,6 +19,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 //Eigen
 #include "EventPrimitives/EventPrimitives.h"
@@ -97,6 +98,8 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
   int outputLevel = msgLvl();
   ++m_ntimesInvoked;
 
+  ITRT_SegmentToTrackTool::EventData event_data;
+
   //Counters. See the include file for definitions
   m_nTrtSeg = 0; m_nTrtSegGood = 0; m_nBckTrk = 0; m_nUsedSeg = 0;
   m_nTRTTracks = 0;
@@ -157,7 +160,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
         m_nTrtSegGood++;
 
 	///Transform the original TRT segment into a track
-	Trk::Track* trtSeg = 0;trtSeg = m_segToTrackTool->segToTrack(*trackTRT);
+	Trk::Track* trtSeg = 0;trtSeg = m_segToTrackTool->segToTrack(Gaudi::Hive::currentContext(), *trackTRT);
 	if(!trtSeg){
 	  if(outputLevel <= MSG::DEBUG)
 	    msg() << MSG::DEBUG << "Failed to make a track out of the TRT segment!" << endmsg;
@@ -171,7 +174,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
 	  delete trtSeg; trtSeg = 0; 
 	  continue; 
 	} 
-        m_segToTrackTool->addNewTrack(trtSeg);
+        m_segToTrackTool->addNewTrack(trtSeg, event_data);
 
       }else{
         if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Found segment with few TRT ROTs " << (*trackTRT) << endmsg;
@@ -179,9 +182,9 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
     }
   }
 
-  m_finalTracks = m_segToTrackTool->resolveTracks(prd_to_track_map_cptr);
+  TrackCollection *final_tracks = m_segToTrackTool->resolveTracks(prd_to_track_map_cptr, event_data);
 
-  m_nBckTrk = m_segToTrackTool->GetnTRTTrk();
+  m_nBckTrk = event_data.m_counter[ITRT_SegmentToTrackTool::EventData::knTRTTrk];
 
   //Update the total counters
   m_nTrtSegTotal += m_nTrtSeg; m_nTrtSegGoodTotal += m_nTrtSegGood; 
@@ -190,14 +193,14 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
   if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Saving tracks in container " << endmsg;
   
   //  Attach resolved tracks to the trigger element.
-  if ( HLT::OK !=  attachFeature(outputTE, m_finalTracks, "TRTStandaloneTracks") ) {
+  if ( HLT::OK !=  attachFeature(outputTE, final_tracks, "TRTStandaloneTracks") ) {
     msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
     
-    delete m_finalTracks;
+    delete final_tracks;
     return HLT::NAV_ERROR;
   }
 
-  m_nTRTTracks = m_finalTracks->size();
+  m_nTRTTracks = final_tracks->size();
   if(outputLevel <= MSG::DEBUG){
     msg() << MSG::DEBUG << "Container recorded in StoreGate." << endmsg;
     msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nTRTTracks << endmsg;
@@ -205,7 +208,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
 
   if (outputLevel <= MSG::VERBOSE){
     for (int it=0; it<m_nTRTTracks; it++){
-      msg() << MSG::VERBOSE << *(m_finalTracks->at(it)) << endmsg;
+      msg() << MSG::VERBOSE << *(final_tracks->at(it)) << endmsg;
     }
   }
 

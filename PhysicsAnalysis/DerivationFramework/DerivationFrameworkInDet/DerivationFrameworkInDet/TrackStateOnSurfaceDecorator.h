@@ -15,15 +15,14 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthLinks/ElementLink.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -98,7 +97,7 @@ namespace DerivationFramework {
       ToolHandle<Trk::IResidualPullCalculator>  m_residualPullCalculator;
       ToolHandle<Trk::ITrackHoleSearchTool>     m_holeSearchTool;
       ToolHandle<Trk::IExtrapolator>            m_extrapolator;
-      ServiceHandle<ITRT_CalDbSvc>              m_trtcaldbSvc;
+      ToolHandle<ITRT_CalDbTool>                m_trtcaldbTool;
 	  
       ToolHandle<ITRT_ToT_dEdx>    m_TRTdEdxTool;
       ToolHandle< Trk::IPRD_AssociationTool >  m_assoTool;

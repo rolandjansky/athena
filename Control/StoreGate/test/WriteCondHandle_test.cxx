@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -168,9 +168,9 @@ void test1()
   std::cout << "r2: " << r2 << std::endl;
   std::cout << "r3: " << r3 << std::endl;
 
-  wch1.record( r1, std::make_unique<MyObj>( MyObj(1) ) );
-  wch2.record( r2, std::make_unique<MyObj>( MyObj(2) ) );
-  wch3.record( r3, std::make_unique<MyObj>( MyObj(3) ) );
+  assert ( wch1.record( r1, std::make_unique<MyObj>( MyObj(1) ) ).isSuccess());
+  assert ( wch2.record( r2, std::make_unique<MyObj>( MyObj(2) ) ).isSuccess());
+  assert ( wch3.record( r3, std::make_unique<MyObj>( MyObj(3) ) ).isSuccess());
 
   SG::ReadCondHandleKey<MyObj> rk1 {"MyObj1"};
   assert ( rk1.mode() == Gaudi::DataHandle::Reader);

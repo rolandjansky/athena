@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetVoronoiMomentsTool.h
@@ -17,35 +17,45 @@
 ///
 
 #include <string>
-#include "JetRec/JetModifierBase.h"
-#include "xAODJet/Jet.h" 
+#include "AsgTools/AsgTool.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "JetInterface/IJetDecorator.h"
 
 namespace JetVoronoiDiagramHelpers{
   struct Diagram;
 }
 
-class JetVoronoiMomentsTool : public JetModifierBase {
-ASG_TOOL_CLASS(JetVoronoiMomentsTool,IJetModifier)
+class JetVoronoiMomentsTool : public asg::AsgTool,
+                              virtual public IJetDecorator {
+ASG_TOOL_CLASS(JetVoronoiMomentsTool,IJetDecorator)
 
 public:
 
   // Constructor from tool name
   JetVoronoiMomentsTool(const std::string& name);
 
-  // Inherited methods to modify a jet container
-  virtual StatusCode modify(xAOD::JetContainer& jets) const;
-  virtual int modifyJet(xAOD::Jet& jet) const;
+  // Inherited from AsgTool via IJetDecorator
+  virtual StatusCode initialize() override;
+
+  // Inherited method to decorate a jet container
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
 private:
 
   // parameters
-  float m_x_min;
-  float m_x_max;
-  float m_y_min;
-  float m_y_max;
+  Gaudi::Property<float> m_x_min{this, "AreaXmin", -10,
+      "Minimum x-value for Voronoi diagram"};
+  Gaudi::Property<float> m_x_max{this, "AreaXmax", 10,
+      "Maximum x-value for Voronoi diagram"};
+  Gaudi::Property<float> m_y_min{this, "AreaYmin", -4,
+      "Minimum y-value for Voronoi diagram"};
+  Gaudi::Property<float> m_y_max{this, "AreaYmax", 4,
+      "Maximum y-value for Voronoi diagram"};
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "",
+      "SG key for the input jet container"};
 
-  int modifyJet(xAOD::Jet& jet, const JetVoronoiDiagramHelpers::Diagram & voro) const;
-
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_voronoiAreaKey{this, "VoronoiAreaKey", "VoronoiArea",
+      "SG key for Voronoi area decoration (not including jet container name)"};
 };
 
 #endif

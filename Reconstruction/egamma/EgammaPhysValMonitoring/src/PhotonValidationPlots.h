@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_PHOTONVALIDATIONPLOTS_H
@@ -16,7 +16,7 @@
 
 class PhotonValidationPlots:public PlotBase {
     public:
-      PhotonValidationPlots(PlotBase* pParent, std::string sDir);
+      PhotonValidationPlots(PlotBase* pParent, const std::string& sDir);
       void fill(const xAOD::Photon& photon, bool isPrompt);
       
       std::string m_sParticleType;

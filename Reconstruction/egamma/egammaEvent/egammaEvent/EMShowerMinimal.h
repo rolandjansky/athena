@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAEVENT_EMSHOWERMINIMAL_H
@@ -334,7 +334,7 @@ inline const CaloCluster*  EMShowerMinimal::caloClus() const
   if (m_caloClus.isValid()){
     return *m_caloClus;
   } else {
-    return 0;
+    return nullptr;
   }
 } 
 //

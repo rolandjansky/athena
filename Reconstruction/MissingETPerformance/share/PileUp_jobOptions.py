@@ -8,4 +8,4 @@ pileUpTool = PileUpTool()
 #ToolSvc.MissingETData.METTruthKey = 'MET_Truth_PileUp'
 
 ToolSvc += pileUpTool
-print      pileUpTool
+printfunc (     pileUpTool)

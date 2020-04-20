@@ -114,6 +114,9 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::initialize()
   // PRD-to-track association (optional)
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
 
+  ////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCondObjInputKey.initialize());
+  ////////////////////////////////////////////////////////////////////////////////
   StatusCode sc = detStore()->retrieve(m_sctId, "SCT_ID");
   if (sc.isFailure()){
     msg(MSG::FATAL) << "Could not get SCT_ID helper !" << endmsg;
@@ -360,7 +363,8 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
 ///////////////////////////////////////////////////////////////////
 
 std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >
-InDet::TRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& tP,
+InDet::TRT_SeededSpacePointFinder_ATL::find2Sp(const EventContext& ctx,
+                                               const Trk::TrackParameters& tP,
                                                ITRT_SeededSpacePointFinder::IEventData &virt_event_data) const
 {
   InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data = EventData::getPrivateEventData(virt_event_data);
@@ -381,7 +385,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& tP,
     f -= event_data.m_fNmax;
 
 
-  production2Spb (tP,f, outputListBuffer,event_data); //Get a list of SP pairs.
+  production2Spb (ctx, tP,f, outputListBuffer,event_data); //Get a list of SP pairs.
 
   if(msgLvl(MSG::DEBUG)) {
      dumpEvent( msg(MSG::DEBUG), event_data);
@@ -693,7 +697,8 @@ rotrating(double y, double x) {
 }
 
 void
-InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters& tP,
+InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
+                                                      const Trk::TrackParameters& tP,
                                                       int phi,
                                                       std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > &outputListBuffer,
                                                       InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const
@@ -739,8 +744,22 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
   double x0=tP.position().x()  ; 
   double y0=tP.position().y()  ;
   double z0=tP.position().z()  ;
-  double H[3]; double gP[3] = {x0,y0,z0}; 
-  m_fieldService->getField(gP,H);
+  double H[3]; double gP[3] = {x0,y0,z0};
+
+  MagField::AtlasFieldCache    fieldCache;
+
+  // Get field cache object
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR("production2Spb: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
+
+  //   MT version uses cache, temporarily keep old version
+  if (fieldCache.useNewBfieldCache()) fieldCache.getField     (gP, H);
+  else                                m_fieldService->getField(gP, H);
 
   //need conversion kilotesla -> kilogauss - Previously used getMagneticFiledKiloGauss, whereas new function returns value in kiloTesla...
   H[0] *= 10000;

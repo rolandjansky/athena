@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SRC_MDTDQANTUPLEANALYSIS_H
@@ -15,11 +15,7 @@
 #include <iomanip>  
 #include <sstream> 
 
-#include "TString.h"
-#include "TH2D.h"
 #include "TFile.h"
-#include "TCanvas.h"
-#include "TChain.h"
 
 #include "MuonCalibStandAloneExtraTools/StringUtil.h"
 #include "MuonCalibStandAloneExtraTools/HistogramManager.h"

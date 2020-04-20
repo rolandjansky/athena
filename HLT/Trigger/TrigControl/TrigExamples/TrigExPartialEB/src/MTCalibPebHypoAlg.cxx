@@ -3,7 +3,7 @@
 */
 
 #include "MTCalibPebHypoAlg.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaKernel/AthStatusCode.h"
 
 // TrigCompositeUtils types used here

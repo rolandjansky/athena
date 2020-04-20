@@ -151,7 +151,7 @@ namespace Trk {
 
 
 
-  class CompareTwoTracks : public std::unary_function<VxTrackAtVertex, bool>{
+  class CompareTwoTracks {
 
     public:
          CompareTwoTracks(const Track* track, std::string compareMethod)

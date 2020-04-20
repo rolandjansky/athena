@@ -20,9 +20,9 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "CxxUtils/checker_macros.h"
-#include "EventInfo/EventID.h"
+#include "GaudiKernel/EventIDBase.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 // TDAQ includes
@@ -49,7 +49,7 @@ struct FolderUpdate {
     folderIndex(entry.folderIndex),
     needsUpdate(true) {}
 
-  EventID::number_type lumiBlock;
+  EventIDBase::number_type lumiBlock;
   CTPfragment::FolderIndex folderIndex;
   bool needsUpdate;
 };
@@ -102,7 +102,7 @@ private:
    * @param currentRun Current run number
    * @param dropObject Drop object and reset cache
    */
-  StatusCode resetFolder(const std::string& folder, EventID::number_type currentRun,
+  StatusCode resetFolder(const std::string& folder, EventIDBase::number_type currentRun,
                          bool dropObject = false);
 
   /**
@@ -111,7 +111,7 @@ private:
    * @param currentRun Current run number
    * @param dropObject Drop object and reset cache
    */
-  StatusCode resetFolders(const std::vector<std::string>& folders, EventID::number_type currentRun,
+  StatusCode resetFolders(const std::vector<std::string>& folders, EventIDBase::number_type currentRun,
                           bool dropObject = false);
 
   /// CLID/name mapping of COOL folders

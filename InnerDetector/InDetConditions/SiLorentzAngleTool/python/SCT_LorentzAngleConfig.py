@@ -14,6 +14,7 @@ def SCT_LorentzAngleToolCfg(flags, name="SCT_LorentzAngleTool", **kwargs):
     """Return a SiLorentzAngleTool configured for SCT"""
     kwargs.setdefault("DetectorName", "SCT")
     kwargs.setdefault("SiLorentzAngleCondData", "SCTSiLorentzAngleCondData")
+    kwargs.setdefault("DetEleCollKey", "SCT_DetectorElementCollection")
     kwargs.setdefault("UseMagFieldSvc", True)
     return SiLorentzAngleTool(name, **kwargs)
 

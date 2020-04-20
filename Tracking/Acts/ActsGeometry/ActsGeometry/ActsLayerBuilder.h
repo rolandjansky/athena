@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSLAYERBUILDER_H
@@ -103,8 +103,9 @@ public:
     return m_cfg;
   }
 
+  virtual
   const std::string&
-  identification() const
+  identification() const override
   {
     return m_cfg.configurationName;
   }

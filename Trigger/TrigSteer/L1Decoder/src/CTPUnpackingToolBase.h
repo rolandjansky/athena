@@ -8,8 +8,8 @@
 #include "ICTPUnpackingTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 
 namespace ROIB {

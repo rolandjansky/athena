@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ MagField::AtlasFieldSvc::~AtlasFieldSvc()
 }
 
 /** framework methods */
-StatusCode MagField::AtlasFieldSvc::initialize()
+StatusCode MagField::AtlasFieldSvc::initialize ATLAS_NOT_THREAD_SAFE ( )
 {
     ATH_MSG_INFO( "initialize() ..." );
 
@@ -211,7 +211,7 @@ StatusCode MagField::AtlasFieldSvc::importCurrents(AtlasFieldSvcTLS &tls)
 }
 
 /** callback for possible magnet current update **/
-StatusCode MagField::AtlasFieldSvc::updateCurrent(IOVSVC_CALLBACK_ARGS)
+StatusCode MagField::AtlasFieldSvc::updateCurrent ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS)
 {
     // get magnet currents from DCS
     double solcur(0.);
@@ -304,7 +304,7 @@ StatusCode MagField::AtlasFieldSvc::updateCurrent(IOVSVC_CALLBACK_ARGS)
 }
 
 /** callback for possible field map filenames update **/
-StatusCode MagField::AtlasFieldSvc::updateMapFilenames(IOVSVC_CALLBACK_ARGS)
+StatusCode MagField::AtlasFieldSvc::updateMapFilenames ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS)
 {
     ATH_MSG_INFO( "reading magnetic field map filenames from COOL" );
 
@@ -337,7 +337,7 @@ StatusCode MagField::AtlasFieldSvc::updateMapFilenames(IOVSVC_CALLBACK_ARGS)
 	// nominal currents are read from the global map
     }
 
-    if (fullMapFilename == "" || soleMapFilename == "" || toroMapFilename == "") {
+    if (fullMapFilename.empty() || soleMapFilename.empty() || toroMapFilename.empty()) {
       ATH_MSG_ERROR("unexpected content in COOL field map folder");
       return StatusCode::FAILURE;
     }
@@ -387,7 +387,7 @@ StatusCode MagField::AtlasFieldSvc::initializeMap(AtlasFieldSvcTLS &tls)
     }
     // find the path to the map file
     std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "DATAPATH" );
-    if ( resolvedMapFile == "" ) {
+    if ( resolvedMapFile.empty() ) {
         ATH_MSG_ERROR( "Field map file " << mapFile << " not found" );
         return StatusCode::FAILURE;
     }
@@ -408,7 +408,7 @@ StatusCode MagField::AtlasFieldSvc::initializeMap(AtlasFieldSvcTLS &tls)
 
 void MagField::AtlasFieldSvc::scaleField()
 {
-    BFieldZone *solezone(0);
+    BFieldZone *solezone(nullptr);
     //
     if ( solenoidOn() ) {
         solezone = findZoneSlow( 0.0, 0.0, 0.0 );
@@ -421,6 +421,7 @@ void MagField::AtlasFieldSvc::scaleField()
             buildZR();
             ATH_MSG_INFO( "Scaled the solenoid field by a factor " << factor );
         }
+        ATH_MSG_INFO( "Solenoid zone id " << solezone->id() );
     }
     //
     if ( toroidOn() ) {
@@ -435,6 +436,9 @@ void MagField::AtlasFieldSvc::scaleField()
             }
             ATH_MSG_INFO( "Scaled the toroid field by a factor " << factor );
         }
+        // for ( unsigned i = 0; i < m_zone.size(); i++ ) {
+        //     ATH_MSG_INFO( "zone i,id " << i << ": " << m_zone[i].id() );
+        // }
     }
 }
 
@@ -476,10 +480,6 @@ void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *
             deriv[i] = 0.;
           }
       }
-      // check NaN in input
-      if ( x!=x || y!=y || z!=z ) {
-        ATH_MSG_WARNING( "getField() was called for xyz = " << x << "," << y << "," << z );
-      }
       return;
     }
   }
@@ -491,7 +491,7 @@ void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *
   if (tls.cond) {
     const size_t condSize = tls.cond->size();
     for (size_t i = 0; i < condSize; i++) {
-      (*tls.cond)[i].addBiotSavart(xyz, bxyz, deriv);
+      (*tls.cond)[i].addBiotSavart(1, xyz, bxyz, deriv); // added scale factor of 1 for compatibility with multi-threaded model
     }
   }
 } 
@@ -544,12 +544,14 @@ void MagField::AtlasFieldSvc::getFieldZR(const double *xyz, double *bxyz, double
       // caching failed -> outside the valid z-r map volume
       // call the full version of getField()
       getField(xyz, bxyz, deriv);
+
       return;
     }
   }
 
   // do interpolation
   cacheZR.getB(xyz, r, bxyz, deriv);
+
 }
 
 //
@@ -584,7 +586,7 @@ void MagField::AtlasFieldSvc::clearMap(AtlasFieldSvcTLS &tls)
 //
 StatusCode MagField::AtlasFieldSvc::readMap( const char* filename )
 {
-    if ( strstr(filename, ".root") == 0 ) {
+    if ( strstr(filename, ".root") == nullptr ) {
         ATH_MSG_ERROR("input file name '" << filename << "' does not end with .root");
         return StatusCode::FAILURE;
     } 
@@ -658,23 +660,59 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
         ATH_MSG_ERROR( myname << ": found '" << word << "' instead of 'ZONES'" );
         return StatusCode::FAILURE;
     }
-    std::vector<int> jz(nzone), nz(nzone);
-    std::vector<int> jr(nzone), nr(nzone);
-    std::vector<int> jphi(nzone), nphi(nzone);
-    std::vector<int> jbs(nzone), nbs(nzone);
-    std::vector<int> jcoil(nzone), ncoil(nzone);
-    std::vector<int> jfield(nzone), nfield(nzone);
-    std::vector<int> jaux(nzone), naux(nzone);
+    std::vector<int> jz(nzone);
+
+    std::vector<int> nz(nzone);
+    std::vector<int> jr(nzone);
+
+    std::vector<int> nr(nzone);
+    std::vector<int> jphi(nzone);
+
+    std::vector<int> nphi(nzone);
+    std::vector<int> jbs(nzone);
+
+    std::vector<int> nbs(nzone);
+    std::vector<int> jcoil(nzone);
+
+    std::vector<int> ncoil(nzone);
+    std::vector<int> jfield(nzone);
+
+    std::vector<int> nfield(nzone);
+    std::vector<int> jaux(nzone);
+
+    std::vector<int> naux(nzone);
 
     for ( int i = 0; i < nzone; i++ )
     {
         int id;
-        int nrep, map; // unused
-        double z1, z2, r1, r2, phi1, phi2;
+        int nrep;
+
+        int map; // unused
+        double z1;
+
+        double z2;
+
+        double r1;
+
+        double r2;
+
+        double phi1;
+
+        double phi2;
         int nzrphi0; // unused
         double tol; // unused
-        int mzn, mxsym, mrefl, mback; // unused
-        double qz, qr, qphi; // unused
+        int mzn;
+
+        int mxsym;
+
+        int mrefl;
+
+        int mback; // unused
+        double qz;
+
+        double qr;
+
+        double qphi; // unused
         double bscale;
         input >> id >> nrep;
 	if ( version == 6 ) input >> map;
@@ -715,7 +753,9 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
     for ( int i = 0; i < nbiot; i++ ) {
         char dummy; // unused
         char cfinite;
-        double xyz1[3], xyz2[3];
+        double xyz1[3];
+
+        double xyz2[3];
         double phirot; // unused
         double curr;
         input >> dummy >> cfinite
@@ -793,8 +833,12 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
     }
 
     // read field values
-    int nf, nzlist;
-    std::string ftype, bytype;
+    int nf;
+
+    int nzlist;
+    std::string ftype;
+
+    std::string bytype;
     input >> word >> nf >> nzlist >> ftype >> bytype;
     if ( word != "FIELD" ) {
         ATH_MSG_ERROR( myname << ": found '" << word << "' instead of 'FIELD'" );
@@ -810,7 +854,11 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
     }
     // read zone by zone
     for ( int i = 0; i < nzlist; i++ ) {
-        int izone, idzone, nfzone;
+        int izone;
+
+        int idzone;
+
+        int nfzone;
         input >> izone >> idzone >> nfzone;
         izone--; // fortran -> C++
         if ( idzone != m_zone[izone].id() ) {
@@ -857,25 +905,65 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
 //
 void MagField::AtlasFieldSvc::writeMap( TFile* rootfile ) const
 {
-    if ( rootfile == 0 ) return; // no file
-    if ( rootfile->cd() == false ) return; // could not make it current directory
+    if ( rootfile == nullptr ) return; // no file
+    if ( !rootfile->cd() ) return; // could not make it current directory
     // define the tree
     TTree* tree = new TTree( "BFieldMap", "BFieldMap version 5" );
     TTree* tmax = new TTree( "BFieldMapSize", "Buffer size information" );
     int id;
-    double zmin, zmax, rmin, rmax, phimin, phimax;
+    double zmin;
+
+    double zmax;
+
+    double rmin;
+
+    double rmax;
+
+    double phimin;
+
+    double phimax;
     double bscale;
     int ncond;
     bool *finite;
-    double *p1x, *p1y, *p1z, *p2x, *p2y, *p2z;
+    double *p1x;
+
+    double *p1y;
+
+    double *p1z;
+
+    double *p2x;
+
+    double *p2y;
+
+    double *p2z;
     double *curr;
-    int nmeshz, nmeshr, nmeshphi;
-    double *meshz, *meshr, *meshphi;
+    int nmeshz;
+
+    int nmeshr;
+
+    int nmeshphi;
+    double *meshz;
+
+    double *meshr;
+
+    double *meshphi;
     int nfield;
-    short *fieldz, *fieldr, *fieldphi;
+    short *fieldz;
+
+    short *fieldr;
+
+    short *fieldphi;
 
     // prepare arrays - need to know the maximum sizes
-    unsigned maxcond(0), maxmeshz(0), maxmeshr(0), maxmeshphi(0), maxfield(0);
+    unsigned maxcond(0);
+
+    unsigned maxmeshz(0);
+
+    unsigned maxmeshr(0);
+
+    unsigned maxmeshphi(0);
+
+    unsigned maxfield(0);
     for ( unsigned i = 0; i < m_zone.size(); i++ ) {
         maxcond = std::max( maxcond, m_zone[i].ncond() );
         maxmeshz = std::max( maxmeshz, m_zone[i].nmesh(0) );
@@ -943,7 +1031,7 @@ void MagField::AtlasFieldSvc::writeMap( TFile* rootfile ) const
         bscale = z.bscale();
         ncond = z.ncond();
         for ( int j = 0; j < ncond; j++ ) {
-            const BFieldCond c = z.cond(j);
+            const BFieldCond& c = z.cond(j);
             finite[j] = c.finite();
             p1x[j] = c.p1(0);
             p1y[j] = c.p1(1);
@@ -998,34 +1086,66 @@ void MagField::AtlasFieldSvc::writeMap( TFile* rootfile ) const
 //
 StatusCode MagField::AtlasFieldSvc::readMap( TFile* rootfile )
 {
-    if ( rootfile == 0 ) {
+    if ( rootfile == nullptr ) {
       // no file
       ATH_MSG_ERROR("readMap(): unable to read field map, no TFile given");
       return StatusCode::FAILURE;
     }
-    if ( rootfile->cd() == false ) {
+    if ( !rootfile->cd() ) {
       // could not make it current directory
       ATH_MSG_ERROR("readMap(): unable to cd() into the ROOT field map TFile");
       return StatusCode::FAILURE; 
     }
     // open the tree
     TTree* tree = (TTree*)rootfile->Get("BFieldMap");
-    if ( tree == 0 ) {
+    if ( tree == nullptr ) {
       // no tree
       ATH_MSG_ERROR("readMap(): TTree 'BFieldMap' does not exist in ROOT field map");
       return StatusCode::FAILURE;
     }
     int id;
-    double zmin, zmax, rmin, rmax, phimin, phimax;
+    double zmin;
+
+    double zmax;
+
+    double rmin;
+
+    double rmax;
+
+    double phimin;
+
+    double phimax;
     double bscale;
     int ncond;
     bool *finite;
-    double *p1x, *p1y, *p1z, *p2x, *p2y, *p2z;
+    double *p1x;
+
+    double *p1y;
+
+    double *p1z;
+
+    double *p2x;
+
+    double *p2y;
+
+    double *p2z;
     double *curr;
-    int nmeshz, nmeshr, nmeshphi;
-    double *meshz, *meshr, *meshphi;
+    int nmeshz;
+
+    int nmeshr;
+
+    int nmeshphi;
+    double *meshz;
+
+    double *meshr;
+
+    double *meshphi;
     int nfield;
-    short *fieldz, *fieldr, *fieldphi;
+    short *fieldz;
+
+    short *fieldr;
+
+    short *fieldphi;
     // define the fixed-sized branches first
     tree->SetBranchAddress( "id", &id );
     tree->SetBranchAddress( "zmin", &zmin );
@@ -1042,9 +1162,17 @@ StatusCode MagField::AtlasFieldSvc::readMap( TFile* rootfile )
     tree->SetBranchAddress( "nfield", &nfield );
     // prepare arrays - need to know the maximum sizes
     // open the tree of buffer sizes (may not exist in old maps)
-    unsigned maxcond(0), maxmeshz(0), maxmeshr(0), maxmeshphi(0), maxfield(0);
+    unsigned maxcond(0);
+
+    unsigned maxmeshz(0);
+
+    unsigned maxmeshr(0);
+
+    unsigned maxmeshphi(0);
+
+    unsigned maxfield(0);
     TTree* tmax = (TTree*)rootfile->Get("BFieldMapSize");
-    if ( tmax != 0 ) {
+    if ( tmax != nullptr ) {
         tmax->SetBranchAddress( "maxcond", &maxcond );
         tmax->SetBranchAddress( "maxmeshz", &maxmeshz );
         tmax->SetBranchAddress( "maxmeshr", &maxmeshr );
@@ -1100,7 +1228,9 @@ StatusCode MagField::AtlasFieldSvc::readMap( TFile* rootfile )
         m_zone.push_back(z);
         m_zone.back().reserve( nmeshz, nmeshr, nmeshphi );
         for ( int j = 0; j < ncond; j++ ) {
-            double p1[3], p2[3];
+            double p1[3];
+
+            double p2[3];
             p1[0] = p1x[j];
             p1[1] = p1y[j];
             p1[2] = p1z[j];
@@ -1255,7 +1385,7 @@ BFieldZone* MagField::AtlasFieldSvc::findZoneSlow( double z, double r, double ph
     for ( int j = m_zone.size()-1; j >= 0; --j ) {
         if ( m_zone[j].inside( z, r, phi ) ) return &m_zone[j];
     }
-    return 0;
+    return nullptr;
 }
 
 //
@@ -1401,7 +1531,7 @@ void MagField::AtlasFieldSvc::buildZR()
                 xyz[1] = r*sin(phi);
                 xyz[2] = z;
                 double B[3];
-                solezone->getB( xyz, B, 0 );
+                solezone->getB( xyz, B, nullptr );
                 Br += B[0]*cos(phi) + B[1]*sin(phi);
                 Bz += B[2];
             }

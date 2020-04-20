@@ -1,4 +1,6 @@
-import commands
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###########################################################################
 #
@@ -39,7 +41,7 @@ if not 'ReadOFCFromCOOL' in dir():
    ReadOFCFromCOOL = True
 
 if not 'InputPoolDir' in dir():
-   InputPoolDir = commands.getoutput("pwd")
+   InputPoolDir = subprocess.getoutput("pwd")
 
 if not 'InputPoolFileName' in dir():
    InputPoolFileName = "LArOFCShapePhys.pool.root"
@@ -49,7 +51,7 @@ if not 'ReadShapeFromCOOL' in dir():
    ReadShapeFromCOOL = True
 
 if not 'InputShapePoolDir' in dir():
-   InputShapePoolDir = commands.getoutput("pwd")
+   InputShapePoolDir = subprocess.getoutput("pwd")
 
 
 ## COOL Channel selection
@@ -124,10 +126,10 @@ if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd   
 
 if not 'OutputOFCRootFileDir' in dir():
-   OutputOFCRootFileDir = commands.getoutput("pwd")
+   OutputOFCRootFileDir = subprocess.getoutput("pwd")
    
 if not 'OutputPoolFileDir' in dir():
-   OutputPoolFileDir = commands.getoutput("pwd")
+   OutputPoolFileDir = subprocess.getoutput("pwd")
 
 OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 

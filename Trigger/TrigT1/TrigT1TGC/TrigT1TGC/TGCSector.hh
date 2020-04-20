@@ -13,7 +13,6 @@
 #include "TrigT1TGC/TGCConnectionPPToSL.hh"
 #include "TrigT1TGC/TGCConnectionASDToPP.hh"
 #include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
-#include "TrigT1TGC/TGCInnerCoincidenceMap.hh"
 
 
 #include "TrigT1TGC/TGCASDOut.h"
@@ -34,6 +33,8 @@
 
 
 namespace LVL1TGCTrigger {
+
+class TGCEIFICoincidenceMap;
 
 class TGCSector {
 
@@ -86,7 +87,7 @@ private:
 
   void setModule(const TGCConnectionPPToSL* connection);
   void setRPhiMap(const TGCRPhiCoincidenceMap* map, 
-		  const TGCInnerCoincidenceMap* mapI=0);
+		  const TGCEIFICoincidenceMap* mapI=0);
   void setTileMuMap(const TGCTileMuCoincidenceMap* map);
   void connectPPToSB(const TGCConnectionPPToSB* connection);
   void connectSBToHPB(const TGCConnectionSBToHPB* connection);

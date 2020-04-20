@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,25 +32,16 @@
  
 #include "Identifier/Identifier.h"
 
-//mdt stuff
 #include "MuonCalibIdentifier/MuonFixedId.h"
  
 #include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include <TH1F.h>
-#include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TMath.h>
-#include <TF1.h>
 #include <inttypes.h> 
 
 #include <sstream>
 #include <algorithm>
 #include <fstream>
-
-using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -127,41 +118,6 @@ MdtVsTgcRawDataValAlg::initialize(){
 
   ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
-  /*
-    if ( m_checkCabling ) {
-    // get Cabling Server Service
-    const ITGCcablingServerSvc* TgcCabGet = 0;
-    sc = service("TGCcablingServerSvc", TgcCabGet);
-    if (sc.isFailure()){
-    m_log << MSG::ERROR << " Can't get TGCcablingServerSvc " << endmsg;
-    return StatusCode::FAILURE;
-    }
-    // get Cabling Service
-    sc = TgcCabGet->giveCabling(m_cabling);
-    if (sc.isFailure()){
-    m_log << MSG::ERROR << " Can't get TGCcablingSvc Server" << endmsg;
-    return StatusCode::FAILURE; 
-    }
-    
-    // check whether TGCcabling is compatible with 1/12 sector or not
-    int maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId;
-    m_cabling->getReadoutIDRanges( maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId);
-    if (maxRodId ==12) {
-    m_log << MSG::INFO << "TGCcabling12Svc OK" << endmsg ;
-    } else {
-    m_log << MSG::WARNING << "TGCcablingSvc(octant segmentation) OK" << endmsg ;
-    }
-
-    }
-  */
-
-  //std::vector<std::string> hardware_name_list                  ;
-  //std::vector<std::string> layer_name_list                     ;
-  //std::vector<std::string> layervslayer_name_list              ;
-  // std::vector<std::string> layerPhivsEta_name_list             ;
-  //std::vector<std::string> layerPhivsEtaSector_name_list       ;
-  //hardware_name_list.push_back("XXX");
-  
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
  
   //MDT z position
@@ -238,20 +194,8 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
 
   //only analyze nSL==1
   int nSL = numberOfSL(tgc_coin_container.cptr());
-  //mdtvstgclv1_eff[0]->Fill(0);
-  //mdtvstgclv1_eff[1]->Fill(0);
 
   if(nSL==1){
-    //declare a group of histograms
-    //std::string m_generic_path_tgclv1 = "Muon/MuonRawDataMonitoring/TGC";
-    //MonGroup tgclv1_expert( this, m_generic_path_tgclv1+"/Overview", expert, run );
-    
-    //TH1* testptr0 = tgclv1roietavsphi[0];
-    //sc = tgclv1_expert.getHist(testptr0,"RoI_Eta_Vs_Phi_A");
-    //tgclv1roietavsphi[0] = dynamic_cast<TH2*>(testptr0);
-    //if(sc.isFailure() ) m_log << MSG::WARNING << "couldn't get tgclv1roietavsphi[0] hist to MonGroup" << endmsg;
-    //m_log<<MSG::INFO <<"RoI_Eta_Vs_Phi_A_Side has been got"<<endmsg;
-    
     //fill MDT hit vs TGC RoI
     correlation(mdt_prd_container.cptr(), tgc_coin_container.cptr());
   }

@@ -1,24 +1,26 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os
 
 def GetFitBy(region_string, joblist="joblist.txt", default="CHAMBER"):
   if not os.path.exists(joblist):
-    print "WARNING", joblist, "does not exist. Using defalut", default
+    print ("WARNING", joblist, "does not exist. Using defalut", default)
     return default
   reg_items=region_string.replace("[", "").replace("]", "").split(",")
   if len(reg_items)!=3:
-    print "WARNING Cannot interpret region string for GetFitBy. Using default", default
+    print ("WARNING Cannot interpret region string for GetFitBy. Using default", default)
     return default
   try:
     station_nm=reg_items[0].strip()
     station_phi=int(reg_items[1])
     station_eta=int(reg_items[2])
   except ValueError:
-    print "WARNING Failed to interpret region string for GetFitBy. Using default", default
+    print ("WARNING Failed to interpret region string for GetFitBy. Using default", default)
     return default
 	
-  inf=file(joblist)
+  inf=open(joblist)
   inf.readline()
   for line in inf.readlines():
     items=line.split()
@@ -33,5 +35,5 @@ def GetFitBy(region_string, joblist="joblist.txt", default="CHAMBER"):
     if station_nm==ln_station and station_phi==ln_phi and station_eta==ln_eta:
       return items[3]
 	
-  print "WARNING", region_string, "not found in joblist. Using default ", default
+  print ("WARNING", region_string, "not found in joblist. Using default ", default)
   return default

@@ -1,10 +1,12 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #########################################################
 #
 # Initialization of the CustomTrackingGeometry
 #
 #########################################################
 
-print "Starting CustomTrackingGeometry Initialization..."
+printfunc ("Starting CustomTrackingGeometry Initialization...")
 
 from ISF_FatrasDetDescrTools.SetupCustomTrackingGeometryBuilder import SetupCustomTrackingGeometry
 CustomTrackingGeometry = SetupCustomTrackingGeometry(name = 'CustomTrackingGeometry',
@@ -21,4 +23,4 @@ CustomTrackingGeometry = SetupCustomTrackingGeometry(name = 'CustomTrackingGeome
 from AthenaCommon.AppMgr import ToolSvc 
 ToolSvc += CustomTrackingGeometry.geometryBuilder()
 
-print "CustomTrackingGeometry initialization finished!"
+printfunc ("CustomTrackingGeometry initialization finished!")

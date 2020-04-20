@@ -5,7 +5,7 @@
 #ifndef DECISIONHANDLING_HYPOBASE_H
 #define DECISIONHANDLING_HYPOBASE_H 1
 
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKeyArray.h"

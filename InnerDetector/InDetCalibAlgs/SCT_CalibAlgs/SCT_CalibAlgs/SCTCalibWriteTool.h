@@ -1,7 +1,7 @@
 /** -*- c++ -*- */
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -73,44 +73,51 @@ class SCTCalibWriteTool : public AthAlgTool {
       createDefectString(const int defectBeginChannel,const int defectEndChannel) const;
 
       StatusCode
-      createCondObjects(const Identifier& wafer_id, const SCT_ID* m_sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const;
+      createCondObjects ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id, const SCT_ID* m_sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const;
 
-      StatusCode createListStrip(const Identifier& wafer_id,
+      StatusCode createListStrip ATLAS_NOT_THREAD_SAFE
+                                (const Identifier& wafer_id,
                                  const SCT_ID* m_sctId,
                                  const int samplesize,
                                  const std::string& defectType,
                                  const float threshold,
                                  const std::string& defectList) const;
 
-      StatusCode createListChip(const Identifier& wafer_id,
+      StatusCode createListChip ATLAS_NOT_THREAD_SAFE
+                               (const Identifier& wafer_id,
                                 const SCT_ID* m_sctId,
                                 const int samplesize,
                                 const std::string& defectType,
                                 const float threshold,
                                 const std::string& defectList) const;
 
-      StatusCode createListEff(const Identifier& wafer_id,
+      StatusCode createListEff ATLAS_NOT_THREAD_SAFE
+                              (const Identifier& wafer_id,
                                const SCT_ID* m_sctId,
                                const int samplesize,
                                const float eff) const;
 
-      StatusCode createListNO(const Identifier& wafer_id,
+      StatusCode createListNO ATLAS_NOT_THREAD_SAFE
+                             (const Identifier& wafer_id,
                               const SCT_ID* m_sctId,
                               const int samplesize,
                               const float noise_occ) const;
 
-      StatusCode createListRawOccu(const Identifier& wafer_id,
+      StatusCode createListRawOccu ATLAS_NOT_THREAD_SAFE
+                                  (const Identifier& wafer_id,
                                    const SCT_ID* m_sctId,
                                    const int samplesize,
                                    const float raw_occu) const;
 
-      StatusCode createListBSErr(const Identifier& wafer_id,
+      StatusCode createListBSErr ATLAS_NOT_THREAD_SAFE
+                                (const Identifier& wafer_id,
                                  const SCT_ID* m_sctId,
                                  const int samplesize,
                                  const std::string& errorList,
                                  const std::string& probList) const ;
 
-      StatusCode createListLA(const Identifier& wafer_id,
+      StatusCode createListLA ATLAS_NOT_THREAD_SAFE
+                             (const Identifier& wafer_id,
                               const SCT_ID* m_sctId,
                               const int samplesize,
                               const int module,

@@ -1,4 +1,4 @@
-# Copyright (C) 2001-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "ToolFactory to instantiate  egammaBremCollectionBuilder with default configuration"
 __author__ = "Christos"
@@ -12,7 +12,7 @@ from RecExConfig.RecFlags import rec
 from InDetRecExample.InDetJobProperties import InDetFlags
 # import base class
 from egammaAlgs import egammaAlgsConf
-from egammaTools.InDetTools import egammaExtrapolator
+from egammaTools.egammaExtrapolators import egammaExtrapolator
 from egammaRec.Factories import AlgFactory
 from egammaRec import egammaKeys
 

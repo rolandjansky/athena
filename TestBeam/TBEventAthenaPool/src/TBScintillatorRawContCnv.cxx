@@ -25,7 +25,7 @@ TBScintillatorRawContCnv::~TBScintillatorRawContCnv()
 StatusCode TBScintillatorRawContCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBScintillatorRawContCnv");
@@ -61,11 +61,4 @@ StatusCode TBScintillatorRawContCnv::PoolToDataObject(DataObject*& pObj,
   }
 
   return StatusCode::SUCCESS; 
-}
-
-StatusCode TBScintillatorRawContCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBScintillatorRawContCnv::DataObjectToPool" );
-  
-  return TBScintillatorRawContCnvBase::DataObjectToPool( pObj, tname) ;
 }

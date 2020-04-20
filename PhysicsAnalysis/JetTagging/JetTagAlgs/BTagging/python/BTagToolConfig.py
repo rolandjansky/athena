@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-Analysis__BTagTool=CompFactory.Analysis__BTagTool
+Analysis__BTagTool=CompFactory.Analysis.BTagTool
 from BTagging.BTaggingFlags import BTaggingFlags
 
-def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True):
+def BTagToolCfg(ConfigFlags, TaggerList, useBTagFlagsDefaults = True):
       """Adds a new myBTagTool instance and registers it.
 
       input: jetcol:             The name of the jet collections.
@@ -71,6 +71,11 @@ def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True):
 
       # list of taggers that use MultivariateTagManager
       mvtm_taggers = ['MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2c10mu','MV2c10rnn','MV2m','MV2c10hp','DL1','DL1mu','DL1rnn']
+      if 'RNNIP' not in TaggerList: #some taggers needs RNNIP variables
+          mvtm_taggers.remove('DL1rnn')
+          mvtm_taggers.remove('MV2c10rnn')
+          mvtm_taggers.remove('MV2c100')
+          mvtm_taggers.remove('MV2cl100')
       mvtm_active_taggers = list(set(mvtm_taggers) & set(TaggerList))
       if len(mvtm_active_taggers) > 0:
           from JetTagTools.MultivariateTagManagerConfig import MultivariateTagManagerCfg

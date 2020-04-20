@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
             TrackStateOnSurface.h  -  description
@@ -174,8 +174,8 @@ namespace Trk
                 const MeasurementBase          *meas,
                 const TrackParameters          *trackParameter,
                 const FitQualityOnSurface      *fitQoS,
-                const MaterialEffectsBase      *materialEffects = 0,
-                const AlignmentEffectsOnTrack  *alignmentEffectsOnTrack = 0
+                const MaterialEffectsBase      *materialEffects = nullptr,
+                const AlignmentEffectsOnTrack  *alignmentEffectsOnTrack = nullptr
                 );
 
             /**
@@ -209,7 +209,7 @@ namespace Trk
                 const FitQualityOnSurface       *fitQoS,
                 const MaterialEffectsBase       *materialEffectsOnTrack,
                 const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern,
-                const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=0 /// @todo remove =0 at some point
+                const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=nullptr /// @todo remove =0 at some point
                 );
 
             /**
@@ -358,18 +358,17 @@ inline const Trk::AlignmentEffectsOnTrack *Trk::TrackStateOnSurface::alignmentEf
 
 inline bool Trk::TrackStateOnSurface::type( const TrackStateOnSurfaceType& type ) const
 {
-    if (type==NumberOfTrackStateOnSurfaceTypes || type==Unknown) return false;
-    if (m_typeFlags.test(type)) return true;
-    return false;
+    if (type==NumberOfTrackStateOnSurfaceTypes || type==Unknown) { return false;}
+    return m_typeFlags.test(type);
 }
 
 inline void Trk::TrackStateOnSurface::setFlags()
 {
-    if (m_measurementOnTrack) m_typeFlags.set(Measurement,true); 
-    if (m_materialEffectsOnTrack) m_typeFlags.set(InertMaterial,true); 
-    if (m_alignmentEffectsOnTrack) m_typeFlags.set(Alignment,true); 
-    if (m_trackParameters) m_typeFlags.set(Parameter,true); 
-    if (m_fitQualityOnSurface) m_typeFlags.set(FitQuality,true); 
+    if (m_measurementOnTrack) { m_typeFlags.set(Measurement,true); }
+    if (m_materialEffectsOnTrack) { m_typeFlags.set(InertMaterial,true); }
+    if (m_alignmentEffectsOnTrack) { m_typeFlags.set(Alignment,true); }
+    if (m_trackParameters) { m_typeFlags.set(Parameter,true); }
+    if (m_fitQualityOnSurface) { m_typeFlags.set(FitQuality,true); }
 }
 
 inline const std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>& 

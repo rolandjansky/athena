@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_ATHENAPOOLCNVSVC_H
@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <map>
+#include <mutex>
 
 // Forward declarations
 class IAthenaIPCTool;
@@ -34,7 +35,7 @@ template <class TYPE> class SvcFactory;
 /** @class AthenaPoolCnvSvc
  *  @brief This class provides the interface between Athena and PoolSvc.
  **/
-class AthenaPoolCnvSvc : public ::AthCnvSvc,
+class ATLAS_CHECK_THREAD_SAFETY AthenaPoolCnvSvc : public ::AthCnvSvc,
 		public virtual IAthenaPoolCnvSvc,
 		public virtual IIncidentListener {
    // Allow the factory class access to the constructor
@@ -79,16 +80,7 @@ public:
    StatusCode commitOutput(const std::string& outputConnectionSpec, bool doCommit);
 
    /// Disconnect to the output connection.
-   StatusCode disconnectOutput();
-
-   /// @return the connection specification from connected stream property.
-   const std::string& getOutputConnectionSpec() const;
-
-   /// @return the pool container to be used.
-   std::string getOutputContainer(const std::string& typeName, const std::string& key = "") const;
-
-   /// Access to the technology type for the current output connection
-   pool::DbType technologyType(const std::string& containerName) const;
+   StatusCode disconnectOutput(const std::string& outputConnectionSpec);
 
    /// @return pointer to PoolSvc instance.
    IPoolSvc* getPoolSvc();
@@ -133,11 +125,15 @@ public:
    /// @param refAddress [OUT] converted string form.
    StatusCode convertAddress(const IOpaqueAddress* pAddress, std::string& refAddress);
 
+   /// Extract/deduce the DB technology from the connection
+   /// string/file specification
+   StatusCode decodeOutputSpec(std::string& connectionSpec, int& outputTech) const;
+
    /// Implement registerCleanUp to register a IAthenaPoolCleanUp to be called during cleanUp.
    StatusCode registerCleanUp(IAthenaPoolCleanUp* cnv);
 
    /// Implement cleanUp to call all registered IAthenaPoolCleanUp cleanUp() function.
-   StatusCode cleanUp();
+   StatusCode cleanUp(const std::string& connection);
 
    /// Set the input file attributes, if any are requested from jobOpts
    /// @param fileName [IN] name of the input file
@@ -165,10 +161,6 @@ public:
    virtual ~AthenaPoolCnvSvc();
 
 private: // member functions
-   /// Extract/deduce the DB technology from the connection
-   /// string/file specification
-   StatusCode decodeOutputSpec(std::string& connectionSpec, pool::DbType& outputTech) const;
-
    /// Extract POOL ItechnologySpecificAttributes for Domain, Database and Container from property.
    void extractPoolAttributes(const StringArrayProperty& property,
 	   std::vector<std::vector<std::string> >* contAttr,
@@ -185,10 +177,7 @@ private: // member functions
 
 private: // data
    pool::DbType    m_dbType;
-   std::string     m_outputConnectionSpec;
-   std::string     m_dhContainerPrefix;
-   std::string     m_collContainerPrefix;
-   std::string     m_lastFileName;
+   std::string     m_lastInputFileName;
    ServiceHandle<IPoolSvc>       m_poolSvc;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
    ServiceHandle<IClassIDSvc>    m_clidSvc;
@@ -205,13 +194,10 @@ private: // properties
 
    /// PoolContainerPrefix, prefix for top level POOL container: default = "POOLContainer"
    StringProperty  m_containerPrefixProp;
-   std::string     m_containerPrefix;
    /// TopLevelContainerName, naming hint policy for top level POOL container: default = "<type>"
    StringProperty  m_containerNameHintProp;
-   std::string     m_containerNameHint;
    /// SubLevelBranchName, naming hint policy for POOL branching: default = "" (no branching)
    StringProperty  m_branchNameHintProp;
-   std::string     m_branchNameHint;
 
    /// Output PoolAttributes, vector with names and values of technology specific attributes for POOL
    StringArrayProperty m_poolAttr;
@@ -229,7 +215,7 @@ private: // properties
 
    /// Output FileNames to be associated with Stream Clients
    StringArrayProperty m_streamClientFilesProp;
-   mutable std::vector<std::string>   m_streamClientFiles;
+   std::vector<std::string>   m_streamClientFiles;
 
    /// MaxFileSizes, vector with maximum file sizes for Athena POOL output files
    StringArrayProperty m_maxFileSizes;
@@ -239,12 +225,8 @@ private: // properties
    /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
    /// default = false.
    BooleanProperty m_persSvcPerOutput;
-   unsigned outputContextId();
-   std::map< EventContext::ContextID_t, std::string > m_outputConnectionForSlot;
-   std::map< EventContext::ContextID_t, std::string > m_containerPrefixForSlot;
-   std::map< EventContext::ContextID_t, std::string > m_containerNameHintForSlot;
-   std::map< EventContext::ContextID_t, std::string > m_branchNameHintForSlot;
-   mutable std::mutex  m_mutex;  // mutable so const functions can lock
+   unsigned outputContextId(const std::string& outputConnection);
+   std::mutex  m_mutex;
   
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first
    /// container being committed to disk is not 'tainted' with the POOL overhead

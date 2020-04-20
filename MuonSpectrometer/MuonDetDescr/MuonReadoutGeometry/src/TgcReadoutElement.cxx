@@ -1,14 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/***************************************************************************
- tgc
- -----------------------------------------
- ***************************************************************************/
-
-//<doc><file>	$Id: TgcReadoutElement.cxx,v 1.4 2009-03-28 09:18:38 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/GenericTGCCache.h"
@@ -18,10 +10,9 @@
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
-
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include <vector>
-
-#define TgcReadout_verbose false
 
 namespace MuonGM {
 
@@ -88,7 +79,10 @@ const Amg::Vector3D TgcReadoutElement::localGasGapPos(Identifier id) const
 const Amg::Vector3D TgcReadoutElement::localGasGapPos(int gg) const
 {
     Amg::Vector3D localP( m_wireplanez[gg-1], 0., 0. );
-    if (TgcReadout_verbose) std::cerr<<" TgcReadoutElement::localGasGapPos("<<gg<<") is "<<localP<<std::endl;
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "localGasGapPos("<<gg<<") is "<<localP<<endmsg;
+#endif 
     return localP;
 }
 
@@ -103,12 +97,14 @@ const Amg::Vector3D TgcReadoutElement::gasGapPos(int gg) const
 {
     const Amg::Vector3D localP = localGasGapPos(gg);
     const Amg::Transform3D tgcTrans = absTransform();
-    if (TgcReadout_verbose) {
-        std::cerr<<"TgcReadoutElement::gasGapPos got localGasGapPos "<<localP<<std::endl;
-    }
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "gasGapPos got localGasGapPos "<<localP<<endmsg;
+#endif 
     Amg::Vector3D globalP = tgcTrans * localP;
-    if (TgcReadout_verbose) std::cerr<<"TgcReadoutElement::gasGapPos got globalGasGapPos "
-                                     <<globalP<<std::endl;
+#ifndef NDEBUG
+    if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE << "gasGapPos got globalGasGapPos " <<globalP<<endmsg;
+#endif 
     return globalP;
 }
 
@@ -174,10 +170,6 @@ const Amg::Vector3D TgcReadoutElement::gangPos(Identifier id) const
 
 const Amg::Vector3D TgcReadoutElement::localGangPos(int gasGap, int gang) const
 {
-//  if (getReadoutVersion() != 1) {
-//    std::cerr << "TgcReadoutElement::localGangPos FATAL Readout Version " << getReadoutVersion() << " is not supported at the moment! Version 1 is supported only." << std::endl;
-//    return Amg::Vector3D(-9999,-9999,-9999);
-//  }
 
   float x = localGasGapPos(gasGap).x();
   float y = 0.;
@@ -187,7 +179,6 @@ const Amg::Vector3D TgcReadoutElement::localGangPos(int gasGap, int gang) const
     nWires += getNWires(gasGap,igang);
   }
   // measured from the first gang (short base) to the last gang (long base) as in TGC_Digitization
-  //  float z = (0.5+nWires+getNWires(gasGap,gang)/2.)*wirePitch()-(getRsize()/2.-frameZwidth()); // Units of wirePitch are CLHEP::mm!
 
   // measured by centering the area covered by wires as in Amdc
   float z = (nWires+getNWires(gasGap,gang)/2.-getTotalWires(gasGap)/2.)*wirePitch(); // Units of wirePitch are CLHEP::mm!
@@ -224,11 +215,6 @@ const Amg::Vector3D TgcReadoutElement::stripPos(Identifier id) const
 
 const Amg::Vector3D TgcReadoutElement::localStripPos(int gasGap, int strip) const
 {
-//  if (getReadoutVersion() != 1) {
-//    std::cerr << "TgcReadoutElement::localStripPos FATAL Readout Version " << getReadoutVersion() << " is not supported at the moment! Version 1 is supported only." << std::endl;
-//    return Amg::Vector3D(-9999,-9999,-9999);
-//  }
-
   float x = localGasGapPos(gasGap).x();
   float y;
   float z = 0;
@@ -356,28 +342,6 @@ int TgcReadoutElement::nVolumes() const
   return tgc->nlayers;
 }
 
-// Access to subvolume properties
-// current implementation does not make sense (no clients on LXR) since TGC type for the 
-// specific chamber should be used (not the genericCache)
-// 
-// std::string TgcReadoutElement::volumeType(int volume) const
-// {
-//   const GenericTGCCache* tgc = manager()->getGenericTgcDescriptor();
-//   return tgc->materials[volume];
-// }
-//
-// float TgcReadoutElement::volumeYpos(int volume) const
-// {
-//   const GenericTGCCache* tgc = manager()->getGenericTgcDescriptor();
-//   return tgc->positions[volume];
-// }
-//
-// float TgcReadoutElement::volumeThickness(int volume) const
-// {
-//   const GenericTGCCache* tgc = manager()->getGenericTgcDescriptor();
-//   return tgc->tck[volume];
-// }
-
 // Access to wire gang properties
 
 
@@ -493,9 +457,13 @@ float TgcReadoutElement::stripDeltaPhi(int gasGap) const
 #endif
 {
   assert(validGap(gasGap));
-
-    (*m_Log) <<MSG::DEBUG<< "stripDeltaPhi WARINIG delta phi varies according to strip # for layout Q and following" <<endmsg;
-    (*m_Log) << "therefore stripDeltaPhi does NOT correctly return delta phi."<<endmsg;
+#ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+    if (log.level()<=MSG::DEBUG) {
+      log << MSG::DEBUG << "stripDeltaPhi: delta phi varies according to strip # for layout Q and following"<<endmsg;
+      log << MSG::DEBUG << "therefore stripDeltaPhi does NOT correctly return delta phi."<<endmsg;
+    }
+#endif
 
   // number of strips in exclusive phi coverage of a chamber in T[1-3] and T4
   const float nDivInChamberPhi[4] = {29.5, 29.5, 29.5, 31.5};
@@ -751,7 +719,6 @@ int TgcReadoutElement::findChannel(int gasGap, int isStrip,
     if(! validGap(gasGap) ) throw;
     float x = localPos.x();
     float z = localPos.z();
-    //float phi = atan2(x, globalPosition().x() + z);
 
     if (0 == isStrip)
     {
@@ -825,7 +792,10 @@ bool TgcReadoutElement::isAgap(std::string volumeMaterial) const
 bool TgcReadoutElement::validGap(int gasGap) const
 {
     bool isValid = (1 <= gasGap && gasGap <= nGaps());
-    if (!isValid) std::cerr<<" gas gap is out of range; limits are 1-"<<nGaps()<<std::endl;
+    if (!isValid) {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+      log << MSG::WARNING<<" gas gap is out of range; limits are 1-"<<nGaps()<<endmsg;
+    }
     return isValid;
 }
 
@@ -840,14 +810,17 @@ bool TgcReadoutElement::validStrip(int gasGap, int strip) const
 {
     if(! validGap(gasGap) ) throw;
     bool isValid = (1 <= strip && strip <= getNStrips(gasGap));
-    if (!isValid) std::cerr<<"TgcReadoutElement::validStrip("<<gasGap<<","<<strip
-                           <<") is false: strip out of range; limits are 1-"<<getNStrips(gasGap)<<std::endl;
+    if (!isValid) {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+      log << MSG::WARNING<<"validStrip("<<gasGap<<","<<strip <<") is false: strip out of range; limits are 1-"<<getNStrips(gasGap)<<endmsg;
+    }
     return isValid;
 }
 
 void TgcReadoutElement::print() const
 {
-  std::cout << getReadoutName() << std::endl;
+  MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+  log << MSG::INFO << getReadoutName() << endmsg;
 }
 
 // ******************************* sin stereo*************************************
@@ -860,21 +833,19 @@ double TgcReadoutElement::sinStereo(const Identifier & id) const {
   if (measPhi == 0) return 1.0;
   
   // return zero for phi strips in layout P
-  //std::string gVersion = manager()->geometryVersion();
-
   int strip  = idh -> channel(id);
   int gasGap = idh -> gasGap(id);
 
-  double z = (getRsize()-2.*getPhysicalDistanceFromBase())/2.;
+  double z = (getRsize()-2.*getPhysicalDistanceFromBase())*0.5;
   double tan_theta_2 = (stripCtrX(gasGap,strip,z)-stripCtrX(gasGap,strip,-z))
                       /(getRsize()-2.*getPhysicalDistanceFromBase());
 
   Amg::Vector3D ctrChamber = globalPosition();
   double cos_theta_1 = (ctrChamber.x()*posStrip.x()+ctrChamber.y()*posStrip.y())/ctrChamber.perp()/posStrip.perp();
 
-  double theta = atan(tan_theta_2) - acos(cos_theta_1);
+  double theta = std::atan(tan_theta_2) - std::acos(cos_theta_1);
   if (tan_theta_2 < 0.) {
-    theta = atan(tan_theta_2) - (-acos(cos_theta_1));
+    theta = std::atan(tan_theta_2) - (-std::acos(cos_theta_1));
   }
 
   return sin(theta);
@@ -886,27 +857,26 @@ void  TgcReadoutElement::setIdentifier(Identifier id)
     IdentifierHash collIdhash = 0;
     IdentifierHash detIdhash  = 0;
     // set parent data collection hash id 
-    int gethash_code = idh->get_module_hash(id, collIdhash);
-    if (gethash_code != 0) 
-	(*m_Log) <<MSG::WARNING
-	       <<"TgcReadoutElement --  collection hash Id NOT computed for id = "
-	       <<idh->show_to_string(id)<<endmsg;
+    if (idh->get_module_hash(id, collIdhash) != 0) {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+      log << MSG::WARNING << "setIdentifier -- collection hash Id NOT computed for id = " << idh->show_to_string(id) << endmsg;
+    }
     m_idhash = collIdhash;
     // set RE hash id 
-    gethash_code = idh->get_detectorElement_hash(id, detIdhash);
-    if (gethash_code != 0) 
-	(*m_Log) <<MSG::WARNING
-	       <<"TgcReadoutElement --  detectorElement hash Id NOT computed for id = "
-	       <<idh->show_to_string(id)<<endmsg;
+    if (idh->get_detectorElement_hash(id, detIdhash) != 0) {
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+      log << MSG::WARNING << "setIdentifier -- detectorElement hash Id NOT computed for id = " << idh->show_to_string(id) << endmsg;
+    }
     m_detectorElIdhash = detIdhash;
 }
 
 
-void TgcReadoutElement::fillCache() const {
+void TgcReadoutElement::fillCache() {
 
   if( !m_surfaceData ) m_surfaceData = new SurfaceData();
   else{
-    (*m_Log) <<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
+    MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+    log << MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
     return;
   }
   const TgcIdHelper* idh = manager()->tgcIdHelper();
@@ -965,5 +935,39 @@ bool TgcReadoutElement::containsId(Identifier id) const
     
   return true;
 }
+
+  double TgcReadoutElement::distanceToReadout( const Amg::Vector2D& , const Identifier&  ) const {
+    MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+    log << MSG::WARNING << " distanceToReadout::dummy routine " << endmsg;
+    return 0.;
+  }
+
+  int TgcReadoutElement::stripNumber( const Amg::Vector2D& , const Identifier& ) const { 
+    MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+    log << MSG::WARNING << " stripNumber::dummy routine " << endmsg;
+    return 1;
+  }
+
+  bool TgcReadoutElement::stripPosition( const Identifier& id, Amg::Vector2D& pos ) const {
+    /** please don't copy the inefficient code below!! Look at the RpcReadoutElement for a proper implementation */
+    Amg::Vector3D gpos = channelPos(id);  
+    if( !surface(id).globalToLocal(gpos,gpos,pos) ){
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+      log << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(id).transform().inverse()*gpos << std::endl;
+      return false;
+    }
+    return true;
+  }
+
+  bool TgcReadoutElement::spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const {
+    Amg::Vector3D gpos;
+    spacePointPosition(phiId,etaId,gpos);
+    if( !surface(phiId).globalToLocal(gpos,gpos,pos) ){
+      MsgStream log(Athena::getMessageSvc(),"TgcReadoutElement");
+      log << MSG::WARNING << " stripPosition:: globalToLocal failed " << surface(phiId).transform().inverse()*gpos << std::endl;
+      return false;
+    }
+    return true;
+  }
 
 } // namespace MuonGM

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -370,29 +370,11 @@ namespace MuonCombined {
     tag.fieldIntegral(m_trackQuery->fieldIntegral(*combTrack));
     tag.momentumBalanceSignificance(m_momentumBalanceTool->momentumBalanceSignificance(*combTrack));
     
-    // keep original SA fit if no change to MS or Calo TSOS
-    /*bool alwaysRefit = true;
-    if(!alwaysRefit) {
-    if (! extrapolatedNeedsRefit(tag.combinedTrack(), tag.muonCandidate().extrapolatedTrack()) ) {
-
-    // if an extrapolated track is available, evaluate match properties
     if(tag.muonCandidate().extrapolatedTrack()) {
-    double matchChi2 = m_matchQuality->innerMatchChi2(idTrack, *tag.muonCandidate().extrapolatedTrack());
-    int matchDoF     = m_matchQuality->innerMatchDOF(idTrack, *tag.muonCandidate().extrapolatedTrack());
-    double matchProb = m_matchQuality->innerMatchProbability(idTrack, *tag.muonCandidate().extrapolatedTrack());      
-
-    // store the inner matching quality in the tag object
-    tag.innerMatch(matchChi2, matchDoF, matchProb);
-    return;
-    }
-    }
-    }
-    */
-
-    if(tag.muonCandidate().extrapolatedTrack()) {
-      double matchChi2 = m_matchQuality->innerMatchChi2(idTrack, *tag.muonCandidate().extrapolatedTrack());
-      int matchDoF     = m_matchQuality->innerMatchDOF(idTrack, *tag.muonCandidate().extrapolatedTrack());
-      double matchProb = m_matchQuality->innerMatchProbability(idTrack, *tag.muonCandidate().extrapolatedTrack());      
+      std::pair<int, std::pair<double,double> > aTriad = m_matchQuality->innerMatchAll(idTrack, *tag.muonCandidate().extrapolatedTrack());
+      int matchDoF     =    aTriad.first;
+      double matchChi2 = aTriad.second.first;
+      double matchProb = aTriad.second.second;
       // store the inner matching quality in the tag object
       tag.innerMatch(matchChi2, matchDoF, matchProb);
       ATH_MSG_DEBUG( " extrapolatedTrack innerMatch " << matchChi2);
@@ -454,9 +436,10 @@ namespace MuonCombined {
     if (refittedExtrapolatedTrack) {
 
       const Trk::Track* METrack=refittedExtrapolatedTrack;
-      double matchChi2 = m_matchQuality->innerMatchChi2(idTrack, *METrack);
-      int matchDoF     = m_matchQuality->innerMatchDOF(idTrack, *METrack);
-      double matchProb = m_matchQuality->innerMatchProbability(idTrack, *METrack);
+      std::pair<int, std::pair<double,double> > aTriad = m_matchQuality->innerMatchAll(idTrack, *METrack);
+      int matchDoF     =    aTriad.first;
+      double matchChi2 = aTriad.second.first;
+      double matchProb = aTriad.second.second;
       
       // store the inner matching quality in the tag object
       tag.innerMatch(matchChi2, matchDoF, matchProb);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MissingETPerformance/ZeeSequencer.h"
@@ -34,7 +34,7 @@ StatusCode ZeeSequencer::finalize()
 StatusCode ZeeSequencer::execute()
 {
   // Retrive the containers for the EventSelector
-  m_eventSelector->retrieveContainers();
+  ATH_CHECK( m_eventSelector->retrieveContainers() );
 
   // Activate the sequence if passed
   setFilterPassed(m_eventSelector->isSelectedEvent() );

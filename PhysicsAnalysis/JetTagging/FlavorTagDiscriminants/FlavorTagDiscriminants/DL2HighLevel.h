@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DL2_HIGH_LEVEL_HH
@@ -12,6 +12,7 @@
 
 #include <memory>
 #include <string>
+#include <map>
 
 namespace FlavorTagDiscriminants {
 
@@ -21,7 +22,8 @@ namespace FlavorTagDiscriminants {
   {
   public:
     DL2HighLevel(const std::string& nn_file_name,
-                 FlipTagConfig = FlipTagConfig::STANDARD);
+                 FlipTagConfig = FlipTagConfig::STANDARD,
+                 std::map<std::string, std::string> var_remap = {});
     DL2HighLevel(DL2HighLevel&&);
     ~DL2HighLevel();
     void decorate(const xAOD::Jet& jet) const;

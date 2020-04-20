@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 __author__  = 'Radist Morse radist.morse@gmail.com'
 
@@ -42,7 +44,7 @@ class TestShowerLib() :
     def fromLibs(self,libs) :
         for lib in libs :
             if not isinstance(lib,self.__class__):
-                print "ERROR: Different types of libs"
+                print ("ERROR: Different types of libs")
                 return False
         self.detector = libs[0].detector
         self.particle = libs[0].particle
@@ -57,7 +59,7 @@ class TestShowerLib() :
                 self.geometry != lib.geometry or
                 self.geant != lib.geant or
                 self.phys != lib.phys ) :
-                print "ERROR: DIFFERENT LIBS!!!"
+                print ("ERROR: DIFFERENT LIBS!!!")
                 return False
         from datetime import datetime
         self.comment = "ADDED "+str(datetime.now())
@@ -65,16 +67,16 @@ class TestShowerLib() :
             self.library += lib.library
         return True
     def readFromFile(self,filename) :
-        from ROOT import TFile, TTree
+        from ROOT import TFile
         tfile = TFile(filename)
         try :
             ver = int(tfile.Get("version").GetVal())
-        except :
-            print "Not a TestShowerLib: Broken file"
+        except Exception:
+            print ("Not a TestShowerLib: Broken file")
             tfile.Close()
             return False
         if (ver != 10) : #<<<<<<<<<<<<<<<<<<<<<<-------------- lib ver
-            print "Not a TestShowerLib"
+            print ("Not a TestShowerLib")
             tfile.Close()
             return False
         meta = tfile.Get("meta")
@@ -89,7 +91,6 @@ class TestShowerLib() :
             self.comment=str(event.comment)
 
         state = 0
-        lastShower = False
 
         #state == 0 : first line of shower header
         #state == 1 : second line of sower header
@@ -129,7 +130,7 @@ class TestShowerLib() :
                     state = 0
         tfile.Close()
         if (state != 0) :
-            print "FILE CORRUPTED!!"
+            print ("FILE CORRUPTED!!")
             return False
         return True
     def writeToFile(self,filename) :
@@ -144,7 +145,7 @@ class TestShowerLib() :
             Char_t   phys[40];\
             Char_t   comment[400];\
             Int_t    particle;\
-        };" );
+        };" )
         from ROOT import MyMetaStruct
         gROOT.ProcessLine(
             "struct MyStruct {\
@@ -153,7 +154,7 @@ class TestShowerLib() :
             Float_t   z;\
             Float_t   e;\
             Float_t   time;\
-        };" );
+        };" )
         from ROOT import MyStruct
 
         tfile = TFile(filename,"RECREATE")
@@ -174,23 +175,23 @@ class TestShowerLib() :
         mmstruct.phys = "%s" % (str(self.phys))
         mmstruct.comment = "%s" % (str(self.comment))
 
-        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C");
-        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I");
-        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C");
-        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C");
-        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C");
-        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C");
-        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C");
+        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C")
+        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I")
+        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C")
+        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C")
+        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C")
+        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C")
+        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C")
 
         meta.Fill()
 
         mstruct = MyStruct()
 
-        libr.Branch("x",AddressOf(mstruct,"x"),"x/F");
-        libr.Branch("y",AddressOf(mstruct,"y"),"y/F");
-        libr.Branch("z",AddressOf(mstruct,"z"),"z/F");
-        libr.Branch("e",AddressOf(mstruct,"e"),"e/F");
-        libr.Branch("time",AddressOf(mstruct,"time"),"time/F");
+        libr.Branch("x",AddressOf(mstruct,"x"),"x/F")
+        libr.Branch("y",AddressOf(mstruct,"y"),"y/F")
+        libr.Branch("z",AddressOf(mstruct,"z"),"z/F")
+        libr.Branch("e",AddressOf(mstruct,"e"),"e/F")
+        libr.Branch("time",AddressOf(mstruct,"time"),"time/F")
 
         for storedShower in self.library :
             mstruct.x = storedShower.vertex.x
@@ -242,18 +243,18 @@ class EtaEnergyShowerLib() :
         self.phys= ""
         self.comment= ""
     def scaleEnergy(self,scalefactor) :
-        for etabin in self.library.itervalues() :
+        for etabin in self.library.values():
             for storedShower in etabin :
                 for hit in storedShower.shower :
                     hit.e *= scalefactor
         self.comment += " SCALED: "+str(scalefactor)
     def truncate(self,truncate) :
         showers = []
-        for eta,etabin in self.library.iteritems() :
+        for eta,etabin in self.library.items():
             for storedShower in etabin :
                 showers += [(eta,storedShower)]
         if len(showers) <= truncate :
-            print "WARNING: Size of the library is already less:",truncate,"<",len(showers)
+            print ("WARNING: Size of the library is already less:",truncate,"<",len(showers))
             return
         from random import randint
         while (len(showers) > truncate) :
@@ -264,7 +265,7 @@ class EtaEnergyShowerLib() :
     def fromLibs(self,libs) :
         for lib in libs :
             if not isinstance(lib,self.__class__):
-                print "ERROR: Different types of libs"
+                print ("ERROR: Different types of libs")
                 return False
         self.detector = libs[0].detector
         self.particle = libs[0].particle
@@ -286,12 +287,12 @@ class EtaEnergyShowerLib() :
                 self.mineta != lib.mineta or
                 self.maxeta != lib.maxeta or
                 etas != set(lib.library.keys()) ) :
-                print "ERROR: DIFFERENT LIBS!!!"
+                print ("ERROR: DIFFERENT LIBS!!!")
                 return False
         for lib in libs :
-            for k,v in lib.library.iteritems() :
+            for k,v in lib.library.items():
                 self.library.setdefault(k,set()).update(v)
-        for k,v in self.library.iteritems() :
+        for k,v in self.library.items():
             self.library[k] = list(v)
         return True
     def moveEta(self,oldEta,newEta) :
@@ -305,18 +306,18 @@ class EtaEnergyShowerLib() :
         self.library.pop(eta)
         return True
     def readFromFile(self,filename) :
-        from ROOT import TFile, TTree
+        from ROOT import TFile
         #from sets import Set
         tfile = TFile(filename)
         try:
             ver = int(tfile.Get("version").GetVal())
-        except :
-            print "Not an EtaEnergyLib: Broken file"
+        except Exception:
+            print ("Not an EtaEnergyLib: Broken file")
             tfile.Close()
             return False
 
         if (ver != 1) : #<<<<<<<<<<<<<<<<<<<<<<-------------- lib ver
-            print "Not an EtaEnergyLib"
+            print ("Not an EtaEnergyLib")
             tfile.Close()
             return False
         meta = tfile.Get("meta")
@@ -381,7 +382,7 @@ class EtaEnergyShowerLib() :
                         state = 1
         tfile.Close()
         if (state != 0) :
-            print "FILE CORRUPTED!!"
+            print ("FILE CORRUPTED!!")
             return False
         return True
     def writeToFile(self,filename) :
@@ -396,7 +397,7 @@ class EtaEnergyShowerLib() :
             Char_t   phys[40];\
             Char_t   comment[400];\
             Int_t    particle;\
-        };" );
+        };" )
         from ROOT import MyMetaStruct
         gROOT.ProcessLine(
             "struct MyStruct {\
@@ -405,7 +406,7 @@ class EtaEnergyShowerLib() :
             Float_t   z;\
             Float_t   e;\
             Float_t   time;\
-        };" );
+        };" )
         from ROOT import MyStruct
 
         tfile = TFile(filename,"RECREATE")
@@ -426,23 +427,23 @@ class EtaEnergyShowerLib() :
         mmstruct.phys = "%s" % (str(self.phys))
         mmstruct.comment = "%s" % (str(self.comment))
 
-        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C");
-        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I");
-        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C");
-        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C");
-        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C");
-        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C");
-        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C");
+        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C")
+        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I")
+        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C")
+        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C")
+        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C")
+        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C")
+        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C")
 
         meta.Fill()
 
         mstruct = MyStruct()
 
-        libr.Branch("x",AddressOf(mstruct,"x"),"x/F");
-        libr.Branch("y",AddressOf(mstruct,"y"),"y/F");
-        libr.Branch("z",AddressOf(mstruct,"z"),"z/F");
-        libr.Branch("e",AddressOf(mstruct,"e"),"e/F");
-        libr.Branch("time",AddressOf(mstruct,"time"),"time/F");
+        libr.Branch("x",AddressOf(mstruct,"x"),"x/F")
+        libr.Branch("y",AddressOf(mstruct,"y"),"y/F")
+        libr.Branch("z",AddressOf(mstruct,"z"),"z/F")
+        libr.Branch("e",AddressOf(mstruct,"e"),"e/F")
+        libr.Branch("time",AddressOf(mstruct,"time"),"time/F")
 
         etas = self.library.keys()
         etas.sort()
@@ -473,25 +474,25 @@ class EtaEnergyShowerLib() :
         libr.Write("library")
         tfile.Close()
     def printInfo(self) :
-        print "VERSION: EtaEnergyLib","PARTICLE:",self.particle,"DETECTOR:",self.detector
-        print self.release, self.geometry, self.geant, self.phys
-        print self.comment
+        print ("VERSION: EtaEnergyLib","PARTICLE:",self.particle,"DETECTOR:",self.detector)
+        print (self.release, self.geometry, self.geant, self.phys)
+        print (self.comment)
         ebins = [1,2,5,10,20,50,100,200,500,1000]
         etas = self.library.keys()
         etas.sort()
-        print "Number of etabins:",str(len(etas))
-        print "MinEta:",self.mineta,"MaxEta:",self.maxeta
+        print ("Number of etabins:",str(len(etas)))
+        print ("MinEta:",self.mineta,"MaxEta:",self.maxeta)
         fstot = 0
         for eta in etas :
             fstot +=len(self.library[eta])
-        print "Number of showers:",str(fstot)
-        print "-"*(12+len(ebins)*8) #horizontal line
-        infostr = "|etas\ebins|"
+        print ("Number of showers:",str(fstot))
+        print ("-"*(12+len(ebins)*8)) #horizontal line
+        infostr = "|etas|ebins|"
         for ebin in ebins : #header for energy bins
             infostr += ("<%d" %ebin).rjust(7)                         #str(ebin).rjust(7)
             infostr += "|"
-        print infostr
-        print "-"*(12+len(ebins)*8) #horizontal line
+        print (infostr)
+        print ("-"*(12+len(ebins)*8)) #horizontal line
         for etalow,etahigh in zip(etas,(etas[1:] + [self.maxeta])) : #looping over eta bins
             prevebin = 0
             erec = {}
@@ -505,7 +506,7 @@ class EtaEnergyShowerLib() :
                 hits[ebin] = 0.
                 for shower in self.library[etalow] :
                     if (shower.egen <= ebin) and (shower.egen > prevebin) :
-                        count[ebin] += 1;
+                        count[ebin] += 1
                         egenshow = shower.egen
                         erecshow = 0
                         for hit in shower.shower :
@@ -536,17 +537,17 @@ class EtaEnergyShowerLib() :
                 infostr+="|"
                 infostr2+="|"
                 infostr3+="|"
-            print infostr
-            print infostr2
-            print infostr3
-            print "-"*(12+len(ebins)*8) #horizontal line
+            print (infostr)
+            print (infostr2)
+            print (infostr3)
+            print ("-"*(12+len(ebins)*8)) #horizontal line
     def drawHits(self):
         from ROOT import TH3F
         from math import sqrt,copysign,log10
         hits = TH3F("HITS","Hits Distrib",50,1,1000,101,-300,300,100,0,500)
         containmentZ = TH3F("CONTZ","ContZ Distrib",50,1,1000,101,-300,300,100,0,500)
         containmentR = TH3F("CONTR","ContR Distrib",50,1,1000,101,-300,300,100,0,500)
-        for etabin in self.library.itervalues() :
+        for etabin in self.library.values():
             for storedShower in etabin :
                 containmentR.Fill(log10(storedShower.egen)*333,storedShower.rsize,storedShower.zsize,10)
                 containmentR.Fill(log10(storedShower.egen)*333,-storedShower.rsize,storedShower.zsize,10)
@@ -569,18 +570,18 @@ class FCALDistShowerLib() :
         self.yrod_cent = 0.0
         self.step = 0.0
     def scaleEnergy(self,scalefactor) :
-        for distbin in self.library.itervalues() :
+        for distbin in self.library.values():
             for storedShower in distbin :
                 for hit in storedShower.shower :
                     hit.e *= scalefactor
         self.comment += " SCALED: "+str(scalefactor)
     def truncate(self,truncate) :
         showers = []
-        for dist,distbin in self.library.iteritems() :
+        for dist,distbin in self.library.items():
             for storedShower in distbin :
                 showers += [(dist,storedShower)]
         if len(showers) <= truncate :
-            print "WARNING: Size of the library is already less:",truncate,"<",len(showers)
+            print ("WARNING: Size of the library is already less:",truncate,"<",len(showers))
             return
         from random import randint
         while (len(showers) > truncate) :
@@ -601,7 +602,7 @@ class FCALDistShowerLib() :
     def fromLibs(self,libs) :
         for lib in libs :
             if not isinstance(lib,self.__class__):
-                print "ERROR: Different types of libs"
+                print ("ERROR: Different types of libs")
                 return False
         self.detector = libs[0].detector
         self.particle = libs[0].particle
@@ -625,26 +626,26 @@ class FCALDistShowerLib() :
                 self.yrod_cent != lib.yrod_cent or
                 self.step != lib.step or
                 dists != set(lib.library.keys()) ) :
-                print "ERROR: DIFFERENT LIBS!!!"
+                print ("ERROR: DIFFERENT LIBS!!!")
                 return False
         for lib in libs :
-            for k,v in lib.library.iteritems() :
+            for k,v in lib.library.items():
                 self.library.setdefault(k,set()).update(v)
-        for k,v in self.library.iteritems() :
+        for k,v in self.library.items():
             self.library[k] = list(v)
         return True
     def readFromFile(self,filename) :
-        from ROOT import TFile, TTree
+        from ROOT import TFile
         #from sets import Set
         tfile = TFile(filename)
         try:
             ver = int(tfile.Get("version").GetVal())
-        except :
-            print "Not an FCALDistEnergyLib: Broken file"
+        except Exception:
+            print ("Not an FCALDistEnergyLib: Broken file")
             tfile.Close()
             return False
         if (ver != 4) : #<<<<<<<<<<<<<<<<<<<<<<-------------- lib ver
-            print "Not an FCALDistEnergyLib"
+            print ("Not an FCALDistEnergyLib")
             tfile.Close()
             return False
         meta = tfile.Get("meta")
@@ -712,7 +713,7 @@ class FCALDistShowerLib() :
                         state = 1
         tfile.Close()
         if (state != 0) :
-            print "FILE CORRUPTED!!"
+            print ("FILE CORRUPTED!!")
             return False
         return True
     def writeToFile(self,filename) :
@@ -727,7 +728,7 @@ class FCALDistShowerLib() :
             Char_t   phys[40];\
             Char_t   comment[400];\
             Int_t    particle;\
-        };" );
+        };" )
         from ROOT import MyMetaStruct
         gROOT.ProcessLine(
             "struct MyStruct {\
@@ -736,7 +737,7 @@ class FCALDistShowerLib() :
             Float_t   z;\
             Float_t   e;\
             Float_t   time;\
-        };" );
+        };" )
         from ROOT import MyStruct
 
         tfile = TFile(filename,"RECREATE")
@@ -757,23 +758,23 @@ class FCALDistShowerLib() :
         mmstruct.phys = "%s" % (str(self.phys))
         mmstruct.comment = "%s" % (str(self.comment))
 
-        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C");
-        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I");
-        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C");
-        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C");
-        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C");
-        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C");
-        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C");
+        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C")
+        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I")
+        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C")
+        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C")
+        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C")
+        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C")
+        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C")
 
         meta.Fill()
 
         mstruct = MyStruct()
 
-        libr.Branch("x",AddressOf(mstruct,"x"),"x/F");
-        libr.Branch("y",AddressOf(mstruct,"y"),"y/F");
-        libr.Branch("z",AddressOf(mstruct,"z"),"z/F");
-        libr.Branch("e",AddressOf(mstruct,"e"),"e/F");
-        libr.Branch("time",AddressOf(mstruct,"time"),"time/F");
+        libr.Branch("x",AddressOf(mstruct,"x"),"x/F")
+        libr.Branch("y",AddressOf(mstruct,"y"),"y/F")
+        libr.Branch("z",AddressOf(mstruct,"z"),"z/F")
+        libr.Branch("e",AddressOf(mstruct,"e"),"e/F")
+        libr.Branch("time",AddressOf(mstruct,"time"),"time/F")
 
         mstruct.x = self.xrod_cent
         mstruct.y = self.yrod_cent
@@ -811,25 +812,25 @@ class FCALDistShowerLib() :
         libr.Write("library")
         tfile.Close()
     def printInfo(self) :
-        print "VERSION: FCALDistEnergyLib","PARTICLE:",self.particle,"DETECTOR:",self.detector
-        print self.release, self.geometry, self.geant, self.phys
-        print "xrodcent:",self.xrod_cent,"yrodcent:",self.yrod_cent,"step:",self.step
-        print self.comment
+        print ("VERSION: FCALDistEnergyLib","PARTICLE:",self.particle,"DETECTOR:",self.detector)
+        print (self.release, self.geometry, self.geant, self.phys)
+        print ("xrodcent:",self.xrod_cent,"yrodcent:",self.yrod_cent,"step:",self.step)
+        print (self.comment)
         ebins = [1,2,5,10,20,50,100,200,500,1000]
         dists = self.library.keys()
         dists.sort()
-        print "Number of etabins:",str(len(dists))
+        print ("Number of etabins:",str(len(dists)))
         fstot = 0
         for dist in dists :
             fstot +=len(self.library[dist])
-        print "Number of showers:",str(fstot)
-        print "-"*(13+len(ebins)*8) #horizontal line
-        infostr = "|dists\ebins|"
+        print ("Number of showers:",str(fstot))
+        print ("-"*(13+len(ebins)*8)) #horizontal line
+        infostr = "|dists|ebins|"
         for ebin in ebins : #header for energy bins
             infostr += ("<%d" %ebin).rjust(7)                         #str(ebin).rjust(7)
             infostr += "|"
-        print infostr
-        print "-"*(13+len(ebins)*8) #horizontal line
+        print (infostr)
+        print ("-"*(13+len(ebins)*8)) #horizontal line
         for distlow,disthigh in zip(dists,(dists[1:] + [4.5])) : #looping over eta bins
             prevebin = 0
             erec = {}
@@ -843,7 +844,7 @@ class FCALDistShowerLib() :
                 hits[ebin] = 0.
                 for shower in self.library[distlow] :
                     if (shower.egen <= ebin) and (shower.egen > prevebin) :
-                        count[ebin] += 1;
+                        count[ebin] += 1
                         egenshow = shower.egen
                         erecshow = 0
                         for hit in shower.shower :
@@ -874,17 +875,17 @@ class FCALDistShowerLib() :
                 infostr+="|"
                 infostr2+="|"
                 infostr3+="|"
-            print infostr
-            print infostr2
-            print infostr3
-            print "-"*(12+len(ebins)*8) #horizontal line
+            print (infostr)
+            print (infostr2)
+            print (infostr3)
+            print ("-"*(12+len(ebins)*8)) #horizontal line
     def drawHits(self):
         from ROOT import TH3F
         from math import sqrt,copysign,log10
         hits = TH3F("HITS","Hits Distrib",50,1,1000,101,-300,300,100,0,500)
         containmentZ = TH3F("CONTZ","ContZ Distrib",50,1,1000,101,-300,300,100,0,500)
         containmentR = TH3F("CONTR","ContR Distrib",50,1,1000,101,-300,300,100,0,500)
-        for distbin in self.library.itervalues() :
+        for distbin in self.library.values():
             for storedShower in distbin :
                 containmentR.Fill(log10(storedShower.egen)*333,storedShower.rsize,storedShower.zsize,10)
                 containmentR.Fill(log10(storedShower.egen)*333,-storedShower.rsize,storedShower.zsize,10)
@@ -907,20 +908,20 @@ class FCALDistEtaShowerLib() :
         self.yrod_cent = 0.0
         self.step = 0.0
     def scaleEnergy(self,scalefactor) :
-        for etabin in self.library.itervalues() :
-            for distbin in etabin.itervalues() :
+        for etabin in self.library.values():
+            for distbin in etabin.values():
                 for storedShower in distbin :
                     for hit in storedShower.shower :
                         hit.e *= scalefactor
         self.comment += " SCALED: "+str(scalefactor)
     def truncate(self,truncate) :
         showers = []
-        for eta,etabin in self.library.iteritems() :
-            for dist,distbin in etabin.iteritems() :
+        for eta,etabin in self.library.items():
+            for dist,distbin in etabin.items():
                 for storedShower in distbin :
                     showers += [(eta, dist, storedShower)]
         if len(showers) <= truncate :
-            print "WARNING: Size of the library is already less:",truncate,"<",len(showers)
+            print ("WARNING: Size of the library is already less:",truncate,"<",len(showers))
             return
         from random import randint
         while (len(showers) > truncate) :
@@ -930,7 +931,7 @@ class FCALDistEtaShowerLib() :
         return
     def moveDist(self,oldDist,newDist) :
         rez = False
-        for eta,etabin in self.library.iteritems() :
+        for eta,etabin in self.library.items():
             if (oldDist in etabin.keys()) :
                     etabin[newDist] = etabin.pop(oldDist)
                     rez=True
@@ -942,7 +943,7 @@ class FCALDistEtaShowerLib() :
         return True
     def removeDist(self,dist) :
         rez = False
-        for eta,etabin in self.library.iteritems() :
+        for eta,etabin in self.library.items():
             if (dist in etabin.keys()) :
                     self.library.pop(dist)
                     rez=True
@@ -955,7 +956,7 @@ class FCALDistEtaShowerLib() :
     def fromLibs(self,libs) :
         for lib in libs :
             if not isinstance(lib,self.__class__):
-                print "ERROR: Different types of libs"
+                print ("ERROR: Different types of libs")
                 return False
         self.detector = libs[0].detector
         self.particle = libs[0].particle
@@ -979,33 +980,33 @@ class FCALDistEtaShowerLib() :
                 self.yrod_cent != lib.yrod_cent or
                 self.step != lib.step or
                 etas != set(lib.library.keys()) ) :
-                print "ERROR: DIFFERENT LIBS!!!"
+                print ("ERROR: DIFFERENT LIBS!!!")
                 return False
             for eta in libs[0].library.keys() :
                 if (set(libs[0].library[eta].keys()) != set(lib.library[eta].keys())) :
-                    print "ERROR: DIFFERENT LIBS!!!"
+                    print ("ERROR: DIFFERENT LIBS!!!")
                     return False
         for lib in libs :
-            for k,v in lib.library.iteritems() :
-                    for ki,vi in v.iteritems() :
+            for k,v in lib.library.items():
+                    for ki,vi in v.items():
                         self.library.setdefault(k,dict()).setdefault(ki,set()).update(vi)
-        for k,v in self.library.iteritems() :
-                for ki,vi in v.iteritems() :
+        for k,v in self.library.items():
+                for ki,vi in v.items():
                     self.library[k][ki] = list(vi)
         return True
     def readFromFile(self,filename) :
-        from ROOT import TFile, TTree
+        from ROOT import TFile
         #from sets import Set
         tfile = TFile(filename)
         try:
             ver = int(tfile.Get("version").GetVal())
-        except :
-            print "Not an FCALDistEtaEnergyLib: Broken file"
+        except Exception:
+            print ("Not an FCALDistEtaEnergyLib: Broken file")
             tfile.Close()
             return False
 
         if (ver != 5) : #<<<<<<<<<<<<<<<<<<<<<<-------------- lib ver
-            print "Not an FCALDistEtaEnergyLib"
+            print ("Not an FCALDistEtaEnergyLib")
             tfile.Close()
             return False
         meta = tfile.Get("meta")
@@ -1095,7 +1096,7 @@ class FCALDistEtaShowerLib() :
                         state = 2
         tfile.Close()
         if (state != 0) : #the last entry should be the last hit of the last shower in the last bin. if not - file is corrupted
-            print "FILE CORRUPTED!!"
+            print ("FILE CORRUPTED!!")
             return False
         return True
     def writeToFile(self,filename) :
@@ -1110,7 +1111,7 @@ class FCALDistEtaShowerLib() :
             Char_t   phys[40];\
             Char_t   comment[400];\
             Int_t    particle;\
-        };" );
+        };" )
         from ROOT import MyMetaStruct
         gROOT.ProcessLine(
             "struct MyStruct {\
@@ -1119,7 +1120,7 @@ class FCALDistEtaShowerLib() :
             Float_t   z;\
             Float_t   e;\
             Float_t   time;\
-        };" );
+        };" )
         from ROOT import MyStruct
 
         tfile = TFile(filename,"RECREATE")
@@ -1140,23 +1141,23 @@ class FCALDistEtaShowerLib() :
         mmstruct.phys = "%s" % (str(self.phys))
         mmstruct.comment = "%s" % (str(self.comment))
 
-        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C");
-        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I");
-        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C");
-        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C");
-        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C");
-        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C");
-        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C");
+        meta.Branch("detector",AddressOf(mmstruct,"detector"),"detector/C")
+        meta.Branch("particle",AddressOf(mmstruct,"particle"),"particle/I")
+        meta.Branch("release",AddressOf(mmstruct,"release"),"release/C")
+        meta.Branch("geometry",AddressOf(mmstruct,"geometry"),"geometry/C")
+        meta.Branch("geantVersion",AddressOf(mmstruct,"geant"),"geantVersion/C")
+        meta.Branch("physicsList",AddressOf(mmstruct,"phys"),"physicsList/C")
+        meta.Branch("comment",AddressOf(mmstruct,"comment"),"physicsList/C")
 
         meta.Fill()
 
         mstruct = MyStruct()
 
-        libr.Branch("x",AddressOf(mstruct,"x"),"x/F");
-        libr.Branch("y",AddressOf(mstruct,"y"),"y/F");
-        libr.Branch("z",AddressOf(mstruct,"z"),"z/F");
-        libr.Branch("e",AddressOf(mstruct,"e"),"e/F");
-        libr.Branch("time",AddressOf(mstruct,"time"),"time/F");
+        libr.Branch("x",AddressOf(mstruct,"x"),"x/F")
+        libr.Branch("y",AddressOf(mstruct,"y"),"y/F")
+        libr.Branch("z",AddressOf(mstruct,"z"),"z/F")
+        libr.Branch("e",AddressOf(mstruct,"e"),"e/F")
+        libr.Branch("time",AddressOf(mstruct,"time"),"time/F")
 
         etas = self.library.keys()
         etas.sort()
@@ -1203,26 +1204,26 @@ class FCALDistEtaShowerLib() :
         libr.Write("library")
         tfile.Close()
     def printInfo(self) :
-        print "VERSION: FCALDistEtaEnergyLib","PARTICLE:",self.particle,"DETECTOR:",self.detector
-        print self.release, self.geometry, self.geant, self.phys
-        print "xrodcent:",self.xrod_cent,"yrodcent:",self.yrod_cent,"step:",self.step
-        print self.comment
+        print ("VERSION: FCALDistEtaEnergyLib","PARTICLE:",self.particle,"DETECTOR:",self.detector)
+        print (self.release, self.geometry, self.geant, self.phys)
+        print ("xrodcent:",self.xrod_cent,"yrodcent:",self.yrod_cent,"step:",self.step)
+        print (self.comment)
         ebins = [1,2,5,10,20,50,100,200,500,1000]
         etas = self.library.keys()
         etas.sort()
-        print "Number of etabins:",str(len(etas))
+        print ("Number of etabins:",str(len(etas)))
         fstot = 0
-        for etabin in self.library.itervalues() :
-            for distbin in etabin.itervalues() :
+        for etabin in self.library.values():
+            for distbin in etabin.values():
                 fstot +=len(distbin)
-        print "Number of showers:",str(fstot)
-        print "-"*(13+len(ebins)*8) #horizontal line
-        infostr = "|dists\ebins|"
+        print ("Number of showers:",str(fstot))
+        print ("-"*(13+len(ebins)*8)) #horizontal line
+        infostr = "|dists|ebins|"
         for ebin in ebins : #header for energy bins
             infostr += ("<%d" %ebin).rjust(7)                         #str(ebin).rjust(7)
             infostr += "|"
-        print infostr
-        print "-"*(13+len(ebins)*8) #horizontal line
+        print (infostr)
+        print ("-"*(13+len(ebins)*8)) #horizontal line
         for eta in etas :
             dists = self.library[eta].keys()
             dists.sort()
@@ -1239,7 +1240,7 @@ class FCALDistEtaShowerLib() :
                     hits[ebin] = 0.
                     for shower in self.library[eta][distlow] :
                         if (shower.egen <= ebin) and (shower.egen > prevebin) :
-                            count[ebin] += 1;
+                            count[ebin] += 1
                             egenshow = shower.egen
                             erecshow = 0
                             for hit in shower.shower :
@@ -1270,17 +1271,17 @@ class FCALDistEtaShowerLib() :
                     infostr+="|"
                     infostr2+="|"
                     infostr3+="|"
-                print infostr
-                print infostr2
-                print infostr3
-                print "-"*(12+len(ebins)*8) #horizontal line
+                print (infostr)
+                print (infostr2)
+                print (infostr3)
+                print ("-"*(12+len(ebins)*8)) #horizontal line
     def drawHits(self):
         from ROOT import TH3F
         from math import sqrt,copysign,log10
         hits = TH3F("HITS","Hits Distrib",50,1,1000,101,-300,300,100,0,500)
         containmentZ = TH3F("CONTZ","ContZ Distrib",50,1,1000,101,-300,300,100,0,500)
         containmentR = TH3F("CONTR","ContR Distrib",50,1,1000,101,-300,300,100,0,500)
-        for distbin in self.library.itervalues() :
+        for distbin in self.library.values():
             for storedShower in distbin :
                 containmentR.Fill(log10(storedShower.egen)*333,storedShower.rsize,storedShower.zsize,10)
                 containmentR.Fill(log10(storedShower.egen)*333,-storedShower.rsize,storedShower.zsize,10)

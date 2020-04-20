@@ -141,19 +141,25 @@ StatusCode TileDigiNoiseCalibAlg::FirstEvt_initialize() {
 
   CHECK( m_adderFilterAlgTool.retrieve() );
 
-  m_adderFilterAlgTool->setProperty("TileRawChannelContainer", "TileAdderFlat");
-  m_adderFilterAlgTool->setProperty("calibrateEnergy", "true");
-  m_adderFilterAlgTool->setProperty("PedStart", "0");
-  m_adderFilterAlgTool->setProperty("PedLength", "1");
-  m_adderFilterAlgTool->setProperty("PedOffset", "0");
-  m_adderFilterAlgTool->setProperty("SignalStart", "1");
-  m_adderFilterAlgTool->setProperty("SignalLength", "15");
-  m_adderFilterAlgTool->setProperty("FilterLength", "5");
-  m_adderFilterAlgTool->setProperty("FrameLength", "16");
-  m_adderFilterAlgTool->setProperty("DeltaCutLo", "9.5");
-  m_adderFilterAlgTool->setProperty("DeltaCutHi", "9.5");
-  m_adderFilterAlgTool->setProperty("RMSCutLo", "1.0");
-  m_adderFilterAlgTool->setProperty("RMSCutHi", "1.0");
+  StatusCode sc;
+  sc &= m_adderFilterAlgTool->setProperty("TileRawChannelContainer", "TileAdderFlat");
+  sc &= m_adderFilterAlgTool->setProperty("calibrateEnergy", "true");
+  sc &= m_adderFilterAlgTool->setProperty("PedStart", "0");
+  sc &= m_adderFilterAlgTool->setProperty("PedLength", "1");
+  sc &= m_adderFilterAlgTool->setProperty("PedOffset", "0");
+  sc &= m_adderFilterAlgTool->setProperty("SignalStart", "1");
+  sc &= m_adderFilterAlgTool->setProperty("SignalLength", "15");
+  sc &= m_adderFilterAlgTool->setProperty("FilterLength", "5");
+  sc &= m_adderFilterAlgTool->setProperty("FrameLength", "16");
+  sc &= m_adderFilterAlgTool->setProperty("DeltaCutLo", "9.5");
+  sc &= m_adderFilterAlgTool->setProperty("DeltaCutHi", "9.5");
+  sc &= m_adderFilterAlgTool->setProperty("RMSCutLo", "1.0");
+  sc &= m_adderFilterAlgTool->setProperty("RMSCutHi", "1.0");
+
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR("Failure setting properties of " << m_adderFilterAlgTool);
+    return StatusCode::FAILURE;
+  }
 
   m_tileOFCorrelation = new TileOFCorrelation();
   m_tileOFCorrelation->SetCorrelationZero(msg(), m_nSamples);

@@ -1,31 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-//
-//   @file    MDT_RegionSelectorTable.cxx         
-//   
-//
-//                   
-// 
-//
-//   $Id: MDT_RegionSelectorTable.cxx, v0.0   Tue  4 Aug 2009 16:38:38 BST sutt $
-
-
 
 #include "MuonRegionSelector/MDT_RegionSelectorTable.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "Identifier/IdentifierHash.h"
-
-#include <iostream>
-#include <fstream>
-#include <string>
-
-
 #include "RegSelLUT/StoreGateIDRS_ClassDEF.h" 
-
 #include "RegSelLUT/RegSelModule.h" 
 #include "RegSelLUT/RegSelSiLUT.h" 
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h" 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
@@ -34,15 +16,13 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonStation.h"
-
 #include "RegSelLUT/RegSelSiLUT.h"
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
 #include <iostream>
 #include <vector>
 #include <fstream>
-
-using namespace std;
+#include <string>
 
 MDT_RegionSelectorTable::MDT_RegionSelectorTable(const std::string& type, 
 						 const std::string& name,

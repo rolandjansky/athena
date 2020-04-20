@@ -13,12 +13,12 @@ hlt.type = 'Trig_reco_tf'
 hlt.forks = 1
 hlt.threads = 1
 hlt.concurrent_events = 1
+hlt.max_events = 50
 hlt.args = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\\"'
 hlt.args += ' --prodSysBSRDO True'
 hlt.args += ' --outputBSFile=RAW.pool.root'
 hlt.args += ' --outputHIST_HLTMONFile=hltmon.root'
 hlt.input = 'data'
-hlt.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 #====================================================================================================
 # Tier-0 reco step BS->ESD->AOD
@@ -34,7 +34,8 @@ tzreco = ExecStep.ExecStep('Tier0Reco')
 tzreco.type = 'Trig_reco_tf'
 tzreco.threads = 1
 tzreco.explicit_input = True
-tzreco.input = ''                                                                             
+tzreco.input = ''
+tzreco.max_events = 50
 tzreco.args = '--inputBSFile=RAW.pool.root'  # output of the previous step
 tzreco.args += ' --outputESDFile=ESD.pool.root --outputAODFile=AOD.pool.root'
 tzreco.args += ' --conditionsTag=\'CONDBR2-BLKPA-2018-11\' --geometryVersion=\'ATLAS-R2-2016-01-00-01\''

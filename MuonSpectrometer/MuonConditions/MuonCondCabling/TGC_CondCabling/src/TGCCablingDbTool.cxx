@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGC_CondCabling/TGCCablingDbTool.h" 
@@ -111,17 +111,17 @@ std::vector<std::string>* TGCCablingDbTool::giveASD2PP_DIFF_12() {
 StatusCode TGCCablingDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
   ATH_MSG_INFO("loadParameters from DB");
 
+  StatusCode sc;
   std::list<std::string>::const_iterator itr = keys.begin();
   std::list<std::string>::const_iterator itr_e = keys.end();
-  
   for(; itr!=itr_e; ++itr) {
     ATH_MSG_INFO("loadParameters " << (*itr) << " I=" << I << " ");
     if((*itr)==m_Folder) {
-      loadASD2PP_DIFF_12(I, keys);
+      sc &= loadASD2PP_DIFF_12(I, keys);
     }
   }
   
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 StatusCode TGCCablingDbTool::loadASD2PP_DIFF_12(IOVSVC_CALLBACK_ARGS_P(/*I*/, /*keys*/)) {

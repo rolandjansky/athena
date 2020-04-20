@@ -22,6 +22,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
     kwargs.setdefault('UseCoolPulseShapes', True)
     kwargs.setdefault('MaskBadChannels', False)
     kwargs.setdefault('RndmEvtOverlay', flags.Detector.OverlayTile)
+    kwargs.setdefault('OnlyUseContainerName', not flags.Detector.OverlayTile)
 
     acc = TileHitVecToCntCfg(flags)
 
@@ -30,17 +31,17 @@ def TileDigitsMakerCfg(flags, **kwargs):
     infoLoader = infoLoaderAcc.getPrimary()
     acc.merge( infoLoaderAcc )
 
-    infoLoaderProperties = infoLoader.getValuedProperties()
+    infoLoaderProperties = infoLoader._properties.items()
 
     if 'TileNoise' in infoLoaderProperties:
         tileNoise = infoLoaderProperties['TileNoise']
     else:
-        tileNoise = infoLoader.getDefaultProperty('TileNoise')
+        tileNoise = infoLoader._descriptors['TileNoise'].default
 
     if 'TileCoherNoise' in infoLoaderProperties:
         tileCoherNoise = infoLoaderProperties['TileCoherNoise']
     else:
-        tileCoherNoise = infoLoader.getDefaultProperty('TileCoherNoise')
+        tileCoherNoise = infoLoader._descriptors['TileCoherNoise'].default
 
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
@@ -54,18 +55,21 @@ def TileDigitsMakerCfg(flags, **kwargs):
         kwargs['TileCondToolEmscale'] = acc.popToolsAndMerge(TileCondToolEmscaleCfg(flags))
 
     if kwargs['RndmEvtOverlay']:
-
         tileNoise = False
         tileCoherNoise = False
 
-        PileUpMergeSvc=CompFactory.PileUpMergeSvc
-        acc.addService( PileUpMergeSvc() )
+        if flags.Overlay.DataOverlay:
+            from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+            acc.merge(ByteStreamReadCfg(flags, typeNames=[
+                'TileDigitsContainer/' + flags.Overlay.BkgPrefix + 'TileDigitsCnt',
+                'TileRawChannelContainer/' + flags.Overlay.BkgPrefix + 'TileRawChannelCnt']
+            ))
 
-        from TileRecUtils.TileDQstatusConfig import TileDQstatusToolCfg
-        kwargs['TileDQstatusTool'] = acc.popToolsAndMerge(TileDQstatusToolCfg(flags))
-    else:
-        kwargs['TileDQstatusTool'] = None
-        kwargs['TileDQstatus'] = ''
+        from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
+        acc.merge(TileDQstatusAlgCfg(flags))
+
+        kwargs['InputTileDigitContainer'] = flags.Overlay.BkgPrefix + 'TileDigitsCnt'
+        kwargs['TileDQstatus'] = 'TileDQstatus'
 
     if tileNoise or tileCoherNoise or kwargs['RndmEvtOverlay']:
         if 'RndmSvc' not in kwargs:
@@ -145,9 +149,15 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
 
     tileDigitsContainer = tileDigitsContainer.split('+').pop()
     outputItemList = ['TileDigitsContainer#' + tileDigitsContainer]
+    
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(  OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
+    if flags.Output.doWriteRDO:
+        if flags.Digitization.TruthOutput:
+            outputItemList += ["CaloCalibrationHitContainer#*"]
+            from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(  OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
 
     return acc
 

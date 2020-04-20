@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
@@ -18,7 +18,6 @@
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/IThinningSvc.h"
 
 
 void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE
@@ -47,33 +46,7 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE
       return;
     }
     
-    //Declare a vector of IdentifierHash to store those that survive thinning
-    std::vector<IdentifierHash> idhashes_kept_after_thinning;
-    
-    //Check to see if thinning service has been envoked
-    IThinningSvc* g_thinningSvc = IThinningSvc::instance();
-    const InDet::SiCluster* ExamplePixelCluster(0);
-    
-    if ( g_thinningSvc != NULL ) {
-      //If so loop over pixel links in the map and look for idhashes that are not to be thinned
-      const InDet::PixelClusterContainer* pixelCont = &(*dh);
-      InDet::PixelGangedClusterAmbiguities::const_iterator Sampleitr =   transObj->begin();
-      InDet::PixelGangedClusterAmbiguities::const_iterator SampleitrE =  transObj->end();
-      for( ; Sampleitr != SampleitrE ; Sampleitr++ ) 	  {
-	IdentifierHash          SampleidHash  = Sampleitr->first->getHashAndIndex().collHash(); // idHash of collection
-	if( g_thinningSvc->index(pixelCont,(std::size_t) SampleidHash) != IThinningSvc::RemovedIdx ) {
-	  idhashes_kept_after_thinning.push_back(SampleidHash);
-	  if(ExamplePixelCluster == NULL) ExamplePixelCluster = Sampleitr->first; //Only set pixel cluster once
-	}
-      }
-      if ( ExamplePixelCluster == NULL ) {
-	if (log.level() <= MSG::DEBUG) log << MSG::DEBUG <<"No ganged SiClusters found that survive thinning!"<< endmsg;
-	return;
-      }
-    }
-    else { //Default case of standard ganged pixel map processing
-      ExamplePixelCluster = itr->first;  
-    }
+    const InDet::SiCluster* ExamplePixelCluster = itr->first;
       
     // only need to check in which container ONE PixelCluster in the map is:
     // there is ONE ambiguity map per CONTAINER
@@ -106,16 +79,6 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE
     unsigned int count(1);
     for( ; itr != itrE ; itr++ ) {
     
-      //Special instruction in the event of thinning, i.e. skip ambiguity map entries which are associated to id hashes destined to be thinned
-      //If idhash is not in list to be kept then don't persistify this entry
-      //of the pixel map
-      if ( g_thinningSvc != NULL &&
-	   std::find(idhashes_kept_after_thinning.begin(), 
-		     idhashes_kept_after_thinning.end(), 
-		     itr->first->getHashAndIndex().collHash() ) == idhashes_kept_after_thinning.end() ) {
-	if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Skip persistifying ambiguity map entry for cluster destined to be thinned" << endmsg;
-	continue;
-      }
       // for clarity assign the elements
       keyPixelCluster            = itr->first;
       const InDet::SiCluster* keyPreviousPixelCluster    = previous_itr->first;

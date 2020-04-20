@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // egammaContainerCnv.cxx 
@@ -56,7 +56,7 @@ egammaContainer* egammaContainerCnv::createTransient()
 {
   MsgStream msg( msgSvc(), "egammaContainerCnv" );
 
-  egammaContainer *transObj = 0;
+  egammaContainer *transObj = nullptr;
 
   static pool::Guid tr_guid("7CAB4F67-1765-4CDC-9614-60EB93E5551B");
   static pool::Guid p1_guid("DBA382E5-52F7-4B40-8623-E807E134412E");

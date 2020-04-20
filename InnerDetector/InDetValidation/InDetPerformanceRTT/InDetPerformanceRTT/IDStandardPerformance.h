@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDStandardPerformance_H
@@ -30,7 +30,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
@@ -802,7 +802,7 @@ class IDStandardPerformance : public ManagedMonitorToolBase
 
     void fillPixelTrackPullHistos(const Identifier& elementID
 	, const Trk::TrackStateOnSurface* trackState
-	, const std::auto_ptr<const Trk::ResidualPull>& trackPull
+	, const std::unique_ptr<const Trk::ResidualPull>& trackPull
         , const InDetDD::SiDetectorElementCollection* elements);
 
 

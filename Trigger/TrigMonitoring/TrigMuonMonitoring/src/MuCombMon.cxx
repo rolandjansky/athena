@@ -219,7 +219,9 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
     // get IDTrack
     bool ID_con=false;
-    std::string ID_con_name="HLT_xAODTracks_Muon"; // run 3 ID track container name
+    /// FIXME: don't hardcode track collection names into the c++ code
+    ///        these should be in a job option
+    std::string ID_con_name="HLT_IDTrack_Muon_FTF"; // run 3 ID track container name
     if(getTDT()->getNavigationFormat() == "TriggerElement") ID_con_name="HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_FTF"; // run 2 ID track container name
     const xAOD::TrackParticle *ptr_trk = nullptr;
     const xAOD::TrackParticleContainer* Idcbtrk = nullptr;

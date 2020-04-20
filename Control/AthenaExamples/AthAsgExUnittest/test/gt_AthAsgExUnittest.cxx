@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -41,7 +41,7 @@ namespace Athena_test {
     EXPECT_TRUE( myTool.setProperty( "Property", 42.0 ).isSuccess() );
     EXPECT_TRUE( myTool.initialize().isSuccess() );
     std::string prop;
-    myTool.getProperty( "Property", prop );
+    EXPECT_TRUE( myTool.getProperty( "Property", prop ).isSuccess() );
     EXPECT_EQ( std::stod( prop ), 42.0 );
   }
   
@@ -49,7 +49,7 @@ namespace Athena_test {
     EXPECT_TRUE( myTool.setProperty( "EnumProperty", IMyPackageTool::Val2 ).isSuccess() );
     EXPECT_TRUE( myTool.initialize().isSuccess() );
     std::string prop;
-    myTool.getProperty( "EnumProperty", prop );
+    EXPECT_TRUE( myTool.getProperty( "EnumProperty", prop ).isSuccess() );
     EXPECT_EQ( std::stoi( prop ), IMyPackageTool::Val2 ); 
   }
   
@@ -66,16 +66,16 @@ namespace Athena_test {
     virtual void SetUp() override {
       // Algorithm and Tool properties via service:
       // see: Control/AthAnalysisBaseComps/AthAnalysisBaseComps/AthAnalysisHelper.h
-      AthAnalysisHelper::addPropertyToCatalogue( "MyPackageAlg",
-						 "MyProperty",
-						 21 );
-      AthAnalysisHelper::addPropertyToCatalogue( "MyPackageAlg",
-						 "MyTool",
-						 "MyPackageTool/AnotherName" );
+      EXPECT_TRUE( AthAnalysisHelper::addPropertyToCatalogue( "MyPackageAlg",
+                                                              "MyProperty",
+                                                              21 ).isSuccess() );
+      EXPECT_TRUE( AthAnalysisHelper::addPropertyToCatalogue( "MyPackageAlg",
+                                                              "MyTool",
+                                                              "MyPackageTool/AnotherName" ).isSuccess() );
       // Set property on the tool
-      AthAnalysisHelper::addPropertyToCatalogue( "MyPackageAlg.AnotherName",
-						 "Property", 
-						 42.0 );
+      EXPECT_TRUE( AthAnalysisHelper::addPropertyToCatalogue( "MyPackageAlg.AnotherName",
+                                                              "Property",
+                                                              42.0 ).isSuccess() );
       // Create instance of my algorithm directly in dual_use package
       myAlg= new MyPackageAlg( "MyPackageAlg", Gaudi::svcLocator() );
     }
@@ -101,14 +101,14 @@ namespace Athena_test {
     EXPECT_TRUE( myAlg->setProperty( "MyProperty", 5 ).isSuccess() );
     EXPECT_TRUE( myAlg->initialize().isSuccess() );
     std::string prop;
-    myAlg->getProperty( "MyProperty", prop );
+    EXPECT_TRUE( myAlg->getProperty( "MyProperty", prop ).isSuccess() );
     EXPECT_EQ( prop, "5" );
   }
   
   TEST_F( MyPackageAlgTest, sysInitialize ) {
     EXPECT_TRUE( myAlg->sysInitialize().isSuccess() );
     std::string prop;
-    myAlg->getProperty( "MyProperty", prop );
+    EXPECT_TRUE( myAlg->getProperty( "MyProperty", prop ).isSuccess() );
     EXPECT_EQ( std::stoi( prop ), 21 );
   }
   
@@ -117,7 +117,7 @@ namespace Athena_test {
     EXPECT_TRUE( myAlg->sysInitialize().isSuccess() );
     MyPackageTool* mpt= getMyTool();
     std::string prop;
-    mpt->getProperty( "Property", prop );
+    EXPECT_TRUE( mpt->getProperty( "Property", prop ).isSuccess() );
     EXPECT_EQ( std::stod( prop ), 42.0 );
   }
   

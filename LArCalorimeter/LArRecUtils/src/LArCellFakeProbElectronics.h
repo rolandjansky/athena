@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRECUTILS_LARCELLFAKEPROBELECTRONICS_H
@@ -46,7 +46,7 @@ class LArCellFakeProbElectronics :  public AthAlgTool, virtual public ICellWeigh
  private:
 
   /*! process jobOptions and add affected cells to list */
-  StatusCode add_cell(int iBarrel,int iSide,int iFT,int iSlot,int iChannel, double weight);
+  void add_cell(int iBarrel,int iSide,int iFT,int iSlot,int iChannel, double weight);
 
   /*! pointer to LArCablingLegacyService */
   LArCablingLegacyService* m_cablingService;

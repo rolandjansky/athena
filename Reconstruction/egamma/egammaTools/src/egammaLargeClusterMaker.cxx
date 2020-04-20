@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaLargeClusterMaker.h"
+#include "egammaUtils/egammaEnergyPositionAllSamples.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloClusterCellLink.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -35,7 +36,6 @@ StatusCode egammaLargeClusterMaker::initialize() {
   ATH_CHECK(m_inputClusterCollection.initialize());
   ATH_CHECK(m_cellsKey.initialize());
 
-  ATH_CHECK(m_egammaEnergyPositionAllSamples.retrieve());
 
   ATH_MSG_DEBUG("Initialization successful");
 
@@ -54,7 +54,10 @@ StatusCode egammaLargeClusterMaker::execute(const EventContext& ctx,
   SG::ReadHandle<xAOD::CaloClusterContainer> inputClusters(m_inputClusterCollection, ctx);
   // retrieve the cell containers
   SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey, ctx);
-
+  
+  const CaloDetDescrManager* dd_man= nullptr;
+  ATH_CHECK( detStore()->retrieve(dd_man,"CaloMgr") );
+  
   // The main loop over clusters
   for (auto cluster : *inputClusters) {
 
@@ -67,7 +70,7 @@ StatusCode egammaLargeClusterMaker::execute(const EventContext& ctx,
     }
     
     // check if cluster is in barrel or end-cap
-    bool in_barrel = m_egammaEnergyPositionAllSamples->inBarrel(*cluster,2);
+    bool in_barrel = egammaEnergyPositionAllSamples::inBarrel(*cluster,2);
     CaloSampling::CaloSample sam=CaloSampling::EMB2;
     if (in_barrel) {
       sam=CaloSampling::EMB2; 
@@ -82,15 +85,13 @@ StatusCode egammaLargeClusterMaker::execute(const EventContext& ctx,
     if ((eta==0. && phi==0.) || fabs(eta)>100) {
         return StatusCode::SUCCESS;
     }
-    
-    const CaloDetDescrManager* dd_man = CaloDetDescrManager::instance();
-
+   
     // Should get overritten
     bool  barrel=false;
     CaloCell_ID::SUBCALO subcalo=CaloCell_ID::LAREM;
     int sampling_or_module=0; 
 
-    dd_man->decode_sample(subcalo, barrel, sampling_or_module, 
+    CaloDetDescrManager::decode_sample(subcalo, barrel, sampling_or_module, 
             (CaloCell_ID::CaloSample) sam);
 
     // Get the corresponding grannularities : needs to know where you are

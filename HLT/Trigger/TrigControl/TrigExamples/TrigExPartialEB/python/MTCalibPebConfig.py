@@ -101,9 +101,12 @@ default_options = MTCalibPebHypoOptions()
 def make_l1_seq():
     all_algs = []
 
-    # Configure RoIBResult decoding (input to L1Decoder)
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
-    all_algs.append(RoIBResultByteStreamDecoderAlg())
+    # Create inputs for L1Decoder from ByteStream
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
+    L1ByteStreamDecodersRecExSetup()
+
+    from L1Decoder.L1DecoderConfig import L1TriggerResultMaker
+    all_algs.append(L1TriggerResultMaker())
 
     # Set menu for L1ConfigSvc
     from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -120,10 +123,14 @@ def make_l1_seq():
     ctpUnpacker = CTPUnpackingTool(ForceEnableAllChains=True)
     # Can add other tools here if needed
 
+    from L1Decoder.L1DecoderConf import PrescalingEmulationTool
+    psEmulation = PrescalingEmulationTool()
+
     # Schedule the L1Decoder algo with the above tools
     from L1Decoder.L1DecoderConf import L1Decoder
     l1decoder = L1Decoder()
     l1decoder.ctpUnpacker = ctpUnpacker
+    l1decoder.prescaler = psEmulation
     all_algs.append(l1decoder)
 
     from AthenaCommon.CFElements import seqOR
@@ -192,7 +199,7 @@ def make_all_hypo_algs(num_chains, concurrent=False):
 def configure_hlt_result(hypo_algs):
     from TrigOutputHandling.TrigOutputHandlingConf import StreamTagMakerTool, TriggerBitsMakerTool
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg
-    from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
+    from TrigEDMConfig.DataScoutingInfo import getFullHLTResultID
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')

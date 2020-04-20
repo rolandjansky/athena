@@ -5,7 +5,7 @@
 #ifdef ONLINE // This tool is only meant for special online monitoring at Point 1
 
 #include "TRT_Monitoring/TRT_Hits_Monitoring_Tool.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "StoreGate/ReadHandle.h"
 

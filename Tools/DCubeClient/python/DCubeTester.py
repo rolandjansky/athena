@@ -1,12 +1,13 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ##
 # @file DCubeClient/python/DCubeTester.py
 # @author Krzysztof Daniel Ciba (Krzyszotf.Ciba@NOSPAMgmail.com)
 # @brief implementation of DCubeTester and test_DCubeTester classes
 
 import sys
+import ctypes
 from DCubeUtils import DCubeObject, DCubeException
 from DCubePlotter import DCubePlotter
 import ROOT
@@ -107,7 +108,7 @@ class DCubeTester( DCubeObject ):
                 self.errors[status] = 1
             else:
                 self.errors[status] = self.errors[status] + 1
-            self.error("monitored object not found!")
+            self.error("monitored object '%s' not found!" % self.node.getAttribute("name"))
             return "FAIL"
 
         cl = self.mon.Class().GetName()
@@ -121,12 +122,12 @@ class DCubeTester( DCubeObject ):
                 self.errors[status] = 1
             else:
                 self.errors[status] = self.errors[status] + 1
-            self.error("unsuported object found")
+            self.error("unsuported object '%s' found" % self.node.getAttribute('name'))
             return "FAIL"
 
         # reference exists?
         if ( not self.ref ):
-            self.warn( "reference object not found!" )
+            self.warn( "reference object '%s' not found!" % self.node.getAttribute('name') )
             status = "WARN;reference histogram not found"
             self.node.setAttribute( "status", status )
             if ( status not in self.errors.keys() ):
@@ -146,7 +147,7 @@ class DCubeTester( DCubeObject ):
                     self.errors[ status ] = 1
                 else:
                     self.errors[ status ] = self.errors[ status ] + 1
-                self.error("different types for mon and ref objects!")
+                self.error("different types for mon and ref '%s' objects!" % self.node.getAttribute('name'))
                 return "FAIL"
 
 
@@ -167,7 +168,7 @@ class DCubeTester( DCubeObject ):
                     self.errors[ status ] = 1
                 else:
                     self.errors[ status ] = self.errors[ status ] + 1
-                self.error("different binning for mon and ref objects!")
+                self.error("different binning for mon and ref '%s' objects!" % self.node.getAttribute('name'))
                 return "FAIL"
 
         if cl == "TEfficiency":
@@ -295,7 +296,7 @@ class DCubeTester( DCubeObject ):
 
         #check if some values are inf or nan
         if ( self.__checkValues(vals) != "OK" ):
-            self.warn( "some values in histogram are infinity or NaN, skipping!")
+            self.warn( "some values in histogram '%s' are infinity or NaN, skipping!" % self.node.getAttribute('name') )
             self.node.setAttribute( "status", "FAIL;monitored or reference histogram contains inf or NaN values")
             return "FAIL"
 
@@ -381,7 +382,7 @@ class DCubeTester( DCubeObject ):
         if ( self.node.getAttribute('pwarn') ):
             try:
                 pwarn = float ( self.node.getAttribute('pwarn').strip() )
-            except TypeError, value:
+            except TypeError as value:
                 raise DCubeException( "histogram %s pvalue limit for WARN is NAN" % self.node.getAttribute('name') )
             self.info("overriding pvalue limits for histogram %s: new WARN limit is pwarn=%s" % ( self.node.getAttribute('name'), pwarn ) )
         else:
@@ -390,7 +391,7 @@ class DCubeTester( DCubeObject ):
         if ( self.node.getAttribute('pfail') ):
             try:
                 pfail = float ( self.node.getAttribute('pfail').strip() )
-            except TypeError, value:
+            except TypeError as value:
                 raise DCubeException( "histogram %s pvalue limit for FAIL is NAN" % self.node.getAttribute('name') )
             self.info("overriding pvalue limits for histogram %s: new FAIL limit is pfail=%s" % ( self.node.getAttribute('name'), pfail ) )
         else:
@@ -423,9 +424,9 @@ class DCubeTester( DCubeObject ):
     # @param statNode <stat> element
     def __testChi2( self, statNode, pwarn, pfail ):
 
-        chi2 = ROOT.Double( 0.0 )
-        igood = ROOT.Long( 0 )
-        ndf = ROOT.Long( 0 )
+        chi2 = 0.0
+        igood = 0
+        ndf = 0
 
 
         nbBins,nbBinsSame,nbBinsDiff = self.__testEqual()
@@ -433,14 +434,20 @@ class DCubeTester( DCubeObject ):
 
         pval = 1.0
         if nbBins==0.0 and nbBinsSame==0.0:
-            self.warn( "*** Pearson's chi2 *** both histograms are empty!" )
+            self.warn( "*** Pearson's chi2 *** both '%s' histograms are empty!" % self.node.getAttribute('name') )
         elif nbBinsSame==nbBins:
-            self.debug( "*** Pearson's chi2 *** both histograms are equal!" )
+            self.debug( "*** Pearson's chi2 *** both '%s' histograms are equal!" % self.node.getAttribute('name') )
         else:
+            chi2 = ctypes.c_double( chi2 )
+            igood = ctypes.c_int( igood )
+            ndf = ctypes.c_int( ndf )
             pval = self.mon.Chi2TestX( self.ref, chi2, ndf, igood, "UUDNORM")
+            chi2 = chi2.value
+            ndf = ndf.value
+            igood = igood.value
 
             self.debug( "*** Pearson's chi2 *** (UUDNORM) p-value= %4.3f" % pval )
-            ig = "*** Pearson's chi2 *** igood = %d, %s" % ( igood, self.chi2igood[igood] )
+            ig = "*** Pearson's chi2 *** igood = %d, %s for '%s'" % ( igood, self.chi2igood[igood], self.node.getAttribute('name') )
             if ( igood == 0 ):
                 self.debug( ig )
             else:
@@ -486,11 +493,11 @@ class DCubeTester( DCubeObject ):
 
         pval = 1.0
         if nbBins==0.0 and nbBinsSame==0.0:
-            self.warn( "*** Kolmogorov-Smirnoff *** both histograms are empty!" )
+            self.warn( "*** Kolmogorov-Smirnoff *** both '%s' histograms are empty!" % self.node.getAttribute('name') )
         elif nbBinsSame==nbBins:
-            self.debug( "*** Kolmogorov-Smirnoff *** both histograms are equal!" )
+            self.debug( "*** Kolmogorov-Smirnoff *** both '%s' histograms are equal!" % self.node.getAttribute('name') )
         else:
-            pval = self.mon.KolmogorovTest( self.ref, "D" )
+            pval = self.mon.KolmogorovTest( self.ref, "D" if self.opts.verbosity <= 2 else "" )
 
         status = self.__getTestStatus( pval, pwarn, pfail )
         self.sumTable["KS"][status] = self.sumTable["KS"][status] + 1
@@ -548,11 +555,11 @@ class DCubeTester( DCubeObject ):
             self.debug("*** bin-by-bin *** p-value=%4.3f" % pval )
         elif ( nbBinsSame == 0.0 ):
             pval = 1.0
-            self.warn( "*** bin-by-bin *** both histograms are empty!" )
+            self.warn( "*** bin-by-bin *** both '%s' histograms are empty!" % self.node.getAttribute('name') )
             self.debug( "*** bin-by-bin *** p-value=%4.3f" % pval )
         else:
             # AS: this part is never called?!
-            self.warn( "*** bin-by-bin *** reference histogram is empty, while monitored has some entries" )
+            self.warn( "*** bin-by-bin *** reference '%s' histogram is empty, while monitored has some entries" % self.node.getAttribute('name') )
             self.debug( "*** bin-by-bin *** test failed" )
 
         status = self.__getTestStatus( pval, pwarn, pfail )
@@ -652,7 +659,7 @@ class DCubeTester( DCubeObject ):
         self.allGOOD = 0
         self.allWARN = 0
         self.allFAIL = 0
-        for key, value  in self.sumTable.iteritems():
+        for key, value  in self.sumTable.items():
             nbGOOD = value["OK"]
             nbWARN = value["WARN"]
             nbFAIL = value["FAIL"]
@@ -677,14 +684,14 @@ class DCubeTester( DCubeObject ):
             self.fracGOOD = 100 * float( self.allGOOD ) / all
             self.fracWARN = 100 * float( self.allWARN ) / all
             self.fracFAIL = 100 * float( self.allFAIL ) / all
-        out += "* | %%        |    %04.2f |    %04.2f |    %04.2f |\n" % ( self.fracGOOD, self.fracWARN, self.fracFAIL )
+        out += "* | %%        |   %6.2f |   %6.2f |   %6.2f |\n" % ( self.fracGOOD, self.fracWARN, self.fracFAIL )
         out += "* " + "-"*45+"\n"
 
         out += "*"*61+"\n"
-        self.nbErrors = sum( self.errors.itervalues() )
+        self.nbErrors = sum( self.errors.values() )
         out += "* WARNINGS = %3d\n" % self.nbErrors
         i = 1
-        for key, value in self.errors.iteritems( ):
+        for key, value in self.errors.items( ):
             sev, what = key.split(";")
 
             out += "* [%02d] %4s %-30s - occured %d " %  (i, sev, what, value )
@@ -714,8 +721,8 @@ class DCubeTester( DCubeObject ):
     # @return summary XML Element
     def summary( self ):
 
-        for line in str(self).split("\n"):
-            self.info( line )
+        # Print RUN SUMMARY to console (even if --verbosity=3), but still with "INFO" flag - it's not a warning.
+        self.infoExtra( str(self).split("\n"), self.opts.verbosity-1 )
 
         summaryNode = self.xmldoc.createElement( "summary" )
         summaryNode.setAttribute( "status" , self.__status )
@@ -724,7 +731,7 @@ class DCubeTester( DCubeObject ):
 
         testTable = self.xmldoc.createElement( "table" )
         testTable.appendChild( self.__sumTableRow( [ "test", "OK", "WARN", "FAIL" ] ) )
-        for test, results in self.sumTable.iteritems():
+        for test, results in self.sumTable.items():
             testTable.appendChild( self.__sumTableRow( [ test,
                                                          results["OK"],
                                                          results["WARN"],
@@ -741,7 +748,7 @@ class DCubeTester( DCubeObject ):
         errorsNode = self.xmldoc.createElement( "errors" )
         errorsNode.setAttribute( "nb", "%d" % self.nbErrors )
 
-        for error,times in self.errors.iteritems():
+        for error,times in self.errors.items():
             error = error.replace(";", " ")
             errorNode = self.xmldoc.createElement( "error" )
             errorNode.setAttribute( "times", "%d" % times )

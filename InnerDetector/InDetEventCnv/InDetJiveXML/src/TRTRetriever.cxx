@@ -6,8 +6,8 @@
 #include "StoreGate/DataHandle.h"
 #include "JiveXML/DataType.h"
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 

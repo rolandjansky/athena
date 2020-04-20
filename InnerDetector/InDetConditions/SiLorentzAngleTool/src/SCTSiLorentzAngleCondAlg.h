@@ -27,6 +27,13 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/ToolHandle.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 // forward declarations
 namespace MagField {
   class IMagFieldSvc;
@@ -76,7 +83,13 @@ class SCTSiLorentzAngleCondAlg: public AthReentrantAlgorithm
   BooleanProperty          m_useGeoModel{this, "UseGeoModel", false};
   unsigned int             m_maxHash;
 
-  Amg::Vector3D getMagneticField(const InDetDD::SiDetectorElement* element) const;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Amg::Vector3D getMagneticField(MagField::AtlasFieldCache& fieldCache, const InDetDD::SiDetectorElement* element) const;
+
+  // Read handle for conditions object to get the field cache
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                        "Name of the Magnetic Field conditions object key"};
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 };
 
 #endif // SCTSiLorentzAngleCondAlg_h

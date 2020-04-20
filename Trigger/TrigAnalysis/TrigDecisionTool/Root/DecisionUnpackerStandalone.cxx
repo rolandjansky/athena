@@ -15,7 +15,7 @@
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
 #include "TrigDecisionTool/DecisionObjectHandleStandalone.h"
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
 #include "TrigNavigation/NavigationCore.h"
 #endif
 
@@ -37,10 +37,9 @@ namespace {
 
 namespace Trig {
 
-  DecisionUnpackerStandalone::
-  DecisionUnpackerStandalone( EventPtr_t sg, const std::string& deckey,
-			      const std::string& navikey)
-    : m_handle( new DecisionObjectHandleStandalone( sg, deckey, navikey ) )
+  DecisionUnpackerStandalone::DecisionUnpackerStandalone( SG::ReadHandleKey<xAOD::TrigDecision>* deckey,
+                                                          SG::ReadHandleKey<xAOD::TrigNavigation>* navikey)
+    : m_handle( new DecisionObjectHandleStandalone( deckey, navikey ) )
   {
   }
   
@@ -139,11 +138,11 @@ namespace Trig {
       
       bool navi_nonempty = !(serializedNav->serialized().empty());
 
-#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
       HLT::NavigationCore* fullNav = dynamic_cast<HLT::NavigationCore*>(nav);
       
       if(!fullNav){
-	ATH_MSG_WARNING("downcast failed");
+        ATH_MSG_WARNING("downcast failed");
       }
       
       fullNav->reset();

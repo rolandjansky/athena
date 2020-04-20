@@ -27,6 +27,9 @@ def TileMonitoringCfg(flags):
         from TileMonitoring.TileMBTSMonitorAlgorithm import TileMBTSMonitoringConfig
         acc.merge( TileMBTSMonitoringConfig(flags) )
 
+        from TileMonitoring.TileDigiNoiseMonitorAlgorithm import TileDigiNoiseMonitoringConfig
+        acc.merge( TileDigiNoiseMonitoringConfig(flags) )
+
 
     if environment in ('online', 'tier0', 'tier0ESD'):
         msg.info('Setup Tile Monitoring for ESD data due to environment: %s', environment)

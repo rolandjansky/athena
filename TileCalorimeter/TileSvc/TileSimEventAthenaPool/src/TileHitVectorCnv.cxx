@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileSimEventTPCnv/TileHitVectorCnv_p1.h"
@@ -27,7 +27,7 @@ TileHitVector* TileHitVectorCnv::createTransient() {
 
     if( this->compareClassGuid(p1_guid)) {
 
-        std::auto_ptr< TileHitVector_p1 > col_vect( this->poolReadObject< TileHitVector_p1 >() );
+        std::unique_ptr< TileHitVector_p1 > col_vect( this->poolReadObject< TileHitVector_p1 >() );
         trans_cont = converter_p1.createTransient( col_vect.get(), mlog );
 
     } else if( this->compareClassGuid(p0_guid)) {

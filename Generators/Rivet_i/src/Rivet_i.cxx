@@ -1,17 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation file for Athena-Rivet interface
 
-#include "Rivet_i/Rivet_i.h"
-#include "Rivet_i/LogLevels.h"
+#include "Rivet_i.h"
+#include "LogLevels.h"
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
+
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -21,16 +24,15 @@
 #include "Rivet/Analysis.hh"
 #include "Rivet/Tools/RivetYODA.hh"
 
-#include "TH1D.h"
-#include "TGraphAsymmErrors.h"
+//#include "TH1D.h"
+//#include "TGraphAsymmErrors.h"
 
-#include "YODA/ROOTCnv.h"
-
-/// @todo Eliminate Boost?
-#include <boost/algorithm/string.hpp>
+//#include "YODA/ROOTCnv.h"
 
 #include <cstdlib>
 #include <memory>
+#include <regex>
+
 using namespace std;
 
 
@@ -38,7 +40,7 @@ using namespace std;
 
 Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_histSvc("THistSvc", name),
+  //m_histSvc("THistSvc", name),
   m_analysisHandler(0),
   m_init(false)
 {
@@ -46,18 +48,18 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("McEventKey", m_genEventKey="GEN_EVENT");
   declareProperty("Analyses", m_analysisNames);
   declareProperty("CrossSection", m_crossSection=-1.0);
-  declareProperty("WeightName", m_weightName="");
+  declareProperty("CrossSectionUncertainty", m_crossSection_uncert=-1.0);
   declareProperty("Stream", m_stream="/Rivet");
   declareProperty("RunName", m_runname="");
   declareProperty("HistoFile", m_file="Rivet.yoda");
+  declareProperty("HistoPreload", m_preload="");
   declareProperty("AnalysisPath", m_anapath="");
   declareProperty("IgnoreBeamCheck", m_ignorebeams=false);
-  declareProperty("SkipFinalize", m_skipfinalize=false);
-  declareProperty("DoRootHistos", m_doRootHistos=true);
-  declareProperty("RootAsTGraph", m_doRootAsTGraph=false);
-
+  declareProperty("DoRootHistos", m_doRootHistos=false);
+  declareProperty("SkipWeights", m_skipweights=false);
+  declareProperty("WeightCap", m_weightcap=-1.0);
   // Service handles
-  declareProperty("THistSvc", m_histSvc);
+  //declareProperty("THistSvc", m_histSvc);
 }
 
 string getenv_str(const string& key) {
@@ -68,13 +70,13 @@ string getenv_str(const string& key) {
 
 StatusCode Rivet_i::initialize() {
   ATH_MSG_DEBUG("Rivet_i initializing");
-  ATH_MSG_INFO("Using Rivet version " << RIVET_VERSION);
+  ATH_MSG_INFO("Using Rivet version " << Rivet::version());
 
   // Get histo service
-  if (m_doRootHistos && m_histSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve service " << m_histSvc);
-    return StatusCode::FAILURE;
-  }
+  //if (m_doRootHistos && m_histSvc.retrieve().isFailure()) {
+  //  ATH_MSG_FATAL("Failed to retrieve service " << m_histSvc);
+  //  return StatusCode::FAILURE;
+  //}
 
   // Set RIVET_ANALYSIS_PATH based on alg setup
 
@@ -93,11 +95,16 @@ StatusCode Rivet_i::initialize() {
     ATH_MSG_WARNING("$CMTPATH variable not set: finding the main analysis plugin directory will be difficult...");
   } else {
     vector<string> cmtpaths;
-    boost::split(cmtpaths, cmtpath, boost::is_any_of(string(":")));
+    std::stringstream ss(cmtpath);
+    std::string item;
+    while (std::getline(ss, item, ':')) {
+      cmtpaths.push_back(std::move(item));
+    }
     const string cmtconfig = getenv_str("CMTCONFIG");
     if (cmtconfig.empty()) {
       ATH_MSG_WARNING("$CMTCONFIG variable not set: finding the main analysis plugin directory will be difficult...");
-    } else {
+    } 
+    else {
       const string libpath = "/InstallArea/" + cmtconfig + "/lib";
       for (const string& p : cmtpaths) {
         const string cmtlibpath = p + libpath;
@@ -125,6 +132,8 @@ StatusCode Rivet_i::initialize() {
   m_analysisHandler = new Rivet::AnalysisHandler(m_runname);
   assert(m_analysisHandler);
   m_analysisHandler->setIgnoreBeams(m_ignorebeams); //< Whether to do beam ID/energy consistency checks
+  m_analysisHandler->skipMultiWeights(m_skipweights); //< Whether to skip weights or not
+  if (m_weightcap>0) m_analysisHandler->setWeightCap(m_weightcap);
 
   // Set Rivet native log level to match Athena
   Rivet::Log::setLevel("Rivet", rivetLevel(msg().level()));
@@ -133,7 +142,7 @@ StatusCode Rivet_i::initialize() {
   if (msgLvl(MSG::VERBOSE)) {
     vector<string> analysisNames = Rivet::AnalysisLoader::analysisNames();
     ATH_MSG_VERBOSE("List of available Rivet analyses:");
-    for (const string& a : analysisNames) ATH_MSG_VERBOSE(" " + a);
+    for (const string& a : analysisNames)  ATH_MSG_VERBOSE(" " + a);
   }
 
   // Add analyses
@@ -141,18 +150,15 @@ StatusCode Rivet_i::initialize() {
     ATH_MSG_INFO("Loading Rivet analysis " << a);
     m_analysisHandler->addAnalysis(a);
     Rivet::Log::setLevel("Rivet.Analysis."+a, rivetLevel(msg().level()));
-    // Rivet::Analysis* analysis = Rivet::AnalysisLoader::getAnalysis(a);
-    // if (analysis->needsCrossSection()) {
-    //   m_needsCrossSection = true;
-    //   if (m_crossSection < 0.0) {
-    //     ATH_MSG_FATAL("Analysis " << a << " requires the cross section to be set in the job options");
-    //     return StatusCode::FAILURE;
-    //   }
-    // }
   }
 
   // Initialise Rivet
   // m_analysisHandler->init();
+
+  //load a pre-existing yoda file to initialize histograms
+  if (m_preload!= "") {
+    m_analysisHandler->readData(m_preload);
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -210,16 +216,20 @@ StatusCode Rivet_i::finalize() {
   ATH_MSG_INFO("Rivet_i finalizing");
 
   // Set xsec in Rivet
-  if (m_crossSection > 0) m_analysisHandler->setCrossSection(m_crossSection);
+  // Set xsec in Rivet
+  double custom_xs = m_crossSection > 0 ? m_crossSection : 1.0;
+  double custom_xserr = m_crossSection_uncert > 0 ? m_crossSection_uncert : 0.0;
+  m_analysisHandler->setCrossSection({custom_xs, custom_xserr});
 
   // Call Rivet finalize
-  if (!m_skipfinalize) m_analysisHandler->finalize();
+  m_analysisHandler->finalize();
 
   // Convert YODA-->ROOT
-  if (m_doRootHistos) {
+  /*if (m_doRootHistos) {
     for (const Rivet::AnalysisObjectPtr ao : m_analysisHandler->getData()) {
       // Normalize path name to be usable by ROOT
-      const string path = boost::replace_all_copy(ao->path(), "-", "_");
+      string path = string(ao->path());
+      std::replace(path.begin(), path.end(), '-', '_');
       const string basename = ao->path().substr(ao->path().rfind("/")+1); // There should always be >= 1 slash
 
       // Convert YODA histos to heap-allocated ROOT objects and register
@@ -256,7 +266,7 @@ StatusCode Rivet_i::finalize() {
         ATH_MSG_WARNING("Couldn't convert YODA histo " + path + " to ROOT: unsupported data type " + ao->type());
       }
     }
-  }
+  }*/
 
   // Write out YODA file (add .yoda suffix if missing)
   if (m_file.find(".yoda") == string::npos) m_file += ".yoda";
@@ -272,25 +282,72 @@ bool cmpGenParticleByEDesc(const HepMC::GenParticle* a, const HepMC::GenParticle
   return a->momentum().e() > b->momentum().e();
 }
 
+inline std::vector<std::string> split(const std::string& input, const std::string& regex) {
+  // passing -1 as the submatch index parameter performs splitting
+  std::regex re(regex);
+  std::sregex_token_iterator
+  first{input.begin(), input.end(), re, -1},
+    last;
+    return {first, last};
+}
 
 const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   std::vector<HepMC::GenParticle*> beams;
   HepMC::GenEvent* modEvent = new HepMC::GenEvent(*event);
 
-  if(m_weightName != ""){
-    if(event->weights().has_key(m_weightName)){
-      double weight = event->weights()[m_weightName];
-      modEvent->weights().clear();
-      modEvent->weights()[m_weightName] = weight;
-    }else{
-      ATH_MSG_ERROR("Weight named " + m_weightName + " could not be found in the HepMC event!");
-      delete modEvent;
-      return (HepMC::GenEvent*)0;
-    }
+  // overwrite the HEPMC dummy event number with the proper ATLAS event number
+  const DataHandle<EventInfo> eventInfo;
+  if (StatusCode::SUCCESS == evtStore()->retrieve(eventInfo)) {
+    //int run=eventInfo->event_ID()->run_number();
+    int eventNumber = eventInfo->event_ID()->event_number();
+    modEvent->set_event_number(eventNumber);
   }
 
-  if (!event->valid_beam_particles()) {
-    for (HepMC::GenEvent::particle_const_iterator p = event->particles_begin(); p != event->particles_end(); ++p) {
+  // weight-name cleaning
+  vector<pair<string,string> > w_subs = {
+    {" nominal ",""},
+    {" set = ","_"},
+    {" = ","_"},
+    {"=",""},
+    {",",""},
+    {".",""},
+    {":",""},
+    {" ","_"},
+    {"#","num"},
+    {"\n","_"},
+    {"/","over"}
+  };
+
+  const HepMC::WeightContainer& old_wc = event->weights();
+  HepMC::WeightContainer& new_wc = modEvent->weights();
+  new_wc.clear();
+  std::ostringstream stream;
+  old_wc.print(stream);
+  string str =  stream.str();
+  std::regex re("(([^()]+))"); // Regex for stuff enclosed by parentheses ()
+  for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
+       i != std::sregex_iterator(); ++i ) {
+    std::smatch m = *i;
+    vector<string> temp = ::split(m.str(), "[,]");
+    if (temp.size() == 2 || temp.size() == 3) {
+      string wname = temp[0];
+      if (temp.size() == 3)  wname += "," + temp[1];
+      double value = old_wc[wname];
+      for (const auto& sub : w_subs) {
+        size_t start_pos = wname.find(sub.first);
+        while (start_pos != std::string::npos) {
+          wname.replace(start_pos, sub.first.length(), sub.second);
+          start_pos = wname.find(sub.first);
+        }
+      }
+      new_wc[wname];
+      new_wc.back() = value;
+    }
+  }
+  // end of weight-name cleaning
+
+  if (!modEvent->valid_beam_particles()) {
+    for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
       if (!(*p)->production_vertex() && (*p)->pdg_id() != 0) {
         beams.push_back(*p);
       }
@@ -299,24 +356,17 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     beams.resize(2);
   } else {
     beams.resize(2);
-    beams[0] = event->beam_particles().first;
-    beams[1] = event->beam_particles().second;
+    beams[0] = modEvent->beam_particles().first;
+    beams[1] = modEvent->beam_particles().second;
   }
 
   double scalefactor = 1.0;
-  // ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
-  // ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (event->momentum_unit() == HepMC::Units::MEV));
-  #ifdef HEPMC_HAS_UNITS
-  if (event->momentum_unit() == HepMC::Units::MEV) {
-    if (beams[0]->momentum().e() < 50000.0) scalefactor = 1000.0;
-  } else if (event->momentum_unit() == HepMC::Units::GEV) {
-    if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
-  }
-  #else
+  //ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
+  //ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (modEvent->momentum_unit() == HepMC::Units::MEV));
+  modEvent->use_units(HepMC::Units::GEV, HepMC::Units::MM);
   if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
-  #endif
 
-  if (scalefactor == 1.0 && event->valid_beam_particles()) {
+  if (scalefactor == 1.0 && modEvent->valid_beam_particles()) {
     return modEvent;
   } else {
     if (scalefactor != 1.0) {

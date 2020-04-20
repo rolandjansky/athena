@@ -37,3 +37,4 @@ def downloadUsingProxy(url, filename=None):
                 msg += "All download attempts failed"
                 return 1, msg
     return 0, msg
+

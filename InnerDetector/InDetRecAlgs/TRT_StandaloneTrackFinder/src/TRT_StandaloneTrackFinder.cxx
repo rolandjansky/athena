@@ -29,7 +29,7 @@ using Gaudi::Units::GeV;
 
 InDet::TRT_StandaloneTrackFinder::TRT_StandaloneTrackFinder
 (const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
   
   m_minNumDriftCircles = 15                                   ;       //Minimum number of drift circles for TRT segment tracks
@@ -73,19 +73,16 @@ StatusCode InDet::TRT_StandaloneTrackFinder::initialize()
 /////////////////////////////////////////////////////////////////////
 // Execute
 ///////////////////////////////////////////////////////////////////
-StatusCode InDet::TRT_StandaloneTrackFinder::execute()
+StatusCode InDet::TRT_StandaloneTrackFinder::execute(const EventContext& ctx) const
 {
 
-  Counter_t counter = {};
- 
-  //Clear all caches
-  m_segToTrackTool->resetAll();
-
+  Counter_t counter {};
+  ITRT_SegmentToTrackTool::EventData event_data;
 
   ///Retrieve segments from StoreGate
   //
 
-  SG::ReadHandle<Trk::SegmentCollection > segments(m_Segments);
+  SG::ReadHandle<Trk::SegmentCollection > segments(m_Segments, ctx);
   if(!segments.isValid()){
       ATH_MSG_FATAL ("No segment with name " << m_Segments.key() << " found in StoreGate!");
       return StatusCode::FAILURE;
@@ -94,7 +91,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
   SG::ReadHandle<Trk::PRDtoTrackMap > prd_to_track_map;
   const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap >(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap >(m_prdToTrackMap, ctx);
     if(!prd_to_track_map.isValid()){
       ATH_MSG_FATAL ("Failed to get " << m_prdToTrackMap.key() << ".");
       return StatusCode::FAILURE;
@@ -167,7 +164,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
 	ATH_MSG_DEBUG ("Segment considered for further processing, enter into list");
 
 	// Transform the original TRT segment into a track
-	Trk::Track* trtSeg = m_segToTrackTool->segToTrack(*trackTRT);
+	Trk::Track* trtSeg = m_segToTrackTool->segToTrack(ctx, *trackTRT);
 	if(!trtSeg){
 	  // Statistics...
 	  counter[kNSegFailed]++;
@@ -185,30 +182,31 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
           continue;
         }
 	// add the track to list
-        m_segToTrackTool->addNewTrack(trtSeg);
-  
+        m_segToTrackTool->addNewTrack(trtSeg,event_data);
       }
     }
   }
 
   // now resolve tracks
   ATH_MSG_DEBUG ("Creating track container ");
-  ;
-  std::unique_ptr<TrackCollection> final_tracks(m_segToTrackTool->resolveTracks(prd_to_track_map.cptr()));
-  if (!final_tracks || SG::WriteHandle<TrackCollection>(m_finalTracks).record(std::move(final_tracks)).isFailure()) {
+
+  std::unique_ptr<TrackCollection> final_tracks(m_segToTrackTool->resolveTracks(prd_to_track_map.cptr(),event_data));
+  if (!final_tracks || SG::WriteHandle<TrackCollection>(m_finalTracks,ctx).record(std::move(final_tracks)).isFailure()) {
       ATH_MSG_WARNING ("Could not save the reconstructed TRT seeded Si tracks!");
-      return StatusCode::FAILURE;      
-  }
-  
- // Update the total counters
- counter[kNTrkScoreZeroTotal] = m_segToTrackTool->GetnTrkScoreZero(); 
- counter[kNTrkSegUsedTotal] = m_segToTrackTool->GetnTrkSegUsed(); 
- counter[kNTRTTrkTotal] = m_segToTrackTool->GetnTRTTrk();
- for (int idx=0; idx< kNCounter; ++idx) { 
-         m_total[idx]+=counter[idx]; 
+      return StatusCode::FAILURE;
   }
 
-  
+  // Update the total counters
+  counter[kNTrkScoreZeroTotal] = event_data.m_counter[ITRT_SegmentToTrackTool::EventData::knTrkScoreZero];
+  counter[kNTrkSegUsedTotal]   = event_data.m_counter[ITRT_SegmentToTrackTool::EventData::knTrkSegUsed];
+  counter[kNTRTTrkTotal]       = event_data.m_counter[ITRT_SegmentToTrackTool::EventData::knTRTTrk];
+  {
+     std::lock_guard<std::mutex> lock(m_statMutex);
+     for (int idx=0; idx< kNCounter; ++idx) {
+        m_total[idx]+=counter[idx];
+     }
+  }
+
   // Print common event information
   
  ATH_MSG_DEBUG( counter  << std::endl );

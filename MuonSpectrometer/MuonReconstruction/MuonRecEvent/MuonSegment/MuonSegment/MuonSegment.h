@@ -104,11 +104,6 @@ namespace Muon {
     /** number of RIO_OnTracks */    
     unsigned int numberOfContainedROTs() const;
 
-    /** returns the vector of Trk::RIO_OnTrack objects 
-       - specific for this TrackSegment: Trk::RIO_OnTrack (generic)
-       */
-    const std::vector<const Trk::RIO_OnTrack*>& containedROTs() const;
-    
     /** returns the RIO_OnTrack (also known as ROT) objects depending on the integer*/
     const Trk::RIO_OnTrack* rioOnTrack(unsigned int) const;
 
@@ -132,20 +127,10 @@ namespace Muon {
     Trk::LocalDirection      m_localDirection;
      
     /** The plane surface to which the segment parameters are expressed to */
-    mutable const Trk::PlaneSurface*        m_associatedSurface;
-
-    /** The cached vector of contained (generic) Trk::RIO_OnTrack objects. 
-    The pointers are not deleted, since the actual objects belong to the base class */
-    mutable std::vector<const Trk::RIO_OnTrack*>*   m_cachedRots;
-
-    /** private method to clear the Trk::RIO_OnTrack vector */ 
-    void                               clearRotVector();
+    const Trk::PlaneSurface*        m_associatedSurface;
 
     /** private method to clear the Trk::MeasurementBase vector */ 
     void                               clearMeasVector();
-
-    /** private method to copy all Trk::RIO_OnTrack pointers in m_cachedRots to m_containedMeasurements */ 
-    void                               copyMeasurementsToROTs() const;
 
   protected:
     /**returns some information about this RIO_OnTrack/TrackSegment. 
@@ -180,23 +165,17 @@ namespace Muon {
     return new MuonSegment(*this); 
   }
   
-  inline const std::vector<const Trk::RIO_OnTrack*>& MuonSegment::containedROTs() const
-   { 
-       if (0==m_cachedRots) copyMeasurementsToROTs();
-       return (*m_cachedRots); 
-   }
- 
   inline const Trk::RIO_OnTrack* MuonSegment::rioOnTrack(unsigned int indx) const
     { 
-      if (0==m_cachedRots) copyMeasurementsToROTs();
-      if (indx<numberOfContainedROTs())
-          return (*m_cachedRots)[indx];
-      return 0;
+      if (indx<containedMeasurements().size()){
+	const Trk::RIO_OnTrack* rot=dynamic_cast<const Trk::RIO_OnTrack*>(containedMeasurements()[indx]);
+	return rot;
+      }
+      else return 0;
    }
 
   inline unsigned int MuonSegment::numberOfContainedROTs() const {
-      if (0==m_cachedRots) copyMeasurementsToROTs();
-      return m_cachedRots->size();
+    return containedMeasurements().size();
   }
 
   inline void MuonSegment::setT0Error(float t0, float t0Error){

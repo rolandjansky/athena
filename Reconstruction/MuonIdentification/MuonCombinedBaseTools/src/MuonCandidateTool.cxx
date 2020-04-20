@@ -23,10 +23,10 @@ namespace MuonCombined {
 
   MuonCandidateTool::MuonCandidateTool (const std::string& type, const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
+      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", this),
       m_trackBuilder("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder", this),
-      m_trackExtrapolationTool("ExtrapolateMuonToIPTool/ExtrapolateMuonToIPTool"),
-      m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor")
+      m_trackExtrapolationTool("ExtrapolateMuonToIPTool/ExtrapolateMuonToIPTool", this),
+      m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor", this)
   {
     declareInterface<IMuonCandidateTool>(this);
     declareProperty("Printer",m_printer );

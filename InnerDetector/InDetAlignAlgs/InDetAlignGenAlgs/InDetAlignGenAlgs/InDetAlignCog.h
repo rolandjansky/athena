@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETALIGNGENALGS_INDETALIGNCOG_H
@@ -24,7 +24,7 @@
 #include <EventPrimitives/EventPrimitives.h>
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetReadoutGeometry/TRT_DetElementContainer.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class PixelID;
@@ -69,9 +69,9 @@ class InDetAlignCog : public AthAlgorithm {
   StatusCode getSiElements(const InDetDD::SiDetectorElementCollection*,const bool, InDetAlignCog::Params_t &params);
   StatusCode getTRT_Elements(const InDetDD::TRT_DetElementCollection*,const bool, InDetAlignCog::Params_t &params);  
   StatusCode shiftIDbyCog();
-  StatusCode addL1();
+  void addL1();
 
-  StatusCode enableCoG(Amg::Transform3D&, bool, bool, bool, bool, bool, bool);
+  void enableCoG(Amg::Transform3D&, bool, bool, bool, bool, bool, bool);
   StatusCode normalizeTransform(Amg::Transform3D&, const int);
   void scaleTransform(Amg::Transform3D&, const float);
   

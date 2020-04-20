@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************************8
@@ -24,16 +24,12 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "MuonIdHelpers/CscIdHelper.h"
-
-//Calibration data containers
 #include "MuonCondData/CscCondDataCollection.h"
 #include "MuonCondData/CscCondDataContainer.h"
-
 #include "StoreGate/DataHandle.h"
 
-using namespace std;
 namespace MuonCalib {
-  CscCoolStrSvc::CscCoolStrSvc(const string& name, ISvcLocator* svc) :
+  CscCoolStrSvc::CscCoolStrSvc(const std::string& name, ISvcLocator* svc) :
     AthService(name,svc),
     p_detstore(nullptr),
     m_log(msgSvc(),name), 
@@ -403,7 +399,7 @@ namespace MuonCalib {
 
       //Precaching. We shouldn't need to do this, but some rare cases it seems the callbacks are not called in time for the begining of the run.
       if(m_preCache)
-        cacheParameter(sgKey);
+        cacheParameter(sgKey).ignore();
 
       //   anySucceed = true;
 
@@ -514,7 +510,7 @@ namespace MuonCalib {
   //Checks that there is data for a particular index of a parameter
   int CscCoolStrSvc::checkIndex(const std::string & parName, unsigned int& index) const {
 
-    map<string, CscCondDataCollectionBase*>::const_iterator itr =  
+    std::map<std::string, CscCondDataCollectionBase*>::const_iterator itr =  
       m_parNameMap.find(parName);
     if(itr == m_parNameMap.end())
       return 0;
@@ -801,8 +797,8 @@ namespace MuonCalib {
 
       const CscCondDataCollectionBase * newColl = *newItr;
 
-      string parName = newColl->getParName();
-      map<string, CscCondDataCollectionBase*>::const_iterator refItr =  
+      std::string parName = newColl->getParName();
+      std::map<std::string, CscCondDataCollectionBase*>::const_iterator refItr =  
         m_parNameMap.find(parName);
       if(refItr == m_parNameMap.end())
       {
@@ -811,7 +807,7 @@ namespace MuonCalib {
       const CscCondDataCollectionBase *refColl = refItr->second;
 
 
-      string dataType = refColl->getParDataType();
+      std::string dataType = refColl->getParDataType();
 
       if(dataType != newColl->getParDataType())
       {
@@ -856,8 +852,8 @@ namespace MuonCalib {
   /** callback functions called whenever a database folder goes out of date*/
   StatusCode CscCoolStrSvc::callback( IOVSVC_CALLBACK_ARGS_P(/*I*/,keys))
   { //IOVSVC_CALLBACK_ARGS is (int& idx, std::list<std::string>& keylist)
-    list<string>::const_iterator keyItr = keys.begin();
-    list<string>::const_iterator keyEnd = keys.end();
+    std::list<std::string>::const_iterator keyItr = keys.begin();
+    std::list<std::string>::const_iterator keyEnd = keys.end();
     for(; keyItr != keyEnd; keyItr++) {
       if(!cacheParameter(*keyItr).isSuccess()) {
         m_log << MSG::WARNING << "Failed at caching key " << (*keyItr) << endmsg;
@@ -902,7 +898,7 @@ namespace MuonCalib {
       if(m_debug) m_log << MSG::DEBUG << "Attempting to retrieve cool channel " 
         << coolItr << " with key " << parKey <<  endmsg;
       //retrieve datastring from db			
-      string dataStr;
+      std::string dataStr;
       if (StatusCode::SUCCESS != getCoolChannelString(atrc, coolItr, dataStr))
       {
         if(m_debug) m_log << MSG::DEBUG << "Couldn't find cool channel " << coolItr << endmsg;
@@ -914,7 +910,7 @@ namespace MuonCalib {
 
       if(m_debug) m_log << MSG::VERBOSE  << "For cool channel " << coolItr << ", String is \n[" << dataStr << "]" << endmsg;
       //now decode string into numeric parameters.
-      istringstream ss(dataStr);
+      std::istringstream ss(dataStr);
 
       if(!ss.good()) 
       {
@@ -922,7 +918,7 @@ namespace MuonCalib {
         continue;
       }
 
-      string version;
+      std::string version;
       ss >>  version;
       if(version == "02-00") {
         if(!cache(ss,coll).isSuccess()) {
@@ -947,13 +943,13 @@ namespace MuonCalib {
   }//end cache parameter
 
   //-------------------------------------------------------------------
-  StatusCode CscCoolStrSvc::cache(istringstream & ss, CscCondDataCollectionBase * const coll) {
+  StatusCode CscCoolStrSvc::cache(std::istringstream& ss, CscCondDataCollectionBase* const coll) {
 
     if(m_debug) m_log << MSG::DEBUG << "Caching " << coll->getParName()
                       << " (category " << coll->getParCat() << "). Database string is version 2" 
                       << endmsg;
     unsigned int numUpdated = 0;
-    string indexStr,valueStr;
+    std::string indexStr,valueStr;
 
     //get past remainder of header info
     while(ss.good()) {
@@ -962,9 +958,9 @@ namespace MuonCalib {
         break;
     }
 
-    const string & cat = coll->getParCat();
+    const std::string & cat = coll->getParCat();
     const unsigned int & numEntries = coll->getSize();
-    string str = "";
+    std::string str = "";
 
     if ( cat!="ASM" )
     {
@@ -997,7 +993,7 @@ namespace MuonCalib {
         if (index>=numEntries) continue;
 
         //Now str has a value in it. We pass it to the collection.
-        istringstream valueSS(str);
+        std::istringstream valueSS(str);
         if(!coll->recordFromSS(valueSS, index).isSuccess()) {
           m_log << MSG::WARNING << "Failed caching to index " << index << " for parameter" 
             << coll->getParName()
@@ -1067,7 +1063,6 @@ namespace MuonCalib {
         }
 
         ss >> valueStr;  // get value to put in parameter vector
-        //std::stringstream valueSS(ss);
 
         //  Now for given asmID, loop over strip and layer
         for ( int iStrip = stripSince; iStrip < stripUntil; iStrip++ )
@@ -1108,7 +1103,7 @@ namespace MuonCalib {
           if (index>=numEntries) continue;
 
                     //Now valueStr has a value in it. We pass it to the collection.
-          istringstream valueSS(valueStr);
+          std::istringstream valueSS(valueStr);
           if ( !coll->recordFromSS(valueSS, index).isSuccess() )
           { m_log << MSG::WARNING << "Failed caching to index " << index 
             << " for parameter " << coll->getParName()
@@ -1430,7 +1425,7 @@ namespace MuonCalib {
 
   //-----------------------------------------------------------------------------------
   StatusCode CscCoolStrSvc::getParCat(const std::string & parName, std::string & val) const{
-    map<std::string, CscCondDataCollectionBase*>::const_iterator itr = m_parNameMap.find(parName);
+    std::map<std::string, CscCondDataCollectionBase*>::const_iterator itr = m_parNameMap.find(parName);
     if(itr == m_parNameMap.end())
       return StatusCode::RECOVERABLE;
 
@@ -1441,7 +1436,7 @@ namespace MuonCalib {
 
   //-----------------------------------------------------------------------------------
   StatusCode CscCoolStrSvc::getParDataType(const std::string & parName, std::string & val) const {
-    map<std::string, CscCondDataCollectionBase*>::const_iterator itr = m_parNameMap.find(parName);
+    std::map<std::string, CscCondDataCollectionBase*>::const_iterator itr = m_parNameMap.find(parName);
     if(itr == m_parNameMap.end())
       return StatusCode::RECOVERABLE;
 
@@ -1452,7 +1447,7 @@ namespace MuonCalib {
 
   //-----------------------------------------------------------------------------------
   StatusCode CscCoolStrSvc::getParFolder(const std::string & parName, std::string & val) const { 
-    map<std::string, CscCondDataCollectionBase*>::const_iterator itr = m_parNameMap.find(parName);
+    std::map<std::string, CscCondDataCollectionBase*>::const_iterator itr = m_parNameMap.find(parName);
     if(itr == m_parNameMap.end())
       return StatusCode::RECOVERABLE;
 
@@ -1463,7 +1458,7 @@ namespace MuonCalib {
 
   //-----------------------------------------------------------------------------------
   StatusCode CscCoolStrSvc::getParNumHashes(const std::string & parName, unsigned int & val) const { 
-    map<std::string, CscCondDataCollectionBase*>::const_iterator itr = m_parNameMap.find(parName);
+    std::map<std::string, CscCondDataCollectionBase*>::const_iterator itr = m_parNameMap.find(parName);
     if(itr == m_parNameMap.end())
       return StatusCode::RECOVERABLE;
 
@@ -1497,9 +1492,9 @@ namespace MuonCalib {
       return StatusCode::SUCCESS;
     }   
 
-    istringstream ss(idString);
+    std::istringstream ss(idString);
     unsigned int chanAddress;
-    ss >> hex >> chanAddress;
+    ss >> std::hex >> chanAddress;
 
     //remaining categories need offline identifiers
     Identifier chamberId;
@@ -1552,7 +1547,7 @@ namespace MuonCalib {
 
     //remaining categories need online identifiers
     unsigned int onlineId = 0;
-    stringstream ss;
+    std::stringstream ss;
     if(cat == "CHAMBER")
     {
 
@@ -1586,7 +1581,7 @@ namespace MuonCalib {
       }
     }
 
-    ss << hex << setfill('0') << setw(5) <<  onlineId << dec;
+    ss << std::hex << std::setfill('0') << std::setw(5) <<  onlineId << std::dec;
     idString = ss.str();
 
     return StatusCode::SUCCESS;

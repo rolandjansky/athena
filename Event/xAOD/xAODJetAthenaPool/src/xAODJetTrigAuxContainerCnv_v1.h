@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*- c++ -*-
@@ -7,7 +7,7 @@
 // $Id: xAODJetTrigAuxContainerCnv_v1.h 797270 2017-02-15 00:03:55Z khoo $
 #ifndef XAODJETATHENAPOOL_XAODJETTRIGAUXCONTAINERCNV_V1_H
 #define XAODJETATHENAPOOL_XAODJETTRIGAUXCONTAINERCNV_V1_H
-#ifndef SIMULATIONBASE
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE))
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
@@ -46,5 +46,5 @@ public:
                              MsgStream& log ) const override;
 
 }; // class xAODJetTrigAuxContainerCnv_v1
-#endif // ifndef SIMULATIONBASE
+#endif // #if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE))
 #endif // XAODJETATHENAPOOL_XAODJETTRIGAUXCONTAINERCNV_V1_H

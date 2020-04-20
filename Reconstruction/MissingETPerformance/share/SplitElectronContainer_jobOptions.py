@@ -26,4 +26,4 @@ topSequence = AlgSequence()
 
 topSequence.ZeeSequence += SplitElectronContainer
 
-print SplitElectronContainer
+printfunc (SplitElectronContainer)

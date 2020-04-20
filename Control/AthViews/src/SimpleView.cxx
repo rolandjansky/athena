@@ -7,7 +7,7 @@
 #include "AthViews/View.h"
 
 SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
-  m_store( storeName, "SimpleView" ),
+  m_store( storeName, Name ),
   m_roi(),
   m_name( Name ),
   m_allowFallThrough( AllowFallThrough )
@@ -20,10 +20,12 @@ SimpleView::~SimpleView()
 
 void SimpleView::linkParent( const IProxyDict* parent ) {
   auto castParent = dynamic_cast< const SG::View* >( parent );
-  if ( castParent )
-    m_parents.push_back( castParent->impl() );
-  else
+  if ( castParent ) {
+    m_parents.insert( castParent );
+  }
+  else {
     throw std::runtime_error( "Unable to link parent view that cannot be cast to SG::View" );
+  }
 }
 
 
@@ -66,10 +68,10 @@ SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, c
   if ( isValid( localProxy ) ) {
     return localProxy;
   }
-  
+
   for ( auto parent: m_parents ) {
     // Don't allow parents to access whole-event store independently of this view
-    auto inParentProxy = parent->findProxy( id, key, false );
+    auto inParentProxy = parent->impl()->findProxy( id, key, false );
     if ( isValid( inParentProxy ) ) {
       return inParentProxy;
     }
@@ -93,8 +95,7 @@ SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, c
       if ( !filterPass ) return nullptr;
     }
 
-    auto mainStoreProxy = m_store->proxy( id, key );
-    return mainStoreProxy;
+    return m_store->proxy( id, key );
   }
   return nullptr;
 }

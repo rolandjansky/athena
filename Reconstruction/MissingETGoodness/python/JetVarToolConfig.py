@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from AthenaCommon.AlgSequence import AlgSequence
 from RecExConfig.ObjKeyStore  import cfgKeyStore
@@ -45,7 +47,7 @@ def JetVarToolConfig (seq = AlgSequence):
 
 
         BadCellCorrT.CellCalibrator = cellcalibtool
-        ##print BadCellCorrT
+        ##print (BadCellCorrT)
         ##toolist += [BadCellCorrT] 
 
         make_JetMomentGetter("AntiKt4TopoJets",[atool4,cqual_tool,BadCellCorrT],
@@ -79,6 +81,6 @@ def JetVarToolConfig (seq = AlgSequence):
         )
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += JetVarTool
-    print      JetVarTool
+    print (     JetVarTool)
 
 

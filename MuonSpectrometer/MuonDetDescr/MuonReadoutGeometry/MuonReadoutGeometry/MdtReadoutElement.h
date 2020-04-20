@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -11,11 +11,12 @@
 #ifndef MUONGEOMODEL_MDTREADOUTELEMENT_H
 # define MUONGEOMODEL_MDTREADOUTELEMENT_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkDistortedSurfaces/SaggedLineSurface.h"
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
+#include "CxxUtils/CachedValue.h"
+#include "CxxUtils/CachedUniquePtr.h"
+
 #define maxnlayers  4
 #define maxnsteps  10
 
@@ -82,7 +83,7 @@ public:
    bool getWireFirstLocalCoordAlongZ(int tubeLayer, double& coord) const;
    bool getWireFirstLocalCoordAlongR(int tubeLayer, double& coord) const;
 
-   virtual bool containsId(Identifier id) const;
+   virtual bool containsId(Identifier id) const override;
     
     // detector specific 
     inline double getTubeLength(int tubeLayer, int tube) const;
@@ -151,49 +152,51 @@ public:
     const Amg::Vector3D tubeFrame_localROPos(Identifier id) const;
 
     // defining B-line parameters 
-    /*inline*/ void setBLinePar(BLinePar*  bLine) const;
-    inline void clearBLinePar() const; 
+    /*inline*/ void setBLinePar(const BLinePar*  bLine);
+    inline void clearBLinePar(); 
     inline const BLinePar* getBLinePar() const {return m_BLinePar;} 
 
     ////////////////////////////////////////////////////////////
     //// Tracking interfaces
     ////////////////////////////////////////////////////////////
 
-    void         clearCache() const;
-    void         fillCache() const;
-    void         refreshCache() const {clearCache();}
-    void         clearBLineCache() const;
-    void         fillBLineCache() const;
+    virtual void         clearCache() override;
+    virtual void         fillCache() override;
+    virtual void         refreshCache() override {clearCache();}
+    void         clearBLineCache();
+    void         fillBLineCache();
     //void         fillBLineCache() const;
-    virtual const Trk::Surface& surface() const;
-    virtual const Trk::SaggedLineSurface& surface(const Identifier& id) const;
+    virtual const Trk::Surface& surface() const override;
+    virtual const Trk::SaggedLineSurface& surface(const Identifier& id) const override;
     virtual const Trk::SaggedLineSurface& surface(int tubeLayer, int tube) const;
-    virtual const Trk::SurfaceBounds& bounds() const;
-    virtual const Trk::CylinderBounds& bounds(const Identifier& id) const;
+    virtual const Trk::SurfaceBounds& bounds() const override;
+    virtual const Trk::CylinderBounds& bounds(const Identifier& id) const override;
     virtual const Trk::CylinderBounds& bounds(int tubeLayer, int tube) const;
     
-    virtual const Amg::Transform3D& transform(const Identifier&) const;    
-    virtual const Amg::Transform3D& transform(int tubeLayer, int tube) const;    
-    virtual const Amg::Transform3D& transform() const {return absTransform();}
+    virtual const Amg::Transform3D& transform(const Identifier&) const override;
+    virtual const Amg::Transform3D& transform(int tubeLayer, int tube) const;
+    virtual const Amg::Transform3D& transform() const override {return absTransform();}
     
-    virtual const Amg::Vector3D& center(const Identifier&) const;
+    virtual const Amg::Vector3D& center(const Identifier&) const override;
     virtual const Amg::Vector3D& center(int tubeLayer, int tube) const;
-    virtual const Amg::Vector3D& center() const;
+    virtual const Amg::Vector3D& center() const override;
     
-    virtual const Amg::Vector3D& normal(const Identifier&) const {return normal();}
+    virtual const Amg::Vector3D& normal(const Identifier&) const override {return normal();}
     virtual const Amg::Vector3D tubeNormal(const Identifier&) const;
     virtual const Amg::Vector3D& normal(int , int ) const {return normal();}
     virtual const Amg::Vector3D tubeNormal(int, int ) const;
-    virtual const Amg::Vector3D& normal() const;
+    virtual const Amg::Vector3D& normal() const override;
       
     /** returns all the surfaces contained in this detector element */
-    virtual const std::vector<const Trk::Surface*>& surfaces() const;
+    virtual std::vector<const Trk::Surface*> surfaces() const;
 
     // methods handling deformations
     const Amg::Transform3D& fromIdealToDeformed(const Identifier&) const;
     const Amg::Transform3D& fromIdealToDeformed(int multilayer, int tubelayer, int tube) const;
     
 private:
+    // Called from MuonChamber
+    void geoInitDone();
 
     double getTubeLengthForCaching(int tubeLayer, int tube) const;
     double getNominalTubeLengthWoCutouts(int tubeLayer, int tube) const;
@@ -206,8 +209,8 @@ private:
     void wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg::Vector3D& locAMDBWireEndN, int multilayer, int tubelayer, int tube) const;
 
     // methods used only by friend class MdtAlignModule to shift chambers
-    void shiftTube(const Identifier& id) const;
-    void restoreTubes() const;
+    void shiftTube(const Identifier& id);
+    void restoreTubes();
 
     
     int    m_multilayer;
@@ -227,27 +230,48 @@ private:
     double m_firstwire_y[maxnlayers];
     double m_innerRadius;
     double m_tubeWallThickness;
-    mutable int m_zsignRO_tubeFrame; // comes from AMDB CRO location in the station
+    CxxUtils::CachedValue<int> m_zsignRO_tubeFrame; // comes from AMDB CRO location in the station
 
-    mutable std::vector<Amg::Transform3D*> * m_deformTransfs;
-    mutable BLinePar* m_BLinePar;
-    mutable Amg::Vector3D                           * m_elemNormal;        // one
-    mutable std::vector<Trk::SaggedLineSurface *> * m_tubeSurfaces;  // one per tube
-    mutable std::vector<Amg::Transform3D *>         * m_tubeTransf;    // one per tube
-    mutable std::vector<Amg::Vector3D *>             * m_tubeCenter;    // one per tube
-    mutable std::vector<Trk::CylinderBounds *>    * m_tubeBounds;    // one per step in tube-length
-    mutable std::vector<Amg::Vector3D *>             * m_backupTubeCenter;  // one per tube
-    mutable std::vector<Amg::Transform3D *>         * m_backupTubeTransf;  // one per tube
-    mutable std::vector<Amg::Transform3D *>         * m_backupDeformTransf;  // one per tube
+    const Amg::Transform3D globalTransform (const Amg::Vector3D& tubePos,
+                                            const Amg::Transform3D& toDeform) const;
+    const Amg::Transform3D globalTransform (const Amg::Vector3D& tubePos) const;
     
-    /** these are all surfaces represented by this detector element : it's for visualization without casting */
-    mutable std::vector<const Trk::Surface*>  m_elementSurfaces;
+    struct GeoInfo
+    {
+      GeoInfo (const Amg::Transform3D& transform)
+        : m_transform (transform),
+          m_center (transform.translation())
+      {
+      }
+      Amg::Transform3D m_transform;
+      Amg::Vector3D m_center;
+    };
+    std::unique_ptr<GeoInfo> makeGeoInfo (int tubelayer, int tube) const;
+    const GeoInfo& geoInfo (int tubeLayer, int tube) const;
+    Amg::Transform3D deformedTransform (int multilayer, int tubelayer, int tube) const;
 
+    std::vector<CxxUtils::CachedUniquePtr<GeoInfo> > m_tubeGeo;   // one per tube
+    std::vector<CxxUtils::CachedUniquePtr<GeoInfo> > m_backupTubeGeo;   // one per tube
+    std::vector<CxxUtils::CachedUniquePtr<Amg::Transform3D> > m_deformTransf;   // one per tube
+    std::vector<CxxUtils::CachedUniquePtr<Amg::Transform3D> > m_backupDeformTransf;   // one per tube
+
+    const BLinePar* m_BLinePar;
+    CxxUtils::CachedValue<Amg::Vector3D>            m_elemNormal;        // one
+    std::vector<CxxUtils::CachedUniquePtr<Trk::SaggedLineSurface> > m_tubeSurfaces;   // one per tube
+    std::vector<CxxUtils::CachedUniquePtr<Trk::CylinderBounds> > m_tubeBounds;   // one per step in tube-length
+
+    /// Flag whether any elements have been inserted
+    /// into the corresponding vectors.
+    /// Used to speed up the clear-cache operations for the case where
+    /// the vectors are empty.
+    mutable std::atomic<bool> m_haveTubeSurfaces = false;
+    mutable std::atomic<bool> m_haveTubeGeo = false;
+    mutable std::atomic<bool> m_haveTubeBounds = false;
+    mutable std::atomic<bool> m_haveDeformTransf = false;
+    
     // the single surface information representing the DetElement
-    mutable Trk::Surface*           m_associatedSurface; 
-    mutable Trk::SurfaceBounds*     m_associatedBounds;
-
-    
+    CxxUtils::CachedUniquePtr<Trk::Surface>       m_associatedSurface;
+    CxxUtils::CachedUniquePtr<Trk::SurfaceBounds> m_associatedBounds;
 };
 
 int MdtReadoutElement::getMultilayer() const 
@@ -266,7 +290,7 @@ bool MdtReadoutElement::isInBarrel() const
   {return  m_inBarrel;}
 double MdtReadoutElement::tubePitch() const
   {return m_tubepitch;}
-void MdtReadoutElement::clearBLinePar() const
+void MdtReadoutElement::clearBLinePar()
   {m_BLinePar = 0;}
 double MdtReadoutElement::getWireLength(int tubeLayer, int tube) const
 {
@@ -278,26 +302,23 @@ double MdtReadoutElement::getGasLength(int tubeLayer, int tube) const
 }
 double MdtReadoutElement::getTubeLength(int tubeLayer, int tube) const
 {
-  //std::cout<<" in getTubeLength going to compure getActiveTubeLength (+2.*m_deadlength="<<m_deadlength<<")"<<std::endl; 
   return getActiveTubeLength(tubeLayer, tube) + 2.*m_deadlength;
 }
 double MdtReadoutElement::getActiveTubeLength(int tubeLayer, int tube) const
 {
-  //std::cout<<" in getActiveTubeLength going to compute 2*bounds.halflength for tLayer,tube="<<tubeLayer<<" "<<tube<<" "<<std::endl;
   return 2.*(bounds(tubeLayer,tube).halflengthZ());
 }
 
-inline const std::vector<const Trk::Surface*>& MdtReadoutElement::surfaces() const {
-    // create when first time requested and when possible
-    if (!m_elementSurfaces.size() && ( m_associatedSurface || m_tubeSurfaces ) ){
-        if (m_associatedSurface) m_elementSurfaces.push_back(m_associatedSurface);
-        if (m_tubeSurfaces){
-            for (auto& sf : (*m_tubeSurfaces) )
-                m_elementSurfaces.push_back(sf);
-        }
+inline std::vector<const Trk::Surface*> MdtReadoutElement::surfaces() const {
+    std::vector<const Trk::Surface*> elementSurfaces;
+    elementSurfaces.reserve (m_tubeSurfaces.size() + 1);
+    if (m_associatedSurface) {
+      elementSurfaces.push_back(m_associatedSurface.get());
     }
-    // return the element surfaces
-    return m_elementSurfaces;
+    for (const auto& s : m_tubeSurfaces) {
+      if (s) elementSurfaces.push_back (s.get());
+    }
+    return elementSurfaces;
 }
 
 } // namespace MuonGM

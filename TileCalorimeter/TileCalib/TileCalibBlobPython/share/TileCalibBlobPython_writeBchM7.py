@@ -1,17 +1,16 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_writeBchM7.py
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-05-29
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
-from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
-from TileCalibBlobObjs.Classes import *
-import os
+from TileCalibBlobObjs.Classes import TileCalibUtils, TileBchPrbs, \
+     TileBchDecoder
 
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("writeBch")
 import logging
 log.setLevel(logging.DEBUG)
@@ -33,7 +32,7 @@ mgr = TileBchTools.TileBchMgr()
 mgr.setLogLvl(logging.DEBUG)
 
 #=== always initialize with no bad channels
-log.info("Initializing with no bad channels at tag=%s and time=%s" % (folderTag,(0,0)))
+log.info("Initializing with no bad channels at tag=%s and time=%s", folderTag,(0,0))
 mgr.initialize(db, folder, folderTag, (0,0))
 
 #=== Define TileBchStatus.isBad()
@@ -109,7 +108,7 @@ mgr.addAdcProblem(1, 44, 29, 0, TileBchPrbs.VeryLargeHfNoise)
 mgr.addAdcProblem(1, 47, 45, 1, TileBchPrbs.LargeHfNoise)
 mgr.addAdcProblem(1, 48, 45, 1, TileBchPrbs.LargeHfNoise)
 mgr.addAdcProblem(1, 49, 45, 0, TileBchPrbs.VeryLargeHfNoise)
-for i in xrange(0, 48):
+for i in range(0, 48):
    if i not in emptyChannelLongBarrel:
       mgr.addAdcProblem(1, 52, i, 0, TileBchPrbs.DataCorruption)
       mgr.addAdcProblem(1, 52, i, 1, TileBchPrbs.DataCorruption)
@@ -124,7 +123,7 @@ mgr.addAdcProblem(2, 10, 28, 0, TileBchPrbs.StuckBit)
 mgr.addAdcProblem(2, 14, 19, 0, TileBchPrbs.BadCis)
 mgr.addAdcProblem(2, 14, 19, 1, TileBchPrbs.BadCis)
 mgr.addAdcProblem(2, 14, 45, 1, TileBchPrbs.VeryLargeHfNoise)
-for i in xrange(0, 48):
+for i in range(0, 48):
    if i not in emptyChannelLongBarrel:
       mgr.addAdcProblem(2, 16, i, 0, TileBchPrbs.DataCorruption)
       mgr.addAdcProblem(2, 16, i, 1, TileBchPrbs.DataCorruption)
@@ -242,7 +241,7 @@ mgr.addAdcProblem(4, 35, 36, 1, TileBchPrbs.BadCis)
 mgr.addAdcProblem(4, 36, 40, 0, TileBchPrbs.NoCis)
 mgr.addAdcProblem(4, 36, 40, 1, TileBchPrbs.NoCis)
 mgr.addAdcProblem(4, 39, 36, 1, TileBchPrbs.BadCis)
-for i in xrange(0, 48):
+for i in range(0, 48):
    if i not in emptyChannelExtendedBarrel:
       mgr.addAdcProblem(4, 41, i, 0, TileBchPrbs.DataCorruption)
       mgr.addAdcProblem(4, 41, i, 1, TileBchPrbs.DataCorruption)

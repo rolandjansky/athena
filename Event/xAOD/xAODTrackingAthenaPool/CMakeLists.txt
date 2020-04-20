@@ -1,26 +1,10 @@
-# $Id: CMakeLists.txt 789663 2016-12-14 14:48:57Z krasznaa $
-################################################################################
-# Package: xAODTrackingAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODTrackingAthenaPool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   Control/AthContainers
-   Control/AthenaKernel
-   Database/AthenaPOOL/AthenaPoolCnvSvc
-   Database/AthenaPOOL/AthenaPoolUtilities
-   Event/xAOD/xAODTracking
-   Event/xAOD/xAODTrackingCnv
-   Event/xAOD/xAODTruth )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core )
-
-atlas_install_joboptions( share/*.py )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODTrackingAthenaPoolPoolCnv
@@ -49,31 +33,28 @@ atlas_add_poolcnv_library( xAODTrackingAthenaPoolPoolCnv
    AthenaPoolCnvSvcLib AthenaPoolUtilities xAODTracking xAODTrackingCnvLib
    xAODTruth )
 
+# Install files from the package.
+atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
-if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
-   set( AthenaPoolUtilitiesTest_DIR
-      ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities/cmake )
-endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODTRACKINGATHENAPOOL_REFERENCE_TAG
        xAODTrackingAthenaPoolReference-01-00-00 )
-  run_tpcnv_test( xAODTrackingAthenaPool_20.1.7.2   AOD-20.1.7.2-full
+  run_tpcnv_legacy_test( xAODTrackingAthenaPool_20.1.7.2   AOD-20.1.7.2-full
                    REQUIRED_LIBRARIES xAODTrackingAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRACKINGATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( xAODTrackingAthenaPool_20.7.2.2   AOD-20.7.2.2-full
+  run_tpcnv_legacy_test( xAODTrackingAthenaPool_20.7.2.2   AOD-20.7.2.2-full
                    REQUIRED_LIBRARIES xAODTrackingAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRACKINGATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( xAODTrackingAthenaPool_21.0.79   AOD-21.0.79-full
+  run_tpcnv_legacy_test( xAODTrackingAthenaPool_21.0.79   AOD-21.0.79-full
                    REQUIRED_LIBRARIES xAODTrackingAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRACKINGATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( xAODTrackingAthenaPool_master-20190911   AOD-master-20190911-full
+  run_tpcnv_legacy_test( xAODTrackingAthenaPool_master-20190911   AOD-master-20190911-full
                    REQUIRED_LIBRARIES xAODTrackingAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRACKINGATHENAPOOL_REFERENCE_TAG} )
 else()
-   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
-endif()   
-                         
- 
+   message( WARNING
+      "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+endif()

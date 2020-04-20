@@ -550,7 +550,7 @@ Trk::Track* Trk::KalmanFitter::fit(const Trk::PrepRawDataSet&   inputPRDColl,
        estimatedStartParameters.momentum());
     PrepRawDataSet orderedPRDColl = PrepRawDataSet(inputPRDColl); // wouldn't be able to sort on const Set
     if ( ! is_sorted( orderedPRDColl.begin(), orderedPRDColl.end(), *PRD_CompFunc ) ) {
-      sort( orderedPRDColl.begin(), orderedPRDColl.end(), *PRD_CompFunc );
+      std::sort( orderedPRDColl.begin(), orderedPRDColl.end(), *PRD_CompFunc );
     };
     delete PRD_CompFunc;
     if (m_outputlevel <= 0) {

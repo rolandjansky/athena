@@ -1,13 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.DL1TagConfig import DL1TagCfg
 from JetTagTools.MV2TagConfig import MV2TagCfg
 
 # import the MultivariateTagManager configurable
-Analysis__MultivariateTagManager=CompFactory.Analysis__MultivariateTagManager
+Analysis__MultivariateTagManager=CompFactory.Analysis.MultivariateTagManager
 
 def MultivariateTagManagerCfg(flags, name = 'MultivariateTagManager', TaggerList = ['DL1', 'DL1rnn', 'DL1mu', 'MV2c10'], scheme = '', useBTagFlagsDefaults = True, **options):
     """Sets up a MultivariateTagManager tool and returns it.
@@ -24,6 +23,13 @@ def MultivariateTagManagerCfg(flags, name = 'MultivariateTagManager', TaggerList
     output: The actual tool."""
     acc = ComponentAccumulator()
     mvtagtoollist = []
+    MultivariateTagManagerAuxBranches = []
+    MultivariateTagManagerAuxBranches += ['SMT_discriminant'] #ATLASRECTS-5381
+
+    if 'DL1rnn' in TaggerList or 'MV2c10rnn' in TaggerList:
+        #RNNIP output variables are needed
+        rnnip_outputs = ['b','c','u','tau']
+        MultivariateTagManagerAuxBranches += ['rnnip_p' + x for x in rnnip_outputs]
 
     if 'DL1' in TaggerList:
         dl1 = acc.popToolsAndMerge(DL1TagCfg(flags, 'DL1'))
@@ -68,7 +74,7 @@ def MultivariateTagManagerCfg(flags, name = 'MultivariateTagManager', TaggerList
                      'inputIP3DSourceName'              : 'IP3D',
                      'inputJFSourceName'                : 'JetFitter',
                      'MVTagToolList'                    : mvtagtoollist,
-                     'arbitraryAuxData'                 : BTaggingFlags.MultivariateTagManagerAuxBranches,
+                     'arbitraryAuxData'                 : MultivariateTagManagerAuxBranches,
                      }
     for option in defaults:
         options.setdefault(option, defaults[option])

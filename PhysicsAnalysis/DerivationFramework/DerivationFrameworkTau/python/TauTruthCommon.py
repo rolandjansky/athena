@@ -1,11 +1,16 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # TauTruthCommon.py
 # Schedules all tools needed for tau truth object selection and writes
 # results into SG. These may then be accessed along the train.
 #********************************************************************
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+
+from __future__ import print_function
+
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, DerivationFrameworkIsMonteCarlo
+from AthenaCommon.AppMgr import ToolSvc
+from AthenaCommon import CfgMgr 
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -43,13 +48,12 @@ if DerivationFrameworkIsMonteCarlo:
                                                                                         TauTruthMatchingTool = DFCommonTauTruthMatchingTool,
                                                                                         TauContainerName     = "TauJets")
         ToolSvc += DFCommonTauTruthMatchingWrapper
-        print DFCommonTauTruthMatchingWrapper
+        print (DFCommonTauTruthMatchingWrapper)
         DFCommonTauTruthWrapperTools.append(DFCommonTauTruthMatchingWrapper)
 
     #=======================================
     # CREATE THE DERIVATION KERNEL ALGORITHM
     #=======================================
 
-    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("TauTruthCommonKernel",
                                                                              AugmentationTools = DFCommonTauTruthWrapperTools)

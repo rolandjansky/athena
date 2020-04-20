@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -13,34 +13,21 @@
 //				 01.12.2008 by I. Potrap, track() method and segment position are fixed
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS ::
-//::                 StraightPatRec                 ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
 #include "MdtCalibFitters/StraightPatRec.h"
-#include <iostream>
-#include <fstream>
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-
 #include "MuonCalibMath/Combination.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include <TString.h> // for Form
 #include "time.h"
-
-#include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitivesHelpers.h"
-
-//:::::::::::::::::::::::
-//:: NAMESPACE SETTING ::
-//:::::::::::::::::::::::
+#include <iostream>
+#include <fstream>
 
 using namespace MuonCalib;
-using namespace std;
 
 //*****************************************************************************
 
@@ -147,12 +134,7 @@ MTStraightLine StraightPatRec::tangent(
 //::::::::::::::::::::::::::::::::::::::::::::
 
 	if (r_case<1 || r_case>4) {
-		cerr << endl
-			<< "Class StraightPatRec, "
-			<< "method tangent: ERROR!\n"
-			<< "Illegal case " << r_case << ", must be 1,2,3, or 4."
-			<< endl;
-		exit(1);
+		throw std::runtime_error(Form("File: %s, Line: %d\nStraightPatRec::tangent - Illegal case %i, must be 1,2,3, or 4.!", __FILE__, __LINE__, r_case));
 	}
 
 //:::::::::::::::::::::::::::::::::::::
@@ -302,7 +284,7 @@ MTStraightLine StraightPatRec::fitCandidate(MuonCalibSegment & r_segment,
 	Amg::MatrixX Gamma = Amg::MatrixX(NLC,NLC);
 	Gamma.setZero();
 // vector to store hit positions
-	vector<Amg::Vector3D > hit_position_track;
+	std::vector<Amg::Vector3D > hit_position_track;
 
 	for(unsigned int l=0;l<r_segment.mdtHitsOnTrack();l++) {
 // Transformation to track reference frame
@@ -403,7 +385,7 @@ unsigned int StraightPatRec::numberOfTrackHits(void) const {
 //:: METHOD trackHits ::
 //::::::::::::::::::::::
 
-const vector<const MdtCalibHitBase*> & StraightPatRec::trackHits(
+const std::vector<const MdtCalibHitBase*> & StraightPatRec::trackHits(
 								void) const {
 
 	return m_track_hits;
@@ -528,12 +510,12 @@ bool StraightPatRec::fitCallByReference(MuonCalibSegment & r_segment,
 	double diff; // difference of start and end time (needed for time-out)
 	Combination combination;
 
-	vector<unsigned int> hit_index; // hit indices for given selection
+	std::vector<unsigned int> hit_index; // hit indices for given selection
 	unsigned int try_nb_hits; // try this given number of hits for the
 				  // segment reconstruction
 
-	vector<const MdtCalibHitBase*> selected_hits;
-	vector<unsigned int> selected_hits_index;
+	std::vector<const MdtCalibHitBase*> selected_hits;
+	std::vector<unsigned int> selected_hits_index;
 
 	Amg::Vector3D w_min, w_max; // wire with the minimum local z coordinate,
 	                         // wire with the maximum local z coordinate
@@ -562,12 +544,8 @@ bool StraightPatRec::fitCallByReference(MuonCalibSegment & r_segment,
 	m_chi2 = -1.0;
 
 	if (r_segment.mdtHitsOnTrack() != r_selection.size()) {
-		cerr << "\n"
-			<< "Class StraightPatRec, "
-			<< "METHOD fit(., .): WARNING!\n"
-			<< "Vector with selected hits unequal to the number "
-			<< "of hits on the segment!\n"
-			<< "The user selection will be ignored!\n";
+		MsgStream log(Athena::getMessageSvc(), "StraightPatRec");
+		log<<MSG::WARNING<< "fitCallByReference() - Vector with selected hits unequal to the number of hits on the segment! The user selection will be ignored!"<<endmsg;
 		r_selection.clear();
 		r_selection.assign(r_segment.hitsOnTrack(), 0);
 	}
@@ -586,10 +564,6 @@ bool StraightPatRec::fitCallByReference(MuonCalibSegment & r_segment,
 ///////////////////////////////////////////////////////////////////////////
 
 	if (selected_hits.size()<3) {
-//		cerr << "\n"
-//			<< "Class StraightPatRec, "
-//			<< "METHOD fit(., .): WARNING!\n"
-//			<< "Too few hits for the track reconstructions!\n";
 		return false;
 	}
 
@@ -633,11 +607,6 @@ if(try_nb_hits<5 && (selected_hits.size()-try_nb_hits)>2) return false;
 	   time (&end);
 	   diff = difftime (end,start);
 	   if (diff>m_time_out) {
-//	   	cerr << endl
-//	   		<< "Class StraightPatRec: "
-//	   		<< "time-out for track finding after "
-//			<< m_time_out
-//			<< " seconds!\n";
 	   	return false;
 	   }
 
@@ -777,21 +746,5 @@ if(try_nb_hits<5 && (selected_hits.size()-try_nb_hits)>2) return false;
 	}
 
 	return true;
-
-}
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::
-//:: METHOD printLevel ::
-//:::::::::::::::::::::::
-
-void StraightPatRec::printLevel(int level) {
-
-	cerr << "\n"
-		<< "Class StraightPatRec, "
-		<< "method printLevel: WARNING!\n"
-		<< "Print level " << level << " is ignored.\n";
-	return;
 
 }

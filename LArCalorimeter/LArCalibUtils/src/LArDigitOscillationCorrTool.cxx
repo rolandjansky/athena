@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArDigitOscillationCorrTool.h"
@@ -239,7 +239,7 @@ void LArDigitOscillationCorrTool::handle(const Incident& /* inc*/ )
 {
   ATH_MSG_DEBUG ( "LArDigitOscillationCorrTool handle()" );
   
-  this->retrieveDB();
+  this->retrieveDB().ignore();
   return;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,15 +39,9 @@
 
 #include <TH1F.h>
 #include <TH2F.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TF1.h>
-#include <TMath.h>
 #include <inttypes.h> 
 
 #include <sstream>
-
-using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////
 // bookEfficiencyHisto
@@ -272,8 +266,8 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
 // Fills Trigger Turn-on Curves and Efficiency Maps/Profiles
 void
 TgcLv1RawDataValAlg::fillEfficiency(int ms,// 0:Muid 1:Staco
-                                    vector<float>* mu_pt, vector<float>* mu_eta,
-                                    vector<float>* mu_phi,vector<float>* mu_q){
+                                    std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+                                    std::vector<float>* mu_phi,std::vector<float>* mu_q){
   ATH_MSG_DEBUG( "inside fillEfficiency"  );
   int osize = mu_pt->size();
   float deltarcutpt1 = 0.5;

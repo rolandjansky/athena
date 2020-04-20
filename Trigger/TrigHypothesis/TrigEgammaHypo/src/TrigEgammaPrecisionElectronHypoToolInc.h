@@ -10,10 +10,12 @@
 #include "xAODEgamma/Electron.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "ITrigEgammaPrecisionElectronHypoTool.h"
+#include "PATCore/AcceptData.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 /**
  * @class Implementation of the precision selection for electrons
@@ -29,9 +31,8 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   virtual ~TrigEgammaPrecisionElectronHypoToolInc();
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input )  const override;
-
-  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& i ) const override;
+  virtual StatusCode decide( std::vector<ITrigEgammaPrecisionElectronHypoTool::ElectronInfo>& input, const EventContext& )  const override;
+  virtual bool decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& i, const EventContext& ) const override;
 
  private:
   HLT::Identifier m_decisionId;
@@ -43,7 +44,9 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+  ToolHandle<IAsgElectronLikelihoodTool> m_egammaElectronLHTool;  
   int findCutIndex( float eta ) const;
+
 }; 
 
 #endif //> !TRIGEGAMMAHYPO_TRIGPRECISIONELECTRONPRECISIONHYPOTOOL_H

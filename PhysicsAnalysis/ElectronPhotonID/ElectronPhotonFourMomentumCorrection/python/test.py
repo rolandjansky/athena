@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import unittest
 import math
@@ -30,7 +30,8 @@ from PATCore.ParticleDataType import Data, Full
 
 class Test(unittest.TestCase):
     def setUp(self):
-        self.all_systematics = [ROOT.egEnergyCorr.Scale.None, ROOT.egEnergyCorr.Scale.Nominal,
+        self.all_systematics = [getattr (ROOT.egEnergyCorr.Scale, 'None'),
+                                ROOT.egEnergyCorr.Scale.Nominal,
                                 ROOT.egEnergyCorr.Scale.PSUp, ROOT.egEnergyCorr.Scale.PSDown,
                                 ROOT.egEnergyCorr.Scale.ZeeStatUp, ROOT.egEnergyCorr.Scale.ZeeStatDown,
                                 ROOT.egEnergyCorr.Scale.ZeeSystUp, ROOT.egEnergyCorr.Scale.ZeeSystDown,
@@ -264,10 +265,10 @@ class Test(unittest.TestCase):
                 input_electron = self.example_input(eta=eta, particle=Electron)
                 particle_information = ROOT.AtlasRoot.egammaEnergyCorrectionTool.ParticleInformation(*(input_electron[3:13]))
                 nominal = ROOT.egEnergyCorr.Scale.Nominal
-                none = ROOT.egEnergyCorr.Scale.None
+                none = getattr(ROOT.egEnergyCorr.Scale, 'None')
 
-                energy_MC_none = self.tools[label].getCorrectedEnergy(0, Full, particle_information, ROOT.egEnergyCorr.Scale.None)
-                energy_data_none = self.tools[label].getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
+                energy_MC_none = self.tools[label].getCorrectedEnergy(0, Full, particle_information, none)
+                energy_data_none = self.tools[label].getCorrectedEnergy(0, Data, particle_information, none)
 
                 energy_MC_nominal = self.tools[label].getCorrectedEnergy(0, Full, particle_information, ROOT.egEnergyCorr.Scale.Nominal)
                 energy_data_nominal = self.tools[label].getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.Nominal)
@@ -282,7 +283,7 @@ class Test(unittest.TestCase):
 
         canvas_MC = ROOT.TCanvas("canvas_MC_ratio")
         legend = ROOT.TLegend(0.6, 0.6, 0.9, 0.9)
-        for i, graph in enumerate(graph_MC_nominal_ratio.itervalues()):
+        for i, graph in enumerate(graph_MC_nominal_ratio.values()):
             graph.SetLineColor(i + 1)
             graph.GetYaxis().SetTitle("Nominal-corrected energy / None-corrected energy")
             graph.GetXaxis().SetTitle("#eta")
@@ -296,7 +297,7 @@ class Test(unittest.TestCase):
 
         canvas_data = ROOT.TCanvas("canvas_data_ratio")
         legend2 = ROOT.TLegend(0.6, 0.6, 0.9, 0.9)
-        for i, graph in enumerate(graph_data_nominal_ratio.itervalues()):
+        for i, graph in enumerate(graph_data_nominal_ratio.values()):
             graph.SetLineColor(i + 1)
             graph.GetYaxis().SetTitle("Nominal-corrected energy / None-corrected energy")
             graph.GetXaxis().SetTitle("#eta")
@@ -321,8 +322,8 @@ class Test(unittest.TestCase):
                 input_electron = self.example_input(eta=eta, particle=Electron)
                 particle_information = ROOT.AtlasRoot.egammaEnergyCorrectionTool.ParticleInformation(*(input_electron[3:13]))
 
-                energy_MC_none = self.tools[label].getCorrectedEnergy(0, Full, particle_information, ROOT.egEnergyCorr.Scale.None)
-                energy_data_none = self.tools[label].getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
+                energy_MC_none = self.tools[label].getCorrectedEnergy(0, Full, particle_information, getattr(ROOT.egEnergyCorr.Scale, 'None'))
+                energy_data_none = self.tools[label].getCorrectedEnergy(0, Data, particle_information, getattr (ROOT.egEnergyCorr.Scale, 'None'))
 
                 # TODO: check also forward scales
                 if (-2.47 < eta < 2.47):
@@ -334,7 +335,7 @@ class Test(unittest.TestCase):
         legend = ROOT.TLegend(0.6, 0.6, 0.9, 0.9)
         multigraph = ROOT.TMultiGraph()
         multigraph.SetTitle("Data / MC no scale;#eta; data/MC None corrected");
-        for i, graph in enumerate(graph_none_ratio.itervalues()):
+        for i, graph in enumerate(graph_none_ratio.values()):
             graph.SetLineColor(i + 1)
             graph.SetMarkerStyle(24 + i)
             graph.SetFillColor(0)
@@ -381,10 +382,10 @@ class Test(unittest.TestCase):
                                                                                                  40E3,
                                                                                                  eta,
                                                                                                  phi)
-            energy_E1_MC = tool_E1.getCorrectedEnergy(0, Full, particle_information, ROOT.egEnergyCorr.Scale.None)
-            energy_E1_data = tool_E1.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
-            energy_E2_MC = tool_E2.getCorrectedEnergy(0, Full, particle_information, ROOT.egEnergyCorr.Scale.None)
-            energy_E2_data = tool_E2.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
+            energy_E1_MC = tool_E1.getCorrectedEnergy(0, Full, particle_information, getattr(ROOT.egEnergyCorr.Scale, 'None'))
+            energy_E1_data = tool_E1.getCorrectedEnergy(0, Data, particle_information, getattr(ROOT.egEnergyCorr.Scale, 'None'))
+            energy_E2_MC = tool_E2.getCorrectedEnergy(0, Full, particle_information, getattr(ROOT.egEnergyCorr.Scale, 'None'))
+            energy_E2_data = tool_E2.getCorrectedEnergy(0, Data, particle_information, getattr(ROOT.egEnergyCorr.Scale, 'None'))
             graph_E1.SetPoint(ipoint, eta, energy_E1_data / energy_E1_MC)
             graph_E2.SetPoint(ipoint, eta, energy_E2_data / energy_E2_MC)
             ipoint += 1
@@ -439,7 +440,7 @@ class Test(unittest.TestCase):
                                                                                                  40E3,
                                                                                                  eta,
                                                                                                  phi)
-            energy = tool.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
+            energy = tool.getCorrectedEnergy(0, Data, particle_information, getattr(ROOT.egEnergyCorr.Scale, 'None'))
             r = [1, 1, 1, 1]
             r[0] = 1 if particle_information.rawcl_Es0==0 else tool.getCalibInputs(0) / particle_information.rawcl_Es0
             r[1] = 1 if particle_information.rawcl_Es1==0 else tool.getCalibInputs(1) / particle_information.rawcl_Es1
@@ -500,8 +501,8 @@ class Test(unittest.TestCase):
         for eta in linspace(-3, 3, 300):
             input_electron = self.example_input(eta=eta, particle=Electron)
             particle_information = ROOT.AtlasRoot.egammaEnergyCorrectionTool.ParticleInformation(*(input_electron[3:13]))
-            energy = tool_es2012c.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
-            energy_nogain = tool_es2012c_nogain.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
+            energy = tool_es2012c.getCorrectedEnergy(0, Data, particle_information, getattr(ROOT.egEnergyCorr.Scale, 'None'))
+            energy_nogain = tool_es2012c_nogain.getCorrectedEnergy(0, Data, particle_information, getattr(ROOT.egEnergyCorr.Scale, 'None'))
 
             graph.SetPoint(ipoint, eta, energy/energy_nogain)
             ipoint += 1
@@ -547,8 +548,8 @@ class Test(unittest.TestCase):
                                                                                                  40E3,
                                                                                                  eta,
                                                                                                  phi)
-            energy = tool_es2012c.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
-            energy_nogain = tool_es2012c_nogain.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
+            energy = tool_es2012c.getCorrectedEnergy(0, Data, particle_information, getattr(ROOT.egEnergyCorr.Scale, 'None'))
+            energy_nogain = tool_es2012c_nogain.getCorrectedEnergy(0, Data, particle_information, getattr(ROOT.egEnergyCorr.Scale, 'None'))
 
             if energy_nogain != 0:
                 graph.SetPoint(ipoint, eta, energy/energy_nogain)
@@ -652,17 +653,17 @@ class Test(unittest.TestCase):
 
                             particle_str = "electron eta:%f, phi:%f, E0:%f, E1:%f, E2:%f, E3:%f, cl_E:%f" % (eta, phi, E0, E1, E2, E3, cl_E)
 
-                        energy = tool.getCorrectedEnergy(0, Full, particle_information, sys, ROOT.egEnergyCorr.Resolution.None)
+                        energy = tool.getCorrectedEnergy(0, Full, particle_information, sys, getattr(ROOT.egEnergyCorr.Resolution, 'None'))
                         self.assertFalse(math.isnan(energy), msg="got nan for sys=%f, %s" % (sys, particle_str))
 
-                        if sys in (ROOT.egEnergyCorr.Scale.None, ROOT.egEnergyCorr.Scale.Nominal):
+                        if sys in (getattr(ROOT.egEnergyCorr.Scale, 'None'), ROOT.egEnergyCorr.Scale.Nominal):
                             energy = tool.getCorrectedEnergy(0, Full, particle_information, sys, ROOT.egEnergyCorr.Resolution.Nominal)
                             self.assertFalse(math.isnan(energy), msg="got nan for Nominal res, %s" % particle_str)
                             energy = tool.getCorrectedEnergy(0, Full, particle_information, sys, ROOT.egEnergyCorr.Resolution.AllUp)
                             self.assertFalse(math.isnan(energy), msg="got nan for ErrorUp res, %s" % particle_str)
                             energy = tool.getCorrectedEnergy(0, Full, particle_information, sys, ROOT.egEnergyCorr.Resolution.AllDown)
                             self.assertFalse(math.isnan(energy), msg="got nan for ErrorDown res, %s" % particle_str)
-                            energy = tool.getCorrectedEnergy(0, Data, particle_information, sys, ROOT.egEnergyCorr.Resolution.None)
+                            energy = tool.getCorrectedEnergy(0, Data, particle_information, sys, ROOT.getattr(egEnergyCorr.Resolution, 'None'))
                             self.assertFalse(math.isnan(energy), msg="got nan for Data, sys=%s, %s" % (sys, particle_str))
 
     def test_systematics(self):
@@ -688,7 +689,7 @@ class Test(unittest.TestCase):
         for sys in systematics + [ROOT.egEnergyCorr.Scale.Nominal]:
             tool.setRandomSeed(1)
             energies_sys_smearing = self.energy_scan(tool, datatype, sys, ROOT.egEnergyCorr.Resolution.Nominal, etas)
-            energies_sys_nosmearing = self.energy_scan(tool, datatype, sys, ROOT.egEnergyCorr.Resolution.None, etas)
+            energies_sys_nosmearing = self.energy_scan(tool, datatype, sys, getattr(ROOT.egEnergyCorr.Resolution, 'None'), etas)
             all_energies_smearing[sys] = energies_sys_smearing
             all_energies_nosmearing[sys] = energies_sys_nosmearing
 
@@ -813,11 +814,11 @@ class Test(unittest.TestCase):
                                                                                                  1,
                                                                                                  1, 100)
             energy1 = tool_es2012c_layer1.getCorrectedEnergy(0, Full, particle_information,
-                                                             ROOT.egEnergyCorr.Scale.None,
-                                                             ROOT.egEnergyCorr.Resolution.None)
+                                                             getattr(ROOT.egEnergyCorr.Scale, 'None'),
+                                                             getattr(ROOT.egEnergyCorr.Resolution, 'None'))
             energy2 = tool_es2012c_layer2.getCorrectedEnergy(0, Full, particle_information,
-                                                             ROOT.egEnergyCorr.Scale.None,
-                                                             ROOT.egEnergyCorr.Resolution.None)
+                                                             getattr(ROOT.egEnergyCorr.Scale, 'None'),
+                                                             getattr(ROOT.egEnergyCorr.Resolution, 'None'))
 
             self.assertEqual(energy1, energy2)
 

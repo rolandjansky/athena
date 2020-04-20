@@ -185,8 +185,6 @@ void Trk::TrackSelectionProcessorTool::addNewTracks(TrackScoreMap &trackScoreTra
   }
   
   ATH_MSG_DEBUG ("Number of tracks in map:"<<trackScoreTrackMap.size());
-
-  return;
 }
 
 void Trk::TrackSelectionProcessorTool::solveTracks(TrackScoreMap &trackScoreTrackMap,
@@ -219,7 +217,7 @@ void Trk::TrackSelectionProcessorTool::solveTracks(TrackScoreMap &trackScoreTrac
       // add to output list
       final_tracks.push_back( const_cast<Track*>(atrack.track()) );
 
-    }else if ( !cleanedTrack.get() ) {
+    }else if ( !cleanedTrack ) {
       // track should be discarded
       ATH_MSG_DEBUG ("Track "<< atrack.track() << " doesn't meet the cuts of the AmbiTrack Selection tool");
 
@@ -236,8 +234,6 @@ void Trk::TrackSelectionProcessorTool::solveTracks(TrackScoreMap &trackScoreTrac
   }
 
   ATH_MSG_DEBUG ("Finished, number of track on output: "<<final_tracks.size());
-
-  return;
 }
 
 //==================================================================================================
@@ -258,5 +254,4 @@ void Trk::TrackSelectionProcessorTool::dumpTracks( const TrackCollection& tracks
       totalScore+=score;
     }
   ATH_MSG_DEBUG ("Total event score : "<<totalScore);
-  return;
 }

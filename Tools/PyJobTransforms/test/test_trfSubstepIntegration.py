@@ -28,7 +28,7 @@ class trfExitTests(unittest.TestCase):
         p.wait()
         for line in p.stdout:
             print(line, end=' ')
-            m = re.match(r"Executor Step: (\w+)", line)
+            m = re.match(r"Executor Step: (\w+)", line.decode())
             if m:
                 steps.append(m.group(1))
         self.assertEqual(p.returncode, 0)
@@ -43,7 +43,7 @@ class trfExitTests(unittest.TestCase):
         p.wait()
         for line in p.stdout:
             print(line, end=' ')
-            m = re.match(r"Executor Step: (\w+)", line)
+            m = re.match(r"Executor Step: (\w+)", line.decode())
             if m:
                 steps.append(m.group(1))
         self.assertEqual(p.returncode, 0)

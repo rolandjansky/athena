@@ -2,6 +2,8 @@
 #file RunDepTaskMaker.py
 # Uses LumiCalc COOL query tools to get a dictionary of lumiblock configurations for use in the the EventIdModifierSvc.
 
+from __future__ import print_function
+
 import sys,getopt,os,itertools
 from LumiBlockComps.LumiCalculator import lumiResult,RLBRange
 from RunDependentSimComps.LumiResultsGetter import coolLumiResultsGetter
@@ -87,8 +89,8 @@ class RunDepTaskDriver:
         try:
             longopts=["database=","lumifolder=","lumimethod=","tag=","externalDict=", "nMC=","outfile=","trigger=", "debug","verbose","help", "longpattern"]
             opts,args=getopt.getopt(sys.argv[1:],'',longopts)
-        except getopt.GetoptError,e:
-            print e
+        except getopt.GetoptError as e:
+            print (e)
             self.usage()
             sys.exit(1)
         self.filelist=args
@@ -96,21 +98,21 @@ class RunDepTaskDriver:
         self.execute()
 
     def usage(self):
-        print ""
-        print "usage: RunDepTaskMaker.py <options> [goodruns.xml]"
-        print "Options are:"
-        print "--database=<COOL databaseID>   : set COOL DB (%s) for luminosity " % self.lumidbname
-        print "--tag=<COOL database tag>      : set COOL luminosity DB tag (%s)" % self.tag
-        print "--trigger=<L1 trig>            : set high rate trigger (%s)" % self.trigger
-        print "--lumifolder=<COOL foldername> : set COOL DB folder containing luminosity estimates(%s)" % self.lumifoldername
-        print "--lumimethod=<method name>     : set name for lookup of lumi DB channel (%s)" % self.lumimethod
-        print "--externalDict=<{mu:fraction}>: set python dictionary of ints/crossing (%s) -- lumimethod must be EXTERNAL" % self.externaldict
-        print "--outfile=<filename.py>        : set output joboptions filename (%s)" %         self.outputfilename
-        print "--nMC=<number of MC events>    : target number of events in MCProd task (%i) (or, repeat period for EXTERNAL lumimethod)" % self.mcDatasetSize
-        print "--verbose : produce some output (IOV-level)"       
-        print "--debug : produce maximum output (LB-level)"
-        print "--longpattern : Try to use all of the LB in the goodrunlist (default is %s)" % self.longpattern
-        print "--help : display this help text"
+        print ("")
+        print ("usage: RunDepTaskMaker.py <options> [goodruns.xml]")
+        print ("Options are:")
+        print ("--database=<COOL databaseID>   : set COOL DB (%s) for luminosity " % self.lumidbname)
+        print ("--tag=<COOL database tag>      : set COOL luminosity DB tag (%s)" % self.tag)
+        print ("--trigger=<L1 trig>            : set high rate trigger (%s)" % self.trigger)
+        print ("--lumifolder=<COOL foldername> : set COOL DB folder containing luminosity estimates(%s)" % self.lumifoldername)
+        print ("--lumimethod=<method name>     : set name for lookup of lumi DB channel (%s)" % self.lumimethod)
+        print ("--externalDict=<{mu:fraction}>: set python dictionary of ints/crossing (%s) -- lumimethod must be EXTERNAL" % self.externaldict)
+        print ("--outfile=<filename.py>        : set output joboptions filename (%s)" %         self.outputfilename)
+        print ("--nMC=<number of MC events>    : target number of events in MCProd task (%i) (or, repeat period for EXTERNAL lumimethod)" % self.mcDatasetSize)
+        print ("--verbose : produce some output (IOV-level)"       )
+        print ("--debug : produce maximum output (LB-level)")
+        print ("--longpattern : Try to use all of the LB in the goodrunlist (default is %s)" % self.longpattern)
+        print ("--help : display this help text")
         
 
     def procopts(self,opts):
@@ -141,10 +143,10 @@ class RunDepTaskDriver:
             s = len(somelist)
             mult = len(self.externaldict)
             if self.longpattern:
-                print "Pattern has", mult, "entries. Truncating lumiblock list of length", s, "to", int(s/mult) * mult            
+                print ("Pattern has", mult, "entries. Truncating lumiblock list of length", s, "to", int(s/mult) * mult            )
                 del somelist[int(s/mult) * mult:]
             elif (s >= mult):
-                print "Pattern has", mult, "entries. Truncating lumiblock list of length", s, "to", mult
+                print ("Pattern has", mult, "entries. Truncating lumiblock list of length", s, "to", mult)
                 del somelist[mult:]
             pass
         pass
@@ -204,10 +206,12 @@ class RunDepTaskDriver:
             log.info( "There are %i lumiblocks in the task.",l)
             if (l > 10):
                 log.info( "Dumping first and last 5 lumiblocks:")
-                for j in JobMaker[:5]+JobMaker[-5:]: print " ",j
+                for j in JobMaker[:5]+JobMaker[-5:]:
+                    print (" ",j)
             else:
                 log.info( "Dumping allconfigured lumiblocks:")
-                for j in JobMaker: print " ",j
+                for j in JobMaker:
+                    print (" ",j)
             #now dump to outfile    
             allLB = iter(JobMaker)            
             dressSkeleton(self.skeletonName,self.outputfilename,allLB)

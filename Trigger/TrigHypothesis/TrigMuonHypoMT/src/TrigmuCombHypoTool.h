@@ -5,12 +5,12 @@
 #ifndef TRIGMUONHYPOMT_TRIGMUCOMBHYPOTOOL_H 
 #define TRIGMUONHYPOMT_TRIGMUCOMBHYPOTOOL_H 1
 
-#include "DecisionHandling/HLTIdentifier.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class StoreGateSvc;
 

@@ -68,17 +68,21 @@ StatusCode DetectorFieldManagerTool::initializeField()
     ATH_CHECK( setFieldParameters(fieldMgr) );
 
     // Construct the stepper
-    auto stepper = getStepper(m_integratorStepper, field);
-
+    G4MagIntegratorStepper* stepper = getStepper(m_integratorStepper, field);
     G4MagInt_Driver* magDriver = nullptr;
 
 #if G4VERSION_NUMBER < 1040
-    magDriver = fieldMgr->GetChordFinder()->GetIntegrationDriver();
-#else
-    magDriver = static_cast<G4MagInt_Driver*>(fieldMgr->GetChordFinder()->GetIntegrationDriver());
-#endif
 
+    magDriver = fieldMgr->GetChordFinder()->GetIntegrationDriver();
     magDriver->RenewStepperAndAdjust(stepper);
+
+#else
+
+    auto chordFinder = fieldMgr->GetChordFinder();
+    magDriver = new G4MagInt_Driver(1.0e-2, stepper, stepper->GetNumberOfVariables());
+    chordFinder->SetIntegrationDriver(magDriver);
+
+#endif
 
     // Assign the field manager to volumes
     auto logVolStore = G4LogicalVolumeStore::GetInstance();

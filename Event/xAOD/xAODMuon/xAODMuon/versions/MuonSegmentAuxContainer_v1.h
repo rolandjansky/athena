@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODMUON_VERSIONS_MUONSEGMENTAUXCONTAINER_V1_H
@@ -12,7 +12,7 @@
 #include "AthLinks/ElementLink.h"
  
 // xAOD include(s):
-#ifndef XAOD_ANALYSIS
+#if !(defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))
 #include "TrkSegment/SegmentCollection.h"
 #endif
 

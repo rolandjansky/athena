@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,25 +13,18 @@
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
  * @author Jack Cranshaw <Jack.Cranshaw@cern.ch>
  *
- * $Id: RegistrationStream.h,v 1.30 2009-04-28 19:04:06 cranshaw Exp $
  *
  */
 
 #ifndef ATHENAPOOLTEST_REGISTRATIONSVC_H
-# define ATHENAPOOLTEST_REGISTRATIONSVC_H
-
-//<<<<<< INCLUDES                                                       >>>>>>
+#define ATHENAPOOLTEST_REGISTRATIONSVC_H
 
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIoComponent.h"
 
 #include "AthenaBaseComps/FilteredAlgorithm.h"
 
-#include <map>
-
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
 
 template <class ConcreteAlgorithm> class AlgFactory;
 class IAddressCreator;
@@ -52,27 +45,19 @@ namespace SG
  * events.
  *
  */
-
 class RegistrationStream : public FilteredAlgorithm,
                            virtual public IIoComponent 
 {
   friend class AlgFactory<RegistrationStream>;
 public:
     
-    /// Initialize RegistrationStream
-    virtual StatusCode initialize();
-
-    /// Terminate RegistrationStream
-    virtual StatusCode finalize();
-
-    virtual StatusCode stop();
-
-    /// Working entry point
-    virtual StatusCode execute();
+    virtual StatusCode initialize() override;
+    virtual StatusCode stop() override;
+    virtual StatusCode execute() override;
 
     /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
-    virtual StatusCode io_reinit();
-    virtual StatusCode io_finalize();
+    virtual StatusCode io_reinit() override { return StatusCode::SUCCESS; }
+    virtual StatusCode io_finalize() override { return StatusCode::SUCCESS; }
 
     /// Standard RegistrationStream Constructor
     RegistrationStream(const std::string& name, ISvcLocator* pSvcLocator); 
@@ -144,8 +129,5 @@ private:
 
 };
 
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // ATHENAPOOLTEST_REGISTRATIONSVC_H

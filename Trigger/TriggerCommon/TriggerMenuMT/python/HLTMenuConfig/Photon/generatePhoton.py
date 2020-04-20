@@ -2,7 +2,7 @@
 
 from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences import l2PhotonRecoCfg, l2PhotonHypoCfg
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
     ChainStep, Chain, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -25,15 +25,15 @@ def generateChains(flags, chainDict):
                                 name = 'L2PhotonCaloHypo',
                                 CaloClusters = recordable('HLT_L2CaloEMClusters') )
 
-    l2CaloHypo.HypoTools = [ TrigL2CaloHypoToolFromDict(chainDict) ]
-
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
-    fastCaloSequence = MenuSequence( Sequence = l2CaloReco.sequence(),
+    fastCaloSequence = CAMenuSequence( Sequence = l2CaloReco.sequence(),
                                      Maker = l2CaloReco.inputMaker(),
                                      Hypo = l2CaloHypo,
-                                     HypoToolGen = None,
+                                     HypoToolGen = TrigL2CaloHypoToolFromDict,
                                      CA = accCalo )
+
+    fastCaloSequence.createHypoTools(chainDict)
 
     fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
 
@@ -51,15 +51,15 @@ def generateChains(flags, chainDict):
                                     Photons = 'HLT_L2Photons',
                                     RunInView = True )
 
-    l2PhotonHypo.HypoTools = [ TrigL2PhotonHypoToolFromDict(chainDict) ]
-
     accPhoton.addEventAlgo(l2PhotonHypo, sequenceName=stepView.getName())
 
-    l2PhotonSequence = MenuSequence( Sequence = l2PhotonReco.sequence(),
+    l2PhotonSequence = CAMenuSequence( Sequence = l2PhotonReco.sequence(),
                                      Maker = l2PhotonReco.inputMaker(),
                                      Hypo = l2PhotonHypo,
-                                     HypoToolGen = None,
+                                     HypoToolGen = TrigL2PhotonHypoToolFromDict,
                                      CA = accPhoton )
+
+    l2PhotonSequence.createHypoTools(chainDict)
 
     l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence])
 

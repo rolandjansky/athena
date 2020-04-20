@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////
@@ -13,7 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "InDetTrackScoringTools/ROIInfoVec.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include "ROIInfoVec.h"
 
 namespace Trk {
   class IExtrapolator;
@@ -55,31 +56,13 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   virtual Trk::TrackScore simpleScore( const Trk::Track& track, const Trk::TrackSummary& trackSum ) const override;
   Trk::TrackScore  ambigScore( const Trk::Track& track, const Trk::TrackSummary& trackSum ) const;
   
-  struct ROIInfo {
-    ROIInfo (double the_emF,
-             //double the_emE,
-             double the_emR,
-             double the_emZ)
-    : emF(the_emF),
-      //emE(the_emE),
-      emR(the_emR),
-      emZ(the_emZ) {}
-    double emF;
-    //double emE;
-    double emR;
-    double emZ;
-  };
-  typedef std::vector<ROIInfo> ROIInfoVec;
 
  private:
-  const ROIInfoVec* getInfo() const;
-  
   void setupScoreModifiers();
   
   
     /** Check if the cluster is compatible with a EM cluster*/
-  bool isEmCaloCompatible(const Trk::Track& track,
-                          const ROIInfoVec* info) const;
+  bool isEmCaloCompatible(const Trk::Track& track) const;
   
   
   //these are used for ScoreModifiers 
@@ -132,16 +115,15 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   double m_maxRPhiImpEM;    //!< maximal RPhi impact parameter cut track that match EM clusters
 
   bool  m_useEmClusSeed;
-  float m_minPtEm;
   float m_phiWidthEm;
   float m_etaWidthEm;
 
-  SG::ReadHandleKey<CaloClusterROI_Collection> m_inputEmClusterContainerName;
+  SG::ReadHandleKey<InDet::ROIInfoVec> m_caloROIInfoKey
+     {this,"CaloROIInfoName", "ROIInfoVec","Name of the calo cluster ROI vector."};
 };
 
 
 } // namespace InDet
 
 
-CLASS_DEF (InDet::InDetAmbiScoringTool::ROIInfoVec, 169195041, 0)
 #endif 

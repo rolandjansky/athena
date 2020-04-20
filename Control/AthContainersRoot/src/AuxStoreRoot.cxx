@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthContainersRoot/src/AuxStoreRoot.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -21,7 +20,7 @@
 #include "TBranch.h"
 #include "TLeaf.h"
 #include "TClass.h"
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 #include "TVirtualCollectionProxy.h"
 
 

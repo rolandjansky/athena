@@ -24,16 +24,16 @@ if "date" not in dir():
 if "TimeStamp" not in dir():
    try:
       ts=strptime(date+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
-      TimeStamp=int(timegm(ts))*1000000000L
+      TimeStamp=int(timegm(ts))*1000000000
    except ValueError:
-      print "ERROR in time specification, use e.g. 2007-05-25:14:01:00"
+      printfunc ("ERROR in time specification, use e.g. 2007-05-25:14:01:00")
       
 
 from LArCalibProcessing.TimeStampToRunLumi import TimeStampToRunLumi
 
 rlb=TimeStampToRunLumi(TimeStamp)
 if rlb is None:
-   print "WARNING: Failed to convert time",TimeStamp,"into a run/lumi number"
+   printfunc ("WARNING: Failed to convert time",TimeStamp,"into a run/lumi number")
    RunNumber=999999
    LumiBlock=0
 else:
@@ -41,7 +41,7 @@ else:
    LumiBlock=rlb[1]
 
 
-print "Working on run",RunNumber,"LB",LumiBlock,"Timestamp:",TimeStamp
+printfunc ("Working on run",RunNumber,"LB",LumiBlock,"Timestamp:",TimeStamp)
 
 # name of output local sql file
 OutputSQLiteFile = 'myDB200_hvDummy.db'

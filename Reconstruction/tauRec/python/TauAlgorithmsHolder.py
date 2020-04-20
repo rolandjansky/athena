@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -61,11 +61,7 @@ def getJetSeedBuilder(seed_collection_name):
         return cached_instances[_name]
     
     from tauRecTools.tauRecToolsConf import JetSeedBuilder
-    JetSeedBuilder = JetSeedBuilder(name = _name,
-            JetCollection = seed_collection_name,
-            maxDist = 0.2,
-            minPt = 10.*GeV,
-            SwitchJetsEmScale = False)
+    JetSeedBuilder = JetSeedBuilder(name = _name)
             
     cached_instances[_name] = JetSeedBuilder
     return JetSeedBuilder
@@ -81,7 +77,7 @@ def getTauAxis():
     from tauRecTools.tauRecToolsConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
-                                    CellCorrection = True)
+                                    VertexCorrection = True)
                                     
     cached_instances[_name] = TauAxisSetter                
     return TauAxisSetter
@@ -124,10 +120,8 @@ def getCellVariables(cellConeSize=0.2, prefix=''):
     TauCellVariables = TauCellVariables(name = _name,
             CellEthreshold = 0.2*GeV,
             StripEthreshold = 0.2*GeV,
-            EMSumThreshold = 0.5*GeV,
-            EMSumRadius = 0.2,
             CellCone = cellConeSize,
-            CellCorrection = True)
+            VertexCorrection = True)
             
     cached_instances[_name] = TauCellVariables   
     return TauCellVariables
@@ -296,11 +290,7 @@ def getTauVertexVariables():
     TauVertexVariables = TauVertexVariables(  name = _name,
                                               TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                               VertexFitter = getTauAdaptiveVertexFitter(),
-                                              #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
-                                              Key_vertexInputContainer = _DefaultVertexContainer,
-                                              Key_trackPartInputContainer = _DefaultTrackContainer # ATM only needed in case old API is used
-                                              #OutputLevel = 2                                            
                                               )
     
     cached_instances[_name] = TauVertexVariables    
@@ -320,8 +310,8 @@ def getTauSubstructure():
                                                           # parameters for CaloIsoCorrected variable
                                                           maxPileUpCorrection = 4000., #MeV
                                                           pileUpAlpha = 1.0,
-                                                          VertexCorrection = True,
-                                                          inAODmode = bAODmode)
+                                                          VertexCorrection = True
+                                                       )
     
     cached_instances[_name] = TauSubstructureVariables
     return TauSubstructureVariables
@@ -336,7 +326,7 @@ def getElectronVetoVars():
     
     from tauRecTools.tauRecToolsConf import TauElectronVetoVariables
     TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
-                                                        CellCorrection = True,
+                                                        VertexCorrection = True,
                                                         ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
                                                         tauEVParticleCache = getParticleCache() )
     
@@ -426,7 +416,6 @@ def getPi0ScoreCalculator():
 
     from tauRecTools.tauRecToolsConf import TauPi0ScoreCalculator
     TauPi0ScoreCalculator = TauPi0ScoreCalculator(name = _name,
-        ReaderOption = 'Silent:!Color',
         BDTWeightFile = 'TauPi0BDTWeights.root',
         )
 
@@ -457,9 +446,6 @@ def getPi0Selector():
     cached_instances[_name] = TauPi0Selector
     return TauPi0Selector
 
-
-
-
 #########################################################################
 # Photon Shot Finder algo
 def getTauShotFinder():    
@@ -472,30 +458,16 @@ def getTauShotFinder():
     shotPtCut_1Photon = jobproperties.tauRecFlags.shotPtCut_1Photon()
     shotPtCut_2Photons = jobproperties.tauRecFlags.shotPtCut_2Photons()
 
-    #from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    #TauCellContainerFinalizer = CaloCellContainerFinalizerTool(name=sPrefix+'tauShotCellContainerFinalizer')
-    #from AthenaCommon.AppMgr import ToolSvc
-    #ToolSvc += TauCellContainerFinalizer
-    
     from tauRecTools.tauRecToolsConf import TauShotFinder
     TauShotFinder = TauShotFinder(name = _name,
                                   CaloWeightTool = getCellWeightTool(),
-                                  #ReaderOption = "Silent:!Color",
-                                  #BDTWeightFile_barrel =  "TauShotsBDTWeights.xml",
-                                  #BDTWeightFile_endcap1 = "TauShotsBDTWeights.xml",
-                                  #BDTWeightFile_endcap2 = "TauShotsBDTWeights.xml",
                                   NCellsInEta           = 5,
                                   MinPtCut              = shotPtCut_1Photon,
                                   AutoDoubleShotCut     = shotPtCut_2Photons,
-                                  MergedBDTScoreCut     = (-9999999.,-9999999.,-9999999.,-9999999.,-9999999.),
                                   Key_caloCellInputContainer="AllCalo"
                                   )
     cached_instances[_name] = TauShotFinder
     return TauShotFinder
-
-
-
-
 
 
 #########################################################################
@@ -696,26 +668,6 @@ def getTauTrackFinder(removeDuplicateTracks=True):
     
     cached_instances[_name] = TauTrackFinder      
     return TauTrackFinder
-
-########################################################################
-# TauTrackFilter
-def getTauTrackFilter():
-    _name = sPrefix + 'TauTrackFilter'
-    from tauRecTools.tauRecToolsConf import TauTrackFilter
-    TauTrackFilter = TauTrackFilter(name = _name, Key_trackParticleInputContainer = _DefaultTrackContainer)
-    cached_instances[_name] = TauTrackFilter
-    return TauTrackFilter
-
-########################################################################
-# TauGenericPi0Cone
-def getTauGenericPi0Cone():
-    _name = sPrefix + 'TauGenericPi0Cone'
-    from tauRecTools.tauRecToolsConf import TauGenericPi0Cone
-    TauGenericPi0Cone = TauGenericPi0Cone(name = _name)
-    cached_instances[_name] = TauGenericPi0Cone
-    return TauGenericPi0Cone
-
-#end
 
 ########################################################################
 # MvaTESVariableDecorator
@@ -940,7 +892,7 @@ def getTauJetRNNEvaluator(_n, NetworkFile0P="", NetworkFile1P="", NetworkFile3P=
     return myTauJetRNNEvaluator
 
 
-def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", GradiantBoost=True, minAbsTrackEta=-1, maxAbsTrackEta=-1):
+def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", minAbsTrackEta=-1, maxAbsTrackEta=-1):
     _name = sPrefix + _n
     from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
     myTauJetBDTEvaluator = TauJetBDTEvaluator(name=_name,
@@ -949,8 +901,7 @@ def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, ou
                                               maxNTracks=maxNTracks,
                                               minAbsTrackEta=minAbsTrackEta,
                                               maxAbsTrackEta=maxAbsTrackEta,
-                                              outputVarName=outputVarName,
-                                              GradiantBoost=GradiantBoost)
+                                              outputVarName=outputVarName)
     cached_instances[_name] = myTauJetBDTEvaluator
     return myTauJetBDTEvaluator
 

@@ -34,7 +34,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 // ToT Tool Interface
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 
 // Particle masses
 
@@ -62,7 +62,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   m_trtId(nullptr),
   m_TRTdetMgr(nullptr),
   m_minTRThits(5),
-  m_TRTdEdxTool("TRT_ToT_dEdx"),
+  m_TRTdEdxTool(),
   m_LocalOccTool(),
   m_TRTStrawSummaryTool("InDetTRTStrawStatusSummaryTool",this)
 {
@@ -146,11 +146,11 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
 
  // Get the probability calculator
  SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey};
- HTcalculator* HTcalc = const_cast<HTcalculator*>(*readHandle);
+ const HTcalculator* HTcalc = (*readHandle);
  // make sure some calibration is available
- if(HTcalc==nullptr) ATH_MSG_WARNING ("  No Pid calibration from the DB.");
- HTcalc->checkInitialization();
-
+ if(HTcalc==nullptr) {
+   ATH_MSG_WARNING ("  No Pid calibration from the DB.");
+ }
 
   //Initialize the return vector
   std::vector<float> PIDvalues(5);

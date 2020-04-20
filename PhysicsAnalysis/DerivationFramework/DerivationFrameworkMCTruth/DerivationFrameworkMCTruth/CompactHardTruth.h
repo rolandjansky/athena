@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CompactHardTruth.h
@@ -20,7 +20,7 @@
 //
 // New final partons have correct momenta and ancestors/descendants.
 // CompactHardTruth changes particles/vertices, so it cannot be used directly 
-// with ThinningSvc, but it can be used in parallel.
+// with thinning, but it can be used in parallel.
 //
 /////////////////////////////////////////////////////////////////// 
 #ifndef DERIVATIONFRAMEWORK_COMPACTHARDTRUTH_H

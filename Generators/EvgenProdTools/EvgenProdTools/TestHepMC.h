@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -12,11 +12,12 @@
 #include "TruthHelper/IsGenNonInteracting.h"
 #include "TFile.h"
 #include "TH1.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include<cmath>
 
 #include<fstream>
 
+using namespace std;
 
 /// Filtering algorithm to sanity check HepMC event features.
 ///
@@ -47,6 +48,9 @@ public:
   double      m_eff_warn_threshold, m_eff_fail_threshold, m_tau_eff_threshold;
   double      m_accur_margin;
   bool m_doHist;
+  bool m_beamEnergyTest, m_vtxNaNTest, m_vtxDisplacedTest, m_momNaNTest, m_lifeTimeTest, m_energyG4Test;
+  bool m_energyImbalanceTest, m_momImbalanceTest, m_negativeEnergyTest, m_tachyonsTest, m_unstableNoVtxTest;
+  bool m_pi0NoVtxTest, m_undisplacedDaughtersTest, m_unknownPDGIDTest;
 
   std::vector<int> m_vertexStatuses;
 
@@ -80,13 +84,14 @@ public:
   int m_Status1ShortLifetime;
   int m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate;
   int m_nonG4_energyCheckRate;
+  int m_unknownPDGIDCheckRate;
 
   std::string m_paramFile;
-  
-  std::ifstream m_G4file;
-  std::ifstream m_susyFile;
-  std::vector<int> m_G4pdgID_tab;
-  std::vector<int> m_SusyPdgID_tab;
+  std::string m_unknownPDGIDFile;
+
+  vector<int> m_G4pdgID_tab;
+  vector<int> m_SusyPdgID_tab;
+  vector<int> m_uknownPDGID_tab;
   TruthHelper::IsGenNonInteracting m_nonint;
 
   /// @todo Can we use the GenAnalysis / AthHistoAlg methods for histo management?

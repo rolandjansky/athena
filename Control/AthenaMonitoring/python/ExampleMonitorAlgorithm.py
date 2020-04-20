@@ -85,8 +85,21 @@ def ExampleMonitoringConfig(inputFlags):
                             xbins=[0,.1,.2,.4,.8,1.6])
     myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
                             xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
-    # myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
-    #                         path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
+    # specify a merge method
+    myGroup.defineHistogram('lumiPerBCID;lumiPerBCID_merge',title='Luminosity,WithCommaInTitle;L/BCID;Events',
+                            path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0, merge='weightedAverage')
+    # TEfficiencies
+    myGroup.defineHistogram('pT_passed,pT', type='TEfficiency', title='Test TEfficiency;x;Eff',
+                            path='AndInTheDarkness', xbins=100, xmin=0.0, xmax=50.0)
+    myGroup.defineHistogram('pT_passed,pT,random', type='TEfficiency', title='Test TEfficiency 2D;x;y;Eff',
+                            path='AndInTheDarkness', xbins=100, xmin=0.0, xmax=50.0,
+                            ybins=10, ymin=0.0, ymax=2.0)
+    # # use a cutmask to only fill certain events
+    myGroup.defineHistogram('pT;pT_with_cut', title='p_{T};p_{T};Events', path='AndInTheDarkness',
+                             xbins=50, xmin=0, xmax=50, cutmask='pT_passed')
+    # make a TTree
+    myGroup.defineTree('pT,lb,pT_vec,strvec,str;testtree', path='BindThem',
+                        treedef='pT/F:lb/i:pT_vec/vector<float>:strvec/vector<string>:str/string')
 
     anotherGroup.defineHistogram('lbWithFilter',title='Lumi;lb;Events',
                                  path='top',xbins=1000,xmin=-0.5,xmax=999.5)
@@ -97,26 +110,33 @@ def ExampleMonitoringConfig(inputFlags):
     # number of histograms in an organized manner. (For instance, one plot for each ASIC
     # in the subdetector, and these components are mapped in eta, phi, and layer.) Thus,
     # one might have an array of TH1's such as quantity[etaIndex][phiIndex][layerIndex].
-    for alg in [exampleMonAlg,anotherExampleMonAlg]:
+    for alg in [exampleMonAlg, anotherExampleMonAlg]:
         # Using an array of groups
-        array = helper.addArray([2],alg,'ExampleMonitor')
+        topPath = 'OneRing' if alg == exampleMonAlg else 'top'
+        array = helper.addArray([2],alg,'ExampleMonitor', topPath=topPath)
         array.defineHistogram('a,b',title='AB',type='TH2F',path='Eta',
                               xbins=10,xmin=0.0,xmax=10.0,
                               ybins=10,ymin=0.0,ymax=10.0)
         array.defineHistogram('c',title='C',path='Eta',
                               xbins=10,xmin=0.0,xmax=10.0)
-        array = helper.addArray([4,2],alg,'ExampleMonitor')
+        array = helper.addArray([4,2],alg,'ExampleMonitor', topPath=topPath)
         array.defineHistogram('a',title='A',path='EtaPhi',
                               xbins=10,xmin=0.0,xmax=10.0)
+
         # Using a map of groups
-        layerList = ['layer1','layer2']
-        clusterList = ['clusterX','clusterB']
-        array = helper.addArray([layerList],alg,'ExampleMonitor')
-        array.defineHistogram('c',title='C',path='Layer',
-                              xbins=10,xmin=0,xmax=10.0)
-        array = helper.addArray([layerList,clusterList],alg,'ExampleMonitor')
-        array.defineHistogram('c',title='C',path='LayerCluster',
-                              xbins=10,xmin=0,xmax=10.0)
+        layerList = ['layer1', 'layer2']
+        clusterList = ['clusterX', 'clusterB']
+        array1D = helper.addArray([layerList], alg, 'ExampleMonitor', topPath=topPath)
+        array1D.defineHistogram('c', title='C', path='Layer',
+                                xbins=10, xmin=0, xmax=10.0)
+        array2D = helper.addArray([layerList, clusterList], alg, 'ExampleMonitor', topPath=topPath)
+        array2D.defineHistogram('c', title='C', path='LayerCluster',
+                                xbins=10, xmin=0, xmax=10.0)
+
+        # Using templates for histogram titles or paths
+        array1D.defineHistogram('c', title='Layer {0}', path='Keys', xmax=3.)
+        array1D.defineHistogram('c;c_alternate', title='Layer', path='Keys/{0}', xmax=3.)
+        array2D.defineHistogram('c', title='Cluster {1}, Layer {0}', path='Keys/{1}', xmax=3.)
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
@@ -142,18 +162,20 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    import sys
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'ExampleMonitorOutput.root'
+    ConfigFlags.fillFromArgs(sys.argv[1:])
     
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesThreadedCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     exampleMonitorAcc = ExampleMonitoringConfig(ConfigFlags)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,15 +10,17 @@
 #define DERIVATIONFRAMEWORK_THINNINGTOOLEXAMPLE_H 1
 
 #include<string>
+#include<atomic>
 
 // Gaudi & Athena basics
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "StoreGate/ThinningHandleKey.h"
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 
-class IThinningSvc;
 
 namespace DerivationFramework {
 
@@ -26,26 +28,30 @@ namespace DerivationFramework {
   
       @author James Catmore -at- cern.ch
      */
-  class ThinningToolExample : public AthAlgTool, public IThinningTool {
+  class ThinningToolExample : public extends<AthAlgTool, IThinningTool> {
     
   public: 
     /** Constructor with parameters */
     ThinningToolExample( const std::string& t, const std::string& n, const IInterface* p );
     
     /** Destructor */
-    ~ThinningToolExample();
+    virtual ~ThinningToolExample();
     
     // Athena algtool's Hooks
-    StatusCode  initialize();
-    StatusCode  finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
     /** Check that the current event passes this filter */
-    virtual StatusCode doThinning() const;
+    virtual StatusCode doThinning() const override;
  
   private:
-    ServiceHandle<IThinningSvc> m_thinningSvc;
-    mutable unsigned int m_ntot;
-    mutable unsigned int m_npass;
+    StringProperty m_streamName
+    { this, "StreamName", "", "Name of the stream being thinned" };
+    SG::ThinningHandleKey<xAOD::TrackParticleContainer> m_inDetSGKey
+      { this, "InDetTrackParticlesKey", "InDetTrackParticles", "" };
+
+    mutable std::atomic<unsigned int> m_ntot;
+    mutable std::atomic<unsigned int> m_npass;
     double m_trackPtCut;
   }; 
   

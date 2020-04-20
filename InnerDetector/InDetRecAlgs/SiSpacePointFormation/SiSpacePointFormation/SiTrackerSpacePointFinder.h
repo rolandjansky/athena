@@ -8,7 +8,7 @@
 #define SiSpacePointFormation_SI_POINT_FINDER_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthContainers/DataVector.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
@@ -130,21 +130,7 @@ namespace InDet {
       (const SCT_ClusterCollection* next,
        const SiElementPropertiesTable* properties,
        const InDetDD::SiDetectorElementCollection* elements,
-       SpacePointCollection* spacepointCollection, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const; 
-
-    void checkForSCT_Points
-      (const SCT_ClusterCollection* clusters1,
-       const IdentifierHash id2,
-       const InDetDD::SiDetectorElementCollection* elements,
-       double minDiff, double maxDiff,
-       SpacePointCollection* spacepointCollection, bool overlapColl, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const; 
-
-    void checkForSCT_Points
-      (const SCT_ClusterCollection* clusters1, 
-       const IdentifierHash id2,
-       const InDetDD::SiDetectorElementCollection* elements,
-       double min1, double max1,
-       double min2, double max2, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const;
+       SpacePointCollection* spacepointCollection, SpacePointOverlapCollection* spacepointOverlapCollection, SPFCache&) const;
     //@}
 
     // data members
@@ -253,7 +239,7 @@ namespace InDet {
     mutable std::atomic<int> m_sctCacheHits{0};
     mutable std::atomic<int> m_pixCacheHits{0};
     //@}
-
+    
   };
 
 }

@@ -1,8 +1,0 @@
-#! /usr/bin/env bash
-
-## Any arguments are considered overrides, and will be added at the end
-export TRF_ECHO=True;
-Generate_tf.py --ecmEnergy=8000 --runNumber=999999 --maxEvents=10 \
-    --jobConfig=$JODIR/share/tests/MC14.999999.ParticleGun_single_nu.py \
-    --outputEVNTFile=test_single_nu.EVNT.pool.root \
-    $@

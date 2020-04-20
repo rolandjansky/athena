@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "JetMonitoring/JetHistoLeadingJetsRelations.h"
 
 #include "JetMonitoring/JetMonitoringAlg.h"
@@ -10,43 +10,14 @@
 
 JetHistoLeadingJetsRelations::JetHistoLeadingJetsRelations( const std::string& type,  const std::string & name ,const IInterface* parent):
   AthAlgTool( type, name, parent )
-  //  IJetHIstoFiller()
-  //  , m_varX(this)
-  //  , m_varY(this)
-  //  , m_varZ(this)  
 {
   declareInterface<IJetHistoFiller>(this);
-
-  //  declareProperty("VarX",m_varX);
-  //  declareProperty("VarY",m_varY);
-  //  declareProperty("VarZ",m_varZ);
   
 }
 
 
 StatusCode JetHistoLeadingJetsRelations::initialize() {
 
-  //  ATH_MSG_INFO("  initialize "  <<  m_varX.isEnabled());
-
-  //  ATH_CHECK(m_varX.retrieve() );
-  
-  /*  
-      m_nVar = 1;
-      if( ! m_varY.isEnabled() ){
-      ATH_MSG_INFO( "Filling 1 var X=("<< m_varX->describe() << ")");
-      }else { // has Y variable
-      ATH_CHECK(m_varY.retrieve() );
-      m_nVar = 2;
-      if ( ! m_varZ.isEnabled()) {
-      ATH_MSG_INFO( "Filling 2 vars X=("<< m_varX->describe() << ") Y=("<<m_varY->describe() << ")");
-      }else{
-      ATH_CHECK(m_varZ.retrieve() );
-      m_nVar = 3;
-      ATH_MSG_INFO( "Filling 3 vars X=("<< m_varX->describe() << ") Y=("<<m_varY->describe() << ") Z=("<<m_varZ->describe() << ")");
-      }
-      
-      }  
-  */
   return StatusCode::SUCCESS;
 }
 

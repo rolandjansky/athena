@@ -79,19 +79,6 @@ excludeTracePattern.append("*/DQDefects/virtual*")
 #include ( "RecExCond/RecExCommon_flags.py" )
 
 
-## What should be done when encountering an unchecked StatusCode
-try:
-    if rec.abortOnUncheckedStatusCode():
-        svcMgr.StatusCodeSvc.AbortOnError=True
-        logAnaCommon_topOptions.debug("Abort on unchecked status code enabled !")
-        pass
-    pass
-except Exception:
-    logAnaCommon_topOptions.debug("Did not enable aboort on unchecked status code")
-    pass
-
-
-
 ###################
 # Common Services #
 ###################
@@ -459,13 +446,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
             pass
 
         if rec.DPDMakerScripts()!=[] and not rec.doDPD.passThroughMode :
-            # #Create a separate EventBookkeeper list to persistify skimming cycle info
-            # from EventBookkeeperTools.BookkeepingInfoWriter import CutCycleWriter
-            # topSequence += CutCycleWriter("CutCycleWriter",
-            #                               OutputName   = "ProcessingCycle",
-            #                               CurrentCycle = currentCycle)
-
-
             #Explicitely add file metadata from input and from transient store
 
             MSMgr.AddMetaDataItemToAllStreams( "LumiBlockCollection#*" )

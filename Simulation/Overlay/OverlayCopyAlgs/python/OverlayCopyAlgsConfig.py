@@ -1,6 +1,6 @@
 """Define methods to construct configured overlay copy algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -12,18 +12,20 @@ def CopyCaloCalibrationHitContainerAlgCfg(flags, collectionName, name="CopyCaloC
     acc = ComponentAccumulator()
 
     kwargs.setdefault("collectionName", collectionName)
-    kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + collectionName)
+    kwargs.setdefault("SignalInputKey",
+                      flags.Overlay.SigPrefix + collectionName)
     kwargs.setdefault("OutputKey", collectionName)
 
     # Copy CaloCalibrationHitContainer
-    CopyCaloCalibrationHitContainer=CompFactory.CopyCaloCalibrationHitContainer
+    CopyCaloCalibrationHitContainer = CompFactory.CopyCaloCalibrationHitContainer
     alg = CopyCaloCalibrationHitContainer(name + collectionName, **kwargs)
     acc.addEventAlgo(alg)
 
     # Re-map signal address
     from SGComps.AddressRemappingConfig import AddressRemappingCfg
     acc.merge(AddressRemappingCfg([
-        "CaloCalibrationHitContainer#" + collectionName + "->" + flags.Overlay.SigPrefix + collectionName
+        "CaloCalibrationHitContainer#"
+        + collectionName + "->" + flags.Overlay.SigPrefix + collectionName
     ]))
 
     return acc
@@ -33,11 +35,12 @@ def CopyInTimeJetTruthInfoCfg(flags, name="CopyInTimeJetTruthInfo", **kwargs):
     """Return a ComponentAccumulator for the in-time pile-up jets copying"""
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "InTimeAntiKt4TruthJets")
+    kwargs.setdefault("BkgInputKey",
+                      flags.Overlay.BkgPrefix + "InTimeAntiKt4TruthJets")
     kwargs.setdefault("OutputKey", "InTimeAntiKt4TruthJets")
 
     # Copy jets
-    CopyJetTruthInfo=CompFactory.CopyJetTruthInfo
+    CopyJetTruthInfo = CompFactory.CopyJetTruthInfo
     alg = CopyJetTruthInfo(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -48,11 +51,12 @@ def CopyOutOfTimeJetTruthInfoCfg(flags, name="CopyOutOfTimeJetTruthInfo", **kwar
     """Return a ComponentAccumulator for the out-of-time pile-up jets copying"""
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "OutOfTimeAntiKt4TruthJets")
+    kwargs.setdefault("BkgInputKey",
+                      flags.Overlay.BkgPrefix + "OutOfTimeAntiKt4TruthJets")
     kwargs.setdefault("OutputKey", "OutOfTimeAntiKt4TruthJets")
 
     # Copy jets
-    CopyJetTruthInfo=CompFactory.CopyJetTruthInfo
+    CopyJetTruthInfo = CompFactory.CopyJetTruthInfo
     alg = CopyJetTruthInfo(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -67,20 +71,23 @@ def CopyJetTruthInfoAlgsCfg(flags, **kwargs):
     return acc
 
 
-def CopyMcEventCollectionAlgCfg(flags, name = "CopyMcEventCollection", **kwargs):
+def CopyMcEventCollectionAlgCfg(flags, name="CopyMcEventCollection", **kwargs):
     """Return a ComponentAccumulator for the CopyMcEventCollection algorithm"""
     acc = ComponentAccumulator()
+
+    kwargs.setdefault("RemoveBkgHardScatterTruth", True)
 
     if flags.Overlay.DataOverlay:
         # Disable background for data overlay
         kwargs.setdefault("BkgInputKey", "")
     else:
-        kwargs.setdefault("BkgInputKey", "" + flags.Overlay.BkgPrefix + "TruthEvent")
+        kwargs.setdefault("BkgInputKey",
+                          flags.Overlay.BkgPrefix + "TruthEvent")
     kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "TruthEvent")
     kwargs.setdefault("OutputKey", "TruthEvent")
 
     # Merge and copy McEventCollection
-    CopyMcEventCollection=CompFactory.CopyMcEventCollection
+    CopyMcEventCollection = CompFactory.CopyMcEventCollection
     alg = CopyMcEventCollection(name, **kwargs)
     acc.addEventAlgo(alg)
 
@@ -93,25 +100,27 @@ def CopyMcEventCollectionAlgCfg(flags, name = "CopyMcEventCollection", **kwargs)
     return acc
 
 
-def CopyTimingsAlgCfg(flags, name = "CopyTimings", **kwargs):
+def CopyTimingsAlgCfg(flags, name="CopyTimings", **kwargs):
     """Return a ComponentAccumulator for the CopyTimings algorithm"""
     acc = ComponentAccumulator()
 
     # Disable background copying
     kwargs.setdefault("BkgInputKey", "")
 
-    kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "EVNTtoHITS_timings")
+    kwargs.setdefault("SignalInputKey",
+                      flags.Overlay.SigPrefix + "EVNTtoHITS_timings")
     kwargs.setdefault("OutputKey", "EVNTtoHITS_timings")
 
     # Copy RecoTimingObj
-    CopyTimings=CompFactory.CopyTimings
+    CopyTimings = CompFactory.CopyTimings
     alg = CopyTimings(name, **kwargs)
     acc.addEventAlgo(alg)
 
     # Re-map signal address
     from SGComps.AddressRemappingConfig import AddressRemappingCfg
     acc.merge(AddressRemappingCfg([
-        "RecoTimingObj#EVNTtoHITS_timings->" + flags.Overlay.SigPrefix + "EVNTtoHITS_timings"
+        "RecoTimingObj#EVNTtoHITS_timings->"
+        + flags.Overlay.SigPrefix + "EVNTtoHITS_timings"
     ]))
 
     return acc
@@ -122,18 +131,20 @@ def CopyTrackRecordCollectionAlgCfg(flags, collectionName, name="CopyTrackRecord
     acc = ComponentAccumulator()
 
     kwargs.setdefault("collectionName", collectionName)
-    kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + collectionName)
+    kwargs.setdefault("SignalInputKey",
+                      flags.Overlay.SigPrefix + collectionName)
     kwargs.setdefault("OutputKey", collectionName)
 
     # Copy TrackRecordCollection
-    CopyTrackRecordCollection=CompFactory.CopyTrackRecordCollection
+    CopyTrackRecordCollection = CompFactory.CopyTrackRecordCollection
     alg = CopyTrackRecordCollection(name + collectionName, **kwargs)
     acc.addEventAlgo(alg)
 
     # Re-map signal address
     from SGComps.AddressRemappingConfig import AddressRemappingCfg
     acc.merge(AddressRemappingCfg([
-        "TrackRecordCollection#" + collectionName + "->" + flags.Overlay.SigPrefix + collectionName
+        "TrackRecordCollection#"
+        + collectionName + "->" + flags.Overlay.SigPrefix + collectionName
     ]))
 
     return acc
@@ -141,79 +152,95 @@ def CopyTrackRecordCollectionAlgCfg(flags, collectionName, name="CopyTrackRecord
 
 def CopyCaloCalibrationHitContainerOutputCfg(flags, collectionName, **kwargs):
     """Return CopyCaloCalibrationHitContainer output configuration"""
+    acc = ComponentAccumulator()
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc = OutputStreamCfg(flags, "RDO",
-                          ItemList=["CaloCalibrationHitContainer#" + collectionName])
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "CaloCalibrationHitContainer#" + collectionName
+        ]))
 
     # Add signal output
     if flags.Output.doWriteRDO_SGNL:
-        outConfig = OutputStreamCfg(flags, "RDO_SGNL",
-                                    ItemList=["CaloCalibrationHitContainer#" + flags.Overlay.SigPrefix + collectionName])
-        acc.merge(outConfig)
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "CaloCalibrationHitContainer#" + flags.Overlay.SigPrefix + collectionName
+        ]))
 
     return acc
 
 
 def CopyJetTruthInfoOutputCfg(flags, **kwargs):
     """Return CopyTimings output configuration"""
+    acc = ComponentAccumulator()
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc = OutputStreamCfg(flags, "RDO",
-                          ItemList=[
-                              "xAOD::JetContainer#InTimeAntiKt4TruthJets",
-                              "xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.",
-                              "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets",
-                              "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux."
-                          ])
-
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "xAOD::JetContainer#InTimeAntiKt4TruthJets",
+            "xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux.",
+            "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets",
+            "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux."
+        ]))
     return acc
 
 
 def CopyMcEventCollectionOutputCfg(flags, **kwargs):
     """Return CopyMcEventCollection output configuration"""
+    acc = ComponentAccumulator()
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc = OutputStreamCfg(flags, "RDO",
-                          ItemList=["McEventCollection#TruthEvent"])
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "McEventCollection#TruthEvent"
+        ]))
 
     # Add signal output
     if flags.Output.doWriteRDO_SGNL:
-        outConfig = OutputStreamCfg(flags, "RDO_SGNL",
-                                    ItemList=["McEventCollection#" + flags.Overlay.SigPrefix + "TruthEvent"])
-        acc.merge(outConfig)
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "McEventCollection#" + flags.Overlay.SigPrefix + "TruthEvent"
+        ]))
 
     return acc
 
 
 def CopyTimingsOutputCfg(flags, **kwargs):
     """Return CopyTimings output configuration"""
+    acc = ComponentAccumulator()
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc = OutputStreamCfg(flags, "RDO",
-                          ItemList=["RecoTimingObj#EVNTtoHITS_timings"])
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "RecoTimingObj#EVNTtoHITS_timings"
+        ]))
 
     # Add signal output
     if flags.Output.doWriteRDO_SGNL:
-        outConfig = OutputStreamCfg(flags, "RDO_SGNL",
-                                    ItemList=["RecoTimingObj#" + flags.Overlay.SigPrefix + "EVNTtoHITS_timings"])
-        acc.merge(outConfig)
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "RecoTimingObj#" + flags.Overlay.SigPrefix + "EVNTtoHITS_timings"
+        ]))
 
     return acc
 
 
 def CopyTrackRecordCollectionOutputCfg(flags, collectionName, **kwargs):
     """Return CopyTrackRecordCollection output configuration"""
+    acc = ComponentAccumulator()
 
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc = OutputStreamCfg(flags, "RDO",
-                          ItemList=["TrackRecordCollection#" + collectionName])
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "TrackRecordCollection#" + collectionName
+        ]))
 
     # Add signal output
     if flags.Output.doWriteRDO_SGNL:
-        outConfig = OutputStreamCfg(flags, "RDO_SGNL",
-                                    ItemList=["TrackRecordCollection#" + flags.Overlay.SigPrefix + collectionName])
-        acc.merge(outConfig)
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[
+            "TrackRecordCollection#" + flags.Overlay.SigPrefix + collectionName
+        ]))
 
     return acc
 
@@ -232,18 +259,24 @@ def CopyCaloCalibrationHitContainersCfg(flags, **kwargs):
 
     # Detect the list of calibration hit containers
     for container in allowedContainers:
-        if container in flags.Input.SecondaryCollections:
+        if (flags.Overlay.DataOverlay and container in flags.Input.Collections) \
+            or (not flags.Overlay.DataOverlay and container in flags.Input.SecondaryCollections):
             availableContainers.append(container)
 
     for container in availableContainers:
-        acc.merge(CopyCaloCalibrationHitContainerAlgCfg(flags, container, **kwargs))
-        acc.merge(CopyCaloCalibrationHitContainerOutputCfg(flags, container, **kwargs))
+        acc.merge(CopyCaloCalibrationHitContainerAlgCfg(
+            flags, container, **kwargs))
+        acc.merge(CopyCaloCalibrationHitContainerOutputCfg(
+            flags, container, **kwargs))
 
     return acc
 
 
 def CopyJetTruthInfoCfg(flags, **kwargs):
     """Return overlay configuration for the CopyJetTruthInfo algorithms"""
+
+    if flags.Overlay.DataOverlay:
+        return ComponentAccumulator()
 
     acc = CopyInTimeJetTruthInfoCfg(flags, **kwargs)
     acc.merge(CopyOutOfTimeJetTruthInfoCfg(flags, **kwargs))
@@ -284,11 +317,13 @@ def CopyTrackRecordCollectionsCfg(flags, **kwargs):
 
     # Detect the list of track record collections
     for container in allowedContainers:
-        if container in flags.Input.SecondaryCollections:
+        if (flags.Overlay.DataOverlay and container in flags.Input.Collections) \
+            or (not flags.Overlay.DataOverlay and container in flags.Input.SecondaryCollections):
             availableContainers.append(container)
 
     for container in availableContainers:
         acc.merge(CopyTrackRecordCollectionAlgCfg(flags, container, **kwargs))
-        acc.merge(CopyTrackRecordCollectionOutputCfg(flags, container, **kwargs))
+        acc.merge(CopyTrackRecordCollectionOutputCfg(
+            flags, container, **kwargs))
 
     return acc

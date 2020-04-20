@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCellContainerCnv.h"
@@ -32,7 +32,7 @@ LArCellContainerCnv::~LArCellContainerCnv()
 StatusCode LArCellContainerCnv::initialize()
 {
     // Call base clase initialize
-    AthenaPoolConverter::initialize();
+    CHECK(AthenaPoolConverter::initialize());
 
     // Get the messaging service, print where you are
     MsgStream log(msgSvc(), "LArCellContainerCnv");

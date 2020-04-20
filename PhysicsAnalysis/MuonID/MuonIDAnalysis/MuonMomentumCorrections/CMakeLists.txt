@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 777720 2016-10-11 16:57:24Z krasznaa $
 ################################################################################
 # Package: MuonMomentumCorrections
 ################################################################################
@@ -18,35 +17,37 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Control/StoreGate
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PRIVATE
+   PhysicsAnalysis/MuonID/MuonSelectorTools
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
-   PhysicsAnalysis/MuonID/MuonSelectorTools
    Tools/PathResolver
    ${extra_deps} )
 
 # External dependencies:
-find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree RIO Physics )
 
 # Libraries in the package:
 atlas_add_library( MuonMomentumCorrectionsLib
    MuonMomentumCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonMomentumCorrections
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODMuon
-   PATInterfaces
+   INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon MuonAnalysisInterfacesLib AsgAnalysisInterfaces
+   PATInterfaces StoreGateLib
    PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonMomentumCorrections
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODMuon xAODCore
-      xAODBase GaudiKernel MuonSelectorToolsLib MuonMomentumCorrectionsLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODMuon xAODCore MuonAnalysisInterfacesLib AsgAnalysisInterfaces
+      xAODBase GaudiKernel MuonSelectorToolsLib MuonMomentumCorrectionsLib StoreGateLib )
 endif()
 
 atlas_add_dictionary( MuonMomentumCorrectionsDict
@@ -56,11 +57,11 @@ atlas_add_dictionary( MuonMomentumCorrectionsDict
 
 # Executable(s) in the package:
 atlas_add_executable( MCAST_Tester
-  util/MCAST_Tester.cxx
-  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODRootAccess
-  xAODEventInfo xAODMuon xAODCore PATInterfaces xAODCore AsgTools
-  MuonSelectorToolsLib MuonMomentumCorrectionsLib )
+   util/MCAST_Tester.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
+   xAODEventInfo xAODMuon xAODCore PATInterfaces xAODCore AsgTools AsgAnalysisInterfaces
+   MuonSelectorToolsLib MuonMomentumCorrectionsLib  MuonAnalysisInterfacesLib StoreGateLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

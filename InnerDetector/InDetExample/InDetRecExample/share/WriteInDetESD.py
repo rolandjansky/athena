@@ -23,7 +23,7 @@ if InDetFlags.doTRTPhaseCalculation():
 # ---------
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource == 'data' and InDetFlags.doHeavyIon():
-   print "---- > Heavy Ions: No Pixel, SCT or TRT cluster output written for data"
+   printfunc ("---- > Heavy Ions: No Pixel, SCT or TRT cluster output written for data")
 elif InDetFlags.writePRDs():
    InDetESDList+=["InDet::SCT_ClusterContainer#"+InDetKeys.SCT_Clusters()]
    InDetESDList+=["InDet::PixelClusterContainer#"+InDetKeys.PixelClusters()]
@@ -128,9 +128,9 @@ if InDetFlags.doTruth():
 
 if globalflags.InputFormat()=='bytestream':     
    InDetESDList+=['InDetBSErrContainer#'+InDetKeys.PixelByteStreamErrs()]
-   InDetESDList+=['InDetBSErrContainer#'+InDetKeys.SCT_ByteStreamErrs()]
    InDetESDList+=['TRT_BSErrContainer#'+InDetKeys.TRT_ByteStreamErrs()]
    InDetESDList+=['TRT_BSIdErrContainer#'+InDetKeys.TRT_ByteStreamIdErrs()]
+   InDetESDList+=['IDCInDetBSErrContainer#'+InDetKeys.SCT_ByteStreamErrs()]
 
 if InDetFlags.doxAOD():
   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation."

@@ -1,53 +1,86 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
 import json
+import six
+import sys
+
+if "AthenaCommon.Include" not in sys.modules or Configurable.configurableRun3Behavior:
+    from GaudiConfig2.Configurables import GenericMonitoringTool as _GenericMonitoringTool
+else:
+    from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
 
 log = logging.getLogger(__name__)
 
 class GenericMonitoringTool(_GenericMonitoringTool):
     """Configurable of a GenericMonitoringTool"""
 
-    def __init__(self, name=Configurable.DefaultName, *args, **kwargs):
-        super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
-        self.convention = ''
+    __slots__ = ['_convention', '_defaultDuration']
 
-    def __new__( cls, *args, **kwargs ):
+    def __init__(self, name=None, *args, **kwargs):
+        self._convention = ''
+        self._defaultDuration = kwargs.pop('defaultDuration', None)
+        super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
+
+    def __new__( cls, name=None, *args, **kwargs ):
+        if not Configurable.configurableRun3Behavior:
+            if name is None: name = cls.__name__
+
         # GenericMonitoringTool is always private. To avoid the user having
         # to ensure a unique instance name, always create a new instance.
-
         b = Configurable.configurableRun3Behavior
         Configurable.configurableRun3Behavior = 1
         try:
-            conf = Configurable.__new__( cls, *args, **kwargs )
+            conf = super(GenericMonitoringTool, cls).__new__( cls, name, *args, **kwargs )
         finally:
             Configurable.configurableRun3Behavior = b
 
         return conf
 
-    def defineHistogram(self, *args, **kwargs):
+    @property
+    def convention(self):
+        return self._convention
+
+    @convention.setter
+    def convention(self, value):
+        self._convention = value
+
+    @property
+    def defaultDuration(self):
+        return self._defaultDuration
+
+    @defaultDuration.setter
+    def defaultDuration(self, value):
+        self._defaultDuration = value
+
+    def _coreDefine(self, deffunc, *args, **kwargs):
         if 'convention' in kwargs:
             # only if someone really knows what they're doing
             pass
         else:
-            if 'duration' in kwargs:
-                kwargs['convention'] = self.convention + ':' + kwargs['duration']
-                del kwargs['duration']
-            elif hasattr(self, 'defaultDuration'):
-                kwargs['convention'] = self.convention + ':' + self.defaultDuration
-        self.Histograms.append(defineHistogram(*args, **kwargs))
+            duration = kwargs.pop('duration', self.defaultDuration)
+            if duration is not None:
+                kwargs['convention'] = self.convention + ':' + duration
+        self.Histograms.append(deffunc(*args, **kwargs))
+
+    def defineHistogram(self, *args, **kwargs):
+        self._coreDefine(defineHistogram, *args, **kwargs)
+
+    def defineTree(self, *args, **kwargs):
+        self._coreDefine(defineTree, *args, **kwargs)
 
 class GenericMonitoringArray:
     '''Array of configurables of GenericMonitoringTool objects'''
     def __init__(self, name, dimensions, **kwargs):
-        self.Tools = {}
-        for postfix in GenericMonitoringArray._postfixes(dimensions):
+        self.Tools, self.Accessors = {}, {}
+        self.Postfixes = GenericMonitoringArray._postfixes(dimensions)
+        for postfix in self.Postfixes:
             self.Tools[postfix] = GenericMonitoringTool(name+postfix,**kwargs)
+            self.Accessors[postfix] = postfix.split('_')[1:]
 
     def __getitem__(self,index):
         '''Forward operator[] on class to the list of tools'''
@@ -66,13 +99,29 @@ class GenericMonitoringArray:
         for tool in self.toolList():
             setattr(tool,member,value)
 
-    def defineHistogram(self, varname, **kwargs):
+    def defineHistogram(self, varname, title=None, path=None, **kwargs):
         '''Propogate defineHistogram to each tool, adding a unique tag.'''
         unAliased = varname.split(';')[0]
-        aliasBase = varname.split(';')[1] if ';' in varname else varname.replace(',','')
-        for postfix,tool in self.Tools.items():
+        _, aliasBase = _alias(varname)
+        if aliasBase is None:
+            return
+        for postfix, tool in self.Tools.items():
             aliased = unAliased+';'+aliasBase+postfix
-            tool.defineHistogram(aliased,**kwargs)
+
+            try:
+                accessors = tuple(self.Accessors[postfix])
+                if title is not None:
+                    kwargs['title'] = title.format(*accessors)
+                if path is not None:
+                    kwargs['path'] = path.format(*accessors)
+            except IndexError as e:
+                log.error('In title or path template of histogram {0}, too many positional '\
+                    'arguments were requested. Title and path templates were "{1}" and "{2}", '\
+                    'while only {3} fillers were given: {4}.'.format(aliased, title,\
+                    path, len(accessors), accessors))
+                raise e
+
+            tool.defineHistogram(aliased, **kwargs)
 
     @staticmethod
     def _postfixes(dimensions, previous=''):
@@ -82,7 +131,8 @@ class GenericMonitoringArray:
         dimensions -- List containing the lengths of each side of the array off tools
         previous -- Strings appended from the other dimensions of the array
         '''
-        assert isinstance(dimensions,list) and len(dimensions)>0
+        assert isinstance(dimensions,list) and len(dimensions)>0, \
+            'GenericMonitoringArray must have list of dimensions.'
         if dimensions==[1]:
             return ['']
         postList = []
@@ -91,12 +141,77 @@ class GenericMonitoringArray:
             iterable = first
         elif isinstance(first,int):
             iterable = range(first)
+        else:
+            #Assume GaudiConfig2.semantics._ListHelper
+            iterable = list(first)
+            #print("Type of first:",type(first))
         for i in iterable:
             if len(dimensions)==1:
                  postList.append(previous+'_'+str(i))
             else:
                 postList.extend(GenericMonitoringArray._postfixes(dimensions[1:],previous+'_'+str(i)))
         return postList
+
+## Generate an alias for a set of variables
+#
+#  A helper function is useful for this operation, since it is used both by the module
+#  function defineHistogram, as well as by the GenericMonitoringArray defineHistogram
+#  member function.
+#  @param varname unparsed
+#  @return varList, alias
+def _alias(varname):
+    variableAliasSplit = varname.split(';')
+    varList = [v.strip() for v in variableAliasSplit[0].split(',')]
+    if len(variableAliasSplit)==1:
+        return varList, '_vs_'.join(reversed(varList))
+    elif len(variableAliasSplit)==2:
+        return varList, variableAliasSplit[1]
+    else:
+        message = 'Invalid variable or alias for {}. Histogram(s) not defined.'
+        log.warning(message.format(varname))
+        return None, None
+
+## Generate dictionary entries for opt strings
+#  @param opt string or dictionary specifying type
+#  @return dictionary full of options
+def _options(opt):
+    # Set the default dictionary of options
+    settings = {
+        'Sumw2': False,
+        'kLBNHistoryDepth': 0,
+        'kAddBinsDynamically': False,
+        'kRebinAxes': False,
+        'kCanRebin': False,
+        'kVec': False,
+        'kVecUO': False,
+        'kCumulative': False,
+    }
+    if opt is None:
+        # If no options are provided, skip any further checks.
+        pass
+    elif isinstance(opt, dict):
+        # If the user provides a partial dictionary, update the default with user's.
+        # Check that each provided option is valid
+        keyValid = [option in settings for option in opt]
+        assert all(keyValid), 'Unknown option provided in opt dictionary. Choices are'+\
+            '['+', '.join(settings)+'].'
+        typeValid = [isinstance(opt[key], type(val)) for key, val in zip(settings.items())]
+        assert all(typeValid), 'An incorrect type was provided in opt dictionary.'
+        settings.update(opt)
+    elif isinstance(opt, str) and len(opt)>0:
+        # If the user provides a comma- or space-separated string of options.
+        from argparse import ArgumentParser # a module to parse a string of options
+        parser = ArgumentParser()
+        for settingName, settingValue in settings.items():
+            opt = opt.replace(settingName, '--'+settingName)
+            if isinstance(settingValue, bool):
+                parser.add_argument('--'+settingName, action='store_true')
+            else:
+                settingType = type(settingValue)
+                parser.add_argument('--'+settingName, default=settingValue, type=settingType)
+        known, unknown = parser.parse_known_args(opt.replace(',',' ').split(' '))
+        settings = vars(known)
+    return settings
 
 ## Generate histogram definition string for the `GenericMonitoringTool.Histograms` property
 #
@@ -106,25 +221,28 @@ class GenericMonitoringArray:
 #  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
 #  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
 #  @param weight   Name of the variable containing the fill weight
-#  @param opt      Histrogram options (see GenericMonitoringTool)
-#  @param labels   Deprecated. Copies value to xlabels.
+#  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
+#  @param opt      String or dictionary of histogram options
+#  @param treedef  Internal use only. Use defineTree() method.
 #  @param xlabels  List of x bin labels.
 #  @param ylabels  List of y bin labels.
 #  @param zlabels  List of x bin labels.
-
+#  @param merge    Merge method to use for object, if not default. Possible algorithms for offline DQM
+#                  are given in https://twiki.cern.ch/twiki/bin/view/Atlas/DQMergeAlgs
 def defineHistogram(varname, type='TH1F', path=None,
                     title=None, weight=None, alias=None,
                     xbins=100, xmin=0, xmax=1, xlabels=None,
                     ybins=None, ymin=None, ymax=None, ylabels=None,
                     zmin=None, zmax=None, zlabels=None,
-                    opt='', labels=None, convention=None):
+                    opt=None, convention=None, cutmask=None,
+                    treedef=None, merge=None):
 
     # All of these fields default to an empty string
     stringSettingsKeys = ['xvar', 'yvar', 'zvar', 'type', 'path', 'title', 'weight',
-    'opt', 'convention', 'alias'] 
+    'cutMask', 'convention', 'alias', 'treeDef', 'merge']
     # All of these fileds default to 0
-    numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zmin',
-    'zmax']
+    numberSettingsKeys = ['xbins', 'xmin', 'xmax', 'ybins', 'ymin', 'ymax', 'zbins',
+    'zmin', 'zmax']
     # All of these fields default to an empty array
     arraySettingsKeys = ['allvars', 'xlabels', 'xarray', 'ylabels', 'yarray', 'zlabels']
     # Initialize a dictionary with all possible fields
@@ -133,14 +251,8 @@ def defineHistogram(varname, type='TH1F', path=None,
     settings.update(dict((key, []) for key in arraySettingsKeys))
 
     # Alias
-    variableAliasSplit = varname.split(';')
-    varList = variableAliasSplit[0].split(',')
-    if len(variableAliasSplit)==1:
-        alias = '_vs_'.join(varList)
-    elif len(variableAliasSplit)==2:
-        alias = variableAliasSplit[1]
-    else:
-        log.warning('Invalid variable or alias specification in defineHistogram.')
+    varList, alias = _alias(varname)
+    if alias is None:
         return ''
     settings['alias'] = alias
 
@@ -155,19 +267,20 @@ def defineHistogram(varname, type='TH1F', path=None,
     nVars = len(varList)
 
     # Type
-    if athenaCommonFlags.isOnline() and type in ['TEfficiency']:
-        log.warning('Histogram %s of type %s is not supported for online running and '+\
+    if athenaCommonFlags.isOnline() and type in ['TEfficiency', 'TTree']:
+        log.warning('Object %s of type %s is not supported for online running and '+\
         'will not be added.', varname, type)
         return ''
     # Check that the histogram's dimension matches the number of monitored variables
-    hist2D = ['TH2','TProfile','TEfficiency']
-    hist3D = ['TProfile2D','TEfficiency']
+    # Add TTree to the lists, it can have any number of vars
+    hist2D = ['TH2','TProfile','TEfficiency', 'TTree']
+    hist3D = ['TProfile2D','TEfficiency', 'TTree']
     if nVars==2:
-        assert any([valid2D in type for valid2D in hist2D]),'Attempting to use two \
-        monitored variables with a non-2D histogram.'
+        assert any([valid2D in type for valid2D in hist2D]),'Attempting to use two ' \
+        'monitored variables with a non-2D histogram.'
     elif nVars==3:
-        assert any([valid3D in type for valid3D in hist3D]),'Attempting to use three \
-        monitored variables with a non-3D histogram.'
+        assert any([valid3D in type for valid3D in hist3D]),'Attempting to use three ' \
+        'monitored variables with a non-3D histogram.'
     settings['type'] = type
 
     # Path
@@ -185,20 +298,21 @@ def defineHistogram(varname, type='TH1F', path=None,
     if weight is not None:
         settings['weight'] = weight
 
+    # Cutmask
+    if cutmask is not None:
+        settings['cutMask'] = cutmask
+
     # Output path naming convention
     if convention is not None:
         settings['convention'] = convention
 
     # Bin counts and ranges
-    # Next two lines account for integer type differences between python2 and python3
-    import sys
-    integerTypes = (int, long) if sys.version_info < (3,) else (int,)
     # Possible types allowed for bin counts
-    binTypes = integerTypes + (list, tuple)
+    binTypes = six.integer_types + (list, tuple)
 
     # X axis count and range
     assert isinstance(xbins, binTypes),'xbins argument must be int, list, or tuple'
-    if isinstance(xbins, integerTypes): # equal x bin widths
+    if isinstance(xbins, six.integer_types): # equal x bin widths
         settings['xbins'], settings['xarray'] = xbins, []
     else: # x bin edges are set explicitly
         settings['xbins'], settings['xarray'] = len(xbins)-1, xbins
@@ -208,7 +322,7 @@ def defineHistogram(varname, type='TH1F', path=None,
     # Y axis count and range
     if ybins is not None:
         assert isinstance(ybins, binTypes),'ybins argument must be int, list, or tuple'
-        if isinstance(ybins, integerTypes): # equal y bin widths
+        if isinstance(ybins, six.integer_types): # equal y bin widths
             settings['ybins'], settings['yarray'] = ybins, []
         else: # y bin edges are set explicitly
             settings['ybins'], settings['yarray'] = len(ybins)-1, ybins
@@ -223,17 +337,6 @@ def defineHistogram(varname, type='TH1F', path=None,
     if zmax is not None:
         settings['zmax'] = zmax
 
-    # Bin labels
-    # First, handle the depricated labels argument
-    if labels is not None:
-        assert xlabels is None and ylabels is None and zlabels is None,'Mixed use of \
-        depricated "labels" argument with [xyz]labels arguments.'
-        nLabels = len(labels)
-        if nLabels==xbins:
-            xlabels = labels
-        elif nLabels>xbins:
-            xlabels = labels[:xbins]
-            ylabels = labels[xbins:]
     # Then, parse the [xyz]label arguments
     if xlabels is not None and len(xlabels)>0:
         assert isinstance(xlabels, (list, tuple)),'xlabels must be list or tuple'
@@ -247,14 +350,41 @@ def defineHistogram(varname, type='TH1F', path=None,
         assert isinstance(zlabels, (list, tuple)),'zlabels must be list or tuple'
         settings['zlabels'] = zlabels
 
-    # Filling options
-    if len(opt)>0:
-        ######################################################
-        # currently opt is a string, but should make it a list
-        # optList = opt.replace(' ',',').split(',')
-        # settings['opt'] = optList
-        ######################################################
-        # in the mean time, keep it a string
-        settings['opt'] = opt
+    # merge method
+    if merge is not None:
+        assert type not in ['TEfficiency', 'TTree', 'TGraph'],'only default merge defined for non-histogram objects'
+        settings['merge'] = merge
+
+    # Tree branches
+    if treedef is not None:
+        assert type=='TTree','cannot define tree branches for a non-TTree object'
+        settings['treeDef'] = treedef
+
+    # Finally, add all other options
+    settings.update(_options(opt))
 
     return json.dumps(settings)
+
+## Generate tree definition string for the `GenericMonitoringTool.Histograms` property. Convenience tool for 
+#
+#  For full details see the GenericMonitoringTool documentation.
+#  @param varname  at least one variable name (more than one should be separated by comma);
+#                  optionally give the name of the tree by appending ";" plus the tree name
+#  @param treedef  TTree branch definition string. Looks like the standard TTree definition
+#                  (see https://root.cern.ch/doc/master/classTTree.html#addcolumnoffundamentaltypes).
+#                  In fact if only scalars are given, it is exactly the same as you would use to
+#                  define the TTree directly: "varA/F:varB/I:...".  Vectors can be defined by giving
+#                  "vector<int>", etc., instead of "I".
+#  @param path     top-level histogram directory (e.g. EXPERT, SHIFT, etc.)
+#  @param title    Histogram title and optional axis title (same syntax as in TH constructor)
+#  @param cutmask  Name of the boolean-castable variable that determines if the plot is filled
+#  @param opt      TTree options (none currently)
+#  @param convention Expert option for how the objects are placed in ROOT
+
+def defineTree(varname, treedef, path=None,
+                    title=None, alias=None,
+                    opt='', convention=None,
+                    cutmask=None):
+    return defineHistogram(varname, type='TTree', path=path, title=title, alias=alias,
+                            treedef=treedef, opt=opt, convention=convention,
+                            cutmask=cutmask)     

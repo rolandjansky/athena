@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from ROOT import *
 
 class Module:
@@ -105,7 +107,7 @@ class Module:
             self.DyGraph.SetPointError(i,0,self.DyErrIter[i])
             self.tot["dy"] += self.DyIter[i]
             self.err["dy"] =  self.DyErrIter[i]
-        #print "The total change in Dy for ",str(self.bec),"_"+str(self.lay)+"_"+str(self.phi)," was",self.tot["dy"],"+/-",self.err["dy"],
+        #print ("The total change in Dy for ",str(self.bec),"_"+str(self.lay)+"_"+str(self.phi)," was",self.tot["dy"],"+/-",self.err["dy"],)
         return self.DyGraph.Draw(opt)
 
     def drawTotDy(self, opt="PL"):
@@ -144,7 +146,7 @@ class Module:
             self.DzGraph.SetPointError(i,0,self.DzErrIter[i])
             self.tot["dz"] += self.DzIter[i]
             self.err["dz"] =  self.DzErrIter[i]
-        #print "The total change in Dz for ",str(self.bec)+"_"+str(self.lay)+"_",str(self.phi)," was",self.tot["dz"],"+/-",self.err["dz"]
+        #print ("The total change in Dz for ",str(self.bec)+"_"+str(self.lay)+"_",str(self.phi)," was",self.tot["dz"],"+/-",self.err["dz"])
         return self.DzGraph.Draw(opt)
 
     def drawTotDz(self, opt="PL"):
@@ -183,7 +185,7 @@ class Module:
             self.RotxGraph.SetPointError(i,0,self.RotxErrIter[i])
             self.tot["rotx"] += self.RotxIter[i]
             self.err["rotx"] =  self.RotxErrIter[i]
-        #print "The total change in Rotx for ",str(self.bec)+"_"+str(self.lay)+"_"+str(self.phi)," was",self.tot["rotx"],"+/-",self.err["rotx"]
+        #print ("The total change in Rotx for ",str(self.bec)+"_"+str(self.lay)+"_"+str(self.phi)," was",self.tot["rotx"],"+/-",self.err["rotx"])
         return self.RotxGraph.Draw(opt)
 
     def drawTotRotx(self, opt="PL"):
@@ -204,7 +206,7 @@ class Module:
             self.RotxTotGraph.SetPoint(i,i,self.tot["rotx"])
             self.RotxTotGraph.SetPointError(i,0,self.RotxErrIter[i])
             
-        #print "The total change in Rotx for ",str(self.bec)+"_"+str(self.lay)+"_"+str(self.phi)," was",self.tot["rotx"],"+/-",self.err["rotx"]
+        #print ("The total change in Rotx for ",str(self.bec)+"_"+str(self.lay)+"_"+str(self.phi)," was",self.tot["rotx"],"+/-",self.err["rotx"])
         return self.RotxTotGraph.Draw(opt)
 
     def drawRoty(self, opt="PL"):
@@ -224,7 +226,7 @@ class Module:
             self.RotyGraph.SetPointError(i,0,self.RotyErrIter[i])
             self.tot["roty"] += self.RotyIter[i]
             self.err["roty"] =  self.RotyErrIter[i]
-        #print "The total change in roty for ",str(self.bec)+"_"+str(self.lay)+"_",str(self.phi)," was",self.tot["roty"],"+/-",self.err["roty"]
+        #print ("The total change in roty for ",str(self.bec)+"_"+str(self.lay)+"_",str(self.phi)," was",self.tot["roty"],"+/-",self.err["roty"])
         return self.RotyGraph.Draw(opt)
 
     def drawTotRoty(self, opt="PL"):
@@ -264,8 +266,8 @@ class Module:
             self.RotzGraph.SetPointError(i,0,self.RotzErrIter[i])
             self.tot["rotz"] += self.RotzIter[i]
             self.err["rotz"] =  self.RotzErrIter[i]
-        ##print "The total change in rotz for ",str(self.bec)+"_"+str(self.lay)+"_"+str(self.phi)," was",self.tot["rotz"],"+/-",self.err["rotz"]
-        #print "The total change in rotz for %i %i %i was %.2g +/- %.1g" % (self.bec,self.lay,self.phi,self.tot["rotz"], self.err["rotz"])
+        ##print ("The total change in rotz for ",str(self.bec)+"_"+str(self.lay)+"_"+str(self.phi)," was",self.tot["rotz"],"+/-",self.err["rotz"])
+        #print ("The total change in rotz for %i %i %i was %.2g +/- %.1g" % (self.bec,self.lay,self.phi,self.tot["rotz"], self.err["rotz"]))
         return self.RotzGraph.Draw(opt)
 
     def drawTotRotz(self, opt="PL"):

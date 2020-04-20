@@ -56,6 +56,7 @@ else()
       GaudiKernel
       InnerDetector/InDetRecTools/InDetRecToolInterfaces
       InnerDetector/InDetRecTools/InDetTrackSelectionTool
+      InnerDetector/InDetConditions/BeamSpotConditionsData
       Reconstruction/Jet/JetEDM
       Reconstruction/RecoTools/ITrackToVertex
       Reconstruction/RecoTools/RecoToolInterfaces
@@ -83,21 +84,16 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauCalibrateLC.h
   tauRecTools/TauSubstructureVariables.h
   tauRecTools/TauCommonCalcVars.h
-  tauRecTools/TauGenericPi0Cone.h
-  tauRecTools/TauIDPileupCorrection.h
-  tauRecTools/TauTrackFilter.h
   tauRecTools/MvaTESVariableDecorator.h
   tauRecTools/MvaTESEvaluator.h
   tauRecTools/CombinedP4FromRecoTaus.h
   tauRecTools/TauTrackClassifier.h
   tauRecTools/TauTrackRNNClassifier.h
-  tauRecTools/TauChargedPFOCreator.h
   tauRecTools/TauWPDecorator.h
   tauRecTools/TauJetBDTEvaluator.h
   tauRecTools/TauJetRNNEvaluator.h
   tauRecTools/TauIDVarCalculator.h
   tauRecTools/TauEleOLRDecorator.h
-  tauRecTools/TauProcessorTool.h
   Root/LinkDef.h
   EXTERNAL_PACKAGES ROOT
   )
@@ -126,7 +122,7 @@ else()
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking xAODParticleEvent CaloUtilsLib Particle
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils ElectronPhotonSelectorToolsLib)
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 endif()
 
 if( NOT XAOD_STANDALONE )

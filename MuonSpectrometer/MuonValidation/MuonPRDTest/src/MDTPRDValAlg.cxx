@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTPRDValAlg.h"
@@ -13,8 +13,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "Identifier/Identifier.h"
- 
- 
+
 #include "HepMC/GenParticle.h"
 #include "TrackRecord/TrackRecordCollection.h"
 
@@ -35,17 +34,14 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-//#include "TrkMagFieldInterfaces/IMagneticFieldTool.h"
 
 #include <iostream>
 #include <fstream>
 #include "TTree.h"
 #include <string>
-#include <TMath.h>
 #include <sstream>
 #include <map>
 
-using namespace std;
 using namespace MuonGM;
 
 

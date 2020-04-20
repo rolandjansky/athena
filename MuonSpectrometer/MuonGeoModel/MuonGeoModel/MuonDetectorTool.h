@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONGEOMODEL_MUONDETECTORTOOL_H
 #define MUONGEOMODEL_MUONDETECTORTOOL_H
 
 #include "GeoModelUtilities/GeoModelTool.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "MuonGeoModel/MuonDetectorFactory001.h"
 
 namespace MuonGM
@@ -15,7 +14,7 @@ namespace MuonGM
 }
 
 
-class MuonDetectorTool : public GeoModelTool, virtual public IIncidentListener {
+class MuonDetectorTool : public GeoModelTool {
 
 public:
 
@@ -34,9 +33,6 @@ public:
 
   // Dereference tree tops and drop readout objects
   virtual StatusCode clear() override final;
-
-  // incident svc handle
-  virtual void handle(const Incident&) override;
 
 
 private:
@@ -83,7 +79,7 @@ private:
   int m_switchOnOff_BUILDFORWARDSHIELD;
   
   
-  const MuonGM::MuonDetectorManager*  m_manager;
+  MuonGM::MuonDetectorManager*  m_manager;
 };
 
 #endif // GEOMODELEXAMPLES_TOYDETECTORTOOL_H

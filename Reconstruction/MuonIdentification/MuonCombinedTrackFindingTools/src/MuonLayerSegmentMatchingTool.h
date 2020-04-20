@@ -1,39 +1,34 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONLAYERSEGMENTMATCHINGTOOL_H
 #define MUON_MUONLAYERSEGMENTMATCHINGTOOL_H
 
-#include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
-
-#include <vector>
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
+
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
+
 #include "MuonLayerEvent/MuonSystemExtension.h"
 
-class IMuTagMatchingTool;
-
-namespace Trk {
-  class IExtrapolator;
-}
+#include <vector>
 
 namespace Muon {
   
   class MuonSegment;
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
 
   class MuonLayerSegmentMatchingTool : virtual public Muon::IMuonLayerSegmentMatchingTool,  public AthAlgTool {
   public:
 
     /** Default AlgTool functions */
     MuonLayerSegmentMatchingTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonLayerSegmentMatchingTool();
+    virtual ~MuonLayerSegmentMatchingTool()=default;
     StatusCode initialize();
-    StatusCode finalize();
 
     /**IMuonLayerSegmentMatchingTool interface: select */   
     void select( const MuonSystemExtension::Intersection& intersection, const std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments, 
@@ -44,7 +39,6 @@ namespace Muon {
     bool match( const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment ) const;
 
     /** tool handles */
-    ToolHandle<MuonIdHelperTool>                      m_idHelper; 
     ToolHandle<MuonEDMPrinterTool>                    m_printer; 
     ToolHandle<Trk::IExtrapolator>                    m_extrapolator; 
     ToolHandle<IMuTagMatchingTool>                    m_matchingTool; 

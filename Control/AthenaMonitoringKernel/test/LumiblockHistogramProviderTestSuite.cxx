@@ -38,8 +38,7 @@ class LumiblockHistogramProviderTestSuite {
   private:
     list<function<void(void)>> registeredTestCases() {
       return {
-        REGISTER_TEST_CASE(test_shouldThrowExceptionWhen_kLBNHistoryDepth_isNotDefined),
-        REGISTER_TEST_CASE(test_shouldThrowExceptionWhen_kLBNHistoryDepth_isDefinedAs_NaN),
+        REGISTER_TEST_CASE(test_shouldThrowExceptionWhen_kLBNHistoryDepth_isNonPositive),
         REGISTER_TEST_CASE(test_shouldNotThrowExceptionWhen_kLBNHistoryDepth_isDefinedAsNumber),
         REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedAlias),
         REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedLumiBlock),
@@ -56,21 +55,12 @@ class LumiblockHistogramProviderTestSuite {
     void afterEach() {
     }
 
-    void test_shouldThrowExceptionWhen_kLBNHistoryDepth_isNotDefined() {
+    void test_shouldThrowExceptionWhen_kLBNHistoryDepth_isNonPositive() {
       try {
         HistogramDef histogramDef;
+        histogramDef.kLBNHistoryDepth = -1;
         LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
-      } catch (HistogramException&) {
-        return;
-      }
-      assert(false);
-    }
-
-    void test_shouldThrowExceptionWhen_kLBNHistoryDepth_isDefinedAs_NaN() {
-      try {
-        HistogramDef histogramDef;
-        histogramDef.opt = "kLBNHistoryDepth=abc";
-        LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
+        testObj.histogram();
       } catch (HistogramException&) {
         return;
       }
@@ -79,7 +69,7 @@ class LumiblockHistogramProviderTestSuite {
 
     void test_shouldNotThrowExceptionWhen_kLBNHistoryDepth_isDefinedAsNumber() {
       HistogramDef histogramDef;
-      histogramDef.opt = "kLBNHistoryDepth=12345";
+      histogramDef.kLBNHistoryDepth = 12345;
       LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
     }
 
@@ -100,7 +90,7 @@ class LumiblockHistogramProviderTestSuite {
       TNamed histogram;
       HistogramDef histogramDef;
       histogramDef.alias = "test alias";
-      histogramDef.opt = "kLBNHistoryDepth=3";
+      histogramDef.kLBNHistoryDepth = 3;
 
       LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
 
@@ -128,6 +118,8 @@ class LumiblockHistogramProviderTestSuite {
       TNamed histogram;
       HistogramDef histogramDef;
       histogramDef.convention = "OFFLINE:lowStat";
+      histogramDef.runmode = HistogramDef::RunMode::Offline;
+      histogramDef.runperiod = HistogramDef::RunPeriod::LowStat;
 
       OfflineHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
 

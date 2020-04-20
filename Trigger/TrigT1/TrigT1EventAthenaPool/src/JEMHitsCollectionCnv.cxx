@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -37,8 +37,8 @@ JEMHitsCollection * JEMHitsCollectionCnv::createTransient()
   JEMHitsCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     
     {
-     // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr< JEMHitsCollection_PERS > pers_ref( poolReadObject< JEMHitsCollection_PERS >() );
+     // using unique_ptr ensures deletion of the persistent object
+      std::unique_ptr< JEMHitsCollection_PERS > pers_ref( poolReadObject< JEMHitsCollection_PERS >() );
       p_collection = m_TPConverter_tlp1.createTransient( pers_ref.get(), mlog );
       
     }else  throw std::runtime_error( "Unsupported persistent version of JEMHitsCollection" );

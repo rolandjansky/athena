@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSORFromPtreeHelper.h"
@@ -7,6 +7,7 @@
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "owl/time.h"
 #include <eformat/DetectorMask.h>
@@ -54,7 +55,10 @@ StatusCode TrigSORFromPtreeHelper::fillSOR(const EventContext& ctx) const
     }
   }
 
-  ATH_CHECK( createSOR() );
+  // createSOR marked unsafe due to copying/deletion of coral::AttributeList
+  // objects.  There's no sharing of specificiations, though, so it's ok.
+  StatusCode sc ATLAS_THREAD_SAFE = createSOR();
+  ATH_CHECK( sc );
 
   return StatusCode::SUCCESS;
 }
@@ -75,7 +79,7 @@ EventIDBase TrigSORFromPtreeHelper::eventID() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-StatusCode TrigSORFromPtreeHelper::createSOR() const
+StatusCode TrigSORFromPtreeHelper::createSOR ATLAS_NOT_THREAD_SAFE () const
 {
   // obtain SOR contents from ptree
   auto attrList = getAttrList();
@@ -115,7 +119,7 @@ StatusCode TrigSORFromPtreeHelper::createSOR() const
 
 
 ////////////////////////////////////////////////////////////////////////////////
-coral::AttributeList TrigSORFromPtreeHelper::getAttrList() const
+coral::AttributeList TrigSORFromPtreeHelper::getAttrList ATLAS_NOT_THREAD_SAFE () const
 {
   // First create attribute specification
   // ugly new needed:

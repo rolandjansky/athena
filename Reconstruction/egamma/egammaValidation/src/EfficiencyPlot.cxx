@@ -1,6 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <utility>
 
 #include "EfficiencyPlot.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -14,8 +16,8 @@
 namespace egammaMonitoring {
 
   EfficiencyPlot::EfficiencyPlot(std::string name, std::string folder, ITHistSvc * &rootHistSvc ) :
-    m_name(name),
-    m_folder(folder),
+    m_name(std::move(name)),
+    m_folder(std::move(folder)),
     m_rootHistSvc(rootHistSvc) {
 
   }

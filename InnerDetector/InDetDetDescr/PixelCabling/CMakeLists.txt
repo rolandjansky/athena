@@ -16,6 +16,7 @@ atlas_depends_on_subdirs(
    Database/AthenaPOOL/AthenaPoolUtilities
    DetectorDescription/Identifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetConditions/PixelConditionsData
    Tools/PathResolver )
@@ -37,7 +38,7 @@ atlas_add_component( PixelCabling
    ${TDAQ-COMMON_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES}
    ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps SGTools StoreGateLib
-   AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelConditionsData PathResolver PixelCablingLib )
+   AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry PixelConditionsData PathResolver PixelCablingLib )
 
 atlas_add_test( PixelCablingConfigNew_test
                 SCRIPT test/PixelCablingConfigNew_test.py

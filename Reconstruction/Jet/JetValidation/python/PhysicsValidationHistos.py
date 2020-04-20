@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
@@ -13,7 +15,7 @@ metadata = metadata[input_file]  # promote keys stored under input_file key one 
 isMC = 'IS_SIMULATION' in metadata['eventTypes']
 beam_energy = metadata['beam_energy']
 conditions_tag = metadata['IOVDbGlobalTag'] #useful for figuring out which mc production this is
-print "PhysicsValidationHistos: isMC=",isMC, " beam=",beam_energy," conditions_tag=",conditions_tag
+print ("PhysicsValidationHistos: isMC=",isMC, " beam=",beam_energy," conditions_tag=",conditions_tag)
 
 def commonPhysValTool(container, refcontainer="", onlyKinematics = False, globalSelection= ""):
     containerfiller = JetContainerHistoFiller(container+"HistoFiller",JetContainer = container)

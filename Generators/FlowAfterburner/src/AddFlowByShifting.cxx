@@ -502,7 +502,7 @@ double AddFlowByShifting::AddFlowToParent (HepMC::GenParticle* parent, const Hij
 
   if(fabs(phishift) > 1e-7) {
     momentum.rotateZ(phishift*Gaudi::Units::rad);
-    parent->set_momentum( momentum );
+    parent->set_momentum( HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
   }
   ATH_MSG_DEBUG( "Parent particle: V1 = " << m_v_n[0] <<
                                  " V2 = " << m_v_n[1] <<

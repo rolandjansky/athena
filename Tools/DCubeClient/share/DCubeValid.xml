@@ -97,6 +97,7 @@
 <project>AtlasCAFHLT</project>
 <project>TopPhys</project>
 <project>AtlasPhysics</project>
+<project>AthGeneration</project>
 <!-- this one matches to ALL -->
 <project>*</project>
                     

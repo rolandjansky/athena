@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
  /********************************************************************
@@ -93,7 +93,7 @@ void EMTrackFit::set_parameter(egammaParameters::ParamDef key, double value, boo
   }
 
   if ( p == m_parameters.end() ) {
-    m_parameters.push_back( elParams(key,value) );
+    m_parameters.emplace_back(key,value );
   }
   else {
     if ( overwrite ) {
@@ -136,7 +136,7 @@ void EMTrackFit::set_parameterInt(egammaParameters::ParamDef key, int value, boo
   }
 
   if ( p == m_parametersInt.end() ) {
-    m_parametersInt.push_back( elParams(key,value) );
+    m_parametersInt.emplace_back(key,value );
   }
   else {
     if ( overwrite ) {
@@ -160,8 +160,7 @@ void EMTrackFit::fillDetails(Trk::Track *track){
     throw GaudiException("Parameters not saved, no track", "EMTrackFit::fillDetails(...)", StatusCode::FAILURE);
   }
   
-  return;
-}
+  }
 
 // =======================================================================
 void EMTrackFit::fillBrems(Trk::Track *track){
@@ -179,7 +178,7 @@ void EMTrackFit::fillBrems(Trk::Track *track){
   	}
   }
   
-  if (estimatedBremOnTrack.size() == 0){
+  if (estimatedBremOnTrack.empty()){
     hasBrem(0);
     bremRadius(0);
     bremDeltaZ(0);
@@ -212,13 +211,12 @@ void EMTrackFit::fillBrems(Trk::Track *track){
     //Clearly this is poorly defined for multiple brems a better way of doing this need to be found
 		bremDeltaZerr(sigmaRetainedEnFraction);
   }
-  return;
-}
+  }
 
 // ======================================================================
 void EMTrackFit::fillLastMeasurement(Trk::Track *track){
   
-  if (track == 0 ){
+  if (track == nullptr ){
     return;
   }
 
@@ -245,7 +243,7 @@ void EMTrackFit::fillLastMeasurement(Trk::Track *track){
   **/
   
   const DataVector<const Trk::TrackStateOnSurface>* oldTrackStates = track->trackStateOnSurfaces();
-  if (oldTrackStates == 0)
+  if (oldTrackStates == nullptr)
   {
     return;
   }
@@ -253,7 +251,7 @@ void EMTrackFit::fillLastMeasurement(Trk::Track *track){
   for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); rItTSoS != oldTrackStates->rend(); ++rItTSoS)
   { 
 
-    if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0)
+    if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=nullptr && (*rItTSoS)->measurementOnTrack()!=nullptr)
     {
       const Trk::TrackParameters* trkPara = (*rItTSoS)->trackParameters();
       track_LastM_loc1     ( trkPara->parameters()[Trk::loc1]);
@@ -264,8 +262,7 @@ void EMTrackFit::fillLastMeasurement(Trk::Track *track){
       break;
     }
   }
-  return;
-}
+  }
 
 // ========================================================================
 bool EMTrackFit::fillPerigeeParamters(const Trk::Perigee *trackParameters){

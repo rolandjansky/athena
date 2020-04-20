@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_ITILERAWCHANNELBUILDER_H
@@ -90,27 +90,32 @@ class TileRawChannelBuilder: public AthAlgTool {
     void endLog();
 
     // process one digit and store result in internal container
-    void build(const TileDigits* digits) {
-      m_rawChannelCnt->push_back(std::unique_ptr<TileRawChannel>(rawChannel(digits)));
+    StatusCode build (const TileDigits* digits) {
+      ATH_CHECK( m_rawChannelCnt->push_back(std::unique_ptr<TileRawChannel>(rawChannel(digits))) );
+      return StatusCode::SUCCESS;
     }
 
     // process all digits from one collection and store results in internal container
-    void build(const TileDigitsCollection* collection);
+    StatusCode build (const TileDigitsCollection* collection);
 
     // process digits from a given vector and store results in internal container
     template<class ITERATOR>
-    void build(const ITERATOR & begin, const ITERATOR & end) {
-      for (ITERATOR rawItr = begin; rawItr != end; ++rawItr)
-        m_rawChannelCnt->push_back(rawChannel((*rawItr)));
+    StatusCode build (const ITERATOR & begin, const ITERATOR & end) {
+      for (ITERATOR rawItr = begin; rawItr != end; ++rawItr) {
+        ATH_CHECK( m_rawChannelCnt->push_back(rawChannel((*rawItr))) );
+      }
+      return StatusCode::SUCCESS;
     }
 
     // process digits from a given vector and store results in collection
     template<class ITERATOR, class COLLECTION>
-    void build(const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
+    StatusCode build (const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll) {
       initLog();
-      for (ITERATOR rawItr = begin; rawItr != end; ++rawItr)
-        coll->push_back(rawChannel((*rawItr)));
+      for (ITERATOR rawItr = begin; rawItr != end; ++rawItr) {
+        ATH_CHECK( coll->push_back(rawChannel((*rawItr))) );
+      }
       endLog();
+      return StatusCode::SUCCESS;
     }
 
     /**

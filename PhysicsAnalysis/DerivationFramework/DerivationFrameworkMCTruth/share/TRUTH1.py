@@ -7,6 +7,22 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMCTruth.MCTruthCommon import * 
 from DerivationFrameworkTau.TauTruthCommon import *
 augmentationTools = []
+
+
+#==============================================================================
+# Set up stream
+#==============================================================================
+streamName = derivationFlags.WriteDAOD_TRUTH1Stream.StreamName
+fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH1Stream )
+TRUTH1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+# Only events that pass the filters listed are written out
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+TRUTH1Stream.AcceptAlgs(['TRUTH1Kernel'])
+
 #====================================================================
 # JET/MET
 #====================================================================
@@ -114,7 +130,7 @@ if len(f.infos['run_number']) > 0:
 #==============================================================================
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 TRUTH1TruthThinning = DerivationFramework__MenuTruthThinning(name                      = "TRUTH1TruthThinning",
-                                                            ThinningService            = "TRUTH1ThinningSvc",
+                                                            StreamName                 = streamName,
                                                             WritePartons               = False,
                                                             WriteHadrons               = False,
                                                             WriteBHadrons              = True,
@@ -142,7 +158,7 @@ ToolSvc += TRUTH1TruthThinning
 #==============================================================================
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 TRUTH1PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "TRUTH1PhotonThinning",
-                                                                 ThinningService         = "TRUTH1ThinningSvc",
+                                                                 StreamName              = streamName,
                                                                  ParticlesKey            = "TruthPhotons",  
                                                                  ParticleSelectionString = "(TruthPhotons.classifierParticleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)")
 ToolSvc += TRUTH1PhotonThinning
@@ -169,23 +185,6 @@ augmentationTools += [DFCommonTruthClassificationTool,GenFilter,
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH1Kernel",
                                                                         AugmentationTools = augmentationTools,
                                                                         ThinningTools = [TRUTH1TruthThinning,TRUTH1PhotonThinning])
-
-#==============================================================================
-# Set up stream
-#==============================================================================
-streamName = derivationFlags.WriteDAOD_TRUTH1Stream.StreamName
-fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH1Stream )
-TRUTH1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="TRUTH1ThinningSvc", outStreams=[evtStream] )
-
-# Only events that pass the filters listed are written out
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-TRUTH1Stream.AcceptAlgs(['TRUTH1Kernel'])
 
 #==============================================================================
 # Set up slimming content list here

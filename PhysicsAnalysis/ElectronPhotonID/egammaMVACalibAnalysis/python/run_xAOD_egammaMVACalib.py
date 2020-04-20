@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import ROOT
 import math
@@ -37,7 +39,7 @@ def xAOD_particle_generator(tree, collection_getter, event_numbers=None,
     elif type(event_numbers) is int:
         event_numbers = [event_numbers]
 
-    for ievent in xrange(tree.GetEntries()):
+    for ievent in range(tree.GetEntries()):
         tree.GetEntry(ievent)
         if event_numbers:
             ei = tree.EventInfo
@@ -46,7 +48,7 @@ def xAOD_particle_generator(tree, collection_getter, event_numbers=None,
 
         collection = collection_getter(tree)
 
-        for i in xrange(collection.size()):
+        for i in range(collection.size()):
             p = collection.at(i)
             if min_pt is not None and p.pT() < min_pt:
                 continue
@@ -64,7 +66,7 @@ xAOD_electron_generator = partial(xAOD_particle_generator, collection_getter=get
 def main(filename, **args):
     logging.debug("initializing xAOD")
     if (not ROOT.xAOD.Init().isSuccess()):
-        print "Failed xAOD.Init()"
+        print ("Failed xAOD.Init()")
 
     logging.debug("initializing tool")
     tools = []
@@ -96,7 +98,7 @@ def main(filename, **args):
             logging.error("problem opening file %s", filename)
         tree = ROOT.xAOD.MakeTransientTree(f, args['tree_name'], ROOT.xAOD.TEvent.kAthenaAccess)
 
-    logging.info("input has %d entries" % tree.GetEntries())
+    logging.info("input has %d entries", tree.GetEntries())
 
     logging.debug("creating output tree")
     fout = ROOT.TFile(args['output'], "recreate")
@@ -117,7 +119,7 @@ def main(filename, **args):
                       )
         xAOD_energy = particle.e()
         cluster = particle.caloCluster()
-        MVA_energies = [tool.getEnergy(cluster, particle) for tool in tools]
+        MVA_energies = [t.getEnergy(cluster, particle) for t in tools]
         true_particle = get_truth_particle(particle)
         true_e = true_particle.e() if true_particle else 0
         pdgId = true_particle.pdgId() if true_particle else 0
@@ -128,7 +130,7 @@ def main(filename, **args):
         if tree_out.GetEntries() % 500 == 0:
             logging.info("%d particle written", tree_out.GetEntries())
         if math.isnan(xAOD_energy) or any(map(math.isnan, MVA_energies)) or xAOD_energy < 1 or any(m < 1 for m in MVA_energies):
-            print "==>", particle.author(), particle.eta(), particle.phi(), particle.e(), cluster.e(), MVA_energy
+            print ("==>", particle.author(), particle.eta(), particle.phi(), particle.e(), cluster.e(), MVA_energies)
 
     logging.info("%d events written", tree_out.GetEntries())
 

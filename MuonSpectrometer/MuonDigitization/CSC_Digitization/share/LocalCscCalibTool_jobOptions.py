@@ -1,26 +1,5 @@
 include.block( "CscCalibTools/CscCalibTool_jobOptions.py" )
 
-# Access to the CSC calibration database
-#include ( "MuonCondSvc/CscCoolStrSvc_read_jobOptions.py" )
-
-from MuonCondSvc.CscCondDB import cscCondDB
-
-#cscCondDB.addPedFolder()    #<--- Adds pedestal and noise folders
-#cscCondDB.addNoiseFolder()    #<--- Adds pedestal and noise folders
-#cscCondDB.addPSlopeFolder()    #<--- Adds pedestal and noise folders
-cscCondDB.addStatusFolder()    #<--- Adds pedestal and noise folders
-#cscCondDB.addRmsFolder()    #<--- Adds pedestal and noise folders
-#cscCondDB.addF001Folder()    
-
-#cscCondDB.addT0BaseFolder()    
-#cscCondDB.addT0PhaseFolder()   
-
-
-
-
-#cscCondDB.addPedFolders()    #<--- Adds pedestal and noise folders
-#cscCondDB.addAllFolders()
-
 from AthenaCommon.AppMgr import ToolSvc
 
 from CscCalibTools.CscCalibToolsConf import \

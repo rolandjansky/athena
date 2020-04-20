@@ -1,29 +1,21 @@
-// emacs: this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-/**************************************************************************
+/// emacs: this is -*- c++ -*-
+/**
+ **   @file      RegSelSiLUT.h  
  **
- **   File:         RegSelSiLUT.h  
- **
- **   Description:  RegionSelector LUT class for the Si Inner Detector  
- **                   
- **                   
+ **   @brief     RegionSelector LUT class for the Inner Detector and Muon Spectrometer  
+ **                                      
  ** 
- **   Author:       M.Sutton  
+ **   @author    M.Sutton  
  **
- **   Created:      Wed Apr  4 16:03:52 BST 2007
- **   Modified:     Sun Oct 14 09:49:34 BST 2007 add copy constructors, 
- **                                              code to remove robs and 
- **                                              modules
+ **   @date      Wed Apr  4 16:03:52 BST 2007
  **
- **************************************************************************/ 
+ **   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ **
+ **/
 
 
-#ifndef __REGSELSILUT_H
-#define __REGSELSILUT_H
+#ifndef REGSELSILUT_H
+#define REGSELSILUT_H
 
 
 #include <stdint.h> 
@@ -38,24 +30,43 @@
 #include "RegSelLUT/RegSelName.h"
 #include "RegSelLUT/RegSelModule.h"
 #include "RegSelLUT/RegSelSubDetector.h"
+#include "IRegionSelector/IRegSelLUT.h"
+
 
 #include "Identifier/IdentifierHash.h"
 
 
 
 
-class RegSelSiLUT : public RegSelName {
+class RegSelSiLUT : public RegSelName, virtual public IRegSelLUT {
 
 public:
+
   typedef enum { UNDEF, PIXEL, SCT, TRT, FTK } DET;
+
+public:
   
   RegSelSiLUT() : m_ID(UNDEF) { } 
   RegSelSiLUT(DET id);
   RegSelSiLUT(const RegSelSiLUT& r);
   RegSelSiLUT(const std::string& s);
 
+  virtual ~RegSelSiLUT() override { } 
 
-  virtual ~RegSelSiLUT() { } 
+
+  /// implementation of the IRegSelUT interface                                                                                                                                        
+  /// hash id methods                                                                                                                                                                 
+  virtual void HashIDList( const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+
+  virtual void HashIDList( long layer, const IRoiDescriptor& roi, std::vector<IdentifierHash>& idlist ) const override;
+
+  /// rob methods                                                                                                                                                                      
+  virtual void ROBIDList( const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+
+  virtual void ROBIDList( long layer, const IRoiDescriptor& roi, std::vector<uint32_t>& roblist ) const override;
+   
+
+public:
 
   void addModule(RegSelModule& module)           {  m_modules.push_back(module); }
   void addModules(const std::vector<RegSelModule>& m) {  m_modules = m; }  
@@ -152,7 +163,6 @@ public:
   
 
 
-
   // get the hash id's and robs for the entire detector
   virtual void  getRobHashList(std::vector<uint32_t>& roblist, std::vector<IdentifierHash>& hashlist) const;
 
@@ -239,7 +249,7 @@ protected:
 
 
 
-#endif  /* __REGSELSILUT_H */
+#endif  /* REGSELSILUT_H */
 
 
 

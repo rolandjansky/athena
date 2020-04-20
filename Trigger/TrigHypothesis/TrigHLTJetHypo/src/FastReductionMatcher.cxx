@@ -25,7 +25,7 @@ FastReductionMatcher::FastReductionMatcher(ConditionsMT conditions,
 std::optional<bool>
 FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
 			    const HypoJetGroupCIter& groups_e,
-			    xAODJetCollector&,
+			    xAODJetCollector& jetCollector,
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 			    bool) const {
   /*
@@ -43,16 +43,14 @@ FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
 
 
   FastReducer reducer(groups_b,
-		      groups_e,
-		      m_conditions,
-		      m_tree,
-		      m_sharedNodes,
-		      collector);
+                      groups_e,
+                      m_conditions,
+                      m_tree,
+                      m_sharedNodes,
+		      jetCollector,
+                      collector);
 
-  auto opt_jets = reducer.passingJets();
-	      
-  if(opt_jets.has_value()){return std::make_optional<bool>(true);}
-  return std::make_optional<bool>(false);
+  return std::make_optional<bool>(reducer.pass());
 }
 
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMACALOTOOLS_EGAMMABACKSHAPE_H
@@ -26,7 +26,6 @@ class CaloDetDescrManager;
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "egammaInterfaces/IegammaBackShape.h"
-#include "egammaInterfaces/IegammaEnergyPositionAllSamples.h"
 
 class egammaBackShape : public AthAlgTool, virtual public IegammaBackShape {
 
@@ -45,16 +44,13 @@ public:
     StatusCode finalize() override ;
 
     /** @brief AlgTool main method */
-    virtual StatusCode execute(const xAOD::CaloCluster& cluster, 
-            const CaloCellContainer& cell_container, Info& info) const override final;
-private:
+    virtual StatusCode execute(const xAOD::CaloCluster& cluster,
+                               const CaloDetDescrManager& cmgr,
+                               const CaloCellContainer& cell_container,
+                               Info& info) const override final;
 
- const CaloDetDescrManager* m_calo_dd;
+  private:
  
- /** @brief tool to calculate sum of energy in all samples */
-    ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples {this,
-        "egammaEnergyPositionAllSamplesTool", 
-        "egammaEnergyPositionAllSamples/egammaEnergyPositionAllSamples"};
 
     /** @brief boolean to calculate less important variables*/
     Gaudi::Property<bool> m_ExecOtherVariables {this, 

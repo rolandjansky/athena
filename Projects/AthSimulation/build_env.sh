@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # This script sets up the build enironment for an AthSimulation
 # build, on top of a built set of externals (including Gaudi)
 #
@@ -40,17 +42,17 @@ env_setup() {
 	BUILDDIR=${AthSimulationSrcDir}/../../../build
     fi
 
+    # Get the version of AthSimulation for the build.
+    version=`cat ${AthSimulationSrcDir}/version.txt`
+
     # Set up the environment for the build:
-    export NICOS_PROJECT_VERSION=`cat ${AthSimulationSrcDir}/version.txt`
-    export NICOS_ATLAS_RELEASE=${NICOS_PROJECT_VERSION}
-    export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
     export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthSimulation
 
     # Set up the environment variables for finding LCG externals:
     source ${scriptsdir}/LCG_RELEASE_BASE.sh
 
     # Set up the AthSimulationExternals project:
-    extDir=${BUILDDIR}/install/AthSimulationExternals/${NICOS_PROJECT_VERSION}/InstallArea
+    extDir=${BUILDDIR}/install/AthSimulationExternals/${version}/InstallArea
     if [ ! -d ${extDir} ]; then
 	echo "Didn't find the AthSimulationExternals project under ${extDir}"
     fi
@@ -62,7 +64,7 @@ env_setup() {
     platform=$(cd ${extDir};ls)
 
     # Point to Gaudi:
-    export GAUDI_ROOT=${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION}/InstallArea/${platform}
+    export GAUDI_ROOT=${BUILDDIR}/install/GAUDI/${version}/InstallArea/${platform}
     echo "Taking Gaudi from: ${GAUDI_ROOT}"
 
     cd $startdir

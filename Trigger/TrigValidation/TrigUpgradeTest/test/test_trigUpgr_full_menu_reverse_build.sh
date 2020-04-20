@@ -8,8 +8,8 @@
 export EVENTS=20
 export THREADS=1
 export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/full_menu.py"
-export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*"
+export JOBOPTION="TriggerJobOpts/runHLT_standalone.py"
+export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*"
 export EXTRA="isOnline=True;reverseViews=True;doWriteBS=False;doWriteRDOTrigger=True;"
 
 # Find the regtest reference installed with the release

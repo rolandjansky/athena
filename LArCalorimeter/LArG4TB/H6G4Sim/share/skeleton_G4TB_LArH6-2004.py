@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # get the logger
 from AthenaCommon.Logging import *
 ctbG4log = logging.getLogger('ctbG4')

@@ -36,7 +36,6 @@ PoolSvc = svcMgr.PoolSvc
 PoolSvc.ReadCatalog = ["xmlcatalog_file:EventSplit.xml"]
  
 svcMgr.EventSelector.InputCollections =  ["AthenaPoolMultiTest_StreamAll2.root"]
-svcMgr.AthenaPoolAddressProviderSvc.DataHeaderIterator = False
 
 #--------------------------------------------------------------
 # Private Application Configuration options

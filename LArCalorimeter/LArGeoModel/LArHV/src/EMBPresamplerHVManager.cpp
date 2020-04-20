@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMBPresamplerHVManager.h"
@@ -25,7 +25,9 @@
 #include "LArCabling/LArHVCablingTool.h"
 
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 #include "LArRecConditions/LArHVIdMapping.h"
+#endif
 #endif
 
 #include "Identifier/HWIdentifier.h"
@@ -261,6 +263,7 @@ EMBPresamplerHVPayload *EMBPresamplerHVManager::getPayload(const EMBPresamplerHV
 }
 
 #ifndef SIMULATIONBASE
+#ifndef GENERATIONBASE
 int EMBPresamplerHVManager::hvLineNo(const EMBPresamplerHVModule& module
 				     , int gap
 				     , const LArHVIdMapping* hvIdMapping) const {
@@ -303,4 +306,5 @@ int EMBPresamplerHVManager::hvLineNo(const EMBPresamplerHVModule& module
   // Extract HV Line No
   return m_c->hvId->can_node(id)*1000 + m_c->hvId->hv_line(id);
 }
+#endif
 #endif

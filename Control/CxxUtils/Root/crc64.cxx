@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -97,8 +97,8 @@
  * string A' with T' bits, such that A mod P = A' mod P.  It is then easy
  * to show that the string M' = 2^U A' + B has the same CRC:
  *
- *   M  mod P = [(x^U mod P)(A  mod P)] mod P + B mod P
- *   M' mod P = [(x^U mod P)(A' mod P)] mod P + B mod P
+ *   M  mod P = [(2^U mod P)(A  mod P)] mod P + B mod P
+ *   M' mod P = [(2^U mod P)(A' mod P)] mod P + B mod P
  *
  * But A mod P = A' mod P, so therefore M mod P = M' mod P.
  *
@@ -186,7 +186,7 @@
  * are more modest, four and 1.5 times, respectively.
  *
  * We currently support compiling this only with gcc.
- * clang doesn't implement function multiversioning, and some of the
+ * clang implements function multiversioning, but  some of the
  * intrinsics are missing/renamed.  We haven't tried it on icc, but it's
  * unlikely to work without adjustment.
  */

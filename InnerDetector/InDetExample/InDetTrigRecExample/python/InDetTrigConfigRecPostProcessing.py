@@ -186,7 +186,6 @@ class TrigVxPrimaryAllTESG_EF( InDet__TrigVxPrimaryAllTE ):
     self.VertexFinderTool = InDetTrigPriVxFinderTool
     self.RunWithoutField = False
     self.RetrieveTracksFromSG = True
-    self.TrackCollectionFromSG = "FTKConv_Trk_Tracks";
   
       #monitoring
     from InDetTrigPriVxFinder.InDetTrigPriVxFinderMonitoring import InDetTrigPriVxFinderValidationMonitor
@@ -274,7 +273,7 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
       self.PRDToTrackMapExchange = InDetTrigPRDtoTrackMapExchangeTool
 
 
-      if "_FTF" in name or "_FTK" in name:
+      if "_FTF" in name:
         creatorTool = InDetTrigParticleCreatorToolFTF
       elif "_IDTrig" in name and type=="electron":
         creatorTool = InDetTrigParticleCreatorToolWithSummaryTRTPid
@@ -282,10 +281,6 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
       self.ParticleCreatorTool = creatorTool
 
       if "_IDTrig" in name and (type=="muon" or type=="electron"):
-        self.doIBLresidual = True
-
-      #for FTK commissioning
-      if "_FTK" in name:
         self.doIBLresidual = True
 
       #monitoring

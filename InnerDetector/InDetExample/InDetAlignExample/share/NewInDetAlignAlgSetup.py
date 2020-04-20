@@ -112,7 +112,7 @@ for var in newInDetAlignAlg_Options:
         newInDetAlignAlg_Options[var] = eval(var)
 # If Cosmics, switch off Beamspot / Vtx constraint 
 
-print " <NewInDetAlignAlgSetup> set up for cosmics ? ",Cosmics 
+printfunc (" <NewInDetAlignAlgSetup> set up for cosmics ? ",Cosmics )
 
 if newInDetAlignAlg_Options["Cosmics"]:
     newInDetAlignAlg_Options["doBSConstraint"] = False
@@ -121,23 +121,23 @@ if newInDetAlignAlg_Options["Cosmics"]:
     newInDetAlignAlg_Options["doBSTrackSelection"] = False
     newInDetAlignAlg_Options["doBSAssociatedToPVSelection"] = False
 else:
-    print " <NewInDetAlignAlgSetup> setup check for BS and Pvx constraints:"
-    print " <NewInDetAlignAlgSetup> doBSConstraint ?: ",newInDetAlignAlg_Options["doBSConstraint"]
-    print " <NewInDetAlignAlgSetup> doPVConstraint ?: ",newInDetAlignAlg_Options["doPVConstraint"] 
-    print " <NewInDetAlignAlgSetup> doFullVertex   ?: ",newInDetAlignAlg_Options["doFullVertex"] 
-    print " <NewInDetAlignAlgSetup> doBSTrackSelec ?: ",newInDetAlignAlg_Options["doBSTrackSelection"] 
-    print " <NewInDetAlignAlgSetup> doBSAssoc2PV   ?: ",newInDetAlignAlg_Options["doBSAssociatedToPVSelection"] 
+    printfunc (" <NewInDetAlignAlgSetup> setup check for BS and Pvx constraints:")
+    printfunc (" <NewInDetAlignAlgSetup> doBSConstraint ?: ",newInDetAlignAlg_Options["doBSConstraint"])
+    printfunc (" <NewInDetAlignAlgSetup> doPVConstraint ?: ",newInDetAlignAlg_Options["doPVConstraint"] )
+    printfunc (" <NewInDetAlignAlgSetup> doFullVertex   ?: ",newInDetAlignAlg_Options["doFullVertex"] )
+    printfunc (" <NewInDetAlignAlgSetup> doBSTrackSelec ?: ",newInDetAlignAlg_Options["doBSTrackSelection"] )
+    printfunc (" <NewInDetAlignAlgSetup> doBSAssoc2PV   ?: ",newInDetAlignAlg_Options["doBSAssociatedToPVSelection"] )
 
 
 ## ===================================================================
 ## Preprocessor Check ##
 
 if newInDetAlignAlg_Options["doBSConstraint"] or newInDetAlignAlg_Options["doPVConstraint"] or newInDetAlignAlg_Options["doBSTrackSelection"] or newInDetAlignAlg_Options["doBSAssociatedToPVSelection"]:
-    print "NewInDetAlignAlg: Switching off the OldPreprocessor"
+    printfunc ("NewInDetAlignAlg: Switching off the OldPreprocessor")
     newInDetAlignAlg_Options["useOldPreProcessor"] = False
 
 if newInDetAlignAlg_Options["useOldPreProcessor"]:
-    print "WARNING: The BeamSpot constraint and PV Constraint are disabled"
+    printfunc ("WARNING: The BeamSpot constraint and PV Constraint are disabled")
 
 ## ===================================================================
 ## ===================================================================
@@ -145,7 +145,7 @@ if newInDetAlignAlg_Options["useOldPreProcessor"]:
 ## ==               Settings for the alignment                      ==
 ## ==                                                               ==
 if not newInDetAlignAlg_Options["runAccumulate"] and not newInDetAlignAlg_Options["runSolving"]:
-    print 'ERROR: Both event processing and solving switched off. Nothing to be done.'
+    printfunc ('ERROR: Both event processing and solving switched off. Nothing to be done.')
     exit(10)
 
 # if we're running full local method we have to adjust some parameters
@@ -212,7 +212,7 @@ alignModuleTool = Trk__AlignModuleTool(
     
 )
 ToolSvc += alignModuleTool
-print alignModuleTool
+printfunc (alignModuleTool)
 
 ################################
 #
@@ -241,7 +241,7 @@ include("InDetAlignExample/NewInDetAlignGeometrySetup.py")
 #    # set this to the file containing AlignableTransform objects
 #    ServiceMgr.CondProxyProvider.InputCollections += newInDetAlignAlg_Options["inputPoolFiles"]
 #    ServiceMgr.CondProxyProvider.OutputLevel = DEBUG
-#    print ServiceMgr.CondProxyProvider
+#    printfunc (ServiceMgr.CondProxyProvider)
 
     # this preload causes callbacks for read in objects to be activated,
     # allowing GeoModel to pick up the transforms
@@ -327,8 +327,8 @@ if not newInDetAlignAlg_Options["runLocal"]:
     if 'calculateFullCovariance' in dir():
         matrixTool.CalculateFullCovariance  = newInDetAlignAlg_Options["calculateFullCovariance"]
 
-print matrixTool
-print globalChi2AlignTool
+printfunc (matrixTool)
+printfunc (globalChi2AlignTool)
 
 #################################################
 ##
@@ -345,7 +345,7 @@ myHitQualSelTool = InDetAlignHitQualSelTool(
     #AcceptSCTHits = True,
     )
 ToolSvc += myHitQualSelTool
-print myHitQualSelTool
+printfunc (myHitQualSelTool)
 
 ##################################################
 ##
@@ -363,7 +363,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
     #        UseActiveFractionSvc = False
     #    )
     #    ToolSvc += trtDCtool
-    #    print trtDCtool
+    #    printfunc (trtDCtool)
     #    if not newInDetAlignAlg_Options["Cosmics"] :
     #        from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
     #        trackSelector = InDet__InDetDetailedTrackSelectorTool(
@@ -392,7 +392,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
         
     #    else:
     #        from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetCosmicTrackSelectorTool
-    #        print " <NewInDetAlignAlgSetup> setting InDetTrackSelectorTool for cosmic ray data"
+    #        printfunc (" <NewInDetAlignAlgSetup> setting InDetTrackSelectorTool for cosmic ray data")
     #        trackSelector = InDet__InDetCosmicTrackSelectorTool(
     #            name = "TrackSelector",
     #            #OutputLevel = newInDetAlignAlg_Options["outputLevel"],
@@ -409,7 +409,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
     #            maxZ0 = 9999.,
     #        )
     #    ToolSvc += trackSelector
-    #    print trackSelector
+    #    printfunc (trackSelector)
 
 
 
@@ -421,7 +421,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
         maxEtaForTRTHitCuts = 0 
         maxTRTEtaAcceptance = 1e+16
         if newInDetAlignAlg_Options["useTRT"]:
-            print "NewInDetAlignAlgSetup : setting TRT Cuts"
+            printfunc ("NewInDetAlignAlgSetup : setting TRT Cuts")
             minNTRTHits = 20
             maxEtaForTRTHitCuts = 1.9
             maxTRTEtaAcceptance = 0.
@@ -464,7 +464,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
                                                              TrackSummaryTool    = InDetTrackSummaryTool,
                                                              Extrapolator        = InDetExtrapolator)
         ToolSvc+=trackSelectorNew
-        print 
+        printfunc ()
     ###############################
     # create AlignTrackPreProcessor
     if newInDetAlignAlg_Options["useOldPreProcessor"] :
@@ -486,7 +486,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 
         if newInDetAlignAlg_Options["FixMomentum"]:
             preProcessor.FixMomentum = newInDetAlignAlg_Options["FixMomentum"]
-            print "OldProcessor -> Using FixMomentum = ", newInDetAlignAlg_Options["FixMomentum"]
+            printfunc ("OldProcessor -> Using FixMomentum = ", newInDetAlignAlg_Options["FixMomentum"])
         
         # don't store matrices when running local
         if newInDetAlignAlg_Options["runLocal"]:
@@ -538,10 +538,10 @@ if newInDetAlignAlg_Options["runAccumulate"]:
             #                                                TrackSummaryTool    = InDetTrackSummaryTool,
             #                                                Extrapolator        = InDetExtrapolator)
             #ToolSvc += BStrackSelector
-            #print BStrackSelector
+            #printfunc (BStrackSelector)
 
         from TrkAlignGenTools.TrkAlignGenToolsConf import Trk__BeamspotVertexPreProcessor
-        print "TYPE PtCutForBSConstraint", type(newInDetAlignAlg_Options["PtCutForBSConstraint"])
+        printfunc ("TYPE PtCutForBSConstraint", type(newInDetAlignAlg_Options["PtCutForBSConstraint"]))
         preProcessor = Trk__BeamspotVertexPreProcessor(
             name              = "BeamspotVertexPreProcessor",
             OutputLevel           = newInDetAlignAlg_Options["outputLevel"],
@@ -568,7 +568,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
 
         if newInDetAlignAlg_Options["FixMomentum"]:
             preProcessor.FixMomentum = newInDetAlignAlg_Options["FixMomentum"]
-            print "NewProcessor -> Using FixMomentum = ", newInDetAlignAlg_Options["FixMomentum"]
+            printfunc ("NewProcessor -> Using FixMomentum = ", newInDetAlignAlg_Options["FixMomentum"])
         
         # don't store matrices when running local
         if newInDetAlignAlg_Options["runLocal"]:
@@ -578,7 +578,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
             preProcessor.TrackSelector = trackSelectorNew
 
     ToolSvc += preProcessor
-    print preProcessor
+    printfunc (preProcessor)
 
     ################################
     # create AlignResidualCalculator
@@ -590,7 +590,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
         IncludeScatterers = False
     )
     ToolSvc += alignResidualCalculator
-    print alignResidualCalculator
+    printfunc (alignResidualCalculator)
 
     ################################
     # create AlignTrackCreator
@@ -606,7 +606,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
         RequireOverlap = False
     )
     ToolSvc += alignTrackCreator
-    print alignTrackCreator
+    printfunc (alignTrackCreator)
 
     ################################
     # create AnalyticalDerivCalcTool
@@ -626,7 +626,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
     else:
         derivCalcTool.UseLocalSetting = False
     ToolSvc += derivCalcTool
-    print derivCalcTool
+    printfunc (derivCalcTool)
 
     ################################
     # create AlignTrackDresser that uses AnalyticalDerivCalcTool
@@ -637,7 +637,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
         DerivCalcTool = derivCalcTool
     )
     ToolSvc += alignTrackDresser
-    print alignTrackDresser
+    printfunc (alignTrackDresser)
 
     ################################
     # Ntuple filling tool
@@ -652,7 +652,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
             StoreDerivatives = newInDetAlignAlg_Options["writeDerivatives"]
         )
         ToolSvc += ntupleTool
-        print ntupleTool
+        printfunc (ntupleTool)
 
     ###############################
     ###############################
@@ -688,7 +688,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
                                       UseConstraintError =  False,
                                       UseConstrainedTrkOnly= False,
                                       TrackFitter = trackFitter   )
-        print trackCollectionProvider
+        printfunc (trackCollectionProvider)
     ToolSvc += trackCollectionProvider
 
     ################################
@@ -712,7 +712,7 @@ if newInDetAlignAlg_Options["runAccumulate"]:
     )
 
     topSequence += InDetGlobalAlign
-    print InDetGlobalAlign
+    printfunc (InDetGlobalAlign)
 
 ##################################################
 ##
@@ -734,7 +734,7 @@ else:
     )
 
     topSequence += InDetGlobalSolve
-    print InDetGlobalSolve
+    printfunc (InDetGlobalSolve)
 
 
 ################################
@@ -767,7 +767,7 @@ if newInDetAlignAlg_Options["runSolving"] and newInDetAlignAlg_Options["writeCon
         
 ################################
 # build AlignTrack collection splitter algorithm
-print " <NewInDetAlignAlgSetup> Setting up the AlignTrackCollSplitter "
+printfunc (" <NewInDetAlignAlgSetup> Setting up the AlignTrackCollSplitter ")
 from TrkAlignGenAlgs.TrkAlignGenAlgsConf import Trk__AlignTrackCollSplitter
 AlignTrackCollSplitter = Trk__AlignTrackCollSplitter(
     "AlignTrackCollSplitter",
@@ -775,7 +775,7 @@ AlignTrackCollSplitter = Trk__AlignTrackCollSplitter(
 )
 
 topSequence += AlignTrackCollSplitter
-print AlignTrackCollSplitter
+printfunc (AlignTrackCollSplitter)
 
 
 ################################ 
@@ -786,14 +786,14 @@ if newInDetAlignAlg_Options["doMonitoring"] and newInDetAlignAlg_Options["runAcc
     
     
 if newInDetAlignAlg_Options["LumiblockSelection"]:
-	print " ************************** "
-	print " ** Selecting LumiBlocks ** "
-	print " ************************** "
-	print " **  List of LumiBlocks  ** "
+	printfunc (" ************************** ")
+	printfunc (" ** Selecting LumiBlocks ** ")
+	printfunc (" ************************** ")
+	printfunc (" **  List of LumiBlocks  ** ")
 	
-	print str(newInDetAlignAlg_Options["LumiblockList"]).strip('[]')
-	print " **                      ** "	
+	printfunc (str(newInDetAlignAlg_Options["LumiblockList"]).strip('[]'))
+	printfunc (" **                      ** "	)
 	import InDetBeamSpotExample.FilterUtils as FilterUtils
 	FilterUtils.filterSeq += FilterUtils.LBFilter(newInDetAlignAlg_Options["LumiblockList"]) 
 else:
-	print " ** Selecting LumiBlocks is deactivated ** " 
+	printfunc (" ** Selecting LumiBlocks is deactivated ** " )

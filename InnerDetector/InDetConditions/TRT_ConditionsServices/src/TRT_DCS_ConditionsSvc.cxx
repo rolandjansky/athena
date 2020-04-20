@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file TRT_DCS_ConditionsSvc.cxx
@@ -264,7 +264,7 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
 		     << " for this IOV." );
     return StatusCode::FAILURE;
   }
-  CondAttrListCollection::AttributeList attrList = (*chanAttrListPair).second;
+  const CondAttrListCollection::AttributeList& attrList = (*chanAttrListPair).second;
 
   // Get the value
   theValue = attrList["OUTPUTVOLTAGE_VALUE"].data<InDet::TRT_DCS_ValueType>();
@@ -305,7 +305,7 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
 		     << " for this IOV." );
     return StatusCode::FAILURE;
   }
-  CondAttrListCollection::AttributeList attrList = (*chanAttrListPair).second;
+  const CondAttrListCollection::AttributeList& attrList = (*chanAttrListPair).second;
 
   // Get the value
   theValue = attrList["OUTPUTVOLTAGE_VALUE"].data<InDet::TRT_DCS_ValueType>();

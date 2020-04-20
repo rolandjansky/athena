@@ -16,7 +16,7 @@
 #   TrigCostD3PDMaker.FourMomFillerTool
 #
 
-import TrigCostD3PDMakerConf
+import TrigCostD3PDMaker.TrigCostD3PDMakerConf
 for k, v in TrigCostD3PDMakerConf.__dict__.items():
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v

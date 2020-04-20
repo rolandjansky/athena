@@ -36,6 +36,7 @@ _all_streams = [
     StreamInfo('LArCells', 'calibration', False, False),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
     StreamInfo('CostMonitoring','calibration', False, False),
+    StreamInfo('SCTNoise','calibration',False,False)
 ]
 
 

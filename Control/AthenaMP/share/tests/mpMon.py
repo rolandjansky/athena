@@ -13,6 +13,8 @@
 # @endcode
 #
 
+from __future__ import print_function
+
 
 """
 PROCESS STATE CODES
@@ -38,7 +40,7 @@ import sys
 class Writer:
     def __init__(self, stdout, filename):
         self.stdout = stdout
-        self.logfile = file(filename, 'a')
+        self.logfile = open(filename, 'a')
 
     def write(self, text):
         self.stdout.write(text)
@@ -114,17 +116,17 @@ if __name__ == "__main__":
 
     ne = int(options.nbrEvts)
     jobo = options.jobo
-    print "np_list = ", np_list
-    print "ne = ", ne
-    print "jobo = ", jobo
-    print "mpMon.log =", options.outFileName
-    print "doFluchCache=", options.doFlushCache, type(options.doFlushCache)
+    print ("np_list = ", np_list)
+    print ("ne = ", ne)
+    print ("jobo = ", jobo)
+    print ("mpMon.log =", options.outFileName)
+    print ("doFluchCache=", options.doFlushCache, type(options.doFlushCache))
     if options.doFlushCache:
         options.commentsStr += ".doFlushCache"
     
     
     def cleanup():
-        print ' Cleaning...Goodbye!'
+        print (' Cleaning...Goodbye!')
         for pid in mpt.pid_list:
             mpt.stop_proc_tree(pid)
 
@@ -137,7 +139,6 @@ if __name__ == "__main__":
     import subprocess
     import signal
     import time
-    import commands
     
     for np in np_list:
         writer.flush()
@@ -151,7 +152,7 @@ if __name__ == "__main__":
             mpt.print_memstat("<np%i.ne%i>:" % (np, ne))
        
         if options.doFlushCache:
-            print subprocess.call(['flush_cache.py',])
+            print (subprocess.call(['flush_cache.py',]))
             time.sleep(TIME_STEP) 
         
         mpt.init_mp_stat()
@@ -167,10 +168,10 @@ if __name__ == "__main__":
         t0=time.time()
         mproc = mpt.launch_athenaMP(jobo, np, ne); #launching athena-MP
         mpid = mproc.pid #mother process pid
-        print "parent launched ...[ %i]" % mpid       
+        print ("parent launched ...[ %i]" % mpid       )
         
         mp_log = os.path.join("mp.output", "stdout.%s" % suffix)
-        #print "mpid_log = ", mp_log
+        #print ("mpid_log = ", mp_log)
         
         _mproc = mpt.ProcDict(mpid, child=False)        
        
@@ -192,7 +193,7 @@ if __name__ == "__main__":
         
         _print_mem()
         
-        print "children processes finished:"
+        print ("children processes finished:")
         
         #SERIAL: Mother-Finalize stage
         while mproc.poll() is None:
@@ -203,31 +204,31 @@ if __name__ == "__main__":
         
         mpt.summarize_proc_stat()
        
-        #print "EXIT, thus have to terminate all created processes:"
+        #print ("EXIT, thus have to terminate all created processes:")
         try:
-            mproc.wait(); print "mproc joined-finished"
-        except Exception, e:
-            print "## while waiting mother process caught exception [%s] !!" % str(e.__class__), "## What:",e,
-            print sys.exc_info()[0], sys.exc_info()[1]
+            mproc.wait(); print ("mproc joined-finished")
+        except Exception as e:
+            print ("## while waiting mother process caught exception [%s] !!" % str(e.__class__), "## What:",e,)
+            print (sys.exc_info()[0], sys.exc_info()[1])
             sc = 1
             pass
         
-        for i in xrange(3):
+        for i in range(3):
             _print_mem()
             time.sleep(TIME_STEP)
         
-        print "FINISHED MONITORING:"
+        print ("FINISHED MONITORING:")
         mpt.stop_proc(sar_proc)
         
-        print "COLLECTING STATISTICS..."
+        print ("COLLECTING STATISTICS...")
         mpt.get_full_sar_stat(sar_log)
-        print "FINISHED COLLECTING STATISTICS"
+        print ("FINISHED COLLECTING STATISTICS")
         
-        print "START ANALYSIS..."
+        print ("START ANALYSIS...")
         
         cp_dir = mpt.grepPath(mp_log, "workdir", sep=':')
-        #print "worker master cpid_dir = ", cp_dir
-        print " ELAPSED TIMES: \n MotherInit: dt1=[%i sec] \n Parallel dt2=[%i sec] \n MotherFinalize dt3=[%i sec]" % (t1-t0, t2-t1, t3-t2)
+        #print ("worker master cpid_dir = ", cp_dir)
+        print (" ELAPSED TIMES: \n MotherInit: dt1=[%i sec] \n Parallel dt2=[%i sec] \n MotherFinalize dt3=[%i sec]" % (t1-t0, t2-t1, t3-t2))
         
         _mp_stat['cp_summary']=mpt.CPSummary(np)
         _mp_stat['mp_summary']=mpt.MPSummary(np)
@@ -248,15 +249,15 @@ if __name__ == "__main__":
         
         mpt.print_summary()
         
-        print "FINISHED ANALYSIS"
+        print ("FINISHED ANALYSIS")
         
-        print "START REPORT..."
+        print ("START REPORT...")
         mpt.prepare_mp_stat() # preparing mp_stat dictionary for ROOT
         import pickle
-        pickle.dump(_mp_stat, open("pickle.%s.f" % suffix,  "w"))        
+        pickle.dump(_mp_stat, open("pickle.%s.f" % suffix,  "wb"))
 
         mpt.writeRootFile("%s.root" % suffix, np)
-        print "FINISHED REPORT."
+        print ("FINISHED REPORT.")
         
         cleanup()
 
@@ -270,6 +271,6 @@ if __name__ == "__main__":
         mpt.report(merged_root_file, ne, comments = options.commentsStr)
     
     cleanup()
-    print "The End"
+    print ("The End")
     sys.exit(0)
 

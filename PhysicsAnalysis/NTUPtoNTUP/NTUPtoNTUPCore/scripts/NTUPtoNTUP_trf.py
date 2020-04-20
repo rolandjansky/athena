@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 __doc__ = """NTUP -> NTUP skimming/thinning files."""
 
@@ -38,7 +40,7 @@ class NTUPtoNTUPJobTransform( BaseOfBasicTrf ):
 
         # Set tree_name if it is in arguments
         self.tree_name=''
-        if inDic.has_key('tree_name'):
+        if 'tree_name' in inDic:
             self.tree_name=inDic['tree_name']
         else:
             self.tree_name=''
@@ -82,13 +84,13 @@ class NTUPtoNTUPJobTransform( BaseOfBasicTrf ):
                 AddToConfigDic(inName,function)
                 pass
         except ImportError:
-            print "WARNING NTUPtoNTUPProdFlags is not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+            print ("WARNING NTUPtoNTUPProdFlags is not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 
     def CheckTreeName(self,inDic):
         from PyJobTransformsCore.full_trfarg import InputNtupleFileArg
         # Check tree name from input file
         for key in inDic.keys():
-            if key.startswith('inputNTUP') and key.endswith('File') and ConfigDic.has_key(key):
+            if key.startswith('inputNTUP') and key.endswith('File') and key in ConfigDic:
                 trf=set()
                 ConfigDic[key](trf=trf,inDic={})
                 for x in trf:
@@ -117,7 +119,7 @@ class NTUPtoNTUPJobTransform( BaseOfBasicTrf ):
                 AddToConfigDic(outName,function)
                 pass
         except ImportError:
-            print "WARNING NTUPtoNTUPProdFlags is not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+            print ("WARNING NTUPtoNTUPProdFlags is not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
 
 #----------------------------------------------------------------------
 if __name__ == '__main__':

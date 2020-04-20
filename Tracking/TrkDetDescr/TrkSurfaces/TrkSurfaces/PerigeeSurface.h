@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ public:
                                                                          double phi,
                                                                          double theta,
                                                                          double qop,
-                                                                         AmgSymMatrix(5) * cov = 0) const override
+                                                                         AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, PerigeeSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
@@ -85,7 +85,7 @@ public:
   virtual ParametersT<5, Charged, PerigeeSurface>* createTrackParameters(const Amg::Vector3D& position,
                                                                          const Amg::Vector3D& momentum,
                                                                          double charge,
-                                                                         AmgSymMatrix(5) * cov = 0) const override
+                                                                         AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Charged, PerigeeSurface>(position, momentum, charge, *this, cov);
   }
@@ -96,7 +96,7 @@ public:
                                                                            double phi,
                                                                            double theta,
                                                                            double qop,
-                                                                           AmgSymMatrix(5) * cov = 0) const override
+                                                                           AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, PerigeeSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
@@ -105,7 +105,7 @@ public:
   virtual ParametersT<5, Neutral, PerigeeSurface>* createNeutralParameters(const Amg::Vector3D& position,
                                                                            const Amg::Vector3D& momentum,
                                                                            double charge,
-                                                                           AmgSymMatrix(5) * cov = 0) const override
+                                                                           AmgSymMatrix(5) * cov = nullptr) const override
   {
     return new ParametersT<5, Neutral, PerigeeSurface>(position, momentum, charge, *this, cov);
   }
@@ -149,7 +149,7 @@ public:
 
   /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
       - the default implementation is the the RotationMatrix3D of the transform */
-  virtual const Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos,
+  virtual Amg::RotationMatrix3D measurementFrame(const Amg::Vector3D& glopos,
                                                        const Amg::Vector3D& glomom) const override;
 
   /** Local to global method:
@@ -315,7 +315,7 @@ PerigeeSurface::straightLineIntersection(const Amg::Vector3D& pos,
 {
   // following nominclature found in header file and doxygen documentation
   // line one is the straight track
-  const Amg::Vector3D ma = pos;
+  const Amg::Vector3D& ma = pos;
   const Amg::Vector3D& ea = dir;
   // line two is the line surface
   const Amg::Vector3D& mb = center();

@@ -11,7 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigTimeAlgs
                           PRIVATE
                           GaudiKernel
-                          Trigger/TrigSteer/DecisionHandling)
+                          Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils)
 
 # External dependencies:
 find_package( CLHEP )
@@ -20,7 +21,7 @@ find_package( CLHEP )
 atlas_add_component( TrigStreamerHypo
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib GaudiKernel DecisionHandlingLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib GaudiKernel DecisionHandlingLib TrigCompositeUtilsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

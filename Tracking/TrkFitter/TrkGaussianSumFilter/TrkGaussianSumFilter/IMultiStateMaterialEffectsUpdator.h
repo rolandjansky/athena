@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -37,32 +37,34 @@ public:
   static const InterfaceID& interfaceID() { return IID_IMultiStateMaterialEffectsUpdator; };
 
   /** Virtual destructor */
-  virtual ~IMultiStateMaterialEffectsUpdator(){};
+  virtual ~IMultiStateMaterialEffectsUpdator() = default;
 
   /** Method for updating the state with material effects provided by the layer object */
-  virtual std::unique_ptr<Trk::MultiComponentState> updateState(const ComponentParameters&,
-                                                 const Layer&,
-                                                 PropDirection direction = alongMomentum,
-                                                 ParticleHypothesis = nonInteracting) const = 0;
+  virtual Trk::MultiComponentState updateState(const ComponentParameters&,
+                                               const Layer&,
+                                               PropDirection direction = alongMomentum,
+                                               ParticleHypothesis = nonInteracting) const = 0;
 
-  /** Method for updating the state with material effects provided by a material properties object and a pathlength */
-  virtual std::unique_ptr<Trk::MultiComponentState> updateState(const ComponentParameters&,
-                                                 const MaterialProperties&,
-                                                 double,
-                                                 PropDirection = alongMomentum,
-                                                 ParticleHypothesis = nonInteracting) const = 0;
+  /** Method for updating the state with material effects provided by a material properties object
+   * and a pathlength */
+  virtual Trk::MultiComponentState updateState(const ComponentParameters&,
+                                               const MaterialProperties&,
+                                               double,
+                                               PropDirection = alongMomentum,
+                                               ParticleHypothesis = nonInteracting) const = 0;
 
-  /** Method for the state with material effects provided by the layer object prior to propagation */
-  virtual std::unique_ptr<Trk::MultiComponentState> preUpdateState(const ComponentParameters&,
-                                                    const Layer&,
-                                                    PropDirection direction = anyDirection,
-                                                    ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  /** Method for the state with material effects provided by the layer object prior to propagation
+   */
+  virtual Trk::MultiComponentState preUpdateState(const ComponentParameters&,
+                                                  const Layer&,
+                                                  PropDirection direction = anyDirection,
+                                                  ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   /**  Method for the state with material effects provided by the layer object after propagation */
-  virtual std::unique_ptr<Trk::MultiComponentState> postUpdateState(const ComponentParameters&,
-                                                     const Layer&,
-                                                     PropDirection direction = anyDirection,
-                                                     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
+  virtual Trk::MultiComponentState postUpdateState(const ComponentParameters&,
+                                                   const Layer&,
+                                                   PropDirection direction = anyDirection,
+                                                   ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 };
 
 } // end Trk namespace

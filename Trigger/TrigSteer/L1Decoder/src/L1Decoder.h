@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Decoder_L1Decoder_h
 #define L1Decoder_L1Decoder_h
 
 
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -45,8 +45,14 @@ protected: // protected to support unit testing
 private:
 
   ///@{ @name Properties
+
+  /// Level-1 result with RoIs from Run-2 hardware systems
   SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey{this, "RoIBResult", "RoIBResult", 
       "Name of RoIBResult"};
+
+  /// Level-1 result with RoIs from Run-3 hardware systems
+  SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1TriggerResultKey{this, "L1TriggerResult", "L1TriggerResult",
+      "Name of the L1 Trigger Result"};
 
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey{this, "L1DecoderSummaryKey", "L1DecoderSummary", 
       "Chains status after L1 and prescaling"}; // Note: was previously property 'Chains' with default value 'HLTChains'
@@ -69,7 +75,7 @@ private:
   ToolHandleArray<IRoIsUnpackingTool> m_roiUnpackers{this, "roiUnpackers", {},
       "Tools unpacking RoIs"};
 
-  ToolHandle<IPrescalingTool> m_prescaler{this, "prescaler", "PrescalingEmulationTool/PrescalingEmulationTool", 
+  ToolHandle<IPrescalingTool> m_prescaler{this, "prescaler", "PrescalingTool/PrescalingTool", 
       "Prescaling tool"};
 
   ToolHandleArray<IRoIsUnpackingTool> m_rerunRoiUnpackers{this, "rerunRoiUnpackers", {}, 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __TRIG_L2_LAYER_NUMBER_TOOL__
@@ -55,25 +55,25 @@ class TrigL2LayerNumberTool : virtual public ITrigL2LayerNumberTool, public AthA
 
   //concrete implementations
 
-  virtual int maxSiliconLayerNum()  {return m_MaxSiliconLayerNum;}
-  virtual int offsetEndcapPixels()  {return m_OffsetEndcapPixels;}
-  virtual int offsetBarrelSCT()  {return m_OffsetBarrelSCT;}
-  virtual int offsetEndcapSCT()  {return m_OffsetEndcapSCT;}
-  virtual void report();//prints out the above 
+  virtual int maxSiliconLayerNum() const {return m_MaxSiliconLayerNum;}
+  virtual int offsetEndcapPixels() const {return m_OffsetEndcapPixels;}
+  virtual int offsetBarrelSCT() const {return m_OffsetBarrelSCT;}
+  virtual int offsetEndcapSCT() const {return m_OffsetEndcapSCT;}
+  virtual void report() const;//prints out the above 
 
-  virtual int maxNumberOfUniqueLayers() {
+  virtual int maxNumberOfUniqueLayers() const {
     return (int) m_hashMap.size();
   }
 
-  virtual const std::vector<short>* pixelLayers() {
+  virtual const std::vector<short>* pixelLayers() const {
     return &m_pixelLayers;
   }
 
-  virtual const std::vector<short>* sctLayers() {
+  virtual const std::vector<short>* sctLayers() const {
     return &m_sctLayers;
   }
 
-  virtual const std::vector<TRIG_INDET_SI_LAYER>* layerGeometry() {
+  virtual const std::vector<TRIG_INDET_SI_LAYER>* layerGeometry() const {
     return &m_layerGeometry;
   }
 

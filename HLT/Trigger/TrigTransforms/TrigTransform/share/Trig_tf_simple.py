@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 from optparse import OptionParser
 import subprocess
 import shlex
@@ -54,9 +56,9 @@ path = temp.communicate()[0].strip()
 temp = ["python", path]
 temp.extend(args[1:])
 
-print com
-print args
-print temp
+print (com)
+print (args)
+print (temp)
 
 #this works not
 process = subprocess.Popen(args)
@@ -64,4 +66,4 @@ process = subprocess.Popen(args)
 #this works
 process = subprocess.Popen(temp)
 process.wait()
-print process.returncode
+print (process.returncode)

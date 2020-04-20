@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonEventCnvTool.h"
@@ -39,7 +39,8 @@ Muon::MuonEventCnvTool::MuonEventCnvTool(
     const std::string& n,
     const IInterface*  p )
     :
-    AthAlgTool(t,n,p)
+    AthAlgTool(t,n,p),
+    m_muonMgr(nullptr)
 {
     declareInterface<ITrkEventCnvTool>(this);   
 }
@@ -54,7 +55,7 @@ StatusCode Muon::MuonEventCnvTool::initialize()
   ATH_CHECK(m_mdtPrdKey.initialize());
   ATH_CHECK(m_mmPrdKey.initialize(!m_mmPrdKey.empty())); // check for layouts without MicroMegas
   ATH_CHECK(m_stgcPrdKey.initialize(!m_stgcPrdKey.empty())); // check for layouts without STGCs
-  ATH_CHECK(m_DetectorManagerKey.initialize());
+  ATH_CHECK(detStore()->retrieve(m_muonMgr));
 
   return StatusCode::SUCCESS;
 }
@@ -63,12 +64,12 @@ void
     Muon::MuonEventCnvTool::checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const
 {
     MuonConcreteType type=TypeUnknown;
-    if (0!=dynamic_cast<const Muon::RpcClusterOnTrack*>(&rioOnTrack) )        type = RPC;
-    if (0!=dynamic_cast<const Muon::CscClusterOnTrack*>(&rioOnTrack) )        type = CSC;
-    if (0!=dynamic_cast<const Muon::TgcClusterOnTrack*>(&rioOnTrack) )        type = TGC;
-    if (0!=dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(&rioOnTrack) )    type = MDT;
-    if (0!=dynamic_cast<const Muon::MMClusterOnTrack*>(&rioOnTrack) )         type = MM;
-    if (0!=dynamic_cast<const Muon::sTgcClusterOnTrack*>(&rioOnTrack) )       type = STGC;
+    if (dynamic_cast<const Muon::RpcClusterOnTrack*>(&rioOnTrack) )        type = RPC;
+    if (dynamic_cast<const Muon::CscClusterOnTrack*>(&rioOnTrack) )        type = CSC;
+    if (dynamic_cast<const Muon::TgcClusterOnTrack*>(&rioOnTrack) )        type = TGC;
+    if (dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(&rioOnTrack) )    type = MDT;
+    if (dynamic_cast<const Muon::MMClusterOnTrack*>(&rioOnTrack) )         type = MM;
+    if (dynamic_cast<const Muon::sTgcClusterOnTrack*>(&rioOnTrack) )       type = STGC;
     if (type==TypeUnknown) {
         ATH_MSG_ERROR("Type does not match known concrete type of MuonSpectrometer! Dumping RoT:"<<rioOnTrack);
     }else{
@@ -90,23 +91,16 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
     const PrepRawData*       prd   = 0;
     const Identifier& id           = rioOnTrack.identify();
 
-    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
-    if(MuonDetMgr==nullptr){
-      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-      return std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>(detEl,prd); 
-    } 
-
-    if ( MuonDetMgr!=0) {
+    if (m_muonMgr) {
         //TODO Check that these are in the most likely ordering, for speed. EJWM.
       if (m_idHelperSvc->isRpc(id)){
-        detEl =  MuonDetMgr->getRpcReadoutElement( id ) ;
+        detEl =  m_muonMgr->getRpcReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = rpcClusterLink(id, rioOnTrack.idDE());
       } else if(m_idHelperSvc->isCsc(id)){
-        detEl =  MuonDetMgr->getCscReadoutElement( id ) ;
+        detEl =  m_muonMgr->getCscReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = cscClusterLink(id, rioOnTrack.idDE());
       } else if(m_idHelperSvc->isTgc(id)){
-        detEl = MuonDetMgr->getTgcReadoutElement( id ) ;
+        detEl = m_muonMgr->getTgcReadoutElement( id ) ;
         if ( m_manuallyFindPRDs) prd = tgcClusterLink(id, rioOnTrack.idDE());
         if ( m_fixTGCs && !rioOnTrack.prepRawData() ) {
           // Okay, so we might have hit the nasty issue that the TGC EL is broken in some samples
@@ -116,19 +110,19 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
           el.resetWithKeyAndIndex(m_tgcPrdKey.key(), el.index());
         }
       }else if(m_idHelperSvc->isMdt(id)){
-        detEl =  MuonDetMgr->getMdtReadoutElement( id ) ;
+        detEl =  m_muonMgr->getMdtReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = mdtDriftCircleLink(id, rioOnTrack.idDE());
       } else if(m_idHelperSvc->isMM(id)){
-        detEl = MuonDetMgr->getMMReadoutElement( id ) ;
+        detEl = m_muonMgr->getMMReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = mmClusterLink(id, rioOnTrack.idDE());
       } else if(m_idHelperSvc->issTgc(id)){
-        detEl = MuonDetMgr->getsTgcReadoutElement( id ) ;
+        detEl = m_muonMgr->getsTgcReadoutElement( id ) ;
         if (m_manuallyFindPRDs) prd = stgcClusterLink(id, rioOnTrack.idDE());
       }else{
         ATH_MSG_WARNING( "Unknown type of Muon detector from identifier :"<< id);
       }
     }
-    if (detEl==0) ATH_MSG_ERROR( "Apparently could not find detector element for "<< id);
+    if (detEl==nullptr) ATH_MSG_ERROR( "Apparently could not find detector element for "<< id);
     ATH_MSG_VERBOSE("Found PRD at : "<<prd);    
     return std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>(detEl,prd); 
 }
@@ -136,32 +130,32 @@ std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
 void Muon::MuonEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const {
     
     Muon::MdtDriftCircleOnTrack* mdt = dynamic_cast<Muon::MdtDriftCircleOnTrack*>(RoT);
-    if (mdt!=0){
+    if (mdt){
         prepareRIO_OnTrackElementLink<const Muon::MdtPrepDataContainer, Muon::MdtDriftCircleOnTrack>(mdt);
         return;
     }
     Muon::CscClusterOnTrack* csc = dynamic_cast<Muon::CscClusterOnTrack*>(RoT);
-    if (csc!=0){
+    if (csc){
         prepareRIO_OnTrackElementLink<const Muon::CscPrepDataContainer, Muon::CscClusterOnTrack>(csc);
         return;
     }
     Muon::RpcClusterOnTrack* rpc = dynamic_cast<Muon::RpcClusterOnTrack*>(RoT);
-    if (rpc!=0){
+    if (rpc){
         prepareRIO_OnTrackElementLink<const Muon::RpcPrepDataContainer, Muon::RpcClusterOnTrack>(rpc);
         return;
     }
     Muon::TgcClusterOnTrack* tgc = dynamic_cast<Muon::TgcClusterOnTrack*>(RoT);
-    if (tgc!=0){
+    if (tgc){
         prepareRIO_OnTrackElementLink<const Muon::TgcPrepDataContainer, Muon::TgcClusterOnTrack>(tgc);
         return;
     }   
     Muon::sTgcClusterOnTrack* stgc = dynamic_cast<Muon::sTgcClusterOnTrack*>(RoT);
-    if (stgc!=0){
+    if (stgc){
         prepareRIO_OnTrackElementLink<const Muon::sTgcPrepDataContainer, Muon::sTgcClusterOnTrack>(stgc);
         return;
     }
     Muon::MMClusterOnTrack* mm = dynamic_cast<Muon::MMClusterOnTrack*>(RoT);
-    if (mm!=0){
+    if (mm){
         prepareRIO_OnTrackElementLink<const Muon::MMPrepDataContainer, Muon::MMClusterOnTrack>(mm);
         return;
     }     
@@ -170,7 +164,6 @@ void Muon::MuonEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const {
 
 void Muon::MuonEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const {
     
-    ////std::cout<<"MuonEventCnvTool::recreateRIO_OnTrack"<<std::endl;
     std::pair<const Trk::TrkDetElementBase *, const Trk::PrepRawData *> pair = getLinks( *RoT );
     if (pair.first)
       Trk::ITrkEventCnvTool::setRoT_Values( pair, RoT );    
@@ -186,34 +179,27 @@ Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id, const Identifie
 const Trk::TrkDetElementBase* 
 Muon::MuonEventCnvTool::getDetectorElement(const Identifier& id) const
 {
-    const Trk::TrkDetElementBase* detEl = 0;
+    const Trk::TrkDetElementBase* detEl = nullptr;
 
-    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-    const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
-    if(MuonDetMgr==nullptr){
-      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-      return detEl; 
-    } 
-
-    if ( MuonDetMgr!=0 ) 
+    if (m_muonMgr) 
     {
         //TODO Check that these are in the most likely ordering, for speed. EJWM.
       if (m_idHelperSvc->isRpc(id)) {
-        detEl =  MuonDetMgr->getRpcReadoutElement( id ) ;
+        detEl =  m_muonMgr->getRpcReadoutElement( id ) ;
       }else if(m_idHelperSvc->isCsc(id)){
-        detEl =  MuonDetMgr->getCscReadoutElement( id ) ;
+        detEl =  m_muonMgr->getCscReadoutElement( id ) ;
       }else if(m_idHelperSvc->isTgc(id)){
-        detEl = MuonDetMgr->getTgcReadoutElement( id ) ;
+        detEl = m_muonMgr->getTgcReadoutElement( id ) ;
       }else if(m_idHelperSvc->isMdt(id)) {
-        detEl =  MuonDetMgr->getMdtReadoutElement( id ) ;
+        detEl =  m_muonMgr->getMdtReadoutElement( id ) ;
       }else if(m_idHelperSvc->issTgc(id)){
-        detEl = MuonDetMgr->getsTgcReadoutElement( id ) ;
+        detEl = m_muonMgr->getsTgcReadoutElement( id ) ;
       }else if(m_idHelperSvc->isMM(id)){
-        detEl = MuonDetMgr->getMMReadoutElement( id ) ;
+        detEl = m_muonMgr->getMMReadoutElement( id ) ;
       }
     }
 
-    if (detEl==0) ATH_MSG_ERROR("Apparently could not find detector element for Identifier: "<< id);
+    if (!detEl) ATH_MSG_ERROR("Apparently could not find detector element for Identifier: "<< id);
     return detEl;
 }
 

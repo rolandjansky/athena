@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -39,11 +39,6 @@ class CaloCell2ClusterMapper : public AthReentrantAlgorithm
   virtual StatusCode finalize() override;
 
  protected:
-
-  const CaloDetDescrManager* m_calo_dd_man; 
-  
-  const CaloCell_ID* m_calo_id;
-  
   /**
    * @brief Name of the CaloCell2ClusterMap in StoreGate.
    *

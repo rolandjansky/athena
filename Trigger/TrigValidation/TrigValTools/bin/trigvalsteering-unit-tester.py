@@ -7,13 +7,11 @@ import sys
 import os
 import argparse
 import subprocess
-import logging
+from TrigValTools.TrigValSteering import Common
 
 
 def main():
-    logging.basicConfig(stream=sys.stdout,
-                        format='TrigValSteeringUT %(levelname)-8s %(message)s',
-                        level=logging.INFO)
+    log = Common.get_logger()
 
     parser = argparse.ArgumentParser(usage='%(prog)s PATH [PATH] ...')
     parser.add_argument('paths',
@@ -25,10 +23,10 @@ def main():
     n_failed = 0
     for p in args.paths:
         if not os.path.exists(p):
-            logging.error('Path %s does not exist', p)
+            log.error('Path %s does not exist', p)
             return 1
         tests = [f for f in os.listdir(p) if f.startswith('test_') and f.endswith('.py')]
-        logging.info('Testing %d test scripts from path %s', len(tests), p)
+        log.info('Testing %d test scripts from path %s', len(tests), p)
         for test in tests:
             cmd = 'TRIGVALSTEERING_DRY_RUN=1 {:s}'.format(p+'/'+test)
             log_file = '{:s}.unitTest.log'.format(test)
@@ -47,7 +45,7 @@ def main():
                 status_str = 'ERROR IN LOG {:s}'.format(log_file)
             if status_str != 'OK':
                 n_failed += 1
-            logging.info('---- %s ---- %s', test, status_str)
+            log.info('---- %s ---- %s', test, status_str)
     return n_failed
 
 

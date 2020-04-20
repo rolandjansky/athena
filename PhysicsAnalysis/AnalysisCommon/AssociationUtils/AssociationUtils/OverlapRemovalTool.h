@@ -1,8 +1,9 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef ASSOCIATIONUTILS_OVERLAPREMOVALTOOL2_H
-#define ASSOCIATIONUTILS_OVERLAPREMOVALTOOL2_H
+
+#ifndef ASSOCIATIONUTILS_OVERLAPREMOVALTOOL_H
+#define ASSOCIATIONUTILS_OVERLAPREMOVALTOOL_H
 
 // Framework includes
 #include "AsgTools/AsgTool.h"
@@ -14,8 +15,6 @@
 #include "AssociationUtils/OverlapRemovalDefs.h"
 #include "AssociationUtils/OverlapDecorationHelper.h"
 
-// Backwards compatibility
-#include "AssociationUtils/OverlapRemovalToolLegacy.h"
 
 namespace ORUtils
 {
@@ -24,10 +23,7 @@ namespace ORUtils
   /// @brief top-level tool for performing overlap removal.
   ///
   /// This tool will apply the overlap removals specified by the user in the
-  /// form of IOverlapTools in the recommended order. It implements the
-  /// harmonized object overlap removal recommendations from the harmonization
-  /// study group 5, given in
-  /// https://cds.cern.ch/record/1700874
+  /// form of IOverlapTools in the recommended order.
   ///
   /// @author Steve Farrell <steven.farrell@cern.ch>
   ///
@@ -93,6 +89,9 @@ namespace ORUtils
       //
       // Overlap tool handles
       //
+
+      /// PFlow-Mu-jet overlap handle
+      ToolHandle<IOverlapTool> m_muPFJetORT;
 
       /// Ele-ele overlap handle
       ToolHandle<IOverlapTool> m_eleEleORT;

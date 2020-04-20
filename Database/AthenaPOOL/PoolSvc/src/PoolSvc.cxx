@@ -455,7 +455,6 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
 	 collection = "PFN:" + collectionName;
       }
    }
-   std::lock_guard<CallMutex> lock(m_pool_mut);
    if (openMode == pool::ICollection::READ) {
       if (contextId >= m_persistencySvcVec.size()) {
          ATH_MSG_WARNING("createCollection: Using default input Stream instead of id = " << contextId);
@@ -465,7 +464,7 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
    if (contextId >= m_persistencySvcVec.size()) {
       return(nullptr);
    }
-   std::lock_guard<CallMutex> lockC(*m_pers_mut[contextId]);
+   std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    // Check POOL FileCatalog entry.
    bool insertFile = false;
    if (connection.substr(0, 4) == "PFN:") {
@@ -581,7 +580,6 @@ Token* PoolSvc::getToken(const std::string& connection,
 }
 //__________________________________________________________________________
 StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned int contextId) {
-   std::lock_guard<CallMutex> lock(m_pool_mut);
    if (type != pool::ITransaction::READ) {
       if (contextId >= m_persistencySvcVec.size()) {
          ATH_MSG_WARNING("connect: Using default output Stream instead of id = " << contextId);
@@ -599,7 +597,7 @@ StatusCode PoolSvc::connect(pool::ITransaction::Type type, unsigned int contextI
    if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::FAILURE);
    }
-   std::lock_guard<CallMutex> lockC(*m_pers_mut[contextId]);
+   std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    pool::IPersistencySvc* persSvc = m_persistencySvcVec[contextId];
    // Connect to a logical database using the pre-defined technology and dbID
    if (persSvc->session().transaction().isActive()) {
@@ -665,7 +663,7 @@ StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned int con
    if (contextId >= m_persistencySvcVec.size()) {
       return(StatusCode::SUCCESS);
    }
-   std::lock_guard<CallMutex> lockC(*m_pers_mut[contextId]);
+   std::lock_guard<CallMutex> lock(*m_pers_mut[contextId]);
    std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, connection);
    if (dbH == nullptr) {
       ATH_MSG_ERROR("Failed to get Session/DatabaseHandle.");
@@ -673,7 +671,6 @@ StatusCode PoolSvc::disconnectDb(const std::string& connection, unsigned int con
    }
    std::map<unsigned int, unsigned int>::const_iterator maxFileIter = m_contextMaxFile.find(contextId);
    if (maxFileIter != m_contextMaxFile.end() && maxFileIter->second > 0) {
-      std::lock_guard<CallMutex> lock(m_pool_mut);
       m_guidLists[contextId].remove(Guid(dbH->fid()));
    }
    dbH->disconnect();
@@ -965,31 +962,7 @@ pool::IFileCatalog* PoolSvc::createCatalog() {
    }
    return(ctlg);
 }
-//__________________________________________________________________________
-PoolSvc::PoolSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-        ::AthService(name, pSvcLocator),
-	m_context(nullptr),
-	m_catalog(nullptr),
-	m_persistencySvcVec(),
-	m_pers_mut(),
-	m_contextLabel(),
-	m_mainOutputLabel(),
-	m_contextMaxFile(),
-	m_guidLists() {
-   declareProperty("WriteCatalog", m_writeCatalog = "xmlcatalog_file:PoolFileCatalog.xml");
-   declareProperty("ReadCatalog", m_readCatalog);
-   declareProperty("UseROOTImplicitMT", m_useROOTIMT = true);
-   declareProperty("AttemptCatalogPatch", m_attemptCatalogPatch = true);
-   declareProperty("ConnectionRetrialPeriod", m_retrialPeriod = 300);
-   declareProperty("ConnectionRetrialTimeOut", m_retrialTimeOut = 3600);
-   declareProperty("ConnectionTimeOut", m_timeOut = 5);
-   declareProperty("ConnectionCleanUp", m_connClean = false);
-   declareProperty("FrontierCompression", m_frontierComp = 5);
-   declareProperty("FrontierRefreshSchema", m_frontierRefresh);
-   declareProperty("FileOpen", m_fileOpen = "overwrite");
-   declareProperty("MaxFilesOpen", m_dbAgeLimit = 0);
-   declareProperty("SortReplicas", m_sortReplicas = true);
-}
+
 //__________________________________________________________________________
 PoolSvc::~PoolSvc() {
 }

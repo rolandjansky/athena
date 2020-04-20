@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -399,7 +399,7 @@ StatusCode TileRawCorrelatedNoise::execute() {
           }
           NewDigits[Ros - 1][Drawer][Channel] = new TileDigits(
               (OriginalDigits[Ros - 1][Drawer][Channel])->adc_HWID(), digits);
-          outputDigitsContainer->push_back(NewDigits[Ros - 1][Drawer][Channel]);
+          ATH_CHECK( outputDigitsContainer->push_back(NewDigits[Ros - 1][Drawer][Channel]) );
         }
       }
     }

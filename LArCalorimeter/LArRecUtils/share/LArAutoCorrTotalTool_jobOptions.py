@@ -1,7 +1,9 @@
-if not 'LARAUTOCORRTOTALTOOL_HAS_BEEN_INCLUDED' in dir():
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+if 'LARAUTOCORRTOTALTOOL_HAS_BEEN_INCLUDED' not in dir():
   LARAUTOCORRTOTALTOOL_HAS_BEEN_INCLUDED =1
 
-print " WARNING obsolete jobOption. Please use python class to configure LArAutoCorrTotalTool"
+printfunc (" WARNING obsolete jobOption. Please use python class to configure LArAutoCorrTotalTool")
 
 from AthenaCommon.AppMgr import ToolSvc
 from LArRecUtils.LArRecUtilsConf import LArAutoCorrTotalTool

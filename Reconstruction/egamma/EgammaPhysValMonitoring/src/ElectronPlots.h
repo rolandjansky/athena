@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAPHYSVALMONITORING_ELECTRONPLOTS_H
@@ -23,7 +23,7 @@ namespace Egamma{
 
 class ElectronPlots:public PlotBase {
     public:
-      ElectronPlots(PlotBase* pParent, std::string sDir, std::string sParticleType);
+      ElectronPlots(PlotBase* pParent, const std::string& sDir, const std::string& sParticleType);
       void fill(const xAOD::Electron& electron, bool isPrompt);
      // Reco only information
 

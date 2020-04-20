@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Package filtering rules for the Athena project build.
 #
@@ -16,18 +17,15 @@
 #- HLT/.*
 #- Trigger/TrigValidation/TrigP1Test
 
-# Offload service has build problems
-- Offloading/.*
-
-# Abandoned generator package(s):
-- Generators/Herwigpp_i
-
 # Temporary VP1 compilation issues
 - graphics/VP1/VP1Systems/VP1TriggerSystems
 - graphics/VP1/VP1Systems/VP12DGeometrySystems
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
 + graphics/VP1/.*
+
+# Temporarily disable Rivet_i until we have LCG_97_ATLAS_2
+- Generators/Rivet_i
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
@@ -43,7 +41,6 @@
 - PhysicsAnalysis/SUSYPhys/SUSYTools
 - PhysicsAnalysis/TauID/DiTauMassTools
 #- PhysicsAnalysis/TauID/TauCorrUncert  #no CMakeLists.txt file
-- PhysicsAnalysis/TopPhys/QuickAna
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*
 - PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
@@ -51,7 +48,6 @@
 - Reconstruction/Jet/JetJvtEfficiency
 - Reconstruction/Jet/JetReclustering
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
-- Trigger/TrigFTK/FTKStandaloneMonitoring
 
 # Data quality packages that would generally go to AthDataQuality, but should be built in Athena
 # until we have Run 3 Tier-0 ops

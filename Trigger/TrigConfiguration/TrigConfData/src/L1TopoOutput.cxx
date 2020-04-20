@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfData/L1TopoOutput.h"
@@ -17,42 +17,42 @@ TrigConf::L1TopoOutput::~L1TopoOutput()
 const std::string &
 TrigConf::L1TopoOutput::algName() const
 {
-   return m_data.get_child("algName").data();
+   return getAttribute("algName");
 }
 
 unsigned int
 TrigConf::L1TopoOutput::algId() const
 {
-   return m_data.get_child("algId").get_value<unsigned int>();
+   return getAttribute<unsigned int>("algId");
 }
 
 unsigned int
 TrigConf::L1TopoOutput::clock() const
 {
-   return m_data.get_child("clock").get_value<unsigned int>();
+   return getAttribute<unsigned int>("clock");
 }
 
 unsigned int
 TrigConf::L1TopoOutput::firstBit() const
 {
-   return m_data.get_child("firstBit").get_value<unsigned int>();
+   return getAttribute<unsigned int>("firstBit");
 }
 
 unsigned int
 TrigConf::L1TopoOutput::fpga() const
 {
-   return m_data.get_child("fpga").get_value<unsigned int>();
+   return getAttribute<unsigned int>("fpga");
 }
 
 unsigned int
 TrigConf::L1TopoOutput::board() const
 {
-   return m_data.get_child("board").get_value<unsigned int>();
+   return getAttribute<unsigned int>("board");
 }
 
 const std::string &
 TrigConf::L1TopoOutput::triggerLines() const
 {
-   return m_data.get_child("triggerLines").data();
+   return getAttribute("triggerLines");
 }
 

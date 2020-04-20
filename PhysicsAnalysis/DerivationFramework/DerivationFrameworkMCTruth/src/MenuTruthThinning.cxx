@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -15,13 +15,14 @@
 
 #include "DerivationFrameworkMCTruth/MenuTruthThinning.h"
 //#include "DerivationFrameworkMCTruth/xPlotterUtils.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 //#include "EventKernel/PdtPdg.h"
 #include "AthenaKernel/errorcheck.h"
 #include "HepPID/ParticleIDMethods.hh"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "StoreGate/ThinningHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <vector>
 #include <string>
 
@@ -40,27 +41,13 @@ namespace {
 DerivationFramework::MenuTruthThinning::MenuTruthThinning(const std::string& t,
                                                           const std::string& n,
                                                           const IInterface* p ) :
-AthAlgTool(t,n,p),
-m_particlesKey("TruthParticles"),
-m_verticesKey("TruthVertices"),
+base_class(t,n,p),
 m_eventsKey("TruthEvents"),
 m_writeFirstN(-1),
 m_totpart(0),
 m_removedpart(0),
-m_geantOffset(200000),
-m_thinningSvc("ThinningSvc",n)
+m_geantOffset(200000)
 {
-    declareInterface<DerivationFramework::IThinningTool>(this);
-    declareProperty("ThinningService", m_thinningSvc);
-    // The menu
-    declareProperty ("ParticlesKey",
-                     m_particlesKey = "TruthParticles",
-                     "TruthParticle container name");
-    
-    declareProperty ("VerticesKey",
-                     m_verticesKey = "TruthVertices",
-                     "TruthVertex container name");
-    
     declareProperty ("EventsKey",
                      m_eventsKey = "TruthEvents",
                      "TruthEvent container name");
@@ -191,6 +178,9 @@ StatusCode DerivationFramework::MenuTruthThinning::initialize()
     m_totpart = 0;
     m_removedpart = 0;
     m_eventCount = 0;
+
+    ATH_CHECK( m_particlesKey.initialize (m_streamName) );
+    ATH_CHECK( m_verticesKey.initialize (m_streamName) );
     return StatusCode::SUCCESS;
 }
 
@@ -205,18 +195,16 @@ StatusCode DerivationFramework::MenuTruthThinning::finalize()
 // The thinning itself
 StatusCode DerivationFramework::MenuTruthThinning::doThinning() const
 {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+
     // Retrieve the truth collections
-    const xAOD::TruthParticleContainer* importedTruthParticles;
-    if (evtStore()->retrieve(importedTruthParticles,m_particlesKey).isFailure()) {
-        ATH_MSG_ERROR("No TruthParticleContainer with name " << m_particlesKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
-    }
+    SG::ThinningHandle<xAOD::TruthParticleContainer> importedTruthParticles
+      (m_particlesKey, ctx);
     m_totpart += importedTruthParticles->size();
-    const xAOD::TruthVertexContainer* importedTruthVertices;
-    if (evtStore()->retrieve(importedTruthVertices,m_verticesKey).isFailure()) {
-        ATH_MSG_ERROR("No TruthVertexContainer with name " << m_verticesKey << " found in StoreGate!");
-        return StatusCode::FAILURE;
-    }
+
+    SG::ThinningHandle<xAOD::TruthVertexContainer> importedTruthVertices
+      (m_verticesKey, ctx);
+
     const xAOD::TruthEventContainer* importedTruthEvents;
     if (evtStore()->retrieve(importedTruthEvents,m_eventsKey).isFailure()) {
         ATH_MSG_ERROR("No TruthEventContainer with name " << m_eventsKey << " found in StoreGate!");
@@ -299,14 +287,8 @@ StatusCode DerivationFramework::MenuTruthThinning::doThinning() const
     }
     
     // Execute the thinning service based on the mask. Finish.
-    if (m_thinningSvc->filter(*importedTruthParticles, particleMask, IThinningSvc::Operator::Or).isFailure()) {
-        ATH_MSG_ERROR("Application of thinning service failed for truth particles! ");
-        return StatusCode::FAILURE;
-    }
-    if (m_thinningSvc->filter(*importedTruthVertices, vertexMask, IThinningSvc::Operator::Or).isFailure()) {
-        ATH_MSG_ERROR("Application of thinning service failed for truth vertices! ");
-        return StatusCode::FAILURE;
-    }
+    importedTruthParticles.keep (particleMask);
+    importedTruthVertices.keep  (vertexMask);
     
     return StatusCode::SUCCESS;
 }
@@ -379,8 +361,8 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
     
     // Hadronic tau decays
     if(m_writeTauHad){
-        m_barcode_trace.clear();
-        if (isFromTau(p))
+        std::unordered_set<int> barcode_trace;
+        if (isFromTau(p, barcode_trace))
             ok = true;
     }
     
@@ -595,7 +577,8 @@ bool DerivationFramework::MenuTruthThinning::isLeptonFromTau(const xAOD::TruthPa
     return false;
 }
 
-bool DerivationFramework::MenuTruthThinning::isFromTau(const xAOD::TruthParticle* part) const {
+bool DerivationFramework::MenuTruthThinning::isFromTau(const xAOD::TruthParticle* part,
+                                                       std::unordered_set<int>& barcode_trace) const {
     
     int pdg = part->pdgId();
     
@@ -606,13 +589,13 @@ bool DerivationFramework::MenuTruthThinning::isFromTau(const xAOD::TruthParticle
     if (prod==part->decayVtx()) return false;
     
     // More complex loop catch
-    std::unordered_set<int>::const_iterator foundVtx = m_barcode_trace.find( prod->barcode() );
-    //if ( find(m_barcode_trace.begin(),m_barcode_trace.end(),prod->barcode()) != m_barcode_trace.end()){
-    if( foundVtx != m_barcode_trace.end() ) {
+    std::unordered_set<int>::const_iterator foundVtx = barcode_trace.find( prod->barcode() );
+    //if ( find(barcode_trace.begin(),barcode_trace.end(),prod->barcode()) != barcode_trace.end()){
+    if( foundVtx != barcode_trace.end() ) {
         ATH_MSG_DEBUG( "Found a loop (a la Sherpa sample).  Backing out." );
         return false;
     }
-    m_barcode_trace.insert(prod->barcode());
+    barcode_trace.insert(prod->barcode());
     
     // Loop over the parents of this particle.
     unsigned int nIncoming = prod->nIncomingParticles();
@@ -643,7 +626,7 @@ bool DerivationFramework::MenuTruthThinning::isFromTau(const xAOD::TruthParticle
         }
         
         // Go up the generator record until a tau is found or not.
-        if(isFromTau(itrParent)) {
+        if(isFromTau(itrParent, barcode_trace)) {
             return true;
         }
     }

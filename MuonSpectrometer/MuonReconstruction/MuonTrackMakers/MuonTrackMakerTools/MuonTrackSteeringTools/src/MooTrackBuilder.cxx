@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooTrackBuilder.h"
@@ -49,7 +49,7 @@ namespace Muon {
     if( !m_hitRecoverTool.empty() ) ATH_CHECK( m_hitRecoverTool.retrieve() );
     ATH_CHECK( m_muonChamberHoleRecoverTool.retrieve() );
     ATH_CHECK( m_trackExtrapolationTool.retrieve() );
-    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_trackToSegmentTool.retrieve() );
@@ -58,6 +58,7 @@ namespace Muon {
     ATH_CHECK( m_compRotCreator.retrieve() );
     ATH_CHECK( m_propagator.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
+    ATH_CHECK( m_trackSummaryTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -91,6 +92,10 @@ namespace Muon {
         << m_printer->print(*finalTrack) << std::endl
         << m_printer->printStations(*finalTrack) );
 
+    // generate a track summary for this track
+    if (m_trackSummaryTool.isEnabled()) {
+      m_trackSummaryTool->computeAndReplaceTrackSummary(*finalTrack, nullptr, false);
+    }
 
     bool recalibrateMDTHits = m_recalibrateMDTHits;
     bool recreateCompetingROTs = true;
@@ -499,7 +504,7 @@ namespace Muon {
 
 
     // for now do not redo segment making for CSCs
-    if( m_idHelper->isCsc( *chIds.begin() ) ){
+    if( m_idHelperSvc->isCsc( *chIds.begin() ) ){
       if( m_candidateMatchingTool->match(candidate,segInfo,true) ) {
         Trk::Track* newtrack = m_fitter->fit(candidate,segInfo,externalPhiHits);
         if( !newtrack ) return 0;
@@ -616,7 +621,7 @@ namespace Muon {
 
     if( chIds.empty() )      return 0;
 
-    if( !m_idHelper->isMdt(*chIds.begin()) ) {
+    if( !m_idHelperSvc->isMdt(*chIds.begin()) ) {
       ATH_MSG_WARNING("combineWithSegmentFinding called with CSC hits!! retuning zero pointer");
       return 0;
     }
@@ -751,14 +756,14 @@ namespace Muon {
       Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
-      if( !id.is_valid() || !m_idHelper->isMuon(id) ){
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ){
         newStates.push_back( std::make_pair(false,*tsit) );
         continue;
       }
 
-      ATH_MSG_VERBOSE(" new measurement " << m_idHelper->toString(id) );
+      ATH_MSG_VERBOSE(" new measurement " << m_idHelperSvc->toString(id) );
 
-      if( m_idHelper->isMdt(id) ) {
+      if( m_idHelperSvc->isMdt(id) ) {
 
         if( doMdts ){
           const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
@@ -782,11 +787,11 @@ namespace Muon {
           newStates.push_back( std::make_pair(false,*tsit) );
         }
 
-      }else if( m_idHelper->isCsc(id) ) {
+      }else if( m_idHelperSvc->isCsc(id) ) {
 
         newStates.push_back( std::make_pair(false,*tsit) );
 
-      }else if(  m_idHelper->isTrigger(id) ){
+      }else if(  m_idHelperSvc->isTrigger(id) ){
 
         if( doCompetingClusters ){
           tsit = insertClustersWithCompetingRotCreation( tsit, tsit_end, newStates );
@@ -794,7 +799,7 @@ namespace Muon {
           newStates.push_back( std::make_pair(false,*tsit) );
         }
 
-      }else if( m_idHelper->isMM(id) || m_idHelper->issTgc(id)){
+      }else if( m_idHelperSvc->isMM(id) || m_idHelperSvc->issTgc(id)){
         newStates.push_back( std::make_pair(false,*tsit) );
       }else{
         ATH_MSG_WARNING( " unknown Identifier " );
@@ -881,11 +886,11 @@ namespace Muon {
 
 
       // sanity check, this SHOULD be a RPC, TGC or CSC measurement
-      if( !( m_idHelper->isTrigger(id) ) ){
+      if( !( m_idHelperSvc->isTrigger(id) ) ){
         break;
       }
 
-      bool measuresPhi = m_idHelper->measuresPhi(id);
+      bool measuresPhi = m_idHelperSvc->measuresPhi(id);
       if( !hasPhi && measuresPhi )  hasPhi = true;
       if( !hasEta && !measuresPhi ) hasEta = true;
 
@@ -895,16 +900,9 @@ namespace Muon {
         continue;
       }
 
-
-      //       // get chamber Id
-      //       Identifier detElId =  m_idHelper->detElId(id);
-      //       if( !detectorElId ) detectorElId = new Identifier( detElId );
-
-      //       // check whether we are still in the same chamber, stop loop if not
-      //       if( detElId != *detectorElId ) break;
       // check whether we are still in the same chamber, stop loop if not
 
-      ATH_MSG_VERBOSE(" handling " << m_idHelper->toString(id) );
+      ATH_MSG_VERBOSE(" handling " << m_idHelperSvc->toString(id) );
 
       std::list<const Trk::PrepRawData*>& prdList = measuresPhi ? phiPrds : etaPrds;
       const MuonClusterOnTrack* clus = dynamic_cast<const MuonClusterOnTrack*>(meas);
@@ -1091,11 +1089,11 @@ namespace Muon {
           const Trk::MeasurementBase* meas = *mit;
 
           Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-          if( !id.is_valid() || m_idHelper->isTrigger(id) ) {
+          if( !id.is_valid() || m_idHelperSvc->isTrigger(id) ) {
             continue;
           }
 
-          stationLayersOnTrack.insert(m_idHelper->stationIndex(id));
+          stationLayersOnTrack.insert(m_idHelperSvc->stationIndex(id));
         }
 
         bool hasAllLayers = true;
@@ -1384,7 +1382,7 @@ namespace Muon {
             ++otherTSOS;
             continue;
           }
-          if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << m_idHelper->toString(id);
+          if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << m_idHelperSvc->toString(id);
 
           const Trk::TrackParameters* impactPars = m_propagator->propagate(*closestPars,meas->associatedSurface(),Trk::anyDirection,
                                                                            false,m_magFieldProperties);
@@ -1412,11 +1410,11 @@ namespace Muon {
               double tol1 = 50.;
               double tol2 = tol1;
               Identifier id = m_edmHelperSvc->getIdentifier(*meas);
-              if( msgLvl(MSG::VERBOSE) && m_idHelper->isMdt(id) ) {
+              if( msgLvl(MSG::VERBOSE) && m_idHelperSvc->isMdt(id) ) {
                 const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
                 if( mdt ){
-                  int layer = m_idHelper->mdtIdHelper().tubeLayer(id);
-                  int tube = m_idHelper->mdtIdHelper().tube(id);
+                  int layer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+                  int tube = m_idHelperSvc->mdtIdHelper().tube(id);
                   double halfTubeLen = 0.5*mdt->detectorElement()->getActiveTubeLength(layer,tube);
                   if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "  range " << halfTubeLen;
                 }

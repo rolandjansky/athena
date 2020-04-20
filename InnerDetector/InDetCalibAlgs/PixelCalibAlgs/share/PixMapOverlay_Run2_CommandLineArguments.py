@@ -27,6 +27,9 @@ if "," in tempmaskmodules:
     for i_module in tempmaskmodules.split(","):
         maskmodules.append(int(i_module))
 
+import logging
+logger = logging.getLogger( 'PixelCalibAlgs' )
+
 #reformat the frontends to mask
 #such that they are in the format that 
 #SpecialPixelMapService wants
@@ -35,34 +38,34 @@ maskfrontends = {}
 if "|" in tempmaskfrontends or tempmaskfrontends.count(":")==1:
     for module in tempmaskfrontends.split("|"):
 
-        print "module: ",module
+        logger.info("module: ",module)
 
         moduleID = str(module.split(":")[0].strip())
 
-        print "moduleID: ",moduleID
+        logger.info("moduleID: ",moduleID)
 
         frontend_list = []    
         temp_felist   = module.split(":")[1].replace("[","").replace("]","").strip().split(",")
-        print temp_felist
+        logger.info(temp_felist)
         for fe in temp_felist:
-            print "MaskingFE: ",fe
+            logger.info("MaskingFE: ",fe)
             frontend_list.append(int(fe))
 
         maskfrontends[moduleID] = frontend_list
 
 
-print "============================"
-print "USER CONFIGURABLE ARGUMENTS:"
-print "outfilename  : ",outfilename
-print "database     : ",database
-print "tagname      : ",tagname
-print "run1         : ",run1       
-print "lb1          : ",lb1        
-print "run2         : ",run2       
-print "lb2          : ",lb2       
-print "maskmodules  : ",maskmodules
-print "maskfrontends: ",maskfrontends
-print "============================"
+logger.info("============================")
+logger.info("USER CONFIGURABLE ARGUMENTS:")
+logger.info("outfilename  : ",outfilename)
+logger.info("database     : ",database)
+logger.info("tagname      : ",tagname)
+logger.info("run1         : ",run1       )
+logger.info("lb1          : ",lb1        )
+logger.info("run2         : ",run2       )
+logger.info("lb2          : ",lb2       )
+logger.info("maskmodules  : ",maskmodules)
+logger.info("maskfrontends: ",maskfrontends)
+logger.info("============================")
 
 ##############################################
 #real jobOptions start here

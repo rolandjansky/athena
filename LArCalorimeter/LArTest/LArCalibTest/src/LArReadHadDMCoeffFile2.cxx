@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTest/LArReadHadDMCoeffFile2.h"
@@ -30,7 +30,7 @@ initialize
 *************************************************************************** */
 StatusCode LArReadHadDMCoeffFile2::initialize() {
    ATH_MSG_INFO ( "=== LArReadHadDMCoeffFile2::initialize() ===  m_key:" << m_key );
-   initDataFromFile(m_hadDMCoeffFileName);
+   ATH_CHECK(initDataFromFile(m_hadDMCoeffFileName));
 
    if(msgLvl(MSG::DEBUG)) m_data->PrintData(std::cout);
 

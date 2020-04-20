@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TileCalibBlobPython_writePedFromASCII.py
 # Nils Gollub <nils.gollub@cern.ch>, 2008-03-03
@@ -8,12 +8,13 @@
 # modified: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
 import cppyy
+import os
 
 from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobObjs.Classes import * 
+from TileCalibBlobObjs.Classes import TileCalibUtils
 
 #=== some preparation
-from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
+from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("writeNoise")
 import logging
 log.setLevel(logging.DEBUG)
@@ -56,25 +57,25 @@ def fillPed(filePed, tag, comment, since,
     #=====================================================
     writer = TileCalibTools.TileBlobWriter(db,folder,'Flt')
     writer.setComment(os.getlogin(),comment)
-    parser = TileCalibTools.TileASCIIParser2(filePed,"");
+    parser = TileCalibTools.TileASCIIParser2(filePed,"")
     #=== loop over whole detector
-    for ros in xrange(0,5):
-        #for mod in xrange(64):
-        for mod in xrange(0, min(64,TileCalibUtils.getMaxDrawer(ros))):
+    for ros in range(0,5):
+        #for mod in range(64):
+        for mod in range(0, min(64,TileCalibUtils.getMaxDrawer(ros))):
             #=== need to invalidate previous blob in DB when reading from ASCII file
             writer.zeroBlob(ros,mod)
             #=== init drawer with defaults for first entry
             calibDrawer = writer.getDrawer(ros,mod)
             if not calibDrawer.getNObjs():
-                log.info("Initializing drawer %i/%2i\t%i" % (ros,mod,calibDrawer.getNObjs()))
+                log.info("Initializing drawer %i/%2i\t%i", ros,mod,calibDrawer.getNObjs())
                 calibDrawer.init(defVec,48,0)
-            for chn in xrange(48):
+            for chn in range(48):
                 #=== loop over gains
-                for adc in xrange(2):
+                for adc in range(2):
                     calibDrawer.setData(chn,adc,0,pedDef[adc]+(chn+1)/48.)
                     values = parser.getData(ros,mod,chn,adc)
                     if not len(values):
-                        log.warning("%i/%2i/%2i/%i: No value found in file" % (ros,mod,chn,adc))
+                        log.warning("%i/%2i/%2i/%i: No value found in file", ros,mod,chn,adc)
                         values = parser.getData(0,ros*4,chn,adc)
                         if not len(values):
                             log.warning("No default per partition available")
@@ -93,7 +94,7 @@ def fillPed(filePed, tag, comment, since,
                     hfn1= float(values[3]) # hfn1
                     hfn2= float(values[4]) # hfn2
                     norm= float(values[5]) # hfn2/hfn1
-                    log.debug("%i/%2i/%2i/%i: pedLvl=%f\thfn=%f\tlfn=%f\thfn1=%f\thfn2=%f\tnorm=%f" % (ros,mod,chn,adc, lvl,hfn,lfn,hfn1,hfn2,norm))
+                    log.debug("%i/%2i/%2i/%i: pedLvl=%f\thfn=%f\tlfn=%f\thfn1=%f\thfn2=%f\tnorm=%f", ros,mod,chn,adc, lvl,hfn,lfn,hfn1,hfn2,norm)
                     calibDrawer.setData(chn,adc,0,lvl)
                     calibDrawer.setData(chn,adc,1,hfn)
                     calibDrawer.setData(chn,adc,2,lfn)

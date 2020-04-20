@@ -10,13 +10,14 @@ atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel
                           Control/AthenaBaseComps
                           Trigger/TrigSteer/DecisionHandling
+                          Trigger/TrigSteer/TrigCompositeUtils
                           Trigger/TrigEvent/TrigSteeringEvent
                           )
 
 atlas_add_component( TrigUpgradeTest
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps TrigSteeringEvent DecisionHandlingLib
+                     LINK_LIBRARIES AthenaBaseComps TrigSteeringEvent DecisionHandlingLib TrigCompositeUtilsLib
                      )
 
 # Install files from the package:
@@ -50,7 +51,6 @@ function( _add_test name )
 endfunction( _add_test )
 
 
-_add_test( emu_step_processing LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*") # should be moved to TriggerMenuMT
 
 # Unit tests of the test scripts
 atlas_add_test( flake8_test_dir

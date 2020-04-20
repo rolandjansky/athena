@@ -125,7 +125,7 @@ def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection ):
    from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetPriVxFinder
    InDetTrigPriVxFinder = InDet__InDetPriVxFinder(name                        = "InDetTrigPriVxFinder" + signature,
                           VertexFinderTool            = InDetTrigPriVxFinderToolNoBeamConstraint,
-                          TracksName                  = recordable(inputTrackCollection), #recordable("HLT_xAODTracks"),          #InDetKeys.xAODTrackParticleContainer(),
+                          TracksName                  = recordable(inputTrackCollection), #recordable("HLT_IDTrack"),          #InDetKeys.xAODTrackParticleContainer(),
                           VxCandidatesOutputName      = outputVtxCollection, #"HLT_xPrimVx",  #InDetKeys.PrimaryVerticesWithoutBeamConstraint(),
                           VertexCollectionSortingTool = TrigVertexCollectionSortingTool,
                           doVertexSorting             = True,

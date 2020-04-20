@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // DsoDb.cxx 
@@ -34,7 +34,7 @@
 #include <boost/regex.hpp>
 
 // ROOT includes
-#include "TClassEdit.h"
+#include "RootUtils/TClassEditRootUtils.h"
 
 // fwk includes
 #include "GaudiKernel/System.h"

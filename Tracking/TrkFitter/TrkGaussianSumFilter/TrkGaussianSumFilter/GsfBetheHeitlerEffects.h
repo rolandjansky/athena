@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -29,12 +29,13 @@ class GsfBetheHeitlerEffects
 {
 
 private:
+  
   /** Helper class for construction and evaluation of polynomial */
   class Polynomial
   {
   public:
     // Default constructor
-    Polynomial(){};
+    Polynomial() = default;
 
     /** Constructor from a vector of coefficients (in decreasing order of powers of x */
     Polynomial(const std::vector<double>& coefficients)
@@ -51,22 +52,36 @@ private:
 
       return sum;
     }
-
   private:
     std::vector<double> m_coefficients;
   };
 
+
   struct ComponentValues
   {
+    // Default ctors/dtor/assignment operators
+    ComponentValues() = default;
+    ~ComponentValues() = default;
+    ComponentValues(const ComponentValues&) = default;
+    ComponentValues& operator=(const ComponentValues&) = default;
+    ComponentValues(ComponentValues&&) = default;
+    ComponentValues& operator=(ComponentValues&&) = default;
+    // Constructor with arguments
+    ComponentValues(double aWeight, double aMean, double aVariance)
+      : weight(aWeight)
+      , mean(aMean)
+      , variance(aVariance)
+    {}
     double weight;
     double mean;
     double variance;
   };
 
+
 public:
   GsfBetheHeitlerEffects(const std::string&, const std::string&, const IInterface*);
 
-  virtual ~GsfBetheHeitlerEffects(){};
+  virtual ~GsfBetheHeitlerEffects() = default;
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;

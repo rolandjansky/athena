@@ -8,7 +8,7 @@ atlas_subdir( LArHV )
 # Possible extra dependencies:
 set( extra_dep )
 set( extra_lib )
-if( NOT SIMULATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    set( extra_dep LArCalorimeter/LArRecConditions )
    set( extra_lib LArRecConditions )
 endif()

@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_Digitization/MM_Electron.h"
-
-using namespace std;
 
 MM_Electron::MM_Electron() : m_time(-99999), m_charge(-99999) {}
 
@@ -20,9 +18,9 @@ void MM_Electron::setOffsetPosition(float x, float y) { m_offsetPosition.Set(x, 
 
 void MM_Electron::propagateElectron(float lorentzAngle, float driftVel) {
 
-  float tanLorentzAngle = TMath::Tan(lorentzAngle);
+  float tanLorentzAngle = std::tan(lorentzAngle);
   if (tanLorentzAngle == tanLorentzAngle) // checking that it's not NAN
-    m_offsetPosition.Set(m_offsetPosition.X() + tanLorentzAngle * ( m_offsetPosition.Y() + m_initialPosition.Y() ) , m_offsetPosition.Y() - m_initialPosition.Y()  );
+    m_offsetPosition.Set(m_offsetPosition.X() + tanLorentzAngle * ( m_offsetPosition.Y() + m_initialPosition.Y() ) , m_offsetPosition.Y() + m_initialPosition.Y()  );
 
   if (driftVel > 0.)
     m_time = m_offsetPosition.Mod()/driftVel;

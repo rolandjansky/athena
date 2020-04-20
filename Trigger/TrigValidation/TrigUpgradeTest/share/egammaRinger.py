@@ -4,10 +4,12 @@
 
 from AthenaCommon.Constants import ERROR, DEBUG
 from AthenaCommon.CFElements import seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
 
 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 isData = False
@@ -31,40 +33,41 @@ doRinger=True
 steps = seqOR("HLTTop")
 topSequence += steps
 steps += topSequence.L1Decoder
-steps+=_algoHLTCaloCell(OutputLevel=DEBUG)    
-steps+=_algoHLTTopoCluster(OutputLevel=DEBUG)    
+steps+=_algoHLTCaloCell(OutputLevel=DEBUG)
+steps+=_algoHLTTopoCluster(OutputLevel=DEBUG)
 
 from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
 
 filterL1RoIsAlg = RoRSeqFilter( "filterL1RoIsAlg")
 filterL1RoIsAlg.Input = [mapThresholdToL1DecisionCollection("EM")]
 filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
-filterL1RoIsAlg.Chains = [ 
-                           "HLT_e3_etcut", 
-                           "HLT_e5_etcut", 
-                           "HLT_e7_etcut", 
+filterL1RoIsAlg.Chains = [
+                           "HLT_e3_etcut",
+                           "HLT_e5_etcut",
+                           "HLT_e7_etcut",
                            "HLT_e26_lhtight",
                            ]
 filterL1RoIsAlg.OutputLevel = DEBUG
- 
+
 InViewRoIs="EMCaloRoIs"
-clusterMaker = _algoL2Egamma(OutputLevel=FATAL,inputEDM=InViewRoIs,doRinger=True, ClustersName="HLT_L2CaloEMClusters",RingerKey="HLT_L2CaloRinger")
+clusterMaker = _algoL2Egamma(OutputLevel=FATAL,inputEDM=InViewRoIs,doRinger=True, ClustersName="HLT_L2CaloEMClusters",RingerKey="HLT_FastCaloRinger")
 fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [clusterMaker] )
 fastCaloViewsMaker = EventViewCreatorAlgorithm( "fastCaloViewsMaker", OutputLevel=DEBUG)
 fastCaloViewsMaker.ViewFallThrough = True
 fastCaloViewsMaker.InputMakerInputDecisions =  [ "FilteredEMRoIDecisions" ]
 fastCaloViewsMaker.RoIsLink = "initialRoI"
+fastCaloViewsMaker.RoITool = ViewCreatorInitialROITool()
 fastCaloViewsMaker.InViewRoIs = InViewRoIs
 fastCaloViewsMaker.Views = "EMCaloViews"
 fastCaloViewsMaker.ViewNodeName = "fastCaloInViewSequence"
-fastCaloViewsMaker.InputMakerOutputDecisions = [ "L2CaloLinks"]
+fastCaloViewsMaker.InputMakerOutputDecisions = "L2CaloLinks"
 clusterMaker.OutputLevel=FATAL
 
 if doRinger:
    from TrigMultiVarHypo.TrigL2CaloRingerHypoTool import createRingerDecisions
    fastCaloHypo = createRingerDecisions( "testRingerHypo" , filterL1RoIsAlg.Chains,
                                          ClustersKey=clusterMaker.ClustersName,
-                                         RingerKey="HLT_L2CaloRinger")
+                                         RingerKey="HLT_FastCaloRinger")
 
 else:
    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
@@ -78,13 +81,13 @@ for t in fastCaloHypo.HypoTools:
 
 fastCaloHypo.HypoOutputDecisions = "EgammaCaloDecisions"
 fastCaloHypo.OutputLevel= DEBUG
-fastCaloHypo.HypoInputDecisions =  fastCaloViewsMaker.InputMakerOutputDecisions[0] #   __l1RoIDecisions
+fastCaloHypo.HypoInputDecisions =  fastCaloViewsMaker.InputMakerOutputDecisions #   __l1RoIDecisions
 
 
 fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence, fastCaloHypo ])
 steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ fastCaloSequence ])
 
- 
+
 
 
 

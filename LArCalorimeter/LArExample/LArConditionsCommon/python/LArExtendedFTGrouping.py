@@ -140,7 +140,7 @@ class LArExtendedFTGrouping:
                     series=False
                 else:
                     retVal+=","+str(c2)
-#            print "c1=",c1,"c2=",c2,"sep=",sep
+#            print ("c1=",c1,"c2=",c2,"sep=",sep)
             c1=c2
         if series: retVal+=":"+str(c1)
         return retVal

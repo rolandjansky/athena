@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -8,12 +8,7 @@
  * @author Ilija Vukotic <ivukotic@cern.ch>
  */
 
-#define private public
-#define protected public
 #include "LArRawConditions/LArConditionsSubset.h"
-#undef private
-#undef protected  
-
 #include "LArPhysWaveContainerCnv.h"
 #include "LArCondTPCnv/LArPhysWaveSubsetCnv_p1.h"
 
@@ -37,8 +32,8 @@ LArPhysWaveContainerCnv::createTransient ()
     static pool::Guid   p1_guid("87E436E2-6FF4-42D3-BC70-6650C076E589");
 	static pool::Guid   p0_guid("C1108D27-6D30-41E8-892D-2AB127B868C9");
 	if( compareClassGuid(p1_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
-        std::auto_ptr< LArPhysWaveSubset_p1 > col_vect( poolReadObject< LArPhysWaveSubset_p1 >() );
+        // using unique_ptr ensures deletion of the persistent object
+        std::unique_ptr< LArPhysWaveSubset_p1 > col_vect( poolReadObject< LArPhysWaveSubset_p1 >() );
         log << MSG::DEBUG << "READING LArPhysWaveSubset_p1" << endmsg; 
 		LArPhysWaveTransType* transObj = TPconverter1.createTransient( col_vect.get(), log );
         log << MSG::DEBUG << "READING LArPhysWaveSubset_p1 Success !" << endmsg;
@@ -48,7 +43,7 @@ LArPhysWaveContainerCnv::createTransient ()
         MsgStream log(msgSvc(), "LArPhysWaveContainerCnv" ); 
         log << MSG::DEBUG << " READING LArPhysWaveSubset (before TP split)" << endmsg; 
 
-        std::auto_ptr< LArConditionsSubset<LArPhysWave> > subset ( poolReadObject< LArConditionsSubset<LArPhysWave> >() );
+        std::unique_ptr< LArConditionsSubset<LArPhysWave> > subset ( poolReadObject< LArConditionsSubset<LArPhysWave> >() );
         
         return (createTransient(subset.get()));
     } 
@@ -68,7 +63,12 @@ LArPhysWaveContainerCnv::createTransient(LArConditionsSubset<LArPhysWave>* orig)
     LArConditionsSubset<LArPhysWave>* result = new LArConditionsSubset<LArPhysWave>();
     
     // Copy from orig to result
-	
+
+    result->assign (*orig,
+                    [] (const LArPhysWave& from,
+                        LArPhysWave& to)
+                    { to = from; });
+#if 0
     result->m_gain          = orig->m_gain; 
     result->m_channel       = orig->m_channel;
     result->m_groupingType  = orig->m_groupingType;
@@ -93,6 +93,7 @@ LArPhysWaveContainerCnv::createTransient(LArConditionsSubset<LArPhysWave>* orig)
 		}		
 	
 	result->m_subsetMap.swap(orig->m_subsetMap); // copy of subsetMap (what's this?)
+#endif
 	
 	log << MSG::DEBUG <<"No T/P split copy ok."<<endmsg;
 

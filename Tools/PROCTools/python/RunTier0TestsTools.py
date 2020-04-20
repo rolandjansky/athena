@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #####
 # CI Reference Files Map
@@ -13,7 +13,7 @@
 # Format is "test-branch" : "version"
 ciRefFileMap = {
                 # qTestsTier0_required-test
-                'q221-21.0'            : 'v1',
+                'q221-21.0'            : 'v2',
                 'q431-21.0'            : 'v1',
                 'q221-21.3'            : 'v1',
                 'q431-21.3'            : 'v1',
@@ -25,10 +25,10 @@ ciRefFileMap = {
                 's3505-21.0'           : 'v1',
                 's3505-21.3'           : 'v1',
                 's3505-21.9'           : 'v1',
-                's3505-22.0'           : 'v1',
+                's3505-22.0'           : 'v2',
                 # OverlayTier0Test_required-test
                 'overlay-d1498-21.0'   : 'v2',
-                'overlay-d1498-22.0'   : 'v25',
+                'overlay-d1498-22.0'   : 'v30',
                 'overlay-bkg-21.0'     : 'v1',
                 'overlay-bkg-22.0'     : 'v4',
                }

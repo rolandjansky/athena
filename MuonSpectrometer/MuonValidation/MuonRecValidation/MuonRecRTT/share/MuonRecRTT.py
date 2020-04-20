@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #======================================================================
 # TOP JobOptions to run on Muons Cosmic Reconstruction
 # R. Nikolaidou

@@ -1,8 +1,8 @@
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigL2MuonOverlapRemoverTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -154,7 +154,7 @@ StatusCode TrigL2MuonOverlapRemoverTool::decide(std::vector<L2SAMuonOverlapInfo>
       auto mufastNrAllEVs  = Monitored::Scalar("NrAllEVs", -9999.);
       auto monitorIt       = Monitored::Group(m_monTool, mufastNrAllEVs);
       mufastNrAllEVs = numMuon;
-      checkOverlap(input);
+      ATH_CHECK(checkOverlap(input));
       return StatusCode::SUCCESS;
    }
    return StatusCode::SUCCESS;
@@ -429,7 +429,7 @@ double TrigL2MuonOverlapRemoverTool::invMass(double m1, double pt1, double eta1,
 // --------------------------------------------------------------------------------
 
 
-StatusCode TrigL2MuonOverlapRemoverTool::chooseBestMuon(std::vector<L2SAMuonOverlapInfo>& toolInput, std::vector<L2SAMuonOverlapInfo>& uniqueMuon, std::vector<unsigned int> mufastResult) const
+void TrigL2MuonOverlapRemoverTool::chooseBestMuon(std::vector<L2SAMuonOverlapInfo>& toolInput, std::vector<L2SAMuonOverlapInfo>& uniqueMuon, std::vector<unsigned int> mufastResult) const
 {
    size_t numMuon = toolInput.size();
    unsigned int i,j,k;
@@ -509,8 +509,6 @@ StatusCode TrigL2MuonOverlapRemoverTool::chooseBestMuon(std::vector<L2SAMuonOver
       }
       mufastNrActiveEVs = numMuon - mufastNrOverlapped;
    }
-
-   return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -554,7 +552,7 @@ StatusCode TrigL2MuonOverlapRemoverTool::decide(std::vector<L2CBMuonOverlapInfo>
       auto mucombNrAllEVs  = Monitored::Scalar("NrAllEVs", -9999.);
       auto monitorIt       = Monitored::Group(m_monTool, mucombNrAllEVs);
       mucombNrAllEVs = numMuon;
-      checkOverlap(input);
+      ATH_CHECK(checkOverlap(input));
       return StatusCode::SUCCESS;
    }
 
@@ -781,7 +779,7 @@ bool TrigL2MuonOverlapRemoverTool::isOverlap(const xAOD::L2CombinedMuon *combMf1
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonOverlapRemoverTool::chooseBestMuon(std::vector<L2CBMuonOverlapInfo>& toolInput, std::vector<L2CBMuonOverlapInfo>& uniqueMuon, std::vector<unsigned int> mucombResult) const
+void TrigL2MuonOverlapRemoverTool::chooseBestMuon(std::vector<L2CBMuonOverlapInfo>& toolInput, std::vector<L2CBMuonOverlapInfo>& uniqueMuon, std::vector<unsigned int> mucombResult) const
 {
    size_t numMuon = toolInput.size();
    unsigned int i,j,k;
@@ -851,8 +849,6 @@ StatusCode TrigL2MuonOverlapRemoverTool::chooseBestMuon(std::vector<L2CBMuonOver
       }
       mucombNrActiveEVs = numMuon - mucombNrOverlapped;
    }
-
-   return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------

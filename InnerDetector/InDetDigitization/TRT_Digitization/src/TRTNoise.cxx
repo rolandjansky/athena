@@ -22,7 +22,7 @@
 #include <cstdlib> //Always include this when including cmath!
 
 #include "InDetSimEvent/TRTHitIdHelper.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include <algorithm>
 #include <exception>

@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr,Logging
-from G4AtlasServices import G4AtlasServicesConfig
+from G4AtlasApps.SimFlags import simFlags
 
 def getSG_StepNtupleTool(name="G4UA::SG_StepNtupleTool", **kwargs):
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
@@ -15,7 +15,7 @@ def getSG_StepNtupleTool(name="G4UA::SG_StepNtupleTool", **kwargs):
     from RHadronMasses import offset_options
     kwargs.setdefault('RHadronPDGIDList',offset_options.keys())
     if name in simFlags.UserActionConfig.get_Value().keys():
-        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].items():
             kwargs.setdefault(prop,value)
     from RHadrons.RHadronsConf import G4UA__SG_StepNtupleTool
     return G4UA__SG_StepNtupleTool(name, **kwargs)

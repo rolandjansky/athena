@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """Modify lumiblock, run number and other events quantities."""
 
@@ -31,7 +31,7 @@ def modify(event):
   Store.eventCounter += 1
 
   if Config.eventsPerLB is not None:
-    Store.currentLB = Config.firstLB + (Store.eventCounter-1) / Config.eventsPerLB
+    Store.currentLB = Config.firstLB + (Store.eventCounter-1) // Config.eventsPerLB
 
     # Find CTP ROB
     ctp_robs = [rob for rob in newevt.children()

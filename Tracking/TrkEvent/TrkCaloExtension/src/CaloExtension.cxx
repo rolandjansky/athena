@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkCaloExtension/CaloExtension.h"
@@ -19,7 +19,7 @@ namespace Trk {
   CaloExtension::~CaloExtension() {
     delete m_caloEntryLayerIntersection;
     delete m_muonEntryLayerIntersection;
-    for( auto ptr : m_caloLayerIntersections ) delete ptr;
+    for( auto ptr : m_caloLayerIntersections ) { delete ptr;}
   }
 
 }

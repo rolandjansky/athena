@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 """
 Compare two sets of beam spots for the same run; can read results from
 ntuples,CSV, or from COOL; use BeamSpotData class
@@ -37,6 +40,7 @@ def getVarDef(what,property,default=''):
         return varDef[what][property]
     except:
         return default
+    global __usage__
     __usage__ += '\n\nPossible variables to plot are:\n'
     __usage__ += ' '.join(sorted(ntDef.keys()))
                     
@@ -85,16 +89,16 @@ else:
 
 if options.runNumber :
     runNumber = int(options.runNumber)
-    print 'Doing comparison for run %i' % runNumber
+    print ('Doing comparison for run %i' % runNumber)
 elif options.config=='OnlineOffline':
     runNumber = getRunFromName(tag1,'0',True)
-    print 'Doing comparison for run %i' % runNumber
+    print ('Doing comparison for run %i' % runNumber)
 elif options.config=='Reproc':
     runNumber = getRunFromName(tag2,'0',True)
-    print 'Doing comparison for run %i' % runNumber
+    print ('Doing comparison for run %i' % runNumber)
 else :
     runNumber = 0
-    #print 'Doing comparison for all runs in %s' % tag1
+    #print ('Doing comparison for all runs in %s' % tag1)
 
 # Precision
 ndp=5
@@ -198,11 +202,11 @@ BS2Dict = BSData2.getDataCache()
     
 if(len(BS2Dict)==0):
     if options.config == 'OnlineOffline':
-        print 'No entries found in Online DB!'
+        print ('No entries found in Online DB!')
     elif options.config == 'Reproc':
-        print 'No entries in reprocessed sample!'
+        print ('No entries in reprocessed sample!')
     else:
-        print 'No entries found for second tag!'
+        print ('No entries found for second tag!')
         
     sys.exit(1)
 
@@ -274,7 +278,7 @@ for BS1 in BSData1:
                     if BS2.status == options.status: pass2 = True
 
                 if pass1 and not pass2:
-                    print "Warning: run %s lumiBlock %s doesn't have good fit anymore" %(run,lb)
+                    print ("Warning: run %s lumiBlock %s doesn't have good fit anymore" %(run,lb))
                     numOld += 1
                     
                 if pass2 and not pass1: numNew += 1
@@ -306,16 +310,16 @@ for BS1 in BSData1:
                         sigmaChange = 0
                         
                     if sigmaChange > 3 and diff > getVarDef(var, 'bigchange') :
-                        print "WARNING: Big change in value of %s for lumiBlock %i" % (var, lb)
-                        print "      change in value is %f microns, or %f sigma" % (diff, diff/ediff)
+                        print ("WARNING: Big change in value of %s for lumiBlock %i" % (var, lb))
+                        print ("      change in value is %f microns, or %f sigma" % (diff, diff/ediff))
 
                     if options.smallChanges and percdiff > 0.001 :
-                        print "WARNING: value of %s in run %s in lumiBlock %i changed by more than 0.1 percent" % (var, run, lb)
+                        print ("WARNING: value of %s in run %s in lumiBlock %i changed by more than 0.1 percent" % (var, run, lb))
 
                             
             else:
                 if pass1:
-                    print "Warning: run %s lumiBlock %s doesn't have beamspot anymore" %(run, lb)
+                    print ("Warning: run %s lumiBlock %s doesn't have beamspot anymore" %(run, lb))
                     numOld += 1
                     
 for run in BS2Dict:
@@ -345,11 +349,11 @@ for run in BS2Dict:
             except:
                 ey2Dict[var].append(0.0)
                 
-print "Number of LBs where beam spot is good but was bad before: %i" % numNew
-print "Number of LBs where beam spot is bad but was good before: %i" % numOld
+print ("Number of LBs where beam spot is good but was bad before: %i" % numNew)
+print ("Number of LBs where beam spot is bad but was good before: %i" % numOld)
 
 if len(xd)==0:
-    print "ERROR: No overlapping LB range found"
+    print ("ERROR: No overlapping LB range found")
     sys.exit(1)
 
 # Plotting
@@ -412,7 +416,7 @@ for var in varColl:
     histo.GetXaxis().SetTitle(getVarDef(var,'ytit'))
     histo.GetYaxis().SetTitle('LumiBlocks')
     
-    for i in xrange(0, len(ydDict[var])):
+    for i in range(0, len(ydDict[var])):
         histo.Fill(ydDict[var][i])
         
     histColl.append(histo)
@@ -611,7 +615,7 @@ if not doOnePlot:
         canvas.cd(1)
         drawSummary()
     elif options.multicanv:
-        for var,canv in canvases.iteritems():
+        for var,canv in canvases.items():
             canv.cd()
             drawSummary(var)
     else:
@@ -649,8 +653,8 @@ if options.output:
                     htmlstart=basename.rfind('/')+1
                 htmlfilename=basename[htmlstart:-1]+".html"
                 html=open(htmlfilename,'w')
-                print "writing html file %s" % htmlfilename
-            for var,canv in canvases.iteritems():
+                print ("writing html file %s" % htmlfilename)
+            for var,canv in canvases.items():
                 canv.Print(basename+var+o)
             if o==".png" and options.html:
                 for var in ['posX', 'posY', 'posZ', 'sigmaX', 'sigmaY', 'sigmaZ', 'rhoXY', 'tiltX', 'tiltY', 'k', 'nEvents']:

@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonAmbiTrackSelectionTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "MuonAmbiTrackSelectionTool/MuonAmbiTrackSelectionTool.h"
 #include "AthContainers/DataVector.h"
@@ -12,10 +8,6 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
 
 #include "TrkEventUtils/PRDtoTrackMap.h"
 
@@ -30,49 +22,25 @@ Muon::MuonAmbiTrackSelectionTool::MuonAmbiTrackSelectionTool(const std::string& 
     const IInterface*  p )
   :
   AthAlgTool(t, n, p),
-  m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-  m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
+  m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
 {
   declareInterface<IAmbiTrackSelectionTool>(this);
-
-  //  template for property decalration
 
   declareProperty("MaxOverlapFraction"   , m_maxOverlapFraction = 0.1 );
   declareProperty("KeepPartialOverlaps"  , m_keepPartial = true );
   declareProperty("KeepMoreThanOneShare" , m_keepMoreThanOne = true );
 }
 
-//================ Destructor =================================================
-
-Muon::MuonAmbiTrackSelectionTool::~MuonAmbiTrackSelectionTool()
-{}
-
-
 //================ Initialisation =================================================
 
 StatusCode Muon::MuonAmbiTrackSelectionTool::initialize()
 {
+  ATH_CHECK(AthAlgTool::initialize());
 
-  StatusCode sc = AthAlgTool::initialize();
-  if (sc.isFailure()) return sc;
-
-  sc = m_printer.retrieve();
-  if (sc.isSuccess()) {
-    ATH_MSG_DEBUG("Retrieved " << m_printer);
-  } else {
-    ATH_MSG_ERROR("Could not get " << m_printer);
-    return sc;
-  }
+  ATH_CHECK(m_printer.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   return StatusCode::SUCCESS;
-}
-
-//================ Finalisation =================================================
-
-StatusCode Muon::MuonAmbiTrackSelectionTool::finalize()
-{
-  StatusCode sc = AthAlgTool::finalize();
-  return sc;
 }
 
 //============================================================================================
@@ -120,13 +88,13 @@ std::tuple<Trk::Track*,bool> Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrac
         const unsigned int numROTs = competingROT->numberOfContainedROTs();
         for ( unsigned int i = 0; i < numROTs; ++i ) {
           const Trk::RIO_OnTrack* rot = &competingROT->rioOnTrack(i);
-          if ( !rot || !rot->prepRawData() || !m_idHelperTool->isMuon(rot->identify()) ) continue;
+          if ( !rot || !rot->prepRawData() || !m_idHelperSvc->isMuon(rot->identify()) ) continue;
           //only use precision hits for muon track overlap
-          if (!m_idHelperTool->isMdt(rot->identify()) && !(m_idHelperTool->isCsc(rot->identify()) && !m_idHelperTool->measuresPhi(rot->identify())) && !m_idHelperTool->isMM(rot->identify()) && !m_idHelperTool->issTgc(rot->identify())) continue;
-          Muon::MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(rot->identify());
+          if (!m_idHelperSvc->isMdt(rot->identify()) && !(m_idHelperSvc->isCsc(rot->identify()) && !m_idHelperSvc->measuresPhi(rot->identify())) && !m_idHelperSvc->isMM(rot->identify()) && !m_idHelperSvc->issTgc(rot->identify())) continue;
+          Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(rot->identify());
           ++precisionPerLayer[stIndex];
           if ( prd_to_track_map.isUsed(*(rot->prepRawData()))) {
-            ATH_MSG_VERBOSE("Track overlap found! " << m_idHelperTool->toString(rot->identify()));
+            ATH_MSG_VERBOSE("Track overlap found! " << m_idHelperSvc->toString(rot->identify()));
             ++numshared;
             ++sharedPrecisionPerLayer[stIndex];
           }
@@ -134,17 +102,17 @@ std::tuple<Trk::Track*,bool> Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrac
       }
     } else {
 
-      if (!m_idHelperTool->isMuon(rot->identify())) continue;
-      if (!m_idHelperTool->isMdt(rot->identify()) && !(m_idHelperTool->isCsc(rot->identify()) && !m_idHelperTool->measuresPhi(rot->identify())) && !m_idHelperTool->isMM(rot->identify()) && !m_idHelperTool->issTgc(rot->identify())) continue; //only precision hits used for overlap
+      if (!m_idHelperSvc->isMuon(rot->identify())) continue;
+      if (!m_idHelperSvc->isMdt(rot->identify()) && !(m_idHelperSvc->isCsc(rot->identify()) && !m_idHelperSvc->measuresPhi(rot->identify())) && !m_idHelperSvc->isMM(rot->identify()) && !m_idHelperSvc->issTgc(rot->identify())) continue; //only precision hits used for overlap
 
       ++numhits;
 
 
-      Muon::MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(rot->identify());
+      Muon::MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(rot->identify());
       ++precisionPerLayer[stIndex];
       // allow no overlap
       if ( prd_to_track_map.isUsed(*(rot->prepRawData()))) {
-        ATH_MSG_VERBOSE("Track overlap found! " << m_idHelperTool->toString(rot->identify()));
+        ATH_MSG_VERBOSE("Track overlap found! " << m_idHelperSvc->toString(rot->identify()));
         ++numshared;
         ++sharedPrecisionPerLayer[stIndex];
       }

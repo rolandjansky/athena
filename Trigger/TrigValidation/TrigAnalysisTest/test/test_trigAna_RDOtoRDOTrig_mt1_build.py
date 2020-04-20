@@ -20,11 +20,13 @@ test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 
-# Overwrite default RegTest settings
-regtest = test.get_step('RegTest')
-regtest.regex = 'TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*'
-regtest.reference = 'TrigAnalysisTest/RDOtoRDOTrig_mt1_build.ref'
-regtest.required = True # Final exit code depends on this step
+# Add a step comparing counts in the log against reference
+refcomp = CheckSteps.RegTestStep("CountRefComp")
+refcomp.input_base_name = 'athena.merged'
+refcomp.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
+refcomp.reference = 'TrigAnalysisTest/ref_RDOtoRDOTrig_mt1_build.ref'
+refcomp.required = True # Final exit code depends on this step
+CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)
 
 import sys
 sys.exit(test.run())

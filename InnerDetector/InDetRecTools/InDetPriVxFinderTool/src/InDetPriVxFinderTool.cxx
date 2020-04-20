@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -100,42 +100,20 @@ namespace InDet
   InDetPriVxFinderTool::initialize() {
     //check if the split was requested and it is still possible to make it
     if (m_createSplitVertices == true && m_useBeamConstraint == true) {
-      msg(MSG::FATAL) << " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." <<
-        endmsg;
+      ATH_MSG_FATAL(" Split vertices cannot be obtained if beam spot constraint is true! Change settings..." );
       return StatusCode::FAILURE;
     }
 
 
     /* Get the right vertex seed finder tool from ToolSvc */
     // seed finder only needed if multiple vertex finding is on
-    if (m_enableMultipleVertices) {
-      if (m_iPriVxSeedFinder.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Failed to retrieve tool " << m_iPriVxSeedFinder << endmsg;
-        return StatusCode::FAILURE;
-      } else {
-        msg(MSG::INFO) << "Retrieved tool " << m_iPriVxSeedFinder << endmsg;
-      }
-    } else {
-      // track selector is only needed if no seeding is done (otherwise the seeder does the track selection)
-      if (m_trkFilter.retrieve().isFailure()) {
-        msg(MSG::ERROR) << "Failed to retrieve tool " << m_trkFilter << endmsg;
-        return StatusCode::FAILURE;
-      } else {
-        msg(MSG::INFO) << "Retrieved tool " << m_trkFilter << endmsg;
-      }
-    }
-
-    /* Get the right vertex fitting tool from ToolSvc */
-    if (m_iVertexFitter.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
-    }
+    ATH_CHECK(m_iPriVxSeedFinder.retrieve( DisableTool{!m_enableMultipleVertices} ));
+    ATH_CHECK(m_trkFilter.retrieve(        DisableTool{ m_enableMultipleVertices} ));
+    ATH_CHECK(m_iVertexFitter.retrieve());
 
     ATH_CHECK(m_beamSpotKey.initialize());
 
-    msg(MSG::INFO) << "Initialization successful" << endmsg;
+    ATH_MSG_INFO( "Initialization successful" );
     return StatusCode::SUCCESS;
   }
 

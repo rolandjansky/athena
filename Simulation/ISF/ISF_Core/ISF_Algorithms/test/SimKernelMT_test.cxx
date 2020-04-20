@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -352,7 +352,7 @@ protected:
     void setEmptyInputOutputCollections() {
       auto inputEvgen = std::make_unique<McEventCollection>();
       SG::WriteHandle<McEventCollection> inputEvgenHandle{"emptyTestInputEvgenCollection"};
-      inputEvgenHandle.record( std::move(inputEvgen) );
+      EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
       EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "emptyTestInputEvgenCollection").isSuccess() );
       EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
@@ -366,6 +366,11 @@ protected:
     template<typename ...Args>
     const ISF::ISimulatorTool& identifySimulator(Args&... args) const {
       return m_alg->identifySimulator(std::forward<Args>(args)...);
+    }
+
+    ToolHandleArray<ISF::ISimulatorTool>& getSimulatorTools() const
+    {
+      return m_alg->m_simulationTools;
     }
 
     // the tested AthAlgorithm
@@ -481,7 +486,7 @@ protected:
 
     auto inputEvgen = std::make_unique<McEventCollection>();
     SG::WriteHandle<McEventCollection> testInputEvgenHandle{"testInputEvgenCollection"};
-    testInputEvgenHandle.record( std::move(inputEvgen) );
+    EXPECT_TRUE( testInputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     ASSERT_TRUE( m_alg->initialize().isSuccess() );
     ASSERT_TRUE( m_alg->execute().isSuccess() );
@@ -496,7 +501,7 @@ protected:
 
     inputEvgen->push_back(genEvent);
     SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-    inputEvgenHandle.record( std::move(inputEvgen) );
+    EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
     EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
@@ -523,7 +528,7 @@ protected:
     auto inputEvgen = std::make_unique<McEventCollection>();
     inputEvgen->push_back(genEvent);
     SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-    inputEvgenHandle.record( std::move(inputEvgen) );
+    EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
     EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );
@@ -619,7 +624,10 @@ protected:
 
     const auto* actualSimulatorToolPtr = &this->identifySimulator(particle);
 
-    const auto* expectedSimulatorToolPtr = m_mockSimulatorTool;
+    ToolHandleArray<ISF::ISimulatorTool>& simulatorTools = this->getSimulatorTools();
+    const unsigned int expectedSize(1);
+    ASSERT_EQ (simulatorTools.size(), expectedSize);
+    ISFTesting::MockSimulatorTool* expectedSimulatorToolPtr = dynamic_cast<ISFTesting::MockSimulatorTool*>(&*(simulatorTools[0]));
     ASSERT_EQ(expectedSimulatorToolPtr, actualSimulatorToolPtr);
   }
 
@@ -710,7 +718,11 @@ protected:
       .WillOnce(::testing::Return(true));
 
     const auto* actualSimulatorToolPtr = &this->identifySimulator(particle);
-    const auto* expectedSimulatorToolPtr = m_mockSimulatorTool;
+    ToolHandleArray<ISF::ISimulatorTool>& simulatorTools = this->getSimulatorTools();
+    const unsigned int expectedSize(1);
+    ASSERT_EQ (simulatorTools.size(), expectedSize);
+    ISFTesting::MockSimulatorTool* expectedSimulatorToolPtr = dynamic_cast<ISFTesting::MockSimulatorTool*>(&*(simulatorTools[0]));
+    ASSERT_EQ(expectedSimulatorToolPtr, actualSimulatorToolPtr);
 
     ASSERT_EQ(expectedSimulatorToolPtr, actualSimulatorToolPtr);
   }
@@ -731,7 +743,7 @@ protected:
     auto inputEvgen = std::make_unique<McEventCollection>();
     inputEvgen->push_back(genEvent);
     SG::WriteHandle<McEventCollection> inputEvgenHandle{"testInputEvgenCollection"};
-    inputEvgenHandle.record( std::move(inputEvgen) );
+    EXPECT_TRUE( inputEvgenHandle.record( std::move(inputEvgen) ).isSuccess() );
 
     EXPECT_TRUE( m_alg->setProperty("InputEvgenCollection", "testInputEvgenCollection").isSuccess() );
     EXPECT_TRUE( m_alg->setProperty("OutputTruthCollection", "testOutputTruthCollection").isSuccess() );

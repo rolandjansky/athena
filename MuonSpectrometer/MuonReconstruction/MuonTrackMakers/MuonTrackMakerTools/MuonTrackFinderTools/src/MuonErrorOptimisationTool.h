@@ -1,21 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONERROROPTIMISATIONTOOL_H
 #define MUONERROROPTIMISATIONTOOL_H
 
-
-// FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecToolInterfaces/IMuonRefitTool.h"
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecToolInterfaces/IMuonRefitTool.h"
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
@@ -43,7 +38,6 @@ namespace Muon {
     ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" }; //<! muon EDM helper
-    ToolHandle<MuonIdHelperTool>    m_idHelper; //<! muon id helper
     ToolHandle<Trk::ITrackSummaryHelperTool>    m_trackSummaryTool; //<! muon id helper
     ToolHandle<IMuonRefitTool>      m_refitTool;
 

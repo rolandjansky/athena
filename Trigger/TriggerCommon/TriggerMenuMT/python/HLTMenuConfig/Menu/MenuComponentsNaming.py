@@ -22,7 +22,7 @@ class CFNaming(object):
         return "F" + ChainStepName
 
     @staticmethod
-    def simplifyOutName( name, dropIM=False ):
+    def simplifyOutName(name):
         """Removes all HLT_decisions except the front one + additiona cleaning of common words"""
         return "HLTNav_" + name.replace("HLTNav_", "").replace("Trig", "").replace("Alg", "")
 

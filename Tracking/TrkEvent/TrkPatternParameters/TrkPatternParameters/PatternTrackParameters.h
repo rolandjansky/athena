@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -331,7 +331,8 @@ namespace Trk {
 
   inline double         PatternTrackParameters::charge        () const
     {
-      if(m_parameters[4] > 0.) return 1.; else return -1.;
+      if(m_parameters[4] > 0.) { return 1.; } else { return -1.;
+}
     }	
 
   inline double         PatternTrackParameters::sinPhi        () const
@@ -361,7 +362,8 @@ namespace Trk {
 
   inline double         PatternTrackParameters::pT            () const
     {
-      if(m_parameters[4]!=0.) return fabs(sin(m_parameters[3])/m_parameters[4]);
+      if(m_parameters[4]!=0.) { return fabs(sin(m_parameters[3])/m_parameters[4]);
+}
       return 10e9;
     }
 
@@ -386,8 +388,10 @@ namespace Trk {
     {
       double p   = m_parameters[4]!=0. ?  1./fabs(m_parameters[4]) :  10e9;
 
-      double Sf,Cf; sincos(m_parameters[2],&Sf,&Cf);
-      double Se,Ce; sincos(m_parameters[3],&Se,&Ce);
+      double Sf;
+      double Cf; sincos(m_parameters[2],&Sf,&Cf);
+      double Se;
+      double Ce; sincos(m_parameters[3],&Se,&Ce);
       double psn = p*Se;
       Amg::Vector3D GM(psn*Cf,psn*Sf,p*Ce);
       return GM;

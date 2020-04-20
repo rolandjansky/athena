@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAssociationTools/PRD_AssociationTool.h"
@@ -7,8 +7,6 @@
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-#include "TrkEventUtils/CreatePRD_MapPairFromTrack.h"
-#include "TrkEventUtils/CreatePRD_VectorFromTrack.h"
 
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -20,9 +18,7 @@
 #include <cassert>
 #include <vector>
 #include <stdexcept>
-//#include <functional>
 #include "ext/functional"
-//#include "boost/mpl/select1st.hpp"
 
 Trk::PRD_AssociationTool::PRD_AssociationTool(const std::string& t,
   const std::string& n,
@@ -201,17 +197,10 @@ Trk::PRD_AssociationTool::getPrdsOnTrack(const Maps& maps,
     return itvec->second;
   }
 
-  if (track.measurementsOnTrack()==0) {
+  if (track.measurementsOnTrack()==nullptr) {
     ATH_MSG_WARNING ("Track has no RoTs");
     return PRDs_t();
   }
-
-  // FIXME can I do this without copying the vector?
-  /*  transform(
-      track.measurementsOnTrack()->begin(),
-      track.measurementsOnTrack()->end() ,
-      back_inserter(vec),
-      bind2nd(CreatePRD_VectorFromTrack(), &track) );*/
 
   PRDs_t vec;
   vec.reserve(track.measurementsOnTrack()->size());

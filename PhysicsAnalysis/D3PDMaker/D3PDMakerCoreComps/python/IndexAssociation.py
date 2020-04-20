@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: IndexAssociation.py 526858 2012-11-20 18:13:46Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/IndexAssociation.py
 # @author Nicolas Berger <nberger@mail.cern.ch>, scott snyder <snyder@bnl.gov>
@@ -10,7 +9,7 @@
 
 
 import D3PDMakerCoreComps
-from D3PDObject import D3PDObject
+from .D3PDObject import D3PDObject
 
 
 def IndexAssociation (parent,
@@ -42,7 +41,7 @@ def IndexAssociation (parent,
 
     def maker (name, prefix, object_name, **kw2):
         this_target = target
-        if kw2.has_key ('target'):
+        if 'target' in kw2:
             this_target = kw2['target']
             del kw2['target']
 

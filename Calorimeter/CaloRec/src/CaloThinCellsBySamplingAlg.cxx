@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CaloRec/src/CaloThinCellsBySamplingAlg.cxx
@@ -60,7 +60,7 @@ StatusCode CaloThinCellsBySamplingAlg::decodeSamplings()
   for (const std::string& name : m_samplingNames) {
     CaloSampling::CaloSample samp = CaloSampling::getSampling (name);
     if (samp == CaloSampling::Unknown) {
-      ATH_MSG_ERROR (  "Calorimeter sampling" << name
+      ATH_MSG_ERROR (  "Calorimeter sampling " << name
                        << " is not a valid Calorimeter sampling name and will be ignored! " );
     }
     else {

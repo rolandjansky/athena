@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -9,10 +9,8 @@
 #include "TrigL2MuonSA/RpcData.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
 
-#include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "CxxUtils/phihelper.h"
 
 // --------------------------------------------------------------------------------
@@ -46,8 +44,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_CHECK( m_rpcPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
    ATH_MSG_DEBUG("Retrieved " << m_rpcPrepDataProvider);
 
-   ATH_CHECK( m_muonIdHelperTool.retrieve() );
-   ATH_MSG_DEBUG("Retrieved " << m_muonIdHelperTool);
+   ATH_CHECK(m_idHelperSvc.retrieve());
+   ATH_MSG_DEBUG("Retrieved " << m_idHelperSvc);
 
    // Retreive PRC raw data provider tool
    ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
@@ -55,17 +53,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding }) );
    ATH_MSG_DEBUG("Retrieved Tool " << m_rawDataProviderTool);
 
-   // Retrieve the RPC cabling service
-   ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
-   ATH_CHECK( RpcCabGet.retrieve() ); 
-   ATH_CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
-
-   m_rpcCablingSvc = m_rpcCabling->getRPCCabling();
-   if ( !m_rpcCablingSvc ) {
-     ATH_MSG_ERROR("Could not retrieve the RPC cabling svc");
-     return StatusCode::FAILURE;
-   } 
-   
+   ATH_CHECK(m_readKey.initialize());
    ATH_CHECK(m_rpcPrepContainerKey.initialize());
 
    return StatusCode::SUCCESS; 
@@ -104,21 +92,18 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
   unsigned int side =  sectorAddress & 0x00000001;
   unsigned int sector = (sectorAddress & 0x0000003e) >> 1;
   unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;
-  //  unsigned int padNumber = roiNumber/4; 
-  
-  unsigned int logic_sector;
-  unsigned short int PADId;
+
+  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};
   unsigned int padIdHash;
-  if ( !m_rpcCablingSvc->give_PAD_address( side, sector, roiNumber, logic_sector, PADId, padIdHash) ) {
+  if ( !readCdo->give_PAD_address( side, sector, roiNumber, padIdHash) ) {
     ATH_MSG_WARNING("Roi Number: " << roiNumber << " not compatible with side, sector: "
-		    << side <<  " " << sector);
+        << side <<  " " << sector << " (padIdHash=" << padIdHash << ")");
     // set the bool flag to send the event to the debug stream
     m_isFakeRoi = true;
-    //    return StatusCode::FAILURE;
   }
   else {
-    ATH_MSG_DEBUG("Roi Number: " << roiNumber << " side, sector: " << side <<  " " << sector
-		  << " corresp. to log_sector, padId: " << logic_sector << " " << PADId);
+    ATH_MSG_DEBUG("Roi Number: " << roiNumber << " side, sector: " << side <<  " " << sector);
   }
 
    const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
@@ -209,13 +194,13 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
        const Identifier id = prd->identify();
 
-       const int doubletR      = m_muonIdHelperTool->rpcIdHelper().doubletR(id);
-       const int doubletPhi    = m_muonIdHelperTool->rpcIdHelper().doubletPhi(id);
-       const int doubletZ      = m_muonIdHelperTool->rpcIdHelper().doubletZ(id);
-       const int gasGap        = m_muonIdHelperTool->rpcIdHelper().gasGap(id);
-       const bool measuresPhi  = m_muonIdHelperTool->rpcIdHelper().measuresPhi(id);
-       const int stationEta    = m_muonIdHelperTool->rpcIdHelper().stationEta(id);
-       std::string stationName = m_muonIdHelperTool->rpcIdHelper().stationNameString(m_muonIdHelperTool->rpcIdHelper().stationName(id));
+       const int doubletR      = m_idHelperSvc->rpcIdHelper().doubletR(id);
+       const int doubletPhi    = m_idHelperSvc->rpcIdHelper().doubletPhi(id);
+       const int doubletZ      = m_idHelperSvc->rpcIdHelper().doubletZ(id);
+       const int gasGap        = m_idHelperSvc->rpcIdHelper().gasGap(id);
+       const bool measuresPhi  = m_idHelperSvc->rpcIdHelper().measuresPhi(id);
+       const int stationEta    = m_idHelperSvc->rpcIdHelper().stationEta(id);
+       std::string stationName = m_idHelperSvc->rpcIdHelper().stationNameString(m_idHelperSvc->rpcIdHelper().stationName(id));
 
        int layer = 0;
        // BO

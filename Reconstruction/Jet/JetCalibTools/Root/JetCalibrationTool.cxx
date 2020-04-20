@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetCalibrationTool.cxx 
@@ -38,6 +38,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "OriginScale", m_originScale = "JetOriginConstitScaleMomentum");
   declareProperty( "CalibArea", m_calibAreaTag = "00-04-82");
   declareProperty( "rhkRhoKey", m_rhkRhoKey);
+  declareProperty( "PrimaryVerticesContainerName", m_rhkPV = "PrimaryVertices");
   declareProperty( "GSCDepth", m_gscDepth);
 
 }
@@ -68,7 +69,25 @@ StatusCode JetCalibrationTool::initialize() {
 
   // Initialise ReadHandle(s)
   ATH_CHECK( m_rhkEvtInfo.initialize() );
-  ATH_CHECK( m_rhkPV.initialize() );
+  if(m_rhkPV.empty()) {
+    // No PV key: -- check if it is required
+    if(m_doResidual) {
+      // May require modification in case of residual that does not require NPV
+      ATH_MSG_ERROR("Residual calibration requested but no primary vertex container specified!");
+      return StatusCode::FAILURE;
+    } else if(m_doGSC) {
+      if(m_jetAlgo.find("PFlow")!=std::string::npos) {
+	ATH_MSG_ERROR("GSC calibration for PFlow requested but no primary vertex container specified!");
+	return StatusCode::FAILURE;
+      } else if((m_gscDepth!="Tile0" && m_gscDepth!="EM3")) {
+	ATH_MSG_ERROR("GSC calibration with tracks requested but no primary vertex container specified!");
+	return StatusCode::FAILURE;
+      }
+    }
+  } else {
+    // Received a PV key, declare the data dependency
+    ATH_CHECK( m_rhkPV.initialize() );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -349,50 +368,6 @@ StatusCode JetCalibrationTool::applyCalibration(xAOD::JetContainer& jets) const 
 
 // Private/Protected Methods
 ///////////////
-
-/*
-StatusCode JetCalibrationTool::initializeEvent() {
-
-  m_eventObj = 0;
-  m_vertices = 0;
-
-  //ATH_MSG_INFO("  Retrieving event information for the pile up corrections\n");
-  if ( evtStore()->retrieve(m_eventObj,"EventInfo").isFailure() || !m_eventObj ) {
-    ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve event information. Aborting.");
-    return StatusCode::FAILURE;
-  }
-  if ( evtStore()->retrieve(m_vertices,"PrimaryVertices").isFailure() || !m_vertices ) {
-    ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve primary vertices. Aborting.");
-    return StatusCode::FAILURE;
-  }
-  //ATH_MSG_INFO("  Event information successfully retrieved.\n\n");
-
-  //Check if the input jets are coming from data or MC
-  //if ( m_eventObj->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
-  //     m_isData = false; // controls mu scaling in the pile up correction, no scaling for data
-  //}
-
-  int eventNPV = 0;
-  xAOD::VertexContainer::const_iterator vtx_itr = m_vertices->begin();
-  xAOD::VertexContainer::const_iterator vtx_end = m_vertices->end(); 
-  for ( ; vtx_itr != vtx_end; ++vtx_itr ) 
-    if ( (*vtx_itr)->nTrackParticles() >= 2 ) ++eventNPV;
-
-  m_jetEventInfo.NPV = eventNPV;
-  m_jetEventInfo.mu = m_eventObj->averageInteractionsPerCrossing();
-
-  //Test code for EventShape EDM
-  //If xAODEventShape can't be retrieved from evtStore, default to hard-coded value (12GeV)
-  const xAOD::EventShape * eventShape;
-  std::string rhoKey = m_jetScale == EM ? "EMTopoEventShape" : "LCTopoEventShape";
-  if ( evtStore()->retrieve(eventShape, rhoKey).isFailure() || !eventShape )
-    m_jetEventInfo.rho = 12000.;
-  else
-   if ( !eventShape->getDensity( xAOD::EventShape::DensityForJetsR4, m_jetEventInfo.rho ) ) return StatusCode::FAILURE; 
-
-  return StatusCode::SUCCESS;
-}
-*/
 
 StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const {
 

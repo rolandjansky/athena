@@ -1,26 +1,22 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//this
 #include "MdtCalibT0/MTT0PatternRecognition.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
-//root
 #include "TLine.h"
 #include "TGraph.h"
 #include "TH1.h"
 
-using namespace std;
-
 namespace MuonCalib{
-
 
 //////////////////////////////////////////////////////////////////
 // estimate_background(const TH1 &hist, double scale_min)	//
 //////////////////////////////////////////////////////////////////
 
-
-bool MTT0PatternRecognition :: estimate_background( TH1F *hist, double scale_min)
+bool MTT0PatternRecognition::estimate_background(TH1F* hist, double scale_min)
 	{
 //Get first bin in input histogram which is not empty. 	This avoids underestimation of the background rate if the range of the input histogram exceeds the TDC-range
 	int min(-1);
@@ -32,12 +28,12 @@ bool MTT0PatternRecognition :: estimate_background( TH1F *hist, double scale_min
 			break;
 			}
 		}
-	if(min==-1)
-		{
-		cerr<<"MTT0PattternRecognition :: estimate_background: No hits in input histogram!"<<endl;
+	if(min==-1) {
+		MsgStream log(Athena::getMessageSvc(), "MTT0PattternRecognition");
+		log<<MSG::WARNING<< "estimate_background() - No hits in input histogram!"<<endmsg;
 		m_error=true;
 		return false;
-		}
+	}
 	double maxx=scale_min-40;
 	int max=hist->FindBin(maxx);
 //we want 10 bins minimum for the background estimate
@@ -48,12 +44,12 @@ bool MTT0PatternRecognition :: estimate_background( TH1F *hist, double scale_min
 			min=0;
 		}
 //if there are still not enough bins for the background estimate we have a problem
-	if(max-min<m_settings->MinBackgroundBins())
-		{
-		cerr<<"MTT0PattternRecognition :: estimate_background: Rising edge is to glose to lower histogram range!"<<endl;
+	if(max-min<m_settings->MinBackgroundBins()) {
+		MsgStream log(Athena::getMessageSvc(), "MTT0PattternRecognition");
+		log<<MSG::WARNING<< "estimate_background() - Rising edge is to glose to lower histogram range!"<<endmsg;
 		m_error=true;
 		return false;
-		}
+	}
 //calculate average bin content
 	m_background=0.0;
 	double back_squared=0.0;
@@ -99,7 +95,7 @@ bool MTT0PatternRecognition :: estimate_background( TH1F *hist, double scale_min
 // estimate_height(const TH1 &hist)	//
 //////////////////////////////////////////
 
-double MTT0PatternRecognition :: estimate_height( TH1F *hist)
+double MTT0PatternRecognition::estimate_height(TH1F* hist)
 	{
 //smooth histogram
 	if(!m_vbh.Smooth(hist->GetBinWidth(1)))
@@ -152,13 +148,12 @@ double MTT0PatternRecognition :: estimate_height( TH1F *hist)
 		m_height+=hist->GetBinContent(i);
 		nbins++;
 		}
-	if(nbins<1)
-		{
-		cerr<<"top region is too small!"<<endl;
-		cout<<"left="<<left<<" right="<<right<<endl;
+	if(nbins<1) {
+		MsgStream log(Athena::getMessageSvc(), "MTT0PattternRecognition");
+		log<<MSG::WARNING<< "estimate_height() - top region is too small! left="<<left<<" right="<<right<<endmsg;
 		m_error=true;
 		return -1;
-		}
+	}
 	m_height/=nbins;
 	m_fit_max=right;
 	return left;

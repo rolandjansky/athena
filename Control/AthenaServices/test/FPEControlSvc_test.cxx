@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: FPEControlSvc_test.cxx,v 1.3 2008-12-08 22:02:46 calaf Exp $
 /**
  * @file  AthenaServices/test/FPEControlSvc_test.cxx
  * @author scott snyder
@@ -72,15 +71,15 @@ int main()
   testit (true);
 
   flags.push_back ("!divbyzero");
-  svc->setProperty ("Exceptions", flags);
+  assert(svc->setProperty ("Exceptions", flags).isSuccess());
   testit (false);
 
   flags.push_back ("divbyzero");
-  svc->setProperty ("Exceptions", flags);
+  assert(svc->setProperty ("Exceptions", flags).isSuccess());
   testit (true);
 
   flags.push_back ("fooo");
-  svc->setProperty ("Exceptions", flags);
+  assert(svc->setProperty ("Exceptions", flags).isSuccess());
   
   return 0;
 }

@@ -1,16 +1,17 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #special script to fill HV corrected map
 from LArCalibProcessing.TimeStampToRunLumi import TimeStampToRunLumi
 from LArTools.LArHVMapDbFiller import LArHVMapDbFiller
-from time import strptime
-from calendar import timegm
 
+#from time import strptime
+#from calendar import timegm
 #date="2010-03-03:14:01:00"
 #ts=strptime(date+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
-#TimeStamp=int(timegm(ts))*1000000000L
-TimeStamp =1264091460*1000000000L
+#TimeStamp=int(timegm(ts))*1000000000
+TimeStamp =1264091460*1000000000
 
-TimeStamp2=1272477600*1000000000L
-from LArCalibProcessing.TimeStampToRunLumi import TimeStampToRunLumi
+TimeStamp2=1272477600*1000000000
 
 
 rlb=TimeStampToRunLumi(TimeStamp,2)

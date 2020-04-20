@@ -1,8 +1,4 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: TAuxBranchManager.cxx 783066 2016-11-08 19:39:32Z ssnyder $
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 // ROOT include(s):
 #include <TBranch.h>
@@ -19,20 +15,23 @@ namespace xAOD {
    TAuxBranchManager::TAuxBranchManager( auxid_t auxid,
                                          ::TBranch* br, THolder* holder )
       : m_branch( br ), m_holder( holder ), m_entry( -1 ),
-        m_isSet( kTRUE ), m_auxId( auxid ), m_vector( 0 ) {
+        m_isSet( kTRUE ), m_auxId( auxid ), m_vector( nullptr ) {
 
    }
 
    TAuxBranchManager::TAuxBranchManager( const TAuxBranchManager& parent )
-      : TVirtualManager(), m_branch( parent.m_branch ), m_holder( 0 ),
+      : TVirtualManager(), m_branch( parent.m_branch ), m_holder( nullptr ),
         m_entry( parent.m_entry ), m_isSet( parent.m_isSet ),
-        m_auxId( parent.m_auxId ), m_vector( 0 ) {
+        m_auxId( parent.m_auxId ), m_vector( nullptr ) {
 
       if( parent.m_holder ) {
          m_holder = new THolder( *parent.m_holder );
       }
       if( parent.m_vector ) {
-         m_vector = SG::AuxTypeRegistry::instance().makeVector( m_auxId, (size_t)0, (size_t)0 ).release();
+         m_vector =
+            SG::AuxTypeRegistry::instance().makeVector( m_auxId,
+                                                        ( size_t ) 0,
+                                                        ( size_t ) 0 ).release();
       }
    }
 
@@ -66,7 +65,10 @@ namespace xAOD {
       m_auxId = rhs.m_auxId;
       if( m_vector ) delete m_vector;
       if( rhs.m_vector ) {
-         m_vector = SG::AuxTypeRegistry::instance().makeVector( m_auxId, (size_t)0, (size_t)0 ).release();
+         m_vector =
+            SG::AuxTypeRegistry::instance().makeVector( m_auxId,
+                                                        ( size_t ) 0,
+                                                        ( size_t ) 0 ).release();
       } else {
          m_vector = 0;
       }
@@ -132,7 +134,10 @@ namespace xAOD {
       // Otherwise let's create a default object:
       m_isSet = kTRUE;
       if( ! m_vector ) {
-         m_vector = SG::AuxTypeRegistry::instance().makeVector( m_auxId, (size_t)0, (size_t)0 ).release();
+         m_vector =
+            SG::AuxTypeRegistry::instance().makeVector( m_auxId,
+                                                        ( size_t ) 0,
+                                                        ( size_t ) 0 ).release();
       }
       // ...and use it to fill the current event:
       m_holder->setOwner( kFALSE );

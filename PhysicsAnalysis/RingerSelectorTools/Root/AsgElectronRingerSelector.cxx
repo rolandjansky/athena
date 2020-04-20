@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AsgElectronRingerSelector.cxx 791627 2017-01-10 04:45:53Z wsfreund $
 // STL includes:
 #include <string>
 #include <stdexcept>
@@ -564,7 +563,7 @@ StatusCode AsgElectronRingerSelector::execute(const xAOD::Egamma* eg, const doub
 
   if (eg){
     // We cast it to electron and use xAOD::type to determine whether it is an electron or not
-    this->execute( static_cast<const xAOD::Electron*>(eg), mu, acceptData );
+    ATH_CHECK(this->execute( static_cast<const xAOD::Electron*>(eg), mu, acceptData ));
   } else {
     ATH_MSG_ERROR("Egamma pointer is null.");
     return StatusCode::FAILURE;

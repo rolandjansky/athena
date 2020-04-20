@@ -24,8 +24,4 @@ private:
   ClassDefOverride(TFCSParametrizationAbsEtaSelectChain,1)  //TFCSParametrizationAbsEtaSelectChain
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationAbsEtaSelectChain+;
-#endif
-
 #endif

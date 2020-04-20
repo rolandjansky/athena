@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetChargeTool.cxx
@@ -7,10 +7,9 @@
 #include "JetSubStructureMomentTools/JetChargeTool.h"
 #include "JetSubStructureUtils/Charge.h"
 
-using namespace std;
-
-JetChargeTool::JetChargeTool(std::string name)
-: JetSubStructureMomentToolsBase(name) {
+JetChargeTool::JetChargeTool(std::string name) :
+  JetSubStructureMomentToolsBase(name)
+{
   declareProperty("K", m_k = 1.0);
 }
 

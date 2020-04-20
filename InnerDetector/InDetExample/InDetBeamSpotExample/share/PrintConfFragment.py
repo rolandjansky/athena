@@ -5,7 +5,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: PrintConfFragment.py 279081 2010-02-13 05:21:53Z beringer $"
+printfunc ("InDetBeamSpotExample INFO Using $Id: PrintConfFragment.py 279081 2010-02-13 05:21:53Z beringer $")
 
 
 import pprint
@@ -14,7 +14,7 @@ import string
 import shutil
 
 if not 'jobConfig' in dir():
-    print "InDetBeamSpotExample WARNING No jobConfig dictionary found"
+    printfunc ("InDetBeamSpotExample WARNING No jobConfig dictionary found")
     jobConfig = {}
 
 else:
@@ -29,8 +29,8 @@ else:
     if not 'doSaveFullConfig' in jobConfig:              jobConfig['doSaveFullConfig'] = True
     if not 'doSaveTemplate' in jobConfig:                jobConfig['doSaveTemplate'] = True    
 
-    print "InDetBeamSpotExample INFO Job configuration parameters (jobConfig) used by this job:"
-    print pprint.pformat(jobConfig)
+    printfunc ("InDetBeamSpotExample INFO Job configuration parameters (jobConfig) used by this job:")
+    printfunc (pprint.pformat(jobConfig))
 
     if jobConfig['doSaveFullConfig']:
         try:
@@ -44,30 +44,30 @@ else:
             f.write('\n')
             f.close()
         except:
-            print "InDetBeamSpotExample WARNING Unable to save final full jobConfig dictionary"
+            printfunc ("InDetBeamSpotExample WARNING Unable to save final full jobConfig dictionary")
 
     if jobConfig['doPrintFullConfig']:
 
-        print "\n================================================================================"
-        print "topSequence:"
-        print "================================================================================"
-        print topSequence
+        printfunc ("\n================================================================================")
+        printfunc ("topSequence:")
+        printfunc ("================================================================================")
+        printfunc (topSequence)
 
 
-        print "\n================================================================================"
-        print "ToolSvc:"
-        print "================================================================================"
-        print ToolSvc
-        print "================================================================================\n"
+        printfunc ("\n================================================================================")
+        printfunc ("ToolSvc:")
+        printfunc ("================================================================================")
+        printfunc (ToolSvc)
+        printfunc ("================================================================================\n")
 
-        print "\n================================================================================"
-        print "IOVDbSvc and THistSvc (if present):"
-        print "================================================================================"
+        printfunc ("\n================================================================================")
+        printfunc ("IOVDbSvc and THistSvc (if present):")
+        printfunc ("================================================================================")
         if hasattr(ServiceMgr, 'IOVDbSvc'):
-            print ServiceMgr.IOVDbSvc
+            printfunc (ServiceMgr.IOVDbSvc)
         if hasattr(ServiceMgr, 'THistSvc'):
-            print ServiceMgr.THistSvc
-        print "================================================================================\n"
+            printfunc (ServiceMgr.THistSvc)
+        printfunc ("================================================================================\n")
 
     if jobConfig['doSaveTemplate']:
         try:
@@ -77,4 +77,4 @@ else:
             templatepath = templatepath and os.path.join( templatepath[0], name ) or ''
             shutil.copy(templatepath, jobConfig['savedjoboptionpath'])
         except:
-            print "InDetBeamSpotExample WARNING Unable to save top-level job option file"
+            printfunc ("InDetBeamSpotExample WARNING Unable to save top-level job option file")

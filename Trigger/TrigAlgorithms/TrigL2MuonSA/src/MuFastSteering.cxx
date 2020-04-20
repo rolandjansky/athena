@@ -20,7 +20,7 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaInterprocess/Incidents.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 using namespace SG;
 // --------------------------------------------------------------------------------
@@ -437,12 +437,12 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
       return code;
     }
     delete outputID;
-    code = attachFeature(outputTE, new TrigRoiDescriptorCollection(SG::VIEW_ELEMENTS), "forID");
+    code = attachFeature(outputTE, new TrigRoiDescriptor(SG::VIEW_ELEMENTS), "forID");
     if (code != HLT::OK) {
       return code;
     }
     delete outputMS;
-    code = attachFeature(outputTE, new TrigRoiDescriptorCollection(SG::VIEW_ELEMENTS), "forMS");
+    code = attachFeature(outputTE, new TrigRoiDescriptor(SG::VIEW_ELEMENTS), "forMS");
     if (code != HLT::OK) {
       return code;
     }   
@@ -483,7 +483,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   } else {
     ActiveState = true;
     outputTE -> setActiveState(ActiveState);
-    code = attachFeature(outputTE, outputID, "forID");
+    code = attachFeature(outputTE, (TrigRoiDescriptor*)(outputID->at(0)), "forID");
     if ( code != HLT::OK ) { 
       ATH_MSG_ERROR("Record of TrigRoiInfo for ID failed");
       ActiveState = false;
@@ -503,7 +503,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   } else {
     ActiveState = true;
     outputTE -> setActiveState(ActiveState);
-    code = attachFeature(outputTE, outputMS, "forMS");
+    code = attachFeature(outputTE, (TrigRoiDescriptor*)(outputMS->at(0)), "forMS");
     if ( code != HLT::OK ) { 
       ATH_MSG_ERROR("Record of TrigRoiInfo for MS failed");
       ActiveState = false;

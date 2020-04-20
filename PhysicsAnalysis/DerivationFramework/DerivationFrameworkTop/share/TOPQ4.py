@@ -58,7 +58,7 @@ skimmingTools_jet = DerivationFrameworkTop.TOPQCommonSelection.setup_jet('TOPQ4'
 # THINNING TOOLS
 #====================================================================
 import DerivationFrameworkTop.TOPQCommonThinning
-thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ4',TOPQ4ThinningHelper.ThinningSvc(), ToolSvc)
+thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ4',streamName, ToolSvc)
 
 #====================================================================
 # CREATE THE KERNEL(S)

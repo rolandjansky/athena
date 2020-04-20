@@ -1,8 +1,10 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-include("TrigUpgradeTest/testHLT_MT.py")
+doWriteRDOTrigger = False
+doWriteBS = False
+include("TriggerJobOpts/runHLT_standalone.py")
 
 testChains = ["HLT_g5_etcut"]
 
@@ -16,7 +18,7 @@ trigL2CaloRingerFexMT = init_ringer()
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
 
 
 def createFastCaloSequence(rerun=False):
@@ -38,17 +40,18 @@ def createFastCaloSequence(rerun=False):
    fastCaloViewsMaker = EventViewCreatorAlgorithm( __prefix+"fastCaloViewsMaker" )
    fastCaloViewsMaker.ViewFallThrough = True
    fastCaloViewsMaker.InputMakerInputDecisions =  [ __forViewDecsions ]
-   fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
-   fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
+   fastCaloViewsMaker.RoIsLink = "initialRoI"
+   fastCaloViewsMaker.RoITool = ViewCreatorInitialROITool()
+   fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" 
    fastCaloViewsMaker.Views = __prefix+"EMCaloViews"
    fastCaloViewsMaker.ViewNodeName = __prefix+"fastCaloInViewAlgs"
-   fastCaloViewsMaker.InputMakerOutputDecisions = [ "L2CaloLinks"]
+   fastCaloViewsMaker.InputMakerOutputDecisions = "L2CaloLinks"
    clusterMaker.RoIs = fastCaloViewsMaker.InViewRoIs
 
    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
    fastCaloHypo = TrigL2CaloHypoAlgMT( __prefix+"L2CaloHypo" )
-   fastCaloHypo.HypoInputDecisions =  fastCaloViewsMaker.InputMakerOutputDecisions[0] #   __l1RoIDecisions
+   fastCaloHypo.HypoInputDecisions =  fastCaloViewsMaker.InputMakerOutputDecisions #   __l1RoIDecisions
 #   fastCaloHypo.Views = fastCaloViewsMaker.Views
    fastCaloHypo.CaloClusters = clusterMaker.ClustersName
 #   fastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs

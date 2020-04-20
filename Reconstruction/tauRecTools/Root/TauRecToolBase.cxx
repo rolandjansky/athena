@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauRecToolBase.h"
@@ -9,11 +9,8 @@
 #include "TEnv.h"
 #include "THashList.h"
 
-TauEventData defaultTauEventData;
-
 //________________________________________
 std::string TauRecToolBase::find_file(const std::string& fname) const {
-  //static const std::string m_tauRecToolsTag="tauRecTools/00-00-00/";
   std::string full_path;
   //offline calib files are in GroupData
   //online calib files are in release
@@ -28,7 +25,7 @@ StatusCode TauRecToolBase::readConfig() {
   // removed once all tools are updated to have a config path declared.
   // in athena getProperties returns std::vector<Property*>
   // in rc     getProperties returns std::map<std::string,Property*>
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   bool configPathDeclared = false;
   for (Property* property : getProperties())
   {
@@ -39,12 +36,12 @@ StatusCode TauRecToolBase::readConfig() {
     }
   }
   if (!configPathDeclared)
-#elif defined(ASGTOOL_STANDALONE)
+#elif defined(XAOD_STANDALONE)
   PropertyMgr::PropMap_t property_map = getPropertyMgr()->getProperties();
   if (property_map.find("ConfigPath") == property_map.end())
 #else
 #   error "What environment are we in?!?"
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
   {
     ATH_MSG_INFO("No config file path property declared yet, this is not recommended");
     return StatusCode::SUCCESS;
@@ -64,7 +61,7 @@ StatusCode TauRecToolBase::readConfig() {
   {
     StatusCode sc;
     // types of properties are handled differently as well 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
     // get type of variable with the entry name
     const std::type_info* type = getProperty(lList->At( i )->GetName()).type_info();
 
@@ -103,14 +100,14 @@ StatusCode TauRecToolBase::readConfig() {
     else if (type == Property::STRING)
       sc = this->setProperty(lList->At( i )->GetName(),
         env.GetValue(lList->At( i )->GetName(),""));
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
     else
     {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
       ATH_MSG_FATAL("there was a problem to find the correct type enum: "<<type->name());
 #else
       ATH_MSG_FATAL("there was a problem to find the correct type enum: "<<type);
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
       return StatusCode::FAILURE;
     }
     if (!sc.isSuccess()) {
@@ -119,15 +116,6 @@ StatusCode TauRecToolBase::readConfig() {
     }
   }
   return StatusCode::SUCCESS;
-}
-
-//________________________________________
-void TauRecToolBase::setTauEventData(TauEventData* data){
-  m_data=data;
-  if(m_data==0) {
-    m_data=&defaultTauEventData;
-    m_data->clear();
-  }
 }
 
 //________________________________________
@@ -151,7 +139,56 @@ StatusCode TauRecToolBase::eventInitialize(){
 
 //________________________________________
 StatusCode TauRecToolBase::execute(xAOD::TauJet&){
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+}
+
+StatusCode TauRecToolBase::executeVertexFinder(xAOD::TauJet&, const xAOD::VertexContainer*, const xAOD::TrackParticleContainer*) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+}
+
+StatusCode TauRecToolBase::executeTrackFinder(xAOD::TauJet&, const xAOD::TrackParticleContainer*) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+}
+
+StatusCode TauRecToolBase::executeShotFinder(xAOD::TauJet& /*pTau*/, xAOD::CaloClusterContainer& /*shotClusterContainer*/, xAOD::PFOContainer& /*PFOContainer*/ ) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+}
+
+StatusCode TauRecToolBase::executePi0CreateROI(xAOD::TauJet& /*pTau*/, CaloCellContainer& /*caloCellContainer*/, std::vector<CaloCell*>& /*map*/ ) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+}
+
+StatusCode TauRecToolBase::executePi0ClusterCreator(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, 
+					      xAOD::PFOContainer& /*hadronicPFOContainer*/, 
+					      xAOD::CaloClusterContainer& /*caloClusterContainer*/, 
+					      const xAOD::CaloClusterContainer& /*pCaloClusterContainer*/ ) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+}
+
+StatusCode TauRecToolBase::executeVertexVariables(xAOD::TauJet& /*pTau*/, xAOD::VertexContainer& /*vertexContainer*/ ) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+}
+
+StatusCode TauRecToolBase::executePi0ClusterScaler(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, xAOD::PFOContainer& /*chargedPFOContainer*/ ) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+} 
+
+StatusCode TauRecToolBase::executePi0nPFO(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
+}
+
+StatusCode TauRecToolBase::executePanTau(xAOD::TauJet& /*pTau*/, xAOD::ParticleContainer& /*particleContainer*/) {
+  ATH_MSG_ERROR("function not implemented");
+  return StatusCode::FAILURE;
 }
 
 //________________________________________

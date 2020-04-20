@@ -1,23 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// ExtrapolateMuonToIPTool.cxx
-//   Implementation file for class ExtrapolateMuonToIP
-///////////////////////////////////////////////////////////////////
-// Niels van Eldik
-///////////////////////////////////////////////////////////////////
 
 #include "ExtrapolateMuonToIPTool.h"
 #include "TrkParameters/TrackParameters.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 
 #include <vector>
-
-
 
 ExtrapolateMuonToIPTool::ExtrapolateMuonToIPTool(const std::string& t, const std::string& n,const IInterface* p)  :  
   AthAlgTool(t,n,p),
@@ -34,41 +22,20 @@ ExtrapolateMuonToIPTool::ExtrapolateMuonToIPTool(const std::string& t, const std
 
 }
 
-ExtrapolateMuonToIPTool::~ExtrapolateMuonToIPTool() {
-
-} 
-
 // Initialize method:
 StatusCode ExtrapolateMuonToIPTool::initialize()
 {
-
-  if( m_extrapolator.retrieve().isFailure() ){
-    ATH_MSG_ERROR( "failed to retrieve " << m_extrapolator );
-    return StatusCode::FAILURE;
-  }
-
-  if( m_muonExtrapolator.retrieve().isFailure() ){
-    ATH_MSG_ERROR( "failed to retrieve " << m_muonExtrapolator );
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(m_extrapolator.retrieve());
+  ATH_CHECK(m_muonExtrapolator.retrieve());
   if(!m_edmHelperSvc.empty()) {
-    if(m_edmHelperSvc.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve helper " << m_edmHelperSvc);
-      return StatusCode::FAILURE;
-    }else {
-      ATH_MSG_DEBUG( "Retrieved helper " << m_edmHelperSvc );
-    }  
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_MSG_DEBUG( "Retrieved helper " << m_edmHelperSvc );
   }
-
   if(!m_printer.empty()) {
-    if(m_printer.retrieve().isFailure()) {
-      ATH_MSG_ERROR( "Failed to retrieve printer " << m_printer );
-      return StatusCode::FAILURE;
-    }else {
-      ATH_MSG_DEBUG("Retrieved printer " << m_printer);
-    }  
+    ATH_CHECK(m_printer.retrieve());
+    ATH_MSG_DEBUG("Retrieved printer " << m_printer);
   }
+  ATH_CHECK(m_trackSummary.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -107,7 +74,7 @@ TrackCollection* ExtrapolateMuonToIPTool::extrapolate(const TrackCollection& muo
     if( !extrapolateTrack ) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<MSG::DEBUG <<"Extrapolation of muon to IP failed" << endmsg;
       continue;
-    }    
+    }
 
     if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << " Extrapolated track " << m_printer->print(*extrapolateTrack) << endmsg; 
 
@@ -235,7 +202,8 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
   info.setPatternRecognitionInfo( Trk::TrackInfo::MuidStandAlone );
   // create new track
   Trk::Track* extrapolateTrack = new Trk::Track( info, trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0);
-	
+  // create track summary
+  m_trackSummary->updateTrack(*extrapolateTrack);
   return extrapolateTrack;
 }
 

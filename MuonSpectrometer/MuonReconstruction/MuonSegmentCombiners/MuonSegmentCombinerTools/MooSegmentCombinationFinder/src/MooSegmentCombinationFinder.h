@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MooSegmentCombinationFinder.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONMOOSEGMENTFINDER_H
 #define MUONMOOSEGMENTFINDER_H
@@ -23,7 +19,7 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "MuonEDM_AssociationObjects/MuonSegmentCombPatternCombAssociationMap.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
@@ -36,7 +32,6 @@
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
-#include "Identifier/Identifier.h"
 #include <map>
 
 
@@ -51,7 +46,6 @@ namespace Muon
     class IMuonSegmentCombinationCleanerTool;
     class IMuonSegmentSelectionTool;
     class MuonEDMPrinterTool;
-    class MuonIdHelperTool;
 
   /** @class MooSegmentCombinationFinder 
       
@@ -109,7 +103,7 @@ namespace Muon
       ServiceHandle<IMuonEDMHelperSvc>               m_edmHelperSvc {this, "edmHelper", 
         "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
         "Handle to the service providing the IMuonEDMHelperSvc interface" };
-      ToolHandle<MuonIdHelperTool>                   m_idHelperTool {"Muon::MuonIdHelperTool/MuonIdHelperTool"};
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       ToolHandle<ICscSegmentFinder>                  m_csc2dSegmentFinder{this, "Csc2dSegmentMaker", "Csc2dSegmentMaker/Csc2dSegmentMaker"}; 
       ToolHandle<ICscSegmentFinder>                  m_csc4dSegmentFinder{this, "Csc4dSegmentMaker", "Csc4dSegmentMaker/Csc4dSegmentMaker"};       
       ToolHandle<IMuonHoughPatternFinderTool>        m_houghPatternFinder; 

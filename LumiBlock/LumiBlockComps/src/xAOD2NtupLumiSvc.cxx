@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAOD2NtupLumiSvc.h"
@@ -93,7 +93,7 @@ StatusCode xAOD2NtupLumiSvc::finish(){
       TString ssPath = ss(0,secondSlash+1);
       if(doneStreams.find(ssPath)!=doneStreams.end()) continue;
       TString sss = ssPath;sss += "/MetaData";
-      histSvc->regTree(sss.Data(),metatree->CloneTree());
+      ATH_CHECK(histSvc->regTree(sss.Data(),metatree->CloneTree()));
       doneStreams.insert(ssPath);
    }
    

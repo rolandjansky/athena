@@ -22,7 +22,7 @@
 
 // Can't use CxxUtils/checker_macros.h here, since that would be circular dependency.
 #ifdef ATLAS_GCC_CHECKERS
-#define ATLAS_NOT_REENTRANT [[gnu::not_reentrant]]
+#define ATLAS_NOT_REENTRANT [[ATLAS::not_reentrant]]
 #else
 #define ATLAS_NOT_REENTRANT
 #endif

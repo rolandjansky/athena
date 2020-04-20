@@ -1,21 +1,7 @@
-# $Id: CMakeLists.txt 782328 2016-11-04 10:56:17Z krasznaa $
-################################################################################
-# Package: TrigSteeringEventAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigSteeringEventAthenaPool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Database/AthenaPOOL/AthenaPoolUtilities
-   GaudiKernel
-   Trigger/TrigEvent/TrigSteeringEvent
-   PRIVATE
-   AtlasTest/TestTools
-   Database/AthenaPOOL/AthenaPoolCnvSvc
-   Trigger/TrigEvent/TrigSteeringEventTPCnv )
 
 # Extra headers, when not building AthAnalysisBase:
 set( extra_headers )
@@ -42,22 +28,18 @@ atlas_add_poolcnv_library( TrigSteeringEventAthenaPoolPoolCnv
 atlas_install_joboptions( share/*.py )
 
 # Set up (a) test(s) for the converter(s):
-set( _dir
-   ${CMAKE_CURRENT_SOURCE_DIR}/../../../Database/AthenaPOOL/AthenaPoolUtilities )
-if( IS_DIRECTORY ${_dir} )
-   set( AthenaPoolUtilitiesTest_DIR ${_dir}/cmake )
-endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TRIGSTEERINGEVENTATHENAPOOL_REFERENCE_TAG
        TrigSteeringEventAthenaPoolReference-01-00-00 )
-  run_tpcnv_test( TrigSteeringEventAthenaPool_15.6.1   ESD-15.6.1
+  run_tpcnv_legacy_test( TrigSteeringEventAthenaPool_15.6.1   ESD-15.6.1
                   REFERENCE_TAG ${TRIGSTEERINGEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( TrigSteeringEventAthenaPool_18.0.0   AOD-18.0.0-full
+  run_tpcnv_legacy_test( TrigSteeringEventAthenaPool_18.0.0   AOD-18.0.0-full
                   REFERENCE_TAG ${TRIGSTEERINGEVENTATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_test( TrigSteeringEventAthenaPool_20.1.7.2 ESD-20.1.7.2
+  run_tpcnv_legacy_test( TrigSteeringEventAthenaPool_20.1.7.2 ESD-20.1.7.2
                   REFERENCE_TAG ${TRIGSTEERINGEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
-   message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
+   message( WARNING
+      "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()

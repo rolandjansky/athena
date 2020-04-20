@@ -14,7 +14,50 @@ class TrigEgammaKeys(object):
       outputClusterKey = 'HLT_egammaClusters'
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
       TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
-      pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20180312'
+      pidVersion = 'rel21_20180312'
+
+
+def TrigElectronSelectors(sel):
+    import logging
+
+    mlog = logging.getLogger ('EgammaDefs')
+
+    # Configure the LH selectors
+    from AthenaCommon import CfgMgr
+    #TrigEgammaKeys.pidVersion.set_On()
+    mlog.info("TrigEgammaPidTools version " + str(TrigEgammaKeys.pidVersion))
+    ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+    
+    SelectorNames = {
+          'lhvloose':'AsgElectronLHVLooseSelector',
+          'lhloose':'AsgElectronLHLooseSelector',
+          'lhmedium':'AsgElectronLHMediumSelector',
+          'lhtight':'AsgElectronLHTightSelector',
+          }
+     
+    ElectronToolConfigFile = {
+          'lhvloose':'ElectronLikelihoodVeryLooseTriggerConfig.conf',
+          'lhloose':'ElectronLikelihoodLooseTriggerConfig.conf',
+          'lhmedium':'ElectronLikelihoodMediumTriggerConfig.conf',
+          'lhtight':'ElectronLikelihoodTightTriggerConfig.conf',
+          }
+    
+
+    mlog.info('Configuring electron PID tools...')
+    if sel not in SelectorNames:
+        mlog.error('No selector defined for working point '+sel+' for electrons :-( ')
+        return
+    else:
+        mlog.info('Configuring electron PID for '+sel)
+        SelectorTool=CfgMgr.AsgElectronLikelihoodTool(SelectorNames[sel])
+        SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
+        SelectorTool.usePVContainer = False 
+        SelectorTool.skipDeltaPoverP = True
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += SelectorTool
+
+        return SelectorTool
+
 
 def TrigPhotonSelectors(sel):
     import logging
@@ -53,7 +96,8 @@ def TrigPhotonSelectors(sel):
     else:
         mlog.info('Configuring photon PID for '+sel)
         SelectorTool = ConfiguredAsgPhotonIsEMSelector(SelectorNames[sel], SelectorPID[sel])
-        ConfigFile = TrigEgammaKeys.pidVersion+'/'+PhotonToolConfigFile[sel] 
+        ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
+        ConfigFile = ConfigFilePath + '/' + PhotonToolConfigFile[sel] 
         mlog.info('Configuration file: '+ConfigFile)
         SelectorTool.ConfigFile = ConfigFile
         SelectorTool.ForceConvertedPhotonPID = True

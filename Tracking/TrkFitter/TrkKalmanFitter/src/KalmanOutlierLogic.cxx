@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -29,7 +29,29 @@
 #include "TrkFitterUtils/SensorBoundsCheck.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "TrkSurfaces/TrapezoidBounds.h"
-#include <ext/algorithm>
+#include <algorithm>
+
+namespace{ //anonymous namespace for comparison helper
+  bool 
+  minChi2State(const Trk::Trajectory::iterator & pFirst, Trk::Trajectory::iterator & pSecond){
+    auto dof = [](const Trk::Trajectory::iterator & pTrajectory)->int{
+      return pTrajectory->fitQuality()->numberDoF();
+    };
+    auto itsTrapezoid = [](const Trk::Trajectory::iterator & pTrajectory)->bool{
+      return dynamic_cast<const Trk::TrapezoidBounds*>(&pTrajectory->measurement()->associatedSurface().bounds()) != nullptr;
+    };
+    int dof1{dof(pFirst)};
+    int dof2{dof(pSecond)};
+    if (dof1 == 2 and itsTrapezoid(pFirst)) dof1 = 1;
+    if (dof2 == 2 and itsTrapezoid(pSecond)) dof2 = 1;
+    auto chiSq =[](const Trk::Trajectory::iterator & pTrajectory, const int trueDof){
+      return pTrajectory->fitQuality()->chiSquared() * trueDof;
+    };
+    // X1^2/DoF1 > X2^2/DoF2, but do multiplication to be faster
+    return (chiSq(pFirst, dof2) > chiSq(pSecond, dof1));
+  }
+
+}
 
 // constructor
 Trk::KalmanOutlierLogic::KalmanOutlierLogic(const std::string& t,const std::string& n,const IInterface* p) :
@@ -105,23 +127,6 @@ StatusCode Trk::KalmanOutlierLogic::configureWithTools(Trk::IExtrapolator* extra
   return StatusCode::SUCCESS;
 }
 
-// helper operator for STL min_element
-struct minChi2State : public std::binary_function<Trk::Trajectory::iterator, Trk::Trajectory::iterator, bool> {
-	bool operator() (Trk::Trajectory::iterator one, Trk::Trajectory::iterator two) const {
-      // once more, correct ndof for rotated 1D measurements (SCT endcap, TGC strip)
-      int trueNumberDoF1 = one->fitQuality()->numberDoF();
-      if (trueNumberDoF1 == 2 && dynamic_cast<const Trk::TrapezoidBounds*>
-          (&one->measurement()->associatedSurface().bounds())) trueNumberDoF1 = 1;
-      int trueNumberDoF2 = two->fitQuality()->numberDoF();
-      if (trueNumberDoF2 == 2 && dynamic_cast<const Trk::TrapezoidBounds*>
-          (&two->measurement()->associatedSurface().bounds())) trueNumberDoF2 = 1;
-
-      return (one->fitQuality()->chiSquared() * trueNumberDoF2
-              >
-              two->fitQuality()->chiSquared() * trueNumberDoF1 );
-	};
-};
-
 // BKS-cov at 1st meas: 0.000378  0.00539  1.28e-05  1.37e-05  9.00e-10
 // 200*cov            : 0.0750    1.00000  2.56e-03  2.74e-03  1.80e-08
 
@@ -171,8 +176,6 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
         ATH_MSG_VERBOSE ("-O- state #" << it->positionOnTrajectory() << " at r=" <<
                          it->smoothedTrackParameters()->position().perp() << " z=" <<
                          it->smoothedTrackParameters()->position().z()<< " fails boundary check");
-          // m_log << MSG::VERBOSE << "-O- " << it->measurement()->associatedSurface().bounds() << endmsg;
-          // m_log << MSG::VERBOSE << "-O- " << it->measurement()->associatedSurface().center() << endmsg;
         it->isOutlier(Trk::TrackState::SensorOutlier, fitIteration);
         numberOfRejections++; numberOfSensorOutliers++;
         chi2GainFromSensorOutliers += it->fitQuality()->chiSquared();
@@ -285,10 +288,9 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
 
       // search for worst states - do this via an STL sort so to be able to do more checks
       std::vector<Trk::Trajectory::iterator> bestStates(0);
-      for(Trk::Trajectory::iterator it = T.begin(); it!=T.end(); it++)
+      for(auto it = T.begin(); it!=T.end(); ++it)
         if ( it->measurement() && !it->isOutlier() ) bestStates.push_back(it);
-      if ( ! is_sorted( bestStates.begin(), bestStates.end(), minChi2State() ) )
-        sort( bestStates.begin(), bestStates.end(), minChi2State() );
+      std::sort( bestStates.begin(), bestStates.end(), minChi2State ); //can use partial sort?
 
       if (numberOfRejections == 0 ) {
         ATH_MSG_VERBOSE ("-O- No outlier found so far, taking state with highest chi2/NDF instead.");
@@ -329,21 +331,26 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
         }
       } else {
         if (m_utility->numberOfSpecificStates(T,Trk::TrackState::TRT,Trk::TrackState::Fittable)>4) {
-          //Trk::Trajectory::iterator states       = *(bestStates.begin());
-          bool found=false; unsigned int i=0;
-          while (i < bestStates.size() && !found) {
-            if (bestStates.at(i)->measurementType()==Trk::TrackState::TRT &&
-                !(bestStates.at(i)->isOutlier()) &&
-                fabs(bestStates.at(i)->measurement()->localParameters()[Trk::locR]) > 0.01) {
-              int pos = bestStates.at(i)->positionOnTrajectory();
+          auto itsTRT = [](const Trk::Trajectory::iterator & pTrajectory){
+            return (pTrajectory->measurementType()==Trk::TrackState::TRT);
+          };
+          auto isAnOutlier = [](const Trk::Trajectory::iterator & pTrajectory){
+            return pTrajectory->isOutlier();
+          };
+          auto absR_CutPasses = [](const Trk::Trajectory::iterator & pTrajectory){
+            return (std::fabs(pTrajectory->measurement()->localParameters()[Trk::locR]) > 0.01);
+          };
+          
+          for (const auto & state: bestStates){
+            if (itsTRT(state) and not isAnOutlier(state) and absR_CutPasses(state)){
+              const int pos = state->positionOnTrajectory();
               ATH_MSG_DEBUG ("Outliers found as sensor outliers but they " <<
                              "did not contribute to the chi2. Now remove " << pos <<
-                             " with chi2 contrib " << *(bestStates.at(i)->fitQuality()) );
+                             " with chi2 contrib " << *(state->fitQuality()) );
               firstStateWithOutlier = std::min(pos,firstStateWithOutlier);
-              bestStates.at(i)->isOutlier(Trk::TrackState::TrackOutlier,fitIteration);
-              found = true;
+              state->isOutlier(Trk::TrackState::TrackOutlier,fitIteration);
+              break;
             }
-            ++i;
           }
         }
       }
@@ -364,12 +371,6 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
 ////////////////////////////////////////////////////////////////////////////////
 bool Trk::KalmanOutlierLogic::reject(const Trk::FitQuality& fitQuality) const
 {
-  // use chi2 value
-  //  if ( fitQuality.chiSquared() > m_Trajectory_Chi2PerNdfCut * fabs(fitQuality.numberDoF()) ) {
-  //  if (m_outputlevel <= 0) m_log << MSG::DEBUG << "-O- trajectory with total chi2/ndf="
-  //				  << fitQuality.chiSquared()/fabs(fitQuality.numberDoF())
-  //				  << " fails quality cut" << endmsg;
-
   // use probablity
   if (fitQuality.numberDoF() > 0 && fitQuality.chiSquared() > 0) {
     double prob = 1.0-Genfun::CumulativeChiSquare(fitQuality.numberDoF())(fitQuality.chiSquared());

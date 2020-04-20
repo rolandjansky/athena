@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArNoisyROSummaryCnv.h"
@@ -40,27 +40,27 @@ LArNoisyROSummaryCnv::createTransient()
   static pool::Guid   guid_p5("4AE11DAE-F40C-4B90-B105-0A7BA5D29C1D");
 
   if( compareClassGuid(guid_p5) ) {
-     std::auto_ptr<LArNoisyROSummary_p5> col_vect( poolReadObject<LArNoisyROSummary_p5>() );
+     std::unique_ptr<LArNoisyROSummary_p5> col_vect( poolReadObject<LArNoisyROSummary_p5>() );
      trans = m_converter.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(guid_p4) ) {
      LArNoisyROSummaryCnv_p4   converter;
-     std::auto_ptr<LArNoisyROSummary_p4> col_vect( poolReadObject<LArNoisyROSummary_p4>() );
+     std::unique_ptr<LArNoisyROSummary_p4> col_vect( poolReadObject<LArNoisyROSummary_p4>() );
      trans = converter.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(guid_p3) ) {
       LArNoisyROSummaryCnv_p3   converter;
-      std::auto_ptr<LArNoisyROSummary_p3> col_vect( poolReadObject<LArNoisyROSummary_p3>() );
+      std::unique_ptr<LArNoisyROSummary_p3> col_vect( poolReadObject<LArNoisyROSummary_p3>() );
       trans = converter.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(guid_p2) ) {
       LArNoisyROSummaryCnv_p2   converter;
-      std::auto_ptr<LArNoisyROSummary_p2> col_vect( poolReadObject<LArNoisyROSummary_p2>() );
+      std::unique_ptr<LArNoisyROSummary_p2> col_vect( poolReadObject<LArNoisyROSummary_p2>() );
       trans = converter.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(guid_p1) ) {
       LArNoisyROSummaryCnv_p1   converter;
-      std::auto_ptr<LArNoisyROSummary_p1> col_vect( poolReadObject<LArNoisyROSummary_p1>() );
+      std::unique_ptr<LArNoisyROSummary_p1> col_vect( poolReadObject<LArNoisyROSummary_p1>() );
       trans = converter.createTransient( col_vect.get(), log );
   }
   else {

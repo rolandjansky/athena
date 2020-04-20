@@ -5,46 +5,9 @@
 from AthenaCommon.CFElements import parOR
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-from JetRecTools import JetRecToolsConf
-
-# From JetRecToolsConfig -- needs more than offline, though could extend that setup with more options
-# For now, leave until this has stabilised
-def getTrackSelTool(trkopt, tracksname):
-    jettracksname = "JetSelectedTracks_{}".format("trkopt")
-
-    # Track selector needs its own hierarchical config getter in JetRecTools?
-    from InDetTrackSelectionTool import InDetTrackSelectionToolConf
-    idtrackselloose = InDetTrackSelectionToolConf.InDet__InDetTrackSelectionTool(
-        "idtrackselloose",
-        CutLevel         = "Loose",
-        minPt            = 500,
-        UseTrkTrackTools = False,
-        Extrapolator     = "",
-        TrackSummaryTool = ""
-    )
-    jettrackselloose = JetRecToolsConf.JetTrackSelectionTool(
-        "jettrackselloose",
-        InputContainer  = tracksname,
-        OutputContainer = jettracksname,
-        Selector        = idtrackselloose
-    )
-    return jettrackselloose, jettracksname
-
-def getTrackVertexAssocTool(trkopt,tracksname,verticesname):
-    tvaname = "JetTrackVtxAssoc_{}".format(trkopt)
-    # Track-vertex association
-    from TrackVertexAssociationTool import TrackVertexAssociationToolConf
-    idtvassoc = TrackVertexAssociationToolConf.CP__TrackVertexAssociationTool("idloosetvassoc")
-
-    jettvassoc = JetRecToolsConf.TrackVertexAssociationTool(
-        "jettvassoc",
-        TrackParticleContainer  = tracksname,
-        TrackVertexAssociation  = tvaname,
-        VertexContainer         = verticesname,
-        TrackVertexAssoTool     = idtvassoc,
-    )
-    return jettvassoc, tvaname
-
+from JetRecTools.JetRecToolsConfig import getTrackSelTool, getTrackVertexAssocTool
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
 def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     jetTrkSeq = parOR( "JetTrackingSeq_"+trkopt, [])
@@ -54,57 +17,59 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     if trkopt=="ftf":
         from TrigInDetConfig.InDetSetup import makeInDetAlgs
         # Guess FS rather than making it jet-specific?
-        viewAlgs = makeInDetAlgs( "FS", rois=RoIs )
-
-        for alg in viewAlgs:
-            if "RoIs" in alg.properties():
-                alg.RoIs = RoIs
-            if "roiCollectionName" in alg.properties():
-                alg.roiCollectionName = RoIs
-            jetTrkSeq += alg
-        tracksname = recordable("HLT_xAODTracks_FS")
+        viewAlgs = makeInDetAlgs( "JetFS", "_FS", rois=RoIs )
+        jetTrkSeq += viewAlgs
+        tracksname = recordable("HLT_IDTrack_FS_FTF")
         verticesname = recordable("HLT_EFHistoPrmVtx")
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-    vtxAlgs = makeVertices( "jet", "HLT_xAODTracks_FS", verticesname )
+    vtxAlgs = makeVertices( "jet", "HLT_IDTrack_FS_FTF", verticesname )
     prmVtx = vtxAlgs[-1]
     jetTrkSeq += prmVtx
 
-    # Jet track selection
-    jettrackselloose, jettracksname = getTrackSelTool(trkopt, tracksname)
-    jettvassoc, tvaname = getTrackVertexAssocTool(trkopt, tracksname, verticesname)
+    tvaname = "JetTrackVtxAssoc_"+trkopt
+    trkcolls = {
+        "Tracks":           tracksname,
+        "Vertices":         verticesname,
+        "TVA":              tvaname,
+    }
 
-    from JetRec import JetRecConf
-    jettrkprepalg = JetRecConf.JetAlgorithm("jetalg_TrackPrep")
+    from JetRecTools.JetRecToolsConfig import trackcollectionmap
+    if trkopt not in trackcollectionmap.keys():
+        trackcollectionmap[trkopt] = trkcolls
+
+    # Jet track selection
+    jettrackselloose = getTrackSelTool(trkopt)
+    jettracksname = jettrackselloose.OutputContainer
+    jettvassoc = getTrackVertexAssocTool(trkopt)
+
+    trackcollectionmap[trkopt]["JetTracks"] = jettracksname
+    trackcollectionmap[trkopt]["TVA"] = tvaname
+
+    #from JetRec import JetRecConf
+    #jettrkprepalg = JetRecConf.JetAlgorithm("jetalg_TrackPrep")
+
+
+    jettrkprepalg = CompFactory.JetAlgorithm("jetalg_TrackPrep")
     jettrkprepalg.Tools = [ jettrackselloose, jettvassoc ]
-    jetTrkSeq += jettrkprepalg
+    jetTrkSeq += conf2toConfigurable( jettrkprepalg )
 
     label = "GhostTrack_{}".format(trkopt)
     ghosttracksname = "PseudoJet{}".format(label)
-    pjg = JetRecConf.PseudoJetGetter("pjg_{}".format(label),
-                                     InputContainer=tracksname,                                     
+    pjg = CompFactory.PseudoJetGetter("pjg_{}".format(label),
+                                     InputContainer=tracksname,
                                      OutputContainer=ghosttracksname,
                                      Label=label,
                                      SkipNegativeEnergy=True,
                                      GhostScale=1e-40)
 
-    pjgalg = JetRecConf.PseudoJetAlgorithm(
+    trackcollectionmap[trkopt]["GhostTracks"] = ghosttracksname
+    trackcollectionmap[trkopt]["GhostTracksLabel"] = label
+
+    pjgalg = CompFactory.PseudoJetAlgorithm(
         "pjgalg_"+label,
         PJGetter=pjg
         )
-    jetTrkSeq += pjgalg
-
-    trkcolls = {
-        "Tracks":           tracksname,
-        "Vertices":         verticesname,
-        "JetTracks":        jettracksname,
-        "TVA":              tvaname,
-        "GhostTracks":      ghosttracksname,
-        "GhostTracksLabel": label
-    }
-
-    from JetMomentTools.JetMomentToolsConfig import trackcollectionmap
-    if trkopt not in trackcollectionmap.keys():
-        trackcollectionmap[trkopt] = trkcolls
+    jetTrkSeq += conf2toConfigurable( pjgalg )
 
     return jetTrkSeq, trkcolls

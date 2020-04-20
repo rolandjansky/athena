@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODJetTrigAuxContainerCnv_v1.cxx 800408 2017-03-13 09:28:39Z sschramm $
-#ifndef SIMULATIONBASE
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE))
 // System include(s):
 #include <stdexcept>
 
@@ -92,4 +92,4 @@ transToPers( const xAOD::JetTrigAuxContainer*,
 
    return;
 }
-#endif //ifndef SIMULATIONBASE
+#endif //ifndef SIMULATIONBASE OR GNERATIONBASE

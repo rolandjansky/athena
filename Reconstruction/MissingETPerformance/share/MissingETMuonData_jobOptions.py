@@ -11,4 +11,4 @@ MissingETMuonData = ConfiguredMissingETMuonData(
     )
 
 ToolSvc += MissingETMuonData
-print      MissingETMuonData
+printfunc (     MissingETMuonData)

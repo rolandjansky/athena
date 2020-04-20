@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # -*- coding: utf-8 -*-
 from LArCafJobs.LArCafJobsConf import LArShapeDumperTool, LArShapeDumper
@@ -18,7 +20,7 @@ class DefaultShapeDumperTool(LArShapeDumperTool) :
       if larcool is not None:
         nSamples=larcool.nSamples()
       else:
-        print "WARNING, can't determine number of samples for this run! Assume 4"
+        print ("WARNING, can't determine number of samples for this run! Assume 4")
         nSamples=4
         
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -32,7 +34,7 @@ class DefaultShapeDumperTool(LArShapeDumperTool) :
       elif (nSamples==4):
         conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/Shape/RTM/4samples3bins17phases<tag>LARElecCalibOflShapeRTM4samples3bins17phases-RUN2-UPD3-00</tag><key>LArShape17phases</key>')
       else:
-        print "ERROR: Unexpected number of samples, got ",nSamples
+        print ("ERROR: Unexpected number of samples, got ",nSamples)
         pass
       pass
     pass
@@ -102,7 +104,7 @@ class DefaultShapeDumper(LArShapeDumper) :
       from AthenaCommon.AlgSequence import AlgSequence
       topSequence = AlgSequence()
       topSequence += self
-      print self
+      print (self)
 
   def setDefaults(self, handle):
     pass

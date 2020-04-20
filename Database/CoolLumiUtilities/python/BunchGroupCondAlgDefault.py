@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # File: CoolLumiUtilities/python/BunchGroupCondAlgDefault.py
 # Created: May 2019, sss
@@ -7,11 +7,9 @@
 
 
 from AthenaCommon.AlgSequence import AthSequencer
-from AthenaCommon.Logging import logging
 
 
 def BunchGroupCondAlgDefault():
-    log = logging.getLogger ('BunchGroupCondAlgDefault')
     name = 'BunchGroupCondAlg'
     condSeq = AthSequencer ('AthCondSeq')
 

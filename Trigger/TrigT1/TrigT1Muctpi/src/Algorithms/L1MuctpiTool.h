@@ -39,7 +39,7 @@ namespace LVL1MUCTPI {
       /// Regular Gaudi algorithm finalization function
       virtual StatusCode finalize() override;
       /// Regular Gaudi algorithm execute function
-      virtual StatusCode execute();
+      virtual StatusCode execute() override;
       /// Regular Gaudi algorithm beginRun function
       virtual StatusCode start() override;
 

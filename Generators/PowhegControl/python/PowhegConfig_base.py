@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @PowhegControl PowhegConfig_base
 #  PowhegControl base class for all Powheg processes
@@ -9,10 +9,10 @@
 
 #! /usr/bin/env python
 import glob, os, subprocess, time
-import strategies
+from . import strategies
 from AthenaCommon import Logging
-from DecoratorFactory import decorate
-from utility import IntegrationGridTester, LHEHandler, RepeatingTimer
+from .DecoratorFactory import decorate
+from .utility import IntegrationGridTester, LHEHandler, RepeatingTimer
 
 ## Base class for configurable objects in the jobOptions
 #
@@ -126,11 +126,11 @@ class PowhegConfig_base(object) :
     # Print list of configurable parameters for users
     self.logger.info( '** User configurable parameters for this process **' )
     self.logger.info( ':   Option name   : ATLAS default :  Current  : Description' )
-    for configurable_list in sorted( self.configurable_parameters.values()+self.phantom_parameters.values(), key=lambda x: x[0].lower() ) :
+    for configurable_list in sorted( list(self.configurable_parameters.values())+list(self.phantom_parameters.values()), key=lambda x: x[0].lower() ) :
       self.logger.info( ': {0:<15} : {1:>13} : {2:>9} : {3}'.format( configurable_list[0], configurable_list[1], getattr(self, configurable_list[0]), configurable_list[2] ) )
 
     # Add configurable parameters to fixed list
-    [ self.fix_parameter( non_configurable_name=configurable_list[0], default=configurable_list[1], desc=configurable_list[2] ) for configurable_list in self.configurable_parameters.values() ]
+    [ self.fix_parameter( non_configurable_name=configurable_list[0], default=configurable_list[1], desc=configurable_list[2] ) for configurable_list in list(self.configurable_parameters.values()) ]
 
     # Write out final runcard
     self.logger.info( 'Writing Powheg runcard to {0}'.format( self.run_card_path ) )

@@ -127,7 +127,7 @@ StatusCode CaloRingerElectronsReader::execute()
 
   auto selHandles = m_selKeys.makeHandles();
   auto isEMHandles = m_isEMKeys.makeHandles();
-  auto lhoodHandles = m_selKeys.makeHandles();
+  auto lhoodHandles = m_lhoodKeys.makeHandles();
 
   // Run selectors, if available:
   for ( size_t i = 0; i < m_ringerSelectors.size(); i++ ) {

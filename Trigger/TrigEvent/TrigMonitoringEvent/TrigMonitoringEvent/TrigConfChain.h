@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONF_CHAIN_H
@@ -89,6 +89,7 @@ class TrigConfChain
   float getPassThrough() const { return m_pass_through; }
   float getPT()          const { return getPassThrough(); }
   
+  const std::vector<float>&       getStreamPS()  const { return m_stream_prescale; }
   const std::vector<TrigConfSig>& getSignature() const { return m_signature; }
   const std::vector<std::string>& getStream()    const { return m_stream_name; }
   const std::vector<std::string>& getGroup()     const { return m_group; }

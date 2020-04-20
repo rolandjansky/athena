@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
@@ -7,8 +7,9 @@
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "GaudiKernel/PhysicalConstants.h"
-
+#include <limits>
 #include <algorithm>
+#include <cmath>
 
 namespace Trk
 {
@@ -147,28 +148,11 @@ namespace Trk
    */
   double GaussianTrackDensity::TrackDensity::trackDensity (double z) const
   {
-    double sum = 0.0;
-    TrackEntry target(z);
-    trackMap overlaps;
-    lowerMapIterator left = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
-    if (left == m_lowerMap.end()) return sum;                // z is to the right of every track's range
-    upperMapIterator right = m_upperMap.upper_bound(target); // first track whose LOWER bound is greater than z
-    if (right == m_upperMap.begin()) return sum;             // z is to the left of every track's range
-    for (auto itrk = left; itrk != m_lowerMap.end(); itrk++)
-    {
-      if ( itrk->first.upperBound > z + m_maxRange ) break;
-      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
-    }
-    for (auto itrk = right; itrk-- != m_upperMap.begin(); )
-    {
-      if ( itrk->first.lowerBound < z - m_maxRange ) break;
-      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
-    }
-    for (const auto& entry : overlaps)
-    {
-      sum += exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
-    }
-    return sum;
+    double firstDeriv, secondDeriv = 0;  // unused in this case
+    double density = 0; 
+    // use the existing trackDensity method to avoid duplication of logic
+    trackDensity(z,density,firstDeriv,secondDeriv); 
+    return density; 
   }
 
 
@@ -182,38 +166,17 @@ namespace Trk
                                                     double& firstDerivative,
                                                     double& secondDerivative) const
   {
-    density = 0.0;
-    firstDerivative = 0.0;
-    secondDerivative = 0.0;
-    TrackEntry target(z);
-    trackMap overlaps;
-    lowerMapIterator left = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
-    if (left == m_lowerMap.end()) return;                    // z is to the right of every track's range
-    upperMapIterator right = m_upperMap.upper_bound(target); // first track whose LOWER bound is greater than z
-    if (right == m_upperMap.begin()) return;                 // z is to the left of every track's range
-    for (auto itrk = left; itrk != m_lowerMap.end(); itrk++)
-    {
-      if ( itrk->first.upperBound > z + m_maxRange ) break;
-      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
+    TrackDensityEval densityResult(z);
+    for (const auto & trackAndPerigeePair : m_lowerMap){
+      densityResult.addTrack(trackAndPerigeePair.first); 
     }
-    for (auto itrk = right; itrk-- != m_upperMap.begin(); )
-    {
-      if ( itrk->first.lowerBound < z - m_maxRange ) break;
-      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
-    }
-    for (const auto& entry : overlaps)
-    {
-      if (entry.second.lowerBound > z || entry.second.upperBound < z) continue;
-      double delta = exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
-      density += delta;
-      double qPrime = entry.second.c_1 + 2*z*entry.second.c_2;
-      double deltaPrime = delta * qPrime;
-      firstDerivative += deltaPrime;
-      secondDerivative += 2*entry.second.c_2*delta + qPrime*deltaPrime;
-    }
+    density = densityResult.density();
+    firstDerivative = densityResult.firstDerivative();
+    secondDerivative = densityResult.secondDerivative(); 
   }
 
-  std::pair<double,double> GaussianTrackDensity::TrackDensity::globalMaximumWithWidth (MsgStream& msg) const
+  std::pair<double,double> 
+  GaussianTrackDensity::TrackDensity::globalMaximumWithWidth (MsgStream& msg) const
   {
     // strategy:
     // the global maximum must be somewhere near a track...
@@ -228,7 +191,8 @@ namespace Trk
     double maximumPosition = 0.0;
     double maximumDensity = 0.0;
     double maxCurvature = 0. ;
-    
+    const std::pair<double,double> invalidResult(0.,std::numeric_limits<double>::quiet_NaN());
+    if (m_trackMap.empty()) return invalidResult;
     for (const auto& entry : m_trackMap)
     {
       double trialZ = entry.first.parameters()[Trk::z0];
@@ -251,8 +215,8 @@ namespace Trk
       msg << MSG::DEBUG << "Global maximum at density of 0; track map contains "
           <<  m_trackMap.size() << " tracks" << endmsg;
     }
-
-    return {maximumPosition,std::pow(-(maximumDensity/maxCurvature),0.5)};
+    if (maxCurvature == 0.) return invalidResult;
+    return {maximumPosition,std::sqrt(-maximumDensity/maxCurvature)};
   }
 
   /**
@@ -293,11 +257,11 @@ namespace Trk
     const double quadraticTerm = -cov_dd / (2*covDeterminant);
     double discriminant = linearTerm*linearTerm - 4*quadraticTerm*(constantTerm + 2*z0SignificanceCut);
     if (discriminant < 0) return;
-    discriminant = sqrt(discriminant);
+    discriminant = std::sqrt(discriminant);
     const double zMax = (-linearTerm - discriminant)/(2*quadraticTerm);
     const double zMin = (-linearTerm + discriminant)/(2*quadraticTerm);
     m_maxRange = std::max(m_maxRange, std::max(zMax-z0, z0-zMin));
-    constantTerm -= log(2*Gaudi::Units::pi*sqrt(covDeterminant));
+    constantTerm -= std::log(2*M_PI*std::sqrt(covDeterminant));
     m_trackMap.emplace(std::piecewise_construct,
                        std::forward_as_tuple(itrk),
                        std::forward_as_tuple(constantTerm, linearTerm, quadraticTerm, zMin, zMax));
@@ -309,5 +273,16 @@ namespace Trk
                        std::forward_as_tuple(itrk));
   }
 
+
+  void GaussianTrackDensity::TrackDensityEval::addTrack (const TrackEntry & entry){
+    if (entry.lowerBound < m_z && entry.upperBound > m_z) {
+      double delta = std::exp(entry.c_0+m_z*(entry.c_1 + m_z*entry.c_2));
+      double qPrime = entry.c_1 + 2*m_z*entry.c_2;
+      double deltaPrime = delta * qPrime;
+      m_density += delta;
+      m_firstDerivative += deltaPrime;
+      m_secondDerivative += 2*entry.c_2*delta + qPrime*deltaPrime;
+    }
+  }
 
 }

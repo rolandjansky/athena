@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H
@@ -35,7 +35,7 @@ class SCT_ID;
  * and uses AlgTools (SCTRawDataProviderTool and SCT_RodDecoder
  * to read the ByteStream and make RDOs.
  * Output is one RDO container (IDC) per event, which contains
- * one Collection per link (8196 in total), each of which contains
+ * one Collection per link (8176 in total), each of which contains
  * RDOs for hits (one RDO per strip in expanded mode, one per cluster
  * in condensed mode).
  *
@@ -115,16 +115,11 @@ class SCTRawDataProvider : public AthReentrantAlgorithm
                                                               "SCT_BCID",
                                                               "SCT BCID key"};
 
-  /** Write handle for Inner Detector ByteStream error container. */
-  SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerKey{this,
-                                                              "ByteStreamErrContainer",
-                                                              "SCT_ByteStreamErrs",
-                                                              "SCT BS error key"};
-
+  /** Write handle for Inner Detector ByteStream error container. */  
   SG::WriteHandleKey<IDCInDetBSErrContainer> m_bsIDCErrContainerKey{this,
-                                                                 "IDCByteStreamErrContainer",
-                                                                 "SCT_ByteStreamErrs",
-                                                                 "SCT BS error key for IDC variant"};
+                                                                    "IDCByteStreamErrContainer",
+                                                                    "SCT_ByteStreamErrs",
+                                                                    "SCT BS error key for IDC variant"};
 
 
   /** Update handle for SCT RDO and Erorrs Cache. */

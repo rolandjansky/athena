@@ -2,8 +2,8 @@
 #    Job options for running SiDigiAnalysis package (make root file with easy-to-get info 
 #    from RDO (digitised hits) file)
 #
-execfile("ID_only.py")
-execfile("geometry.py")
+include("InDetSLHC_Example/ID_only.py")
+include("InDetSLHC_Example/geometry.py")
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()

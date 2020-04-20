@@ -21,6 +21,7 @@
 #include "xAODEventInfo/EventInfoContainer.h"
 #include "xAODEventInfo/versions/EventInfo_v1.h"
 #include "xAODEventInfo/versions/EventAuxInfo_v1.h"
+#include "xAODEventInfo/versions/EventAuxInfo_v2.h"
 #include "xAODEventInfo/versions/EventInfoContainer_v1.h"
 #include "xAODEventInfo/versions/EventInfoAuxContainer_v1.h"
 

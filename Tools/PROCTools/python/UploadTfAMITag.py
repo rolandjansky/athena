@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
+
 import sys,pickle,os
 
 ##############################################################
@@ -38,13 +41,13 @@ OutputsVsStreams = {
     #'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.*IDCosmic.*)', 'HumanOutputs': 'always produced, except for DRAW input and IDCosmic'},
     #'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)', 'HumanOutputs': 'always produced, except for DRAW'},
     #'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.*physics_Main.*)', 'HumanOutputs': 'always produced, except for DRAW input and physics_Main'},
-    'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.(.*physics_Main\..*|.*Background.*|.*L1Topo.*))', 'HumanOutputs': 'always produced, except for DRAW input and physics_Main'},
+    'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.(.*physics_Main\\..*|.*Background.*|.*L1Topo.*))', 'HumanOutputs': 'always produced, except for DRAW input and physics_Main'},
     'outputAODFile': {'dstype': '!replace RAW AOD', 'ifMatch': cphiProjTag+'(?!.*DRAW_RPVLL.*)(?!.*Background.*)', 'HumanOutputs': 'always produced except for DRAW_RPVLL.'},
-    'outputTAGFile': {'dstype': 'TAG', 'ifMatch': 'data[0-9][0-9]_(cos|1beam|.*eV|comm)(.*express_express\..*)(?!.(.*DRAW.*))', 'HumanOutputs': 'Produced in express stream'},
+    'outputTAGFile': {'dstype': 'TAG', 'ifMatch': 'data[0-9][0-9]_(cos|1beam|.*eV|comm)(.*express_express\\..*)(?!.(.*DRAW.*))', 'HumanOutputs': 'Produced in express stream'},
     'outputHISTFile': {'dstype': 'HIST', 'ifMatch': '(?!.(.*DRAW.*|.*debugrec.*))', 'HumanOutputs': 'always produced except for DRAW and debugrec'},  # note was disabled for Pb-Pb HardProbes
     'outputRDOFile': {'dstype': 'RDO', 'ifMatch': cphiProjTag, 'HumanOutputs': 'always produced.'},
 # NTuples
-#    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_IDCosmic\..*|.*physics_CosmicMuons\..*)',
+#    'outputNTUP_MUONCALIBFile': {'dstype': 'NTUP_MUONCALIB', 'ifMatch': cpProjTag+'(?!.*DRAW.*)(.*physics_IDCosmic\\..*|.*physics_CosmicMuons\\..*)',
 #                                 'HumanOutputs': 'produced for IDCosmic and CosmicMuons streams'},
 
 ### put it to all streams for M10 tags
@@ -52,50 +55,50 @@ OutputsVsStreams = {
 #                                 'HumanOutputs': 'always produced except for DRAW'},
 
 # DRAW production 
-   'outputDRAW_ZMUMUFile': {'dstype': 'DRAW_ZMUMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+   'outputDRAW_ZMUMUFile': {'dstype': 'DRAW_ZMUMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*)',
                               'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
-   'outputDRAW_TAUMUHFile' : {'dstype': 'DRAW_TAUMUH', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+   'outputDRAW_TAUMUHFile' : {'dstype': 'DRAW_TAUMUH', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*)',
                              'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
     ### These don't work in 20.1.5.4, code updates from Paul coming soon
     ### Added three new outputs in 20.1.5.5 - DRAW_EGZ, DRAW_EGJPSI, DRAW_EMU
-   'outputDRAW_EGZFile'  : {'dstype': 'DRAW_EGZ', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+   'outputDRAW_EGZFile'  : {'dstype': 'DRAW_EGZ', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*)',
                             'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
-   #'outputDRAW_EGJPSIFile'  : {'dstype': 'DRAW_EGJPSI', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+   #'outputDRAW_EGJPSIFile'  : {'dstype': 'DRAW_EGJPSI', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*)',
    #                         'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
-    'outputDRAW_EMUFile'  : {'dstype': 'DRAW_EMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+    'outputDRAW_EMUFile'  : {'dstype': 'DRAW_EMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*)',
                              'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
 
-    'outputDRAW_RPVLLFile'  : {'dstype': 'DRAW_RPVLL', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+    'outputDRAW_RPVLLFile'  : {'dstype': 'DRAW_RPVLL', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*)',
                                'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
 
-    'outputDRAW_BCID1File'  : {'dstype': 'DRAW_BCID1', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*|.*physics_EnhancedBias\..*)',
+    'outputDRAW_BCID1File'  : {'dstype': 'DRAW_BCID1', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*|.*physics_EnhancedBias\\..*)',
                              'HumanOutputs': 'produced for collision runs, for the physics_Main & EnhancedBias stream.'},
-    'outputDRAW_BCID2File'  : {'dstype': 'DRAW_BCID2', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*|.*physics_EnhancedBias\..*)',
+    'outputDRAW_BCID2File'  : {'dstype': 'DRAW_BCID2', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*|.*physics_EnhancedBias\\..*)',
                              'HumanOutputs': 'produced for collision runs, for the physics_Main & EnhancedBias stream.'},
 
-    'outputDRAW_TOPSLMUFile'  : {'dstype': 'DRAW_TOPSLMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+    'outputDRAW_TOPSLMUFile'  : {'dstype': 'DRAW_TOPSLMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*)',
                              'HumanOutputs': 'produced for collision runs, for the physics_Main.'},
 
 # Special reconstruction outputs for DRAW
-#    'outputDESDM_MSPerfFile'  : {'dstype': '!replace RAW DESDM_MCP DDESDM_MCP_ZMUMU DESDM_ZMCP', 'ifMatch': pcProjTag+'(.*physics_Main\..*|.*CosmicMuons.*)(.*\.RAW\.*|.*DRAW_ZMUMU.*)',
+#    'outputDESDM_MSPerfFile'  : {'dstype': '!replace RAW DESDM_MCP DDESDM_MCP_ZMUMU DESDM_ZMCP', 'ifMatch': pcProjTag+'(.*physics_Main\\..*|.*CosmicMuons.*)(.*\\.RAW\\.*|.*DRAW_ZMUMU.*)',
 #                                 'HumanOutputs': 'produced when reconstructing DRAW_ZMUMU'},
 #    'outputDESDM_MSPerfFile'  : {'dstype': 'DESDM_ZMCP', 'ifMatch': pcProjTag+'(.*DRAW_ZMUMU.*)', 
 #                                 'HumanOutputs': 'produced when reconstructing DRAW_ZMUMU'},
     'outputDESDM_ALLCELLSFile': {'dstype': '!replace RAW ESDM', 'ifMatch': pcProjTag+'(?!.*DRAW_TAUMUH.*)(.*DRAW.*)', 
                                  'HumanOutputs': 'produced when reconstructing all DRAW formats'},
-    'outputDESDM_EOVERPFile'  : {'dstype': 'DESDM_EOVERP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_MinBias\..*)',
+    'outputDESDM_EOVERPFile'  : {'dstype': 'DESDM_EOVERP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_MinBias\\..*)',
                                  'HumanOutputs': 'produced when reconstructing RAW from MinBias'},
 
-#    'outputDESDM_MSPerfFile'  : {'dstype': 'DESDM_MCP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*|.*CosmicMuons.*)',
+#    'outputDESDM_MSPerfFile'  : {'dstype': 'DESDM_MCP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*|.*CosmicMuons.*)',
 #                                 'HumanOutputs': 'produced when reconstructing RAW'},
-    'outputDESDM_MCPFile'  : {'dstype': 'DESDM_MCP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*|.*CosmicMuons.*)',
+    'outputDESDM_MCPFile'  : {'dstype': 'DESDM_MCP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*|.*CosmicMuons.*)',
                                  'HumanOutputs': 'produced when reconstructing RAW'},
 
-    'outputDESDM_EXOTHIPFile'  : {'dstype': 'DESDM_EXOTHIP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+    'outputDESDM_EXOTHIPFile'  : {'dstype': 'DESDM_EXOTHIP', 'ifMatch': pcProjTag+'(?!.*DRAW.*)(.*physics_Main\\..*)',
                                  'HumanOutputs': 'produced when reconstructing RAW'},
 
-#    'outputDESDM_IDALIGNFile' : {'dstype': '!replace RAW ESDM', 'ifMatch': pcProjTag+'(.*\.DRAW_EGZ\.*|.*DRAW_ZMUMU.*)(.*physics_Main.*)',
-    'outputDESDM_IDALIGNFile' : {'dstype': '!replace RAW ESDM', 'ifMatch': pcProjTag+'(.*physics_Main.*)(.*\.DRAW_EGZ\.*|.*DRAW_ZMUMU.*)',
+#    'outputDESDM_IDALIGNFile' : {'dstype': '!replace RAW ESDM', 'ifMatch': pcProjTag+'(.*\\.DRAW_EGZ\\.*|.*DRAW_ZMUMU.*)(.*physics_Main.*)',
+    'outputDESDM_IDALIGNFile' : {'dstype': '!replace RAW ESDM', 'ifMatch': pcProjTag+'(.*physics_Main.*)(.*\\.DRAW_EGZ\\.*|.*DRAW_ZMUMU.*)',
                                  'HumanOutputs': 'produced when reconstructing DRAW_EGZ and DRAW_ZMUMU formats'},
 
 # DESDs made from full ESD files
@@ -146,15 +149,15 @@ OutputsVsStreams = {
 #Print for debugging...
 ## for outputKey in OutputsVsStreams.keys():
 ##     try:
-##         print outputKey,":",OutputsVsStreams[outputKey]['ifMatch']
+##         print (outputKey,":",OutputsVsStreams[outputKey]['ifMatch'])
 ##     except:
-##         print outputKey,": always produced"
+##         print (outputKey,": always produced")
 
 #-------------------------------------------------------------------------------------
 def GetProcessConfigs(release):
     rel = str(release)
-    #print "Got release",release
-    #print "Got Patch area",pa
+    #print ("Got release",release)
+    #print ("Got Patch area",pa)
     processConfigs = {}
 
     # HIST merging
@@ -247,20 +250,20 @@ def GetProcessConfigs(release):
 
 if __name__ == '__main__':
     if len(sys.argv) < 5 or len(sys.argv) > 8:
-        print "##############"
-        print "Application to create or update AMI tags (for manager only)\n"
-        print "Usage:"
-        print "UploadAMITag.py inputDictionary.pickle create_AMITag <release number> <description> [updateConditionsTag] [coolsource] [project] [patcharea]"
-        print "\nTo create inputDictionary.pickle, execute:"
-        print "Reco_tf.py --dumpPickle inputDictionary.pickle ..."
-        print "or"
-        print "CmdToPickledDic.py <command>"
-        print "\nMake sure you have stored your pyAMI credentials encrypted in ~/.pyami, if not, please do:"
-        print "\n setupATLAS"
-        print " localSetupPyAMI"
-        print " ami auth"
-        print "\n and enter your AMI username and password"
-        print "##############"
+        print ("##############")
+        print ("Application to create or update AMI tags (for manager only)\n")
+        print ("Usage:")
+        print ("UploadAMITag.py inputDictionary.pickle create_AMITag <release number> <description> [updateConditionsTag] [coolsource] [project] [patcharea]")
+        print ("\nTo create inputDictionary.pickle, execute:")
+        print ("Reco_tf.py --dumpPickle inputDictionary.pickle ...")
+        print ("or")
+        print ("CmdToPickledDic.py <command>")
+        print ("\nMake sure you have stored your pyAMI credentials encrypted in ~/.pyami, if not, please do:")
+        print ("\n setupATLAS")
+        print (" localSetupPyAMI")
+        print (" ami auth")
+        print ("\n and enter your AMI username and password")
+        print ("##############")
         sys.exit(0)
 
 
@@ -274,7 +277,7 @@ if __name__ == '__main__':
     project    = ""
     patchArea  = ""
     if len(sys.argv)>5:
-        print sys.argv
+        print (sys.argv)
         ### Update conditions
         try:
             updateConditionsTag = int(sys.argv[5])
@@ -285,17 +288,17 @@ if __name__ == '__main__':
         try:
             coolSource = sys.argv[6]
         except:
-            print "INFO: No coolSource specified -- this defaults to fronTier"
+            print ("INFO: No coolSource specified -- this defaults to fronTier")
         ### Release project
         try:
             project = sys.argv[7]
         except:
-            print "INFO: No project specified -- this defaults to Athena"
+            print ("INFO: No project specified -- this defaults to Athena")
         ### Patch Area
         try:
             patchArea = sys.argv[8]
         except:
-            print "INFO: No patch area specified -- this defaults to the default set by Tier0"
+            print ("INFO: No patch area specified -- this defaults to the default set by Tier0")
 
     doWhat="Dunno"
     amiTag=''
@@ -340,13 +343,13 @@ if __name__ == '__main__':
         s="ERROR Release directory " + relPath + " does not exists"
         #raise RuntimeError(s)
     else:
-        print "INFO: Found",relPath
+        print ("INFO: Found",relPath)
 
     processConfigs=GetProcessConfigs(release_number)
     humanReadableOutputs=""
 
     if process=='reco':
-        f = open(inPickleFile, 'r')
+        f = open(inPickleFile, 'rb')
         startingDic = pickle.load(f)
         f.close()
 
@@ -372,7 +375,7 @@ if __name__ == '__main__':
         outputDic={}
         configDic={}
 
-        print startingDic
+        print (startingDic)
 
         didConditionsUpdate = False
         for key in startingDic.keys():
@@ -381,48 +384,48 @@ if __name__ == '__main__':
                     inputDic[key]=startingDic[key]
                 else:
                     inputDic[key]={}
-                #print "inputDic[%s] = %s" % (key, inputDic[key])
+                #print ("inputDic[%s] = %s" % (key, inputDic[key]))
 
             elif key.startswith("output"):
                 try:
-                    #print "key: " , key , " isOutput"
+                    #print ("key: " , key , " isOutput")
                     outputDic[key]=OutputsVsStreams[key]
                 except:
-                    print "Known outputs defined in the OutputsVsStreams dictionary are:"
-                    print OutputsVsStreams
+                    print ("Known outputs defined in the OutputsVsStreams dictionary are:")
+                    print (OutputsVsStreams)
                     raise RuntimeError("Don't know what to do with out key %s, please add it to OutputsVsStreams to use it"%key)
             elif key=='autoConfiguration' and updateConditionsTag and 'Conditions' in currentConditionsTag: # legacy: used for autoconfiguration of conditions like COMCOND-ES1P*-005-04
                 if(startingDic[key].find(currentConditionsTag)>=0):
-                    print '*** autoConfiguration: %s (CURRENT) is already specified ***' % (currentConditionsTag)
+                    print ('*** autoConfiguration: %s (CURRENT) is already specified ***' % (currentConditionsTag))
                 elif(startingDic[key].find('ConditionsTag')>=0): # ConditionsTag is already defined.
                     autoConfs = startingDic[key].split(',')
                     for i in range(len(autoConfs)):
                         if(autoConfs[i][0:13]=='ConditionsTag'):
-                            print '*** autoConfiguration: %s is replaced by %s (CURRENT) ***' % (autoConfs[i], currentConditionsTag)
+                            print ('*** autoConfiguration: %s is replaced by %s (CURRENT) ***' % (autoConfs[i], currentConditionsTag))
                             autoConfs[i] = currentConditionsTag
                         if(i==0): startingDic[key] = autoConfs[i]
                         else: startingDic[key] += ','+autoConfs[i]
                 else: # ConditionsTag is not yet defined.
-                    print '*** autoConfiguration: %s (CURRENT) is appended ***' % (currentConditionsTag)
+                    print ('*** autoConfiguration: %s (CURRENT) is appended ***' % (currentConditionsTag))
                     startingDic[key] += ','+currentConditionsTag
                 configDic[key]=startingDic[key]
                 didConditionsUpdate=True
 
             elif key=='conditionsTag' and updateConditionsTag:
                 if(startingDic[key].find(currentConditionsTag)>=0):
-                    print '*** conditionsTag: %s (CURRENT) is already specified ***' % (currentConditionsTag)
+                    print ('*** conditionsTag: %s (CURRENT) is already specified ***' % (currentConditionsTag))
                 else:
-                    print '*** conditionsTag: %s is replaced by %s (CURRENT) ***' % (startingDic[key], currentConditionsTag)
+                    print ('*** conditionsTag: %s is replaced by %s (CURRENT) ***' % (startingDic[key], currentConditionsTag))
                     startingDic[key]=currentConditionsTag
                 configDic[key]=startingDic[key]
                 didConditionsUpdate=True
             else:
                 configDic[key]=startingDic[key]
-                #print "key: " , key , " is neiter input nor output..."
+                #print ("key: " , key , " is neiter input nor output...")
 
         if updateConditionsTag and not didConditionsUpdate:
             # update conditions
-            print '*** conditionsTag: %s (CURRENT) is appended ***' % (currentConditionsTag)
+            print ('*** conditionsTag: %s (CURRENT) is appended ***' % (currentConditionsTag))
             configDic['conditionsTag']=currentConditionsTag
     
         #Special treatment for maxEvents and AMITag, in configDic
@@ -463,7 +466,7 @@ if __name__ == '__main__':
     try:
         import pyAMI.client
     except ImportError:
-        print "WARNING unable to import pyAMI.client"
+        print ("WARNING unable to import pyAMI.client")
     amiclient=pyAMI.client.Client('atlas')
 
     #------------------------
@@ -490,7 +493,7 @@ if __name__ == '__main__':
         c['ConditionsTag']=configDic['conditionsTag']['all']
         #c['ConditionsTag']='Auto-config. See dataset info.'
 
-    #print c['Human-readable outputs']
+    #print (c['Human-readable outputs'])
 
     
     #Upload info to AMI
@@ -503,10 +506,10 @@ if __name__ == '__main__':
         for k in c.keys():
             l.append(k+'="'+c[k].replace('"','\\"')+'"')
 
-        print "\nThis is the command that will be sent to AMI:\n"
-        print "l=",l
+        print ("\nThis is the command that will be sent to AMI:\n")
+        print ("l=",l)
         result=amiclient.execute(l,format='text')
-        print "\nHere's what AMI replied:\n\n%s" % result
+        print ("\nHere's what AMI replied:\n\n%s" % result)
 
     elif doWhat=="update":
         s['amiTag']=amiTag
@@ -521,14 +524,14 @@ if __name__ == '__main__':
                 continue
             l.append(k+'="'+c[k].replace('"','\\"')+'"')
             
-        print "\nThis is the command that will be sent to AMI:\n"
-        print "l=",l
+        print ("\nThis is the command that will be sent to AMI:\n")
+        print ("l=",l)
         result=amiclient.execute(l)
-        print "\nHere's what AMI replied:\n\n%s" % result
+        print ("\nHere's what AMI replied:\n\n%s" % result)
 
     else:
         raise SyntaxError("Don't know what to do... amiTagTmp='%s'  doWhat='%s'"%(amiTagTmp,doWhat))
 
-    print "\nTo see the corresponding command, go to:\n"
-    print "https://ami.in2p3.fr/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?linkId=10226"
-    print "\n"
+    print ("\nTo see the corresponding command, go to:\n")
+    print ("https://ami.in2p3.fr/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?linkId=10226")
+    print ("\n")

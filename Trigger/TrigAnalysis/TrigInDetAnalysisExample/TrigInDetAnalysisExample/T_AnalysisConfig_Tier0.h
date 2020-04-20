@@ -17,7 +17,7 @@
  **     @author  mark sutton
  **     @date    Tue 16 May 2017 09:28:55 CEST 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 #ifndef TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
@@ -480,11 +480,15 @@ protected:
       }
     }
     
-
-    if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
-      m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endmsg;
-      return;
-    }
+    //  Remove this code to skip on truncated HLT results
+    //  Need to leave the code here for the time being however, since we will
+    //  still need in the future a more robust test to achieve this same
+    //  functionality
+    // 
+    //    if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
+    //      m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endmsg;
+    //      return;
+    //    }
     
     if ( !this->m_keepAllEvents && !analyse ) {
       //     m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endmsg;

@@ -737,6 +737,10 @@ StatusCode SGImplSvc::setAlias(CLID clid,
   return StatusCode::SUCCESS;
 }
 
+StatusCode SGImplSvc::setAlias(SG::DataProxy* proxy, const std::string& aliasKey)
+{
+  return addAlias( aliasKey, proxy );
+}
 
 StatusCode
 SGImplSvc::addAlias(const std::string& aliasKey, DataProxy* proxy)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,6 +9,7 @@
 #define ITRKTRACKSLIMMINGTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk 
     
@@ -34,7 +35,7 @@ namespace Trk
          @return nullptr
          The later behaviour can be not thread-safe , look method slimCopy below 
          */
-        virtual Trk::Track* slim(const Trk::Track& track) const = 0;
+        virtual Trk::Track* slim ATLAS_NOT_THREAD_SAFE (const Trk::Track& track) const = 0;
 
         /**This method always creates a std::unique_ptr<Trk::Track*> with information removed
          * based on the tool configuration (m_setPersistificationHints is not used)

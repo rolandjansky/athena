@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibTools/LArParamsFromStdNtuple.h"
@@ -80,11 +80,11 @@ StatusCode LArParamsFromStdNtuple::stop()
 
   // Create new objects
   LArCaliPulseParamsComplete *larCaliPulseParams = new LArCaliPulseParamsComplete();
-  larCaliPulseParams->setGroupingType(m_groupingType, msg());
-  larCaliPulseParams->initialize();
+  ATH_CHECK ( larCaliPulseParams->setGroupingType(m_groupingType, msg()) );
+  ATH_CHECK ( larCaliPulseParams->initialize() );
   LArDetCellParamsComplete *larDetCellParams = new LArDetCellParamsComplete();
-  larDetCellParams->setGroupingType(m_groupingType, msg());
-  larDetCellParams->initialize();
+  ATH_CHECK ( larDetCellParams->setGroupingType(m_groupingType, msg()) );
+  ATH_CHECK ( larDetCellParams->initialize() );
 
 
   unsigned int hwid;

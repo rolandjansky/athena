@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSORFROMPTREEHELPER_H_
 #define TRIGSORFROMPTREEHELPER_H_
@@ -60,8 +60,8 @@ public:
   EventIDBase eventID() const;
 
 private:
-  StatusCode createSOR() const;
-  coral::AttributeList getAttrList() const;
+  StatusCode createSOR ATLAS_NOT_THREAD_SAFE () const;
+  coral::AttributeList getAttrList ATLAS_NOT_THREAD_SAFE () const;
   StatusCode setIOVRange(IOVRange& iovRange) const;
   StatusCode updateProxy(SOR* sor) const;
 

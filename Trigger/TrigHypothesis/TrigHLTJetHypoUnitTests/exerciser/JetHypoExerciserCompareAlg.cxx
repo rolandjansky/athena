@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigHLTJetHypoUnitTests/JetHypoExerciserCompareAlg.h"
@@ -14,7 +14,6 @@
 
 #include <fstream>
 #include <sstream>
-
 
 JetHypoExerciserCompareAlg::JetHypoExerciserCompareAlg(const std::string& name,
 						       ISvcLocator* pSvcLocator) :
@@ -44,7 +43,6 @@ JetHypoExerciserCompareAlg::initialize_(const ToolHandle<ITrigJetHypoToolHelperM
       (helper.propertyName() << ": Retrieved tool " 
        << helper.type());
   }
-
   DebugInfoCollector collector(name());
   CHECK(helper->getDescription(collector));
   auto s = collector.toString();
@@ -80,6 +78,7 @@ StatusCode
 JetHypoExerciserCompareAlg::execute_(ToolHandle<ITrigJetHypoToolHelperMT>& helper,
 				     HypoJetVector& jv,
 				     const std::string& collectorName,
+				     xAODJetCollector& jetCollector,
 				     const std::string& logname,
 				     bool& pass) {
   
@@ -105,13 +104,22 @@ JetHypoExerciserCompareAlg::execute_(ToolHandle<ITrigJetHypoToolHelperMT>& helpe
     debugInfoCollector-> collect("JetHypoExerciserCompareAlg", ss1.str());
   }
   
-  xAODJetCollector jetCollector;
 
   pass = helper->pass(jv, jetCollector, debugInfoCollector);
 
   std::stringstream ss;
   ss <<  "========= ncall: "<<m_ncall << "==========\n";
   if(debugInfoCollector){
+    std::stringstream ss1;
+    ss1 <<'\n';
+    for(const auto& j : jetCollector.hypoJets()){
+      ss1 << "e: " << j->e() << " et " << j->et() << " eta " << j->eta()
+	  << '\n';
+    }
+    debugInfoCollector-> collect("JetHypoExerciserCompareAlg", ss1.str());
+    debugInfoCollector-> collect("JetHypoExerciserCompareAlg collectedJets",
+				 ss1.str());
+    
     ss << debugInfoCollector->toString() + '\n';
   }
   auto s = ss.str();
@@ -140,8 +148,10 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
   std::string logname = m_logname + "_ev_" + std::to_string(m_ncall) + "tool0";
   bool pass0{false};
 
+  xAODJetCollector jetCollector0;
+  
   timer.start();
-  execute_(m_helper0, jv, collectorName, logname, pass0);
+  ATH_CHECK (execute_(m_helper0, jv, collectorName, jetCollector0, logname, pass0));
   timer.stop();
   
   if(!m_visitDebug){
@@ -156,9 +166,13 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
   
   collectorName = name() + "debugInfoCollector1";
   logname = m_logname + "_ev_" + std::to_string(m_ncall) + "tool1";
-  bool pass1;
+  bool pass1{false};
+  xAODJetCollector jetCollector1;
+
+
   timer.start();
-  execute_(m_helper1, jv, collectorName, logname, pass1);
+
+  ATH_CHECK (execute_(m_helper1, jv, collectorName, jetCollector1, logname, pass1));
   timer.stop();
 
   if(!m_visitDebug){
@@ -188,7 +202,38 @@ StatusCode JetHypoExerciserCompareAlg::execute() {
     ATH_MSG_INFO ("hypo helper tools agree on result which is: " << spass0);
   }
 
-    
+  HypoJetVector collected0 = jetCollector0.hypoJets();
+  HypoJetVector collected1 = jetCollector1.hypoJets();
+  std::size_t njets = collected0.size();
+
+  if (njets == collected1.size()) {
+    std::sort(collected0.begin(), collected0.end());
+    std::sort(collected1.begin(), collected1.end());
+
+    bool jagree{true};
+    for (std::size_t i = 0; i < njets; i++) {
+      ATH_MSG_INFO(" jet 0 : " << static_cast<const void*>(collected0.at(i)) <<
+		   " jet 1 : " << static_cast<const void*>(collected1.at(i)));
+
+      if (collected0.at(i) != collected1.at(i)) {
+	ATH_MSG_INFO(" jets above differ ");
+	jagree = false;
+	break;
+      }
+    }
+    if (jagree) {
+      ++m_agree_jets;
+    } else {
+      ++m_differ_jets;
+    }
+  } else {
+    ++m_differ_jets;
+    ATH_MSG_INFO(" no of jets 0 : " << collected0.size() << " "
+		 " no of jets 1 : " << collected1.size() << " "
+		 " no of jets differ ");
+
+  }
+  
   for (auto p : jv) {delete p;}
   return StatusCode::SUCCESS;
 }
@@ -201,7 +246,9 @@ StatusCode JetHypoExerciserCompareAlg::finalize() {
   ATH_MSG_INFO ("finalize()");
   ATH_MSG_INFO ("agree and false: " << m_agree_false <<
 		" agree and true: " << m_agree_true <<
-		" differ: "       << m_differ
+		" differ: "         << m_differ <<
+		" jets agree: "     << m_agree_jets <<
+		" jets differ: "     << m_differ_jets
 		);
 
   return StatusCode::SUCCESS;

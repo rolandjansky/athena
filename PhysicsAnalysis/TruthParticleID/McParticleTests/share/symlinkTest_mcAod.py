@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import user
 import os
 import sys
-import commands
 from AthenaCommon import ChapPy
+
+from future import standard_library
+standard_library.install_aliases()
+import subprocess
 
 ###-----------------------------------------------------
 ## For compatibility with ATN tests
@@ -22,32 +27,32 @@ def installRefFiles( fileNames ):
         for fileName in [ refFile, workDir(refFile) ]:
             if os.path.exists(fileName):
                 os.remove(fileName)
-        sc,out = commands.getstatusoutput( "get_files %s" % refFile )
+        sc,out = subprocess.getstatusoutput( "get_files %s" % refFile )
         if sc != 0:
-            print "## ERROR: could not retrieve [%s]" % refFile
-            print "## reason:\n",out
+            print ("## ERROR: could not retrieve [%s]" % refFile)
+            print ("## reason:\n",out)
             continue
         if os.path.exists(refFile) and \
            os.path.exists(workDir(refFile)) and \
            os.path.samefile( refFile, workDir(refFile) ):
-            print " -%s" % workDir(refFile)
+            print (" -%s" % workDir(refFile))
             continue
-        sc,out = commands.getstatusoutput( "mv %s %s" % ( refFile,
+        sc,out = subprocess.getstatusoutput( "mv %s %s" % ( refFile,
                                                           workDir(refFile) ) )
         if sc != 0:
-            print "## ERROR: could not install [%s] into [%s]" %\
-                  ( refFile, workDir(refFile) )
-            print "## reason:\n",out
+            print ("## ERROR: could not install [%s] into [%s]" %\
+                   ( refFile, workDir(refFile) ))
+            print ("## reason:\n",out)
             continue
         else:
-            print " -%s" % workDir(refFile)
+            print (" -%s" % workDir(refFile))
     return
 
-print "#"*80
-print "## testing symlinks for TruthParticleContainer..."
+print ("#"*80)
+print ("## testing symlinks for TruthParticleContainer...")
 bench = BenchSequence( "Symlinks for TruthParticleContainer" )
 
-print "## installing reference files..."
+print ("## installing reference files...")
 installRefFiles( [
     "mc.aod.symlinks.ref",
     "mc.aod.pysymlinks.ref",
@@ -56,7 +61,7 @@ installRefFiles( [
 evtMax = 5
 
 ###-----------------------------------------------------
-print "## Testing [writing]..."
+print ("## Testing [writing]...")
 jobOptions = [
     ChapPy.JobOptionsCmd( "OUTPUT=\"%s\"" % workDir("mc.aod.symlinks.pool") ),
     ChapPy.JobOptions( "McParticleTests/symlinkTest_mcAod_jobOptions.py" ),
@@ -70,8 +75,8 @@ athena.run()
 
 
 ###-----------------------------------------------------
-print "\n"
-print "#"*80
+print ("\n")
+print ("#"*80)
 bench += doPostCheck( "McAod symlinks",
                       workDir("mc.aod.symlinks.ref"),
                       workDir("mc.aod.symlinks.pool.log"),
@@ -79,10 +84,10 @@ bench += doPostCheck( "McAod symlinks",
 
 
 ###-----------------------------------------------------
-print ""
-print "#"*80
-print "## testing py-symlinks for TruthParticleContainer..."
-print "## Testing [writing]..."
+print ("")
+print ("#"*80)
+print ("## testing py-symlinks for TruthParticleContainer...")
+print ("## Testing [writing]...")
 jobOptions = [
     ChapPy.JobOptionsCmd( "OUTPUT=\"%s\"" % workDir("mc.aod.pysymlinks.pool") ),
     ChapPy.JobOptionsCmd( "ALGMODE='py'" ),
@@ -97,14 +102,14 @@ athena.run()
 
 
 ###-----------------------------------------------------
-print "\n"
-print "#"*80
+print ("\n")
+print ("#"*80)
 bench += doPostCheck( "McAod py-symlinks",
                       workDir("mc.aod.pysymlinks.ref"),
                       workDir("mc.aod.pysymlinks.pool.log"),
                       "grep \"^Py:PyMcAodSymLinkTests\"" )
-print ""
-print "#"*80
+print ("")
+print ("#"*80)
 bench.printStatus()
-print "## Bye."
-print "#"*80
+print ("## Bye.")
+print ("#"*80)

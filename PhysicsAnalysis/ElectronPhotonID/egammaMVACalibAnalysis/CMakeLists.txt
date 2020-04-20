@@ -67,7 +67,11 @@ endif()
 # Not working now because egammaMVACalibDict was removed.
 #atlas_add_test( mem_test SCRIPT test/mem_test.py
 #                PROPERTIES TIMEOUT 300
-#                EXTRA_PATTERNS " GB$" )
+#                LOG_IGNORE_PATTERN " GB$" )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+atlas_add_test( flake8_test
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/test
+                POST_EXEC_SCRIPT nopost.sh )

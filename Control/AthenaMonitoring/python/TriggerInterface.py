@@ -23,11 +23,12 @@ def getTrigDecisionTool(flags):
         getTrigDecisionTool.rv = rv
         return getTrigDecisionTool.rv
 
-    cfgtool = CompFactory.TrigConf__xAODConfigTool('xAODConfigTool')
-    rv.addPublicTool(cfgtool)
+    cfgsvc = CompFactory.TrigConf.xAODConfigSvc('xAODConfigSvc')
+    rv.addService(cfgsvc)
 
-    tdt = CompFactory.Trig__TrigDecisionTool('TrigDecisionTool')
-    tdt.ConfigTool = cfgtool
+    tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
+    tdt.TrigConfigSvc = cfgsvc
+
     tdt.NavigationFormat = "TrigComposite" if 'HLTNav_Summary' in flags.Input.Collections else "TriggerElement"
     rv.addPublicTool(tdt)
     # Other valid option of NavigationFormat is "TriggerElement" for Run 2 navigation. 

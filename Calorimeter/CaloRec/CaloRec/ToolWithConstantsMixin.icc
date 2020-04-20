@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ToolWithConstantsMixin.icc,v 1.6 2009-04-18 02:56:16 ssnyder Exp $
 /**
  * @file  ToolWithConstantsMixin.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -76,14 +75,13 @@ StatusCode do_declare (ToolWithConstantsMixin* self,
  * be an instance of one of the @c Array<N> classes.
  */
 template <class T>
-StatusCode
+void
 ToolWithConstantsMixin::declareConstant (const std::string& name,
                                          T& c,
                                          bool deflt /*= false*/)
 {
   c = T();
-  CHECK( add_constant (makeinfo (name, c, deflt)) );
-  return StatusCode (StatusCode::SUCCESS, true);
+  add_constant (makeinfo (name, c, deflt));
 }
 
 

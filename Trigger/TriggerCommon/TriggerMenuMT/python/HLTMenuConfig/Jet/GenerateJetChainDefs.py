@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.Jet.JetChainConfiguration import JetChainConfiguration
 
 
@@ -14,29 +13,13 @@ def generateChainConfigs( chainDict ):
     import pprint
     pprint.pprint( chainDict )
 
-    
-    listOfChainDicts = splitChainDict(chainDict)
-    listOfChainDefs = []
+    # Jet chain is assembled always from the full dictionary (multiple legs are handled internally by the jet reco / hypo)
+    theChainDef = JetChainConfiguration(chainDict)
 
-    for subChainDict in listOfChainDicts:
-        
-        Jet = JetChainConfiguration(subChainDict).assembleChain() 
-
-        listOfChainDefs += [Jet]
-        log.debug('length of chaindefs %s', len(listOfChainDefs) )
-        
-    # We should never use multiple reco definitions, as this
-    # cannot be handled by the hypos.
-    # FIXME: Check that all jet reco configs are identical
-    if len(listOfChainDefs)>1:
-        # Add reco consistency checking between all 
-        log.warning("Multiple jet chainParts detected; reco consistency checks not yet implemented. Forcing chain to be single-object")
-        theChainDef = listOfChainDefs[0] #needs to be implemented properly
-    else:
-        theChainDef = listOfChainDefs[0]
+    jetChain = theChainDef.assembleChain()
 
 
-    return theChainDef
+    return jetChain
 
 
 

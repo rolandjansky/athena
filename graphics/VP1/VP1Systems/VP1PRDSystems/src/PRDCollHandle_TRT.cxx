@@ -9,7 +9,7 @@
 #include <QColor>
 
 #include "InDetPrepRawData/TRT_DriftCircle.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "VP1Utils/VP1JobConfigInfo.h"
 #include "VP1Utils/VP1SGContentsHelper.h"

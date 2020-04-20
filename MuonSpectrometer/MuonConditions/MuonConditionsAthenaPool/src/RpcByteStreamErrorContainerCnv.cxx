@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStreamErrors/RpcByteStreamErrorContainer.h"
@@ -20,8 +20,7 @@ Muon::RpcByteStreamErrorContainer* RpcByteStreamErrorContainerCnv::createTransie
   using namespace Muon;
   static pool::Guid   p1_guid("4E46BDDC-E1F9-420A-A11F-47EF082A3E3A");
   if( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr< RpcByteStreamErrorContainer_p1 > col_vect( poolReadObject< RpcByteStreamErrorContainer_p1 >() );
+    std::unique_ptr< RpcByteStreamErrorContainer_p1 > col_vect( poolReadObject< RpcByteStreamErrorContainer_p1 >() );
     MsgStream log(msgSvc(), "RpcByteStreamErrorContainer_p1" );
     return TPconverter_p1.createTransient( col_vect.get(), log );
   } 

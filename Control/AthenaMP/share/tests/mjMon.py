@@ -13,6 +13,7 @@
 # @endcode
 #
 
+from __future__ import print_function
 
 __version__ = "$Revision: 276792 $"
 __author__  = "Mous Tatarkhanov <tmmous@cern.ch>"
@@ -25,7 +26,7 @@ import sys
 class Writer:
     def __init__(self, stdout, filename):
         self.stdout = stdout
-        self.logfile = file(filename, 'a')
+        self.logfile = open(filename, 'a')
 
     def write(self, text):
         self.stdout.write(text)
@@ -111,26 +112,26 @@ if __name__ == "__main__":
         numa_list = None
 
     if isinstance(numa_list, list):
-        print "numa_list=%s" % numa_list
+        print ("numa_list=%s" % numa_list)
     elif numa_list is not None:
-        print "Please input correct numa_list"
+        print ("Please input correct numa_list")
         str(parser.print_help() or "")
         sys.exit(1)
 
     ne = int(options.nbrEvts)
     jobo = options.jobo
-    print "np_list = ", np_list
-    print "ne = ", ne
-    print "jobo = ", jobo
+    print ("np_list = ", np_list)
+    print ("ne = ", ne)
+    print ("jobo = ", jobo)
     job = jobo.split()[0] 
-    print "mpMon.log =", options.outFileName
-    print "doFluchCache=", options.doFlushCache, type(options.doFlushCache)
+    print ("mpMon.log =", options.outFileName)
+    print ("doFluchCache=", options.doFlushCache, type(options.doFlushCache))
     if options.doFlushCache:
         options.commentsStr += ".doFlushCache"
-    print "numa_list=%s" % numa_list
+    print ("numa_list=%s" % numa_list)
 
     def cleanup():
-        print ' Cleaning...Goodbye!'
+        print (' Cleaning...Goodbye!')
         for pid in mpt.pid_list:
             mpt.stop_proc_tree(pid)
     
@@ -146,7 +147,6 @@ if __name__ == "__main__":
     import subprocess
     import signal
     import time
-    import commands
     
     
     for np in np_list:
@@ -160,7 +160,7 @@ if __name__ == "__main__":
             os.remove(sar_log)
                
         if options.doFlushCache:
-            print subprocess.call(['flush_cache.py',])
+            print (subprocess.call(['flush_cache.py',]))
             
         #time.sleep(TIME_STEP) 
         
@@ -184,16 +184,16 @@ if __name__ == "__main__":
         
         if numa_list is not None:
             if len(numa_list) < np:
-                print "len(numa_list) < np:  need to append [('f','f'),]"
+                print ("len(numa_list) < np:  need to append [('f','f'),]")
                 numa_list += [('f','f'),] * (np - len(numa_list))
             else:
-                print "len(numa_list)==len(range(np)): there are enough numa settings defined"
+                print ("len(numa_list)==len(range(np)): there are enough numa settings defined")
             
             iterator = zip(range(np), numa_list)
         else:
             iterator = zip(range(np), range(np))
 
-        print "numa_list=%s" % numa_list
+        print ("numa_list=%s" % numa_list)
 
         se = 0 # skip events
         numa_set = None
@@ -207,7 +207,7 @@ if __name__ == "__main__":
             (proc, proc_out, proc_err) = mpt.launch_athena(jobo, ne, se, np, "ne%i.ni%i" % (ne,i), numa_set ); #launching athena
             proc_list.append(proc)
             proc_dict[proc.pid] = (proc_out, proc_err)
-            #print "%s athena %i.%i.%i proc launched ...[pid %i]  out:%s err:%s" % (numa_str, ne, np, i, proc.pid, proc_out, proc_err )
+            #print ("%s athena %i.%i.%i proc launched ...[pid %i]  out:%s err:%s" % (numa_str, ne, np, i, proc.pid, proc_out, proc_err ))
             se +=ne
         time.sleep(TIME_STEP); 
 
@@ -224,24 +224,24 @@ if __name__ == "__main__":
             
         t1=time.time()
         
-        print "athena processes finished:"
+        print ("athena processes finished:")
         
         #SUMMARY
         mpt.summarize_proc_stat()
-        for i in xrange(2):
+        for i in range(2):
             _print_mem()
             time.sleep(TIME_STEP)
         
-        print "FINISHED MONITORING:"
+        print ("FINISHED MONITORING:")
         mpt.stop_proc(sar_proc)
         
-        print "COLLECTING STATISTICS..."
+        print ("COLLECTING STATISTICS...")
         mpt.get_full_sar_stat(sar_log)
-        print "FINISHED COLLECTING STATISTICS"
+        print ("FINISHED COLLECTING STATISTICS")
         
-        print "START ANALYSIS..."
+        print ("START ANALYSIS...")
         
-        print " ELAPSED TIMES: \n Time: dt1=[%i sec]" % (t1-t0)
+        print (" ELAPSED TIMES: \n Time: dt1=[%i sec]" % (t1-t0))
         
     
         _mp_stat['sp_summary']=mpt.SPSummary(np)
@@ -260,15 +260,15 @@ if __name__ == "__main__":
         
         mpt.print_summary()
         
-        print "FINISHED ANALYSIS"
+        print ("FINISHED ANALYSIS")
         
-        print "START REPORT..."
+        print ("START REPORT...")
         mpt.prepare_mp_stat() # preparing mp_stat dictionary for ROOT
         import pickle
-        pickle.dump(_mp_stat, open("pickle.%s.f" % suffix,  "w"))        
+        pickle.dump(_mp_stat, open("pickle.%s.f" % suffix,  "wb"))
 
         mpt.writeRootFile("%s.root" % suffix, np)
-        print "FINISHED REPORT."
+        print ("FINISHED REPORT.")
         
         cleanup()
 
@@ -282,6 +282,6 @@ if __name__ == "__main__":
         mpt.report(merged_root_file, ne, comments = options.commentsStr)
     
     cleanup()
-    print "The End"
+    print ("The End")
     sys.exit(0)
 

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file LArElecCalib/LArVectorProxy.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -20,8 +19,8 @@
  */
 inline
 LArVectorProxy::LArVectorProxy()
-  : m_beg(0),
-    m_end(0)
+  : m_beg (nullptr),
+    m_end (nullptr)
 {
 }
 
@@ -31,8 +30,8 @@ LArVectorProxy::LArVectorProxy()
  * @param vec The existing vector to reference.
  */
 inline
-LArVectorProxy::LArVectorProxy (const std::vector<float>& vec)
-  : m_beg (&*vec.begin()),
+LArVectorProxy::LArVectorProxy (const std::vector<value_type>& vec)
+  : m_beg (vec.data()),
     m_end (m_beg + vec.size())
 {
 }
@@ -44,7 +43,7 @@ LArVectorProxy::LArVectorProxy (const std::vector<float>& vec)
  * @param end Pointer to the (exclusive) end of the range.
    */
 inline
-LArVectorProxy::LArVectorProxy (const float* beg, const float* end)
+LArVectorProxy::LArVectorProxy (const value_type* beg, const value_type* end)
   : m_beg (beg),
     m_end (end)
 {
@@ -57,7 +56,7 @@ LArVectorProxy::LArVectorProxy (const float* beg, const float* end)
 inline
 bool LArVectorProxy::valid() const
 {
-  return m_beg != 0;
+  return m_beg != nullptr;
 }
 
 
@@ -75,7 +74,7 @@ size_t LArVectorProxy::size() const
  * @brief Vector indexing.
  */
 inline
-float LArVectorProxy::operator[] (size_t i) const
+LArVectorProxy::value_type LArVectorProxy::operator[] (size_t i) const
 {
   return m_beg[i];
 }
@@ -85,7 +84,7 @@ float LArVectorProxy::operator[] (size_t i) const
  * @brief Vector indexing with bounds check.
  */
 inline
-float LArVectorProxy::at (size_t i) const
+LArVectorProxy::value_type LArVectorProxy::at (size_t i) const
 {
   if (i >= size())
     throw std::out_of_range ("LArVectorProxy::at");
@@ -97,9 +96,19 @@ float LArVectorProxy::at (size_t i) const
  * @brief Convert back to a vector.
  */
 inline
-std::vector<float> LArVectorProxy::asVector() const
+std::vector<LArVectorProxy::value_type> LArVectorProxy::asVector() const
 {
-  return std::vector<float> (m_beg, m_end);
+  return std::vector<value_type> (m_beg, m_end);
+}
+
+
+/**
+ * @brief Return a pointer to the start of the data.
+ */
+inline
+const LArVectorProxy::value_type* LArVectorProxy::data() const
+{
+  return m_beg;
 }
 
 

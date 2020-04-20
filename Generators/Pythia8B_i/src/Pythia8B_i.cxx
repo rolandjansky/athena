@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ======================================================================
@@ -14,7 +14,7 @@
 #include "Pythia8B_i/Pythia8B_i.h"
 #include "Pythia8B_i/UserSelections.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -98,6 +98,9 @@ StatusCode Pythia8B_i::genInitialize() {
         return RndmStatus;
     }
     
+    // Call the base class genInitialize()
+    ATH_CHECK (Pythia8_i::genInitialize());
+
     // This over-rides the genInitialize in the base class Pythia8_i, but then calls it
     // Sets the built-in UserHook called SuppressLowPT
     // FOR ONIA USE ONLY
@@ -107,11 +110,7 @@ StatusCode Pythia8B_i::genInitialize() {
         Pythia8_i::m_pythia->setUserHooksPtr(m_SuppressSmallPT);
     }
 
-    // Call the base class genInitialize()
-    if (Pythia8_i::genInitialize().isSuccess()) {
-        return StatusCode::SUCCESS;
-    } else {return StatusCode::FAILURE;}
-    
+    return StatusCode::SUCCESS;
 }
 
 
@@ -369,17 +368,9 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     evt->weights().push_back(m_pythia->info.weight());
     
     // Units correction
-#ifdef HEPMC_HAS_UNITS
     if(Pythia8_i::pythiaVersion() < 8.170 ){
         GeVToMeV(evt);
     }
-#else
-    ATH_MSG_DEBUG("Not scaling HepMC energies for Py8 > 8.153!");
-#endif
-    
-#ifndef HEPMC_HAS_UNITS
-    ATH_MSG_DEBUG();
-#endif
     
     // Remove event/number from buffer
     m_BEventBuffer.erase(m_BEventBuffer.begin());

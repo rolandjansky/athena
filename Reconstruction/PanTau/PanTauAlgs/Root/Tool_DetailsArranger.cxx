@@ -281,22 +281,6 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
         ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m() << "  isPi0: " << nPi0 << " , BDTscore: " << pfo->bdtPi0Score() );
     }
     //#endif //NDEBUG
-    
-    
-    //set nPi0 to 0 for neutrals that have no pi0
-//     for(unsigned int iPFO=0; iPFO<neutralPFOLinks.size(); iPFO++) {
-//         xAOD::PFO*  curPFO = const_cast<xAOD::PFO*>(neutralPFOLinks.at(iPFO).cachedElement());
-//         int nPi0 = -1;
-//         bool getOK = curPFO->attribute(xAOD::PFODetails::nPi0Proto, nPi0);
-//         if(getOK == false) {
-//             ATH_MSG_DEBUG("Could not get nPi0Proto for this PFO -> skip setting of nPi0");
-//             continue;
-//         }
-//         if(nPi0 < 1) curPFO->setAttribute(xAOD::PFODetails::nPi0Proto, 0);
-//     }
-    
-
-//    std::string inputAlg = inSeed->getNameInputAlgorithm();
 
     //if pantau sets the same decay mode as the substructure algorithm, just copy the links
     if(decayModeProto == decayModeFinal) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LAYERANALYSIS_H
@@ -10,7 +10,7 @@
 #include "MuonLayerHough/MuonLayerHoughSelector.h"
 #include "MuonLayerHough/MuonLayerHough.h"
 #include "MuonLayerHough/MuonRegionHough.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonStationIndex/MuonStationIndex.h"
 
 class TH1F;
 class TH2F;

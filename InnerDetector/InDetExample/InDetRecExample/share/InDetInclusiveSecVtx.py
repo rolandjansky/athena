@@ -16,7 +16,7 @@ if not InDetFlags.doMonitoring()  :
 
         ServiceMgr.THistSvc.Output += [ "AANT  DATAFILE='IteraSecVtxFinderTool.root' OPT='RECREATE'" ]
     else :
-        print ' IncSecVtx : can not fill Xcheck upon MultiSeed mode '
+        printfunc (' IncSecVtx : can not fill Xcheck upon MultiSeed mode ')
 ## use together with INCLUSIVESECVTX_DEBUG
 
 ## trackSelector
@@ -43,7 +43,7 @@ InDetTrackSelectorToolRelax = InDet__InDetTrackSelectionTool(name = "DetailedTra
 
 ToolSvc += InDetTrackSelectorToolRelax
 if (InDetFlags.doPrintConfigurables()):
-    print ' InDetTrackSelectorToolRelax : ', InDetTrackSelectorToolRelax
+    printfunc (' InDetTrackSelectorToolRelax : ', InDetTrackSelectorToolRelax)
 
 
 from InDetSecVtxTrackSelectionTool.InDetSecVtxTrackSelectionToolConf import InDet__InDetSecVtxTrackSelectionTool
@@ -54,17 +54,17 @@ InDetSecVtxTrackSelectorTool = InDet__InDetSecVtxTrackSelectionTool( name = "Sec
                                               minD0 = 2.0   )
 ToolSvc += InDetSecVtxTrackSelectorTool
 if (InDetFlags.doPrintConfigurables()):
-    print ' InDetSecVtxTrackSelectorTool : ', InDetSecVtxTrackSelectorTool
+    printfunc (' InDetSecVtxTrackSelectorTool : ', InDetSecVtxTrackSelectorTool)
 
 ##  InDetFlags.doVertexFinding is set off when start ISV from AOD
 if rec.readAOD():
-    print ' Here '
+    printfunc (' Here ')
     from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
     InDetLinFactory = Trk__FullLinearizedTrackFactory( name        = "FullLinearizedTrackFactoryIncSecVtx",
                                                        Extrapolator      = InDetExtrapolator )
     ToolSvc += InDetLinFactory
     if (InDetFlags.doPrintConfigurables()):
-       print InDetLinFactory
+       printfunc (InDetLinFactory)
 
 ## two options for seedFinder
 if IncSecVtxMultiSeed :
@@ -88,7 +88,7 @@ if IncSecVtxMultiSeed :
                                                                  gaussianWindow  = True)
         ToolSvc += InDetMedImgClusterFinder
         if (InDetFlags.doPrintConfigurables()):
-            print ' InDetMedImgClusterFinder ' , InDetMedImgClusterFinder
+            printfunc (' InDetMedImgClusterFinder ' , InDetMedImgClusterFinder)
 ## MedImgClusterFinder has been set as ImagingSeedFinder if primaryVertexSetup() == 'MedImgMultiFinding'
 
     from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__VertexImageMaker
@@ -104,7 +104,7 @@ if IncSecVtxMultiSeed :
                                               angularCutoffParameter         = 0.75)
     ToolSvc += SecVtxInDetMedImgMaker
     if (InDetFlags.doPrintConfigurables()):
-      print ' SecVtxInDetMedImgMaker ', SecVtxInDetMedImgMaker
+      printfunc (' SecVtxInDetMedImgMaker ', SecVtxInDetMedImgMaker)
 
     from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ImagingSeedFinder
     InDetIncSecVtxSeedFinder = Trk__ImagingSeedFinder( name             = "InDetSecVtxMedImgSeedFinder",
@@ -112,7 +112,7 @@ if IncSecVtxMultiSeed :
                                                      VertexImageMaker = SecVtxInDetMedImgMaker )
 
     if (InDetFlags.doPrintConfigurables()):
-      print 'InDetIncSecVtxSeedFinder', InDetIncSecVtxSeedFinder
+      printfunc ('InDetIncSecVtxSeedFinder', InDetIncSecVtxSeedFinder)
 
 ## InDetVtxSeedFinder has been set as ImagingSeedFinder if primaryVertexSetup() == 'MedImgMultiFinding'
 else :
@@ -127,13 +127,13 @@ else :
                                                        ) 
   ToolSvc+=Mode3dFromFsmw1dFinder
   if (InDetFlags.doPrintConfigurables()):
-      print  ' Mode3dFromFsmw1dFinder ', Mode3dFromFsmw1dFinder 
+      printfunc ( ' Mode3dFromFsmw1dFinder ', Mode3dFromFsmw1dFinder )
 
   from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__SeedNewtonTrkDistanceFinder
   NewtonTrk2DDistanceFinder = Trk__SeedNewtonTrkDistanceFinder(name  = "NewtonTrk2DDistanceFinder" )
   ToolSvc+=NewtonTrk2DDistanceFinder
   if (InDetFlags.doPrintConfigurables()):
-      print ' NewtonTrk2DDistanceFinder ', NewtonTrk2DDistanceFinder
+      printfunc (' NewtonTrk2DDistanceFinder ', NewtonTrk2DDistanceFinder)
 
   from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__IndexedCrossDistancesSeedFinder
   InDetIncSecVtxSeedFinder = Trk__IndexedCrossDistancesSeedFinder(name   = "IncSecVtxCrossDistancesSeedFinder",
@@ -150,13 +150,13 @@ else :
 ## Now turn to the vertex fitter
 ToolSvc += InDetIncSecVtxSeedFinder
 if (InDetFlags.doPrintConfigurables()):
-    print InDetIncSecVtxSeedFinder
+    printfunc (InDetIncSecVtxSeedFinder)
           
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__KalmanVertexUpdator
 IncSecVertexUpdator = Trk__KalmanVertexUpdator()
 ToolSvc += IncSecVertexUpdator
 if (InDetFlags.doPrintConfigurables()):
-  print ' IncSecVertexUpdator ', IncSecVertexUpdator
+  printfunc (' IncSecVertexUpdator ', IncSecVertexUpdator)
 
 if rec.readAOD():
     from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__ImpactPoint3dEstimator
@@ -164,7 +164,7 @@ if rec.readAOD():
                                                                Extrapolator      = InDetExtrapolator)
     ToolSvc += InDetImpactPoint3dEstimator
     if (InDetFlags.doPrintConfigurables()):
-        print InDetImpactPoint3dEstimator
+        printfunc (InDetImpactPoint3dEstimator)
 
 
     from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__DetAnnealingMaker
@@ -172,13 +172,13 @@ if rec.readAOD():
                                                  SetOfTemperatures = [64.,16.,4.,2.,1.5,1.]) # not default
     ToolSvc += InDetAnnealingMaker
     if (InDetFlags.doPrintConfigurables()):
-       print InDetAnnealingMaker
+       printfunc (InDetAnnealingMaker)
 
     from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexSmoother
     InDetVertexSmoother = Trk__SequentialVertexSmoother(name = "InDetSequentialVertexSmoother")
     ToolSvc += InDetVertexSmoother
     if (InDetFlags.doPrintConfigurables()):
-       print InDetVertexSmoother
+       printfunc (InDetVertexSmoother)
 
 
 from TrkVertexFitters.TrkVertexFittersConf import Trk__AdaptiveVertexFitter
@@ -196,7 +196,7 @@ InDetIncSecVtxFitterTool = Trk__AdaptiveVertexFitter(name                = "Adap
                                               OutputLevel                  = myPrint)               
 ToolSvc += InDetIncSecVtxFitterTool
 if (InDetFlags.doPrintConfigurables()):
-    print InDetIncSecVtxFitterTool                              
+    printfunc (InDetIncSecVtxFitterTool                              )
 
 from InDetIncSecVxFinderTool.InDetIncSecVxFinderToolConf import InDet__InDetIterativeSecVtxFinderTool
 InDetSecVtxFinderTool = InDet__InDetIterativeSecVtxFinderTool(name  = "InDetSecVtxFinderTool",
@@ -226,7 +226,7 @@ InDetSecVtxFinderTool = InDet__InDetIterativeSecVtxFinderTool(name  = "InDetSecV
 ToolSvc += InDetSecVtxFinderTool
 
 if (InDetFlags.doPrintConfigurables()):
-  print ' InDetSecVtxFinderTool : ', InDetSecVtxFinderTool 
+  printfunc (' InDetSecVtxFinderTool : ', InDetSecVtxFinderTool )
 
 from TrkVertexTools.TrkVertexToolsConf import Trk__SecVertexMergingTool
 SecVertexMergingTool = Trk__SecVertexMergingTool( name   = "IncSecMergeTool",
@@ -237,7 +237,7 @@ SecVertexMergingTool = Trk__SecVertexMergingTool( name   = "IncSecMergeTool",
                                                 )
 ToolSvc += SecVertexMergingTool
 if (InDetFlags.doPrintConfigurables()):
-  print ' SecVertexMergingTool : ', SecVertexMergingTool
+  printfunc (' SecVertexMergingTool : ', SecVertexMergingTool)
 
 from InDetInclusiveSecVtx.InDetInclusiveSecVtxConf import InDet__InDetSecVtxFinder
 InDetIncSecVtxFinder = InDet__InDetSecVtxFinder(name             = "InDetIncSecVtxFinder",
@@ -250,5 +250,5 @@ InDetIncSecVtxFinder = InDet__InDetSecVtxFinder(name             = "InDetIncSecV
 
 topSequence += InDetIncSecVtxFinder
 if InDetFlags.doPrintConfigurables():
-    print ' InDetIncSecVtxFinder : ' , InDetIncSecVtxFinder
+    printfunc (' InDetIncSecVtxFinder : ' , InDetIncSecVtxFinder)
 

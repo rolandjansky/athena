@@ -1,8 +1,12 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 FEBFolder = "/LAR/BadChannels/MissingFEBs"
 FEBFile = "../share/badfebs.txt"
 
 #No input file -> use MC event selector
 import AthenaCommon.AtlasUnixGeneratorJob
+
+from AthenaCommon                       import CfgMgr
 
 from AthenaCommon.GlobalFlags import GlobalFlags
 GlobalFlags.DetGeo.set_commis()
@@ -50,8 +54,7 @@ svcMgr.EventSelector.FirstEvent        = 1
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
 
-## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 
 theApp.EvtMax=1
 
@@ -65,7 +68,7 @@ theApp.EvtMax=1
 from LArCalibTest.LArCalibTestConf import DumpCaloBadChannels
 theDumper=DumpCaloBadChannels()
 theDumper.FileName="list.txt"
-topSequence+=theDumper;
+topSequence+=theDumper
 
 #Thats the registration algo
 #from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelDBAlg

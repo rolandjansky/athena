@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_EMBHVELECTRODE_H
@@ -7,7 +7,7 @@
 
 class EMBHVModule;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
@@ -32,7 +32,7 @@ class EMBHVElectrode
   double voltage(int iGap) const;
   double current(int iGap) const;
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
   int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping=nullptr) const;
 #else
   int hvLineNo(int iGap) const;

@@ -33,7 +33,7 @@ def TileIntegratorCondAlgCfg(flags, **kwargs):
         else:
             integratorFolder = folders.addSplitOnline('/TILE/OFL01/INTEGRATOR', '/TILE/OFL02/INTEGRATOR')
 
-        from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerFlt_ as TileCondProxyCoolFlt
+        TileCondProxyCoolFlt=CompFactory.getComp("TileCondProxyCool<TileCalibDrawerFlt>")
         integratorProxy = TileCondProxyCoolFlt('TileCondProxyCool_Integrator', Source = integratorFolder)
         
         from IOVDbSvc.IOVDbSvcConfig import addFolderList
@@ -41,12 +41,12 @@ def TileIntegratorCondAlgCfg(flags, **kwargs):
 
     elif source == 'FILE':
         # Connect FILE Tile conditions proxies to the algorithm
-        from TileConditions.TileConditionsConf import TileCondProxyFile_TileCalibDrawerFlt_ as TileCondProxyFileFlt
+        TileCondProxyFileFlt=CompFactory.getComp("TileCondProxyFile<TileCalibDrawerFlt>")
         integratorProxy = TileCondProxyFileFlt('TileCondProxyFile_Integrator', Source = 'TileDefault.int')
     else:
         raise(Exception("Invalid source: %s" % source))
 
-    from TileConditions.TileConditionsConf import TileCalibCondAlg_TileCalibDrawerFlt_ as TileCalibFltCondAlg
+    TileCalibFltCondAlg=CompFactory.getComp("TileCalibCondAlg<TileCalibDrawerFlt>")
     integratorCondAlg = TileCalibFltCondAlg( name = name,
                                              ConditionsProxy = integratorProxy,
                                              TileCalibData = integrator)

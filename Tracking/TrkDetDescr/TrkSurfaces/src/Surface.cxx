@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,7 @@
 // STD
 #include <iomanip>
 #include <iostream>
+#include <utility>
 
 const double Trk::Surface::s_onSurfaceTolerance = 10e-5; // 0.1 * micron
 
@@ -49,7 +50,7 @@ Trk::Surface::Surface(Amg::Transform3D* tform)
   , m_materialLayer(nullptr)
   , m_owner(Trk::noOwn)
 {
-  m_transform.store(std::unique_ptr<Amg::Transform3D>(tform));
+  m_transform=std::unique_ptr<Amg::Transform3D>(tform);
 #ifndef NDEBUG
   s_numberOfInstantiations++; // EDM Monitor - increment one instance
   s_numberOfFreeInstantiations++;
@@ -118,7 +119,7 @@ Trk::Surface::Surface(const Surface& sf)
 Trk::Surface::Surface(const Surface& sf, const Amg::Transform3D& shift)
   : m_transform(sf.m_transform ? std::make_unique<Amg::Transform3D>(shift * (*(sf.m_transform)))
                                : std::make_unique<Amg::Transform3D>(shift))
-  , m_center((sf.m_center) ? std::make_unique<Amg::Vector3D>(shift * (*(sf.m_center))) : nullptr)
+  , m_center((sf.m_center) ? std::make_unique<const Amg::Vector3D>(shift * (*(sf.m_center))) : nullptr)
   , m_normal(nullptr)
   , m_associatedDetElement(nullptr)
   , m_associatedDetElementId()
@@ -153,7 +154,7 @@ Trk::Surface::operator=(const Trk::Surface& sf)
     m_center.release();
     m_normal.release();
     m_transform = std::make_unique<Amg::Transform3D>(sf.transform());
-    m_associatedDetElement = 0;
+    m_associatedDetElement = nullptr;
     m_associatedDetElementId = Identifier();
     m_associatedLayer = sf.m_associatedLayer;
     m_materialLayer = sf.m_materialLayer;
@@ -164,7 +165,7 @@ Trk::Surface::operator=(const Trk::Surface& sf)
 
 // returns the LocalPosition on a surface of a GlobalPosition
 const Amg::Vector2D*
-Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double tol1, double tol2) const
+Trk::Surface::positionOnSurface(const Amg::Vector3D& glopo, const BoundaryCheck& bchk, double tol1, double tol2) const
 {
   const Amg::Vector2D* posOnSurface = globalToLocal(glopo, tol1);
   if (!bchk){
@@ -190,7 +191,7 @@ Trk::Surface::isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double
 }
 
 // return the measurement frame
-const Amg::RotationMatrix3D
+Amg::RotationMatrix3D
 Trk::Surface::measurementFrame(const Amg::Vector3D&, const Amg::Vector3D&) const
 {
   return transform().rotation();

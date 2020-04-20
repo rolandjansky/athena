@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PYANALYSISCORE_PYCLASSIDSVC_H
@@ -23,7 +23,7 @@ struct PyClassIDSvc
   static std::string getTypeNameOfID (const unsigned int id)
   {
     IClassIDSvc *pSvc = 0;
-    Gaudi::svcLocator()->service("ClassIDSvc", pSvc);
+    Gaudi::svcLocator()->service("ClassIDSvc", pSvc).ignore();
     if (!pSvc)
       {
 	MsgStream log(Athena::getMessageSvc(), "PyClassIDSvc");

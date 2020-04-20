@@ -37,4 +37,4 @@ TrigVsOfflineMissingETTool.ComputeTriggerEfficiency = True
 # Delta-R between 
 TrigVsOfflineMissingETTool.DeltaRCut = 0.3
             
-print   TrigVsOfflineMissingETTool
+printfunc (  TrigVsOfflineMissingETTool)

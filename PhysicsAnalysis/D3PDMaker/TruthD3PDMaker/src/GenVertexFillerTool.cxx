@@ -63,7 +63,7 @@ StatusCode GenVertexFillerTool::book()
  */
 StatusCode GenVertexFillerTool::fill (const HepMC::GenVertex& p)
 {
-  HepMC::ThreeVector pos = p.point3d();
+  HepMC::FourVector pos = p.position();
   *m_x = pos.x();
   *m_y = pos.y();
   *m_z = pos.z();

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 # File: MuonMDT_CnvTools/share/MdtRdoToPrepDataTool_test.py
 # Author: scott snyder
@@ -12,6 +12,7 @@
 from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaPython.PyAthenaComps import Alg, StatusCode
 import ROOT
 
@@ -43,7 +44,7 @@ def testCfg (configFlags):
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge (MagneticFieldSvcCfg(configFlags, UseDCS = False))
 
-    from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
+    Muon__MdtRdoToPrepDataTool = CompFactory.Muon.MdtRdoToPrepDataTool
     result.addPublicTool (Muon__MdtRdoToPrepDataTool ('Muon__MdtRdoToPrepDataTool', OutputLevel = 1))
     
     result.addEventAlgo (TestAlg ('TestAlg'))

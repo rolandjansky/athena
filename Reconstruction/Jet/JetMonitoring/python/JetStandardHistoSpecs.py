@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-
+from AthenaCommon import  SystemOfUnits
 from JetMonitoring.JetMonitoringConfig import HistoSpec, VarSpec, ConfigDict, ToolSpec
 
 # ***********************************************    
@@ -43,6 +43,7 @@ _knownHistos = [
     HistoSpec( 'pt:GeV',  (100,0,200) , title='p_{T};p_{T} [GeV];'),    
     HistoSpec( 'm:GeV',  (100,0,300) , title='mass;mass [GeV];'),
     HistoSpec( 'e:GeV',  (100,0,500) , title='E;E [GeV];'),    
+    HistoSpec( 'et:GeV', (100,0,750), title='E_{T};E_{T} [GeV],'),
 
     # We want an other pT histo, with different bins.
     # We add a new spec with a new name and we indicate the actual variable with the argument xvar
@@ -217,6 +218,35 @@ def defineHistoForLeadingJets(conf, parentAlg, monhelper, path):
 _knownHistos += [ 
     ToolSpec('JetHistoLeadingJetsRelations', 'leadingJetsRel',  defineHistoFunc=defineHistoForLeadingJets, Group='LeadingJetGroup',)
 ]
+
+
+
+
+# -- JetHistoResponseAndEff specification
+# this tools allows to plot a fixed set of efficiency and response histos vs truth (or any other reference container).
+# The python helper defining the histograms using the monitoring framework :
+def defineHistoForRespAndEff(conf, parentAlg, monhelper , path):
+    # create a monitoring group with the histo path starting from the parentAlg
+    group = monhelper.addGroup(parentAlg, conf.Group,  'Jets/'+parentAlg.JetContainerName)
+    path = 'standardHistos'
+    # define the histogram
+    group.defineHistogram('passDr1,refPt;efficiencyR1',title='Passing deltaR<0.1', type="TEfficiency", path=path, xbins=100 , xmin=0, xmax=4000. ,)
+    group.defineHistogram('passDr2,refPt;efficiencyR2',title='Passing deltaR<0.2', type="TEfficiency", path=path, xbins=100 , xmin=0, xmax=4000. ,)
+    group.defineHistogram('passDr3,refPt;efficiencyR3',title='Passing deltaR<0.3', type="TEfficiency", path=path, xbins=100 , xmin=0, xmax=4000. ,)
+    group.defineHistogram('relDiff',title='pT relative Diff', type="TH1F", path=path, xbins=100 , xmin=-2, xmax=2. ,)
+    group.defineHistogram('refEta,relDiff',title='pT relative Diff vs Eta', type="TH2F", path=path, xbins=60 , xmin=-5, xmax=5., ybins=60 , ymin=-2, ymax=2. ,)
+    group.defineHistogram('refPt,relDiff',title='pT relative Diff vs pT', type="TH2F", path=path, xbins=60 , xmin=0, xmax=5000., ybins=60 , ymin=-2, ymax=2. ,)
+
+_knownHistos += [ 
+    ToolSpec('JetHistoResponseAndEff', 'respVsAntiKt4Truth',  defineHistoFunc=defineHistoForRespAndEff, Group='AntiK4TruthRespGroup', RefContainerName="AntiKt4TruthJets", EnergyScale=1./SystemOfUnits.GeV),
+    ToolSpec('JetHistoResponseAndEff', 'respVsAntiKt10TruthTrim',  defineHistoFunc=defineHistoForRespAndEff, Group='AntiK10TruthTrimRespGroup', RefContainerName="AntiKt10TruthTrimmedPtFrac5SmallR20Jets", EnergyScale=1./SystemOfUnits.GeV),
+]
+# purely for convenience we add a map of JetContainer name -> JetHistoResponseAndEff spec
+responseAndEffSpecMap = dict(
+    AntiKt4TruthJets = 'respVsAntiKt4Truth',
+    AntiKt10TruthTrimmedPtFrac5SmallR20Jets = 'respVsAntiKt10TruthTrim',
+    )
+
 
 
 

@@ -22,7 +22,7 @@ public:
    /// Destructor
    virtual ~IAthenaPoolCleanUp() {};
 
-   virtual StatusCode cleanUp() = 0;
+   virtual StatusCode cleanUp(const std::string& output) = 0;
 
 protected:
    /// Standard Constructor

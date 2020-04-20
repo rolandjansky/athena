@@ -40,7 +40,7 @@ SLHC_Version = ""
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 SLHC_Flags.SLHC_Version = SLHC_Version
 
-print  SLHC_Flags
+printfunc ( SLHC_Flags)
 
 #--------------------------------------------------------------
 # SLHC setup

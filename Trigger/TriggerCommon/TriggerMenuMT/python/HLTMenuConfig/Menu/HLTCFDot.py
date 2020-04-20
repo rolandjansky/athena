@@ -4,9 +4,9 @@
  # to visualize: dot -T pdf Step1.dot > Step1.pdf
  
 from AthenaCommon.AlgSequence import AthSequencer
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isHypoBase, isInputMakerBase, isFilterAlg
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import algColor
 import itertools
-
+from AthenaCommon.CFElements import getSequenceChildren, isSequence
 
 def create_dot():
     from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -21,28 +21,18 @@ def drawHypoTools(file, all_hypos):
     for hp in all_hypos:
         for hypotool in hp.tools:
             file.write("    %s[fillcolor=yellow,style=filled,shape= Mdiamond]\n"%(hypotool))
-            file.write("    %s -> %s [style=dashed, color=grey]\n"%(hp.Alg.name(), hypotool))
+            file.write("    %s -> %s [style=dashed, color=grey]\n"%(hp.Alg.getName(), hypotool))
 
-
-def algColor(alg):
-    """ Set given color to Alg type"""
-    if isHypoBase(alg):      
-        return "darkorchid1"
-    if isInputMakerBase(alg): 
-        return "cyan3"
-    if isFilterAlg(alg):      
-        return "chartreuse3"
-    return "cadetblue1"
 
 def stepCF_ControlFlow_to_dot(stepCF):
     def _dump (seq, indent):
         o = list()
-        for c in seq.getChildren():            
-            if isinstance(c, AthSequencer):
-                o.append( ("%s[color=%s, shape=circle, width=.5, fixedsize=true ,style=filled]\n"%(c.name(),_seqColor(c)), indent) )
+        if isSequence(seq):
+            for c in getSequenceChildren( seq ):            
+                o.append( ("%s[color=%s, shape=circle, width=.5, fixedsize=true ,style=filled]\n"%(c.getName(),_seqColor(c)), indent) )
             else:
-                o.append( ("%s[fillcolor=%s,style=filled]\n"%(c.name(),algColor(c)), indent) )
-            o.append( ("%s -> %s\n"%(seq.name(), c.name()), indent))
+                o.append( ("%s[fillcolor=%s,style=filled]\n"%(c.getName(),algColor(c)), indent) )
+            o.append( ("%s -> %s\n"%(seq.getName(), c.getName()), indent))
             o.extend( _dump (c, indent+1) )
         return o
 
@@ -76,17 +66,17 @@ def stepCF_ControlFlow_to_dot(stepCF):
 
    
 
-    with open('%s.CF.dot'%stepCF.name(), mode="wt") as file:
+    with open('%s.CF.dot'%stepCF.getName(), mode="wt") as file:
     #strict
         file.write( 'digraph step  {  \n'\
                     +' concentrate=true;\n'\
                     +' rankdir="LR";\n'
                     +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                     +'  edge [ fontname=Helvetica ]\n'
-                    +'  %s   [shape=Mdiamond]\n'%stepCF.name())
+                    +'  %s   [shape=Mdiamond]\n'%stepCF.getName())
 
         indent=0
-    #    out = [("%s[color=%s shape=circle]\n"%(stepCF.name(),_seqColor(stepCF)), indent)]
+    #    out = [("%s[color=%s shape=circle]\n"%(stepCF.getName(),_seqColor(stepCF)), indent)]
         out = [("",indent)]
         out.extend( _dump( stepCF, indent=indent+1 ) )
         for n,i in out:
@@ -116,7 +106,7 @@ def all_DataFlow_to_dot(name, step_list):
             # reset the last step
             last_step_hypoNodes =[]
             for cfseq in cfseq_list:
-                file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))
+                file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.getName(),algColor(cfseq.filter.Alg)))
                 step_connections.append(cfseq.filter)                      
                 file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.step.name)\
                             +'     concentrate=true;\n'
@@ -129,41 +119,21 @@ def all_DataFlow_to_dot(name, step_list):
                 cfseq_algs = []
                 cfseq_algs.append(cfseq.filter)
 
-                for menuseq in cfseq.step.sequences:
-                    if  cfseq.step.isCombo:
-                        menuseq.reuse=True # do not draw combo reco sequence
-                    else:
-                        menuseq.reuse=False
-
                 if len(cfseq.step.sequences)==0:
                     last_step_hypoNodes.append(cfseq.filter)
 
                 for menuseq in cfseq.step.sequences:
-                    cfseq_algs.append(menuseq.maker)
-                    cfseq_algs.append(menuseq.sequence )
-                    if menuseq.reuse is False:
-                        file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
-                        file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
-                        menuseq.reuse=True
-                    if type(menuseq.hypo) is list:
-                       for hp in menuseq.hypo:
-                          cfseq_algs.append(hp)
-                          file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
-                          all_hypos.append(hp)
-                    else:
-                       cfseq_algs.append(menuseq.hypo)
-                       file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
-                       all_hypos.append(menuseq.hypo)
-                       if not cfseq.step.isCombo:
-                        if type(menuseq.hypo) is list:
-                           last_step_hypoNodes.append(menuseq.hypo[-1])
-                        else:
-                           last_step_hypoNodes.append(menuseq.hypo)
+                    cfseq_algs, all_hypos, last_step_hypoNodes = menuseq.buildCFDot(cfseq_algs,
+                                                                                    all_hypos,
+                                                                                    cfseq.step.isCombo,
+                                                                                    last_step_hypoNodes,
+                                                                                    file)
 
-                    #combo
+                                                                                     
+                #combo
                 if cfseq.step.isCombo:
                     if cfseq.step.combo is not None:
-                        file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
+                        file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.getName(), algColor(cfseq.step.combo.Alg)))
                         cfseq_algs.append(cfseq.step.combo)
                         last_step_hypoNodes.append(cfseq.step.combo)
                 file.write('  }\n')              
@@ -190,9 +160,9 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
 
         all_hypos = []
         for cfseq in cfseq_list:
-            file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))
+            file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.getName(),algColor(cfseq.filter.Alg)))
             for inp in cfseq.filter.getInputList():
-                file.write(addConnection(name, cfseq.filter.Alg.name(), inp))
+                file.write(addConnection(name, cfseq.filter.Alg.getName(), inp))
 
             file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.step.name)\
                         +'     concentrate=true;\n'
@@ -205,33 +175,16 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
             cfseq_algs = []
             cfseq_algs.append(cfseq.filter)
 
-            ## for menuseq in cfseq.step.sequences:
-                ## if  cfseq.step.isCombo:
-                ##     menuseq.reuse=True # do not draw combo reco sequence
-                ## else:
-                ##     menuseq.reuse=False
-                    
             for menuseq in cfseq.step.sequences:
-                cfseq_algs.append(menuseq.maker)
-                cfseq_algs.append(menuseq.sequence )
-                if menuseq.reuse is False:
-                    file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
-                    file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
-                    menuseq.reuse=True
-                if type(menuseq.hypo) is list:
-                   for hp in menuseq.hypo:
-                      cfseq_algs.append(hp)
-                      file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
-                      all_hypos.append(hp)
-                else:
-                   cfseq_algs.append(menuseq.hypo)
-                   file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
-                   all_hypos.append(menuseq.hypo)
-
-                #combo
+                    cfseq_algs, all_hypos, _ = menuseq.buildCFDot(cfseq_algs,
+                                                                  all_hypos,
+                                                                  True,
+                                                                  None,
+                                                                  file)
+            #combo
             if cfseq.step.isCombo:
                 if cfseq.step.combo is not None:
-                    file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
+                    file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.getName(), algColor(cfseq.step.combo.Alg)))
                     cfseq_algs.append(cfseq.step.combo)
             file.write('  }\n')              
 
@@ -255,8 +208,8 @@ def findConnections(alg_list):
         dataIntersection = list(set(outs) & set(ins))
         if len(dataIntersection) > 0:
             for line in dataIntersection:
-                lineconnect+=addConnection(nodeA.Alg.name(),nodeB.Alg.name(), line)
-#                print "Data connections between %s and %s: %s"%(nodeA.Alg.name(), nodeB.Alg.name(), line)
+                lineconnect+=addConnection(nodeA.Alg.getName(),nodeB.Alg.getName(), line)
+#                print "Data connections between %s and %s: %s"%(nodeA.Alg.getName(), nodeB.Alg.getName(), line)
 
     return lineconnect
 
@@ -276,8 +229,8 @@ def findDHconnections(nodeA, nodeB):
     dataIntersection = list(set(outs) & set(ins))
     if len(dataIntersection) > 0:
         for line in dataIntersection:
-            lineconnect+=addConnection(nodeA.Alg.name(),nodeB.Alg.name(), line)
-            #print 'Data DH connections between %s and %s: %s'%(nodeA.Alg.name(), nodeB.Alg.name(), line)
+            lineconnect+=addConnection(nodeA.Alg.getName(),nodeB.Alg.getName(), line)
+            #print 'Data DH connections between %s and %s: %s'%(nodeA.Alg.getName(), nodeB.Alg.getName(), line)
     return lineconnect
     
 
@@ -288,7 +241,7 @@ def getValuesProperties(node):
     algs = []
     if isinstance(node.Alg, AthSequencer):
          seq=node.Alg
-         algs = seq.getChildren()
+         algs = getSequenceChildren( seq )
          algs.pop(0) # remove InputMaker
     else:
         algs.append(node.Alg)

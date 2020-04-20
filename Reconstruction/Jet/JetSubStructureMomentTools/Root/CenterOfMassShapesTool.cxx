@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetSubStructureMomentTools/CenterOfMassShapesTool.h"
@@ -7,13 +7,9 @@
 #include "JetSubStructureUtils/FoxWolfram.h"
 #include "JetSubStructureUtils/SphericityTensor.h"
 
-using namespace std;
-using fastjet::PseudoJet;
-
 CenterOfMassShapesTool::CenterOfMassShapesTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
-  ATH_MSG_DEBUG("Initializing CenterOfMassShapes tool.");
 }
 
 int CenterOfMassShapesTool::modifyJet(xAOD::Jet &injet) const {
@@ -21,7 +17,7 @@ int CenterOfMassShapesTool::modifyJet(xAOD::Jet &injet) const {
   fastjet::PseudoJet jet;
   bool decorate = SetupDecoration(jet,injet);
 
-  map<string, double> res_t, res_fox, res_s;
+  std::map<std::string, double> res_t, res_fox, res_s;
   
   res_t["ThrustMin"]     = -999;
   res_t["ThrustMaj"]     = -999;

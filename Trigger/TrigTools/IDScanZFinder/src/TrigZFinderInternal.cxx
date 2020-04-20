@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigZFinderInternal.h"
@@ -12,6 +12,7 @@
 
 TrigZFinderInternal::TrigZFinderInternal( const std::string& type, const std::string& name)  
 {
+
   m_type = type;
   m_name = name;
 
@@ -52,13 +53,6 @@ TrigZFinderInternal::TrigZFinderInternal( const std::string& type, const std::st
   m_IdScan_MaxNumLayers     = 20; // dphiEC depends on this value !!! 19 without IBL, 20 with IBL!!
   m_IdScan_LastBrlLayer     = 7;  // dphiBrl depends on this value
 
-  //  std::cout << "m_nFirstLayers  " << m_nFirstLayers  << std::endl;
-
-  /// why is this called from the constructor ???? it is called again during initialise?
-  /// do not call that here
-  ///  initializeInternal( m_IdScan_MaxNumLayers, m_IdScan_LastBrlLayer );
-
-  m_Status = 0;
 }
 
 
@@ -106,8 +100,7 @@ void TrigZFinderInternal::initializeInternal(long maxLayers, long lastBarrel )
   if ( m_dphideta > 0 )                             m_dphideta *= -m_dphideta;
 
   m_invPhiSliceSize = 180./(M_PI*m_usedphiBinSize);
-  /// this has to be computed event by event !!!
-  ///  m_NumPhiSlices = long (ceil( m_usedROIphiWidth*m_invPhiSliceSize ));  
+  /// the number of phi slices (numPhiSlices)  has to be computed event by event !!!
 
   for (long l1=0; l1<m_IdScan_MaxNumLayers-1; ++l1) {
     for (long l2=l1+1; l2<m_IdScan_MaxNumLayers; ++l2) {
@@ -170,12 +163,17 @@ void TrigZFinderInternal::initializeInternal(long maxLayers, long lastBarrel )
 
 }
 
+
+
+
+
 double TrigZFinderInternal::computeZV(double r1, double z1, double r2, double z2) const {
   return (z2*r1-z1*r2)/(r1-r2);
 }
 
 double TrigZFinderInternal::computeZV(double r1, double p1, double z1,
     double r2, double p2, double z2) const {
+
   double x1, y1, x2, y2;
   //sincos( p1, &y1, &x1 );  x1 *= r1;  y1 *= r1;
   //sincos( p2, &y2, &x2 );  x2 *= r2;  y2 *= r2;
@@ -206,13 +204,14 @@ double TrigZFinderInternal::computeZV(double r1, double p1, double z1,
 }
 
 
-long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& spVec, 
-    const IRoiDescriptor& roi,
-    std::vector<double>& phi, 
-    std::vector<double>& rho, 
-    std::vector<double>& zed, 
-    std::vector<long>& lyr, 
-    std::vector<long>& filledLayers)
+long TrigZFinderInternal::fillVectors(const std::vector<TrigSiSpacePointBase>& spVec, 
+				      const IRoiDescriptor& roi,
+				      std::vector<double>& phi, 
+				      std::vector<double>& rho, 
+				      std::vector<double>& zed, 
+				      std::vector<long>& lyr, 
+				      std::vector<long>& filledLayers, 
+				      long& numPhiSlices ) const
 {
 
   std::vector<bool> lcount( m_IdScan_MaxNumLayers, false );
@@ -296,12 +295,14 @@ long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& 
 
 
   double dphi = roiPhiMax-roiPhiMin;
+
   if ( dphi<0 ) dphi+=2*M_PI;
 
-  m_usedROIphiWidth = dphi;
+  //  m_usedROIphiWidth = dphi;
 
   //  std::cout << "m_usedROIphiWidth: " << m_usedROIphiWidth << std::endl;
-  m_NumPhiSlices = long (ceil( m_usedROIphiWidth*m_invPhiSliceSize ));
+  //  m_NumPhiSlices = long (ceil( m_usedROIphiWidth*m_invPhiSliceSize ));
+  numPhiSlices = long (ceil( dphi*m_invPhiSliceSize ));
 
 
   bool piBound=(roiPhiMin>roiPhiMax);
@@ -365,6 +366,8 @@ long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& 
   //   and filledLayers[2]=8 
   //
   long filled = 0;
+  // filled = 0;
+
   for ( long i=0; i<m_IdScan_MaxNumLayers; ++i ) {
     if ( lcount[i] ) {
       filledLayers[filled] = i;
@@ -380,14 +383,17 @@ long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& 
   return filled;
 }
 
-std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInternal( const std::vector<TrigSiSpacePointBase>& spVec, 
-    const IRoiDescriptor& roi) {
+
+
+
+std::vector<typename TrigZFinderInternal::vertex>* 
+TrigZFinderInternal::findZInternal( const std::vector<TrigSiSpacePointBase>& spVec, 
+				    const IRoiDescriptor& roi) const {
+
   std::vector<vertex>* output = new std::vector<vertex>();
 
   long nsp = spVec.size();
   if ( !nsp ) return output; //No points - return nothing
-
-  SetInternalStatus(0);
 
   //   Creating vectors of doubles/longs for storing phi,rho,z and layer of space points.
   //   filledLayers is used to know which of all layers contain space points
@@ -396,7 +402,9 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
   std::vector<double> phi(nsp), rho(nsp), zed(nsp);
   std::vector<long>   lyr(nsp), filledLayers(m_IdScan_MaxNumLayers);
 
-  long filled = this->fillVectors( spVec, roi, phi, rho, zed, lyr, filledLayers);
+  long numPhiSlices = 0;
+
+  long filled = this->fillVectors( spVec, roi, phi, rho, zed, lyr, filledLayers, numPhiSlices );
 
   nsp = phi.size();
 
@@ -427,26 +435,29 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
   //                         {n/z}Histo[1][phi][z] will be for negatively bending tracks
   //
 
-  long numZhistos = m_zHistoPerPhi ? m_NumPhiSlices : 1 ;
+  long numZhistos = m_zHistoPerPhi ? numPhiSlices : 1 ;
 
   //  std::vector < std::vector < std::vector<long>   > >  nHisto( 2, std::vector < std::vector<long>   > (numZhistos, std::vector<long>  () ) );
   //  std::vector < std::vector < std::vector<double> > >  zHisto( 2, std::vector < std::vector<double> > (numZhistos, std::vector<double>() ) );
 
-  for ( int i=2 ; i-- ;  ) { m_nHisto[i].clear();   m_nHisto[i].resize(numZhistos); } 
-  for ( int i=2 ; i-- ;  ) { m_zHisto[i].clear();   m_zHisto[i].resize(numZhistos); } 
+  std::vector < std::vector<long>   >  nHisto[2]; // the actual z histogram count of pairs
+  std::vector < std::vector<double> >  zHisto[2]; // summed z position histograms
 
-  std::vector< std::vector<long> >*   nHisto = m_nHisto;
-  std::vector< std::vector<double> >* zHisto = m_zHisto;
+  for ( int i=2 ; i-- ;  ) { nHisto[i].clear();   nHisto[i].resize(numZhistos); } 
+  for ( int i=2 ; i-- ;  ) { zHisto[i].clear();   zHisto[i].resize(numZhistos); } 
 
-  m_NMax = 0;
+  //  std::vector< std::vector<long> >*   nHisto = m_nHisto;
+  //  std::vector< std::vector<double> >* zHisto = m_zHisto;
+
+  //  nMax = 0;
 
   //Make a vector of all the PhiSlice instances we need
-  std::vector< PhiSlice* > allSlices( m_NumPhiSlices );
-  for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ )
+  std::vector< PhiSlice* > allSlices( numPhiSlices );
+  for ( unsigned int sliceIndex = 0; sliceIndex < numPhiSlices; sliceIndex++ )
   {
     allSlices[ sliceIndex ] = new PhiSlice( sliceIndex, ZBinSize, m_invPhiSliceSize,
-        m_tripletDZ, m_tripletDK, m_tripletDP, zMin, zMax,
-        m_IdScan_MaxNumLayers, m_IdScan_LastBrlLayer );
+					    m_tripletDZ, m_tripletDK, m_tripletDP, zMin, zMax,
+					    m_IdScan_MaxNumLayers, m_IdScan_LastBrlLayer );
   }
 
   int allSlicesSize = allSlices.size();
@@ -466,8 +477,9 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
   allLayerRhos.resize( m_IdScan_MaxNumLayers );
   allLayerZs.resize( m_IdScan_MaxNumLayers );
   allLayerPhis.resize( m_IdScan_MaxNumLayers );
-  std::vector< std::vector< int > > allSliceWidths( m_IdScan_MaxNumLayers, std::vector< int >( m_NumPhiSlices + 1, 0 ) );
-  for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ )
+
+  std::vector< std::vector< int > > allSliceWidths( m_IdScan_MaxNumLayers, std::vector< int >( numPhiSlices + 1, 0 ) );
+  for ( unsigned int sliceIndex = 0; sliceIndex < numPhiSlices; sliceIndex++ )
   {
     allSlices[ sliceIndex ]->MakeWideLayers( &allLayerRhos, &allLayerZs, &allLayerPhis, &allSliceWidths, filled, &filledLayers );
   }
@@ -476,24 +488,24 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
   if ( m_zHistoPerPhi )
   {
     //Allocate all the histograms
-    for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ )
+    for ( unsigned int sliceIndex = 0; sliceIndex < numPhiSlices; sliceIndex++ )
     {
       nHisto[0][sliceIndex].resize( NumZhistoBins + 1 );
       zHisto[0][sliceIndex].resize( NumZhistoBins + 1 );
     }
     if ( m_chargeAware ) {
-      for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ ) {
+      for ( unsigned int sliceIndex = 0; sliceIndex < numPhiSlices; sliceIndex++ ) {
 	  nHisto[1][sliceIndex].resize( NumZhistoBins + 1 );
 	  zHisto[1][sliceIndex].resize( NumZhistoBins + 1 );
       }
     }
     
     //Populate the histograms
-    for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ )  {
+    for ( unsigned int sliceIndex = 0; sliceIndex < numPhiSlices; sliceIndex++ )  {
       allSlices[ sliceIndex ]->GetHistogram( &( nHisto[0][sliceIndex] ), &( zHisto[0][sliceIndex] ),
-          &( nHisto[1][sliceIndex] ), &( zHisto[1][sliceIndex] ),
-          m_extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware, nHisto, zHisto );
-
+					     &( nHisto[1][sliceIndex] ), &( zHisto[1][sliceIndex] ),
+					     m_extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware, nHisto, zHisto );
+      
       //Note the extra arguments here - pointers to the whole histogram collection
       //This allows the filling of neighbouring slice histograms as required, but breaks thread safety
       
@@ -510,7 +522,7 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
     }
     
     //Populate the histogram - fast and memory-efficient, but not thread safe (use MakeHistogram for thread safety)
-    for ( unsigned int sliceIndex = 0; sliceIndex < m_NumPhiSlices; sliceIndex++ ) {
+    for ( unsigned int sliceIndex = 0; sliceIndex < numPhiSlices; sliceIndex++ ) {
       allSlices[ sliceIndex ]->GetHistogram( &( nHisto[0][0] ), &( zHisto[0][0] ),
           &( nHisto[1][0] ), &( zHisto[1][0] ),
           m_extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware );
@@ -600,13 +612,14 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
 
     for ( long zpm=0; zpm<1 || ( m_chargeAware && zpm<2 ) ; ++zpm ) {
 
-      for(std::vector< std::vector<long> >::iterator nfiter = nHisto[zpm].begin(); nfiter!=nHisto[zpm].end(); ++nfiter) {
+      std::vector< std::vector<long> >::iterator nfiter = nHisto[zpm].begin(); 
+      for( ; nfiter!=nHisto[zpm].end() ; ++nfiter) {
 
         if((*nfiter).empty()) continue; // only check the filled zHistos
         if((*nfiter).size() <= 2 ) continue;// this is only a protection : with proper inputs to zfinder, it is always satisfied
-
+	
         for(std::vector<long>::iterator niter=(*nfiter).begin()+2; niter!=(*nfiter).end(); ++niter ) {
-
+	  
           ztest = *(niter-2) + *(niter-1) + *(niter);
           if ( ztest <= 0 || ztest < maxh ) continue;
           ///	  if ( ztest >= maxh && ( ( m_applyWeightThreshold && ztest>m_weightThreshold ) || !m_applyWeightThreshold ) ) {
@@ -614,107 +627,109 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
           if ( ztest >= maxh ) { // && ztest>m_weightThreshold ) {
             long bintest = niter-(*nfiter).begin()-1;
             if ( ztest > maxh ||
-                // for two candidates at same "height", prefer the more central one
-                (m_preferCentralZ && std::abs( bintest - HalfZhistoBins ) < std::abs( binMax - HalfZhistoBins ) ) ) {
+		 // for two candidates at same "height", prefer the more central one
+		 (m_preferCentralZ && std::abs( bintest - HalfZhistoBins ) < std::abs( binMax - HalfZhistoBins ) ) ) {
               maxh = ztest;
               binMax = bintest;
               bestPhi = nfiter-nHisto[zpm].begin();
               bending = zpm;
             }
           }
-          }// end of niter loop
-        }
-        }
-        m_NMax = maxh;
-        /// if we are in triplet mode, even a single pair means 3 consistent hits
-        /// also bomb out if no maximum (above threshold) is found
-        if ( maxh==0 || ( m_tripletMode==0 && maxh<2 ) ) {
-          break;
-        }
-
-        //   ...and compute the "entries-weighted" average bin position
-
-        double weightedMax = ( zHisto[bending][bestPhi][binMax] +
-			       zHisto[bending][bestPhi][binMax+1] +
-			       zHisto[bending][bestPhi][binMax-1] ) /maxh;
-	
-        /// if found a vertex flag the bins so we don't use them again 
-        if ( m_numberOfPeaks>0 ) { 
-          nHisto[bending][bestPhi][binMax]   = -1;
-          nHisto[bending][bestPhi][binMax-1] = -1;
-          nHisto[bending][bestPhi][binMax+1] = -1;
-          zHisto[bending][bestPhi][binMax]   = 0;
-          zHisto[bending][bestPhi][binMax-1] = 0;
-          zHisto[bending][bestPhi][binMax+1] = 0;
-        }
-
-        int closestVtx = -1; // find the closest vertex already put into the output list
-        float dist2closestVtx = 1000; // should be larger than m_ZFinder_MaxZ*2
-        for ( size_t iv = 0; iv < zoutput.size(); ++iv ) {
-          if ( fabs(weightedMax-zoutput[iv]) < dist2closestVtx ) {
-            closestVtx = iv;
-            dist2closestVtx = fabs(weightedMax-zoutput[iv]); 
-          }
-	}
-
-        if ( dist2closestVtx < m_nvrtxSeparation*ZBinSize || dist2closestVtx < fabs(weightedMax)*m_vrtxDistCut ) {
-          zoutput[closestVtx] = m_vrtxMixing * weightedMax + (1.0 - m_vrtxMixing) * zoutput[closestVtx] ;
-          woutput[closestVtx] = m_vrtxMixing * maxh        + (1.0 - m_vrtxMixing) * woutput[closestVtx] ;
-        }  
-	else  {
-
-	  /// here we reject those vertex candidates 
-	  /// where significance < m_minVtxSignificance
-	  bool addvtx = true;
-	  double significance = 0;
-	  if ( bg>0 ) { 
-	    significance = (maxh-bg)/std::sqrt(bg);
-	    if ( significance < m_minVtxSignificance ) break; // if this vertex is not significant then no subsequent vertex could be either  
-	  }
-
-	  if ( addvtx ) { 
-	    zoutput.push_back( weightedMax );
-	    woutput.push_back( maxh );
-	  }
-	}
-
-      } // end of "b" loop, the loop over m_numberOfPeaks
-
-
-      /// at this point we have the histogram with the highest N vertices removed
-      /// so we can find the "non vertex" pedestal from these, although it will be 
-      /// somewhat lower than perhaps it should be, in case some of the "vertices"
-      /// we are removing are just random upwards fluctuations 
-
-      /// NB: have moved pedestal calculation to before the extraction of the vertices
-      ///     if we calculate it after, then we have too low a pedestal if some vertices 
-      ///     are really random fluctuations. If we calculate it before then we 
-      ///     overestimate the pedestal, really we should try to decide how many *real* 
-      ///     vertices we have, and then only exclude them, but that level of detail is 
-      ///     probably not justified by the correlation with the offline track multiplicity
-      ///     on the vertex  
-
-      /// copy vertices to output vector - this is so we can first impose cuts on the vertices we 
-      /// have found should we wish to
-
-
-      /// NB: if m_weightThreshold==0 then pedestal == 0 also   
-      /// This is ridiculous, passing parameters about differently because we don't have a 
-      /// proper interface defined 
-      if ( m_weightThreshold>0 ) { 
-        for ( unsigned i=0 ; i<zoutput.size() ; i++ ) { 
-          output->push_back( vertex( woutput[i] - pedestal, zoutput[i] ) ); 
-        }
+	}// end of niter loop
       }
-      else {
-        for ( unsigned i=0 ; i<zoutput.size() ; i++ ) { 
-          output->push_back( vertex( zoutput[i], woutput[i] - pedestal ) ); 
-        }
+    }
+
+    // nMax = maxh;
+    /// if we are in triplet mode, even a single pair means 3 consistent hits
+    /// also bomb out if no maximum (above threshold) is found
+    if ( maxh==0 || ( m_tripletMode==0 && maxh<2 ) ) {
+      break;
+    }
+    
+    //   ...and compute the "entries-weighted" average bin position
+    
+    double weightedMax = ( zHisto[bending][bestPhi][binMax] +
+			   zHisto[bending][bestPhi][binMax+1] +
+			   zHisto[bending][bestPhi][binMax-1] ) /maxh;
+    
+    /// if found a vertex flag the bins so we don't use them again 
+    if ( m_numberOfPeaks>0 ) { 
+      nHisto[bending][bestPhi][binMax]   = -1;
+      nHisto[bending][bestPhi][binMax-1] = -1;
+      nHisto[bending][bestPhi][binMax+1] = -1;
+      zHisto[bending][bestPhi][binMax]   = 0;
+      zHisto[bending][bestPhi][binMax-1] = 0;
+      zHisto[bending][bestPhi][binMax+1] = 0;
+    }
+    
+    int closestVtx = -1; // find the closest vertex already put into the output list
+    float dist2closestVtx = 1000; // should be larger than m_ZFinder_MaxZ*2
+    for ( size_t iv = 0; iv < zoutput.size(); ++iv ) {
+      if ( fabs(weightedMax-zoutput[iv]) < dist2closestVtx ) {
+	closestVtx = iv;
+	dist2closestVtx = fabs(weightedMax-zoutput[iv]); 
       }
+    }
+    
+    if ( dist2closestVtx < m_nvrtxSeparation*ZBinSize || dist2closestVtx < fabs(weightedMax)*m_vrtxDistCut ) {
+      zoutput[closestVtx] = m_vrtxMixing * weightedMax + (1.0 - m_vrtxMixing) * zoutput[closestVtx] ;
+      woutput[closestVtx] = m_vrtxMixing * maxh        + (1.0 - m_vrtxMixing) * woutput[closestVtx] ;
+    }  
+    else  {
+      
+      /// here we reject those vertex candidates 
+      /// where significance < m_minVtxSignificance
+      bool addvtx = true;
+      double significance = 0;
+      if ( bg>0 ) { 
+	significance = (maxh-bg)/std::sqrt(bg);
+	if ( significance < m_minVtxSignificance ) break; // if this vertex is not significant then no subsequent vertex could be either  
+      }
+      
+      if ( addvtx ) { 
+	zoutput.push_back( weightedMax );
+	woutput.push_back( maxh );
+      }
+    }
+    
+  } // end of "b" loop, the loop over m_numberOfPeaks
+  
+  
+  /// at this point we have the histogram with the highest N vertices removed
+  /// so we can find the "non vertex" pedestal from these, although it will be 
+  /// somewhat lower than perhaps it should be, in case some of the "vertices"
+  /// we are removing are just random upwards fluctuations 
+  
+  /// NB: have moved pedestal calculation to before the extraction of the vertices
+  ///     if we calculate it after, then we have too low a pedestal if some vertices 
+  ///     are really random fluctuations. If we calculate it before then we 
+  ///     overestimate the pedestal, really we should try to decide how many *real* 
+  ///     vertices we have, and then only exclude them, but that level of detail is 
+  ///     probably not justified by the correlation with the offline track multiplicity
+  ///     on the vertex  
+  
+  /// copy vertices to output vector - this is so we can first impose cuts on the vertices we 
+  /// have found should we wish to
+  
+  
+  /// NB: if m_weightThreshold==0 then pedestal == 0 also   
+  /// This is ridiculous, passing parameters about differently because we don't have a 
+  /// proper interface defined 
+  if ( m_weightThreshold>0 ) { 
+    for ( unsigned i=0 ; i<zoutput.size() ; i++ ) { 
+      output->push_back( vertex( woutput[i] - pedestal, zoutput[i] ) ); 
+    }
+  }
+  else {
+    for ( unsigned i=0 ; i<zoutput.size() ; i++ ) { 
+      output->push_back( vertex( zoutput[i], woutput[i] - pedestal ) ); 
+    }
+  }
+  
+  //  std::cout << "SUTT zoutput size " << zoutput.size() << "\t" << roi << std::endl;
+  //  for ( unsigned i=0 ; i<zoutput.size() ; i++ ) std::cout << "SUTT zoutput        " << i << "\t" << zoutput[i] << std::endl;
+  
+  return output;
 
-      //  std::cout << "SUTT zoutput size " << zoutput.size() << "\t" << roi << std::endl;
-      //  for ( unsigned i=0 ; i<zoutput.size() ; i++ ) std::cout << "SUTT zoutput        " << i << "\t" << zoutput[i] << std::endl;
-
-      return output;
 }
 

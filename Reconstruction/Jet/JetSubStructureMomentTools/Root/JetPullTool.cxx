@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetPullTool.cxx
@@ -7,12 +7,8 @@
 #include "JetSubStructureMomentTools/JetPullTool.h"
 #include "JetSubStructureUtils/Pull.h" 
 
-using namespace std;
-using fastjet::PseudoJet;
-
 JetPullTool::JetPullTool(std::string name) : 
 JetSubStructureMomentToolsBase(name) {
-  ATH_MSG_DEBUG("Initializing Pull tool.");
   declareProperty("UseEtaInsteadOfY", m_useEtaInsteadOfY = false);
   declareProperty("IncludeTensorMoments", m_includeTensorMoments = false);
 }
@@ -22,7 +18,7 @@ int JetPullTool::modifyJet(xAOD::Jet &injet) const {
   fastjet::PseudoJet jet;
   bool decorate = SetupDecoration(jet,injet);
   
-  map<string,double> values;
+  std::map<std::string,double> values;
   values["PullMag"]  = -999;
   values["PullPhi"]  = -999;
   values["Pull_C00"] = -999;
@@ -35,7 +31,6 @@ int JetPullTool::modifyJet(xAOD::Jet &injet) const {
     values = pull.result(jet);
   }
 
-  
   injet.setAttribute(m_prefix+"PullMag", values["PullMag"]);
   injet.setAttribute(m_prefix+"PullPhi", values["PullPhi"]);
 

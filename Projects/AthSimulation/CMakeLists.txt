@@ -1,13 +1,10 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# The minimum required CMake version:
+# Set up the project.
 cmake_minimum_required( VERSION 3.6 )
-
-# Read in the project's version from a file called version.txt. But let it be
-# overridden from the command line if necessary.
 file( READ ${CMAKE_SOURCE_DIR}/version.txt _version )
 string( STRIP ${_version} _version )
-set( ATHSIMULATION_PROJECT_VERSION ${_version}
-   CACHE STRING "Version of the AthSimulation project to build" )
+project( AthSimulation VERSION ${_version} LANGUAGES C CXX Fortran )
 unset( _version )
 
 # Find the ATLAS CMake code:
@@ -30,18 +27,10 @@ if( SIMULATIONBASE )
    add_definitions( -DSIMULATIONBASE )
 endif()
 
-# Load all the files from the externals/ subdirectory:
-file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
-foreach( _external ${_externals} )
-   include( ${_external} )
-   get_filename_component( _extName ${_external} NAME_WE )
-   string( TOUPPER ${_extName} _extNameUpper )
-   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
-   unset( _extName )
-   unset( _extNameUpper )
-endforeach()
-unset( _external )
-unset( _externals )
+# Set up where to find the AthenaPoolUtilitiesTest CMake code.
+set( AthenaPoolUtilitiesTest_DIR
+   "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
+   CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
 
 # Make the local CMake files visible to AtlasCMake.
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
@@ -50,14 +39,8 @@ list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 atlas_ctest_setup()
 
 # Declare project name and version
-atlas_project( AthSimulation ${ATHSIMULATION_PROJECT_VERSION}
-   USE AthSimulationExternals ${AthSimulationExternals_VERSION}
-   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
-   LANGUAGES C CXX Fortran )
-
-# Install the external configurations:
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
-   DESTINATION ${CMAKE_INSTALL_CMAKEDIR} USE_SOURCE_PERMISSIONS )
+atlas_project( USE AthSimulationExternals ${AthSimulationExternals_VERSION}
+   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
 # Generate the environment setup for the externals, to be used during the build:
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
@@ -67,10 +50,6 @@ set( _replacements )
 if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
    get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
    list( APPEND _replacements ${_buildDir} "\${AthSimulation_DIR}/../../../.." )
-endif()
-if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
-   list( APPEND _replacements $ENV{NICOS_PROJECT_RELNAME}
-      "\${AthSimulation_VERSION}" )
 endif()
 
 # Now generate and install the installed setup files:

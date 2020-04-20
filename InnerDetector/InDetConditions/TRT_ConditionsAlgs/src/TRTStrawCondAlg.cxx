@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTStrawCondAlg.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 TRTStrawCondAlg::TRTStrawCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
   : ::AthAlgorithm(name,pSvcLocator),
     m_condSvc("CondSvc",name),
-    m_detManager(nullptr),
     m_strawStatus("TRT_StrawStatusSummaryTool",this),
     m_trtId(0),
     m_isGEANT4(true)
@@ -39,8 +38,8 @@ StatusCode TRTStrawCondAlg::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Detector manager
-  ATH_CHECK(detStore()->retrieve(m_detManager,"TRT"));
+  // Initialize readCondHandle key                                                                                                                           
+  ATH_CHECK(m_trtDetEleContKey.initialize());
 
   // TRT ID helper
   ATH_CHECK(detStore()->retrieve(m_trtId,"TRT_ID"));
@@ -70,14 +69,25 @@ StatusCode TRTStrawCondAlg::execute()
   // ____________ Construct new Write Cond Object  ____________
   std::unique_ptr<TRTCond::AliveStraws> writeCdo{std::make_unique<TRTCond::AliveStraws>()};
   
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+  const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
+  if (not trtDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
+  }
 
   // ____________ Compute number of alive straws for Write Cond object  ____________
 
   for (std::vector<Identifier>::const_iterator it = m_trtId->straw_layer_begin(); it != m_trtId->straw_layer_end(); it++  ) {
 
+   // Make sure it is a straw_layer id                                                                                                                   
+   Identifier strawLayerId = m_trtId->layer_id(*it);
+   //Get hash Id                                                                                                                                         
+   IdentifierHash hashId = m_trtId->straw_layer_hash(strawLayerId);
+
    unsigned int nstraws = 0;
-   if (m_detManager){
-     const InDetDD::TRT_BaseElement *el = m_detManager->getElement(*it);
+   if (trtDetEleHandle.isValid()){
+     const InDetDD::TRT_BaseElement *el = elements->getDetectorElement(hashId);
      if( !el ) continue;
      nstraws = el->nStraws();
    }

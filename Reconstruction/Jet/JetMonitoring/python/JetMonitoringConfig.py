@@ -1,5 +1,5 @@
 from __future__ import print_function
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # #######################################
 ## JetMonitoringConfig
@@ -29,6 +29,9 @@ from __future__ import print_function
 ##
 ## See python/JetMonitoringExample.py for usage of the system
 
+import six
+from AthenaCommon import  SystemOfUnits
+
 class ConfigDict(dict):
     """A python dictionnary extended so that each entry in the dict can also be accessed as 
        member attribute.  
@@ -41,7 +44,7 @@ class ConfigDict(dict):
     """
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
-        for k,v in kwargs.iteritems():
+        for k,v in six.iteritems (kwargs):
             dict.__setattr__(self, k,  v)
     def __getattr__(self, attr):
         try:
@@ -67,7 +70,7 @@ class ConfigDict(dict):
     def clone(self, **kwargs):
         from copy import deepcopy
         c = deepcopy(self)
-        for k,v in kwargs.iteritems():
+        for k,v in six.iteritems (kwargs):
             setattr(c,k,v)
         return c
 
@@ -84,7 +87,7 @@ class ConfigDict(dict):
     def _dump(self, writeFunc):
         def write(s, e='\n'): writeFunc('  '+s,e)
         writeFunc(self.__class__.__name__+'(')
-        for k,v in sorted(self.iteritems()):
+        for k,v in sorted(six.iteritems (self)):
             if isinstance(v, ConfigDict):
                 write(k+' = ','')
                 v._dump(write)
@@ -157,12 +160,12 @@ class ToolSpec(ConfigDict):
         
         
     def toTool(self):
-        from AthenaCommon import CfgMgr
+        from AthenaConfiguration.ComponentFactory import CompFactory
         conf = self.clone(self.name)
-        klass = getattr(CfgMgr,conf.pop('klass')) # remove 'klass'
+        klass = getattr(CompFactory,conf.pop('klass')) # remove 'klass'
         conf.pop('name')
         conf.pop('defineHistoFunc',None) # not used here.
-        for k, v in conf.iteritems():
+        for k, v in six.iteritems (conf):
             if isinstance(v,ToolSpec):
                 conf[k] = v.toTool()
             if isinstance(v,list):
@@ -188,7 +191,7 @@ class VarSpec(ToolSpec):
     def __init__(self, Name , Type='float', Index=-1, Scale=1):
         # by default we allow only the properties of a JetHistoVarTool
         if Name.endswith(':GeV'):
-            Scale=0.001
+            Scale=1./SystemOfUnits.GeV
             Name = Name[:-4]
 
 
@@ -474,7 +477,7 @@ class JetMonAlgSpec(ConfigDict):
         def write(s,e='\n'): writeFunc('  '+s,e)
         def write2(s,e='\n'): writeFunc('    '+s,e)
         writeFunc(self.__class__.__name__+'(')
-        for k,v in sorted(self.iteritems()):
+        for k,v in sorted(six.iteritems (self)):
             if k == 'FillerTools':
                 write('FillerTools = [')
                 for hspec in v:

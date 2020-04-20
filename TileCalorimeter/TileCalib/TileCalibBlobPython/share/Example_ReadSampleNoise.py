@@ -1,13 +1,14 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Example_ReadSampleNoise.py
 # Nils Gollub <nils.gollub@cern.ch>, 2008-06-16
 
+from __future__ import print_function
 
 from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobObjs.Classes import *
+from TileCalibBlobObjs.Classes import TileCalibUtils
 import ROOT
 
 
@@ -34,15 +35,15 @@ print("Comment: \"%s\"" % comment)
 
 #=== Loop over the whole detector
 #--- including default drawers with ros = [0,...,19]
-for ros in xrange(TileCalibUtils.max_ros()):
-    for mod in xrange(TileCalibUtils.getMaxDrawer(ros)):
+for ros in range(TileCalibUtils.max_ros()):
+    for mod in range(TileCalibUtils.getMaxDrawer(ros)):
 
         #=== get the TileCalibDrawerFlt correcponding to module
         drawer = blobReader.getDrawer(ros,mod,pointInTime)
 
         #=== loop over all the channels
-        for chn in xrange(TileCalibUtils.max_chan()):
-            for adc in xrange(TileCalibUtils.max_gain()):
+        for chn in range(TileCalibUtils.max_chan()):
+            for adc in range(TileCalibUtils.max_gain()):
 
                 ped = drawer.getData(chn,adc, 0)
                 hfn = drawer.getData(chn,adc, 1)

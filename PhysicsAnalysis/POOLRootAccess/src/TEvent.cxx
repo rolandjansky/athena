@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "POOLRootAccess/TEvent.h"
@@ -31,18 +31,14 @@ IAppMgrUI* Init( const char* options ) {
 
 TEvent::~TEvent() {
   //need to destroy my storegate, selector, and loop
-  //take refcounts down to 1 before handle release, to ensure services are destroyed
   if(m_evtLoop.isSet()) {
-    //while(m_evtLoop->refCount()>1) m_evtLoop->release(); //CRASH
-    m_evtLoop.release();
+    m_evtLoop.release().ignore();
   }
   if(m_evtSelect.isSet()) {
-    //while(m_evtSelect->refCount()>1) m_evtSelect->release();
-    m_evtSelect.release();
+    m_evtSelect.release().ignore();
   }
   if(m_evtStore.isSet()) {
-    //while(m_evtStore->refCount()>1) m_evtStore->release();
-    m_evtStore.release();
+    m_evtStore.release().ignore();
   }
 }
 
@@ -65,10 +61,10 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
    if(mode==kPOOLAccess) {
      //add AthenaPoolCnvSvc to the EventPersistencySvc (ideally the selector should add this itself!!)
      ServiceHandle<IService> epSvc("EventPersistencySvc","TEvent"+name);
-     AAH::setProperty( epSvc , "CnvServices" , "['AthenaPoolCnvSvc']" ); //FIXME: perhaps should append rather than overwrite
+     AAH::setProperty( epSvc , "CnvServices" , "['AthenaPoolCnvSvc']" ).ignore(); //FIXME: perhaps should append rather than overwrite
      //add the AthenaPoolAddressProviderSvc to ProxyProviderSvc
      ServiceHandle<IService> ppSvc("ProxyProviderSvc","TEvent"+name);
-     AAH::setProperty( ppSvc , "ProviderNames", "['MetaDataSvc', 'AthenaPoolAddressProviderSvc']" );
+     AAH::setProperty( ppSvc , "ProviderNames", "['MetaDataSvc', 'AthenaPoolAddressProviderSvc']" ).ignore();
    } else if(mode==kTreeAccess) {
      //switch selector type to Athena::RootNtupleEventSelector
      m_evtSelect.setTypeAndName("Athena::RootNtupleEventSelector/"+m_evtSelect.name());
@@ -88,36 +84,36 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
       }
    }
 
-   AAH::setProperty( m_evtLoop , "ClearStorePolicy", "BeginEvent" );    //for interactive use of storegate
-   AAH::setProperty( m_evtLoop , "EvtSel", m_evtSelect.typeAndName() ); //connect loop to selector
-   AAH::setProperty( m_evtLoop , "EvtStore", m_evtStore.typeAndName() );//connect loop to store
-   AAH::setProperty( m_evtLoop , "EventPrintoutInterval", 999999999 ); //disable printout (speeds up loop)
+   AAH::setProperty( m_evtLoop , "ClearStorePolicy", "BeginEvent" ).ignore();    //for interactive use of storegate
+   AAH::setProperty( m_evtLoop , "EvtSel", m_evtSelect.typeAndName() ).ignore(); //connect loop to selector
+   AAH::setProperty( m_evtLoop , "EvtStore", m_evtStore.typeAndName() ).ignore();//connect loop to store
+   AAH::setProperty( m_evtLoop , "EventPrintoutInterval", 999999999 ).ignore(); //disable printout (speeds up loop)
 
    if(m_evtSelect.type()=="Athena::xAODEventSelector") {
-     AAH::setProperty( m_evtSelect , "ReadMetaDataWithPool" , true); //uses hybrid xAOD reading by default
-     AAH::setProperty( m_evtSelect , "AccessMode" , int(mode) ); //sets the mode
-     AAH::setProperty( m_evtSelect , "EvtStore" , m_evtStore.typeAndName() );
+     AAH::setProperty( m_evtSelect , "ReadMetaDataWithPool" , true).ignore(); //uses hybrid xAOD reading by default
+     AAH::setProperty( m_evtSelect , "AccessMode" , int(mode) ).ignore(); //sets the mode
+     AAH::setProperty( m_evtSelect , "EvtStore" , m_evtStore.typeAndName() ).ignore();
      //FIXME ... cant get dual event stores working :-(
      //AAH::setProperty( m_evtSelect , "ProxyProviderSvc" , "ProxyProviderSvc/" + name + "_ProxyProviderSvc" );
      //AAH::setProperty( m_evtStore , "ProxyProviderSvc", "ProxyProviderSvc/" + name + "_ProxyProviderSvc" );
    }
 
    //set outputlevels to WARNING 
-   AAH::setProperty( m_evtLoop, "OutputLevel", 4 );
-   AAH::setProperty( m_evtSelect, "OutputLevel", 4 );
-   //AAH::setProperty( m_evtStore, "OutputLevel", 4 );
-   AAH::setProperty( m_activeStoreSvc, "OutputLevel", 4 );
+   AAH::setProperty( m_evtLoop, "OutputLevel", 4 ).ignore();
+   AAH::setProperty( m_evtSelect, "OutputLevel", 4 ).ignore();
+   //AAH::setProperty( m_evtStore, "OutputLevel", 4 ).ignore();
+   AAH::setProperty( m_activeStoreSvc, "OutputLevel", 4 ).ignore();
 
    //suppress messages below WARNING too
    //do this here to stop some pre initialize INFO messages from showing
    ServiceHandle<IProperty> messageSvc("MessageSvc","");
    std::vector<std::string> p;
-   Gaudi::Parsers::parse(p,messageSvc->getProperty("setWarning").toString());
+   Gaudi::Parsers::parse(p,messageSvc->getProperty("setWarning").toString()).ignore();
    p.push_back( m_evtLoop.name() );
    p.push_back( m_evtSelect.name() );
    p.push_back( m_evtStore.name() );
    p.push_back( m_activeStoreSvc.name() );
-   messageSvc->setProperty(  StringArrayProperty( "setWarning" , p ) );
+   messageSvc->setProperty(  StringArrayProperty( "setWarning" , p ) ).ignore();
    
    //also push this into the joboptionsvc so that if a reinit happens then these settings are remembered 
    //m_joSvc->addPropertyToCatalogue( "MessageSvc", StringArrayProperty( "setWarning", p ) );
@@ -188,7 +184,10 @@ StatusCode TEvent::readFrom(TChain* files) {
 
 int TEvent::getEntry( long entry ) {
    if(!m_evtLoop.isSet()) { if(m_evtLoop.retrieve().isFailure()) return -1; }
-   if(entry==0 || entry != m_curEntry+1) m_evtLoop->seek(entry); //need to seek on first read or if not reading next event
+   if(entry==0 || entry != m_curEntry+1) {
+     //need to seek on first read or if not reading next event
+     if (m_evtLoop->seek(entry).isFailure()) return -1;
+   }
    //ensure our storegate is the active store
    setActive();
    if (m_evtProcessor == nullptr) {

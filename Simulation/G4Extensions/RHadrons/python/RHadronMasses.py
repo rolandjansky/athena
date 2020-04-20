@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # This file contains a number of helper functions for defining R-hadron mass spectra
 # A large data table at the top is then used in several of the helper functions
+
+from __future__ import print_function
 
 """
 The offset options.  Dictionary of PDG IDs with offsets.
@@ -190,9 +192,10 @@ def get_gluino_Rhadron_masses(input_file, mass_spectrum=1):
         Second parameter: mass spectrum (enumeration value)
     """
     # Expect a string file name or file handle
-    if type(input_file) not in [str,file]:
-        raise RuntimeError('Incorrect input file type: '+str(type(input_file)))
-    in_file = input_file if type(input_file)==file else open(input_file,'r')
+    if isinstance(input_file, str):
+        in_file = open(input_file,'r')
+    else:
+        in_file = input_file
 
     # Expect SLHA file format.  Read for mass block, then look for relevant masses, then exit
     masses = {}
@@ -218,7 +221,8 @@ def get_gluino_Rhadron_masses(input_file, mass_spectrum=1):
             masses[pdg_id] = mass
         # Not an ID we care about otherwise!  Skip!
     # Done reading file; close if it's our responsibility
-    if type(input_file)==str: in_file.close()
+    if isinstance(input_file, str):
+        in_file.close()
 
     # Set the remainder of the masses
     had_rhadron=False
@@ -253,13 +257,14 @@ def update_PDG_table(input_file, pdg_table, mass_spectrum=1):
         Gets R-hadron masses based on get_gluino_Rhadron_masses()
     """
     # Check that we had the right output file type
-    if type(pdg_table) not in [str,file]:
-        raise RuntimeError('Incorrect output file type: '+str(type(pdg_table)))
     # Get the masses that we need
     masses = get_gluino_Rhadron_masses(input_file,mass_spectrum)
     # Get the output file ready
     # Open for appending (assume that's what was done if given a file handle)
-    out_file = pdg_table if type(pdg_table)==file else open(pdg_table,'a')
+    if isinstance(pdg_table, str):
+        out_file = open(pdg_table,'a')
+    else:
+        out_file = pdg_table
     # Add all our R-hadrons to the table!
     for pid in masses:
         # For the PDG table, we only write positive-signed PDG ID particles
@@ -271,7 +276,8 @@ def update_PDG_table(input_file, pdg_table, mass_spectrum=1):
         out_file.write('\nW %i                          %11.7E  +0.0E+00 -0.0E+00 %s       %s'%(pid,0.E+00,offset_options[pid][2],charge(offset_options[pid][3])))
 
     # Done writing all the lines!  Clean up if necessary
-    if type(pdg_table) is str: out_file.close()
+    if isinstance(pdg_table, str):
+        out_file.close()
 
     # Nothing to return
 
@@ -283,14 +289,14 @@ def update_particle_table(input_file, particle_table='particles.txt', mass_spect
         Third input parameter: mass spectrum (enumeration value)
         Gets R-hadron masses based on get_gluino_Rhadron_masses()
     """
-    # Check that we had the right output file type
-    if type(particle_table) not in [str,file]:
-        raise RuntimeError('Incorrect output file type: '+str(type(particle_table)))
     # Get the masses that we need
     masses = get_gluino_Rhadron_masses(input_file,mass_spectrum)
     # Get the output file ready
     # Open for appending (assume that's what was done if given a file handle)
-    out_file = particle_table if type(particle_table)==file else open(particle_table,'a')
+    if isinstance (particle_table, str):
+        out_file = open(particle_table,'a')
+    else:
+        out_file = particle_table
     # Add all our R-hadrons to the table!
     # Note that we MUST write the primary first, followed by the compound particles
     primaries = []
@@ -325,7 +331,8 @@ def update_particle_table(input_file, particle_table='particles.txt', mass_spect
         else:   out_file.write('    %i  %04.3f   # %s\n'%(p,masses[p],anti_name(offset_options[abs(p)][2])))
 
     # Done writing all the lines!  Clean up if necessary
-    if type(particle_table) is str: out_file.close()
+    if isinstance(particle_table, str):
+        out_file.close()
 
     # Nothing to return
 
@@ -358,14 +365,14 @@ def get_interaction_list(input_file, interaction_file='ProcessList.txt', mass_sp
         Third input parameter: mass spectrum (enumeration value)
         Gets R-hadron masses based on get_gluino_Rhadron_masses()
     """
-    # Check that we had the right output file type
-    if type(interaction_file) not in [str,file]:
-        raise RuntimeError('Incorrect output file type: '+str(type(interaction_file)))
     # Get the masses that we need. Note that we don't really need masses, just PDG IDs
     masses = get_gluino_Rhadron_masses(input_file,mass_spectrum)
     # Get the output file ready
     # Open for appending (assume that's what was done if given a file handle)
-    out_file = interaction_file if type(interaction_file)==file else open(interaction_file,'a')
+    if isinstance (interaction_file, str):
+        out_file = open(interaction_file,'a')
+    else:
+        out_file = interaction_file
 
     # Helpful lists to move us along
     sm_particles = {
@@ -461,7 +468,8 @@ def get_interaction_list(input_file, interaction_file='ProcessList.txt', mass_sp
     # Loop over projectiles
 
     # Done writing all the lines!  Clean up if necessary
-    if type(interaction_file) is str: out_file.close()
+    if isinstance(interaction_file, str):
+        out_file.close()
 
     # Nothing to return
 
@@ -473,12 +481,12 @@ def print_masses(spectrum=-1):
     for i in sorted(offset_options.keys()):
         s= str(offset_options[i][2])+' '+str(i)
         if spectrum<0:
-            from past.builtins import xrange # Temporary workaround for python3 compatibility use range in CA-based config
-            for j in xrange(first_mass_set,len(offset_options[i])): s+=' '+str(offset_options[i][j])
+            from past.builtins import range # Temporary workaround for python3 compatibility use range in CA-based config
+            for j in range(first_mass_set,len(offset_options[i])): s+=' '+str(offset_options[i][j])
         else:
             if first_mass_set+spectrum>len(offset_options[i]):
                 raise RuntimeError('Spectrum #'+str(spectrum)+' not known for PID '+str(i))
             else:
                 s+=' '+str(offset_options[i][spectrum+first_mass_set])
-        print s
+        print (s)
     # Done!

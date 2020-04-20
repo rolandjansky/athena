@@ -15,7 +15,6 @@ alg = testAthenaEgammaCalibTool()
 alg.EgammaCalibrationAndSmearingTool.ESModel = "es2015cPRE"
 alg.EgammaCalibrationAndSmearingTool.OutputLevel = DEBUG
 theJob += alg
-print alg
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCONFDATA_L1TOPOOUTPUT_H
@@ -15,7 +15,7 @@ namespace TrigConf {
     * Provides access to the name of the trigger line, to the connected algorithm
     *  and the lines the signals are being sent on.
     */
-   class L1TopoOutput final : virtual public DataStructure {
+   class L1TopoOutput final : public DataStructure {
    public:
       /** Constructor */
       L1TopoOutput();

@@ -26,8 +26,7 @@ SpaceTimePointBase(kNoValue,kNoValue,1.),
 m_globalPosition(  ),
 m_globalDirection(  ), 
 m_localDirection(  ),
-m_associatedSurface( 0 ),
-m_cachedRots( 0 )
+m_associatedSurface( 0 )
 {}
     
 MuonSegment::MuonSegment(const MuonSegment& seg) 
@@ -37,14 +36,10 @@ SpaceTimePointBase(seg),
 m_globalPosition( seg.m_globalPosition ),
 m_globalDirection( seg.m_globalDirection ),
 m_localDirection ( seg.m_localDirection ),
-m_associatedSurface( 0 ),
-m_cachedRots( 0 )
+m_associatedSurface( 0 )
 {
     m_associatedSurface = (seg.m_associatedSurface->associatedDetectorElement()) ?
     seg.m_associatedSurface : seg.m_associatedSurface->clone();
-    
-    // create vector of contained Rots and fill it
-    copyMeasurementsToROTs();
 }
 
 MuonSegment& MuonSegment::operator=(const MuonSegment& seg)
@@ -60,9 +55,6 @@ MuonSegment& MuonSegment::operator=(const MuonSegment& seg)
         if (0!=m_associatedSurface && 0==m_associatedSurface->associatedDetectorElement()) delete m_associatedSurface;
         m_associatedSurface = (seg.m_associatedSurface->associatedDetectorElement()) ?
             seg.m_associatedSurface : seg.m_associatedSurface->clone(); 
-        // clear rots
-        clearRotVector();
-        copyMeasurementsToROTs();
     }
     return (*this);
 }
@@ -79,12 +71,10 @@ MuonSegment::MuonSegment( const Trk::LocalParameters& locpars,
     m_globalPosition(),
     m_globalDirection(),
     m_localDirection(),
-    m_associatedSurface( psf ),
-    m_cachedRots(0)  
+    m_associatedSurface( psf )
 {
   recalculateCache();
   psf->globalToLocalDirection(m_globalDirection,m_localDirection);
-  copyMeasurementsToROTs();
 }
 
 
@@ -101,8 +91,7 @@ MuonSegment::MuonSegment(   const Amg::Vector2D& locSegPos,
   m_globalPosition( ),
   m_globalDirection(),
   m_localDirection(locSegDir),      
-  m_associatedSurface( psf ),
-  m_cachedRots( 0 )
+  m_associatedSurface( psf )
 {
   psf->localToGlobalDirection(locSegDir,m_globalDirection);
 
@@ -117,19 +106,12 @@ MuonSegment::MuonSegment(   const Amg::Vector2D& locSegPos,
   pars.push_back( Trk::DefinedParameter( phi, Trk::phi) );
   pars.push_back( Trk::DefinedParameter( theta, Trk::theta) );
   m_localParams = Trk::LocalParameters( pars );
-  copyMeasurementsToROTs();
 }
  
 MuonSegment::~MuonSegment() 
 {
     if ( 0!=m_associatedSurface && !m_associatedSurface->associatedDetectorElement()) delete m_associatedSurface;
-    clearRotVector();
 }
-
-void MuonSegment::clearRotVector()
-{
-  delete m_cachedRots;
-} 
 
 void MuonSegment::recalculateCache(){
 
@@ -145,20 +127,6 @@ void MuonSegment::recalculateCache(){
 				     costheta );
   Amg::Vector2D lpos(m_localParams[Trk::locX], m_localParams[Trk::locY]);
   m_associatedSurface->localToGlobal(lpos, m_globalPosition, m_globalPosition);
-}
-
-void MuonSegment::copyMeasurementsToROTs() const
-{
-  if (! hasContainedMeasurements() ) return;
-//  std::cout<<"copyMeasurementsToROTs :"<<this<<" with measurements: "<<containedMeasurements().size()<<std::endl;
-  m_cachedRots = new std::vector<const Trk::RIO_OnTrack*>;
-  m_cachedRots->reserve(containedMeasurements().size());
-  for (const Trk::MeasurementBase* m : containedMeasurements()) {
-    // cast to RIO_OnTrack
-    const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(m);
-    if( rot ) m_cachedRots->push_back(rot);    
-  }
-  //std::cout<<"copyMeasurementsToROTs :"<<this<<" with rots: "<<m_cachedRots->size()<<std::endl;
 }
 
 MsgStream& MuonSegment::dump( MsgStream& out ) const
@@ -177,10 +145,12 @@ MsgStream& MuonSegment::dump( MsgStream& out ) const
     out << "  - t0 (error) : "<<time()<<"("<<errorTime()<<")"<<std::endl;
     out << "  - it contains   : " << numberOfContainedROTs() << " RIO_OnTrack object" << std::endl;
     unsigned int numRoT=1;
-    std::vector<const Trk::RIO_OnTrack*>::const_iterator rotIter = m_cachedRots->begin();
-    std::vector<const Trk::RIO_OnTrack*>::const_iterator rotEnd  = m_cachedRots->end();
-    for (; rotIter!=rotEnd; ++rotIter)
-        out << "RoT "<<numRoT++<<std::endl<<**rotIter<<std::endl;
+    for (const Trk::MeasurementBase* m : containedMeasurements()) {
+      const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(m);
+      if (rot) {
+        out << "RoT "<<numRoT++<<std::endl<<*rot<<std::endl;
+      }
+    }
     return out;
 }  
 
@@ -200,10 +170,12 @@ std::ostream& MuonSegment::dump( std::ostream& out ) const
     out << "  - t0 (error) : "<<time()<<"("<<errorTime()<<")"<<std::endl;
     out << "  - it contains   : " << numberOfContainedROTs() << " RIO_OnTrack object" << std::endl;
     unsigned int numRoT=1;
-    std::vector<const Trk::RIO_OnTrack*>::const_iterator rotIter = m_cachedRots->begin();
-    std::vector<const Trk::RIO_OnTrack*>::const_iterator rotEnd  = m_cachedRots->end();
-    for (; rotIter!=rotEnd; ++rotIter)
-        out << "RoT "<<numRoT++<<std::endl<<**rotIter<<std::endl;
+    for (const Trk::MeasurementBase* m : containedMeasurements()) {
+      const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(m);
+      if (rot) {
+        out << "RoT "<<numRoT++<<std::endl<<*rot<<std::endl;
+      }
+    }
     return out;
 }
 

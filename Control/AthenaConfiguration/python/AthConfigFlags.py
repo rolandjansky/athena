@@ -71,6 +71,7 @@ class FlagAddress(object):
 
     def __nonzero__(self):
         raise RuntimeError( "No such flag: "+ self._name+".  The name is likely incomplete." )
+
     def __bool__(self):
         raise RuntimeError( "No such flag: "+ self._name+".  The name is likely incomplete." )
         
@@ -96,7 +97,7 @@ class AthConfigFlags(object):
             raise RuntimeError("Attempt to add a flag to an already-locked container")
 
         if name in self._flagdict:
-            raise KeyError("Duplicated flag name: %s" % name)
+            raise KeyError("Duplicated flag name: {}".format( name ))
         
         self._flagdict[name]=CfgFlag(setDef)
         return
@@ -110,7 +111,7 @@ class AthConfigFlags(object):
     def _loadDynaFlags(self, name):
         flagBaseName = name.split('.')[0]
         if flagBaseName in self._dynaflags:
-            self._msg.debug("dynamically loading the flag %s", flagBaseName)
+            self._msg.debug("dynamically loading the flag {}".format( flagBaseName) )
             isLocked = self._locked
             self._locked = False
             self.join( self._dynaflags[flagBaseName]() )
@@ -125,6 +126,7 @@ class AthConfigFlags(object):
     def hasFlag(self, name):        
         if name in self._flagdict: 
             return True
+        self._msg.debug("Flag not loaded yet {}".format( name ) )
         self._loadDynaFlags( name.split('.')[0] )
         return name in self._flagdict
 
@@ -136,11 +138,11 @@ class AthConfigFlags(object):
         if name in self._flagdict:
             self._flagdict[name].set(value)
             return
-        errString="No flag with name \'%s\' found" % name
+        errString="No flag with name \'{}\' found".format( name )
         from difflib import get_close_matches
         closestMatch=get_close_matches(name,self._flagdict.keys(),1)
         if len(closestMatch)>0:
-            errString+=". Did you mean \'%s\'?" %  closestMatch[0] 
+            errString+=". Did you mean \'{}\'?".format(  closestMatch[0] )
         raise KeyError(errString)
         
     def _get(self,name):        
@@ -148,11 +150,11 @@ class AthConfigFlags(object):
         if name in self._flagdict:
             return self._flagdict[name].get(self)
 
-        errString="No flag with name \'%s\' found" % name
+        errString="No flag with name \'{}\' found".format( name )
         from difflib import get_close_matches
         closestMatch=get_close_matches(name,self._flagdict.keys(),1)
         if len(closestMatch)>0:
-            errString+=". Did you mean \'%s\'?" %  closestMatch[0] 
+            errString+=". Did you mean \'{}\'?".format( closestMatch[0] )
         raise KeyError(errString)
 
     def __call__(self,name):
@@ -174,7 +176,11 @@ class AthConfigFlags(object):
     def cloneAndReplace(self,subsetToReplace,replacementSubset):
         #This is to replace subsets of configuration flags like
         #egamamaFlags.GSF by egamma.TrigGSFFlavor1
+        self.dump()
+        self._msg.info("cloning flags and replacing {} by {}".format( subsetToReplace, replacementSubset ) )
 
+        self._loadDynaFlags( subsetToReplace )
+        
         if not subsetToReplace.endswith("."):
             subsetToReplace+="."
             pass
@@ -185,7 +191,7 @@ class AthConfigFlags(object):
         #Sanity check: Don't replace a by a 
         if (subsetToReplace == replacementSubset):
             raise RuntimeError("Called cloneAndReplace with identical strings")
-
+                
         replacedNames=set()
         replacementNames=set()
         newFlagDict=dict()
@@ -214,40 +220,41 @@ class AthConfigFlags(object):
             self._msg.error(replacementNames)
             raise RuntimeError("Attempt to replace incompatible subsets: None matching flag names are " 
                                + repr(replacedNames ^ replacementNames ))
+        newFlags = AthConfigFlags(newFlagDict)
+        newFlags._dynaflags = deepcopy(self._dynaflags)
+        newFlags.dump()
+        return newFlags
 
-        return AthConfigFlags(newFlagDict)
 
 
-
-    def join(self,other, prefix=''):
+    def join(self, other, prefix=''):
         if (self._locked):
             raise RuntimeError("Attempt to join with and already-locked container")
 
         for (name,flag) in six.iteritems(other._flagdict):
             fullName = prefix+"."+name if prefix != "" else name
             if fullName in self._flagdict:
-                raise KeyError("Duplicated flag name: %s" % fullName)
+                raise KeyError("Duplicated flag name: {}".format( fullName ) )
             self._flagdict[fullName]=flag
 
         for (name,loader) in six.iteritems(other._dynaflags):
             if prefix+"."+name in self._dynaflags:
-                raise KeyError("Duplicated dynamic flags name: %s" % name)
+                raise KeyError("Duplicated dynamic flags name: {}".format( name ) )
             self.join( loader(), name )
 
         return
 
     def dump(self):
-        print("%-40.40s : %s" % ("Flag Name","Value"))
+        print("{:40} : {}".format( "Flag Name","Value" ) )
         for name in sorted(self._flagdict):
-            print("%-40.40s : %s" % (name,repr(self._flagdict[name])))
+            print("{:40} : {}".format( name, repr(self._flagdict[name] ) ) )
 
         if len(self._dynaflags) == 0:
             return
         print("Flag categories that can be loaded dynamically")
-        print("%-25.25s : %30s : %s" % ("Category","Generator name", "Defined in" ))
+        print("{:25} : {:>30} : {}".format( "Category","Generator name", "Defined in" ) )
         for name,gen in sorted(six.iteritems(self._dynaflags)):
-            print("%-25.25s : %30s : %s" %
-                  (name, gen.__name__, '/'.join(six.get_function_code(gen).co_filename.split('/')[-2:])))
+            print("{:25} : {:>30} : {}".format( name, gen.__name__, '/'.join(six.get_function_code(gen).co_filename.split('/')[-2:]) ) )
 
 
     def initAll(self): #Mostly a self-test method
@@ -270,22 +277,22 @@ class AthConfigFlags(object):
             #Safety check on arg: Contains exactly one '=' and left side is a valid flag
             argsplit=arg.split("=")
             if len(argsplit)!=2:
-                raise ValueError("Can't interpret argument %s, expected a key=value format" % arg)
+                raise ValueError("Can't interpret argument {}, expected a key=value format".format( arg ) )
 
             key=argsplit[0].strip()
             if not self.hasFlag(key):
-                raise KeyError("%s is not a known configuration flag" % key)
+                raise KeyError("{} is not a known configuration flag".format( key ) )
             
 
             value=argsplit[1].strip()
 
             try:
-                exec("type(%s)" % value)
+                exec("type({})".format( value ) )
             except NameError: #Can't determine type, assume we got an un-quoted string
-                value="\"%s\"" % value
+                value="\"{}\"".format( value )
 
             #Arg looks good enough, just exec it:
-            argToExec="self.%s=%s" % (key,value)
+            argToExec="self.{}={}".format( key, value )
 
             exec(argToExec)
             pass
@@ -346,8 +353,14 @@ class TestFlagsSetupDynamic(TestFlagsSetup):
             nf.addFlagsCategory( 'Z.clone', theXFlags )
             return nf
 
+        def theTFlags():
+            nf = AthConfigFlags()
+            nf.addFlag("T.Abool", False)
+            return nf
+
         self.flags.addFlagsCategory( 'Z', theZFlags )
         self.flags.addFlagsCategory( 'X', theXFlags )
+        self.flags.addFlagsCategory( 'T', theTFlags )
         self.flags.dump()
         print("")
 
@@ -387,6 +400,7 @@ class TestOverwriteFlags(TestFlagsSetupDynamic):
         self.flags.X.a = 30
         copyf = self.flags.cloneAndReplace( "X", "Z.clone.X")
         self.assertEqual( copyf.X.a, 20, "dynamically loaded flags have wrong value")
+        self.assertEqual( copyf.T.Abool, False, "The flags clone does not have dynamic flags")
         copyf.dump()
         print("")
 

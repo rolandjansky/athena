@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -207,7 +207,7 @@ namespace Trk
     if (m_originalTrack.isValid()){
       return *m_originalTrack;
     } else {
-      return 0;
+      return nullptr;
     } 
   }
 
@@ -218,7 +218,7 @@ namespace Trk
       return *m_elVxCandidate;
     } else
     {
-      return 0;
+      return nullptr;
     }
   }
 
@@ -268,7 +268,8 @@ namespace Trk
   inline 
   void TrackParticleBase::setTrackLink ( const TrackCollection *  cont, const Track * track) 
   {
-     if ( m_originalTrack.isValid() ) m_originalTrack.reset();
+     if ( m_originalTrack.isValid() ) { m_originalTrack.reset();
+}
      m_originalTrack.toContainedElement( *cont, track);
   }
   

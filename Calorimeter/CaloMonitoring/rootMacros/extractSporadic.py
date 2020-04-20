@@ -1,12 +1,14 @@
 #!/usr/bin env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 # ======================================================================
 def printProperties(h,q,hLB):
 
-   print "=======================Harware coordinates :",h.GetName()[0:h.GetName().find("Phi")-1]
-   print "Coordinates : Eta = ",h.GetName()[h.GetName().find("Eta")+3:h.GetName().find("Eta")+7]," Phi = ",h.GetName()[h.GetName().find("Phi")+3:h.GetName().find("Phi")+7]
+   print ("=======================Harware coordinates :",h.GetName()[0:h.GetName().find("Phi")-1])
+   print ("Coordinates : Eta = ",h.GetName()[h.GetName().find("Eta")+3:h.GetName().find("Eta")+7]," Phi = ",h.GetName()[h.GetName().find("Phi")+3:h.GetName().find("Phi")+7])
    
    
    # Nb of events with E>20GeV and mean energy
@@ -34,9 +36,9 @@ def printProperties(h,q,hLB):
          nbLB20GeV = nbLB20GeV+1
          allLBs = allLBs + " %d"%ix
 
-   print "# of events: E>20GeV / E>20GeV && q>4000 : %d / %d"%(nbEvts4000,nbEvts20GeV)
-   print "Mean energy above 20geV: %.2f GeV"%meanE
-   print nbLB20GeV," LBs contains energetic events: ", allLBs 
+   print ("# of events: E>20GeV / E>20GeV && q>4000 : %d / %d"%(nbEvts4000,nbEvts20GeV))
+   print ("Mean energy above 20geV: %.2f GeV"%meanE)
+   print (nbLB20GeV," LBs contains energetic events: ", allLBs )
    return
 
 # ======================================================================
@@ -62,22 +64,19 @@ def displayHistos(h,q,hLB,canvas):
 
 
 # Main =================================================================
-import os, sys  
-import string
+import sys  
 
 if len(sys.argv)<4:
-   print "python -i extractSporadic.py 159041 x29_m545 EMBA [FT29Sl2Ch68]"
-   print "If no channel is specified, displays all with more than 20 events above 20 GeV"
+   print ("python -i extractSporadic.py 159041 x29_m545 EMBA [FT29Sl2Ch68]")
+   print ("If no channel is specified, displays all with more than 20 events above 20 GeV")
    sys.exit()
 
 #os.system("nsls /castor/cern.ch/grid/atlas/tzero/prod1/perm/data10_7TeV/physics_CosmicCalo/0"+sys.argv[1])
 
 import ROOT
 from ROOT import gROOT, gDirectory
-from ROOT import gStyle, TCanvas, TString, TPad
-from ROOT import TFile, TTree, TRFIOFile, TStyle
-from ROOT import TH1F,TH2F,TBrowser,TPaveStats
-from ROOT import TPaveText
+from ROOT import gStyle, TCanvas
+from ROOT import TRFIOFile
 
 gROOT.Reset()
 gStyle.SetPalette(1)
@@ -89,7 +88,7 @@ myFile = TRFIOFile(nameFile)
 
 # General numbers
 hNbEvts = myFile.Get("run_"+sys.argv[1]+"/LAr/FEBMon/perPartitionData/Eventtype")
-print "This stream contains %d events"%hNbEvts.GetEntries()
+print ("This stream contains %d events"%hNbEvts.GetEntries())
 
 myFile.cd(nameDir)
 
@@ -110,7 +109,7 @@ if len(sys.argv) == 4:
          hLB.append(myFile.Get(nameDir+"/"+name))
 
    nhists = len(h)
-   print "retrieved %i histos"%nhists
+   print ("retrieved %i histos"%nhists)
 
    for i in range(0, nhists):
       if h[i].Integral(61,h[i].GetNbinsX()+1) >= 20:

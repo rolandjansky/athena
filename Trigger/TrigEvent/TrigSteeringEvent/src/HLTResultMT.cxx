@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSteeringEvent/HLTResultMT.h"
@@ -186,11 +186,14 @@ const eformat::helper::Status HLT::HLTResultMT::getFirstStatusWord() const {
 }
 
 // -----------------------------------------------------------------------------
-const std::vector<uint32_t> HLT::HLTResultMT::getErrorCodes() const {
+const std::vector<HLT::OnlineErrorCode> HLT::HLTResultMT::getErrorCodes() const {
+  std::vector<HLT::OnlineErrorCode> errorCodes;
   if (m_status.size()<2)
-    return {};
-  else
-    return {m_status.begin()+1, m_status.end()};
+    return errorCodes;
+  for (auto it=m_status.cbegin()+1; it!=m_status.cend(); ++it) {
+    errorCodes.push_back(static_cast<HLT::OnlineErrorCode>(*it));
+  }
+  return errorCodes;
 }
 
 // -----------------------------------------------------------------------------
@@ -200,19 +203,20 @@ void HLT::HLTResultMT::setStatus(const std::vector<uint32_t>& status) {
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::setErrorCodes(const std::vector<uint32_t>& errorCodes,
+void HLT::HLTResultMT::setErrorCodes(const std::vector<HLT::OnlineErrorCode>& errorCodes,
                                      const eformat::helper::Status firstStatusWord) {
   m_status.clear();
   m_status.push_back(firstStatusWord.code());
-  m_status.insert(m_status.end(),errorCodes.cbegin(),errorCodes.cend());
+  for (const HLT::OnlineErrorCode& code : errorCodes)
+    m_status.push_back(static_cast<uint32_t>(code));
 }
 
 // -----------------------------------------------------------------------------
-void HLT::HLTResultMT::addErrorCode(const uint32_t& errorCode,
+void HLT::HLTResultMT::addErrorCode(const HLT::OnlineErrorCode& errorCode,
                                     const eformat::helper::Status firstStatusWord) {
   if (m_status.empty()) m_status.push_back(firstStatusWord.code());
   else m_status[0] |= firstStatusWord.code();
-  m_status.push_back(errorCode);
+  m_status.push_back(static_cast<uint32_t>(errorCode));
 }
 
 // =============================================================================

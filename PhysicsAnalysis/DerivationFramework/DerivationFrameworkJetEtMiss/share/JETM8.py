@@ -63,18 +63,6 @@ ToolSvc += JETM8OfflineSkimmingTool
 #====================================================================
 thinningTools = []
 
-## from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__ViewContainerThinning
-## JETM8TrackJetInputThin = DerivationFramework__ViewContainerThinning( name = "JETM8ViewContTrackThinning",
-##                                                                      ThinningService        = "JETM8ThinningSvc",
-##                                                                      SourceContainer = "InDetTrackParticles",
-##                                                                      ViewContainer = "JetSelectedTracks_LooseTrackJets",
-##                                                                      ParticleType = 4, # trackParticles
-##                                                                      ApplyAnd = False)
-
-## ToolSvc += JETM8TrackJetInputThin
-## thinningTools.append(JETM8TrackJetInputThin)    
-
-
 # Truth particle thinning
 doTruthThinning = True
 preserveAllDescendants = False
@@ -90,7 +78,7 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     JETM8TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM8TruthThinningTool",
-                                                                        ThinningService        = "JETM8ThinningSvc",
+                                                                        StreamName              = streamName,
                                                                         ParticleSelectionString = truth_expression,
                                                                         PreserveDescendants     = preserveAllDescendants,
                                                                         PreserveGeneratorDescendants = not preserveAllDescendants,
@@ -102,11 +90,9 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
 
     from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__ViewContainerThinning
     JETM8TruthJetInputThin = DerivationFramework__ViewContainerThinning( name = "JETM8ViewContThinning",
-                                                                         ThinningService        = "JETM8ThinningSvc",
-                                                                         SourceContainer = "TruthParticles",
-                                                                         ViewContainer = "JetInputTruthParticles",
-                                                                         ParticleType = 201, # truthParticles
-                                                                         ApplyAnd = False)
+                                                                         StreamName              = streamName,
+                                                                         TruthParticleKey = "TruthParticles",
+                                                                         TruthParticleViewKey = "JetInputTruthParticles")
 
     ToolSvc += JETM8TruthJetInputThin
     thinningTools.append(JETM8TruthJetInputThin)    
@@ -242,11 +228,8 @@ streamName = derivationFlags.WriteDAOD_JETM8Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_JETM8Stream )
 JETM8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 JETM8Stream.AcceptAlgs(["JETM8MainKernel"])
-# for thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="JETM8ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -285,7 +268,7 @@ for caloc in correctedClusters:
     JETM8SlimmingHelper.ExtraVariables +=[
         caloc+'.calE.calEta.calM.calPhi']
 
-print JETM8SlimmingHelper.AppendToDictionary
+printfunc (JETM8SlimmingHelper.AppendToDictionary)
 
 # Trigger content
 from DerivationFrameworkCore.JetTriggerContent import JetTriggerContent

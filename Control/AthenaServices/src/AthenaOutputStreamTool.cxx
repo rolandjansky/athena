@@ -168,21 +168,8 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
       }
    }
    // Connect the output file to the service
-   std::string outputConnectionString = m_outputName.value();
-   if (!m_outputCollection.value().empty() && outputConnectionString.find("[OutputCollection=") == std::string::npos) {
-      outputConnectionString += "[OutputCollection=" + m_outputCollection.value() + "]";
-   }
-   if (!m_containerPrefix.value().empty() && outputConnectionString.find("[PoolContainerPrefix=") == std::string::npos) {
-      outputConnectionString += "[PoolContainerPrefix=" + m_containerPrefix.value() + "]";
-   }
-   if (m_containerNameHint.value() != "0" && outputConnectionString.find("[TopLevelContainerName=") == std::string::npos) {
-      outputConnectionString += "[TopLevelContainerName=" + m_containerNameHint.value() + "]";
-   }
-   if (m_branchNameHint.value() != "0" && outputConnectionString.find("[SubLevelBranchName=") == std::string::npos) {
-      outputConnectionString += "[SubLevelBranchName=" + m_branchNameHint.value() + "]";
-   }
-   if (m_conversionSvc->connectOutput(outputConnectionString).isFailure()) {
-      ATH_MSG_ERROR("Unable to connect output " << outputConnectionString);
+   if (m_conversionSvc->connectOutput(m_outputName.value()).isFailure()) {
+      ATH_MSG_ERROR("Unable to connect output " << m_outputName.value());
       return(StatusCode::FAILURE);
    } else {
       ATH_MSG_DEBUG("Connected to " << m_outputName.value());
@@ -333,19 +320,27 @@ StatusCode AthenaOutputStreamTool::commitOutput() {
 StatusCode AthenaOutputStreamTool::finalizeOutput() {
    AthCnvSvc* athConversionSvc = dynamic_cast<AthCnvSvc*>(m_conversionSvc.get());
    if (athConversionSvc != 0) {
-      if (athConversionSvc->disconnectOutput().isFailure()) {
-         ATH_MSG_ERROR("Unable to finalize output ");
+      if (athConversionSvc->disconnectOutput(m_outputName.value()).isFailure()) {
+         ATH_MSG_ERROR("Unable to finalize output " << m_outputName.value());
          return(StatusCode::FAILURE);
       }
    }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode AthenaOutputStreamTool::streamObjects(const TypeKeyPairs& typeKeys) {
+StatusCode AthenaOutputStreamTool::streamObjects(const TypeKeyPairs& typeKeys, const std::string& outputName) {
    ATH_MSG_DEBUG("In streamObjects");
    // Check that a connection has been opened
    if (!m_connectionOpen) {
       ATH_MSG_ERROR("Connection NOT open. Please open a connection before streaming out objects.");
+      return(StatusCode::FAILURE);
+   }
+   // Use arg if not empty, save the output name
+   if (!outputName.empty()) {
+      m_outputName.setValue(outputName);
+   }
+   if (m_outputName.value().empty()) {
+      ATH_MSG_ERROR("No OutputName provided");
       return(StatusCode::FAILURE);
    }
    // Now iterate over the type/key pairs and stream out each object
@@ -386,7 +381,7 @@ StatusCode AthenaOutputStreamTool::streamObjects(const TypeKeyPairs& typeKeys) {
       ATH_MSG_DEBUG("No data objects found");
       return(StatusCode::SUCCESS);
    }
-   StatusCode status = streamObjects(dataObjects);
+   StatusCode status = streamObjects(dataObjects, m_outputName.value());
    if (!status.isSuccess()) {
       ATH_MSG_ERROR("Could not stream out objects");
       return(status);
@@ -394,15 +389,29 @@ StatusCode AthenaOutputStreamTool::streamObjects(const TypeKeyPairs& typeKeys) {
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObjects) {
+StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObjects, const std::string& outputName) {
    // Check that a connection has been opened
    if (!m_connectionOpen) {
       ATH_MSG_ERROR("Connection NOT open. Please open a connection before streaming out objects.");
       return(StatusCode::FAILURE);
    }
+   // Connect the output file to the service
+   std::string outputConnectionString = outputName;
+   if (!m_outputCollection.value().empty() && outputConnectionString.find("[OutputCollection=") == std::string::npos) {
+      outputConnectionString += "[OutputCollection=" + m_outputCollection.value() + "]";
+   }
+   if (!m_containerPrefix.value().empty() && outputConnectionString.find("[PoolContainerPrefix=") == std::string::npos) {
+      outputConnectionString += "[PoolContainerPrefix=" + m_containerPrefix.value() + "]";
+   }
+   if (m_containerNameHint.value() != "0" && outputConnectionString.find("[TopLevelContainerName=") == std::string::npos) {
+      outputConnectionString += "[TopLevelContainerName=" + m_containerNameHint.value() + "]";
+   }
+   if (m_branchNameHint.value() != "0" && outputConnectionString.find("[SubLevelBranchName=") == std::string::npos) {
+      outputConnectionString += "[SubLevelBranchName=" + m_branchNameHint.value() + "]";
+   }
    // Check that the DataHeader is still valid
    DataObject* dataHeaderObj = m_store->accessData(ClassID_traits<DataHeader>::ID(), m_dataHeaderKey);
-   std::set<DataObject*> written;
+   std::map<DataObject*, IOpaqueAddress*> written;
    for (std::vector<DataObject*>::const_iterator doIter = dataObjects.begin(), doLast = dataObjects.end();
 	   doIter != doLast; doIter++) {
       // Do not write the DataHeader via the explicit list
@@ -414,68 +423,42 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
          ATH_MSG_DEBUG("Trying to write DataObject twice (clid/key): " << (*doIter)->clID() << " " << (*doIter)->name());
          ATH_MSG_DEBUG("    Skipping this one.");
       } else {
-         written.insert(*doIter);
          // Write object
-         IOpaqueAddress* addr(nullptr);
+         IOpaqueAddress* addr = new TokenAddress(0, (*doIter)->clID(), outputConnectionString);
          if (m_conversionSvc->createRep(*doIter, addr).isSuccess()) {
-            SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
-            if (proxy != nullptr) {
-               proxy->setAddress(addr);
-            } else {
-               ATH_MSG_WARNING("Could cast DataObject " << (*doIter)->clID() << " " << (*doIter)->name());
-               delete addr; addr = nullptr;
-            }
+            written.insert(std::pair<DataObject*, IOpaqueAddress*>(*doIter, addr));
          } else {
             ATH_MSG_ERROR("Could not create Rep for DataObject (clid/key):" << (*doIter)->clID() << " " << (*doIter)->name());
             return(StatusCode::FAILURE);
          }
       }
    }
+   // End of loop over DataObjects, write DataHeader
    if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
-      // End of loop over DataObjects, write DataHeader
-      IOpaqueAddress* addr(nullptr);
+      IOpaqueAddress* addr = new TokenAddress(0, dataHeaderObj->clID(), outputConnectionString);
       if (m_conversionSvc->createRep(dataHeaderObj, addr).isSuccess()) {
-         SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(dataHeaderObj->registry());
-         if (proxy != nullptr) {
-            proxy->setAddress(addr);
-         } else {
-            ATH_MSG_ERROR("Could cast DataHeader");
-            delete addr; addr = nullptr;
-            return(StatusCode::FAILURE);
-         }
+         written.insert(std::pair<DataObject*, IOpaqueAddress*>(dataHeaderObj, addr));
       } else {
          ATH_MSG_ERROR("Could not create Rep for DataHeader");
          return(StatusCode::FAILURE);
       }
    }
-   if (!fillObjectRefs(dataObjects).isSuccess()) {
-      return(StatusCode::FAILURE);
-   }
-   m_dataHeader->addHash(&*m_store);
-   if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
-      // End of DataObjects, fill refs for DataHeader
-      DataObjectVec dataHeaderObjVec;
-      dataHeaderObjVec.push_back(dataHeaderObj);
-      if (!fillObjectRefs(dataHeaderObjVec).isSuccess()) {
-         return(StatusCode::FAILURE);
-      }
-   }
-   return(StatusCode::SUCCESS);
-}
-//__________________________________________________________________________
-StatusCode AthenaOutputStreamTool::fillObjectRefs(const DataObjectVec& dataObjects) { //Copy
    for (std::vector<DataObject*>::const_iterator doIter = dataObjects.begin(), doLast = dataObjects.end();
 	   doIter != doLast; doIter++) {
       // call fillRepRefs of persistency service
       SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
-      if (proxy != 0) {
-         IOpaqueAddress* addr(proxy->address());
+      if (proxy != nullptr && written.find(*doIter) != written.end()) {
+         IOpaqueAddress* addr(written.find(*doIter)->second);
          if ((m_conversionSvc->fillRepRefs(addr, *doIter)).isSuccess()) {
             if ((*doIter)->clID() != 1 || addr->par()[0] != "\n") {
                if ((*doIter)->clID() != ClassID_traits<DataHeader>::ID()) {
                   m_dataHeader->insert(proxy, addr);
+                  if (m_store->storeID() != StoreID::EVENT_STORE) proxy->setAddress(addr);
                } else {
                   m_dataHeader->insert(proxy, addr, m_processTag);
+               }
+               if (m_store->storeID() == StoreID::EVENT_STORE) {
+                  delete addr; addr = nullptr;
                }
             }
          } else {
@@ -484,6 +467,30 @@ StatusCode AthenaOutputStreamTool::fillObjectRefs(const DataObjectVec& dataObjec
          }
       } else {
          ATH_MSG_WARNING("Could cast DataObject " << (*doIter)->clID() << " " << (*doIter)->name());
+      }
+   }
+   m_dataHeader->addHash(&*m_store);
+   if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
+      // End of DataObjects, fill refs for DataHeader
+      SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(dataHeaderObj->registry());
+      if (proxy != nullptr && written.find(dataHeaderObj) != written.end()) {
+         IOpaqueAddress* addr(written.find(dataHeaderObj)->second);
+         if ((m_conversionSvc->fillRepRefs(addr, dataHeaderObj)).isSuccess()) {
+            if (dataHeaderObj->clID() != 1 || addr->par()[0] != "\n") {
+               if (dataHeaderObj->clID() != ClassID_traits<DataHeader>::ID()) {
+                  m_dataHeader->insert(proxy, addr);
+               } else {
+                  m_dataHeader->insert(proxy, addr, m_processTag);
+               }
+               delete addr; addr = nullptr;
+            }
+         } else {
+            ATH_MSG_ERROR("Could not fill Object Refs for DataHeader");
+            return(StatusCode::FAILURE);
+         }
+      } else {
+         ATH_MSG_ERROR("Could not cast DataHeader");
+         return(StatusCode::FAILURE);
       }
    }
    return(StatusCode::SUCCESS);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,8 +21,8 @@ LArOFCBinPersType* LArOFCBinCompleteCnv::createPersistent (LArOFCBinTransType* t
 LArOFCBinTransType* LArOFCBinCompleteCnv::createTransient () {
   static pool::Guid p1_guid("E7E2E993-4AF2-4782-9B8B-7668434CBAEC");
   if( compareClassGuid(p1_guid) ) {
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<LArOFCBinPersType> col_vect( poolReadObject<LArOFCBinPersType>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<LArOFCBinPersType> col_vect( poolReadObject<LArOFCBinPersType>() );
     MsgStream log(msgSvc(), "LArOFCBinCompleteCnv" ); 
     //log << MSG::INFO << "Reading LArOFCBinSubset_p1" << endmsg; 
     return m_TPconverter.createTransient( col_vect.get(), log );

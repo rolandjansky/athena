@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/InDetByteStreamErrors
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
    InnerDetector/InDetDetDescr/PixelGeoModel
    InnerDetector/InDetRawEvent/InDetRawData
    Tools/PathResolver )
@@ -45,7 +46,7 @@ atlas_add_library( PixelCalibAlgsLib
    GaudiKernel InDetPrepRawData
    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolUtilities CoralDB
    DetDescrConditions Identifier EventInfo PixelConditionsData InDetIdentifier
-   InDetReadoutGeometry InDetRawData PathResolver PixelGeoModelLib )
+   InDetReadoutGeometry PixelReadoutGeometry InDetRawData PathResolver PixelGeoModelLib )
 
 atlas_add_component( PixelCalibAlgs
    src/components/*.cxx

@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @brief: Argument altering for trigger transform
 # @details: Code to convert trf args into the athenaMT/PT variable names
 # @author: Mark Stockton
+
+from __future__ import print_function
 
 ####
 #Notes:
@@ -348,7 +350,7 @@ def postCommand(inArgDict):
      if conf.find('costMonitor')     !=-1: file_text.extend(costM_text)
      if conf.find('CoreHandler')     !=-1: file_text.extend(Hndlr_text)
 
-     print >> postCommands, "".join(file_text)
+     print ("".join(file_text), f=postCommands)
      postCommands.close()
          
      #swap item name now finished using input values

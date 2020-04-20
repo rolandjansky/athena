@@ -8,7 +8,7 @@
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 #include <iostream>

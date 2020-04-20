@@ -188,7 +188,7 @@ def FindFile(path, runinput, filter):
             else:
                 fullname.append(path + '/' + file_name)
         else:
-            print "Excluding known bad data file",file_name
+            printfunc ("Excluding known bad data file",file_name)
 
     return [fullname, run]
 
@@ -303,7 +303,7 @@ tileInfoConfigurator.OutputLevel = OutputLevel
 from AthenaCommon.AppMgr import ToolSvc
 from TileConditions.TileCondToolConf import *
 
-print tileInfoConfigurator
+printfunc (tileInfoConfigurator)
 
 #=============================================================
 #=== ByteStream Input

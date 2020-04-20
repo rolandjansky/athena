@@ -4,8 +4,8 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-from TrigMissingETHypo.TrigMissingETHypoConfigMT import TrigMinBiasHypoToolFromDict
-from TrigMissingETHypo.TrigMissingETHypoConf import MbCountHypoAlgMT
+from TrigMinBiasHypo.TrigMinBiasHypoConfigMT import TrigMinBiasHypoToolFromDict
+from TrigMinBiasHypo.TrigMinBiasHypoConf import MbCountHypoAlgMT
 
 
 def minbiasSpacePointMenuSequence():

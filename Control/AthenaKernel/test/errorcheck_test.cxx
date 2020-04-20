@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -321,7 +321,7 @@ int main()
 {
   ISvcLocator* loc;
   assert( Athena_test::initGaudi (loc) );
-  test1();
+  assert(test1().isSuccess());
   test2();
   test3();
   test_checking();

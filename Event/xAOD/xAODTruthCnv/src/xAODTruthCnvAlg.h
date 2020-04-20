@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODCREATORALGS_XAODTRUTHCNVALG_H
@@ -9,11 +9,20 @@
 
 // The lines below I don't like. We should fix them when we update the
 // the metadata to handles (ATLASRECTS-4162).
+// Needs changes in HepMC to resolve.
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wkeyword-macro"
+#endif
 #define private public
-#   include "GeneratorObjects/McEventCollection.h"
+#include "AtlasHepMC/WeightContainer.h"
 #undef private
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #include "GeneratorObjects/xAODTruthParticleLink.h"
+#include "GeneratorObjects/McEventCollection.h"
 
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthPileupEvent.h"
@@ -29,10 +38,10 @@
 
 #include <unordered_set>
 
-namespace HepMC {
-  class GenVertex;
-  class GenParticle;
-}
+
+#include "AtlasHepMC/GenVertex_fwd.h"
+#include "AtlasHepMC/GenParticle_fwd.h"
+
 
 namespace xAODMaker {
 

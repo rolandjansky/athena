@@ -1,18 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/***************************************************************************
-MuonTrackStatisticsAlg
-***************************************************************************/
 
 #include "MuonTrackPerformance/MuonTrackStatisticsAlg.h"
 #include "MuonTrackPerformance/MuonTrackStatisticsTool.h"
-
-// INCLUDE GAUDI HEADER FILES:
-#include "GaudiKernel/MsgStream.h"
-
-#include "TMath.h"
 
 /////////////////////////////////////////////////////////////////
 

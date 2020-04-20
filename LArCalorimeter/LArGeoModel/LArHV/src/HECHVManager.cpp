@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/HECHVManager.h"
@@ -22,7 +22,7 @@
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArCabling/LArHVCablingTool.h"
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 #include "LArRecConditions/LArHVIdMapping.h"
 #endif
 
@@ -226,7 +226,7 @@ HECHVPayload *HECHVManager::getPayload(const HECHVSubgap &subgap) const {
   return &m_c->payloadArray[index];
 }
 
-#ifndef SIMULATIONBASE
+#if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 int HECHVManager::hvLineNo(const HECHVSubgap& subgap
 			   , const LArHVIdMapping* hvIdMapping) const {
   const HECHVModule& module   = subgap.getModule();

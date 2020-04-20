@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #===================================================================================
 # Common file used for TOPQ jet setup
@@ -8,6 +8,8 @@
 #   DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("JetCollection")
 #   DerivationFrameworkTop.TOPQCommonJets.TOPQupdateJVT("JetCollection")
 #===================================================================================
+
+from __future__ import print_function
 
 #========
 # IMPORTS
@@ -49,31 +51,31 @@ def addStandardJetsForTop(algseq, outputGroup):
 
   # # AntiKt2PV0TrackJets
   # addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=algseq, outputGroup=outputGroup)
-  # print "TOPQCommonJets: Adding jet container AntiKt2PV0TrackJets"
+  # print ("TOPQCommonJets: Adding jet container AntiKt2PV0TrackJets")
   # FlavorTagInit(JetCollections=['AntiKt2PV0TrackJets'], Sequencer=algseq)
 
-  # print "TOPQCommonJets: Adding btagging fro jet container AntiKt2PV0TrackJets"
+  # print ("TOPQCommonJets: Adding btagging fro jet container AntiKt2PV0TrackJets")
 
   # # AntiKt4PV0TrackJets
   # addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=algseq, outputGroup=outputGroup)
-  # print "TOPQCommonJets: Adding jet container AntiKt4PV0TrackJets"
+  # print ("TOPQCommonJets: Adding jet container AntiKt4PV0TrackJets")
 
   # # AntiKt10LCTopoJets
   # addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=algseq, outputGroup=outputGroup)
-  # print "TOPQCommonJets: Adding jet container AntiKt10LCTopoJets"
+  # print ("TOPQCommonJets: Adding jet container AntiKt10LCTopoJets")
 
   # if DFisMC:
   #   # AntiKt4TruthJets
   #   addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=algseq, outputGroup=outputGroup)
-  #   print "TOPQCommonJets: Adding jet container AntiKt4TruthJets"
+  #   print ("TOPQCommonJets: Adding jet container AntiKt4TruthJets")
 
   #   # AntiKt4TruthWZJets
   #   addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=algseq, outputGroup=outputGroup)
-  #   print "TOPQCommonJets: Adding jet container AntiKt4TruthWZJets"
+  #   print ("TOPQCommonJets: Adding jet container AntiKt4TruthWZJets")
 
   #   # AntiKt10TruthJets
   #   addStandardJets("AntiKt", 1.0, "Truth", 40000, mods="truth_ungroomed", algseq=algseq, outputGroup=outputGroup)
-  #   print "TOPQCommonJets: Adding jet container AntiKt10TruthJets"
+  #   print ("TOPQCommonJets: Adding jet container AntiKt10TruthJets")
 
   # # This must be imported _AFTER_ the jet containers have been restored (which is done above)
   # from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
@@ -109,7 +111,7 @@ def buildTOPQCA15jets(algseq):
     if not hasattr(algseq,"jetalgCamKt15LCTopo"):
       TOPQCA15LCalg = JetAlgorithm("jetalgCamKt15LCTopo", Tools = [TOPQCA15LC] )
       algseq += TOPQCA15LCalg
-      print "Running jet finding algorithm for CamKt15LCTopoJets"
+      print ("Running jet finding algorithm for CamKt15LCTopoJets")
 # end buildTOPQCA15jets(algseq)
 
 #================
@@ -122,7 +124,7 @@ def applyTOPQJetCalibration(jetcollection, algseq=None):
 
   supportedJets = ['AntiKt4EMTopo', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20']
   if not jetcollection in supportedJets:
-    print "TOPQCommonJets:",jetcollection, "is an unsupported collection for calibration!"
+    print ("TOPQCommonJets:",jetcollection, "is an unsupported collection for calibration!")
     return
   elif jetcollection == 'AntiKt4EMTopo':
     applyJetCalibration_xAODColl(jetcollection,algseq)
@@ -139,7 +141,7 @@ def TOPQupdateJVT(jetcollection, algseq=None):
 
   supportedJets = ['AntiKt4EMTopo']
   if not jetcollection in supportedJets:
-    print "TOPQCommonJets:", jetcollection, "is an unsupported collection for JVT augmentation!"
+    print ("TOPQCommonJets:", jetcollection, "is an unsupported collection for JVT augmentation!")
     return
   else:
     updateJVT_xAODColl(jetcollection,algseq)

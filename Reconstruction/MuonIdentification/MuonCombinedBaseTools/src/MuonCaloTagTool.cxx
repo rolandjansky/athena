@@ -253,7 +253,7 @@ namespace MuonCombined {
 	tag += 10*m_caloMuonTagTight->caloMuonTag(deposits, par->eta(), par->pT());
       }
       if(m_doCaloLR)
-	likelihood = m_caloMuonLikelihood->getLHR(par, caloClusterCont);
+	likelihood = m_caloMuonLikelihood->getLHR(tp, caloClusterCont);
 	ATH_MSG_DEBUG("Track found with tag " << tag << " and LHR " << likelihood);
       // --- If both the taggers do not think it's a muon, forget about it ---
       if (tag == 0 && likelihood <= m_CaloLRlikelihoodCut) {

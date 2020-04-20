@@ -25,7 +25,7 @@ TBHitContCnv::~TBHitContCnv()
 StatusCode TBHitContCnv::initialize()
 {
   // Call base clase initialize
-  AthenaPoolConverter::initialize();
+  CHECK(AthenaPoolConverter::initialize());
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBHitContCnv");
@@ -61,11 +61,4 @@ StatusCode TBHitContCnv::PoolToDataObject(DataObject*& pObj,
   }
 
   return StatusCode::SUCCESS; 
-}
-
-StatusCode TBHitContCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
-{
-  MsgStream log(msgSvc(),"TBHitContCnv::DataObjectToPool" );
-  
-  return TBHitContCnvBase::DataObjectToPool( pObj, tname) ;
 }

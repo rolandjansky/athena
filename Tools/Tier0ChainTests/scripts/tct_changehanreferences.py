@@ -44,7 +44,13 @@ def makeDQObject(obj, newref, prefix, opts):
             newrefname = prefix + '/' + name.rpartition('/')[2]
         #print newrefname
     else:
-        newrefname = name
+        if not isinstance(obj, ROOT.dqi.HanConfigGroup):
+            if obj.GetAnnotation('inputname'):
+                newrefname = obj.GetAnnotation('inputname').GetValue()
+            else:
+                newrefname = name
+        else:
+            newrefname = name
     algname = obj.GetAlgName()
     alglib = obj.GetAlgLibName()
     algref = obj.GetAlgRefName()

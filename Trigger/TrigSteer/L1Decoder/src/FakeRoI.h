@@ -10,7 +10,7 @@
 #define L1Decoder_FakeRoI_h
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/ThresholdConfig.h"

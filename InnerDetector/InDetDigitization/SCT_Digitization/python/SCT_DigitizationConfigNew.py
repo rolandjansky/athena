@@ -1,21 +1,11 @@
 """Define methods to construct configured SCT Digitization tools and algorithms
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
-from SCT_Digitization.SCT_DigitizationConf import (
-    SCT_RandomDisabledCellGenerator,
-    SCT_Amp,
-    SCT_SurfaceChargesGenerator,
-    SCT_FrontEnd,
-    SCT_DigitizationTool,
-    SCT_Digitization,
-)
-PileUpXingFolder=CompFactory.PileUpXingFolder
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-SCT_RadDamageSummaryTool=CompFactory.SCT_RadDamageSummaryTool
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
 from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsToolCfg, SCT_SiliconConditionsCfg
@@ -51,6 +41,8 @@ def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", SCT_FirstXing())
         kwargs.setdefault("LastXing", SCT_LastXing() )
+    
+    SCT_DigitizationTool = CompFactory.SCT_DigitizationTool
     tool = SCT_DigitizationTool(name, **kwargs)
     # attach ToolHandles
     tool.FrontEnd = acc.popToolsAndMerge(SCT_FrontEndCfg(flags))
@@ -92,8 +84,8 @@ def SCT_OverlayDigitizationToolCfg(flags, name="SCT_OverlayDigitizationTool",**k
     """Return ComponentAccumulator with overlay configured SCT digitization tool"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
-    kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_RDOs")
-    kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_SDO_Map")
+    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "SCT_RDOs")
+    kwargs.setdefault("OutputSDOName", flags.Overlay.SigPrefix + "SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     tool = acc.popToolsAndMerge(SCT_DigitizationCommonCfg(flags, name, **kwargs))
     acc.setPrivateTools(tool)
@@ -120,6 +112,7 @@ def SCT_DigitizationToolGeantinoTruthCfg(flags, name="SCT_GeantinoTruthDigitizat
 def SCT_RandomDisabledCellGeneratorCfg(flags, name="SCT_RandomDisabledCellGenerator", **kwargs):
     """Return configured random cell disabling tool"""
     kwargs.setdefault("TotalBadChannels", 0.01)
+    SCT_RandomDisabledCellGenerator = CompFactory.SCT_RandomDisabledCellGenerator
     return SCT_RandomDisabledCellGenerator(name, **kwargs)
 
 
@@ -131,6 +124,7 @@ def SCT_AmpCfg(flags, name="SCT_Amp", **kwargs):
     kwargs.setdefault("deltaT", 1.0)
     kwargs.setdefault("Tmin", -25.0)
     kwargs.setdefault("Tmax", 150.0)
+    SCT_Amp = CompFactory.SCT_Amp
     return SCT_Amp(name, **kwargs)
 
 
@@ -147,6 +141,7 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     kwargs.setdefault("isOverlay", flags.Detector.Overlay)
     # kwargs.setdefault("doTrapping", True) # ATL-INDET-INT-2016-019
     # experimental SCT_DetailedSurfaceChargesGenerator config dropped here
+    SCT_SurfaceChargesGenerator, SCT_RadDamageSummaryTool = CompFactory.getComps("SCT_SurfaceChargesGenerator", "SCT_RadDamageSummaryTool",)
     tool = SCT_SurfaceChargesGenerator(name, **kwargs)
     tool.RadDamageSummaryTool = SCT_RadDamageSummaryTool()
     DCSCondTool = acc.popToolsAndMerge(SCT_DCSConditionsCfg(flags))
@@ -186,10 +181,10 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     else:
         kwargs.setdefault("NoiseOn", True)
         kwargs.setdefault("AnalogueNoiseOn", True)
-    # In overlay MC, only analogue noise is on. Noise hits are not added.
-    if flags.Detector.Overlay and flags.Input.isMC:
+    # In overlay MC, only analogue noise is on (off for data). Noise hits are not added.
+    if flags.Detector.Overlay:
         kwargs["NoiseOn"] = False
-        kwargs["AnalogueNoiseOn"] = True
+        kwargs["AnalogueNoiseOn"] = flags.Input.isMC
     # Use Calibration data from Conditions DB, still for testing purposes only
     kwargs.setdefault("UseCalibData", True)
     # Setup the ReadCalibChip folders and Svc
@@ -209,6 +204,7 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
         kwargs.setdefault("DataReadOutMode", 0)
     else:
         kwargs.setdefault("DataReadOutMode", 1)
+    SCT_FrontEnd = CompFactory.SCT_FrontEnd
     acc.setPrivateTools(SCT_FrontEnd(name, **kwargs))
     return acc
 
@@ -236,17 +232,19 @@ def SCT_RangeCfg(flags, name="SiliconRange", **kwargs):
     kwargs.setdefault("LastXing", SCT_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0) # default 0 no dataproxy reset
     kwargs.setdefault("ItemList", ["SiHitCollection#SCT_Hits"] )
+    PileUpXingFolder = CompFactory.PileUpXingFolder
     return PileUpXingFolder(name, **kwargs)
 
 
 def SCT_OutputCfg(flags):
     """Return ComponentAccumulator with Output for SCT. Not standalone."""
     acc = ComponentAccumulator()
-    ItemList = ["SCT_RDO_Container#*"]
-    if flags.Digitization.TruthOutput:
-        ItemList += ["InDetSimDataCollection#*"]
-        acc.merge(TruthDigitizationOutputCfg(flags))
-    acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
+    if flags.Output.doWriteRDO:
+        ItemList = ["SCT_RDO_Container#*"]
+        if flags.Digitization.TruthOutput:
+            ItemList += ["InDetSimDataCollection#*"]
+            acc.merge(TruthDigitizationOutputCfg(flags))
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList))
     return acc
 
 
@@ -266,7 +264,15 @@ def SCT_OverlayDigitizationBasicCfg(flags, **kwargs):
     if "DigitizationTool" not in kwargs:
         tool = acc.popToolsAndMerge(SCT_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
-    acc.addEventAlgo(SCT_Digitization(**kwargs))
+
+    if flags.Concurrency.NumThreads > 0:
+        kwargs.setdefault('Cardinality', flags.Concurrency.NumThreads)
+
+    # Set common overlay extra inputs
+    kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
+
+    SCT_Digitization = CompFactory.SCT_Digitization
+    acc.addEventAlgo(SCT_Digitization(name="SCT_OverlayDigitization", **kwargs))
     return acc
 
 

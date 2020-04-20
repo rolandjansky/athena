@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os, string
 
 #========================================
@@ -24,11 +26,11 @@ def getFileListFromCastor(runNumber,inputdirectory,maxNFiles=-1,skipNFiles=0):
    for i in range(0,max):
       inputFiles.append(collection[i+skipNFiles])
    
-   print "|====================================================================================================================|"
-   print "The input files are:"
+   print ("|====================================================================================================================|")
+   print ("The input files are:")
    for n in range(inputFiles.__len__()):
-     print inputFiles[n]
-   print "|====================================================================================================================|"
+     print (inputFiles[n])
+   print ("|====================================================================================================================|")
 
    return inputFiles
 
@@ -39,9 +41,9 @@ def getInputFileToNumEventMapping(m_list):
    """ Returns a dictionary of the file names
         and the number of events in each file
    """
-   print "|====================================================================================================================|"
-   print "|                                         Doing the mapping from file to number of events                            |"
-   print "|====================================================================================================================|"
+   print ("|====================================================================================================================|")
+   print ("|                                         Doing the mapping from file to number of events                            |")
+   print ("|====================================================================================================================|")
    m_numEventsPerFile = {}
 
    import PyUtils.PoolFile as PF
@@ -53,7 +55,7 @@ def getInputFileToNumEventMapping(m_list):
          poolFile = PF.PoolFile( m_list[i] )
          m_numEventsPerFile[m_list[i]] = int(poolFile.fileInfos().split()[6])
    
-   print m_numEventsPerFile
+   print (m_numEventsPerFile)
    return m_numEventsPerFile
 
 
@@ -79,10 +81,10 @@ def createInputFiles(m_list, m_numEventsPerFile, m_nEvents, m_outputDir, m_maxNu
    if numSubJobs > m_maxNumSubJobs:
       numSubJobs = m_maxNumSubJobs
 
-   print "|====================================================================================================================|"
-   print "|  There are "+str(totalNumEvents)+" total number of events"
-   print "|  We'll do "+str(numSubJobs)+" sub jobs, with "+str(m_nEvents)+" events each"
-   print "|====================================================================================================================|"
+   print ("|====================================================================================================================|")
+   print ("|  There are "+str(totalNumEvents)+" total number of events")
+   print ("|  We'll do "+str(numSubJobs)+" sub jobs, with "+str(m_nEvents)+" events each")
+   print ("|====================================================================================================================|")
 
    failedFiles = ["/castor/cern.ch/grid/atlas/caf/atlcal/perm/id/cosmics/ESDs/InDetESD_91890_lb7.root","/castor/cern.ch/grid/atlas/caf/atlcal/perm/id/cosmics/ESDs/InDetESD_91891_lb13.root","/castor/cern.ch/grid/atlas/caf/atlcal/perm/id/cosmics/ESDs/InDetESD_91891_lb24.root"]
 
@@ -90,7 +92,7 @@ def createInputFiles(m_list, m_numEventsPerFile, m_nEvents, m_outputDir, m_maxNu
    m_usedFiles = 0
    m_numberEventsUsed =0
    for i in range(numSubJobs):
-      print "Making input file "+ str(i)
+      print ("Making input file "+ str(i))
       subJobInputFile=open(m_outputDir+"/inputFiles_"+str(i)+".py","w")
       subJobInputFile.write("theApp.EvtMax="+str(m_nEvents)+" \n")
 
@@ -103,7 +105,7 @@ def createInputFiles(m_list, m_numEventsPerFile, m_nEvents, m_outputDir, m_maxNu
             continue
          
          # Used for DeBugging
-         #print "m_usedFiles",m_usedFiles,"m_numberEventsUsed",m_numberEventsUsed,"m_eventsNeeded",m_eventsNeeded,m_list[m_usedFiles][0],m_numEventsPerFile[ m_list[m_usedFiles][0] ]
+         #print ("m_usedFiles",m_usedFiles,"m_numberEventsUsed",m_numberEventsUsed,"m_eventsNeeded",m_eventsNeeded,m_list[m_usedFiles][0],m_numEventsPerFile[ m_list[m_usedFiles][0] ])
          if m_eventsNeeded <= m_numEventsPerFile[ m_list[m_usedFiles] ]:
             if not m_addedInputFile:
                subJobInputFile.write("ServiceMgr.EventSelector.SkipEvents = "+str(m_numberEventsUsed)+"\n")

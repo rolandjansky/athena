@@ -106,13 +106,6 @@ public:
 
 private:
 
-  /// Record the container and Aux container in the event store.
-  /// TAux is the type of the Aux container.
-  template <typename TAux>
-  int record(std::unique_ptr<const xAOD::JetContainer> pjets) const;
-
-private:
-
   std::unique_ptr<xAOD::JetContainer> fillOutputContainer() const;
   // Collect all input PseudoJetContainers into a single container
   std::unique_ptr<PseudoJetContainer> collectPseudoJets() const;

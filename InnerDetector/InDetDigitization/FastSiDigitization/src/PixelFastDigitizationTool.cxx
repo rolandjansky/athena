@@ -31,7 +31,7 @@
 // Pile-up
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 // Fatras
 #include "InDetPrepRawData/PixelCluster.h"
@@ -224,7 +224,7 @@ StatusCode PixelFastDigitizationTool::initialize()
 
 
 
-StatusCode PixelFastDigitizationTool::prepareEvent(unsigned int)
+StatusCode PixelFastDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int)
 {
 
   m_siHitCollList.clear();
@@ -275,7 +275,7 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
 }
 
 
-StatusCode PixelFastDigitizationTool::processAllSubEvents() {
+StatusCode PixelFastDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   m_pixelClusterContainer = new InDet::PixelClusterContainer(m_pixel_ID->wafer_hash_max());
 
@@ -357,12 +357,12 @@ StatusCode PixelFastDigitizationTool::processAllSubEvents() {
   m_thpcsi = &thpcsi;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  if(this->digitize().isFailure()) {
+  if(this->digitize(ctx).isFailure()) {
     ATH_MSG_FATAL ( "digitize method failed!" );
     return StatusCode::FAILURE;
   }
 
-  if (createAndStoreRIOs().isFailure()) {
+  if (createAndStoreRIOs(ctx).isFailure()) {
     ATH_MSG_FATAL ( "createAndStoreRIOs() failed!" );
     return StatusCode::FAILURE;
   }
@@ -392,7 +392,7 @@ StatusCode PixelFastDigitizationTool::processAllSubEvents() {
 
 
 
-StatusCode PixelFastDigitizationTool::mergeEvent()
+StatusCode PixelFastDigitizationTool::mergeEvent(const EventContext& ctx)
 {
 
   m_pixelClusterContainer = new InDet::PixelClusterContainer(m_pixel_ID->wafer_hash_max());
@@ -438,7 +438,7 @@ StatusCode PixelFastDigitizationTool::mergeEvent()
   m_ambiguitiesMap =new PixelGangedClusterAmbiguities();
 
   if (m_thpcsi != 0) {
-    if(digitize().isFailure()) {
+    if(digitize(ctx).isFailure()) {
       ATH_MSG_FATAL ( "Pixel digitize method failed!" );
       return StatusCode::FAILURE;
     }
@@ -455,7 +455,7 @@ StatusCode PixelFastDigitizationTool::mergeEvent()
   m_siHitCollList.clear();
 
 
-  if (createAndStoreRIOs().isFailure()) {
+  if (createAndStoreRIOs(ctx).isFailure()) {
     ATH_MSG_FATAL ( "createAndStoreRIOs() failed!" );
     return StatusCode::FAILURE;
   }
@@ -481,9 +481,9 @@ StatusCode PixelFastDigitizationTool::mergeEvent()
 }
 
 
-StatusCode PixelFastDigitizationTool::digitize()
+StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
 {
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
   if (not pixelDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
@@ -495,7 +495,7 @@ StatusCode PixelFastDigitizationTool::digitize()
   if(!m_pixelClusterMap) { m_pixelClusterMap = new Pixel_detElement_RIO_map; }
   else { m_pixelClusterMap->clear(); }
 
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey, ctx);
 
   while (m_thpcsi->nextDetectorElement(i, e)) {
 
@@ -885,9 +885,9 @@ StatusCode PixelFastDigitizationTool::digitize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
+StatusCode PixelFastDigitizationTool::createAndStoreRIOs(const EventContext& ctx)
 {
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
   if (not pixelDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");

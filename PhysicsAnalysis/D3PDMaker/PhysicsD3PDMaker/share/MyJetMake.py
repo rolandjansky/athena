@@ -13,10 +13,8 @@ seq = AlgSequence()
 if rec.doTruth():
   # Needed for release 15 AntiKt6 truth jets
   # make_StandardJetGetter('AntiKt', 0.6, 'Truth')
-  print "jason"
   import D3PDMakerCoreComps
   from D3PDMakerCoreComps.resolveSGKey                   import testSGKey
-  print testSGKey ('JetCollection', 'AntiKt6TruthJets')
   if not testSGKey ('JetCollection', 'AntiKt6TruthJets'):
     make_StandardJetGetter('AntiKt', 0.6, 'Truth')
 

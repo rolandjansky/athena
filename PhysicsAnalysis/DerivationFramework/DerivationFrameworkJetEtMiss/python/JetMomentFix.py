@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # JetMomentFix.py
 # Schedules jet moment corrections
 #********************************************************************
+
+from __future__ import print_function
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
@@ -12,10 +14,10 @@ from JetRec.JetRecConf import JetAlgorithm
 from DerivationFrameworkJetEtMiss.DFJetMetFlags import *
 
 if dfjmFlags.doJetTrackMomentFix:
-    print "Scheduling jet track moment fix: "
+    print ("Scheduling jet track moment fix: ")
     jtm.modifiersMap["jetmomfix"] = [jtm.trkmoms]
 else:
-    print "Copying jet track moments: "
+    print ("Copying jet track moments: ")
     jtm.modifiersMap["jetmomfix"] = []
 
 jetmomfix_LC = jtm.addJetCopier("DFJetFix_AntiKt4LCTopoJets", "AntiKt4LCTopoJets", "jetmomfix")

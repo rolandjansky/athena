@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.GlobalFlags import GlobalFlags
 ###################################################################################
 # ConfiguredCaloGeometryBuilder
@@ -12,7 +13,7 @@ from AthenaCommon.GlobalFlags import GlobalFlags
 #  TODO: write documentation
 ###################################################################################
 
-class ConfiguredCaloGeometryBuilder :
+class ConfiguredCaloGeometryBuilder (object):
    def __init__(self, instname         = None,  
                       magfieldtool     = None,
                       larvolumebuilder = None, 

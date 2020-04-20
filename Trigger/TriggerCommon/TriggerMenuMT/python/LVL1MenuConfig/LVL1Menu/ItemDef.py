@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Disable flake8 checking due to the use of 'exec':
 # flake8: noqa
@@ -1461,11 +1461,11 @@ class ItemDef(object):
      
                     LVL1MenuItem('L1_LFV-MU6').setLogic( d.TOPO_0DR15_2MU6ab & physcond)
                     LVL1MenuItem('L1_LFV-MU').setLogic( d.TOPO_0DR10_MU10ab_MU6ab & physcond)
-                    if not '_v7' in TriggerFlags.triggerMenuSetup() and not 'LS2_v' in TriggerFlags.triggerMenuSetup() and not 'pp_run3_v' in TriggerFlags.triggerMenuSetup():
+                    if not '_v7' in TriggerFlags.triggerMenuSetup() and not 'LS2_v' in TriggerFlags.triggerMenuSetup() and not 'run3_v' in TriggerFlags.triggerMenuSetup():
                         LVL1MenuItem('L1_LFV-EM8I').setLogic( d.TOPO_0DETA04_0DPHI03_EM8abi_MU10ab & physcond)
                     else:
                         LVL1MenuItem('L1_LFV-EM8I').setLogic( d.TOPO_0DETA04_EM8abi_MU10ab & d.TOPO_0DPHI03_EM8abi_MU10ab & physcond) #ATR-14282
-                    if not '_v7' in TriggerFlags.triggerMenuSetup() and not 'LS2_v' in TriggerFlags.triggerMenuSetup() and not 'pp_run3_v' in TriggerFlags.triggerMenuSetup():
+                    if not '_v7' in TriggerFlags.triggerMenuSetup() and not 'LS2_v' in TriggerFlags.triggerMenuSetup() and not 'run3_v' in TriggerFlags.triggerMenuSetup():
                         LVL1MenuItem('L1_LFV-EM15I').setLogic( d.TOPO_0DETA04_0DPHI03_EM15abi_MUab & physcond)
                     else:
                         LVL1MenuItem('L1_LFV-EM15I').setLogic( d.TOPO_0DETA04_EM15abi_MUab & d.TOPO_0DPHI03_EM15abi_MUab & physcond) #ATR-14282

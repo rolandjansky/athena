@@ -24,16 +24,16 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
   electronSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   //Tool standard routines.
-  StatusCode initialize() override final;
-  StatusCode finalize() override final;
-  StatusCode execute() override final;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
+  virtual StatusCode execute() override final;
 
  private:
 
   bool matchSameTrack(const xAOD::TrackParticle& seedTrack,
                       const egammaRec& sec) const;
 
-  const std::vector<std::size_t> searchForSecondaryClusters(const size_t i,
+  std::vector<std::size_t> searchForSecondaryClusters(const size_t i,
                                                             const EgammaRecContainer*,
                                                             std::vector<bool>& isUsed);
   

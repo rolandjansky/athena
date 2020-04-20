@@ -1,23 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  transient data object giving a hit prediction in a TRT detector element
  ***************************************************************************/
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include <iomanip>
 #include <iostream>
-#include <cmath>
+#include <sstream>
 #include "GaudiKernel/SystemOfUnits.h"
-#include "InDetReadoutGeometry/TRT_BarrelElement.h"
-#include "InDetReadoutGeometry/TRT_EndcapElement.h"
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "TrkSurfaces/Surface.h"
 #include "TRT_Rec/TRT_Prediction.h"
 
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 TRT_Prediction::TRT_Prediction(const InDetDD::TRT_BarrelElement*	barrelElement,
 			       const InDetDD::TRT_EndcapElement*	endcapElement,
@@ -43,32 +41,31 @@ TRT_Prediction::TRT_Prediction(const InDetDD::TRT_BarrelElement*	barrelElement,
 	m_z			(z)
 {}
 
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
-void
-TRT_Prediction::print (void) const
+std::string
+TRT_Prediction::to_string (void) const
 {
     double nStraws;
     double phiStart;
     double pitch;
     double straw;
     double width;
-    
+    std::stringstream ss;
     if (m_barrelElement)
     {
 	// note phiStart refers to first straw (straw# 0)
 	nStraws		= m_barrelElement->nStraws();
-	phiStart	= atan2(m_barrelElement->strawYPos(0),
+	phiStart	= std::atan2(m_barrelElement->strawYPos(0),
 				m_barrelElement->strawXPos(0));
 	int endStraw	= m_barrelElement->nStraws() - 1;
-	double phiEnd	= atan2(m_barrelElement->strawYPos(endStraw),
+	double phiEnd	= std::atan2(m_barrelElement->strawYPos(endStraw),
 				m_barrelElement->strawXPos(endStraw));
 	pitch		= (phiEnd - phiStart)/(nStraws - 1);
 	if (phiEnd < phiStart) pitch += 2.*M_PI/(nStraws - 1.);
 	straw		= (m_phi - phiStart)/pitch;
 	width		= m_deltaPhiNarrow/pitch;
 	if (m_phi-phiStart < -M_PI) straw += 2.*M_PI/pitch;
-	std::cout << std::setiosflags(std::ios::fixed)
+	ss << std::setiosflags(std::ios::fixed)
 		  << " barrel prediction: r,phi,z ";
     }
     else
@@ -80,30 +77,25 @@ TRT_Prediction::print (void) const
 	straw		= (m_phi - phiStart)/pitch;
 	width		= m_deltaPhiNarrow/pitch;
 	if (m_phi-phiStart < -M_PI) straw += 2.*M_PI/pitch;
-	std::cout << std::setiosflags(std::ios::fixed)
+	ss << std::setiosflags(std::ios::fixed)
 		  << " endcap prediction: r,phi,z ";
     }
-    std::cout << std::setw(9) << std::setprecision(3) << m_r
+    ss << std::setw(9) << std::setprecision(3) << m_r
 	      << std::setw(9) << std::setprecision(4) << m_phi
 	      << std::setw(9) << std::setprecision(1) << m_z
 	      << "   straw#"  << std::setw(5) << std::setprecision(1) << straw
 	      << " +-" << std::setw(5) << std::setprecision(1) << width;
     straw += 0.5;
-    if (m_boundary || straw > nStraws || straw < 0.) std::cout << "  near boundary ";
-    std::cout << std::resetiosflags(std::ios::fixed) << std::endl;
+    if (m_boundary || straw > nStraws || straw < 0.) ss << "  near boundary ";
+    ss << std::resetiosflags(std::ios::fixed) << "\n";
+    return ss.str();
 }
 
 const Trk::Surface&
 TRT_Prediction::surface (void) const
 {
-    if (m_barrelElement)
-    {
-	return m_barrelElement->surface();
-    }
-    else
-    {
-	return m_endcapElement->surface();
-    }
+    if (m_barrelElement) return m_barrelElement->surface();
+	  return m_endcapElement->surface();
 }
 
 

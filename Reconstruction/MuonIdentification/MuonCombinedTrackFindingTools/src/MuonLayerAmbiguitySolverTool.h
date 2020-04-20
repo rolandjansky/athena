@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONLAYERAMBIGUITYSOLVERTOOL_H
@@ -7,21 +7,21 @@
 
 #include "MuonCombinedToolInterfaces/IMuonLayerAmbiguitySolverTool.h"
 
-#include <vector>
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
+
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentMatchingTool.h"
+#include "MuonRecToolInterfaces/IMuonSegmentTrackBuilder.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "MuonLayerEvent/MuonLayerRecoData.h"
 #include "MuonLayerEvent/MuonCandidate.h"
+#include "MuonStationIndex/MuonStationIndex.h"
+
+#include <vector>
 
 namespace Muon {
-
-  class IMuonSegmentSelectionTool;
-  class IMuonSegmentMatchingTool;
-  class IMuonSegmentTrackBuilder;
-  class MuonEDMPrinterTool;
   struct MuonCandidate;
 
   class MuonLayerAmbiguitySolverTool : virtual public IMuonLayerAmbiguitySolverTool,  public AthAlgTool {
@@ -29,9 +29,8 @@ namespace Muon {
 
     /** Default AlgTool functions */
     MuonLayerAmbiguitySolverTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonLayerAmbiguitySolverTool();
+    virtual ~MuonLayerAmbiguitySolverTool()=default;
     StatusCode initialize();
-    StatusCode finalize();
 
     /**IMuonLayerAmbiguitySolverTool interface: find */   
     void resolveOverlaps( const std::vector<Muon::MuonLayerRecoData>& allLayers, std::vector< MuonCandidate >& resolvedCandidates ) const;

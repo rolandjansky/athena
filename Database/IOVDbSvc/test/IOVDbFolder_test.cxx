@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -21,6 +21,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IAddressCreator.h"
+#include "GaudiKernel/IOpaqueAddress.h"
 //
 #include "../src/FolderTypes.h"
 #include "../src/IOVDbParser.h"
@@ -124,7 +125,7 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
       IOVRange returnRange{zeroRange};
       BOOST_TEST(iovDbFolder.currentRange() ==  zeroRange);//why?
       BOOST_TEST(iovDbFolder.cacheValid(cool::ValidityKey(600)) );
-      IOpaqueAddress * returnedAddress{};
+      std::unique_ptr<IOpaqueAddress> returnedAddress;
       ServiceHandle<IAddressCreator> persistencySvc("EventPersistencySvc", "test");
       bool poolRequested{};
       BOOST_TEST( iovDbFolder.getAddress(cool::ValidityKey(600), &(*persistencySvc),0,returnedAddress,returnRange, poolRequested));

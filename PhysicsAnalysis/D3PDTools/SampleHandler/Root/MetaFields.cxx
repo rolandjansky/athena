@@ -28,6 +28,7 @@ namespace SH
   const std::string MetaFields::gridName           = "nc_grid";
   const std::string MetaFields::gridFilter         = "nc_grid_filter";
   const std::string MetaFields::gridFilter_default = "*.root*";
+  const std::string MetaFields::gridSourceOptions  = "nc_grid_source_options";
   const std::string MetaFields::sourceSample       = "nc_source";
   const std::string MetaFields::treeName           = "nc_tree";
   const std::string MetaFields::treeName_default   = "CollectionTree";

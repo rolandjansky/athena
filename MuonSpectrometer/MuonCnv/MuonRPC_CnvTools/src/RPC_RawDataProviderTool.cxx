@@ -73,10 +73,6 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
       return StatusCode::FAILURE;  
     }
     
-    const std::vector<const Property*>* byteStreamNavProps
-        = (jobOptionsSvc)?  jobOptionsSvc->getProperties("ByteStreamNavigationProviderSvc") : 0;
-
-    
     const std::vector<const Property*>* dataFlowProps 
         = (jobOptionsSvc)?  jobOptionsSvc->getProperties("DataFlowConfig") : 0;
 
@@ -85,7 +81,6 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
                      TrigConfSvc->getProperties("EventSelector"); 
     
     if     ( dataFlowProps != 0 ) has_bytestream = true;
-        if( byteStreamNavProps != 0 ) has_bytestream = true;
     else if( eventSelProps != 0 )
     {
         for (std::vector<const Property*>::const_iterator 
@@ -116,11 +111,13 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
 // the new one 
 StatusCode Muon::RPC_RawDataProviderTool::convert()
 {
+  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};
 //CALLGRIND_START_INSTRUMENTATION
   /// 
   m_decoder->setSLdecodingRequest();
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
-  std::vector<uint32_t> robIds = m_rpcCabling->giveFullListOfRobIds();
+  std::vector<uint32_t> robIds = readCdo->giveFullListOfRobIds();
   m_robDataProvider->getROBData( robIds, vecOfRobf);
 //CALLGRIND_STOP_INSTRUMENTATION
   return convert(vecOfRobf); // using the old one
@@ -148,10 +145,12 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const std::vector<uint32_t>& r
 // the new one
 StatusCode Muon::RPC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect)
 {
+  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+  const RpcCablingCondData* readCdo{*readHandle};
  //CALLGRIND_START_INSTRUMENTATION
     std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
     std::vector<uint32_t> robIds;
-    CHECK( m_rpcCabling->giveROB_fromRDO(rdoIdhVect, robIds) );
+    CHECK( readCdo->giveROB_fromRDO(rdoIdhVect, robIds) );
     m_robDataProvider->getROBData(robIds, vecOfRobf);
 //CALLGRIND_STOP_INSTRUMENTATION
     return convert(vecOfRobf, rdoIdhVect); // using the old one 

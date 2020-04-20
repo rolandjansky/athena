@@ -31,6 +31,16 @@ if is_MC:
   from DerivationFrameworkMCTruth.MCTruthCommon import *
   
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_HIGG6D2Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG6D2Stream )
+HIGG6D2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+HIGG6D2Stream.AcceptAlgs(["HIGG6D2Kernel"])
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # TAU SELECTOR TOOL 
 #====================================================================
 augmentationTools = []
@@ -134,24 +144,17 @@ thinningTools=[]
 # GenericTrackParticleThinning
 #====================================================================
 thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-HIGG6D2GenTPThinningTool = DerivationFramework__TrackParticleThinning(name = "HIGG6D2GenTPThinningTool",
-            ThinningService         = "HIGG6D2ThinningSvc",
-            SelectionString         = thinning_expression,
-            InDetTrackParticlesKey  = "InDetTrackParticles",
-            ApplyAnd = True)
-thinningTools.append(HIGG6D2GenTPThinningTool)
-ToolSvc += HIGG6D2GenTPThinningTool
+
 
 #====================================================================
 # JetTrackParticleThinning
 #====================================================================
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG6D2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "HIGG6D2JetTPThinningTool",
-            ThinningService         = "HIGG6D2ThinningSvc",
+            StreamName              = streamName,
             JetKey                  = "AntiKt4EMTopoJets",
             InDetTrackParticlesKey  = "InDetTrackParticles",
-            ApplyAnd = True)
+            TrackSelectionString = thinning_expression)
 
 
 thinningTools.append(HIGG6D2JetTPThinningTool)
@@ -163,12 +166,11 @@ ToolSvc += HIGG6D2JetTPThinningTool
 #====================================================================
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 HIGG6D2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                    = "HIGG6D2TauTPThinningTool",
-            ThinningService         = "HIGG6D2ThinningSvc",
+            StreamName              = streamName,
             TauKey                       = "TauJets",
             InDetTrackParticlesKey  = "InDetTrackParticles",
 #            SelectionString = tauSel,
-            ConeSize = 0.6,
-            ApplyAnd = False)
+            ConeSize = 0.6)
 
 thinningTools.append(HIGG6D2TauTPThinningTool)
 ToolSvc += HIGG6D2TauTPThinningTool
@@ -178,12 +180,11 @@ ToolSvc += HIGG6D2TauTPThinningTool
 #====================================================================
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 HIGG6D2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name= "HIGG6D2MuonTPThinningTool",
-            ThinningService         = "HIGG6D2ThinningSvc",
+            StreamName              = streamName,
             MuonKey                 = "Muons",
             InDetTrackParticlesKey  = "InDetTrackParticles",
 #            SelectionString = muonRequirements,
-            ConeSize = 0.4,
-            ApplyAnd = False)
+            ConeSize = 0.4)
 
 thinningTools.append(HIGG6D2MuonTPThinningTool)
 ToolSvc += HIGG6D2MuonTPThinningTool
@@ -193,12 +194,11 @@ ToolSvc += HIGG6D2MuonTPThinningTool
 #====================================================================
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 HIGG6D2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name= "HIGG6D2ElectronTPThinningTool",
-            ThinningService         = "HIGG6D2ThinningSvc",
+            StreamName              = streamName,
             SGKey                   = "Electrons",
             InDetTrackParticlesKey  = "InDetTrackParticles",
 #            SelectionString = electronRequirements,
-            ConeSize = 0.4,
-            ApplyAnd = False)
+            ConeSize = 0.4)
 
 thinningTools.append(HIGG6D2ElectronTPThinningTool)
 ToolSvc += HIGG6D2ElectronTPThinningTool
@@ -206,8 +206,9 @@ ToolSvc += HIGG6D2ElectronTPThinningTool
 #====================================================================
 # Tracks themselves
 #====================================================================
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 HIGG6D2TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG6D2TPThinningTool",
-                                                                   ThinningService         = "HIGG6D2ThinningSvc",
+                                                                   StreamName              = streamName,
                                                                    SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
                                                                    InDetTrackParticlesKey  = "InDetTrackParticles")
 
@@ -220,7 +221,7 @@ ToolSvc += HIGG6D2TPThinningTool
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 HIGG6D2TruthThinningTool = DerivationFramework__MenuTruthThinning(name          = "HIGG6D2TruthThinningTool",
-                                                     ThinningService            = "HIGG6D2ThinningSvc",
+                                                     StreamName                 = streamName,
                                                      WritePartons               = False,
                                                      WriteHadrons               = False,
                                                      WriteBHadrons              = True,
@@ -258,20 +259,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG6D2K
 
 
  
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_HIGG6D2Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG6D2Stream )
-HIGG6D2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-HIGG6D2Stream.AcceptAlgs(["HIGG6D2Kernel"])
-# Special lines for thinning
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="HIGG6D2ThinningSvc", outStreams=[evtStream] )
-
 #====================================================================
 # Add the containers to the output stream - slimming done here (smart slimming)
 #====================================================================

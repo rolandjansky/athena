@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,8 +38,8 @@ TriggerTowerCollection * TriggerTowerCollectionCnv::createTransient()
   TriggerTowerCollection *p_collection = 0;
   if( compareClassGuid( tlp1_guid ) )     
     {
-     // using auto_ptr ensures deletion of the persistent object
-      std::auto_ptr< TriggerTowerCollection_PERS > pers_ref( poolReadObject< TriggerTowerCollection_PERS >() );
+     // using unique_ptr ensures deletion of the persistent object
+      std::unique_ptr< TriggerTowerCollection_PERS > pers_ref( poolReadObject< TriggerTowerCollection_PERS >() );
       p_collection = m_TPConverter_tlp1.createTransient( pers_ref.get(), mlog );
       
     }else if( compareClassGuid( p0_guid ) ){

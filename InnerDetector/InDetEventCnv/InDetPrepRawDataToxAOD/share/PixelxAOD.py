@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #################
 ### Steering options
@@ -121,6 +121,7 @@ svcMgr.DecisionSvc.CalcStats = True
 
 
 # Add the TSOS augmentation tool to the derivation framework
+from InDetRecExample import TrackingCommon
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
 DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
                                                           ContainerName = "InDetTrackParticles",
@@ -130,6 +131,7 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           StorePixel = True,
                                                           IsSimulation = isIdTrkDxAODSimulation,
                                                           AssociationTool = InDetPrdAssociationTool,
+                                                          TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool(),
                                                           OutputLevel = INFO)
 
 ToolSvc += DFTSOS
@@ -221,7 +223,7 @@ PIXELVALIDStream.AddItem("xAOD::TrackParticleContainer#PixelMonitoringTrack")
 PIXELVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#PixelMonitoringTrackAux."+excludedAuxData)
 
 PIXELVALIDStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-PIXELVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+PIXELVALIDStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV")
 
 PIXELVALIDStream.AddItem("xAOD::ElectronContainer#Electrons")
 PIXELVALIDStream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")

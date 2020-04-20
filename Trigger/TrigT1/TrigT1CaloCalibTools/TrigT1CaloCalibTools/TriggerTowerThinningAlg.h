@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
 //  *           Queen Mary University of London                               *
 //  *                                                                         *
 
-#ifndef _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_TRIGGERTOWERTHINNINGALG_H_
-#define _TRIGGER_TRIGT1_TRIGT1CALOCALIBTOOLS_TRIGGERTOWERTHINNINGALG_H_
+#ifndef TRIGT1CALOCALIBTOOLS_TRIGGERTOWERTHINNINGALG_H
+#define TRIGT1CALOCALIBTOOLS_TRIGGERTOWERTHINNINGALG_H
 
 /**
    @class TriggerTowerThinningAlg
@@ -24,32 +24,32 @@
 **/
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "StoreGate/ThinningHandleKey.h"
 
 #include <vector>
 #include <TRandom3.h>
 
 
-class IThinningSvc;
-
 namespace DerivationFramework {
 
-  class TriggerTowerThinningAlg : public AthAlgTool , public IThinningTool{
+  class TriggerTowerThinningAlg : public extends<AthAlgTool, IThinningTool> {
 
   public:
     TriggerTowerThinningAlg(const std::string& t, const std::string& n, const IInterface* p);
     virtual ~TriggerTowerThinningAlg();
 
-    StatusCode initialize();
-    StatusCode finalize();
-    virtual StatusCode doThinning() const;
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode doThinning() const override;
 
   private:
-    ServiceHandle<IThinningSvc> m_thinningSvc;
-               
-    // StoreGate locations
-    std::string m_triggerTowerLocation;
+    StringProperty m_streamName
+    { this, "StreamName", "", "Name of the stream being thinned" };
+    SG::ThinningHandleKey<xAOD::TriggerTowerContainer> m_triggerTowerLocation
+      { this, "TriggerTowerLocation", LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation, "" };
 
     // python configurables
     double m_minCaloCellET;

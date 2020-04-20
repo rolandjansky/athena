@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscCalibData/CscCalibReportBase.h"
 #include <string>
-
-using namespace std;
 
 CscCalibReportBase::CscCalibReportBase()
 {}
@@ -14,18 +12,14 @@ CscCalibReportBase::CscCalibReportBase(std::string aLabel) :
     m_label(aLabel)
 {}
 
-CscCalibReportBase::~CscCalibReportBase()
-{}
+CscCalibReportBase::~CscCalibReportBase()=default;
 
-void CscCalibReportBase::setLabel( const string & aLabel)
+void CscCalibReportBase::setLabel(const std::string & aLabel)
 {
     m_label = aLabel;
 }
 
-string CscCalibReportBase::getLabel() const
+std::string CscCalibReportBase::getLabel() const
 {
     return m_label;
 }
-
-
-

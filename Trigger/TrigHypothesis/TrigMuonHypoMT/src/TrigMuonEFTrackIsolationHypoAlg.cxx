@@ -38,11 +38,8 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
   ATH_MSG_DEBUG("Executing ...");
 
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
-  if ( not previousDecisionsHandle.isValid() ) { //implicit
-    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
-    return StatusCode::SUCCESS;
-  }  
-  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+  ATH_CHECK( previousDecisionsHandle.isValid() );
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
 
   // prepare output decisions
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 

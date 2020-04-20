@@ -55,8 +55,8 @@ namespace TrigConf {
 
       CHECK( m_eventName.initialize() ); // WriteHandleKey
 
-      CHECK( m_HLTMenuKey.initialize(m_isJSONConfig) ); // ReadHandleKey
-      CHECK( m_L1MenuKey.initialize(m_isJSONConfig) ); // ReadHandleKey
+      CHECK( m_HLTMenuKey.initialize(m_isHLTJSONConfig) ); // ReadHandleKey
+      CHECK( m_L1MenuKey.initialize(m_isL1JSONConfig) ); // ReadHandleKey
  
       // Clear the internal cache variable:
       m_convertedKeys.clear();
@@ -118,10 +118,16 @@ namespace TrigConf {
       menu->setL1psk( m_trigConf->lvl1PrescaleKey() );
       menu->setHLTpsk( m_trigConf->hltPrescaleKey() );
 
-      if (m_isJSONConfig) {
-         CHECK( populateFromJSON(menu, ctx) );
+      if (m_isL1JSONConfig) {
+         CHECK( populateL1FromJSON(menu, ctx) );
       } else {
-         CHECK( populateFromTrigConf(menu) );
+         CHECK( populateL1FromTrigConf(menu) );
+      }
+
+      if (m_isHLTJSONConfig) {
+         CHECK( populateHLTFromJSON(menu, ctx) );
+      } else {
+         CHECK( populateHLTFromTrigConf(menu) );
       }
 
       CHECK( populateBunchGroup(menu) ); 
@@ -130,7 +136,7 @@ namespace TrigConf {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode xAODMenuWriterMT::populateFromJSON(xAOD::TriggerMenu* menu, const EventContext& ctx) const {
+   StatusCode xAODMenuWriterMT::populateL1FromJSON(xAOD::TriggerMenu* menu, const EventContext& ctx) const {
       //
       // Set its LVL1 information:
       //
@@ -164,7 +170,12 @@ namespace TrigConf {
       menu->setItemNames( itemNames );
       menu->setItemPrescales( itemPrescales );
 
-      //
+      return StatusCode::SUCCESS;
+   }
+
+
+   StatusCode xAODMenuWriterMT::populateHLTFromJSON(xAOD::TriggerMenu* menu, const EventContext& ctx) const {
+       //
       // Set its HLT information:
       //
       ATH_MSG_DEBUG( "Filling HLT information" );
@@ -247,7 +258,7 @@ namespace TrigConf {
    }
 
 
-   StatusCode xAODMenuWriterMT::populateFromTrigConf(xAOD::TriggerMenu* menu) const {
+   StatusCode xAODMenuWriterMT::populateL1FromTrigConf(xAOD::TriggerMenu* menu) const {
       //
       // Set its LVL1 information:
       //
@@ -277,6 +288,11 @@ namespace TrigConf {
       menu->setItemNames( itemNames );
       menu->setItemPrescales( itemPrescales );
 
+      return StatusCode::SUCCESS;
+   }
+
+
+   StatusCode xAODMenuWriterMT::populateHLTFromTrigConf(xAOD::TriggerMenu* menu) const {
       //
       // Set its HLT information:
       //
@@ -380,6 +396,7 @@ namespace TrigConf {
 
       return StatusCode::SUCCESS;
    }
+
 
    StatusCode xAODMenuWriterMT::populateBunchGroup(xAOD::TriggerMenu* menu) const {
       //

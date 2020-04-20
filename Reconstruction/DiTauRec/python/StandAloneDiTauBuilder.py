@@ -1,9 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 import os
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.Include import include
 
 
 
@@ -118,7 +121,7 @@ DiTauBuilder = DiTauBuilder(
     Rcore=_R_core)
 
 topSequence += DiTauBuilder
-print topSequence
+print (topSequence)
 
 
 # ----------------------------------------------------------------------------

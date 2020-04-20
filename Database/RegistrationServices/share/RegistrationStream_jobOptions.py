@@ -82,8 +82,7 @@ include ( "RegistrationServices/RegistrationServices_jobOptions.py" )
 from RegistrationServices.RegistrationServicesConf import RegistrationStream
 topSequence += RegistrationStream( "RegStream1",
                                    CollectionType   = "ExplicitROOT",
-                                   OutputCollection = "NewEventCollection",
-                                   OutputLevel      = INFO )
+                                   OutputCollection = "NewEventCollection" )
 
 ## backward compat
 RegStream1 = topSequence.RegStream1

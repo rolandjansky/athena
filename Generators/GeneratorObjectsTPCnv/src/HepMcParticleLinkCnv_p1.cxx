@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework includes
@@ -25,6 +25,7 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
                                            MsgStream &/*msg*/ )
 {
   EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+  HepMcParticleLink::PositionFlag flag = HepMcParticleLink::IS_INDEX;
   if (persObj->m_mcEvtIndex>0) {
     // HACK
     const CLID clid = ClassID_traits<McEventCollection>::ID();
@@ -32,11 +33,16 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
       evColl = EBC_FIRSTPUEVCOLL;
     }
   }
+
+  if (persObj->m_mcEvtIndex == 0) {
+    flag = HepMcParticleLink::IS_POSITION;
+  }
+
   transObj->setExtendedBarCode
     ( HepMcParticleLink::ExtendedBarCode( persObj->m_barcode,
                                           persObj->m_mcEvtIndex,
                                           evColl,
-                                          HepMcParticleLink::IS_POSITION) );
+                                          flag) );
   return;
 }
 

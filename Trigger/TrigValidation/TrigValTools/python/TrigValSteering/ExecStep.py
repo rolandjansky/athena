@@ -8,10 +8,10 @@ Definitions of exec steps (main job) in Trigger ART tests
 
 import sys
 import os
-import subprocess
 
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Input import is_input_defined, get_input
+from TrigValTools.TrigValSteering.Common import check_job_options
 
 
 class ExecStep(Step):
@@ -31,10 +31,13 @@ class ExecStep(Step):
         self.forks = None
         self.max_events = None
         self.skip_events = None
+        self.use_pickle = False
         self.imf = True
         self.perfmon = True
+        self.prmon = True
         self.auto_report_result = True
         self.required = True
+        self.depends_on_previous = True
 
     def construct_name(self):
         if self.name and self.type == 'other':
@@ -65,6 +68,7 @@ class ExecStep(Step):
         super(ExecStep, self).configure(test)
 
     def configure_type(self):
+        self.log.debug('Configuring type for step %s', self.name)
         # Check if type or executable is specified
         if self.type is None and self.executable is None:
             self.log.error('Cannot configure a step without specified type '
@@ -88,6 +92,7 @@ class ExecStep(Step):
             sys.exit(1)
 
     def configure_input(self):
+        self.log.debug('Configuring input for step %s', self.name)
         if self.input is None:
             self.log.error(
                 'Input not provided for step %s. To configure '
@@ -120,8 +125,12 @@ class ExecStep(Step):
 
     def configure_job_options(self):
         '''Check job options configuration'''
+        self.log.debug('Configuring job options for step %s', self.name)
         if self.type == 'other':
             self.log.debug('Skipping job options check for step.type=other')
+            return
+        if self.use_pickle:
+            self.log.debug('Skipping job options check for step running from a pickle file')
             return
 
         if self.type.endswith('_tf'):
@@ -137,22 +146,26 @@ class ExecStep(Step):
             self.report_result(1, 'TestConfig')
             sys.exit(1)
         # Check if job options exist
-        if os.path.isfile(self.job_options):
+        if check_job_options(self.job_options):
             self.log.debug('Job options file exists: %s', self.job_options)
-            return
-        # Try to find the file in PATH
-        get_files_output = subprocess.check_output(
-            'get_files -jo -list {}'.format(self.job_options), shell=True)
-        if 'nothing found' in get_files_output.decode():
-            self.log.error('Failed to find job options file %s', self.name)
+        else:
+            self.log.error('Failed to find job options file %s for step %s', self.job_options, self.name)
             self.report_result(1, 'TestConfig')
             sys.exit(1)
-        self.log.debug('Job options file exists: %s', self.job_options)
 
     def configure_args(self, test):
+        self.log.debug('Configuring args for step %s', self.name)
         if self.args is None:
             self.args = ''
         athenaopts = ''
+
+        # Disable prmon for Reco_tf because it is already started inside the transform
+        if self.type == 'Reco_tf':
+            self.prmon = False
+
+        # Disable perfmon for multi-fork jobs as it cannot deal well with them
+        if self.forks and self.forks > 1:
+            self.perfmon = False
 
         # Append imf/perfmon
         if self.type != 'other':
@@ -193,11 +206,18 @@ class ExecStep(Step):
         if self.max_events is None:
             if test.art_type == 'build':
                 if test.package_name == 'TrigP1Test':
-                    self.max_events = 50
+                    self.max_events = 100
                 else:
                     self.max_events = 20
             else:
                 self.max_events = 1000
+
+        # Set prmon interval based on max events
+        if self.prmon:
+            if self.max_events <= 100:
+                self.prmon_interval = 5
+            else:
+                self.prmon_interval = 10
 
         # Append max/skip events
         if self.type == 'athena':

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************************
@@ -15,7 +15,6 @@ decription           : Class definition for the GSF smoother
 #define TrkGsfSmoother_H
 
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
@@ -42,7 +41,7 @@ public:
   GsfSmoother(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GsfSmoother(){};
+  virtual ~GsfSmoother() = default;
 
   /** AlgTool initialise method */
   StatusCode initialize();
@@ -59,14 +58,14 @@ public:
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(const ForwardTrajectory&,
                                   const ParticleHypothesis particleHypothesis = nonInteracting,
-                                  const CaloCluster_OnTrack* ccot = 0) const;
+                                  const CaloCluster_OnTrack* ccot = nullptr) const;
 
 private:
   /** Method for combining the forwards fitted state and the smoothed state */
-  const MultiComponentState* combine(const MultiComponentState&, const MultiComponentState&) const;
+  MultiComponentState  combine(const MultiComponentState&, const MultiComponentState&) const;
 
   /** Methof to add the CaloCluster onto the track */
-  MultiComponentState* addCCOT(const Trk::TrackStateOnSurface* currentState,
+  MultiComponentState  addCCOT(const Trk::TrackStateOnSurface* currentState,
                                const Trk::CaloCluster_OnTrack* ccot,
                                Trk::SmoothedTrajectory* smoothedTrajectory) const;
 
@@ -78,10 +77,6 @@ private:
     "Trk::QuickCloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger",
     ""
   };
-  ToolHandle<IMultiComponentStateCombiner> m_combiner{ this,
-                                                       "MultiComponentStateCombiner",
-                                                       "Trk::MultiComponentStateCombiner/GsfSmootherCombiner",
-                                                       "" };
   /*
    * Special Tool Handles set by the configureTools
    */

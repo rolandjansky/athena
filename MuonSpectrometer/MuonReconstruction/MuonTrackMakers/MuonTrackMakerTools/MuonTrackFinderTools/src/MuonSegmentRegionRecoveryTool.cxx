@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentRegionRecoveryTool.h"
@@ -9,12 +9,6 @@
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonStationIndex.h"
-
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
@@ -38,8 +32,6 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 
-#include "MuonStationIntersectSvc/MuonStationIntersect.h"
-
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -61,8 +53,8 @@
 
 namespace Muon {
 
-MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& ty, const std::string& na, const IInterface* pa)
-  : AthAlgTool(ty, na, pa)
+MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& ty, const std::string& na, const IInterface* pa):
+  AthAlgTool(ty, na, pa)
 {
   declareInterface<IMuonHoleRecoveryTool>(this);
 }
@@ -86,9 +78,10 @@ StatusCode MuonSegmentRegionRecoveryTool::initialize()
   ATH_CHECK( m_chamberHoleRecoveryTool.retrieve() );
   ATH_CHECK( m_extrapolator.retrieve() );
   ATH_CHECK( m_fitter.retrieve() );
-  ATH_CHECK( m_idHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_CHECK( m_hitSummaryTool.retrieve() );
   ATH_CHECK( m_regionSelector.retrieve() );
+  ATH_CHECK( m_trackSummaryTool.retrieve() );
 
   if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
 
@@ -200,44 +193,40 @@ void MuonSegmentRegionRecoveryTool::addHashes( DETID type, const IRoiDescriptor&
 
   m_regionSelector->DetHashIDList(type, roi, crossed );
 
-  //if( type == MDT ) ATH_MSG_VERBOSE(" adding hashes for type " << type << " size " << crossed.size() << " eta,phi " << eta << "  " << phi );
   for ( std::vector<IdentifierHash>::iterator it = crossed.begin(); it != crossed.end(); ++it ) {
     if ( !exclusion.count(*it) && !hashes.count(*it) ) {
       if ( type == MDT ) {
         Identifier chId;
-        IdContext otCont = m_idHelperTool->mdtIdHelper().module_context();
-        m_idHelperTool->mdtIdHelper().get_id(*it, chId, &otCont);
+        IdContext otCont = m_idHelperSvc->mdtIdHelper().module_context();
+        m_idHelperSvc->mdtIdHelper().get_id(*it, chId, &otCont);
 
-        if ( m_excludeEES && m_idHelperTool->chamberIndex(chId) == MuonStationIndex::EES ) {
-          ATH_MSG_VERBOSE("  excluding " << *it << " " << m_idHelperTool->toStringChamber(chId) );
+        if ( m_excludeEES && m_idHelperSvc->chamberIndex(chId) == MuonStationIndex::EES ) {
+          ATH_MSG_VERBOSE("  excluding " << *it << " " << m_idHelperSvc->toStringChamber(chId) );
           continue;
         }
-        if ( m_onlyEO &&  m_idHelperTool->stationIndex(chId) != MuonStationIndex::EO ) {
-          ATH_MSG_VERBOSE("  excluding " << *it << " " << m_idHelperTool->toStringChamber(chId) );
+        if ( m_onlyEO &&  m_idHelperSvc->stationIndex(chId) != MuonStationIndex::EO ) {
+          ATH_MSG_VERBOSE("  excluding " << *it << " " << m_idHelperSvc->toStringChamber(chId) );
           continue;
         }
-        ATH_MSG_VERBOSE("  -- hash " << *it << " " << m_idHelperTool->toStringChamber(chId) );
+        ATH_MSG_VERBOSE("  -- hash " << *it << " " << m_idHelperSvc->toStringChamber(chId) );
       }
       if ( type == CSC ) {
         Identifier chId;
-        IdContext otCont = m_idHelperTool->cscIdHelper().module_context();
-        m_idHelperTool->cscIdHelper().get_id(*it, chId, &otCont);
-        ATH_MSG_VERBOSE("  -- csc hash " << *it << " " << m_idHelperTool->toStringChamber(chId) );
+        IdContext otCont = m_idHelperSvc->cscIdHelper().module_context();
+        m_idHelperSvc->cscIdHelper().get_id(*it, chId, &otCont);
+        ATH_MSG_VERBOSE("  -- csc hash " << *it << " " << m_idHelperSvc->toStringChamber(chId) );
       }
-      // New Small Wheel
       if ( type == STGC ) {
         Identifier chId;
-//        IdContext otCont = m_idHelperTool->stgcIdHelper().module_context();
-        IdContext otCont = m_idHelperTool->stgcIdHelper().detectorElement_context();
-        m_idHelperTool->stgcIdHelper().get_id(*it, chId, &otCont);
-        ATH_MSG_VERBOSE("  -- stgc hash " << *it << " " << m_idHelperTool->toStringChamber(chId) );
+        IdContext otCont = m_idHelperSvc->stgcIdHelper().detectorElement_context();
+        m_idHelperSvc->stgcIdHelper().get_id(*it, chId, &otCont);
+        ATH_MSG_VERBOSE("  -- stgc hash " << *it << " " << m_idHelperSvc->toStringChamber(chId) );
       }
       if ( type == MM ) {
         Identifier chId;
-//        IdContext otCont = m_idHelperTool->mmIdHelper().module_context();
-        IdContext otCont = m_idHelperTool->mmIdHelper().detectorElement_context();
-        m_idHelperTool->mmIdHelper().get_id(*it, chId, &otCont);
-        ATH_MSG_VERBOSE("  -- mm hash " << *it << " " << m_idHelperTool->toStringChamber(chId) );
+        IdContext otCont = m_idHelperSvc->mmIdHelper().detectorElement_context();
+        m_idHelperSvc->mmIdHelper().get_id(*it, chId, &otCont);
+        ATH_MSG_VERBOSE("  -- mm hash " << *it << " " << m_idHelperSvc->toStringChamber(chId) );
       }
       hashes.insert(*it);
     }
@@ -288,7 +277,7 @@ void MuonSegmentRegionRecoveryTool::collectCrossedChambers( const Trk::Track& tr
     Identifier id = m_edmHelperSvc->getIdentifier(*meas);
     bool pseudo = !id.is_valid();
 
-    if ( pseudo || !m_idHelperTool->mdtIdHelper().is_muon(id) ) continue;
+    if ( pseudo || !m_idHelperSvc->mdtIdHelper().is_muon(id) ) continue;
 
     if ( eta > etamax ) etamax = eta;
     if ( eta < etamin ) etamin = eta;
@@ -300,7 +289,7 @@ void MuonSegmentRegionRecoveryTool::collectCrossedChambers( const Trk::Track& tr
       msg() << endmsg;
     }
 
-    MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(id);
+    MuonStationIndex::StIndex stIndex = m_idHelperSvc->stationIndex(id);
     if ( stations.count(stIndex) ) continue;
     stations.insert(stIndex);
 
@@ -320,32 +309,32 @@ void MuonSegmentRegionRecoveryTool::collectCrossedChambers( const Trk::Track& tr
 
   RoiDescriptor roi( etamin, etamax, phimin, phimax );
 
-  if (m_idHelperTool->hasMdtIdHelper() && (m_idHelperTool->mdtIdHelper().isInitialized())) addHashes(MDT, roi, data.mdt, data.mdtTrack);
-  if (m_idHelperTool->hasRpcIdHelper() && (m_idHelperTool->rpcIdHelper().isInitialized())) addHashes(RPC, roi, data.rpc, data.rpcTrack);
-  if (m_idHelperTool->hasTgcIdHelper() && (m_idHelperTool->tgcIdHelper().isInitialized())) addHashes(TGC, roi, data.tgc, data.tgcTrack);
-  if (m_idHelperTool->hasCscIdHelper() && (m_idHelperTool->cscIdHelper().isInitialized())) addHashes(CSC, roi, data.csc, data.cscTrack);
-  if (m_idHelperTool->hasSTgcIdHelper() && (m_idHelperTool->stgcIdHelper().isInitialized())) addHashes(STGC, roi, data.stgc, data.stgcTrack);
-  if (m_idHelperTool->hasMmIdHelper() && (m_idHelperTool->mmIdHelper().isInitialized())) addHashes(MM, roi, data.mm, data.mmTrack);
+  if (m_idHelperSvc->hasMDT() && (m_idHelperSvc->mdtIdHelper().isInitialized())) addHashes(MDT, roi, data.mdt, data.mdtTrack);
+  if (m_idHelperSvc->hasRPC() && (m_idHelperSvc->rpcIdHelper().isInitialized())) addHashes(RPC, roi, data.rpc, data.rpcTrack);
+  if (m_idHelperSvc->hasTGC() && (m_idHelperSvc->tgcIdHelper().isInitialized())) addHashes(TGC, roi, data.tgc, data.tgcTrack);
+  if (m_idHelperSvc->hasCSC() && (m_idHelperSvc->cscIdHelper().isInitialized())) addHashes(CSC, roi, data.csc, data.cscTrack);
+  if (m_idHelperSvc->hasSTgc() && (m_idHelperSvc->stgcIdHelper().isInitialized())) addHashes(STGC, roi, data.stgc, data.stgcTrack);
+  if (m_idHelperSvc->hasMM() && (m_idHelperSvc->mmIdHelper().isInitialized())) addHashes(MM, roi, data.mm, data.mmTrack);
 
   std::set<IdentifierHash>::iterator hsit = data.mdt.begin();
   std::set<IdentifierHash>::iterator hsit_end = data.mdt.end();
   for ( ; hsit != hsit_end; ++hsit ) {
     Identifier chId;
-    IdContext otCont = m_idHelperTool->mdtIdHelper().module_context();
-    m_idHelperTool->mdtIdHelper().get_id(*hsit, chId, &otCont);
-    MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
+    IdContext otCont = m_idHelperSvc->mdtIdHelper().module_context();
+    m_idHelperSvc->mdtIdHelper().get_id(*hsit, chId, &otCont);
+    MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chId);
     data.mdtPerStation[chIndex].insert(*hsit);
-    ATH_MSG_VERBOSE(" chamberlayer  " << MuonStationIndex::chName(chIndex) << "  " << m_idHelperTool->toStringChamber(chId) );
+    ATH_MSG_VERBOSE(" chamberlayer  " << MuonStationIndex::chName(chIndex) << "  " << m_idHelperSvc->toStringChamber(chId) );
   }
   hsit = data.csc.begin();
   hsit_end = data.csc.end();
   for ( ; hsit != hsit_end; ++hsit ) {
     Identifier chId;
-    IdContext otCont = m_idHelperTool->cscIdHelper().module_context();
-    m_idHelperTool->cscIdHelper().get_id(*hsit, chId, &otCont);
-    chId = m_idHelperTool->chamberId(chId);
-    MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
-    ATH_MSG_VERBOSE(" chamberlayer  " << MuonStationIndex::chName(chIndex) << "  " << m_idHelperTool->toString(chId) );
+    IdContext otCont = m_idHelperSvc->cscIdHelper().module_context();
+    m_idHelperSvc->cscIdHelper().get_id(*hsit, chId, &otCont);
+    chId = m_idHelperSvc->chamberId(chId);
+    MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(chId);
+    ATH_MSG_VERBOSE(" chamberlayer  " << MuonStationIndex::chName(chIndex) << "  " << m_idHelperSvc->toString(chId) );
   }
 }
 
@@ -376,7 +365,7 @@ void MuonSegmentRegionRecoveryTool::fillOnTrackChambers ( const Trk::Track& trac
     const Muon::MdtDriftCircleOnTrack* mdt = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(meas);
     if (mdt && !data.mdtTrack.count(mdt->collectionHash()) ) {
       data.mdtTrack.insert( mdt->collectionHash() );
-      ATH_MSG_VERBOSE("Adding " << m_idHelperTool->toStringChamber(mdt->identify()) << " hash " << mdt->collectionHash() );
+      ATH_MSG_VERBOSE("Adding " << m_idHelperSvc->toStringChamber(mdt->identify()) << " hash " << mdt->collectionHash() );
       continue;
     }
 
@@ -392,32 +381,32 @@ void MuonSegmentRegionRecoveryTool::fillOnTrackChambers ( const Trk::Track& trac
     const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(clus);
     if (rpc  && !data.rpcTrack.count(rpc->collectionHash()) ) {
       data.rpcTrack.insert( rpc->collectionHash() );
-      ATH_MSG_VERBOSE("Adding " << m_idHelperTool->toStringChamber(clus->identify()) << " hash " << clus->collectionHash() );
+      ATH_MSG_VERBOSE("Adding " << m_idHelperSvc->toStringChamber(clus->identify()) << " hash " << clus->collectionHash() );
       continue;
     }
     const TgcClusterOnTrack* tgc = dynamic_cast<const TgcClusterOnTrack*>(clus);
     if (tgc && !data.tgcTrack.count(tgc->collectionHash()) ) {
       data.tgcTrack.insert( tgc->collectionHash() );
-      ATH_MSG_VERBOSE("Adding " << m_idHelperTool->toStringChamber(clus->identify()) << " hash " << clus->collectionHash() );
+      ATH_MSG_VERBOSE("Adding " << m_idHelperSvc->toStringChamber(clus->identify()) << " hash " << clus->collectionHash() );
       continue;
     }
     const CscClusterOnTrack* csc = dynamic_cast<const CscClusterOnTrack*>(clus);
     if (csc && !data.cscTrack.count(csc->collectionHash())) {
       data.cscTrack.insert( csc->collectionHash() );
-      ATH_MSG_VERBOSE("Adding " << m_idHelperTool->toStringChamber(clus->identify()) << " hash " << clus->collectionHash() );
+      ATH_MSG_VERBOSE("Adding " << m_idHelperSvc->toStringChamber(clus->identify()) << " hash " << clus->collectionHash() );
       continue;
     }
     // New Small Wheel
     const sTgcClusterOnTrack* stgc = dynamic_cast<const sTgcClusterOnTrack*>(clus);
     if (stgc && !data.stgcTrack.count(stgc->collectionHash()) ) {
       data.stgcTrack.insert( stgc->collectionHash() );
-      ATH_MSG_VERBOSE("Adding " << m_idHelperTool->toStringChamber(clus->identify()) << " hash " << clus->collectionHash() );
+      ATH_MSG_VERBOSE("Adding " << m_idHelperSvc->toStringChamber(clus->identify()) << " hash " << clus->collectionHash() );
       continue;
     }
     const MMClusterOnTrack* mm = dynamic_cast<const MMClusterOnTrack*>(clus);
     if (mm && !data.mmTrack.count(mm->collectionHash()) ) {
       data.mmTrack.insert( mm->collectionHash() );
-      ATH_MSG_VERBOSE("Adding " << m_idHelperTool->toStringChamber(clus->identify()) << " hash " << clus->collectionHash() );
+      ATH_MSG_VERBOSE("Adding " << m_idHelperSvc->toStringChamber(clus->identify()) << " hash " << clus->collectionHash() );
       continue;
     }
   }
@@ -452,12 +441,12 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
     Identifier chId;
-    IdContext otCont = m_idHelperTool->mdtIdHelper().module_context();
-    m_idHelperTool->mdtIdHelper().get_id(*ith, chId, &otCont);
+    IdContext otCont = m_idHelperSvc->mdtIdHelper().module_context();
+    m_idHelperSvc->mdtIdHelper().get_id(*ith, chId, &otCont);
 
     // ignore chambers that already had a hole search
     if ( chambersInSearch.count(chId) ) {
-      ATH_MSG_VERBOSE("Chamber already on track " << *ith << " " << m_idHelperTool->toStringChamber(chId) );
+      ATH_MSG_VERBOSE("Chamber already on track " << *ith << " " << m_idHelperSvc->toStringChamber(chId) );
       continue;
     }
     const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(chId);
@@ -467,11 +456,10 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     }
     const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
     if ( !exPars ) {
-      ATH_MSG_DEBUG("Did not reach " << m_idHelperTool->toStringChamber(chId) << " hash " << *ith );
+      ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
     }
-    //Identifier chId = m_idHelperTool->chamberId(detEl->identify());
-    ATH_MSG_DEBUG("Reached " << m_idHelperTool->toStringChamber(chId) << " hash " << *ith );
+    ATH_MSG_DEBUG("Reached " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
 
     // calculate crossed tubes
     const MdtCondDbData* dbData;
@@ -491,17 +479,17 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       // addition skip for cases when the track crosses inbetween two chambers
       if ( data.mdtTrack.count(detElLoc->collectionHash()) ) continue;
 
-      Identifier ch = m_idHelperTool->chamberId(id);
+      Identifier ch = m_idHelperSvc->chamberId(id);
       chambersInSearch.insert( ch );
 
       const Trk::Surface& surf = detElLoc->surface(id);
       const Trk::TrackParameters* tubePars = m_extrapolator->extrapolateDirectly(*exPars, surf, Trk::anyDirection, false, Trk::muon);
       if ( !tubePars ) {
-        ATH_MSG_WARNING( "Failed to extrapolate to tube " << m_idHelperTool->toString(id) );
+        ATH_MSG_WARNING( "Failed to extrapolate to tube " << m_idHelperSvc->toString(id) );
         continue;
       }
-      int lay = m_idHelperTool->mdtIdHelper().tubeLayer(id);
-      int tube = m_idHelperTool->mdtIdHelper().tube(id);
+      int lay = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
+      int tube = m_idHelperSvc->mdtIdHelper().tube(id);
       double tubeLen = detElLoc->getActiveTubeLength(lay, tube);
       double distEdge = fabs(tubePars->parameters()[Trk::locZ]) - 0.5 * tubeLen;
       double pullEdge = tubePars->covariance() ? distEdge / Amg::error(*tubePars->covariance(), Trk::locZ) : distEdge / 20.;
@@ -517,16 +505,15 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
         delete locPos;
       }
       if ( !inBounds ) {
-        ATH_MSG_VERBOSE(" discarding hole " << m_idHelperTool->toString(id) << " dist wire "
+        ATH_MSG_VERBOSE(" discarding hole " << m_idHelperSvc->toString(id) << " dist wire "
                         << tubePars->parameters()[Trk::locR] << " outside bounds " );
         delete tubePars;
         continue;
       }
-      ATH_MSG_VERBOSE(" new hole " << m_idHelperTool->toString(id) << " dist wire " << tubePars->parameters()[Trk::locR]
+      ATH_MSG_VERBOSE(" new hole " << m_idHelperSvc->toString(id) << " dist wire " << tubePars->parameters()[Trk::locR]
                       << " dist tube edge " << distEdge << " pullEdge " << pullEdge);
       ++nholes;
       Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createHoleTSOS(tubePars);
-      //std::cout << " adding TSOS " << tsos << std::endl;
       states.push_back( tsos );
     }
     if ( !nholes ) ATH_MSG_DEBUG("found holes " << nholes );
@@ -543,29 +530,28 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
     Identifier chId;
-    IdContext otCont = m_idHelperTool->cscIdHelper().module_context();
-    m_idHelperTool->cscIdHelper().get_id(*ith, chId, &otCont);
-    chId = m_idHelperTool->chamberId(chId);
+    IdContext otCont = m_idHelperSvc->cscIdHelper().module_context();
+    m_idHelperSvc->cscIdHelper().get_id(*ith, chId, &otCont);
+    chId = m_idHelperSvc->chamberId(chId);
 
     const MuonGM::CscReadoutElement* detEl = MuonDetMgr->getCscReadoutElement(chId);
     if ( !detEl ) {
-      ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperTool->toString(chId) );
+      ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperSvc->toString(chId) );
       continue;
     }
 
     const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
     if ( !exPars ) {
-      ATH_MSG_DEBUG("Did not reach " << m_idHelperTool->toStringChamber(chId) << " hash " << *ith );
+      ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
     }
-    //Identifier chId = m_idHelperTool->chamberId(detEl->identify());
-    Identifier detElId = m_idHelperTool->detElId( chId );
+    Identifier detElId = m_idHelperSvc->detElId( chId );
     std::set<Identifier> layIds;
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > > cscstates;
     m_chamberHoleRecoveryTool->createHoleTSOSsForClusterChamber( detElId, *exPars, layIds, cscstates );
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator cscit = cscstates.begin();
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator cscit_end = cscstates.end();
-    ATH_MSG_DEBUG("Reached " << m_idHelperTool->toString(chId) << " hash " << *ith << " holes " << cscstates.size() );
+    ATH_MSG_DEBUG("Reached " << m_idHelperSvc->toString(chId) << " hash " << *ith << " holes " << cscstates.size() );
 
     for ( ; cscit != cscit_end; ++cscit ) {
       if ( cscit->first ) {
@@ -585,29 +571,28 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
     Identifier chId;
-    IdContext otCont = m_idHelperTool->tgcIdHelper().module_context();
-    m_idHelperTool->tgcIdHelper().get_id(*ith, chId, &otCont);
-    chId = m_idHelperTool->chamberId(chId);
+    IdContext otCont = m_idHelperSvc->tgcIdHelper().module_context();
+    m_idHelperSvc->tgcIdHelper().get_id(*ith, chId, &otCont);
+    chId = m_idHelperSvc->chamberId(chId);
 
     const MuonGM::TgcReadoutElement* detEl = MuonDetMgr->getTgcReadoutElement(chId);
     if ( !detEl ) {
-      ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperTool->toString(chId) );
+      ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperSvc->toString(chId) );
       continue;
     }
 
     const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
     if ( !exPars ) {
-      ATH_MSG_DEBUG("Did not reach " << m_idHelperTool->toStringChamber(chId) << " hash " << *ith );
+      ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
     }
-    //Identifier chId = m_idHelperTool->chamberId(detEl->identify());
-    Identifier detElId = m_idHelperTool->detElId( chId );
+    Identifier detElId = m_idHelperSvc->detElId( chId );
     std::set<Identifier> layIds;
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > > tgcstates;
     m_chamberHoleRecoveryTool->createHoleTSOSsForClusterChamber( detElId, *exPars, layIds, tgcstates );
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator tgcit = tgcstates.begin();
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator tgcit_end = tgcstates.end();
-    ATH_MSG_DEBUG("Reached " << m_idHelperTool->toString(chId) << " hash " << *ith << " holes " << tgcstates.size() );
+    ATH_MSG_DEBUG("Reached " << m_idHelperSvc->toString(chId) << " hash " << *ith << " holes " << tgcstates.size() );
 
     for ( ; tgcit != tgcit_end; ++tgcit ) {
       if ( tgcit->first ) {
@@ -628,29 +613,28 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
     Identifier chId;
-    IdContext otCont = m_idHelperTool->rpcIdHelper().module_context();
-    m_idHelperTool->rpcIdHelper().get_id(*ith, chId, &otCont);
-    chId = m_idHelperTool->chamberId(chId);
+    IdContext otCont = m_idHelperSvc->rpcIdHelper().module_context();
+    m_idHelperSvc->rpcIdHelper().get_id(*ith, chId, &otCont);
+    chId = m_idHelperSvc->chamberId(chId);
 
     const MuonGM::RpcReadoutElement* detEl = MuonDetMgr->getRpcReadoutElement(chId);
     if ( !detEl ) {
-      ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperTool->toString(chId) );
+      ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperSvc->toString(chId) );
       continue;
     }
 
     const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
     if ( !exPars ) {
-      ATH_MSG_DEBUG("Did not reach " << m_idHelperTool->toStringChamber(chId) << " hash " << *ith );
+      ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
     }
-    //Identifier chId = m_idHelperTool->chamberId(detEl->identify());
-    Identifier detElId = m_idHelperTool->detElId( chId );
+    Identifier detElId = m_idHelperSvc->detElId( chId );
     std::set<Identifier> layIds;
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > > rpcstates;
     m_chamberHoleRecoveryTool->createHoleTSOSsForClusterChamber( detElId, *exPars, layIds, rpcstates );
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator rpcit = rpcstates.begin();
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator rpcit_end = rpcstates.end();
-    ATH_MSG_DEBUG("Reached " << m_idHelperTool->toString(chId) << " hash " << *ith << " holes " << rpcstates.size() );
+    ATH_MSG_DEBUG("Reached " << m_idHelperSvc->toString(chId) << " hash " << *ith << " holes " << rpcstates.size() );
 
     for ( ; rpcit != rpcit_end; ++rpcit ) {
       if ( rpcit->first ) {
@@ -674,35 +658,34 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
     Identifier chId;
-    IdContext otCont = m_idHelperTool->stgcIdHelper().module_context();
-    m_idHelperTool->stgcIdHelper().get_id(*ith, chId, &otCont);
+    IdContext otCont = m_idHelperSvc->stgcIdHelper().module_context();
+    m_idHelperSvc->stgcIdHelper().get_id(*ith, chId, &otCont);
 
     if(!chId.is_valid()) {
       ATH_MSG_VERBOSE("invalid chId for stgc data " << *ith );
       continue;
     } 
 
-    chId = m_idHelperTool->chamberId(chId);
+    chId = m_idHelperSvc->chamberId(chId);
 
     const MuonGM::sTgcReadoutElement* detEl = MuonDetMgr->getsTgcReadoutElement(chId);
     if ( !detEl ) {
-      ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperTool->toString(chId) );
+      ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperSvc->toString(chId) );
       continue;
     }
 
     const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
     if ( !exPars ) {
-      ATH_MSG_DEBUG("Did not reach " << m_idHelperTool->toStringChamber(chId) << " hash " << *ith );
+      ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
     }
-    //Identifier chId = m_idHelperTool->chamberId(detEl->identify());
-    Identifier detElId = m_idHelperTool->detElId( chId );
+    Identifier detElId = m_idHelperSvc->detElId( chId );
     std::set<Identifier> layIds;
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > > stgcstates;
     m_chamberHoleRecoveryTool->createHoleTSOSsForClusterChamber( detElId, *exPars, layIds, stgcstates );
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator stgcit = stgcstates.begin();
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator stgcit_end = stgcstates.end();
-    ATH_MSG_DEBUG("Reached " << m_idHelperTool->toString(chId) << " hash " << *ith << " holes " << stgcstates.size() );
+    ATH_MSG_DEBUG("Reached " << m_idHelperSvc->toString(chId) << " hash " << *ith << " holes " << stgcstates.size() );
 
     for ( ; stgcit != stgcit_end; ++stgcit ) {
       if ( stgcit->first ) {
@@ -724,35 +707,34 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
       continue;
     }
     Identifier chId;
-    IdContext otCont = m_idHelperTool->mmIdHelper().module_context();
-    m_idHelperTool->mmIdHelper().get_id(*ith, chId, &otCont);
+    IdContext otCont = m_idHelperSvc->mmIdHelper().module_context();
+    m_idHelperSvc->mmIdHelper().get_id(*ith, chId, &otCont);
 
     if(!chId.is_valid()) {
       ATH_MSG_VERBOSE("invalid chId for mm data " << *ith );
       continue;
     } 
 
-    chId = m_idHelperTool->chamberId(chId);
+    chId = m_idHelperSvc->chamberId(chId);
 
     const MuonGM::MMReadoutElement* detEl = MuonDetMgr->getMMReadoutElement(chId);
     if ( !detEl ) {
-      ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperTool->toString(chId) );
+      ATH_MSG_WARNING("Found no detector element for " << *ith << " " << m_idHelperSvc->toString(chId) );
       continue;
     }
 
     const Trk::TrackParameters* exPars = reachableDetEl(track, *detEl, true );
     if ( !exPars ) {
-      ATH_MSG_DEBUG("Did not reach " << m_idHelperTool->toStringChamber(chId) << " hash " << *ith );
+      ATH_MSG_DEBUG("Did not reach " << m_idHelperSvc->toStringChamber(chId) << " hash " << *ith );
       continue;
     }
-    //Identifier chId = m_idHelperTool->chamberId(detEl->identify());
-    Identifier detElId = m_idHelperTool->detElId( chId );
+    Identifier detElId = m_idHelperSvc->detElId( chId );
     std::set<Identifier> layIds;
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > > mmstates;
     m_chamberHoleRecoveryTool->createHoleTSOSsForClusterChamber( detElId, *exPars, layIds, mmstates );
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator mmit = mmstates.begin();
     std::vector< std::pair<bool, const Trk::TrackStateOnSurface* > >::iterator mmit_end = mmstates.end();
-    ATH_MSG_DEBUG("Reached " << m_idHelperTool->toString(chId) << " hash " << *ith << " holes " << mmstates.size() );
+    ATH_MSG_DEBUG("Reached " << m_idHelperSvc->toString(chId) << " hash " << *ith << " holes " << mmstates.size() );
 
     for ( ; mmit != mmit_end; ++mmit ) {
       if ( mmit->first ) {
@@ -766,7 +748,6 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
 
 
   if ( !states.empty() ) {
-    //std::cout << " adding new states " << states.size() << std::endl;
 
     // states were added, create a new track
     DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
@@ -781,13 +762,16 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
 
     std::vector<const Trk::TrackStateOnSurface*>::iterator sit1 = states.begin();
     std::vector<const Trk::TrackStateOnSurface*>::iterator sit1_end = states.end();
-    //for( ;sit1!=sit1_end;++sit1 ) trackStateOnSurfaces->push_back( *sit1 );
     for ( ; sit1 != sit1_end; ++sit1 ) toBeSorted.push_back( *sit1 );
 
-    std::stable_sort(toBeSorted.begin(), toBeSorted.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperTool));
+    std::stable_sort(toBeSorted.begin(), toBeSorted.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperSvc));
 
     trackStateOnSurfaces->insert(trackStateOnSurfaces->begin(), toBeSorted.begin(), toBeSorted.end());
     Trk::Track* trackWithHoles = new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0 );
+    // generate a track summary for this track
+    if (m_trackSummaryTool.isEnabled()) {
+      m_trackSummaryTool->computeAndReplaceTrackSummary(*trackWithHoles, nullptr, false);
+    }
     ATH_MSG_DEBUG("Track with holes " << m_printer->print(*trackWithHoles) << std::endl << m_printer->printStations(*trackWithHoles) );
     return trackWithHoles;
   }
@@ -821,15 +805,15 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
       for ( ; mit != mit_end; ++mit ) {
         const Trk::TrackParameters* exPars = reachableDetEl( track, *(*mit)->front()->detectorElement() );
         if ( exPars ) {
-          int sector = m_idHelperTool->sector((*mit)->identify());
-          ATH_MSG_DEBUG("New chamber " << m_idHelperTool->toStringChamber((*mit)->identify()) << " hash " << (*mit)->identifyHash() << " sector " << sector );
+          int sector = m_idHelperSvc->sector((*mit)->identify());
+          ATH_MSG_DEBUG("New chamber " << m_idHelperSvc->toStringChamber((*mit)->identify()) << " hash " << (*mit)->identifyHash() << " sector " << sector );
           newmcols.push_back(*mit);
           std::vector<const MdtPrepData*>& col = mdtPrds[sector];
           col.insert(col.end(), (*mit)->begin(), (*mit)->end());
           if ( !exParsFirst ) exParsFirst = exPars;
           else delete exPars;
         } else {
-          ATH_MSG_DEBUG("Did not reach chamber " << m_idHelperTool->toStringChamber((*mit)->identify()) << " hash " << (*mit)->identifyHash() );
+          ATH_MSG_DEBUG("Did not reach chamber " << m_idHelperSvc->toStringChamber((*mit)->identify()) << " hash " << (*mit)->identifyHash() );
         }
       }
       std::vector<const MdtPrepData*>* prds = 0;
@@ -919,7 +903,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     for ( ; rit != rit_end; ++rit ) {
       const Trk::TrackParameters* exPars = reachableDetEl( track, *(*rit)->front()->detectorElement() );
       if ( exPars ) {
-        Identifier detElId = m_idHelperTool->detElId( (*rit)->identify() );
+        Identifier detElId = m_idHelperSvc->detElId( (*rit)->identify() );
         std::set<Identifier> layIds;
         m_chamberHoleRecoveryTool->createHoleTSOSsForClusterChamber( detElId, *exPars, layIds, states );
         if ( states.size() != nstates ) {
@@ -932,19 +916,19 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     data.rpcCols = newrcols;
 
     m_seededSegmentFinder->extractTgcPrdCols( data.tgc, data.tgcCols );
-    std::vector<const TgcPrepDataCollection*>::const_iterator tit = data.tgcCols.begin();
-    std::vector<const TgcPrepDataCollection*>::const_iterator tit_end = data.tgcCols.end();
+    std::vector<const TgcPrepDataCollection*>::const_iterator tgcit = data.tgcCols.begin();
+    std::vector<const TgcPrepDataCollection*>::const_iterator tgcit_end = data.tgcCols.end();
     std::vector<const TgcPrepDataCollection*> newtcols;
-    for ( ; tit != tit_end; ++tit ) {
-      const Trk::TrackParameters* exPars = reachableDetEl( track, *(*tit)->front()->detectorElement() );
+    for ( ; tgcit != tgcit_end; ++tgcit ) {
+      const Trk::TrackParameters* exPars = reachableDetEl( track, *(*tgcit)->front()->detectorElement() );
       if ( exPars ) {
-        newtcols.push_back(*tit);
-        Identifier detElId = m_idHelperTool->detElId( (*tit)->identify() );
+        newtcols.push_back(*tgcit);
+        Identifier detElId = m_idHelperSvc->detElId( (*tgcit)->identify() );
         std::set<Identifier> layIds;
         m_chamberHoleRecoveryTool->createHoleTSOSsForClusterChamber( detElId, *exPars, layIds, states );
         if ( states.size() != nstates ) {
           nstates = states.size();
-          newTgcHashes.insert( (*tit)->identifyHash() );
+          newTgcHashes.insert( (*tgcit)->identifyHash() );
         }
 
         delete exPars;
@@ -952,7 +936,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     }
     data.tgcCols = newtcols;
 
-    if (m_idHelperTool->hasCscIdHelper() && (m_idHelperTool->cscIdHelper().isInitialized())) {
+    if (m_idHelperSvc->hasCSC() && (m_idHelperSvc->cscIdHelper().isInitialized())) {
       m_seededSegmentFinder->extractCscPrdCols( data.csc, data.cscCols );
       std::vector<const CscPrepDataCollection*>::const_iterator cit = data.cscCols.begin();
       std::vector<const CscPrepDataCollection*>::const_iterator cit_end = data.cscCols.end();
@@ -961,7 +945,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
         const Trk::TrackParameters* exPars = reachableDetEl( track, *(*cit)->front()->detectorElement() );
         if ( exPars ) {
           newccols.push_back(*cit);
-          Identifier detElId = m_idHelperTool->detElId( (*cit)->identify() );
+          Identifier detElId = m_idHelperSvc->detElId( (*cit)->identify() );
           std::set<Identifier> layIds;
           m_chamberHoleRecoveryTool->createHoleTSOSsForClusterChamber( detElId, *exPars, layIds, states );
           if ( states.size() != nstates ) {
@@ -977,23 +961,23 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
   }
 
   unsigned int nstates = states.size();
-  if (m_idHelperTool->hasSTgcIdHelper() && (m_idHelperTool->stgcIdHelper().isInitialized())) {
+  if (m_idHelperSvc->hasSTgc() && (m_idHelperSvc->stgcIdHelper().isInitialized())) {
     m_seededSegmentFinder->extractsTgcPrdCols( data.stgc, data.stgcCols );
-    std::vector<const sTgcPrepDataCollection*>::const_iterator stit = data.stgcCols.begin();
-    std::vector<const sTgcPrepDataCollection*>::const_iterator stit_end = data.stgcCols.end();
+    std::vector<const sTgcPrepDataCollection*>::const_iterator stgcit = data.stgcCols.begin();
+    std::vector<const sTgcPrepDataCollection*>::const_iterator stgcit_end = data.stgcCols.end();
     std::vector<const sTgcPrepDataCollection*> newstcols;
     ATH_MSG_DEBUG(" extractsTgcPrdCols data.stgcCols.size() " << data.stgcCols.size());
-    for ( ; stit != stit_end; ++stit ) {
-      const Trk::TrackParameters* exPars = reachableDetEl( track, *(*stit)->front()->detectorElement() );
+    for ( ; stgcit != stgcit_end; ++stgcit ) {
+      const Trk::TrackParameters* exPars = reachableDetEl( track, *(*stgcit)->front()->detectorElement() );
       if ( exPars ) {
-        newstcols.push_back(*stit);
-        Identifier detElId = m_idHelperTool->detElId( (*stit)->identify() );
+        newstcols.push_back(*stgcit);
+        Identifier detElId = m_idHelperSvc->detElId( (*stgcit)->identify() );
         std::set<Identifier> layIds;
         m_chamberHoleRecoveryTool->createHoleTSOSsForClusterChamber( detElId, *exPars, layIds, states );
         ATH_MSG_DEBUG("Collected new sTgc states: " << states.size());
         if ( states.size() != nstates ) {
           nstates = states.size();
-          newsTgcHashes.insert( (*stit)->identifyHash() );
+          newsTgcHashes.insert( (*stgcit)->identifyHash() );
         }
 
         delete exPars;
@@ -1002,7 +986,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
     data.stgcCols = newstcols;
   }
 
-  if (m_idHelperTool->hasMmIdHelper() && (m_idHelperTool->mmIdHelper().isInitialized())) {
+  if (m_idHelperSvc->hasMM() && (m_idHelperSvc->mmIdHelper().isInitialized())) {
     m_seededSegmentFinder->extractMMPrdCols( data.mm, data.mmCols );
     ATH_MSG_DEBUG(" extractMMPrdCols data.mmCols.size() " << data.mmCols.size());
     std::vector<const MMPrepDataCollection*>::const_iterator mit = data.mmCols.begin();
@@ -1012,7 +996,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
       const Trk::TrackParameters* exPars = reachableDetEl( track, *(*mit)->front()->detectorElement() );
       if ( exPars ) {
         newmcols.push_back(*mit);
-        Identifier detElId = m_idHelperTool->detElId( (*mit)->identify() );
+        Identifier detElId = m_idHelperSvc->detElId( (*mit)->identify() );
         std::set<Identifier> layIds;
         m_chamberHoleRecoveryTool->createHoleTSOSsForClusterChamber( detElId, *exPars, layIds, states );
         ATH_MSG_DEBUG("Collected new Mm states: " << states.size());
@@ -1059,7 +1043,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
       // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
       newStates.push_back( nit->first ? nit->second : nit->second->clone() );
     }
-    std::stable_sort(newStates.begin(), newStates.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperTool));
+    std::stable_sort(newStates.begin(), newStates.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperSvc));
 
     ATH_MSG_DEBUG("Filling DataVector with TSOSs " << newStates.size());
     DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
@@ -1090,7 +1074,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
 
 const Trk::TrackParameters* MuonSegmentRegionRecoveryTool::reachableDetEl( const Trk::Track& track, const Trk::TrkDetElementBase& detEl, bool smallerBounds ) const {
 
-  ATH_MSG_VERBOSE( "reachableDetEl() " << m_idHelperTool->toStringDetEl( detEl.identify() ) << " at " << detEl.center() );
+  ATH_MSG_VERBOSE( "reachableDetEl() " << m_idHelperSvc->toStringDetEl( detEl.identify() ) << " at " << detEl.center() );
   const Trk::TrackParameters* exPars = 0;
   Trk::TrackParameters* closest = MuonGetClosestParameters::closestParameters(track, detEl.surface(), true);
   if ( closest ) {
@@ -1142,7 +1126,7 @@ const Trk::TrackParameters* MuonSegmentRegionRecoveryTool::reachableDetEl( const
     parsType << "  tolerance=(" << tolx << "," << toly << ")";
     if ( inbounds ) parsType << " => inbounds";
     else           parsType << " => outbounds";
-    ATH_MSG_DEBUG(" " << m_idHelperTool->toStringChamber( detEl.identify() ) << " pars  " << parsType.str()  );
+    ATH_MSG_DEBUG(" " << m_idHelperSvc->toStringChamber( detEl.identify() ) << " pars  " << parsType.str()  );
   }
   if ( !inbounds ) {
     delete exPars;

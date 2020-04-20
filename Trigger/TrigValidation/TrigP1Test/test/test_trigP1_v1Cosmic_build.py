@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Trigger athenaHLT test of the Cosmic_pp_run3_v1 menu on physics_Main stream from a cosmic run
+# art-description: Trigger athenaHLT test of the Cosmic_run3_v1 menu on physics_Main stream from a cosmic run
 # art-type: build
 # art-include: master/Athena
 
@@ -8,11 +8,10 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
-ex.job_options = 'TrigUpgradeTest/full_menu.py'
+ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data_cos'
 ex.max_events = 100
-ex.args = '-c "setMenu=\'Cosmic_pp_run3_v1\';"'
-ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
+ex.args = '-c "setMenu=\'Cosmic_run3_v1\';doCosmics=True;"'
 
 test = Test.Test()
 test.art_type = 'build'

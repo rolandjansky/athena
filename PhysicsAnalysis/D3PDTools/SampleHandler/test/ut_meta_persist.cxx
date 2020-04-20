@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -36,7 +36,7 @@ int main ()
 
   try
   {
-    std::auto_ptr<MetaObject> meta1 (new MetaObject);
+    std::unique_ptr<MetaObject> meta1 (new MetaObject);
     const double valDouble = 42;
     meta1->setDouble ("double", valDouble);
     const std::string valString = "test";
@@ -50,7 +50,7 @@ int main ()
     }
 
     TFile file ((dir.path() + "/meta.root").c_str(), "READ");
-    std::auto_ptr<MetaObject> meta2
+    std::unique_ptr<MetaObject> meta2
       (dynamic_cast<MetaObject*>(file.Get ("meta")));
 
     RCU_ASSERT_SOFT (meta2.get() != 0);

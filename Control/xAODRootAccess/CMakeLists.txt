@@ -1,28 +1,13 @@
-# $Id: CMakeLists.txt 796624 2017-02-10 17:17:23Z ssnyder $
-#
-# Build configuration for the xAODRootAccess package.
-#
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( xAODRootAccess )
 
 # Extra dependencies, based on the build environment:
-set( extra_deps )
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-   set( extra_deps Control/SGTools Control/AthenaKernel )
    set( extra_libs SGTools AthenaKernel )
 endif()
-
-# The dependencies of the package:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/CxxUtils
-   Control/AthContainersInterfaces
-   Control/AthContainers
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODEventFormat
-   Control/xAODRootAccessInterfaces )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree RIO Net MathCore )
@@ -42,7 +27,7 @@ atlas_add_root_dictionary( xAODRootAccess xAODRootAccessDictSource
 atlas_add_library( xAODRootAccess
    xAODRootAccess/*.h xAODRootAccess/*.icc
    xAODRootAccess/tools/*.h xAODRootAccess/tools/*.icc
-   Root/*.cxx ${xAODRootAccessDictSource}
+   Root/*.h Root/*.cxx ${xAODRootAccessDictSource}
    PUBLIC_HEADERS xAODRootAccess
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODEventFormat
@@ -55,8 +40,14 @@ atlas_add_dictionary( xAODRootAccessDict
    LINK_LIBRARIES xAODRootAccess )
 
 # Install the Python modules of the package:
-atlas_install_python_modules( python/*.py 
+atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+# Install the checkxAOD.py script, only for the standalone analysis release.
+# Athena based releases have a different implementation available to them.
+if( XAOD_STANDALONE )
+   atlas_install_scripts( scripts/checkxAOD.py )
+endif()
 
 # Build the executables of the package:
 foreach( exec xAODChecker xAODMerge xAODFileReadTest )
@@ -70,37 +61,45 @@ macro( _add_test name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils AthContainers xAODCore xAODRootAccess
+      LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils AthContainers xAODCore
+      xAODRootAccess
       PROPERTIES TIMEOUT 600
-      EXTRA_PATTERNS "Opened file:|find dictionary for type|is already in|[0-9]+ bytes" )
+      LOG_IGNORE_PATTERN "Opened file:|find dictionary for type|is already in|[0-9]+ bytes" )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
+   _add_test( ut_xaodrootaccess_metadata_test )
+   _add_test( ut_xaodrootaccess_athenaMode_test )
+endif()
+_add_test( ut_xaodrootaccess_remap_test )
+_add_test( ut_xaodrootaccess_slimming_test )
+_add_test( ut_xaodrootaccess_stats_test )
 _add_test( ut_xaodrootaccess_tauxvector_test )
 _add_test( ut_xaodrootaccess_tauxstore_test )
 _add_test( ut_xaodrootaccess_tauxstore_insertmove_test )
+_add_test( ut_xaodrootaccess_tchain_test )
+_add_test( ut_xaodrootaccess_tfileaccesstracer_test )
 _add_test( ut_xaodrootaccess_tfilemerger_test )
 _add_test( ut_xaodrootaccess_tstore_test )
+atlas_add_test( ut_xaodrootaccess_tpystore_test
+   SCRIPT python
+   ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_tpystore_test.py )
 
-# These require code from AtlasEvent, and so cannot run in ATN for AtlasCore.
-# Re-enable them once we've gone to a single-project build.
-#_add_test( ut_xaodrootaccess_metadata_test )
-#_add_test( ut_xaodrootaccess_remap_test )
-#_add_test( ut_xaodrootaccess_slimming_test )
-#_add_test( ut_xaodrootaccess_stats_test )
-#_add_test( ut_xaodrootaccess_tchain_test )
-#_add_test( ut_xaodrootaccess_tevent_test )
-#_add_test( ut_xaodrootaccess_transtree_test )
+if( XAOD_ANALYSIS )
+   _add_test( ut_xaodrootaccess_tevent_test )
+   _add_test( ut_xaodrootaccess_tevent_copy_test )
+   _add_test( ut_xaodrootaccess_transtree_test )
+   atlas_add_test( ut_xaodrootaccess_tpyevent_test
+      SCRIPT python
+      ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_tpyevent_test.py
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( ut_xaodrootaccess_transtree2_test
+      SCRIPT python
+      ${CMAKE_CURRENT_SOURCE_DIR}/test/ut_xaodrootaccess_transtree2_test.py
+      PROPERTIES TIMEOUT 600 )
+endif()
 
-# Needs network access; problematic outside CERN.
-#_add_test( ut_xaodrootaccess_tfileaccesstracer_test )
-
-# Run the scripted tests for the package:
-# These also can't run with just AtlasCore.
-#atlas_add_test( ut_xaodrootaccess_tpyevent_test
-#   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py PROPERTIES TIMEOUT 600
-#  EXTRA_PATTERNS "/Root/TAuxStore" )
-#atlas_add_test( ut_xaodrootaccess_tpystore_test
-#   SCRIPT test/ut_xaodrootaccess_tpystore_test.py PROPERTIES TIMEOUT 600 )
-#atlas_add_test( ut_xaodrootaccess_transtree2_test
-#   SCRIPT test/ut_xaodrootaccess_transtree2_test.py PROPERTIES TIMEOUT 600 )
+if( NOT XAOD_STANDALONE AND NOT GENERATIONBASE )
+   _add_test( ut_xaodrootaccess_proxydict_test )
+endif()

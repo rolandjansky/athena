@@ -10,8 +10,8 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 from PoolSvc.PoolSvcConf import PoolSvc
 svcMgr += PoolSvc()
 
-execfile("ID_only.py")
-execfile("geometry.py")
+include("InDetSLHC_Example/ID_only.py")
+include("InDetSLHC_Example/geometry.py")
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolHitsInput=["singleMuon_youSexyThing_slhc_Hits.pool.root"]

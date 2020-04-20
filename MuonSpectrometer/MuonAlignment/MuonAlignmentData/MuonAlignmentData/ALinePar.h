@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNMENTDATA_ALINEPAR_H
@@ -16,22 +16,19 @@ class ALinePar : public MuonAlignmentPar {
   // Default constructor
   ALinePar();
   // destructor
-  ~ALinePar();
-
-  // Full constructor
-
+  virtual ~ALinePar() override = default;
 
   void setParameters(float s, float z, float t, 
 		     float rotS, float rotZ, float rotT);
 
   void getParameters(float& s, float& z, float& t, 
-		     float& rotS, float& rotZ, float& rotT);
+		     float& rotS, float& rotZ, float& rotT) const;
   
-  HepGeom::Transform3D deltaTransform();
+  HepGeom::Transform3D deltaTransform() const;
   
  private:
 
-  // traslation parameters
+  // translation parameters
   float m_S;
   float m_Z;
   float m_T;

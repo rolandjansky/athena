@@ -10,7 +10,7 @@
 
 template <class TYPE> class SvcFactory;
 
-class GeoDbTagSvc : public AthService, virtual public IGeoDbTagSvc
+class ATLAS_CHECK_THREAD_SAFETY GeoDbTagSvc : public AthService, virtual public IGeoDbTagSvc
 {
   friend class GeoModelSvc;
 

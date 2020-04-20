@@ -120,6 +120,15 @@ namespace Monitored {
      * @return Efficiency graph handler
      */
     TEfficiency* createEfficiency(const HistogramDef& def);
+    /**
+     * @brief Create and register tree
+     * 
+     * If tree already exists under that name, re-use it
+     * 
+     * @param def Histogram definition 
+     * @return Pointer to tree
+     */
+    TTree* createTree(const HistogramDef& def);
 
     /**
      * @brief Setup various histogram options
@@ -129,7 +138,16 @@ namespace Monitored {
      * @param hist Histogram handler 
      * @param opt Histogram options (from histogram definition)
      */
-    static void setOpts(TH1* hist, const std::string& opt);
+    static void setOpts(TH1* hist, const HistogramDef& def);
+
+    /**
+     * @brief Set labels for all axes
+     * 
+     * @param hist Histogram pointer
+     * @param def Histogram definition
+     */
+    static void setLabels(TH1* hist, const HistogramDef& def);
+
     /**
      * @brief Setup labels for histogram axes
      * 

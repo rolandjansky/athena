@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCHITCLUSTERING_H
@@ -11,9 +11,7 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 
 #include "Identifier/Identifier.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-
+#include "MuonIdHelpers/RpcIdHelper.h"
 
 namespace Muon {
 
@@ -91,8 +89,8 @@ namespace Muon {
     };
     typedef std::vector< Doublet > HitClustering;
 
-    RpcHitClusteringObj( const Muon::MuonIdHelperTool* muonIdHelperTool ) : 
-      m_muonIdHelperTool(muonIdHelperTool),debug(false),combinedGasGaps(true)
+    RpcHitClusteringObj( const RpcIdHelper* rpcIdHelper ) : 
+      m_rpcIdHelper(rpcIdHelper),debug(false),combinedGasGaps(true)
     {}
     
     bool cluster( const std::vector<const RpcPrepData*>& col );
@@ -112,7 +110,7 @@ namespace Muon {
  
     void findBest();
 
-    const Muon::MuonIdHelperTool*      m_muonIdHelperTool;
+    const RpcIdHelper*      m_rpcIdHelper;
     std::vector<Doublet>    channelsEta;
     std::vector<Doublet>    channelsPhi;
     std::vector<RpcClusterObj> clustersEta;

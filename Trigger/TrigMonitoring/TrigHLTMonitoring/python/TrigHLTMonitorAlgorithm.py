@@ -20,6 +20,7 @@ def createHLTDQConfigFlags():
     acf.addFlag('DQ.Steering.HLT.doCalo', True)
     acf.addFlag('DQ.Steering.HLT.doMuon', True)
     acf.addFlag('DQ.Steering.HLT.doBphys', True)
+    acf.addFlag('DQ.Steering.HLT.doMinBias', True)
 
     return acf
 
@@ -63,6 +64,10 @@ def TrigHLTMonTopConfig(inputFlags):
     if inputFlags.DQ.Steering.HLT.doBphys:
         from TrigBphysMonitoring.TrigBphysMonitorAlgorithm import TrigBphysMonConfig
         result.merge(TrigBphysMonConfig(inputFlags))
+        
+    if inputFlags.DQ.Steering.HLT.doMinBias:
+        from TrigMinBiasMonitoring.TrigMinBiasMonitoringMT import TrigMinBias
+        result.merge(TrigMinBias(inputFlags))
 
 
     return result

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StreamTagMakerTool.h"
@@ -155,7 +155,7 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
       }
 
       eformat::helper::StreamTag streamTag(st_name, st_type, obeysLB, robs, subdets);
-      resultToFill.addStreamTag(streamTag);
+      ATH_CHECK(resultToFill.addStreamTag(streamTag));
     }
   }
 

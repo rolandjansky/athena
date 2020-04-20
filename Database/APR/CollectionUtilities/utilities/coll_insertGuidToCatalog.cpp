@@ -101,7 +101,7 @@ InsertFileToCatalogApplication::execute()
   if ( allOK ) {
     pool::URIParser p( m_fcURL );
     p.parse();
-    std::auto_ptr<pool::IFileCatalog> catalog( new pool::IFileCatalog );
+    std::unique_ptr<pool::IFileCatalog> catalog( new pool::IFileCatalog );
     if ( ! catalog.get() ) 
       throw std::runtime_error( "Could not create a file catalog" );
     catalog->setWriteCatalog( p.contactstring() );

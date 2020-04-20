@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 from CalibNtupleAnalysisAlg.CalibNtupleAnalysisAlgConf import *
 from MuonCalibStandAloneBase.MuonCalibStandAloneBaseConf import *
@@ -298,7 +300,7 @@ class CalibNtupleAnalysisConfig:
       self.DbIoTool = MuonCalib__CalibrationDbIOTool()
       self.sToolSvc += MuonCalib__CalibrationDbIOTool()
       if not self.__set_db():
-        print "Unknown database location " + str(self.CalibOutputDB)
+        print ("Unknown database location " + str(self.CalibOutputDB))
         sys.exit(1)
 		
     self.MdtCalibOutputDbSvc = MdtCalibOutputDbSvc()
@@ -320,12 +322,12 @@ class CalibNtupleAnalysisConfig:
     self.sServiceMgr += self.MdtCalibInputSvc
     if self.CalibInputFromDB:
       if not self.DbIoTool:
-        print "Set calibratino database location!"
+        print ("Set calibratino database location!")
         sys.exit(1)
       self.MdtCalibInputSvc.CalibrationInputTool = self.DbIoTool
     if self.CalibInputFromFile:
       if not self.CalibrationFileIOTool:
-        print "give a calibdir!"
+        print ("give a calibdir!")
         sys.exit(1)
       self.MdtCalibInputSvc.CalibrationInputTool = self.CalibrationFileIOTool
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSYSTEMEXTENSIONTOOL_H
@@ -14,24 +14,20 @@
 
 #include "TrkParameters/TrackParameters.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonLayerEvent/MuonLayerSurface.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
-
-
+#include "MuonStationIndex/MuonStationIndex.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 
 namespace Trk {
   class Surface;
-  class IExtrapolator;
-  class IParticleCaloExtensionTool;
 }
 
 namespace Muon {
 
-  class MuonIdHelperTool;
   class MuonSystemExtension;
-
 
   class MuonSystemExtensionTool :  virtual public IMuonSystemExtensionTool, public AthAlgTool {
   public:
@@ -39,9 +35,8 @@ namespace Muon {
 
     /** Default AlgTool functions */
     MuonSystemExtensionTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonSystemExtensionTool();
+    virtual ~MuonSystemExtensionTool() {};
     StatusCode initialize();
-    StatusCode finalize();
 
     /** get muon system extension */
     bool muonSystemExtension(  const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension*& muonSystemExtention ) const;
@@ -56,9 +51,6 @@ namespace Muon {
     /** get surfaces to be intersected for a given start parameters */
     SurfaceVec getSurfacesForIntersection( const Trk::TrackParameters& muonEntryPars ) const;
 
-
-    /** tool handles */
-    ToolHandle<MuonIdHelperTool>   m_idHelper; 
     ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool; 
     ToolHandle<Trk::IExtrapolator> m_extrapolator; 
     

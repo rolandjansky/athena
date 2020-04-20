@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from __future__ import absolute_import
 import re
@@ -43,6 +43,7 @@ def _make_simple_label(chain_parts):
     label = 'simple(['
     for cp in chain_parts:
         smcstr =  str(cp['smc'])
+        jvtstr =  str(cp['jvt'])
         if smcstr == 'nosmc':
             smcstr = ''
         for i in range(int(cp['multiplicity'])):
@@ -53,6 +54,8 @@ def _make_simple_label(chain_parts):
                                               str(cp['etaRange']),)
             if smcstr: # Run 2 chains have "INF" in the SMC substring
                 condition_str += ',%s)' % smcstr.replace('INF','')
+            elif jvtstr:
+                condition_str += ',%s)' % jvtstr
             else:
                 condition_str += ')'
             label += condition_str
@@ -376,13 +379,12 @@ def _tests():
         'HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',
         'HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
         
-        
     )
     
-    decodeChainName = DictFromChainName.DictFromChainName()
 
     for cn in chain_names:
-        chain_dict = decodeChainName.getChainDict(cn)
+        chain_dict = DictFromChainName.dictFromChainName(cn)
+
         label = chainDict2jetLabel(chain_dict)
         print('\n')
         print(cn)
@@ -403,9 +405,8 @@ def _tests1():
     from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     
     chain_name = 'HLT_j85_L1J20'
-    decodeChainName = DictFromChainName.DictFromChainName()
 
-    chain_dict = decodeChainName.getChainDict(chain_name)
+    chain_dict = DictFromChainName.dictFromChainName(chain_name)
     label = _make_simple_partition_label(chain_dict)
     
     print('\n')
@@ -425,9 +426,8 @@ def _tests2():
     from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     
     chain_name = 'HLT_j85_L1J20'
-    decodeChainName = DictFromChainName.DictFromChainName()
 
-    chain_dict = decodeChainName.getChainDict(chain_name)
+    chain_dict = DictFromChainName.dictFromChainName(chain_name)
     label = _make_simple_comb_label(chain_dict)
 
     print('\n')

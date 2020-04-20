@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file StoreGate/src/exceptions.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -345,6 +343,18 @@ void throwExcNonConstHandleKey (CLID clid,
  */
 ExcInvalidIterator::ExcInvalidIterator()
   : std::runtime_error ("Attempt to dereference invalid SG::Iterator/SG::ConstIterator")
+{
+}
+
+
+//****************************************************************************
+
+
+/**
+ * @brief Constructor.
+ */
+ExcBadInitializedReadHandleKey::ExcBadInitializedReadHandleKey()
+  : std::runtime_error ("Initialization of InitializedReadHandleKey failed.")
 {
 }
 

@@ -12,6 +12,8 @@
 # @endcode
 #
 
+from __future__ import print_function
+
 __version__ = "$Revision: 478526 $"
 __author__  = "Sebastian Fleischmann"
 
@@ -111,7 +113,7 @@ if __name__ == "__main__":
     countGoodFiles = 0
     countOutFiles = 1
     countTotalFiles = 0
-    print "max total files: %i max files per jo file: %i" % (options.maxTotalFiles , options.maxFiles)
+    print ("max total files: %i max files per jo file: %i" % (options.maxTotalFiles , options.maxFiles))
     for fileName in fileNames:
         countTotalFiles = countTotalFiles+1
         if (options.maxTotalFiles>0) and (countTotalFiles > options.maxTotalFiles):
@@ -123,10 +125,10 @@ if __name__ == "__main__":
             #import PyUtils.PoolFile as PF
             #PF.PoolOpts.FAST_MODE = options.fastMode
             poolFile = PF.PoolFile( fileName )
-            print "my events %i" % poolFile.dataHeader.nEntries
+            print ("my events %i" % poolFile.dataHeader.nEntries)
             if (poolFile.dataHeader.nEntries == options.numberOfExpectedEvents):
                 countGoodFiles = countGoodFiles+1
-                print "file OK: [%s], good: %i" % (fileName,countGoodFiles)
+                print ("file OK: [%s], good: %i" % (fileName,countGoodFiles))
                 out.write(fileName + os.linesep )
                 out.flush()
                 if (options.maxFiles > 0) and ( countGoodFiles > options.maxFiles) :
@@ -141,36 +143,36 @@ if __name__ == "__main__":
                 out3.write("ServiceMgr.EventSelector.InputCollections += ['"+fileName+"']"+os.linesep)
                 out3.flush()
             else:
-                print "number of entries (%i) does not match in file [%s]" % (poolFile.dataHeader.nEntries,  fileName)
+                print ("number of entries (%i) does not match in file [%s]" % (poolFile.dataHeader.nEntries,  fileName))
                 out2.write(fileName + " entries: " + str(poolFile.dataHeader.nEntries) + os.linesep )
                 out2.flush()
             #poolFile.checkFile( sorting = options.sortFctName )
             #if options.doDetailedDump:
                 #dumpFile = os.path.basename(fileName)+ ".txt"
-                #print "## dumping details into [%s]" % dumpFile
+                #print ("## dumping details into [%s]" % dumpFile)
                 #poolFile.detailedDump( dumpFile )
             #if options.outFileName:
                 #outFileName = options.outFileName
-                #print "## saving checkFile report into [%s]..." % outFileName
+                #print ("## saving checkFile report into [%s]..." % outFileName)
                 #poolFile.saveReport( outFileName )
-        except Exception, e:
-            print "## Caught exception [%s] !!" % str(e.__class__)
-            print "## What:",e
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+        except Exception as e:
+            print ("## Caught exception [%s] !!" % str(e.__class__))
+            print ("## What:",e)
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
             sc = 1
             out2.write(fileName + " gives exception: " + str(e.__class__) + os.linesep )
             pass
 
         except :
-            print "## Caught something !! (don't know what)"
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+            print ("## Caught something !! (don't know what)")
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
             sc = 10
             pass
         if len(fileNames) > 1:
-            print ""
+            print ("")
         pass # loop over fileNames
     
-    #print "## Bye."
+    #print ("## Bye.")
     sys.exit(sc)

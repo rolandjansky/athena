@@ -1,29 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "GaudiKernel/SystemOfUnits.h"
 
 //tau
 #include "tauRecTools/TauCalibrateLC.h"
 #include "xAODTau/TauJet.h"
-#include "tauRecTools/TauEventData.h"
-
-//compilation error if attempting to include CLHEP first
-//ASGTOOL_ATHENA defined here:
-//https://svnweb.cern.ch/trac/atlasoff/browser/Control/AthToolSupport/AsgTools/trunk/AsgTools/AsgToolsConf.h
 
 // root
 #include "TFile.h"
 #include "TF1.h"
 #include "TH1D.h"
 
-//included eventually from ITauToolBase
-#ifdef ASGTOOL_ATHENA
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-using CLHEP::GeV;
-#else
-#define GeV 1000
-#endif
+using Gaudi::Units::GeV;
 
 /********************************************************************/
 TauCalibrateLC::TauCalibrateLC(const std::string& name) :
@@ -34,7 +24,6 @@ TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   m_usePantauAxis(false),
   m_isCaloOnly(false)
 {
-  declareProperty("ConfigPath", m_configPath);
   declareProperty("calibrationFile", m_calibrationFile = "EnergyCalibrationLC2012.root");
   declareProperty("doEnergyCorrection", m_doEnergyCorr);
   declareProperty("doPtResponse", m_doPtResponse);
@@ -51,11 +40,16 @@ TauCalibrateLC::~TauCalibrateLC() {
 /********************************************************************/
 StatusCode TauCalibrateLC::initialize() {
 
-  ATH_CHECK( m_vertexInputContainer.initialize(! m_vertexInputContainer.key().empty()) );
-
+  if (m_in_trigger) {
+    ATH_CHECK( m_eventInfoKey.initialize() );
+  }
+  else {
+    ATH_CHECK( m_vertexInputContainer.initialize() );
+  }
+  
   std::string fullPath = find_file(m_calibrationFile);
 
-  TFile * file = TFile::Open(fullPath.c_str(), "READ");
+  std::unique_ptr<TFile> file(TFile::Open(fullPath.c_str(), "READ"));
 
   if (!file) {
     ATH_MSG_FATAL("Failed to open " << fullPath);
@@ -64,12 +58,10 @@ StatusCode TauCalibrateLC::initialize() {
 
   // get the histogram defining eta binning
   std::string key = "etaBinning";
-  TObject * obj = file->Get(key.c_str());
-  TH1* histo = dynamic_cast<TH1*> (obj);
-  m_etaBinHist = NULL;
+  TH1* histo = dynamic_cast<TH1*>(file->Get(key.c_str()));
   if (histo) {
     histo->SetDirectory(0);
-    m_etaBinHist = histo;
+    m_etaBinHist = std::unique_ptr<TH1>(histo);
   }
   else {
     ATH_MSG_FATAL("Failed to get an object with  key " << key);
@@ -89,12 +81,10 @@ StatusCode TauCalibrateLC::initialize() {
     
   // get the histogram with eta corrections
   key = "etaCorrection";
-  obj = file->Get(key.c_str());
-  histo = dynamic_cast<TH1*> (obj);
-  m_etaCorrectionHist = NULL;
+  histo = dynamic_cast<TH1*>(file->Get(key.c_str()));
   if (histo) {
     histo->SetDirectory(0);
-    m_etaCorrectionHist = histo;
+    m_etaCorrectionHist = std::unique_ptr<TH1>(histo);
   }
   else {
     ATH_MSG_FATAL("Failed to get an object with  key " << key);
@@ -104,13 +94,21 @@ StatusCode TauCalibrateLC::initialize() {
   TString tmpSlopKey[s_nProngBins] = {"slopeNPV1P", "slopeNPV3P"};
   TString tmpFuncBase[s_nProngBins] = {"OneP_Eta_", "MultiP_Eta_"};
 
+  /// m_slopeNPVHist with size of s_nProngBins
+  m_slopeNPVHist.resize(s_nProngBins);
+  
+  /// m_calibFunc with size of (s_nProngBins, m_nEtaBins)
+  m_calibFunc.resize(s_nProngBins);
+  for (int i = 0; i < s_nProngBins; ++i) {
+    m_calibFunc[i].resize(m_nEtaBins);
+  }
+
+
   for (int i = 0; i < s_nProngBins; i++) {
-    obj = file->Get(tmpSlopKey[i]); // get pile-up slope histograms
-    histo = dynamic_cast<TH1*> (obj);
-    m_slopeNPVHist[i] = NULL;
+    histo = dynamic_cast<TH1*>(file->Get(tmpSlopKey[i]));  // get pile-up slope histograms
     if (histo) {
       histo->SetDirectory(0);
-      m_slopeNPVHist[i] = histo;
+      m_slopeNPVHist[i] = std::unique_ptr<TH1>(histo);
     }
     else {
       ATH_MSG_FATAL("Failed to get an object with  key " << tmpSlopKey[i]);
@@ -120,15 +118,13 @@ StatusCode TauCalibrateLC::initialize() {
     for (int j = 0; j < m_nEtaBins; j++) {
       TString key = tmpFuncBase[i];
       key += j;
-      TObject * obj = file->Get(key);
-      TF1* fcn = dynamic_cast<TF1*> (obj);
-      m_calibFunc[i][j] = NULL;
+      TF1* fcn = dynamic_cast<TF1*>(file->Get(key));
       if (fcn) {
-	m_calibFunc[i][j] = fcn;
+        m_calibFunc[i][j] = std::unique_ptr<TF1>(fcn);
       }
       else {
-	ATH_MSG_FATAL("Failed to get an object with  key " << key);
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL("Failed to get an object with  key " << key);
+        return StatusCode::FAILURE;
       }
     }
   }
@@ -146,7 +142,6 @@ StatusCode TauCalibrateLC::initialize() {
 /********************************************************************/
 StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) 
 { 
-
   // energy calibration depends on number of tracks - 1p or Mp
   int prongBin = 1; //Mp
   if (pTau.nTracks() <= 1) prongBin = 0; //1p
@@ -161,80 +156,55 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
         
     if (etaBin>=m_nEtaBins) etaBin = m_nEtaBins-1; // correction from last bin should be applied on all taus outside stored eta range
 
-    const xAOD::VertexContainer * vxContainer = 0;
 
     int nVertex = 0;
-        
-    // Only retrieve the container if we are not in trigger
-    if ( ! m_vertexInputContainer.key().empty() ) {
-
-      // StatusCode sc;
-      // Get the primary vertex container from StoreGate
+    
+    // Obtain pileup
+    if (m_in_trigger)  { // online: retrieved from EventInfo 
+      SG::ReadHandle<xAOD::EventInfo> eventInfoHandle( m_eventInfoKey );
+      if (!eventInfoHandle.isValid()) {
+        ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventInfoHandle.key() << ", will set nVertex = " << m_averageNPV );
+        nVertex = m_averageNPV;
+      }
+      else {
+        const xAOD::EventInfo* eventInfo = eventInfoHandle.cptr();
+        nVertex = eventInfo->averageInteractionsPerCrossing();
+        ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << nVertex);
+      }
+    }  
+    else { // offline: count the primary vertex container
       SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
       if (!vertexInHandle.isValid()) {
-	ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
+        return StatusCode::FAILURE;
       }
-      vxContainer = vertexInHandle.cptr();
-	  
-      // Calculate nVertex
-      xAOD::VertexContainer::const_iterator vx_iter = vxContainer->begin();
-      xAOD::VertexContainer::const_iterator vx_end = vxContainer->end();
-	  
-      for (; vx_iter != vx_end; ++vx_iter) {
-	if(m_countOnlyPileupVertices && 
-	   (*vx_iter)->vertexType() == xAOD::VxType::PileUp)
-	  ++nVertex;
-	else if(!m_countOnlyPileupVertices &&
-	   (*vx_iter)->nTrackParticles() >= m_minNTrackAtVertex)
-	  ++nVertex;
-      }
-	  
+      const xAOD::VertexContainer * vxContainer = vertexInHandle.cptr();
+      for (const auto vertex : *vxContainer) {
+        if (m_countOnlyPileupVertices && vertex->vertexType() == xAOD::VxType::PileUp) {
+          ++nVertex;
+        }
+        else if (!m_countOnlyPileupVertices && vertex->nTrackParticles() >= m_minNTrackAtVertex) {
+          ++nVertex;
+        }
+      } 
       ATH_MSG_DEBUG("calculated nVertex " << nVertex );           
-
-    } else {
-
-      StatusCode scMu = StatusCode::FAILURE;
-      double muTemp = 0.0;
-
-      if (tauEventData()->hasObject("AvgInteractions")) scMu = tauEventData()->getObject("AvgInteractions", muTemp);
-	    
-      if(scMu.isSuccess()){
-	ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << muTemp);
-	nVertex = muTemp;
-      } else {
-	ATH_MSG_DEBUG("No AvgInteractions object in tau candidate - using default value");
-	nVertex = m_averageNPV;
-      }
-
-    }
-
-
+    } 
     
     double calibConst = 1.0;
 
     double slopeNPV = m_slopeNPVHist[prongBin]->GetBinContent(etaBin + 1);
     double offset = slopeNPV * (nVertex - m_averageNPV);
 
-    // FF: March,2014
-    // no offset correction for trigger        
-    //if (inTrigger) offset = 0.;
-
     // energy response parameterized as a function of pileup-corrected E_LC
-    double energyLC = pTau.p4(xAOD::TauJetParameters::DetectorAxis).E() / GeV;            //was sumClusterVector.e() / GeV;
+    double energyLC = pTau.p4(xAOD::TauJetParameters::DetectorAxis).E() / GeV; 
     if(m_doPtResponse) energyLC = pTau.ptDetectorAxis() / GeV;
 
     if (energyLC <= 0) {
       ATH_MSG_DEBUG("tau energy at LC scale is " << energyLC << "--> set energy=0.001");           
-      //TODO: we can not set tau energy to 0 due to bug in P4Helpers during deltaR calculation
-      //will set it to 0.001 MeV
       pTau.setP4(0.001, pTau.eta(), pTau.phi(), pTau.m());
       return StatusCode::SUCCESS;
     }
 
-    // get detector axis energy
-    // was saved by TauAxisSetter
-      
     if (energyLC - offset <= 0) {
       ATH_MSG_DEBUG("after pile-up correction energy would be = " << energyLC - offset << " --> setting offset=0 now!");
       offset = 0;
@@ -274,41 +244,30 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
   if (m_doAxisCorr) {
 
     // get tau intermediate axis values
-
     double eta = pTau.etaIntermediateAxis();
     double absEta = std::abs(eta);
     double etaCorr = eta;
     
-    // WARNING !!! THIS IS NEW - MAKE SURE WE WANT THIS
     double phi = pTau.phiIntermediateAxis();
     double phiCorr = phi;
 
     // TauCalibrateLC should then only be called after Pantau !!
-    //
-    if(m_usePantauAxis && fabs(pTau.etaPanTauCellBased()) < 111) {      
+    if(m_usePantauAxis && std::abs(pTau.etaPanTauCellBased()) < 111) {      
       etaCorr = pTau.etaPanTauCellBased();
       phiCorr = pTau.phiPanTauCellBased();      
-
     }
     else if (absEta) {
-
       etaCorr = (eta / absEta)*(absEta - m_etaCorrectionHist->GetBinContent(m_etaCorrectionHist->GetXaxis()->FindBin(absEta)));
-
     }      
 
     ATH_MSG_DEBUG("eta " << eta << "; corrected eta = " << etaCorr << " ; phi " << phi << "; corrected phi " << phiCorr );
-    
     pTau.setP4( pTau.e() / cosh( etaCorr ), etaCorr, phiCorr, pTau.m());
-    
     pTau.setP4(xAOD::TauJetParameters::TauEtaCalib, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
   }
 
-  if (m_isCaloOnly == true && tauEventData()->inTrigger() == true){
-
+  if (m_isCaloOnly == true && m_in_trigger == true){
     pTau.setP4(xAOD::TauJetParameters::TrigCaloOnly, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
-      
   }
-
 
   return StatusCode::SUCCESS;
 }
@@ -318,17 +277,5 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 //-----------------------------------------------------------------------------
 
 StatusCode TauCalibrateLC::finalize() {
-  
-  // these are already out of scope?
-  // does it matter if they are deleted? This is at the end of the run anyway...
-  //for (int i = 0; i<s_nProngBins; i++)
-  //{
-  //ATH_MSG_INFO(i);
-  // delete m_slopeNPVHist[i];
-  //}
-
-  //delete m_etaBinHist;
-  //delete m_etaCorrectionHist;
-  
   return StatusCode::SUCCESS;
 }

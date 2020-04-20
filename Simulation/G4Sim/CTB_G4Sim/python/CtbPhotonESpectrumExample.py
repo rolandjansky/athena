@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 
 def photon_energy_spectrum(v): 
@@ -37,8 +39,8 @@ def photon_energy_spectrum(v):
         hqdj = math.sqrt(hqdj)
         photon = photon + siga[j] * hqdj
     if imqfun==2:
-        photon = vconst*math.exp(photon);
-        photon = photon /365664.;
+        photon = vconst*math.exp(photon)
+        photon = photon /365664.
     return photon
 
 def build_spectrum(theApp,run_number):
@@ -49,6 +51,6 @@ def build_spectrum(theApp,run_number):
     for i in range(p_espectrumaxis.bins()):
         x=(p_espectrumaxis.binUpperEdge(i)+p_espectrumaxis.binLowerEdge(i))/2.
         y = photon_energy_spectrum(0.1*i) 
-        print x,y 
+        print (x,y )
         p_espectrum.HistoSvcEntry.fill(x,y)
     return p_espectrum

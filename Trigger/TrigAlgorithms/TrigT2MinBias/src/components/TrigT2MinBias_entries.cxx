@@ -9,6 +9,7 @@
 #include "../TrigCountSpacePointsMT.h"
 #include "../SPCountHypoAlgMT.h"
 #include "../SPCountHypoTool.h"
+#include "../MbtsFexMT.h"
 
 
 DECLARE_COMPONENT( T2MbtsFex )
@@ -22,3 +23,4 @@ DECLARE_COMPONENT( T2ZdcHypo )
 DECLARE_COMPONENT( TrigCountSpacePointsMT )
 DECLARE_COMPONENT( SPCountHypoAlgMT )
 DECLARE_COMPONENT( SPCountHypoTool )
+DECLARE_COMPONENT( MbtsFexMT )

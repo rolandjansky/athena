@@ -6,18 +6,54 @@
 atlas_subdir( PyJobTransforms )
 
 # External dependencies:
-find_package( PythonLibs )
 find_package( cx_Oracle )
+find_package( future )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( scripts/*.py )
-atlas_install_runtime( test/PyJobTransforms_TestConfiguration.xml )
 atlas_install_generic( share/*.db
                        DESTINATION share
                        EXECUTABLE )
-atlas_install_generic( test/test_*.py
-                       DESTINATION share/JobTransforms/test
-                       EXECUTABLE )
+foreach( test Echo_tf Sleep_tf
+         transform trfAMI trfArgs trfDecorators trfEnv
+         trfExceptions trfExe trfExitCodes trfFileUtils trfGraph trfJobOptions trfLogger
+         trfMPTools trfSignal trfSignatures
+         trfUtils trfUtilsDBRelease trfUtilsParallelJobProcessor trfUtilsParallelJobProcessorData
+         trfValidateRootFile )
+   atlas_add_test( ${test}
+      SCRIPT test/test_${test}.py
+   )
+endforeach()
 
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
+  foreach( test RAWMerge_tf
+           trfSubstepIntegration )
+     atlas_add_test( ${test}
+        SCRIPT test/test_${test}.py
+     )
+  endforeach()
+endif()
+
+#The following tests currently fail in master and should be revised
+#AODMerge_tf
+#AtlasG4_SimTTBar_tf
+#ESDMerge_tf
+#EVNTMerge_tf
+#FullChain_tf
+#HISTMerge_tf
+#LogFileScanner
+#NTUPMerge_tf
+#Reco_AthenaMP_tf
+#Reco_EOS_tf
+#Reco_MC_tf
+#Reco_Tier0_tf
+#Reco_q222_tf
+#Reco_tf
+#TAGMerge_tf
+#trfArgClasses
+#trfArgClassesATLAS
+#trfReports
+#trfReportsSignaledExit
+#trfValidation

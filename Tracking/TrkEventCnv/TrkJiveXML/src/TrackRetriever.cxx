@@ -142,7 +142,7 @@ namespace JiveXML {
 					if (doHitsSorting) {
 						//Sort track state on surface if needed
 						if (TSoSVec.size() > 2 && !is_sorted(TSoSVec.begin(), TSoSVec.end(), *compFunc))
-						  sort(TSoSVec.begin(), TSoSVec.end(), *compFunc);
+						  std::sort(TSoSVec.begin(), TSoSVec.end(), *compFunc);
 					}
 				}
 				delete compFunc;

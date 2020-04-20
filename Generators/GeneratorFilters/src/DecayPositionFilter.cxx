@@ -16,9 +16,6 @@
 
 #include "HepPDT/TableBuilder.hh"
 
-using HepMC::GenVertex;
-using HepMC::GenParticle;
-
 DecayPositionFilter::DecayPositionFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name, pSvcLocator)
 {

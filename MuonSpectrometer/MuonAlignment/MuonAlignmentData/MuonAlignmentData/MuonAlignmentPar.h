@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNMENTDATA_MUONALIGNMENTPAR_H
@@ -16,22 +16,17 @@ class MuonAlignmentPar {
  public:
 
   MuonAlignmentPar();
-  ~MuonAlignmentPar();
-  
-  // Full constructor
-  //  MuonAlignmentPar(Identifier stationId, SimpleTime sinceTime, SimpleTime tillTime);
-  
-  Identifier  identify()      {return m_stationId;}
-  std::string key()           {return m_stationKey;}
+  virtual ~MuonAlignmentPar()=default;
+
+  Identifier  identify() const {return m_stationId;}
+  std::string key()      const {return m_stationKey;}
 
   void setAmdbId(std::string type, int jff, int jzz, int job);
-  void getAmdbId(std::string& type, int& jff, int& jzz, int& job);
+  void getAmdbId(std::string& type, int& jff, int& jzz, int& job) const;
 
-  bool isNew()              {return m_isNew;}
+  bool isNew() const        {return m_isNew;}
   void isNew(bool newPar)   {m_isNew = newPar;}
-  
 
-  
  protected:
   
   // Identifier
@@ -45,8 +40,6 @@ class MuonAlignmentPar {
   int m_Jff;
   int m_Jzz;
   int m_Job;
-  
-
 
   bool m_isNew;
 

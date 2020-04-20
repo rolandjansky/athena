@@ -52,7 +52,7 @@ public:
 
   // PileUpTool methods...
   ///called at the end of the subevts loop. Not (necessarily) able to access subEvents
-  virtual StatusCode mergeEvent()  override final;
+  virtual StatusCode mergeEvent(const EventContext& ctx)  override final;
 
   ///called for each active bunch-crossing to process current subEvents. bunchXing is in ns
   virtual  StatusCode processBunchXing(
@@ -64,11 +64,11 @@ public:
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //  virtual bool toProcess(int bunchXing) const;
-  virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/)  override final;
+  virtual StatusCode prepareEvent(const EventContext& ctx, unsigned int /*nInputEvents*/)  override final;
 
   /// alternative interface which uses the PileUpMergeSvc to obtain
   /// all the required SubEvents.
-  virtual StatusCode processAllSubEvents()  override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx)  override final;
 
 public: //possibly these should be private?
   StatusCode FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap, //csc_newmap& data_SampleMapOddPhase,
@@ -79,11 +79,11 @@ public: //possibly these should be private?
   StatusCode CoreDigitization(CscDigitContainer* cscDigits,CscSimDataCollection* cscSimData, CLHEP::HepRandomEngine* rndmEngine);
 
   // Get next event and extract collection of hit collections:
-  StatusCode getNextEvent();
+  StatusCode getNextEvent(const EventContext& ctx);
 
 private:
 
-  PublicToolHandle<ICscCalibTool> m_pcalib{this, "cscCalibTool", "CscCalibTool", ""};
+  ToolHandle<ICscCalibTool> m_pcalib{this, "cscCalibTool", "CscCalibTool", "CSC calibration tool"};
 
   BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
   SG::ReadHandleKey<CSCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "CSC_Hits", "name of the input objects"}; // name of the input objects

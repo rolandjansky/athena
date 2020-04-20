@@ -108,7 +108,7 @@ const splitMergeScaleMap_t& FastJetInterfaceTool::getKnownSplitMergeScales()
 {
   if ( s_knownSplitMergeScales.empty() )
   {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
     s_knownSplitMergeScales["default"] = fastjet::SISConePlugin::SM_pttilde;
     s_knownSplitMergeScales["pttilde"] = fastjet::SISConePlugin::SM_pttilde;
     s_knownSplitMergeScales["PtTilde"] = fastjet::SISConePlugin::SM_pttilde;
@@ -226,7 +226,7 @@ FastJetInterfaceTool::FastJetInterfaceTool(const std::string& n)
   m_strategy            = fastjet::Best;
   m_areaType            = fastjet::voronoi_area;
   m_recombinationScheme = fastjet::E_scheme;
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   m_SIS_splitMergeScale = fastjet::SISConePlugin::SM_pttilde;
 #endif
 
@@ -297,7 +297,7 @@ StatusCode FastJetInterfaceTool::initialize()
     return StatusCode::FAILURE;
   }
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 
   // define jets depending on the jet type
   if (jetAlgType == CMS_type)
@@ -491,7 +491,7 @@ bool FastJetInterfaceTool::checkConfig(const std::string& key,
   return chkConfig(key,fjrs,map);
 }
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 bool FastJetInterfaceTool::checkConfig(const std::string& key,
                                        fastjet::SISConePlugin::SplitMergeScale& fjsms)
 {
@@ -526,7 +526,7 @@ FastJetInterfaceTool::configName(fastjet::RecombinationScheme fjrs)
   return cfgName(fjrs,map,m_invalidKeyReference);
 }
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 const std::string&
 FastJetInterfaceTool::configName(fastjet::SISConePlugin::SplitMergeScale fjsms)
 {

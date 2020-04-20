@@ -142,10 +142,10 @@ from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonResi
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonGenericTracks
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonEfficiencies
 
-print " <NewInDetAlignMonitoring> setting up " 
+printfunc (" <NewInDetAlignMonitoring> setting up " )
 for trackCollection in trackCollections:
     # Selected tracks
-    print " <NewInDetAlignMonitoring> (type 1) Loading monitor for track Collection", trackCollection, " selection", allSelection.name
+    printfunc (" <NewInDetAlignMonitoring> (type 1) Loading monitor for track Collection", trackCollection, " selection", allSelection.name)
     InDetAlignMonResiduals = IDAlignMonResiduals(
         name = "InDetAlignMonResiduals_"+trackCollection,
         trackSelection = allSelection,
@@ -168,7 +168,7 @@ for trackCollection in trackCollections:
         NSplitMap  = 1,
         RangeOfPullHistos  =   5.0
     )
-    print InDetAlignMonResiduals
+    printfunc (InDetAlignMonResiduals)
     
     #ToolSvc += InDetAlignMonResiduals
     InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
@@ -231,7 +231,7 @@ if True:
         NSplitMap  = 1,
         RangeOfPullHistos  =   5.0
         )
-    print InDetAlignMonResiduals
+    printfunc (InDetAlignMonResiduals)
     
     #ToolSvc += InDetAlignMonResiduals
     InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
@@ -273,7 +273,7 @@ if True:
 #TriggerChainName is only the name passed to the monitoring folder
 
 if newInDetAlignAlg_Options["useTrackSelector"]:
-    print " <NewInDetAlignMonitoring> (type 2) Loading monitor for track Collection", tracks, " selection", alignTrackSelection.name
+    printfunc (" <NewInDetAlignMonitoring> (type 2) Loading monitor for track Collection", tracks, " selection", alignTrackSelection.name)
     InDetAlignMonResiduals = IDAlignMonResiduals(
         name = "InDetAlignMonResiduals_"+tracks+"_sel",
         trackSelection = alignTrackSelection,
@@ -296,7 +296,7 @@ if newInDetAlignAlg_Options["useTrackSelector"]:
         RangeOfPullHistos  =   5.0
 
     )
-    print  InDetAlignMonResiduals
+    printfunc ( InDetAlignMonResiduals)
     #ToolSvc += InDetAlignMonResiduals
     InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
 
@@ -429,7 +429,7 @@ for trackCollection in RefitTrackCollections:
 '''
 
 if Cosmics:     
-    print " <NewInDetAlignMonitoring> Setting track segment monitoring for various collections"
+    printfunc (" <NewInDetAlignMonitoring> Setting track segment monitoring for various collections")
     InDetAlignMonManager.DataType = "cosmics"
     m_alignMonTrackSelectorTool  = []
     m_alignMonTrackSelectionTool = []
@@ -456,7 +456,7 @@ if Cosmics:
 
     from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
     for i in range(len(m_alignMonTrackSelectionToolName)):
-        print " <NewInDetAlignMonitoring> step ",i," --> setting track selector:", m_trackSelectorToolName[i]    
+        printfunc (" <NewInDetAlignMonitoring> step ",i," --> setting track selector:", m_trackSelectorToolName[i]    )
         m_alignMonTrackSelectorTool.append(InDet__InDetDetailedTrackSelectorTool(name            = m_trackSelectorToolName[i],
                                                                                 pTMin           = 2000,#1 GeV
                                                                                 IPd0Max       = 1000.0,#no cut on d0 yet
@@ -471,7 +471,7 @@ if Cosmics:
                                                                                 Extrapolator     = InDetExtrapolator))
         #ToolSvc += m_alignMonTrackSelectorTool[i]
         if (InDetFlags.doPrintConfigurables()):
-            print m_alignMonTrackSelectorTool[i]
+            printfunc (m_alignMonTrackSelectorTool[i])
     
            
         m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name              = m_alignMonTrackSelectionToolName[i],
@@ -482,8 +482,8 @@ if Cosmics:
 
         #ToolSvc += m_alignMonTrackSelectionTool[i]
         if (InDetFlags.doPrintConfigurables()):
-            print " <NewInDetAlignMonitoring> m_alignMonTrackSelectionTool[",i,"] =",  m_alignMonTrackSelectionToolName[i]
-            print m_alignMonTrackSelectionTool[i]
+            printfunc (" <NewInDetAlignMonitoring> m_alignMonTrackSelectionTool[",i,"] =",  m_alignMonTrackSelectionToolName[i])
+            printfunc (m_alignMonTrackSelectionTool[i])
         
     # Upper Vs Lower
     #
@@ -511,7 +511,7 @@ if Cosmics:
     m_deltaQoverPt2D        = [  0.05,    0.1,    0.05,   0.2,   0.05,  0.04,  0.1]
 
     for i in range(len(m_trackSplitterName)):
-        print " <NewInDetAlignMonitoring> Setting track splitter:", m_trackSplitterName[i]
+        printfunc (" <NewInDetAlignMonitoring> Setting track splitter:", m_trackSplitterName[i])
         m_trackSplitter.append(InDet__InDetTrackSplitterTool(name                 = m_trackSplitterName[i],
                                                              TrackFitter           = InDetTrackFitter,
                                                              OutputUpperTracksName = m_upperTracksName[i],
@@ -520,8 +520,8 @@ if Cosmics:
        
         #ToolSvc += m_trackSplitter[i]
         if (InDetFlags.doPrintConfigurables()):
-            print m_trackSplitter[i]
-            print " <NewInDetAlignMonitoring> step ",i," -> defined track segment monitoring for",m_trackSegmentsUpLowName[i],"using", m_upperTracksName[i],"and",  m_lowerTracksName[i], "   2*i+1=",2*i+1," m_alignMonTrackSelectionTool ? length=",len(m_alignMonTrackSelectionTool)
+            printfunc (m_trackSplitter[i])
+            printfunc (" <NewInDetAlignMonitoring> step ",i," -> defined track segment monitoring for",m_trackSegmentsUpLowName[i],"using", m_upperTracksName[i],"and",  m_lowerTracksName[i], "   2*i+1=",2*i+1," m_alignMonTrackSelectionTool ? length=",len(m_alignMonTrackSelectionTool))
         m_trackSegmentsUpLow.append(IDAlignMonTrackSegments(name                = m_trackSegmentsUpLowName[i],
                                                             InputTracksName     = m_inputTracksUpLow[i],
                                                             UpperTracksName     = m_upperTracksName[i],
@@ -542,13 +542,13 @@ if Cosmics:
 
         #ToolSvc += m_trackSegmentsUpLow[i]
         InDetAlignMonManager.AthenaMonTools += [ m_trackSegmentsUpLow[i] ]
-        print " <NewInDetAlignMonitoring> step ",i, m_trackSegmentsUpLowName[i]," added to the ToolSvc"
+        printfunc (" <NewInDetAlignMonitoring> step ",i, m_trackSegmentsUpLowName[i]," added to the ToolSvc")
 
         # vvv trying to add monitoring of the splitted tracks
         # Upper track segments
         trackCollection = m_upperTracksName[i]
         
-        print " <NewInDetAlignMonitoring> going to define InDetAlignMonResiduals for track collection: ",trackCollection
+        printfunc (" <NewInDetAlignMonitoring> going to define InDetAlignMonResiduals for track collection: ",trackCollection)
         InDetAlignMonResiduals = IDAlignMonResiduals(
             name = "InDetAlignMonResiduals_"+trackCollection,
             trackSelection = allSelection,
@@ -574,9 +574,9 @@ if Cosmics:
     
         #ToolSvc += InDetAlignMonResiduals
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
-        print InDetAlignMonResiduals
+        printfunc (InDetAlignMonResiduals)
 
-        print " <NewInDetAlignMonitoring> going to define InDetAlignMonGenericTracks for track collection: ",trackCollection
+        printfunc (" <NewInDetAlignMonitoring> going to define InDetAlignMonGenericTracks for track collection: ",trackCollection)
         InDetAlignMonGenericTracks = IDAlignMonGenericTracks(
             name = "InDetAlignMonGenericTracks_"+trackCollection,
             trackSelection = allSelection,
@@ -589,7 +589,7 @@ if Cosmics:
             #NTracksRange = 10,
             VxPrimContainerName = InDetKeys.PrimaryVertices()
         )
-        print InDetAlignMonGenericTracks
+        printfunc (InDetAlignMonGenericTracks)
         
         if Cosmics:
             InDetAlignMonGenericTracks.d0Range = 500
@@ -597,7 +597,7 @@ if Cosmics:
         
         #ToolSvc += InDetAlignMonGenericTracks
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonGenericTracks ]
-        print " <NewInDetAlignMonitoring> going to define InDetAlignMonSelectedTracksEfficiencies for track collection: ",trackCollection
+        printfunc (" <NewInDetAlignMonitoring> going to define InDetAlignMonSelectedTracksEfficiencies for track collection: ",trackCollection)
         InDetAlignMonSelectedTracksEfficiencies = IDAlignMonEfficiencies (
             name = "InDetAlignMonEfficiencies_"+trackCollection,
             trackSelection = allSelection,
@@ -616,7 +616,7 @@ if Cosmics:
         # Lower track segments
         trackCollection = m_lowerTracksName[i]
         
-        print " <NewInDetAlignMonitoring> going to define InDetAlignMonResiduals for track collection: ",trackCollection
+        printfunc (" <NewInDetAlignMonitoring> going to define InDetAlignMonResiduals for track collection: ",trackCollection)
         InDetAlignMonResiduals = IDAlignMonResiduals(
             name = "InDetAlignMonResiduals_"+trackCollection,
             trackSelection = allSelection,
@@ -642,9 +642,9 @@ if Cosmics:
     
         #ToolSvc += InDetAlignMonResiduals
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
-        print InDetAlignMonResiduals
+        printfunc (InDetAlignMonResiduals)
 
-        print " <NewInDetAlignMonitoring> going to define InDetAlignMonGenericTracks for track collection: ",trackCollection
+        printfunc (" <NewInDetAlignMonitoring> going to define InDetAlignMonGenericTracks for track collection: ",trackCollection)
         InDetAlignMonGenericTracks = IDAlignMonGenericTracks(
             name = "InDetAlignMonGenericTracks_"+trackCollection,
             trackSelection = allSelection,
@@ -657,7 +657,7 @@ if Cosmics:
             #NTracksRange = 10,
             VxPrimContainerName = InDetKeys.PrimaryVertices()
         )
-        print InDetAlignMonGenericTracks
+        printfunc (InDetAlignMonGenericTracks)
         
         if Cosmics:
             InDetAlignMonGenericTracks.d0Range = 500
@@ -665,7 +665,7 @@ if Cosmics:
         
         #ToolSvc += InDetAlignMonGenericTracks
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonGenericTracks ]
-        print " <NewInDetAlignMonitoring> going to define InDetAlignMonSelectedTracksEfficiencies for track collection: ",trackCollection
+        printfunc (" <NewInDetAlignMonitoring> going to define InDetAlignMonSelectedTracksEfficiencies for track collection: ",trackCollection)
         InDetAlignMonSelectedTracksEfficiencies = IDAlignMonEfficiencies (
             name = "InDetAlignMonEfficiencies_"+trackCollection,
             trackSelection = allSelection,
@@ -683,7 +683,7 @@ if Cosmics:
 
         # ^^^
         if (InDetFlags.doPrintConfigurables()):
-            print m_trackSegmentsUpLow[i]
+            printfunc (m_trackSegmentsUpLow[i])
 
      
     #
@@ -722,7 +722,7 @@ if Cosmics:
 
         #ToolSvc += m_trackSegments_Sub[i]
         if (InDetFlags.doPrintConfigurables()):
-            print m_trackSegments_Sub[i]
+            printfunc (m_trackSegments_Sub[i])
     
     #for i in range(5):
         # InDetAlignMonManager.AthenaMonTools += [ m_trackSegmentsUpLow[i] ]
@@ -741,4 +741,4 @@ histOutput       = "IDAlignMon DATAFILE='./monitoring.root' OPT='RECREATE'"
 THistSvc.Output += [histOutput]
 InDetAlignMonManager.FileKey = "IDAlignMon"
 topSequence += InDetAlignMonManager
-print InDetAlignMonManager
+printfunc (InDetAlignMonManager)

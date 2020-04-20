@@ -4,7 +4,7 @@
 
 // DecisionHandling includes
 #include "RoRSeqFilter.h"
-#include "AthenaMonitoring/Monitored.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/Property.h"
 
 using TrigCompositeUtils::DecisionContainer;
@@ -73,33 +73,25 @@ StatusCode RoRSeqFilter::initialize()
 
 StatusCode RoRSeqFilter::execute() {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
-
-  auto inputStat = Monitored::Scalar("counts", 0 ); // n-inputs + 1 for execution counter
-  auto inputName = Monitored::Scalar<std::string>("inputName", "");
-  auto inputPresent = Monitored::Scalar("inputPresent", 0);
-  auto mon = Monitored::Group( m_monTool, inputStat, inputPresent, inputName );
-  mon.fill();
   auto inputHandles  = m_inputKeys.makeHandles();
   auto outputHandles = m_outputKeys.makeHandles();
-  bool validInputs=false;
-  int counter = 1; // entries from 2 (note ++ below) used for inputs
+
+  std::vector<std::string> inputNames({"exec", "anyvalid"});
+  std::vector<bool> inputStats({true, false}); // position 0 for number of execs, always true, bool at position 1 is set later
+  bool validInputs = false;
   for ( auto inputHandle: inputHandles ) {
-    counter++;
-    inputName = inputHandle.name();
-    inputPresent = 0;
+    inputNames.push_back(inputHandle.name());
     if( inputHandle.isValid() ) {// this is because input is implicit
       validInputs = true;
-      inputStat = counter;
-      inputPresent = 1;
-      mon.fill();
+      inputStats.push_back(true);
+    } else {
+      inputStats.push_back(false);
     }
   }
-  if ( validInputs ) {
-    inputStat = 1;
-    mon.fill();
-  }
-  
-    
+  inputStats[1] = validInputs; // position 1 for number of execes with any collection valid
+  auto inputName = Monitored::Collection<std::vector<std::string>>("name", inputNames );
+  auto inputStat = Monitored::Collection<std::vector<bool>>("stat", inputStats );
+  Monitored::Group( m_monTool, inputStat, inputName );
   
   if (!validInputs) {
     setFilterPassed(false);

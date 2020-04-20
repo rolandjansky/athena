@@ -1,12 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Alexander Madsen
+/// @author Nils Krumnack
+
+
 
 #include <EventLoopGrid/PrunDriver.h>
 #include <EventLoopGrid/GridDriver.h>
 #include <EventLoop/Algorithm.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/ManagerStep.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/OutputStream.h>
+#include <PathResolver/PathResolver.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/hadd.h>
 #include <RootCoreUtils/ExceptionMsg.h>
@@ -90,7 +99,7 @@ static JobState::Enum sampleState(SH::Sample* sample)
 {
   RCU_REQUIRE(sample);
   static const std::string defaultState = JobState::name[JobState::INIT];
-  std::string label = sample->getMetaString("nc_ELG_state", defaultState);
+  std::string label = sample->meta()->castString ("nc_ELG_state", defaultState, SH::MetaObject::CAST_NOCAST_DEFAULT);
   return JobState::parse(label);
 }
 
@@ -129,7 +138,10 @@ static SH::MetaObject defaultOpts()
   o.setString("nc_nGBPerJob", "MAX");
   o.setString("nc_mergeOutput", "true");
   o.setString("nc_rootVer", gROOT->GetVersion());
-  o.setString("nc_cmtConfig", EL::getRootCoreConfig());
+  o.setString("nc_cmtConfig", gSystem->ExpandPathName("$AnalysisBase_PLATFORM"));
+  o.setString("nc_useAthenaPackages", "true");
+  const std::string mergestr = "elg_merge jobdef.root %OUT %IN";
+  o.setString("nc_mergeScript", mergestr);
   return o;
 } 
 
@@ -170,9 +182,11 @@ static Status::Enum submit(SH::Sample* const sample)
 
   static bool loaded = false;
   if (not loaded) {
-    TString path = "$ROOTCOREBIN/python/EventLoopGrid/ELG_prun.py";
-    gSystem->ExpandPathName(path);
-    TPython::LoadMacro(path.Data());
+    // TString path = "$ROOTCOREBIN/python/EventLoopGrid/ELG_prun.py";
+    // gSystem->ExpandPathName(path);
+    // TPython::LoadMacro(path.Data());
+    std::string path = PathResolverFindCalibFile("EventLoopGrid/ELG_prun.py");
+    TPython::LoadMacro(path.c_str());
     loaded = true;
   }
 
@@ -181,12 +195,12 @@ static Status::Enum submit(SH::Sample* const sample)
   TPython::Bind(0, "ELG_SAMPLE");   
 
   if (ret < 100) {
-    sample->setMetaString("nc_ELG_state_details", 
-			  "problem submitting"); 
+    sample->meta()->setString("nc_ELG_state_details", 
+                              "problem submitting"); 
     return Status::FAIL;
   }
 
-  sample->setMetaDouble("nc_jediTaskID", ret);
+  sample->meta()->setDouble("nc_jediTaskID", ret);
 
   return Status::DONE;
 }
@@ -194,13 +208,15 @@ static Status::Enum submit(SH::Sample* const sample)
 static Status::Enum checkPandaTask(SH::Sample* const sample)
 {
   RCU_REQUIRE(sample);
-  RCU_REQUIRE(static_cast<int>(sample->getMetaDouble("nc_jediTaskID",0)) > 100);
+  RCU_REQUIRE(static_cast<int>(sample->meta()->castDouble("nc_jediTaskID",0, SH::MetaObject::CAST_NOCAST_DEFAULT)) > 100);
 
   static bool loaded = false;
   if (not loaded) {
-    TString path = "$ROOTCOREBIN/python/EventLoopGrid/ELG_jediState.py";
-    gSystem->ExpandPathName(path);
-    TPython::LoadMacro(path.Data());
+    // TString path = "$ROOTCOREBIN/python/EventLoopGrid/ELG_jediState.py";
+    // gSystem->ExpandPathName(path);
+    // TPython::LoadMacro(path.Data());
+    std::string path = PathResolverFindCalibFile("EventLoopGrid/ELG_jediState.py");
+    TPython::LoadMacro(path.c_str());
     loaded = true;
   }
 
@@ -212,10 +228,10 @@ static Status::Enum checkPandaTask(SH::Sample* const sample)
   if (ret == "failed") return Status::FAIL;
   if (ret == "finished") return Status::FAIL;
 
-  if (ret != "running") { sample->setMetaString("nc_ELG_state_details", ret); }
+  if (ret != "running") { sample->meta()->setString("nc_ELG_state_details", ret); }
   if (ret.empty()) { 
-    sample->setMetaString("nc_ELG_state_details", 
-			  "problem checking jedi task status"); 
+    sample->meta()->setString("nc_ELG_state_details", 
+                              "problem checking jedi task status"); 
   }
 
   return Status::PENDING;
@@ -234,7 +250,7 @@ static Status::Enum download(SH::Sample* const sample)
 	      << sample->name() << "..." << std::endl;
   }
 
-  std::string container = sample->getMetaString("nc_outDS", "");
+  std::string container = sample->meta()->castString("nc_outDS", "", SH::MetaObject::CAST_NOCAST_DEFAULT);
   RCU_ASSERT(not container.empty());
   if (container[container.size()-1] == '/') {
     container.resize(container.size() - 1); 
@@ -245,8 +261,8 @@ static Status::Enum download(SH::Sample* const sample)
 
   if (not downloadOk) {
     std::cerr << "Failed to download one or more files" << std::endl;
-    sample->setMetaString("nc_ELG_state_details", 
-			  "error, check log for details"); 
+    sample->meta()->setString("nc_ELG_state_details", 
+                              "error, check log for details"); 
     return Status::PENDING;
   }
 
@@ -257,7 +273,7 @@ static Status::Enum merge(SH::Sample* const sample)
 {
   RCU_REQUIRE(sample);
 
-  std::string container = sample->getMetaString("nc_outDS", "");
+  std::string container = sample->meta()->castString("nc_outDS", "", SH::MetaObject::CAST_NOCAST_DEFAULT);
   RCU_ASSERT(not container.empty());
   if (container[container.size()-1] == '/') {
     container.resize(container.size() - 1); 
@@ -281,15 +297,15 @@ static Status::Enum merge(SH::Sample* const sample)
   if (not files.size()) {
     std::cerr << "Found no input files for merging! "
 	      << "Requeueing sample for download..." << std::endl;
-    sample->setMetaString("nc_ELG_state_details", "retry, files were lost"); 
+    sample->meta()->setString("nc_ELG_state_details", "retry, files were lost"); 
     return Status::FAIL;
   }
 
   try {
     RCU::hadd(target.c_str(), files); 
   } catch (...) {
-    sample->setMetaString("nc_ELG_state_details", 
-			  "error, check log for details"); 
+    sample->meta()->setString("nc_ELG_state_details", 
+                              "error, check log for details"); 
     gSystem->Exec(Form("rm -f %s", target.c_str()));
     return Status::PENDING;
   }
@@ -309,7 +325,7 @@ static void processTask(SH::Sample* const sample)
 
   JobState::Enum state = sampleState(sample);
   
-  sample->setMetaString("nc_ELG_state_details", "");
+  sample->meta()->setString("nc_ELG_state_details", "");
 
   Status::Enum status = Status::PENDING;
   switch (state) {
@@ -331,7 +347,7 @@ static void processTask(SH::Sample* const sample)
   }
 
   state = nextState(state, status);
-  sample->setMetaString("nc_ELG_state", JobState::name[state]);
+  sample->meta()->setString("nc_ELG_state", JobState::name[state]);
 }
 
 static void processAllInState(const SH::SampleHandler& sh, JobState::Enum state,
@@ -422,12 +438,10 @@ static void saveJobDef(const std::string& fileName,
 		       const SH::SampleHandler sh)
 {    
   TFile file(fileName.c_str(), "RECREATE"); 
-  TList algs, outputs; 
-  for (EL::Job::algsIter a = job.algsBegin(); a != job.algsEnd(); ++a)
-    algs.Add((*a)->Clone());
+  TList outputs; 
   for (EL::Job::outputIter o = job.outputBegin(); o !=job.outputEnd(); ++o) 
     outputs.Add(o->Clone());
-  file.WriteTObject(&algs, "algorithms", "SingleKey");        
+  file.WriteTObject(&job.jobConfig(), "jobConfig", "SingleKey");        
   file.WriteTObject(&outputs, "outputs", "SingleKey");        
   for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
     const SH::MetaObject& meta = *((*s)->meta());
@@ -444,9 +458,9 @@ static SH::SampleHandler outputSH(const SH::SampleHandler& in,
   const std::string outDSSuffix = '_' + outputLabel + ".root/"; 
   for (SH::SampleHandler::iterator s = in.begin(); s != in.end(); ++s) {
     SH::SampleGrid* outSample = new SH::SampleGrid((*s)->name());
-    const std::string outputDS = (*s)->getMetaString("nc_outDS") + outDSSuffix;
-    outSample->setMetaString("nc_grid", outputDS);
-    outSample->setMetaString("nc_grid_filter", outputFile);
+    const std::string outputDS = (*s)->meta()->castString("nc_outDS", "", SH::MetaObject::CAST_NOCAST_DEFAULT) + outDSSuffix;
+    outSample->meta()->setString("nc_grid", outputDS);
+    outSample->meta()->setString("nc_grid_filter", outputFile);
     out.add(outSample);
   }
   out.fetch(in);
@@ -463,74 +477,86 @@ EL::PrunDriver::PrunDriver()
   RCU_NEW_INVARIANT(this);
 }
 
-void EL::PrunDriver::doSubmit(const EL::Job& job,  
-			      const std::string& location) const 
+::StatusCode EL::PrunDriver ::
+doManagerStep (Detail::ManagerData& data) const
 {
-  RCU_READ_INVARIANT(this);
-  RCU_REQUIRE(not location.empty());
+  using namespace msgEventLoop;
+  ANA_CHECK (Driver::doManagerStep (data));
+  switch (data.step)
+  {
+  case Detail::ManagerStep::submitJob:
+    {
+      const std::string jobELGDir = data.submitDir + "/elg";
+      const std::string runShFile = jobELGDir + "/runjob.sh";
+      //const std::string runShOrig = "$ROOTCOREBIN/data/EventLoopGrid/runjob.sh";
+      const std::string mergeShFile = jobELGDir + "/elg_merge";
+      //const std::string mergeShOrig = 
+      //  "$ROOTCOREBIN/user_scripts/EventLoopGrid/elg_merge";
+      const std::string runShOrig = PathResolverFindCalibFile("EventLoopGrid/runjob.sh");
+      const std::string mergeShOrig = PathResolverFindCalibFile("EventLoopGrid/elg_merge");
+      const std::string jobDefFile = jobELGDir + "/jobdef.root";
+      gSystem->Exec(Form("mkdir -p %s", jobELGDir.c_str()));
+      gSystem->Exec(Form("cp %s %s", runShOrig.c_str(), runShFile.c_str()));
+      gSystem->Exec(Form("chmod +x %s", runShFile.c_str()));
+      gSystem->Exec(Form("cp %s %s", mergeShOrig.c_str(), mergeShFile.c_str()));
+      gSystem->Exec(Form("chmod +x %s", mergeShFile.c_str()));
 
-  const std::string jobELGDir = location + "/elg";
-  const std::string runShFile = jobELGDir + "/runjob.sh";
-  const std::string runShOrig = "$ROOTCOREBIN/data/EventLoopGrid/runjob.sh";
-  const std::string mergeShFile = jobELGDir + "/elg_merge";
-  const std::string mergeShOrig = 
-    "$ROOTCOREBIN/user_scripts/EventLoopGrid/elg_merge";
-  const std::string jobDefFile = jobELGDir + "/jobdef.root";
-  gSystem->Exec(Form("mkdir -p %s", jobELGDir.c_str()));
-  gSystem->Exec(Form("cp %s %s", runShOrig.c_str(), runShFile.c_str()));
-  gSystem->Exec(Form("chmod +x %s", runShFile.c_str()));
-  gSystem->Exec(Form("cp %s %s", mergeShOrig.c_str(), mergeShFile.c_str()));
-  gSystem->Exec(Form("chmod +x %s", mergeShFile.c_str()));
+      const SH::SampleHandler& sh = data.job->sampleHandler();
 
-  const SH::SampleHandler& sh = job.sampleHandler();
+      for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
+        SH::MetaObject& meta = *(*s)->meta();
+        meta.fetchDefaults(data.options);
+        meta.fetchDefaults(defaultOpts());
+        meta.setString("nc_outputs", outputFileNames(*data.job));
+        std::string outputSampleName = meta.castString("nc_outputSampleName");
+        if (outputSampleName.empty()) {
+          outputSampleName = "user.%nickname%.%in:name%";
+        }
+        meta.setString("nc_outDS", formatOutputName(meta, outputSampleName));
+        meta.setString("nc_inDS", meta.castString("nc_grid", (*s)->name()));
+        meta.setString("nc_writeInputToTxt", "IN:input.txt");
+        meta.setString("nc_match", meta.castString("nc_grid_filter"));
+        const std::string execstr = "runjob.sh " + (*s)->name();
+        meta.setString("nc_exec", execstr);
+      }
 
-  for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
-    SH::MetaObject& meta = *(*s)->meta();
-    meta.fetchDefaults(*job.options());
-    meta.fetchDefaults(*options());
-    meta.fetchDefaults(defaultOpts());
-    meta.setString("nc_outputs", outputFileNames(job));
-    std::string outputSampleName = meta.castString("nc_outputSampleName");
-    if (outputSampleName.empty()) {
-      outputSampleName = "user.%nickname%.%in:name%";
-    }
-    meta.setString("nc_outDS", formatOutputName(meta, outputSampleName));
-    meta.setString("nc_inDS", meta.castString("nc_grid", (*s)->name()));
-    meta.setString("nc_writeInputToTxt", "IN:input.txt");
-    meta.setString("nc_match", meta.castString("nc_grid_filter"));
-    const std::string execstr = "runjob.sh " + (*s)->name();
-    meta.setString("nc_exec", execstr);
-    const std::string mergestr = "elg_merge jobdef.root %OUT %IN"; 
-    meta.setString("nc_mergeScript", mergestr);
-  }
-
-  saveJobDef(jobDefFile, job, sh);
+      saveJobDef(jobDefFile, *data.job, sh);
   
-  for (EL::Job::outputIter out = job.outputBegin();
-       out != job.outputEnd(); ++out) {
-    SH::SampleHandler shOut = outputSH(sh, out->label());
-    shOut.save(location + "/output-" + out->label());
-  }
-  SH::SampleHandler shHist = outputSH(sh, "hist-output");
-  shHist.save(location + "/output-hist");
+      for (EL::Job::outputIter out = data.job->outputBegin();
+           out != data.job->outputEnd(); ++out) {
+        SH::SampleHandler shOut = outputSH(sh, out->label());
+        shOut.save(data.submitDir + "/output-" + out->label());
+      }
+      SH::SampleHandler shHist = outputSH(sh, "hist-output");
+      shHist.save(data.submitDir + "/output-hist");
  
-  TmpCd keepDir(jobELGDir);
+      TmpCd keepDir(jobELGDir);
 
-  processAllInState(sh, JobState::INIT, 0); 
+      processAllInState(sh, JobState::INIT, 0); 
 
-  sh.save(location + "/input");
+      sh.save(data.submitDir + "/input");
+      data.submitted = true;
+    }
+    break;
 
-  //If doRetrieve is called immediately, panda client will print ugly warnings
-  //as task info is not yet available
-  sleep(60);
+  case Detail::ManagerStep::doRetrieve:
+    {
+      ANA_CHECK (doRetrieve (data));
+    }
+    break;
+
+  default:
+    (void) true; // safe to do nothing
+  }
+  return ::StatusCode::SUCCESS;
 }
 
-bool EL::PrunDriver::doRetrieve(const std::string& location) const 
+::StatusCode EL::PrunDriver::doRetrieve (Detail::ManagerData& data) const 
 {
   RCU_READ_INVARIANT(this);
-  RCU_REQUIRE(not location.empty());  
+  RCU_REQUIRE(not data.submitDir.empty());  
 
-  TmpCd tmpDir(location);
+  TmpCd tmpDir(data.submitDir);
 
   SH::SampleHandler sh;
   sh.load("input");
@@ -550,7 +576,7 @@ bool EL::PrunDriver::doRetrieve(const std::string& location) const
   bool allDone = true;
   for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {    
     JobState::Enum state = sampleState(*s);
-    std::string details = (*s)->getMetaString("nc_ELG_state_details");
+    std::string details = (*s)->meta()->castString("nc_ELG_state_details", "", SH::MetaObject::CAST_NOCAST_DEFAULT);
     if (not details.empty()) { details = '(' + details + ')'; }
 
     std::cout << (*s)->name() << "\t"; 
@@ -575,7 +601,9 @@ bool EL::PrunDriver::doRetrieve(const std::string& location) const
 
   std::cout << std::endl;
   
-  return (allDone);
+  data.retrieved = true;
+  data.completed = allDone;
+  return ::StatusCode::SUCCESS;
 }
  
 void EL::PrunDriver::status(const std::string& location)
@@ -589,7 +617,7 @@ void EL::PrunDriver::status(const std::string& location)
   sh.save("input");
   for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {    
     JobState::Enum state = sampleState(*s);
-    std::string details = (*s)->getMetaString("nc_ELG_state_details");
+    std::string details = (*s)->meta()->castString("nc_ELG_state_details", "", SH::MetaObject::CAST_NOCAST_DEFAULT);
     if (not details.empty()) { details = '(' + details + ')'; }
     std::cout << (*s)->name() << "\t" << JobState::name[state] 
 	      << "\t" << details << std::endl;
@@ -614,6 +642,6 @@ void EL::PrunDriver::setState(const std::string& location,
     return;
   }
   JobState::parse(state);
-  sh.get(task)->setMetaString("nc_ELG_state", state);
+  sh.get(task)->meta()->setString("nc_ELG_state", state);
   sh.save("input");
 }

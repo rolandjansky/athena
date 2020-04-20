@@ -1,11 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */ 
+/**
+ * @file PixelConditionsAlgorithms/PixelChargeCalibCondAlg.h
+ * @author Soshi Tsuno <Soshi.Tsuno@cern.ch>
+ * @date December, 2019
+ * @brief Store pixel charge calibration constants in PixelChargeCalibCondData.
+ */
 
 #ifndef PIXELCHARGECALIBCONDALG
 #define PIXELCHARGECALIBCONDALG
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -20,17 +26,15 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
 
-class PixelChargeCalibCondAlg : public AthAlgorithm {  
+class PixelChargeCalibCondAlg : public AthReentrantAlgorithm {
   public:
     PixelChargeCalibCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    virtual ~PixelChargeCalibCondAlg() = default;
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
-    virtual StatusCode finalize() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
 
   private:
-    const PixelID* m_pixelID;
+    const PixelID* m_pixelID{nullptr};
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey
     {this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
@@ -44,7 +48,7 @@ class PixelChargeCalibCondAlg : public AthAlgorithm {
     SG::WriteCondHandleKey<PixelChargeCalibCondData> m_writeKey
     {this, "WriteKey", "PixelChargeCalibCondData", "Output charge caliblation data"};
 
-    ServiceHandle<ICondSvc> m_condSvc;
+    ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif

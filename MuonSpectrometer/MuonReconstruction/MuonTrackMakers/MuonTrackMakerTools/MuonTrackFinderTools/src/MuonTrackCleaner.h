@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRACKCLEANER_H
@@ -15,7 +15,7 @@
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -23,11 +23,9 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IUpdator.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "Identifier/Identifier.h"
 #include <string>
 #include <set>
 
@@ -37,8 +35,6 @@
 
 #include "CxxUtils/checker_macros.h"
 ATLAS_CHECK_FILE_THREAD_SAFETY;
-
-class MsgStream;
 
 namespace Trk {
   class Track;
@@ -292,7 +288,7 @@ namespace Muon {
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer           {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
-    ToolHandle<Muon::MuonIdHelperTool>               m_idHelper          {this, "IdHelper", "Muon::MuonIdHelperTool/MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc       {this, "MagFieldSvc", "AtlasFieldSvc"}; 
     ToolHandle<Trk::IExtrapolator>                   m_extrapolator      {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};
 

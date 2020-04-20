@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 import sys,os
 from os import popen
 
@@ -12,7 +14,8 @@ EtaChannel=0
 PhiChannel=0
 
 currentDir=os.getcwd()
-if not os.path.isdir(currentDir+'/scripts'): os.mkdir(currentDir+'/scripts')
+if not os.path.isdir(currentDir+'/scripts'):
+    os.mkdir(currentDir+'/scripts')
 
 #content of the Phi job option sctript
 #------------------------------------------
@@ -192,14 +195,14 @@ for i in range(len(EtaSXX)):
     EtaSXXmu6=  popen('ls %s | grep .txt' %(EtaPath+"/mu6/")).readlines()
     EtaSXXmu10=  popen('ls %s | grep .txt' %(EtaPath+"/mu10/")).readlines()
     EtaSXXmu20=  popen('ls %s | grep .txt' %(EtaPath+"/mu20/")).readlines()
-    #print "EtaSXXmu6= ",EtaSXXmu6
+    #printfunc ("EtaSXXmu6= ",EtaSXXmu6)
     
     #just a safety check for eta
     if len(EtaSXXmu6)!= len(EtaSXXmu10) or len(EtaSXXmu6)!=len(EtaSXXmu20) or len(EtaSXXmu10)!=len(EtaSXXmu20):
-        print "EtaSXXmu6, EtaSXXmu10, EtaSXXmu20 have different number of files"
-        print "===>leaving loop"
+        printfunc ("EtaSXXmu6, EtaSXXmu10, EtaSXXmu20 have different number of files")
+        printfunc ("===>leaving loop")
         if EtaSXXi=="s56":
-            print "it's s56"
+            printfunc ("it's s56")
             #continue
         else:
             break
@@ -209,17 +212,17 @@ for i in range(len(EtaSXX)):
     PhiSXXi= PhiSXX[i].strip('\n')
     PhiPath=inputfolder+phisubfolder+PhiSXXi
     PhiSXXmu=  popen('ls %s | grep .txt' %(PhiPath)).readlines()
-    #print "PhiSXX= ",PhiSXXmu 
+    #printfunc ("PhiSXX= ",PhiSXXmu )
 
     #just a safety check for phi      
     if len(PhiSXXmu) % 2 !=0:
-        print "Nfiles(PhiSXX)= neparne"
+        printfunc ("Nfiles(PhiSXX)= neparne")
         break
    
     #loop over eta files
     for j in range(len(EtaSXXmu6)):
         EtaChannel+= 1
-        print "low pt EtaChannel= ", EtaChannel
+        printfunc ("low pt EtaChannel= ", EtaChannel)
 	
         EtaSXXmu6[j]=EtaSXXmu6[j].strip('\n')
         fileSuffix= EtaSXXmu6[j].split('_')[4]
@@ -229,32 +232,32 @@ for i in range(len(EtaSXX)):
         fileSuffix= EtaSXXmu10[j].split('_')[4]
         EtaName_CM10= EtaSXXmu10[j].replace('_'+fileSuffix,'')
 
-        print "EtaName_CM6= ", EtaName_CM6,"    |name= ",EtaSXXmu6[j]
-        print "EtaName_CM10= ", EtaName_CM10,"    |name= ",EtaSXXmu10[j]
+        printfunc ("EtaName_CM6= ", EtaName_CM6,"    |name= ",EtaSXXmu6[j])
+        printfunc ("EtaName_CM10= ", EtaName_CM10,"    |name= ",EtaSXXmu10[j])
         genfile_name= makeTriggerEtaWriteJobOption(" ",EtaPath+"/mu6/"+EtaSXXmu6[j],EtaPath+"/mu10/"+EtaSXXmu10[j],EtaName_CM6,EtaChannel,"0,6,10")
-        print "generated file ",genfile_name
+        printfunc ("generated file ",genfile_name)
 
         EtaChannel+= 1
-        print "high pt EtaChannel= ", EtaChannel
+        printfunc ("high pt EtaChannel= ", EtaChannel)
         EtaSXXmu20[j]=EtaSXXmu20[j].strip('\n')
         fileSuffix= EtaSXXmu20[j].split('_')[4]
         EtaName_CM20= EtaSXXmu20[j].replace('_'+fileSuffix,'')
 
-        print "EtaName_CM20= ", EtaName_CM20,"    |name= ",EtaSXXmu20[j]
-        print "path20= ", EtaPath+"/mu20/"+EtaSXXmu20[j]
+        printfunc ("EtaName_CM20= ", EtaName_CM20,"    |name= ",EtaSXXmu20[j])
+        printfunc ("path20= ", EtaPath+"/mu20/"+EtaSXXmu20[j])
         genfile_name= makeTriggerEtaWriteJobOption(" "," ",EtaPath+"/mu20/"+EtaSXXmu20[j],EtaName_CM20,EtaChannel,"0,0,20")
-        print "generated file ",genfile_name
+        printfunc ("generated file ",genfile_name)
    
     #loop over phi files
     for j in range(len(PhiSXXmu)):
 	    
         PhiChannel+= 1
-        print "PhiChannel= ", PhiChannel
+        printfunc ("PhiChannel= ", PhiChannel)
         PhiSXXmu[j]=PhiSXXmu[j].strip('\n')
         fileSuffix= PhiSXXmu[j].split('_')[4]
         PhiName_CM= PhiSXXmu[j].replace('_'+fileSuffix,'')
 
-        print "PhiName_CM= ", PhiName_CM,"    |name= ",PhiSXXmu[j]
-        print "path= ", PhiPath+"/"+PhiSXXmu[j]
+        printfunc ("PhiName_CM= ", PhiName_CM,"    |name= ",PhiSXXmu[j])
+        printfunc ("path= ", PhiPath+"/"+PhiSXXmu[j])
         genfile_name= makeTriggerPhiWriteJobOption(PhiPath+"/"+PhiSXXmu[j],PhiName_CM,PhiChannel)
-        print "generated file ",genfile_name
+        printfunc ("generated file ",genfile_name)

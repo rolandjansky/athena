@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 #from TriggerMenu.menu.MenuUtil import applyHLTPrescale, resetAllPrescales
@@ -94,9 +94,9 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
 
-    elif menu_name.startswith('Cosmic_pp_run3_v1'):
-        log.info('Cosmic_pp_run3_v1 menu setup')
-        from TriggerMenuMT.HLTMenuConfig.Menu.Cosmic_pp_run3_v1 import setupMenu, Prescales
+    elif menu_name.startswith('Cosmic_run3_v1'):
+        log.info('Cosmic_run3_v1 menu setup')
+        from TriggerMenuMT.HLTMenuConfig.Menu.Cosmic_run3_v1 import setupMenu, Prescales
         setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
@@ -111,37 +111,18 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     return (L1Prescales, HLTPrescales)
 
+def addSliceChainsToPrescales(flags, cosmic_prescales):
+    signatures = []
+    slice_props = [prop for prop in dir(flags) if prop.endswith("Slice")]
+    for slice_prop in slice_props:
+        slice = getattr(flags, slice_prop)
+        if slice.signatures():
+            signatures.extend(slice.signatures())
+        else:
+            log.debug('SKIPPING ' + str(slice_prop))
 
-
-
-# def applyPrescales(triggerPythonConfig, HLTPrescales):
-#     no_prescale = False
-#     if 'no_prescale' in TriggerFlags.triggerMenuSetup() or \
-#        TriggerFlags.triggerMenuSetup() == 'default': no_prescale = True
-        
-#     if HLTPrescales==None and TriggerFlags.HLTPrescaleSet()!='':
-#         log.warning('Cannot find HLT prescale set %s, not explicitly setting them' % \
-#                     TriggerFlags.HLTPrescaleSet())
-#         HLTPrescales = {}
-        
-#     if TriggerFlags.doHLT():
-#         applyHLTPrescale(triggerPythonConfig, HLTPrescales)
-
-#     if TriggerFlags.L1PrescaleSet() == 'None':
-#         for item in triggerPythonConfig.allItems.values():
-#             item.prescale = '1' 
-#     if TriggerFlags.HLTPrescaleSet() == 'None':
-#         for  sig in triggerPythonConfig.allChains.values():
-#             for chain in sig:
-#                 chain.prescale = '1'
-#                 chain.pass_through = '0'
-#                 tmp_stag = chain.stream_tag
-#                 chain.stream_tag = []
-#                 for s in tmp_stag:
-#                     chain.addStreamTag(s[0], s[1], s[2], 1)
-
-#     if no_prescale:
-#         resetAllPrescales(triggerPythonConfig)
-
-
-                
+    chains = [s.name for s in signatures]
+    combined = {chain: [-1, 0, 0] for chain in chains}
+    combined.update(cosmic_prescales)
+    from copy import deepcopy
+    cosmic_prescales = deepcopy(combined)

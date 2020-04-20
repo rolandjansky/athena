@@ -1,8 +1,9 @@
 """Construct ConfigFlags for Digitization
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+from AthenaConfiguration.AutoConfigFlags import GetFileMD
 from AthenaCommon.Logging import log
 from PyUtils import AthFile
 
@@ -59,8 +60,10 @@ def createDigitizationCfgFlags():
     # Do global pileup digitization
     flags.addFlag("Digitization.Pileup", True)
     # TRT Range cut used in simulation in mm. Should be 0.05 or 30.
-    flags.addFlag("Digitization.TRTRangeCut", 0.05)
+    flags.addFlag("Digitization.TRTRangeCut", lambda prevFlags : float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 0.05)))
     # Write out truth information?
     flags.addFlag("Digitization.TruthOutput", False)
+    # Integer offset to random seed initialisation
+    flags.addFlag("Digitization.RandomSeedOffset", 0)
     return flags
 

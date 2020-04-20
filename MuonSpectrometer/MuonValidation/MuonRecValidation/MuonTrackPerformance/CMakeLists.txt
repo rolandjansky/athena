@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           GaudiKernel
                           MuonSpectrometer/MuonIdHelpers
+                          MuonSpectrometer/MuonStationIndex
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
@@ -50,7 +51,7 @@ atlas_add_component( MuonTrackPerformance
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps xAODEventInfo GaudiKernel MuonIdHelpersLib MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkParameters TrkTrack TrkTrackSummary TrkTruthData TrkToolInterfaces StoreGateLib SGtests Identifier EventPrimitives xAODMuon xAODTracking xAODTruth MuonReadoutGeometry MuonClusterizationLib MuonCompetingRIOsOnTrack MuonLayerEvent MuonPrepRawData MuonRIO_OnTrack MuonLayerHough MuonRecValidationNtuples MuonCombinedEvent TrkMeasurementBase TrkPrepRawData TrkExInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps xAODEventInfo GaudiKernel MuonIdHelpersLib MuonStationIndexLib MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces TrkParameters TrkTrack TrkTrackSummary TrkTruthData TrkToolInterfaces StoreGateLib SGtests Identifier EventPrimitives xAODMuon xAODTracking xAODTruth MuonReadoutGeometry MuonClusterizationLib MuonCompetingRIOsOnTrack MuonLayerEvent MuonPrepRawData MuonRIO_OnTrack MuonLayerHough MuonRecValidationNtuples MuonCombinedEvent TrkMeasurementBase TrkPrepRawData TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( MuonTrackPerformance )

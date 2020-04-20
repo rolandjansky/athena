@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """Instantiates TrigJetHypoToolConfig_flownetwork AlgTool 
 from a hypo tree."""
 
@@ -14,6 +14,7 @@ from TrigHLTJetHypo.TrigHLTJetHypoConf import (
     TrigJetConditionConfig_qjet_mass,
     TrigJetConditionConfig_moment,
     TrigJetConditionConfig_smc,
+    TrigJetConditionConfig_jvt,
     TrigJetHypoToolHelperMT,
     TrigJetConditionConfig_compound,
     TrigJetHypoToolConfig_leaf,
@@ -50,6 +51,7 @@ class ConditionsToolSetterTree(object):
             'qjmass': [TrigJetConditionConfig_qjet_mass, 0],
             'momwidth': [TrigJetConditionConfig_moment, 0],
             'smc': [TrigJetConditionConfig_smc, 0],
+            'jvt': [TrigJetConditionConfig_jvt, 0],
             'compound': [TrigJetConditionConfig_compound, 0],
             'leaf': [TrigJetHypoToolConfig_leaf, 0],
             'helper': [TrigJetHypoToolHelperMT, 0],
