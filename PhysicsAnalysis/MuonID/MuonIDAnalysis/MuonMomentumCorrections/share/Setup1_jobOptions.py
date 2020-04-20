@@ -1,5 +1,4 @@
 path = '/data/atlassmallfiles/users/artoni/mcp/mc16_13TeV.301030.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2000M2250.deriv.DAOD_MUON1.e3649_s3126_r10751_p4062'
-#path = '/data/atlassmallfiles/users/artoni/mcp/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.deriv.DAOD_MUON6.e3601_s3126_r10201_p4029'
 files = [os.path.join(path, f) for f in os.listdir(path)]
 
 import AthenaPoolCnvSvc.ReadAthenaPool
@@ -12,8 +11,6 @@ theJob = AlgSequence()
 # Add the test algorithm:
 from MuonMomentumCorrections.MuonMomentumCorrectionsConf import CP__TestMCASTTool
 alg = CP__TestMCASTTool()
-#alg.MuonCalibrationAndSmearingTool.FilesPath = '/home/artoni/MuonCombinedPerformance/atlas-mcp/MaintainMuonMomentumCorrections/run/temporary_config_files/'
-#alg.MuonCalibrationAndSmearingTool.Release = 'Recs2019_05_30'
 alg.MuonCalibrationAndSmearingTool.OutputLevel = VERBOSE 
 alg.MuonCalibrationAndSmearingTool.AddExtraDecorations = True
 alg.MuonCalibrationAndSmearingTool.doExtraSmearing = False 
