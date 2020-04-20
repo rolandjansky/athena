@@ -56,15 +56,17 @@ def BadLBFilterToolCfg(inputFlags,name, defects, alwaysReturnTrue=False, ignoreR
         - origDbTag (optional): if set, will override automatic configuration of database tag (only for testing)
     """
     log = logging.getLogger('BadLBFilterToolCfg')
+    result=ComponentAccumulator()
 
     if inputFlags.Common.isOnline or inputFlags.Input.isMC:
         # if online or MC, we don't want to do any filtering, or even access
         log.info('Disabling bad LB filter tool due to inappropriate environment; returning dummy')
-        return CompFactory.DQDummyFilterTool(name)
+        result.setPrivateTools(CompFactory.DQDummyFilterTool(name))
+        return result
 
     sgkey = 'DQBadLBFilterAlgResult_%s' % name
     #Schedule required cond-algo
-    result=BadLBFilterAlgCfg(inputFlags,name,defects,sgkey,ignoreRecoverable, origDbTag)
+    result.merge(BadLBFilterAlgCfg(inputFlags,name,defects,sgkey,ignoreRecoverable, origDbTag))
 
     monFilterTool=CompFactory.DQBadLBFilterTool(name,alwaysReturnTrue=alwaysReturnTrue,
                                                 ReadKey= sgkey)
