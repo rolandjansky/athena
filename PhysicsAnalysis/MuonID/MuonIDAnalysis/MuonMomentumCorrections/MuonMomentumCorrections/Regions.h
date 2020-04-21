@@ -32,13 +32,7 @@ class Regions{
     std::vector<std::string> m_macroRegionName;
     std::vector<double> m_macroRegionInnerEta, m_macroRegionDeltaEta;//I need these vars in few occasions
 public:
-    static
-#if __cplusplus < 201100
-       const
-#else
-       constexpr
-#endif // C++11
-          double EtaTanLimit = 2.0;
+    static constexpr double EtaTanLimit = 2.0;
     void PrintRegions() const;
     unsigned int GetNRegions() const;
     Regions(const std::string& inRegionFile, int doMacroRegionsFlag = 0);    
