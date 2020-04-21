@@ -807,15 +807,26 @@ StatusCode HltEventLoopMgr::updateMagField(const ptree& pt) const
       auto tor_cur = pt.get<float>("Magnets.ToroidsCurrent.value");
       auto sol_cur = pt.get<float>("Magnets.SolenoidCurrent.value");
 
+      // Set currents on service (deprecated: ATLASRECTS-4687)
       IProperty* fieldSvc{nullptr};
       service("AtlasFieldSvc", fieldSvc, /*createIf=*/false).ignore();
-      if ( fieldSvc==nullptr ) {
-        ATH_MSG_ERROR("Cannot retrieve AtlasFieldSvc");
-        return StatusCode::FAILURE;
+      if ( fieldSvc ) {
+        ATH_MSG_INFO("Setting field currents on AtlasFieldSvc");
+        ATH_CHECK( Gaudi::Utils::setProperty(fieldSvc, "UseSoleCurrent", sol_cur) );
+        ATH_CHECK( Gaudi::Utils::setProperty(fieldSvc, "UseToroCurrent", tor_cur) );
       }
+      else ATH_MSG_WARNING("Cannot retrieve AtlasFieldSvc");
 
-      ATH_CHECK( Gaudi::Utils::setProperty(fieldSvc, "UseSoleCurrent", sol_cur) );
-      ATH_CHECK( Gaudi::Utils::setProperty(fieldSvc, "UseToroCurrent", tor_cur) );
+      // Set current on conditions alg
+      const IAlgManager* algMgr = Gaudi::svcLocator()->as<IAlgManager>();
+      IAlgorithm* fieldAlg{nullptr};
+      algMgr->getAlgorithm("AtlasFieldMapCondAlg", fieldAlg).ignore();
+      if ( fieldAlg ) {
+        ATH_MSG_INFO("Setting field currents on AtlasFieldMapCondAlg");
+        ATH_CHECK( Gaudi::Utils::setProperty(fieldAlg, "MapSoleCurrent", sol_cur) );
+        ATH_CHECK( Gaudi::Utils::setProperty(fieldAlg, "MapToroCurrent", tor_cur) );
+      }
+      else ATH_MSG_WARNING("Cannot retrieve AtlasFieldMapCondAlg");
 
       ATH_MSG_INFO("*****************************************");
       ATH_MSG_INFO("  Auto-configuration of magnetic field:  ");
