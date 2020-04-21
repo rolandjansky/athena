@@ -43,6 +43,9 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1}', type='TH2F', path='pixelColRow2D', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
     array.defineHistogram('timeOverThreshold', title='1D Time over threshold for {0} Layer {1}', path='SiTimeOverThreshold', xbins=60, xmin=0, xmax=20)
 
+    #array.defineHistogram('pixelColIDChip,pixelColIDChip', title='Correlation Row {0} Row {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+    #array.defineHistogram('pixelRowIDChip,pixelRowIDChip', title='Correlation Col {0} Col {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     return helper.result()
     

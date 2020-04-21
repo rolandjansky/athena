@@ -57,24 +57,30 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     nTofHits = afpToFHitContainer->size();
     fill("AFPToFTool", lb, nTofHits);
 
-/*	TO BE researched: difference between trainID and barInTrainID
+//	TO BE researched: difference between trainID and barInTrainID
     auto numberOfHit_S0 = Monitored::Scalar<int>("numberOfHit_S0", 0); 
-    auto numberOfHit_S3 = Monitored::Scalar<int>("numberOfHit_S3", 0); 
+    auto numberOfHit_S3 = Monitored::Scalar<int>("numberOfHit_S3", 0);
+    auto trainID = Monitored::Scalar<int>("trainID", 0); 
+    auto barInTrainID = Monitored::Scalar<int>("barInTrainID", 0); 
 
-    for(const xAOD::AFPTofHit *hitsIts: *afpToFHitContainer)
+    for(const xAOD::AFPTofHit *hitsItr: *afpToFHitContainer)
     {
-	if(hitsIts->isSideA())
+	trainID = hitsItr->trainID();
+        barInTrainID = hitsItr->barInTrainID();
+
+	if(hitsItr->isSideA())
 	{
-	    fill("AFPToFTool", numberOfHit_S0);
+	    numberOfHit_S0 = hitsItr->trainID();
+            fill("AFPToFTool", numberOfHit_S0);
+	    fill("AFPToFTool", trainID, barInTrainID);
 	}
-	else if(hitsIts->isSideC())
+	else if(hitsItr->isSideC())
 	{
-	    fill("AFPToFTool", numberOfHit_S3);
+	    numberOfHit_S3 = hitsItr->trainID();
+            fill("AFPToFTool", numberOfHit_S3);	
+            fill("AFPToFTool", trainID, barInTrainID);    
 	}
     }
-*/
-
-
     return StatusCode::SUCCESS;
 }
 
