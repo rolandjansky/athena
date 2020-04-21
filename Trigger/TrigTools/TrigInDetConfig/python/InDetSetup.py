@@ -2,15 +2,17 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
+from __future__ import print_function
+
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("InDetSetup")
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags # noqa: F401
 
-if not 'InDetTrigFlags' in dir():
+if 'InDetTrigFlags' not in dir():
    # --- setup flags with default values
    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
    InDetTrigFlags.doNewTracking.set_Value_and_Lock(True)
@@ -35,7 +37,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   from InDetRecExample.InDetKeys import InDetKeys
 
   from AthenaCommon.AppMgr import ToolSvc
-  from AthenaCommon.AppMgr import ServiceMgr
   from TrigInDetConfig import InDetCacheNames
   from AthenaCommon.GlobalFlags import globalflags
 
@@ -134,7 +135,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   ToolSvc += InDetPixelGangedAmbiguitiesFinder
 
   #Global keys/names for collections 
-  from .InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
+  from .InDetTrigCollectionKeys import TrigPixelKeys
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
   InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization" + signature,
                                                         clusteringTool          = InDetMergedPixelsTool,
@@ -153,7 +154,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
   sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryTool" + signature)
   sct_ConditionsSummaryToolSetup.setup()
-  InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
+  InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool() # noqa: F841
   sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup("InDetSCT_ConditionsSummaryToolWithoutFlagged" + signature)
   sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
