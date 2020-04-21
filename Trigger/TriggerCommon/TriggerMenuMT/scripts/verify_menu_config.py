@@ -1,3 +1,5 @@
+#!/bin/env python
+
 '''
 Script for verifying menu configurations.
 
@@ -86,6 +88,7 @@ if __name__ == "__main__":
             results[args.l1] = load_and_verify(
                 args.l1, TriggerLevel.L1)
 
+    any_failures = False
     for filename, result in results.items():
         success_plural = "" if len(result["successes"]) == 1 \
                          else "es"
@@ -100,3 +103,8 @@ if __name__ == "__main__":
             log.error("'{}' failed for: {}".format(
                 failed_test.description,
                 ", ".join(failed_test.failures)))
+
+        if result["failures"]:
+            any_failures = True
+    if any_failures:
+        sys.exit(1)
