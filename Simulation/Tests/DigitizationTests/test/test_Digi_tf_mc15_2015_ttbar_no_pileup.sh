@@ -23,8 +23,7 @@ Digi_tf.py  \
 --geometryVersion ATLAS-R2-2015-03-01-00 \
 --conditionsTag default:OFLCOND-RUN12-SDR-25 \
 --DataRunNumber 222500 \
---postInclude 'default:PyJobTransforms/UseFrontier.py' \
---postExec="svcMgr.IOVSvc.OutputLevel=DEBUG;svcMgr.IOVDbSvc.OutputLevel=DEBUG;ToolSvc.IOVDbMetaDataTool.OutputLevel=DEBUG;svcMgr.DetectorStore.OutputLevel=DEBUG"	    
+--postInclude 'default:PyJobTransforms/UseFrontier.py' 
 
 rc=$?
 echo  "art-result: $rc Digi_tf.py"

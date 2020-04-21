@@ -33,7 +33,6 @@ namespace MagField {
         StatusCode initialize() override final;
         StatusCode execute(const EventContext& ctx) const override final;
         StatusCode finalize() override final;  
-        StatusCode stop() override final;  
 
     private:
 
