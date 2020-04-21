@@ -71,16 +71,11 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
 
   /// Snapshot Auditing: Take snapshots at the beginning and at the end of each step
   void startSnapshotAud(const std::string& stepName, const std::string& compName);
-
   void stopSnapshotAud(const std::string& stepName, const std::string& compName);
 
-  /// Component Level Auditing in Serial Steps
-  void startCompAud_serial(const std::string& stepName, const std::string& compName);
-
-  void stopCompAud_serial(const std::string& stepName, const std::string& compName);
-
-  void startCompAud_MT(const std::string& stepName, const std::string& compName);
-  void stopCompAud_MT(const std::string& stepName, const std::string& compName);
+  /// Component Level Auditing: Take measurements at the beginning and at the end of each component call
+  void startCompAud(const std::string& stepName, const std::string& compName);
+  void stopCompAud(const std::string& stepName, const std::string& compName);
 
   // Report the results
   void report();

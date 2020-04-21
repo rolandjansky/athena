@@ -109,11 +109,8 @@ void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& comp
     // Nothing more to do if we don't listen to components
     if (!m_doComponentLevelMonitoring) return;
 
-    // Serial or parallel
-    if (!isLoop())
-      startCompAud_serial(stepName, compName);
-    else
-      startCompAud_MT(stepName, compName);
+    // Start component auditing
+    startCompAud(stepName, compName);
   }
 }
 
@@ -129,11 +126,8 @@ void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compN
     // Nothing more to do if we don't listen to components
     if (!m_doComponentLevelMonitoring) return;
 
-    // Serial or parallel
-    if (!isLoop())
-      stopCompAud_serial(stepName, compName);
-    else
-      stopCompAud_MT(stepName, compName);
+    // Start component auditing
+    stopCompAud(stepName, compName);
   }
 }
 
@@ -172,60 +166,59 @@ void PerfMonMTSvc::stopSnapshotAud(const std::string& stepName, const std::strin
 }
 
 /*
- * Start Serial Component Auditing
+ * Start Component Auditing
  */
-void PerfMonMTSvc::startCompAud_serial(const std::string& stepName, const std::string& compName) {
-  // Current step - component pair. Ex: Initialize-StoreGateSvc
-  PMonMT::StepComp currentState = generate_serial_state(stepName, compName);
+void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& compName) {
 
-  // Capture the time
-  m_measurement.capture_compLevel_serial();
+  // Serial
+  if(!isLoop()) {
+    // Current step - component pair. Ex: Initialize-StoreGateSvc
+    PMonMT::StepComp currentState = generate_serial_state(stepName, compName);
 
-  /*
-   *  Dynamically create a MeasurementData instance for the current step-component pair
-   *  This space will be freed after results are reported.
-   */
-  m_compLevelDataMap[currentState] = new PMonMT::MeasurementData;
-  m_compLevelDataMap[currentState]->addPointStart_serial(m_measurement);
+    // Capture the time
+    m_measurement.capture_compLevel_serial();
+
+    /*
+     *  Dynamically create a MeasurementData instance for the current step-component pair
+     *  This space will be freed after results are reported.
+     */
+    m_compLevelDataMap[currentState] = new PMonMT::MeasurementData;
+    m_compLevelDataMap[currentState]->addPointStart_serial(m_measurement);
+  } else { // Parallel
+    std::lock_guard<std::mutex> lock(m_mutex_capture);
+
+    uint64_t eventID = getEventID();
+
+    PMonMT::StepCompEvent currentState = generate_parallel_state(stepName, compName, eventID);
+    m_measurement.capture_compLevel_MT(currentState);
+    m_parallelCompLevelData.addPointStart_MT(m_measurement, currentState);
+  }
+
 }
 
 /*
- * Stop Serial Component Auditing
+ * Stop Component Auditing
  */
-void PerfMonMTSvc::stopCompAud_serial(const std::string& stepName, const std::string& compName) {
-  // Capture the time
-  m_measurement.capture_compLevel_serial();
+void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& compName) {
 
-  // Current step - component pair. Ex: Initialize-StoreGateSvc
-  PMonMT::StepComp currentState = generate_serial_state(stepName, compName);
+  // SErial
+  if(!isLoop()) {
+    // Capture the time
+    m_measurement.capture_compLevel_serial();
 
-  m_compLevelDataMap[currentState]->addPointStop_serial(m_measurement);
-}
+    // Current step - component pair. Ex: Initialize-StoreGateSvc
+    PMonMT::StepComp currentState = generate_serial_state(stepName, compName);
 
-/*
- * Start Parallel Component Auditing
- */
-void PerfMonMTSvc::startCompAud_MT(const std::string& stepName, const std::string& compName) {
-  std::lock_guard<std::mutex> lock(m_mutex_capture);
+    m_compLevelDataMap[currentState]->addPointStop_serial(m_measurement);
+  } else { // Parallel
+    std::lock_guard<std::mutex> lock(m_mutex_capture);
 
-  uint64_t eventID = getEventID();
+    uint64_t eventID = getEventID();
 
-  PMonMT::StepCompEvent currentState = generate_parallel_state(stepName, compName, eventID);
-  m_measurement.capture_compLevel_MT(currentState);
-  m_parallelCompLevelData.addPointStart_MT(m_measurement, currentState);
-}
-
-/*
- * Stop Parallel Component Auditing
- */
-void PerfMonMTSvc::stopCompAud_MT(const std::string& stepName, const std::string& compName) {
-  std::lock_guard<std::mutex> lock(m_mutex_capture);
-
-  uint64_t eventID = getEventID();
-
-  PMonMT::StepCompEvent currentState = generate_parallel_state(stepName, compName, eventID);
-  m_measurement.capture_compLevel_MT(currentState);
-  m_parallelCompLevelData.addPointStop_MT(m_measurement, currentState);
+    PMonMT::StepCompEvent currentState = generate_parallel_state(stepName, compName, eventID);
+    m_measurement.capture_compLevel_MT(currentState);
+    m_parallelCompLevelData.addPointStop_MT(m_measurement, currentState);
+  }
 }
 
 /*
