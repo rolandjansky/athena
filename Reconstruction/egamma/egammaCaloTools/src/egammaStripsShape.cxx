@@ -7,7 +7,6 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloUtils/CaloLayerCalculator.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "egammaUtils/egammaqweta1c.h"
 #include <cmath>

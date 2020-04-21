@@ -19,17 +19,10 @@ class CaloClusterChangeSignalState
 {
 public:
 
-#if __cplusplus >= 201100
   //Delete default and copy constructor 
   CaloClusterChangeSignalState() = delete;
   CaloClusterChangeSignalState(const CaloClusterChangeSignalState&)=delete;
   CaloClusterChangeSignalState& operator=(const CaloClusterChangeSignalState&) = delete;
-#else
-  CaloClusterChangeSignalState() : m_clus(0) {};
-  void init(xAOD::CaloCluster* pClus,
-	    xAOD::CaloCluster::State s);
-#endif
-
 
   /**
    * @brief Change the signal state of a cluster, remembering the old state.
@@ -57,7 +50,6 @@ private:
 };
 
 
-#if __cplusplus >= 201100
 #include <forward_list>
 
 /**
@@ -94,49 +86,5 @@ class CaloClusterChangeSignalStateList {
   std::forward_list<CaloClusterChangeSignalState> m_stateHelpers;
   
 };
-#else //C++11
-
-#include <list>
-
-/**
- * @brief Helper to temporarily change the signal state of many clusters
- *
- * When this object is desctructed, all clusters will be reverted to their 
- * previous signal state
- */
-class CaloClusterChangeSignalStateList {
-
- public:
-   /**
-   * @brief Add one cluster to the list of clusters to be managed
-   * @param clus The cluster
-   * @param s The new signal state for the cluster.
-   */
-  void add(xAOD::CaloCluster* clu, xAOD::CaloCluster::State s) {
-    m_stateHelpers.push_back(CaloClusterChangeSignalState());
-    m_stateHelpers.back().init(clu,s);
-    
-  }
-
-  /**
-   * @brief Revert the signal state of all managed clusters.
-   * Note that the implicit destructor does the same - 
-   * no need to call this method
-   */
-
-  void reset() {
-    m_stateHelpers.clear();
-  }
-
- private:
-  //As far as I can see this is the only stl container that doesn't require the payload to be
-  //copy-constructable. 
-  std::list<CaloClusterChangeSignalState> m_stateHelpers;
-  
-};
-
-
-#endif //C++03
-
 
 #endif

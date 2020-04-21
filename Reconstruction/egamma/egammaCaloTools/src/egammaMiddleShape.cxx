@@ -99,20 +99,34 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
   // around this position a hot cell is searched for in a window
   // (m_neta*m_deta,m_nphi*m_dphi), by default (m_neta,m_nphi)=(7,7)
   CaloLayerCalculator calc;
-  ATH_CHECK(calc.fill(&cell_container, cluster.etaSample(sam), cluster.phiSample(sam),
-                m_neta * deta, m_nphi * dphi, (CaloSampling::CaloSample)sam));
+  ATH_CHECK(calc.fill(cmgr,
+                      &cell_container,
+                      cluster.etaSample(sam),
+                      cluster.phiSample(sam),
+                      m_neta * deta,
+                      m_nphi * dphi,
+                      (CaloSampling::CaloSample)sam));
   double etamax = calc.etarmax();
   double phimax = calc.phirmax();
 
   // estimate the relevant quantities around the hottest cell
   // in the following eta X phi windows
   // 3X3
-  ATH_CHECK(calc.fill(&cell_container, etamax, phimax, 3. * deta, 3. * dphi,
-                 (CaloSampling::CaloSample)sam));
+  ATH_CHECK(calc.fill(cmgr, 
+                      &cell_container, 
+                      etamax, phimax, 
+                      3. * deta, 
+                      3. * dphi, 
+                      (CaloSampling::CaloSample)sam));
   info.e233 = calc.em();
   // 3X5
-  ATH_CHECK(calc.fill(&cell_container, etamax, phimax, 3. * deta, 5. * dphi,
-                 (CaloSampling::CaloSample)sam));
+  ATH_CHECK(calc.fill(cmgr, 
+                      &cell_container, 
+                      etamax, phimax, 
+                      3. * deta, 
+                      5. * dphi, 
+                      (CaloSampling::CaloSample)sam));
+ 
   info.e235 = calc.em();
   double etaw = calc.etas();
   info.phiw = calc.phis();
@@ -121,17 +135,31 @@ StatusCode egammaMiddleShape::execute(const xAOD::CaloCluster& cluster,
   info.poscs2 = egammaqweta2c::RelPosition(eta, etacell);
   // 5X5
   if (m_ExecOtherVariables) {
-    ATH_CHECK(calc.fill(&cell_container, etamax, phimax, 5. * deta, 5. * dphi,
-                   (CaloSampling::CaloSample)sam));
+    ATH_CHECK(calc.fill(cmgr, 
+                        &cell_container, 
+                        etamax, phimax, 
+                        5. * deta, 
+                        5. * dphi, 
+                        (CaloSampling::CaloSample)sam));
     info.e255 = calc.em();
   }
   // 3X7
-  ATH_CHECK(calc.fill(&cell_container, etamax, phimax, 3. * deta, 7. * dphi,
-                 (CaloSampling::CaloSample)sam));
+  ATH_CHECK(calc.fill(cmgr,
+                      &cell_container, 
+                      etamax, 
+                      phimax, 
+                      3. * deta, 
+                      7. * dphi,
+                      (CaloSampling::CaloSample)sam));
   info.e237 = calc.em();
   // 7x7
-  ATH_CHECK(calc.fill(&cell_container, etamax, phimax, 7. * deta, 7. * dphi,
-                 (CaloSampling::CaloSample)sam));
+  ATH_CHECK(calc.fill(cmgr,
+                      &cell_container, 
+                      etamax, 
+                      phimax, 
+                      7. * deta, 
+                      7. * dphi,
+                      (CaloSampling::CaloSample)sam));
   info.e277 = calc.em();
 
   return StatusCode::SUCCESS;

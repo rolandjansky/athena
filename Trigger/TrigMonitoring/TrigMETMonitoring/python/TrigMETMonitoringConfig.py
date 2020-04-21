@@ -96,6 +96,7 @@ def HLTMETMonitoringTool():
                                   electron_pt_thresh     = 20,
                                   primary_met            = ["pufit"],
                                   prescaled_met          = [],
+                                  electron_run3_key      = "HLT_xAOD__ElectronContainer_egamma_Electrons",
                                   );
 	from AthenaCommon.AppMgr import ToolSvc
 	#ToolSvc += HLTMETMon;

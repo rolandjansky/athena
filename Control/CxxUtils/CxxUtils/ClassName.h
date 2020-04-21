@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -150,7 +150,6 @@ public:
     void add (const ClassName& pattern, const ClassName& replacement);
 
 
-#if __cplusplus > 201100
     /**
      * @brief Add a new transformation rule (move version).
      * @param pattern The pattern to match.
@@ -162,7 +161,6 @@ public:
      * be transformed to `B<Foo<int> >'.
      */
     void add (ClassName&& pattern, ClassName&& replacement);
-#endif
 
 
     /**

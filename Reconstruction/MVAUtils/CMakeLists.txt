@@ -39,4 +39,5 @@ atlas_install_scripts( util/convertLGBMToRootTree.py
                        util/convertXGBoostToRootTree.py )
 
 atlas_add_test( ut_test_MVAUtils.py
-                SCRIPT test/ut_test_MVAUtils.py TestMVAUtilsBasic )
+                SCRIPT test/ut_test_MVAUtils.py TestMVAUtilsBasic
+                PROPERTIES TIMEOUT 300 )

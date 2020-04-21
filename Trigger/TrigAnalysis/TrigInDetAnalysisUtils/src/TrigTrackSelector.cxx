@@ -494,12 +494,6 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
     /// the production vertex? or swim the track to the perigee point with respect 
     /// to 0,0 and use the parameters there? 
 
-    /// const HepMC::GenParticle* gp = track->genParticle();
-    /// const HepMC::GenVertex*   gv = gp->production_vertex();
-
-    ////    double x0 = gv->point3d().x();
-    ////    double y0 = gv->point3d().x();
-    ////    double z0 = gv->point3d().z();
 
     /// what to do with these???
 		

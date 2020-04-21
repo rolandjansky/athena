@@ -352,7 +352,75 @@ namespace Trk
     return associatedSurface().measurementFrame(position(),momentum());
   }
 
-  // protected default constructor
+  // private updateParametersHelper
+  template<int DIM, class T, class S>
+  void ParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM)& updatedParameters)
+  {
+    // valid to use != here, because value is either copied or modified,
+    bool updatePosition = (updatedParameters[Trk::loc1] != m_parameters[Trk::loc1]) ||
+                          (updatedParameters[Trk::loc2] != m_parameters[Trk::loc2]);
+
+    bool updateMomentum = (updatedParameters[Trk::phi] != m_parameters[Trk::phi]) ||
+                          (updatedParameters[Trk::theta] != m_parameters[Trk::theta]) ||
+                          (updatedParameters[qOverP] != m_parameters[qOverP]);
+
+    // update the parameters vector
+    m_parameters = updatedParameters;
+
+    //position or momentum update needed
+    if (updatePosition){
+      if(m_surface) {
+        m_surface->localToGlobal(this->localPosition(),m_momentum,m_position);
+      } else{
+        m_momentum.setZero();
+        m_position.setZero();
+      }
+    }
+    // momentum update is needed
+    if (updateMomentum) {
+      double phi = m_parameters[Trk::phi];
+      double theta = m_parameters[Trk::theta];
+      double p = INVALID_P;
+      if (m_parameters[Trk::qOverP] != 0) {
+        m_chargeDef = sgn(m_parameters[Trk::qOverP]);
+        p = fabs(1. / m_parameters[Trk::qOverP]);
+      }
+      double sinTheta = sin(theta);
+      m_momentum = Amg::Vector3D(p * cos(phi) * sinTheta, p * sin(phi) * sinTheta, p * cos(theta));
+    }
+  }
+
+  // update function
+  template<int DIM, class T, class S>
+  void ParametersT<DIM, T, S>::updateParameters(const AmgVector(DIM) & updatedParameters,
+                                                AmgSymMatrix(DIM) * updatedCovariance)
+  {
+    this->updateParametersHelper(updatedParameters);
+    // update the covariance
+    if (updatedCovariance) {
+      if (updatedCovariance != m_covariance) {
+        delete m_covariance;
+      }
+      m_covariance = updatedCovariance;
+    }
+  }
+
+  // update function
+  template<int DIM, class T, class S>
+  void ParametersT<DIM, T, S>::updateParameters(const AmgVector(DIM) & updatedParameters,
+                                                const AmgSymMatrix(DIM) & updatedCovariance)
+  {
+    this->updateParametersHelper(updatedParameters);
+    // if the covariance is there update in place
+    if (m_covariance) {
+      (*m_covariance) = updatedCovariance;
+    } else { // otherwise create one
+      auto tmp = std::make_unique<AmgSymMatrix(DIM)>(updatedCovariance);
+      m_covariance = tmp.release();
+    }
+  }
+
+  // Default constructor only for POOL and derived classes
   template<int DIM,class T,class S>
   ParametersT<DIM,T,S>::ParametersT():
     ParametersBase<DIM,T>(),
@@ -362,53 +430,10 @@ namespace Trk
     m_momentum(),
     m_surface(nullptr),
     m_chargeDef()
-  {}  
+  {}
 
-  // protected update function
-  template<int DIM,class T,class S>
-  void ParametersT<DIM,T,S>::updateParameters(const AmgVector(DIM)& updatedParameters,
-                                              AmgSymMatrix(DIM)* updatedCovariance)
-  {
-    // valid to use != here, because value is either copied or modified,
-    bool updatePosition = (updatedParameters[Trk::loc1] != m_parameters[Trk::loc1]) || (updatedParameters[Trk::loc2] != m_parameters[Trk::loc2]);
-    bool updateMomentum = (updatedParameters[Trk::phi] != m_parameters[Trk::phi]) || (updatedParameters[Trk::theta] != m_parameters[Trk::theta]) ||
-      (updatedParameters[qOverP] != m_parameters[qOverP]);
 
-    // update the parameters vector
-    m_parameters = updatedParameters;
-
-    // update the covariance
-    if (updatedCovariance){
-      if (updatedCovariance != m_covariance) {
-        delete m_covariance;
-      }
-      m_covariance = updatedCovariance;
-    }
-    //position or momentum update needed
-    if (updatePosition){
-      if(m_surface) {
-        m_surface->localToGlobal(this->localPosition(),m_momentum,m_position);
-      } else
-      {
-        m_momentum.setZero();
-        m_position.setZero();
-      }
-    } 
-    // momentum update is needed    
-    if (updateMomentum){
-      double phi   = m_parameters[Trk::phi];
-      double theta = m_parameters[Trk::theta];
-      double p = INVALID_P;
-      if (m_parameters[Trk::qOverP] != 0){
-        m_chargeDef = sgn(m_parameters[Trk::qOverP]);
-        p = fabs(1./m_parameters[Trk::qOverP]);
-      }
-      double sinTheta = sin(theta);
-      m_momentum = Amg::Vector3D(p*cos(phi)*sinTheta,p*sin(phi)*sinTheta,p*cos(theta));
-    }
-  }
-
-//special C-tor used by the curvilinear parameters  
+ //Protected C-tor used by the curvilinear parameters  
   template <int DIM,class T,class S>
   Trk::ParametersT<DIM,T,S>::ParametersT(const Amg::Vector3D& pos,
 					 const Amg::Vector3D& mom,

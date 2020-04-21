@@ -32,7 +32,6 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/SimpleVector.h"
 #include "HepMC/GenParticle.h"
-//#include "HepMC/Units.h"
 
 //ROOT headers
 #include "TFile.h"
