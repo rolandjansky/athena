@@ -98,16 +98,12 @@
 /// @param NAME The name of the auxiliary variable
 /// @param SETTER The name of the "setter function"
 ///
-#if __cplusplus < 201100
-# define AUXSTORE_OBJECT_MOVE(CL, TYPE, NAME, SETTER)
-#else
 # define AUXSTORE_OBJECT_MOVE(CL, TYPE, NAME, SETTER)             \
    void CL::SETTER( typename SG::AuxDataTraits<TYPE>::element_type&& value ) { \
       static const Accessor< TYPE > acc( #NAME );                 \
       acc( *this ) = std::move(value);                            \
       return;                                                     \
    }
-#endif
 
 
 /// Macro creating the reader function for a complex auxiliary property

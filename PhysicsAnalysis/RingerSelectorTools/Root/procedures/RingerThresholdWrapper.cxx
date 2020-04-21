@@ -6,11 +6,7 @@
 #include "RingerSelectorTools/procedures/RingerThresholdWrapper.h"
 
 namespace Ringer {
-#if !(RINGER_USE_NEW_CPP_FEATURES)
-const char* IThresWrapper::wrapName = "RingerThresholdWrapper";
-#else
 constexpr const char* IThresWrapper::wrapName;
-#endif
 
 // =============================================================================
 void IThresWrapper::writeWrapper(const IThresWrapper *thresWrapper,

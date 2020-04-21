@@ -16,12 +16,6 @@
 #include "RingerSelectorTools/RingerSelectorToolsDefs.h"
 #include "RingerSelectorTools/procedures/IRingerProcedure.h"
 #include "RingerSelectorTools/tools/VariableDependency.h"
-#include "RingerSelectorTools/tools/cxx/StaticAssert.h"
-#include "RingerSelectorTools/tools/cxx/constexpr.h"
-#include "RingerSelectorTools/tools/cxx/is_base_of.h"
-#include "RingerSelectorTools/tools/cxx/override.h"
-#include "RingerSelectorTools/tools/cxx/mutable.h"
-#include "RingerSelectorTools/tools/cxx/final.h"
 
 /**
  * @brief Create RingerIOVarDepObj base object prototype methods
@@ -112,7 +106,7 @@
         unsigned version );                                                    \
                                                                                \
     virtual void write(TDirectory *configDir, const char* idxStr = "")         \
-      const ATH_RINGER_OVERRIDE;
+      const override;
 
 /**
  * @brief Same as RINGER_IO_VARDEP_BASE, but when class has no member
@@ -127,7 +121,7 @@
         unsigned ) {;}                                                         \
                                                                                \
     virtual void write(TDirectory *, const char*) const                        \
-      ATH_RINGER_OVERRIDE {;}
+      override {;}
 
 /**
  * @brief Add necessary information to RingerIOVarDepObj
@@ -150,19 +144,19 @@
     }                                                                          \
                                                                                \
     virtual const char* name() const                                           \
-      ATH_RINGER_OVERRIDE ATH_RINGER_FINAL                                     \
+      override final                                                           \
     {                                                                          \
       return this->RingerIOVarDepObj<self>::name();                            \
     }                                                                          \
                                                                                \
     void print(MSG::Level lvl) const                                           \
-      ATH_RINGER_OVERRIDE ATH_RINGER_FINAL                                     \
+      override final                                                           \
     {                                                                          \
       this->base_t::print(lvl);                                                \
     }                                                                          \
                                                                                \
     virtual void write(TDirectory *baseDir, const char* idxStr = "") const     \
-      ATH_RINGER_OVERRIDE ATH_RINGER_FINAL                                     \
+      override final                                                           \
     {                                                                          \
       this->RingerIOVarDepObj<self>::write(baseDir, idxStr);                   \
     }                                                                          \
@@ -227,7 +221,7 @@ class RingerIOVarDepObj : virtual public VariableDependency
       const;
 
   private:
-    ATH_RINGER_MUTABLE std::string m_name;
+    mutable std::string m_name;
 
 };
 

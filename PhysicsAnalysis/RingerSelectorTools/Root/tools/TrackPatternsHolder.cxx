@@ -6,7 +6,6 @@
 #ifndef RINGER_STANDALONE
 // Local includes:
 #include "RingerSelectorTools/tools/TrackPatternsHolder.h"
-#include "RingerSelectorTools/tools/cxx/RingerUseNewCppFeatures.h"
 
 // STL includes:
 #include <cmath>
@@ -30,33 +29,7 @@ const int SummaryTypeNotSet = -1;
 
 namespace Ringer {
 
-#if !(RINGER_USE_NEW_CPP_FEATURES)
-namespace {
-float cutBinEta_TRT[] = {0.1, 0.625, 1.07, 1.304, 1.752, 2.0};
-} // private namespace
-const double TrackPatternsHolder::m_a0 = 33.14;
-const double TrackPatternsHolder::m_b0 = -129.1;
-const double TrackPatternsHolder::m_c0 = 1455.;
-const double TrackPatternsHolder::m_a1 = 29.42;
-const double TrackPatternsHolder::m_b1 = 27.93;
-const double TrackPatternsHolder::m_c1 = -89.96;
-const double TrackPatternsHolder::m_d1 = 91.51;
-const double TrackPatternsHolder::m_a2 = 196.3;
-const double TrackPatternsHolder::m_b2 = -403.;
-const double TrackPatternsHolder::m_c2 = 230.2;
-const double TrackPatternsHolder::m_a3 = -10.59;
-const double TrackPatternsHolder::m_b3 = 37.29;
-const double TrackPatternsHolder::m_a4 = -640.9;
-const double TrackPatternsHolder::m_b4 = 1323.;
-const double TrackPatternsHolder::m_c4 = -851.8;
-const double TrackPatternsHolder::m_d4 = 180.8;
-const double TrackPatternsHolder::m_a5 = 159.8;
-const double TrackPatternsHolder::m_b5 = -70.9;
-const std::vector<float> TrackPatternsHolder::m_cutBinEta_TRT =
-  std::vector<float>(cutBinEta_TRT, cutBinEta_TRT + sizeof(cutBinEta_TRT) / sizeof(float));
-#else
 constexpr std::array<float,6> TrackPatternsHolder::m_cutBinEta_TRT;
-#endif
 
 // =============================================================================
 void TrackPatternsHolder::resetValues()

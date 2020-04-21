@@ -43,7 +43,6 @@
 #include "RingerSelectorTools/tools/IOHelperFcns.h"
 #include "RingerSelectorTools/tools/TrackPatternsHolder.h"
 #include "RingerSelectorTools/tools/IRedirectMsgStream.h"
-#include "RingerSelectorTools/tools/cxx/RingerUseNewCppFeatures.h"
 #include "RingerSelectorTools/tools/cxx/errorcheck.h"
 
 // Root framework includes:

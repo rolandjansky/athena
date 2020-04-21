@@ -20,12 +20,6 @@
 #include "xAODCore/AuxStoreAccessorMacros.h"
 
 #include "xAODCaloRings/CaloRingsDefs.h"
-#include "xAODCaloRings/tools/cxx/RingerUseNewCppFeatures.h"
-
-//#if (__cplusplus >= 201100)
-// This is needed for dictionary generation:
-//decltype(nullptr) typedef nullptr_type;
-//#endif
 
 namespace xAOD {
 
