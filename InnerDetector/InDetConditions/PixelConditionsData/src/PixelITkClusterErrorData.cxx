@@ -51,8 +51,8 @@ std::pair<double,double> PixelITkClusterErrorData::getDelta(const Identifier* pi
   double delta_y_slope = value[4];
   double delta_y_offset = value[5];
 
-  double delta_x = delta_x_slope * abs(angle - period*(sizePhi-2)) + delta_x_offset;
-  double delta_y = delta_y_slope * abs(sinh(abs(eta)) - period*(sizeZ-2)) + delta_y_offset;
+  double delta_x = delta_x_slope * fabs(angle - period*(sizePhi-2)) + delta_x_offset;
+  double delta_y = delta_y_slope * fabs(sinh(fabs(eta)) - period*(sizeZ-2)) + delta_y_offset;
 
   return std::make_pair(delta_x,delta_y);
 
