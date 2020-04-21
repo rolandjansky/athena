@@ -48,8 +48,8 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     SG::ReadHandle<xAOD::AFPToFHitContainer> afpToFHitContainer(m_afpToFHitContainerKey, ctx);
     if(! afpToFHitContainer.isValid())
     {
-	ATH_MSG_ERROR("evtStore() does not contain hits collection with name " << m_afpToFHitContainerKey);
-	return StatusCode::FAILURE;
+	ATH_MSG_WARNING("evtStore() does not contain hits collection with name " << m_afpToFHitContainerKey);
+	return StatusCode::SUCCESS;
     }
 
     ATH_CHECK( afpToFHitContainer.initialize() );
@@ -58,6 +58,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     fill("AFPToFTool", lb, nTofHits);
 
 //	TO BE researched: difference between trainID and barInTrainID
+/*
     auto numberOfHit_S0 = Monitored::Scalar<int>("numberOfHit_S0", 0); 
     auto numberOfHit_S3 = Monitored::Scalar<int>("numberOfHit_S3", 0);
     auto trainID = Monitored::Scalar<int>("trainID", 0); 
@@ -81,6 +82,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
             fill("AFPToFTool", trainID, barInTrainID);    
 	}
     }
+*/
     return StatusCode::SUCCESS;
 }
 

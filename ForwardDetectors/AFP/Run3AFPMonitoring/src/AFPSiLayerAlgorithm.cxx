@@ -54,8 +54,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     SG::ReadHandle<xAOD::AFPSiHitContainer> afpHitContainer(m_afpHitContainerKey, ctx);
     if(! afpHitContainer.isValid())
     {
-	ATH_MSG_ERROR("evtStore() does not contain hits collection with name " << m_afpHitContainerKey);
-	return StatusCode::FAILURE;
+	ATH_MSG_WARNING("evtStore() does not contain hits collection with name " << m_afpHitContainerKey);
+	return StatusCode::SUCCESS;
     }
 
     ATH_CHECK( afpHitContainer.initialize() );

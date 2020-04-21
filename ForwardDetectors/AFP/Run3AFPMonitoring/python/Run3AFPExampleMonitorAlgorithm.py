@@ -29,8 +29,8 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPSiGroup.defineHistogram('lb,nSiHits', title='Luminosity Block;lb;total number of Hits', type='TProfile', path='SiT/',xbins=1000,xmin=-0.5,xmax=999.5 ) 
     AFPToFGroup.defineHistogram('lb,nTofHits', title='Luminosity Block;lb;total number of Hits', type='TProfile',  path='ToF/',xbins=1000,xmin=-0.5,xmax=999.5) 
 
-    AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;total number of Hits',  path='ToF/',xbins=3,xmin=-0.5,xmax=2.5)
-    AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits',  path='ToF/',xbins=3,xmin=-0.5,xmax=2.5)
+    #AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;total number of Hits',  path='ToF/',xbins=3,xmin=-0.5,xmax=2.5)
+    #AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits',  path='ToF/',xbins=3,xmin=-0.5,xmax=2.5)
 
 
     # Using a map of groups
@@ -63,7 +63,8 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = ''
-    file = '/eos/atlas/atlastier0/tzero/prod/data18_13TeV/physics_Main/00354309/data18_13TeV.00354309.physics_Main.recon.AOD.f946/data18_13TeV.00354309.physics_Main.recon.AOD.f946._lb0130._0001.1'
+    #file = '/eos/atlas/atlastier0/tzero/prod/data18_13TeV/physics_Main/00354309/data18_13TeV.00354309.physics_Main.recon.AOD.f946/data18_13TeV.00354309.physics_Main.recon.AOD.f946._lb0130._0001.1'
+    file = '/afs/cern.ch/user/p/ponyisi/atlas/afp/myESD.pool.root'
     
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False
