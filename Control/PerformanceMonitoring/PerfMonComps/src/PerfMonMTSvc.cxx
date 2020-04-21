@@ -53,6 +53,9 @@ StatusCode PerfMonMTSvc::queryInterface(const InterfaceID& riid, void** ppvInter
  * Initialize the Service
  */
 StatusCode PerfMonMTSvc::initialize() {
+  // Print where we are
+  ATH_MSG_INFO("Initializing " << name());
+
   // Three main snapshots : Initialize, Event Loop, and Finalize
   m_snapshotStepNames.push_back("Initialize");
   m_snapshotStepNames.push_back("Event Loop");
@@ -76,6 +79,9 @@ StatusCode PerfMonMTSvc::initialize() {
  * Finalize the Service
  */
 StatusCode PerfMonMTSvc::finalize() {
+  // Print where we are
+  ATH_MSG_INFO("Finalizing " << name());
+
   // Final capture upon finalization
   m_measurement.capture_snapshot();
   m_snapshotData[2].addPointStop_snapshot(m_measurement);
@@ -115,6 +121,7 @@ void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& comp
  * Stop Auditing
  */
 void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compName) {
+  // Don't self-monitor
   if (compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc") {
     // Snapshots, i.e. Initialize, Event Loop, etc.
     stopSnapshotAud(stepName, compName);
@@ -130,6 +137,9 @@ void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compN
   }
 }
 
+/*
+ * Start Snapshot Auditing
+ */
 void PerfMonMTSvc::startSnapshotAud(const std::string& stepName, const std::string& compName) {
   // Last thing to be called before the event loop begins
   if (compName == "AthRegSeq" && stepName == "Start") {
@@ -144,6 +154,9 @@ void PerfMonMTSvc::startSnapshotAud(const std::string& stepName, const std::stri
   }
 }
 
+/*
+ * Stop Snapshot Auditing
+ */
 void PerfMonMTSvc::stopSnapshotAud(const std::string& stepName, const std::string& compName) {
   // First thing to be called after the initialize step ends
   if (compName == "AthMasterSeq" && stepName == "Initialize") {
@@ -158,6 +171,9 @@ void PerfMonMTSvc::stopSnapshotAud(const std::string& stepName, const std::strin
   }
 }
 
+/*
+ * Start Serial Component Auditing
+ */
 void PerfMonMTSvc::startCompAud_serial(const std::string& stepName, const std::string& compName) {
   // Current step - component pair. Ex: Initialize-StoreGateSvc
   PMonMT::StepComp currentState = generate_serial_state(stepName, compName);
@@ -173,6 +189,9 @@ void PerfMonMTSvc::startCompAud_serial(const std::string& stepName, const std::s
   m_compLevelDataMap[currentState]->addPointStart_serial(m_measurement);
 }
 
+/*
+ * Stop Serial Component Auditing
+ */
 void PerfMonMTSvc::stopCompAud_serial(const std::string& stepName, const std::string& compName) {
   // Capture the time
   m_measurement.capture_compLevel_serial();
@@ -183,6 +202,9 @@ void PerfMonMTSvc::stopCompAud_serial(const std::string& stepName, const std::st
   m_compLevelDataMap[currentState]->addPointStop_serial(m_measurement);
 }
 
+/*
+ * Start Parallel Component Auditing
+ */
 void PerfMonMTSvc::startCompAud_MT(const std::string& stepName, const std::string& compName) {
   std::lock_guard<std::mutex> lock(m_mutex_capture);
 
@@ -193,6 +215,9 @@ void PerfMonMTSvc::startCompAud_MT(const std::string& stepName, const std::strin
   m_parallelCompLevelData.addPointStart_MT(m_measurement, currentState);
 }
 
+/*
+ * Stop Parallel Component Auditing
+ */
 void PerfMonMTSvc::stopCompAud_MT(const std::string& stepName, const std::string& compName) {
   std::lock_guard<std::mutex> lock(m_mutex_capture);
 
@@ -203,6 +228,9 @@ void PerfMonMTSvc::stopCompAud_MT(const std::string& stepName, const std::string
   m_parallelCompLevelData.addPointStop_MT(m_measurement, currentState);
 }
 
+/*
+ * Event-level Monitoring
+ */
 void PerfMonMTSvc::eventLevelMon() {
   std::lock_guard<std::mutex> lock(m_mutex_capture);
 
@@ -219,8 +247,15 @@ void PerfMonMTSvc::eventLevelMon() {
   incrementEventCounter();
 }
 
+/*
+ * Internal atomic event counter
+ * Should be able to use EventContext for this
+ */
 void PerfMonMTSvc::incrementEventCounter() { m_eventCounter++; }
 
+/*
+ * Is it event-level monitoring check point yet?
+ */
 bool PerfMonMTSvc::isCheckPoint() {
   if (m_checkPointType == "Arithmetic")
     return (m_eventCounter % m_checkPointFactor == 0);
@@ -233,7 +268,9 @@ bool PerfMonMTSvc::isPower(uint64_t input, uint64_t base) {
   return (input == 1);
 }
 
-// Report the results
+/*
+ * Report the results to the log and the JSON file
+ */
 void PerfMonMTSvc::report() {
   // Write into log file
   report2Log();
@@ -244,6 +281,9 @@ void PerfMonMTSvc::report() {
   }
 }
 
+/*
+ * Log reporting
+ */
 void PerfMonMTSvc::report2Log() {
   // Header
   report2Log_Description();
@@ -408,7 +448,7 @@ void PerfMonMTSvc::report2Log_Summary() {
   ATH_MSG_INFO("=======================================================================================");
 
   ATH_MSG_INFO(format("%1% %|13t|%2% %|25t|%3% %|37t|%4% %|44t|%5% %|55t|%6% %|66t|%7% %|77t|%8%") % "Step" %
-               "dCPU [s]" % "dWall [s]" % "<CPU>" % "dVMEM [kB]" % "dRSS [kB]" % "dPSS [kB]" % "dSwap [kB]");
+               "dCPU [s]" % "dWall [s]" % "<CPU>" % "dVmem [kB]" % "dRss [kB]" % "dPss [kB]" % "dSwap [kB]");
 
   ATH_MSG_INFO("---------------------------------------------------------------------------------------");
 
