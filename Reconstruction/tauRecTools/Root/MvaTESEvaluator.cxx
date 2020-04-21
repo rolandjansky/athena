@@ -31,7 +31,7 @@ StatusCode MvaTESEvaluator::initReader(std::unique_ptr<MVAUtils::BDT>& reader,
                                        MvaInputVariables& vars) const {
 
   // Declare input variables to the reader
-  if(!m_in_trigger) {
+  if(!inTrigger()) {
     availableVars.insert( std::make_pair("TauJetsAuxDyn.mu", &vars.mu) );
     availableVars.insert( std::make_pair("TauJetsAuxDyn.nVtxPU", &vars.nVtxPU) );
     
@@ -98,7 +98,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau) const {
   xTau.detail(xAOD::TauJetParameters::ClustersMeanSecondLambda, vars.second_lambda);
   xTau.detail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, vars.presampler_frac);
 
-  if(!m_in_trigger) {
+  if(!inTrigger()) {
 
     // Retrieve pantau and LC-precalib TES
     vars.etaConstituent = xTau.etaPanTauCellBased();

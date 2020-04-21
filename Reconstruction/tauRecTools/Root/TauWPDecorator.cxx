@@ -11,27 +11,7 @@
 
 /********************************************************************/
 TauWPDecorator::TauWPDecorator(const std::string& name) :
-  TauRecToolBase(name)
-{
-  declareProperty("flatteningFile0Prong", m_file0P);
-  declareProperty("flatteningFile1Prong", m_file1P);
-  declareProperty("flatteningFile3Prong", m_file3P);
-
-  declareProperty("ScoreName", m_scoreName = "BDTJetScore");
-  declareProperty("NewScoreName", m_newScoreName = "BDTJetScoreSigTrans");
-
-  declareProperty("DefineWPs", m_defineWP=false);
-  declareProperty("UseEleBDT", m_electronMode=false);
-  
-  declareProperty("CutEnumVals", m_cut_bits);
-  declareProperty("SigEff0P", m_cut_effs_0p);
-  declareProperty("SigEff1P", m_cut_effs_1p);
-  declareProperty("SigEff3P", m_cut_effs_3p);
-
-  declareProperty("DecorWPNames", m_decoration_names);
-  declareProperty("DecorWPCutEffs0P", m_cut_effs_decoration_0p);
-  declareProperty("DecorWPCutEffs1P", m_cut_effs_decoration_1p);
-  declareProperty("DecorWPCutEffs3P", m_cut_effs_decoration_3p);
+  TauRecToolBase(name) {
 }
 
 /********************************************************************/

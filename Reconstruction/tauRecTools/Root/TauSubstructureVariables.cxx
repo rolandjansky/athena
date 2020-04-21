@@ -21,8 +21,6 @@
 
 #include "tauRecTools/KineUtils.h"
 
-#include "GaudiKernel/SystemOfUnits.h"
-using Gaudi::Units::GeV;
 
 const double TauSubstructureVariables::DEFAULT = -1111.;
 
@@ -31,13 +29,7 @@ const double TauSubstructureVariables::DEFAULT = -1111.;
 //**********************************
 
 TauSubstructureVariables::TauSubstructureVariables( const std::string& name ) :
-		TauRecToolBase(name),
-		m_maxPileUpCorrection(4 * GeV),
-		m_pileUpAlpha(1.0),
-		m_doVertexCorrection(false) {
-	declareProperty("maxPileUpCorrection", m_maxPileUpCorrection);
-	declareProperty("pileUpAlpha", m_pileUpAlpha);
-	declareProperty("VertexCorrection", m_doVertexCorrection);
+		TauRecToolBase(name) {
 }
 
 
@@ -289,7 +281,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	float sumPtTrk(0.0);
 
 	// for tau trigger: JVF and sumPtTrack are not available
-	if (!m_in_trigger)
+	if (!inTrigger())
 	{
 		std::vector<float> sumPtTrkvec;
 		std::vector<float> jvfvec;

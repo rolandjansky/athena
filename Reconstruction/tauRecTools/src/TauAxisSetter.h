@@ -33,12 +33,9 @@ public:
     virtual StatusCode finalize() override;
 
 private:
-    double m_clusterCone;
-    /** 
-     * enable cell origin correction 
-     * eta and phi of the cells are corrected wrt to the origin of the tau vertex
-     */
-    bool m_doVertexCorrection;
+
+    Gaudi::Property<double> m_clusterCone {this, "ClusterCone", 0.2, "cone of tau candidate"};
+    Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of vertex correction"};
 };
 
 #endif
