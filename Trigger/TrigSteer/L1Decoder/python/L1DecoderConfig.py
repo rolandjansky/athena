@@ -101,22 +101,19 @@ def createPrescalingTool():
     return prescaler
 
 
-#from L1Decoder.L1DecoderConf import L1TriggerResultMaker
+def getL1TriggerResultMaker():
+    l1trMaker = CompFactory.L1TriggerResultMaker()
 
+    # Muon RoIs
+    l1trMaker.MuRoIKey = "LVL1MuonRoIs"
+    l1trMaker.MuRoILinkName = "mu_roi"
 
-def setupL1TriggerResultMaker( alg ):
-    alg.MuRoIKey = "LVL1MuonRoIs"
-    alg.MuRoILinkName = "mu_roi"
-#         # Placeholder for other L1 xAOD outputs:
-#         # - CTP result
-#         # - L1Topo result
-#         # - L1Calo (Run3) RoIs
+    # Placeholder for other L1 xAOD outputs:
+    # - CTP result
+    # - L1Topo result
+    # - L1Calo (Run3) RoIs
 
-# from L1Decoder.L1DecoderConf import L1TriggerResultMaker
-# class L1TriggerResultMaker(L1TriggerResultMaker):
-#     def __init__(self, name='L1TriggerResultMaker', *args, **kwargs):
-#         super(L1TriggerResultMaker, self).__init__(name, *args, **kwargs)
-#         setupL1TriggerResultMaker( self )
+    return l1trMaker
 
 
 #from L1Decoder.L1DecoderConf import L1Decoder
@@ -199,9 +196,7 @@ def L1DecoderCfg(flags):
     acc.merge( RoIBResultDecoderCfg(flags) )
     acc.merge( L1TriggerByteStreamDecoderCfg(flags) )
 
-    resultMaker = CompFactory.L1TriggerResultMaker()
-    setupL1TriggerResultMaker( resultMaker )
-    acc.addEventAlgo( resultMaker )
+    acc.addEventAlgo( getL1TriggerResultMaker() )
     Configurable.configurableRun3Behavior -= 1
 
     return acc,decoderAlg
