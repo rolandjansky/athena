@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_MDTCALIBRATIONREGIONSVC_H
@@ -39,7 +39,7 @@ public:
 
   /** IInterface implementation  */
   static const InterfaceID &interfaceID() {
-    static InterfaceID s_iID("MdtCalibrationRegionSvc", 1, 0);
+    static const InterfaceID s_iID("MdtCalibrationRegionSvc", 1, 0);
     return s_iID;
   }
 
