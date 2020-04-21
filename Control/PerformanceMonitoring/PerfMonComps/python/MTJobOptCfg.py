@@ -15,8 +15,20 @@ class PerfMonMTSvc ( _PerfMonMTSvc  ):
 
     def setDefaults(cls, handle):
 
+        ## Import the PerfMonFlags
+        from PerfMonComps.PerfMonFlags import jobproperties
+
+        ## Continue, only if we are required to:
+        if not jobproperties.PerfMonFlags.doMonitoringMT():
+            return
+
+        ## Continue, only if it is our Configurable
+        if not isinstance(handle, PerfMonMTSvc):
+            return
+
         from AthenaCommon import CfgMgr
 
+        ## Enable the auditors
         from AthenaCommon.AppMgr import theApp
         theApp.AuditAlgorithms = True
         theApp.AuditTools      = True
@@ -26,12 +38,27 @@ class PerfMonMTSvc ( _PerfMonMTSvc  ):
 
         if hasattr(handle, "getFullJobOptName") :
             handleName = handle.getFullJobOptName()
-            if not handleName in theApp.CreateSvc:
+            if handleName not in theApp.CreateSvc:
                 # Be the very first service to be initialized
                 theApp.CreateSvc = [ handleName ] + theApp.CreateSvc
-        
+
+        ## Set the job start time
+        import os,psutil
+        handle.wallTimeOffset = psutil.Process(os.getpid()).create_time() * 1000
+
+        ## Set the monitoring check points
+        from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+        handle.checkPointFactor = max(10,jp.ConcurrencyFlags.NumThreads())
+
+        ## Make sure the auditor service is there
         if not hasattr(svcMgr, 'AuditorSvc'):
             from GaudiSvc.GaudiSvcConf import AuditorSvc
             svcMgr += AuditorSvc()
-       
-    pass
+
+        ## Turn on component-level monitoring if asked by the user
+        if jobproperties.PerfMonFlags.doFullMonMT():
+            handle.doComponentLevelMonitoring = True
+
+        return
+
+    pass # class PerfMonMTSvc
