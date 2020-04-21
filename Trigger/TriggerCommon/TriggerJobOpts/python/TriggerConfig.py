@@ -357,19 +357,18 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         # TODO: Decide if stream tags are needed and, if yes, find a way to save updated ones in offline BS saving
 
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
-        from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
-        decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+        #from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+        #decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+        decmaker = CompFactory.getComp( "TrigDec::TrigDecisionMakerMT" )("TrigDecMakerMT")
         acc.addEventAlgo( decmaker )
 
         # Create OutputStream alg
-        from ByteStreamCnvSvc import WriteByteStream
-        StreamBSFileOutput = WriteByteStream.getStream("EventStorage", "StreamBSFileOutput")
-        StreamBSFileOutput.ItemList += [ "HLT::HLTResultMT#HLTResultMT" ]
-        StreamBSFileOutput.ExtraInputs = [
+        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamWriteCfg
+        writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ] )
+        writingAcc.getPrimary().ExtraInputs = [
             ("HLT::HLTResultMT", "HLTResultMT"),
             ("xAOD::TrigDecision", "xTrigDecision")]
-        acc.addEventAlgo( StreamBSFileOutput )
-
+        acc.merge( writingAcc )
     else:
         acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
     return acc
