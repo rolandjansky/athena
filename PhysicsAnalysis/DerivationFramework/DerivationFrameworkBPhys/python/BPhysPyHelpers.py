@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # BPhysPyHelpers.py
@@ -20,6 +20,10 @@
 # - BPhysEnsureAttributes(algtool)
 #               -- ensure default contents of __slots__ dict a
 #                  are available as attributes to the class
+# - BPhysFilterBranches(...)
+#               -- create list of isolation or closest track branches
+#                  to be thinned
+#
 #====================================================================
 
 #--------------------------------------------------------------------
@@ -51,4 +55,30 @@ def BPhysEnsureAttributes(algtool):
         if not hasattr(algtool, n):
             setattr(algtool, n, v)
     return algtool
+#--------------------------------------------------------------------
+#
+# create list of isolation or closest track branches to be thinned
+# (used by BPHY8)
+#
+def BPhysFilterBranches(name, brPrefixList, brIncludeList, doVertexTypeList,
+                        categoryList, trackTypeList, coneOrChi2SetList,
+                        forCloseTrack=False):
+  res = ""
+  brIncludes =  [tuple(x.split('|',3)) for x in brIncludeList]
+  for bntup in brPrefixList:
+    bn, sep, bnsuf = bntup.partition('+')
+    for i, cstr in enumerate(coneOrChi2SetList):
+      for itt in trackTypeList:
+        ittstr = "T%010d" % itt
+        for itcstr in categoryList:
+          if brIncludes and not (cstr,str(itt),itcstr) in brIncludes:
+            for dvs in doVertexTypeList:
+              if forCloseTrack:
+                fbn = '_'.join(filter(None, [name,bn,ittstr,itcstr,
+                                             dvs,cstr,bnsuf]))
+              else:
+                fbn = '_'.join(filter(None, [name,bn,cstr,ittstr,
+                                             itcstr,dvs,bnsuf]))
+              res += ".-"+fbn
+  return res
 #--------------------------------------------------------------------
