@@ -17,8 +17,6 @@
 
 #include <algorithm>
 
-// new
-//#include "TruthHelper/PileUpType.h"
 
 #define GeVtoMeV 1000.0
 
@@ -86,29 +84,7 @@ bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
   int barcc = 0;
   int barcb = 0;
   unsigned int nLab = 0;
-  /*
-  PileUpType pileupType( myMcEventCollection );
-  McEventCollection::const_iterator itEvt, itEvtE;
-  if (m_inTime == -1) {
-    // Label with signal event only
-    itEvt  = myMcEventCollection->begin();
-    itEvtE = pileupType.in_time_minimum_bias_event_begin();
-  } else if (m_inTime == 0) {
-    // Label with all in time events
-    itEvt  = myMcEventCollection->begin();
-    itEvtE = pileupType.in_time_event_end();
-  } else if (m_inTime == 1) {
-    // Label with in time pile-up : removing the signal event...
-    itEvt  = pileupType.in_time_minimum_bias_event_begin();
-    itEvtE = pileupType.in_time_event_end();
-  } else if (m_inTime == 2) {
-    //Does one really want to allow for this possibility ? Or in a given BC range ?
-    // should use PileUpEventInfo maybe for a time selection...
-    // (Cavern and halo are there, but hopefully there is no heavy quark there ;-) )
-    itEvt  = myMcEventCollection->begin();
-    itEvtE = myMcEventCollection->end(); 
-  }
-  */
+
   xAOD::TruthEventContainer::const_iterator itEvt = truthEventContainer->begin(); // see if this works for now
   xAOD::TruthEventContainer::const_iterator itEvtE = truthEventContainer->end();
   const xAOD::TruthParticle* LabellingParticle(0);
@@ -127,8 +103,6 @@ bool JetQuarkLabel::matchJet(const xAOD::Jet& myJet,
       int pdg = (*pitr)->pdgId();
       
       // We want to use some special functions from HepLorentzVector
-      // HepMC::Fourvector does not have these functions. 
-      // => transform to HepLorentzVector
       TLorentzVector part_momentum_lv = (*pitr)->p4();
       
       // label b, c and light jets

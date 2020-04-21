@@ -138,7 +138,6 @@ bool TruthTrackGetterTool::selectParticle(const  HepMC::GenParticle* particle)
 
   // must have a valid production vertex
   if(particle->production_vertex() == NULL){
-    //REPORT_MESSAGE (MSG::DEBUG) << "GenParticle has NULL Production Vertex";
     return false;
   }
 

@@ -167,7 +167,6 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& iFatras::
     std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >::iterator prdTruthTrajIter  = m_gpPrdTruthTrajectories.begin();
     std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >::iterator prdTruthTrajIterE = m_gpPrdTruthTrajectories.end();
     for ( ; prdTruthTrajIter != prdTruthTrajIterE; ++prdTruthTrajIter ){
-    //std::cout << "sorting, barcode: " << prdTruthTrajIter->first->barcode() << std::endl;
         if ( m_prdTruthTrajectoryManipulators.size() ){
             ToolHandleArray<Trk::IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIter  = m_prdTruthTrajectoryManipulators.begin();
             ToolHandleArray<Trk::IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIterE = m_prdTruthTrajectoryManipulators.end();
