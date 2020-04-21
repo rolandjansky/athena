@@ -64,6 +64,11 @@ MagField::AtlasFieldMapCondAlg::initialize() {
 StatusCode
 MagField::AtlasFieldMapCondAlg::start() {
     ATH_MSG_INFO ( "start: entering  ");
+
+    // If we want to build the map at start, this can be done without access to conditions db
+    // This is needed for online operation
+    if (!m_useMapsFromCOOL) return(execute(Gaudi::Hive::currentContext()));
+
     return StatusCode::SUCCESS;
 }
 
@@ -134,7 +139,6 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
 
         // // handle for COOL field map filenames
         // const DataHandle<CondAttrListCollection> mapHandle;
-        
 
         // Get the validitiy range
         EventIDRange rangeW;
@@ -183,6 +187,14 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
         toroMapFilename = m_toroMapFilename;
         cache.m_mapSoleCurrent = m_mapSoleCurrent;
         cache.m_mapToroCurrent = m_mapToroCurrent;
+
+        // Create a range from 0 to inf in terms of run, LB
+        const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
+        const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
+        EventIDRange rangeW (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
+                             EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, 0, 0));
+        cache.m_mapCondObjOutputRange = rangeW;
+        ATH_MSG_INFO("updateFieldMap: useMapsFromCOOL == false, using default range " << rangeW);
     }
         
         
