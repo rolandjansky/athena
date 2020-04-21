@@ -378,17 +378,17 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   return acc
 
 def indetInViewRecoCfg( flags, viewMakerName, signature='' ):
-  """ TBD if this function should be defined here or moved to the menu are, for sake of symmetry it is kept here now 
+  """ TBD if this function should be defined here or moved to the menu are, for sake of symmetry it is kept here now
   There would certainly be additional algorithms
-  """  
+  """
   from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
   reco = InViewReco( viewMakerName )
   algAcc = TrigInDetConfig( flags, roisKey=reco.inputMaker().InViewRoIs, signatureName=signature )
 
-  reco.mergeReco( algAcc )  
+  reco.mergeReco( algAcc )
   return reco
 
-  
+
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -424,3 +424,4 @@ if __name__ == "__main__":
     acc.printConfig()
     acc.store( open("test.pkl", "wb") )
     print('All ok')
+
