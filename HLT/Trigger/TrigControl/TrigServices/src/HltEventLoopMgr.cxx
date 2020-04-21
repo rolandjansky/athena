@@ -576,9 +576,12 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 
       // Set EventID for the EventContext
       EventIDBase eid = eventIDFromxAOD(eventInfo.cptr());
-      // Override run/timestamp if needed
+      // Override run/LB/timestamp if needed
       if (m_forceRunNumber > 0) {
         eid.set_run_number(m_forceRunNumber);
+      }
+      if (m_forceLumiblock > 0) {
+        eid.set_lumi_block(m_forceLumiblock);
       }
       if (m_forceSOR_ns > 0) {
         eid.set_time_stamp(m_forceSOR_ns / 1000000000);
