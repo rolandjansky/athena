@@ -792,12 +792,6 @@ std::string MuonTrackPerformanceAlg::print( const Muon::IMuonTrackTruthTool::Tru
     if( mother )  {
       sout << " mother " << mother->pdg_id();
 
-
-      // if( mother->end_vertex() ) sout << " vertex: r  " << mother->end_vertex()->point3d().perp() 
-      //   			      << " z " << mother->end_vertex()->point3d().z();
-
-      // const HepMC::GenParticle* original = getInitialState(*trackTruth.truthTrajectory);
-      // if( original ) sout << "  p:  " << original->momentum().rho();
     }
   }
 

@@ -82,10 +82,6 @@ Trk::InDetPrimaryConversionSelector::selectGenSignal (const McEventCollection* S
       // 1) require stable particle from generation or simulation
       if ((particle->status()%1000) != 1 )    continue;
 
-//    HepGeom::Point3D<double>  startVertex(particle->production_vertex()->point3d().x(),
-//                             particle->production_vertex()->point3d().y(),
-//                             particle->production_vertex()->point3d().z());
-//     if ( fabs(startVertex.perp()) > m_maxRStartPrimary || fabs(startVertex.z()) > m_maxZStartPrimary) continue;
       if(particle->production_vertex() == NULL) {
         ATH_MSG_WARNING ("GenParticle without production vertex - simulation corrupt? ");
         ATH_MSG_DEBUG   ("It's this one: " << *particle);

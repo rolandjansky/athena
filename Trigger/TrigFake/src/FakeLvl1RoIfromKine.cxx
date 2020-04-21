@@ -285,16 +285,6 @@ std::vector<FakeRoI> * FakeLvl1RoIfromKine::createRoIfromMC() {
 
     int pdgid= (*p)->pdg_id();
 
-    //int abs_pdgid = abs(pdgid);
-    //     HepMC::ParticleData* ap = m_particleDataTable.find( abs_pdgid );
-    //if(!ap) { qq=0.; } else { qq = ap->charge(); }
-    //if (qq !=0) { // charged particle, use the signed PDG code to find charge
-    //  HepMC::ParticleData* pp  = m_particleDataTable.find( pdgid );
-    //  if (!pp) { qq = 0; } else { qq =  pp->charge(); }
-    // }
-
-    // EMROI
-
     std::vector<int>::iterator emParticle=m_emTauRoiParticles.begin();
     std::vector<int>::iterator lastEmParticle=m_emTauRoiParticles.end();
     bool formEmTauRoi=false;
