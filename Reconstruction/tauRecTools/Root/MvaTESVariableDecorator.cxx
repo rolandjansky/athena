@@ -161,7 +161,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   acc_LeadClusterFrac(xTau) = (float) lead_cluster_frac;
   acc_UpsilonCluster(xTau) = (float) upsilon_cluster;
 
-  if(m_in_trigger) {
+  if(inTrigger()) {
     return StatusCode::SUCCESS;
   }
 

@@ -2,8 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ListItem.h"
-
 #include "tauRec/TauRunnerAlg.h"
 
 #include "xAODJet/Jet.h"
@@ -26,10 +24,7 @@
 //-----------------------------------------------------------------------------
 TauRunnerAlg::TauRunnerAlg(const std::string &name,
     ISvcLocator * pSvcLocator) :
-AthAlgorithm(name, pSvcLocator),
-m_tools(this) //make tools private
-{
-  declareProperty("Tools", m_tools);
+AthAlgorithm(name, pSvcLocator) {
 }
 
 //-----------------------------------------------------------------------------
