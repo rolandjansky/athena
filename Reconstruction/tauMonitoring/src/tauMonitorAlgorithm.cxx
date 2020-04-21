@@ -76,7 +76,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto nClustersEt15BDTLoose = Monitored::Scalar<int>("nClustersEt15BDTLoose",0.0);
 
     auto LB = Monitored::Scalar<int>("LB",0.0);
-    auto LB2 = Monitored::Scalar<int>("LB2",0.0);
 
     auto EMRadius = Monitored::Scalar<float>("EMRadius",0.0);
     auto hadRadius = Monitored::Scalar<float>("hadRadius",0.0);
@@ -84,6 +83,10 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto stripWidth2 = Monitored::Scalar<float>("stripWidth2",0.0);
     auto nStrip = Monitored::Scalar<float>("nStrip",0.0);
     auto etEMAtEMScale = Monitored::Scalar<float>("etEMAtEMScale",0.0);
+    //auto etEMCalib = Monitored::Scalar<float>("etEMCalib",0.0);
+    //auto etHadCalib= Monitored::Scalar<float>("etHadCalib",0.0);
+
+
     auto etHadAtEMScale = Monitored::Scalar<float>("etHadAtEMScale",0.0);
     auto centFrac = Monitored::Scalar<float>("centFrac",0.0);
     auto jetSeedEta = Monitored::Scalar<float>("jetSeedEta",0.0);
@@ -123,8 +126,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto ptIntermediateAxis = Monitored::Scalar<float>("ptIntermediateAxis",0.0);
 
     auto ipSigLeadTrk = Monitored::Scalar<float>("ipSigLeadTrk",0.0);
-    auto etOverPtLeadTrk = Monitored::Scalar<float>("etOverPtLeadTrk",0.0);
     auto massTrkSys = Monitored::Scalar<float>("massTrkSys",0.0);
+    auto etOverPtLeadTrack = Monitored::Scalar<float>("etOverPtLeadTrack",0.0);
     auto ptRatioEflowApprox = Monitored::Scalar<float>("ptRatioEflowApprox",0.0);
     auto trFlightPathSig = Monitored::Scalar<float>("trFlightPathSig",0.0);
     auto trkAvgDist  = Monitored::Scalar<float>("trkAvgDist",0.0);
@@ -139,6 +142,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto dRJetSeedAxis = Monitored::Scalar<float>("dRJetSeedAxis",0.0);
     auto z0TJVA  = Monitored::Scalar<float>("z0TJVA",0.0);
     auto z0PriVtx  = Monitored::Scalar<float>("z0PriVtx",0.0);
+    auto z0  = Monitored::Scalar<float>("z0",0.0);
+
 
     auto etaTrack  = Monitored::Scalar<float>("etaTrack",0.0);
     auto ptTrack  = Monitored::Scalar<float>("ptTrack",0.0);
@@ -186,6 +191,9 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         nStrip = tau->detail<int>(xAOD::TauJetParameters::nStrip) ;
         etEMAtEMScale = tau->detail<float>(xAOD::TauJetParameters::etEMAtEMScale);
         etHadAtEMScale = tau->detail<float>(xAOD::TauJetParameters::etHadAtEMScale);
+        //etEMCalib  = tau->detail<float>(xAOD::TauJetParameters::etEMCalib) / GeV;
+        //etHadCalib = tau->detail<float>(xAOD::TauJetParameters::etHadCalib) / GeV;
+
         centFrac = tau->detail<float>(xAOD::TauJetParameters::centFrac) ;
         jetSeedEta = tau->etaJetSeed(); 
         jetSeedPhi = tau->phiJetSeed(); 
@@ -210,10 +218,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         EMPOverTrkSysP  =    tau->detail<float>(xAOD::TauJetParameters::EMPOverTrkSysP);
         SumPtTrkFracCorrected =    tau->detail<float>(xAOD::TauJetParameters::SumPtTrkFracCorrected);
         mEflowApprox           =    tau->detail<float>(xAOD::TauJetParameters::mEflowApprox)/GeV;
-
-        etOverPtLeadTrk = tau->detail<float>(xAOD::TauJetParameters::etOverPtLeadTrk);
         ptRatioEflowApprox = tau->detail<float>( xAOD::TauJetParameters::ptRatioEflowApprox );
-        trFlightPathSig = tau->detail<float>(xAOD::TauJetParameters::trFlightPathSig);
         trkAvgDist = tau->detail<float>(xAOD::TauJetParameters::trkAvgDist);
 
         panEta = tau->etaPanTauCellBased();
@@ -287,11 +292,12 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                         trFlightPathSig = tau->detail<float>(xAOD::TauJetParameters::trFlightPathSig);
                         ipSigLeadTrk    =    tau->detail<float>(xAOD::TauJetParameters::ipSigLeadTrk);
                         ipZ0SinThetaSigLeadTrk = tau->detail<float>(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk);
-
+                        etOverPtLeadTrack = tau->detail<float>(xAOD::TauJetParameters::etOverPtLeadTrk);
                         leadTrkPt =tau->detail<float>(xAOD::TauJetParameters::leadTrkPt)/GeV;
 
                         fill(tool
                         ,massTrkSys
+                        ,etOverPtLeadTrack
                         ,trkWidth2
                         ,trFlightPathSig
                         ,ipSigLeadTrk
@@ -347,6 +353,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                         
 
                             d0 = perigee.parameters()[Trk::d0];
+                            z0 = perigee.parameters()[Trk::z0];
+
                             phiTrack = perigee.parameters()[Trk::phi];
                             etaTrack = perigee.eta();
                             ptTrack = perigee.pT()/GeV;
@@ -354,6 +362,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                             //z0 missing
                             fill(tool
                             ,d0
+                            ,z0
                             ,phiTrack
                             ,etaTrack
                             ,ptTrack);
@@ -433,7 +442,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                     ,SumPtTrkFracCorrected
                     ,mEflowApprox
                     ,ptIntermediateAxis
-                    ,etOverPtLeadTrk
                     ,ptRatioEflowApprox
                     ,trkAvgDist
                     ,lumiPerBCID);
@@ -474,6 +482,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
             }
         }
     }
-    fill(tool,nHighPtTauCandidates,nTauCandidates);
+    fill(tool,nHighPtTauCandidates,nTauCandidates,nHighPtTaus);
     return StatusCode::SUCCESS;
 }
