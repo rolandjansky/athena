@@ -28,6 +28,9 @@
 using namespace Acts::VectorHelpers;
 using Box = Acts::Volume::BoundingBox; // shortcut
 
+using CVBBV = Acts::CylinderVolumeBounds::BoundValues;
+using CCVBBV = Acts::CutoutCylinderVolumeBounds::BoundValues;
+
 ActsCaloTrackingVolumeBuilder::ActsCaloTrackingVolumeBuilder(const std::string& type,
                                                              const std::string& name,
                                                              const IInterface* parent)
@@ -125,10 +128,10 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   auto idGapPosXY = cvh.createGapTrackingVolume(gctx,
                                                 noVolumes,
                                                 nullptr,
-                                                idBounds->innerRadius(),
-                                                idBounds->outerRadius(),
-                                                idBounds->halflengthZ(),
-                                                caloVolBounds->dZ2(),
+                                                idBounds->get(CVBBV::eMinR),
+                                                idBounds->get(CVBBV::eMaxR),
+                                                idBounds->get(CVBBV::eHalfLengthZ),
+                                                caloVolBounds->get(CCVBBV::eHalfLengthZcutout),
                                                 lPos,
                                                 false,
                                                 "ID::PositiveGap"
@@ -137,10 +140,10 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   auto idGapNegXY = cvh.createGapTrackingVolume(gctx,
                                                 noVolumes,
                                                 nullptr,
-                                                idBounds->innerRadius(),
-                                                idBounds->outerRadius(),
-                                                -caloVolBounds->dZ2(),
-                                                -idBounds->halflengthZ(),
+                                                idBounds->get(CVBBV::eMinR),
+                                                idBounds->get(CVBBV::eMaxR),
+                                                -caloVolBounds->get(CCVBBV::eHalfLengthZcutout),
+                                                -idBounds->get(CVBBV::eHalfLengthZ),
                                                 lPos,
                                                 false,
                                                 "ID::NegativeGap"
@@ -149,10 +152,10 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   auto idGapCylOuter = cvh.createGapTrackingVolume(gctx,
                                                    noVolumes,
                                                    nullptr,
-                                                   idBounds->outerRadius(),
-                                                   caloVolBounds->rMed(),
-                                                   -caloVolBounds->dZ2(),
-                                                   +caloVolBounds->dZ2(),
+                                                   idBounds->get(CVBBV::eMaxR),
+                                                   caloVolBounds->get(CCVBBV::eMedR),
+                                                   -caloVolBounds->get(CCVBBV::eHalfLengthZcutout),
+                                                   +caloVolBounds->get(CCVBBV::eHalfLengthZcutout),
                                                    lPos,
                                                    false,
                                                    "ID::CylOutGap"
@@ -236,13 +239,20 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
 
   // Construct track vol array for use in positive and negative pseudocontainer.
   // This will only contain the calo
+
+	double caloRMin = caloVolBounds->get(CCVBBV::eMinR);
+	double caloRMed = caloVolBounds->get(CCVBBV::eMedR);
+	double caloRMax = caloVolBounds->get(CCVBBV::eMaxR);
+	double caloDZ1 = caloVolBounds->get(CCVBBV::eHalfLengthZ);
+	double caloDZ2 = caloVolBounds->get(CCVBBV::eHalfLengthZcutout);
+
   Acts::Vector3D caloChokeRPos
-    = {caloVolBounds->rMin() + (caloVolBounds->rMax() - caloVolBounds->rMin())/2., 0, 0};
+    = {caloRMin + (caloRMax - caloRMin)/2., 0, 0};
 
   std::vector<Acts::TrackingVolumeOrderPosition> tVolOrdPosNeg;
   tVolOrdPosNeg.push_back(std::make_pair(calo, caloChokeRPos));
   std::vector<float> posNegBoundaries
-   = {float(caloVolBounds->rMin()), float(caloVolBounds->rMax())};
+   = {float(caloRMin), float(caloRMax)};
   auto binUtilityPosNeg = std::make_unique<const Acts::BinUtility>(posNegBoundaries,
       Acts::open, Acts::binR);
 
@@ -250,7 +260,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
       = std::make_shared<const Acts::BinnedArrayXD<Acts::TrackingVolumePtr>>(
           tVolOrdPosNeg, std::move(binUtilityPosNeg));
 
-  double chokeZOffset = caloVolBounds->dZ2() + (caloVolBounds->dZ1() - caloVolBounds->dZ2())/2.;
+  double chokeZOffset = caloDZ2 + (caloDZ1 - caloDZ2)/2.;
   auto posTrf
    = std::make_shared<const Acts::Transform3D>(
        Acts::Translation3D(Acts::Vector3D::UnitZ()*chokeZOffset));
@@ -259,7 +269,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
        Acts::Translation3D(Acts::Vector3D::UnitZ()* -1 *chokeZOffset));
 
   auto posNegCylBounds = std::make_shared<Acts::CylinderVolumeBounds>(
-       caloVolBounds->rMin(), caloVolBounds->rMax(), (caloVolBounds->dZ1() - caloVolBounds->dZ2()) / 2.);
+       caloRMin, caloRMax, (caloDZ1 - caloDZ2) / 2.);
 
   // they share the same bounds and tvol array
   auto posContainer = Acts::TrackingVolume::create(posTrf, posNegCylBounds, tVolArrPosNeg);
@@ -271,12 +281,12 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
 
   // now build the central pseudocontainer
   std::vector<Acts::TrackingVolumeOrderPosition> tVolOrderedCtr;
-  tVolOrderedCtr.push_back(std::make_pair(idContainer, Acts::Vector3D(caloVolBounds->rMed() / 2., 0, 0)));
+  tVolOrderedCtr.push_back(std::make_pair(idContainer, Acts::Vector3D(caloRMed / 2., 0, 0)));
   tVolOrderedCtr.push_back(std::make_pair(calo,
-        Acts::Vector3D(caloVolBounds->rMed() +
-          (caloVolBounds->rMax() - caloVolBounds->rMed()) / 2., 0, 0)));
+        Acts::Vector3D(caloRMed +
+          (caloRMax- caloRMed) / 2., 0, 0)));
 
-  std::vector<float> ctrBoundaries = {0, float(caloVolBounds->rMed()), float(caloVolBounds->rMax())};
+  std::vector<float> ctrBoundaries = {0, float(caloRMed), float(caloRMax)};
   auto binUtilityCtr
    = std::make_unique<const Acts::BinUtility>(
       ctrBoundaries,
@@ -289,7 +299,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   auto ctrContainer = Acts::TrackingVolume::create(
       std::make_shared<const Acts::Transform3D>(Acts::Transform3D::Identity()),
       std::make_shared<Acts::CylinderVolumeBounds>(
-          caloVolBounds->rMin(), caloVolBounds->rMax(), caloVolBounds->dZ2()),
+          caloRMin, caloRMax, caloDZ2),
       tVolArrCtr);
   ATH_MSG_VERBOSE("Built central container " << *ctrContainer);
   ATH_MSG_VERBOSE("- containing: " << idContainer->volumeName() << ", " << calo->volumeName());
@@ -300,7 +310,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   auto mainContainer = Acts::TrackingVolume::create(
       std::make_shared<const Acts::Transform3D>(Acts::Transform3D::Identity()),
       std::make_shared<Acts::CylinderVolumeBounds>(
-          caloVolBounds->rMin(), caloVolBounds->rMax(), caloVolBounds->dZ1()),
+          caloRMin, caloRMax, caloDZ1),
       tvac.trackingVolumeArray(gctx, {negContainer, ctrContainer, posContainer},
                                Acts::binZ));
 
@@ -386,9 +396,9 @@ ActsCaloTrackingVolumeBuilder::makeCaloVolumeBounds(const std::vector<std::uniqu
   auto idCylBds
     = dynamic_cast<const Acts::CylinderVolumeBounds*>(&insideVolume->volumeBounds());
 
-  double idRMax = idCylBds->outerRadius();
-  double idRMin = idCylBds->innerRadius();
-  double idHlZ = idCylBds->halflengthZ();
+  double idRMax = idCylBds->get(CVBBV::eMinR);
+  double idRMin = idCylBds->get(CVBBV::eMaxR);
+  double idHlZ = idCylBds->get(CVBBV::eHalfLengthZ);
 
   if (!insideVolume->transform().isApprox(Acts::Transform3D::Identity())) {
     ATH_MSG_ERROR("The ID appears to be shifted from the origin. I cannot handle this.");
