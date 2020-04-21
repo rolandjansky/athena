@@ -52,5 +52,5 @@ atlas_add_test( AuxStoreRoot_test
                 SOURCES
                 test/AuxStoreRoot_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers CxxUtils RootUtils AthContainersRoot )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers CxxUtils RootUtils AthContainersRoot TestTools )
 
