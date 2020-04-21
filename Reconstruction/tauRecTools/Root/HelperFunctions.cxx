@@ -192,39 +192,64 @@ float tauRecTools::TRTBDT::GetResponse(){
   return this->bdt->GetResponse();
 }
 
-const StatusCode tauRecTools::GetJetConstCluster(xAOD::JetConstituentVector::iterator it, const xAOD::CaloCluster* &cluster){
+const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted){
+
+  incShowerSubtracted = true;
 
   using namespace asg::msgUserCode;
-  // ensure starting with empty cluster
-  cluster = nullptr;
-  if( (*it)->type() == xAOD::Type::CaloCluster ) {
-    cluster = static_cast<const xAOD::CaloCluster*>( (*it)->rawConstituent() );
-  }
-  else if( (*it)->type() == xAOD::Type::ParticleFlow ) {
-    const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( (*it)->rawConstituent() );
-    // charged PFO don't have link to cluster
-    if( !pfo->isCharged() ){
-      if (pfo->nCaloCluster()!=1) {
-	ANA_MSG_WARNING("Neutral PFO has " << std::to_string(pfo->nCaloCluster()) << " clusters, expected exactly 1!\n");
-      }
-      if(pfo->nCaloCluster()>0) {
-	cluster = pfo->cluster(0);
-      }
+  // Loop over jet constituents
+  xAOD::JetConstituentVector jVec = jet->getConstituents();
+  for(auto jCon : jVec){
+    if( jCon->type() == xAOD::Type::CaloCluster ) {
+      const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>( jCon->rawConstituent() );
+      clusterList.push_back(cluster);
+    }
+    else if( jCon->type() == xAOD::Type::ParticleFlow ) {
+      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( jCon->rawConstituent() );
+      if( !pfo->isCharged() ){
+	if( pfo->nCaloCluster()==1 ){
+	  clusterList.push_back(pfo->cluster(0));
+
+	  if (incShowerSubtracted){
+	    ElementLink<xAOD::CaloClusterContainer> subClusters;
+	    pfo->attribute("PFOShowerSubtractedClusterLink", subClusters);
+	    if (subClusters.isValid()){
+	      const xAOD::CaloClusterContainer* sclus = subClusters.getDataPtr();
+	      for (u_int i=0; i<sclus->size(); i++){
+		clusterList.push_back( sclus->at(i) );
+	      }
+	    }
+	  }
+
+	}
+	else ANA_MSG_WARNING("Neutral PFO has " << std::to_string(pfo->nCaloCluster()) << " clusters, expected exactly 1!\n");
+
+      }// neutral PFO check
     }
     else{
-      // for charged return success, but calocluster will be null
-      return StatusCode::SUCCESS;
+      ANA_MSG_ERROR("GetJetConstCluster: Seed jet constituent type not supported!");
+      return StatusCode::FAILURE;
     }
   }
-  else{
-    ANA_MSG_ERROR("GetJetConstCluster: Seed jet constituent type not supported!");
-    return StatusCode::FAILURE;
-  }
 
-  // At this point should be set (unless charged, which already returned)
-  if (!cluster) {
-    ANA_MSG_ERROR("GetJetConstCluster: Calorimeter cluster is invalid.");
-    return StatusCode::FAILURE;
-  }
+  // Get shower subtracted clusters from charged PFO
+  // loop over jet constituents
+  for(auto jCon : jVec){
+    if( jCon->type() == xAOD::Type::ParticleFlow ) {
+      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( jCon->rawConstituent() );
+      if( pfo->isCharged() ){
+	// loop through clusters
+	for (u_int cc=0; cc<pfo->nCaloCluster(); cc++){
+	  const xAOD::CaloCluster* cluster = pfo->cluster(cc);
+	  // if cluster not in neutral list
+	  if ( std::find(clusterList.begin(), clusterList.end(), cluster) == clusterList.end() ){
+	    clusterList.push_back(cluster);
+	  }
+	}// loop through clusters
+
+      }
+    }
+  }// loop through jet constituents
+
   return StatusCode::SUCCESS;
 }
