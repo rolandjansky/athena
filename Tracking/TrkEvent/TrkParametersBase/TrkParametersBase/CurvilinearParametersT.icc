@@ -229,16 +229,46 @@ namespace Trk
     return curvilinFrame;
   }
 
-  // Dedicated update method for non-curvilinear parameters - private and controlled by friendship 
+  // private updateParametersHelper
+  template<int DIM, class T, class S>
+  void Trk::CurvilinearParametersT<DIM, T, S>::updateParametersHelper(const AmgVector(DIM) & updatedParameters)
+  {
+    // valid to use != here, because value is either copied or modified,
+    bool updateMomentum = (updatedParameters[Trk::phi] != this->m_parameters[Trk::phi]) ||
+                          (updatedParameters[Trk::theta] != this->m_parameters[Trk::theta]) ||
+                          (updatedParameters[Trk::qOverP] != this->m_parameters[Trk::qOverP]);
+
+    // momentum update is needed
+    if (updateMomentum) {
+      double phi = updatedParameters[Trk::phi];
+      double theta = updatedParameters[Trk::theta];
+      double p = fabs(1. / updatedParameters[Trk::qOverP]);
+      this->m_chargeDef.setCharge(sgn(updatedParameters[Trk::qOverP]));
+      // assign them and update the momentum 3 vector
+      this->m_parameters[Trk::phi] = phi;
+      this->m_parameters[Trk::theta] = theta;
+      this->m_parameters[Trk::qOverP] = updatedParameters[Trk::qOverP];
+      this->m_momentum = Amg::Vector3D(p * cos(phi) * sin(theta), p * sin(phi) * sin(theta), p * cos(theta));
+    }
+
+    // position update if needed -  loc1
+    if (updatedParameters[Trk::loc1] != 0.) {
+      this->m_position += updatedParameters[Trk::loc1] * curvilinearFrame().curvU();
+    }
+    // position update if needed -  loc2
+    if (updatedParameters[Trk::loc2] != 0.) {
+      this->m_position += updatedParameters[Trk::loc2] * curvilinearFrame().curvV();
+    }
+    // Reset also the surface
+    this->m_surface.reset(new S(this->m_position, curvilinearFrame()));
+  }
+
+  // Dedicated update method 
   template <int DIM,class T,class S>
   void Trk::CurvilinearParametersT<DIM,T,S>::updateParameters(const AmgVector(DIM)& updatedParameters,
                                                               AmgSymMatrix(DIM)* updatedCovariance)
   {
-    // valid to use != here, because value is either copied or modified,
-    bool updateMomentum = (updatedParameters[Trk::phi] != this->m_parameters[Trk::phi]) ||
-      (updatedParameters[Trk::theta] != this->m_parameters[Trk::theta]) ||
-      (updatedParameters[Trk::qOverP] != this->m_parameters[Trk::qOverP]);
-
+    this->updateParametersHelper(updatedParameters);
     // update the covariance
     if (updatedCovariance)
     {
@@ -247,33 +277,21 @@ namespace Trk
       }
       this->m_covariance = updatedCovariance;
     }
-    
-    // momentum update is needed    
-    if (updateMomentum)
-    {
-      double phi   = updatedParameters[Trk::phi];
-      double theta = updatedParameters[Trk::theta];
-      double p     = fabs(1./updatedParameters[Trk::qOverP]);
-      this->m_chargeDef.setCharge( sgn(updatedParameters[Trk::qOverP]) );
-      // assign them and update the momentum 3 vector
-      this->m_parameters[Trk::phi]    = phi;
-      this->m_parameters[Trk::theta]  = theta;
-      this->m_parameters[Trk::qOverP] = updatedParameters[Trk::qOverP];
-      this->m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
-                                       p*sin(phi)*sin(theta),
-                                       p*cos(theta));
-    }
-    // position update if needed -  loc1
-    if (updatedParameters[Trk::loc1] != 0.){ 
-      this->m_position += updatedParameters[Trk::loc1] * curvilinearFrame().curvU();
-    }
-    // position update if needed -  loc2
-    if (updatedParameters[Trk::loc2] != 0.){ 
-      this->m_position += updatedParameters[Trk::loc2] * curvilinearFrame().curvV();
-    }
-    
-    //Reset also the surface
-    this->m_surface.reset(new S(this->m_position,curvilinearFrame()));
-    
   }
+
+  // Dedicated update method
+  template <int DIM,class T,class S>
+  void Trk::CurvilinearParametersT<DIM,T,S>::updateParameters(const AmgVector(DIM)& updatedParameters,
+                                                              const AmgSymMatrix(DIM)& updatedCovariance)
+  {
+    this->updateParametersHelper(updatedParameters);
+    // if the covariance is there update in place
+    if (this->m_covariance) {
+      (*(this->m_covariance)) = updatedCovariance;
+    } else { // otherwise create one
+      auto tmp = std::make_unique<AmgSymMatrix(DIM)>(updatedCovariance);
+      this->m_covariance = tmp.release();
+    }
+  }
+
 } // end of namespace Trk
