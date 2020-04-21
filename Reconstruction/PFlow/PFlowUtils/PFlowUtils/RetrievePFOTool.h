@@ -18,7 +18,7 @@ namespace CP {
   class RetrievePFOTool : public virtual IRetrievePFOTool, public asg::AsgTool {
 
     /** Athena constructor */
-    ASG_TOOL_CLASS( RetrievePFOTool, IRetrievePFOTool );
+    ASG_TOOL_CLASS( RetrievePFOTool, IRetrievePFOTool )
 
   public:
     /** Rootcore constructor */
