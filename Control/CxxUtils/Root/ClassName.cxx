@@ -67,7 +67,6 @@ void ClassName::Rules::add (const ClassName& pattern,
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Add a new transformation rule (move version).
  * @param pattern The pattern to match.
@@ -86,7 +85,6 @@ void ClassName::Rules::add (ClassName&& pattern,
                                   std::make_pair (std::move(pattern),
                                                   std::move(replacement))));
 }
-#endif
 
 
 /**
@@ -520,12 +518,7 @@ void ClassName::parseNamespace (const std::string& name,
   ClassName* p = this;
   while (p->m_namespace.size() > 0)
     p = &p->m_namespace[0];
-#if __cplusplus > 201100
   p->m_namespace.push_back (std::move(ns));
-#else
-  p->m_namespace.resize(1);
-  p->m_namespace[0].swap (ns);
-#endif
 }
 
 
@@ -548,11 +541,7 @@ void ClassName::parseTemplateArgs (const std::string& name,
   ++pos;
   while (true) {
     skipSpaces (name, pos);
-#if __cplusplus > 201100
     m_targs.emplace_back (name, pos);
-#else
-    m_targs.push_back (ClassName (name, pos));
-#endif
     skipSpaces (name, pos);
     if (pos == name.size()) break;
     if (name[pos] == '>') {

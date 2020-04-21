@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStore_traits.h 644840 2015-02-06 16:30:07Z ssnyder $
 /**
  * @file AthContainersInterfaces/AuxStore_traits.h
  * @author scott snyder <snyder@bnl.gov>, Paolo Calafiura
@@ -40,26 +39,7 @@
 #include "AthContainersInterfaces/IConstAuxStore.h"
 
 
-#if __cplusplus < 201100
-# include <boost/type_traits/is_base_of.hpp>
-// boost::conditional was introduced sometime before 1.46. It's not present
-// in the Boost version found on SLC6 by default. But we do need to use it
-// if the migration to c++11 should be smooth...
-# include <boost/version.hpp>
-# if BOOST_VERSION < 104601
-#  include <boost/mpl/if.hpp>
-namespace boost {
-   template <bool b, class T, class U>
-   struct conditional : public mpl::if_c<b, T, U> {};
-}
-# else
-#  include <boost/type_traits/conditional.hpp>
-# endif // BOOST_VERSION
-namespace SG_STD_OR_BOOST = boost;
-#else
 # include <type_traits>
-namespace SG_STD_OR_BOOST = std;
-#endif
 #include <string>
 
 
@@ -76,7 +56,7 @@ class NoAuxStore {};
 /// Default traits values for aux data case.
 struct AuxStore_traits_AuxDefault
 {
-  typedef SG_STD_OR_BOOST::true_type flag;
+  typedef std::true_type flag;
 
   typedef IAuxStore type;
   static const std::string& typeName()
@@ -97,7 +77,7 @@ struct AuxStore_traits_AuxDefault
 /// Default traits values for no-aux data case.
 struct AuxStore_traits_NoAuxDefault
 {
-  typedef SG_STD_OR_BOOST::false_type flag;
+  typedef std::false_type flag;
 
   typedef NoAuxStore type;
   static const std::string& typeName()
@@ -120,8 +100,8 @@ struct AuxStore_traits_NoAuxDefault
 template <class DOBJ, class FLAG_>
 struct AuxStore_traits1
 {
-  typedef typename SG_STD_OR_BOOST::conditional<
-    SG_STD_OR_BOOST::is_base_of<IAuxElement, DOBJ>::value,
+  typedef typename std::conditional<
+    std::is_base_of<IAuxElement, DOBJ>::value,
                                 AuxStore_traits_AuxDefault,
                                 AuxStore_traits_NoAuxDefault>::type
     type;
@@ -138,7 +118,7 @@ struct AuxStore_traits1
 /// then this specialization is ignored (SFINAE).
 template <class DOBJ>
 struct AuxStore_traits1<DOBJ,
-                        typename SG_STD_OR_BOOST::is_base_of<
+                        typename std::is_base_of<
                           IAuxElement, typename DOBJ::base_value_type>::type>
 {
   typedef AuxStore_traits_AuxDefault type;
@@ -154,7 +134,7 @@ struct AuxStore_traits1<DOBJ,
  */
 template <class DOBJ>
 struct AuxStore_traits
-  : public AuxStore_traits1<DOBJ, SG_STD_OR_BOOST::true_type>::type
+  : public AuxStore_traits1<DOBJ, std::true_type>::type
 {
   /// Attributes inherited from the base class:
   ///   typedef flag

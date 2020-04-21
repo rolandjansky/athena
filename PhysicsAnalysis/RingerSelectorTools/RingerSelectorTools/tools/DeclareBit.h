@@ -10,7 +10,6 @@
 
 #include <utility>
 
-#include "RingerSelectorTools/tools/cxx/StaticAssert.h"
 #include "RingerSelectorTools/tools/cxx/stringify.h"
 
 /**
@@ -82,7 +81,7 @@ struct counter {};
       description                                                             \
     );                                                                        \
                                                                               \
-  RINGER_STATIC_ASSERT( ( COUNTER_READ( bit_counter ) <= 32),                 \
+  static_assert( ( COUNTER_READ( bit_counter ) <= 32),                 \
       "Bit " STRINGIFY(name) " couldn't be added to bitmask "                 \
       STRINGIFY(bitmask) ": " STRINGIFY(bitmask)                              \
       " ran out of bits!!");                                                  \

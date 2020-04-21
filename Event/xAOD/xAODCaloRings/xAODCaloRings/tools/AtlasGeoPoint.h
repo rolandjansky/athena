@@ -8,8 +8,6 @@
 
 #include <limits>
 
-#include "xAODCaloRings/tools/cxx/RingerUseNewCppFeatures.h"
-
 /**
  * @class xAOD::RingSet_v1::AtlasGeoPoint
  * @brief Declare a point holder for Atlas usual geometry
@@ -30,20 +28,10 @@ class AtlasGeoPoint {
 
     static const float PHI_MIN;
     static const float PHI_MAX;
-#if RINGER_USE_NEW_CPP_FEATURES
-    // This cannot be compiled with Root Genflex below version 6
-    // because there is no C++11 compatibility.
-
     // static constexpr float PHI_MIN = CaloPhiRange::phi_min(); <- not constexpr
     // static constexpr float PHI_MAX = CaloPhiRange::phi_max(); <- not constexpr
     static constexpr float ETA_MIN = -5;
     static constexpr float ETA_MAX = 5;
-#else
-    // static const float PHI_MIN;
-    // static const float PHI_MAX;
-    static const float ETA_MIN;
-    static const float ETA_MAX;
-#endif // RINGER_USE_NEW_CPP_FEATURES
 
     // Assign operator
     AtlasGeoPoint& operator=(const AtlasGeoPoint &p);

@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include <type_traits>
 
 // ROOT includes:
 #include <TFile.h>
@@ -18,8 +19,6 @@
 
 // Local includes:
 #include "IOHelperFcns.h"
-#include "RingerSelectorTools/tools/cxx/remove_cv.h"
-#include "RingerSelectorTools/tools/cxx/decay.h"
 
 namespace Ringer {
 
@@ -47,8 +46,8 @@ void readVar(TDirectory* dir, const char* varName, ReadingType& varDest)
       != nullptr )
   {
     // Remove constant and reference types
-    std::vector< typename Ringer::decay<
-                 typename Ringer::remove_cv<WrittenType>::type >::type
+    std::vector< typename std::decay<
+                 typename std::remove_cv<WrittenType>::type >::type
                  >* reader = nullptr;
     dir->GetObject( (std::string(varName) + "__Vec__" ).c_str(), reader );
     if ( reader != nullptr ){
@@ -77,8 +76,8 @@ void writeVar(TDirectory* dir, const char* varName, InputType& var)
 {
   // This workaround is just because gcc seems not to be able of creating
   // std::vector<const type>, so we remove const and reference types.
-  typedef typename Ringer::decay<
-          typename Ringer::remove_cv<WrittenType>::type
+  typedef typename std::decay<
+          typename std::remove_cv<WrittenType>::type
           >::type NonConstWrittenType;
   // Create the non constant variable to write:
   NonConstWrittenType &writtenVar = const_cast<NonConstWrittenType&>(

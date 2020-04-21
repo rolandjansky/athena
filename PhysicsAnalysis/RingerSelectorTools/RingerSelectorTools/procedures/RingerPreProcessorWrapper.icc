@@ -13,6 +13,8 @@
 
 #include "RingerSelectorTools/RingerSelectorToolsDefs.h"
 
+#include <type_traits>
+
 #undef NDEBUG
 
 namespace Ringer {
@@ -420,7 +422,7 @@ std::string RingerProcedureWrapper<
   std::stringstream ss;
   ss << "RingerProcedureWrapper<"
         << toStr(procedure_t::template procType<procEnum_t>() )
-        << ((Ringer::is_same<procedure_t,
+        << ((std::is_same<procedure_t,
               PreProcessing::IPreProcessorVarDep>::value)?",":"(VarDep),")
         << toStr(static_cast<EtaDependency>(etaDependency)) << ","
         << toStr(static_cast<EtDependency>(etDependency)) << ","
@@ -678,7 +680,7 @@ RingerProcedureWrapper<
                                 [ppIdxVec[2]];
 
     // Check which procedure_t this pre-processing wrapper holds.
-    if ( Ringer::is_same<procedure_t, IPreProcessorVarDep >::value )
+    if ( std::is_same<procedure_t, IPreProcessorVarDep >::value )
     {
       // If the procedure_t is not the PreProcessor interface, code will
       // never get here. We only use the interpret cast so that the compiler
