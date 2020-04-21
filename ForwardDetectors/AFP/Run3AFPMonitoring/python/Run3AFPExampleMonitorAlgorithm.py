@@ -63,7 +63,7 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = ''
-    file = '/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000005.pool.root.1'
+    file = '/eos/atlas/atlastier0/tzero/prod/data18_13TeV/physics_Main/00354309/data18_13TeV.00354309.physics_Main.recon.AOD.f946/data18_13TeV.00354309.physics_Main.recon.AOD.f946._lb0130._0001.1'
     
     ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = False

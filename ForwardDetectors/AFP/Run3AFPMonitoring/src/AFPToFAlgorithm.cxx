@@ -63,7 +63,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     auto trainID = Monitored::Scalar<int>("trainID", 0); 
     auto barInTrainID = Monitored::Scalar<int>("barInTrainID", 0); 
 
-    for(const xAOD::AFPTofHit *hitsItr: *afpToFHitContainer)
+    for(const xAOD::AFPToFHit *hitsItr: *afpToFHitContainer)
     {
 	trainID = hitsItr->trainID();
         barInTrainID = hitsItr->barInTrainID();
