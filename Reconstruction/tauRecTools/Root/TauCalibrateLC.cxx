@@ -17,20 +17,7 @@ using Gaudi::Units::GeV;
 
 /********************************************************************/
 TauCalibrateLC::TauCalibrateLC(const std::string& name) :
-  TauRecToolBase(name),
-  m_doEnergyCorr(false),
-  m_doPtResponse(false),
-  m_doAxisCorr(false),
-  m_usePantauAxis(false),
-  m_isCaloOnly(false)
-{
-  declareProperty("calibrationFile", m_calibrationFile = "EnergyCalibrationLC2012.root");
-  declareProperty("doEnergyCorrection", m_doEnergyCorr);
-  declareProperty("doPtResponse", m_doPtResponse);
-  declareProperty("countOnlyPileupVertices", m_countOnlyPileupVertices=false);
-  declareProperty("doAxisCorrection", m_doAxisCorr);
-  declareProperty("usePantauAxis", m_usePantauAxis);
-  declareProperty("isCaloOnly", m_isCaloOnly);
+  TauRecToolBase(name) {
 }
 
 /********************************************************************/
@@ -40,7 +27,7 @@ TauCalibrateLC::~TauCalibrateLC() {
 /********************************************************************/
 StatusCode TauCalibrateLC::initialize() {
 
-  if (m_in_trigger) {
+  if (inTrigger()) {
     ATH_CHECK( m_eventInfoKey.initialize() );
   }
   else {
@@ -160,7 +147,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
     int nVertex = 0;
     
     // Obtain pileup
-    if (m_in_trigger)  { // online: retrieved from EventInfo 
+    if (inTrigger())  { // online: retrieved from EventInfo 
       SG::ReadHandle<xAOD::EventInfo> eventInfoHandle( m_eventInfoKey );
       if (!eventInfoHandle.isValid()) {
         ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventInfoHandle.key() << ", will set nVertex = " << m_averageNPV );
@@ -265,7 +252,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
     pTau.setP4(xAOD::TauJetParameters::TauEtaCalib, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
   }
 
-  if (m_isCaloOnly == true && m_in_trigger == true){
+  if (m_isCaloOnly == true && inTrigger()) {
     pTau.setP4(xAOD::TauJetParameters::TrigCaloOnly, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
   }
 

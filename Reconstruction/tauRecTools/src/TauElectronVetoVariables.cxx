@@ -43,12 +43,7 @@ using Gaudi::Units::GeV;
 // Constructor
 //-------------------------------------------------------------------------
 TauElectronVetoVariables::TauElectronVetoVariables(const std::string &name) :
-TauRecToolBase(name),
-m_doVertexCorrection(false), //FF: don't do cell correction by default
-m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
-{
-    declareProperty("VertexCorrection", m_doVertexCorrection);
-    declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
+TauRecToolBase(name) {
 }
 
 //-------------------------------------------------------------------------

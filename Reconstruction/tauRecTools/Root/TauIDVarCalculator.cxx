@@ -21,9 +21,7 @@ using Gaudi::Units::GeV;
 const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
-  TauRecToolBase(name),
-  m_nVtx(1)
-{
+  TauRecToolBase(name) {
 }
 
 StatusCode TauIDVarCalculator::initialize()
@@ -34,9 +32,10 @@ StatusCode TauIDVarCalculator::initialize()
 
 StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
 {
-  if(!m_in_trigger){
+  int nVtx = 0;
+  if(!inTrigger()){
 
-    m_nVtx = int(LOW_NUMBER);    
+    nVtx = int(LOW_NUMBER);    
     // Get the primary vertex container from StoreGate
     const xAOD::VertexContainer* vertexContainer = nullptr;
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
@@ -46,14 +45,14 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     }
     else{
       vertexContainer = vertexInHandle.cptr();
-      m_nVtx=0;
+      nVtx=0;
       for( auto vertex : *vertexContainer ){
 	if(!vertex) continue;
 	// WARNING! the nVtx definition is different from the MVA TES equivalent, where we only count pileup vertices
 	int nTrackParticles = vertex->nTrackParticles();
         if( (nTrackParticles >= 4 && vertex->vertexType() == xAOD::VxType::PriVtx) ||
             (nTrackParticles >= 2 && vertex->vertexType() == xAOD::VxType::PileUp)){
-          m_nVtx++;
+          nVtx++;
         }
       }
     }
@@ -66,7 +65,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   acc_absipSigLeadTrk(tau) = std::abs(ipSigLeadTrk);
   
   //don't calculate EleBDT variables if run from TrigTauDiscriminant:
-  if(m_in_trigger) return StatusCode::SUCCESS;
+  if(inTrigger()) return StatusCode::SUCCESS;
   
   //everything below is just for EleBDT!
   SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK"); 
@@ -222,7 +221,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
     acc_etHotShotWinOverPtLeadTrk(tau) = LOW_NUMBER; 
   }
   //CORRFTRK
-  float correction = m_nVtx != int(LOW_NUMBER) ? 0.003 * m_nVtx : 0.;
+  float correction = nVtx != int(LOW_NUMBER) ? 0.003 * nVtx : 0.;
   float etOverpTLeadTrk = acc_etOverPtLeadTrk(tau);
   float ptLeadTrkOverEt = etOverpTLeadTrk > 0 ? 1. / etOverpTLeadTrk : LOW_NUMBER;
   acc_corrftrk(tau) = ptLeadTrkOverEt != -1111. ? ptLeadTrkOverEt + correction : ptLeadTrkOverEt;

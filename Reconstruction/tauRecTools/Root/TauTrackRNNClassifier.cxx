@@ -24,10 +24,7 @@ using namespace tauRecTools;
 
 //______________________________________________________________________________
 TauTrackRNNClassifier::TauTrackRNNClassifier(const std::string& sName)
-  : TauRecToolBase(sName)
-{
-  declareProperty("Classifiers", m_vClassifier );
-  declareProperty("ClassifierNames", m_vClassifierNames );
+  : TauRecToolBase(sName) {
 }
 
 //______________________________________________________________________________

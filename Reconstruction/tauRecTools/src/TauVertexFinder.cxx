@@ -16,19 +16,7 @@
 #include "xAODTau/TauJet.h"
 
 TauVertexFinder::TauVertexFinder(const std::string& name ) :
-  TauRecToolBase(name),
-  m_TrackSelectionToolForTJVA(""),
-  m_assocTracksName("")
-{
-  declareProperty("UseTJVA", m_useTJVA=true);
-  declareProperty("AssociatedTracks",m_assocTracksName);
-  declareProperty("InDetTrackSelectionToolForTJVA",m_TrackSelectionToolForTJVA);
- 
-  // online ATR-15665 
-  declareProperty("OnlineMaxTransverseDistance",m_transDistMax=10e6);
-  declareProperty("OnlineMaxLongitudinalDistance",m_longDistMax=10e6);
-  declareProperty("OnlineMaxZ0SinTheta",m_maxZ0SinTheta=10e6);
-
+  TauRecToolBase(name) {
 }
 
 TauVertexFinder::~TauVertexFinder() {
@@ -37,7 +25,7 @@ TauVertexFinder::~TauVertexFinder() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauVertexFinder::initialize() {
   ATH_CHECK( m_vertexInputContainer.initialize(SG::AllowEmpty) );
-  if (m_in_trigger)
+  if (inTrigger())
     ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_jetTrackVtxAssoc.initialize() );
   
@@ -85,7 +73,7 @@ StatusCode TauVertexFinder::executeVertexFinder(xAOD::TauJet& pTau,
   // code adapted from 
   // https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/VxVertex/trunk/VxVertex/PrimaryVertexSelector.h
   const xAOD::Vertex* primaryVertex = 0;
-  if ( m_in_trigger) { // trigger: find default PrimaryVertex (highest sum pt^2)
+  if (inTrigger()) { // trigger: find default PrimaryVertex (highest sum pt^2)
     primaryVertex = (*vxContainer)[0];
   }
   else { // offline: the first and only primary vertex candidate is picked
@@ -141,7 +129,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   const xAOD::TrackParticleContainer* trackParticleCont = 0;
   std::vector<const xAOD::TrackParticle*> assocTracks;
   
-  if (m_in_trigger) {
+  if (inTrigger()) {
     if (!m_trackPartInputContainer.empty()) {
       SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
       if (!trackPartInHandle.isValid()) {
@@ -185,7 +173,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   const jet::TrackVertexAssociation* tva = NULL;
  
   // ATR-15665 for trigger: reimplementation of TrackVertexAssociationTool::buildTrackVertexAssociation_custom
-  if(m_in_trigger){ 
+  if(inTrigger()){ 
       if(tracksForTJVA.size()==0){ATH_MSG_DEBUG("No tracks survived selection"); return ElementLink<xAOD::VertexContainer>();}
       else ATH_MSG_DEBUG("Selected tracks with size " << tracksForTJVA.size());
 
@@ -254,7 +242,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   size_t maxIndex = 0;
   for (const xAOD::Vertex* vert : vertices) {
     float jvf = 0;
-    if(!m_in_trigger) jvf = getJetVertexFraction(vert,tracksForTJVA,tva);
+    if(!inTrigger()) jvf = getJetVertexFraction(vert,tracksForTJVA,tva);
     else jvf = getJetVertexFraction(vert,tracksForTJVA);
     if (jvf > maxJVF) {
       maxJVF = jvf;

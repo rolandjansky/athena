@@ -7,9 +7,6 @@
 #include "Particle/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include "TrkVertexFitterInterfaces/IVertexFitter.h"
-#include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 #include "TrkVertexFitters/AdaptiveVertexFitter.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 
@@ -20,13 +17,7 @@
 //-----------------------------------------------------------------------------
 
 TauVertexVariables::TauVertexVariables(const std::string &name ) :
-  TauRecToolBase(name),
-  m_fitTool("Trk::AdaptiveVertexFitter"),
-  m_SeedFinder("Trk::CrossDistancesSeedFinder")
-{
-  declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);
-  declareProperty("VertexFitter", m_fitTool);
-  declareProperty("SeedFinder", m_SeedFinder);
+  TauRecToolBase(name) {
 }
 
 //-----------------------------------------------------------------------------
@@ -47,7 +38,7 @@ StatusCode TauVertexVariables::initialize() {
   ATH_CHECK( m_fitTool.retrieve() );
   ATH_CHECK( m_SeedFinder.retrieve() );
 
-  if (m_in_trigger) {
+  if (inTrigger()) {
     ATH_CHECK(m_beamSpotKey.initialize());
   }
 
@@ -76,7 +67,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
     xAOD::Vertex theBeamspot;
     theBeamspot.makePrivateStore();
 
-    if (m_in_trigger) { // online: use beamspot
+    if (inTrigger()) { // online: use beamspot
       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };        
       if(beamSpotHandle.isValid()){
         theBeamspot.setPosition(beamSpotHandle->beamPos());
@@ -162,7 +153,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   ATH_MSG_VERBOSE("transverse flight path significance="<<trFlightPS);
 
   // Note, we only attach the 2nd vertex if at offline, otherwise, break the trigger persistency
-  if  (!m_in_trigger) {
+  if  (!inTrigger()) {
     ATH_MSG_VERBOSE("secondary vertex recorded! x="<<xAODvertex->position().x()<< ", y="<<xAODvertex->position().y()<<", perp="<<xAODvertex->position().perp());
     pSecVtxContainer.push_back(xAODvertex);
     xAODvertex->setVertexType(xAOD::VxType::NotSpecified);
