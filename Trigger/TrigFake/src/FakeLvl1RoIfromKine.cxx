@@ -28,8 +28,6 @@ Modified :
 
 # include "CLHEP/Units/SystemOfUnits.h"
 
-//#include "HepMC/IO_PDG_ParticleDataTable.h"
-//#include "HepMC/ParticleDataTable.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"

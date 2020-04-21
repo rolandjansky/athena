@@ -33,7 +33,6 @@ using namespace TruthHelper;
 using CLHEP::GeV;
 
 using CLHEP::HepLorentzVector;
-//#include "HepMC/VectorConversion.h"
 namespace {
   inline 
   HepLorentzVector svToLv( const HepMC::FourVector& v )
