@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -35,36 +35,10 @@
 #include "AthContainers/ConstDataVector.h"
 #include "AthContainers/tools/copyAuxStoreThinned.h"
 #include "AthContainersInterfaces/IAuxStore.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
 
 
-class IThinningSvc;
-
-
 namespace SG {
-
-
-/**
- * @brief Helper to copy an object while applying thinning.
- * @param orig The object to copy.
- * @param svc The thinning service.
- *
- * Returns a new copy of @c orig with elements removed according to the
- * thinning defined in @c svc.  Ownership of the new object is passed
- * back to the caller.
- *
- * The code here handles @c IAuxStore objects.
- * (For a @c DataVector object, use @c copyThinnedConst.)
- * Support for additional object types may be added by adding
- * overloads for @c copyThinned1.
- *
- * [To be removed as part of MT thinning work; use the variant below instead.]
- */
-template <class CONTAINER>
-CONTAINER*
-copyThinned (const CONTAINER& orig,
-             IThinningSvc* svc);
 
 
 /**
@@ -90,27 +64,6 @@ copyThinned (CONTAINER& orig,
 /**
  * @brief Helper to copy an object while applying thinning, const version.
  * @param orig The object to copy.
- * @param svc The thinning service.
- *
- * Returns a new copy of @c orig with elements removed according to the
- * thinning defined in @c svc.  Ownership of the new object is passed
- * back to the caller.
- *
- * The code here handles @c DataVector and @c IAuxStore objects.
- * Support for additional object types may be added by adding
- * overloads for @c copyThinned1.
- *
- * [To be removed as part of MT thinning work; use the variant below instead.]
- */
-template <class CONTAINER>
-const CONTAINER*
-copyThinnedConst (const CONTAINER& orig,
-                  IThinningSvc* svc);
-
-
-/**
- * @brief Helper to copy an object while applying thinning, const version.
- * @param orig The object to copy.
  * @param dec The thinning decision for this object.
  *
  * Returns a new copy of @c orig with elements removed according to the
@@ -131,25 +84,6 @@ copyThinnedConst (const CONTAINER& orig,
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
  * @param dummy Dummy argument for overload resolution.
- * @param svc The thinning service.
- *
- * This is the generic version of @c copyThinned, which matches types
- * for which there is not a more specific overload.  It simply makes
- * a copy of @c orig using the copy constructor.
- *
- * [To be removed as part of MT thinning work; use the variant below instead.]
- */
-template <class CONTAINER>
-CONTAINER*
-copyThinned1 (const CONTAINER& orig,
-              const void* dummy,
-              IThinningSvc* svc);
-
-
-/**
- * @brief Helper to copy an object while applying thinning.
- * @param orig The object to copy.
- * @param dummy Dummy argument for overload resolution.
  * @param dec The thinning decision for this object.
  *
  * This is the generic version of @c copyThinned, which matches types
@@ -161,24 +95,6 @@ std::unique_ptr<CONTAINER>
 copyThinned1 (const CONTAINER& orig,
               const void* dummy,
               const SG::ThinningDecisionBase* dec);
-
-
-/**
- * @brief Helper to copy an object while applying thinning.
- * @param orig The object to copy.
- * @param dummy Dummy argument for overload resolution.
- * @param svc The thinning service.
- *
- * This overload handles @c DataVector types.  It returns a view container
- * copy of @c orig, from which any thinned elements are removed.
- *
- * [To be removed as part of MT thinning work; use the variant below instead.]
- */
-template <class CONTAINER>
-const CONTAINER*
-copyThinned1 (const CONTAINER& orig,
-              const DataVector<typename CONTAINER::base_value_type>* dummy,
-              IThinningSvc* svc);
 
 
 /**
@@ -211,26 +127,6 @@ std::unique_ptr<const CONTAINER>
 copyThinned1 (const CONTAINER& orig,
               const DataVector<typename CONTAINER::base_value_type>* dummy,
               const SG::ThinningDecisionBase* dec);
-
-
-/**
- * @brief Helper to copy an object while applying thinning.
- * @param orig The object to copy.
- * @param dummy Dummy argument for overload resolution.
- * @param svc The thinning service.
- *
- * This overload handles @c IAuxStore types.  It returns a new copy
- * of the store, with any thinned elements removed.
- *
- * [To be removed as part of MT thinning work; use the variant below instead.]
- */
-template <class CONTAINER>
-CONTAINER*
-copyThinned1 (const CONTAINER& orig,
-              const SG::IAuxStore* dummy,
-              IThinningSvc* svc);
-
-
 /**
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.

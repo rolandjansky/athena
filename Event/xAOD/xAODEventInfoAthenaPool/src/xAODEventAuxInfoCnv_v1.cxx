@@ -29,8 +29,7 @@ void xAODEventAuxInfoCnv_v1::persToTrans( const xAOD::EventAuxInfo_v1* oldObj,
 
    // Copy the payload of the v2 object into the latest one by misusing
    // the thinning code a bit...
-   SG::copyAuxStoreThinned( *oldObj, *newObj,
-                            static_cast< IThinningSvc* >( nullptr ) );
+   SG::copyAuxStoreThinned( *oldObj, *newObj, nullptr );
 
    // Print what happened:
    ATH_MSG( "Converting xAOD::EventAuxInfo_v1 to the current version... "
