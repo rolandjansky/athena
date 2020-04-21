@@ -49,7 +49,8 @@ def config_only_check():
 
 
 def error_check(errors):
-    if not MADGRAPH_CATCH_ERRORS: return
+    if not MADGRAPH_CATCH_ERRORS:
+        return
     unmasked_error = False
     if len(errors):
         mglog.info('Some errors detected by MadGraphControl - checking for serious errors')
@@ -72,6 +73,10 @@ def error_check(errors):
                 continue
             if 'HTML' in err:
                 # https://bugs.launchpad.net/mg5amcnlo/+bug/1870217
+                mglog.info(err)
+                continue
+            if 'impossible to set default multiparticles' in err:
+                # https://answers.launchpad.net/mg5amcnlo/+question/690004
                 mglog.info(err)
                 continue
             if err.startswith('tar'):

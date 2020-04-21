@@ -302,7 +302,6 @@ def do_MadSpin_DRX(DRmode, msdirname):
     my_ms_dir=msdirname
     pdir=my_ms_dir+'/production_me/SubProcesses/'
     fdir=my_ms_dir+'/full_me/SubProcesses/'
-    allfiles=os.listdir(pdir)
     full_files=os.listdir(fdir)
     mfiles = find_matrix_files(pdir)
 
