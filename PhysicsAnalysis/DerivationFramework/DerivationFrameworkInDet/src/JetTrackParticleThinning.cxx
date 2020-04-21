@@ -25,12 +25,8 @@
 DerivationFramework::JetTrackParticleThinning::JetTrackParticleThinning(const std::string& t,
                                                                         const std::string& n,
                                                                         const IInterface* p ) :
-base_class(t,n,p),
-m_ntot(0),
-m_npass(0),
-m_jetSGKey("")
+base_class(t,n,p)
 {
-    declareProperty("JetKey", m_jetSGKey);
 }
 
 // Destructor
@@ -44,13 +40,15 @@ StatusCode DerivationFramework::JetTrackParticleThinning::initialize()
     ATH_MSG_VERBOSE("initialize() ...");
     ATH_CHECK( m_inDetSGKey.initialize (m_streamName) );
     ATH_MSG_INFO("Using " << m_inDetSGKey << "as the source collection for inner detector track particles");
-    if (m_jetSGKey=="") {
+    if (m_jetKey.key().empty()) {
         ATH_MSG_FATAL("No jet collection provided for thinning.");
         return StatusCode::FAILURE;
-    } else { ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_jetSGKey << " will be retained in this format with the rest being thinned away");}
-    
+    }
+    ATH_CHECK( m_jetKey.initialize() );
+    ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_jetKey.key() << " will be retained in this format with the rest being thinned away");
+
     // Set up the text-parsing machinery for selectiong the jet directly according to user cuts
-    if (m_selectionString!="") {
+    if (!m_selectionString.empty()) {
 	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
 	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
 	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
@@ -58,7 +56,7 @@ StatusCode DerivationFramework::JetTrackParticleThinning::initialize()
 	    m_parser->loadExpression(m_selectionString);
     }
 
-    if (m_trackSelectionString!="") {
+    if (m_trackSelectionString.empty()) {
 	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
 	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
 	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
@@ -95,16 +93,16 @@ StatusCode DerivationFramework::JetTrackParticleThinning::doThinning() const
     
     // Retrieve containers
     // ... jets
-    const xAOD::JetContainer* importedJets(0);
-    if (evtStore()->retrieve(importedJets,m_jetSGKey).isFailure()) {
-        ATH_MSG_ERROR("No jet collection with name " << m_jetSGKey << " found in StoreGate!");
+    SG::ReadHandle<xAOD::JetContainer> importedJets(m_jetKey,ctx);
+    if (!importedJets.isValid()) {
+        ATH_MSG_ERROR("No jet collection with name " << m_jetKey.key() << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
     unsigned int nJets(importedJets->size());
     std::vector<const xAOD::Jet*> jetToCheck; jetToCheck.clear();
     
     // Execute the text parser if requested
-    if (m_selectionString!="") {
+    if (!m_selectionString.empty()) {
         std::vector<int> entries =  m_parser->evaluateAsVector();
         unsigned int nEntries = entries.size();
         // check the sizes are compatible
@@ -119,7 +117,7 @@ StatusCode DerivationFramework::JetTrackParticleThinning::doThinning() const
     
     // Set elements in the mask to true if there is a corresponding ElementLink from a reconstructed object
     // ... jets
-    if (m_selectionString=="") { // check all jets as user didn't provide a selection string
+    if (m_selectionString.empty()) { // check all jets as user didn't provide a selection string
         for (xAOD::JetContainer::const_iterator jetIt=importedJets->begin(); jetIt!=importedJets->end(); ++jetIt) {
             std::vector<const xAOD::TrackParticle*> jetTracks;
             bool haveJetTracks = (*jetIt)->getAssociatedObjects(xAOD::JetAttribute::GhostTrack, jetTracks);
@@ -162,9 +160,11 @@ StatusCode DerivationFramework::JetTrackParticleThinning::doThinning() const
     }
     
     // Count up the mask contents
+    unsigned int n_pass=0;
     for (unsigned int i=0; i<nTracks; ++i) {
-        if (mask[i]) ++m_npass;
+        if (mask[i]) ++n_pass;
     }
+    m_npass += n_pass;
     
     // Execute the thinning service based on the mask. Finish.
     importedTrackParticles.keep (mask);
