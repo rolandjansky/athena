@@ -874,8 +874,6 @@ namespace AtlasRoot {
       TFile file_wstot(filename_wstot.c_str());
       m_wstot_slope_A_data.reset(  dynamic_cast< TH1* >( file_wstot.Get("A_data"))); m_wstot_slope_A_data->SetDirectory(nullptr);
       m_wstot_slope_B_MC.reset(  dynamic_cast< TH1* >( file_wstot.Get("B_mc"))); m_wstot_slope_B_MC->SetDirectory(nullptr);
-      m_wstot_40GeV_data.reset(  dynamic_cast< TH1* >( file_wstot.Get("wstot40_data"))); m_wstot_40GeV_data->SetDirectory(nullptr);
-      m_wstot_40GeV_MC.reset(  dynamic_cast< TH1* >( file_wstot.Get("wstot40_mc"))); m_wstot_40GeV_MC->SetDirectory(nullptr);
       m_wstot_pT_data_p0_electrons.reset(  dynamic_cast< TH1* >( file_wstot.Get("wstot_pT_el_data_p0"))); m_wstot_pT_data_p0_electrons->SetDirectory(nullptr);
       m_wstot_pT_data_p1_electrons.reset(  dynamic_cast< TH1* >( file_wstot.Get("wstot_pT_el_data_p1"))); m_wstot_pT_data_p1_electrons->SetDirectory(nullptr);
       m_wstot_pT_data_p0_unconverted_photons.reset(  dynamic_cast< TH1* >( file_wstot.Get("wstot_pT_uc_data_p0"))); m_wstot_pT_data_p0_unconverted_photons->SetDirectory(nullptr);
@@ -2364,8 +2362,6 @@ namespace AtlasRoot {
     int bin = m_wstot_slope_A_data->FindFixBin(cl_eta);
     double A = m_wstot_slope_A_data->GetBinContent(bin);
     double B = m_wstot_slope_B_MC->GetBinContent(bin);
-    double wstot_40_data = m_wstot_40GeV_data->GetBinContent(bin);
-    double wstot_40_MC = m_wstot_40GeV_MC->GetBinContent(bin);
 
     //the wstot=f(pT) depends on the particle type
     double ETGeV = energy / cosh(cl_eta) / 1E3;
@@ -2373,6 +2369,9 @@ namespace AtlasRoot {
     double wstot_pT_data_p1 = 0.;
     double wstot_pT_MC_p0 = 0.;
     double wstot_pT_MC_p1 = 0.;
+
+    double wstot_40_data = m_wstot_pT_data_p0_electrons->GetBinContent(bin) + (m_wstot_pT_data_p1_electrons->GetBinContent(bin))/sqrt(40.);
+    double wstot_40_MC   = m_wstot_pT_MC_p0_electrons->GetBinContent(bin) + (m_wstot_pT_MC_p1_electrons->GetBinContent(bin))/sqrt(40.);
 
     if (ptype == PATCore::ParticleType::Electron ) {
       wstot_pT_data_p0 = m_wstot_pT_data_p0_electrons->GetBinContent(bin);
