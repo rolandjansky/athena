@@ -270,7 +270,6 @@ StatusCode PDFReweightTool::execute() {
 	
 
 	
-//StatusCode PDFReweightTool::Reweight(const HepMC::GenEvent* evt_orig) {
 StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 			
 	msg(MSG::DEBUG) << " Reweight PDF " << endmsg;	
@@ -283,7 +282,7 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 	        return StatusCode::SUCCESS;	
 	}
 
-	HepMC::PdfInfo* pdf_info = evt->pdf_info();
+	auto pdf_info = evt->pdf_info();
 	
 	//safety check
 	if (pdf_info) {
