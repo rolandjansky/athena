@@ -712,6 +712,14 @@ MdtReadoutElement::localToGlobalCoords(Amg::Vector3D x, Identifier id) const
   return transform(id)*x;
 }
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 const Amg::Transform3D
 MdtReadoutElement::globalTransform (const Amg::Vector3D& tubePos,
                                     const Amg::Transform3D& toDeform) const
