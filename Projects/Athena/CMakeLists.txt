@@ -119,5 +119,8 @@ install( FILES
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
+# Temporary alias to limit number of processes (ATLINFR-3046)
+atlas_add_alias( flake8 \${AthenaExternals_DIR}/${CMAKE_INSTALL_BINDIR}/flake8 -j1 )
+
 # Package up the release using CPack:
 atlas_cpack_setup()
