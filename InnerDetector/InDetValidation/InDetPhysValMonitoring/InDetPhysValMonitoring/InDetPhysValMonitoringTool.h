@@ -22,6 +22,9 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
+
+#include "InDetTruthVertexValidation/IInDetVertexTruthMatchTool.h"
+
 //#gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 //EDM includes
@@ -122,8 +125,10 @@ private:
 	std::unique_ptr< InDetRttPlots > m_monPlots;
 	///Tool for selecting tracks
 	bool m_useTrackSelection;
-	bool m_TrkSelectPV;   // make track selection relative to PV
+	bool m_useVertexTruthMatchTool;
+        bool m_TrkSelectPV;   // make track selection relative to PV
 	ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
+	ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool;
 	ToolHandle<IAthSelectionTool> m_truthSelectionTool;
         mutable std::mutex  m_mutex;
         mutable CutFlow     m_truthCutFlow;
