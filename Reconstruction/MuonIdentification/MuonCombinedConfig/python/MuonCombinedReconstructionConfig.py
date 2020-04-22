@@ -233,6 +233,7 @@ if __name__=="__main__":
     # To run this, do e.g. 
     # python -m MuonCombinedConfig.MuonCombinedReconstructionConfig --run --threads=1
     
+<<<<<<< HEAD
     from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneCA
 
     args = SetupMuonStandaloneArguments()
@@ -262,6 +263,14 @@ if __name__=="__main__":
 
     cfg = SetupMuonStandaloneCA(args,ConfigFlags)
 
+=======
+    from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneConfigFlags, SetupMuonStandaloneOutput, SetupMuonStandaloneCA
+
+    args = SetupMuonStandaloneArguments()
+    ConfigFlags = SetupMuonStandaloneConfigFlags(args)
+    cfg = SetupMuonStandaloneCA(args,ConfigFlags)
+
+>>>>>>> Use the standard configurations for running via Python from MuonConfig.
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     
@@ -290,7 +299,11 @@ if __name__=="__main__":
     
     # cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
   
+<<<<<<< HEAD
     cfg.printConfig(withDetails=True)
+=======
+    cfg.printConfig()
+>>>>>>> Use the standard configurations for running via Python from MuonConfig.
     f=open("MuonCombinedReconstruction.pkl","wb")
     cfg.store(f)
     f.close()
