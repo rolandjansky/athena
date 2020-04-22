@@ -228,9 +228,6 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::initialize()
     }
   }
 
-
-  if(r_rmax < 1100.) r_rmax = 1100.; 
-
   // Build framework
   //
   buildFrameWork();
@@ -259,7 +256,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::finalize()
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration) 
-{
+{  
   m_iteration0 = iteration;
   m_trigger = false;
   if(!m_pixel && !m_sct) return; 
@@ -1301,6 +1298,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildBeamFrameWork()
   m_zbeam[1] = float(sint*cosp)               ;
   m_zbeam[2] = float(sint*sinp)               ;
   m_zbeam[3] = float(cost)                    ;
+  
+  l_seeds.clear();
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1790,7 +1789,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
     sort(&m_Tn[ 0],Nt   );
     sort(&m_Tn[Nt],Nb-Nt);
 
-    covr0      *= 2.;
+    covr0      *= 0.5;
     covz0      *= 2.;
 
     m_nOneSeeds  = 0; m_mapOneSeeds .clear();
