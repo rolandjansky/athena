@@ -78,7 +78,7 @@ Trk::MultiComponentStateCombiner::combineWithWeight(Trk::ComponentParameters& me
   // Extract local error matrix: Must make sure track parameters are measured, ie have an associated
   // error matrix.
   if (firstMeasuredCov && secondMeasuredCov) {
-    AmgSymMatrix(5)* covariance = new AmgSymMatrix(5);
+    AmgSymMatrix(5) covariance;
     AmgSymMatrix(5) covariancePart1;
     covariancePart1.setZero();
     AmgSymMatrix(5) covariancePart2;
@@ -94,7 +94,7 @@ Trk::MultiComponentStateCombiner::combineWithWeight(Trk::ComponentParameters& me
     }
 
     covariancePart2 = firstWeight * secondWeight * parameterDifference * parameterDifference.transpose();
-    (*covariance) = covariancePart1 / totalWeight + covariancePart2 / (totalWeight * totalWeight);
+    covariance = covariancePart1 / totalWeight + covariancePart2 / (totalWeight * totalWeight);
 
     mergeTo.first->updateParameters(mean, covariance);
     mergeTo.second = totalWeight;
