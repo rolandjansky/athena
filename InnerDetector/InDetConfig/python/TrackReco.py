@@ -180,7 +180,7 @@ def InDetClusterMakerToolCfg(flags, **kwargs) :
     SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
 
     SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-    SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
+    SCTLorentzAngleTool.UseMagFieldCache = True
     acc.addPublicTool(SCTLorentzAngleTool)
     acc.addPublicTool(InDetClusterMakerTool)
     return acc,InDetClusterMakerTool

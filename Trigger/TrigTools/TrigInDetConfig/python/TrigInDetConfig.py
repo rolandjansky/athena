@@ -100,11 +100,11 @@ def TrigInDetCondConfig( flags ):
   SCTSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
   acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                            SiConditionsTool = sctSiliconConditionsTool,
-                                           UseMagFieldSvc = True,
+                                           UseMagFieldCache = True,
                                            UseMagFieldDcs = False))
   SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
   SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-  SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
+  SCTLorentzAngleTool.UseMagFieldCache = True
   acc.addPublicTool(SCTLorentzAngleTool)
 
 
