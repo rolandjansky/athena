@@ -347,7 +347,12 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     bitsmaker = TriggerBitsMakerToolCfg()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
-    pebDecisionKeys = [key for key in list(summaryAlg.getProperties()['FinalStepDecisions'].values()) if 'PEBInfoWriter' in key]
+    finalStepDecisions = summaryAlg.getProperties()['FinalStepDecisions']
+    # Check to work around ATR-21273
+    if (hasattr(finalStepDecisions, "values") and callable(getattr(finalStepDecisions, "values"))):
+        pebDecisionKeys = [key for key in list(finalStepDecisions.values()) if 'PEBInfoWriter' in key]
+    else:
+        pebDecisionKeys = []
     stmaker.PEBDecisionKeys = pebDecisionKeys
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
