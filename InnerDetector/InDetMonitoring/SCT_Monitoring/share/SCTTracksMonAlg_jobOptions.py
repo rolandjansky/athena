@@ -23,12 +23,12 @@ myMonAlg.TriggerChain = ''
 # Set InDetTrackSummaryTool to TrackSummaryTool of SCTTracksMonAlg
 myMonAlg.TrackSummaryTool = InDetTrackSummaryTool
 
-doTriggger = False
+doTrigger = False
 if globalflags.DataSource == "data":
   from RecExConfig.RecFlags import rec
   if rec.doTrigger():
-    doTriggger = True
-myMonAlg.doTrigger = doTriggger
+    doTrigger = True
+myMonAlg.doTrigger = doTrigger
 
 # Add a generic monitoring tool (a "group" in old language). The returned 
 # object here is the standard GenericMonitoringTool.
