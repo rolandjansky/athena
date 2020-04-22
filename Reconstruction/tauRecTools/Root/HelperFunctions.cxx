@@ -194,9 +194,10 @@ float tauRecTools::TRTBDT::GetResponse(){
 
 const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted){
 
-  incShowerSubtracted = true;
-
   using namespace asg::msgUserCode;
+  // If using subtracted clusters, need to store unmodified to check if charged are duplicates
+  std::vector<const xAOD::CaloCluster*> dupList;
+
   // Loop over jet constituents
   xAOD::JetConstituentVector jVec = jet->getConstituents();
   for(auto jCon : jVec){
@@ -208,17 +209,19 @@ const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vecto
       const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( jCon->rawConstituent() );
       if( !pfo->isCharged() ){
 	if( pfo->nCaloCluster()==1 ){
-	  clusterList.push_back(pfo->cluster(0));
 
 	  if (incShowerSubtracted){
-	    ElementLink<xAOD::CaloClusterContainer> subClusters;
-	    pfo->attribute("PFOShowerSubtractedClusterLink", subClusters);
-	    if (subClusters.isValid()){
-	      const xAOD::CaloClusterContainer* sclus = subClusters.getDataPtr();
-	      for (u_int i=0; i<sclus->size(); i++){
-		clusterList.push_back( sclus->at(i) );
-	      }
+	    ElementLink<xAOD::CaloClusterContainer> subClusLink;
+	    pfo->attribute("PFOShowerSubtractedClusterLink", subClusLink);
+
+	    if ( !subClusLink.isValid()) ANA_MSG_ERROR("Tau HelperFunctions: Found invalid link to shower subtracted cluster");
+	    else {
+	      clusterList.push_back( (*subClusLink) );
+	      dupList.push_back( pfo->cluster(0) );
 	    }
+	  }
+	  else {
+	    clusterList.push_back(pfo->cluster(0));
 	  }
 
 	}
@@ -232,20 +235,25 @@ const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vecto
     }
   }
 
-  // Get shower subtracted clusters from charged PFO
-  // loop over jet constituents
+  // Get clusters from charged PFOs
+  std::vector<const xAOD::CaloCluster*> checkList;
+  if (incShowerSubtracted) checkList = dupList;
+  else checkList = clusterList;
+
   for(auto jCon : jVec){
     if( jCon->type() == xAOD::Type::ParticleFlow ) {
       const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>( jCon->rawConstituent() );
       if( pfo->isCharged() ){
-	// loop through clusters
+
+	// loop through clusters linked to charged PFO
 	for (u_int cc=0; cc<pfo->nCaloCluster(); cc++){
 	  const xAOD::CaloCluster* cluster = pfo->cluster(cc);
-	  // if cluster not in neutral list
-	  if ( std::find(clusterList.begin(), clusterList.end(), cluster) == clusterList.end() ){
+	  // check it is not duplicate of one in neutral list
+	  if ( std::find(checkList.begin(), checkList.end(), cluster) == checkList.end() ){
 	    clusterList.push_back(cluster);
+	    checkList.push_back(cluster);
 	  }
-	}// loop through clusters
+	}
 
       }
     }
