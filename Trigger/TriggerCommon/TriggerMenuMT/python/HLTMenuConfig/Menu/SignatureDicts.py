@@ -341,7 +341,7 @@ ElectronChainParts = {
     'etaRange'       : [],
     'IDinfo'         : ['lhvloose','lhloose','lhmedium','lhtight'],
     'isoInfo'        : [],
-    'trkInfo'        : ['idperf'],
+    'trkInfo'        : ['nod0', 'idperf'],
     'caloInfo'       : [],
     'lhInfo'         : [],
     'L2IDAlg'        : ['noringer'],
