@@ -75,6 +75,24 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto nClusters = Monitored::Scalar<int>("nClusters",0.0);
     auto nClustersEt15BDTLoose = Monitored::Scalar<int>("nClustersEt15BDTLoose",0.0);
 
+
+
+    auto tauEtBDTLoose = Monitored::Scalar<float>("tauEtBDTLoose",0.0);
+    auto tauEtaBDTLoose = Monitored::Scalar<float>("tauEtaBDTLoose",0.0);
+    auto tauPhiBDTLoose = Monitored::Scalar<float>("tauPhiBDTLoose",0.0);
+    auto NumTracksBDTLoose = Monitored::Scalar<float>("NumTracksBDTLoose",0.0);
+
+    auto tauEtBDTMedium = Monitored::Scalar<float>("tauEtBDTMedium",0.0);
+    auto tauEtaBDTMedium = Monitored::Scalar<float>("tauEtaBDTMedium",0.0);
+    auto tauPhiBDTMedium = Monitored::Scalar<float>("tauPhiBDTMedium",0.0);
+    auto NumTracksBDTMedium = Monitored::Scalar<float>("NumTracksBDTMedium",0.0);
+
+
+
+
+
+
+
     auto LB = Monitored::Scalar<int>("LB",0.0);
 
     auto EMRadius = Monitored::Scalar<float>("EMRadius",0.0);
@@ -101,9 +119,16 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto eleBDTMedium = Monitored::Scalar<float>("eleBDTMedium",0.0);
     auto eleBDTTight = Monitored::Scalar<float>("eleBDTTight",0.0);
     auto muonVeto = Monitored::Scalar<float>("muonVeto",0.0);
+
+
     auto tauBDTLoose = Monitored::Scalar<float>("tauBDTLoose",0.0);
     auto tauBDTMedium = Monitored::Scalar<float>("tauBDTMedium",0.0);
     auto tauBDTTight = Monitored::Scalar<float>("tauBDTTight",0.0);
+
+
+
+
+
 
     auto hadLeakFracFixed = Monitored::Scalar<float>("hadLeakFracFixed",0.0);
     auto PSSFrac = Monitored::Scalar<float>("PSSFrac",0.0);
@@ -203,6 +228,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         //identification
         BDTJetScore = tau->discriminant(xAOD::TauJetParameters::BDTJetScore);
         BDTJetScoreSigTrans = tau->discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans);
+
         JetBDTBkgMedium = tau->isTau(xAOD::TauJetParameters::JetBDTBkgMedium);
 
         BDTEleScoreSigTrans = tau->auxdata<float>("BDTEleScoreSigTrans"); 
@@ -213,6 +239,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         tauBDTLoose  =       tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
         tauBDTMedium =       tau->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
         tauBDTTight  =       tau->isTau(xAOD::TauJetParameters::JetBDTSigTight);
+
+
 
         dRmax           =    tau->detail<float>(xAOD::TauJetParameters::dRmax);
         EMPOverTrkSysP  =    tau->detail<float>(xAOD::TauJetParameters::EMPOverTrkSysP);
@@ -285,6 +313,37 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                         ,tauEtEt15BDTLoose
                         ,panModeEt15BDTLoose);
                     }
+
+                    
+                    if(m_kinGroupName != "tauMonKinGroupGlobal" && tauBDTLoose){
+                        tauPhiBDTLoose = tau->phi();
+                        tauEtaBDTLoose = tau->eta();
+                        tauEtBDTLoose = tau->pt()/GeV;
+                        NumTracksBDTLoose = tau->nTracks();
+
+                        fill(tool
+                        ,tauPhiBDTLoose
+                        ,tauEtaBDTLoose
+                        ,NumTracksBDTLoose
+                        ,tauEtBDTLoose);
+                    }
+
+                    if(m_kinGroupName != "tauMonKinGroupGlobal" && tauBDTMedium){
+                        tauPhiBDTMedium = tau->phi();
+                        tauEtaBDTMedium = tau->eta();
+                        tauEtBDTMedium = tau->pt()/GeV;
+                        NumTracksBDTMedium = tau->nTracks();
+
+                        fill(tool
+                        ,tauPhiBDTMedium
+                        ,tauEtaBDTMedium
+                        ,NumTracksBDTMedium
+                        ,tauEtBDTMedium);
+                    }
+
+                    
+    
+
                     if (tau->nTracks()!= 0){
 
                         massTrkSys = tau->detail<float>(xAOD::TauJetParameters::massTrkSys) / GeV; //GeV
