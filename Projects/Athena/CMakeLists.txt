@@ -41,7 +41,7 @@ mark_as_advanced( TDAQ-COMMON_ATROOT TDAQ_PROJECT_NAME
    TDAQ_ATROOT )
 
 # Configure flake8:
-set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
+set( ATLAS_FLAKE8 "flake8_atlas -j 1 --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
    CACHE STRING "Default flake8 command" )
 
 set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
