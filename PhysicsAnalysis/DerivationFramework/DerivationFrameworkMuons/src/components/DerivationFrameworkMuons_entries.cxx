@@ -5,6 +5,15 @@
 #include "DerivationFrameworkMuons/IDTrackCaloDepositsDecoratorTool.h"
 #include "DerivationFrameworkMuons/MuonIDCovMatrixDecorator.h"
 #include "DerivationFrameworkMuons/MuonJetDrTool.h"
+#include "DerivationFrameworkMuons/MuonTruthClassifierFallback.h"
+#include "DerivationFrameworkMuons/MuonTruthIsolationTool.h"
+#include "DerivationFrameworkMuons/MuonJetDrTool.h"
+#include "DerivationFrameworkMuons/MuonTPJpsiVertexFittingAlg.h"
+#include "DerivationFrameworkMuons/VertexDecoratorAlg.h"
+
+DECLARE_COMPONENT (DerivationFramework::MuonTruthClassifierFallback)
+DECLARE_COMPONENT (DerivationFramework::MuonTruthIsolationTool)
+DECLARE_COMPONENT (DerivationFramework::MuonJetDrTool)
 
 DECLARE_COMPONENT( DerivationFramework::dimuonTaggingTool )
 DECLARE_COMPONENT( DerivationFramework::isolationDecorator )
