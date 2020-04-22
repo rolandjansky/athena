@@ -47,9 +47,6 @@ output the muon calibration input.
 
   private:
 
-    // temporary execute until migration to re-entrant alg  
-    StatusCode execute_r (const EventContext& ctx) const;
-      
     /** retrieve patterns and segments from storegate */
     //    const Muon::MuonSegmentCollection* retrieveSegments();
   

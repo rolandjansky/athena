@@ -59,6 +59,10 @@ namespace MagField {
                                double* ATH_RESTRICT bxyz, 
                                double* ATH_RESTRICT deriv = nullptr);
     
+        /** status of the magnets */
+        bool solenoidOn() const { return m_fieldMap ? m_fieldMap->solenoidOn() : false; }
+        bool toroidOn() const   { return m_fieldMap ? m_fieldMap->toroidOn()   : false; }
+
     private:
     
         AtlasFieldCache(const AtlasFieldCache& other)             = delete;
@@ -105,7 +109,7 @@ bool
 MagField::AtlasFieldCache::fillFieldCache(double z, double r, double phi) 
 {
     // search for the zone
-    const BFieldZone* zone = m_fieldMap->findBFieldZone( z, r, phi );
+    const BFieldZone* zone = m_fieldMap ? m_fieldMap->findBFieldZone( z, r, phi ) : nullptr;
     if ( zone == nullptr ) {
         // outsize all zones
         return false;
