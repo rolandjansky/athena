@@ -39,6 +39,12 @@ def MagneticFieldSvcCfg(flags, **kwargs):
     afmArgs = {
       "name": "AtlasFieldMapCondAlg",
     }
+    if flags.Common.isOnline:
+      # Set UseMapsFromCOOL for online to force the map creation at start
+      afmArgs.update( UseMapsFromCOOL = False )
+    else:
+      # Otherwise read from cool
+      afmArgs.update( UseMapsFromCOOL = True )
     afmArgs.update( UseMapsFromCOOL = True )
     mag_field_map_cond_alg = CompFactory.MagField.AtlasFieldMapCondAlg(**afmArgs) 
     result.addCondAlgo(mag_field_map_cond_alg)
