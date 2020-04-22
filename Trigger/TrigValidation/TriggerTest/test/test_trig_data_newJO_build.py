@@ -38,7 +38,7 @@ test = Test.Test()
 test.art_type = 'build'
 #test.exec_steps = [copy_jo, pickle, run_athena]
 #test.check_steps = CheckSteps.default_check_steps(test)
-test.exec_steps = [copy_jo]
+test.exec_steps = [copy_jo, pickle]
 test.check_steps = [] 
 
 # Change RegTest pattern

@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
-
+from collections import MutableSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from AthenaCommon.CFElements import parOR, seqAND, compName, getProp
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -44,17 +44,17 @@ class AlgNode(Node):
         if self.outputProp != '':
             self.addOutput(("%s_%s"%(self.Alg.getName(),self.outputProp)))
 
-    def setPar(self, prop, name):
-        cval = getProp( self.Alg, prop)
-        if type(cval) is list:
-            cval.append(name)
-            return setattr(self.Alg, prop, cval)
+    def setPar(self, propname, value):
+        cval = getProp( self.Alg, propname)
+        if isinstance(cval, MutableSequence):
+            cval.append(value)
+            return setattr(self.Alg, propname, cval)
         else:
-            return setattr(self.Alg, prop, name)
+            return setattr(self.Alg, propname, value)
 
     def resetPar(self, prop):
         cval = getProp(self.Alg, prop)
-        if type(cval) is list:
+        if isinstance(cval, MutableSequence):
             return setattr(self.Alg, prop, [])
         else:
             return setattr(self.Alg, prop, "")
@@ -86,7 +86,7 @@ class AlgNode(Node):
         cval = self.getPar(self.outputProp)
         if cval == '':
             return outputs
-        if type(cval) is list:
+        if isinstance(cval, MutableSequence):
             outputs.extend(cval)
         else:
             outputs.append(cval)
@@ -109,7 +109,7 @@ class AlgNode(Node):
         cval = self.getPar(self.inputProp)
         if cval =='':
             return inputs
-        if type(cval) is list:
+        if isinstance(cval, MutableSequence):
             inputs.extend(cval)
         else:
             inputs.append(cval)
@@ -213,7 +213,7 @@ class SequenceFilterNode(AlgNode):
     def __init__(self, Alg, inputProp, outputProp):
         AlgNode.__init__(self,  Alg, inputProp, outputProp)
 
-    def setChains(self, name):
+    def addChain(self, name):
         return self.setPar("Chains", name)
 
     def getChains(self):

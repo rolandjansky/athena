@@ -59,12 +59,18 @@ def __decisionsFromHypo( hypo ):
     else: # regular hypos
         return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], hypo.HypoOutputDecisions
 
+def __getSequenceChildrenIfIsSequence( s ):
+    if isSequence( s ):
+        return getSequenceChildren( s )
+    return []
 
 def collectViewMakers( steps ):
     """ collect all view maker algorithms in the configuration """
     makers = [] # map with name, instance and encompasing recoSequence
-    for stepSeq in getSequenceChildren( steps ):
-        for recoSeq in getSequenceChildren( stepSeq ):
+    for stepSeq in __getSequenceChildrenIfIsSequence( steps ):
+        for recoSeq in __getSequenceChildrenIfIsSequence( stepSeq ):
+            if not isSequence( recoSeq ):
+                continue
             algsInSeq = flatAlgorithmSequences( recoSeq )
             for seq,algs in six.iteritems (algsInSeq):
                 for alg in algs:
