@@ -30,6 +30,7 @@
 #include "TrkValHistUtils/IDHitPlots.h"
 #include "InDetPerfPlot_Hits.h"
 #include "InDetPerfPlot_Vertex.h"
+#include "InDetPerfPlot_VertexTruthMatching.h"
 #include "InDetPerfPlot_VerticesVsMu.h"
 
 #include "InDetPerfPlot_TrkInJet.h"
@@ -89,6 +90,8 @@ private:
   InDetPerfPlot_VerticesVsMu m_verticesVsMuPlots;
   InDetPerfPlot_Vertex m_vertexPlots;
   InDetPerfPlot_Vertex m_hardScatterVertexPlots;
+  InDetPerfPlot_VertexTruthMatching m_vertexTruthMatchingPlots;
+  InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
 
   bool m_secondaryResolution;
   bool m_doTrackInJetPlots;
