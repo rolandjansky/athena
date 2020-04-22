@@ -175,13 +175,13 @@ int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
     }
     if (msgLvl(MSG::DEBUG)){
       const xAOD::TrackParticle* track = thisEfRecTrack->getTrack();
-      ATH_MSG_DEBUG("Recovering charged EFO with e,eta and phi " << track->e() << ", " << track->eta() << " and " << track->phi());
+      ATH_MSG_DEBUG("Recovering charged EFO with e,pt, eta and phi " << track->e() << ", " << track->pt() << ", " << track->eta() << " and " << track->phi());
     }
     /* Get list of matched clusters */
     std::vector<eflowRecCluster*> matchedClusters = m_matchingTool->doMatches(thisEfRecTrack, m_clustersToConsider, -1);
 
     if (msgLvl(MSG::DEBUG)){
-      for (auto thisEFRecCluster : matchedClusters) ATH_MSG_DEBUG("Have matched cluster with e, eta, phi of " << thisEFRecCluster->getCluster()->e() << ", " <<  thisEFRecCluster->getCluster()->eta() << " and " << thisEFRecCluster->getCluster()->phi());
+      for (auto thisEFRecCluster : matchedClusters) ATH_MSG_DEBUG("Have matched cluster with e, pt, eta, phi of " << thisEFRecCluster->getCluster()->e() << ", " <<  thisEFRecCluster->getCluster()->eta() << ", " << thisEFRecCluster->getCluster()->eta() << " and " << thisEFRecCluster->getCluster()->phi());
     }
 
     if (matchedClusters.empty()) { continue; }
@@ -215,12 +215,17 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
 
   for (unsigned iTrack = 0; iTrack < thisEflowCaloObject->nTracks(); ++iTrack) {
     eflowRecTrack* thisEfRecTrack = thisEflowCaloObject->efRecTrack(iTrack);
+    ATH_MSG_DEBUG("About to recover track with e, pt, eta and phi of " << thisEfRecTrack->getTrack()->e() << ", " << thisEfRecTrack->getTrack()->pt() << ", " << thisEfRecTrack->getTrack()->eta() << " and "
+    << thisEfRecTrack->getTrack()->eta());
     /* Get matched cluster via Links */
     std::vector<eflowRecCluster*> matchedClusters;
     matchedClusters.clear();
     std::vector<eflowTrackClusterLink*> links = thisEfRecTrack->getClusterMatches();
     for ( auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
 
+    if (msgLvl(MSG::DEBUG)){
+      for (auto thisClus : matchedClusters) ATH_MSG_DEBUG("Cluster with e,pt, eta and phi of " << thisClus->getCluster()->e() << ", "<< thisClus->getCluster()->pt() << ", " << thisClus->getCluster()->eta() << " and " << thisClus->getCluster()->phi() << " will be subtracted");
+    }
     /* Do subtraction */
     std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
     clusterSubtractionList.reserve(matchedClusters.size());
@@ -240,8 +245,9 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
       pfSubtractionStatusSetter.markAnnihStatus(*thisEflowCaloObject);
     } else {
       /* Subtract the track from all matched clusters */
-      Subtractor::subtractTracksFromClusters(thisEfRecTrack, clusterSubtractionList);
-          
+      const bool debugToggle = msgLvl(MSG::DEBUG) ? true : false;
+      Subtractor::subtractTracksFromClusters(thisEfRecTrack, clusterSubtractionList, debugToggle);                
+
       /* Annihilate the cluster(s) if the remnant is small (i.e. below k*sigma) */
       if (getSumEnergy(clusterSubtractionList) < m_subtractionSigmaCut
           * sqrt(thisEfRecTrack->getVarEExpect())) {
@@ -262,6 +268,11 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
         } 
 
     }
+
+    if (msgLvl(MSG::DEBUG)){
+      for (auto thisClus : matchedClusters) ATH_MSG_DEBUG("Cluster with e,pt, eta and phi of " << thisClus->getCluster()->e() << ", "<< thisClus->getCluster()->pt() << ", " << thisClus->getCluster()->eta() << " and " << thisClus->getCluster()->phi() << " has been subtracted");
+    } 
+
     /* Flag tracks as subtracted */
     thisEfRecTrack->setSubtracted();
   }
