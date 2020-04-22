@@ -4,8 +4,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "EventInfoMgt/ITagInfoMgr.h"
-
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 
@@ -223,26 +221,6 @@ TgcRdo * TgcDigitToTgcRDO::getTgcRdo(const TgcRawData * rawData,  std::map<uint1
   return rdo;
 }
 
-StatusCode TgcDigitToTgcRDO::fillTagInfo() const
-{
-  ServiceHandle<ITagInfoMgr> tagInfoMgr ("TagInfoMgr", name());
-  if (tagInfoMgr.retrieve().isFailure())
-    return StatusCode::FAILURE;
-  
-  StatusCode sc = tagInfoMgr->addTag("TGC_CablingType",m_cablingType);  
-
-  if(sc.isFailure()) {
-    ATH_MSG_WARNING( "TGC_CablingType " << m_cablingType
-                     << " not added to TagInfo "  );
-    return sc;
-  } else {
-    ATH_MSG_DEBUG( "TGC_CablingType " << m_cablingType 
-                   << " is Added TagInfo "  );
-  }
-  
-  return StatusCode::SUCCESS;
-}
-
 StatusCode TgcDigitToTgcRDO::getCabling() {
 
   m_cabling = nullptr;
@@ -257,9 +235,6 @@ StatusCode TgcDigitToTgcRDO::getCabling() {
     ATH_MSG_INFO( "TGCcablingSvc (8-fold) is selected"  );
     m_cablingType = "TGCcabling8Svc";
   }
-
-  // Fill Tag Info  
-  ATH_CHECK( fillTagInfo() );
 
   return StatusCode::SUCCESS;
 }
