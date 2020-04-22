@@ -62,3 +62,4 @@ atlas_add_component( SiClusterizationTool
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_data( share/*.db )

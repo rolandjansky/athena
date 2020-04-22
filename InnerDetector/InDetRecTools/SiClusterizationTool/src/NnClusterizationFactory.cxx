@@ -272,10 +272,7 @@ namespace InDet {
     // in order to use lwtnn for positions.
     m_useLwtnnPosition = true;
     for (int i=1; i<4; i++) {
-      std::string key;
-      if (i==1)      key = "PositionNetwork_N1";
-      else if (i==2) key = "PositionNetwork_N2";
-      else           key = "PositionNetwork_N3";
+      const std::string key = "PositionNetwork_N"+std::to_string(i);
       configStream.str("");
       pt::ptree subtreePosNetwork = parentTree.get_child(key);
       pt::write_json(configStream, subtreePosNetwork);
