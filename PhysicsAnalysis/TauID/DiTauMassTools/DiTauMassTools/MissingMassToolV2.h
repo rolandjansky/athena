@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Asg wrapper around the MissingMassCalculator
@@ -89,6 +89,7 @@ class MissingMassToolV2 : virtual public IMissingMassTool, virtual public asg::A
   std::string m_lfv_mode;
   bool m_decorate;
   bool m_float_stop;
+  bool m_use_mnu_probability;
   bool m_use_met_param_dphiLL;
   std::string m_param_file_path;
 
