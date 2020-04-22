@@ -636,10 +636,9 @@ unsigned int TrigCaloDataAccessSvc::prepareMBTSCollections( const EventContext& 
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFrags;
   {
     std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
-    m_robDataProvider->addROBData( m_mbts_add_rods );
+    m_robDataProvider->addROBData( context, m_mbts_add_rods );
   }
   std::lock_guard<std::mutex> collectionLock { cache->mutex };  
-  std::lock_guard<std::mutex> decoderLock { m_tiledecoderProtect };  
   TileCellCont* tilecell = cache->tileContainer;
   cache->tileContainer->eventNumber( context.evt() );
  
