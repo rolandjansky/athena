@@ -431,7 +431,9 @@ def getLumiCondDataKeyForTRTMuScaling(**kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
     isHLT=kwargs.pop('isHLT',False)
     kwargs.pop('namePrefix','')
-    if not InDetFlags.doCosmics() :
+    if not InDetFlags.doCosmics() and InDetFlags.useMuForTRTErrorScaling():
+        # @TODO remove flag useMuForTRTErrorScaling once TRT mu dependent ERROR scaling not needed any more or
+        #       LuminosityCondAlgDefault always uses the correct database and   folder
         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault,LuminosityCondAlgOnlineDefault
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
         lumiAlg = LuminosityCondAlgDefault() if not athenaCommonFlags.isOnline() and not isHLT else LuminosityCondAlgOnlineDefault()
