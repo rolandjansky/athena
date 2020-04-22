@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
 			  Event/xAOD/xAODMuon
 			  Trigger/TrigAnalysis/TriggerMatchingTool
                           Control/AthenaKernel
-                          Control/DataModel
                           Control/SGTools
                           Control/StoreGate )
 
@@ -28,11 +27,11 @@ atlas_add_library( DerivationFrameworkCoreLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkCore
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthContainers AthLinks SGTools  xAODEgamma xAODBase xAODMuon TriggerMatchingToolLib AthenaKernel DataModel SGTools AsgAnalysisInterfaces AthAnalysisBaseCompsLib GoodRunsListsLib PathResolver )
+                   PRIVATE_LINK_LIBRARIES AthContainers AthLinks SGTools  xAODEgamma xAODBase xAODMuon TriggerMatchingToolLib AthenaKernel SGTools AsgAnalysisInterfaces AthAnalysisBaseCompsLib GoodRunsListsLib PathResolver )
 
 atlas_add_component( DerivationFrameworkCore
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthContainers AthLinks xAODBase xAODEgamma xAODMuon TriggerMatchingToolLib AthenaBaseComps GaudiKernel AthenaKernel DataModel SGTools StoreGateLib SGtests DerivationFrameworkCoreLib AsgAnalysisInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps AthContainers AthLinks xAODBase xAODEgamma xAODMuon TriggerMatchingToolLib AthenaBaseComps GaudiKernel AthenaKernel SGTools StoreGateLib SGtests DerivationFrameworkCoreLib AsgAnalysisInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -18,6 +18,9 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODBase/IParticle.h"
 
+#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
+
 namespace Trig
 {
   class IMatchingTool;
