@@ -38,7 +38,25 @@ def setupMenu():
     TriggerFlags.MinBiasSlice.signatures   = []
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
-    TriggerFlags.StreamingSlice.signatures = []
+    TriggerFlags.StreamingSlice.signatures = [
+        ChainProp(name='HLT_noalg_cosmiccalo_L1EM3_EMPTY', stream=['CosmicCalo'],groups=['RATE:Cosmic_Calo','BW:MinBias']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1RD1_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Calibration','BW:Detector']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1J3031ETA49_EMPTY', stream=['CosmicCalo'],groups=['RATE:Cosmic_Calo','BW:Jet']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1J12_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1EM7_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1J30_EMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1J12_FIRSTEMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1RD1_BGRP10', stream=['CosmicCalo','express'],groups=['RATE:Calibration','BW:Detector']),
+
+        ChainProp(name='HLT_noalg_idcosmic_L1TRT_EMPTY', stream=['IDCosmic','express'],groups=['RATE:SeededStreamers','BW:Other']),
+        ChainProp(name='HLT_noalg_idcosmic_L1TRT_FILLED', stream=['IDCosmic'],groups=['RATE:SeededStreamers','BW:Other']),
+
+        ChainProp(name='HLT_noalg_cosmicmuons_L1MU4_EMPTY', stream=['CosmicMuons','express'],groups=['RATE:Cosmic_Muon','BW:Muon']),
+        ChainProp(name='HLT_noalg_cosmiccalo_L1MU11_EMPTY', stream=['CosmicMuons','express'],groups=['RATE:Cosmic_Muon','BW:Muon']),
+
+
+]
     TriggerFlags.MonitorSlice.signatures   = []
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
