@@ -310,7 +310,7 @@ class PixelConditionsServicesSetup:
       from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
       condSeq += PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg", 
                                             SiPropertiesTool=TrigSiPropertiesTool,
-                                            UseMagFieldSvc = True,
+                                            UseMagFieldCache = True,
                                             UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
 
     from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
@@ -546,14 +546,14 @@ class SCT_ConditionsToolsSetup:
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                           SiConditionsTool = sctSiliconConditionsTool,
-                                          UseMagFieldSvc = True,
+                                          UseMagFieldCache = True,
                                           UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
       sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
     "Inititalize Lorentz angle Tool"
     from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
     SCTLorentzAngleTool = SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-    SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
+    SCTLorentzAngleTool.UseMagFieldCache = True
     
   def instanceName(self, toolname):
     return self.prefix+toolname
