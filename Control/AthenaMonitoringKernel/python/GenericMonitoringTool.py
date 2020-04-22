@@ -7,9 +7,10 @@ from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import json
 import six
-import sys
 
-if "AthenaCommon.Include" not in sys.modules or Configurable.configurableRun3Behavior:
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
+
+if isRun3Cfg():
     from GaudiConfig2.Configurables import GenericMonitoringTool as _GenericMonitoringTool
 else:
     from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
