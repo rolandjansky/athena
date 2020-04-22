@@ -79,17 +79,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
       }
 	else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
       }
- 
-    AFPMon::AFPFastReco fast(afpHitContainer.get());
-    fast.reco();
-
-    for (const auto& cluster : fast.clusters()) {
-      ATH_MSG_INFO("c: " << cluster.x << " " << cluster.y);
-    }
-
-    for (const auto& track : fast.tracks()) {
-      ATH_MSG_INFO("t: " << track.x << " " << track.y);
-    }
 
     return StatusCode::SUCCESS;
 }
