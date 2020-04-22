@@ -256,65 +256,14 @@ SCTHitsNoiseMonTool::fillHistograms() {
   ++m_numberOfEventsRecent;
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const EventIDBase& pEvent{ctx.eventID()};
-  int tmp_lb{static_cast<int>(pEvent.lumi_block())};
-  if ((tmp_lb > m_current_lb) and (m_current_lb<=NBINS_LBs)) {
-    for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-      m_occ_lb[jReg][m_current_lb] = 0;
-      m_occTrigger_lb[jReg][m_current_lb] = 0;
-      m_hitocc_lb[jReg][m_current_lb] = 0;
-      m_hitoccTrigger_lb[jReg][m_current_lb] = 0;
-    }
-    int nlinks[N_REGIONS_INC_GENERAL]{0, 0, 0, 0};
-    SCT_ID::const_id_iterator planeIterator{m_pSCTHelper->wafer_begin()};
-    SCT_ID::const_id_iterator planeEnd{m_pSCTHelper->wafer_end()};
-    for (; planeIterator not_eq planeEnd; ++planeIterator) {
-      Identifier planeId{*planeIterator};
-      const int bec{m_pSCTHelper->barrel_ec(planeId)};
-      const unsigned int systemIndex{bec2Index(bec)};
-      // Don't initialize a value for disabled  modules
-      if (not m_ConfigurationTool->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
-        continue;
-      }
-      if (m_events_lb > 0) {
-        for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-          m_occ_lb[jReg][m_current_lb] += m_occSumUnbiased_lb[jReg][*planeIterator] / m_events_lb;
-          m_hitocc_lb[jReg][m_current_lb] += m_hitoccSumUnbiased_lb[jReg][*planeIterator] / m_events_lb;
-        }
-      }
-      if (m_eventsTrigger_lb > 0) {
-        for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-          m_occTrigger_lb[jReg][m_current_lb] += (1E5) * m_occSumUnbiasedTrigger_lb[jReg][*planeIterator] / m_eventsTrigger_lb;
-          m_hitoccTrigger_lb[jReg][m_current_lb] += (1E5) * m_hitoccSumUnbiasedTrigger_lb[jReg][*planeIterator] / m_eventsTrigger_lb;
-        }
-      }
-      for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-        m_occSumUnbiased_lb[jReg][*planeIterator] = 0;
-        m_occSumUnbiasedTrigger_lb[jReg][*planeIterator] = 0;
-        m_hitoccSumUnbiased_lb[jReg][*planeIterator] = 0;
-        m_hitoccSumUnbiasedTrigger_lb[jReg][*planeIterator] = 0;
-      }
-      nlinks[systemIndex]++;
-      nlinks[GENERAL_INDEX]++;
-    }
-    for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-      if (nlinks[jReg]>0) {
-        m_occ_lb[jReg][m_current_lb] /= nlinks[jReg];
-        m_occTrigger_lb[jReg][m_current_lb] /= nlinks[jReg];
-        m_hitocc_lb[jReg][m_current_lb] /= nlinks[jReg];
-        m_hitoccTrigger_lb[jReg][m_current_lb] /= nlinks[jReg];
-      }
-    }
-    m_events_lb = 0;
-    m_eventsTrigger_lb = 0;
-  }
-  m_current_lb = pEvent.lumi_block();
+  const int lb{static_cast<int>(pEvent.lumi_block())};
   // If track hits are selected, make the vector of track rdo identifiers
   if (m_doTrackHits) {
     if (makeVectorOfTrackRDOIdentifiers().isFailure()) {
       ATH_MSG_WARNING("Couldn't make vector of track RDO identifiers");
     }
   }
-  if (generalHistsandNoise().isFailure()) {
+  if (generalHistsandNoise(ctx).isFailure()) {
     ATH_MSG_WARNING("Error in generalHists");
   }
 
@@ -324,7 +273,7 @@ SCTHitsNoiseMonTool::fillHistograms() {
         ATH_MSG_WARNING("Error in checkNoiseMaps()");
       }
     }
-    if ((m_current_lb % m_checkrecent == 0) and (m_current_lb > m_last_reset_lb)) {
+    if ((lb % m_checkrecent == 0) and (lb > m_last_reset_lb)) {
       if (checkNoiseMaps().isFailure()) {
         ATH_MSG_WARNING("Error in checkNoiseMaps()");
       }
@@ -334,7 +283,7 @@ SCTHitsNoiseMonTool::fillHistograms() {
       if (resetHitMapHists().isFailure()) {
         ATH_MSG_WARNING("Error in resetHitMapsRecent");
       }
-      m_last_reset_lb = m_current_lb;
+      m_last_reset_lb = lb;
       m_numberOfEventsRecent = 0;
     }
   }
@@ -381,21 +330,27 @@ SCTHitsNoiseMonTool::checkHists(bool /*fromFinalize*/) {
 // you'll lose it
 // ====================================================================================================
 StatusCode
-SCTHitsNoiseMonTool::generalHistsandNoise() {
-  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer{m_dataObjectName};
+SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
+  const EventIDBase& pEvent{ctx.eventID()};
+  const int lb{static_cast<int>(pEvent.lumi_block())};
+
+  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer{m_dataObjectName, ctx};
   if (not p_rdocontainer.isValid()) {
     return StatusCode::FAILURE;
   }
   // Get the space point container
-  SG::ReadHandle<SpacePointContainer> sctContainer{m_SCTSPContainerName};
+  SG::ReadHandle<SpacePointContainer> sctContainer{m_SCTSPContainerName, ctx};
   if (not sctContainer.isValid()) {
     return StatusCode::FAILURE;
   }
+
+  const unsigned int wafer_hash_max{static_cast<unsigned int>(m_pSCTHelper->wafer_hash_max())};
+  std::vector<float> occ(wafer_hash_max, 0.);
+  std::vector<float> hitOcc(wafer_hash_max, 0.);
+
   Identifier SCT_Identifier;
   // Use new IDC
   int local_tothits{0};
-  int totalmodules{0};
-  int maxrodhits{0};
 
   bool isSelectedTrigger{false};
   // EDAVIES - have now changed back to using L1_RD0_EMPTY
@@ -403,13 +358,8 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
     if (AthenaMonManager::dataType() != AthenaMonManager::cosmics) {
       if (m_trigDecTool->isPassed(m_NOTriggerItem)) {
         isSelectedTrigger = true;
-        ++m_numberOfEventsTrigger;
       }
     }
-  }
-  m_events_lb++;
-  if (isSelectedTrigger) {
-    m_eventsTrigger_lb++;
   }
 
   vector<int> barrel_local_nhitslayer(N_BARRELSx2, 0);
@@ -429,6 +379,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
     // MJW new code- try getting the ID of the collection using the identify() method
     Identifier tempID{SCT_Collection->identify()};
     Identifier theWaferIdentifierOfTheRDOCollection{tempID};
+    IdentifierHash theWaferIdentifierHashOfTheRDOCollection{SCT_Collection->identifyHash()};
     Identifier theModuleIdentifierOfTheRDOCollection{m_pSCTHelper->module_id(tempID)};
     IdentifierHash theModuleHash0{m_pSCTHelper->wafer_hash(theModuleIdentifierOfTheRDOCollection)};
     IdentifierHash theModuleHash1;
@@ -460,8 +411,6 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
         ATH_MSG_ERROR("Module identifiers are different. indexFind gives a wrong collection??");
       }
     }
-    totalmodules++;
-    maxrodhits = 0;
     // Now we loop over the RDOs in the RDO collection, and add to the NO vector any that are in the mySetOfSPIds
     for (const SCT_RDORawData* rdo: *SCT_Collection) {
       const SCT3_RawData* rdo3{dynamic_cast<const SCT3_RawData*>(rdo)};
@@ -518,7 +467,6 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
       }
       (*hitsInLayer[systemIndex])[thisElement] += numberOfStrips;
       local_tothits += numberOfStrips;
-      maxrodhits += numberOfStrips;
 
       if (m_boolhitmaps) {
         for (int ichan{chan}; ichan < limit; ++ichan) {
@@ -531,54 +479,65 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
 
     if (numberOfHitsFromAllRDOs > 0) {
       unsigned int systemIndex{bec2Index(Bec)};
-      int diff{numberOfHitsFromAllRDOs - numberOfHitsFromSPs};
-      int num{diff};
+
+      m_HallHits_vsLB[systemIndex]->Fill(lb, numberOfHitsFromAllRDOs);
+      m_HSPHits_vsLB[systemIndex]->Fill(lb, numberOfHitsFromSPs);
+      if (isSelectedTrigger) {
+        m_HallHitsTrigger_vsLB[systemIndex]->Fill(lb, numberOfHitsFromAllRDOs);
+        m_HSPHitsTrigger_vsLB[systemIndex]->Fill(lb, numberOfHitsFromSPs);
+      }
+
       int den{N_STRIPS - numberOfHitsFromSPs};
-      float sumocc{0.};
-      if (diff < 0) {
+      int num{numberOfHitsFromAllRDOs - numberOfHitsFromSPs};
+      if (num < 0) {
         num = 0;
         ATH_MSG_WARNING("Too many reconstructed space points for number of real hits");
       }
       if (den > 0) {
-        sumocc = num / static_cast<float> (den);
-        m_occSumUnbiased[theWaferIdentifierOfTheRDOCollection] += sumocc;
-        if (m_environment == AthenaMonManager::online) {
+        occ[theWaferIdentifierHashOfTheRDOCollection] = static_cast<float>(num) / static_cast<float>(den) * 1.E5;
+      }
+      hitOcc[theWaferIdentifierHashOfTheRDOCollection] = static_cast<float>(numberOfHitsFromAllRDOs) / static_cast<float>(N_STRIPS) * 1.E5;
+
+      if (m_environment == AthenaMonManager::online) {
+        float sumocc{0.};
+        if (den > 0) {
+          sumocc = num / static_cast<float> (den);
           m_occSumUnbiasedRecent[theWaferIdentifierOfTheRDOCollection] += sumocc;
         }
-        if (isSelectedTrigger) {
-          m_occSumUnbiasedTrigger[theWaferIdentifierOfTheRDOCollection] += sumocc;
-        }
-        m_occSumUnbiased_lb[systemIndex][theWaferIdentifierOfTheRDOCollection] += sumocc;
-        m_occSumUnbiased_lb[GENERAL_INDEX][theWaferIdentifierOfTheRDOCollection] += sumocc;
-        if (isSelectedTrigger) {
-          m_occSumUnbiasedTrigger_lb[systemIndex][theWaferIdentifierOfTheRDOCollection] += sumocc;
-          m_occSumUnbiasedTrigger_lb[GENERAL_INDEX][theWaferIdentifierOfTheRDOCollection] += sumocc;
-        }
-      }
 
-      { // hit occupancy
+        // hit occupancy
         float sumhitocc{static_cast<float> (numberOfHitsFromAllRDOs) / static_cast<float> (N_STRIPS)};
-        m_hitoccSumUnbiased[theWaferIdentifierOfTheRDOCollection] += sumhitocc;
-        if (m_environment == AthenaMonManager::online) {
-          m_hitoccSumUnbiasedRecent[theWaferIdentifierOfTheRDOCollection] += sumhitocc;
-        }
-        if (isSelectedTrigger) {
-          m_hitoccSumUnbiasedTrigger[theWaferIdentifierOfTheRDOCollection] += sumhitocc;
-        }
-        m_HallHits_vsLB[systemIndex]->Fill(m_current_lb, numberOfHitsFromAllRDOs);
-        m_HSPHits_vsLB[systemIndex]->Fill(m_current_lb, numberOfHitsFromSPs);
-        m_hitoccSumUnbiased_lb[systemIndex][theWaferIdentifierOfTheRDOCollection] += sumhitocc;
-        m_hitoccSumUnbiased_lb[GENERAL_INDEX][theWaferIdentifierOfTheRDOCollection] += sumhitocc;
-        if (isSelectedTrigger) {
-          m_HallHitsTrigger_vsLB[systemIndex]->Fill(m_current_lb, numberOfHitsFromAllRDOs);
-          m_HSPHitsTrigger_vsLB[systemIndex]->Fill(m_current_lb, numberOfHitsFromSPs);
-          m_hitoccSumUnbiasedTrigger_lb[systemIndex][theWaferIdentifierOfTheRDOCollection] += sumhitocc;
-          m_hitoccSumUnbiasedTrigger_lb[GENERAL_INDEX][theWaferIdentifierOfTheRDOCollection] += sumhitocc;
-        }
-      }// end of hit occupancy*/
+        m_hitoccSumUnbiasedRecent[theWaferIdentifierOfTheRDOCollection] += sumhitocc;
+      }
+      // end of hit occupancy*/
     }
   }// End of Loop on RDO container
 
+  for (unsigned int iHash{0}; iHash<wafer_hash_max; iHash++) {
+    const IdentifierHash wafer_hash{iHash};
+    if (not m_ConfigurationTool->isGood(wafer_hash)) continue;
+
+    const Identifier wafer_id{m_pSCTHelper->wafer_id(wafer_hash)};
+    const int barrel_ec{m_pSCTHelper->barrel_ec(wafer_id)};
+    const unsigned int systemIndex{bec2Index(barrel_ec)};
+    m_NO_vsLB[systemIndex  ]->Fill(lb, occ[iHash]);
+    m_NO_vsLB[GENERAL_INDEX]->Fill(lb, occ[iHash]);
+    m_HO_vsLB[systemIndex  ]->Fill(lb, hitOcc[iHash]);
+    m_HO_vsLB[GENERAL_INDEX]->Fill(lb, hitOcc[iHash]);
+    if (isSelectedTrigger) {
+      m_NOTrigger_vsLB[systemIndex  ]->Fill(lb, occ[iHash]);
+      m_NOTrigger_vsLB[GENERAL_INDEX]->Fill(lb, occ[iHash]);
+      m_HOTrigger_vsLB[systemIndex  ]->Fill(lb, hitOcc[iHash]);
+      m_HOTrigger_vsLB[GENERAL_INDEX]->Fill(lb, hitOcc[iHash]);
+    }
+    if (doThisSubsystem[systemIndex]) {
+      const int element{N_SIDES * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id)};
+      const int eta{m_pSCTHelper->eta_module(wafer_id)};
+      const int phi{m_pSCTHelper->phi_module(wafer_id)};
+      if (isSelectedTrigger) m_pnoiseoccupancymapHistoVectorTrigger[systemIndex][element]->Fill(eta, phi, occ[iHash]);
+      m_phitoccupancymapHistoVector[systemIndex][element]->Fill(eta, phi, hitOcc[iHash]);
+    }
+  }
 
   m_ncluHisto->Fill(local_tothits, 1);
 
@@ -595,7 +554,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
   }
 
   // Fill Cluster size histogram
-  SG::ReadHandle<InDet::SCT_ClusterContainer> p_clucontainer{m_clusContainerKey};
+  SG::ReadHandle<InDet::SCT_ClusterContainer> p_clucontainer{m_clusContainerKey, ctx};
   if (not p_clucontainer.isValid()) {
     ATH_MSG_WARNING("Couldn't retrieve clusters");
   }
@@ -932,45 +891,11 @@ SCTHitsNoiseMonTool::checkNoiseMaps() {
           if ((barrel_ec == BARREL) or 
               ((barrel_ec == ENDCAP_A) and m_doPositiveEndcap) or
               ((barrel_ec == ENDCAP_C) and m_doNegativeEndcap)) {
-            m_pnoiseoccupancymapHistoVectorRecent[systemIndex][element]->Fill(eta, phi, occ * 1E5);
+            m_pnoiseoccupancymapHistoVectorRecent[systemIndex][element]->Fill(eta, phi, occ * 1.E5);
           }
         }
       }
-    }
-    if (m_occSumUnbiasedTrigger.size() and m_numberOfEventsTrigger) {
-      for (pair<const Identifier, float>&val: m_occSumUnbiasedTrigger) {
-        Identifier wafer_id{val.first};
-        int element{N_SIDES * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id)};
-        float occ{(m_numberOfEventsTrigger > 0) ? val.second / (m_numberOfEventsTrigger) :  val.second};
-        int eta{m_pSCTHelper->eta_module(wafer_id)};
-        int phi{m_pSCTHelper->phi_module(wafer_id)};
-        int barrel_ec{m_pSCTHelper->barrel_ec(wafer_id)};
-        unsigned int systemIndex{bec2Index(barrel_ec)};
-        if ((barrel_ec == BARREL) or
-            ((barrel_ec == ENDCAP_A) and m_doPositiveEndcap) or
-            ((barrel_ec == ENDCAP_C) and m_doNegativeEndcap)) {
-          m_pnoiseoccupancymapHistoVectorTrigger[systemIndex][element]->Fill(eta, phi, occ * 1E5);
-        }
-      }
-    }
 
-    if (m_hitoccSumUnbiased.size() and m_numberOfEvents) {
-      for (pair<const Identifier, float>& val: m_hitoccSumUnbiased) {
-        Identifier wafer_id{val.first};
-        int element{N_SIDES * m_pSCTHelper->layer_disk(wafer_id) + m_pSCTHelper->side(wafer_id)};
-        float hitocc{(m_numberOfEvents > 0) ? val.second / (m_numberOfEvents) :  val.second};
-        int eta{m_pSCTHelper->eta_module(wafer_id)};
-        int phi{m_pSCTHelper->phi_module(wafer_id)};
-        int barrel_ec{m_pSCTHelper->barrel_ec(wafer_id)};
-        unsigned int systemIndex{bec2Index(barrel_ec)};
-        if ((barrel_ec==BARREL) or
-            ((barrel_ec==ENDCAP_A) and m_doPositiveEndcap) or
-            ((barrel_ec==ENDCAP_C) and m_doNegativeEndcap)) {
-          m_phitoccupancymapHistoVector[systemIndex][element]->Fill(eta, phi, hitocc * 1E5);
-        }
-      }
-    }
-    if (m_environment == AthenaMonManager::online) {
       if (m_hitoccSumUnbiasedRecent.size() and m_numberOfEventsRecent) {
         for (pair<const Identifier, float>& val: m_hitoccSumUnbiasedRecent) {
           Identifier wafer_id{val.first};
@@ -983,81 +908,12 @@ SCTHitsNoiseMonTool::checkNoiseMaps() {
           if ((barrel_ec==BARREL) or
               ((barrel_ec==ENDCAP_A) and m_doPositiveEndcap) or
               ((barrel_ec==ENDCAP_C) and m_doNegativeEndcap)) {
-            m_phitoccupancymapHistoVectorRecent[systemIndex][element]->Fill(eta, phi, hitocc * 1E5);
+            m_phitoccupancymapHistoVectorRecent[systemIndex][element]->Fill(eta, phi, hitocc * 1.E5);
           }
         }
       }
     }
 
-    if (m_current_lb<=NBINS_LBs) {
-      for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-        m_occ_lb[jReg][m_current_lb] = 0;
-        m_occTrigger_lb[jReg][m_current_lb] = 0;
-        m_hitocc_lb[jReg][m_current_lb] = 0;
-        m_hitoccTrigger_lb[jReg][m_current_lb] = 0;
-      }
-      int nlinks[N_REGIONS_INC_GENERAL]{0, 0, 0, 0};
-      SCT_ID::const_id_iterator planeIterator{m_pSCTHelper->wafer_begin()};
-      SCT_ID::const_id_iterator planeEnd{m_pSCTHelper->wafer_end()};
-      for (; planeIterator not_eq planeEnd; ++planeIterator) {
-        Identifier planeId{*planeIterator};
-        const int bec{m_pSCTHelper->barrel_ec(planeId)};
-        const unsigned int systemIndex{bec2Index(bec)};
-        // Don't initialize a value for disabled  modules
-        if (not m_ConfigurationTool->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
-          continue;
-        }
-        if (m_events_lb > 0) {
-          for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-            m_occ_lb[jReg][m_current_lb] += (1E5) * m_occSumUnbiased_lb[jReg][*planeIterator] / m_events_lb;
-            m_hitocc_lb[jReg][m_current_lb] += (1E5) * m_hitoccSumUnbiased_lb[jReg][*planeIterator] / m_events_lb;
-          }
-        }
-        if (m_eventsTrigger_lb > 0) {
-          for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-            m_occTrigger_lb[jReg][m_current_lb] += (1E5) * m_occSumUnbiasedTrigger_lb[jReg][*planeIterator] / m_eventsTrigger_lb;
-            m_hitoccTrigger_lb[jReg][m_current_lb] += (1E5) * m_hitoccSumUnbiasedTrigger_lb[jReg][*planeIterator] / m_eventsTrigger_lb;
-          }
-        }
-        nlinks[systemIndex]++;
-        nlinks[GENERAL_INDEX]++;
-      }
-      for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-        if (nlinks[jReg]>0) {
-          m_occ_lb[jReg][m_current_lb] /= nlinks[jReg];
-          m_occTrigger_lb[jReg][m_current_lb] /= nlinks[jReg];
-          m_hitocc_lb[jReg][m_current_lb] /= nlinks[jReg];
-          m_hitoccTrigger_lb[jReg][m_current_lb] /= nlinks[jReg];
-        }
-      }
-    }
-
-    for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-      m_NO_vsLB[jReg]->Reset();
-      m_NOTrigger_vsLB[jReg]->Reset();
-      m_HO_vsLB[jReg]->Reset();
-      m_HOTrigger_vsLB[jReg]->Reset();
-    }
-    for (int bin{1}; bin <= NBINS_LBs; bin++) {
-      for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-        if (m_occ_lb[jReg][bin] != 0) {
-          m_NO_vsLB[jReg]->Fill(bin, m_occ_lb[jReg][bin]);
-        }
-        if (m_occTrigger_lb[jReg][bin] != 0) {
-          m_NOTrigger_vsLB[jReg]->Fill(bin, m_occTrigger_lb[jReg][bin]);
-        }
-      }
-    }
-    for (int bin{1}; bin <= NBINS_LBs; bin++) {
-      for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-        if (m_hitocc_lb[jReg][bin] != 0) {
-          m_HO_vsLB[jReg]->Fill(bin, m_hitocc_lb[jReg][bin]);
-        }
-        if (m_hitoccTrigger_lb[jReg][bin] != 0) {
-          m_HOTrigger_vsLB[jReg]->Fill(bin, m_hitoccTrigger_lb[jReg][bin]);
-        }
-      }
-    }
   }
   return StatusCode::SUCCESS;
 }
@@ -1076,20 +932,8 @@ SCTHitsNoiseMonTool::initializeNoiseMaps() {
     if (not m_ConfigurationTool->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
       continue;
     }
-    m_occSumUnbiased[*planeIterator] = 0.;
-    m_occSumUnbiasedTrigger[*planeIterator] = 0.;
     m_occSumUnbiasedRecent[*planeIterator] = 0.;
-    for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-      m_occSumUnbiased_lb[jReg][*planeIterator] = 0.;
-      m_occSumUnbiasedTrigger_lb[jReg][*planeIterator] = 0.;
-    }
-    m_hitoccSumUnbiased[*planeIterator] = 0.;
-    m_hitoccSumUnbiasedTrigger[*planeIterator] = 0.;
     m_hitoccSumUnbiasedRecent[*planeIterator] = 0.;
-    for (unsigned int jReg{0}; jReg<N_REGIONS_INC_GENERAL; jReg++) {
-      m_hitoccSumUnbiased_lb[jReg][*planeIterator] = 0.;
-      m_hitoccSumUnbiasedTrigger_lb[jReg][*planeIterator] = 0.;
-    }
   }
 
   return StatusCode::SUCCESS;
