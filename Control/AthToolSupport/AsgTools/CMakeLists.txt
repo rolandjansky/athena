@@ -14,7 +14,7 @@ if( XAOD_STANDALONE )
 else()
    set( deps Control/AthToolSupport/AsgMessaging Control/xAODRootAccess Control/AthenaBaseComps Control/AthenaKernel
       GaudiKernel )
-   set( libs xAODRootAccess AsgMessagingLib AthenaBaseComps AthenaKernel GaudiKernel )
+   set( libs AsgMessagingLib AthenaBaseComps AthenaKernel GaudiKernel )
 endif()
 
 # Declare the package's dependencies:
