@@ -59,12 +59,18 @@ def __decisionsFromHypo( hypo ):
     else: # regular hypos
         return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], hypo.HypoOutputDecisions
 
+def __getSequenceChildrenIfIsSequence( s ):
+    if isSequence( s ):
+        return getSequenceChildren( s )
+    return []
 
 def collectViewMakers( steps ):
     """ collect all view maker algorithms in the configuration """
     makers = [] # map with name, instance and encompasing recoSequence
-    for stepSeq in getSequenceChildren( steps ):
-        for recoSeq in getSequenceChildren( stepSeq ):
+    for stepSeq in __getSequenceChildrenIfIsSequence( steps ):
+        for recoSeq in __getSequenceChildrenIfIsSequence( stepSeq ):
+            if not isSequence( recoSeq ):
+                continue
             algsInSeq = flatAlgorithmSequences( recoSeq )
             for seq,algs in six.iteritems (algsInSeq):
                 for alg in algs:
@@ -341,7 +347,12 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     bitsmaker = TriggerBitsMakerToolCfg()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
-    pebDecisionKeys = [key for key in list(summaryAlg.getProperties()['FinalStepDecisions'].values()) if 'PEBInfoWriter' in key]
+    finalStepDecisions = summaryAlg.getProperties()['FinalStepDecisions']
+    # Check to work around ATR-21273
+    if (hasattr(finalStepDecisions, "values") and callable(getattr(finalStepDecisions, "values"))):
+        pebDecisionKeys = [key for key in list(finalStepDecisions.values()) if 'PEBInfoWriter' in key]
+    else:
+        pebDecisionKeys = []
     stmaker.PEBDecisionKeys = pebDecisionKeys
 
     acc = ComponentAccumulator(sequenceName="HLTTop")

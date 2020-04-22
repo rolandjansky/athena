@@ -237,7 +237,7 @@ StatusCode EvtInclusiveDecay::execute() {
     int loopCounter(0);
     while( !eventPassesCuts && loopCounter < m_maxNRepeatedDecays ) {
       for (std::set<int>::iterator itb = toBeDecayed.begin(); itb!=toBeDecayed.end(); ++itb) {
-        HepMC::GenParticlePtr p = hepMC->barcode_to_particle(*itb);
+        auto p = hepMC->barcode_to_particle(*itb);
         if (p==0) {
           msg(MSG::ERROR ) << "Overlapping decay tree encountered for barcode " << *itb << endmsg;
           return StatusCode::FAILURE;

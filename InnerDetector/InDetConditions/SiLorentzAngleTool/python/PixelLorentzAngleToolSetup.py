@@ -46,7 +46,7 @@ class PixelLorentzAngleToolSetup:
       from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
       condSeq += PixelSiLorentzAngleCondAlg(name = "PixelSiLorentzAngleCondAlg",
                                             SiPropertiesTool = ToolSvc.PixelSiPropertiesTool,
-                                            UseMagFieldSvc = True,
+                                            UseMagFieldCache = True,
                                             UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
       pixelSiLorentzAngleCondAlg = condSeq.PixelSiLorentzAngleCondAlg
 
@@ -57,6 +57,6 @@ class PixelLorentzAngleToolSetup:
       # Pass the silicon conditions tool to the Lorentz angle tool
       # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False
       # if loaded first.
-      pixelLorentzAngleTool.UseMagFieldSvc = True
+      pixelLorentzAngleTool.UseMagFieldCache = True
       self.PixelLorentzAngleTool = pixelLorentzAngleTool
 

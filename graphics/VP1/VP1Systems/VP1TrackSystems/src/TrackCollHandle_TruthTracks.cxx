@@ -324,8 +324,6 @@ void TrackCollHandle_TruthTracks::Imp::loadGenParticles( std::map<SimBarCode,con
   HepMC::GenVertex::particles_out_const_iterator itPart(vtx->particles_out_const_begin());
   HepMC::GenVertex::particles_out_const_iterator itPartEnd(vtx->particles_out_const_end());
 
-//   HepMC::GenVertex::particle_iterator itPart = vtx->particles_begin(HepMC::children);
-//   HepMC::GenVertex::particle_iterator itPartEnd = vtx->particles_end(HepMC::children);
   for (;itPart!=itPartEnd;++itPart) {
     const HepMC::GenParticle* p = *itPart;
     if (!p)//fixme: message.

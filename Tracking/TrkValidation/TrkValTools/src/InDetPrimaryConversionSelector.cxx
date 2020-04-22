@@ -111,9 +111,7 @@ Trk::InDetPrimaryConversionSelector::selectGenSignal (const McEventCollection* S
 	  HepMC::GenVertex::particles_in_const_iterator inParticle     = prodVertex->particles_in_const_begin();
 	  HepMC::GenVertex::particles_out_const_iterator inParticleEnd = prodVertex->particles_in_const_end();
 	  for ( ; inParticle != inParticleEnd; ++inParticle) {
-	    // check if mother is a photon with barcode == 10001
 	    ATH_MSG_DEBUG(" --> checking morther: " << *(*inParticle) );
-	    //if (abs((*inParticle)->pdg_id()) == 22 && (*inParticle)->barcode() == 10001 ){
 	    if ( abs((*inParticle)->pdg_id()) == 22 || abs((*inParticle)->pdg_id()) == 11 ){
 	      if (fabs(particle->momentum().perp()) >  m_minPt  &&  fabs(particle->momentum().pseudoRapidity()) < m_maxEta ) {
 		genSignal->push_back(particle);

@@ -430,7 +430,6 @@ void EvtDecay::MeVToGeV (HepMC::GenEvent* evt) {
 
 void EvtDecay::GeVToMeV (HepMC::GenEvent* evt) {
 	for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-//		std::cout << " PDG, BAR " << (*p)->pdg_id() << " " << (*p)->barcode() << std::endl;
        	        HepMC::FourVector newMomentum(0.,0.,0.,0.);
 		newMomentum.setPx( (*p)->momentum().px() * 1000. );
 		newMomentum.setPy( (*p)->momentum().py() * 1000. );

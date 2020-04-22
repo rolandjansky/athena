@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -23,6 +23,7 @@
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "AthenaKernel/errorcheck.h"
 
+#include "CxxUtils/checker_macros.h"
 
 namespace {
 
@@ -55,7 +56,7 @@ const CaloDetDescriptor* get_descriptor (Identifier reg_id,
   for (const CaloDetDescriptor* d : mgr->tile_descriptors_range()) {
     if (d->identify() == reg_id) return d;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -90,7 +91,7 @@ CaloSuperCellAlignTool::CaloSuperCellAlignTool (const std::string& type,
 /**
  * @brief Standard Gaudi initialize method.
  */
-StatusCode CaloSuperCellAlignTool::initialize()
+StatusCode CaloSuperCellAlignTool::initialize ATLAS_NOT_THREAD_SAFE()
 {
   CHECK( base_class::initialize() );
   CHECK( m_scidTool.retrieve() );
@@ -117,11 +118,11 @@ StatusCode CaloSuperCellAlignTool::initialize()
  * in StoreGate.  It is called after CaloAlignTool to propagate
  * geometry changes from the offline to supercell versions.
  */
-StatusCode CaloSuperCellAlignTool::align(IOVSVC_CALLBACK_ARGS)
+StatusCode CaloSuperCellAlignTool::align ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS)
 {
   // Get the managers.
-  const CaloSuperCellDetDescrManager* scmgr = 0;
-  const CaloDetDescrManager* mgr = 0;
+  const CaloSuperCellDetDescrManager* scmgr = nullptr;
+  const CaloDetDescrManager* mgr = nullptr;
 
   CHECK( detStore()->retrieve (scmgr, m_scMgrKey) );
   CHECK( detStore()->retrieve (mgr,   m_mgrKey) );
@@ -139,8 +140,8 @@ StatusCode CaloSuperCellAlignTool::align(IOVSVC_CALLBACK_ARGS)
  * @param mgr The supercell geometry manager.
  * @param cellmgr The offline geometry manager.
  */
-StatusCode CaloSuperCellAlignTool::doUpdate (CaloSuperCellDetDescrManager* mgr,
-                                             const CaloDetDescrManager* cellmgr)
+StatusCode CaloSuperCellAlignTool::doUpdate ATLAS_NOT_THREAD_SAFE (CaloSuperCellDetDescrManager* mgr,
+                                                                   const CaloDetDescrManager* cellmgr)
 {
   CHECK( updateElements    (mgr, cellmgr) );
   CHECK( updateDescriptors (mgr, cellmgr) );
@@ -210,7 +211,7 @@ CaloSuperCellAlignTool::updateElements (CaloSuperCellDetDescrManager* mgr,
           idhelper->sample(elt->identify()) != 2)
         continue;
       const CaloDetDescrElement* fromelt = cellmgr->get_element (id);
-      assert (fromelt != 0);
+      assert (fromelt != nullptr);
       fromelts.push_back (fromelt);
     }
     CHECK( selt->update (fromelts) );
@@ -247,8 +248,8 @@ double phi_for_descr (double phi)
  * based on the provided offline geometry.
  */
 StatusCode
-CaloSuperCellAlignTool::updateDescriptors (CaloSuperCellDetDescrManager* mgr,
-                                           const CaloDetDescrManager* cellmgr)
+CaloSuperCellAlignTool::updateDescriptors ATLAS_NOT_THREAD_SAFE (CaloSuperCellDetDescrManager* mgr,
+                                                                 const CaloDetDescrManager* cellmgr)
 {
   size_t maxdesc = mgr->calo_descriptors_size() + mgr->tile_descriptors_size();
   std::vector<DescrMinMax> descr_minmax (maxdesc);

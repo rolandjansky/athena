@@ -368,7 +368,7 @@ def createDataFlow(chains, allDicts):
             # add chains to the filter:
             chainLegs = chain.getChainLegs()
             for leg in chainLegs:
-                sequenceFilter.setChains(leg)
+                sequenceFilter.addChain(leg)
                 log.debug("Adding chain %s to %s", leg, sequenceFilter.Alg.name())
             log.debug("Now Filter has chains: %s", sequenceFilter.getChains())
 
@@ -512,7 +512,7 @@ def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
                 stepDecisions += sequence.outputs
 
             for chain in chainsInCell:
-                sfilter.setChains(chain.name)
+                sfilter.addChain(chain.name)
 
         allSequences.append(CFsequences)
 

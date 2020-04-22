@@ -11,17 +11,17 @@ else:
   from AthenaMonitoring.DQMonFlags import DQMonFlags
   tracksName = (InDetKeys.SCTTracks() if InDetFlags.doTrackSegmentsSCT() else InDetKeys.UnslimmedTracks())
 
-  doTriggger = False
+  doTrigger = False
   TrigDecisionTool_InDetSCTHitsTool = ""
   if globalflags.DataSource == "data":
     from RecExConfig.RecFlags import rec
     if rec.doTrigger():
-      doTriggger = True
+      doTrigger = True
       TrigDecisionTool_InDetSCTHitsTool = DQMonFlags.nameTrigDecTool()
   from SCT_Monitoring.SCT_MonitoringConf import SCTHitsNoiseMonTool
   InDetSCTHitsTool = SCTHitsNoiseMonTool ( name = "InDetSCTHitsNoiseMonTool",
                                            OutputLevel = 4,
-                                           doTrigger = doTriggger,
+                                           doTrigger = doTrigger,
                                            TrigDecisionTool = TrigDecisionTool_InDetSCTHitsTool,
                                            tracksName = tracksName )
 
@@ -51,7 +51,7 @@ else:
   from SCT_Monitoring.SCT_MonitoringConf import SCTTracksMonTool
   InDetSCTTracksMonTool = SCTTracksMonTool ( name             = "InDetSCTTracksMonTool",
                                              OutputLevel      = 4,
-                                             doTrigger        = doTriggger,
+                                             doTrigger        = doTrigger,
                                              tracksName       = tracksName )
 
   if jobproperties.Beam.beamType()=='collisions':

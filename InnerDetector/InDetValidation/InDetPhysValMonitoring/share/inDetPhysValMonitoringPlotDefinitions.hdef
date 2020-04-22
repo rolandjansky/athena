@@ -113,7 +113,7 @@ TH1F vx_err_y "Y position error of vertex" 100 0.0 0.2 "#sigma(Y) (mm)" "Entries
 TH1F vx_err_z  "Z position error of vertex" 100 0.0 1.0 "#sigma(Z) (mm)" "Entries" default
 TH1F vx_chi2_over_ndf "vertex #chi^2 / ndf" 50 0 10. "#chi^{2}/ndf"  "Entries" default
 TH1F vx_type "Vertex type" 7 0 7 "Vertex type" "Entries" default
-TH1F vx_nTracks "Number of tracks at vertex" 150 0 150 "Number of Tracks" "Entries" default
+TH1F vx_nTracks "Number of tracks at vertex" 150 0 150 "Number of Tracks" "Entries" default 
 TH1F vx_track_weights "Weights of tracks at vertex" 100 0. 10.0 "Weight" "Entries" default
 TH1F vx_track_pt "Tracks at vertex p_{T}" 100 0 20. "p_{T} (GeV)" "Entries" default
 TH1F vx_track_eta  "Tracks at vertex #eta" 100 -2.7 2.7 "#eta" "Entries" default

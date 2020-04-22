@@ -490,8 +490,6 @@ StatusCode MM_DigitizationTool::mergeEvent(const EventContext& ctx) {
 
 	ATH_MSG_VERBOSE ( "MM_DigitizationTool::in mergeEvent()" );
 
-	// Cleanup and record the Digit container in StoreGate
-	ATH_CHECK( recordDigitAndSdoContainers(ctx) );
 	ATH_CHECK( doDigitization(ctx) );
 
 	// reset the pointer (delete null pointer should be safe)
@@ -518,8 +516,6 @@ StatusCode MM_DigitizationTool::digitize(const EventContext& ctx) {
 StatusCode MM_DigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
 	ATH_MSG_DEBUG ("MM_DigitizationTool::processAllSubEvents()");
-
-	ATH_CHECK( recordDigitAndSdoContainers(ctx) );
 
 	//merging of the hit collection in getNextEvent method
 
@@ -552,21 +548,17 @@ StatusCode MM_DigitizationTool::finalize() {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode MM_DigitizationTool::recordDigitAndSdoContainers(const EventContext& ctx) {
+StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
+
   // create and record the Digit container in StoreGate
   SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<MmDigitContainer>(m_idHelperSvc->mmIdHelper().detectorElement_hash_max())));
   ATH_MSG_DEBUG ( "MmDigitContainer recorded in StoreGate." );
+
   // Create and record the SDO container in StoreGate
   SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "MmSDOCollection recorded in StoreGate." );
-  return StatusCode::SUCCESS;
-}
-
-/*******************************************************************************/
-StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
-
 
   MMSimHitCollection* inputSimHitColl=nullptr;
   
@@ -1010,7 +1002,6 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       MuonSimData simData(deposits,0);
       simData.setPosition(hitAtCenterOfGasGapGlobal);
       simData.setTime(m_globalHitTime);
-      SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
       sdoContainer->insert ( std::make_pair ( digitID, simData ) );
       ATH_MSG_DEBUG(" added MM SDO " <<  sdoContainer->size());
       
@@ -1227,7 +1218,6 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     MmDigitCollection* digitCollection = nullptr;
     // put new collection in storegate
     // Get the messaging service, print where you are
-    SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
     MmDigitContainer::const_iterator it_coll = digitContainer->indexFind(moduleHash );
     if (digitContainer->end() ==  it_coll) {
       digitCollection = new MmDigitCollection( elemId, moduleHash );

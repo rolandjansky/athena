@@ -211,6 +211,7 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
     if (vxType == xAOD::VxType::NoVtx) {
       //skip dummy vertices -> match info will be empty vector if someone tries to access later
       //type will be set to dummy
+      ATH_MSG_DEBUG("FOUND xAOD::VxType::NoVtx");
       continue;
     }
 
@@ -245,7 +246,7 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
       continue;
     }
 
-    ATH_MSG_DEBUG("Matching new vertex at (" << vxit->x() << ", " << vxit->y() << ", " << vxit->z() << ")" << " with " << ntracks << " tracks:");
+    ATH_MSG_DEBUG("Matching new vertex at (" << vxit->x() << ", " << vxit->y() << ", " << vxit->z() << ")" << " with " << ntracks << " tracks, at index: " << vxit->index());
 
     float totalWeight = 0.;
     float totalFake = 0.;

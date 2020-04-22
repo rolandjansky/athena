@@ -100,11 +100,11 @@ def TrigInDetCondConfig( flags ):
   SCTSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
   acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                            SiConditionsTool = sctSiliconConditionsTool,
-                                           UseMagFieldSvc = True,
+                                           UseMagFieldCache = True,
                                            UseMagFieldDcs = False))
   SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
   SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-  SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
+  SCTLorentzAngleTool.UseMagFieldCache = True
   acc.addPublicTool(SCTLorentzAngleTool)
 
 
@@ -113,8 +113,6 @@ def TrigInDetCondConfig( flags ):
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className="TRTCond::StrawT0MultChanContainer"))
   acc.merge(addFoldersSplitOnline (flags, "TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className="TRTCond::RtRelationMultChanContainer"))
-  acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className="CondAttrListCollection"))
-  acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className="CondAttrListCollection"))
 
 
   ###############
