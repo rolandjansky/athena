@@ -7,16 +7,16 @@
 The current Powheg experts in ATLAS and maintainers of Powheg installations as well as the PowhegControl
 interface are:
 
-* Dan Hayden (@dhayden) — mostly handles Powheg source code and installation
-* Stefan Richter (@strichte) — mostly maintains PowhegControl interface, i.e. the Athena user interface to Powheg
-* Timothée Theveneaux-Pelzer (@tpelzer) — mostly maintains PowhegControl interface
+* **Dan Hayden** (@dhayden) — mostly handles Powheg source code and installation
+* **Stefan Richter** (@strichte) — mostly maintains PowhegControl interface, i.e. the Athena user interface to Powheg
+* **Timothée Theveneaux-Pelzer** (@tpelzer) — mostly maintains PowhegControl interface
 * All of us provide help with software usage and physics questions to our best availability and ability
 
 For any questions about Powheg or PowhegControl, please contact them at atlas-generators-powhegcontrol-experts@cern.ch!
 
 If you're interested in getting news about Powheg(Control) in general, you can subscribe to the e-group atlas-generators-powhegcontrol@cern.ch.
 
-For developers: there ongoing work and current status can be found
+For developers: some information about ongoing work and current status can be found
 [here](https://docs.google.com/spreadsheets/d/10hMg4QcfEs7UgBXklrCEcVMHZOWxCXtI5drEnQ5HcdU/edit?usp=sharing).
 
 
@@ -340,7 +340,7 @@ Py:PowhegControl INFO Integration test :: cross-section uncertainty : 0.30%
 In the table below, you can see the results of each of these tests for
 each supported process. In each case, if the test result is less than 1%
 this is indicated by a :white_check_mark:, if it's between 1% and 10%
-then it's preceded by a :heavy_exclamation_mark:, while those greater than 10%
+then it's preceded by a :exclamation:, while those greater than 10%
 are preceded by a :bangbang:. If you generate events with
 processes where any of the tests have failed, you should check carefully
 whether the events that pass your analysis selection give physical
@@ -352,7 +352,7 @@ TODO it doesn't seem to be possible to color
 | :----------------- | :----- | :--------------------------------- | :---------------------------------------------- | :----------------------------------------------- | :------------------------------------------------ | :------------------------------------------------ | :----------------- |
 | `bb`               | 1      | 1                                  | 0.05                                            | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
 | `bbH`              | 10     | 34                                 | 4                                               | :bangbang: \~45%                                 | :bangbang: \~55%                                  | :bangbang: \~55%                                  | NO                 |
-| `bblvlv`           | 10     | 10.5                               | 1                                               | :white_check_mark:                               | :heavy_exclamation_mark: \~2.5%                   | :white_check_mark:                                | NO                 |
+| `bblvlv`           | 10     | 10.5                               | 1                                               | :white_check_mark:                               | :exclamation: \~2.5%                              | :white_check_mark:                                | NO                 |
 | `chi0chi0`         | 1      | 10                                 | 1                                               | :white_check_mark:                               | :bangbang: \~14%                                  | :white_check_mark:                                | NO                 |
 | `chi0chi1`         | 1      | 0.05                               | 0.01                                            | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
 | `chi1chi1`         | 1      | 3                                  | 0.05                                            | :white_check_mark:                               | :bangbang: \~12%                                  | :white_check_mark:                                | NO                 |
@@ -365,9 +365,9 @@ TODO it doesn't seem to be possible to color
 | `Hj`               | 1      | 16                                 | 1                                               | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
 | `Hjj`              | 10     | 20                                 | 4                                               | :white_check_mark:                               | :bangbang: \~11%                                  | :white_check_mark:                                | NO                 |
 | `HWj`              | 1      | 13                                 | 1                                               | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
-| `HWj_EW`           | 10     | 12                                 | 0.5                                             | :white_check_mark:                               | :white_check_mark:                                | :heavy_exclamation_mark: \~3%                     | NO                 |
-| `HZj`              | 10     | 8.5                                | 1                                               | :white_check_mark:                               | :white_check_mark:                                | :heavy_exclamation_mark: \~1.5%                   | NO                 |
-| `HZj_EW`           | 10     | 29                                 | 0.5                                             | :white_check_mark:                               | :heavy_exclamation_mark: \~1.5%                   | :heavy_exclamation_mark: \~2.5%                   | NO                 |
+| `HWj_EW`           | 10     | 12                                 | 0.5                                             | :white_check_mark:                               | :white_check_mark:                                | :exclamation: \~3%                                | NO                 |
+| `HZj`              | 10     | 8.5                                | 1                                               | :white_check_mark:                               | :white_check_mark:                                | :exclamation: \~1.5%                              | NO                 |
+| `HZj_EW`           | 10     | 29                                 | 0.5                                             | :white_check_mark:                               | :exclamation: \~1.5%                              | :exclamation: \~2.5%                              | NO                 |
 | `jj`               | 1      | 8.5                                | 1                                               | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
 | `jjj`              | 10     | 26                                 | 1.5                                             | :white_check_mark:                               | :bangbang: \~14%                                  | :white_check_mark:                                | NO                 |
 | `ssWWjj`           | 10     | 18.5                               | 8                                               | :bangbang: \~40%                                 | :white_check_mark:                                | :bangbang: \~65%                                  | NO                 |
@@ -376,9 +376,9 @@ TODO it doesn't seem to be possible to color
 | `tt`               | 1      | 0.05                               | 0.01                                            | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
 | `tt_NLOdecays`     | 1      | 2                                  | 0.1                                             | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
 | `ttH`              | 1      | 1                                  | 0.1                                             | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
-| `ttj`              | 1      | 20                                 | 4.5                                             | :white_check_mark:                               | :bangbang: \~36%                                  | :heavy_exclamation_mark: \~2%                     | NO                 |
+| `ttj`              | 1      | 20                                 | 4.5                                             | :white_check_mark:                               | :bangbang: \~36%                                  | :exclamation: \~2%                                | NO                 |
 | `VBF_H`            | 1      | 4                                  | 0.1                                             | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
-| `VBF_ssWW`         | 10     | 16.5                               | 0.1                                             | :white_check_mark:                               | :heavy_exclamation_mark: \~4%                     | :white_check_mark:                                | NO                 |
+| `VBF_ssWW`         | 10     | 16.5                               | 0.1                                             | :white_check_mark:                               | :exclamation: \~4%                                | :white_check_mark:                                | NO                 |
 | `VBF_W`            | 10     | 5.5                                | 0.1                                             | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
 | `VBF_Z`            | 10     | 14                                 | 0.5                                             | :white_check_mark:                               | :bangbang: \~9                                    | :white_check_mark:                                | NO                 |
 | `W`                | 1      | 0.05                               | 0.01                                            | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
