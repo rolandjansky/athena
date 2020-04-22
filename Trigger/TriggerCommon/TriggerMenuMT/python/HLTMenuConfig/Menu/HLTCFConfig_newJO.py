@@ -115,7 +115,7 @@ def generateDecisionTree(chains):
                 if step.isCombo:
                     if step.combo is not None:
                         stepsAcc.addEventAlgo(step.combo.Alg, sequenceName = stepView.getName())
-                sfilter.setChains(chain.name)
+                sfilter.addChain(chain.name)
 
             recoAcc.merge(stepsAcc, sequenceName = viewWithFilter.getName())
             chainCounter+=1
