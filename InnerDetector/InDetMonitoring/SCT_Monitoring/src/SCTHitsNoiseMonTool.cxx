@@ -560,21 +560,9 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
   }
   for (const InDet::SCT_ClusterCollection* SCT_Collection: *p_clucontainer) {
     for (const InDet::SCT_Cluster* cluster: *SCT_Collection) {
-      Identifier cluId{cluster->identify()};
       long unsigned int GroupSize{cluster->rdoList().size()};
       // Fill  Cluster Size histogram
-      int elementIndex{N_SIDES * m_pSCTHelper->layer_disk(cluId) + m_pSCTHelper->side(cluId)};
-      int thisPhi{m_pSCTHelper->phi_module(cluId)};
-      int thisEta{m_pSCTHelper->eta_module(cluId)};
-      int thisBec{m_pSCTHelper->barrel_ec(cluId)};
-      unsigned int systemIndex{bec2Index(thisBec)};
       m_clusize->Fill(GroupSize, 1.);
-
-      if ((thisBec==BARREL) or
-          ((thisBec==ENDCAP_A) and m_doPositiveEndcap) or
-          ((thisBec==ENDCAP_C) and m_doNegativeEndcap)) {
-        m_clusizedist[systemIndex][elementIndex]->Fill(thisEta, thisPhi, GroupSize);
-      }
 
       if (m_environment == AthenaMonManager::online) {
         m_clusizeRecent->Fill(GroupSize, 1.);
@@ -678,18 +666,6 @@ SCTHitsNoiseMonTool::bookClusterSize() {
     "8_0", "8_1"
   };
 
-  for (int i{0}; i < N_BARRELSx2; i++) {
-    m_clusizedist[BARREL_INDEX][i] = prof2DFactory("clusize_dist_B_" + disksidenameB[i], "cluster size in Barrel_" + disksidenameB[i],
-                                                   clusizebGroup, 13, -6.5, 6.5, 56, -0.5, 55.5);
-  }
-  for (int i{0}; i < N_DISKSx2; i++) {
-    m_clusizedist[ENDCAP_A_INDEX][i] = prof2DFactory("clusize_dist_EA_" + disksidenameECp[i],
-                                                     "cluster size in EndcapA_" + disksidenameECp[i], clusizeeaGroup, 3, -0.5, 2.5,
-                                                     52, -0.5, 51.5);
-    m_clusizedist[ENDCAP_C_INDEX][i] = prof2DFactory("clusize_dist_EC_" + disksidenameECm[i],
-                                                     "cluster size in EndcapC_" + disksidenameECm[i], clusizeecGroup, 3, -0.5, 2.5,
-                                                     52, -0.5, 51.5);
-  }
   if (newRunFlag()) {
     MonGroup BarrelCluSize{this, "SCT/GENERAL/hits", run, ATTRIB_UNMANAGED};
     // book Cluster width histogram for all SCT Detector
