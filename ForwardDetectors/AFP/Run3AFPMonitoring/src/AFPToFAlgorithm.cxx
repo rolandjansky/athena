@@ -58,7 +58,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
     fill("AFPToFTool", lb, nTofHits);
 
 //	TO BE researched: difference between trainID and barInTrainID
-/*
+
     auto numberOfHit_S0 = Monitored::Scalar<int>("numberOfHit_S0", 0); 
     auto numberOfHit_S3 = Monitored::Scalar<int>("numberOfHit_S3", 0);
     auto trainID = Monitored::Scalar<int>("trainID", 0); 
@@ -82,7 +82,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
             fill("AFPToFTool", trainID, barInTrainID);    
 	}
     }
-*/
+
     return StatusCode::SUCCESS;
 }
 
