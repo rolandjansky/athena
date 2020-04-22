@@ -52,6 +52,7 @@ The general settings of the tool are handled via properties. The most important 
 * FloatStoppingCrit (default: true): This activates the floating stopping criterion which saves a factor ~2-3 in CPU time (see presentation by Michael Hübner).
 * CalibSet (default: 2019): Needs to be set to the appropriate calibration set depending on the use-case. For Higgs to tau tau the recommendation is to use 2019 (this uses a root file for the PDFs, older versions use hard-coded numbers).
 * UseTauProbability (default: false): This includes an additional PDF term if set to true (ratio of neutrino momentum w.r.t. reconstructed tau momentum). It is recommended to set this to true.
+* UseMnuProbability (default: false): This includes an additional PDF term if set to true (mass of neutrino system per tau decay, only applied to leptonic tau decays).
 * NsigmaMET (default: 3, 4 depending on decay type): This sets the range of the MET scan for the Markov Chain. Can be increased to recover efficiency.
 * ParamFilePath (default: MMC_params_v1_fixed.root): Sets the root file used for CalibSet>=2019, contains the PDFs for the likelihood. Can be changed for studies of PDFs (expert use), otherwise use default if the default in your ABR is MMC_params_v1_fixed.root. If you are using release 21.2.101 you have to set this property to the new default listed here.
 
