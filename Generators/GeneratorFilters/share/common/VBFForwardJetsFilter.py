@@ -1,8 +1,11 @@
 ## Example configuration for VBFForwardJetsFilter setting up defaults
 
-include("GeneratorFilters/AntiKt4TruthJets_pileup.py")
-include("GeneratorFilters/AntiKt6TruthJets_pileup.py")
-include("GeneratorFilters/JetFilter_Fragment.py")
+#include("GeneratorFilters/AntiKt4TruthJets_pileup.py")
+#include("GeneratorFilters/AntiKt6TruthJets_pileup.py")
+#include("GeneratorFilters/JetFilter_Fragment.py")
+include ("GeneratorFilters/FindJets.py")
+CreateJets(prefiltSeq, 0.6)
+AddJetsFilter(filtSeq,runArgs.ecmEnergy, 0.6)
 
 if not hasattr( filtSeq, "VBFForwardJetsFilter" ):
     from GeneratorFilters.GeneratorFiltersConf import VBFForwardJetsFilter
