@@ -103,8 +103,6 @@ public:
 private:
   /** Get next event and extract collection of hit collections */
   StatusCode getNextEvent();
-  /** Record sTgcDigitContainer and MuonSimDataCollection */
-  StatusCode recordDigitAndSdoContainers(const EventContext& ctx);
   /** Core part of digitization use by mergeEvent (IPileUpTool) and digitize (IMuonDigitizationTool) */
   StatusCode doDigitization(const EventContext& ctx);
 
@@ -133,7 +131,6 @@ private:
 
   bool m_doToFCorrection;
   int m_doChannelTypes;
-  //double m_noiseFactor;
   float m_readoutThreshold;
   float m_neighborOnThreshold;
   float m_saturation;
