@@ -304,47 +304,51 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   }
 
   // weight-name cleaning
-  vector<pair<string,string> > w_subs = {
-    {" nominal ",""},
-    {" set = ","_"},
-    {" = ","_"},
-    {"=",""},
-    {",",""},
-    {".",""},
-    {":",""},
-    {" ","_"},
-    {"#","num"},
-    {"\n","_"},
-    {"/","over"}
-  };
-
   const HepMC::WeightContainer& old_wc = event->weights();
-  HepMC::WeightContainer& new_wc = modEvent->weights();
-  new_wc.clear();
   std::ostringstream stream;
   old_wc.print(stream);
   string str =  stream.str();
-  std::regex re("(([^()]+))"); // Regex for stuff enclosed by parentheses ()
-  for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
-       i != std::sregex_iterator(); ++i ) {
-    std::smatch m = *i;
-    vector<string> temp = ::split(m.str(), "[,]");
-    if (temp.size() == 2 || temp.size() == 3) {
-      string wname = temp[0];
-      if (temp.size() == 3)  wname += "," + temp[1];
-      double value = old_wc[wname];
-      for (const auto& sub : w_subs) {
-        size_t start_pos = wname.find(sub.first);
-        while (start_pos != std::string::npos) {
-          wname.replace(start_pos, sub.first.length(), sub.second);
-          start_pos = wname.find(sub.first);
+  // if it only has one element, 
+  // then it doesn't use named weights
+  // --> no need for weight-name cleaning
+  if (str.size() > 1) {
+    HepMC::WeightContainer& new_wc = modEvent->weights();
+    new_wc.clear();
+    vector<pair<string,string> > w_subs = {
+      {" nominal ",""},
+      {" set = ","_"},
+      {" = ","_"},
+      {"=",""},
+      {",",""},
+      {".",""},
+      {":",""},
+      {" ","_"},
+      {"#","num"},
+      {"\n","_"},
+      {"/","over"}
+    };
+    std::regex re("(([^()]+))"); // Regex for stuff enclosed by parentheses ()
+    for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
+         i != std::sregex_iterator(); ++i ) {
+      std::smatch m = *i;
+      vector<string> temp = ::split(m.str(), "[,]");
+      if (temp.size() == 2 || temp.size() == 3) {
+        string wname = temp[0];
+        if (temp.size() == 3)  wname += "," + temp[1];
+        double value = old_wc[wname];
+        for (const auto& sub : w_subs) {
+          size_t start_pos = wname.find(sub.first);
+          while (start_pos != std::string::npos) {
+            wname.replace(start_pos, sub.first.length(), sub.second);
+            start_pos = wname.find(sub.first);
+          }
         }
+        new_wc[wname];
+        new_wc.back() = value;
       }
-      new_wc[wname];
-      new_wc.back() = value;
     }
+    // end of weight-name cleaning
   }
-  // end of weight-name cleaning
 
   if (!modEvent->valid_beam_particles()) {
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
