@@ -764,7 +764,9 @@ if InDetTrigFlags.loadSummaryTool():
                                                           TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
   ToolSvc += InDetTrigTRT_LocalOccupancy
 
+  import InDetRecExample.TrackingCommon as TrackingCommon
   InDetTrigTRT_ToT_dEdx = TRT_ToT_dEdx(name = "InDetTrig_TRT_ToT_dEdx",
+                                       AssociationTool = InDetTrigPrdAssociationTool,
                                        TRTStrawSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
                                        TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy)
   ToolSvc += InDetTrigTRT_ToT_dEdx
