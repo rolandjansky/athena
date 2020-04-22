@@ -250,7 +250,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                                 "Offline",
                                 "HLT_tau.*idperf.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_TAURoI",
                                 "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_TAURoI",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI"
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI",
                                 "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_TAURoI"
                         ]
                 else:
