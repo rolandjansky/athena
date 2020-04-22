@@ -237,7 +237,7 @@ StatusCode EvtInclusiveDecay::execute() {
     int loopCounter(0);
     while( !eventPassesCuts && loopCounter < m_maxNRepeatedDecays ) {
       for (std::set<int>::iterator itb = toBeDecayed.begin(); itb!=toBeDecayed.end(); ++itb) {
-        HepMC::GenParticle* p = hepMC->barcode_to_particle(*itb);
+        auto p = hepMC->barcode_to_particle(*itb);
         if (p==0) {
           msg(MSG::ERROR ) << "Overlapping decay tree encountered for barcode " << *itb << endmsg;
           return StatusCode::FAILURE;
@@ -334,7 +334,7 @@ StatusCode EvtInclusiveDecay::traverseDecayTree(HepMC::GenParticle* p,
       // decay, even if it has several mothers.
     }
   }
-  HepMC::GenVertex* v = p->end_vertex();
+  auto v = p->end_vertex();
   if (v) {
     if (visited.insert(v).second) {
       if ( isToBeRemoved && (v->particles_in_size()>1) && m_checkDecayTree ) {
@@ -366,7 +366,7 @@ StatusCode EvtInclusiveDecay::traverseDecayTree(HepMC::GenParticle* p,
 // Remove an existing decay tree
 //
 void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticle* p) {
-  HepMC::GenVertex* v = p->end_vertex();
+  auto v = p->end_vertex();
   if (v) {
     std::set<int> vtxBarCodesToDelete;
     vtxBarCodesToDelete.insert(v->barcode());
@@ -375,7 +375,7 @@ void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPartic
                                            ++itv)
       vtxBarCodesToDelete.insert((*itv)->barcode());
     for (std::set<int>::iterator itb = vtxBarCodesToDelete.begin(); itb != vtxBarCodesToDelete.end(); ++itb) {
-      HepMC::GenVertex* vdel = hepMC->barcode_to_vertex(*itb);
+      auto vdel = hepMC->barcode_to_vertex(*itb);
       hepMC->remove_vertex(vdel);
       delete vdel;
     }
@@ -446,7 +446,7 @@ void EvtInclusiveDecay::addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPar
     double y=(evtPart->getDaug(0)->get4Pos()).get(2)+treeStart.get(2);
     double z=(evtPart->getDaug(0)->get4Pos()).get(3)+treeStart.get(3);
 
-    HepMC::GenVertex* end_vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(x,y,z,ct));
+    HepMC::GenVertex* end_vtx = new HepMC::GenVertex(HepMC::FourVector(x,y,z,ct));
     hepMC->add_vertex(end_vtx);
     end_vtx->add_particle_in(part);
 
@@ -459,7 +459,7 @@ void EvtInclusiveDecay::addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPar
       int id=EvtPDL::getStdHep(evtPart->getDaug(it)->getId());
       int status=1;
       if(evtPart->getDaug(it)->getNDaug() != 0) status=m_decayedStatus;
-      HepMC::GenParticle* daughter = new HepMC::GenParticle(CLHEP::HepLorentzVector(px,py,pz,e),id,status);
+      HepMC::GenParticle* daughter = new HepMC::GenParticle(HepMC::FourVector(px,py,pz,e),id,status);
       end_vtx->add_particle_out(daughter);
       addEvtGenDecayTree(hepMC, daughter, evtPart->getDaug(it), treeStart, momentumScaleFactor);
     }
@@ -478,7 +478,7 @@ bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticle* p, bool doCrossC
   int id = p->pdg_id();
   int stat = p->status();
   int nDaughters = 0;
-  HepMC::GenVertex* v = p->end_vertex();
+  auto v = p->end_vertex();
   if (v) nDaughters = v->particles_out_size();
 
   // Ignore documentation lines
@@ -578,8 +578,8 @@ bool EvtInclusiveDecay::passesUserSelection(HepMC::GenEvent* hepMC) {
       muons->push_back(p);
   }
   
-  for (std::vector<HepMC::GenParticle*>::iterator muItr1 = muons->begin(); muItr1 != muons->end(); ++muItr1) {
-    for (std::vector<HepMC::GenParticle*>::iterator muItr2 = muItr1+1; muItr2 != muons->end(); ++muItr2) {
+  for (auto muItr1 = muons->begin(); muItr1 != muons->end(); ++muItr1) {
+    for (auto muItr2 = muItr1+1; muItr2 != muons->end(); ++muItr2) {
       if( m_userSelRequireOppositeSignedMu && (*muItr1)->pdg_id() * (*muItr2)->pdg_id() > 0)
         continue;
       if( !( (*muItr1)->momentum().perp() > m_userSelMu1MinPt && fabs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
@@ -646,7 +646,7 @@ unsigned int EvtInclusiveDecay::printTree(HepMC::GenParticle* p,
   unsigned int nParticlesVisited = 1;
   for (int i=0; i<level; i++) std::cout << "    ";
   std::cout << pdgName(p,m_printHepMCHighlighted,barcodeList);
-  HepMC::GenVertex* v = p->end_vertex();
+  auto v = p->end_vertex();
   if (v) {
     if (v->particles_in_size() > 1)
       std::cout << " [interaction: " << v->particles_in_size() << " particles, barcode " << v->barcode() << "]    -->   ";

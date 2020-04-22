@@ -521,7 +521,7 @@ StatusCode ParticleDecayer::DFTwoBodyDecay( HepMC::GenParticle* genpart, int Pol
    
    //Add the daughters to the pool file
    ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- Add the daughters to the pool file");
-   HepMC::GenVertex* end_vtx = genpart->end_vertex();
+   auto end_vtx = genpart->end_vertex();
    auto v0=daughterLVs.at(0).vect();
    addParticle(end_vtx,  ModeOfDecay, HepMC::FourVector(v0.x(),v0.y(),v0.z(),0.0),    1);
    auto v1=daughterLVs.at(1).vect();
