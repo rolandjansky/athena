@@ -18,6 +18,7 @@ TestMCASTTool::TestMCASTTool( const std::string& name, ISvcLocator* svcLoc ) :
   m_MCaSTool( "CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this )
 {
 
+  declareProperty( "Output", m_Output = "MCaST_Debug.root" );
   declareProperty( "SGKey", m_sgKey = "Muons" );
   declareProperty( "MuonCalibrationAndSmearingTool", m_MCaSTool );
 
@@ -53,7 +54,7 @@ StatusCode TestMCASTTool::initialize() {
   m_MSExtr = std::make_unique<MMCTest::TrackInfo>("ME", m_sysNames);
   m_MSOnlyExtr = std::make_unique<MMCTest::TrackInfo>("MSOE", empty_list);
 
-  m_DebugFile = new TFile( "MCaST_Debug.root", "RECREATE", "Smearing and non-Smearing of Muons" );
+  m_DebugFile = new TFile( m_Output.c_str(), "RECREATE", "Smearing and non-Smearing of Muons" );
   m_DebugTree = new TTree( "CorrectionsTree", "This Tree contains the information of the muon after smearing effects" );
 
   m_DebugTree->Branch("Muon_Sel_Category_Raw", &m_SelCategoryRaw);
