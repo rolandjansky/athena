@@ -26,12 +26,7 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
-///// stuff *merely* to get the particle charge!!!
-/// #include "HepPDT/ParticleData.hh"
-/// #include "HepMC/ParticleDataTable.h"
-/// #include "McParticleEvent/TruthParticle.h"
-/// #include "McParticleUtils/McUtils.h" // for chargeFromPdgId
-///
+
 ///// FrameWork includes
 /// #include "GaudiKernel/ServiceHandle.h"
 /// #include "GaudiKernel/IPartPropSvc.h"
@@ -372,7 +367,6 @@ public:
     double xp[3] = { 0, 0, 0 };
 
     if ( track->genParticle()->production_vertex() ) { 
-      // std::cout << "ptr->production_vertex() " << ptr->production_vertex() << std::endl;
       xp[0] = track->genParticle()->production_vertex()->point3d().x();
       xp[1] = track->genParticle()->production_vertex()->point3d().y();
       xp[2] = track->genParticle()->production_vertex()->point3d().z();
@@ -387,7 +381,6 @@ public:
     double xd[3] = { 0, 0, 0 };
 
     if ( track->genParticle()->end_vertex() ) { 
-      // std::cout << "ptr->production_vertex() " << ptr->production_vertex() << std::endl;
       xd[0] = track->genParticle()->end_vertex()->point3d().x();
       xd[1] = track->genParticle()->end_vertex()->point3d().y();
       xd[2] = track->genParticle()->end_vertex()->point3d().z();

@@ -50,8 +50,6 @@ public:
 
   bool hasCharge() const { return m_charge!=-99999.0; }
   double charge() const { return m_charge; }
-//   static ExtBarCode extBarCode(const HepMcParticleLink& l) { return ExtBarCode( l.barcode(),l.eventIndex()); }
-//   inline ExtBarCode extBarCode() const { return extBarCode( particleLink() ); }
 
   virtual Trk::TrackParameters * createTrackParameters() const = 0;
 

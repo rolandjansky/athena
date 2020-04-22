@@ -101,10 +101,7 @@ bool LArHitEMap::BuildWindows(float deta,float dphi, float ptmin)
          HepMC::GenParticle *part=*itrPart;
          //works only for photons(22) and electrons(11) primary particle from Geant (status>1000)
          // with pt>5 GeV
-// GU 20-june-2006 use barcode between 10001 and 20000 to select primary particles
-//         std::cout << " pdg_id,status,barcode,pt " << part->pdg_id() << " " 
-//           <<  part->status() << " " << part->barcode() << " " <<
-//                part->momentum().perp() << std::endl;
+// GU 20-june-2006 use barcode between 10001 and 20000 to select primary particles //AV2020: not sure if it works
          if(   (part->pdg_id()==22 || abs(part->pdg_id())==11 || part->pdg_id()==111) 
             && part->barcode()>10000 && part->barcode()<20000
             && part->momentum().perp()> ptmin)
@@ -116,11 +113,6 @@ bool LArHitEMap::BuildWindows(float deta,float dphi, float ptmin)
       }
     }
 
-//    std::cout << " Number of true particles " << etaPart.size() << std::endl;
-//    for(unsigned int iPart=0;iPart<etaPart.size();++iPart)
-//    {
-//     std::cout << "eta,phi " << etaPart[iPart] << " " << phiPart[iPart] << std::endl;
-//    }
 
     if ( etaPart.size() == 0) return true;
     const float pi=2*asin(1.);

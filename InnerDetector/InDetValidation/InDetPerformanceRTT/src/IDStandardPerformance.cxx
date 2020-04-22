@@ -2437,8 +2437,6 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 	      for(unsigned int i_hmpl=0; i_hmpl<traj.size(); i_hmpl++){
 
 		int eventIndex = (int)traj[i_hmpl].eventIndex();
-		//msg(MSG::ERROR)<<"Evt Index = " << eventIndex << endmsg;
-		//msg(MSG::ERROR)<<"barcode = " << (int)traj[i_hmpl].barcode() << endmsg;
 		// Iterate on vector on event index to check if this one already exists
 		std::vector<int>::iterator itVectorData;
 		bool alreadyExist = false;
