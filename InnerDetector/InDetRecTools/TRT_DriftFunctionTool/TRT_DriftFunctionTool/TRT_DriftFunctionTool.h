@@ -24,10 +24,6 @@ class TRT_ID;
 
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ICondSvc.h"
-#include "StoreGate/DataHandle.h"
-// AttributeList
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 /**
  @class TRT_DriftFunctionTool
   
@@ -104,9 +100,6 @@ private:
   const InDetDD::TRT_DetectorManager* m_manager{};
   const TRT_ID* m_trtid{};
 
-  //  ReadHandle  keys
-  SG::ReadCondHandleKey<CondAttrListCollection> m_ToTkey{this,"ToTKeyName","/TRT/Calib/ToTCalib","ToTCalib in-key"};
-  SG::ReadCondHandleKey<CondAttrListCollection> m_HTkey{this,"HTKeyName","/TRT/Calib/HTCalib","HTCalib in-key"};
 
   double m_drifttimeperbin;            //!< 3.125ns
   double m_error;                      //!< universal error
