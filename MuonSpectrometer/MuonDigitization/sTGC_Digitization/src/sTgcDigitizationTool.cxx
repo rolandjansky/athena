@@ -325,9 +325,6 @@ StatusCode sTgcDigitizationTool::mergeEvent(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::in mergeEvent()" );
 
-  // Cleanup and record the Digit container in StoreGate
-  ATH_CHECK(recordDigitAndSdoContainers(ctx));
-    
   status = doDigitization(ctx);
   if (status.isFailure())  {
     ATH_MSG_ERROR ( "doDigitization Failed" );
@@ -351,21 +348,6 @@ StatusCode sTgcDigitizationTool::mergeEvent(const EventContext& ctx) {
   return status;
 }
 /*******************************************************************************/
-StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers(const EventContext& ctx) { 
-
-  // create and record the Digit container in StoreGate
-  SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
-  ATH_CHECK(digitContainer.record(std::make_unique<sTgcDigitContainer>(m_idHelperSvc->stgcIdHelper().detectorElement_hash_max())));
-  ATH_MSG_DEBUG ( "sTgcDigitContainer recorded in StoreGate." );
-
-  // Create and record the SDO container in StoreGate
-  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
-  ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
-  ATH_MSG_DEBUG ( "sTgcSDOCollection recorded in StoreGate." );
-
-  return StatusCode::SUCCESS;
-}
-/*******************************************************************************/
 StatusCode sTgcDigitizationTool::digitize(const EventContext& ctx) {
   return this->processAllSubEvents(ctx); 
 } 
@@ -373,8 +355,6 @@ StatusCode sTgcDigitizationTool::digitize(const EventContext& ctx) {
 StatusCode sTgcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   StatusCode status = StatusCode::SUCCESS;
   ATH_MSG_DEBUG (" sTgcDigitizationTool::processAllSubEvents()" );
-  
-  ATH_CHECK(recordDigitAndSdoContainers(ctx));
 
   //merging of the hit collection in getNextEvent method      
   if (0 == m_thpcsTGC) {
@@ -399,14 +379,24 @@ StatusCode sTgcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 /*******************************************************************************/
 StatusCode sTgcDigitizationTool::finalize() {
   delete m_digitizer; 
-  m_digitizer = 0;
-
+  m_digitizer = nullptr;
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
 StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
   
   ATH_MSG_DEBUG ("sTgcDigitizationTool::doDigitization()" );
+
+  // create and record the Digit container in StoreGate
+  SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
+  ATH_CHECK(digitContainer.record(std::make_unique<sTgcDigitContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max())));
+  ATH_MSG_DEBUG ( "sTgcDigitContainer recorded in StoreGate." );
+
+  // Create and record the SDO container in StoreGate
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
+  ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
+  ATH_MSG_DEBUG ( "sTgcSDOCollection recorded in StoreGate." );
+
     
   TimedHitCollection<sTGCSimHit>::const_iterator i, e; 
 
@@ -639,7 +629,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
   */
   ATH_MSG_VERBOSE("Processing Pad Digits");
   int nPadDigits = 0;
-  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
   for (std::map< Identifier, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedPadDigits.begin(); it_DETEL!= unmergedPadDigits.end(); ++it_DETEL) {
     for (std::map< Identifier, std::vector<sTgcSimDigitData> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
       std::stable_sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
@@ -1015,7 +1004,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
     } // end of loop for all the ReadoutElementID
 
     if(digitCollection->size()){
-      SG::WriteHandle<sTgcDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
       ATH_MSG_VERBOSE("push the collection to m_digitcontainer : HashId = " << digitCollection->identifierHash() );
       if(digitContainer->addCollection(digitCollection, digitCollection->identifierHash()).isFailure())
         ATH_MSG_WARNING("Failed to add collection with hash " << digitCollection->identifierHash());
