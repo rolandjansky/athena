@@ -36,7 +36,7 @@ atlas_add_executable( PoolFilePeeker
                       src/PoolFilePeeker.cxx
                       src/FileMetaData.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES  ${ROOT_LIBRARIES})#  xAODEventInfo EventTPCnv EventTPCnvDict)
+                      LINK_LIBRARIES EventTPCnv IOVDbTPCnv ByteStreamEventTPCnv ${ROOT_LIBRARIES})
 
 
 if( NOT SIMULATIONBASE )
