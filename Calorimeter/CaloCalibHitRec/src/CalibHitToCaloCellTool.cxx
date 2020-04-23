@@ -34,8 +34,7 @@ CalibHitToCaloCellTool::CalibHitToCaloCellTool(const std::string& t, const std::
     m_caloCell_Em(""), m_caloCell_NonEm(""),
     m_caloCell_ID(0),
     m_caloDM_ID(0),
-    m_caloDDMgr(0),
-    m_nchan(0)
+    m_caloDDMgr(0)
 {
   declareInterface<CalibHitToCaloCellTool>(this);
 
@@ -83,7 +82,7 @@ StatusCode CalibHitToCaloCellTool::initialize()
 
 
 /////////////////   EXECUTE   //////////////////////
-StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode)
+StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode) const
 {
   ATH_MSG_DEBUG("in calibHitToCaloCellTool");
 
@@ -96,11 +95,14 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode)
     return StatusCode::SUCCESS;
   }
     
+  CaloCellContainer* truthCells[3];                                                                                                                                                                       
+  xAOD::CaloClusterContainer* truthClusters[3];                                                                                                                                                           
+  
   // register containers for cells and clusters
   for (unsigned int i=0; i<CalibHitUtils::nEnergyTypes; i++) {
-    m_truthCells[i] = new CaloCellContainer();
-    m_truthClusters[i] = CaloClusterStoreHelper::makeContainer(&(*evtStore()),(m_outputClusterContainerName+EnergyTypeToStr[i]).c_str(),msg());    
-    if (!m_truthClusters[i]) {
+    truthCells[i] = new CaloCellContainer();
+    truthClusters[i] = CaloClusterStoreHelper::makeContainer(&(*evtStore()),(m_outputClusterContainerName+EnergyTypeToStr[i]).c_str(),msg());    
+    if (!truthClusters[i]) {
       ATH_MSG_FATAL("Cannot make cluster container");
       return StatusCode::FAILURE;
     }
@@ -120,7 +122,7 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode)
   ATH_MSG_DEBUG("CaloCalibrationHitContainers retrieved successfuly" );
 
   //count
-  m_nchan=0;
+  int nchan=0;
   int em_nchan=0;
   int hec_nchan=0;
   int fcal_nchan=0;
@@ -129,11 +131,11 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode)
   
   std::vector<Identifier> ID;
   if (barcode<0) barcode = m_singleParticleBarcode; // if no barcode is specified for this event, use the default
-  
-  //clean up CaloCell vectors for this event 
-  m_CellsEtot.clear();
-  m_CellsEvis.clear();
-  m_CellsEem.clear();
+
+
+  std::vector<CaloCell*> CellsEtot;
+  std::vector<CaloCell*> CellsEvis;
+  std::vector<CaloCell*> CellsEem;
   	    
   int nhitsInactive = 0;
 
@@ -155,9 +157,9 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode)
 	bool isNewId = true;
 	for (int n=0; n<nhitsInactive; n++) {
 	  if( id == ID[n] ) { //found
-	    m_CellsEtot[n]->addEnergy(Etot);
-	    m_CellsEvis[n]->addEnergy(Evis);
-	    m_CellsEem[n]->addEnergy(Eem);
+	    CellsEtot[n]->addEnergy(Etot);
+	    CellsEvis[n]->addEnergy(Evis);
+	    CellsEem[n]->addEnergy(Eem);
 	    isNewId = false;
 	    break;
 	  }
@@ -169,20 +171,20 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode)
       if(m_caloCell_ID->is_lar(id)) {
 	ATH_MSG_VERBOSE( "Found LAr cell" );	
 	const CaloDetDescrElement* caloDDE = m_caloDDMgr->get_element(id);	  
-	m_CellsEtot.push_back(new LArCell(caloDDE, id, Etot, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)) ;
-	m_CellsEvis.push_back(new LArCell(caloDDE, id, Evis, 0., 0, 0, (CaloGain::CaloGain)m_caloGain));
-	m_CellsEem.push_back(new LArCell(caloDDE, id, Eem, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)); 
+	CellsEtot.push_back(new LArCell(caloDDE, id, Etot, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)) ;
+	CellsEvis.push_back(new LArCell(caloDDE, id, Evis, 0., 0, 0, (CaloGain::CaloGain)m_caloGain));
+	CellsEem.push_back(new LArCell(caloDDE, id, Eem, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)); 
 	ID.push_back(id);
-	++m_nchan;
+	++nchan;
       }
       else if(m_caloCell_ID->is_tile(id)) {
 	ATH_MSG_VERBOSE( "Found Tile cell" );
 	const CaloDetDescrElement* caloDDE = m_caloDDMgr->get_element(id);
-	m_CellsEtot.push_back(new TileCell(caloDDE, id, Etot, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)) ;
-	m_CellsEvis.push_back(new TileCell(caloDDE, id, Evis, 0., 0, 0, (CaloGain::CaloGain)m_caloGain));
-	m_CellsEem.push_back(new TileCell(caloDDE, id, Eem, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)); 
+	CellsEtot.push_back(new TileCell(caloDDE, id, Etot, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)) ;
+	CellsEvis.push_back(new TileCell(caloDDE, id, Evis, 0., 0, 0, (CaloGain::CaloGain)m_caloGain));
+	CellsEem.push_back(new TileCell(caloDDE, id, Eem, 0., 0, 0, (CaloGain::CaloGain)m_caloGain)); 
 	ID.push_back(id);
-	++m_nchan;
+	++nchan;
       }
       else { //other, DeadMaterial
 	//// FIXME DeadMaterial deposits not used; need to use m_caloDDMg;	
@@ -194,65 +196,65 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode)
   }
   
   //Now, put cells in the containers keeping the order. First goes EM, then HEC and so on
-  // if(m_CellsEtot.size()==0) {
+  // if(CellsEtot.size()==0) {
   //   ID.clear();
   //   return StatusCode::SUCCESS;
   // }
 
-  ATH_MSG_DEBUG("N cells : " << m_nchan );
+  ATH_MSG_DEBUG("N cells : " << nchan );
   
-  for(int itr=0; itr!=m_nchan; itr++) {
-    if(m_caloCell_ID->is_em(m_CellsEtot[itr]->ID())) {
-      m_truthCells[CalibHitUtils::EnergyTotal]->push_back(m_CellsEtot[itr]);
-      m_truthCells[CalibHitUtils::EnergyVisible]->push_back(m_CellsEvis[itr]);
-      m_truthCells[CalibHitUtils::EnergyEM]->push_back(m_CellsEem[itr]);
+  for(int itr=0; itr!=nchan; itr++) {
+    if(m_caloCell_ID->is_em(CellsEtot[itr]->ID())) {
+      truthCells[CalibHitUtils::EnergyTotal]->push_back(CellsEtot[itr]);
+      truthCells[CalibHitUtils::EnergyVisible]->push_back(CellsEvis[itr]);
+      truthCells[CalibHitUtils::EnergyEM]->push_back(CellsEem[itr]);
       ++em_nchan;
     }
   }
   if(em_nchan) {
-    for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) m_truthCells[i]->setHasCalo(CaloCell_ID::LAREM);
+    for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) truthCells[i]->setHasCalo(CaloCell_ID::LAREM);
   }
 
-  for(int itr=0; itr!=m_nchan; itr++)  {
-    if(m_caloCell_ID->is_hec(m_CellsEtot[itr]->ID())) {
-      m_truthCells[CalibHitUtils::EnergyTotal]->push_back(m_CellsEtot[itr]);
-      m_truthCells[CalibHitUtils::EnergyVisible]->push_back(m_CellsEvis[itr]);
-      m_truthCells[CalibHitUtils::EnergyEM]->push_back(m_CellsEem[itr]);
+  for(int itr=0; itr!=nchan; itr++)  {
+    if(m_caloCell_ID->is_hec(CellsEtot[itr]->ID())) {
+      truthCells[CalibHitUtils::EnergyTotal]->push_back(CellsEtot[itr]);
+      truthCells[CalibHitUtils::EnergyVisible]->push_back(CellsEvis[itr]);
+      truthCells[CalibHitUtils::EnergyEM]->push_back(CellsEem[itr]);
       ++hec_nchan;
     }
   }
   if(hec_nchan){
-    for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) m_truthCells[i]->setHasCalo(CaloCell_ID::LARHEC);
+    for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) truthCells[i]->setHasCalo(CaloCell_ID::LARHEC);
   }
 
-  for(int itr=0; itr!=m_nchan; itr++) {
-    if(m_caloCell_ID->is_fcal(m_CellsEtot[itr]->ID())) {
-      m_truthCells[CalibHitUtils::EnergyTotal]->push_back(m_CellsEtot[itr]);
-      m_truthCells[CalibHitUtils::EnergyVisible]->push_back(m_CellsEvis[itr]);
-      m_truthCells[CalibHitUtils::EnergyEM]->push_back(m_CellsEem[itr]);
+  for(int itr=0; itr!=nchan; itr++) {
+    if(m_caloCell_ID->is_fcal(CellsEtot[itr]->ID())) {
+      truthCells[CalibHitUtils::EnergyTotal]->push_back(CellsEtot[itr]);
+      truthCells[CalibHitUtils::EnergyVisible]->push_back(CellsEvis[itr]);
+      truthCells[CalibHitUtils::EnergyEM]->push_back(CellsEem[itr]);
       ++fcal_nchan;
     }
   }
   if(fcal_nchan) {
-    for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) m_truthCells[i]->setHasCalo(CaloCell_ID::LARFCAL);
+    for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) truthCells[i]->setHasCalo(CaloCell_ID::LARFCAL);
   }
 
-  for(int itr=0; itr!=m_nchan; itr++) {
-    if((m_caloCell_ID->is_tile(m_CellsEtot[itr]->ID()))) {
-      m_truthCells[CalibHitUtils::EnergyTotal]->push_back(m_CellsEtot[itr]);
-      m_truthCells[CalibHitUtils::EnergyVisible]->push_back(m_CellsEvis[itr]);
-      m_truthCells[CalibHitUtils::EnergyEM]->push_back(m_CellsEem[itr]);
+  for(int itr=0; itr!=nchan; itr++) {
+    if((m_caloCell_ID->is_tile(CellsEtot[itr]->ID()))) {
+      truthCells[CalibHitUtils::EnergyTotal]->push_back(CellsEtot[itr]);
+      truthCells[CalibHitUtils::EnergyVisible]->push_back(CellsEvis[itr]);
+      truthCells[CalibHitUtils::EnergyEM]->push_back(CellsEem[itr]);
       ++tile_nchan;
     }
   }
   if(tile_nchan) {
-    for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) m_truthCells[i]->setHasCalo(CaloCell_ID::TILE);
+    for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) truthCells[i]->setHasCalo(CaloCell_ID::TILE);
   }
   if(unknown_nchan) {
-    for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) m_truthCells[i]->setHasCalo(CaloCell_ID::NOT_VALID);
+    for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) truthCells[i]->setHasCalo(CaloCell_ID::NOT_VALID);
   }
-  ATH_MSG_DEBUG("--- LAr INFO --- "<<m_nchan );
-  ATH_MSG_DEBUG("LArCells  = "<<m_nchan );
+  ATH_MSG_DEBUG("--- LAr INFO --- "<<nchan );
+  ATH_MSG_DEBUG("LArCells  = "<<nchan );
   ATH_MSG_DEBUG("EMCells   = "<<em_nchan );
   ATH_MSG_DEBUG("HECCells  = "<<hec_nchan );
   ATH_MSG_DEBUG("FCALCells = "<<fcal_nchan );
@@ -266,14 +268,14 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode)
   ATH_MSG_DEBUG("making truth cluster");
   xAOD::CaloCluster* truthCluster[3] = {0,0,0};
   for (int i=0;i<CalibHitUtils::nEnergyTypes;i++) {
-    truthCluster[i] = CaloClusterStoreHelper::makeCluster(m_truthClusters[i],m_truthCells[i]);
+    truthCluster[i] = CaloClusterStoreHelper::makeCluster(truthClusters[i],truthCells[i]);
     if (!truthCluster[i]) {
       ATH_MSG_FATAL("makeCluster failed");
       return StatusCode::FAILURE;
     }
-    for (const auto cell: *m_truthCells[i]) {
+    for (const auto cell: *truthCells[i]) {
       if(m_caloCell_ID->is_lar(cell->ID()) || m_caloCell_ID->is_tile(cell->ID())) 
-	truthCluster[i]->addCell( m_truthCells[i]->findIndex(cell->caloDDE()->calo_hash()) , 1.);
+	truthCluster[i]->addCell( truthCells[i]->findIndex(cell->caloDDE()->calo_hash()) , 1.);
     }
     
     truthCluster[i]->setClusterSize(xAOD::CaloCluster::CSize_Unknown);
@@ -284,14 +286,14 @@ StatusCode CalibHitToCaloCellTool::processCalibHitsFromParticle(int barcode)
   // record containers
   if (m_writeTruthCellContainers) {
     for (int i=0;i<3;i++) {
-      ATH_MSG_DEBUG("recording truth cells container for " << EnergyTypeToStr[i] <<" deposits, size: " << m_truthCells[i]->size());
-      ATH_CHECK(evtStore()->record(m_truthCells[i], (m_outputCellContainerName+EnergyTypeToStr[i]).c_str()));
+      ATH_MSG_DEBUG("recording truth cells container for " << EnergyTypeToStr[i] <<" deposits, size: " << truthCells[i]->size());
+      ATH_CHECK(evtStore()->record(truthCells[i], (m_outputCellContainerName+EnergyTypeToStr[i]).c_str()));
     }
   }
   if (m_writeTruthClusterContainers) {
     for (int i=0;i<3;i++) {
       ATH_MSG_DEBUG("finalizing truth cluster");
-      ATH_CHECK( CaloClusterStoreHelper::finalizeClusters(&*evtStore(), m_truthClusters[i], (m_outputClusterContainerName+EnergyTypeToStr[i]).c_str(), msg()) );
+      ATH_CHECK( CaloClusterStoreHelper::finalizeClusters(&*evtStore(), truthClusters[i], (m_outputClusterContainerName+EnergyTypeToStr[i]).c_str(), msg()) );
     }
   }
   

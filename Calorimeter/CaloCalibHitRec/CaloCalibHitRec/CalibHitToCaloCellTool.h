@@ -42,13 +42,13 @@ class CalibHitToCaloCellTool: virtual public AthAlgTool {
   CalibHitToCaloCellTool(const std::string& t, const std::string& n, const IInterface*  p);
   ~CalibHitToCaloCellTool();
   StatusCode initialize();    
-  StatusCode processCalibHitsFromParticle(int barcode=-1);
+  StatusCode processCalibHitsFromParticle(int barcode=-1) const;
   StatusCode finalize();
   
   static const InterfaceID& interfaceID() { return IID_CalibHitToCaloCellTool;}
 
-  inline CaloCellContainer* getTruthCellsCont(CalibHitUtils::EnergyType type) {return m_truthCells[(int)type];}
-  inline xAOD::CaloClusterContainer* getTruthClustersCont(CalibHitUtils::EnergyType type) {return m_truthClusters[(int)type];}
+  //  inline CaloCellContainer* getTruthCellsCont(CalibHitUtils::EnergyType type) {return m_truthCells[(int)type];}
+  //  inline xAOD::CaloClusterContainer* getTruthClustersCont(CalibHitUtils::EnergyType type) {return m_truthClusters[(int)type];}
   
  private:
   int m_caloGain;
@@ -86,19 +86,9 @@ class CalibHitToCaloCellTool: virtual public AthAlgTool {
 
   const CaloDetDescrManager*   m_caloDDMgr;
 
-  std::vector<CaloCell*> m_CellsEtot;
-  std::vector<CaloCell*> m_CellsEvis;
-  std::vector<CaloCell*> m_CellsEem;
-  
-  int m_nchan;
-  //    int m_dm_nchan;
-
   std::string m_outputCellContainerName;
   std::string m_outputClusterContainerName;
   
-  //cell and cluster containers for the three types of energy deposits (EM, Visible, Total)
-  CaloCellContainer* m_truthCells[3];
-  xAOD::CaloClusterContainer* m_truthClusters[3];
   
 };
 
