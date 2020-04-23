@@ -47,10 +47,15 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_maxsize   = 10000   ;
   m_ptmin     =  500.   ;
   m_etamin    = 0.      ; m_etamax     = 2.7 ;
-  m_drmin     = 5.      ;
+  m_drmin     = 20.     ;
   m_drmax     = 300.    ;
+  m_drminPPS  = 5.      ;
   m_drminPPP  = 6.      ;
   m_drmaxPPP  = 120.    ;
+  m_rmaxPPP   = 140.    ;
+  m_dzmaxSSS  = 900.    ;
+  m_zmaxPPP   = 2700.   ;
+  m_zmaxSSS   = 2700.   ;
   m_zmin      = -250.   ;
   m_zmax      = +250.   ;
   m_dzver     = 5.      ;
@@ -1575,7 +1580,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
   for(; r0!=re0; ++r0) {
 
     float R     =(*r0)->radius(); if(R       > m_RTmax) break;
-    float Z     =(*r0)->     z(); if(fabs(Z) > 2700.  ) continue;
+    float Z     =(*r0)->     z(); if(fabs(Z) > m_zmaxPPP) continue;
     float X     = (*r0)->    x();
     float Y     = (*r0)->    y();
     float covr0 = (*r0)->covr ();
@@ -1584,7 +1589,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
     float ax    = X*Ri          ;
     float ay    = Y*Ri          ;
     float VR    = m_diver*Ri*Ri ;
-    int   Ntm   = 2; if(R > 140.) Ntm = 1; 
+    int   Ntm   = 2; if(R > m_rmaxPPP) Ntm = 1;
 
     // Top   links production
     //
@@ -1717,7 +1722,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
       float  CSA  = Tzb2*m_COFK      ;
       float ICSA  = Tzb2*m_ipt2C     ;
 
-      int Nc = 1; if(m_SP[b]->radius() > 140.) Nc = 0;
+      int Nc = 1; if(m_SP[b]->radius() > m_rmaxPPP) Nc = 0;
       if(m_nOneSeedsQ) ++Nc;
 
       for(int it(it0);  it!=Nt; ++it) {
@@ -1771,7 +1776,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
   for(; r0!=re0; ++r0) {
 
     float               R    = (*r0)->radius(); if(R       > m_RTmax) break;
-    float               Z    = (*r0)->z()     ; if(fabs(Z) >  2700. ) continue;
+    float               Z    = (*r0)->z()     ; if(fabs(Z) > m_zmaxSSS) continue;
     
     // Top links selection
     //
@@ -1781,7 +1786,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
       std::vector<InDet::SiSpacePointForSeedITK*>::iterator r = rt[i], re = rte[i];
       if(r==re) continue;
 
-      for(; r!=re; ++r) {if(((*r)->radius()-R) >= 20.) break;} rt[i]=r;
+      for(; r!=re; ++r) {if(((*r)->radius()-R) >= m_drmin) break;} rt[i]=r;
       
       for(; r!=re; ++r) {
 	
@@ -1790,7 +1795,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	// Comparison with vertices Z coordinates
 	//
 	float dz((*r)->z()-Z); 
- 	if(fabs(dz) <= 900. && fabs(Z*dR-R*dz) <= m_zmaxU*dR) {m_SP[Nt]=(*r); if(Nt!=m_maxsizeSP) ++Nt;}
+	if(fabs(dz) <= m_dzmaxSSS && fabs(Z*dR-R*dz) <= m_zmaxU*dR) {m_SP[Nt]=(*r); if(Nt!=m_maxsizeSP) ++Nt;}
      }
     }
     if(!Nt || Nt==m_maxsizeSP) continue;
@@ -1806,12 +1811,12 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 
       for(; r!=re; ++r) {
 	
-	float dR(R-(*r)->radius()); if(dR < 20.) break;
+	float dR(R-(*r)->radius()); if(dR < m_drmin) break;
 
 	// Comparison with vertices Z coordinates
 	//
 	float dz(Z-(*r)->z()); 
-  	if(fabs(dz) <= 900. && fabs(Z*dR-R*dz) <= m_zmaxU*dR) {m_SP[Nb]=(*r); if(Nb!=m_maxsizeSP) ++Nb;}
+ 	if(fabs(dz) <= m_dzmaxSSS && fabs(Z*dR-R*dz) <= m_zmaxU*dR) {m_SP[Nb]=(*r); if(Nb!=m_maxsizeSP) ++Nb;}
      }
     }
     if(!(Nb-Nt)) continue; 
@@ -2006,7 +2011,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPS
       for(; r!=re; ++r) {
 	
 	float dR = R-(*r)->radius(); 
-	if(dR < m_drmin) break;
+	if(dR < m_drminPPS) break;
 
 	float dz = Z-(*r)->z();
 	if(fabs(Z*dR-R*dz) > m_zmaxU*dR || fabs(dz) > m_dzdrmaxPPS*dR) continue;

@@ -144,8 +144,11 @@ namespace InDet {
       float                       m_etamin, m_etamax              ;
       float                       m_drmin                         ;
       float                       m_drmax                         ;
+      float                       m_drminPPS                      ;
       float                       m_drminPPP                      ;
-      float                       m_drmaxPPP                      ; 
+      float                       m_drmaxPPP                      ;
+      float                       m_rmaxPPP                       ;
+      float                       m_dzmaxSSS                      ;
       float                       m_dzdrmin0                      ;
       float                       m_dzdrmax0                      ;
       float                       m_dzdrmin                       ;
@@ -153,6 +156,8 @@ namespace InDet {
       float                       m_dzdrmaxPPS                    ;
       float                       m_zmin                          ;
       float                       m_zmax                          ;
+      float                       m_zmaxPPP                       ;
+      float                       m_zmaxSSS                       ;
       float                       m_zminU                         ;
       float                       m_zmaxU                         ;
       float                       m_zminB                         ;

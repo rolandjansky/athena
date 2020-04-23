@@ -138,21 +138,17 @@ namespace InDet {
       int                         m_nlist                         ;
       int                         m_maxsize                       ;
       int                         m_iteration                     ;
-      int                         m_iminPPS                       ;
-      int                         m_imaxPPS                       ;
       int                         m_ndyncut                       ;
       int                         m_nCmSp                         ;
 
       float                       m_etamin, m_etamax              ;
-      float                       m_drmin                         ;
-      float                       m_drmax                         ;
       float                       m_drminPPP                      ;
-      float                       m_drmaxPPP                      ; 
+      float                       m_drmaxPPP                      ;
+      float                       m_rmaxPPP                       ;
       float                       m_dzdrmin0                      ;
       float                       m_dzdrmax0                      ;
       float                       m_dzdrmin                       ;
       float                       m_dzdrmax                       ;
-      float                       m_dzdrmaxPPS                    ;
       float                       m_zmin                          ;
       float                       m_zmax                          ;
       float                       m_zminU                         ;
@@ -167,7 +163,6 @@ namespace InDet {
       float                       m_dzver                         ;
       float                       m_dzdrver                       ;
       float                       m_diver                         ;
-      float                       m_diversss                      ;
       float                       m_divermax                      ;
       float                       m_dazmax                        ;
       float                       m_ptmin                         ;
@@ -180,9 +175,6 @@ namespace InDet {
       float                       m_COFK                          ;  
       float                       m_RTmin                         ;
       float                       m_RTmax                         ;
-      float                       m_rapydityPPSmax                ;
-      float                       m_radiusPPSmin                  ;
-      float                       m_radiusPPSmax                  ;
 
       int rf_size                                                 ;
       int rfz_size                                                ;
