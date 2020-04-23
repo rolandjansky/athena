@@ -34,6 +34,8 @@ private:
 
   StatusCode getCabling();
 
+  StatusCode fillTagInfo() const;
+
   StatusCode fill_TGCdata(const EventContext& ctx) const;
   TgcRdo * getTgcRdo(const TgcRawData * rawData,  std::map<uint16_t, TgcRdo *>& tgcRdoMap) const;
 
