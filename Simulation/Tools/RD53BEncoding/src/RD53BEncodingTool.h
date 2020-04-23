@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+*/
+
 #ifndef RD53BENCODINGTOOL_H
 #define RD53BENCODINGTOOL_H
 
