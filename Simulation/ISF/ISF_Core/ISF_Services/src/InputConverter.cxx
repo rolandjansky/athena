@@ -40,8 +40,9 @@
 #include "G4LorentzVector.hh"
 #include "G4TransportationManager.hh"
 // HepMC includes
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 // CLHEP includes
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"

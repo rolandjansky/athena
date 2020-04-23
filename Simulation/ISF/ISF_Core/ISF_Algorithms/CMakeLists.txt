@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
    LArCalorimeter/LArSimEvent
    TileCalorimeter/TileSimEvent
    MuonSpectrometer/MuonSimEvent
+   Generators/AtlasHepMC
    Generators/GeneratorObjects
    Simulation/Interfaces/HepMC_Interfaces
    Simulation/ISF/ISF_Core/ISF_Event

@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PRIVATE
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
-find_package( HepMC )
 find_package( Lhapdf )
 find_package( Pythia8 )
 find_package( XercesC )
@@ -31,7 +30,7 @@ if( MCUTILS_FOUND )
 endif()
 if( HEPMC_FOUND )
    list( APPEND extra_includes ${HEPMC_INCLUDE_DIRS} )
-   list( APPEND extra_libs ${HEPMC_LIBRARIES} )
+   list( APPEND extra_libs AtlasHepMCLib )
 endif()
 
 
@@ -43,5 +42,5 @@ atlas_add_library( G4ExternalDecay
                    PRIVATE_INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} ${LHAPDF_LIBRARIES} ${GEANT4_LIBRARIES} Pythia8_iLib ${extra_libs}
-                   PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} )
+                   PRIVATE_LINK_LIBRARIES AtlasHepMCLib )
 
