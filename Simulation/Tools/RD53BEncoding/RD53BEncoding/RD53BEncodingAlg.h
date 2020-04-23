@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+*/
+
 #ifndef RD53B_ENCODINGALG_H
 #define RD53B_ENCODINGALG_H
 

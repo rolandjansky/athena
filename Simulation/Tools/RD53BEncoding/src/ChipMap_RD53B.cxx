@@ -1,9 +1,13 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+*/
+
 #include "./ChipMap_RD53B.h"
 
 #include <math.h>
 #include <bitset>
 #include <tuple>
-// #include <iostream> 
 
 void ChipMap_RD53B::fillChipMap(int eta, int phi, int tot) {
   eta = correctEta(eta);
@@ -15,7 +19,7 @@ void ChipMap_RD53B::fillChipMap(int eta, int phi, int tot) {
   int mytot = tot/16.+1;
   m_tots.at(eta).at(phi) = mytot>15 ? 15 : mytot;
   
-  // TESTING
+//   // TESTING
 //   m_tots.at(eta).at(phi) = tot;
 
   m_nfired_pixels++;

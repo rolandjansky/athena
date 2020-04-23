@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+*/
+
 #include "RD53BEncoding/RD53BEncodingAlg.h"
 #include "./RD53BEncodingTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -106,11 +111,12 @@ StatusCode RD53BEncodingAlg::initializeStreams(const ToolHandleArray< RD53BEncod
     // int chips = design->numberOfCircuits();
     // BUT IT IS CURRENTLY RETURNING 1 FOR ALL MODULES
     // THEREFORE WE CHECK THE NUMBERS OF ROWS
-    
+        
     int chips = (design->rowsPerCircuit() == m_rows) ? 1 : 4;
     
     // TODO: TO BE TEMPORARELY USED TO TRANSLATE THE INDICES
     // WAITING FOR SAMPLES WITH ATLAS-P2-ITK-22-02-00
+    // WHEN UPDATING THIS, CHANGE THE ABOVE INDICES TO CONST
     if (pixBrlEc==2) {
       if (pixLayerDisk>29) {
         pixLayerDisk = pixLayerDisk-28;          
@@ -221,6 +227,7 @@ void RD53BEncodingAlg::fillChipMaps() {
       
       // TODO: TO BE TEMPORARELY USED TO TRANSLATE THE INDICES
       // WAITING FOR SAMPLES WITH ATLAS-P2-ITK-22-02-00
+      // WHEN UPDATING THIS, CHANGE THE ABOVE INDICES TO CONST
       if (pixBrlEc==2) {
         if (pixLayerDisk>29) {
           pixLayerDisk = pixLayerDisk-28;          
