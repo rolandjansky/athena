@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( EventContainers 
    src/*.cxx
    PUBLIC_HEADERS EventContainers
-   LINK_LIBRARIES AthenaKernel GaudiKernel )
+   LINK_LIBRARIES AthenaKernel Identifier GaudiKernel )
 
 atlas_add_test( IdCont SOURCES test/ID_ContainerTest.cxx
                 INCLUDE_DIRS src test EventContainers
