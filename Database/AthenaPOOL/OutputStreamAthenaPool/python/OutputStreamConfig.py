@@ -32,9 +32,9 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False 
    streamInfoTool.Key = "Stream" + streamName
 
    # Support for MT thinning.
-   Athena__ThinningCacheTool = CompFactory.Athena__ThinningCacheTool # AthenaServices
-   tct = Athena__ThinningCacheTool ('ThinningCacheTool_' + streamName,
-                                    StreamName = streamName)
+   ThinningCacheTool = CompFactory.getComp ('Athena::ThinningCacheTool') # AthenaServices
+   tct = ThinningCacheTool ('ThinningCacheTool_' + streamName,
+                            StreamName = streamName)
    if trigNavThinningSvc is not None:
       tct.TrigNavigationThinningSvc = trigNavThinningSvc
 
