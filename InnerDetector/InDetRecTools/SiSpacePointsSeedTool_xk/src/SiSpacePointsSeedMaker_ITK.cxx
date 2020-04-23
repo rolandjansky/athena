@@ -40,7 +40,6 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_sct       = true    ;
   m_trigger   = false   ;
   m_checketa  = false   ;
-  m_state     = 0       ;
   m_nspoint   = 2       ;
   m_mode      = 0       ;
   m_nlist     = 0       ;
@@ -63,9 +62,7 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_dazmax    = .02     ;
   r_rmax      = 1100.   ;
   r_rmin      = 0.      ;
-  m_umax      = 0.      ;
   r_rstep     =  2.     ;
-  m_dzmaxPPP  = 600.    ; 
   r_Sorted    = 0       ;
   r_index     = 0       ;
   r_map       = 0       ;    
@@ -121,8 +118,6 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("maxdImpactPPS"         ,m_diverpps              );
   declareProperty("maxdImpactSSS"         ,m_diversss              );
   declareProperty("maxdImpactForDecays"   ,m_divermax              );
-  declareProperty("minSeedsQuality"       ,m_umax                  );
-  declareProperty("dZmaxForPPPSeeds"      ,m_dzmaxPPP              );
   declareProperty("maxSeedsForSpacePoint" ,m_maxOneSize            );
   declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT        );
   declareProperty("SpacePointsPixelName"  ,m_spacepointsPixel      );
@@ -182,7 +177,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::initialize()
   // Get beam geometry
   //
   p_beam = 0;
-  if(m_beamconditions!="") {
+  if(!m_beamconditions.empty()) {
     sc = service(m_beamconditions,p_beam);
   }
 
@@ -219,7 +214,6 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::initialize()
   if(m_outputlevel<=0) {
     m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
-  m_umax = 100.-fabs(m_umax)*300.;
   return sc;
 }
 
@@ -238,7 +232,6 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::finalize()
 
 void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration) 
 {
-  m_iteration0 = iteration;
   m_trigger = false;
   if(!m_pixel && !m_sct) return; 
 

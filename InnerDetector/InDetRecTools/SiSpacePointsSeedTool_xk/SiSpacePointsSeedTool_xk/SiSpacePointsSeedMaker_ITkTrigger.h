@@ -138,7 +138,6 @@ namespace InDet {
       int                         m_nlist                         ;
       int                         m_maxsize                       ;
       int                         m_iteration                     ;
-      int                         m_iteration0                    ;
       int                         m_iminPPS                       ;
       int                         m_imaxPPS                       ;
       int                         m_ndyncut                       ;
@@ -179,8 +178,6 @@ namespace InDet {
       float                       m_ipt2K                         ;
       float                       m_ipt2C                         ;
       float                       m_COFK                          ;  
-      float                       m_umax                          ;
-      float                       m_dzmaxPPP                      ;
       float                       m_RTmin                         ;
       float                       m_RTmax                         ;
       float                       m_rapydityPPSmax                ;
