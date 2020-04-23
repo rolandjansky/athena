@@ -19,12 +19,14 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
                           PRIVATE
                           Control/StoreGate
-                          MagneticField/MagFieldInterfaces
                           MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibInterfaces
                           MuonSpectrometer/MuonCalib/MuonCalibEvent
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
-			  Tools/PathResolver )
+			  Tools/PathResolver
+			  MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+			  )
 
 # External dependencies:
 find_package( Eigen )
@@ -34,8 +36,8 @@ atlas_add_library( MdtCalibSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS MdtCalibSvc
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MuonMDT_CablingLib MdtCalibData MuonCalibIdentifier MuonPrepRawData StoreGateLib SGtests MuonIdHelpersLib PathResolver
-                   PRIVATE_LINK_LIBRARIES MagFieldInterfaces MuonCalibEvent MuonReadoutGeometry )
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MuonMDT_CablingLib MdtCalibData MuonCalibIdentifier MuonPrepRawData StoreGateLib SGtests MuonIdHelpersLib PathResolver  MagFieldElements MagFieldConditions
+                   PRIVATE_LINK_LIBRARIES MuonCalibEvent MuonReadoutGeometry )
 
 atlas_add_component( MdtCalibSvc
                      src/components/*.cxx
