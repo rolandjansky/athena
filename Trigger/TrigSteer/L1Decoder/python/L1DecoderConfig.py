@@ -163,6 +163,8 @@ def L1DecoderCfg(flags):
     acc = ComponentAccumulator()
 
     decoderAlg = CompFactory.L1Decoder()
+    decoderAlg.RoIBResult = "RoIBResult" if flags.Trigger.decodeLegacyL1 else ""
+    decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.decodePhaseIL1 else ""
     decoderAlg.L1DecoderSummaryKey = "L1DecoderSummary" # Transient, consumed by DecisionSummaryMakerAlg
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
@@ -190,13 +192,15 @@ def L1DecoderCfg(flags):
     acc.merge( TrigConfigSvcCfg( flags ) )
     acc.merge( HLTPrescaleCondAlgCfg( flags ) )
 
-    # Add the algorithms producing the input RoIBResult (legacy L1) / L1TriggerResult (Run-3 L1)
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import RoIBResultDecoderCfg, L1TriggerByteStreamDecoderCfg
-    # TODO: implement flags to allow disabling either RoIBResult or L1TriggerResult
-    acc.merge( RoIBResultDecoderCfg(flags) )
-    acc.merge( L1TriggerByteStreamDecoderCfg(flags) )
+    if flags.Input.Format == "BS":
+        # Add the algorithm decoding ByteStream into xAOD (Run-3 L1) and/or RoIBResult (legacy L1)
+        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
+        acc.merge( L1TriggerByteStreamDecoderCfg(flags) )
 
-    acc.addEventAlgo( getL1TriggerResultMaker() )
+    # Add the algorithm creating L1TriggerResult which is the input to L1Decoder (Run-3 L1)
+    if flags.Trigger.decodePhaseIL1:
+        acc.addEventAlgo( getL1TriggerResultMaker() )
+
     Configurable.configurableRun3Behavior -= 1
 
     return acc,decoderAlg
