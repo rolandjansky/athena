@@ -213,8 +213,10 @@ const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vecto
 	  if (incShowerSubtracted){
 	    ElementLink<xAOD::CaloClusterContainer> subClusLink;
 	    pfo->attribute("PFOShowerSubtractedClusterLink", subClusLink);
-
-	    if ( !subClusLink.isValid()) ANA_MSG_ERROR("Tau HelperFunctions: Found invalid link to shower subtracted cluster");
+	    if ( !subClusLink.isValid() ){
+	      ANA_MSG_ERROR("Tau HelperFunctions: Found invalid link to shower subtracted cluster");
+	      return StatusCode::FAILURE;
+	    }
 	    else {
 	      clusterList.push_back( (*subClusLink) );
 	      dupList.push_back( pfo->cluster(0) );

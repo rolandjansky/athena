@@ -193,17 +193,10 @@ class useOldVertexFitterAPI(JobProperty):
 class useShowerSubClusters(JobProperty):
     """ switch on use of shower subtracted clusters
     """
-    statusOn=True
+    statusOn=False
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 
-class useShowerSubClusters(JobProperty):
-    """ switch on use of shower subtracted clusters
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-    
 # Defines a sub-container for the algorithm switches
 class tauRecFlags(JobPropertyContainer):
     """ tau information """
