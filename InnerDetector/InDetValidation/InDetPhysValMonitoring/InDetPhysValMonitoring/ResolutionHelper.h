@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#ifndef IDPVM_GetMeanWidth_h
-#define IDPVM_GetMeanWidth_h
+#ifndef IDPVM_ResolutionHelper_h
+#define IDPVM_ResolutionHelper_h
 /**
- * @file GetMeanWidth.h
+ * @file ResolutionHelper.h
  * @author Max Baugh, Liza Mijovic, Nora Pettersson
  **/
 
@@ -17,22 +17,59 @@
 #include <string>
 #include <utility>
 
+#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 class TH1;
+class TH2;
+class TH1D;
 /*
   Helper class to evaluate mean and RMS using dedicated methods
   useful eg for histograms with long tails etc.
 */
 namespace IDPVM {
   
-  class GetMeanWidth {
+  class ResolutionHelper {
   public:
-    GetMeanWidth();
-    ~GetMeanWidth() {
+    ResolutionHelper();
+    ~ResolutionHelper() {
       // nop
     };
     
     /// methods acc to which mean&RMS can be evaluated
     enum methods { iterRMS_convergence, Gauss_fit, fusion_iterRMS_Gaussfit };
+
+    // package the output of a single bin resolution measurement
+    struct resolutionResultInBin{
+      double width;
+      double widthError;
+      double mean;
+      double meanError;
+      double outlierFrac{0.};
+      double outlierFracError{0.}; 
+    };
+
+    // extract 1D resolution plots from a 2D "residual vs observable" histogram. 
+    // Input: h_input2D (x = observable, y = residuals) 
+    // Output: hwidth --> will be filled with the width of the residuals (-> resolution) 
+    // Output: hmean  --> will be filled with the mean of the residuals (-> bias) 
+    // hproj: This will be populated by an array of 1-dimensional projections of Y within bins in X 
+    // saveProjections steers this behaviour
+    // theMethod is the method used to extract the width and mean. Default is iterative RMS.  
+    void makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean, TH1* hproj[], bool saveProjections, IDPVM::ResolutionHelper::methods theMethod=IDPVM::ResolutionHelper::iterRMS_convergence);
+    
+    // extract 1D resolution plots from a 2D "residual vs observable" histogram. 
+    // Input: h_input2D (x = observable, y = residuals) 
+    // Output: hwidth --> will be filled with the width of the residuals (-> resolution) 
+    // Output: hmean  --> will be filled with the mean of the residuals (-> bias) 
+    // theMethod is the method used to extract the width and mean. Default is iterative RMS.  
+    void makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean, IDPVM::ResolutionHelper::methods theMethod=IDPVM::ResolutionHelper::iterRMS_convergence);
+
+    // single-bin resolution evaluation, also internally used by makeResolutions
+    // Input: p_input_hist --> 1D distribution of the residual  
+    // theMethod --> method to use (default: iterative RMS)
+    resolutionResultInBin ResolutionHelperResultsModUnits(TH1D* p_input_hist, IDPVM::ResolutionHelper::methods theMethod=IDPVM::ResolutionHelper::iterRMS_convergence);
+
     
     // wrapper to set mean,rms,and fraction of events in tails
     // nb: some of the methods are allowed to modify input histogram
@@ -87,6 +124,7 @@ namespace IDPVM {
     std::vector<std::string> m_infos;
     std::vector<std::string> m_warnings;
     std::vector<std::string> m_errors;
+    void cloneHistogram(TH1D* h, TH1* hcopy);
     //@}
     
     //helpers 
@@ -96,6 +134,25 @@ namespace IDPVM {
     double m_largeErrorFact;
     // maximum fraction of Under- and Overflow events we tolerate
     double m_maxUOflowFrac;
+
+
+
+    /// Log a message using the Athena controlled logging system
+    MsgStream&
+    msg(MSG::Level lvl) const {
+      return m_msg.get() << lvl;
+    }
+
+    /// Check whether the logging system is active at the provided verbosity level
+    bool
+    msgLvl(MSG::Level lvl) {
+      return m_msg.get().level() <= lvl;
+    }
+
+    /// Private message stream member
+    mutable Athena::MsgStreamMember m_msg;
+
+
   };
 } // end of namespace
 #endif

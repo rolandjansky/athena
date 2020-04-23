@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 /**
- * @file GetMeanWidth.h
+ * @file ResolutionHelper.h
  * @author Max Baugh, Liza Mijovic, Nora Pettersson
  **/
 
-#include "GetMeanWidth.h"
+#include "InDetPhysValMonitoring/ResolutionHelper.h"
 #include "TH1.h"
+#include "TH1D.h"
+#include "TH2.h"
 #include "TFitResultPtr.h"
 #include "TFitResult.h"
 #include <cmath>
@@ -19,7 +21,7 @@
 
 namespace IDPVM {
   
-  GetMeanWidth::GetMeanWidth() :
+  ResolutionHelper::ResolutionHelper() :
     m_mean(0.),
     m_meanError(0.),
     m_RMS(0.),
@@ -33,7 +35,7 @@ namespace IDPVM {
     //nop
   }
   
-  bool GetMeanWidth::initialize(TH1* p_input_hist) {
+  bool ResolutionHelper::initialize(TH1* p_input_hist) {
 
     if ( !m_debugs.empty())
       m_debugs.clear();     
@@ -45,7 +47,7 @@ namespace IDPVM {
       m_errors.clear();
        
     if (!p_input_hist) {
-      m_errors.push_back("GetMeanWidth::initialize: empty input histogram passed: ");
+      m_errors.push_back("ResolutionHelper::initialize: empty input histogram passed: ");
        m_mean=m_meanError=m_RMS=m_RMSError=m_FracOut=m_FracOutUnc=0.;
       return false;
     }
@@ -53,7 +55,7 @@ namespace IDPVM {
     m_inHistName = p_input_hist->GetName();
     
     if ( 0==p_input_hist->GetEntries() ) {
-      m_debugs.push_back("GetMeanWidth::initialize: got input histogram with 0 entries: "+ m_inHistName);
+      m_debugs.push_back("ResolutionHelper::initialize: got input histogram with 0 entries: "+ m_inHistName);
       m_mean=m_meanError=m_RMS=m_RMSError=m_FracOut=m_FracOutUnc=0.;
       return false;
     }
@@ -72,7 +74,7 @@ namespace IDPVM {
     return true;
   }
 
-  void GetMeanWidth::setLargeError() {
+  void ResolutionHelper::setLargeError() {
     std::ostringstream debugl;
     debugl << __FILE__ << "\t\t" << m_inHistName
 	   << ": scaling mean and RMS errors by factor: " << m_largeErrorFact;
@@ -81,7 +83,7 @@ namespace IDPVM {
     m_RMSError*=m_largeErrorFact;
   }
 
-  std::string GetMeanWidth::reportUOBinVal(std::string p_histName, std::vector< std::pair<unsigned int,double> > p_vecBinVal) {
+  std::string ResolutionHelper::reportUOBinVal(std::string p_histName, std::vector< std::pair<unsigned int,double> > p_vecBinVal) {
     std::ostringstream reportl;
     if (!p_vecBinVal.empty())  {
       reportl << "Errors scaled up for resol. hist. with large % of events in over- and under-flow: "
@@ -92,7 +94,7 @@ namespace IDPVM {
     return reportl.str();
   }
   
-  void GetMeanWidth::setFout(double p_nsig,double p_ntot) {
+  void ResolutionHelper::setFout(double p_nsig,double p_ntot) {
     m_FracOut=0.;
     m_FracOutUnc=0.;
     if (p_ntot>0.) {
@@ -108,7 +110,7 @@ namespace IDPVM {
     return;
   }
   
-  int GetMeanWidth::setGaussFit(TH1* p_input_hist){
+  int ResolutionHelper::setGaussFit(TH1* p_input_hist){
 
     int ret=0;
 
@@ -134,7 +136,7 @@ namespace IDPVM {
   }
   
   // return # remaining iterations before hitting the max. allowed
-  int GetMeanWidth::setIterativeConvergence(TH1* p_input_hist) {
+  int ResolutionHelper::setIterativeConvergence(TH1* p_input_hist) {
     
     // evaluate  mean and RMS using iterative converfgence:
     double mean=p_input_hist->GetMean();
@@ -202,7 +204,7 @@ namespace IDPVM {
   // evaluate results for input histogram
   // * mean and RMS and fraction of events in tails
   // * call one of alternative ways of evaluation
-  void GetMeanWidth::setResults(TH1* p_input_hist, methods p_method){
+  void ResolutionHelper::setResults(TH1* p_input_hist, methods p_method){
 
     // set start values of the results vector
     // mean RMS etc as in the input histo prior to trimming
@@ -211,29 +213,29 @@ namespace IDPVM {
     
     if (iterRMS_convergence == p_method) {
       if ( !setIterativeConvergence(p_input_hist) ) 
-	m_warnings.push_back("\t\t\t* GetMeanWidth::setIterativeConvergence did not converge for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* ResolutionHelper::setIterativeConvergence did not converge for "+ m_inHistName);
     }
     else if (Gauss_fit == p_method) {
       if ( !setGaussFit(p_input_hist) ) 
-	m_warnings.push_back("\t\t\t* GetMeanWidth::setGaussFit: fit failed for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* ResolutionHelper::setGaussFit: fit failed for "+ m_inHistName);
     }
     else if (fusion_iterRMS_Gaussfit == p_method) {
       if ( !setIterativeConvergence(p_input_hist) &&
 	   !setGaussFit(p_input_hist) ) 
-	m_warnings.push_back("\t\t\t* GetMeanWidth::fusion_iterRMS_Gaussfit both methods failed for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* ResolutionHelper::fusion_iterRMS_Gaussfit both methods failed for "+ m_inHistName);
     }
     else {
-      m_errors.push_back("\t\t\t* GetMeanWidth::setResults: method not supported. No evaluation for "+ m_inHistName);
+      m_errors.push_back("\t\t\t* ResolutionHelper::setResults: method not supported. No evaluation for "+ m_inHistName);
     }
 
     // check if large fraction of events was in over- and under-flow
     if ( m_FracUOflow > 0. ) {
       std::ostringstream debugl;
-      debugl << "\tGetMeanWidth::setResults: too large fraction of out-of-range events for histogram ";
+      debugl << "\tResolutionHelper::setResults: too large fraction of out-of-range events for histogram ";
       debugl << m_inHistName << ": " << m_FracUOflow << " > " << m_maxUOflowFrac;
       m_debugs.push_back(debugl.str());      
       setLargeError();
-      m_debugs.push_back("\t\t\t* GetMeanWidth::setResults: scaling errors up for "
+      m_debugs.push_back("\t\t\t* ResolutionHelper::setResults: scaling errors up for "
 			 +m_inHistName+". Too many under- and over- flows.");
     }
 
@@ -243,4 +245,101 @@ namespace IDPVM {
     
     return;
   }
+
+ResolutionHelper::resolutionResultInBin
+ResolutionHelper::ResolutionHelperResultsModUnits(TH1D* p_input_hist, IDPVM::ResolutionHelper::methods theMethod) {
+  // LM: reason for using this function:
+  //   orignial code was set up to only have resolution resuls in um,
+  //   while inputs are in mm. Do not want to do a substantial rewrite.
+  constexpr double mm2um = 1000.;
+  double conversionFactor = 1.; 
+  TString vari = p_input_hist->GetName();
+  if ( !vari.Contains("pull") &&
+       (vari.Contains("d0") || vari.Contains("z0")) ) {
+        conversionFactor *= mm2um;
+  }
+  setResults(p_input_hist, theMethod);
+
+  return std::move(resolutionResultInBin{getRMS()*conversionFactor, 
+                               getRMSError()*conversionFactor,
+                               getMean()*conversionFactor,
+                               getMeanError()*conversionFactor,
+                               getFracOut(),
+                               getFracOutUnc()}); 
+}
+
+void
+ResolutionHelper::makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean,  IDPVM::ResolutionHelper::methods theMethod) {
+
+  // Should fix this in a better way
+  TString hname = h_input2D->GetName();
+  // warnings in case input histograms have large % events in under- and over- flow bins 
+  std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
+  if (h_input2D->GetNbinsX() != hwidth->GetNbinsX() || h_input2D->GetNbinsX() != hmean->GetNbinsX()){
+    ATH_MSG_ERROR("Inconsistent binnings between 1D and 2D histos - please fix your config!"); 
+    return; 
+  }
+  for (int ibin = 0; ibin < h_input2D->GetNbinsX(); ibin++) {
+    std::string tmpName = h_input2D->GetName() + std::string("py_bin") + std::to_string(ibin + 1);
+    std::shared_ptr<TH1D> tmp {dynamic_cast<TH1D*>(h_input2D->ProjectionY(tmpName.c_str(), ibin + 1, ibin + 1))}; 
+    if (tmp->Integral() < 1) {
+      continue;
+    }
+    const resolutionResultInBin & result = ResolutionHelperResultsModUnits(tmp.get(), theMethod);
+    hwidth->SetBinContent(ibin + 1, result.width);
+    hwidth->SetBinError(ibin + 1, result.widthError);
+    hmean->SetBinContent(ibin + 1, result.mean);
+    hmean->SetBinError(ibin + 1, result.meanError);
+    if (result.outlierFrac > m_maxUOflowFrac) {
+      warnUOBinFrac.push_back(std::make_pair(ibin + 1,result.outlierFrac));
+    }
+  }    
+  if (!warnUOBinFrac.empty()) {
+    ATH_MSG_WARNING(reportUOBinVal(hwidth->GetName(),warnUOBinFrac));
+    ATH_MSG_WARNING(reportUOBinVal(hwidth->GetName(),warnUOBinFrac));
+  }
+}
+
+void
+ResolutionHelper::makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean, TH1* hproj[], bool save, IDPVM::ResolutionHelper::methods theMethod) {
+  TString hname = h_input2D->GetName();
+  // warnings in case input histograms have large % events in under- and over- flow bins 
+  std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
+  
+  for (int ieta = 0; ieta < hwidth->GetNbinsX(); ieta++) {
+    std::string tmpName = h_input2D->GetName() + std::string("py_bin") + std::to_string(ieta + 1);
+    std::shared_ptr<TH1D> tmp {dynamic_cast<TH1D*>(h_input2D->ProjectionY(tmpName.c_str(), ieta+1, ieta+1))};
+    if (tmp->Integral() < 1) {
+      continue;
+    }
+    if (save) {
+      cloneHistogram(tmp.get(), hproj[ieta]);
+    }
+    const resolutionResultInBin & result = ResolutionHelperResultsModUnits(tmp.get(), theMethod);
+    hwidth->SetBinContent(ieta + 1, result.width);
+    hwidth->SetBinError(ieta + 1, result.widthError);
+    hmean->SetBinContent(ieta + 1, result.mean);
+    hmean->SetBinError(ieta + 1, result.meanError);
+    if (result.outlierFrac>m_maxUOflowFrac){
+      warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.outlierFrac));
+    }      
+  }
+  if (!warnUOBinFrac.empty()) {
+    ATH_MSG_WARNING(reportUOBinVal(hwidth->GetName(),warnUOBinFrac));
+    ATH_MSG_WARNING(reportUOBinVal(hwidth->GetName(),warnUOBinFrac));
+  }
+}
+
+void
+ResolutionHelper::cloneHistogram(TH1D* h, TH1* hcopy) {
+  unsigned int nbin = h->GetNbinsX();
+
+  for (unsigned int ibin = 0; ibin < nbin; ibin++) {
+    float binContent = h->GetBinContent(ibin + 1);
+    float binError = h->GetBinError(ibin + 1);
+    hcopy->SetBinContent(ibin + 1, binContent);
+    hcopy->SetBinError(ibin + 1, binError);
+  }
+}
+
 }//end of namespace
