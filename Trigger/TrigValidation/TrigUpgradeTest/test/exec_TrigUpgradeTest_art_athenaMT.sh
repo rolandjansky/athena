@@ -71,6 +71,8 @@ elif [[ $INPUT == "run2mc_ttbar" ]]; then
 elif [[ $INPUT == "ttbar" ]]; then
   # ttbar RDO produced with serial athena job in master r2019-03-20
   export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000001.pool.root.1,/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000002.pool.root.1"
+elif [[ $INPUT == "run2data_cosmic" ]]; then
+  export DS="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data16_cos.00306147.physics_Main.daq.RAW._lb0494._SFO-4._0001.data"
 elif [[ $INPUT == "none" ]]; then
   export DS=""
 elif [[ -f $INPUT ]]; then
