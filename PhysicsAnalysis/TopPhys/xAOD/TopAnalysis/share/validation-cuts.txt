@@ -103,7 +103,7 @@ UseMVALowPtLoose False
 Use2stationMuonsHighPtLoose True
 MuonIsolationLoose None
 doExtraSmearing False
-do2StationsHighPt False
+do2StationsHighPt True
 
 ### Tau configuration
 TauPt 25000
