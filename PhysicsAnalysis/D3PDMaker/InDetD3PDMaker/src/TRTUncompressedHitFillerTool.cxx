@@ -109,19 +109,15 @@ StatusCode D3PD::TRTUncompressedHitFillerTool::fill (const TRTUncompressedHit& /
   *m_globalTime       = 1.0;
 
   // resolve global position
-  //GeoTRTUncompressedHit ghit(hit);
-  //const HepGeom::Point3D<double>& globalPos = ghit.getGlobalPosition();
   *m_globalPosX = 1.0;
   *m_globalPosY = 1.0;
   *m_globalPosZ = 1.0;
   *m_globalPosR = 1.0;
 
   // particle barcode2 directly from TRTUncompressedHit
-  //const HepMcParticleLink& mcLink = hit.particleLink();
   *m_truthbarcode2    = -999;
 
   // particle barcode from associated GenParticle
-  //const HepMC::GenParticle* genPart = mcLink.cptr();
   *m_truthbarcode = -999;
 
   return StatusCode::SUCCESS;

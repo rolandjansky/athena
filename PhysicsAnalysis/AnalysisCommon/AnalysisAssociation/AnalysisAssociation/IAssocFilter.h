@@ -20,7 +20,6 @@
 
 // STL includes
 
-// HepMC / CLHEP includes
 
 // Gaudi includes
 
