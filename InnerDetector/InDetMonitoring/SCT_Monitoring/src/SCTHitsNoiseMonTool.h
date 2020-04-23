@@ -161,7 +161,6 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
   /// Vector of pointers to 1D histogram of Number of SCT Clusters per Event; 1 histo per layer and side
   std::vector<TH1F_LW*> m_ncluHistoVector[SCT_Monitoring::N_REGIONS]{}; // Used in bookGeneralHits, generalHistsandNoise
 
-  TProfile2D* m_clusizedist[SCT_Monitoring::N_REGIONS][s_commonSize]{}; // Used in generalHistsandNoise, bookClusterSize
   TProfile_LW* m_tbinfracall{nullptr}; // Used in bookGeneralTrackTimeHistos, generalHistsandNoise
 
   //---- results required no triggers
