@@ -78,9 +78,7 @@ def MdtCalibrationToolCfg(flags, **kwargs):
     kwargs.setdefault("DoTofCorrection",  flags.Beam.Type == 'collisions' ) # No TOF correction if not collisions
     
     acc = MagneticFieldSvcCfg(flags)
-    mag_field_svc = acc.getPrimary()
     result.merge(acc)
-    kwargs.setdefault("MagFieldSvc",  mag_field_svc )
     
     MdtCalibrationTool = CompFactory.MdtCalibrationTool
     mdt_calibration_tool = MdtCalibrationTool(**kwargs)
