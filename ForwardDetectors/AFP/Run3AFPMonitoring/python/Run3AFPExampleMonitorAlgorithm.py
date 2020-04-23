@@ -31,6 +31,7 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
 
     AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;total number of Hits', path='ToF/',xbins=4,xmin=-0.5,xmax=3.5)
     AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits', path='ToF/',xbins=4,xmin=-0.5,xmax=3.5)
+    #AFPToFGroup.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train side A;trainID;barInTrainID', type='TH2F', path='ToF/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
 
 
     # Using a map of groups
@@ -43,7 +44,11 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1}', type='TH2F', path='pixelColRow2D', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
     array.defineHistogram('timeOverThreshold', title='1D Time over threshold for {0} Layer {1}', path='SiTimeOverThreshold', xbins=60, xmin=0, xmax=20)
 
-    #array.defineHistogram('pixelColIDChip,pixelColIDChip', title='Correlation Row {0} Row {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+    #tofStations = [ 'Aside', 'Cside' ]
+    arrayToF = helper.addArray([combinedList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
+    arrayToF.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train {0};trainID;barInTrainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
+
+    #array.defineHistogram('pixelColIDChip,pixelColIDChip', title='Correlation Row {0} Row {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=80, ymin=0.5, ymax=80.5)
     #array.defineHistogram('pixelRowIDChip,pixelRowIDChip', title='Correlation Col {0} Col {1}', type='TH2F', path='Correlation', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
 
     # Finalize. The return value should be a tuple of the ComponentAccumulator
@@ -81,6 +86,6 @@ if __name__=='__main__':
     exampleMonitorAcc = Run3AFPExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
 
-    cfg.run(10000) #use cfg.run(20) to only run on first 20 events
+    cfg.run(1000) #use cfg.run(20) to only run on first 20 events
 
 
