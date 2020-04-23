@@ -213,15 +213,15 @@ namespace top {
     m_muonEtacut(2.5),
     m_muonQuality("SetMe"),
     m_muonUseMVALowPt(false),
-    m_muonUse2stationMuonsHighPt(false),
+    m_muonUse2stationMuonsHighPt(true),
     m_muonQualityLoose("SetMe"),
     m_muonUseMVALowPtLoose(false),
-    m_muonUse2stationMuonsHighPtLoose(false),
+    m_muonUse2stationMuonsHighPtLoose(true),
     m_muonIsolation("SetMe"),
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
-    m_muondo2StationsHighPt(false),
+    m_muondo2StationsHighPt(true),
     m_muondoExtraSmearing(false),
 
     // Soft Muon configuration
@@ -1135,7 +1135,7 @@ namespace top {
       this->muonIsolation(cut_wp);
       this->muonIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
     }
-    bool Use2stationMuonsHighPt = false;
+    bool Use2stationMuonsHighPt = true;
     settings->retrieve("Use2stationMuonsHighPt", Use2stationMuonsHighPt);
     if (settings->value("MuonQuality") != "HighPt") Use2stationMuonsHighPt = false;
     this->muonUse2stationMuonsHighPt(Use2stationMuonsHighPt);
@@ -1146,7 +1146,7 @@ namespace top {
       UseMVALowPt = false;
     }
     this->muonUseMVALowPt(UseMVALowPt);
-    bool Use2stationMuonsHighPtLoose = false;
+    bool Use2stationMuonsHighPtLoose = true;
     settings->retrieve("Use2stationMuonsHighPtLoose", Use2stationMuonsHighPtLoose);
     if (settings->value("MuonQualityLoose") != "HighPt") Use2stationMuonsHighPtLoose = false;
     this->muonUse2stationMuonsHighPtLoose(Use2stationMuonsHighPtLoose);
@@ -1165,8 +1165,9 @@ namespace top {
     }
     bool do2StationsHighPt = false;
     settings->retrieve("do2StationsHighPt", do2StationsHighPt);
-    if ( (settings->value("MuonQuality") != "HighPt" || !Use2stationMuonsHighPt) && do2StationsHighPt) {
-      ATH_MSG_WARNING("Could not set do2StationsHighPt True without using the HighPt muon WP with Use2stationMuonsHighPt. do2StationsHighPt is now setted to the default value (False)");
+    if (settings->value("MuonQuality") != "HighPt" ) do2StationsHighPt = false;
+    else if ( !Use2stationMuonsHighPt && do2StationsHighPt ) {
+      ATH_MSG_WARNING("Could not set do2StationsHighPt True without Use2stationMuonsHighPt. do2StationsHighPt is now setted to False");
       do2StationsHighPt = false;
     }
     this->muondo2StationsHighPt(do2StationsHighPt);

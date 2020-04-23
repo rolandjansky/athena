@@ -133,7 +133,7 @@ namespace top {
 		      "None");
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
-    registerParameter("do2StationsHighPt", "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: false", "false");
+    registerParameter("do2StationsHighPt", "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: True", "True");
     registerParameter("doExtraSmearing", "True/False, To be used by analyses willing to check their sensitivity to momentum resolution effects at large muon momenta. - Default: false", "false");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
     registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise", "False");
