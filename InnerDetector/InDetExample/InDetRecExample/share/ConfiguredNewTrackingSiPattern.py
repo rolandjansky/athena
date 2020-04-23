@@ -81,7 +81,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                useOverlapSpCollection = (NewTrackingCuts.useSCT() and NewTrackingCuts.useSCTSeeding()),
                                                                SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                radMax                 = NewTrackingCuts.radMax(),
-                                                               RapidityCut            = NewTrackingCuts.maxEta())
+                                                               etaMax                 = NewTrackingCuts.maxEta())
           
          if not InDetFlags.useEtaDependentCuts() or not NewTrackingCuts.mode() == "SLHC":
             InDetSiSpacePointsSeedMaker.pTmin                  =  NewTrackingCuts.minPT()
@@ -111,22 +111,18 @@ class  ConfiguredNewTrackingSiPattern:
             except:
                pass 
             InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
-         if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCConversionFinding" or NewTrackingCuts.mode() == "ROIConv":
+         if NewTrackingCuts.mode() == "SLHCConversionFinding":
             InDetSiSpacePointsSeedMaker.minRadius1         = 0
             InDetSiSpacePointsSeedMaker.minRadius2         = 0
             InDetSiSpacePointsSeedMaker.minRadius3         = 0
             InDetSiSpacePointsSeedMaker.maxRadius1         = 1000.*Units.mm
             InDetSiSpacePointsSeedMaker.maxRadius2         = 1000.*Units.mm
             InDetSiSpacePointsSeedMaker.maxRadius3         = 1000.*Units.mm
-            InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
          if NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks":
             InDetSiSpacePointsSeedMaker.checkEta           = True
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
-            InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
-            InDetSiSpacePointsSeedMaker.RapidityCut        = NewTrackingCuts.maxEta()
          if NewTrackingCuts.mode() == "DBM":
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
-            InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
             InDetSiSpacePointsSeedMaker.useDBM = True
          if NewTrackingCuts.mode() == "PixelThreeLayer" or (InDetFlags.doImprovedPixelPrdAssociation() and NewTrackingCuts.mode() == "PixelPrdAssociation") :
             InDetSiSpacePointsSeedMaker.SkipIBLcut = True
