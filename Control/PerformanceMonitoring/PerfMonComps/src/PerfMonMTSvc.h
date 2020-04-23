@@ -11,7 +11,6 @@
 
 // Framework includes
 #include "AthenaBaseComps/AthService.h"
-#include "AthenaKernel/SlotSpecificObj.h"
 
 // PerfMonKernel includes
 #include "PerfMonKernel/IPerfMonMTSvc.h"
@@ -34,12 +33,6 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
-
-/*
- * In the snapshot level monitoring, currently we monitor 3 steps as a whole:
- * Initialize, Event Loop and Finalize
- */
-#define SNAPSHOT_NUM 4
 
 class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
  public:
@@ -152,17 +145,15 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
   /// Print the top N components
   Gaudi::Property<int> m_printNComps{
       this, "printNComps", 50, "Maximum number of components to be printed."};
-  /// Get the number of threads, SG::getNSlots() doesn't seem always to work
+  /// Get the number of threads
   Gaudi::Property<int> m_numberOfThreads{this, "numberOfThreads", 1, "Number of threads in the job."};
-  /// Get the number of slots, SG::getNSlots() doesn't seem always to work
+  /// Get the number of slots
   Gaudi::Property<int> m_numberOfSlots{this, "numberOfSlots", 1, "Number of slots in the job."};
 
-  // An array to store snapshot measurements: Init - EvtLoop - Fin
-  PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];
-
-  // TODO: It gives error when defining this variable as a class member. Fix it.
-  // const static std::string m_snapshotStepNames[3];
-  std::vector<std::string> m_snapshotStepNames;
+  /// Snapshots data
+  std::vector<PMonMT::MeasurementData> m_snapshotData;
+  std::vector<std::string> m_snapshotStepNames = {"Configure", "Initialize", "Execute", "Finalize"};
+  enum Snapshots {CONFIGURE, INITIALIZE, EXECUTE, FINALIZE, NSNAPSHOTS};
 
   // Store event level measurements
   PMonMT::MeasurementData m_eventLevelData;

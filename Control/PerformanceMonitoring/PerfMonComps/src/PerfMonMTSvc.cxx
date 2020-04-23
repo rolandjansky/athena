@@ -23,10 +23,13 @@ using json = nlohmann::json;  // for convenience
  */
 PerfMonMTSvc::PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator)
     : AthService(name, pSvcLocator), m_eventCounter{0} {
+  // Four main snapshots : Configure, Initialize, Execute, and Finalize
+  m_snapshotData.resize(NSNAPSHOTS); // Default construct
+
   // Initial capture upon construction
   m_measurement_snapshots.capture_snapshot();
-  m_snapshotData[0].addPointStop_snapshot(m_measurement_snapshots);
-  m_snapshotData[1].addPointStart_snapshot(m_measurement_snapshots);
+  m_snapshotData[CONFIGURE].addPointStop_snapshot(m_measurement_snapshots);
+  m_snapshotData[INITIALIZE].addPointStart_snapshot(m_measurement_snapshots);
 }
 
 /*
@@ -57,19 +60,21 @@ StatusCode PerfMonMTSvc::initialize() {
   // Print where we are
   ATH_MSG_INFO("Initializing " << name());
 
+  // Print some information minimal information about our configuration
+  ATH_MSG_INFO("Service is configured for [" << m_numberOfThreads.toString() << "] threads " <<
+               "analyzing [" << m_numberOfSlots.toString() << "] events concurrently");
+  ATH_MSG_INFO("Component-level measurements are [" << (m_doComponentLevelMonitoring ? "Enabled" : "Disabled") << "]");
+  if (m_numberOfThreads > 1 && m_doComponentLevelMonitoring) {
+    ATH_MSG_INFO("  >> Component-level memory monitoring in the event-loop is disabled in jobs with more than 1 thread");
+  }
+
   // Slot specific component-level data map
   m_compLevelDataMapVec.resize(m_numberOfSlots); // Default construct
-
-  // Three main snapshots : Initialize, Event Loop, and Finalize
-  m_snapshotStepNames.push_back("Configure");
-  m_snapshotStepNames.push_back("Initialize");
-  m_snapshotStepNames.push_back("Execute");
-  m_snapshotStepNames.push_back("Finalize");
 
   // Set wall time offset
   m_eventLevelData.set_wall_time_offset(m_wallTimeOffset);
   if (m_wallTimeOffset > 0) {
-    m_snapshotData[0].add2DeltaWall(-m_wallTimeOffset);
+    m_snapshotData[CONFIGURE].add2DeltaWall(-m_wallTimeOffset);
   }
 
   /// Configure the auditor
@@ -89,7 +94,7 @@ StatusCode PerfMonMTSvc::finalize() {
 
   // Final capture upon finalization
   m_measurement_snapshots.capture_snapshot();
-  m_snapshotData[3].addPointStop_snapshot(m_measurement_snapshots);
+  m_snapshotData[FINALIZE].addPointStop_snapshot(m_measurement_snapshots);
 
   // Report everything
   report();
@@ -145,13 +150,13 @@ void PerfMonMTSvc::startSnapshotAud(const std::string& stepName, const std::stri
   // Last thing to be called before the event loop begins
   if (compName == "AthRegSeq" && stepName == "Start") {
     m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[2].addPointStart_snapshot(m_measurement_snapshots);
+    m_snapshotData[EXECUTE].addPointStart_snapshot(m_measurement_snapshots);
   }
 
   // Last thing to be called before finalize step begins
   if (compName == "AthMasterSeq" && stepName == "Finalize") {
     m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[3].addPointStart_snapshot(m_measurement_snapshots);
+    m_snapshotData[FINALIZE].addPointStart_snapshot(m_measurement_snapshots);
   }
 }
 
@@ -162,13 +167,13 @@ void PerfMonMTSvc::stopSnapshotAud(const std::string& stepName, const std::strin
   // First thing to be called after the initialize step ends
   if (compName == "AthMasterSeq" && stepName == "Initialize") {
     m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[1].addPointStop_snapshot(m_measurement_snapshots);
+    m_snapshotData[INITIALIZE].addPointStop_snapshot(m_measurement_snapshots);
   }
 
   // First thing to be called after the event loop ends
   if (compName == "AthMasterSeq" && stepName == "Stop") {
     m_measurement_snapshots.capture_snapshot();
-    m_snapshotData[2].addPointStop_snapshot(m_measurement_snapshots);
+    m_snapshotData[EXECUTE].addPointStop_snapshot(m_measurement_snapshots);
   }
 }
 
@@ -443,7 +448,7 @@ void PerfMonMTSvc::report2Log_Summary() {
 
   ATH_MSG_INFO("---------------------------------------------------------------------------------------");
 
-  for (unsigned int idx = 0; idx < SNAPSHOT_NUM; idx++) {
+  for (unsigned int idx = 0; idx < NSNAPSHOTS; idx++) {
     ATH_MSG_INFO(format("%1% %|13t|%2% %|25t|%3% %|37t|%4$.2f %|44t|%5% %|55t|%6% %|66t|%7% %|77t|%8%") %
                  m_snapshotStepNames[idx] % (m_snapshotData[idx].getDeltaCPU() * 0.001) %
                  (m_snapshotData[idx].getDeltaWall() * 0.001) %
@@ -456,9 +461,9 @@ void PerfMonMTSvc::report2Log_Summary() {
 
   ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Number of events processed:" % m_eventCounter);
   ATH_MSG_INFO(format("%1% %|35t|%2$.0f ") % "CPU usage per event [ms]:" %
-               (m_snapshotData[2].getDeltaCPU() / m_eventCounter));
+               (m_snapshotData[EXECUTE].getDeltaCPU() / m_eventCounter));
   ATH_MSG_INFO(format("%1% %|35t|%2$.3f ") % "Events per second:" %
-               (m_eventCounter / m_snapshotData[2].getDeltaWall() * 1000.));
+               (m_eventCounter / m_snapshotData[EXECUTE].getDeltaWall() * 1000.));
 
   if (m_doEventLoopMonitoring) {
     ATH_MSG_INFO("***************************************************************************************");
@@ -527,7 +532,7 @@ void PerfMonMTSvc::report2JsonFile() {
  */
 void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
   // Report snapshot level results
-  for (int i = 0; i < SNAPSHOT_NUM; i++) {
+  for (int i = 0; i < NSNAPSHOTS; i++) {
     // Clean this part!
     double wall_time = m_snapshotData[i].getDeltaWall();
     double cpu_time = m_snapshotData[i].getDeltaCPU();
