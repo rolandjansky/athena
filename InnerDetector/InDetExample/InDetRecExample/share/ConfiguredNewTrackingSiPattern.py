@@ -101,7 +101,7 @@ class  ConfiguredNewTrackingSiPattern:
             # not all classes have that property !!!
             InDetSiSpacePointsSeedMaker.UseAssociationTool = True
             InDetSiSpacePointsSeedMaker.AssociationTool    = InDetPrdAssociationTool
-         if not InDetFlags.doCosmics():
+         if not (InDetFlags.doCosmics() or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "ROIConv"):
             InDetSiSpacePointsSeedMaker.maxRadius1         = 0.75*NewTrackingCuts.radMax()
             InDetSiSpacePointsSeedMaker.maxRadius2         = NewTrackingCuts.radMax()
             InDetSiSpacePointsSeedMaker.maxRadius3         = NewTrackingCuts.radMax()
