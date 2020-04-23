@@ -48,6 +48,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); 
     auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); 
     auto timeOverThreshold = Monitored::Scalar<float>("timeOverThreshold", 0.0);
+    auto clusterX = Monitored::Scalar<float>("clusterX", 0.0);
+    auto clusterY = Monitored::Scalar<float>("clusterY", 0.0);
     
     lb = GetEventInfo(ctx)->lumiBlock();
  
@@ -79,6 +81,21 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
       }
 	else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
       }
+
+    AFPMon::AFPFastReco fast(afpHitContainer.get());
+    fast.reco();
+
+    for (const auto& cluster : fast.clusters()) {
+      //ATH_MSG_INFO("c: " << cluster.x << " " << cluster.y);
+      clusterX = cluster.x;
+      clusterY = cluster.y;
+      fill(m_tools[m_HitmapGroups.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterX, clusterY);
+    }
+
+    for (const auto& track : fast.tracks()) {
+      //ATH_MSG_INFO("t: " << track.x << " " << track.y);
+      
+    }
  
 
     return StatusCode::SUCCESS;

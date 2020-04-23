@@ -43,6 +43,7 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     array.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1}', path='PixelRowIDChip', xbins=336, xmin=0.5, xmax=336.5)
     array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1}', type='TH2F', path='pixelColRow2D', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
     array.defineHistogram('timeOverThreshold', title='1D Time over threshold for {0} Layer {1}', path='SiTimeOverThreshold', xbins=60, xmin=0, xmax=20)
+    array.defineHistogram('clusterX,clusterY', title='Cluster position in station {0} Layer {1}', type='TH2F', path='Cluster', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
 
     #tofStations = [ 'Aside', 'Cside' ]
     arrayToF = helper.addArray([combinedList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
