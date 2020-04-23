@@ -64,53 +64,27 @@ namespace top {
   }
 
   StatusCode MuonCPTools::setupCalibration() {
-
-    std::cout << std::endl << std:: endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    std::cout << "LUCA" << std:: endl;
-    std::cout << "--------" << std::endl;
-    std::cout << "Tight Muons Quality: " << m_config->muonQuality() << std::endl;
-    std::cout << "m_config->muonUseMVALowPt(): " << m_config->muonUseMVALowPt() << std::endl;
-    std::cout << "m_config->muonUse2stationMuonsHighPt(): " << m_config->muonUse2stationMuonsHighPt() << std::endl;
-    std::cout << "--------" << std::endl;
-    std::cout << "Loose Muons Quality: " << m_config->muonQualityLoose() << std::endl;
-    std::cout << "m_config->muonUseMVALowPtLoose(): " << m_config->muonUseMVALowPtLoose() << std::endl;
-    std::cout << "m_config->muonUse2stationMuonsHighPtLoose(): " << m_config->muonUse2stationMuonsHighPtLoose() << std::endl;
-    std::cout << "--------" << std::endl;
-    std::cout << "m_config->muondoExtraSmearing(): " << m_config->muondoExtraSmearing() << std::endl;
-    std::cout << "m_config->muondo2StationsHighPt(): " << m_config->muondo2StationsHighPt() << std::endl;
-    std::cout << "--------" << std::endl;
-    std::cout << "Soft Muons Quality: " << m_config->softmuonQuality() << std::endl;
-    std::cout << "m_config->softmuonUseMVALowPt(): " << m_config->softmuonUseMVALowPt() << std::endl;
-    std::cout << "------------------------------------------------------" << std::endl;
-    std::cout << std::endl << std:: endl;
-
-
     ///-- Selection --///
     m_muonSelectionTool = setupMuonSelectionTool("CP::MuonSelectionTool",
                                                  m_config->muonQuality(),
                                                  m_config->muonEtacut(),
 						 m_config->muonUseMVALowPt(),
 						 m_config->muonUse2stationMuonsHighPt());
-    std::cout << std::endl << "Tight fatti" << std:: endl;
     m_muonSelectionToolLoose = setupMuonSelectionTool("CP::MuonSelectionToolLoose",
                                                       m_config->muonQualityLoose(),
                                                       m_config->muonEtacut(),
 						      m_config->muonUseMVALowPtLoose(),
 						      m_config->muonUse2stationMuonsHighPtLoose());
-    std::cout << std::endl << "Loose fatti" << std:: endl;
     // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
     m_muonSelectionToolVeryLooseVeto = setupMuonSelectionTool("CP::MuonSelectionToolVeryLooseVeto",
                                                               "Loose",
                                                               2.5,
 							      m_config->muonUseMVALowPt(),
 							      m_config->muonUse2stationMuonsHighPt());
-    std::cout << std::endl << "VeryLoose Veto fatti" << std:: endl;
     ///-- Calibration and smearing --///  ---> now passing the flags (true/false) to CalibAndSmearingTool
     m_muonCalibrationPeriodTool = setupMuonCalibrationAndSmearingTool("CP::MuonCalibrationPeriodTool", 
 								      m_config->muondoExtraSmearing(),
 								      m_config->muondo2StationsHighPt());
-    std::cout << std::endl << "Calibration fatti" << std:: endl;
     //now the soft muon part
     if (m_config->useSoftMuons()) {
       m_softmuonSelectionTool = setupMuonSelectionTool("CP::SoftMuonSelectionTool",
@@ -119,7 +93,6 @@ namespace top {
 						       m_config->softmuonUseMVALowPt(),
 						       false);
     }
-    std::cout << std::endl << "Soft Muons fatti" << std:: endl;
 
     return StatusCode::SUCCESS;
   }
@@ -175,12 +148,8 @@ namespace top {
     
     //if !Use2stationMuonsHighPt, HighPt -> HighPt3Layers
     auto muonQuality_name = m_config->muonQuality();
-    std::cout << "LUCA NAME: " << muonQuality_name << std::endl;
     if (m_config->muonQuality() == "HighPt" && !(m_config->muonUse2stationMuonsHighPt()) ) muonQuality_name = "HighPt3Layers";
-    //auto muonQuality_name = (m_config->muonQuality() == "HighPt" && !(m_config->muonUse2stationMuonsHighPt()) ) ? "HighPt3Layers" : m_config->muonQuality();
-    std::cout << "LUCA NAME: " << muonQuality_name << std::endl;
     if (m_config->muonQuality() == "LowPt" && m_config->muonUseMVALowPt()) muonQuality_name = "LowPtMVA";
-    std::cout << "LUCA NAME: " << muonQuality_name << std::endl;
     m_muonEfficiencyCorrectionsTool
       = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsTool",
                         muonQuality_name);
@@ -253,9 +222,6 @@ namespace top {
     std::map<std::string, int> muon_quality_map = {
       {"Tight", 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose", 3}, {"HighPt", 4}, {"LowPt", 5}
     };
-    //if (!Use2stationMuonsHighPt) muon_quality_map.at(4) = "HighPt3Layers";
-    //std::cout << "DEBUG LUCA - Use2stationMuonsHighPt: " << Use2stationMuonsHighPt << std::endl;
-    //std::cout << "DEBUG LUCA - Changed quality: " << muon_quality_map.at(4) << std::endl;
     int qual_int;
     try {
       qual_int = muon_quality_map.at(quality);
