@@ -13,30 +13,15 @@
 *   ____________________________________________________________________________
 */
 
-
-#include <iostream>
-#include <algorithm>
-#include <utility>
-
 #include "InDetPhysValMonitoring/ResolutionHelper.h"
 
-#include <boost/algorithm/string.hpp>
+#include <iostream>
 
 #include "TFile.h"
 #include "TSystem.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TH3.h"
-#include "TProfile.h"
-#include "TEfficiency.h"
-#include "TMath.h"
-#include "TROOT.h"
-#include "TKey.h"
-#include "TClass.h"
 #include "TObject.h"
-#include "TObjString.h"
-#include "TFitResultPtr.h"
-#include "TFitResult.h"
 
 using namespace std;
 
@@ -129,7 +114,6 @@ int postProcessDir(TDirectory* dir, IDPVM::ResolutionHelper & theHelper){
   return outcome;
 }
 
-//____________________________________________________________________________________
 // function driving the postprocessing for this file
 int pproc_file(const std::string & p_infile) {
 
@@ -145,10 +129,8 @@ int pproc_file(const std::string & p_infile) {
     infile->Close();
     return res;
 }
-//____________________________________________________________________________________
 
 
-//____________________________________________________________________________________
 int main(int argc, char* argv[]) {
   if (argc !=2){
     std::cerr<<" Usage: postProcessIDPVMHistos <File to post-process>"<<std::endl;
@@ -165,4 +147,3 @@ int main(int argc, char* argv[]) {
   std::cout << " Post-processing file " << infile << "\n" << std::endl;
   return pproc_file(infile);
 }
-//____________________________________________________________________________________      
