@@ -27,10 +27,10 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPToFGroup = helper.addGroup(afpToFAlgorithm, 'AFPToFTool', 'AFP/')
 
     AFPSiGroup.defineHistogram('lb,nSiHits', title='Luminosity Block;lb;total number of Hits', type='TProfile', path='SiT/',xbins=1000,xmin=-0.5,xmax=999.5 ) 
-    AFPToFGroup.defineHistogram('lb,nTofHits', title='Luminosity Block;lb;total number of Hits', type='TProfile',  path='ToF/',xbins=1000,xmin=-0.5,xmax=999.5) 
+    AFPToFGroup.defineHistogram('lb,nTofHits', title='Luminosity Block;lb;total number of Hits', type='TProfile', path='ToF/',xbins=1000,xmin=-0.5,xmax=999.5) 
 
-    AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;total number of Hits',  path='ToF/',xbins=3,xmin=-0.5,xmax=2.5)
-    AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits',  path='ToF/',xbins=3,xmin=-0.5,xmax=2.5)
+    AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;total number of Hits', path='ToF/',xbins=3,xmin=-0.5,xmax=2.5)
+    AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits', path='ToF/',xbins=3,xmin=-0.5,xmax=2.5)
 
 
     # Using a map of groups
