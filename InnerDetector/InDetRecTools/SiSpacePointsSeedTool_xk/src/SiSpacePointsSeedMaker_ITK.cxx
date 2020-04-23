@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
      
@@ -40,7 +40,6 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_sct       = true    ;
   m_trigger   = false   ;
   m_checketa  = false   ;
-  m_dbm       = false   ;
   m_state     = 0       ;
   m_nspoint   = 2       ;
   m_mode      = 0       ;
@@ -49,17 +48,10 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_maxsize   = 10000   ;
   m_ptmin     =  500.   ;
   m_etamin    = 0.      ; m_etamax     = 2.7 ;
-  m_r1min     = 0.      ; m_r1minv     = 0.  ; 
-  m_r1max     = 600.    ; m_r1maxv     = 60. ;
-  m_r2min     = 0.      ; m_r2minv     = 70. ;
-  m_r2max     = 600.    ; m_r2maxv     = 200.;
-  m_r3min     = 0.      ;
-  m_r3max     = 600.    ;
-  m_drmin     = 5.      ; m_drminv     = 20. ;    
+  m_drmin     = 5.      ;
   m_drmax     = 300.    ;
   m_drminPPP  = 6.      ;
   m_drmaxPPP  = 120.    ;
-  m_rapcut    = 2.7     ;
   m_zmin      = -250.   ;
   m_zmax      = +250.   ;
   m_dzver     = 5.      ;
@@ -93,7 +85,6 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_OneSeeds  = 0       ;
   m_OneSeedsQ = 0       ;
   m_seedOutput= 0       ;
-  m_maxNumberVertices = 99;
   
   m_radiusPPSmin = 200. ;
   m_radiusPPSmax = 600. ;
@@ -112,7 +103,6 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("usePixel"              ,m_pixel                 );
   declareProperty("useSCT"                ,m_sct                   );
   declareProperty("checkEta"              ,m_checketa              );
-  declareProperty("useDBM"                ,m_dbm                   );
   declareProperty("etaMin"                ,m_etamin                );
   declareProperty("etaMax"                ,m_etamax                );  
   declareProperty("pTmin"                 ,m_ptmin                 );
@@ -123,19 +113,8 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("maxSizeSP"             ,m_maxsizeSP             );
   declareProperty("minZ"                  ,m_zmin                  );
   declareProperty("maxZ"                  ,m_zmax                  );
-  declareProperty("minRadius1"            ,m_r1min                 );
-  declareProperty("minRadius2"            ,m_r2min                 );
-  declareProperty("minRadius3"            ,m_r3min                 );
-  declareProperty("maxRadius1"            ,m_r1max                 );
-  declareProperty("maxRadius2"            ,m_r2max                 );
-  declareProperty("maxRadius3"            ,m_r3max                 );
   declareProperty("mindRadius"            ,m_drmin                 );
   declareProperty("maxdRadius"            ,m_drmax                 );
-  declareProperty("minVRadius1"           ,m_r1minv                );
-  declareProperty("maxVRadius1"           ,m_r1maxv                );
-  declareProperty("minVRadius2"           ,m_r2minv                );
-  declareProperty("maxVRadius2"           ,m_r2maxv                );
-  declareProperty("RapidityCut"           ,m_rapcut                );
   declareProperty("maxdZver"              ,m_dzver                 );
   declareProperty("maxdZdRver"            ,m_dzdrver               );
   declareProperty("maxdImpact"            ,m_diver                 );
@@ -145,7 +124,6 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("minSeedsQuality"       ,m_umax                  );
   declareProperty("dZmaxForPPPSeeds"      ,m_dzmaxPPP              );
   declareProperty("maxSeedsForSpacePoint" ,m_maxOneSize            );
-  declareProperty("maxNumberVertices"     ,m_maxNumberVertices     );
   declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT        );
   declareProperty("SpacePointsPixelName"  ,m_spacepointsPixel      );
   declareProperty("SpacePointsOverlapName",m_spacepointsOverlap    );
@@ -531,37 +509,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
   m_ftrigW       = (fmax-fmin)*.5;
 }
 
-///////////////////////////////////////////////////////////////////
-// Methods to initilize different strategies of seeds production
-// with two space points with or without vertex constraint
-///////////////////////////////////////////////////////////////////
-
-void InDet::SiSpacePointsSeedMaker_ITK::find2Sp(const std::list<Trk::Vertex>& lv) 
-{
-  m_zminU     = m_zmin;
-  m_zmaxU     = m_zmax;
-
-  int mode; lv.begin()!=lv.end() ?  mode = 1 : mode = 0;
-  bool newv = newVertices(lv);
-  
-  if(newv || !m_state || m_nspoint!=2 || m_mode!=mode || m_nlist) {
-
-    i_seede   = l_seeds.begin();
-    m_state   = 1   ;
-    m_nspoint = 2   ;
-    m_nlist   = 0   ;
-    m_mode    = mode;
-    m_endlist = true;
-    m_fvNmin  = 0   ;
-    m_fNmin   = 0   ;
-    production2Sp ();
-  }
-  i_seed  = l_seeds.begin();
-  
-  if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
-  }
-}
 
 ///////////////////////////////////////////////////////////////////
 // Methods to initilize different strategies of seeds production
@@ -713,8 +660,8 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ITK::dumpConditions( MsgStream& out ) c
   out<<"| pTmin  (mev)            | "
      <<std::setw(12)<<std::setprecision(5)<<m_ptmin
      <<"                              |"<<std::endl;
-  out<<"| |rapidity|          <=  | " 
-     <<std::setw(12)<<std::setprecision(5)<<m_rapcut
+  out<<"| |eta|               <=  | "
+     <<std::setw(12)<<std::setprecision(5)<<m_etamax
      <<"                              |"<<std::endl;
   out<<"| max radius SP           | "
      <<std::setw(12)<<std::setprecision(5)<<r_rmax 
@@ -730,36 +677,6 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ITK::dumpConditions( MsgStream& out ) c
      <<"                              |"<<std::endl;
   out<<"| max Z-vertex position   | "
      <<std::setw(12)<<std::setprecision(5)<<m_zmax
-     <<"                              |"<<std::endl;
-  out<<"| min radius first  SP(3) | "
-     <<std::setw(12)<<std::setprecision(5)<<m_r1min
-     <<"                              |"<<std::endl;
-  out<<"| min radius second SP(3) | "
-     <<std::setw(12)<<std::setprecision(5)<<m_r2min
-     <<"                              |"<<std::endl;
-  out<<"| min radius last   SP(3) | "
-     <<std::setw(12)<<std::setprecision(5)<<m_r3min
-     <<"                              |"<<std::endl;
-  out<<"| max radius first  SP(3) | "
-     <<std::setw(12)<<std::setprecision(4)<<m_r1max
-     <<"                              |"<<std::endl;
-  out<<"| max radius second SP(3) | "
-     <<std::setw(12)<<std::setprecision(5)<<m_r2max
-     <<"                              |"<<std::endl;
-  out<<"| max radius last   SP(3) | "
-     <<std::setw(12)<<std::setprecision(5)<<m_r3max
-     <<"                              |"<<std::endl;
-  out<<"| min radius first  SP(2) | "
-     <<std::setw(12)<<std::setprecision(5)<<m_r1minv
-     <<"                              |"<<std::endl;
-  out<<"| min radius second SP(2) | "
-     <<std::setw(12)<<std::setprecision(5)<<m_r2minv
-     <<"                              |"<<std::endl;
-  out<<"| max radius first  SP(2) | "
-     <<std::setw(12)<<std::setprecision(5)<<m_r1maxv
-     <<"                              |"<<std::endl;
-  out<<"| max radius second SP(2) | "
-     <<std::setw(12)<<std::setprecision(5)<<m_r2maxv
      <<"                              |"<<std::endl;
   out<<"| min space points dR     | "
      <<std::setw(12)<<std::setprecision(5)<<m_drmin
@@ -909,9 +826,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::findNext ()
 
   i_seede = l_seeds.begin();
 
-  if     (m_mode==0 || m_mode==1) production2Sp ();
-  else if(m_mode==2 || m_mode==3) production3Sp ();
-  else if(m_mode==5 || m_mode==6) production3Sp ();
+  if(m_mode==2 || m_mode==3 || m_mode==5 || m_mode==6) production3Sp ();
 
   i_seed  = l_seeds.begin();
   m_seed  = m_seeds.begin(); 
@@ -1509,14 +1424,6 @@ bool InDet::SiSpacePointsSeedMaker_ITK::isUsed(const Trk::SpacePoint* sp)
 }
 
 ///////////////////////////////////////////////////////////////////
-// 2 space points seeds production
-///////////////////////////////////////////////////////////////////
-
-void InDet::SiSpacePointsSeedMaker_ITK::production2Sp()
-{
-}
-
-///////////////////////////////////////////////////////////////////
 // Production 3 space points seeds 
 ///////////////////////////////////////////////////////////////////
 
@@ -1615,7 +1522,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP()
 }
 
 ///////////////////////////////////////////////////////////////////
-// Production 3 space points seeds PSS
+// Production 3 space points seeds PPS
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPS()
