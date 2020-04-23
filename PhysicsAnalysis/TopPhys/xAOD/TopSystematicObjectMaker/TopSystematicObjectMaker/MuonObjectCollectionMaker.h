@@ -101,6 +101,8 @@ namespace top {
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Loose_FixedRad;
     // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
+
+    bool m_isFirstEvent;
   };
 } // namespace
 #endif
