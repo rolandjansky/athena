@@ -24,7 +24,7 @@ from AthenaConfiguration.UnifyProperties import unifySet
 class ConfigurationError(RuntimeError):
     pass
 
-_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc','CoreDumpSvc','VTuneProfilerService'))
+_basicServicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc','CoreDumpSvc','VTuneProfilerService','EvtIdModifierSvc'))
 
 def printProperties(msg, c, nestLevel = 0):
     # Iterate in sorted order.
@@ -75,6 +75,7 @@ class ComponentAccumulator(object):
         self._algorithms = {}            #Flat algorithms list, useful for merging
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
+        self._servicesToCreate=set(_basicServicesToCreate)
         self._privateTools=None          #A placeholder to carry a private tool(s) not yet attached to its parent
         self._primaryComp=None           #A placeholder to designate the primary service 
 
@@ -88,6 +89,7 @@ class ComponentAccumulator(object):
         self._isMergable=True
         self._lastAddedComponent="Unknown" 
         self._debugStage=DbgStage()
+
 
     def setAsTopLevel(self):
         self._isMergable = False
@@ -373,7 +375,7 @@ class ComponentAccumulator(object):
             raise ConfigurationError("More than one conditions algorithm with name %s found" % name)
         return hits[0]
 
-    def addService(self,newSvc,primary=False):
+    def addService(self,newSvc,primary=False,create=False):
         if newSvc.__component_type__ != "Service":
             raise TypeError("Attempt to add wrong type: %s as service" % newSvc.__component_type__)
             pass
@@ -385,6 +387,7 @@ class ComponentAccumulator(object):
             #keep a ref of the de-duplicated public tool as primary component
             self._primaryComp=self.__getOne( self._services, newSvc.name, "Services") 
         self._lastAddedComponent=newSvc.name
+        if create: self._servicesToCreate.add(newSvc.name)
         return 
 
 
@@ -561,6 +564,8 @@ class ComponentAccumulator(object):
         for svc in other._services:
             self.addService(svc) #Profit from deduplicaton here
 
+        self._servicesToCreate.update(other._servicesToCreate)
+
         for pt in other._publicTools:
             self.addPublicTool(pt) #Profit from deduplicaton here
 
@@ -619,7 +624,7 @@ class ComponentAccumulator(object):
         extSvc=[]
         for svc in self._services:
             extSvc+=[svc.getFullJobOptName(),]
-            if svc.name in _servicesToCreate:
+            if svc.name in self._servicesToCreate:
                 svcToCreate.append(svc.getFullJobOptName())
 
         extSvc.append('PyAthena::PyComponentMgr/PyComponentMgr')
