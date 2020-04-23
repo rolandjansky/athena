@@ -233,7 +233,6 @@ if __name__=="__main__":
     # To run this, do e.g. 
     # python -m MuonCombinedConfig.MuonCombinedReconstructionConfig --run --threads=1
     
-<<<<<<< HEAD
     from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneCA
 
     args = SetupMuonStandaloneArguments()
@@ -263,37 +262,6 @@ if __name__=="__main__":
 
     cfg = SetupMuonStandaloneCA(args,ConfigFlags)
 
-=======
-    from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneConfigFlags, SetupMuonStandaloneOutput, SetupMuonStandaloneCA
-
-    args = SetupMuonStandaloneArguments()
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root']
-    
-    ConfigFlags.Concurrency.NumThreads=args.threads
-    ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
-
-    ConfigFlags.Detector.GeometryMDT   = True 
-    ConfigFlags.Detector.GeometryTGC   = True
-    ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryTile   = True 
-    ConfigFlags.Detector.GeometryLAr   = True 
-    ConfigFlags.Detector.GeometryPixel   = True 
-    ConfigFlags.Detector.GeometrySCT   = True 
-    ConfigFlags.Detector.GeometryTRT   = True 
-
-    
-    ConfigFlags.Output.ESDFileName=args.output
-    
-    ConfigFlags.Input.isMC = True
-    ConfigFlags.lock()
-
-    ConfigFlags.dump()
-
-    cfg = SetupMuonStandaloneCA(args,ConfigFlags)
-
->>>>>>> Use the standard configurations for running via Python from MuonConfig.
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     
@@ -322,15 +290,7 @@ if __name__=="__main__":
     
     # cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
   
-<<<<<<< HEAD
-<<<<<<< HEAD
     cfg.printConfig(withDetails=True)
-=======
-    cfg.printConfig()
->>>>>>> Use the standard configurations for running via Python from MuonConfig.
-=======
-    cfg.printConfig(withDetails=True)
->>>>>>> Whoops. Do need other detectors.
     f=open("MuonCombinedReconstruction.pkl","wb")
     cfg.store(f)
     f.close()
