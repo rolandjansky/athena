@@ -44,7 +44,7 @@ public:
    * and this method has to return the value of this property. There is no easy way to declare a Gaudi::Property here
    * in the interface, so it is delegated to the implementation.
    **/
-  virtual const std::vector<uint32_t> robIds() const = 0;
+  virtual const std::vector<uint32_t>& robIds() const = 0;
 
 protected:
   /// Helper to clear the ByteStream data cache for a given event slot

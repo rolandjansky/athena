@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # -------------------------------------------------------------
 # L1 Getter of the result
@@ -45,8 +45,9 @@ class Lvl1ResultBuilderGetter(Configured):
             if (rec.doESD() or rec.doAOD()) and (not(rec.readAOD() or \
                                                          rec.readESD())):
                 if jobproperties.Global.InputFormat() == 'bytestream':
-                    from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
-                    topSequence += RoIBResultByteStreamDecoderAlg()
+                    # Decode ROIB::RoIBResult from ByteStream
+                    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
+                    L1ByteStreamDecodersRecExSetup(enableRun2L1=True, enableRun3L1=False)
                 from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import \
                     RoIBResultToAOD
                 topSequence += RoIBResultToAOD("RoIBResultToxAOD")

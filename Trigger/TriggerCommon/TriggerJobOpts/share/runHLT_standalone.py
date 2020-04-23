@@ -447,8 +447,8 @@ if opt.doL1Unpacking:
         l1decoder = L1Decoder("L1Decoder")
         l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
         if opt.decodePhaseIL1:
-            from L1Decoder.L1DecoderConfig import L1TriggerResultMaker
-            topSequence += L1TriggerResultMaker()
+            from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
+            topSequence += conf2toConfigurable(getL1TriggerResultMaker())
         else:
             l1decoder.L1TriggerResult = ""
         if not opt.decodeLegacyL1:
