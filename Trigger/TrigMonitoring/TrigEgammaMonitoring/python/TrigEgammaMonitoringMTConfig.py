@@ -356,10 +356,8 @@ class TrigEgammaMonAlgBuilder:
       self.bookL2CaloDistributions( monAlg, trigger )
       self.bookL2ElectronDistributions( monAlg, trigger )
       self.bookEFCaloDistributions( monAlg, trigger )
-      self.bookShowerShapesDistributions( monAlg, trigger, online=True )
-      self.bookShowerShapesDistributions( monAlg, trigger, online=False )
-      self.bookTrackingDistributions( monAlg, trigger, online=True )
-      self.bookTrackingDistributions( monAlg, trigger, online=False )
+      self.bookShowerShapesAndTrackingDistributions( monAlg, trigger, online=True )
+      self.bookShowerShapesAndTrackingDistributions( monAlg, trigger, online=False )
       self.bookEfficiencies( monAlg, trigger, "L1Calo" )
       self.bookEfficiencies( monAlg, trigger, "L2Calo" )
       self.bookEfficiencies( monAlg, trigger, "L2"     )
@@ -452,7 +450,7 @@ class TrigEgammaMonAlgBuilder:
   #
   # Book Shower shapes
   #
-  def bookShowerShapesDistributions( self, monAlg, trigger, online=True ):
+  def bookShowerShapesAndTrackingDistributions( self, monAlg, trigger, online=True ):
     
     from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
     monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
@@ -479,16 +477,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("topoetcone40_shift_rel", "(topoetcone40-2.45 GeV)/pt; (topoetcone40-2.45 GeV)/pt ; Count", 100, -0.5, 0.5))
 
 
-
-  #
-  # Book tracking distributions
-  #
-  def bookTrackingDistributions(self, monAlg, trigger, online=True):
-
-    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
-    monGroup = self.addGroup( monAlg, trigger+'_Distributions_' + ("HLT" if online else "Offline"), 
-                              self.basePath+'/'+trigger+'/Distributions/' + ("HLT" if online else "Offline") )
-
+    # Tracking quantities
     self.addHistogram(monGroup, TH1F("deta1", "deta1; deta1 ; Count", 40, -0.01, 0.01))
     self.addHistogram(monGroup, TH1F("deta1_EMECA", "deta1 EMEC-A; deta1 ; Count", 40, -0.01, 0.01))
     self.addHistogram(monGroup, TH1F("deta1_EMECC", "deta1 EMEC-C; deta1 ; Count", 40, -0.01, 0.01))
