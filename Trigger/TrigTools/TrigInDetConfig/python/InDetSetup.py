@@ -26,11 +26,14 @@ if 'InDetTrigFlags' not in dir():
 
 
 
-def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs' ):
+def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs', doFTF = True ):
   #If signature specified add suffix to the algorithms
   signature =  "_" + whichSignature if whichSignature else ''
   if signature != "" and separateTrackParticleCreator == "":
     separateTrackParticleCreator = signature
+
+  #Global keys/names for Trigger collections 
+  from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
 
   viewAlgs = []
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -134,15 +137,13 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder" + signature)
   ToolSvc += InDetPixelGangedAmbiguitiesFinder
 
-  #Global keys/names for collections 
-  from .InDetTrigCollectionKeys import TrigPixelKeys
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
   InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization" + signature,
                                                         clusteringTool          = InDetMergedPixelsTool,
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
                                                         AmbiguitiesMap          = TrigPixelKeys.PixelClusterAmbiguitiesMap,
-                                                        ClustersName            = "PixelTrigClusters")
+                                                        ClustersName            = TrigPixelKeys.Clusters)
 
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = rois
@@ -204,7 +205,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                                       clusteringTool          = InDetSCT_ClusteringTool,
                                                       # ChannelStatus         = InDetSCT_ChannelStatusAlg,
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
-                                                      ClustersName            = "SCT_TrigClusters",
+                                                      ClustersName            = TrigSCTKeys.Clusters,
                                                       #Adding the suffix to flagged conditions
                                                       SCT_FlaggedCondData     = "SCT_FlaggedCondData_TRIG",
                                                       conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
@@ -226,17 +227,17 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   from SiSpacePointFormation.InDetOnlineMonitor import InDetMonitoringTool
   InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder" + signature,
                                                                     SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
-                                                                    PixelsClustersName     = "PixelTrigClusters",
-                                                                    SCT_ClustersName	   = "SCT_TrigClusters",
-                                                                    SpacePointsPixelName   = "PixelTrigSpacePoints",
-                                                                    SpacePointsSCTName     = "SCT_TrigSpacePoints",
+                                                                    PixelsClustersName     = TrigPixelKeys.Clusters,
+                                                                    SpacePointsPixelName   = TrigPixelKeys.SpacePoints,
+                                                                    SCT_ClustersName	    = TrigSCTKeys.Clusters, 
+                                                                    SpacePointsSCTName     = TrigSCTKeys.SpacePoints,
                                                                     SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                     ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
-                                                                    SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
-                                                                    SpacePointCachePix = InDetCacheNames.SpacePointCachePix,
-                                                                    monTool            = InDetMonitoringTool())
+                                                                    SpacePointCacheSCT     = InDetCacheNames.SpacePointCacheSCT,
+                                                                    SpacePointCachePix     = InDetCacheNames.SpacePointCachePix,
+                                                                    monTool                = InDetMonitoringTool())
 
   viewAlgs.append(InDetSiTrackerSpacePointFinder)
 
@@ -249,33 +250,35 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
       from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
       condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
-  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
-  theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
-  theFTF.RoIs = rois
-  theFTF.TracksName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator
 
-  #the following doCloneRemoval modification should be set up in the InDetTrigSliceSettings once legacy trigger not needed
-  if whichSignature=="Electron":
-     theFTF.doCloneRemoval = True
+  #FIXME have a flag for now set for True( as most cases call FTF) but potentially separate
+  if doFTF: 
+      from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
+      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
+      theFTF.RoIs = rois
+      theFTF.TracksName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator
+      
+      #the following doCloneRemoval modification should be set up in the InDetTrigSliceSettings once legacy trigger not needed
+      if whichSignature=="Electron":
+         theFTF.doCloneRemoval = True
 
-  viewAlgs.append(theFTF)
+      viewAlgs.append(theFTF)
 
 
+      from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
+      from TrigEDMConfig.TriggerEDMRun3 import recordable
+      from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
 
-  from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
-  from TrigEDMConfig.TriggerEDMRun3 import recordable
-  from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
+      trackCollection = "HLT_IDTrack" + separateTrackParticleCreator + "_FTF"
 
-  trackCollection = "HLT_IDTrack" + separateTrackParticleCreator + "_FTF"
+      theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
+                                                                doIBLresidual = False,
+                                                                TrackName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator,
+                                                                TrackParticlesName = recordable( trackCollection ),
+                                                                ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
 
-  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
-                                                            doIBLresidual = False,
-                                                            TrackName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator,
-                                                            TrackParticlesName = recordable( trackCollection ),
-                                                            ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-
-  theTrackParticleCreatorAlg.roiCollectionName = rois
-  viewAlgs.append(theTrackParticleCreatorAlg)
+      theTrackParticleCreatorAlg.roiCollectionName = rois
+      viewAlgs.append(theTrackParticleCreatorAlg)
 
 
 
