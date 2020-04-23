@@ -26,6 +26,7 @@ namespace Trig{
 class TrigEgammaMatchingToolMT : public asg::AsgTool
 
 {
+    ASG_TOOL_INTERFACE( TrigEgammaMatchingToolMT )
     ASG_TOOL_CLASS0( TrigEgammaMatchingToolMT )
 
     public:
