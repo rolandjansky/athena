@@ -23,7 +23,7 @@ using namespace InDetDD;
 
 std::vector<PixelModuleDesign*> PixelDesignBuilder::s_designs;
 
-PixelDesignBuilder::PixelDesignBuilder( const std::string& name, ISvcLocator* pSvcLocator) : 
+PixelDesignBuilder::PixelDesignBuilder( const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
   GeoXMLUtils(),
   m_moduleMap(nullptr)
@@ -40,12 +40,12 @@ PixelDesignBuilder::~PixelDesignBuilder()
 void PixelDesignBuilder::initModuleMap(const PixelGeoBuilderBasics* basics)
 {
   m_moduleMap = new GeoDetModulePixelMap(basics);
- 
+
 }
 
 
 StatusCode PixelDesignBuilder::initialize()
-{ 
+{
   return StatusCode::SUCCESS;
 }
 
@@ -69,7 +69,7 @@ StatusCode PixelDesignBuilder::queryInterface(const InterfaceID& riid, void** pp
 }
 
 StatusCode PixelDesignBuilder::callBack(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
-{  
+{
   return StatusCode::SUCCESS;
 }
 
@@ -130,7 +130,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 
   if(!bParsed){
     msg(MSG::ERROR)<<"XML file "<<fileName<<" not found"<<endmsg;
-    return 0;
+    return nullptr;
   }
 
   std::string moduleName = getChildValue("Module", moduleIndex, "moduleName");
@@ -140,7 +140,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   int circuitsEta = lengthChip;
 
   int widthChipMax = getInt("Module", moduleIndex, "widthMaxInChips", 0);
- 
+
   int widthChip=widthChipMax;
   int circuitsPhi = widthChip;
 
@@ -155,25 +155,25 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   double etaPitchLong = etaPitch;
   double etaPitchLongEnd = etaPitch;
 
-  int rowsPerChip = getInt( "FrontEndChip",  readoutIndex,"rows"); 
+  int rowsPerChip = getInt( "FrontEndChip",  readoutIndex,"rows");
   int emptyRows = 0;
   int rowsPerSensor = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows; // FIXME check that the matrix does the right thing
 
   int colsPerChip = getInt( "FrontEndChip",  readoutIndex,"columns");
   int readoutSide = 1;
-  
-  
+
+
   msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
   msg(MSG::DEBUG)<<"readout geo : "<<chipName<<endmsg;
   msg(MSG::DEBUG)<<"readout geo : "<<moduleName<<" phi : "<<circuitsPhi<<" "<<rowsPerChip<<" empty "<<emptyRows<<endmsg;
 
   msg(MSG::DEBUG)<<"readout geo : "<<moduleName<<" eta : "<<circuitsEta<<" "<<colsPerChip<<endmsg;
-  
+
   msg(MSG::DEBUG)<<"readout geo : "<< moduleName<<" "<< phiPitch<<" "<< etaPitch<<" "<< etaPitchLong<<" "<< etaPitchLongEnd<<" "<<
     circuitsPhi<<" "<< circuitsEta<<" "<< rowsPerSensor<<" "<< colsPerChip<<" *"<<circuitsEta<<endmsg;
-  
+
   msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
-  
+
   double cellRowPerCirc = circuitsPhi*rowsPerChip;
 
 
@@ -205,7 +205,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 
   if(!bParsed){
     msg(MSG::ERROR)<<"XML file "<<fileName<<" not found"<<endmsg;
-    return 0;
+    return nullptr;
   }
 
   int readoutIndexGeo = getChildValue_Index("FrontEndChipGeo","moduleName",-1,moduleName);
@@ -217,17 +217,17 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     etaPitchLongEnd = getDouble( "FrontEndChipGeo",  readoutIndexGeo,"pitchEtaEnd");
     emptyRows = getInt( "FrontEndChipGeo",readoutIndexGeo,"emptyRows");
     rowsPerSensor = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows; // FIXME check that the matrix does the right thing
-    
+
     readoutSide = getInt( "FrontEndChipGeo", readoutIndexGeo,"readoutSide");
 
     msg(MSG::DEBUG)<<"readout geo - old geo : "<< moduleName<<" "<< phiPitch<<" "<< etaPitch<<" "<< etaPitchLong<<" "<< etaPitchLongEnd<<" "<<
       circuitsPhi<<" "<< circuitsEta<<" "<< rowsPerSensor<<" "<< colsPerChip<<" *"<<circuitsEta<<"   empty "<<emptyRows<<endmsg;
 
   }
-  
+
   msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
 
-  // see PixelGeoModel/OraclePixGeoManager 
+  // see PixelGeoModel/OraclePixGeoManager
   // This should be (*pdch)[0]->getDouble("NRPCHIP"), but in the current
   // design we prefer to have one chip in the rphi direction
   // and define the connections for the pixels in the gap
@@ -239,6 +239,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 
   PixelDiodeMatrix * fullMatrix = buildMatrix( phiPitch, etaPitch, etaPitchLong, etaPitchLongEnd,
 					       circuitsPhi, circuitsEta, rowsPerSensor, colsPerChip);
+
   msg(MSG::DEBUG) << "matrix that was build:\n" << fullMatrix->createDebugStringRepr() << endmsg;
 
 
@@ -267,56 +268,56 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 
   // Multiple connections (ganged pixels)
   if (emptyRows>0){
-    
+
     int gangedType = getInt( "FrontEndChipGeo",  readoutIndexGeo,"gangedType");
     int gangedIndex = getChildValue_Index("GangedType", "type", gangedType);
     std::vector<int> v_emptyrows = getVectorInt("GangedType",gangedIndex,"emptyrow");
     std::vector<int> v_connectrows = getVectorInt("GangedType",gangedIndex,"connectrow");
 
     msg(MSG::DEBUG)<<"readout geo - emptyrows>0 : "<< gangedType<<" "<< gangedIndex<<endmsg;
-    
+
     int minRow = v_emptyrows[0];
     int maxRow = minRow;
-    
+
     for (int iConnect = 0; iConnect < emptyRows; iConnect++){
       minRow = std::min(minRow, v_emptyrows[iConnect]);
       minRow = std::min(minRow, v_connectrows[iConnect]);
       maxRow = std::max(maxRow, v_emptyrows[iConnect]);
       maxRow = std::max(maxRow, v_connectrows[iConnect]);
     }
-    
+
     std::vector <int> connections(maxRow-minRow+1);
-    
+
     // We fill them all with a one to one correspondence first.
     for (unsigned int iRow = 0; iRow < connections.size(); iRow++){
       connections[iRow] = iRow +  minRow;
     }
-    
+
     // Now make the connections.
     for (int iConnect = 0; iConnect < emptyRows; iConnect++){
       connections[v_emptyrows[iConnect]-minRow] = v_connectrows[iConnect];
     }
-    
+
     design->addMultipleRowConnection(minRow, connections);
   }
-  
+
   basics->getDetectorManager()->addDesign(design);
 
   return design;
 }
 
 
-// Copied  from GeoPixelSiCrystal::makeMatrix release 17.3.1 
+// Copied  from GeoPixelSiCrystal::makeMatrix release 17.3.1
 // FIXME avoid duplication!
-PixelDiodeMatrix *  PixelDesignBuilder::buildMatrix( double phiPitch, double etaPitch, 
+PixelDiodeMatrix *  PixelDesignBuilder::buildMatrix( double phiPitch, double etaPitch,
 						     double etaPitchLong, double etaPitchLongEnd,
 						     int circuitsPhi, int circuitsEta,
 						     int diodeRowPerCirc, int diodeColPerCirc)
 {
   // There are several different cases. Not all are used at the time of wrtiting the code but I
-  // have tried to consider all possible cases for completeness. 
+  // have tried to consider all possible cases for completeness.
   //
-  // end cell : middle cells : between chip 
+  // end cell : middle cells : between chip
   // --------------------------------------
   // long:normal:long (standard ATLAS case)
   // normal:normal:normal
@@ -326,119 +327,119 @@ PixelDiodeMatrix *  PixelDesignBuilder::buildMatrix( double phiPitch, double eta
   // end:normal:normal  (not likely)
   // end:normal:end  (if single chip)
 
-  PixelDiodeMatrix * fullMatrix = 0;
-  
+  PixelDiodeMatrix * fullMatrix = nullptr;
+
   if (etaPitchLongEnd == etaPitchLong && etaPitchLong != etaPitch) {
     // long:normal:long (standard ATLAS case)
     //if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "GeoPixelSiCrystal: Making matrix (long:normal:long, Standard ATLAS case)" << endmsg;
 
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
-    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
-    
+    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
+    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong);
+
     PixelDiodeMatrix * singleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							    bigCell, 
-							    normalCell, 
+							    bigCell,
+							    normalCell,
 							    diodeColPerCirc-2,
 							    bigCell);
 
     PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							0, singleChipRow, circuitsEta, 0);
+							nullptr, singleChipRow, circuitsEta, nullptr);
 
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
+				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
   } else if (etaPitchLongEnd == etaPitchLong && (etaPitchLong == etaPitch || circuitsEta == 1)) {
-    
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
+
+    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
     PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							0, normalCell, circuitsEta*diodeColPerCirc, 0);
+							nullptr, normalCell, circuitsEta*diodeColPerCirc, nullptr);
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
+				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
   } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta > 2) {
-    
+
     // normal:normal:long: > 2 chips
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
-    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
-    
+    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
+    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong);
+
     PixelDiodeMatrix * lowerSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 0, 
-								 normalCell, 
+								 nullptr,
+								 normalCell,
 								 diodeColPerCirc-1,
 								 bigCell);
     PixelDiodeMatrix * middleSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								  bigCell, 
-								  normalCell, 
+								  bigCell,
+								  normalCell,
 								  diodeColPerCirc-2,
 								  bigCell);
     PixelDiodeMatrix * upperSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 bigCell, 
-								 normalCell, 
+								 bigCell,
+								 normalCell,
 								 diodeColPerCirc-1,
-								 0);
+								 nullptr);
     PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
 							lowerSingleChipRow, middleSingleChipRow, circuitsEta-2, upperSingleChipRow);
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
+				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
   } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta == 2) {
     // normal:normal:long: 2 chips (current SLHC case)
-   
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
-    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
-    
+
+    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
+    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong);
+
     PixelDiodeMatrix * lowerSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 0, 
-								 normalCell, 
+								 nullptr,
+								 normalCell,
 								 diodeColPerCirc-1,
 								 bigCell);
     PixelDiodeMatrix * upperSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 bigCell, 
-								 normalCell, 
+								 bigCell,
+								 normalCell,
 								 diodeColPerCirc-1,
-								 0);
+								 nullptr);
     PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							lowerSingleChipRow, upperSingleChipRow, 1, 0);
+							lowerSingleChipRow, upperSingleChipRow, 1, nullptr);
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
+				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
   } else if (circuitsEta == 1 ||  (etaPitchLongEnd != etaPitch &&  etaPitchLong == etaPitch )){ // etaPitchLongEnd != etaPitch at this stage
     // end:normal:end  (for single chip)
     // end:normal:normal  (not likely)
-  
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
-    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd); 
-    
+
+    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
+    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd);
+
     PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-							    bigCell, 
-							    normalCell, 
+							    bigCell,
+							    normalCell,
 							    circuitsEta*diodeColPerCirc-2,
 							    bigCell);
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
+				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
   } else {
     // end:normal:long    (not likely)
-   
-    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
-    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
-    PixelDiodeMatrix * endCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd); 
-    
+
+    PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch);
+    PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong);
+    PixelDiodeMatrix * endCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd);
+
     PixelDiodeMatrix * lowerSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 endCell, 
-								 normalCell, 
+								 endCell,
+								 normalCell,
 								 diodeColPerCirc-2,
 								 bigCell);
     PixelDiodeMatrix * middleSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								  bigCell, 
-								  normalCell, 
+								  bigCell,
+								  normalCell,
 								  diodeColPerCirc-2,
 								  bigCell);
     PixelDiodeMatrix * upperSingleChipRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
-								 bigCell, 
-								 normalCell, 
+								 bigCell,
+								 normalCell,
 								 diodeColPerCirc-2,
 								 endCell);
     PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
 							lowerSingleChipRow, middleSingleChipRow, circuitsEta-2, upperSingleChipRow);
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
-				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
-    
+				      nullptr, singleRow, circuitsPhi*diodeRowPerCirc, nullptr);
+
   }
 
   return fullMatrix;
