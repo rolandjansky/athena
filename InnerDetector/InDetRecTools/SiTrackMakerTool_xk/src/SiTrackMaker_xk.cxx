@@ -43,15 +43,6 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     ATH_CHECK( m_beamSpotKey.initialize() );
   }
 
-  // Get magnetic field service
-  //
-  if (m_fieldmode != "NoField" ) {
-    if ( !m_fieldServiceHandle.retrieve() ){
-      ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-      return StatusCode::FAILURE;
-    }    
-    ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-  }
   if (m_fieldmode == "NoField") m_fieldModeEnum = Trk::NoField;
   else if (m_fieldmode == "MapSolenoid") m_fieldModeEnum = Trk::FastField;
   else m_fieldModeEnum = Trk::FullField;
@@ -159,7 +150,16 @@ MsgStream& InDet::SiTrackMaker_xk::dumpconditions(MsgStream& out) const
                              "UndefinedField","AthenaField"  , "?????"         };
 
   Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
-  if (!m_fieldServiceHandle->solenoidOn()) fieldModeEnum = Trk::NoField;
+
+  // Get AtlasFieldCache
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj) {
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache(fieldCache);
+    if (!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
+  }
+
   Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
   int mode = fieldprop.magneticFieldMode();
   if (mode<0 || mode>8 ) mode = 8; 
@@ -554,14 +554,12 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
   data.par()[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
 
   Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
-  if (!m_fieldServiceHandle->solenoidOn()) fieldModeEnum = Trk::NoField;
+  if (!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
   Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
   if (fieldprop.magneticFieldMode() > 0) {
 
     double H[3],gP[3] ={x0,y0,z0};
-    //   MT version uses cache, temporarily keep old version
-    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, H);
-    else                                m_fieldServiceHandle->getFieldZR(gP, H);
+    fieldCache.getFieldZR(gP, H);
 
     if (fabs(H[2])>.0001) {
       data.par()[2] = atan2(b+a*A,a-b*A);
@@ -641,14 +639,12 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlaneDBM
   data.par()[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
 
   Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
-  if (!m_fieldServiceHandle->solenoidOn()) fieldModeEnum = Trk::NoField;
+  if (!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
   Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
   if (fieldprop.magneticFieldMode() > 0) {
     double H[3],gP[3] ={p0[0],p0[1],p0[2]};
 
-    //   MT version uses cache, temporarily keep old version
-    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, H);
-    else                                m_fieldServiceHandle->getFieldZR(gP,H);
+    fieldCache.getFieldZR(gP, H);
 
     if (fabs(H[2])>.0001) {
       data.par()[2] = atan2(b+a*A,a-b*A);
