@@ -244,7 +244,7 @@ ResolutionHelper::ResolutionHelperResultsModUnits(TH1D* p_input_hist, IDPVM::Res
   TString vari = p_input_hist->GetName();
   bool isInMicrons = ( !vari.Contains("pull") &&
        (vari.Contains("d0") || vari.Contains("z0")) );
-  const double unitConversionFactor = isInMicrons ? 1000. : 1.;   // um to mm 
+  const double unitConversionFactor = isInMicrons ? 1000. : 1.;   // mm measurements to um outputs 
   setResults(p_input_hist, theMethod);
 
   return std::move(resolutionResultInBin{getRMS()*unitConversionFactor, 
