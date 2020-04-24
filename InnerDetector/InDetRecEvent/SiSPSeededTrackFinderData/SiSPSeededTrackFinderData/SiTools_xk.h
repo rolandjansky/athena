@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 #define SiTools_xk_H
 
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -47,7 +46,6 @@ namespace InDet{
 
       const Trk::IPatternParametersPropagator*  propTool      () const {return m_proptool   ;}
       const Trk::IPatternParametersUpdator*     updatorTool   () const {return m_updatortool;}
-      const MagField::IMagFieldSvc*             magfield      () const {return m_fieldService;}  
       const AtlasFieldCacheCondObj*             fieldCondObj  () const {return m_fieldCondObj;}
 
       const Trk::IRIO_OnTrackCreator*           rioTool    () const {return m_riotool    ;}
@@ -71,8 +69,7 @@ namespace InDet{
       void setTools
 	(const Trk::IPatternParametersPropagator* ,
 	 const Trk::IPatternParametersUpdator*    , 
-	 const Trk::IRIO_OnTrackCreator*          , 
-	 MagField::IMagFieldSvc* 
+	 const Trk::IRIO_OnTrackCreator*
 	 );  
 
       void setFieldCondObj(const AtlasFieldCacheCondObj* fieldCondObj);
@@ -100,7 +97,6 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       const Trk::MagneticFieldProperties* m_fieldtool; // Magnetic field properties
-      MagField::IMagFieldSvc*        m_fieldService;  // Magnetic field service
       const AtlasFieldCacheCondObj*  m_fieldCondObj;  // Magnetic field conditions object to access cache
 
 
@@ -139,7 +135,6 @@ namespace InDet{
   inline SiTools_xk::SiTools_xk()
     {
       m_fieldtool   = nullptr;
-      m_fieldService= nullptr;
       m_proptool    = nullptr;
       m_updatortool = nullptr;
       m_riotool     = nullptr;  
@@ -163,14 +158,12 @@ namespace InDet{
   inline void SiTools_xk::setTools
     (const Trk::IPatternParametersPropagator*  PR,
      const Trk::IPatternParametersUpdator*     UP, 
-     const Trk::IRIO_OnTrackCreator*           RO,
-     MagField::IMagFieldSvc*             MS     
+     const Trk::IRIO_OnTrackCreator*           RO
      )    
     {
       m_proptool    = PR;
       m_updatortool = UP;
       m_riotool     = RO;
-      m_fieldService= MS;   
     }
 
   inline void SiTools_xk::setFieldCondObj(const AtlasFieldCacheCondObj* fieldCondObj) 
