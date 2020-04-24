@@ -1,0 +1,142 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+/**
+ * @file StoreGate/ReadHandleKey.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Feb, 2016
+ * @brief Property holding a SG store/key/clid from which a ReadHandle is made.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor.
+ * @param key The StoreGate key for the object.
+ * @param storeName Name to use for the store, if it's not encoded in sgkey.
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+ReadHandleKey<T>::ReadHandleKey (const std::string& key)
+  : VarHandleKey (key)
+  // : VarHandleKey (ClassID_traits<T>::ID(), key,
+  //                 Gaudi::DataHandle::Reader,
+  //                 storeName)
+{
+}
+
+
+// /**
+//  * @brief Change the key of the object to which we're referring.
+//  * @param sgkey The StoreGate key for the object.
+//  * 
+//  * The provided key may actually start with the name of the store,
+//  * separated by a "+":  "MyStore+Obj".  If no "+" is present,
+//  * the store is not changed.
+//  */
+// template <class T>
+// ReadHandleKey<T>& ReadHandleKey<T>::operator= (const std::string& sgkey)
+// {
+//   VarHandleKey::operator= (sgkey);
+//   return *this;
+// }
+
+
+// /**
+//  * @brief Auto-declaring Property constructor.
+//  * @param owner Owning component.
+//  * @param name Name of the Property.
+//  * @param key  Default StoreGate key for the object.
+//  * @param doc Documentation string.
+//  *
+//  * Will associate the named Property with this RHK via declareProperty.
+//  *
+//  * The provided key may actually start with the name of the store,
+//  * separated by a "+":  "MyStore+Obj".  If no "+" is present
+//  * the store named by @c storeName is used.
+//  */
+template <class T>
+template <class OWNER, class K>
+inline
+ReadHandleKey<T>::ReadHandleKey( OWNER* owner,
+                                 const std::string& name,
+                                 const K& key /* ={}*/,
+                                 const std::string& doc /*= ""*/)
+  : ReadHandleKey<T>( key )
+{
+  owner->declareProperty(name, *this, doc);
+}
+
+
+// /**
+//  * @brief Constructor with explicit CLID.
+//  * @param clid The CLID for the referenced object.
+//  * @param key The StoreGate key for the object.
+//  * @param storeName Name to use for the store, if it's not encoded in sgkey.
+//  *
+//  * This is meant to be used by @c ReadDecorHandleKey, to allow fixing the
+//  * CLID to a base class to avoid scheduler issues.
+//  */
+// template <class T>
+// inline
+// ReadHandleKey<T>::ReadHandleKey (CLID clid,
+//                                  const std::string& key,
+//                                  const std::string& storeName)
+//   : VarHandleKey (clid, key, Gaudi::DataHandle::Reader, storeName)
+// {
+// }
+
+
+// /**
+//  * @brief Auto-declaring constructor with explicit CLID.
+//  * @param clid The CLID for the referenced object.
+//  * @param owner Owning component.
+//  * @param name name of the Property
+//  * @param key The StoreGate key for the object.
+//  * @param doc Documentation string.
+//  *
+//  * This is meant to be used by @c ReadDecorHandleKey, to allow fixing the
+//  * CLID to a base class to avoid scheduler issues.
+//  */
+// template <class T>
+// template <class OWNER, class K,
+//           typename /*= typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type*/>
+// inline
+// ReadHandleKey<T>::ReadHandleKey( CLID clid,
+//                                  OWNER* owner,
+//                                  const std::string& name,
+//                                  const K& key,
+//                                  const std::string& doc)
+//   : ReadHandleKey<T>( clid, key, StoreID::storeName(StoreID::EVENT_STORE) )
+// {
+//   auto p = owner->declareProperty(name, *this, doc);
+//   p->template setOwnerType<OWNER>();
+// }
+
+
+// /**
+//  * @brief Constructor.
+//  * @param key The StoreGate key for the object.
+//  * @param storeName Name to use for the store, if it's not encoded in sgkey.
+//  *
+//  * The provided key may actually start with the name of the store,
+//  * separated by a "+":  "MyStore+Obj".  If no "+" is present
+//  * the store named by @c storeName is used.
+//  */
+// template <class T>
+// InitializedReadHandleKey<T>::InitializedReadHandleKey (const std::string& key /*= ""*/,
+//                                                        const std::string& storeName /*= StoreID::storeName(StoreID::EVENT_STORE)*/)
+//   : ReadHandleKey<T> (key, storeName)
+// {
+//   if (this->initialize().isFailure()) {
+//     throw SG::ExcBadInitializedReadHandleKey();
+//   }
+// }
+
+
+} // namespace SG
