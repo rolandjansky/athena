@@ -251,9 +251,8 @@ if [ $dophy -ne 0 ]; then
   # Run InDetPhysValMonitoring on DAOD.
   # It should eventually be possible to include this in the reco step, but this needs Reco_tf to support the ITk IDPVM setup.
   ( set -x
-###MW    inputDAOD_IDTRKVALIDFile="$daod_particle_energy" exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py
     exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py -c "INFILE='$daod_particle_energy'"
-###MW    exec athena.py ../share/PhysValITk_jobOptions.py -c "INFILE='$daod_particle_energy'"
+###MW    exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py -c "INFILE='$daod_particle_energy'"
   )
   echo "art-result: $? physval"
   
