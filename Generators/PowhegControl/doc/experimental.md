@@ -1,9 +1,9 @@
-[[_TOC_]]
-
 # Experimental/additional PowhegControl features
 
 This is documentation for experimenting around, with less support from the ATLAS
 experts.
+
+[[_TOC_]]
 
 ## Testing unsupported versions of processes with PowhegControl
 
