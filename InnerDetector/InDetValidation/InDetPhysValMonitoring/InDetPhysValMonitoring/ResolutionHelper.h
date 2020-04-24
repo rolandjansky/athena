@@ -126,7 +126,7 @@ namespace IDPVM {
     double m_FracOut{0.};
     double m_FracOutUnc{0.};
     double m_FracUOflow{0.};
-    
+
     std::vector<std::string> m_debugs;
     std::vector<std::string> m_infos;
     std::vector<std::string> m_warnings;
@@ -135,7 +135,7 @@ namespace IDPVM {
     //@}
     
     //helpers 
-    std::string m_inHistName;
+    std::string m_inHistName{""};
     // increase mean and RMS errors by this factor in case of ambiguous evaluation
     // ... eg in case we eg. exclude too many events during evaluation
     double m_largeErrorFact{10.};
