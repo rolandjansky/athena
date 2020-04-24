@@ -41,10 +41,10 @@ namespace IDPVM {
 
     // package the output of a single bin resolution measurement
     struct resolutionResultInBin{
-      double width;
-      double widthError;
-      double mean;
-      double meanError;
+      double width{0.};
+      double widthError{0.};
+      double mean{0.};
+      double meanError{0.};
       double outlierFrac{0.};
       double outlierFracError{0.}; 
     };
@@ -119,7 +119,14 @@ namespace IDPVM {
 
     /// results/outputs:
     //@{
-    double m_mean,m_meanError,m_RMS,m_RMSError,m_FracOut,m_FracOutUnc,m_FracUOflow;
+    double m_mean{0.};
+    double m_meanError{0.};
+    double m_RMS{0.};
+    double m_RMSError{0.};
+    double m_FracOut{0.};
+    double m_FracOutUnc{0.};
+    double m_FracUOflow{0.};
+    
     std::vector<std::string> m_debugs;
     std::vector<std::string> m_infos;
     std::vector<std::string> m_warnings;
@@ -131,9 +138,9 @@ namespace IDPVM {
     std::string m_inHistName;
     // increase mean and RMS errors by this factor in case of ambiguous evaluation
     // ... eg in case we eg. exclude too many events during evaluation
-    double m_largeErrorFact;
+    double m_largeErrorFact{10.};
     // maximum fraction of Under- and Overflow events we tolerate
-    double m_maxUOflowFrac;
+    double m_maxUOflowFrac{0.05};
 
 
 

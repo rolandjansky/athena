@@ -21,17 +21,7 @@
 
 namespace IDPVM {
   
-  ResolutionHelper::ResolutionHelper() :
-    m_mean(0.),
-    m_meanError(0.),
-    m_RMS(0.),
-    m_RMSError(0.),
-    m_FracOut(0.),
-    m_FracOutUnc(0.),
-    m_FracUOflow(0.),
-    m_inHistName(""),
-    m_largeErrorFact(10.),
-    m_maxUOflowFrac(0.05) {
+  ResolutionHelper::ResolutionHelper(){
     //nop
   }
   
@@ -251,19 +241,16 @@ ResolutionHelper::ResolutionHelperResultsModUnits(TH1D* p_input_hist, IDPVM::Res
   // LM: reason for using this function:
   //   orignial code was set up to only have resolution resuls in um,
   //   while inputs are in mm. Do not want to do a substantial rewrite.
-  constexpr double mm2um = 1000.;
-  double conversionFactor = 1.; 
   TString vari = p_input_hist->GetName();
-  if ( !vari.Contains("pull") &&
-       (vari.Contains("d0") || vari.Contains("z0")) ) {
-        conversionFactor *= mm2um;
-  }
+  bool isInMicrons = ( !vari.Contains("pull") &&
+       (vari.Contains("d0") || vari.Contains("z0")) );
+  const double unitConversionFactor = isInMicrons ? 1000. : 1.;   // um to mm 
   setResults(p_input_hist, theMethod);
 
-  return std::move(resolutionResultInBin{getRMS()*conversionFactor, 
-                               getRMSError()*conversionFactor,
-                               getMean()*conversionFactor,
-                               getMeanError()*conversionFactor,
+  return std::move(resolutionResultInBin{getRMS()*unitConversionFactor, 
+                               getRMSError()*unitConversionFactor,
+                               getMean()*unitConversionFactor,
+                               getMeanError()*unitConversionFactor,
                                getFracOut(),
                                getFracOutUnc()}); 
 }
@@ -271,10 +258,9 @@ ResolutionHelper::ResolutionHelperResultsModUnits(TH1D* p_input_hist, IDPVM::Res
 void
 ResolutionHelper::makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean,  IDPVM::ResolutionHelper::methods theMethod) {
 
-  // Should fix this in a better way
-  TString hname = h_input2D->GetName();
   // warnings in case input histograms have large % events in under- and over- flow bins 
   std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
+
   if (h_input2D->GetNbinsX() != hwidth->GetNbinsX() || h_input2D->GetNbinsX() != hmean->GetNbinsX()){
     ATH_MSG_ERROR("Inconsistent binnings between 1D and 2D histos - please fix your config!"); 
     return; 
@@ -301,27 +287,32 @@ ResolutionHelper::makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean,  IDPV
 }
 
 void
-ResolutionHelper::makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean, TH1* hproj[], bool save, IDPVM::ResolutionHelper::methods theMethod) {
-  TString hname = h_input2D->GetName();
+ResolutionHelper::makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean, TH1* hproj[], bool saveProjections, IDPVM::ResolutionHelper::methods theMethod) {
+  
   // warnings in case input histograms have large % events in under- and over- flow bins 
   std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
   
-  for (int ieta = 0; ieta < hwidth->GetNbinsX(); ieta++) {
-    std::string tmpName = h_input2D->GetName() + std::string("py_bin") + std::to_string(ieta + 1);
-    std::shared_ptr<TH1D> tmp {dynamic_cast<TH1D*>(h_input2D->ProjectionY(tmpName.c_str(), ieta+1, ieta+1))};
+  if (h_input2D->GetNbinsX() != hwidth->GetNbinsX() || h_input2D->GetNbinsX() != hmean->GetNbinsX()){
+    ATH_MSG_ERROR("Inconsistent binnings between 1D and 2D histos - please fix your config!"); 
+    return; 
+  }
+
+  for (int ibin = 0; ibin < hwidth->GetNbinsX(); ibin++) {
+    std::string tmpName = h_input2D->GetName() + std::string("py_bin") + std::to_string(ibin + 1);
+    std::shared_ptr<TH1D> tmp {dynamic_cast<TH1D*>(h_input2D->ProjectionY(tmpName.c_str(), ibin+1, ibin+1))};
     if (tmp->Integral() < 1) {
       continue;
     }
-    if (save) {
-      cloneHistogram(tmp.get(), hproj[ieta]);
+    if (saveProjections) {
+      cloneHistogram(tmp.get(), hproj[ibin]);
     }
     const resolutionResultInBin & result = ResolutionHelperResultsModUnits(tmp.get(), theMethod);
-    hwidth->SetBinContent(ieta + 1, result.width);
-    hwidth->SetBinError(ieta + 1, result.widthError);
-    hmean->SetBinContent(ieta + 1, result.mean);
-    hmean->SetBinError(ieta + 1, result.meanError);
+    hwidth->SetBinContent(ibin + 1, result.width);
+    hwidth->SetBinError(ibin + 1, result.widthError);
+    hmean->SetBinContent(ibin + 1, result.mean);
+    hmean->SetBinError(ibin + 1, result.meanError);
     if (result.outlierFrac>m_maxUOflowFrac){
-      warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.outlierFrac));
+      warnUOBinFrac.push_back(std::make_pair(ibin + 1,result.outlierFrac));
     }      
   }
   if (!warnUOBinFrac.empty()) {
@@ -335,10 +326,8 @@ ResolutionHelper::cloneHistogram(TH1D* h, TH1* hcopy) {
   unsigned int nbin = h->GetNbinsX();
 
   for (unsigned int ibin = 0; ibin < nbin; ibin++) {
-    float binContent = h->GetBinContent(ibin + 1);
-    float binError = h->GetBinError(ibin + 1);
-    hcopy->SetBinContent(ibin + 1, binContent);
-    hcopy->SetBinError(ibin + 1, binError);
+    hcopy->SetBinContent(ibin + 1, h->GetBinContent(ibin + 1));
+    hcopy->SetBinError(ibin + 1, h->GetBinError(ibin + 1));
   }
 }
 
