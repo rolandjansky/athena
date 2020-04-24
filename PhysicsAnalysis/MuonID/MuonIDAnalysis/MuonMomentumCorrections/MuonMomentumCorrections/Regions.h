@@ -8,6 +8,9 @@
 #include <vector>
 #include <map>
 #include <string>
+#include "AsgMessaging/MessageCheck.h"
+
+ANA_MSG_HEADER(msgMMC)
 
 class Regions{
     bool m_loadNames;
