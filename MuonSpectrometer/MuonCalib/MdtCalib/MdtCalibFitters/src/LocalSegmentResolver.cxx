@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibFitters/LocalSegmentResolver.h"
@@ -57,8 +57,8 @@ namespace MuonCalib {
 
     double  DeltaX       		=	x2 - x1;
     double  DeltaY       		=	y2 - y1;
-    double  DistanceOfCenters	=	sqrt(DeltaX*DeltaX + DeltaY*DeltaY);
-    double  Alpha0       		=	atan2(DeltaY,DeltaX);
+    double  DistanceOfCenters	=	std::hypot(DeltaX, DeltaY);
+    double  Alpha0       		=	std::atan2(DeltaY,DeltaX);
 
     LineVec list_of_lines;
     
@@ -66,13 +66,13 @@ namespace MuonCalib {
       std::cout << "      calculating Lines (" << x1 << "," << y1 << ")  " << r1 
 		<< "       (" << x2 << "," << y2 << ")  " << r2 << std::endl;
       std::cout << "      general dir " << (hpos2-hpos1).unit() 
-		<< " calculated : " << Amg::Vector3D( cos(Alpha0), sin(Alpha0), 0. ) << std::endl;
+		<< " calculated : " << Amg::Vector3D( std::cos(Alpha0), std::sin(Alpha0), 0. ) << std::endl;
     }
 
     // Case of 0 drift distances, only 1 line
     if ( r1 == 0. && r2 == 0.) {
       Amg::Vector3D  pos = hpos1;
-      Amg::Vector3D dir( cos(Alpha0) ,sin(Alpha0), 0 );
+      Amg::Vector3D dir( std::cos(Alpha0) ,std::sin(Alpha0), 0 );
       if( m_printLevel >= 5 ) std::cout << " line pos " << pos << " dir " << dir << std::endl;
       list_of_lines.push_back( std::make_pair(pos, dir) );
       return list_of_lines;
@@ -81,12 +81,12 @@ namespace MuonCalib {
 
     // Here are the first 2 "inner" lines ....
     double	RSum	=	r1 + r2;
-    double	Alpha1	=	asin(RSum/DistanceOfCenters);
+    double	Alpha1	=	std::asin(RSum/DistanceOfCenters);
 
     double	line_phi	=	Alpha0 + Alpha1;
 
-    Amg::Vector3D  pos1( x1 + r1*sin(line_phi), y1 - r1*cos(line_phi), 0. ) ;
-    Amg::Vector3D dir1( cos(line_phi), sin(line_phi), 0. );
+    Amg::Vector3D  pos1( x1 + r1*std::sin(line_phi), y1 - r1*std::cos(line_phi), 0. ) ;
+    Amg::Vector3D dir1( std::cos(line_phi), std::sin(line_phi), 0. );
 
     if( m_printLevel >= 5 )  
       std::cout << " line pos " << pos1 << " dir " << dir1 << std::endl;
@@ -95,8 +95,8 @@ namespace MuonCalib {
     
     line_phi	=	Alpha0 - Alpha1;
   
-    Amg::Vector3D  pos2( x1 - r1*sin(line_phi), y1 + r1*cos(line_phi), 0. );
-    Amg::Vector3D dir2( cos(line_phi), sin(line_phi), 0. );
+    Amg::Vector3D  pos2( x1 - r1*std::sin(line_phi), y1 + r1*std::cos(line_phi), 0. );
+    Amg::Vector3D dir2( std::cos(line_phi), std::sin(line_phi), 0. );
 			  
     if( m_printLevel >= 5 ) 
       std::cout << " line pos " << pos2 << " dir " << dir2 << std::endl;
@@ -107,8 +107,8 @@ namespace MuonCalib {
     if (r1 == 0. || r2 == 0.)	return list_of_lines;
   
     // ... and here are the other 2 "outer" lines
-    double	DeltaR	=	fabs(r2 - r1);
-    double	Alpha2	=	asin(DeltaR/DistanceOfCenters);
+    double	DeltaR	=	std::abs(r2 - r1);
+    double	Alpha2	=	std::asin(DeltaR/DistanceOfCenters);
 
     if ( r1 < r2 ) {
       if( m_printLevel >= 5 )
@@ -117,8 +117,8 @@ namespace MuonCalib {
 
       line_phi	=	Alpha0 + Alpha2;
 
-      Amg::Vector3D  pos3( x1 - r1*sin(line_phi), y1 + r1*cos(line_phi), 0. );
-      Amg::Vector3D dir3( cos(line_phi),sin(line_phi), 0. );
+      Amg::Vector3D  pos3( x1 - r1*std::sin(line_phi), y1 + r1*std::cos(line_phi), 0. );
+      Amg::Vector3D dir3( std::cos(line_phi),std::sin(line_phi), 0. );
 
       if( m_printLevel >= 5 )
 	std::cout << " line pos " << pos3 << " dir " << dir3 << std::endl;
@@ -127,8 +127,8 @@ namespace MuonCalib {
 
       line_phi	=	Alpha0 - Alpha2;
 
-      Amg::Vector3D  pos4( x1 + r1*sin(line_phi), y1 - r1*cos(line_phi), 0. );
-      Amg::Vector3D dir4( cos(line_phi),sin(line_phi), 0. );
+      Amg::Vector3D  pos4( x1 + r1*std::sin(line_phi), y1 - r1*std::cos(line_phi), 0. );
+      Amg::Vector3D dir4( std::cos(line_phi),std::sin(line_phi), 0. );
 
       if( m_printLevel >= 5 )
 	std::cout << " line pos " << pos4 << " dir " << dir4 << std::endl;
@@ -141,8 +141,8 @@ namespace MuonCalib {
 
       line_phi	=	Alpha0 + Alpha2;
 
-      Amg::Vector3D  pos3( x1 + r1*sin(line_phi), y1 - r1*cos(line_phi), 0. );
-      Amg::Vector3D dir3( cos(line_phi),sin(line_phi), 0. );
+      Amg::Vector3D  pos3( x1 + r1*std::sin(line_phi), y1 - r1*std::cos(line_phi), 0. );
+      Amg::Vector3D dir3( std::cos(line_phi),std::sin(line_phi), 0. );
 
       if( m_printLevel >= 5 )
 	std::cout << " line pos " << pos3 << " dir " << dir3 << std::endl;
@@ -151,8 +151,8 @@ namespace MuonCalib {
 
       line_phi	=	Alpha0 - Alpha2;
     
-      Amg::Vector3D  pos4( x1 - r1*sin(line_phi), y1 + r1*cos(line_phi), 0. );
-      Amg::Vector3D dir4( cos(line_phi),sin(line_phi), 0. );
+      Amg::Vector3D  pos4( x1 - r1*std::sin(line_phi), y1 + r1*std::cos(line_phi), 0. );
+      Amg::Vector3D dir4( std::cos(line_phi),std::sin(line_phi), 0. );
 
       if( m_printLevel >= 5 )
 	std::cout << " line pos " << pos4 << " dir " << dir4 << std::endl;
@@ -179,7 +179,7 @@ namespace MuonCalib {
       double ressum=0;
 
       // calculate angle between line and z precision plane
-      double alpha = atan2(lit->second.y(),lit->second.x());
+      double alpha = std::atan2(lit->second.y(),lit->second.x());
 
       // get rotations in track frame
       Amg::AngleAxis3D rotationAroundZ(-alpha,Amg::Vector3D::UnitZ());

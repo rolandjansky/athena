@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/EventHandler.h"
@@ -303,8 +303,8 @@ namespace MuonCalib{
         int barcode = ((*truth_it)->barCode());
         if(barcode<=0) continue;
         if(m_debug) std::cout << " truth track barcode " << barcode << std::endl;
-        if ((*truth_it)->position().perp()< 4000 && fabs((*truth_it)->position().z())<6000.) {
-          if ((*truth_it)->position().perp()< 100 && fabs((*truth_it)->position().z())<500.)  {
+        if ((*truth_it)->position().perp()< 4000 && std::abs((*truth_it)->position().z())<6000.) {
+          if ((*truth_it)->position().perp()< 100 && std::abs((*truth_it)->position().z())<500.)  {
 // Close to IP
             truthTrkIP[barcode] = *truth_it;
           } else {

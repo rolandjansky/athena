@@ -610,8 +610,8 @@ namespace MuonCalib {
     //Calulate standard deviation
 
     double SD =0;
-    for(int i=0; i<size;i++) SD+=pow(m_mean-values[i],2);
-    m_standard_deviation=sqrt(SD/(double)size);
+    for(int i=0; i<size;i++) SD+=std::pow(m_mean-values[i],2);
+    m_standard_deviation=std::sqrt(SD/(double)size);
 
     //Calculate median
     sort(values.begin(), values.end());

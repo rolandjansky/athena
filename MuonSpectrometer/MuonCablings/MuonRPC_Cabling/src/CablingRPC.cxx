@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRPC_Cabling/CablingRPC.h"
@@ -15,8 +15,6 @@ CablingRPCBase* MuonRPC_Cabling::CablingRPC::s_instance = 0;
 bool MuonRPC_Cabling::CablingRPC::s_status = false;
 bool MuonRPC_Cabling::CablingRPC::s_cosmic_configuration = false;
 bool MuonRPC_Cabling::CablingRPC::s_RPCMapfromCool = true;
-//std::string MuonRPC_Cabling::CablingRPC::s_ConfName = "./LVL1conf_ver42.data";
-//std::string MuonRPC_Cabling::CablingRPC::s_CorrName = "./LVL1conf_ver10.corr";
 std::string MuonRPC_Cabling::CablingRPC::s_ConfName = "";
 std::string MuonRPC_Cabling::CablingRPC::s_CorrName = "";
 std::string MuonRPC_Cabling::CablingRPC::s_DataName = "ATLAS.121108";
@@ -127,13 +125,11 @@ CablingRPC::instance(void)
 	if(s_RPCMapfromCool)
 	{
 	  //keep this comment for debugging purposes
-	  //std::cout <<"CablingRPC---The singleton is expected to fill its maps from the COOL streams but the folders have not been accessed yet" << std::endl;
 	    return s_instance;
 	}
 	else 
 	{
 	  //keep this comment for debugging purposes
-	  //std::cout <<"CablingRPC---The singleton is expected to fill its maps from ASCII files - file names have not been set yet by the Cabling Svc" << std::endl;
 	    return s_instance;
 	}
     }
@@ -157,14 +153,11 @@ CablingRPC::instance(std::string conf, std::string corr,
     {
 	// here the singleton exists but is not fully init because must wait for COOL access 
         //keep this comment for debugging purposes
-        //std::cout << "CablingRPC--- Setting properties: configuration and ASCII file names"<< std::endl;
         
 	s_cosmic_configuration = cosmic;
         s_ConfName = conf;
         s_CorrName = corr;
         s_DataName = data;
-        //keep this comment for debugging purposes
-	//std::cout<< "CablingRPC--- nothing else can happen here ..."<< std::endl;
     }
     return s_instance;    
 }
@@ -174,14 +167,7 @@ CablingRPC::instance(const std::string* conf, const std::string* corr,
                      std::string data, bool cosmic)
 {    
     s_RPCMapfromCool = true;
-    //keep these comments for debugging purposes
-    //std::cout<<"CablingRPC--- getting instance with strings from COOL: s_status = "<<s_status << std::endl;
-    //std::cout<<"CablingRPC--- Pointers to Conf/Corr Maps are "<<(uintptr_t)conf<<"/"<<(uintptr_t)corr<< std::endl;
-    //std::cout<<"CablingRPC--- Input Conf/Corr Maps size are "<<conf->size()<<"/"<<corr->size()<< std::endl;
-
     if ( !s_instance ) {
-      //keep these comments for debugging purposes
-      //std::cout<<"CablingRPC--- getting instance with strings: instance does not exist; make it"<< std::endl;
         s_cosmic_configuration = cosmic;
         s_ConfMapPString = conf;
         s_CorrMapPString = corr;
@@ -192,15 +178,10 @@ CablingRPC::instance(const std::string* conf, const std::string* corr,
     else if (!s_status)
     {
 	// here the singleton exists but is not fully init because must wait for COOL access 
-        //keep these comments for debugging purposes
-        //std::cout<<"CablingRPC--- Setting properties: configuration and strings from COOL folders"<< std::endl;
 	s_cosmic_configuration = cosmic;
         s_ConfMapPString = conf;
         s_CorrMapPString = corr;
         s_DataName = data;
- 
-	//keep these comments for debugging purposes
-	//std::cout <<"CablingRPC--- nothing else can happen here ..." << std::endl;       
     }
     return s_instance;    
 }
@@ -1780,7 +1761,6 @@ unsigned long int CablingRPC::strip_code_fromOffId (std::string stationName, int
 {
   unsigned long int code = 0;
   
-  //std::cout<<"strip_code_fromOffId called for "<<stationName<<" eta/phi "<<stationEta<<" "<<stationPhi<<" dbR/Z/P "<<doubletR<<" "<<doubletZ<<" "<<doubletPhi<<" gg/measPhi "<<gasGap<<" "<<measuresPhi<<" strip "<<strip<<std::endl;
   unsigned long int etaPhiView=2;
   unsigned long int phi1_16 = 2.*stationPhi;
   if (largeSector(stationName)) phi1_16 = phi1_16-1;
@@ -1797,7 +1777,7 @@ unsigned long int CablingRPC::strip_code_fromOffId (std::string stationName, int
     if (cabStat>3) cabStat=2; // special case of BOF and BOG with dbr=2
   }
   else if (stationName.substr(0,3)=="BML") {
-    if (abs(stationEta)==7 || (abs(stationEta)==6 && stationPhi==7)) 
+    if (std::abs(stationEta)==7 || (std::abs(stationEta)==6 && stationPhi==7)) 
       {
 	cabStat=2; // special case of single RPC Chambers at the same R or dbr2
       }
@@ -1858,14 +1838,11 @@ unsigned int CablingRPC::computeZIndexInCablingStation(std::string stationName, 
   // already computed   
   if (m_absZindexInThelayerOfThisChamber[iStat][side][astEta][stationPhi-1][doubletR-1][doubletZ-1] < 999) 
     {
-      //      std::cout<<"... absZindexInThelayerOfThisChamber already there "<<std::endl; 
       return m_absZindexInThelayerOfThisChamber[iStat][side][astEta][stationPhi-1][doubletR-1][doubletZ-1];  
     }
   // otherwise compute now 
-  //std::cout<<"... absZindexInThelayerOfThisChamber needs to be computed "<<std::endl; 
   int cablingStation = -1;
   int sectType = m_SectorMap[logicSector];
-  //std::cout<<" logicSector, sectorType = "<<logicSector<<" "<<sectType<<std::endl;
   if (sectType < 1 || sectType > m_MaxType+1)
     {
       DISP <<"sectorType = "<<sectType<<" out of range ";
@@ -1880,33 +1857,25 @@ unsigned int CablingRPC::computeZIndexInCablingStation(std::string stationName, 
       for (unsigned int jCham=0; jCham<20; ++jCham)
 	{
 	  const RPC_CondCabling::RPCchamber* rpcC = sec.find_chamber(jStat,jCham);
-	  //std::cout<<" jStat, jCham = "<<jStat<<" "<<jCham<<std::endl;
 	  if (rpcC==NULL) continue;
-	  //std::cout<<" RPC_CondCabling::RPCchamber found with name, eta, dbR, dbZ "<<rpcC->chamber_name()<<" "<<rpcC->stationEta()<<" "<<rpcC->doubletR()<<" "<<rpcC->doubletZ()<<std::endl;
 	  
 	  if ((rpcC->chamber_name()).substr(0,3)!=stationName ) {
-	    //	    std::cout<<" rpcC->chamber_name()!=stationName "<<rpcC->chamber_name()<<" "<<stationName<<std::endl;
 	    continue;
 	  }
-	  if (rpcC->stationEta()  != abs(stationEta)  ) {
-	    //std::cout<<" rpcC->stationEta()!=stationEta "<<rpcC->stationEta()<<" "<<stationEta<<std::endl;
+	  if (rpcC->stationEta()  != std::abs(stationEta)  ) {
 	    continue;
 	  }
 	  if (rpcC->doubletR()    !=doubletR    ) {
-	    //std::cout<<" rpcC->doubletR()!=doubletR "<<rpcC->doubletR()<<" "<<doubletR<<std::endl;
 	    continue;
 	  }
 	  if (rpcC->doubletZ()    !=doubletZ    ) {
-	    //std::cout<<" rpcC->doubletZ()!=doubletZ "<<rpcC->doubletZ()<<" "<<doubletZ<<std::endl;
 	    continue;
 	  }
-	  //std::cout<<" ... RPCchamber matches input "<<std::endl;
 	  cablingStation = jStat;
 	  zIndexInCablingStation = jCham;
 	  break;
 	}
     }
-  //std::cout<<" cablingStation and zIndexInCablingStation "<<cablingStation<<" "<<zIndexInCablingStation<<std::endl;
   if ( cablingStation<1 || cablingStation>3 ||  (cabStat!=cablingStation) ) 
     {
       DISP <<"cablingStation = "<<cablingStation<<" out of range 1-3 or different w.r.t. basic calculation = "<<cabStat;

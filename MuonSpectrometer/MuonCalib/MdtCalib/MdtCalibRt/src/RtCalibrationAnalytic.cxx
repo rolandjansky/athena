@@ -114,14 +114,14 @@ void RtCalibrationAnalytic::init(const double & rt_accuracy,
   m_multilayer[0] = false;
   m_multilayer[1] = false;
   m_status = 0;
-  m_rt_accuracy = fabs(rt_accuracy);
+  m_rt_accuracy = std::abs(rt_accuracy);
   m_rt_accuracy_previous = 0.;
   m_chi2_previous = 1.0e99; // large value to force at least two rounds
   m_chi2 = 0.0;
   m_order = ord;
   m_fix_min = fix_min;
   m_fix_max = fix_max;
-  m_max_it = abs(max_it);
+  m_max_it = std::abs(max_it);
 
   if (m_order==0) {
     throw std::runtime_error(Form("File: %s, Line: %d\nRtCalibrationAnalytic::init - Order of the correction polynomial must be >0!", __FILE__, __LINE__));
@@ -197,7 +197,7 @@ double RtCalibrationAnalytic::t_from_r(const double & r) {
 /////////////////////////////////////////////
 // SEARCH FOR THE CORRESPONDING DRIFT TIME //
 /////////////////////////////////////////////
-  while (t_max-t_min>0.1 && fabs(m_rt->radius(0.5*(t_min+t_max))-r)>precision) {
+  while (t_max-t_min>0.1 && std::abs(m_rt->radius(0.5*(t_min+t_max))-r)>precision) {
     if (m_rt->radius(0.5*(t_min+t_max))>r) {
       t_max = 0.5*(t_min+t_max);
     } else {
@@ -510,7 +510,7 @@ void RtCalibrationAnalytic::noParabolicExtrapolation(void) {
 //:: METHOD setEstimateRtAccuracy ::
 //::::::::::::::::::::::::::::::::::
 void RtCalibrationAnalytic::setEstimateRtAccuracy(const double & acc) {
-  m_rt_accuracy = fabs(acc);
+  m_rt_accuracy = std::abs(acc);
   return;
 }
 
@@ -639,7 +639,7 @@ const IMdtCalibrationOutput * RtCalibrationAnalytic::analyseSegments(
 	}
       }
       avres = avres/static_cast<double>(seg[k]->mdtHitsOnTrack());
-      avres = sqrt(avres);
+      avres = std::sqrt(avres);
       if (seg[k]->mdtHitsOnTrack()>3) {
 			  
 	if (smoothing.addResidualsFromSegment(*seg[k], true, 7.0*avres)) {
@@ -670,7 +670,7 @@ const IMdtCalibrationOutput * RtCalibrationAnalytic::analyseSegments(
     for (double t=smooth_rt.tLower(); t<=smooth_rt.tUpper(); t=t+bin_width) {
       RMS = RMS+std::pow(smooth_rt.radius(t)-tmp_rt->radius(t), 2);
     }
-    RMS = sqrt(0.01*RMS);
+    RMS = std::sqrt(0.01*RMS);
 
   // increase the iterations counter //
     it++;
@@ -719,7 +719,7 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
 
   if(std::isnan(seg.direction().x()) || std::isnan(seg.direction().y()) || std::isnan(seg.direction().z()) || std::isnan(seg.position().x()) || std::isnan(seg.position().y()) || std::isnan(seg.position().z()))
     return true;
-  if(fabs(seg.direction().y())>100) return true;
+  if(std::abs(seg.direction().y())>100) return true;
 
 ///////////////
 // VARIABLES //
@@ -817,15 +817,15 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
   }
 
 // average resolution and chi^2 scale factor // 
-  av_res = sqrt(av_res/static_cast<double>(seg.mdtHitsOnTrack()));
-  chi2_scale_factor = sqrt(av_res*av_res+m_rt_accuracy*m_rt_accuracy)/av_res;
+  av_res = std::sqrt(av_res/static_cast<double>(seg.mdtHitsOnTrack()));
+  chi2_scale_factor = std::sqrt(av_res*av_res+m_rt_accuracy*m_rt_accuracy)/av_res;
 
 ///////////////////////////////////////
 // FILL THE AUTOCALIBRATION MATRICES //
 ///////////////////////////////////////
 
 // set the road width for the track reconstruction //
-  m_tracker.setRoadWidth(7.0*sqrt(av_res*av_res+m_rt_accuracy*m_rt_accuracy));
+  m_tracker.setRoadWidth(7.0*std::sqrt(av_res*av_res+m_rt_accuracy*m_rt_accuracy));
 
 // loop over the multilayers //
 
@@ -861,7 +861,7 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
     }
 
 //reject tracks with silly parameters
-    if (fabs(m_tracker.track().a_x2()) > 8e8) continue;
+    if (std::abs(m_tracker.track().a_x2()) > 8e8) continue;
 
 //for filling into data class
     if(m_iteration==0) {
@@ -896,9 +896,9 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
       w[l] = MTStraightLine(Amg::Vector3D(0.0, (m_tracker.trackHits()[l]->localPosition()).y(),
 	       (m_tracker.trackHits()[l]->localPosition()).z()),xhat, null, null);
       d_track[l] = track.signDistFrom(w[l]);
-      residual_value[l] = m_tracker.trackHits()[l]->driftRadius()-fabs(d_track[l]);
+      residual_value[l] = m_tracker.trackHits()[l]->driftRadius()-std::abs(d_track[l]);
       if (m_control_histograms) {
-	m_residuals->Fill(fabs(d_track[l]), residual_value[l],1.0);
+	m_residuals->Fill(std::abs(d_track[l]), residual_value[l],1.0);
       }
     }
 
@@ -907,7 +907,7 @@ bool RtCalibrationAnalytic::handleSegment(MuonCalibSegment & seg) {
 
 	// analytic calculation of G //
       for (unsigned int m=0; m<m_tracker.numberOfTrackHits(); m++) {
-	zeta[m] = sqrt(1.0+std::pow(track.a_x2(), 2))*
+	zeta[m] = std::sqrt(1.0+std::pow(track.a_x2(), 2))*
 	  (w[m].positionVector()).z()-track.a_x2()*d_track[m];
       }
       for (unsigned int m=0; m<m_tracker.numberOfTrackHits(); m++) {
@@ -1179,18 +1179,18 @@ bool RtCalibrationAnalytic::analyse(void) {
       r_corr = r_corr+m_alpha[l]*
 	m_base_function->value(l, -1.0+0.01*k);
     }
-    if (fabs(r_corr) > r_corr_max){
-      r_corr_max = fabs(r_corr);
+    if (std::abs(r_corr) > r_corr_max){
+      r_corr_max = std::abs(r_corr);
     }
     m_rt_accuracy = m_rt_accuracy+r_corr*r_corr;
   }
-  m_rt_accuracy = sqrt(0.01*m_rt_accuracy);
+  m_rt_accuracy = std::sqrt(0.01*m_rt_accuracy);
   m_rt_accuracy_previous = m_rt_accuracy;
 	
 // convergence? //
 
   m_chi2 = m_chi2/static_cast<double>(m_nb_segments_used);
-  if ( ((m_chi2<m_chi2_previous && fabs(m_chi2-m_chi2_previous)>0.01) || fabs(m_rt_accuracy)>0.001) 
+  if ( ((m_chi2<m_chi2_previous && std::abs(m_chi2-m_chi2_previous)>0.01) || std::abs(m_rt_accuracy)>0.001) 
        &&	m_iteration<m_max_it) {
     m_status = 0; // no convergence yet
   } else {
