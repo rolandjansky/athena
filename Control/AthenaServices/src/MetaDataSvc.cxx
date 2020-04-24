@@ -186,33 +186,11 @@ StatusCode MetaDataSvc::finalize() {
 //__________________________________________________________________________
 StatusCode MetaDataSvc::stop() {
    ATH_MSG_DEBUG("MetaDataSvc::stop()");
-   ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
-   if (!joSvc.retrieve().isSuccess()) {
-      ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
-   } else {
-      const std::vector<const Property*>* evtselProps = joSvc->getProperties("EventSelector");
-      if (evtselProps != nullptr) {
-         for (std::vector<const Property*>::const_iterator iter = evtselProps->begin(),
-                         last = evtselProps->end(); iter != last; iter++) {
-            if ((*iter)->name() == "InputCollections") {
-               // Get EventSelector to fire End...File incidents.
-               ServiceHandle<IEvtSelector> evtsel("EventSelector", this->name());
-               IEvtSelector::Context* ctxt(nullptr);
-               if (!evtsel->releaseContext(ctxt).isSuccess()) {
-                  ATH_MSG_WARNING("Cannot release context on EventSelector.");
-               }
-            }
-         }
-      }
-   }
 
-   // Set to be listener for end of event
+   // Fire metaDataStopIncident 
    Incident metaDataStopIncident(name(), "MetaDataStop");
    m_incSvc->fireIncident(metaDataStopIncident);
    
-   // finalizing tools via metaDataStop
-   //ATH_CHECK(this->prepareOutput());
-       
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
