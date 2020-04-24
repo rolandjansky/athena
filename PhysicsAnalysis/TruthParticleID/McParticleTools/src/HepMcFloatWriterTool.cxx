@@ -18,7 +18,6 @@
 
 // FrameWork includes
 
-// CLHEP/HepMC includes
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepPDT/ParticleDataTable.hh"
 

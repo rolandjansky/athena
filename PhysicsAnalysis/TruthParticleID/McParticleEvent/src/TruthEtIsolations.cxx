@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <stdexcept>
 
-// HepMC / CLHEP includes
+// CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenEvent.h"

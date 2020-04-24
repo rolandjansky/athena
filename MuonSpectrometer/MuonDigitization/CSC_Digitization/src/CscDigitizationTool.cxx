@@ -178,8 +178,6 @@ StatusCode CscDigitizationTool::CoreDigitization(CscDigitContainer* cscDigits,Cs
       TimedHitPtr<CSCSimHit> phit(*i++);
       const CSCSimHit& hit(*phit);
 
-      //      const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
-      //      const HepMC::GenParticle* genPart = McLink.cptr(); // some times empty pointer returned
 
       ATH_MSG_DEBUG(hit.print());
 
