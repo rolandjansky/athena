@@ -93,7 +93,6 @@ private:
   InDetPerfPlot_VertexTruthMatching m_vertexTruthMatchingPlots;
   InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
 
-  bool m_secondaryResolution;
   bool m_doTrackInJetPlots;
 
   InDetPerfPlot_TrkInJet *m_trkInJetPlots;
