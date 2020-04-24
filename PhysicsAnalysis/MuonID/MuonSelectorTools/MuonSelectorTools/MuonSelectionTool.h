@@ -7,7 +7,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "PATCore/IAsgSelectionTool.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TFile.h"

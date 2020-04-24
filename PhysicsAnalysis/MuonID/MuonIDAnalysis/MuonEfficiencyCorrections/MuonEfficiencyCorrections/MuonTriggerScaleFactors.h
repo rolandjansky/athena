@@ -8,7 +8,7 @@
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
