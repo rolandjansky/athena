@@ -74,10 +74,7 @@ InDetPerfPlot_HitEfficiency::fill(const xAOD::TrackParticle& trkprt) {
         const int det = result_det[idx]; // LAYER TYPE L0PIXBARR / PIXEL / ...
         const int region = result_region[idx]; // BARREL OR ENDCAP
         float eta = std::fabs(trkprt.eta());
-        if (det == DBM) {
-          continue; // ignore DBM
-        }
-        //fillHisto(m_eff_hit_vs_eta[det][region], eta, int(isHit));
+        
         fillHisto(m_HitEfficiencyVsEta[det][region], eta, isHit);
       }
     }

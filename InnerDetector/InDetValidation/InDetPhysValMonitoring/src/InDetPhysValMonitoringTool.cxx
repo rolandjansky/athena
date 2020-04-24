@@ -140,7 +140,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("PileupSwitch", m_pileupSwitch = "All");
   declareProperty("LowProb", m_lowProb=0.50);
   declareProperty("HighProb", m_highProb=0.80);
-  declareProperty("DetailLevel", m_detailLevel=10);
+  declareProperty("SkillLevel", m_detailLevel=10);
 }
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
@@ -450,7 +450,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
 StatusCode
 InDetPhysValMonitoringTool::bookHistograms() {
-  ATH_MSG_INFO("Booking hists " << name() << "...");
+  ATH_MSG_INFO("Booking hists " << name() << "with detailed level: " << m_detailLevel);
   m_monPlots->setDetailLevel(m_detailLevel); // DEBUG, enable expert histograms
   m_monPlots->initialize();
   std::vector<HistData> hists = m_monPlots->retrieveBookedHistograms();

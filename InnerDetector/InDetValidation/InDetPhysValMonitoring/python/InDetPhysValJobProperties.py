@@ -75,6 +75,11 @@ class validateExtraTrackCollections(InDetPhysValFlagsJobProperty) :
     allowedTypes = ['list']
     StoredValue  = []
 
+class setDetailLevel(InDetPhysValFlagsJobProperty) :
+    statusOn     = True
+    allowedTypes = ['int']
+    StoredValue  = 10
+
 from InDetRecExample.InDetJobProperties import Enabled
 
 ##-----------------------------------------------------------------------------
@@ -134,7 +139,8 @@ _list_InDetPhysValJobProperties = [
     doValidateLooseTracks,
     doValidateTightPrimaryTracks,
     doValidateTracksInJets,
-    validateExtraTrackCollections
+    validateExtraTrackCollections,
+    setDetailLevel
 ]
 
 for j in _list_InDetPhysValJobProperties:
