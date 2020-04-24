@@ -24,7 +24,7 @@ atlas_add_component( AthenaMP
                      src/components/*.cxx
                      src/memory-profiler/getPss.cc
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaInterprocess StoreGateLib SGtests GaudiKernel )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaInterprocess StoreGateLib SGtests AthenaMPToolsLib GaudiKernel )
 
 atlas_add_executable( getSharedMemory
                       src/memory-profiler/getSharedMemory.cc
