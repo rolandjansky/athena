@@ -214,33 +214,6 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
         self.L2signatureList+=[ [['L2_ih']*self.mult] ]
 
  
-            
-        if any('trtxk' in x for x in self.chainPart['trackingAlg']):
-            from TrigL2TRTSegFinder.TrigTRTSegFinder_Config import TrigTRTSegFinder_Cosmics_NewAlgo
-            thetrtsegm  = TrigTRTSegFinder_Cosmics_NewAlgo("Cosmic"+newchainName+"TrigTRTSegFinder")
-            thetrtsegm.SegmentsMakerTool.IsMagneticFieldOn = True
-            thetrtsegm.RoIhalfWidthDeltaPhi = 3.14
-            thetrtsegm.RoIhalfWidthDeltaEta = 3.
-
-            from TrigL2CosmicMuonHypo.TrigL2CosmicMuonHypo_Config import CosmicTrtHypo_Cosmic
-            theTrthypoCosmics = CosmicTrtHypo_Cosmic("Cosmic"+newchainName+"TrtHypo") 
-            theTrthypoCosmics.NTrthitsCut = 35
-            thetrtsegm.SegmentsMakerTool.MinimalNumberOfTRTHits = 20
-            thetrtsegm.pTmin = 2000.0
-            if ('central' in self.chainPart['addInfo']):
-                theTrthypoCosmics.TrtSegD0Cut=250.0
-                
-   
-            self.L2sequenceList += [[['L2_ih'], [thetrtsegm, theTrthypoCosmics], 'L2_seg']]
-            self.L2signatureList += [ [['L2_seg']*self.mult] ]
- 
-
-            self.TErenamingDict = {
-                'L2_ih':   mergeRemovingOverlap('L2_','Cosmic_'+newchainName+"_AllTEDummy"),
-                'L2_seg':  mergeRemovingOverlap('L2_', 'Cosmic_'+newchainName+"_TrigTRTSegFinder"),
-                }
-
-
         else:    # former CosmicsAllTeEFID chain        
             from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_CosmicsN
             theEFIDTracking=TrigEFIDInsideOut_CosmicsN()
