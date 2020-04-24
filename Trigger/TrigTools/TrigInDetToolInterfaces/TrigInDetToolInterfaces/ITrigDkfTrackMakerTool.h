@@ -22,8 +22,8 @@ static const InterfaceID IID_ITrigDkfTrackMakerTool("ITrigDkfTrackMakerTool",1,0
 
   /** @class ITrigDkfTrackMakerTool
 
-      provides the abstract interface for the helper tool used by TrigInDetTrackFitter and 
-      TrigTRT_TrackExtensionTool to convert TrigSiSpacePoint vector into vector of Trk::TrkBaseNode
+      provides the abstract interface for the helper tool used by TrigInDetTrackFitter
+      to convert TrigSiSpacePoint vector into vector of Trk::TrkBaseNode
       objects and vector of associated Trk::TrkPlanarSurface objects.  
 
       @author D.Emeliyanov <http://consult.cern.ch/xwho>
