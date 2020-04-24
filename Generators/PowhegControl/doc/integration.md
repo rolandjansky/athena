@@ -52,8 +52,6 @@ processes where any of the tests have failed, you should check carefully
 whether the events that pass your analysis selection give physical
 (non-zero) results in a variety of sensible observables.
 
-TODO it doesn't seem to be possible to color
-
 | PowhegControl name | nCores | Approximate integration time (hrs) | Estimated generation time for 5000 events (hrs) | Cross-section uncertainty                        | Negative weight fraction                          | Upper bound violations                            | Physics validation |
 | :----------------- | :----- | :--------------------------------- | :---------------------------------------------- | :----------------------------------------------- | :------------------------------------------------ | :------------------------------------------------ | :----------------- |
 | `bb`               | 1      | 1                                  | 0.05                                            | :white_check_mark:                               | :white_check_mark:                                | :white_check_mark:                                | NO                 |
