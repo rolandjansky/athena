@@ -2,6 +2,16 @@
 
 This directory contains the documentation and user instructions of the ATLAS Powheg interface. It is called PowhegControl and is a part of Athena.
 
+This file contains the most relevant documentation for users. Further documentation of various advanced aspects is organised into additional files:
+
+* [Systematic variations (PDF, QCD scales, and beyond)](Generators/PowhegControl/doc/variations.md)
+* [Phase space integration parameters and event generation times](Generators/PowhegControl/doc/integration.md)
+* [Advanced physics features: MiNLO, NNLO, electroweak corrections, etc.](Generators/PowhegControl/doc/beyond_vanilla.md)
+* [Non-standard ways of using PowhegControl](Generators/PowhegControl/doc/experimental.md)
+* [Legacy documentation for old ATLAS software releases](Generators/PowhegControl/doc/legacy.md)
+
+Contents of this file:
+
 [[_TOC_]]
 
 # Contact the ATLAS Powheg experts and maintainers
