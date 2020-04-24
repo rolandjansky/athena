@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -75,12 +75,13 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       // Methods to initilize different strategies of seeds production
       // with two space points with or without vertex constraint
+      // Unused but needed for common interface with other SiSpacePointsSeedMaker
       ///////////////////////////////////////////////////////////////////
 
-      void find2Sp (const std::list<Trk::Vertex>&);
+      void find2Sp (const std::list<Trk::Vertex>&){};
 
       ///////////////////////////////////////////////////////////////////
-      // Methods to initilize different strategies of seeds production
+      // Methods to initialize different strategies of seeds production
       // with three space points with or without vertex constraint
       ///////////////////////////////////////////////////////////////////
 
@@ -88,7 +89,7 @@ namespace InDet {
       void find3Sp (const std::list<Trk::Vertex>&,const double*);
 
       ///////////////////////////////////////////////////////////////////
-      // Methods to initilize different strategies of seeds production
+      // Methods to initialize different strategies of seeds production
       // with variable number space points with or without vertex constraint
       // Variable means (2,3,4,....) any number space points
       ///////////////////////////////////////////////////////////////////
@@ -127,7 +128,6 @@ namespace InDet {
       bool                        m_trigger                       ;
       bool                        m_checketa                      ;
       bool                        m_isvertex                      ;
-      bool                        m_dbm                           ;
       int                         m_outputlevel                   ;
       int                         m_nprint                        ;
       int                         m_state                         ;
@@ -136,25 +136,19 @@ namespace InDet {
       int                         m_nlist                         ;
       int                         m_maxsize                       ;
       int                         m_iteration                     ;
-      int                         m_iteration0                    ;
       int                         m_iminPPS                       ;
       int                         m_imaxPPS                       ;
       int                         m_ndyncut                       ;
       int                         m_nCmSp                         ;
 
-      unsigned int                m_maxNumberVertices             ;
       float                       m_etamin, m_etamax              ;
-      float                       m_r1min, m_r1minv               ;
-      float                       m_r1max, m_r1maxv               ;
-      float                       m_r2min, m_r2minv               ;
-      float                       m_r2max, m_r2maxv               ;
-      float                       m_r3min                         ;
-      float                       m_r3max                         ;
-      float                       m_drmin, m_drminv               ;
+      float                       m_drmin                         ;
       float                       m_drmax                         ;
+      float                       m_drminPPS                      ;
       float                       m_drminPPP                      ;
-      float                       m_drmaxPPP                      ; 
-      float                       m_rapcut                        ;
+      float                       m_drmaxPPP                      ;
+      float                       m_rmaxPPP                       ;
+      float                       m_dzmaxSSS                      ;
       float                       m_dzdrmin0                      ;
       float                       m_dzdrmax0                      ;
       float                       m_dzdrmin                       ;
@@ -162,6 +156,8 @@ namespace InDet {
       float                       m_dzdrmaxPPS                    ;
       float                       m_zmin                          ;
       float                       m_zmax                          ;
+      float                       m_zmaxPPP                       ;
+      float                       m_zmaxSSS                       ;
       float                       m_zminU                         ;
       float                       m_zmaxU                         ;
       float                       m_zminB                         ;
@@ -186,8 +182,6 @@ namespace InDet {
       float                       m_ipt2K                         ;
       float                       m_ipt2C                         ;
       float                       m_COFK                          ;  
-      float                       m_umax                          ;
-      float                       m_dzmaxPPP                      ;
       float                       m_RTmin                         ;
       float                       m_RTmax                         ;
       float                       m_rapydityPPSmax                ;
@@ -310,7 +304,6 @@ namespace InDet {
       void fillListsPPP    () ;
       void fillListsPPS    () ;
       void erase           () ;
-      void production2Sp   () ;
       void production3Sp   () ;
       void production3SpSSS() ;
       void production3SpPPP() ;

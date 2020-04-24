@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -151,7 +151,6 @@ namespace InDet {
     float                       m_r3max                         ;
     float                       m_drmin, m_drminv               ;
     float                       m_drmax                         ;
-    float                       m_rapcut                        ;
     float                       m_dzdrmin0                      ;
     float                       m_dzdrmax0                      ;
     float                       m_dzdrmin                       ;
