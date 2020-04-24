@@ -18,6 +18,12 @@
 #define CUSTOM_GETTER_H
 
 namespace FlavorTagDiscriminants {
+
+  std::function<std::vector<double>(
+    const xAOD::Jet&,
+    const std::vector<const xAOD::TrackParticle*>&)> customSeqGetter(
+      const std::string& name);
+
   namespace internal {
     std::function<std::pair<std::string, double>(const xAOD::Jet&)>
     customGetterAndName(const std::string&);
