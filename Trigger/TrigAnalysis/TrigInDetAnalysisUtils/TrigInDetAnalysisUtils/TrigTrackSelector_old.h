@@ -26,12 +26,7 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
-///// stuff *merely* to get the particle charge!!!
-/// #include "HepPDT/ParticleData.hh"
-/// #include "HepMC/ParticleDataTable.h"
-/// #include "McParticleEvent/TruthParticle.h"
-/// #include "McParticleUtils/McUtils.h" // for chargeFromPdgId
-///
+
 ///// FrameWork includes
 /// #include "GaudiKernel/ServiceHandle.h"
 /// #include "GaudiKernel/IPartPropSvc.h"
@@ -372,7 +367,6 @@ public:
     double xp[3] = { 0, 0, 0 };
 
     if ( track->genParticle()->production_vertex() ) { 
-      // std::cout << "ptr->production_vertex() " << ptr->production_vertex() << std::endl;
       xp[0] = track->genParticle()->production_vertex()->point3d().x();
       xp[1] = track->genParticle()->production_vertex()->point3d().y();
       xp[2] = track->genParticle()->production_vertex()->point3d().z();
@@ -387,7 +381,6 @@ public:
     double xd[3] = { 0, 0, 0 };
 
     if ( track->genParticle()->end_vertex() ) { 
-      // std::cout << "ptr->production_vertex() " << ptr->production_vertex() << std::endl;
       xd[0] = track->genParticle()->end_vertex()->point3d().x();
       xd[1] = track->genParticle()->end_vertex()->point3d().y();
       xd[2] = track->genParticle()->end_vertex()->point3d().z();
@@ -441,24 +434,6 @@ public:
     
     double pT  = q*track->pt();
 
-    //// BP this is slightly confusing, since d0 =? a0?,
-    //// ToolHandle<Trk::ITruthToTrack> truthToTrack;
-    //// const HepMC::GenParticle* particle = track->genParticle();
-    //// const HepMC::GenParticle* gp = track->genParticle();
-    //// boost::scoped_ptr<const Trk::TrackParameters> generatedTrackPerigee( truthToTrack->makePerigeeParameters(particle) );
-    //// const Trk::TrackParameters* generatedTrackPerigee(0);
-    //// cout<<"BP BP here "<<endl;
-    //// if ( gp->production_vertex() ){
-    ////   cout<<"BP BP gp->production_vertex() "<<endl;
-    ////   generatedTrackPerigee = truthToTrack->makePerigeeParameters( gp );
-    ////   if (generatedTrackPerigee == NULL && gp->barcode() > 1000000 ) {
-    ////      std::cout<<"BP No perigee available for interacting truth particle."<<std::endl;
-    ////   }
-    //// }
-
-    //// generatedTrackPerigee = truthToTrack->makePerigeeParameters( gp );
-    //// cout<<"BP BP "<<generatedTrackPerigee->parameters()[Trk::d0]<<endl;
-    //// double d0 = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::d0] : 999.;
 
     double d0  = 0;
 
@@ -509,12 +484,6 @@ public:
     /// the production vertex? or swim the track to the perigee point with respect 
     /// to 0,0 and use the parameters there? 
 
-    /// const HepMC::GenParticle* gp = track->genParticle();
-    /// const HepMC::GenVertex*   gv = gp->production_vertex();
-
-    ////    double x0 = gv->point3d().x();
-    ////    double y0 = gv->point3d().x();
-    ////    double z0 = gv->point3d().z();
 
     /// what to do with these???
 		

@@ -3,8 +3,9 @@
 # art-type: grid
 # art-include: master/Athena
 # art-output: ExampleMonitorOutput.root
+# art-output: log*
 
-art.py download TrigAnalysisTest test_trigAna_q221_RDOtoAOD_mt1_grid.py
+art.py download TrigAnalysisTest test_trigAna_RDOtoAOD_mt1_grid.py
 AODFILE=(./ref-*/AOD.pool.root)
 Run3DQTestingDriver.py 'Input.Files=["'${AODFILE}'"]' DQ.Steering.doHLTMon=True DQ.Environment=AOD Concurrency.NumThreads=1 Concurrency.NumConcurrentEvents=1 --dqOffByDefault > log.HIST_Creation 2>&1
 

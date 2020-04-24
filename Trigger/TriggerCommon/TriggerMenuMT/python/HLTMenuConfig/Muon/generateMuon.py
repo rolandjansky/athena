@@ -54,6 +54,8 @@ def generateChains( flags, chainDict ):
     muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
     muonflags.Muon.useTGCPriorNextBC=True
     muonflags.Muon.enableErrorTuning=False
+    muonflags.Muon.MuonTrigger=True
+    muonflags.Muon.SAMuonTrigger=True
     muonflags.lock()
 
     accMS = ComponentAccumulator()
@@ -69,6 +71,11 @@ def generateChains( flags, chainDict ):
     from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
     trkCfg = MuonTrackBuildingCfg(muonflags, name="TrigMuPatTrackBuilder")
     recoMS.mergeReco(trkCfg)
+
+    #The MuonCandidateAlg is not quite fully working yet
+    #from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg
+    #candCfg = MuonCombinedMuonCandidateAlgCfg(muonflags, name = "TrigMuonCandidateAlg")
+    #recoMS.mergeReco(candCfg)
 
     accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
 

@@ -62,10 +62,10 @@ public:
 
 private:
   /** Method for combining the forwards fitted state and the smoothed state */
-  const MultiComponentState* combine(const MultiComponentState&, const MultiComponentState&) const;
+  MultiComponentState  combine(const MultiComponentState&, const MultiComponentState&) const;
 
   /** Methof to add the CaloCluster onto the track */
-  MultiComponentState* addCCOT(const Trk::TrackStateOnSurface* currentState,
+  MultiComponentState  addCCOT(const Trk::TrackStateOnSurface* currentState,
                                const Trk::CaloCluster_OnTrack* ccot,
                                Trk::SmoothedTrajectory* smoothedTrajectory) const;
 

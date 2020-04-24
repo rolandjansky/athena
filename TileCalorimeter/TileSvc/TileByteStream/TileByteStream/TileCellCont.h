@@ -63,6 +63,7 @@ class TileCellCont : public std::vector<TileCellCollection*>
        { m_src = p; }
 
   void eventNumber ( const unsigned int eN) { m_event=eN; };
+  unsigned int eventNumber ( ) const { return m_event; } ;
   bool cached( const unsigned int&rodid ){
    if ( m_eventNumber[rodid] != m_event ) { // Decoding a new event
    // Keep track of last decoded number

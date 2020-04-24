@@ -55,29 +55,15 @@ MuonDetectorManager::MuonDetectorManager() {
       for (unsigned int k=0; k<NTgcStatPhi; k++)
                  m_tgcArray[i][j][k] = nullptr;
 
-  for (unsigned int i=0; i<NsTgStatType; i++)
-    for (unsigned int j=0; j<NsTgStatEta; j++)
-      for (unsigned int k=0; k<NsTgStatPhi; k++)
-        for (unsigned int l=0; l<NsTgChamberLayer; l++)
-	  m_stgArray[i][j][k][l] = nullptr;
+  for (unsigned int j=0; j<NsTgStatEta; j++)
+    for (unsigned int k=0; k<NsTgStatPhi; k++)
+      for (unsigned int l=0; l<NsTgChamberLayer; l++)
+    m_stgArray[j][k][l] = nullptr;
 
-  for (unsigned int i=0; i<NMMcStatType; i++)
-    for (unsigned int j=0; j<NMMcStatEta; j++)
-      for (unsigned int k=0; k<NMMcStatPhi; k++)
-        for (unsigned int l=0; l<NMMcChamberLayer; l++)
-	  m_mmcArray[i][j][k][l] = nullptr;
-
-  for (unsigned int i=0; i<NsTgStatType; i++)
-    for (unsigned int j=0; j<NsTgStatEta; j++)
-      for (unsigned int k=0; k<NsTgStatPhi; k++)
-        for (unsigned int l=0; l<NsTgChamberLayer; l++)
-    m_stgArray[i][j][k][l] = nullptr;
-
-  for (unsigned int i=0; i<NMMcStatType; i++)
-    for (unsigned int j=0; j<NMMcStatEta; j++)
-      for (unsigned int k=0; k<NMMcStatPhi; k++)
-        for (unsigned int l=0; l<NMMcChamberLayer; l++)
-    m_mmcArray[i][j][k][l] = nullptr;
+  for (unsigned int j=0; j<NMMcStatEta; j++)
+    for (unsigned int k=0; k<NMMcStatPhi; k++)
+      for (unsigned int l=0; l<NMMcChamberLayer; l++)
+    m_mmcArray[j][k][l] = nullptr;
 
 
   for (unsigned int i=0; i<MdtRElMaxHash; ++i)
@@ -155,18 +141,16 @@ MuonDetectorManager::~MuonDetectorManager() {
         for (unsigned int l=0; l<NCscChamberLayer; ++l) {
           delete m_cscArray[i][j][k][l]; m_cscArray[i][j][k][l] = nullptr;
         }
-  for (unsigned int i=0; i<NsTgStatType; i++)
-    for (unsigned int j=0; j<NsTgStatEta; j++)
-      for (unsigned int k=0; k<NsTgStatPhi; k++)
-        for (unsigned int l=0; l<NsTgChamberLayer; l++){
-            delete m_stgArray[i][j][k][l]; m_stgArray[i][j][k][l] = nullptr;
-        }
-  for (unsigned int i=0; i<NMMcStatType; i++)
-    for (unsigned int j=0; j<NMMcStatEta; j++)
-      for (unsigned int k=0; k<NMMcStatPhi; k++)
-        for (unsigned int l=0; l<NMMcChamberLayer; l++){
-           delete m_mmcArray[i][j][k][l]; m_mmcArray[i][j][k][l] = nullptr;
-        }
+  for (unsigned int j=0; j<NsTgStatEta; j++)
+    for (unsigned int k=0; k<NsTgStatPhi; k++)
+      for (unsigned int l=0; l<NsTgChamberLayer; l++){
+          delete m_stgArray[j][k][l]; m_stgArray[j][k][l] = nullptr;
+      }
+  for (unsigned int j=0; j<NMMcStatEta; j++)
+    for (unsigned int k=0; k<NMMcStatPhi; k++)
+      for (unsigned int l=0; l<NMMcChamberLayer; l++){
+         delete m_mmcArray[j][k][l]; m_mmcArray[j][k][l] = nullptr;
+      }
 
   for (unsigned int i=0; i<MdtDetElMaxHash; ++i) {
     delete m_mdtDEArray[i]; m_mdtDEArray[i] = nullptr;
@@ -275,41 +259,37 @@ void MuonDetectorManager::clearCscCache()
 void MuonDetectorManager::clearMMCache()
 {
   if (nMMRE()<1) return;
-    for (unsigned int i=0; i<NMMcStatType; ++i)
       for (unsigned int j=0; j<NMMcStatEta; ++j)
         for (unsigned int k=0; k<NMMcStatPhi; ++k)
           for (unsigned int l=0; l<NMMcChamberLayer; ++l) {
-              if (m_mmcArray[i][j][k][l]) m_mmcArray[i][j][k][l]->clearCache();
+              if (m_mmcArray[j][k][l]) m_mmcArray[j][k][l]->clearCache();
           }
 }   
 void MuonDetectorManager::clearsTgcCache()
 {
   if (nsTgcRE()<1) return;
-    for (unsigned int i=0; i<NsTgStatType; ++i)
       for (unsigned int j=0; j<NsTgStatEta; ++j)
         for (unsigned int k=0; k<NsTgStatPhi; ++k)
           for (unsigned int l=0; l<NsTgChamberLayer; ++l) {
-              if (m_stgArray[i][j][k][l]) m_stgArray[i][j][k][l]->clearCache();
+              if (m_stgArray[j][k][l]) m_stgArray[j][k][l]->clearCache();
           }
 }   
 void MuonDetectorManager::fillMMCache()
 {
   if (nMMRE()<1) return;
-    for (unsigned int i=0; i<NMMcStatType; ++i)
       for (unsigned int j=0; j<NMMcStatEta; ++j)
         for (unsigned int k=0; k<NMMcStatPhi; ++k)
           for (unsigned int l=0; l<NMMcChamberLayer; ++l) {
-              if (m_mmcArray[i][j][k][l]) m_mmcArray[i][j][k][l]->fillCache();
+              if (m_mmcArray[j][k][l]) m_mmcArray[j][k][l]->fillCache();
           }
 }   
 void MuonDetectorManager::fillsTgcCache()
 {
   if (nsTgcRE()<1) return;
-    for (unsigned int i=0; i<NsTgStatType; ++i)
       for (unsigned int j=0; j<NsTgStatEta; ++j)
         for (unsigned int k=0; k<NsTgStatPhi; ++k)
           for (unsigned int l=0; l<NsTgChamberLayer; ++l) {
-              if (m_stgArray[i][j][k][l]) m_stgArray[i][j][k][l]->fillCache();
+              if (m_stgArray[j][k][l]) m_stgArray[j][k][l]->fillCache();
           }
 }   
 void MuonDetectorManager::fillCache()
@@ -574,18 +554,14 @@ const MuonClusterReadoutElement* MuonDetectorManager::getMuonClusterReadoutEleme
   return nullptr;
 }
 
-const MMReadoutElement* MuonDetectorManager::getMMRElement_fromIdFields   (int iStname, int iStEta, int iStPhi, int imL) const
+const MMReadoutElement* MuonDetectorManager::getMMRElement_fromIdFields(int isSmall, int stEta, int stPhi, int ml) const
 {
-  int stname_index = iStname;
-  int steta_index = iStEta+NMMcStEtaOffset;
-  if (iStEta>0) steta_index = steta_index-1;
-  int stphi_index = 2*(iStPhi-1);
-  if (iStname==1) stphi_index = stphi_index+1; // small sectors 
-  int ml_index = imL-1;
-  if (stname_index<0 || stname_index > NMMcStatType) {
-    throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::getMMRElement_fromIdFields() - stNameindex out of range %d 0(=Large)-%d(=Small)", __FILE__, __LINE__, stname_index, NMMcStatType));
-  }
-  stname_index = 0;
+  int steta_index = stEta+NMMcStEtaOffset;
+  if (stEta>0) steta_index = steta_index-1;
+  int stphi_index = 2*(stPhi-1);
+  if (isSmall==1) stphi_index = stphi_index+1; // small sectors
+  int ml_index = ml-1;
+
   if (steta_index<0 || steta_index >= NMMcStatEta) {
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::getMMRElement_fromIdFields() - stEtaindex out of range %d 0-%d", __FILE__, __LINE__, steta_index, NMMcStatEta-1));
   }
@@ -595,22 +571,16 @@ const MMReadoutElement* MuonDetectorManager::getMMRElement_fromIdFields   (int i
   if (ml_index < 0 || ml_index >= NMMcChamberLayer) {
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::getMMRElement_fromIdFields() - ml_index out of range %d 0-%d", __FILE__, __LINE__, ml_index, NMMcChamberLayer-1));
   }
-    
-  return m_mmcArray[stname_index][steta_index][stphi_index][ml_index];
+  return m_mmcArray[steta_index][stphi_index][ml_index];
 }
-void MuonDetectorManager::addMMReadoutElement_withIdFields   (MMReadoutElement* x,  int iStname, int iStEta, int iStPhi, int imL)
+void MuonDetectorManager::addMMReadoutElement_withIdFields(MMReadoutElement* x, int isSmall, int stEta, int stPhi, int ml)
 {
-  int stname_index = iStname;
-  int steta_index = iStEta+NMMcStEtaOffset;
-  if (iStEta>0) steta_index = steta_index-1;
-  int stphi_index = 2*(iStPhi-1);
-  if (iStname==1) stphi_index = stphi_index+1; // small sectors 
-  int ml_index = imL-1;
+  int steta_index = stEta+NMMcStEtaOffset;
+  if (stEta>0) steta_index = steta_index-1;
+  int stphi_index = 2*(stPhi-1);
+  if (isSmall==1) stphi_index = stphi_index+1; // small sectors
+  int ml_index = ml-1;
 
-  if (stname_index<0 || stname_index > NMMcStatType) {
-    throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement_withIdFields() - stNameindex out of range %d 0(=Large)-%d(=Small)", __FILE__, __LINE__, stname_index, NMMcStatType));
-  }
-  stname_index = 0;
   if (steta_index<0 || steta_index >= NMMcStatEta) {
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement_withIdFields() - stEtaindex out of range %d 0-%d", __FILE__, __LINE__, steta_index, NMMcStatEta-1));
   }
@@ -620,28 +590,20 @@ void MuonDetectorManager::addMMReadoutElement_withIdFields   (MMReadoutElement* 
   if (ml_index < 0 || ml_index >= NMMcChamberLayer) {
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement_withIdFields() - ml_index out of range %d 0-%d", __FILE__, __LINE__, ml_index, NMMcChamberLayer-1));
   }
-  if (m_mmcArray[stname_index][steta_index][stphi_index][ml_index] != nullptr) {
-    throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement_withIdFields() - this place is taken [%d][%d][%d][%d] ......... this RE cannot be added", __FILE__, __LINE__, stname_index, steta_index, stphi_index, ml_index));
+  if (m_mmcArray[steta_index][stphi_index][ml_index] != nullptr) {
+    throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addMMReadoutElement_withIdFields() - this place is taken [%d][%d][%d] ......... this RE cannot be added", __FILE__, __LINE__, steta_index, stphi_index, ml_index));
   }
-
-  m_mmcArray[stname_index][steta_index][stphi_index][ml_index] = x;
-  
+  m_mmcArray[steta_index][stphi_index][ml_index] = x;
   m_n_mmcRE++;
-  
 }
-void MuonDetectorManager::addsTgcReadoutElement_withIdFields   (sTgcReadoutElement* x,  int iStname, int iStEta, int iStPhi, int imL)
+void MuonDetectorManager::addsTgcReadoutElement_withIdFields(sTgcReadoutElement* x, int isSmall, int stEta, int stPhi, int ml)
 {
-  int stname_index = iStname;
-  int steta_index = iStEta+NsTgStEtaOffset;
-  if (iStEta>0) steta_index = steta_index-1;
-  int stphi_index = 2*(iStPhi-1);
-  if (iStname==1) stphi_index = stphi_index+1; // small sectors 
-  int ml_index = imL-1;
+  int steta_index = stEta+NsTgStEtaOffset;
+  if (stEta>0) steta_index = steta_index-1;
+  int stphi_index = 2*(stPhi-1);
+  if (isSmall==1) stphi_index = stphi_index+1; // small sectors
+  int ml_index = ml-1;
 
-  if (stname_index<0 || stname_index > NsTgStatType) {
-    throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement_withIdFields() - stNameindex out of range %d 0(=Large)-%d(=Small)", __FILE__, __LINE__, stname_index, NsTgStatType));
-  }
-  stname_index = 0;
   if (steta_index<0 || steta_index >= NsTgStatEta) {
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement_withIdFields() - stEtaindex out of range %d 0-%d", __FILE__, __LINE__, steta_index, NsTgStatEta-1));
   }
@@ -651,28 +613,20 @@ void MuonDetectorManager::addsTgcReadoutElement_withIdFields   (sTgcReadoutEleme
   if (ml_index < 0 || ml_index >= NsTgChamberLayer) {
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement_withIdFields() - ml_index out of range %d 0-%d", __FILE__, __LINE__, ml_index, NsTgChamberLayer-1));
   }
-  if (m_stgArray[stname_index][steta_index][stphi_index][ml_index] != nullptr) {
-    throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement_withIdFields() - this place is taken [%d][%d][%d][%d] ......... this RE cannot be added", __FILE__, __LINE__, stname_index, steta_index, stphi_index, ml_index));
+  if (m_stgArray[steta_index][stphi_index][ml_index] != nullptr) {
+    throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::addsTgcReadoutElement_withIdFields() - this place is taken [%d][%d][%d] ......... this RE cannot be added", __FILE__, __LINE__, steta_index, stphi_index, ml_index));
   }
-
-  m_stgArray[stname_index][steta_index][stphi_index][ml_index] = x;
-  
+  m_stgArray[steta_index][stphi_index][ml_index] = x;
   m_n_stgRE++;
-  
 }
-const sTgcReadoutElement* MuonDetectorManager::getsTgcRElement_fromIdFields   (int iStname, int iStEta, int iStPhi, int imL) const
+const sTgcReadoutElement* MuonDetectorManager::getsTgcRElement_fromIdFields(int isSmall, int stEta, int stPhi, int ml) const
 {
-  int stname_index = iStname;
-  int steta_index = iStEta+NsTgStEtaOffset;
-  if (iStEta>0) steta_index = steta_index-1;
-  int stphi_index = 2*(iStPhi-1);
-  if (iStname==1) stphi_index = stphi_index+1; // small sectors 
-  int ml_index = imL-1;
+  int steta_index = stEta+NsTgStEtaOffset;
+  if (stEta>0) steta_index = steta_index-1;
+  int stphi_index = 2*(stPhi-1);
+  if (isSmall==1) stphi_index = stphi_index+1; // small sectors
+  int ml_index = ml-1;
 
-  if (stname_index<0 || stname_index > NsTgStatType) {
-    throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::getsTgcRElement_fromIdFields() - stNameindex out of range %d 0(=Large)-%d(=Small)", __FILE__, __LINE__, stname_index, NsTgStatType));
-  }
-  stname_index = 0;
   if (steta_index<0 || steta_index >= NsTgStatEta) {
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::getsTgcRElement_fromIdFields() - stEtaindex out of range %d 0-%d", __FILE__, __LINE__, steta_index, NsTgStatEta-1));
   }
@@ -681,8 +635,8 @@ const sTgcReadoutElement* MuonDetectorManager::getsTgcRElement_fromIdFields   (i
   }
   if (ml_index < 0 || ml_index >= NsTgChamberLayer) {
     throw std::runtime_error(Form("File: %s, Line: %d\nMuonDetectorManager::getsTgcRElement_fromIdFields() - ml_index out of range %d 0-%d", __FILE__, __LINE__, ml_index, NsTgChamberLayer-1));
-  }    
-  return m_stgArray[stname_index][steta_index][stphi_index][ml_index];
+  }
+  return m_stgArray[steta_index][stphi_index][ml_index];
 }
 
 void MuonDetectorManager::addMMReadoutElement (MMReadoutElement* x, Identifier id)
@@ -937,20 +891,14 @@ const TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement (Identifier i
     return getTgcReadoutElement(stname_index,steta_index,stphi_index);
 }
 
-const MMReadoutElement*  MuonDetectorManager::getMMReadoutElement(Identifier id) const
+const MMReadoutElement* MuonDetectorManager::getMMReadoutElement(Identifier id) const
 {
-  int isSmall = m_mmIdHelper->isSmall(id);
-  int phiCor = m_mmIdHelper->stationPhi(id);
-  int mlCor  = m_mmIdHelper->multilayer(id);
-  return getMMRElement_fromIdFields(isSmall,m_mmIdHelper->stationEta(id),phiCor,mlCor );
+  return getMMRElement_fromIdFields(m_mmIdHelper->isSmall(id),m_mmIdHelper->stationEta(id),m_mmIdHelper->stationPhi(id),m_mmIdHelper->multilayer(id));
 }
 
-const sTgcReadoutElement*  MuonDetectorManager::getsTgcReadoutElement(Identifier id) const
+const sTgcReadoutElement* MuonDetectorManager::getsTgcReadoutElement(Identifier id) const
 {
-  int isSmall = m_stgcIdHelper->isSmall(id);
-  int phiCor = m_stgcIdHelper->stationPhi(id);
-  int mlCor  = m_stgcIdHelper->multilayer(id);
-  return getsTgcRElement_fromIdFields(isSmall,m_stgcIdHelper->stationEta(id),phiCor,mlCor );
+  return getsTgcRElement_fromIdFields(m_stgcIdHelper->isSmall(id),m_stgcIdHelper->stationEta(id),m_stgcIdHelper->stationPhi(id),m_stgcIdHelper->multilayer(id));
 }
 
 const MdtReadoutElement* MuonDetectorManager::getMdtRElement_fromIdFields(int i1,

@@ -80,7 +80,6 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const He
     if(pd) {
       // pd could point to an antiparticle. recover the sign:
       double charge = (id>0) ? pd->charge() : -pd->charge();
-      //      Trk::PlaneSurface surface(new HepGeom::Translate3D(part->production_vertex()->point3d()));
       Amg::Translation3D tmpTransl(hv);
       Amg::Transform3D tmpTransf = tmpTransl * Amg::RotationMatrix3D::Identity(); 
       Trk::PlaneSurface surface(new Amg::Transform3D(tmpTransf));
@@ -113,7 +112,6 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const xA
     if(pd) {
       // pd could point to an antiparticle. recover the sign:
       double charge = (id>0) ? pd->charge() : -pd->charge();
-      //      Trk::PlaneSurface surface(new HepGeom::Translate3D(part->production_vertex()->point3d()));
       Amg::Translation3D tmpTransl(hv);
       Amg::Transform3D tmpTransf = tmpTransl * Amg::RotationMatrix3D::Identity(); 
       Trk::PlaneSurface surface(new Amg::Transform3D(tmpTransf));

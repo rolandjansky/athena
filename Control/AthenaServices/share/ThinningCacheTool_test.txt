@@ -1,3 +1,6 @@
 // job opts for ThinningCacheTool test
 
 ToolSvc.TestCacheTool.StreamName = "MyStream";
+
+ToolSvc.TestCacheTool2.StreamName = "MyStream2";
+ToolSvc.TestCacheTool2.TrigNavigationThinningSvc = "TestTNThinningSvc";

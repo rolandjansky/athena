@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENINTERFACES_GENINTERFACESDICT_H
@@ -16,7 +16,7 @@
 #include "GenInterfaces/IPDFReweightTool.h"
 #include "GenInterfaces/ITruthSelector.h"
 
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include <vector>
 
 namespace HforToolDict {

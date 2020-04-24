@@ -39,6 +39,7 @@ if not 'vp1Trig' in dir(): vp1Trig=False
 if not 'vp1CustomGeometry' in dir(): vp1CustomGeometry=False
 if not 'vp1SLHC' in dir(): vp1SLHC=False
 if not 'vp1MuonAGDDFiles' in dir(): vp1MuonAGDDFiles=[]
+if not 'vp1MuonAGDD2GeoSwitches' in dir(): vp1MuonAGDD2GeoSwitches=[]
 if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
 if not 'vp1MuonLayout' in dir(): vp1MuonLayout=""
 
@@ -251,6 +252,29 @@ if (vp1Muon):
                 if b.name()=="MuonSpectrometer":
                     b.ReadAGDD=False
                     b.XMLFiles=vp1MuonAGDDFiles
+                    if len(vp1MuonAGDD2GeoSwitches)>0:
+                        print ("*** DumpGeo NOTE *** You specified custom vp1MuonAGDD2GeoSwitches, configuring MuonAGDDTool to build volumes: '%s'"%(', '.join(vp1MuonAGDD2GeoSwitches)))
+                        b.Volumes=vp1MuonAGDD2GeoSwitches
+                    else:
+                        # the default AGDD2GeoSwitches for Run2
+                        b.Volumes=["ECT_Toroids",
+                                   "BAR_Toroid",
+                                   "Feet",
+                                   "RailAssembly",
+                                   "JFSH_Shield",
+                                   "JDSH_Shield",
+                                   "JTSH_Shield",
+                                   "pp2",
+                                   "MBAP_AccessPlatform",
+                                   "MBWH_BigWheels",
+                                   "SADL_CalorimeterSaddle",
+                                   "TBWH_BigWheels",
+                                   "TGC3_BigWheels",
+                                   "TGC1_BigWheels",
+                                   "MDTRail",
+                                   "servicesAtZ0",
+                                   "HFTruckRail",
+                                   "RUN2_Services"]
     if len(vp1NSWAGDDFiles)>0:
         print ("*** DumpGeo NOTE *** You specified custom vp1NSWAGDDFiles, configuring NSWAGDDTool to read NSWAGDD information from custom file(s) '%s' instead from built-in geometry"%(', '.join(vp1NSWAGDDFiles)))
         if hasattr(svcMgr,"AGDDtoGeoSvc"):

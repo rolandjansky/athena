@@ -490,8 +490,6 @@ StatusCode MM_DigitizationTool::mergeEvent(const EventContext& ctx) {
 
 	ATH_MSG_VERBOSE ( "MM_DigitizationTool::in mergeEvent()" );
 
-	// Cleanup and record the Digit container in StoreGate
-	ATH_CHECK( recordDigitAndSdoContainers(ctx) );
 	ATH_CHECK( doDigitization(ctx) );
 
 	// reset the pointer (delete null pointer should be safe)
@@ -518,8 +516,6 @@ StatusCode MM_DigitizationTool::digitize(const EventContext& ctx) {
 StatusCode MM_DigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
 	ATH_MSG_DEBUG ("MM_DigitizationTool::processAllSubEvents()");
-
-	ATH_CHECK( recordDigitAndSdoContainers(ctx) );
 
 	//merging of the hit collection in getNextEvent method
 
@@ -552,21 +548,17 @@ StatusCode MM_DigitizationTool::finalize() {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode MM_DigitizationTool::recordDigitAndSdoContainers(const EventContext& ctx) {
+StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
+
   // create and record the Digit container in StoreGate
   SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
   ATH_CHECK(digitContainer.record(std::make_unique<MmDigitContainer>(m_idHelperSvc->mmIdHelper().detectorElement_hash_max())));
   ATH_MSG_DEBUG ( "MmDigitContainer recorded in StoreGate." );
+
   // Create and record the SDO container in StoreGate
   SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
   ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "MmSDOCollection recorded in StoreGate." );
-  return StatusCode::SUCCESS;
-}
-
-/*******************************************************************************/
-StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
-
 
   MMSimHitCollection* inputSimHitColl=nullptr;
   
@@ -775,7 +767,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       char side = m_idHelperSvc->mmIdHelper().stationEta(layerID) < 0 ? 'C' : 'A';
       MMDetectorHelper aHelper;
       MMDetectorDescription* mm = aHelper.Get_MMDetector( stName[2],
-							  abs(m_idHelperSvc->mmIdHelper().stationEta(layerID)),
+							  std::abs(m_idHelperSvc->mmIdHelper().stationEta(layerID)),
 							  m_idHelperSvc->mmIdHelper().stationPhi(layerID),
 							  m_idHelperSvc->mmIdHelper().multilayer(layerID),
 							  side
@@ -867,7 +859,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       Amg::Vector3D hitAfterTimeShift(hitOnSurface.x(),hitOnSurface.y(),shiftTimeOffset);
       Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/localDirectionTime.z())*localDirectionTime;
       
-      if( fabs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("Bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
+      if( std::abs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("Bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
  
       //  moving the hit position to the center of the gap for the SDO position 
       double scaleSDO = -stripLayerPosition.z()/localDirection.z();
@@ -878,7 +870,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 		    << " z " << hitAtCenterOfGasGap.z() << " gas gap "<< gasGap); 
 
       // Don't consider electron hits below m_energyThreshold
-      if( hit.kineticEnergy() < m_energyThreshold && abs(hit.particleEncoding())==11) {
+      if( hit.kineticEnergy() < m_energyThreshold && std::abs(hit.particleEncoding())==11) {
 	m_exitcode = 5;
 	if(m_writeOutputFile) m_ntuple->Fill();
 	continue;
@@ -1010,7 +1002,6 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       MuonSimData simData(deposits,0);
       simData.setPosition(hitAtCenterOfGasGapGlobal);
       simData.setTime(m_globalHitTime);
-      SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey, ctx);
       sdoContainer->insert ( std::make_pair ( digitID, simData ) );
       ATH_MSG_DEBUG(" added MM SDO " <<  sdoContainer->size());
       
@@ -1100,18 +1091,24 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     
     // Choose which of the above outputs is used for readout
     //
-    MM_DigitToolOutput * electronicsOutputForReadout(0);
-    if (m_vmmReadoutMode      ==   "peak"     ) electronicsOutputForReadout = & electronicsPeakOutput;
-    else if (m_vmmReadoutMode ==   "threshold") electronicsOutputForReadout = & electronicsThresholdOutput;
-    else ATH_MSG_ERROR("Failed to setup readout signal from VMM. Readout mode incorrectly set");
+    MM_DigitToolOutput* electronicsOutputForReadout=nullptr;
+    if (m_vmmReadoutMode      ==   "peak"     ) electronicsOutputForReadout = &electronicsPeakOutput;
+    else if (m_vmmReadoutMode ==   "threshold") electronicsOutputForReadout = &electronicsThresholdOutput;
+    else {
+        ATH_MSG_ERROR("Failed to setup readout signal from VMM. Readout mode incorrectly set");
+        return StatusCode::FAILURE;
+    }
     // but this should be impossible from initialization checks
     
     // Choose which of the above outputs is used for triggering
     //
-    MM_DigitToolOutput * electronicsOutputForTriggerPath(0);
-    if (m_vmmARTMode          ==   "peak"     ) electronicsOutputForTriggerPath = & electronicsPeakOutput;
-    else if (m_vmmARTMode     ==   "threshold") electronicsOutputForTriggerPath = & electronicsThresholdOutput;
-    else ATH_MSG_ERROR("Failed to setup trigger signal from VMM. Readout mode incorrectly set");
+    MM_DigitToolOutput* electronicsOutputForTriggerPath=nullptr;
+    if (m_vmmARTMode          ==   "peak"     ) electronicsOutputForTriggerPath = &electronicsPeakOutput;
+    else if (m_vmmARTMode     ==   "threshold") electronicsOutputForTriggerPath = &electronicsThresholdOutput;
+    else {
+        ATH_MSG_ERROR("Failed to setup trigger signal from VMM. Readout mode incorrectly set");
+        return StatusCode::FAILURE;
+    }
     // but this should be impossible from initialization checks
     
     
@@ -1221,7 +1218,6 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     MmDigitCollection* digitCollection = nullptr;
     // put new collection in storegate
     // Get the messaging service, print where you are
-    SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey, ctx);
     MmDigitContainer::const_iterator it_coll = digitContainer->indexFind(moduleHash );
     if (digitContainer->end() ==  it_coll) {
       digitCollection = new MmDigitCollection( elemId, moduleHash );

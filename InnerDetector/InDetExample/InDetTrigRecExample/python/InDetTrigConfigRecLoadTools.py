@@ -728,12 +728,7 @@ if InDetTrigFlags.loadSummaryTool():
   # Configurable version of TRT_ElectronPidTools
   #
   from IOVDbSvc.CondDB import conddb
-  if not (conddb.folderRequested("/TRT/Calib/PID") or \
-            conddb.folderRequested("/TRT/Onl/Calib/PID")):
-     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID","/TRT/Calib/PID")
-  if not (conddb.folderRequested("/TRT/Calib/PID_RToT") or \
-            conddb.folderRequested("/TRT/Onl/Calib/PID_RToT")):
-     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToT","/TRT/Calib/PID_RToT")
+
   if not (conddb.folderRequested("/TRT/Calib/PID_vector") or \
             conddb.folderRequested("/TRT/Onl/Calib/PID_vector")):
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector","/TRT/Calib/PID_vector",className='CondAttrListVec')

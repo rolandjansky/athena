@@ -77,12 +77,6 @@ blocked_folders = [
     '/TILE/OFL02/PULSESHAPE/PHY',
     '/TILE/ONL01/FILTER/OF2/PHY',
     '/TILE/ONL01/NOISE/OFNI',
-    '/TRT/Calib/HTCalib',
-    '/TRT/Calib/PID',
-    '/TRT/Calib/PID_RToT',
-    '/TRT/Calib/PID_RToTver_New',
-    '/TRT/Calib/PIDver_New',
-    '/TRT/Calib/ToTCalib',
     '/TRT/Cond/Status',
     '/TRT/Cond/StatusPermanent',
     ]

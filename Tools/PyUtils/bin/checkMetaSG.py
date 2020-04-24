@@ -75,15 +75,23 @@ if __name__ == "__main__":
             print ("## IOVMetaData (fileinfos['metadata']):")
             print ("%30s%-28s%-10s%-30s" % ("folder", " | key "," | type "," | value"))
             print ("%30s%s%-25s%s%-7s%s%-30s" % ("-"*30, "-+-", "-"*(28-3),"-+-","-"*(10-3),"-+-","-"*(20)))
-            for metaFolder,metaObj in metadata.items(): #metaObj may be dict, list (occurs with multi IOV), or none... so far only support dict FIXME
+            for metaFolder,metaObj in metadata.items(): #metaObj may be dict (from AthenaAttributeList), list (from CondAttrListCollection)
                first=True
-               if isinstance(metaObj,dict):
+               if isinstance(metaObj,dict): # AthenaAttributeList
                   for metaKey,metaValue in metaObj.items():
                      if first:
                          print ("%30s%s%-25s%s%-7s%s%-30s" % (metaFolder, " | ", metaKey," | ",type(metaValue).__name__," | ",metaValue))
                      else:
                          print ("%30s%s%-25s%s%-7s%s%-30s" % ("", " | ", metaKey," | ",type(metaValue).__name__," | ",metaValue))
                      first=False
+                     pass
+                  pass
+               else: # CondAttrListCollection
+                  print ("%30s%s%s" % (metaFolder, " | ", type(metaObj)))
+                  for metaObj_i in metaObj:
+                     for metaKey,metaValue in metaObj_i.items():
+                        print ("%30s%s%-25s%s%-7s%s%-30s" % ("", " | ", metaKey," | ",type(metaValue).__name__," | ",metaValue))
+
             print ("="*91)
             if options.outFileName:
                 osp = os.path

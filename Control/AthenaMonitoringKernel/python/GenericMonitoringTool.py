@@ -7,9 +7,10 @@ from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import json
 import six
-import sys
 
-if "AthenaCommon.Include" not in sys.modules or Configurable.configurableRun3Behavior:
+from AthenaConfiguration.ComponentFactory import isRun3Cfg
+
+if isRun3Cfg():
     from GaudiConfig2.Configurables import GenericMonitoringTool as _GenericMonitoringTool
 else:
     from AthenaMonitoringKernel.AthenaMonitoringKernelConf import GenericMonitoringTool as _GenericMonitoringTool
@@ -76,11 +77,10 @@ class GenericMonitoringTool(_GenericMonitoringTool):
 class GenericMonitoringArray:
     '''Array of configurables of GenericMonitoringTool objects'''
     def __init__(self, name, dimensions, **kwargs):
-        self.Tools, self.Accessors = {}, {}
-        self.Postfixes = GenericMonitoringArray._postfixes(dimensions)
+        self.Tools = {}
+        self.Postfixes, self.Accessors = GenericMonitoringArray._postfixes(dimensions)
         for postfix in self.Postfixes:
             self.Tools[postfix] = GenericMonitoringTool(name+postfix,**kwargs)
-            self.Accessors[postfix] = postfix.split('_')[1:]
 
     def __getitem__(self,index):
         '''Forward operator[] on class to the list of tools'''
@@ -99,17 +99,37 @@ class GenericMonitoringArray:
         for tool in self.toolList():
             setattr(tool,member,value)
 
-    def defineHistogram(self, varname, title=None, path=None, **kwargs):
-        '''Propogate defineHistogram to each tool, adding a unique tag.'''
+    def defineHistogram(self, varname, title=None, path=None, pattern=None, **kwargs):
+        '''Propogate defineHistogram to each tool, adding a unique tag.
+        
+        Arguments:
+        pattern -- if specified, list of n-tuples of indices for plots to create
+        '''
         unAliased = varname.split(';')[0]
         _, aliasBase = _alias(varname)
         if aliasBase is None:
             return
+        if pattern is not None:
+            import six
+            try:
+                iter(pattern)
+            except TypeError:
+                raise ValueError('Argument to GenericMonitoringArray.defineHistogram must be iterable')
+            if not isinstance(pattern, list):
+                pattern = list(pattern)
+            if len(pattern) == 0: # nothing to do
+                return
+            if isinstance(pattern[0], six.string_types + six.integer_types):
+                # assume we have list of strings or ints; convert to list of 1-element tuples
+                pattern = [(_2,) for _2 in pattern]
         for postfix, tool in self.Tools.items():
             aliased = unAliased+';'+aliasBase+postfix
 
             try:
                 accessors = tuple(self.Accessors[postfix])
+                if pattern is not None:
+                    if accessors not in pattern:
+                        continue
                 if title is not None:
                     kwargs['title'] = title.format(*accessors)
                 if path is not None:
@@ -125,17 +145,19 @@ class GenericMonitoringArray:
 
     @staticmethod
     def _postfixes(dimensions, previous=''):
-        '''Generates a list of subscripts to add to the name of each tool.
+        '''Generates a list of subscripts to add to the name of each tool
 
         Arguments:
         dimensions -- List containing the lengths of each side of the array off tools
         previous -- Strings appended from the other dimensions of the array
         '''
+        import collections
         assert isinstance(dimensions,list) and len(dimensions)>0, \
             'GenericMonitoringArray must have list of dimensions.'
         if dimensions==[1]:
-            return ['']
+            return [''], {'': ['']}
         postList = []
+        accessorDict = collections.OrderedDict()
         first = dimensions[0]
         if isinstance(first,list):
             iterable = first
@@ -147,10 +169,14 @@ class GenericMonitoringArray:
             #print("Type of first:",type(first))
         for i in iterable:
             if len(dimensions)==1:
-                 postList.append(previous+'_'+str(i))
+                postList.append(previous+'_'+str(i))
+                accessorDict[previous+'_'+str(i)]=[str(i)]
             else:
-                postList.extend(GenericMonitoringArray._postfixes(dimensions[1:],previous+'_'+str(i)))
-        return postList
+                postfixes, accessors = GenericMonitoringArray._postfixes(dimensions[1:],previous+'_'+str(i))
+                postList.extend(postfixes)
+                for acckey, accval in accessors.items():
+                    accessorDict[acckey] = [str(i)] + accval
+        return postList, accessorDict
 
 ## Generate an alias for a set of variables
 #

@@ -158,9 +158,11 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     muonCaloEnergyTool = CompFactory.Rec.MuonCaloEnergyTool(ParticleCaloExtensionTool = particle_calo_extension_tool,
                                                  ParticleCaloCellAssociationTool = particle_calo_call_association_tool)
 
-    tool = CompFactory.Trk.TrkMaterialProviderTool(MuonCaloEnergyTool = muonCaloEnergyTool)
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     materialProviderTool.UseCaloEnergyMeasurement = False
+    useCaloEnergyMeas = True
+    if flags.Muon.MuonTrigger:
+        useCaloEnergyMeas = False
+
+    tool = CompFactory.Trk.TrkMaterialProviderTool(MuonCaloEnergyTool = muonCaloEnergyTool, UseCaloEnergyMeasurement = useCaloEnergyMeas)
     result.addPublicTool(tool)
     result.setPrivateTools(tool)
     return result 
@@ -318,9 +320,9 @@ def MuidTrackCleanerCfg(flags, name='MuidTrackCleaner', **kwargs ):
         kwargs.setdefault("PullCut"     , 4.0)
         kwargs.setdefault("PullCutPhi"  , 4.0)
 
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     kwargs.setdefault("Iterate", False)
-    #     kwargs.setdefault("RecoverOutliers", False)
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("Iterate", False)
+        kwargs.setdefault("RecoverOutliers", False)
     result = iPatFitterCfg(flags)
     kwargs.setdefault("Fitter"      , result.popPrivateTools() )
     acc= iPatSLFitterCfg(flags)
@@ -360,18 +362,17 @@ def MuidCaloEnergyToolParamCfg(flags, name='MuidCaloEnergyToolParam', **kwargs )
 def MuidCaloEnergyToolCfg(flags, name='MuidCaloEnergyTool', **kwargs ):
     result = MuidCaloEnergyMeasCfg(flags)
     kwargs.setdefault("CaloMeasTool", result.popPrivateTools() )
-    # if DetFlags.haveRIO.Calo_on() #and not TriggerFlags.MuonSlice.doTrigMuonConfig:
-    kwargs.setdefault("EnergyLossMeasurement", True )
     kwargs.setdefault("MinFinalEnergy", 1.0*GeV )
     kwargs.setdefault("MinMuonPt", 10.0*GeV )
     kwargs.setdefault("MopParametrization", True )
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     kwargs.setdefault("EnergyLossMeasurement", False )
+    if flags.Muon.MuonTrigger:
+        # both properties also previously false if DetFlags.haveRIO.Calo_on()
+        kwargs.setdefault("EnergyLossMeasurement", False )
+        kwargs.setdefault("TrackIsolation", False )
+    else:
+        kwargs.setdefault("EnergyLossMeasurement", True )
+        kwargs.setdefault("TrackIsolation", True )
 
-    # if DetFlags.haveRIO.ID_on() and not TriggerFlags.MuonSlice.doTrigMuonConfig:
-    kwargs.setdefault("TrackIsolation", True )
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     kwargs.setdefault("TrackIsolation", False )
     tmpAcc = MuidCaloEnergyToolParamCfg(flags, name, **kwargs)
     result.setPrivateTools(tmpAcc.popPrivateTools())
     result.merge(tmpAcc)
@@ -430,10 +431,11 @@ def MuidMaterialEffectsOnTrackProviderParamCfg(flags, name='MuidMaterialEffectsO
 
 def MuonCombinedPropagatorCfg(flags, name='MuonCombinedPropagator', **kwargs ):
     result = ComponentAccumulator()
-    kwargs.setdefault("AccuracyParameter",   .000001 )
-    kwargs.setdefault("IncludeBgradients",   True )
-    kwargs.setdefault("MaxHelixStep",        .001 )
-    kwargs.setdefault("MaxStraightLineStep", .001 )
+    if not flags.Muon.MuonTrigger:
+        kwargs.setdefault("AccuracyParameter",   .000001 )
+        kwargs.setdefault("IncludeBgradients",   True )
+        kwargs.setdefault("MaxHelixStep",        .001 )
+        kwargs.setdefault("MaxStraightLineStep", .001 )
     tool = CompFactory.Trk.RungeKuttaPropagator(name,**kwargs)
     result.setPrivateTools(tool)
     return result
@@ -467,6 +469,7 @@ def MuidErrorOptimisationToolCfg(flags, name='CombinedMuonTrackBuilderFit', **kw
 def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilderFit', **kwargs ):
     from AthenaCommon.SystemOfUnits import meter
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
+    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
     result = ComponentAccumulator()
     acc = MuidCaloEnergyToolParamCfg(flags)
     kwargs.setdefault("CaloEnergyParam"               , acc.popPrivateTools() )
@@ -515,15 +518,14 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilderFit', **kwa
     kwargs.setdefault( "CaloMaterialProvider", acc.getPrimary() )
     result.merge(acc)
  
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
-
-    #     kwargs.setdefault("Propagator"                    , ToolSvc.AtlasRungeKuttaPropagator)
-    #     kwargs.setdefault("SLPropagator"                  , ToolSvc.AtlasRungeKuttaPropagator)
-    # else:
-    acc = MuonCombinedTrackSummaryToolCfg(flags)
-    kwargs.setdefault("TrackSummaryTool"              , acc.popPrivateTools() )
-    result.merge(acc)
+    if flags.Muon.SAMuonTrigger:
+        acc = MuonTrackSummaryToolCfg(flags)
+        kwargs.setdefault("TrackSummaryTool", acc.popPrivateTools())
+        result.merge(acc)
+    else:
+        acc = MuonCombinedTrackSummaryToolCfg(flags)
+        kwargs.setdefault("TrackSummaryTool"              , acc.popPrivateTools() )
+        result.merge(acc)
 
     acc = MuonCombinedPropagatorCfg(flags)
     propagator = acc.popPrivateTools()

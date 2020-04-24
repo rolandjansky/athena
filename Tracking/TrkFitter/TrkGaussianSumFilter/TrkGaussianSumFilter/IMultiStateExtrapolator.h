@@ -45,7 +45,7 @@ public:
   static const InterfaceID& interfaceID() { return IID_IMultiStateExtrapolator; };
 
   /** Extrapolation of a MutiComponentState to a destination surface (1) */
-  virtual std::unique_ptr<MultiComponentState> extrapolate(
+  virtual MultiComponentState extrapolate(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -55,7 +55,7 @@ public:
 
   /** - Extrapolation of a MultiComponentState to destination surface without material effects (2)
    */
-  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
+  virtual MultiComponentState extrapolateDirectly(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -64,7 +64,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   /** Configured AlgTool extrapolation method (1) */
-  virtual std::unique_ptr<MultiComponentState> extrapolate(
+  virtual MultiComponentState extrapolate(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -72,7 +72,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
-  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
+  virtual MultiComponentState extrapolateDirectly(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,

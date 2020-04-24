@@ -4,6 +4,8 @@
 
 #include <vector>
 #include "TH1D.h"
+#include "TFile.h"
+#include "TTree.h"
 
 TrkD3PDsPlotsMaker(){
 
@@ -11,7 +13,7 @@ TrkD3PDsPlotsMaker(){
   
   TTree* tree=(TTree*) input.Get("MuonTrackTree");
   if(tree==0){
-    cout<<"ERROR: can't find TTree: MuonTrackTree inside MuonTrackD3PD.root"<<endl;
+    std::cout<<"ERROR: can't find TTree: MuonTrackTree inside MuonTrackD3PD.root"<<std::endl;
     return;
   }
   
@@ -699,7 +701,6 @@ TrkD3PDsPlotsMaker(){
     
     c.cd(2);
     TH1D* mu_mooreratio=(TH1D*) mu_moore[iFill]->Clone();
-    //mu_mooreratio->SetTitle("");
     mu_mooreratio->SetTitle("Rate relative to Moore");
     
     TH1D* muratio=(TH1D*) mu[iFill]->Clone();
@@ -720,20 +721,9 @@ TrkD3PDsPlotsMaker(){
     
     mu_mooreratio->GetYaxis()->SetRangeUser(0.,max_ratio);
     mu_mooreratio->SetLabelOffset(0.02,"X");
-    //mu_mooreratio->SetLabelOffset(0.65,"Y");
     mu_mooreratio->SetLabelSize(0.06,"X");
     mu_mooreratio->SetLabelSize(0.06,"Y");
     mu_mooreratio->SetTitleSize(0.06,"X");
-    
-    // muratio->SetLabelOffset(0.95,"X");
-    // muratio->SetLabelOffset(0.65,"Y");
-    // muratio->SetLabelSize(0.11,"X");
-    // muratio->SetLabelSize(0.11,"Y");
-    
-    // mu_mboyratio->SetLabelOffset(0.95,"X");
-    // mu_mboyratio->SetLabelOffset(0.65,"Y");
-    // mu_mboyratio->SetLabelSize(0.11,"X");
-    // mu_mboyratio->SetLabelSize(0.11,"Y");
         
     mu_mooreratio->Draw("hist");
     muratio->Draw("hist same");
@@ -743,7 +733,6 @@ TrkD3PDsPlotsMaker(){
     c.Clear();
   }
 
-  //for(unsigned int iFill=0; iFill<12; iFill++){
   for(unsigned int iFill=0; iFill<mc_names.size(); iFill++){
     char numb0[100]; 
     char numb1[100]; 

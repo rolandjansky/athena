@@ -13,6 +13,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 from TrigInDetConfig.InDetSetup import makeInDetAlgs
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
+from AthenaCommon.GlobalFlags import globalflags
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
@@ -90,14 +91,15 @@ class MinBiasChainConfig(ChainConfigurationBase):
         import AthenaCommon.CfgMgr as CfgMgr
         ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("TrkrecoSeqDataVerifier")
         ViewVerifyTrk.DataObjects = [ ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                     ( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                      ( 'InDet::SCT_ClusterContainer' , 'StoreGateSvc+SCT_TrigClusters' ),
                                      ( 'SpacePointContainer' , 'StoreGateSvc+SCT_TrigSpacePoints' ),
-                                     ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),
                                      ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                      ( 'InDet::PixelClusterContainer' , 'StoreGateSvc+PixelTrigClusters' ),
                                      ( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints' )
         ]
+        if globalflags.InputFormat.is_bytestream():
+          ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                        ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
 
         idAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='', rois=TrkInputMakerAlg.InViewRoIs)
         TrkList = idAlgs[-2:] # FTF and Track to xAOD::TrackParticle conversion alg

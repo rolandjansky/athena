@@ -2,43 +2,53 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-  AlignedDynArray.h  -  description
-  -------------------------------------------------
- begin                : 26th November 2019
- author               : amorley, Christos
- decription           : Dynamic array fullfilling alignment requirements
+/**
+ * @file AlignedDynArray.h
+ * @date   26th November 2019
+ * @author amorley, christos
+ * @brief  Dynamic array fullfilling alignment requirements
  *********************************************************************************/
 
 #ifndef GSFUtils_AlignedDynArray_H
 #define GSFUtils_AlignedDynArray_H
-
-#include <stdlib.h>
+#include <cstdlib>
 namespace GSFUtils {
-
 template<typename T, int Alignment>
-/*
- * Dynamically allocate un-initialized storage where the storage is
- * aligned according to Alignment i.e the storage starts at an adrress
- * that should be divisible with Alignment
+/**
+ * @bried A wrapper around std::aligned_alloc
+ * https://en.cppreference.com/w/cpp/memory/c/aligned_alloc
  *
- * This is usefull for arrays of simple types like int,float,double
+ * Provides
+ * - Additional RAII functionality 
+ * - Default initialization of elements
+ * - Value initialization of elements
  */
 
 class AlignedDynArray
 {
 public:
+  /// Deleted default constructor
   AlignedDynArray() = delete;
+  /// Deleted default copy constructor
   AlignedDynArray(AlignedDynArray const&) = delete;
+  /// Deleted default assignment operator
   AlignedDynArray& operator=(AlignedDynArray const&) = delete;
 
+  /// Constructor default initializing elements
   explicit AlignedDynArray(size_t n);
+  /// Constructor initializing elements to value
+  explicit AlignedDynArray(size_t n, const T& value);
+
+  /// Move copy constructor
   AlignedDynArray(AlignedDynArray&&);
+  /// Move assignment operator
   AlignedDynArray& operator=(AlignedDynArray&&);
+  /// Destructor
   ~AlignedDynArray();
 
-  /// conversions to T*
+  /// Conversions to T*
   operator T*();
+  /// Conversions to const T*
   operator const T*() const;
 
   /// index array operators
@@ -51,7 +61,6 @@ public:
 private:
   void cleanup();
   T* m_buffer = nullptr;
-  void* m_raw = nullptr;
   size_t m_size = 0;
 };
 

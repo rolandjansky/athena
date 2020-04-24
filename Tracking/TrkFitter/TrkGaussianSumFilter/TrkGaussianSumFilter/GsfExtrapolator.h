@@ -99,7 +99,7 @@ public:
   virtual StatusCode finalize() override final;
 
   /** Extrapolation of a MutiComponentState to a destination surface (1) */
-  virtual std::unique_ptr<MultiComponentState> extrapolate(
+  virtual MultiComponentState extrapolate(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -109,7 +109,7 @@ public:
 
   /** - Extrapolation of a MultiComponentState to destination surface without material effects (2)
    */
-  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
+  virtual MultiComponentState extrapolateDirectly(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -118,7 +118,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Configured AlgTool extrapolation method (1) */
-  virtual std::unique_ptr<MultiComponentState> extrapolate(
+  virtual MultiComponentState extrapolate(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -126,7 +126,7 @@ public:
     ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Configured AlgTool extrapolation without material effects method (2) */
-  virtual std::unique_ptr<MultiComponentState> extrapolateDirectly(
+  virtual MultiComponentState extrapolateDirectly(
     const MultiComponentState&,
     const Surface&,
     PropDirection direction = anyDirection,
@@ -168,7 +168,7 @@ private:
   };
 
   /** These are the methods that do the actual heavy lifting when extrapolating with a cache */
-  std::unique_ptr<MultiComponentState> extrapolateImpl(
+  MultiComponentState extrapolateImpl(
     Cache& cache,
     const IPropagator&,
     const MultiComponentState&,
@@ -177,7 +177,7 @@ private:
     const BoundaryCheck& boundaryCheck = true,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  std::unique_ptr<MultiComponentState> extrapolateImpl(
+  MultiComponentState extrapolateImpl(
     Cache& cache,
     const MultiComponentState&,
     const Surface&,
@@ -200,7 +200,7 @@ private:
                                    PropDirection direction = anyDirection,
                                    ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  std::unique_ptr<MultiComponentState> extrapolateInsideVolume(
+  MultiComponentState extrapolateInsideVolume(
     Cache& cache,
     const IPropagator&,
     const MultiComponentState&,
@@ -214,7 +214,7 @@ private:
   /** Additional private extrapolation methods */
 
   /** Layer stepping, stopping at the last layer before destination */
-  std::unique_ptr<MultiComponentState> extrapolateFromLayerToLayer(
+  MultiComponentState extrapolateFromLayerToLayer(
     Cache& cache,
     const IPropagator&,
     const MultiComponentState&,
@@ -225,7 +225,7 @@ private:
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Single extrapolation step to an intermediate layer */
-  std::unique_ptr<Trk::MultiComponentState> extrapolateToIntermediateLayer(
+   MultiComponentState extrapolateToIntermediateLayer(
     Cache& cache,
     const IPropagator&,
     const MultiComponentState&,
@@ -236,7 +236,7 @@ private:
     bool perpendicularCheck = true) const;
 
   /** Final extrapolation step to a destination layer */
-  std::unique_ptr<Trk::MultiComponentState> extrapolateToDestinationLayer(
+  MultiComponentState extrapolateToDestinationLayer(
     Cache& cache,
     const IPropagator&,
     const MultiComponentState&,
@@ -249,7 +249,7 @@ private:
 
   /** Extrapolation to consider material effects assuming all material on active sensor elements -
    * CTB method */
-  std::unique_ptr<Trk::MultiComponentState> extrapolateSurfaceBasedMaterialEffects(
+  Trk::MultiComponentState extrapolateSurfaceBasedMaterialEffects(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,
@@ -258,7 +258,7 @@ private:
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** GSF Method to propagate a number of components simultaneously */
-  std::unique_ptr<Trk::MultiComponentState> multiStatePropagate(
+  Trk::MultiComponentState multiStatePropagate(
     const IPropagator&,
     const MultiComponentState&,
     const Surface&,

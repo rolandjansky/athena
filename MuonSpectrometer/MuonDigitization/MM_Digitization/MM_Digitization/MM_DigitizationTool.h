@@ -127,7 +127,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 	private:
 
 		/** Record MmDigitContainer and MuonSimDataCollection */
-		StatusCode recordDigitAndSdoContainers(const EventContext& ctx);
 		StatusCode getNextEvent();
 		StatusCode doDigitization(const EventContext& ctx);
 

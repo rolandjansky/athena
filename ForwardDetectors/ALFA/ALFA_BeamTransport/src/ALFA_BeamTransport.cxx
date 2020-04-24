@@ -32,7 +32,6 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/SimpleVector.h"
 #include "HepMC/GenParticle.h"
-//#include "HepMC/Units.h"
 
 //ROOT headers
 #include "TFile.h"
@@ -239,7 +238,6 @@ void ALFA_BeamTransport::MeVToGeV (HepMC::GenEvent* evt)
 void ALFA_BeamTransport::GeVToMeV (HepMC::GenEvent* evt)
 {
      for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-	  // std::cout << " PDG, BAR " << (*p)->pdg_id() << " " << (*p)->barcode() << std::endl;
 	  const HepMC::FourVector fv((*p)->momentum().px() * 1000.,
 				      (*p)->momentum().py() * 1000.,
 				      (*p)->momentum().pz() * 1000.,
@@ -296,57 +294,7 @@ int ALFA_BeamTransport::AddHepMCData(HepMC::GenEvent* evt)
      return true;
 }
 
-/* Removed this function since it is not used 110927
-int ALFA_BeamTransport::SelectParticles(HepMC::GenEvent* evt)
-{
-//     HepMC::GenParticle* pi1=0;
-//     HepMC::GenParticle* pi2=0;
-     HepMC::GenParticle* p1=0;
-     HepMC::GenParticle* p2=0;
-     	    
-     // loop over the final state particles 
-     // change StatusCode -> Final particle from Pythia gets Status Code 201
-     //transportet particle will get statuscode 1 (final State)
-     
-     
-     for ( HepMC::GenEvent::particle_const_iterator p =  evt->particles_begin(); p != evt->particles_end(); ++p )
-     {
-	  int pid = (*p)->pdg_id();
-	  if( ((*p)->status() == 1) && (!(*p)->end_vertex()) )  {
-	       if( pid == 2212){ 
-		    //change status code
-		    (*p)->set_status(201);
-		    
-		    m_pcount++;
-		    if(m_pcount == 1){p1=(*p);}
-		    if(m_pcount == 2){p2=(*p);}
-		    if(m_pcount > 2){msg(MSG::ERROR) << "Strange: More than two protons in this event!" << "\n";}
-	       }
-	  }
-     }
-     
-     //Positions are given in mm FPTracker needs them in meter
-     m_Particle1=FPTracker::Particle(p1->production_vertex()->position().x()/1000.,//Is this the right coordinate?
-				      p1->production_vertex()->position().y()/1000., 
-				      p1->production_vertex()->position().z()/1000., 
-				      p1->momentum().px(),
-				      p1->momentum().py(), 
-				      p1->momentum().pz());	
-				      
-	m_Particle2=FPTracker::Particle(p2->production_vertex()->position().x()/1000.,
-					p2->production_vertex()->position().y()/1000., 
-					p2->production_vertex()->position().z()/1000., 
-					p2->momentum().px(),
-					p2->momentum().py(), 
-					p2->momentum().pz());
-					
-	//Energy
-	// no Energy change between IP and RP
-	m_EnergyRP1=p1->momentum().e();
-	m_EnergyRP3=p2->momentum().e();
 
-	return true;
-}*/
 
 int ALFA_BeamTransport::DoBeamTracking(int evt_number)
 {

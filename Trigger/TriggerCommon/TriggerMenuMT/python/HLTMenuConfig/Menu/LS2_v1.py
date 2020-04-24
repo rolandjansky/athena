@@ -89,8 +89,11 @@ def setupMenu():
 
         # Primary
         ChainProp(name='HLT_e26_lhtight_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_nod0_L1EM24VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e60_lhmedium_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e60_lhmedium_nod0_L1EM24VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e140_lhloose_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e140_lhloose_nod0_L1EM24VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e300_etcut_L1EM24VHI', groups=SingleElectronGroup),
 
         ChainProp(name='HLT_2e17_lhvloose_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),

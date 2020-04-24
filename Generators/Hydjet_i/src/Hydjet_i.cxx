@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ------------------------------------------------------------- 
@@ -253,18 +253,18 @@ Hydjet::fillEvt(HepMC::GenEvent* evt)
 
     double eproj = m_e/2.0;
     int proj_id = (int) m_a;
-    v1->add_particle_in( new HepMC::GenParticle( CLHEP::HepLorentzVector(0., 0., eproj, eproj), proj_id, 101 ) );
+    v1->add_particle_in( new HepMC::GenParticle( HepMC::FourVector(0., 0., eproj, eproj), proj_id, 101 ) );
     
     double etarg = m_e/2.0;
     int targ_id = (int) m_a;
-    v1->add_particle_in( new HepMC::GenParticle( CLHEP::HepLorentzVector(0., 0., -etarg, etarg), targ_id, 102 ) );
+    v1->add_particle_in( new HepMC::GenParticle( HepMC::FourVector(0., 0., -etarg, etarg), targ_id, 102 ) );
 
     // Loop on all final particles and 
     // put them all as outgoing from the event vertex
     for (int i = 1; i <= m_lujets.n(); ++i)
       {
 	v1->add_particle_out( new HepMC::GenParticle( 
-		   CLHEP::HepLorentzVector(m_lujets.p(i, 1), m_lujets.p(i, 2), 
+		   HepMC::FourVector(m_lujets.p(i, 1), m_lujets.p(i, 2), 
 		   m_lujets.p(i, 3), m_lujets.p(i, 4)), m_lujets.k(i, 2), 1 ) );
       }
 

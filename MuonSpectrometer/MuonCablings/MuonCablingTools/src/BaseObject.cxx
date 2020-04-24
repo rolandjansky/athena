@@ -1,16 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingTools/BaseObject.h"
-
 #include <pthread.h>
 
-
 static pthread_mutex_t StopDisplayStream = PTHREAD_MUTEX_INITIALIZER;
-
-using namespace std;
-
 
 void
 MessageStream::init_message()

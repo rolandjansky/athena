@@ -379,29 +379,23 @@ if dumpTrtInfo:
     TRT_dEdx_Tool.TRT_LocalOccupancyTool    = getInDetTRT_LocalOccupancy()
     ToolSvc += TRT_dEdx_Tool
 
-    # to get shared hit info
-    from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
-    InDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
-                                                                          PixelClusterAmbiguitiesMapName = InDetKeys.GangedPixelMap(),
-                                                                          addTRToutliers                 = True,
-                                                                          OutputLevel=INFO
-                                                                          )
-    print InDetPrdAssociationTool
-    ToolSvc += InDetPrdAssociationTool
     TrackCollectionKeys = []
 
     from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
     InDetNewTrackingCutsPixel = ConfiguredNewTrackingCuts("Pixel")
     print InDetNewTrackingCutsPixel
 
-    from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
-    InDetPRD_Association = InDet__InDetTrackPRD_Association(name            = 'InDetPRD_Association'+InDetNewTrackingCutsPixel.extension(),
-                                                            AssociationTool = InDetPrdAssociationTool,
-                                                            TracksName = ['Tracks'],
-                                                            OutputLevel=INFO
-                                                            )
-    topSequence += InDetPRD_Association
-    print InDetPRD_Association
+    if not hasattr(topSequence,'InDetTrackCollectionMerger') :
+        from InDetRecExample import TrackingCommon
+        from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
+        InDetPRD_Association = InDet__InDetTrackPRD_Association(name            = 'InDetPRD_Association'+InDetNewTrackingCutsPixel.extension(),
+                                                                AssociationTool = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
+                                                                TracksName = ['Tracks'],
+                                                                AssociationMapName = "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
+                                                                OutputLevel=INFO
+        )
+        topSequence += InDetPRD_Association
+        print InDetPRD_Association
 
 if dumpSctInfo:
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
@@ -495,7 +489,7 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           StoreSCT   = dumpSctInfo,
                                                           StorePixel = dumpPixInfo,
                                                           IsSimulation = isIdTrkDxAODSimulation,
-                                                          AssociationTool = InDetPrdAssociationTool,
+                                                          PRDtoTrackMap= "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
                                                           TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if dumpTrtInfo else "",
                                                           OutputLevel = INFO)
 
@@ -521,6 +515,7 @@ if makeSplitTracks:
                                                           StorePixel = dumpPixInfo,
                                                           PixelMsosName = 'Pixel_SplitTracks_MSOSs',
                                                           IsSimulation = isIdTrkDxAODSimulation,
+                                                          PRDtoTrackMap= "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
                                                           TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if dumpTrtInfo else "",
                                                           OutputLevel = INFO)
     ToolSvc += DFTSOS_SplitTracks
@@ -541,9 +536,14 @@ if dumpBytestreamErrors:
 
 # Add Unassociated hits augmentation tool
 if dumpUnassociatedHits:
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsGetterTool 
+    from InDetRecExample import TrackingCommon
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsGetterTool
     unassociatedHitsGetterTool = DerivationFramework__UnassociatedHitsGetterTool (name = 'unassociatedHitsGetter',
                                                                                   TrackCollection = "Tracks",
+                                                                                  AssociationTool = TrackingCommon.getPRDtoTrackMapTool(),
+                                                                                  # @TODO consider ganged pixel and TRT outliers when searching for unassociated PRDs (enabled by props below)?
+                                                                                  # AssociationTool = "",
+                                                                                  # PRDtoTrackMap = "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
                                                                                   PixelClusters = "PixelClusters",
                                                                                   SCTClusterContainer = "SCT_Clusters",
                                                                                   TRTDriftCircleContainer = "TRT_DriftCircles")
@@ -601,7 +601,7 @@ if skimmingExpression:
 
 #minimumbiasTrig = '(L1_RD0_FILLED)'
 #
-#if not IsMonteCarlo:
+#if not DerivationFrameworkIsMonteCarlo:
 #  from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 #  TrigSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "TrigSkimmingTool", expression = minimumbiasTrig)
 #  ToolSvc += TrigSkimmingTool
@@ -672,6 +672,7 @@ topSequence += IDDerivationSequence
 if (printIdTrkDxAODConf):
     print IDDerivationSequence 
     print IDDerivationSequence.properties()
+
 
 #################
 ### Steer output file content

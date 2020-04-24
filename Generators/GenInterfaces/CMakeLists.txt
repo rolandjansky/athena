@@ -4,6 +4,7 @@ atlas_subdir( GenInterfaces )
 # The dependencies of the package:
 atlas_depends_on_subdirs(
    PUBLIC
+   Generators/AtlasHepMC
    GaudiKernel )
 
 # External dependencies:

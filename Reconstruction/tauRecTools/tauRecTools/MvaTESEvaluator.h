@@ -8,7 +8,7 @@
 // tauRecTools include(s)
 #include "tauRecTools/TauRecToolBase.h"
 
-#include "MVAUtils/BDT.h"
+#include "tauRecTools/BDTHelper.h"
 
 #include <map>
 
@@ -35,24 +35,24 @@ class MvaTESEvaluator
   {
     float mu{0.0}; //!
     float nVtxPU{0.0}; //!
-  
+
     float center_lambda{0.0}; //!
     float first_eng_dens{0.0}; //!
     float second_lambda{0.0}; //!
     float presampler_frac{0.0}; //!
     float eprobability{0.0}; //!
-  
+
     float ptCombined{0.0}; //!
     float ptLC_D_ptCombined{0.0}; //!
     float ptConstituent_D_ptCombined{0.0};//!
     float etaConstituent{0.0}; //!
-  
+
     float PanTauBDT_1p0n_vs_1p1n{0.0}; //!
     float PanTauBDT_1p1n_vs_1pXn{0.0}; //!
     float PanTauBDT_3p0n_vs_3pXn{0.0}; //!
     float nTracks{0.0}; //!
     float PFOEngRelDiff{0.0}; //!
-  
+
     // Spectators
     float truthPtVis{0.0}; //!
     float pt{0.0}; //!
@@ -66,10 +66,8 @@ class MvaTESEvaluator
     float upsilon_cluster{0.0}; //!
     float lead_cluster_frac{0.0}; //!
   };
- 
-  StatusCode initReader(std::unique_ptr<MVAUtils::BDT>& reader,
-                        std::map<TString, float*>& availableVars,
-                        MvaInputVariables& vars) const;
+
+  std::unique_ptr<tauRecTools::BDTHelper> m_bdtHelper;
 
   // Configurable properties
   Gaudi::Property<std::string> m_sWeightFileName{this, "WeightFileName", "MvaTES_20170207_v2_BDTG.weights.root"};

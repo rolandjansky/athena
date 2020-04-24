@@ -15,9 +15,6 @@
 #include "SimTestHisto.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ITHistSvc.h"
-// #include "GaudiKernel/ISvcLocator.h"
-// #include "GaudiKernel/Bootstrap.h"
-// #include "GaudiKernel/ServiceHandle.h"
 
 namespace HepMC {
   class GenParticle;

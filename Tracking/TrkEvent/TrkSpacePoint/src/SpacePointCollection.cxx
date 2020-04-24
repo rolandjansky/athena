@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ MsgStream& operator << ( MsgStream& sl, const SpacePointCollection& coll) {
      << ", SP=[";
   SpacePointCollection::const_iterator it = coll.begin();
   SpacePointCollection::const_iterator itEnd = coll.end();
-  for (;it!=itEnd;++it) sl<< (**it)<<", ";
+  for (;it!=itEnd;++it) { sl<< (**it)<<", ";}
   sl <<" ]"<<std::endl;
   return sl;
 }
@@ -72,7 +72,7 @@ std::ostream& operator << ( std::ostream& sl, const SpacePointCollection& coll) 
      << ", SP=[";
   SpacePointCollection::const_iterator it = coll.begin();
   SpacePointCollection::const_iterator itEnd = coll.end();
-  for (;it!=itEnd;++it) sl<< (**it)<<", ";
+  for (;it!=itEnd;++it) { sl<< (**it)<<", ";}
   sl <<" ]"<<std::endl;
   return sl;
 }

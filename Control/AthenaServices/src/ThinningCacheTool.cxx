@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file AthenaServices/src/ThinningCacheTool.h
@@ -18,6 +18,18 @@
 
 
 namespace Athena {
+
+
+/**
+ * @brief Gaudi initialize method.
+ */
+StatusCode ThinningCacheTool::initialize()
+{
+  if (!m_trigNavigationThinningSvc.empty()) {
+    ATH_CHECK( m_trigNavigationThinningSvc.retrieve() );
+  }
+  return StatusCode::SUCCESS;
+}
 
 
 /**
@@ -63,9 +75,14 @@ StatusCode ThinningCacheTool::preExecute()
     }
   }
 
+  // Set the TrigNavigation thinning tool if needed.
+  if (!m_trigNavigationThinningSvc.empty()) {
+    m_cache.setTrigNavigationThinningSvc (m_trigNavigationThinningSvc.get());
+  }
+
   // If there was any thinning for this stream, then install the cache
   // in the EventContext.
-  if (!m_cache.empty()) {
+  if (!m_cache.empty() || m_cache.trigNavigationThinningSvc()) {
     m_cache.lockOwned();
     EventContext ctx = Gaudi::Hive::currentContext();
     Atlas::getExtendedEventContext (ctx).setThinningCache (&m_cache);
@@ -82,7 +99,7 @@ StatusCode ThinningCacheTool::preExecute()
  */
 StatusCode ThinningCacheTool::postExecute()
 {
-  if (!m_cache.empty()) {
+  if (!m_cache.empty() || m_cache.trigNavigationThinningSvc()) {
     EventContext ctx = Gaudi::Hive::currentContext();
     Atlas::getExtendedEventContext (ctx).setThinningCache (nullptr);
     Gaudi::Hive::setCurrentContext (ctx);

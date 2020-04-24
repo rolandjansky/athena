@@ -83,8 +83,6 @@ void AscObj_TruthPoint::buildShapes(SoSeparator*&shape_simple, SoSeparator*&shap
   else
   {
 	  // Eigen migration
-//    p1 = Trk::GlobalPosition(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
-//    u = Trk::GlobalMomentum(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz()).unit();
     p1 = Amg::Vector3D(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
     u = Amg::Vector3D(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz()).unit();
   }
@@ -131,8 +129,6 @@ QStringList AscObj_TruthPoint::clicked()
       return l;
     }
 
-//    Trk::GlobalPosition p(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
-//    Trk::GlobalMomentum mom(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz());
     Amg::Vector3D p(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
     Amg::Vector3D mom(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz());
 

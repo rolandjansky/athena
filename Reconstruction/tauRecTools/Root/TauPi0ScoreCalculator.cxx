@@ -25,9 +25,7 @@ using std::string;
 
 TauPi0ScoreCalculator::TauPi0ScoreCalculator( const string& name ) :
   TauRecToolBase(name),
-  m_mvaBDT(nullptr)
-{
-    declareProperty("BDTWeightFile",           m_weightfile);
+  m_mvaBDT(nullptr) {
 }
 
 //-------------------------------------------------------------------------

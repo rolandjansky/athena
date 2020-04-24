@@ -94,23 +94,26 @@ def createMuonRoIUnpackers():
                                                           Decisions="HLTNav_RerunL1MU" )
     return [muUnpacker],[muRerunUnpacker]
 
+def createPrescalingTool():
+    from L1Decoder.L1DecoderMonitoring import PrescalingMonitoring
 
-#from L1Decoder.L1DecoderConf import L1TriggerResultMaker
+    prescaler = CompFactory.PrescalingTool(MonTool = PrescalingMonitoring())
+    return prescaler
 
 
-def setupL1TriggerResultMaker( alg ):
-    alg.MuRoIKey = "LVL1MuonRoIs"
-    alg.MuRoILinkName = "mu_roi"
-#         # Placeholder for other L1 xAOD outputs:
-#         # - CTP result
-#         # - L1Topo result
-#         # - L1Calo (Run3) RoIs
+def getL1TriggerResultMaker():
+    l1trMaker = CompFactory.L1TriggerResultMaker()
 
-# from L1Decoder.L1DecoderConf import L1TriggerResultMaker
-# class L1TriggerResultMaker(L1TriggerResultMaker):
-#     def __init__(self, name='L1TriggerResultMaker', *args, **kwargs):
-#         super(L1TriggerResultMaker, self).__init__(name, *args, **kwargs)
-#         setupL1TriggerResultMaker( self )
+    # Muon RoIs
+    l1trMaker.MuRoIKey = "LVL1MuonRoIs"
+    l1trMaker.MuRoILinkName = "mu_roi"
+
+    # Placeholder for other L1 xAOD outputs:
+    # - CTP result
+    # - L1Topo result
+    # - L1Calo (Run3) RoIs
+
+    return l1trMaker
 
 
 #from L1Decoder.L1DecoderConf import L1Decoder
@@ -138,6 +141,8 @@ class L1Decoder(CompFactory.L1Decoder) :
             unpackers, rerunUnpackers = createMuonRoIUnpackers()
             self.roiUnpackers += unpackers
             self.rerunRoiUnpackers += rerunUnpackers
+
+        self.prescaler = createPrescalingTool()
 
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         self.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
@@ -177,6 +182,7 @@ def L1DecoderCfg(flags):
     decoderAlg.roiUnpackers += unpackers
     decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
+    decoderAlg.prescaler = createPrescalingTool()
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 
@@ -190,9 +196,7 @@ def L1DecoderCfg(flags):
     acc.merge( RoIBResultDecoderCfg(flags) )
     acc.merge( L1TriggerByteStreamDecoderCfg(flags) )
 
-    resultMaker = CompFactory.L1TriggerResultMaker()
-    setupL1TriggerResultMaker( resultMaker )
-    acc.addEventAlgo( resultMaker )
+    acc.addEventAlgo( getL1TriggerResultMaker() )
     Configurable.configurableRun3Behavior -= 1
 
     return acc,decoderAlg

@@ -78,7 +78,6 @@ EventInfo& EventInfo::operator = (const EventInfo& e) {
   return *this;
 }
 
-#if __cplusplus > 201100
 EventInfo::EventInfo(EventInfo&& e)
   : m_event_ID(e.m_event_ID),
   m_event_type(e.m_event_type),
@@ -107,8 +106,6 @@ EventInfo& EventInfo::operator = (EventInfo&& e) {
   }
   return *this;
 }
-
-#endif
 
 
 EventInfo::~EventInfo() {

@@ -276,7 +276,7 @@ bool EventBoost::doModification(HepMC::GenParticle * part, double& pxsum ) {
   double temp=mom.x();
   
   mom.boost(boostvector);
-  part->set_momentum(mom);
+  part->set_momentum(HepMC::FourVector(mom.px(),mom.py(),mom.pz(),mom.e()));
   if (part->status()==1) {
     pxsum+=mom.x()-temp;
   }
@@ -300,7 +300,7 @@ bool EventBoost::doVertexModification(HepMC::GenVertex * ver, double rand_x, dou
   CLHEP::HepLorentzVector vertex_offset(rand_x, rand_y, rand_z);
   CLHEP::HepLorentzVector new_vertex_pos(vertex.x()+vertex_offset.x(), vertex.y()+vertex_offset.y(), vertex.z()+vertex_offset.z());
   
-  ver->set_position(new_vertex_pos);
+  ver->set_position(HepMC::FourVector(new_vertex_pos.x(),new_vertex_pos.y(),new_vertex_pos.z(),new_vertex_pos.t()));
 
   msg(MSG::DEBUG) << "Vertex position modified from ("<<vertex.x()<<", "<<vertex.y()<<", "<<vertex.z()<<") to ("<<new_vertex_pos.x()<<", "<<new_vertex_pos.y()<<", "<<new_vertex_pos.z()<<")" << endmsg;
   

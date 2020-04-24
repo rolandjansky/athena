@@ -40,7 +40,7 @@
 #include <cstdlib> // to getenv
 #include <vector>
 
-
+#include "InDetTruthVertexValidation/InDetVertexTruthMatchUtils.h"
 
 namespace { // utility functions used here
 
@@ -123,20 +123,24 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
                                                        const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent),
   m_useTrackSelection(false),
+  m_useVertexTruthMatchTool(false),
   m_trackSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool"),
+  m_vtxValidTool("InDetVertexTruthMatchTool/VtxTruthMatchTool"),
   m_truthSelectionTool("AthTruthSelectionTool", this),
   m_doTrackInJetPlots(true) {
-    declareProperty("useTrackSelection", m_useTrackSelection);
-    declareProperty("TrackSelectionTool", m_trackSelectionTool);
-    declareProperty("TruthSelectionTool", m_truthSelectionTool);
-    declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
-    declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
-    declareProperty("DirName", m_dirName = "SquirrelPlots/");
-    declareProperty("SubFolder", m_folder);
-    declareProperty("PileupSwitch", m_pileupSwitch = "All");
-    declareProperty("LowProb", m_lowProb=0.50);
-    declareProperty("HighProb", m_highProb=0.80);
-  }
+  declareProperty("useTrackSelection", m_useTrackSelection);
+  declareProperty("TrackSelectionTool", m_trackSelectionTool);
+  declareProperty("VertexTruthMatchTool", m_vtxValidTool);
+  declareProperty("useVertexTruthMatchTool", m_useVertexTruthMatchTool);
+  declareProperty("TruthSelectionTool", m_truthSelectionTool);
+  declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
+  declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
+  declareProperty("DirName", m_dirName = "SqurrielPlots/");
+  declareProperty("SubFolder", m_folder);
+  declareProperty("PileupSwitch", m_pileupSwitch = "All");
+  declareProperty("LowProb", m_lowProb=0.50);
+  declareProperty("HighProb", m_highProb=0.80);
+}
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
 
@@ -144,13 +148,14 @@ InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
 
 StatusCode
 InDetPhysValMonitoringTool::initialize() {
-  ATH_MSG_DEBUG("Initializing " << name() << "...");
   ATH_CHECK(ManagedMonitorToolBase::initialize());
   // Get the track selector tool only if m_useTrackSelection is true;
   // first check for consistency i.e. that there is a trackSelectionTool if you ask
   // for trackSelection
   ATH_CHECK(m_trackSelectionTool.retrieve(EnableTool {m_useTrackSelection} ));
   ATH_CHECK(m_truthSelectionTool.retrieve(EnableTool {not m_truthParticleName.key().empty()} ));
+  ATH_CHECK(m_vtxValidTool.retrieve(EnableTool {m_useVertexTruthMatchTool}));
+  ATH_MSG_DEBUG("m_useVertexTruthMatchTool ====== " <<m_useVertexTruthMatchTool);
   if (m_truthSelectionTool.get() ) {
     m_truthCutFlow = CutFlow(m_truthSelectionTool->nCuts());
   }
@@ -221,6 +226,12 @@ InDetPhysValMonitoringTool::fillHistograms() {
     primaryvertex = (findVtx == stdVertexContainer.rend()) ? nullptr : *findVtx;
     //Filling plots for all reconstructed vertices and the hard-scatter
     ATH_MSG_DEBUG("Filling vertices info monitoring plots");
+
+    //Decorate vertices
+    if (m_useVertexTruthMatchTool && m_vtxValidTool) {
+       ATH_CHECK(m_vtxValidTool->matchVertices(*vertices));
+       ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*vertices) << ", vertex container size = " << vertices->size());
+    }
     m_monPlots->fill(*vertices);
 
     ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");

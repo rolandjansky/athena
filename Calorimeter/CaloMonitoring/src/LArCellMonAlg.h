@@ -69,16 +69,7 @@ private:
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
 
   //Tool maps, for thr. histograms
-  std::map<std::string,int> m_toolmapTotalOccupancyEtaPhi;
-  std::map<std::string,int> m_toolmapPercentageOccupancyEtaPhi;
-  std::map<std::string,int> m_toolmapOccupancyEta;
-  std::map<std::string,int> m_toolmapOccupancyPhi;
-  std::map<std::string,int> m_toolmapTotEnergyEtaPhi;
-  std::map<std::string,int> m_toolmapTotQualityEtaPhi;
-  std::map<std::string,int> m_toolmapFractionOverQthEtaPhi;
-  std::map<std::string,int> m_toolmapTotTimeEtaPhi;
-  std::map<std::string,int> m_toolmapFractionPastTthEtaPhi;
-
+  std::map<std::string,std::map<std::string,int>> m_toolmapAll;
 
   //Histogram path in root file:
 

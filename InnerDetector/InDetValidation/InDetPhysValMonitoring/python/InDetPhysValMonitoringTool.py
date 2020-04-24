@@ -57,6 +57,12 @@ def getInDetPhysValMonitoringTool(**kwargs) :
          kwargs=setDefaults(kwargs,
                             JetContainerName    ='' ,
                             FillTrackInJetPlots = False)
+      
+      #adding the VeretxTruthMatchingTool
+      from InDetTruthVertexValidation.InDetTruthVertexValidationConf import InDetVertexTruthMatchTool
+      kwargs=setDefaults(kwargs, 
+                        useVertexTruthMatchTool = True,
+         		VertexTruthMatchTool = toolFactory(InDetVertexTruthMatchTool) )
 
    else :
       # disable truth monitoring for data

@@ -17,8 +17,6 @@
 // Local tool includes:
 #include "RingerSelectorTools/tools/RingerIOVarDepObj.h"
 #include "RingerSelectorTools/tools/RedirectMsgStream.h"
-#include "RingerSelectorTools/tools/cxx/final.h"
-#include "RingerSelectorTools/tools/cxx/override.h"
 
 namespace Ringer {
 
@@ -58,7 +56,7 @@ class NNFeedForward : virtual public IDiscriminator,
      * @brief Propagates input through neural network
      **/
     virtual void execute(const std::vector<float> &input,
-        std::vector<float> &output) const ATH_RINGER_OVERRIDE ATH_RINGER_FINAL;
+        std::vector<float> &output) const override final;
 
     void changeArchiteture(const std::vector<unsigned int> &nodes,
         const std::vector<float> &weights,

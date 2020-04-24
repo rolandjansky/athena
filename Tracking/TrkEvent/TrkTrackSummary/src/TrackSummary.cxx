@@ -58,10 +58,12 @@ Trk::TrackSummary::TrackSummary( const TrackSummary& rhs )
 #endif        
   if( rhs.m_indetTrackSummary ) {
     m_indetTrackSummary = new InDetTrackSummary(*rhs.m_indetTrackSummary);
-  } else m_indetTrackSummary = nullptr;
+  } else { m_indetTrackSummary = nullptr;
+}
   if( rhs.m_muonTrackSummary ) {
     m_muonTrackSummary = new MuonTrackSummary(*rhs.m_muonTrackSummary);
-  } else m_muonTrackSummary = nullptr;
+  } else { m_muonTrackSummary = nullptr;
+}
 }
 
 Trk::TrackSummary& Trk::TrackSummary::operator=(const TrackSummary& rhs) {
@@ -96,19 +98,24 @@ Trk::TrackSummary& Trk::TrackSummary::operator+=(const TrackSummary& ts)
     {       
         for (int i=0;i<numberOfTrackSummaryTypes;++i) {
           // if added number is <0, leave as is (this also catches the case where both are <0)
-          if (ts.m_information[i]<0) continue;
+          if (ts.m_information[i]<0) { continue;
+}
        
-          if (m_information[i]<0) m_information[i]++; 
+          if (m_information[i]<0) { m_information[i]++; 
+}
            m_information[i]+= ts.m_information[i];
         }
-        for (int i=0;i<numberOfeProbabilityTypes;++i) m_eProbability[i] *= ts.m_eProbability[i];
+        for (int i=0;i<numberOfeProbabilityTypes;++i) { m_eProbability[i] *= ts.m_eProbability[i];
+}
         if (m_dedx<0 && ts.m_dedx>=0) {
           m_dedx=ts.m_dedx;
           m_nhitsdedx=ts.m_nhitsdedx;
 	  m_nhitsoverflowdedx = ts.m_nhitsoverflowdedx;
         }
-        if (!m_muonTrackSummary)  m_muonTrackSummary  = ts.m_muonTrackSummary  ? new MuonTrackSummary(*ts.m_muonTrackSummary) : nullptr; 
-        if (!m_indetTrackSummary) m_indetTrackSummary = ts.m_indetTrackSummary ? new InDetTrackSummary(*ts.m_indetTrackSummary) :nullptr;
+        if (!m_muonTrackSummary) {  m_muonTrackSummary  = ts.m_muonTrackSummary  ? new MuonTrackSummary(*ts.m_muonTrackSummary) : nullptr; 
+}
+        if (!m_indetTrackSummary) { m_indetTrackSummary = ts.m_indetTrackSummary ? new InDetTrackSummary(*ts.m_indetTrackSummary) :nullptr;
+}
 	// FIXME - do we need to support adding of extension objects? How would this even work?
     }
     return *this;

@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetConditions/SCT_ConditionsData
-                          MagneticField/MagFieldInterfaces
                           PRIVATE
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/Identifier
@@ -37,7 +36,7 @@ atlas_add_component( SiLorentzAngleTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives GaudiKernel SiPropertiesToolLib MagFieldInterfaces AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry MagFieldElements MagFieldConditions)
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives GaudiKernel SiPropertiesToolLib AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry MagFieldElements MagFieldConditions)
 
 # Run tests:
 atlas_add_test( TestSCTLorentzAngle

@@ -13,6 +13,8 @@
 #include "InDetSimEvent/SiHit.h"
 #include "MuonSimEvent/TGCSimHit.h"
 #include "MuonSimEvent/CSCSimHit.h"
+#include "MuonSimEvent/sTGCSimHit.h"
+#include "MuonSimEvent/MMSimHit.h"
 // CLHEP
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -28,22 +30,29 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
   , m_inputPixelHits("StoreGateSvc+PixelHitsOLD")
   , m_inputSCTHits("StoreGateSvc+SCT_HitsOLD")
   , m_inputTRTHits("StoreGateSvc+TRTUncompressedHitsOLD")
-  , m_inputCSCHits("StoreGateSvc+CSCHitsOLD")
-  , m_inputMDTHits("StoreGateSvc+MDTHitsOLD")
-  , m_inputRPCHits("StoreGateSvc+RPCHitsOLD")
-  , m_inputTGCHits("StoreGateSvc+TGCHitsOLD")
+  , m_inputCSCHits("StoreGateSvc+CSC_HitsOLD")
+  , m_inputMDTHits("StoreGateSvc+MDT_HitsOLD")
+  , m_inputRPCHits("StoreGateSvc+RPC_HitsOLD")
+  , m_inputTGCHits("StoreGateSvc+TGC_HitsOLD")
+  , m_inputSTGCHits("StoreGateSvc+sTGCSensitiveDetectorOLD")
+  , m_inputMMHits("StoreGateSvc+MicromegasSensitiveDetectorOLD")
   , m_outputTruthCollection("StoreGateSvc+TruthEvent")
   , m_outputBCMHits("StoreGateSvc+BCMHits")
   , m_outputPixelHits("StoreGateSvc+PixelHits")
   , m_outputSCTHits("StoreGateSvc+SCT_Hits")
   , m_outputTRTHits("StoreGateSvc+TRTUncompressedHits")
-  , m_outputCSCHits("StoreGateSvc+CSCHits")
-  , m_outputMDTHits("StoreGateSvc+MDTHits")
-  , m_outputRPCHits("StoreGateSvc+RPCHits")
-  , m_outputTGCHits("StoreGateSvc+TGCHits")
+  , m_outputCSCHits("StoreGateSvc+CSC_Hits")
+  , m_outputMDTHits("StoreGateSvc+MDT_Hits")
+  , m_outputRPCHits("StoreGateSvc+RPC_Hits")
+  , m_outputTGCHits("StoreGateSvc+TGC_Hits")
+  , m_outputSTGCHits("StoreGateSvc+sTGCSensitiveDetector")
+  , m_outputMMHits("StoreGateSvc+MicromegasSensitiveDetector")
   , m_IsKeepTRTElect(false)
   , m_PileupPartPDGID(999) //Geantino
   , m_UseTRTHits(true)
+  , m_UseCSCHits(true) // On unless RUN3 symmetric layout
+  , m_UseSTGCHits(false) // Off unless RUN3 layout
+  , m_UseMMHits(false) // Off unless RUN3 layout
   , m_RefBarcode(0)
 {
   declareProperty("TruthInput"        , m_inputTruthCollection);
@@ -64,9 +73,16 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
   declareProperty("RPCHitsOutput"     , m_outputRPCHits);
   declareProperty("TGCHitsInput"      , m_inputTGCHits);
   declareProperty("TGCHitsOutput"     , m_outputTGCHits);
+  declareProperty("sTGCHitsInput"     , m_inputSTGCHits);
+  declareProperty("sTGCHitsOutput"    , m_outputSTGCHits);
+  declareProperty("MMHitsInput"       , m_inputMMHits);
+  declareProperty("MMHitsOutput"      , m_outputMMHits);
   declareProperty("IsKeepTRTElect"    , m_IsKeepTRTElect);
   declareProperty("PileupPartPDGID"   , m_PileupPartPDGID);
   declareProperty("UseTRTHits"        , m_UseTRTHits);
+  declareProperty("UseCSCHits"        , m_UseCSCHits);
+  declareProperty("UseSTGCHits"       , m_UseSTGCHits);
+  declareProperty("UseMMHits"         , m_UseMMHits);
 
 }
 
@@ -110,13 +126,25 @@ StatusCode McEventCollectionFilter::execute(){
   ATH_CHECK( MDTHitsTruthRelink() );
 
   //.......to relink all CSC hits to the new particle
-  ATH_CHECK( CSCHitsTruthRelink() );
+  if(m_UseCSCHits) {
+    ATH_CHECK( CSCHitsTruthRelink() );
+  }
 
   //.......to relink all RPC hits to the new particle
   ATH_CHECK( RPCHitsTruthRelink() );
 
   //.......to relink all TGC hits to the new particle
   ATH_CHECK( TGCHitsTruthRelink() );
+
+  //.......to relink all sTGC hits to the new particle
+  if(m_UseSTGCHits) {
+  ATH_CHECK( STGC_HitsTruthRelink() );
+  }
+
+  //.......to relink all MM hits to the new particle
+  if(m_UseMMHits) {
+    ATH_CHECK( MM_HitsTruthRelink() );
+  }
 
   ATH_MSG_DEBUG( "succeded McEventCollectionFilter ..... " );
 
@@ -161,10 +189,6 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
   //......copy GenEvent to the new one and remove all vertex
   HepMC::GenEvent* evt=new HepMC::GenEvent(*genEvt);
 
-  //to set geantino vertex as a truth primary vertex
-  //HepMC::GenVertex* pmvx=*(evt->vertices_begin());
-  //HepMC::FourVector pmvxpos=pmvx->position();
-  //genVertex->set_position(pmvxpos);
 
   //to set geantino vertex as a truth primary vertex
   HepMC::GenVertex* hScatVx = genEvt->barcode_to_vertex(-3);
@@ -473,6 +497,70 @@ StatusCode McEventCollectionFilter::TGCHitsTruthRelink(){
   return StatusCode::SUCCESS;
 }
 
+//--------------------------------------------------------
+StatusCode McEventCollectionFilter::STGC_HitsTruthRelink(){
+  //--------------------------------------------------------
+  //.......to relink all sTGC hits to the new particle
+  //--------------------------------------------------------
+  if(!m_inputSTGCHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find sTGCSimHitCollection");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_DEBUG( "Found sTGCSimHitCollection");
+
+  if (!m_outputSTGCHits.isValid()) m_outputSTGCHits = std::make_unique<sTGCSimHitCollection>();
+  for(sTGCSimHitConstIterator i=m_inputSTGCHits->begin();i!=m_inputSTGCHits->end();++i){
+    const HepMcParticleLink oldLink = (*i).particleLink();
+    int curBarcode=0;
+    if(oldLink.barcode()!=0)  curBarcode=m_RefBarcode;
+    HepMcParticleLink partLink(curBarcode, oldLink.eventIndex(), oldLink.getEventCollection());
+
+    int             id = (*i).sTGCId();
+    double        time = (*i).globalTime();
+    Amg::Vector3D  pos = (*i).globalPosition();
+    int          pdgID = (*i).particleEncoding();
+    Amg::Vector3D  dir = (*i).globalDirection();
+    double   enDeposit = (*i).depositEnergy();
+
+    m_outputSTGCHits->Emplace(id,time,pos,pdgID,dir,enDeposit,partLink);
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//--------------------------------------------------------
+StatusCode McEventCollectionFilter::MM_HitsTruthRelink(){
+  //--------------------------------------------------------
+  //.......to relink all MM hits to the new particle
+  //--------------------------------------------------------
+  if(!m_inputMMHits.isValid())
+    {
+      ATH_MSG_ERROR( "Could not find MMSimHitCollection");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_DEBUG( "Found MMSimHitCollection");
+
+  if (!m_outputMMHits.isValid()) m_outputMMHits = std::make_unique<MMSimHitCollection>();
+  for(MMSimHitConstIterator i=m_outputMMHits->begin();i!=m_outputMMHits->end();++i){
+    const HepMcParticleLink oldLink = (*i).particleLink();
+    int curBarcode=0;
+    if(oldLink.barcode()!=0)  curBarcode=m_RefBarcode;
+    HepMcParticleLink partLink(curBarcode, oldLink.eventIndex(), oldLink.getEventCollection());
+
+    int             id = (*i).MMId();
+    double        time = (*i).globalTime();
+    Amg::Vector3D  pos = (*i).globalPosition();
+    int          pdgID = (*i).particleEncoding();
+    double    kinEnergy = (*i).kineticEnergy();
+    Amg::Vector3D  dir = (*i).globalDirection();
+    double   enDeposit = (*i).depositEnergy();
+
+    m_outputMMHits->Emplace(id,time,pos,pdgID,kinEnergy,dir,enDeposit,partLink);
+  }
+
+  return StatusCode::SUCCESS;
+}
 
 //--------------------------------------------------------
 StatusCode McEventCollectionFilter::FindTRTElectronHits()

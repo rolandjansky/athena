@@ -28,8 +28,6 @@ Modified :
 
 # include "CLHEP/Units/SystemOfUnits.h"
 
-//#include "HepMC/IO_PDG_ParticleDataTable.h"
-//#include "HepMC/ParticleDataTable.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
@@ -89,20 +87,6 @@ FakeLvl1RoIfromKine::FakeLvl1RoIfromKine(const std::string& name, const std::str
   declareProperty( "FakeMuonRoiLabel", m_muonRoiLabel="MU06");
   declareProperty( "FakeJetRoiLabel",  m_jetRoiLabel ="JET20");
   declareProperty( "FakeTauRoiLabel",  m_tauRoiLabel ="HA10");
-
-  //  HepMC::IO_PDG_ParticleDataTable pdg_io("PDGTABLE");
-  //pdg_io.fill_particle_data_table(&m_particleDataTable);
-  //m_particleDataTable.make_antiparticles_from_particles();
-  //if (m_particleDataTable.empty()) {
-  //  m_log << MSG::WARNING << "failed to find PDG table" << std::endl;
-  //}
-
-  //  HepMC::IO_PDG_ParticleDataTable pdg_io("PDGTABLE");
-  //pdg_io.fill_particle_data_table(&m_particleDataTable);
-  //m_particleDataTable.make_antiparticles_from_particles();
-  //if (m_particleDataTable.empty()) {
-  //  m_log << MSG::WARNING << "failed to find PDG table" << std::endl;
-  //}
 
 }
 
@@ -298,16 +282,6 @@ std::vector<FakeRoI> * FakeLvl1RoIfromKine::createRoIfromMC() {
 	p != (*evt)->particles_end(); ++p ) {
 
     int pdgid= (*p)->pdg_id();
-
-    //int abs_pdgid = abs(pdgid);
-    //     HepMC::ParticleData* ap = m_particleDataTable.find( abs_pdgid );
-    //if(!ap) { qq=0.; } else { qq = ap->charge(); }
-    //if (qq !=0) { // charged particle, use the signed PDG code to find charge
-    //  HepMC::ParticleData* pp  = m_particleDataTable.find( pdgid );
-    //  if (!pp) { qq = 0; } else { qq =  pp->charge(); }
-    // }
-
-    // EMROI
 
     std::vector<int>::iterator emParticle=m_emTauRoiParticles.begin();
     std::vector<int>::iterator lastEmParticle=m_emTauRoiParticles.end();

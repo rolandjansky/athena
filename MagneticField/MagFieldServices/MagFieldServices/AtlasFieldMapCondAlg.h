@@ -29,6 +29,7 @@ namespace MagField {
         AtlasFieldMapCondAlg(const std::string& name,ISvcLocator* pSvcLocator);
         virtual ~AtlasFieldMapCondAlg();
 
+        StatusCode start() override final;
         StatusCode initialize() override final;
         StatusCode execute(const EventContext& ctx) const override final;
         StatusCode finalize() override final;  

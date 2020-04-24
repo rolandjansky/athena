@@ -33,6 +33,9 @@ while true; do
     esac
 done
 
+# Fail on errors:
+set -e
+
 if [ -z ${PYTHONDONTWRITEBYTE+x} ]; then export PYTHONDONTWRITEBYTECODE=1; fi # don't write .pyc files, keep source directory clean
 
 menu=$1
@@ -72,6 +75,9 @@ cp L1Topoconfig_*.xml ${dest}
 rename _${release}.xml .xml L1Topoconfig_*.xml
 cp L1Topoconfig_*.xml ${dest}
 
+# From here on out, handle errors "manually".
+set +e
+
 # L1 + HLT config file
 if [ -z "$TMXML_DEBUG" ]; then
     MSGLVL=""
@@ -102,3 +108,6 @@ rm -rf $rundir
 
 # Do not return real athena exit code as we want to pretend everything was fine
 unset PYTHONDONTWRITEBYTECODE
+
+# Return with Athena's result.
+exit ${athena_exit}

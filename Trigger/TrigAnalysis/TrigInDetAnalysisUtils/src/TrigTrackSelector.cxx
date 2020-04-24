@@ -278,9 +278,6 @@ void TrigTrackSelector::selectTracks( const TruthParticleContainer* truthtracks 
     
 }
 
-
-
-// add a TruthParticle from a GenParticle - easy, bet it doesn't work 
 bool TrigTrackSelector::selectTrack( const HepMC::GenParticle* track ) {
   
     /// not a "final state" particle
@@ -340,7 +337,6 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
     double xp[3] = { 0, 0, 0 };
 
     if ( track->genParticle()->production_vertex() ) { 
-      // std::cout << "ptr->production_vertex() " << ptr->production_vertex() << std::endl;
       xp[0] = track->genParticle()->production_vertex()->point3d().x();
       xp[1] = track->genParticle()->production_vertex()->point3d().y();
       xp[2] = track->genParticle()->production_vertex()->point3d().z();
@@ -361,7 +357,6 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
     double xd[3] = { 0, 0, 0 };
 
     if ( track->genParticle()->end_vertex() ) { 
-      // std::cout << "ptr->production_vertex() " << ptr->production_vertex() << std::endl;
       xd[0] = track->genParticle()->end_vertex()->point3d().x();
       xd[1] = track->genParticle()->end_vertex()->point3d().y();
       xd[2] = track->genParticle()->end_vertex()->point3d().z();
@@ -494,12 +489,6 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
     /// the production vertex? or swim the track to the perigee point with respect 
     /// to 0,0 and use the parameters there? 
 
-    /// const HepMC::GenParticle* gp = track->genParticle();
-    /// const HepMC::GenVertex*   gv = gp->production_vertex();
-
-    ////    double x0 = gv->point3d().x();
-    ////    double y0 = gv->point3d().x();
-    ////    double z0 = gv->point3d().z();
 
     /// what to do with these???
 		

@@ -42,7 +42,6 @@ Jan 2012   - (FF) add cellEnergyRing variables
 #include <vector>
 #include <sstream>
 
-#include "GaudiKernel/SystemOfUnits.h"
 #include "CaloUtils/CaloVertexedCell.h"
 
 #include "xAODTau/TauJet.h"
@@ -51,19 +50,9 @@ Jan 2012   - (FF) add cellEnergyRing variables
 #include "TauCellVariables.h"
 #include "tauRecTools/HelperFunctions.h"
 
-using Gaudi::Units::GeV;
 
 TauCellVariables::TauCellVariables(const std::string& name) :
-  TauRecToolBase(name),
-m_cellEthr(0.2 * GeV),
-m_stripEthr(0.2 * GeV),
-m_cellCone(0.2),
-m_doVertexCorrection(false) 
-{
-    declareProperty("CellEthreshold", m_cellEthr);
-    declareProperty("StripEthreshold", m_stripEthr);
-    declareProperty("CellCone", m_cellCone);
-    declareProperty("VertexCorrection", m_doVertexCorrection);
+  TauRecToolBase(name) {
 }
 
 TauCellVariables::~TauCellVariables() {

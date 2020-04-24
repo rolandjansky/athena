@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,7 +13,6 @@
 // Athena includes
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "SiPropertiesTool/SiliconProperties.h"
 
 // Gaudi include
@@ -24,10 +23,8 @@
 SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator),
   m_condSvc{"CondSvc", name},
-  m_magFieldSvc{"AtlasFieldSvc", name},
   m_maxHash{0}
 {
-  declareProperty("MagFieldSvc", m_magFieldSvc);
 }
 
 StatusCode SCTSiLorentzAngleCondAlg::initialize()
@@ -46,12 +43,8 @@ StatusCode SCTSiLorentzAngleCondAlg::initialize()
     m_siConditionsTool.disable();
   }
 
-  if (m_useMagFieldSvc.value()) {
-    // MagFieldSvc
-    ATH_CHECK(m_magFieldSvc.retrieve());
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  if (m_useMagFieldCache.value()) {
     ATH_CHECK( m_fieldCondObjInputKey.initialize() );
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Read Cond handle
     if (m_useMagFieldDcs.value()) {
       ATH_CHECK(m_readKeyBFieldSensor.initialize());
@@ -154,8 +147,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
 
   bool validBField{false};
   MagField::AtlasFieldCache    fieldCache;
-  if (m_useMagFieldSvc.value()) {
-////////////////////////////////////////////////////////////////////////////////////////////////////
+  if (m_useMagFieldCache.value()) {
     // Get field cache object
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
@@ -165,7 +157,6 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
         return StatusCode::FAILURE;
     }
     fieldCondObj->getInitializedCache (fieldCache);
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
     if (m_useMagFieldDcs.value()) {
       // Read Cond Handle (B field sensor)
@@ -254,9 +245,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
     double mobility{siProperties.signedHallMobility(element->carrierType())};
 
     // Get magnetic field. This first checks that field cache is valid.
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Amg::Vector3D magneticField{getMagneticField(fieldCache, element)};
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // The angles are in the hit frame. This is because that is what is needed by the digization and also
     // gives a more physical sign of the angle (ie dosen't flip sign when the detector is flipped).
@@ -309,10 +298,9 @@ StatusCode SCTSiLorentzAngleCondAlg::finalize()
   return StatusCode::SUCCESS;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Amg::Vector3D SCTSiLorentzAngleCondAlg::getMagneticField(MagField::AtlasFieldCache& fieldCache, const InDetDD::SiDetectorElement* element) const {
 
-  if (m_useMagFieldSvc.value()) {
+  if (m_useMagFieldCache.value()) {
     Amg::Vector3D pointvec{element->center()};
 
     ATH_MSG_VERBOSE("Getting magnetic field from MT magnetic field service.");
@@ -322,11 +310,7 @@ Amg::Vector3D SCTSiLorentzAngleCondAlg::getMagneticField(MagField::AtlasFieldCac
     point[1] = pointvec[1];
     point[2] = pointvec[2];
     double field[3];
-
-     // MT version uses cache, temporarily keep old version
-     if (fieldCache.useNewBfieldCache()) fieldCache.getField      (point, field);
-     else                                m_magFieldSvc->getField  (point, field);
-
+    fieldCache.getField(point, field);
     return Amg::Vector3D(field[0], field[1], field[2]);
   } else {
     ATH_MSG_VERBOSE("Using Nominal Field");

@@ -48,6 +48,9 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    return m
 
 def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
+   from AthenaCommon.Configurable import Configurable
+   Configurable.configurableRun3Behavior += 1
+
    from TrigEDMConfig.DataScoutingInfo import getFullHLTResultID
 
    TriggerEDMSerialiserTool = CompFactory.TriggerEDMSerialiserTool  
@@ -133,6 +136,7 @@ def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):
                                       title='Size of the largest collection;Size [kB];Num of truncated results',
                                       xbins=200, xmin=0, xmax=5000)
 
+   Configurable.configurableRun3Behavior -= 1
    return serialiser
 
 def StreamTagMakerToolCfg(name="StreamTagMakerTool"):

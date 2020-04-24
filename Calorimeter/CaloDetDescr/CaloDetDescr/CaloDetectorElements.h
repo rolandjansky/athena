@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -81,7 +81,7 @@ class EMBDetectorElement : public CaloDetDescrElement
    */
   void updateAlignment(EMBCellConstLink& embCell,
 		       const EMBDetectorRegion* embRegion,
-		       const CaloElementPositionShift* posShift = 0);
+		       const CaloElementPositionShift* posShift = nullptr);
 
   /** @brief get layer
    */
@@ -97,14 +97,14 @@ class EMBDetectorElement : public CaloDetDescrElement
   
   /** @brief default constructor hidden
    */
-  EMBDetectorElement();
+  EMBDetectorElement() = delete;
   /** @brief copy constructor hidden
    */
-  EMBDetectorElement & operator=(const EMBDetectorElement &right);
+  EMBDetectorElement & operator=(const EMBDetectorElement &right) = delete;
   
   /** @brief initialize base description
    */
-  void init_description(const CaloElementPositionShift* posShift = 0);
+  void init_description(const CaloElementPositionShift* posShift = nullptr);
 
   /** @brief Fill all missing fields of CaloDetDescrElement which
       have not been filled by init_description()
@@ -151,7 +151,7 @@ class EMECDetectorElement : public CaloDetDescrElement
    */
   void updateAlignment(EMECCellConstLink& emecCell,
 		       const EMECDetectorRegion* emecRegion,
-		       const CaloElementPositionShift* posShift = 0);
+		       const CaloElementPositionShift* posShift = nullptr);
 
   /** @brief get layer
    */
@@ -167,15 +167,15 @@ class EMECDetectorElement : public CaloDetDescrElement
  
   /** @brief default constructor hidden
    */
-  EMECDetectorElement();
+  EMECDetectorElement() = delete;
   /** @brief copy constructor hidden
    */
-  EMECDetectorElement & operator=(const EMECDetectorElement &right);
+  EMECDetectorElement & operator=(const EMECDetectorElement &right) = delete;
 
   /** @brief initialize base description
    */
   void init_description(bool isTestBeam,
-			const CaloElementPositionShift* posShift = 0);
+			const CaloElementPositionShift* posShift = nullptr);
 
   /** @brief Fill all missing fields of CaloDetDescrElement which
       have not been filled by init_description()
@@ -224,7 +224,7 @@ class HECDetectorElement : public CaloDetDescrElement
    */
   void updateAlignment(HECCellConstLink& hecCell,
 		       const HECDetectorRegion* hecRegion,
-		       const CaloElementPositionShift* posShift = 0);
+		       const CaloElementPositionShift* posShift = nullptr);
 
   /** @brief get layer
    */
@@ -240,15 +240,15 @@ class HECDetectorElement : public CaloDetDescrElement
   
   /** @brief default constructor hidden
    */
-  HECDetectorElement();
+  HECDetectorElement() = delete;
   /** @brief copy constructor hidden
    */
-  HECDetectorElement & operator=(const HECDetectorElement &right);
+  HECDetectorElement & operator=(const HECDetectorElement &right) = delete;
 
   /** @brief initialize base description
    */
   void init_description(bool isTestBeam,
-			const CaloElementPositionShift* posShift = 0);
+			const CaloElementPositionShift* posShift = nullptr);
 
   /** @brief Fill all missing fields of CaloDetDescrElement which
       have not been filled by init_description()
@@ -295,7 +295,7 @@ class FCALDetectorElement : public CaloDetDescrElement
    */
   void updateAlignment(const FCALTile* fcalTile,
 		       const FCALModule* fcalModule,
-		       const CaloElementPositionShift* posShift = 0);
+		       const CaloElementPositionShift* posShift = nullptr);
 
   /** @brief get layer
    */
@@ -311,15 +311,15 @@ class FCALDetectorElement : public CaloDetDescrElement
   
   /** @brief default constructor hidden
    */
-  FCALDetectorElement();
+  FCALDetectorElement() = delete;
   /** @brief copy constructor hidden
    */
-  FCALDetectorElement & operator=(const FCALDetectorElement &right);
+  FCALDetectorElement & operator=(const FCALDetectorElement &right) = delete;
 
   /** @brief initialize base description
    */
   void init_description(bool isTestBeam,
-			const CaloElementPositionShift* posShift = 0);
+			const CaloElementPositionShift* posShift = nullptr);
 
   /** @brief Fill all missing fields of CaloDetDescrElement which
       have not been filled by init_description()

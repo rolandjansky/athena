@@ -525,10 +525,9 @@ StatusCode PileupFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
 	  itrPart != endPart;
 	  ++itrPart ) {
 
-      //bcChildPart.push_back( (*itrPart)->barcode() );
+
 
       // because the vertices are traversed in POST ORDER !!
-      // (quoting GenVertex::vertex_iterator)
       bcChildPart.push_front( (*itrPart)->barcode() );
 
       if ( (*itrPart)->pdg_id() == pdgId ) {
