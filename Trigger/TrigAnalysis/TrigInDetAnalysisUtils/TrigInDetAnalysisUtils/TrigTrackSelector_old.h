@@ -367,9 +367,9 @@ public:
     double xp[3] = { 0, 0, 0 };
 
     if ( track->genParticle()->production_vertex() ) { 
-      xp[0] = track->genParticle()->production_vertex()->point3d().x();
-      xp[1] = track->genParticle()->production_vertex()->point3d().y();
-      xp[2] = track->genParticle()->production_vertex()->point3d().z();
+      xp[0] = track->genParticle()->production_vertex()->position().x();
+      xp[1] = track->genParticle()->production_vertex()->position().y();
+      xp[2] = track->genParticle()->production_vertex()->position().z();
     }
 
 
@@ -381,9 +381,9 @@ public:
     double xd[3] = { 0, 0, 0 };
 
     if ( track->genParticle()->end_vertex() ) { 
-      xd[0] = track->genParticle()->end_vertex()->point3d().x();
-      xd[1] = track->genParticle()->end_vertex()->point3d().y();
-      xd[2] = track->genParticle()->end_vertex()->point3d().z();
+      xd[0] = track->genParticle()->end_vertex()->position().x();
+      xd[1] = track->genParticle()->end_vertex()->position().y();
+      xd[2] = track->genParticle()->end_vertex()->position().z();
     }
 
     double rp = std::sqrt( xp[0]*xp[0] + xp[1]*xp[1] ); 

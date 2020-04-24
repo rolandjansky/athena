@@ -238,8 +238,8 @@ ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, EBC_EVCOLL 
     return nullptr;
   }
 
-  const auto& pVertexPos(pVertex->point3d());
-  const Amg::Vector3D pos(pVertexPos.x(), pVertexPos.y(), pVertexPos.z());
+
+  const Amg::Vector3D pos(pVertex->position().x(), pVertex->position().y(), pVertex->position().z());
   const auto& pMomentum(genPart.momentum());
   const Amg::Vector3D mom(pMomentum.px(), pMomentum.py(), pMomentum.pz());
   const double pMass = this->getParticleMass(genPart);
