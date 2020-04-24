@@ -1,5 +1,7 @@
 # Powheg in ATLAS/Athena
 
+This directory contains the documentation and user instructions of the ATLAS Powheg interface. It is called PowhegControl and is a part of Athena.
+
 [[_TOC_]]
 
 # Contact the ATLAS Powheg experts and maintainers
@@ -461,24 +463,10 @@ commands like this **MUST** be placed before the call to
 `PowhegConfig.generate()`, or they will be ignored in favour of the
 default settings.
 
-## Running with Generate_tf.py
+## Generating events
 
 TODO update to `Gen_tf.py` for Release 21
 
-These jobOptions should be run using `Generate_tf.py` in the usual way.
-A sample Generate_tf command might look like this:
-
-```bash
-Generate_tf.py --ecmEnergy 13000 --runNumber 147505 --firstEvent 1 --jobConfig MC15.147505.PowhegDijet_Pythia8_AU2_CT10_muR1muF1.py --randomSeed 1 --outputEVNTFile Powheg.EVNT.root
-```
-
-for release 17, `Generate_trf.py` is used instead of `Generate_tf.py`
-with slightly different syntax. The equivalent command to the above
-would look like this:
-
-```bash
-Generate_trf.py ecmEnergy=8000 runNumber=147505 firstEvent=1 jobConfig=MC12.147505.PowhegDijet_Pythia8_AU2_CT10_muR1muF1.py randomSeed=1 evgenJobOpts=MC12JobOpts-00-08-63_v9.tar.gz outputEVNTFile=Powheg.EVNT.root
-```
 
 
 # Requesting new processes
@@ -578,7 +566,7 @@ the package.
 
 TODO update PowhegIntegrationGridGenerator reference above!
 
-## Event weights: Born-level suppression and negatives weights
+## Event weights: Born-level suppression and negative weights
 
 Despite the name, POWHEG does generate negative weight events. The
 default in ATLAS before `PowhegControl-00-02-09` was to reject these,
@@ -602,14 +590,6 @@ the case for all processes by default) then the cross-section reported
 by POWHEG-BOX will be incorrect. Please use the one printed by
 PowhegControl in the log file instead. See the caveats here:
 NegativeWeightPowheg
-
-## Multi-scale improved NLO
-
-Multi-scale improved NLO ([MiNLO](http://arxiv.org/abs/1206.3572)) is a
-method for achieving NLO-accurate predictions for processes with
-associated jets. It is enabled by default for all supported processes.
-The list of processes for which MiNLO is enabled is: `Hj`, `Hjj`, `HWj`,
-`HZj`, `jjj`, `Wbbj`, `Wj`, `Wjj`, `Zj`, `Zjj`
 
 ## Saving LHE files
 
@@ -716,271 +696,3 @@ to the desired number of cores to use.
 **Running event generation in
 multicore mode ignores any integration files that are provided by the
 user.**
-
-## Running with multiple scale/PDF weights (V2 processes only)
-
-In POWHEG version 2, support was enabled for multiple weights to be
-stored per event, representing multiple scale variations or PDFs. To
-enable this behaviour, simply provide a python list to the `PDF` and/or
-the `mu_R` and `mu_F` properties of `PowhegConfig`. For example
-
-```py
-include('PowhegControl/PowhegControl_WZ_Common.py')
-PowhegConfig.PDF = range(10800, 10853)
-PowhegConfig.mu_F = [1.0, 0.5, 0.5, 0.5, 2.0, 2.0, 2.0]
-PowhegConfig.mu_R = [1.0, 0.5, 1.0, 2.0, 0.5, 1.0, 2.0]
-PowhegConfig.generate()
-```
-
-The desired nominal values **MUST** be first in each list. If using
-`mu_F` and `mu_R`, the two lists **MUST** be the same length.
-
-## Running with multiple non-scale/PDF weights (V2 processes only)
-
-Newer Powheg processes are able to re-run with other parameters changed,
-giving additional weights as output in the same way as for scale/PDF
-variations. The first thing to do is to define one or more groups of
-event weights, each one needs a name and a list of the parameters that
-will be altered, which can include scale/PDF parameters if desired.
-
-In the example below, a weight group called `quark_mass_variation` is
-defined, which consists of a series of variations of the
-`bmass_in_minlo` and `quarkmasseffects` parameters
-
-```py
-PowhegConfig.define_event_weight_group(group_name='quark_mass_variation', parameters_to_vary=['bmass_in_minlo', 'quarkmasseffects'])
-```
-
-
-Next, one output weight must be defined for each set of parameter
-variations. The name of the group to which this belongs **MUST** be
-provided, along with the name of the weight and a value for each of the
-parameters specified in the group definition. In the example below,
-three weights are defined, one enables `quarkmasseffects` only, one
-which disables both `bmass_in_minlo` and `quarkmasseffects` and one
-which enables both. Other combinations are of course possible.
-
-```py
-PowhegConfig.add_weight_to_group(group_name='quark_mass_variation', weight_name='mtmb', parameter_values=[0, 1])
-PowhegConfig.add_weight_to_group(group_name='quark_mass_variation', weight_name='mtinf', parameter_values=[0, 0])
-PowhegConfig.add_weight_to_group(group_name='quark_mass_variation', weight_name='mtmb-bminlo', parameter_values=[1, 1])
-```
-
-The number of parameter values provided **MUST** be equal to the number
-specified in the group definition or generation will terminate! The
-example above will produce the following weights:
-
-| Weight name   | PowhegControl options                        |
-| :------------ | :------------------------------------------- |
-| `mtmb`        | `bmass_in_minlo = 0`, `quarkmasseffects = 1` |
-| `mtinf`       | `bmass_in_minlo = 0`, `quarkmasseffects = 0` |
-| `mtmb-bminlo` | `bmass_in_minlo = 1`, `quarkmasseffects = 1` |
-
-Please bear in mind that you cannot use the reweighting mechanism with
-parameters related to the real cross-section, such as `hdamp`.
-Reweighting is only applied to the inclusive cross section (what Powheg
-calls the Bbar function), while the hardest radiation, built on top of
-it, is left as is. Since the `hdamp` parameter selects the part of the
-real cross section to be used for generating radiation, it cannot be
-reweighted.
-
-## Running NNLO reweighting (V2 processes only)
-
-Some processes (currently only `Hj`, `Wj` and `Zj`) come with external
-reweighting programs which can take the LHE events and provide
-event-by-event weights which approximate the full NNLO distribution. The
-syntax is slightly different for NNLOPS for `Hj` and DYNNLO for `Wj` and
-`Zj`
-
-**NNLOPS for Hj** needs two input commands. The first,
-`NNLO_reweighting_inputs` needs arguments which map `name` to
-`file_name` where `file_name` is pre-generated reweighting file and
-`name` is a user-specified name for the weight corresponding to this.
-Similarly `NNLO_output_weights` takes arguments which map `name` to
-`operation` where `operation` is a command in the NNLOPS mini-language
-and `name` is a user-specified name for the output weight resulting from
-this operation.
-
-```py
-#--------------------------------------------------------------
-# EVGEN configuration
-#--------------------------------------------------------------
-evgenConfig.description = 'POWHEG H+jet production with NNLOPS'
-evgenConfig.keywords = ['Higgs', '1jet']
-evgenConfig.contact = ['<james.robinson@cern.ch>']
-
-#--------------------------------------------------------------
-# Powheg Hj setup starting from ATLAS defaults
-#--------------------------------------------------------------
-include('PowhegControl/PowhegControl_Hj_Common.py')
-PowhegConfig.NNLO_reweighting_inputs["nn-mtinf"] = "H1250_CM13_CT10_APX0_11.top"
-PowhegConfig.NNLO_reweighting_inputs["nn-mtmb"] = "H1250_CM13_CT10_APX2_22.top"
-PowhegConfig.NNLO_output_weights["nnlops-mtmb"] = "combine 'nn-mtmb' and 'mtmb'"
-PowhegConfig.NNLO_output_weights["nnlops-mtinf" = "combine 'nn-mtinf' and 'mtinf'"
-PowhegConfig.NNLO_output_weights["'nnlops-mtmb-bminlo"] = "combine 'nn-mtmb' and 'mtmb-bminlo'"
-PowhegConfig.generate()
-```
-
-**DYNNLO for Wj and Zj** has simpler syntax: `NNLO_output_weights` is
-not needed because DYNNLO always reweights the nominal weight.
-
-```py
-#--------------------------------------------------------------
-# EVGEN configuration
-#--------------------------------------------------------------
-evgenConfig.description = 'POWHEG W+jet production with DYNNLO'
-evgenConfig.keywords = ['SM', 'W', '1jet']
-evgenConfig.contact = ['<james.robinson@cern.ch>']
-
-#--------------------------------------------------------------
-# Powheg Wj setup starting from ATLAS defaults
-#--------------------------------------------------------------
-include('PowhegControl/PowhegControl_Wj_Common.py')
-PowhegConfig.NNLO_reweighting_inputs["DYNNLO"] = "Wp_CM8_MMHT14NNLO_11.top'"
-PowhegConfig.generate()
-```
-
-**Available reweighting files** have already been generated for the `Hj`
-and `Wj` processes. where the naming convention is `${process description}_CM${energy}_${PDF}_${further details}_${renormalisation/factorisation scales}`.
-We **will not** make
-these files ourselves, but if you provide them, we are happy to include
-them in future releases. You can see a full list of available
-reweighting files available in the release that you're using by running
-the command:
-
-```bash
-${POWHEGPATH}/AuxFiles/*/
-```
-
-- Hj NNLO reweighting files
-  - H1250_CM13_CT10_APX0_11.top
-  - H1250_CM13_CT10_APX2_11.top
-  - H1250_CM13_CT10_APX2_22.top
-  - H1250_CM13_CT10_APX2_HH.top
-  - H1250-CM13-NNPDF3-APX0-HH.top
-  - H1250-CM13-NNPDF3-APX1-HH.top
-  - H1250-CM13-NNPDF3-APX2-11.top
-  - H1250-CM13-NNPDF3-APX2-HH.top
-  - H1250-CM13-NNPDF3-APX2-QQ.top
-  - H1250_CM13_PDF4LHC30-APX0-11.top
-  - H1250-CM13-PDF4LHC30-APX0-HH.top
-  - H1250-CM13-PDF4LHC30-APX1-HH.top
-  - H1250_CM13_PDF4LHC30-APX2-11.top
-  - H1250_CM13_PDF4LHC30-APX2-22.top
-  - H1250_CM13_PDF4LHC30-APX2-HH.top
-  - H1250_CM13_PDF4LHC30-APX2-QQ.top
-  - H1250_CM8_CT10_APX0_11.top
-  - H1250_CM8_CT10_APX2_11.top
-  - H1250_CM8_CT10_APX2_22.top
-  - H1250_CM8_CT10_APX2_HH.top
-- Wj NNLO reweighting files
-  - Wp_CM8_MMHT14NNLO_11.top
-
-
-Please bear in mind that it is not possible for PowhegControl to check
-the syntax of the commands provided to the reweighters:
-**this is the responsibility of the
-user.** Common errors are:
-
-  - specifying reweighting input files that are not in our repository
-    and have not been provided by the user
-  - trying to combine weights that have not been specified.
-
-Either of these will cause the reweighter to crash in hard-to-debug
-ways.
-
-## Running with post-processing from MadSpin
-
-For some processes involving tops, it may be interesting to run MadSpin
-over the (undecayed) tops from Powheg to correctly model their spins.
-PowhegControl provides a convenient interface for doing this, which must
-be enabled by setting the tops as undecayed (for example
-=PowhegConfig.decay_mode = "t t\~ \> undecayed"= in the case of the
-`tt` process). The following options can then be set in the usual way
-
-|                 Option                  |               Default | Meaning                                                              |
-| :-------------------------------------: | --------------------: | :------------------------------------------------------------------- |
-|      `PowhegConfig.MadSpin_decays`      | leptonic and hadronic | decays allowed by MadSpin                                            |
-|     `PowhegConfig.MadSpin_enabled`      |                  True | set this to `False` if you want undecayed tops without using MadSpin |
-|      `PowhegConfig.MadSpin_model`       |          loop\_sm-ckm | which model to import in MadSpin                                     |
-|       `PowhegConfig.MadSpin_mode`       |                  full | which spin mode to use in MadSpin                                    |
-|    `PowhegConfig.MadSpin_nFlavours`     |                     4 | which flavour scheme to use                                          |
-|     `PowhegConfig.MadSpin_process`      |     process-dependent | process that MadSpin is operating on                                 |
-| `PowhegConfig.MadSpin_taus_are_leptons` |                  True | whether lepton definitions should include taus                       |
-
-**You** are responsible for ensuring that the options passed to MadSpin
-are correct. A common error is requesting `MadSpin_decays` or
-`MadSpin_process` that are not possible with the input Powheg LHE events
-(for example, asking MadSpin to decay both tops and antitops in a sample
-which contains only tops).
-
----
-
-# Additional features for experimenting around, with less support
-
-### Testing unsupported versions of processes with PowhegControl
-
-If you want to test a process through PowhegControl, it is sometimes
-possible to have it installed on afs, after which one can manually point
-PowhegControl to this location. Firstly, check out the `External/Powheg`
-and `Generators/PowhegControl` packages as described earlier.
-
-Then one has to change the `POWHEGPATH` environment variable to point to
-the location of the unofficial installation:
-
-```bash
-POWHEGPATH=/afs/direct_path_to_installed_process
-```
-
-One can then run the job as usual, and the version pointed to by
-`POWHEGPATH` will be used.
-
-### Testing private Powheg run cards with PowhegControl
-
-For debugging, it may occasionally be useful to use the PowhegControl
-machinery to generate events according to a privately provided run card.
-If you do this
-
-- we won't provide support
-- you won't be able to request central production of your events
-
-However, for private testing, this can be enabled by replacing the call
-to
-
-```py
-PowhegConfig.generate()
-```
-
-with
-
-```py
-PowhegConfig.generate(use_external_run_card=True)
-```
-
-
-The job can then be run as usual, with all settings from PowhegControl
-ignored in favour of settings from the private run card.
-
-Note that using external run cards does not seem to work when generating
-events in *multicore* mode due to PowhegControl interfering. Please
-contact the PowhegControl maintainers if you need this, we may be able to
-provide it.
-
-### Generating Powheg run cards with PowhegControl
-
-For debugging, it may occasionally be useful to use the PowhegControl
-machinery to produce run cards which can be tested by non-ATLAS experts
-(eg. the process authors). This can be enabled by replacing the call:
-
-```py
-PowhegConfig.generate()
-```
-
-with
-
-```py
-PowhegConfig.generate(create_run_card_only=True)
-```
-
-The job should be run as usual, but will terminate after the run card
-has been produced.
