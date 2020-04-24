@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,6 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
 #include "SiSPSeededTrackFinderData/SiDetElementBoundaryLink_xk.h"
 #include "SiSPSeededTrackFinderData/SiDetElementBoundaryLinks_xk.h"
@@ -27,7 +26,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,10 +130,8 @@ namespace InDet {
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      /// @name Service and tool handles
+      /// @name Tool handles
       //@{
-      ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle{this, "MagFieldSvc",
-          "AtlasFieldSvc"};
       ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelSummaryTool",
           "PixelConditionsSummaryTool"};
       ToolHandle<IInDetConditionsTool> m_sctCondSummaryTool{this, "SctSummaryTool",
