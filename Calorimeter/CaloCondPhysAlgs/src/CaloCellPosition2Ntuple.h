@@ -16,6 +16,7 @@
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
+#include "CxxUtils/checker_macros.h"
 
 class CaloIdManager;
 class CaloDetDescrManager;
@@ -29,18 +30,18 @@ class CaloCellPosition2Ntuple : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
-    CaloCellPosition2Ntuple(const std::string& name, ISvcLocator* pSvcLocator);
+    CaloCellPosition2Ntuple(const std::string& name, ISvcLocator* pSvcLocator) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
     /** Default Destructor */
-    ~CaloCellPosition2Ntuple();
+    ~CaloCellPosition2Ntuple() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize();
+    StatusCode          initialize ATLAS_NOT_THREAD_SAFE();
     /** standard Athena-Algorithm method */
     StatusCode          execute();
     /** standard Athena-Algorithm method */
     StatusCode          finalize();
     /** standard Athena-Algorithm method */
-    StatusCode          stop();
+    StatusCode          stop ATLAS_NOT_THREAD_SAFE();
 
     
   private:

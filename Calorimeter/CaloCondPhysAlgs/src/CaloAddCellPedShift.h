@@ -26,6 +26,8 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class CaloCondBlobFlt;
 class CondAttrListCollection;
 
@@ -35,12 +37,12 @@ class CaloAddCellPedShift : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
-    CaloAddCellPedShift(const std::string& name, ISvcLocator* pSvcLocator);
+    CaloAddCellPedShift(const std::string& name, ISvcLocator* pSvcLocator) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
     /** Default Destructor */
-    ~CaloAddCellPedShift();
+    ~CaloAddCellPedShift() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize();
+    StatusCode          initialize ATLAS_NOT_THREAD_SAFE();
     /** standard Athena-Algorithm method */
     StatusCode          execute();
     /** standard Athena-Algorithm method */
@@ -62,7 +64,7 @@ class CaloAddCellPedShift : public AthAlgorithm {
   const CaloCell_ID*       m_calo_id;
   const LArOnlineID*      m_onlineID;
 
-  virtual StatusCode updateMap(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode updateMap ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS);
   //=== blob storage
   const DataHandle<CondAttrListCollection> m_noiseAttrListColl;
   std::map<unsigned int, const CaloCondBlobFlt*> m_noiseBlobMap;

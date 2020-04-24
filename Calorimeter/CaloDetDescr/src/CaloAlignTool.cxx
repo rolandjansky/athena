@@ -32,7 +32,6 @@
 
 #include "CaloConditions/CaloCellPositionShift.h"
 
-#include "CxxUtils/checker_macros.h"
 
 CaloAlignTool::CaloAlignTool(const std::string& type, 
 			     const std::string& name, 
@@ -47,7 +46,7 @@ CaloAlignTool::~CaloAlignTool()
 {
 }
 
-StatusCode CaloAlignTool::initialize ATLAS_NOT_THREAD_SAFE ()
+StatusCode CaloAlignTool::initialize()
 {
   // Get pointers to the GeoModelSvc and DetectorStore
   StatusCode status;
@@ -99,7 +98,7 @@ StatusCode CaloAlignTool::finalize()
   return StatusCode::SUCCESS;
 }
  
-StatusCode CaloAlignTool::align ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS)
+StatusCode CaloAlignTool::align(IOVSVC_CALLBACK_ARGS)
 {
   StatusCode status;
   MsgStream log(msgSvc(), name());
