@@ -8,9 +8,9 @@ namespace {
   static constexpr unsigned int const& rpcRawHitWordLength = 7;
 }
 
-RpcByteStreamDecoder::RpcByteStreamDecoder(const RPCbytestream * p_bytestream, const IRPCcablingSvc * p_cabling, const RpcIdHelper* rpcId, MsgStream* log) :
+RpcByteStreamDecoder::RpcByteStreamDecoder(const RPCbytestream * p_bytestream, const RpcCablingCondData* readCdo, const RpcIdHelper* rpcId, MsgStream* log) :
   m_bytestream(p_bytestream),
-  m_cabling(p_cabling),
+  m_cabling(readCdo),
   m_rpcIdHelper(rpcId)
 { 
   m_rpcpads = new std::vector<RpcPad*>;
@@ -22,7 +22,6 @@ RpcByteStreamDecoder::RpcByteStreamDecoder(const RPCbytestream * p_bytestream, c
     m_debug   = false;
     m_verbose = false; 
   }
-  
 }
 
 RpcByteStreamDecoder::~RpcByteStreamDecoder()
