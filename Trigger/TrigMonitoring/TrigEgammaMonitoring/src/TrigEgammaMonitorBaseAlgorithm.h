@@ -67,7 +67,7 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
   protected:
 
     /* Trigger e/g matching tool */
-    ToolHandle<Trig::TrigEgammaMatchingToolMT> m_matchTool;
+    ToolHandle<TrigEgammaMatchingToolMT> m_matchTool;
     /*! Offline isEM Selectors */
     ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool{this,"ElectronIsEMSelector",{}};
     /*! Offline LH Selectors */
@@ -98,7 +98,7 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     /*! Get the TDT  */
     const ToolHandle<Trig::TrigDecisionTool>& tdt() const {return m_trigdec;};
     /*! Get the e/g match tool */
-    const ToolHandle<Trig::TrigEgammaMatchingToolMT>& match() const {return m_matchTool;}
+    const ToolHandle<TrigEgammaMatchingToolMT>& match() const {return m_matchTool;}
     /*! Set the accept object for all trigger levels */
     asg::AcceptData setAccept(const TrigCompositeUtils::Decision*, const TrigInfo) const;
     /*! Get the trigger info parsed from the chain name */

@@ -31,7 +31,7 @@ class TrigEgammaMatchingToolMTTest : public AthMonitorAlgorithm {
     SG::ReadHandleKey<xAOD::ElectronContainer> m_electronKey{this , "ElectronKey", "Electrons", ""};
 
     ToolHandle<Trig::TrigDecisionTool> m_trigdec;
-    ToolHandle<Trig::TrigEgammaMatchingToolMT> m_matchTool;
+    ToolHandle<TrigEgammaMatchingToolMT> m_matchTool;
 
 
     std::vector<std::string> m_triggerList;

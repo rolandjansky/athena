@@ -4,7 +4,7 @@
 #include "../TrigEgammaMatchingToolMTTest.h"
 
 DECLARE_COMPONENT( Trig::TrigEgammaMatchingTool )   
-DECLARE_COMPONENT( Trig::TrigEgammaMatchingToolMT )   
+DECLARE_COMPONENT( TrigEgammaMatchingToolMT )   
 DECLARE_COMPONENT( Trig::TrigEgammaMatchingToolTest ) 
 DECLARE_COMPONENT( TrigEgammaMatchingToolMTTest ) 
 

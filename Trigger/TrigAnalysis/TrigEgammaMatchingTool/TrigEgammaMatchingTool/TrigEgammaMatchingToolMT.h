@@ -19,7 +19,6 @@
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 
-namespace Trig{
 
 
 
@@ -86,7 +85,6 @@ class TrigEgammaMatchingToolMT : public asg::AsgTool
 };
 
 
-}
 
 
 #include "TrigEgammaMatchingToolMT.icc"

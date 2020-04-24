@@ -9,7 +9,7 @@
 from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
 from TrigEgammaMonitoring.TrigEgammaMonitCategory import * 
 from TrigEgammaMonitoring.TrigEgammaMonitoringConf import * 
-from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingToolMT
+
 from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_electron, monitoring_photon, monitoringTP_electronJpsiee, monitoringTP_electron
 from TrigEgammaMonitoring import TrigEgammaMonitoringConf
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
@@ -17,6 +17,10 @@ from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 from AthenaCommon import CfgMgr
 import cppyy
  
+#from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingToolMT
+#from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingToolMT
+from AthenaConfiguration.ComponentFactory import CompFactory
+
 
 if not 'DQMonFlags' in dir():
     from AthenaMonitoring.DQMonFlags import DQMonFlags as dqflags
@@ -176,9 +180,9 @@ class TrigEgammaMonAlgBuilder:
   # Create all minitor algorithms
   #
   def configureMonitor( self ):
-  
+
     acc = self.helper.resobj
-    EgammaMatchTool = Trig__TrigEgammaMatchingToolMT()
+    EgammaMatchTool = CompFactory.TrigEgammaMatchingToolMT()
     EgammaMatchTool.OutputLevel=2
     EgammaMatchTool.DeltaR=0.4
     acc.addPublicTool(EgammaMatchTool)
