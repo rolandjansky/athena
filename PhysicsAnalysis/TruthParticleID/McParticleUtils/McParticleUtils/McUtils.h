@@ -13,8 +13,6 @@
 
 // STL includes
 
-// HepMC includes
-
 // Forward declaration
 namespace HepPDT  { class ParticleDataTable; }
 

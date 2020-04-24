@@ -13,7 +13,6 @@
 
 // STL includes
 
-// HepMC / CLHEP includes
 
 #include "AthenaKernel/CLASS_DEF.h"
 

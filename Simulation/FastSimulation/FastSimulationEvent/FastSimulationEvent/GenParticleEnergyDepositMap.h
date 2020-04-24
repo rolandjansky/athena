@@ -18,9 +18,7 @@
 #include <map>
 #include <utility>
 
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace FSim {
 

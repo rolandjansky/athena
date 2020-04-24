@@ -17,7 +17,7 @@ JetHistoVarTool::JetHistoVarTool( const std::string& type,  const std::string & 
 StatusCode JetHistoVarTool::initialize() {
 
   if(m_name=="") m_name = name();
-  m_v.reset( JetVar::Variable::create( m_name, m_type, m_index) ); 
+  m_v = JetVar::Variable::create( m_name, m_type, m_index);
   m_v->setScale(m_scale);
 
   if (! bool(m_v) ) {

@@ -72,7 +72,7 @@ namespace JetVar {
 
     /// create and return a new Variable of a given name & type. If type is a vector an index 
     /// can be specified : the variable will behave as a non-vector Variable corresponding to the value at the given index
-    static Variable* create(const std::string & name, const std::string &type="float", int index=-1);
+    static std::unique_ptr<Variable> create(const std::string & name, const std::string &type="float", int index=-1);
 
     std::string m_name;
     float m_scale = 1;

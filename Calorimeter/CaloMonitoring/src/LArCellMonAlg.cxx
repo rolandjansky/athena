@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // NAME:     LArCellMonAlg.cxx
@@ -114,6 +114,12 @@ StatusCode LArCellMonAlg::initialize() {
 
   // FIXME check consistency between layer and partitions from jO to enums
  
+  // Check that sizes of layer names and ncells is the same
+  if (m_layerNames.size() != m_layerNcells.size()) {
+        ATH_MSG_ERROR("LayerNames and LayerNcells not of the same length, aborting.....");
+        return StatusCode::FAILURE;
+  }
+
   //retrieve trigger decision tool and chain groups
   if( m_useTrigger) {
     const ToolHandle<Trig::TrigDecisionTool> trigTool=getTrigDecisionTool();
@@ -495,7 +501,7 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
     for (size_t ithreshold = 0; ithreshold < thresholds.size(); ++ithreshold) {
       monValueVec[ilayer].emplace_back();
       // this could be more intelligent (this is the worst case for #cells in a layer, most are much less)
-      monValueVec[ilayer][ithreshold].reserve(28608);
+      monValueVec[ilayer][ithreshold].reserve(m_layerNcells[ilayer]);
     }
   }
 

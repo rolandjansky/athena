@@ -18,7 +18,6 @@
 #include <set>
 #include <fstream>
 
-// HepMC / CLHEP includes
 
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"

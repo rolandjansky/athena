@@ -124,12 +124,10 @@ bool AdaptiveResidualSmoothing::addResidualsFromSegment(
 	}
 
   // store the residuals //
-// 	static ofstream resfile("res.txt");
 	for (unsigned int k=0; k<fitter->trackHits().size(); k++) {
 		point[0] = fitter->trackHits()[k]->driftRadius();
 		point[1] = fitter->trackHits()[k]->driftRadius()-
-				  fabs(fitter->trackHits()[k]->signedDistanceToTrack());
-// 		resfile << point[0] << "\t" << point[1] << endl;
+				  std::abs(fitter->trackHits()[k]->signedDistanceToTrack());
 		DataPoint residual_point(point, 0);
 		m_residual_point.push_back(residual_point);
 	}
@@ -269,7 +267,7 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(
     // 1000 segments -> 7.6% and 35 bins
     // 5000 segments -> 5.1% and 64 bins
     // 10000 segments-> 4.1% and 91 bins
-    nb_bins =static_cast<unsigned int>( sqrt(m_residual_point.size()/6.) );
+    nb_bins =static_cast<unsigned int>( std::sqrt(m_residual_point.size()/6.) );
     
     //calculate min_nb_per_bin
     min_nb_entries_per_bin = m_residual_point.size() / nb_bins;
@@ -308,10 +306,10 @@ RtRelationLookUp AdaptiveResidualSmoothing::performSmoothing(
 
 // group data points in r bins //
     for (unsigned int k=0; k<m_residual_point.size(); k++) {
-        if (fabs(m_residual_point[k].dataVector()[0])>=r_max) {
+        if (std::abs(m_residual_point[k].dataVector()[0])>=r_max) {
             continue;
         }
-        bin_index = static_cast<unsigned int>(fabs(
+        bin_index = static_cast<unsigned int>(std::abs(
                             m_residual_point[k].dataVector()[0])/step_size);
         sample_points_per_r_bin[bin_index].push_back(&(m_residual_point[k]));
     }
@@ -410,7 +408,7 @@ double AdaptiveResidualSmoothing::t_from_r(const IRtRelation & rt_rel,
 /////////////////////////////////////////////
 
 	while (t_max-t_min>0.1 &&
-						fabs(rt_rel.radius(0.5*(t_min+t_max))-r)>precision) {
+						std::abs(rt_rel.radius(0.5*(t_min+t_max))-r)>precision) {
 
 		if (rt_rel.radius(0.5*(t_min+t_max))>r) {
 			t_max = 0.5*(t_min+t_max);

@@ -10,10 +10,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
 
-namespace HepMC {
-    class GenEvent;
-}
-
+#include "AtlasHepMC/GenEvent_fwd.h"
 namespace Simulation {
 
   /**

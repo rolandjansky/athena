@@ -192,11 +192,12 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
 def MuonCombinedReconstructionCfg(flags):
     result = ComponentAccumulator()
 
-    from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
-    result.merge( DetDescrCnvSvcCfg(flags) ) 
-
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     result.merge( GeoModelCfg(flags) )
+
+    # FIXME - this appears necessary, but it really shound't be given the above.
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
+    result.merge( MuonGeoModelCfg(flags) )
 
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
@@ -232,27 +233,12 @@ if __name__=="__main__":
     # To run this, do e.g. 
     # python -m MuonCombinedConfig.MuonCombinedReconstructionConfig --run --threads=1
     
-    from argparse import ArgumentParser    
-    parser = ArgumentParser()
-    parser.add_argument("-t", "--threads", type=int,
-                        help="number of threads", default=1)
-                        
-    parser.add_argument("-o", "--output", default='newESD.pool.root',
-                        help="write ESD to FILE", metavar="FILE")
-                        
-    parser.add_argument("--run", help="Run directly from the python. If false, just stop once the pickle is written.",
-                        action="store_true")
+    from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneCA
 
-    parser.add_argument("--forceclone", help="Override default cloneability of algorithms to force them to run in parallel",
-                        action="store_true")
-                        
-    args = parser.parse_args()    
-    
-    from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=1
-
-    from AthenaCommon.Logging import log
+    args = SetupMuonStandaloneArguments()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root']
     
     ConfigFlags.Concurrency.NumThreads=args.threads
     ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
@@ -265,37 +251,22 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryPixel   = True 
     ConfigFlags.Detector.GeometrySCT   = True 
     ConfigFlags.Detector.GeometryTRT   = True 
-        
-    # from AthenaConfiguration.TestDefaults import defaultTestFiles
-    # ConfigFlags.Input.Files = defaultTestFiles.ESD
-    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root']
-    ConfigFlags.Output.ESDFileName=args.output
 
-    # from AthenaCommon.Constants import DEBUG
-    # log.setLevel(DEBUG)
-    # log.info('About to set up Muon Track Building.')
+    
+    ConfigFlags.Output.ESDFileName=args.output
     
     ConfigFlags.Input.isMC = True
     ConfigFlags.lock()
+
     ConfigFlags.dump()
 
-    # When running from a pickled file, athena inserts some services automatically. So only use this if running now.
-    if args.run:
-        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-        cfg = MainServicesThreadedCfg(ConfigFlags)
-        msgService = cfg.getService('MessageSvc')
-        msgService.Format = "S:%s E:%e % F%58W%S%7W%R%T  %0W%M"
-    else:
-        cfg=ComponentAccumulator()
-    
-    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg.merge(PoolReadCfg(ConfigFlags))
+    cfg = SetupMuonStandaloneCA(args,ConfigFlags)
 
-    log.debug('About to set up Combined Muon Reconstruction.')  
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     
     if args.threads>1 and args.forceclone:
+        from AthenaCommon.Logging import log
         log.info('Forcing track building cardinality to be equal to '+str(args.threads))
         # We want to force the algorithms to run in parallel (eventually the algorithm will be marked as cloneable in the source code)
         AlgResourcePool=CompFactory.AlgResourcePool
@@ -314,17 +285,12 @@ if __name__=="__main__":
     cfg.addService(pps)
     cfg.addService(ars)
     
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
+    # from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    # itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
     
-    cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
-    
-    outstream = cfg.getEventAlgo("OutputStreamESD")
-    # outstream.OutputLevel=DEBUG
-    outstream.ForceRead = True
-    
-    cfg.printConfig(withDetails = True, summariseProps = True)
-              
+    # cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
+  
+    cfg.printConfig(withDetails=True)
     f=open("MuonCombinedReconstruction.pkl","wb")
     cfg.store(f)
     f.close()

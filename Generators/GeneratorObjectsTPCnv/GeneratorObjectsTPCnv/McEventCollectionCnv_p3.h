@@ -14,7 +14,6 @@
 // STL includes
 #include <unordered_map>
 
-// HepMC / CLHEP includes
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wkeyword-macro"

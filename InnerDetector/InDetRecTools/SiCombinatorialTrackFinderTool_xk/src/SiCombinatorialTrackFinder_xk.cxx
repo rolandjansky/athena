@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -93,12 +93,6 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
     m_sctCondSummaryTool.disable();
   }
   
-  if ( !m_fieldServiceHandle.retrieve() ) {
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }    
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-
   // Setup callback for magnetic field
   //
   magneticFieldInit();
@@ -802,7 +796,6 @@ void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(const Eve
   data.setTools(&*m_proptool,
                 &*m_updatortool,
                 &*m_riocreator,
-                &*m_fieldServiceHandle,
                 (m_usePIX ? &*m_pixelCondSummaryTool : nullptr),
                 (m_useSCT ? &*m_sctCondSummaryTool : nullptr),
                 &m_fieldprop);

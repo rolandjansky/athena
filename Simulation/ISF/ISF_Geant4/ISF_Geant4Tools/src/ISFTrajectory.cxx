@@ -27,7 +27,7 @@
 #include "MCTruth/TrackHelper.h"
 
 //HepMC includes
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #undef _ISFTRAJECTORY_DEBUG_
 

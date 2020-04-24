@@ -650,7 +650,6 @@ unsigned int TrigCaloDataAccessSvc::prepareMBTSCollections( const EventContext& 
     m_robDataProvider->addROBData( context, m_mbts_add_rods );
   }
   std::lock_guard<std::mutex> collectionLock { cache->mutex };  
-  std::lock_guard<std::mutex> decoderLock { m_tiledecoderProtect };  
   TileCellCont* tilecell = cache->tileContainer;
   if ( cache->tileContainer->eventNumber() != context.evt() )
      cache->d0cells->clear();

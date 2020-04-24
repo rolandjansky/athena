@@ -16,10 +16,8 @@
 #include "BarcodeEvent/PhysicsProcessCode.h"
 
 // forward declarations
-namespace HepMC {
-  class FourVector;
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/SimpleVector_fwd.h"
 
 namespace ISF {
 

@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// std
 #include <fstream>
 #include <string>
-// other packages
+
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -252,7 +251,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
   // on the other hand it should be rare that a tube does not have an RT
   if( !rtRelation ) {
     ATH_MSG_WARNING( "no rtRelation found, cannot calibrate tube" );
-    hit.setDriftRadius( 0., 2*14.6/sqrt(12) ); // treat the tube as a 'strip' measurement
+    hit.setDriftRadius( 0., 2*14.6/std::sqrt(12) ); // treat the tube as a 'strip' measurement
     return false;
   }
   double t0(0.);
@@ -404,7 +403,7 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
       reso = rtRelation->rtRes()->resolution( t_inrange );
     } else {
       bool out_of_bound_flag;
-      reso = rtRelation->rtRes()->resolution(rtRelation->tr()->tFromR(fabs(hit.signedDistanceToTrack()),
+      reso = rtRelation->rtRes()->resolution(rtRelation->tr()->tFromR(std::abs(hit.signedDistanceToTrack()),
 								      out_of_bound_flag) );
     }
   }else{
@@ -890,7 +889,7 @@ double MdtCalibrationTool::Imp::applyCorrections(MagField::AtlasFieldCache& fiel
           // sign of drift radius (for sag calculation) is +/- of track passes
           // above/below wire
 
-          double signedDriftRadius = fabs(hit.driftRadius())*deltaY/fabs(deltaY);
+          double signedDriftRadius = deltaY*(std::abs(hit.driftRadius()/deltaY));
 
           // calculate the magnitude of the wire sag
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,7 +23,7 @@ and compare position of the trajectory with position detector elements in the ma
 element with some tolerance algorithm save this element to the list. All detector elments in the list sorted
 in propagation order and first detector element is closest to beam axis.    
      
-This algorithm uses IMagneticFieldTool and IPropagator  tools.
+This algorithm uses IPropagator tool.
 
 
 */

@@ -61,7 +61,6 @@ namespace { // utility functions used here
     return (pTrk->pt() > safePtThreshold) ? (pTrk->eta()) : std::nan("");
   }
 
-  constexpr float twoPi = 2 * M_PI;
   // general utility function to check value is in range
   template <class T>
   inline bool

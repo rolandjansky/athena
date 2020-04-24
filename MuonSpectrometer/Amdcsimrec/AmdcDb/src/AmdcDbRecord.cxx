@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcDb/AmdcDbRecord.h"
@@ -325,7 +325,7 @@ void AmdcDbRecord::doIMatch(
      std::string WARNING_Message	  = " ";
      int Iwarning = 0 ;
      double EpsKut = 1./ std::pow(10., AmdcValPrec);
-     if ( fabs(DeltaValue) > EpsKut ) {
+     if ( std::abs(DeltaValue) > EpsKut ) {
        WARNING_Message = "  <=========  WARNING !";
        Iwarning = 1 ;
      }

@@ -16,7 +16,6 @@
 #include <vector>
 #include <utility> // for std::pair
 
-// HepMC / CLHEP includes
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
