@@ -461,7 +461,10 @@ const StatusCode ElectronPhotonVariableCorrectionBase::getParameterInformationFr
             ATH_MSG_ERROR("Could not retrieve pt binning.");
             return StatusCode::FAILURE;
         }
-        //check if interpolation should be done
+    }
+    //check if interpolation should be done
+    if (getPtBins)
+    {
         if (env.Lookup(interpolate))
         {
             TString interpolation_str = env.GetValue(interpolate.Data(),"");
@@ -577,8 +580,6 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get2DBinnedParameter(floa
     ATH_CHECK(findBin(etaBin, etaEvalPoint, m_etaBins));
     ATH_CHECK(findBin(ptBin, ptEvalPoint, m_ptBins));
 
-    // TODO: interpolate
-
     // get the corresponding pt x eta bin found
     /* Note: Assuming that the values are binned in pt x eta in the conf file:
      *           eta bin 0 | eta bin 1 | eta bin 2 | eta bin 3 | eta bin 4 | etc.
@@ -599,7 +600,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get2DBinnedParameter(floa
         // create the vector of correction values binned in pT at the found eta bin
         std::vector<float> tmp_binValuesAtEtaSlice;
         // from the full binning vector, need to cut one of the columns
-        for (unsigned int binValue_itr = etaBin; binValue_itr <= m_binValues.size(); binValue_itr += m_etaBins.size())
+        for (unsigned int binValue_itr = etaBin; binValue_itr < m_binValues.at(parameter_number).size(); binValue_itr += m_etaBins.size())
         {
             tmp_binValuesAtEtaSlice.push_back(m_binValues.at(parameter_number).at(binValue_itr));
         }
@@ -675,13 +676,13 @@ const StatusCode ElectronPhotonVariableCorrectionBase::interpolate(float& return
     }
 
     // if evalPoint is left to the leftmost bin center, return the leftmost bin center without interpolation
-    if (evalPoint < binValues.at(0))
+    if (evalPoint < binning.at(0))
     {
         return_parameter_value = binValues.at(0);
         return StatusCode::SUCCESS;
     }
     // if evalPoint is right to the rightmost bin center, return the rightmost bin center without interpolation
-    if (evalPoint > binValues.at(binValues.size()-1))
+    if (evalPoint > binning.at(binning.size()-1))
     {
         return_parameter_value = binValues.at(binValues.size()-1);
         return StatusCode::SUCCESS;
@@ -691,24 +692,19 @@ const StatusCode ElectronPhotonVariableCorrectionBase::interpolate(float& return
     float right_bin_center = 0;
 
     // else interpolate using next left or next right bin
-    if (evalPoint < binValues.at(bin))
+    if (evalPoint <= binValues.at(bin))
     {
         //interpolate left
         left_bin_center = 0.5 * (binning.at(bin) + binning.at(bin-1));
         right_bin_center = 0.5 * (binning.at(bin) + binning.at(bin+1));
         return_parameter_value = interpolate_function(evalPoint, left_bin_center, binValues.at(bin-1), right_bin_center, binValues.at(bin));
     }
-    else if (evalPoint > binValues.at(bin))
+    else // evalPoint is right from bin center
     {
         //interpolate right
         left_bin_center = 0.5 * (binning.at(bin+1) + binning.at(bin));
         right_bin_center = 0.5 * (binning.at(bin+1) + binning.at(bin+2));
         return_parameter_value = interpolate_function(evalPoint, left_bin_center, binValues.at(bin), right_bin_center, binValues.at(bin+1));
-    }
-    else
-    {
-        //we're at the bin center, so return bin center
-        return_parameter_value = binValues.at(bin);
     }
 
     // everything went fine, so
