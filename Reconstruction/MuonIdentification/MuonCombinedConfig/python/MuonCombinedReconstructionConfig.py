@@ -195,10 +195,14 @@ def MuonCombinedReconstructionCfg(flags):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     result.merge( GeoModelCfg(flags) )
 
-    # FIXME - this appears necessary, but it really shound't be given the above.
+    # FIXME - this appears necessary, but it really shouldn't be given the above.
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
     result.merge( MuonGeoModelCfg(flags) )
 
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    from TileGeoModel.TileGMConfig import TileGMCfg
+
+    import pdb ; pdb.set_trace()
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
 
@@ -233,7 +237,7 @@ if __name__=="__main__":
     # To run this, do e.g. 
     # python -m MuonCombinedConfig.MuonCombinedReconstructionConfig --run --threads=1
     
-    from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneCA
+    from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneCA, SetupMuonStandaloneOutput
 
     args = SetupMuonStandaloneArguments()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -246,9 +250,10 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryMDT   = True 
     ConfigFlags.Detector.GeometryTGC   = True
     ConfigFlags.Detector.GeometryCSC   = True     
-    ConfigFlags.Detector.GeometryTile   = True 
+    ConfigFlags.Detector.GeometryRPC   = True     
+    ConfigFlags.Detector.GeometryTile  = True 
     ConfigFlags.Detector.GeometryLAr   = True 
-    ConfigFlags.Detector.GeometryPixel   = True 
+    ConfigFlags.Detector.GeometryPixel = True 
     ConfigFlags.Detector.GeometrySCT   = True 
     ConfigFlags.Detector.GeometryTRT   = True 
 
@@ -285,10 +290,8 @@ if __name__=="__main__":
     cfg.addService(pps)
     cfg.addService(ars)
     
-    # from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    # itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
-    
-    # cfg.merge( OutputStreamCfg( ConfigFlags, 'ESD', ItemList=itemsToRecord) )
+    itemsToRecord = ["xAOD::MuonContainer#Muons", "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose"]
+    SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
   
     cfg.printConfig(withDetails=True)
     f=open("MuonCombinedReconstruction.pkl","wb")
