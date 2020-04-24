@@ -214,43 +214,43 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
         self.L2signatureList+=[ [['L2_ih']*self.mult] ]
 
  
-        else:    # former CosmicsAllTeEFID chain        
-            from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_CosmicsN
-            theEFIDTracking=TrigEFIDInsideOut_CosmicsN()
-            from TrigMinBias.TrigMinBiasConfig import MbTrkFex_1, MbTrkHypo_1
-            thetrackcnt =  MbTrkFex_1("MbTrkFex_"+newchainName)
-            thetrackcnt.InputTrackContainerName = "InDetTrigTrackSlimmerIOTRT_CosmicsN_EFID"
-            theefidcosmhypo = MbTrkHypo_1("MbTrkHypo_"+newchainName)
-            theefidcosmhypo.AcceptAll_EF=False
-            theefidcosmhypo.Required_ntrks=1
-            theefidcosmhypo.Max_z0=1000.0
+        # former CosmicsAllTeEFID chain        
+        from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_CosmicsN
+        theEFIDTracking=TrigEFIDInsideOut_CosmicsN()
+        from TrigMinBias.TrigMinBiasConfig import MbTrkFex_1, MbTrkHypo_1
+        thetrackcnt =  MbTrkFex_1("MbTrkFex_"+newchainName)
+        thetrackcnt.InputTrackContainerName = "InDetTrigTrackSlimmerIOTRT_CosmicsN_EFID"
+        theefidcosmhypo = MbTrkHypo_1("MbTrkHypo_"+newchainName)
+        theefidcosmhypo.AcceptAll_EF=False
+        theefidcosmhypo.Required_ntrks=1
+        theefidcosmhypo.Max_z0=1000.0
         
-            self.EFsequenceList += [[['L2_ih'],theEFIDTracking.getSequence()+[thetrackcnt,  theefidcosmhypo], 'EF_efid']]
-            self.EFsignatureList +=  [ [['EF_efid']*self.mult] ]
+        self.EFsequenceList += [[['L2_ih'],theEFIDTracking.getSequence()+[thetrackcnt,  theefidcosmhypo], 'EF_efid']]
+        self.EFsignatureList +=  [ [['EF_efid']*self.mult] ]
 
 
-            # DATASCOUTING CHAIN  
-            if ("ds" in self.chainPart['addInfo']) and (self.mult==1):
-                from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
-                dsAlg  = ScoutingStreamWriter("MuonCosmicDataScouting")
-                # this should go to a dedicated place for datascouting configuration
-                dsAlg.CollectionTypeName = ['xAOD::TrackParticleContainer_v1#InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID',
-                                            'xAOD::TrackParticleAuxContainer_v1#InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFIDAux',
-                                            'xAOD::VertexContainer_v1#xPrimVx',
-                                            'xAOD::VertexAuxContainer_v1#xPrimVxAux'
-                                            ] 
-                inputTE = 'EF_efid'
-                outputTE = "EF_efid_ds"                
-                self.EFsequenceList += [[ [inputTE], [dsAlg], outputTE ] ]
-                self.EFsignatureList +=  [ [['EF_efid_ds']*self.mult] ]
+        # DATASCOUTING CHAIN  
+        if ("ds" in self.chainPart['addInfo']) and (self.mult==1):
+            from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
+            dsAlg  = ScoutingStreamWriter("MuonCosmicDataScouting")
+            # this should go to a dedicated place for datascouting configuration
+            dsAlg.CollectionTypeName = ['xAOD::TrackParticleContainer_v1#InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID',
+                                        'xAOD::TrackParticleAuxContainer_v1#InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFIDAux',
+                                        'xAOD::VertexContainer_v1#xPrimVx',
+                                        'xAOD::VertexAuxContainer_v1#xPrimVxAux'
+                                        ] 
+            inputTE = 'EF_efid'
+            outputTE = "EF_efid_ds"                
+            self.EFsequenceList += [[ [inputTE], [dsAlg], outputTE ] ]
+            self.EFsignatureList +=  [ [['EF_efid_ds']*self.mult] ]
+        
             
-                
-            
-            self.TErenamingDict = {
-                'L2_ih':    "L2_Cosmic_"+newchainName+"_AllTEDummy",
-                'EF_efid':  "EF_TrigEFIDInsideOut_CosmicsN",
-                }
+        
+        self.TErenamingDict = {
+            'L2_ih':    "L2_Cosmic_"+newchainName+"_AllTEDummy",
+            'EF_efid':  "EF_TrigEFIDInsideOut_CosmicsN",
+            }
 
-            if "ds" in self.chainPart['addInfo']:
-                self.TErenamingDict.update({'EF_efid_ds'  : mergeRemovingOverlap('EF_efid_',    self.chainName),})
+        if "ds" in self.chainPart['addInfo']:
+            self.TErenamingDict.update({'EF_efid_ds'  : mergeRemovingOverlap('EF_efid_',    self.chainName),})
 
