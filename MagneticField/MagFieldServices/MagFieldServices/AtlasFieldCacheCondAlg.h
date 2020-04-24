@@ -66,6 +66,10 @@ namespace MagField {
         Gaudi::Property<bool> m_useDCS {this, 
                                         "UseDCS", false, "Get magnet currents from DCS through ConditionsSvc"};
 
+      // flag to skip current rescale and use map currents as they are
+        Gaudi::Property<bool> m_lockMapCurrents {this, 
+                                                 "LockMapCurrents", false, "Skip current rescale and use map currents as they are"};
+        
         // COOL folder name containing current information
         // current input key
         SG::ReadCondHandleKey<CondAttrListCollection> m_currInputKey

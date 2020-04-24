@@ -64,6 +64,8 @@ MagField::AtlasFieldCacheCondAlg::initialize() {
 
     ATH_MSG_INFO ( "Initialize: useDCS, useSoleCurrent, useToroCurrent. " << (int)m_useDCS << ", "
                    << m_useSoleCurrent << ", " << m_useToroCurrent);
+    // ATH_MSG_INFO ( "Initialize: useDCS, useSoleCurrent, useToroCurrent. " << (int)m_useDCS << ", "
+    //                << m_useSoleCurrent << ", " << m_useToroCurrent << " LockMapCurrents " << (int)m_lockMapCurrents);
 
     
     return StatusCode::SUCCESS;
@@ -107,7 +109,10 @@ MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
     const MagField::AtlasFieldMap* fieldMap =  mapCondObj->fieldMap();
 
     // calculate the scale factors
-    scaleField(cache, fieldMap);
+    if (!m_lockMapCurrents) {
+        scaleField(cache, fieldMap);
+    }
+    
 
     // save current scale factor in conditions object
     auto fieldCondObj = std::make_unique<AtlasFieldCacheCondObj>();
