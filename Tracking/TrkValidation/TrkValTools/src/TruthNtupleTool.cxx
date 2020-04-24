@@ -305,8 +305,8 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
             m_mc_qOverP  = truePerigee->parameters()[Trk::qOverP];
             m_mc_qOverPt = (sin( m_mc_theta ) != 0.) ? m_mc_qOverP / sin( m_mc_theta ) : 0.;
             m_mc_eta     = truePerigee->eta();
-            m_mc_prodR   = fabs(genParticle->production_vertex()->point3d().perp());
-            m_mc_prodz   = fabs(genParticle->production_vertex()->point3d().z());
+            m_mc_prodR   = fabs(genParticle->production_vertex()->position().perp());
+            m_mc_prodz   = fabs(genParticle->production_vertex()->position().z());
 
             for (unsigned int trackColIndex = 0; trackColIndex < truthData[index].truthToTrackIndices.size(); ++trackColIndex ) {
                 (*(m_TrackLinkIndex[trackColIndex])) = truthData[index].truthToTrackIndices[trackColIndex];

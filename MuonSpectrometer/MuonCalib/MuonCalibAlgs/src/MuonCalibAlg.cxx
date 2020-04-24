@@ -502,9 +502,9 @@ namespace MuonCalib {
 				 (*particle)->momentum().e());
 	      Amg::Vector3D  pos(999.,999.,999.);
 	      if ((*particle)->production_vertex()) { 
-		pos[0] = (*particle)->production_vertex()->point3d().x();
-		pos[1] = (*particle)->production_vertex()->point3d().y();
-		pos[2] = (*particle)->production_vertex()->point3d().z();
+		pos[0] = (*particle)->production_vertex()->position().x();
+		pos[1] = (*particle)->production_vertex()->position().y();
+		pos[2] = (*particle)->production_vertex()->position().z();
 	      }
 	      Amg::Vector3D mom( (*particle)->momentum().x(), (*particle)->momentum().y(), (*particle)->momentum().z() );
 	      double kinEnergy( p[3] ) ;

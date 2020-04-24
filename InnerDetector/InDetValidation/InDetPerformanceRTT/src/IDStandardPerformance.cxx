@@ -2928,9 +2928,9 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     bool singPart = false;
     // The event has a signal process vertex unless it was generated as single particles
     if (genEvent->signal_process_vertex() != 0){
-      primaryVtx[0] = genEvent->signal_process_vertex()->point3d().x();
-      primaryVtx[1] = genEvent->signal_process_vertex()->point3d().y();
-      primaryVtx[2] = genEvent->signal_process_vertex()->point3d().z();
+      primaryVtx[0] = genEvent->signal_process_vertex()->position().x();
+      primaryVtx[1] = genEvent->signal_process_vertex()->position().y();
+      primaryVtx[2] = genEvent->signal_process_vertex()->position().z();
     }
     if (msgLvl(MSG::VERBOSE)) msg() <<"JFA Signal process vertex perp =  "<< primaryVtx.perp() << ", z = " << primaryVtx.z() << endmsg;
         //---
@@ -3021,7 +3021,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       m_truthvtx_R->Fill(truthvtx_R);
       m_truthvtx_z->Fill(primaryVtx.z());
 
-      Amg::Vector3D  startVertex(particle->production_vertex()->point3d().x(),particle->production_vertex()->point3d().y(),particle->production_vertex()->point3d().z());
+      Amg::Vector3D  startVertex(particle->production_vertex()->position().x(),particle->production_vertex()->position().y(),particle->production_vertex()->position().z());
       // Detector paper cuts: impact parameter <2 and barcode reasonable
       // JFA (Sep 18, 2008): replace IP cut by cut on difference between primary and track start vertex
       // If (startVertex.perp()>2) isPrimary=false;
@@ -3041,9 +3041,9 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
       if (particle->end_vertex() != 0) {
 
-	Amg::Vector3D  endVertex(particle->end_vertex()->point3d().x(),
-			      particle->end_vertex()->point3d().y(),
-			      particle->end_vertex()->point3d().z());
+	Amg::Vector3D  endVertex(particle->end_vertex()->position().x(),
+			      particle->end_vertex()->position().y(),
+			      particle->end_vertex()->position().z());
 	if (endVertex.perp()<400 && fabs(endVertex.z())<2300) isPrimary=false;
 	if((startVertex - endVertex).mag() < 500) isSecondary=false;
 
