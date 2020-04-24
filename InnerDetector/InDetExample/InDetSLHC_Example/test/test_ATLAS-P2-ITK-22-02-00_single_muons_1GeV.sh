@@ -21,13 +21,10 @@
 
 ### file=${SCRIPT_DIR}/test_ITk_single_particle.sh
 file=test_ITk_single_particle.sh
-if [ -f "${file}" ]
-then
-	echo "Executing script ${file}"
-        echo " "
-        "$file" muons 1GeV  ATLAS-P2-ITK-22-02-00
-else
-	echo "ERROR: script ${file} not found."
-fi
+
+echo "Executing script ${file}"
+echo " "
+"$file" muons 1GeV  ATLAS-P2-ITK-22-02-00
+
 
 
