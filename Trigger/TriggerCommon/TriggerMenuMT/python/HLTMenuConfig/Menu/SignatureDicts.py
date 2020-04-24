@@ -92,7 +92,7 @@ JetChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
-    'etaRange'     : ['0eta320', '320eta490', '0eta240', '0eta280'],
+    'etaRange'     : ['0eta320', '320eta490', '0eta240', '0eta290'],
     'jvt'          : ['011jvt', '015jvt', '059jvt'],
     # May need to reinstate in the event that preselection is
     # needed before running tracking
@@ -157,7 +157,7 @@ JetChainParts_Default = {
 
 # ---- bJet Dictionary of default Values that are different to the ones for normal jet chains ----
 bJetChainParts_Default = {
-    'etaRange' : '0eta280',
+    'etaRange' : '0eta290',
 }
 
 #==========================================================
