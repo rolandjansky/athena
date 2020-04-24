@@ -260,11 +260,13 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
   // if the chip map is not empty you need to loop on all the fired cores and store the information
   // about the ccol, qrow, bittree, tot 
   // This requires some gymnastic in order to correctly control the orphan bits and the NS bits
+  const int all_cores = chipmap.getFiredCores();
+  int processed_core = 0;
   for (int ccol = 0; ccol < chipmap.getCcols(); ccol++) {
     bool isfirst_ccol = true;
     int previous_row = -10; // use a default negative value
     int processed_row = 0;
-    for (int crow = 0; crow < chipmap.getCrows(); crow++) {    
+    for (int crow = 0; crow < chipmap.getCrows(); crow++) {  
       
       // -- STEP 1) Construct the data (bitmap+tot)
       // 1) get the bit map length
@@ -275,7 +277,9 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
       std::string bitmap_bits = chipmap.getBitTreeString(ccol, crow, m_compression);
       // 1.1) if needed, skip the cores without hits
       if (bitmap_bits=="") continue;
-     
+      
+      // increase the number of processed cores and rows
+      processed_core++;
       processed_row++;
       
       // 2) get the tot for the selected core
@@ -410,7 +414,7 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
         
         int current_length = 0;
         for (auto& bit : string_to_add) {
-          if ((current_length+1)%64==0) {
+          if (current_length>0 and current_length%64==0) {
             m_testStreamFile << "\n";
             m_testStreamFile << (NS_old+bit);
             current_length+=2;            
@@ -419,6 +423,9 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
             current_length+=1;
           }
         }
+        
+        if (processed_core==all_cores and current_length%64==0)
+          m_testStreamFile << "\n";     
         
       } else {   
         // -- STEP 4) No need for a new stream: add the constructed stream to the current one
@@ -449,13 +456,17 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
         cores.back()+=1.;
         int current_length = int(current_stream);
         for (auto& bit : string_to_add) {
-          if (current_length%64==0) {
+          if (current_length>0 and current_length%64==0) {
             m_testStreamFile << "\n";
             m_testStreamFile << (NS_old+bit);      
-          } else
+            current_length+=2;            
+          } else {
             m_testStreamFile << bit;
-          current_length++;
+            current_length+=1;
+          }
         }
+        if (processed_core==all_cores and current_length%64==0)
+          m_testStreamFile << "\n";
       }
       new_event = false;
     }
@@ -598,12 +609,12 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
       // 2) get the tot for the selected core
       
       // 1) get the bit map length
-      float bitmap = chipmap.getBitTree(ccol, crow, m_compression);
+      const float bitmap = chipmap.getBitTree(ccol, crow, m_compression);
       // 1.1) if needed, skip the cores without hits
       if (bitmap==0.) continue;
 
       // 2) get the tot for the selected core
-      float tot = m_suppressToT ? 0. : chipmap.getToTBitsCore(core);
+      const float tot = m_suppressToT ? 0. : chipmap.getToTBitsCore(core);
       // the stream is bitmap + tot
       float stream = bitmap + tot;
             
@@ -712,8 +723,9 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
           std::cout << "      hitmap  = " << bitmap << std::endl;
           std::cout << "      tot     = " << tot << std::endl;
           std::cout << "              = " << toadd << std::endl;
-          std::cout << "adding NSs    = " << ceil(toadd-orphan_bits/64.) << std::endl;
-          std::cout << "adding total  ===> " << toadd+(ceil(toadd-orphan_bits/64.)) << std::endl;
+          std::cout << "      orphans = " << orphan_bits << std::endl;
+          std::cout << "adding NSs    = " << ceil((toadd-orphan_bits)/64.) << std::endl;
+          std::cout << "adding total  ===> " << toadd+ceil((toadd-orphan_bits)/64.) << std::endl;
         }
         // 3) add the stream to the existing stream
         streams.back()+=toadd;
