@@ -26,10 +26,9 @@
 
 
 
-namespace HepMC {
-  class GenParticle;
-  class GenVertex;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenVertex_fwd.h"
+
 
 namespace Trk {
   class TrackingVolume;

@@ -24,7 +24,7 @@
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Random/RandFlat.h"
 // G4
