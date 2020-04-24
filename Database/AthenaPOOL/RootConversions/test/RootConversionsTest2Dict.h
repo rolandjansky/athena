@@ -11,9 +11,3 @@ struct RootConversionsTest2Dict
   std::vector<float> x2;
 };
 
-#include "RVersion.h"
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,23,0)
-// only needed for old root version...
-#undef __P
-#undef __N
-#endif
