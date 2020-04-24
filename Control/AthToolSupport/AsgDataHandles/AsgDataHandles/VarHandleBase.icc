@@ -1,0 +1,95 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id$
+/**
+ * @file StoreGate/VarHandleBase.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Feb, 2016
+ * @brief Property holding a SG store/key/clid from which a WriteHandle is made.
+ */
+
+
+namespace SG {
+
+
+// /**
+//  * @brief Retrieve an object from StoreGate.
+//  * @param quiet If true, suppress failure messages.
+//  *
+//  * Inline method: first check cached pointer, then call the _impl method.
+//  */
+// inline
+// void* VarHandleBase::typeless_dataPointer(bool quiet/*=defaultQuiet*/)
+// {
+//   if (m_ptr) { return m_ptr; }
+//   return typeless_dataPointer_impl(quiet);
+// }
+
+
+// /**
+//  * @brief Retrieve an object from StoreGate as a const pointer.
+//  *
+//  * Same as typeless_dataPointer with the return value converted to const.
+//  */
+// inline
+// const void* VarHandleBase::typeless_cptr()
+// {
+//   return typeless_dataPointer();
+// }
+
+
+// /**
+//  * @brief Return the class ID for the referenced object.
+//  */
+// inline
+// CLID VarHandleBase::clid() const
+// {
+//   return m_key->clid();
+// }
+
+
+// /**
+//  * @brief Return handle to the referenced store.
+//  */
+// inline
+// const ServiceHandle<IProxyDict>& VarHandleBase::storeHandle() const
+// {
+//   return m_key->storeHandle();
+// }
+
+
+// /**
+//  * @brief Return the mode (read/write/update) for this handle.
+//  */
+// inline
+// Gaudi::DataHandle::Mode VarHandleBase::mode() const
+// {
+//   return m_key->mode();
+// }
+
+
+// /**
+//  * @brief Return the key string of the underlying @c DataObjID.
+//  *
+//  * Compared to @c key(), this will be prefixed with the store name.
+//  */
+// inline
+// const std::string& VarHandleBase::objKey() const
+// {
+//   return m_key->objKey();
+// }
+
+
+// /**
+//  * @brief Return the key as a @c DataObjID.
+//  */
+// inline
+// const DataObjID& VarHandleBase::fullKey() const
+// {
+//   return m_key->fullKey();
+// }
+
+
+} // namespace SG
