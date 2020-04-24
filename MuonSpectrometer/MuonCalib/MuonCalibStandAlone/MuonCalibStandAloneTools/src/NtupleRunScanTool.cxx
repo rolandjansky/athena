@@ -170,7 +170,7 @@ StatusCode NtupleRunScanTool::analyseSegments(const std::vector<MuonCalibSegment
 		n_dead_ml =  it->second.NDeadMultilayers();
 		std::ostringstream sw_id;
 		std::ostringstream hw_id;
-		hw_id<<station_str<<abs(eta);
+		hw_id<<station_str<<std::abs(eta);
 		if(eta>0)
 			hw_id<<"A";
 		else

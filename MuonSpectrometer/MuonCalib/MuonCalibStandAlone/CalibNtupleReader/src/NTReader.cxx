@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CalibNtupleReader/NTReader.h"
@@ -427,8 +427,6 @@ namespace MuonCalib{
     MuonFixedId id( rawCsc_id[i_hit] );
     MuonCalibRawCscHit *hit = new MuonCalibRawCscHit( id, globPos, rawCsc_occupancy[i_hit], 
 						      rawCsc_t[i_hit], rawCsc_width[i_hit], rawCsc_charge[i_hit] );
-    //    std::cout << " raw csc hit " << i_hit << " gp " << globPos << " id " << rawCsc_id[i_hit] << " " << rawCsc_occupancy[i_hit] 
-    //      << " " << rawCsc_t[i_hit] << " " << rawCsc_width[i_hit] << " " << rawCsc_charge[i_hit] << std::endl;
     return hit;
   }
 
@@ -451,9 +449,12 @@ namespace MuonCalib{
 
     Amg::Translation3D  translation( seg_transX[i_segment], seg_transY[i_segment], seg_transZ[i_segment] );
     
-    double sinPhi   = sin( phi   ), cosPhi   = cos( phi   );
-    double sinTheta = sin( theta ), cosTheta = cos( theta );
-    double sinPsi   = sin( psi   ), cosPsi   = cos( psi   );
+    double sinPhi   = std::sin( phi   );
+    double cosPhi   = std::cos( phi   );
+    double sinTheta = std::sin( theta );
+    double cosTheta = std::cos( theta );
+    double sinPsi   = std::sin( psi   );
+    double cosPsi   = std::cos( psi   );
 
     double rxx = cosTheta*cosPhi;  
     double rxy = cosTheta*sinPhi;

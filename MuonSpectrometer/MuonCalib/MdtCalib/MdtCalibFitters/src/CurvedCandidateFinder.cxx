@@ -155,9 +155,9 @@ const std::vector<CurvedLine> & CurvedCandidateFinder::getCandidates(
         for (unsigned int k=0; k<m_hits.size(); k++) {
             MTStraightLine w(Amg::Vector3D(0.0, m_hits[k]->localPosition().y(),
 						m_hits[k]->localPosition().z()), xhat, null, null);
-            double d(fabs((cand_line.getTangent(m_hits[k]->localPosition().z()
+            double d(std::abs((cand_line.getTangent(m_hits[k]->localPosition().z()
                                                     )).signDistFrom(w)));
-            if (fabs(m_hits[k]->driftRadius()-d)<road_width) {
+            if (std::abs(m_hits[k]->driftRadius()-d)<road_width) {
                 nb_hits++;
             }
         }

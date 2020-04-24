@@ -150,8 +150,8 @@ MTStraightLine QuasianalyticLineReconstruction::tangent(
 // case 1 and 2 //
 	if (r_case==1 || r_case==2) {
 
-		sinalpha = fabs(r_r2-r_r1)/(r_w2-r_w1).mag();
-		cosalpha = sqrt(1.0-sinalpha*sinalpha);
+		sinalpha = std::abs(r_r2-r_r1)/(r_w2-r_w1).mag();
+		cosalpha = std::sqrt(1.0-sinalpha*sinalpha);
 
    // case 1 //
 		if (r_case==1) {
@@ -176,12 +176,10 @@ MTStraightLine QuasianalyticLineReconstruction::tangent(
 	if (r_case==3  || r_case==4) {
 
 		sinalpha = (r_r1+r_r2)/(r_w2-r_w1).mag();
-		cosalpha = sqrt(1.0-sinalpha*sinalpha);
+		cosalpha = std::sqrt(1.0-sinalpha*sinalpha);
 
    // case 3 //
 		if (r_case==3) {
-// 			p1 = r_w1+r_r1*(cosalpha*e2prime-sinalpha*e3prime);
-// 			p2 = r_w2-r_r2*(cosalpha*e2prime-sinalpha*e3prime);
 			p1 = r_w1+r_r1*(cosalpha*e2prime+sinalpha*e3prime);
 			p2 = r_w2-r_r2*(cosalpha*e2prime+sinalpha*e3prime);
 		}
@@ -205,8 +203,8 @@ MTStraightLine QuasianalyticLineReconstruction::tangent(
 	mx1 = tang.a_x1(); bx2 = tang.b_x1();
 	mx2 = tang.a_x2(); bx2 = tang.b_x2();
 	tang = MTStraightLine(mx1, bx1, mx2, bx2,1.0, 1.0, 
-			sqrt(r_sigma12+r_sigma22)/fabs(p2.z()-p1.z()),
-			sqrt(r_sigma12+p1.z()*p1.z()*(r_sigma12+r_sigma22)/
+			std::sqrt(r_sigma12+r_sigma22)/std::abs(p2.z()-p1.z()),
+			std::sqrt(r_sigma12+p1.z()*p1.z()*(r_sigma12+r_sigma22)/
 						std::pow(p2.z()-p1.z(), 2)));
 			// errors in mx1 and bx1 are arbitrary since they are
 			// not used at a later stage.
@@ -303,8 +301,8 @@ MTStraightLine QuasianalyticLineReconstruction::track_candidate(
    // case 1: candidate tangent passes both wires on the same side //
 		if (d1.dot(d2)>=0) {
 
-			sinalpha = fabs(r_r[l]-r_r[k])/(r_w[l]-r_w[k]).mag();
-			cosalpha = sqrt(1.0-sinalpha*sinalpha);
+			sinalpha = std::abs(r_r[l]-r_r[k])/(r_w[l]-r_w[k]).mag();
+			cosalpha = std::sqrt(1.0-sinalpha*sinalpha);
 
 			if (d1.dot(e2prime)>=0) {
 				if (r_r[k]<=r_r[l]) {
@@ -350,7 +348,7 @@ MTStraightLine QuasianalyticLineReconstruction::track_candidate(
 		if (d1.dot(d2)<0) {
 
 			sinalpha = (r_r[l]+r_r[k])/(r_w[l]-r_w[k]).mag();
-			cosalpha = sqrt(1.0-sinalpha*sinalpha);
+			cosalpha = std::sqrt(1.0-sinalpha*sinalpha);
 
 	// case 2(a) //
 			if (d1.dot(e2prime)>=0 && d2.dot(e2prime)<=0) {
@@ -427,7 +425,7 @@ MTStraightLine QuasianalyticLineReconstruction::track_candidate(
 	}
 
 	aux_track = MTStraightLine(0.0, 0.0, sum[0]/sum[1], sum[2]/sum[3],
-				0.0, 1.0, sqrt(1.0/sum[1]), sqrt(1.0/sum[3]));
+				0.0, 1.0, std::sqrt(1.0/sum[1]), std::sqrt(1.0/sum[3]));
 
 	r_chi2 = 0.0;
 	for (int k=0; k<nb_hits; k++) {
@@ -531,7 +529,7 @@ MTStraightLine QuasianalyticLineReconstruction::track(void) const {
 void QuasianalyticLineReconstruction::setRoadWidth(
 					const double & r_road_width) {
 
-	m_road_width = fabs(r_road_width);
+	m_road_width = std::abs(r_road_width);
 	return;
 
 }
@@ -688,7 +686,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 		selected_hits.push_back(hit);//[counter2] = hit;
 		selected_hits_index.push_back(k);//[counter2] = k;
 		w.push_back(Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z()));//[counter2] = Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z());
-		r.push_back(fabs(hit->driftRadius()));//[counter2] = fabs(hit->driftRadius());
+		r.push_back(std::abs(hit->driftRadius()));//[counter2] = fabs(hit->driftRadius());
 		sigma2.push_back(hit->sigma2DriftRadius());//[counter2] = hit->sigma2DriftRadius();
    // if the spatial resolution has not been set, set it to 0.1 CLHEP::mm //
 		if (sigma2[counter2] == 0) {
@@ -738,11 +736,11 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 					     // track
 			for (unsigned int n=0; n<nb_selected_hits; n++) {
 				MTStraightLine aux_line(w[n], xhat, null, null);
-				if (fabs(fabs(tangents[r_case-1].signDistFrom(
+				if (std::abs(std::abs(tangents[r_case-1].signDistFrom(
 						aux_line))-r[n])<m_r_max) {
 					counter3++;
 				}
-				if (fabs(fabs(tangents[r_case-1].signDistFrom(
+				if (std::abs(std::abs(tangents[r_case-1].signDistFrom(
 						aux_line))-
 					r[n])<=m_road_width) {
 					counter1 = counter1+1;
@@ -754,7 +752,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 				aux_set.sort();
 				for (int ca=0; ca<nb_candidates; ca++) {
 					if (aux_set==index_set[ca] &&
-						fabs(intercept[ca]-
+						std::abs(intercept[ca]-
 						tangents[r_case-1].b_x2())
 						<m_road_width) {
 						same = true;
@@ -866,7 +864,7 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 					m_track_hits[k]->localPosition().y(),
 					m_track_hits[k]->localPosition().z()),
 					xhat, null, null);
-				double d(fabs(m_track.signDistFrom(wire)));
+				double d(std::abs(m_track.signDistFrom(wire)));
 				m_chi2 = m_chi2+
 					std::pow(d-m_track_hits[k]->driftRadius(),
 						2)/
@@ -896,10 +894,8 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 					(hit.localPosition()).z());
 					// wire position
 		MTStraightLine aux_line(pos, xhat, null, null);
-// 		double dist(fabs(m_track.signDistFrom(aux_line))); // track distance
 		double dist(m_track.signDistFrom(aux_line)); // track distance
-		double dist_err(sqrt(std::pow(pos.z()*m_track.a_x2_error(), 2)+
-				std::pow(m_track.b_x2_error(), 2)));
+		double dist_err(std::hypot(pos.z()*m_track.a_x2_error(), m_track.b_x2_error()));
 				// approximate error of the track distance
 		hit.setDistanceToTrack(dist, dist_err);
     

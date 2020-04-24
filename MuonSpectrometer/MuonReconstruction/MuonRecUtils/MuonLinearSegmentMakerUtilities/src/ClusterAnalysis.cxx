@@ -16,7 +16,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <utility> 
-#include "TMath.h" // for TMath::Sign
+#include "TMath.h" // for TMath::Sign()
 
 namespace ClusterSeg {
 

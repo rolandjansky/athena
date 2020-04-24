@@ -308,7 +308,7 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
 									track_hits[k]->localPosition().y(),
 									track_hits[k]->localPosition().z()),
 									xhat, null, null);
-                    double d(fabs(tang.signDistFrom(wire)));
+                    double d(std::abs(tang.signDistFrom(wire)));
                     if (track_hits[k]->sigma2DriftRadius()!=0) {
                         tmp_chi2 = tmp_chi2+
                                     std::pow(d-track_hits[k]->driftRadius(), 2)/
@@ -376,7 +376,7 @@ bool CurvedPatRec::fit(MuonCalibSegment & r_segment,
 									m_track_hits[k]->localPosition().y(),
 									m_track_hits[k]->localPosition().z()),
 									xhat, null, null);
-		double d(fabs(tang.signDistFrom(wire)));
+		double d(std::abs(tang.signDistFrom(wire)));
 		if (m_track_hits[k]->sigma2DriftRadius()!=0) {
             m_chi2 = m_chi2+ std::pow(d-m_track_hits[k]->driftRadius(), 2)/
 									m_track_hits[k]->sigma2DriftRadius();
@@ -463,10 +463,6 @@ Amg::Vector3D CurvedPatRec::getHitPoint(const MdtCalibHitBase * hit,
 /////////////////////////
 // CALCULATE HIT POINT //
 /////////////////////////
-
-// 	d0 = sqrt((y0-dy)*(y0-dy)+(z0-dz)*(z0-dz));
-
-
 
   Amg::Vector3D point = straight_track.positionVector() + (straight_track.directionVector().unit().dot(hit->localPosition() - straight_track.positionVector() ) ) * straight_track.directionVector().unit();
   Amg::Vector3D point_2 = hit->localPosition() + hit->driftRadius() * (point - hit->localPosition()).unit();

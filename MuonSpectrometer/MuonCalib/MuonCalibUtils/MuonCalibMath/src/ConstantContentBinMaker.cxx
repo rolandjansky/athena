@@ -26,7 +26,7 @@ ConstantContentBinMaker::ConstantContentBinMaker(
 
     m_points = points;
     m_bins.clear();
-    m_epsilon = fabs(epsilon);
+    m_epsilon = std::abs(epsilon);
 
 }
 
