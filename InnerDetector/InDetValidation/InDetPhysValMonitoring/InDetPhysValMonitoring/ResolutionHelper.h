@@ -10,9 +10,6 @@
  * @author Max Baugh, Liza Mijovic, Nora Pettersson
  **/
 
-
-
-
 #include <vector>
 #include <string>
 #include <utility>
