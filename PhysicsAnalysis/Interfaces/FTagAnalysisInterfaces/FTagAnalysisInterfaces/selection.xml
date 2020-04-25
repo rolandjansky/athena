@@ -3,4 +3,5 @@
   <class name="IBTaggingEfficiencyTool" />
   <class name="IBTaggingSelectionTool" />
    <class name="IBTaggingTruthTaggingTool" />
+   <class name="IBTaggingEigenVectorRecompositionTool" />
 </lcgdict>

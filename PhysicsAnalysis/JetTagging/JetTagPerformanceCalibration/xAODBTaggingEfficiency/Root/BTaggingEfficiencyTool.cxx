@@ -489,7 +489,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
     ATH_CHECK( m_selectionTool.setProperty("JetAuthor",                    m_jetAuthor) );
     ATH_CHECK( m_selectionTool.setProperty("MinPt",                        m_minPt) );
     ATH_CHECK( m_selectionTool.retrieve() );
-  }
+ }
 
   // if the user decides to ignore these errors, at least make her/him aware of this
   if (m_ignoreOutOfValidityRange) {

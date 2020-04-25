@@ -15,5 +15,6 @@
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingTruthTaggingTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEigenVectorRecompositionTool.h"
 
 #endif // FTAGANALYSISINTERFACES_FTAGANALYSISINTERFACESDICT_H
