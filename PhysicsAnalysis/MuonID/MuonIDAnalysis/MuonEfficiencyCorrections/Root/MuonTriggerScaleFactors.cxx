@@ -4,6 +4,11 @@
 
 #include <sstream>
 #include <TRandom3.h>
+#include "TROOT.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TFile.h"
+#include "TKey.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
@@ -13,7 +18,7 @@
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
-
+#include "FourMomUtils/xAODP4Helpers.h"
 #include "PathResolver/PathResolver.h"
 
 #include <iostream>
@@ -332,12 +337,6 @@ namespace CP {
         }
         CorrectionCode cc = getMuonEfficiency(efficiency, configuration, mu, trigger, systype);
         return cc;
-    }
-
-    double MuonTriggerScaleFactors::dR(const double eta1, const double phi1, const double eta2, const double phi2) const {
-        double deta = std::abs(eta1 - eta2);
-        double dphi = std::abs(phi1 - phi2) < M_PI ? std::abs(phi1 - phi2) : 2 * M_PI - std::abs(phi1 - phi2);
-        return std::sqrt(deta * deta + dphi * dphi);
     }
 
     ///////////////////////
