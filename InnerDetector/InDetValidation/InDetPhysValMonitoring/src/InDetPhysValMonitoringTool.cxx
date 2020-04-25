@@ -116,6 +116,7 @@ namespace { // utility functions used here
   const std::vector<float> ETA_PARTITIONS = {
     2.7, 3.5, std::numeric_limits<float>::infinity()
   };
+
 }// namespace
 
 ///Parametrized constructor
@@ -201,6 +202,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   SG::ReadHandle<xAOD::EventInfo> pie = SG::ReadHandle<xAOD::EventInfo>(m_eventInfoContainerName);
  
   std::vector<const xAOD::TruthParticle*> truthParticlesVec = getTruthParticles();
+  std::vector<const xAOD::TruthVertex*> truthVertices = getTruthVertices();
   IDPVM::CachedGetAssocTruth getAsTruth; // only cache one way, track->truth, not truth->tracks 
   
   if (not tracks.isValid()) {
@@ -232,7 +234,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
        ATH_CHECK(m_vtxValidTool->matchVertices(*vertices));
        ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*vertices) << ", vertex container size = " << vertices->size());
     }
-    m_monPlots->fill(*vertices);
+    m_monPlots->fill(*vertices, truthVertices);
 
     ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
     //Filling vertexing plots for the reconstructed hard-scatter as a function of mu
@@ -546,6 +548,69 @@ InDetPhysValMonitoringTool::getTruthParticles() {
     }
   }
   return tempVec;
+}
+
+const std::vector<const xAOD::TruthVertex*>
+InDetPhysValMonitoringTool::getTruthVertices() {
+
+  std::vector<const xAOD::TruthVertex*> truthVertices = {};
+  truthVertices.reserve(100);
+  const xAOD::TruthVertex* truthVtx = nullptr;
+
+  bool doHS = false;
+  bool doPU = false;
+  if (m_pileupSwitch == "All") {
+    doHS = true;
+    doPU = true;
+  }
+  else if (m_pileupSwitch == "HardScatter") {
+    doHS = true;
+  }
+  else if (m_pileupSwitch == "PileUp") {
+    doPU = true;
+  }
+  else {
+    ATH_MSG_ERROR("Bad value for PileUpSwitch: " << m_pileupSwitch);
+  }
+
+  if (doHS) {
+    if (!m_truthEventName.key().empty()) {
+      ATH_MSG_VERBOSE("Getting TruthEvents container.");
+      SG::ReadHandle<xAOD::TruthEventContainer> truthEventContainer(m_truthEventName);
+      if (truthEventContainer.isValid()) {
+        for (const auto& evt : *truthEventContainer) {
+          truthVtx = evt->truthVertex(0);
+          if (truthVtx) {
+            truthVertices.push_back(truthVtx);
+          }
+        }
+      }
+      else {
+        ATH_MSG_ERROR("No entries in TruthEvents container!");
+      }
+    }
+  }
+
+  if (doPU) {
+    if (!m_truthPileUpEventName.key().empty()) {
+      ATH_MSG_VERBOSE("Getting TruthEvents container.");
+      SG::ReadHandle<xAOD::TruthPileupEventContainer> truthPileupEventContainer(m_truthPileUpEventName);
+      if (truthPileupEventContainer.isValid()) {
+        for (const auto& evt : *truthPileupEventContainer) {
+          truthVtx = evt->truthVertex(0);
+          if (truthVtx) {
+            truthVertices.push_back(truthVtx);
+          }
+        }
+      }
+      else {
+        ATH_MSG_ERROR("No entries in TruthPileupEvents container!");
+      }
+    }
+  }
+
+  return truthVertices;
+
 }
 
 void
