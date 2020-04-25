@@ -114,7 +114,7 @@ StatusCode egammaLargeClusterMaker::execute(const EventContext& ctx,
     // around this position a hot cell is searched for in a window
     // (m_neta*m_deta,m_nphi*m_dphi), by default (m_neta,m_nphi)=(7,7)
     CaloLayerCalculator calc;
-    StatusCode sc = calc.fill(cellcoll.ptr(),cluster->etaSample(sam),cluster->phiSample(sam),
+    StatusCode sc = calc.fill(*dd_man,cellcoll.ptr(),cluster->etaSample(sam),cluster->phiSample(sam),
             m_neta*deta,m_nphi*dphi, (CaloSampling::CaloSample) sam);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("CaloLayerCalculator failed  fill ");
