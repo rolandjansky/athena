@@ -111,7 +111,7 @@ namespace G4UA
       if(ppi) {
         if (!m_config.isISFJob) {
           // don't do anything
-          auto part = ppi->GetHepMCParticle();
+          const HepMC::GenParticle* part = ppi->GetHepMCParticle();
           if(part) {
             // OK, we got back to HepMC
             std::unique_ptr<TrackInformation> ti = std::make_unique<TrackInformation>(part);
