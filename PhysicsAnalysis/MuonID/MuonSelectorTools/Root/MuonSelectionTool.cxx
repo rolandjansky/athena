@@ -239,7 +239,7 @@ namespace CP {
   StatusCode MuonSelectionTool::getHist( TFile* file, const char* histName, TH2D*& hist ){
     //
     if( !file ) {
-      ATH_MSG_ERROR( " getHist(...) NULL TFile! Check that the Tight cut map is loaded correctly"  );
+      ATH_MSG_ERROR(" getHist(...) TFile is nullptr! Check that the Tight cut map is loaded correctly");
       return StatusCode::FAILURE;
     }
     //
@@ -926,7 +926,7 @@ namespace CP {
     // the vetoes are applied according to the combined track, and runtime warning is printed to
     // the command line.
     const xAOD::TrackParticle* CB_track = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
-    const xAOD::TrackParticle* MS_track = NULL;
+    const xAOD::TrackParticle* MS_track = nullptr;
     if( mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "muonSpectrometerTrackParticleLink" )
 	&& ( mu.muonSpectrometerTrackParticleLink() ).isValid() 
       ) MS_track = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );    
@@ -935,7 +935,7 @@ namespace CP {
       MS_track = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
     }
     
-    if( MS_track != NULL && CB_track !=NULL ) {
+    if( MS_track && CB_track ) {
 
       float etaMS = MS_track->eta();
       float phiMS = MS_track->phi();
@@ -1368,7 +1368,7 @@ namespace CP {
 
 
     const xAOD::TrackParticle* CB_track = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
-    const xAOD::TrackParticle* MS_track = NULL;
+    const xAOD::TrackParticle* MS_track = nullptr;
     if( mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "muonSpectrometerTrackParticleLink" )
 	&& ( mu.muonSpectrometerTrackParticleLink() ).isValid() 
 	) MS_track = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );    
@@ -1381,12 +1381,12 @@ namespace CP {
     float etaCB = 0.0;
     float phiMS = 0.0; 
 
-    if(MS_track != NULL) {
+    if(MS_track) {
       etaMS = MS_track->eta();     
       phiMS = MS_track->phi();
     }
 
-    if(CB_track != NULL)
+    if(CB_track)
       etaCB = CB_track->eta();
 
 

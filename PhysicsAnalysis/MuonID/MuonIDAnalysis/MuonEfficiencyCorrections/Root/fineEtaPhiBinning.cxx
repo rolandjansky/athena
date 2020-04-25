@@ -200,7 +200,7 @@ int fineEtaPhiBinning::getSector(double phi) const {
 
 int fineEtaPhiBinning::getAbsEtaBin(double eta) const {
 
-    double abseta = std::fabs(eta);
+    double abseta = std::abs(eta);
     for (size_t bin = 0; bin < m_abs_eta_bins.size(); ++bin) {
         if (abseta < m_abs_eta_bins.at(bin)) return bin;
     }
@@ -216,5 +216,5 @@ int fineEtaPhiBinning::getEtaBin(const TLorentzVector & mst) const {
     return etabin * signeta;
 }
 int fineEtaPhiBinning::getPhiSector(const TLorentzVector & m) const {
-    return (std::fabs(m.Eta()) < m_barrel_endcap_transition ? getSector(m.Phi()) : getECSector(m.Phi()));
+    return (std::abs(m.Eta()) < m_barrel_endcap_transition ? getSector(m.Phi()) : getECSector(m.Phi()));
 }
