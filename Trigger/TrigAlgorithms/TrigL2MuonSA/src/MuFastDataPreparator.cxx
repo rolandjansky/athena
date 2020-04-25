@@ -180,6 +180,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
 
     m_rpcPatFinder->clear();
 
+    m_rpcDataPreparator->setMultiMuonTrigger(m_doMultiMuon);
     unsigned int roiWord = p_roi->roiWord();
     sc = m_rpcDataPreparator->prepareData(p_roids,
 					  roiWord,

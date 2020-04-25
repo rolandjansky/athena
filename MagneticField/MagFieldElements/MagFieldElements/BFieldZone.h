@@ -12,36 +12,67 @@
 #ifndef BFIELDZONE_H
 #define BFIELDZONE_H
 
-#include <vector>
-#include "MagFieldElements/BFieldMesh.h"
 #include "MagFieldElements/BFieldCond.h"
+#include "MagFieldElements/BFieldMesh.h"
+#include <vector>
 
-class BFieldZone : public BFieldMesh<short> {
+class BFieldZone : public BFieldMesh<short>
+{
 public:
-    // constructor
-    BFieldZone( int id, double zmin, double zmax, double rmin, double rmax, double phimin, double phimax,
-                double scale )
-        : BFieldMesh<short>(zmin,zmax,rmin,rmax,phimin,phimax,scale), m_id(id) {;}
-    // add elements to vectors
-    void appendCond( const BFieldCond& cond ) { m_cond.push_back(cond); }
-    // compute Biot-Savart magnetic field and add to B[3]
-    inline void addBiotSavart( const double *xyz, double *B, double *deriv=nullptr ) const;
-    // scale B field by a multiplicative factor: RDS 2019/09 - no longer used. Scaling is done in cachec
-    void scaleField( double factor )
-    { scaleBscale(factor); for (unsigned i=0; i<ncond(); i++) { m_cond[i].scaleCurrent(factor); } }
-    // accessors
-    int id() const { return m_id; }
-    unsigned ncond() const { return m_cond.size(); }
-    const BFieldCond& cond(int i) const { return m_cond[i]; }
-    const std::vector<BFieldCond> *condVector() const { return &m_cond; }
-    int memSize() const
-    { return BFieldMesh<short>::memSize() + sizeof(int) + sizeof(BFieldCond)*m_cond.capacity(); }
-    // adjust the min/max edges to a new value
-    void adjustMin( int i, double x ) { m_min[i] = x; m_mesh[i].front() = x; }
-    void adjustMax( int i, double x ) { m_max[i] = x; m_mesh[i].back() = x; }
+  // constructor
+  BFieldZone(int id,
+             double zmin,
+             double zmax,
+             double rmin,
+             double rmax,
+             double phimin,
+             double phimax,
+             double scale)
+    : BFieldMesh<short>(zmin, zmax, rmin, rmax, phimin, phimax, scale)
+    , m_id(id)
+  {
+    ;
+  }
+  // add elements to vectors
+  void appendCond(const BFieldCond& cond) { m_cond.push_back(cond); }
+  // compute Biot-Savart magnetic field and add to B[3]
+  inline void addBiotSavart(const double* xyz,
+                            double* B,
+                            double* deriv = nullptr) const;
+  // scale B field by a multiplicative factor: RDS 2019/09 - no longer used.
+  // Scaling is done in cachec
+  void scaleField(double factor)
+  {
+    scaleBscale(factor);
+    for (unsigned i = 0; i < ncond(); i++) {
+      m_cond[i].scaleCurrent(factor);
+    }
+  }
+  // accessors
+  int id() const { return m_id; }
+  unsigned ncond() const { return m_cond.size(); }
+  const BFieldCond& cond(int i) const { return m_cond[i]; }
+  const std::vector<BFieldCond>* condVector() const { return &m_cond; }
+  int memSize() const
+  {
+    return BFieldMesh<short>::memSize() + sizeof(int) +
+           sizeof(BFieldCond) * m_cond.capacity();
+  }
+  // adjust the min/max edges to a new value
+  void adjustMin(int i, double x)
+  {
+    m_min[i] = x;
+    m_mesh[i].front() = x;
+  }
+  void adjustMax(int i, double x)
+  {
+    m_max[i] = x;
+    m_mesh[i].back() = x;
+  }
+
 private:
-    int m_id;          // zone ID number
-    std::vector<BFieldCond> m_cond;            // list of current conductors
+  int m_id;                       // zone ID number
+  std::vector<BFieldCond> m_cond; // list of current conductors
 };
 
 // inline functions
@@ -50,11 +81,11 @@ private:
 // Compute magnetic field due to the conductors
 //
 void
-BFieldZone::addBiotSavart( const double *xyz, double *B, double *deriv ) const
+BFieldZone::addBiotSavart(const double* xyz, double* B, double* deriv) const
 {
-    for ( unsigned i = 0; i < m_cond.size(); i++ ) {
-        m_cond[i].addBiotSavart( 1, xyz, B, deriv );
-    }
+  for (unsigned i = 0; i < m_cond.size(); i++) {
+    m_cond[i].addBiotSavart(1, xyz, B, deriv);
+  }
 }
 
 #endif
