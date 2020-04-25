@@ -25,9 +25,11 @@ atlas_depends_on_subdirs(
    Reconstruction/Jet/JetCPInterfaces
    PRIVATE
    Reconstruction/Jet/BoostedJetTaggers
+   Reconstruction/Jet/JetCalibTools
    Event/xAOD/xAODCore
    Event/xAOD/xAODTracking
    Tools/PathResolver
+   PhysicsAnalysis/AnalysisCommon/ParticleJetTools
    ${extra_deps} )
 
 # External dependencies:
@@ -75,6 +77,14 @@ if( XAOD_STANDALONE )
       util/testResolution.cxx
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODEventInfo
       xAODRootAccess JetUncertaintiesLib )
+
+   atlas_add_executable( FFJetSmearingTool_MyExample
+      util/FFJetSmearingTool_MyExample.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODEventShape xAODCore xAODRootAccess BoostedJetTaggersLib JetUncertaintiesLib JetCalibToolsLib ParticleJetToolsLib)
+
+
 endif()
 
 # Install files from the package:

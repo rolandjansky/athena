@@ -16,6 +16,7 @@
 #include "TFile.h"
 
 #include "AsgTools/MsgStreamMacros.h"
+	#include "AsgTools/AsgMessaging.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetAccessors.h"
@@ -187,6 +188,7 @@ std::vector<T> utils::vectorize(const TString& str, const TString& sep)
 }
 
 } // end jet namespace
+
 
 #endif
 
