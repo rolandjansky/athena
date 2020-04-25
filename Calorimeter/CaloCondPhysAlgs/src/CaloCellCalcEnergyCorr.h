@@ -37,7 +37,7 @@ class CaloCellCalcEnergyCorr: public AthAlgorithm
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
-  virtual StatusCode  stop ATLAS_NOT_THREAD_SAFE();
+  virtual StatusCode  stop ATLAS_NOT_THREAD_SAFE /* calls ctor of AthenaAttributeList*/();
 
 private:
   // Properties

@@ -32,17 +32,17 @@ class CaloCondBlobFlt;
 class CondAttrListCollection;
 
 
-class CaloAddCellPedShift : public AthAlgorithm {
+class ATLAS_NOT_THREAD_SAFE /* CallBacks*/CaloAddCellPedShift : public AthAlgorithm {
 
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
-    CaloAddCellPedShift(const std::string& name, ISvcLocator* pSvcLocator) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+    CaloAddCellPedShift(const std::string& name, ISvcLocator* pSvcLocator);
     /** Default Destructor */
-    ~CaloAddCellPedShift() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+    ~CaloAddCellPedShift();
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize ATLAS_NOT_THREAD_SAFE();
+    StatusCode          initialize();
     /** standard Athena-Algorithm method */
     StatusCode          execute();
     /** standard Athena-Algorithm method */
@@ -64,7 +64,7 @@ class CaloAddCellPedShift : public AthAlgorithm {
   const CaloCell_ID*       m_calo_id;
   const LArOnlineID*      m_onlineID;
 
-  virtual StatusCode updateMap ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode updateMap(IOVSVC_CALLBACK_ARGS);
   //=== blob storage
   const DataHandle<CondAttrListCollection> m_noiseAttrListColl;
   std::map<unsigned int, const CaloCondBlobFlt*> m_noiseBlobMap;

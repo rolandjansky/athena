@@ -27,6 +27,9 @@
 #include "CxxUtils/checker_macros.h"
 
 class AthenaAttributeList;
+/* AthenaAttibuteList ctors and dtors are not thread
+ * safe leading to certain methods here not being Thread safe
+ */
 
 class CaloCellEnergyCorr2Ntuple : public AthAlgorithm {
 

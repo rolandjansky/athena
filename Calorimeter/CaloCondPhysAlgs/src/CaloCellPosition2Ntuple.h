@@ -30,9 +30,11 @@ class CaloCellPosition2Ntuple : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
-    CaloCellPosition2Ntuple(const std::string& name, ISvcLocator* pSvcLocator) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+    CaloCellPosition2Ntuple(const std::string& name, ISvcLocator* pSvcLocator) 
+      ATLAS_CTORDTOR_NOT_THREAD_SAFE;//DataHanlde is not thread safe
     /** Default Destructor */
-    ~CaloCellPosition2Ntuple() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+    ~CaloCellPosition2Ntuple() 
+      ATLAS_CTORDTOR_NOT_THREAD_SAFE; //DataHandle is not thread safe
     
     /** standard Athena-Algorithm method */
     StatusCode          initialize ATLAS_NOT_THREAD_SAFE();
@@ -53,7 +55,7 @@ class CaloCellPosition2Ntuple : public AthAlgorithm {
 
   const CaloCell_ID*       m_calo_id;
 
-  const DataHandle<CaloRec::CaloCellPositionShift> m_cellPos;
+  const DataHandle<CaloRec::CaloCellPositionShift> m_cellPos;//DataHandle is marked as not thread safe
   std::string m_key;
 
   int m_Hash;
