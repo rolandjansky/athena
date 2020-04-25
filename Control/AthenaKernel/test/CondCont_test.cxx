@@ -576,9 +576,10 @@ void test4 (TestRCUSvc& rcusvc)
 
 
   // Insert w/overlap
+  bptrs.push_back (new B (11));
   sc = cc.insert (EventIDRange (mixed (2, 10, 125),
                                 mixed (2, 20, 127)),
-                  std::make_unique<B> (11));
+                  std::unique_ptr<B> (bptrs.back()));
   assert (CondContBase::Category::isOverlap (sc));
 
 
@@ -593,9 +594,10 @@ void test4 (TestRCUSvc& rcusvc)
                                     mixed (2, 30, 130)),
                       std::make_unique<B> (12)).isFailure() );
   // Insert new last RL range with one TS range.
+  bptrs.push_back (new B(13));
   assert ( cc.insert (EventIDRange (mixed (20, 10, 120),
                                     mixed (20, 30, 130)),
-                      std::make_unique<B> (13)).isSuccess() );
+                      std::unique_ptr<B> (bptrs.back())).isSuccess() );
   // TS range doesn't match.
   assert ( cc.insert (EventIDRange (mixed (20, 10, 120),
                                     mixed (20, 40, 150)),
@@ -610,6 +612,21 @@ void test4 (TestRCUSvc& rcusvc)
                   std::make_unique<B> (16));
   assert (sc.isSuccess());
   assert (CondContBase::Category::isExtended (sc));
+
+  std::ostringstream ss2;
+  cc.list (ss2);
+  std::ostringstream exp2;
+  exp2 << "id:  ( 'UNKNOWN_CLASS:cls' , 'key' )   proxy: 0 [4] run+lbn entries\n";
+  exp2 << "{[1,t:1,l:10] - [1,t:2,l:20]} " << bptrs[0] << "\n";
+  exp2 << "{[1,t:2,l:10] - [1,t:4.500000000,l:20]} " << bptrs[1] << "\n";
+  exp2 << "{[1,t:25,l:30] - [1,t:30,l:40]} " << bptrs[2] << "\n";
+  exp2 << "{[2,t:100,l:10] - [2,t:103.500000000,l:20]} " << bptrs[3] << "\n";
+  exp2 << "{[2,t:103.500000000,l:10] - [2,t:110,l:20]} " << bptrs[4] << "\n";
+  exp2 << "{[2,t:120,l:10] - [2,t:130,l:20]} " << bptrs[5] << "\n";
+  exp2 << "{[2,t:125,l:10] - [2,t:127,l:20]} " << bptrs[6] << "\n";
+  exp2 << "{[20,t:120,l:10] - [20,t:130,l:40]} " << bptrs[7] << "\n";
+  //std::cout << "ss2: " << ss2.str() << "\nexp2: " << exp2.str() << "\n";
+  assert (ss2.str() == exp2.str());
 }
 
 

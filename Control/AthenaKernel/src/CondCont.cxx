@@ -882,6 +882,18 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
               sc = CondContStatusCode::EXTENDED;
               sc.ignore();
               extended = true;
+
+              // We also need to update the ending run+lbn value
+              // for each entry in the tsmap.
+              // (This doesn't affect sorting within the tsmap.)
+              tsmap->updateRanges ([&] (RangeKey& k)
+                                   { EventIDBase start = k.m_range.start();
+                                     EventIDBase stop = k.m_range.stop();
+                                     stop.set_run_number(r.stop().run_number());
+                                     stop.set_lumi_block(r.stop().lumi_block());
+                                     k.m_range = EventIDRange (start, stop);
+                                   },
+                                   ctx);
             }
           }
         }
