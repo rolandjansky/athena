@@ -29,6 +29,7 @@ add_definitions( -DLW_STRICT_ROOT_BEHAVIOUR )
 # The package's main library:
 atlas_add_library( LWHists src/*.cxx
   PUBLIC_HEADERS LWHists
+  LINK_LIBRARIES CxxUtils
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
@@ -43,7 +44,7 @@ atlas_add_executable( lwhists_benchmark src/tests/benchmarking/*.cxx
 
 atlas_add_executable( lwhists_comphistfiles src/tests/comphistfiles/*.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} )
+  LINK_LIBRARIES CxxUtils ${ROOT_LIBRARIES} )
 
 
 atlas_add_test( LWHists_val
