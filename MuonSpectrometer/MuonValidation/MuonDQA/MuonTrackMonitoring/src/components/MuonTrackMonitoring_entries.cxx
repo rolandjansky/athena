@@ -1,4 +1,4 @@
-#include "MuonTrackMonitoring/MuonTrackMonitorAlgorithm.h"
+#include "MuonTrackMonitoring/MuonGenericTracksMon.h"
  
-DECLARE_COMPONENT( MuonTrackMonitorAlgorithm )
-
+DECLARE_COMPONENT( MuonGenericTracksMon )
+ 
