@@ -36,7 +36,16 @@ _all_streams = [
     StreamInfo('LArCells', 'calibration', False, False),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
     StreamInfo('CostMonitoring','calibration', False, False),
-    StreamInfo('SCTNoise','calibration',False,False)
+    StreamInfo('SCTNoise','calibration',False,False),
+    # HI STREAMS
+    StreamInfo('HardProbes', 'physics', True, True),
+    StreamInfo('MinBias', 'physics', True, True),
+    StreamInfo('UPC', 'physics', True, True),
+    StreamInfo('UCC', 'physics', True, True),
+    StreamInfo('PC', 'physics', True, True),
+    StreamInfo('CC', 'physics', True, True),
+    StreamInfo('PCPEB', 'calibration', False, False),
+    StreamInfo('CCPEB', 'calibration', False, False),
 ]
 
 
