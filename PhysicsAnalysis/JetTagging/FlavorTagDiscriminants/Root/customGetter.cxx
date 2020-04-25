@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
@@ -108,10 +108,9 @@ namespace FlavorTagDiscriminants {
   // These functions are wrapped by the customNamedSeqGetter function
   // below to become the ones that are actually used in DL2.
   //
-  std::function<std::vector<double>(
-    const xAOD::Jet&,
-    const std::vector<const xAOD::TrackParticle*>&)> customSeqGetter(
-      const std::string& name) {
+  std::function<VectorD(const xAOD::Jet&,const VectorTP&)> customSeqGetter(
+    const std::string& name)
+  {
     typedef std::vector<const xAOD::TrackParticle*> Tracks;
     if (name == "IP3D_signed_d0_significance") {
       return SignedD0SequenceGetter();

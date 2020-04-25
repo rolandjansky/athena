@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // The customGetter file is a catch-all for various getter functinos
@@ -19,10 +19,10 @@
 
 namespace FlavorTagDiscriminants {
 
-  std::function<std::vector<double>(
-    const xAOD::Jet&,
-    const std::vector<const xAOD::TrackParticle*>&)> customSeqGetter(
-      const std::string& name);
+  using VectorTP = std::vector<const xAOD::TrackParticle*>;
+  using VectorD = std::vector<double>;
+  std::function<VectorD(const xAOD::Jet&,const VectorTP&)> customSeqGetter(
+    const std::string& name);
 
   namespace internal {
     std::function<std::pair<std::string, double>(const xAOD::Jet&)>
