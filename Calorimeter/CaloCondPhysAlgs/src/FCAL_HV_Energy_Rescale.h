@@ -35,7 +35,7 @@ class FCAL_HV_Energy_Rescale: public AthAlgorithm
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
-  virtual StatusCode  stop ATLAS_NOT_THREAD_SAFE();
+  virtual StatusCode  stop ATLAS_NOT_THREAD_SAFE();//due to AthenaAttributeList ctor  
 
 private:
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
