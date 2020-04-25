@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_ITHINNINGSVC_H 
@@ -88,22 +88,7 @@ class IThinningSvc : virtual public IService,
    */
   virtual ~IThinningSvc();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
   static const InterfaceID& interfaceID();
-
-  /** @brief Get the index after thinning of a given container, providing
-   *         the old index.
-   *  @returns IThinningSvc::RemovedIdx if the element asked-for has been
-   *           removed during thinning.
-   */
-  template< class Container >
-  std::size_t index( const Container* container,
-		     std::size_t idx ) const {
-    const void* obj = static_cast<const void*>(container);
-    return this->index_impl( this->proxy(obj), idx );
-  }
 
   /** @brief Tell clients if any thinning occurred during the event processing
    */
@@ -121,25 +106,6 @@ class IThinningSvc : virtual public IService,
     return this->is_thinned_impl(p);
   }
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /** @brief helper method to decide if an index value is thinned or not
-   */
-  static
-  bool isThinned ( const std::size_t idx );
-
-  /** @brief helper method to generate a removed index value for different
-   *  types of indices (integer, std::string,...)
-   */
-  template <typename IndexType>
-  static
-  IndexType generateRemovedIdx() 
-  { 
-    throw std::runtime_error ("sorry... unimplemented generateRemovedIdx type");
-  }
-  
   /** @brief Helper method to retrieve the instance of the currently active
    *         thinning service.
    *  @param activeSvc the new active thinning svc instance. 
@@ -161,55 +127,6 @@ class IThinningSvc : virtual public IService,
    */
   static IThinningSvc* instance( IThinningSvc* activeSvc = 0,
 				 bool overrideSvc = false );
-
-  /// @brief A helper method to select elements from a DataVector container.
-  /// the elements of the @a filter vector are 'true' for the elements to be
-  /// kept.
-  /// If this container has already been filtered, the results are merged
-  /// according to the operator being passed (default is 'AND')
-  template< class Container >
-  StatusCode filter( const Container& in, 
-		     const IThinningSvc::VecFilter_t& filter,
-		     const IThinningSvc::Operator::Type op = Operator::And );
-
-  /// @brief A helper method to select elements from a DataVector container.
-  /// the elements of the @a filter sparse vector are 'true' for the elements 
-  /// to be kept.
-  /// If this container has already been filtered, the results are merged
-  /// according to the operator being passed (default is 'AND')
-  template< class Container >
-  StatusCode filter( const Container& in, 
-		     const IThinningSvc::Filter_t& filter,
-		     const IThinningSvc::Operator::Type op = Operator::And );
-
-  /// @brief A helper method to select elements from a DataVector container.
-  /// The predicate is true for the elements to be kept.
-  /// If this container has already been filtered, the results are merged
-  /// according to the operator being passed (default is 'AND')
-  template< class Container, class Predicate >
-  StatusCode filter( const Container& in, 
-		     const Predicate& filter,
-		     const IThinningSvc::Operator::Type op = Operator::And );
-
-  /// @brief A helper method to select elements from a typeless object
-  /// With the help of this function it is possible to record thinning
-  /// information about types that can't be handled by the service internally.
-  /// This information is instead just served to the outside (to the POOL
-  /// converters) via the interface of the service.
-  StatusCode typelessFilter( const void* in,
-                             const IThinningSvc::VecFilter_t& filter,
-                             const IThinningSvc::Operator::Type op =
-                             Operator::And );
-
-  /// @brief A helper method to select elements from a typeless object
-  /// With the help of this function it is possible to record thinning
-  /// information about types that can't be handled by the service internally.
-  /// This information is instead just served to the outside (to the POOL
-  /// converters) via the interface of the service.
-  StatusCode typelessFilter( const void* in,
-                             const IThinningSvc::Filter_t& filter,
-                             const IThinningSvc::Operator::Type op =
-                             Operator::And );
 
   // slimming part
   
@@ -347,25 +264,6 @@ inline const InterfaceID& IThinningSvc::interfaceID()
   return IID_IThinningSvc; 
 }
 
-template <>
-std::size_t 
-IThinningSvc::generateRemovedIdx<std::size_t>();
-
-template <>
-std::string 
-IThinningSvc::generateRemovedIdx<std::string>();
-
-// templates
-/// specialization for SG::DataProxy
-template<>
-inline
-std::size_t 
-IThinningSvc::index<SG::DataProxy>(const SG::DataProxy* dp, 
-				   std::size_t idx) const 
-{
-  return this->index_impl( dp, idx );
-}
-
 template<>
 inline
 bool 
@@ -373,67 +271,6 @@ IThinningSvc::thinningOccurred<SG::DataProxy>(const SG::DataProxy* dp) const
 {
   return this->is_thinned_impl(dp);
 }
-
-
-template< class Container >
-StatusCode 
-IThinningSvc::filter( const Container& in, 
-		      const IThinningSvc::VecFilter_t& filter,
-		      const IThinningSvc::Operator::Type op )
-{ 
-  IThinningSvc::Filter_t sparse_filter;
-  const std::size_t imax=filter.size();
-  for ( std::size_t i = 0; i!=imax; ++i ) {
-    sparse_filter[i] = filter[i];
-  }
-  return this->filter (in, sparse_filter, op);
-}
-
-template< class Container >
-StatusCode 
-IThinningSvc::filter( const Container& in, 
-		      const IThinningSvc::Filter_t& filter,
-		      const IThinningSvc::Operator::Type op )
-{
-  const void* obj = static_cast<const void*>(&in);
-  SG::DataProxy* proxy = this->proxy(obj);
-  Athena::IThinningHdlr* handler = this->handler(proxy);
-  if ( 0 == handler ) {
-    typedef typename 
-      Athena::get_thinning_handler<Container>::type 
-      handler_type;
-    handler = new handler_type( in );
-  }
-  StatusCode sc = this->filter_impl( handler, proxy, filter, op );
-  if (sc.isSuccess())
-    sc = thinningHook (&in, this, filter, op);
-  return sc;
-}
-
-template< class Container, class Predicate >
-StatusCode 
-IThinningSvc::filter( const Container& in, 
-		      const Predicate& pred,
-		      const IThinningSvc::Operator::Type op )
-{
-  const void* obj = static_cast<const void*>(&in);
-  SG::DataProxy* proxy = this->proxy(obj);
-  Athena::IThinningHdlr* handler = this->handler(proxy);
-  if ( 0 == handler ) {
-    typedef typename 
-      Athena::get_thinning_handler<Container>::type 
-      handler_type;
-    handler = new handler_type( in );
-  }
-
-  Filter_t filter (in.begin(), in.end(), pred);
-  StatusCode sc = this->filter_impl( handler, proxy, 
-                                     filter, op );
-  if (sc.isSuccess())
-    sc = thinningHook (&in, this, filter, op);
-  return sc;
-}
-
 
 
 #endif //> ATHENAKERNEL_ITHINNINGSVC_H
