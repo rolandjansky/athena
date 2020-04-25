@@ -2,17 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////////////////
-// iPatFitter.h
-//   Header file for class iPatFitter
-//
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef TRKIPATFITTER_IPATFITTER_H
 #define TRKIPATFITTER_IPATFITTER_H
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include <vector>
 #include <memory>
@@ -30,32 +21,22 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
+#include "TrkGeometry/TrackingVolume.h"
+#include "TrkExInterfaces/IIntersector.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkiPatFitterUtils/IMaterialAllocator.h"
+#include "TrkiPatFitterUtils/MessageHelper.h"
+#include "TrkiPatFitterUtils/FitProcedure.h"
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-class ITrackingVolumesSvc;
-class MessageHelper;
-class MsgStream;
 namespace Trk
 {
-class FitProcedure;
-class FitProcedureQuality;
-class FitQuality;    
-class IIntersector;
-class IPropagator;
-class IMaterialAllocator;
-class MaterialEffectsBase;
-class PerigeeSurface;
-class TrackingVolume;
+class FitQuality;
 class TrackStateOnSurface;
-class Volume;    
-class IExtendedTrackSummaryTool;
-    
 /** Main Fitter tool providing the implementation for the different
  *  fitting, extension and refitting use cases.
  */
-class iPatFitter: public AthAlgTool,
-		  virtual public ITrackFitter
+class iPatFitter: public AthAlgTool, virtual public ITrackFitter
 {
 public:
     typedef IMaterialAllocator::Garbage_t Garbage_t;
@@ -65,7 +46,7 @@ public:
 			 const std::string& name,
 			 const IInterface* parent,
        bool isGlobalFit = false);
-    virtual ~iPatFitter	(void) override; 	// destructor
+    virtual ~iPatFitter()=default;
 
     // standard Athena methods
     virtual StatusCode initialize() override;
@@ -226,16 +207,10 @@ private:
     Gaudi::Property<int> m_forcedRefitsForValidation {this, "ForcedRefitsForValidation", 0};
     Gaudi::Property<int> m_maxIterations {this, "MaxIterations", 25}; 
 
-    // m_useStepPropagator 0 means not used (so Intersector used)
-    // 1 Intersector not used and StepPropagator used with FullField
-    // 2 StepPropagator with FastField propagation
-    // 99 debug mode where both are ran with FullField
-    Gaudi::Property<int> m_useStepPropagator {this, "UseStepPropagator", 1};
-    
     // constants 
     std::unique_ptr<Trk::Volume> m_calorimeterVolume;
     std::unique_ptr<Trk::Volume> m_indetVolume;
-    Trk::MagneticFieldProperties                        m_stepField; 
+    Trk::MagneticFieldProperties m_stepField; 
 
     // counters
     mutable std::atomic<unsigned> m_countFitAttempts = 0;
@@ -250,6 +225,6 @@ private:
 
 };
 
-} // end of namespace
+} // end of namespace Trk
 
 #endif // TRKIPATFITTER_IPATFITTER_H

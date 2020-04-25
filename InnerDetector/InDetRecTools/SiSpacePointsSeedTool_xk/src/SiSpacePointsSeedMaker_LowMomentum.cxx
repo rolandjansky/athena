@@ -44,17 +44,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_LowMomentum::initialize()
   //
   ATH_CHECK(m_beamSpotKey.initialize());
 
-  // Get magnetic field service
-  //
-  if ( !m_fieldServiceHandle.retrieve() ){
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }    
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-
-  ////////////////////////////////////////////////////////////////////////////////
   ATH_CHECK( m_fieldCondObjInputKey.initialize());
-  ////////////////////////////////////////////////////////////////////////////////
 
   // PRD-to-track association (optional)
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
@@ -807,22 +797,19 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::production3Sp(const EventContext
   float K = 0.;
   double f[3], gP[3] ={10.,10.,0.};
 
-  if (m_fieldServiceHandle->solenoidOn()) {
+  MagField::AtlasFieldCache    fieldCache;
 
-    MagField::AtlasFieldCache    fieldCache;
+  // Get field cache object
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR("SiSpacePointsSeedMaker_LowMomentum: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
 
-    // Get field cache object
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-    if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SiSpacePointsSeedMaker_LowMomentum: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-      return;
-    }
-    fieldCondObj->getInitializedCache (fieldCache);
-
-    //   MT version uses cache, temporarily keep old version
-    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, f);
-    else                                m_fieldServiceHandle->getFieldZR(gP, f);
+  if (fieldCache.solenoidOn()) {
+    fieldCache.getFieldZR(gP, f);
 
     K = 2./(300.*f[2]);
   } else {
