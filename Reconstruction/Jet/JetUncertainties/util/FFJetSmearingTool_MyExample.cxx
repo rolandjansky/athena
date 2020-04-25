@@ -47,8 +47,6 @@
 
 
 //truh label
-//#include "BoostedJetTaggers/SmoothedWZTagger.h"
-
 #include "ParticleJetTools/JetTruthLabelingTool.h"
 
 //My includes
@@ -256,23 +254,6 @@ std::vector<CP::SystematicSet> sysList;
 
 
 
-//---------------------------------------------------------
-//////Initialize the tool to set the truth tagging
-//           std::unique_ptr<JSSTaggerBase> m_TaggerForJES;
-//
-//  m_TaggerForJES = nullptr;
-
-//m_TaggerForJES = std::unique_ptr<SmoothedWZTagger>( new SmoothedWZTagger( "TaggerTruthLabelling" ) );
-
-//m_TaggerForJES->setProperty("CalibArea",  "SmoothedWZTaggers/Rel21");
-
-//m_TaggerForJES->setProperty("ConfigFile",  "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
-
-//m_TaggerForJES->setProperty("DSID", 304308/*m_config->getDSID()*/);
-
-//m_TaggerForJES->initialize();
-
-//--------------------------------------------------------
 
   //---------------------------------------------------------
   //////Initialize the tool to set the truth tagging
@@ -459,9 +440,6 @@ if(want_to_debug==true){
       // Print basic info about this jet
       Info(APP_NAME, "Reco Jet: pt = %g, mass = %g, eta = %g", jet_reco->pt()/1000., jet_reco->m()/1000., jet_reco->eta());
 }
-      //Give a TruthLabel to the LargeRJets. ou will need it in the FFSmearingTool (you need to know the jet topology) (JetUncertainties also used this)
-      //
-//     CHECK( m_TaggerForJES->decorateTruthLabel(*jet_reco) );// , "Failed to do truth labeling for large-R jet" 
 
     }
 
@@ -478,6 +456,7 @@ if(want_to_debug==true){
       // Shallow copy 
       auto jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
 
+	//Give a TruthLabel to the jets. We will need it in the FFSmearingTool to apply the uncertainties of one jet topology or another
      m_JetTruthLabelingTool.modify(*(jets_shallowCopy.first));
 	
     std::cout << "I am passed the modify function " << std::endl;
