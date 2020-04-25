@@ -1,4 +1,4 @@
-#!/bin/sh -xv
+#!/bin/sh
 # Cleaning
 test=${1}
 /bin/rm -f ${test}.log ${test}.py
