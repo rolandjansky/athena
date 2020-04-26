@@ -101,8 +101,10 @@ Trig::DecisionAccess::associateToEventView(SG::ReadHandle<CONTAINER>& inViewCont
                                            const uint32_t matchIndex,
                                            const uint32_t matchKey) const {
   if (!inViewContainer.isValid()) {
-    ATH_MSG_ERROR("Supplied ReadHandle is not valid.");
-    throw std::runtime_error("Trig::DecisionAccess::associateToEventView Supplied ReadHandle is not valid.");
+    std::stringstream ss;
+    ss << "Supplied ReadHandle '" << inViewContainer.key() << "' of type '" << ClassID_traits<CONTAINER>::typeName() << "' is not valid.";
+    ATH_MSG_ERROR(ss.str());
+    throw std::runtime_error("Trig::DecisionAccess::associateToEventView "+ss.str());
   }
   const CONTAINER* container = inViewContainer.cptr();
   const typename CONTAINER::const_iterator end = container->end();
