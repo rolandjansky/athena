@@ -29,6 +29,8 @@ _all_streams = [
     # PHYSICS STREAMS
     StreamInfo('Main', 'physics', True, True),
     StreamInfo('CosmicMuons','physics',True,True),
+    StreamInfo('CosmicCalo','physics',True,True),
+    StreamInfo('IDCosmic','physics',True,True),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
     # CALIBRATION STREAMS
