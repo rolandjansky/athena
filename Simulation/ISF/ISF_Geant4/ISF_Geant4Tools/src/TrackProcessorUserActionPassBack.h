@@ -25,9 +25,7 @@ namespace ISF {
   class ITruthBinding;
 }
 
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace G4UA{
 

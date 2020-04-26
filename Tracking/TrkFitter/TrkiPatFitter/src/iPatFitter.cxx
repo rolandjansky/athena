@@ -10,16 +10,11 @@
 #include <cmath>
 #include <iomanip>
 #include "EventPrimitives/EventPrimitives.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
-#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
-#include "TrkExInterfaces/IIntersector.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
-#include "TrkGeometry/TrackingVolume.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -34,10 +29,7 @@
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
-#include "TrkiPatFitterUtils/FitProcedure.h"
 #include "TrkiPatFitterUtils/FitProcedureQuality.h"
-#include "TrkiPatFitterUtils/IMaterialAllocator.h"
-#include "TrkiPatFitterUtils/MessageHelper.h"
 #include "TrkiPatFitter/iPatFitter.h"
 
 namespace Trk
@@ -66,9 +58,6 @@ namespace Trk
     declareProperty("TrackSummaryTool", m_trackSummaryTool );
   }
 
-  iPatFitter::~iPatFitter (void)
-  {}
-
   StatusCode
   iPatFitter::initialize() {
     // print name and package version
@@ -85,8 +74,6 @@ namespace Trk
     if (m_extendedDebug) { msg() << " ExtendedDebug"; }
     if (m_forcedRefitsForValidation) { msg() << " ForcedRefitsForValidation = "
                                              << m_forcedRefitsForValidation; }
-    if (m_useStepPropagator) { msg() << " UseStepPropagator = "
-                                     << m_useStepPropagator; }
     msg() << endmsg;
 
     // fill WARNING messages
@@ -133,10 +120,7 @@ namespace Trk
     if (!retrieveTool(m_materialAllocator)) { return StatusCode::FAILURE; }        
     if (!retrieveTool(m_rungeKuttaIntersector)) { return StatusCode::FAILURE; }
     if (!retrieveTool(m_solenoidalIntersector)) { return StatusCode::FAILURE; }
-    if (m_useStepPropagator) {
-      if (m_useStepPropagator == 2) { m_stepField = Trk::MagneticFieldProperties(Trk::FastField); }
-      if (!retrieveTool(m_stepPropagator)) { return StatusCode::FAILURE; };
-    }
+    if (!retrieveTool(m_stepPropagator)) { return StatusCode::FAILURE; };
     if (!retrieveTool(m_straightLineIntersector)) { return StatusCode::FAILURE; }
 
     // need to create the IndetExit and MuonEntrance TrackingVolumes
@@ -164,8 +148,11 @@ namespace Trk
       m_stepPropagator,
       m_indetVolume.get(),
       m_maxIterations,
-      m_useStepPropagator);
-
+      1); // useStepPropagator
+    // useStepPropagator 0 means not used (so Intersector used)
+    // 1 Intersector not used and StepPropagator used with FullField
+    // 2 StepPropagator with FastField propagation
+    // 99 debug mode where both are ran with FullField
     return StatusCode::SUCCESS;
   }
 
@@ -544,32 +531,11 @@ namespace Trk
          m != measurementSet.end();
          m++, hit++) {
       std::unique_ptr<const TrackSurfaceIntersection> newIntersection {
-        m_useStepPropagator >= 1 ?
         m_stepPropagator->intersectSurface((**m).associatedSurface(),
                                             intersection.get(),
                                             qOverP,
                                             m_stepField,
-                                            Trk::muon) :
-        m_rungeKuttaIntersector->intersectSurface(
-          (**m).associatedSurface(),
-          intersection.get(),
-          qOverP)};
-      if (m_useStepPropagator == 99 && newIntersection) {
-        std::unique_ptr<const TrackSurfaceIntersection> newIntersectionSTEP {
-          m_stepPropagator->intersectSurface((**m).associatedSurface(),
-                                             intersection.get(),
-                                             qOverP,
-                                             m_stepField,
-                                             Trk::muon)};
-        if (newIntersectionSTEP) {
-//              double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
-//              std::cout << " iPat 1 distance STEP and Intersector " << dist << std::endl;
-//              if(dist>10.) std::cout << " iPat 1 ALARM distance STEP and Intersector " << dist << std::endl;
-          newIntersectionSTEP.reset();
-//            } else {
-//              std::cout << " iPat 1 ALARM STEP did not intersect! " << std::endl;
-        }
-      }
+                                            Trk::muon)};
       if (newIntersection) {
         intersection = std::move(newIntersection);
 
@@ -797,31 +763,11 @@ namespace Trk
                                                     direction,
                                                     0.);
       } else if (surface) {
-        const TrackSurfaceIntersection* newIntersection = m_useStepPropagator >= 1 ?
-                                                          m_stepPropagator->intersectSurface(*surface,
+        const TrackSurfaceIntersection* newIntersection = m_stepPropagator->intersectSurface(*surface,
                                                                                              intersection,
                                                                                              qOverP,
                                                                                              m_stepField,
-                                                                                             Trk::muon) :
-                                                          m_rungeKuttaIntersector->intersectSurface(*surface,
-                                                                                                    intersection,
-                                                                                                    qOverP);
-        if ((m_useStepPropagator == 99) && newIntersection) {
-          auto newIntersectionSTEP = std::unique_ptr<const TrackSurfaceIntersection>{
-            m_stepPropagator->intersectSurface(*surface,
-                                               intersection,
-                                               qOverP,
-                                               m_stepField,
-                                               Trk::muon)};
-          if (newIntersectionSTEP) {
-            //                double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
-            //                std::cout << " iPat 2 distance STEP and Intersector " << dist << std::endl;
-            //                if(dist>10.) std::cout << " iPat 2 ALARM distance STEP and Intersector " << dist <<
-            // std::endl;
-            //              } else {
-            //                std::cout << " iPat 2 ALARM STEP did not intersect! " << std::endl;
-          }
-        }
+                                                                                             Trk::muon);
 
         if (!newIntersection) {
           // addMeasurements: skip measurement as fail to intersect

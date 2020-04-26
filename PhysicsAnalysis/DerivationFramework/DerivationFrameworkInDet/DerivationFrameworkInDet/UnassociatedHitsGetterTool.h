@@ -69,10 +69,6 @@ private:
      {this, "AssociationTool", "InDet::InDetPRDtoTrackMapToolGangedPixels" };
   SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMapKey
      {this, "PRDtoTrackMap", "",""};
-
-  mutable std::atomic_bool m_firstTime;
-  mutable std::atomic_bool m_disabled;
-
 }; // class UnassociatedHitsGetterTool
 
 } // namespace DerivationFramework

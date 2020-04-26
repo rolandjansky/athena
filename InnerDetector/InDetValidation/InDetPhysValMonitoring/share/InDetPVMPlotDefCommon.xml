@@ -732,9 +732,53 @@
   <x title="Vertex Truth-Matched type" n="5" lo="-0.5" hi="4.5"/>
   <y title="Entries"/>
 </h>
-<h id="vx_reco_efficiency" type="TEfficiency" title="Vertex Reconstruction Efficiency vs Pile-up density">
-  <x title="Pile-up density" n="10" lo="0" hi="5"/>
-  <y title="Vertex Reconstruction Efficiency" lo="0" hi="2"/>
+<h id="vx_hs_classification" type="TH1F" title="Event hardscatter vertex classification">
+  <x title="Hardscatter classification" n="5" lo="-0.5" hi="4.5"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_nReco_vs_nTruth_inclusive" type="TProfile" title="Number of reco vertices (INCLUSIVE) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_matched" type="TProfile" title="Number of reco vertices (MATCHED) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_merged" type="TProfile" title="Number of reco vertices (MERGED) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_split" type="TProfile" title="Number of reco vertices (SPLIT) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_fake" type="TProfile" title="Number of reco vertices (FAKE) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_dummy" type="TProfile" title="Number of reco vertices (DUMMY) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_clean" type="TProfile" title="Number of reco vertices (CLEAN) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_lowpu" type="TProfile" title="Number of reco vertices (LOWPU) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_highpu" type="TProfile" title="Number of reco vertices (HIGHPU) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_hssplit" type="TProfile" title="Number of reco vertices (HSSPLIT) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_none" type="TProfile" title="Number of reco vertices (NONE) vs Number of interactions">
+  <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
 </h>
 <h id="vx_nTracks" type="TH1F" title="Number of tracks at vertex">
   <x title="Number of Tracks" n="150" lo="0" hi="150"/>

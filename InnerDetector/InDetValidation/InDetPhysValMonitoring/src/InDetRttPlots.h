@@ -59,7 +59,7 @@ public:
   ///fill for things needing all truth - not just the ones from the reco tracks
   
   ///fill reco-vertex related plots
-  void fill(const xAOD::VertexContainer& vertexContainer);
+  void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthVertices);
   ///fill reco-vertex related plots that need EventInfo
   void fill(const xAOD::VertexContainer& vertexContainer, unsigned int nPU);
 
@@ -93,7 +93,6 @@ private:
   InDetPerfPlot_VertexTruthMatching *m_vertexTruthMatchingPlots;
   InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
 
-  bool m_secondaryResolution;
   bool m_doTrackInJetPlots;
 
   InDetPerfPlot_TrkInJet *m_trkInJetPlots;

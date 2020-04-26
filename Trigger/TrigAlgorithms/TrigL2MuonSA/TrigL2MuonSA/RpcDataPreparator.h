@@ -11,6 +11,7 @@
 
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
 #include "MuonRDO/RpcPadContainer.h"
 
 #include "TrigL2MuonSA/RpcData.h"
@@ -58,10 +59,14 @@ class RpcDataPreparator: public AthAlgTool
 
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
+      void setMultiMuonTrigger( const bool multiMuonTrigger );
+
  private:
       ServiceHandle<IRegSelSvc> m_regionSelector;
       SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+      ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc{ this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc"};
 
       // handles to the RoI driven data access
       ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{
@@ -84,6 +89,7 @@ class RpcDataPreparator: public AthAlgTool
       // Flag to decide whether or not to run BS decoding
       Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
       Gaudi::Property< bool > m_emulateNoRpcHit { this, "EmulateNoRpcHit", false, "Flag for emulation of no RPC hit events" };
+      bool m_doMultiMuon{false};
 };
 
 } // namespace TrigL2MuonSA

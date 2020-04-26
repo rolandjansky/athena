@@ -296,17 +296,17 @@ std::vector<FakeRoI> * FakeLvl1RoIfromKine::createRoIfromMC() {
 	qq = 0.;
       } else if (pdgid > 0) { qq = -1; } else { qq = 1; };
       Trajectory track((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(),
-		       (*p)->production_vertex()->point3d().x(),
-		       (*p)->production_vertex()->point3d().y(),
-		       (*p)->production_vertex()->point3d().z(), qq);
+		       (*p)->production_vertex()->position().x(),
+		       (*p)->production_vertex()->position().y(),
+		       (*p)->production_vertex()->position().z(), qq);
 
       ATH_MSG_VERBOSE(" Forming EMROI (" << m_emRoiLabel << ") from kine ID " << pdgid << " charge " << qq);
       ATH_MSG_VERBOSE(" Address " << std::hex << (*p) << std::dec);
       ATH_MSG_VERBOSE(" px " << (*p)->momentum().px() <<
                       " py " <<  (*p)->momentum().py() << " pz " << (*p)->momentum().pz());
-      ATH_MSG_VERBOSE(" vx " << (*p)->production_vertex()->point3d().x() <<
-                      " vy " <<  (*p)->production_vertex()->point3d().y() <<
-                      " vz " << (*p)->production_vertex()->point3d().z());
+      ATH_MSG_VERBOSE(" vx " << (*p)->production_vertex()->position().x() <<
+                      " vy " <<  (*p)->production_vertex()->position().y() <<
+                      " vz " << (*p)->production_vertex()->position().z());
       ATH_MSG_VERBOSE(" pt " << (*p)->momentum().perp() <<
                       " phi " << (*p)->momentum().phi() << " eta " << track.eta());
       ATH_MSG_VERBOSE(" Closest approach to origin : d0 " << track.d0() <<
@@ -339,9 +339,9 @@ std::vector<FakeRoI> * FakeLvl1RoIfromKine::createRoIfromMC() {
 
 
       Trajectory track((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(),
-		       (*p)->production_vertex()->point3d().x(),
-		       (*p)->production_vertex()->point3d().y(),
-		       (*p)->production_vertex()->point3d().z(), qq);
+		       (*p)->production_vertex()->position().x(),
+		       (*p)->production_vertex()->position().y(),
+		       (*p)->production_vertex()->position().z(), qq);
 
 #define RCAL 147.
 #define ZCAL 380.

@@ -20,6 +20,7 @@
  *
  ***********************************************************************************/
 #include <string>
+#include <sstream>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "TrigNavStructure/TriggerElement.h"

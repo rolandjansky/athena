@@ -813,14 +813,14 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
         propType = sourceConf2Instance._descriptors[pname].cpp_type
         if "PrivateToolHandleArray" in propType:
             setattr( destConfigurableInstance, pname, [conf2toConfigurable( tool, __indent( indent ) ) for tool in pvalue] )
-            _log.info( "{}Set the private tools array {} of {}".format( indent, pname,  destConfigurableInstance.name() ) )
+            _log.debug( "{}Set the private tools array {} of {}".format( indent, pname,  destConfigurableInstance.name() ) )
         elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
             #_log.info( "{} {}  {}".format( indent, pname, dir(pvalue) ) )
-            _log.info( "{}Set the property {}  that is private tool {} ".format( indent,  pname, destConfigurableInstance.name() ) )
+            _log.debug( "{}Set the property {}  that is private tool {} ".format( indent,  pname, destConfigurableInstance.name() ) )
             setattr( destConfigurableInstance, pname, conf2toConfigurable( pvalue, indent=__indent( indent ) ) )
         else: # plain data
             try: #sometimes values are not printable
-                _log.info( "{}Setting property {} to value {}".format( indent, pname, pvalue ) )
+                _log.debug( "{}Setting property {} to value {}".format( indent, pname, pvalue ) )
             except Exception:
                 pass
             setattr( destConfigurableInstance, pname, pvalue )
@@ -838,7 +838,7 @@ def conf2toConfigurable( comp, indent="" ):
 
 
     if __isOldConfigurable( comp ):
-        _log.info( "{}Component is already OLD Configurable object {}, no conversion".format(indent, compName(comp) ) )
+        _log.debug( "{}Component is already OLD Configurable object {}, no conversion".format(indent, compName(comp) ) )
         return comp
 
     if isinstance( comp, str ):
@@ -858,14 +858,14 @@ def conf2toConfigurable( comp, indent="" ):
         return CompFactory.getComp( typename.replace( "__", "::" ) )( instanceName )
 
     def __configurableToConf2( comp, indent="" ):
-        _log.info( "{}Converting Conf2 to Configurable class {}, type {}".format( indent, comp.getFullName(), type(comp) ) )
+        _log.debug( "{}Converting Conf2 to Configurable class {}, type {}".format( indent, comp.getFullName(), type(comp) ) )
         conf2Object = __createConf2Object( comp.getFullName() )
         __getProperties( comp, conf2Object, __indent( indent ) )
         return conf2Object
 
     def __getProperties( sourceConfigurableInstance, destConf2Instance, indent="" ):
         for prop, value in six.iteritems( sourceConfigurableInstance.getProperties() ):
-            _log.info( "{}Dealing with class {} property {} value type {}".format( indent, sourceConfigurableInstance.getFullJobOptName(), prop,  str( type( value ) ) ) )
+            _log.debug( "{}Dealing with class {} property {} value type {}".format( indent, sourceConfigurableInstance.getFullJobOptName(), prop,  str( type( value ) ) ) )
             if "ServiceHandle" in str( type( value ) ):
                 instance = __alreadyConfigured(value)
                 if instance:
@@ -891,7 +891,7 @@ def conf2toConfigurable( comp, indent="" ):
 
 
     def __areSettingsSame( existingConfigurableInstance, newConf2Instance, indent="" ):
-        _log.info( "{}Checking if setting is the same {}".format( indent, compName(existingConfigurableInstance) ) )
+        _log.debug( "{}Checking if setting is the same {}".format( indent, compName(existingConfigurableInstance) ) )
         alreadySetProperties = dict([ (pname, pvalue) for pname,pvalue
                                       in six.iteritems(existingConfigurableInstance.getValuedProperties()) ])
         for pname, pvalue in six.iteritems( newConf2Instance._properties ): # six.iteritems(comp._properties):
@@ -901,13 +901,13 @@ def conf2toConfigurable( comp, indent="" ):
                 _log.warning( "Skipping comparison, no guarantees about configuration consistency" )
                 continue
             propType = newConf2Instance._descriptors[pname].cpp_type
-            _log.info("{}Comparing type: {}".format(indent, propType))
+            _log.debug("{}Comparing type: {}".format(indent, propType))
             if  "PrivateToolHandleArray" in  propType:
                 for oldC, newC in zip( alreadySetProperties[pname], pvalue):
                     __areSettingsSame( oldC, newC, __indent(indent))
             elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
                 #__areSettingsSame( alreadySetProperties[pname], pvalue, __indent(indent))
-                _log.info( "{} {}".format( indent, dir(pvalue) ) )
+                _log.debug( "{} {}".format( indent, dir(pvalue) ) )
                 __areSettingsSame( getattr(existingConfigurableInstance, pname), pvalue, __indent(indent))
             else:
                 if alreadySetProperties[pname] != pvalue:
@@ -921,10 +921,10 @@ def conf2toConfigurable( comp, indent="" ):
             #conf2Clone =  __configurableToConf2( existingConfigurable )
 
             #        comp.merge( conf2Clone ) # let the Configurable2 system to handle merging
-        _log.info( "{}Pre-existing configurable was found to have the same properties".format( indent, comp.name ) )
+        _log.debug( "{}Pre-existing configurable was found to have the same properties".format( indent, comp.name ) )
         instance = existingConfigurable
     else: # create new configurable
-        _log.info( "{}Creating component configurable {}".format( indent, comp.name ) )
+        _log.debug( "{}Creating component configurable {}".format( indent, comp.name ) )
         configurableClass = __findConfigurableClass( comp.getFullJobOptName().split( "/" )[0] )
         instance = configurableClass( comp.name )
         __setProperties( instance, comp, __indent( indent ) )
@@ -955,20 +955,23 @@ def appendCAtoAthena(ca, destinationSeq=athAlgSeq ):
     _log.info( "Merging of CA to global ..." )
 
     from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,athAlgSeq,athCondSeq
-    _log.info( "Merging services" )
-    for comp in ca.getServices():
-        instance = conf2toConfigurable( comp, indent="  " )
-        ServiceMgr += instance
+    if len(ca.getServices()) != 0:
+        _log.info( "Merging services" )
+        for comp in ca.getServices():
+            instance = conf2toConfigurable( comp, indent="  " )
+            ServiceMgr += instance
 
-    _log.info( "Merging condition algorithms" )
-    for comp in ca._conditionsAlgs:
-        instance = conf2toConfigurable( comp, indent="  " )
-        athCondSeq += instance
+    if  len(ca._conditionsAlgs) != 0:
+        _log.info( "Merging condition algorithms" )
+        for comp in ca._conditionsAlgs:
+            instance = conf2toConfigurable( comp, indent="  " )
+            athCondSeq += instance
 
-    _log.info( "Merging public tools" )
-    for comp in ca.getPublicTools():
-        instance = conf2toConfigurable( comp, indent="  " )
-        ToolSvc += instance
+    if len( ca.getPublicTools() ) != 0:
+        _log.info( "Merging public tools" )
+        for comp in ca.getPublicTools():
+            instance = conf2toConfigurable( comp, indent="  " )
+            ToolSvc += instance
 
     _log.info( "Merging sequences and algorithms" )
     from AthenaCommon.CFElements import findSubSequence, flatSequencers
@@ -992,9 +995,9 @@ def appendCAtoAthena(ca, destinationSeq=athAlgSeq ):
 
     __mergeSequences( destinationSeq, ca._sequence )
     for name, content in six.iteritems( flatSequencers(athAlgSeq) ):
-        _log.info( "{}Sequence {}".format( "-\\",  name ) )
+        _log.debug( "{}Sequence {}".format( "-\\",  name ) )
         for c in content:
-            _log.info( "{} name {} type {}".format( " +",  c.name(), type(c) ) )
+            _log.debug( "{} name {} type {}".format( " +",  c.name(), type(c) ) )
 
     ca.wasMerged()
     _log.info( "Merging of CA to global done ..." )

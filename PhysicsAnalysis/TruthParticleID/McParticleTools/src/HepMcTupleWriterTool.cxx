@@ -20,7 +20,7 @@
 // ROOT includes
 #include "TTree.h"
 
-// CLHEP/HepMC includes
+// CLHEP includes
 #include "GeneratorObjects/McEventCollection.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 

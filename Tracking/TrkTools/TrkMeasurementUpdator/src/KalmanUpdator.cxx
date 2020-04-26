@@ -19,25 +19,18 @@
 
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 
-#include <math.h>
-
 
 // constructor
 Trk::KalmanUpdator::KalmanUpdator(const std::string& t,const std::string& n,const IInterface* p) :
     AthAlgTool (t,n,p),
-    m_cov0(std::vector<double>(0)),
+    m_cov0{250., 250.,0.25, 0.25, 0.000001}, // set defaults _before_ reading from job options
     m_projectionMatrices(5),
     m_outputlevel(1)
 {
     // AlgTool stuff
   declareProperty("InitialCovariances",m_cov0,"default covariance to be used at start of filter");
   declareProperty("FastTrackStateCovCalculation",m_useFruehwirth8a=false,"toggles which formula to use for updated cov");
-    m_cov0.push_back(250.); // set defaults _before_ reading from job options
-    m_cov0.push_back(250.);
-    m_cov0.push_back(0.25);
-    m_cov0.push_back(0.25);
-    m_cov0.push_back(0.000001);
-    declareInterface<IUpdator>( this );
+  declareInterface<IUpdator>( this );
 }
 
 // destructor
@@ -49,27 +42,21 @@ StatusCode Trk::KalmanUpdator::initialize()
 {
     // pass individual outputlevel to message stream
   m_outputlevel = msg().level()-MSG::DEBUG;
-
-    if (m_cov0.size() < 5) {
-      ATH_MSG_INFO( "Wrong-sized initial covariance given, so set to default: "  );
-      m_cov0.clear(); // reset
-      m_cov0.push_back(250.);
-      m_cov0.push_back(250.);
-      m_cov0.push_back(0.25);
-      m_cov0.push_back(0.25);
-      m_cov0.push_back(0.000001);
-    }
-    ATH_MSG_INFO( "Initial covariance: " << m_cov0[0] << ", "
-                  << m_cov0[1] << ", " << m_cov0[2] << ", "
-                  << m_cov0[3] << ", " << m_cov0[4] << " (diagonal)"  );
-    ATH_MSG_INFO( "initialize() successful in " << name()  );
-    return StatusCode::SUCCESS;
+  if (m_cov0.size() < 5) {
+    ATH_MSG_INFO( "Wrong-sized initial covariance given, so set to default: "  );
+    m_cov0 = {250.,250,0.25,0.25, 0.000001};
+  }
+  ATH_MSG_INFO( "Initial covariance: " << m_cov0[0] << ", "
+                << m_cov0[1] << ", " << m_cov0[2] << ", "
+                << m_cov0[3] << ", " << m_cov0[4] << " (diagonal)"  );
+  ATH_MSG_DEBUG( "initialize() successful in " << name()  );
+  return StatusCode::SUCCESS;
 }
 
 // finalize
 StatusCode Trk::KalmanUpdator::finalize()
 {
-    ATH_MSG_INFO( "finalize() successful in " << name()  );
+    ATH_MSG_DEBUG( "finalize() successful in " << name()  );
     return StatusCode::SUCCESS;
 }
 
@@ -97,8 +84,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackParameters
                                                       FitQualityOnSurface*&   fitQoS) const {
     if (m_outputlevel <= 0) logStart("addToState(TP,LPOS,ERR,FQ)",trkPar);
     if (fitQoS) {
-      ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
-                       << " avoid mem leak!"  );
+      ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!"  );
       return nullptr;
     } else {
       return calculateFilterStep (trkPar, measmtPos, measmtErr, 1, fitQoS, true);
@@ -112,8 +98,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackParameters
                                                       FitQualityOnSurface*&   fitQoS) const {
     if (m_outputlevel <= 0) logStart("addToState(TP,LPAR,ERR,FQ)",trkPar);
     if (fitQoS) {
-      ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
-                       << " avoid mem leak!"  );
+      ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!"  );
       return nullptr;
     } else {
       return calculateFilterStep (trkPar, measmtPar, measmtErr, 1, fitQoS, true);
@@ -224,13 +209,11 @@ Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackParamet
     // try if both Track Parameters are measured ones ?
   // remember, either one OR two might have no error, but not both !
   if (!one.covariance() && !two.covariance()) {
-    ATH_MSG_WARNING( "both parameters have no errors, invalid "
-                     << "use of Updator::combineStates()"  );
+    ATH_MSG_WARNING( "both parameters have no errors, invalid use of Updator::combineStates()"  );
     return nullptr;
   }
   if (fitQoS) {
-    ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
-                     << " avoid mem leak!"  );
+    ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!"  );
     return nullptr;
   } else {
     // if only one of two has an error, return that one
@@ -351,7 +334,7 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPa
   // try if Track Parameters are measured ones ?
   if (predPar.covariance() == nullptr) {
 #if 0
-    if (&predPar == NULL) 
+    if (&predPar == nullptr) 
       ATH_MSG_WARNING( "input state is NULL in predictedStateFitQuality()"  );
     else
 #endif
@@ -390,7 +373,7 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPa
   // try if Track Parameters are measured ones ?
   if (predPar.covariance() == nullptr) {
 #if 0
-    if (&predPar == NULL) 
+    if (&predPar == nullptr) 
       ATH_MSG_WARNING( "input state is NULL in predictedStateFitQuality()"  );
     else
 #endif
@@ -446,7 +429,7 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& one,
 
 std::vector<double> Trk::KalmanUpdator::initialErrors() const {
   std::vector<double> E(5);
-  for (int i=0; i<5; ++i) E[i] = sqrt(m_cov0[i]);
+  for (int i=0; i<5; ++i) E[i] = std::sqrt(m_cov0[i]);
   return E;
 }
 
@@ -462,14 +445,12 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
   AmgSymMatrix(5) covTrk;
   if (!trkPar.covariance()) {
     if (sign<0) {
-      ATH_MSG_WARNING( "MeasuredTrackParameters == Null, can not calculate "
-                       << "updated parameter state"  );
+      ATH_MSG_WARNING( "MeasuredTrackParameters == Null, can not calculate updated parameter state"  );
       return nullptr;
     } else {
       // no error given - use a huge error matrix for the time
       // covTrk = Amg::MatrixX(5, 1) * 1000.f;
-      ATH_MSG_VERBOSE( "-U- no covTrk at input - "
-                       << "assign large error matrix for the time being."  );
+      ATH_MSG_VERBOSE( "-U- no covTrk at input -  assign large error matrix for the time being."  );
       covTrk(0,0) = m_cov0[0];
       covTrk(1,1) = m_cov0[1];
       covTrk(2,2) = m_cov0[2];
@@ -678,10 +659,8 @@ Amg::MatrixX Trk::KalmanUpdator::projection(const Amg::MatrixX& M, const int key
 bool Trk::KalmanUpdator::consistentParamDimensions(const Trk::LocalParameters& P,
                                                          const int& dimCov) const {
   if (P.dimension() != dimCov ) {
-    ATH_MSG_WARNING( "Inconsistency in dimension of local coord - "
-                     << "problem with LocalParameters object?"  );
-    ATH_MSG_WARNING( "dim of local parameters: "
-                     << P.dimension()<< " vs. dim of error matrix: "<<dimCov  );
+    ATH_MSG_WARNING( "Inconsistency in dimension of local coord - problem with LocalParameters object?"  );
+    ATH_MSG_WARNING( "dim of local parameters: "<< P.dimension()<< " vs. dim of error matrix: "<<dimCov  );
     ATH_MSG_INFO( "==> refuse update or chi2 calculation"  );
     return false;
   }
@@ -762,15 +741,13 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, AmgSymMatrix(5)& 
 
   // correct phi coordinate if necessary
   if ((jphi>=0) && (V[jphi] > M_PI) ) {
-    if (m_outputlevel <=0) msg() << MSG::DEBUG << "-U- phi= " << V[jphi];
-    V[jphi] = fmod(V[jphi]+M_PI,2*M_PI)-M_PI;
-    if (m_outputlevel <=0) msg() << MSG::DEBUG << " out of range, now "
-                                 << "corrected to " << V[jphi] << endmsg;
+    ATH_MSG_DEBUG("-U- phi= " << V[jphi]);
+    V[jphi] = std::fmod(V[jphi]+M_PI,2*M_PI)-M_PI;
+    ATH_MSG_DEBUG( " out of range, now corrected to " << V[jphi]);
   } else if ((jphi>=0) && (V[jphi] < -M_PI) ) {
-    if (m_outputlevel <=0) msg() << MSG::DEBUG << "-U- phi= " << V[jphi];
-    V[jphi] = fmod(V[jphi]-M_PI,2*M_PI)+M_PI;
-    if (m_outputlevel <=0) msg() << MSG::DEBUG << " out of range, now "
-                                 << "corrected to " << V[jphi] << endmsg;
+    ATH_MSG_DEBUG( "-U- phi= " << V[jphi]);
+    V[jphi] = std::fmod(V[jphi]-M_PI,2*M_PI)+M_PI;
+    ATH_MSG_DEBUG( " out of range, now corrected to " << V[jphi] );
   }
   return true;
 }
@@ -847,12 +824,12 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, Amg::MatrixX& C,
   // correct phi coordinate if necessary
   if ((jphi>=0) && (V[jphi] > M_PI) ) {
     if (m_outputlevel <=0) msg() << MSG::DEBUG << "-U- phi= " << V[jphi];
-    V[jphi] = fmod(V[jphi]+M_PI,2*M_PI)-M_PI;
+    V[jphi] = std::fmod(V[jphi]+M_PI,2*M_PI)-M_PI;
     if (m_outputlevel <=0) ATH_MSG_DEBUG( " out of range, now "
                                           << "corrected to " << V[jphi]  );
   } else if ((jphi>=0) && (V[jphi] < -M_PI) ) {
     if (m_outputlevel <=0) msg() << MSG::DEBUG << "-U- phi= " << V[jphi];
-    V[jphi] = fmod(V[jphi]-M_PI,2*M_PI)+M_PI;
+    V[jphi] = std::fmod(V[jphi]-M_PI,2*M_PI)+M_PI;
     if (m_outputlevel <=0) ATH_MSG_DEBUG( " out of range, now "
                                           << "corrected to " << V[jphi]  );
   }

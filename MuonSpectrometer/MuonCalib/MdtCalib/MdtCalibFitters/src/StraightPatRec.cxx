@@ -148,8 +148,8 @@ MTStraightLine StraightPatRec::tangent(
 // case 1 and 2 //
 	if (r_case==1 || r_case==2) {
 
-		sinalpha = fabs(r_r2-r_r1)/(r_w2-r_w1).mag();
-		cosalpha = sqrt(1.0-sinalpha*sinalpha);
+		sinalpha = std::abs(r_r2-r_r1)/(r_w2-r_w1).mag();
+		cosalpha = std::sqrt(1.0-sinalpha*sinalpha);
 
    // case 1 //
 		if (r_case==1) {
@@ -174,12 +174,10 @@ MTStraightLine StraightPatRec::tangent(
 	if (r_case==3  || r_case==4) {
 
 		sinalpha = (r_r1+r_r2)/(r_w2-r_w1).mag();
-		cosalpha = sqrt(1.0-sinalpha*sinalpha);
+		cosalpha = std::sqrt(1.0-sinalpha*sinalpha);
 
    // case 3 //
 		if (r_case==3) {
-// 			p1 = r_w1+r_r1*(cosalpha*e2prime-sinalpha*e3prime);
-// 			p2 = r_w2-r_r2*(cosalpha*e2prime-sinalpha*e3prime);
 			p1 = r_w1+r_r1*(cosalpha*e2prime+sinalpha*e3prime);
 			p2 = r_w2-r_r2*(cosalpha*e2prime+sinalpha*e3prime);
 		}
@@ -203,9 +201,9 @@ MTStraightLine StraightPatRec::tangent(
 	mx1 = tang.a_x1(); bx2 = tang.b_x1();
 	mx2 = tang.a_x2(); bx2 = tang.b_x2();
 	tang = MTStraightLine(mx1, bx1, mx2, bx2,1.0, 1.0, 
-			sqrt(r_sigma12+r_sigma22)/fabs(p2.z()-p1.z()),
-			sqrt(r_sigma12+p1.z()*p1.z()*(r_sigma12+r_sigma22)/
-						pow(p2.z()-p1.z(), 2)));
+			std::sqrt(r_sigma12+r_sigma22)/std::abs(p2.z()-p1.z()),
+			std::sqrt(r_sigma12+p1.z()*p1.z()*(r_sigma12+r_sigma22)/
+						std::pow(p2.z()-p1.z(), 2)));
 			// errors in mx1 and bx1 are arbitrary since they are
 			// not used at a later stage.
 
@@ -273,7 +271,7 @@ MTStraightLine StraightPatRec::fitCandidate(MuonCalibSegment & r_segment,
 
 // Rotation Matrix for Toewr_to_track transformation
 	
-	double rotAngle = Amg::angle(Amg::Vector3D::UnitZ(),refDir)*(refDir.y())/fabs(refDir.y());
+	double rotAngle = Amg::angle(Amg::Vector3D::UnitZ(),refDir)*(refDir.y())/std::abs(refDir.y());
 	Amg::AngleAxis3D RotMatr(rotAngle, Amg::Vector3D::UnitX() ); // Matrix for Track reference transformation
 	Amg::AngleAxis3D RotMatr_inv(-rotAngle, Amg::Vector3D::UnitX() ); // inverse
 
@@ -291,9 +289,9 @@ MTStraightLine StraightPatRec::fitCandidate(MuonCalibSegment & r_segment,
 		Amg::Vector3D WirPosLocal = r_segment.mdtHOT()[l]->localPosition();
 		Amg::Vector3D WirPosTrack = WirPosLocal-refTransl;
 		WirPosTrack = RotMatr*WirPosTrack;
-		double signedDrifRadius = fabs(r_segment.mdtHOT()[l]->driftRadius())*
+		double signedDrifRadius = std::abs(r_segment.mdtHOT()[l]->driftRadius())*
 			(r_segment.mdtHOT()[l]->signedDistanceToTrack()/
-			fabs(r_segment.mdtHOT()[l]->signedDistanceToTrack()));
+			std::abs(r_segment.mdtHOT()[l]->signedDistanceToTrack()));
 		Amg::Vector3D HitPosTrack = WirPosTrack;
 		HitPosTrack[0] = HitPosTrack.y() + signedDrifRadius;
 		HitPosTrack[1] = r_segment.mdtHOT()[l]->sigma2DriftRadius(); //trick to store hit resolution
@@ -444,7 +442,7 @@ MTStraightLine StraightPatRec::track(void) const {
 void StraightPatRec::setRoadWidth(
 					const double & r_road_width) {
 
-	m_road_width = fabs(r_road_width);
+	m_road_width = std::abs(r_road_width);
 	return;
 
 }
@@ -671,7 +669,7 @@ if(try_nb_hits<5 && (selected_hits.size()-try_nb_hits)>2) return false;
 			MTStraightLine aux_line(
  				selected_hits[hit_index[n]-1]->localPosition(),
 				xhat, null, null);
-			if (fabs(fabs(tangents[r_case-1].signDistFrom(
+			if (std::abs(std::abs(tangents[r_case-1].signDistFrom(
 						aux_line))-
 				selected_hits[hit_index[n]-1]->driftRadius())
 								<=m_road_width) {

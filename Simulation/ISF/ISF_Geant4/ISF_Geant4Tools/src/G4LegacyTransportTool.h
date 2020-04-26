@@ -41,9 +41,7 @@ namespace ISF {
   class ISFParticle;
 }
 
-namespace HepMC {
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 namespace iGeant4
 {

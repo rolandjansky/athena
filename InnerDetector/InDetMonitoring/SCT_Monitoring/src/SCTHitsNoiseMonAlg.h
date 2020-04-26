@@ -23,13 +23,12 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include <shared_mutex>
+#include <array>
+#include <unordered_set>
 
 // Forward declarations
 class ISCT_ConfigurationConditionsTool;
 class SCT_ID;
-
-using namespace std;
 
 class SCTHitsNoiseMonAlg : public AthMonitorAlgorithm {
  public:
@@ -39,63 +38,24 @@ class SCTHitsNoiseMonAlg : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms(const EventContext& ctx) const override final;
 
  private:
-   enum Thresholds {thresh100, thresh1000, thresh10000, nThreshes};
-  static const double s_thresholds[nThreshes];
-  static const std::string s_thresholdNames[nThreshes];
 
-
-  mutable atomic<int> m_current_lb{0};
-  mutable atomic<int> m_last_reset_lb{0};
   //Count number of events
-  mutable atomic<int> m_numberOfEvents{0};
+  mutable std::atomic<int> m_numberOfEvents{0};
   //Count number of events in the selected stream
-  mutable atomic<int> m_numberOfEventsTrigger{0};
+  mutable std::atomic<int> m_numberOfEventsTrigger{0};
   //Count number of events since last reset
-  mutable atomic<int> m_numberOfEventsRecent{0};
+  mutable std::atomic<int> m_numberOfEventsRecent{0};
   //CAM adds skip events counter
-  mutable atomic<int> m_skipEvents{0};
+  mutable std::atomic<int> m_skipEvents{0};
       
- 
-  mutable std::shared_mutex m_sharedMutex ATLAS_THREAD_SAFE;
-
-  struct Data
-  {
-    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyM[nThreshes];
-    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_occ_lb[SCT_Monitoring::N_REGIONS+1];
-    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyMTrigger[nThreshes];
-    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_occTrigger_lb[SCT_Monitoring::N_REGIONS+1];
-
-    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyMWithHO[nThreshes];
-    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_hitocc_lb[SCT_Monitoring::N_REGIONS+1];
-    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_noisyMWithHOTrigger[nThreshes];
-    std::array<std::atomic<int>, SCT_Monitoring::NBINS_LBs+1> m_hitoccTrigger_lb[SCT_Monitoring::N_REGIONS+1];
-
-    ///additional maps for track NO to compare with SP NO calc
-    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiased;
-    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiasedTrigger;
-    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiasedRecent;
-
-    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1];
-    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_occSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1];
-
-    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiased;
-    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiasedTrigger;
-    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiasedRecent;
-
-    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiased_lb[SCT_Monitoring::N_REGIONS+1];
-    std::array<std::atomic<float>, SCT_Monitoring::N_WAFERS> m_hitoccSumUnbiasedTrigger_lb[SCT_Monitoring::N_REGIONS+1];
-  };
-  std::unique_ptr<Data> m_data;
-
-  
-  mutable atomic<int> m_events_lb{0};
-  mutable atomic<int> m_eventsTrigger_lb{0};
+  mutable std::atomic<int> m_events_lb{0};
+  mutable std::atomic<int> m_eventsTrigger_lb{0};
 
   
   std::vector<int> m_nSP_buf{};   
-  mutable atomic<int> m_nSP_pos{0};
+  mutable std::atomic<int> m_nSP_pos{0};
   std::vector<int> m_nHits_buf{};
-  mutable atomic<int> m_nHits_pos{0};
+  mutable std::atomic<int> m_nHits_pos{0};
   std::vector<int> m_nmaxHits_buf{};
   std::vector<Identifier> m_nmaxModule_buf{};
   std::vector<int> m_nminHits_buf{};
@@ -147,12 +107,9 @@ class SCTHitsNoiseMonAlg : public AthMonitorAlgorithm {
   const SCT_ID* m_pSCTHelper{nullptr};
   //@}
   
-  StatusCode generalHistsandNoise(const std::vector<Identifier>& rdosOnTracks) const;
-  StatusCode makeVectorOfTrackRDOIdentifiers(std::vector<Identifier>& rdosOnTracks, const EventContext& ctx) const;
+  StatusCode generalHistsandNoise(const std::array<std::unordered_set<Identifier>, SCT_Monitoring::N_WAFERS>& rdosOnTracks, const EventContext& ctx) const;
+  StatusCode makeVectorOfTrackRDOIdentifiers(std::array<std::unordered_set<Identifier>, SCT_Monitoring::N_WAFERS>& rdosOnTracks, const EventContext& ctx) const;
   StatusCode makeSPvsEventNumber() const;
-  void resetCaches() const;
-
-
 };
 
 #endif // SCTHITSNOISEMONALG_H

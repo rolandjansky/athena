@@ -1007,7 +1007,7 @@ StatusCode ISF_HitAnalysis::execute()
          }  
 
          if((*it)->production_vertex()) {
-           truth.set_vertex((*it)->production_vertex()->point3d().x(), (*it)->production_vertex()->point3d().y(), (*it)->production_vertex()->point3d().z());
+           truth.set_vertex((*it)->production_vertex()->position().x(), (*it)->production_vertex()->position().y(), (*it)->production_vertex()->position().z());
          } else {
            truth.set_vertex(direction.X(),direction.Y(),direction.Z());
            ATH_MSG_WARNING("No particle production vetext, use VERTEX from direction: x "<<direction.X()<<" y "<<direction.Y()<<" z "<<direction.Z());
