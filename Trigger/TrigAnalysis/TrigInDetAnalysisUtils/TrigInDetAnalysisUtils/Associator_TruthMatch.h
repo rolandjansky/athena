@@ -16,20 +16,6 @@
 #include <map>
 
 
-//BP next two
-// #include "TrigInDetEvent/TrigInDetTrackCollection.h"
-// #include "McParticleEvent/TruthParticleContainer.h"
-
-///TruthMap
-//#include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
-//##include "HepMC/GenEvent.h"
-//##include "HepMC/GenVertex.h"
-
-//BP
-// #include "HepMC/GenParticle.h"
-// #include "GeneratorObjects/HepMcParticleLink.h"
-
-
 #include "TrigInDetAnalysis/TrackAssociator.h"
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysis/Track.h"
