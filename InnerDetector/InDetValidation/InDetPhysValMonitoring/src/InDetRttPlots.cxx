@@ -38,12 +38,12 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir) : 
   m_truthProbLowThreshold = 0.5;
   
   if(m_iDetailLevel >= 200){
-    m_resolutionPlotSecd = new InDetPerfPlot_Resolution(this, "Tracks/Matched/Resolutions/Secondary");
+    m_resolutionPlotSecd = std::unique_ptr<InDetPerfPlot_Resolution>(new InDetPerfPlot_Resolution(this, "Tracks/Matched/Resolutions/Secondary"));
   }
 
   //A lot of Jets... do we need these at all???
   if(m_doTrackInJetPlots){
-    m_trkInJetPlots = new InDetPerfPlot_TrkInJet(this, "TracksInJets/Tracks");
+    m_trkInJetPlots = std::unique_ptr<InDetPerfPlot_TrkInJet>(new InDetPerfPlot_TrkInJet(this, "TracksInJets/Tracks"));
   }
 }
 

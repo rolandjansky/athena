@@ -13,6 +13,8 @@
 
 // std includes
 #include <string>
+#include <memory>
+
 // local includes
 #include "InDetPlotBase.h"
 #include "InDetBasicPlot.h"
@@ -82,7 +84,7 @@ private:
   InDetPerfPlot_FakeRate m_fakePlots;
   InDetPerfPlot_FakeRate m_missingTruthFakePlots;
   InDetPerfPlot_Resolution m_resolutionPlotPrim;
-  InDetPerfPlot_Resolution* m_resolutionPlotSecd;
+  std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotSecd;
   InDetPerfPlot_Hits m_hitsMatchedTracksPlots;
   InDetPerfPlot_Hits m_hitsRecoTracksPlots;
   InDetPerfPlot_Efficiency m_effPlots;
@@ -95,7 +97,7 @@ private:
 
   bool m_doTrackInJetPlots;
 
-  InDetPerfPlot_TrkInJet *m_trkInJetPlots;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots;
 
   std::string m_trackParticleTruthProbKey;
   float m_truthProbLowThreshold;
