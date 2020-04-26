@@ -145,7 +145,9 @@ InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vec
       ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all HS vertex");
     }
   }
-  m_vertexTruthMatchingPlots.fill(vertexContainer, truthVertices);
+  if(m_iDetailLevel >= 200){
+    m_vertexTruthMatchingPlots->fill(vertexContainer, truthVertices);
+  }
 }
 
 
