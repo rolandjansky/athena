@@ -77,33 +77,41 @@ StatusCode METMonitoringAlg::initialize() {
 StatusCode METMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
   using namespace Monitored;
   using Gaudi::Units::GeV;
-
+  
   SG::ReadHandle<xAOD::MissingETContainer> metContainer(m_metContainerKey,ctx);
   if (!metContainer.isValid() ) {
     ATH_MSG_ERROR("evtStore() does not contain MET Collection with name "<< m_metContainerKey);
     return StatusCode::FAILURE;
   }
- SG::ReadHandle<xAOD::MissingETContainer> metCaloContainer(m_metCaloContainerKey,ctx);
+  SG::ReadHandle<xAOD::MissingETContainer> metCaloContainer(m_metCaloContainerKey,ctx);
   if (!metCaloContainer.isValid() ) {
     ATH_MSG_ERROR("evtStore() does not contain METCalo Collection with name "<< m_metCaloContainerKey);
     return StatusCode::FAILURE;
   }
-
- SG::ReadHandle<xAOD::MissingETContainer> metAKt4EMTopoContainer(m_metAKt4EMTopoContainerKey,ctx);
+  
+  SG::ReadHandle<xAOD::MissingETContainer> metAKt4EMTopoContainer(m_metAKt4EMTopoContainerKey,ctx);
   if (!metCaloContainer.isValid() ) {
     ATH_MSG_ERROR("evtStore() does not contain METAKt4EMTopo Collection with name "<< m_metAKt4EMTopoContainerKey);
     return StatusCode::FAILURE;
   }
-
+  const auto& trigDecTool = getTrigDecisionTool();
   bool isMETtopocalo = false;
   for (const auto& key : m_metKeys) {
     if (key == "MET_Topo") isMETtopocalo = true;    
   }
-    if (isMETtopocalo){
-      if (m_dometcut && (*metAKt4EMTopoContainer)[m_metTotalKey]->met() < m_metcut*GeV) return StatusCode::SUCCESS;
-    }  else {
-      if (m_dometcut && (*metContainer)[m_metTotalKey]->met() < m_metcut*GeV) return StatusCode::SUCCESS;
-    }
+  if (isMETtopocalo){
+    if (m_dometcut && (*metAKt4EMTopoContainer)[m_metTotalKey]->met() < m_metcut*GeV) return StatusCode::SUCCESS;
+    
+  }  else {
+    if (m_dometcut && (*metContainer)[m_metTotalKey]->met() < m_metcut*GeV) return StatusCode::SUCCESS;  
+    
+  }
+
+  if (m_dotrig) {    
+    if (trigDecTool !=0 && !(trigDecTool->isPassed("L1_XE30")))
+      return StatusCode::SUCCESS;
+  }
+
   for (const auto& metKey : m_metKeys)       
     { 
       const std::string& xaod_subkey = key2SubSkeyMap.at(metKey).second;
