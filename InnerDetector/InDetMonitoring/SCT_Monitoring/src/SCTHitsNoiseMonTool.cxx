@@ -334,13 +334,13 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
   const EventIDBase& pEvent{ctx.eventID()};
   const int lb{static_cast<int>(pEvent.lumi_block())};
 
-  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer{m_dataObjectName, ctx};
-  if (not p_rdocontainer.isValid()) {
+  SG::ReadHandle<SCT_RDO_Container> rdoContainer{m_dataObjectName, ctx};
+  if (not rdoContainer.isValid()) {
     return StatusCode::FAILURE;
   }
   // Get the space point container
-  SG::ReadHandle<SpacePointContainer> sctContainer{m_SCTSPContainerName, ctx};
-  if (not sctContainer.isValid()) {
+  SG::ReadHandle<SpacePointContainer> spacePointContainer{m_SCTSPContainerName, ctx};
+  if (not spacePointContainer.isValid()) {
     return StatusCode::FAILURE;
   }
 
@@ -348,7 +348,6 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
   std::vector<float> occ(wafer_hash_max, 0.);
   std::vector<float> hitOcc(wafer_hash_max, 0.);
 
-  Identifier SCT_Identifier;
   // Use new IDC
   int local_tothits{0};
 
@@ -372,77 +371,60 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
   // Outer Loop on RDO Collection
-  for (const InDetRawDataCollection<SCT_RDORawData>* SCT_Collection: *p_rdocontainer) {
-    if (SCT_Collection==nullptr) {
+  for (const InDetRawDataCollection<SCT_RDORawData>* rdoCollection: *rdoContainer) {
+    if (rdoCollection==nullptr) {
       continue;  // select only SCT RDOs
     }
     // MJW new code- try getting the ID of the collection using the identify() method
-    Identifier tempID{SCT_Collection->identify()};
-    Identifier theWaferIdentifierOfTheRDOCollection{tempID};
-    IdentifierHash theWaferIdentifierHashOfTheRDOCollection{SCT_Collection->identifyHash()};
-    Identifier theModuleIdentifierOfTheRDOCollection{m_pSCTHelper->module_id(tempID)};
-    IdentifierHash theModuleHash0{m_pSCTHelper->wafer_hash(theModuleIdentifierOfTheRDOCollection)};
+    const Identifier wafer_id{rdoCollection->identify()};
+    const IdentifierHash wafer_hash{rdoCollection->identifyHash()};
+    const Identifier module_id{m_pSCTHelper->module_id(wafer_id)};
+    const IdentifierHash theModuleHash0{m_pSCTHelper->wafer_hash(module_id)};
     IdentifierHash theModuleHash1;
     m_pSCTHelper->get_other_side(theModuleHash0, theModuleHash1);
-    int Bec{m_pSCTHelper->barrel_ec(tempID)};
+    const int thisBec{m_pSCTHelper->barrel_ec(wafer_id)};
+    const int thisLayerDisk{m_pSCTHelper->layer_disk(wafer_id)};
+    const int thisPhi{m_pSCTHelper->phi_module(wafer_id)};
+    const int thisEta{m_pSCTHelper->eta_module(wafer_id)};
+    const int thisSide{m_pSCTHelper->side(wafer_id)};
+    const int thisElement{(N_SIDES * thisLayerDisk) + thisSide};
+    unsigned int systemIndex{bec2Index(thisBec)};
     
     int numberOfHitsFromSPs{0};
     int numberOfHitsFromAllRDOs{0};
     // Now we want the space point container for this module
     // We have to compare module IDs- the SP collection is defined for the 'normal' (i.e. no stereo) module side
     // Define a set of spIDs
-    set<Identifier> mySetOfSPIds;
-    for (unsigned int side{0}; side<N_SIDES; side++) {
-      SpacePointContainer::const_iterator spContainerIterator{sctContainer->indexFind(side==0 ? theModuleHash0 : theModuleHash1)};
-      if (spContainerIterator==sctContainer->end()) continue;
-      Identifier tempSPID{(*spContainerIterator)->identify()};
-      Identifier theModuleIdentifierOfTheSPCollection{m_pSCTHelper->module_id(tempSPID)};
-      if (theModuleIdentifierOfTheRDOCollection == theModuleIdentifierOfTheSPCollection) {
-        for (const Trk::SpacePoint* sp: **spContainerIterator) {
-          // the following is nasty; the 'normal' sides (where the sp is defined) swap from layer to layer. To be safe,
-          // we get both sides
-          const vector<Identifier>& rdoList0{sp->clusterList().first->rdoList()};
-          const vector<Identifier>& rdoList1{sp->clusterList().second->rdoList()};
-          // copy to mySetOfSPIds. Use inserter(set, iterator_hint) for a set, or back_inserter(vec) for vector...
-          copy(rdoList0.begin(), rdoList0.end(), inserter(mySetOfSPIds, mySetOfSPIds.end()));
-          copy(rdoList1.begin(), rdoList1.end(), inserter(mySetOfSPIds, mySetOfSPIds.end()));
-        }
-      } else {
-        ATH_MSG_ERROR("Module identifiers are different. indexFind gives a wrong collection??");
+    unordered_set<Identifier> mySetOfSPIds;
+    for (int side{0}; side<N_SIDES; side++) {
+      SpacePointContainer::const_iterator spContainerIterator{spacePointContainer->indexFind(side==0 ? theModuleHash0 : theModuleHash1)};
+      if (spContainerIterator==spacePointContainer->end()) continue;
+      for (const Trk::SpacePoint* sp: **spContainerIterator) {
+        const vector<Identifier>& rdoList{(side==thisSide ? sp->clusterList().first->rdoList() : sp->clusterList().second->rdoList())};
+        mySetOfSPIds.insert(rdoList.begin(), rdoList.end());
       }
     }
     // Now we loop over the RDOs in the RDO collection, and add to the NO vector any that are in the mySetOfSPIds
-    for (const SCT_RDORawData* rdo: *SCT_Collection) {
-      const SCT3_RawData* rdo3{dynamic_cast<const SCT3_RawData*>(rdo)};
-      int tbin{3};
-      if (rdo3) {
-        tbin = rdo3->getTimeBin();
-      }
-      SCT_Identifier = rdo->identify();
-      const int firstStrip{m_pSCTHelper->strip(SCT_Identifier)};
+    for (const SCT_RDORawData* rdo: *rdoCollection) {
+      const Identifier strip_id{rdo->identify()};
+      const int firstStrip{m_pSCTHelper->strip(strip_id)};
       const int numberOfStrips{rdo->getGroupSize()};
-      int thisBec{m_pSCTHelper->barrel_ec(SCT_Identifier)};
-      int thisLayerDisk{m_pSCTHelper->layer_disk(SCT_Identifier)};
-      int thisPhi{m_pSCTHelper->phi_module(SCT_Identifier)};
-      int thisEta{m_pSCTHelper->eta_module(SCT_Identifier)};
-      int thisSide{m_pSCTHelper->side(SCT_Identifier)};
-      int thisElement{(N_SIDES * thisLayerDisk) + thisSide};
-      // CAM adds mod id needed for map
-      Identifier wafer_id{m_pSCTHelper->wafer_id(SCT_Identifier)};
-      int chan{firstStrip};
-      int limit{chan + numberOfStrips};
-      unsigned int systemIndex{bec2Index(thisBec)};
-      // CAM wafer id was here
-      unsigned int module_hash{m_pSCTHelper->wafer_hash(wafer_id)};
-      //
+      const int limit{firstStrip + numberOfStrips};
+
       if (doThisSubsystem[systemIndex]) {
+        const SCT3_RawData* rdo3{dynamic_cast<const SCT3_RawData*>(rdo)};
+        int tbin{3};
+        if (rdo3) {
+          tbin = rdo3->getTimeBin();
+        }
+
         TH2F_LW* histogram{m_phitsHistoVector[systemIndex][thisElement]};
         TH2F_LW* histogram_recent{nullptr};
         if (m_environment == AthenaMonManager::online) {
           histogram_recent = m_phitsHistoVectorRecent[systemIndex][thisElement];
         }
-        if (find(m_RDOsOnTracks.begin(), m_RDOsOnTracks.end(), SCT_Identifier) != m_RDOsOnTracks.end()) {
-          for (int ichan{chan}; ichan < limit; ++ichan) {
+        if  (m_RDOsOnTracks[wafer_hash].find(strip_id) != m_RDOsOnTracks[wafer_hash].end()) {
+          for (int ichan{firstStrip}; ichan < limit; ++ichan) {
             m_ptrackhitsHistoVector[systemIndex][thisElement]->Fill(thisEta, thisPhi);
             if (m_environment == AthenaMonManager::online) {
               m_ptrackhitsHistoVectorRecent[systemIndex][thisElement]->Fill(thisEta, thisPhi);
@@ -459,7 +441,7 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
         numberOfHitsFromAllRDOs += numberOfStrips;
         // Record number of hits in space points if timebin filtering is on hits not in bin X1X are counted as in space
         // points
-        if (mySetOfSPIds.find(SCT_Identifier) != mySetOfSPIds.end()) {
+        if (mySetOfSPIds.find(strip_id) != mySetOfSPIds.end()) {
           numberOfHitsFromSPs += numberOfStrips;
         } else if (m_doTimeBinFilteringForNoise and (not timeBinInPattern(tbin, XIX))) {
           numberOfHitsFromSPs += numberOfStrips;
@@ -469,17 +451,15 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
       local_tothits += numberOfStrips;
 
       if (m_boolhitmaps) {
-        for (int ichan{chan}; ichan < limit; ++ichan) {
-          (m_phitmapHistoVector[module_hash])->Fill(ichan, 1.0);  // increment channel hit for this plane
+        for (int ichan{firstStrip}; ichan < limit; ++ichan) {
+          (m_phitmapHistoVector[wafer_hash])->Fill(ichan, 1.0);  // increment channel hit for this plane
         }
       }
-    } // End of Loop on SCT_Collection, so end of loop over the RDOs in the RDO container
+    } // End of Loop on rdoCollection, so end of loop over the RDOs in the RDO container
       // We can now do the NO calculation for this wafer
       // For the Time Dependent plots
 
     if (numberOfHitsFromAllRDOs > 0) {
-      unsigned int systemIndex{bec2Index(Bec)};
-
       m_HallHits_vsLB[systemIndex]->Fill(lb, numberOfHitsFromAllRDOs);
       m_HSPHits_vsLB[systemIndex]->Fill(lb, numberOfHitsFromSPs);
       if (isSelectedTrigger) {
@@ -494,20 +474,20 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
         ATH_MSG_WARNING("Too many reconstructed space points for number of real hits");
       }
       if (den > 0) {
-        occ[theWaferIdentifierHashOfTheRDOCollection] = static_cast<float>(num) / static_cast<float>(den) * 1.E5;
+        occ[wafer_hash] = static_cast<float>(num) / static_cast<float>(den) * 1.E5;
       }
-      hitOcc[theWaferIdentifierHashOfTheRDOCollection] = static_cast<float>(numberOfHitsFromAllRDOs) / static_cast<float>(N_STRIPS) * 1.E5;
+      hitOcc[wafer_hash] = static_cast<float>(numberOfHitsFromAllRDOs) / static_cast<float>(N_STRIPS) * 1.E5;
 
       if (m_environment == AthenaMonManager::online) {
         float sumocc{0.};
         if (den > 0) {
           sumocc = num / static_cast<float> (den);
-          m_occSumUnbiasedRecent[theWaferIdentifierOfTheRDOCollection] += sumocc;
+          m_occSumUnbiasedRecent[wafer_id] += sumocc;
         }
 
         // hit occupancy
         float sumhitocc{static_cast<float> (numberOfHitsFromAllRDOs) / static_cast<float> (N_STRIPS)};
-        m_hitoccSumUnbiasedRecent[theWaferIdentifierOfTheRDOCollection] += sumhitocc;
+        m_hitoccSumUnbiasedRecent[wafer_id] += sumhitocc;
       }
       // end of hit occupancy*/
     }
@@ -554,12 +534,12 @@ SCTHitsNoiseMonTool::generalHistsandNoise(const EventContext& ctx) {
   }
 
   // Fill Cluster size histogram
-  SG::ReadHandle<InDet::SCT_ClusterContainer> p_clucontainer{m_clusContainerKey, ctx};
-  if (not p_clucontainer.isValid()) {
+  SG::ReadHandle<InDet::SCT_ClusterContainer> clusterContainer{m_clusContainerKey, ctx};
+  if (not clusterContainer.isValid()) {
     ATH_MSG_WARNING("Couldn't retrieve clusters");
   }
-  for (const InDet::SCT_ClusterCollection* SCT_Collection: *p_clucontainer) {
-    for (const InDet::SCT_Cluster* cluster: *SCT_Collection) {
+  for (const InDet::SCT_ClusterCollection* clusterCollection: *clusterContainer) {
+    for (const InDet::SCT_Cluster* cluster: *clusterCollection) {
       long unsigned int GroupSize{cluster->rdoList().size()};
       // Fill  Cluster Size histogram
       m_clusize->Fill(GroupSize, 1.);
@@ -1076,9 +1056,9 @@ SCTHitsNoiseMonTool::positionString(const Identifier& plane) const {
 StatusCode
 SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
   // Clear the RDOsOnTracks vector
-  m_RDOsOnTracks.clear();
-  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer{m_dataObjectName};
-  if (not p_rdocontainer.isValid()) {
+  m_RDOsOnTracks.fill(unordered_set<Identifier>());
+  SG::ReadHandle<SCT_RDO_Container> rdoContainer{m_dataObjectName};
+  if (not rdoContainer.isValid()) {
     ATH_MSG_FATAL("Could not find the data object " << m_dataObjectName.key() << " !");
     return StatusCode::FAILURE;
   } else {
@@ -1121,13 +1101,12 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
           // if Cluster is in SCT ...
           if (RawDataClus->detectorElement()->isSCT()) {
             const vector<Identifier>& rdoList{RawDataClus->rdoList()};
-            m_RDOsOnTracks.insert(m_RDOsOnTracks.end(), rdoList.begin(), rdoList.end());
+            m_RDOsOnTracks[RawDataClus->detectorElement()->identifyHash()].insert(rdoList.begin(), rdoList.end());
           }
         }
       }
     }
   }
-  ATH_MSG_DEBUG("JEGN!! num RDOs on tracks is " << m_RDOsOnTracks.size());
   return StatusCode::SUCCESS;
 }
 
