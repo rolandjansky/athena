@@ -100,7 +100,7 @@ namespace CP {
         m_evNumber = ei->eventNumber();
         
         for (const auto& mu : *muons) {
-            if (mu->pt() < m_pt_cut || (m_eta_cut > 0 && std::fabs(mu->eta()) >= m_eta_cut)) continue;
+            if (mu->pt() < m_pt_cut || (m_eta_cut > 0 && std::abs(mu->eta()) >= m_eta_cut)) continue;
             // reject all loose muons
             if (m_sel_tool->getQuality(*mu) > m_muon_quality) continue;          
             if (m_test_helper->fill(mu) != CP::CorrectionCode::Ok || (m_comparison_helper && m_comparison_helper->fill(mu) != CP::CorrectionCode::Ok)) {
