@@ -405,7 +405,7 @@ namespace CP {
     TH3 *h3=static_cast<TH3*>(fmc->Get(hname.c_str()));
 
     if( h3==nullptr ){
-      ATH_MSG_ERROR("NULL sagitta map");
+      ATH_MSG_ERROR("sagitta map is nullptr");
       return nullptr;
     }
 
