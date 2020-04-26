@@ -2446,7 +2446,9 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
     // If the user specified a seed, then use it
     // If not, then use the jet's phi times 1*10^5 in MC, 1.23*10^5 in (pseudo-)data
     // Difference in seed between allows for easy use of pseudo-data
-    const long long int seed = m_userSeed != 0 ? m_userSeed : (m_isData ? 1.23e+5 : 1.00e+5)*fabs(jet.phi());
+    long long int seed = m_userSeed != 0 ? m_userSeed : (m_isData ? 1.23e+5 : 1.00e+5)*fabs(jet.phi());
+    // SetSeed(0) uses the clock, avoid this
+    if(seed == 0) seed = m_isData ? 34545654 : 45583453; // arbitrary numbers which the seed couldn't otherwise be
     m_rand.SetSeed(seed);
 
     // Calculate and return the smearing factor
