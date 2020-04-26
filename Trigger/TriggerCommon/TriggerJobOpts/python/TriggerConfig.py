@@ -196,8 +196,7 @@ def triggerSummaryCfg(flags, hypos):
     for c, cont in six.iteritems (allChains):
         __log.debug("Final decision of chain  " + c + " will be read from " + cont )
     decisionSummaryAlg.FinalDecisionKeys = list(OrderedDict.fromkeys(allChains.values()))
-    if len(allChains) > 0:
-        decisionSummaryAlg.FinalStepDecisions = dict(allChains)
+    decisionSummaryAlg.FinalStepDecisions = dict(allChains)
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
     decisionSummaryAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decisionSummaryAlg.CostWriteHandleKey = recordable(flags.Trigger.CostMonitoring.outputCollection)
@@ -347,13 +346,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     bitsmaker = TriggerBitsMakerToolCfg()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
-    finalStepDecisions = summaryAlg.getProperties()['FinalStepDecisions']
-    # Check to work around ATR-21273
-    if (hasattr(finalStepDecisions, "values") and callable(getattr(finalStepDecisions, "values"))):
-        pebDecisionKeys = [key for key in list(finalStepDecisions.values()) if 'PEBInfoWriter' in key]
-    else:
-        pebDecisionKeys = []
-    stmaker.PEBDecisionKeys = pebDecisionKeys
+    stmaker.PEBDecisionKeys = [key for key in list(summaryAlg.FinalStepDecisions.values()) if 'PEBInfoWriter' in key]
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
