@@ -308,6 +308,8 @@ namespace ST {
       else{
         dec_selected(*jet) = 0;
       }
+      // Truth Labeling (MC only)
+      m_jetTruthLabelingTool->modifyJet(*jet);
     }
     if (recordSG) {
       ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );

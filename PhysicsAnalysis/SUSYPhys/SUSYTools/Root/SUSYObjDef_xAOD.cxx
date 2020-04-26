@@ -70,7 +70,7 @@
 #include "AssociationUtils/IOverlapRemovalTool.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
-
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 // For reading metadata
 #include "xAODMetaData/FileMetaData.h"
@@ -277,6 +277,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_useSigLepForIsoCloseByOR(false),
     m_IsoCloseByORpassLabel(""),
 
+    m_useTRUTH3(true),
+
     m_metJetSelection(""),
     m_fatJets(""),
     m_TCCJets(""),
@@ -301,6 +303,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_WTaggerTool(""),
     m_ZTaggerTool(""),
     m_TopTaggerTool(""),
+    m_jetTruthLabelingTool(""),
     //
     m_muonSelectionTool(""),
     m_muonSelectionHighPtTool(""),
@@ -557,6 +560,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "UseSigLepForIsoCloseByOR", m_useSigLepForIsoCloseByOR );
   declareProperty( "IsoCloseByORpassLabel", m_IsoCloseByORpassLabel );
 
+  //Truth
+  declareProperty( "Truth.useTRUTH3", m_useTRUTH3 ); // true if using TRUTH3 type containers
+
   //--- Tools configuration
   //PRW
   declareProperty( "AutoconfigurePRWTool", m_autoconfigPRW );
@@ -609,6 +615,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_WTaggerTool.declarePropertyFor( this, "WTaggerTool", "The SmoothedWZTaggerTool" );
   m_ZTaggerTool.declarePropertyFor( this, "ZTaggerTool", "The SmoothedWZTaggerTool" );
   m_TopTaggerTool.declarePropertyFor( this, "TopTaggerTool", "The DNNTopTaggerTool" );
+  m_jetTruthLabelingTool.declarePropertyFor( this, "JetTruthLabelingTool", "The JetTruthLabelingTool" );
   //
   m_muonSelectionTool.declarePropertyFor( this, "MuonSelectionTool", "The MuonSelectionTool for signal muons" );
   m_muonSelectionHighPtTool.declarePropertyFor( this, "MuonSelectionHighPtTool", "The MuonSelectionTool for signal muons (HighPt WP)" );
@@ -1394,6 +1401,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoFatjets, "OR.DoFatJets", rEnv, false);
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);
   configFromFile(m_JetFatJetDR, "OR.JetFatJetDR", rEnv, -999.);
+  //
+  configFromFile(m_useTRUTH3, "Truth.useTRUTH3", rEnv, true);
   ///
   configFromFile(m_upstreamTriggerMatching, "Trigger.UpstreamMatching", rEnv, false);
   configFromFile(m_trigMatchingPrefix, "Trigger.MatchingPrefix", rEnv, "", true);

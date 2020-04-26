@@ -43,6 +43,7 @@
 // Tool interfaces
 // Toolbox, which holds the tools
 #include "AssociationUtils/ToolBox.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 class IJetCalibrationTool;
 class IJERTool;
@@ -692,6 +693,7 @@ namespace ST {
     bool m_useSigLepForIsoCloseByOR;
     std::string m_IsoCloseByORpassLabel;
 
+    bool m_useTRUTH3;
 
     std::string m_metJetSelection;
 
@@ -728,6 +730,7 @@ namespace ST {
     asg::AnaToolHandle<IJetSelectorTool> m_WTaggerTool;
     asg::AnaToolHandle<IJetSelectorTool> m_ZTaggerTool;
     asg::AnaToolHandle<IJetSelectorTool> m_TopTaggerTool;
+    asg::AnaToolHandle<JetTruthLabelingTool> m_jetTruthLabelingTool;
 
     //
     std::string m_jesConfig;
