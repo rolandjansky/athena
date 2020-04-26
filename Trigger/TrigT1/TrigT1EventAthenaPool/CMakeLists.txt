@@ -38,7 +38,10 @@ atlas_add_poolcnv_library( TrigT1EventAthenaPoolPoolCnv
                         LVL1::CMMCPHitsCollection LVL1::CMMJetHitsCollection
                         LVL1::CMMEtSumsCollection LVL1::CMMRoI
                         LVL1::JEMHitsCollection LVL1::JEMRoICollection
-                        LVL1::RODHeaderCollection
+                        LVL1::RODHeaderCollection LVL1::MuCTPICTP
+                        LVL1::EmTauCTP LVL1::JetCTP
+                        LVL1::EnergyCTP LVL1::RecMuonRoI
+                        LVL1::RecEmTauRoI LVL1::RecJetRoI
    LINK_LIBRARIES AthenaPoolUtilities GaudiKernel AthenaPoolCnvSvcLib
                   TrigT1CaloEventLib TrigT1EventTPCnv TrigT1Interfaces
                   TrigT1Result )
