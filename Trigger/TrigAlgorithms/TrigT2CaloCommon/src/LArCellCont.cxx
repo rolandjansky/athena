@@ -142,9 +142,8 @@ for(  ;  beg != end;  ++beg ){
 } // end of loop over online IDs
 }
 int indexsetmax = m_indexset.size();
-m_corrBCID.reserve(indexsetmax);
-for (int index = 0; index < indexsetmax; ++index)
-        m_corrBCID.push_back(0);
+// the extra indexsetmax is used for invalid cells
+m_corrBCID.resize(indexsetmax+1,0.0);
 
 for(unsigned int i=0; i< m_hashSym.size(); ++i) (m_hashSym[i]).clear();
 m_hashSym.clear();
@@ -188,7 +187,7 @@ m_hashSym.resize(onlineId->febHashMax());
 		if ( m_indexset.find( hwsym ) != m_indexset.end() ){
 		  int index = (m_indexset.find( hwsym ))->second;
 		  hashTab.push_back( index );
-		} else hashTab.push_back(indexsetmax+1);
+		} else hashTab.push_back(indexsetmax);
 #ifdef TRIGLARCELLDEBUG
 		std::cout << "Cell registered at Collection " 
 		<< std::hex << febid.get_identifier32().get_compact() << std::dec <<
@@ -202,7 +201,7 @@ m_hashSym.resize(onlineId->febHashMax());
 #endif
 		LArCell* larcell = new LArCell();
 		(*this)[idx]->push_back(larcell);
-		hashTab.push_back( indexsetmax+1);
+		hashTab.push_back( indexsetmax);
 	} // end of if bad cell
 	} // end of for ch loop
 	std::map<LArRoI_Map::TT_ID,std::vector<LArCell* > >::const_iterator
