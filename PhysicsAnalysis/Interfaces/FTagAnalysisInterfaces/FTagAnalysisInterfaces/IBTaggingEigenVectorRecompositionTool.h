@@ -14,6 +14,8 @@
 #include "AsgTools/IAsgTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/CorrectionCode.h"
+#include "PATInterfaces/SystematicCode.h"
+#include "PATInterfaces/SystematicSet.h"
 
 #include <vector>
 
@@ -24,9 +26,12 @@ class IBTaggingEigenVectorRecompositionTool : virtual public CP::ISystematicsToo
 
   public:
 
-  virtual CP::CorrectionCode getListOfOriginalNuisanceParameters( std::vector<std::string> & np_list) const = 0;
+  virtual CP::CorrectionCode printListOfOriginalNuisanceParameters() const = 0;
 
-  virtual CP::CorrectionCode getListOfCoefficients() const = 0;
+  virtual CP::CorrectionCode printListOfCoefficients() const = 0;
+
+  virtual std::vector<std::string> getListOfOriginalNuisanceParameters() const = 0;
+  virtual std::vector<float> getCoefficients(const std::string & ev_name) const = 0;
 
 };
 

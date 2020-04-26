@@ -14,18 +14,20 @@
 #include "FTagAnalysisInterfaces/IBTaggingEigenVectorRecompositionTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
+#include "PATInterfaces/SystematicCode.h"
 
 #include <string>
 #include <vector>
 
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "AsgTools/AnaToolHandle.h"
 
 class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
             public virtual IBTaggingEigenVectorRecompositionTool
 {
   /// Create a proper constructor for Athena
-  ASG_TOOL_CLASS2( BTaggingEigenVectorRecompositionTool, IBTaggingEigenVectorRecompositionTool, ISystematicsTool )
+  ASG_TOOL_CLASS2( BTaggingEigenVectorRecompositionTool, IBTaggingEigenVectorRecompositionTool, ISystematicsTool)
 
   public:
 
@@ -39,14 +41,24 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
   /* Get list of original nuisance parameters that will linearly combined with the list of 
      coefficients returns below to recompose each eigen vector
  */
-  CP::CorrectionCode getListOfOriginalNuisanceParameters( std::vector<std::string> & np_list) const;
+  CP::CorrectionCode printListOfOriginalNuisanceParameters() const;
 
-  /* Get list of coefficients to be used to build the linear combination 
-     FOR NOW THIS IS JUST GOING TO BE PRINTED: need to define how to retrieve in the most convenient way
+  /* print list of coefficients to be used to build the linear combination 
    */
-  CP::CorrectionCode getListOfCoefficients() const;
+  CP::CorrectionCode printListOfCoefficients() const;
+
+  std::vector<std::string> getListOfOriginalNuisanceParameters() const;
+  std::vector<float> getCoefficients(const std::string & ev_name) const;
+
 
   StatusCode initialize();
+
+  CP::SystematicSet affectingSystematics() const;
+  CP::SystematicCode applySystematicVariation( const CP::SystematicSet & systConfig);
+  CP::SystematicSet recommendedSystematics() const;
+  bool isAffectedBySystematic( const CP::SystematicVariation & systematic ) const;
+
+
 
 
  private:

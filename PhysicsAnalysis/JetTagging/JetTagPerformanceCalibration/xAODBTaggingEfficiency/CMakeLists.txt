@@ -67,6 +67,9 @@ if( XAOD_ANALYSIS OR XAOD_STANDALONE )
    atlas_add_executable( BTaggingEfficiencyToolTester
       util/BTaggingEfficiencyToolTester.cxx
       LINK_LIBRARIES xAODRootAccess xAODBTaggingEfficiencyLib )
+   atlas_add_executable( BTaggingEigenVectorRecompositionToolTester
+      util/BTaggingEigenVectorRecompositionToolTester.cxx
+      LINK_LIBRARIES xAODRootAccess xAODBTaggingEfficiencyLib )
 endif()
 
 if ( XAOD_ANALYSIS AND NOT ROOTCORE )
