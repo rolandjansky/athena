@@ -159,7 +159,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     StatusCode SetRelease( std::string );
     StatusCode SetType( std::string );
 
-    virtual unsigned int setSagittaHistogramsSingle(TProfile2D *pCB=NULL,unsigned int track=0);
+    virtual unsigned int setSagittaHistogramsSingle(TProfile2D *pCB=nullptr,unsigned int track=0);
     virtual double  sagitta(TProfile2D* corrM, TLorentzVector &lv) const;
 
     virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
