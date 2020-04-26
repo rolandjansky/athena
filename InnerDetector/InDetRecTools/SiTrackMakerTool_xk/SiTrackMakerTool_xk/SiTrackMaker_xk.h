@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,11 +20,9 @@
 #include "InDetRecToolInterfaces/ISeedToTrackConversionTool.h"
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,9 +114,8 @@ namespace InDet{
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      /// @name Service and tool handles
+      /// @name Tool handles
       //@{
-      ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
       ToolHandle<InDet::ISiDetElementsRoadMaker> m_roadmaker{this, "RoadTool", "InDet::SiDetElementsRoadMaker_xk"};
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder{this, "CombinatorialTrackFinder", "InDet::SiCombinatorialTrackFinder_xk"};
       ToolHandle<InDet::ISeedToTrackConversionTool> m_seedtrack{this, "SeedToTrackConversion", "InDet::SeedToTrackConversionTool"};
