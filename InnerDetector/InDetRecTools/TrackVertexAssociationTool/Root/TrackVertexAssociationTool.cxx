@@ -38,7 +38,35 @@ StatusCode TrackVertexAssociationTool::initialize()
 
   ATH_CHECK( m_eventInfo.initialize() );
 
-  if ( m_wp == "Electron" ) {
+  const std::map<std::string, std::string> remap_wps = {{"Loose", "SV_Reject"}, {"Nominal", "SV_Reject"}, {"Tight", "PU_SV_Reject"}};
+  auto it = remap_wps.find(m_wp);
+  if (it != remap_wps.end()) {
+    ATH_MSG_WARNING("TVA working part '" << m_wp << "' is not recommended for use and will eventually be obsoleted. Automatically remapping to '" << it->second << "' instead.");
+    m_wp = it->second;
+  }
+
+  if ( m_wp == "PU_Reject" ) {
+    m_d0_cut = -1;
+    m_use_d0sig = false;
+    m_d0sig_cut = -1;
+    m_dzSinTheta_cut = 0.5;
+    m_doUsedInFit = false;
+    m_requirePriVtx = false;
+  } else if ( m_wp == "SV_Reject" ) {
+    m_d0_cut = 2.;
+    m_use_d0sig = false;
+    m_d0sig_cut = -1;
+    m_dzSinTheta_cut = 2.;
+    m_doUsedInFit = false;
+    m_requirePriVtx = false;
+  } else if ( m_wp == "PU_SV_Reject") {
+    m_d0_cut = 2.;
+    m_use_d0sig = false;
+    m_d0sig_cut = -1;
+    m_dzSinTheta_cut = 0.5;
+    m_doUsedInFit = false;
+    m_requirePriVtx = false;
+  } else if ( m_wp == "Electron" ) {
     m_d0_cut = -1;
     m_use_d0sig = true;
     m_d0sig_cut = 5.0;
