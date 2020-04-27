@@ -40,7 +40,7 @@ public:
 private:
   // enum copied from the hitDecorator tool in InDetPhysValMonitoring
   enum Subdetector {
-    INVALID_DETECTOR=-1, L0PIXBARR, PIXEL, SCT, TRT, DBM, N_SUBDETECTORS
+    INVALID_DETECTOR=-1, L0PIXBARR, PIXEL, SCT, TRT, N_SUBDETECTORS
   };
   enum Region {
     INVALID_REGION=-1, BARREL, ENDCAP, N_REGIONS
@@ -56,8 +56,8 @@ private:
   TH1* m_residualy_2ormorehits[TRT][N_REGIONS]; // excludes TRT, DBM
   TH1* m_residualy[N_SUBDETECTORS][N_REGIONS];
   //
-  TH1* m_residualpullx[N_SUBDETECTORS][N_REGIONS];
-  TH1* m_residualpully[N_SUBDETECTORS][N_REGIONS];
+  TH1* m_pullx[N_SUBDETECTORS][N_REGIONS];
+  TH1* m_pully[N_SUBDETECTORS][N_REGIONS];
   TH1* m_phiWidth[N_SUBDETECTORS][N_REGIONS];
   TH1* m_etaWidth[N_SUBDETECTORS][N_REGIONS];
 };

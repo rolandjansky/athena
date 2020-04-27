@@ -71,6 +71,7 @@ public:
     virtual StatusCode procHistograms();
     //@}
 private:
+
     ///prevent default construction
     InDetPhysValMonitoringTool();
     // Private utility methods
@@ -141,6 +142,7 @@ private:
     std::vector<int> m_prospectsMatched;
     float m_lowProb;
     float m_highProb;
+    int m_detailLevel;
     int m_truthCounter;
 
     std::vector<std::string> m_trackCutflowNames;
