@@ -1,27 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 07.03.2006, AUTHOR: OLIVER KORTNER
-// Modified: 15.07.2006 by O. Kortner, interface to additional functionality
-//                      of QuasianalyticLineReconstruction added.
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 #include "MdtCalibTools/QuasianalyticLineReconstructionTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "MdtCalibFitters/QuasianalyticLineReconstruction.h"
 
-//:::::::::::::::::::::::
-//:: NAMESPACE SETTING ::
-//:::::::::::::::::::::::
-
 using namespace MuonCalib;
-using namespace std;
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::
 //:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS ::

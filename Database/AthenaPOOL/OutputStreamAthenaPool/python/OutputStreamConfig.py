@@ -52,12 +52,12 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False 
 
    # For xAOD output
    if streamName=="xAOD":
-      xAODMaker__EventFormatSvc=CompFactory.xAODMaker__EventFormatSvc
+      xAODMaker__EventFormatSvc=CompFactory.xAODMaker.EventFormatSvc
       # Simplifies naming 
       result.addService(xAODMaker__EventFormatSvc())
       outputStream.MetadataItemList.append( "xAOD::EventFormat#EventFormat" )
 
-      xAODMaker__FileMetaDataMarkUpTool=CompFactory.xAODMaker__FileMetaDataMarkUpTool
+      xAODMaker__FileMetaDataMarkUpTool=CompFactory.xAODMaker.FileMetaDataMarkUpTool
       streamMarkUpTool = xAODMaker__FileMetaDataMarkUpTool( streamName + "_FileMetaDataMarkUpTool" )
       streamMarkUpTool.Key = streamName
       outputStream.HelperTools += [ streamMarkUpTool ]

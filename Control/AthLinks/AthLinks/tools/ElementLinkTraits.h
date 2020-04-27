@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -47,13 +47,6 @@
 #include "AthLinks/tools/ForwardIndexingPolicy.h"
 #include "AthLinks/tools/GenerateIndexingPolicy.h"
 #include "AthLinks/GenericElementLinkBase.h"
-#if __cplusplus > 201100
-# include <type_traits>
-namespace SG_STD_OR_BOOST = std;
-#else
-# include "boost/type_traits/is_pointer.hpp"
-namespace SG_STD_OR_BOOST = boost;
-#endif
 
 
 namespace SG { 

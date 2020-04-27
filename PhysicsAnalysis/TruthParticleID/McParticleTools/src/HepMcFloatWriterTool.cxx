@@ -18,13 +18,8 @@
 
 // FrameWork includes
 
-// CLHEP/HepMC includes
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepPDT/ParticleDataTable.hh"
-
-// McParticleUtils
-// #include "McParticleUtils/IO_BaseClass.h"
-// #include "McParticleUtils/IO_Ascii.h"
 
 // McParticleTools includes
 #include "HepMcFloatWriterTool.h"

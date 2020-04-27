@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,8 +56,10 @@ private:
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey     { this, "RoIs", "", "If RoI driven unpacking to be used, this is the key"};
   SG::WriteHandleKey<PixelRDO_Container> m_rdoContainerKey              { this, "RDOKey", "PixelRDOs"};
   SG::UpdateHandleKey<PixelRDO_Cache> m_rdoCacheKey;
+  SG::WriteHandleKey<IDCInDetBSErrContainer> m_bsErrorsKey              { this, "BSErrorsKey", "PixBSErr"};  
   SG::UpdateHandleKey<IDCInDetBSErrContainer_Cache> m_bsErrorsCacheKey;
   SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey          { this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
+
 };
 
 #endif

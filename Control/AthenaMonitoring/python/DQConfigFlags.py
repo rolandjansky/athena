@@ -27,7 +27,9 @@ def createDQConfigFlags():
     acf.addFlag('DQ.disableAtlasReadyFilter', False)
     acf.addFlag('DQ.enableLumiAccess', True)
     acf.addFlag('DQ.FileKey', 'CombinedMonitoring')
-    acf.addFlag('DQ.useTrigger', True)
+    from PyUtils.moduleExists import moduleExists
+    hlt_exists = moduleExists ('TrigHLTMonitoring')
+    acf.addFlag('DQ.useTrigger', hlt_exists)
 
     # temp thing for steering from inside old-style ...
     acf.addFlag('DQ.isReallyOldStyle', False)

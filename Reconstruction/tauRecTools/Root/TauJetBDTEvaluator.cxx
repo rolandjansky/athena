@@ -44,7 +44,7 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau) const {
   if(nTracks<m_minNTracks) return StatusCode::SUCCESS;
   if(nTracks>m_maxNTracks) return StatusCode::SUCCESS;
 
-  if( !m_in_trigger ){
+  if( !inTrigger() ){
     float absTrackEta = acc_absTrackEta(xTau);
     if(m_minAbsTrackEta>=0. && absTrackEta < m_minAbsTrackEta) 
       return StatusCode::SUCCESS;

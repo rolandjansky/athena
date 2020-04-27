@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h"
@@ -35,6 +35,12 @@ float TFCSLateralShapeParametrizationFluctChain::get_E_hit(TFCSSimulationState& 
 
 FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
+  const float Elayer=simulstate.E(calosample());
+  if (Elayer == 0) {
+    ATH_MSG_VERBOSE("Elayer=0, nothing to do");
+    return FCSSuccess;
+  }
+  
   // Call get_number_of_hits() only once, as it could contain a random number
   float sigma2  = get_sigma2_fluctuation(simulstate, truth, extrapol);
   if (sigma2 >= s_max_sigma2_fluctuation) {
@@ -45,11 +51,9 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
   //Limit to relative precision of 10^-4=0.01%. ATLAS calorimeter is ~0.1% at best
   if(sigma2<1e-8) sigma2=1e-8; 
 
-  const float Elayer=simulstate.E(calosample());
-
   //Make a good guess of the needed hit energy, assuming all hits would have the same energy
   const float Eavghit=get_E_hit(simulstate,truth,extrapol);
-  const float Eavghit_tenth=Eavghit/10;
+  const float absEavghit_tenth=std::abs(Eavghit/10);
   float sumEhit=0;
   float error2_sumEhit=0;
   float error2=2*s_max_sigma2_fluctuation;
@@ -69,7 +73,7 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
     //hit.E()=Eavghit;
     do {
       hit.E()=CLHEP::RandGauss::shoot(simulstate.randomEngine(), Eavghit, m_RMS*Eavghit);
-    } while (hit.E()<Eavghit_tenth);
+    } while (std::abs(hit.E())<absEavghit_tenth);
     bool failed=false;
     for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
       if (debug) {
@@ -91,8 +95,9 @@ FCSReturnCode TFCSLateralShapeParametrizationFluctChain::simulate(TFCSSimulation
       ++ihit;
       const float Ehit=hit.E();
       sumEhit+=Ehit;
+      float sumEhit2=sumEhit*sumEhit;
       error2_sumEhit+=Ehit*Ehit;
-      if(sumEhit>0) error2=error2_sumEhit/(sumEhit*sumEhit);
+      if(sumEhit2>0) error2=error2_sumEhit/sumEhit2;
     } else {
       if (ifail >= FCS_RETRY_COUNT) {
         ATH_MSG_ERROR("TFCSLateralShapeParametrizationFluctChain::simulate(): simulate_hit call failed after " << FCS_RETRY_COUNT << "retries");

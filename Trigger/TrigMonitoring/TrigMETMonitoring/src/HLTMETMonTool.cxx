@@ -55,8 +55,8 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("l1_pufit_key", m_lvl1_pufit_key="gXEPUFIT_MET");
   declareProperty("l1_jwoj_key", m_lvl1_jwoj_key="gXEJWOJ_MET");
   declareProperty("l1_noisecut_key", m_lvl1_noisecut_key="gXENOISECUT_MET");
-  declareProperty("l1_jnoisecut_key", m_lvl1_jnoisecut_key="jXENOISECUT_MET");
-  declareProperty("hlt_run3_key", m_hlt_cell_run3_met_key="HLT_MET");
+  declareProperty("l1_jnoisecut_key", m_lvl1_jnoisecut_key="jNOISECUT_MET");
+  declareProperty("hlt_run3_key", m_hlt_run3_met_key="HLT_MET");
   declareProperty("hlt_cell_run3_key", m_hlt_cell_run3_met_key="HLT_MET_cell");
   declareProperty("hlt_mht_run3_key", m_hlt_mht_run3_met_key="HLT_MET_mht");
   declareProperty("hlt_topocl_run3_key", m_hlt_topocl_run3_met_key="HLT_MET_tc");
@@ -76,11 +76,13 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("off_key", m_off_met_key="MET_Reference_AntiKt4LCTopo");  
 
   // Muons keys
+  declareProperty("muon_run3_key", m_muon_run3_key="HLT_MuonsCB_RoI");
   declareProperty("muon_key", m_muon_key="HLT_xAOD__MuonContainer_MuonEFInfo");
   declareProperty("muon_base", m_muon_base_trigger="HLT_mu6");
   declareProperty("muon_pt_thresh", m_muon_pt_thresh=18.0);
 
   // Electron keys
+  declareProperty("electron_run3_key", m_electron_run3_key="HLT_egamma_Electrons");
   declareProperty("electron_key", m_electron_key="HLT_xAOD__ElectronContainer_egamma_Electrons");
   declareProperty("electron_base", m_electron_base_trigger="HLT_e5_lhloose");
   declareProperty("electron_pt_thresh", m_electron_pt_thresh=20.0);
@@ -675,7 +677,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
   const xAOD::MuonContainer *hlt_muonEFcontainer = 0;
   sc = evtStore()->retrieve(hlt_muonEFcontainer, m_muon_key);
   if (sc.isFailure() || !hlt_muonEFcontainer) {
-    ATH_MSG_WARNING("Could not retrieve muon container with key " << m_muon_key << " from TDS"); 
+    sc = evtStore()->retrieve(hlt_muonEFcontainer, m_muon_run3_key);
+    if (sc.isFailure() || !hlt_muonEFcontainer) {
+      ATH_MSG_WARNING("Could not retrieve muon container with key " << m_muon_key << " from TDS"); 
+    }
   }
   else
     ATH_MSG_DEBUG("Accessing EF muons container with " << hlt_muonEFcontainer->size() << " elements");
@@ -684,7 +689,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
   const xAOD::ElectronContainer *hlt_electronEFcontainer = 0;
   sc = evtStore()->retrieve(hlt_electronEFcontainer, m_electron_key);
   if (sc.isFailure() || !hlt_electronEFcontainer) {
-    ATH_MSG_WARNING("Could not retrieve electron container with key " << m_electron_key << " from TDS");
+    sc = evtStore()->retrieve(hlt_electronEFcontainer, m_electron_run3_key);
+    if (sc.isFailure() || !hlt_electronEFcontainer) {
+      ATH_MSG_WARNING("Could not retrieve electron container with key " << m_electron_key << " from TDS");
+    }
   }
   else
     ATH_MSG_DEBUG("Accessing EF electrons container with " << hlt_electronEFcontainer->size() << " elements");
@@ -721,6 +729,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   } else {
     ATH_MSG_DEBUG("HLT EF Muon container DNE or is empty");
   }
+  ATH_MSG_DEBUG("pT mumu = " << pT_mumu);
 
   // Check if signal-like electron exists
   ATH_MSG_DEBUG("Going to iterate through electron container");
@@ -1121,7 +1130,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
 
   // L1 jXENOISECUT
-  monFolderName = monGroupName + "/jXENOISECUT";
+  monFolderName = monGroupName + "/jNOISECUT";
   setCurrentMonGroup(monFolderName.c_str());
 
   if (l1_jnoisecut_met > epsilon_l1met) {
@@ -1133,7 +1142,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   setCurrentMonGroup(monFolderName.c_str());
 
   met_signatures_tolook = m_l1_met_signatures_tolook_shifter;
-  fillL1ProfileHistograms(off_et,pT_mumu,METMuonFilled,met_signatures_tolook);
+  fillL1ProfileHistograms(off_et,met_signatures_tolook);
  
 
   /////////////
@@ -1146,7 +1155,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   monFolderName = monGroupName + "/Primary";
   setCurrentMonGroup(monFolderName);
   if (hlt_et > 0) { // remove MET=0 events
-    fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_et,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+    fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_et,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta);
  }
 
   // HLT efficiency  
@@ -1160,9 +1169,9 @@ StatusCode HLTMETMonTool::fillMETHist() {
   // HLT mu50
   monFolderName = monGroupName + "/mu50";
   setCurrentMonGroup(monFolderName);
-  if (hlt_et > 0 && eventInfo) { // remove MET=0 events
-    if (eventInfo->actualInteractionsPerCrossing()>47. && eventInfo->actualInteractionsPerCrossing()<53.) {
-      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_et,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+  if (hlt_et > 0) { // remove MET=0 events
+    if (lbInteractionsPerCrossing()>47. && lbInteractionsPerCrossing()<53.) {
+      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_et,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta);
     }
   }
 
@@ -1173,7 +1182,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   
   if(METElectronFilled == true) {
     if (hlt_et > 0) { // remove MET=0 events
-      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_et,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_et,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta);
     }
     met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
     fillHLTProfileHistograms(off_et,met_signatures_tolook);
@@ -1186,7 +1195,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   if(METMuonFilled == true) {
     if (hlt_et > 0) { // remove MET=0 events
-      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_et,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_et,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta);
     }
     met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
     fillHLTProfileHistograms(off_et,met_signatures_tolook);
@@ -1204,7 +1213,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     if ((h = hist("HLT_limiBlock")) && eventInfo)    h->Fill(eventInfo->lumiBlock());
 
     // <mju> histogram
-    if ((h = hist("HLT_mu")) && eventInfo)    h->Fill(eventInfo->actualInteractionsPerCrossing());
+    if ((h = hist("HLT_mu")))    h->Fill(lbInteractionsPerCrossing());
 
     // status histogram
     TH1F *h1i(0);
@@ -1318,7 +1327,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
       float tmp_hlt_met_log = -9e9;
       float tmp_hlt_sume_log = -9e9;
       float tmp_hlt_sumet_log = -9e9;
-      float tmp_hlt_significance = -9e9;
       
       float epsilon = 1e-6;  // 1 keV
       
@@ -1330,11 +1338,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
       tmp_hlt_sume_log = signed_log(tmp_hlt_sume, epsilon);
       tmp_hlt_sumet_log = signed_log(tmp_hlt_sumet, epsilon);
 
-      float tmp_resolution = 0.0;
-      if (tmp_hlt_sumet>0.0) tmp_resolution = m_sigOffset + m_sigSlope*sqrt(tmp_hlt_sumet) + m_sigQuadr*tmp_hlt_sumet;
-      if (tmp_resolution>0.0) tmp_hlt_significance = tmp_hlt_met/tmp_resolution;
       
-      fillHLTBasicHistograms(tmp_hlt_ex,tmp_hlt_ex_log,tmp_hlt_ey,tmp_hlt_ey_log,tmp_hlt_ez,tmp_hlt_ez_log,tmp_hlt_met,tmp_hlt_met_log,tmp_hlt_sumet,tmp_hlt_sumet_log,tmp_hlt_sume,tmp_hlt_sume_log,tmp_hlt_phi,tmp_hlt_eta,tmp_hlt_significance);
+      fillHLTBasicHistograms(tmp_hlt_ex,tmp_hlt_ex_log,tmp_hlt_ey,tmp_hlt_ey_log,tmp_hlt_ez,tmp_hlt_ez_log,tmp_hlt_met,tmp_hlt_met_log,tmp_hlt_sumet,tmp_hlt_sumet_log,tmp_hlt_sume,tmp_hlt_sume_log,tmp_hlt_phi,tmp_hlt_eta);
 
     }
 
@@ -1373,7 +1378,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   setCurrentMonGroup(monFolderName);
 
   met_signatures_tolook = m_l1_met_signatures_tolook_expert;
-  fillL1ProfileHistograms(off_et,pT_mumu,METMuonFilled,met_signatures_tolook);
+  fillL1ProfileHistograms(off_et,met_signatures_tolook);
 
   // L1 Triggers
   for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
@@ -1413,8 +1418,83 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
     std::string name = it->first;
     ATH_MSG_DEBUG("Trig : " << name);
-    if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
-      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_et,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+    std::string algo = get_trigger_algo(name);
+    if (algo == "cell" && hlt_cell_met_cont && hlt_cell_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : Cell");
+      hlt_met = hlt_cell_met_cont->at(0);
+    } else if (algo == "mht" && hlt_mht_met_cont && hlt_mht_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : MHT");
+      hlt_met = hlt_mht_met_cont->at(0);
+    } else if (algo == "mhtem" && hlt_mhtem_met_cont && hlt_mhtem_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : mht_em");
+     hlt_met = hlt_mhtem_met_cont->at(0);
+    } else if (algo == "trkmht" && hlt_trkmht_met_cont && hlt_trkmht_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trkmht");
+      hlt_met = hlt_trkmht_met_cont->at(0);
+    } else if (algo == "trkmhtFTK" && hlt_trkmhtFTK_met_cont && hlt_trkmhtFTK_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trkmhtFTK");
+      hlt_met = hlt_trkmhtFTK_met_cont->at(0);
+    } else if (algo == "trktc" && hlt_trktc_met_cont && hlt_trktc_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trktc");
+      hlt_met = hlt_trktc_met_cont->at(0);
+    } else if (algo == "trktcFTK" && hlt_trktcFTK_met_cont && hlt_trktcFTK_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : trktcFTK");
+      hlt_met = hlt_trktcFTK_met_cont->at(0);
+    } else if (algo == "topocl" && hlt_topocl_met_cont && hlt_topocl_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : TopoCL");
+      hlt_met = hlt_topocl_met_cont->at(0);
+    } else if (algo == "topocl_PS" && hlt_topocl_PS_met_cont && hlt_topocl_PS_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : TopoCL_PS");
+      hlt_met = hlt_topocl_PS_met_cont->at(0);
+    } else if (algo == "topocl_PUC" && hlt_topocl_PUC_met_cont && hlt_topocl_PUC_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : TopoCL_PUC");
+      hlt_met = hlt_topocl_PUC_met_cont->at(0);
+    } else if (algo == "FEB" && hlt_FEB_met_cont && hlt_FEB_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : FEB");
+      hlt_met = hlt_FEB_met_cont->at(0);
+    } else if (algo == "Fex" && hlt_Fex_met_cont && hlt_Fex_met_cont->size()>0) {
+      ATH_MSG_DEBUG("Alternative Alg : FEX");
+      hlt_met = hlt_Fex_met_cont->at(0);
+    } else {
+      ATH_MSG_DEBUG("Alternative Alg : NONE");
+      hlt_met = 0;
+    }
+
+    if (hlt_met) {
+      float tmp_hlt_ex = hlt_met->ex()/CLHEP::GeV;
+      float tmp_hlt_ey = hlt_met->ey()/CLHEP::GeV;
+      float tmp_hlt_ez = hlt_met->ez()/CLHEP::GeV;
+      float tmp_hlt_met = sqrt(tmp_hlt_ex*tmp_hlt_ex+tmp_hlt_ey*tmp_hlt_ey);
+      float tmp_hlt_sumet = hlt_met->sumEt()/CLHEP::GeV;
+      float tmp_hlt_sume  = hlt_met->sumE()/CLHEP::GeV;
+      ATH_MSG_DEBUG("Alternative Ex = " << tmp_hlt_ex);
+      ATH_MSG_DEBUG("Alternative Ey = " << tmp_hlt_ey);
+      ATH_MSG_DEBUG("Alternative MET = " << tmp_hlt_met);
+
+      CLHEP::Hep3Vector v(tmp_hlt_ex, tmp_hlt_ey, tmp_hlt_ez);
+      float tmp_hlt_eta = v.eta();
+      float tmp_hlt_phi = v.phi();
+
+      float tmp_hlt_ex_log = -9e9;
+      float tmp_hlt_ey_log = -9e9;
+      float tmp_hlt_ez_log = -9e9;
+      float tmp_hlt_met_log = -9e9;
+      float tmp_hlt_sume_log = -9e9;
+      float tmp_hlt_sumet_log = -9e9;
+
+      float epsilon = 1e-6;  // 1 keV
+
+      epsilon = 1.189;
+      tmp_hlt_ex_log = signed_log(tmp_hlt_ex, epsilon);
+      tmp_hlt_ey_log = signed_log(tmp_hlt_ey, epsilon);
+      tmp_hlt_ez_log = signed_log(tmp_hlt_ez, epsilon);
+      tmp_hlt_met_log = signed_log(tmp_hlt_met, epsilon);
+      tmp_hlt_sume_log = signed_log(tmp_hlt_sume, epsilon);
+      tmp_hlt_sumet_log = signed_log(tmp_hlt_sumet, epsilon);
+
+      if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
+        fillHLTBasicHistograms(tmp_hlt_ex,tmp_hlt_ex_log,tmp_hlt_ey,tmp_hlt_ey_log,tmp_hlt_ez,tmp_hlt_ez_log,tmp_hlt_met,tmp_hlt_met_log,tmp_hlt_sumet,tmp_hlt_sumet_log,tmp_hlt_sume,tmp_hlt_sume_log,tmp_hlt_phi,tmp_hlt_eta);
+      }
     }
   }
 
@@ -1587,7 +1667,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
       float tmp_hlt_met_log = -9e9;
       float tmp_hlt_sume_log = -9e9;
       float tmp_hlt_sumet_log = -9e9;
-      float tmp_hlt_significance = -9e9;
       
       float epsilon = 1e-6;  // 1 keV
       
@@ -1599,11 +1678,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
       tmp_hlt_sume_log = signed_log(tmp_hlt_sume, epsilon);
       tmp_hlt_sumet_log = signed_log(tmp_hlt_sumet, epsilon);
 
-      float tmp_resolution = 0.0;
-      if (tmp_hlt_sumet>0.0) tmp_resolution = m_sigOffset + m_sigSlope*sqrt(tmp_hlt_sumet) + m_sigQuadr*tmp_hlt_sumet;
-      if (tmp_resolution>0.0) tmp_hlt_significance = tmp_hlt_met/tmp_resolution;
       
-      fillHLTBasicHistograms(tmp_hlt_ex,tmp_hlt_ex_log,tmp_hlt_ey,tmp_hlt_ey_log,tmp_hlt_ez,tmp_hlt_ez_log,tmp_hlt_met,tmp_hlt_met_log,tmp_hlt_sumet,tmp_hlt_sumet_log,tmp_hlt_sume,tmp_hlt_sume_log,tmp_hlt_phi,tmp_hlt_eta,tmp_hlt_significance);
+      fillHLTBasicHistograms(tmp_hlt_ex,tmp_hlt_ex_log,tmp_hlt_ey,tmp_hlt_ey_log,tmp_hlt_ez,tmp_hlt_ez_log,tmp_hlt_met,tmp_hlt_met_log,tmp_hlt_sumet,tmp_hlt_sumet_log,tmp_hlt_sume,tmp_hlt_sume_log,tmp_hlt_phi,tmp_hlt_eta);
 
     }
 
@@ -1741,23 +1817,15 @@ void HLTMETMonTool::addL1ProfileHistograms(std::map<std::string, int> met_signat
     std::string prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
     addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
     
-    prof_name = "Eff_mu_" + it->first;
-    prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
-    addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
-
-    prof_name = "Eff_mumu_" + it->first;
-    prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
-    addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
   }
 
 }
 
 //___________________________________________________________________________________________________________
-void HLTMETMonTool::fillL1ProfileHistograms(float off_met,float pT_mumu,bool METMuonFilled,std::map<std::string, int> met_signatures_tolook) {
+void HLTMETMonTool::fillL1ProfileHistograms(float off_met,std::map<std::string, int> met_signatures_tolook) {
 
   std::map<std::string,int>::const_iterator it;
   TProfile *p(0);
-  TProfile *pmu(0);
   for (it = met_signatures_tolook.begin(); it != met_signatures_tolook.end(); it++) {
     std::string name = it->first;
     std::string profname = "Eff_"+ name;
@@ -1766,25 +1834,6 @@ void HLTMETMonTool::fillL1ProfileHistograms(float off_met,float pT_mumu,bool MET
     } else {
       if ((p = profile(profname))) p->Fill(off_met,0.0,1.0);
     }
-
-    if(METMuonFilled == true) {
-      std::string name = it->first;
-      std::string mu_profname = "Eff_mu_"+name;
-      if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
-	if ((pmu = profile(mu_profname))) pmu->Fill(off_met, 1.0, 1.0);
-      } else {
-	if ((pmu = profile(mu_profname))) pmu->Fill(off_met, 0.0, 1.0);
-      }
-      if(pT_mumu>0){
-	std::string mumu_name = it->first;
-	std::string mumu_profname = "Eff_mumu_"+name;
-	if (getTDT()->isPassed(mumu_name, TrigDefs::eventAccepted)) {
-	  if ((pmu = profile(mumu_profname))) pmu->Fill(pT_mumu, 1.0, 1.0);
-	} else {
-	  if ((pmu = profile(mumu_profname))) pmu->Fill(pT_mumu, 0.0, 1.0);
-	}
-      }//pT_mumu > 0
-    }//loop over signatures  
   }
 
 }
@@ -1811,12 +1860,11 @@ void HLTMETMonTool::addHLTBasicHistograms() {
   addHistogram(new TH1F("HLT_MET_eta_etweight",  "HLT MET #eta (|Missing E_{T}|);MET #eta", m_eta_bins, m_eta_min, m_eta_max));
   addHistogram(new TH2F("HLT_MET_etaphi", "HLT MET #eta/#phi;#eta;#phi (rad)", m_eta_bins, m_eta_min, m_eta_max, m_phi_bins, m_phi_min, m_phi_max));
   addHistogram(new TH2F("HLT_MET_etaphi_etweight", "HLT MET #eta/#phi(|Missing E_{T}|);#eta;#phi (rad)", m_eta_bins, m_eta_min, m_eta_max, m_phi_bins, m_phi_min, m_phi_max));
-  addHistogram(new TH1F("HLT_XS", "HLT MET Significance;Significance (XS/GeV^{1/2})", m_xs_bins, m_xs_min,  m_xs_max));
 
 }
 
 //___________________________________________________________________________________________________________
-void HLTMETMonTool::fillHLTBasicHistograms(float hlt_ex,float hlt_ex_log,float hlt_ey,float hlt_ey_log,float hlt_ez,float hlt_ez_log,float hlt_met,float hlt_met_log,float hlt_sumet,float hlt_sumet_log,float hlt_sume,float hlt_sume_log,float hlt_phi,float hlt_eta,float hlt_significance) {
+void HLTMETMonTool::fillHLTBasicHistograms(float hlt_ex,float hlt_ex_log,float hlt_ey,float hlt_ey_log,float hlt_ez,float hlt_ez_log,float hlt_met,float hlt_met_log,float hlt_sumet,float hlt_sumet_log,float hlt_sume,float hlt_sume_log,float hlt_phi,float hlt_eta) {
 
   TH1 *h(0);
   TH2 *h2(0);
@@ -1839,7 +1887,6 @@ void HLTMETMonTool::fillHLTBasicHistograms(float hlt_ex,float hlt_ex_log,float h
   if ((h = hist("HLT_MET_eta_etweight")) && hlt_met>0)  h->Fill(hlt_eta, hlt_met);
   if ((h2 = hist2("HLT_MET_etaphi")) && hlt_met>0) h2->Fill(hlt_eta, hlt_phi);
   if ((h2 = hist2("HLT_MET_etaphi_etweight")) && hlt_met>0) h2->Fill(hlt_eta, hlt_phi, hlt_met);
-  if ((h = hist("HLT_XS"))) h->Fill(hlt_significance);
 
 }
 
@@ -2133,11 +2180,15 @@ std::string HLTMETMonTool::get_trigger_algo(std::string item)
     algo = "topocl_PS";
   else if (item.find("pufit") != std::string::npos)
     algo = "topocl_PUC";
+  else if (item.find("tcpufit") != std::string::npos)
+    algo = "topocl_PUC";
   else if (item.find("feb") != std::string::npos)
     algo = "FEB";
   else if (item.find("fex") != std::string::npos)
     algo = "Fex";
   else if (item.find("cell") != std::string::npos)
+    algo = "cell";
+  else
     algo = "cell";
   
   return algo;

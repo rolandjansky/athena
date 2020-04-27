@@ -76,11 +76,11 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
   }
 
   if (not m_testBLayerTool.empty() and m_testBLayerTool.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Failed to retrieve Test B Layer tool " << m_pixeldedxtool);
+    ATH_MSG_ERROR("Failed to retrieve Test B Layer tool " << m_testBLayerTool);
     ATH_MSG_ERROR("configure as 'None' to avoid its loading.");
     return StatusCode::FAILURE;
   } else {
-    if (not m_testBLayerTool.empty()) ATH_MSG_INFO("Retrieved tool " << m_pixeldedxtool);
+    if (not m_testBLayerTool.empty()) ATH_MSG_INFO("Retrieved tool " << m_testBLayerTool);
   }
 
   if (m_useTRT and not m_TRTStrawSummaryTool.empty() and m_TRTStrawSummaryTool.retrieve().isFailure()) {

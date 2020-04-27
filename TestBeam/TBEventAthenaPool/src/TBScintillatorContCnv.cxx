@@ -16,7 +16,7 @@ TBScintillatorCont* TBScintillatorContCnv::createTransient() {
    static pool::Guid   p1_guid("5887098D-DBFE-4634-92AB-CC9968CCB09A");  // GUID of the persistent object
    static pool::Guid   p0_guid("AE688514-B192-426D-A971-5CD072593272");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {
-      // using auto_ptr ensures deletion of the persistent object
+      // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr< TBScintillatorCont_p1 > col_vect( poolReadObject< TBScintillatorCont_p1 >() );
       return m_TPConverter.createTransient( col_vect.get(), log );
    }

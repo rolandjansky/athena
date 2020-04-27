@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -10,8 +10,6 @@
 // DESCRIPTION:
 // Subject: RPCLV1-->Sector Logic Offline Muon Data Quality
 /////////////////////////////////////////////////////////////////////////
-      
-#include "GaudiKernel/MsgStream.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
@@ -24,27 +22,16 @@
 
 #include <sstream>
 
-using namespace std;
-
-
 //***********************************************************************************************************************
 //***********************************************************************************************************************
 RpcLv1RawDataSectorLogic::RpcLv1RawDataSectorLogic( const std::string & type, 
 						    const std::string & name, 
-						    const IInterface* parent )
-  :ManagedMonitorToolBase( type, name, parent )
+						    const IInterface* parent ) :
+  ManagedMonitorToolBase( type, name, parent )
 {  
-  // Declare the properties      
   declareProperty("LumiblockHist" ,      m_lumiblockhist	= false	);   
   declareProperty("isMC"                        , m_isMC                       = false  );
 }
-
-//***********************************************************************************************************************
-RpcLv1RawDataSectorLogic::~RpcLv1RawDataSectorLogic()
-{
-  ATH_MSG_INFO( " Deleting RpcLv1RawDataSectorLogic "  );
-}
-
 
 //***********************************************************************************************************************
 StatusCode RpcLv1RawDataSectorLogic::initialize()
@@ -645,23 +632,4 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
   } // AthenaMonManager::tier0 || AthenaMonManager::tier0Raw 
   
   return sc;
-}
-
-
-
-//***********************************************************************************************************************
-StatusCode RpcLv1RawDataSectorLogic::procHistograms() 
-{
-
-  ATH_MSG_DEBUG( "RpcLv1RawDataSectorLogic finalize()"  );
-  return StatusCode::SUCCESS;
-}
-
-
-//***********************************************************************************************************************
-StatusCode RpcLv1RawDataSectorLogic::finalize() 
-{
-  ATH_MSG_DEBUG( "RpcLv1RawDataSectorLogic finalize()"  );
-   
-  return StatusCode::SUCCESS;
 }

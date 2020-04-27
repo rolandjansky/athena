@@ -117,6 +117,7 @@ atlas_install_scripts( scripts/generateLVL1MenuMT.py )
 atlas_install_scripts( scripts/generateL1TopoMenuMT.py )
 atlas_install_scripts( scripts/test_HLTmenu.sh )
 atlas_install_scripts( scripts/generateL1MenuRun3.py )
+atlas_install_scripts( scripts/verify_menu_config.py )
 
 atlas_install_xmls( data/*.dtd data/*.xml )
 
@@ -137,6 +138,8 @@ atlas_build_lvl1_trigger_menu( Physics_pp_run3_v1 )
 atlas_build_lvl1_trigger_menu( PhysicsP1_pp_run3_v1 )
 atlas_build_lvl1_trigger_menu( MC_pp_run3_v1 )
 atlas_build_lvl1_trigger_menu( Cosmic_run3_v1 )
+atlas_build_lvl1_trigger_menu( PhysicsP1_HI_run3_v1 )
+atlas_build_lvl1_trigger_menu( Dev_HI_run3_v1 )
 
 
 

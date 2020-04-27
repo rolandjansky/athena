@@ -15,7 +15,6 @@ namespace Barcode {
   /** Identifier type for particles */
   typedef int ParticleBarcode;
 
-  // until HepMC::GenParticle::suggest_barcode(...) takes 'int' as argument,
   // better not use fancy types like 'uint32_t' (may cause overflows in
   // implicit type conversions)
   //typedef uint32_t ParticleBarcode;

@@ -32,7 +32,7 @@ LArPhysWaveContainerCnv::createTransient ()
     static pool::Guid   p1_guid("87E436E2-6FF4-42D3-BC70-6650C076E589");
 	static pool::Guid   p0_guid("C1108D27-6D30-41E8-892D-2AB127B868C9");
 	if( compareClassGuid(p1_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
+        // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArPhysWaveSubset_p1 > col_vect( poolReadObject< LArPhysWaveSubset_p1 >() );
         log << MSG::DEBUG << "READING LArPhysWaveSubset_p1" << endmsg; 
 		LArPhysWaveTransType* transObj = TPconverter1.createTransient( col_vect.get(), log );

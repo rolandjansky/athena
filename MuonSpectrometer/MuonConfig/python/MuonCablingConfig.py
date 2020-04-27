@@ -58,7 +58,7 @@ def TGCCablingConfigCfg(flags):
     # TODO check if we actually need this here?
     acc.merge(MuonGeoModelCfg(flags)) 
     
-    LVL1TGC__TGCRecRoiSvc=CompFactory.LVL1TGC__TGCRecRoiSvc
+    LVL1TGC__TGCRecRoiSvc=CompFactory.LVL1TGC.TGCRecRoiSvc
     acc.addService( LVL1TGC__TGCRecRoiSvc() ) 
     
     TGCcablingServerSvc=CompFactory.TGCcablingServerSvc

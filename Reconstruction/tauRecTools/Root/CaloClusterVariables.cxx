@@ -3,7 +3,7 @@
 */
 
 #include "tauRecTools/CaloClusterVariables.h"
-#include "math.h"
+#include <cmath>
 
 const double CaloClusterVariables::DEFAULT = -1111.;
 

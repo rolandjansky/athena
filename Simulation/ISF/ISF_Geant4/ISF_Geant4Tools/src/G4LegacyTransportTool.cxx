@@ -22,7 +22,7 @@
 #include "MCTruth/EventInformation.h"
 
 // HepMC classes
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // Geant4 classes
 #include "G4LorentzVector.hh"

@@ -49,6 +49,9 @@ StatusCode AthMonitorAlgorithm::initialize() {
         }
     }
 
+    // Retrieve filters
+    ATH_CHECK( m_DQFilterTools.retrieve() );
+
     // Convert the data type and environment strings from the python configuration into the
     // enum class types DataType_t and Environment_t
     m_dataType = dataTypeStringToEnum(m_dataTypeStr);

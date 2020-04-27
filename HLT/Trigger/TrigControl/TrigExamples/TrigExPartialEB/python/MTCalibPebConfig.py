@@ -2,6 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MTCalibPebConfig.py')
 
@@ -105,8 +106,8 @@ def make_l1_seq():
     from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
     L1ByteStreamDecodersRecExSetup()
 
-    from L1Decoder.L1DecoderConfig import L1TriggerResultMaker
-    all_algs.append(L1TriggerResultMaker())
+    from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
+    all_algs.append(conf2toConfigurable(getL1TriggerResultMaker()))
 
     # Set menu for L1ConfigSvc
     from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -197,9 +198,8 @@ def make_all_hypo_algs(num_chains, concurrent=False):
 
 
 def configure_hlt_result(hypo_algs):
-    from TrigOutputHandling.TrigOutputHandlingConf import StreamTagMakerTool, TriggerBitsMakerTool
-    from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg
-    from TriggerMenuMT.HLTMenuConfig.Menu.EventBuildingInfo import getFullHLTResultID
+    from TrigEDMConfig.DataScoutingInfo import getFullHLTResultID
+    from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
 
     # Tool serialising EDM objects to fill the HLT result
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
@@ -263,18 +263,18 @@ def configure_hlt_result(hypo_algs):
     svcMgr.HLTConfigSvc.JsonFileName = menu_json
 
     # Tool adding stream tags to HLT result
-    stmaker = StreamTagMakerTool()
+    stmaker = StreamTagMakerToolCfg()
     stmaker.ChainDecisions = 'HLTNav_Summary'
     stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions for hypo in hypo_algs]
 
     # Tool adding HLT bits to HLT result
-    bitsmaker = TriggerBitsMakerTool()
+    bitsmaker = TriggerBitsMakerToolCfg()
     bitsmaker.ChainDecisions = 'HLTNav_Summary'
 
     # Configure the HLT result maker to use the above tools
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     hltResultMaker = svcMgr.HltEventLoopMgr.ResultMaker
-    hltResultMaker.MakerTools = [stmaker, bitsmaker, serialiser]
+    hltResultMaker.MakerTools = [conf2toConfigurable(tool) for tool in [stmaker, bitsmaker, serialiser]]
 
 
 def make_summary_algs(hypo_algs):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ------------------------------------------------------------- 
@@ -22,9 +22,9 @@
 
 #include "GeneratorUtils/StringParse.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <stdlib.h>
 #include <iostream>
@@ -214,7 +214,7 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 	ATH_MSG_DEBUG( "saving particle " << ipart  );
 
 	v1->add_particle_out( 
-			     new HepMC::GenParticle(CLHEP::HepLorentzVector(px, py, pz, e), pid, 1) );
+			     new HepMC::GenParticle(HepMC::FourVector(px, py, pz, e), pid, 1) );
       }
     ATH_MSG_DEBUG( "Saved " << ipart << " tracks "  );
 

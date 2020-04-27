@@ -2261,7 +2261,7 @@
     <range field="doubletR" value="1" />
     <range field="doubletZ" values="1 2" />
     <range field="doubletPhi" minvalue="1" maxvalue="2" />
-    <range field="rpcGasGap" minvalue="1" maxvalue="2" />
+    <range field="rpcGasGap" minvalue="1" maxvalue="3" />
     <range field="rpcMeasuresPhi" minvalue="0" maxvalue="1" />
     <range field="rpcStrip" minvalue="1" maxvalue="99" />
   </region>

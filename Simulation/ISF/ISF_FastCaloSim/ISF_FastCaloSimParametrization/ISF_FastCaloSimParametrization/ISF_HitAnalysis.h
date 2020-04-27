@@ -19,7 +19,7 @@
 //#####################################
 #include "CaloDetDescr/ICaloCoordinateTool.h"
 #include "ISF_FastCaloSimParametrization/FSmap.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "HepPDT/ParticleData.hh"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "TrkParameters/TrackParameters.h"

@@ -33,7 +33,8 @@ namespace Muon {
 
     virtual ~NSWCalibTool() = default;
     
-    StatusCode calibrate( const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, double& dist_drift, double& distRes_drift, double& calib_charge);
+    StatusCode calibrate( const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, NSWCalib::CalibratedStrip& calibStrip) const;
+
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
@@ -45,13 +46,13 @@ namespace Muon {
    
 
     TF1* m_lorentzAngleFunction;
- 
-    float m_mmBFieldX;
-    float m_mmBFieldY;
-    float m_mmBFieldZ;
-    
+     
     float m_vDrift;
     float m_timeRes;
+    float m_longDiff;
+    float m_transDiff;
+    float m_ionUncertainty;
+    double m_timeOffset;
   };
   
 }

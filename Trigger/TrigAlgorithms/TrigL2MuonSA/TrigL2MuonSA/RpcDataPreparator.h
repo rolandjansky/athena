@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPCDATAPREPARATOR_H
@@ -11,6 +11,7 @@
 
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
 #include "MuonRDO/RpcPadContainer.h"
 
 #include "TrigL2MuonSA/RpcData.h"
@@ -20,9 +21,7 @@
 #include "RegionSelector/IRegSelSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
@@ -33,20 +32,8 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-
-class ActiveStoreSvc;
-
-namespace HLT {
-  class TriggerElement;
-  class Algo;
-}
-
-namespace MuonGM {
-  class MuonDetectorManager;
-  class RpcReadoutElement;
-}
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -72,17 +59,14 @@ class RpcDataPreparator: public AthAlgTool
 
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
- private:
-      // Region Selector
-      ServiceHandle<IRegSelSvc> m_regionSelector;
+      void setMultiMuonTrigger( const bool multiMuonTrigger );
 
-      // RPC cabling service
-      const IRPCcablingSvc* m_rpcCabling;
-      const CablingRPCBase* m_rpcCablingSvc;
-      
-      // Muon Id Helpers
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+ private:
+      ServiceHandle<IRegSelSvc> m_regionSelector;
+      SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+      ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc{ this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc"};
 
       // handles to the RoI driven data access
       ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{
@@ -105,6 +89,7 @@ class RpcDataPreparator: public AthAlgTool
       // Flag to decide whether or not to run BS decoding
       Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
       Gaudi::Property< bool > m_emulateNoRpcHit { this, "EmulateNoRpcHit", false, "Flag for emulation of no RPC hit events" };
+      bool m_doMultiMuon{false};
 };
 
 } // namespace TrigL2MuonSA

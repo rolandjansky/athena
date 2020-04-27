@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ElementLinkCnv_p2.icc
@@ -11,7 +11,6 @@
 
 #include "AthLinks/ElementLink.h"
 #include "ElementLinkContNames_p2.h"
-#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/ThinningCache.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
 #include "AthenaKernel/getThinningCache.h"
@@ -125,71 +124,7 @@ transToPers (State& state,
     return;
   }
 
-  IThinningSvc * thinningSvc = IThinningSvc::instance();
-  const SG::DataProxy* dp = trans.proxy();
-  const bool thinning = thinningSvc && 
-    (dp 
-     ? thinningSvc->thinningOccurred(dp) 
-     // otherwise, use the event-level one
-     : thinningSvc->thinningOccurred());
-
-  if (thinning) {
-    // here is the problem: in case the ElementLink was directly created w/
-    // only a pointer to the element, _and_ if the the pointed-at element 
-    // has been thinned away, EL::index() will throw b/c
-    // IndexingPolicy::setIndex will fail.
-    std::size_t idx = IThinningSvc::RemovedIdx;
-    try {
-      idx = trans.index();
-    } catch ( const SG::maybe_thinning_error& err ) {
-      // ok. that's the corner case we talked about above.
-#ifdef  ELLINK_DEBUG
-      msg << MSG::DEBUG << "caught a maybe_thinning_error: ["
-          << err.what() << "]"
-          << endmsg
-          << "(this is an expected case of the EL-state-phase-space "
-          << "when thinning is active)"
-          << endmsg;
-#endif
-    }
-    const std::size_t persIdx = dp ?
-      thinningSvc->index(dp,idx) :
-      thinningSvc->index(trans.getStorableObjectPointer(), idx);
-    if ( IThinningSvc::RemovedIdx == persIdx ) {
-      // this element has been thinned away. So the persistent equivalent
-      // of a null pointer is a default persistent pointer.
-	  
-      // Must save empty string for default EL
-      pers.m_contIndex    = getNameIndex(state, s_empty); 
-      // Index value not used, but 0 compresses better
-      pers.m_elementIndex = 0; 
-    } else {
-      Link_t tmp = trans;
-      if (!m_isPersistible) {
-        tmp.toPersistent();
-      }
-      if (!state.m_lookupTable) {
-#ifdef  ELLINK_DEBUG
-        msg << MSG::ERROR 
-            << "Empty link name table ptr - must use resetForCnv "
-            << endmsg;
-#endif
-      }
-      else {
-        // Save container name index and element link index
-        pers.m_contIndex     = getNameIndex(state, tmp.dataID());
-        pers.m_elementIndex  = persIdx;
-      }
-    }
-#ifdef  ELLINK_DEBUG
-    msg << MSG::INFO << "ElementLinkCnv_p3::transToPer(): SG Container="
-        << ", Key Hash=" << pers.m_SGKeyHash
-        << ", IDX=" << pers.m_elementIndex << endmsg;
-#endif
-    return;
-  }
-
-  // Check for new thinning.
+  // Check for thinning.
   if (cache) {
     const SG::ThinningDecisionBase* dec = cache->thinning (trans.key());
     if (dec) {

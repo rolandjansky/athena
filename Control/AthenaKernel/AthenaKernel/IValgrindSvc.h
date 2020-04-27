@@ -10,7 +10,6 @@
 // STL includes
 #include <iosfwd>
 
-// HepMC / CLHEP includes
 
 // FrameWork includes
 #include "GaudiKernel/IService.h"

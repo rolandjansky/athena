@@ -38,7 +38,7 @@ CMMRoI * CMMRoICnv::createTransient()
  
   
   if ( compareClassGuid(p1_guid) ) {
-     // using auto_ptr ensures deletion of the persistent object
+     // using unique_ptr ensures deletion of the persistent object
      std::unique_ptr< CMMRoI_p1 > pers_ref( poolReadObject< CMMRoI_p1 >() );
      return m_TPConverter_p1.createTransient( pers_ref.get(), mlog );
   }

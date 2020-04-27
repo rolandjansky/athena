@@ -136,8 +136,7 @@ RecExCommonFlags = {
       'doDumpTES' : False, # if dump storegate transient event store
       'doDumpTDS' : False, # if dump storegate transient detector store
       'doFloatingPointException' : True, # if enable floating-point exception
-      'abortOnUncheckedStatusCode' : True, # if enable abort on unchecked status code
-      'doDumpPoolInputContent' : False, # if dump pool input object list 
+      'doDumpPoolInputContent' : False, # if dump pool input object list
       'doDumpProperties' : False, # if dump all algs properties
       'doDetailedAuditor' : False, # if monitor alg/tools and services memory and CPU time
       'doSGAuditor' : False, # if monitor data flow, see https://twiki.cern.ch/twiki/bin/view/Atlas/DataFlowMonitoring 

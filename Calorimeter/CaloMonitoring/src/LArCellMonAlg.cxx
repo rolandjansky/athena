@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // NAME:     LArCellMonAlg.cxx
@@ -78,7 +78,10 @@ LArCellMonAlg::~LArCellMonAlg() {
 ////////////////////////////////////////////
 StatusCode LArCellMonAlg::initialize() {
 
-  ATH_MSG_INFO("LArCellMonAlg::initialize() start");
+  ATH_MSG_DEBUG("LArCellMonAlg::initialize() start");
+
+  // Initialize superclass
+  ATH_CHECK( CaloMonAlgBase::initialize() );
 
   //Identfier-helpers 
   ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
@@ -111,6 +114,12 @@ StatusCode LArCellMonAlg::initialize() {
 
   // FIXME check consistency between layer and partitions from jO to enums
  
+  // Check that sizes of layer names and ncells is the same
+  if (m_layerNames.size() != m_layerNcells.size()) {
+        ATH_MSG_ERROR("LayerNames and LayerNcells not of the same length, aborting.....");
+        return StatusCode::FAILURE;
+  }
+
   //retrieve trigger decision tool and chain groups
   if( m_useTrigger) {
     const ToolHandle<Trig::TrigDecisionTool> trigTool=getTrigDecisionTool();
@@ -127,22 +136,11 @@ StatusCode LArCellMonAlg::initialize() {
   //Fill the LArCellBinning for each layer
   //setLArCellBinning();
 
-  //set the threshold group
-  if(m_doEtaPhiTotalOccupancyNames.size()>0) m_toolmapTotalOccupancyEtaPhi = Monitored::buildToolMap<int>(m_tools,m_groupnameTotalOccupancyEtaPhi,m_doEtaPhiTotalOccupancyNames);
-  if(m_doEtaPhiPercentageOccupancyNames.size()>0) m_toolmapPercentageOccupancyEtaPhi = Monitored::buildToolMap<int>(m_tools,m_groupnamePercentageOccupancyEtaPhi,m_doEtaPhiPercentageOccupancyNames);
-  if(m_doEtaOccupancyNames.size()>0) m_toolmapOccupancyEta = Monitored::buildToolMap<int>(m_tools,m_groupnameOccupancyEta,m_doEtaOccupancyNames);
-  if(m_doPhiOccupancyNames.size()>0) m_toolmapOccupancyPhi = Monitored::buildToolMap<int>(m_tools,m_groupnameOccupancyPhi,m_doPhiOccupancyNames);
-  if(m_doEtaPhiTotEnergyNames.size()>0) m_toolmapTotEnergyEtaPhi = Monitored::buildToolMap<int>(m_tools,m_groupnameTotEnergyEtaPhi,m_doEtaPhiTotEnergyNames);
-  if(m_doEtaPhiAvgQualityNames.size()>0) m_toolmapTotQualityEtaPhi = Monitored::buildToolMap<int>(m_tools,m_groupnameTotQualityEtaPhi,m_doEtaPhiAvgQualityNames);
-  if(m_doEtaPhiFractionOverQthNames.size()>0) m_toolmapFractionOverQthEtaPhi = Monitored::buildToolMap<int>(m_tools,m_groupnameFractionOverQthEtaPhi,m_doEtaPhiFractionOverQthNames);
-  if(m_doEtaPhiAvgTimeNames.size()>0) m_toolmapTotTimeEtaPhi = Monitored::buildToolMap<int>(m_tools,m_groupnameTotTimeEtaPhi,m_doEtaPhiAvgTimeNames);
-  if(m_doEtaPhiFractionPastTthNames.size()>0) m_toolmapFractionPastTthEtaPhi = Monitored::buildToolMap<int>(m_tools,m_groupnameFractionPastTthEtaPhi,m_doEtaPhiFractionPastTthNames);
+  m_toolmapAll = Monitored::buildToolMap<std::map<std::string,int>>(m_tools, "allMon", m_layerNames, m_thresholdNameProp);
 
+  ATH_MSG_DEBUG("LArCellMonAlg::initialize() is done!");
 
-
-  ATH_MSG_INFO("LArCellMonAlg::initialize() is done!");
-
-  return CaloMonAlgBase::initialize();
+  return StatusCode::SUCCESS;
 }
 
 
@@ -445,6 +443,16 @@ void LArCellMonAlg::bookNoisyCellHistos(SporadicNoiseCell_t& result, const CaloD
 }
 */
 
+struct LArMonValues {
+    float mon_eta;
+    float mon_phi;
+    float en;
+    float time;
+    uint16_t mon_qual; 
+    bool pass_qual;
+    bool pass_time;
+    bool passThrCut;
+};
 
 ////////////////////////////////////////////////////////////////////////////
 StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{  
@@ -484,6 +492,19 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
   CaloCellContainer::const_iterator it = cellCont->begin(); 
   CaloCellContainer::const_iterator it_e = cellCont->end(); 
   // loop over cells -------------
+
+  std::vector<std::vector<std::vector<LArMonValues>>> monValueVec;
+  monValueVec.reserve(m_layerNames.size());
+  for (size_t ilayer = 0; ilayer < m_layerNames.size(); ++ilayer) {
+    monValueVec.emplace_back();
+    monValueVec[ilayer].reserve(thresholds.size());
+    for (size_t ithreshold = 0; ithreshold < thresholds.size(); ++ithreshold) {
+      monValueVec[ilayer].emplace_back();
+      // this could be more intelligent (this is the worst case for #cells in a layer, most are much less)
+      monValueVec[ilayer][ithreshold].reserve(m_layerNcells[ilayer]);
+    }
+  }
+
   for ( ; it!=it_e;++it) {
     // cell info
     const CaloCell* cell = *it; 
@@ -513,17 +534,11 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
     unsigned iLyr, iLyrNS;
     getHistoCoordinates(caloDDEl, celleta, cellphi, iLyr, iLyrNS);
 
-    //set the 'monitored' objects before looping over thresholds
-    auto mon_eta = Monitored::Scalar<float>("celleta_"+m_layerNames[iLyr],celleta);
-    auto mon_phi = Monitored::Scalar<float>("cellphi_"+m_layerNames[iLyr],cellphi);
-    auto en = Monitored::Scalar<float>("cellEnergy_"+m_layerNames[iLyr],cellen);
-    auto mon_qual = Monitored::Scalar<uint16_t>("cellQuality_"+m_layerNames[iLyr],cellquality); 
-    auto pass_qual = Monitored::Scalar<bool>("isPoorQuality_"+m_layerNames[iLyr],false);
-    auto tim = Monitored::Scalar<float>("cellTime_"+m_layerNames[iLyr],celltime);
-    auto pass_time = Monitored::Scalar<bool>("isLateTime_"+m_layerNames[iLyr],false);
-
     //Start filling per-threshold histograms:
-    for (auto& thr :  thresholds) {
+    auto& lvaluemap = monValueVec[iLyr];
+    for (size_t ithr = 0; ithr < thresholds.size(); ++ithr) {
+      const auto& thr = thresholds[ithr];
+    // for (auto& thr :  thresholds) {
       //std::cout << "Threshold name " << thr.m_threshName << std::endl;
       //Any of the conditons below means we do not fill the histogram:
     
@@ -544,48 +559,24 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
       if (thr.m_inSigNoise) thresholdVal*=noisep->getNoise(cellHash, gain);
         
 
-      auto passThrCut = Monitored::Scalar<bool>("passThrCut_"+m_layerNames[iLyr],true);
+      bool passThrCut(true);
       if (thr.m_threshDirection==OVER && cellen <= thresholdVal) passThrCut=false;
       if (thr.m_threshDirection==UNDER && cellen > thresholdVal) passThrCut=false;
       if (thr.m_threshDirection==BOTH && (cellen > -thresholdVal && cellen <= thresholdVal)) passThrCut=false;   
 
 
-      if(!m_toolmapTotalOccupancyEtaPhi.empty() && thr.m_doEtaPhiOccupancy) fill(m_tools[m_toolmapTotalOccupancyEtaPhi.at(thr.m_threshName)],mon_eta,mon_phi,passThrCut);
-      if(!m_toolmapPercentageOccupancyEtaPhi.empty() && thr.m_doPercentageOccupancy) fill(m_tools[m_toolmapPercentageOccupancyEtaPhi.at(thr.m_threshName)],mon_eta,mon_phi,passThrCut);
+    	bool pass_qual = (cellquality > thr.m_qualityFactorThreshold);
+    	bool pass_time = (fabs(celltime) > thr.m_timeThreshold);
+
+      lvaluemap[ithr].push_back({celleta, cellphi, cellen, celltime, cellquality, pass_qual, pass_time, passThrCut});
 
       if(!passThrCut) continue;
-
-      if(!m_toolmapOccupancyEta.empty() && thr.m_doEtaOccupancy) fill(m_tools[m_toolmapOccupancyEta.at(thr.m_threshName)],mon_eta);
-      if(!m_toolmapOccupancyPhi.empty() && thr.m_doPhiOccupancy) fill(m_tools[m_toolmapOccupancyPhi.at(thr.m_threshName)],mon_phi);
-      if(!m_toolmapTotEnergyEtaPhi.empty() && thr.m_doEtaPhiTotalEnergy) fill(m_tools[m_toolmapTotEnergyEtaPhi.at(thr.m_threshName)],mon_eta,mon_phi,en);
-      if(!m_toolmapTotQualityEtaPhi.empty() && thr.m_doEtaPhiAverageQuality) fill(m_tools[m_toolmapTotQualityEtaPhi.at(thr.m_threshName)],mon_eta,mon_phi,mon_qual);
-      if(!m_toolmapTotTimeEtaPhi.empty() && thr.m_doEtaPhiAverageTime) fill(m_tools[m_toolmapTotTimeEtaPhi.at(thr.m_threshName)],mon_eta,mon_phi,tim);
-      if(!m_toolmapFractionOverQthEtaPhi.empty() && thr.m_doEtaPhiFractionOverQth) {
-	pass_qual = (cellquality > thr.m_qualityFactorThreshold);
-	fill(m_tools[m_toolmapFractionOverQthEtaPhi.at(thr.m_threshName)],mon_eta,mon_phi,pass_qual);
-      }
-      if(!m_toolmapFractionPastTthEtaPhi.empty() && thr.m_doEtaPhiFractionPastTth) {
-	pass_time = (fabs(celltime) > thr.m_timeThreshold);
-	fill(m_tools[m_toolmapFractionPastTthEtaPhi.at(thr.m_threshName)],mon_eta,mon_phi,pass_time);
-      }
-
-      //if(thr.m_h_poorQualityOccupancy_etaphi[iLyr] && (cellquality > thr.m_qualityFactorThreshold)) {
-      //      if(thr.m_doEtaPhiFractionOverQth && cellquality > thr.m_qualityFactorThreshold) {
-	//thr.m_h_poorQualityOccupancy_etaphi[iLyr]->Fill(celleta,cellphi); FAI un ARRAY separato con solo le soglie che vogliono questo
-      //}
-      //if (thr.m_h_totalQuality_etaphi[iLyr]) thr.m_h_totalQuality_etaphi[iLyr]->Fill(celleta,cellphi,cellquality);
-
-      //if(thr.m_h_totalTime_etaphi[iLyr]) {
-	//thr.m_h_totalTime_etaphi[iLyr]->Fill(celleta,cellphi,celltime);
-      //}
-    
-      //if (thr.m_h_poorTimeOccupancy_etaphi[iLyr] && (fabs(celltime) > thr.m_timeThreshold)) {
-      //if (fabs(celltime) > thr.m_timeThreshold) {
-	//thr.m_h_poorTimeOccupancy_etaphi[iLyr]->Fill(celleta,cellphi);
-      //}
     
     }//end loop over thresholds
 
+    //some additional monitored objects
+    auto en = Monitored::Scalar<float>("cellEnergy_"+m_layerNames[iLyr],cellen);
+    auto tim = Monitored::Scalar<float>("cellTime_"+m_layerNames[iLyr],celltime);
     if(passBeamBackgroundRemoval) {
       // 1D Energy distribution:
       //if (m_h_energy[iLyr]) m_h_energy[iLyr]->Fill(cellen); 
@@ -619,6 +610,24 @@ StatusCode LArCellMonAlg::fillHistograms(const EventContext& ctx) const{
       }//end if m_sporadic_switch
     } // end if m_passBeamBackgroundRemoval
   }//end loop over cells
+
+  // fill, for every layer/threshold
+  for (size_t ilayer = 0; ilayer < monValueVec.size(); ++ilayer) {
+    for (size_t ithreshold = 0; ithreshold < monValueVec[ilayer].size(); ++ithreshold) {
+      const auto& tool = monValueVec[ilayer][ithreshold];
+      auto mon_eta = Monitored::Collection("celleta",tool,[](const auto& v){return v.mon_eta;});
+      auto mon_phi = Monitored::Collection("cellphi",tool,[](const auto& v){return v.mon_phi;});
+      auto en = Monitored::Collection("cellEnergy",tool,[](const auto& v){return v.en;});
+      auto mon_qual = Monitored::Collection("cellQuality",tool,[](const auto& v){return v.mon_qual;}); 
+      auto pass_qual = Monitored::Collection("isPoorQuality",tool,[](const auto& v){return v.pass_qual;});
+      auto tim = Monitored::Collection("cellTime",tool,[](const auto& v){return v.time;});
+      auto pass_time = Monitored::Collection("isLateTime",tool,[](const auto& v){return v.pass_time;});
+      auto passThrCut = Monitored::Collection("passThrCut",tool,[](const auto& v){return v.passThrCut;});
+      fill(m_tools[m_toolmapAll.at(m_layerNames[ilayer]).at(thresholds[ithreshold].m_threshName)], 
+              passThrCut, mon_eta, mon_phi, en, mon_qual,
+              pass_qual, tim, pass_time);
+    }
+  }
 
   ATH_MSG_DEBUG("LArCellMonAlg::fillLarHists() is done");
   return StatusCode::SUCCESS;

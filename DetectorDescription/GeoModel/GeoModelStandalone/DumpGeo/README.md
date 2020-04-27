@@ -1,63 +1,88 @@
-# DumpGeo - Dump the ATLAS GeoModel to SQLite
+# DumpGeo - Dump the ATLAS GeoModel to a local file
 
  * [Intro](#intro) 
- * [Get the code](#get-the-code)
- * [Setup build](#setup-build)
- * [Build](#build)
- * [Set debug output](#set-debug-output)
+ * [Setup](#build)
  * [Run](#run)
- * [Sample data](#sample-data)
+ * [Documentation](#documentation)
 
 ## Intro
 
-`DumpGeo` is an Athena algorithm inheriting from the class AthAlgorithm.
+`DumpGeo` is an Athena algorithm inheriting from the class AthAlgorithm. Internally, it calls the package `GeoExporter` to dump 
+the ATLAS GeoModel into a local file.
 
-Run inside Athena, it calls the package `GeoExporter` to dump 
-the ATLAS GeoModel into a SQLite file.
+*Note:* At the time of writing, the local file is a SQLite file).
 
-Instructions are meant for a **SLC6 machine** (or `lxplus`)
+Instructions are meant for a `lxplus`-like machine (CC7 or SLC6) where the Athena framework is installed.
 
-## Get the code
 
-    git clone https://:@gitlab.cern.ch:8443/rbianchi/athena.git # https://gitlab.cern.ch/rbianchi/athena.git
-    cd athena
-    git checkout dump-geomodel
-    cd ..
 
-## Setup build
 
-    mkdir build
-    cd build
-    cp ../athena/Projects/WorkDir/package_filters_example.txt ../package_filters.txt
-    
-    ### replace the example path with the GeoModelStandalone path, plus VP1Utils and VP1Base
-    sed -i '/Control/c\+ DetectorDescription/GeoModel/GeoModelStandalone/.*\n+ graphics/VP1/VP1Utils\n+ graphics/VP1/VP1Base' ../package_filters.txt
+## Setup 
 
-## Build
+You should setup Athena, as usual; for example you can setup the latest nightly build:
 
-    setupATLAS
-    asetup Athena,master,latest,slc6
-    cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DATLAS_PACKAGE_FILTER_FILE=../package_filters.txt ../athena/Projects/WorkDir
-    make
-    source x86_64-slc6-gcc62-opt/setup.sh
-
-## Set debug output
-
-This is **OPTIONAL**
-
-    export VP1_VERBOSE_OUTPUT=1
-    export VP1_DEBUG_OUTPUT=1
+```bash
+setupATLAS
+asetup Athena,master,latest,slc6
+```
 
 ## Run
 
-At the prompt, run the command `dump-geo`, followed by the `-detdescr` flag and a valid ATLAS Geometry tag; for example:
+`dump-geo` can be used both as a shell command or as an Athena jobOption, in command-line or embedded within your own jobOption.
 
-    dump-geo -detdescr=ATLAS-R2-2016-01-00-01
+### Basic use - Run as a terminal command
 
-a file named `geometry-ATLAS-R2-2016-01-00-01.db` will be created in the run folder.
+At the prompt, run the command `dump-geo`:
 
-## Sample data
+```bash
+dump-geo
+```
 
-If you want, you can downlaod a sample datafile (draft):
+this will dump the default geometry tag (`ATLAS-R2-2016-01-00-01`, at the time of writing) 
+into a local file named `geometry-TAG.db`, where `TAG` is replaced with the specific geometry tag being dumped .
 
-     wget https://atlas-vp1.web.cern.ch/atlas-vp1/doc_new/sample_datafiles/geometry-ATLAS-R2-2016-01-00-01.db
+Optionally, you can specify which geometry tag to be dumped by adding the `-detdescr` flag and a valid ATLAS Geometry tag; for example:
+
+```bash
+dump-geo -detdescr=ATLAS-R2-2016-01-00-01
+```
+
+After issueing the command, a file named `geometry-ATLAS-R2-2016-01-00-01.db` will be created in the run folder.
+
+
+### Run it as an Athena jobOption
+
+You can also run `dump-geo` as an Athena jobOption. For example:
+
+```bash
+athena DumpGeo/dump-geo.py -c "DetDescrVersion='ATLAS-R3-2021-01-00-00‘"
+```
+
+You can even embed it into your own workflow, within your own jobOption.
+
+
+### Additional Options
+
+You can use several flags to steer the dump mechanism. You can see the full list of options by using:
+
+```bash
+dump-geo -h
+```
+
+For example, you can exclude subsystems by using the `-noX` flags, for example:
+
+```bash
+dump-geo -nomuon -nocalo
+```
+
+will dump only the Inner Detector geometry into the output `geometry.db` file.
+
+## Documentation
+
+You can take a look at the full documentation for `dump-geo`:
+
+- by running `dump-geo -h`
+- by visiting the GeoModel documentation website: https://cern.ch/geomodel
+
+ 
+

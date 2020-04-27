@@ -138,6 +138,9 @@ def ExampleMonitoringConfig(inputFlags):
         array1D.defineHistogram('c;c_alternate', title='Layer', path='Keys/{0}', xmax=3.)
         array2D.defineHistogram('c', title='Cluster {1}, Layer {0}', path='Keys/{1}', xmax=3.)
 
+        # Making a histogram only for certain elements of the array
+        array2D.defineHistogram('c;c_restricted', path='Keys', pattern=[('layer1', 'clusterB'), ('layer2', 'clusterX')])
+
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     # and the sequence containing the created algorithms. If we haven't called

@@ -28,6 +28,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigMonitoring/TrigCostMonitorMT )
 
 find_package( CLHEP )
+find_package( nlohmann_json )
+
 
 # Component(s) in the package:
 atlas_add_library( L1DecoderLib

@@ -32,7 +32,7 @@ atlas_add_component( DetDescrCondExample
                      src/CoolHistExample.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions InDetReadoutGeometry )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions InDetReadoutGeometry DetDescrCondToolsLib )
 
 # Install files from the package:
 atlas_install_headers( DetDescrCondExample )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCABLING_CSCCABLINGSVC_H
@@ -14,6 +14,7 @@
 #include "GaudiKernel/IInterface.h"
 
 #include <inttypes.h>
+#include <atomic>
 
 class MsgStream;
 
@@ -68,10 +69,10 @@ public:
 
  private:
 
-  mutable unsigned int m_side;
-  mutable unsigned int m_rod;
-  mutable unsigned int m_max;
-  mutable bool m_run1;
+  unsigned int m_side;
+  unsigned int m_rod;
+  unsigned int m_max;
+  bool m_run1;
 };
 
 #endif

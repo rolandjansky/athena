@@ -37,10 +37,10 @@ class ZDC_PileUpTool: public PileUpToolBase {
   virtual StatusCode finalize() override final;
 
   /// called before the subevts loop. Not (necessarily) able to access SubEvents
-  virtual StatusCode prepareEvent(const unsigned int nInputEvents) override final;
+  virtual StatusCode prepareEvent(const EventContext& ctx,const unsigned int nInputEvents) override final;
 
   /// called for each active bunch-crossing to process current SubEvents bunchXing is in ns
-    virtual StatusCode processBunchXing(
+  virtual StatusCode processBunchXing(
                                         int bunchXing,
                                         SubEventIterator bSubEvents,
                                         SubEventIterator eSubEvents
@@ -50,9 +50,9 @@ class ZDC_PileUpTool: public PileUpToolBase {
   //  virtual bool toProcess(int bunchXing) const;
 
   /// called at the end of the subevts loop. Not (necessarily) able to access SubEvents
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode mergeEvent(const EventContext& ctx) override final;
 
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
  private:
 

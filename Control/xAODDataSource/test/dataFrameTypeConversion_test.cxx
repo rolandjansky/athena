@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 
 // Local include(s).
@@ -8,15 +8,20 @@
 
 // Framework include(s).
 #include "xAODRootAccess/Init.h"
+#include "CxxUtils/ubsan_suppress.h"
 
 // EDM include(s).
 #include "xAODBase/IParticleContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 
+#include <TInterpreter.h>
+
 // System include(s).
 #include <iostream>
 
 int main() {
+   // Suppress ubsan warning.
+   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
 
    // Set up the runtime environment.
    ROOT::EnableImplicitMT();

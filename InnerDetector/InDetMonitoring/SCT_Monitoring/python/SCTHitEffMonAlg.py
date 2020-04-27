@@ -48,8 +48,8 @@ def SCTHitEffMonAlgConfig(inputFlags):
     # Edit properties of a algorithm
     myMonAlg.TriggerChain = ''
 
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-    myMonAlg.BunchCrossingTool = BunchCrossingTool()
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    result.merge(BunchCrossingCondAlgCfg(inputFlags))
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))

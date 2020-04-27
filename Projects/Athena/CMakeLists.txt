@@ -24,9 +24,9 @@ if( LCG_NIGHTLY )
     set( TDAQ_VERSION "99-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 else()
-    set( TDAQ-COMMON_VERSION "03-04-01" CACHE STRING
+    set( TDAQ-COMMON_VERSION "04-00-00" CACHE STRING
        "The version of tdaq-common to use for the build" )
-    set( TDAQ_VERSION "08-03-01" CACHE STRING
+    set( TDAQ_VERSION "09-00-00" CACHE STRING
        "The version of tdaq to use for the build" )
 endif()
 
@@ -41,7 +41,7 @@ mark_as_advanced( TDAQ-COMMON_ATROOT TDAQ_PROJECT_NAME
    TDAQ_ATROOT )
 
 # Configure flake8:
-set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
+set( ATLAS_FLAKE8 "flake8_atlas -j 1 --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
    CACHE STRING "Default flake8 command" )
 
 set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
@@ -71,19 +71,6 @@ set( AthenaPoolUtilitiesTest_DIR
    "${CMAKE_SOURCE_DIR}/../../Database/AthenaPOOL/AthenaPoolUtilities/cmake"
    CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
 
-# Load all the files from the externals/ subdirectory:
-file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
-foreach( _external ${_externals} )
-   include( ${_external} )
-   get_filename_component( _extName ${_external} NAME_WE )
-   string( TOUPPER ${_extName} _extNameUpper )
-   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
-   unset( _extName )
-   unset( _extNameUpper )
-endforeach()
-unset( _external )
-unset( _externals )
-
 # Make the local CMake files visible to AtlasCMake.
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 
@@ -93,10 +80,6 @@ atlas_ctest_setup()
 # Set up the "ATLAS project".
 atlas_project( USE AthenaExternals ${AthenaExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
-
-# Install the external configurations:
-install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
-   DESTINATION ${CMAKE_INSTALL_CMAKEDIR} USE_SOURCE_PERMISSIONS )
 
 # Generate the environment setup for the externals, to be used during the build:
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
@@ -135,6 +118,9 @@ install( FILES
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
+
+# Temporary alias to limit number of processes (ATLINFR-3046)
+atlas_add_alias( flake8 \${AthenaExternals_DIR}/${CMAKE_INSTALL_BINDIR}/flake8 -j1 )
 
 # Package up the release using CPack:
 atlas_cpack_setup()

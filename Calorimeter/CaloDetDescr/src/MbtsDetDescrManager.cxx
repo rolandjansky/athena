@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloDetDescr/MbtsDetDescrManager.h"
@@ -11,11 +11,11 @@
 #include "GaudiKernel/MsgStream.h"
 
 MbtsDetDescrManager::MbtsDetDescrManager():
-  m_msgSvc(0)
+  m_msgSvc(nullptr)
 {
   ISvcLocator* svcLoc = Gaudi::svcLocator();
   StatusCode status = svcLoc->service( "MessageSvc", m_msgSvc);
-  if(status.isFailure() || m_msgSvc==0)
+  if(status.isFailure() || m_msgSvc==nullptr)
     std::cerr << "CaloDetDescrManager: Could not locate the MessageSvc!\n";
 }
 
@@ -30,7 +30,7 @@ CaloDetDescrElement* MbtsDetDescrManager::get_element(const Identifier& elementI
 {
   MbtsElements::const_iterator it = m_elements.find(elementId);
   if(it==m_elements.end())
-    return 0;
+    return nullptr;
   else
     return it->second;
 }

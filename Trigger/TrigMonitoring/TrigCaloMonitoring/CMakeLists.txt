@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigCalo
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArCabling
+			  Luminosity/LumiBlockData
                           Reconstruction/egamma/egammaEvent
                           Trigger/TrigAlgorithms/TrigCaloRec
                           Trigger/TrigAlgorithms/TrigT2CaloCommon

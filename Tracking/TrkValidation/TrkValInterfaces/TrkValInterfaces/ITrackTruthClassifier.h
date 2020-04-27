@@ -14,8 +14,6 @@
 
 #include <vector>
 #include <string>
-//#include "HepMC/GenParticle.h"
-//#include "GeneratorObjects/McEventCollection.h"
 #include "GaudiKernel/IAlgTool.h"
 
 class McEventCollection;

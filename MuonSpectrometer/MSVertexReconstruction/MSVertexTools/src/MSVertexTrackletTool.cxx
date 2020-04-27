@@ -177,12 +177,12 @@ namespace Muon {
 	  //select the correct combinations
 	  int tl2 = m_idHelperSvc->mdtIdHelper().tubeLayer((*mdt2)->identify());	  
 	  if(mdt1 == mdt2 || (tl2 - tl1) > 1 || (tl2 - tl1) < 0 ) continue; 
-	  if(fabs((*mdt2)->globalPosition().z() - (*mdt1)->globalPosition().z()) > d12_max && (stName <= 11 || stName == 52)) continue;
+	  if(std::abs((*mdt2)->globalPosition().z() - (*mdt1)->globalPosition().z()) > d12_max && (stName <= 11 || stName == 52)) continue;
 	  //if chamber is endcap, use distance in r
 	  if( (stName > 11 && stName <=21) || stName == 49 ) {
 	    float mdt1R = (*mdt1)->globalPosition().perp();
 	    float mdt2R = (*mdt2)->globalPosition().perp();
-	    if(fabs(mdt1R-mdt2R) > d12_max) continue;
+	    if(std::abs(mdt1R-mdt2R) > d12_max) continue;
 	  }
 	  if( (tl2-tl1) == 0 && (m_idHelperSvc->mdtIdHelper().tube((*mdt2)->identify()) - m_idHelperSvc->mdtIdHelper().tube((*mdt1)->identify())) < 0) continue;	
 	  //find the third hit
@@ -200,12 +200,12 @@ namespace Muon {
 	    if(mdt1 == mdt3 || mdt2 == mdt3) continue;
 	    if( (tl3-tl2) > 1 || (tl3-tl2) < 0 || (tl3-tl1) <= 0) continue;
 	    if( (tl3-tl2) == 0 && (m_idHelperSvc->mdtIdHelper().tube((*mdt3)->identify()) - m_idHelperSvc->mdtIdHelper().tube((*mdt2)->identify())) < 0) continue;
-	    if( fabs((*mdt3)->globalPosition().z() - (*mdt1)->globalPosition().z()) > d13_max && (stName <= 11 || stName == 52) ) continue;
+	    if( std::abs((*mdt3)->globalPosition().z() - (*mdt1)->globalPosition().z()) > d13_max && (stName <= 11 || stName == 52) ) continue;
 	    //if chamber is endcap, use distance in r
 	    if( (stName > 11 && stName <=21) || stName == 49 ) {
 	      float mdt1R = (*mdt1)->globalPosition().perp();
 	      float mdt3R = (*mdt3)->globalPosition().perp();
-	      if(fabs(mdt1R-mdt3R) > d13_max) continue;
+	      if(std::abs(mdt1R-mdt3R) > d13_max) continue;
 	    }
 	    //store and fit the good combinations
 	    std::vector<const Muon::MdtPrepData*> mdts;
@@ -270,10 +270,10 @@ namespace Muon {
 	    float deltaAlpha = CleanSegs[st][0][sector].at(i1).alpha()-CleanSegs[st][1][sector].at(i2).alpha();
 	    bool goodDeltab = DeltabCalc(CleanSegs[st][0][sector].at(i1),CleanSegs[st][1][sector].at(i2));
 	    //select the good combinations
-	    if(fabs(deltaAlpha) < DeltaAlphaCut && goodDeltab) {
+	    if(std::abs(deltaAlpha) < DeltaAlphaCut && goodDeltab) {
 	      if(st < 3) {//barrel chambers
 		float charge = 1;
-		if( deltaAlpha*CleanSegs[st][0][sector].at(i1).globalPosition().z()*tan(CleanSegs[st][0][sector].at(i1).alpha()) < 0 ) charge = -1;
+		if( deltaAlpha*CleanSegs[st][0][sector].at(i1).globalPosition().z()*std::tan(CleanSegs[st][0][sector].at(i1).alpha()) < 0 ) charge = -1;
 		float pTot = TrackMomentum(CleanSegs[st][0][sector].at(i1).mdtChamber(),deltaAlpha);
 		if(pTot < 800.) continue;
 		if(pTot >= 9999.) {
@@ -286,9 +286,9 @@ namespace Muon {
 		  if(CombinedSeg.size() > 0) {
 		    //calculate momentum components & uncertainty
 		    float Trk1overPErr = TrackMomentumError(CombinedSeg[0]);
-		    float pT = pTot*sin(CombinedSeg[0].alpha());
-		    float pz = pTot*cos(CombinedSeg[0].alpha());
-		    Amg::Vector3D momentum(pT*cos(CombinedSeg[0].globalPosition().phi()),pT*sin(CombinedSeg[0].globalPosition().phi()),pz);
+		    float pT = pTot*std::sin(CombinedSeg[0].alpha());
+		    float pz = pTot*std::cos(CombinedSeg[0].alpha());
+		    Amg::Vector3D momentum(pT*std::cos(CombinedSeg[0].globalPosition().phi()),pT*std::sin(CombinedSeg[0].globalPosition().phi()),pz);
 		    //create the error matrix
 		    AmgSymMatrix(5) matrix;
 		    matrix.setIdentity();		
@@ -306,10 +306,10 @@ namespace Muon {
 		else {
 		  //tracklet has a measurable momentum
 		  float Trk1overPErr = TrackMomentumError(CleanSegs[st][0][sector].at(i1),CleanSegs[st][1][sector].at(i2));
-		  float pT = pTot*sin(CleanSegs[st][0][sector].at(i1).alpha());
-		  float pz = pTot*cos(CleanSegs[st][0][sector].at(i1).alpha());
-		  Amg::Vector3D momentum(pT*cos(CleanSegs[st][0][sector].at(i1).globalPosition().phi()),
-					       pT*sin(CleanSegs[st][0][sector].at(i1).globalPosition().phi()),pz);
+		  float pT = pTot*std::sin(CleanSegs[st][0][sector].at(i1).alpha());
+		  float pz = pTot*std::cos(CleanSegs[st][0][sector].at(i1).alpha());
+		  Amg::Vector3D momentum(pT*std::cos(CleanSegs[st][0][sector].at(i1).globalPosition().phi()),
+					       pT*std::sin(CleanSegs[st][0][sector].at(i1).globalPosition().phi()),pz);
 		  //create the error matrix
 		  AmgSymMatrix(5) matrix;  
 		  matrix.setIdentity();		
@@ -332,8 +332,8 @@ namespace Muon {
 		std::vector<TrackletSegment> CombinedSeg = TrackletSegmentFitter(mdts);
 		if(CombinedSeg.size() > 0) {
 		  float charge = 0;		  
-		  float pT = 100000.0*sin(CombinedSeg[0].alpha());
-		  float pz = 100000.0*cos(CombinedSeg[0].alpha());
+		  float pT = 100000.0*std::sin(CombinedSeg[0].alpha());
+		  float pz = 100000.0*std::cos(CombinedSeg[0].alpha());
 		  //create the error matrix
 		  AmgSymMatrix(5) matrix;  
 		  matrix.setIdentity();
@@ -342,8 +342,8 @@ namespace Muon {
 		  matrix(2,2) = sq(0.0000001);//delta phi (~0 because we explicitly rotate all tracks into the middle of the chamber)
 		  matrix(3,3) = sq(CombinedSeg[0].alphaError());//delta theta
 		  matrix(4,4) = sq(0.00005);//delta 1/p (endcap tracks are straight lines with no momentum that we can measure ...)
-		  Amg::Vector3D momentum(pT*cos(CombinedSeg[0].globalPosition().phi()),
-					       pT*sin(CombinedSeg[0].globalPosition().phi()),pz);
+		  Amg::Vector3D momentum(pT*std::cos(CombinedSeg[0].globalPosition().phi()),
+					       pT*std::sin(CombinedSeg[0].globalPosition().phi()),pz);
 		  Tracklet tmpTrk(CombinedSeg[0],momentum,matrix,charge);
 		  tracklets.push_back(tmpTrk);
 		}
@@ -537,54 +537,54 @@ namespace Muon {
     //      -- needs to be revisited when the small tubes in sectors 12 & 14 are installed
     float x1 = mdts.front()->globalPosition().z();
     float y1 = mdts.front()->globalPosition().perp();
-    float r1 = fabs(mdts.front()->localPosition()[Trk::locR]);
+    float r1 = std::abs(mdts.front()->localPosition()[Trk::locR]);
     
     float x2 = mdts.back()->globalPosition().z();
     float y2 = mdts.back()->globalPosition().perp();
-    float r2 = fabs(mdts.back()->localPosition()[Trk::locR]);
+    float r2 = std::abs(mdts.back()->localPosition()[Trk::locR]);
     
     float DeltaX              = x2 - x1;
     float DeltaY              = y2 - y1;
-    float DistanceOfCenters   = sqrt(DeltaX*DeltaX + DeltaY*DeltaY);
+    float DistanceOfCenters   = std::sqrt(DeltaX*DeltaX + DeltaY*DeltaY);
     if(DistanceOfCenters < 30) return SeedParams;
-    float Alpha0              = acos(DeltaX/DistanceOfCenters);
+    float Alpha0              = std::acos(DeltaX/DistanceOfCenters);
     
     //First seed
     float phi = mdts.front()->globalPosition().phi();
     float RSum       = r1 + r2;
     if(RSum > DistanceOfCenters) return SeedParams;
-    float Alpha1     = asin(RSum/DistanceOfCenters);
+    float Alpha1     = std::asin(RSum/DistanceOfCenters);
     float line_theta = Alpha0 + Alpha1;
-    float z_line     = x1 + r1*sin(line_theta);
-    float rho_line   = y1 - r1*cos(line_theta);    
+    float z_line     = x1 + r1*std::sin(line_theta);
+    float rho_line   = y1 - r1*std::cos(line_theta);    
     
-    Amg::Vector3D gPos1(rho_line*cos(phi), rho_line*sin(phi), z_line);
-    Amg::Vector3D gDir(cos(phi)*sin(line_theta), sin(phi)*sin(line_theta), cos(line_theta));
-    Amg::Vector3D globalDir1(cos(phi)*sin(line_theta), sin(phi)*sin(line_theta), cos(line_theta));
+    Amg::Vector3D gPos1(rho_line*std::cos(phi), rho_line*std::sin(phi), z_line);
+    Amg::Vector3D gDir(std::cos(phi)*std::sin(line_theta), std::sin(phi)*std::sin(line_theta), std::cos(line_theta));
+    Amg::Vector3D globalDir1(std::cos(phi)*std::sin(line_theta), std::sin(phi)*std::sin(line_theta), std::cos(line_theta));
     float gSlope1 = (globalDir1.perp()/globalDir1.z());
     float gInter1 = gPos1.perp() - gSlope1*gPos1.z();
     float resid = SeedResiduals(mdts,gSlope1,gInter1);
     if(resid < m_SeedResidual) SeedParams.push_back( std::pair<float,float>(gSlope1,gInter1) );
     //Second seed
     line_theta  = Alpha0 - Alpha1;
-    z_line      = x1 - r1*sin(line_theta);
-    rho_line    = y1 + r1*cos(line_theta);
-    Amg::Vector3D gPos2(rho_line*cos(phi), rho_line*sin(phi), z_line);
-    Amg::Vector3D globalDir2(cos(phi)*sin(line_theta), sin(phi)*sin(line_theta), cos(line_theta));
+    z_line      = x1 - r1*std::sin(line_theta);
+    rho_line    = y1 + r1*std::cos(line_theta);
+    Amg::Vector3D gPos2(rho_line*std::cos(phi), rho_line*std::sin(phi), z_line);
+    Amg::Vector3D globalDir2(std::cos(phi)*std::sin(line_theta), std::sin(phi)*std::sin(line_theta), std::cos(line_theta));
     float gSlope2= (globalDir2.perp()/globalDir2.z());
     float gInter2 = gPos2.perp() - gSlope2*gPos2.z();
     resid = SeedResiduals(mdts,gSlope2,gInter2);
     if(resid < m_SeedResidual) SeedParams.push_back( std::pair<float,float>(gSlope2,gInter2) );
     
-    float Alpha2 = asin(fabs(r2-r1)/DistanceOfCenters);
+    float Alpha2 = std::asin(std::abs(r2-r1)/DistanceOfCenters);
     if(r1 < r2) {
       //Third seed
       line_theta = Alpha0 +Alpha2;
-      z_line     = x1 - r1*sin(line_theta);
-      rho_line   = y1 + r1*cos(line_theta);
+      z_line     = x1 - r1*std::sin(line_theta);
+      rho_line   = y1 + r1*std::cos(line_theta);
       
-      Amg::Vector3D gPos3(rho_line*cos(phi), rho_line*sin(phi), z_line);
-      Amg::Vector3D globalDir3(cos(phi)*sin(line_theta), sin(phi)*sin(line_theta), cos(line_theta));
+      Amg::Vector3D gPos3(rho_line*std::cos(phi), rho_line*std::sin(phi), z_line);
+      Amg::Vector3D globalDir3(std::cos(phi)*std::sin(line_theta), std::sin(phi)*std::sin(line_theta), std::cos(line_theta));
       float gSlope3= (globalDir3.perp()/globalDir3.z());
       float gInter3 = gPos3.perp() - gSlope3*gPos3.z();
       resid = SeedResiduals(mdts,gSlope3,gInter3);
@@ -592,11 +592,11 @@ namespace Muon {
       
       //Fourth seed
       line_theta = Alpha0 - Alpha2;
-      z_line     = x1 + r1*sin(line_theta);
-      rho_line   = y1 - r1*cos(line_theta);
+      z_line     = x1 + r1*std::sin(line_theta);
+      rho_line   = y1 - r1*std::cos(line_theta);
       
-      Amg::Vector3D gPos4(rho_line*cos(phi), rho_line*sin(phi), z_line);
-      Amg::Vector3D globalDir4(cos(phi)*sin(line_theta), sin(phi)*sin(line_theta), cos(line_theta));
+      Amg::Vector3D gPos4(rho_line*std::cos(phi), rho_line*std::sin(phi), z_line);
+      Amg::Vector3D globalDir4(std::cos(phi)*std::sin(line_theta), std::sin(phi)*std::sin(line_theta), std::cos(line_theta));
       float gSlope4= (globalDir4.perp()/globalDir4.z());
       float gInter4 = gPos4.perp() - gSlope4*gPos4.z();
       resid = SeedResiduals(mdts,gSlope4,gInter4);
@@ -605,11 +605,11 @@ namespace Muon {
     else {
       //Third seed
       line_theta = Alpha0 +Alpha2;
-      z_line     = x1 + r1*sin(line_theta);
-      rho_line   = y1 - r1*cos(line_theta);
+      z_line     = x1 + r1*std::sin(line_theta);
+      rho_line   = y1 - r1*std::cos(line_theta);
       
-      Amg::Vector3D gPos3(rho_line*cos(phi), rho_line*sin(phi), z_line);
-      Amg::Vector3D globalDir3(cos(phi)*sin(line_theta), sin(phi)*sin(line_theta), cos(line_theta));
+      Amg::Vector3D gPos3(rho_line*std::cos(phi), rho_line*std::sin(phi), z_line);
+      Amg::Vector3D globalDir3(std::cos(phi)*std::sin(line_theta), std::sin(phi)*std::sin(line_theta), std::cos(line_theta));
       float gSlope3= (globalDir3.perp()/globalDir3.z());
       float gInter3 = gPos3.perp() - gSlope3*gPos3.z();
       resid = SeedResiduals(mdts,gSlope3,gInter3);
@@ -617,11 +617,11 @@ namespace Muon {
       
       //Fourth seed
       line_theta = Alpha0 - Alpha2;
-      z_line     = x1 - r1*sin(line_theta);
-      rho_line   = y1 + r1*cos(line_theta);
+      z_line     = x1 - r1*std::sin(line_theta);
+      rho_line   = y1 + r1*std::cos(line_theta);
       
-      Amg::Vector3D gPos4(rho_line*cos(phi), rho_line*sin(phi), z_line);
-      Amg::Vector3D globalDir4(cos(phi)*sin(line_theta), sin(phi)*sin(line_theta), cos(line_theta));
+      Amg::Vector3D gPos4(rho_line*std::cos(phi), rho_line*std::sin(phi), z_line);
+      Amg::Vector3D globalDir4(std::cos(phi)*std::sin(line_theta), std::sin(phi)*std::sin(line_theta), std::cos(line_theta));
       float gSlope4= (globalDir4.perp()/globalDir4.z());
       float gInter4 = gPos4.perp() - gSlope4*gPos4.z();
       resid = SeedResiduals(mdts,gSlope4,gInter4);
@@ -640,7 +640,7 @@ namespace Muon {
     for(unsigned int i=1; i<(mdts.size()-1); ++i) {
       float mdtR = mdts.at(i)->globalPosition().perp();
       float mdtZ = mdts.at(i)->globalPosition().z();
-      float res = fabs( (mdts.at(i)->localPosition()[Trk::locR] - fabs((mdtR-inter-slope*mdtZ)/sqrt(sq(slope)+1)))/( Amg::error(mdts.at(i)->localCovariance(),Trk::locR) ) );
+      float res = std::abs( (mdts.at(i)->localPosition()[Trk::locR] - std::abs((mdtR-inter-slope*mdtZ)/std::sqrt(sq(slope)+1)))/( Amg::error(mdts.at(i)->localCovariance(),Trk::locR) ) );
       if(res > resid) resid = res;
     }
     return resid;
@@ -654,7 +654,7 @@ namespace Muon {
     std::vector<TrackletSegment> segs;
     int stName = m_idHelperSvc->mdtIdHelper().stationName(mdts.at(0)->identify());
     float mlmidpt = 0;
-    if(stName <= 11 || stName == 52) mlmidpt = sqrt(sq(mdts.at(0)->detectorElement()->center().x())+sq(mdts.at(0)->detectorElement()->center().y()));
+    if(stName <= 11 || stName == 52) mlmidpt = std::sqrt(sq(mdts.at(0)->detectorElement()->center().x())+sq(mdts.at(0)->detectorElement()->center().y()));
     else if(stName <= 21 || stName == 49) mlmidpt = mdts.at(0)->detectorElement()->center().z();
     else return segs;
     for(unsigned int i_p=0; i_p<SeedParams.size(); ++i_p) {    
@@ -664,7 +664,7 @@ namespace Muon {
       float s(0),sz(0),sy(0);
       //loop on the mdt hits, find the weighted center
       for(unsigned int i=0; i<mdts.size(); ++i) {
-	float mdt_y = sqrt(sq(mdts.at(i)->globalPosition().x())+sq(mdts.at(i)->globalPosition().y()));
+	float mdt_y = std::sqrt(sq(mdts.at(i)->globalPosition().x())+sq(mdts.at(i)->globalPosition().y()));
 	float mdt_z = mdts.at(i)->globalPosition().z();
 	float sigma2 = sq(Amg::error(mdts.at(i)->localCovariance(),Trk::locR));
 	s += 1/sigma2;
@@ -675,20 +675,20 @@ namespace Muon {
       float zc = sz/s;
       
       //Find the initial parameters of the fit
-      float alpha = atan2(SeedParams.at(i_p).first,1.0);
+      float alpha = std::atan2(SeedParams.at(i_p).first,1.0);
       if(alpha < 0) alpha += M_PI;
       float dalpha = 0;
-      float d = (SeedParams.at(i_p).second - yc + zc*SeedParams.at(i_p).first)*cos(alpha);
+      float d = (SeedParams.at(i_p).second - yc + zc*SeedParams.at(i_p).first)*std::cos(alpha);
       float dd = 0;
       
       //require segments to point to the second ML
-      if( fabs(cos(alpha)) > 0.97 && (stName <= 11 || stName == 52) ) continue; 
-      if( fabs(cos(alpha)) < 0.03 && ((stName > 11 && stName < 22) || stName == 49) )continue;
+      if( std::abs(std::cos(alpha)) > 0.97 && (stName <= 11 || stName == 52) ) continue; 
+      if( std::abs(std::cos(alpha)) < 0.03 && ((stName > 11 && stName < 22) || stName == 49) )continue;
       
       //calculate constants used in the fit
       float sPz(0),sPy(0),sPyy(0),sPzz(0),sPyz(0),sPyyzz(0);
       for(unsigned int i=0; i<mdts.size(); ++i) {
-	float mdt_y = sqrt(sq(mdts.at(i)->globalPosition().x())+sq(mdts.at(i)->globalPosition().y()));
+	float mdt_y = std::sqrt(sq(mdts.at(i)->globalPosition().x())+sq(mdts.at(i)->globalPosition().y()));
 	float mdt_z = mdts.at(i)->globalPosition().z();
 	float sigma2 = sq(Amg::error(mdts.at(i)->localCovariance(),Trk::locR));
 	sPz += (mdt_z-zc)/sigma2;
@@ -708,12 +708,12 @@ namespace Muon {
 	chi2 = 0;
 	Nitr++;
 	for(unsigned int i=0; i<mdts.size(); ++i) {
-	  float mdt_y = sqrt(sq(mdts.at(i)->globalPosition().x())+sq(mdts.at(i)->globalPosition().y()));
+	  float mdt_y = std::sqrt(sq(mdts.at(i)->globalPosition().x())+sq(mdts.at(i)->globalPosition().y()));
 	  float mdt_z = mdts.at(i)->globalPosition().z();
-	  float yPi = -(mdt_z-zc)*sin(alpha) + (mdt_y-yc)*cos(alpha) - d;
+	  float yPi = -(mdt_z-zc)*std::sin(alpha) + (mdt_y-yc)*std::cos(alpha) - d;
 	  float signR;
-	  if(fabs(yPi) < 1.0e-8) signR = 1.;
-	  else signR = -1.*yPi/fabs(yPi);
+	  if(std::abs(yPi) < 1.0e-8) signR = 1.;
+	  else signR = -1.*yPi/std::abs(yPi);
 	  float sigma2 = sq(Amg::error(mdts.at(i)->localCovariance(),Trk::locR));
 	  float ri = signR*mdts.at(i)->localPosition()[Trk::locR];
 	  ////
@@ -723,17 +723,17 @@ namespace Muon {
 	  //
 	  chi2 += sq(yPi+ri)/sigma2;
 	}      
-	float bAlpha = -1*sPyz + cos(alpha)*(sin(alpha)*sPyyzz +2*cos(alpha)*sPyz + sumRzi) + sin(alpha)*sumRyi;
-	float AThTh = sPyy + cos(alpha)*(2*sin(alpha)*sPyz - cos(alpha)*sPyyzz);
+	float bAlpha = -1*sPyz + std::cos(alpha)*(std::sin(alpha)*sPyyzz +2*std::cos(alpha)*sPyz + sumRzi) + std::sin(alpha)*sumRyi;
+	float AThTh = sPyy + std::cos(alpha)*(2*std::sin(alpha)*sPyz - std::cos(alpha)*sPyyzz);
 	//the new alpha & d parameters
 	float alphaNew = alpha + bAlpha/AThTh;
 	
 	float dNew = sumRi/s;
 	//the errors
-	dalpha = sqrt(1/AThTh);
-	dd = sqrt(1/s);
-	deltaAlpha = fabs(alphaNew-alpha);
-	deltad = fabs(d-dNew);
+	dalpha = std::sqrt(1/AThTh);
+	dd = std::sqrt(1/s);
+	deltaAlpha = std::abs(alphaNew-alpha);
+	deltad = std::abs(d-dNew);
 	//test if the new segment is different than the previous
 	if(deltaAlpha < 0.0000005 && deltad < 0.000005) break;      
 	alpha = alphaNew;
@@ -746,10 +746,10 @@ namespace Muon {
       float chi2Prob = TMath::Prob(chi2,mdts.size()-2);
       //keep only "good" segments
       if(chi2Prob > m_minSegFinderChi2) {      
-	float z0 = zc - d*sin(alpha);
-	float dz0 = sqrt(sq(dd*sin(alpha))+sq(d*dalpha*cos(alpha)));
-	float y0 = yc + d*cos(alpha);
-	float dy0 = sqrt(sq(dd*cos(alpha))+sq(d*dalpha*sin(alpha)));
+	float z0 = zc - d*std::sin(alpha);
+	float dz0 = std::sqrt(sq(dd*std::sin(alpha))+sq(d*dalpha*std::cos(alpha)));
+	float y0 = yc + d*std::cos(alpha);
+	float dy0 = std::sqrt(sq(dd*std::cos(alpha))+sq(d*dalpha*std::sin(alpha)));
 	//find the hit pattern, which side of the wire did the particle pass? (1==Left, 2==Right)
 	/*
 	    (  )(/O)(  )  
@@ -760,10 +760,10 @@ namespace Muon {
 	if(mdts.size() > 8) pattern = -1;//with more then 8 MDTs the pattern is unique
 	else {
 	  for(unsigned int k=0; k<mdts.size(); ++k) {
-	    int base = pow(10,k);
-	    float mdtR = sqrt(sq(mdts.at(k)->globalPosition().x())+sq(mdts.at(k)->globalPosition().y()));
+	    int base = std::pow(10,k);
+	    float mdtR = std::sqrt(sq(mdts.at(k)->globalPosition().x())+sq(mdts.at(k)->globalPosition().y()));
 	    float mdtZ = mdts.at(k)->globalPosition().z();
-	    float zTest = (mdtR-y0)/tan(alpha) + z0 - mdtZ;
+	    float zTest = (mdtR-y0)/std::tan(alpha) + z0 - mdtZ;
 	    if(zTest > 0) pattern += 2*base;
 	    else pattern += base;
 	  }
@@ -775,7 +775,7 @@ namespace Muon {
 
 	//find the position of the tracklet in the global frame
 	float mdtPhi = mdts.at(0)->globalPosition().phi();
-	Amg::Vector3D segpos(y0*cos(mdtPhi),y0*sin(mdtPhi),z0);
+	Amg::Vector3D segpos(y0*std::cos(mdtPhi),y0*std::sin(mdtPhi),z0);
 	//create the tracklet
 	TrackletSegment MyTrackletSegment(stName,chEta,chPhi,mlmidpt,alpha,dalpha,segpos,dy0,dz0,mdts,pattern);
 	segs.push_back(MyTrackletSegment);
@@ -818,7 +818,7 @@ namespace Muon {
       for(std::vector<TrackletSegment>::iterator it=segs.begin(); it!=segs.end(); ++it) {
 	if(it->isCombined()) continue;
 	std::vector<TrackletSegment> segsToCombine;
-	float tanTh1 = tan(it->alpha());
+	float tanTh1 = std::tan(it->alpha());
 	float r1 = it->globalPosition().perp();
 	float zi1 = it->globalPosition().z() - r1/tanTh1;
 	//find all segments with similar parameters & attempt to combine
@@ -827,15 +827,15 @@ namespace Muon {
 	  if(it->mdtChamber() != sit->mdtChamber()) continue;//require the segments are in the same chamber
 	  if( (it->mdtChEta())*(sit->mdtChEta()) < 0 ) continue;//check both segments are on the same side of the detector
 	  if( it->mdtChPhi() != sit->mdtChPhi() ) continue;//in the same sector
-	  if(fabs(it->alpha() - sit->alpha()) > 0.005) continue;//same trajectory
-	  float tanTh2 = tan(sit->alpha());
+	  if(std::abs(it->alpha() - sit->alpha()) > 0.005) continue;//same trajectory
+	  float tanTh2 = std::tan(sit->alpha());
 	  float r2 = sit->globalPosition().perp();
 	  float zi2 = sit->globalPosition().z() - r2/tanTh2;
 	  //find the distance at the midpoint between the two segments
 	  float rmid = (r1+r2)/2.;
 	  float z1 = rmid/tanTh1 + zi1;
 	  float z2 = rmid/tanTh2 + zi2;
-	  float zdist = fabs(z1 - z2);
+	  float zdist = std::abs(z1 - z2);
 	  if(zdist < 0.5) {
 	    segsToCombine.push_back( *sit );	
 	    sit->isCombined(true);
@@ -970,29 +970,29 @@ namespace Muon {
     float deltab(100);
     if(ML1seg.mdtChamber() <= 11 || ML1seg.mdtChamber() == 52) {
       //delta b in the barrel
-      mid1 = (ChMid - ML1seg.globalPosition().perp())/tan(ML1seg.alpha()) + ML1seg.globalPosition().z();
-      mid2 = (ChMid - ML2seg.globalPosition().perp())/tan(ML2seg.alpha()) + ML2seg.globalPosition().z();
-      float r01 = ML1seg.globalPosition().perp() - ML1seg.globalPosition().z()*tan(ML1seg.alpha());	      
-      float r02 = ML2seg.globalPosition().perp() - ML2seg.globalPosition().z()*tan(ML2seg.alpha());
-      deltab = (mid2*tan(ML1seg.alpha()) - ChMid + r01)/(sqrt(1+sq(tan(ML1seg.alpha()))));
-      float deltab2 = (mid1*tan(ML2seg.alpha()) - ChMid + r02)/(sqrt(1+sq(tan(ML2seg.alpha()))));
-      if(fabs(deltab2) < fabs(deltab)) deltab = deltab2;
+      mid1 = (ChMid - ML1seg.globalPosition().perp())/std::tan(ML1seg.alpha()) + ML1seg.globalPosition().z();
+      mid2 = (ChMid - ML2seg.globalPosition().perp())/std::tan(ML2seg.alpha()) + ML2seg.globalPosition().z();
+      float r01 = ML1seg.globalPosition().perp() - ML1seg.globalPosition().z()*std::tan(ML1seg.alpha());	      
+      float r02 = ML2seg.globalPosition().perp() - ML2seg.globalPosition().z()*std::tan(ML2seg.alpha());
+      deltab = (mid2*std::tan(ML1seg.alpha()) - ChMid + r01)/(std::sqrt(1+sq(std::tan(ML1seg.alpha()))));
+      float deltab2 = (mid1*std::tan(ML2seg.alpha()) - ChMid + r02)/(std::sqrt(1+sq(std::tan(ML2seg.alpha()))));
+      if(std::abs(deltab2) < std::abs(deltab)) deltab = deltab2;
     }
     else {
       //delta b in the endcap
-      mid1 = ML1seg.globalPosition().perp() + tan(ML1seg.alpha())*(ChMid - ML1seg.globalPosition().z());
-      mid2 = ML2seg.globalPosition().perp() + tan(ML2seg.alpha())*(ChMid - ML2seg.globalPosition().z());
-      float z01 = ML1seg.globalPosition().z() - ML1seg.globalPosition().perp()/tan(ML1seg.alpha());
-      float z02 = ML1seg.globalPosition().z() - ML1seg.globalPosition().perp()/tan(ML1seg.alpha());
-      deltab = (mid2/tan(ML1seg.alpha()) - ChMid +z01)/(sqrt(1+sq(1/tan(ML1seg.alpha()))));
-      float deltab2 = (mid1/tan(ML2seg.alpha()) - ChMid +z02)/(sqrt(1+sq(1/tan(ML2seg.alpha()))));
-      if(fabs(deltab2) < fabs(deltab)) deltab = deltab2;
+      mid1 = ML1seg.globalPosition().perp() + std::tan(ML1seg.alpha())*(ChMid - ML1seg.globalPosition().z());
+      mid2 = ML2seg.globalPosition().perp() + std::tan(ML2seg.alpha())*(ChMid - ML2seg.globalPosition().z());
+      float z01 = ML1seg.globalPosition().z() - ML1seg.globalPosition().perp()/std::tan(ML1seg.alpha());
+      float z02 = ML1seg.globalPosition().z() - ML1seg.globalPosition().perp()/std::tan(ML1seg.alpha());
+      deltab = (mid2/std::tan(ML1seg.alpha()) - ChMid +z01)/(std::sqrt(1+sq(1/std::tan(ML1seg.alpha()))));
+      float deltab2 = (mid1/std::tan(ML2seg.alpha()) - ChMid +z02)/(std::sqrt(1+sq(1/std::tan(ML2seg.alpha()))));
+      if(std::abs(deltab2) < std::abs(deltab)) deltab = deltab2;
     }
        
     //calculate the maximum allowed Delta b based on delta alpha uncertainties and ML spacing
-    double dbmax = 5*fabs(ChMid-ML1seg.getChMidPoint())*sqrt(sq(ML1seg.alphaError()) + sq(ML2seg.alphaError()));
+    double dbmax = 5*std::abs(ChMid-ML1seg.getChMidPoint())*std::sqrt(sq(ML1seg.alphaError()) + sq(ML2seg.alphaError()));
     if(dbmax > m_maxDeltabCut) dbmax = m_maxDeltabCut;
-    if(fabs(deltab) < dbmax) return true;
+    if(std::abs(deltab) < dbmax) return true;
     else return false;    
   }
 
@@ -1003,16 +1003,16 @@ namespace Muon {
   float MSVertexTrackletTool::TrackMomentum(int chamber,float deltaAlpha) const {
     float pTot = 100000.;
     //p = k/delta_alpha 
-    if(chamber == 0) pTot = c_BIL/fabs(deltaAlpha);
-    else if(chamber == 2) pTot = c_BML/fabs(deltaAlpha);
-    else if(chamber == 3) pTot = c_BMS/fabs(deltaAlpha);
-    else if(chamber == 54) pTot = c_BMS/fabs(deltaAlpha);
-    else if(chamber == 4) pTot = c_BOL/fabs(deltaAlpha);
-    else if(chamber == 7) pTot = c_BIL/fabs(deltaAlpha);
-    else if(chamber == 8) pTot = c_BML/fabs(deltaAlpha);
-    else if(chamber == 9) pTot = c_BOL/fabs(deltaAlpha);
-    else if(chamber == 10) pTot = c_BOL/fabs(deltaAlpha);
-    else if(chamber == 52) pTot = c_BIL/fabs(deltaAlpha);
+    if(chamber == 0) pTot = c_BIL/std::abs(deltaAlpha);
+    else if(chamber == 2) pTot = c_BML/std::abs(deltaAlpha);
+    else if(chamber == 3) pTot = c_BMS/std::abs(deltaAlpha);
+    else if(chamber == 54) pTot = c_BMS/std::abs(deltaAlpha);
+    else if(chamber == 4) pTot = c_BOL/std::abs(deltaAlpha);
+    else if(chamber == 7) pTot = c_BIL/std::abs(deltaAlpha);
+    else if(chamber == 8) pTot = c_BML/std::abs(deltaAlpha);
+    else if(chamber == 9) pTot = c_BOL/std::abs(deltaAlpha);
+    else if(chamber == 10) pTot = c_BOL/std::abs(deltaAlpha);
+    else if(chamber == 52) pTot = c_BIL/std::abs(deltaAlpha);
     if(pTot > 10000.) pTot = 100000.;
     
     return pTot;
@@ -1025,7 +1025,7 @@ namespace Muon {
   float MSVertexTrackletTool::TrackMomentumError(TrackletSegment& ml1, TrackletSegment& ml2) const {
     //uncertainty on 1/p
     int ChType = ml1.mdtChamber();
-    float dalpha = sqrt(sq(ml1.alphaError())+sq(ml2.alphaError()));
+    float dalpha = std::sqrt(sq(ml1.alphaError())+sq(ml2.alphaError()));
     float pErr = dalpha/c_BML;
     if(ChType == 0) pErr = dalpha/c_BIL;
     else if(ChType == 2) pErr = dalpha/c_BML;
@@ -1048,7 +1048,7 @@ namespace Muon {
   float MSVertexTrackletTool::TrackMomentumError(TrackletSegment& ml1) const {
     //uncertainty in 1/p
     int ChType = ml1.mdtChamber();
-    float dalpha = fabs(ml1.alphaError());
+    float dalpha = std::abs(ml1.alphaError());
     float pErr = dalpha/c_BML;
     if(ChType == 0) pErr = dalpha/c_BIL;
     else if(ChType == 2) pErr = dalpha/c_BML;
@@ -1136,12 +1136,12 @@ namespace Muon {
 	  //find the distance between the tracks
 	  float DistML1(1000),DistML2(1000);	
 	  if(tracks.at(tk1).mdtChamber() <= 11 || tracks.at(tk1).mdtChamber() == 52) {
-	    DistML1 = fabs(Trk1ML1Z - Trk2ML1Z);
-	    DistML2 = fabs(Trk1ML2Z - Trk2ML2Z);
+	    DistML1 = std::abs(Trk1ML1Z - Trk2ML1Z);
+	    DistML2 = std::abs(Trk1ML2Z - Trk2ML2Z);
 	  }
 	  else if(tracks.at(tk1).mdtChamber() <= 21 || tracks.at(tk1).mdtChamber() == 49) {
-	    DistML1 = fabs(Trk1ML1R - Trk2ML1R);
-	    DistML2 = fabs(Trk1ML2R - Trk2ML2R);
+	    DistML1 = std::abs(Trk1ML1R - Trk2ML1R);
+	    DistML2 = std::abs(Trk1ML2R - Trk2ML2R);
 	  }
 	  if(DistML1 < 40 || DistML2 < 40) {
 	    //find how many MDTs the tracks share
@@ -1188,7 +1188,7 @@ namespace Muon {
 	  }
 	  else {
 	    //check the charge is the same
-	    if(fabs(AmbigTracks.at(i).charge()-TrkCharge) > 0.1) allSameSign = false;
+	    if(std::abs(AmbigTracks.at(i).charge()-TrkCharge) > 0.1) allSameSign = false;
 	    //find the average momentum
 	    aveP += AmbigTracks.at(i).momentum().mag();
 	    nAmbigP++;
@@ -1212,9 +1212,9 @@ namespace Muon {
 	  int ChPhi = tracks.at(tk1).mdtChPhi();
 	  //
 	  TrackletSegment aveSegML1(Chamber,ChEta,ChPhi,tracks.at(tk1).getML1seg().getChMidPoint(),aveAlpha,alphaErr,gpos,rErr,zErr,tracks.at(tk1).getML1seg().mdtHitsOnTrack(),0);
-	  float pT = 10000.0*sin(aveSegML1.alpha());
-	  float pz = 10000.0*cos(aveSegML1.alpha());
-	  Amg::Vector3D momentum(pT*cos(aveSegML1.globalPosition().phi()),pT*sin(aveSegML1.globalPosition().phi()),pz);
+	  float pT = 10000.0*std::sin(aveSegML1.alpha());
+	  float pz = 10000.0*std::cos(aveSegML1.alpha());
+	  Amg::Vector3D momentum(pT*std::cos(aveSegML1.globalPosition().phi()),pT*std::sin(aveSegML1.globalPosition().phi()),pz);
 	  AmgSymMatrix(5) matrix;  
 	  matrix.setIdentity();
 	  matrix(0,0) = sq(tracks.at(tk1).getML1seg().rError());//delta R
@@ -1227,9 +1227,9 @@ namespace Muon {
 	}
 	else if(allSameSign) {
 	  aveP = aveP/nAmbigP;
-	  float pT = aveP*sin(tracks.at(tk1).getML1seg().alpha());
-	  float pz = aveP*cos(tracks.at(tk1).getML1seg().alpha());
-	  Amg::Vector3D momentum(pT*cos(tracks.at(tk1).globalPosition().phi()),pT*sin(tracks.at(tk1).globalPosition().phi()),pz);
+	  float pT = aveP*std::sin(tracks.at(tk1).getML1seg().alpha());
+	  float pz = aveP*std::cos(tracks.at(tk1).getML1seg().alpha());
+	  Amg::Vector3D momentum(pT*std::cos(tracks.at(tk1).globalPosition().phi()),pT*std::sin(tracks.at(tk1).globalPosition().phi()),pz);
 	  Tracklet MyTrack = tracks.at(tk1);
 	  MyTrack.momentum(momentum);
 	  MyTrack.charge(tracks.at(tk1).charge());
@@ -1248,9 +1248,9 @@ namespace Muon {
 	  int ChEta = tracks.at(tk1).mdtChEta();
 	  int ChPhi = tracks.at(tk1).mdtChPhi();
           TrackletSegment aveSegML1(Chamber,ChEta,ChPhi,tracks.at(tk1).getML1seg().getChMidPoint(),aveAlpha,alphaErr,gpos,rErr,zErr,tracks.at(tk1).getML1seg().mdtHitsOnTrack(),0);
-	  float pT = 10000.0*sin(aveSegML1.alpha());
-	  float pz = 10000.0*cos(aveSegML1.alpha());
-	  Amg::Vector3D momentum(pT*cos(aveSegML1.globalPosition().phi()),pT*sin(aveSegML1.globalPosition().phi()),pz);
+	  float pT = 10000.0*std::sin(aveSegML1.alpha());
+	  float pz = 10000.0*std::cos(aveSegML1.alpha());
+	  Amg::Vector3D momentum(pT*std::cos(aveSegML1.globalPosition().phi()),pT*std::sin(aveSegML1.globalPosition().phi()),pz);
 	  AmgSymMatrix(5) matrix;
 	  matrix.setIdentity();
 	  matrix(0,0) = sq(tracks.at(tk1).getML1seg().rError());//delta R
@@ -1285,9 +1285,9 @@ namespace Muon {
 	if(MyECsegs.size() > 0) {
 	  TrackletSegment ECseg = MyECsegs.at(0);
 	  ECseg.clearMdt();
-	  float pT = 10000.0*sin(ECseg.alpha());
-	  float pz = 10000.0*cos(ECseg.alpha());
-	  Amg::Vector3D momentum(pT*cos(ECseg.globalPosition().phi()),pT*sin(ECseg.globalPosition().phi()),pz);
+	  float pT = 10000.0*std::sin(ECseg.alpha());
+	  float pz = 10000.0*std::cos(ECseg.alpha());
+	  Amg::Vector3D momentum(pT*std::cos(ECseg.globalPosition().phi()),pT*std::sin(ECseg.globalPosition().phi()),pz);
 	  AmgSymMatrix(5) matrix;
 	  matrix.setIdentity();
 	  matrix(0,0) = sq(ECseg.rError());//delta R

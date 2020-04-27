@@ -58,7 +58,14 @@ atlas_install_runtime( Data/*.par )
 atlas_add_executable( GSF_testFindMinimumIndex
 	test/testFindMinimumIndex.cxx src/KLGaussianMixtureReduction.cxx)
 
+atlas_add_executable( GSF_testAlignedDynArray
+	test/testAlignedDynArray.cxx)
+
+
 
 atlas_add_test(ut_GSF_testFindMinimumIndex
-               SCRIPT GSF_testFindMinimumIndex)
+	SCRIPT GSF_testFindMinimumIndex)
+
+atlas_add_test(ut_GSF_testAlignedDynArray
+	SCRIPT GSF_testAlignedDynArray)
 

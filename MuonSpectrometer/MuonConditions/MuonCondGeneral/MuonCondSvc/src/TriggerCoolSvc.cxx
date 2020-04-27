@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -14,17 +14,12 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
-
-// root class for string manipulation 
 #include "TString.h"
-
 #include "MuonCondSvc/TriggerCoolSvc.h"
-
-using namespace std;
 
 namespace MuonCalib{
 
-TriggerCoolSvc::TriggerCoolSvc(const string& name, ISvcLocator* svc) :
+TriggerCoolSvc::TriggerCoolSvc(const std::string& name, ISvcLocator* svc) :
   AthService(name,svc),
   p_detstore(0),
   m_log(msgSvc(),name),  
@@ -99,8 +94,6 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& etafolder, const std:
   // reading files to store in string
  
   std::string sdata_Th0_new;
-  //std::string sdata_Th1_new;
-  //std::string sdata_Th2_new;
 
   FILE* f = fopen (filename_Th0.c_str(),"rb");
   if (f != NULL)   {
@@ -125,40 +118,6 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& etafolder, const std:
     sdata_Th0_new=sdata_Th0;
     
   }
-  /*
-  FILE* f1 = fopen (filename_Th1.c_str(),"rb");
-  if (f1 != NULL)   {
-    fseek (f1, 0L, SEEK_END);
-    int size = ftell (f1);
-    fseek (f1, 0L, SEEK_SET);
-    m_log << MSG::INFO << "Input Th1 file size is " << size << endmsg;
-    std::vector<char> sbuf(size);
-    fread(&sbuf[0],size,1,f1);
-    fclose (f1);
-    
-    std::string sdata_Th1(sbuf.begin(),sbuf.begin()+size);
-    
-    sdata_Th1_new=sdata_Th1;
-    
-  }
-
-  FILE* f2 = fopen (filename_Th2.c_str(),"rb");
-  if (f2 != NULL)   {
-    fseek (f2, 0L, SEEK_END);
-    int size = ftell (f2);
-    fseek (f2, 0L, SEEK_SET);
-    m_log << MSG::INFO << "Input Th2 file size is " << size << endmsg;
-    std::vector<char> sbuf(size);
-    fread(&sbuf[0],size,1,f2);
-    fclose (f2);
-    
-    std::string sdata_Th2(sbuf.begin(),sbuf.begin()+size);
-    
-    sdata_Th2_new=sdata_Th2;
-    
-  }
-  */
-
   
   CondAttrListCollection* atrc=0;
   if (!p_detstore->contains<CondAttrListCollection>(etafolder)) {
@@ -200,16 +159,12 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& etafolder, const std:
  
   aspec->extend("CM_File","string");
   aspec->extend("Th0","string");
-  // aspec->extend("Th1","string");
-  //aspec->extend("Th2","string");
   aspec->extend("Sequence_Th","string");
   aspec->extend("Additional_Info","string");
  
   AthenaAttributeList alist(*aspec);
   alist["CM_File"].setValue(filename_CM);
   alist["Th0"].setValue(sdata_Th0_new);
-  //alist["Th1"].setValue(sdata_Th1_new);
-  //alist["Th2"].setValue(sdata_Th2_new);
   alist["Sequence_Th"].setValue(sequence);
   alist["Additional_Info"].setValue(info);
   CondAttrListCollection::ChanNum channum=chan;
@@ -223,8 +178,6 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& etafolder, const std:
 
   
 }
-
-
 
 StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std::string& filename_CM,const std::string& filename_Th0,
 				  const int chan,const std::string& info) const{
@@ -314,10 +267,8 @@ StatusCode TriggerCoolSvc::writeToDBPhi(const std::string& phifolder, const std:
   
 }
 
-StatusCode TriggerCoolSvc::getData(const std::string& phifolder, 
-	    const int chan) const {
+StatusCode TriggerCoolSvc::getData(const std::string& phifolder, const int chan) const {
   MsgStream log(msgSvc(),name());
-  //m_log << MSG::INFO << "using folder phi dentro read ******************** " << phifolder<<endmsg;
   const CondAttrListCollection* atrc;
   std::string file="";
   std::string th0="";
@@ -338,8 +289,7 @@ StatusCode TriggerCoolSvc::getData(const std::string& phifolder,
     if (log.level() < MSG::INFO) {
       std::ostringstream atrstring;
       atr.toOutputStream(atrstring);
-      log << MSG::DEBUG << "read Channum " << channum << " atrlist: " << 
-	atrstring.str() << endmsg;
+      log << MSG::DEBUG << "read Channum " << channum << " atrlist: " << atrstring.str() << endmsg;
     } else {
       log << MSG::ERROR << "Invalid channel number" << endmsg;
       return StatusCode::FAILURE;

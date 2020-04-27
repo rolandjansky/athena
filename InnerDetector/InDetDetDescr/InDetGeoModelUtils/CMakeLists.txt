@@ -29,6 +29,6 @@ atlas_add_library( InDetGeoModelUtils
                    PUBLIC_HEADERS InDetGeoModelUtils
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaKernel GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES GeoModelUtilities )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaKernel GaudiKernel StoreGateLib SGtests RDBAccessSvcLib GeoPrimitives
+                   PRIVATE_LINK_LIBRARIES GeoModelUtilities GeometryDBSvcLib )
 

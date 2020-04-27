@@ -163,7 +163,6 @@ namespace VKalVrtAthena {
 	  if( abspid==1000022 ) vtxHasLifetime=19;  // neutralino
 
 
-	  //HepMC::FourVector iVec = ( *inP)->momentum();
 	  HepMC::FourVector iVec;// = ( *inP)->p4(); 
 	  iVec.setX( inP->px() );
 	  iVec.setY( inP->py() );
@@ -223,9 +222,6 @@ namespace VKalVrtAthena {
 	  double length=m_TruthTrkLen;
 	  if ( iPart==nOutgoing )
 	    {
-	      //endv_barcode = endv->barcode();
-
-	      //HepMC::FourVector end = endv->position();
 	      HepMC::FourVector end; 
 	      end.setX( vtx->x() );
 	      end.setY( vtx->y() );

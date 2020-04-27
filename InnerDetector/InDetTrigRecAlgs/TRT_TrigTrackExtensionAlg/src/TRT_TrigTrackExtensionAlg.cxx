@@ -8,6 +8,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TRT_TrigTrackExtensionAlg/TRT_TrigTrackExtensionAlg.h"
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 ///////////////////////////////////////////////////////////////////
@@ -93,7 +94,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltExecute(const HLT::TriggerEl
   }
 
   std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>
-     event_data = m_trtExtension->newEvent();
+     event_data = m_trtExtension->newEvent(Gaudi::Hive::currentContext());
 
   // Loop through all input track and output tracks collection production
   //
@@ -109,7 +110,7 @@ HLT::ErrorCode InDet::TRT_TrigTrackExtensionAlg::hltExecute(const HLT::TriggerEl
     ++m_nTracks;
          
     std::vector<const Trk::MeasurementBase*>& tn = 
-      m_trtExtension->extendTrack(*(*t), *event_data);
+      m_trtExtension->extendTrack(Gaudi::Hive::currentContext(), *(*t), *event_data);
 
     if(!tn.size())
       continue;

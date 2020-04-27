@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -16,18 +16,20 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointForSeed.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-
 #include <iosfwd>
 #include <list>
 #include <vector>
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class MsgStream;
 
@@ -70,10 +72,10 @@ namespace InDet {
     /// @name Methods to initialize tool for new event or region
     ///////////////////////////////////////////////////////////////////
     //@{
-    virtual void newEvent(EventData& data, int iteration) const override;
-    virtual void newRegion(EventData& data,
+    virtual void newEvent (const EventContext& ctx, EventData& data, int iteration) const override;
+    virtual void newRegion(const EventContext& ctx, EventData& data,
                            const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT) const override;
-    virtual void newRegion(EventData& data,
+    virtual void newRegion(const EventContext& ctx, EventData& data,
                            const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT,
                            const IRoiDescriptor& iRD) const override;
     //@}
@@ -87,15 +89,15 @@ namespace InDet {
     virtual void find2Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
 
     /// with three space points with or without vertex constraint
-    virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+    virtual void find3Sp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv) const override;
 
     /// with three space points with or without vertex constraint
     /// with information about min and max Z of the vertex
-    virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double* zVertex) const override;
+    virtual void find3Sp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv, const double* zVertex) const override;
 
     /// with variable number space points with or without vertex constraint
     /// Variable means (2,3,4,....) any number space points
-    virtual void findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+    virtual void findVSp(const EventContext& ctx, EventData& data, const std::list<Trk::Vertex>& lv) const override;
     //@}
 
     ///////////////////////////////////////////////////////////////////
@@ -103,7 +105,7 @@ namespace InDet {
     /// produced accordingly methods find    
     ///////////////////////////////////////////////////////////////////
     //@{
-    virtual const SiSpacePointsSeed* next(EventData& data) const override;
+    virtual const SiSpacePointsSeed* next(const EventContext& ctx, EventData& data) const override;
     //@}
 
     ///////////////////////////////////////////////////////////////////
@@ -124,17 +126,15 @@ namespace InDet {
     // Private data and methods
     ///////////////////////////////////////////////////////////////////
 
-    /// @name Service handles
-    //@{
-    ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
-    //@}
-
     /// @name Data handles
     //@{
     SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
     SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
     SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
     SG::ReadHandleKey<Trk::PRDtoTrackMap>m_prdToTrackMap{this,"PRDtoTrackMap","","option PRD-to-track association"};
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                           "Name of the Magnetic Field conditions object key"};
     //@}
 
     /// @name Properties, which will not be changed after construction
@@ -213,7 +213,7 @@ namespace InDet {
     void fillLists(EventData& data) const;
     void erase(EventData& data) const;
     void production2Sp(EventData& data) const;
-    void production3Sp(EventData& data) const;
+    void production3Sp(const EventContext& ctx, EventData& data) const;
     void production3Sp
     (EventData& data,
      std::vector<InDet::SiSpacePointForSeed*>::iterator*,

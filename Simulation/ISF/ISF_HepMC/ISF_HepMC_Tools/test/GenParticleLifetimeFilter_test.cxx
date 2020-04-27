@@ -23,8 +23,8 @@
 #include "../src/GenParticleLifetimeFilter.h"
 
 // Truth related includes
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 
 namespace ISFTesting {

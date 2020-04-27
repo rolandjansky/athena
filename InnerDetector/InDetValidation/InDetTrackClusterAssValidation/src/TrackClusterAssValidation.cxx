@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IPartPropSvc.h"
@@ -13,6 +13,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "HepMC/GenParticle.h"
+#include <cmath>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -182,7 +183,7 @@ StatusCode InDet::TrackClusterAssValidation::execute(const EventContext& ctx) co
 
   newClustersEvent      (ctx,event_data);
   newSpacePointsEvent   (ctx,event_data);
-  event_data.m_nqtracks = QualityTracksSelection(event_data);
+  event_data.m_nqtracks = qualityTracksSelection(event_data);
   tracksComparison      (ctx,event_data);
   if(event_data.m_particles[0].size() > 0) {
 
@@ -212,471 +213,259 @@ StatusCode InDet::TrackClusterAssValidation::execute(const EventContext& ctx) co
 ///////////////////////////////////////////////////////////////////
 
 StatusCode InDet::TrackClusterAssValidation::finalize() {
-
   if(m_eventStat.m_events<=0) return StatusCode::SUCCESS;
-
-  std::cout<<"|-----------------------------------------------------------------------------------|"
-	   <<std::endl;
-  std::cout<<"|        TrackClusterAssValidation statistic for charge truth particles with        |"
-	   <<std::endl;
-  std::cout<<"|                                                                                   |"
-	   <<std::endl;
-  std::cout<<"|                    pT                      >="
-	   <<std::setw(13)<<std::setprecision(5)<<m_ptcut<<" MeV"
-	   <<"                    |"<<std::endl;
+  const auto & w13 = std::setw(13);
+  const auto & p5 = std::setprecision(5);
+  const auto topNtail=[](const std::string & str){return "|" + str + "|";};
+  const std::string lineSeparator(83,'-');
+  const std::string spaceSeparator(83,' ');
+  std::stringstream out;
+  out<<std::fixed;
+  out<<topNtail(lineSeparator)<<"\n";
+  out<<"|        TrackClusterAssValidation statistic for charge truth particles with        |\n";
+  out<<topNtail(spaceSeparator)<<"\n";
+  out<<"|                    pT                      >="<<w13<<p5<<m_ptcut<<" MeV"<<"                    |\n";
   if(m_ptcutmax < 1000000.) {
-    std::cout<<"|                    pT                      <="
-	     <<std::setw(13)<<std::setprecision(5)<<m_ptcutmax<<" MeV"
-	     <<"                    |"<<std::endl;
+    out<<"|                    pT                      <="<<w13<<p5<<m_ptcutmax<<" MeV"<<"                    |\n";
   }
-  std::cout<<"|                    |rapidity|              <="
-	   <<std::setw(13)<<std::setprecision(5)<<m_rapcut
-	   <<"                        |"<<std::endl;
-  std::cout<<"|                    max vertex radius       <="
-	   <<std::setw(13)<<std::setprecision(5)<<m_rmax<<" mm"
-	   <<"                     |"<<std::endl;
-  std::cout<<"|                    min vertex radius       >="
-	   <<std::setw(13)<<std::setprecision(5)<<m_rmin<<" mm"
-	   <<"                     |"<<std::endl;
-  std::cout<<"|                    particles pdg            ="
-	   <<std::setw(8)<<m_pdg
-	   <<"                             |"<<std::endl;
-
-  std::string YN = "yes"; if(!m_usePIX) YN = "no ";
-  std::cout<<"|                    use Pixels information   "
-	   <<"       "<<YN
-	   <<"                            |"<<std::endl;
-  YN             = "yes"; if(!m_useSCT) YN = "no ";
-  std::cout<<"|                    use SCT    information   "
-	   <<"       "<<YN
-	   <<"                            |"<<std::endl;
-  YN             = "yes"; if(!m_useTRT) YN = "no ";
-  std::cout<<"|                    use TRT    information   "
-	   <<"       "<<YN
-	   <<"                            |"<<std::endl;
-  YN             = "yes"; if(!m_useOutliers) YN = "no ";
-  std::cout<<"|                    take into account outliers"
-	   <<"      "<<YN
-	   <<"                            |"<<std::endl;
-
-  std::cout<<"|                                                                                   |"
-	   <<std::endl;
+  out<<"|                    |rapidity|              <="<<w13<<p5<<m_rapcut<<"                        |\n";
+  out<<"|                    max vertex radius       <="<<w13<<p5<<m_rmax<<" mm"<<"                     |\n";
+  out<<"|                    min vertex radius       >="<<w13<<p5<<m_rmin<<" mm"<<"                     |\n";
+  out<<"|                    particles pdg            ="<<std::setw(8)<<m_pdg<<"                             |\n";
+  
+  auto yesNo=[](const bool predicate){return predicate ? "yes" : "no ";};
+  out<<"|                    use Pixels information          "<<yesNo(m_usePIX)<<"                            |\n";
+  out<<"|                    use SCT    information          "<<yesNo(m_useSCT)<<"                            |\n";
+  out<<"|                    use TRT    information          "<<yesNo(m_useTRT)<<"                            |\n";
+  out<<"|                    take into account outliers      "<<yesNo(m_useOutliers)<<"                            |\n";
+  out<<topNtail(spaceSeparator)<<"\n";
   if(!m_usePIX && !m_useSCT) return StatusCode::SUCCESS;
-
-
+  enum Regions{Barrel, Transition, Endcap, DBM, NRegions};//'DBM' = very forward
+  auto incrementArray=[](auto & array, const int idx){for (int j{};j!=NRegions;++j) array[idx][j] += array[idx+1][j];};
   for(int i=48; i>=0; --i) {
     m_eventStat.m_particleClusters      [i]   +=m_eventStat.m_particleClusters      [i+1];
-    m_eventStat.m_particleClustersBTE   [i][0]+=m_eventStat.m_particleClustersBTE   [i+1][0];
-    m_eventStat.m_particleClustersBTE   [i][1]+=m_eventStat.m_particleClustersBTE   [i+1][1];
-    m_eventStat.m_particleClustersBTE   [i][2]+=m_eventStat.m_particleClustersBTE   [i+1][2];
-    m_eventStat.m_particleClustersBTE   [i][3]+=m_eventStat.m_particleClustersBTE   [i+1][3];
+    incrementArray(m_eventStat.m_particleClustersBTE, i);
     m_eventStat.m_particleSpacePoints   [i]   +=m_eventStat.m_particleSpacePoints   [i+1];
-    m_eventStat.m_particleSpacePointsBTE[i][0]+=m_eventStat.m_particleSpacePointsBTE[i+1][0];
-    m_eventStat.m_particleSpacePointsBTE[i][1]+=m_eventStat.m_particleSpacePointsBTE[i+1][1];
-    m_eventStat.m_particleSpacePointsBTE[i][2]+=m_eventStat.m_particleSpacePointsBTE[i+1][2];
-    m_eventStat.m_particleSpacePointsBTE[i][3]+=m_eventStat.m_particleSpacePointsBTE[i+1][3];
+    incrementArray(m_eventStat.m_particleSpacePointsBTE, i);
   }
+  auto coerceToOne=[](const double & initialVal)->double {return (initialVal<1.) ? 1. : initialVal; };
+  /* Note that in all cases below, the dimension of the target (i.e. result) array is 10
+   * whereas the dimension of the source, or input, array is 50. The first index of the source
+   * is used for totals, to act as a denominator(coerced to 1 if necessary). Bin 49 is used for overflows.
+   * Stats for single clusters (index 1) appear to be unused in printout.
+  */
+  //all
+  double pa   =  coerceToOne(m_eventStat.m_particleClusters[0]); 
+  std::array<double, 10> pc2ff{};
+  size_t clusterIdx = 2;
+  for (auto & thisCluster: pc2ff){
+    thisCluster = double(m_eventStat.m_particleClusters[ clusterIdx++ ])/ pa;
+  }
+  //barrel
+  pa           = coerceToOne(m_eventStat.m_particleClustersBTE[0][Barrel]); 
+  std::array<double, 10> pcBarrel2ff{};
+  size_t clusterBarrelIdx = 2;
+  for (auto & thisClusterB: pcBarrel2ff){
+    thisClusterB = double(m_eventStat.m_particleClustersBTE[ clusterBarrelIdx++ ][Barrel])/ pa;
+  }
+  //transition
+  pa           = coerceToOne(m_eventStat.m_particleClustersBTE[0][Transition]); 
+  std::array<double, 10> pcTransition2ff{};
+  size_t clusterTransitionIdx = 2;
+  for (auto & thisClusterT: pcTransition2ff){
+    thisClusterT = double(m_eventStat.m_particleClustersBTE[ clusterTransitionIdx++ ][Transition])/ pa;
+  }
+  //endcap
+  pa           = coerceToOne(m_eventStat.m_particleClustersBTE[0][Endcap]); 
+  std::array<double, 10> pcEndcap2ff{};
+  size_t clusterEndcapIdx = 2;
+  for (auto & thisClusterE: pcEndcap2ff){
+    thisClusterE = double(m_eventStat.m_particleClustersBTE[ clusterEndcapIdx++ ][Endcap])/ pa;
+  }
+  //dbm
+  pa           = coerceToOne(m_eventStat.m_particleClustersBTE[0][3]); 
+  std::array<double, 10> pcDbm2ff{};
+  size_t clusterDbmIdx = 2;
+  for (auto & thisClusterD: pcDbm2ff){
+    thisClusterD = double(m_eventStat.m_particleClustersBTE[ clusterDbmIdx++ ][DBM])/ pa;
+  }
+  //
+  //*** SPACE POINTS ***
+  //
+  //all
+  pa   =  coerceToOne(m_eventStat.m_particleSpacePoints[0]); 
+  std::array<double, 10> sp2ff{};
+  size_t spacepointIdx = 2;
+  for (auto & thisSpacepoint: sp2ff){
+    thisSpacepoint = double(m_eventStat.m_particleSpacePoints[ spacepointIdx++ ])/ pa;
+  }
+  //barrel
+  pa           = coerceToOne(m_eventStat.m_particleSpacePointsBTE[0][Barrel]); 
+  std::array<double, 10> spBarrel2ff{};
+  size_t spacepointBarrelIdx = 2;
+  for (auto & thisSpacepoint: spBarrel2ff){
+    thisSpacepoint = double(m_eventStat.m_particleSpacePointsBTE[ spacepointBarrelIdx++ ][Barrel])/ pa;
+  }
+  //transition
+  pa           = coerceToOne(m_eventStat.m_particleSpacePointsBTE[0][Transition]); 
+  std::array<double, 10> spTransition2ff{};
+  size_t spacepointTransitionIdx = 2;
+  for (auto & thisSpacepoint: spTransition2ff){
+    thisSpacepoint = double(m_eventStat.m_particleSpacePointsBTE[ spacepointTransitionIdx++ ][Transition])/ pa;
+  }
+  //endcap
+  pa           = coerceToOne(m_eventStat.m_particleSpacePointsBTE[0][Endcap]); 
+  std::array<double, 10> spEndcap2ff{};
+  size_t spacepointEndcapIdx = 2;
+  for (auto & thisSpacepoint: spEndcap2ff){
+    thisSpacepoint = double(m_eventStat.m_particleSpacePointsBTE[ spacepointEndcapIdx++ ][Endcap])/ pa;
+  }
+  //dbm
+  pa           = coerceToOne(m_eventStat.m_particleSpacePointsBTE[0][DBM]); 
+  std::array<double, 10> spDbm2ff{};
+  size_t spacepointDbmIdx = 2;
+  for (auto & thisSpacepoint: spDbm2ff){
+    thisSpacepoint = double(m_eventStat.m_particleSpacePointsBTE[ spacepointDbmIdx++ ][DBM])/ pa;
+  }
+  auto w8=std::setw(8);
+  out<<"|         Probability for such charge particles to have some number silicon                          |\n";
+  out<<"|                     clusters                     |             space points                        |\n";
+  out<<"|           Total   Barrel  Transi  Endcap   DBM   |  Total   Barrel  Transi  Endcap   DBM           |\n";
 
-  double pa   =  double(m_eventStat.m_particleClusters[0]); if(pa < 1.) pa = 1.;
-  double pc2  = double(m_eventStat.m_particleClusters   [ 2])        / pa;
-  double pc3  = double(m_eventStat.m_particleClusters   [ 3])        / pa;
-  double pc4  = double(m_eventStat.m_particleClusters   [ 4])        / pa;
-  double pc5  = double(m_eventStat.m_particleClusters   [ 5])        / pa;
-  double pc6  = double(m_eventStat.m_particleClusters   [ 6])        / pa;
-  double pc7  = double(m_eventStat.m_particleClusters   [ 7])        / pa;
-  double pc8  = double(m_eventStat.m_particleClusters   [ 8])        / pa;
-  double pc9  = double(m_eventStat.m_particleClusters   [ 9])        / pa;
-  double pc10 = double(m_eventStat.m_particleClusters   [10])        / pa;
-  double pc11 = double(m_eventStat.m_particleClusters   [11])        / pa;
+   for (size_t idx{0};idx != 10;++idx){
+     out<<"|  >= "<<idx+2<< std::string((idx<8)?"  ":" ")
+       <<w8<<p5<<pc2ff[idx]
+       <<w8<<p5<<pcBarrel2ff[idx]
+       <<w8<<p5<<pcTransition2ff[idx]
+       <<w8<<p5<<pcEndcap2ff[idx]
+       <<w8<<p5<<pcDbm2ff[idx]<<"  |  "
 
-  pa           = double(m_eventStat.m_particleClustersBTE[0][0]); if(pa < 1.) pa = 1.;
-  double pcB2  = double(m_eventStat.m_particleClustersBTE[ 2][0])    / pa;
-  double pcB3  = double(m_eventStat.m_particleClustersBTE[ 3][0])    / pa;
-  double pcB4  = double(m_eventStat.m_particleClustersBTE[ 4][0])    / pa;
-  double pcB5  = double(m_eventStat.m_particleClustersBTE[ 5][0])    / pa;
-  double pcB6  = double(m_eventStat.m_particleClustersBTE[ 6][0])    / pa;
-  double pcB7  = double(m_eventStat.m_particleClustersBTE[ 7][0])    / pa;
-  double pcB8  = double(m_eventStat.m_particleClustersBTE[ 8][0])    / pa;
-  double pcB9  = double(m_eventStat.m_particleClustersBTE[ 9][0])    / pa;
-  double pcB10 = double(m_eventStat.m_particleClustersBTE[10][0])    / pa;
-  double pcB11 = double(m_eventStat.m_particleClustersBTE[11][0])    / pa;
-  pa           = double(m_eventStat.m_particleClustersBTE[0][1]); if(pa < 1.) pa = 1.;
-  double pcT2  = double(m_eventStat.m_particleClustersBTE[ 2][1])    / pa;
-  double pcT3  = double(m_eventStat.m_particleClustersBTE[ 3][1])    / pa;
-  double pcT4  = double(m_eventStat.m_particleClustersBTE[ 4][1])    / pa;
-  double pcT5  = double(m_eventStat.m_particleClustersBTE[ 5][1])    / pa;
-  double pcT6  = double(m_eventStat.m_particleClustersBTE[ 6][1])    / pa;
-  double pcT7  = double(m_eventStat.m_particleClustersBTE[ 7][1])    / pa;
-  double pcT8  = double(m_eventStat.m_particleClustersBTE[ 8][1])    / pa;
-  double pcT9  = double(m_eventStat.m_particleClustersBTE[ 9][1])    / pa;
-  double pcT10 = double(m_eventStat.m_particleClustersBTE[10][1])    / pa;
-  double pcT11 = double(m_eventStat.m_particleClustersBTE[11][1])    / pa;
-  pa           = double(m_eventStat.m_particleClustersBTE[0][2]); if(pa < 1.) pa = 1.;
-  double pcE2  = double(m_eventStat.m_particleClustersBTE[ 2][2])    / pa;
-  double pcE3  = double(m_eventStat.m_particleClustersBTE[ 3][2])    / pa;
-  double pcE4  = double(m_eventStat.m_particleClustersBTE[ 4][2])    / pa;
-  double pcE5  = double(m_eventStat.m_particleClustersBTE[ 5][2])    / pa;
-  double pcE6  = double(m_eventStat.m_particleClustersBTE[ 6][2])    / pa;
-  double pcE7  = double(m_eventStat.m_particleClustersBTE[ 7][2])    / pa;
-  double pcE8  = double(m_eventStat.m_particleClustersBTE[ 8][2])    / pa;
-  double pcE9  = double(m_eventStat.m_particleClustersBTE[ 9][2])    / pa;
-  double pcE10 = double(m_eventStat.m_particleClustersBTE[10][2])    / pa;
-  double pcE11 = double(m_eventStat.m_particleClustersBTE[11][2])    / pa;
+       <<w8<<p5<<sp2ff[idx]
+       <<w8<<p5<<spBarrel2ff[idx]
+       <<w8<<p5<<spTransition2ff[idx]
+       <<w8<<p5<<spEndcap2ff[idx]
+       <<w8<<p5<<spDbm2ff[idx]
+       <<"       |\n";
+   }
 
-  pa           = double(m_eventStat.m_particleClustersBTE[0][3]); if(pa < 1.) pa = 1.;
-  double pcD2  = double(m_eventStat.m_particleClustersBTE[ 2][3])    / pa;
-  double pcD3  = double(m_eventStat.m_particleClustersBTE[ 3][3])    / pa;
-  double pcD4  = double(m_eventStat.m_particleClustersBTE[ 4][3])    / pa;
-  double pcD5  = double(m_eventStat.m_particleClustersBTE[ 5][3])    / pa;
-  double pcD6  = double(m_eventStat.m_particleClustersBTE[ 6][3])    / pa;
-  double pcD7  = double(m_eventStat.m_particleClustersBTE[ 7][3])    / pa;
-  double pcD8  = double(m_eventStat.m_particleClustersBTE[ 8][3])    / pa;
-  double pcD9  = double(m_eventStat.m_particleClustersBTE[ 9][3])    / pa;
-  double pcD10 = double(m_eventStat.m_particleClustersBTE[10][3])    / pa;
-  double pcD11 = double(m_eventStat.m_particleClustersBTE[11][3])    / pa;
+  out<<topNtail(spaceSeparator)<<"\n";
+  out<<"|               Additional cuts for truth particles are                             |\n";
+  out<<"|                    number silicon clusters >="<<w13<<m_clcut<<"                        |\n";
+  out<<"|                    number   trt   clusters >="<<w13<<m_clcutTRT<<"                        |\n";
+  out<<"|                    number  space    points >="<<w13<<m_spcut<<"                        |\n";
 
-
-  pa           = double(m_eventStat.m_particleSpacePoints[0]); if(pa < 1.) pa = 1.;
-  double ps2   = double(m_eventStat.m_particleSpacePoints[ 2])       / pa;
-  double ps3   = double(m_eventStat.m_particleSpacePoints[ 3])       / pa;
-  double ps4   = double(m_eventStat.m_particleSpacePoints[ 4])       / pa;
-  double ps5   = double(m_eventStat.m_particleSpacePoints[ 5])       / pa;
-  double ps6   = double(m_eventStat.m_particleSpacePoints[ 6])       / pa;
-  double ps7   = double(m_eventStat.m_particleSpacePoints[ 7])       / pa;
-  double ps8   = double(m_eventStat.m_particleSpacePoints[ 8])       / pa;
-  double ps9   = double(m_eventStat.m_particleSpacePoints[ 9])       / pa;
-  double ps10  = double(m_eventStat.m_particleSpacePoints[10])       / pa;
-  double ps11  = double(m_eventStat.m_particleSpacePoints[11])       / pa;
-  pa           = double(m_eventStat.m_particleSpacePointsBTE[0][0]); if(pa < 1.) pa = 1.;
-  double psB2  = double(m_eventStat.m_particleSpacePointsBTE[ 2][0]) / pa;
-  double psB3  = double(m_eventStat.m_particleSpacePointsBTE[ 3][0]) / pa;
-  double psB4  = double(m_eventStat.m_particleSpacePointsBTE[ 4][0]) / pa;
-  double psB5  = double(m_eventStat.m_particleSpacePointsBTE[ 5][0]) / pa;
-  double psB6  = double(m_eventStat.m_particleSpacePointsBTE[ 6][0]) / pa;
-  double psB7  = double(m_eventStat.m_particleSpacePointsBTE[ 7][0]) / pa;
-  double psB8  = double(m_eventStat.m_particleSpacePointsBTE[ 8][0]) / pa;
-  double psB9  = double(m_eventStat.m_particleSpacePointsBTE[ 9][0]) / pa;
-  double psB10 = double(m_eventStat.m_particleSpacePointsBTE[10][0]) / pa;
-  double psB11 = double(m_eventStat.m_particleSpacePointsBTE[11][0]) / pa;
-  pa           = double(m_eventStat.m_particleSpacePointsBTE[0][1]); if(pa < 1.) pa = 1.;
-  double psT2  = double(m_eventStat.m_particleSpacePointsBTE[ 2][1]) / pa;
-  double psT3  = double(m_eventStat.m_particleSpacePointsBTE[ 3][1]) / pa;
-  double psT4  = double(m_eventStat.m_particleSpacePointsBTE[ 4][1]) / pa;
-  double psT5  = double(m_eventStat.m_particleSpacePointsBTE[ 5][1]) / pa;
-  double psT6  = double(m_eventStat.m_particleSpacePointsBTE[ 6][1]) / pa;
-  double psT7  = double(m_eventStat.m_particleSpacePointsBTE[ 7][1]) / pa;
-  double psT8  = double(m_eventStat.m_particleSpacePointsBTE[ 8][1]) / pa;
-  double psT9  = double(m_eventStat.m_particleSpacePointsBTE[ 9][1]) / pa;
-  double psT10 = double(m_eventStat.m_particleSpacePointsBTE[10][1]) / pa;
-  double psT11 = double(m_eventStat.m_particleSpacePointsBTE[11][1]) / pa;
-  pa           = double(m_eventStat.m_particleSpacePointsBTE[0][2]); if(pa < 1.) pa = 1.;
-  double psE2  = double(m_eventStat.m_particleSpacePointsBTE[ 2][2]) / pa;
-  double psE3  = double(m_eventStat.m_particleSpacePointsBTE[ 3][2]) / pa;
-  double psE4  = double(m_eventStat.m_particleSpacePointsBTE[ 4][2]) / pa;
-  double psE5  = double(m_eventStat.m_particleSpacePointsBTE[ 5][2]) / pa;
-  double psE6  = double(m_eventStat.m_particleSpacePointsBTE[ 6][2]) / pa;
-  double psE7  = double(m_eventStat.m_particleSpacePointsBTE[ 7][2]) / pa;
-  double psE8  = double(m_eventStat.m_particleSpacePointsBTE[ 8][2]) / pa;
-  double psE9  = double(m_eventStat.m_particleSpacePointsBTE[ 9][2]) / pa;
-  double psE10 = double(m_eventStat.m_particleSpacePointsBTE[10][2]) / pa;
-  double psE11 = double(m_eventStat.m_particleSpacePointsBTE[11][2]) / pa;
-
-  pa           = double(m_eventStat.m_particleSpacePointsBTE[0][3]); if(pa < 1.) pa = 1.;
-  double psD2  = double(m_eventStat.m_particleSpacePointsBTE[ 2][3]) / pa;
-  double psD3  = double(m_eventStat.m_particleSpacePointsBTE[ 3][3]) / pa;
-  double psD4  = double(m_eventStat.m_particleSpacePointsBTE[ 4][3]) / pa;
-  double psD5  = double(m_eventStat.m_particleSpacePointsBTE[ 5][3]) / pa;
-  double psD6  = double(m_eventStat.m_particleSpacePointsBTE[ 6][3]) / pa;
-  double psD7  = double(m_eventStat.m_particleSpacePointsBTE[ 7][3]) / pa;
-  double psD8  = double(m_eventStat.m_particleSpacePointsBTE[ 8][3]) / pa;
-  double psD9  = double(m_eventStat.m_particleSpacePointsBTE[ 9][3]) / pa;
-  double psD10 = double(m_eventStat.m_particleSpacePointsBTE[10][3]) / pa;
-  double psD11 = double(m_eventStat.m_particleSpacePointsBTE[11][3]) / pa;
-
-
-  std::cout<<"|         Propability for such charge particles to have some number silicon                          |"
-	   <<std::endl;
-  std::cout<<"|                     clusters                     |             space points                        |"
-	   <<std::endl;
-  std::cout<<"|           Total   Barrel  Transi  Endcap   DBM    |  Total   Barrel  Transi  Endcap   DBM          |"
-	   <<std::endl;
-  std::cout<<"|  >= 2  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc2
-	   <<std::setw(8)<<std::setprecision(5)<<pcB2
-	   <<std::setw(8)<<std::setprecision(5)<<pcT2
-	   <<std::setw(8)<<std::setprecision(5)<<pcE2
-	   <<std::setw(8)<<std::setprecision(5)<<pcD2<<"  |  "
-
-	   <<std::setw(8)<<std::setprecision(5)<<ps2
-	   <<std::setw(8)<<std::setprecision(5)<<psB2
-	   <<std::setw(8)<<std::setprecision(5)<<psT2
-	   <<std::setw(8)<<std::setprecision(5)<<psE2
-	   <<std::setw(8)<<std::setprecision(5)<<psD2
-	   <<"       |"
-	   <<std::endl;
-  std::cout<<"|  >= 3  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc3
-	   <<std::setw(8)<<std::setprecision(5)<<pcB3
-	   <<std::setw(8)<<std::setprecision(5)<<pcT3
-	   <<std::setw(8)<<std::setprecision(5)<<pcE3
-	   <<std::setw(8)<<std::setprecision(5)<<pcD3<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps3
-	   <<std::setw(8)<<std::setprecision(5)<<psB3
-	   <<std::setw(8)<<std::setprecision(5)<<psT3
-	   <<std::setw(8)<<std::setprecision(5)<<psE3
-	   <<std::setw(8)<<std::setprecision(5)<<psD3
-	   <<"       |"
-	   <<std::endl;
-  std::cout<<"|  >= 4  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc4
-	   <<std::setw(8)<<std::setprecision(5)<<pcB4
-	   <<std::setw(8)<<std::setprecision(5)<<pcT4
-	   <<std::setw(8)<<std::setprecision(5)<<pcE4
-	   <<std::setw(8)<<std::setprecision(5)<<pcD4<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps4
-	   <<std::setw(8)<<std::setprecision(5)<<psB4
-	   <<std::setw(8)<<std::setprecision(5)<<psT4
-	   <<std::setw(8)<<std::setprecision(5)<<psE4
-	   <<std::setw(8)<<std::setprecision(5)<<psD4
-	   <<"       |"
-	   <<std::endl;
-  std::cout<<"|  >= 5  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc5
-	   <<std::setw(8)<<std::setprecision(5)<<pcB5
-	   <<std::setw(8)<<std::setprecision(5)<<pcT5
-	   <<std::setw(8)<<std::setprecision(5)<<pcE5
-	   <<std::setw(8)<<std::setprecision(5)<<pcD5<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps5
-	   <<std::setw(8)<<std::setprecision(5)<<psB5
-	   <<std::setw(8)<<std::setprecision(5)<<psT5
-	   <<std::setw(8)<<std::setprecision(5)<<psE5
-	   <<std::setw(8)<<std::setprecision(5)<<psD5
-	   <<"       |"
-	   <<std::endl;
-  std::cout<<"|  >= 6  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc6
-	   <<std::setw(8)<<std::setprecision(5)<<pcB6
-	   <<std::setw(8)<<std::setprecision(5)<<pcT6
-	   <<std::setw(8)<<std::setprecision(5)<<pcE6
-	   <<std::setw(8)<<std::setprecision(5)<<pcD6<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps6
-	   <<std::setw(8)<<std::setprecision(5)<<psB6
-	   <<std::setw(8)<<std::setprecision(5)<<psT6
-	   <<std::setw(8)<<std::setprecision(5)<<psE6
-	   <<std::setw(8)<<std::setprecision(5)<<psD6
-	   <<"       |"
-	   <<std::endl;
-  std::cout<<"|  >= 7  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc7
-	   <<std::setw(8)<<std::setprecision(5)<<pcB7
-	   <<std::setw(8)<<std::setprecision(5)<<pcT7
-	   <<std::setw(8)<<std::setprecision(5)<<pcE7
-	   <<std::setw(8)<<std::setprecision(5)<<pcD7<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps7
-	   <<std::setw(8)<<std::setprecision(5)<<psB7
-	   <<std::setw(8)<<std::setprecision(5)<<psT7
-	   <<std::setw(8)<<std::setprecision(5)<<psE7
-	   <<std::setw(8)<<std::setprecision(5)<<psD7
-	   <<"       |"
-	   <<std::endl;
-  std::cout<<"|  >= 8  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc8
-	   <<std::setw(8)<<std::setprecision(5)<<pcB8
-	   <<std::setw(8)<<std::setprecision(5)<<pcT8
-	   <<std::setw(8)<<std::setprecision(5)<<pcE8
-	   <<std::setw(8)<<std::setprecision(5)<<pcD8<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps8
-	   <<std::setw(8)<<std::setprecision(5)<<psB8
-	   <<std::setw(8)<<std::setprecision(5)<<psT8
-	   <<std::setw(8)<<std::setprecision(5)<<psE8
-	   <<std::setw(8)<<std::setprecision(5)<<psD8
-	   <<"       |"
-	   <<std::endl;
-  std::cout<<"|  >= 9  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc9
-	   <<std::setw(8)<<std::setprecision(5)<<pcB9
-	   <<std::setw(8)<<std::setprecision(5)<<pcT9
-	   <<std::setw(8)<<std::setprecision(5)<<pcE9
-	   <<std::setw(8)<<std::setprecision(5)<<pcD9<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps9
-	   <<std::setw(8)<<std::setprecision(5)<<psB9
-	   <<std::setw(8)<<std::setprecision(5)<<psT9
-	   <<std::setw(8)<<std::setprecision(5)<<psE9
-	   <<std::setw(8)<<std::setprecision(5)<<psD9
-	   <<"       |"
-	   <<std::endl;
-  std::cout<<"|  >=10  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc10
-	   <<std::setw(8)<<std::setprecision(5)<<pcB10
-	   <<std::setw(8)<<std::setprecision(5)<<pcT10
-	   <<std::setw(8)<<std::setprecision(5)<<pcE10
-	   <<std::setw(8)<<std::setprecision(5)<<pcD10<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps10
-	   <<std::setw(8)<<std::setprecision(5)<<psB10
-	   <<std::setw(8)<<std::setprecision(5)<<psT10
-	   <<std::setw(8)<<std::setprecision(5)<<psE10
-	   <<std::setw(8)<<std::setprecision(5)<<psD10
-	   <<"       |"
-	   <<std::endl;
-  std::cout<<"|  >=11  "
-	   <<std::setw(8)<<std::setprecision(5)<<pc11
-	   <<std::setw(8)<<std::setprecision(5)<<pcB11
-	   <<std::setw(8)<<std::setprecision(5)<<pcT11
-	   <<std::setw(8)<<std::setprecision(5)<<pcE11
-	   <<std::setw(8)<<std::setprecision(5)<<pcD11<<"  |  "
-	   <<std::setw(8)<<std::setprecision(5)<<ps11
-	   <<std::setw(8)<<std::setprecision(5)<<psB11
-	   <<std::setw(8)<<std::setprecision(5)<<psT11
-	   <<std::setw(8)<<std::setprecision(5)<<psE11
-	   <<std::setw(8)<<std::setprecision(5)<<psD11
-	   <<"       |"
-	   <<std::endl;
-
-  std::cout<<"|                                                                                   |"
-	   <<std::endl;
-  std::cout<<"|               Additional cuts for truth particles are                             |"
-	   <<std::endl;
-
-  std::cout<<"|                    number silicon clusters >="
-	   <<std::setw(13)<<m_clcut
-	   <<"                        |"<<std::endl;
-  std::cout<<"|                    number   trt   clusters >="
-	   <<std::setw(13)<<m_clcutTRT
-	   <<"                        |"<<std::endl;
-  std::cout<<"|                    number  space    points >="
-	   <<std::setw(13)<<m_spcut
-	   <<"                        |"<<std::endl;
-
-  pa  = double(m_eventStat.m_particleClusters[0]); if(pa < 1.) pa = 1.;
-  std::cout<<"|           Propability find truth particles with this cuts is "
-	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventStat.m_events)      /pa
-	   <<"             |"
- 	   <<std::endl;
-  pa  = double(m_eventStat.m_particleClustersBTE[0][0]); if(pa < 1.) pa = 1.;
-  std::cout<<"|                                        For barrel     region "
-	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventStat.m_eventsBTE[0])/pa
-	   <<"             |"
- 	   <<std::endl;
-  pa  = double(m_eventStat.m_particleClustersBTE[0][1]); if(pa < 1.) pa = 1.;
-  std::cout<<"|                                        For transition region "
-	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventStat.m_eventsBTE[1])/pa
-	   <<"             |"
- 	   <<std::endl;
-  pa  = double(m_eventStat.m_particleClustersBTE[0][2]); if(pa < 1.) pa = 1.;
-  std::cout<<"|                                        For endcap     region "
-	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventStat.m_eventsBTE[2])/pa
-	   <<"             |"
- 	   <<std::endl;
-  pa  = double(m_eventStat.m_particleClustersBTE[0][3]); if(pa < 1.) pa = 1.;
-  std::cout<<"|                                        For DBM        region "
-           <<std::setw(8)<<std::setprecision(5)<<double(m_eventStat.m_eventsBTE[3])/pa
-           <<"             |"
-           <<std::endl;
-
-  std::cout<<"|                                                                                   |"
-	   <<std::endl;
-
-  pa            = double(m_eventStat.m_nclustersNegBP); if(pa < 1.) pa = 1.;
+  pa  = coerceToOne(m_eventStat.m_particleClusters[0]); 
+  out<<"|           Probability find truth particles with this cuts is "<<w8<<p5<<double(m_eventStat.m_events)/pa<<"             |\n";
+  pa  = coerceToOne(m_eventStat.m_particleClustersBTE[0][Barrel]); 
+  out<<"|                                        For barrel     region "<<w8<<p5<<double(m_eventStat.m_eventsBTE[Barrel])/pa<<"             |\n";
+  pa  = coerceToOne(m_eventStat.m_particleClustersBTE[0][Transition]);
+  out<<"|                                        For transition region "<<w8<<p5<<double(m_eventStat.m_eventsBTE[Transition])/pa<<"             |\n";
+  pa  = coerceToOne(m_eventStat.m_particleClustersBTE[0][Endcap]); 
+  out<<"|                                        For endcap     region "<<w8<<p5<<double(m_eventStat.m_eventsBTE[Endcap])/pa<<"             |\n";
+  pa  = coerceToOne(m_eventStat.m_particleClustersBTE[0][DBM]); 
+  out<<"|                                        For DBM        region "<<w8<<p5<<double(m_eventStat.m_eventsBTE[DBM])/pa<<"             |\n";
+  out<<"|                                                                                   |\n";
+  pa            = coerceToOne(m_eventStat.m_nclustersNegBP); 
   double ratio  = double(m_eventStat.m_nclustersPosBP)/pa;
-  double eratio = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Ratio barrel pixels clusters for +/- particles ="
-	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
-	   <<std::setw(8)<<std::setprecision(5)<<eratio
-	   <<"          |"
-	   <<std::endl;
-  pa            = double(m_eventStat.m_nclustersNegEP); if(pa < 1.) pa = 1.;
+  double eratio = std::sqrt(ratio*(1.+ratio)/pa);
+  out<<"|      Ratio barrel pixels clusters for +/- particles ="<<w8<<p5<<ratio<<" +-"<<w8<<p5<<eratio<<"          |\n";
+  pa            = coerceToOne(m_eventStat.m_nclustersNegEP); 
   ratio         = double(m_eventStat.m_nclustersPosEP)/pa;
-  eratio        = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Ratio endcap pixels clusters for +/- particles ="
-	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
-	   <<std::setw(8)<<std::setprecision(5)<<eratio
-	   <<"          |"
-	   <<std::endl;
-  pa            = double(m_eventStat.m_nclustersNegDBM); if(pa < 1.) pa = 1.;
+  eratio        = std::sqrt(ratio*(1.+ratio)/pa);
+  out<<"|      Ratio endcap pixels clusters for +/- particles ="<<w8<<p5<<ratio<<" +-"<<w8<<p5<<eratio<<"          |\n";
+  pa            = coerceToOne(m_eventStat.m_nclustersNegDBM);
   ratio         = double(m_eventStat.m_nclustersPosDBM)/pa;
-  eratio        = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Ratio  DBM  pixels clusters for +/- particles = "
+  eratio        = std::sqrt(ratio*(1.+ratio)/pa);
+  out<<"|      Ratio  DBM  pixels clusters for +/- particles = "
            <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
            <<std::setw(8)<<std::setprecision(5)<<eratio
-           <<"          |"
-           <<std::endl;
-  pa            = double(m_eventStat.m_nclustersNegBS); if(pa < 1.) pa = 1.;
+           <<"          |\n";
+  pa            = coerceToOne(m_eventStat.m_nclustersNegBS);
   ratio         = double(m_eventStat.m_nclustersPosBS)/pa;
-  eratio        = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Ratio barrel   SCT  clusters for +/- particles ="
-	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
-	   <<std::setw(8)<<std::setprecision(5)<<eratio
-	   <<"          |"
-	   <<std::endl;
-  pa            = double(m_eventStat.m_nclustersNegES); if(pa < 1.) pa = 1.;
+  eratio        = std::sqrt(ratio*(1.+ratio)/pa);
+  out<<"|      Ratio barrel   SCT  clusters for +/- particles ="<<w8<<p5<<ratio<<" +-"<<w8<<p5<<eratio<<"          |\n";
+  pa            = coerceToOne(m_eventStat.m_nclustersNegES);
   ratio         = double(m_eventStat.m_nclustersPosES)/pa;
-  eratio        = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Ratio endcap   SCT  clusters for +/- particles ="
-	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
-	   <<std::setw(8)<<std::setprecision(5)<<eratio
-	   <<"          |"
-	   <<std::endl;
+  eratio        = std::sqrt(ratio*(1.+ratio)/pa);
+  out<<"|      Ratio endcap   SCT  clusters for +/- particles ="<<w8<<p5<<ratio<<" +-"<<w8<<p5<<eratio<<"          |\n";
   pa            = double(m_eventStat.m_eventsNEG);      if(pa < 1.) pa = 1.;
   ratio         = double(m_eventStat.m_eventsPOS)/pa;
-  eratio        = sqrt(ratio*(1.+ratio)/pa);
-  std::cout<<"|      Number truth particles and +/- ratio ="
-	   <<std::setw(10)<<m_eventStat.m_events
-	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
-	   <<std::setw(8)<<std::setprecision(5)<<eratio
-	   <<"          |"
-	   <<std::endl;
-  std::cout<<"|-----------------------------------------------------------------------------------|"
-	   <<std::endl
-	   <<std::endl;
+  eratio        = std::sqrt(ratio*(1.+ratio)/pa);
+  out<<"|      Number truth particles and +/- ratio ="<<std::setw(10)<<m_eventStat.m_events<<w8<<p5<<ratio<<" +-"<<w8<<p5<<eratio<<"          |\n";
+	ratio = 0.;
+	if(m_eventStat.m_nclustersPTOT!=0) ratio = double(m_eventStat.m_nclustersPTOTt)/double(m_eventStat.m_nclustersPTOT);
+
+  out<<"| Number pix clusters, truth clusters and ratio = "
+	   <<std::setw(10)<<m_eventStat.m_nclustersPTOT
+	   <<std::setw(10)<<m_eventStat.m_nclustersPTOTt
+	   <<std::setw(12)<<std::setprecision(5)<<ratio<<"  |\n";
+  ratio = 0.;
+  if(m_eventStat.m_nclustersSTOT!=0) ratio = double(m_eventStat.m_nclustersSTOTt)/double(m_eventStat.m_nclustersSTOT);
+   out<<"| Number sct clusters, truth clusters and ratio = "
+	   <<std::setw(10)<<m_eventStat.m_nclustersSTOT
+	   <<std::setw(10)<<m_eventStat.m_nclustersSTOTt
+	   <<std::setw(12)<<std::setprecision(5)<<ratio<<"  |\n";
+	   
+  out<<"|-----------------------------------------------------------------------------------|\n\n";
 
   SG::ReadHandleKeyArray<TrackCollection>::const_iterator t=m_tracklocation.begin(),te=m_tracklocation.end();
   int nc = 0;
   for(; t!=te; ++t) {
-
     int   n     = 47-(t->key().size());
     std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
 
 
-    std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
-    std::cout<<"|                      Statistic for "<<(t->key())<<s1<<std::endl;
+    out<<"|-----------------------------------------------------------------------------------|\n";
+    out<<"|                      Statistic for "<<(t->key())<<s1<<"\n";
 
     double ne = double(m_eventStat.m_events);  if(ne < 1.) ne = 1.;
     double ef [6]; for(int i=0; i!=6; ++i) ef [i] = double(m_trackCollectionStat[nc].m_efficiency   [i])   /ne;
     double ef0[6]; for(int i=0; i!=6; ++i) ef0[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][0])/ne;
     double ef1[6]; for(int i=0; i!=6; ++i) ef1[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][1])/ne;
     double ef2[6]; for(int i=0; i!=6; ++i) ef2[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][2])/ne;
-    /*
-    double ef3[6]; for(int i=0; i!=6; ++i) ef3[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][3])/ne;
-    double ef4[6]; for(int i=0; i!=6; ++i) ef4[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][4])/ne;
-    */
-    double neBTE = m_eventStat.m_eventsBTE[0]; if(neBTE < 1.) neBTE = 1;
-    double efB0[6]; for(int i=0; i!=6; ++i) efB0[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][0][0])/neBTE;
-    double efB1[6]; for(int i=0; i!=6; ++i) efB1[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][1][0])/neBTE;
-    double efB2[6]; for(int i=0; i!=6; ++i) efB2[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][2][0])/neBTE;
-    double efB3[6]; for(int i=0; i!=6; ++i) efB3[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][3][0])/neBTE;
-    double efB4[6]; for(int i=0; i!=6; ++i) efB4[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][4][0])/neBTE;
 
-    neBTE = m_eventStat.m_eventsBTE[1];        if(neBTE < 1.) neBTE = 1;
-    double efT0[6]; for(int i=0; i!=6; ++i) efT0[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][0][1])/neBTE;
-    double efT1[6]; for(int i=0; i!=6; ++i) efT1[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][1][1])/neBTE;
-    double efT2[6]; for(int i=0; i!=6; ++i) efT2[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][2][1])/neBTE;
-    double efT3[6]; for(int i=0; i!=6; ++i) efT3[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][3][1])/neBTE;
-    double efT4[6]; for(int i=0; i!=6; ++i) efT4[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][4][1])/neBTE;
 
-    neBTE = m_eventStat.m_eventsBTE[2];        if(neBTE < 1.) neBTE = 1;
-    double efE0[6]; for(int i=0; i!=6; ++i) efE0[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][0][2])/neBTE;
-    double efE1[6]; for(int i=0; i!=6; ++i) efE1[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][1][2])/neBTE;
-    double efE2[6]; for(int i=0; i!=6; ++i) efE2[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][2][2])/neBTE;
-    double efE3[6]; for(int i=0; i!=6; ++i) efE3[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][3][2])/neBTE;
-    double efE4[6]; for(int i=0; i!=6; ++i) efE4[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][4][2])/neBTE;
-
-    neBTE = m_eventStat.m_eventsBTE[3];        if(neBTE < 1.) neBTE = 1;
-    double efD0[6]; for(int i=0; i!=6; ++i) efD0[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][0][3])/neBTE;
-    double efD1[6]; for(int i=0; i!=6; ++i) efD1[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][1][3])/neBTE;
-    double efD2[6]; for(int i=0; i!=6; ++i) efD2[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][2][3])/neBTE;
-    double efD3[6]; for(int i=0; i!=6; ++i) efD3[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][3][3])/neBTE;
-    double efD4[6]; for(int i=0; i!=6; ++i) efD4[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][4][3])/neBTE;
+    typedef std::array<double, 6> EffArray_t;
+    //
+    auto makeEffArray = [](const auto & threeDimArray, const size_t secondIdx, const size_t thirdIdx, const double denom){
+      EffArray_t result{};
+      size_t idx{0};
+      auto invDenom = 1./denom;
+      for (auto & entry: result){
+        entry = threeDimArray[idx++][secondIdx][thirdIdx]*invDenom;
+      }
+      return result;
+    };
+    //
+    const auto & efficiencyArrayInput = m_trackCollectionStat[nc].m_efficiencyBTE;
+    //
+    double neBTE = coerceToOne(m_eventStat.m_eventsBTE[Barrel]);
+    const EffArray_t efB0 = makeEffArray(efficiencyArrayInput,0,Barrel,neBTE);
+    const EffArray_t efB1 = makeEffArray(efficiencyArrayInput,1,Barrel,neBTE);
+    const EffArray_t efB2 = makeEffArray(efficiencyArrayInput,2,Barrel,neBTE);
+    const EffArray_t efB3 = makeEffArray(efficiencyArrayInput,3,Barrel,neBTE);
+    const EffArray_t efB4 = makeEffArray(efficiencyArrayInput,4,Barrel,neBTE);
+    //
+    neBTE = coerceToOne(m_eventStat.m_eventsBTE[Transition]);
+    const EffArray_t efT0 = makeEffArray(efficiencyArrayInput,0,Transition,neBTE);
+    const EffArray_t efT1 = makeEffArray(efficiencyArrayInput,1,Transition,neBTE);
+    const EffArray_t efT2 = makeEffArray(efficiencyArrayInput,2,Transition,neBTE);
+    const EffArray_t efT3 = makeEffArray(efficiencyArrayInput,3,Transition,neBTE);
+    const EffArray_t efT4 = makeEffArray(efficiencyArrayInput,4,Transition,neBTE);
+    //
+    neBTE = coerceToOne(m_eventStat.m_eventsBTE[Endcap]);
+    const EffArray_t efE0 = makeEffArray(efficiencyArrayInput,0,Endcap,neBTE);
+    const EffArray_t efE1 = makeEffArray(efficiencyArrayInput,1,Endcap,neBTE);
+    const EffArray_t efE2 = makeEffArray(efficiencyArrayInput,2,Endcap,neBTE);
+    const EffArray_t efE3 = makeEffArray(efficiencyArrayInput,3,Endcap,neBTE);
+    const EffArray_t efE4 = makeEffArray(efficiencyArrayInput,4,Endcap,neBTE);
+    //
+    neBTE = coerceToOne(m_eventStat.m_eventsBTE[DBM]);
+    const EffArray_t efD0 = makeEffArray(efficiencyArrayInput,0,DBM,neBTE);
+    const EffArray_t efD1 = makeEffArray(efficiencyArrayInput,1,DBM,neBTE);
+    const EffArray_t efD2 = makeEffArray(efficiencyArrayInput,2,DBM,neBTE);
+    const EffArray_t efD3 = makeEffArray(efficiencyArrayInput,3,DBM,neBTE);
+    const EffArray_t efD4 = makeEffArray(efficiencyArrayInput,4,DBM,neBTE);
 
 
     double efrec  = ef0[0]+ef0[1]+ef0[2]+ef1[0]+ef1[1]+ef2[0];
@@ -685,345 +474,145 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
     double efrecE = efE0[0]+efE0[1]+efE0[2]+efE1[0]+efE1[1]+efE2[0];
     double efrecD = efD0[0]+efD0[1]+efD0[2]+efD1[0]+efD1[1]+efD2[0];
 
-    ne        = double(m_eventStat.m_eventsPOS); if(ne < 1.) ne = 1.;
+    ne        = coerceToOne(m_eventStat.m_eventsPOS); 
     double efP[6]; for(int i=0; i!=6; ++i) efP[i] = double(m_trackCollectionStat[nc].m_efficiencyPOS[i])/ne;
-    ne        = double(m_eventStat.m_eventsNEG); if(ne < 1.) ne = 1.;
+    ne        = coerceToOne(m_eventStat.m_eventsNEG);
     double efN[6]; for(int i=0; i!=6; ++i) efN[i] = double(m_trackCollectionStat[nc].m_efficiencyNEG[i])/ne;
 
-    std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
-    std::cout<<"| Probability to lose       0        1        2        3        4    >=5 clusters   |"
-	     <<std::endl;
-    std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
+    out<<"|-----------------------------------------------------------------------------------|\n";
+    out<<"| Probability to lose       0        1        2        3        4    >=5 clusters   |\n";
+    out<<"|-----------------------------------------------------------------------------------|\n";
+    
+    auto formattedOutput=[&out](auto & effArray){ 
+      for (size_t i{};i!=6;++i){
+        out<<std::setw(9)<<std::setprecision(4)<<effArray[i];
+      }
+      out<<"        |\n";
+    };
+    
+    out<<"| For all particles   ";
+	  formattedOutput(ef);
+    out<<"| For  +  particles   ";
+	  formattedOutput(efP);
+    out<<"| For  -  particles   ";
+	  formattedOutput(efN);
+    out<<"|-----------------------------------------------------------------------------------|\n";
+    out<<"| Barrel region                                                                     |\n";
+    out<<"|   0 wrong clusters  ";
+	  formattedOutput(efB0);
+    out<<"|   1 wrong clusters  ";
+	  formattedOutput(efB1);
+    out<<"|   2 wrong clusters  ";
+	  formattedOutput(efB2);
+    out<<"|   3 wrong clusters  ";
+	  formattedOutput(efB3);
+    out<<"| >=4 wrong clusters  ";
+	  formattedOutput(efB4);
+    out<<"|-----------------------------------------------------------------------------------|\n";
+    out<<"| Transition region                                                                 |\n";
+    out<<"|   0 wrong clusters  ";
+	  formattedOutput(efT0);
+    out<<"|   1 wrong clusters  ";
+	  formattedOutput(efT1);
+    out<<"|   2 wrong clusters  ";
+	  formattedOutput(efT2);
+    out<<"|   3 wrong clusters  ";
+	  formattedOutput(efT3);
+    out<<"| >=4 wrong clusters  ";
+	  formattedOutput(efT4);
+    out<<"|-----------------------------------------------------------------------------------|\n";
+    out<<"| Endcap region                                                                     |\n";
+    out<<"|   0 wrong clusters  ";
+    formattedOutput(efE0);
+    out<<"|   1 wrong clusters  ";
+	  formattedOutput(efE1);
+    out<<"|   2 wrong clusters  ";
+	  formattedOutput(efE2);
+    out<<"|   3 wrong clusters  ";
+	  formattedOutput(efE3);
+    out<<"| >=4 wrong clusters  ";
+	  formattedOutput(efE4);
+    out<<"|-----------------------------------------------------------------------------------|\n";
+    out<<"| DBM region                                                                        |\n";
+    out<<"|   0 wrong clusters  ";
+    formattedOutput(efD0);
+    out<<"|   1 wrong clusters  ";
+    formattedOutput(efD1);
+    out<<"|   2 wrong clusters  ";
+    formattedOutput(efD2);
+    out<<"|   3 wrong clusters  ";
+    formattedOutput(efD3);
+    out<<"| >=4 wrong clusters  ";
+    formattedOutput(efD4);
 
-    std::cout<<"| For all particles   "
-	     <<std::setw(9)<<std::setprecision(5)<<ef[0]
-	     <<std::setw(9)<<std::setprecision(5)<<ef[1]
-	     <<std::setw(9)<<std::setprecision(5)<<ef[2]
-	     <<std::setw(9)<<std::setprecision(5)<<ef[3]
-	     <<std::setw(9)<<std::setprecision(5)<<ef[4]
-	     <<std::setw(9)<<std::setprecision(5)<<ef[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"| For  +  particles   "
-	     <<std::setw(9)<<std::setprecision(5)<<efP[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efP[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efP[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efP[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efP[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efP[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"| For  -  particles   "
-	     <<std::setw(9)<<std::setprecision(5)<<efN[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efN[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efN[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efN[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efN[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efN[5]<<"        |"
-	     <<std::endl;
-    /*
-    std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
-    std::cout<<"| Total                                                                             |"
-	     <<std::endl;
-    std::cout<<"|   0 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<ef0[0]
-	     <<std::setw(9)<<std::setprecision(5)<<ef0[1]
-	     <<std::setw(9)<<std::setprecision(5)<<ef0[2]
-	     <<std::setw(9)<<std::setprecision(5)<<ef0[3]
-	     <<std::setw(9)<<std::setprecision(5)<<ef0[4]
-	     <<std::setw(9)<<std::setprecision(5)<<ef0[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   1 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<ef1[0]
-	     <<std::setw(9)<<std::setprecision(5)<<ef1[1]
-	     <<std::setw(9)<<std::setprecision(5)<<ef1[2]
-	     <<std::setw(9)<<std::setprecision(5)<<ef1[3]
-	     <<std::setw(9)<<std::setprecision(5)<<ef1[4]
-	     <<std::setw(9)<<std::setprecision(5)<<ef1[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   2 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<ef2[0]
-	     <<std::setw(9)<<std::setprecision(5)<<ef2[1]
-	     <<std::setw(9)<<std::setprecision(5)<<ef2[2]
-	     <<std::setw(9)<<std::setprecision(5)<<ef2[3]
-	     <<std::setw(9)<<std::setprecision(5)<<ef2[4]
-	     <<std::setw(9)<<std::setprecision(5)<<ef2[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   3 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<ef3[0]
-	     <<std::setw(9)<<std::setprecision(5)<<ef3[1]
-	     <<std::setw(9)<<std::setprecision(5)<<ef3[2]
-	     <<std::setw(9)<<std::setprecision(5)<<ef3[3]
-	     <<std::setw(9)<<std::setprecision(5)<<ef3[4]
-	     <<std::setw(9)<<std::setprecision(5)<<ef3[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"| >=4 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<ef4[0]
-	     <<std::setw(9)<<std::setprecision(5)<<ef4[1]
-	     <<std::setw(9)<<std::setprecision(5)<<ef4[2]
-	     <<std::setw(9)<<std::setprecision(5)<<ef4[3]
-	     <<std::setw(9)<<std::setprecision(5)<<ef4[4]
-	     <<std::setw(9)<<std::setprecision(5)<<ef4[5]<<"        |"
-	     <<std::endl;
-    */
-   std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
-   std::cout<<"| Barrel region                                                                     |"
-	     <<std::endl;
-    std::cout<<"|   0 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efB0[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efB0[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efB0[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efB0[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efB0[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efB0[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   1 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efB1[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efB1[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efB1[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efB1[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efB1[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efB1[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   2 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efB2[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efB2[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efB2[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efB2[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efB2[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efB2[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   3 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efB3[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efB3[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efB3[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efB3[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efB3[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efB3[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"| >=4 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efB4[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efB4[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efB4[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efB4[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efB4[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efB4[5]<<"        |"
-	     <<std::endl;
-   std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
-   std::cout<<"| Transition region                                                                 |"
-	     <<std::endl;
-    std::cout<<"|   0 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efT0[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efT0[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efT0[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efT0[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efT0[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efT0[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   1 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efT1[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efT1[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efT1[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efT1[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efT1[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efT1[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   2 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efT2[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efT2[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efT2[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efT2[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efT2[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efT2[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   3 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efT3[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efT3[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efT3[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efT3[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efT3[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efT3[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"| >=4 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efT4[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efT4[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efT4[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efT4[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efT4[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efT4[5]<<"        |"
-	     <<std::endl;
-   std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
-   std::cout<<"| Endcap region                                                                     |"
-	     <<std::endl;
-    std::cout<<"|   0 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efE0[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efE0[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efE0[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efE0[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efE0[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efE0[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   1 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efE1[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efE1[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efE1[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efE1[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efE1[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efE1[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   2 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efE2[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efE2[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efE2[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efE2[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efE2[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efE2[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|   3 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efE3[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efE3[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efE3[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efE3[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efE3[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efE3[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"| >=4 wrong clusters  "
-	     <<std::setw(9)<<std::setprecision(5)<<efE4[0]
-	     <<std::setw(9)<<std::setprecision(5)<<efE4[1]
-	     <<std::setw(9)<<std::setprecision(5)<<efE4[2]
-	     <<std::setw(9)<<std::setprecision(5)<<efE4[3]
-	     <<std::setw(9)<<std::setprecision(5)<<efE4[4]
-	     <<std::setw(9)<<std::setprecision(5)<<efE4[5]<<"        |"
-	     <<std::endl;
-    std::cout<<"|-----------------------------------------------------------------------------------|"
-             <<std::endl;
-    std::cout<<"| DBM region                                                                        |"
-             <<std::endl;
-    std::cout<<"|   0 wrong clusters  "
-             <<std::setw(9)<<std::setprecision(5)<<efD0[0]
-             <<std::setw(9)<<std::setprecision(5)<<efD0[1]
-             <<std::setw(9)<<std::setprecision(5)<<efD0[2]
-             <<std::setw(9)<<std::setprecision(5)<<efD0[3]
-             <<std::setw(9)<<std::setprecision(5)<<efD0[4]
-             <<std::setw(9)<<std::setprecision(5)<<efD0[5]<<"        |"
-             <<std::endl;
-    std::cout<<"|   1 wrong clusters  "
-             <<std::setw(9)<<std::setprecision(5)<<efD1[0]
-             <<std::setw(9)<<std::setprecision(5)<<efD1[1]
-             <<std::setw(9)<<std::setprecision(5)<<efD1[2]
-             <<std::setw(9)<<std::setprecision(5)<<efD1[3]
-             <<std::setw(9)<<std::setprecision(5)<<efD1[4]
-             <<std::setw(9)<<std::setprecision(5)<<efD1[5]<<"        |"
-             <<std::endl;
-    std::cout<<"|   2 wrong clusters  "
-             <<std::setw(9)<<std::setprecision(5)<<efD2[0]
-             <<std::setw(9)<<std::setprecision(5)<<efD2[1]
-             <<std::setw(9)<<std::setprecision(5)<<efD2[2]
-             <<std::setw(9)<<std::setprecision(5)<<efD2[3]
-             <<std::setw(9)<<std::setprecision(5)<<efD2[4]
-             <<std::setw(9)<<std::setprecision(5)<<efD2[5]<<"        |"
-             <<std::endl;
-    std::cout<<"|   3 wrong clusters  "
-             <<std::setw(9)<<std::setprecision(5)<<efD3[0]
-             <<std::setw(9)<<std::setprecision(5)<<efD3[1]
-             <<std::setw(9)<<std::setprecision(5)<<efD3[2]
-             <<std::setw(9)<<std::setprecision(5)<<efD3[3]
-             <<std::setw(9)<<std::setprecision(5)<<efD3[4]
-             <<std::setw(9)<<std::setprecision(5)<<efD3[5]<<"        |"
-             <<std::endl;
-    std::cout<<"| >=4 wrong clusters  "
-             <<std::setw(9)<<std::setprecision(5)<<efD4[0]
-             <<std::setw(9)<<std::setprecision(5)<<efD4[1]
-             <<std::setw(9)<<std::setprecision(5)<<efD4[2]
-             <<std::setw(9)<<std::setprecision(5)<<efD4[3]
-             <<std::setw(9)<<std::setprecision(5)<<efD4[4]
-             <<std::setw(9)<<std::setprecision(5)<<efD4[5]<<"        |"
-             <<std::endl;
-
-   std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
-   pa  = double(m_eventStat.m_particleClusters[0]);       if(pa < 1.) pa = 1.;
-   std::cout<<"| Efficiency reconstruction (number lose+wrong < 3) = "
+   out<<"|-----------------------------------------------------------------------------------|\n";
+   pa  = coerceToOne(m_eventStat.m_particleClusters[0]);
+   out<<"| Efficiency reconstruction (number lose+wrong < 3) = "
 	    <<std::setw(9)<<std::setprecision(5)<<efrec
 	    <<" ("
 	    <<std::setw(9)<<std::setprecision(5)<<efrec*double(m_eventStat.m_events)/pa
 	    <<" ) "
-	    <<"       |"
-	    <<std::endl;
-   pa  = double(m_eventStat.m_particleClustersBTE[0][0]); if(pa < 1.) pa = 1.;
-   std::cout<<"|                             For barrel     region = "
+	    <<"       |\n";
+   pa  = coerceToOne(m_eventStat.m_particleClustersBTE[0][Barrel]);
+   out<<"|                             For barrel     region = "
 	    <<std::setw(9)<<std::setprecision(5)<<efrecB
 	    <<" ("
-	    <<std::setw(9)<<std::setprecision(5)<<efrecB*double(m_eventStat.m_eventsBTE[0])/pa
+	    <<std::setw(9)<<std::setprecision(5)<<efrecB*double(m_eventStat.m_eventsBTE[Barrel])/pa
 	    <<" ) "
-	    <<"       |"
-	    <<std::endl;
-   pa  = double(m_eventStat.m_particleClustersBTE[0][1]);  if(pa < 1.) pa = 1.;
-   std::cout<<"|                             For transition region = "
+	    <<"       |\n";
+   pa  = coerceToOne(m_eventStat.m_particleClustersBTE[0][Transition]); 
+   out<<"|                             For transition region = "
 	    <<std::setw(9)<<std::setprecision(5)<<efrecT
 	    <<" ("
-	    <<std::setw(9)<<std::setprecision(5)<<efrecT*double(m_eventStat.m_eventsBTE[1])/pa
+	    <<std::setw(9)<<std::setprecision(5)<<efrecT*double(m_eventStat.m_eventsBTE[Transition])/pa
 	    <<" ) "
-	    <<"       |"
-	    <<std::endl;
-   pa  = double(m_eventStat.m_particleClustersBTE[0][2]);  if(pa < 1.) pa = 1.;
-   std::cout<<"|                             For endcap     region = "
+	    <<"       |\n";
+   pa  = coerceToOne(m_eventStat.m_particleClustersBTE[0][Endcap]); 
+   out<<"|                             For endcap     region = "
 	    <<std::setw(9)<<std::setprecision(5)<<efrecE
 	    <<" ("
-	    <<std::setw(9)<<std::setprecision(5)<<efrecE*double(m_eventStat.m_eventsBTE[2])/pa
+	    <<std::setw(9)<<std::setprecision(5)<<efrecE*double(m_eventStat.m_eventsBTE[Endcap])/pa
 	    <<" ) "
-	    <<"       |"
-	    <<std::endl;
-   pa  = double(m_eventStat.m_particleClustersBTE[0][3]);  if(pa < 1.) pa = 1.;
-   std::cout<<"|                             For DBM        region = "
+	    <<"       |\n";
+   pa  = coerceToOne(m_eventStat.m_particleClustersBTE[0][DBM]); 
+   out<<"|                             For DBM        region = "
             <<std::setw(9)<<std::setprecision(5)<<efrecD
             <<" ("
-            <<std::setw(9)<<std::setprecision(5)<<efrecD*double(m_eventStat.m_eventsBTE[3])/pa
+            <<std::setw(9)<<std::setprecision(5)<<efrecD*double(m_eventStat.m_eventsBTE[DBM])/pa
             <<" ) "
-            <<"       |"
-            <<std::endl;
+            <<"       |\n";
 
-   std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
-    std::cout<<"| Reconstructed tracks         +          -    +/-ration    error                   |"
-	     <<std::endl;
-    std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
+    out<<"|-----------------------------------------------------------------------------------|\n";
+    out<<"| Reconstructed tracks         +          -    +/-ratio     error                   |\n";
+    out<<"|-----------------------------------------------------------------------------------|\n";
 
-    pa     = double(m_trackCollectionStat[nc].m_ntracksNEGB);  if(pa < 1.) pa = 1.;
+    pa     = coerceToOne(m_trackCollectionStat[nc].m_ntracksNEGB); 
     ratio  = double(m_trackCollectionStat[nc].m_ntracksPOSB)/pa;
-    eratio = sqrt(ratio*(1.+ratio)/pa);
+    eratio = std::sqrt(ratio*(1.+ratio)/pa);
 
-    std::cout<<"| Barrel               "
+    out<<"| Barrel               "
 	     <<std::setw(10)<<m_trackCollectionStat[nc].m_ntracksPOSB
 	     <<std::setw(11)<<m_trackCollectionStat[nc].m_ntracksNEGB
 	     <<std::setw(11)<<std::setprecision(5)<<ratio
-	     <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |"
-	     <<std::endl;
-    pa     = double(m_trackCollectionStat[nc].m_ntracksNEGE); if(pa < 1.) pa = 1.;
+	     <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |\n";
+    pa     = coerceToOne(m_trackCollectionStat[nc].m_ntracksNEGE); 
     ratio  = double(m_trackCollectionStat[nc].m_ntracksPOSE)/pa;
-    eratio = sqrt(ratio*(1.+ratio)/pa);
+    eratio = std::sqrt(ratio*(1.+ratio)/pa);
 
-    std::cout<<"| Endcap               "
+    out<<"| Endcap               "
 	     <<std::setw(10)<<m_trackCollectionStat[nc].m_ntracksPOSE
 	     <<std::setw(11)<<m_trackCollectionStat[nc].m_ntracksNEGE
 	     <<std::setw(11)<<std::setprecision(5)<<ratio
-	     <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |"
-	     <<std::endl;
-    pa     = double(m_trackCollectionStat[nc].m_ntracksNEGDBM); if(pa < 1.) pa = 1.;
+	     <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |\n";
+    pa     = coerceToOne(m_trackCollectionStat[nc].m_ntracksNEGDBM); 
     ratio  = double(m_trackCollectionStat[nc].m_ntracksPOSDBM)/pa;
-    eratio = sqrt(ratio*(1.+ratio)/pa);
+    eratio = std::sqrt(ratio*(1.+ratio)/pa);
 
-    std::cout<<"| DBM                  "
+    out<<"| DBM                  "
              <<std::setw(10)<<m_trackCollectionStat[nc].m_ntracksPOSDBM
              <<std::setw(11)<<m_trackCollectionStat[nc].m_ntracksNEGDBM
              <<std::setw(11)<<std::setprecision(5)<<ratio
-             <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |"
-             <<std::endl;
+             <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |\n";
 
 
 
@@ -1031,7 +620,6 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
     int ft=0;
     int kf=0;
     for(int k = 0; k!=50; ++k) {
-
       nt+=m_trackCollectionStat[nc].m_total[k];
       ft+=m_trackCollectionStat[nc].m_fake [k];
       if(!kf && nt) kf = k;
@@ -1039,32 +627,28 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 
     if(kf) {
 
-      std::cout<<"|-----------------------------------------------------------------------------------|"
-	       <<std::endl;
-      std::cout<<"|             Fake tracks rate for different number of clusters on track            |"
-	       <<std::endl;
-      std::cout<<"|-----------------------------------------------------------------------------------|"
-	       <<std::endl;
+      out<<"|-----------------------------------------------------------------------------------|\n";
+      out<<"|             Fake tracks rate for different number of clusters on track            |\n";
+      out<<"|-----------------------------------------------------------------------------------|\n";
 
       for(int k = kf; k!=kf+6; ++k) {
-	std::cout<<"|     >= "<<std::setw(2)<<k<<"   ";
+	out<<"|     >= "<<std::setw(2)<<k<<"   ";
       }
-      std::cout<<"|"<<std::endl;
+      out<<"|\n";
 
       for(int k = kf; k!=kf+6; ++k) {
 	double eff = 0.; if(nt>0) eff = double(ft)/double(nt);
-	std::cout<<"|"<<std::setw(12)<<std::setprecision(5)<<eff<<" ";
+	out<<"|"<<std::setw(12)<<std::setprecision(5)<<eff<<" ";
 	nt-=m_trackCollectionStat[nc].m_total[k];
 	ft-=m_trackCollectionStat[nc].m_fake [k];
       }
-      std::cout<<"|"<<std::endl;
-      std::cout<<"|-----------------------------------------------------------------------------------|"
-	     <<std::endl;
+      out<<"|\n";
+      out<<"|-----------------------------------------------------------------------------------|\n";
     }
     ++nc;
   }
-
-   return StatusCode::SUCCESS;
+  ATH_MSG_INFO("\n"<<out.str());
+  return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1076,89 +660,64 @@ MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out, MSG::Lev
   SG::ReadHandleKeyArray<TrackCollection>::const_iterator t=m_tracklocation.begin(),te=m_tracklocation.end();
 
   int n;
-  out << level << std::endl;
-  out<<"|----------------------------------------------------------------"
-     <<"----------------------------------------------------|"
-     <<std::endl;
+  out << level <<"\n";
+  out<<"|--------------------------------------------------------------------------------------------------------------------|\n";
   for(; t!=te; ++t) {
     n     = 65-t->key().size();
     std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
-
-    out<<"| Location of input tracks                        | "<<t->key()<<s1
-       <<std::endl;
+    out<<"| Location of input tracks                        | "<<t->key()<<s1<<"\n";
   }
-  n     = 65-m_spacepointsPixelname.key().size();
-  std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
-  n     = 65-m_spacepointsSCTname.key().size();
-  std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 65-m_spacepointsOverlapname.key().size();
-  std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
-  n     = 65-m_clustersPixelname.key().size();
-  std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
-  n     = 65-m_clustersSCTname.key().size();
-  std::string s6; for(int i=0; i<n; ++i) s6.append(" "); s6.append("|");
-  n     = 65-m_clustersTRTname.key().size();
-  std::string s9; for(int i=0; i<n; ++i) s9.append(" "); s9.append("|");
-  n     = 65-m_truth_locationPixel.key().size();
-  std::string s7; for(int i=0; i<n; ++i) s7.append(" "); s7.append("|");
-  n     = 65-m_truth_locationSCT.key().size();
-  std::string s8; for(int i=0; i<n; ++i) s8.append(" "); s8.append("|");
-  n     = 65-m_truth_locationTRT.key().size();
-  std::string s10; for(int i=0; i<n; ++i) s10.append(" "); s10.append("|");
+  auto padString = [](const std::string & s){
+   const int n = 65 - s.size();
+   return s + std::string(n, ' ');
+  };
+  std::string s2 = padString(m_spacepointsPixelname.key());
+  std::string s3 = padString(m_spacepointsSCTname.key());
+  std::string s4 = padString(m_spacepointsOverlapname.key());
+  std::string s5 = padString(m_clustersPixelname.key());
+  std::string s6 = padString(m_clustersSCTname.key());
+  //
+  std::string s9 = padString(m_clustersTRTname.key());
+  //
+  std::string s7 = padString(m_truth_locationPixel.key());
+  std::string s8 = padString(m_truth_locationSCT.key());
+  //
+  std::string s10 = padString(m_truth_locationTRT.key());
 
-  out<<"| Pixel    space points                           | "<<m_spacepointsPixelname.key()  <<s2
-     <<std::endl;
-  out<<"| SCT      space points                           | "<<m_spacepointsSCTname.key()    <<s3
-     <<std::endl;
-  out<<"| Overlap  space points                           | "<<m_spacepointsOverlapname.key()<<s4
-     <<std::endl;
-  out<<"| Pixel    clusters                               | "<<m_clustersPixelname.key()     <<s5
-     <<std::endl;
-  out<<"| SCT      clusters                               | "<<m_clustersSCTname.key()       <<s6
-     <<std::endl;
-  out<<"| TRT      clusters                               | "<<m_clustersTRTname.key()       <<s9
-     <<std::endl;
-  out<<"| Truth location  for pixels                      | "<<m_truth_locationPixel.key()   <<s7
-     <<std::endl;
-  out<<"| Truth location  for sct                         | "<<m_truth_locationSCT.key()     <<s8
-     <<std::endl;
-  out<<"| Truth location  for trt                         | "<<m_truth_locationTRT.key()     <<s10
-     <<std::endl;
+  out<<"| Pixel    space points                           | "<<s2<<"|\n";
+  out<<"| SCT      space points                           | "<<s3<<"|\n";
+  out<<"| Overlap  space points                           | "<<s4<<"|\n";
+  out<<"| Pixel    clusters                               | "<<s5<<"|\n";
+  out<<"| SCT      clusters                               | "<<s6<<"|\n";
+  out<<"| TRT      clusters                               | "<<s9<<"|\n";
+  out<<"| Truth location  for pixels                      | "<<s7<<"|\n";
+  out<<"| Truth location  for sct                         | "<<s8<<"|\n";
+  out<<"| Truth location  for trt                         | "<<s10<<"|\n";
   out<<"|         pT cut                                  | "
      <<std::setw(14)<<std::setprecision(5)<<m_ptcut
-     <<"                                                   |"
-     <<std::endl;
+     <<"                                                   |\n";
   out<<"|   max   pT cut                                  | "
      <<std::setw(14)<<std::setprecision(5)<<m_ptcutmax
-     <<"                                                   |"
-     <<std::endl;
+     <<"                                                   |\n";
   out<<"|   rapidity cut                                  | "
      <<std::setw(14)<<std::setprecision(5)<<m_rapcut
-     <<"                                                   |"
-     <<std::endl;
+     <<"                                                   |\n";
   out<<"| min Radius                                      | "
      <<std::setw(14)<<std::setprecision(5)<<m_rmin
-     <<"                                                   |"
-     <<std::endl;
+     <<"                                                   |\n";
   out<<"| max Radius                                      | "
      <<std::setw(14)<<std::setprecision(5)<<m_rmax
-     <<"                                                   |"
-     <<std::endl;
+     <<"                                                   |\n";
   out<<"| Min. number clusters      for generated track   | "
      <<std::setw(14)<<std::setprecision(5)<<m_clcut
-     <<"                                                   |"
-     <<std::endl;
+     <<"                                                   |\n";
   out<<"| Min. number sp.points     for generated track   | "
      <<std::setw(14)<<std::setprecision(5)<<m_spcut
-     <<"                                                   |"
-     <<std::endl;
+     <<"                                                   |\n";
   out<<"| Min. number TRT clusters  for generated track   | "
      <<std::setw(14)<<std::setprecision(5)<<m_clcutTRT
-     <<"                                                   |"
-     <<std::endl;
-  out<<"|----------------------------------------------------------------"
-     <<"----------------------------------------------------|"
-     <<std::endl;
+     <<"                                                   |\n";
+  out<<"|--------------------------------------------------------------------------------------------------------------------|\n";
   return out;
 }
 
@@ -1168,29 +727,25 @@ MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out, MSG::Lev
 
 MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out, const InDet::TrackClusterAssValidation::EventData_t &event_data ) const
 {
-  out << MSG::DEBUG << std::endl;
-  out<<"|---------------------------------------------------------------------|"
-     <<std::endl;
-  out<<"| m_nspacepoints          | "
-     <<std::setw(12)<<event_data.m_nspacepoints
-     <<"                              |"<<std::endl;
-  out<<"| m_nclusters             | "
-     <<std::setw(12)<<event_data.m_nclusters
-     <<"                              |"<<std::endl;
-  out<<"| Kine-Clusters    size   | "
-     <<std::setw(12)<<event_data.m_kinecluster.size()
-     <<"                              |"<<std::endl;
-  out<<"| Kine-TRTClusters size   | "
-     <<std::setw(12)<<event_data.m_kineclusterTRT.size()
-     <<"                              |"<<std::endl;
-  out<<"| Kine-SpacePoints size   | "
-     <<std::setw(12)<<event_data.m_kinespacepoint.size()
-     <<"                              |"<<std::endl;
-  out<<"| Number good kine tracks | "
-     <<std::setw(12)<<event_data.m_nqtracks
-     <<"                              |"<<std::endl;
-  out<<"|---------------------------------------------------------------------|"
-     <<std::endl;
+  out << MSG::DEBUG << "\n";
+  auto formatOutput = [&out](const auto val){
+    out<<std::setw(12)<<val
+     <<"                              |\n";
+  };
+  out<<"|---------------------------------------------------------------------|\n";
+  out<<"| m_nspacepoints          | ";
+  formatOutput(event_data.m_nspacepoints);
+  out<<"| m_nclusters             | ";
+  formatOutput(event_data.m_nclusters);
+  out<<"| Kine-Clusters    size   | ";
+  formatOutput(event_data.m_kinecluster.size());
+  out<<"| Kine-TRTClusters size   | ";
+  formatOutput(event_data.m_kineclusterTRT.size());
+  out<<"| Kine-SpacePoints size   | ";
+  formatOutput(event_data.m_kinespacepoint.size());
+  out<<"| Number good kine tracks | ";
+  formatOutput(event_data.m_nqtracks);
+  out<<"|---------------------------------------------------------------------|\n";
   return out;
 }
 
@@ -1243,6 +798,9 @@ void InDet::TrackClusterAssValidation::newClustersEvent(const EventContext& ctx,
       for(; c!=ce; ++c) {
 
 	++event_data.m_nclusters;
+	++m_eventStat.m_nclustersPTOT;
+	if(isTruth(event_data,(*c))) ++m_eventStat.m_nclustersPTOTt;  
+
 
 	int nk = kine(event_data,(*c),Kine,999);
 	for(int i=0; i!=nk; ++i) {
@@ -1270,7 +828,9 @@ void InDet::TrackClusterAssValidation::newClustersEvent(const EventContext& ctx,
       for(; c!=ce; ++c) {
 
 	++event_data.m_nclusters;
-
+	++m_eventStat.m_nclustersSTOT;
+	if(isTruth(event_data,(*c))) ++m_eventStat.m_nclustersSTOTt;	
+	
 	int nk = kine(event_data,(*c),Kine,999);
 	for(int i=0; i!=nk; ++i) {
 	  if(!isTheSameDetElement(event_data,Kine[i],(*c))) event_data.m_kinecluster.insert(std::make_pair(Kine[i],(*c)));
@@ -1395,7 +955,7 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent(const EventContext& c
 // Good kine tracks  selection
 ///////////////////////////////////////////////////////////////////
 
-int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data) const
+int InDet::TrackClusterAssValidation::qualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
   std::multimap<int,const Trk::PrepRawData*>::iterator c = event_data.m_kinecluster   .begin();
   std::multimap<int,const Trk::PrepRawData*>::iterator u = event_data.m_kineclusterTRT.begin();
@@ -1420,19 +980,24 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackCluster
   int          k0 = (*c).first;
   int          q0 = k0*charge(event_data,(*c),rp);
   unsigned int nc = 1         ;
-
+  
+  auto coerceTo49 = [] (const size_t idx){
+   return (idx<50) ? idx : 49;
+  };
+  
   for(++c; c!=event_data.m_kinecluster.end(); ++c) {
 
     if((*c).first==k0) {++nc; continue;}
     q0 = charge(event_data,(*c),rp)*k0;
-
-    nc < 50 ?  ++event_data.m_eventStat.m_particleClusters   [nc]     : ++event_data.m_eventStat.m_particleClusters   [49];
-    nc < 50 ?  ++event_data.m_eventStat.m_particleClustersBTE[nc][rp] : ++event_data.m_eventStat.m_particleClustersBTE[49][rp];
-
-
+    //
+    const size_t clusterIdx =coerceTo49(nc);
+    ++event_data.m_eventStat.m_particleClusters   [clusterIdx];
+    ++event_data.m_eventStat.m_particleClustersBTE[clusterIdx][rp];
+    //
     int ns = event_data.m_kinespacepoint.count(k0);
-    ns < 50 ?  ++event_data.m_eventStat.m_particleSpacePoints   [ns]     : ++event_data.m_eventStat.m_particleSpacePoints   [49];
-    ns < 50 ?  ++event_data.m_eventStat.m_particleSpacePointsBTE[ns][rp] : ++event_data.m_eventStat.m_particleSpacePointsBTE[49][rp];
+    const size_t spacepointIdx =coerceTo49(ns);
+    ++event_data.m_eventStat.m_particleSpacePoints   [spacepointIdx];
+    ++event_data.m_eventStat.m_particleSpacePointsBTE[spacepointIdx][rp];
 
     if     (nc                        < m_clcut   ) worskine.push_back(k0);
     else if(event_data.m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);
@@ -1446,11 +1011,11 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackCluster
     nc = 1         ;
   }
 
-  nc < 50 ?  ++event_data.m_eventStat.m_particleClusters   [nc]     : ++event_data.m_eventStat.m_particleClusters   [49];
-  nc < 50 ?  ++event_data.m_eventStat.m_particleClustersBTE[nc][rp] : ++event_data.m_eventStat.m_particleClustersBTE[49][rp];
+  ++event_data.m_eventStat.m_particleClusters   [coerceTo49(nc)];
+  ++event_data.m_eventStat.m_particleClustersBTE[coerceTo49(nc)][rp];
   int ns = event_data.m_kinespacepoint.count(k0);
-  ns < 50 ?  ++event_data.m_eventStat.m_particleSpacePoints   [ns]     : ++event_data.m_eventStat.m_particleSpacePoints   [49];
-  ns < 50 ?  ++event_data.m_eventStat.m_particleSpacePointsBTE[ns][rp] : ++event_data.m_eventStat.m_particleSpacePointsBTE[49][rp];
+  ++event_data.m_eventStat.m_particleSpacePoints   [coerceTo49(ns)];
+  ++event_data.m_eventStat.m_particleSpacePointsBTE[coerceTo49(ns)][rp];
 
   if     (nc                        < m_clcut   ) worskine.push_back(k0);
   else if(event_data.m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);
@@ -1458,14 +1023,10 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackCluster
   else {
     InDet::Barcode BC(q0,rp); event_data.m_particles[0].push_back(BC); ++t;
   }
-
-
-  std::list<int>::iterator w=worskine.begin(), we=worskine.end();
-
-  for(; w!=we; ++w) {
-    event_data.m_kinecluster   .erase((*w));
-    event_data.m_kineclusterTRT.erase((*w));
-    event_data.m_kinespacepoint.erase((*w));
+  for(auto & pThisCluster: worskine) {
+    event_data.m_kinecluster   .erase(pThisCluster);
+    event_data.m_kineclusterTRT.erase(pThisCluster);
+    event_data.m_kinespacepoint.erase(pThisCluster);
   }
 
   for(c = event_data.m_kinecluster.begin(); c!= event_data.m_kinecluster.end(); ++c) {
@@ -1548,7 +1109,7 @@ void InDet::TrackClusterAssValidation::tracksComparison(const EventContext& ctx,
 
       const Trk::TrackParameters* tpf = (*s)->trackParameters();  if(!tpf) continue;
       const AmgVector(5)&         Vpf = tpf ->parameters     ();
-      double                      pTf = fabs(sin(Vpf[3])/Vpf[4]);
+      double                      pTf = std::abs(std::sin(Vpf[3])/Vpf[4]);
       bool                        qTf = pTf > m_ptcut;
       for(; s!=se; ++s) {
 
@@ -1559,8 +1120,8 @@ void InDet::TrackClusterAssValidation::tracksComparison(const EventContext& ctx,
 	  if(tp) {
 	    qp = true;
 	    const AmgVector(5)& Vp = tp->parameters();
-	    double pT  = sin(Vp[3])/Vp[4]  ;
-	    double rap = fabs(log(tan(.5*Vp[3])));
+	    double pT  = std::sin(Vp[3])/Vp[4]  ;
+	    double rap = std::abs(std::log(std::tan(.5*Vp[3])));
 	    if     (pT >  m_ptcut && pT <  m_ptcutmax) {
 	      if     (rap <      1. ) ++event_data.m_trackCollectionStat[nc].m_ntracksPOSB;
 	      else if(rap < 3.0) ++event_data.m_trackCollectionStat[nc].m_ntracksPOSE;
@@ -1708,19 +1269,19 @@ int InDet::TrackClusterAssValidation::kine
     int k = (*mc).second.barcode(); if(k<=0) continue;
 
     const HepMC::GenParticle* pa = (*mc).second.cptr();
-    if(!pa || !pa->production_vertex()) continue;
+    if(!pa or !pa->production_vertex()) continue;
 
-    int pdg = abs(pa->pdg_id()); if(m_pdg && m_pdg != pdg ) continue;
+    int pdg = std::abs(pa->pdg_id()); if(m_pdg && m_pdg != pdg ) continue;
 
     const HepPDT::ParticleData* pd  = m_particleDataTable->particle(pdg);
-    if(!pd ||  fabs(pd->charge()) < .5) continue;
+    if(!pd or  std::abs(pd->charge()) < .5) continue;
 
     // pT cut
     //
     double           px = pa->momentum().px();
     double           py = pa->momentum().py();
     double           pz = pa->momentum().pz();
-    double           pt = sqrt(px*px+py*py);
+    double           pt = std::sqrt(px*px+py*py);
     if( pt < m_ptcut || pt > m_ptcutmax) continue;
 
     // Rapidity cut
@@ -1730,9 +1291,9 @@ int InDet::TrackClusterAssValidation::kine
 
     // Radius cut
     //
-    double           vx = pa->production_vertex()->point3d().x();
-    double           vy = pa->production_vertex()->point3d().y();
-    double           r = sqrt(vx*vx+vy*vy);
+    double           vx = pa->production_vertex()->position().x();
+    double           vy = pa->production_vertex()->position().y();
+    double           r = std::sqrt(vx*vx+vy*vy);
     if( r < m_rmin || r > m_rmax) continue;
 
     Kine[nkine] = k; if(++nkine >= nmax) break;
@@ -1762,6 +1323,18 @@ int InDet::TrackClusterAssValidation::kine0
     Kine[nkine] = k; if(++nkine >= nmax) break;
   }
   return nkine;
+}
+
+///////////////////////////////////////////////////////////////////
+// Test for cluster association with truth particles
+///////////////////////////////////////////////////////////////////
+
+bool InDet::TrackClusterAssValidation::isTruth
+(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData* d) const
+{
+  PRD_MultiTruthCollection::const_iterator mce;
+  PRD_MultiTruthCollection::const_iterator mc = findTruth(event_data,d,mce);
+  return mc!=mce;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1840,14 +1413,13 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles(const InDet::Tra
 
     int n  = 69-m_tracklocation[nc].key().size();
     std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
-
-    std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
-    std::cout<<"|                   "<<m_tracklocation[nc]<<s1
-	     <<std::endl;
-
-    std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
-    std::cout<<"|    #   pdg     kine   Ncl Ntr Nsp Lose     pT(MeV)    rapidity    radius          z    |"<<std::endl;
-    std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
+    std::stringstream out;
+    out<<"|----------------------------------------------------------------------------------------|\n";
+    out<<"|                   "<<m_tracklocation[nc]<<s1<<"\n";
+    out<<"|----------------------------------------------------------------------------------------|\n";
+    out<<"|    #   pdg     kine   Ncl Ntr Nsp Lose     pT(MeV)    rapidity    radius          z    |\n";
+    out<<"|----------------------------------------------------------------------------------------|\n";
+    
     n = 0;
     for(; p!=pe; ++p) {
 
@@ -1873,15 +1445,15 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles(const InDet::Tra
       double           px =  pa->momentum().px();
       double           py =  pa->momentum().py();
       double           pz =  pa->momentum().pz();
-      double           vx = pa->production_vertex()->point3d().x();
-      double           vy = pa->production_vertex()->point3d().y();
-      double           vz = pa->production_vertex()->point3d().z();
-      double           pt = sqrt(px*px+py*py);
-      double           t  = atan2(pt,pz);
-      double           ra =-log(tan(.5*t));
-      double           r  = sqrt(vx*vx+vy*vy);
+      double           vx = pa->production_vertex()->position().x();
+      double           vy = pa->production_vertex()->position().y();
+      double           vz = pa->production_vertex()->position().z();
+      double           pt = std::sqrt(px*px+py*py);
+      double           t  = std::atan2(pt,pz);
+      double           ra =-std::log(std::tan(.5*t));
+      double           r  = std::sqrt(vx*vx+vy*vy);
       ++n;
-      std::cout<<"| "
+      out<<"| "
 	     <<std::setw(4)<<n
 	       <<std::setw(6)<<pa->pdg_id()
 	       <<std::setw(10)<<pa->barcode()
@@ -1893,12 +1465,12 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles(const InDet::Tra
 	       <<std::setw(12)<<std::setprecision(5)<<ra
 	       <<std::setw(12)<<std::setprecision(5)<<r
 	       <<std::setw(12)<<std::setprecision(5)<<vz
-	       <<"   |"
-	       <<std::endl;
+	       <<"   |\n";
       ++dif;
 
     }
-    std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
+    out<<"|----------------------------------------------------------------------------------------|\n";
+    ATH_MSG_INFO("\n"<<out.str());
   }
   return true;
 }
@@ -1955,9 +1527,9 @@ int InDet::TrackClusterAssValidation::charge(const InDet::TrackClusterAssValidat
       double px =  pat->momentum().px();
       double py =  pat->momentum().py();
       double pz =  pat->momentum().pz();
-      double pt = sqrt(px*px+py*py)   ;
-      double t  = atan2(pt,pz)        ;
-      double ra = fabs(log(tan(.5*t)));
+      double pt = std::sqrt(px*px+py*py)   ;
+      double t  = std::atan2(pt,pz)        ;
+      double ra = std::abs(std::log(std::tan(.5*t)));
       // DBM
       if (ra > 3.0)
 	rap = 3;

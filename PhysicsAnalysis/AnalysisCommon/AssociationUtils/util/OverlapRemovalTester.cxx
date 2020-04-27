@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+
 /// @file OverlapRemovalTester.cxx
 /// @brief Contains RootCore testing code for the overlap removal tools.
 ///
@@ -91,11 +92,11 @@ template<> void selectObjects<xAOD::JetContainer>
     bool pass = (jet->pt() > 20000. && fabs(jet->eta()) < 2.5);
     selectDec(*jet) = pass;
     // Label bjets
-    double mv2c20 = 0.;
-    if(!jet->btagging()->MVx_discriminant("MV2c20", mv2c20))
-      throw std::runtime_error("MV2c20 unavailable");
-    // This is the 80% efficiency working point
-    bJetDec(*jet) = (mv2c20 > -0.5911);
+    double mv2c10 = 0.;
+    if(!jet->btagging()->MVx_discriminant("MV2c10", mv2c10))
+      throw std::runtime_error("MV2c10 unavailable");
+    // This is the 85% efficiency working point
+    bJetDec(*jet) = (mv2c10 > -0.1416);
   }
 }
 //-----------------------------------------------------------------------------
@@ -192,7 +193,6 @@ int main(int argc, char* argv[])
   if(optEntries >= 0) entries = std::min(entries, optEntries);
   Info(APP_NAME, "Processing %lli entries", entries);
 
-
   // Overlap removal tool configuration flags
   ORUtils::ORFlags orFlags("OverlapRemovalTool", inputLabel, outputLabel);
 
@@ -287,13 +287,12 @@ int main(int argc, char* argv[])
     selectObjects(taus);
     selectObjects(photons);
 
-    Info(APP_NAME,
-         "nEle %lu, nMuo %lu, nJet %lu, nTau %lu, nPho %lu",
+    Info(APP_NAME, "nEle %lu, nMuo %lu, nJet %lu, nTau %lu, nPho %lu",
          electrons->size(), muons->size(),
          jets->size(), taus->size(),
          photons->size());
 
-    // Apply the overlap removal to all objects (dumb example)
+    // Apply the overlap removal to all objects
     CHECK( orTool->removeOverlaps(electrons, muons, jets, taus, photons) );
 
     //
@@ -360,15 +359,15 @@ int main(int argc, char* argv[])
   Info(APP_NAME, "=====================================");
   Info(APP_NAME, "End of event processing");
   Info(APP_NAME, "Object count summaries: nOverlap / nSelected / nTotal");
-  Info(APP_NAME, "Number overlap elecs:   %4i / %4i / %5i",
+  Info(APP_NAME, "Number overlap elecs:   %5i / %5i / %5i",
        nOverlapElectrons, nSelectedElectrons, nTotalElectrons);
-  Info(APP_NAME, "Number overlap muons:   %4i / %4i / %5i",
+  Info(APP_NAME, "Number overlap muons:   %5i / %5i / %5i",
        nOverlapMuons, nSelectedMuons, nTotalMuons);
-  Info(APP_NAME, "Number overlap jets:    %4i / %4i / %5i",
+  Info(APP_NAME, "Number overlap jets:    %5i / %5i / %5i",
        nOverlapJets, nSelectedJets, nTotalJets);
-  Info(APP_NAME, "Number overlap taus:    %4i / %4i / %5i",
+  Info(APP_NAME, "Number overlap taus:    %5i / %5i / %5i",
        nOverlapTaus, nSelectedTaus, nTotalTaus);
-  Info(APP_NAME, "Number overlap photons: %4i / %4i / %5i",
+  Info(APP_NAME, "Number overlap photons: %5i / %5i / %5i",
        nOverlapPhotons, nSelectedPhotons, nTotalPhotons);
 
   Info(APP_NAME, "Application finished successfully");

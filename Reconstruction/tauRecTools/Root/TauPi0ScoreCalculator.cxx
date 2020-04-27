@@ -25,9 +25,7 @@ using std::string;
 
 TauPi0ScoreCalculator::TauPi0ScoreCalculator( const string& name ) :
   TauRecToolBase(name),
-  m_mvaBDT(nullptr)
-{
-    declareProperty("BDTWeightFile",           m_weightfile);
+  m_mvaBDT(nullptr) {
 }
 
 //-------------------------------------------------------------------------
@@ -88,7 +86,7 @@ float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_FIRST_ETA, Abs_FIRST_ETA) == false) {
         ATH_MSG_WARNING("Can't find FIRST_ETA. Set it to 0.");
     }
-    Abs_FIRST_ETA = fabs(Abs_FIRST_ETA);
+    Abs_FIRST_ETA = std::abs(Abs_FIRST_ETA);
     availableVariables.insert(std::make_pair("Pi0Cluster_Abs_FIRST_ETA", Abs_FIRST_ETA));
 
     float SECOND_R = 0.;
@@ -101,7 +99,7 @@ float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_DELTA_THETA, Abs_DELTA_THETA) == false) {
         ATH_MSG_WARNING("Can't find DELTA_THETA. Set it to 0.");
     }
-    Abs_DELTA_THETA = fabs(Abs_DELTA_THETA);
+    Abs_DELTA_THETA = std::abs(Abs_DELTA_THETA);
     availableVariables.insert(std::make_pair("Pi0Cluster_Abs_DELTA_THETA", Abs_DELTA_THETA));
 
     float CENTER_LAMBDA_helped = 0.;
@@ -163,7 +161,7 @@ float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_firstEtaWRTClusterPosition_EM1, AbsFirstEtaWRTClusterPosition_EM1) == false) { 
         ATH_MSG_WARNING("Can't find firstEtaWRTClusterPosition_EM1. Set it to 0.");
     }
-    AbsFirstEtaWRTClusterPosition_EM1 = fabs(AbsFirstEtaWRTClusterPosition_EM1);
+    AbsFirstEtaWRTClusterPosition_EM1 = std::abs(AbsFirstEtaWRTClusterPosition_EM1);
     availableVariables.insert(std::make_pair("Pi0Cluster_AbsFirstEtaWRTClusterPosition_EM1", AbsFirstEtaWRTClusterPosition_EM1));
 
     float secondEtaWRTClusterPosition_EM2 = 0.;

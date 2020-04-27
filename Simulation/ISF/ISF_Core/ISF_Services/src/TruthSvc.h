@@ -36,9 +36,8 @@ namespace Barcode {
   class IBarcodeSvc;
 }
 
-namespace HepMC {
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/GenVertex.h"
 
 namespace ISFTesting {
   class TruthSvc_test;

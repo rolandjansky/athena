@@ -9,13 +9,16 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 import sys
 
-HLTTest__TestRecoAlg, HLTTest__TestHypoAlg=CompFactory.getComps("HLTTest__TestRecoAlg","HLTTest__TestHypoAlg",)
+HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
+HLTTest__TestRecoAlg=CompFactory.HLTTest.TestRecoAlg
+
+
 
 UseThisLinkName="initialRoI"
 #UseThisLinkName="feature"
 
 
-HLTTest__TestInputMaker=CompFactory.HLTTest__TestInputMaker
+HLTTest__TestInputMaker=CompFactory.HLTTest.TestInputMaker
 def InputMakerForInitialRoIAlg(name):
     return HLTTest__TestInputMaker(name, RoIsLink="initialRoI", LinkName="initialRoI")
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,10 +16,10 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "ExpressionEvaluation/ExpressionParser.h"
 
 namespace DerivationFramework {
 
@@ -32,17 +32,27 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      std::string m_expression;
-      ExpressionParsing::ExpressionParser *m_parser;
-      std::string m_selectionString;
+      std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
+      Gaudi::Property<std::string> m_selectionString
+         { this, "SelectionString", "" , "" };
 
-      mutable unsigned int m_ntot;
-      mutable unsigned int m_npass;
-    
-      std::string m_eventInfoKey;
-      std::string m_decorationPrefix;
-      std::string m_pixelKey;
-  }; 
+      mutable std::atomic<unsigned int> m_ntot {};
+      mutable std::atomic<unsigned int> m_npass {};
+
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
+         { this, "EventInfoKey", "EventInfo", ""};
+      Gaudi::Property<std::string> m_decorationPrefix
+         { this, "DecorationPrefix", "", ""};
+      SG::ReadHandleKey<xAOD::TrackMeasurementValidationContainer> m_pixelKey
+         { this, "TrackMeasurementValidationKey", "PixelClusters", ""};
+
+      enum EIntDecor {kperModuleMultiplicity,
+                      klayer,
+                      keta_module,
+                      kphi_module,
+                      kNIntDecor};
+      std::vector<SG::WriteDecorHandleKey<xAOD::EventInfo> > m_intDecorKeys;
+  };
 }
 
 #endif // DERIVATIONFRAMEWORK_EVENTINFOPIXELDECORATOR_H

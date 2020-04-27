@@ -883,18 +883,18 @@ int InDet::TrackStatHelper::ClassifyParticle( const HepMC::GenParticle *particle
   if (particle->production_vertex()){
 
     // primary vertex inside innermost layer?
-    HepGeom::Point3D<double>	startVertex(particle->production_vertex()->point3d().x(),
-			    particle->production_vertex()->point3d().y(),
-			    particle->production_vertex()->point3d().z());
+    HepGeom::Point3D<double>	startVertex(particle->production_vertex()->position().x(),
+			    particle->production_vertex()->position().y(),
+			    particle->production_vertex()->position().z());
     if ( fabs(startVertex.perp()) < m_cuts.maxRStartPrimary 
 	 && fabs(startVertex.z()) < m_cuts.maxZStartPrimary) { 
       if (particle->end_vertex() == 0) {  
 	primary=true;
       }
       else {
-	HepGeom::Point3D<double> endVertex(particle->end_vertex()->point3d().x(), 
-			     particle->end_vertex()->point3d().y(),
-			     particle->end_vertex()->point3d().z());
+	HepGeom::Point3D<double> endVertex(particle->end_vertex()->position().x(), 
+			     particle->end_vertex()->position().y(),
+			     particle->end_vertex()->position().z());
 	if (  endVertex.perp()         > m_cuts.minREndPrimary 
 	      || fabs(startVertex.z()) > m_cuts.minZEndPrimary){
 	  primary=true;
@@ -910,9 +910,9 @@ int InDet::TrackStatHelper::ClassifyParticle( const HepMC::GenParticle *particle
 	secondary=true;
       }
       else {
-	HepGeom::Point3D<double> endVertex(particle->end_vertex()->point3d().x(),
-			     particle->end_vertex()->point3d().y(),
-			     particle->end_vertex()->point3d().z());
+	HepGeom::Point3D<double> endVertex(particle->end_vertex()->position().x(),
+			     particle->end_vertex()->position().y(),
+			     particle->end_vertex()->position().z());
 
 	if (endVertex.perp()       	> m_cuts.minREndSecondary
 	    || fabs(endVertex.z())	> m_cuts.minZEndSecondary) {

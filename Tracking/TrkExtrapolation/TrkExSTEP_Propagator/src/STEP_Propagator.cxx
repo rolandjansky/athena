@@ -108,6 +108,9 @@ StatusCode Trk::STEP_Propagator::initialize()
 {
   ATH_MSG_VERBOSE(" STEP_Propagator initialize() successful" );
 
+  // Read handle for AtlasFieldCacheCondObj
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+    
   if (!m_materialEffects) { //override all material interactions
     m_multipleScattering = false;
     m_energyLoss = false;
@@ -154,6 +157,7 @@ StatusCode Trk::STEP_Propagator::finalize()
   return StatusCode::SUCCESS;
 }
 
+
 /** Main propagation method NeutralParameters. Use StraightLinePropagator for neutrals*/
 Trk::NeutralParameters*
 Trk::STEP_Propagator::propagate (const Trk::NeutralParameters&,
@@ -173,17 +177,25 @@ Trk::STEP_Propagator::propagate (const Trk::NeutralParameters&,
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters*
-Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParameters,
-                                 const Trk::Surface&                 targetSurface,
-                                 Trk::PropDirection                  propagationDirection,
+Trk::STEP_Propagator::propagate (const EventContext&            ctx,
+                                 const Trk::TrackParameters&    trackParameters,
+                                 const Trk::Surface&            targetSurface,
+                                 Trk::PropDirection             propagationDirection,
                                  const Trk::BoundaryCheck&           boundaryCheck,
-                                 const MagneticFieldProperties&      magneticFieldProperties,
-                                 ParticleHypothesis       particle,
-                                 bool                     returnCurv,
-                                 const Trk::TrackingVolume*          tVol) const
+                                 const MagneticFieldProperties& magneticFieldProperties,
+                                 ParticleHypothesis             particle,
+                                 bool                           returnCurv,
+                                 const Trk::TrackingVolume*     tVol) const
 {
+
+    // ATH_MSG_WARNING( "[STEP_Propagator] enter 1");
+
   double Jacobian[25];
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_detailedElossFlag=m_detailedEloss;
   clearCache(cache); 
 
@@ -212,18 +224,26 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters*
-Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParameters,
-                                 std::vector<DestSurf>&        targetSurfaces,
-                                 Trk::PropDirection            propagationDirection,
+Trk::STEP_Propagator::propagate (const EventContext&                 ctx,
+                                 const Trk::TrackParameters&         trackParameters,
+                                 std::vector<DestSurf>&              targetSurfaces,
+                                 Trk::PropDirection                  propagationDirection,
                                  const Trk::MagneticFieldProperties& magneticFieldProperties,
-                                 ParticleHypothesis       particle,
-                                 std::vector<unsigned int>&    solutions,
-                                 double&                  path,
-                                 bool                     usePathLimit,
-                                 bool                     returnCurv,
+                                 ParticleHypothesis                  particle,
+                                 std::vector<unsigned int>&          solutions,
+                                 double&                             path,
+                                 bool                                usePathLimit,
+                                 bool                                returnCurv,
                                  const Trk::TrackingVolume*          tVol) const
 {
+
+    // ATH_MSG_WARNING( "[STEP_Propagator] enter 2");
+
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_detailedElossFlag=m_detailedEloss;
   clearCache(cache); 
 
@@ -266,19 +286,27 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters*
-Trk::STEP_Propagator::propagateT (const Trk::TrackParameters&         trackParameters,
-                                  std::vector<DestSurf>&        targetSurfaces,
-                                  Trk::PropDirection            propagationDirection,
+Trk::STEP_Propagator::propagateT (const EventContext&                 ctx,
+                                  const Trk::TrackParameters&         trackParameters,
+                                  std::vector<DestSurf>&              targetSurfaces,
+                                  Trk::PropDirection                  propagationDirection,
                                   const Trk::MagneticFieldProperties& magneticFieldProperties,
-                                  ParticleHypothesis       particle,
-                                  std::vector<unsigned int>&    solutions,
-                                  PathLimit&               pathLim,
-                                  TimeLimit&               timeLim,
-                                  bool                     returnCurv,
+                                  ParticleHypothesis                  particle,
+                                  std::vector<unsigned int>&          solutions,
+                                  PathLimit&                          pathLim,
+                                  TimeLimit&                          timeLim,
+                                  bool                                returnCurv,
                                   const Trk::TrackingVolume*          tVol,
                                   std::vector<Trk::HitInfo>*&         hitVector) const
 {
+
+    // ATH_MSG_WARNING( "[STEP_Propagator] enter 3");
+
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_detailedElossFlag=m_detailedEloss;
   clearCache(cache); 
 
@@ -355,21 +383,29 @@ Trk::STEP_Propagator::propagateT (const Trk::TrackParameters&         trackParam
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters*
-Trk::STEP_Propagator::propagateM (const Trk::TrackParameters&         trackParameters,
-                                  std::vector<DestSurf>&        targetSurfaces,
-                                  Trk::PropDirection            propagationDirection,
-                                  const Trk::MagneticFieldProperties& magneticFieldProperties,
-                                  ParticleHypothesis       particle,
-                                  std::vector<unsigned int>&    solutions,
-                                  std::vector<const Trk::TrackStateOnSurface*>*& matstates,
+Trk::STEP_Propagator::propagateM (const EventContext&                                        ctx,
+                                  const Trk::TrackParameters&                                trackParameters,
+                                  std::vector<DestSurf>&                                     targetSurfaces,
+                                  Trk::PropDirection                                         propagationDirection,
+                                  const Trk::MagneticFieldProperties&                        magneticFieldProperties,
+                                  ParticleHypothesis                                         particle,
+                                  std::vector<unsigned int>&                                 solutions,
+                                  std::vector<const Trk::TrackStateOnSurface*>*&             matstates,
                                   std::vector<std::pair<const Trk::TrackParameters*,int> >*& intersections,
-                                  double&                  path,
-                                  bool                     usePathLimit,
-                                  bool                     returnCurv,
-                                  const Trk::TrackingVolume*          tVol,
+                                  double&                                                    path,
+                                  bool                                                       usePathLimit,
+                                  bool                                                       returnCurv,
+                                  const Trk::TrackingVolume*                                 tVol,
                                   Trk::ExtrapolationCache*  extrapCache) const
 {
+
+    // ATH_MSG_WARNING( "[STEP_Propagator] enter 4");
+
   Cache cache{};
+
+    // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_detailedElossFlag=m_detailedEloss;
   clearCache(cache); 
 
@@ -416,7 +452,8 @@ Trk::STEP_Propagator::propagateM (const Trk::TrackParameters&         trackParam
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters*
-Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParameters,
+Trk::STEP_Propagator::propagate (const EventContext&                 ctx,
+                                 const Trk::TrackParameters&         trackParameters,
                                  const Trk::Surface&                 targetSurface,
                                  Trk::PropDirection                  propagationDirection,
                                  const Trk::BoundaryCheck&           boundaryCheck,
@@ -427,8 +464,15 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
                                  bool                                returnCurv,
                                  const Trk::TrackingVolume*          tVol) const
 {
+
+    // ATH_MSG_WARNING( "[STEP_Propagator] enter 5");
+
   double Jacobian[25];
   Cache cache{};
+
+    // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_detailedElossFlag=m_detailedEloss;
   clearCache(cache); 
 
@@ -467,17 +511,25 @@ Trk::STEP_Propagator::propagate (const Trk::TrackParameters&         trackParame
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters*
-Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         trackParameters,
+Trk::STEP_Propagator::propagateParameters (const EventContext&                 ctx,
+                                           const Trk::TrackParameters&         trackParameters,
                                            const Trk::Surface&                 targetSurface,
                                            Trk::PropDirection                  propagationDirection,
                                            const Trk::BoundaryCheck&           boundaryCheck,
                                            const Trk::MagneticFieldProperties& magneticFieldProperties,
-                                           ParticleHypothesis       particle,
-                                           bool                     returnCurv,
+                                           ParticleHypothesis                  particle,
+                                           bool                                returnCurv,
                                            const Trk::TrackingVolume*          tVol) const
 {
+
+    // ATH_MSG_WARNING( "[STEP_Propagator] enter 6");
+
   double Jacobian[25];
   Cache cache{};
+
+    // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_detailedElossFlag=m_detailedEloss;
   clearCache(cache); 
 
@@ -504,7 +556,8 @@ Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         t
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::TrackParameters*
-Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         trackParameters,
+Trk::STEP_Propagator::propagateParameters (const EventContext&                 ctx,
+                                           const Trk::TrackParameters&         trackParameters,
                                            const Trk::Surface&                 targetSurface,
                                            Trk::PropDirection                  propagationDirection,
                                            const Trk::BoundaryCheck&           boundaryCheck,
@@ -514,9 +567,16 @@ Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         t
                                            bool                                returnCurv,
                                            const Trk::TrackingVolume*          tVol) const
 {
-  double Jacobian[25];
+
+    // ATH_MSG_WARNING( "[STEP_Propagator] enter 7");
+ 
+ double Jacobian[25];
 
   Cache cache{};
+
+    // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_detailedElossFlag=m_detailedEloss;
   clearCache(cache); 
 
@@ -550,15 +610,20 @@ Trk::STEP_Propagator::propagateParameters (const Trk::TrackParameters&         t
 // Function for finding the intersection point with a surface
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::IntersectionSolution*
-Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParameters,
+const Trk::IntersectionSolution*
+Trk::STEP_Propagator::intersect (const EventContext&                 ctx,
+                                 const Trk::TrackParameters&         trackParameters,
                                  const Trk::Surface&                 targetSurface,
                                  const Trk::MagneticFieldProperties& mft,
-                                 ParticleHypothesis       particle,
+                                 ParticleHypothesis                  particle,
                                  const Trk::TrackingVolume*          tVol) const
 {
 
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_detailedElossFlag=m_detailedEloss;
   clearCache(cache); 
 
@@ -577,7 +642,7 @@ Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParame
   cache.m_hitVector = nullptr;
 
   // Bfield mode
-  mft.magneticFieldMode()==2 ? cache.m_solenoid = true : cache.m_solenoid = false;  
+  mft.magneticFieldMode() == Trk::FastField ? cache.m_solenoid = true : cache.m_solenoid = false;  
 
   //Check inputvalues
   if (m_tolerance <= 0.) return nullptr;
@@ -654,12 +719,14 @@ Trk::STEP_Propagator::intersect (const Trk::TrackParameters&         trackParame
   return intersectionSolution;
 }
 
-Trk::TrackSurfaceIntersection* Trk::STEP_Propagator::intersectSurface(const Trk::Surface&         surface,
-                                                                      const Trk::TrackSurfaceIntersection*    
-                                                                      trackIntersection,
-                                                                      const double               qOverP,
-                                                                      const Trk::MagneticFieldProperties& mft,
-                                                                      ParticleHypothesis       particle) const 
+const Trk::TrackSurfaceIntersection*
+Trk::STEP_Propagator::intersectSurface(const EventContext&             ctx,
+                                       const Trk::Surface&         surface,
+                                       const Trk::TrackSurfaceIntersection*    
+                                       trackIntersection,
+                                       const double               qOverP,
+                                       const Trk::MagneticFieldProperties& mft,
+                                       ParticleHypothesis       particle) const 
 {
 
   Amg::Vector3D origin = trackIntersection->position();
@@ -670,7 +737,8 @@ Trk::TrackSurfaceIntersection* Trk::STEP_Propagator::intersectSurface(const Trk:
                                                                                       direction.phi(),
                                                                                       direction.theta(),qOverP,nullptr);
 
-  const Trk::IntersectionSolution* solution = qOverP==0? intersect(*trackParameters,surface,
+  const Trk::IntersectionSolution* solution = qOverP==0? intersect(ctx,
+                                                                   *trackParameters,surface,
                                                                    Trk::MagneticFieldProperties(Trk::NoField),
                                                                    particle):intersect(*trackParameters,surface,
                                                                                        mft,particle,nullptr);
@@ -695,15 +763,20 @@ Trk::TrackSurfaceIntersection* Trk::STEP_Propagator::intersectSurface(const Trk:
 /////////////////////////////////////////////////////////////////////////////////
 
 void
-Trk::STEP_Propagator::globalPositions ( std::list<Amg::Vector3D>& positionsList,
-                                        const Trk::TrackParameters&           trackParameters,
-                                        const Trk::MagneticFieldProperties&   mft,
-                                        const Trk::CylinderBounds&            cylinderBounds,
-                                        double                     maxStepSize,
-                                        ParticleHypothesis         particle,
-                                        const Trk::TrackingVolume*       tVol) const
+Trk::STEP_Propagator::globalPositions ( const EventContext&                 ctx,
+                                        std::list<Amg::Vector3D>&           positionsList,
+                                        const Trk::TrackParameters&         trackParameters,
+                                        const Trk::MagneticFieldProperties& mft,
+                                        const Trk::CylinderBounds&          cylinderBounds,
+                                        double                              maxStepSize,
+                                        ParticleHypothesis                  particle,
+                                        const Trk::TrackingVolume*          tVol) const
 {
   Cache cache{};
+
+  // Get field cache object
+  getFieldCacheObject(cache, ctx);
+
   cache.m_detailedElossFlag=m_detailedEloss;
   clearCache(cache); 
 
@@ -721,7 +794,7 @@ Trk::STEP_Propagator::globalPositions ( std::list<Amg::Vector3D>& positionsList,
     cache.m_matPropOK = false;
   }
 
-  mft.magneticFieldMode()==2 ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
+  mft.magneticFieldMode() == Trk::FastField ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
 
   //Check inputvalues
   if (m_tolerance <= 0.) return;
@@ -827,7 +900,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
   const Trk::TrackParameters* trackParameters = nullptr;
 
   // Bfield mode
-  mft.magneticFieldMode()==2 ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
+  mft.magneticFieldMode() == Trk::FastField ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
 
   //Check inputvalues
   if (m_tolerance <= 0.) return nullptr;
@@ -1028,7 +1101,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
   const Trk::TrackParameters* trackParameters = nullptr;
 
   // Bfield mode
-  mft.magneticFieldMode()==2 ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
+  mft.magneticFieldMode() == Trk::FastField ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
 
   //Check inputvalues
   if (m_tolerance <= 0.) return nullptr;
@@ -1948,7 +2021,8 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
   dir1 = dir;
   if (firstStep) {	       // Poll BG1 if this is the first step, else use recycled BG4
     firstStep = false;
-    getMagneticField( pos, errorPropagation, BG1); //Get the gradients needed for the error propagation if errorPropagation=true
+    // MT Field cache is stored in cache
+    getMagneticField( cache, pos, errorPropagation, BG1); //Get the gradients needed for the error propagation if errorPropagation=true
   }
   // Lorentz force, d2r/ds2 = lambda * (dir x B)
   Amg::Vector3D k1( dir.y()*BG1[2] - dir.z()*BG1[1], dir.z()*BG1[0] - dir.x()*BG1[2], dir.x()*BG1[1] - dir.y()*BG1[0]);
@@ -1970,7 +2044,9 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
     pos = initialPos + (h/2.)*initialDir + (h*h/8.)*k1;
     dir = initialDir + (h/2.)*k1;
     dir2 = dir;
-    getMagneticField( pos, errorPropagation, BG23);
+
+    // MT Field cache is stored in cache
+    getMagneticField( cache, pos, errorPropagation, BG23);
     Amg::Vector3D k2( dir.y()*BG23[2] - dir.z()*BG23[1], dir.z()*BG23[0] - dir.x()*BG23[2],
                       dir.x()*BG23[1] - dir.y()*BG23[0]);
     k2 = sol * lambda2 * k2;
@@ -2006,7 +2082,9 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
     pos = initialPos + h*initialDir + (h*h/2.)*k3;
     dir = initialDir + h*k3;
     dir4 = dir;
-    getMagneticField( pos, errorPropagation, BG4);
+
+    // MT Field cache is stored in cache
+    getMagneticField( cache, pos, errorPropagation, BG4);
     Amg::Vector3D k4( dir.y()*BG4[2] - dir.z()*BG4[1], dir.z()*BG4[0] - dir.x()*BG4[2], dir.x()*BG4[1] - dir.y()*BG4[0]);
     k4 = sol * lambda4 * k4;
 
@@ -2200,7 +2278,8 @@ Trk::STEP_Propagator::rungeKuttaStep( Cache& cache,
 /////////////////////////////////////////////////////////////////////////////////
 
 void
-Trk::STEP_Propagator::getMagneticField( const Amg::Vector3D&  position,
+Trk::STEP_Propagator::getMagneticField( Cache& cache,
+                                        const Amg::Vector3D&  position,
                                         bool            getGradients,
                                         float*          BG) const
 {
@@ -2218,7 +2297,8 @@ Trk::STEP_Propagator::getMagneticField( const Amg::Vector3D&  position,
 
   if (getGradients && m_includeBgradients) {   // field gradients needed and available
 
-    getFieldGradient(R,H,dH);
+    // MT Field cache is stored in cache
+    getFieldGradient(cache, R,H,dH);
 
     BG[0]=H[0]*magScale;    
     BG[1]=H[1]*magScale;    
@@ -2236,7 +2316,8 @@ Trk::STEP_Propagator::getMagneticField( const Amg::Vector3D&  position,
   }
   else {  //Homogenous field or no gradients needed, only retrieve the field strength.
 
-    getField(R,H); 
+    // MT Field cache is stored in cache
+    getField(cache, R,H); 
 
     BG[0]=H[0]*magScale;
     BG[1]=H[1]*magScale;    
@@ -2710,3 +2791,15 @@ void Trk::STEP_Propagator::clearCache(Cache& cache) const
   cache.m_sigmaIoni=0.;
   cache.m_sigmaRad=0.;
 }
+
+void Trk::STEP_Propagator::getFieldCacheObject( Cache& cache,const EventContext& ctx) const
+{
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return;
+  }
+  fieldCondObj->getInitializedCache (cache.m_fieldCache);
+}
+

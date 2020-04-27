@@ -40,7 +40,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkTools/TrkToolInterfaces 
+                          InnerDetector/InDetValidation/InDetTruthVertexValidation )
                           
 
 # External dependencies:
@@ -60,7 +61,7 @@ atlas_add_library( InDetPhysValMonitoringLib
                    PRIVATE_LINK_LIBRARIES AsgTools AthenaKernel GeoPrimitives EventPrimitives 
                    xAODBase xAODEventInfo xAODJet InDetPrepRawData InDetRIO_OnTrack
                    AthContainers StoreGateLib
-                   MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces )
+                   MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetTruthVertexValidationLib )
 
 atlas_add_component( InDetPhysValMonitoring
                      src/components/*.cxx

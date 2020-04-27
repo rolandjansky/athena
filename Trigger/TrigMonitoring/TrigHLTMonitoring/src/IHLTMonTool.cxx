@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -194,8 +194,6 @@ void IHLTMonTool::addMonGroup(MonGroup *m) {
 void IHLTMonTool::addHistogram(TH1 *h, const std::string &monGroup) {
   if (!h)
     throw GaudiException("Histogram pointer is NULL","HLTMonitoring",StatusCode::FAILURE);
-  //take ownership of the pointer.. in case except is thrown hPtr will delete h
-  //std::auto_ptr<TH1> hPtr = std::auto_ptr<TH1>(h);
   
   std::string theMonGroup;
   
@@ -232,8 +230,6 @@ void IHLTMonTool::addHistogram(TH1 *h, const std::string &monGroup) {
 void IHLTMonTool::addHistogram(TH2 *h, const std::string &monGroup) {
   if (!h)
     throw GaudiException("Histogram pointer is NULL","HLTMonitoring",StatusCode::FAILURE);
-  //take ownership of the pointer.. in case except is thrown hPtr will delete h
-  //std::auto_ptr<TH2> hPtr = std::auto_ptr<TH2>(h);
 
   std::string theMonGroup;
   
@@ -270,8 +266,6 @@ void IHLTMonTool::addTree(TTree *t, const std::string &monGroup) {
   if (!t)
     throw GaudiException("Tree pointer is NULL","HLTMonitoring",StatusCode::FAILURE);
 
-  //take ownership of the pointer.. in case except is thrown tPtr will delete t
-  //std::auto_ptr<TTree> tPtr = std::auto_ptr<TTree>(t);
 
   std::string theMonGroup;
   
@@ -308,8 +302,6 @@ void IHLTMonTool::addGraph(TGraph *g, const std::string &monGroup) {
   if (!g)
     throw GaudiException("Graph pointer is NULL","HLTMonitoring",StatusCode::FAILURE);
 
-  //take ownership of the pointer.. in case except is thrown gPtr will delete g
-  //std::auto_ptr<TGraph> gPtr = std::auto_ptr<TGraph>(g);
 
 
   std::string theMonGroup;
@@ -348,8 +340,6 @@ void IHLTMonTool::addProfile(TProfile *h, const std::string &monGroup) {
   if (!h)
     throw GaudiException("Profile pointer is NULL","HLTMonitoring",StatusCode::FAILURE);
   
-  //take ownership of the pointer.. in case except is thrown hPtr will delete h
-  //std::auto_ptr<TProfile> hPtr = std::auto_ptr<TProfile>(h);
   
 
   std::string theMonGroup;

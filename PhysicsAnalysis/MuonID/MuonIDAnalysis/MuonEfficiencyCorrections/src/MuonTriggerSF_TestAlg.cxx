@@ -32,6 +32,7 @@ namespace Trig{
 
     //=============================================================================
     StatusCode MuonTriggerSF_TestAlg::initialize() {
+        ATH_CHECK(m_eventInfo.initialize());
         CHECK(m_histSvc.retrieve());
         CHECK(m_trigEff.retrieve());
         CHECK(m_prwTool.retrieve());
@@ -61,10 +62,9 @@ namespace Trig{
     StatusCode MuonTriggerSF_TestAlg::execute() {
         
         //Retrieve the EventInfo to apply the prwTool before activating the trigger tool
-        const xAOD::EventInfo* Info;
-        ATH_CHECK(evtStore()->retrieve(Info,"EventInfo"));
-        ATH_CHECK(m_prwTool->apply(*Info));
-        m_runNumber = m_prwTool->getRandomRunNumber(*Info);
+        SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfo);
+        ATH_CHECK(m_prwTool->apply(*evtInfo));
+        m_runNumber = m_prwTool->getRandomRunNumber(*evtInfo);
         
         const xAOD::MuonContainer* Muons;
         ATH_CHECK(evtStore()->retrieve(Muons,"Muons"));

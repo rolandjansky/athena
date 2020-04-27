@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelConditionsSummaryTool.h"
@@ -28,10 +28,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   ATH_CHECK(m_condDCSStatusKey.initialize());
 
 #ifndef SIMULATIONBASE
-  if (!m_useByteStream) {
-    ATH_CHECK(m_BSErrContReadKey.assign(""));
-  }
-  ATH_CHECK(m_BSErrContReadKey.initialize(!m_BSErrContReadKey.empty()));
+  ATH_CHECK(m_BSErrContReadKey.initialize(m_useByteStream && !m_BSErrContReadKey.empty()));
 #endif
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
@@ -69,6 +66,9 @@ StatusCode PixelConditionsSummaryTool::initialize(){
 
 bool PixelConditionsSummaryTool::isBSError([[maybe_unused]] const IdentifierHash & moduleHash) const {
 #ifndef SIMULATIONBASE
+  if (!m_useByteStream) {
+     return false;
+  }
   SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContReadKey);
   if (!errCont.isValid()) {
     ATH_MSG_ERROR("BSErrContainer is not valid!");

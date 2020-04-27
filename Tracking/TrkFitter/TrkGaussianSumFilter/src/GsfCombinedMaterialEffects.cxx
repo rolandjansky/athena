@@ -101,8 +101,8 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
     ATH_MSG_DEBUG("WARNING: Multiple scattering effects are not determined");
     cache_multipleScatter.weights.push_back(1.);
     cache_multipleScatter.deltaPs.push_back(0.);
-    std::unique_ptr<AmgSymMatrix(5)> newCov = std::make_unique<AmgSymMatrix(5)>();
-    newCov->setZero();
+    AmgSymMatrix(5) newCov;
+    newCov.setZero();
     cache_multipleScatter.deltaCovariances.push_back(std::move(newCov));
   }
 
@@ -128,8 +128,8 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
   if (cache_energyLoss.weights.empty()) {
     cache_energyLoss.weights.push_back(1.);
     cache_energyLoss.deltaPs.push_back(0.);
-    std::unique_ptr<AmgSymMatrix(5)> newCov = std::make_unique<AmgSymMatrix(5)>();
-    newCov->setZero();
+    AmgSymMatrix(5) newCov;
+    newCov.setZero();
     cache_energyLoss.deltaCovariances.push_back(std::move(newCov));
   }
 
@@ -140,10 +140,9 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
   ATH_MSG_DEBUG("Combining the energy loss and multiple scattering components");
 
   // Iterators over the multiple scattering components
-  std::vector<double>::const_iterator multipleScatter_weightsIterator = cache_multipleScatter.weights.begin();
-  std::vector<double>::const_iterator multipleScatter_deltaPsIterator = cache_multipleScatter.deltaPs.begin();
-  std::vector<std::unique_ptr<const AmgSymMatrix(5)>>::const_iterator multipleScatter_deltaCovariancesIterator =
-    cache_multipleScatter.deltaCovariances.begin();
+  auto multipleScatter_weightsIterator = cache_multipleScatter.weights.begin();
+  auto multipleScatter_deltaPsIterator = cache_multipleScatter.deltaPs.begin();
+  auto multipleScatter_deltaCovariancesIterator = cache_multipleScatter.deltaCovariances.begin();
 
   // Loop over multiple scattering components
   for (; multipleScatter_weightsIterator != cache_multipleScatter.weights.end();
@@ -152,10 +151,9 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
        ++multipleScatter_deltaCovariancesIterator) {
 
     // Iterators over the energy loss components
-    std::vector<double>::const_iterator energyLoss_weightsIterator = cache_energyLoss.weights.begin();
-    std::vector<double>::const_iterator energyLoss_deltaPsIterator = cache_energyLoss.deltaPs.begin();
-    std::vector<std::unique_ptr<const AmgSymMatrix(5)>>::const_iterator energyLoss_deltaCovariancesIterator =
-      cache_energyLoss.deltaCovariances.begin();
+    auto energyLoss_weightsIterator = cache_energyLoss.weights.begin();
+    auto energyLoss_deltaPsIterator = cache_energyLoss.deltaPs.begin();
+    auto energyLoss_deltaCovariancesIterator = cache_energyLoss.deltaCovariances.begin();
 
     // Loop over energy loss components
 
@@ -169,8 +167,8 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
       cache.deltaPs.push_back(combinedDeltaP);
 
       if (measuredCov) {
-        std::unique_ptr<AmgSymMatrix(5)> summedCovariance = std::make_unique<AmgSymMatrix(5)>(
-          (*(*multipleScatter_deltaCovariancesIterator)) + (*(*energyLoss_deltaCovariancesIterator)));
+        AmgSymMatrix(5) summedCovariance =
+          (*multipleScatter_deltaCovariancesIterator) + (*energyLoss_deltaCovariancesIterator);
         cache.deltaCovariances.push_back(std::move(summedCovariance));
       }
     } // end for loop over energy loss components

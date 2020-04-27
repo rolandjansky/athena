@@ -1,0 +1,33 @@
+<lcgdict>
+
+  <!-- Tools -->
+  <namespace name="ORUtils" />
+  <class name="ORUtils::IOverlapTool" />
+  <class name="ORUtils::IOverlapRemovalTool" />
+  <class name="ORUtils::IParticleAssociator" />
+  <class name="ORUtils::BaseOverlapTool" />
+  <class name="ORUtils::OverlapRemovalTool" />
+  <class name="ORUtils::DeltaROverlapTool" />
+  <class name="ORUtils::EleEleOverlapTool" />
+  <class name="ORUtils::EleJetOverlapTool" />
+  <class name="ORUtils::EleMuSharedTrkOverlapTool" />
+  <class name="ORUtils::MuJetOverlapTool" />
+  <class name="ORUtils::MuPFJetOverlapTool" />
+  <class name="ORUtils::AltMuJetOverlapTool" />
+  <class name="ORUtils::TauLooseEleOverlapTool" />
+  <class name="ORUtils::TauLooseMuOverlapTool" />
+  <class name="ORUtils::TauJetOverlapTool" />
+  <class name="ORUtils::TauAntiTauJetOverlapTool" />
+  <class name="ORUtils::ObjLinkOverlapTool" />
+  <class name="ORUtils::ToolBox" />
+  <class name="ORUtils::BJetHelper" />
+  <class name="ORUtils::DeltaRMatcher" />
+  <class name="ORUtils::SlidingDeltaRMatcher" />
+  <class name="ORUtils::MuJetGhostDRMatcher" />
+  <class name="ORUtils::OverlapDecorationHelper" />
+  <class name="ORUtils::OverlapLinkHelper" />
+
+  <!-- Dual-use alg -->
+  <class name="OverlapRemovalGenUseAlg" />
+
+</lcgdict>

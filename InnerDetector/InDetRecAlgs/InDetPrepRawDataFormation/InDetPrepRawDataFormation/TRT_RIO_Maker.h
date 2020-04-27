@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -70,8 +70,8 @@ namespace InDet{
     int                            m_mode_rio_production;
     bool                           m_trtBadChannels;
 
-    bool m_roiSeeded;                                //!< detector manager name in StoreGate
-    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{this, "RoIs", "", "RoIs to read in"};
+    BooleanProperty m_roiSeeded{this, "isRoI_Seeded", false, "Use RoI"};
     ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
     SG::UpdateHandleKey<InDet::TRT_DriftCircleContainerCache> m_rioContainerCacheKey;
 

@@ -6,7 +6,7 @@
 #define EVENTCONTAINERS_IDENTIFIABLEVALUECONTAINER_H
 
 #include "EventContainers/IdentifiableValueCache.h"
-
+#include <set>
 
 class IdentifiableValueContainerBase {};
 
@@ -20,7 +20,7 @@ template<class T>
 class IdentifiableValueContainer : IdentifiableValueContainerBase{
 
 public:
-
+  typedef T value_type;
   typedef IdentifiableValueCache<T> Cache;
 
    //Prevent accidental copying
@@ -30,14 +30,14 @@ public:
 
    ///Self Owning Constructor
    ///Pass the maximum hash to size the cache and the defaultValue which will be interpreted as an empty value
-   IdentifiableValueContainer(size_t maxSize, T defaultValue) : m_mask(maxSize, false), m_own(true)
+   IdentifiableValueContainer(size_t maxSize, T defaultValue) : m_own(true)
    {
        m_cache = new IdentifiableValueCache<T>(maxSize, std::move(defaultValue));
    }
 
    ///External Cache Constructor
    ///Pass the external cache to set up a view specific view interface
-   IdentifiableValueContainer(IdentifiableValueCache<T> *ptr) : m_mask(ptr->maxSize()),
+   IdentifiableValueContainer(IdentifiableValueCache<T> *ptr) : 
    m_cache(ptr), m_own(false)
    {}
 
@@ -53,7 +53,7 @@ public:
    bool setOrDrop(size_t i, const T &value);
 
    ///Return the maxSize of the collection
-   size_t maxSize() const { return m_mask.size(); }
+   size_t maxSize() const { return m_cache->maxSize(); }
 
    ///Return the number of entries set and accessible according to the mask.
    ///This is not a trivial function do not repeatedly call.
@@ -74,8 +74,9 @@ public:
    /// Obtain const access to the cache
    const Cache* cache() const { return m_cache; }
 
+   const std::set<size_t>& getMask() const { return m_mask; }
 private:
-   std::vector<bool> m_mask;
+   std::set<size_t> m_mask;
    Cache *m_cache;
    bool m_own;
 };
@@ -83,44 +84,48 @@ private:
 template< class T >
 bool IdentifiableValueContainer<T>::present(size_t i) const
 {
-   return m_mask.at(i);
+   return m_mask.count(i);
 }
 
 template< class T >
 std::vector<std::pair<size_t, T>> IdentifiableValueContainer<T>::getAll() const{
    std::vector<std::pair<size_t, T>> list;
+   list.reserve(m_mask.size());
    const auto& raw = m_cache->rawReadAccess();
-   for(size_t i =0; i<m_mask.size(); i++){
-       if(m_mask[i]) list.emplace_back(i, raw[i].load());
+   for(size_t i : m_mask){
+       list.emplace_back(i, raw[i].load());
    }
    return list;
 }
 
 template< class T >
 T IdentifiableValueContainer<T>::retrieve(size_t i) const{
-     if(m_mask[i]) return m_cache->retrieve(i);
+     auto r = m_cache->retrieve(i);
+     //Should be quicker to establish empty cache than empty mask with a std::set
+     //So the cache is checked first
+     if(r!= m_cache->emptyValue() && present(i)) return r;
      else return m_cache->emptyValue();
 }
 
 template< class T >
 bool IdentifiableValueContainer<T>::tryAddFromCache(size_t i){
-   if(i >= m_mask.size()) return false;
+   if(i >= maxSize()) return false;
    bool b = m_cache->present(i);
-   m_mask[i] = b;
+   if(b) m_mask.emplace(i);
    return b;
 }
 
+
+
 template< class T >
 size_t IdentifiableValueContainer<T>::numberSet() const{
-     size_t count = 0;
-     for(bool b : m_mask) count += b;
-     return count;
+     return m_mask.size();
 }
 
 template< class T >
 bool IdentifiableValueContainer<T>::setOrDrop(size_t i, const T &value){
    bool b = m_cache->setOrDrop(i, value);
-   m_mask[i] = true;
+   m_mask.emplace(i);
    return b;
 }
 

@@ -14,7 +14,7 @@ atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref )
 atlas_install_runtime( Testing/*.trans Testing/*.conf )
-atlas_install_scripts( bin/*.py test/test*.sh test/test*.py)
+atlas_install_scripts( bin/*.py bin/*.sh test/test*.sh test/test*.py)
 
 # Unit tests:
 atlas_add_test( flake8_test_dir

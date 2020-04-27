@@ -22,15 +22,15 @@ using CLHEP::GeV;
 InDet::TRT_TrackTimingTool::TRT_TrackTimingTool(const std::string& t,
                                                 const std::string& n,
                                                 const IInterface* p) :
-  AthAlgTool(t, n, p), m_ITrackFitter("Trk::GlobalChi2Fitter/InDetTrackFitter"), m_eventPhaseTool(), m_caldbsvc(
-    "TRT_CalDbSvc", n), m_doEtaCorrection(true), m_debug(false) {
+  AthAlgTool(t, n, p), m_ITrackFitter("Trk::GlobalChi2Fitter/InDetTrackFitter"), m_eventPhaseTool(), m_caldbtool(
+    "TRT_CalDbTool", this), m_doEtaCorrection(true), m_debug(false) {
   declareInterface<ITRT_TrackTimingTool>(this);
   declareInterface<Trk::ITrackTimingTool>(this);
 
   // retrieve properties from job options
   declareProperty("FitterTool", m_ITrackFitter);
   declareProperty("EventPhaseTool", m_eventPhaseTool);
-  declareProperty("TRTCalDbSvc", m_caldbsvc);
+  declareProperty("TRTCalDbTool", m_caldbtool);
   declareProperty("DoEtaCorrection", m_doEtaCorrection);
   declareProperty("DebugMissingMeasurement", m_debug);
   declareProperty("EventInfoKey", m_EventInfoKey = "ByteStreamEventInfo");
@@ -195,7 +195,7 @@ float InDet::TRT_TrackTimingTool::getTrackTimeFromDriftRadius(const Trk::Track* 
     float trackR = tparp->parameters()[Trk::driftRadius];
 
     Identifier id = trtcirc->identify();
-    const TRTCond::RtRelation* rtRelation = m_caldbsvc->getRtRelation(id);
+    const TRTCond::RtRelation* rtRelation = m_caldbtool->getRtRelation(id);
     if (not rtRelation) {
       ATH_MSG_WARNING("Rt relation pointer is null!");
       continue;

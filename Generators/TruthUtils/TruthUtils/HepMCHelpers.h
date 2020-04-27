@@ -12,12 +12,8 @@
 #include "TruthUtils/PIDHelpers.h"
 #include "TruthUtils/TruthParticleHelpers.h"
 #include "MCUtils/HepMCUtils.h"
-// #include "MCUtils/Clustering.h"
-
-// Common imports from external namespaces
-//using fastjet::PseudoJet;
-//using fastjet::ClusterSequence;
-
+#include "MCUtils/PIDUtils.h"
+#include "AtlasHepMC/GenEvent.h"
 
 namespace MC {
 
@@ -62,12 +58,6 @@ namespace MC {
     return MC::isNonInteracting(p->pdg_id()); //< From TruthUtils/PIDHelpers.h
   }
 
-  /// @brief Identify if the particle could interact with the detector during the simulation, e.g. not a neutrino or WIMP
-  /// @todo This one can't be made to only take a PDG ID argument since it needs to check gen-stability via status & decay links
-  // inline bool isSimInteracting(int pid) {
-  //   if (! MC::isGenStable(pid)) return false; //skip particles which the simulation would not see
-  //   return !MC::isNonInteracting(pid);
-  // }
   /// @brief Identify if the particle could interact with the detector during the simulation, e.g. not a neutrino or WIMP
   inline bool isSimInteracting(const HepMC::GenParticle* p) {
     if (! MC::isGenStable(p)) return false; //skip particles which the simulation would not see

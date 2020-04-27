@@ -31,14 +31,14 @@ LArPedestalCompleteCnv::createTransient ()
     static pool::Guid   p0_guid("E17191DD-4C0A-4B1A-AE49-7D587C6BE3EE");
 
     if (compareClassGuid(p2_guid)) {
-      // using auto_ptr ensures deletion of the persistent object
+      // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr< LArPedestalSubset_p2 > col_vect( poolReadObject< LArPedestalSubset_p2 >() );
       MsgStream log(msgSvc(), "LArPedestalCompleteCnv" ); 
       //log << MSG::INFO << "Reading LArPedestalSubset_p1" << endmsg; 
       return TPconverter2.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p1_guid) ) {
-        // using auto_ptr ensures deletion of the persistent object
+        // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< LArPedestalSubset_p1 > col_vect( poolReadObject< LArPedestalSubset_p1 >() );
         MsgStream log(msgSvc(), "LArPedestalCompleteCnv" ); 
         //log << MSG::INFO << "Reading LArPedestalSubset_p1" << endmsg; 

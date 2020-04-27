@@ -24,7 +24,7 @@
 
 class JetCopier
   : public asg::AsgTool,
-    virtual public JetProvider<xAOD::ShallowAuxContainer>
+    virtual public IJetProvider
 {
   ASG_TOOL_CLASS(JetCopier, IJetProvider)
 
@@ -32,11 +32,19 @@ class JetCopier
     using asg::AsgTool::AsgTool;
 
     virtual StatusCode initialize() override;
+
+    virtual StatusCode getAndRecordJets(SG::WriteHandle<xAOD::JetContainer>& jetHandle) const override;
+
     virtual std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > getJets() const override;
+    virtual std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > ShallowCopyJets() const;
+    virtual std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > DeepCopyJets() const;
 
   private:
     // Handle Input JetContainer
     SG::ReadHandleKey<xAOD::JetContainer> m_inputJets {this, "InputJets", "", "Jet collection to be copied"};
+
+    Gaudi::Property<bool> m_shallowCopy {this, "ShallowCopy", true, "True for shallow copy, false for deep copy"};
+    Gaudi::Property<bool> m_shallowIO {this, "ShallowIO", false, "True for storing only modified data"};
 };
 
 #endif

@@ -10,9 +10,7 @@
 #define ISF_EVENT_PARTICLEHELPER_H 1
 
 // forward declarations
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace ISF {
 

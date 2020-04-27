@@ -11,6 +11,7 @@
 #
 
 import os
+import ctypes
 import uuid
 import ROOT
 from DCubeUtils import DCubeObject, DCubeException
@@ -319,7 +320,7 @@ class DCubePlotter( DCubeObject ):
         titlePave.Draw()
         
         configPave = self.__configPave()
-        configPave.Draw()
+        if ( configPave ): configPave.Draw()
 
         status.append( self.__saveAs( canvas, "reg", "gr" ) )
         
@@ -374,7 +375,7 @@ class DCubePlotter( DCubeObject ):
             titlePave.Draw()
             
             configPave = self.__configPave()
-            configPave.Draw()
+            if ( configPave ): configPave.Draw()
 
             status.append( self.__saveAs( canvas, "dif", "gd" ) )
             
@@ -385,16 +386,16 @@ class DCubePlotter( DCubeObject ):
     def __getMinMaxTGraph( self, mon=None, ref=None ):
 
         xmin = xmax = ymin = ymax = exmin = exmax = dxmin = None
-        xd = ROOT.Double(0)
-        yd = ROOT.Double(0)
+        xd = ctypes.c_double(0)
+        yd = ctypes.c_double(0)
         for g in (ref, mon):
             if g:
                 x0 = None
                 for i in range( g.GetN() ):
 
                     g.GetPoint(i, xd, yd)
-                    x = float(xd)
-                    y = float(yd)
+                    x = float(xd.value)
+                    y = float(yd.value)
 
                     if x0 is not None:
                         dx = x - x0
@@ -511,7 +512,7 @@ class DCubePlotter( DCubeObject ):
         canvas.cd()
         stack.Draw( "NOSTACK"  )
         titlePave.Draw()
-        config.Draw()
+        if ( config ): config.Draw()
         legend.Draw()
         pvaluePave = self.__pvaluePave()
         if ( pvaluePave ): pvaluePave.Draw()
@@ -547,7 +548,7 @@ class DCubePlotter( DCubeObject ):
 
         diffHist.Draw( )
         titlePave.Draw()
-        configPave.Draw()
+        if ( configPave ): configPave.Draw()
         
         status.append( self.__saveAs( canvas, "dif", "h1d" ) )
 
@@ -610,7 +611,8 @@ class DCubePlotter( DCubeObject ):
             stack.Add( top )
             #stack.UseCurrentStyle()
 
-            legend = ROOT.TLegend(0.1, 0.80, 0.45, 0.72, "", "NDC")
+            Y1NDC = (self.configPave.GetY1NDC() if self.configPave else 0.9)
+            legend = ROOT.TLegend(0.1, Y1NDC, 0.45, Y1NDC-0.08, "", "NDC")
             legend.SetTextFont(102)
             legend.SetTextSize(0.02)
             legend.SetTextColor(1)
@@ -626,7 +628,7 @@ class DCubePlotter( DCubeObject ):
             else:
                stack.Draw( "lego1 nostack" )
             titlePave.Draw()
-            configPave.Draw()
+            if ( configPave ): configPave.Draw()
             legend.Draw()
 
             if ( pvaluePave ): pvaluePave.Draw()
@@ -637,7 +639,7 @@ class DCubePlotter( DCubeObject ):
             canvas.cd()
             self.mon.Draw( )
             
-            configPave.Draw()
+            if ( configPave ): configPave.Draw()
             titlePave.Draw()
             if ( pvaluePave ): pvaluePave.Draw()
             canvas.Draw()
@@ -663,7 +665,7 @@ class DCubePlotter( DCubeObject ):
            diffHist.Draw("LEGO1 0" )
         titlePave = self.__titlePave( "diff" )
         titlePave.Draw()
-        configPave.Draw()
+        if ( configPave ): configPave.Draw()
         if ( pvaluePave ): pvaluePave.Draw()
         status.append( self.__saveAs( canvas, "dif", "h2d" ) )
 
@@ -709,9 +711,10 @@ class DCubePlotter( DCubeObject ):
         titlePave = self.__titlePave( "proj X")
         titlePave.Draw()
         if ( pvaluePave ): pvaluePave.Draw()
-        configPave.Draw()
+        if ( configPave ): configPave.Draw()
 
-        legend = ROOT.TLegend(0.1, 0.80, 0.45, 0.74, "", "NDC")
+        Y1NDC = (self.configPave.GetY1NDC() if self.configPave else 0.9)
+        legend = ROOT.TLegend(0.1, Y1NDC, 0.45, Y1NDC-0.06, "", "NDC")
         legend.SetTextFont(102)
         legend.SetTextSize(0.02)
         legend.SetTextColor(1)
@@ -763,11 +766,12 @@ class DCubePlotter( DCubeObject ):
 
         titlePave = self.__titlePave( "proj Y")
         titlePave.Draw()
-        configPave.Draw()
+        if ( configPave ): configPave.Draw()
         if ( pvaluePave ): pvaluePave.Draw()
 
 
-        legend = ROOT.TLegend(0.1, 0.80, 0.45, 0.74, "", "NDC")
+        Y1NDC = (self.configPave.GetY1NDC() if self.configPave else 0.9)
+        legend = ROOT.TLegend(0.1, Y1NDC, 0.45, Y1NDC-0.06, "", "NDC")
         legend.SetTextFont(102)
         legend.SetTextSize(0.02)
         legend.SetTextColor(1)
@@ -831,7 +835,7 @@ class DCubePlotter( DCubeObject ):
         self.mon.Draw( "SAME" )
        
         titlePave.Draw()
-        configPave.Draw()
+        if ( configPave ): configPave.Draw()
         legend.Draw()
             
         status.append( self.__saveAs( canvas, "reg", "p1r" ) )
@@ -860,7 +864,7 @@ class DCubePlotter( DCubeObject ):
 
         diffProfile.Draw( )
         titlePave.Draw()
-        configPave.Draw()
+        if ( configPave ): configPave.Draw()
         
         status.append( self.__saveAs( canvas, "dif", "p1d" ) )
         
@@ -934,7 +938,8 @@ class DCubePlotter( DCubeObject ):
             stack.Add( bottom )
             stack.Add( top )
             
-            legend = ROOT.TLegend(0.1, 0.80, 0.45, 0.72, "", "NDC")
+            Y1NDC = (self.configPave.GetY1NDC() if self.configPave else 0.9)
+            legend = ROOT.TLegend(0.1, Y1NDC, 0.45, Y1NDC-0.08, "", "NDC")
             legend.SetTextFont(102)
             legend.SetTextSize(0.02)
             legend.SetTextColor(1)
@@ -950,7 +955,7 @@ class DCubePlotter( DCubeObject ):
             else:
                stack.Draw( "LEGO1 0 NOSTACK"  )            
             titlePave.Draw()
-            configPave.Draw()
+            if ( configPave ): configPave.Draw()
             legend.Draw()
 
             pvaluePave = self.__pvaluePave()
@@ -960,7 +965,7 @@ class DCubePlotter( DCubeObject ):
         else:            
             canvas.cd()
             self.mon.Draw( )
-            configPave.Draw()
+            if ( configPave ): configPave.Draw()
             titlePave.Draw()
             canvas.Draw()
             
@@ -986,7 +991,7 @@ class DCubePlotter( DCubeObject ):
         else:
            diffProfile.Draw( "LEGO1 0" )
         titlePave.Draw()
-        configPave.Draw()
+        if ( configPave ): configPave.Draw()
         
       
         status.append( self.__saveAs( canvas, "dif", "p2d" ) )
@@ -1004,21 +1009,37 @@ class DCubePlotter( DCubeObject ):
         if ( "WARN" in sl ): return "WARN"
         return "OK"
 
+    def __configPave_AddText( self, s1, s2, width=31 ):
+        if s2 == "" or s2 == "*": return 0
+        if len(s1)+len(s2) > width:
+            s1 = s1.rstrip().ljust(width-len(s2))
+        self.configPave.AddText( s1 + s2 )
+        return 1
+
     ## runtime configuration pave
     # @param self "Me, myself and Irene"
     def __configPave( self ):
         if ( not self.configPave ):
-            self.configPave = ROOT.TPaveText( 0.1, 0.9, 0.45, 0.8, "NDC" )
+            self.configPave = ROOT.TPaveText()
+            self.configPave.SetMargin( 0.02 )
             self.configPave.SetBorderSize( 1 )
             self.configPave.SetTextColor( 1 )
             self.configPave.SetTextSize( 0.02 )
             self.configPave.SetTextFont( 102 )
             self.configPave.SetTextAlign( 12 ) 
-            self.configPave.AddText( "branch:  " + self.opts.branch  )
-            self.configPave.AddText( "install: " + self.opts.install   )
-            self.configPave.AddText( "cmt:     " + self.opts.cmtconfig )
-            self.configPave.AddText( "project: " + self.opts.project   )
-            self.configPave.AddText( "jobId:   " + self.opts.jobId   )
+            lines = 0
+            lines += self.__configPave_AddText( "branch:  ", self.opts.branch    )
+            lines += self.__configPave_AddText( "release: ", self.opts.install   )
+            lines += self.__configPave_AddText( "cmt:     ", self.opts.cmtconfig )
+            lines += self.__configPave_AddText( "project: ", self.opts.project   )
+            lines += self.__configPave_AddText( "jobId:   ", self.opts.jobId     )
+            if lines:
+                self.configPave.SetX1NDC( 0.1  )
+                self.configPave.SetY1NDC( 0.9 - (lines*0.020) )
+                self.configPave.SetX2NDC( 0.45 )
+                self.configPave.SetY2NDC( 0.9  )
+            else:
+                self.configPave = None
         return self.configPave
 
     ## p-value pave
@@ -1029,7 +1050,7 @@ class DCubePlotter( DCubeObject ):
         pvaluePave.SetTextColor( 1 )
         pvaluePave.SetTextSize( 0.02 )
         pvaluePave.SetTextFont( 42 )
-        pvaluePave.SetTextAlign( 22 )
+        pvaluePave.SetTextAlign( 12 )
 
         lines = 0
         pvalues = self.node.getElementsByTagName( "pvalue" )
@@ -1040,7 +1061,7 @@ class DCubePlotter( DCubeObject ):
             text = "p-value = %s" % pval
             
            
-            if test == "chi2": text = "#chi^{2} %s" % text
+            if test == "chi2": text = "#chi^{2}     %s" % text
             else:
                 text = "%-3s  %s" % (test, text)
             
@@ -1053,8 +1074,7 @@ class DCubePlotter( DCubeObject ):
             lines += 1
 
         if ( lines ):
-            Y2NDC = 0.9 - (lines*0.021)
-            pvaluePave.SetX1NDC( 0.69 )
+            pvaluePave.SetX1NDC( 0.715 )
             pvaluePave.SetX2NDC( 0.9  )
             pvaluePave.SetY1NDC( 0.9  )
             pvaluePave.SetY2NDC( 0.9 - (lines*0.021) )
@@ -1080,7 +1100,8 @@ class DCubePlotter( DCubeObject ):
     ## plot legend
     # @param self "Me, myself and Irene"
     def __legend( self ):
-        legend = ROOT.TLegend(0.1, 0.80, 0.45, 0.75, "", "NDC")
+        Y1NDC = (self.configPave.GetY1NDC() if self.configPave else 0.9)
+        legend = ROOT.TLegend(0.1, Y1NDC, 0.45, Y1NDC-0.05, "", "NDC")
         legend.SetTextFont(42)
         legend.SetTextSize(0.02)
         legend.SetTextColor( ROOT.kBlack )

@@ -16,7 +16,6 @@
 #include <vector>
 #include <utility>
 
-// HepMC / CLHEP includes
 
 // Forward declaration
 class INav4MomAssocsCnv_p1;

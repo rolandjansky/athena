@@ -1,57 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 01.02.2007, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS MdtStationT0Container ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include "MuonCalibStandAloneBase/MdtStationT0Container.h"
+#include <TString.h> // for Form
 
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
-
-using namespace std;
 using namespace MuonCalib;
-
-
-//*****************************************************************************
-
-//:::::::::::::::::
-//:: METHOD init ::
-//:::::::::::::::::
-
-/*void MdtStationT0Container::init(void) {
-
-	m_t0 = vector< vector< vector<double> > >(2); // two multilayers
-	m_adc = vector< vector< vector<double> > >(2); // two multilayers
-	for (unsigned int k=0; k<m_t0.size(); k++) {
-		m_t0[k] = vector< vector<double> >(4); // up to four layers in 
-						       // a multilayer
-		m_adc[k] = vector< vector<double> >(4); // up to four layers in 
-						       // a multilayer
-		for (unsigned l=0; l<m_t0[k].size(); l++) {
-			m_t0[k][l] = vector<double>(72, 9e9);
-			m_adc[k][l] = vector<double>(72, 9e9);
-						// up to 72 tubes per layer
-		}
-	}
-	m_t0_loaded=false;
-	return;
-
-}*/
 
 //*****************************************************************************
 
@@ -113,11 +70,11 @@ void MdtStationT0Container::readT0File(const std::string & file_name) {
 // VARIABLES //
 ///////////////
 
-	string sdummy; // auxiliary string for file reading
+	std::string sdummy; // auxiliary string for file reading
 	int idummy; // auxiliary integer for file reading
 	double dummy; // auxiliary double for file reading
 	int ml, ly, tb; // multilayer, layer, tube
-	ifstream infile; // t0 file
+	std::ifstream infile; // t0 file
 
 //////////////////
 // OPEN t0 file //
@@ -125,11 +82,7 @@ void MdtStationT0Container::readT0File(const std::string & file_name) {
 
 	infile.open(file_name.c_str());
 	if (infile.fail()) {
-		cerr << endl
-			<< "Class MdtStationT0Container, method readToFile: "
-			<< "ERROR!\n"
-			<< "Could not open file " << file_name << "!\n";
-		exit(1);
+		throw std::runtime_error(Form("File: %s, Line: %d\nMdtStationT0Container::readT0File - Could not open file %s!", __FILE__, __LINE__, file_name.c_str()));
 	}
 
 //////////////////////

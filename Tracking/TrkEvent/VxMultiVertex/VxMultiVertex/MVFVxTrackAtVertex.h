@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef VXMULTIVERTEX_MVFVXTRACKATVERTEX_H
@@ -53,14 +53,14 @@ namespace Trk
     * and a linearized track state.
     */
       MVFVxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex,
-		      double ndfPerTrk,Trk::LinearizedTrack * linState=0);
+		      double ndfPerTrk,Trk::LinearizedTrack * linState=nullptr);
    
    /**
     *Constructor requiring a chi2 per track,initial track parameters, track parameters at vertex 
     * and a linearized track state.
     */
       MVFVxTrackAtVertex(double chi2PerTrk, TrackParameters* perigeeAtVertex,  TrackParameters* initialPerigee,
-		      double ndfPerTrk,Trk::LinearizedTrack * linState=0); 
+		      double ndfPerTrk,Trk::LinearizedTrack * linState=nullptr); 
 
     /**
      * Constructor with only trackOrParticleLink (no TrackToVtxLink);

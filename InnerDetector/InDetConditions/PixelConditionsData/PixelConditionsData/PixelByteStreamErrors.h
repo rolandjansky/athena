@@ -10,14 +10,18 @@
 namespace PixelByteStreamErrors {
 
   //!< Possible errors in pixel data decoding, exactl clone of definition in: PixelConditionsTools/IPixelByteStreamErrorsTool.h, the later will be removed
-  enum ErrorType {TimeOut=0, firstErrType=TimeOut, BCID=1, LVL1ID=2, Preamble=3, Trailer=4,
-		  Flagged=5, DisableFE=6, ROD=7, Decoding=8, Invalid=9, LinkMaskedByPPC=10, Limit=11, lastErrType=Limit, ErrorsNumber=lastErrType+1 };
+  enum PixelErrorsEnum {TimeOut=0, firstErrType=TimeOut, BCID, LVL1ID, Preamble, Trailer,
+			Flagged, DisableFE, BadFE, ROD, Decoding, Invalid, LinkMaskedByPPC, Limit, TruncatedROB, MaskedROB, lastErrType=MaskedROB, ErrorsNumber=lastErrType+1 };
+
+  //!< @brief for cases when error doe snot need to be accumulated
+  inline IDCInDetBSErrContainer::ErrorCode makeError( PixelErrorsEnum errType ) { return IDCInDetBSErrContainer::ErrorCode{1} << errType; }
 
   //!< @brief helper to be used in clients to fetch error information
-  inline bool hasError(IDCInDetBSErrContainer::ErrorCode errWord,  PixelErrorsEnum errType ) { return errWord & (1<<errType); }
+  inline bool hasError(IDCInDetBSErrContainer::ErrorCode errWord,  PixelErrorsEnum errType ) { return errWord & makeError( errType ); }
 
-  //!< @brief helper to set the error: @example errors[hashId] = addError( errors[hashId], PixelByteStreamErrors::Invalid ) 
-  inline IDCInDetBSErrContainer::ErrorCode addError(IDCInDetBSErrContainer::ErrorCode errWord,  PixelErrorsEnum errType ) { return errWord | (1<<errType); }
+  //!< @brief helper to set the error: @example errors[hashId] = addError( errors[hashId], PixelByteStreamErrors::Invalid )
+  inline void addError(IDCInDetBSErrContainer::ErrorCode& errWord,  PixelErrorsEnum errType ) { errWord |= makeError( errType ); }
+
 }
 
 

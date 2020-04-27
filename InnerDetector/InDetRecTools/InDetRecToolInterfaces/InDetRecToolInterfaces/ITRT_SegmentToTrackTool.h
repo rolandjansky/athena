@@ -25,6 +25,7 @@
 #include "TrkSegment/TrackSegment.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkEventPrimitives/TrackScore.h"
+#include "GaudiKernel/EventContext.h"
 #include <utility>
 
 class MsgStream;
@@ -55,7 +56,7 @@ namespace InDet {
        std::array<int,kNCounter>  m_counter {};
     };
 
-    virtual Trk::Track* segToTrack(const Trk::TrackSegment&) const = 0;
+    virtual Trk::Track* segToTrack(const EventContext&, const Trk::TrackSegment&) const = 0;
 
     /** Check if the TRT segment has already been assigned a Si extension  */
     virtual bool segIsUsed(const Trk::TrackSegment&,

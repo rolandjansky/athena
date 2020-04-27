@@ -126,13 +126,13 @@ egammaPreSamplerShape::execute(const xAOD::CaloCluster& cluster,
   // in the following eta X phi windows
   CaloLayerCalculator calc;
   // 1X1
-  StatusCode sc = calc.fill(&cell_container, eta, phi, deta, dphi, sam);
+  StatusCode sc = calc.fill(cmgr,&cell_container, eta, phi, deta, dphi, sam);
   if (sc.isFailure()) {
     ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
   }
   info.e011 = calc.em();
   // 3X3
-  sc = calc.fill(&cell_container, eta, phi, 3. * deta, 3. * dphi, sam);
+  sc = calc.fill(cmgr,&cell_container, eta, phi, 3. * deta, 3. * dphi, sam);
   if (sc.isFailure()) {
     ATH_MSG_WARNING("CaloLayerCalculator failed fill ");
   }

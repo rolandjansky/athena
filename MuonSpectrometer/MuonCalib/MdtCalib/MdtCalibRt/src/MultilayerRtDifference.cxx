@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MultilayerRtDifference.h"
@@ -14,6 +14,9 @@
 //MdtCalibData
 #include "MdtCalibData/RtScaleFunction.h"
 #include "MdtCalibData/IRtRelation.h"
+
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 //root
 #include "TH2F.h"
@@ -157,12 +160,12 @@ inline TProfile * MultilayerRtDifference_Histograms::GetProfileDiff(const int & 
   return prov_diff;
 }
 
-MultilayerRtDifference :: MultilayerRtDifference(int min_hits, TDirectory *control_histogram_dir): m_histograms(new MultilayerRtDifference_Histograms(control_histogram_dir)), m_min_number_of_hits(min_hits) {
+MultilayerRtDifference::MultilayerRtDifference(int min_hits, TDirectory *control_histogram_dir): m_histograms(new MultilayerRtDifference_Histograms(control_histogram_dir)), m_min_number_of_hits(min_hits) {
   m_polfun = new TF1("polfun", MultilayerRtDifference_ScaleFunction, 4.0, 15.0, 1);
 }
 
 // Copy constructor, to keep Coverity happy
-MultilayerRtDifference :: MultilayerRtDifference( const MultilayerRtDifference &MLRTD ):m_min_number_of_hits(MLRTD.m_min_number_of_hits) {
+MultilayerRtDifference::MultilayerRtDifference( const MultilayerRtDifference &MLRTD ):m_min_number_of_hits(MLRTD.m_min_number_of_hits) {
   m_polfun = new TF1( *MLRTD.m_polfun ); 
   m_histograms = new MultilayerRtDifference_Histograms( *MLRTD.m_histograms );
 }
@@ -179,38 +182,39 @@ MultilayerRtDifference& MultilayerRtDifference::operator=( const MultilayerRtDif
   return *this;
 }
 
-MultilayerRtDifference :: ~MultilayerRtDifference() {
+MultilayerRtDifference::~MultilayerRtDifference() {
   delete m_histograms;
   delete m_polfun;
 }
 
-void MultilayerRtDifference :: Fill(const MdtCalibHitBase &hit, const IRtRelation &rt_relation) {
+void MultilayerRtDifference::Fill(const MdtCalibHitBase &hit, const IRtRelation &rt_relation) {
   int ml=hit.identify().mdtMultilayer() -1;
-  double r_track=std::fabs(hit.signedDistanceToTrack());
-  double res=std::fabs(hit.driftRadius()) - r_track;
+  double r_track=std::abs(hit.signedDistanceToTrack());
+  double res=std::abs(hit.driftRadius()) - r_track;
   double v=rt_relation.driftvelocity(hit.driftTime());
   m_histograms->GetResHist(ml)->Fill(r_track, res/v);
 }
 
-bool MultilayerRtDifference :: DoFit(IRtRelation *rt_relation, const std::vector<MuonCalibSegment *>  *seg) {
+bool MultilayerRtDifference::DoFit(IRtRelation *rt_relation, const std::vector<MuonCalibSegment *>  *seg) {
   TProfile *prov_diff=m_histograms->GetProfileDiff(m_min_number_of_hits);
   if(!prov_diff) {
-    std::cout<<"MultilayerRtDifference :: DoFit: Not enough hits!";
+    MsgStream log(Athena::getMessageSvc(), "MultilayerRtDifference");
+    log<<MSG::WARNING<<"MultilayerRtDifference::DoFit: Not enough hits!"<<endmsg;
     return false;
   }
   if(prov_diff->Fit("polfun", "Q", "", 4., 15.)!=0) {
-    std::cerr<<"MultilayerRtDifference: Fit of polinomial failed! Not updating scale!"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(), "MultilayerRtDifference");
+    log<<MSG::WARNING<<"MultilayerRtDifference: Fit of polinomial failed! Not updating scale!"<<endmsg;
     return false;
   }
-  if(std::fabs(m_polfun->GetParameter(0)) < m_polfun->GetParError(0)) {
-    std::cout<<"MultilayerRtDifference: No Scale update needed!"<<std::endl;
-    std::cout<<"Scale correction: "<<m_polfun->GetParameter(0)<<" +- "<< m_polfun->GetParError(0) <<std::endl;
+  if(std::abs(m_polfun->GetParameter(0)) < m_polfun->GetParError(0)) {
+    MsgStream log(Athena::getMessageSvc(), "MultilayerRtDifference");
+    log<<MSG::WARNING<<"MultilayerRtDifference: No Scale update needed! Scale correction: "<<m_polfun->GetParameter(0)<<" +- "<< m_polfun->GetParError(0)<<endmsg;
     return true;
   }
   if(!rt_relation) return true;
   float scale=m_polfun->GetParameter(0);
-//	std::cout<<"Scale correction: "<<m_polfun->GetParameter(0)<<" +- " <<m_polfun->GetParError(0)*std::sqrt(m_polfun->GetChisquare()/m_polfun->GetNDF())<<std::endl;
-  if(std::fabs(scale)>2) scale*=4;
+  if(std::abs(scale)>2) scale*=4;
   if(rt_relation->HasTmaxDiff()) {
     scale+=rt_relation->GetTmaxDiff();
   }

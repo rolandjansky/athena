@@ -25,6 +25,11 @@ atlas_add_library( EventLoopTestLib
    SampleHandler AnaAlgorithmLib EventLoop EventLoopGrid AsgTestingLib xAODEventInfo
    PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess xAODEventInfo xAODMetaData )
 
+atlas_add_dictionary( EventLoopTestDict
+   EventLoopTest/EventLoopTestDict.h
+   EventLoopTest/selection.xml
+   LINK_LIBRARIES EventLoopTestLib )
+
 # Test(s) in the package:
 function( _add_gtest cxx_name )
    set (EXTRA_ARGS PROPERTIES )

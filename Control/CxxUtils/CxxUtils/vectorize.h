@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CxxUtils/vectorize.h
@@ -19,7 +19,7 @@
 
 
 #if defined(__GNUC__) && !defined(__clang__)
-# define ATH_ENABLE_VECTORIZATION _Pragma ("GCC optimize (\"tree-loop-vectorize\")") \
+# define ATH_ENABLE_VECTORIZATION _Pragma ("GCC optimize (\"tree-vectorize\")") \
     class ATH_ENABLE_VECTORIZATION_SWALLOW_SEMICOLON
 #else
 # define ATH_ENABLE_VECTORIZATION class ATH_ENABLE_VECTORIZATION_SWALLOW_SEMICOLON

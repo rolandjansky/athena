@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef L1DECODER_PRESCALINGTOOL_H 
 #define L1DECODER_PRESCALINGTOOL_H
@@ -13,6 +13,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AthenaKernel/RNGWrapper.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 // data includes
 #include "TrigConfData/HLTPrescalesSet.h"
@@ -61,6 +62,7 @@ class PrescalingTool : public extends<AthAlgTool, IPrescalingTool> {
 
    // properties
    Gaudi::Property<bool> m_keepUnknownChains{ this, "KeepUnknownChains", true, "If True then chains for which prescaling information is not set are kept" };
+   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
    // random engine for calculating prescales
    ATHRNG::RNGWrapper m_RNGEngines;

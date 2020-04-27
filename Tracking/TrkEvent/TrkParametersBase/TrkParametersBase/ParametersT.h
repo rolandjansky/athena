@@ -77,13 +77,13 @@ namespace Trk
 		const Amg::Vector3D& momentum,
 		double charge,
 		const S& surface,
-		AmgSymMatrix(DIM)* covariance = 0);
+		AmgSymMatrix(DIM)* covariance = nullptr);
 
     /** Constructor with mixed arguments 1 - uses global <-> local for parameters */
     ParametersT (const Amg::Vector3D& position,
 		 double phi, double theta, double qop,
 		 const S& surface,
-		 AmgSymMatrix(DIM)* covariance = 0);
+		 AmgSymMatrix(DIM)* covariance = nullptr);
     
     /** Copy constructor */
     ParametersT(const ParametersT<DIM,T,S>& rhs);
@@ -131,10 +131,22 @@ namespace Trk
     /** Access method for the momentum */
     // cppcheck-suppress virtualCallInConstructor
     virtual const Amg::Vector3D& momentum() const override final {return m_momentum;}
-
+ 
     /** Return the measurementFrame of the parameters */
-    Amg::RotationMatrix3D measurementFrame() const override;
-  
+    virtual Amg::RotationMatrix3D measurementFrame() const override;
+    
+    /** Update parameters and covariance */
+    virtual void updateParameters(const AmgVector(DIM)&, AmgSymMatrix(DIM)* = nullptr) override;
+
+    /** Update parameters  and covariance , passing covariance by ref. A covariance
+     * is created if one does not exist.  Otherwise in place update occurs*/
+    virtual void updateParameters(const AmgVector(DIM)&, const AmgSymMatrix(DIM)&) override;
+
+  private :
+    /* Helper to factor in update of parameters*/
+    void updateParametersHelper(const AmgVector(DIM)&);
+
+ 
   protected:
     template<typename pars> friend class ::TrackParametersCovarianceCnv;
     friend class ::TrackParametersCnv_p2;
@@ -155,15 +167,12 @@ namespace Trk
     AmgSymMatrix(DIM)*          m_covariance;       //!< contains the n x n covariance matrix
     Amg::Vector3D               m_position;         //!< point on track
     Amg::Vector3D               m_momentum;         //!< momentum at this point on track
-    SurfaceUniquePtrT<const S>  m_surface;     //!< surface template
+    SurfaceUniquePtrT<const S>  m_surface;          //!< surface template
     T                           m_chargeDef;        //!< charge definition for this track
 
     /** DESIGN TO BE REVISITED */
-  public:
-
   protected:
     friend class MaterialEffectsEngine;
-    virtual void updateParameters(const AmgVector(DIM)& updatedParameters,AmgSymMatrix(DIM)* updatedCovariance = 0) override; 
   };
 } //end of namespace Trk
 

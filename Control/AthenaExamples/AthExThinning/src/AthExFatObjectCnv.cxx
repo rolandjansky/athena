@@ -66,7 +66,7 @@ AthExFatObject* AthExFatObjectCnv::createTransient()
 
    if ( compareClassGuid(p1_guid) ) {
 
-     // using auto_ptr ensures deletion of the persistent object
+     // using unique_ptr ensures deletion of the persistent object
      std::unique_ptr<AthExFatObject_p1> persObj( poolReadObject<AthExFatObject_p1>() );
      AthExFatObjectCnv_p1 cnv;
      transObj = cnv.createTransient( persObj.get(), msg );

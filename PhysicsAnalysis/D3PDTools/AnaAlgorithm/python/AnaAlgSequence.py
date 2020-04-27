@@ -37,6 +37,7 @@ class AnaAlgSequence( AlgSequence ):
         # Set up the sequence's member variables:
         self._algorithmMeta = []
         self._outputAffectingSystematics = None
+        self._metaConfigDefault = {}
 
         return
 
@@ -97,6 +98,29 @@ class AnaAlgSequence( AlgSequence ):
         if len( self._algorithmMeta ) != nAlgs:
             raise RuntimeError( 'Analysis algorithm sequence is in an ' \
                                 'inconsistent state' )
+
+        # do the dynamic configuration based on meta-information
+        metaConfig = {}
+        for name, value in self._metaConfigDefault.items() :
+            metaConfig[name] = value[:]
+            pass
+        for alg, meta in zip( self, self._algorithmMeta ):
+            for var, func in meta.dynConfig.items() :
+                # if this is a subtool, find the subtool
+                obj = alg
+                while '.' in var :
+                    obj = getattr (alg, var[:var.find('.')])
+                    var = var[var.find('.')+1:]
+                    pass
+                # set the property on the algorithm/tool
+                setattr (obj, var, func (metaConfig))
+                pass
+            for name, value in meta.metaConfig.items() :
+                if not name in metaConfig :
+                    raise RuntimeError ("metaConfig value " + name + " for algorithm " + alg.name() + " not registered, did you forget to call addMetaConfigDefault?")
+                metaConfig[name] += value[:]
+                pass
+            pass
 
         # Make the inputs and outputs dictionaries. Allowing simple sequences to
         # be configured using simple string names.
@@ -250,7 +274,9 @@ class AnaAlgSequence( AlgSequence ):
         return
 
     def append( self, alg, inputPropName, outputPropName = None,
-                affectingSystematics = None, stageName = 'undefined' ):
+                affectingSystematics = None, stageName = 'undefined',
+                metaConfig = {},
+                dynConfig = {}):
         """Add one analysis algorithm to the sequence
 
         This function is specifically meant for adding one of the centrally
@@ -269,13 +295,15 @@ class AnaAlgSequence( AlgSequence ):
           stageName -- name of the current processing stage [optional]
         """
 
-        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName )
+        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, metaConfig=metaConfig, dynConfig=dynConfig )
         self += alg
         self._algorithmMeta.append( meta )
         return self
 
     def insert( self, index, alg, inputPropName, outputPropName = None,
-                affectingSystematics = None, stageName = 'undefined' ):
+                affectingSystematics = None, stageName = 'undefined',
+                metaConfig = {},
+                dynConfig = {} ):
         """Insert one analysis algorithm into the sequence
 
         This function is specifically meant for adding one of the centrally
@@ -296,7 +324,7 @@ class AnaAlgSequence( AlgSequence ):
           stageName -- name of the current processing stage [optional]
         """
 
-        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName )
+        meta = AnaAlgorithmMeta( stageName=stageName, affectingSystematics=affectingSystematics, inputPropName=inputPropName, outputPropName=outputPropName, metaConfig=metaConfig, dynConfig=dynConfig )
         super( AnaAlgSequence, self ).insert( index, alg )
         self._algorithmMeta.insert( index, meta )
         return self
@@ -392,6 +420,40 @@ class AnaAlgSequence( AlgSequence ):
                 pass
             pass
         pass
+
+
+
+    def addMetaConfigDefault (self, name, value) :
+        """add a default value for the given meta-configuration entry
+
+        This will both register name as a valid meta-configuration
+        value and set its default value, or add to its default value,
+        if that name is already known."""
+
+        if name in self._metaConfigDefault :
+            self._metaConfigDefault[name] += value
+            pass
+        else :
+            self._metaConfigDefault[name] = value
+            pass
+        pass
+
+
+
+    def getMetaConfig (self, name) :
+        """get the value for the given meta-configuration entry"""
+
+        if not name in self._metaConfigDefault :
+            raise RuntimeError ("metaConfig value " + name + " not registered, did you forget to call addMetaConfigDefault?")
+        result = self._metaConfigDefault[name][:]
+        for meta in self._algorithmMeta :
+            if name in meta.metaConfig :
+                result += meta.metaConfig[name]
+                pass
+            pass
+        return result
+
+
 
     @staticmethod
     def allowedStageNames():

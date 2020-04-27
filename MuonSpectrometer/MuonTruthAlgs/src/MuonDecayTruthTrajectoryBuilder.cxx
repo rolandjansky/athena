@@ -75,9 +75,9 @@ namespace Muon {
 	const HepMC::GenParticle& par = *pit->cptr(); 
 	if(msgLvl(MSG::DEBUG))  {
 	  msg(MSG::DEBUG) << " PDG ID " << par.pdg_id() << " barcode: " << par.barcode() << " pt: " << par.momentum().perp();
-	  if( par.production_vertex() ) msg(MSG::DEBUG) << " vertices prod: r " << par.production_vertex()->point3d().perp() 
-							<< " z " << par.production_vertex()->point3d().z();
-	  if( par.end_vertex() ) msg(MSG::DEBUG) << " end: r " << par.end_vertex()->point3d().perp() << " z " << par.end_vertex()->point3d().z();
+	  if( par.production_vertex() ) msg(MSG::DEBUG) << " vertices prod: r " << par.production_vertex()->position().perp() 
+							<< " z " << par.production_vertex()->position().z();
+	  if( par.end_vertex() ) msg(MSG::DEBUG) << " end: r " << par.end_vertex()->position().perp() << " z " << par.end_vertex()->position().z();
 	  msg(MSG::DEBUG) << endmsg;
 	}
       }
@@ -109,9 +109,9 @@ namespace Muon {
         
 	  if( msgLvl(MSG::DEBUG) ){
 	    msg(MSG::DEBUG) << " PDG ID " << par.pdg_id() << " barcode: " << par.barcode() <<  " pt: " << par.momentum().perp(); 
-	    if( par.production_vertex() ) msg(MSG::DEBUG) << " vertices prod: r " << par.production_vertex()->point3d().perp() 
-							  << " z " << par.production_vertex()->point3d().z();
-	    if( par.end_vertex() ) msg(MSG::DEBUG) << " end: r " << par.end_vertex()->point3d().perp() << " z " << par.end_vertex()->point3d().z();
+	    if( par.production_vertex() ) msg(MSG::DEBUG) << " vertices prod: r " << par.production_vertex()->position().perp() 
+							  << " z " << par.production_vertex()->position().z();
+	    if( par.end_vertex() ) msg(MSG::DEBUG) << " end: r " << par.end_vertex()->position().perp() << " z " << par.end_vertex()->position().z();
 	    msg(MSG::DEBUG) << endmsg;
 	  }
 

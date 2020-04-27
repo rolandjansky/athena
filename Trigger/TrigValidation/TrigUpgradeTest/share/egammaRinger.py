@@ -33,24 +33,24 @@ doRinger=True
 steps = seqOR("HLTTop")
 topSequence += steps
 steps += topSequence.L1Decoder
-steps+=_algoHLTCaloCell(OutputLevel=DEBUG)    
-steps+=_algoHLTTopoCluster(OutputLevel=DEBUG)    
+steps+=_algoHLTCaloCell(OutputLevel=DEBUG)
+steps+=_algoHLTTopoCluster(OutputLevel=DEBUG)
 
 from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
 
 filterL1RoIsAlg = RoRSeqFilter( "filterL1RoIsAlg")
 filterL1RoIsAlg.Input = [mapThresholdToL1DecisionCollection("EM")]
 filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
-filterL1RoIsAlg.Chains = [ 
-                           "HLT_e3_etcut", 
-                           "HLT_e5_etcut", 
-                           "HLT_e7_etcut", 
+filterL1RoIsAlg.Chains = [
+                           "HLT_e3_etcut",
+                           "HLT_e5_etcut",
+                           "HLT_e7_etcut",
                            "HLT_e26_lhtight",
                            ]
 filterL1RoIsAlg.OutputLevel = DEBUG
- 
+
 InViewRoIs="EMCaloRoIs"
-clusterMaker = _algoL2Egamma(OutputLevel=FATAL,inputEDM=InViewRoIs,doRinger=True, ClustersName="HLT_L2CaloEMClusters",RingerKey="HLT_L2CaloRinger")
+clusterMaker = _algoL2Egamma(OutputLevel=FATAL,inputEDM=InViewRoIs,doRinger=True, ClustersName="HLT_L2CaloEMClusters",RingerKey="HLT_FastCaloRinger")
 fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [clusterMaker] )
 fastCaloViewsMaker = EventViewCreatorAlgorithm( "fastCaloViewsMaker", OutputLevel=DEBUG)
 fastCaloViewsMaker.ViewFallThrough = True
@@ -67,7 +67,7 @@ if doRinger:
    from TrigMultiVarHypo.TrigL2CaloRingerHypoTool import createRingerDecisions
    fastCaloHypo = createRingerDecisions( "testRingerHypo" , filterL1RoIsAlg.Chains,
                                          ClustersKey=clusterMaker.ClustersName,
-                                         RingerKey="HLT_L2CaloRinger")
+                                         RingerKey="HLT_FastCaloRinger")
 
 else:
    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
@@ -87,7 +87,7 @@ fastCaloHypo.HypoInputDecisions =  fastCaloViewsMaker.InputMakerOutputDecisions 
 fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewSequence, fastCaloHypo ])
 steps+=stepSeq("finalCaloSequence", filterL1RoIsAlg, [ fastCaloSequence ])
 
- 
+
 
 
 

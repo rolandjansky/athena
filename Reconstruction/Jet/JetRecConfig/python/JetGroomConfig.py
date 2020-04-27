@@ -11,11 +11,7 @@ from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetGroomConfig')
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
-# CfgMgr is more convenient but it helps to be explicit about where
-# things are defined.
-# So, import package conf modules rather than a dozen individual classes
-from JetRec import JetRecConf
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 import six
 
@@ -39,6 +35,7 @@ def getJetGroomAlg(jetname,groomdef,modlist):
     builder = JetRecConfig.getJetBuilder()
 
     groomer = getJetGroomer(groomdef)
+    print ("HERE {}".format( type(groomer)))
     groomer.JetBuilder = builder
 
     from . import JetModConfig
@@ -48,14 +45,14 @@ def getJetGroomAlg(jetname,groomdef,modlist):
         mod = JetModConfig.getModifier(groomdef,moddef,modspec)
         mods.append(mod)
 
-    rectool = JetRecConf.JetRecTool(jetname,
-                                    JetGroomer=groomer,
-                                    InputContainer=groomdef.ungroomedname,
-                                    OutputContainer=jetname,
-                                    JetPseudojetRetriever=JetRecConf.JetPseudojetRetriever("jpjretriever"),
-                                    JetModifiers=mods)
+    rectool = CompFactory.JetRecTool(jetname,
+                                     JetGroomer=groomer,
+                                     InputContainer=groomdef.ungroomedname,
+                                     OutputContainer=jetname,
+                                     JetPseudojetRetriever=CompFactory.JetPseudojetRetriever("jpjretriever"),
+                                     JetModifiers=mods)
 
-    jetalg = JetRecConf.JetAlgorithm("jetalg_"+jetname)
+    jetalg = CompFactory.JetAlgorithm("jetalg_"+jetname)
     jetalg.Tools = [rectool]
 
     return jetalg
@@ -84,7 +81,7 @@ def JetGroomCfg(groomdef, configFlags, jetnameprefix="",jetnamesuffix=""):
     else:
         # FIXME: Need to schedule rebuilding of pseudojets
         pass
-        
+
     # FIXME: Add calls to JetModConfig.getFinalModifierListAndPrereqs
     components.addEventAlgo(getJetGroomAlg(jetsfullname,groomdef,groomdef.modifiers))
 
@@ -95,7 +92,7 @@ if __name__=="__main__":
     # Setting needed for the ComponentAccumulator to do its thing
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True
-    
+
     # Config flags steer the job at various levels
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ASG/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1"]
@@ -104,8 +101,8 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     # Get a ComponentAccumulator setting up the fundamental Athena job
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-    cfg=MainServicesThreadedCfg(ConfigFlags) 
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+    cfg=MainServicesThreadedCfg(ConfigFlags)
 
     # Add the components for reading in pool files
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg

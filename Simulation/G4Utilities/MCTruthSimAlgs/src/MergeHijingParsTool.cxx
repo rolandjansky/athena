@@ -17,11 +17,11 @@ StatusCode MergeHijingParsTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeHijingParsTool::prepareEvent(unsigned int nInputEvents) {
+StatusCode MergeHijingParsTool::prepareEvent(const EventContext& ctx, unsigned int nInputEvents) {
   ATH_MSG_VERBOSE ( "Calling prepareEvent(): " << name() << " - package version " << PACKAGE_VERSION );
   ATH_MSG_DEBUG( "prepareEvent: there are " << nInputEvents << " subevents in this event.");
   m_firstSubEvent=true;
-  m_outputObject = SG::makeHandle(m_outputObjectKey);
+  m_outputObject = SG::makeHandle(m_outputObjectKey, ctx);
   return StatusCode::SUCCESS;
 }
 
@@ -72,7 +72,7 @@ StatusCode MergeHijingParsTool::processBunchXing(int bunchXing,
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeHijingParsTool::mergeEvent()
+StatusCode MergeHijingParsTool::mergeEvent(const EventContext& /*ctx*/)
 {
   //Double check that something was found.
   if(!m_outputObject.isValid()) {
@@ -88,9 +88,9 @@ bool MergeHijingParsTool::toProcess(int bunchXing) const {
   return (bunchXing==0);
 }
 
-StatusCode MergeHijingParsTool::processAllSubEvents() {
+StatusCode MergeHijingParsTool::processAllSubEvents(const EventContext& ctx) {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
-  m_outputObject = SG::makeHandle(m_outputObjectKey);
+  m_outputObject = SG::makeHandle(m_outputObjectKey, ctx);
   typedef PileUpMergeSvc::TimedList<HijingEventParams>::type TimedHijingParamsList;
   TimedHijingParamsList HijingList;
   const HijingEventParams *hijing_pars(nullptr);

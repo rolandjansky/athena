@@ -55,6 +55,12 @@ if [ -z ${REF_FOLDER} ]; then
   fi
 fi
 
+# Disable RegTest by default and enable only if regex or ref file are defined
+export DOREGTEST=0
+if [ -n "${REGTESTEXP}" ] || [ -n "${REGTESTREF}" ]; then
+  export DOREGTEST=1
+fi
+
 # Note REGTESTEXP is a GNU grep regexp, not perl regexp
 if [ -z "${REGTESTEXP}" ]; then
   export REGTESTEXP="REGTEST"
@@ -101,23 +107,25 @@ tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
 
 ### REGTEST
 
-REGTESTREF_BASENAME=$(basename -- "${REGTESTREF}")
-if [ -z "${REGTESTEXP_EXCLUDE}" ]; then
-  grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
-else
-  grep -E "${REGTESTEXP}" ${JOB_LOG} | grep -v -E "${REGTESTEXP_EXCLUDE}" > "${REGTESTREF_BASENAME}"
-fi
+if [ ${DOREGTEST} -ne 0 ]; then
+  REGTESTREF_BASENAME=$(basename -- "${REGTESTREF}")
+  if [ -z "${REGTESTEXP_EXCLUDE}" ]; then
+    grep -E "${REGTESTEXP}" ${JOB_LOG} > "${REGTESTREF_BASENAME}"
+  else
+    grep -E "${REGTESTEXP}" ${JOB_LOG} | grep -v -E "${REGTESTEXP_EXCLUDE}" > "${REGTESTREF_BASENAME}"
+  fi
 
-if [ -f ${REGTESTREF} ]; then
-  echo $(date "+%FT%H:%M %Z")"     Running regtest using reference file ${REGTESTREF}"
-  timeout 5m regtest.pl --inputfile ${REGTESTREF_BASENAME} --reffile ${REGTESTREF} --linematch ".*" 2>&1 | tee regtest.log
-  echo "art-result: ${PIPESTATUS[0]} RegTest"
-else
-  echo $(date "+%FT%H:%M %Z")"     The reference file does not exist: ${REGTESTREF}"
-  echo "art-result: 999 RegTest"
-fi
+  if [ -f ${REGTESTREF} ]; then
+    echo $(date "+%FT%H:%M %Z")"     Running regtest using reference file ${REGTESTREF}"
+    timeout 5m regtest.pl --inputfile ${REGTESTREF_BASENAME} --reffile ${REGTESTREF} --linematch ".*" 2>&1 | tee regtest.log
+    echo "art-result: ${PIPESTATUS[0]} RegTest"
+  else
+    echo $(date "+%FT%H:%M %Z")"     The reference file does not exist: ${REGTESTREF}"
+    echo "art-result: 999 RegTest"
+  fi
 
-mv ${REGTESTREF_BASENAME} ${REGTESTREF_BASENAME}.new
+  mv ${REGTESTREF_BASENAME} ${REGTESTREF_BASENAME}.new
+fi
 
 ### ROOTCOMP
 

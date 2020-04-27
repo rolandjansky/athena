@@ -145,6 +145,8 @@ namespace CP {
             ATH_MSG_FATAL("At least one of the decoration names for scale-factor/ data-efficiency / mc-efficiency is not uniquely defined... Please check your properties");
             return StatusCode::FAILURE;
         }
+
+        ATH_CHECK(m_eventInfo.initialize());
         
         if (!m_custom_dir.empty()) ATH_MSG_WARNING("Note: setting up with user specified input file location " << m_custom_dir << " - this is not encouraged!");
         if (!m_custom_file_Calo.empty()) ATH_MSG_WARNING("Note: setting up with user specified CaloTag input file " << m_custom_file_Calo << " - this is not encouraged!");
@@ -176,9 +178,13 @@ namespace CP {
         return StatusCode::SUCCESS;
     }
     unsigned int MuonEfficiencyScaleFactors::getRandomRunNumber(const xAOD::EventInfo* info) const {
-        if (!info && !evtStore()->retrieve(info, "EventInfo")) {
-            ATH_MSG_ERROR("Could not retrieve the xAOD::EventInfo. Return 999999");
-            return 999999;
+        if (!info) {
+            SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfo);
+            info = evtInfo.operator->();
+            if (!info) {
+                ATH_MSG_ERROR("Could not retrieve the xAOD::EventInfo. Return 999999");
+                return 999999;
+            }
         }
         if (!info->eventType(xAOD::EventInfo::IS_SIMULATION)) {
             ATH_MSG_DEBUG("The current event is a data event. Return runNumber instead.");

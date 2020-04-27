@@ -29,7 +29,7 @@ namespace IDPVM {
     m_FracUOflow(0.),
     m_inHistName(""),
     m_largeErrorFact(10.),
-    m_maxUOflowFrac(0.001) {
+    m_maxUOflowFrac(0.05) {
     //nop
   }
   

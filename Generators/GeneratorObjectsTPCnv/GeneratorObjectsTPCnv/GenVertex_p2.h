@@ -14,8 +14,6 @@
 // STL includes
 #include <vector>
 
-// HepMC / CLHEP includes
-
 // Gaudi includes
 
 // Forward declaration

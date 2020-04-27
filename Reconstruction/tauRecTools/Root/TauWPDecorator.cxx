@@ -11,27 +11,7 @@
 
 /********************************************************************/
 TauWPDecorator::TauWPDecorator(const std::string& name) :
-  TauRecToolBase(name)
-{
-  declareProperty("flatteningFile0Prong", m_file0P);
-  declareProperty("flatteningFile1Prong", m_file1P);
-  declareProperty("flatteningFile3Prong", m_file3P);
-
-  declareProperty("ScoreName", m_scoreName = "BDTJetScore");
-  declareProperty("NewScoreName", m_newScoreName = "BDTJetScoreSigTrans");
-
-  declareProperty("DefineWPs", m_defineWP=false);
-  declareProperty("UseEleBDT", m_electronMode=false);
-  
-  declareProperty("CutEnumVals", m_cut_bits);
-  declareProperty("SigEff0P", m_cut_effs_0p);
-  declareProperty("SigEff1P", m_cut_effs_1p);
-  declareProperty("SigEff3P", m_cut_effs_3p);
-
-  declareProperty("DecorWPNames", m_decoration_names);
-  declareProperty("DecorWPCutEffs0P", m_cut_effs_decoration_0p);
-  declareProperty("DecorWPCutEffs1P", m_cut_effs_decoration_1p);
-  declareProperty("DecorWPCutEffs3P", m_cut_effs_decoration_3p);
+  TauRecToolBase(name) {
 }
 
 /********************************************************************/
@@ -180,7 +160,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   double y_var = 0.0;
   if(m_electronMode) {
      const SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
-     y_var = std::fabs(acc_absEta(pTau));
+     y_var = std::abs(acc_absEta(pTau));
   } else {
      y_var = mu;
   }
@@ -207,13 +187,13 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
     double myCut = myHist->Interpolate(pt, y_var);
     
     // Find upper and lower cuts
-    if(myCut <= score && ((!gotLow) || fabs(myCut-score) < fabs(cuts[0]-score))) {
+    if(myCut <= score && ((!gotLow) || std::abs(myCut-score) < std::abs(cuts[0]-score))) {
       gotLow = true;
       effs[0] = histArray->at(i).first;
       cuts[0] = myCut;
     }
       
-    else if(myCut > score && ((!gotHigh) || fabs(myCut-score) < fabs(cuts[1]-score))) {
+    else if(myCut > score && ((!gotHigh) || std::abs(myCut-score) < std::abs(cuts[1]-score))) {
       gotHigh = true;
       effs[1] = histArray->at(i).first;
       cuts[1] = myCut;

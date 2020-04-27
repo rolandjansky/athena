@@ -172,13 +172,13 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
 	    if(! m_idHelperSvc->rpcIdHelper().measuresPhi(result.id)) residual= thePosition.z()-(*rpcPrd)->globalPosition().z();
 	    else {
 	      int sign=(thePosition.phi() < (*rpcPrd)->globalPosition().phi()) ? -1 : 1;
-	      residual=sign * sqrt(
-				   pow(thePosition.x()-(*rpcPrd)->globalPosition().x(),2) +
-				   pow(thePosition.y()-(*rpcPrd)->globalPosition().y(),2)
+	      residual=sign * std::sqrt(
+				   std::pow(thePosition.x()-(*rpcPrd)->globalPosition().x(),2) +
+				   std::pow(thePosition.y()-(*rpcPrd)->globalPosition().y(),2)
 				   );
 	    }
 	    
-	    if(fabs(residual)<fabs(lowest)){
+	    if(std::abs(residual)<std::abs(lowest)){
 	      lowest=residual;
 	      lowest_time=(*rpcPrd)->time();
 	      lowest_csize=(*rpcPrd)->rdoList().size();

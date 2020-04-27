@@ -83,15 +83,12 @@ Trk::MultipleScatteringEffects::compute(IMultiStateMaterialEffects::Cache& cache
   double angularVariation = m_msUpdator->sigmaSquare(mprop, p, pathcorrection, Trk::muon);
   ATH_MSG_DEBUG("Sigma squared multiple scattering: " << angularVariation);
 
-  std::unique_ptr<AmgSymMatrix(5)> deltaCov = std::make_unique<AmgSymMatrix(5)>();
-  deltaCov->setZero();
-
+  AmgSymMatrix(5) deltaCov;
+  deltaCov.setZero();
   // double sign = (direction == Trk::oppositeMomentum) ? 1. : 1.;
   double sinTheta = std::sin(trackParameters->parameters()[Trk::theta]);
-
-  (*deltaCov)(Trk::phi, Trk::phi) += angularVariation / (sinTheta * sinTheta);
-  (*deltaCov)(Trk::theta, Trk::theta) += angularVariation;
-
+  deltaCov(Trk::phi, Trk::phi) += angularVariation / (sinTheta * sinTheta);
+  deltaCov(Trk::theta, Trk::theta) += angularVariation;
   cache.weights.push_back(1.);
   cache.deltaPs.push_back(0.);
   cache.deltaCovariances.push_back(std::move(deltaCov));

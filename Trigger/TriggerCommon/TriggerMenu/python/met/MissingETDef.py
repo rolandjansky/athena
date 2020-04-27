@@ -124,6 +124,10 @@ class L2EFChain_met(L2EFChainDef):
         EFmuon      = self.chainPart['EFmuonCorr']
         addInfo     = self.chainPart["addInfo"]
 
+        # tcpufit is the run 3 name for pufit
+        if EFrecoAlg == "tcpufit":
+            EFrecoAlg = "pufit"
+
         #--------------------------------------
         #obtaining the muon sequences & signature:
         #--------------------------------------

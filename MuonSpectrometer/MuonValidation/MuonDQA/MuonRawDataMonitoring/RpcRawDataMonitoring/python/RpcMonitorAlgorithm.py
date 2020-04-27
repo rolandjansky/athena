@@ -11,8 +11,8 @@ def RpcMonitoringConfig(inputFlags):
 
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'RpcMonitoringConfig')
-
-    from RpcRawDataMonitoring.RpcRawDataMonitoringConf import RPCMonitorAlgorithm
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    RPCMonitorAlgorithm=CompFactory.RPCMonitorAlgorithm
 
     rpcMonitorAlg = helper.addAlgorithm(RPCMonitorAlgorithm, "RPCMonitorAlgorithmAlg")
     # set properties of algorithm RPCMonitorAlgorithm

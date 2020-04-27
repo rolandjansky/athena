@@ -13,18 +13,19 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/Identifier
                           GaudiKernel
+                          MuonSpectrometer/MuonConditions/MuonCondCabling/RPC_CondCabling
                           MuonSpectrometer/MuonCablings/RPCcablingInterface )
 
 # Component(s) in the package:
 atlas_add_library( TrigT1RPCRecRoiSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1RPCRecRoiSvc
-                   LINK_LIBRARIES MuonReadoutGeometry TrigT1Interfaces StoreGateLib SGtests RPCcablingInterfaceLib
+                   LINK_LIBRARIES MuonReadoutGeometry TrigT1Interfaces StoreGateLib SGtests RPCcablingInterfaceLib RPC_CondCablingLib
                    PRIVATE_LINK_LIBRARIES Identifier GaudiKernel )
 
 atlas_add_component( TrigT1RPCRecRoiSvc
                      src/components/*.cxx
-                     LINK_LIBRARIES MuonReadoutGeometry TrigT1Interfaces StoreGateLib SGtests Identifier GaudiKernel RPCcablingInterfaceLib TrigT1RPCRecRoiSvcLib )
+                     LINK_LIBRARIES MuonReadoutGeometry TrigT1Interfaces StoreGateLib SGtests Identifier GaudiKernel RPCcablingInterfaceLib TrigT1RPCRecRoiSvcLib RPC_CondCablingLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

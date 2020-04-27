@@ -19,10 +19,14 @@ def LArCollisionTimeMonConfig(inputFlags):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArCollisionTimeMonAlgCfg')
 
+    from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
+    cfg = LArCollisionTimeCfg(inputFlags)
+
     from AthenaConfiguration.ComponentFactory import CompFactory
     LArCollisionTimeMonConfigCore(helper, CompFactory.LArCollisionTimeMonAlg,inputFlags)
 
-    return helper.result()
+    cfg.merge(helper.result())
+    return cfg
 
 def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
 
@@ -38,10 +42,6 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
     import AthenaCommon.SystemOfUnits as Units
     timeUnit = Units.picosecond
     larCollTimeMonAlg.TimeUnit = timeUnit
-
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
-    larCollTimeMonAlg.BunchCrossingTool = BunchCrossingTool()
-
 
     collTimeGroup = helper.addGroup(
         larCollTimeMonAlg,
@@ -256,6 +256,9 @@ if __name__=='__main__':
     from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
     cfg.merge(LArCollisionTimeCfg(ConfigFlags))
     cfg.getEventAlgo("LArCollisionTimeAlg").cutIteration=False
+
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    cfg.merge(BunchCrossingCondAlgCfg(ConfigFlags))
 
     import AthenaCommon.SystemOfUnits as Units
     collmon=LArCollisionTimeMonConfig(ConfigFlags)

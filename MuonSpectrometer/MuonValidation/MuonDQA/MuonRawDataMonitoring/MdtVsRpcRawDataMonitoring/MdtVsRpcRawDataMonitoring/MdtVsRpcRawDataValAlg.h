@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////
@@ -53,8 +53,6 @@ class MdtVsRpcRawDataValAlg: public ManagedMonitorToolBase
   StatusCode initialize();
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
-  virtual StatusCode procHistograms();
-  StatusCode finalize();
  	
  private:
     

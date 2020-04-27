@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
-//#include <strstream>
 #include "MuonCablingTools/RPCdecoder.h"
-
-using namespace std;
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -87,15 +86,15 @@ RPCdecoder::reset_status()
 }
 
 void
-RPCdecoder::fault_decoding(int value,value_type type)
+RPCdecoder::fault_decoding(int value, value_type type)
 {
-    __osstream disp;
-    disp << " RPC decoder error: received " << s_value_descriptions[type]
+    std::ostringstream ostream;
+    ostream << "fault_decoding() - RPC decoder error: received " << s_value_descriptions[type]
          << " = " << value << "  (min = " << s_value_boundaries[type][0]
-         << ", max = " << s_value_boundaries[type][1] << ")"<< endl;
+         << ", max = " << s_value_boundaries[type][1] << ")";
 #ifdef LVL1_STANDALONE
-    cout << disp.str();
-#else
+    MsgStream log(Athena::getMessageSvc(), "RPCdecoder");
+    log<<MSG::INFO<<ostream<<endmsg;
 #endif
     m_fail = true; 
 }
@@ -209,26 +208,26 @@ int RPCdecoder::side2type(ViewType side) const
     return (side == Eta)? 2 : 1;
 }
 
-void RPCdecoder::Print(ostream& stream,bool detail) const
+void RPCdecoder::Print(std::ostream& stream, bool detail) const
 {
     unsigned int div = 247;
     std::string half=(half_barrel()==Negative)? "Negative" :"Positive";
 
-    stream << "RPC strip hash code " << code() << ":" << endl;
+    stream << "RPC strip hash code " << code() << ":" << std::endl;
     if(detail)
     {
-        stream << "   half barrel            = " << half << endl;
-        stream << "   type (1=Phi/2=Eta)     = " << strip_type() << endl;
+        stream << "   half barrel            = " << half << std::endl;
+        stream << "   type (1=Phi/2=Eta)     = " << strip_type() << std::endl;
         stream << "   logic sector (0" << (char)div << "63)    = " 
-               << logic_sector() << endl;
+               << logic_sector() << std::endl;
         stream << "   level-1 station (1" << (char)div << "n)  = "
-               << lvl1_station() << endl;
-        stream << "   RPC layer (0/1)        = " << rpc_layer() << endl;
+               << lvl1_station() << std::endl;
+        stream << "   RPC layer (0/1)        = " << rpc_layer() << std::endl;
         stream << "   RPC z index (0" << (char)div << "n)      = "
-	       << rpc_z_index() << endl;
+	       << rpc_z_index() << std::endl;
         stream << "   RPC strip number (0" << (char)div << "n) = "
-	       << strip_number() << endl;
-        stream << "   strip cabling code     = " << cabling_code() << endl;
+	       << strip_number() << std::endl;
+        stream << "   strip cabling code     = " << cabling_code() << std::endl;
     }
 }
 

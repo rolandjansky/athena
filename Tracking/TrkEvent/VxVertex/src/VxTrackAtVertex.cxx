@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -24,14 +24,14 @@ namespace Trk {
                               m_fitQuality(Trk::FitQuality(0.,2.)),
 			      m_trkWeight(1.),
 			      m_VertexCompatibility(0.),
-                              m_perigeeAtVertex(0),
-                              m_neutralPerigeeAtVertex(0),
-                              m_linState(0),
-                              m_initialPerigee(0),
-                              m_initialNeutralPerigee(0),
-			      m_ImpactPoint3dAtaPlane(0), 
-			      m_ImpactPoint3dNeutralAtaPlane(NULL),    
-                              m_trackOrParticleLink(0)
+                              m_perigeeAtVertex(nullptr),
+                              m_neutralPerigeeAtVertex(nullptr),
+                              m_linState(nullptr),
+                              m_initialPerigee(nullptr),
+                              m_initialNeutralPerigee(nullptr),
+			      m_ImpactPoint3dAtaPlane(nullptr), 
+			      m_ImpactPoint3dNeutralAtaPlane(nullptr),    
+                              m_trackOrParticleLink(nullptr)
                               {
 #ifndef NDEBUG
                                 s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
@@ -45,12 +45,12 @@ namespace Trk {
 			      m_VertexCompatibility(0.),
                               m_perigeeAtVertex(perigeeAtVertex),
                               m_neutralPerigeeAtVertex(neutralPerigeeAtVertex),
-                              m_linState(0),
-                              m_initialPerigee(0),
-                              m_initialNeutralPerigee(0),
-			      m_ImpactPoint3dAtaPlane(0),
-                              m_ImpactPoint3dNeutralAtaPlane(NULL),
-			      m_trackOrParticleLink(0)
+                              m_linState(nullptr),
+                              m_initialPerigee(nullptr),
+                              m_initialNeutralPerigee(nullptr),
+			      m_ImpactPoint3dAtaPlane(nullptr),
+                              m_ImpactPoint3dNeutralAtaPlane(nullptr),
+			      m_trackOrParticleLink(nullptr)
                               {
 #ifndef NDEBUG
                                 s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
@@ -65,11 +65,11 @@ namespace Trk {
                               m_perigeeAtVertex(perigeeAtVertex),
                               m_neutralPerigeeAtVertex(neutralPerigeeAtVertex),
                               m_linState(linState),
-                              m_initialPerigee(0),
-                              m_initialNeutralPerigee(NULL),
-			      m_ImpactPoint3dAtaPlane(0),
-                              m_ImpactPoint3dNeutralAtaPlane(NULL),
-                              m_trackOrParticleLink(0)
+                              m_initialPerigee(nullptr),
+                              m_initialNeutralPerigee(nullptr),
+			      m_ImpactPoint3dAtaPlane(nullptr),
+                              m_ImpactPoint3dNeutralAtaPlane(nullptr),
+                              m_trackOrParticleLink(nullptr)
                               {
 #ifndef NDEBUG
                                 s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
@@ -81,13 +81,13 @@ namespace Trk {
 			      m_trkWeight(1.),
 			      m_VertexCompatibility(0.),
                               m_perigeeAtVertex(perigeeAtVertex),
-			      m_neutralPerigeeAtVertex(NULL),
+			      m_neutralPerigeeAtVertex(nullptr),
                               m_linState(linState),
-                              m_initialPerigee(0),
-			      m_initialNeutralPerigee(NULL),
-			      m_ImpactPoint3dAtaPlane(0),
-                              m_ImpactPoint3dNeutralAtaPlane(NULL),
-                              m_trackOrParticleLink(0)
+                              m_initialPerigee(nullptr),
+			      m_initialNeutralPerigee(nullptr),
+			      m_ImpactPoint3dAtaPlane(nullptr),
+                              m_ImpactPoint3dNeutralAtaPlane(nullptr),
+                              m_trackOrParticleLink(nullptr)
                               {
 #ifndef NDEBUG
                                 s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
@@ -106,12 +106,12 @@ namespace Trk {
 				   m_VertexCompatibility(0.),
                                    m_perigeeAtVertex(perigeeAtVertex),
                                    m_neutralPerigeeAtVertex(neutralPerigeeAtVertex),
-                                   m_linState(0),
+                                   m_linState(nullptr),
                                    m_initialPerigee(initialPerigee),
                                    m_initialNeutralPerigee(initialNeutralPerigee),
-	  		           m_ImpactPoint3dAtaPlane(0),
-				   m_ImpactPoint3dNeutralAtaPlane(NULL),
-                                   m_trackOrParticleLink(0)
+	  		           m_ImpactPoint3dAtaPlane(nullptr),
+				   m_ImpactPoint3dNeutralAtaPlane(nullptr),
+                                   m_trackOrParticleLink(nullptr)
                               {
 #ifndef NDEBUG
                                 s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
@@ -125,13 +125,13 @@ namespace Trk {
 				   m_trkWeight(1.),
 				   m_VertexCompatibility(0.),
                                    m_perigeeAtVertex(perigeeAtVertex),
-				   m_neutralPerigeeAtVertex(NULL),
-                                   m_linState(0),
+				   m_neutralPerigeeAtVertex(nullptr),
+                                   m_linState(nullptr),
                                    m_initialPerigee(initialPerigee),
-                                   m_initialNeutralPerigee(NULL),
-	  		           m_ImpactPoint3dAtaPlane(0),
-				   m_ImpactPoint3dNeutralAtaPlane(NULL),
-                                   m_trackOrParticleLink(0)
+                                   m_initialNeutralPerigee(nullptr),
+	  		           m_ImpactPoint3dAtaPlane(nullptr),
+				   m_ImpactPoint3dNeutralAtaPlane(nullptr),
+                                   m_trackOrParticleLink(nullptr)
                               {
 #ifndef NDEBUG
                                 s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
@@ -153,9 +153,9 @@ namespace Trk {
                               m_linState(linState),
                               m_initialPerigee(initialPerigee),
                               m_initialNeutralPerigee(initialNeutralPerigee),
-			      m_ImpactPoint3dAtaPlane(0),
-			      m_ImpactPoint3dNeutralAtaPlane(NULL),
-                              m_trackOrParticleLink(0)
+			      m_ImpactPoint3dAtaPlane(nullptr),
+			      m_ImpactPoint3dNeutralAtaPlane(nullptr),
+                              m_trackOrParticleLink(nullptr)
 			      {
 #ifndef NDEBUG
                                 s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
@@ -170,13 +170,13 @@ namespace Trk {
 			      m_trkWeight(1.),
                               m_VertexCompatibility(0.),
                               m_perigeeAtVertex(perigeeAtVertex),
-                              m_neutralPerigeeAtVertex(NULL),
+                              m_neutralPerigeeAtVertex(nullptr),
                               m_linState(linState),
                               m_initialPerigee(initialPerigee),
-                              m_initialNeutralPerigee(NULL),
-			      m_ImpactPoint3dAtaPlane(0),
-			      m_ImpactPoint3dNeutralAtaPlane(NULL),
-                              m_trackOrParticleLink(0)
+                              m_initialNeutralPerigee(nullptr),
+			      m_ImpactPoint3dAtaPlane(nullptr),
+			      m_ImpactPoint3dNeutralAtaPlane(nullptr),
+                              m_trackOrParticleLink(nullptr)
 			      {
 #ifndef NDEBUG
                                 s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
@@ -187,14 +187,14 @@ namespace Trk {
                                   m_fitQuality(Trk::FitQuality(0.,2.)),
 				  m_trkWeight(1.),
 				  m_VertexCompatibility(0.),
-				  m_perigeeAtVertex(0),
-				  m_neutralPerigeeAtVertex(0),
-				  m_linState(0),
-				  m_initialPerigee(0),
-				  m_initialNeutralPerigee(0),
-				  m_ImpactPoint3dAtaPlane(0),
-			          m_ImpactPoint3dNeutralAtaPlane(NULL),
-                                  m_trackOrParticleLink (0)
+				  m_perigeeAtVertex(nullptr),
+				  m_neutralPerigeeAtVertex(nullptr),
+				  m_linState(nullptr),
+				  m_initialPerigee(nullptr),
+				  m_initialNeutralPerigee(nullptr),
+				  m_ImpactPoint3dAtaPlane(nullptr),
+			          m_ImpactPoint3dNeutralAtaPlane(nullptr),
+                                  m_trackOrParticleLink (nullptr)
   {  
     this->setOrigTrack(trackOrParticleLink);
 #ifndef NDEBUG
@@ -206,13 +206,13 @@ namespace Trk {
 //destructor changed
   VxTrackAtVertex::~VxTrackAtVertex() 
   { 
-   if (m_perigeeAtVertex !=0) { delete m_perigeeAtVertex; m_perigeeAtVertex=0; }
-   if (m_neutralPerigeeAtVertex !=0) { delete m_neutralPerigeeAtVertex; m_neutralPerigeeAtVertex=0; }
-   if (m_linState !=0)        { delete m_linState;        m_linState=0; } 
+   if (m_perigeeAtVertex !=nullptr) { delete m_perigeeAtVertex; m_perigeeAtVertex=nullptr; }
+   if (m_neutralPerigeeAtVertex !=nullptr) { delete m_neutralPerigeeAtVertex; m_neutralPerigeeAtVertex=nullptr; }
+   if (m_linState !=nullptr)        { delete m_linState;        m_linState=nullptr; } 
 //    if (m_initialPerigee !=0)  { delete m_initialPerigee;  m_initialPerigee=0; }
-   if (m_ImpactPoint3dAtaPlane!=0) { delete m_ImpactPoint3dAtaPlane; m_ImpactPoint3dAtaPlane=0; }
-   if (m_ImpactPoint3dNeutralAtaPlane!=0) { delete m_ImpactPoint3dNeutralAtaPlane; m_ImpactPoint3dNeutralAtaPlane=0; }
-   if (m_trackOrParticleLink!=0) { delete m_trackOrParticleLink; m_trackOrParticleLink=0; }
+   if (m_ImpactPoint3dAtaPlane!=nullptr) { delete m_ImpactPoint3dAtaPlane; m_ImpactPoint3dAtaPlane=nullptr; }
+   if (m_ImpactPoint3dNeutralAtaPlane!=nullptr) { delete m_ImpactPoint3dNeutralAtaPlane; m_ImpactPoint3dNeutralAtaPlane=nullptr; }
+   if (m_trackOrParticleLink!=nullptr) { delete m_trackOrParticleLink; m_trackOrParticleLink=nullptr; }
 #ifndef NDEBUG
     s_numberOfInstantiations.fetch_sub(1, std::memory_order_relaxed);
 #endif
@@ -223,15 +223,15 @@ namespace Trk {
         m_fitQuality(rhs.m_fitQuality),
 	m_trkWeight(rhs.m_trkWeight),
         m_VertexCompatibility(rhs.m_VertexCompatibility),
-        m_perigeeAtVertex(rhs.m_perigeeAtVertex ? rhs.m_perigeeAtVertex->clone() : 0),
-        m_neutralPerigeeAtVertex(rhs.m_neutralPerigeeAtVertex ? rhs.m_neutralPerigeeAtVertex->clone() : 0),
-	m_linState(rhs.m_linState ? rhs.m_linState->clone() : 0),
+        m_perigeeAtVertex(rhs.m_perigeeAtVertex ? rhs.m_perigeeAtVertex->clone() : nullptr),
+        m_neutralPerigeeAtVertex(rhs.m_neutralPerigeeAtVertex ? rhs.m_neutralPerigeeAtVertex->clone() : nullptr),
+	m_linState(rhs.m_linState ? rhs.m_linState->clone() : nullptr),
 // 	m_initialPerigee(rhs.m_initialPerigee ? rhs.m_initialPerigee->clone() : 0),
 	m_initialPerigee(rhs.m_initialPerigee),
 	m_initialNeutralPerigee(rhs.m_initialNeutralPerigee),
-	m_ImpactPoint3dAtaPlane(rhs.m_ImpactPoint3dAtaPlane ? new AtaPlane(*rhs.m_ImpactPoint3dAtaPlane) : 0),
-	m_ImpactPoint3dNeutralAtaPlane(rhs.m_ImpactPoint3dNeutralAtaPlane ? new NeutralAtaPlane(*rhs.m_ImpactPoint3dNeutralAtaPlane) : 0),
-        m_trackOrParticleLink(rhs.m_trackOrParticleLink ? rhs.m_trackOrParticleLink->clone() : 0)
+	m_ImpactPoint3dAtaPlane(rhs.m_ImpactPoint3dAtaPlane ? new AtaPlane(*rhs.m_ImpactPoint3dAtaPlane) : nullptr),
+	m_ImpactPoint3dNeutralAtaPlane(rhs.m_ImpactPoint3dNeutralAtaPlane ? new NeutralAtaPlane(*rhs.m_ImpactPoint3dNeutralAtaPlane) : nullptr),
+        m_trackOrParticleLink(rhs.m_trackOrParticleLink ? rhs.m_trackOrParticleLink->clone() : nullptr)
   {
 #ifndef NDEBUG
     s_numberOfInstantiations.fetch_add(1, std::memory_order_relaxed);
@@ -247,21 +247,21 @@ namespace Trk {
       m_fitQuality = rhs.m_fitQuality;
       m_trkWeight = rhs.m_trkWeight;
       delete m_perigeeAtVertex;
-      m_perigeeAtVertex = rhs.m_perigeeAtVertex ? rhs.m_perigeeAtVertex->clone() : 0;
+      m_perigeeAtVertex = rhs.m_perigeeAtVertex ? rhs.m_perigeeAtVertex->clone() : nullptr;
       delete m_neutralPerigeeAtVertex;
-      m_neutralPerigeeAtVertex = rhs.m_neutralPerigeeAtVertex ? rhs.m_neutralPerigeeAtVertex->clone() : 0;
+      m_neutralPerigeeAtVertex = rhs.m_neutralPerigeeAtVertex ? rhs.m_neutralPerigeeAtVertex->clone() : nullptr;
       delete m_linState;
-      m_linState = rhs.m_linState ? rhs.m_linState->clone() : 0;
+      m_linState = rhs.m_linState ? rhs.m_linState->clone() : nullptr;
 //       m_initialPerigee = rhs.m_initialPerigee ? rhs.m_initialPerigee->clone() : 0;
       m_initialPerigee = rhs.m_initialPerigee;
       m_initialNeutralPerigee = rhs.m_initialNeutralPerigee;
       delete m_ImpactPoint3dAtaPlane;
-      m_ImpactPoint3dAtaPlane=rhs.m_ImpactPoint3dAtaPlane ? new AtaPlane(*rhs.m_ImpactPoint3dAtaPlane) : 0;
+      m_ImpactPoint3dAtaPlane=rhs.m_ImpactPoint3dAtaPlane ? new AtaPlane(*rhs.m_ImpactPoint3dAtaPlane) : nullptr;
       delete m_ImpactPoint3dNeutralAtaPlane;
-      m_ImpactPoint3dNeutralAtaPlane=rhs.m_ImpactPoint3dNeutralAtaPlane ? new NeutralAtaPlane(*rhs.m_ImpactPoint3dNeutralAtaPlane) : 0;
+      m_ImpactPoint3dNeutralAtaPlane=rhs.m_ImpactPoint3dNeutralAtaPlane ? new NeutralAtaPlane(*rhs.m_ImpactPoint3dNeutralAtaPlane) : nullptr;
       m_VertexCompatibility=rhs.m_VertexCompatibility;
       delete m_trackOrParticleLink;
-      m_trackOrParticleLink = (rhs.m_trackOrParticleLink ? rhs.m_trackOrParticleLink->clone() : 0);
+      m_trackOrParticleLink = (rhs.m_trackOrParticleLink ? rhs.m_trackOrParticleLink->clone() : nullptr);
     }
     return *this;
   }
@@ -347,10 +347,12 @@ namespace Trk {
   MsgStream& VxTrackAtVertex::dump(MsgStream& sl) const {
     sl << "Printing VxTrackAtVertex:" << endmsg;
     const Trk::TrackParameters * inPerigee = this->initialPerigee();
-    if(inPerigee) sl << "Original Perigee: " << *(inPerigee) << endmsg;
-    else sl<<"This VxTrackAtVertex was not created using initial perigee"<<endmsg;
-    if (this->perigeeAtVertex() != 0) sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << endmsg;
-    else sl << "Refitted Perigee was not stored in pool file." << endmsg;
+    if(inPerigee) { sl << "Original Perigee: " << *(inPerigee) << endmsg;
+    } else { sl<<"This VxTrackAtVertex was not created using initial perigee"<<endmsg;
+}
+    if (this->perigeeAtVertex() != nullptr) { sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << endmsg;
+    } else { sl << "Refitted Perigee was not stored in pool file." << endmsg;
+}
     sl << m_fitQuality << "\tWeight: " << m_trkWeight << endmsg;
     return sl;
   }
@@ -358,10 +360,12 @@ namespace Trk {
   std::ostream& VxTrackAtVertex::dump(std::ostream& sl) const {
     sl << "Printing VxTrackAtVertex:" << std::endl;
     const Trk::TrackParameters * inPerigee = this->initialPerigee();
-    if(inPerigee) sl << "Original Perigee: " << *(inPerigee) << std::endl;
-    else sl<<"This VxTrackAtVertex was not created using initial perigee"<<std::endl;
-    if (this->perigeeAtVertex() != 0) sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << std::endl;
-    else sl << "Refitted Perigee was not stored in pool file." << std::endl;
+    if(inPerigee) { sl << "Original Perigee: " << *(inPerigee) << std::endl;
+    } else { sl<<"This VxTrackAtVertex was not created using initial perigee"<<std::endl;
+}
+    if (this->perigeeAtVertex() != nullptr) { sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << std::endl;
+    } else { sl << "Refitted Perigee was not stored in pool file." << std::endl;
+}
     sl << m_fitQuality << "\tWeight: " << m_trkWeight << std::endl;
     return sl;
   }

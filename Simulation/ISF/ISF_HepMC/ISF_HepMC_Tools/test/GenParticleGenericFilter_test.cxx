@@ -25,8 +25,8 @@
 #include "../src/GenParticleGenericFilter.h"
 
 // Truth related includes
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 
 namespace ISFTesting {
@@ -117,9 +117,7 @@ TEST_F(GenParticleGenericFilter_test, minEtaGreaterThanParticleEta_expectNoPass)
   EXPECT_TRUE( m_filterTool->setProperty("MinEta", "-1.3").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(150.*M_PI/180.); // eta=-1.32
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*sin(150.*M_PI/180.), 0.0, 1.0*cos(150.*M_PI/180.), 1.0); // rho=1, eta=-1.32
   const HepMC::GenParticle part(mom4, /*pdg id=*/11);
 
   ASSERT_FALSE( m_filterTool->pass(part) );
@@ -130,9 +128,7 @@ TEST_F(GenParticleGenericFilter_test, minEtaSmallerThanParticleEta_expectPass) {
   EXPECT_TRUE( m_filterTool->setProperty("MinEta", "-.9").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(135.*M_PI/180.); // eta=-0.88
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*sin(135.*M_PI/180.), 0.0, 1.0*cos(135.*M_PI/180.), 1.0); // rho=1, eta=-0.88
   const HepMC::GenParticle part(mom4, /*pdg id=*/11);
 
   ASSERT_TRUE( m_filterTool->pass(part) );
@@ -143,9 +139,7 @@ TEST_F(GenParticleGenericFilter_test, maxEtaSmallerThanParticleEta_expectNoPass)
   EXPECT_TRUE( m_filterTool->setProperty("MaxEta", "1.3").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(30.*M_PI/180.); // eta=+1.32
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*sin(30.*M_PI/180.), 0.0, 1.0*cos(30.*M_PI/180.), 1.0); // rho=1, eta=+1.32
   const HepMC::GenParticle part(mom4, /*pdg id=*/11);
 
   ASSERT_FALSE( m_filterTool->pass(part) );
@@ -156,9 +150,7 @@ TEST_F(GenParticleGenericFilter_test, maxEtaGreaterThanParticleEta_expectPass) {
   EXPECT_TRUE( m_filterTool->setProperty("MaxEta", "0.9").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(45.*M_PI/180.); // eta=0.88
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*sin(45.*M_PI/180.), 0.0, 1.0*cos(45.*M_PI/180.), 1.0); // rho=1, eta=+0.88
   const HepMC::GenParticle part(mom4, /*pdg id=*/11);
 
   ASSERT_TRUE( m_filterTool->pass(part) );
@@ -170,9 +162,7 @@ TEST_F(GenParticleGenericFilter_test, particlePositiveEtaWithinEtaRange_expectPa
   EXPECT_TRUE( m_filterTool->setProperty("MaxEta", "0.89").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(45.*M_PI/180.); // eta=0.88
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*sin(45.*M_PI/180.), 0.0, 1.0*cos(45.*M_PI/180.), 1.0); // rho=1, eta=+0.88
   const HepMC::GenParticle part(mom4, /*pdg id=*/11);
 
   ASSERT_TRUE( m_filterTool->pass(part) );
@@ -184,9 +174,7 @@ TEST_F(GenParticleGenericFilter_test, particleNegativeEtaWithinEtaRange_expectPa
   EXPECT_TRUE( m_filterTool->setProperty("MaxEta", "1.").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(135.*M_PI/180.); // eta=-0.88
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*sin(135.*M_PI/180.), 0.0, 1.0*cos(135.*M_PI/180.), 1.0); // rho=1, eta=-0.88
   const HepMC::GenParticle part(mom4, /*pdg id=*/11);
 
   ASSERT_TRUE( m_filterTool->pass(part) );
@@ -198,9 +186,7 @@ TEST_F(GenParticleGenericFilter_test, particlePositiveEtaOutsideEtaRange_expectN
   EXPECT_TRUE( m_filterTool->setProperty("MaxEta", "0.87").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(45.*M_PI/180.); // eta=0.88
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*sin(45.*M_PI/180.), 0.0, 1.0*cos(45.*M_PI/180.), 1.0); // rho=1, eta=+0.88
   const HepMC::GenParticle part(mom4, /*pdg id=*/11);
 
   ASSERT_FALSE( m_filterTool->pass(part) );
@@ -212,9 +198,7 @@ TEST_F(GenParticleGenericFilter_test, particleNegativeEtaOutsideEtaRange_expectN
   EXPECT_TRUE( m_filterTool->setProperty("MaxEta", "1.").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(135.*M_PI/180.); // eta=-0.88
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*sin(135.*M_PI/180.), 0.0, 1.0*cos(135.*M_PI/180.), 1.0); // rho=1, eta=-0.88
   const HepMC::GenParticle part(mom4, /*pdg id=*/11);
 
   ASSERT_FALSE( m_filterTool->pass(part) );
@@ -225,9 +209,7 @@ TEST_F(GenParticleGenericFilter_test, minPhiGreaterThanParticlePhi_expectNoPass)
   EXPECT_TRUE( m_filterTool->setProperty("MinPhi", "-1.").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setPhi(-1.1);
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*cos(-1.1), 1.0*sin(-1.1), 0.0, 1.0); // rho=1, phi=-1.1
   const HepMC::GenParticle part(mom4, /*pdg id=*/11);
 
   ASSERT_FALSE( m_filterTool->pass(part) );
@@ -238,9 +220,7 @@ TEST_F(GenParticleGenericFilter_test, maxPhiSmallerThanParticlePhi_expectNoPass)
   EXPECT_TRUE( m_filterTool->setProperty("MaxPhi", "1.").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setPhi(1.1);
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*cos(1.1), 1.0*sin(1.1), 0.0, 1.0); // rho=1, phi=1.1
   const HepMC::GenParticle part(mom4, /*pdg id=*/11);
 
   ASSERT_FALSE( m_filterTool->pass(part) );
@@ -374,9 +354,7 @@ TEST_F(GenParticleGenericFilter_test, productionVertexOutsideApplicableRadiusAnd
   EXPECT_TRUE( m_filterTool->setProperty("MaxApplicableRadius", "10.").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(150.*M_PI/180.); // eta=-1.32
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*sin(150.*M_PI/180.), 0.0, 1.0*cos(150.*M_PI/180.), 1.0); // rho=1, eta=-1.32
   auto* part = new HepMC::GenParticle(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
 
   const HepMC::FourVector pos(0., 100., 0., 0.);
@@ -392,9 +370,7 @@ TEST_F(GenParticleGenericFilter_test, productionVertexWithinApplicableRadiusAndU
   EXPECT_TRUE( m_filterTool->setProperty("MaxApplicableRadius", "10.").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(150.*M_PI/180.); // eta=-1.32
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(1.0*sin(150.*M_PI/180.), 0.0, 1.0*cos(150.*M_PI/180.), 1.0); // rho=1, eta=-1.32
   auto* part = new HepMC::GenParticle(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
 
   const HepMC::FourVector pos(0., 9.9, 0., 0.);
@@ -411,9 +387,7 @@ TEST_F(GenParticleGenericFilter_test, productionVertexFarForwardInsideApplicable
   EXPECT_TRUE( m_filterTool->setProperty("MaxApplicableRadius", "1.").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(0.); // eta=inf
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(0., 0., 1.0, 1.0); // rho=1, eta=inf
   auto* part = new HepMC::GenParticle(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
 
   const HepMC::FourVector pos(0., 0., 9999., 0.);
@@ -431,9 +405,7 @@ TEST_F(GenParticleGenericFilter_test, productionVertexFarForwardOutsideApplicabl
   EXPECT_TRUE( m_filterTool->setProperty("MaxApplicableRadius", "1.").isSuccess() );
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
-  HepMC::ThreeVector mom(1., 0., 0.); // rho=1
-  mom.setTheta(0.); // eta=inf
-  const HepMC::FourVector mom4(mom.x(), mom.y(), mom.z(), 0.);
+  const HepMC::FourVector mom4(0., 0., 1.0, 1.0); // rho=1, eta=inf
   auto* part = new HepMC::GenParticle(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
 
   const HepMC::FourVector pos(1.1, 0., 9999., 0.);

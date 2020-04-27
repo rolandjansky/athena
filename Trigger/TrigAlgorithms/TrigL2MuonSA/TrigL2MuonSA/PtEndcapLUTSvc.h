@@ -38,10 +38,14 @@ class PtEndcapLUTSvc : public AthService, virtual public IInterface
     virtual StatusCode finalize();
 
   private:
-    Gaudi::Property< std::string >    m_lut_fileName {
+    Gaudi::Property< std::string >    m_lut_fileNameRun2 {
 	this, "FileNameRun2", "pt_endcap_run2.lut", ""};
-    StringProperty    m_lut_mean;
-    StringProperty    m_lut_sigma;
+    Gaudi::Property< std::string >    m_lut_fileName {
+	this, "FileName", "pt_endcap.lut", ""};
+    Gaudi::Property< std::string >    m_lut_mean {
+	this, "EMeanLUT", "pt_comb_mean.lut", ""};
+    Gaudi::Property< std::string >    m_lut_sigma {
+	this, "ESigmaLUT", "pt_comb_sigma.lut", ""};
 
     ToolHandle<PtEndcapLUT>      m_ptEndcapLUT;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AthenaMonitoringKernel_HistogramFiller_h
@@ -15,6 +15,13 @@
 #include "AthenaMonitoringKernel/IMonitoredVariable.h"
 
 namespace Monitored {
+
+  // Forward declare generic histogram filler (see HistogramFillerUtils.h)
+  namespace detail {
+    template<typename H, typename W, typename C, typename ...Vs>
+    unsigned fill(H* hist, W weight, C cut, const Vs&... v);
+  }
+
   /**
    * @brief Base class for all histogram fillers
    */
@@ -28,9 +35,7 @@ namespace Monitored {
     HistogramFiller(const HistogramDef& histDef, std::shared_ptr<IHistogramProvider> histogramProvider)
       : m_mutex(std::make_shared<std::mutex>()),
         m_histDef(new HistogramDef(histDef)),
-        m_histogramProvider(histogramProvider),
-        m_monWeight(nullptr),
-        m_monCutMask(nullptr) {}
+        m_histogramProvider(histogramProvider) {}
     /**
      * @brief Copy constructor
      *
@@ -51,15 +56,17 @@ namespace Monitored {
      * @brief Virtual destructor
      */
     virtual ~HistogramFiller() {}
+
     /**
      * @brief Method that actually fills the ROOT object
+     * @return number of fills performed
      */
-    virtual unsigned fill() = 0;
+    virtual unsigned fill() const = 0;
 
 
     /**
      * @brief clone filler for actual filling
-     * Note that this operation is very chip as the this class is effectively a flyweight
+     * Note that this operation is very cheap as the this class is effectively a flyweight
      */
     virtual HistogramFiller* clone() const = 0;
 
@@ -94,16 +101,16 @@ namespace Monitored {
     
   protected:
     template <class H>
-    H* histogram() {
+    H* histogram() const {
       return static_cast<H*>(m_histogramProvider->histogram());
     }
 
     // convenience function to provide a function that interprets the cutmask
-    std::pair<size_t, std::function<bool(size_t)>> getCutMaskFunc() {
+    std::pair<size_t, std::function<bool(size_t)>> getCutMaskFunc() const {
       std::function<bool(size_t)> cutMaskValue = [] (size_t){ return true; }; // default is true
       size_t maskSize = 1;
-      const std::vector<double> cutMaskVector{m_monCutMask ? m_monCutMask->getVectorRepresentation() : std::vector<double>{}};
       if ( m_monCutMask != nullptr ) {
+        const std::vector<double> cutMaskVector{m_monCutMask->getVectorRepresentation()};
         maskSize = cutMaskVector.size();
         if (maskSize == 1) {
           if (!cutMaskVector[0]) {
@@ -118,12 +125,37 @@ namespace Monitored {
       return std::make_pair(maskSize, cutMaskValue);
     }
 
+    /**
+     * Fill histogram from IMonitoredVariable.
+     *
+     * Supports arbitrary dimensions and double/string representation.
+     *
+     * @tparam H        histogram type (TH1, TH2, ...)
+     * @param  weight   weight accessor (use detail::noWeight if not needed)
+     * @param  cut      cut mask accessor (use detail::noCut if not needed)
+     * @param  m1,m...  IMonitoredVariable list to fill from
+     */
+    template<class H, typename W, typename C, typename M, typename ...Ms>
+    unsigned fill(W weight, C cut, const M& m1, const Ms&... m) const {
+      // Template magic: Recursively convert all M to std::vector
+      if constexpr(std::is_same_v<M, Monitored::IMonitoredVariable>) {
+        if (not m1.hasStringRepresentation())
+          return fill<H>(weight, cut, m..., m1.getVectorRepresentation());
+        else
+          return fill<H>(weight, cut, m..., m1.getStringVectorRepresentation());
+      } else {
+        // All IMonitoreVariables have been converted to vector<double/string>
+        std::scoped_lock lock(*m_mutex);
+        return detail::fill(this->histogram<H>(), weight, cut, m1, m...);
+      }
+    }
+
     std::shared_ptr<std::mutex> m_mutex;
     std::shared_ptr<HistogramDef> m_histDef;
     std::shared_ptr<IHistogramProvider> m_histogramProvider;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
-    Monitored::IMonitoredVariable* m_monWeight; // bare pointer instead of reference as it can be null
-    Monitored::IMonitoredVariable* m_monCutMask;
+    Monitored::IMonitoredVariable* m_monWeight{nullptr}; // bare pointer instead of reference as it can be null
+    Monitored::IMonitoredVariable* m_monCutMask{nullptr};
     
   private:
     HistogramFiller& operator=(HistogramFiller const&) = delete;
