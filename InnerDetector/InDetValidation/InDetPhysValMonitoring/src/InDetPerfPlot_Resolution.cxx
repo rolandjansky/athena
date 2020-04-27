@@ -80,10 +80,6 @@ InDetPerfPlot_Resolution::InDetPerfPlot_Resolution(InDetPlotBase* pParent, const
     m_allTrk = true;
   }
 
-   // Using globally defined bin limits
-  for (int ieta = 0; ieta <= m_nEtaBins; ieta++) {
-    m_EtaBins[ieta] = m_etaMin + ((m_etaMax - m_etaMin) / m_nEtaBins) * ieta;
-  }
   
    
   std::vector<double> ptBins = IDPVM::logLinearBinning(m_nPtBins, m_ptMin, m_ptMax, false);
@@ -151,25 +147,25 @@ InDetPerfPlot_Resolution::initializePlots() {
     //Detailed histograms
     //
     if(m_iDetailLevel >= 200){
-      book(m_resHelpereta_pos[iparam], "resHelper_eta_pos" + m_paramProp[iparam]); 
-      book(m_resHelpereta_neg[iparam], "resHelper_eta_neg" + m_paramProp[iparam]);
-      book(m_resHelperpt_pos[iparam],  "resHelper_pt_pos" + m_paramProp[iparam]); 
-      book(m_resHelperpt_neg[iparam],  "resHelper_pt_neg" + m_paramProp[iparam]);
+      book(m_resHelpereta_pos[iparam], "resHelper_eta_" + m_paramProp[iparam], "resHelper_eta_" + m_paramProp[iparam]+"_posQ"); 
+      book(m_resHelpereta_neg[iparam], "resHelper_eta_" + m_paramProp[iparam], "resHelper_eta_" + m_paramProp[iparam]+"_negQ");
+      book(m_resHelperpt_pos[iparam],  "resHelper_pt_" + m_paramProp[iparam], "resHelper_pt_" + m_paramProp[iparam]+"_posQ"); 
+      book(m_resHelperpt_neg[iparam],  "resHelper_pt_" + m_paramProp[iparam], "resHelper_pt_" + m_paramProp[iparam]+"_negQ");
 
       //Add log binning
       m_resHelperpt_pos[iparam]->GetXaxis()->Set(m_nPtBins,m_PtBins);
       m_resHelperpt_neg[iparam]->GetXaxis()->Set(m_nPtBins,m_PtBins);
 
       //Resolution, Resolution Mean, Pull, Pull Mean
-      book(m_reswidth_vs_eta_pos[iparam], "resolution_vs_eta_" + m_paramProp[iparam] + "_pos");
-      book(m_reswidth_vs_eta_neg[iparam], "resolution_vs_eta_" + m_paramProp[iparam] + "_neg");
-      book(m_resmean_vs_eta_pos[iparam], "resmean_vs_eta_" + m_paramProp[iparam] + "_pos");
-      book(m_resmean_vs_eta_neg[iparam], "resmean_vs_eta_" + m_paramProp[iparam] + "_neg");
+      book(m_reswidth_vs_eta_pos[iparam], "resolution_vs_eta_" + m_paramProp[iparam], "resolution_vs_eta_" + m_paramProp[iparam] + "_posQ");
+      book(m_reswidth_vs_eta_neg[iparam], "resolution_vs_eta_" + m_paramProp[iparam], "resolution_vs_eta_" + m_paramProp[iparam] + "_negQ");
+      book(m_resmean_vs_eta_pos[iparam], "resmean_vs_eta_" + m_paramProp[iparam], "resmean_vs_eta_" + m_paramProp[iparam] + "_posQ");
+      book(m_resmean_vs_eta_neg[iparam], "resmean_vs_eta_" + m_paramProp[iparam], "resmean_vs_eta_" + m_paramProp[iparam] + "_negQ");
 
-      book(m_reswidth_vs_pt_pos[iparam], "resolution_vs_pt_" + m_paramProp[iparam] + "_pos");
-      book(m_reswidth_vs_pt_neg[iparam], "resolution_vs_pt_" + m_paramProp[iparam] + "_neg");
-      book(m_resmean_vs_pt_pos[iparam], "resmean_vs_pt_" + m_paramProp[iparam] + "_pos");
-      book(m_resmean_vs_pt_neg[iparam], "resmean_vs_pt_" + m_paramProp[iparam] + "_neg");
+      book(m_reswidth_vs_pt_pos[iparam], "resolution_vs_pt_" + m_paramProp[iparam], "resolution_vs_pt_" + m_paramProp[iparam] + "_posQ");
+      book(m_reswidth_vs_pt_neg[iparam], "resolution_vs_pt_" + m_paramProp[iparam], "resolution_vs_pt_" + m_paramProp[iparam] + "_negQ");
+      book(m_resmean_vs_pt_pos[iparam], "resmean_vs_pt_" + m_paramProp[iparam], "resmean_vs_pt_" + m_paramProp[iparam] + "_posQ");
+      book(m_resmean_vs_pt_neg[iparam], "resmean_vs_pt_" + m_paramProp[iparam], "resmean_vs_pt_" + m_paramProp[iparam] + "_negQ");
      
       m_reswidth_vs_pt_pos[iparam]->GetXaxis()->Set(m_nPtBins, m_PtBins);
       m_resmean_vs_pt_pos[iparam]->GetXaxis()->Set(m_nPtBins, m_PtBins);
@@ -177,37 +173,37 @@ InDetPerfPlot_Resolution::initializePlots() {
       m_resmean_vs_pt_neg[iparam]->GetXaxis()->Set(m_nPtBins, m_PtBins);
 
       std::string tmpName, tmpTitle;
-      float paramResBins[NPARAMS] = { 1000, 2000, 2000, 1000, 1000, 1000, 1000 }; 
-      float paramRes[NPARAMS] =     { 1.5,  10.0, 2.5e-5, 0.01, 0.01, 100.0, 0.2 };
+
+      int nPtBins = m_pullHelperpt[iparam]->GetNbinsX(); 
+      int nEtaBins = m_pullHelpereta[iparam]->GetNbinsX(); 
+
+      std::shared_ptr<TH1D> refHistEta { m_pullHelpereta[iparam]->ProjectionY("refEta")}; 
+      std::shared_ptr<TH1D> refHistPt { m_pullHelperpt[iparam]->ProjectionY("refPt")}; 
 
       //Projections
-      for (unsigned int ibins = 0; ibins < m_nPtBins; ibins++) {
-        tmpName = "PtProjections_pullProjection_" + m_paramProp[iparam] + std::to_string(ibins + 1);
+      for (int ibins = 0; ibins < nPtBins; ibins++) {
+        tmpName = "pullProjection_pt_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
         tmpTitle = tmpName + "; (" + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] +
                    "^{true})/#sigma_{" + m_paramProp[iparam] + "}";
-        m_pullProjections_vs_pt[iparam][ibins] = Book1D(tmpName, tmpTitle, 200, -10.0, 10.0, false);
-      }
+        m_pullProjections_vs_pt[iparam][ibins] = Book1D(tmpName, refHistPt.get(), tmpTitle , false);
 
-      for (unsigned int ibins = 0; ibins < m_nEtaBins; ibins++) {
-        tmpName = "EtaProjections_pullProjection_" + m_paramProp[iparam] + std::to_string(ibins + 1);
+
+        tmpName = "resProjection_pt_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
+        tmpTitle = tmpName + "; " + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] + "^{true} ";
+        m_resProjections_vs_pt[iparam][ibins] = Book1D(tmpName, refHistPt.get(), tmpTitle , false);
+
+      }
+      for (int ibins = 0; ibins < nEtaBins; ibins++) {
+        tmpName = "pullProjection_eta_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
         tmpTitle = tmpName + "; (" + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] +
                    "^{true})/#sigma_{" + m_paramProp[iparam] + "}";
-        m_pullProjections_vs_eta[iparam][ibins] = Book1D(tmpName, tmpTitle, 200, -10.0, 10.0, false);
-      }
-      for (unsigned int ibins = 0; ibins < m_nPtBins; ibins++) {
-        tmpName = "PtProjections_resProjection_" + m_paramProp[iparam] + std::to_string(ibins + 1);
-        tmpTitle = tmpName + "; " + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] +
-                   "^{true} ";
-        m_resProjections_vs_pt[iparam][ibins] =
-        Book1D(tmpName, tmpTitle, paramResBins[iparam], -paramRes[iparam], paramRes[iparam], false);
-     }
-     for (unsigned int ibins = 0; ibins < m_nEtaBins; ibins++) {
-       tmpName = "EtaProjections_resProjection_" + m_paramProp[iparam] + std::to_string(ibins + 1);
-       tmpTitle = "resProjection_" + m_paramProp[iparam] + std::to_string(ibins + 1) + "; " +
-                  m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] + "^{true} ";
-       m_resProjections_vs_eta[iparam][ibins] =
-       Book1D(tmpName, tmpTitle, paramResBins[iparam], -paramRes[iparam], paramRes[iparam], false); 
-     }
+        m_pullProjections_vs_eta[iparam][ibins] = Book1D(tmpName, refHistEta.get(), tmpTitle , false);
+
+        
+        tmpName = "resProjection_eta_" + m_paramProp[iparam] +"_bin_"+ std::to_string(ibins + 1);
+        tmpTitle = tmpName + "; " + m_paramProp[iparam] + "^{reco}-" + m_paramProp[iparam] + "^{true} ";
+        m_resProjections_vs_eta[iparam][ibins] = Book1D(tmpName, refHistEta.get(), tmpTitle , false);
+      }     
    }
    //
    //End of saving resolution and pull residual binnings
