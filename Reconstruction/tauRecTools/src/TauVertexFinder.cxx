@@ -43,7 +43,7 @@ StatusCode TauVertexFinder::finalize() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TauVertexFinder::executeVertexFinder(xAOD::TauJet& pTau, 
                                                 const xAOD::VertexContainer* vertexContainer, 
-                                                const xAOD::TrackParticleContainer* trackContainer) const {
+                                                const xAOD::TrackParticleContainer* trackContainer) {
   
   const xAOD::VertexContainer * vxContainer = 0;
     
@@ -117,13 +117,13 @@ ElementLink<xAOD::VertexContainer>
 TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
                             const xAOD::VertexContainer& vertices,
                             const xAOD::TrackParticleContainer * trackContainer,
-                            float& maxJVF) const
+                            float& maxJVF)
 {
   const xAOD::Jet* pJetSeed = (*pTau.jetLink());
   std::vector<const xAOD::TrackParticle*> tracksForTJVA;
   const double dDeltaRMax(0.2);
 
-  std::vector<const xAOD::Vertex*> matchedVertexOnline;
+  m_matchedVertexOnline.clear(); 
   // the implementation follows closely the example given in modifyJet(...) in https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/Jet/JetMomentTools/trunk/Root/JetVertexFractionTool.cxx#15
   
   const xAOD::TrackParticleContainer* trackParticleCont = 0;
@@ -180,7 +180,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
       ATH_MSG_DEBUG("Creating online TJVA"); 
       ATH_MSG_DEBUG("Building online track-vertex association trk size="<< tracksForTJVA.size()
                       << "  vtx size="<< vertices.size());
-      matchedVertexOnline.resize(tracksForTJVA.size(), 0 );
+      m_matchedVertexOnline.resize(tracksForTJVA.size(), 0 );
 
       for (size_t iTrack = 0; iTrack < tracksForTJVA.size(); ++iTrack)
       {
@@ -221,7 +221,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
           
           // If we matched a vertex, then associate that vertex to the track
           if (foundMatch)
-              matchedVertexOnline[ iTrack ] = vertices.at(matchedIndex);
+              m_matchedVertexOnline[ iTrack ] = vertices.at(matchedIndex);
       }
   } else {
 
@@ -243,7 +243,7 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   for (const xAOD::Vertex* vert : vertices) {
     float jvf = 0;
     if(!inTrigger()) jvf = getJetVertexFraction(vert,tracksForTJVA,tva);
-    else jvf = getJetVertexFraction(vert,tracksForTJVA,matchedVertexOnline);
+    else jvf = getJetVertexFraction(vert,tracksForTJVA);
     if (jvf > maxJVF) {
       maxJVF = jvf;
       max_vert = vert;
@@ -278,15 +278,13 @@ float TauVertexFinder::getJetVertexFraction(const xAOD::Vertex* vertex, const st
   return sumTrackAll!=0 ? sumTrackPV/sumTrackAll : 0;
 }
 // for online ATR-15665: reimplementation needed for online because the tva doesn't work. The size of the track collection from TE is not the same as the max track index
-float TauVertexFinder::getJetVertexFraction(const xAOD::Vertex* vertex,
-                                            const std::vector<const xAOD::TrackParticle*>& tracks,
-                                            const std::vector<const xAOD::Vertex*>& matchedVertexOnline) const
+float TauVertexFinder::getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks) const
 {
   float sumTrackPV = 0;
   float sumTrackAll = 0;
   for (size_t iTrack = 0; iTrack < tracks.size(); ++iTrack)
     {
-      const xAOD::Vertex* ptvtx = matchedVertexOnline[iTrack];
+      const xAOD::Vertex* ptvtx = m_matchedVertexOnline[iTrack];
       if (ptvtx != nullptr) {  // C++11 feature
         if (ptvtx->index() == vertex->index()) sumTrackPV += tracks.at(iTrack)->pt();
       }
