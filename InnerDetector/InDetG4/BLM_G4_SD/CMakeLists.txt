@@ -22,18 +22,17 @@ find_package( XercesC )
 find_package( GTest )
 
 # Component(s) in the package:
-atlas_add_component( BLM_G4_SD
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GaudiKernel InDetSimEvent G4AtlasToolsLib MCTruth )
-
 atlas_add_library( BLM_G4_SDLib
                    src/*.cxx
                    NO_PUBLIC_HEADERS BLM_G4_SD
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils StoreGateLib SGtests GaudiKernel InDetSimEvent G4AtlasToolsLib MCTruth
                  )
+
+atlas_add_component( BLM_G4_SD
+                     src/components/*.cxx
+                     INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GaudiKernel InDetSimEvent G4AtlasToolsLib MCTruth BLM_G4_SDLib )
 
 
 
