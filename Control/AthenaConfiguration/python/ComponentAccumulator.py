@@ -23,8 +23,10 @@ from AthenaConfiguration.UnifyProperties import unifySet
 
 class ConfigurationError(RuntimeError):
     pass
+_basicServicesToCreate=('MessageSvc','JobOptionsSvc','GeoModelSvc','DetDescrCnvSvc','CoreDumpSvc')
+_basicServicesToCreateOrder=_basicServicesToCreate+('VTuneProfilerService','EvtIdModifierSvc') # this is just an example, I doubt they need to be in certain order
 
-_basicServicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc','CoreDumpSvc','VTuneProfilerService','EvtIdModifierSvc'))
+
 
 def printProperties(msg, c, nestLevel = 0):
     # Iterate in sorted order.
@@ -75,7 +77,7 @@ class ComponentAccumulator(object):
         self._algorithms = {}            #Flat algorithms list, useful for merging
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
-        self._servicesToCreate=set(_basicServicesToCreate)
+        self._servicesToCreate=list(_basicServicesToCreate)
         self._privateTools=None          #A placeholder to carry a private tool(s) not yet attached to its parent
         self._primaryComp=None           #A placeholder to designate the primary service 
 
@@ -387,7 +389,18 @@ class ComponentAccumulator(object):
             #keep a ref of the de-duplicated public tool as primary component
             self._primaryComp=self.__getOne( self._services, newSvc.name, "Services") 
         self._lastAddedComponent=newSvc.name
-        if create: self._servicesToCreate.add(newSvc.name)
+        if create:
+            if newSvc.getName in self._servicesToCreate: # done already
+                return
+            if newSvc.getName not in _basicServicesToCreateOrder:
+                self._servicesToCreate.append( newSvc.name )
+            else:
+                for basicSvc in reversed(_basicServicesToCreateOrder[:_basicServicesToCreateOrder.index(newSvc.name)]):
+                    if basicSvc in self._servicesToCreate:
+                        self._basicServicesToCreate.insert(self._basicServicesToCreate.index(basicSvc)+1, newSvc.name)
+                        break
+                else:
+                    self._servicesToCreate.insert( 0, newSvc.name )
         return 
 
 
@@ -562,9 +575,7 @@ class ComponentAccumulator(object):
             self.addCondAlgo(condAlg) #Profit from deduplicaton here
 
         for svc in other._services:
-            self.addService(svc) #Profit from deduplicaton here
-
-        self._servicesToCreate.update(other._servicesToCreate)
+            self.addService(svc, create = svc.name in self._servicesToCreate) #Profit from deduplicaton here
 
         for pt in other._publicTools:
             self.addPublicTool(pt) #Profit from deduplicaton here
@@ -954,12 +965,14 @@ def appendCAtoAthena(ca, destinationSeq=athAlgSeq ):
     _log = logging.getLogger( "conf2toConfigurable".ljust(32) )
     _log.info( "Merging of CA to global ..." )
 
-    from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,athAlgSeq,athCondSeq
+    from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,athAlgSeq,athCondSeq,theApp
     if len(ca.getServices()) != 0:
         _log.info( "Merging services" )
         for comp in ca.getServices():
             instance = conf2toConfigurable( comp, indent="  " )
             ServiceMgr += instance
+        for svcName in ca._servicesToCreate:
+            theApp.CreateSvc += [svcName]
 
     if  len(ca._conditionsAlgs) != 0:
         _log.info( "Merging condition algorithms" )
