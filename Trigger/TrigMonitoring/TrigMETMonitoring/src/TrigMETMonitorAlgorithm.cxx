@@ -14,6 +14,7 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   , m_hlt_tc_met_key("HLT_MET_tc")
   , m_hlt_tcpufit_met_key("HLT_MET_tcpufit")
   , m_hlt_trkmht_met_key("HLT_MET_trkmht")
+  , m_hlt_pfsum_met_key("HLT_MET_pfsum")
   , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty("offline_met_key", m_offline_met_key);
@@ -23,6 +24,7 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   declareProperty("hlt_tc_key", m_hlt_tc_met_key);
   declareProperty("hlt_tcpufit_key", m_hlt_tcpufit_met_key);
   declareProperty("hlt_trkmht_key", m_hlt_trkmht_met_key);
+  declareProperty("hlt_pfsum_key", m_hlt_pfsum_met_key);
 
   declareProperty("L1Chain1", m_L1Chain1="L1_XE50");
   declareProperty("HLTChain1", m_HLTChain1="HLT_xe65_cell_L1XE50");
@@ -41,6 +43,7 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hlt_tc_met_key.initialize() );
     ATH_CHECK( m_hlt_tcpufit_met_key.initialize() );
     ATH_CHECK( m_hlt_trkmht_met_key.initialize() );
+    ATH_CHECK( m_hlt_pfsum_met_key.initialize() );
 
     ATH_CHECK( m_trigDecTool.retrieve() );
 
@@ -84,7 +87,12 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
  
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_trkmht_met_cont(m_hlt_trkmht_met_key, ctx);
     if (hlt_trkmht_met_cont->size()==0 || ! hlt_trkmht_met_cont.isValid() ) {
-	ATH_MSG_DEBUG("Container "<< m_hlt_trkmht_met_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_hlt_trkmht_met_key << " does not exist or is empty");
+    }
+
+    SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfsum_met_cont(m_hlt_pfsum_met_key, ctx);
+    if (hlt_pfsum_met_cont->size()==0 || ! hlt_pfsum_met_cont.isValid() ) {
+	ATH_MSG_DEBUG("Container "<< m_hlt_pfsum_met_key << " does not exist or is empty");
     }
    
 
@@ -122,6 +130,9 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto tcpufit_sumE = Monitored::Scalar<float>("tcpufit_sumE",0.0);
     auto tcpufit_eta = Monitored::Scalar<float>("tcpufit_eta",0.0);
     auto tcpufit_phi = Monitored::Scalar<float>("tcpufit_phi",0.0);
+    auto pfsum_Ex = Monitored::Scalar<float>("pfsum_Ex",0.0);
+    auto pfsum_Ey = Monitored::Scalar<float>("pfsum_Ey",0.0);
+    auto pfsum_Et = Monitored::Scalar<float>("pfsum_Et",0.0);
     auto pass_L11 = Monitored::Scalar<float>("pass_L11",0.0);
     auto pass_HLT1 = Monitored::Scalar<float>("pass_HLT1",0.0);
     auto pass_HLT2 = Monitored::Scalar<float>("pass_HLT2",0.0);
@@ -191,6 +202,14 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       tcpufit_phi = v.Phi();
     }
 
+    // access HLT pfsum MET values
+    if ( hlt_pfsum_met_cont->size() > 0 && hlt_pfsum_met_cont.isValid() ) {
+      hlt_met = hlt_pfsum_met_cont->at(0);
+      pfsum_Ex = (hlt_met->ex())/1000.;
+      pfsum_Ey = (hlt_met->ey())/1000.;
+      pfsum_Et = sqrt(pfsum_Ex*pfsum_Ex + pfsum_Ey*pfsum_Ey);
+    }
+
     // efficiency plots
     if (m_trigDecTool->isPassed(m_L1Chain1)) pass_L11 = 1.0;
     if (m_trigDecTool->isPassed(m_HLTChain1)) pass_HLT1 = 1.0;
@@ -219,13 +238,16 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto tool = getGroup("TrigMETMonitor");
     fill(tool,offline_Ex,offline_Ey,offline_Et,offline_sumEt,
          L1_Ex,L1_Ey,L1_Et,
-         pass_L11,pass_HLT1,pass_HLT2,
-         cell_Ex,cell_Ey,cell_Et,
+         pass_L11,pass_HLT1,pass_HLT2);
+    if (hlt_cell_met_cont->size() > 0) {
+      fill(tool,cell_Ex,cell_Ey,cell_Et,
          mht_Ex,mht_Ey,mht_Et,
          tc_Ex,tc_Ey,tc_Et,
          trkmht_Ex,trkmht_Ey,trkmht_Et,
+         pfsum_Ex,pfsum_Ey,pfsum_Et,
          tcpufit_Ex,tcpufit_Ey,tcpufit_Ez,tcpufit_Et,
          tcpufit_sumEt,tcpufit_sumE,tcpufit_eta,tcpufit_phi);
+    }
 
     return StatusCode::SUCCESS;
 }

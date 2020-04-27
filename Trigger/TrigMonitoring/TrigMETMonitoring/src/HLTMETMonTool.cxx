@@ -1210,7 +1210,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     missETEF = *(hlt_cell_met_cont->begin());
 
     // Lumi Block histogram
-    if ((h = hist("HLT_limiBlock")) && eventInfo)    h->Fill(eventInfo->lumiBlock());
+    if ((h = hist("HLT_lumiBlock")) && eventInfo)    h->Fill(eventInfo->lumiBlock());
 
     // <mju> histogram
     if ((h = hist("HLT_mu")))    h->Fill(lbInteractionsPerCrossing());
@@ -1924,7 +1924,7 @@ void HLTMETMonTool::fillHLTProfileHistograms(float off_met,std::map<std::string,
 void HLTMETMonTool::addHLTStatusHistograms() {
 
   // Lumiblock histogram
-  addHistogram(new TH1F("HLT_limiBlock", "HLT Lumi Block", 1000, 0, 1000));  
+  addHistogram(new TH1F("HLT_lumiBlock", "HLT Lumi Block", 1000, 0, 1000));  
 
   // <mu> histogram
   addHistogram(new TH1F("HLT_mu", "HLT mu", 100, 0, 100));  
