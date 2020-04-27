@@ -81,10 +81,17 @@ if hasattr(runArgs, "inputGenConfFile"):
 if hasattr(runArgs, "inputGeneratorFile"):
    evgenLog.info("inputGeneratorFile used " + runArgs.inputGeneratorFile)
  
+if hasattr(runArgs, "outputYODAFile"):
+    evgenLog.info("outputYODAFile specified " + runArgs.outputYODAFile)
+
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
 if not hasattr(runArgs, "outputEVNTFile") and not hasattr(runArgs, "outputEVNT_PreFile"):
-    raise RuntimeError("No output evgen EVNT or EVNT_Pre file provided.")
+    if hasattr(runArgs, "outputYODAFile"):
+        evgenLog.info("No outputEVNTFile specified but outputYODAFile is used")
+        evgenLog.info("Will run GENtoEVGEN without saving the output EVNT file, asuming a valid outputYODAFile will be produced")
+    else:
+        raise RuntimeError("No output evgen EVNT or EVNT_Pre file provided.")
 
 ## Ensure that mandatory args have been supplied (complain before processing the includes)
 if not hasattr(runArgs, "ecmEnergy"):
@@ -169,6 +176,8 @@ if hasattr(runArgs, "rivetAnas"):
     anaSeq += Rivet_i()
     anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
     anaSeq.Rivet_i.DoRootHistos = True
+    if hasattr(runArgs, "outputYODAFile"):
+        anaSeq.Rivet_i.HistoFile = runArgs.outputYODAFile
 
 ##==============================================================
 ## Pre- and main config parsing
@@ -456,34 +465,35 @@ if evgenConfig.categories:
     else:
         evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
 
-## Configure POOL streaming to the output EVNT format file
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-#from PoolSvc.PoolSvcConf import PoolSvc
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
-if hasattr(runArgs, "outputEVNTFile"):
-  poolFile = runArgs.outputEVNTFile
-elif hasattr(runArgs, "outputEVNT_PreFile"):
-  poolFile = runArgs.outputEVNT_PreFile
-else:
-  raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
+if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"):
+    ## Configure POOL streaming to the output EVNT format file
+    from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+    from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+    #from PoolSvc.PoolSvcConf import PoolSvc
+    svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
+    if hasattr(runArgs, "outputEVNTFile"):
+        poolFile = runArgs.outputEVNTFile
+    elif hasattr(runArgs, "outputEVNT_PreFile"):
+        poolFile = runArgs.outputEVNT_PreFile
+    else:
+        raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
 
-#StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNTFile)
-StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
+    #StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNTFile)
+    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
 
-StreamEVGEN.ForceRead = True
-StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
-StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
-## Used for pile-up (remove dynamic variables except flavour labels)
-if evgenConfig.saveJets:
-    StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
-    StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
+    StreamEVGEN.ForceRead = True
+    StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
+    StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
+    ## Used for pile-up (remove dynamic variables except flavour labels)
+    if evgenConfig.saveJets:
+        StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
+        StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
 
-# Remove any requested items from the ItemList so as not to write out
-for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
+    # Remove any requested items from the ItemList so as not to write out
+    for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
 
-# Allow (re-)addition to the output stream
-for addItem in evgenConfig.extraSaveItems: StreamEVGEN.ItemList += [ addItem ]
+    # Allow (re-)addition to the output stream
+    for addItem in evgenConfig.extraSaveItems: StreamEVGEN.ItemList += [ addItem ]
 
 ## Set the run numbers
 dsid = os.path.basename(runArgs.jobConfig[0])
