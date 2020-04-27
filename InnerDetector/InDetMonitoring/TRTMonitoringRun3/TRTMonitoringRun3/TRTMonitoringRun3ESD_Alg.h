@@ -2,8 +2,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRTMONITORINGRUN3_ALG_H
-#define TRTMONITORINGRUN3_ALG_H
+#ifndef TRTMONITORINGRUN3ESD_ALG_H
+#define TRTMONITORINGRUN3ESD_ALG_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -58,10 +58,10 @@ class ITRT_DAQ_ConditionsSvc;
 class ITRT_ByteStream_ConditionsSvc;
 class ITRT_StrawNeighbourSvc;
 
-class TRTMonitoringRun3_Alg : public AthMonitorAlgorithm {
+class TRTMonitoringRun3ESD_Alg : public AthMonitorAlgorithm {
 public:
-    TRTMonitoringRun3_Alg( const std::string& name, ISvcLocator* pSvcLocator );
-    virtual ~TRTMonitoringRun3_Alg();
+    TRTMonitoringRun3ESD_Alg( const std::string& name, ISvcLocator* pSvcLocator );
+    virtual ~TRTMonitoringRun3ESD_Alg();
     virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 private:
@@ -90,6 +90,7 @@ private:
     int strawNumber_reverse (int inp_strawnumber,  int* strawNumber, int* strawlayerNumber, int* LayerNumber) const;
     int strawLayerNumber_reverse(int strawLayerNumInp,int* strawLayerNumber, int* LayerNumber) const;
     int strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side) const;
+    bool checkEventBurst(const TRT_RDO_Container& rdoContainer) const;
 
 private:
     static const int s_numberOfBarrelStacks;
@@ -102,14 +103,10 @@ private:
 
     // Services
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
-    ServiceHandle<ITRT_DAQ_ConditionsSvc> m_DAQSvc;
-    ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
-    ServiceHandle<ITRT_ConditionsSvc> m_condSvc_BS;
     ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
     ToolHandle<ITRT_CalDbTool> m_TRTCalDbTool;
 
     // Data handles
-    SG::ReadHandleKey<TRT_RDO_Container> m_rdoContainerKey{this, "TRTRawDataObjectName", "TRT_RDOs", "Name of TRT RDOs container"};
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackCollectionKey{this, "TrackParticleContainerKeys", "InDetTrackParticles", "Keys for TrackParticle Container"};
     SG::ReadHandleKey<xAOD::EventInfo> m_xAODEventInfoKey{this, "xAODEventInfo", "EventInfo", "Name of EventInfo object"};
     SG::ReadHandleKey<InDetTimeCollection> m_TRT_BCIDCollectionKey{this, "TRTBCIDCollectionName", "TRT_BCID", "Name of TRT BCID collection"};
@@ -118,14 +115,12 @@ private:
 
     // Tools
     ToolHandle<Trk::ITrackSummaryTool> m_TrackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryTool", "Track summary tool name"};
-    ToolHandle<ITRT_DriftFunctionTool> m_drifttool; // keep this public for now
+    ToolHandle<ITRT_DriftFunctionTool> m_drifttool;
 
     const TRT_ID* m_pTRTHelper;
     const InDetDD::TRT_DetectorManager *m_mgr;
 
-    bool m_doRDOsMon;
     bool m_doTracksMon;
-
     bool m_doStraws;
     bool m_doChips;
     bool m_doShift;
@@ -136,16 +131,17 @@ private:
 
     float m_DistToStraw;
     bool m_isCosmics;
-    int m_minTRThits;
-    float m_minP;
-    float m_min_pT;
 
     int m_min_si_hits;
     int m_min_pixel_hits;
     int m_min_sct_hits;
     int m_min_trt_hits;
+    int m_minTRThits;
+    float m_minP;
+	float m_min_pT;
 
-    //Deciphers status HT to  GasType Enumerator
+
+    // Deciphers status HT to  GasType Enumerator
     inline GasType Straw_Gastype(int stat) const {
         // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton}.
         // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
@@ -155,13 +151,15 @@ private:
             if       ( stat==2 || stat==3 ) { Gas = Xe; } // Xe
             else if  ( stat==1 || stat==4 ) { Gas = Ar; } // Ar
             else if  ( stat==5 )            { Gas = Kr; } // Kr
-            else if  ( stat==6 )            { Gas = Xe; } // emulate Ar (so treat as Xe here)
-            else if  ( stat==7 )            { Gas = Xe; } // emulate Kr (so treat as Xe here)
+            else if  ( stat==6 )            { Gas = Xe; } // Emulate Ar (so treat as Xe here)
+            else if  ( stat==7 )            { Gas = Xe; } // Emulate Kr (so treat as Xe here)
             else { ATH_MSG_FATAL ("getStatusHT = " << stat << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!' or 6 or 7 for emulated types!");
                 throw std::exception();
             }
         }
         return Gas;
     }
+    
+    int  m_EventBurstCut;
 };
 #endif
