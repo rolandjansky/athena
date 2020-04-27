@@ -28,7 +28,6 @@ void PrimaryParticleInformation::SuggestBarcode(int bc)
   m_barcode=bc;
   if (m_theParticle) {
     std::cout<<"ERROR: PrimaryParticleInformation::SuggestBarcode() should be only called if no HepMC::Particle is available"<<std::endl;
-    //theParticle->suggest_barcode(bc);
   }
 }
 

@@ -83,14 +83,14 @@ private:
   InDetPerfPlot_FakeRate m_missingTruthFakePlots;
   InDetPerfPlot_Resolution m_resolutionPlotPrim;
   InDetPerfPlot_Resolution* m_resolutionPlotSecd;
-  InDetPerfPlot_Hits m_hitsMatchedTracksPlots;
+  InDetPerfPlot_Hits *m_hitsMatchedTracksPlots;
   InDetPerfPlot_Hits m_hitsRecoTracksPlots;
   InDetPerfPlot_Efficiency m_effPlots;
 
   InDetPerfPlot_VerticesVsMu m_verticesVsMuPlots;
   InDetPerfPlot_Vertex m_vertexPlots;
   InDetPerfPlot_Vertex m_hardScatterVertexPlots;
-  InDetPerfPlot_VertexTruthMatching m_vertexTruthMatchingPlots;
+  InDetPerfPlot_VertexTruthMatching *m_vertexTruthMatchingPlots;
   InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
 
   bool m_doTrackInJetPlots;

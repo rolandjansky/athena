@@ -23,14 +23,18 @@ using json = nlohmann::json;  // for convenience
  */
 PerfMonMTSvc::PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator)
     : AthService(name, pSvcLocator), m_eventCounter{0} {
-  // Estimate the job configuration time -- see initialize as well
-  m_jobCfg_time = PMonMT::get_wall_time();
+  // Four main snapshots : Configure, Initialize, Execute, and Finalize
+  m_snapshotData.resize(NSNAPSHOTS); // Default construct
 
   // Initial capture upon construction
-  m_measurement.capture_snapshot();
-  m_snapshotData[0].addPointStart_snapshot(m_measurement);
+  m_measurement_snapshots.capture_snapshot();
+  m_snapshotData[CONFIGURE].addPointStop_snapshot(m_measurement_snapshots);
+  m_snapshotData[INITIALIZE].addPointStart_snapshot(m_measurement_snapshots);
 }
 
+/*
+ * Destructor
+ */
 PerfMonMTSvc::~PerfMonMTSvc() {}
 
 /*
@@ -53,15 +57,24 @@ StatusCode PerfMonMTSvc::queryInterface(const InterfaceID& riid, void** ppvInter
  * Initialize the Service
  */
 StatusCode PerfMonMTSvc::initialize() {
-  // Three main snapshots : Initialize, Event Loop, and Finalize
-  m_snapshotStepNames.push_back("Initialize");
-  m_snapshotStepNames.push_back("Event Loop");
-  m_snapshotStepNames.push_back("Finalize");
+  // Print where we are
+  ATH_MSG_INFO("Initializing " << name());
+
+  // Print some information minimal information about our configuration
+  ATH_MSG_INFO("Service is configured for [" << m_numberOfThreads.toString() << "] threads " <<
+               "analyzing [" << m_numberOfSlots.toString() << "] events concurrently");
+  ATH_MSG_INFO("Component-level measurements are [" << (m_doComponentLevelMonitoring ? "Enabled" : "Disabled") << "]");
+  if (m_numberOfThreads > 1 && m_doComponentLevelMonitoring) {
+    ATH_MSG_INFO("  >> Component-level memory monitoring in the event-loop is disabled in jobs with more than 1 thread");
+  }
+
+  // Slot specific component-level data map
+  m_compLevelDataMapVec.resize(m_numberOfSlots); // Default construct
 
   // Set wall time offset
   m_eventLevelData.set_wall_time_offset(m_wallTimeOffset);
   if (m_wallTimeOffset > 0) {
-    m_jobCfg_time -= m_wallTimeOffset;
+    m_snapshotData[CONFIGURE].add2DeltaWall(-m_wallTimeOffset);
   }
 
   /// Configure the auditor
@@ -76,9 +89,12 @@ StatusCode PerfMonMTSvc::initialize() {
  * Finalize the Service
  */
 StatusCode PerfMonMTSvc::finalize() {
+  // Print where we are
+  ATH_MSG_INFO("Finalizing " << name());
+
   // Final capture upon finalization
-  m_measurement.capture_snapshot();
-  m_snapshotData[2].addPointStop_snapshot(m_measurement);
+  m_measurement_snapshots.capture_snapshot();
+  m_snapshotData[FINALIZE].addPointStop_snapshot(m_measurement_snapshots);
 
   // Report everything
   report();
@@ -103,11 +119,9 @@ void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& comp
     // Nothing more to do if we don't listen to components
     if (!m_doComponentLevelMonitoring) return;
 
-    // Serial or parallel
-    if (!isLoop())
-      startCompAud_serial(stepName, compName);
-    else
-      startCompAud_MT(stepName, compName);
+    // Start component auditing
+    auto ctx = Gaudi::Hive::currentContext(); 
+    startCompAud(stepName, compName, ctx);
   }
 }
 
@@ -115,6 +129,7 @@ void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& comp
  * Stop Auditing
  */
 void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compName) {
+  // Don't self-monitor
   if (compName != "AthenaHiveEventLoopMgr" && compName != "PerfMonMTSvc") {
     // Snapshots, i.e. Initialize, Event Loop, etc.
     stopSnapshotAud(stepName, compName);
@@ -122,96 +137,123 @@ void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compN
     // Nothing more to do if we don't listen to components
     if (!m_doComponentLevelMonitoring) return;
 
-    // Serial or parallel
-    if (!isLoop())
-      stopCompAud_serial(stepName, compName);
-    else
-      stopCompAud_MT(stepName, compName);
+    // Stop component auditing
+    auto ctx = Gaudi::Hive::currentContext(); 
+    stopCompAud(stepName, compName, ctx);
   }
 }
 
+/*
+ * Start Snapshot Auditing
+ */
 void PerfMonMTSvc::startSnapshotAud(const std::string& stepName, const std::string& compName) {
   // Last thing to be called before the event loop begins
   if (compName == "AthRegSeq" && stepName == "Start") {
-    m_measurement.capture_snapshot();
-    m_snapshotData[1].addPointStart_snapshot(m_measurement);
+    m_measurement_snapshots.capture_snapshot();
+    m_snapshotData[EXECUTE].addPointStart_snapshot(m_measurement_snapshots);
   }
 
   // Last thing to be called before finalize step begins
   if (compName == "AthMasterSeq" && stepName == "Finalize") {
-    m_measurement.capture_snapshot();
-    m_snapshotData[2].addPointStart_snapshot(m_measurement);
+    m_measurement_snapshots.capture_snapshot();
+    m_snapshotData[FINALIZE].addPointStart_snapshot(m_measurement_snapshots);
   }
 }
 
+/*
+ * Stop Snapshot Auditing
+ */
 void PerfMonMTSvc::stopSnapshotAud(const std::string& stepName, const std::string& compName) {
   // First thing to be called after the initialize step ends
   if (compName == "AthMasterSeq" && stepName == "Initialize") {
-    m_measurement.capture_snapshot();
-    m_snapshotData[0].addPointStop_snapshot(m_measurement);
+    m_measurement_snapshots.capture_snapshot();
+    m_snapshotData[INITIALIZE].addPointStop_snapshot(m_measurement_snapshots);
   }
 
   // First thing to be called after the event loop ends
   if (compName == "AthMasterSeq" && stepName == "Stop") {
-    m_measurement.capture_snapshot();
-    m_snapshotData[1].addPointStop_snapshot(m_measurement);
+    m_measurement_snapshots.capture_snapshot();
+    m_snapshotData[EXECUTE].addPointStop_snapshot(m_measurement_snapshots);
   }
 }
 
-void PerfMonMTSvc::startCompAud_serial(const std::string& stepName, const std::string& compName) {
-  // Current step - component pair. Ex: Initialize-StoreGateSvc
-  PMonMT::StepComp currentState = generate_serial_state(stepName, compName);
-
-  // Capture the time
-  m_measurement.capture_compLevel_serial();
-
-  /*
-   *  Dynamically create a MeasurementData instance for the current step-component pair
-   *  This space will be freed after results are reported.
-   */
-  m_compLevelDataMap[currentState] = new PMonMT::MeasurementData;
-  m_compLevelDataMap[currentState]->addPointStart_serial(m_measurement);
-}
-
-void PerfMonMTSvc::stopCompAud_serial(const std::string& stepName, const std::string& compName) {
-  // Capture the time
-  m_measurement.capture_compLevel_serial();
-
-  // Current step - component pair. Ex: Initialize-StoreGateSvc
-  PMonMT::StepComp currentState = generate_serial_state(stepName, compName);
-
-  m_compLevelDataMap[currentState]->addPointStop_serial(m_measurement);
-}
-
-void PerfMonMTSvc::startCompAud_MT(const std::string& stepName, const std::string& compName) {
+/*
+ * Start Component Auditing
+ */
+void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& compName, const EventContext& ctx) {
+  // Lock for data integrity
   std::lock_guard<std::mutex> lock(m_mutex_capture);
 
-  uint64_t eventID = getEventID();
+  // Memory measurement is only done outside the loop except when there is only a single thread
+  const bool doMem = !ctx.valid() || (m_numberOfThreads == 1);
 
-  PMonMT::StepCompEvent currentState = generate_parallel_state(stepName, compName, eventID);
-  m_measurement.capture_compLevel_MT(currentState);
-  m_parallelCompLevelData.addPointStart_MT(m_measurement, currentState);
+  // Generate State
+  PMonMT::StepComp currentState = generate_state(stepName, compName);
+
+  // Check if this is the first time calling if so create the mesurement data if not use the existing one. 
+  // Metrics are collected per slot then aggregated before reporting 
+  data_map_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
+  if(compLevelDataMap.find(currentState) == compLevelDataMap.end()) {
+    compLevelDataMap[currentState] = new PMonMT::MeasurementData();
+  }
+
+  // Capture and store
+  PMonMT::Measurement meas;
+  meas.capture_component(doMem);
+  compLevelDataMap[currentState]->addPointStart_component(meas, doMem);
+
+  // Debug
+  ATH_MSG_DEBUG("Start Audit: ctx " << ctx.valid() << " evt " << ctx.evt() << " slot " << ctx.slot() <<
+                " component " << compName << " step " << stepName);
+  ATH_MSG_DEBUG("Start CPU " << meas.cpu_time << " VMem " << meas.vmem << " Malloc " << meas.malloc);
 }
 
-void PerfMonMTSvc::stopCompAud_MT(const std::string& stepName, const std::string& compName) {
+/*
+ * Stop Component Auditing
+ */
+void PerfMonMTSvc::stopCompAud(const std::string& stepName, const std::string& compName, const EventContext& ctx) {
+  // Lock for data integrity
   std::lock_guard<std::mutex> lock(m_mutex_capture);
 
-  uint64_t eventID = getEventID();
+  // Memory measurement is only done outside the loop except when there is only a single thread
+  const bool doMem = !ctx.valid() || (m_numberOfThreads == 1);
 
-  PMonMT::StepCompEvent currentState = generate_parallel_state(stepName, compName, eventID);
-  m_measurement.capture_compLevel_MT(currentState);
-  m_parallelCompLevelData.addPointStop_MT(m_measurement, currentState);
+  // Capture
+  PMonMT::Measurement meas;
+  meas.capture_component(doMem); // No memory in the event-loop
+
+  // Generate State
+  PMonMT::StepComp currentState = generate_state(stepName, compName);
+
+  // Store
+  data_map_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
+  compLevelDataMap[currentState]->addPointStop_component(meas, doMem);
+
+  // Debug
+  ATH_MSG_DEBUG("Stop Audit: ctx " << ctx.valid() << " evt " << ctx.evt() << " slot " << ctx.slot() <<
+                " component " << compName << " step " << stepName);
+  ATH_MSG_DEBUG("Stop CPU " << meas.cpu_time << " VMem " << meas.vmem << " Malloc " << meas.malloc);
+  ATH_MSG_DEBUG("  >> Start CPU " << compLevelDataMap[currentState]->m_tmp_cpu << " VMem "
+                                 << compLevelDataMap[currentState]->m_tmp_vmem << " Malloc "
+                                 << compLevelDataMap[currentState]->m_tmp_malloc);
+  ATH_MSG_DEBUG("  >> CSum CPU  " << compLevelDataMap[currentState]->m_delta_cpu << " VMem "
+                                 << compLevelDataMap[currentState]->m_delta_vmem << " Malloc "
+                                 << compLevelDataMap[currentState]->m_delta_malloc);
 }
 
+/*
+ * Event-level Monitoring
+ */
 void PerfMonMTSvc::eventLevelMon() {
+  // Lock for data integrity
   std::lock_guard<std::mutex> lock(m_mutex_capture);
 
   // If enabled, do event level monitoring
   if (m_doEventLoopMonitoring) {
     if (isCheckPoint()) {
       // Capture
-      m_measurement.capture_eventLevel_MT(m_eventCounter);
-      m_eventLevelData.record_eventLevel(m_measurement, m_eventCounter);
+      m_measurement_events.capture_event(m_eventCounter);
+      m_eventLevelData.record_event(m_measurement_events, m_eventCounter);
       // Report instantly
       report2Log_EventLevel_instant();
     }
@@ -219,8 +261,15 @@ void PerfMonMTSvc::eventLevelMon() {
   incrementEventCounter();
 }
 
+/*
+ * Internal atomic event counter
+ * Should be able to use EventContext for this
+ */
 void PerfMonMTSvc::incrementEventCounter() { m_eventCounter++; }
 
+/*
+ * Is it event-level monitoring check point yet?
+ */
 bool PerfMonMTSvc::isCheckPoint() {
   if (m_checkPointType == "Arithmetic")
     return (m_eventCounter % m_checkPointFactor == 0);
@@ -228,12 +277,17 @@ bool PerfMonMTSvc::isCheckPoint() {
     return isPower(m_eventCounter, m_checkPointFactor);
 }
 
+/*
+ * Helper function for geometric printing
+ */
 bool PerfMonMTSvc::isPower(uint64_t input, uint64_t base) {
   while (input >= base && input % base == 0) input /= base;
   return (input == 1);
 }
 
-// Report the results
+/*
+ * Report the results to the log and the JSON file
+ */
 void PerfMonMTSvc::report() {
   // Write into log file
   report2Log();
@@ -244,6 +298,9 @@ void PerfMonMTSvc::report() {
   }
 }
 
+/*
+ * Log reporting
+ */
 void PerfMonMTSvc::report2Log() {
   // Header
   report2Log_Description();
@@ -254,12 +311,9 @@ void PerfMonMTSvc::report2Log() {
     ATH_MSG_INFO("There is no /proc directory in this system, therefore memory monitoring has failed!");
   }
 
-  // Component level
+  // Component-level
   if (m_printDetailedTables && procExists && m_doComponentLevelMonitoring) {
-    // Serial
-    report2Log_Time_Mem_Serial();
-    // Parallel
-    report2Log_CompLevel_Time_Parallel();
+    report2Log_ComponentLevel();
   }
 
   // Event-level
@@ -272,6 +326,9 @@ void PerfMonMTSvc::report2Log() {
   report2Log_CpuInfo();
 }
 
+/*
+ * Report header to log
+ */
 void PerfMonMTSvc::report2Log_Description() const {
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("                                 PerfMonMTSvc Report                                   ");
@@ -286,18 +343,23 @@ void PerfMonMTSvc::report2Log_Description() const {
   }
 }
 
-void PerfMonMTSvc::report2Log_Time_Mem_Serial() {
+/*
+ * Report component-level information to log
+ */
+void PerfMonMTSvc::report2Log_ComponentLevel() {
   using boost::format;
 
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("                             Component Level Monitoring                                ");
-  ATH_MSG_INFO("                                   (Serial Steps)                                      ");
   ATH_MSG_INFO("=======================================================================================");
 
-  ATH_MSG_INFO(format("%1% %|15t|%2% %|31t|%3% %|44t|%4% %|64t|%5%") % "Step" % "CPU Time [ms]" % "Vmem [kB]" %
-               "Malloc [kB]" % "Component");
+  ATH_MSG_INFO(format("%1% %|15t|%2% %|25t|%3% %|40t|%4% %|55t|%5% %|75t|%6%") % "Step" % "Count" % "CPU Time [ms]" % 
+               "Vmem [kB]" % "Malloc [kB]" % "Component");
 
-  divideData2Steps_serial();
+  ATH_MSG_INFO("---------------------------------------------------------------------------------------");
+
+  aggregateSlotData(); // aggregate data from slots
+  divideData2Steps(); // divive data into steps for ordered printing
 
   for (auto vec_itr : m_stdoutVec_serial) {
     // Sort the results by CPU time for the time being
@@ -313,20 +375,24 @@ void PerfMonMTSvc::report2Log_Time_Mem_Serial() {
     int counter = 0;
     for (auto it : pairs) {
       // Only write out a certian number of components
-      if (counter >= m_printNSerialComps) {
+      if (counter >= m_printNComps) {
         break;
       }
       counter++;
 
-      ATH_MSG_INFO(format("%1% %|15t|%2% %|31t|%3% %|44t|%4% %|64t|%5%") % it.first.stepName %
-                   it.second->getDeltaCPU() % it.second->getDeltaVmem() % it.second->getDeltaMalloc() %
-                   it.first.compName);
+      ATH_MSG_INFO(format("%1% %|15t|%2% %|25t|%3% %|40t|%4% %|55t|%5% %|75t|%6%") % it.first.stepName %
+                   it.second->getCallCount() % it.second->getDeltaCPU() % it.second->getDeltaVmem() %
+                   it.second->getDeltaMalloc() % it.first.compName);
     }
-    ATH_MSG_INFO("=======================================================================================");
+    if(counter>0) { 
+      ATH_MSG_INFO("=======================================================================================");
+    }
   }
 }
 
-// Report the event level measurement as soon as it is captured
+/*
+ * Report event-level information to log as we capture it
+ */
 void PerfMonMTSvc::report2Log_EventLevel_instant() const {
   double cpu_time = m_eventLevelData.getEventLevelCpuTime(m_eventCounter);
   double wall_time = m_eventLevelData.getEventLevelWallTime(m_eventCounter);
@@ -336,11 +402,14 @@ void PerfMonMTSvc::report2Log_EventLevel_instant() const {
   long pss = m_eventLevelData.getEventLevelPss(m_eventCounter);
   long swap = m_eventLevelData.getEventLevelSwap(m_eventCounter);
 
-  ATH_MSG_INFO("CPU Time: " << scaleTime(cpu_time) << ", Wall Time: " << scaleTime(wall_time)
-                            << ", Vmem: " << scaleMem(vmem) << ", Rss: " << scaleMem(rss) << ", Pss: " << scaleMem(pss)
-                            << ", Swap: " << scaleMem(swap));
+  ATH_MSG_INFO("Event [" << std::setw(5) << m_eventCounter << "] CPU Time: " << scaleTime(cpu_time) << 
+               ", Wall Time: " <<  scaleTime(wall_time) << ", Vmem: " << scaleMem(vmem) << 
+               ", Rss: " << scaleMem(rss) << ", Pss: " << scaleMem(pss) << ", Swap: " << scaleMem(swap));
 }
 
+/*
+ * Report event-level information to log
+ */
 void PerfMonMTSvc::report2Log_EventLevel() {
   using boost::format;
 
@@ -349,6 +418,8 @@ void PerfMonMTSvc::report2Log_EventLevel() {
 
   ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % "Event" % "CPU [s]" %
                "Wall [s]" % "Vmem [kB]" % "Rss [kB]" % "Pss [kB]" % "Swap [kB]");
+
+  ATH_MSG_INFO("---------------------------------------------------------------------------------------");
 
   for (const auto& it : m_eventLevelData.getEventLevelData()) {
     ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % it.first %
@@ -363,44 +434,9 @@ void PerfMonMTSvc::report2Log_EventLevel() {
   ATH_MSG_INFO("=======================================================================================");
 }
 
-void PerfMonMTSvc::report2Log_CompLevel_Time_Parallel() {
-  using boost::format;
-
-  ATH_MSG_INFO("                             Component Level Monitoring                                ");
-  ATH_MSG_INFO("                                  (Parallel Steps)                                     ");
-  ATH_MSG_INFO("=======================================================================================");
-
-  ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|42t|%3$.2f  %|65t|%4%") % "Step" % "Call Count" % "CPU Time [ms]" %
-               "Component");
-
-  parallelDataAggregator();
-  divideData2Steps_parallel();
-
-  for (auto vec_itr : m_stdoutVec_parallel) {
-    // Sort the results by CPU time for the time being
-    std::vector<std::pair<PMonMT::StepComp, PMonMT::Measurement>> pairs;
-    for (auto itr = vec_itr.begin(); itr != vec_itr.end(); ++itr) pairs.push_back(*itr);
-
-    sort(pairs.begin(), pairs.end(),
-         [=](std::pair<PMonMT::StepComp, PMonMT::Measurement>& a, std::pair<PMonMT::StepComp, PMonMT::Measurement>& b) {
-           return a.second.cpu_time > b.second.cpu_time;  // sort by cpu times
-         });
-
-    int counter = 0;
-    for (auto it : pairs) {
-      // Only write out a certian number of components
-      if (counter >= m_printNParallelComps) {
-        break;
-      }
-      counter++;
-
-      ATH_MSG_INFO(format("%1%  %|22t|%2$.2f  %|42t|%3$.2f  %|65t|%4%") % it.first.stepName % it.second.call_count %
-                   it.second.cpu_time % it.first.compName);
-    }
-    ATH_MSG_INFO("=======================================================================================");
-  }
-}
-
+/*
+ * Report summary information to log
+ */
 void PerfMonMTSvc::report2Log_Summary() {
   using boost::format;
 
@@ -408,11 +444,11 @@ void PerfMonMTSvc::report2Log_Summary() {
   ATH_MSG_INFO("=======================================================================================");
 
   ATH_MSG_INFO(format("%1% %|13t|%2% %|25t|%3% %|37t|%4% %|44t|%5% %|55t|%6% %|66t|%7% %|77t|%8%") % "Step" %
-               "dCPU [s]" % "dWall [s]" % "<CPU>" % "dVMEM [kB]" % "dRSS [kB]" % "dPSS [kB]" % "dSwap [kB]");
+               "dCPU [s]" % "dWall [s]" % "<CPU>" % "dVmem [kB]" % "dRss [kB]" % "dPss [kB]" % "dSwap [kB]");
 
   ATH_MSG_INFO("---------------------------------------------------------------------------------------");
 
-  for (unsigned int idx = 0; idx < 3; idx++) {
+  for (unsigned int idx = 0; idx < NSNAPSHOTS; idx++) {
     ATH_MSG_INFO(format("%1% %|13t|%2% %|25t|%3% %|37t|%4$.2f %|44t|%5% %|55t|%6% %|66t|%7% %|77t|%8%") %
                  m_snapshotStepNames[idx] % (m_snapshotData[idx].getDeltaCPU() * 0.001) %
                  (m_snapshotData[idx].getDeltaWall() * 0.001) %
@@ -425,16 +461,15 @@ void PerfMonMTSvc::report2Log_Summary() {
 
   ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Number of events processed:" % m_eventCounter);
   ATH_MSG_INFO(format("%1% %|35t|%2$.0f ") % "CPU usage per event [ms]:" %
-               (m_snapshotData[1].getDeltaCPU() / m_eventCounter));
+               (m_snapshotData[EXECUTE].getDeltaCPU() / m_eventCounter));
   ATH_MSG_INFO(format("%1% %|35t|%2$.3f ") % "Events per second:" %
-               (m_eventCounter / m_snapshotData[1].getDeltaWall() * 1000.));
+               (m_eventCounter / m_snapshotData[EXECUTE].getDeltaWall() * 1000.));
 
-  ATH_MSG_INFO("***************************************************************************************");
-
-  ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Vmem: " % scaleMem(m_measurement.vmemPeak));
-  ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Rss: " % scaleMem(m_measurement.rssPeak));
-  ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Pss: " % scaleMem(m_measurement.pssPeak));
   if (m_doEventLoopMonitoring) {
+    ATH_MSG_INFO("***************************************************************************************");
+    ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Vmem: " % scaleMem(m_measurement_events.vmemPeak));
+    ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Rss: " % scaleMem(m_measurement_events.rssPeak));
+    ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Max Pss: " % scaleMem(m_measurement_events.pssPeak));
     ATH_MSG_INFO("***************************************************************************************");
     ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Leak estimate per event Vmem: " % scaleMem(m_fit_vmem.slope()));
     ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Leak estimate per event Pss: " % scaleMem(m_fit_pss.slope()));
@@ -442,13 +477,12 @@ void PerfMonMTSvc::report2Log_Summary() {
                                                   << " measurements from the Event Level Monitoring");
   }
 
-  ATH_MSG_INFO("***************************************************************************************");
-
-  ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Job Cfg: " % scaleTime(m_jobCfg_time));
-
   ATH_MSG_INFO("=======================================================================================");
 }
 
+/*
+ * Report CPU information to log
+ */
 void PerfMonMTSvc::report2Log_CpuInfo() const {
   using boost::format;
 
@@ -461,17 +495,19 @@ void PerfMonMTSvc::report2Log_CpuInfo() const {
   ATH_MSG_INFO("=======================================================================================");
 }
 
+/*
+ * Report data to JSON
+ */
 void PerfMonMTSvc::report2JsonFile() {
   json j;
 
   // CPU and Wall-time
   report2JsonFile_Summary(j);  // Snapshots
   if (m_doEventLoopMonitoring) {
-    report2JsonFile_EventLevel_Time_Parallel(j);  // Event Level
+    report2JsonFile_EventLevel_Time(j);  // Event-level
   }
   if (m_doComponentLevelMonitoring) {
-    report2JsonFile_Time_Serial(j);              // Serial Components
-    report2JsonFile_CompLevel_Time_Parallel(j);  // Parallel Components
+    report2JsonFile_ComponentLevel_Time(j);  // Component-level
   }
 
   // Memory
@@ -479,10 +515,10 @@ void PerfMonMTSvc::report2JsonFile() {
 
   if (procExists) {
     if (m_doComponentLevelMonitoring) {
-      report2JsonFile_Mem_Serial(j);  // Serial Components
+      report2JsonFile_ComponentLevel_Mem(j);  // Component-level
     }
     if (m_doEventLoopMonitoring) {
-      report2JsonFile_EventLevel_Mem_Parallel(j);  // Event Level
+      report2JsonFile_EventLevel_Mem(j);  // Event-level
     }
   }
 
@@ -491,9 +527,12 @@ void PerfMonMTSvc::report2JsonFile() {
   o << std::setw(4) << j << std::endl;
 }
 
+/*
+ * Report summary data to JSON
+ */
 void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
   // Report snapshot level results
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < NSNAPSHOTS; i++) {
     // Clean this part!
     double wall_time = m_snapshotData[i].getDeltaWall();
     double cpu_time = m_snapshotData[i].getDeltaCPU();
@@ -501,7 +540,11 @@ void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
     j["Snapshot_level"][m_snapshotStepNames[i]] = {{"cpu_time", cpu_time}, {"wall_time", wall_time}};
   }
 }
-void PerfMonMTSvc::report2JsonFile_Time_Serial(nlohmann::json& j) const {
+
+/*
+ * Report component-level timing data to JSON
+ */
+void PerfMonMTSvc::report2JsonFile_ComponentLevel_Time(nlohmann::json& j) const {
   // Report component level time measurements in serial steps
   for (auto& it : m_compLevelDataMap) {
     std::string stepName = it.first.stepName;
@@ -515,7 +558,10 @@ void PerfMonMTSvc::report2JsonFile_Time_Serial(nlohmann::json& j) const {
   }
 }
 
-void PerfMonMTSvc::report2JsonFile_EventLevel_Time_Parallel(nlohmann::json& j) const {
+/*
+ * Report event-level timing data to JSON
+ */
+void PerfMonMTSvc::report2JsonFile_EventLevel_Time(nlohmann::json& j) const {
   // Report event level CPU measurements
   for (const auto& it : m_eventLevelData.getEventLevelData()) {
     std::string checkPoint = std::to_string(it.first);
@@ -526,20 +572,10 @@ void PerfMonMTSvc::report2JsonFile_EventLevel_Time_Parallel(nlohmann::json& j) c
   }
 }
 
-void PerfMonMTSvc::report2JsonFile_CompLevel_Time_Parallel(nlohmann::json& j) const {
-  // Report component level time measurements in parallel steps
-  for (auto& it : m_aggParallelCompLevelDataMap) {
-    std::string stepName = it.first.stepName;
-    std::string compName = it.first.compName;
-
-    double wall_time = it.second.wall_time;
-    double cpu_time = it.second.cpu_time;
-
-    j["TimeMon_Parallel"][stepName][compName] = {{"cpu_time", cpu_time}, {"wall_time", wall_time}};
-  }
-}
-
-void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const {
+/*
+ * Report component-level memory data to JSON
+ */
+void PerfMonMTSvc::report2JsonFile_ComponentLevel_Mem(nlohmann::json& j) const {
   // Report component level memory measurements in serial steps
   for (auto& it : m_compLevelDataMap) {
     std::string stepName = it.first.stepName;
@@ -558,7 +594,10 @@ void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const {
   }
 }
 
-void PerfMonMTSvc::report2JsonFile_EventLevel_Mem_Parallel(nlohmann::json& j) {
+/*
+ * Report event-level memory data to JSON
+ */
+void PerfMonMTSvc::report2JsonFile_EventLevel_Mem(nlohmann::json& j) {
   // Report event level memory measurements
   for (const auto& it : m_eventLevelData.getEventLevelData()) {
     std::string checkPoint = std::to_string(it.first);
@@ -572,65 +611,45 @@ void PerfMonMTSvc::report2JsonFile_EventLevel_Mem_Parallel(nlohmann::json& j) {
   }
 }
 
-bool PerfMonMTSvc::isLoop() const {
-  EventIDBase::event_number_t eventID = getEventID();
-  return (eventID == std::numeric_limits<EventIDBase::event_number_t>::max()) ? false : true;
-}
-
-/* If this function is invoked outside the event loop, it returns
- * std::numeric_limits<EventIDBase::event_number_t>::max() This is how we detect whether we are in the event loop or not
+/*
+ * Generate a "state" that is use as a key for the component-level data
  */
-EventIDBase::event_number_t PerfMonMTSvc::getEventID() const {
-  auto ctx = Gaudi::Hive::currentContext();
-  EventIDBase::event_number_t eventID = ctx.eventID().event_number();
-  return eventID;
-}
-
-PMonMT::StepComp PerfMonMTSvc::generate_serial_state(const std::string& stepName, const std::string& compName) const {
+PMonMT::StepComp PerfMonMTSvc::generate_state(const std::string& stepName, const std::string& compName) const {
   PMonMT::StepComp currentState;
   currentState.stepName = stepName;
   currentState.compName = compName;
   return currentState;
 }
 
-PMonMT::StepCompEvent PerfMonMTSvc::generate_parallel_state(const std::string& stepName, const std::string& compName,
-                                                            const uint64_t& eventNumber) const {
-  PMonMT::StepCompEvent currentState;
-  currentState.stepName = stepName;
-  currentState.compName = compName;
-  currentState.eventNumber = eventNumber;
-  return currentState;
-}
-
-void PerfMonMTSvc::parallelDataAggregator() {
-  std::map<PMonMT::StepComp, PMonMT::Measurement>::iterator sc_itr;
-
-  for (auto& sce_itr : m_parallelCompLevelData.m_compLevel_delta_map) {
-    PMonMT::StepComp currentState = generate_serial_state(sce_itr.first.stepName, sce_itr.first.compName);
-
-    // If the current state exists in the map, then aggregate it. o/w create a instance for it.
-    sc_itr = m_aggParallelCompLevelDataMap.find(currentState);
-    if (sc_itr != m_aggParallelCompLevelDataMap.end()) {
-      m_aggParallelCompLevelDataMap[currentState].call_count++;
-
-      m_aggParallelCompLevelDataMap[currentState].cpu_time += sce_itr.second.cpu_time;
-      m_aggParallelCompLevelDataMap[currentState].wall_time += sce_itr.second.wall_time;
-
-      m_aggParallelCompLevelDataMap[currentState].mem_stats["vmem"] += sce_itr.second.mem_stats["vmem"];
-      m_aggParallelCompLevelDataMap[currentState].mem_stats["rss"] += sce_itr.second.mem_stats["rss"];
-      m_aggParallelCompLevelDataMap[currentState].mem_stats["pss"] += sce_itr.second.mem_stats["pss"];
-      m_aggParallelCompLevelDataMap[currentState].mem_stats["swap"] += sce_itr.second.mem_stats["swap"];
-    } else {
-      m_aggParallelCompLevelDataMap[currentState] = sce_itr.second;
-      m_aggParallelCompLevelDataMap[currentState].call_count = 1;  // this component in this step is called once so far.
+/*
+ * Aggregate component-level data from all slots
+ */
+void PerfMonMTSvc::aggregateSlotData() {
+  // Loop over data from all slots
+  for (const auto& slotData : m_compLevelDataMapVec) {
+    for (const auto& it : slotData) {
+      // Copy the first slot data and sum the rest
+      if(m_compLevelDataMap.find(it.first) == m_compLevelDataMap.end()) {
+        m_compLevelDataMap[it.first] = it.second;
+      } else {
+        m_compLevelDataMap[it.first]->add2CallCount(it.second->getCallCount());
+        m_compLevelDataMap[it.first]->add2DeltaCPU(it.second->getDeltaCPU());
+        m_compLevelDataMap[it.first]->add2DeltaVmem(it.second->getDeltaVmem());
+        m_compLevelDataMap[it.first]->add2DeltaMalloc(it.second->getDeltaMalloc());
+      }
     }
   }
 }
 
-void PerfMonMTSvc::divideData2Steps_serial() {
+/*
+ * Divide component-level data into steps, for printing
+ */
+void PerfMonMTSvc::divideData2Steps() {
   for (auto it : m_compLevelDataMap) {
     if (it.first.stepName == "Initialize")
       m_compLevelDataMap_ini[it.first] = it.second;
+    else if (it.first.stepName == "Execute")
+      m_compLevelDataMap_evt[it.first] = it.second;
     else if (it.first.stepName == "Finalize")
       m_compLevelDataMap_fin[it.first] = it.second;
     else if (it.first.stepName == "preLoadProxy")
@@ -639,24 +658,10 @@ void PerfMonMTSvc::divideData2Steps_serial() {
       m_compLevelDataMap_cbk[it.first] = it.second;
   }
   m_stdoutVec_serial.push_back(m_compLevelDataMap_ini);
+  m_stdoutVec_serial.push_back(m_compLevelDataMap_evt);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_fin);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_plp);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_cbk);
-}
-
-void PerfMonMTSvc::divideData2Steps_parallel() {
-  for (auto it : m_aggParallelCompLevelDataMap) {
-    if (it.first.stepName == "Execute")
-      m_aggParallelCompLevelDataMap_evt[it.first] = it.second;
-    else if (it.first.stepName == "preLoadProxy")
-      m_aggParallelCompLevelDataMap_plp[it.first] = it.second;
-    else if (it.first.stepName == "Callback")
-      m_aggParallelCompLevelDataMap_cbk[it.first] = it.second;
-  }
-
-  m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_evt);
-  m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_plp);
-  m_stdoutVec_parallel.push_back(m_aggParallelCompLevelDataMap_cbk);
 }
 
 std::string PerfMonMTSvc::scaleTime(double timeMeas) const {

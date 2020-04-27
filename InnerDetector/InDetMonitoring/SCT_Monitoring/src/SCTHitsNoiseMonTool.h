@@ -35,8 +35,10 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <array>
 #include <map>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 // Forward declarations
@@ -119,7 +121,7 @@ class SCTHitsNoiseMonTool : public ManagedMonitorToolBase {
 
   int m_last_reset_lb{0}; // Used in fillHistograms
 
-  std::vector<Identifier> m_RDOsOnTracks; // Used in generalHistsandNoise, makeVectorOfTrackRDOIdentifiers
+  std::array<std::unordered_set<Identifier>, SCT_Monitoring::N_WAFERS> m_RDOsOnTracks; // Used in generalHistsandNoise, makeVectorOfTrackRDOIdentifiers
 
   ///// Read in checkNoiseMaps /////
 

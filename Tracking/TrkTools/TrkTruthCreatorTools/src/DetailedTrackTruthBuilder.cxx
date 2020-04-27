@@ -11,6 +11,7 @@
 #include "HepMC/GenVertex.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollection.h"
 #include "AthContainers/DataVector.h"
 
 #include "TrkTrack/Track.h"
@@ -206,7 +207,29 @@ DetailedTrackTruthBuilder::findSubDetType(const Identifier& id) const {
   return SubDetHitStatistics::NUM_SUBDETECTORS;
 }
 
+namespace {
+class ExtendedEventIndex {
+public:
+   ExtendedEventIndex(const HepMcParticleLink &source, IProxyDict *proxy)
+      : m_eventIndex(source.eventIndex()),
+        m_eventCollection(source.getEventCollection()),
+        m_isPosition(m_eventIndex == HepMcParticleLink::ExtendedBarCode::UNDEFINED)
+   {
+      if (m_isPosition) {
+         m_eventIndex = source.getEventPositionInCollection(proxy);
+      }
+   }
 
+   HepMcParticleLink makeLink(HepMcParticleLink::barcode_type other_particle_barcode, IProxyDict *proxy) {
+      return HepMcParticleLink(other_particle_barcode, m_eventIndex,m_eventCollection, (m_isPosition ? HepMcParticleLink::IS_POSITION : HepMcParticleLink::IS_INDEX ), proxy);
+   }
+
+private:
+   HepMcParticleLink::index_type m_eventIndex;
+   EBC_EVCOLL                    m_eventCollection;
+   bool                          m_isPosition;
+};
+}
 
 //================================================================
 void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
@@ -217,7 +240,8 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
 {
   SubDetHitStatistics trackStat;
   std::map<HepMcParticleLink,SubDetPRDs> pairStat; // stats for (track,GenParticle) for the current track
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  IProxyDict *proxy=ctx.getExtension<Atlas::ExtendedEventContext>().proxy();
   //----------------------------------------------------------------
   //loop over the RIO_OnTrack
   DataVector<const Trk::MeasurementBase>::const_iterator itMeasurements
@@ -243,7 +267,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
       if (prd) {
 	Identifier id = prd->identify();
 	SubDetHitStatistics::SubDetType subdet = findSubDetType(id);
-	
+
 	if(subdet != SubDetHitStatistics::NUM_SUBDETECTORS) {
 	  // if PRD truth collection is missing, ignore subdet in track stat calculation as well.
 	  if(orderedPRD_Truth[subdet]) {
@@ -326,21 +350,19 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
   // Grow sprouts from the seeds
   typedef std::map<HepMcParticleLink, Sprout> SproutMap;
   SproutMap sprouts;
-
   while(!seeds.empty()) {
     HepMcParticleLink link = *seeds.begin();
-    
     Sprout current_sprout;
     std::queue<const HepMC::GenParticle*> tmp;
-    unsigned eventIndex = link.eventIndex();
+    ExtendedEventIndex eventIndex(link, proxy);
     const HepMC::GenParticle *current = link.cptr();
-    
+
     do {
-      HepMcParticleLink curlink(current->barcode(), eventIndex);
+      HepMcParticleLink curlink( eventIndex.makeLink(current->barcode(), proxy));
 
       // remove the current particle from the list of particles to consider (if it is still there)
       seeds.erase(curlink);
-      
+
       // Have we worked on this particle before?
       SproutMap::iterator p_old = sprouts.find(curlink);
       if(p_old != sprouts.end()) {
@@ -398,7 +420,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink((*ppart)->barcode(), s->first.eventIndex()));
+      traj.push_back(HepMcParticleLink(ExtendedEventIndex(s->first, proxy).makeLink((*ppart)->barcode(), proxy)));
     }
 
     // Count PRDs on the TruthTrajectory
@@ -448,6 +470,10 @@ SubDetHitStatistics DetailedTrackTruthBuilder::countPRDsOnTruth(const TruthTraje
     // in release 20, geantinos have
     //   barcode==std::numeric_limits<int32_t>::max()
     //   pdg_id==999
+    if (!(*p).cptr()) {
+       ATH_MSG_WARNING( "HepMcParticleLink " << *p << " in truth trajectory does not point to a valid GenParticle.");
+       continue;
+    }
     if( (*p)->pdg_id()==999 ) { continue; } 
     typedef PRD_InverseTruth::const_iterator iter;
     std::pair<iter,iter> range = inverseTruth.equal_range(*p);

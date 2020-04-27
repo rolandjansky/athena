@@ -135,11 +135,12 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("TruthSelectionTool", m_truthSelectionTool);
   declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
   declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
-  declareProperty("DirName", m_dirName = "SqurrielPlots/");
+  declareProperty("DirName", m_dirName = "SquirrelPlots/");
   declareProperty("SubFolder", m_folder);
   declareProperty("PileupSwitch", m_pileupSwitch = "All");
   declareProperty("LowProb", m_lowProb=0.50);
   declareProperty("HighProb", m_highProb=0.80);
+  declareProperty("SkillLevel", m_detailLevel=10);
 }
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
@@ -450,8 +451,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
 StatusCode
 InDetPhysValMonitoringTool::bookHistograms() {
-  ATH_MSG_INFO("Booking hists " << name() << "...");
-  m_monPlots->setDetailLevel(100); // DEBUG, enable expert histograms
+  ATH_MSG_INFO("Booking hists " << name() << "with detailed level: " << m_detailLevel);
+  m_monPlots->setDetailLevel(m_detailLevel); // DEBUG, enable expert histograms
   m_monPlots->initialize();
   std::vector<HistData> hists = m_monPlots->retrieveBookedHistograms();
   for (auto hist : hists) {

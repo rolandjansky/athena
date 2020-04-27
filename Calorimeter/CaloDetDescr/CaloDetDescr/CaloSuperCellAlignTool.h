@@ -21,7 +21,7 @@
 #include "CaloDetDescr/ICaloSuperCellAlignTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "CxxUtils/checker_macros.h"
 
 class CaloSuperCellDetDescrManager;
 class CaloDetDescrManager;
@@ -32,7 +32,7 @@ class ICaloSuperCellIDTool;
 /**
  * @brief Propagate alignent changes to supercell geometry.
  */
-class CaloSuperCellAlignTool
+class ATLAS_NOT_THREAD_SAFE CaloSuperCellAlignTool
   : public extends2<AthAlgTool, ICaloSuperCellAlignTool, IGeoAlignTool>
 {
 public:
