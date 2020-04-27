@@ -36,7 +36,6 @@
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h" // 15/06/2015 T.Saito
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "HitManagement/TimedHitCollection.h"
@@ -62,6 +61,9 @@
 #include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
 
 #include "NSWCalibTools/INSWCalibSmearingTool.h"
+
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 #include <string>
 #include <sstream>
@@ -135,11 +137,12 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		// Services
 		ServiceHandle<StoreGateSvc> m_storeGateService;
-		ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
 		PileUpMergeSvc *m_mergeSvc; // Pile up service
 		ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
 		CLHEP::HepRandomEngine *m_rndmEngine;    // Random nu
 		std::string m_rndmEngineName;// name of random enginember engine used - not init in SiDigitization
+
+		SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
 
 		// Tools
 		ToolHandle <IMM_DigitizationTool> m_digitTool;
