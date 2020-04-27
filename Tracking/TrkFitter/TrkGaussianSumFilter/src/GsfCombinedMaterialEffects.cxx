@@ -81,12 +81,12 @@ Trk::GsfCombinedMaterialEffects::compute(
      ======================================================================== */
 
   IMultiStateMaterialEffects::Cache cache_multipleScatter;
-  scattering(cache_multipleScatter,
-             componentParameters,
-             materialProperties,
-             pathLength,
-             direction,
-             particleHypothesis);
+  this->scattering(cache_multipleScatter,
+                   componentParameters,
+                   materialProperties,
+                   pathLength,
+                   direction,
+                   particleHypothesis);
 
   // Protect if there are no new components
   if (cache_multipleScatter.weights.empty()) {
@@ -104,11 +104,9 @@ Trk::GsfCombinedMaterialEffects::compute(
 
   IMultiStateMaterialEffects::Cache cache_energyLoss;
   if (particleHypothesis == electron) {
-    ATH_MSG_VERBOSE("Considering Bethe-Heitler energy loss effects");
     m_betheHeitlerEffects->compute(cache_energyLoss, componentParameters, materialProperties, pathLength, direction);
   } else if (particleHypothesis != nonInteracting) {
-    ATH_MSG_VERBOSE("Considering standard energy loss effects");
-    energyLoss(
+    this->energyLoss(
       cache_energyLoss, componentParameters, materialProperties, pathLength, direction, particleHypothesis);
   }
 
@@ -171,6 +169,9 @@ Trk::GsfCombinedMaterialEffects::scattering(
   PropDirection /*direction*/,
   ParticleHypothesis /*particleHypothesis*/) const
 {
+  // Reset the cache
+  cache.reset();
+  
   // Request track parameters from component parameters
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters->covariance();
@@ -212,6 +213,9 @@ Trk::GsfCombinedMaterialEffects::energyLoss(
   PropDirection direction,
   ParticleHypothesis particleHypothesis) const
 {
+  // Reset the cache
+  cache.reset();
+
   // Request track parameters from component parameters
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
