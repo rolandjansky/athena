@@ -25,14 +25,12 @@
 
 Trk::RungeKuttaPropagator::RungeKuttaPropagator
 (const std::string& p,const std::string& n,const IInterface* t) :  
-  AthAlgTool(p,n,t),
-  m_fieldServiceHandle("AtlasFieldSvc",n) 
+  AthAlgTool(p,n,t)
 {
   m_dlt               = .000200;
   m_helixStep         = 1.     ; 
   m_straightStep      = .01    ;
   m_usegradient       = false  ;
-  m_fieldService      = nullptr      ;
  
   declareInterface<Trk::IPropagator>(this);   
   declareInterface<Trk::IPatternParametersPropagator>(this);
@@ -40,7 +38,6 @@ Trk::RungeKuttaPropagator::RungeKuttaPropagator
   declareProperty("MaxHelixStep"       ,m_helixStep    );
   declareProperty("MaxStraightLineStep", m_straightStep);
   declareProperty("IncludeBgradients"  , m_usegradient );
-  declareProperty("MagFieldSvc"        , m_fieldServiceHandle);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -58,14 +55,6 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
   if (m_useCondObj) ATH_MSG_INFO("initialize() init key: " << m_fieldCondObjInputKey.key());
   else              ATH_MSG_INFO("initialize() DID NOT init key: " << m_fieldCondObjInputKey.key());
   
-
-  
-  if( !m_fieldServiceHandle.retrieve() ){
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }    
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-  m_fieldService = &*m_fieldServiceHandle;
 
 //  msg(MSG::INFO) << name() <<" initialize() successful" << endmsg;
   return StatusCode::SUCCESS;

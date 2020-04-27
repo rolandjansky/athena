@@ -9,7 +9,6 @@ atlas_subdir( TrkExRungeKuttaPropagator )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkNeutralParameters
                           Tracking/TrkEvent/TrkParameters
