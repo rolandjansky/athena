@@ -11,13 +11,9 @@
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
-#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
-#include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
-#include "MuonResonanceTools/IMuonResonancePairingTool.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 #include <memory>
 
-
+// AthMonitorAlgorithm
 class MuonTrackMonitorAlgorithm : public AthMonitorAlgorithm
 {
 
@@ -35,9 +31,6 @@ class MuonTrackMonitorAlgorithm : public AthMonitorAlgorithm
       { this, "MuonContainerKey", "Muons", "Key for Muon Containers" };
 
 	// Toolds
-    ToolHandle<CP::IMuonSelectionTool> 		m_muonSelectionTool;
-	ToolHandle< Trig::TrigDecisionTool >	m_triggerDecisionTool;
-
 	/// Fills data-quality information (e.g. pt, eta, phi..) to histograms for given selection of muons
 	/// std::string sIdentifier = "CB","ZBoson","JPsi": String which is used to match the histogramming
 	///    variables that are defined by the Python script

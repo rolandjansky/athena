@@ -6,17 +6,12 @@
 #include "MuonTrackMonitoring/MuonTrackMonitorAlgorithm.h"
 
 using namespace std;
-
+// AthMonitorAlgorithm
 //========================================================================================================
 MuonTrackMonitorAlgorithm::MuonTrackMonitorAlgorithm (const std::string& name, ISvcLocator* pSvcLocator)
-	:AthMonitorAlgorithm(name,pSvcLocator),
-	m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
-	m_triggerDecisionTool( "Trig::TrigDecisionTool/TrigDecisionTool" )
+	:AthMonitorAlgorithm(name,pSvcLocator)
 {
 	//	Declare the properties
-	declareProperty("MuonSelectorTool", m_muonSelectionTool);
-	declareProperty("TriggerDecisionTool", m_triggerDecisionTool);
-	
 	declareProperty( "HLTTriggerList", m_hltchainList= {"HLT_2mu14", "HLT_mu26_ivarmedium"});
 	declareProperty("ZBosonSelection_minPt", 		m_ZBosonSelection_minPt = 20000.);
 	declareProperty("ZBosonSelection_maxEta", 		m_ZBosonSelection_maxEta = 2.5);
@@ -41,9 +36,6 @@ MuonTrackMonitorAlgorithm::~MuonTrackMonitorAlgorithm() {}
 StatusCode MuonTrackMonitorAlgorithm::initialize()
 {
 	ATH_CHECK(m_MuonContainerKey.initialize());
-	ATH_CHECK(m_muonSelectionTool.retrieve());
-	ATH_CHECK(m_triggerDecisionTool.retrieve() );
-
 	return AthMonitorAlgorithm::initialize();
 }
 
@@ -270,7 +262,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 
 		bool isTriggered = false;
 		for(const auto& chain : m_hltchainList){
-			if( m_triggerDecisionTool->isPassed( chain ) ){
+			if(getTrigDecisionTool()->isPassed( chain ) ){
 				isTriggered = true;
 			}
 		}

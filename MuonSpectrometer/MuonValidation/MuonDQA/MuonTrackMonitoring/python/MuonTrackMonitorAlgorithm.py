@@ -2,7 +2,8 @@ def MuonTrackConfig(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags, "MuonTrackMonitoringConfig")
 
-    from MuonTrackMonitoring.MuonTrackMonitoringConf import MuonTrackMonitorAlgorithm
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    MuonTrackMonitorAlgorithm = CompFactory.MuonTrackMonitorAlgorithm
     muonTrackAlg = helper.addAlgorithm(MuonTrackMonitorAlgorithm, "MuonTrackMonitorAlgorithmAlg")
 
     myGroup = helper.addGroup(muonTrackAlg, "MuonTrackMonitorAlgorithm", "MuonPhysics/")
