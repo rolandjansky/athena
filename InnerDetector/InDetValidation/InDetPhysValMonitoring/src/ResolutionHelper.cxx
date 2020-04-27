@@ -247,16 +247,16 @@ ResolutionHelper::ResolutionHelperResultsModUnits(TH1D* p_input_hist, IDPVM::Res
   const double unitConversionFactor = isInMicrons ? 1000. : 1.;   // mm measurements to um outputs 
   setResults(p_input_hist, theMethod);
 
-  return std::move(resolutionResultInBin{getRMS()*unitConversionFactor, 
-                               getRMSError()*unitConversionFactor,
-                               getMean()*unitConversionFactor,
-                               getMeanError()*unitConversionFactor,
-                               getFracOut(),
-                               getFracOutUnc()}); 
+  return {getRMS()*unitConversionFactor, 
+          getRMSError()*unitConversionFactor,
+          getMean()*unitConversionFactor,
+          getMeanError()*unitConversionFactor,
+          getFracOut(),
+          getFracOutUnc()}; 
 }
 
 void
-ResolutionHelper::makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean,  IDPVM::ResolutionHelper::methods theMethod) {
+ResolutionHelper::makeResolutions(const TH2* h_input2D, TH1* hwidth, TH1* hmean,  IDPVM::ResolutionHelper::methods theMethod) {
 
   // warnings in case input histograms have large % events in under- and over- flow bins 
   std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
@@ -267,7 +267,7 @@ ResolutionHelper::makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean,  IDPV
   }
   for (int ibin = 0; ibin < h_input2D->GetNbinsX(); ibin++) {
     std::string tmpName = h_input2D->GetName() + std::string("py_bin") + std::to_string(ibin + 1);
-    std::shared_ptr<TH1D> tmp {dynamic_cast<TH1D*>(h_input2D->ProjectionY(tmpName.c_str(), ibin + 1, ibin + 1))}; 
+    std::shared_ptr<TH1D> tmp {static_cast<TH1D*>(h_input2D->ProjectionY(tmpName.c_str(), ibin + 1, ibin + 1))}; 
     if (tmp->Integral() < 1) {
       continue;
     }
@@ -287,7 +287,7 @@ ResolutionHelper::makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean,  IDPV
 }
 
 void
-ResolutionHelper::makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean, TH1* hproj[], bool saveProjections, IDPVM::ResolutionHelper::methods theMethod) {
+ResolutionHelper::makeResolutions(const TH2* h_input2D, TH1* hwidth, TH1* hmean, TH1* hproj[], bool saveProjections, IDPVM::ResolutionHelper::methods theMethod) {
   
   // warnings in case input histograms have large % events in under- and over- flow bins 
   std::vector< std::pair<unsigned int,double> > warnUOBinFrac;

@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
   const string infile {argv[1]};
 
   if (!file_exists(infile)) {
-    std::cout << "Error: invalid input file: " << infile << std::endl;
+    std::cerr << "Error: invalid input file: " << infile << std::endl;
     return 1;
   }
   std::cout << " Post-processing file " << infile << "\n" << std::endl;

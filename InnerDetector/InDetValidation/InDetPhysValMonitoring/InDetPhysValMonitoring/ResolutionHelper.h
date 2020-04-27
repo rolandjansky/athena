@@ -36,40 +36,43 @@ namespace IDPVM {
     /// methods acc to which mean&RMS can be evaluated
     enum methods { iterRMS_convergence, Gauss_fit, fusion_iterRMS_Gaussfit };
 
-    // package the output of a single bin resolution measurement
+    /// package the output of a single bin resolution measurement
     struct resolutionResultInBin{
-      double width{0.};
-      double widthError{0.};
-      double mean{0.};
-      double meanError{0.};
-      double outlierFrac{0.};
-      double outlierFracError{0.}; 
+      double width{0.};     ///< the residual / pull width (either RMS or fit outcome)
+      double widthError{0.};  ///< uncertainty on the residual / pull width
+      double mean{0.};    ///< mean of the residual / pull
+      double meanError{0.};  ///< uncertainty on the mean 
+      double outlierFrac{0.};   ///<fraction of the population in outlier bins. Used to detect possible binning issues and warn the user 
+      double outlierFracError{0.};  ///< uncertainty on the outlier fraction. Mainly for book-keeping at this time. 
     };
 
-    // extract 1D resolution plots from a 2D "residual vs observable" histogram. 
-    // Input: h_input2D (x = observable, y = residuals) 
-    // Output: hwidth --> will be filled with the width of the residuals (-> resolution) 
-    // Output: hmean  --> will be filled with the mean of the residuals (-> bias) 
-    // hproj: This will be populated by an array of 1-dimensional projections of Y within bins in X 
-    // saveProjections steers this behaviour
-    // theMethod is the method used to extract the width and mean. Default is iterative RMS.  
-    void makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean, TH1* hproj[], bool saveProjections, IDPVM::ResolutionHelper::methods theMethod=IDPVM::ResolutionHelper::iterRMS_convergence);
+    /// extract 1D resolution plots from a 2D "residual vs observable" histogram. 
+    /// @param h_input2D: input histogram (x = observable, y = residuals) 
+    /// @param hwidth: output histogram, will be filled with the width of the residuals (-> resolution) 
+    /// @param hmean: output histogram, will be filled with the mean of the residuals (-> bias) 
+    /// @param hproj: array of histograms, will be populated by an array of 1-dimensional projections of Y within bins in X 
+    /// @param saveProjections: steers the filling of hpoj
+    /// @param theMethod: the method used to extract the width and mean. Default is iterative RMS.  
+    void makeResolutions(const TH2* h_input2D, TH1* hwidth, TH1* hmean, TH1* hproj[], bool saveProjections, IDPVM::ResolutionHelper::methods theMethod=IDPVM::ResolutionHelper::iterRMS_convergence);
     
-    // extract 1D resolution plots from a 2D "residual vs observable" histogram. 
-    // Input: h_input2D (x = observable, y = residuals) 
-    // Output: hwidth --> will be filled with the width of the residuals (-> resolution) 
-    // Output: hmean  --> will be filled with the mean of the residuals (-> bias) 
-    // theMethod is the method used to extract the width and mean. Default is iterative RMS.  
-    void makeResolutions(TH2* h_input2D, TH1* hwidth, TH1* hmean, IDPVM::ResolutionHelper::methods theMethod=IDPVM::ResolutionHelper::iterRMS_convergence);
+    /// extract 1D resolution plots from a 2D "residual vs observable" histogram. 
+    /// @param h_input2D: input histogram (x = observable, y = residuals) 
+    /// @param hwidth: output histogram, will be filled with the width of the residuals (-> resolution) 
+    /// @param hmean: output histogram, will be filled with the mean of the residuals (-> bias) 
+    /// @param hproj: array of histograms, will be populated by an array of 1-dimensional projections of Y within bins in X 
+    /// @param saveProjections: steers the filling of hpoj
+    /// @param theMethod: the method used to extract the width and mean. Default is iterative RMS.  
+    void makeResolutions(const TH2* h_input2D, TH1* hwidth, TH1* hmean, IDPVM::ResolutionHelper::methods theMethod=IDPVM::ResolutionHelper::iterRMS_convergence);
 
-    // single-bin resolution evaluation, also internally used by makeResolutions
-    // Input: p_input_hist --> 1D distribution of the residual  
-    // theMethod --> method to use (default: iterative RMS)
+    /// single-bin resolution evaluation, also internally used by makeResolutions
+    /// @param p_input_hist: input histogram, 1D distribution of the residual  
+    /// @param theMethod: method to use (default: iterative RMS)
+    /// @return resolutionResultInBin object packaging the mean and width of the distribution determined using the specified method as well as outlier bin fractions. 
     resolutionResultInBin ResolutionHelperResultsModUnits(TH1D* p_input_hist, IDPVM::ResolutionHelper::methods theMethod=IDPVM::ResolutionHelper::iterRMS_convergence);
 
     
-    // wrapper to set mean,rms,and fraction of events in tails
-    // nb: some of the methods are allowed to modify input histogram
+    /// wrapper to set mean,rms,and fraction of events in tails
+    /// nb: some of the methods are allowed to modify input histogram
     void setResults(TH1* p_input_hist, methods p_method);
 
     /// results getters
