@@ -65,6 +65,12 @@ addVRJets(DerivationFrameworkJob)
 
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets' ], Sequencer = DerivationFrameworkJob)
 
+#===================================================================
+# Low-pt ditaus (need AntiKt2PV0TrackJets)
+#===================================================================
+from DerivationFrameworkTau.TauCommon import addDiTauLowPt
+addDiTauLowPt()
+
 #====================================================================
 # Truth collections
 #====================================================================
@@ -107,7 +113,7 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons
                                        "MET_Reference_AntiKt4EMTopo","MET_Reference_AntiKt4LCTopo","MET_Reference_AntiKt4EMPFlow",
                                        "MET_LocHadTopo","MET_LocHadTopoRegions","MET_EMTopo","MET_EMTopoRegions",
                                        "MET_Truth","MET_TruthRegions","MET_Track","MET_Calo",
-                                       "TauJets", "DiTauJets", "TauTracks", 
+                                       "TauJets", "DiTauJets", "TauTracks", "DiTauJetsLowPt",
                                        "TruthParticles", "TruthEvents", "TruthVertices", "MuonTruthParticles", "egammaTruthParticles",
                                        "CombinedMuonTrackParticles",
                                        "ExtrapolatedMuonTrackParticles",
