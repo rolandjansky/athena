@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -12,6 +12,7 @@
 #include <iosfwd>
 #include <vector>
 #include <string>
+#include <atomic>
 
 // Local include(s):
 #include "ExpressionEvaluation/IProxyLoader.h"
@@ -76,6 +77,8 @@ namespace ExpressionParsing {
       /// Constructor creating the object from a text expression
       StackElement( const std::string& val, IProxyLoader* proxyLoader );
 
+      StackElement(const StackElement &a);
+      StackElement(StackElement &&a);
       /// @}
 
       /// @name Assignment operators
@@ -89,7 +92,12 @@ namespace ExpressionParsing {
       StackElement& operator=( const std::vector< int >& rhs );
       /// Operator assigning a vector of doubles to the object
       StackElement& operator=( const std::vector< double >& rhs );
+      /// Operator assigning a vector of integers to the object
+      StackElement& operator=( std::vector< int >&& rhs );
+      /// Operator assigning a vector of doubles to the object
+      StackElement& operator=( std::vector< double >&& rhs );
 
+      StackElement& operator=( StackElement&& rhs );
       /// @}
 
       /// @name Comparison and logical operators
@@ -192,7 +200,7 @@ namespace ExpressionParsing {
       T scalarValue() const;
       /// Evaluate the value of the object into the requested vector type
       template< typename T >
-      const std::vector< T >& vectorValue( std::size_t sizeIfScalar = 0 ) const;
+      std::vector< T > vectorValue( std::size_t sizeIfScalar = 0 ) const;
 
       /// @}
 
@@ -209,10 +217,7 @@ namespace ExpressionParsing {
       void makeVector( std::size_t n );
 
       /// Set the internal variables of the object based on the objects in SG
-      void setValueFromProxy();
-      /// Clear the internal variables of the object
-      void clearValueFromProxy();
-
+      StackElement valueFromProxy() const;
       /// @}
 
 /// Helper macro for defining the signature of the internal comparison functions
@@ -306,6 +311,7 @@ namespace ExpressionParsing {
       template< typename T >
       void ensureCompatibleVectors( const std::vector< T >& other ) const;
 
+      size_t size() const;
       /// @}
  
       /// The type of the variable held by the object
@@ -320,22 +326,15 @@ namespace ExpressionParsing {
       /// The value of the object represented as a vector of doubles
       std::vector< double > m_vecDoubleVal;
 
-      /// Helper variable representing the value of the object as a vector of
-      /// integers
-      mutable std::vector< int > m_vecIntHelper;
-      /// Helper variable representing the value of the object as a vector of
-      /// doubles
-      mutable std::vector< double > m_vecDoubleHelper;
-
       /// The name/definition of the variable
       std::string m_varName;
       /// Loader for the described variable
       IProxyLoader* m_proxyLoader;
       /// Type of the variable provided by the proxy loader
-      IProxyLoader::VariableType m_variableType;
+      mutable std::atomic<IProxyLoader::VariableType> m_variableType;
       /// Internal flag showing whether the type of the variable was already
       /// determined
-      bool m_determinedVariableType;
+      mutable std::atomic<bool> m_determinedVariableType;
 
    }; // class StackElement
 

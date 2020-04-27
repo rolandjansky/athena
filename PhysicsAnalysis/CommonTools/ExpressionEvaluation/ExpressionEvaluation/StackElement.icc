@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,13 +13,72 @@
 #include <stdexcept>
 
 namespace ExpressionParsing {
+   inline StackElement::StackElement(const StackElement &a)
+      : m_type(a.m_type),
+        m_intVal(a.m_intVal),
+        m_doubleVal(a.m_doubleVal),
+        m_vecIntVal(a.m_vecIntVal),
+        m_vecDoubleVal(a.m_vecDoubleVal),
+        m_varName(a.m_varName),
+        m_proxyLoader(a.m_proxyLoader),
+        m_variableType(static_cast<IProxyLoader::VariableType>(a.m_variableType)),
+        m_determinedVariableType(a.m_determinedVariableType ? true : false)
+   {}
+   inline StackElement::StackElement(StackElement &&a)
+      : m_type(a.m_type),
+        m_intVal(a.m_intVal),
+        m_doubleVal(a.m_doubleVal),
+        m_vecIntVal(std::move(a.m_vecIntVal)),
+        m_vecDoubleVal(std::move(a.m_vecDoubleVal)),
+        m_varName(std::move(a.m_varName)),
+        m_proxyLoader(a.m_proxyLoader),
+        m_variableType(static_cast<IProxyLoader::VariableType>(a.m_variableType)),
+        m_determinedVariableType(a.m_determinedVariableType ? true : false)
+   {}
+
+   inline StackElement &StackElement::operator=(StackElement &&a) {
+      if (&a != this) {
+         m_type                   = a.m_type;
+         m_intVal                 = a.m_intVal;
+         m_doubleVal              = a.m_doubleVal;
+         m_vecIntVal              = std::move(a.m_vecIntVal);
+         m_vecDoubleVal           = std::move(a.m_vecDoubleVal);
+         m_varName                = std::move(a.m_varName);
+         m_proxyLoader            = a.m_proxyLoader;
+         m_variableType           = static_cast<IProxyLoader::VariableType>(a.m_variableType);
+         m_determinedVariableType = a.m_determinedVariableType ? true : false;
+      }
+      return *this;
+   }
+
+   inline size_t StackElement::size() const {
+      switch( m_type ) {
+
+      case SE_VECINT:
+         return m_vecIntVal.size();
+         break;
+
+      case SE_VECDOUBLE:
+         return m_vecDoubleVal.size();
+         break;
+
+      case SE_INT:  [[fallthrough]]
+      case SE_DOUBLE:
+         return 1; // @TOOD 0?
+         break;
+
+      default:
+         throw std::runtime_error( "size(): Unsupported StackElement" );
+         break;
+      }
+   }
 
    /// Declare specialisations required in subsequent code
    template<>
-   const std::vector< int >&
+   std::vector< int >
    StackElement::vectorValue( std::size_t sizeIfScalar ) const;
    template<>
-   const std::vector< double >&
+   std::vector< double >
    StackElement::vectorValue( std::size_t sizeIfScalar ) const;
 
    template< typename T >
@@ -73,10 +132,6 @@ namespace ExpressionParsing {
            ++i ) {                                                      \
          temp.m_vecIntVal[ i ] = original.vectorValue< T >()[ i ]       \
             BASEOP other[ i ];                                          \
-      }                                                                 \
-      temp.m_vecDoubleHelper.clear();                                   \
-      for( int value : temp.m_vecIntVal ) {                             \
-         temp.m_vecDoubleHelper.push_back( value );                     \
       }                                                                 \
       return temp;                                                      \
    }                                                                    \
@@ -132,13 +187,11 @@ namespace ExpressionParsing {
       case SE_VECINT:                                                   \
          for( std::size_t i = 0; i < rhs.size(); ++i ) {                \
             m_vecIntVal[ i ] OP rhs[ i ];                               \
-            m_vecDoubleHelper[ i ] = m_vecIntVal[ i ];                  \
          }                                                              \
          break;                                                         \
       case SE_VECDOUBLE:                                                \
          for( std::size_t i = 0; i < rhs.size(); ++i ) {                \
             m_vecDoubleVal[i] OP rhs[ i ];                              \
-            m_vecIntHelper[ i ] = m_vecDoubleVal[ i ];                  \
          }                                                              \
          break;                                                         \
       default:                                                          \
@@ -174,7 +227,7 @@ namespace ExpressionParsing {
 #undef BINARY_MUTING_OP
 
    template< typename T >
-   const std::vector< T >& StackElement::vectorValue( std::size_t ) const {
+   std::vector< T > StackElement::vectorValue( std::size_t ) const {
 
       throw std::runtime_error( "Unsupported vector type requested" );
    }
@@ -195,7 +248,6 @@ namespace ExpressionParsing {
       case SE_VECDOUBLE:
          for( std::size_t i = 0; i < temp.m_vecDoubleVal.size(); ++i ) {
             temp.m_vecDoubleVal[ i ] = std::pow( temp.m_vecDoubleVal[ i ], n );
-            temp.m_vecIntHelper[ i ] = temp.m_vecDoubleVal[ i ];
          }
          return temp;
          break;
@@ -245,7 +297,7 @@ namespace ExpressionParsing {
          return;
       }
 
-      const std::size_t ourlen = vectorValue< int >().size();
+      const std::size_t ourlen = this->size();
       if( ourlen != other.size() ) {
          throw std::runtime_error( "Incompatible vectors - different length" );
       }

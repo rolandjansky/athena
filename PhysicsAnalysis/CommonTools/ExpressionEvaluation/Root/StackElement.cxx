@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
 
 // Local include(s):
 #include "ExpressionEvaluation/StackElement.h"
@@ -39,8 +40,6 @@ namespace ExpressionParsing {
         m_doubleVal( 0 ),
         m_vecIntVal(),
         m_vecDoubleVal(),
-        m_vecIntHelper(),
-        m_vecDoubleHelper(),
         m_varName(),
         m_proxyLoader( nullptr ),
         m_variableType( IProxyLoader::VT_UNK ),
@@ -54,8 +53,6 @@ namespace ExpressionParsing {
         m_doubleVal( 0 ),
         m_vecIntVal(),
         m_vecDoubleVal(),
-        m_vecIntHelper(),
-        m_vecDoubleHelper(),
         m_varName(),
         m_proxyLoader( nullptr ),
         m_variableType( IProxyLoader::VT_UNK ),
@@ -69,8 +66,6 @@ namespace ExpressionParsing {
         m_doubleVal( 0 ),
         m_vecIntVal(),
         m_vecDoubleVal(),
-        m_vecIntHelper(),
-        m_vecDoubleHelper(),
         m_varName(),
         m_proxyLoader( nullptr ),
         m_variableType( IProxyLoader::VT_UNK ),
@@ -84,8 +79,6 @@ namespace ExpressionParsing {
         m_doubleVal( val ),
         m_vecIntVal(),
         m_vecDoubleVal(),
-        m_vecIntHelper(),
-        m_vecDoubleHelper(),
         m_varName(),
         m_proxyLoader( nullptr ),
         m_variableType( IProxyLoader::VT_UNK ),
@@ -99,16 +92,11 @@ namespace ExpressionParsing {
         m_doubleVal( 0 ),
         m_vecIntVal( val ),
         m_vecDoubleVal(),
-        m_vecIntHelper(),
-        m_vecDoubleHelper(),
         m_varName(),
         m_proxyLoader( nullptr ),
         m_variableType( IProxyLoader::VT_UNK ),
         m_determinedVariableType( false ) {
 
-      for( auto& value : m_vecIntVal ) {
-         m_vecDoubleHelper.push_back( value );
-      }
    }
 
    StackElement::StackElement( const std::vector< double >& val )
@@ -117,16 +105,11 @@ namespace ExpressionParsing {
         m_doubleVal( 0 ),
         m_vecIntVal(),
         m_vecDoubleVal( val ),
-        m_vecIntHelper(),
-        m_vecDoubleHelper(),
         m_varName(),
         m_proxyLoader( nullptr ),
         m_variableType( IProxyLoader::VT_UNK ),
         m_determinedVariableType( false ) {
 
-      for( auto& value : m_vecDoubleVal ) {
-         m_vecIntHelper.push_back( value );
-      }
    }
 
    StackElement::StackElement( const std::string &val,
@@ -136,8 +119,6 @@ namespace ExpressionParsing {
         m_doubleVal( 0 ),
         m_vecIntVal(),
         m_vecDoubleVal(),
-        m_vecIntHelper(),
-        m_vecDoubleHelper(),
         m_varName( val ),
         m_proxyLoader( proxyLoader ),
         m_variableType( IProxyLoader::VT_UNK ),
@@ -152,8 +133,6 @@ namespace ExpressionParsing {
       m_doubleVal = 0;
       m_vecIntVal.clear();
       m_vecDoubleVal.clear();
-      m_vecIntHelper.clear();
-      m_vecDoubleHelper.clear();
 
       return *this;
    }
@@ -165,8 +144,6 @@ namespace ExpressionParsing {
       m_doubleVal = rhs;
       m_vecIntVal.clear();
       m_vecDoubleVal.clear();
-      m_vecIntHelper.clear();
-      m_vecDoubleHelper.clear();
 
       return *this;
    }
@@ -179,29 +156,27 @@ namespace ExpressionParsing {
       m_doubleVal = 0;
       m_vecIntVal = rhs;
       m_vecDoubleVal.clear();
-      m_vecIntHelper.clear();
-      m_vecDoubleHelper.clear();
 
-      for( auto& value : m_vecIntVal ) {
-         m_vecDoubleHelper.push_back( value );
-      }
+      return *this;
+   }
+   StackElement& StackElement::operator=( std::vector< int >&& rhs ) {
+
+      m_type = SE_VECINT;
+      m_intVal = 0;
+      m_doubleVal = 0;
+      m_vecIntVal = std::move(rhs);
+      m_vecDoubleVal.clear();
 
       return *this;
    }
 
-   StackElement& StackElement::operator=( const std::vector< double >& rhs ) {
+   StackElement& StackElement::operator=( std::vector< double >&& rhs ) {
 
       m_type = SE_VECDOUBLE;
       m_intVal = 0;
       m_doubleVal = 0;
       m_vecIntVal.clear();
-      m_vecDoubleVal = rhs;
-      m_vecIntHelper.clear();
-      m_vecDoubleHelper.clear();
-
-      for( auto& value : m_vecDoubleVal ) {
-         m_vecIntHelper.push_back( value );
-      }
+      m_vecDoubleVal = std::move(rhs);
 
       return *this;
    }
@@ -358,8 +333,8 @@ namespace ExpressionParsing {
    }
 
    template<>
-   const std::vector< int >&
-   StackElement::vectorValue( std::size_t sizeIfScalar ) const {
+   std::vector< int >
+   StackElement::vectorValue( std::size_t sizeIfScalar )  const {
 
       switch( m_type ) {
 
@@ -367,62 +342,57 @@ namespace ExpressionParsing {
          return m_vecIntVal;
          break;
 
-      case SE_VECDOUBLE:
-         return m_vecIntHelper;
+      case SE_VECDOUBLE: {
+         std::vector<int> ret(m_vecDoubleVal.size());
+         std::transform (m_vecDoubleVal.begin(), m_vecDoubleVal.end(), ret.begin(), [](const double  &a) -> int { return static_cast<int>(a);});
          break;
-
-      case SE_INT:
-         m_vecIntHelper.clear();
-         m_vecIntHelper.resize( sizeIfScalar, m_intVal );
-         return m_vecIntHelper;
+      }
+      case SE_INT: {
+         return std::vector<int>( sizeIfScalar, m_intVal );
          break;
-
-      case SE_DOUBLE:
-         m_vecIntHelper.clear();
-         m_vecIntHelper.resize( sizeIfScalar,
-                                static_cast< int >( m_doubleVal ) );
-         return m_vecIntHelper;
+      }
+      case SE_DOUBLE:{
+         return std::vector<int>( sizeIfScalar,static_cast< int >( m_doubleVal ) );
          break;
-
+      }
       default:
          throw std::runtime_error( "(int) vectorValue(): Unsupported "
                                    "StackElement" );
          break;
       }
+      return std::vector<int>();
    }
 
    template<>
-   const std::vector< double >&
+   std::vector< double >
    StackElement::vectorValue( size_t sizeIfScalar ) const {
 
       switch( m_type ) {
 
-      case SE_VECINT:
-         return m_vecDoubleHelper;
+      case SE_VECINT: {
+         std::vector<double> ret(m_vecIntVal.size());
+         std::transform (m_vecIntVal.begin(), m_vecIntVal.end(), ret.begin(), [](int a) -> double { return a;});
+         return ret;
          break;
-
+      }
       case SE_VECDOUBLE:
          return m_vecDoubleVal;
          break;
 
-      case SE_INT:
-         m_vecDoubleHelper.clear();
-         m_vecDoubleHelper.resize( sizeIfScalar,
-                                   static_cast< double >( m_intVal ) );
-         return m_vecDoubleHelper;
+      case SE_INT: {
+         return std::vector<double>(sizeIfScalar,static_cast< double >( m_intVal ) );
          break;
-
-      case SE_DOUBLE:
-         m_vecDoubleHelper.clear();
-         m_vecDoubleHelper.resize( sizeIfScalar, m_doubleVal );
-         return m_vecDoubleHelper;
+      }
+      case SE_DOUBLE: {
+         return std::vector<double>(sizeIfScalar, m_doubleVal );
          break;
-
+      }
       default:
          throw std::runtime_error( "(dbl) vectorValue(): Unsupported "
                                    "StackElement" );
          break;
       }
+      return std::vector<double>();
    }
 
    void StackElement::makeInt() {
@@ -433,10 +403,8 @@ namespace ExpressionParsing {
       } else if( m_type == SE_VECDOUBLE ) {
          m_type = SE_VECINT;
          m_vecIntVal.clear();
-         m_vecDoubleHelper.clear();
          for( auto& value : m_vecDoubleVal ) {
             m_vecIntVal.push_back( static_cast< int >( value ) );
-            m_vecDoubleHelper.push_back( static_cast< int >( value ) );
          }
       }
 
@@ -451,10 +419,8 @@ namespace ExpressionParsing {
       } else if( m_type == SE_VECINT ) {
          m_type = SE_VECDOUBLE;
          m_vecDoubleVal.clear();
-         m_vecIntHelper.clear();
          for( auto& value : m_vecIntVal ) {
             m_vecDoubleVal.push_back( static_cast< double >( value ) );
-            m_vecIntHelper.push_back( value );
          }
       }
 
@@ -471,23 +437,20 @@ namespace ExpressionParsing {
          m_type = SE_VECINT;
          m_vecIntVal.clear();
          m_vecIntVal.resize( n, m_intVal );
-         m_vecDoubleHelper.clear();
-         m_vecDoubleHelper.resize( n, static_cast< double >(  m_intVal ) );
       } else if( m_type == SE_DOUBLE ) {
          m_type = SE_VECDOUBLE;
          m_vecDoubleVal.clear();
          m_vecDoubleVal.resize( n, m_doubleVal );
-         m_vecIntHelper.clear();
-         m_vecIntHelper.resize( n, static_cast< int >( m_doubleVal ) );
       }
 
       return;
    }
 
-   void StackElement::setValueFromProxy() {
+   StackElement StackElement::valueFromProxy() const {
 
+      StackElement tmp;
       if( ! isProxy() ) {
-         return;
+         return tmp;
       }
 
       if( ! m_determinedVariableType ) {
@@ -498,30 +461,19 @@ namespace ExpressionParsing {
       switch( m_variableType ) {
 
       case IProxyLoader::VT_INT:
-         m_type = SE_INT;
-         m_intVal = m_proxyLoader->loadIntVariableFromString( m_varName );
+         tmp = m_proxyLoader->loadIntVariableFromString( m_varName );
          break;
 
       case IProxyLoader::VT_DOUBLE:
-         m_type = SE_DOUBLE;
-         m_doubleVal = m_proxyLoader->loadDoubleVariableFromString( m_varName );
+         tmp = m_proxyLoader->loadDoubleVariableFromString( m_varName );
          break;
 
       case IProxyLoader::VT_VECINT:
-         m_type = SE_VECINT;
-         m_vecIntVal = m_proxyLoader->loadVecIntVariableFromString( m_varName );
-         for( auto& value : m_vecIntVal ) {
-            m_vecDoubleHelper.push_back( static_cast< double >( value ) );
-         }
+         tmp = m_proxyLoader->loadVecIntVariableFromString( m_varName );
          break;
 
       case IProxyLoader::VT_VECDOUBLE:
-         m_type = SE_VECDOUBLE;
-         m_vecDoubleVal =
-            m_proxyLoader->loadVecDoubleVariableFromString( m_varName );
-         for( auto& value : m_vecDoubleVal ) {
-            m_vecIntHelper.push_back( static_cast< int >( value ) );
-         }
+         tmp = m_proxyLoader->loadVecDoubleVariableFromString( m_varName );
          break;
 
       case IProxyLoader::VT_UNK:
@@ -531,24 +483,7 @@ namespace ExpressionParsing {
          break;
       }
 
-      return;
-   }
-
-   void StackElement::clearValueFromProxy() {
-
-      if( ! isProxy() ) {
-         return;
-      }
-
-      m_type = SE_UNK;
-      m_intVal = 0;
-      m_doubleVal = 0.;
-      m_vecIntVal.clear();
-      m_vecDoubleVal.clear();
-      m_vecIntHelper.clear();
-      m_vecDoubleHelper.clear();
-
-      return;
+      return tmp;
    }
 
 /// Helper function for implementing the binary comparison specialisations
@@ -572,11 +507,9 @@ namespace ExpressionParsing {
          }                                                              \
       } else if( isVector() && other.isScalar() ) {                     \
          if( ( m_type == SE_VECINT ) && ( other.m_type == SE_INT ) ) {  \
-            const std::size_t size = m_vecIntVal.size();                \
-            return ( this->OP( other.vectorValue< int >( size ) ) );    \
+           return ( this->OP( other.vectorValue< int >( this->size() ) ) );  \
          } else {                                                       \
-            const std::size_t size = vectorValue< int >().size();       \
-            return ( this->OP( other.vectorValue< double >( size ) ) ); \
+           return ( this->OP( other.vectorValue< double >( this->size() ) ) ); \
          }                                                              \
       } else if( isScalar() && other.isVector() ) {                     \
          if( other.m_type == SE_VECINT ) {                              \
@@ -735,10 +668,8 @@ namespace ExpressionParsing {
          temp.m_doubleVal = BASEFUNC( temp.m_doubleVal );               \
          return temp;                                                   \
       } else if( temp.m_type == SE_VECDOUBLE ) {                        \
-         temp.m_vecIntHelper.clear();                                   \
          for( double& value : temp.m_vecDoubleVal ) {                   \
             value = BASEFUNC( value );                                  \
-            temp.m_vecIntHelper.push_back( value );                     \
          }                                                              \
          return temp;                                                   \
       } else {                                                          \
@@ -772,7 +703,7 @@ namespace ExpressionParsing {
          return;
       }
       if( other.isVector() ) {
-         makeVector( other.vectorValue< int >().size() );
+         makeVector( other.size() );
       }
 
       return;
