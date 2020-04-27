@@ -67,7 +67,7 @@ class PowhegControl(object):
             if hasattr(run_args, "ecmEnergy"):
                 process_kwargs["beam_energy"] = 0.5 * run_args.ecmEnergy
             if hasattr(run_args, "maxEvents") and run_args.maxEvents > 0:
-                if hasattr(run_args, "outputEVNTFile"):
+                if hasattr(run_args, "outputEVNTFile") or hasattr(run_args, "outputYODAFile"):
                     process_kwargs["nEvents"] = int(1.1 * run_args.maxEvents + 0.5)
                 else:# default nEvents value is maxEvents for lhe-only production
                     process_kwargs["nEvents"] = run_args.maxEvents
