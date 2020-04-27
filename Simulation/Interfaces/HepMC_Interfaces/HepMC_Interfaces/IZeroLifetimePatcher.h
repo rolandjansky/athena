@@ -11,6 +11,7 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "AtlasHepMC/GenEvent_fwd.h"
+
 namespace Simulation {
 
   /**
