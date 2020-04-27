@@ -111,18 +111,18 @@ InDetPerfPlot_Resolution::initializePlots() {
     //
     //2D Distributions to evaluate resolutions vs eta and pT
     //
-    book(m_resHelpereta[iparam], "resHelpereta_" + m_paramProp[iparam]);
-    book(m_resHelperpt[iparam], "resHelperpt_" + m_paramProp[iparam]);
-    book(m_pullHelpereta[iparam], "pullHelpereta_" + m_paramProp[iparam]);
-    book(m_pullHelperpt[iparam], "pullHelperpt_" + m_paramProp[iparam]);
+    book(m_resHelpereta[iparam], "resHelper_eta_" + m_paramProp[iparam]);
+    book(m_resHelperpt[iparam], "resHelper_pt_" + m_paramProp[iparam]);
+    book(m_pullHelpereta[iparam], "pullHelper_eta_" + m_paramProp[iparam]);
+    book(m_pullHelperpt[iparam], "pullHelper_pt_" + m_paramProp[iparam]);
     m_resHelperpt[iparam]->GetXaxis()->Set(m_nPtBins,m_PtBins);
     m_pullHelperpt[iparam]->GetXaxis()->Set(m_nPtBins,m_PtBins);
     //
     //1D Histograms for the final resolution and means
     //
-    book(m_reswidth_vs_eta[iparam], "reswidth_vs_eta_" + m_paramProp[iparam]);
+    book(m_reswidth_vs_eta[iparam], "resolution_vs_eta_" + m_paramProp[iparam]);
     book(m_resmean_vs_eta[iparam], "resmean_vs_eta_" + m_paramProp[iparam]);
-    book(m_reswidth_vs_pt[iparam], "reswidth_vs_pt_" + m_paramProp[iparam]);
+    book(m_reswidth_vs_pt[iparam], "resolution_vs_pt_" + m_paramProp[iparam]);
     book(m_resmean_vs_pt[iparam], "resmean_vs_pt_" + m_paramProp[iparam]);
 
     book(m_pullwidth_vs_eta[iparam], "pullwidth_vs_eta_" + m_paramProp[iparam]);
@@ -151,23 +151,23 @@ InDetPerfPlot_Resolution::initializePlots() {
     //Detailed histograms
     //
     if(m_iDetailLevel >= 200){
-      book(m_resHelpereta_pos[iparam], "resHelpereta_pos" + m_paramProp[iparam]); 
-      book(m_resHelpereta_neg[iparam], "resHelpereta_neg" + m_paramProp[iparam]);
-      book(m_resHelperpt_pos[iparam],  "resHelperpt_pos" + m_paramProp[iparam]); 
-      book(m_resHelperpt_neg[iparam],  "resHelperpt_neg" + m_paramProp[iparam]);
+      book(m_resHelpereta_pos[iparam], "resHelper_eta_pos" + m_paramProp[iparam]); 
+      book(m_resHelpereta_neg[iparam], "resHelper_eta_neg" + m_paramProp[iparam]);
+      book(m_resHelperpt_pos[iparam],  "resHelper_pt_pos" + m_paramProp[iparam]); 
+      book(m_resHelperpt_neg[iparam],  "resHelper_pt_neg" + m_paramProp[iparam]);
 
       //Add log binning
       m_resHelperpt_pos[iparam]->GetXaxis()->Set(m_nPtBins,m_PtBins);
       m_resHelperpt_neg[iparam]->GetXaxis()->Set(m_nPtBins,m_PtBins);
 
       //Resolution, Resolution Mean, Pull, Pull Mean
-      book(m_reswidth_vs_eta_pos[iparam], "reswidth_vs_eta_" + m_paramProp[iparam] + "_pos");
-      book(m_reswidth_vs_eta_neg[iparam], "reswidth_vs_eta_" + m_paramProp[iparam] + "_neg");
+      book(m_reswidth_vs_eta_pos[iparam], "resolution_vs_eta_" + m_paramProp[iparam] + "_pos");
+      book(m_reswidth_vs_eta_neg[iparam], "resolution_vs_eta_" + m_paramProp[iparam] + "_neg");
       book(m_resmean_vs_eta_pos[iparam], "resmean_vs_eta_" + m_paramProp[iparam] + "_pos");
       book(m_resmean_vs_eta_neg[iparam], "resmean_vs_eta_" + m_paramProp[iparam] + "_neg");
 
-      book(m_reswidth_vs_pt_pos[iparam], "reswidth_vs_pt_" + m_paramProp[iparam] + "_pos");
-      book(m_reswidth_vs_pt_neg[iparam], "reswidth_vs_pt_" + m_paramProp[iparam] + "_neg");
+      book(m_reswidth_vs_pt_pos[iparam], "resolution_vs_pt_" + m_paramProp[iparam] + "_pos");
+      book(m_reswidth_vs_pt_neg[iparam], "resolution_vs_pt_" + m_paramProp[iparam] + "_neg");
       book(m_resmean_vs_pt_pos[iparam], "resmean_vs_pt_" + m_paramProp[iparam] + "_pos");
       book(m_resmean_vs_pt_neg[iparam], "resmean_vs_pt_" + m_paramProp[iparam] + "_neg");
      
