@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ BipolarFit::BipolarFit()
   m_n=12.;
   m_powcachez = -9999.;
   m_powcachezn= -9999.;
-  m_zmax= m_n+1 - sqrt(m_n+1.0);
+  m_zmax= m_n+1 - std::sqrt(m_n+1.0);
   m_bipolarNormalization = FindPow(m_zmax)*(1-m_zmax/(m_n+1))*exp(-m_zmax);
   m_tsampling = 25.;
 
@@ -38,7 +38,7 @@ BipolarFit::~BipolarFit()
   double 
 BipolarFit::FindPow(double z)
 {
-  if(fabs(m_powcachez-z)<1.e-4)
+  if(std::abs(m_powcachez-z)<1.e-4)
     return m_powcachezn;
 
   double zpower = z*z*z;
@@ -159,8 +159,6 @@ void BipolarFit::InvertMatrix(double matrix[][3],const int dim,int*correspdim)
     int ii=correspdim[0];
     int jj=correspdim[1];
     double determinant= -matrix[jj][ii]*matrix[ii][jj] +matrix[ii][ii]*matrix[jj][jj];
-    //if(fabs(determinant)<1.e-13)
-    //std::cout<<" zero determinant "<<std::endl;
     double i00 = matrix[ii][ii];
     matrix[ii][ii] = matrix[jj][jj]/determinant;
     matrix[jj][jj] = i00/determinant;
@@ -178,8 +176,6 @@ void BipolarFit::InvertMatrix(double matrix[][3],const int dim,int*correspdim)
       +2.*matrix[0][1]*matrix[0][2]*matrix[1][2]
       -matrix[1][1]*sm13;
 
-    //if(fabs(determinant)<1.e-13)
-    //std::cout << "zero determinant"<<std::endl;
     double i00 = matrix[1][1]*matrix[2][2]-sm23;
     double i11 = matrix[0][0]*matrix[2][2]-sm13;
     double i22 = matrix[0][0]*matrix[1][1]-sm12;
@@ -527,17 +523,15 @@ BipolarFit::TheFitter(double*x,const double ex,double *initValues, int imeas, in
       }
       p0[ii][0] += paramDiff[ii];
     }
-    //std::cout << "##### "<<p0[0][0]<< " "<<p0[1][0] << " "<<p0[2][0]<<std::endl;
     // if the parameters are going nuts keep them sensible
     if(p0[1][0]>1. || p0[1][0]<-3.)
       p0[1][0] = initValues[1];
 
-    double amplitudeChangeNew = fabs(paramDiff[0]);
-    if(fabs(paramDiff[0])<fitTolerance0 && fabs(paramDiff[1])<fitTolerance1)
+    double amplitudeChangeNew = std::abs(paramDiff[0]);
+    if(std::abs(paramDiff[0])<fitTolerance0 && std::abs(paramDiff[1])<fitTolerance1)
     {
       converged = true;
       // calculate chi2
-      // (m-fp).T()*W*(m-fp)
       double residual[4]= {0.};
       for(int i=0;i<imeas;i++)
       {

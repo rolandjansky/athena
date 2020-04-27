@@ -14,8 +14,6 @@
 // STL includes
 #include <string>
 
-// HepMC / CLHEP includes
-
 // McParticleTools includes
 #include "TruthParticleFilterBaseTool.h"
 

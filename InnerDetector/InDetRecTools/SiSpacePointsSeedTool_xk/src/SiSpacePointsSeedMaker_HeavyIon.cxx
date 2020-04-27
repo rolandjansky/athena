@@ -43,16 +43,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_HeavyIon::initialize()
   //
   ATH_CHECK(m_beamSpotKey.initialize());
 
-  // Get magnetic field service
-  //
-  if ( !m_fieldServiceHandle.retrieve() ){
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }    
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-////////////////////////////////////////////////////////////////////////////////
   ATH_CHECK( m_fieldCondObjInputKey.initialize());
-////////////////////////////////////////////////////////////////////////////////
 
   // Build framework
   //
@@ -97,22 +88,19 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent(const EventContext& ctx, E
 
   double f[3], gP[3] ={10.,10.,0.};
 
-  if (m_fieldServiceHandle->solenoidOn()) {
+  MagField::AtlasFieldCache    fieldCache;
 
-    MagField::AtlasFieldCache    fieldCache;
+  // Get field cache object
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR("SiSpacePointsSeedMaker_HeavyIon: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
 
-    // Get field cache object
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-    if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SiSpacePointsSeedMaker_HeavyIon: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-      return;
-    }
-    fieldCondObj->getInitializedCache (fieldCache);
-
-    //   MT version uses cache, temporarily keep old version
-    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP,f);
-    else                                m_fieldServiceHandle->getFieldZR(gP,f);
+  if (fieldCache.solenoidOn()) {
+    fieldCache.getFieldZR(gP,f);
 
     data.K = 2./(300.*f[2]);
   } else {
@@ -190,22 +178,19 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
 
   double f[3], gP[3] ={10.,10.,0.};
 
-  if (m_fieldServiceHandle->solenoidOn()) {
+  MagField::AtlasFieldCache    fieldCache;
 
-    MagField::AtlasFieldCache    fieldCache;
+  // Get field cache object
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR("SiSpacePointsSeedMaker_HeavyIon: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
 
-    // Get field cache object
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-    if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SiSpacePointsSeedMaker_HeavyIon: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-      return;
-    }
-    fieldCondObj->getInitializedCache (fieldCache);
-
-    //   MT version uses cache, temporarily keep old version
-    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, f);
-    else                                m_fieldServiceHandle->getFieldZR(gP, f);
+  if (fieldCache.solenoidOn()) {
+    fieldCache.getFieldZR(gP, f);
 
     data.K = 2./(300.*f[2]);
   } else {

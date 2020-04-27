@@ -41,7 +41,7 @@ mark_as_advanced( TDAQ-COMMON_ATROOT TDAQ_PROJECT_NAME
    TDAQ_ATROOT )
 
 # Configure flake8:
-set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
+set( ATLAS_FLAKE8 "flake8_atlas -j 1 --select ATL,F,E7,E9,W6 --enable-extension ATL902 --extend-ignore E701,E702,E741"
    CACHE STRING "Default flake8 command" )
 
 set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
@@ -118,6 +118,9 @@ install( FILES
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
+
+# Temporary alias to limit number of processes (ATLINFR-3046)
+atlas_add_alias( flake8 \${AthenaExternals_DIR}/${CMAKE_INSTALL_BINDIR}/flake8 -j1 )
 
 # Package up the release using CPack:
 atlas_cpack_setup()

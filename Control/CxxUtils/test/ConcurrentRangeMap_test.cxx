@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-
-// $Id$
 /**
  * @file  CxxUtils/test/ConcurrentRangeMap_test.cxx
  * @author scott snyder
@@ -40,6 +36,7 @@ struct Range
   { return m_begin==other.m_begin && m_end==other.m_end; }
   Time m_begin;
   Time m_end;
+  int m_extra = 0;
 };
 
 
@@ -589,6 +586,17 @@ void test1a()
 
     assert (map.nInserts() == 12);
     assert (map.maxSize()  == 6);
+
+    //======
+
+    // Test updateRanges.
+    int extra_count = 0;
+    map.updateRanges ([&] (Range& r)
+                      { r.m_extra = ++extra_count; });
+    r = map.range();
+    assert (r.size() == 2);
+    assert (r.begin()->first.m_extra == 1);
+    assert ((r.begin()+1)->first.m_extra == 2);
   }
 
   assert (phist.empty());

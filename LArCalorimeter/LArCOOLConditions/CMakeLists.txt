@@ -26,7 +26,7 @@ atlas_add_library( LArCOOLConditions
                    src/*.cxx
                    PUBLIC_HEADERS LArCOOLConditions
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES Identifier GaudiKernel LArIdentifier LArCablingLib StoreGateLib SGtests
+                   LINK_LIBRARIES Identifier GaudiKernel LArIdentifier LArCablingLib StoreGateLib SGtests LArElecCalib
                    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel AthenaPoolUtilities )
 
 atlas_add_dictionary( LArCOOLConditionsDict

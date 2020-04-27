@@ -8,7 +8,7 @@
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <TH2D.h>
 #include <TH1.h>

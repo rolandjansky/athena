@@ -28,7 +28,7 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 atlas_add_component( IdDictDetDescrCnv
                      src/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AtlasDetDescr DetDescrCnvSvcLib GeoModelUtilities IdDictDetDescr IdDictParser Identifier GaudiKernel )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AtlasDetDescr DetDescrCnvSvcLib GeoModelUtilities IdDictDetDescr IdDictParser Identifier GaudiKernel RDBAccessSvcLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -58,14 +58,6 @@ namespace xAODReader {
     for (const xAOD::TruthEvent* evt : *xTruthEventContainer) {
       cout << endl << endl;
 
-      // Print PDF info if found
-      /*xAOD::TruthEvent::PdfInfo pdfi = evt->pdfInfo();
-      if (pdfi.valid()) {
-        cout << "PDF info: PIDs " << pdfi.pdgId1 << ", " << pdfi.pdgId2 << " with x = "
-             << pdfi.x1 << ", " << pdfi.x2 << " & Q = " << pdfi.Q << " => xf = "
-             << pdfi.xf1 << ", " << pdfi.xf2 << " with PDFs "
-             << pdfi.pdfId1 << " and " << pdfi.pdfId2 << endl;
-      }*/
 
       // Print hard-scattering info
       const xAOD::TruthVertex* vtx = evt->signalProcessVertex();
@@ -97,22 +89,7 @@ namespace xAODReader {
   void xAODTruthReader::printEvent(const xAOD::TruthEventBase* event) {
     cout << "--------------------------------------------------------------------------------\n";
     cout << "GenEvent: #" << "NNN" << "\n";
-    /*<< " ID=" << signal_process_id() << " SignalProcessGenVertex Barcode: "
-      << ( signal_process_vertex() ? signal_process_vertex()->barcode() : 0 ) << "\n";*/
     cout << " Entries this event: " << event->nTruthVertices() << " vertices, " << event->nTruthParticles() << " particles.\n";
-    // Beam particles
-    /*pair<const xAOD::TruthParticle*,const xAOD::TruthParticle*> beamParticles = event->beamParticles();
-    if ( beamParticles.first && beamParticles.second ) {
-      cout << " Beam particle barcodes: " << beamParticles.first->barcode() << " " << beamParticles.second->barcode() << " \n";
-    } else {
-      cout << " Beam particles are not defined.\n";
-    }
-    // Weights
-    const vector<float> weights = event->weights();
-    cout << weights.size() << " weights = ";
-    for (const float& w : weights) cout << w << " ";
-    cout << "\n";*/
-    // Particles and vertices
     cout << "                                    GenParticle Legend\n";
     cout << "        Barcode   PDG ID      ( Px,       Py,       Pz,     E ) Stat  DecayVtx\n";
     cout << "--------------------------------------------------------------------------------\n";
@@ -199,13 +176,6 @@ namespace xAODReader {
         cout << endl;
       }
     }
-    // // Print the weights if there are any
-    // if (vertex->weights().size() != 0) {
-    //   cout << vertex->weights().size() << " weights =";
-    //   for (vector<float>::const_iterator wgt = vertex->weights().begin();
-    //        wgt != vertex->weights().end(); ++wgt) { cout << *wgt << " "; }
-    //   cout << endl;
-    // }
     // Print out all the incoming, then outgoing particles
     for (unsigned int iPIn = 0; iPIn<vertex->nIncomingParticles(); ++iPIn) {
       if ( iPIn == 0 ) {

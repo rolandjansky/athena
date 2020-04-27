@@ -13,7 +13,7 @@
 #include "ISF_Event/ITruthIncident.h"
 
 // HepMC includes
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 /** Constructor **/
 ISF::CylinderVolumeTruthStrategy::CylinderVolumeTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) :

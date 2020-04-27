@@ -44,17 +44,17 @@ def seqOR(name, subs=[]):
         _append( seq, s )
     return seq
 
-def hasProp(comp, prop):
+def hasProp(comp, propname):
     if hasattr(comp, "properties"): # old/legacy component
-        return prop in comp.properties()
+        return propname in comp.properties()
     else:
-        return hasattr(comp, prop)
+        return hasattr(comp, propname)
     
-def getProp(comp, prop):
+def getProp(comp, propname):
     if hasattr(comp, "getProperties"): # old/legacy component
-        return comp.getValuedProperties()[prop] if prop in  comp.getValuedProperties() else comp.getDefaultProperty(prop)
+        return comp.getValuedProperties()[propname] if propname in  comp.getValuedProperties() else comp.getDefaultProperty(propname)
     else:
-        return getattr(comp, prop)
+        return getattr(comp, propname)
 
 
 

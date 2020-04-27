@@ -140,7 +140,7 @@ double TrRelation::getTFromR(const double & r, const IRtRelation & input_rt) {
 // SEARCH FOR THE CORRESPONDING DRIFT TIME //
 /////////////////////////////////////////////
   while (t_max-t_min>0.1 &&
-	 fabs(input_rt.radius(0.5*(t_min+t_max))-r)>precision) {
+	 std::abs(input_rt.radius(0.5*(t_min+t_max))-r)>precision) {
 
     if (input_rt.radius(0.5*(t_min+t_max))>r) {
       t_max = 0.5*(t_min+t_max);

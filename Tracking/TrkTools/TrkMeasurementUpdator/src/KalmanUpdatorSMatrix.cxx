@@ -19,7 +19,6 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 
-#include <math.h>
 #include <cstring>
 
 // using namespace ROOT::Math;
@@ -30,18 +29,13 @@ const Trk::ParamDefsAccessor Trk::KalmanUpdatorSMatrix::s_enumAccessor;
 // constructor
 Trk::KalmanUpdatorSMatrix::KalmanUpdatorSMatrix(const std::string& t,const std::string& n,const IInterface* p) :
     AthAlgTool (t,n,p),
-    m_cov_stdvec(std::vector<double>(0)),
+    m_cov_stdvec{250.,250.,0.25,0.25,0.000001}, // set defaults _before_ reading from job options
     m_thetaGainDampingValue(0.1),
     m_unitMatrix()
 {
     // AlgTool stuff
     declareProperty("InitialCovariances",m_cov_stdvec,"default covariance to be used at start of filter");
     declareProperty("FastTrackStateCovCalculation",m_useFruehwirth8a=false,"toggles which formula to use for updated cov");
-    m_cov_stdvec.push_back(250.); // set defaults _before_ reading from job options
-    m_cov_stdvec.push_back(250.);
-    m_cov_stdvec.push_back(0.25);
-    m_cov_stdvec.push_back(0.25);
-    m_cov_stdvec.push_back(0.000001);
     declareInterface<IUpdator>( this );
 }
 
@@ -53,38 +47,30 @@ Trk::KalmanUpdatorSMatrix::~KalmanUpdatorSMatrix()
 StatusCode Trk::KalmanUpdatorSMatrix::initialize()
 {
     if (m_cov_stdvec.size() < 5) {
-      msg( MSG::INFO) << "Wrong-sized initial covariance given, so set to default: \n";
-      m_cov_stdvec.clear(); // reset
-      m_cov_stdvec.push_back(250.);
-      m_cov_stdvec.push_back(250.);
-      m_cov_stdvec.push_back(0.25);
-      m_cov_stdvec.push_back(0.25);
-      m_cov_stdvec.push_back(0.000001);
+      ATH_MSG_INFO( "Wrong-sized initial covariance given, so set to default: ");
+      m_cov_stdvec = {250.,250.,0.25, 0.25, 0.000001};
     }
-    msg(MSG::INFO) << "Initial covariance: " << m_cov_stdvec[0] << ", "
+    ATH_MSG_INFO( "Initial covariance: " << m_cov_stdvec[0] << ", "
           << m_cov_stdvec[1] << ", " << m_cov_stdvec[2] << ", "
-          << m_cov_stdvec[3] << ", " << m_cov_stdvec[4] << " (diagonal)" << endmsg;
+          << m_cov_stdvec[3] << ", " << m_cov_stdvec[4] << " (diagonal)" );
     m_cov0 = SParVector5(&m_cov_stdvec[0],5);
-    //    for (int i=0; i<5; ++i) m_cov0(i)=m_cov_stdvec[i];
     if (m_useFruehwirth8a) {
-      msg(MSG::INFO) << "Fast computation will be used for track state cov "
-            << "matrices (Fruehwirth-1987 eq. 8a)." << endmsg;
+      ATH_MSG_INFO( "Fast computation will be used for track state cov matrices (Fruehwirth-1987 eq. 8a)." );
     } else{
-      msg(MSG::INFO) << "Track state cov matrix will be calculated according to"
-            << " Gelb-1975 p305." << endmsg;
+      ATH_MSG_INFO( "Track state cov matrix will be calculated according to Gelb-1975 p305." );
     }
 
     const SParVector5 IV(1.0, 1.0, 1.0, 1.0, 1.0);
     m_unitMatrix.SetDiagonal(IV);
 
-    msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
+    ATH_MSG_DEBUG( "initialize() successful in " << name() );
     return StatusCode::SUCCESS;
 }
 
 // finalize
 StatusCode Trk::KalmanUpdatorSMatrix::finalize()
 {
-    msg(MSG::INFO) << "finalize() successful in " << name() << endmsg;
+    ATH_MSG_DEBUG( "finalize() successful in " << name() );
     return StatusCode::SUCCESS;
 }
 
@@ -99,7 +85,6 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::addToState (const Trk::TrackPar
   SCovMatrix5 covTrk;
   if (!getStartCov(covTrk,inputTrkPar,updatingSign)) return nullptr;
   
-  //if (msgLvl(MSG::VERBOSE)) logInputCov(covTrk,(const HepVector&)measLocPos,measLocCov);
   
   int nLocCoord = measLocCov.cols();
   if (nLocCoord == 1) {
@@ -114,8 +99,8 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::addToState (const Trk::TrackPar
                                    measLocCov,
                                    updatingSign,fitQoS,false);
   } else {
-    msg(MSG::WARNING) << " number (" << nLocCoord << ") of local coordinates "
-          << "must be 1 or 2, can not update!" << endmsg; return nullptr;
+    ATH_MSG_WARNING( " number (" << nLocCoord << ") of local coordinates must be 1 or 2, can not update!" ); 
+    return nullptr;
   }
 }
 
@@ -136,16 +121,13 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::addToState (const Trk::TrackPar
     const int updatingSign = 1;
     if (msgLvl(MSG::VERBOSE)) logStart("addToState(TP,LPOS,ERR,FQ)",inputTP);
     if (fitQoS) {
-        msg(MSG::WARNING) << "expect nil FitQuality pointer, refuse operation to"
-              << " avoid mem leak!" << endmsg;
+        ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!");
         return nullptr;
     } else {
 
       SCovMatrix5 covTrk;
       if (!getStartCov(covTrk,inputTP,updatingSign)) return nullptr;
-      
-      //if (msgLvl(MSG::VERBOSE)) logInputCov(covTrk,(const HepVector&)measLocPos,measLocCov);
-      
+            
       int nLocCoord = measLocCov.cols();
       if (nLocCoord == 1) {
         return calculateFilterStep_1D (inputTP,
@@ -159,8 +141,8 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::addToState (const Trk::TrackPar
                                        measLocCov,
                                        updatingSign,fitQoS,true);
         } else {
-        msg(MSG::WARNING) << " number (" << nLocCoord << ") of local coordinates"
-              << " must be 1 or 2, can not update!" << endmsg; return nullptr;
+        ATH_MSG_WARNING( " number (" << nLocCoord << ") of local coordinates must be 1 or 2, can not update!" ); 
+        return nullptr;
       }
     }
 }
@@ -172,8 +154,8 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::addToState (const Trk::TrackPar
                                                              FitQualityOnSurface*& fitQoS) const {
     if (msgLvl(MSG::VERBOSE)) logStart("addToState(TP,LPAR,ERR,FQ)",trkPar);
     if (fitQoS) {
-        msg(MSG::WARNING) << "expect nil FitQuality pointer, refuse operation to"
-              << " avoid mem leak!" << endmsg;
+        ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
+              << " avoid mem leak!" );
       return nullptr;
     } else {
       return prepareFilterStep (trkPar, measmtPar, measmtCov, 1, fitQoS, true);
@@ -189,7 +171,6 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::removeFromState (const Trk::Tra
     const int updatingSign = -1;
     SCovMatrix5 covTrk;
     if (!getStartCov(covTrk,inputTP,updatingSign)) return nullptr;
-    //if (msgLvl(MSG::VERBOSE)) logInputCov(covTrk,(const HepVector&)measLocPos,measLocCov);
 
     int nLocCoord = measLocCov.cols();
     if (nLocCoord == 1) {
@@ -204,8 +185,9 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::removeFromState (const Trk::Tra
                                      measLocCov,
                                      updatingSign,fitQoS,false);
     } else {
-      msg(MSG::WARNING) << " number (" << nLocCoord << ") of local coordinates "
-            << "must be 1 or 2, can not un-update!" << endmsg; return nullptr;
+      ATH_MSG_WARNING( " number (" << nLocCoord << ") of local coordinates "
+            << "must be 1 or 2, can not un-update!" ); 
+      return nullptr;
     }
 }
 
@@ -234,7 +216,6 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::removeFromState (const Trk::Tra
       
       if (!getStartCov(covTrk,inputTP,updatingSign)) return nullptr;
       
-      //if (msgLvl(MSG::VERBOSE)) logInputCov(covTrk,(const HepVector&)measLocPos,measLocCov);
       int nLocCoord = measLocCov.cols();
       if (nLocCoord == 1) {
         return calculateFilterStep_1D (inputTP,
@@ -248,8 +229,9 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::removeFromState (const Trk::Tra
                                        measLocCov,
                                        updatingSign,fitQoS,true);
       } else {
-        msg(MSG::WARNING) << " number (" << nLocCoord << ") of local coordinates"
-              << " must be 1 or 2, can not un-update!" << endmsg; return nullptr;
+        ATH_MSG_WARNING( " number (" << nLocCoord << ") of local coordinates"
+              << " must be 1 or 2, can not un-update!" );
+        return nullptr;
       }
     }
 }
@@ -261,8 +243,7 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::removeFromState (const Trk::Tra
                                                                   FitQualityOnSurface*& fitQoS) const {
     if (msgLvl(MSG::VERBOSE)) logStart("removeFromState(TP,LPAR,ERR,FQ)",trkPar);
     if (fitQoS) {
-        msg(MSG::WARNING) << "expect nil FitQuality pointer, refuse operation to"
-            << " avoid mem leak!" << endmsg;
+        ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!" );
         return nullptr;
     } else {
         return prepareFilterStep (trkPar, measmtPar, measmtCov, -1, fitQoS, true);
@@ -278,8 +259,7 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::combineStates (const Trk::Track
 
 	// remember, either one OR two might have no error, but not both !
 	if (!covOne && ! covTwo) {
-		msg(MSG::WARNING) << "both parameters have no errors, invalid "
-              << "use of Updator::combineStates()" << endmsg;
+		ATH_MSG_WARNING( "both parameters have no errors, invalid use of Updator::combineStates()" );
 		return nullptr;
 	}
 	// if only one of two has an error, return that one
@@ -319,14 +299,12 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::combineStates (const Trk::Track
 
 	// remember, either one OR two might have no error, but not both !
 	if (!covOne && ! covTwo) {
-		msg(MSG::WARNING) << "both parameters have no errors, invalid "
-              << "use of Updator::combineStates()" << endmsg;
+		ATH_MSG_WARNING( "both parameters have no errors, invalid use of Updator::combineStates()" );
 		return nullptr;
 	}
 	
 	if (fitQoS) {
-        msg(MSG::WARNING) << "expect nil FitQuality pointer, refuse operation to"
-              << " avoid mem leak!" << endmsg;
+        ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!");
         return nullptr;
     }
     
@@ -359,13 +337,10 @@ const Trk::FitQualityOnSurface*
 Trk::KalmanUpdatorSMatrix::fullStateFitQuality (const Trk::TrackParameters& trkPar,
                                          const Amg::Vector2D& locPos,
                                          const Amg::MatrixX& covRio) const {
-    if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "--> entered KalmanUpdatorSMatrix::fullStateFitQuality(TP,LPOS,ERR)" << endmsg;
-    }
-	
+  ATH_MSG_DEBUG( "--> entered KalmanUpdatorSMatrix::fullStateFitQuality(TP,LPOS,ERR)" );
 	// try if Track Parameters are measured ones ?
 	if (!trkPar.covariance()) {
-      msg(MSG::ERROR) << "updated track state has no error matrix" << endmsg;
+      ATH_MSG_ERROR( "updated track state has no error matrix" );
       return nullptr;
 	}
 	// For the LocalPos. version, need to get # meas. coord. from covariance matrix.
@@ -385,7 +360,7 @@ Trk::KalmanUpdatorSMatrix::fullStateFitQuality (const Trk::TrackParameters& trkP
                          SParVector2(locPos[Trk::locX],locPos[Trk::locY]),
                          SmeasCov, 2,-1);
     } else {
-      msg(MSG::WARNING) << "Error in local position - must be 1D or 2D!" << endmsg;
+      ATH_MSG_WARNING( "Error in local position - must be 1D or 2D!" );
       return nullptr;
     }
 }
@@ -396,14 +371,11 @@ const Trk::FitQualityOnSurface*
 Trk::KalmanUpdatorSMatrix::fullStateFitQuality (const Trk::TrackParameters& trkPar,
                                                 const Trk::LocalParameters& parRio,
                                                 const Amg::MatrixX& covRio) const {
-    if (msgLvl(MSG::VERBOSE)) {
-        msg(MSG::VERBOSE)
-              << "--> entered KalmanUpdatorSMatrix::fullStateFitQuality(TP,LPAR,ERR)" << endmsg;
-    }
+  ATH_MSG_VERBOSE( "--> entered KalmanUpdatorSMatrix::fullStateFitQuality(TP,LPAR,ERR)" );
 	
 	// try if Track Parameters are measured ones ?
 	if (!trkPar.covariance()) {
-		msg(MSG::ERROR) << "updated track state has no error matrix" << endmsg;
+		ATH_MSG_ERROR( "updated track state has no error matrix" );
 		return nullptr;
 	}
     int nLocCoord = parRio.dimension();
@@ -457,18 +429,15 @@ const Trk::FitQualityOnSurface*
 Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters& predPar,
                                                      const Amg::Vector2D& rioLocPos,
                                                      const Amg::MatrixX& covRio) const {
-    if (msgLvl(MSG::VERBOSE)) {
-        msg(MSG::VERBOSE)
-            << "--> entered KalmanUpdatorSMatrix::predictedStateFitQuality(TP,LPOS,ERR)" << endmsg;
-    }
+  ATH_MSG_VERBOSE( "--> entered KalmanUpdatorSMatrix::predictedStateFitQuality(TP,LPOS,ERR)" );
 	// try if Track Parameters are measured ones ?
 	if (!predPar.covariance()) {
 #if 0
-      if (&predPar == NULL) 
-        msg(MSG::WARNING) << "input state is NULL in predictedStateFitQuality()" << endmsg;
+      if (&predPar == nullptr) 
+        ATH_MSG_WARNING( "input state is NULL in predictedStateFitQuality()" );
       else
 #endif
-        msg(MSG::WARNING) << "input state has no error matrix in predictedStateFitQuality()" << endmsg;
+        ATH_MSG_WARNING( "input state has no error matrix in predictedStateFitQuality()" );
       return nullptr;
 	}
 	// For the LocalPos. version, need to get # meas. coord. from covariance matrix.
@@ -488,7 +457,7 @@ Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters&
                          SParVector2(rioLocPos[Trk::locX],rioLocPos[Trk::locY]),
                          SmeasCov, 2,+1);
     } else {
-      msg(MSG::WARNING) << "Error in local position - must be 1D or 2D!" << endmsg;
+      ATH_MSG_WARNING( "Error in local position - must be 1D or 2D!" );
       return nullptr;
     }
 }
@@ -498,19 +467,16 @@ const Trk::FitQualityOnSurface*
 Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters& predPar,
                                                      const Trk::LocalParameters& parRio,
                                                      const Amg::MatrixX& covRio) const {
-    if (msgLvl(MSG::VERBOSE)) {
-        msg(MSG::VERBOSE)
-              << "--> entered KalmanUpdatorSMatrix::predictedStateFitQuality(TP,LPAR,ERR)" << endmsg;
-    }
+  ATH_MSG_VERBOSE( "--> entered KalmanUpdatorSMatrix::predictedStateFitQuality(TP,LPAR,ERR)" );
 
     // try if Track Parameters are measured ones ?
 	if (!predPar.covariance()) {
 #if 0
-      if (&predPar == NULL) 
-        msg(MSG::WARNING) << "input state is NULL in predictedStateFitQuality()" << endmsg;
+      if (&predPar == nullptr) 
+        ATH_MSG_WARNING( "input state is NULL in predictedStateFitQuality()" );
       else
 #endif
-        msg(MSG::WARNING) << "input state has no error matrix in predictedStateFitQuality()" << endmsg;
+        ATH_MSG_WARNING( "input state has no error matrix in predictedStateFitQuality()" );
       return nullptr;
 	}
     int nLocCoord = parRio.dimension();
@@ -564,22 +530,18 @@ Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters&
 const Trk::FitQualityOnSurface* 
 Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters& trkParOne,
                                                      const Trk::TrackParameters& trkParTwo) const {
-    if (msgLvl(MSG::VERBOSE)) {
-        msg(MSG::VERBOSE) << "--> entered KalmanUpdatorSMatrix::predictedStateFitQuality(TP,TP)" << endmsg;
-    }
+  ATH_MSG_VERBOSE("--> entered KalmanUpdatorSMatrix::predictedStateFitQuality(TP,TP)");
 	// try if both Track Parameters are measured ones ?
-    const AmgSymMatrix(5)* covOne = trkParOne.covariance();
+  const AmgSymMatrix(5)* covOne = trkParOne.covariance();
 	const AmgSymMatrix(5)* covTwo = trkParTwo.covariance();
-    // remember, either one OR two might have no error, but not both !
+  // remember, either one OR two might have no error, but not both !
 	if (!covOne && ! covTwo) {
-		msg(MSG::WARNING) << "both parameters have no errors, invalid "
-              << "use of Updator::fitQuality()" << endmsg;
+		ATH_MSG_WARNING( "both parameters have no errors, invalid use of Updator::fitQuality()" );
 		return nullptr;
 	}
 	// if only one of two has an error, place a message.
 	if (!covOne || ! covTwo) {
-		msg(MSG::DEBUG) << "One parameter does not have uncertainties, "
-              << "assume initial state and return chi2=0.0" << endmsg;
+		ATH_MSG_DEBUG( "One parameter does not have uncertainties, assume initial state and return chi2=0.0");
 		return new FitQualityOnSurface(0.f, 5);
 	}
     return makeChi2_5D(SParVector5(&trkParOne.parameters()[0],5),
@@ -590,7 +552,7 @@ Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters&
 
 std::vector<double> Trk::KalmanUpdatorSMatrix::initialErrors() const {
   std::vector<double> E(5);
-  for (int i=0; i<5; ++i) E[i] = sqrt(m_cov0(i));
+  for (int i=0; i<5; ++i) E[i] = std::sqrt(m_cov0(i));
   return E;
 }
 
@@ -608,7 +570,6 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::prepareFilterStep (const Trk::T
 
     int nLocCoord = covRio.cols();
     if ( ! consistentParamDimensions(parRio,nLocCoord) ) return nullptr;
-    //       << "-- cancel " << (sign>0?"update":"removal") << endmsg;
     if (msgLvl(MSG::VERBOSE)) logInputCov(covTrk,parRio,covRio);
 
     // local params can NOT be accessed like vector[i], therefore need some acrobatics:
@@ -652,10 +613,9 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_1D (const TrackParameters& TP,
   if (paramKey!=1) for (int i=0; i<5; ++i) if (paramKey & (1<<i)) mk=i;
 
   double r = measPar - trkPar(mk);
-  //  if (mk==3) catchPiPi;
   double R = (sign * measCov(0,0)) + trkCov(mk,mk);
   if (R == 0.0) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "inversion of the error-on-the-residual failed." << endmsg;
+    ATH_MSG_DEBUG( "inversion of the error-on-the-residual failed.");
     return nullptr;
   } else R = 1./R;
 
@@ -663,16 +623,16 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_1D (const TrackParameters& TP,
   ROOT::Math::SMatrix<double,5,1,ROOT::Math::MatRepStd<double, 5, 1> >
     K = trkCov.Sub<ROOT::Math::SMatrix<double,5,1,ROOT::Math::MatRepStd<double, 5, 1> > >(0,mk)*R;
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "-U- residual: r = " << r << endmsg;
-    msg(MSG::VERBOSE) << "-U- inv. sigmaR = " << R << endmsg;
-    msg(MSG::VERBOSE) << "-U- gain mtx     K=("
+    ATH_MSG_VERBOSE("-U- residual: r = " << r );
+    ATH_MSG_VERBOSE( "-U- inv. sigmaR = " << R);
+    ATH_MSG_VERBOSE( "-U- gain mtx     K=("
           <<std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right)
           << std::setw(7) << std::setprecision(4) << K(0,0)<<", " 
           << std::setw(7) << std::setprecision(4) << K(1,0)<<", "
           << std::setw(7) << std::setprecision(4) << K(2,0)<<", "
           << std::setw(7) << std::setprecision(4) << K(3,0)<<", "
           << std::setw(7) << std::setprecision(4) << K(4,0)<<")"
-          << std::resetiosflags(std::ios::fixed) << endmsg;
+          << std::resetiosflags(std::ios::fixed));
   }
 
   // --- compute local filtered state, here = TP+K*r = TP + TCov * H.T * R * r
@@ -680,33 +640,32 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_1D (const TrackParameters& TP,
 
   if (!thetaWithinRange_5D(newPar)) {
     if ( mk!=Trk::theta &&
-      (fabs(R*r)>1.0 || trkCov(Trk::theta,Trk::theta) > 0.1*m_cov0(Trk::theta))) {
-      msg(MSG::DEBUG) << "calculateFS_1D(): decided to damp update of theta and re-calculate." << endmsg;
+      (std::abs(R*r)>1.0 || trkCov(Trk::theta,Trk::theta) > 0.1*m_cov0(Trk::theta))) {
+      ATH_MSG_DEBUG( "calculateFS_1D(): decided to damp update of theta and re-calculate." );
       SParVector5 dampedCov = trkCov.Col(mk);
       dampedCov(Trk::theta) = dampedCov(Trk::theta)*m_thetaGainDampingValue;
       newPar = trkPar + dampedCov * R * r;
       K(Trk::theta,0) = K(Trk::theta,0)*m_thetaGainDampingValue;
-      msg(MSG::DEBUG) << "-U- damped gain  K=("
+      ATH_MSG_DEBUG( "-U- damped gain  K=("
             <<std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right)
             << std::setw(7) << std::setprecision(4) << K(0,0)<<", " 
             << std::setw(7) << std::setprecision(4) << K(1,0)<<", "
             << std::setw(7) << std::setprecision(4) << K(2,0)<<", "
             << std::setw(7) << std::setprecision(4) << K(3,0)<<", "
             << std::setw(7) << std::setprecision(4) << K(4,0)<<")"
-            << std::resetiosflags(std::ios::fixed) << endmsg;
+            << std::resetiosflags(std::ios::fixed) );
     } else {
-      msg(MSG::DEBUG) << "-U- theta out of range but can not damp this update."
-            << endmsg;
+      ATH_MSG_DEBUG( "-U- theta out of range but can not damp this update.");
     }
   }
 
   // --- compute covariance matrix of local filteres state
   SGenMatrix5 KtimesH ; KtimesH.Place_at(K,0,mk);
   SGenMatrix5 M(m_unitMatrix - KtimesH);
-  if (msgLvl(MSG::VERBOSE))     msg(MSG::VERBOSE) << "-U- matrix M: diag=("
+  ATH_MSG_VERBOSE( "-U- matrix M: diag=("
                                  << M(0,0)<<"," << M(1,1)<<","
                                  << M(2,2)<<"," << M(3,3)<<","
-                                 << M(4,4)               <<")" << endmsg;
+                                 << M(4,4)               <<")" );
   SCovMatrix5 newCov;
   if (!m_useFruehwirth8a) {
     // either: use formula C = M * trkCov * M.T() +/- K * covRio * K.T()
@@ -724,15 +683,13 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_1D (const TrackParameters& TP,
   }
   if ( (!thetaPhiWithinRange_5D(newPar, Trk::absoluteCheck)) ?
        !correctThetaPhiRange_5D(newPar, newCov, Trk::absoluteCheck) : false ) {
-    msg(MSG::WARNING) << "calculateFS_1D(): bad angles in filtered state!" << endmsg;
+    ATH_MSG_WARNING("calculateFS_1D(): bad angles in filtered state!");
     return nullptr;
   }
 
 
   if (createFQoS) {
-    double predictedResidual = (sign<0) ?
-      r                                  :
-      measPar - newPar(mk)               ;
+    double predictedResidual = (sign<0) ?r:measPar - newPar(mk);
     SCovMatrix5 updatedCov   = (sign<0) ?
       trkCov                             : // when removing, the input are updated par
       newCov                             ; // when adding, chi2 is made from upd. par
@@ -740,13 +697,12 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_1D (const TrackParameters& TP,
     // for both signs (add/remove) the chi2 is now calculated like for updated states
     double chiSquared = measCov(0,0) - updatedCov(mk,mk);
     if (chiSquared == 0.0)
-        msg(MSG::INFO) << "division by zero in 1D chi2, set chi2 to 0.0 instead" << endmsg;
+        ATH_MSG_INFO( "division by zero in 1D chi2, set chi2 to 0.0 instead" );
     else {
       // get chi2 = r.T() * R^-1 * r
       chiSquared = predictedResidual*predictedResidual/chiSquared;
-      if (msgLvl(MSG::VERBOSE))
-        msg(MSG::VERBOSE) << "-U- fitQuality of "<< (sign>0?" added ":"removed")
-              <<" state, chi2 :" << chiSquared << " / ndof= 1" << endmsg;
+      ATH_MSG_VERBOSE( "-U- fitQuality of "<< (sign>0?" added ":"removed")
+              <<" state, chi2 :" << chiSquared << " / ndof= 1" );
     }
     fitQoS = new FitQualityOnSurface(chiSquared, 1);
   }
@@ -781,7 +737,7 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_2D (const TrackParameters& TP,
   //  FIXME catchPiPi;
   SCovMatrix2 R = sign * SmeasCov + projection_2D(trkCov,paramKey);
   if (!R.Invert()) {
-    if (msgLvl(MSG::DEBUG)) msg( MSG::DEBUG) << "inversion of residual error matrix (2D) failed." << endmsg;
+    ATH_MSG_DEBUG( "inversion of residual error matrix (2D) failed.");
     return nullptr;
   }
 
@@ -799,9 +755,9 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_2D (const TrackParameters& TP,
   SParVector5 newPar = trkPar + K * r;
   if (!thetaWithinRange_5D(newPar)) {
     if (H(0,Trk::theta) != 1.0 && H(1,Trk::theta) != 1.0 &&
-        ( fabs(R(0,0)*r(0))>1.0 || fabs(R(1,1)*r(1))>1.0 ||
+        ( std::abs(R(0,0)*r(0))>1.0 || std::abs(R(1,1)*r(1))>1.0 ||
           trkCov(Trk::theta,Trk::theta) > 0.1*m_cov0(Trk::theta))) {
-      msg(MSG::DEBUG) << "calculateFS_2D(): decided to damp update of theta and re-calculate." << endmsg;
+      ATH_MSG_DEBUG( "calculateFS_2D(): decided to damp update of theta and re-calculate.");
       K(Trk::theta,0) = K(Trk::theta,0)*m_thetaGainDampingValue;
       K(Trk::theta,1) = K(Trk::theta,1)*m_thetaGainDampingValue;
       newPar = trkPar + K * r;
@@ -824,8 +780,7 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_2D (const TrackParameters& TP,
               << std::resetiosflags(std::ios::fixed) << endmsg;
       }
     } else {
-      msg(MSG::DEBUG) << "-U- theta out of range but can not damp this update."
-            << endmsg;
+      ATH_MSG_DEBUG( "-U- theta out of range but can not damp this update.");
     }
   }
 
@@ -847,19 +802,18 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_2D (const TrackParameters& TP,
   }
   if ( (!thetaPhiWithinRange_5D(newPar, Trk::absoluteCheck)) ?
        !correctThetaPhiRange_5D(newPar, newCov, Trk::absoluteCheck) : false ) {
-    msg(MSG::WARNING) << "calculateFS_2D(): bad angles in filtered state!" << endmsg;
+    ATH_MSG_WARNING( "calculateFS_2D(): bad angles in filtered state!" );
     return nullptr;
   }
 
   if (createFQoS) {      // get chi2 = r.T() * R2^-1 * r
     double  chiSquared = (sign>0) ?
-      // when adding, the r and R are ready to for calculating the predicted chi2
-      ROOT::Math::Similarity(r,R) :
-      // when removing the r and -R are ready for calculating the updated chi2.
-      ROOT::Math::Similarity(r,-R);
-    if (msgLvl(MSG::VERBOSE))
-      msg(MSG::VERBOSE) << "-U- fitQuality of "<< (sign>0?" added ":"removed")
-            <<" state, chi2 :" << chiSquared << " / ndof= 2" << endmsg;
+    // when adding, the r and R are ready to for calculating the predicted chi2
+    ROOT::Math::Similarity(r,R) :
+    // when removing the r and -R are ready for calculating the updated chi2.
+    ROOT::Math::Similarity(r,-R);
+    ATH_MSG_DEBUG( "-U- fitQuality of "<< (sign>0?" added ":"removed")
+            <<" state, chi2 :" << chiSquared << " / ndof= 2" );
     fitQoS = new FitQualityOnSurface(chiSquared, 2);
   }
   return convertToClonedTrackPars(TP,newPar,newCov,sign,createFQoS,"2D");
@@ -894,7 +848,7 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_3D (const TrackParameters& TP,
   //  FIXME catchPiPi;
   SCovMatrix3 R = sign * SmeasCov + projection_3D(trkCov,measPar.parameterKey());
   if (!R.Invert()) {
-    if (msgLvl(MSG::DEBUG)) msg( MSG::DEBUG) << "inversion of residual error matrix (3D) failed." << endmsg;
+    ATH_MSG_DEBUG( "inversion of residual error matrix (3D) failed.");
     return nullptr;
   }
 
@@ -928,7 +882,7 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_3D (const TrackParameters& TP,
 
   if ( (!thetaPhiWithinRange_5D(newPar,Trk::absoluteCheck)) ?
        !correctThetaPhiRange_5D(newPar,newCov,Trk::absoluteCheck) : false ) {
-    msg(MSG::WARNING) << "calculateFS_3D(): bad angles in filtered state!" << endmsg;
+    ATH_MSG_WARNING( "calculateFS_3D(): bad angles in filtered state!" );
     return nullptr;
   }
 
@@ -944,15 +898,13 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_3D (const TrackParameters& TP,
     SCovMatrix3 R2 = SmeasCov - projection_3D(updatedCov,measPar.parameterKey());
     double  chiSquared;	
     if ( !R2.Invert() ) {
-      msg(MSG::DEBUG) << "matrix (3D) inversion not possible, set chi2 to zero"
-            << endmsg;
+      ATH_MSG_DEBUG( "matrix (3D) inversion not possible, set chi2 to zero");
       chiSquared = 0.f;
     } else {
       // get chi2 = r.T() * R2^-1 * r
       chiSquared = ROOT::Math::Similarity(predictedResidual,R2);
-      if (msgLvl(MSG::VERBOSE))
-        msg(MSG::VERBOSE)<< "-U- fitQuality of "<< (sign>0?" added ":"removed")
-              <<" state, chi2 :" << chiSquared << " / ndof= 3" << endmsg;
+      ATH_MSG_VERBOSE( "-U- fitQuality of "<< (sign>0?" added ":"removed")
+              <<" state, chi2 :" << chiSquared << " / ndof= 3" );
     }
     fitQoS = new FitQualityOnSurface(chiSquared, 3);
   }
@@ -991,7 +943,7 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_4D (const TrackParameters& TP,
   //  FIXME catchPiPi;
   SCovMatrix4 R = sign * SmeasCov + projection_4D(trkCov,measPar.parameterKey());
   if (!R.Invert()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "inversion of residual error matrix (4D) failed." << endmsg;
+    ATH_MSG_DEBUG( "inversion of residual error matrix (4D) failed." );
     return nullptr;
   }
 
@@ -1025,14 +977,12 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_4D (const TrackParameters& TP,
 
   if ( (!thetaPhiWithinRange_5D(newPar,Trk::absoluteCheck)) ?
        !correctThetaPhiRange_5D(newPar,newCov,Trk::absoluteCheck) : false ) {
-    msg(MSG::WARNING) << "calculateFS_4D(): bad angles in filtered state!" << endmsg;
+    ATH_MSG_WARNING( "calculateFS_4D(): bad angles in filtered state!" );
     return nullptr;
   }
 
   if (createFQoS) {
-    SParVector4 predictedResidual = (sign<0) ?
-      r                                      :
-      SmeasPar - H * newPar                  ;
+    SParVector4 predictedResidual = (sign<0) ?r:SmeasPar - H * newPar;
     SCovMatrix5 updatedCov   = (sign<0) ?
       trkCov                            : // when removing, the input are updated par
       newCov                            ; // when adding, chi2 is made from upd. par
@@ -1041,15 +991,13 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_4D (const TrackParameters& TP,
     SCovMatrix4 R2 = SmeasCov - projection_4D(updatedCov,measPar.parameterKey());
     double  chiSquared;	
     if ( !R2.Invert() ) {
-      msg(MSG::DEBUG) << "matrix (4D) inversion not possible, set chi2 to zero"
-            << endmsg;
+      ATH_MSG_DEBUG( "matrix (4D) inversion not possible, set chi2 to zero");
       chiSquared = 0.f;
     } else {
       // get chi2 = r.T() * R2^-1 * r
       chiSquared = ROOT::Math::Similarity(predictedResidual,R2);
-      if (msgLvl(MSG::VERBOSE))
-        msg(MSG::VERBOSE) << "-U- fitQuality of "<< (sign>0?" added ":"removed")
-              <<" state, chi2 :" << chiSquared << " / ndof= 4" << endmsg;
+      ATH_MSG_VERBOSE( "-U- fitQuality of "<< (sign>0?" added ":"removed")
+              <<" state, chi2 :" << chiSquared << " / ndof= 4" );
     }
     fitQoS = new FitQualityOnSurface(chiSquared, 4);
   }
@@ -1075,14 +1023,14 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_5D (const TrackParameters& TP,
   // this update is symmetric in state and measurement parameters, H == 1.
   SCovMatrix5 R = sign * trkCovTwo + trkCovOne;
   if (!R.Invert()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "inversion of residual error matrix (5D) failed." << endmsg;
+    ATH_MSG_DEBUG( "inversion of residual error matrix (5D) failed." );
     return nullptr;
   }
 
   SParVector5 r = trkParTwo - trkParOne;
   if ( (!thetaPhiWithinRange_5D(r,Trk::differentialCheck)) ?
        !correctThetaPhiRange_5D(r,R,Trk::differentialCheck) : false ) {
-    msg(MSG::WARNING) << "calculateFS_5D(): bad angles in intermediate residual!" << endmsg;
+    ATH_MSG_WARNING( "calculateFS_5D(): bad angles in intermediate residual!" );
     return nullptr;
   }
   SGenMatrix5 K = trkCovOne * R;
@@ -1104,7 +1052,7 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_5D (const TrackParameters& TP,
 
   if ( (!thetaPhiWithinRange_5D(newPar,Trk::absoluteCheck)) ?
        !correctThetaPhiRange_5D(newPar,newCov,Trk::absoluteCheck) : false ) {
-    msg(MSG::WARNING) << "calculateFS_5D(): bad angles in filtered state!" << endmsg;
+    ATH_MSG_WARNING( "calculateFS_5D(): bad angles in filtered state!" );
     return nullptr;
   }
 
@@ -1122,10 +1070,7 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_5D (const TrackParameters& TP,
     for (int i=0; i<5; ++i) {
       if (newCov(i,i) < 0.0 && goodMatrix ) goodMatrix=false;
       if (!goodMatrix) {
-        if (msgLvl(MSG::DEBUG)) {
-          msg(MSG::DEBUG)<<"calculateFS_5D(): unphysical cov!"<<endmsg;
-          std::cout << newCov << std::endl;
-        }
+        ATH_MSG_DEBUG("calculateFS_5D(): unphysical cov!");
         return nullptr;
       }
     }
@@ -1137,9 +1082,8 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_5D (const TrackParameters& TP,
       ROOT::Math::Similarity(r,R) :
       // when removing the r and -R are ready for calculating the updated chi2.
       ROOT::Math::Similarity(r,-R);
-    if (msgLvl(MSG::VERBOSE))
-      msg(MSG::VERBOSE) << "-U- fitQuality of "<< (sign>0?" added ":"removed")
-            <<" state, chi2 :" << chiSquared << " / ndof= 5" << endmsg;
+    ATH_MSG_VERBOSE( "-U- fitQuality of "<< (sign>0?" added ":"removed")
+            <<" state, chi2 :" << chiSquared << " / ndof= 5" );
     fitQoS = new FitQualityOnSurface(chiSquared, 5);
   }
   return convertToClonedTrackPars(TP,newPar,newCov,sign,createFQoS,"5D");
@@ -1159,7 +1103,7 @@ Trk::FitQualityOnSurface* Trk::KalmanUpdatorSMatrix::makeChi2_1D(const SParVecto
   //  if (mk==3) catchPiPi;
   double chiSquared = covRio + sign * covTrk(mk,mk);
   if (chiSquared == 0.0) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "inversion of the error-on-the-residual failed." << endmsg;
+    ATH_MSG_DEBUG( "inversion of the error-on-the-residual failed." );
     return nullptr;
   } else {
     chiSquared = r*r/chiSquared;
@@ -1184,13 +1128,11 @@ Trk::FitQualityOnSurface* Trk::KalmanUpdatorSMatrix::makeChi2_2D(const SParVecto
   SCovMatrix2 R = sign*projection_2D(covTrk,key);     R += covRio;
   double chiSquared = 0.0;
   if (!R.Invert()) {
-    msg(MSG::DEBUG) << "matrix inversion not possible, set chi2 to zero" << endmsg;
+    ATH_MSG_DEBUG( "matrix inversion not possible, set chi2 to zero" );
   } else {
     chiSquared = ROOT::Math::Similarity(r,R);
-    if (msgLvl(MSG::VERBOSE)) {
-      msg( MSG::VERBOSE) << "-U- fitQuality of "<< (sign>0?"predicted":"updated")
-            <<" state, chi2 :" << chiSquared << " / ndof= 2" << endmsg;
-    }
+    ATH_MSG_VERBOSE( "-U- fitQuality of "<< (sign>0?"predicted":"updated")
+            <<" state, chi2 :" << chiSquared << " / ndof= 2" );
   }
   return new FitQualityOnSurface(chiSquared, 2);
 }
@@ -1213,13 +1155,11 @@ Trk::FitQualityOnSurface* Trk::KalmanUpdatorSMatrix::makeChi2_5D(const SParVecto
   SCovMatrix5 R = sign*ScovOne + ScovTwo;
   double chiSquared = 0.0;
   if (!R.Invert()) {
-    msg(MSG::DEBUG) << "matrix inversion not possible, set chi2 to zero" << endmsg;
+    ATH_MSG_DEBUG( "matrix inversion not possible, set chi2 to zero" );
   } else {
     chiSquared = ROOT::Math::Similarity(r,R);
-    if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "-U- fitQuality of "<< (sign>0?"predicted":"updated")
-            <<" state, chi2 :" << chiSquared << " / ndof= 2" << endmsg;
-    }
+    ATH_MSG_VERBOSE( "-U- fitQuality of "<< (sign>0?"predicted":"updated")
+            <<" state, chi2 :" << chiSquared << " / ndof= 2" );
   }
   return new FitQualityOnSurface(chiSquared, 5);
 }
@@ -1280,10 +1220,6 @@ SCovMatrix2 Trk::KalmanUpdatorSMatrix::projection_2D(const SCovMatrix5& M, const
 SCovMatrix2 Trk::KalmanUpdatorSMatrix::projection_2D(const Amg::MatrixX& M,
                                               const int& key) const
 {
-  //  if (key == 3) { // shortcut the most-used case
-  //    SCovMatrix2 S = M.Sub<SCovMatrix2> (0,0);
-  //    return S;
-  //  } else {
     ROOT::Math::SVector<int,2>  iv;
     for (int i=0,k=0; i<5; ++i) { if (key & (1<<i)) iv(k++)=i; }
     SCovMatrix2 covSubMatrix;
@@ -1365,15 +1301,13 @@ Trk::FitQualityOnSurface* Trk::KalmanUpdatorSMatrix::makeChi2Object(const Amg::V
     Amg::MatrixX R = covRio + sign * covTrk.similarity(H);
     double chiSquared = 0.;
     if (false) { //!< TODO check on inverse failure ?
-        msg(MSG::DEBUG) << "matrix inversion not possible, set chi2 to zero" << endmsg;
+        ATH_MSG_DEBUG( "matrix inversion not possible, set chi2 to zero" );
 		chiSquared = 0.f;
     } else {
       // get chi2 = r.T() * R^-1 * r
       chiSquared = residual.transpose() * R.inverse() * residual;
-      if (msgLvl(MSG::VERBOSE)) {
-        msg(MSG::VERBOSE) << "-U- fitQuality of "<< (sign>0?"predicted":"updated")
-              <<" state, chi2 :" << chiSquared << " / ndof= " << covRio.cols() << endmsg;
-      }
+      ATH_MSG_VERBOSE( "-U- fitQuality of "<< (sign>0?"predicted":"updated")
+              <<" state, chi2 :" << chiSquared << " / ndof= " << covRio.cols() );
     }
 
     // number of degree of freedom added
@@ -1423,23 +1357,16 @@ bool Trk::KalmanUpdatorSMatrix::correctThetaPhiRange_5D(SParVector5& V,SCovMatri
     ATH_MSG_DEBUG ("-U- now use corrected value phi= "<<V(Trk::phi)<<" theta = "<<V(Trk::theta));
   }
 
-  // need to catch numerical pbs?
-  //  if (fabs(V(jphi)) > 10*M_PI) { // protect while loop
-  //    m_log << MSG::WARNING << "-U- track direction angles have numerical problems, stop update." << endmsg;
-  //    m_log << MSG::WARNING << "-U- phi value: "<<V(jphi)<<endmsg;
-  //    return false; }
 
   // correct phi coordinate if necessary
   if ( (V(Trk::phi) > M_PI) ) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "-U- phi = " << V(Trk::phi);
-    V(Trk::phi) = fmod(V(Trk::phi)+M_PI,2*M_PI)-M_PI;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " out of range, now "
-					    << "corrected to " << V(Trk::phi) << endmsg;
+    V(Trk::phi) = std::fmod(V(Trk::phi)+M_PI,2*M_PI)-M_PI;
+    ATH_MSG_DEBUG( " out of range, now corrected to " << V(Trk::phi) );
   } else if( (V(Trk::phi)<-M_PI) ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "-U- phi = " << V(Trk::phi);
-    V(Trk::phi) = fmod(V(Trk::phi)-M_PI,2*M_PI)+M_PI;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " out of range, now "
-					    << "corrected to " << V(Trk::phi) << endmsg;
+    ATH_MSG_DEBUG( "-U- phi = " << V(Trk::phi));
+    V(Trk::phi) = std::fmod(V(Trk::phi)-M_PI,2*M_PI)+M_PI;
+    ATH_MSG_DEBUG( " out of range, now corrected to " << V(Trk::phi) );
   }
   
   return true;
@@ -1448,38 +1375,37 @@ bool Trk::KalmanUpdatorSMatrix::correctThetaPhiRange_5D(SParVector5& V,SCovMatri
 void Trk::KalmanUpdatorSMatrix::logStart(const std::string& IDstring,
                                   const Trk::TrackParameters& tp) const
 {
-  msg(MSG::DEBUG)   << "--> entered KalmanUpdatorSMatrix::" << IDstring << endmsg;
-  msg(MSG::VERBOSE) << "-U- TrkPar:" << std::setiosflags(std::ios::right)<<std::setprecision(4)
+  ATH_MSG_DEBUG( "--> entered KalmanUpdatorSMatrix::" << IDstring );
+  ATH_MSG_VERBOSE( "-U- TrkPar:" << std::setiosflags(std::ios::right)<<std::setprecision(4)
         << std::setw( 9)<<tp.parameters()[0]<< std::setw(10)<<tp.parameters()[1]<<std::setprecision(5)
         << std::setw(10)<<tp.parameters()[2]<< std::setw(10)<<tp.parameters()[3]<<std::setprecision(4)
-        << std::setw(10)<<tp.parameters()[4]<< endmsg;
+        << std::setw(10)<<tp.parameters()[4]);
 }
 
 void Trk::KalmanUpdatorSMatrix::logInputCov(const SCovMatrix5& covTrk,
                                             const Amg::VectorX& parRio, const Amg::MatrixX& covRio) const
 {
-  msg(MSG::VERBOSE) << "-U- cov    "<<std::setiosflags(std::ios::right)<<std::setprecision(3)
+  ATH_MSG_VERBOSE( "-U- cov    "<<std::setiosflags(std::ios::right)<<std::setprecision(3)
         << std::setw(9)<<covTrk(0,0)<<" "<< std::setw(9)<<covTrk(0,1)<<" "
         << std::setw(9)<<covTrk(0,2)<<" "<< std::setw(9)<<covTrk(0,3)<<" "
-        << std::setw(9)<<covTrk(0,4)<<"\n";
-  msg(MSG::VERBOSE) << "                                      " << "          " << "           "
+        << std::setw(9)<<covTrk(0,4));
+  ATH_MSG_VERBOSE( "                                      " << "          " << "           "
         << std::setw(9)<<covTrk(1,1)<<" "<< std::setw(9)<<covTrk(1,2)<<" "
-        << std::setw(9)<<covTrk(1,3)<<" "<< std::setw(9)<<covTrk(1,4)<<"\n";
-  msg(MSG::VERBOSE) << "  covariance matrix                   " << "          " << "                     "
+        << std::setw(9)<<covTrk(1,3)<<" "<< std::setw(9)<<covTrk(1,4));
+  ATH_MSG_VERBOSE( "  covariance matrix                   " << "          " << "                     "
         << std::setw(9)<<covTrk(2,2)<<" "<< std::setw(9)<<covTrk(2,3)<<" "
-        << std::setw(9)<<covTrk(2,4)<< "\n"  ;
-  msg(MSG::VERBOSE) << "  of the PREDICTED track pars         " << "          " << "                               " 
-        << std::setw(9)<<covTrk(3,3)<<" "<< std::setw(9)<<covTrk(3,4)<<"\n"  ;
-  msg(MSG::VERBOSE) << "                                      " << "          " << "                                         " 
-        << std::setw(9)<<covTrk(4,4)<<std::setprecision(6)<< endmsg;
+        << std::setw(9)<<covTrk(2,4));
+  ATH_MSG_VERBOSE( "  of the PREDICTED track pars         " << "          " << "                               " 
+        << std::setw(9)<<covTrk(3,3)<<" "<< std::setw(9)<<covTrk(3,4));
+  ATH_MSG_VERBOSE("                                      " << "          " << "                                         " 
+        << std::setw(9)<<covTrk(4,4)<<std::setprecision(6));
 
   int nLocCoord = covRio.cols();
-  msg(MSG::VERBOSE) << "-U- measurement locPar: ";
-  for (int i=0; i<nLocCoord; i++) msg(MSG::VERBOSE) << parRio[i] << " ";
-  msg(MSG::VERBOSE) << endmsg;
+  ATH_MSG_VERBOSE( "-U- measurement locPar: ");
+  for (int i=0; i<nLocCoord; i++) ATH_MSG_VERBOSE(parRio[i]);
   msg(MSG::VERBOSE) << "-U- measurement (err)^2: " <<std::setprecision(4)<<covRio(0,0);
   for (int i=1; i<nLocCoord; i++) msg(MSG::VERBOSE) << ", "<<covRio(i,i);
-  msg(MSG::VERBOSE) << std::setprecision(6)<<endmsg;
+  msg(MSG::VERBOSE) << std::setprecision(6)<<"\n";
 }
 
 void Trk::KalmanUpdatorSMatrix::logGainForm(int nc, const SParVector5& r,
@@ -1489,10 +1415,10 @@ void Trk::KalmanUpdatorSMatrix::logGainForm(int nc, const SParVector5& r,
   // again some verbose debug output showing internals of updating
   msg(MSG::VERBOSE) << "-U- residual: r=("<<r(0);
   for (int i=1; i<nc; i++) msg(MSG::VERBOSE) <<","<<r(i);
-  msg(MSG::VERBOSE) << ")" << endmsg;
+  msg(MSG::VERBOSE) << ")\n";
   msg(MSG::VERBOSE) << "-U- inv. sigmaR=("<< R(0,0);
   for (int i=1; i<nc; i++) msg(MSG::VERBOSE) << "," << R(i,i);
-  msg(MSG::VERBOSE) << ")" << endmsg;
+  msg(MSG::VERBOSE) << ")\n";
   for (int i=0; i<nc; i++)
     msg(MSG::VERBOSE) // K is a row x col = 5 x nc matrix.
           << ( i==0 ? "-U- gain mtx  K=(" : "                (" )
@@ -1502,11 +1428,7 @@ void Trk::KalmanUpdatorSMatrix::logGainForm(int nc, const SParVector5& r,
           << std::setw(7) << std::setprecision(4) << K(2,i)<<", "
           << std::setw(7) << std::setprecision(4) << K(3,i)<<", "
           << std::setw(7) << std::setprecision(4) << K(4,i)<<")"
-          << std::resetiosflags(std::ios::fixed) << endmsg;
-  //  msg(MSG::VERBOSE) << "-U- matrix M: diag=("
-  //        << M(0,0)<<"," << M(1,1)<<","
-  //        << M(2,2)<<"," << M(3,3)<<","
-  //        << M(4,4)                <<")" << endmsg;
+          << std::resetiosflags(std::ios::fixed) << "\n";
 }
 
 void Trk::KalmanUpdatorSMatrix::logResult(const std::string& methodName, 
@@ -1517,7 +1439,7 @@ void Trk::KalmanUpdatorSMatrix::logResult(const std::string& methodName,
     msg(MSG::VERBOSE) << "-U- new par"<<std::setiosflags(std::ios::right)<<std::setprecision(4)
           << std::setw( 9)<<par[0]<< std::setw(10)<<par[1]<<std::setprecision(5)
           << std::setw(10)<<par[2]<< std::setw(10)<<par[3]<<std::setprecision(4)
-          << std::setw(10)<<par[4]                <<endmsg;
+          << std::setw(10)<<par[4]                <<"\n";
     msg(MSG::VERBOSE) << "-U- new cov" <<std::setiosflags(std::ios::right)<<std::setprecision(3)
           << std::setw(9)<<(covPar)(0,0)<<" "<< std::setw(9)<<(covPar)(0,1)<<" " 
           << std::setw(9)<<(covPar)(0,2)<<" "<< std::setw(9)<<(covPar)(0,3)
@@ -1533,5 +1455,5 @@ void Trk::KalmanUpdatorSMatrix::logResult(const std::string& methodName,
           << std::setw(9)<<(covPar)(3,4) << "\n";
     msg(MSG::VERBOSE) << "                                      " << "           " 
           << "                                        " 
-          << std::setw(9)<<(covPar)(4,4) <<std::setprecision(6)<< endmsg;
+          << std::setw(9)<<(covPar)(4,4) <<std::setprecision(6)<< "\n";
 }

@@ -127,7 +127,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 	private:
 
 		/** Record MmDigitContainer and MuonSimDataCollection */
-		StatusCode recordDigitAndSdoContainers(const EventContext& ctx);
 		StatusCode getNextEvent();
 		StatusCode doDigitization(const EventContext& ctx);
 
@@ -186,7 +185,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		// ElectronicsResponse stuff...
 		MM_ElectronicsResponseSimulation *m_ElectronicsResponseSimulation;
-		float m_alpha;// power of responce function
 		float m_peakTime; // VMM setting
 		float m_electronicsThreshold; // threshold "Voltage" for histoBNL
 		float m_stripdeadtime; // dead-time for strip

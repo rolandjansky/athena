@@ -15,7 +15,7 @@ def SCT_LorentzAngleToolCfg(flags, name="SCT_LorentzAngleTool", **kwargs):
     kwargs.setdefault("DetectorName", "SCT")
     kwargs.setdefault("SiLorentzAngleCondData", "SCTSiLorentzAngleCondData")
     kwargs.setdefault("DetEleCollKey", "SCT_DetectorElementCollection")
-    kwargs.setdefault("UseMagFieldSvc", True)
+    kwargs.setdefault("UseMagFieldCache", True)
     return SiLorentzAngleTool(name, **kwargs)
 
 def SCT_LorentzAngleCfg(flags, name="SCT_SiLorentzAngleCondAlg",
@@ -44,7 +44,7 @@ def SCT_LorentzAngleCfg(flags, name="SCT_SiLorentzAngleCondAlg",
         acc.merge(DCSAcc)
         acc.merge(SCAcc)
     # set up SCTSiLorentzAngleCondAlg
-    kwargs.setdefault("UseMagFieldSvc", tool.UseMagFieldSvc)
+    kwargs.setdefault("UseMagFieldCache", tool.UseMagFieldCache)
     kwargs.setdefault("UseMagFieldDcs", not flags.Common.isOnline)
     kwargs.setdefault("UseGeoModel", forceUseGeoModel)
     kwargs.setdefault("useSctDefaults", False)

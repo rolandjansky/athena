@@ -17,6 +17,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon              import *
 from DerivationFrameworkJetEtMiss.JetCommon            import *
 from DerivationFrameworkEGamma.EGammaCommon            import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkMuons.MuonsCommon              import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon    import *
 from DerivationFrameworkHiggs.TruthCategories          import *
@@ -37,6 +38,10 @@ if is_MC:
 streamName  = derivationFlags.WriteDAOD_MUON5Stream.StreamName
 fileName    = buildFileName(derivationFlags.WriteDAOD_MUON5Stream)
 MUON5Stream = MSMgr.NewPoolRootStream(streamName, fileName)
+MUON5Stream.AddItem("xAOD::VertexContainer#SecVtxContainer_Muons")
+MUON5Stream.AddItem("xAOD::VertexContainer#SecVtxContainer_Electrons")
+MUON5Stream.AddItem("xAOD::VertexContainer#SecVtx_ConvVtxContainer_Electrons")
+MUON5Stream.AddItem("xAOD::VertexContainer#RefittedPriVtx")
 MUON5Stream.AcceptAlgs(["MUON5Kernel"])
 
 #====================================================================
@@ -53,13 +58,11 @@ MUON5Seq = CfgMgr.AthSequencer("MUON5Sequence")
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 
 # Replace missing collections
-replaceAODReducedJets(["AntiKt4PV0TrackJets", "AntiKt4TruthJets"], MUON5Seq, "MUON5")
-
-# Run b-tagging on AntiKt4PV0TrackJets
-btag_algs  = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn']
-btag_algs += ['JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP']
-
-ReTag(btag_algs, ['AntiKt4PV0TrackJets'], MUON5Seq)
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
+if not hasattr(MUON5Seq,"Muons_decoratePromptLepton"):
+    LepTagConfig.ConfigureAntiKt4PV0TrackJets(MUON5Seq,"MUON1")
+    MUON5Seq += LepTagConfig.GetDecoratePromptLeptonAlgs()
+    MUON5Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #======================================================================
 # AUGMENTATION TOOLS
@@ -110,7 +113,7 @@ if is_MC:
 
     augmentationTools.append(MUON5BkgElectronClassificationTool)
 
-    printfunc ("BkgElectronClassificationTool: ", MUON5BkgElectronClassificationTool)
+    print "BkgElectronClassificationTool: ", MUON5BkgElectronClassificationTool
 
 #====================================================================
 # THINNING TOOLS
@@ -135,7 +138,7 @@ do_track_thinning = False
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON5TrackThinningTool = DerivationFramework__TrackParticleThinning(name                    = "MUON5TrackThinningTool",
-                                                                    StreamName              = streamName,
+                                                                    ThinningService         = MUON5ThinningHelper.ThinningSvc(),
                                                                     SelectionString         = "abs(DFCommonInDetTrackZ0AtPV) < 10.0",
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 if do_track_thinning:
@@ -164,7 +167,7 @@ from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import Derivation
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 
 MUON5TruthTool = DerivationFramework__GenericTruthThinning(name                         = "MUON5TruthThinningTool",
-                                                           StreamName                   = streamName,
+                                                           ThinningService              = MUON5ThinningHelper.ThinningSvc(),
                                                            ParticleSelectionString      = truth_expression,
                                                            PreserveDescendants          = True,
                                                            PreserveGeneratorDescendants = False,
@@ -184,7 +187,7 @@ from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramew
 
 # Egamma clusters associated with electrons
 MUON5ElectronEgammaCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "MUON5ElectronEgammaCThinningTool",
-                                                                             StreamName              = streamName,
+                                                                             ThinningService         = MUON5ThinningHelper.ThinningSvc(),
                                                                              SGKey                   = "Electrons",
                                                                              CaloClCollectionSGKey   = "egammaClusters",
                                                                              SelectionString         = "Electrons.pt >= 4*GeV",
@@ -239,22 +242,33 @@ MUON5SlimmingHelper = SlimmingHelper("MUON5SlimmingHelper")
 
 # Smart slimming containers
 MUON5SlimmingHelper.SmartCollections = ["Electrons",
+                                        "Photons",
                                         "Muons",
                                         "TauJets",
                                         "TauMVATESJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         "PrimaryVertices"]
+                                        
 
 # Append new b-tagging container to dictionary for saving
-MUON5SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4Track'   : 'xAOD::BTaggingContainer',
-                                          'BTagging_AntiKt4TrackAux': 'xAOD::BTaggingAuxContainer'}
-
+MUON5SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4Track'               : 'xAOD::BTaggingContainer',
+                                          'BTagging_AntiKt4TrackAux'            : 'xAOD::BTaggingAuxContainer',
+                                          'SecVtxContainer_Electrons'           : 'xAOD::VertexContainer',
+                                          'SecVtxContainer_ElectronsAux'        : 'xAOD::VertexAuxContainer',
+                                          'SecVtx_ConvVtxContainer_Electrons'   : 'xAOD::VertexContainer',
+                                          'SecVtx_ConvVtxContainer_ElectronsAux': 'xAOD::VertexAuxContainer',
+                                          'SecVtxContainer_Muons'               : 'xAOD::VertexContainer',
+                                          'SecVtxContainer_MuonsAux'            : 'xAOD::VertexAuxContainer',
+                                          'RefittedPriVtx'                      : 'xAOD::VertexContainer',
+                                          'RefittedPriVtxAux'                   : 'xAOD::VertexAuxContainer',
+                                          }
 # Add extra variables to collections
 MUON5SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extrapolatedMuonSpectrometerTrackParticleLink."
                                       "scatteringCurvatureSignificance.scatteringNeighbourSignificance",
-                                      "Electrons.author.charge",
+                                      "Electrons.author.charge.topoetcone30.ptvarcone30",
                                       "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m."
                                       "ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt.TileStatus",
                                       "GSFTrackParticles.z0.vz.definingParametersCovMatrix",
@@ -268,8 +282,11 @@ MUON5SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extra
                                       "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis",
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m"]
+MUON5SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptVariablesForDxAOD(onlyBDT=False)
+MUON5SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
+MUON5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
-MUON5SlimmingHelper.AllVariables = ["egammaClusters", "CaloCalTopoClusters", "AntiKt4PV0TrackJets", "BTagging_AntiKt4Track", "InDetTrackParticles"]
+MUON5SlimmingHelper.AllVariables = ["egammaClusters", "CaloCalTopoClusters", "MuonClusterCollection", "TopoClusterIsoCentralEventShape", "TopoClusterIsoForwardEventShape", "AntiKt4PV0TrackJets", "BTagging_AntiKt4Track", "InDetTrackParticles","GSFConversionVertices","GSFTrackParticles"]
 
 if is_MC:
     MUON5SlimmingHelper.AllVariables += ["TruthParticles", "TruthEvents", "TruthVertices", "AntiKt4TruthJets"]
@@ -293,5 +310,5 @@ if is_MC:
 MUON5SlimmingHelper.IncludeMuonTriggerContent  =True
 MUON5SlimmingHelper.IncludeEGammaTriggerContent=True
 MUON5SlimmingHelper.IncludeTauTriggerContent   =True
- 
+
 MUON5SlimmingHelper.AppendContentToStream(MUON5Stream)

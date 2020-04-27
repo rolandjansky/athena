@@ -6,17 +6,14 @@
 
 #include "GaudiKernel/PhysicalConstants.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "SiPropertiesTool/SiliconProperties.h"
 
 PixelSiLorentzAngleCondAlg::PixelSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name),
-  m_magFieldSvc("AtlasFieldSvc", name)
+  m_condSvc("CondSvc", name)
 {
-  declareProperty("MagFieldSvc", m_magFieldSvc);
 }
 
 StatusCode PixelSiLorentzAngleCondAlg::initialize() {
@@ -38,11 +35,8 @@ StatusCode PixelSiLorentzAngleCondAlg::initialize() {
 
   ATH_CHECK(m_siPropertiesTool.retrieve());
 
-  if (m_useMagFieldSvc) {
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  if (m_useMagFieldCache) {
     ATH_CHECK( m_fieldCondObjInputKey.initialize() );
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ATH_CHECK(m_magFieldSvc.retrieve());
     if (m_useMagFieldDcs) {
       ATH_CHECK(m_readKeyBFieldSensor.initialize());
     }
@@ -91,7 +85,7 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
 
   // Field cache object for field calculations
   MagField::AtlasFieldCache    fieldCache;
-  if (m_useMagFieldSvc) {
+  if (m_useMagFieldCache) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
     // Get field cache object
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandleField{m_fieldCondObjInputKey, ctx};
@@ -162,10 +156,8 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     const InDet::SiliconProperties &siProperties = m_siPropertiesTool->getSiProperties(elementHash);
     double mobility = siProperties.signedHallMobility(element->carrierType());
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Get magnetic field. This first checks that field cache is valid.
     Amg::Vector3D magneticField = getMagneticField(fieldCache,element);
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // The angles are in the hit frame. This is because that is what is needed by the digization and also
     // gives a more physical sign of the angle (ie dosen't flip sign when the detector is flipped).
@@ -217,7 +209,7 @@ StatusCode PixelSiLorentzAngleCondAlg::finalize() {
 }
 
 Amg::Vector3D PixelSiLorentzAngleCondAlg::getMagneticField(MagField::AtlasFieldCache& fieldCache, const InDetDD::SiDetectorElement* element) const {
-  if (m_useMagFieldSvc) {
+  if (m_useMagFieldCache) {
     Amg::Vector3D pointvec = element->center();
 
     ATH_MSG_VERBOSE("Getting magnetic field from MT magnetic field service.");
@@ -226,11 +218,7 @@ Amg::Vector3D PixelSiLorentzAngleCondAlg::getMagneticField(MagField::AtlasFieldC
     point[1] = pointvec[1];
     point[2] = pointvec[2];
     double field[3];
-
-    // MT version uses cache, temporarily keep old version
-    if (fieldCache.useNewBfieldCache()) fieldCache.getField      (point, field);
-    else                                m_magFieldSvc->getField  (point, field);
-
+    fieldCache.getField(point, field);
     return Amg::Vector3D(field[0], field[1], field[2]);
   } 
   else {

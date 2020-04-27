@@ -187,7 +187,7 @@ double RtParabolicExtrapolation::t_from_r(const double & r,
 /////////////////////////////////////////////
 
 	while (t_max-t_min>0.1 &&
-			fabs(in_rt.radius(0.5*(t_min+t_max))-r)>precision) {
+			std::abs(in_rt.radius(0.5*(t_min+t_max))-r)>precision) {
 
 		if (in_rt.radius(0.5*(t_min+t_max))>r) {
 			t_max = 0.5*(t_min+t_max);

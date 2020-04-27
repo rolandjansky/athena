@@ -38,7 +38,7 @@ class TauEleOLRDecorator: virtual public TauRecToolBase
   
   SG::ReadHandleKey<xAOD::ElectronContainer> m_electronInputContainer{this,"Key_electronInputContainer", "Electrons", "input electron container key"};
   std::unique_ptr<AsgElectronLikelihoodTool> m_tEMLHTool;
-  std::string m_sEleOLRFilePath;
+  Gaudi::Property<std::string> m_sEleOLRFilePath {this, "EleOLRFile", "eveto_cutvals.root"};
   std::unique_ptr<TH2F> m_hCutValues;
 };
 

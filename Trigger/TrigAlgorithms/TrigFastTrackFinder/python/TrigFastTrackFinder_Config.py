@@ -170,6 +170,10 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         remapped_type = remap[type]
         assert(remapped_type is not None)
 
+        #Global keys/names for collections 
+        from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys, TrigSCTKeys
+
+
         self.useNewLayerNumberScheme = True
         
         self.OutputCollectionSuffix = type
@@ -203,6 +207,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         spTool.DoPhiFiltering = InDetTrigSliceSettings[('doSpPhiFiltering',remapped_type)]
         spTool.UseNewLayerScheme = self.useNewLayerNumberScheme
         spTool.UseBeamTilt = False
+        spTool.PixelSP_ContainerName = TrigPixelKeys.SpacePoints
+        spTool.SCT_SP_ContainerName  = TrigSCTKeys.SpacePoints
         spTool.layerNumberTool = numberingTool
 
         from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel

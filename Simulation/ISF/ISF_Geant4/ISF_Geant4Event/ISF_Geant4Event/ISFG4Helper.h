@@ -15,9 +15,7 @@
 #include "MCTruth/VTrackInformation.h"
 
 // forward declarations
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 namespace ISF {
   class TruthBinding;
 }

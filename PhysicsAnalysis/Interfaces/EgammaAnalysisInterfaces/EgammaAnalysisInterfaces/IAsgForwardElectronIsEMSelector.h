@@ -17,10 +17,11 @@
 
 // Include the interfaces
 #include "EgammaAnalysisInterfaces/IAsgEGammaIsEMSelector.h"
-#include "GaudiKernel/EventContext.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
+
+class EventContext;
 
 class IAsgForwardElectronIsEMSelector : virtual public IAsgEGammaIsEMSelector
 {

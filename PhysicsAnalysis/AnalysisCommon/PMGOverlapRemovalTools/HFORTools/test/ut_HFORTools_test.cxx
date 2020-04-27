@@ -4,7 +4,7 @@
 
 #include "AsgTools/AnaToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "HFORTools/IHFORSelectionTool.h"
+#include "PMGAnalysisInterfaces/IHFORSelectionTool.h"
 
 #ifdef XAOD_STANDALONE
 #   include <TFile.h>

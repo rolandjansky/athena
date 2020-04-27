@@ -30,7 +30,6 @@
 // STL includes
 #include <string>
 
-// HepMC / CLHEP includes
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"

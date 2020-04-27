@@ -13,8 +13,6 @@
 
 // STL includes
 
-// HepMC / CLHEP includes
-
 // FrameWork includes
 #include "GaudiKernel/IAlgTool.h"
 

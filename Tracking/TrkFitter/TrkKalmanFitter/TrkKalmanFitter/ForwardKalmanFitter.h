@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -14,10 +14,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterInterfaces/IForwardKalmanFitter.h"
 #include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
-#include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkExInterfaces/IExtrapolationEngine.h"
 
 /////////////////////// Forward Declarations ///////////////////////////////////
@@ -36,8 +34,7 @@ namespace Trk {
   class TrackStateOnSurface;
   class DNA_MaterialEffects;      //!< dna data for logging method
   class ProtoTrajectoryUtility;   //!< helper class for analysing PTSoS vector.
-  class IExtrapolationEngine;     //!< Extrapolation Engine
-
+  class FitterStatusCode;
 }
 		
 namespace Trk {

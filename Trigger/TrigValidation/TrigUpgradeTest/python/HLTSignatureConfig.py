@@ -9,8 +9,8 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 import sys
 
-HLTTest__TestHypoAlg=CompFactory.getComps.HLTTest.TestHypoAlg
-HLTTest__TestRecoAlg=CompFactory.getComps.HLTTest.TestRecoAlg
+HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
+HLTTest__TestRecoAlg=CompFactory.HLTTest.TestRecoAlg
 
 
 

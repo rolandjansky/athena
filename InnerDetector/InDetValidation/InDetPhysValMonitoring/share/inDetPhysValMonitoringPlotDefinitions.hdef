@@ -85,9 +85,9 @@ TProfile track_fakerate_vs_nTRTHighThresholdOutliers " " 61 -0.5 60.5 0 1 "Numbe
 
 #GOOD eff plots
 TProfile trackeff_vs_eta "Fraction of reco-matched truth track" 20 -2.5 2.5 0 2 "#eta" "Efficiency" default
-TProfile trackeff_vs_pt "Fraction of reco-matched truth track"	40 0	50 0 2	"Pt (GeV)" "Efficiency" default
-TProfile trackeff_vs_phi "Fraction of reco-matched truth track"	100 -3.1415926 3.1415926 0 2 "#phi" "Efficiency" default
-TProfile trackeff_vs_d0 "Fraction of reco-matched truth track"	100 -25	 25 0 2	 "d0" "Efficiency" default
+TProfile trackeff_vs_pt "Fraction of reco-matched truth track"  40 0    50 0 2  "Pt (GeV)" "Efficiency" default
+TProfile trackeff_vs_phi "Fraction of reco-matched truth track" 100 -3.1415926 3.1415926 0 2 "#phi" "Efficiency" default
+TProfile trackeff_vs_d0 "Fraction of reco-matched truth track"  100 -25  25 0 2  "d0" "Efficiency" default
 TProfile trackeff_vs_z0 "Fraction of reco-matched truth track"  100 -250  250 0 2  "z0" "Efficiency" default
 TProfile trackeff_vs_R "Fraction of reco-matched truth track"  100 0  50 0 2  "R" "Efficiency" default
 TProfile trackeff_vs_Z "Fraction of reco-matched truth track"  100 -350  350 0 2  "Z" "Efficiency" default
@@ -113,6 +113,19 @@ TH1F vx_err_y "Y position error of vertex" 100 0.0 0.2 "#sigma(Y) (mm)" "Entries
 TH1F vx_err_z  "Z position error of vertex" 100 0.0 1.0 "#sigma(Z) (mm)" "Entries" default
 TH1F vx_chi2_over_ndf "vertex #chi^2 / ndf" 50 0 10. "#chi^{2}/ndf"  "Entries" default
 TH1F vx_type "Vertex type" 7 0 7 "Vertex type" "Entries" default
+TH1F vx_type_truth "Vertex Truth-Matched type" 5 -0.5 4.5 "Vertex Truth-Matched type" "Vertex Truth-Matched type" "Entries" default
+TH1F vx_hs_classification 5 -0.5 4.5 "Event hardscatter vertex classification" "Hardscatter classification" "Entries" default
+TProfile vx_nReco_vs_nTruth_inclusive "Number of reco vertices (INCLUSIVE) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TProfile vx_nReco_vs_nTruth_matched "Number of reco vertices (MATCHED) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TProfile vx_nReco_vs_nTruth_merged "Number of reco vertices (MERGED) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TProfile vx_nReco_vs_nTruth_split "Number of reco vertices (SPLIT) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TProfile vx_nReco_vs_nTruth_fake "Number of reco vertices (FAKE) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TProfile vx_nReco_vs_nTruth_dummy "Number of reco vertices (DUMMY) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TProfile vx_nReco_vs_nTruth_clean "Number of reco vertices (CLEAN) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TProfile vx_nReco_vs_nTruth_lowpu "Number of reco vertices (LOWPU) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TProfile vx_nReco_vs_nTruth_highpu "Number of reco vertices (HIGHPU) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TProfile vx_nReco_vs_nTruth_hssplit "Number of reco vertices (HSSPLIT) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
+TProfile vx_nReco_vs_nTruth_none "Number of reco vertices (NONE) vs Number of interactions" 81 -0.5 80.5 0.0 60.0 "Number of interactions" "Number of reco vertices" default
 TH1F vx_nTracks "Number of tracks at vertex" 150 0 150 "Number of Tracks" "Entries" default
 TH1F vx_track_weights "Weights of tracks at vertex" 100 0. 10.0 "Weight" "Entries" default
 TH1F vx_track_pt "Tracks at vertex p_{T}" 100 0 20. "p_{T} (GeV)" "Entries" default
@@ -152,10 +165,10 @@ TH1 minimum_delta_R "Minimum #DeltaR for primary conversions within 100 mm of th
 # Track Parameter Resolution Plots
 #Track Parameter TH2s vs eta
 TH2 res_d0_vs_eta "d_{0}: deviation vs #eta" 20 -2.5 2.5 2000 -1.0 1.0 "#eta" "d_{0}^{rec} - d_{0}^{tru}" default
-TH2 res_z0_vs_eta "z_{0}: deviation vs #eta" 20 -2.5 2.5 200 -1.5	1.5 "#eta" "z_{0}^{rec} - z_{0}^{tru}" default
-TH2 res_phi_vs_eta "#phi: deviation vs #eta" 20 -2.5 2.5 3000 -0.03	0.03 "#eta" "#phi^{rec} - #phi^{tru}" default
+TH2 res_z0_vs_eta "z_{0}: deviation vs #eta" 20 -2.5 2.5 200 -1.5   1.5 "#eta" "z_{0}^{rec} - z_{0}^{tru}" default
+TH2 res_phi_vs_eta "#phi: deviation vs #eta" 20 -2.5 2.5 3000 -0.03 0.03 "#eta" "#phi^{rec} - #phi^{tru}" default
 TH2 res_theta_vs_eta "#theta: deviation vs #eta" 20 -2.5 2.5 2000 -0.1 0.1 "#eta" "#theta^{rec} - #theta^{tru}" default
-TH2 res_z0*sin(theta)_vs_eta "z_{0}*sin(#theta): deviation vs #eta" 20 -2.5 2.5 200 -1.5	1.5 "#eta" "z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}" default
+TH2 res_z0*sin(theta)_vs_eta "z_{0}*sin(#theta): deviation vs #eta" 20 -2.5 2.5 200 -1.5    1.5 "#eta" "z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}" default
 TH2 res_qopt_vs_eta "qopt: deviation vs #eta" 20 -2.5 2.5 200 -0.4 0.4 "#eta" "(q/pt)^{rec} - (q/pt)^{tru}" default
 
 #Track Parameter Means vs eta
@@ -175,7 +188,7 @@ TH1F reswidth_z0*sin(theta)_vs_eta "z_{0}*sin(#theta) Track Resolution vs #eta" 
 TH1F reswidth_qopt_vs_eta "q/pt Track Resolution vs #eta" 20 -2.5 2.5 "#eta" "#sigma((q/pt)^{rec} - (q/pt)^{tru})" default
 
 #Track Parameter TH2s vs log(Pt)
-TH2 res_d0_vs_pt "d_{0}: deviation vs log(Pt)" 10 -0.5 2.0 2000 -1.0	1.0 "log(Pt) (GeV)" "d_{0}^{rec} - d_{0}^{tru}" default
+TH2 res_d0_vs_pt "d_{0}: deviation vs log(Pt)" 10 -0.5 2.0 2000 -1.0    1.0 "log(Pt) (GeV)" "d_{0}^{rec} - d_{0}^{tru}" default
 TH2 res_z0_vs_pt "z_{0}: deviation vs log(Pt)" 10 -0.5 2.0 200 -1.5       1.5 "log(Pt) (GeV)" "z_{0}^{rec} - z_{0}^{tru}" default
 TH2 res_phi_vs_pt "#phi: deviation vs log(Pt)" 10 -0.5 2.0 3000 -0.03     0.03 "log(Pt) (GeV)" "#phi^{rec} - #phi^{tru}" default
 TH2 res_theta_vs_pt "#theta: deviation vs log(Pt)" 10 -0.5 2.0 2000 -0.1 0.1 "log(Pt) (GeV)" "#theta^{rec} - #theta^{tru}" default

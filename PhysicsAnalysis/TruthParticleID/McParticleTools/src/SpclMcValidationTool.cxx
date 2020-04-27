@@ -13,7 +13,6 @@
 
 // FrameWork includes
 
-// CLHEP/HepMC includes
 #include "GeneratorObjects/McEventCollection.h"
 
 // McParticleEvent includes

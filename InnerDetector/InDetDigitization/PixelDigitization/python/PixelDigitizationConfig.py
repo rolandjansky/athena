@@ -412,14 +412,14 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
         condSeq += PixelSiLorentzAngleCondAlg(name = "PixelSiLorentzAngleCondAlg",
                                               SiPropertiesTool = ToolSvc.PixelSiPropertiesTool,
-                                              UseMagFieldSvc = True,
+                                              UseMagFieldCache = True,
                                               UseMagFieldDcs = True)
 
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
         ToolSvc += SiLorentzAngleTool(name="PixelLorentzAngleTool", 
                                       DetectorName="Pixel", 
-                                      UseMagFieldSvc = True,
+                                      UseMagFieldCache = True,
                                       SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
 
 ############################################################################################

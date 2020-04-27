@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file CxxUtils/ConcurrentRangeMap.icc
@@ -399,6 +399,47 @@ CONCURRENTRANGEMAP::extendLastRange (const RANGE& newRange,
 {
   lock_t lock (m_mutex);
   return extendImpl (lock, newRange, ctx);
+}
+
+
+/**
+ * @brief Update all range objects.
+ * @param rangeUpater Functional to call on each range object.
+ * @param ctx Execution context.
+ *
+ * This will iterate through the list of entries and call @c rangeUpdater
+ * on the @c RANGE part of each.  Be careful: rangeUpdater must not
+ * change any part of the range which might affect the sorting
+ * of entries.
+ */
+T_CONCURRENTRANGEMAP
+void
+CONCURRENTRANGEMAP::updateRanges (std::function<void (RANGE&)> rangeUpdater,
+                                  const typename Updater_t::Context_t& ctx
+                                   /*= Updater_t::defaultContext()*/)
+{
+  lock_t lock (m_mutex);
+
+  // Return if the container's empty.
+  value_type* last = m_last;
+  if (last == nullptr) return;
+
+  // Make a new implementation object and copy data.
+  size_t capacity = m_impl->capacity();
+  auto new_impl = std::make_unique<Impl> (m_delete, capacity);
+  value_type* new_begin = new_impl->data();
+  value_type* new_end = new_begin;
+  value_type* begin = m_begin;
+  value_type* end = m_last+1;
+  new_end = std::copy (begin, end, new_end);
+
+  // Update ranges in the new copy.
+  for (value_type* v = new_begin; v != new_end; ++v) {
+    rangeUpdater (v->first);
+  }
+
+  // Install the new implementation.
+  installImpl (std::move (new_impl), new_begin, new_end, ctx);
 }
 
 

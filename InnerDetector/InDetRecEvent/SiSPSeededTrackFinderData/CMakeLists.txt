@@ -10,7 +10,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
-                          MagneticField/MagFieldInterfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
@@ -34,5 +33,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( SiSPSeededTrackFinderData
                    src/*.cxx
                    PUBLIC_HEADERS SiSPSeededTrackFinderData
-                   LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry MagFieldInterfaces TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces TrkEventUtils MagFieldElements MagFieldConditions
+                   LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces TrkEventUtils MagFieldElements MagFieldConditions
                    PRIVATE_LINK_LIBRARIES GaudiKernel InDetRIO_OnTrack SiSpacePointsSeed TrkSurfaces TrkMaterialOnTrack TrkPrepRawData TrkRIO_OnTrack TrkSpacePoint)

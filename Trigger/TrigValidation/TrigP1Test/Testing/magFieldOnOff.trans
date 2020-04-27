@@ -1,17 +1,17 @@
 f
 f
-x solCur=7730;torCur=20500;execfile('setMagFieldCurrents.py')
-f
-f
-b
-x solCur=0;torCur=0;execfile('setMagFieldCurrents.py')
-f
+x solCur=7730;torCur=20500;exec(open('setMagFieldCurrents.py').read())
 f
 b
-x solCur=7730;torCur=20500;execfile('setMagFieldCurrents.py')
-f
+x import os;os.system('oh_cp -p%s -s.+ -f run_1.root' % os.environ['TDAQ_PARTITION'])
+x solCur=0;torCur=0;exec(open('setMagFieldCurrents.py').read())
 f
 b
+x import os;os.system('oh_cp -p%s -s.+ -f run_2.root' % os.environ['TDAQ_PARTITION'])
+x solCur=7730;torCur=20500;exec(open('setMagFieldCurrents.py').read())
+f
+b
+x import os;os.system('oh_cp -p%s -s.+ -f run_3.root' % os.environ['TDAQ_PARTITION'])
 b
 b
 e

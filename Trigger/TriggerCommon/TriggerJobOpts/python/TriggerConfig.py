@@ -59,12 +59,18 @@ def __decisionsFromHypo( hypo ):
     else: # regular hypos
         return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], hypo.HypoOutputDecisions
 
+def __getSequenceChildrenIfIsSequence( s ):
+    if isSequence( s ):
+        return getSequenceChildren( s )
+    return []
 
 def collectViewMakers( steps ):
     """ collect all view maker algorithms in the configuration """
     makers = [] # map with name, instance and encompasing recoSequence
-    for stepSeq in getSequenceChildren( steps ):
-        for recoSeq in getSequenceChildren( stepSeq ):
+    for stepSeq in __getSequenceChildrenIfIsSequence( steps ):
+        for recoSeq in __getSequenceChildrenIfIsSequence( stepSeq ):
+            if not isSequence( recoSeq ):
+                continue
             algsInSeq = flatAlgorithmSequences( recoSeq )
             for seq,algs in six.iteritems (algsInSeq):
                 for alg in algs:
@@ -190,8 +196,7 @@ def triggerSummaryCfg(flags, hypos):
     for c, cont in six.iteritems (allChains):
         __log.debug("Final decision of chain  " + c + " will be read from " + cont )
     decisionSummaryAlg.FinalDecisionKeys = list(OrderedDict.fromkeys(allChains.values()))
-    if len(allChains) > 0:
-        decisionSummaryAlg.FinalStepDecisions = dict(allChains)
+    decisionSummaryAlg.FinalStepDecisions = dict(allChains)
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
     decisionSummaryAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decisionSummaryAlg.CostWriteHandleKey = recordable(flags.Trigger.CostMonitoring.outputCollection)
@@ -341,8 +346,7 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     bitsmaker = TriggerBitsMakerToolCfg()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
-    pebDecisionKeys = [key for key in list(summaryAlg.getProperties()['FinalStepDecisions'].values()) if 'PEBInfoWriter' in key]
-    stmaker.PEBDecisionKeys = pebDecisionKeys
+    stmaker.PEBDecisionKeys = [key for key in list(summaryAlg.FinalStepDecisions.values()) if 'PEBInfoWriter' in key]
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
@@ -357,19 +361,18 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         # TODO: Decide if stream tags are needed and, if yes, find a way to save updated ones in offline BS saving
 
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
-        from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
-        decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+        #from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+        #decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
+        decmaker = CompFactory.getComp( "TrigDec::TrigDecisionMakerMT" )("TrigDecMakerMT")
         acc.addEventAlgo( decmaker )
 
         # Create OutputStream alg
-        from ByteStreamCnvSvc import WriteByteStream
-        StreamBSFileOutput = WriteByteStream.getStream("EventStorage", "StreamBSFileOutput")
-        StreamBSFileOutput.ItemList += [ "HLT::HLTResultMT#HLTResultMT" ]
-        StreamBSFileOutput.ExtraInputs = [
+        from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamWriteCfg
+        writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ] )
+        writingAcc.getPrimary().ExtraInputs = [
             ("HLT::HLTResultMT", "HLTResultMT"),
             ("xAOD::TrigDecision", "xTrigDecision")]
-        acc.addEventAlgo( StreamBSFileOutput )
-
+        acc.merge( writingAcc )
     else:
         acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
     return acc

@@ -12,8 +12,6 @@
 #define GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P1_H
 
 // STL includes
-
-// HepMC / CLHEP includes
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wkeyword-macro"

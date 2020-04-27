@@ -10,8 +10,6 @@
 
 #include "RingerSelectorTools/RingerSelectorToolsDefs.h"
 
-#include "RingerSelectorTools/tools/cxx/RingerUseNewCppFeatures.h"
-
 // These are only available if we are not in a standalone environment.
 #ifndef RINGER_STANDALONE
 #include "RingerSelectorTools/tools/RingerCommonSelector.h"

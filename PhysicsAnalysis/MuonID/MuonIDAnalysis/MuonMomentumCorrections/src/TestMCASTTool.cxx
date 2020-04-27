@@ -1,13 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// EDM include(s):
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
-
-
-// Local include(s):
 #include "TestMCASTTool.h"
 #include <cmath>
 
@@ -17,17 +13,16 @@ TestMCASTTool::TestMCASTTool( const std::string& name, ISvcLocator* svcLoc ) :
   AthAlgorithm( name, svcLoc ),
   m_MCaSTool( "CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this )
 {
-
+  declareProperty( "Output", m_Output = "MCaST_Debug.root" );
   declareProperty( "SGKey", m_sgKey = "Muons" );
   declareProperty( "MuonCalibrationAndSmearingTool", m_MCaSTool );
 
-  m_DebugFile = NULL;
-  m_DebugTree = NULL;
-  m_Combined = NULL;
-  m_InnerDet = NULL;
-  m_MSExtr = NULL;
-  m_MSOnlyExtr = NULL;
-
+  m_DebugFile = nullptr;
+  m_DebugTree = nullptr;
+  m_Combined = nullptr;
+  m_InnerDet = nullptr;
+  m_MSExtr = nullptr;
+  m_MSOnlyExtr = nullptr;
 }
 
 StatusCode TestMCASTTool::initialize() {
@@ -53,7 +48,7 @@ StatusCode TestMCASTTool::initialize() {
   m_MSExtr = std::make_unique<MMCTest::TrackInfo>("ME", m_sysNames);
   m_MSOnlyExtr = std::make_unique<MMCTest::TrackInfo>("MSOE", empty_list);
 
-  m_DebugFile = new TFile( "MCaST_Debug.root", "RECREATE", "Smearing and non-Smearing of Muons" );
+  m_DebugFile = new TFile( m_Output.c_str(), "RECREATE", "Smearing and non-Smearing of Muons" );
   m_DebugTree = new TTree( "CorrectionsTree", "This Tree contains the information of the muon after smearing effects" );
 
   m_DebugTree->Branch("Muon_Sel_Category_Raw", &m_SelCategoryRaw);
@@ -100,13 +95,13 @@ StatusCode TestMCASTTool::execute() {
     const xAOD::TrackParticle* idTrack = (*mu_itr)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     if(idTrack) m_InnerDet->Fill(idTrack);
 
-    const xAOD::TrackParticle* meTrack = NULL;
+    const xAOD::TrackParticle* meTrack = nullptr;
     try {
       meTrack = (*mu_itr)->trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
     } catch (SG::ExcBadAuxVar& b) { meTrack = (*mu_itr)->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); }
     if(meTrack) m_MSExtr->Fill(meTrack);
 
-    const xAOD::TrackParticle* msoeTrack = NULL;
+    const xAOD::TrackParticle* msoeTrack = nullptr;
     try {
       msoeTrack = (*mu_itr)->trackParticle(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle);
     } catch (SG::ExcBadAuxVar& b) { msoeTrack = (*mu_itr)->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle); }

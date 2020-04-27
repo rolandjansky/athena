@@ -20,7 +20,7 @@ atlas_add_library( AtlasSealCLHEP
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES}
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolServicesLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( AtlasSealCLHEPDict

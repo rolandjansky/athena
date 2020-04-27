@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,6 +24,8 @@
 #include "DerivationFrameworkInDet/MinBiasPRDAssociation.h"
 #include "DerivationFrameworkInDet/IUnassociatedHitsGetterTool.h"
 
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -36,12 +38,32 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-    
-      std::string m_sgName;
-      std::string m_containerName;
 
-      ToolHandle<IUnassociatedHitsGetterTool> m_UnassociatedHitsGetterTool;
-    
+      Gaudi::Property<std::string>  m_sgName
+         { this, "DecorationPrefix", "", ""};
+
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey
+         { this, "ContainerName", "EventInfo", ""};
+
+      ToolHandle<IUnassociatedHitsGetterTool> m_UnassociatedHitsGetterTool
+         { this, "UnassociatedHitsGetter", "" , ""};
+
+      enum EIntDecor {knPixelUADecor,
+                      knBlayerUADecor,
+                      knPixelBarrelUADecor,
+                      knPixelEndCapAUADecor,
+                      knPixelEndCapCUADecor,
+                      knSCTUADecor,
+                      knSCTBarrelUADecor,
+                      knSCTEndCapAUADecor,
+                      knSCTEndCapCUADecor,
+                      knTRTUADecor,
+                      knTRTBarrelUADecor,
+                      knTRTEndCapAUADecor,
+                      knTRTEndCapCUADecor,
+                      kNIntDecor};
+      std::vector<SG::WriteDecorHandleKey<xAOD::EventInfo> > m_intDecorKeys;
+
   }; 
 }
 

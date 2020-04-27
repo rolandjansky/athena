@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -46,8 +46,8 @@ public:
    * @param mgr The supercell geometry manager.
    * @param cellmgr The offline geometry manager.
    */
-  virtual StatusCode doUpdate (CaloSuperCellDetDescrManager* mgr,
-                               const CaloDetDescrManager* cellmgr) = 0;
+  virtual StatusCode doUpdate  (CaloSuperCellDetDescrManager* mgr,
+                                const CaloDetDescrManager* cellmgr) = 0;
 };
 
 

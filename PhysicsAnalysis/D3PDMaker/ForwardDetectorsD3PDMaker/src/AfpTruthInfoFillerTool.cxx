@@ -180,18 +180,8 @@ namespace D3PD {
 
 				for(; child != child_end; ++child){
 
-					//px =      (*child)->momentum().px();
-					//py =      (*child)->momentum().py();
 					pz =      (*child)->momentum().pz();
-					//E  =      (*child)->momentum().e();
-					//phi=      (*child)->momentum().phi();
-					//barcode = (*child)->barcode();
 
-					//LogStream << MSG::DEBUG << "particle barcode = " << (*child)->barcode() << endmsg;
-					//LogStream << MSG::DEBUG << "particle pdg = " << (*child)->pdg_id() << endmsg;
-					//LogStream << MSG::DEBUG << "particle status = " << (*child)->status() << endmsg;
-					//LogStream << MSG::DEBUG << " *  px = " << px << ", py = " << py << ", pz =" << pz << endmsg;
-					//LogStream << MSG::DEBUG << " " << endmsg;
 
 					// incoming protons (status code = 4) at the interaction point; 
 					if( (*child)->status() == 4){ // note, it can be any colliding particle, hopefully Pb too

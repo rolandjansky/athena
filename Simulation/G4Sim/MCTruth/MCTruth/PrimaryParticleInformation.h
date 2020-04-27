@@ -6,7 +6,8 @@
 #define PrimaryParticleInformation_H
 
 #include "G4VUserPrimaryParticleInformation.hh"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 namespace ISF {
   class ISFParticle;

@@ -5,7 +5,8 @@
 #ifndef EventInformation_H
 #define EventInformation_H
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "G4ThreeVector.hh"
 #include "G4VUserEventInformation.hh"
 

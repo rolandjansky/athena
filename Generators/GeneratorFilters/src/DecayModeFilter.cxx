@@ -122,7 +122,6 @@ StatusCode DecayModeFilter::filterEvent() {
       // Look for initial vertex
       if ((*vtx_iter)->particles_in_size() != 2) continue;
       if ((*vtx_iter)->particles_out_size() < 2) continue;
-      //if ((*vtx_iter)->point3d().x()==0 && (*vtx_iter)->point3d().y()==0 && (*vtx_iter)->point3d().z()==0) continue;
       HepMC::GenVertex::particles_out_const_iterator outParticle = (*vtx_iter)->particles_out_const_begin();
       HepMC::GenParticle* parent1 = *outParticle;
       HepMC::GenParticle* parent2 = *(++outParticle);

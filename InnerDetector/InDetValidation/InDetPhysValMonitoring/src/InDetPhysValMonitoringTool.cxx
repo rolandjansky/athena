@@ -40,7 +40,7 @@
 #include <cstdlib> // to getenv
 #include <vector>
 
-
+#include "InDetTruthVertexValidation/InDetVertexTruthMatchUtils.h"
 
 namespace { // utility functions used here
 
@@ -61,7 +61,6 @@ namespace { // utility functions used here
     return (pTrk->pt() > safePtThreshold) ? (pTrk->eta()) : std::nan("");
   }
 
-  constexpr float twoPi = 2 * M_PI;
   // general utility function to check value is in range
   template <class T>
   inline bool
@@ -116,6 +115,7 @@ namespace { // utility functions used here
   const std::vector<float> ETA_PARTITIONS = {
     2.7, 3.5, std::numeric_limits<float>::infinity()
   };
+
 }// namespace
 
 ///Parametrized constructor
@@ -123,20 +123,24 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
                                                        const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent),
   m_useTrackSelection(false),
+  m_useVertexTruthMatchTool(false),
   m_trackSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool"),
+  m_vtxValidTool("InDetVertexTruthMatchTool/VtxTruthMatchTool"),
   m_truthSelectionTool("AthTruthSelectionTool", this),
   m_doTrackInJetPlots(true) {
-    declareProperty("useTrackSelection", m_useTrackSelection);
-    declareProperty("TrackSelectionTool", m_trackSelectionTool);
-    declareProperty("TruthSelectionTool", m_truthSelectionTool);
-    declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
-    declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
-    declareProperty("DirName", m_dirName = "SquirrelPlots/");
-    declareProperty("SubFolder", m_folder);
-    declareProperty("PileupSwitch", m_pileupSwitch = "All");
-    declareProperty("LowProb", m_lowProb=0.50);
-    declareProperty("HighProb", m_highProb=0.80);
-  }
+  declareProperty("useTrackSelection", m_useTrackSelection);
+  declareProperty("TrackSelectionTool", m_trackSelectionTool);
+  declareProperty("VertexTruthMatchTool", m_vtxValidTool);
+  declareProperty("useVertexTruthMatchTool", m_useVertexTruthMatchTool);
+  declareProperty("TruthSelectionTool", m_truthSelectionTool);
+  declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
+  declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
+  declareProperty("DirName", m_dirName = "SqurrielPlots/");
+  declareProperty("SubFolder", m_folder);
+  declareProperty("PileupSwitch", m_pileupSwitch = "All");
+  declareProperty("LowProb", m_lowProb=0.50);
+  declareProperty("HighProb", m_highProb=0.80);
+}
 
 InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
 
@@ -144,13 +148,14 @@ InDetPhysValMonitoringTool::~InDetPhysValMonitoringTool() {
 
 StatusCode
 InDetPhysValMonitoringTool::initialize() {
-  ATH_MSG_DEBUG("Initializing " << name() << "...");
   ATH_CHECK(ManagedMonitorToolBase::initialize());
   // Get the track selector tool only if m_useTrackSelection is true;
   // first check for consistency i.e. that there is a trackSelectionTool if you ask
   // for trackSelection
   ATH_CHECK(m_trackSelectionTool.retrieve(EnableTool {m_useTrackSelection} ));
   ATH_CHECK(m_truthSelectionTool.retrieve(EnableTool {not m_truthParticleName.key().empty()} ));
+  ATH_CHECK(m_vtxValidTool.retrieve(EnableTool {m_useVertexTruthMatchTool}));
+  ATH_MSG_DEBUG("m_useVertexTruthMatchTool ====== " <<m_useVertexTruthMatchTool);
   if (m_truthSelectionTool.get() ) {
     m_truthCutFlow = CutFlow(m_truthSelectionTool->nCuts());
   }
@@ -196,6 +201,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   SG::ReadHandle<xAOD::EventInfo> pie = SG::ReadHandle<xAOD::EventInfo>(m_eventInfoContainerName);
  
   std::vector<const xAOD::TruthParticle*> truthParticlesVec = getTruthParticles();
+  std::vector<const xAOD::TruthVertex*> truthVertices = getTruthVertices();
   IDPVM::CachedGetAssocTruth getAsTruth; // only cache one way, track->truth, not truth->tracks 
   
   if (not tracks.isValid()) {
@@ -221,7 +227,13 @@ InDetPhysValMonitoringTool::fillHistograms() {
     primaryvertex = (findVtx == stdVertexContainer.rend()) ? nullptr : *findVtx;
     //Filling plots for all reconstructed vertices and the hard-scatter
     ATH_MSG_DEBUG("Filling vertices info monitoring plots");
-    m_monPlots->fill(*vertices);
+
+    //Decorate vertices
+    if (m_useVertexTruthMatchTool && m_vtxValidTool) {
+       ATH_CHECK(m_vtxValidTool->matchVertices(*vertices));
+       ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*vertices) << ", vertex container size = " << vertices->size());
+    }
+    m_monPlots->fill(*vertices, truthVertices);
 
     ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
     //Filling vertexing plots for the reconstructed hard-scatter as a function of mu
@@ -535,6 +547,69 @@ InDetPhysValMonitoringTool::getTruthParticles() {
     }
   }
   return tempVec;
+}
+
+const std::vector<const xAOD::TruthVertex*>
+InDetPhysValMonitoringTool::getTruthVertices() {
+
+  std::vector<const xAOD::TruthVertex*> truthVertices = {};
+  truthVertices.reserve(100);
+  const xAOD::TruthVertex* truthVtx = nullptr;
+
+  bool doHS = false;
+  bool doPU = false;
+  if (m_pileupSwitch == "All") {
+    doHS = true;
+    doPU = true;
+  }
+  else if (m_pileupSwitch == "HardScatter") {
+    doHS = true;
+  }
+  else if (m_pileupSwitch == "PileUp") {
+    doPU = true;
+  }
+  else {
+    ATH_MSG_ERROR("Bad value for PileUpSwitch: " << m_pileupSwitch);
+  }
+
+  if (doHS) {
+    if (!m_truthEventName.key().empty()) {
+      ATH_MSG_VERBOSE("Getting TruthEvents container.");
+      SG::ReadHandle<xAOD::TruthEventContainer> truthEventContainer(m_truthEventName);
+      if (truthEventContainer.isValid()) {
+        for (const auto& evt : *truthEventContainer) {
+          truthVtx = evt->truthVertex(0);
+          if (truthVtx) {
+            truthVertices.push_back(truthVtx);
+          }
+        }
+      }
+      else {
+        ATH_MSG_ERROR("No entries in TruthEvents container!");
+      }
+    }
+  }
+
+  if (doPU) {
+    if (!m_truthPileUpEventName.key().empty()) {
+      ATH_MSG_VERBOSE("Getting TruthEvents container.");
+      SG::ReadHandle<xAOD::TruthPileupEventContainer> truthPileupEventContainer(m_truthPileUpEventName);
+      if (truthPileupEventContainer.isValid()) {
+        for (const auto& evt : *truthPileupEventContainer) {
+          truthVtx = evt->truthVertex(0);
+          if (truthVtx) {
+            truthVertices.push_back(truthVtx);
+          }
+        }
+      }
+      else {
+        ATH_MSG_ERROR("No entries in TruthPileupEvents container!");
+      }
+    }
+  }
+
+  return truthVertices;
+
 }
 
 void

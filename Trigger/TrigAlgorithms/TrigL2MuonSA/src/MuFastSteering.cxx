@@ -217,6 +217,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
       return HLT::BAD_JOB_SETUP;
     }
   } 
+  ATH_MSG_DEBUG( "topoRoad = " << m_topoRoad);
 
   return HLT::OK;
 }
@@ -285,28 +286,56 @@ StatusCode MuFastSteering::execute()
     return StatusCode::FAILURE;
   }  
 
-  DataVector<const TrigRoiDescriptor> *internalRoI = new DataVector<const TrigRoiDescriptor>;
-  internalRoI->clear();
+  std::vector< const TrigRoiDescriptor* > internalRoI;
   TrigRoiDescriptorCollection::const_iterator p_roids = roiCollection->begin();
   TrigRoiDescriptorCollection::const_iterator p_roidsEn = roiCollection->end();
 
   for(; p_roids != p_roidsEn; ++p_roids ) {
-    internalRoI->push_back(*p_roids);    
+    internalRoI.push_back(*p_roids);
     ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
     ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
     ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
   }
-  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << internalRoI->size());
+  ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << internalRoI.size());
 
   // make RecMURoIs maching with MURoIs
-  DataVector<const LVL1::RecMuonRoI> *recRoIVector = new DataVector<const LVL1::RecMuonRoI>;
-  recRoIVector->clear();
+  std::vector< const LVL1::RecMuonRoI* > recRoIVector;
+  std::vector< const LVL1::RecMuonRoI* > surrRoIs;
+
   for (size_t size=0; size<roiCollection->size(); size++){
     const LVL1::RecMuonRoI* recRoI = matchingRecRoI( roiCollection->at(size)->roiWord(),  *recRoiCollection );
     CHECK( recRoI != nullptr );
-    recRoIVector->push_back(recRoI);
+    recRoIVector.push_back(recRoI);
     ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi());
-    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << recRoIVector->size());
+    ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << recRoIVector.size());
+  }
+
+  int nPassedBarrelSurrRoi = 0;
+  if(m_topoRoad ){
+    for( auto recRoI: *recRoiCollection ){
+      if(std::find(recRoIVector.begin(), recRoIVector.end(), recRoI) != recRoIVector.end()) continue;
+
+      bool surrounding = false;
+      for( auto matchedRoI: recRoIVector ){
+        float deta = fabs(recRoI->eta() - matchedRoI->eta());
+        float dphi = fabs(recRoI->phi() - matchedRoI->phi());
+        if( dphi > CLHEP::pi )dphi = CLHEP::twopi - dphi;
+        if( deta < m_dEtasurrRoI && dphi < m_dPhisurrRoI)
+          surrounding = true;
+      }
+
+      if(surrounding)
+        surrRoIs.push_back(recRoI);
+    }
+
+    ATH_MSG_DEBUG("surrRoI: " << " size = " << surrRoIs.size());
+    for( auto recRoI: surrRoIs ){
+      ATH_MSG_DEBUG("surrRoI: " << " eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi() );
+      if( fabs((recRoI)->eta()) <= 1.05 && (recRoI)->getThresholdNumber() >= 1 )nPassedBarrelSurrRoi++;
+    }
+    ATH_MSG_DEBUG( "nPassedBarrelSurrRoi = " << nPassedBarrelSurrRoi);
+    //dynamicDeltaRpcMode
+    if( m_topoRoad )m_dataPreparator->setMultiMuonTrigger( (nPassedBarrelSurrRoi >= 1)? true : false );
   }
 
   // record data objects with WriteHandle
@@ -323,7 +352,7 @@ StatusCode MuFastSteering::execute()
   ATH_CHECK(muMsContainer.record(std::make_unique<TrigRoiDescriptorCollection>()));
 
   // to StatusCode findMuonSignature()
-  ATH_CHECK(findMuonSignature(*internalRoI, *recRoIVector, 
+  ATH_CHECK(findMuonSignature(internalRoI, recRoIVector,
 			      *muFastContainer, *muIdContainer, *muMsContainer, *muCompositeContainer ));	  
 
 
@@ -352,7 +381,7 @@ StatusCode MuFastSteering::execute()
   }
 
   totalTimer.stop();
- 
+
   ATH_MSG_DEBUG("StatusCode MuFastSteering::execute() success");
   return StatusCode::SUCCESS;
 }
@@ -384,19 +413,19 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
  
   bool ActiveState = outputTE->getActiveState();
 
-  DataVector<const TrigRoiDescriptor> *internalRoI = new DataVector<const TrigRoiDescriptor>;
+  std::vector<const TrigRoiDescriptor*> internalRoI;
   ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size: " << roids.size());
 
-  DataVector<const LVL1::RecMuonRoI> *internalRecRoI = new DataVector<const LVL1::RecMuonRoI>;
+  std::vector<const LVL1::RecMuonRoI*> internalRecRoI;
   ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << muonRoIs.size());
 
   p_roi = muonRoIs.begin();
   for ( p_roids=roids.begin(); p_roids!=roids.end(); ++p_roids) {
-    internalRoI->push_back(*p_roids);
+    internalRoI.push_back(*p_roids);
     ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
     ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
     ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
-     internalRecRoI->push_back(*p_roi);
+    internalRecRoI.push_back(*p_roi);
     ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << (*p_roi)->eta() << "/" << (*p_roi)->phi());
 
     p_roi++;
@@ -423,8 +452,11 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
   TrigRoiDescriptorCollection *outputMS = new TrigRoiDescriptorCollection();
   outputMS->clear();
   
+  // set DynamiDeltaRPCMode
+  m_dataPreparator->setMultiMuonTrigger(m_topoRoad);
+
   // to StatusCode findMuonSignature()
-  StatusCode sc = findMuonSignature(*internalRoI, *internalRecRoI, 
+  StatusCode sc = findMuonSignature(internalRoI, internalRecRoI,
 				    *outputTracks, *outputID, *outputMS, *outputComposite );	
   
   HLT::ErrorCode code = HLT::OK;
@@ -539,8 +571,8 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* /*inputTE*/
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescriptor>&	roids,
-                                             const DataVector<const LVL1::RecMuonRoI>& 	muonRoIs,
+StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDescriptor*>& roids,
+                                             const std::vector<const LVL1::RecMuonRoI*>&  muonRoIs,
 				             DataVector<xAOD::L2StandAloneMuon>& 	outputTracks,
 					     TrigRoiDescriptorCollection& 		outputID,
 					     TrigRoiDescriptorCollection&		outputMS,

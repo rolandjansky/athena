@@ -310,7 +310,7 @@ class PixelConditionsServicesSetup:
       from SiLorentzAngleTool.SiLorentzAngleToolConf import PixelSiLorentzAngleCondAlg
       condSeq += PixelSiLorentzAngleCondAlg(name="PixelSiLorentzAngleCondAlg", 
                                             SiPropertiesTool=TrigSiPropertiesTool,
-                                            UseMagFieldSvc = True,
+                                            UseMagFieldCache = True,
                                             UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
 
     from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
@@ -546,14 +546,14 @@ class SCT_ConditionsToolsSetup:
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
                                           SiConditionsTool = sctSiliconConditionsTool,
-                                          UseMagFieldSvc = True,
+                                          UseMagFieldCache = True,
                                           UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
       sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
     "Inititalize Lorentz angle Tool"
     from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
     SCTLorentzAngleTool = SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-    SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
+    SCTLorentzAngleTool.UseMagFieldCache = True
     
   def instanceName(self, toolname):
     return self.prefix+toolname
@@ -625,12 +625,6 @@ class TRTConditionsServicesSetup:
     if not (conddb.folderRequested('/TRT/Calib/slopes') or conddb.folderRequested('/TRT/Onl/Calib/slopes')):
       conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
 
-    if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className='CondAttrListCollection')
-
-    if not conddb.folderRequested('/TRT/Calib/HTCalib'):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className='CondAttrListCollection')
-
 
     # Calibration DB Service
     from AthenaCommon.AppMgr import ServiceMgr
@@ -684,14 +678,6 @@ class TRTConditionsServicesSetup:
 
     from AthenaCommon.GlobalFlags import globalflags
     
-    # TRT PID tools
-    if not (conddb.folderRequested('/TRT/Calib/PID') or conddb.folderRequested('/TRT/Onl/Calib/PID')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID","/TRT/Calib/PID")
-    if not (conddb.folderRequested('/TRT/Calib/PIDver_New') or conddb.folderRequested('/TRT/Onl/Calib/PIDver_New')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PIDver_New","/TRT/Calib/PIDver_New")
-    if not (conddb.folderRequested('/TRT/Calib/PID_RToTver_New') or conddb.folderRequested('/TRT/Onl/Calib/PID_RToTver_New')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToTver_New","/TRT/Calib/PID_RToTver_New")
-
     
     #
     # Load and Configure TRT Conditions Services

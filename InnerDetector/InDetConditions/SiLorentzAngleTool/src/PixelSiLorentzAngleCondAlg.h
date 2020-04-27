@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file SiLorentzAngleTool/PixelSiLorentzAngleCondAlg.h
@@ -33,11 +33,6 @@
 #include "MagFieldElements/AtlasFieldCache.h"
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// forward declarations
-namespace MagField {
-  class IMagFieldSvc;
-}
-
 class PixelSiLorentzAngleCondAlg: public AthReentrantAlgorithm {
   public:
     PixelSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
@@ -48,7 +43,6 @@ class PixelSiLorentzAngleCondAlg: public AthReentrantAlgorithm {
 
   private:
     ServiceHandle<ICondSvc> m_condSvc;
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
     SG::ReadCondHandleKey<PixelDCSTempData> m_readKeyTemp
     {this, "ReadKeyeTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};
@@ -70,7 +64,7 @@ class PixelSiLorentzAngleCondAlg: public AthReentrantAlgorithm {
 
     // Properties
     DoubleProperty           m_nominalField  {this, "NominalField", 2.0834*Gaudi::Units::tesla, "Default nominal field"};
-    BooleanProperty          m_useMagFieldSvc{this, "UseMagFieldSvc", true};
+    BooleanProperty          m_useMagFieldCache{this, "UseMagFieldCache", true};
     BooleanProperty          m_useMagFieldDcs{this, "UseMagFieldDcs", true};
     DoubleProperty           m_correctionFactor{this, "CorrectionFactor", 0.9, "Lorentz angle correction factor"};
     unsigned int             m_maxHash;

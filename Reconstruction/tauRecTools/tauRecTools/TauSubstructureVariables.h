@@ -7,6 +7,8 @@
 
 #include "tauRecTools/TauRecToolBase.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 /**
  * @brief Calculate variables from the tau substructure.
  * 
@@ -34,14 +36,14 @@ class TauSubstructureVariables : public TauRecToolBase
         /** Maximal pile up correction in GeV for a tau candidate.
          *  Used for the caloIso corrected variable.
          */
-        double m_maxPileUpCorrection; 
-        double m_pileUpAlpha;         //!< slope of the pileup correction
+        Gaudi::Property<double> m_maxPileUpCorrection {this, "maxPileUpCorrection", 4 * Gaudi::Units::GeV }; 
+        Gaudi::Property<double> m_pileUpAlpha {this, "pileUpAlpha", 1.0};         //!< slope of the pileup correction
         
         /** 
          * enable cell origin correction 
          * eta and phi of the cells are corrected wrt to the origin of the tau vertex
          */
-        bool m_doVertexCorrection;
+        Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", false};
 };
 
 #endif

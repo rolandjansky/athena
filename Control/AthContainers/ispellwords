@@ -1002,7 +1002,6 @@ copyThinned1
 copyThinned
 nremaining
 getThinnedFlags
-TestThinningSvc
 addRef
 queryInterface
 proxy2

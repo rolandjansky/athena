@@ -89,7 +89,7 @@ def makeInDetPrecisionTracking( whichSignature,
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
   #e.g InDetTrigPT_Tracks_electron
-  if doTRTextension == True :
+  if doTRTextension is True :
      nameExtTrackCollection = outPTTracks
   else:
      nameAmbiTrackCollection = outPTTracks
@@ -195,7 +195,6 @@ def makeInDetPrecisionTracking( whichSignature,
 
             #-----------------------------------------------------------------------------
             #                        TRT data preparation
-            from AthenaCommon.AppMgr import ServiceMgr
             from AthenaCommon.GlobalFlags import globalflags
             #Only add raw data decoders if we're running over raw data
             TRT_RDO_Key = "TRT_RDOs"

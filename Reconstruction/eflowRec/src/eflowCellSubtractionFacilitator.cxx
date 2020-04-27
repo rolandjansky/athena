@@ -8,11 +8,15 @@
 
 #include "CaloEvent/CaloCell.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
 
 //C++ Headers
 #include <map>
 
-eflowCellSubtractionFacilitator::eflowCellSubtractionFacilitator(): m_annFlag(false) { }
+eflowCellSubtractionFacilitator::eflowCellSubtractionFacilitator(): AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"eflowCellSubtractionFacilitator"), m_annFlag(false) {}
 
 double eflowCellSubtractionFacilitator::subtractCells(eflowRingSubtractionManager& cellSubtractionManager, double trackEnergy, xAOD::CaloCluster* tracksCluster, eflowCellList& orderedCells) {
   std::vector<std::pair<xAOD::CaloCluster*, bool> > localClusterBoolPairVec(1,std::pair(tracksCluster,false));
@@ -90,6 +94,7 @@ void eflowCellSubtractionFacilitator::subtractPartialRings(std::vector<std::pair
       CaloClusterCellLink::iterator theIterator = this->getCellIterator(cluster, cell);
       double oldCellWeight = theIterator.weight();
       const double newCellWeight = oldCellWeight * targetRingEnergy / eRings;
+      ATH_MSG_DEBUG("eflowCellSubtractionFacilitator: Cluster with e " << cluster->e() << " is changing weight of cell with energy " << cell->e() << " from " << oldCellWeight << " to " << newCellWeight);
       theIterator.reweight(newCellWeight);
     }
   }
@@ -106,6 +111,7 @@ void eflowCellSubtractionFacilitator::subtractFullRings(std::vector<std::pair<xA
       xAOD::CaloCluster* cluster = tracksClusters[thisPair.second].first;
       //flag this cluster as having had subtraction applied to it
       tracksClusters[thisPair.second].second = true;
+      ATH_MSG_DEBUG("eflowCellSubtractionFacilitator: Cluster with e " << cluster->e() << " is removing cell with e " << thisPair.first->e());
       cluster->removeCell(thisPair.first);
     }
   }
@@ -132,8 +138,11 @@ bool eflowCellSubtractionFacilitator::subtractRings(
   if (eSubtracted + eRings > eExpect) {
     /* Subtract partial ring */
 
+    ATH_MSG_DEBUG("eflowCellSubtractionFacilitator: Subtracting partial ring, eSubtracted, eRings and eExpect are " << eSubtracted << ", " << eRings << ", " << eExpect);
+
     /* Target ring energy is ring energy minus the energy that still needs to be subtracted */
     double targetRingEnergy = eRings - (eExpect - eSubtracted);
+    ATH_MSG_DEBUG("eflowCellSubtractionFacilitator: targetRingEnergy is " << targetRingEnergy);
     subtractPartialRings(tracksClusters, beginRing, endRing, targetRingEnergy, eRings);
     eSubtracted = eExpect;
 
@@ -144,6 +153,8 @@ bool eflowCellSubtractionFacilitator::subtractRings(
 
   } else {
     /* Subtract full ring */
+
+    ATH_MSG_DEBUG("eflowCellSubtractionFacilitator: Subtracting full ring ");
 
     subtractFullRings(tracksClusters, beginRing, endRing);
     orderedCells.deleteFromList(beginRing, endRing);
@@ -226,6 +237,7 @@ double eflowCellSubtractionFacilitator::subtractCells(eflowRingSubtractionManage
 
   const double eExpect = cellSubtractionManager.fudgeMean() * trackEnergy;
   const double sigmaEExpect = cellSubtractionManager.fudgeStdDev() * trackEnergy;
+  ATH_MSG_DEBUG("eflowCellSubtractionFacilitator: For track with trackEnergy " << trackEnergy << " expect to subtract " << eExpect << " with width of " << sigmaEExpect);
 
   double eSubtracted = 0.0;
 

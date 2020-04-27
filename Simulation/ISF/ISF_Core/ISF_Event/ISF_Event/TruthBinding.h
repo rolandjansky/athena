@@ -10,7 +10,7 @@
 #define ISF_EVENT_TRUTHBINDING_H
 
 // HepMC
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 namespace ISF {
 
