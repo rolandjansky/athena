@@ -22,9 +22,8 @@ class InDetVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         # 
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
         SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
-                                                  Extrapolator="Trk::Extrapolator/AtlasExtrapolator",
-                                                  AtlasMagFieldSvc = "AtlasFieldSvc"
-                                                  #AtlasMagFieldSvc = "Default",
+                                                  Extrapolator="Trk::Extrapolator/AtlasExtrapolator"
+                                                  #AtlasMagFieldSvc = "AtlasFieldSvc"
                                                   #Extrapolator = "DefaultVKalPropagator"
                                                  )
         ToolSvc += SVertexFitterTool
@@ -94,8 +93,8 @@ class AtlasVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         # 
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
         SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
-                                                  Extrapolator=SVAtlasExtrapolator,
-                                                  AtlasMagFieldSvc = "myAtlasFieldSvc"
+                                                  Extrapolator=SVAtlasExtrapolator
+                                                  #AtlasMagFieldSvc = "myAtlasFieldSvc"
                                                  )
         ToolSvc += SVertexFitterTool
         #----------------------
