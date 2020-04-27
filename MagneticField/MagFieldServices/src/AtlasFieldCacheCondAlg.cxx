@@ -63,9 +63,7 @@ MagField::AtlasFieldCacheCondAlg::initialize() {
     }
 
     ATH_MSG_INFO ( "Initialize: useDCS, useSoleCurrent, useToroCurrent. " << (int)m_useDCS << ", "
-                   << m_useSoleCurrent << ", " << m_useToroCurrent);
-    // ATH_MSG_INFO ( "Initialize: useDCS, useSoleCurrent, useToroCurrent. " << (int)m_useDCS << ", "
-    //                << m_useSoleCurrent << ", " << m_useToroCurrent << " LockMapCurrents " << (int)m_lockMapCurrents);
+                   << m_useSoleCurrent << ", " << m_useToroCurrent << " LockMapCurrents " << (int)m_lockMapCurrents);
 
     
     return StatusCode::SUCCESS;
@@ -74,7 +72,7 @@ MagField::AtlasFieldCacheCondAlg::initialize() {
 StatusCode
 MagField::AtlasFieldCacheCondAlg::execute(const EventContext& ctx) const {
 
-    ATH_MSG_INFO ( "execute: entering");
+    ATH_MSG_DEBUG ( "execute: entering");
 
     // Check if output conditions object with field cache object is still valid, if not replace it
     // with new current scale factors
