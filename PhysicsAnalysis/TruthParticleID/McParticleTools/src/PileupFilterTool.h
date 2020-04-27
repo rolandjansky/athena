@@ -14,8 +14,6 @@
 // STL includes
 #include <set>
 
-// HepMC / CLHEP includes
-
 // FrameWork includes
 
 // McParticleTools includes

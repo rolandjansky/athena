@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -43,16 +43,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_Trigger::initialize()
   //
   ATH_CHECK(m_beamSpotKey.initialize());
 
-  // Get magnetic field service
-  //
-  if ( !m_fieldServiceHandle.retrieve() ){
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }    
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-  ////////////////////////////////////////////////////////////////////////////////
-  ATH_CHECK( m_fieldCondObjInputKey.initialize());
-  ////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK(m_fieldCondObjInputKey.initialize());
 
   // Build framework
   //
@@ -97,22 +88,19 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent(const EventContext& ctx, Ev
 
   double f[3], gP[3] ={10.,10.,0.};
 
-  if (m_fieldServiceHandle->solenoidOn()) {
+  MagField::AtlasFieldCache    fieldCache;
 
-    MagField::AtlasFieldCache    fieldCache;
+  // Get field cache object
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR("SiSpacePointsSeedMaker_Trigger: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return; 
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
 
-    // Get field cache object
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-    if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SiSpacePointsSeedMaker_Trigger: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-      return; 
-    }
-    fieldCondObj->getInitializedCache (fieldCache);
-
-    //   MT version uses cache, temporarily keep old version
-    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, f);
-    else                                m_fieldServiceHandle->getFieldZR(gP, f);
+  if (fieldCache.solenoidOn()) {
+    fieldCache.getFieldZR(gP, f);
 
     data.K = 2./(300.*f[2]);
   } else {
@@ -218,22 +206,20 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
   buildBeamFrameWork(data);
 
   double f[3], gP[3] ={10.,10.,0.};
-  if (m_fieldServiceHandle->solenoidOn()) {
 
-    MagField::AtlasFieldCache    fieldCache;
+  MagField::AtlasFieldCache    fieldCache;
 
-    // Get field cache object
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-    if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SiSpacePointsSeedMaker_Trigger: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-      return;
-    }
-    fieldCondObj->getInitializedCache (fieldCache);
+  // Get field cache object
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR("SiSpacePointsSeedMaker_Trigger: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    return;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
 
-    //   MT version uses cache, temporarily keep old version
-    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (gP, f);
-    else                                m_fieldServiceHandle->getFieldZR(gP, f);
+  if (fieldCache.solenoidOn()) {
+    fieldCache.getFieldZR(gP, f);
 
     data.K = 2./(300.*f[2]);
   } else {

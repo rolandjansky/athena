@@ -21,7 +21,6 @@
 #include "DataModelAthenaPool/ElementLink_p2.h"
 #include "DataModelAthenaPool/ElementLinkContNames_p2.h"
 
-// HepMC / CLHEP includes
 
 // Forward declaration
 class INav4MomAssocsCnv_p2;

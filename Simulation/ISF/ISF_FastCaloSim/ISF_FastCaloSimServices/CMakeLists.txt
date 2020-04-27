@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloDetDescr
                           Control/StoreGate
                           Event/NavFourMom
+                          Generators/AtlasHepMC
                           Generators/GeneratorObjects
                           Simulation/FastShower/FastCaloSim
                           Simulation/ISF/ISF_Core/ISF_Event
@@ -33,7 +34,6 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 find_package(lwtnn)
 
 # Component(s) in the package:
@@ -41,7 +41,7 @@ atlas_add_component( ISF_FastCaloSimServices
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${LWTNN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel IdDictParser ISF_Interfaces TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib SGtests NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces ISF_FastCaloSimParametrizationLib PathResolver)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${LWTNN_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel IdDictParser ISF_Interfaces TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib SGtests NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces ISF_FastCaloSimParametrizationLib PathResolver)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

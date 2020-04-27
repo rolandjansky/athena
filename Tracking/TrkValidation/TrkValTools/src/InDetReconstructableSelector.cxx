@@ -95,13 +95,13 @@ Trk::InDetReconstructableSelector::selectGenSignal (const McEventCollection* Sim
       } else {
       
         // 2) require track inside ID - relaxed definition including decays of neutrals (secondaries)
-        if ( fabs(particle->production_vertex()->point3d().perp()) > m_maxRStartAll ||
-             fabs(particle->production_vertex()->point3d().z())    > m_maxZStartAll ) continue;
+        if ( fabs(particle->production_vertex()->position().perp()) > m_maxRStartAll ||
+             fabs(particle->production_vertex()->position().z())    > m_maxZStartAll ) continue;
 
         // 3) if jobOption, require strict definition of particles from within beam pipe
         if ( m_selectPrimariesOnly && 
-             ( fabs(particle->production_vertex()->point3d().perp()) > m_maxRStartPrimary ||
-               fabs(particle->production_vertex()->point3d().z())    > m_maxZStartPrimary ) ) continue;
+             ( fabs(particle->production_vertex()->position().perp()) > m_maxRStartPrimary ||
+               fabs(particle->production_vertex()->position().z())    > m_maxZStartPrimary ) ) continue;
 
         int   pdgCode         = particle->pdg_id();
         if (abs(pdgCode) > 1000000000 ) continue; // ignore nuclei from hadronic interactions

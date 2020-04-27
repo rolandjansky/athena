@@ -1291,8 +1291,8 @@ int InDet::TrackClusterAssValidation::kine
 
     // Radius cut
     //
-    double           vx = pa->production_vertex()->point3d().x();
-    double           vy = pa->production_vertex()->point3d().y();
+    double           vx = pa->production_vertex()->position().x();
+    double           vy = pa->production_vertex()->position().y();
     double           r = std::sqrt(vx*vx+vy*vy);
     if( r < m_rmin || r > m_rmax) continue;
 
@@ -1445,9 +1445,9 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles(const InDet::Tra
       double           px =  pa->momentum().px();
       double           py =  pa->momentum().py();
       double           pz =  pa->momentum().pz();
-      double           vx = pa->production_vertex()->point3d().x();
-      double           vy = pa->production_vertex()->point3d().y();
-      double           vz = pa->production_vertex()->point3d().z();
+      double           vx = pa->production_vertex()->position().x();
+      double           vy = pa->production_vertex()->position().y();
+      double           vz = pa->production_vertex()->position().z();
       double           pt = std::sqrt(px*px+py*py);
       double           t  = std::atan2(pt,pz);
       double           ra =-std::log(std::tan(.5*t));

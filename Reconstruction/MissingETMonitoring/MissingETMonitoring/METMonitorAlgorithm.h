@@ -43,7 +43,7 @@ public:
    Gaudi::Property<bool> m_dometcut {this,"dometcut",false};
    Gaudi::Property<bool> m_doBadJets {this,"DoBadJets",false};
    Gaudi::Property<double> m_metcut {this,"metcut", 80.};
-
+ Gaudi::Property<bool> m_dotrig {this,"dotrigger",false};
   Gaudi::Property<bool> m_doJetCleaning{this, "DoJetCleaning", false, ""};
    ToolHandle<IJetSelector> m_jetCleaningTool{this, "JetCleaningTool", "", ""};
    bool isGoodEvent( const EventContext& ctx ) const;

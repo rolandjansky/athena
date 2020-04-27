@@ -35,7 +35,7 @@
 #include "G4TransportationManager.hh"
 
 //External includes
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 // ROOT includes
 #include "TTree.h"
 // STL includes

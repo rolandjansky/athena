@@ -25,9 +25,7 @@
 // forward declarations
 class McEventCollection;
 class G4Event;
-namespace HepMC {
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 namespace ISF {
 

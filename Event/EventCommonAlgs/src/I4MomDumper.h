@@ -15,7 +15,6 @@
 #include <string>
 #include <iosfwd>
 
-// HepMC / CLHEP includes
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"

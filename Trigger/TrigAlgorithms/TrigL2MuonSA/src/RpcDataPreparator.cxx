@@ -34,6 +34,9 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
+   ATH_CHECK( m_recRPCRoiSvc.retrieve() );
+   ATH_MSG_DEBUG( "Retrieved Service " << m_recRPCRoiSvc );
+
    // consistency check for decoding flag settings
    if(m_decodeBS && !m_doDecoding) {
      ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
@@ -65,6 +68,14 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 void TrigL2MuonSA::RpcDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
 {
   m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::RpcDataPreparator::setMultiMuonTrigger( const bool multiMuonTrigger )
+{
+  m_doMultiMuon = multiMuonTrigger;
 }
 
 // --------------------------------------------------------------------------------
@@ -258,9 +269,28 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        lutDigit.phi = phi;
        lutDigit.l = l;
        rpcHits.push_back(lutDigit);
-       
+
+       float deta_thr = 0.1;
+       float dphi_thr = 0.1;
+       float dynamic_add = 0.02;
+
+       //Determine deta, dphi threshold in case of dynamicDeltaRpcMode
+       if( m_doMultiMuon ){
+         ATH_MSG_DEBUG("Collected RPC hits by MultiMuonTriggerMode");
+         m_recRPCRoiSvc->reconstruct( roiWord );
+         float RoiPhiMin = m_recRPCRoiSvc->phiMin();
+         float RoiPhiMax = m_recRPCRoiSvc->phiMax();
+         float RoiEtaMin = m_recRPCRoiSvc->etaMin();
+         float RoiEtaMax = m_recRPCRoiSvc->etaMax();
+         ATH_MSG_DEBUG( "RoI Phi min = " << RoiPhiMin << " RoI Phi max = " << RoiPhiMax << " RoI Eta min = " << RoiEtaMin << " RoI Eta max = " << RoiEtaMax );
+         deta_thr = std::abs( RoiEtaMax - RoiEtaMin )/2. + dynamic_add;
+         dphi_thr = std::abs( acos( cos( RoiPhiMax - RoiPhiMin ) ) )/2. + dynamic_add;
+         ATH_MSG_DEBUG( "deta threshold = " << deta_thr);
+         ATH_MSG_DEBUG( "dphi threshold = " << dphi_thr);
+       }
+
        if (m_use_RoIBasedDataAccess) {
-         if ( deta<0.1 && dphi<0.1)
+         if ( deta<deta_thr && dphi<dphi_thr)
            (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
        } else {
          if ( deta<0.15 && dphi<0.1)

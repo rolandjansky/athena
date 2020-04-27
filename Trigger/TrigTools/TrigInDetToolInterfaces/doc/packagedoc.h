@@ -25,8 +25,6 @@ The list of abstract interfaces is below:
 2. Track fitting and extrapolation tools
 
     - ITrigInDetTrackFitter - an interface for the LVL2 ID track fitting tools
-    - ITrigTRT_TrackExtensionTool - an interface for the TRT track extension tool which performs 
-a simultaneous pattern recognition and track fitting in the TRT
     - ITrigInDetTrackExtrapolator - an interface for the LVL2 ID track extrapolator
 
 3. Vertex fitting tools

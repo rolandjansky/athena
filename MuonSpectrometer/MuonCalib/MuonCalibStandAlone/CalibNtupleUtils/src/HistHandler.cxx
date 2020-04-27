@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CalibNtupleUtils/HistHandler.h"
@@ -8,8 +8,6 @@
 #include <algorithm>
 #include <sstream>
 #include "TString.h"
-
-
 
 HistHandler::HistHandler( std::string title, Int_t binning, Float_t min, Float_t max, const HistSetting* setting) 
   : m_title(title), m_bin(binning), m_min(min), m_max(max), m_binY(0), m_minY(0.0), m_maxY(0.0), m_setting(setting) {
@@ -22,7 +20,7 @@ HistHandler::HistHandler( std::string title, Int_t binningX, Float_t minX, Float
 
 void HistHandler::fill( const MuonCalib::MuonFixedId& Id, Float_t entry ) {
   std::string stationName = Id.stationNumberToFixedStationString( Id.stationName() );
-  int abseta = abs(Id.eta());
+  int abseta = std::abs(Id.eta());
   int phi = Id.phi();
   std::string side;
   if( Id.eta() > 0) side = "A";
@@ -45,7 +43,7 @@ void HistHandler::fill( const MuonCalib::MuonFixedId& Id, Float_t entry ) {
 
 void HistHandler::fill( const MuonCalib::MuonFixedId& Id, Float_t entryX, Float_t entryY ) {
   std::string stationName = Id.stationNumberToFixedStationString( Id.stationName() );
-  int abseta = abs(Id.eta());
+  int abseta = std::abs(Id.eta());
   int phi = Id.phi();
   std::string side;
   if( Id.eta() > 0) side = "A";
@@ -76,7 +74,7 @@ void HistHandler::write(){
  
 TH1F* HistHandler::Hist( const MuonCalib::MuonFixedId& Id ) const {
   std::string stationName = Id.stationNumberToFixedStationString( Id.stationName() );
-  int abseta = abs(Id.eta());
+  int abseta = std::abs(Id.eta());
   int phi = Id.phi();
   std::string side;
   if( Id.eta() > 0) side = "A";
@@ -107,7 +105,7 @@ TH1F* HistHandler::Hist(  const std::string tag  ) const {
 
 TH2F* HistHandler::Hist2( const MuonCalib::MuonFixedId& Id ) const {
   std::string stationName = Id.stationNumberToFixedStationString( Id.stationName() );
-  int abseta = abs(Id.eta());
+  int abseta = std::abs(Id.eta());
   int phi = Id.phi();
   std::string side;
   if( Id.eta() > 0) side = "A";

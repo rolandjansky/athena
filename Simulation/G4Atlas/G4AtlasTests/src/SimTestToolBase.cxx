@@ -4,7 +4,7 @@
 
 #include "SimTestToolBase.h"
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 SimTestToolBase::SimTestToolBase(const std::string& type, 

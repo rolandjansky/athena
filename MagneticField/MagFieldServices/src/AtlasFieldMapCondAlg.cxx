@@ -63,7 +63,7 @@ MagField::AtlasFieldMapCondAlg::initialize() {
 
 StatusCode
 MagField::AtlasFieldMapCondAlg::start() {
-    ATH_MSG_INFO ( "start: entering  ");
+    ATH_MSG_DEBUG ( "start: entering  ");
 
     // If we want to build the map at start, this can be done without access to conditions db
     // This is needed for online operation

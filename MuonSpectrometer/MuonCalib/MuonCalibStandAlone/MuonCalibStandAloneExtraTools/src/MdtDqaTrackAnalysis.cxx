@@ -528,7 +528,7 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
   // MODIFICATIONS INTRODUCED FOR MUON VETO ANALYSIS WITH SEGMENTS refitted-t0
 
   bool CollisionEvent = false;
-  if(abs(dTimeMBTS)<10 && Ev_ngoodtrack>2 && Ev_pveto>0 ) CollisionEvent=true;
+  if(std::abs(dTimeMBTS)<10 && Ev_ngoodtrack>2 && Ev_pveto>0 ) CollisionEvent=true;
 
   // ----------- Choose datacards here according to your analysis -----
   // HERE DECIDE WHETHER THE EVENT MUST BE A COLLISION CANDIDATE OR NOT :
@@ -713,7 +713,7 @@ int MdtDqaTrackAnalysis::number_IDhits(MuonCalibSelector::TrackVec::const_iterat
     } else if ((*it_hit)->position().perp() < 1100.) {
       ntrt++;
       if(detector ==3) nhit++; 
-      if(fabs((*it_hit)->position().z()) < 750.){
+      if(std::abs((*it_hit)->position().z()) < 750.){
 	ntrtb++;
 	if(detector ==4) nhit++; 
       }
@@ -729,19 +729,19 @@ int MdtDqaTrackAnalysis::cutflow(MuonCalibSelector::TrackVec::const_iterator tra
   double eta = 0;
   double pt  = 0;
   double p  = 0;
-  eta = -log(tan((*track)->theta()/2.));
+  eta = -std::log(std::tan((*track)->theta()/2.));
   pt  = (*track)->pt()/1000;
   p   = (*track)->p()/1000; 
 
   HasPassedLevel = 0;    
   HasPassedLevel = 1; 
-  if(HasPassedLevel == 1 && abs(dTimeMBTS)<10)                                     HasPassedLevel = 2; 
-  if(HasPassedLevel == 2 && Ev_ngoodtrack>2)                                       HasPassedLevel = 3; 
-  if(HasPassedLevel == 3 && Ev_pveto>0)                                            HasPassedLevel = 4;  
-  if(HasPassedLevel == 4)                                                          HasPassedLevel = 5;     
-  if(HasPassedLevel == 5 && abs(eta)<2.5 && pt>2.5)                                HasPassedLevel = 6;
-  if(HasPassedLevel == 6 && p>4.)                                                  HasPassedLevel = 7;
-  if(HasPassedLevel == 7 && npixel>0 && nsct>5)                                    HasPassedLevel = 8;
+  if(HasPassedLevel == 1 && std::abs(dTimeMBTS)<10) HasPassedLevel = 2; 
+  if(HasPassedLevel == 2 && Ev_ngoodtrack>2) HasPassedLevel = 3; 
+  if(HasPassedLevel == 3 && Ev_pveto>0) HasPassedLevel = 4;  
+  if(HasPassedLevel == 4) HasPassedLevel = 5;     
+  if(HasPassedLevel == 5 && std::abs(eta)<2.5 && pt>2.5) HasPassedLevel = 6;
+  if(HasPassedLevel == 6 && p>4.) HasPassedLevel = 7;
+  if(HasPassedLevel == 7 && npixel>0 && nsct>5) HasPassedLevel = 8;
   
   return HasPassedLevel;
 }  //end MdtDqaTrackAnalysis::cutflow

@@ -341,7 +341,7 @@ int AmdcDumpGeoModel::SelectedChamber(std::string TheStationName, int AmdcJzz, i
   for (int StationNameSelectedItem=0; StationNameSelectedItem<StationNameSelectedSize ; StationNameSelectedItem++){
     if (
         TheStationName == m_StationNameSelected[StationNameSelectedItem]
-    &&  abs(AmdcJzz)   == abs(m_StationAbsAmdcJzzSelected[StationNameSelectedItem])
+    &&  std::abs(AmdcJzz)   == std::abs(m_StationAbsAmdcJzzSelected[StationNameSelectedItem])
     &&  AmdcJff        == m_StationAmdcJffSelected[StationNameSelectedItem]
        ) ToBeReturned = 1 ;
   }
@@ -732,52 +732,52 @@ void AmdcDumpGeoModel::MdtCompare(
    std::string WarningTube = " ";
    int Iwarning = 0 ;
 
-   if (fabs(DiffZ) > EpsLoMdt ) WarningZ = "  <=========  WARNING !";
-   if (fabs(DiffS) > EpsLoMdt ) WarningS = "  <=========  WARNING !";
-   if (fabs(DiffT) > EpsLoMdt ) WarningT = "  <=========  WARNING !";
-   if (fabs(DiffZ) > EpsLoMdt ) Iwarning = 1 ;
-   if (fabs(DiffS) > EpsLoMdt ) Iwarning = 1 ;
-   if (fabs(DiffT) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffZ) > EpsLoMdt ) WarningZ = "  <=========  WARNING !";
+   if (std::abs(DiffS) > EpsLoMdt ) WarningS = "  <=========  WARNING !";
+   if (std::abs(DiffT) > EpsLoMdt ) WarningT = "  <=========  WARNING !";
+   if (std::abs(DiffZ) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffS) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffT) > EpsLoMdt ) Iwarning = 1 ;
 
-   if (fabs(DiffZ_RO) > EpsLoMdt ) WarningZ_RO = "  <=========  WARNING !";
-   if (fabs(DiffS_RO) > EpsLoMdt ) WarningS_RO = "  <=========  WARNING !";
-   if (fabs(DiffT_RO) > EpsLoMdt ) WarningT_RO = "  <=========  WARNING !";
-   if (fabs(DiffZ_RO) > EpsLoMdt ) Iwarning = 1 ;
-   if (fabs(DiffS_RO) > EpsLoMdt ) Iwarning = 1 ;
-   if (fabs(DiffT_RO) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffZ_RO) > EpsLoMdt ) WarningZ_RO = "  <=========  WARNING !";
+   if (std::abs(DiffS_RO) > EpsLoMdt ) WarningS_RO = "  <=========  WARNING !";
+   if (std::abs(DiffT_RO) > EpsLoMdt ) WarningT_RO = "  <=========  WARNING !";
+   if (std::abs(DiffZ_RO) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffS_RO) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffT_RO) > EpsLoMdt ) Iwarning = 1 ;
 
-   if (fabs(DiffZs) > EpsLoMdt ) WarningZs = "  <=========  WARNING !";
-   if (fabs(DiffSs) > EpsLoMdt ) WarningSs = "  <=========  WARNING !";
-   if (fabs(DiffTs) > EpsLoMdt ) WarningTs = "  <=========  WARNING !";
-   if (fabs(DiffZs) > EpsLoMdt ) Iwarning = 1 ;
-   if (fabs(DiffSs) > EpsLoMdt ) Iwarning = 1 ;
-   if (fabs(DiffTs) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffZs) > EpsLoMdt ) WarningZs = "  <=========  WARNING !";
+   if (std::abs(DiffSs) > EpsLoMdt ) WarningSs = "  <=========  WARNING !";
+   if (std::abs(DiffTs) > EpsLoMdt ) WarningTs = "  <=========  WARNING !";
+   if (std::abs(DiffZs) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffSs) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffTs) > EpsLoMdt ) Iwarning = 1 ;
    
-   if (fabs(DiffZs_RO) > EpsLoMdt ) WarningZs_RO = "  <=========  WARNING !";
-   if (fabs(DiffSs_RO) > EpsLoMdt ) WarningSs_RO = "  <=========  WARNING !";
-   if (fabs(DiffTs_RO) > EpsLoMdt ) WarningTs_RO = "  <=========  WARNING !";
-   if (fabs(DiffZs_RO) > EpsLoMdt ) Iwarning = 1 ;
-   if (fabs(DiffSs_RO) > EpsLoMdt ) Iwarning = 1 ;
-   if (fabs(DiffTs_RO) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffZs_RO) > EpsLoMdt ) WarningZs_RO = "  <=========  WARNING !";
+   if (std::abs(DiffSs_RO) > EpsLoMdt ) WarningSs_RO = "  <=========  WARNING !";
+   if (std::abs(DiffTs_RO) > EpsLoMdt ) WarningTs_RO = "  <=========  WARNING !";
+   if (std::abs(DiffZs_RO) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffSs_RO) > EpsLoMdt ) Iwarning = 1 ;
+   if (std::abs(DiffTs_RO) > EpsLoMdt ) Iwarning = 1 ;
 
    if (TubeLength <= 0.001 ) WarningTube = "  <=========  WARNING !";
    if (TubeLength <= 0.001 ) Iwarning = 2 ;
 
-   if (fabs(DiffZ) > EpsLoMdt ) WarningZ = "  <=========  WARNING ! (precise Measurement)";
-   if (fabs(DiffZ) > EpsLoMdt ) Iwarning = 2 ;
+   if (std::abs(DiffZ) > EpsLoMdt ) WarningZ = "  <=========  WARNING ! (precise Measurement)";
+   if (std::abs(DiffZ) > EpsLoMdt ) Iwarning = 2 ;
 
    if (Iwarning >= WarningLevel 
    && SelectedStation(AmdcStationName) == 1 
    && AntiSelectedStation(AmdcStationName) == 1 
    && SelectedChamber(AmdcStationName,AmdcJzz,AmdcJff) == 1 ) {
 
-    if ( fabs(DiffZ)  > fabs(m_Mdt_MaxDiffZ ) )  m_Mdt_MaxDiffZ  = DiffZ  ;
-    if ( fabs(DiffS)  > fabs(m_Mdt_MaxDiffS ) )  m_Mdt_MaxDiffS  = DiffS  ;
-    if ( fabs(DiffT)  > fabs(m_Mdt_MaxDiffT ) )  m_Mdt_MaxDiffT  = DiffT  ;
+    if ( std::abs(DiffZ)  > std::abs(m_Mdt_MaxDiffZ ) )  m_Mdt_MaxDiffZ  = DiffZ  ;
+    if ( std::abs(DiffS)  > std::abs(m_Mdt_MaxDiffS ) )  m_Mdt_MaxDiffS  = DiffS  ;
+    if ( std::abs(DiffT)  > std::abs(m_Mdt_MaxDiffT ) )  m_Mdt_MaxDiffT  = DiffT  ;
 
-    if ( fabs(DiffZs) > fabs(m_Mdt_MaxDiffZs) )  m_Mdt_MaxDiffZs = DiffZs ;
-    if ( fabs(DiffSs) > fabs(m_Mdt_MaxDiffSs) )  m_Mdt_MaxDiffSs = DiffSs ;
-    if ( fabs(DiffTs) > fabs(m_Mdt_MaxDiffTs) )  m_Mdt_MaxDiffTs = DiffTs ;
+    if ( std::abs(DiffZs) > std::abs(m_Mdt_MaxDiffZs) )  m_Mdt_MaxDiffZs = DiffZs ;
+    if ( std::abs(DiffSs) > std::abs(m_Mdt_MaxDiffSs) )  m_Mdt_MaxDiffSs = DiffSs ;
+    if ( std::abs(DiffTs) > std::abs(m_Mdt_MaxDiffTs) )  m_Mdt_MaxDiffTs = DiffTs ;
 
     OutFile 
   		   << "*StNa/Name/Eta/Phi/MuL/TuL/Tube /" 
@@ -1164,26 +1164,26 @@ void AmdcDumpGeoModel::RpcCompare(
    std::string WarningT = " ";
    int Iwarning = 0 ;
 
-   if (fabs(DiffZ) > EpsLoRpc ) WarningZ = "  <=========  WARNING !";
-   if (fabs(DiffS) > EpsLoRpc ) WarningS = "  <=========  WARNING !";
-   if (fabs(DiffT) > EpsLoRpc ) WarningT = "  <=========  WARNING !";
-   if (fabs(DiffZ) > EpsLoRpc ) Iwarning = 1 ;
-   if (fabs(DiffS) > EpsLoRpc ) Iwarning = 1 ;
-   if (fabs(DiffT) > EpsLoRpc ) Iwarning = 1 ;
+   if (std::abs(DiffZ) > EpsLoRpc ) WarningZ = "  <=========  WARNING !";
+   if (std::abs(DiffS) > EpsLoRpc ) WarningS = "  <=========  WARNING !";
+   if (std::abs(DiffT) > EpsLoRpc ) WarningT = "  <=========  WARNING !";
+   if (std::abs(DiffZ) > EpsLoRpc ) Iwarning = 1 ;
+   if (std::abs(DiffS) > EpsLoRpc ) Iwarning = 1 ;
+   if (std::abs(DiffT) > EpsLoRpc ) Iwarning = 1 ;
 
-   if (AmdcJsz == 2 && fabs(DiffZ) > EpsLoRpc ) WarningZ = "  <=========  WARNING ! (precise Measurement)";
-   if (AmdcJsz == 1 && fabs(DiffS) > EpsLoRpc ) WarningS = "  <=========  WARNING ! (precise Measurement)";
-   if (AmdcJsz == 2 && fabs(DiffZ) > EpsLoRpc ) Iwarning = 2 ;
-   if (AmdcJsz == 1 && fabs(DiffS) > EpsLoRpc ) Iwarning = 2 ;
+   if (AmdcJsz == 2 && std::abs(DiffZ) > EpsLoRpc ) WarningZ = "  <=========  WARNING ! (precise Measurement)";
+   if (AmdcJsz == 1 && std::abs(DiffS) > EpsLoRpc ) WarningS = "  <=========  WARNING ! (precise Measurement)";
+   if (AmdcJsz == 2 && std::abs(DiffZ) > EpsLoRpc ) Iwarning = 2 ;
+   if (AmdcJsz == 1 && std::abs(DiffS) > EpsLoRpc ) Iwarning = 2 ;
 
    if (Iwarning >= WarningLevel 
    && SelectedStation(AmdcStationName) == 1 
    && AntiSelectedStation(AmdcStationName) == 1 
    && SelectedChamber(AmdcStationName,AmdcJzz,AmdcJff) == 1 ) {
 
-    if ( fabs(DiffZ) > fabs(m_Rpc_MaxDiffZ) )  m_Rpc_MaxDiffZ = DiffZ ;
-    if ( fabs(DiffS) > fabs(m_Rpc_MaxDiffS) )  m_Rpc_MaxDiffS = DiffS ;
-    if ( fabs(DiffT) > fabs(m_Rpc_MaxDiffT) )  m_Rpc_MaxDiffT = DiffT ;
+    if ( std::abs(DiffZ) > std::abs(m_Rpc_MaxDiffZ) )  m_Rpc_MaxDiffZ = DiffZ ;
+    if ( std::abs(DiffS) > std::abs(m_Rpc_MaxDiffS) )  m_Rpc_MaxDiffS = DiffS ;
+    if ( std::abs(DiffT) > std::abs(m_Rpc_MaxDiffT) )  m_Rpc_MaxDiffT = DiffT ;
 
     OutFile 
                  << "*StNa/Name/Eta/Phi/DbR/DbZ/DbP/GG /Mphi/Strip/" 
@@ -1360,12 +1360,6 @@ void AmdcDumpGeoModel::LoopTgcElements(std::ofstream&  OutFile){
        channel += pReadoutElement->getNStrips(ngg+1)-1;
        if (channel == 1 ){
         channel = 2 ;
-//         OutFile  
-//                 << " getNStrips " << pReadoutElement->getNStrips(ngg+1) 
-// 		<< " Is this expected? " 
-// 		<< " " << m_idHelperSvc->tgcIdHelper().show_to_string(channelId)
-// 	        << std::endl; 
-	
        }
       }
       for (int channel = 1; channel<=pReadoutElement1->getNStrips(ngg+1);)
@@ -1543,26 +1537,26 @@ void AmdcDumpGeoModel::TgcCompare(
    std::string WarningT = " ";
    int Iwarning = 0 ;
 
-   if (fabs(DiffZ) > EpsLoTgc ) WarningZ = "  <=========  WARNING !";
-   if (fabs(DiffS) > EpsLoTgc ) WarningS = "  <=========  WARNING !";
-   if (fabs(DiffT) > EpsLoTgc ) WarningT = "  <=========  WARNING !";
-   if (fabs(DiffZ) > EpsLoTgc ) Iwarning = 1 ;
-   if (fabs(DiffS) > EpsLoTgc ) Iwarning = 1 ;
-   if (fabs(DiffT) > EpsLoTgc ) Iwarning = 1 ;
+   if (std::abs(DiffZ) > EpsLoTgc ) WarningZ = "  <=========  WARNING !";
+   if (std::abs(DiffS) > EpsLoTgc ) WarningS = "  <=========  WARNING !";
+   if (std::abs(DiffT) > EpsLoTgc ) WarningT = "  <=========  WARNING !";
+   if (std::abs(DiffZ) > EpsLoTgc ) Iwarning = 1 ;
+   if (std::abs(DiffS) > EpsLoTgc ) Iwarning = 1 ;
+   if (std::abs(DiffT) > EpsLoTgc ) Iwarning = 1 ;
 
-   if (AmdcJsz == 1 && fabs(DiffS) > EpsLoTgc ) WarningS = "  <=========  WARNING ! (precise Measurement)";
-   if (AmdcJsz == 2 && fabs(DiffT) > EpsLoTgc ) WarningT = "  <=========  WARNING ! (precise Measurement)";
-   if (AmdcJsz == 1 && fabs(DiffS) > EpsLoTgc ) Iwarning = 2 ;
-   if (AmdcJsz == 2 && fabs(DiffT) > EpsLoTgc ) Iwarning = 2 ;
+   if (AmdcJsz == 1 && std::abs(DiffS) > EpsLoTgc ) WarningS = "  <=========  WARNING ! (precise Measurement)";
+   if (AmdcJsz == 2 && std::abs(DiffT) > EpsLoTgc ) WarningT = "  <=========  WARNING ! (precise Measurement)";
+   if (AmdcJsz == 1 && std::abs(DiffS) > EpsLoTgc ) Iwarning = 2 ;
+   if (AmdcJsz == 2 && std::abs(DiffT) > EpsLoTgc ) Iwarning = 2 ;
 
    if (Iwarning >= WarningLevel 
    && SelectedStation(AmdcStationName) == 1 
    && AntiSelectedStation(AmdcStationName) == 1 
    && SelectedChamber(AmdcStationName,AmdcJzz,AmdcJff) == 1 ) {
 
-    if ( fabs(DiffZ) > fabs(m_Tgc_MaxDiffZ) )  m_Tgc_MaxDiffZ = DiffZ ;
-    if ( fabs(DiffS) > fabs(m_Tgc_MaxDiffS) )  m_Tgc_MaxDiffS = DiffS ;
-    if ( fabs(DiffT) > fabs(m_Tgc_MaxDiffT) )  m_Tgc_MaxDiffT = DiffT ;
+    if ( std::abs(DiffZ) > std::abs(m_Tgc_MaxDiffZ) )  m_Tgc_MaxDiffZ = DiffZ ;
+    if ( std::abs(DiffS) > std::abs(m_Tgc_MaxDiffS) )  m_Tgc_MaxDiffS = DiffS ;
+    if ( std::abs(DiffT) > std::abs(m_Tgc_MaxDiffT) )  m_Tgc_MaxDiffT = DiffT ;
 
     OutFile 
                  << "*StNa/Name/Eta/Phi/GG             /IsSt/Chann/" 
@@ -1982,26 +1976,26 @@ void AmdcDumpGeoModel::CscCompare(
    std::string Warningtt= " ";
    int Iwarning = 0 ;
 
-   if (fabs(Diffss)> EpsLoCsc ) Warningss = "  <=========  WARNING !";
-   if (fabs(Diffzz)> EpsLoCsc ) Warningzz = "  <=========  WARNING !";
-   if (fabs(Difftt)> EpsLoCsc ) Warningtt = "  <=========  WARNING !";
-   if (fabs(Diffss)> EpsLoCsc ) Iwarning = 1 ;
-   if (fabs(Diffzz)> EpsLoCsc ) Iwarning = 1 ;
-   if (fabs(Difftt)> EpsLoCsc ) Iwarning = 1 ;
+   if (std::abs(Diffss)> EpsLoCsc ) Warningss = "  <=========  WARNING !";
+   if (std::abs(Diffzz)> EpsLoCsc ) Warningzz = "  <=========  WARNING !";
+   if (std::abs(Difftt)> EpsLoCsc ) Warningtt = "  <=========  WARNING !";
+   if (std::abs(Diffss)> EpsLoCsc ) Iwarning = 1 ;
+   if (std::abs(Diffzz)> EpsLoCsc ) Iwarning = 1 ;
+   if (std::abs(Difftt)> EpsLoCsc ) Iwarning = 1 ;
 
-   if (AmdcSZflag < 0 && fabs(Diffss)> EpsLoCsc ) Warningss = "  <=========  WARNING ! (precise Measurement)";
-   if (AmdcSZflag > 0 && fabs(Diffzz)> EpsLoCsc ) Warningzz = "  <=========  WARNING ! (precise Measurement)";
-   if (AmdcSZflag < 0 && fabs(Diffss)> EpsLoCsc ) Iwarning = 2 ;
-   if (AmdcSZflag > 0 && fabs(Diffzz)> EpsLoCsc ) Iwarning = 2 ;
+   if (AmdcSZflag < 0 && std::abs(Diffss)> EpsLoCsc ) Warningss = "  <=========  WARNING ! (precise Measurement)";
+   if (AmdcSZflag > 0 && std::abs(Diffzz)> EpsLoCsc ) Warningzz = "  <=========  WARNING ! (precise Measurement)";
+   if (AmdcSZflag < 0 && std::abs(Diffss)> EpsLoCsc ) Iwarning = 2 ;
+   if (AmdcSZflag > 0 && std::abs(Diffzz)> EpsLoCsc ) Iwarning = 2 ;
 
    if (Iwarning >= WarningLevel 
    && SelectedStation(AmdcStationName) == 1 
    && AntiSelectedStation(AmdcStationName) == 1 
    && SelectedChamber(AmdcStationName,AmdcJzz,AmdcJff) == 1 ) {
 
-    if ( fabs(Diffss) > fabs(m_Csc_MaxDiffss) )  m_Csc_MaxDiffss = Diffss ;
-    if ( fabs(Diffzz) > fabs(m_Csc_MaxDiffzz) )  m_Csc_MaxDiffzz = Diffzz ;
-    if ( fabs(Difftt) > fabs(m_Csc_MaxDifftt) )  m_Csc_MaxDifftt = Difftt ;
+    if ( std::abs(Diffss) > std::abs(m_Csc_MaxDiffss) )  m_Csc_MaxDiffss = Diffss ;
+    if ( std::abs(Diffzz) > std::abs(m_Csc_MaxDiffzz) )  m_Csc_MaxDiffzz = Diffzz ;
+    if ( std::abs(Difftt) > std::abs(m_Csc_MaxDifftt) )  m_Csc_MaxDifftt = Difftt ;
 
     OutFile 
                  << "*StNa/Name/Eta/Phi/chLa/wLa/Strip/meaPhi/" 

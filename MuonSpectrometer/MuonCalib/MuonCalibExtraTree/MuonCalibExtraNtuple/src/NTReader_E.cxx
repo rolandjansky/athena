@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraNtuple/NTReader_E.h"
@@ -218,8 +218,8 @@ namespace MuonCalib {
 
     double r0  = NTReader::pat_r0[i_pat];
     double phi = NTReader::pat_phi[i_pat];
-    double x0  = r0*sin(phi);
-    double y0  = -r0*cos(phi);
+    double x0  = r0*std::sin(phi);
+    double y0  = -r0*std::cos(phi);
     
     MuonCalibTrack_E* pattern = new MuonCalibTrack_E( x0, y0, NTReader::pat_z0[i_pat], NTReader::pat_phi[i_pat],
 						      NTReader::pat_theta[i_pat], 

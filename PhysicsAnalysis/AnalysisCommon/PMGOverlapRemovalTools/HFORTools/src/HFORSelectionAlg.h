@@ -10,7 +10,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Includes of this package
-#include "HFORTools/IHFORSelectionTool.h"
+#include "PMGAnalysisInterfaces/IHFORSelectionTool.h"
 
 
 

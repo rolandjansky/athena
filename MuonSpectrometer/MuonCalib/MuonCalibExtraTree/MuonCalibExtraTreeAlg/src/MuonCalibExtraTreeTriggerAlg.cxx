@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "MuonCalibExtraTreeAlg/MuonCalibExtraTreeTriggerAlg.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibCaloHit.h"
@@ -18,11 +17,7 @@
 // MBTS trigger
 #include "CaloEvent/CaloCellContainer.h"
 #include "TileEvent/TileContainer.h"
-//#include "TileEvent/TileDigitsContainer.h"
-//#include "CaloDetDescr/CaloDetDescrManager.h"
-//#include "TileEvent/TileCell.h"
 #include "CaloIdentifier/TileID.h"
-//#include "CaloIdentifier/CaloID.h"
 
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Matrix/Matrix.h"
@@ -280,8 +275,8 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
 	  int l2 = 1;
 	  if (m1>0) l1 = 0; 
 	  if (m2>0) l2 = 0;
-	  m1 = abs(m1);
-	  m2 = abs(m2);
+	  m1 = std::abs(m1);
+	  m2 = std::abs(m2);
 	  if(l1==0) etower0[k][m1] += e/2.;
 	  if(l1==1) etower1[k][m1] += e/2.;
 	  if(l2==0) etower0[k][m2] += e/2.;
@@ -349,11 +344,11 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
 	} else {  // sample  !=2 
 	  int l = 1; 
 	  if (cell->eta() > 0) l = 0; 
-	  int m = abs(int(10.0*cell->eta()));
+	  int m = std::abs(int(10.0*cell->eta()));
 	  if (m >= kNEtaCells) m = kNEtaCells-1;
 	  if (l==0) etower0[k][m] += e;
 	  if (l==1) etower1[k][m] += e;
-	  towereta[m][0] = fabs(cell->eta());
+	  towereta[m][0] = std::abs(cell->eta());
 	  ntowers++;
 	  int index = k + 1000*l+10000*m;
 	  double et = etower0[k][m];
@@ -402,7 +397,7 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
     std::map <double,int>::iterator ite = energyToIndex.begin();
     std::map <double,int>::iterator ite_end = energyToIndex.end();
     for (;ite!=ite_end;++ite) {
-      log << MSG::DEBUG<< " Energy " << fabs(ite->first) << " index " << ite->second << endmsg; 
+      log << MSG::DEBUG<< " Energy " << std::abs(ite->first) << " index " << ite->second << endmsg; 
       std::vector <const CaloCell* > cellVector = towerIndexToCells[ite->second];
       if (nstore > nmaxstore) continue;
       nstore++;
@@ -525,7 +520,7 @@ void MuonCalibExtraTreeTriggerAlg::addMBTS() {
       double radius = 153+(426-153)/2.; 
       if (module[i]%16 > 7) radius = 426 +(890-426)/2.; 
       double phi0 = (module[i]%8)*2*pi/8.;
-      Amg::Vector3D gpos(radius*cos(phi0),radius*sin(phi0),ze); 
+      Amg::Vector3D gpos(radius*std::cos(phi0),radius*std::sin(phi0),ze); 
       MuonCalibCaloHit hit(module[i],gpos,time[i],energy[i]); 
       m_mbtsBranch.fillBranch(hit);
     } // end loop over MBTS modules 

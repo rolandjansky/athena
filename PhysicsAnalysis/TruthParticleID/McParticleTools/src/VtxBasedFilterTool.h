@@ -15,7 +15,6 @@
 #include <string>
 #include <map>
 
-// HepMC / CLHEP includes
 
 // McParticleUtils includes
 #include "McParticleUtils/McVtxFilter.h"

@@ -292,7 +292,7 @@ StatusCode NtupleControlHistogramsTool::finalize(void) {
 		strncpy(station_name_str, id.stationNumberToFixedStationString(it->first.GetStation()).c_str(), 9);
 		std::ostringstream sw_id;
 		std::ostringstream hw_id;
-		hw_id<<station_name_str<<abs(station_eta);
+		hw_id<<station_name_str<<std::abs(station_eta);
 		if(station_eta>0)
 			hw_id<<"A";
 		else
@@ -699,7 +699,7 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 		if (ndof>0 && !std::isnan(segments[k]->chi2())) {
 			Genfun::CumulativeChiSquare one_minus_CL(ndof);
 			m_MDT_segment_CL[station_identifier]->Fill(
-				1.0-one_minus_CL(fabs(segments[k]->chi2())),
+				1.0-one_minus_CL(std::abs(segments[k]->chi2())),
 				1.0);
 		}
 
@@ -759,25 +759,16 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 		  if (ndof>0 && !std::isnan(segments[k]->chi2())) {
 			for (unsigned int l=0; l<segment_fitter->numberOfTrackHits();
 									l++) {
-				r = fabs((segment_fitter->trackHits())[l
+				r = std::abs((segment_fitter->trackHits())[l
 						]->driftRadius());
 				d = (segment_fitter->trackHits())[l
 						]->signedDistanceToTrack();
 				double t = (segment_fitter->trackHits())[l] -> driftTime();
-				//double sig=(segment_fitter->trackHits())[l] -> sigmaDriftRadius();
-/*				if(d==0)
-					{
-					std::cout<<"XXXXXXX "<<d<<" "<<r<<" "<<t<<" "<<sig<<std::endl;
-					}
-				else
-					{
-					std::cout<<"ZZZZZZZ "<<d<<" "<<r<<" "<<t<<" "<<sig<<std::endl;
-					}*/
 				m_MDT_residuals[station_identifier]->Fill(
-						fabs(d), r-fabs(d), 1.0);
+						std::abs(d), r-std::abs(d), 1.0);
 				m_MDT_residuals_vs_x[station_identifier]->Fill(
 						(segment_fitter->trackHits())[l
-						]->localPosition().x(), r-fabs(d), 1.0);
+						]->localPosition().x(), r-std::abs(d), 1.0);
 				m_MDT_r_vs_rtrack[station_identifier]->Fill(
 						d, r, 1.0);
 				m_MDT_t_vs_rtrack[station_identifier]->Fill(
@@ -787,34 +778,33 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 						]->identify());
 				if (id.mdtMultilayer()==1) {
 					m_MDT_residuals_ml1[station_identifier
-						]->Fill(d, r-fabs(d), 1.0);
+						]->Fill(d, r-std::abs(d), 1.0);
 				} else {
 					m_MDT_residuals_ml2[station_identifier
-						]->Fill(d, r-fabs(d), 1.0);
+						]->Fill(d, r-std::abs(d), 1.0);
 				}
 			}
-//			std::cout<<"==========="<<std::endl;
 		  }	
 		} else {
 			for (unsigned int l=0; l<segments[k]->hitsOnTrack();
 									l++) {
-				r = fabs((segments[k]->mdtHOT())[l
+				r = std::abs((segments[k]->mdtHOT())[l
 						]->driftRadius());
 				d = (segments[k]->mdtHOT())[l
 						]->signedDistanceToTrack();
 				double xx = (segments[k]->mdtHOT())[l] -> localPosition().x();
 				m_MDT_residuals[station_identifier]->Fill(
-						fabs(d), r-fabs(d), 1.0);
-				m_MDT_residuals_vs_x[station_identifier]->Fill( xx, r-fabs(d), 1.0);
+						std::abs(d), r-std::abs(d), 1.0);
+				m_MDT_residuals_vs_x[station_identifier]->Fill( xx, r-std::abs(d), 1.0);
 
 				MuonFixedId id((segments[k]->mdtHOT())[l
 						]->identify());
 				if (id.mdtMultilayer()==1) {
 					m_MDT_residuals_ml1[station_identifier
-						]->Fill(d, r-fabs(d), 1.0);
+						]->Fill(d, r-std::abs(d), 1.0);
 				} else {
 					m_MDT_residuals_ml2[station_identifier
-						]->Fill(d, r-fabs(d), 1.0);
+						]->Fill(d, r-std::abs(d), 1.0);
 				}
 			}
 		}
@@ -831,15 +821,14 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 			const MuonFixedId &id(hot->identify());
 			m_t0_diff[station_identifier]->Fill(hot->tubeT0() - t0->t0(id.mdtMultilayer(), id.mdtTubeLayer(), id.mdtTube()));
 			m_t0_diff_global->Fill(hot->tubeT0() - t0->t0(id.mdtMultilayer(), id.mdtTubeLayer(), id.mdtTube()));
-			//std::cout<<id.mdtMultilayer()<<" "<<id.mdtTubeLayer()<<" "<<id.mdtTube()<<std::endl;
 			}
 		if(rt!=NULL)
 		for (unsigned int l=0; l<segments[k]->hitsOnTrack();l++) 
 			{
 			const MdtCalibHitBase *hot((segments[k]->mdtHOT())[l]);
-			m_r_mintrt[station_identifier]-> Fill(fabs(hot->driftRadius()) - fabs(rt->radius(hot->driftTime())));
-			m_r_mintrt_global->Fill(fabs(hot->driftRadius()) - fabs(rt->radius(hot->driftTime())));
-			m_r_minrt_vs_r ->Fill(fabs(hot->driftRadius()), fabs(hot->driftRadius()) - fabs(rt->radius(hot->driftTime())));
+			m_r_mintrt[station_identifier]-> Fill(std::abs(hot->driftRadius()) - std::abs(rt->radius(hot->driftTime())));
+			m_r_mintrt_global->Fill(std::abs(hot->driftRadius()) - std::abs(rt->radius(hot->driftTime())));
+			m_r_minrt_vs_r ->Fill(std::abs(hot->driftRadius()), std::abs(hot->driftRadius()) - std::abs(rt->radius(hot->driftTime())));
 			}
 
 // t0 refinement //
@@ -879,9 +868,9 @@ StatusCode NtupleControlHistogramsTool::handleEvent(
 		}
 
 		for (unsigned int l=0; l<seg.hitsOnTrack();l++) {
-				r = fabs((seg.mdtHOT())[l
+				r = std::abs((seg.mdtHOT())[l
 						]->driftRadius());
-				d = fabs((seg.mdtHOT())[l
+				d = std::abs((seg.mdtHOT())[l
 						]->signedDistanceToTrack());
 				double t = (seg.mdtHOT())[l
 						]->driftTime();
@@ -1334,7 +1323,6 @@ inline double NtupleControlHistogramsTool :: getChi2(const TF1 *fun, const TH1F 
 	int n_bins_used=0;
 	Double_t x_min, x_max;
 	fun->GetRange(x_min, x_max);
-//	cout<<"Range=["<<x_min<<","<<x_max<<"]"<<endl;
 	for(int i=1; i<=hist->GetNbinsX(); i++)
 		{
 		double x=hist->GetBinCenter(i);

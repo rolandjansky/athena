@@ -447,9 +447,9 @@ bool MuonTrackPerformanceAlg::handleTrackTruth( const TrackCollection& trackColl
       const HepMC::GenParticle* mother   = getMother(*truthTrack.truthTrajectory);
       if( mother ) {
 	trackData->motherPdg = mother->pdg_id();
-	if( mother->end_vertex() ) trackData->productionVertex = new Amg::Vector3D(mother->end_vertex()->point3d().x(),
-											 mother->end_vertex()->point3d().y(),
-											 mother->end_vertex()->point3d().z()); 
+	if( mother->end_vertex() ) trackData->productionVertex = new Amg::Vector3D(mother->end_vertex()->position().x(),
+											 mother->end_vertex()->position().y(),
+											 mother->end_vertex()->position().z()); 
       }
       const HepMC::GenParticle* original = getInitialState(*truthTrack.truthTrajectory);
       if( original ) {
@@ -528,9 +528,9 @@ bool MuonTrackPerformanceAlg::handleTrackTruth( const TrackCollection& trackColl
       const HepMC::GenParticle* mother   = getMother(*tit->second.truthTrajectory);
       if( mother ) {
 	trackData->motherPdg = mother->pdg_id();
-	if( mother->end_vertex() ) trackData->productionVertex = new Amg::Vector3D(mother->end_vertex()->point3d().x(),
-											mother->end_vertex()->point3d().y(),
-											mother->end_vertex()->point3d().z()); 
+	if( mother->end_vertex() ) trackData->productionVertex = new Amg::Vector3D(mother->end_vertex()->position().x(),
+											mother->end_vertex()->position().y(),
+											mother->end_vertex()->position().z()); 
       }
       const HepMC::GenParticle* original = getInitialState(*tit->second.truthTrajectory);
       if( original ) {
@@ -1488,7 +1488,7 @@ bool MuonTrackPerformanceAlg::isSecondary( const Muon::IMuonTrackTruthTool::Trut
 
 bool MuonTrackPerformanceAlg::isSecondary( const TruthTrajectory& truthTrajectory ) const {
   const HepMC::GenParticle* mother   = getMother(truthTrajectory);
-  if( mother && mother->end_vertex() && mother->end_vertex()->point3d().perp() > 100. ) return true;
+  if( mother && mother->end_vertex() && mother->end_vertex()->position().perp() > 100. ) return true;
   return false;
 }
 

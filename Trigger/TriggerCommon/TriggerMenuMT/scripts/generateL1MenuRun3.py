@@ -69,6 +69,8 @@ def main():
         ("phyp1r3v1"   , "PhysicsP1_pp_run3_v1"       ),
         ("mcr3v1"   , "MC_pp_run3_v1"       ),
         ("cosmic", "Cosmic_run3_v1"),
+        ("hip1r3v1", "PhysicsP1_HI_run3_v1" ),
+        ("devhir3v1", "Dev_HI_run3_v1" ),
         ("hiphy4","Physics_HI_v4"),
         ("hiphy", "Physics_HI_v4"),
         ("himc4", "MC_HI_v4"     ),

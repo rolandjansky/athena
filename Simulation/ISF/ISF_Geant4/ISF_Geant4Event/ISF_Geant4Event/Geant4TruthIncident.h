@@ -12,7 +12,7 @@
 #include "ISF_Event/ITruthIncident.h"
 
 // HepMC includes
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 //Geant4 includes
 #include "G4ThreeVector.hh"
