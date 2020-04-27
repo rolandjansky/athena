@@ -62,7 +62,11 @@ TH1* cloneExisting(const std::string & name){
         std::cerr << "Could not find existing histogram "<<name<<" - will not postprocess "<<std::endl; 
         return nullptr;
     }
-    return dynamic_cast<TH1*>(h->Clone(name.c_str()));
+    auto ret = dynamic_cast<TH1*>(h->Clone(name.c_str()));
+    if (!ret){ 
+        std::cerr << "Found an existing object "<<name<<", but it is not a histogram ("<<h->IsA()->GetName()<<") - will not postprocess "<<std::endl; 
+    }
+    return ret; // will also catch ret == nullptr
 }
 
 // so far, we only support the 2D --> 1D case. 3D --> 2D is not used in IDPVM to date. 
@@ -141,7 +145,7 @@ int main(int argc, char* argv[]) {
   const string infile {argv[1]};
 
   if (!file_exists(infile)) {
-    std::cout << "Error: invalid input file: " << infile << std::endl;
+    std::cerr << "Error: invalid input file: " << infile << std::endl;
     return 1;
   }
   std::cout << " Post-processing file " << infile << "\n" << std::endl;
