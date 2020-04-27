@@ -328,7 +328,6 @@ namespace Muon {
       std::vector<MuonSimData::Deposit>::const_iterator dit = it->second.getdeposits().begin();
       std::vector<MuonSimData::Deposit>::const_iterator dit_end = it->second.getdeposits().end();
       for( ;dit!=dit_end;++dit ){
-        // 	int barcodeIn = manipulateBarCode(dit->first.barcode());
         int barcodeIn = dit->first.barcode();
 	std::map<int,int>::iterator bit = m_barcodeMap.find(barcodeIn);
 	if( bit == m_barcodeMap.end() ){
