@@ -23,10 +23,7 @@ atlas_add_poolcnv_library( TrigT1EventAthenaPoolPoolCnv
          TrigT1CaloEvent/CMMJetHitsCollection.h
          TrigT1CaloEvent/CMMEtSumsCollection.h TrigT1CaloEvent/CMMRoI.h
          TrigT1CaloEvent/JEMHitsCollection.h TrigT1CaloEvent/JEMRoICollection.h
-         TrigT1CaloEvent/RODHeaderCollection.h TrigT1Interfaces/MuCTPICTP.h
-         TrigT1Interfaces/EmTauCTP.h TrigT1Interfaces/JetCTP.h
-         TrigT1Interfaces/EnergyCTP.h TrigT1Interfaces/RecMuonRoI.h
-         TrigT1Interfaces/RecEmTauRoI.h TrigT1Interfaces/RecJetRoI.h
+         TrigT1CaloEvent/RODHeaderCollection.h
    TYPES_WITH_NAMESPACE ROIB::RoIBResult
                         LVL1::TriggerTowerCollection LVL1::JetElementCollection
                         LVL1::CPMTowerCollection LVL1::CPMTobRoICollection
@@ -38,10 +35,7 @@ atlas_add_poolcnv_library( TrigT1EventAthenaPoolPoolCnv
                         LVL1::CMMCPHitsCollection LVL1::CMMJetHitsCollection
                         LVL1::CMMEtSumsCollection LVL1::CMMRoI
                         LVL1::JEMHitsCollection LVL1::JEMRoICollection
-                        LVL1::RODHeaderCollection LVL1::MuCTPICTP
-                        LVL1::EmTauCTP LVL1::JetCTP
-                        LVL1::EnergyCTP LVL1::RecMuonRoI
-                        LVL1::RecEmTauRoI LVL1::RecJetRoI
+                        LVL1::RODHeaderCollection
    LINK_LIBRARIES AthenaPoolUtilities GaudiKernel AthenaPoolCnvSvcLib
                   TrigT1CaloEventLib TrigT1EventTPCnv TrigT1Interfaces
                   TrigT1Result )
