@@ -118,7 +118,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
     for ( unsigned int jeti(0); jeti < jetELs.size(); jeti++ ) {
       const ElementLink< xAOD::JetContainer >& jetLink = jetELs.at( jeti );
 
-      double deltaEta = fabs( inputJet->eta() - (*jetLink)->eta() );
+      double deltaEta = std::abs( inputJet->eta() - (*jetLink)->eta() );
       double deltaPhi = CxxUtils::wrapToPi( inputJet->phi() - (*jetLink)->phi() );
       double dR = sqrt( pow(deltaEta,2) + pow(deltaPhi,2) );
 
