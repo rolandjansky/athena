@@ -93,7 +93,7 @@ atlas_add_test( TruthSvc_test
                   ${GMOCK_LIBRARIES}
                   ${ROOT_LIBRARIES}
                   ${GEANT4_LIBRARIES}
-                  ${HEPMC_LIBRARIES}
+                  AtlasHepMCLib
                   ${CLHEP_LIBRARIES}
                   ${HEPPDT_LIBRARIES}
                   GaudiKernel
