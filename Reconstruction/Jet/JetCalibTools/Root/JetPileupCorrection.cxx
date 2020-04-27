@@ -185,6 +185,8 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
     double pt_calib= m_residual3DCorr->correctedPt(pT_det,  eta_det, jetareaP4.Pt(), rho, mu, NPV ) ;
     double scaleF = pt_calib < 0 ? 0.01*m_GeV/pT_det : pt_calib/pT_det;
     xAOD::JetFourMom_t calibP4 = jetStartP4 * scaleF;
+    jet.setAttribute<int>("PileupCorrected",true);
+    jet.setAttribute<xAOD::JetFourMom_t>("JetPileupScaleMomentum",calibP4);
     jet.setJetP4( calibP4 );
     
   } else if(m_useFull4vectorArea) {
