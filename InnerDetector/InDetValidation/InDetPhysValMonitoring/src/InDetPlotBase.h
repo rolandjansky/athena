@@ -36,26 +36,35 @@ public:
 
   /// Retrieve a single histogram definition, given the unique string identifier
   SingleHistogramDefinition retrieveDefinition(const std::string& histoIdentifier,
-                                               const std::string& folder = "default");
+                                               const std::string& folder = "default",
+                                               const std::string& nameOverride="");
 
   /// Book a TH1 histogram
   void book(TH1*& pHisto, const SingleHistogramDefinition& hd);
-  /// Book a TH1 histogram with optional folder name
-  void book(TH1*& pHisto, const std::string& histoIdentifier, const std::string& folder = "default");
+  /// Book a TH1 histogram with optional folder name. The name_override argument allows to assign a different 
+  /// name to the created histogram than the one looked up from the XML. This can be used to instantiate 
+  /// multiple, identically binned plots from a single entry in the XML. 
+  void book(TH1*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride="", const std::string& folder = "default");
 
   /// Book a TProfile histogram
   void book(TProfile*& pHisto, const SingleHistogramDefinition& hd);
-  /// Book a TH1 histogram with optional folder name
-  void book(TProfile*& pHisto, const std::string& histoIdentifier, const std::string& folder = "default");
+  /// Book a TProfile histogram with optional folder name. The name_override argument allows to assign a different 
+  /// name to the created histogram than the one looked up from the XML. This can be used to instantiate 
+  /// multiple, identically binned plots from a single entry in the XML. 
+  void book(TProfile*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride="", const std::string& folder = "default");
 
   /// Book a 2D histogram (TH2)
   void book(TH2*& pHisto, const SingleHistogramDefinition& hd);
-  /// Book a 2D histogram (TH2) with optional folder name
-  void book(TH2*& pHisto, const std::string& histoIdentifier, const std::string& folder = "default");
+  /// Book a 2D histogram (TH2) with optional folder name. The name_override argument allows to assign a different 
+  /// name to the created histogram than the one looked up from the XML. This can be used to instantiate 
+  /// multiple, identically binned plots from a single entry in the XML. 
+  void book(TH2*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride="", const std::string& folder = "default");
   /// Book a (1-D) TEfficiency
   void book(TEfficiency*& pHisto, const SingleHistogramDefinition& hd);
-  /// Book a TEfficiency with optional folder name
-  void book(TEfficiency*& pHisto, const std::string& histoIdentifier, const std::string& folder = "default");
+  /// Book a TEfficiency with optional folder name. The name_override argument allows to assign a different 
+  /// name to the created histogram than the one looked up from the XML. This can be used to instantiate 
+  /// multiple, identically binned plots from a single entry in the XML. 
+  void book(TEfficiency*& pHisto, const std::string& histoIdentifier, const std::string & nameOverride="", const std::string& folder = "default");
   //
   void fillHisto(TProfile* pTprofile, const float bin, const float weight);
   //
