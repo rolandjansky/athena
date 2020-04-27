@@ -14,11 +14,11 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )
 
 # External dependencies:
-find_package( XercesC REQUIRED )
-find_package( Eigen REQUIRED )
-find_package( GeoModelCore REQUIRED )
-find_package( GeoModelTools REQUIRED )
-find_package( ZLIB REQUIRED )
+find_package( XercesC )
+find_package( Eigen )
+find_package( GeoModelCore )
+find_package( GeoModelTools )
+find_package( ZLIB )
 
 # Component(s) in the package:
 atlas_add_library( GeoModelXml
