@@ -2,16 +2,17 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-'''@file InDetGlobalBeamSpotMonAlgCfg.py
-@author PerJohansson
-@date November 2019
+"""
+@file InDetGlobalBeamSpotMonAlgCfg.py
+@author Leonid Serkin and Per Johansson
+@date April 2020
 @brief Configuration for Run 3 based on InDetGlobalBeamSpotMonTool.cxx
-'''
+"""
 
 def InDetGlobalBeamSpotMonAlgCfg(helper, alg, **kwargs):
     '''Function to configures some algorithms in the monitoring system.'''
-
-    #Values
+    
+    # Values set by default here
     m_useBeamspot = True
     expert = True
     m_vxContainerWithBeamConstraint = False
@@ -19,7 +20,7 @@ def InDetGlobalBeamSpotMonAlgCfg(helper, alg, **kwargs):
     # this creates a "trackGroup" called "alg" which will put its histograms into the subdirectory "BeamSpot"
     bsGroup = helper.addGroup(alg, 'BeamSpot')
     pathbs = '/InDetGlobal/BeamSpot'
-
+    
     # Histograms for track-based beam spot monitoring:
     varName = 'm_trkD0,m_trkD0Phi;trkDPhi'
     bsGroup.defineHistogram(varName,type="TH2F",title="DCA vs Phi; #varphi (rad);d_{0} (#mum)", path=pathbs, xbins=100, xmin=-3.5, xmax=3.5, ybins=100, ymin=-1000, ymax=1000)

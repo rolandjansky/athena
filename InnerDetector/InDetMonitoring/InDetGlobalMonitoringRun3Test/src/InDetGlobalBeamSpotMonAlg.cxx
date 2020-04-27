@@ -2,12 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+
 /** @file InDetGlobalBeamSpotMonAlg.cxx
  * Implementation of inner detector global beamspot monitoring tool
  *
  *@authors
- * Per Johansson <Per.Johansson@cern.ch> @n
  * Leonid Serkin <lserkin@cern.ch> @n
+ * Per Johansson <Per.Johansson@cern.ch> @n
  *
  * based on InDetGlobalBeamSpotMonTool.cxx
  *
@@ -25,6 +26,8 @@
 #include "xAODTracking/TrackParticleAuxContainer.h"
 
 #include <sstream>
+#include <cmath>
+
 
 
 InDetGlobalBeamSpotMonAlg::InDetGlobalBeamSpotMonAlg( const std::string & name, ISvcLocator* pSvcLocator) : 
@@ -71,8 +74,8 @@ StatusCode InDetGlobalBeamSpotMonAlg::fillHistograms( const EventContext& ctx ) 
   float beamTiltY = 0.;
   float scaleFactor = 1.;
   if (m_useBeamspot) {
-
-
+    
+    
     auto beamSpotHandle = SG::ReadCondHandle(m_beamSpotKey, ctx);
     
     // check for tracks
@@ -115,76 +118,71 @@ StatusCode InDetGlobalBeamSpotMonAlg::fillHistograms( const EventContext& ctx ) 
   // Track monitoring
   int nTracks = 0;
   
-  xAOD::TrackParticleContainer::const_iterator itrack = trackCollection->begin();
-  xAOD::TrackParticleContainer::const_iterator itrack_end = trackCollection->end();
-  
-  for ( ; itrack!= itrack_end; ++itrack)
-    {
-
-      const xAOD::TrackParticle* tpb = (*itrack);
-
-      if ( !tpb )
-	{
-	  ATH_MSG_DEBUG( "InDetGlobalBeamSpotMonAlg: NULL track pointer in collection" );
-	  continue;
-	}
-
-      
-      const Trk::Perigee* perigee = &(tpb->perigeeParameters());
-
-      if ( !perigee )  
-	{
-	  ATH_MSG_DEBUG( "InDetGlobalBeamSpotMonAlg: NULL track->perigeeParameters pointer " );
-	  continue;
-	}
-      
-      
-      
-      float theta = perigee->parameters()[Trk::theta];
-      float qOverPt = perigee->parameters()[Trk::qOverP]/sin(theta);
-      float charge = perigee->charge();
-      float z0 = perigee->parameters()[Trk::z0];
-      float phi0 = perigee->parameters()[Trk::phi0];
-      float d0 = perigee->parameters()[Trk::d0];
-      float pT = 0;
-      
-      if ( qOverPt != 0 ){
-	pT = (1/qOverPt)*(charge);
-	// For all tracks
-	auto pT_m = Monitored::Scalar<float>("m_trkPt", pT/1000);  
-	fill(bsGroup, pT_m);
-	
-	// Select tracks to use for remaining histograms
-	if (pT<m_minTrackPt) continue;
+  //range based for-loop
+  for (const xAOD::TrackParticle* tpb: *trackCollection) {
+    
+    if ( !tpb )
+      {
+	ATH_MSG_DEBUG( "InDetGlobalBeamSpotMonAlg: NULL track pointer in collection" );
+	continue;
       }
-      
-      nTracks++;
-            
-      auto trkDPhi_m = Monitored::Scalar<float>("m_trkD0Phi", phi0);
-      auto trkD_m    = Monitored::Scalar<float>("m_trkD0", d0*1e3);
-      fill(bsGroup, trkD_m, trkDPhi_m);
-      
-      // Currently we do the direct calculation of d0corr. We could
-      // also use an extrapolator to calculate d0 wrt a
-      // Trk::StraightLineSurface constructed along the beam line.
-      if(m_useBeamspot){
-
-          float trkbeamlineTiltX=tpb->beamlineTiltX();
-          float trkbeamlineTiltY=tpb->beamlineTiltY();
-          float trkbeamspotx=tpb->vx();
-          float trkbeamspoty=tpb->vy();
-          float trkbeamspotz=tpb->vz();
-	
-	float beamX = (beamSpotX-trkbeamspotx) + tan(beamTiltX-trkbeamlineTiltX) * (z0-beamSpotZ+trkbeamspotz);
-	float beamY = (beamSpotY-trkbeamspoty) + tan(beamTiltY-trkbeamlineTiltY) * (z0-beamSpotZ+trkbeamspotz);
-	float d0corr = d0 - ( -sin(phi0)*beamX + cos(phi0)*beamY );
-
-      	
-	auto trkDPhiCorr_m  = Monitored::Scalar<float>("m_trkD0PhiCorr", phi0);
-	auto trkDCorr_m     = Monitored::Scalar<float>("m_trkD0Corr", d0corr*1e3);
-	fill(bsGroup, trkDPhiCorr_m, trkDCorr_m);
+    
+    
+    const Trk::Perigee* perigee = &(tpb->perigeeParameters());
+    
+    if ( !perigee )  
+      {
+	ATH_MSG_DEBUG( "InDetGlobalBeamSpotMonAlg: NULL track->perigeeParameters pointer " );
+	continue;
       }
-    } // track iterator
+    
+    
+    
+    float theta = perigee->parameters()[Trk::theta];
+    float qOverPt = perigee->parameters()[Trk::qOverP]/sin(theta);
+    float charge = perigee->charge();
+    float z0 = perigee->parameters()[Trk::z0];
+    float phi0 = perigee->parameters()[Trk::phi0];
+    float d0 = perigee->parameters()[Trk::d0];
+    float pT = 0;
+    
+    if ( qOverPt != 0 ){
+      pT = (1/qOverPt)*(charge);
+      // For all tracks
+      auto pT_m = Monitored::Scalar<float>("m_trkPt", pT/1000);  
+      fill(bsGroup, pT_m);
+      
+      // Select tracks to use for remaining histograms
+      if (pT<m_minTrackPt) continue;
+    }
+    
+    nTracks++;
+    
+    auto trkDPhi_m = Monitored::Scalar<float>("m_trkD0Phi", phi0);
+    auto trkD_m    = Monitored::Scalar<float>("m_trkD0", d0*1e3);
+    fill(bsGroup, trkD_m, trkDPhi_m);
+    
+    // Currently we do the direct calculation of d0corr. We could
+    // also use an extrapolator to calculate d0 wrt a
+    // Trk::StraightLineSurface constructed along the beam line.
+    if(m_useBeamspot){
+      
+      float trkbeamlineTiltX=tpb->beamlineTiltX();
+      float trkbeamlineTiltY=tpb->beamlineTiltY();
+      float trkbeamspotx=tpb->vx();
+      float trkbeamspoty=tpb->vy();
+      float trkbeamspotz=tpb->vz();
+      
+      float beamX = (beamSpotX-trkbeamspotx) + std::tan(beamTiltX-trkbeamlineTiltX) * (z0-beamSpotZ+trkbeamspotz);
+      float beamY = (beamSpotY-trkbeamspoty) + std::tan(beamTiltY-trkbeamlineTiltY) * (z0-beamSpotZ+trkbeamspotz);
+      float d0corr = d0 - ( -std::sin(phi0)*beamX + std::cos(phi0)*beamY );
+      
+      
+      auto trkDPhiCorr_m  = Monitored::Scalar<float>("m_trkD0PhiCorr", phi0);
+      auto trkDCorr_m     = Monitored::Scalar<float>("m_trkD0Corr", d0corr*1e3);
+      fill(bsGroup, trkDPhiCorr_m, trkDCorr_m);
+    }
+  } // track iterator
   
   auto trkNPt_m = Monitored::Scalar<float>("m_trkNPt", nTracks);
   fill(bsGroup,trkNPt_m);
@@ -193,40 +191,42 @@ StatusCode InDetGlobalBeamSpotMonAlg::fillHistograms( const EventContext& ctx ) 
   // without beam constraint
   if (! m_vxContainerWithBeamConstraint) {
     ATH_MSG_DEBUG( "InDetGlobalBeamSpotMonAlg: vxContainerWithBeamConstraint is " << m_vxContainerWithBeamConstraint );
-
-    // Basic primary vertex monitoring
-    auto vxContainer = SG::makeHandle(m_vxContainerName, ctx);  
     
-    if (!vxContainer.isValid()) {
+    // Basic primary vertex monitoring
+    auto handle_vxContainer = SG::makeHandle(m_vxContainerName, ctx);  
+    auto vertexContainer = handle_vxContainer.cptr();
+
+    if (!handle_vxContainer.isValid()) {
       ATH_MSG_DEBUG ("InDetGlobalBeamSpotMonAlg: Could not retrieve primary vertex container with key "+ m_vxContainerName.key());
       return StatusCode::SUCCESS;
     }
     
-    auto pvN_m = Monitored::Scalar<float>("m_pvN", vxContainer->size()-1);  // exclude dummy vertex
+    auto pvN_m = Monitored::Scalar<float>("m_pvN", vertexContainer->size()-1);  // exclude dummy vertex
     fill(bsGroup, pvN_m);
     
     int nPriVtx = 0;
     int nPileupVtx = 0;
     
-    for (xAOD::VertexContainer::const_iterator vxIter = vxContainer->begin(); vxIter != vxContainer->end(); ++vxIter) {
-      if ( !(*vxIter) ) continue;
+    for(const auto & vtx : *vertexContainer) {
+      
+      if ( !vtx ) continue;
       
       // Count different types of vertices
-      if ((*vxIter)->vertexType() == xAOD::VxType::PriVtx) nPriVtx++;
-      if ((*vxIter)->vertexType() == xAOD::VxType::PileUp) nPileupVtx++;
+      if (vtx->vertexType() == xAOD::VxType::PriVtx) nPriVtx++;
+      if (vtx->vertexType() == xAOD::VxType::PileUp) nPileupVtx++;
       
       // Select primary vertex
-      if ((*vxIter)->vertexType() != xAOD::VxType::PriVtx) continue;
-      if ((*vxIter)->numberDoF() <= 0) continue;
+      if (vtx->vertexType() != xAOD::VxType::PriVtx) continue;
+      if (vtx->numberDoF() <= 0) continue;
       
-      if ((*vxIter)->nTrackParticles() < m_minTracksPerVtx) continue;
+      if (vtx->nTrackParticles() < m_minTracksPerVtx) continue;
       
       // Found good VxCandidate to monitor - now fill histograms
-      float x = (*vxIter)->position().x();
-      float y = (*vxIter)->position().y();
-      float z = (*vxIter)->position().z();
-      float beamX = beamSpotX + tan(beamTiltX) * (z-beamSpotZ);
-      float beamY = beamSpotY + tan(beamTiltY) * (z-beamSpotZ);
+      float x = vtx->position().x();
+      float y = vtx->position().y();
+      float z = vtx->position().z();
+      float beamX = beamSpotX + std::tan(beamTiltX) * (z-beamSpotZ);
+      float beamY = beamSpotY + std::tan(beamTiltY) * (z-beamSpotZ);
       float beamZ = beamSpotZ;
       
       auto pvXbeam_m = Monitored::Scalar<float>("m_pvXbeam", (x-beamX)*scaleFactor);
@@ -234,23 +234,23 @@ StatusCode InDetGlobalBeamSpotMonAlg::fillHistograms( const EventContext& ctx ) 
       
       auto pvYbeam_m = Monitored::Scalar<float>("m_pvYbeam", (y-beamY)*scaleFactor);
       fill(bsGroup, pvYbeam_m);
-
+      
       auto pvZbeam_m = Monitored::Scalar<float>("m_pvZbeam", z-beamZ);
       fill(bsGroup, pvZbeam_m);
       
-      auto pvErrX_m = Monitored::Scalar<float>("m_pvErrX", Amg::error( (*vxIter)->covariancePosition(), Trk::x));
+      auto pvErrX_m = Monitored::Scalar<float>("m_pvErrX", Amg::error( vtx->covariancePosition(), Trk::x));
       fill(bsGroup, pvErrX_m);
 
-      auto pvErrY_m = Monitored::Scalar<float>("m_pvErrY", Amg::error( (*vxIter)->covariancePosition(), Trk::y));
+      auto pvErrY_m = Monitored::Scalar<float>("m_pvErrY", Amg::error( vtx->covariancePosition(), Trk::y));
       fill(bsGroup, pvErrY_m);
 
-      auto pvErrZ_m = Monitored::Scalar<float>("m_pvErrZ", Amg::error( (*vxIter)->covariancePosition(), Trk::z));
+      auto pvErrZ_m = Monitored::Scalar<float>("m_pvErrZ", Amg::error( vtx->covariancePosition(), Trk::z));
       fill(bsGroup, pvErrZ_m);
 
-      auto pvNTracks_m  = Monitored::Scalar<float>("m_pvNTracks", (*vxIter)->nTrackParticles());
+      auto pvNTracks_m  = Monitored::Scalar<float>("m_pvNTracks", vtx->nTrackParticles());
       fill(bsGroup, pvNTracks_m);
-
-      auto pvChiSqDof_m = Monitored::Scalar<float>("m_pvChiSqDof", (*vxIter)->chiSquared() / (*vxIter)->numberDoF());
+      
+      auto pvChiSqDof_m = Monitored::Scalar<float>("m_pvChiSqDof", vtx->chiSquared() / vtx->numberDoF());
       fill(bsGroup, pvChiSqDof_m);
       
       auto pvX_m = Monitored::Scalar<float>("m_pvX", x);
@@ -259,10 +259,10 @@ StatusCode InDetGlobalBeamSpotMonAlg::fillHistograms( const EventContext& ctx ) 
       fill(bsGroup, pvX_m, pvZ_m);
       fill(bsGroup, pvY_m, pvZ_m);
       fill(bsGroup, pvY_m, pvX_m);
-
+      
       // Histograms on original tracks used for primary vertex
-      for (unsigned int trkIter=0; trkIter!=(*vxIter)->nTrackParticles(); ++trkIter) {
-        const xAOD::TrackParticle* tp = (*vxIter)->trackParticle(trkIter);
+      for (unsigned int trkIter=0; trkIter!=vtx->nTrackParticles(); ++trkIter) {
+        const xAOD::TrackParticle* tp = vtx->trackParticle(trkIter);
         if(!tp){
           ATH_MSG_DEBUG ("InDetGlobalBeamSpotMonAlg: Could not retrieve track particle.");
           continue;
@@ -283,4 +283,3 @@ StatusCode InDetGlobalBeamSpotMonAlg::fillHistograms( const EventContext& ctx ) 
   
   return StatusCode::SUCCESS;
 }
-

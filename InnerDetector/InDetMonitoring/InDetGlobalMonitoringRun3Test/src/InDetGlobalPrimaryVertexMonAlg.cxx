@@ -8,6 +8,7 @@
  *
  *@author
  * Leonid Serkin <lserkin@cern.ch> @n
+ * Per Johansson <Per.Johansson@cern.ch> @n
  *
  * based on InDetGlobalPrimaryVertexMonTool.cxx
  *
@@ -21,15 +22,8 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 
-//Root
-#include "TMath.h"
-
 //Standard c++
-#include <algorithm>
 #include <vector>
-#include <string>
-#include <cmath>
-#include <functional>
 
 
 InDetGlobalPrimaryVertexMonAlg::InDetGlobalPrimaryVertexMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -73,86 +67,89 @@ StatusCode InDetGlobalPrimaryVertexMonAlg::fillHistograms( const EventContext& c
   auto pvGroup = getGroup("PrimaryVertex");
   
   // retrieving vertices
-  auto vxContainer = SG::makeHandle(m_vxContainerName, ctx);   // another way to access ??
+  auto handle_vxContainer = SG::makeHandle(m_vxContainerName, ctx);   // another way to access ??
   
-  if (!vxContainer.isPresent()) {
+  if (!handle_vxContainer.isPresent()) {
     ATH_MSG_DEBUG ("InDetGlobalPrimaryVertexMonAlg: StoreGate doesn't contain primary vertex container with key "+m_vxContainerName.key());
     return StatusCode::SUCCESS;
   }
-  if (!vxContainer.isValid()) {
+  if (!handle_vxContainer.isValid()) {
     ATH_MSG_ERROR ("InDetGlobalPrimaryVertexMonAlg: Could not retrieve primary vertex container with key "+m_vxContainerName.key());
     return StatusCode::RECOVERABLE;
   }
   
-  
+  auto vertexContainer = handle_vxContainer.cptr();
+
+
   // Total number of vertices (primary and pile up)
-  int PvN = vxContainer->size()-1;  // exclude dummy vertex
-  auto PvN_m = Monitored::Scalar<int>( "m_PvN", PvN);
-  fill(pvGroup, PvN_m);
+  int pvN = vertexContainer->size()-1;  // exclude dummy vertex
+  auto pvN_m = Monitored::Scalar<int>( "m_PvN", pvN);
+  fill(pvGroup, pvN_m);
   
   int nPriVtx = 0;
   int nPileupVtx = 0;
-  
-  for (xAOD::VertexContainer::const_iterator vxIter = vxContainer->begin(); vxIter != vxContainer->end(); ++vxIter) 
-    {
+ 
+  for(const auto & vtx : *vertexContainer) {
+      
+      if ( !vtx ) continue;
       
       // Count different types of vertices
-      if ((*vxIter)->vertexType() == xAOD::VxType::PriVtx) nPriVtx++;
-      if ((*vxIter)->vertexType() == xAOD::VxType::PileUp) nPileupVtx++;
+      if (vtx->vertexType() == xAOD::VxType::PriVtx) nPriVtx++;
+      if (vtx->vertexType() == xAOD::VxType::PileUp) nPileupVtx++;
       
       
       // Select primary vertex
-      if ((*vxIter)->vertexType() != xAOD::VxType::PriVtx) continue;
-      if ((*vxIter)->numberDoF() <= 0) continue;
+      if (vtx->vertexType() != xAOD::VxType::PriVtx) continue;
+      if (vtx->numberDoF() <= 0) continue;
       
-      float PvX = (*vxIter)->position().x();
-      auto  PvX_m = Monitored::Scalar<float>( "m_PvX", PvX);
-      fill(pvGroup, PvX_m);
+      float pvX = vtx->position().x();
+      auto  pvX_m = Monitored::Scalar<float>( "m_PvX", pvX);
+      fill(pvGroup, pvX_m);
       
-      float PvY = (*vxIter)->position().y();
-      auto  PvY_m = Monitored::Scalar<float>( "m_PvY", PvY);
-      fill(pvGroup, PvY_m);
+      float pvY = vtx->position().y();
+      auto  pvY_m = Monitored::Scalar<float>( "m_PvY", pvY);
+      fill(pvGroup, pvY_m);
       
-      float PvZ = (*vxIter)->position().z();
-      auto  PvZ_m = Monitored::Scalar<float>( "m_PvZ", PvZ);
-      fill(pvGroup, PvZ_m);
+      float pvZ = vtx->position().z();
+      auto  pvZ_m = Monitored::Scalar<float>( "m_PvZ", pvZ);
+      fill(pvGroup, pvZ_m);
       
-      float PvErrX = Amg::error( (*vxIter)->covariancePosition(), Trk::x);
-      auto  PvErrX_m = Monitored::Scalar<float>( "m_PvErrX", PvErrX);
-      fill(pvGroup, PvErrX_m);
+      float pvErrX = Amg::error( vtx->covariancePosition(), Trk::x);
+      auto  pvErrX_m = Monitored::Scalar<float>( "m_PvErrX", pvErrX);
+      fill(pvGroup, pvErrX_m);
       
-      float PvErrY = Amg::error( (*vxIter)->covariancePosition(), Trk::y);
-      auto  PvErrY_m = Monitored::Scalar<float>( "m_PvErrY", PvErrY);
-      fill(pvGroup, PvErrY_m);
+      float pvErrY = Amg::error( vtx->covariancePosition(), Trk::y);
+      auto  pvErrY_m = Monitored::Scalar<float>( "m_PvErrY", pvErrY);
+      fill(pvGroup, pvErrY_m);
       
-      float PvErrZ = Amg::error( (*vxIter)->covariancePosition(), Trk::z);
-      auto  PvErrZ_m = Monitored::Scalar<float>( "m_PvErrZ", PvErrZ);
-      fill(pvGroup, PvErrZ_m);
+      float pvErrZ = Amg::error( vtx->covariancePosition(), Trk::z);
+      auto  pvErrZ_m = Monitored::Scalar<float>( "m_PvErrZ", pvErrZ);
+      fill(pvGroup, pvErrZ_m);
       
-      float PvChiSqDoF = (*vxIter)->chiSquared() / (*vxIter)->numberDoF() ;
-      auto  PvChiSqDoF_m = Monitored::Scalar<float>( "m_PvChiSqDoF", PvChiSqDoF);
-      fill(pvGroup, PvChiSqDoF_m);
+      float pvChiSqDoF = vtx->chiSquared() / vtx->numberDoF() ;
+      auto  pvChiSqDoF_m = Monitored::Scalar<float>( "m_PvChiSqDoF", pvChiSqDoF);
+      fill(pvGroup, pvChiSqDoF_m);
       
       
-      auto & trackparticles = (*vxIter)->trackParticleLinks();
+      auto & trackparticles = vtx->trackParticleLinks();
       
-      int PvNTracks = trackparticles.size() ;
-      auto  PvNTracks_m = Monitored::Scalar<int>( "m_PvNTracks", PvNTracks);
-      fill(pvGroup, PvNTracks_m);
+      int pvNTracks = trackparticles.size() ;
+      auto  pvNTracks_m = Monitored::Scalar<int>( "m_PvNTracks", pvNTracks);
+      fill(pvGroup, pvNTracks_m);
       
       
       // original tracks used for primary vertex
-      for (auto trackparticle  : trackparticles )
-	{
+      for (const auto & trackparticle : trackparticles)
+      {
 	  const Trk::Perigee & measuredPerigee = (*trackparticle)->perigeeParameters();
 	  
-	  float PvTrackEta = measuredPerigee.eta()  ;
-	  auto  PvTrackEta_m = Monitored::Scalar<float>( "m_PvTrackEta", PvTrackEta);
-	  fill(pvGroup, PvTrackEta_m);
+	  float pvTrackEta = measuredPerigee.eta()  ;
+	  auto  pvTrackEta_m = Monitored::Scalar<float>( "m_PvTrackEta", pvTrackEta);
+	  fill(pvGroup, pvTrackEta_m);
 	  
-	  float PvTrackPt = measuredPerigee.pT()/1000. ; // Histo is in GeV
-	  auto  PvTrackPt_m = Monitored::Scalar<float>( "m_PvTrackPt", PvTrackPt);
-	  fill(pvGroup, PvTrackPt_m);
+	  float pvTrackPt = measuredPerigee.pT()/1000. ; // Histo is in GeV
+	  auto  pvTrackPt_m = Monitored::Scalar<float>( "m_PvTrackPt", pvTrackPt);
+	  fill(pvGroup, pvTrackPt_m);
 	  
 	}
       

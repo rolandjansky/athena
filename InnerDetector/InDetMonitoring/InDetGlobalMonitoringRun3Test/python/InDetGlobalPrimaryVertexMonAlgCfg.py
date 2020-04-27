@@ -1,15 +1,17 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+
 """
 @file InDetGlobalPrimaryVertexMonAlgCfg.py
-@author Leonid Serkin
-@date March 2020
+@author Leonid Serkin and Per Johansson
+@date April 2020
 @brief Configuration for Run 3 based on InDetGlobalPrimaryVertexMonTool.cxx
 """
-from math import pi
+
+from math import pi as M_PI
 
 def InDetGlobalPrimaryVertexMonAlgCfg(helper, alg, **kwargs):
-
-    # values	
-    M_PI = math.pi
 
     # this creates a "pvGroup" called "alg" which will put its histograms into the subdirectory "PrimaryVertex"
     pvGroup = helper.addGroup(alg, 'PrimaryVertex')

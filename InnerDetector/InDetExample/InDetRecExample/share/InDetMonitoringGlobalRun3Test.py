@@ -9,6 +9,8 @@
 
 doInDetGlobalTrackMonAlg           = True
 doInDetGlobalPrimaryVertexMonAlg   = True
+doInDetGlobalBeamSpotMonAlg        = True
+
 
 from InDetGlobalMonitoringRun3Test.InDetGlobalMonitoringRun3TestConf import InDetGlobalTrackMonAlg
 from InDetGlobalMonitoringRun3Test.InDetGlobalTrackMonAlgCfg import InDetGlobalTrackMonAlgCfg
@@ -16,12 +18,14 @@ from InDetGlobalMonitoringRun3Test.InDetGlobalTrackMonAlgCfg import InDetGlobalT
 from InDetGlobalMonitoringRun3Test.InDetGlobalMonitoringRun3TestConf import InDetGlobalPrimaryVertexMonAlg
 from InDetGlobalMonitoringRun3Test.InDetGlobalPrimaryVertexMonAlgCfg import InDetGlobalPrimaryVertexMonAlgCfg
 
+from InDetGlobalMonitoringRun3Test.InDetGlobalMonitoringRun3TestConf import InDetGlobalBeamSpotMonAlg
+from InDetGlobalMonitoringRun3Test.InDetGlobalBeamSpotMonAlgCfg import InDetGlobalBeamSpotMonAlgCfg
 
-from InDetRecExample.InDetKeys import InDetKeys                                                                                     
-
+from InDetRecExample.InDetKeys import InDetKeys
+from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 kwargsInDetGlobalTrackMonAlg = {
-    'DoIBL' : True,           #InDetFlags.doIBL(), #Turn on/off IBL histograms
+    'DoIBL'      : True,                   #InDetFlags.doIBL(), #Turn on/off IBL histograms
     'TrackName'  : 'CombinedInDetTracks',  #InDetKeys.Tracks()
     'TrackName2' : 'CombinedInDetTracks',  #
     'TrackName3' : 'CombinedInDetTracks',  #
@@ -34,7 +38,14 @@ kwargsInDetGlobalPrimaryVertexMonAlg = {
     'doEnhancedMonitoring'                 : False # InDetFlags.doMonitoringPrimaryVertexingEnhanced()
 }
 
-from AthenaMonitoring.DQMonFlags import DQMonFlags
+kwargsInDetGlobalBeamSpotMonAlg = {
+    'BeamSpotKey'                      : 'BeamSpotData', #InDetKeys.BeamSpotData(),
+    'vxContainerName'                  : 'PrimaryVertices', #InDetKeys.xAODVertexContainer(),
+    'trackContainerName'               : 'InDetTrackParticles', #InDetKeys.xAODTrackParticleContainer(),
+    'useBeamspot'                      : True, # InDetFlags.useBeamConstraint()
+    'vxContainerWithBeamConstraint'    : False # InDetFlags.useBeamConstraint()
+}
+
 
 # old magic
 from AthenaMonitoring import AthMonitorCfgHelperOld
@@ -62,9 +73,18 @@ if doInDetGlobalTrackMonAlg:
   InDetGlobalTrackMonAlgCfg(helper, inDetGlobalTrackMonAlg, **kwargsInDetGlobalTrackMonAlg)
 
 if doInDetGlobalPrimaryVertexMonAlg:
-  myInDetGlobalPrimaryVertexMonAlg = helper.addAlgorithm(InDetGlobalPrimaryVertexMonAlg, 'InDetGlobalPrimaryVertexMonAlg')
+  inDetGlobalPrimaryVertexMonAlg = helper.addAlgorithm(InDetGlobalPrimaryVertexMonAlg, 'InDetGlobalPrimaryVertexMonAlg')
   for k, v in kwargsInDetGlobalPrimaryVertexMonAlg.items():
-      setattr(myInDetGlobalPrimaryVertexMonAlg, k, v)
-  InDetGlobalPrimaryVertexMonAlgCfg(helper, myInDetGlobalPrimaryVertexMonAlg, **kwargsInDetGlobalPrimaryVertexMonAlg)
+      setattr(inDetGlobalPrimaryVertexMonAlg, k, v)
+
+  InDetGlobalPrimaryVertexMonAlgCfg(helper, inDetGlobalPrimaryVertexMonAlg, **kwargsInDetGlobalPrimaryVertexMonAlg)
+
+
+if doInDetGlobalBeamSpotMonAlg:
+  inDetGlobalBeamSpotMonAlg = helper.addAlgorithm(InDetGlobalBeamSpotMonAlg, 'InDetGlobalBeamSpotMonAlg')
+  for k, v in kwargsInDetGlobalBeamSpotMonAlg.items():
+      setattr(inDetGlobalBeamSpotMonAlg, k, v)
+
+  InDetGlobalBeamSpotMonAlgCfg(helper, inDetGlobalBeamSpotMonAlg, **kwargsInDetGlobalBeamSpotMonAlg)
 
 topSequence += helper.result()
