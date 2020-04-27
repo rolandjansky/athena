@@ -64,7 +64,7 @@ TH1* cloneExisting(const std::string & name){
     }
     auto ret = dynamic_cast<TH1*>(h->Clone(name.c_str()));
     if (!ret){ 
-        std::cerr << "Found an existing object "<<name<<", but it is not a histogram ("<<h->IsA()->GetName()<<" - will not postprocess "<<std::endl; 
+        std::cerr << "Found an existing object "<<name<<", but it is not a histogram ("<<h->IsA()->GetName()<<") - will not postprocess "<<std::endl; 
     }
     return ret; // will also catch ret == nullptr
 }
