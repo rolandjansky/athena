@@ -61,6 +61,7 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("hlt_mht_run3_key", m_hlt_mht_run3_met_key="HLT_MET_mht");
   declareProperty("hlt_topocl_run3_key", m_hlt_topocl_run3_met_key="HLT_MET_tc");
   declareProperty("hlt_topocl_PUC_run3_key", m_hlt_topocl_PUC_run3_met_key="HLT_MET_tcpufit");
+  declareProperty("hlt_trkmht_run3_key", m_hlt_trkmht_run3_met_key="HLT_MET_trkmht");
   declareProperty("hlt_cell_key", m_hlt_cell_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET");
   declareProperty("hlt_mht_key", m_hlt_mht_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht");
   declareProperty("hlt_mhtem_key", m_hlt_mhtem_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht_em");
@@ -585,7 +586,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
   const xAOD::TrigMissingETContainer *hlt_trkmht_met_cont = 0;
   sc = evtStore()->retrieve(hlt_trkmht_met_cont, m_hlt_trkmht_met_key);
   if (sc.isFailure() || !hlt_trkmht_met_cont) {
-    ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_trkmht_met_key << " from TDS");
+    sc = evtStore()->retrieve(hlt_trkmht_met_cont, m_hlt_trkmht_run3_met_key);
+    if (sc.isFailure() || !hlt_trkmht_met_cont) {
+      ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_trkmht_met_key << " from TDS");
+    }
   }
   else {
     ATH_MSG_DEBUG("Accessing met(trkmht) with " << hlt_trkmht_met_cont->size() << " elements");
