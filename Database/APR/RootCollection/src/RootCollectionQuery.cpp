@@ -200,15 +200,6 @@ pool::RootCollection::RootCollectionQuery::execute()
      eventList = new TEventList("preselected","");
      eventList->SetDirectory(0);
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,3,0)
-     size_t  maxoper = m_whereClause.length()/3;
-     if( maxoper > 1000 ) {
-        // increase number of operators ROOT can handle for complex queries
-        coral::MessageStream log("APR::RootCollectionQuery");
-        log << coral::Info << "Setting TFormula::SetMaxima(" << maxoper << ")" <<  coral::MessageStream::endmsg;
-        TFormula::SetMaxima( maxoper );
-     }
-#endif
      APRTreeFormula formula(m_whereClause, m_tree);
      if( !formula.GetNdim() )  {
         std::string errorMsg = "Could not construct TTreeFormula object, probably because of incorrect ROOT predicate syntax in expression `" + m_whereClause + "'";
