@@ -72,7 +72,7 @@ case $ArtProcess in
       --steering        doRAWtoALL \
       --checkEventCount False \
       --ignoreErrors    True \
-      --maxEvents       10 \
+      --maxEvents       -1 \
       --skipEvents      0 \
       --valid           True \
       --validationFlags doInDet \
