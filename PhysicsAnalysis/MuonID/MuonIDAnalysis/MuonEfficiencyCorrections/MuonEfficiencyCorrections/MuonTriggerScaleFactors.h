@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef MUONTRIGGERSCALEFACTORS_H_
@@ -15,10 +15,10 @@
 #include <string>
 #include <sstream>
 #include <memory>
+#include <unordered_map>
 
 #include "TDirectory.h"
-
-#include <unordered_map>
+#include "TH1.h"
 
 namespace CP {
     typedef std::shared_ptr<TH1> TH1_Ptr;
