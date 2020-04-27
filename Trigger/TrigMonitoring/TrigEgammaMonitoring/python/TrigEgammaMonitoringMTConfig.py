@@ -6,20 +6,16 @@
 @brief Run 3 configuration builder. Histograms definitions taken from TrigEgammaPlotTool
 '''
 
-from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
+from AthenaCommon.Constants import DEBUG
 from TrigEgammaMonitoring.TrigEgammaMonitCategory import * 
-from TrigEgammaMonitoring.TrigEgammaMonitoringConf import * 
-
 from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_electron, monitoring_photon, monitoringTP_electronJpsiee, monitoringTP_electron
-from TrigEgammaMonitoring import TrigEgammaMonitoringConf
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
-from AthenaCommon import CfgMgr
+#from AthenaCommon import CfgMgr
 import cppyy
  
-#from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingToolMT
-#from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingToolMT
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory as CfgMgr
 
 
 if not 'DQMonFlags' in dir():
@@ -238,7 +234,7 @@ class TrigEgammaMonAlgBuilder:
     if self.activate_zee:
 
       self.__logger.info( "Creating the Zee monitor algorithm...")
-      self.zeeMonAlg = self.helper.addAlgorithm( TrigEgammaMonitorTagAndProbeAlgorithm, "TrigEgammaMonitorTagAndProbeAlgorithm_Zee" )
+      self.zeeMonAlg = self.helper.addAlgorithm( CompFactory.TrigEgammaMonitorTagAndProbeAlgorithm, "TrigEgammaMonitorTagAndProbeAlgorithm_Zee" )
       self.zeeMonAlg.Analysis='Zee'
       self.zeeMonAlg.MatchTool = EgammaMatchTool
       self.zeeMonAlg.TPTrigger=False
@@ -263,7 +259,7 @@ class TrigEgammaMonAlgBuilder:
     if self.activate_jpsiee:
 
       self.__logger.info( "Creating the Jpsiee monitor algorithm...")
-      self.jpsieeMonAlg = self.helper.addAlgorithm( TrigEgammaMonitorTagAndProbeAlgorithm, "TrigEgammaMonitorTagAndProbeAlgorithm_Jpsiee" )
+      self.jpsieeMonAlg = self.helper.addAlgorithm( CompFactory.TrigEgammaMonitorTagAndProbeAlgorithm, "TrigEgammaMonitorTagAndProbeAlgorithm_Jpsiee" )
       self.jpsieeMonAlg.DoJpsiee=True
       self.jpsieeMonAlg.Analysis='Jpsiee'
       self.jpsieeMonAlg.MatchTool = EgammaMatchTool
@@ -289,7 +285,7 @@ class TrigEgammaMonAlgBuilder:
     if self.activate_electron:
 
       self.__logger.info( "Creating the Electron monitor algorithm...")
-      self.elMonAlg = self.helper.addAlgorithm( TrigEgammaMonitorElectronAlgorithm, "TrigEgammaMonitorElectronAlgorithm" )
+      self.elMonAlg = self.helper.addAlgorithm( CompFactory.TrigEgammaMonitorElectronAlgorithm, "TrigEgammaMonitorElectronAlgorithm" )
       self.elMonAlg.MatchTool = EgammaMatchTool
       self.elMonAlg.ElectronKey = 'Electrons'
       self.elMonAlg.isEMResultNames=self.isemnames
@@ -306,7 +302,7 @@ class TrigEgammaMonAlgBuilder:
     if self.activate_photon:
 
       self.__logger.info( "Creating the Photon monitor algorithm...")
-      self.phMonAlg = self.helper.addAlgorithm( TrigEgammaMonitorPhotonAlgorithm, "TrigEgammaMonitorPhotonAlgorithm" )
+      self.phMonAlg = self.helper.addAlgorithm( CompFactory.TrigEgammaMonitorPhotonAlgorithm, "TrigEgammaMonitorPhotonAlgorithm" )
       self.phMonAlg.MatchTool = EgammaMatchTool
       self.phMonAlg.PhotonKey = 'Photons'
       self.phMonAlg.isEMResultNames=self.isemnames
