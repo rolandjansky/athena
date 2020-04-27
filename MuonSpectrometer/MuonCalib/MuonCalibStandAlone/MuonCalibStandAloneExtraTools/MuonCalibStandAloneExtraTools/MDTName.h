@@ -27,13 +27,13 @@ private:
 
 public:
   MDTName();
-  MDTName(MuonFixedId);
-  MDTName(TString);
-  MDTName(char*);
-  MDTName(std::string);
-  MDTName(std::string,int,int);
-  MDTName(std::string,int,std::string,int);
-  void MDTName_init(TString);
+  MDTName(const MuonFixedId&);
+  MDTName(const TString&);
+  MDTName(const char*);
+  MDTName(const std::string&);
+  MDTName(const std::string&,const int,const int);
+  MDTName(const std::string&,const int,const std::string&,const int);
+  void MDTName_init(const TString&);
   std::string getOnlineName();
   std::string getOfflineName();
   bool isBarrel();
@@ -55,12 +55,12 @@ public:
   std::string getSize();
   std::string getSide();
   std::string getName();
-  TString OnlineToOfflineName(TString);
-  TString OnlineToOfflineName(char*);
-  TString OnlineToOfflineName(std::string);
-  TString OfflineToOnlineName(TString);
-  TString OfflineToOnlineName(char*);
-  TString OfflineToOnlineName(std::string);
+  TString OnlineToOfflineName(const TString&);
+  TString OnlineToOfflineName(const char*);
+  TString OnlineToOfflineName(const std::string&);
+  TString OfflineToOnlineName(const TString&);
+  TString OfflineToOnlineName(const char*);
+  TString OfflineToOnlineName(const std::string&);
 
 };
 

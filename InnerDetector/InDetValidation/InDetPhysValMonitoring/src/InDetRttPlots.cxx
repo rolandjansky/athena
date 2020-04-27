@@ -123,7 +123,7 @@ InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake,
 //Fill Vertexing Plots
 //
 void
-InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer) {
+InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthVertices) {
   // fill vertex container general properties
   // m_verticesVsMuPlots.fill(vertexContainer); //if ever needed
   // fill vertex-specific properties, for all vertices and for hard-scattering vertex
@@ -141,6 +141,7 @@ InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer) {
       ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all HS vertex");
     }
   }
+  m_vertexTruthMatchingPlots.fill(vertexContainer, truthVertices);
 }
 
 

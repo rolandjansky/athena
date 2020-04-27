@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,6 @@ namespace InDet {
     void setTools(const Trk::IPatternParametersPropagator* propTool,
                   const Trk::IPatternParametersUpdator* updatorTool,
                   const Trk::IRIO_OnTrackCreator* rioTool,
-                  MagField::IMagFieldSvc* fieldService,
                   const IInDetConditionsTool* pixCondTool,
                   const IInDetConditionsTool* sctCondTool,
                   const Trk::MagneticFieldProperties* fieldProp);

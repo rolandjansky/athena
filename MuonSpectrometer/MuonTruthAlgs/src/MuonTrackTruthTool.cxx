@@ -202,8 +202,8 @@ namespace Muon {
                                 << truthTrajectory->size() << " fs barcode " << barcode << " pdg " << truthTrajectory->front()->pdg_id()
                                 << " p " << truthTrajectory->front()->momentum().rho();
 	      if( truthTrajectory->front()->production_vertex() ) {
-                msg(MSG::VERBOSE) << " vertex: r  " << truthTrajectory->front()->production_vertex()->point3d().perp() 
-                                  << " z " << truthTrajectory->front()->production_vertex()->point3d().z();
+                msg(MSG::VERBOSE) << " vertex: r  " << truthTrajectory->front()->production_vertex()->position().perp() 
+                                  << " z " << truthTrajectory->front()->production_vertex()->position().z();
               }
 	      msg(MSG::VERBOSE) << endmsg;
 	    }
@@ -217,8 +217,8 @@ namespace Muon {
               if( msgLvl(MSG::VERBOSE) && code != barcode ) {
                 msg(MSG::VERBOSE) << "  secondary barcode: " << code << " pdg " << (*pit)->pdg_id() 
                                   << " p " << (*pit)->momentum().rho();
-                if( (*pit)->production_vertex() ) msg(MSG::VERBOSE) << " vertex: r  " << (*pit)->production_vertex()->point3d().perp() 
-                                                                    << " z " << (*pit)->production_vertex()->point3d().z();
+                if( (*pit)->production_vertex() ) msg(MSG::VERBOSE) << " vertex: r  " << (*pit)->production_vertex()->position().perp() 
+                                                                    << " z " << (*pit)->production_vertex()->position().z();
                 
                 msg(MSG::VERBOSE) << endmsg;
 		// sanity check 

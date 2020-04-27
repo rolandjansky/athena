@@ -155,11 +155,6 @@ void NewMergeMcEventCollTool::printDetailsOfMergedMcEventCollection(McEventColle
     std::ofstream of(fname);
     (*outputEventItr)->print(of); // verbose output
     of.close();
-    //      HepMC::GenEvent& currentSignalEvent(**(outputEventItr));
-    //      currentSignalEvent.print();
-    //      ATH_MSG_INFO ( "Current signal_process_vertex: " );
-    //      if(0!=currentSignalEvent.signal_process_vertex()) currentSignalEvent.signal_process_vertex()->print();
-    //      else ATH_MSG_INFO ( "signal_process_vertex is NULL" );
     ++outputEventItr;
   }
   ATH_MSG_INFO ( "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" );

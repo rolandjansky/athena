@@ -19,8 +19,8 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 // HepMC
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 /** Constructor **/
 iFatras::PRD_PlanarTruthTrajectoryBuilder::PRD_PlanarTruthTrajectoryBuilder(const std::string& t, const std::string& n, const IInterface* p) : 

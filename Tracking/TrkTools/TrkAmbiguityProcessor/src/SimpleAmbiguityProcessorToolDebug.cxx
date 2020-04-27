@@ -1003,8 +1003,7 @@ const std::vector<HepPoint3D> Trk::SimpleAmbiguityProcessorTool::positionsOfBrem
     for ( ; outgoingParticle != (*vertex)->particles_out_const_end(); ++outgoingParticle ){
 
       if ( (*outgoingParticle)->pdg_id() == 22 ){
-	//positionsOfVertices.push_back( (*vertex)->point3d() );
-	HepPoint3D photonPoint3d((*vertex)->point3d().x(),(*vertex)->point3d().y(),(*vertex)->point3d().z());
+	HepPoint3D photonPoint3d((*vertex)->position().x(),(*vertex)->position().y(),(*vertex)->position().z());
 	positionsOfVertices.push_back( photonPoint3d );
       }
     }

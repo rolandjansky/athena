@@ -32,9 +32,7 @@ namespace HepPDT {
   class ParticleDataTable;
 }
 
-namespace HepMC {
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 namespace Barcode {
   class IBarcodeSvc;

@@ -197,8 +197,8 @@ TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS
 TrigSignatureMoniMT                                 INFO -- #2938374624 Events         20         20         5          -          -          -          -          5          
 TrigSignatureMoniMT                                 INFO -- #2938374624 Features                             5          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_059jvt_L1J15 #1593009344
-TrigSignatureMoniMT                                 INFO -- #1593009344 Events         20         20         5          -          -          -          -          5          
-TrigSignatureMoniMT                                 INFO -- #1593009344 Features                             5          -          -          -          -          
+TrigSignatureMoniMT                                 INFO -- #1593009344 Events         20         20         4          -          -          -          -          4          
+TrigSignatureMoniMT                                 INFO -- #1593009344 Features                             4          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_j45_ftf_subjesgscIS_L1J15 #3341539267
 TrigSignatureMoniMT                                 INFO -- #3341539267 Events         20         20         6          -          -          -          -          6          
 TrigSignatureMoniMT                                 INFO -- #3341539267 Features                             6          -          -          -          -          
@@ -437,8 +437,8 @@ TrigSignatureMoniMT                                 INFO HLT_xe30_tcpufit_L1XE10
 TrigSignatureMoniMT                                 INFO -- #1583719916 Events         20         20         2          -          -          -          -          2          
 TrigSignatureMoniMT                                 INFO -- #1583719916 Features                             2          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_xe30_trkmht_L1XE10 #2468872349
-TrigSignatureMoniMT                                 INFO -- #2468872349 Events         20         20         5          -          -          -          -          5          
-TrigSignatureMoniMT                                 INFO -- #2468872349 Features                             5          -          -          -          -          
+TrigSignatureMoniMT                                 INFO -- #2468872349 Events         20         20         6          -          -          -          -          6          
+TrigSignatureMoniMT                                 INFO -- #2468872349 Features                             6          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_xe65_cell_L1XE50 #531141817
 TrigSignatureMoniMT                                 INFO -- #531141817 Events          20         20         0          -          -          -          -          0          
 TrigSignatureMoniMT                                 INFO -- #531141817 Features                              0          -          -          -          -          

@@ -87,6 +87,8 @@ class MuFastDataPreparator: public AthAlgTool {
 
   bool isRpcFakeRoi() {return m_isRpcFakeRoi;}
 
+  void setMultiMuonTrigger( const bool multiMuonTrigger ) {m_doMultiMuon = multiMuonTrigger;};
+
  private:
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;
   SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
@@ -108,6 +110,8 @@ class MuFastDataPreparator: public AthAlgTool {
   bool m_use_rpc{false};
   bool m_isRpcFakeRoi{false};
   bool m_use_mcLUT{false};
+  bool m_doMultiMuon{false};
+
 };
   
 } // namespace TrigL2MuonSA

@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-// $Id$
 /**
  * @file CxxUtils/ConcurrentRangeMap.h
  * @author scott snyder <snyder@bnl.gov>
@@ -25,6 +22,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <functional>
 
 
 namespace CxxUtils {
@@ -387,6 +385,21 @@ public:
   int extendLastRange (const RANGE& newRange,
                        const typename Updater_t::Context_t& ctx =
                          Updater_t::defaultContext());
+
+
+  /**
+   * @brief Update all range objects.
+   * @param rangeUpater Functional to call on each range object.
+   * @param ctx Execution context.
+   *
+   * This will iterate through the list of entries and call @c rangeUpdater
+   * on the @c RANGE part of each.  Be careful: rangeUpdater must not
+   * change any part of the range which might affect the sorting
+   * of entries.
+   */
+  void updateRanges (std::function<void (RANGE&)> rangeUpdater,
+                     const typename Updater_t::Context_t& ctx =
+                       Updater_t::defaultContext());
 
 
   /**

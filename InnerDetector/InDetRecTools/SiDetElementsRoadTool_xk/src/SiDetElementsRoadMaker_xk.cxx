@@ -46,11 +46,6 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
     return StatusCode::FAILURE;
   }
  
-  // Get magnetic field service
-  //
-  if (m_fieldmode != "NoField") {
-    ATH_CHECK(m_fieldServiceHandle.retrieve());
-  }
   if (m_fieldmode == "NoField") m_fieldModeEnum = Trk::NoField;
   else if (m_fieldmode == "MapSolenoid") m_fieldModeEnum = Trk::FastField;
   else m_fieldModeEnum = Trk::FullField;
@@ -66,6 +61,7 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
   computeBounds();
 
   ATH_CHECK(m_layerVecKey.initialize());
+  ATH_CHECK(m_fieldCondObjInputKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -106,7 +102,15 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
                               "UndefinedField", "AthenaField"  , "?????"         };
 
   Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
-  if (!m_fieldServiceHandle->solenoidOn()) fieldModeEnum = Trk::NoField;
+
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> fieldHandle(m_fieldCondObjInputKey);
+  const AtlasFieldCacheCondObj* fieldCondObj(*fieldHandle);
+  if (fieldCondObj) {
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache(fieldCache);
+    if (!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
+  }
+
   Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
 
   int mode = fieldprop.magneticFieldMode();
@@ -468,7 +472,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   }
 
   Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
-  if (!m_fieldServiceHandle->solenoidOn()) fieldModeEnum = Trk::NoField;
+  if (!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
   Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
 
   // Note: could also give fieldCache directly to propagator if it would be more efficient - would
@@ -678,13 +682,11 @@ Trk::CylinderBounds InDet::SiDetElementsRoadMaker_xk::getBound
   const double cor = 1.;
 
   double zfield = 0.;
-  if (m_fieldModeEnum!=Trk::NoField && m_fieldServiceHandle->solenoidOn()) {
+  if (m_fieldModeEnum!=Trk::NoField && fieldCache.solenoidOn()) {
     const Amg::Vector3D& pos = Tp.position();
     double f[3], p[3] = {pos[Amg::x], pos[Amg::y], pos[Amg::z]};
 
-    //   MT version uses cache, temporarily keep old version
-    if (fieldCache.useNewBfieldCache()) fieldCache.getFieldZR           (p, f);
-    else                                m_fieldServiceHandle->getFieldZR(p, f);
+    fieldCache.getFieldZR(p, f);
 
     zfield = 299.7925*f[2];
   }

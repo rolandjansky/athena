@@ -4,6 +4,11 @@
 
 #include <sstream>
 #include <TRandom3.h>
+#include "TROOT.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TFile.h"
+#include "TKey.h"
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
@@ -13,7 +18,7 @@
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
-
+#include "FourMomUtils/xAODP4Helpers.h"
 #include "PathResolver/PathResolver.h"
 
 #include <iostream>
@@ -181,7 +186,7 @@ namespace CP {
                             const int xbins = tmp_h2->GetNbinsX(), ybins = tmp_h2->GetNbinsY();
                             for (int x_i = 0; x_i <= xbins; ++x_i) {
                                 for (int y_i = 0; y_i <= ybins; ++y_i) {
-                                    double statErr = std::fabs(tmp_h2->GetBinContent(x_i, y_i) - StatUp_H->GetBinContent(x_i, y_i));
+                                    double statErr = std::abs(tmp_h2->GetBinContent(x_i, y_i) - StatUp_H->GetBinContent(x_i, y_i));
                                     tmp_h2->SetBinError(x_i, y_i, statErr);
                                 }
                             }
@@ -334,12 +339,6 @@ namespace CP {
         return cc;
     }
 
-    double MuonTriggerScaleFactors::dR(const double eta1, const double phi1, const double eta2, const double phi2) const {
-        double deta = std::fabs(eta1 - eta2);
-        double dphi = std::fabs(phi1 - phi2) < M_PI ? std::fabs(phi1 - phi2) : 2 * M_PI - std::fabs(phi1 - phi2);
-        return std::sqrt(deta * deta + dphi * dphi);
-    }
-
     ///////////////////////
     // Private functions //
     ///////////////////////
@@ -380,7 +379,7 @@ namespace CP {
 
     const double mu_eta = muon.eta();
     const double mu_phi = muon.phi();
-    bool isBarrel = std::fabs(mu_eta) < muon_barrel_endcap_boundary;
+    bool isBarrel = std::abs(mu_eta) < muon_barrel_endcap_boundary;
     TH1_Ptr cit = getEfficiencyHistogram(trigger, true, "nominal", isBarrel);
     if(!cit.get()){
       if(!m_allowZeroSF)
@@ -422,7 +421,7 @@ namespace CP {
     CorrectionCode MuonTriggerScaleFactors::getMuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::Muon& muon, const std::string& trigger, const std::string& systematic) const{
         const double mu_eta = muon.eta();
         const double mu_phi = muon.phi();
-        bool isBarrel = std::fabs(mu_eta) < muon_barrel_endcap_boundary;
+        bool isBarrel = std::abs(mu_eta) < muon_barrel_endcap_boundary;
 
         TH1_Ptr eff_h2 = nullptr;
         if (configuration.replicaIndex >= 0) { //Only look into the replicas if asking for them
@@ -528,7 +527,7 @@ namespace CP {
 
         double event_SF = 1.;
 
-        if (std::fabs(1. - eff_mc) > 0.0001) {
+        if (std::abs(1. - eff_mc) > 0.0001) {
             event_SF = eff_data / eff_mc;
         }
 
@@ -606,7 +605,7 @@ namespace CP {
 
         double event_SF = 1.;
         if (1 - rate_not_fired_data == 0) event_SF = 0;
-        if ((mucont.size()) and (std::fabs(1. - rate_not_fired_mc) > 0.0001)) {
+        if ((mucont.size()) and (std::abs(1. - rate_not_fired_mc) > 0.0001)) {
 
             event_SF = (1. - rate_not_fired_data) / (1. - rate_not_fired_mc);
         }
@@ -673,7 +672,7 @@ namespace CP {
 	  return result_mc;
 	if (eff_data == 0)
 	  TriggerSF =  0;
-        if (std::fabs(eff_mc) > 0.0001)
+        if (std::abs(eff_mc) > 0.0001)
 	  TriggerSF = eff_data / eff_mc;
         return CorrectionCode::Ok;
   }

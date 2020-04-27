@@ -607,15 +607,6 @@ namespace MuonCalib {
                 m_onlineTHoldBreaches->push_back(new CscCalibResult(stripHash,m_onlineThresholdFailureCount[stripHash],0));
               }
             }
-
-            //Threshold calculation
-            //double threshold = mean + m_thresholdMultiplier*sigma;
-            //double thresholdError = sqrt((meanError*meanError +
-            //      m_thresholdMultiplier*sigmaError*m_thresholdMultiplier*sigmaError)/2);
-
-            //if(m_verbose) mLog << MSG::VERBOSE << "===> Ped: " << mean << "\tNoise: " << sigma 
-            //  << "\tthreshold: " << threshold << endmsg; 
-
           }
         }
         else
@@ -1004,7 +995,7 @@ namespace MuonCalib {
               if(denom <= 0 )
                 r= 0;
               else 
-                r = (n*xy - x*y)/sqrt(denom);
+                r = (n*xy - x*y)/std::sqrt(denom);
 
               //Pearson r
               correlationHist->SetBinContent(bit1,bit2,r);

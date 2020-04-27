@@ -2,10 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MuonTrackQuery.h, (c) ATLAS Combined Muon software
-///////////////////////////////////////////////////////////////////
-
 #ifndef MUIDTRACKBUILDER_MUONTRACKQUERY_H
 #define MUIDTRACKBUILDER_MUONTRACKQUERY_H
 
@@ -17,23 +13,16 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
-
-
-namespace Trk {
-class ITrackingGeometrySvc;
-}
-
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
 namespace Rec {
-
 
 class MuonTrackQuery : public AthAlgTool, virtual public IMuonTrackQuery {
   public:
     MuonTrackQuery(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonTrackQuery();
+    ~MuonTrackQuery()=default;
 
     StatusCode initialize();
-    StatusCode finalize();
 
     /** IMuonTrackQuery interface:
         caloEnergy from appropriate TSOS */
@@ -88,10 +77,6 @@ class MuonTrackQuery : public AthAlgTool, virtual public IMuonTrackQuery {
     const Trk::Perigee* outgoingPerigee(const Trk::Track& track) const;
 
     /** IMuonTrackQuery interface:
-        track expressed outgoing from IP */
-    const Trk::Track* outgoingTrack(const Trk::Track& track) const;
-
-    /** IMuonTrackQuery interface:
         significance of early scattering angle pattern for combined tracks (wider than gaussian) */
     ScatteringAngleSignificance scatteringAngleSignificance(const Trk::Track& track) const;
 
@@ -120,12 +105,7 @@ class MuonTrackQuery : public AthAlgTool, virtual public IMuonTrackQuery {
         "Handle to the service providing the IMuonEDMHelperSvc interface",
     };
 
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_muonIdHelperSvc{
-        this,
-        "idHelper",
-        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
-        "Handle to the service providing the IMuonIdHelperSvc interface",
-    };
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{
         this,

@@ -89,8 +89,8 @@ Trk::InDetPrimaryConversionSelector::selectGenSignal (const McEventCollection* S
       } else {
       
         // 2) require track inside ID - relaxed definition including decays of neutrals (secondaries)
-        if ( fabs(particle->production_vertex()->point3d().perp()) > m_maxRStartAll ||
-             fabs(particle->production_vertex()->point3d().z())    > m_maxZStartAll ) continue;
+        if ( fabs(particle->production_vertex()->position().perp()) > m_maxRStartAll ||
+             fabs(particle->production_vertex()->position().z())    > m_maxZStartAll ) continue;
 
         int   pdgCode         = particle->pdg_id();
         if (abs(pdgCode) > 1000000000 ) continue; // ignore nuclei from hadronic interactions

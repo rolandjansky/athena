@@ -575,7 +575,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 		float entries    = heffiEntries->GetBinContent(ibin);
 		float counts     = heffiCounts->GetBinContent(ibin);
 		float efficiency = (counts+1.)/(entries+2.);
-		float error      = sqrt(efficiency*(1-efficiency))/sqrt(entries+3.);
+		float error      = std::sqrt(efficiency*(1-efficiency))/std::sqrt(entries+3.);
 		
 		// Fill MdtDqa Histos
 		heffi->SetBinContent(ibin,efficiency);
@@ -776,7 +776,7 @@ void MdtDqaNtupleAnalysis::histogramAnalysis(TFile *f) {
 	      float tdrift = (pfit[5]-pfit[4])*tdc2ns;
 	      float chi2ndof = chi2/ndof;
 	      float t0err = errfit[4]*tdc2ns;
-	      float tdrifterr = pow(errfit[4]*errfit[4] + errfit[5]*errfit[5], 0.5)*tdc2ns;
+	      float tdrifterr = std::pow(errfit[4]*errfit[4] + errfit[5]*errfit[5], 0.5)*tdc2ns;
 	      if (ML==1) chamberDqaDb->SetML1(t0,tdrift,chi2ndof,t0err,tdrifterr );
 	      if (ML==2) chamberDqaDb->SetML2(t0,tdrift,chi2ndof,t0err,tdrifterr );
 	      // here add t0 and tdrift to the Sector OVERVIEW histograms :

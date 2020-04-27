@@ -308,9 +308,9 @@ StatusCode MagField::AtlasFieldSvc::updateMapFilenames ATLAS_NOT_THREAD_SAFE (IO
 {
     ATH_MSG_INFO( "reading magnetic field map filenames from COOL" );
 
-    ATH_MSG_INFO( "mapHandle isValid " << (int)m_mapHandle.isValid() );
-    ATH_MSG_INFO( "mapHandle key " << m_mapHandle.key() );
-    ATH_MSG_INFO( "mapHandle size " << m_mapHandle->size() );
+    ATH_MSG_DEBUG( "mapHandle isValid " << (int)m_mapHandle.isValid() );
+    ATH_MSG_DEBUG( "mapHandle key " << m_mapHandle.key() );
+    ATH_MSG_DEBUG( "mapHandle size " << m_mapHandle->size() );
 
     
     std::string fullMapFilename("");
@@ -691,32 +691,21 @@ StatusCode MagField::AtlasFieldSvc::readMap( std::istream& input )
     {
         int id;
         int nrep;
-
         int map; // unused
         double z1;
-
         double z2;
-
         double r1;
-
         double r2;
-
         double phi1;
-
         double phi2;
         int nzrphi0; // unused
         double tol; // unused
         int mzn;
-
         int mxsym;
-
         int mrefl;
-
         int mback; // unused
         double qz;
-
         double qr;
-
         double qphi; // unused
         double bscale;
         input >> id >> nrep;

@@ -19,6 +19,8 @@
 #include "MuonSimEvent/sTGCSimHitCollection.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
 
+#include "AtlasHepMC/GenParticle.h"
+
 // std library includes
 #include <string>
 #include <vector>

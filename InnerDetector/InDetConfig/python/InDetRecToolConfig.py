@@ -7,10 +7,13 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
 
 def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **kwargs):
-  result = InDetTrackHoleSearchToolCfg(flags)
+  result = ComponentAccumulator()
   
-  # FIXME: assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
-  kwargs.setdefault("HoleSearch", result.getPrimary())
+  if "HoleSearch" not in kwargs:
+    acc = InDetTrackHoleSearchToolCfg(flags)
+    # FIXME: assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
+    kwargs.setdefault("HoleSearch", acc.getPrimary())
+    result.merge(acc)
 
   from InDetOverlay.TRT_ConditionsConfig import TRT_StrawStatusSummaryToolCfg
   tmpAcc = TRT_StrawStatusSummaryToolCfg(flags)
@@ -68,13 +71,13 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
         tmpAcc = InDetPropagatorCfg(flags)
         kwargs.setdefault( "Propagators", [tmpAcc.getPrimary()  ] ) # [ InDetPropagator, InDetStepPropagator ],
         result.merge(tmpAcc)
-    propagator= kwargs.get('Propagators')[0].name() if  kwargs.get('Propagators',None) is not None and len(kwargs.get('Propagators',None))>0 else None
+    propagator= kwargs.get('Propagators')[0].name if kwargs.get('Propagators',None) is not None and len(kwargs.get('Propagators',None))>0 else None
 
     if 'MaterialEffectsUpdators' not in kwargs :
         tmpAcc = InDetMaterialEffectsUpdatorCfg(flags)
         kwargs.setdefault( "MaterialEffectsUpdators", [tmpAcc.getPrimary() ] )
         result.merge(tmpAcc)
-    material_updator= kwargs.get('MaterialEffectsUpdators')[0].name() if  kwargs.get('MaterialEffectsUpdators',None) is not None and len(kwargs.get('MaterialEffectsUpdators',None))>0  else None
+    material_updator= kwargs.get('MaterialEffectsUpdators')[0].name if  kwargs.get('MaterialEffectsUpdators',None) is not None and len(kwargs.get('MaterialEffectsUpdators',None))>0  else None
 
     if 'Navigator' not in kwargs :
         tmpAcc = InDetNavigatorCfg(flags)
@@ -282,7 +285,6 @@ def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsT
 
   tool = CompFactory.SCT_ConfigurationConditionsTool(name, **kwargs)
   result.setPrivateTools(tool)
-
   return result
 
 def getSCTDAQConfigFolder(flags) :
@@ -389,7 +391,6 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", c
 
 
 def SCT_ByteStreamErrorsToolCfg(flags, name="SCT_ByteStreamErrorsTool", **kwargs):
-  print(name)
   result = SCT_ConfigurationConditionsToolCfg(flags)
   kwargs.setdefault("ConfigTool", result.popPrivateTools())
   tool = CompFactory.SCT_ByteStreamErrorsTool(name, **kwargs)

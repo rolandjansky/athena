@@ -169,7 +169,6 @@ def LArCellMonConfig(inputFlags):
     LArCellMonAlg.TriggersToInclude      = thresholdDict["TriggersToInclude"]
     LArCellMonAlg.TriggersToExclude      = thresholdDict["TriggersToExclude"]
 
-
     LArCellMonAlg.QualityFactorThreshold = thresholdDict["QualityFactorThreshold"]
     
     LArCellMonAlg.TimeThreshold          = thresholdDict["TimeThreshold"]
@@ -411,17 +410,19 @@ def LArCellMonConfig(inputFlags):
                                               ybins = lArCellBinningScheme.phiRange[part],
                                               pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiAvgTimeNames])
 
-        allMonArray.defineHistogram('isPoorQuality,celleta,cellphi;fractionOverQthVsEtaPhi',
+        allMonArray.defineHistogram('celleta,cellphi;fractionOverQthVsEtaPhi',
                                                       title="Fraction of Events in "+part+" for which the Quality Factor exceeds Threshold;cell #eta;cell #phi",
-                                                      type='TEfficiency', path="2d_PoorQualityFraction/", 
+                                                      weight='isPoorQuality',
+                                                      type='TH2F', path="2d_PoorQualityFraction/", # needs postprocessing 
                                                 cutmask='passThrCut',
                                                       xbins = lArCellBinningScheme.etaRange[part],
                                                       ybins = lArCellBinningScheme.phiRange[part],
                                                       pattern=[(part, _) for _ in LArCellMonAlg.DoEtaPhiFractionOverQthNames])
 
-        allMonArray.defineHistogram('isLateTime,celleta,cellphi;fractionPastTththVsEtaPhi',
+        allMonArray.defineHistogram('celleta,cellphi;fractionPastTthVsEtaPhi',
                                                       title="Fraction of Events in "+part+" for which the Time is further than Threshold;cell #eta;cell #phi",
-                                                      type='TEfficiency', path="2d_FractionOutOfTime/", 
+                                                      weight='isLateTime',
+                                                      type='TH2F', path="2d_FractionOutOfTime/", # needs postprocessing 
                                                 cutmask='passThrCut',
                                                       xbins = lArCellBinningScheme.etaRange[part],
                                                       ybins = lArCellBinningScheme.phiRange[part],

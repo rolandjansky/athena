@@ -64,6 +64,12 @@ class TauProcessorAlg: public AthAlgorithm
 	SG::WriteHandleKey<CaloCellContainer> m_tauPi0CellOutputContainer{this,"Key_tauPi0CellOutputContainer","TauCommonPi0Cells","output calo cell key"};
     
     const CaloCell_ID* m_cellID;
+    
+    // These are needed to read ESD and AOD in AthenaMT for P->T conversion of ID tracks.
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+    SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer"}; 
+
 };
 
 #endif // TAUREC_TAUPROCESSORALG_H
