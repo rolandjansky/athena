@@ -102,8 +102,8 @@ MuonQualityLoose Medium
 UseMVALowPtLoose False
 Use2stationMuonsHighPtLoose True
 MuonIsolationLoose None
-doExtraSmearing False
-do2StationsHighPt True
+DoMuonExtraSmearing False
+DoMuonSmearing2stationHighPt True
 
 ### Tau configuration
 TauPt 25000
