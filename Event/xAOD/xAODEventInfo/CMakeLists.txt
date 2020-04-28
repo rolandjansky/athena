@@ -47,11 +47,11 @@ atlas_add_test( ut_xaodeventinfo_subevent_test
 
 atlas_add_test( ut_xaodeventinfo_eventauxinfo_test
    SOURCES test/ut_xaodeventinfo_eventauxinfo_test.cxx
-   LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )
+   LINK_LIBRARIES AthLinks xAODCore xAODEventInfo TestTools )
 
 atlas_add_test( ut_xaodeventinfo_eventinfoauxcontainer_v1_test
    SOURCES test/ut_xaodeventinfo_eventinfoauxcontainer_v1_test.cxx
-   LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )
+   LINK_LIBRARIES AthLinks xAODCore xAODEventInfo TestTools )
 
 atlas_add_test( ut_xaodeventinfo_eventinfo_v1_test
    SOURCES test/ut_xaodeventinfo_eventinfo_v1_test.cxx
