@@ -521,7 +521,8 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
 
    // Create old EventInfo if not present in the event store
    StatusCode sc = StatusCode::SUCCESS;
-   if (!evtStore()->contains<EventInfo>("EventInfo")) {
+   const EventInfo* constEventInfo{nullptr};
+   if (evtStore()->retrieve(constEventInfo).isFailure()) {
       sc = evtStore()->record<EventInfo>(
          std::make_unique<EventInfo>(
             new EventID(eventIDFromxAOD(constxEventInfo)),
@@ -535,11 +536,8 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
       ATH_MSG_DEBUG("Recorded EventInfo created from xAOD::EventInfo");
    }
 
-   // put it all to SG EventInfo object
-   // get EventInfo
-   const EventInfo* constEventInfo(0);
-   sc = evtStore()->retrieve(constEventInfo);
-   if(sc.isFailure()){
+   // Get the EventInfo to update StreamTag and TriggerInfo
+   if(!constEventInfo && evtStore()->retrieve(constEventInfo).isFailure()){
       ATH_MSG_FATAL("Can't get EventInfo object for update of the StreamTag and TriggerInfo");
       return HLT::FATAL;
    }
