@@ -136,112 +136,83 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   std::string moduleName = getChildValue("Module", moduleIndex, "moduleName");
   std::string chipName = getChildValue("Module", moduleIndex, "chipName");
 
-  int lengthChip = getInt("Module", moduleIndex, "lengthInChips");
-  int circuitsEta = lengthChip;
-
-  int widthChipMax = getInt("Module", moduleIndex, "widthMaxInChips", 0);
-
-  int widthChip=widthChipMax;
-  int circuitsPhi = widthChip;
-
-  msg(MSG::DEBUG)<<"Readout geo parameters - ChipWidth : "<<moduleName<<"  "<<widthChipMax<<endmsg;
+  int circuitsEta = getInt("Module", moduleIndex, "lengthInChips");
+  int circuitsPhi = getInt("Module", moduleIndex, "widthMaxInChips", 0);
 
   double thick = getDouble("Module", moduleIndex, "sensorThickness");
 
   int readoutIndex = getChildValue_Index("FrontEndChip","name",-1,chipName);
-  double phiPitch = getDouble( "FrontEndChip", readoutIndex,"pitchPhi");
-  double etaPitch = getDouble( "FrontEndChip",  readoutIndex,"pitchEta");
+  double phiPitch = getDouble("FrontEndChip", readoutIndex, "pitchPhi");
+  double etaPitch = getDouble("FrontEndChip",  readoutIndex, "pitchEta");
 
-  double etaPitchLong = etaPitch;
-  double etaPitchLongEnd = etaPitch;
+  double phiPitchLong, phiPitchEnd, etaPitchLong, etaPitchEnd;
+  try {phiPitchLong = getDouble("FrontEndChip", readoutIndex, "pitchPhiLong");} catch (const std::runtime_error&) {phiPitchLong = phiPitch;}
+  try {phiPitchEnd  = getDouble("FrontEndChip", readoutIndex, "pitchPhiEnd");}  catch (const std::runtime_error&) {phiPitchEnd  = phiPitch;}
+  try {etaPitchLong = getDouble("FrontEndChip", readoutIndex, "pitchEtaLong");} catch (const std::runtime_error&) {etaPitchLong = etaPitch;}
+  try {etaPitchEnd  = getDouble("FrontEndChip", readoutIndex, "pitchEtaEnd");}  catch (const std::runtime_error&) {etaPitchEnd  = etaPitch;}
+
+  int nPhiLong, nPhiEnd, nEtaLong, nEtaEnd;
+  try {nPhiLong = getInt("FrontEndChip", readoutIndex, "nPhiLongPerSide");} catch (const std::runtime_error&) {nPhiLong = (phiPitchLong == phiPitch ? 0 : 1);}
+  try {nPhiEnd  = getInt("FrontEndChip", readoutIndex, "nPhiEndPerSide");}  catch (const std::runtime_error&) {nPhiEnd  = (phiPitchEnd  == phiPitch ? 0 : 1);}
+  try {nEtaLong = getInt("FrontEndChip", readoutIndex, "nEtaLongPerSide");} catch (const std::runtime_error&) {nEtaLong = (etaPitchLong == etaPitch ? 0 : 1);}
+  try {nEtaEnd  = getInt("FrontEndChip", readoutIndex, "nEtaEndPerSide");}  catch (const std::runtime_error&) {nEtaEnd  = (etaPitchEnd  == etaPitch ? 0 : 1);}
 
   int rowsPerChip = getInt( "FrontEndChip",  readoutIndex,"rows");
-  int emptyRows = 0;
-  int rowsPerSensor = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows; // FIXME check that the matrix does the right thing
-
   int colsPerChip = getInt( "FrontEndChip",  readoutIndex,"columns");
+
+  int emptyRows = 0;
+
+  int readoutIndexGeo = getChildValue_Index("FrontEndChipGeo","moduleName",-1,moduleName);
+
   int readoutSide = 1;
 
+  // this if-block is here for backwards compatibility reasons
+  if(readoutIndexGeo>-1) {
+    etaPitchLong = getDouble("FrontEndChip", readoutIndex, "pitchEtaLong");
+    etaPitchEnd  = getDouble("FrontEndChip", readoutIndex, "pitchEtaEnd");
+    emptyRows = getInt( "FrontEndChipGeo",readoutIndexGeo,"emptyRows");
+    rowsPerChip = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows; // FIXME check that the matrix does the right thing
+    readoutSide = getInt( "FrontEndChipGeo", readoutIndexGeo,"readoutSide");
+
+    msg(MSG::DEBUG) << "readout geo - old geo : "
+        << moduleName << " " << phiPitch << " " << etaPitch << " "
+        << etaPitchLong << " " << etaPitchEnd << " "
+        << circuitsPhi << " " << circuitsEta << " "
+        << rowsPerChip << " " << colsPerChip << " *"
+        << circuitsEta << "   empty " << emptyRows << endmsg;
+  }
 
   msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
   msg(MSG::DEBUG)<<"readout geo : "<<chipName<<endmsg;
   msg(MSG::DEBUG)<<"readout geo : "<<moduleName<<" phi : "<<circuitsPhi<<" "<<rowsPerChip<<" empty "<<emptyRows<<endmsg;
-
   msg(MSG::DEBUG)<<"readout geo : "<<moduleName<<" eta : "<<circuitsEta<<" "<<colsPerChip<<endmsg;
-
-  msg(MSG::DEBUG)<<"readout geo : "<< moduleName<<" "<< phiPitch<<" "<< etaPitch<<" "<< etaPitchLong<<" "<< etaPitchLongEnd<<" "<<
-    circuitsPhi<<" "<< circuitsEta<<" "<< rowsPerSensor<<" "<< colsPerChip<<" *"<<circuitsEta<<endmsg;
-
+  msg(MSG::DEBUG)<<"readout geo : "<< moduleName<<" "<< phiPitch<<" "<< etaPitch<<" "<< etaPitchLong<<" "<< etaPitchEnd<<" "<<
+    circuitsPhi<<" "<< circuitsEta<<" "<< rowsPerChip <<" "<< colsPerChip<<" *"<<circuitsEta<<endmsg;
   msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
 
   double cellRowPerCirc = circuitsPhi*rowsPerChip;
 
-
-  // -----------------------------------------------------------------------------------------------------------------
-  // For compatibility with LoI/ATLAS geometries ( etaPithLong, ganged pixels, ...)
-
   TerminateXML();
-
-  fileName="PixelModules.xml";
-  if(const char* env_p = std::getenv("PIXEL_SILICONREADOUT_GEO_XML")) fileName = std::string(env_p);
-  msg(MSG::DEBUG)<<"Readout geometry file name : "<<fileName<<endmsg;
-
-  bParsed=false;
-  if(readXMLfromDB)
-    {
-      msg(MSG::DEBUG)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
-      DBXMLUtils dbUtils(basics);
-      std::string XMLtext = dbUtils.readXMLFromDB(fileName);
-      InitializeXML();
-      bParsed = ParseBuffer(XMLtext,std::string(""));
-    }
-  else
-    {
-      msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
-      InitializeXML();
-      std::string file = PathResolver::find_file (fileName, "DATAPATH");
-      bParsed = ParseFile(file);
-    }
-
-  if(!bParsed){
-    msg(MSG::ERROR)<<"XML file "<<fileName<<" not found"<<endmsg;
-    return nullptr;
-  }
-
-  int readoutIndexGeo = getChildValue_Index("FrontEndChipGeo","moduleName",-1,moduleName);
-  if(readoutIndexGeo>-1) {
-
-    msg(MSG::DEBUG)<<"Readout module : "<<moduleName<<"  "<<chipName<<"  "<<readoutIndexGeo<<endmsg;
-
-    etaPitchLong = getDouble( "FrontEndChipGeo", readoutIndexGeo,"pitchEtaLong");
-    etaPitchLongEnd = getDouble( "FrontEndChipGeo",  readoutIndexGeo,"pitchEtaEnd");
-    emptyRows = getInt( "FrontEndChipGeo",readoutIndexGeo,"emptyRows");
-    rowsPerSensor = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows; // FIXME check that the matrix does the right thing
-
-    readoutSide = getInt( "FrontEndChipGeo", readoutIndexGeo,"readoutSide");
-
-    msg(MSG::DEBUG)<<"readout geo - old geo : "<< moduleName<<" "<< phiPitch<<" "<< etaPitch<<" "<< etaPitchLong<<" "<< etaPitchLongEnd<<" "<<
-      circuitsPhi<<" "<< circuitsEta<<" "<< rowsPerSensor<<" "<< colsPerChip<<" *"<<circuitsEta<<"   empty "<<emptyRows<<endmsg;
-
-  }
 
   msg(MSG::DEBUG)<<"readout geo : ------------------------------------------------------------------------"<<endmsg;
 
-  // see PixelGeoModel/OraclePixGeoManager
-  // This should be (*pdch)[0]->getDouble("NRPCHIP"), but in the current
-  // design we prefer to have one chip in the rphi direction
-  // and define the connections for the pixels in the gap
-  circuitsPhi =1;
+  PixelDiodeMatrix * fullMatrix = buildMatrix( phiPitch, etaPitch,
+                                               phiPitchLong, phiPitchEnd,
+                                               etaPitchLong, etaPitchEnd,
+                                               nPhiLong, nPhiEnd,
+                                               nEtaLong, nEtaEnd,
+                                               circuitsPhi, circuitsEta,
+                                               rowsPerChip, colsPerChip);
 
-
-  msg(MSG::DEBUG)<<"readout geo - matrix : "<< phiPitch<<" "<< etaPitch<<" "<< etaPitchLong<<" "<< etaPitchLongEnd<<" "<<
-    circuitsPhi<<" "<< circuitsEta<<" "<< rowsPerSensor<<" "<< colsPerChip<<endmsg;
-
-  PixelDiodeMatrix * fullMatrix = buildMatrix( phiPitch, etaPitch, etaPitchLong, etaPitchLongEnd,
-					       circuitsPhi, circuitsEta, rowsPerSensor, colsPerChip);
+  msg(MSG::DEBUG) << "fullMatrix = buildMatrix(" << phiPitch << ", " << etaPitch << ", " <<
+                                               phiPitchLong << ", " << phiPitchEnd << ", " <<
+                                               etaPitchLong << ", " << etaPitchEnd << ", " <<
+                                               nPhiLong << ", " << nPhiEnd << ", " <<
+                                               nEtaLong << ", " << nEtaEnd << ", " <<
+                                               circuitsPhi << ", " << circuitsEta << ", " <<
+                                               rowsPerChip << ", " << colsPerChip << ")" << endmsg;
 
   msg(MSG::DEBUG) << "matrix that was build:\n" << fullMatrix->createDebugStringRepr() << endmsg;
-
 
   msg(MSG::DEBUG)<<"readout geo - design " << thick<<" "<<
     circuitsPhi<<" "<<
@@ -249,7 +220,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     colsPerChip<<" "<<
     cellRowPerCirc<<" "<<
     colsPerChip<<" "<<
-    rowsPerSensor<<" "<<
+    rowsPerChip<<" "<<
     electrons<<" "<<
     readoutSide<<endmsg;
 
@@ -259,7 +230,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 						     colsPerChip,
 						     cellRowPerCirc,
 						     colsPerChip,
-						     rowsPerSensor,
+						     rowsPerChip,
 						     fullMatrix,
 						     electrons,
 						     readoutSide);
