@@ -7,18 +7,17 @@
 '''
 
 from AthenaCommon.Constants import DEBUG
-from TrigEgammaMonitoring.TrigEgammaMonitCategory import * 
-from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_electron, monitoring_photon, monitoringTP_electronJpsiee, monitoringTP_electron
+from TrigEgammaMonitoring.TrigEgammaMonitCategory import monitoring_tags_Run3, monitoring_electron_Run3, monitoring_photon_Run3, monitoringTP_electron_Run3, monitoringTP_Jpsiee_Run3
+#from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_electron, monitoring_photon, monitoringTP_electronJpsiee, monitoringTP_electron
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
-#from AthenaCommon import CfgMgr
 import cppyy
  
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentFactory import CompFactory as CfgMgr
 
 
-if not 'DQMonFlags' in dir():
+if 'DQMonFlags' not in dir():
     from AthenaMonitoring.DQMonFlags import DQMonFlags as dqflags
 
 
@@ -84,7 +83,7 @@ class TrigEgammaMonAlgBuilder:
 
     self.__logger.info("TrigEgammaMonToolBuilder.configureMode()")
     self._get_monitoring_mode_success = self.get_monitoring_mode()
-    if self._get_monitoring_mode_success == False:
+    if self._get_monitoring_mode_success is False:
       self.__logger.warning("HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used.")
     else:
       self.__logger.info("Configuring for %s", self.data_type)
@@ -92,17 +91,22 @@ class TrigEgammaMonAlgBuilder:
     # Since we load the tools by name below 
     # Need to ensure the correct tools are configured 
     # for each monitoring mode
-    if self.mc_mode == True or self.pp_mode == True:
-      if(self.derivation == True or self.emulation == True):
+    if self.mc_mode is True or self.pp_mode is True:
+      if(self.derivation is True or self.emulation is True):
         self.activate_zee = True
       else:
-        self.activate_zee=True; self.activate_jpsiee=True; 
-        self.activate_electron=True; self.activate_photon=True
-    elif self.HI_mode == True or self.pPb_mode == True or self.cosmic_mode == True:
-      self.activate_electron=True; self.activate_photon=True
+        self.activate_zee=True
+        self.activate_jpsiee=True 
+        self.activate_electron=True
+        self.activate_photon=True
+    elif self.HI_mode is True or self.pPb_mode is True or self.cosmic_mode is True:
+      self.activate_electron=True
+      self.activate_photon=True
     else:
-      self.activate_zee=True; self.activate_jpsiee=True; 
-      self.activate_electron=True; self.activate_photon=True
+      self.activate_zee=True
+      self.activate_jpsiee=True
+      self.activate_electron=True
+      self.activate_photon=True
 
 
   def configure(self):
@@ -142,15 +146,15 @@ class TrigEgammaMonAlgBuilder:
     self.tagItems = monitoring_tags_Run3 
     self.JpsitagItems = []
     
-    if self.pp_mode == True:
+    if self.pp_mode is True:
       self.setDefaultProperties()
-    elif self.cosmic_mode == True:
+    elif self.cosmic_mode is True:
       # This should be change in future
       self.setDefaultProperties()
-    elif self.HI_mode == True or self.pPb_mode == True:
+    elif self.HI_mode is True or self.pPb_mode is True:
       # This should be change in future
       self.setDefaultProperties()
-    elif self.mc_mode == True:
+    elif self.mc_mode is True:
       # This should be change in future
       self.setDefaultProperties()
     else:
@@ -373,8 +377,8 @@ class TrigEgammaMonAlgBuilder:
 
   def bookEvent(self, monAlg, analysis):
 
-    cutLabels = ["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"]
-    probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated"]
+    #cutLabels = ["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"]
+    #probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated"]
     # Create mon group.  The group name should be the path name for map
     monGroup = self.addGroup( monAlg, 'Event', self.basePath+'/Expert/Event' )
     monGroup.defineHistogram(analysis+"_CutCounter", type='TH1I', path='/', title="Event Selection; Cut ; Count",xbins=6, xmin=0, xmax=6)
@@ -579,18 +583,18 @@ class TrigEgammaMonAlgBuilder:
 
 
     if doJpsiee:
-        self._nEtbins=51;
+        self._nEtbins=51
         self._etbins = etbins_Jpsiee[0:self._nEtbins+1]
     else:
-        self._nEtbins=30;
+        self._nEtbins=30
         self._etbins = etbins_Zee[0:self._nEtbins+1]
 
     # Define the binning
-    self._nEtabins=20;
-    self._ndefaultEtbins=13;
-    self._ndefaultEtabins=20;
-    self._ncoarseEtbins=6;
-    self._ncoarseEtabins=8;
+    self._nEtabins=20
+    self._ndefaultEtbins=13
+    self._ndefaultEtabins=20
+    self._ncoarseEtbins=6
+    self._ncoarseEtabins=8
 
     #Fill the arrays
     self._etabins = etabins[0:self._nEtabins+1]
