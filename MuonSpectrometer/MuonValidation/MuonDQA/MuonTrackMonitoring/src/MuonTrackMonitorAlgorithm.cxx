@@ -6,7 +6,6 @@
 #include "MuonTrackMonitoring/MuonTrackMonitorAlgorithm.h"
 
 using namespace std;
-// AthMonitorAlgorithm
 //========================================================================================================
 MuonTrackMonitorAlgorithm::MuonTrackMonitorAlgorithm (const std::string& name, ISvcLocator* pSvcLocator)
 	:AthMonitorAlgorithm(name,pSvcLocator)
@@ -76,9 +75,6 @@ StatusCode	MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifie
 			ElementLink<xAOD::TrackParticleContainer> cbtpLink = muon->combinedTrackParticleLink();
 			if (cbtpLink.isValid()) cbtp = *cbtpLink;
 			if (cbtp != NULL) {
-				//std::cout<<"Combined Muon"<<std::endl;
-				//std::cout<<cbtp->pt()<<"	"<<cbtp->eta()<<"	"<<cbtp->phi()<<"	"<<cbtp->d0()<<"	"<<cbtp->z0()<<"	"<<cbtp->charge()<<std::endl;
-				//std::cout<<cbtp->chiSquared()<<"	"<<cbtp->numberDoF()<<"	"<<cbtp->chiSquared()/cbtp->numberDoF()<<std::endl;
 				uint8_t hitval_numberOfBLayerHits, hitval_numberOfPixelHits, hitval_numberOfSCTHits, hitval_numberOfTRTHits;
 				//	uint8_t hitval_innerSmallHits, hitval_innerLargeHits, hitval_middleSmallHits, hitval_middleLargeHits, hitval_outerSmallHits, hitval_outerLargeHits;
 				cbtp->summaryValue(hitval_numberOfBLayerHits,	xAOD::SummaryType::numberOfInnermostPixelLayerHits);
@@ -91,19 +87,14 @@ StatusCode	MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifie
 				MuonPhi	= cbtp->phi();
 				MuonPt	= cbtp->pt();
 				MuonZ0	= cbtp->z0();
-				fill(tool, MuonEta, MuonPhi);
-				fill(tool, MuonPt);
-				fill(tool, MuonZ0);
+				fill(tool, MuonEta, MuonPhi, MuonPt, MuonZ0);
 
 				/// Hit Information of the ID
 				MuonsNBHits 	= static_cast<unsigned int>(hitval_numberOfBLayerHits);
 				MuonsNPixHits 	= static_cast<unsigned int>(hitval_numberOfPixelHits);
 				MuonsNSCTHits 	= static_cast<unsigned int>(hitval_numberOfSCTHits);
 				MuonsNTRTHits 	= static_cast<unsigned int>(hitval_numberOfTRTHits);
-				fill(tool, MuonsNBHits);
-				fill(tool, MuonsNPixHits);
-				fill(tool, MuonsNSCTHits);
-				fill(tool, MuonsNTRTHits);
+				fill(tool, MuonsNBHits, MuonsNPixHits, MuonsNSCTHits, MuonsNTRTHits);
 
 				/// Save Eta/Phi Information for medium and tight muons, 
 				/// to be used for lates efficiency studies
@@ -127,9 +118,7 @@ StatusCode	MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifie
 					MuonDPTIDME 	= (idtp->pt() - mstp->pt()) / idtp->pt();
 					MuonsIDChi2NDF 	= idtp->chiSquared()/idtp->numberDoF();
 					MuonsMEChi2NDF 	= mstp->chiSquared()/mstp->numberDoF();	
-					fill(tool, MuonDPTIDME);
-					fill(tool, MuonsIDChi2NDF);
-					fill(tool, MuonsMEChi2NDF);
+					fill(tool, MuonDPTIDME, MuonsIDChi2NDF, MuonsMEChi2NDF);
 				}
 			}
 		}
@@ -173,14 +162,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseLowLevelMuonFeatures(const xAOD::Mu
 		MSPhi		= muon->phi();
 		MSPt 		= muon->pt();
 		MSLumiBlockNumberOfMuonTracks  = lumiBlockID;
-		fill(tool, MSAuthor);
-		fill(tool, MSQuality);
-		fill(tool, MSType);
-		fill(tool, MSEta, MSPhi);
-		fill(tool, MSPt);
-		fill(tool, MSLumiBlockNumberOfMuonTracks);
-
-		//std::cout<<"Found A Muon: "<<muon->pt()<<"  "<<muon->eta()<<std::endl;
+		fill(tool, MSAuthor, MSQuality, MSType, MSEta, MSPhi, MSPt, MSLumiBlockNumberOfMuonTracks);
 
 		/// Do Muon Segments Plots
 		for (size_t nSeg=0; nSeg<muon->nMuonSegments();nSeg++) {
@@ -198,14 +180,11 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseLowLevelMuonFeatures(const xAOD::Mu
 			} else {
 				fill(tool, MSSmallSectorZ, MSSmallSectorR);
 			}
-			//std::cout<<"  Technology "<<muonSegment->technology()<<std::endl; // TechnologyUnknown = -1, MDT, CSCI, RPC, TGC, STGC, MM, TechnologyIndexMax 
-			//std::cout<<"  ChIndex "<<muonSegment->chamberIndex()<<std::endl;  // ChUnknown = -1, BIS, BIL, BMS, BML, BOS, BOL, BEE, EIS, EIL, EMS, EML, EOS, EOL, EES, EEL, CSS, CSL, ChIndexMax
 		}
 		CBMuonAuthor = muonAuthor;
 		NonCBMuonEta = muon->eta();
 		NonCBMuonPhi = muon->phi();
-		fill(tool, CBMuonAuthor);
-		fill(tool, NonCBMuonEta, NonCBMuonPhi);
+		fill(tool, CBMuonAuthor, NonCBMuonEta, NonCBMuonPhi);
 	}
 
 	return StatusCode::SUCCESS;
