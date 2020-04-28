@@ -151,12 +151,13 @@ int main()
     for (int ibec=0;ibec<NBEC;ibec++) {
       yVVar[ivar][ibec]=new TH2F**[NPHI];
       for (int iphi=0;iphi<NPHI;iphi++) {
-	std::stringstream phiss; phiss<<iphi+1;
-	std::string histname=histnames[ivar]+becStr[ibec]+phiss.str();
-	std::string histtitle=histtitles[ivar]+"_"
-	yVVAr[ivar][ibec][iphi]=new TH2F(histname.c_str(),histtitles.c_str(),
-					 histnbins[ivar],histlimits[ivar][0],histlimits[ivar][1]);
-	
+        std::stringstream phiss; phiss<<iphi+1;
+        std::string histname=histnames[ivar]+becStr[ibec]+phiss.str();
+        std::string histtitle=histtitles[ivar]+"_"
+        yVVAr[ivar][ibec][iphi]=new TH2F(histname.c_str(),histtitles.c_str(),histnbins[ivar],histlimits[ivar][0],histlimits[ivar][1]);
+      }
+    }
+  }
 
   TH2F* yVMatlA=new TH2F("yVMatlA","yVMatlA",30,140.,260.,100,-50.,50.);
   TH2F* yVCaloEnergyA    =new TH2F("yVCaloEnergyA",   "yVCaloEnergyA",   
