@@ -170,9 +170,6 @@ StatusCode ISF::FastCaloSimV2Tool::simulate(const ISF::ISFParticle& isfp, ISFPar
      secondaries = *someSecondaries;
    }
 
-  //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
-  // float eta_isfp = particle_position.eta();
-  // float phi_isfp = particle_position.phi();
 
   //Don't simulate particles with total energy below 10 MeV
   if(isfp.ekin() < 10) {

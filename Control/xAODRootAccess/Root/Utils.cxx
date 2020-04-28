@@ -5,13 +5,7 @@
 // $Id: Utils.cxx 613032 2014-08-22 10:50:40Z krasznaa $
 
 // STL include(s):
-#if __cplusplus < 201100
-#   include <tr1/functional>
-namespace HASH_NS = std::tr1;
-#else
-#   include <functional>
-namespace HASH_NS = std;
-#endif // C++
+#include <functional>
 
 // ROOT include(s):
 #include <TError.h>
@@ -131,7 +125,7 @@ namespace xAOD {
       uint32_t hash( const std::string& name ) {
 
          // The helper object:
-         static HASH_NS::hash< std::string > helper;
+         static std::hash< std::string > helper;
          // Let the helper do the work:
          return ( static_cast< uint32_t >( helper( name ) ) & 0x3fffffff );
       }

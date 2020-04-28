@@ -1,47 +1,25 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPCsteering/TrigT1RPC.h"
-#include "GaudiKernel/SmartDataPtr.h"
 
-#include "GeneratorObjects/McEventCollection.h"  // include for retrieving the Montecarlo
-#include "HepMC/GenEvent.h"                      // thru
-
-#include "TrigT1RPClogic/ShowData.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-
-#include "MuonIdHelpers/RpcIdHelper.h"
-
-
-#include "MuonDigitContainer/RpcDigitContainer.h"
-#include "MuonDigitContainer/RpcDigitCollection.h"
-#include "MuonDigitContainer/RpcDigit.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "HepMC/GenEvent.h"
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-
-// next candidate for removal
-//#include "TrigT1RPCmonitoring/DetailedTW.h" 
 
 #include "TrigT1RPChardware/SectorLogic.h"
 #include "TrigT1RPChardware/MatrixReadOut.h"
 
 #include "TrigT1RPClogic/decodeSL.h"
+#include "TrigT1RPClogic/ShowData.h"
 
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 
-
 #include <algorithm>
 #include <cmath>
-
-
-using namespace std;
-
-//static double time_correction(double, double, double);
 
 static int digit_num = 0;
 static int digit_out = 0;
@@ -51,36 +29,30 @@ static int digit_out = 0;
 
 TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  m_MuonMgr(nullptr),
   m_cabling_getter("RPCcablingServerSvc/RPCcablingServerSvc","TrigT1RPC"),
-  m_cabling(0)
-{
-  m_MuonMgr=0;
-  m_rpcId=0;
+  m_cabling(nullptr) {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode TrigT1RPC::initialize(){
-
-    //  MsgStream mylog(msgSvc(), name());
     ATH_MSG_INFO("Initializing");
     
-    CHECK (detStore()->retrieve( m_MuonMgr ));
-    m_rpcId = m_MuonMgr->rpcIdHelper();
+    ATH_CHECK(detStore()->retrieve( m_MuonMgr ));
+    ATH_CHECK(m_idHelperSvc.retrieve());
     
+    ATH_CHECK(m_cabling_getter.retrieve());
+    ATH_CHECK(m_cabling_getter->giveCabling(m_cabling));
 
-    
-
-    // initialize RPC cabling service
-    CHECK(m_cabling_getter.retrieve());
-    CHECK(m_cabling_getter->giveCabling(m_cabling));
+    ATH_CHECK(m_readKey.initialize());
     
     ATH_CHECK(m_rpcDigitKey.initialize());
 
     ATH_CHECK(m_muctpiPhase1Key.initialize(m_useRun3Config));
     ATH_CHECK(m_muctpiKey.initialize(!m_useRun3Config));
     
-  return StatusCode::SUCCESS;
+    return StatusCode::SUCCESS;
 }
  
 
@@ -91,45 +63,41 @@ StatusCode TrigT1RPC::initialize(){
 
 StatusCode TrigT1RPC::execute() {
 
-
     ATH_MSG_DEBUG ("in execute()");
+
+    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+    const RpcCablingCondData* readCdo{*readHandle};
     
     RPCsimuData data;         // instanciate the container for the RPC digits
-    CHECK(fill_RPCdata(data));  // fill the data with RPC simulated digts
+    CHECK(fill_RPCdata(data, readCdo));  // fill the data with RPC simulated digts
     
     ATH_MSG_DEBUG(
-        "RPC data loaded from G3:" << endl
-        << ShowData<RPCsimuData>(data,"",m_data_detail) << endl
+        "RPC data loaded from G3:" << std::endl
+        << ShowData<RPCsimuData>(data,"",m_data_detail) << std::endl
         << "RPC digits into station 1 ==> " 
-        << data.how_many(-1,-1,1,-1,-1,-1) << endl
+        << data.how_many(-1,-1,1,-1,-1,-1) << std::endl
         << "RPC digits into station 2 ==> " 
-        << data.how_many(-1,-1,2,-1,-1,-1) << endl
+        << data.how_many(-1,-1,2,-1,-1,-1) << std::endl
         << "RPC digits into station 3 ==> " 
         << data.how_many(-1,-1,3,-1,-1,-1)
         );
-    
-    // exit(1);
-    
     // ******************** Start of Level-1 simulation section *****************
-    
-    
-   unsigned long int debug;
+  unsigned long int debug;
     
     ///// Creates the CMA patterns from RPC digits /////////////////////////
   debug = (m_hardware_emulation)? m_cma_debug : m_fast_debug;           //
-    //m_cabling.operator->()                         //
-  CMAdata patterns(&data,m_cabling,debug);                              //
+  CMAdata patterns(&data, m_cabling, debug);                              //
                                                                         //
-  ATH_MSG_DEBUG ( "CMApatterns created from RPC digits:" << endl //
+  ATH_MSG_DEBUG ( "CMApatterns created from RPC digits:" << std::endl //
                   << ShowData<CMAdata>(patterns,"",m_data_detail) );      //
   ////////////////////////////////////////////////////////////////////////
 
 
   ///// Creates the PAD patterns from the CMA patterns ///////////////////
   debug = (m_hardware_emulation)? m_pad_debug : m_fast_debug;           //
-  PADdata pads(&patterns,m_cabling,debug);                                        //
+  PADdata pads(&patterns,debug);                                        //
                                                                         //
-  ATH_MSG_DEBUG ( "PADs created from CMA patterns:" << endl      
+  ATH_MSG_DEBUG ( "PADs created from CMA patterns:" << std::endl      
                   << ShowData<PADdata>(pads,"",m_data_detail) );
   ////////////////////////////////////////////////////////////////////////
 
@@ -139,7 +107,7 @@ StatusCode TrigT1RPC::execute() {
   SLdata sectors(&pads,debug);                                          //
                                                                         //
   ATH_MSG_DEBUG("Sector Logics created from PAD patterns:"     //
-                << endl                                                         //
+                << std::endl                                                         //
                 << ShowData<SLdata>(sectors,"",m_data_detail) );        //  
   ////////////////////////////////////////////////////////////////////////
 
@@ -162,7 +130,7 @@ StatusCode TrigT1RPC::execute() {
                                                                         //
   while(SLit != sectors_patterns.end())                                 //
   {                                                                     //
-      SectorLogic* logic = (*SLit)->give_SectorL();                     //
+      SectorLogic* logic = (*SLit)->give_SectorL(readCdo);                     //
       int sector     = (*SLit)->sector();                               //
       int subsystem  = (sector > 31)? 1 : 0;                            //
       int logic_sector  = sector%32;//
@@ -230,9 +198,6 @@ StatusCode TrigT1RPC::execute() {
                                (unsigned long int) m_rx_rostruct_debug,
                                (unsigned long int) m_sl_rostruct_debug);
 
-      // Test of the decoder
-      //RpcByteStreamDecoder* decoder = new RpcByteStreamDecoder(&bytestream, m_cabling);
-      //StatusCode sc = decoder->decodeByteStream();
 
       // Example on how to access the byte stream data.
       // Only the bare structure is dump. To access a specific data member, use
@@ -257,7 +222,7 @@ StatusCode TrigT1RPC::execute() {
 	  
 	  //access to PadReadOut class and print the informations inside
 	  ATH_MSG_DEBUG ("Start dumping the PAD " << (*it).second.PAD()
-                         << " bytestream structure" << endl 
+                         << " bytestream structure" << std::endl 
                          << PADdata.str());
           
           //access to MatrixReadOut classes given in input to that PAD
@@ -299,18 +264,7 @@ StatusCode TrigT1RPC::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigT1RPC::finalize() {
- 
-    
-    ATH_MSG_DEBUG ( "in finalize()" << endmsg
-                    << "processed digits = " << digit_num << endmsg
-                    << "digits out of the time window = " 
-                    << digit_out );
-    
-   return StatusCode::SUCCESS;
-}
-
-StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
+StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* readCdo)
 {
     std::string space = "                          ";
 
@@ -335,38 +289,29 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
         const  RpcDigitCollection* rpcCollection = *it1_coll; 
  
         Identifier moduleId = rpcCollection->identify();
-        
-        //        if (m_rpcId->validElement(moduleId) && 
-        //	    m_digit_position->initialize(moduleId))
 
-	if (m_rpcId->is_rpc(moduleId))
+	if (m_idHelperSvc->rpcIdHelper().is_rpc(moduleId))
         {
             digit_iterator it1_digit = rpcCollection->begin();
             digit_iterator it2_digit = rpcCollection->end();
 
-            //const int stationCode = m_rpcId->stationName(moduleId);
-	    //std::string StationName = m_rpcId->stationNameString(stationCode);
-            //int StationEta  = m_rpcId->stationEta(moduleId);
-            //int StationPhi  = m_rpcId->stationPhi(moduleId);
-
             for ( ; it1_digit!=it2_digit; ++it1_digit) 
             {
                 const RpcDigit* rpcDigit = *it1_digit;
-		//Identifier channelId = rpcDigit->identify();
 		
-                if (rpcDigit->is_valid(*m_rpcId)) 
+                if (rpcDigit->is_valid(&m_idHelperSvc->rpcIdHelper())) 
                 {
 		    Identifier channelId = rpcDigit->identify();
-		    const int stationType   = m_rpcId->stationName(channelId);
-		    std::string StationName = m_rpcId->stationNameString(stationType);
-		    int StationEta          = m_rpcId->stationEta(channelId);
-		    int StationPhi          = m_rpcId->stationPhi(channelId); 
-                    int DoubletR            = m_rpcId->doubletR(channelId);
-                    int DoubletZ            = m_rpcId->doubletZ(channelId);
-                    int DoubletP            = m_rpcId->doubletPhi(channelId);
-                    int GasGap              = m_rpcId->gasGap(channelId);
-                    int MeasuresPhi         = m_rpcId->measuresPhi(channelId);
-                    int Strip               = m_rpcId->strip(channelId);
+		    const int stationType   = m_idHelperSvc->rpcIdHelper().stationName(channelId);
+		    std::string StationName = m_idHelperSvc->rpcIdHelper().stationNameString(stationType);
+		    int StationEta          = m_idHelperSvc->rpcIdHelper().stationEta(channelId);
+		    int StationPhi          = m_idHelperSvc->rpcIdHelper().stationPhi(channelId); 
+                    int DoubletR            = m_idHelperSvc->rpcIdHelper().doubletR(channelId);
+                    int DoubletZ            = m_idHelperSvc->rpcIdHelper().doubletZ(channelId);
+                    int DoubletP            = m_idHelperSvc->rpcIdHelper().doubletPhi(channelId);
+                    int GasGap              = m_idHelperSvc->rpcIdHelper().gasGap(channelId);
+                    int MeasuresPhi         = m_idHelperSvc->rpcIdHelper().measuresPhi(channelId);
+                    int Strip               = m_idHelperSvc->rpcIdHelper().strip(channelId);
                     
                     const MuonGM::RpcReadoutElement* descriptor =
                                     m_MuonMgr->getRpcReadoutElement(channelId);
@@ -375,10 +320,8 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
 		    Amg::Vector3D pos = descriptor->stripPos(channelId);		    
 
                     // Get the Level-1 numbering schema for the RPC strips
-		    unsigned long int strip_code_cab = 
-                        m_cabling->strip_code_fromOffId (StationName,StationEta,StationPhi,
-						       DoubletR,DoubletZ,DoubletP,
-						       GasGap,MeasuresPhi,Strip);
+		    unsigned long int strip_code_cab = readCdo->strip_code_fromOffId(StationName,StationEta,StationPhi,
+						       DoubletR,DoubletZ,DoubletP,GasGap,MeasuresPhi,Strip);
 		    
 
                     if(strip_code_cab) {
@@ -398,41 +341,32 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
                         RPCsimuDigit digit(0,strip_code_cab,param,xyz);
 			    
                         data << digit;
-
-
-                        // Start of debugging printout
-
-
-                        //char buffer[100];
-                        //for(int i=0;i<100;++i) buffer[i] = '\0';
-                        //ostrstream disp_digit (buffer,100);
-                        //disp_digit << *rpcDigit;
 						
-                        ATH_MSG_DEBUG ( "Muon Identifiers from GM:" <<endl
-                                        << space << "StationName = " << StationName << endl
-                                        << space << "StationEta  = " << StationEta << endl 
-                                        << space << "StationPhi  = " << StationPhi << endl
-                                        << space << "DoubletR    = " << DoubletR << endl
-                                        << space << "DoubletZ    = " << DoubletZ << endl
-                                        << space << "DoubletP    = " << DoubletP << endl
-                                        << space << "GasGap      = " << GasGap << endl
-                                        << space << "MeasuresPhi = " << MeasuresPhi << endl
+                        ATH_MSG_DEBUG ( "Muon Identifiers from GM:" <<std::endl
+                                        << space << "StationName = " << StationName << std::endl
+                                        << space << "StationEta  = " << StationEta << std::endl 
+                                        << space << "StationPhi  = " << StationPhi << std::endl
+                                        << space << "DoubletR    = " << DoubletR << std::endl
+                                        << space << "DoubletZ    = " << DoubletZ << std::endl
+                                        << space << "DoubletP    = " << DoubletP << std::endl
+                                        << space << "GasGap      = " << GasGap << std::endl
+                                        << space << "MeasuresPhi = " << MeasuresPhi << std::endl
                                         << space << "Strip       = " << Strip );
                         
-		        ATH_MSG_DEBUG ("RPC Digit from GM:" << endl
-                                       << space << hex << channelId << dec << endl
+		        ATH_MSG_DEBUG ("RPC Digit from GM:" << std::endl
+                                       << space << std::hex << channelId << std::dec << std::endl
                                        << space << "GlobalPosition (cm) = " 
-                                       << setiosflags(ios::fixed) << setprecision(3)
-                                       << setw(11)<< pos.x() 
-                                       << setiosflags(ios::fixed) << setprecision(3)
-                                       << setw(11) << pos.y() 
-                                       << setiosflags(ios::fixed) << setprecision(3)
-                                       << setw(11) << pos.z() );
+                                       << setiosflags(std::ios::fixed) << std::setprecision(3)
+                                       << std::setw(11)<< pos.x() 
+                                       << setiosflags(std::ios::fixed) << std::setprecision(3)
+                                       << std::setw(11) << pos.y() 
+                                       << setiosflags(std::ios::fixed) << std::setprecision(3)
+                                       << std::setw(11) << pos.z() );
                         
                     }
                 }
             }
-            string id = m_rpcId->show_to_string(moduleId);
+            std::string id = m_idHelperSvc->rpcIdHelper().show_to_string(moduleId);
         }
     }
 

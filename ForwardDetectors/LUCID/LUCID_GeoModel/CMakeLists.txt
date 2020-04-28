@@ -28,7 +28,7 @@ atlas_add_library( LUCID_GeoModelLib
                    PUBLIC_HEADERS LUCID_GeoModel
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} GeoModelUtilities GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel SGTools )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel SGTools RDBAccessSvcLib )
 
 atlas_add_component( LUCID_GeoModel
                      src/components/*.cxx

@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsData
+			  InnerDetector/InDetConditions/InDetByteStreamErrors
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/StoreGate
@@ -44,7 +45,7 @@ atlas_add_library( SCT_ConditionsToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS SCT_ConditionsTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GeoModelUtilities GaudiKernel AthenaBaseComps StoreGateLib SGtests xAODEventInfo SCT_ConditionsData SiPropertiesToolLib InDetByteStreamErrors InDetIdentifier InDetReadoutGeometry SCT_CablingLib EventContainers)
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GeoModelUtilities GaudiKernel AthenaBaseComps StoreGateLib SGtests xAODEventInfo SCT_ConditionsData SiPropertiesToolLib InDetByteStreamErrors InDetIdentifier InDetReadoutGeometry SCT_CablingLib EventContainers InDetConditionsSummaryService RDBAccessSvcLib )
 
 # Add unit tests
 atlas_add_test( SCT_RODVetoTool_test

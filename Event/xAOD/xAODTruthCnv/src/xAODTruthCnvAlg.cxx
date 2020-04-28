@@ -259,7 +259,7 @@ namespace xAODMaker {
                 
 	  // Check signal process vertex
 	  // If this is a disconnected vertex, add it manually or won't be added from the loop over particles below.
-	  HepMC::GenVertex* disconnectedSignalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	  auto disconnectedSignalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
 	  if (disconnectedSignalProcessVtx) {
 	    if (disconnectedSignalProcessVtx->particles_in_size() == 0 &&
 		disconnectedSignalProcessVtx->particles_out_size() == 0 ) {
@@ -295,7 +295,7 @@ namespace xAODMaker {
 	      }
 	    }
 	    // (d) Particle's production vertex
-	    HepMC::GenVertex* productionVertex = (*pitr)->production_vertex();
+	    auto productionVertex = (*pitr)->production_vertex();
 	    if (productionVertex) {
 	      VertexParticles& parts = vertexMap[productionVertex];
 	      if (parts.incoming.empty() && parts.outgoing.empty())
@@ -307,7 +307,7 @@ namespace xAODMaker {
 	    // else maybe want to keep track that this is the production vertex
 	    //
 	    // (e) Particle's decay vertex
-	    HepMC::GenVertex* decayVertex = (*pitr)->end_vertex();
+	    auto decayVertex = (*pitr)->end_vertex();
 	    if (decayVertex) {
 	      VertexParticles& parts = vertexMap[decayVertex];
 	      if (parts.incoming.empty() && parts.outgoing.empty())
@@ -319,8 +319,8 @@ namespace xAODMaker {
 	  } // end of loop over particles
                 
 	  // (3) Loop over the map
-	  HepMC::GenVertex* signalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
-	  for (const HepMC::GenVertex* vertex : vertices) {
+	  auto signalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	  for (auto  vertex : vertices) {
 	    const auto& parts = vertexMap[vertex];
 	    // (a) create TruthVertex
 	    xAOD::TruthVertex* xTruthVertex = new xAOD::TruthVertex();

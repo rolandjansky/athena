@@ -14,6 +14,8 @@
 #include "RingerSelectorTools/procedures/Normalizations.h"
 #include "RingerSelectorTools/procedures/NeuralNetwork.h"
 
+#include <type_traits>
+
 namespace Ringer {
 
 namespace WrapperHelperFcns {
@@ -567,7 +569,7 @@ std::string RingerProcedureWrapper<
   std::stringstream ss;
   ss << "RingerProcedureWrapper<"
         << toStr(procedure_t::template procType<procEnum_t>() )
-        << ((Ringer::is_same<procedure_t,
+        << ((std::is_same<procedure_t,
                              Discrimination::IDiscriminatorVarDep>::value)?",":
             "(VarDep),")
         << toStr(static_cast<EtaDependency>(etaDependency)) << ","
@@ -918,7 +920,7 @@ RingerProcedureWrapper<
                                       [discrIdxVec[2]];
 
     // Check which procedure_t this discrimination wrapper holds.
-    if ( Ringer::is_same<procedure_t, IDiscriminatorVarDep >::value )
+    if ( std::is_same<procedure_t, IDiscriminatorVarDep >::value )
     {
       // If the procedure_t is not the Discriminator interface, code will
       // never get here. We only use the interpret cast so that the compiler

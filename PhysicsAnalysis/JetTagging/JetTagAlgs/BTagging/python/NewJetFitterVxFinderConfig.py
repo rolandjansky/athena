@@ -13,7 +13,7 @@ from BTagging.InDetImprovedJetFitterTrackSelectorToolConfig import InDetImproved
 from BTagging.ImprovedJetFitterInitializationHelperConfig import ImprovedJetFitterInitializationHelperCfg
 
 # import the InDetImprovedJetFitterVxFinder configurable
-InDet__InDetImprovedJetFitterVxFinder=CompFactory.InDet__InDetImprovedJetFitterVxFinder
+InDet__InDetImprovedJetFitterVxFinder=CompFactory.InDet.InDetImprovedJetFitterVxFinder
 
 # define the class
 def NewJetFitterVxFinderCfg(flags, name = 'JFVxFinder', suffix = "", useBTagFlagsDefaults = True, options = {}):

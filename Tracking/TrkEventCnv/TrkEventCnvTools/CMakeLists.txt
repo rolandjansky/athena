@@ -26,14 +26,19 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Eigen )
 
+atlas_add_library( TrkEventCnvToolsLib
+                   TrkEventCnvTools/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TrkEventCnvTools
+                   LINK_LIBRARIES TrkSurfaces TrkDetDescrUtils TrkParametersBase GeoPrimitives GaudiKernel AthenaBaseComps AthenaPoolUtilities AthLinks StoreGateLib Identifier TrkPrepRawData TrkRIO_OnTrack )
+
 # Component(s) in the package:
 atlas_add_component( TrkEventCnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthLinks StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier GaudiKernel TrkDetDescrUtils TrkSurfaces TrkParametersBase TrkPrepRawData TrkRIO_OnTrack AtlasDetDescr TrkMeasurementBase )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthLinks StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier GaudiKernel TrkDetDescrUtils TrkSurfaces TrkParametersBase TrkPrepRawData TrkRIO_OnTrack AtlasDetDescr TrkMeasurementBase TrkEventCnvToolsLib )
 
 # Install files from the package:
-atlas_install_headers( TrkEventCnvTools )
 atlas_install_python_modules( python/*.py )
 

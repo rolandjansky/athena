@@ -64,9 +64,11 @@ protected:
    */
   
 private:
-  
+
+  // cling 6.20.02 fails to parse this properly if the third template
+  // argument is defaulted.
   typedef 
-  ParticleSigStateImpl<Navigable<INavigable4MomentumCollection,double>,P4ImplPxPyPzE>
+  ParticleSigStateImpl<Navigable<INavigable4MomentumCollection,double>,P4ImplPxPyPzE,ParticleEvent::Base>
   base_t;
   
   /** @brief Navigable implementation type          */

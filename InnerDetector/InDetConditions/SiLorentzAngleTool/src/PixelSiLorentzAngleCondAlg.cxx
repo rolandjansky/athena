@@ -1,34 +1,28 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelSiLorentzAngleCondAlg.h"
 
-#include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "SiPropertiesTool/SiliconProperties.h"
 
 PixelSiLorentzAngleCondAlg::PixelSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  ::AthAlgorithm(name, pSvcLocator),
-  m_pixid(nullptr),
-  m_condSvc("CondSvc", name),
-  m_magFieldSvc("AtlasFieldSvc", name)
+  ::AthReentrantAlgorithm(name, pSvcLocator),
+  m_condSvc("CondSvc", name)
 {
-  declareProperty("MagFieldSvc", m_magFieldSvc);
-  declareProperty("NominalField", m_nominalField = 2.0834*Gaudi::Units::tesla);
-  declareProperty("UseMagFieldSvc", m_useMagFieldSvc = true);
-  declareProperty("UseMagFieldDcs", m_useMagFieldDcs = true);
-  declareProperty("CorrectionFactor", m_correctionFactor = 0.9);
 }
 
 StatusCode PixelSiLorentzAngleCondAlg::initialize() {
   ATH_MSG_DEBUG("PixelSiLorentzAngleCondAlg::initialize()");
 
-  ATH_CHECK(detStore()->retrieve(m_pixid,"PixelID"));
+  const PixelID* idHelper{nullptr};
+  ATH_CHECK(detStore()->retrieve(idHelper,"PixelID"));
+  m_maxHash = idHelper->wafer_hash_max();
+
   ATH_CHECK(m_condSvc.retrieve());
 
   ATH_CHECK(m_readKeyTemp.initialize());
@@ -41,8 +35,8 @@ StatusCode PixelSiLorentzAngleCondAlg::initialize() {
 
   ATH_CHECK(m_siPropertiesTool.retrieve());
 
-  if (m_useMagFieldSvc) {
-    ATH_CHECK(m_magFieldSvc.retrieve());
+  if (m_useMagFieldCache) {
+    ATH_CHECK( m_fieldCondObjInputKey.initialize() );
     if (m_useMagFieldDcs) {
       ATH_CHECK(m_readKeyBFieldSensor.initialize());
     }
@@ -56,115 +50,85 @@ StatusCode PixelSiLorentzAngleCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode 
-PixelSiLorentzAngleCondAlg::execute() {
+////////////////////////////////////////////////////////////////////////////////////////////////
+StatusCode
+PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
+////////////////////////////////////////////////////////////////////////////////////////////////
+
   ATH_MSG_DEBUG("PixelSiLorentzAngleCondAlg::execute()");
 
-  SG::WriteCondHandle<SiLorentzAngleCondData> writeHandle{m_writeKey};
+  SG::WriteCondHandle<SiLorentzAngleCondData> writeHandle{m_writeKey, ctx};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid." << " In theory this should not be called, but may happen" << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS;
   }
 
-  EventIDBase eidStart;
-  eidStart.set_time_stamp(0);
-  eidStart.set_time_stamp_ns_offset(0);
-  EventIDBase eidStop;
-  eidStop.set_time_stamp(EventIDBase::UNDEFNUM);
-  eidStop.set_time_stamp_ns_offset(EventIDBase::UNDEFNUM);
-  EventIDRange rangePIX{eidStart, eidStop};
-  EventIDRange rangeBField{eidStart, eidStop};
-
   // Read Cond Handle (temperature)
-  SG::ReadCondHandle<PixelDCSTempData> readHandleTemp(m_readKeyTemp);
+  SG::ReadCondHandle<PixelDCSTempData> readHandleTemp(m_readKeyTemp, ctx);
   const PixelDCSTempData* readCdoTemp(*readHandleTemp);
   if (readCdoTemp==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-
-  EventIDRange rangeTemp;
-  if (not readHandleTemp.range(rangeTemp)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleTemp.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Input is " << readHandleTemp.fullKey() << " with the range of " << rangeTemp);
+  writeHandle.addDependency(readHandleTemp);
+  ATH_MSG_DEBUG("Input is " << readHandleTemp.fullKey() << " with the range of " << readHandleTemp.getRange());
 
   // Read Cond Handle (HV)
-  SG::ReadCondHandle<PixelDCSHVData> readHandleHV(m_readKeyHV);
+  SG::ReadCondHandle<PixelDCSHVData> readHandleHV(m_readKeyHV, ctx);
   const PixelDCSHVData* readCdoHV(*readHandleHV);
   if (readCdoHV==nullptr) {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeHV;
-  if (not readHandleHV.range(rangeHV)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleHV.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("Input is " << readHandleHV.fullKey() << " with the range of " << rangeHV);
+  writeHandle.addDependency(readHandleHV);
+  ATH_MSG_DEBUG("Input is " << readHandleHV.fullKey() << " with the range of " << readHandleHV.getRange());
 
-  // Combined the validity ranges of temp and HV
-  rangePIX = EventIDRange::intersect(rangeTemp, rangeHV);
-  if (rangePIX.stop().isValid() and rangePIX.start()>rangePIX.stop()) {
-    ATH_MSG_FATAL("Invalid intersection rangePIX: " << rangePIX);
-    return StatusCode::FAILURE;
-  }
+  // Field cache object for field calculations
+  MagField::AtlasFieldCache    fieldCache;
+  if (m_useMagFieldCache) {
+////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandleField{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandleField};
 
-  if (m_useMagFieldSvc) {
+    if (fieldCondObj == nullptr) {
+        ATH_MSG_ERROR("PixelSiLorentzAngleCondAlg: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+        return StatusCode::FAILURE;
+    }
+    //WL: The previous implementation didn't intersect the range of this readHanlde.
+    //I suspect that was a bug. 
+    writeHandle.addDependency(readHandleField);
+    fieldCondObj->getInitializedCache (fieldCache);
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
     if (m_useMagFieldDcs) {
       // Read Cond Handle (B field sensor)
-      SG::ReadCondHandle<CondAttrListCollection> readHandleBFieldSensor(m_readKeyBFieldSensor);
+      SG::ReadCondHandle<CondAttrListCollection> readHandleBFieldSensor(m_readKeyBFieldSensor, ctx);
       const CondAttrListCollection* readCdoBFieldSensor(*readHandleBFieldSensor);
       if (readCdoBFieldSensor==nullptr) {
         ATH_MSG_FATAL("Null pointer to the read conditions object");
         return StatusCode::FAILURE;
       }
-      EventIDRange rangeBFieldSensor;
-      if (not readHandleBFieldSensor.range(rangeBFieldSensor)) {
-        ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleBFieldSensor.key());
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG("Input is " << readHandleBFieldSensor.fullKey() << " with the range of " << rangeBFieldSensor);
+      writeHandle.addDependency(readHandleBFieldSensor);
+      ATH_MSG_DEBUG("Input is " << readHandleBFieldSensor.fullKey() << " with the range of " << readHandleBFieldSensor.getRange() );
 
-      // Set the validity ranges of sensor
-      rangeBField = rangeBFieldSensor;
-      if (rangeBField.stop().isValid() and rangeBField.start()>rangeBField.stop()) {
-        ATH_MSG_FATAL("Invalid intersection rangeBField: " << rangeBField);
-        return StatusCode::FAILURE;
-      }
-    }
-  }
+    }//end if useMagFieldDcs
+  }//end if useMagFieldSvc
 
-  // Combined the validity ranges of Pixel and BField if types are the same.
-  EventIDRange rangeW{rangePIX};
-  if (rangePIX.start().isTimeStamp()==rangeBField.start().isTimeStamp() and
-      rangePIX.start().isRunLumi()==rangeBField.start().isRunLumi()) {
-    rangeW = EventIDRange::intersect(rangePIX, rangeBField);
-  }
-  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection rangeW: " << rangeW);
-    return StatusCode::FAILURE;
-  }
 
-  // Get PixelDetectorElementCollection
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(pixelDetEle.retrieve());
   if (elements==nullptr) {
     ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeDetEle; // Run-LB IOV
-  if (not pixelDetEle.range(rangeDetEle)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << m_pixelDetEleCollKey.key());
-    return StatusCode::FAILURE;
-  }
+  writeHandle.addDependency(pixelDetEle);
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SiLorentzAngleCondData> writeCdo{std::make_unique<SiLorentzAngleCondData>()};
-  const PixelID::size_type wafer_hash_max = m_pixid->wafer_hash_max();
+  const PixelID::size_type wafer_hash_max = m_maxHash;
   writeCdo->resize(wafer_hash_max);
-  for (PixelID::size_type hash=0; hash<wafer_hash_max; hash++) {
+  for (PixelID::size_type hash = 0; hash < wafer_hash_max; hash++) {
     const IdentifierHash elementHash = static_cast<IdentifierHash::value_type>(hash);
 
     double temperature = readCdoTemp->getTemperature(elementHash)+273.15;
@@ -193,7 +157,7 @@ PixelSiLorentzAngleCondAlg::execute() {
     double mobility = siProperties.signedHallMobility(element->carrierType());
 
     // Get magnetic field. This first checks that field cache is valid.
-    Amg::Vector3D magneticField = getMagneticField(element);
+    Amg::Vector3D magneticField = getMagneticField(fieldCache,element);
 
     // The angles are in the hit frame. This is because that is what is needed by the digization and also
     // gives a more physical sign of the angle (ie dosen't flip sign when the detector is flipped).
@@ -229,11 +193,12 @@ PixelSiLorentzAngleCondAlg::execute() {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record SiLorentzAngleCondData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
+    ATH_MSG_FATAL("Could not record SiLorentzAngleCondData " << writeHandle.key() << " with EventRange " << writeHandle.getRange() << " into Conditions Store");
     return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+    }
+    
+  ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }
@@ -243,16 +208,17 @@ StatusCode PixelSiLorentzAngleCondAlg::finalize() {
   return StatusCode::SUCCESS;
 }
 
-Amg::Vector3D PixelSiLorentzAngleCondAlg::getMagneticField(const InDetDD::SiDetectorElement* element) const {
-  if (m_useMagFieldSvc) {
+Amg::Vector3D PixelSiLorentzAngleCondAlg::getMagneticField(MagField::AtlasFieldCache& fieldCache, const InDetDD::SiDetectorElement* element) const {
+  if (m_useMagFieldCache) {
     Amg::Vector3D pointvec = element->center();
-    ATH_MSG_VERBOSE("Getting magnetic field from magnetic field service.");
+
+    ATH_MSG_VERBOSE("Getting magnetic field from MT magnetic field service.");
     double point[3];
     point[0] = pointvec[0];
     point[1] = pointvec[1];
     point[2] = pointvec[2];
     double field[3];
-    m_magFieldSvc->getField(point, field);
+    fieldCache.getField(point, field);
     return Amg::Vector3D(field[0], field[1], field[2]);
   } 
   else {

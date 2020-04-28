@@ -40,7 +40,7 @@ def OverlayTTL1Cfg(flags, name="OverlayTTL1", **kwargs):
                       flags.Overlay.SigPrefix + "TileTTL1MBTS")
     kwargs.setdefault("OutputTileMBTSTTL1Key", "TileTTL1MBTS")
 
-    OverlayTTL1 = CompFactory.LVL1__OverlayTTL1
+    OverlayTTL1 = CompFactory.LVL1.OverlayTTL1
     acc.addEventAlgo(OverlayTTL1(name, **kwargs))
 
     if flags.Output.doWriteRDO:

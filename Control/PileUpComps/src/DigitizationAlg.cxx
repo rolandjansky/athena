@@ -30,7 +30,7 @@ StatusCode DigitizationAlg::execute()
     {
       // Reset the filter first
       puToolHandle->resetFilter();
-      ATH_CHECK(puToolHandle->processAllSubEvents());
+      ATH_CHECK(puToolHandle->processAllSubEvents(Gaudi::Hive::currentContext()));
       // Check if the event was filtered out by the current PileUpTool.
       if (!puToolHandle->filterPassed())
         {

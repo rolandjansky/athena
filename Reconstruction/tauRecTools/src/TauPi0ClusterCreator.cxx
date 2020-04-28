@@ -26,10 +26,7 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauPi0ClusterCreator::TauPi0ClusterCreator( const string& name) :
-    TauRecToolBase(name)
-    , m_clusterEtCut(500.)
-{
-    declareProperty("ClusterEtCut",                  m_clusterEtCut);
+    TauRecToolBase(name) {
 }
 
 //-------------------------------------------------------------------------
@@ -236,7 +233,7 @@ float TauPi0ClusterCreator::getEM1CoreFrac(
         sumEPosCellsEM1 += cellE;
         float cellEtaWRTCluster = cellInCluster->eta()-pi0Candidate->eta();
         float cellPhiWRTCluster = P4Helpers::deltaPhi(cellInCluster->phi(), pi0Candidate->phi());
-        if(fabs(cellPhiWRTCluster) > 0.05 || fabs(cellEtaWRTCluster) > 2 * 0.025/8.) continue;
+        if(std::abs(cellPhiWRTCluster) > 0.05 || std::abs(cellEtaWRTCluster) > 2 * 0.025/8.) continue;
         coreEnergy+=cellE;
     }
     if(sumEPosCellsEM1<=0.) return 0.;
@@ -379,7 +376,7 @@ vector<float> TauPi0ClusterCreator::get1stEtaMomWRTCluster(
 
     for(int iLayer=0;iLayer<4;++iLayer){
         if(sumEInLayer[iLayer]!=0) 
-            firstEtaWRTClusterPositionInLayer[iLayer]/=fabs(sumEInLayer[iLayer]);
+            firstEtaWRTClusterPositionInLayer[iLayer]/=std::abs(sumEInLayer[iLayer]);
         else firstEtaWRTClusterPositionInLayer[iLayer]=0.;
     }
     return firstEtaWRTClusterPositionInLayer;
@@ -411,7 +408,7 @@ vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster(
 
       for(int iLayer=0;iLayer<4;++iLayer){
             if(sumEInLayer[iLayer]!=0) 
-                secondEtaWRTClusterPositionInLayer[iLayer]/=fabs(sumEInLayer[iLayer]);
+                secondEtaWRTClusterPositionInLayer[iLayer]/=std::abs(sumEInLayer[iLayer]);
             else secondEtaWRTClusterPositionInLayer[iLayer]=0.;
       }
       return secondEtaWRTClusterPositionInLayer;

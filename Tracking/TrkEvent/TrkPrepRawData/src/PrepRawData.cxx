@@ -170,8 +170,9 @@ namespace Trk{
         stream << "RDO List = [";
         std::vector<Identifier>::const_iterator rdoIt    = this->rdoList().begin();
         std::vector<Identifier>::const_iterator rdoItEnd = this->rdoList().end();
-        for (;rdoIt!=rdoItEnd;++rdoIt)
+        for (;rdoIt!=rdoItEnd;++rdoIt) {
           stream<<rdoIt->getString()<<", ";
+}
         stream << "], ";
 
         stream<<"}"<<endmsg;        
@@ -194,7 +195,8 @@ namespace Trk{
         }
         stream << "Collection Hash: " << m_indexAndHash.collHash() << "\tIndex in collection: " << m_indexAndHash.objIndex() << std::endl;
         stream << "RDO List = [";
-        for (std::vector<Identifier>::const_iterator it=m_rdoList.begin(); it != m_rdoList.end(); it++)  stream << *it << std::endl;
+        for (std::vector<Identifier>::const_iterator it=m_rdoList.begin(); it != m_rdoList.end(); it++) {  stream << *it << std::endl;
+}
         stream << "], ";
         return stream;
     } 

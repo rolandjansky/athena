@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPERFPLOT_NTRACKS
@@ -20,7 +20,7 @@ class InDetPerfPlot_nTracks: public InDetPlotBase {
 public:
   InDetPerfPlot_nTracks(InDetPlotBase* pParent, const std::string& dirName);
   enum CounterCategory {
-    ALL, SELECTED, TRUTH, TRUTH_MATCHED, N_COUNTERS
+    ALLRECO, SELECTEDRECO, ALLTRUTH, SELECTEDTRUTH, ALLASSOCIATEDTRUTH, MATCHEDRECO, N_COUNTERS
   };
   void fill(const unsigned int freq, const CounterCategory counter);
 private:

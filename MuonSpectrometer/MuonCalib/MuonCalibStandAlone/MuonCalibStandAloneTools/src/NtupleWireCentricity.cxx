@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // standard C++ //
@@ -189,14 +189,14 @@ inline void NtupleWireCentricityTool :: process_hit(const MdtCalibHitBase * hit,
 	double r_track=hit->signedDistanceToTrack();
 	m_track_radius->Fill(r_track);
 	m_x_coordinate->Fill(hit->localPosition().x());
-	if(fabs(hit->localPosition().x())>m_region_width/2) return;
+	if(std::abs(hit->localPosition().x())>m_region_width/2) return;
 	//fill right left histograms
 	if(r_track<0)
 		p_dt_spec_left->Fill(static_cast<Axis_t>(hit-> driftTime()));
 	else
 		p_dt_spec_right->Fill(static_cast<Axis_t>(hit-> driftTime()));
 	//check for track slope
-	if(fabs(track_slope) < m_min_track_slope) return;
+	if(std::abs(track_slope) < m_min_track_slope) return;
 	if((r_track < 0 && track_slope < 0) || (r_track > 0 && track_slope > 0))
 		{
 		p_dt_spec_below->Fill(static_cast<Axis_t>(hit-> driftTime()));
@@ -205,7 +205,7 @@ inline void NtupleWireCentricityTool :: process_hit(const MdtCalibHitBase * hit,
 		{
 		p_dt_spec_above->Fill(static_cast<Axis_t>(hit-> driftTime()));	
 		}
-	p_track_slope_cut->Fill(fabs(track_slope));	
+	p_track_slope_cut->Fill(std::abs(track_slope));	
 	m_station=hit->identify().stationName();
 	m_eta=hit->identify().eta();
 	m_phi=hit->identify().phi();

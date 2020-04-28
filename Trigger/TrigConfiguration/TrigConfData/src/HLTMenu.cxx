@@ -72,5 +72,4 @@ TrigConf::HLTMenu::printMenu(bool full) const
          cout << "  " << c++ << ": " << chain.name() << endl;
       }
    }
-   cout << "The HLTMenu " << (ownsData() ? "owns" : "does not own") << " the ptree" << endl;
 }

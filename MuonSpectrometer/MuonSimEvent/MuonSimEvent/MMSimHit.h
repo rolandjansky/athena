@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSIMEVENT_MMSimHit_H
-#define MUONSIMEVENT_MMSimHit_H 1
+#define MUONSIMEVENT_MMSimHit_H
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -21,14 +21,10 @@ class MMSimHit {
   MMSimHit();
 
   // Destructor:
-  virtual ~MMSimHit();
+  virtual ~MMSimHit()=default;
    MMSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const double kineticEnergy, const Amg::Vector3D& direction, const double depositEnergy, const int trackNumber);
       MMSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const double kineticEnergy, const Amg::Vector3D& direction, const double depositEnergy, const HepMcParticleLink hmpl);
- 
-  //
-  // member functions
-  //
-  
+
   //postStep globalTime
   double  globalTime()    const { return (double) m_globalTime; }
   
@@ -86,4 +82,4 @@ inline double MMSimHit::meanTime() const
 inline float hitTime(const MMSimHit& hit)
 { return (float) hit.meanTime(); }	
 
-#endif
+#endif // MUONSIMEVENT_MMSimHit_H

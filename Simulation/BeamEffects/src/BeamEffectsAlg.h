@@ -20,9 +20,7 @@
 
 // Forward declarations
 class McEventCollection;
-namespace HepMC {
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
 namespace SimTesting {
   class BeamEffectsAlg_test;
 }

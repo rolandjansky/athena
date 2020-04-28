@@ -23,7 +23,7 @@ class L2MuonSAMonMT : public TrigMuonMonitorAlgorithm{
 
 
  private:
-  SG::ReadHandleKey<xAOD::L2StandAloneMuonContainer> m_L2MuonSAContainerKey;
+  SG::ReadHandleKey<xAOD::L2StandAloneMuonContainer> m_L2MuonSAContainerKey {this, "L2StandAloneMuonContainerName", "HLT_MuonL2SAInfo", "L2MuonSA container"};
   
 
 };

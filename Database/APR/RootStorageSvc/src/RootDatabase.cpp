@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -300,7 +300,12 @@ DbStatus RootDatabase::close(DbAccessMode /* mode */ )  {
         TDirectory::TContext dirCtxt(0);
         m_file->ResetErrno();
         m_file->Write("0", m_defWritePolicy);
-        printErrno(log, nam, m_file->GetErrno());
+        if (errno != ENOENT) {
+          // As of 6.20.02, ROOT may search for libraries during the Write()
+          // call, possibly setting errno to ENOENT.  This isn't an error
+          // of the write.
+          printErrno(log, nam, m_file->GetErrno());
+        }
         //m_file->ls();
         m_file->ResetErrno();
 

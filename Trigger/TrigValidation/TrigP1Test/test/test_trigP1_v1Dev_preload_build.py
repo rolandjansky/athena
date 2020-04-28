@@ -24,7 +24,7 @@ ex_bs = ExecStep.ExecStep('create_bs')
 ex_bs.type = 'other'
 ex_bs.input = ''
 ex_bs.executable = 'trigbs_modifyEvent.py'
-ex_bs.args = '-n 50 --runNumber 999999 --incLB 3 --firstLB 4 -o raw %s' % f
+ex_bs.args = '-n 50 --runNumber 999999 --incLB 6 --firstLB 4 --eventsPerLB=3 -o raw %s' % f
 
 # Run athenaHLT forcing run and timestamp of original data file
 import eformat

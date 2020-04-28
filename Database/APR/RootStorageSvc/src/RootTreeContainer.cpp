@@ -512,6 +512,7 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
                                   const DbTypeInfo* info, 
                                   DbAccessMode mode)  
 {
+   TClass::GetClass("DataLink_p2");
    DbPrint log(nam);
    m_branches.clear();
    m_name = nam;

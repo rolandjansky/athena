@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -177,6 +177,11 @@ namespace InDet {
         int                                m_nclustersNegEP         ;
         int                                m_nclustersNegES         ;
         int                                m_nclustersNegDBM;
+        //
+        int                                m_nclustersPTOT          ;
+        int                                m_nclustersPTOTt         ;
+        int                                m_nclustersSTOT          ;
+        int                                m_nclustersSTOTt         ;
 
         EventStat_t()
         : m_events                 {},
@@ -196,7 +201,11 @@ namespace InDet {
           m_nclustersNegBS         {},
           m_nclustersNegEP         {},
           m_nclustersNegES         {},
-          m_nclustersNegDBM        {}
+          m_nclustersNegDBM        {},
+          m_nclustersPTOT          {},
+	        m_nclustersPTOTt         {},
+	        m_nclustersSTOT          {},
+	        m_nclustersSTOTt         {}
         {}
 
         EventStat_t &operator+=(const EventStat_t &a_stat) {
@@ -218,7 +227,10 @@ namespace InDet {
           m_nclustersNegEP  += m_nclustersNegEP;
           m_nclustersNegES  += m_nclustersNegES;
           m_nclustersNegDBM += m_nclustersNegDBM;
-
+          m_nclustersPTOT   +=a_stat.m_nclustersPTOT;
+	        m_nclustersPTOTt  +=a_stat.m_nclustersPTOTt;
+	        m_nclustersSTOT   +=a_stat.m_nclustersSTOT;
+	        m_nclustersSTOTt  +=a_stat.m_nclustersSTOTt;
           return *this;
         }
       };
@@ -276,7 +288,7 @@ namespace InDet {
           m_difference.resize(n_collections);
           m_tracks.resize(n_collections);
           m_trackCollectionStat.resize(n_collections);
-	}
+        }
 
         int                                m_nspacepoints           ;
         int                                m_nclusters              ;
@@ -312,11 +324,11 @@ namespace InDet {
       void efficiencyReconstruction(InDet::TrackClusterAssValidation::EventData_t &event_data) const;
       bool noReconstructedParticles(const InDet::TrackClusterAssValidation::EventData_t &event_data) const;
 
-      int QualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      int qualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data) const;
       int kine(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,const Trk::PrepRawData*,int*,int) const;
       int kine (const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) const;
       int kine0(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) const;
-
+      bool isTruth(const InDet::TrackClusterAssValidation::EventData_t&  ,const Trk::PrepRawData*) const;
       bool isTheSameDetElement(const InDet::TrackClusterAssValidation::EventData_t &event_data, int,const Trk::PrepRawData*) const;
       bool isTheSameDetElement(const InDet::TrackClusterAssValidation::EventData_t &event_data,int,const Trk::SpacePoint* ) const;
 

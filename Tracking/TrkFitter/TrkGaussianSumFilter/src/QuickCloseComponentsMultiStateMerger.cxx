@@ -52,7 +52,7 @@ Trk::QuickCloseComponentsMultiStateMerger::finalize()
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState statesToMerge) const
 {
   // Assembler Cache
@@ -81,15 +81,15 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(Trk::MultiComponentState states
               [](const ComponentParameters& x, const ComponentParameters& y) { return x.second > y.second; });
 
     Trk::ComponentParameters dummyCompParams(statesToMerge.begin()->first->clone(), 1.);
-    auto returnMultiState = std::make_unique<Trk::MultiComponentState>();
-    returnMultiState->push_back(std::move(dummyCompParams));
+    Trk::MultiComponentState returnMultiState;
+    returnMultiState.push_back(std::move(dummyCompParams));
     return returnMultiState;
   }
 
   return mergeFullDistArray(cache, statesToMerge);
 }
 
-std::unique_ptr<Trk::MultiComponentState>
+Trk::MultiComponentState
 Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
                                                               Trk::MultiComponentState& statesToMerge) const
 {
@@ -99,21 +99,13 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
   const int32_t n = statesToMerge.size();
   const int32_t nn = (n + 1) * n / 2;
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7)); // make sure it is a multiplet of 8
-
-  AlignedDynArray<float, alignment> distances(nn2); // Array to store all of the distances between components
-  AlignedDynArray<float, alignment> qonp(n);        // Array of qonp for each component
-  AlignedDynArray<float, alignment> qonpCov(n);     // Array of Cov(qonp,qonp) for each component
-  AlignedDynArray<float, alignment> qonpG(n);       // Array of 1/Cov(qonp,qonp) for each component
-
-  // Initialize all values
-  for (int32_t i = 0; i < n; ++i) {
-    qonp[i] = 0;
-    qonpCov[i] = 0;
-    qonpG[i] = 1e10;
-  }
-  for (int32_t i = 0; i < nn2; ++i) {
-    distances[i] = std::numeric_limits<float>::max();
-  }
+  
+  // Array to store all of the distances between components
+  AlignedDynArray<float, alignment> distances(nn2,
+                                              std::numeric_limits<float>::max()); 
+  AlignedDynArray<float, alignment> qonp(n, 0.0);    // Array of qonp for each component
+  AlignedDynArray<float, alignment> qonpCov(n, 0.0); // Array of Cov(qonp,qonp) for each component
+  AlignedDynArray<float, alignment> qonpG(n, 1e10);  // Array of 1/Cov(qonp,qonp) for each component
 
   // Needed to convert the triangular index to (i,j)
   std::vector<triangularToIJ> convert(nn2, { -1, -1 });
@@ -212,9 +204,8 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(MultiComponentStat
     cache.multiComponentState.push_back(ComponentParameters(state.first.release(), state.second));
     cache.validWeightSum += state.second;
   }
-  std::unique_ptr<Trk::MultiComponentState> mergedState = MultiComponentStateAssembler::assembledState(cache);
+  Trk::MultiComponentState mergedState = MultiComponentStateAssembler::assembledState(cache);
   // Clear the state vector
   statesToMerge.clear();
-  
   return mergedState;
 }

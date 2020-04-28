@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TomoTubeDisplacement.h"
@@ -227,8 +227,8 @@ void tomogetdata_(
   }
   
  //Re-signe nominal pitches due to different layer nbering
-  nominalzpitch = XtomoZpit/fabs( XtomoZpit)*NominalZpitchL ;
-  nominalypitch = XtomoYpit/fabs( XtomoYpit)*NominalYpitchL ;
+  nominalzpitch = XtomoZpit/std::abs( XtomoZpit)*NominalZpitchL ;
+  nominalypitch = XtomoYpit/std::abs( XtomoYpit)*NominalYpitchL ;
 
  //choose what kind of xtomo information should be included  
  

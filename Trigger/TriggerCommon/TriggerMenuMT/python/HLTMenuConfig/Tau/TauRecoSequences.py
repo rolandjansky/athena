@@ -232,8 +232,8 @@ def tauIdTrackSequence( RoIs , name):
     elif "EF" in name:
       precName = 'tauEF'
 
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( precName,  False, inputFTFtracks= TrackCollection )
-    PTSeq = seqAND("precisionTrackingIn"+precName, PTAlgs  )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( precName,  verifier = False, rois = RoIs, inputFTFtracks= TrackCollection )
+    PTSeq = parOR("precisionTrackingIn"+precName, PTAlgs  )
 
     #Get last tracks from the list as input for other alg       
     tauIdTrackSequence += PTSeq

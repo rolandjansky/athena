@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 
 // Local include(s).
@@ -10,15 +10,19 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODBase/IParticleContainer.h"
+#include "CxxUtils/ubsan_suppress.h"
 
 // ROOT include(s).
 #include <ROOT/RDataFrame.hxx>
 #include <TError.h>
+#include <TInterpreter.h>
 
 // System include(s).
 #include <iostream>
 
 int main() {
+   // Suppress ubsan warning.
+   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
 
    // Set up the runtime environment.
    CHECK( xAOD::Init() );

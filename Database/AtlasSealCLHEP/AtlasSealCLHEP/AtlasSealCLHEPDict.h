@@ -18,17 +18,7 @@
 #include "AtlasSealCLHEP/CLHEP_Random.h"
 #include "AtlasSealCLHEP/CLHEP_Geometry.h"
 #include "AtlasSealCLHEP/CLHEP_Matrix.h"
-// #include " AtlasSealCLHEP/CLHEP_Vector.h "
-// #include " AtlasSealCLHEP/CLHEP_Random.h "
-// #include " AtlasSealCLHEP/CLHEP_Geometry.h "
-// #include " AtlasSealCLHEP/CLHEP_Matrix.h "
-// #include " AtlasSealCLHEPDict/CLHEP_Vector.h "
-// #include " AtlasSealCLHEPDict/CLHEP_Random.h "
-// #include " AtlasSealCLHEPDict/CLHEP_Geometry.h "
-// #include " AtlasSealCLHEPDict/CLHEP_Matrix.h "
-// #include " AtlasSealCLHEPDict/CLHEP_HepMC.h "
-// #include " AtlasSealCLHEPDict/CLHEP_HepPDT.h "
-// #include " AtlasSealCLHEPDict/CLHEP_GenericFunctions.h "
+
 
 #include "AtlasSealCLHEP/OldCLHEP.h"
 #include "AtlasSealCLHEP/OldCLHEPStreamers.h"

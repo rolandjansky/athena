@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Author Marco Vanadia vanadiam@roma1.infn.it
@@ -21,10 +21,6 @@
 
 //#include "./MDTDqaDeadElements.h"
 #include "MuonCalibStandAloneExtraTools/MDTDqaDeadElements.h"
-
-using namespace std;
-
-//Status values conventions
 
 #define NOTUBE 0           //Used for chambers with ML1 smaller than ML2 
 #define DEADCHAMBER 1
@@ -147,7 +143,7 @@ namespace MuonCalib {
     //calculateStatistics only calculate median and median deviation of the object, not of its sub-objects
     //to calculate these values for the whole chamber and its sub-parts, use the method MDTChamber::updateStatistics()
 
-    vector<double> values;
+    std::vector<double> values;
  
     for(int k=1; k<=this->getNtubes(); k++) {
       Tube *t= getTube(k);
@@ -249,7 +245,7 @@ namespace MuonCalib {
 
     //Here we must also compute the entries in mezzanine, because of the way we built it
 
-    vector<double> values;
+    std::vector<double> values;
     for(int k=1; k<=this->getNtubes(); k++) {
       Tube *t= getTube(k);
       if((t->getStatus())==0) continue; //Double check just not to lose entries;
@@ -359,7 +355,7 @@ namespace MuonCalib {
     //calculateStatistics only calculate median and median deviation of the object, not of its sub-objects
     //to calculate these values for the whole chamber and its sub-parts, use the method MDTChamber::updateStatistics()
 
-    vector<double> values;
+    std::vector<double> values;
 
     for(int j=1; j<=getNlayers(); j++) {
       Layer *l=getLayer(j);
@@ -585,7 +581,7 @@ namespace MuonCalib {
     //calculateStatistics only calculate median and median deviation of the object, not of its sub-objects
     //to calculate these values for the whole chamber and its sub-parts, use the method MDTChamber::updateStatistics()
 
-    vector<double> values;
+    std::vector<double> values;
     double sum=0;
     int ntubes=0;
     for(int i=1; i<=getNmultilayers(); i++) {
@@ -614,8 +610,8 @@ namespace MuonCalib {
     //Calulate standard deviation
 
     double SD =0;
-    for(int i=0; i<size;i++) SD+=pow(m_mean-values[i],2);
-    m_standard_deviation=sqrt(SD/(double)size);
+    for(int i=0; i<size;i++) SD+=std::pow(m_mean-values[i],2);
+    m_standard_deviation=std::sqrt(SD/(double)size);
 
     //Calculate median
     sort(values.begin(), values.end());
@@ -669,24 +665,6 @@ namespace MuonCalib {
   }
 
   void MDTChamber::Print() {
-    //     cout<<"---------------Chamber "<<this->getName()<<"----------------"<<endl<<endl;
-    //     for(int i=1; i<=getNmultilayers(); i++) {
-    //       Multilayer *ml=this->getMultilayer(i);
-    //       for(int j=1; j<=ml->getNlayers(); j++) {
-    //	 Layer *l=ml->getLayer(j);
-    //	 for(int k=1; k<=l->getNtubes(); k++) {
-    //	   Tube *t=l->getTube(k);
-    //	   if(t->getStatus()==0) cout<<" ";
-    //	   else {
-    //	     if(t->getStatus()==10) cout<<"O"; 
-    //	     else cout<<"X";
-    //	   }
-    //	 }
-    //	 cout<<endl;
-    //       }
-    //       cout<<endl<<endl;
-    //     }
-    //     cout<<"--------------------------------------------------------------------"<<endl<<endl;
   }  //end MDTChamber::Print
 
   ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -758,8 +736,6 @@ namespace MuonCalib {
     int nsectorsanalysed=0;
     int nchambersanalysed=0;
 
-    //    cout<<endl<<"--------------Start of MDTDqaDeadElementsAnalysis--------------------"<<endl<<endl;
-
     if(m_write_report) {
       TString filename=f->GetName();
       filename+="_DeadElementsAnalysis_Report.txt";
@@ -768,7 +744,6 @@ namespace MuonCalib {
     if(m_write_compact_report) {
       TString filename=f->GetName();
       filename+="_DeadElementsAnalysis_CompactReport.txt";
-      //filename="DeadElements_CompactReport.txt";
       m_comp_report.open((const char*)filename);
     }
     if(m_write_list_of_dead_tubes) {
@@ -777,23 +752,19 @@ namespace MuonCalib {
       m_filelistofdeads.open((const char*)filename);
     }
     for(int iregion=1; iregion<=4; iregion++) {
-      string region_name;
+      std::string region_name;
       if(iregion==1) region_name="Barrel_A";	
       if(iregion==2) region_name="Barrel_C";
       if(iregion==3) region_name="Endcap_A";
       if(iregion==4) region_name="Endcap_C";
-      string regiondir_name="/MDT/"+region_name;
+      std::string regiondir_name="/MDT/"+region_name;
       
-      //      if(m_verbose) cout<<endl<<"------------------------Analyzing region: "<<regiondir_name<<"------------------"<<endl;
-
       TDirectory* regiondir=(TDirectory*)f->Get(regiondir_name.c_str());
       if(!regiondir) {
-	//	cout<<"MDTDqaDeadElements::MDTDqaDeadElementsAnalysis WARNING: region not found in rootfile"<<endl;
 	continue;
       }
       TH2F *hsummary=(TH2F*)regiondir->FindObjectAny("DeadElements");
       if(!hsummary) {
-	//	cout<<"MDTDqaDeadElements::MDTDqaDeadElementsAnalysis WARNING: DeadElements histogram not found: "<<region_name<<endl;
 	continue;
       }
       hsummary->Reset();
@@ -813,10 +784,7 @@ namespace MuonCalib {
 	sector_name+=isector;
 	TDirectory *sectordir=(TDirectory*)regiondir->Get((const char*)sector_name);
 
-	//	if(m_verbose) cout<<endl<<"--------------------Analysing Sector "<<sector_name<<"------------------"<<endl;
-
 	if(!sectordir) {
-	  //	  if(m_verbose) cout<<"Sector not found in rootfile"<<endl;
 	  continue;
 	}  
 	if(m_do_analysis)nsectorsanalysed++;
@@ -824,76 +792,59 @@ namespace MuonCalib {
 	TIter next(sectordir->GetListOfKeys());
 	TKey *key;
 	while((key=(TKey*)next())) {
-	  string chamber_name=key->GetName();
+	  std::string chamber_name=key->GetName();
 	  if(chamber_name=="OVERVIEW") continue;
 	  TDirectory *chamberdir=(TDirectory*)sectordir->Get(chamber_name.c_str());
 	  TDirectory *deadstatusdir=(TDirectory*)sectordir->Get((chamber_name+"/DeadStatus").c_str());
 	  TDirectory *expertdir=(TDirectory*)sectordir->Get((chamber_name+"/Expert").c_str());
-
-	  //	  if(m_verbose) cout<<endl<<"------------------Analysing chamber "<<chamber_name<<"---------------"<<endl;
 	  
 	  if(!chamberdir) {
-	    //	    cout<<"Failed to load chamberdir from rootfile"<<endl;
 	    continue;
 	  }
 
 	  if(!deadstatusdir) {
-	    //	    cout<<"Failed to load deadstatusdir from rootfile"<<endl; 
 	    continue;
 	  }
 
 	  if(!expertdir) {
-	    //	    cout<<"Failed to load expertdir from rootfile"<<endl; 
 	    continue;
 	  }
 
 	  TH1F *hgeom=(TH1F*)expertdir->FindObjectAny("DeadTubeRefMap");
 	  if(!hgeom) {
-	    //	    cout<<"DeadTubeRefMap histogram not found: "<<chamber_name<<endl;
 	    continue;
 	  }
 	  MDTChamber *chamber= new MDTChamber(hgeom,TString(chamber_name));
 
 	  TH1F *hadccut=(TH1F*)chamberdir->FindObjectAny("a_HitsPerTubeAdcCut");
 	  if(!hadccut) {
-	    //	    cout<<"a_HitsPerTubeAdcCut histogram not found: "<<chamber_name<<endl;
 	    delete chamber; chamber=0;
 	    continue;
 	  }
 	  TH2F *hdeadchannels=(TH2F*) expertdir->FindObjectAny("ChamberDeadChannels");
 	  if(!hdeadchannels) {
-	    //	    cout<<"ChamberDeadChannels histogram not found: "<<chamber_name<<endl;
 	    delete chamber; chamber=0;
 	    continue;
 	  }
 	  TH2F *hdeadtubes=(TH2F*) deadstatusdir->FindObjectAny("ChamberDeadTubes");
 	  if(!hdeadtubes) {
-	    //	    cout<<"ChamberDeadTubes histogram not found: "<<chamber_name<<endl;
 	    delete chamber; chamber=0;
 	    continue;
 	  }
 	  TH1F *hdeadmap=(TH1F*) expertdir->FindObjectAny("DeadTubeMap");
 	  if(!hdeadmap) {
-	    //	    cout<<"DeadTubeMap histogram not found: "<<chamber_name<<endl;
 	    delete chamber; chamber=0;
 	    continue;
 	  }
-	  //	  if(m_verbose) cout<<"Reading a_HitsPerTubeAdcCut to fill chamber tubes entries"<<endl;
 	  fillChamber(chamber,hadccut);
 	  
 	  hdeadmap->Reset();
 	  hdeadchannels->Reset();
 	  hdeadtubes->Reset();
 	  
-	  //	  if(m_verbose) cout<<endl<<"Starting DEAD elements analysis: "<<chamber_name<<endl;
 	  if(m_do_analysis)doAnalysis(chamber);
 	  if(m_print_chambers) chamber->Print();
 	  if(m_do_analysis) nchambersanalysed++;
-	  
-	  //	  if(m_verbose) cout<<"Filling 2D and layer by layer map: "<<chamber_name<<endl;
-	  //DEBUG
-	  //chamber->buildMezzanines();
-	  //
 	  
 	  //To fix the correct values in the output histograms
 	  hdeadchannels->SetMinimum(0);
@@ -929,19 +880,6 @@ namespace MuonCalib {
     if(m_write_list_of_dead_tubes) {
       m_filelistofdeads.close();
     }
-    //    if(m_verbose) cout<<endl<<"--------------------------------------------------------"<<endl;
-    //    cout<<endl<<endl;
-    //    cout<<"Regions analysed: "<<nregionsanalysed<<endl; 
-    //    cout<<"Sectors analysed: "<<nsectorsanalysed<<endl; 
-    //    cout<<"Chambers analysed: "<<nchambersanalysed<<endl; 
-    //    cout<<"Tube analyzed: "<<m_ntubes<<endl;
-    //    cout<<"Found: "<<m_deadtubes<<" Dead Tubes; "<<m_deadmezzanines<<" Dead Mezzanines; "<<m_deadlayers<<" Dead Layers; ";
-    //    cout<<m_deadmultilayers<<" Dead Multilayers; "<<m_deadchambers<<" Dead Chambers; ";
-    //    cout<<m_lowstatisticschambers<<" Chambers with low statistics; "<<m_lowstatisticsfortubeschambers;
-    //    cout<<" Chambers with statistics too low to analyze tubes;"<<endl;
-    //    cout<<"Found "<<m_lowstatmezzanines<<" mezzanines with low statistics"<<endl;
-    //    if(m_do_noisy) cout<<"Noisy tubes: "<<m_noisytubes<<endl;
-    //    cout<<endl<<"--------------End of MDTDqaDeadElementsAnalysis--------------------"<<endl<<endl;
 
     if(m_write_list_of_dead_tubes) {
       TString filename=f->GetName();
@@ -995,7 +933,6 @@ namespace MuonCalib {
     int ntubes=1;
     TH1F *hdeadtubestatus=(TH1F*)chamberdir->FindObjectAny("b_DeadTubeStatus");
     if(!hdeadtubestatus) {
-      //      cout<<"MDTDqaDeadElements::fillDeadMap WARNING: b_DeadTubeStatus not found "<<chamber->getName()<<endl;
       return;
     }
     hdeadtubestatus->Reset();  
@@ -1012,7 +949,6 @@ namespace MuonCalib {
     
 	TH1F *hdeadperlayer=(TH1F*)deadstatusdir->FindObjectAny((const char*)deadlayername);
 	if(!hdeadperlayer) {
-	  //	  if(m_verbose) cout<<"MDTDqaDeadElements::fillDeadMap WARNING: "<<deadlayername<<" histogram not found: "<<chamber->getName()<<endl;
 	  continue;
 	}
 	hdeadperlayer->Reset();
@@ -1073,12 +1009,12 @@ namespace MuonCalib {
                             //under or equal to MINMEDIAN, the 
                             //chamber has too low statistics and too high fluctuations to be analysed;
 
-    if(m_write_report) m_file_report<<endl<<"Analysing Chamber "<<chamber->getName()<<"------------------------"<<endl;
+    if(m_write_report) m_file_report<<std::endl<<"Analysing Chamber "<<chamber->getName()<<"------------------------"<<std::endl;
 
     if(chamber->getEntries()<=MINENTRIES) {
       chamber->setStatus(DEADCHAMBER);
-      if(m_write_report) m_file_report<<chamber->getName()<<" Appears to be dead chamber as it has no entries"<<endl<<endl;
-      if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_CHAMBER"<<endl;
+      if(m_write_report) m_file_report<<chamber->getName()<<" Appears to be dead chamber as it has no entries"<<std::endl<<std::endl;
+      if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_CHAMBER"<<std::endl;
       m_deadchambers++;
       m_dead_chambers_per_sector++;
       return;
@@ -1093,17 +1029,17 @@ namespace MuonCalib {
     if((median!=0)&&(median_deviation==0)) ratio=-1;
     if((median!=0)&&(median_deviation!=0)) ratio=median/median_deviation;
     if(m_write_report) m_file_report<<"entries="<<chamber->getEntries();
-    if(m_write_report) m_file_report<<" median= "<<median<<"; median_dev= "<<median_deviation<<"; ratio="<<ratio<<endl;
+    if(m_write_report) m_file_report<<" median= "<<median<<"; median_dev= "<<median_deviation<<"; ratio="<<ratio<<std::endl;
 
     if((median<=MINMEDIAN)&&(ratio<=MAXRATIO)) {
       chamber->setStatus(LOWSTATISTICSCHAMBER);
-      if(m_write_report) m_file_report<<chamber->getName()<<" Has Low Statistics, it won't be analysed"<<endl;
-      if(m_write_compact_report) m_comp_report<<chamber->getName()<<" LOW STATISTICS"<<endl;
+      if(m_write_report) m_file_report<<chamber->getName()<<" Has Low Statistics, it won't be analysed"<<std::endl;
+      if(m_write_compact_report) m_comp_report<<chamber->getName()<<" LOW STATISTICS"<<std::endl;
       m_lowstatisticschambers++;
       m_lowstat_chambers_per_sector++;
       return;
     }
-    if(m_write_report) m_file_report<<chamber->getName()<<" Has enough statistics, starting other analysis"<<endl;
+    if(m_write_report) m_file_report<<chamber->getName()<<" Has enough statistics, starting other analysis"<<std::endl;
 
     //Here you start with chamber's sub-parts analysis
 
@@ -1118,8 +1054,8 @@ namespace MuonCalib {
     //reanalyseMezzanines(chamber);
     //this method sets a mezzanine as dead if more than 50% of its tubes are dead. For the moment keep it diasbled until the dead tube analysis is fixed
      
-    if(m_write_report) m_file_report<<endl<<"END OF ANALYSIS "<<chamber->getName()<<"------------------------"<<endl;
-    if(m_write_report) m_file_report<<endl<<endl;
+    if(m_write_report) m_file_report<<std::endl<<"END OF ANALYSIS "<<chamber->getName()<<"------------------------"<<std::endl;
+    if(m_write_report) m_file_report<<std::endl<<std::endl;
     /*DEBUG for mezzanines
       for(int i=1; i<=chamber->getNmultilayers(); i++)
         { 
@@ -1161,13 +1097,13 @@ namespace MuonCalib {
       double med=ml->getMedian();
       if(med>maxMLmedian) maxMLmedian=med;
     }
-    if(m_write_report) m_file_report<<"MLs MAXMEDIAN="<<maxMLmedian<<endl;
+    if(m_write_report) m_file_report<<"MLs MAXMEDIAN="<<maxMLmedian<<std::endl;
     if(maxMLmedian<MIN_MAXMEDIAN_ML) {
-      if(m_write_report) m_file_report<<"MLs have not enough statistics to be analized"<<endl;
+      if(m_write_report) m_file_report<<"MLs have not enough statistics to be analized"<<std::endl;
       return;
     }
     if(chamber->getNmultilayers()==1) {
-      if(m_write_report) m_file_report<<"Only 1ML in chamber; ML analysis ok;"<< endl;
+      if(m_write_report) m_file_report<<"Only 1ML in chamber; ML analysis ok;"<< std::endl;
       return;
     }
     for(int i=1; i<=chamber->getNmultilayers(); i++) {
@@ -1191,14 +1127,14 @@ namespace MuonCalib {
       double diffToOther=diff/meanMedDev;
       if(m_write_report) m_file_report<<"ML"<<i<<"entries="<<ml->getEntries();
       if(m_write_report) m_file_report<<"; median="<<ml->getMedian()<<"; diffToOther="<<diffToOther<<"; ";
-      if(m_write_report) m_file_report<<"maxMezzMed="<<maxMezzMed<<endl;  
+      if(m_write_report) m_file_report<<"maxMezzMed="<<maxMezzMed<<std::endl;  
 
       int contr=0;
       if((ml->getMedian()<=MIN_ML_MED)||((10*ml->getMedian())<ml2->getMedian())) {
 	if(diffToOther<-SPREADDEAD) {
 	  if(maxMezzMed<(ml2->getMedian()-SPREADDEAD*meanMedDev)) {
-	    if(m_write_report) m_file_report<<"ML "<<i<<" seems to be dead ML"<<endl;
-	    if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_MULTILAYER "<<i<<endl;
+	    if(m_write_report) m_file_report<<"ML "<<i<<" seems to be dead ML"<<std::endl;
+	    if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_MULTILAYER "<<i<<std::endl;
 	    ml->setStatus(DEADML);
 	    m_deadmultilayers++;
 	    m_dead_multilayers_per_sector++;
@@ -1206,15 +1142,15 @@ namespace MuonCalib {
 	  }
 	}
       } else if((diffToOther<-SPREADINEFFICIENT)&&(maxMezzMed<(ml2->getMedian()-SPREADINEFFICIENT*meanMedDev))) {
-	if(m_write_report) m_file_report<<"ML "<<i<<" seems to be inefficient ML"<<endl;
-	if(m_write_compact_report) m_comp_report<<chamber->getName()<<" inefficient_MULTILAYER "<<i<<endl;
+	if(m_write_report) m_file_report<<"ML "<<i<<" seems to be inefficient ML"<<std::endl;
+	if(m_write_compact_report) m_comp_report<<chamber->getName()<<" inefficient_MULTILAYER "<<i<<std::endl;
 	ml->setStatus(INEFFICIENTML);
 	m_deadmultilayers++;
 	m_dead_multilayers_per_sector++;
 	contr=1;
       }	
 
-      if(contr==0) {if(m_write_report) m_file_report<<"ML "<<i<<" OK"<<endl;}
+      if(contr==0) {if(m_write_report) m_file_report<<"ML "<<i<<" OK"<<std::endl;}
       
     }
     return;
@@ -1254,7 +1190,7 @@ namespace MuonCalib {
        
      }
      if(maxMedianLayers<MIN_MAXLAYER_MED) {
-       if(m_write_report) m_file_report<<"Layers without enough statistics, not analysed"<<endl;
+       if(m_write_report) m_file_report<<"Layers without enough statistics, not analysed"<<std::endl;
        return;
      }	
 
@@ -1267,14 +1203,14 @@ namespace MuonCalib {
 	 double medianOfOtherMedians=0;
 	 double medianOfOtherMediansDevs=0;
 	 
-	 vector<double> values;
-	 vector<double> values_dev;
+	 std::vector<double> values;
+	 std::vector<double> values_dev;
 	 
 	 double maxMezzMedian=0;
 
 	 for(int k=0; k<ml->getNmezzanines(); k++) {
 	   Mezzanine *mezz=ml->getMezzanine(k);
-	   vector<double> values_mezz;
+	   std::vector<double> values_mezz;
 	   for(int y=1; y<=mezz->getNtubes(); y++) {
 	     Tube *t=mezz->getTube(y);
 	     if(t->getStatus()!=10) continue;
@@ -1282,7 +1218,6 @@ namespace MuonCalib {
 	     values_mezz.push_back(t->getValue());
 	   }
 	   int size_mezz=values_mezz.size();
-	   //	   if(size_mezz==0) {cout<<"BAD DEFINED MEZZANINE IN CHAMBER"<<chamber->getName()<<endl; continue;}
 	   double mezzmed;
 	   sort(values_mezz.begin(), values_mezz.end());
 	   if((size_mezz%2)==1) mezzmed=values_mezz[(size_mezz-1)/2];
@@ -1300,7 +1235,6 @@ namespace MuonCalib {
 	 }
 
 	 int size=values.size();
-	 //	 if(size==0) {cout<<"BAD DEFINED LAYER IN CHAMBER"<<chamber->getName()<<endl; continue;}
 	 sort(values.begin(), values.end());
 	 if((size%2)==1) medianOfOtherMedians=values[(size-1)/2];
 	 else medianOfOtherMedians=(double)(values[size/2]+values[(size/2)-1])/2.;
@@ -1321,13 +1255,13 @@ namespace MuonCalib {
 	 if(m_write_report) m_file_report<<"Layer"<<j<<" entries= "<<l->getEntries()<<" median="<<l->getMedian()<<"; diffToOther="<<diffToOthers<<"; ";
 	 if(m_write_report) m_file_report<<"medianOfOthersMedian="<<medianOfOtherMedians<<"; ";
 	 if(m_write_report) m_file_report<<"medianOfOthersMedianDev="<<medianOfOtherMediansDevs<<"; ";
-	 if(m_write_report) m_file_report<<"maxMezzMedian="<<maxMezzMedian<<endl;
+	 if(m_write_report) m_file_report<<"maxMezzMedian="<<maxMezzMedian<<std::endl;
 	 
 	 if((diffToOthers>SPREADHOT)&&(l->getMedian()>MINMEDHOT)) {
 	   if(!m_do_noisy) continue;
 	   
-	   if(m_write_report) m_file_report<<"ML "<<i<<" Layer "<<j<<" seems to be noisy layer"<<endl;
-	   if(m_write_compact_report) m_comp_report<<chamber->getName()<<" noisy_LAYER "<<i<<" "<<j<<endl;
+	   if(m_write_report) m_file_report<<"ML "<<i<<" Layer "<<j<<" seems to be noisy layer"<<std::endl;
+	   if(m_write_compact_report) m_comp_report<<chamber->getName()<<" noisy_LAYER "<<i<<" "<<j<<std::endl;
 	   l->setStatus(NOISYLAYER);
 	   contr=1;
 	 }
@@ -1335,8 +1269,8 @@ namespace MuonCalib {
 	 if(l->getMedian()<MIN_LAYER_MED) {
 	   if((diffToOthers<=-SPREADDEAD)||(medianOfOtherMedians>MIN_OTHERMEDIANS_DEAD)) {
 	     if((maxMezzMedian<(medianOfOtherMedians-SPREADDEAD*medianOfOtherMediansDevs))||(maxMezzMedian<=MIN_OTHERMEDIANS_DEAD)) {
-	       if(m_write_report) m_file_report<<"ML "<<i<<" Layer "<<j<<" seems to be dead layer"<<endl;
-	       if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_LAYER "<<i<<" "<<j<<endl;
+	       if(m_write_report) m_file_report<<"ML "<<i<<" Layer "<<j<<" seems to be dead layer"<<std::endl;
+	       if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_LAYER "<<i<<" "<<j<<std::endl;
 	       l->setStatus(DEADLAYER);
 	       m_deadlayers++;
 	       m_dead_layers_per_sector++;
@@ -1344,14 +1278,14 @@ namespace MuonCalib {
 	     }
 	   }
 	 } else if((diffToOthers<-SPREADINEFFICIENT)&&(maxMezzMedian<(medianOfOtherMedians-SPREADINEFFICIENT*medianOfOtherMediansDevs))) {
-	   if(m_write_report) m_file_report<<"ML "<<i<<" Layer "<<j<<" seems to be inefficient layer"<<endl;
-	   if(m_write_compact_report) m_comp_report<<chamber->getName()<<" inefficient_LAYER "<<i<<" "<<j<<endl;
+	   if(m_write_report) m_file_report<<"ML "<<i<<" Layer "<<j<<" seems to be inefficient layer"<<std::endl;
+	   if(m_write_compact_report) m_comp_report<<chamber->getName()<<" inefficient_LAYER "<<i<<" "<<j<<std::endl;
 	   l->setStatus(INEFFICIENTLAYER);
 	   m_deadlayers++;
 	   m_dead_layers_per_sector++;
 	   contr=1;
 	 }
-	 if(contr==0) {if(m_write_report) m_file_report<<"ML "<<i<<" Layer "<<j<<" ok"<<endl;}
+	 if(contr==0) {if(m_write_report) m_file_report<<"ML "<<i<<" Layer "<<j<<" ok"<<std::endl;}
 	 
        }
      }
@@ -1376,8 +1310,8 @@ namespace MuonCalib {
 	 }          
 	 if(ntubes==0) continue;
 	 else if((double)((double)ndeadtubes/(double)ntubes)>0.5) {
-	   if(m_write_report) m_file_report<<"ML "<<i<<" Mezzanine "<<j<<" appears to be dead mezzanine"<<endl;
-	   if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_MEZZANINE_rean "<<i<<" "<<j<<endl;
+	   if(m_write_report) m_file_report<<"ML "<<i<<" Mezzanine "<<j<<" appears to be dead mezzanine"<<std::endl;
+	   if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_MEZZANINE_rean "<<i<<" "<<j<<std::endl;
 	   mezz->setStatus(DEADMEZZANINE);
 	   //m_dead_tubes_per_sector-=ntubes;
 	   m_dead_tubes_per_sector-=ndeadtubes;
@@ -1420,8 +1354,8 @@ namespace MuonCalib {
     double medianOfMediansDeviation=0;
     double medianDeviationOfMedians=0;
 
-    vector<double> values;  
-    vector<double> values_dev;
+    std::vector<double> values;  
+    std::vector<double> values_dev;
       
     for(int i=1; i<=chamber->getNmultilayers(); i++) {
       Multilayer *ml=chamber->getMultilayer(i);
@@ -1454,10 +1388,10 @@ namespace MuonCalib {
     double chamberFlatness=medianDeviationOfMedians/medianOfMediansDeviation;
     
     if(maxMedianMezzanines<MIN_MAXMEDIAN) {
-      if(m_write_report) m_file_report<<"Mezzanines without enough statistics, not analysed"<<endl;
+      if(m_write_report) m_file_report<<"Mezzanines without enough statistics, not analysed"<<std::endl;
       return;
     }
-    if(m_write_report) m_file_report<<"ChamberFlatness="<<chamberFlatness<<endl;	
+    if(m_write_report) m_file_report<<"ChamberFlatness="<<chamberFlatness<<std::endl;	
 
     for(int i=1; i<=chamber->getNmultilayers(); i++) {
       Multilayer *ml=chamber->getMultilayer(i);
@@ -1477,8 +1411,8 @@ namespace MuonCalib {
 	double medianOfOtherMedians=0;
 	double medianOfOtherMediansDevs=0;
 	
-	vector<double> values;
-	vector<double> values_dev;
+	std::vector<double> values;
+	std::vector<double> values_dev;
         
 	double minOtherLargerMedians=-1;              
 		
@@ -1524,26 +1458,18 @@ namespace MuonCalib {
 	  continue;
 	}
 
-	//if(chamber->getName()!="BIR1A11") continue;
-	//cout<<"mezzanine status "<<mezz->getStatus()<<endl;
-	
-	//cout<<"mezz "<<j<<endl;
 	if(j>0) {
 	  if(ml->getMezzanine(j-1)!=NULL) {
-	    //cout<<" sx"<<endl;
 	    near_mezz.push_back(ml->getMezzanine(j-1));
 	  }
 	}
 	if(j<(ml->getNmezzanines()-1)) {
 	  if(ml->getMezzanine(j+1)!=NULL) {
-	    //cout<<" dx"<<endl;
 	    near_mezz.push_back(ml->getMezzanine(j+1));
 	  }
 	}
 	if(other_ml!=NULL) {
-	  //		    double value=-1;
 	  if(other_ml->getMezzanine(j)!=NULL) {
-	    //cout<<" up"<<endl;
 	    near_mezz.push_back(other_ml->getMezzanine(j));
 	  }
 	}
@@ -1553,32 +1479,19 @@ namespace MuonCalib {
 	  bool OneGood=false;
 	  double lower_limit=9999999;
 	  for(unsigned int k=0; k<near_mezz.size(); k++) {
-	    //if(near_mezz[k]->getStatus()!=10) continue;
-
-//			double other_med=near_mezz[k]->getMedian();
-//			double other_meddev=near_mezz[k]->getMedianDeviation();
 	    double other_min70=near_mezz[k]->get70min();
-	    //if((other_med-2*other_meddev)<0) continue;
 	    OneGood=true;
 	    if(other_min70<lower_limit) lower_limit=other_min70;
-
 	  }
 
 	  double max70= mezz->get70max();
 	  if(OneGood&&max70<(lower_limit/5.)&&(lower_limit>5)&&med==0) isDead=true;
 	  if(isDead) {
-	    //cout<<chamber->getName()<<" ml="<<i<<" mezz="<<j<<" med="<<med<<" meddev="<<meddev<<" lowlim="<<(lower_limit/5.)<<endl;
-	    for(unsigned int k=0; k<near_mezz.size(); k++) {
-//			    double other_med=near_mezz[k]->getMedian();
-//			    double other_meddev=near_mezz[k]->getMedianDeviation();
-			    //cout<<"  other md="<<other_med<<"  other md_dev="<<other_meddev<<endl;
-	    }
-	    if(m_write_report) m_file_report<<chamber->getName()<<" ML "<<i<<" Mezzanine "<<j<<" appears to be dead_mezzanine; low_limit="<<lower_limit<<" median="<<med<<endl;
-	    if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_MEZZANINE "<<i<<" "<<j<<endl;
+	    if(m_write_report) m_file_report<<chamber->getName()<<" ML "<<i<<" Mezzanine "<<j<<" appears to be dead_mezzanine; low_limit="<<lower_limit<<" median="<<med<<std::endl;
+	    if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_MEZZANINE "<<i<<" "<<j<<std::endl;
 	    mezz->setStatus(DEADMEZZANINE);
 	    m_deadmezzanines++;
 	    m_dead_mezzanines_per_sector++;
-	    //			contr=1;
 	  }
 
 	}
@@ -1590,9 +1503,9 @@ namespace MuonCalib {
 	if(m_write_report) m_file_report<<"ML"<<i<<" mezz"<<j<<": med="<<mezz->getMedian()<<"; "<<" mad="<<mezz->getMedianDeviation();
 	if(m_write_report) m_file_report<<"medev"<<medianOfOtherMediansDevs<<"; ";
 	if(m_write_report) m_file_report<<"entries="<<mezz->getEntries()<<"; diffToOthers="<<diffToOthers<<"; ";
-	if(m_write_report) m_file_report<<"minlargermed="<<minOtherLargerMedians<<endl;         
+	if(m_write_report) m_file_report<<"minlargermed="<<minOtherLargerMedians<<std::endl;         
 	if(m_write_report) m_file_report<<"inefficient if med below=";
-	if(m_write_report) m_file_report<<(minOtherLargerMedians-5*medianOfOtherMediansDevs)<<endl;
+	if(m_write_report) m_file_report<<(minOtherLargerMedians-5*medianOfOtherMediansDevs)<<std::endl;
 		
       }
     }
@@ -1627,7 +1540,7 @@ namespace MuonCalib {
 
     int ndeadtubes=0;
     int nnoisytubes=0;
-    if(m_write_report) m_file_report<<"Starting Tube Analysis"<<endl;
+    if(m_write_report) m_file_report<<"Starting Tube Analysis"<<std::endl;
 
     double median=chamber->getMedian();
     //double median_deviation=chamber->getMedianDeviation();
@@ -1646,8 +1559,8 @@ namespace MuonCalib {
     }
     if((maxMezzMed>=50)&&(chamber->get70()==0)) {
       chamber->setStatus(DEADCHAMBER);
-      if(m_write_report) m_file_report<<chamber->getName()<<" Appears to be a chamber with only few live tubes"<<endl<<endl;
-      if(m_write_compact_report) m_comp_report<<chamber->getName()<<" strange_CHAMBER"<<endl;
+      if(m_write_report) m_file_report<<chamber->getName()<<" Appears to be a chamber with only few live tubes"<<std::endl<<std::endl;
+      if(m_write_compact_report) m_comp_report<<chamber->getName()<<" strange_CHAMBER"<<std::endl;
       m_deadchambers++;
       m_dead_chambers_per_sector++;
       return;
@@ -1657,8 +1570,8 @@ namespace MuonCalib {
     if(median<MINCHAMBERMED) {
       m_lowstatisticsfortubeschambers++;
       m_lowstat_chambers_per_sector++;
-      if(m_write_report) m_file_report<<"This chamber has too low statistics to analyze single tubes"<<endl;
-      if(m_write_compact_report) m_comp_report<<chamber->getName()<<" LOW STATISTICS FOR TUBES"<<endl;
+      if(m_write_report) m_file_report<<"This chamber has too low statistics to analyze single tubes"<<std::endl;
+      if(m_write_compact_report) m_comp_report<<chamber->getName()<<" LOW STATISTICS FOR TUBES"<<std::endl;
       for(int i=1; i<=chamber->getNmultilayers(); i++) {
 	Multilayer *ml=chamber->getMultilayer(i);
 	if(ml->getStatus()!=10) continue;
@@ -1677,7 +1590,6 @@ namespace MuonCalib {
     }
 
     double marco_limit=0.1*(chamber->get90min())-1.;
-//    double marco_HOTlimit=10.*(chamber->get90max());
 
     for(int i=1; i<=chamber->getNmultilayers(); i++) {
       Multilayer *ml=chamber->getMultilayer(i);
@@ -1687,28 +1599,21 @@ namespace MuonCalib {
 	double limit=medML-SPREADDEAD*medDevML;
 
         if(m_write_report) {
-	  m_file_report<<"ML"<<i<<" Tube Limit="<<limit<<"; medML="<<medML<<" ;medDevML="<<medDevML<<"; medML/10="<<((double)medML/10.)<<"; tube noisy over="<<(10*standard_deviation+median)<<" marcolimit="<<marco_limit<<endl;
+	  m_file_report<<"ML"<<i<<" Tube Limit="<<limit<<"; medML="<<medML<<" ;medDevML="<<medDevML<<"; medML/10="<<((double)medML/10.)<<"; tube noisy over="<<(10*standard_deviation+median)<<" marcolimit="<<marco_limit<<std::endl;
 	}
 
 	for(int j=0; j<ml->getNmezzanines(); j++) {
 	  Mezzanine *mezz=ml->getMezzanine(j);
 	  if(mezz->getStatus()!=10) continue;
-//		double medMezz=mezz->getMedian();
-//		double medDevMezz=mezz->getMedianDeviation();
 	  double marco_limitMezz=0.1*mezz->get70min()-1;
-	  //if(chamber->getName()=="BIL6A01") cout<<" Mezzanine "<<i<<" "<<j<<" limit="<<marco_limitMezz<<endl;
 	  for(int k=1; k<=mezz->getNtubes(); k++) {
 
 	    Tube *t=mezz->getTube(k);
 	    if(t->getStatus()!=10) continue;
 	    m_ntubes++;
 	    int value=t->getValue();
- 
-	    //if(chamber->getName()=="BIL6A01") cout<<i<<" "<<j<<" "<<k<<" entries="<<value<<endl;
-	    if(value<marco_limitMezz) {
-	      if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_TUBE "<<t->getML()<<" "<<t->getLayer()<<" "<<t->getPosition()<<endl;
-	      //if(chamber->getName()=="BIL6A01")cout<<"DEAD!!!"<<endl;
-
+ 	    if(value<marco_limitMezz) {
+	      if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_TUBE "<<t->getML()<<" "<<t->getLayer()<<" "<<t->getPosition()<<std::endl;
 	      t->setStatus(DEADTUBE);
 	      ndeadtubes++;
 	      m_deadtubes++;
@@ -1716,77 +1621,8 @@ namespace MuonCalib {
 	    }
 	  }
 	}
-// 	for(int j=1; j<=ml->getNlayers(); j++)
-// 	  {
-// 	    Layer *l=ml->getLayer(j);
-//             if(l->getStatus()!=10) continue;
-// 	    if(chamber->getName()=="BIL6A01")cout<<"Layer "<<j<<endl;
-// 	    for(int k=1; k<=l->getNtubes(); k++)
-// 	      {
-// 		Tube *t=l->getTube(k);
-               
-// 		int value=t->getValue();
-// 		if(chamber->getName()=="BIL6A01") cout<<i<<" "<<j<<" "<<k<<" entries="<<value<<endl;
-// 	      }
-// 	  }
-
-// 	for(int j=1; j<=ml->getNlayers(); j++)
-// 	  {
-// 	    Layer *l=ml->getLayer(j);
-//             if(l->getStatus()!=10) continue;
-
-// 	    for(int k=1; k<=l->getNtubes(); k++)
-// 	      {
-// 		Tube *t=l->getTube(k);
-//                 if(t->getStatus()!=10) continue; 
-//                 m_ntubes++;
-// 		int value=t->getValue();
-//                 double valueSD=(standard_deviation==0)?(0.):((value-median)/standard_deviation);
-// 		//double valueSD=(median_deviation==0)?(0.):((value-median)/median_deviation); altra possibilita'
-
-                 
-// 		if(((value<limit)&&(value<(medML/10.))&&(medML>=10)&&(medML<=200))||((value==0)&&(medML>=50)))
-// 		  {
-// 		    //m_file_report<<"ML "<<i<<" Layer "<<k<<" Tubo "<<k<<" seems to be dead"<<endl;
-//                     if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_TUBE "<<i<<" "<<j<<" "<<k<<endl;
-//  		    t->setStatus(DEADTUBE);
-//                     ndeadtubes++;
-//                     m_deadtubes++;
-//                     m_dead_tubes_per_sector++;
-// 		  }
-//                  else if(value<(marco_limit))
-// 		  {
-//                     if(m_write_compact_report) m_comp_report<<chamber->getName()<<" dead_TUBE "<<i<<" "<<j<<" "<<k<<endl;
-//  		    t->setStatus(DEADTUBE);
-//                     ndeadtubes++;
-//                     m_deadtubes++;
-//                     m_dead_tubes_per_sector++;
-// 		  }
-
-//                  else if((valueSD>10)&&(median>=10))
-// 		  {
-//                     if(!m_do_noisy) continue;
-// 		    //m_file_report<<"ML "<<i<<" Layer "<<k<<" Tubo "<<k<<" seems to be noisy"<<endl;
-//                     if(m_write_compact_report) m_comp_report<<chamber->getName()<<" noisy_TUBE "<<i<<" "<<j<<" "<<k<<endl;
-// 		    t->setStatus(NOISYTUBE);
-//                     nnoisytubes++;
-// 		    m_noisytubes++;		
- 
-// 		  }
-// 		  else if(value>marco_HOTlimit)
-// 		  {
-//                     if(!m_do_noisy) continue;
-//                     if(m_write_compact_report) m_comp_report<<chamber->getName()<<" noisy_TUBE "<<i<<" "<<j<<" "<<k<<endl;
-// 		    t->setStatus(NOISYTUBE);
-//                     nnoisytubes++;
-//                     m_noisytubes++;
-		    
-// 		  }		
-
-// 	      }
-//	    }
     }
-    if(m_write_report) m_file_report<<"End of tube analysis; "<<ndeadtubes<<"dead tubes found"<<nnoisytubes<<"noisy tubes found"<<endl;
+    if(m_write_report) m_file_report<<"End of tube analysis; "<<ndeadtubes<<"dead tubes found"<<nnoisytubes<<"noisy tubes found"<<std::endl;
 
   }  //end MDTDqaDeadElements::analyseTubes
   
@@ -1799,7 +1635,7 @@ namespace MuonCalib {
 	for(int k=1; k<=l->getNtubes(); k++) {
 	  Tube *t=l->getTube(k);
 	  if((t->getStatus()==10)||(t->getStatus()==0)) continue;
-	  m_filelistofdeads<<"Chamber "<<chamber->getName()<<" ML "<<i<<" L "<<j<<" Tube "<<k<<" DEAD"<<endl;
+	  m_filelistofdeads<<"Chamber "<<chamber->getName()<<" ML "<<i<<" L "<<j<<" Tube "<<k<<" DEAD"<<std::endl;
 	}
       }
     }

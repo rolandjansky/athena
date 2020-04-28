@@ -14,7 +14,6 @@
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "xAODTau/DiTauJetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/ThinningHandle.h"
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -25,16 +24,8 @@
 DerivationFramework::DiTauTrackParticleThinning::DiTauTrackParticleThinning(const std::string& t,
                                                                             const std::string& n,
                                                                             const IInterface* p ) :
-base_class(t,n,p),
-m_ntot(0),
-m_npass(0),
-m_ditauSGKey(""),
-m_selectionString(""),
-m_parser(0)
-{
-    declareProperty("DiTauKey", m_ditauSGKey);
-    declareProperty("SelectionString", m_selectionString);
-}
+base_class(t,n,p)
+{}
 
 // Destructor
 DerivationFramework::DiTauTrackParticleThinning::~DiTauTrackParticleThinning() {
@@ -45,19 +36,17 @@ StatusCode DerivationFramework::DiTauTrackParticleThinning::initialize()
 {
     // Decide which collections need to be checked for ID TrackParticles
     ATH_MSG_VERBOSE("initialize() ...");
+    ATH_CHECK( m_ditauKey.initialize () );
     ATH_CHECK( m_inDetSGKey.initialize (m_streamName) );
     ATH_MSG_INFO("Using " << m_inDetSGKey.key() << "as the source collection for inner detector track particles");
-    if (m_ditauSGKey=="") {
-        ATH_MSG_FATAL("No ditau collection provided for thinning.");
-        return StatusCode::FAILURE;
-    } else { ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_ditauSGKey << " will be retained in this format with the rest being thinned away");}
-    
+    ATH_MSG_INFO("Inner detector track particles associated with objects in " << m_ditauKey.key() << " will be retained in this format with the rest being thinned away");
+
     // Set up the text-parsing machinery for selectiong the ditau directly according to user cuts
     if (m_selectionString!="") {
       ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
       proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
       proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-      m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+      m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
       m_parser->loadExpression(m_selectionString);
     }
     return StatusCode::SUCCESS;
@@ -67,10 +56,7 @@ StatusCode DerivationFramework::DiTauTrackParticleThinning::finalize()
 {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" tracks, "<< m_npass<< " were retained ");
-    if (m_selectionString!="") {
-        delete m_parser;
-        m_parser = 0;
-    }
+    m_parser.reset();
     return StatusCode::SUCCESS;
 }
 
@@ -95,9 +81,9 @@ StatusCode DerivationFramework::DiTauTrackParticleThinning::doThinning() const
     
     // Retrieve containers
     // ... ditaus
-    const xAOD::DiTauJetContainer* importedDiTaus(0);
-    if (evtStore()->retrieve(importedDiTaus,m_ditauSGKey).isFailure()) {
-        ATH_MSG_ERROR("No ditau collection with name " << m_ditauSGKey << " found in StoreGate!");
+    SG::ReadHandle<xAOD::DiTauJetContainer> importedDiTaus(m_ditauKey,ctx);
+    if (!importedDiTaus.isValid()) {
+        ATH_MSG_ERROR("No ditau collection with name " << m_ditauKey.key() << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
     unsigned int nDiTaus(importedDiTaus->size());
@@ -142,12 +128,14 @@ StatusCode DerivationFramework::DiTauTrackParticleThinning::doThinning() const
           }
         }
     }
-    
+
     // Count up the mask contents
+    unsigned int n_pass=0;
     for (unsigned int i=0; i<nTracks; ++i) {
-        if (mask[i]) ++m_npass;
+        if (mask[i]) ++n_pass;
     }
-    
+    m_npass += n_pass;
+
     // Execute the thinning service based on the mask. Finish.
     importedTrackParticles.keep (mask);
 

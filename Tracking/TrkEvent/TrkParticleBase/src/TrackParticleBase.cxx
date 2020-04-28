@@ -62,7 +62,8 @@ namespace Trk
 	  m_originalTrack.setElement(trk);
 	  m_trackInfo = trk->info();
 	}
-        if (vxCandidate!=nullptr) m_elVxCandidate.setElement(vxCandidate);
+        if (vxCandidate!=nullptr) { m_elVxCandidate.setElement(vxCandidate);
+}
     }
     
     TrackParticleBase::TrackParticleBase( const ElementLink<TrackCollection>& trackLink,
@@ -105,7 +106,8 @@ namespace Trk
 
         std::vector<const TrackParameters*>::const_iterator it    = rhs.m_trackParameters.begin();
         std::vector<const TrackParameters*>::const_iterator itEnd = rhs.m_trackParameters.end();
-        for (; it!=itEnd; ++it) m_trackParameters.push_back( (*it)->clone() );
+        for (; it!=itEnd; ++it) { m_trackParameters.push_back( (*it)->clone() );
+}
     }
 
 /**
@@ -121,7 +123,8 @@ namespace Trk
             if (m_fitQuality  !=nullptr) { delete m_fitQuality  ; m_fitQuality   = nullptr; }
             std::vector<const TrackParameters*>::const_iterator it    = m_trackParameters.begin();
             std::vector<const TrackParameters*>::const_iterator itEnd = m_trackParameters.end();
-            for (; it!=itEnd; ++it) delete (*it);
+            for (; it!=itEnd; ++it) { delete (*it);
+}
             
             m_originalTrack             =   rhs.m_originalTrack;
             m_trackParticleOrigin       =   rhs.m_trackParticleOrigin;
@@ -134,7 +137,8 @@ namespace Trk
 	    
             it    = rhs.m_trackParameters.begin();
             itEnd = rhs.m_trackParameters.end();
-            for (; it!=itEnd; ++it) m_trackParameters.push_back( (*it)->clone() );
+            for (; it!=itEnd; ++it) { m_trackParameters.push_back( (*it)->clone() );
+}
         }
         return *this;
     }
@@ -151,8 +155,9 @@ namespace Trk
           m_fitQuality = rhs.m_fitQuality;
           rhs.m_fitQuality = nullptr;
 
-          for (const TrackParameters* p : m_trackParameters)
+          for (const TrackParameters* p : m_trackParameters) {
             delete p;
+}
 
           m_trackParameters = std::move (rhs.m_trackParameters);
             
@@ -174,9 +179,12 @@ namespace Trk
         #endif
         std::vector<const TrackParameters*>::const_iterator it    = m_trackParameters.begin();
         std::vector<const TrackParameters*>::const_iterator itEnd = m_trackParameters.end();
-        for (; it!=itEnd; ++it) delete (*it);
-        if (m_trackSummary!=nullptr) delete m_trackSummary;
-        if (m_fitQuality  !=nullptr) delete m_fitQuality;
+        for (; it!=itEnd; ++it) { delete (*it);
+}
+        if (m_trackSummary!=nullptr) { delete m_trackSummary;
+}
+        if (m_fitQuality  !=nullptr) { delete m_fitQuality;
+}
     }
     
     MsgStream& TrackParticleBase::dump( MsgStream& sl ) const
@@ -190,10 +198,13 @@ namespace Trk
         {
           sl << "The ElementLink<TrackCollection> is NOT valid." << endmsg;
         }
-        if ( this->fitQuality() !=nullptr )          sl << * ( this->fitQuality() ) <<endmsg;
-        if ( this->trackSummary() !=nullptr )        sl << * ( this->trackSummary() ) <<endmsg;
+        if ( this->fitQuality() !=nullptr ) {          sl << * ( this->fitQuality() ) <<endmsg;
+}
+        if ( this->trackSummary() !=nullptr ) {        sl << * ( this->trackSummary() ) <<endmsg;
+}
         // vertex EL should alwasy be there as it is in ESD and AOD
-        if ( this->reconstructedVertex() !=nullptr ) sl << ( this->reconstructedVertex()->recVertex() ) <<endmsg;
+        if ( this->reconstructedVertex() !=nullptr ) { sl << ( this->reconstructedVertex()->recVertex() ) <<endmsg;
+}
         const std::vector<const TrackParameters*> trackParameters = this->trackParameters();
         sl << "TrackParticle has " << trackParameters.size() << " track parameters. Printing them:" << endmsg;
         for (std::vector<const TrackParameters*>::const_iterator itr = trackParameters.begin() ; itr != trackParameters.end() ; ++itr)
@@ -215,10 +226,13 @@ namespace Trk
         {
           sl << "The ElementLink<TrackCollection> is NOT valid." << std::endl;
         }
-        if ( this->fitQuality() !=nullptr )          sl << * ( this->fitQuality() ) <<std::endl;
-        if ( this->trackSummary() !=nullptr )        sl << * ( this->trackSummary() ) <<std::endl;
+        if ( this->fitQuality() !=nullptr ) {          sl << * ( this->fitQuality() ) <<std::endl;
+}
+        if ( this->trackSummary() !=nullptr ) {        sl << * ( this->trackSummary() ) <<std::endl;
+}
         // vertex EL should alwasy be there as it is in ESD and AOD
-        if ( this->reconstructedVertex() !=nullptr ) sl << ( this->reconstructedVertex()->recVertex() ) <<std::endl;
+        if ( this->reconstructedVertex() !=nullptr ) { sl << ( this->reconstructedVertex()->recVertex() ) <<std::endl;
+}
         const std::vector<const TrackParameters*> trackParameters = this->trackParameters();
         sl << "TrackParticle has " << trackParameters.size() << " track parameters. Printing them:" << std::endl;
         for (std::vector<const TrackParameters*>::const_iterator itr = trackParameters.begin() ; itr != trackParameters.end() ; ++itr)

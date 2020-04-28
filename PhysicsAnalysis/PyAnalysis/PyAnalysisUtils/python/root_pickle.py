@@ -1,12 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: root_pickle.py,v 1.5 2007-01-11 07:11:47 ssnyder Exp $
 # File: root_pickle.py
 # Created: sss, 2004.
 # Purpose: Pickle python data into a root file, preserving references
 #          to root objects.
 #
+
+from __future__ import print_function
 
 """Pickle python data into a root file, preserving references to root objects.
 
@@ -69,15 +70,12 @@ The following additional notes apply.
    mean that you need to keep the root file open.  Pass use_proxy=0
    to disable this behavior.
 """
-from __future__ import print_function
 
-from future import standard_library
-standard_library.install_aliases()
-from builtins import object
-from io import StringIO
 import pickle
 import ROOT
 import sys
+import six
+from six.moves import intern
 
 def _getdir():
     if hasattr (ROOT.TDirectory, 'CurrentDirectory'):
@@ -88,41 +86,156 @@ def _getdir():
 def _setdir (d):
     ROOT.TDirectory.cd (d)
 
+
+#
+# This stuff was originally written in terms of an stringIO stream.
+# But with py3, i couldn't find a better way of getting bytes objects
+# into and out of a TString.
+#
 # Argh!  We can't store NULs in TObjStrings.
 # But pickle protocols > 0 are binary protocols, and will get corrupted
 # if we truncate at a NUL.
 # So, when we save the pickle data, make the mappings:
 #  0x00 -> 0xff 0x01
 #  0xff -> 0xff 0xfe
-def _protect (s):
-    return s.replace ('\377', '\377\376').replace ('\000', '\377\001')
-def _restore (s):
-    return s.replace ('\377\001', '\000').replace ('\377\376', '\377')
+# ... This may actually be obsolete --- looks like we can have NULs
+# in TObjString now, if we access the TString direectly.  But retain
+# for compatibility with existing pickles.
+# 
 
 
-class IO_Wrapper(object):
-    def __init__ (self):
-        return self.reopen()
+if six.PY2:
+    from StringIO import StringIO
+    def _protect (s):
+        return s.replace ('\377', '\377\376').replace ('\000', '\377\001')
+    def _restore (s):
+        return s.replace ('\377\001', '\000').replace ('\377\376', '\377')
 
-    def write (self, s):
-        return self.__s.write (_protect (s))
 
-    def read (self, i):
-        return self.__s.read (i)
+    class Write_Wrapper:
+        def __init__ (self):
+            return self.reopen()
 
-    def readline (self):
-        return self.__s.readline ()
+        def write (self, s):
+            return self.__s.write (_protect (s))
 
-    def getvalue (self):
-        return self.__s.getvalue()
+        def getvalue (self):
+            return ROOT.TObjString (self.__s.getvalue())
 
-    def setvalue (self, s):
-        self.__s = StringIO (_restore (s))
-        return
+        def reopen (self):
+            self.__s = StringIO()
+            return
 
-    def reopen (self):
-        self.__s = StringIO()
-        return
+
+    class Read_Wrapper:
+        def __init__ (self):
+            return self.reopen()
+
+        def read (self, i):
+            return self.__s.read (i)
+
+        def readline (self):
+            return self.__s.readline ()
+
+        def setvalue (self, s):
+            self.__s = StringIO (_restore (s.GetName()))
+            return
+
+        def reopen (self):
+            self.__s = StringIO()
+            return
+
+
+else:
+    class Write_Wrapper:
+        def __init__ (self):
+            return self.reopen()
+
+        def write (self, s):
+            ss = self._str
+            log = []
+            for c in s:
+                code = c
+                if code == 0xff:
+                    ss.Append (0xff)
+                    ss.Append (0xfe)
+                    log.append (0xff)
+                    log.append (0xfe)
+                elif code == 0x00:
+                    ss.Append (0xff)
+                    ss.Append (0x01)
+                    log.append (0xff)
+                    log.append (0x01)
+                else:
+                    ss.Append (code)
+                    log.append (code)
+            return
+
+        def getvalue (self):
+            return self._s
+
+        def reopen (self):
+            self._s = ROOT.TObjString()
+            self._str = self._s.String()
+            return
+
+
+    class Read_Wrapper:
+        def __init__ (self):
+            return self.reopen()
+
+
+        def read (self, i):
+            out = []
+            slen = len(self._str)
+            while i != 0 and self._pos < slen:
+                c = ord(self._str[self._pos])
+                if c == 0xff:
+                    self._pos += 1
+                    if self._pos >= slen:
+                        break
+                    c = ord(self._str[self._pos])
+                    if c == 0x01:
+                        c = 0x00
+                    elif c == 0xfe:
+                        c = 0xff
+                out.append (c)
+                self._pos += 1
+                i -= 1
+            return bytes(out)
+
+
+        def readline (self):
+            out = []
+            slen = len(self._str)
+            while self._pos < slen:
+                c = ord(self._str[self._pos])
+                if c == 0xff:
+                    self._pos += 1
+                    if self._pos >= slen:
+                        break
+                    c = ord(self._str[self._pos])
+                    if c == 0x01:
+                        c = 0x00
+                    elif c == 0xfe:
+                        c = 0xff
+                out.append (c)
+                self._pos += 1
+                if c == 10:
+                    break
+            return bytes(out)
+
+
+        def setvalue (self, s):
+            self._s = s
+            self._str = self._s.String()
+            self._pos = 0
+            return
+
+
+        def reopen (self):
+            self.setvalue (ROOT.TObjString())
+            return
 
 
 class Pickler(object):
@@ -135,7 +248,7 @@ Root objects.
 """
         self.__file = file
         self.__keys = file.GetListOfKeys()
-        self.__io = IO_Wrapper()
+        self.__io = Write_Wrapper()
         self.__pickle = pickle.Pickler (self.__io, proto)
         self.__pickle.persistent_id = self._persistent_id
         self.__pmap = {}
@@ -144,12 +257,13 @@ Root objects.
 
     def dump (self, o, key=None):
         """Write a pickled representation of o to the open TFile."""
-        if key == None: key = '_pickle'
+        if key is None:
+            key = '_pickle'
         dir = _getdir()
         try:
             self.__file.cd()
             self.__pickle.dump (o)
-            s = ROOT.TObjString (self.__io.getvalue())
+            s = self.__io.getvalue()
             self.__io.reopen()
             s.Write (key)
             self.__file.Flush()
@@ -223,32 +337,31 @@ class Root_Proxy (object):
     __slots__ = ('__f', '__pid', '__o')
     def __init__ (self, f, pid):
         self.__f = f
-        self.__pid = sys.intern(pid)
+        self.__pid = intern(pid)
         self.__o = None
         return
     def __getattr__ (self, a):
-        if self.__o == None:
+        if self.__o is None:
             self.__o = self.__f.Get (self.__pid)
             if self.__o.__class__.__module__ != 'ROOT':
                 self.__o.__class__.__module__ = 'ROOT'
         return getattr (self.__o, a)
     def __obj (self):
-        if self.__o == None:
+        if self.__o is None:
             self.__o = self.__f.Get (self.__pid)
             if self.__o.__class__.__module__ != 'ROOT':
                 self.__o.__class__.__module__ = 'ROOT'
         return self.__o
-class Unpickler(object):
+class Unpickler (pickle.Unpickler):
     def __init__ (self, file, use_proxy = True, use_hash = False):
         """Create a root unpickler.
 FILE should be a Root TFile.
 """
         self.__use_proxy = use_proxy
         self.__file = file
-        self.__io = IO_Wrapper()
-        self.__unpickle = pickle.Unpickler (self.__io)
-        self.__unpickle.persistent_load = self._persistent_load
-        self.__unpickle.find_global = self._find_class
+        self.__io = Read_Wrapper()
+        pickle.Unpickler.__init__ (self, self.__io)
+
         self.__n = 0
         xsave.add (file)
 
@@ -278,7 +391,7 @@ FILE should be a Root TFile.
                     cy = 9999
                 ret = htab.get ((nm,cy), None)
                 if not ret:
-                    print("did't find", nm, cy, len(htab))
+                    print ("did't find", nm, cy, len(htab))
                     return oget (nm0)
                 #ctx = ROOT.TDirectory.TContext (file)
                 ret = ret.ReadObj()
@@ -290,44 +403,47 @@ FILE should be a Root TFile.
 
     def load (self, key=None):
         """Read a pickled object representation from the open file."""
-        if key == None: key = '_pickle'
+        if key is None:
+            key = '_pickle'
         o = None
-        if _compat_hooks: save = _compat_hooks[0]()
+        if _compat_hooks:
+            save = _compat_hooks[0]()
         try:
             self.__n += 1
             s = self.__file.Get (key + ';%d' % self.__n)
-            self.__io.setvalue (s.GetName())
-            o = self.__unpickle.load()
+            self.__io.setvalue (s)
+            o = pickle.Unpickler.load(self)
             self.__io.reopen ()
         finally:
-            if _compat_hooks: save = _compat_hooks[1](save)
+            if _compat_hooks:
+                save = _compat_hooks[1](save)
         return o
     
-    def _persistent_load (self, pid):
+    def persistent_load (self, pid):
         if self.__use_proxy:
             o = Root_Proxy (self.__file, pid)
         else:
             o = self.__file.Get (pid)
-        #print 'load ', pid, o
+        #print ('load ', pid, o)
         xsave.add(o)
         return o
 
 
-    def _find_class (self, module, name):
+    def find_class (self, module, name):
         try:
             try:
                 __import__(module)
                 mod = sys.modules[module]
             except ImportError:
-                print("Making dummy module %s" % (module))
-                class DummyModule(object):
+                print ("Making dummy module %s" % (module))
+                class DummyModule:
                     pass
                 mod = DummyModule()
                 sys.modules[module] = mod
             klass = getattr(mod, name)
             return klass
         except AttributeError:
-            print("Making dummy class %s.%s" % (module, name))
+            print ("Making dummy class %s.%s" % (module, name))
             mod = sys.modules[module]
             class Dummy(object):
                 pass
@@ -343,6 +459,7 @@ If this is set, then hooks[0] is called before loading,
 and hooks[1] is called after loading.  hooks[1] is called with
 the return value of hooks[0] as an argument.  This is useful
 for backwards compatibility in some situations."""
+    global _compat_hooks
     _compat_hooks = hooks
     return
 

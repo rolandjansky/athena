@@ -99,9 +99,9 @@ Trk::GsfEnergyLossEffects::compute(IMultiStateMaterialEffects::Cache& cache,
   double sigmaQoverP = sigmaDeltaE / pow(beta * p, 2);
 
   // Update diagonal and off-diagonal covariance matrix elements
-  std::unique_ptr<AmgSymMatrix(5)> deltaCov = std::make_unique<AmgSymMatrix(5)>();
-  deltaCov->setZero();
-  (*deltaCov)(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
+  AmgSymMatrix(5) deltaCov;
+  deltaCov.setZero();
+  deltaCov(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
 
   cache.weights.push_back(1.);
   cache.deltaPs.push_back(deltaE);

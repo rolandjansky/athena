@@ -23,13 +23,8 @@
 DerivationFramework::TrackMeasurementThinning::TrackMeasurementThinning( 	const std::string& t,
                                                  		const std::string& n,
                                                  		const IInterface* p ) : 
-  base_class(t,n,p),
-  m_parser(0),
-  m_selectionString(""),
-  m_ntot(0),
-  m_npass(0)
+  base_class(t,n,p)
   {
-    declareProperty("SelectionString", m_selectionString);
   }
   
 // Destructor
@@ -40,7 +35,7 @@ DerivationFramework::TrackMeasurementThinning::~TrackMeasurementThinning() {
 StatusCode DerivationFramework::TrackMeasurementThinning::initialize()
 {
     ATH_MSG_VERBOSE("initialize() ...");
-    if (m_selectionString=="") {
+    if (m_selectionString.empty()) {
         ATH_MSG_FATAL("No inner detector track selection string provided!");
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("Track thinning selection string: " << m_selectionString);}
@@ -50,11 +45,11 @@ StatusCode DerivationFramework::TrackMeasurementThinning::initialize()
     ATH_MSG_INFO("Using " << m_SGKey << "as the source collection for thinning.");
 
     // Set up the text-parsing machinery for thinning the tracks directly according to user cuts
-    if (m_selectionString!="") {
+    if (!m_selectionString.empty()) {
 	    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
 	    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
 	    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-	    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
+	    m_parser = std::make_unique<ExpressionParsing::ExpressionParser>(proxyLoaders);
 	    m_parser->loadExpression(m_selectionString);
     }
     return StatusCode::SUCCESS;
@@ -63,10 +58,7 @@ StatusCode DerivationFramework::TrackMeasurementThinning::finalize()
 {
     ATH_MSG_VERBOSE("finalize() ...");
     ATH_MSG_INFO("Processed "<< m_ntot <<" measurements, "<< m_npass<< " were retained ");
-    if (m_parser) {
-        delete m_parser;
-        m_parser = 0;
-    }
+    m_parser.reset();
     return StatusCode::SUCCESS;
 }
 
@@ -102,9 +94,11 @@ StatusCode DerivationFramework::TrackMeasurementThinning::doThinning() const
         }
     }
     // Count the mask
+    unsigned int n_pass=0;
     for (unsigned int i=0; i<nClusters; ++i) {
-        if (mask[i]) ++m_npass;
+        if (mask[i]) ++n_pass;
     }
+    m_npass += n_pass;
  
     // Execute the thinning service based on the mask. Finish.
     clusters.keep (mask);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -23,7 +23,6 @@
 #include "CxxUtils/ubsan_suppress.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaPoolCnvSvcTestDict.h"
-#include "TestThinningSvc.icc"
 #include "TestCnvSvcBase.icc"
 #include "TSystem.h"
 #include "TInterpreter.h"
@@ -234,34 +233,6 @@ void test2 (ISvcLocator* svcloc, TestCnvSvc& testsvc, DataVector<Y_v2>& vec)
 }
 
 
-// Test with thinning.
-void test3 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/, DataVector<Y_v2>& vec)
-{
-  std::cout << "test3\n";
-  size_t sz = vec.size();
-  SG::sgkey_t sgkey =
-    SGTest::store.stringToKey ("vec", ClassID_traits<DataVector<Y_v2> >::ID());
-
-  TestThinningSvc thinsvc;
-  TestThinningSvc::instance (&thinsvc, true);
-  thinsvc.remap (&vec, 5, IThinningSvc::RemovedIdx);
-  for (size_t i = 6; i < sz; i++)
-    thinsvc.remap (&vec, i, i-1);
-
-  T_AthenaPoolCnv<ViewVector<DataVector<Y_v2> > > cnv (svcloc);
-  assert (cnv.initialize().isSuccess());
-
-  ViewVector<DataVector<Y_v2> > view (SG::VIEW_ELEMENTS);
-  for (size_t i = 0; i < sz; i++)
-    view.push_back (vec[i]);
-
-  ViewVector<DataVector<Y_v2> >* pers = cnv.createPersistent (&view);
-  pers->toPersistent();
-  ViewVectorBaseTest::checkPersThinned (*pers, sgkey);
-  delete pers;
-}
-
-
 DataVector<Y_v2>& makeVecs()
 {
   auto vec = std::make_unique<DataVector<Y_v2> >();
@@ -293,6 +264,5 @@ int main()
   DataVector<Y_v2>& vec = makeVecs();
   test1 (pSvcLoc, *svc, vec);
   test2 (pSvcLoc, *svc, vec);
-  test3 (pSvcLoc, *svc, vec);
 }
 

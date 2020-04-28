@@ -54,7 +54,7 @@ class TriggerFilter( PyAthena.AthFilterAlgorithm ):
 
     def initialize(self):
         self.msg.info( '************************************' )
-        self.msg.info( '==> initialize %s...', self.name() )
+        self.msg.info( '==> initialize %s...', self.name )
         self.msg.info( 'Will apply the following cuts:' )
         self.msg.info( '  trigger            = %r', self.trigger )
         self.msg.info( '  passAll            = %r', self.passAll )
@@ -90,12 +90,12 @@ class TriggerFilter( PyAthena.AthFilterAlgorithm ):
         isPassed = False
         
         self.nProcessed+=1
-        self.msg.debug( '==> execute %s on %r. event...' % (self.name(), self.nProcessed) )
+        self.msg.debug( '==> execute %s on %r. event...' % (self.name, self.nProcessed) )
         
 
         ## If passAll is selected, accept all events
         if self.passAll :
-            self.msg.debug( '%s event passed because passAll is true' % self.name() )
+            self.msg.debug( '%s event passed because passAll is true' % self.name )
             self.setFilterPassed(True)
             return StatusCode.Success        
 
@@ -133,9 +133,9 @@ class TriggerFilter( PyAthena.AthFilterAlgorithm ):
         except ZeroDivisionError :
             self.msg.warning( 'Division by zero error when calculating the uncertainties on the pass efficiencies...' )
         
-        self.msg.info( '==> finalize %s...' % self.name() )
+        self.msg.info( '==> finalize %s...' % self.name )
         self.msg.info( '***************************************************************' )
-        self.msg.info( 'Cut-flow table of %s skimming algorithm:' % self.name() )
+        self.msg.info( 'Cut-flow table of %s skimming algorithm:' % self.name )
         self.msg.info( '-------------' )
         self.msg.info( ' Number of processed events: %r' % self.nProcessed )
         self.msg.info( ' Events passing trigger %s:   %r and resulting efficiency = (%3.3f +/- %3.3f)%%' \

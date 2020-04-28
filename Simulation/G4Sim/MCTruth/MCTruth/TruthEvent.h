@@ -5,7 +5,7 @@
 #ifndef TruthEvent_H
 #define TruthEvent_H
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
 typedef HepMC::GenEvent TruthEvent;

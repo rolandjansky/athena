@@ -202,9 +202,6 @@ if not doReadBS:
 
 from AthenaCommon.AppMgr import ToolSvc
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalibDBSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalibDBSvc
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
 InDetCalDbTool=TRT_CalDbTool(name = "TRT_CalDbTool")
@@ -358,6 +355,7 @@ if (InDetFlags.doPrintConfigurables()):
 
 from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTCalibrationMgr
 CosmicsTRTCalibMgr = TRTCalibrationMgr(name                = 'CosmicsTRTCalibMgr',
+                                       StreamTool          = TRTCondStream,
                                        TrackSelectorTool   = TRTTrackSelectorTool,
                                        TrkCollections      = [ 'CombinedInDetTracks' ],
                                        AlignTrkTools       = [ FillAlignTrkInfo, FillAlignTRTHits ],

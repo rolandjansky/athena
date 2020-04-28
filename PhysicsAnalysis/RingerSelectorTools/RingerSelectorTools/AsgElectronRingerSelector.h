@@ -30,9 +30,6 @@
 #include "RingerSelectorTools/procedures/RingerProcedureWrapper.h"
 #include "RingerSelectorTools/tools/TrackPatternsHolder.h"
 #include "RingerSelectorTools/tools/RingerCommonSelector.h"
-#include "RingerSelectorTools/tools/cxx/mutable.h"
-#include "RingerSelectorTools/tools/cxx/final.h"
-#include "RingerSelectorTools/tools/cxx/override.h"
 
 namespace Ringer {
 
@@ -255,7 +252,7 @@ class AsgElectronRingerSelector : public asg::AsgMetadataTool,
     RingerCommonSelector *m_ringSelCommon;
 
     /// @brief Hold the track patterns:
-    ATH_RINGER_MUTABLE TrackPatternsHolder *m_trackPat;
+    mutable TrackPatternsHolder *m_trackPat;
 
     /// @brief The particles CaloRings decorations reader
     xAOD::caloRingsReader_t* m_ringsELReader;

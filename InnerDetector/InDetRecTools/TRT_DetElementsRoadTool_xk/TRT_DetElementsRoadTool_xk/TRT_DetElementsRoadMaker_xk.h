@@ -38,11 +38,16 @@
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsLayer_xk.h"
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsRoadData_xk.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MagField cache
+#include "MagFieldElements/AtlasFieldCache.h"
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include <atomic>
+#include <mutex>
 #include <list>
 #include <vector>
 #include <iosfwd>
-#include <mutex>
 
 class MsgStream;
 
@@ -86,11 +91,15 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       
       virtual void detElementsRoad
-	(const Trk::TrackParameters&,Trk::PropDirection, 
+	(const EventContext& ctx,
+         MagField::AtlasFieldCache& fieldCache,
+         const Trk::TrackParameters&,Trk::PropDirection,
 	 std::vector<const InDetDD::TRT_BaseElement*>&) const;
 
       virtual void detElementsRoad
-	(const Trk::TrackParameters&,Trk::PropDirection, 
+	(const EventContext& ctx,
+         MagField::AtlasFieldCache& fieldCache,
+         const Trk::TrackParameters&,Trk::PropDirection,
 	 std::vector<std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> >&) const;
 
       ///////////////////////////////////////////////////////////////////
@@ -100,11 +109,8 @@ namespace InDet {
       MsgStream&    dump(MsgStream&    out) const;
       std::ostream& dump(std::ostream& out) const;
 
-    private:
-      
-      ///////////////////////////////////////////////////////////////////
-      // Protected Data
-      ///////////////////////////////////////////////////////////////////
+
+    private :
 
       SG::ReadCondHandleKey<TRT_DetElementsRoadData_xk> m_roadDataKey{this, "RoadDataKey",                       
         "TRT_DetElementsRoadData_xk", "Key of TRT_DetElementsRoadData_xk"}; 
@@ -131,7 +137,7 @@ namespace InDet {
       double stepToDetElement
 	(const InDetDD::TRT_BaseElement*&,Amg::Vector3D&,Amg::Vector3D&) const;
 
-      Trk::CylinderBounds getBound(const Trk::TrackParameters&) const;
+      Trk::CylinderBounds getBound(MagField::AtlasFieldCache& fieldCache, const Trk::TrackParameters&) const;
 
       MsgStream&    dumpConditions(MsgStream   & out) const;
 

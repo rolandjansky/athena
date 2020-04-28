@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //c - c++
@@ -223,15 +223,13 @@ inline void NtupleSplitterTool::fillTrackNtuple(const MuonCalibEvent_E &extra_ev
   for(MuonCalibEvent_E::TrackVec::const_iterator t_it = extra_event.beginTrack(); t_it!=extra_event.endTrack(); t_it++)	{
     const MuonCalibTrack_E *track(*t_it);
     if(!m_all_fill_tracks &&  m_track_authors_set.find(track->author()) == m_track_authors_set.end()) {
-      //			std::cout<<"."<<std::endl;
       continue;
     }
     if (m_track_p_cut>-1) {
-      //			std::cout<<".."<<std::endl;
       if(track->qOverP()==0 || track->p()>1e8) {
 	continue;
       }
-      if(m_track_p_cut>=0 && std::fabs(track->p())<m_track_p_cut) {
+      if(m_track_p_cut>=0 && std::abs(track->p())<m_track_p_cut) {
 	continue;
       }
     }
@@ -247,7 +245,6 @@ inline void NtupleSplitterTool::fillTrackNtuple(const MuonCalibEvent_E &extra_ev
       for(std::map<NtupleStationId, MuonCalibHit_EBranch *>::const_iterator map_it=m_track_hit_branch.begin(); map_it!=m_track_hit_branch.end(); map_it++) {
 	if(station_ids.find(map_it->first) != station_ids.end())
 	  continue;
-//				std::cout<<map_it->first.regionId()<<std::endl;
 	if(map_it->first == id) {
 	  station_ids.insert(map_it->first);
 	  hit_branches.push_back(map_it->second);
@@ -258,9 +255,7 @@ inline void NtupleSplitterTool::fillTrackNtuple(const MuonCalibEvent_E &extra_ev
     }
     std::list<MuonCalibHit_EBranch *>::iterator hb_it=hit_branches.begin();
     std::list<MuonCalibTrack_EBranch *>::iterator tb_it=track_branches.begin();
-//		std::cout<<":"<<std::endl;
     while (hb_it!=hit_branches.end() && tb_it!=track_branches.end()) {
-      //			std::cout<<"."<<std::endl;
       if(!(*tb_it)->fillBranch(*track))	{
 	ATH_MSG_WARNING("Overfull track branch!");
 	hb_it++;

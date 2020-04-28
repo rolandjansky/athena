@@ -42,37 +42,31 @@ StatusCode PixelDCSCondTempAlg::execute(const EventContext& ctx) const {
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelDCSTempData> writeCdo(std::make_unique<PixelDCSTempData>());
 
-  const EventIDBase start{EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT,                     0,                       
-                                              0, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
-  const EventIDBase stop {EventIDBase::UNDEFNUM,   EventIDBase::UNDEFEVT, EventIDBase::UNDEFNUM-1, 
-                          EventIDBase::UNDEFNUM-1, EventIDBase::UNDEFNUM, EventIDBase::UNDEFNUM};
+  SG::ReadCondHandle<PixelModuleData> modDataHdl(m_moduleDataKey,ctx);
+  const PixelModuleData* modData=(*modDataHdl);
+  writeHandle.addDependency(modDataHdl);
+  ATH_MSG_INFO("Range of input PixelModule data is " << modDataHdl.getRange()); 
 
-  EventIDRange rangeW{start, stop};
-
-  if (SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getUseDCSTemperatureConditions()) {
+  if (modData->getUseDCSTemperatureConditions()) {
     SG::ReadCondHandle<CondAttrListCollection> readHandle(m_readKey, ctx);
     const CondAttrListCollection* readCdo(*readHandle); 
     if (readCdo==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
     }
-    // Get the validitiy range
-    if (not readHandle.range(rangeW)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-      return StatusCode::FAILURE;
-    }
+    writeHandle.addDependency(readHandle);
     ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    ATH_MSG_INFO("Range of input is " << readHandle.getRange());
 
     // Read temperature info
-    std::string param{"temperature"};
+    const std::string param{"temperature"};
     for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
       CondAttrListCollection::ChanNum channelNumber{attrList->first};
       const CondAttrListCollection::AttributeList& payload{attrList->second};
       if (payload.exists(param) and not payload[param].isNull()) {
         float val = payload[param].data<float>();
         if (val>100.0 || val<-80.0) {
-          writeCdo->setTemperature((int)channelNumber, SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getDefaultTemperature());
+          writeCdo->setTemperature((int)channelNumber, modData->getDefaultTemperature());
         }
         else {
           writeCdo->setTemperature((int)channelNumber, val);
@@ -80,21 +74,23 @@ StatusCode PixelDCSCondTempAlg::execute(const EventContext& ctx) const {
       } 
       else {
         ATH_MSG_WARNING(param << " does not exist for ChanNum " << channelNumber);
-        writeCdo->setTemperature((int)channelNumber, SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getDefaultTemperature());
+        writeCdo->setTemperature((int)channelNumber, modData->getDefaultTemperature());
       }
     }
   }
   else {
     for (int i=0; i<(int)m_pixelID->wafer_hash_max(); i++) {
-      writeCdo->setTemperature(i, SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey,ctx)->getDefaultTemperature());
+      writeCdo->setTemperature(i, modData->getDefaultTemperature());
     }
   }
 
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record PixelDCSTempData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
+    ATH_MSG_FATAL("Could not record PixelDCSTempData " << writeHandle.key() << " with EventRange " 
+		  << writeHandle.getRange() << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " 
+	       << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

@@ -1,32 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibT0/VariableBinwidthHistogram.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
-// ROOT
+#include <TString.h> // for Form
 #include "TH1.h"
 #include "TGraph.h"
 #include <cmath>
 
-using namespace std;
-
 namespace MuonCalib{
-
 
 //////////////////////////////////////////////////////////////////////////
 // Initialize(const &TH1 hist, double binc_rate, double max_bin_width)	//
 //////////////////////////////////////////////////////////////////////////
 
-bool VariableBinwidthHistogram :: Initialize(TH1F * hist, double binc_rate, double max_bin_width, double min_x, double max_x)
-	{
-	if(binc_rate<1.0)
-		{
-		cerr<<"ERROR in VariableBinwidthHistogram :: Initialize!"<<endl;
-		cerr<<"binc_rate must be greater than 1!"<<endl;
-		m_error=true;
-		return false;
-		}
+bool VariableBinwidthHistogram::Initialize(TH1F* hist, double binc_rate, double max_bin_width, double min_x, double max_x) {
+	if(binc_rate<1.0) throw std::runtime_error(Form("File: %s, Line: %d\nVariableBinwidthHistogram::Initialize - binc_rate must be greater than 1!", __FILE__, __LINE__));
+
 //get maximum, firest bin and last bin
 	double max;
 	int first_bin(hist->FindBin(min_x)), last_bin(hist->FindBin(max_x));
@@ -91,24 +84,22 @@ bool VariableBinwidthHistogram :: Initialize(TH1F * hist, double binc_rate, doub
 // Smooth(double width)	//
 //////////////////////////
 
-bool  VariableBinwidthHistogram :: Smooth(double width)
+bool VariableBinwidthHistogram::Smooth(double width)
 	{
 //needs at last 3 bins to smooth
-	if(m_bins.size()<3) 
-		{
-		cerr<<"VariableBinwidthHistogram :: Smooth: VBH has less than 3 bins!"<<endl;
+	if(m_bins.size()<3) {
+		MsgStream log(Athena::getMessageSvc(), "VariableBinwidthHistogram");
+		log<<MSG::WARNING<< "Smooth() - VBH has less than 3 bins"<<endmsg;
 		return false;
-		}
+	}
 	for(unsigned int i=0; i<m_bins.size()-3; i++)
 		{
 		Double_t sl1=m_bins[i+1]->Width()-m_bins[i]->Width();
 		Double_t sl2=m_bins[i+2]->Width()-m_bins[i+1]->Width();
-	//one slopes must be smaller or equal to bw
-//		if(fabs(sl1)>width && fabs(sl2)>width) continue;
 	//slopes must be oposit sign
 		if(sign(sl1)==sign(sl2)) continue;
 	//prevents numerical effects
-		if(fabs(sl1)<width/2 || fabs(sl2)<width/2) continue;
+		if(std::abs(sl1)<width/2 || std::abs(sl2)<width/2) continue;
 	//move bin boarder
 		m_bins[i]->MoveRight(m_bins[i]->Right()-width/2*sign(sl2));
 		m_bins[i+1]->MoveLeft(m_bins[i]->Right()-width/2*sign(sl2));
@@ -121,7 +112,7 @@ bool  VariableBinwidthHistogram :: Smooth(double width)
 // DenistyGraph()	//
 //////////////////////////
 
-TGraph *VariableBinwidthHistogram :: DenistyGraph() const
+TGraph* VariableBinwidthHistogram::DenistyGraph() const
 	{
 	Double_t *x = new Double_t[m_bins.size()],
 	         *y = new Double_t[m_bins.size()];
@@ -131,10 +122,6 @@ TGraph *VariableBinwidthHistogram :: DenistyGraph() const
 		y[i]=m_bins[i]->Density();
 		}	 
 	TGraph *gr=new TGraph(m_bins.size(), x, y); 
-//	cout<<"delete"<<endl;
-//	delete [] x;
-//	delete [] y;
-//	cout<<"return"<<endl;
 	return gr;
 	}
 
@@ -143,7 +130,7 @@ TGraph *VariableBinwidthHistogram :: DenistyGraph() const
 // BinWidthGraph() const	//
 //////////////////////////////////
 
-TGraph *VariableBinwidthHistogram :: BinWidthGraph() const
+TGraph* VariableBinwidthHistogram::BinWidthGraph() const
 	{
 	Double_t *x = new Double_t[m_bins.size()],
 	         *y = new Double_t[m_bins.size()];
@@ -153,8 +140,6 @@ TGraph *VariableBinwidthHistogram :: BinWidthGraph() const
 		y[i]=m_bins[i]->Width();
 		}	 
 	TGraph *gr=new TGraph(m_bins.size(), x, y); 
-//	delete [] x;
-//	delete [] y;
 	return gr;
 	}
 
@@ -163,7 +148,7 @@ TGraph *VariableBinwidthHistogram :: BinWidthGraph() const
 // BinContentGraph() const	//
 //////////////////////////////////
 
-TGraph *VariableBinwidthHistogram :: BinContentGraph() const
+TGraph* VariableBinwidthHistogram::BinContentGraph() const
 	{
 	Double_t *x = new Double_t[m_bins.size()],
 	         *y = new Double_t[m_bins.size()];
@@ -173,19 +158,17 @@ TGraph *VariableBinwidthHistogram :: BinContentGraph() const
 		y[i]=m_bins[i]->Entries();
 		}	 
 	TGraph *gr=new TGraph(m_bins.size(), x, y); 
-//	delete [] x;
-//	delete [] y;
 	return gr;
 	}
 
 
-TGraph *VariableBinwidthHistogram :: DiffDensityGraph() const
+TGraph* VariableBinwidthHistogram::DiffDensityGraph() const
 	{
-	if(m_bins.size()<2)
-		{
-		cerr<<"VariableBinwidthHistogram :: DiffDensity(): Need at alst 2 bins for differential density!"<<endl;
+	if(m_bins.size()<2) {
+		MsgStream log(Athena::getMessageSvc(), "VariableBinwidthHistogram");
+		log<<MSG::WARNING<< "DiffDensityGraph() - Need at alst 2 bins for differential density!"<<endmsg;
 		return new TGraph();
-		}
+	}
 	Double_t *x = new Double_t[m_bins.size()-1],
 	         *y = new Double_t[m_bins.size()-1];
 	for(unsigned int i=0; i<m_bins.size()-1; i++)
@@ -199,13 +182,13 @@ TGraph *VariableBinwidthHistogram :: DiffDensityGraph() const
 
 
 
-TGraph *VariableBinwidthHistogram :: DiffBinwidthGraph() const	
+TGraph* VariableBinwidthHistogram::DiffBinwidthGraph() const	
 	{
-	if(m_bins.size()<2)
-		{
-		cerr<<"VariableBinwidthHistogram :: DiffBinwidth(): Need at alst 2 bins for differential density!"<<endl;
+	if(m_bins.size()<2) {
+		MsgStream log(Athena::getMessageSvc(), "VariableBinwidthHistogram");
+		log<<MSG::WARNING<< "DiffBinwidthGraph() - Need at alst 2 bins for differential density!"<<endmsg;
 		return new TGraph();
-		}
+	}
 	Double_t *x = new Double_t[m_bins.size()-1],
 	         *y = new Double_t[m_bins.size()-1];
 	for(unsigned int i=0; i<m_bins.size()-1; i++)

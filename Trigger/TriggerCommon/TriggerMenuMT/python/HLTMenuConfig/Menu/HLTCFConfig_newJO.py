@@ -2,12 +2,13 @@
 
 from collections import defaultdict
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import buildFilter, makeSummary
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeSummary
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import stepCF_DataFlow_to_dot, \
     stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence, createStepView
-from AthenaCommon.CFElements import parOR, seqAND
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence, createStepView, SequenceFilterNode
+from AthenaCommon.CFElements import parOR, seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
@@ -77,12 +78,20 @@ def generateDecisionTree(chains):
 
             # One aggregated filter per chain (one per column in matrix)
             filterName = CFNaming.filterName(chainStep.name)
-            sfilter = buildFilter(filterName, filter_input)
-            filterAcc.addEventAlgo(sfilter.Alg, sequenceName = stepFilterNodeName)
+            #filter = buildFilter(filterName, filter_input)
+
+            # append input to filter if it exists
+            filterAlg = findAlgorithm( filterAcc.getSequence(), filterName )
+            if filterAlg:
+                filterAlg.Input += filter_input
+            else:
+                filterAlg = CompFactory.RoRSeqFilter(filterName, Input=filter_input )
+                filterAcc.addEventAlgo(filterAlg, sequenceName = stepFilterNodeName)
 
             stepReco, stepView = createStepView(chainStep.name)
-            viewWithFilter = seqAND(chainStep.name, [sfilter.Alg, stepView])
+            viewWithFilter = seqAND(chainStep.name, [filterAlg, stepView])
 
+            sfilter = SequenceFilterNode(filterAlg, 'Input', 'Output')
             recoAcc.addSequence(viewWithFilter, parentName = stepRecoNodeName)
 
             stepsAcc = ComponentAccumulator()
@@ -106,7 +115,7 @@ def generateDecisionTree(chains):
                 if step.isCombo:
                     if step.combo is not None:
                         stepsAcc.addEventAlgo(step.combo.Alg, sequenceName = stepView.getName())
-                sfilter.setChains(chain.name)
+                sfilter.addChain(chain.name)
 
             recoAcc.merge(stepsAcc, sequenceName = viewWithFilter.getName())
             chainCounter+=1

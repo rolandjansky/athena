@@ -6,6 +6,7 @@
 
 from __future__ import print_function
 
+from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -14,7 +15,7 @@ def CaloThinCellsByClusterAlgCfg (flags, streamName, clusters,
                                   cells = 'AllCalo'):
     result = ComponentAccumulator()
     
-    from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
+    CaloThinCellsByClusterAlg=CompFactory.CaloThinCellsByClusterAlg
     alg = CaloThinCellsByClusterAlg ('CaloThinCellsByClusterAlg_' + clusters,
                                      StreamName = streamName,
                                      Clusters = clusters,

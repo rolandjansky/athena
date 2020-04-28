@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 from __future__ import print_function
 
 from ConfigUtils import serviceFactory,toolFactory
@@ -48,28 +47,43 @@ def getInDetPhysValMonitoringTool(**kwargs) :
       if 'TruthSelectionTool' not in kwargs :
          kwargs=setDefaults(kwargs, TruthSelectionTool = getInDetRttTruthSelectionTool() )
       if InDetPhysValFlags.doValidateTracksInJets() :
-         jets_name='AntiKt4TruthJets'
+         jets_name='AntiKt4LCTopoJets'
          kwargs=setDefaults(kwargs,
-                            jetContainerName    = jets_name,
+                            JetContainerName    = jets_name,
                             FillTrackInJetPlots = True)
          from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising
          addTruthJetsIfNotExising(jets_name)
       else :
          kwargs=setDefaults(kwargs,
-                            jetContainerName    ='' ,
+                            JetContainerName    ='' ,
                             FillTrackInJetPlots = False)
+      
+      #adding the VeretxTruthMatchingTool
+      from InDetTruthVertexValidation.InDetTruthVertexValidationConf import InDetVertexTruthMatchTool
+      kwargs=setDefaults(kwargs, 
+                        useVertexTruthMatchTool = True,
+         		VertexTruthMatchTool = toolFactory(InDetVertexTruthMatchTool) )
 
    else :
       # disable truth monitoring for data
       kwargs=setDefaults(kwargs,
                          TruthParticleContainerName = '',
                          TruthVertexContainerName   = '',
-                         TruthEventKey              = '',
-                         TruthPileupEventKey        = '',
+                         TruthEvents                = '',
+                         TruthPileupEvents          = '',
                          TruthSelectionTool         = '',
                          # the jet container is actually meant to be a truth jet container
-                         jetContainerName           ='',
+                         JetContainerName           ='',
                          FillTrackInJetPlots        = False)
+
+   # Control the number of output histograms
+   if InDetPhysValFlags.doPhysValOutput() :
+      kwargs=setDefaults(kwargs,
+                         SkillLevel = 100)
+
+   elif InDetPhysValFlags.doExpertOutput() :
+      kwargs=setDefaults(kwargs,
+                         SkillLevel = 200)
 
    # hack to remove example physval monitor
    from RecExConfig.AutoConfiguration import IsInInputFile

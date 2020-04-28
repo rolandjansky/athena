@@ -13,8 +13,8 @@ def l2CaloRecoCfg( flags ):
     return reco
 
 def l2CaloHypoCfg( flags, name="UNSPECIFIED", CaloClusters="UNSPECIFIED" ):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-    l2CaloHypo                     = TrigL2CaloHypoAlgMT( name )
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    l2CaloHypo                     = CompFactory.TrigL2CaloHypoAlgMT( name )
     l2CaloHypo.CaloClusters        = CaloClusters
     return l2CaloHypo
 

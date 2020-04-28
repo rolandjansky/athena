@@ -26,7 +26,7 @@ atlas_add_component( IOVDbTestAlg
                      src/IOVDbTestCoolDCS.cxx
                      src/IOVDbTestAlg_entries.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} IOVDbTestConditions AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities EventInfo )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} IOVDbTestConditions AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel AthenaPoolUtilities EventInfo RegistrationServicesLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

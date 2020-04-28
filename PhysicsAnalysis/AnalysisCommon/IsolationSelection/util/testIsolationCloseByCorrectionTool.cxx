@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef CPANALYSISEXAMPLES_ERRORCHECK_H
@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
     }
 
     Info(APP_NAME, "Opening file: %s", fileName.Data());
-    std::auto_ptr<TFile> ifile(TFile::Open(fileName, "READ"));
+    std::unique_ptr<TFile> ifile(TFile::Open(fileName, "READ"));
     ifile.get();
     // Create a TEvent object:
     xAOD::TEvent event(xAOD::TEvent::kClassAccess);

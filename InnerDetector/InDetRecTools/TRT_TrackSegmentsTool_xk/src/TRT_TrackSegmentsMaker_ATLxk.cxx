@@ -145,7 +145,7 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::finalize()
 ///////////////////////////////////////////////////////////////////
 
 std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
-InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent() const
+InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent(const EventContext &ctx) const
 {
 
   const float pi2 = 2.*M_PI;
@@ -154,7 +154,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent() const
 
   // Get drift circles collection
   //
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname, ctx);
   if(not trtcontainer.isValid()) {
     std::stringstream msg;
     msg << name() << " Missing TRT_DriftCircleContainer " << m_trtname.key();
@@ -164,7 +164,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent() const
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -177,7 +177,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent() const
 
   // Initiate extension tool
   //
-  event_data->m_extEventData = m_extensionTool->newEvent();
+  event_data->m_extEventData = m_extensionTool->newEvent(ctx);
 
   InDet::TRT_DriftCircleContainer::const_iterator
     w = trtcontainer->begin(),we = trtcontainer->end();
@@ -234,7 +234,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent() const
 
 std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData>
 InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
-(const std::vector<IdentifierHash>& vTRT) const
+(const EventContext& ctx, const std::vector<IdentifierHash>& vTRT) const
 {
   const float pi2 = 2.*M_PI;
 
@@ -242,7 +242,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
 
   // Get drift cilrcles collection
   //
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> trtcontainer(m_trtname, ctx);
   if(not trtcontainer.isValid() && msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
   }
@@ -250,7 +250,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -263,7 +263,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   if(trtcontainer.isValid()) {
   // Initiate extension tool
   //
-  event_data->m_extEventData = m_extensionTool->newEvent();
+  event_data->m_extEventData = m_extensionTool->newEvent(ctx);
 
   InDet::TRT_DriftCircleContainer::const_iterator we = trtcontainer->end();
 
@@ -333,7 +333,8 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::endEvent (InDet::ITRT_TrackSegmentsMak
 ///////////////////////////////////////////////////////////////////
 // Methods for seeds production without vertex constraint
 ///////////////////////////////////////////////////////////////////
-void InDet::TRT_TrackSegmentsMaker_ATLxk::find(InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
+void InDet::TRT_TrackSegmentsMaker_ATLxk::find(const EventContext &ctx,
+                                               InDet::ITRT_TrackSegmentsMaker::IEventData &virt_event_data) const
 {
    TRT_TrackSegmentsMaker_ATLxk::EventData &
       event_data = TRT_TrackSegmentsMaker_ATLxk::EventData::getPrivateEventData(virt_event_data);
@@ -390,7 +391,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::find(InDet::ITRT_TrackSegmentsMaker::I
   SG::ReadHandle<Trk::PRDtoTrackMap>  prd_to_track_map;
   const Trk::PRDtoTrackMap  *prd_to_track_map_cptr = nullptr;
   if (!m_prdToTrackMap.key().empty()) {
-    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap);
+    prd_to_track_map=SG::ReadHandle<Trk::PRDtoTrackMap>(m_prdToTrackMap, ctx);
     if (!prd_to_track_map.isValid()) {
       ATH_MSG_ERROR("Failed to read PRD to track association map: " << m_prdToTrackMap.key());
     }
@@ -402,7 +403,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::find(InDet::ITRT_TrackSegmentsMaker::I
   while(event_data.m_sizebin_iterator!=event_data.m_sizebin.rend()) {
 
     unsigned int bin =(*event_data.m_sizebin_iterator++).second;
-    findLocaly(bin,prd_to_track_map_cptr, event_data);
+    findLocaly(ctx, bin,prd_to_track_map_cptr, event_data);
   }
 
   // Final segments preparation
@@ -629,7 +630,8 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::analyseHistogramm
 // TRT seeds production
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin,
+void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(const EventContext &ctx,
+                                                     unsigned int bin,
                                                      const Trk::PRDtoTrackMap *prd_to_track_map,
                                                      TRT_TrackSegmentsMaker_ATLxk::EventData &event_data) const
 {
@@ -696,7 +698,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::findLocaly(unsigned int bin,
   const Trk::TrackParameters* Tp = PS.createTrackParameters(0.,0.,fm,atan2(1.,condData.m_dzdr[ndzdr]),pin,0);
     ++event_data.m_nlocal;
 
-  Trk::TrackSegment* seg = m_extensionTool->findSegment(*Tp, *(event_data.m_extEventData) );
+  Trk::TrackSegment* seg = m_extensionTool->findSegment(ctx, *Tp, *(event_data.m_extEventData) );
   delete Tp;
   if(!seg) return;
 

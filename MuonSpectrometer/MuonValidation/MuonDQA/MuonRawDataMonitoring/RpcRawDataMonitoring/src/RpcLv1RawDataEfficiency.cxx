@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -10,8 +10,6 @@
 // Subject: RPCLV1--> Efficiency Offline Muon Data Quality
 // RPCLv1 Sector Hits vs LB
 /////////////////////////////////////////////////////////////////////////
-      
-#include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/DataHandle.h"
  
@@ -29,23 +27,12 @@
 
 #include <sstream>
 
-using namespace std;
-
-
-
 //================================================================================================================================
 RpcLv1RawDataEfficiency::RpcLv1RawDataEfficiency( const std::string & type, 
 						  const std::string & name, 
-						  const IInterface* parent )
-  :ManagedMonitorToolBase( type, name, parent )
+						  const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent )
 {
-  declareProperty("isMC"                        , m_isMC                       = false  );
-}
-
-//================================================================================================================================
-RpcLv1RawDataEfficiency::~RpcLv1RawDataEfficiency()
-{
-  ATH_MSG_INFO( " Deleting RpcLv1RawDataEfficiency "  );
+  declareProperty("isMC", m_isMC=false);
 }
 
 //================================================================================================================================
@@ -251,26 +238,5 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
 	  }
       }
   }
-  return StatusCode::SUCCESS;
-}
-
-//================================================================================================================================
-// Proc histograms
-//================================================================================================================================
-StatusCode RpcLv1RawDataEfficiency::procHistograms()
-{
-  ATH_MSG_INFO( "RpcLv1RawDataEfficiency finalize()"  );
-
-  return StatusCode::SUCCESS;
-}
-
-
-
-//================================================================================================================================
-// Finalizing
-//================================================================================================================================
-StatusCode RpcLv1RawDataEfficiency::finalize() 
-{
-  ATH_MSG_INFO( "RpcLv1RawDataEfficiency finalize()"  );
   return StatusCode::SUCCESS;
 }

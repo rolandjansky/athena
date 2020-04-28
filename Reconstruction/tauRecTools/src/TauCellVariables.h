@@ -29,18 +29,12 @@ public:
     virtual StatusCode finalize() override;
     virtual StatusCode execute(xAOD::TauJet& pTau) override;
 
-
-
 private:
-    double m_cellEthr;  //!< EM cell E threshold
-    double m_stripEthr; //!< cell E threshold for strips
-    double m_cellCone;  //!< outer cone for cells used in calculations
-
-    /** 
-     * enable cell origin correction 
-     * eta and phi of the cells are corrected wrt to the origin of the tau vertex
-     */
-    bool m_doVertexCorrection;
+    
+    Gaudi::Property<double> m_cellEthr {this, "CellEthreshold", 0.2 * Gaudi::Units::GeV, "energy threshould of EM cell"};
+    Gaudi::Property<double> m_stripEthr {this, "StripEthreshold", 0.2 * Gaudi::Units::GeV, "energy threshould for strip cell"};
+    Gaudi::Property<double> m_cellCone {this, "CellCone", 0.2, "outer cone for cells used in calculation"};
+    Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of vertex correction"};
 };
 
 #endif	/* TAUREC_TAUCELLVARIABLES_H */

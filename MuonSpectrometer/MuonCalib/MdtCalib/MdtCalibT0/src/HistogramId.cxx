@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //c - c++
@@ -84,7 +84,7 @@ void HistogramId :: Initialize(const MuonFixedId &id, int sort_by)
 			os << id.stationNumberToFixedStationString(id.stationName()) <<"_eta";
 			if(id.eta()<0) os<<"C";
 			else os<<"A";
-			os<<abs(id.eta())<<"_phi"<<id.phi();
+			os<<std::abs(id.eta())<<"_phi"<<id.phi();
 		//multilayer name
 			if(sort_by != CHAMBER)
 				os<<"_ml"<<id.mdtMultilayer();

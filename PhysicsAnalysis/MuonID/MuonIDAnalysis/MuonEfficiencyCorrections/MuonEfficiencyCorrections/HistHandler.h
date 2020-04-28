@@ -226,7 +226,7 @@ namespace CP {
     class AbsEtaAxisHandler: public AxisHandler {
         public:
             CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value) const override {
-                value = fabs(mu.eta());
+                value = std::abs(mu.eta());
                 return CorrectionCode::Ok;
             }
             virtual ~AbsEtaAxisHandler() = default;

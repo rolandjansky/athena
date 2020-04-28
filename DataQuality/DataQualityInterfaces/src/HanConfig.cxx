@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -629,7 +629,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 //         absAlgRefName += algRefName;
 //         std::string algRefFile( m_refConfig.GetStringAttribute(refID,"file") );
 //         if( algRefFile != "" ) {
-//           std::auto_ptr<TFile> infile( TFile::Open(algRefFile.c_str()) );
+//           std::unique_ptr<TFile> infile( TFile::Open(algRefFile.c_str()) );
 //           TKey* key = getObjKey( infile.get(), absAlgRefName );
 //           if( key == 0 ) {
 //             std::cerr << "HanConfig::AssessmentVisitorBase::GetAlgorithmConfiguration: "
@@ -876,7 +876,6 @@ Visit( const MiniConfigTreeNode* node ) const
       std::string absObjPath("");
       
       refFile = SplitReference( m_refConfig.GetStringAttribute(refID,"location"), refFile);
-      //std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
       std::shared_ptr<TFile> infile( GetROOTFile(refFile) );
       TDirectory* basedir(0);
       TDirectory* dir(0);

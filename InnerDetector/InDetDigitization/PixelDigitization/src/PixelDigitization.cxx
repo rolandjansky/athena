@@ -22,5 +22,5 @@ StatusCode PixelDigitization::initialize() {
 // Execute method:
 StatusCode PixelDigitization::execute() {
   ATH_MSG_DEBUG ( "execute()" );
-  return m_pixelDigitizationTool->processAllSubEvents();
+  return m_pixelDigitizationTool->processAllSubEvents(Gaudi::Hive::currentContext());
 }

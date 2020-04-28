@@ -20,7 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Calorimeter/CaloConditions
                           Calorimeter/CaloGeoHelpers
-                          Control/StoreGate )
+                          Control/StoreGate 
+			  Control/CxxUtils)
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -33,8 +34,8 @@ atlas_add_library( CaloDetDescrLib
                    PUBLIC_HEADERS CaloDetDescr
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel AthContainers GeoPrimitives Identifier GaudiKernel LArReadoutGeometry StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloConditions CaloGeoHelpers )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel AthContainers GeoPrimitives Identifier GaudiKernel LArReadoutGeometry StoreGateLib SGtests GeoModelInterfaces
+		   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloConditions CaloGeoHelpers CxxUtils)
 
 atlas_add_component( CaloDetDescr
                      src/components/*.cxx

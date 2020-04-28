@@ -165,10 +165,8 @@ StatusCode Muon::NSWCalibSmearingTool::getGainFraction(Identifier id, float& gai
 //
 // get id fields for both STGC and MM
 //
-bool NSWCalibSmearingTool::getIdFields(const Identifier id, int& etaSector, int& phiSector,
-				       int& gasGap)
+bool NSWCalibSmearingTool::getIdFields(const Identifier id, int& etaSector, int& phiSector, int& gasGap)
 {
-
   if ( m_idHelperSvc->isMM(id) ) {
     int multilayer = m_idHelperSvc->mmIdHelper().multilayer(id);
     gasGap = (multilayer-1)*4+m_idHelperSvc->mmIdHelper().gasGap(id);

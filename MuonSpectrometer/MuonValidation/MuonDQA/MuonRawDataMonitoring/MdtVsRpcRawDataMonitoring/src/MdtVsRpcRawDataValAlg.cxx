@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////
@@ -32,8 +32,6 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 #include <sstream>
-
-using namespace std;
 
 static const int maxPRD  =   50000;
 
@@ -194,12 +192,6 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
     
     int N_RpcHitdblPhi1 = 0;
     int N_RpcHitdblPhi2 = 0;
-    
-    // to fix IConversionSvc ptr not set DataProxyÂ : appearing in every event
-
-    //  for (std::vector<Identifier>::const_iterator id_it = m_rpcchambersId->begin();
-    //       id_it != m_rpcchambersId->end() ; ++id_it ){	   
-    //    containerIt = rpc_container->find(*id_it);
 
     // MuonDetectorManager from the conditions store
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
@@ -215,10 +207,6 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 	  {
 
 	    if (nPrd<maxPRD) {
-
-	      //    if (containerIt!= rpc_container->end() && (*containerIt)->size()>0){      
-      
-	      //      Identifier prd_id = *id_it;
 
 	      Identifier prd_id = (*rpcPrd)->identify();
 
@@ -414,9 +402,9 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 			int NetaTubes = mdt->getNtubesperlayer() ;			    	      
 			const Amg::Vector3D elc =  mdt->globalPosition();
 			float imdt_wirez =  float(elc.z());
-		  
-			if(imdt_wirez>=0) {imdt_wirez +=  (float(imdt_wire)-0.5-float(NetaTubes)/2 )* 29.9 ;}
-			else {imdt_wirez =  imdt_wirez -  (float(imdt_wire)-0.5-float(NetaTubes)/2 )* 29.9 ;}
+			float tubeRadius = mdt->innerTubeRadius();
+			if(imdt_wirez>=0) {imdt_wirez +=  (float(imdt_wire)-0.5-float(NetaTubes)/2 )* tubeRadius ;}
+			else {imdt_wirez =  imdt_wirez -  (float(imdt_wire)-0.5-float(NetaTubes)/2 )* tubeRadius ;}
 		
 			//fill histos
 			if(m_mdtvsrpcchamberhist){
@@ -543,7 +531,6 @@ StatusCode MdtVsRpcRawDataValAlg::bookHistogramsRecurrent()
 	 
 	 
 	  ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << MdtRpcZdiff << MdtRpcZdiff_title.c_str() );
-	 // ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	  ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	  ATH_MSG_DEBUG ( "Booked MdtRpcZdifference successfully" );
 	  
@@ -567,7 +554,6 @@ StatusCode MdtVsRpcRawDataValAlg::bookHistogramsRecurrent()
   	MdtNHitsvsRpcNHits->SetMarkerSize(0.2); 	 
 	 
 	  ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << MdtNHitsvsRpcNHits << MdtNHitsvsRpcNHits_title.c_str() );
-	 // ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	  ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	  ATH_MSG_DEBUG ( "Booked MdtNHitsvsRpcNHits successfully" );
 	 
@@ -636,7 +622,6 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCHistograms(std::string hardware_name, st
      
       ATH_MSG_DEBUG ( "INSIDE  bookMDTvsRPCHistograms doublPhi 1: " << mdttubevsrpcetastrip_doublphi1 );
       ATH_MSG_DEBUG ( "INSIDE  bookMDTvsRPCHistograms doublPhi 2: " << mdttubevsrpcetastrip_doublphi1 );
-      //ATH_MSG_DEBUG ( "SHIFT : " << shift );
       ATH_MSG_DEBUG ( "RUN : " << run );
     
   
@@ -721,7 +706,6 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCsectorHistograms(std::string sector_name
     mdtvsrpcsector->SetFillColor(42);  
     mdtvsrpcsector->SetMarkerColor(1);  
     mdtvsrpcsector->SetMarkerStyle(21);   
-    //mdtvsrpcsector->SetMarkerSize(0.2);
     mdtvsrpcsector->GetXaxis()->SetTitle("<--- Side C                Rpc Eta strip z [mm]        Side A --->"	);
     mdtvsrpcsector->GetYaxis()->SetTitle("<--- Side C                Mdt wire z [mm]	       Side A --->"	);
   
@@ -733,28 +717,4 @@ void MdtVsRpcRawDataValAlg::bookMDTvsRPCsectorHistograms(std::string sector_name
 
   }}//m_doMdtvsRpcESD // AthenaMonManager::tier0 || AthenaMonManager::tier0ESD 
   
-}
-
-/*----------------------------------------------------------------------------------*/
-StatusCode MdtVsRpcRawDataValAlg::procHistograms()
-{
-  ATH_MSG_DEBUG ( "MdtVsRpcRawDataValAlg finalize()" );
- 
-  return StatusCode::SUCCESS; 
-}
- 
-//======================================================================================//
-/**  finalize */
-//======================================================================================//
-StatusCode MdtVsRpcRawDataValAlg::finalize() 
-{ 
-
-  StatusCode sc = ManagedMonitorToolBase::finalize();
-  if(!sc.isSuccess()) return sc;
-
-
-  ATH_MSG_DEBUG ( "MdtVsRpcRawDataValAlg::finalize() " );
-
-  
-  return sc;
 }

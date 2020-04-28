@@ -13,9 +13,8 @@
 #include "GaudiKernel/IAlgTool.h"
  
 // forward declarations
-namespace HepMC {
-  class GenVertex;
-}
+#include "AtlasHepMC/GenVertex_fwd.h"
+
 namespace ISF {
   class ITruthIncident;
 

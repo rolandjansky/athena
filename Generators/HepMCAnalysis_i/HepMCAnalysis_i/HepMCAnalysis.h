@@ -19,7 +19,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "TH1.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // forward declarations
 class ITHistSvc;
@@ -41,9 +41,6 @@ class HepMCAnalysis
 
   /// Destructor: 
   virtual ~HepMCAnalysis(); 
-
-  // Assignment operator: 
-  //HepMCAnalysis &operator=(const HepMCAnalysis &alg); 
 
   // Athena algorithm's Hooks
   virtual StatusCode  initialize();

@@ -40,7 +40,7 @@ StatusCode SiSmearedDigitization::execute() {
 
   ATH_MSG_INFO ( " SiSmearedDigitization : execute()" );
 
-  StatusCode sc =  m_smearTool->processAllSubEvents();
+  StatusCode sc =  m_smearTool->processAllSubEvents(Gaudi::Hive::currentContext());
   
   ATH_MSG_INFO ( " SiSmearedDigitization : m_smearTool->processAllSubEvents()" );
   

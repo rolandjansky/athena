@@ -1,42 +1,111 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 #include "RPC_CondCabling/RpcCablingCondData.h"
 
-
-RpcCablingCondData::RpcCablingCondData() {}
-
-RpcCablingCondData::~RpcCablingCondData() {}
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 const RpcCablingCondData::RDOmap& RpcCablingCondData::give_RDOs(void) const {return m_RDOs;}
 
-bool RpcCablingCondData::giveOnlineID(const unsigned int hashID,
-    unsigned short int& ROBid,
-    unsigned short int& RODid,
-    unsigned short int& side,
-    unsigned short int& SLid,
-    unsigned short int& RXid,
-    unsigned short int& PADid) const
-{
+bool RpcCablingCondData::give_ROBid(const Identifier& compactID, unsigned short int& id) const {
+  OfflineOnlineMap::const_iterator it = m_RDOmap.find(compactID);
+  if (it == m_RDOmap.end()) return false;
+  const RDOindex* index = (*m_RDOmap.find(compactID)).second;
+  if (!index) return false;
+  id = index->ROBid();
+  return true;
+}
+bool RpcCablingCondData::give_ROBid(const unsigned int hashID, unsigned short int& id) const {
   if ( hashID >= m_HashVec.size() ) return false;
-
   const RDOindex* index = m_HashVec[hashID];
-
-  ROBid = index->ROBid();
-  RODid = index->RODid();
-  side  = index->side();
-  SLid  = index->SLid();
-  RXid  = index->RXid();
-  PADid = index->PADid();
-
+  if (!index) return false;
+  id = index->ROBid();
   return true;
 }
 
+bool RpcCablingCondData::give_RODid(const Identifier& compactID, unsigned short int& id) const {
+  OfflineOnlineMap::const_iterator it = m_RDOmap.find(compactID);
+  if (it == m_RDOmap.end()) return false;
+  const RDOindex* index = (*m_RDOmap.find(compactID)).second;
+  if (!index) return false;
+  id = index->RODid();
+  return true;
+}
+bool RpcCablingCondData::give_RODid(const unsigned int hashID, unsigned short int& id) const {
+  if ( hashID >= m_HashVec.size() ) return false;
+  const RDOindex* index = m_HashVec[hashID];
+  if (!index) return false;
+  id = index->RODid();
+  return true;
+}
+
+bool RpcCablingCondData::give_side(const Identifier& compactID, unsigned short int& id) const {
+  OfflineOnlineMap::const_iterator it = m_RDOmap.find(compactID);
+  if (it == m_RDOmap.end()) return false;
+  const RDOindex* index = (*m_RDOmap.find(compactID)).second;
+  if (!index) return false;
+  id = index->side();
+  return true;
+}
+bool RpcCablingCondData::give_side(const unsigned int hashID, unsigned short int& id) const {
+  if ( hashID >= m_HashVec.size() ) return false;
+  const RDOindex* index = m_HashVec[hashID];
+  if (!index) return false;
+  id = index->side();
+  return true;
+}
+
+bool RpcCablingCondData::give_SLid(const Identifier& compactID, unsigned short int& id) const {
+  OfflineOnlineMap::const_iterator it = m_RDOmap.find(compactID);
+  if (it == m_RDOmap.end()) return false;
+  const RDOindex* index = (*m_RDOmap.find(compactID)).second;
+  if (!index) return false;
+  id = index->SLid();
+  return true;
+}
+bool RpcCablingCondData::give_SLid(const unsigned int hashID, unsigned short int& id) const {
+  if ( hashID >= m_HashVec.size() ) return false;
+  const RDOindex* index = m_HashVec[hashID];
+  if (!index) return false;
+  id = index->SLid();
+  return true;
+}
+
+bool RpcCablingCondData::give_RXid(const Identifier& compactID, unsigned short int& id) const {
+  OfflineOnlineMap::const_iterator it = m_RDOmap.find(compactID);
+  if (it == m_RDOmap.end()) return false;
+  const RDOindex* index = (*m_RDOmap.find(compactID)).second;
+  if (!index) return false;
+  id = index->RXid();
+  return true;
+}
+bool RpcCablingCondData::give_RXid(const unsigned int hashID, unsigned short int& id) const {
+  if ( hashID >= m_HashVec.size() ) return false;
+  const RDOindex* index = m_HashVec[hashID];
+  if (!index) return false;
+  id = index->RXid();
+  return true;
+}
+
+bool RpcCablingCondData::give_PADid(const Identifier& compactID, unsigned short int& id) const {
+  OfflineOnlineMap::const_iterator it = m_RDOmap.find(compactID);
+  if (it == m_RDOmap.end()) return false;
+  const RDOindex* index = (*m_RDOmap.find(compactID)).second;
+  if (!index) return false;
+  id = index->PADid();
+  return true;
+}
+bool RpcCablingCondData::give_PADid(const unsigned int hashID, unsigned short int& id) const {
+  if ( hashID >= m_HashVec.size() ) return false;
+  const RDOindex* index = m_HashVec[hashID];
+  if (!index) return false;
+  id = index->PADid();
+  return true;
+}
 
 const std::vector<uint32_t>& RpcCablingCondData::giveFullListOfRobIds() const {return m_fullListOfRobIds;}
-
-
 
 RpcCablingCondData::ID RpcCablingCondData::identifier(int index) const 
 {
@@ -71,15 +140,9 @@ std::vector<IdentifierHash> RpcCablingCondData::rod2hash(uint16_t subsystem_id, 
 
 uint32_t RpcCablingCondData::hash2source(unsigned int h) const
 {
-  unsigned short int ROBid;
-  unsigned short int RODid;
   unsigned short int side;
-  unsigned short int SLid;
-  unsigned short int RXid;
-  unsigned short int PADid;
-
-  if( RpcCablingCondData::giveOnlineID(h,ROBid,RODid,side,SLid,RXid,PADid) )
-  {
+  unsigned short int RODid;
+  if(give_side(h,side) && give_RODid(h,RODid) ) {
     uint32_t sub = side;
     uint32_t rod = RODid;
     return (sub << 16) | rod;
@@ -209,8 +272,7 @@ unsigned int RpcCablingCondData::computeZIndexInCablingStation(const std::string
          int stationEta,  int doubletR, int doubletZ, int cabStat) const 
 {
 
- unsigned int zIndexInCablingStation = 999;
-
+  unsigned int zIndexInCablingStation = 999;
  int cablingStation = -1;
  int sectType = m_SectorMap[logicSector];
  if (sectType < 1 || sectType > m_MaxType+1)
@@ -265,7 +327,7 @@ std::list<Identifier> RpcCablingCondData::give_strip_id(unsigned short int Subsy
                                                         unsigned short int CMAId,
                                                         unsigned short ijk,
                                                         unsigned short int Channel,
-                                                        ServiceHandle<Muon::IMuonIdHelperSvc> idHelperSvc ) const
+                                                        const RpcIdHelper* rpcId ) const
 {
   std::list<unsigned int> CodeList;
 
@@ -324,25 +386,24 @@ std::list<Identifier> RpcCablingCondData::give_strip_id(unsigned short int Subsy
     ++it;
   }
 
-
-  std::list<Identifier> id;
+  std::list<Identifier> ids;
   std::list<RPCofflineId>::const_iterator iterator = offlineIdList.begin();
   while(iterator != offlineIdList.end())
   { 
-    Identifier rpcId = idHelperSvc->rpcIdHelper().channelID((*iterator).stationName,
-                                                    (*iterator).stationEta,
-                                                    (*iterator).stationPhi,
-                                                    (*iterator).doubletR,
-                                                    (*iterator).doubletZ,
-                                                    (*iterator).doubletPhi,
-                                                    (*iterator).gasGap,
-                                                    (*iterator).measuresPhi,
-                                                    (*iterator).strip);
-    id.push_back(rpcId);
+    Identifier id = rpcId->channelID((*iterator).stationName,
+                                        (*iterator).stationEta,
+                                        (*iterator).stationPhi,
+                                        (*iterator).doubletR,
+                                        (*iterator).doubletZ,
+                                        (*iterator).doubletPhi,
+                                        (*iterator).gasGap,
+                                        (*iterator).measuresPhi,
+                                        (*iterator).strip);
+    ids.push_back(id);
     ++iterator;
   }
 
-  return id;
+  return ids;
 
 }
 
@@ -398,5 +459,332 @@ bool RpcCablingCondData::give_Pad_Parameters(unsigned short int logic_sector,
 
   return true;
 }
+
+
+bool 
+RpcCablingCondData::give_PAD_address (unsigned short int SubsystemId,
+                                      unsigned short int SectorId,
+                                      unsigned short int RoIId,
+                                      unsigned int& padIdHash) const
+{
+  unsigned short int PADId  = (RoIId)/4;
+
+  int key = SubsystemId*10000 + SectorId*100 + PADId;
+
+  // checks if the key is in the map
+  RDOmap::const_iterator it = m_RDOs.find(key);
+  if (it == m_RDOs.end()) return false;
+
+  // Retrieve the identifier elements from the map
+  const RDOindex index = (*it).second;
+
+  padIdHash = index.hash();
+
+  return true;
+}
+
+bool
+RpcCablingCondData::give_RoI_borders_id (unsigned short int SubsystemId,
+                                         unsigned short int SectorId,
+                                         unsigned short int RoIId,
+                                         Identifier& EtaLowBorder_id,
+                                         Identifier& EtaHighBorder_id,
+                                         Identifier& PhiLowBorder_id,
+                                         Identifier& PhiHighBorder_id,
+                                         const RpcIdHelper* rpcId) const
+{
+  unsigned int EtaLowBorder=0;
+  unsigned int EtaHighBorder=0;
+  unsigned int PhiLowBorder=0;
+  unsigned int PhiHighBorder=0;  
+  bool ok = give_RoI_borders(SubsystemId,SectorId,RoIId,
+                             EtaLowBorder,EtaHighBorder,
+                             PhiLowBorder,PhiHighBorder);
+  // give_RoI_borders() already complains if the return code is false
+  if (ok) {
+    EtaLowBorder_id  =  protected_strip_OffId_fromCode( EtaLowBorder, rpcId );
+    EtaHighBorder_id =  protected_strip_OffId_fromCode( EtaHighBorder, rpcId );
+    PhiLowBorder_id  =  protected_strip_OffId_fromCode( PhiLowBorder, rpcId );
+    PhiHighBorder_id =  protected_strip_OffId_fromCode( PhiHighBorder, rpcId );
+  }
+  return ok;
+}
+
+bool 
+RpcCablingCondData::give_RoI_borders (unsigned short int SubsystemId,
+                                      unsigned short int SectorId,
+                                      unsigned short int RoIId,
+                                      unsigned int& EtaLowBorder,
+                                      unsigned int& EtaHighBorder,
+                                      unsigned int& PhiLowBorder,
+                                      unsigned int& PhiHighBorder) const
+{
+
+  int logic_sector = SectorId + SubsystemId*32;
+  int PadId  = (RoIId)/4;
+  int PadRoI = (RoIId)%4;
+  int PhiIxx = PadRoI/2;
+  int EtaIxx = PadRoI%2;
+
+  CMAcoverage PhiCov = (logic_sector%2)? OddSectors : EvenSectors;
+
+  const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+
+  CMAidentity ETA(Eta,AllSectors,PadId,EtaIxx);
+  CMAidentity PHI(Phi,PhiCov,PadId,PhiIxx);
+
+  if(!s.give_RoI_borders(ETA,PHI,EtaLowBorder,EtaHighBorder,PhiLowBorder,PhiHighBorder)) {
+    MsgStream log(Athena::getMessageSvc(),"RpcCablingCondData");
+    if (log.level()<=MSG::WARNING) log << MSG::WARNING << "give_RoI_borders() - failed to call give_RoI_borders() on SectorLogicSetup, borders not set, return false..." << endmsg;
+    return false;
+  }
+
+  EtaLowBorder  += logic_sector*1000000;
+  EtaHighBorder += logic_sector*1000000;
+  PhiLowBorder  += logic_sector*1000000;
+  PhiHighBorder += logic_sector*1000000;
+
+  return true;
+}
+
+Identifier
+RpcCablingCondData::protected_strip_OffId_fromCode (unsigned long int strip_code, const RpcIdHelper* rpcId) const
+{
+  RPCofflineId rpc_strip  = strip_id_fromCode (strip_code);
+  if (rpc_strip.stationName=="BOG")
+  {
+    if (std::abs(rpc_strip.stationEta)==4 && rpc_strip.doubletR==2 && rpc_strip.measuresPhi==1)
+    {
+      if (rpc_strip.strip>48) rpc_strip.strip=48;
+    }
+  }
+  if (rpc_strip.stationName=="BME")
+  {
+    if (rpc_strip.doubletR==2 && rpc_strip.measuresPhi==1)
+    {
+      if (rpc_strip.strip>36) rpc_strip.strip=36;
+    }
+  }
+  return rpcId->channelID(rpc_strip.stationName,
+      rpc_strip.stationEta,
+      rpc_strip.stationPhi,
+      rpc_strip.doubletR,
+      rpc_strip.doubletZ,
+      rpc_strip.doubletPhi,
+      rpc_strip.gasGap,
+      rpc_strip.measuresPhi,
+      rpc_strip.strip);
+}
+
+
+RPCofflineId RpcCablingCondData::strip_id_fromCode(unsigned long int strip_code) const
+{
+  RPCdecoder decode(strip_code);
+  RPCofflineId rpcId;
+  rpcId.init();
+  if (!decode) {
+    return rpcId;
+  }
+  int RPC_logic_sector = decode.logic_sector();
+  int RPC_strip    = decode.strip_number();
+  int RPC_chamber  = decode.rpc_z_index();
+  int RPC_layer    = decode.rpc_layer();
+  int RPC_station  = decode.lvl1_station();
+  int sector       = (decode.logic_sector())%32;
+
+  // retrieve the Sector Logic setup
+  const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[RPC_logic_sector] - 1];  
+  // retrieve chamber
+  const RPC_CondCabling::RPCchamber* rpc = s.find_chamber(RPC_station, RPC_chamber);
+
+  rpcId.stationName = rpc->stationName();
+  rpcId.stationEta  = (decode.half_barrel() == Positive)?  rpc->stationEta() : 
+    -rpc->stationEta();
+  rpcId.stationPhi  = (sector==31)? 1 : (sector+1)/4 +1;
+  rpcId.doubletR    = rpc->doubletR();
+  rpcId.doubletZ    = rpc->doubletZ();
+  rpcId.doubletPhi  = (rpc->phiReadoutPannels()==2)? (sector+1)%2+1: 1;
+  rpcId.gasGap      = RPC_layer + 1;
+  rpcId.measuresPhi = static_cast<int>(decode.view());
+  rpcId.strip       = RPC_strip + 1;
+
+  return rpcId;
+
+}
+
+
+bool 
+RpcCablingCondData::give_LowPt_borders (unsigned short int SubsystemId,
+                                        unsigned short int SectorId,
+                                        unsigned short int RoIId,
+                                        unsigned int& EtaLowBorder,
+                                        unsigned int& EtaHighBorder,
+                                        unsigned int& PhiLowBorder,
+                                        unsigned int& PhiHighBorder) const
+{
+  int logic_sector = SectorId + SubsystemId*32;
+  int PadId  = (RoIId)/4;
+  int PadRoI = (RoIId)%4;
+  int PhiIxx = PadRoI/2;
+  int EtaIxx = PadRoI%2;
+
+  CMAcoverage PhiCov = (logic_sector%2)? OddSectors : EvenSectors;
+
+  const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+
+  CMAidentity ETA(Eta,AllSectors,PadId,EtaIxx);
+  CMAidentity PHI(Phi,PhiCov,PadId,PhiIxx);
+
+  if(!s.give_LowPt_borders(ETA,PHI,EtaLowBorder,EtaHighBorder,PhiLowBorder, PhiHighBorder))
+  {
+    return false; // Added for HLT
+    /* Commented for HLT
+    // LOCAL RoI within the pad may be wrong if triggering only phi vew only, try the other local eta
+    EtaIxx = (EtaIxx + 1)%2;
+    CMAidentity ETA1(Eta,AllSectors,PadId,EtaIxx);
+    if(!s.give_LowPt_borders(ETA1,PHI,EtaLowBorder,EtaHighBorder,PhiLowBorder,
+    PhiHighBorder)){
+    DISP << "  Unmatched RoIId= " << RoIId
+    << "  Side="  << SubsystemId << ", Sector=" << SectorId;
+    DISP_DEBUG;
+    return false;
+    }
+    */
+  }
+  if (EtaLowBorder==0||EtaHighBorder==0||
+      PhiLowBorder==0||PhiHighBorder==0) return false;
+
+  EtaLowBorder  += logic_sector*1000000;
+  EtaHighBorder += logic_sector*1000000;
+  PhiLowBorder  += logic_sector*1000000;
+  PhiHighBorder += logic_sector*1000000;
+
+  return true;
+}
+
+
+
+
+bool 
+RpcCablingCondData::give_LowPt_borders_id (unsigned short int SubsystemId,
+                                           unsigned short int SectorId,
+                                           unsigned short int RoIId,
+                                           Identifier& EtaLowBorder_id,
+                                           Identifier& EtaHighBorder_id,
+                                           Identifier& PhiLowBorder_id,
+                                           Identifier& PhiHighBorder_id,
+                                           const RpcIdHelper* rpcId) const
+{
+  unsigned int EtaLowBorder=0;
+  unsigned int EtaHighBorder=0;
+  unsigned int PhiLowBorder=0;
+  unsigned int PhiHighBorder=0;  
+  bool ok = give_LowPt_borders(SubsystemId,SectorId,RoIId,
+                               EtaLowBorder,EtaHighBorder,
+                               PhiLowBorder,PhiHighBorder);  
+  if (ok){
+    EtaLowBorder_id  =  strip_OffId_fromCode( EtaLowBorder,rpcId );
+    EtaHighBorder_id =  strip_OffId_fromCode( EtaHighBorder, rpcId );
+    PhiLowBorder_id  =  strip_OffId_fromCode( PhiLowBorder, rpcId );
+    PhiHighBorder_id =  strip_OffId_fromCode( PhiHighBorder, rpcId );
+  }
+  return ok;
+}
+
+bool 
+RpcCablingCondData::give_HighPt_borders (unsigned short int SubsystemId,
+                                         unsigned short int SectorId,
+                                         unsigned short int RoIId,
+                                         unsigned int& EtaLowBorder,
+                                         unsigned int& EtaHighBorder,
+                                         unsigned int& PhiLowBorder,
+                                         unsigned int& PhiHighBorder) const
+{
+  int logic_sector = SectorId + SubsystemId*32;
+  int PadId  = (RoIId)/4;
+  int PadRoI = (RoIId)%4;
+  int PhiIxx = PadRoI/2;
+  int EtaIxx = PadRoI%2;
+
+  CMAcoverage PhiCov = (logic_sector%2)? OddSectors : EvenSectors;
+
+  const RPC_CondCabling::SectorLogicSetup& s = m_SectorType[m_SectorMap[logic_sector] - 1];
+
+  CMAidentity ETA(Eta,AllSectors,PadId,EtaIxx);
+  CMAidentity PHI(Phi,PhiCov,PadId,PhiIxx);
+
+  if(!s.give_HighPt_borders(ETA,PHI,EtaLowBorder,EtaHighBorder,PhiLowBorder, PhiHighBorder))
+  {
+    return false; // Added for HLT
+    /* commented for HLT
+    // LOCAL RoI within the pad may be wrong if triggering only phi vew only, try the other local eta
+    EtaIxx = (EtaIxx + 1)%2;
+    CMAidentity ETA1(Eta,AllSectors,PadId,EtaIxx);
+    if(!s.give_HighPt_borders(ETA1,PHI,EtaLowBorder,EtaHighBorder,PhiLowBorder,
+    PhiHighBorder)){
+    DISP << "  Unmatched RoIId= " << RoIId
+    << "  Side="  << SubsystemId << ", Sector=" << SectorId; 
+    DISP_DEBUG;
+    return false;
+    }
+    */
+  }
+  if (EtaLowBorder==0||EtaHighBorder==0||
+      PhiLowBorder==0||PhiHighBorder==0) return false;
+
+  EtaLowBorder  += logic_sector*1000000;
+  EtaHighBorder += logic_sector*1000000;
+  PhiLowBorder  += logic_sector*1000000;
+  PhiHighBorder += logic_sector*1000000;
+
+  return true;
+}
+
+
+
+
+bool 
+RpcCablingCondData::give_HighPt_borders_id(unsigned short int SubsystemId,
+                                           unsigned short int SectorId,
+                                           unsigned short int RoIId,
+                                           Identifier& EtaLowBorder_id,
+                                           Identifier& EtaHighBorder_id,
+                                           Identifier& PhiLowBorder_id,
+                                           Identifier& PhiHighBorder_id,
+                                           const RpcIdHelper* rpcId) const
+{
+  unsigned int EtaLowBorder=0;
+  unsigned int EtaHighBorder=0;
+  unsigned int PhiLowBorder=0;
+  unsigned int PhiHighBorder=0;
+  bool ok = give_HighPt_borders(SubsystemId,SectorId,RoIId,
+                                EtaLowBorder,EtaHighBorder,
+                                PhiLowBorder,PhiHighBorder);
+
+  if (ok){
+    EtaLowBorder_id  = strip_OffId_fromCode( EtaLowBorder, rpcId );
+    EtaHighBorder_id = strip_OffId_fromCode( EtaHighBorder, rpcId );
+    PhiLowBorder_id  = strip_OffId_fromCode( PhiLowBorder, rpcId );
+    PhiHighBorder_id = strip_OffId_fromCode( PhiHighBorder, rpcId );
+  }
+  return ok;
+}
+
+
+Identifier 
+RpcCablingCondData::strip_OffId_fromCode (unsigned long int strip_code, const RpcIdHelper* rpcId) const
+{
+  RPCofflineId rpc_strip  = strip_id_fromCode (strip_code);
+  return rpcId->channelID(rpc_strip.stationName,
+           rpc_strip.stationEta,
+           rpc_strip.stationPhi,
+           rpc_strip.doubletR,
+           rpc_strip.doubletZ,
+           rpc_strip.doubletPhi,
+           rpc_strip.gasGap,
+           rpc_strip.measuresPhi,
+           rpc_strip.strip);
+}
+
 
 

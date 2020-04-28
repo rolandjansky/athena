@@ -46,6 +46,8 @@
 
 // Gaudi includes
 #include "GaudiKernel/SmartDataPtr.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 
 //CondDB
@@ -183,11 +185,15 @@ StatusCode TRTDigitizationTool::initialize()
     }
   }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   return StatusCode::SUCCESS;
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::prepareEvent(unsigned int)
+StatusCode TRTDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int)
 {
   m_vDigits.clear();
   m_trtHitCollList.clear();
@@ -242,14 +248,14 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::lateInitialize() {
+StatusCode TRTDigitizationTool::lateInitialize(const EventContext& ctx) {
 
   // setup the RNGs which are only used in the first event
-  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions", m_randomSeedOffset);
-  CLHEP::HepRandomEngine *noiseInitRndmEngine = getRandomEngine("TRT_Noise", m_randomSeedOffset);
-  CLHEP::HepRandomEngine *noiseElecRndmEngine = getRandomEngine("TRT_Noise_Electronics", m_randomSeedOffset);
-  CLHEP::HepRandomEngine *noiseThreshRndmEngine = getRandomEngine("TRT_Noise_ThresholdFluctuations", m_randomSeedOffset);
-  CLHEP::HepRandomEngine *noiseElecResetRndmEngine = getRandomEngine("TRT_ElectronicsNoiseReset", m_randomSeedOffset);
+  CLHEP::HepRandomEngine *fakeCondRndmEngine = getRandomEngine("TRT_FakeConditions", m_randomSeedOffset, ctx);
+  CLHEP::HepRandomEngine *noiseInitRndmEngine = getRandomEngine("TRT_Noise", m_randomSeedOffset, ctx);
+  CLHEP::HepRandomEngine *noiseElecRndmEngine = getRandomEngine("TRT_Noise_Electronics", m_randomSeedOffset, ctx);
+  CLHEP::HepRandomEngine *noiseThreshRndmEngine = getRandomEngine("TRT_Noise_ThresholdFluctuations", m_randomSeedOffset, ctx);
+  CLHEP::HepRandomEngine *noiseElecResetRndmEngine = getRandomEngine("TRT_ElectronicsNoiseReset", m_randomSeedOffset, ctx);
   m_first_event=false;
 
   if (m_condDBdigverfoldersexists) {
@@ -338,7 +344,8 @@ StatusCode TRTDigitizationTool::lateInitialize() {
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::processStraws(const TimedHitCollection<TRTUncompressedHit>& thpctrt,
+StatusCode TRTDigitizationTool::processStraws(const EventContext& ctx,
+                                              const TimedHitCollection<TRTUncompressedHit>& thpctrt,
                                               std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
                                               CLHEP::HepRandomEngine *rndmEngine,
                                               CLHEP::HepRandomEngine *strawRndmEngine,
@@ -347,8 +354,26 @@ StatusCode TRTDigitizationTool::processStraws(const TimedHitCollection<TRTUncomp
                                               CLHEP::HepRandomEngine *paiRndmEngine) {
 
   // Create a map for the SDO
-  SG::WriteHandle<InDetSimDataCollection> simDataMap(m_outputSDOCollName);
+  SG::WriteHandle<InDetSimDataCollection> simDataMap(m_outputSDOCollName, ctx);
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+  MagField::AtlasFieldCache    fieldCache;
+  if (m_settings->useMagneticFieldMap()) {
+      
+    // Get field cache object
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    if (fieldCondObj == nullptr) {
+        ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+        return StatusCode::FAILURE;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+  }
+  
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  
   ATH_CHECK(simDataMap.record(std::make_unique<InDetSimDataCollection>() ));
 
   // Register the map into StoreGate
@@ -441,7 +466,7 @@ StatusCode TRTDigitizationTool::processStraws(const TimedHitCollection<TRTUncomp
     bool emulateArFlag = m_sumTool->getStatusHT(idStraw) == 6;
     bool emulateKrFlag = m_sumTool->getStatusHT(idStraw) == 7;
     const int statusHT = m_sumTool->getStatusHT(idStraw);
-    m_pProcessingOfStraw->ProcessStraw(i, e, digit_straw,
+    m_pProcessingOfStraw->ProcessStraw(fieldCache, i, e, digit_straw,
                                        m_alreadyPrintedPDGcodeWarning,
                                        m_cosmicEventPhase, //m_ComTime,
                                        TRTDigiHelper::StrawGasType(statusHT,m_UseGasMix, &msg()),
@@ -471,18 +496,18 @@ StatusCode TRTDigitizationTool::processStraws(const TimedHitCollection<TRTUncomp
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::processAllSubEvents() {
+StatusCode TRTDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   // Set the RNGs to use for this event.
-  CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
-  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_NoiseDigitPool");
-  CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
-  CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations");
-  CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI");
+  CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("", ctx);
+  CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise", ctx);
+  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_NoiseDigitPool", ctx);
+  CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw", ctx);
+  CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations", ctx);
+  CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI", ctx);
 
   if (m_first_event) {
-    if(this->lateInitialize().isFailure()) {
+    if(this->lateInitialize(ctx).isFailure()) {
       ATH_MSG_FATAL ( "lateInitialize method failed!" );
       return StatusCode::FAILURE;
     }
@@ -490,9 +515,9 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
 
   m_alreadyPrintedPDGcodeWarning = false;
 
-  ATH_MSG_DEBUG ( "TRTDigitization::execute()" );
+  ATH_MSG_DEBUG ( "TRTDigitizationTool::processAllSubEvents()" );
 
-  m_trtrdo_container = SG::makeHandle(m_outputRDOCollName);
+  m_trtrdo_container = SG::makeHandle(m_outputRDOCollName, ctx);
   ATH_CHECK(m_trtrdo_container.record(std::make_unique<TRT_RDO_Container>(m_trt_id->straw_layer_hash_max())));
   ATH_MSG_DEBUG ( " TRT_RDO_Container created " );
 
@@ -510,7 +535,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   TimedHitCollection<TRTUncompressedHit> thpctrt;
   // In case of single hits container just load the collection using read handles
   if (!m_onlyUseContainerName) {
-    SG::ReadHandle<TRTUncompressedHitCollection> hitCollection(m_hitsContainerKey);
+    SG::ReadHandle<TRTUncompressedHitCollection> hitCollection(m_hitsContainerKey, ctx);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get TRTUncompressedHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
       return StatusCode::FAILURE;
@@ -558,7 +583,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   std::set<Identifier> simhitsIdentifiers;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  ATH_CHECK(this->processStraws(thpctrt, sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
+  ATH_CHECK(this->processStraws(ctx, thpctrt, sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
 
   // no more hits
 
@@ -593,25 +618,26 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   return StatusCode::SUCCESS;
 }
 
-CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& streamName) const
+CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& streamName,
+                                                             const EventContext& ctx) const
 {
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
   std::string rngName = name()+streamName;
-  rngWrapper->setSeed( rngName, Gaudi::Hive::currentContext() );
-  return *rngWrapper;
+  rngWrapper->setSeed( rngName, ctx );
+  return rngWrapper->getEngine(ctx);
 }
 
 //_____________________________________________________________________________
-CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset) const
+CLHEP::HepRandomEngine* TRTDigitizationTool::getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset,
+                                                             const EventContext& ctx) const
 {
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   rngWrapper->setSeed( streamName, ctx.slot(), randomSeedOffset, ctx.eventID().run_number() );
-  return *rngWrapper;
+  return rngWrapper->getEngine(ctx);
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::mergeEvent() {
+StatusCode TRTDigitizationTool::mergeEvent(const EventContext& ctx) {
   std::vector<std::pair<unsigned int, int> >::iterator ii(m_seen.begin());
   std::vector<std::pair<unsigned int, int> >::iterator ee(m_seen.end());
   while (ii != ee) {
@@ -620,15 +646,15 @@ StatusCode TRTDigitizationTool::mergeEvent() {
   }
 
   // Set the RNGs to use for this event.
-  CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("");
-  CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise");
-  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_NoiseDigitPool");
-  CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw");
-  CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations");
-  CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI");
+  CLHEP::HepRandomEngine *rndmEngine = getRandomEngine("", ctx);
+  CLHEP::HepRandomEngine *elecNoiseRndmEngine = getRandomEngine("TRT_ElectronicsNoise", ctx);
+  CLHEP::HepRandomEngine *noiseRndmEngine = getRandomEngine("TRT_NoiseDigitPool", ctx);
+  CLHEP::HepRandomEngine *strawRndmEngine = getRandomEngine("TRT_ProcessStraw", ctx);
+  CLHEP::HepRandomEngine *elecProcRndmEngine = getRandomEngine("TRT_ThresholdFluctuations", ctx);
+  CLHEP::HepRandomEngine *paiRndmEngine = getRandomEngine("TRT_PAI", ctx);
 
   if (m_first_event) {
-    if(this->lateInitialize().isFailure()) {
+    if(this->lateInitialize(ctx).isFailure()) {
       ATH_MSG_FATAL ( "lateInitialize method failed!" );
       return StatusCode::FAILURE;
     }
@@ -638,7 +664,7 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 
   ATH_MSG_DEBUG ( "TRTDigitization::execute()"  );
 
-  m_trtrdo_container = SG::makeHandle(m_outputRDOCollName);
+  m_trtrdo_container = SG::makeHandle(m_outputRDOCollName, ctx);
   ATH_CHECK(m_trtrdo_container.record(std::make_unique<TRT_RDO_Container>(m_trt_id->straw_layer_hash_max())));
   ATH_MSG_DEBUG ( " TRT_RDO_Container created " );
   if (not m_trtrdo_container.isValid()) {
@@ -654,7 +680,7 @@ StatusCode TRTDigitizationTool::mergeEvent() {
 
   // Process the Hits straw by straw:
   //   get the iterator pairs for given straw
-  ATH_CHECK(this->processStraws(*m_thpctrt, sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
+  ATH_CHECK(this->processStraws(ctx, *m_thpctrt, sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
 
   delete m_thpctrt;
   std::list<TRTUncompressedHitCollection*>::iterator trtHitColl(m_trtHitCollList.begin());

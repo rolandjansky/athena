@@ -30,6 +30,7 @@
 #define ITRT_TrackSegmentsMaker_H
 
 #include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/EventContext.h"
 #include "Identifier/IdentifierHash.h"
 #include "TrkSegment/TrackSegment.h"
 #include "VxVertex/Vertex.h"
@@ -65,15 +66,15 @@ namespace InDet {
       // Methods to initialize tool for new event or region
       ///////////////////////////////////////////////////////////////////
 
-      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newEvent () const =0;
-      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newRegion(const std::vector<IdentifierHash>&) const =0;
+      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newEvent (const EventContext& ctx) const =0;
+      virtual std::unique_ptr<InDet::ITRT_TrackSegmentsMaker::IEventData> newRegion(const EventContext& ctx, const std::vector<IdentifierHash>&) const =0;
       virtual void endEvent (InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Methods of seeds production without vertex constraint
       ///////////////////////////////////////////////////////////////////
 
-      virtual void find(InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const =0;
+      virtual void find(const EventContext& ctx, InDet::ITRT_TrackSegmentsMaker::IEventData &event_data) const =0;
 
       ///////////////////////////////////////////////////////////////////
       // Iterator through track segments pseudo collection produced 

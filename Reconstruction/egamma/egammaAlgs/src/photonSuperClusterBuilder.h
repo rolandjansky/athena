@@ -25,11 +25,11 @@ class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
   photonSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   //Tool standard routines.
-  StatusCode initialize() override final;
-  StatusCode finalize() override final;
-  StatusCode execute() override final;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
+  virtual StatusCode execute() override final;
+ 
  private:
-
   /** Return extra clusters that can be added to make supercluster */
   std::vector<std::size_t> 
     searchForSecondaryClusters(std::size_t photonInd,

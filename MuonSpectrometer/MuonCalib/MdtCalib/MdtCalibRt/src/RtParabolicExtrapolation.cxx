@@ -1,39 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 10.11.2008, AUTHOR: OLIVER KORTNER
-// Modified: 28.02.2009 by O. Kortner and J. von Loeben, extend extrapolation
-//                      features
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
 
 #include "MuonCalibMath/BaseFunctionFitter.h"
 #include "MuonCalibMath/LegendrePolynomial.h"
 #include "MdtCalibRt/RtParabolicExtrapolation.h"
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/RtRelationLookUp.h"
-
-//::::::::::::::::::::::::
-//:: NAMESPACE SETTINGS ::
-//::::::::::::::::::::::::
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 using namespace MuonCalib;
-using namespace std;
-
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-//:: IMPLEMENTATION OF METHODS DEFINED IN THE CLASS RtCalibrationAnalytic ::
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//*****************************************************************************
-
-//:::::::::::::::::::::::::
-//:: DEFAULT CONSTRUCTOR ::
-//:::::::::::::::::::::::::
 
 RtParabolicExtrapolation::RtParabolicExtrapolation(void) {
 }
@@ -55,10 +32,10 @@ RtRelationLookUp RtParabolicExtrapolation::getRtWithParabolicExtrapolation(
 
     double t_min(t_from_r(r_min, in_rt));
     double t_max(t_from_r(r_max, in_rt));
-    vector<SamplePoint> t_r(10);
+    std::vector<SamplePoint> t_r(10);
     BaseFunctionFitter fitter(3);
     LegendrePolynomial pol;
-    vector<double> rt_param(102); // parameters of the output r-t relationship
+    std::vector<double> rt_param(102); // parameters of the output r-t relationship
     double r, t; // drift radius
 
 ////////////////////////
@@ -104,7 +81,7 @@ RtRelationLookUp RtParabolicExtrapolation::getRtWithParabolicExtrapolation(
 				      const double & r_min,
 				      const double & r_max,
 				      const double & r_ext,
-				      const vector<SamplePoint> & add_fit_points
+				      const std::vector<SamplePoint> & add_fit_points
 				      ) const {
 
 ///////////////
@@ -114,10 +91,10 @@ RtRelationLookUp RtParabolicExtrapolation::getRtWithParabolicExtrapolation(
 //    double t_min(t_from_r(r_min, in_rt));
     double t_min(get_max_t_at_r(r_min, in_rt));
     double t_max(t_from_r(r_max, in_rt));
-    vector<SamplePoint> t_r(10);
+    std::vector<SamplePoint> t_r(10);
     BaseFunctionFitter fitter(3);
     LegendrePolynomial pol;
-    vector<double> rt_param(102); // parameters of the output r-t relationship
+    std::vector<double> rt_param(102); // parameters of the output r-t relationship
     double r, t; // drift radius, drift time
 
 ////////////////////////
@@ -145,7 +122,6 @@ RtRelationLookUp RtParabolicExtrapolation::getRtWithParabolicExtrapolation(
 // modified and extrapolated points in the r-t
     rt_param[0] = in_rt.tLower();
     rt_param[1] = (in_rt.tUpper()-in_rt.tLower())/99.0;
-//     cerr <<"r_ext:\t"<< r_ext << "\tr_min\t" << r_min << "\tr_max\t" << r_max << endl;
     for (unsigned int k=0; k<100; k++) {
         t = rt_param[0]+rt_param[1]*k;
         r = in_rt.radius(t);
@@ -180,11 +156,8 @@ RtRelationLookUp RtParabolicExtrapolation::getRtWithParabolicExtrapolation(
 // within the fit region
         else if (r_ext <= r_max && r_ext >=r_min) {
             rt_param[k+2] = r;
-            cerr << "Class RtParabolicExtrapolation," 
-                 << "WARNING: \n\t  Extrapolated radius withing fit region" 
-                 << " - Nothing to be done."
-                 << endl; 
-
+            MsgStream log(Athena::getMessageSvc(), "RtParabolicExtrapolation");
+            log<<MSG::WARNING<< "getRtWithParabolicExtrapolation() - Extrapolated radius withing fit region - Nothing to be done."<<endmsg;
         }
     }
 
@@ -214,7 +187,7 @@ double RtParabolicExtrapolation::t_from_r(const double & r,
 /////////////////////////////////////////////
 
 	while (t_max-t_min>0.1 &&
-			fabs(in_rt.radius(0.5*(t_min+t_max))-r)>precision) {
+			std::abs(in_rt.radius(0.5*(t_min+t_max))-r)>precision) {
 
 		if (in_rt.radius(0.5*(t_min+t_max))>r) {
 			t_max = 0.5*(t_min+t_max);
@@ -242,7 +215,5 @@ double RtParabolicExtrapolation::get_max_t_at_r(const double & r,
             return t+1.0;
         }
     }
-
     return in_rt.tLower();
-
 }

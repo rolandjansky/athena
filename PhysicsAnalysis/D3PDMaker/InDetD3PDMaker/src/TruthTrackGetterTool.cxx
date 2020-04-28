@@ -138,20 +138,19 @@ bool TruthTrackGetterTool::selectParticle(const  HepMC::GenParticle* particle)
 
   // must have a valid production vertex
   if(particle->production_vertex() == NULL){
-    //REPORT_MESSAGE (MSG::DEBUG) << "GenParticle has NULL Production Vertex";
     return false;
   }
 
   // require track origin inside ID: relaxed
-  if ( fabs(particle->production_vertex()->point3d().perp()) > m_maxRAll ||
-       fabs(particle->production_vertex()->point3d().z())    > m_maxZAll ){
+  if ( fabs(particle->production_vertex()->position().perp()) > m_maxRAll ||
+       fabs(particle->production_vertex()->position().z())    > m_maxZAll ){
     return false;
   }
 
   // require track origin inside beam pipe (primary): optional
   if ( m_keepOnlyPrimaryParticles &&
-       ( fabs(particle->production_vertex()->point3d().perp()) > m_maxRPrimary ||
-	 fabs(particle->production_vertex()->point3d().z())    > m_maxZPrimary ) ){
+       ( fabs(particle->production_vertex()->position().perp()) > m_maxRPrimary ||
+	 fabs(particle->production_vertex()->position().z())    > m_maxZPrimary ) ){
     return false;
   }
 

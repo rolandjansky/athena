@@ -33,6 +33,12 @@ else:
 # detector description version: both RDO and BS default use this
 #--------------------------------------------------------------
 DetDescrVersion =  'ATLAS-GEO-20-00-02'
+
+
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
+athenaCommonFlags.FilesInput = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data']
+
 #--------------------------------------------------------------
 # load Global Flags and set defaults (import the new jobProperty globalflags)
 #--------------------------------------------------------------
@@ -45,13 +51,13 @@ globalflags.DataSource = 'data'
 # --- BS default input uses this
 if 'doReadBS' in dir() and doReadBS:
   globalflags.InputFormat   = 'bytestream'
-  globalflags.ConditionsTag = 'COMCOND-BLKPA-006-03'
+  globalflags.ConditionsTag = 'CONDBR2-BLKPA-2018-14'
 else:
   globalflags.DataSource = 'data'
   globalflags.InputFormat = 'pool'
 
-globalflags.DetDescrVersion = DetDescrVersion
-globalflags.ConditionsTag =  'COMCOND-BLKPA-006-03'
+#globalflags.DetDescrVersion = DetDescrVersion
+globalflags.ConditionsTag =  'CONDBR2-BLKPA-2018-14'
 
 # --- printout
 globalflags.print_JobProperties()
@@ -200,17 +206,14 @@ include("InDetRecExample/InDetRec_all.py")
 #--------------------------------------------------------------
 
 # Number of events to be processed (default is 10)
-theApp.EvtMax = -1
+theApp.EvtMax = 10
 #ServiceMgr.EventSelector.SkipEvents = 2
 #ServiceMgr.StoreGateSvc.Dump = True
 
-ServiceMgr.ByteStreamInputSvc.FullFileName = ["data12_8TeV.00208485.express_express.merge.RAW._lb0055._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0056._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0057._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0058._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0059._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0060._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0061._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0062._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0063._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0064._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0065._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0066._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0067._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0068._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0069._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0070._SFO-ALL._0001.1"]
+#ServiceMgr.ByteStreamInputSvc.FullFileName = ["data12_8TeV.00208485.express_express.merge.RAW._lb0055._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0056._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0057._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0058._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0059._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0060._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0061._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0062._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0063._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0064._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0065._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0066._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0067._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0068._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0069._SFO-ALL._0001.1","data12_8TeV.00208485.express_express.merge.RAW._lb0070._SFO-ALL._0001.1"]
 
 from AthenaCommon.AppMgr import ToolSvc
 
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-TRTCalibDBSvc=TRT_CalDbSvc()
-ServiceMgr += TRTCalibDBSvc
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbourSvc
 TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
@@ -295,6 +298,7 @@ if (InDetFlags.doPrintConfigurables()):
 
 from TRT_CalibAlgs.TRT_CalibAlgsConf import TRTCalibrationMgr
 CosmicsTRTCalibMgr = TRTCalibrationMgr(name                = 'CosmicsTRTCalibMgr',
+                                       StreamTool          = TRTCondStream,
                                        TrackSelectorTool   = TRTTrackSelectorTool,
                                        TrkCollections      = [ 'CombinedInDetTracks' ],
                                        AlignTrkTools       = [ FillAlignTrkInfo, FillAlignTRTHits ],

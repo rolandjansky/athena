@@ -25,7 +25,7 @@ StatusCode SimpleMergeMcEventCollTool::initialize()
 }
 
 /// PileUpTools Approach
-StatusCode SimpleMergeMcEventCollTool::prepareEvent(unsigned int nInputEvents)
+StatusCode SimpleMergeMcEventCollTool::prepareEvent(const EventContext& ctx, unsigned int nInputEvents)
 {
   ATH_MSG_VERBOSE ( "prepareEvent()" );
   m_nBkgEventsReadSoFar=0;
@@ -45,7 +45,7 @@ StatusCode SimpleMergeMcEventCollTool::prepareEvent(unsigned int nInputEvents)
     // variable, but this is the only way to allow multiple function
     // calls to add information to the version of the
     // McEventCollection in the output StoreGate
-    m_outputMcEventCollection = SG::makeHandle(m_truthCollOutputKey);
+    m_outputMcEventCollection = SG::makeHandle(m_truthCollOutputKey, ctx);
     ATH_CHECK(m_outputMcEventCollection.record(std::make_unique<McEventCollection>()));
   }
   else {
@@ -74,7 +74,7 @@ StatusCode SimpleMergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
   return StatusCode::SUCCESS;
 }
 
-StatusCode SimpleMergeMcEventCollTool::mergeEvent()
+StatusCode SimpleMergeMcEventCollTool::mergeEvent(const EventContext& /*ctx*/)
 {
   ATH_MSG_DEBUG( "mergeEvent()" );
   if(m_nBkgEventsReadSoFar+1<m_nInputMcEventColls)
@@ -87,10 +87,10 @@ StatusCode SimpleMergeMcEventCollTool::mergeEvent()
 }
 
 /// Algorithm Approach
-StatusCode SimpleMergeMcEventCollTool::processAllSubEvents()
+StatusCode SimpleMergeMcEventCollTool::processAllSubEvents(const EventContext& ctx)
 {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
-  SG::WriteHandle<McEventCollection> outputMcEventCollection(m_truthCollOutputKey);
+  SG::WriteHandle<McEventCollection> outputMcEventCollection(m_truthCollOutputKey, ctx);
   ATH_CHECK(outputMcEventCollection.record(std::make_unique<McEventCollection>()));
 
   //first get the list of McEventCollections
@@ -168,11 +168,6 @@ void SimpleMergeMcEventCollTool::printDetailsOfMergedMcEventCollection(McEventCo
       std::ofstream of(fname);
       (*outputEventItr)->print(of); // verbose output
       of.close();
-      //      HepMC::GenEvent& currentSignalEvent(**(outputEventItr));
-      //      currentSignalEvent.print();
-      //      ATH_MSG_INFO ( "Current signal_process_vertex: " );
-      //      if(0!=currentSignalEvent.signal_process_vertex()) currentSignalEvent.signal_process_vertex()->print();
-      //      else ATH_MSG_INFO ( "signal_process_vertex is NULL" );
       ++outputEventItr;
     }
   ATH_MSG_INFO ( "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" );

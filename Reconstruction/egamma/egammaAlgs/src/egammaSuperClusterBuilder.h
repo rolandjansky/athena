@@ -36,7 +36,7 @@ protected:
   egammaSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   /** should be called by the derived class in the initialize phase */
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
   /** Is clus in window center around ref? */
   bool matchesInWindow(const xAOD::CaloCluster *ref,
@@ -107,9 +107,9 @@ private:
 				     const PhiSize& phiSize) const;
  
   /** functions to add all tile Gap 3 cells in a window*/
-  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster) const;
+  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster *myCluster,
+                                      const CaloDetDescrManager& mgr) const;
 
- 
   /** function to calibrate the new clusters energy */
   StatusCode calibrateCluster(xAOD::CaloCluster* newCluster,
                               const CaloDetDescrManager& mgr,

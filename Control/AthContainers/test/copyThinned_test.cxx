@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -20,9 +20,6 @@
 #include <vector>
 #include <iostream>
 #include <cassert>
-
-
-#include "TestThinningSvc.icc"
 
 
 void compare (const SG::AuxStoreInternal& a,
@@ -85,24 +82,6 @@ void compare (const std::vector<int>& a,
 
 
 template <class CONTAINER>
-void tryit (CONTAINER& cont, IThinningSvc* svc, bool thinned = false)
-{
-  const CONTAINER* newcont = SG::copyThinned (cont, svc);
-  compare (cont, *newcont, thinned);
-  delete newcont;
-}
-
-
-template <class CONTAINER>
-void tryitConst (CONTAINER& cont, IThinningSvc* svc, bool thinned = false)
-{
-  const CONTAINER* newcont = SG::copyThinnedConst (cont, svc);
-  compare (cont, *newcont, thinned);
-  delete newcont;
-}
-
-
-template <class CONTAINER>
 void tryit (CONTAINER& cont, const SG::ThinningDecisionBase* dec,
             bool thinned = false)
 {
@@ -123,24 +102,15 @@ void tryitConst (CONTAINER& cont, const SG::ThinningDecisionBase* dec,
 void test1()
 {
   std::cout << "test1\n";
-  TestThinningSvc svc;
   SG::ThinningDecisionBase dec;
 
   SG::AuxStoreInternal store;
   DataVector<int> dv;
   std::vector<int> v;
 
-  tryit (store, static_cast<IThinningSvc*>(nullptr));
-  tryitConst (dv, static_cast<IThinningSvc*>(nullptr));
-  tryit (v, static_cast<IThinningSvc*>(nullptr));
-
   tryit (store, static_cast<const SG::ThinningDecisionBase*>(nullptr));
   tryitConst (dv, static_cast<const SG::ThinningDecisionBase*>(nullptr));
   tryit (v, static_cast<const SG::ThinningDecisionBase*>(nullptr));
-
-  tryit (store, &svc);
-  tryitConst (dv, &svc);
-  tryit (v, &svc);
 
   tryit (store, &dec);
   tryitConst (dv, &dec);
@@ -165,37 +135,17 @@ void test1()
   DataVector<int> dv2;
   std::vector<int> v2;
 
-  svc.remap (&store2, 1, 2);
-  svc.remap (&dv2, 1, 2);
-  svc.remap (&v2, 1, 2);
-
-  tryit (store, &svc);
-  tryitConst (dv, &svc);
-  tryit (v, &svc);
-
   tryit (store, &dec);
   tryitConst (dv, &dec);
   tryit (v, &dec);
 
-  for (int i=0, i1=0; i < 10; ++i) {
-    if (i%2 == 0) {
-      svc.remap (&store, i, i1);
-      svc.remap (&dv, i, i1);
-      svc.remap (&v, i, i1);
-      ++i1;
-    }
-    else {
-      svc.remap (&store, i, IThinningSvc::RemovedIdx);
-      svc.remap (&dv, i, IThinningSvc::RemovedIdx);
-      svc.remap (&v, i, IThinningSvc::RemovedIdx);
+  for (int i=0; i < 10; ++i) {
+    if (i%2 != 0) {
       dec.thin (i);
     }
   }
 
   dec.buildIndexMap();
-
-  tryit (store, &svc, true);
-  tryit (v, &svc, true);
 
   tryit (store, &dec, true);
   tryitConst (dv, &dec, true);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -24,7 +24,6 @@
 #include "AthenaKernel/ClassID_traits.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
-#include "TestThinningSvc.icc"
 #include "TestCnvSvcBase.icc"
 #include "TSystem.h"
 #include "TInterpreter.h"
@@ -170,18 +169,6 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
     assert (l2a[i].index() == i);
   }
 
-  TestThinningSvc thinsvc;
-  TestThinningSvc::instance (&thinsvc, true);
-  thinsvc.remap (vec, 5, IThinningSvc::RemovedIdx);
-  for (size_t i = 6; i < N; i++)
-    thinsvc.remap (vec, i, i-1);
-  thinsvc.remap (trans2, 7, IThinningSvc::RemovedIdx);
-
-  YAuxCont_v2* pers2b = cnv.createPersistentWithKey (trans2, "store");
-  test1_checkThinned (pers2b, N, x_auxid, l_auxid);
-
-  TestThinningSvc::instance (nullptr, true);
-
   SG::sgkey_t sgkey_store =
     SGTest::store.stringToKey ("store",
                                ClassID_traits<YAuxCont_v2>::ID());
@@ -220,7 +207,6 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
 
   delete trans2;
   delete pers2a;
-  delete pers2b;
   delete pers2c;
 }
 

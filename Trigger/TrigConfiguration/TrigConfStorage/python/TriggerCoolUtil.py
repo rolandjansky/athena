@@ -110,9 +110,11 @@ class TriggerCoolUtil:
                 confsrc = payload['ConfigSource'].split(',')
                 release = 'unknown'
                 if len(confsrc)>1: release = confsrc[1]
+                dbalias = confsrc[0]
                 configKeys[runNr] = { "REL"     : release,
                                       "SMK"     : smk,
-                                      "HLTPSK"  : hltpsk }
+                                      "HLTPSK"  : hltpsk,
+                                      "DB"      : dbalias }
         return configKeys
 
     @staticmethod

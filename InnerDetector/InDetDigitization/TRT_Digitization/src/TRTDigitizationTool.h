@@ -28,6 +28,7 @@
 
 // For magneticfield
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -75,7 +76,7 @@ public:
   virtual StatusCode finalize() override final;
 
   ///called at the end of the subevts loop. Not (necessarily) able to access SubEvents
-  virtual StatusCode mergeEvent() override final;
+  virtual StatusCode mergeEvent(const EventContext& ctx) override final;
 
   ///called for each active bunch-crossing to process current SubEvents bunchXing is in ns
   virtual StatusCode processBunchXing( int bunchXing,
@@ -85,7 +86,7 @@ public:
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //  virtual bool toProcess(int bunchXing) const;
 
-  virtual StatusCode prepareEvent( const unsigned int /*nInputEvents*/ ) override final;
+  virtual StatusCode prepareEvent( const EventContext& ctx, const unsigned int nInputEvents ) override final;
 
   /**
    * Perform digitization:
@@ -94,11 +95,11 @@ public:
    * - Add noise
    * - Create RDO collection
    */
-  virtual StatusCode processAllSubEvents() override final;
+  virtual StatusCode processAllSubEvents(const EventContext& ctx) override final;
 
 private:
-  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName) const;
-  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset) const;
+  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
+  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, unsigned long int randomSeedOffset, const EventContext& ctx) const;
 
   Identifier getIdentifier( int hitID,
                             IdentifierHash& hashId,
@@ -108,8 +109,11 @@ private:
   StatusCode update( IOVSVC_CALLBACK_ARGS );        // Update of database entries.
   StatusCode ConditionsDependingInitialization();
 
-  StatusCode lateInitialize();
-  StatusCode processStraws(const TimedHitCollection<TRTUncompressedHit>& thpctrt, std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers,
+  StatusCode lateInitialize(const EventContext& ctx);
+  StatusCode processStraws(const EventContext& ctx,
+                           const TimedHitCollection<TRTUncompressedHit>& thpctrt,
+                           std::set<int>& sim_hitids,
+                           std::set<Identifier>& simhitsIdentifiers,
                            CLHEP::HepRandomEngine *rndmEngine,
                            CLHEP::HepRandomEngine *strawRndmEngine,
                            CLHEP::HepRandomEngine *elecProcRndmEngine,
@@ -130,7 +134,9 @@ private:
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc{this, "TRT_StrawNeighbourSvc", "TRT_StrawNeighbourSvc", ""};
   ServiceHandle < MagField::IMagFieldSvc > m_magneticfieldsvc{this, "MagFieldSvc", "AtlasFieldSvc", "MagFieldSvc used by TRTProcessingOfStraw"};
-
+  // Read handle for conditions object to get the field cache
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                        "Name of the Magnetic Field conditions object key"};
   Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
   SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "DataObjectName", "TRTUncompressedHits", "Data Object Name"};
   std::string m_dataObjectName{""};

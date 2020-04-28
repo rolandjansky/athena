@@ -13,7 +13,7 @@
 
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 
 inline void drawLine(std::ostream& os) {
@@ -84,10 +84,6 @@ StatusCode PrintMC::execute() {
 
     // Printout header
     ATH_MSG_INFO(">>> PrintMC from execute");
-    //std::cout << "Next event in the bag" << std::endl;
-    // int g_id = evt->signal_process_id();
-    // GeneratorName_print(g_id);
-    // std::cout << std::endl;
 
     // VERTEX format
     /// @todo Isn't this if (m_VerboseOutput... redundant?
@@ -126,12 +122,6 @@ StatusCode PrintMC::execute() {
 		  << std::endl;
       }
 
-      // Random State
-      //	std::cout << " RndmState(" << evt->random_states().size() << ")=";
-      //for ( std::vector<long int>::const_iterator rs
-      //	= evt->random_states().begin();
-      //      rs != evt->random_states().end(); rs++ ) { std::cout << *rs << " "; }
-      //std::cout << "\n";
 
       // Weights
       std::cout << " Weights(" << evt->weights().size() << ")=";
@@ -205,8 +195,6 @@ StatusCode PrintMC::execute() {
           ATH_MSG_DEBUG("PID " << abs(p_pdg_id) << " is not in particle data table");
         } else {
           const double p_charge = ap->charge() * (p_pdg_id < 0 ? -1 : 1); // assuming that charged leptons are in the PDT...
-          /// @todo Only do this for hadrons? Or only if there is no generated_mass entry? Commenting out for now...
-          // p_mass = ap->mass().value();
           // Build particle name string
           sname = ap->name();
           if (p_charge < 0) {
@@ -242,7 +230,6 @@ StatusCode PrintMC::execute() {
         /// @todo Is there no better way to detect unspecified masses than == 0? Final state photons *should* be 0
         if (p_mass == 0 && (p_stat == 2 || (p_stat != 1 && p_pdg_id != 22))) {
           p_mass = (*p)->momentum().m();
-          //p_mass = sqrt(p_pe*p_pe - p_px*p_px - p_py*p_py - p_pz*p_pz);
         }
 
         const char* p_name = sname.c_str() ;
@@ -255,18 +242,6 @@ StatusCode PrintMC::execute() {
           std::cout << particle_entries << "\n";
         }
       }
-
-
-      // while ( !evt->vertices_empty() ) {
-      //   HepMC::GenVertex* vtx = ( evt->m_vertex_barcodes.begin() )->second;
-      //   int bcode = ( evt->m_vertex_barcodes.begin() )->first;
-      //   std::cout << "vtx= "<< vtx << " bc1=" << vtx->barcode() << " bc2=" << bcode << std::endl;
-      //   std::cout << "evt= "<< evt << " pev=" << vtx->parent_event() <<  std::endl;
-      //   evt->m_vertex_barcodes.erase( evt->m_vertex_barcodes.begin() );
-      //   delete vtx;
-      //   }
-      // evt->clear();
-      // drawLine(std::cout);
 
     }
 

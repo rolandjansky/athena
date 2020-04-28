@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ Trk::JacobianPerigeeToCartesian::JacobianPerigeeToCartesian(const double d0,
   double cost = std::cos(theta);
   double rho  = std::fabs(qOverP);
   int charge=+1;
-  if(qOverP<0) charge = -1; 
+  if(qOverP<0) { charge = -1;}
 
   // transformation of track parameters
   double px = cosp*sint/rho;

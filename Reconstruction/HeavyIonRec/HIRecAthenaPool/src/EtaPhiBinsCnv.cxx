@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -66,8 +66,8 @@ EtaPhiBins* EtaPhiBinsCnv::createTransient()
 
   } else if ( compareClassGuid(p1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<EtaPhiBins_p1> persObj( poolReadObject<EtaPhiBins_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<EtaPhiBins_p1> persObj( poolReadObject<EtaPhiBins_p1>() );
     EtaPhiBinsCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   } else {

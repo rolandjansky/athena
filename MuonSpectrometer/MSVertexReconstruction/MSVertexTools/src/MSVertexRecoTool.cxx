@@ -249,8 +249,8 @@ namespace Muon {
         MSStraightLineVx(EndcapClusters[i].tracks, endvertex, ctx);
 
       if(!endvertex) continue;
-      if(endvertex->getPosition().perp() < 10000 && fabs(endvertex->getPosition().z()) < 14000 && 
-	 fabs(endvertex->getPosition().z()) > 8000 && endvertex->getNTracks() >= 3) {
+      if(endvertex->getPosition().perp() < 10000 && std::abs(endvertex->getPosition().z()) < 14000 && 
+	 std::abs(endvertex->getPosition().z()) > 8000 && endvertex->getNTracks() >= 3) {
 	HitCounter(endvertex.get(), ctx);
 	if(endvertex->getNMDT() > 250 && (endvertex->getNRPC()+endvertex->getNTGC()) > 200) {
 	  ATH_MSG_DEBUG( "Vertex found in the endcap with n_trk = " << endvertex->getNTracks() << " located at (eta,phi) = (" 
@@ -329,15 +329,15 @@ namespace Muon {
           for(int jcl=0; jcl<ncluster; ++jcl) {
               float dEta = trkClu[icl].eta - trkClu0[jcl].eta;
               float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
-              while(fabs(dPhi) > M_PI) {
+              while(std::abs(dPhi) > M_PI) {
                   if(dPhi < 0) dPhi += 2*M_PI;
                   else dPhi -= 2*M_PI;
               }
-              if(fabs(dEta) < 0.7 && fabs(dPhi) < M_PI/3.) {
+              if(std::abs(dEta) < 0.7 && std::abs(dPhi) < M_PI/3.) {
                   ntracks++;
                   trkClu[icl].eta = trkClu[icl].eta - dEta/ntracks;
                   trkClu[icl].phi = trkClu[icl].phi - dPhi/ntracks;
-                  while(fabs(trkClu[icl].phi) > M_PI) {
+                  while(std::abs(trkClu[icl].phi) > M_PI) {
                       if(trkClu[icl].phi > 0) trkClu[icl].phi -= 2*M_PI;
                       else trkClu[icl].phi += 2*M_PI;
                   }
@@ -358,25 +358,25 @@ namespace Muon {
 
               for(int jcl=0; jcl<ncluster; ++jcl) {
 
-                  float dEta = fabs(trkClu[icl].eta - trkClu0[jcl].eta);
+                  float dEta = std::abs(trkClu[icl].eta - trkClu0[jcl].eta);
                   float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
 
-                  while(fabs(dPhi) > M_PI) {
+                  while(std::abs(dPhi) > M_PI) {
                       if(dPhi < 0) dPhi += 2*M_PI;
                       else dPhi -= 2*M_PI;
                   }
 
-                  if(dEta < 0.7 && fabs(dPhi) < M_PI/3.) {
+                  if(dEta < 0.7 && std::abs(dPhi) < M_PI/3.) {
                       eta_avg += trkClu0[jcl].eta;
-                      cosPhi_avg += cos(trkClu0[jcl].phi);
-                      sinPhi_avg += sin(trkClu0[jcl].phi);
+                      cosPhi_avg += std::cos(trkClu0[jcl].phi);
+                      sinPhi_avg += std::sin(trkClu0[jcl].phi);
                       ntracks2++;
                       itracks[jcl] = 1;
                   }
               }//end jcl loop
 
               eta_avg = eta_avg/ntracks2;
-              phi_avg = atan2(sinPhi_avg,cosPhi_avg);
+              phi_avg = std::atan2(sinPhi_avg,cosPhi_avg);
 
               if(ntracks2 > trkClu[icl].ntrks) {
                   eta_avg_best = trkClu[icl].eta;
@@ -410,13 +410,13 @@ namespace Muon {
       //store the tracks inside the cluster
       std::vector<Tracklet> unusedTracks;
       for(std::vector<Tracklet>::iterator trkItr=tracks.begin(); trkItr!=tracks.end(); ++trkItr) {
-          float dEta = fabs(BestCluster.eta - trkItr->globalPosition().eta());
+          float dEta = std::abs(BestCluster.eta - trkItr->globalPosition().eta());
           float dPhi = BestCluster.phi - trkItr->globalPosition().phi();
-          while(fabs(dPhi) > M_PI) {
+          while(std::abs(dPhi) > M_PI) {
               if(dPhi < 0) dPhi += 2*M_PI;
               else dPhi -= 2*M_PI;
           }
-          if(dEta < 0.7 && fabs(dPhi) < M_PI/3.) BestCluster.tracks.push_back( (*trkItr) );
+          if(dEta < 0.7 && std::abs(dPhi) < M_PI/3.) BestCluster.tracks.push_back( (*trkItr) );
           else unusedTracks.push_back( (*trkItr) );
       }
       //return the best cluster and the unused tracklets
@@ -472,22 +472,22 @@ namespace Muon {
     aveZ = aveZ/(float)tracklets.size();
     aveR = aveR/(float)tracklets.size();
 
-    float avePhi = atan2(aveY,aveX);
-    while(fabs(avePhi) > M_PI) {
+    float avePhi = std::atan2(aveY,aveX);
+    while(std::abs(avePhi) > M_PI) {
       if(avePhi < 0) avePhi += 2*M_PI;
       else avePhi -= 2*M_PI;
     }
 
     //calculate the two angles (theta & phi)
-    float LoF = atan2(aveR,aveZ);//Line of Flight (theta)
-    avePhi = vxPhiFinder(fabs(LoF),avePhi, ctx);
+    float LoF = std::atan2(aveR,aveZ);//Line of Flight (theta)
+    avePhi = vxPhiFinder(std::abs(LoF),avePhi, ctx);
 
     //find the positions of the radial planes
     float Rpos[MAXPLANES];
     float RadialDist = m_VertexMaxRadialPlane - m_VertexMinRadialPlane;
-    float LoFdist = fabs(RadialDist/sin(LoF));
+    float LoFdist = std::abs(RadialDist/std::sin(LoF));
     int nplanes = LoFdist/m_VxPlaneDist + 1;
-    float PlaneSpacing = fabs(200./cos(LoF));
+    float PlaneSpacing = std::abs(200./std::cos(LoF));
     for(int k=0; k<nplanes; ++k) Rpos[k] = m_VertexMinRadialPlane + PlaneSpacing*k;
 
     //loop on tracklets and create two types of track parameters -- nominal and phi shifted tracklets
@@ -502,8 +502,8 @@ namespace Muon {
 
         nTrkToVertex++;
         //coordinate transform variables
-        Amg::Vector3D trkgpos(tracklets.at(i).globalPosition().perp()*cos(avePhi),
-			      tracklets.at(i).globalPosition().perp()*sin(avePhi),
+        Amg::Vector3D trkgpos(tracklets.at(i).globalPosition().perp()*std::cos(avePhi),
+			      tracklets.at(i).globalPosition().perp()*std::sin(avePhi),
 			      tracklets.at(i).globalPosition().z());
         float x0 = trkgpos.x();
         float y0 = trkgpos.y();
@@ -524,18 +524,18 @@ namespace Muon {
 	  if(Rpos[k] > tracklets.at(i).globalPosition().perp()) break;
 
 	  //nominal tracks for vertexing
-	  float Xp = Rpos[k]*cos(avePhi);
-	  float Yp = Rpos[k]*sin(avePhi);       
+	  float Xp = Rpos[k]*std::cos(avePhi);
+	  float Yp = Rpos[k]*std::sin(avePhi);       
 	  //in case there is a nominal opening angle, calculate tracklet direction
 	  //the tracklet must cross the candidate vertex plane at the correct phi
-	  float DelR = sqrt(sq(x0-Xp)+sq(y0-Yp))/cos(NominalAngle);
-	  float X1 = DelR*cos(NominalTrkAng+avePhi) + Xp;
-	  float Y1 = DelR*sin(NominalTrkAng+avePhi) + Yp;
-	  float R1 = sqrt(sq(X1)+sq(Y1));
+	  float DelR = std::sqrt(sq(x0-Xp)+sq(y0-Yp))/std::cos(NominalAngle);
+	  float X1 = DelR*std::cos(NominalTrkAng+avePhi) + Xp;
+	  float Y1 = DelR*std::sin(NominalTrkAng+avePhi) + Yp;
+	  float R1 = std::sqrt(sq(X1)+sq(Y1));
 	  float Norm = r0/R1;
 	  X1 = X1*Norm;
 	  Y1 = Y1*Norm;
-	  float Dirmag = sqrt(sq(X1-Xp)+sq(Y1-Yp));
+	  float Dirmag = std::sqrt(sq(X1-Xp)+sq(Y1-Yp));
 	  float Xdir = (X1-Xp)/Dirmag;
 	  float Ydir = (Y1-Yp)/Dirmag;
 	  float trkpx = Xdir*tracklets.at(i).momentum().perp();
@@ -543,7 +543,7 @@ namespace Muon {
 	  float trkpz = tracklets.at(i).momentum().z();
 	  //check if the tracklet has a charge & momentum measurement -- if not, set charge=1 so extrapolator will work
 	  float charge = tracklets.at(i).charge(); 
-	  if(fabs(charge) < 0.1) {
+	  if(std::abs(charge) < 0.1) {
 	    charge = 1; //for "straight" tracks, set charge = 1	   	
 	    isNeutralTrack[k].push_back(true);
 	  }
@@ -557,16 +557,16 @@ namespace Muon {
 	  TracksForVertexing[k].push_back(myPerigee);
 
 	  //tracks for errors -- rotate the plane & recalculate the tracklet parameters
-	  float xp = Rpos[k]*cos(avePhi);
-	  float yp = Rpos[k]*sin(avePhi);       
-	  float delR = sqrt(sq(x0-xp)+sq(y0-yp))/cos(MaxOpenAngle);
-	  float x1 = delR*cos(MaxTrkAng+avePhi) + xp;
-	  float y1 = delR*sin(MaxTrkAng+avePhi) + yp;
-	  float r1 = sqrt(sq(x1)+sq(y1));
+	  float xp = Rpos[k]*std::cos(avePhi);
+	  float yp = Rpos[k]*std::sin(avePhi);       
+	  float delR = std::sqrt(sq(x0-xp)+sq(y0-yp))/std::cos(MaxOpenAngle);
+	  float x1 = delR*std::cos(MaxTrkAng+avePhi) + xp;
+	  float y1 = delR*std::sin(MaxTrkAng+avePhi) + yp;
+	  float r1 = std::sqrt(sq(x1)+sq(y1));
 	  float norm = r0/r1;
 	  x1 = x1*norm;
 	  y1 = y1*norm;
-	  float dirmag = sqrt(sq(x1-xp)+sq(y1-yp));
+	  float dirmag = std::sqrt(sq(x1-xp)+sq(y1-yp));
 	  float xdir = (x1-xp)/dirmag;
 	  float ydir = (y1-yp)/dirmag;
 	  float errpx = xdir*tracklets.at(i).momentum().perp();
@@ -622,10 +622,10 @@ namespace Muon {
         if(extrap) {
 	  //if the track is neutral just store the uncertainty due to angular uncertainty of the orignal tracklet
 	  if(isNeutralTrack[k].at(i)) {	  
-	    float pTot = sqrt(sq(TracksForVertexing[k].at(i)->momentum().perp())+sq(TracksForVertexing[k].at(i)->momentum().z()));
+	    float pTot = std::sqrt(sq(TracksForVertexing[k].at(i)->momentum().perp())+sq(TracksForVertexing[k].at(i)->momentum().z()));
 	    float dirErr = Amg::error(*TracksForVertexing[k].at(i)->covariance(),Trk::theta);
 	    float extrapRdist = TracksForVertexing[k].at(i)->position().perp() - Rpos[k];
-	    float sz = fabs(20*dirErr*extrapRdist*sq(pTot)/sq(TracksForVertexing[k].at(i)->momentum().perp()));	  
+	    float sz = std::abs(20*dirErr*extrapRdist*sq(pTot)/sq(TracksForVertexing[k].at(i)->momentum().perp()));	  
 	    float ExtrapErr = sz;
 	    if(ExtrapErr > maxError) ExtrapSuc[k].push_back(false);
 	    else {
@@ -651,7 +651,7 @@ namespace Muon {
 	    if(extrap2) {
 	      float sz = Amg::error(*extrap->covariance(),Trk::locY);
 	      float zdiff = extrap->localPosition().y() - extrap2->localPosition().y();	  
-	      float ExtrapErr = sqrt(sq(sz)+sq(zdiff));
+	      float ExtrapErr = std::sqrt(sq(sz)+sq(zdiff));
 	      if(ExtrapErr > maxError) ExtrapSuc[k].push_back(false);
 	      else {
 		//iff both extrapolations succeed && error is acceptable, store the information 
@@ -677,12 +677,12 @@ namespace Muon {
     for(int k=0; k<nplanes; ++k) {
       if(ExtrapZ[k].size() < 3) continue;//require at least 3 tracklets to build a vertex
       //initialize the variables used in the routine
-      float zLoF = Rpos[k]/tan(LoF);
+      float zLoF = Rpos[k]/std::tan(LoF);
       float dzLoF(10);
       float aveZpos(0),posWeight(0);    
       for(unsigned int i=0; i<ExtrapZ[k].size(); ++i) {
-        float ExtrapErr = sqrt(sq(sigmaZ[k][i])+sq(dlength[k][i])+sq(dzLoF));
-        if(isNeutralTrack[k][i]) ExtrapErr = sqrt(sq(sigmaZ[k][i]) + sq(dzLoF));
+        float ExtrapErr = std::sqrt(sq(sigmaZ[k][i])+sq(dlength[k][i])+sq(dzLoF));
+        if(isNeutralTrack[k][i]) ExtrapErr = std::sqrt(sq(sigmaZ[k][i]) + sq(dzLoF));
         aveZpos += ExtrapZ[k][i]/sq(ExtrapErr);
         posWeight += 1./sq(ExtrapErr);      
       }
@@ -706,7 +706,7 @@ namespace Muon {
 	  if(blacklist[i]) continue;
 	  trkp[k].push_back(pAtVx[k][i]);
 	  float delz = zLoF - ExtrapZ[k][i];
-	  float ExtrapErr = sqrt(sq(sigmaZ[k][i])+sq(dlength[k][i])+sq(dzLoF));
+	  float ExtrapErr = std::sqrt(sq(sigmaZ[k][i])+sq(dlength[k][i])+sq(dzLoF));
 	  float trkchi2 = sq(delz)/sq(ExtrapErr);
 	  if(trkchi2 > worstdelz) {
 	    iworst = i;
@@ -719,7 +719,7 @@ namespace Muon {
 	  tmpnTrks++;
         }//end loop on tracks
         if(tmpnTrks < 3) break;//stop searching for a vertex at this plane
-        tmpzpossigma = sqrt(tmpzpossigma/(float)tmpnTrks);
+        tmpzpossigma = std::sqrt(tmpzpossigma/(float)tmpnTrks);
         zLoF = tmpzLoF/posWeight;
         zpossigma = tmpzpossigma;
         float testChi2 = TMath::Prob(tmpchi2,tmpnTrks-1);
@@ -730,9 +730,9 @@ namespace Muon {
 	  //loop on the tracklets and find all that belong to the vertex
 	  for(unsigned int i=0; i<ExtrapZ[k].size(); ++i) {
 	    float delz = zLoF - ExtrapZ[k][i];
-	    float ExtrapErr = sqrt(sq(sigmaZ[k][i])+sq(dlength[k][i])+sq(dzLoF));
-	    float trkErr = sqrt(sq(ExtrapErr)+sq(zpossigma)) + 0.001;
-	    float trkNsigma = fabs(delz/trkErr);
+	    float ExtrapErr = std::sqrt(sq(sigmaZ[k][i])+sq(dlength[k][i])+sq(dzLoF));
+	    float trkErr = std::sqrt(sq(ExtrapErr)+sq(zpossigma)) + 0.001;
+	    float trkNsigma = std::abs(delz/trkErr);
 	    if(trkNsigma < 3) vxtracks.push_back(i);
 	  }
 	  break;//found a vertex, stop removing tracklets!
@@ -772,7 +772,7 @@ namespace Muon {
           }
         }
       }
-      Amg::Vector3D position(Rpos[k]*cos(avePhi),Rpos[k]*sin(avePhi),zLoF);
+      Amg::Vector3D position(Rpos[k]*std::cos(avePhi),Rpos[k]*std::sin(avePhi),zLoF);
       vertices.push_back( new MSVertex(1,position,vxTrackParticles,Chi2Prob,Chi2,0,0,0) );
     }//end loop on Radial planes
 
@@ -834,7 +834,7 @@ namespace Muon {
 
           Amg::Vector3D MyVx;
           MyVx = VxMinQuad(getTracklets(trks, tmpTracks));
-          if(MyVx.perp() < 10000 && fabs(MyVx.z()) > 7000 && fabs(MyVx.z()) < 15000 && 
+          if(MyVx.perp() < 10000 && std::abs(MyVx.z()) > 7000 && std::abs(MyVx.z()) < 15000 && 
 	     !EndcapHasBadTrack(getTracklets(trks, tmpTracks), MyVx))
             prelim_vx.insert(tmpTracks);
         }
@@ -863,7 +863,7 @@ namespace Muon {
             std::set<int> tempCluster = *itr;
             if(tempCluster.insert(i_trks).second) {
               Amg::Vector3D MyVx = VxMinQuad(getTracklets(trks, tempCluster));
-              if(MyVx.perp() < 10000 && fabs(MyVx.z()) > 7000 && fabs(MyVx.z()) < 15000 && 
+              if(MyVx.perp() < 10000 && std::abs(MyVx.z()) > 7000 && std::abs(MyVx.z()) < 15000 && 
 		 !EndcapHasBadTrack(getTracklets(trks, tempCluster), MyVx)) {
                 new_prelim_vx.insert(tempCluster);
                 prelim_vx.insert(tempCluster);
@@ -897,12 +897,12 @@ namespace Muon {
       aveX += ((Tracklet)*trkItr).globalPosition().x();
       aveY += ((Tracklet)*trkItr).globalPosition().y();
     }
-    float tracklet_vxphi = atan2(aveY,aveX);
+    float tracklet_vxphi = std::atan2(aveY,aveX);
     Amg::Vector3D MyVx = VxMinQuad(tracklets);
-    float vxtheta = atan2(MyVx.x(),MyVx.z());
-    float vxphi = vxPhiFinder(fabs(vxtheta),tracklet_vxphi, ctx);
+    float vxtheta = std::atan2(MyVx.x(),MyVx.z());
+    float vxphi = vxPhiFinder(std::abs(vxtheta),tracklet_vxphi, ctx);
       
-    Amg::Vector3D vxpos(MyVx.x()*cos(vxphi),MyVx.x()*sin(vxphi),MyVx.z());
+    Amg::Vector3D vxpos(MyVx.x()*std::cos(vxphi),MyVx.x()*std::sin(vxphi),MyVx.z());
     std::vector<xAOD::TrackParticle*> vxTrkTracks; 
     for(std::vector<Tracklet>::iterator tracklet = tracklets.begin(); tracklet != tracklets.end(); tracklet++) {
 
@@ -957,7 +957,7 @@ namespace Muon {
       aveR += trkItr->globalPosition().perp();
       aveZ += trkItr->globalPosition().z();
     }
-    float vxphi = atan2(aveY,aveX);
+    float vxphi = std::atan2(aveY,aveX);
   
     Amg::Vector3D MyVx(0,0,0);
     std::vector<Tracklet> tracks = RemoveBadTrk(trks,MyVx);
@@ -970,9 +970,9 @@ namespace Muon {
       tracks = std::move(Tracks);
     }
     if(tracks.size() >= 3 && MyVx.x() > 0) {
-      float vxtheta = atan2(MyVx.x(),MyVx.z());
-      vxphi = vxPhiFinder(fabs(vxtheta),vxphi, ctx);
-      Amg::Vector3D vxpos(MyVx.x()*cos(vxphi),MyVx.x()*sin(vxphi),MyVx.z());
+      float vxtheta = std::atan2(MyVx.x(),MyVx.z());
+      vxphi = vxPhiFinder(std::abs(vxtheta),vxphi, ctx);
+      Amg::Vector3D vxpos(MyVx.x()*std::cos(vxphi),MyVx.x()*std::sin(vxphi),MyVx.z());
       //make Trk::Track for each tracklet used in the vertex fit
       std::vector<xAOD::TrackParticle*> vxTrackParticles;	      
       for(std::vector<Tracklet>::iterator trklt=tracks.begin(); trklt!=tracks.end(); ++trklt) {
@@ -1015,9 +1015,9 @@ namespace Muon {
     float WorstTrkDist = MaxTollDist;
     unsigned int iWorstTrk = 0xC0FFEE;
     for(unsigned int i=0; i<tracks.size(); ++i) {
-      float TrkSlope = tan(tracks.at(i).getML1seg().alpha());
+      float TrkSlope = std::tan(tracks.at(i).getML1seg().alpha());
       float TrkInter = tracks.at(i).getML1seg().globalPosition().perp() - tracks.at(i).getML1seg().globalPosition().z()*TrkSlope;
-      float dist = fabs((TrkSlope*Vx.z() - Vx.x() + TrkInter)/sqrt(sq(TrkSlope) + 1));
+      float dist = std::abs((TrkSlope*Vx.z() - Vx.x() + TrkInter)/std::sqrt(sq(TrkSlope) + 1));
       if(dist > MaxTollDist && dist > WorstTrkDist) {
         iWorstTrk = i;
         WorstTrkDist = dist;
@@ -1052,9 +1052,9 @@ namespace Muon {
     //loop on all tracks and find the worst
     float WorstTrkDist = MaxTollDist;
     for(auto track = tracks.cbegin(); track != tracks.cend(); track++) {
-      float TrkSlope = tan(((Tracklet)*track).getML1seg().alpha());
+      float TrkSlope = std::tan(((Tracklet)*track).getML1seg().alpha());
       float TrkInter = ((Tracklet)*track).getML1seg().globalPosition().perp() - ((Tracklet)*track).getML1seg().globalPosition().z()*TrkSlope;
-      float dist = fabs((TrkSlope*Vx.z() - Vx.x() + TrkInter)/sqrt(sq(TrkSlope) + 1));
+      float dist = std::abs((TrkSlope*Vx.z() - Vx.x() + TrkInter)/std::sqrt(sq(TrkSlope) + 1));
       if(dist > MaxTollDist && dist > WorstTrkDist) {
         return true;
       }
@@ -1110,7 +1110,7 @@ namespace Muon {
     float s(0.),sx(0.),sy(0.),sxy(0.),sxx(0.),d(0.);
     float sigma = 1.;
     for(unsigned int i=0; i<tracks.size(); ++i) {
-      float TrkSlope = tan(tracks.at(i).getML1seg().alpha());
+      float TrkSlope = std::tan(tracks.at(i).getML1seg().alpha());
       float TrkInter = tracks.at(i).getML1seg().globalPosition().perp() - tracks.at(i).getML1seg().globalPosition().z()*TrkSlope;
       s += 1./(sq(sigma));
       sx += TrkSlope/(sq(sigma));
@@ -1140,8 +1140,8 @@ namespace Muon {
   float MSVertexRecoTool::vxPhiFinder(float theta,float phi, const EventContext &ctx) const {
     float nmeas(0);
     float sinphi(0),cosphi(0);
-    float eta = -1*log(tan(0.5*theta));
-    if(fabs(eta) < 1.5) {
+    float eta = -1*std::log(std::tan(0.5*theta));
+    if(std::abs(eta) < 1.5) {
       SG::ReadHandle<Muon::RpcPrepDataContainer> rpcTES(m_rpcTESKey, ctx);
       if(!rpcTES.isValid()) {
         ATH_MSG_WARNING( "No RpcPrepDataContainer found in SG!" );
@@ -1160,17 +1160,17 @@ namespace Muon {
 	    if(dphi > M_PI) dphi -= 2*M_PI;
 	    else if(dphi < -M_PI) dphi += 2*M_PI;
 	    float deta = eta - rpcEta;
-	    float DR = sqrt(sq(deta)+sq(dphi));
+	    float DR = std::sqrt(sq(deta)+sq(dphi));
 	    if(DR < 0.6) {
 	      nmeas++;
-	      sinphi += sin(rpcPhi);
-	      cosphi += cos(rpcPhi);
+	      sinphi += std::sin(rpcPhi);
+	      cosphi += std::cos(rpcPhi);
 	    }
 	  }
         }
       }  
     }
-    if(fabs(eta) > 0.5) {
+    if(std::abs(eta) > 0.5) {
       SG::ReadHandle<Muon::TgcPrepDataContainer> tgcTES(m_tgcTESKey, ctx);
       if(!tgcTES.isValid()) {     
 	ATH_MSG_WARNING( "No TgcPrepDataContainer found in SG!" );
@@ -1189,18 +1189,18 @@ namespace Muon {
 	    if(dphi > M_PI) dphi -= 2*M_PI;
 	    else if(dphi < -M_PI) dphi += 2*M_PI;
 	    float deta = eta - tgcEta;
-	    float DR = sqrt(sq(deta)+sq(dphi));
+	    float DR = std::sqrt(sq(deta)+sq(dphi));
 	    if(DR < 0.6) {
 	      nmeas++;
-              sinphi += sin(tgcPhi);
-              cosphi += cos(tgcPhi);
+              sinphi += std::sin(tgcPhi);
+              cosphi += std::cos(tgcPhi);
 	    }
 	  }
         }
       }
     }	 
     float vxphi = phi;
-    if(nmeas > 0) vxphi = atan2(sinphi/nmeas,cosphi/nmeas);
+    if(nmeas > 0) vxphi = std::atan2(sinphi/nmeas,cosphi/nmeas);
     return vxphi;
   }
 
@@ -1222,12 +1222,12 @@ namespace Muon {
       Muon::MdtPrepDataCollection::const_iterator mdt = (*MDTItr)->begin();
       Muon::MdtPrepDataCollection::const_iterator mdtE = (*MDTItr)->end();
       Amg::Vector3D ChamberCenter = (*mdt)->detectorElement()->center();
-      float deta = fabs(MSRecoVx->getPosition().eta() - ChamberCenter.eta());
+      float deta = std::abs(MSRecoVx->getPosition().eta() - ChamberCenter.eta());
       if(deta > 0.6) continue;
       float dphi = MSRecoVx->getPosition().phi() - ChamberCenter.phi();
       if(dphi > M_PI) dphi -= 2*M_PI;
       else if(dphi < -M_PI) dphi += 2*M_PI;
-      if( fabs(dphi) > 0.6 ) continue;
+      if( std::abs(dphi) > 0.6 ) continue;
       int nChHits(0);
       Identifier id = (*mdt)->identify();
       float nTubes = (m_idHelperSvc->mdtIdHelper().tubeLayerMax(id) - m_idHelperSvc->mdtIdHelper().tubeLayerMin(id) + 1)*(m_idHelperSvc->mdtIdHelper().tubeMax(id) - m_idHelperSvc->mdtIdHelper().tubeMin(id) + 1);
@@ -1262,7 +1262,7 @@ namespace Muon {
         if(dphi > M_PI) dphi -= 2*M_PI;
         else if(dphi < -M_PI) dphi += 2*M_PI;
         float deta = MSRecoVx->getPosition().eta() - rpcEta;
-        float DR = sqrt(sq(deta)+sq(dphi));
+        float DR = std::sqrt(sq(deta)+sq(dphi));
         if(DR < 0.6) nrpc++;
         if(DR > 1.2) break;
       }
@@ -1283,7 +1283,7 @@ namespace Muon {
         if(dphi > M_PI) dphi -= 2*M_PI;
         else if(dphi < -M_PI) dphi += 2*M_PI;
         float deta = MSRecoVx->getPosition().eta() - tgcEta;
-        float DR = sqrt(sq(deta)+sq(dphi));
+        float DR = std::sqrt(sq(deta)+sq(dphi));
         if(DR < 0.6) ntgc++;
         if(DR > 1.2) break;
       }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -60,7 +60,7 @@ CaloDepthTool::initialize()
 
   ATH_CHECK( detStore()->retrieve (m_calo_id, "CaloCell_ID") );
     
-  if (m_depth_choice=="") {
+  if (m_depth_choice.empty()) {
     ATH_MSG_INFO (" CaloDepthTool " << this->name() 
                   << " successfully initialised, will provide entrance (default)" 
                   << m_depth_choice );

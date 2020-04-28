@@ -40,8 +40,7 @@ private:
   int m_nGoodHtoVV;
   int m_nGoodHtoVVSameCharge;
 
-  bool findAncestor(const HepMC::GenVertex::particle_iterator &firstAncestor,
-                    const HepMC::GenVertex::particle_iterator &endAncestor,
+  bool findAncestor(const HepMC::GenVertex* searchvertex,
                     int targetPDGID);
 
 };

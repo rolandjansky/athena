@@ -28,7 +28,7 @@ StatusCode MM_Digitizer::initialize() {
 /*******************************************************************************/
 StatusCode MM_Digitizer::execute() {
   ATH_MSG_DEBUG ("MM_Digitizer::in execute()");
-  return m_digTool->digitize();
+  return m_digTool->digitize(Gaudi::Hive::currentContext());
 }
 /*******************************************************************************/
 StatusCode MM_Digitizer::finalize() {

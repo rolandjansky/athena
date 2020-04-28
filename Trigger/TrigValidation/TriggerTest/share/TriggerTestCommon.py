@@ -59,12 +59,6 @@ if ('doFastCaloAccess' in dir()):
         EFMissingET_Fex_noiseSupp.Tools["TheCellTool"].useFullCollection = False
 
 
-# disable abort when there is an unchecked status code
-StatusCodeSvc.AbortOnError=False
-
-if not ('AbortOnError' in dir()):
-    StatusCodeSvc.AbortOnError=True
-
 #-----------------Monitoring -----------------
 if not ('checkLeak' in dir()):
     from PerfMonComps import PerfMonFlags

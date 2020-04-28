@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -84,13 +84,13 @@ StatusCode NtupleDbCheckTool::handleEvent(const MuonCalibEvent & /*event*/, int 
 			const IRtRelation *rt=m_input_service-> GetRtRelation(st_id);
 			if(rt!=NULL)
 				{
-				m_calib_r = std::fabs(rt->radius(hit->driftTime()));
+				m_calib_r = std::abs(rt->radius(hit->driftTime()));
 				}
 			else
 				{
 				m_calib_r = 9e9;
 				}
-			m_ntuple_r = std::fabs(hit->driftRadius());
+			m_ntuple_r = std::abs(hit->driftRadius());
 			m_outtree->Fill();
 			}
 		}

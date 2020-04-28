@@ -1,25 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCMuonTrigger_H
 #define RPCMuonTrigger_H
 
-#include <vector>
-
 #include "AthenaBaseComps/AthAlgorithm.h"
-
-#include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
 
-#include "GaudiKernel/ServiceHandle.h"
-
 #include "StoreGate/DataHandle.h"
-#include "Identifier/Identifier.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "TrigT1RPClogic/RPCsimuData.h"
 #include "TrigT1RPClogic/CMAdata.h"
@@ -27,14 +22,12 @@
 #include "TrigT1RPClogic/SLdata.h"
 #include "TrigT1RPClogic/RPCbytestream.h"
 
-//#include "TrigT1RPCmonitoring/TrigEfficiency.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 
-class RpcIdHelper;
+#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +38,6 @@ public:
   TrigT1RPC (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
 private:
   IntegerProperty m_fast_debug{this,"FastDebug",0};            // bits for debugging "fast" algos
@@ -78,23 +70,20 @@ private:
   
   BooleanProperty m_useRun3Config{this,"useRun3Config",false};         // flag for using switch between Run3 and Run2 configurations
   
-  StatusCode fill_RPCdata(RPCsimuData&);
-  
+  StatusCode fill_RPCdata(RPCsimuData&, const RpcCablingCondData* readCdo);
+
  private:
+  const MuonGM::MuonDetectorManager* m_MuonMgr;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    //  ActiveStoreSvc*                      m_activeStore;
-  
-  const MuonGM::MuonDetectorManager*   m_MuonMgr;
-  const RpcIdHelper*                   m_rpcId;
-
-  ServiceHandle <IRPCcablingServerSvc> m_cabling_getter;
-  const IRPCcablingSvc*                m_cabling;
+  SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
   SG::ReadHandleKey<RpcDigitContainer> m_rpcDigitKey{this, "RPCDigitContainer", "RPC_DIGITS", "RPC Digit Input Container"};
   SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationRPC", "L1MuctpiStoreRPC", "Location of muctpi for Rpc"};
   SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1Key{this, "MuctpiPhase1LocationRPC", "L1MuctpiStoreRPC", "Location of muctpiPhase1 for Rpc"};
   
+  ServiceHandle <IRPCcablingServerSvc> m_cabling_getter;
+  const IRPCcablingSvc*                m_cabling;
 };
-
 
 #endif

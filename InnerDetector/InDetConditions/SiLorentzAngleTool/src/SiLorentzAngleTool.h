@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,7 +14,7 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "SiLorentzAngleTool/SiLorentzAngleCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -96,13 +96,11 @@ private:
   std::string              m_detectorName;
   bool                     m_isPixel;  
   double                   m_nominalField;
-  bool                     m_useMagFieldSvc;
+  bool                     m_useMagFieldCache;
   bool                     m_ignoreLocalPos;   // Makes methods using localPosition behave as method without passing localPosition.
   SG::ReadCondHandleKey<SiLorentzAngleCondData> m_condData;
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_detEleCollKey{this, "DetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT or Pixel"};
-
-  // needed services
-  ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey{this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
   static const double s_invalidValue;
 };

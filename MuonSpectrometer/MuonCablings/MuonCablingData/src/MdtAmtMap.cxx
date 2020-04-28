@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCablingData/MdtAmtMap.h"
@@ -154,7 +154,7 @@ bool MdtAmtMap::initMap(const MdtMezzanineType* mezType, uint8_t chanZero, int l
       uint8_t localchan = chan%(mezType->nOfTubesInLayer());
       
       // special case of the BIR with 3 tubes overlapping to another mezzanine
-      if (chanZero==5 && m_station==7 && abs(m_eta)==3 && ((mezType->type()>40
+      if (chanZero==5 && m_station==7 && std::abs(m_eta)==3 && ((mezType->type()>40
 							    && localchan%2==0) || (mezType->type()<40 && localchan<3))) continue;
       
       //    *m_log << "the zero channel is: " << (int) chanZero 

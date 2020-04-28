@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CaloCellList_H
@@ -57,20 +57,24 @@ class CaloCellList
   // That is, we select cells within eta-deta .. eta+deta and similarly for phi.
   void select(double eta,double phi,double deta,double dphi); 
   void select(double eta,double phi,double deta,double dphi,int sam); 
-
   void select(double eta,double phi,double dR ); 
   void select(double eta,double phi,double dR,int sam);
-  void select_nstrips(double eta, double phi, int ncell_eta, int ncell_phi, CaloCell_ID::SUBCALO subCalo, int sampling_or_module, bool barrel);
-
+ //Add overload accepting const CaloDetDescrManager&
+  void select(const CaloDetDescrManager& mgr,double eta,double phi,double deta,double dphi); 
+  void select(const CaloDetDescrManager& mgr,double eta,double phi,double deta,double dphi,int sam); 
+  void select(const CaloDetDescrManager& mgr,double eta,double phi,double dR ); 
+  void select(const CaloDetDescrManager& mgr,double eta,double phi,double dR,int sam);
+ 
   list_iterator begin() const;
   list_iterator end() const;
 
-  double energy();     // returns the energy of the selected cells   
-  double et();         // returns the et of the selected cells 
-  int ncells();        // returns the number of cells    
+  double energy() const;     // returns the energy of the selected cells   
+  double et() const;         // returns the et of the selected cells 
+  int ncells() const;        // returns the number of cells    
 
  private:
-  void doSelect(double eta,double phi,double deta,double dphi,
+  void doSelect(const CaloDetDescrManager& mgr,
+                double eta,double phi,double deta,double dphi,
                 double dR,
                 CaloCell_ID::CaloSample sam = CaloCell_ID::Unknown);
  
@@ -91,7 +95,7 @@ inline CaloCellList::list_iterator CaloCellList::end() const
   return m_theCellVector.end();
 }
 
-inline int CaloCellList::ncells()
+inline int CaloCellList::ncells() const
 {
     return m_theCellVector.size();
 }

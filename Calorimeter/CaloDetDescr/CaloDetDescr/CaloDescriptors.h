@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -57,11 +57,11 @@ class EMBDescriptor : public CaloDetDescriptor
 
   /** @brief default constructor hidden
    */
-  EMBDescriptor();
+  EMBDescriptor() = delete;
 
   /** @brief copy constructor hidden
    */
-  EMBDescriptor & operator=(const EMBDescriptor &right);
+  EMBDescriptor & operator=(const EMBDescriptor &right) = delete;
 
   /** @brief initialize base description
    */
@@ -109,11 +109,11 @@ class EMECDescriptor : public CaloDetDescriptor
 
   /** @brief default constructor hidden
    */
-  EMECDescriptor();
+  EMECDescriptor() = delete;
 
   /** @brief copy constructor hidden
    */
-  EMECDescriptor & operator=(const EMECDescriptor &right);
+  EMECDescriptor & operator=(const EMECDescriptor &right) = delete;
 
   /** @brief initialize base description
    */
@@ -162,11 +162,11 @@ class HECDescriptor : public CaloDetDescriptor
 
   /** @brief default constructor hidden
    */
-  HECDescriptor();
+  HECDescriptor() = delete;
 
   /** @brief copy constructor hidden
    */
-  HECDescriptor & operator=(const HECDescriptor &right);
+  HECDescriptor & operator=(const HECDescriptor &right) = delete;
 
 
   /** @brief initialize base description
@@ -215,11 +215,11 @@ class FCALDescriptor : public CaloDetDescriptor
 
   /** @brief default constructor hidden
    */
-  FCALDescriptor();
+  FCALDescriptor() = delete;
 
   /** @brief copy constructor hidden
    */
-  FCALDescriptor & operator=(const FCALDescriptor &right);
+  FCALDescriptor & operator=(const FCALDescriptor &right) = delete;
 
   /** @brief initialize base description
    */

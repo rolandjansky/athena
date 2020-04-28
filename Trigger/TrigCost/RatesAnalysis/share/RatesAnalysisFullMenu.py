@@ -71,11 +71,11 @@ if __name__=='__main__':
   from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
   cfg.merge(MetaDataSvcCfg(ConfigFlags))
 
-  cfgsvc = CompFactory.TrigConf__xAODConfigSvc('xAODConfigSvc')
+  cfgsvc = CompFactory.TrigConf.xAODConfigSvc('xAODConfigSvc')
   cfg.addService(cfgsvc)
 
   from TrigEDMConfig.TriggerEDM import EDMLibraries
-  tdt = CompFactory.Trig__TrigDecisionTool('TrigDecisionTool')
+  tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
   tdt.TrigConfigSvc = cfgsvc
   tdt.NavigationFormat = "TrigComposite"
   tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]

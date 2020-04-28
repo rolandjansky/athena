@@ -1118,7 +1118,7 @@ void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
     // This 5 is a safe margin for cell_list calculation
     // and should not be changed.
     CaloCellList cell_list(cell_container); 
-    cell_list.select(eta,phi,seg.m_detas2*(m_neta+5),seg.m_dphis2*(m_nphi+5));
+    cell_list.select(*calodetdescrmgr,eta,phi,seg.m_detas2*(m_neta+5),seg.m_dphis2*(m_nphi+5));
 
     // Do the calculation.
     CaloClusterCorr::SamplingHelper_CaloCellList helper (*this,

@@ -104,7 +104,44 @@ def METMonitoringConfig(inputFlags):
     group = helper.addGroup(METCalo_MonAlg, "METMonitor", "MissingEt/AllTriggers/MET_Calo/MET_Cell")
     for mets in metcalo_types:
         defineHistogramsCalo(METCalo_MonAlg, group,helper,mets)
+#trigger
+    METRefFinal_XE30_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METRefFinal_XE30_MonAlg')
+    METRefFinal_XE30_MonAlg.METContainer="MET_Reference_AntiKt4EMTopo"
+    METRefFinal_XE30_MonAlg.metTotalKey="FinalTrk"
+    METRefFinal_XE30_MonAlg.metKeys = met_types
+    METRefFinal_XE30_MonAlg.dotrigger = True
+    group = helper.addGroup(METRefFinal_XE30_MonAlg,"METMonitor","MissingEt/TrigXE30/MET_AntiKt4EMTopo/")
+    for mets in met_types:
+        defineHistograms(METRefFinal_XE30_MonAlg, group,helper,mets)
 
+    METPflow_XE30_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METPflow_XE30_MonAlg')
+    METPflow_XE30_MonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
+    METPflow_XE30_MonAlg.metTotalKey="FinalTrk"
+    METPflow_XE30_MonAlg.metKeys = pfmet_types
+    METPflow_XE30_MonAlg.dotrigger = True
+    group = helper.addGroup(METPflow_XE30_MonAlg,"METMonitor","MissingEt/TrigXE30/MET_AntiKt4EMPflow/")
+    for mets in pfmet_types:
+        defineHistograms(METPflow_XE30_MonAlg, group,helper,mets)
+
+    METCalo_XE30_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METCalo_XE30_MonAlg')
+    METCalo_XE30_MonAlg.METCaloContainer="MET_Calo"
+    METCalo_XE30_MonAlg.METCaloKeys = metcalo_types
+    METCalo_XE30_MonAlg.dotrigger = True
+    group = helper.addGroup(METCalo_XE30_MonAlg,"METMonitor","MissingEt/TrigXE30/MET_Calo/MET_Cell")
+    for mets in metcalo_types:
+        defineHistogramsCalo(METCalo_XE30_MonAlg, group,helper,mets)
+
+    METEMTopo_XE30_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METEMTopo_XE30_MonAlg')
+    METEMTopo_XE30_MonAlg.METContainer="MET_EMTopo"
+    METEMTopo_XE30_MonAlg.METAntiKt4EMTopoContainer="MET_Reference_AntiKt4EMTopo"
+    emtopomet_types= ["MET_Topo"]
+    METEMTopo_XE30_MonAlg.metKeys = emtopomet_types
+    METEMTopo_XE30_MonAlg.dotrigger = True
+    METEMTopo_XE30_group = helper.addGroup(METEMTopo_XE30_MonAlg,"METMonitor","MissingEt/TrigXE30/MET_Calo/EMTopo") 
+    for mets in emtopomet_types:
+        defineHistograms(METEMTopo_XE30_MonAlg, METEMTopo_XE30_group,helper,mets) 
+
+# metcut
     METRefFinal_METCut_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METRefFinal_METCut_MonAlg')
     METRefFinal_METCut_MonAlg.METContainer="MET_Reference_AntiKt4EMTopo"
     METRefFinal_METCut_MonAlg.metTotalKey="FinalTrk"
@@ -146,8 +183,7 @@ def METMonitoringConfig(inputFlags):
         defineHistograms(METEMTopo_METCut_MonAlg, METEMTopo_METCut_group,helper,mets)    
 # Jet cleaning
 
-    from AthenaCommon import CfgMgr
-    jetCleaningTool = CfgMgr.JetCleaningTool()
+    jetCleaningTool = CompFactory.JetCleaningTool()
     jetCleaningTool.CutLevel = "LooseBad"       
 #    jetCleaningTool.CutLevel = "TightBad"       
     jetCleaningTool.DoUgly = False

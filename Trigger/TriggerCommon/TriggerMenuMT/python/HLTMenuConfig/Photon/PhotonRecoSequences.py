@@ -76,9 +76,11 @@ def precisionPhotonRecoSequence(RoIs):
 
 def l2PhotonAlgCfg( flags ):
     acc = ComponentAccumulator()
-    from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
+    #from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
+    from AthenaConfiguration.ComponentFactory import CompFactory
 
-    photonFex= L2PhotonFex_1()
+    photonFex= CompFactory.TrigL2PhotonFexMT("L2PhotonFex_1")
+    #photonFex= L2PhotonFex_1()
     photonFex.TrigEMClusterName = recordable("HLT_L2CaloEMClusters")
     photonFex.PhotonsName = recordable("HLT_L2Photons")
     photonFex.RoIs = "L2PhotonRecoRoIs"
@@ -91,10 +93,11 @@ def l2PhotonRecoCfg( flags ):
     reco = InViewReco("L2PhotonReco")
     reco.inputMaker().RequireParentView = True
     reco.inputMaker().RoIsLink="initialRoI"
-    import AthenaCommon.CfgMgr as CfgMgr
 
-    moveClusters = CfgMgr.AthViews__ViewDataVerifier("photonViewDataVerifier")
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    moveClusters = CompFactory.getComp("AthViews::ViewDataVerifier")("photonViewDataVerifier")
     moveClusters.DataObjects = [ ('xAOD::TrigEMClusterContainer','StoreGateSvc+HLT_L2CaloEMClusters') ]
+
     reco.addRecoAlg( moveClusters )
 
     algAcc, alg = l2PhotonAlgCfg( flags )
@@ -104,9 +107,9 @@ def l2PhotonRecoCfg( flags ):
     return reco
 
 def l2PhotonHypoCfg( flags, Photons='Unspecified', RunInView=True):
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoAlgMT
+    from AthenaConfiguration.ComponentFactory import CompFactory
 
-    l2PhotonHypo = TrigL2PhotonHypoAlgMT()
+    l2PhotonHypo = CompFactory.TrigL2PhotonHypoAlgMT()
     l2PhotonHypo.Photons = Photons
     l2PhotonHypo.RunInView = RunInView
 

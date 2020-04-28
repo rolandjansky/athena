@@ -39,7 +39,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
         self.Filter      = kw.get('Filter',      [False]*10)
 
     def initialize(self):
-        self.msg.info( "Initializing %s", self.name() )
+        self.msg.info( "Initializing %s", self.name )
         ## storegate
         self.sg = PyAthena.StoreGate.pointer("StoreGateSvc")
         # or: PyAthena.py_svc("StoreGateSvc",createIf=True)
@@ -52,7 +52,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
         return StatusCode.Success
 
     def execute(self):
-        self.msg.debug( "Executing %s...", self.name() )
+        self.msg.debug( "Executing %s...", self.name )
         allGood = True
         for t in ("test1","test2","test3",):
             if self.test(t) != StatusCode.Success:
@@ -283,7 +283,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
         return StatusCode.Success
 
     def finalize(self):
-        self.msg.info( "Finalizing %s...", self.name() )
+        self.msg.info( "Finalizing %s...", self.name )
         return StatusCode.Success
 
     pass # PyWriteThinnedData
@@ -302,7 +302,7 @@ class PyReadNonThinnedData( PyAthena.Alg ):
         self.Elephantino = kw.get('Elephantino', "PinkElephantino")
 
     def initialize(self):
-        self.msg.info( "Initializing %s", self.name() )
+        self.msg.info( "Initializing %s", self.name )
         ## storegate
         self.sg = PyAthena.StoreGate.pointer("StoreGateSvc")
         # or: PyAthena.py_svc("StoreGateSvc",createIf=True)
@@ -317,7 +317,7 @@ class PyReadNonThinnedData( PyAthena.Alg ):
         sg = self.sg
         _warning = self.msg.warning
         _info    = self.msg.info
-        _info( "Executing %s...", self.name() )
+        _info( "Executing %s...", self.name )
         for test in ("test1", "test2", "test3"):
             key = "%s_%s"%(self.Particles,test)
             particles = sg.retrieve("AthExParticles", key)
@@ -361,7 +361,7 @@ class PyReadNonThinnedData( PyAthena.Alg ):
         return StatusCode.Success
 
     def finalize(self):
-        self.msg.info( "Finalizing %s...", self.name() )
+        self.msg.info( "Finalizing %s...", self.name )
         return StatusCode.Success
 
     pass # PyReadNonThinnedData

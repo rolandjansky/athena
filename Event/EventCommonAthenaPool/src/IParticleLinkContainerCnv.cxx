@@ -52,7 +52,7 @@ IParticleLinkContainer* IParticleLinkContainerCnv::createTransient()
 
   if( compareClassGuid(p1_guid) )
     {
-      // using auto_ptr ensures deletion of the persistent object
+      // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr< IParticleLinkContainer_PERS > col_vect( poolReadObject< IParticleLinkContainer_PERS >() );
       return m_TPConverter.createTransient( col_vect.get(), log );
     }

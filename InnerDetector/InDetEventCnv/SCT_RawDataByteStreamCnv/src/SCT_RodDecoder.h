@@ -25,7 +25,7 @@
 
 class IdentifierHash;
 class SCT_ID;
-
+class SCT_RodDecoderErrorsHelper;
 /** 
  * @class SCT_RodDecoder
  *
@@ -105,8 +105,8 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param errorType Error type info.
    * @param errs Byte stream error container.
    */
-  StatusCode addRODError(uint32_t rodID, int errorType,
-			 IDCInDetBSErrContainer& errs) const;
+  StatusCode addRODError(uint32_t rodID, SCT_ByteStreamErrors::ErrorType error,
+			 SCT_RodDecoderErrorsHelper& errs) const;
   /**
    * @brief Add single eror
    *
@@ -115,8 +115,8 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param errs Byte stream error container.
    */
   StatusCode addSingleError(const IdentifierHash& hashID,
-			    int bsErrorType,
-			    IDCInDetBSErrContainer& errs) const;
+			    SCT_ByteStreamErrors::ErrorType error,
+			    SCT_RodDecoderErrorsHelper& errs) const;
 
   /**
    * @brief Set first temporarily masked chip information from byte stream trailer
@@ -127,7 +127,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    */
   StatusCode setFirstTempMaskedChip(const IdentifierHash& hashID, 
 				    unsigned int firstTempMaskedChip, 
-				    IDCInDetBSErrContainer& errs) const;
+				    SCT_RodDecoderErrorsHelper& errs) const;
 
   /** Identifier helper class for the SCT subdetector that creates compact Identifier objects and 
       IdentifierHash or hash IDs. Also allows decoding of these IDs. */

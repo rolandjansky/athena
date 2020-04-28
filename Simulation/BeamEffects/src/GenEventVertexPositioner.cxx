@@ -10,7 +10,8 @@
 #include "GenEventVertexPositioner.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // Framework includes
 #include "HepMC_Interfaces/ILorentzVectorGenerator.h"

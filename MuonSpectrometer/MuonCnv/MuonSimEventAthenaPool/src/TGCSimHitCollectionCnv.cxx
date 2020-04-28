@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCSimHitCollectionCnv.h"
@@ -42,25 +42,25 @@ TGCSimHitCollection* TGCSimHitCollectionCnv::createTransient() {
     TGCSimHitCollection* p_collection(0);
     if(compareClassGuid(p4_guid) ) {
       log<<MSG::DEBUG<<"createTransient(): T/P version 4 detected"<<endmsg;
-      std::auto_ptr< Muon::TGCSimHitCollection_p4 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p4 >() );
+      std::unique_ptr< Muon::TGCSimHitCollection_p4 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p4 >() );
       p_collection = m_TPConverter_p4.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------
     else if(compareClassGuid(p3_guid) ) {
         log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
-        std::auto_ptr< Muon::TGCSimHitCollection_p3 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p3 >() );
+        std::unique_ptr< Muon::TGCSimHitCollection_p3 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p3 >() );
         p_collection = m_TPConverter_p3.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------
     else if( compareClassGuid(p2_guid) ) {
         log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endmsg;
-        std::auto_ptr< Muon::TGCSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p2 >() );
+        std::unique_ptr< Muon::TGCSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p2 >() );
         p_collection = m_TPConverter_p2.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------
     else if( compareClassGuid(p1_guid) ) {
         log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
-        std::auto_ptr< Muon::TGCSimHitCollection_p1 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p1 >() );
+        std::unique_ptr< Muon::TGCSimHitCollection_p1 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p1 >() );
         p_collection = m_TPConverter_p1.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------

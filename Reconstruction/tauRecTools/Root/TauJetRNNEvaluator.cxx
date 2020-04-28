@@ -10,24 +10,11 @@
 #include "tauRecTools/TauJetRNN.h"
 #include "tauRecTools/HelperFunctions.h"
 
-TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name)
-    : TauRecToolBase(name), m_net_0p(nullptr), m_net_1p(nullptr), m_net_3p(nullptr) {
-    // Network weight files for 0-, 1- and 3-prong taus
-    // If the filename is an empty string a default value is decorated
-    declareProperty("NetworkFile0P", m_weightfile_0p = "");
-    declareProperty("NetworkFile1P", m_weightfile_1p = "");
-    declareProperty("NetworkFile3P", m_weightfile_3p = "");
-    declareProperty("OutputVarname", m_output_varname = "RNNJetScore");
-    declareProperty("MaxTracks", m_max_tracks = 10);
-    declareProperty("MaxClusters", m_max_clusters = 6);
-    declareProperty("MaxClusterDR", m_max_cluster_dr = 1.0f);
-
-    // Naming conventions for the network weight files:
-    declareProperty("InputLayerScalar", m_input_layer_scalar = "scalar");
-    declareProperty("InputLayerTracks", m_input_layer_tracks = "tracks");
-    declareProperty("InputLayerClusters", m_input_layer_clusters = "clusters");
-    declareProperty("OutputLayer", m_output_layer = "rnnid_output");
-    declareProperty("OutputNode", m_output_node = "sig_prob");
+TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name): 
+    TauRecToolBase(name),
+    m_net_0p(nullptr),
+    m_net_1p(nullptr),
+    m_net_3p(nullptr) {
 }
 
 TauJetRNNEvaluator::~TauJetRNNEvaluator() {}
