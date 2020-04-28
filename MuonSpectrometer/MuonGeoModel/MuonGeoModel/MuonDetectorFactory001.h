@@ -65,8 +65,8 @@ public:
   inline void hasCSC(bool value);
   inline void hasSTgc(bool value);
   inline void hasMM(bool value);
-  inline void setABLinesAsciiSideA(std::string );
-  inline void setABLinesAsciiSideC(std::string );
+  inline void setABLinesAsciiSideA(const std::string& );
+  inline void setABLinesAsciiSideC(const std::string& );
 
 private:
 
