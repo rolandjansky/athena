@@ -145,7 +145,7 @@ void NSWCondUtils::setNSWABLinesFromAscii(const std::string& filename,
              }
             
 
-             if(stationType == "STL" || stationType == "STS"){
+             else if(stationType == "STL" || stationType == "STS"){
              id = stgcHelper->elementID(stationType,eta,phi);
              id_mult = stgcHelper->multilayerID(id, mult);
              }

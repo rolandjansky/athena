@@ -97,8 +97,8 @@ private:
   bool m_hasSTgc;
   bool m_hasMM;
 
-  std::string m_NSWABLinesSideA;
-  std::string m_NSWABLinesSideC;
+  const std::string& m_NSWABLinesSideA;
+  const std::string& m_NSWABLinesSideC;
 
   std::vector<std::string> m_selectedStations;
   std::vector<int> m_selectedStEta;
