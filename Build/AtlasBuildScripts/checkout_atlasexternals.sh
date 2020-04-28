@@ -106,11 +106,20 @@ if [ ! -d "${SOURCEDIR}" ]; then
     _retry_ git clone ${EXTERNALSURL} ${SOURCEDIR}
 else
     echo "${SOURCEDIR} already exists -> assume previous checkout"
-    # make sure it points to the right place
-    (
-        cd ${SOURCEDIR}
-        git remote set-url origin ${EXTERNALSURL}
-    )
+fi
+
+# check whether the source directory points to the right repository
+RECLONE=false
+pushd ${SOURCEDIR}
+SOURCEURL=$(git remote get-url origin)
+if [ "${SOURCEURL}" != "${EXTERNALSURL}" ] ; then
+    echo "${SOURCEURL} wasn't cloned from ${EXTERNALSURL}, deleting"
+    RECLONE=true
+fi
+popd
+if [ $RECLONE = true ] ; then
+    rm -rf ${SOURCEDIR}
+    _retry_ git clone ${EXTERNALSURL} ${SOURCEDIR}
 fi
 
 # Get the appropriate version of it:
