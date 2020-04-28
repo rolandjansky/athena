@@ -14,7 +14,7 @@
 
 
 namespace MuonCalib {
-void NSWCondUtils::setNSWABLinesFromAscii(std::string filename,
+void NSWCondUtils::setNSWABLinesFromAscii(const std::string& filename,
                                           ALineMapContainer& writeALines,
                                           BLineMapContainer& writeBLines, 
                                           const sTgcIdHelper* stgcHelper, 

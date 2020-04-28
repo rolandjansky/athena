@@ -1205,7 +1205,7 @@ MuonDetectorManager::initABlineContainers()
 
          ALineMapContainer writeALines;
          BLineMapContainer writeBLines;
-         std::string filename = "clob_example_NSWA.txt";
+         const std::string filename = "clob_example_NSWA.txt";
          MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(filename, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
 
          for (auto it = writeALines.cbegin(); it!=writeALines.cend(); ++it)  //ALines A Side
@@ -1230,7 +1230,7 @@ MuonDetectorManager::initABlineContainers()
            {  
                ALineMapContainer writeALines;
                BLineMapContainer writeBLines;
-               std::string filename = "clob_example_NSWC.txt";
+               const std::string filename = "clob_example_NSWC.txt";
                MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(filename,writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
            
                for (auto it = writeALines.cbegin(); it!=writeALines.cend(); ++it) //ALines C Side
