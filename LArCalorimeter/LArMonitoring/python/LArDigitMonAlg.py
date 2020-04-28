@@ -138,7 +138,7 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   title='% chan/FEB/events with max=4095 ADC - Med/High Gain - All Stream',
                                   type='TH2I',
                                   path=hist_path,
-                                  weight='weight',
+                                  weight='Saturweight',
                                   xbins=crates_n,xmin=crates_low,xmax=crates_up,
                                   ybins=chan_n, ymin=chan_low, ymax=chan_up)
 
@@ -146,7 +146,6 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   title='% chan/FEB/events with max=4095 ADC ',
                                   type='TH2I',
                                   path=hist_path,
-                                  weight='weight',
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
        array.defineHistogram('SaturLowslot,SaturLowFT,SaturLowweight;SaturationLow', 
@@ -155,11 +154,11 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   path=hist_path,
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
-       array.defineHistogram('SaturLowcrate,SaturLowchan;SaturationLowChan', 
+       array.defineHistogram('SaturLowcrate,SaturLowchan;SaturationChanLow', 
                                   title='% chan/FEB/events with max=4095 ADC - Low Gain - All Stream',
                                   type='TH2I',
                                   path=hist_path,
-                                  weight='weight',
+                                  weight='SaturLowweight',
                                   xbins=crates_n,xmin=crates_low,xmax=crates_up,
                                   ybins=chan_n, ymin=chan_low, ymax=chan_up)
 
@@ -180,7 +179,6 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   title='% chan/FEB/events with min=0 ADC - All Gain - All Stream',
                                   type='TH2I',
                                   path=hist_path,
-                                  weight='weight',
                                   xbins=crates_n,xmin=crates_low,xmax=crates_up,
                                   ybins=chan_n, ymin=chan_low, ymax=chan_up)
 
@@ -200,7 +198,6 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   title='Energy vs max sample ',
                                   type='TH2F',
                                   path=hist_path,
-                                  weight='weight',
                                   xbins=lArDQGlobals.Samples_Bins,xmin=lArDQGlobals.Samples_Min,xmax=lArDQGlobals.Samples_Max,
                                   ybins=lArDQGlobals.Energy_Bins, ymin=lArDQGlobals.Energy_Min, ymax=lArDQGlobals.Energy_Max)
 

@@ -8,8 +8,12 @@ from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
 BunchCrossingCondAlgDefault()
-from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
-topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
+
+if DQMonFlags.monManEnvironment() == 'tier0ESD':
+   from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
+   topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
+   from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfigOld
+   topSequence +=LArAffectedRegionsConfigOld(DQMonFlags)
 
 if DQMonFlags.monManEnvironment() == 'tier0Raw':
     from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfigOld

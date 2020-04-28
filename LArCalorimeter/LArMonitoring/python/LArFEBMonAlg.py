@@ -93,7 +93,12 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
     #Summary histos
     summary_hist_path='Summary/'
     
-
+    #-- TTree for corrupted events timestamp
+    Group.defineTree('timestamp,time_ns,febHwId,febError;LArCorrupted', 
+                     path=summary_hist_path,
+                     title='Timestamps of corrupted LAr events',
+                     treedef='timestamp/i:time_ns/i:febHwId/vector<int>:febErrorType/vector<int>')
+    
     Group.defineHistogram('nbFEB;NbOfReadoutFEBGlobal', 
                                   title='# of readout FEB/DSP header',
                                   type='TH1I',
@@ -107,7 +112,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   ylabels=lArDQGlobals.Partitions
                                   )
-    Group.defineHistogram('febError,part;NbOfLArFEBMonAlgErrors_dE', 
+    Group.defineHistogram('febError,part;NbOfLArFEBMonErrors_dE', 
                                   title='# of data corruption errors',
                                   type='TH2I',
                                   path=summary_hist_path,
@@ -146,18 +151,18 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max,
                                   xlabels=lArDQGlobals.EvtRej_labels)
-    Group.defineHistogram('EvtRej,EvtRejYield;EventsRejectedYield', 
+    Group.defineHistogram('EvtRej,EvtRejYield1D;EventsRejectedYield', 
                                   title='Data corruption yield:Corruption type:Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.EvtRej_Bins-1, xmin=lArDQGlobals.EvtRej_Min, xmax=lArDQGlobals.EvtRej_Max-1,
                                   xlabels=lArDQGlobals.EvtRejYield_labels)
-    Group.defineHistogram('LB,EvtRejYield;YieldOfRejectedEventsVsLB', 
+    Group.defineHistogram('LB0,EvtRejYield;YieldOfRejectedEventsVsLB', 
                                   title='Yield of corrupted events (DATACORRUPTED):Luminosity Block:Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
-    Group.defineHistogram('LB,EvtRejYieldOut;YieldOfRejectedEventsVsLBout', 
+    Group.defineHistogram('LB0,EvtRejYieldOut;YieldOfRejectedEventsVsLBout', 
                                   title='Yield of corrupted events (DATACORRUPTED) not vetoed by time window:Luminosity Block:Yield(%)',
                                   type='TProfile',
                                   path=summary_hist_path,
@@ -167,12 +172,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=lArDQGlobals.rejBits_Bins, xmin=-0.5, xmax=lArDQGlobals.rejBits_Bins-0.5)
-    Group.defineHistogram('LB;NbOfEventsVsLB', 
-                                  title='Nb of events per LB:Luminosity Block',
-                                  type='TH1I',
-                                  path=summary_hist_path,
-                                  xbins=lArDQGlobals.LB_Bins, xmin=lArDQGlobals.LB_Min, xmax=lArDQGlobals.LB_Max)
-    Group.defineHistogram('LB;NbOfEventsVsLB', 
+    Group.defineHistogram('LB0;NbOfEventsVsLB', 
                                   title='Nb of events per LB:Luminosity Block',
                                   type='TH1I',
                                   path=summary_hist_path,
@@ -182,7 +182,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   type='TH1I',
                                   path=summary_hist_path,
                                   xbins=int(lArDQGlobals.N_Cells/10), xmin=-1000, xmax=lArDQGlobals.N_Cells-1000)
-    Group.defineHistogram('LB,LArEvSize;eventSizeVsLB', 
+    Group.defineHistogram('LB0,LArEvSize;eventSizeVsLB', 
                                   title='LAr event size (w/o ROS headers):Luminosity Block:Megabytes',
                                   type='TProfile',
                                   path=summary_hist_path,
@@ -320,20 +320,13 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotabs,FTabs;LArFEBMonAlgErrorsAbsolute',
+       darray.defineHistogram('slotabs,FTabs;LArFEBMonErrorsAbsolute',
                               title='Nb of events with at least one error :Slot:FT',
                               type='TH2I',
                               path=hist_path,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
         
-       darray.defineHistogram('slotabs,FTabs,erryield;LArFEBMonAlgErrors',
-                              title='% of events with at least one error :Slot:FT',
-                              type='TProfile2D',
-                              path=hist_path,
-                              xbins=slot_n,xmin=slot_low,xmax=slot_up,
-                              ybins=ft_n, ymin=ft_low, ymax=ft_up)
-
        darray.defineHistogram('slotmist,FTmist;missingTriggerType',
                               title='LVL1 trigger type missing or different from event type :Slot:FT',
                               type='TH2I',
@@ -348,19 +341,17 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotnb,FTnb;NbOfSweet1PerFEB',
+       darray.defineHistogram('slotnb,FTnb,weightsweet1;NbOfSweet1PerFEB',
                               title='Average # of cells with (qfactor+time) readout :Slot:FT',
-                              type='TH2I',
+                              type='TProfile2D',
                               path=hist_path,
-                              weight='weightsweet1',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotnb,FTnb;NbOfSweet2PerFEB',
+       darray.defineHistogram('slotnb,FTnb,weightsweet2;NbOfSweet2PerFEB',
                               title='Average # of cells with samples readout :Slot:FT',
-                              type='TH2I',
+                              type='TProfile2D',
                               path=hist_path,
-                              weight='weightsweet2',
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 

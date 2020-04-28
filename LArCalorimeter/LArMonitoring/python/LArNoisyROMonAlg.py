@@ -67,8 +67,8 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
     larNoisyROMonAlg.SubDetNames=lArDQGlobals.SubDet[0:2]
     larNoisyROMonAlg.PartitionNames=lArDQGlobals.Partitions[0:4]
 
-    #FIXME: only for testing
-    larNoisyROMonAlg.storeLooseMNBFEBs=True
+    #FIXME: True only for testing
+    larNoisyROMonAlg.storeLooseMNBFEBs=False
     if inKey != "":
        larNoisyROMonAlg.inputKey=inKey 
 
@@ -163,7 +163,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotMNB,FTMNB;KnownMNBFEB', title='Known MNB FEBs {0} ; Slot ; FT', 
+       darray.defineHistogram('slotMNB,FTMNB;MNBKnownFEB', title='Known MNB FEBs {0} ; Slot ; FT', 
                               type='TH2I', 
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
