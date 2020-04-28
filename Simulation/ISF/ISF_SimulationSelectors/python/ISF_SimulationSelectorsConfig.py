@@ -133,7 +133,7 @@ def getNeutralGeant4Selector(name="ISF_NeutralGeant4Selector", **kwargs):
 
 def getProtonAFIIGeant4Selector(name="ISF_ProtonAFIIGeant4Selector", **kwargs):
     kwargs.setdefault('MaxMom'          , 750)
-    kwargs.setdefault('ParticlePDG'     , 2112)
+    kwargs.setdefault('ParticlePDG'     , 2212)
     kwargs.setdefault('Simulator'       , 'ISF_AFIIGeant4SimSvc')
     return CfgMgr.ISF__KinematicSimSelector(name, **kwargs)
 
