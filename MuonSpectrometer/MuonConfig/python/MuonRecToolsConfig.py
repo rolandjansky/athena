@@ -314,13 +314,11 @@ def MuonSTEP_PropagatorCfg(flags, name='MuonSTEP_Propagator', **kwargs):
     result = ComponentAccumulator()
     
     acc  = MagneticFieldSvcCfg(flags) 
-    magfieldsvc = acc.getPrimary()
     result.merge(acc)
     
     kwargs.setdefault("Tolerance", 0.00001 )
     kwargs.setdefault("MaterialEffects", True  )
     kwargs.setdefault("IncludeBgradients", True  )
-    kwargs.setdefault("MagFieldSvc", magfieldsvc  )
     
     propagator = Trk__STEP_Propagator(name=name, **kwargs)
     result.setPrivateTools(propagator)

@@ -68,9 +68,7 @@ Trk::STEP_Propagator::STEP_Propagator
   m_simulation(false),        //flag for simulation mode 
   m_rndGenSvc("AtDSFMTGenSvc", n),
   m_randomEngine(nullptr),
-  m_randomEngineName("FatrasRnd"),
-  m_fieldServiceHandle("AtlasFieldSvc",n),
-  m_fieldService(nullptr)
+  m_randomEngineName("FatrasRnd")
 {
   declareInterface<Trk::IPropagator>(this);
   declareProperty( "Tolerance",          m_tolerance);
@@ -89,7 +87,6 @@ Trk::STEP_Propagator::STEP_Propagator
   declareProperty( "MaxSteps",           m_maxSteps);
   declareProperty( "MSstepMax",          m_layXmax);
   declareProperty( "SimulationMode",     m_simulation);
-  declareProperty( "MagFieldSvc",        m_fieldServiceHandle);
   declareProperty( "SimMatEffUpdator",   m_simMatUpdator);
   declareProperty( "RandomNumberService", m_rndGenSvc               , "Random number generator");
   declareProperty( "RandomStreamName"   , m_randomEngineName        , "Name of the random number stream");
@@ -119,13 +116,6 @@ StatusCode Trk::STEP_Propagator::initialize()
   else if (!m_energyLoss) { //override straggling
     m_straggling = false;
   }
-
-  if( !m_fieldServiceHandle.retrieve() ){
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }   
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-  m_fieldService = &*m_fieldServiceHandle;
 
   if ( m_simulation && m_simMatUpdator.retrieve().isFailure() ) {
     ATH_MSG_WARNING( "Simulation mode requested but material updator not found - no brem photon emission." );
@@ -2286,9 +2276,6 @@ Trk::STEP_Propagator::getMagneticField( Cache& cache,
   double* R=&pos[0];
   double H[3];
   double dH[9];
-
-  // m_fieldService is set in initialize and cannot be zero 
-  assert( m_fieldService );
 
   if (getGradients && m_includeBgradients) {   // field gradients needed and available
 
