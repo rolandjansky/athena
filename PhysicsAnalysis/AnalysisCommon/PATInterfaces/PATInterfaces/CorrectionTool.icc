@@ -18,11 +18,7 @@ namespace CP {
                   xAODObjectType*& outputObject ) {
 
       // Choose a smart pointer type according to the standard used:
-#if __cplusplus < 201100
       std::unique_ptr< xAODObjectType > myobject( new xAODObjectType );
-#else
-      std::unique_ptr< xAODObjectType > myobject( new xAODObjectType );
-#endif // C++11
 
       // Make a deep copy of the input object:
       myobject->makePrivateStore( inputObject );

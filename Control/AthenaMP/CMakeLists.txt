@@ -32,10 +32,6 @@ atlas_add_executable( getSharedMemory
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaInterprocess StoreGateLib SGtests GaudiKernel )
 
-atlas_add_executable( MemoryMonitor
-                      src/memory-monitor/MemoryMonitor.cxx
-                      LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} )
-
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/tests/*.py )
 atlas_install_joboptions( share/AthenaMP_EventService.py )
