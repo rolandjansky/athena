@@ -83,8 +83,8 @@ namespace top {
 							      m_config->muonUse2stationMuonsHighPt());
     ///-- Calibration and smearing --///  ---> now passing the flags (true/false) to CalibAndSmearingTool
     m_muonCalibrationPeriodTool = setupMuonCalibrationAndSmearingTool("CP::MuonCalibrationPeriodTool", 
-								      m_config->muondoExtraSmearing(),
-								      m_config->muondo2StationsHighPt());
+								      m_config->muonDoMuonExtraSmearingHighPt(),
+								      m_config->muonDoMuonSmearing2stationHighPt());
     //now the soft muon part
     if (m_config->useSoftMuons()) {
       m_softmuonSelectionTool = setupMuonSelectionTool("CP::SoftMuonSelectionTool",

@@ -222,7 +222,7 @@ namespace top {
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
     m_muonDoMuonSmearing2stationHighPt(true),
-    m_muonDoMuonExtraSmearing(false),
+    m_muonDoMuonExtraSmearingHighPt(false),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1171,13 +1171,13 @@ namespace top {
       DoMuonSmearing2stationHighPt = false;
     }
     this->muonDoMuonSmearing2stationHighPt(DoMuonSmearing2stationHighPt);
-    bool DoMuonExtraSmearing = false;
-    settings->retrieve("DoMuonExtraSmearing", DoMuonExtraSmearing);
-    if ( settings->value("MuonQuality") != "HighPt" && DoMuonExtraSmearing ) {
-      ATH_MSG_WARNING("Could not set DoMuonExtraSmearing True without using the HighPt muon WP. DoMuonExtraSmearing is now setted to the default value (False)");
-      DoMuonExtraSmearing = false;
+    bool DoMuonExtraSmearingHighPt = false;
+    settings->retrieve("DoMuonExtraSmearingHighPt", DoMuonExtraSmearingHighPt);
+    if ( settings->value("MuonQuality") != "HighPt" && DoMuonExtraSmearingHighPt ) {
+      ATH_MSG_WARNING("Could not set DoMuonExtraSmearingHighPt True without using the HighPt muon WP. DoMuonExtraSmearingHighPt is now setted to the default value (False)");
+      DoMuonExtraSmearingHighPt = false;
     }
-    this->muonDoMuonExtraSmearing( DoMuonExtraSmearing );
+    this->muonDoMuonExtraSmearingHighPt( DoMuonExtraSmearingHighPt );
 
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
 

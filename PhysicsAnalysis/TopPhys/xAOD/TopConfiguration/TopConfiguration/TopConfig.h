@@ -933,9 +933,9 @@ namespace top {
       }
     }
 
-    void muonDoMuonExtraSmearing(const bool& DoMuonExtraSmearing) {
+    void muonDoMuonExtraSmearingHighPt(const bool& DoMuonExtraSmearingHighPt) {
       if (!m_configFixed) {
-	m_muonDoMuonExtraSmearing = DoMuonExtraSmearing;
+	m_muonDoMuonExtraSmearingHighPt = DoMuonExtraSmearingHighPt;
       }
     }
 
@@ -952,7 +952,7 @@ namespace top {
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
     inline virtual bool muonDoMuonSmearing2stationHighPt() const {return m_muonDoMuonSmearing2stationHighPt;}
-    inline virtual bool muonDoMuonExtraSmearing() const {return m_muonDoMuonExtraSmearing;}
+    inline virtual bool muonDoMuonExtraSmearingHighPt() const {return m_muonDoMuonExtraSmearingHighPt;}
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -2054,7 +2054,7 @@ namespace top {
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
     bool m_muonDoMuonSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
-    bool m_muonDoMuonExtraSmearing; //to turn on/off a special correction for the muon with high momenta.
+    bool m_muonDoMuonExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
