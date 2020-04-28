@@ -36,6 +36,8 @@ namespace FlavorTagDiscriminants {
   // This function will return a getter based on a string key. See the
   // implementation for the definitions.
   //
+  // NOTE: This function is for experts only, don't expect support.
+  //
   std::function<std::vector<double>(
     const xAOD::Jet&,
     const std::vector<const xAOD::TrackParticle*>&)>
