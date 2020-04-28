@@ -927,15 +927,15 @@ namespace top {
       }
     }
 
-    void muondo2StationsHighPt(const bool& do2StationsHighPt) {
+    void muonDoMuonSmearing2stationHighPt(const bool& DoMuonSmearing2stationHighPt) {
       if (!m_configFixed) {
-	m_muondo2StationsHighPt = do2StationsHighPt;
+	m_muonDoMuonSmearing2stationHighPt = DoMuonSmearing2stationHighPt;
       }
     }
 
-    void muondoExtraSmearing(const bool& doExtraSmearing) {
+    void muonDoMuonExtraSmearing(const bool& DoMuonExtraSmearing) {
       if (!m_configFixed) {
-	m_muondoExtraSmearing = doExtraSmearing;
+	m_muonDoMuonExtraSmearing = DoMuonExtraSmearing;
       }
     }
 
@@ -951,8 +951,8 @@ namespace top {
     inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
-    inline virtual bool muondo2StationsHighPt() const {return m_muondo2StationsHighPt;}
-    inline virtual bool muondoExtraSmearing() const {return m_muondoExtraSmearing;}
+    inline virtual bool muonDoMuonSmearing2stationHighPt() const {return m_muonDoMuonSmearing2stationHighPt;}
+    inline virtual bool muonDoMuonExtraSmearing() const {return m_muonDoMuonExtraSmearing;}
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -2053,8 +2053,8 @@ namespace top {
     std::string m_muonIsolationSFLoose;
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
-    bool m_muondo2StationsHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
-    bool m_muondoExtraSmearing; //to turn on/off a special correction for the muon with high momenta.
+    bool m_muonDoMuonSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
+    bool m_muonDoMuonExtraSmearing; //to turn on/off a special correction for the muon with high momenta.
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut

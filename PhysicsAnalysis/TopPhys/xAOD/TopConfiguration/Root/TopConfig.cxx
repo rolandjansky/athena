@@ -221,8 +221,8 @@ namespace top {
     m_muonIsolationLoose("SetMe"),
     m_muonIsolationSF("SetMe"),
     m_muonIsolationSFLoose("SetMe"),
-    m_muondo2StationsHighPt(true),
-    m_muondoExtraSmearing(false),
+    m_muonDoMuonSmearing2stationHighPt(true),
+    m_muonDoMuonExtraSmearing(false),
 
     // Soft Muon configuration
     m_softmuonPtcut(4000.),
@@ -1163,21 +1163,21 @@ namespace top {
       this->muonIsolationLoose(cut_wp);
       this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
     }
-    bool do2StationsHighPt = false;
-    settings->retrieve("do2StationsHighPt", do2StationsHighPt);
-    if (settings->value("MuonQuality") != "HighPt" ) do2StationsHighPt = false;
-    else if ( !Use2stationMuonsHighPt && do2StationsHighPt ) {
-      ATH_MSG_WARNING("Could not set do2StationsHighPt True without Use2stationMuonsHighPt. do2StationsHighPt is now setted to False");
-      do2StationsHighPt = false;
+    bool DoMuonSmearing2stationHighPt = false;
+    settings->retrieve("DoMuonSmearing2stationHighPt", DoMuonSmearing2stationHighPt);
+    if (settings->value("MuonQuality") != "HighPt" ) DoMuonSmearing2stationHighPt = false;
+    else if ( !Use2stationMuonsHighPt && DoMuonSmearing2stationHighPt ) {
+      ATH_MSG_WARNING("Could not set DoMuonSmearing2stationHighPt True without Use2stationMuonsHighPt. DoMuonSmearing2stationHighPt is now setted to False");
+      DoMuonSmearing2stationHighPt = false;
     }
-    this->muondo2StationsHighPt(do2StationsHighPt);
-    bool doExtraSmearing = false;
-    settings->retrieve("doExtraSmearing", doExtraSmearing);
-    if ( settings->value("MuonQuality") != "HighPt" && doExtraSmearing ) {
-      ATH_MSG_WARNING("Could not set doExtraSmearing True without using the HighPt muon WP. doExtraSmearing is now setted to the default value (False)");
-      doExtraSmearing = false;
+    this->muonDoMuonSmearing2stationHighPt(DoMuonSmearing2stationHighPt);
+    bool DoMuonExtraSmearing = false;
+    settings->retrieve("DoMuonExtraSmearing", DoMuonExtraSmearing);
+    if ( settings->value("MuonQuality") != "HighPt" && DoMuonExtraSmearing ) {
+      ATH_MSG_WARNING("Could not set DoMuonExtraSmearing True without using the HighPt muon WP. DoMuonExtraSmearing is now setted to the default value (False)");
+      DoMuonExtraSmearing = false;
     }
-    this->muondoExtraSmearing( doExtraSmearing );
+    this->muonDoMuonExtraSmearing( DoMuonExtraSmearing );
 
     if (settings->value("UseAntiMuons") == "True") this->m_useAntiMuons = true;
 
