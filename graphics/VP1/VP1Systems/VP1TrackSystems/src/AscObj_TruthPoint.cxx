@@ -83,7 +83,7 @@ void AscObj_TruthPoint::buildShapes(SoSeparator*&shape_simple, SoSeparator*&shap
   else
   {
 	  // Eigen migration
-    p1 = Amg::Vector3D(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
+    p1 = Amg::Vector3D(m_d->genVertex->position().x(),m_d->genVertex->position().y(),m_d->genVertex->position().z());
     u = Amg::Vector3D(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz()).unit();
   }
 
@@ -129,7 +129,7 @@ QStringList AscObj_TruthPoint::clicked()
       return l;
     }
 
-    Amg::Vector3D p(m_d->genVertex->point3d().x(),m_d->genVertex->point3d().y(),m_d->genVertex->point3d().z());
+    Amg::Vector3D p(m_d->genVertex->position().x(),m_d->genVertex->position().y(),m_d->genVertex->position().z());
     Amg::Vector3D mom(m_d->genParticle->momentum().px(),m_d->genParticle->momentum().py(),m_d->genParticle->momentum().pz());
 
     l << "Gen Particle vertex";

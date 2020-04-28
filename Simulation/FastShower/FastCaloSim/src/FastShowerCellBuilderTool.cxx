@@ -24,8 +24,8 @@
 #endif
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 
 #include "PathResolver/PathResolver.h"
@@ -1363,7 +1363,6 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
   // Process Muon info from Fatras
   //////////////////////////////
   if(abs(pdgid)==13) {
-    // std::pair<BarcodeEnergyDepositMap::iterator,BarcodeEnergyDepositMap::iterator> range=MuonEnergyMap->equal_range(part->barcode());
     p.fcal_tot=0;
     for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
       p.E_layer[i]=0;

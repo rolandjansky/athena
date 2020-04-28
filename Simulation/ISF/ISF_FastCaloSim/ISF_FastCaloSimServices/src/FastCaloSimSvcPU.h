@@ -32,10 +32,7 @@
 class ITrackingGeometrySvc;
 class CaloCellContainer;
 
-namespace HepMC
-{
-    class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 namespace Trk
 {

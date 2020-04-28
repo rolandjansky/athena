@@ -17,14 +17,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointForSeed.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
-
-#include "GaudiKernel/ServiceHandle.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MagField cache
@@ -134,11 +131,6 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     // Private data and methods
     ///////////////////////////////////////////////////////////////////
-
-    /// @name Service handles
-    //@{
-    ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
-    //@}
 
     /// @name Data handles
     //@{

@@ -1014,19 +1014,11 @@ void TConvertingBranchElement::ReadLeavesCollectionConverting(TBuffer& b)
    TVirtualCollectionProxy* proxy = GetCollectionProxy();
    TVirtualCollectionProxy::TPushPop helper(proxy, fObject);
    void* alternate = proxy->Allocate(fNdata, true);
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,11)
    if(fSTLtype != TClassEdit::kVector && proxy->HasPointers() && fSplitLevel > TTree::kSplitCollectionOfPointers ) {
       fPtrIterators->CreateIterators(alternate, proxy);
    } else {
       fIterators->CreateIterators(alternate, proxy);
    }      
-#else
-   if(fSTLtype != TClassEdit::kVector && proxy->HasPointers() && fSplitLevel > TTree::kSplitCollectionOfPointers ) {
-      fPtrIterators->CreateIterators(alternate);
-   } else {
-      fIterators->CreateIterators(alternate);
-   }      
-#endif
    
    //Int_t nbranches = fBranches.GetEntriesFast();
    switch (fSTLtype) {
@@ -1326,14 +1318,8 @@ void TConvertingBranchElement::InitializeOffsets()
   TClass* cl_orig = 0;
   if (fConvClass && fID > -1) {
     TStreamerInfo* si = GetInfo();
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))
     branchElem = si->GetElem(fID);
     if (branchElem) {
-#else
-    ULong_t* elems = si->GetElems();
-    if (elems) {
-      branchElem = (TStreamerElement*) elems[fID];
-#endif
       if (branchElem && branchElem->IsBase()) {
         cl_orig = branchElem->GetClassPointer();
         branchElem->Update (cl_orig, fConvClass);

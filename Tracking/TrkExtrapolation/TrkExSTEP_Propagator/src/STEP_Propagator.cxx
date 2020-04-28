@@ -658,9 +658,8 @@ Trk::STEP_Propagator::intersect (const EventContext&                 ctx,
     cache.m_matPropOK = false;
   }
 
-  Trk::RungeKuttaUtils rungeKuttaUtils;
   //double P[45];
-  if (!rungeKuttaUtils.transformLocalToGlobal( false, trackParameters, cache.m_P)) return nullptr;
+  if (!Trk::RungeKuttaUtils::transformLocalToGlobal( false, trackParameters, cache.m_P)) return nullptr;
   double path = 0.;
 
   const Amg::Transform3D&  T = targetSurface.transform();   
@@ -800,8 +799,7 @@ Trk::STEP_Propagator::globalPositions ( const EventContext&                 ctx,
   if (m_tolerance <= 0.) return;
 
   double       PP[7];
-  Trk::RungeKuttaUtils rungeKuttaUtils;
-  if (!rungeKuttaUtils.transformLocalToGlobal( false, trackParameters, PP)) return;
+  if (!Trk::RungeKuttaUtils::transformLocalToGlobal( false, trackParameters, PP)) return;
 
   double       maxPath = m_maxPath;  			// Max path allowed
   double       dDir[3]   = { 0., 0., 0.};		// Start directions derivs. Zero in case of no RK steps
@@ -937,8 +935,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     cache.m_combinedThickness=0.;
   }
 
-  Trk::RungeKuttaUtils rungeKuttaUtils;
-  if (!rungeKuttaUtils.transformLocalToGlobal( errorPropagation, *trackParameters,cache.m_P)) {
+  if (!Trk::RungeKuttaUtils::transformLocalToGlobal( errorPropagation, *trackParameters,cache.m_P)) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return nullptr;
   }
@@ -1019,7 +1016,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
   // output in curvilinear parameters 
   if (returnCurv || ty==Trk::Surface::Cone)  {
 
-    rungeKuttaUtils.transformGlobalToLocal(cache.m_P,localp);
+    Trk::RungeKuttaUtils::transformGlobalToLocal(cache.m_P,localp);
     Amg::Vector3D gp(cache.m_P[0],cache.m_P[1],cache.m_P[2]);
 
     if ( boundaryCheck && !targetSurface.isOnSurface(gp) ) {
@@ -1033,8 +1030,8 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
     }
 
     double useless[2];
-    rungeKuttaUtils.transformGlobalToCurvilinear( true, cache.m_P, useless, Jacobian);
-    AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
+    Trk::RungeKuttaUtils::transformGlobalToCurvilinear( true, cache.m_P, useless, Jacobian);
+    AmgSymMatrix(5)* measurementCovariance = Trk::RungeKuttaUtils::newCovarianceMatrix(
                                                                                  Jacobian, *trackParameters->covariance());
 
     if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && fabs(path)>0. ) 
@@ -1045,7 +1042,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
   }
 
   // Common transformation for all surfaces 
-  rungeKuttaUtils.transformGlobalToLocal(&targetSurface,errorPropagation,cache.m_P,localp,Jacobian);
+  Trk::RungeKuttaUtils::transformGlobalToLocal(&targetSurface,errorPropagation,cache.m_P,localp,Jacobian);
 
   if (boundaryCheck) {
     Amg::Vector2D localPosition( localp[0], localp[1]);
@@ -1064,7 +1061,7 @@ Trk::STEP_Propagator::propagateRungeKutta (Cache&                              c
   }
 
   //Errormatrix is included. Use Jacobian to calculate new covariance
-  AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
+  AmgSymMatrix(5)* measurementCovariance = Trk::RungeKuttaUtils::newCovarianceMatrix(
                                                                                Jacobian, *trackParameters->covariance());
 
   //Calculate multiple scattering and straggling covariance contribution.
@@ -1144,9 +1141,8 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
     cache.m_combinedThickness=0.;
   }
 
-  Trk::RungeKuttaUtils rungeKuttaUtils;
   //double P[45]; // Track parameters and jacobian
-  if (!rungeKuttaUtils.transformLocalToGlobal( errorPropagation, *trackParameters, cache.m_P)) {
+  if (!Trk::RungeKuttaUtils::transformLocalToGlobal( errorPropagation, *trackParameters, cache.m_P)) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return nullptr;
   }
@@ -1179,14 +1175,14 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
       // make sure that for sliding surfaces the result does not get distorted
       // return curvilinear parameters
       Trk::CurvilinearParameters* cPar = nullptr;
-      rungeKuttaUtils.transformGlobalToLocal(cache.m_P, localp);
+      Trk::RungeKuttaUtils::transformGlobalToLocal(cache.m_P, localp);
       if (!errorPropagation) { 
         cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(cache.m_P[0],cache.m_P[1],cache.m_P[2]),
                                                localp[2],localp[3],localp[4]); 
       }	else {
         double useless[2];
-        rungeKuttaUtils.transformGlobalToCurvilinear( true, cache.m_P, useless, Jacobian);
-        AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(Jacobian,
+        Trk::RungeKuttaUtils::transformGlobalToCurvilinear( true, cache.m_P, useless, Jacobian);
+        AmgSymMatrix(5)* measurementCovariance = Trk::RungeKuttaUtils::newCovarianceMatrix(Jacobian,
                                                                                      *trackParameters->covariance());
         //Calculate multiple scattering and straggling covariance contribution.
         if (cache.m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
@@ -1218,10 +1214,10 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
     while ( iSol != solutions.end() ) {  
       if ( targetSurfaces[*iSol].first->isOnSurface(gp,targetSurfaces[*iSol].second ,0.001,0.001) ) {
         if (!solution) {
-          rungeKuttaUtils.transformGlobalToLocal(cache.m_P, localp);
+          Trk::RungeKuttaUtils::transformGlobalToLocal(cache.m_P, localp);
           if (returnCurv || targetSurfaces[*iSol].first->type()==Trk::Surface::Cone) {
-            rungeKuttaUtils.transformGlobalToCurvilinear(errorPropagation,cache.m_P,localp,Jacobian); 
-          } else rungeKuttaUtils.transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,cache.m_P,localp,Jacobian);
+            Trk::RungeKuttaUtils::transformGlobalToCurvilinear(errorPropagation,cache.m_P,localp,Jacobian); 
+          } else Trk::RungeKuttaUtils::transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,cache.m_P,localp,Jacobian);
           solution = true;
         }
         valid_solutions.push_back( *iSol );
@@ -1256,7 +1252,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
   }
 
   //Errormatrix is included. Use Jacobian to calculate new covariance
-  AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
+  AmgSymMatrix(5)* measurementCovariance = Trk::RungeKuttaUtils::newCovarianceMatrix(
                                                                                Jacobian, *trackParameters->covariance());
 
   //Calculate multiple scattering and straggling covariance contribution.
@@ -1615,7 +1611,6 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
         size_t layerBin = cache.m_binMat->layerBin(position);
         const Trk::IdentifiedMaterial* iMat = cache.m_binMat->material(position); 
         std::pair<size_t,float> dist2next = lbu->distanceToNext(position,propDir*direction);
-        Trk::RungeKuttaUtils rungeKuttaUtils;
         distanceToNextBin = dist2next.second;
         if (layerBin != cache.m_currentLayerBin ) {       // step into new bin
           // check the overshoot
@@ -1623,7 +1618,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           float stepOver = dist2previous.second;
           //std::cout <<" STEP overshoots bin boundary by:"<< stepOver<<" :w.r.t. bin:" << dist2previous.first<< std::endl;
           double localp[5];
-          rungeKuttaUtils.transformGlobalToLocal(P, localp);
+          Trk::RungeKuttaUtils::transformGlobalToLocal(P, localp);
           const Trk::CurvilinearParameters* cPar =  
             new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
           if (cache.m_identifiedParameters) {
@@ -1668,7 +1663,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           }
         } else if ( dist2next.first < lbu->bins() && fabs(distanceToNextBin) < 0.01 && h>0.01 ) {     // tolerance 10 microns ?
           double localp[5];
-          rungeKuttaUtils.transformGlobalToLocal(P, localp);
+          Trk::RungeKuttaUtils::transformGlobalToLocal(P, localp);
           const Trk::CurvilinearParameters* cPar =  
             new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
 
@@ -2340,24 +2335,23 @@ Trk::STEP_Propagator::distance (Surface::SurfaceType surfaceType,
                                 const double*     P,
                                 bool&       distanceEstimationSuccessful) const
 {
-  Trk::RungeKuttaUtils rungeKuttaUtils;
   if (surfaceType == Trk::Surface::Plane || surfaceType == Trk::Surface::Disc)
-    return rungeKuttaUtils.stepEstimatorToPlane(targetSurface, P,
+    return Trk::RungeKuttaUtils::stepEstimatorToPlane(targetSurface, P,
                                                 distanceEstimationSuccessful);
   if (surfaceType == Trk::Surface::Cylinder)
-    return rungeKuttaUtils.stepEstimatorToCylinder(
+    return Trk::RungeKuttaUtils::stepEstimatorToCylinder(
         targetSurface, P, distanceEstimationSuccessful);
   
   if (surfaceType == Trk::Surface::Line || surfaceType == Trk::Surface::Perigee)
-    return rungeKuttaUtils.stepEstimatorToStraightLine(
+    return Trk::RungeKuttaUtils::stepEstimatorToStraightLine(
         targetSurface, P, distanceEstimationSuccessful);
   
   if (surfaceType == Trk::Surface::Cone)
-    return rungeKuttaUtils.stepEstimatorToCone(targetSurface, P,
+    return Trk::RungeKuttaUtils::stepEstimatorToCone(targetSurface, P,
                                                distanceEstimationSuccessful);
 
   // presumably curvilinear?
-  return rungeKuttaUtils.stepEstimatorToPlane(targetSurface, P, distanceEstimationSuccessful);
+  return Trk::RungeKuttaUtils::stepEstimatorToPlane(targetSurface, P, distanceEstimationSuccessful);
 }
 
 
@@ -2433,13 +2427,12 @@ void Trk::STEP_Propagator::covarianceContribution( Cache& cache,
   // first update to make sure all material counted
   updateMaterialEffects(cache,finalMomentum, sin(trackParameters->momentum().theta()), path );
 
-  Trk::RungeKuttaUtils rungeKuttaUtils;
   double Jac[21];
-  rungeKuttaUtils.jacobianTransformCurvilinearToLocal(*targetParms,Jac);
+  Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal(*targetParms,Jac);
 
   //Transform multiple scattering and straggling covariance from curvilinear to local system
-  AmgSymMatrix(5)* localMSCov = rungeKuttaUtils.newCovarianceMatrix(
-                                                                    Jac, cache.m_combinedCovariance+cache.m_covariance );
+  AmgSymMatrix(5)* localMSCov = Trk::RungeKuttaUtils::newCovarianceMatrix(
+    Jac, cache.m_combinedCovariance+cache.m_covariance );
 
   *measurementCovariance += *localMSCov;
 

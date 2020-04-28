@@ -39,9 +39,11 @@
 /// Standard Constructor
 AmdcsimrecAthenaSvc::AmdcsimrecAthenaSvc(const std::string& name,ISvcLocator* svc):
   AthService(name,svc),
-p_IGeoModelSvc(0),
-p_detStore(0),
-p_MuonDetectorManager(0)
+  p_Amdcsimrec(nullptr),
+  p_IGeoModelSvc(nullptr),
+  p_detStore(nullptr),
+  p_MuonDetectorManager(nullptr),
+  p_AtlasDetectorID(nullptr)
 {
 
 //*Set Default values
@@ -60,9 +62,6 @@ p_MuonDetectorManager(0)
 
    m_IsInitialized = false;
    m_IsUsable      = false;
-
-   p_Amdcsimrec = 0;
-
 
    m_AmdcABlinesStamp = 1;
    
@@ -109,9 +108,6 @@ p_MuonDetectorManager(0)
    declareProperty( "DontSetAmdcABlineFromCool", m_DontSetAmdcABlineFromCool              = 0 );
    
    declareProperty( "PrintLevel", m_PrintLevel = 0 );
-   
-   p_AtlasDetectorID = 0 ;
-   
 }
  
 /// Standard Destructor
@@ -130,11 +126,7 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
 
   ATH_MSG_DEBUG( "Initialisation started     " ) ;
 
-  StatusCode sc=AthService::initialize();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Service::initialize() failed" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(AthService::initialize());
 
   ATH_MSG_DEBUG( "================================" ) ;
   ATH_MSG_DEBUG( "=Proprieties are         " ) ;
@@ -164,40 +156,20 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
 
 
 //Set pointer on DetectorStore 
-  sc = service("DetectorStore",p_detStore);
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "DetectorStore service not found !" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(service("DetectorStore",p_detStore));
   ATH_MSG_DEBUG( "Found DetectorStore ") ;
 
-//Set pointer on AtlasDetectorID
-/*  sc = p_detStore->retrieve(p_AtlasDetectorID, "AtlasID" );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Could not get AtlasDetectorID ") ;
-    return( StatusCode::FAILURE );
-  }
-  ATH_MSG_DEBUG( "Found AtlasDetectorID ") ;
-*/
 //Set pointer on GeoModelSvc
   if ( m_AlignmentSource == 2 
   || m_NameOfTheSource=="POOL" 
   || m_NameOfTheSource=="GEOMODEL" ) {
-    sc = service ("GeoModelSvc",p_IGeoModelSvc);
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL( "GeoModelSvc service not found !" ) ;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(service ("GeoModelSvc",p_IGeoModelSvc));
     ATH_MSG_DEBUG( "Found GeoModelSvc ") ;
   }
 
 //Set pointer on Muondetector Manager
   if ( m_UseMuonDetectorManagerForInternal == 1 ) {
-    StatusCode sc = p_detStore->retrieve(p_MuonDetectorManager);
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL( "p_MuonDetectorManager not found !" ) ;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(p_detStore->retrieve(p_MuonDetectorManager));
     ATH_MSG_DEBUG( "Found MuonDetectorManager ") ;
   }
 
@@ -239,19 +211,11 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
       m_IsUsable      = false ;
     }
 
-    sc=initializeAscii();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("initializeAscii failed" ) ;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(initializeAscii());
     ATH_MSG_DEBUG( "Done: initializeAscii " ) ;
     
     if (m_AlignmentSource == 2 ){
-      sc=regFcnSetAmdcABlineFromCool();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("regFcnSetAmdcABlineFromCool failed" ) ;
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(regFcnSetAmdcABlineFromCool());
       ATH_MSG_DEBUG( "Done: regFcnSetAmdcABlineFromCool " ) ;
     }
 
@@ -264,11 +228,7 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
     m_IsInitialized = true ;
     m_IsUsable      = true ;
     
-    sc = initializeFromGeomodel();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(initializeFromGeomodel());
     ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
   }
   
@@ -280,18 +240,10 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
 
     ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() true "  ) ;
 
-    sc = initializeFromGeomodel();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(initializeFromGeomodel());
     ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
     
-    sc=regFcnSetAmdcABlineFromCool();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("regFcnSetAmdcABlineFromCool failed" ) ;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(regFcnSetAmdcABlineFromCool());
     ATH_MSG_DEBUG( "Done: regFcnSetAmdcABlineFromCool " ) ;
 
   }
@@ -310,19 +262,11 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
       m_IsUsable      = false ;
     }
 
-    sc=initializeFromOracleNode();
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL("initializeFromOracleNode failed" ) ;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(initializeFromOracleNode());
     ATH_MSG_DEBUG( "Done: initializeFromOracleNode " ) ;
     
     if (m_AlignmentSource == 2 ){
-      sc=regFcnSetAmdcABlineFromCool();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("regFcnSetAmdcABlineFromCool failed" ) ;
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(regFcnSetAmdcABlineFromCool());
       ATH_MSG_DEBUG( "Done: regFcnSetAmdcABlineFromCool " ) ;
     }
 
@@ -336,7 +280,6 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
   ATH_MSG_DEBUG( "Initialisation ended     " ) ;
   if ( m_EmergencyOut == 1 ) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
-
 }
  
 /// Service finalisation
@@ -375,11 +318,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeAscii()
 
   ATH_MSG_DEBUG("----> initializeAscii is called" ) ; 
 
-  StatusCode sc = SetLocation(m_NameOfTheFile,m_LocationOfTheFile);
-  if (sc.isFailure()){
-    ATH_MSG_FATAL( "SetLocation for " << m_NameOfTheFile << " failed " ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(SetLocation(m_NameOfTheFile,m_LocationOfTheFile));
   ATH_MSG_DEBUG( "Done: SetLocation " ) ;
 
   ATH_MSG_DEBUG( "File to be read " << m_NameOfTheFile ) ;
@@ -400,11 +339,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeAscii()
   ATH_MSG_DEBUG( "Done: amdcreadn " ) ;
 
 //Post Geometry Loading Sequence
-  sc=PostGeometryLoadingSequence();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL("PostGeometryLoadingSequence failed" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(PostGeometryLoadingSequence());
   ATH_MSG_DEBUG( "Done: PostGeometryLoadingSequence " ) ;
 
   return StatusCode::SUCCESS;
@@ -416,24 +351,16 @@ StatusCode AmdcsimrecAthenaSvc::regFcninitializeFromGeomodel()
 
   ATH_MSG_DEBUG("----> regFcninitializeFromGeomodel is called" ) ; 
 
-  StatusCode sc = p_detStore->regFcn(
+  ATH_CHECK(p_detStore->regFcn(
                           &IGeoModelSvc::align, &*p_IGeoModelSvc,
                           &AmdcsimrecAthenaSvc::initializeFromGeomodelCallback, this
-                         );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Unable to register callback on AmdcsimrecAthenaSvc::initializeFromGeomodelCallback from IGeoModelSvc::align" ) ;
-    return StatusCode::FAILURE;
-  }
+                         ));
   ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::initializeFromGeomodelCallback from IGeoModelSvc::align" ) ;
 
-  sc = p_detStore->regFcn(
+  ATH_CHECK(p_detStore->regFcn(
                &AmdcsimrecAthenaSvc::initializeFromGeomodelCallback, this,
                &AmdcsimrecAthenaSvc::UpdatedSvc, this
-              );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Unable to register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::initializeFromGeomodelCallback" ) ;
-    return StatusCode::FAILURE;
-  }
+              ));
   ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::initializeFromGeomodelCallback" ) ;
 
   return StatusCode::SUCCESS;
@@ -445,11 +372,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromGeomodelCallback(IOVSVC_CALLBACK_A
 
   ATH_MSG_DEBUG("----> initializeFromGeomodelCallback is called" ) ; 
   
-  StatusCode sc = initializeFromGeomodel();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(initializeFromGeomodel());
   ATH_MSG_DEBUG( "Done: initializeFromGeomodel" ) ;
 
   m_IsUsable      = true ;
@@ -471,11 +394,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromGeomodel()
     m_detectorKey  = AtlasVersion ;
     m_detectorNode = "ATLAS"  ;
   } 
-  StatusCode sc = initializeFromOracle() ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "initializeFromOracle failed" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(initializeFromOracle());
   ATH_MSG_DEBUG( "Done: initializeFromOracle" ) ;
 
   return StatusCode::SUCCESS;
@@ -489,11 +408,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracleNode() {
   m_detectorKey  = m_OracleNodedetectorKey  ;
   m_detectorNode = m_OracleNodedetectorNode ;
   
-  StatusCode sc = initializeFromOracle() ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "initializeFromOracle failed" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(initializeFromOracle());
   ATH_MSG_DEBUG( "Done: initializeFromOracle" ) ;
 
   return StatusCode::SUCCESS;
@@ -505,12 +420,8 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
 
   ATH_MSG_DEBUG("----> initializeFromOracle is called" ) ; 
 
-  IRDBAccessSvc* pIRDBAccessSvc;
-  StatusCode sc = service("RDBAccessSvc",pIRDBAccessSvc);
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "Unable to get RDBAccessSvc." ) ;
-    return StatusCode::FAILURE;
-  }
+  IRDBAccessSvc* pIRDBAccessSvc=nullptr;
+  ATH_CHECK(service("RDBAccessSvc",pIRDBAccessSvc));
 
   ATH_MSG_DEBUG( "      Keys are  (key) "  << m_detectorKey  
       << " (node) " << m_detectorNode 
@@ -566,19 +477,11 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
   }
 
 //Set Muon Spectrometer Geometry
-  sc = SetFromString(AmdcString,AgddString);
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "SetFromString failed" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(SetFromString(AmdcString,AgddString));
   ATH_MSG_DEBUG( "Done: SetFromString" ) ;
 
 //Post Geometry Loading Sequence
-  sc=PostGeometryLoadingSequence();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL("PostGeometryLoadingSequence failed" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(PostGeometryLoadingSequence());
   ATH_MSG_DEBUG( "Done: PostGeometryLoadingSequence" ) ;
 
   return StatusCode::SUCCESS;
@@ -591,11 +494,7 @@ StatusCode AmdcsimrecAthenaSvc::PostGeometryLoadingSequence()
   ATH_MSG_DEBUG("----> PostGeometryLoadingSequence is called" ) ; 
 
 //Produce strings
-  StatusCode sc=ProduceString();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL("ProduceString failed" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(ProduceString());
   ATH_MSG_DEBUG( "Done: ProduceString" ) ;
 
 //Possibly modify A line
@@ -615,11 +514,7 @@ StatusCode AmdcsimrecAthenaSvc::PostGeometryLoadingSequence()
   p_Amdcsimrec = new AmdcsimrecStand;
 
 //Set Internal Stores
-  sc = SetAliStoreInternal() ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL("SetAliStoreInternal failed" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(SetAliStoreInternal());
   ATH_MSG_DEBUG( "Done: SetAliStoreInternal" ) ;
 
 //Possibly Check Hard/Soft schemes
@@ -899,25 +794,13 @@ StatusCode AmdcsimrecAthenaSvc::SetAliStoreInternal()
   }else{
     ATH_MSG_DEBUG( "      UseMuonDetectorManagerForInternal != 0 " ) ;
     int LoadIer = 0 ;
-    StatusCode sc = SetAmdcAlineStoreFromExternal(p_AmdcAlineStoreInternal,LoadIer) ;
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL( "SetAmdcAlineStoreFromExternal failed" ) ; 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(SetAmdcAlineStoreFromExternal(p_AmdcAlineStoreInternal,LoadIer));
     ATH_MSG_DEBUG( "Done: SetAmdcAlineStoreFromExternal" ) ;
     LoadIer = 0 ;
-    sc = SetAmdcBlineStoreFromExternal(p_AmdcBlineStoreInternal,LoadIer) ;
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL( "SetAmdcBlineStoreFromExternal failed" ) ; 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(SetAmdcBlineStoreFromExternal(p_AmdcBlineStoreInternal,LoadIer));
     ATH_MSG_DEBUG( "Done: SetAmdcBlineStoreFromExternal" ) ;
     LoadIer = 0 ;
-    sc = SetAmdcIlineStoreFromExternal(p_AmdcIlineStoreInternal,LoadIer) ;
-    if ( sc.isFailure() ) {
-      ATH_MSG_FATAL( "SetAmdcIlineStoreFromExternal failed" ) ; 
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(SetAmdcIlineStoreFromExternal(p_AmdcIlineStoreInternal,LoadIer));
     ATH_MSG_DEBUG( "Done: SetAmdcIlineStoreFromExternal" ) ;
   }
 
@@ -996,31 +879,19 @@ StatusCode AmdcsimrecAthenaSvc::regFcninitializeFromGeomodelSetAmdcABlineFromCoo
 
   ATH_MSG_DEBUG("----> regFcninitializeFromGeomodelSetAmdcABlineFromCool is called" ) ; 
 
-  StatusCode sc = p_detStore->retrieve(p_MuonDetectorManager);
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "p_MuonDetectorManager not found !" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(p_detStore->retrieve(p_MuonDetectorManager));
   ATH_MSG_DEBUG( "Done:p_MuonDetectorManager found " ) ;
  
-  sc = p_detStore->regFcn(
+  ATH_CHECK(p_detStore->regFcn(
                           &IGeoModelSvc::align, &*p_IGeoModelSvc,
                           &AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback, this
-                         );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Unable to register callback on AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback from IGeoModelSvc::align" ) ;
-    return StatusCode::FAILURE;
-  }
+                         ));
   ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback from IGeoModelSvc::align" ) ;
 
-  sc = p_detStore->regFcn(
+  ATH_CHECK(p_detStore->regFcn(
                &AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback, this,
                &AmdcsimrecAthenaSvc::UpdatedSvc, this
-              );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Unable to register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback" ) ;
-    return StatusCode::FAILURE;
-  }
+              ));
   ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback" ) ;
 
   return StatusCode::SUCCESS;
@@ -1031,17 +902,9 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallb
 
   ATH_MSG_DEBUG( "----> initializeFromGeomodelSetAmdcABlineFromCoolCallback is called " ) ;
 
-  StatusCode sc = initializeFromGeomodel();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(initializeFromGeomodel());
   ATH_MSG_DEBUG( "Done: initializeFromGeomodel" ) ;
-  sc = SetAmdcABlineFromCool();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( " SetAmdcABlineFromCool failed " ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(SetAmdcABlineFromCool());
   ATH_MSG_DEBUG( "Done: SetAmdcABlineFromCool" ) ;
 
   m_IsUsable      = true ;
@@ -1055,31 +918,19 @@ StatusCode AmdcsimrecAthenaSvc::regFcnSetAmdcABlineFromCool()
 
   ATH_MSG_DEBUG("----> regFcnSetAmdcABlineFromCool is called" ) ; 
 
-  StatusCode sc = p_detStore->retrieve(p_MuonDetectorManager);
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "p_MuonDetectorManager not found !" ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(p_detStore->retrieve(p_MuonDetectorManager));
   ATH_MSG_DEBUG( "Done:p_MuonDetectorManager found " ) ;
   
-  sc = p_detStore->regFcn(
+  ATH_CHECK(p_detStore->regFcn(
                           &IGeoModelSvc::align,p_IGeoModelSvc,
                           &AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback,this
-                         );
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "Unable to register callback on AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback from IGeoModelSvc::align" ) ;
-    return StatusCode::FAILURE;
-  }
+                         ));
   ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback from IGeoModelSvc::align" ) ;
 
-  sc = p_detStore->regFcn(
+  ATH_CHECK(p_detStore->regFcn(
                &AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback, this,
                &AmdcsimrecAthenaSvc::UpdatedSvc, this
-              );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Unable to register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback" ) ;
-    return StatusCode::FAILURE;
-  }
+              ));
   ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback" ) ;
 
   return StatusCode::SUCCESS;
@@ -1090,11 +941,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback(IOVSVC_CALLBACK_AR
 
   ATH_MSG_DEBUG( "----> SetAmdcABlineFromCoolCallback is called " ) ;
 
-  StatusCode sc = SetAmdcABlineFromCool();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( " SetAmdcABlineFromCool failed " ) ;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(SetAmdcABlineFromCool());
   ATH_MSG_DEBUG( "Done: SetAmdcABlineFromCool" ) ;
 
   m_IsUsable      = true ;
@@ -1113,28 +960,16 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcABlineFromCool()
  }
 
  if ( m_AlignmentCorr == 1  || m_AlignmentCorr == 3 ){
-   StatusCode sc = SetAmdcAlineStoreExternal();
-   if ( sc.isFailure() ) {
-     ATH_MSG_FATAL( " SetAmdcAlineStoreExternal failed " ) ;
-     return StatusCode::FAILURE;
-   }
+   ATH_CHECK(SetAmdcAlineStoreExternal());
    ATH_MSG_DEBUG( "Done: SetAmdcAlineStoreExternal" ) ;
  }
  
  if ( m_AlignmentCorr == 2 || m_AlignmentCorr == 3 ){
-   StatusCode sc = SetAmdcBlineStoreExternal();
-   if ( sc.isFailure() ) {
-     ATH_MSG_FATAL( " SetAmdcBlineStoreExternal failed " ) ;
-     return StatusCode::FAILURE;
-   }
+   ATH_CHECK(SetAmdcBlineStoreExternal());
    ATH_MSG_DEBUG( "Done: SetAmdcBlineStoreExternal" ) ;
  }
 
- StatusCode sc = SetAmdcIlineStoreExternal();
- if ( sc.isFailure() ) {
-   ATH_MSG_FATAL( " SetAmdcIlineStoreExternal failed " ) ;
-   return StatusCode::FAILURE;
- }
+ ATH_CHECK(SetAmdcIlineStoreExternal());
  ATH_MSG_DEBUG( "Done: SetAmdcIlineStoreExternal" ) ;
 
  return StatusCode::SUCCESS;
@@ -1147,11 +982,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcAlineStoreExternal()
   ATH_MSG_DEBUG( "----> SetAmdcAlineStoreExternal is called " ) ;
 
   int LoadIer = 0 ;
-  StatusCode sc = SetAmdcAlineStoreFromExternal(p_AmdcAlineStoreExternal,LoadIer) ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "SetAmdcAlineStoreFromExternal failed" ) ; 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(SetAmdcAlineStoreFromExternal(p_AmdcAlineStoreExternal,LoadIer));
   if (LoadIer==1){
     ATH_MSG_DEBUG( "SetAmdcAlineStoreFromExternal did not changed the store " ) ; 
     ATH_MSG_DEBUG( "=> will not change the container " ) ; 
@@ -1162,7 +993,6 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcAlineStoreExternal()
   m_AmdcABlinesStamp = m_AmdcABlinesStamp + 1 ;
 
   if ( m_ModifyALineContainer == 1) {
-//  int SizeExternal = p_AmdcAlineStoreExternal->NberOfObjects();
     int SizeInternal = p_AmdcAlineStoreInternal->NberOfObjects();
     for (int Item=0 ; Item<SizeInternal ; Item++){
       const AmdcAline* pAmdcAlineInternal = p_AmdcAlineStoreInternal->GetAmdcAline( Item ) ;
@@ -1196,9 +1026,9 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcAlineStoreExternal()
     int SizeExternal = p_AmdcAlineStoreExternal->NberOfObjects();
     int SizeInternal = p_AmdcAlineStoreInternal->NberOfObjects();
 
-    std::cout << " AmdcsimrecAthenaSvc::SetAmdcAlineStoreExternal Compare " << std::endl; 
+    ATH_MSG_DEBUG(" AmdcsimrecAthenaSvc::SetAmdcAlineStoreExternal Compare "); 
     if ( SizeExternal != SizeInternal ){
-      std::cout << "=> SizeExternal != SizeInternal " << " " << SizeExternal << " " << SizeInternal << std::endl;
+      ATH_MSG_DEBUG("=> SizeExternal != SizeInternal " << " " << SizeExternal << " " << SizeInternal);
     }
     double MaxDiffGets    = 0. ;
     double MaxDiffGetz    = 0. ;
@@ -1223,8 +1053,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcAlineStoreExternal()
         double DiffGetrotS = pAmdcAlineExternal->GetrotS () - pAmdcAlineInternal->GetrotS () ;
         double DiffGetrotZ = pAmdcAlineExternal->GetrotZ () - pAmdcAlineInternal->GetrotZ () ;
         double DiffGetrotT = pAmdcAlineExternal->GetrotT () - pAmdcAlineInternal->GetrotT () ;
-        std::cout << setiosflags(std::ios::fixed);
-        std::cout  
+        ATH_MSG_DEBUG(setiosflags(std::ios::fixed)
             <<  std::setw(3)                        << pAmdcAlineExternal->GetStationType() 
             <<  std::setw(4)                        << pAmdcAlineExternal->Getjff        () 
             <<  std::setw(4)                        << pAmdcAlineExternal->Getjzz        () 
@@ -1234,19 +1063,17 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcAlineStoreExternal()
             <<  std::setw(13)<<std::setprecision(6) << DiffGett    
             <<  std::setw(16)<<std::setprecision(12)<< DiffGetrotS 
             <<  std::setw(16)<<std::setprecision(12)<< DiffGetrotZ 
-            <<  std::setw(16)<<std::setprecision(12)<< DiffGetrotT 
-            << std::endl; 
-       if ( fabs( DiffGets    ) > MaxDiffGets    ) MaxDiffGets    = DiffGets    ;
-       if ( fabs( DiffGetz    ) > MaxDiffGetz    ) MaxDiffGetz    = DiffGetz    ;
-       if ( fabs( DiffGett    ) > MaxDiffGett    ) MaxDiffGett    = DiffGett    ;
-       if ( fabs( DiffGetrotS ) > MaxDiffGetrotS ) MaxDiffGetrotS = DiffGetrotS ;
-       if ( fabs( DiffGetrotZ ) > MaxDiffGetrotZ ) MaxDiffGetrotZ = DiffGetrotZ ;
-       if ( fabs( DiffGetrotT ) > MaxDiffGetrotT ) MaxDiffGetrotT = DiffGetrotT ;
+            <<  std::setw(16)<<std::setprecision(12)<< DiffGetrotT);
+        getAbsMax(MaxDiffGets, DiffGets);
+        getAbsMax(MaxDiffGetz, DiffGetz);
+        getAbsMax(MaxDiffGett, DiffGett);
+        getAbsMax(MaxDiffGetrotS, DiffGetrotS);
+        getAbsMax(MaxDiffGetrotZ, DiffGetrotZ);
+        getAbsMax(MaxDiffGetrotT, DiffGetrotT);
       }
     }
 
-    std::cout  
-        <<  std::setw(3)                        << "Max" 
+    ATH_MSG_DEBUG(std::setw(3)                  << "Max" 
         <<  std::setw(4)                        << "Diff" 
         <<  std::setw(4)                        << "    " 
         <<  std::setw(4)                        << "    "
@@ -1255,10 +1082,9 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcAlineStoreExternal()
         <<  std::setw(13)<<std::setprecision(6) << MaxDiffGett    
         <<  std::setw(16)<<std::setprecision(12)<< MaxDiffGetrotS 
         <<  std::setw(16)<<std::setprecision(12)<< MaxDiffGetrotZ 
-        <<  std::setw(16)<<std::setprecision(12)<< MaxDiffGetrotT 
-        << std::endl; 
+        <<  std::setw(16)<<std::setprecision(12)<< MaxDiffGetrotT); 
 
-    std::cout << " In Internal and not in External" << std::endl; 
+    ATH_MSG_DEBUG(" In Internal and not in External"); 
     for (int Item=0 ; Item<SizeInternal ; Item++){
       const AmdcAline* pAmdcAlineInternal = p_AmdcAlineStoreInternal->GetAmdcAline( Item ) ;
       int JTYP_Internal = pAmdcAlineInternal->Getjtyp() ;
@@ -1269,7 +1095,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcAlineStoreExternal()
       if ( Item_External == -1) pAmdcAlineInternal->SuperPrint();
     }
 
-    std::cout << " In External and not in Internal" << std::endl; 
+    ATH_MSG_DEBUG(" In External and not in Internal"); 
     for (int Item=0 ; Item<SizeExternal ; Item++){
       const AmdcAline* pAmdcAlineExternal = p_AmdcAlineStoreExternal->GetAmdcAline( Item ) ;
       int JTYP_External = pAmdcAlineExternal->Getjtyp() ;
@@ -1282,11 +1108,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcAlineStoreExternal()
     
   }
   
-  sc = LoadAlineStoreExternal();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "LoadAlineStoreExternal failed" ) ; 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(LoadAlineStoreExternal());
   ATH_MSG_DEBUG( "Done: LoadAlineStoreExternal" ) ; 
 
   return StatusCode::SUCCESS;
@@ -1298,11 +1120,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcBlineStoreExternal()
   ATH_MSG_DEBUG( "----> SetAmdcBlineStoreExternal is called " ) ;
 
   int LoadIer = 0 ;
-  StatusCode sc = SetAmdcBlineStoreFromExternal(p_AmdcBlineStoreExternal,LoadIer) ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "SetAmdcBlineStoreFromExternal failed" ) ; 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(SetAmdcBlineStoreFromExternal(p_AmdcBlineStoreExternal,LoadIer));
   if (LoadIer==1){
     ATH_MSG_DEBUG( "SetAmdcBlineStoreFromExternal did not changed the store " ) ; 
     ATH_MSG_DEBUG( "=> will not change the container " ) ; 
@@ -1318,9 +1136,9 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcBlineStoreExternal()
     int SizeExternal = p_AmdcBlineStoreExternal->NberOfObjects();
     int SizeInternal = p_AmdcBlineStoreInternal->NberOfObjects();
 
-    std::cout << " AmdcsimrecAthenaSvc::SetAmdcBlineStoreExternal Compare " << std::endl; 
+    ATH_MSG_DEBUG(" AmdcsimrecAthenaSvc::SetAmdcBlineStoreExternal Compare "); 
     if ( SizeExternal != SizeInternal ){
-      std::cout << "=> SizeExternal != SizeInternal " << " " << SizeExternal << " " << SizeInternal << std::endl;
+      ATH_MSG_DEBUG("=> SizeExternal != SizeInternal " << " " << SizeExternal << " " << SizeInternal);
     }
     double MaxDiffGetbz = 0. ;
     double MaxDiffGetbp = 0. ;
@@ -1355,8 +1173,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcBlineStoreExternal()
         double DiffGeteg = pAmdcBlineExternal->Geteg () - pAmdcBlineInternal->Geteg () ;
         double DiffGetep = pAmdcBlineExternal->Getep () - pAmdcBlineInternal->Getep () ;
         double DiffGeten = pAmdcBlineExternal->Geten () - pAmdcBlineInternal->Geten () ;
-        std::cout << setiosflags(std::ios::fixed);
-        std::cout  
+        ATH_MSG_DEBUG(setiosflags(std::ios::fixed)
             <<  std::setw(3)                        << pAmdcBlineExternal->GetStationType() 
             <<  std::setw(4)                        << pAmdcBlineExternal->Getjff        () 
             <<  std::setw(4)                        << pAmdcBlineExternal->Getjzz        () 
@@ -1371,24 +1188,22 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcBlineStoreExternal()
             <<  std::setw(16)<<std::setprecision(12)<< DiffGettr 
             <<  std::setw(16)<<std::setprecision(12)<< DiffGeteg 
             <<  std::setw(16)<<std::setprecision(12)<< DiffGetep 
-            <<  std::setw(16)<<std::setprecision(12)<< DiffGeten 
-            << std::endl; 
-       if ( fabs( DiffGetbz) > MaxDiffGetbz ) MaxDiffGetbz = DiffGetbz ;
-       if ( fabs( DiffGetbp) > MaxDiffGetbp ) MaxDiffGetbp = DiffGetbp ;
-       if ( fabs( DiffGetbn) > MaxDiffGetbn ) MaxDiffGetbn = DiffGetbn ;
-       if ( fabs( DiffGetsp) > MaxDiffGetsp ) MaxDiffGetsp = DiffGetsp ;
-       if ( fabs( DiffGetsn) > MaxDiffGetsn ) MaxDiffGetsn = DiffGetsn ;
-       if ( fabs( DiffGettw) > MaxDiffGettw ) MaxDiffGettw = DiffGettw ;
-       if ( fabs( DiffGetpg) > MaxDiffGetpg ) MaxDiffGetpg = DiffGetpg ;
-       if ( fabs( DiffGettr) > MaxDiffGettr ) MaxDiffGettr = DiffGettr ;
-       if ( fabs( DiffGeteg) > MaxDiffGeteg ) MaxDiffGeteg = DiffGeteg ;
-       if ( fabs( DiffGetep) > MaxDiffGetep ) MaxDiffGetep = DiffGetep ;
-       if ( fabs( DiffGeten) > MaxDiffGeten ) MaxDiffGeten = DiffGeten ;
+            <<  std::setw(16)<<std::setprecision(12)<< DiffGeten);
+        getAbsMax(MaxDiffGetbz, DiffGetbz);
+        getAbsMax(MaxDiffGetbp, DiffGetbp);
+        getAbsMax(MaxDiffGetbn, DiffGetbn);
+        getAbsMax(MaxDiffGetsp, DiffGetsp);
+        getAbsMax(MaxDiffGetsn, DiffGetsn);
+        getAbsMax(MaxDiffGettw, DiffGettw);
+        getAbsMax(MaxDiffGetpg, DiffGetpg);
+        getAbsMax(MaxDiffGettr, DiffGettr);
+        getAbsMax(MaxDiffGeteg, DiffGeteg);
+        getAbsMax(MaxDiffGetep, DiffGetep);
+        getAbsMax(MaxDiffGeten, DiffGeten);
       }
     }
 
-    std::cout  
-        <<  std::setw(3)                        << "Max" 
+    ATH_MSG_DEBUG(std::setw(3)                  << "Max" 
         <<  std::setw(4)                        << "Diff" 
         <<  std::setw(4)                        << "    " 
         <<  std::setw(4)                        << "    "
@@ -1402,10 +1217,9 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcBlineStoreExternal()
         <<  std::setw(16)<<std::setprecision(12)<< MaxDiffGettr 
         <<  std::setw(16)<<std::setprecision(12)<< MaxDiffGeteg 
         <<  std::setw(16)<<std::setprecision(12)<< MaxDiffGetep 
-        <<  std::setw(16)<<std::setprecision(12)<< MaxDiffGeten 
-        << std::endl; 
+        <<  std::setw(16)<<std::setprecision(12)<< MaxDiffGeten); 
 
-    std::cout << " In Internal and not in External" << std::endl; 
+    ATH_MSG_DEBUG(" In Internal and not in External"); 
     for (int Item=0 ; Item<SizeInternal ; Item++){
       const AmdcBline* pAmdcBlineInternal = p_AmdcBlineStoreInternal->GetAmdcBline( Item ) ;
       int JTYP_Internal = pAmdcBlineInternal->Getjtyp() ;
@@ -1416,7 +1230,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcBlineStoreExternal()
       if ( Item_External == -1) pAmdcBlineInternal->SuperPrint();
     }
 
-    std::cout << " In External and not in Internal" << std::endl; 
+    ATH_MSG_DEBUG(" In External and not in Internal"); 
     for (int Item=0 ; Item<SizeExternal ; Item++){
       const AmdcBline* pAmdcBlineExternal = p_AmdcBlineStoreExternal->GetAmdcBline( Item ) ;
       int JTYP_External = pAmdcBlineExternal->Getjtyp() ;
@@ -1429,11 +1243,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcBlineStoreExternal()
     
   }
   
-  sc = LoadBlineStoreExternal();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "LoadBlineStoreExternal failed" ) ; 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(LoadBlineStoreExternal());
   ATH_MSG_DEBUG( "Done: LoadBlineStoreExternal" ) ; 
 
   return StatusCode::SUCCESS;
@@ -1445,11 +1255,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcIlineStoreExternal()
   ATH_MSG_DEBUG( "----> SetAmdcIlineStoreExternal is called " ) ;
 
   int LoadIer = 0 ;
-  StatusCode sc = SetAmdcIlineStoreFromExternal(p_AmdcIlineStoreExternal,LoadIer) ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "SetAmdcIlineStoreFromExternal failed" ) ; 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(SetAmdcIlineStoreFromExternal(p_AmdcIlineStoreExternal,LoadIer));
   if (LoadIer==1){
     ATH_MSG_DEBUG( "SetAmdcIlineStoreFromExternal did not changed the store " ) ; 
     ATH_MSG_DEBUG( "=> will not change the container " ) ; 
@@ -1459,11 +1265,7 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcIlineStoreExternal()
 
   m_AmdcABlinesStamp = m_AmdcABlinesStamp + 1 ;
    
-  sc = LoadCscInternalAlignmentStoreExternal();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "LoadCscInternalAlignmentStoreExternal failed" ) ; 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(LoadCscInternalAlignmentStoreExternal());
   ATH_MSG_DEBUG( "Done: LoadCscInternalAlignmentStoreExternal" ) ; 
 
   return StatusCode::SUCCESS;
@@ -1475,14 +1277,9 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcAlineStoreFromExternal(AmdcAlineStore* pA
   ATH_MSG_DEBUG( "----> SetAmdcAlineStoreFromExternal is called " ) ;
 
   LoadIer = 0 ;
-  const ALineMapContainer* pALineMapContainer = 0;
-  StatusCode sc = GetALineMapContainer(pALineMapContainer) ;
-  if ( sc.isFailure() ) {
-    LoadIer = 1 ;
-    ATH_MSG_FATAL( "GetALineMapContainer failed" ) ; 
-    return StatusCode::FAILURE;
-  }
-  if (pALineMapContainer==0){
+  const ALineMapContainer* pALineMapContainer = nullptr;
+  ATH_CHECK(GetALineMapContainer(pALineMapContainer));
+  if (!pALineMapContainer){
     LoadIer = 1 ;
     ATH_MSG_DEBUG( "GetALineMapContainer returns null pointer " ) ; 
     ATH_MSG_DEBUG( "=> will not change the container " ) ; 
@@ -1558,14 +1355,9 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcBlineStoreFromExternal(AmdcBlineStore* pA
   ATH_MSG_DEBUG( "----> SetAmdcBlineStoreFromExternal is called " ) ;
 
   LoadIer = 0 ;
-  const BLineMapContainer* pBLineMapContainer = 0;
-  StatusCode sc = GetBLineMapContainer(pBLineMapContainer) ;
-  if ( sc.isFailure() ) {
-    LoadIer = 1 ;
-    ATH_MSG_FATAL( "GetBLineMapContainer failed" ) ; 
-    return StatusCode::FAILURE;
-  }
-  if (pBLineMapContainer==0){
+  const BLineMapContainer* pBLineMapContainer = nullptr;
+  ATH_CHECK(GetBLineMapContainer(pBLineMapContainer));
+  if (!pBLineMapContainer){
     LoadIer = 1 ;
     ATH_MSG_DEBUG( "GetBLineMapContainer returns null pointer " ) ; 
     ATH_MSG_DEBUG( "=> will not change the container " ) ; 
@@ -1674,14 +1466,9 @@ StatusCode AmdcsimrecAthenaSvc::SetAmdcIlineStoreFromExternal(AmdcIlineStore* pA
   ATH_MSG_DEBUG( "----> SetAmdcIlineStoreFromExternal is called " ) ;
 
   LoadIer = 0 ;
-  const CscInternalAlignmentMapContainer* pCscInternalAlignmentMapContainer = 0;
-  StatusCode sc = GetCscInternalAlignmentMapContainer(pCscInternalAlignmentMapContainer) ;
-  if ( sc.isFailure() ) {
-    LoadIer = 1 ;
-    ATH_MSG_FATAL( "GetCscInternalAlignmentMapContainer failed" ) ; 
-    return StatusCode::FAILURE;
-  }
-  if (pCscInternalAlignmentMapContainer==0){
+  const CscInternalAlignmentMapContainer* pCscInternalAlignmentMapContainer = nullptr;
+  ATH_CHECK(GetCscInternalAlignmentMapContainer(pCscInternalAlignmentMapContainer));
+  if (!pCscInternalAlignmentMapContainer){
     LoadIer = 1 ;
     ATH_MSG_DEBUG( "GetCscInternalAlignmentMapContainer returns null pointer " ) ; 
     ATH_MSG_DEBUG( "=> will not change the container " ) ; 

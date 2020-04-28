@@ -18,9 +18,7 @@
 
 #include "Pythia8_i/Pythia8_i.h"
 
-namespace HepMC {
-  class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 class MultiPy8Pileup : public Pythia8_i {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeEvent/MuonCalibSelector.h"
@@ -149,8 +149,8 @@ namespace MuonCalib {
 	if( !trackSelection->endcapTrackA && summary.hasEndcapA ) return false;
       }
 
-      if( fabs(track.d0()) > trackSelection->maxr0 ) return false; 
-      if (fabs(track.z0ip()) > trackSelection->maxz0) return false;
+      if( std::abs(track.d0()) > trackSelection->maxr0 ) return false; 
+      if (std::abs(track.z0ip()) > trackSelection->maxz0) return false;
     }
     
     return true;

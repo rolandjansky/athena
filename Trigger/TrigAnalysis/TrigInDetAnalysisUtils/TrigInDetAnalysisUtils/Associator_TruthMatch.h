@@ -16,20 +16,6 @@
 #include <map>
 
 
-//BP next two
-// #include "TrigInDetEvent/TrigInDetTrackCollection.h"
-// #include "McParticleEvent/TruthParticleContainer.h"
-
-///TruthMap
-//#include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
-//##include "HepMC/GenEvent.h"
-//##include "HepMC/GenVertex.h"
-
-//BP
-// #include "HepMC/GenParticle.h"
-// #include "GeneratorObjects/HepMcParticleLink.h"
-
-
 #include "TrigInDetAnalysis/TrackAssociator.h"
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysis/Track.h"
@@ -75,10 +61,6 @@ public:
       
       for (unsigned int j = 0; j < testTracks.size(); j++) {
 
-	//  if(testTracks[j]->match_barcode()!=-1){
-	//    std::cout << "ref barcode" << refTracks[i]->barcode() << std::endl;
-	//    std::cout << "test barcode " << testTracks[j]->match_barcode() << std::endl;
-	//  }
 	
 	if ( distance( refTracks[i], testTracks[j] ) < 1. ) {
 	  //              std::cout<<"MATCHED"<<std::endl;

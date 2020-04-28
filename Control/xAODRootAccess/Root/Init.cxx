@@ -92,11 +92,7 @@ namespace xAOD {
       }
 
       // Source of the missing dictionary warnings:
-#if ROOT_VERSION_CODE < ROOT_VERSION( 6, 0, 2 )
-      static const char* DICT_WARNING_SOURCE = "TClass::TClass";
-#else
       static const char* DICT_WARNING_SOURCE = "TClass::Init";
-#endif // ROOT_VERSION
 
       // Filter out warnings about missing dictionaries. As these are relatively
       // common. In case a problem occurs because of a missing dictionary, some
@@ -105,19 +101,6 @@ namespace xAOD {
           ( ! strcmp( location, DICT_WARNING_SOURCE ) ) ) {
          return;
       }
-
-#if ROOT_VERSION_CODE == ROOT_VERSION( 6, 14, 4 )
-      // Hide error messages coming from TFormula::Streamer. This is discussed
-      // in the ROOT-9693 and ROOT-9703 Jira tickets.
-      static const char* TFORMULA_ERROR_MESSAGE_PREFIX =
-         "number of dimension computed";
-      if( ( level == kError ) &&
-          ( ! strcmp( location, "TFormula::Streamer" ) ) &&
-          ( ! strncmp( message, TFORMULA_ERROR_MESSAGE_PREFIX,
-                       strlen( TFORMULA_ERROR_MESSAGE_PREFIX ) ) ) ) {
-         return;
-      }
-#endif // ROOT_VERSION
 
       // Construct a string version of the message's level:
       const char* msgLevel = 0;

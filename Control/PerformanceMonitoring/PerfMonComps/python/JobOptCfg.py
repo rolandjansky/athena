@@ -23,6 +23,17 @@ class PerfMonSvc( _PerfMonSvc ):
 
     def setDefaults( cls, handle ):
 
+        ## get a handle on the service manager
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+
+        ## don't allow the service to be used in MT>1 jobs
+        from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+        if jp.ConcurrencyFlags.NumThreads() > 1:
+            print(" >> PerfMonSvc should NOT be used in MT>1 jobs, self removing...")
+            if hasattr(svcMgr, 'PerfMonSvc'):
+                del svcMgr.PerfMonSvc
+            return
+
         ## import the PerfMonFlags
         from PerfMonComps.PerfMonFlags import jobproperties
 
@@ -45,9 +56,6 @@ class PerfMonSvc( _PerfMonSvc ):
         ## get output levels
         import AthenaCommon.Constants as Lvl
         
-        ## get a handle on the service manager
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-
         ## make sure the application manager explicitly creates the service
         if hasattr(handle, "getFullJobOptName") :
             handleName = handle.getFullJobOptName()

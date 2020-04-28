@@ -98,7 +98,7 @@ class MdtDqaTubeEfficiency {
     double P3 = -1.593081e-04 ;
     double P4 = 9.127890e-06  ;
     double P5 = -2.565923e-07 ;
-    double resol = P0+P1*radius+P2*pow(radius,2)+P3*pow(radius,3)+P4*pow(radius,4)+P5*pow(radius,5);
+    double resol = P0+P1*radius+P2*std::pow(radius,2)+P3*std::pow(radius,3)+P4*std::pow(radius,4)+P5*std::pow(radius,5);
     return resol ;
   } ;
 

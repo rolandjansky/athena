@@ -18,13 +18,15 @@
 #include "TrkSurfaces/DistanceSolution.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 
+#include "CxxUtils/vectorize.h"
+ATH_ENABLE_VECTORIZATION;
 /////////////////////////////////////////////////////////////////////////////////
 // Common transformation from local to global system coordinates for all surfaces
 // for charged track parameters
 /////////////////////////////////////////////////////////////////////////////////
 
 bool Trk::RungeKuttaUtils::transformLocalToGlobal 
-(bool useJac,const Trk::TrackParameters& Tp,double* P) const 
+(bool useJac,const Trk::TrackParameters& Tp,double* P)
 {
   const Trk::TrackParameters* pTp  = &Tp; if(!pTp) return false;
 
@@ -40,7 +42,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 bool Trk::RungeKuttaUtils::transformLocalToGlobal 
-(bool useJac,const Trk::NeutralParameters& Tp,double* P) const 
+(bool useJac,const Trk::NeutralParameters& Tp,double* P)
 {
   const Trk::NeutralParameters* pTp = &Tp; if(!pTp) return false;
 
@@ -56,7 +58,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 bool Trk::RungeKuttaUtils::transformLocalToGlobal 
-(bool useJac,const Trk::PatternTrackParameters& Tp,double* P) const 
+(bool useJac,const Trk::PatternTrackParameters& Tp,double* P)
 {
   return transformLocalToGlobal(useJac,Tp.associatedSurface(),Tp.par(),P);
 }
@@ -66,7 +68,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToLocal 
-(double*ATH_RESTRICT P,double*ATH_RESTRICT par) const 
+(double*ATH_RESTRICT P,double*ATH_RESTRICT par)
 {
   par[2]  = atan2(P[4],P[3]);
   par[3]  = acos (P[5]);
@@ -74,7 +76,7 @@ void Trk::RungeKuttaUtils::transformGlobalToLocal
 }
 
 void Trk::RungeKuttaUtils::transformGlobalToLocal 
-(const Trk::Surface* su,bool useJac, double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
+(const Trk::Surface* su,bool useJac, double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac)
 {
   par[2]  = atan2(P[4],P[3]);
   par[3]  = acos (P[5]);
@@ -113,7 +115,7 @@ void Trk::RungeKuttaUtils::transformGlobalToLocal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToPlane
-(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
+(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) 
 {  
   const Amg::Transform3D&  T = su->transform();  
 
@@ -171,7 +173,7 @@ void Trk::RungeKuttaUtils::transformGlobalToPlane
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToDisc
-(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
+(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) 
 {
   const Amg::Transform3D&  T = su->transform();  
 
@@ -240,7 +242,7 @@ void Trk::RungeKuttaUtils::transformGlobalToDisc
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToCylinder
-(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
+(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac)
 {
 
   const Amg::Transform3D&  T = su->transform();  
@@ -310,7 +312,7 @@ void Trk::RungeKuttaUtils::transformGlobalToCylinder
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToLine
-(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
+(const Trk::Surface* su,bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac)
 {
   const Amg::Transform3D&  T = su->transform();  
   
@@ -376,7 +378,7 @@ void Trk::RungeKuttaUtils::transformGlobalToLine
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToCone
-(const Trk::Surface* su,bool useJac,const double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
+(const Trk::Surface* su,bool useJac,const double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac)
 {
 
   const Amg::Transform3D&  T = su->transform();  
@@ -413,7 +415,7 @@ void Trk::RungeKuttaUtils::transformGlobalToCone
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimator
-(int kind,double* Su,const double* P,bool& Q) const
+(int kind,double* Su,const double* P,bool& Q)
 {
   if(kind==1) return stepEstimatorToPlane       (Su,P,Q);
   if(kind==0) return stepEstimatorToStraightLine(Su,P,Q);
@@ -427,7 +429,7 @@ double Trk::RungeKuttaUtils::stepEstimator
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimatorToPlane 
-(const double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const
+(const double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q)
 {
   const double* r = &P[0];          // Start coordinate
   const double* a = &P[3];          // Start direction
@@ -442,7 +444,7 @@ double Trk::RungeKuttaUtils::stepEstimatorToPlane
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimatorToCylinder
-(double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const 
+(double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) 
 {
   const double* r = &P[0];          // Start coordinate
   const double* a = &P[3];          // Start direction
@@ -510,7 +512,7 @@ double Trk::RungeKuttaUtils::stepEstimatorToCylinder
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimatorToStraightLine
-(const double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const
+(const double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q)
 {
   const double* r = &P[0];          // Start coordinate
   const double* a = &P[3];          // Start direction
@@ -529,7 +531,7 @@ double Trk::RungeKuttaUtils::stepEstimatorToStraightLine
 /////////////////////////////////////////////////////////////////////////////////
 
 double Trk::RungeKuttaUtils::stepEstimatorToCone
-(double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) const 
+(double*ATH_RESTRICT S,const double*ATH_RESTRICT P,bool& Q) 
 {
   const double* r = &P[0];          // Start coordinate
   const double* a = &P[3];          // Start direction
@@ -617,7 +619,7 @@ double Trk::RungeKuttaUtils::stepEstimatorToCone
 
 std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator 
 (std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >& SU,std::multimap<double,int>& DN,
- const double*ATH_RESTRICT Pinp,const double*ATH_RESTRICT Pout,double W,double So,int Nv,bool& next) const
+ const double*ATH_RESTRICT Pinp,const double*ATH_RESTRICT Pout,double W,double So,int Nv,bool& next)
 {
   W             = fabs(W)                                          ;
   next          = false                                            ;
@@ -697,7 +699,7 @@ std::pair<double,int> Trk::RungeKuttaUtils::stepEstimator
 /////////////////////////////////////////////////////////////////////////////////
 
 AmgSymMatrix(5)* Trk::RungeKuttaUtils::newCovarianceMatrix
-(const double* J,const AmgSymMatrix(5)& M) const 
+(const double* J,const AmgSymMatrix(5)& M)
 {
   AmgSymMatrix(5)* nM = new AmgSymMatrix(5);
   AmgSymMatrix(5)& m = (*nM);
@@ -775,7 +777,7 @@ AmgSymMatrix(5)* Trk::RungeKuttaUtils::newCovarianceMatrix
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformPlaneToGlobal
-(bool useJac,const Trk::Surface* Su, const double*ATH_RESTRICT p ,double*ATH_RESTRICT P) const 
+(bool useJac,const Trk::Surface* Su, const double*ATH_RESTRICT p ,double*ATH_RESTRICT P) 
 {
   const Amg::Transform3D& T = Su->transform();
   const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
@@ -800,7 +802,7 @@ void Trk::RungeKuttaUtils::transformPlaneToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformDiscToGlobal 
-(bool useJac,const Trk::Surface* Su,const double*ATH_RESTRICT p, double*ATH_RESTRICT P) const 
+(bool useJac,const Trk::Surface* Su,const double*ATH_RESTRICT p, double*ATH_RESTRICT P) 
 {
   const Amg::Transform3D& T = Su->transform();
   const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
@@ -827,7 +829,7 @@ void Trk::RungeKuttaUtils::transformDiscToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformCylinderToGlobal    
-(bool useJac,const Trk::Surface* Su,const double*ATH_RESTRICT p,double*ATH_RESTRICT P) const 
+(bool useJac,const Trk::Surface* Su,const double*ATH_RESTRICT p,double*ATH_RESTRICT P) 
 {
   const Amg::Transform3D& T = Su->transform();
   const double Ax[3] = {T(0,0),T(1,0),T(2,0)};
@@ -856,7 +858,7 @@ void Trk::RungeKuttaUtils::transformCylinderToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformLineToGlobal
-(bool useJac,const Trk::Surface* Su,const double*ATH_RESTRICT p,double*ATH_RESTRICT P) const
+(bool useJac,const Trk::Surface* Su,const double*ATH_RESTRICT p,double*ATH_RESTRICT P)
 {
   const Amg::Transform3D& T = Su->transform();
   const double A[3] = {T(0,2),T(1,2),T(2,2)};
@@ -891,7 +893,7 @@ void Trk::RungeKuttaUtils::transformLineToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 bool Trk::RungeKuttaUtils::transformLocalToGlobal
-(bool useJac,const Trk::Surface* su,const double*ATH_RESTRICT p,double*ATH_RESTRICT P) const
+(bool useJac,const Trk::Surface* su,const double*ATH_RESTRICT p,double*ATH_RESTRICT P)
 {
   if(!su) return false;
 
@@ -934,7 +936,7 @@ bool Trk::RungeKuttaUtils::transformLocalToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
-(bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) const 
+(bool useJac,double*ATH_RESTRICT P,double*ATH_RESTRICT par,double*ATH_RESTRICT Jac) 
 {
   par[0] = 0.;
   par[1] = 0.;
@@ -1004,7 +1006,7 @@ void Trk::RungeKuttaUtils::transformGlobalToCurvilinear
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::transformCurvilinearToGlobal
-(double*ATH_RESTRICT p, double*ATH_RESTRICT P) const 
+(double*ATH_RESTRICT p, double*ATH_RESTRICT P)
 {
   double Sf,Cf,Ce,Se; sincos(p[2],&Sf,&Cf);  sincos(p[3],&Se,&Ce);
 
@@ -1030,7 +1032,7 @@ void Trk::RungeKuttaUtils::transformCurvilinearToGlobal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
-(const Trk::TrackParameters& Tp,double* Jac) const
+(const Trk::TrackParameters& Tp,double* Jac)
 {
   const AmgVector(5)& Vp = Tp.parameters();
   double P[23];
@@ -1047,7 +1049,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
-      (const Trk::PatternTrackParameters& Tp,double* Jac) const
+      (const Trk::PatternTrackParameters& Tp,double* Jac)
 {
   double P[23];
   P[0] = Tp.par()[0];
@@ -1062,7 +1064,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
-(double*ATH_RESTRICT P, const Trk::Surface* su,double*ATH_RESTRICT Jac) const
+(double*ATH_RESTRICT P, const Trk::Surface* su,double*ATH_RESTRICT Jac)
 {
   // Common for all surfaces terms of jacobian
   //
@@ -1110,7 +1112,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToLocal
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToPlane
-(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac) const 
+(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac)
 {
   double* At = &P[ 4];
   double* Au = &P[ 7];
@@ -1144,7 +1146,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToPlane
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToDisc
-(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac) const 
+(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac)
 {
   const double* p  = &P[ 0];
   const double* At = &P[ 4];
@@ -1193,7 +1195,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToDisc
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToCylinder
-(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac) const 
+(double*ATH_RESTRICT P,double*ATH_RESTRICT Jac)
 {
   const double* p  = &P[ 0];
   const double* At = &P[ 4];
@@ -1247,7 +1249,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToCylinder
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToStraightLine
-(const double*ATH_RESTRICT P,double*ATH_RESTRICT Jac) const 
+(const double*ATH_RESTRICT P,double*ATH_RESTRICT Jac)
 {
   const double* p  = &P[ 0];
   const double* At = &P[ 4];
@@ -1297,7 +1299,7 @@ void Trk::RungeKuttaUtils::jacobianTransformCurvilinearToStraightLine
 int Trk::RungeKuttaUtils::fillDistancesMap
 (std::vector<std::pair<const Trk::Surface*,Trk::BoundaryCheck> >& SU,
  std::multimap<double,int>& DN,
- const double*ATH_RESTRICT Pinp,double W,const Trk::Surface* So,double*ATH_RESTRICT Step) const 
+ const double*ATH_RESTRICT Pinp,double W,const Trk::Surface* So,double*ATH_RESTRICT Step)
 {
   int Ns = -1;
   DN.erase(DN.begin(),DN.end()); 

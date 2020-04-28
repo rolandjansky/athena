@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -16,14 +16,11 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointForSeed.h"
 #include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
-
-#include "GaudiKernel/ServiceHandle.h"
 
 #include <iosfwd>
 #include <list>
@@ -128,11 +125,6 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     // Private data and methods
     ///////////////////////////////////////////////////////////////////
-
-    /// @name Service handles
-    //@{
-    ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
-    //@}
 
     /// @name Data handles
     //@{

@@ -26,8 +26,13 @@ helper = AthMonitorCfgHelperOld(DQMonFlags, "SCTHitsNoiseMonitor")
 from SCT_Monitoring.SCT_MonitoringConf import SCTHitsNoiseMonAlg
 myMonAlg = helper.addAlgorithm(SCTHitsNoiseMonAlg, "SCTHitsNoiseMonAlg")
 
-myMonAlg.TriggerChain = ''
-
+# Trigger histogram will be made only for data.
+doTrigger = False
+if globalflags.DataSource == "data":
+  from RecExConfig.RecFlags import rec
+  if rec.doTrigger():
+    doTrigger = True
+myMonAlg.doTrigger = doTrigger
 
 from ROOT import SCT_Monitoring as sctMon
 

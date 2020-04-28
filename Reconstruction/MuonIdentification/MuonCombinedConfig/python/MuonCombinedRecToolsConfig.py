@@ -37,7 +37,7 @@ def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
                                          TestBLayerTool  = None,
                                          DoSharedHits    = False,
                                          HoleSearch      = indet_hole_search_tool)
-    indet_track_summary_helper_tool = acc.popPrivateTool()
+    indet_track_summary_helper_tool = acc.getPrimary()
     result.addPublicTool(indet_track_summary_helper_tool)
     result.merge(acc)
 
@@ -184,6 +184,11 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     acc = ParticleCaloExtensionToolCfg(flags)
     kwargs.setdefault("ParticleCaloExtensionTool", acc.getPrimary() )
     result.merge(acc)
+
+    # This tool needs MuonScatteringAngleSignificanceTool... which in turn needs TrackingVolumeSvc.
+    # FIXME - probably this should be someplace central.
+    trackingVolSvc = CompFactory.Trk.TrackingVolumesSvc(name="TrackingVolumesSvc")
+    result.addService(trackingVolSvc)
 
     tool = CompFactory.MuonCombined.MuonCreatorTool(name,**kwargs)
     result.addPublicTool(tool)

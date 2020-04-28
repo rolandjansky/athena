@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/SiSpacePointsSeed
                           InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          MagneticField/MagFieldInterfaces
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkSpacePoint
                           PRIVATE
@@ -27,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( SiSpacePointsSeedTool_xk
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSpacePointsSeed SiSPSeededTrackFinderData InDetRecToolInterfaces MagFieldInterfaces TrkSurfaces TrkSpacePoint TrkToolInterfaces MagFieldElements MagFieldConditions)
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSpacePointsSeed SiSPSeededTrackFinderData InDetRecToolInterfaces TrkSurfaces TrkSpacePoint TrkToolInterfaces MagFieldElements MagFieldConditions)
 
 # Install files from the package:
 atlas_install_headers( SiSpacePointsSeedTool_xk )

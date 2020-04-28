@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticleCnvAlg.cxx 298303 2013-12-05 08:41:30Z emoyse $
@@ -258,6 +258,7 @@ namespace xAODMaker {
       ATH_MSG_ERROR("Couldn't convert aod to xaod (" << xaod.name() << ") with the converting tool");
       return -1;
     }
+
     // Create the xAOD objects:
     xAOD::TrackParticleContainer::iterator itr_xaod = xaod->begin();
     xAOD::TrackParticleContainer::iterator end_xaod = xaod->end();
@@ -390,6 +391,11 @@ namespace xAODMaker {
                 origin = truthClass.second;
                 ATH_MSG_VERBOSE("Got truth type  " << static_cast<int>(type) << "  origin " << static_cast<int>(origin));
               }
+            }
+            else {
+               if (result->second.particleLink().barcode()>0) {
+                  ATH_MSG_WARNING( "No associated xAOD truth for valid truth link " << result->second.particleLink());
+               }
             }
           }
         }

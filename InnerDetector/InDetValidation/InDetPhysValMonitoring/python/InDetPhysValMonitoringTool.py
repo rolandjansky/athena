@@ -76,6 +76,15 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                          JetContainerName           ='',
                          FillTrackInJetPlots        = False)
 
+   # Control the number of output histograms
+   if InDetPhysValFlags.doPhysValOutput() :
+      kwargs=setDefaults(kwargs,
+                         SkillLevel = 100)
+
+   elif InDetPhysValFlags.doExpertOutput() :
+      kwargs=setDefaults(kwargs,
+                         SkillLevel = 200)
+
    # hack to remove example physval monitor
    from RecExConfig.AutoConfiguration import IsInInputFile
    if not IsInInputFile('xAOD::JetContainer','AntiKt4EMTopoJets') :

@@ -10,8 +10,8 @@
 #include "GenParticleSimWhiteList.h"
 
 // HepMC includes
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // Helper function
 #include "TruthUtils/PIDHelpers.h"

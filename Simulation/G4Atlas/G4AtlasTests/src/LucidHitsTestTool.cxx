@@ -6,7 +6,7 @@
 
 #include "LUCID_SimEvent/LUCID_SimHitCollection.h"
 //#include "LUCID_SimEvent/LUCID_SimHit.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <string>
 #include <cmath>

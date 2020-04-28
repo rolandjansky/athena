@@ -2,13 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////////////////////////////
-// MuonTrackQuery
-//
-//  (c) ATLAS Combined Muon software
-//////////////////////////////////////////////////////////////////////////////
-
-
 #include "MuidTrackBuilder/MuonTrackQuery.h"
 
 #include <cmath>
@@ -19,7 +12,6 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkEventPrimitives/DriftCircleSide.h"
 #include "TrkGeometry/TrackingGeometry.h"
@@ -53,13 +45,6 @@ MuonTrackQuery::MuonTrackQuery(const std::string& type, const std::string& name,
     declareProperty("TrackingGeometrySvc", m_trackingGeometrySvc);
 }
 
-
-MuonTrackQuery::~MuonTrackQuery(void) {}
-
-
-// <<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
-
-
 StatusCode
 MuonTrackQuery::initialize()
 {
@@ -67,56 +52,28 @@ MuonTrackQuery::initialize()
 
     // tool needed to refit slimmed tracks
     if (!m_fitter.empty()) {
-        if (m_fitter.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_fitter);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_DEBUG("Retrieved tool " << m_fitter);
-        }
+        ATH_CHECK(m_fitter.retrieve());
+        ATH_MSG_DEBUG("Retrieved tool " << m_fitter);
     }
 
     // multipurpose and identifier helper tools for spectrometer
-    if (m_edmHelperSvc.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_edmHelperSvc);
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_DEBUG("Retrieved tool " << m_edmHelperSvc);
-    }
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_MSG_DEBUG("Retrieved tool " << m_edmHelperSvc);
 
-    if (m_muonIdHelperSvc.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_muonIdHelperSvc);
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_DEBUG("Retrieved tool " << m_muonIdHelperSvc);
-    }
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_MSG_DEBUG("Retrieved tool " << m_idHelperSvc);
 
     // tools needed when flipping tracks to outgoing
     if (!m_mdtRotCreator.empty()) {
-        if (m_mdtRotCreator.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_mdtRotCreator);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_DEBUG("Retrieved tool " << m_mdtRotCreator);
-        }
+        ATH_CHECK(m_mdtRotCreator.retrieve());
+        ATH_MSG_DEBUG("Retrieved tool " << m_mdtRotCreator);
     }
 
     // need to know which TrackingVolume we are in: indet/calo/spectrometer
-    if (m_trackingGeometrySvc.retrieve().isFailure()) {
-        ATH_MSG_WARNING(" failed to retrieve geometry Svc " << m_trackingGeometrySvc);
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_trackingGeometrySvc.retrieve());
 
     return StatusCode::SUCCESS;
 }
-
-
-StatusCode
-MuonTrackQuery::finalize()
-{
-    ATH_MSG_VERBOSE("Finalizing MuonTrackQuery");
-    return StatusCode::SUCCESS;
-}
-
 
 const CaloEnergy*
 MuonTrackQuery::caloEnergy(const Trk::Track& track) const
@@ -257,7 +214,7 @@ MuonTrackQuery::fieldIntegral(const Trk::Track& track) const
         if (isPreciseHit && !calorimeterVolume->inside((**s).trackParameters()->position())) {
 
             Identifier id = m_edmHelperSvc->getIdentifier(*(**s).measurementOnTrack());
-            isPreciseHit  = (id.is_valid() && !m_muonIdHelperSvc->measuresPhi(id));
+            isPreciseHit  = (id.is_valid() && !m_idHelperSvc->measuresPhi(id));
         }
 
         if (!(**s).materialEffectsOnTrack() && !isPreciseHit) {
@@ -800,169 +757,6 @@ MuonTrackQuery::outgoingPerigee(const Trk::Track& track) const
     return perigee;
 }
 
-
-const Trk::Track*
-MuonTrackQuery::outgoingTrack(const Trk::Track& track) const
-{
-    const Trk::TrackingVolume* indetVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("InDet::Containers::InnerDetector");
-
-    if (!indetVolume) {
-        ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
-        return 0;
-    }
-
-    // check if perigee needs flip
-    const Trk::Perigee* perigee = outgoingPerigee(track);
-    if (perigee == track.perigeeParameters()) {
-        return &track;
-    }
-    if (!perigee) {
-        return 0;
-    }
-
-    // flipping requires rot creation
-    if (m_mdtRotCreator.empty()) {
-        ATH_MSG_WARNING(" outgoingTrack: please configure rot creator for this method to work");
-        delete perigee;
-        return 0;
-    }
-
-    // create a flipped track
-    ATH_MSG_DEBUG("outgoingTrack: flip track,"
-                  << " new perigee at radius " << perigee->position().perp() << "  phi " << perigee->momentum().phi()
-                  << "  theta " << perigee->momentum().theta());
-
-    DataVector<const Trk::TrackStateOnSurface>* flippedTSOS = new DataVector<const Trk::TrackStateOnSurface>;
-
-    flippedTSOS->reserve(track.trackStateOnSurfaces()->size());
-    const Trk::FitQualityOnSurface* fitQoS          = 0;
-    const Trk::MaterialEffectsBase* materialEffects = 0;
-    const Trk::MeasurementBase*     measurement     = 0;
-    const Trk::TrackParameters*     parameters      = 0;
-
-    std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> defaultPattern;
-    std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type = defaultPattern;
-
-    // start with perigee TSOS
-    type.set(Trk::TrackStateOnSurface::Perigee);
-    flippedTSOS->push_back(new const Trk::TrackStateOnSurface(measurement, perigee, fitQoS, materialEffects, type));
-
-    Amg::Vector3D direction = perigee->momentum().unit();
-
-    // add remaining TSOS in reverse order
-    DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator s = track.trackStateOnSurfaces()->rbegin();
-
-    for (++s; s != track.trackStateOnSurfaces()->rend(); ++s) {
-        measurement     = (**s).measurementOnTrack();
-        materialEffects = (**s).materialEffectsOnTrack();
-        parameters      = (**s).trackParameters();
-        type            = defaultPattern;
-
-        if ((**s).type(Trk::TrackStateOnSurface::Hole)) {
-            type.set(Trk::TrackStateOnSurface::Hole);
-        }
-
-        // if parameters need flip then so will material and drift measurements
-        // also remove 'other-side' hits from incorrectly-split tracks
-        if (parameters) {
-            if (parameters->momentum().dot(direction) > 0.) {
-                if (indetVolume->inside(parameters->position())) {
-                    flippedTSOS->push_back((**s).clone());
-                }
-                continue;
-            } else {
-                parameters = flippedParameters(*parameters);
-            }
-        }
-
-        // material: flip scattering angles and make sure energy deposit is +ve
-        if (materialEffects) {
-            type.set(Trk::TrackStateOnSurface::Scatterer);
-
-            const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
-
-            if (meot) {
-                const Trk::EnergyLoss* energyLoss = meot->energyLoss();
-                if (energyLoss) {
-                    double deltaE = fabs(energyLoss->deltaE());
-                    energyLoss    = new Trk::EnergyLoss(deltaE, energyLoss->sigmaDeltaE());
-                }
-
-                const Trk::ScatteringAngles* scatteringAngles = meot->scatteringAngles();
-                if (scatteringAngles) {
-                    scatteringAngles = new Trk::ScatteringAngles(
-                        -scatteringAngles->deltaPhi(), -scatteringAngles->deltaTheta(),
-                        scatteringAngles->sigmaDeltaPhi(), scatteringAngles->sigmaDeltaTheta());
-                }
-
-                materialEffects = new Trk::MaterialEffectsOnTrack(materialEffects->thicknessInX0(), scatteringAngles,
-                                                                  energyLoss, materialEffects->associatedSurface());
-            } else {
-                materialEffects = materialEffects->clone();
-            }
-        }
-
-        if (measurement) {
-            measurement = measurement->clone();
-            type.set(Trk::TrackStateOnSurface::Measurement);
-
-            if ((**s).type(Trk::TrackStateOnSurface::Outlier)) {
-                type.set(Trk::TrackStateOnSurface::Outlier);
-            }
-
-            const InDet::TRT_DriftCircleOnTrack* trtDriftCircle =
-                dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(measurement);
-
-            Muon::MdtDriftCircleOnTrack* mdtDriftCircle =
-                const_cast<Muon::MdtDriftCircleOnTrack*>(dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(measurement));
-
-            if (mdtDriftCircle) {
-                if (mdtDriftCircle->side() == Trk::LEFT) {
-                    m_mdtRotCreator->updateSign(*mdtDriftCircle, Trk::RIGHT);
-                } else if (mdtDriftCircle->side() == Trk::RIGHT) {
-                    m_mdtRotCreator->updateSign(*mdtDriftCircle, Trk::LEFT);
-                }
-            } else if (trtDriftCircle) {
-                // no update sign method: so directly flip local position
-                Trk::LocalParameters lpos(trtDriftCircle->localParameters());
-
-                if (trtDriftCircle->status() == Trk::DECIDED) {
-                    lpos[Trk::driftRadius] = -lpos[Trk::driftRadius];
-                }
-
-                if (parameters) {
-                    measurement = new InDet::TRT_DriftCircleOnTrack(
-                        trtDriftCircle->prepRawData(), Trk::LocalParameters(lpos), trtDriftCircle->localCovariance(),
-                        trtDriftCircle->idDE(), parameters->position().z(), parameters->momentum().unit(),
-                        trtDriftCircle->status());
-
-                    delete trtDriftCircle;
-                } else {
-                    // FIXME: need updateSign method (like mdt) to avoid const_cast hack
-                    Trk::LocalParameters& lposUpdate =
-                        const_cast<Trk::LocalParameters&>(trtDriftCircle->localParameters());
-
-                    lposUpdate[Trk::driftRadius] = lpos[Trk::driftRadius];
-                }
-            }
-        }
-
-        flippedTSOS->push_back(
-            new const Trk::TrackStateOnSurface(measurement, parameters, fitQoS, materialEffects, type));
-    }
-
-    Trk::Track* flippedTrack = 0;
-    if (track.fitQuality()) {
-        flippedTrack = new Trk::Track(track.info(), flippedTSOS, track.fitQuality()->clone());
-    } else {
-        flippedTrack = new Trk::Track(track.info(), flippedTSOS, 0);
-    }
-
-    return flippedTrack;
-}
-
-
 ScatteringAngleSignificance
 MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track) const
 {
@@ -1182,13 +976,13 @@ MuonTrackQuery::spectrometerPhiQuality(const Trk::Track& track) const
         }
 
         Identifier id = m_edmHelperSvc->getIdentifier(*(**s).measurementOnTrack());
-        if (!id.is_valid() || !m_muonIdHelperSvc->measuresPhi(id)) {
+        if (!id.is_valid() || !m_idHelperSvc->measuresPhi(id)) {
             continue;
         }
 
         // require phi measurement from CSC or CompetingROT
         if (!dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>((**s).measurementOnTrack())
-            && !m_muonIdHelperSvc->isCsc(id))
+            && !m_idHelperSvc->isCsc(id))
         {
             continue;
         }
@@ -1214,7 +1008,7 @@ MuonTrackQuery::spectrometerPhiQuality(const Trk::Track& track) const
 
         Identifier id = m_edmHelperSvc->getIdentifier(*(**r).measurementOnTrack());
 
-        if (!id.is_valid() || !m_muonIdHelperSvc->measuresPhi(id)) {
+        if (!id.is_valid() || !m_idHelperSvc->measuresPhi(id)) {
             continue;
         }
 

@@ -36,7 +36,7 @@
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthEventAuxContainer.h"
 
-#include "HFORTools/IHFORSelectionTool.h"
+#include "PMGAnalysisInterfaces/IHFORSelectionTool.h"
 #include "HFORTools/HFOR_Truth.h"
 
 class HFORSelectionTool: public asg::AsgMetadataTool, public virtual IHFORSelectionTool {

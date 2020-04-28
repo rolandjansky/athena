@@ -13,7 +13,7 @@
 
 // STL includes
 
-// HepMC / CLHEP includes
+//  CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 

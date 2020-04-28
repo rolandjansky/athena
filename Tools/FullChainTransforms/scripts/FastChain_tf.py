@@ -22,6 +22,7 @@ from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments, ad
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 from RecJobTransforms.recTransformUtils import addRecoSubsteps, addAllRecoArgs
 from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addCommonSimTrfArgs, addBasicDigiArgs, addCommonSimDigTrfArgs, addTrackRecordArgs, addSim_tfArgs, addPileUpTrfArgs
+from PATJobTransforms.PATTransformUtils import addPhysValidationFiles, addValidationArguments, appendPhysValidationSubstep
 
 from PyJobTransforms.trfArgClasses import argFactory, argList, argRDOFile
 
@@ -79,6 +80,11 @@ def getTransform():
 
     # Overlay
     addOverlay_PoolArguments(trf.parser)
+
+    # Add PhysVal
+    addPhysValidationFiles(trf.parser)
+    addValidationArguments(trf.parser)
+    appendPhysValidationSubstep(trf)
 
     return trf
 

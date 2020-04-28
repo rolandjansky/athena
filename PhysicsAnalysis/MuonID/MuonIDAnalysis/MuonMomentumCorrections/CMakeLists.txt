@@ -17,6 +17,7 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Control/AthToolSupport/AsgMessaging
    Control/StoreGate
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
@@ -39,7 +40,7 @@ atlas_add_library( MuonMomentumCorrectionsLib
    PUBLIC_HEADERS MuonMomentumCorrections
    INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon MuonAnalysisInterfacesLib AsgAnalysisInterfaces
-   PATInterfaces StoreGateLib
+   PATInterfaces StoreGateLib AsgMessagingLib
    PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 
 if( NOT XAOD_STANDALONE )
@@ -47,7 +48,7 @@ if( NOT XAOD_STANDALONE )
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODMuon xAODCore MuonAnalysisInterfacesLib AsgAnalysisInterfaces
-      xAODBase GaudiKernel MuonSelectorToolsLib MuonMomentumCorrectionsLib StoreGateLib )
+      xAODBase GaudiKernel MuonSelectorToolsLib MuonMomentumCorrectionsLib StoreGateLib AsgMessagingLib )
 endif()
 
 atlas_add_dictionary( MuonMomentumCorrectionsDict
@@ -61,7 +62,7 @@ atlas_add_executable( MCAST_Tester
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
    xAODEventInfo xAODMuon xAODCore PATInterfaces xAODCore AsgTools AsgAnalysisInterfaces
-   MuonSelectorToolsLib MuonMomentumCorrectionsLib  MuonAnalysisInterfacesLib StoreGateLib )
+   MuonSelectorToolsLib MuonMomentumCorrectionsLib  MuonAnalysisInterfacesLib StoreGateLib AsgMessagingLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

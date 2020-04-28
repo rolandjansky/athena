@@ -152,7 +152,7 @@ double BFieldCorFunc::t_from_r(const double &r, const IRtRelation *rt) const {
       r_min=r_guess;
       t_min=t_guess;
     }
-  } while( t_max-t_min>0.1 && fabs(r_guess-r)>precision );
+  } while( t_max-t_min>0.1 && std::abs(r_guess-r)>precision );
   return t_guess;
 }  //end BFieldCorFunc::t_from_r
 
@@ -194,7 +194,7 @@ double BFieldCorFunc::integral(const double &r_min, const double &r_max, const I
   while (rp<radius) {
     time = t_from_r(rp, rt);
     if (rp+step>radius) delta=radius-rp;
-    integ = integ + 1.0e-3*delta*std::pow(fabs(rt->driftvelocity(time))*1.0e6,
+    integ = integ + 1.0e-3*delta*std::pow(std::abs(rt->driftvelocity(time))*1.0e6,
 	             1.0-m_param[1])/std::pow(E0/(rp*1.0e-3), 2.0-m_param[1]);
     rp = rp+step;
   }
@@ -254,7 +254,7 @@ double BFieldCorFunc::correction(double t, double B_wire, double B_mu) const {
 ///////////////
 // VARIABLES //
 ///////////////
-  double B_perp(sqrt(B_wire*B_wire+B_mu*B_mu)); // B orthogonal to the
+  double B_perp(std::hypot(B_wire, B_mu)); // B orthogonal to the
 	                                        // electron drift path
   double B_factor(std::pow(B_perp, 2.0-m_param[1]));
   double precision(0.1); // precision of the correction in ns
@@ -309,7 +309,7 @@ double BFieldCorFunc::correction_to_B(
 // VARIABLES //
 ///////////////
   if (B_factor<0) {
-    double B_perp(sqrt(B_wire*B_wire+B_mu*B_mu)); 
+    double B_perp(std::hypot(B_wire, B_mu)); 
     // B orthogonal to the electron drift path
     B_factor=std::pow(B_perp, 2.0-m_param[1]);
   }

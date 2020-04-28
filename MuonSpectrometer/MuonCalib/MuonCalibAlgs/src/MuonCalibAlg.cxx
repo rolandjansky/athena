@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibAlgs/MuonCalibAlg.h"
@@ -426,11 +426,9 @@ namespace MuonCalib {
 	  double kinEnergy( (*tr_it).GetEnergy() ) ;
 	  int PDGCode( (*tr_it).GetPDGCode() ) ;
 	  int barcode((*tr_it).GetBarCode() );	
-	  double prec = sqrt(mom[0]*mom[0]+mom[1]*mom[1]+mom[2]*mom[2]);  
-	  //        if (barcode%10000>10 || barcode < 0 && fabs(PDGCode) == 13 ) {
-	  //	  std::cout << " BARCODE for Track Record " << (*tr_it).GetBarCode() << " energy " <<  kinEnergy << " code " << PDGCode << " pos x " << pos.x() << " y " << pos.y() << " z " << pos.z() << std::endl;
+	  double prec = std::sqrt(mom[0]*mom[0]+mom[1]*mom[1]+mom[2]*mom[2]);  
 	  int newbarcode = 0; 	
-	  if (fabs(PDGCode) == 13 ) {
+	  if (std::abs(PDGCode) == 13 ) {
 	    muonfound = true;  
 
 	    // Barcode is not set correctly in TrackRecordCollection for earlier versions before June 2006
@@ -446,8 +444,8 @@ namespace MuonCalib {
 		if( (*particle)->pdg_id() ==  PDGCode ) {
 		  Amg::Vector3D moms( (*particle)->momentum().x(), (*particle)->momentum().y(), (*particle)->momentum().z() );
 		  double dotprod =  moms[0]*mom[0] + moms[1]*mom[1] + moms[2]*mom[2];
-		  double psim = sqrt(moms[0]*moms[0]+moms[1]*moms[1]+moms[2]*moms[2]); 
-		  psim =sqrt(psim);
+		  double psim = std::sqrt(moms[0]*moms[0]+moms[1]*moms[1]+moms[2]*moms[2]); 
+		  psim =std::sqrt(psim);
 		  dotprod = dotprod/(psim*prec);
 		  if (dotprod > 0.5&&dotprod > dotprodbest) {
 		    dotprodbest = dotprod;
@@ -504,9 +502,9 @@ namespace MuonCalib {
 				 (*particle)->momentum().e());
 	      Amg::Vector3D  pos(999.,999.,999.);
 	      if ((*particle)->production_vertex()) { 
-		pos[0] = (*particle)->production_vertex()->point3d().x();
-		pos[1] = (*particle)->production_vertex()->point3d().y();
-		pos[2] = (*particle)->production_vertex()->point3d().z();
+		pos[0] = (*particle)->production_vertex()->position().x();
+		pos[1] = (*particle)->production_vertex()->position().y();
+		pos[2] = (*particle)->production_vertex()->position().z();
 	      }
 	      Amg::Vector3D mom( (*particle)->momentum().x(), (*particle)->momentum().y(), (*particle)->momentum().z() );
 	      double kinEnergy( p[3] ) ;
@@ -951,7 +949,7 @@ namespace MuonCalib {
 	    }
 
 	    // Catch errors
-	    if( abs(type_id) != 1 ){
+	    if( std::abs(type_id) != 1 ){
 	      log << MSG::WARNING << "MBTS identifier type is out of range" << endmsg;
 	      continue;
 	    }
@@ -1147,7 +1145,7 @@ namespace MuonCalib {
 	      rawMdtHit->setDriftRadius( (*mdt_it)->localPosition()[Trk::locR] );
 	      //std::cout<<"mdt hit locR covariance: "<<(*mdt_it)->localCovariance()(Trk::locR,Trk::locR)<<std::endl;
 	      //printf("mdt hit locR and covariance: %.2f, %.15f \n",(*mdt_it)->localPosition()[Trk::locR],(*mdt_it)->localCovariance()(Trk::locR,Trk::locR));
-	      rawMdtHit->setDriftRadiusError( 1./sqrt((*mdt_it)->localCovariance()(Trk::locR,Trk::locR)) );
+	      rawMdtHit->setDriftRadiusError( 1./std::sqrt((*mdt_it)->localCovariance()(Trk::locR,Trk::locR)) );
 	      
 	      int occupancy = 0;
 	      std::map<MuonFixedId, int>::const_iterator position = mdtMap.find( fID );
@@ -1465,8 +1463,8 @@ namespace MuonCalib {
 		rawTgcCoin->setBcTag(bcTag);
 		rawTgcCoin->setWidthIn(0);
 		rawTgcCoin->setWidthOut(0);
-		double w1 = 1./sqrt((*tgcCoin_it)->errMat()(Trk::loc1,Trk::loc2));
-		double w2 = 1./sqrt((*tgcCoin_it)->errMat()(Trk::loc2,Trk::loc2));
+		double w1 = 1./std::sqrt((*tgcCoin_it)->errMat()(Trk::loc1,Trk::loc2));
+		double w2 = 1./std::sqrt((*tgcCoin_it)->errMat()(Trk::loc2,Trk::loc2));
 		rawTgcCoin->setWidthR(w1);
 		rawTgcCoin->setWidthPhi(w2);
 		rawTgcCoin->setDelta(0);

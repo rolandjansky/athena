@@ -12,9 +12,7 @@
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
 
-namespace HepMC {
-    class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 namespace Simulation {
 
