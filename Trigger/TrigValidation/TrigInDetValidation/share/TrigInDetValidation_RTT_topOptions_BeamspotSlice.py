@@ -62,7 +62,7 @@ else:
   FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_Instance
   FTF.doZFinder = False
 
-  if 'mlExtensions' in dir() and mlExtensions=True:
+  if 'mlExtensions' in dir() and mlExtensions==True:
 
     FTF.doSeedRedundancyCheck = True
     FTF.UseTrigSeedML  = 1 #can be 0, 1, 2, or 3, 0 means the ML-based seed filtering is off
