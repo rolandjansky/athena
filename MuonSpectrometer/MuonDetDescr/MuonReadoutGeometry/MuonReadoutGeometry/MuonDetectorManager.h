@@ -218,8 +218,8 @@ namespace MuonGM {
     inline void setCacheFillingFlag(int value);
     inline int cacheFillingFlag() const;
 
-    inline void setNSWABLinesAsciiSideA(std::string str);
-    inline void setNSWABLinesAsciiSideC(std::string str);
+    inline void setNSWABLinesAsciiSideA(const std::string& str);
+    inline void setNSWABLinesAsciiSideC(const std::string& str);
 
 
     inline void setMinimalGeoFlag (int flag);
