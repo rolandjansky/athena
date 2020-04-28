@@ -75,14 +75,14 @@ MdtCondDbAlg::execute(const EventContext& ctx) const {
     if(m_isData && m_isRun1) {
       ATH_CHECK(loadDataPsHv(writeHandle, writeCdo.get(),ctx));
       ATH_CHECK(loadDataPsLv(writeHandle, writeCdo.get(),ctx));
-      ATH_CHECK(loadDataDroppedChambers(writeHandle, writeCdo.get(),ctx));
+      ATH_CHECK(loadDroppedChambers(writeHandle, writeCdo.get(),ctx,false));
     }
     else if(m_isData && !m_isRun1) {
       ATH_CHECK(loadDataHv(writeHandle, writeCdo.get(),ctx));
       ATH_CHECK(loadDataLv(writeHandle, writeCdo.get(),ctx));
     }
     else {
-      ATH_CHECK(loadMcDroppedChambers(writeHandle, writeCdo.get(),ctx));
+      ATH_CHECK(loadDroppedChambers(writeHandle, writeCdo.get(),ctx,true));
       ATH_CHECK(loadMcNoisyChannels(writeHandle, writeCdo.get(),ctx));
 		//ATH_CHECK(loadMcDeadElements     (rangeW, writeCdo.get(),ctx));// keep for future development 
 		//ATH_CEHCK(loadMcDeadTubes        (rangeW, writeCdo.get(),ctx));// keep for future development
@@ -471,9 +471,11 @@ MdtCondDbAlg::loadDataLv(writeHandle_t& wh, MdtCondDbData* writeCdo, const Event
 
 //loadDataDroppedChambers
 StatusCode 
-MdtCondDbAlg::loadDataDroppedChambers(writeHandle_t& wh, MdtCondDbData* writeCdo, const EventContext& ctx) const {
+MdtCondDbAlg::loadDroppedChambers(writeHandle_t& wh, MdtCondDbData* writeCdo, const EventContext& ctx, bool isMC) const {
 
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_droppedChambers,ctx};
+  SG::ReadCondHandle<CondAttrListCollection> readHandle{ (isMC ? m_readKey_folder_mc_droppedChambers : 
+                                                                  m_readKey_folder_da_droppedChambers),
+                                                                  ctx};
     const CondAttrListCollection* readCdo{*readHandle}; 
     if(readCdo==0){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
@@ -502,37 +504,6 @@ MdtCondDbAlg::loadDataDroppedChambers(writeHandle_t& wh, MdtCondDbData* writeCdo
     }
     return StatusCode::SUCCESS;
 }
-
-
-
-// loadMcDroppedChambers
-StatusCode
-MdtCondDbAlg::loadMcDroppedChambers(writeHandle_t& wh, MdtCondDbData* writeCdo, const EventContext& ctx) const {
-
-  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_mc_droppedChambers,ctx};
-    const CondAttrListCollection* readCdo{*readHandle}; 
-    if(readCdo==0){
-      ATH_MSG_ERROR("Null pointer to the read conditions object");
-      return StatusCode::FAILURE; 
-    } 
-    wh.addDependency(readHandle);
-    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << readHandle.getRange()  << ", range of output is " << wh.getRange());
-
-    CondAttrListCollection::const_iterator itr;
-    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
-
-        const coral::AttributeList& atr = itr->second;
-        std::string chamber_name;
-        chamber_name = *(static_cast<const std::string*>((atr["Chambers_disabled"]).addressOfData()));
-    
-        Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
-        writeCdo->setDeadChamber(ChamberId);
-    }
-
-    return StatusCode::SUCCESS;
-}
-
 
 
 // loadMcDeadElements
@@ -674,47 +645,29 @@ MdtCondDbAlg::loadMcNoisyChannels(writeHandle_t& wh, MdtCondDbData* writeCdo, co
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
     ATH_MSG_DEBUG("Range of input is " << readHandle.getRange() << ", range of output is " << wh.getRange() );
 
-    CondAttrListCollection::const_iterator itr;
-    unsigned int chan_index=0; 
-    for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
+    for(const auto& itr: *readCdo) {
 
-        unsigned int chanNum   = readCdo->chanNum (chan_index);
-        std::string hv_payload = readCdo->chanName(chanNum   );
+        unsigned int chanNum = itr.first;
         std::string hv_name;
-        itr = readCdo->chanAttrListPair(chanNum);
-        const coral::AttributeList& atr = itr->second;
+        std::string hv_payload = readCdo->chanName(chanNum);
 
-        if(atr.size()==1) {
+        const coral::AttributeList& atr = itr.second;
+        
+        if(atr.size()){
             hv_name = *(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
             std::string delimiter = " ";
             std::vector<std::string> tokens;
             MuonCalib::MdtStringUtils::tokenize(hv_name, tokens, delimiter);
-     
-            std::string thename; 
             std::string delimiter2 = "_";
             std::vector<std::string> tokens2;
-            MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
-
-            if(tokens[0]!="ON" && tokens[0]!="STANDBY" && tokens[0]!="UNKNOWN"){
-                int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
-                std::string chamber_name = tokens2[2];
-                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
-                thename = chamber_name+"_multilayer"+tokens2[3];
-                writeCdo->setDeadMultilayer(thename, MultiLayerId);
-                writeCdo->setDeadChamber   (ChamberId);
-            }
-            if(tokens[0]=="STANDBY"){
-                int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
-                std::string chamber_name = tokens2[2];
-                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
-                thename = chamber_name+"_multilayer"+tokens2[3];
-                writeCdo->setDeadMultilayer(thename, MultiLayerId);
-                writeCdo->setDeadChamber   (ChamberId);
+            MuonCalib::MdtStringUtils::tokenize(hv_payload,tokens2,delimiter2);
+      
+            if(tokens[0]!="ON"){
+                std::string chamber_name= tokens2[2];
+	              Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
+                writeCdo->setDeadStation(chamber_name, ChamberId);
             }
         }
-        chan_index++;
     }
 	return StatusCode::SUCCESS;
 }

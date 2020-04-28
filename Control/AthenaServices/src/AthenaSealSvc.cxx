@@ -19,13 +19,6 @@ PURPOSE:  Verify dictionary completeness by attempting to load all
 
 #include "AthenaSealSvc.h"
 
-#ifdef ROOT6_MIGRATION_HAVE_REFLEX
-#include "Reflex/Base.h"
-#include "Reflex/Member.h"
-#include "Reflex/Scope.h"
-#include "Reflex/Type.h"
-#endif
-
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -51,20 +44,12 @@ PURPOSE:  Verify dictionary completeness by attempting to load all
 //----------------------------------------------------------------------------
 static inline ReflexType mig56_ReflexTypeByName(const std::string& name)
 {
-#ifdef ROOT6_MIGRATION_HAVE_REFLEX
-    return ReflexType::ByName(name);
-#else
     return ReflexType::ByName(name, kFALSE /* load */, kFALSE /* quiet */ );
-#endif
 }
 
 static inline ReflexScope mig56_ReflexScopeByName(const std::string& name)
 {
-#ifdef ROOT6_MIGRATION_HAVE_REFLEX
-    return ReflexScope::ByName(name);
-#else
     return ReflexScope::ByName(name, kFALSE /* load */, kFALSE /* quiet */ );
-#endif
 }
 
 
@@ -209,28 +194,6 @@ AthenaSealSvc::loadClasses() const
 
     // Iterate over the reflex types
 
-#ifdef ROOT6_MIGRATION_HAVE_REFLEX
-    ReflexType_Iterator itr  = ReflexType::Type_Begin();
-    ReflexType_Iterator last = ReflexType::Type_End();
-
-    // Printout the list of classes/ one per module
-    ATH_MSG_DEBUG
-        ("Loading ALL dict libs - number is: " << ReflexType::TypeSize());
-    for (; itr != last; ++itr) {
-        if (!itr->IsClass() || !itr->IsStruct()) {
-            continue;
-        }
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
-        const std::string n = itr->Name(ROOT::Reflex::SCOPED);
-#else
-        const std::string n = itr->Name(Reflex::SCOPED);
-#endif
-        if ( !m_dictLoaderSvc->load_type (n)) {
-            ATH_MSG_VERBOSE ("could not load reflex-dict for [" << n << "] !");
-        }
-        ATH_MSG_VERBOSE ("Called IDictLoaderSvc to load dictionary for: " << n);
-    }
-#else /* ROOT6 */
     // Don't loadClasses() ... at issue is that with no longer any distinction
     // between Reflex-based classes (i.e. ATLAS classes) and ROOT ones, we'd be
     // pulling all of ROOT and its derived uses.
@@ -242,7 +205,6 @@ AthenaSealSvc::loadClasses() const
     // is not the currently case (per LXR). Since this could change, a warning is
     // warrented:
     ATH_MSG_WARNING ("loadClasses() is a no-op under ROOT6 (LoadAllDicts ignored)");
-#endif
     return (StatusCode::SUCCESS);
 }
 
@@ -350,12 +312,10 @@ AthenaSealSvc::member_is_ok(const std::string& typeName,
 	memberName == "m_trackCollection") {
 	return (true);
     }
-#if ROOT_VERSION_CODE > ROOT_VERSION(6,0,0)
     if( typeName.find("DataVector<") == 0 && memberName == "m_pCont") {
        msg(MSG::VERBOSE) << "**** Ignoring  " << typeName << "." << memberName << endmsg;
        return (true);
     }
-#endif
     
     return (false);
 }
@@ -563,20 +523,13 @@ AthenaSealSvc::missing_member_types (const ReflexType& t) const
 	    ReflexType t2 = m.TypeOf ();
 	    bool transient = m.IsTransient();
             bool is_static = m.IsStatic();
-#ifdef ROOT6_MIGRATION_HAVE_REFLEX
-            // enum class members don't exist in Reflex
-            bool is_enum   = false;
-#else
             bool is_enum   = m.IsEnum();
             //MN: protect against anonymous enums
             if( t2.Name().find("(anonymous)") != std::string::npos )
                is_enum = true;
-#endif            
 
 	    msg(MSG::VERBOSE) << "Checking member: " << m.Name() << " of type " << t1.Name(7) << "::" << t2.Name(7) << endmsg;
-#ifndef ROOT6_MIGRATION_HAVE_REFLEX
 	    msg(MSG::VERBOSE) << "Trans:" << transient << " Static:" << is_static << " Enum:" << is_enum << " Const:" << m.IsConstant() << endmsg;
-#endif            
 	    if (!t2 && !member_is_ok(t1.Name(), m.Name())
                 && !transient && !is_static && !is_enum ) {
                 // Missing type, try to load it
@@ -1043,15 +996,6 @@ StatusCode AthenaSealSvc::finalize()
 void AthenaSealSvc::setDefaultDictNames()
 {
     std::vector<std::string> dictNames;
-    dictNames.reserve( 10 );
-
-    // STL dictionaries 
-#ifdef ROOT6_MIGRATION_HAVE_REFLEX
-    dictNames.push_back( "STLRflx" );
-#endif
-//   dictNames.push_back( "STLAddRflx" );
-//   dictNames.push_back( "AtlasSTLAddReflexDict" );
-
     m_dictionaryNames.set( dictNames );
     return;
 }

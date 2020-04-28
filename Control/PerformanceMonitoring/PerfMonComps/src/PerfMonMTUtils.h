@@ -51,37 +51,17 @@ struct StepComp {
   }
 };
 
-// Step Name, Component name and event number triple. e.g. Execute - StoreGateSvc - 3
-struct StepCompEvent {
-  std::string stepName;
-  std::string compName;
-  uint64_t eventNumber;
-
-  // Overload < operator, because we are using a custom key(StepCompEvent)  for std::map
-  bool operator<(const StepCompEvent& sce) const {
-    return std::make_pair(this->eventNumber, this->compName) < std::make_pair(sce.eventNumber, sce.compName);
-  }
-};
-
 // Basic Measurement
 struct Measurement {
   typedef std::map<int, Measurement> event_meas_map_t;  // Event number: Measurement
 
   // Variables to store measurements
-  long call_count;  // how many times a component in a step is called
-  double cpu_time;
-  double wall_time;
-  memory_map_t mem_stats;  // Vmem, Rss, Pss, Swap
-
-  // These two metrics are collected in a more efficient way than other memory metrics.
-  int vmem;
-  int malloc;
+  double cpu_time, wall_time; // Timing
+  memory_map_t mem_stats; // Memory: Vmem, Rss, Pss, Swap
+  int vmem, malloc; // Memory: Vmem, Malloc (faster than above)
 
   // Event level measurements
   event_meas_map_t eventLevel_meas_map;  // [Event count so far]: Measurement
-
-  // Component level measurements for the parallel steps
-  std::map<StepCompEvent, Measurement> compLevel_meas_map;
 
   // Peak values for Vmem, Rss and Pss
   long vmemPeak = LONG_MIN;
@@ -90,46 +70,35 @@ struct Measurement {
 
   // Capture snapshot measurements
   void capture_snapshot() {
+    // Timing 
     cpu_time = get_process_cpu_time();
     wall_time = get_wall_time();
 
+    // Memory 
     if (doesDirectoryExist("/proc")) {
       mem_stats = get_mem_stats();
-      if (mem_stats["vmem"] > vmemPeak) vmemPeak = mem_stats["vmem"];
-      if (mem_stats["rss"] > rssPeak) rssPeak = mem_stats["rss"];
-      if (mem_stats["pss"] > pssPeak) pssPeak = mem_stats["pss"];
     }
   }
 
-  // [Component Level Monitoring - Serial Steps] : Record the measurement for the current state
-  void capture_compLevel_serial() {
-    cpu_time = get_process_cpu_time();
+  // Capture component-level measurements
+  void capture_component(const bool doMem = false) {
+    // Timing 
+    cpu_time = get_thread_cpu_time();
     wall_time = get_wall_time();
+
+    // Memory if only necessary
+    if (!doMem) return;
 
     // Efficient Memory Measurements
     malloc = get_malloc();
     if (doesDirectoryExist("/proc")) {
       vmem = get_vmem();
-      if (vmem > vmemPeak) vmemPeak = vmem;
     }
   }
 
-  // [Component Level Monitoring - Parallel Steps] : Record the measurement for the current state
-  void capture_compLevel_MT(StepCompEvent sce) {
-    cpu_time = get_thread_cpu_time();
-    wall_time = get_wall_time();
-
-    Measurement meas;
-
-    meas.cpu_time = cpu_time;
-    meas.wall_time = wall_time;
-
-    // Capture for component level measurements
-    compLevel_meas_map[sce] = meas;
-  }
-
-  // [Event Level Monitoring - Parallel Steps] : Record the measurement for the current checkpoint
-  void capture_eventLevel_MT(int eventCount) {
+  // Capture event-level measurements 
+  void capture_event(int eventCount) {
+    // Timing 
     cpu_time = get_process_cpu_time();
     wall_time = get_wall_time();
     Measurement meas;
@@ -150,7 +119,9 @@ struct Measurement {
     eventLevel_meas_map[eventCount] = meas;
   }
 
-  Measurement() : cpu_time{0.}, wall_time{0.} {}
+  Measurement() : cpu_time{0.}, wall_time{0.}, vmem{0}, malloc{0} {
+    mem_stats["vmem"] = 0; mem_stats["pss"] = 0; mem_stats["rss"] = 0; mem_stats["swap"] = 0;
+  }
 };
 
 // Basic Data
@@ -158,20 +129,16 @@ struct MeasurementData {
   typedef std::map<uint64_t, Measurement> event_meas_map_t;  // Event number: Measurement
 
   // These variables are used to calculate and store the serial component level measurements
+  uint64_t m_call_count;
   double m_tmp_cpu, m_delta_cpu;
   double m_tmp_wall, m_delta_wall;
   memory_map_t m_memMon_tmp_map;
   memory_map_t m_memMon_delta_map;
-
   int m_tmp_vmem, m_delta_vmem;
   int m_tmp_malloc, m_delta_malloc;
 
   // This map is used to store the event level measurements
   event_meas_map_t m_eventLevel_delta_map;
-
-  // These maps are used to calculate component level measurements inside the event loop
-  std::map<StepCompEvent, Measurement> m_compLevel_tmp_map;
-  std::map<StepCompEvent, Measurement> m_compLevel_delta_map;
 
   // Wall time offset for event level monitoring
   double m_offset_wall;
@@ -194,50 +161,40 @@ struct MeasurementData {
     if (doesDirectoryExist("/proc")) m_memMon_delta_map = meas.mem_stats - m_memMon_tmp_map;
   }
 
-  // [Component Level Monitoring - Serial Steps] : Record the measurement for the current state
-  void addPointStart_serial(const Measurement& meas) {
+  // [Component Level Monitoring] : Start
+  void addPointStart_component(const Measurement& meas, const bool doMem = false) {
+    // Timing
     m_tmp_cpu = meas.cpu_time;
     m_tmp_wall = meas.wall_time;
+
+    // Memory if only necessary
+    if (!doMem) return;
 
     // Efficient memory measurements
     m_tmp_malloc = meas.malloc;
     if (doesDirectoryExist("/proc")) m_tmp_vmem = meas.vmem;
-  }
+  } 
 
-  // [Component Level Monitoring - Serial Steps] : Record the measurement for the current state
-  void addPointStop_serial(Measurement& meas) {
-    m_delta_cpu = meas.cpu_time - m_tmp_cpu;
-    m_delta_wall = meas.wall_time - m_tmp_wall;
+  // [Component Level Monitoring] : Stop
+  // Unlike Snapshots, here we essentially keep a running sum
+  void addPointStop_component(const Measurement& meas, const bool doMem = false) {
+    // Call count
+    m_call_count++;
+
+    // Timing
+    m_delta_cpu += meas.cpu_time - m_tmp_cpu;
+    m_delta_wall += meas.wall_time - m_tmp_wall;
+
+    // Memory if only necessary
+    if (!doMem) return;
 
     // Efficient memory measurements
-    m_delta_malloc = meas.malloc - m_tmp_malloc;
-    if (doesDirectoryExist("/proc")) m_delta_vmem = meas.vmem - m_tmp_vmem;
-  }
-
-  // [Component Level Monitoring - Parallel Steps] : Record the measurement for the current state
-  void addPointStart_MT(Measurement& meas, StepCompEvent sce) {
-    m_compLevel_tmp_map[sce] = meas.compLevel_meas_map[sce];
-  }
-
-  // [Component Level Monitoring - Parallel Steps] : Record the measurement for the current state
-  void addPointStop_MT(Measurement& meas, StepCompEvent sce) {
-    m_compLevel_delta_map[sce].cpu_time = meas.compLevel_meas_map[sce].cpu_time - m_compLevel_tmp_map[sce].cpu_time;
-    m_compLevel_delta_map[sce].wall_time = meas.compLevel_meas_map[sce].wall_time - m_compLevel_tmp_map[sce].wall_time;
-
-    if (doesDirectoryExist("/proc")) {
-      m_compLevel_delta_map[sce].mem_stats["vmem"] =
-          meas.compLevel_meas_map[sce].mem_stats["vmem"] - m_compLevel_tmp_map[sce].mem_stats["vmem"];
-      m_compLevel_delta_map[sce].mem_stats["rss"] =
-          meas.compLevel_meas_map[sce].mem_stats["rss"] - m_compLevel_tmp_map[sce].mem_stats["rss"];
-      m_compLevel_delta_map[sce].mem_stats["pss"] =
-          meas.compLevel_meas_map[sce].mem_stats["pss"] - m_compLevel_tmp_map[sce].mem_stats["pss"];
-      m_compLevel_delta_map[sce].mem_stats["swap"] =
-          meas.compLevel_meas_map[sce].mem_stats["swap"] - m_compLevel_tmp_map[sce].mem_stats["swap"];
-    }
-  }
+    m_delta_malloc += meas.malloc - m_tmp_malloc;
+    if (doesDirectoryExist("/proc")) m_delta_vmem += meas.vmem - m_tmp_vmem;
+  } 
 
   // [Event Level Monitoring - Parallel Steps] : Record the measurement for the current checkpoint
-  void record_eventLevel(Measurement& meas, int eventCount) {
+  void record_event(Measurement& meas, int eventCount) {
     m_eventLevel_delta_map[eventCount].cpu_time = meas.eventLevel_meas_map[eventCount].cpu_time;
     m_eventLevel_delta_map[eventCount].wall_time = meas.eventLevel_meas_map[eventCount].wall_time - m_offset_wall;
 
@@ -277,17 +234,28 @@ struct MeasurementData {
     return m_eventLevel_delta_map.at(event_count).mem_stats.at("swap");
   }
 
+  uint64_t getCallCount() const { return m_call_count; }
+  void add2CallCount(uint64_t val) { m_call_count += val; }
+
   double getDeltaCPU() const { return m_delta_cpu; }
+  void add2DeltaCPU(double val) { m_delta_cpu += val; }
 
   double getDeltaWall() const { return m_delta_wall; }
+  void add2DeltaWall(double val) { m_delta_wall += val; }
 
   int getDeltaVmem() const { return m_delta_vmem; }
+  void add2DeltaVmem(int val) { m_delta_vmem += val; }
 
   int getDeltaMalloc() const { return m_delta_malloc; }
+  void add2DeltaMalloc(int val) { m_delta_malloc += val; }
 
   long getMemMonDeltaMap(std::string mem_stat) { return m_memMon_delta_map[mem_stat]; }
 
-  MeasurementData() : m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.} {}
+  MeasurementData() : m_call_count{0}, m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.},
+   m_tmp_vmem{0}, m_delta_vmem{0}, m_tmp_malloc{0}, m_delta_malloc{0}, m_offset_wall{0.} {
+    m_memMon_tmp_map["vmem"] = 0; m_memMon_tmp_map["pss"] = 0; m_memMon_tmp_map["rss"] = 0; m_memMon_tmp_map["swap"] = 0;
+    m_memMon_delta_map["vmem"] = 0; m_memMon_delta_map["pss"] = 0; m_memMon_delta_map["rss"] = 0; m_memMon_delta_map["swap"] = 0;
+  }
 };
 
 }  // namespace PMonMT

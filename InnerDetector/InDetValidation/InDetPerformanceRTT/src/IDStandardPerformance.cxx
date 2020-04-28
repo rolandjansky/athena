@@ -2474,15 +2474,10 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
 	  // Do not fill track performance plots for Geant particles, but they will be included in fake rate calculation
 	  if(barcode<MAXBARCODE && barcode !=0){
-	    //if (barcode>MAXBARCODE || barcode == 0) continue;
 
 	    if ( HMPL.isValid())
 	      {
 		const HepMC::GenParticle *genparptr = HMPL.cptr();
-		//float barcode = HMPL.barcode();
-		//int pdgCode = genparptr->pdg_id();
-
-		//if(abs(pdgCode) == 211) isPion = true;
 
 		if (genparptr) {
 		  if (m_selHardScatter && genparptr->parent_event()->event_number()!=genEventNumberPrimary) {

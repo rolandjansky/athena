@@ -48,7 +48,6 @@
 const HepMC::GenParticle* SiHitTruthAssociationTool::get (const SiHit& sihit){
   const HepMcParticleLink& mcLink = sihit.particleLink();
 const HepMC::GenParticle* genPart= mcLink.cptr();
- //if(genPart){
  std::cout<< "Identifier: "<< sihit.identify();
   if(genPart){
 	std::cout<<" genPart.barcode: " << genPart->barcode() << " type " << genPart->pdg_id() << " status " << genPart->status();
@@ -58,9 +57,7 @@ const HepMC::GenParticle* genPart= mcLink.cptr();
 	}
 
  std::cout<< std::endl;
-    //<<" genPart.barcode: " << (genPart?genPart->barcode():-999)<<  std::endl;
 
-   //}
 return genPart;
 }
  }

@@ -111,21 +111,9 @@ StatusCode xAODCnv::initialize()
   }
 
   RootType ty = dictSvc->load_type(this->objType());
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  if (!ty.Id()) {
-    ATH_MSG_ERROR("could not load the dictionary for clid ["
-                  << this->objType() << "]!");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_VERBOSE("loaded dictionary for clid ["
-                    << this->objType() << "]: name=["
-                    << ty.Name() << "]");
-  }
-#else
   ATH_MSG_VERBOSE("loaded dictionary for clid ["
                   << this->objType() << "]: name=["
                   << ty.Name() << "]");
-#endif
   m_type = ty;
 
   ATH_MSG_DEBUG("converter correctly initialized - clid=[" << objType() << "]");

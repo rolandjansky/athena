@@ -24,25 +24,30 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class AthenaAttributeList;
+/* AthenaAttibuteList ctors and dtors are not thread
+ * safe leading to certain methods here not being Thread safe
+ */
 
 class CaloCellEnergyCorr2Ntuple : public AthAlgorithm {
 
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
-    CaloCellEnergyCorr2Ntuple(const std::string& name, ISvcLocator* pSvcLocator);
+    CaloCellEnergyCorr2Ntuple(const std::string& name, ISvcLocator* pSvcLocator) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
     /** Default Destructor */
-    ~CaloCellEnergyCorr2Ntuple();
+    ~CaloCellEnergyCorr2Ntuple() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
     
     /** standard Athena-Algorithm method */
-    StatusCode          initialize();
+    StatusCode          initialize ATLAS_NOT_THREAD_SAFE();
     /** standard Athena-Algorithm method */
     StatusCode          execute();
     /** standard Athena-Algorithm method */
     StatusCode          finalize();
     /** standard Athena-Algorithm method */
-    StatusCode          stop();
+    StatusCode          stop ATLAS_NOT_THREAD_SAFE();
     
   private:
 

@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "LArCabling/LArHVCablingTool.h"
+#include "CxxUtils/checker_macros.h"
 
 class CaloDetDescrManager;
 class Identifier;
@@ -20,14 +21,14 @@ class LArFCAL_ID;
 
 static const InterfaceID IID_LArHVMapTool("LArHVMapTool", 1 ,0);
 
-class LArHVMapTool: public AthAlgTool
+class ATLAS_NOT_THREAD_SAFE LArHVMapTool: public AthAlgTool
 {
 
      public:
           LArHVMapTool(const std::string& type, const std::string& name,
-                                      const IInterface* parent);
+                       const IInterface* parent);
 
-          virtual ~LArHVMapTool(){};
+          virtual ~LArHVMapTool(){}
 
           static const InterfaceID& interfaceID() { return IID_LArHVMapTool; }
 
@@ -36,7 +37,7 @@ class LArHVMapTool: public AthAlgTool
           virtual StatusCode finalize(){return StatusCode::SUCCESS;}
 
 
-          std::vector<int> GetHVLines(const Identifier& id);
+          std::vector<int> GetHVLines ATLAS_NOT_THREAD_SAFE(const Identifier& id);
 
      private:
 

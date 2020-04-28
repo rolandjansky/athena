@@ -61,10 +61,6 @@ public:
       
       for (unsigned int j = 0; j < testTracks.size(); j++) {
 
-	//  if(testTracks[j]->match_barcode()!=-1){
-	//    std::cout << "ref barcode" << refTracks[i]->barcode() << std::endl;
-	//    std::cout << "test barcode " << testTracks[j]->match_barcode() << std::endl;
-	//  }
 	
 	if ( distance( refTracks[i], testTracks[j] ) < 1. ) {
 	  //              std::cout<<"MATCHED"<<std::endl;

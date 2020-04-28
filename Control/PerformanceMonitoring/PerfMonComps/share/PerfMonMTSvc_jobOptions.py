@@ -25,13 +25,15 @@ if not hasattr(svcMgr, 'PerfMonMTSvc'):
     # Enable detailed table printing by default
     svcMgr.PerfMonMTSvc.printDetailedTables = True
     # Print only the top 50 components (sorted by CPU time) by default
-    svcMgr.PerfMonMTSvc.printNSerialComps = 50
-    svcMgr.PerfMonMTSvc.printNParallelComps = 50
+    svcMgr.PerfMonMTSvc.printNComps = 50
     # Configure the check point sequence in the event loop monitoring.
     # By default common difference is the number of threads with which the job is running
     svcMgr.PerfMonMTSvc.checkPointType = "Arithmetic" 
     svcMgr.PerfMonMTSvc.checkPointFactor = max(10,jp.ConcurrencyFlags.NumThreads())
     svcMgr.PerfMonMTSvc.wallTimeOffset = psutil.Process(os.getpid()).create_time() * 1000 # Get the job start time in ms
+    # Set number of threads/slots
+    svcMgr.PerfMonMTSvc.numberOfThreads = max(1,jp.ConcurrencyFlags.NumThreads())
+    svcMgr.PerfMonMTSvc.numberOfSlots = max(1,jp.ConcurrencyFlags.NumConcurrentEvents())
 
 ###############################
 # Load PerfMonMTAlg
