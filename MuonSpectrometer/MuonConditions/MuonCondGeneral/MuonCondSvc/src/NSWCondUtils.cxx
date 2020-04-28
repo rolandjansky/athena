@@ -133,9 +133,6 @@ void NSWCondUtils::setNSWABLinesFromAscii(const std::string& filename,
             sscanf(tmp_str.c_str(),"%80f",&ep);
             tmp_str = tokens[ival++];
             sscanf(tmp_str.c_str(),"%80f",&en);
-           
-            ival+=2; 
-            std::string ChamberHwName = tokens[ival];
 
             Identifier id, id_mult;
 
