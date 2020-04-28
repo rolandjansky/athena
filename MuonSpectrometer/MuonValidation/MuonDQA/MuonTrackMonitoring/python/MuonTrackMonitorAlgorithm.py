@@ -1,3 +1,9 @@
+/*
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ 2020 Matthias Schott - Uni Mainz
+*/
+
+
 def MuonTrackConfig(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags, "MuonTrackMonitoringConfig")
