@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -15,6 +15,13 @@
 #include "ExpressionEvaluation/StackElement.h"
 #include "ExpressionEvaluation/IProxyLoader.h"
 #include "ExpressionEvaluation/IUnitInterpreter.h"
+#include "ExpressionEvaluation/MultipleProxyLoader.h"
+
+#include "StoreGate/ReadDecorHandle.h"
+#include "AthContainers/AuxVectorBase.h"
+
+#include <sstream>
+#include <stdexcept>
 
 namespace ExpressionParsing {
   class VirtualMachine;
@@ -36,6 +43,7 @@ namespace ExpressionParsing {
       bool evaluateAsBool() const;
       double evaluateAsDouble() const;
       std::vector<int> evaluateAsVector() const;
+      std::vector<std::string> getVariables() const;
 
     private:
       void setup();

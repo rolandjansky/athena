@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 /* Dear emacs, this is -*-c++-*- */
 #ifndef _ExpressionParserUserWithTrigSupport_H_
 #define _ExpressionParserUserWithTrigSupport_H_

@@ -11,6 +11,7 @@
 #include <functional>
 #include <type_traits>
 #include <array>
+#include "AthenaBaseComps/IDynamicDataConsumer.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataHandle.h"
 
@@ -35,6 +36,9 @@ namespace ExpressionParsing {
                   const std::vector< std::string> &selection_string,
                   unsigned short num_parser);
 
+     /// get the union of all variables used by the given list of expression parsers.
+     static
+     std::vector<std::string> getVariables(const std::array<std::unique_ptr<ExpressionParsing::ExpressionParser>,NUM_PARSER> &parser);
   };
 
    /// Helper class to handle a single expression parser to be used in the generic code
@@ -46,6 +50,11 @@ namespace ExpressionParsing {
      createParser(ExpressionParsing::IProxyLoader &proxy_loader,
                                      const std::string &selection_string,
                                      unsigned short num_parser);
+
+     /// Get the variables from used by the given expression parser
+     static
+     std::vector<std::string> getVariables(const std::unique_ptr<ExpressionParsing::ExpressionParser> &parser);
+
   };
 
   /// type of a helper class to create n-parser for the given expression or list of expressions.
@@ -60,7 +69,8 @@ namespace ExpressionParsing {
 
 template <class T_Base, unsigned short const NUM_PARSER>
 class ExpressionParserUserBase
-   : public T_Base
+   : public T_Base,
+     virtual public IDynamicDataConsumer
 {
 public:
    template <typename...Args>
@@ -69,6 +79,11 @@ public:
 
 
    StatusCode finalizeParser();
+
+   virtual bool updateDataNeeds(const std::vector<const DataObjID*> &input_data_in,
+                                const std::vector<const DataObjID*> &output_data_in,
+                                std::vector<Gaudi::DataHandle *> &new_input_handles,
+                                std::vector<Gaudi::DataHandle *> &new_output_handles) override;
 
 protected:
    StatusCode _initializeParser(const ExpressionParsing::SelectionArg<NUM_PARSER> &selection_string,

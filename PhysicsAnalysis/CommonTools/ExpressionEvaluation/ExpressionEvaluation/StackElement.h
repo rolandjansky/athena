@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -180,6 +180,8 @@ namespace ExpressionParsing {
       bool isVector() const;
       /// Check if the object takes its value from a StoreGate object
       bool isProxy() const;
+
+      const std::string proxyVarName() const { return m_varName; }
 
       /// Get the internal value of the object as an integer
       int asInt() const;
