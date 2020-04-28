@@ -79,5 +79,7 @@ atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.hdef  share/*.xml  share/*.xsl )
 atlas_install_runtime( test/InDetPhysValMonitoring_TestConfiguration.xml )
 
-
-
+# build postprocessing program 
+atlas_add_executable( postProcessIDPVMHistos util/postProcessIDPVMHistos.cxx 
+        INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
+        LINK_LIBRARIES ${ROOT_LIBRARIES} InDetPhysValMonitoringLib )
