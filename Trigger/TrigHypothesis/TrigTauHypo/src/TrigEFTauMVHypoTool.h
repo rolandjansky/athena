@@ -51,6 +51,8 @@ class TrigEFTauMVHypoTool : public extends<AthAlgTool, ITrigEFTauMVHypoTool> {
   Gaudi::Property<int>  m_numTrack{ this, "numTrack", -100, "Tau number of tracks" };
   Gaudi::Property<int>  m_numWideTrack{ this, "numWideTrack", 1, "Tau number of wide tracks" };
 
+  Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
+
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
 
 
