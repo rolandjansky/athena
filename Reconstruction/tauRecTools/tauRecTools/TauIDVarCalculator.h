@@ -36,6 +36,8 @@ class TauIDVarCalculator: public TauRecToolBase
  private:
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+
+  Gaudi::Property<bool> m_incShowerSubtr {this, "IncShowerSubtr", true, "use shower subtracted clusters in calo calculations"};
 };
 
 #endif
