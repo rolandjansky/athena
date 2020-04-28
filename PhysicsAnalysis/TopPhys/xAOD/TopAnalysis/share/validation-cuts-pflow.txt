@@ -102,7 +102,7 @@ MuonQualityLoose Medium
 UseMVALowPtLoose False
 Use2stationMuonsHighPtLoose True
 MuonIsolationLoose None
-DoMuonExtraSmearing False
+DoMuonExtraSmearingHighPt False
 DoMuonSmearing2stationHighPt True
 
 ### Tau configuration
