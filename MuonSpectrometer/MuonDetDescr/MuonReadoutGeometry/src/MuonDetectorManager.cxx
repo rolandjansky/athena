@@ -30,6 +30,8 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include <TString.h> // for Form
 
+#include "MuonCondSvc/NSWCondUtils.h"
+
 namespace MuonGM {
 
 MuonDetectorManager::MuonDetectorManager() {
@@ -1194,6 +1196,65 @@ MuonDetectorManager::initABlineContainers()
         m_aLineContainer.emplace(id, std::move(newALine));
         if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"<Filling A-line container with entry for key >"<<m_mdtIdHelper->show_to_string(id)<<endmsg;
     }
+    if(m_geometryVersion == "R.09.00"){
+
+      if(m_DBMuonVersion == "MuonSpectrometer-R.09.02.NSW" || m_DBMuonVersion == "MuonSpectrometer-R.09.02.AsymNSW")
+      {   
+         int nALines = 0;
+         int nBLines = 0; 
+
+         ALineMapContainer writeALines;
+         BLineMapContainer writeBLines;
+         std::string filename = "clob_example_NSWA.txt";
+         MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(filename, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
+
+         for (auto it = writeALines.cbegin(); it!=writeALines.cend(); ++it)  //ALines A Side
+         {
+            Identifier id = it->first;
+            ALinePar aline = it->second;
+            nALines++;
+            m_aLineContainer.emplace(id, std::move(aline));
+         }
+
+
+         for (auto it = writeBLines.cbegin(); it!=writeBLines.cend(); ++it)  //BLines A Side
+         {
+            Identifier id = it->first;
+            BLinePar bline = it->second;
+            nBLines++;
+            m_bLineContainer.emplace(id, std::move(bline));
+         }
+
+
+           if(m_DBMuonVersion == "MuonSpectrometer-R.09.02.NSW")
+           {  
+               ALineMapContainer writeALines;
+               BLineMapContainer writeBLines;
+               std::string filename = "clob_example_NSWC.txt";
+               MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(filename,writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
+           
+               for (auto it = writeALines.cbegin(); it!=writeALines.cend(); ++it) //ALines C Side
+               {
+                  Identifier id = it->first;
+                  ALinePar aline = it->second;
+                  nALines++;
+    
+                 m_aLineContainer.emplace(id, std::move(aline));
+               }
+
+                for (auto it = writeBLines.cbegin(); it!=writeBLines.cend(); ++it)  //BLines
+               {
+                  Identifier id = it->first;
+                  BLinePar bline = it->second;
+                  nBLines++;
+
+                 m_bLineContainer.emplace(id, std::move(bline));
+               }
+
+            }
+          } 
+    }
+
     log << MSG::INFO << "Init A/B Line Containers - done - size is respectively " << m_aLineContainer.size() << "/" << m_bLineContainer.size() << endmsg;
 }
 
