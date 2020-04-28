@@ -7,7 +7,7 @@
 # art-output: dcube*
 #
 #
-# Running art test for single muon, geometry ATLAS-P2-ITK-22-02-00
+# Running art test for single muon, 1GeV, geometry ATLAS-P2-ITK-22-02-00
 #
 
 
