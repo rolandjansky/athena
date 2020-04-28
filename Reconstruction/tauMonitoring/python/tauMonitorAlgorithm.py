@@ -254,7 +254,6 @@ def tauMonitoringConfig(inputFlags):
 
             igroup.defineHistogram('isolFrac,LB', type='TH2F', title='Isolation Fraction vs Lumiblock;Isolation Fraction;Lumiblock', path=folder+"Calo", 
             xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
->>>>>>> upstream/master
 
             igroup.defineHistogram(namer('BDTJetScore','BDTJetScore','Identification',postfix), title='BDT Score for Jet Rejection;Boosted Decision Tree Score',path=folder+"Identification",
             xbins=48, xmin=-1.1, xmax=1.1 )
