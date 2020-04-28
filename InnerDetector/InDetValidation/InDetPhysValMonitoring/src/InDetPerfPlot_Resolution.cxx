@@ -257,9 +257,9 @@ InDetPerfPlot_Resolution::getPlots() {
     m_pull[iparam]->Fill(m_pullP[iparam]);
     m_res[iparam]->Fill(m_resP[iparam]);
     if(iparam == QOVERPT){
-      m_sigma[iparam]->Fill(m_trkP[PT] * m_sigP[iparam]);
-      m_sigma_vs_eta[iparam]->Fill(eta, m_trkP[PT] * m_sigP[iparam]);
-      m_sigma_vs_pt[iparam]->Fill(m_truetrkP[PT], m_trkP[PT] * m_sigP[iparam]);
+      m_sigma[iparam]->Fill(m_sigP[iparam]);
+      m_sigma_vs_eta[iparam]->Fill(eta,  m_sigP[iparam]);
+      m_sigma_vs_pt[iparam]->Fill(m_truetrkP[PT], m_sigP[iparam]);
     } else {
       m_sigma[iparam]->Fill(m_sigP[iparam]);
       m_sigma_vs_eta[iparam]->Fill(eta, m_sigP[iparam]);
@@ -293,8 +293,8 @@ InDetPerfPlot_Resolution::getPlotParameters() {
     m_sigP[iparam] = m_trkErrP[iparam];
     (m_sigP[iparam] != 0) ? m_pullP[iparam] = m_resP[iparam] / m_sigP[iparam] : m_pullP[iparam] = -9999.;
   }
-  m_resP[QOVERPT] = m_trkP[PT] * (m_trkP[QOVERPT] - m_truetrkP[QOVERPT]) * (1 / m_truetrkP[QOVERPT]);
-  m_sigP[QOVERPT] *= m_trkP[PT];
+  m_resP[QOVERPT] = (m_trkP[QOVERPT] - m_truetrkP[QOVERPT]) * (1 / m_truetrkP[QOVERPT]);  // relative q/pt resolution
+  m_sigP[QOVERPT] *= m_trkP[PT];  // relative q/pt error 
 }
 
 void
