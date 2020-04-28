@@ -219,9 +219,7 @@ namespace MuonGM {
     inline int cacheFillingFlag() const;
 
     inline void setNSWABLinesAsciiSideA(std::string str);
-    inline std::string getNSWABLinesAsciiSideA() const;
     inline void setNSWABLinesAsciiSideC(std::string str);
-    inline std::string getNSWABLinesAsciiSideC() const;
 
 
     inline void setMinimalGeoFlag (int flag);
@@ -581,10 +579,9 @@ namespace MuonGM {
   void MuonDetectorManager::setCachingFlag(int value){m_cachingFlag = value;}
   int  MuonDetectorManager::cacheFillingFlag() const {return m_cacheFillingFlag;}
   int  MuonDetectorManager::cachingFlag() const {return m_cachingFlag;}
-  void MuonDetectorManager::setNSWABLinesAsciiSideA(std::string str) {m_NSWABLinesAsciiSideA = str;}
-  void MuonDetectorManager::setNSWABLinesAsciiSideC(std::string str) {m_NSWABLinesAsciiSideC = str;}
-  std::string MuonDetectorManager::getNSWABLinesAsciiSideA() const {return m_NSWABLinesAsciiSideA;}
-  std::string MuonDetectorManager::getNSWABLinesAsciiSideC() const {return m_NSWABLinesAsciiSideC;}
+  void MuonDetectorManager::setNSWABLinesAsciiSideA(const std::string& str) {m_NSWABLinesAsciiSideA = str;}
+  void MuonDetectorManager::setNSWABLinesAsciiSideC(const std::string& str) {m_NSWABLinesAsciiSideC = str;}
+
     
 } // namespace MuonGM
 

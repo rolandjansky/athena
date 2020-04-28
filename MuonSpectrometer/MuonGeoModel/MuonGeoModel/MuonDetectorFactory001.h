@@ -147,8 +147,8 @@ void MuonDetectorFactory001::setFineClashFixingFlag(int value){m_enableFineClash
 void MuonDetectorFactory001::hasCSC(bool value){m_hasCSC = value;}
 void MuonDetectorFactory001::hasSTgc(bool value){m_hasSTgc = value;}
 void MuonDetectorFactory001::hasMM(bool value){m_hasMM = value;}
-void MuonDetectorFactory001::setABLinesAsciiSideA(std::string str) {m_NSWABLinesSideA = str; }
-void MuonDetectorFactory001::setABLinesAsciiSideC(std::string str) {m_NSWABLinesSideC = str; }
+void MuonDetectorFactory001::setABLinesAsciiSideA(const std::string& str) {m_NSWABLinesSideA = str; }
+void MuonDetectorFactory001::setABLinesAsciiSideC(const std::string& str) {m_NSWABLinesSideC = str; }
 
 
 } // namespace MuonGM
