@@ -1013,6 +1013,12 @@ class useBroadSCTClusterErrors(InDetFlagsJobProperty):
     allowedTypes = ['NoneType','bool']
     StoredValue  = None
 
+class useMuForTRTErrorScaling(InDetFlagsJobProperty):
+    """ Use mu from lumi conditions data for TRT error scaling"""
+    statusOn     = True
+    allowedTypes = ['NoneType','bool']
+    StoredValue  = False
+
 class writeRDOs(InDetFlagsJobProperty):
     """ Write RDOs into ESD """
     statusOn     = True
@@ -2809,7 +2815,8 @@ _list_InDetJobProperties = [Enabled,
                             doStoreTrackSeeds,
                             doHIP300,
                             checkDeadElementsOnTrack,
-                            doDigitalROTCreation
+                            doDigitalROTCreation,
+                            useMuForTRTErrorScaling
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
