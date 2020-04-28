@@ -116,4 +116,4 @@ fi
 # Get the appropriate version of it:
 cd ${SOURCEDIR}
 _retry_ git fetch --prune origin
-_retry_ git checkout -f origin/${TAGBRANCH}
+_retry_ git checkout -f ${TAGBRANCH}
