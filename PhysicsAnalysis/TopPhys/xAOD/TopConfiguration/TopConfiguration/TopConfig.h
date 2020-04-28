@@ -2036,8 +2036,6 @@ namespace top {
     int m_fwdElectronBCIDCleaningMinRun;
     int m_fwdElectronBCIDCleaningMaxRun;
 
-
-
     // Muon configuration
     float m_muonPtcut; // muon object selection pT cut
     float m_muonEtacut; // muon object selection (abs) eta cut

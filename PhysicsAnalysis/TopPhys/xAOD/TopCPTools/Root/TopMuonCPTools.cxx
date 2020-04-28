@@ -147,14 +147,15 @@ namespace top {
     ************************************************************/
     
     //if !Use2stationMuonsHighPt, HighPt -> HighPt3Layers
-    auto muonQuality_name = m_config->muonQuality();
+    //if UseMVALowPt, LowPt -> LowPtMVA
+    std::string muonQuality_name = m_config->muonQuality();
     if (m_config->muonQuality() == "HighPt" && !(m_config->muonUse2stationMuonsHighPt()) ) muonQuality_name = "HighPt3Layers";
     if (m_config->muonQuality() == "LowPt" && m_config->muonUseMVALowPt()) muonQuality_name = "LowPtMVA";
     m_muonEfficiencyCorrectionsTool
       = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsTool",
                         muonQuality_name);
 
-    auto muonQualityLoose_name = m_config->muonQualityLoose();
+    std::string muonQualityLoose_name = m_config->muonQualityLoose();
     if (m_config->muonQualityLoose() == "HighPt" && !(m_config->muonUse2stationMuonsHighPtLoose()) ) muonQualityLoose_name = "HighPt3Layers";
     if (m_config->muonQualityLoose() == "LowPt" && m_config->muonUseMVALowPtLoose()) muonQualityLoose_name = "LowPtMVA";
     m_muonEfficiencyCorrectionsToolLoose
@@ -162,7 +163,7 @@ namespace top {
                         muonQualityLoose_name);
 
     //now the soft muon part
-    auto softmuonQuality_name = m_config->softmuonQuality();
+    std::string softmuonQuality_name = m_config->softmuonQuality();
     if (m_config->softmuonQuality() == "LowPt" && m_config->softmuonUseMVALowPt()) softmuonQuality_name = "LowPtMVA";
     if (m_config->useSoftMuons()) {
       m_softmuonEfficiencyCorrectionsTool
@@ -218,7 +219,7 @@ namespace top {
   }
 
   CP::IMuonSelectionTool*
-  MuonCPTools::setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta, const bool& UseMVALowPt, const bool& Use2stationMuonsHighPt) {
+  MuonCPTools::setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta, const bool& useMVALowPt, const bool& use2stationMuonsHighPt) {
     std::map<std::string, int> muon_quality_map = {
       {"Tight", 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose", 3}, {"HighPt", 4}, {"LowPt", 5}
     };
@@ -247,9 +248,9 @@ namespace top {
                  "Failed to set MuQuality for " + name);
       top::check(asg::setProperty(tool, "MaxEta", max_eta),
                  "Failed to set MaxEta for " + name);
-      top::check(asg::setProperty(tool, "UseMVALowPt", UseMVALowPt),
+      top::check(asg::setProperty(tool, "UseMVALowPt", useMVALowPt),
                  "Failed to set UseMVALowPt for " + name + " tool");
-      top::check(asg::setProperty(tool, "Use2stationMuonsHighPt", Use2stationMuonsHighPt),
+      top::check(asg::setProperty(tool, "Use2stationMuonsHighPt", use2stationMuonsHighPt),
                  "Failed to set Use2stationMuonsHighPt for " + name + " tool");
       top::check(tool->initialize(), "Failed to initialize " + name);
     }
@@ -289,14 +290,14 @@ namespace top {
 
 
   CP::IMuonCalibrationAndSmearingTool*
-  MuonCPTools::setupMuonCalibrationAndSmearingTool(const std::string& name, const bool& doExtraSmearing, const bool& do2StationsHighPt) {
+  MuonCPTools::setupMuonCalibrationAndSmearingTool(const std::string& name, const bool& doExtraSmearingHighPt, const bool& do2StationsHighPt) {
     CP::IMuonCalibrationAndSmearingTool* tool = nullptr;
     if (asg::ToolStore::contains<CP::IMuonCalibrationAndSmearingTool>(name)) {
       tool = asg::ToolStore::get<CP::IMuonCalibrationAndSmearingTool>(name);
     } else {
       tool = new CP::MuonCalibrationPeriodTool(name);
 
-      top::check(asg::setProperty(tool, "doExtraSmearing", doExtraSmearing),
+      top::check(asg::setProperty(tool, "doExtraSmearing", doExtraSmearingHighPt),
                  "Failed to set doExtraSmearing for " + name + " tool");
       top::check(asg::setProperty(tool, "do2StationsHighPt", do2StationsHighPt),
                  "Failed to set do2StationsHighPt for " + name + " tool");
