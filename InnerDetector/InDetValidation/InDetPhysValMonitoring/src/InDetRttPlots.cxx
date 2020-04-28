@@ -23,15 +23,15 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir) : 
   m_fakePlots(this, "Tracks/FakeRate"),
   m_missingTruthFakePlots(this, "Tracks/Unlinked/FakeRate"),
   m_resolutionPlotPrim(this, "Tracks/Matched/Resolutions/Primary"),
-  m_resolutionPlotSecd(nullptr),
   m_hitsRecoTracksPlots(this, "Tracks/Selected/HitsOnTracks"),
   m_effPlots(this, "Tracks/Efficiency"),
   m_verticesVsMuPlots(this, "Vertices/AllPrimaryVertices"),
   m_vertexPlots(this, "Vertices/AllPrimaryVertices"),
   m_hardScatterVertexPlots(this, "Vertices/HardScatteringVertex"),
   m_hardScatterVertexTruthMatchingPlots(this, "Vertices/HardScatteringVertex"),
+  m_resolutionPlotSecd(nullptr),
   m_doTrackInJetPlots(true) //FIX CONFIGURATION
-  {
+{
   m_trackParticleTruthProbKey = "truthMatchProbability";
   m_truthProbLowThreshold = 0.5;
   
