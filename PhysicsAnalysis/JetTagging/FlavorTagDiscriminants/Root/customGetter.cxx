@@ -95,7 +95,7 @@ namespace FlavorTagDiscriminants {
       const xAOD::Jet&,
       const std::vector<const xAOD::TrackParticle*>&)>
     customNamedSeqGetter(const std::string& name) {
-      auto getter = customSeqGetter(name);
+      auto getter = customSequenceGetter(name);
       return [name, getter](const xAOD::Jet& j,
                             const std::vector<const xAOD::TrackParticle*>& t) {
                return std::make_pair(name, getter(j, t));
@@ -108,9 +108,10 @@ namespace FlavorTagDiscriminants {
   // These functions are wrapped by the customNamedSeqGetter function
   // below to become the ones that are actually used in DL2.
   //
-  std::function<VectorD(const xAOD::Jet&,const VectorTP&)> customSeqGetter(
-    const std::string& name)
-  {
+  std::function<std::vector<double>(
+    const xAOD::Jet&,
+    const std::vector<const xAOD::TrackParticle*>&)>
+  customSequenceGetter(const std::string& name) {
     typedef std::vector<const xAOD::TrackParticle*> Tracks;
     if (name == "IP3D_signed_d0_significance") {
       return SignedD0SequenceGetter();

@@ -19,11 +19,29 @@
 
 namespace FlavorTagDiscriminants {
 
-  using VectorTP = std::vector<const xAOD::TrackParticle*>;
-  using VectorD = std::vector<double>;
-  std::function<VectorD(const xAOD::Jet&,const VectorTP&)> customSeqGetter(
-    const std::string& name);
+  // Factory function to produce TrackParticle -> vector<double> functions
+  //
+  // DL2 configures the its inputs when the algorithm is initalized,
+  // meaning that the list of track and jet properties that are used
+  // as inputs won't be known at compile time. Instead we build an
+  // array of "getter" functions, each of which returns one input for
+  // the tagger. The function here returns those getter functions.
+  //
+  // Many of the getter functions are trivial: they will, for example,
+  // read one double of auxdata off of the BTagging object. The
+  // sequence input getters tend to be more complicated. Since we'd
+  // like to avoid reimplementing the logic in these functions in
+  // multiple places, they are exposed here.
+  //
+  // This function will return a getter based on a string key. See the
+  // implementation for the definitions.
+  //
+  std::function<std::vector<double>(
+    const xAOD::Jet&,
+    const std::vector<const xAOD::TrackParticle*>&)>
+  customSequenceGetter(const std::string& name);
 
+  // internal functions
   namespace internal {
     std::function<std::pair<std::string, double>(const xAOD::Jet&)>
     customGetterAndName(const std::string&);
