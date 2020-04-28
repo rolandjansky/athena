@@ -119,13 +119,13 @@ StatusCode MMDigitVariables::fillVariables()
         //retrieve the detailed identifier for the strip form the chip response
         Identifier cr_id = m_MmIdHelper->channelID(stationName, stationEta, stationPhi, multiplet, gas_gap, cr_strip, true, &isValid);
         if (!isValid) {
-          ATH_MSG_WARNING("MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << cr_strip
+          ATH_MSG_WARNING("MMDigitVariables: failed to create a valid ID for (chip response) strip n. " << cr_strip
                        << "; associated positions will be set to 0.0.");
         } else {
           // asking the detector element to get local position of strip
           Amg::Vector2D cr_strip_pos(0., 0.);
           if ( !rdoEl->stripPosition(cr_id,cr_strip_pos) ) {
-            ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. " << cr_strip
+            ATH_MSG_WARNING("MMDigitVariables: failed to associate a valid local position for (chip response) strip n. " << cr_strip
                          << "; associated positions will be set to 0.0.");
           } else {
             localPosX.at(i) = cr_strip_pos.x();
@@ -168,13 +168,13 @@ StatusCode MMDigitVariables::fillVariables()
         //retrieve the detailed identifier for the strip form the strip response
         Identifier sr_id = m_MmIdHelper->channelID(stationName, stationEta, stationPhi, multiplet, gas_gap, sr_strip, true, &isValid);
         if (!isValid) {
-          ATH_MSG_WARNING("MicroMegas digitization: failed to create a valid ID for (chip response) strip n. " << sr_strip
+          ATH_MSG_WARNING("MMDigitVariables: failed to create a valid ID for (chip response) strip n. " << sr_strip
                        << "; associated positions will be set to 0.0.");
         } else {
           // asking the detector element to transform this local to the global position
           Amg::Vector2D sr_strip_pos(0., 0.);
           if ( !rdoEl->stripPosition(sr_id,sr_strip_pos) ) {
-            ATH_MSG_WARNING("MicroMegas digitization: failed to associate a valid local position for (chip response) strip n. " << sr_strip
+            ATH_MSG_WARNING("MMDigitVariables: failed to associate a valid local position for (chip response) strip n. " << sr_strip
                          << "; associated positions will be set to 0.0.");
           } else {
             sr_localPosX.at(i) = sr_strip_pos.x();
