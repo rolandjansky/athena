@@ -31,6 +31,7 @@ def AtlasFieldCacheCondAlg(name="AtlasFieldCacheCondAlg",**kwargs):
     # currents for scaling wrt to map currents
     kwargs.setdefault( "UseSoleCurrent", 7730 )
     kwargs.setdefault( "UseToroCurrent", 20400 )
+    kwargs.setdefault( "LockMapCurrents", True )
   else:
     kwargs.setdefault( "UseDCS", True )
     kwargs.setdefault( "UseNewBfieldCache", True )
@@ -43,7 +44,7 @@ def AtlasFieldCacheCondAlg(name="AtlasFieldCacheCondAlg",**kwargs):
 def AtlasFieldMapCondAlg(name="AtlasFieldMapCondAlg",**kwargs):
   if athenaCommonFlags.isOnline():
     # The following are the defaults - added here to be clear
-    kwargs.setdefault( "UseMapsFromCOOL", True )
+    kwargs.setdefault( "UseMapsFromCOOL", False )
     # kwargs.setdefault( "MapSoleCurrent", 7730 )
     # kwargs.setdefault( "MapToroCurrent", 20400 )
   else:
