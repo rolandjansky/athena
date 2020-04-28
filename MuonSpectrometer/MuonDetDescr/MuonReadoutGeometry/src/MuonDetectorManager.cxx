@@ -1196,23 +1196,18 @@ MuonDetectorManager::initABlineContainers()
         m_aLineContainer.emplace(id, std::move(newALine));
         if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"<Filling A-line container with entry for key >"<<m_mdtIdHelper->show_to_string(id)<<endmsg;
     }
-    if(m_geometryVersion == "R.09.00"){
-
-      if(m_DBMuonVersion == "MuonSpectrometer-R.09.02.NSW" || m_DBMuonVersion == "MuonSpectrometer-R.09.02.AsymNSW")
-      {   
-         int nALines = 0;
-         int nBLines = 0; 
+   
+    if(m_stgcIdHelper && m_mmIdHelper && !(m_NSWABLinesAsciiSideA.empty())) {
 
          ALineMapContainer writeALines;
          BLineMapContainer writeBLines;
-         const std::string filename = "clob_example_NSWA.txt";
-         MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(filename, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
+        // const std::string filename = "clob_example_NSWA.txt";
+         MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLinesAsciiSideA, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
 
          for (auto it = writeALines.cbegin(); it!=writeALines.cend(); ++it)  //ALines A Side
          {
             Identifier id = it->first;
             ALinePar aline = it->second;
-            nALines++;
             m_aLineContainer.emplace(id, std::move(aline));
          }
 
@@ -1221,38 +1216,30 @@ MuonDetectorManager::initABlineContainers()
          {
             Identifier id = it->first;
             BLinePar bline = it->second;
-            nBLines++;
             m_bLineContainer.emplace(id, std::move(bline));
          }
 
-
-           if(m_DBMuonVersion == "MuonSpectrometer-R.09.02.NSW")
+           if(!m_cscIdHelper && !(m_NSWABLinesAsciiSideC.empty()))
            {  
                ALineMapContainer writeALines;
                BLineMapContainer writeBLines;
-               const std::string filename = "clob_example_NSWC.txt";
-               MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(filename,writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
+             //  const std::string filename = "clob_example_NSWC.txt";
+               MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLinesAsciiSideC,writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
            
                for (auto it = writeALines.cbegin(); it!=writeALines.cend(); ++it) //ALines C Side
                {
                   Identifier id = it->first;
                   ALinePar aline = it->second;
-                  nALines++;
-    
-                 m_aLineContainer.emplace(id, std::move(aline));
+                  m_aLineContainer.emplace(id, std::move(aline));
                }
 
                 for (auto it = writeBLines.cbegin(); it!=writeBLines.cend(); ++it)  //BLines
                {
                   Identifier id = it->first;
                   BLinePar bline = it->second;
-                  nBLines++;
-
-                 m_bLineContainer.emplace(id, std::move(bline));
+                  m_bLineContainer.emplace(id, std::move(bline));
                }
-
-            }
-          } 
+            }      
     }
 
     log << MSG::INFO << "Init A/B Line Containers - done - size is respectively " << m_aLineContainer.size() << "/" << m_bLineContainer.size() << endmsg;

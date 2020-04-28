@@ -10,6 +10,9 @@
 
 #include "MuonCondSvc/MdtStringUtils.h"
 #include "MuonCondSvc/NSWCondUtils.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 
 
 
@@ -20,7 +23,7 @@ void NSWCondUtils::setNSWABLinesFromAscii(const std::string& filename,
                                           const sTgcIdHelper* stgcHelper, 
                                           const MmIdHelper* mmHelper)
 {
- 
+  MsgStream log(Athena::getMessageSvc(),"NSWCondUtils");
   std::ifstream inputFile;
   inputFile.open(filename);
   
@@ -67,7 +70,9 @@ void NSWCondUtils::setNSWABLinesFromAscii(const std::string& filename,
       std::vector<std::string> tokens;
       MuonCalib::MdtStringUtils::tokenize(line, tokens, delimiter);
 
-         if(tokens.size() != 25) {break; }
+         if(tokens.size() != 25) {
+          log<<MSG::DEBUG<<"Invalid length in string retrieved from the test file "<< filename <<" String length is "<< tokens.size() <<endmsg;
+          break; }
         
 
             int ival = 1; 
