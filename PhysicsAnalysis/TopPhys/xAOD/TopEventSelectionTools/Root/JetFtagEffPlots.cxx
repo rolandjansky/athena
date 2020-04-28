@@ -30,7 +30,7 @@ namespace top {
                                    TFile* outputFile, const std::string& params, std::shared_ptr<top::TopConfig> config,
                                    EL::Worker* wk) :
     m_nominalHashValue(0),
-    m_CDIfile("xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"),
+    m_CDIfile("xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_v3.root"),
     m_fill_total_hists(false),
     m_histogram_suffix(""),
     m_dont_use_event_weight(false),
@@ -235,6 +235,8 @@ namespace top {
     top::check(m_selection_tool.setProperty("TaggerName", m_tagger), "failed to initialize BtagSelectionTool " + m_tagger + "_" + m_WP + "_" + m_jetCollection);
     top::check(m_selection_tool.setProperty("OperatingPoint", m_WP), "failed to initialize BtagSelectionTool " + m_tagger + "_" + m_WP + "_" + m_jetCollection);
     top::check(m_selection_tool.setProperty("JetAuthor", m_jetCollection), "failed to initialize BtagSelectionTool " + m_tagger + "_" + m_WP + "_" + m_jetCollection);
+    top::check(m_selection_tool.setProperty("MinPt", m_min_pT*1e3), "failed to initialize BtagSelectionTool, failed in min jet pT");
+    top::check(m_selection_tool.setProperty("MaxEta", m_max_Eta), "failed to initialize BtagSelectionTool, failed in max jet eta");
 
     top::check(m_selection_tool.initialize(), "failed to initialize BtagSelectionTool " + m_tagger + "_" + m_WP + "_" + m_jetCollection);
   }
