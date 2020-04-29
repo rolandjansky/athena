@@ -29,7 +29,6 @@ MuonTrackMonitorAlgorithm::MuonTrackMonitorAlgorithm (const std::string& name, I
 	declareProperty("JPsiSelection_maxMass", 		m_JPsiSelection_maxMass = 3600.);
 }
 
-MuonTrackMonitorAlgorithm::~MuonTrackMonitorAlgorithm() {}
 
 //========================================================================================================
 StatusCode MuonTrackMonitorAlgorithm::initialize()
