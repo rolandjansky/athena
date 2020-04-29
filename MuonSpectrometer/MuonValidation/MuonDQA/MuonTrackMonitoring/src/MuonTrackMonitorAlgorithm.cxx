@@ -234,8 +234,8 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 	}
 
 	/// Fill the relevant Muon Information for each Combined Muon
-	StatusCode sc;
-	sc =FillMuonInformation("CB", vecCombinedMuons);
+	
+	ATH_CHECK (FillMuonInformation("CB", vecCombinedMuons) );
 	
 	/// Trigger Studies
 	if (vecCombinedMuonsHighPT.size()==1) {
@@ -333,8 +333,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseZBosonCandidates(const xAOD::MuonCo
 		}
 
 	/// Fill the relevant Muon Information for each Z Boson Candidate Muon
-	StatusCode sc;
-	sc =FillMuonInformation("Z", vecMuons_ZBoson);		
+	ATH_CHECK( FillMuonInformation("Z", vecMuons_ZBoson) );		
 
 	return StatusCode::SUCCESS;
 }
@@ -413,10 +412,9 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseJPsiCandidates(const xAOD::MuonCont
 		}
 	
 	/// Fill the relevant Muon Information for each JPsi Boson Candidate Muon
-	StatusCode sc;
-	sc =FillMuonInformation("JPsi", vecMuons_JPsi);		
+	ATH_CHECK( FillMuonInformation("JPsi", vecMuons_JPsi) );		
 
-	return sc;
+	return StatusCode::SUCCESS;
 }
 
 
@@ -436,11 +434,10 @@ StatusCode MuonTrackMonitorAlgorithm::fillHistograms(const EventContext& ctx) co
 	const xAOD::MuonContainer* Muons=nullptr;
 	ATH_CHECK(evtStore()->retrieve(Muons, "Muons"));
 
-	StatusCode sc;
-	sc = analyseLowLevelMuonFeatures(Muons, lumiBlockID);
-	sc = analyseCombinedTracks(Muons, lumiBlockID);
-	sc = analyseZBosonCandidates(Muons, lumiBlockID);
-	sc = analyseJPsiCandidates(Muons, lumiBlockID);
+	ATH_CHECK( analyseLowLevelMuonFeatures(Muons, lumiBlockID) );
+	ATH_CHECK( analyseCombinedTracks(Muons, lumiBlockID) );
+	ATH_CHECK( analyseZBosonCandidates(Muons, lumiBlockID) );
+	ATH_CHECK( analyseJPsiCandidates(Muons, lumiBlockID) );
 
 	return StatusCode::SUCCESS;
 }
