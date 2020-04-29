@@ -287,7 +287,6 @@ if __name__=='__main__':
   log.setLevel(INFO)
 
   # Set the Athena configuration flags
-  from AthenaConfiguration.AllConfigFlags import ConfigFlags
   ConfigFlags.Input.Files = [inputFile]
   ConfigFlags.Input.isMC = True
   ConfigFlags.Output.HISTFileName = 'AthenaMTMonitorOutput.root' if AthenaMT else 'LegacyMonitoringOutput.root'
