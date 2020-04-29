@@ -8,7 +8,7 @@ atlas_subdir( MuonReadoutGeometry )
 # Extra dependencies, based on the environment (no MuonCondSvc needed in AthSimulation):
 set( extra_deps )
 set( extra_libs )
-if( NOT "${ATLAS_PROJECT}" STREQUAL "AthSimulation" )
+if( NOT SIMULATIONBASE )
   set( extra_deps MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc )
   set( extra_libs MuonCondSvcLib )
 endif()
