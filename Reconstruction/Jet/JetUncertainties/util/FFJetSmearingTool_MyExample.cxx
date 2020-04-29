@@ -73,7 +73,7 @@ void usage() {
   std::cout << "        --jetColl= : Specify the jet collection (TrimmedLargeR)" << std::endl;
   std::cout << "        --MassDef= : Specify the kind of jet mass used (CALO, TA, Comb)" << std::endl;
   std::cout << "        --sample= : Specify input xAOD" << std::endl;
-  std::cout << "        Example: FFJetSmearingTool_MyExample  --truth_jetColl=AntiKt10TruthTrimmedPtFrac5SmallR20Jets --reco_jetColl=AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets --MassDef=Comb  --sample=DAOD_JETM6.16317590._000003.pool.root.1  --output=file_name.root --ConfigFile=rel21/Spring2020/FFJetSmearingTool_TestOnly_JMS_JMR.config   --DebugTool=true" << std::endl;
+  std::cout << "        Example: FFJetSmearingTool_MyExample  --truth_jetColl=AntiKt10TruthTrimmedPtFrac5SmallR20Jets --reco_jetColl=AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets --MassDef=Comb  --sample=DAOD_JETM6.16317590._000003.pool.root.1  --output=file_name.root --ConfigFile=rel21/Spring2020/FFJetSmearingTool_TestOnly_JMR.config   --DebugTool=true" << std::endl;
 }
 
 
