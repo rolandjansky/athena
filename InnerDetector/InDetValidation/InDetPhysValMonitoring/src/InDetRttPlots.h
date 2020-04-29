@@ -13,6 +13,8 @@
 
 // std includes
 #include <string>
+#include <memory>
+
 // local includes
 #include "InDetPlotBase.h"
 #include "InDetBasicPlot.h"
@@ -82,20 +84,18 @@ private:
   InDetPerfPlot_FakeRate m_fakePlots;
   InDetPerfPlot_FakeRate m_missingTruthFakePlots;
   InDetPerfPlot_Resolution m_resolutionPlotPrim;
-  InDetPerfPlot_Resolution* m_resolutionPlotSecd;
-  InDetPerfPlot_Hits *m_hitsMatchedTracksPlots;
   InDetPerfPlot_Hits m_hitsRecoTracksPlots;
   InDetPerfPlot_Efficiency m_effPlots;
-
   InDetPerfPlot_VerticesVsMu m_verticesVsMuPlots;
   InDetPerfPlot_Vertex m_vertexPlots;
   InDetPerfPlot_Vertex m_hardScatterVertexPlots;
-  InDetPerfPlot_VertexTruthMatching *m_vertexTruthMatchingPlots;
   InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
 
+  std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotSecd;
+  std::unique_ptr<InDetPerfPlot_Hits> m_hitsMatchedTracksPlots;
+  std::unique_ptr<InDetPerfPlot_VertexTruthMatching> m_vertexTruthMatchingPlots;
   bool m_doTrackInJetPlots;
-
-  InDetPerfPlot_TrkInJet *m_trkInJetPlots;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots;
 
   std::string m_trackParticleTruthProbKey;
   float m_truthProbLowThreshold;
