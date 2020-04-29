@@ -38,7 +38,7 @@ StatusCode Muon::NSWCalibTool::initialize()
   ATH_CHECK(m_idHelperSvc.retrieve());
 
   if ( !(m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc() ) ) {
-    ATH_MSG_ERROR("MuonIdHelperTool not properly configured, missing MM or STGC");
+    ATH_MSG_ERROR("MM or STGC not part of initialized detector layout");
     return StatusCode::FAILURE;
   }
    m_lorentzAngleFunction = new TF1("lorentzAngleFunction","[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x",0,2);

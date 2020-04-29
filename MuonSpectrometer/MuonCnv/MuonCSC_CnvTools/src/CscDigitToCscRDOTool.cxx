@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -18,7 +18,7 @@
 
 #include "CscDigitToCscRDOTool.h"
 
-#include <math.h>
+#include <cmath>
 #include <cassert>
 
 const uint16_t MAX_AMPL = 4095; // 12-bit ADC
@@ -44,7 +44,7 @@ StatusCode CscDigitToCscRDOTool::initialize()
 
   ATH_CHECK( m_cscCablingSvc.retrieve() );
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_MSG_DEBUG ( " Found the CscIdHelper. " );
 
   /** CSC calibration tool for the Condtiions Data base access */
@@ -97,7 +97,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
   // initialization but it will be updated per channel later 12/03/2009 WP
   // m_startTime is not related to rodReadOut at all but doesn't matter it's not used....by resetting later...
 
-  rodReadOut.set(m_muonIdHelperTool.get());
+  rodReadOut.set(&m_idHelperSvc->cscIdHelper());
   rodReadOut.setChamberBitVaue(1);
 
 
@@ -163,20 +163,20 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
       // Where address is made, onlineId should be used......
       Identifier offlineChannelId = cscDigit->identify();
       IdentifierHash cscOfflineChannelHashId;
-      IdContext cscContext = m_muonIdHelperTool->cscIdHelper().channel_context();
-      if (!m_muonIdHelperTool->cscIdHelper().get_hash(offlineChannelId, cscOfflineChannelHashId, &cscContext)) {
+      IdContext cscContext = m_idHelperSvc->cscIdHelper().channel_context();
+      if (!m_idHelperSvc->cscIdHelper().get_hash(offlineChannelId, cscOfflineChannelHashId, &cscContext)) {
         ATH_MSG_DEBUG ( "HashId for CscDigit (offline) is " << cscOfflineChannelHashId
-                        << " for " << m_muonIdHelperTool->cscIdHelper().show_to_string(offlineChannelId,&cscContext) );
+                        << " for " << m_idHelperSvc->cscIdHelper().show_to_string(offlineChannelId,&cscContext) );
       }
 
-      int currentStrip = m_muonIdHelperTool->cscIdHelper().strip(offlineChannelId);
+      int currentStrip = m_idHelperSvc->cscIdHelper().strip(offlineChannelId);
 
       /** the RDO collection or create it if it does not exits */
-      int currentLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(offlineChannelId);
-      int measuresPhi  = m_muonIdHelperTool->cscIdHelper().measuresPhi(offlineChannelId);
-      int eta = m_muonIdHelperTool->cscIdHelper().stationEta(offlineChannelId);
-      int phi = m_muonIdHelperTool->cscIdHelper().stationPhi(offlineChannelId);
-      int stationId = m_muonIdHelperTool->cscIdHelper().stationName(offlineChannelId);
+      int currentLayer = m_idHelperSvc->cscIdHelper().wireLayer(offlineChannelId);
+      int measuresPhi  = m_idHelperSvc->cscIdHelper().measuresPhi(offlineChannelId);
+      int eta = m_idHelperSvc->cscIdHelper().stationEta(offlineChannelId);
+      int phi = m_idHelperSvc->cscIdHelper().stationPhi(offlineChannelId);
+      int stationId = m_idHelperSvc->cscIdHelper().stationName(offlineChannelId);
       uint16_t subDetectorId = (eta==-1) ? 0x6A : 0x69;
       uint16_t rodId         = 0xFFFF;
       if(m_cscCablingSvc->nROD()==16){
@@ -247,7 +247,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
             int afterstrip = beforestrip - width + 1;
 
             Identifier newOnlineChannelId
-              = m_muonIdHelperTool->cscIdHelper().channelID(istat,zEta,phisector,chamLayer,wlayer,mphi,afterstrip);
+              = m_idHelperSvc->cscIdHelper().channelID(istat,zEta,phisector,chamLayer,wlayer,mphi,afterstrip);
             address = rodReadOut.address(newOnlineChannelId,zEta,phisector);
 
           }
@@ -261,7 +261,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
         }
  	
         /** station identifier to calcuate the SPU ID */
-        int stationName = m_muonIdHelperTool->cscIdHelper().stationName(offlineChannelId);
+        int stationName = m_idHelperSvc->cscIdHelper().stationName(offlineChannelId);
         /** there 10 SPU - Sparsifier Processing Units, one for each gas layer, except
             for the non-precision strips where all the layers map to one SPU
             note that the "-50" is because stationName = 50 (CSS) or 51 (CSL) */
@@ -275,20 +275,20 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
         // Let's make online hashId first and then convert it into online identifier....
         Identifier onlineChannelId =offlineChannelId; // onlineChannelId is only needed to get address....
         if (eta > 0 && measuresPhi == 1) {
-          int chamberLayer = m_muonIdHelperTool->cscIdHelper().chamberLayer(offlineChannelId); // Either 1 or 2 (but always 1)
+          int chamberLayer = m_idHelperSvc->cscIdHelper().chamberLayer(offlineChannelId); // Either 1 or 2 (but always 1)
           int strip        = 49 -currentStrip;
 
-          onlineChannelId = m_muonIdHelperTool->cscIdHelper().channelID(stationName,eta,phi,chamberLayer,currentLayer,measuresPhi,strip);
+          onlineChannelId = m_idHelperSvc->cscIdHelper().channelID(stationName,eta,phi,chamberLayer,currentLayer,measuresPhi,strip);
         }
 
         /** The strip online address */  // this registers the first one...
 	address = rodReadOut.address(onlineChannelId,eta,phi);
 
         /** Strip hash identifier is from offline convention for CscRawData first strip...*/
-        IdContext cscContext = m_muonIdHelperTool->cscIdHelper().channel_context();
-        if (!m_muonIdHelperTool->cscIdHelper().get_hash(offlineChannelId, cscRawDataOfflineHashId, &cscContext)) {
+        IdContext cscContext = m_idHelperSvc->cscIdHelper().channel_context();
+        if (!m_idHelperSvc->cscIdHelper().get_hash(offlineChannelId, cscRawDataOfflineHashId, &cscContext)) {
           ATH_MSG_DEBUG ( "HashId off CscRawData (still offline hashId) is " << cscRawDataOfflineHashId
-                          << " for " << m_muonIdHelperTool->cscIdHelper().show_to_string(offlineChannelId,&cscContext) );
+                          << " for " << m_idHelperSvc->cscIdHelper().show_to_string(offlineChannelId,&cscContext) );
         }
 
         /** clear for the next CscRawData */
@@ -297,16 +297,16 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
       }
       
       /** simulation data conversion to ADC counts */
-      ATH_MSG_DEBUG ( "CSC Digit->RDO: Digit offline info " << m_muonIdHelperTool->cscIdHelper().show_to_string(offlineChannelId)
+      ATH_MSG_DEBUG ( "CSC Digit->RDO: Digit offline info " << m_idHelperSvc->cscIdHelper().show_to_string(offlineChannelId)
                       << " " << cscDigit->charge() );	  
 
-      int zsec = m_muonIdHelperTool->cscIdHelper().stationEta(offlineChannelId);
-      int phisec = m_muonIdHelperTool->cscIdHelper().stationPhi(offlineChannelId);
-      int istation = m_muonIdHelperTool->cscIdHelper().stationName(offlineChannelId) - 49;
+      int zsec = m_idHelperSvc->cscIdHelper().stationEta(offlineChannelId);
+      int phisec = m_idHelperSvc->cscIdHelper().stationPhi(offlineChannelId);
+      int istation = m_idHelperSvc->cscIdHelper().stationName(offlineChannelId) - 49;
       int sector = zsec*(2*phisec-istation+1);
-      int wlay = m_muonIdHelperTool->cscIdHelper().wireLayer(offlineChannelId);
-      int measphi = m_muonIdHelperTool->cscIdHelper().measuresPhi(offlineChannelId);
-      int istrip = m_muonIdHelperTool->cscIdHelper().strip(offlineChannelId);
+      int wlay = m_idHelperSvc->cscIdHelper().wireLayer(offlineChannelId);
+      int measphi = m_idHelperSvc->cscIdHelper().measuresPhi(offlineChannelId);
+      int istrip = m_idHelperSvc->cscIdHelper().strip(offlineChannelId);
 
       // false will return value in ADC counts - true in number of electrons
       //      double noise    = m_cscCalibTool->stripNoise( cscOfflineChannelHashId, true );
@@ -328,17 +328,8 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
           
           if ( charge_to_adcCount > MAX_AMPL ) charge_to_adcCount = MAX_AMPL-1.0; 
           if ( charge_to_adcCount < 0 ) charge_to_adcCount = 0;
-          //          if (m_addNoise) {
-          //            ampl = ampl + theNoise + pedestal;
-          //          }
-          //          if (ampl < 0) ampl = 0.0;
+
           uint16_t adcCount = (uint16_t) rint(charge_to_adcCount);
-          //          if (ampl > (1.0*MAX_AMPL)) {
-          //            ATH_MSG_WARNING ( "value out of range: " << ampl << " " 
-          //                              << " Setting it to max value = " << MAX_AMPL
-          //                              << " Identifier is " << m_muonIdHelperTool->cscIdHelper().show_to_string(offlineChannelId) );
-          //            adcCount = MAX_AMPL;
-          //          }
           
           samples.push_back(adcCount); 
           
@@ -363,18 +354,8 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
 
           if ( ampl > MAX_AMPL ) ampl = MAX_AMPL-1.0; 
 
-          //          if (m_addNoise) {
-          //            ampl = charge_to_adcCount*rawAmpl + theNoise + pedestal;
-          //          }
-          //          if (ampl < 0) ampl = 0.0;
           uint16_t adcCount = (uint16_t) rint(ampl);
-          //          if (ampl > (1.0*MAX_AMPL)) {
-          //            ATH_MSG_WARNING ( "value out of range: " << ampl << " " 
-          //                              << " Setting it to max value = " << MAX_AMPL
-          //                              << " Identifier is " << m_muonIdHelperTool->cscIdHelper().show_to_string(offlineChannelId) );
-          //            adcCount = MAX_AMPL;
-          //          }
-          
+
           samples.push_back(adcCount); 
           
           ATH_MSG_DEBUG ( "amplitude :: index =  "     << (i+1) 
@@ -383,40 +364,20 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
                           << " amplitude (double) = "     << ampl
                           << " raw amplitude (double) = " << rawAmpl
                           << " theNoise (double) = "      << theNoise    );
-          
-          // DEBUG purpose....
-          //          samplesOrig.push_back(float(adcCount));
-          //          uint16_t adcNoMix   =(uint16_t) rint(charge_to_adcCount*rawAmpl);
-          //          uint16_t adcPlusPed =(uint16_t) rint(charge_to_adcCount*rawAmpl+pedestal);
-          //          samplesNoMix.push_back(float(adcNoMix));
-          //          samplesPlusPed.push_back(float(adcPlusPed));
+
         }
 
-        // DEBUG ->
-        //        int error0, error1, error2;
-        //        double charge0, time0, charge1, time1, charge2, time2;
-        
-        //        error0 = m_cscCalibTool->findCharge(float(samplingTime), phase, samplesOrig, charge0, time0);
-        //        error1 = m_cscCalibTool->findCharge(float(samplingTime), phase, samplesNoMix, charge1, time1);
-        //        error2 = m_cscCalibTool->findCharge(float(samplingTime), phase, samplesPlusPed, charge2, time2);
-        
       } // isNewEDM
 
       
       ATH_MSG_DEBUG ( "CSC Digit zsec:phisec:station:sector:measphi:wlay:istrip:charge "
-                      //                      << run << " " << evt << " "
                       << zsec << " " << phisec << " " << istation << " " << sector << " "
                       << measphi << " " <<  wlay << " " << istrip << " "
-                      //                      << int (cscDigit->charge()+1) << " " << charge_to_adcCount << " "
-                      //                      << charge0-pedestal << " " << charge1 << " " << charge2-pedestal
-                      //                      << pedestal << " "
                       << samples[0] << " "
                       << samples[1] << " "
                       << samples[2] << " "
                       << samples[3] << " "
                       ) ;
-      // DEBUG <-//
-
       
       /** increase the width and the currentStrip */
       width++;
@@ -449,7 +410,7 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
           int afterstrip = beforestrip - width + 1;
           
           Identifier newOnlineChannelId
-            = m_muonIdHelperTool->cscIdHelper().channelID(istat,zEta,phisector,chamLayer,wlayer,mphi,afterstrip);
+            = m_idHelperSvc->cscIdHelper().channelID(istat,zEta,phisector,chamLayer,wlayer,mphi,afterstrip);
           address = rodReadOut.address(newOnlineChannelId,zEta,phisector);
           
         }

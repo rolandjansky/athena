@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscRODReadOut.h"
 
 // constructor
-CscRODReadOut::CscRODReadOut() : m_muonIdHelperTool(0), m_sourceID(0),
+CscRODReadOut::CscRODReadOut() : m_cscIdHelper(nullptr), m_sourceID(0),
    m_moduleType(0), m_rodId(0), m_subDetectorId(0), m_amp1(0), m_amp2(0),
    m_address(0), m_chamberBitValue(0) {  
 
@@ -48,7 +48,7 @@ CscRODReadOut::CscRODReadOut() : m_muonIdHelperTool(0), m_sourceID(0),
 
 CscRODReadOut::CscRODReadOut(double startTime, uint16_t samplingTime,
                              double signalWidth, uint16_t numIntegration)
- : m_muonIdHelperTool(0), m_sourceID(0), m_moduleType(0), m_rodId(0),
+ : m_cscIdHelper(nullptr), m_sourceID(0), m_moduleType(0), m_rodId(0),
    m_subDetectorId(0), m_amp1(0), m_amp2(0), m_address(0), m_chamberBitValue(0) {
 
   m_TIME_OFFSET     = startTime;            // ns
@@ -69,10 +69,6 @@ CscRODReadOut::CscRODReadOut(double startTime, uint16_t samplingTime,
   for (int i=0; i<3; i++) m_TRIGGER_INFO[i] = 0;
 
 }
-
-// destructor
-CscRODReadOut::~CscRODReadOut()
-{}
 
 void CscRODReadOut::encodeFragments(const std::vector<uint16_t>  amplitude,  
 				    std::vector<uint32_t>& v) const {
