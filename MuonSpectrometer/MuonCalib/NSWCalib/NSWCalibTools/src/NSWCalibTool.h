@@ -6,17 +6,14 @@
 
 #include "NSWCalibTools/INSWCalibTool.h"
 
-
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
-
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonRDO/MM_RawData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 #include "TRandom3.h"
 #include "TTree.h"
@@ -41,9 +38,7 @@ namespace Muon {
   private:
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
-   
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
 
     TF1* m_lorentzAngleFunction;
      
