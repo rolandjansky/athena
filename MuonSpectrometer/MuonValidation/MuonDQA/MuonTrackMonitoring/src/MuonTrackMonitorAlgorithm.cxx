@@ -416,7 +416,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseJPsiCandidates(const xAOD::MuonCont
 	StatusCode sc;
 	sc =FillMuonInformation("JPsi", vecMuons_JPsi);		
 
-	return StatusCode::SUCCESS;
+	return sc;
 }
 
 
