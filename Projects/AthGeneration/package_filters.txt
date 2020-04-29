@@ -131,6 +131,7 @@
 + Event/xAOD/xAODCutFlow
 + Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
++ Event/xAOD/xAODEventInfoAthenaPool
 + Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODEventShape
 + Event/xAOD/xAODJet

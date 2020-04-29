@@ -145,6 +145,7 @@
 + Event/xAOD/xAODCoreCnv
 + Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
++ Event/xAOD/xAODEventInfoAthenaPool
 + Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODJet
 + Event/xAOD/xAODJetAthenaPool
