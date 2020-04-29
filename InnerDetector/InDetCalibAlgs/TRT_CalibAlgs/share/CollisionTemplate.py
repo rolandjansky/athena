@@ -135,8 +135,6 @@ InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool' and globalflags.
 #InDetFlags.doLowPt        = False
 #InDetFlags.doBeamGas      = True
 #InDetFlags.doBeamHalo     = True
-#InDetFlags.doxKalman      = False
-#InDetFlags.doiPatRec      = False
 #InDetFlags.doBackTracking = False
 #InDetFlags.doTRTStandalone = False
 #InDetFlags.doSingleSpBackTracking = True

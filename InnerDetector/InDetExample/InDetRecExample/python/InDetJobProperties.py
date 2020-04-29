@@ -138,18 +138,6 @@ class doSplitReco(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False    	
-	
-class doxKalman(InDetFlagsJobProperty):
-    """Turn running of xKalman on and off"""
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
-class doiPatRec(InDetFlagsJobProperty):
-    """Turn running of iPatRec on and off"""
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
 
 class preProcessing(InDetFlagsJobProperty):
     """Turn running of pre processing on and off"""
@@ -1258,8 +1246,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTRTPhaseCalculation  , False)
        self.checkThenSet(self.doTRTStandalone        , True)
        self.checkThenSet(self.doForwardTracks        , False)
-       self.checkThenSet(self.doxKalman              , False)
-       self.checkThenSet(self.doiPatRec              , False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doVertexFinding        , False)
        self.checkThenSet(self.doV0Finder             , False)
@@ -1278,8 +1264,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
-       self.checkThenSet(self.doxKalman              , False)
-       self.checkThenSet(self.doiPatRec              , False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doForwardTracks        , False)
        self.checkThenSet(self.doTRTStandalone        , True ) # *ME* this is different than 15.4.0 and before
@@ -1318,8 +1302,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doForwardTracks        , False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
-       self.checkThenSet(self.doxKalman              , False)
-       self.checkThenSet(self.doiPatRec              , False)
        self.checkThenSet(self.doVertexFinding        , True)
        self.checkThenSet(self.primaryVertexSetup     , "DefaultFastFinding")
        self.checkThenSet(self.primaryVertexCutSetup  , "HeavyIon") 
@@ -1347,8 +1329,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doSLHCConversionFinding, True )
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
-       self.checkThenSet(self.doxKalman              , False)
-       self.checkThenSet(self.doiPatRec              , False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doForwardTracks        , False)
@@ -1380,8 +1360,6 @@ class InDetJobProperties(JobPropertyContainer):
        #self.checkThenSet(self.doVeryLowPt            , False)
        #self.checkThenSet(self.doBeamGas              , False)
        #self.checkThenSet(self.doBeamHalo             , False)
-       #self.checkThenSet(self.doxKalman              , False)
-       #self.checkThenSet(self.doiPatRec              , False)
        #self.checkThenSet(self.doBackTracking         , False)
        #self.checkThenSet(self.doTRTStandalone        , False)
        #self.checkThenSet(self.doForwardTracks        , False)
@@ -1408,8 +1386,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
-       self.checkThenSet(self.doxKalman              , False)
-       self.checkThenSet(self.doiPatRec              , False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doForwardTracks        , False)
@@ -1437,8 +1413,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
-       self.checkThenSet(self.doxKalman              , False)
-       self.checkThenSet(self.doiPatRec              , False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doForwardTracks        , False)
@@ -1477,8 +1451,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
-       self.checkThenSet(self.doxKalman              , False)
-       self.checkThenSet(self.doiPatRec              , False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doForwardTracks        , False)
@@ -1517,8 +1489,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doForwardTracks        , False )
        self.checkThenSet(self.doBeamGas              , False )
        self.checkThenSet(self.doBeamHalo             , False )
-       self.checkThenSet(self.doxKalman              , False )
-       self.checkThenSet(self.doiPatRec              , False )
        self.checkThenSet(self.doBackTracking         , False )
        self.checkThenSet(self.doTRTStandalone        , False )
        self.checkThenSet(self.postProcessing         , False )
@@ -1590,9 +1560,6 @@ class InDetJobProperties(JobPropertyContainer):
 
     # --- collisions, this is the main one !
     elif (jobproperties.Beam.beamType()=="collisions"):
-       # --- set default track configuration
-       self.checkThenSet(self.doxKalman              , False)
-       self.checkThenSet(self.doiPatRec              , False)
        # --- enable phase for collisions by default
        self.checkThenSet(self.doTRTPhaseCalculation  , False )
        
@@ -1708,7 +1675,6 @@ class InDetJobProperties(JobPropertyContainer):
       # ESD/AOD output options
       # -------------------------------------------------------------------
       if self.AODall() and jobproperties.Beam.beamType()=="collisions":
-        self.doiPatRec     = True
         self.doNewTracking = True
 
       # --------------------------------------------------------------------
@@ -1991,7 +1957,7 @@ class InDetJobProperties(JobPropertyContainer):
     return self.doTrackSegmentsPixel() or self.doTrackSegmentsSCT() or self.doTrackSegmentsTRT()
  
   def doPattern(self):
-    return self.doNewTrackingPattern() or self.doxKalman() or self.doiPatRec() or self.doNewTrackingSegments()
+    return self.doNewTrackingPattern()  or  self.doNewTrackingSegments()
   
   def doTRTExtension(self):
     from AthenaCommon.DetFlags import DetFlags
@@ -2051,8 +2017,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.doLowPtLargeD0            = False
        self.doHadCaloSeededSSS        = False
 
-       self.doxKalman                 = False
-       self.doiPatRec                 = False
        
        self.doTrackSegmentsPixel      = False
        self.doTrackSegmentsSCT        = False
@@ -2114,8 +2078,6 @@ class InDetJobProperties(JobPropertyContainer):
      self.doForwardTracks          = False
      self.doBeamGas                = False
      self.doBeamHalo               = False
-     self.doxKalman                = False
-     self.doiPatRec                = False
      self.doBackTracking           = False
      self.doTRTStandalone          = False
      self.postProcessing           = True
@@ -2387,13 +2349,9 @@ class InDetJobProperties(JobPropertyContainer):
        if self.doCaloSeededBrem():
           print('* - restrict Brem Recovery to Calo ROIs')
     # -----------------------------------------
-    if self.doxKalman() or self.doiPatRec() or self.doFatras():
+    if self.doFatras():
        print('*')
        print('* Alternative trackings:')
-       if self.doxKalman() :
-          print('*   - run xKalman')
-       if self.doiPatRec() :
-          print('*   - run iPatRec')
        if self.doFatras() :
           print('*   - run FATRAS')
     # -----------------------------------------
@@ -2644,8 +2602,6 @@ _list_InDetJobProperties = [Enabled,
                             doPseudoTracking,
                             doIdealPseudoTracking,
                             doSplitReco,
-                            doxKalman,
-                            doiPatRec,
                             preProcessing,
                             doPRDFormation,
                             doPixelPRDFormation,

@@ -16,8 +16,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doPseudoTracking", False ) # Turn running of the truth seeded pseudo tracking on and off
   icf.addFlag("InDet.doIdealPseudoTracking", True) # Run pseudoTracking with 100\% hit assignment efficiency
   icf.addFlag("InDet.doSplitReco", False    	 ) # Turn running of the truth seeded pseudo tracking only for pileup on and off. Only makes sense to run on RDO file where SplitDigi was used!
-  icf.addFlag("InDet.doxKalman", False) # Turn running of xKalman on and off
-  icf.addFlag("InDet.doiPatRec", False 	) # Turn running of iPatRec on and off
   icf.addFlag("InDet.preProcessing", True) # Turn running of pre processing on and off
   icf.addFlag("InDet.doPRDFormation", True) # Turn running of PRD formation on and off
   icf.addFlag("InDet.doPixelPRDFormation", True) # Turn running of pixel PRD formation on and off

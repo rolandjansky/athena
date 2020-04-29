@@ -52,7 +52,6 @@ else:
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 InDetTrigFlags.doTruth = doTruth
 InDetTrigFlags.doNewTracking = True
-InDetTrigFlags.doiPatRec = False
 
 
 
