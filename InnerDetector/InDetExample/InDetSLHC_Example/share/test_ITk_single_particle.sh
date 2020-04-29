@@ -97,11 +97,17 @@ dcubecfg_digi_strip=${artdata}/InDetSLHC_Example/dcube/config/ITk_SCT_RDOAnalysi
 dcubecfg_rec=${artdata}/InDetSLHC_Example/dcube/config/ITk_IDPVM.xml
 
 
-
-dcuberef_sim=${artdata}/InDetSLHC_Example/ReferenceHistograms/SiHit_ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
-dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}_digi.root
-dcuberef_digi_pixel=${artdata}/InDetSLHC_Example/ReferenceHistograms/PixelRDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
-dcuberef_digi_strip=${artdata}/InDetSLHC_Example/ReferenceHistograms/SCT_RDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
+if [ ${particle} == "muons" ]; then
+   dcuberef_sim=${artdata}/InDetSLHC_Example/ReferenceHistograms/SiHit_ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
+   dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}_digi.root
+   dcuberef_digi_pixel=${artdata}/InDetSLHC_Example/ReferenceHistograms/PixelRDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
+   dcuberef_digi_strip=${artdata}/InDetSLHC_Example/ReferenceHistograms/SCT_RDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
+else
+   dcuberef_sim=""
+   dcuberef_rec=$artdata/InDetSLHC_Example/ReferenceHistograms/InclinedDuals_electrons_100GeV_physval.root
+   dcuberef_digi_pixel=""
+   dcuberef_digi_strip=""
+fi
 
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
 lastref_dir=last_results_${particle}_${energy}
@@ -153,7 +159,7 @@ if [ $dosim -ne 0 ]; then
     --preInclude  all:'InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' \
     --preExec     all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True); SLHC_Flags.LayoutOption="InclinedAlternative"' \
     --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' \
-    --postExec    EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours = False; from AthenaCommon import CfgGetter;CfgGetter.getService("ISF_MC15aPlusTruthService").BeamPipeTruthStrategies+=["ISF_MCTruthStrategyGroupIDHadInt_MC15"];'
+    --postExec    EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours = False; from AthenaCommon import CfgGetter;CfgGetter.getService("ISF_MC15aPlusTruthService").BeamPipeTruthStrategies+=["ISF_MCTruthStrategyGroupIDHadInt_MC15"];' all:'ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True'
 
 
 
@@ -208,7 +214,7 @@ if [ $dorec -ne 0 ]; then
  --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True)' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"]'\
  'RAWtoALL:from InDetRecExample.InDetJobProperties import InDetFlags;from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True; from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags; InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True); InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False)'\
  --preInclude  'all:InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' 'HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' 'default:InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py'\
- --postExec 'HITtoRDO:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'RAWtoALL:ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO;from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg;decorators = InDetPhysValDecoratorAlg();topSequence += decorators'
+ --postExec 'HITtoRDO:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'RAWtoALL:ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO;from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg;decorators = InDetPhysValDecoratorAlg();topSequence += decorators;' 'all:ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True'
 
 
 
