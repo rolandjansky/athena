@@ -64,7 +64,7 @@ def TrigJetMonConfig(inputFlags):
   from AthenaMonitoring import AthMonitorCfgHelper
   helper = AthMonitorCfgHelper(inputFlags,'TrigJetMonitorAlgorithm')
 
-  AthenaMT = True # Temporary
+  AthenaMT = True # Temporary (will be configured properly later)
 
   # AthenaMT or Legacy
   InputType = 'MT' if AthenaMT else 'Legacy'
