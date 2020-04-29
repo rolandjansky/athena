@@ -155,14 +155,14 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     result.addPublicTool( particle_calo_call_association_tool )
     result.merge(acc)
   
-    muonCaloEnergyTool = CompFactory.Rec.MuonCaloEnergyTool(ParticleCaloExtensionTool = particle_calo_extension_tool,
+    muonCaloEnergyTool = CompFactory.Rec.MuonCaloEnergyTool(name="MuonCaloEnergy",ParticleCaloExtensionTool = particle_calo_extension_tool,
                                                  ParticleCaloCellAssociationTool = particle_calo_call_association_tool)
 
     useCaloEnergyMeas = True
     if flags.Muon.MuonTrigger:
         useCaloEnergyMeas = False
 
-    tool = CompFactory.Trk.TrkMaterialProviderTool(MuonCaloEnergyTool = muonCaloEnergyTool, UseCaloEnergyMeasurement = useCaloEnergyMeas)
+    tool = CompFactory.Trk.TrkMaterialProviderTool(name = name, MuonCaloEnergyTool = muonCaloEnergyTool, UseCaloEnergyMeasurement = useCaloEnergyMeas)
     result.addPublicTool(tool)
     result.setPrivateTools(tool)
     return result 
@@ -204,7 +204,7 @@ def ExtrapolateMuonToIPToolCfg(flags, name="ExtrapolateMuonToIPTool", **kwargs):
 
 def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
-    result = CombinedMuonTrackBuilderCfg(flags)
+    result = CombinedMuonTrackBuilderCfg(flags, name="CombinedMuonTrackBuilder")
     kwargs.setdefault("TrackBuilder", result.popPrivateTools() )
     if flags.Beam.Type=="cosmics":
         acc = ExtrapolateMuonToIPToolCfg(flags)
@@ -523,7 +523,7 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("UseCaloTG"                     , True )
 
-    acc = MuonMaterialProviderToolCfg(flags)
+    acc = MuonMaterialProviderToolCfg(flags, name="MuonMaterialProviderTool")
     kwargs.setdefault( "CaloMaterialProvider", acc.getPrimary() )
     result.merge(acc)
  
@@ -568,6 +568,8 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
                                                 RecreateStartingParameters = False, RefitTool = refitTool)
         kwargs.setdefault("MuonErrorOptimizer", acc.popPrivateTools())
         result.merge(acc)
+    else:
+        kwargs.setdefault("MuonErrorOptimizer", "")
 
     if flags.Muon.doSegmentT0Fit:
         kwargs.setdefault("MdtRotCreator"                 , "" )
@@ -582,7 +584,7 @@ def CombinedMuonTrackBuilderFitCfg(flags, name='CombinedMuonTrackBuilderFit', **
     # Here we just call the Combined
     kwargs.setdefault("PerigeeAtSpectrometerEntrance" , True )
     kwargs.setdefault("UseCaloTG"                     , False )
-    result = MuidErrorOptimisationToolCfg() #Pass in default
+    result = MuidErrorOptimisationToolCfg(flags) #Pass in default
     kwargs.setdefault("MuonErrorOptimizer", result.popPrivateTools())
     acc = CombinedMuonTrackBuilderCfg(flags, name, **kwargs)
     tool = acc.popPrivateTools() #Need to reset this to be the primary tool
