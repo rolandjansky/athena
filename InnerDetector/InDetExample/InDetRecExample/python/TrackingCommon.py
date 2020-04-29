@@ -727,7 +727,6 @@ def getConstPRD_AssociationTool(name='ConstPRD_AssociationTool',**kwargs) :
 
     kwargs = setDefaults( kwargs,
                           SetupCorrect     = True,
-                          MuonIdHelperTool = "",
                           PRDtoTrackMap    = prefix+'PRDtoTrackMap'+suffix)
 
     from TrkAssociationTools.TrkAssociationToolsConf import Trk__PRD_AssociationTool
