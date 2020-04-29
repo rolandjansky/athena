@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/EventPrimitives
                           GaudiKernel
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -34,15 +35,14 @@ atlas_depends_on_subdirs( PRIVATE
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( HepMC )
 find_package( CLHEP )
 
 # Component(s) in the package:
 atlas_add_component( JetTagD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel AthContainers EventKernel EventPrimitives GaudiKernel GeneratorObjects InDetIdentifier InDetReadoutGeometry D3PDMakerUtils JetTagEvent JetTagInfo MuonIDEvent McParticleEvent JetEvent muonEvent Particle egammaEvent TrkParticleBase VxJetVertex VxSecVertex VxVertex TrkVertexFitterInterfaces )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}  ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel AthContainers EventKernel EventPrimitives GaudiKernel GeneratorObjects InDetIdentifier InDetReadoutGeometry D3PDMakerUtils JetTagEvent JetTagInfo MuonIDEvent McParticleEvent JetEvent muonEvent Particle egammaEvent TrkParticleBase VxJetVertex VxSecVertex VxVertex TrkVertexFitterInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

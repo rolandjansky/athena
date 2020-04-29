@@ -22,7 +22,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_component( ISF_SimulationSelectors
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib GaudiKernel BarcodeServicesLib ISF_Event ISF_Interfaces )
 
 # Install files from the package:

@@ -27,10 +27,7 @@ Abstract base class for TrajectoryTool AlgTool
 class FastField;
 class PerigeeParameters;
 class TrackParameters;
-namespace HepMC
-{
-    class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 namespace iPat
 {
     

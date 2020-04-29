@@ -10,7 +10,7 @@
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "AthenaKernel/errorcheck.h"
 #include "HforFillerTool.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 namespace D3PD{
 

@@ -16,7 +16,7 @@
 // EDM
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // interfaces
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"

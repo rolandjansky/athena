@@ -15,7 +15,7 @@
 // Trk
 #include "TrkTrack/Track.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrkValEvent/GenParticleJet.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 

@@ -18,7 +18,7 @@
 // CLHEP/HepMC includes
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepPDT/ParticleDataTable.hh"
-#include "HepMC/IO_GenEvent.h"
+#include "AtlasHepMC/IO_GenEvent.h"
 
 // McParticleTools includes
 #include "HepMcReaderTool.h"

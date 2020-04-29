@@ -26,9 +26,7 @@
 
 template <class TYPE> class SvcFactory;
 
-namespace HepMC {
-	class IO_GenEvent;
-}
+#include "AtlasHepMC/IO_GenEvent_fwd.h"
 
 
  /**

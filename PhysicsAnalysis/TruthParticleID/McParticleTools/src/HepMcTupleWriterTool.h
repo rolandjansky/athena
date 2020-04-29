@@ -27,7 +27,7 @@
 // Forward declaration
 class ITHistSvc;
 class TTree;
-namespace HepMC { class GenEvent; }
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 class HepMcTupleWriterTool : virtual public IIOHepMcTool,
 			             public AthAlgTool

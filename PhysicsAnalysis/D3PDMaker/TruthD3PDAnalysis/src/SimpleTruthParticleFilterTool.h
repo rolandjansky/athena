@@ -6,9 +6,7 @@
 #define TRUTHD3PDANALYSIS_SIMPLETRUTHPARTICLEFILTERTOOL_H
 
 #include "TruthD3PDAnalysis/TruthParticleFilterBase.h"
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace D3PD {
 
