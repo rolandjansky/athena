@@ -200,9 +200,11 @@ def MuonCombinedReconstructionCfg(flags):
     result.merge( MuonGeoModelCfg(flags) )
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    from TileGeoModel.TileGMConfig import TileGMCfg
+    result.merge( LArGMCfg(flags) )
 
-    import pdb ; pdb.set_trace()
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    result.merge( TileGMCfg(flags) )
+
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
 
