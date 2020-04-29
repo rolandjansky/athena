@@ -539,10 +539,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
     double columnWidth=p_design.widthFromColumnRange(pixel_i.etaIndex(),pixel_i.etaIndex());
 
 
-    if (fabs(columnWidth-0.6)<1e-9){scale_i = 4./6.; scale_f_e = 4./6.; scale_f_h = 4./6.;}
-    else if (fabs(columnWidth-0.45)<1e-9){scale_i = 25./45.; scale_f_e = 25./45.; scale_f_h = 25./45.;}
-    else if (fabs(columnWidth-0.05)<1e-9){scale_i = 1.; scale_f_e = 1.; scale_f_h = 1.;}
-    else if (fabs(columnWidth-0.5)<1e-9){scale_i = 25./50.; scale_f_e = 25./50.; scale_f_h = 25./50.;}
+    if (std::abs(columnWidth-0.6)<1e-9){scale_i = 4./6.; scale_f_e = 4./6.; scale_f_h = 4./6.;}
+    else if (std::abs(columnWidth-0.45)<1e-9){scale_i = 25./45.; scale_f_e = 25./45.; scale_f_h = 25./45.;}
+    else if (std::abs(columnWidth-0.05)<1e-9){scale_i = 1.; scale_f_e = 1.; scale_f_h = 1.;}
+    else if (std::abs(columnWidth-0.5)<1e-9){scale_i = 25./50.; scale_f_e = 25./50.; scale_f_h = 25./50.;}
 
     //Loop over charge-carrier pairs
     for(int j=0 ; j<ncharges ; j++) {
@@ -558,7 +558,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         int nbin_z_e_ybin = distanceMap_e[Layer]->GetYaxis()->FindBin(drifttime_e);
         if (nbin_z_e_ybin >  numBins_driftTime_e  ) nbin_z_e_ybin = numBins_driftTime_e;
         double depth_f_e = distanceMap_e[Layer]->GetBinContent( nbin_z_e_xbin,nbin_z_e_ybin );
-        double dz_e = fabs(dist_electrode - depth_f_e); 
+        double dz_e = std::abs(dist_electrode - depth_f_e); 
 
         //TODO: the holes map does not currently extend for a drift time long enough that, any hole will reach
         //the corresponding electrode. This needs to be rectified by either (a) extrapolating the current map or
@@ -569,7 +569,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         if (nbin_z_h_ybin >  numBins_driftTime_h  )
           nbin_z_h_ybin = numBins_driftTime_h;
         double depth_f_h = distanceMap_h[Layer]->GetBinContent( nbin_z_h_xbin,nbin_z_h_ybin );
-        double dz_h = fabs(depth_f_h - dist_electrode);           
+        double dz_h = std::abs(depth_f_h - dist_electrode);           
 
         //Apply drift due to Lorentz force and diffusion
         double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
@@ -579,7 +579,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         coLorentz=sqrt(1+pow(tanLorentz,2));
 
         //Apply diffusion. rdif is teh max. diffusion
-        double rdif_e=this->m_diffusionConstant*sqrt( fabs(dist_electrode - depth_f_e)*coLorentz/0.3);
+        double rdif_e=this->m_diffusionConstant*sqrt( std::abs(dist_electrode - depth_f_e)*coLorentz/0.3);
         double phi_f_e=phi_i + dz_e*tanLorentz + rdif_e*phiRand;
         double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
         double eta_f_e=eta_i + rdif_e*etaRand;
@@ -590,7 +590,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         tanLorentz = lorentzMap_h[Layer]->GetBinContent(nbin_Lorentz_h);       
         coLorentz=sqrt(1+pow(tanLorentz,2));
 
-        double rdif_h=this->m_diffusionConstant*sqrt( fabs(dist_electrode - depth_f_h)*coLorentz/0.3);
+        double rdif_h=this->m_diffusionConstant*sqrt( std::abs(dist_electrode - depth_f_h)*coLorentz/0.3);
 
         double phi_f_h=phi_i + dz_h*tanLorentz + rdif_h*phiRand;
         etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
@@ -628,10 +628,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
             dEta_i_e*=scale_i;
 
-            int nbin_ramo_i_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( fabs( dPhi_i_e )*1000. );
-            int nbin_ramo_i_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( fabs( dEta_i_e )*1000. );
+            int nbin_ramo_i_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( std::abs( dPhi_i_e )*1000. );
+            int nbin_ramo_i_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( std::abs( dEta_i_e )*1000. );
             int nbin_ramo_i_z = ramoPotentialMap[Layer]->GetZaxis()->FindBin( dist_electrode*1000 );
-            //int nbin_ramo_i = ramoPotentialMap[0]->FindBin( fabs( dEta_i_e )*1000. , fabs( dPhi_i_e )*1000., dist_electrode*1000);
+            //int nbin_ramo_i = ramoPotentialMap[0]->FindBin( std::abs( dEta_i_e )*1000. , std::abs( dPhi_i_e )*1000., dist_electrode*1000);
 
             //Boundary check on maps
             double ramo_i=0.;
@@ -651,10 +651,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
             dEta_f_e*=scale_f_e;
 
-            int nbin_ramo_f_e_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( fabs( dPhi_f_e )*1000. );
-            int nbin_ramo_f_e_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( fabs( dEta_f_e )*1000. );
+            int nbin_ramo_f_e_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( std::abs( dPhi_f_e )*1000. );
+            int nbin_ramo_f_e_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( std::abs( dEta_f_e )*1000. );
             int nbin_ramo_f_e_z = ramoPotentialMap[Layer]->GetZaxis()->FindBin( depth_f_e*1000 );
-            //int nbin_ramo_f_e = ramoPotentialMap[0]->FindBin( fabs( dEta_f_e )*1000. , fabs( dPhi_f_e )*1000., depth_f_e*1000);
+            //int nbin_ramo_f_e = ramoPotentialMap[0]->FindBin( std::abs( dEta_f_e )*1000. , std::abs( dPhi_f_e )*1000., depth_f_e*1000);
             double ramo_f_e=0.;
             if( nbin_ramo_f_e_x <= numBins_weightingPotential_x && nbin_ramo_f_e_y <= numBins_weightingPotential_y && nbin_ramo_f_e_z <=numBins_weightingPotential_z ){
               ramo_f_e =ramoPotentialMap[Layer]->GetBinContent( nbin_ramo_f_e_x,nbin_ramo_f_e_y,nbin_ramo_f_e_z );
@@ -665,10 +665,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
             dEta_f_h*=scale_f_h;
 
-            int nbin_ramo_f_h_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( fabs( dPhi_f_h )*1000. );
-            int nbin_ramo_f_h_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( fabs( dEta_f_h )*1000. );
+            int nbin_ramo_f_h_x = ramoPotentialMap[Layer]->GetXaxis()->FindBin( std::abs( dPhi_f_h )*1000. );
+            int nbin_ramo_f_h_y = ramoPotentialMap[Layer]->GetYaxis()->FindBin( std::abs( dEta_f_h )*1000. );
             int nbin_ramo_f_h_z = ramoPotentialMap[Layer]->GetZaxis()->FindBin( depth_f_h*1000 );
-            //int nbin_ramo_f_h = ramoPotentialMap->FindBin( fabs( dEta_f_h )*1000. , fabs( dPhi_f_h )*1000., depth_f_h*1000);
+            //int nbin_ramo_f_h = ramoPotentialMap->FindBin( std::abs( dEta_f_h )*1000. , std::abs( dPhi_f_h )*1000., depth_f_h*1000);
             //Boundary check on maps
             double ramo_f_h=0.;
             if( nbin_ramo_f_h_x <= numBins_weightingPotential_x && nbin_ramo_f_h_y <= numBins_weightingPotential_y && nbin_ramo_f_h_z <=numBins_weightingPotential_z ){
@@ -678,8 +678,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
             //Account for the imperfect binning that would cause charge to be double-counted
             if(ramoPotentialMap[Layer]->GetZaxis()->FindBin(depth_f_h*1000) == ramoPotentialMap[Layer]->GetNbinsZ()+1) ramo_f_h=0;//this means the hole has reached the back end  
             if(ramoPotentialMap[Layer]->GetZaxis()->FindBin(depth_f_e*1000) ==  1){
-              if( fabs(dEta_f_e)>=Module.etaPitch()/2.  || fabs(dPhi_f_e)>=Module.phiPitch()/2. ) ramo_f_e=0;
-              else if (fabs(dEta_f_e)<Module.etaPitch()/2.  && fabs(dPhi_f_e)<Module.phiPitch()/2.  ) ramo_f_e=1.;
+              if( std::abs(dEta_f_e)>=Module.etaPitch()/2.  || std::abs(dPhi_f_e)>=Module.phiPitch()/2. ) ramo_f_e=0;
+              else if (std::abs(dEta_f_e)<Module.etaPitch()/2.  && std::abs(dPhi_f_e)<Module.phiPitch()/2.  ) ramo_f_e=1.;
             }
 
 
@@ -783,8 +783,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
 StatusCode SensorSimPlanarTool::applySlimEdges( double &energy_per_step, double &eta_drifted){
 
-        if(fabs(eta_drifted) > 20.440)energy_per_step=0.;
-        if(fabs(eta_drifted)< 20.440 && fabs(eta_drifted)> 20.200){
+        if(std::abs(eta_drifted) > 20.440)energy_per_step=0.;
+        if(std::abs(eta_drifted)< 20.440 && std::abs(eta_drifted)> 20.200){
           if(eta_drifted>0){
             energy_per_step=energy_per_step*(68.13-eta_drifted*3.333);            
             eta_drifted = eta_drifted - 0.250;
@@ -793,7 +793,7 @@ StatusCode SensorSimPlanarTool::applySlimEdges( double &energy_per_step, double 
             eta_drifted = eta_drifted + 0.250;
           }  
         }
-        if(fabs(eta_drifted)< 20.200 && fabs(eta_drifted)> 20.100){
+        if(std::abs(eta_drifted)< 20.200 && std::abs(eta_drifted)> 20.100){
           if(eta_drifted>0){
             energy_per_step=energy_per_step*(41.2-eta_drifted*2.);             
             eta_drifted = eta_drifted - 0.250;
