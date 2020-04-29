@@ -26,11 +26,7 @@ Abstract base class for TruthParameters AlgTool
 
 class PerigeeParameters;
 class TrackParameters;
-namespace HepMC
-{
-    class GenParticle;
-}
-
+#include "AtlasHepMC/GenParticle_fwd.h"
 class ITruthParameters: virtual public IAlgTool
 {
 public:

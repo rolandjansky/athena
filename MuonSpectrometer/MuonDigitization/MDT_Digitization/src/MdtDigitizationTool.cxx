@@ -50,7 +50,7 @@
 
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h" 
+#include "AtlasHepMC/GenParticle.h" 
 
 //Random Numbers
 #include "AthenaKernel/RNGWrapper.h"

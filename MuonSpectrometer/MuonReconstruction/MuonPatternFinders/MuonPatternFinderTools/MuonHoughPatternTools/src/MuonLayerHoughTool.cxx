@@ -11,7 +11,7 @@
 #include "MuonPattern/MuonPatternChamberIntersect.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
 #include "CxxUtils/sincos.h"
 #include "xAODTruth/TruthParticle.h"

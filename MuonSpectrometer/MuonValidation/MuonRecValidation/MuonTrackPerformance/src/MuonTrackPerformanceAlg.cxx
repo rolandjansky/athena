@@ -6,8 +6,8 @@
 
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonSegment/MuonSegment.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include <iostream>
 #include <fstream>

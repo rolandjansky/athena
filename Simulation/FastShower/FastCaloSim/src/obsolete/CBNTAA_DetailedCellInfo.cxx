@@ -39,7 +39,7 @@
 
 #include "TruthHelper/GenAll.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "GaudiKernel/IPartPropSvc.h"
 #include "HepPDT/ParticleData.hh"

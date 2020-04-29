@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/NavFourMom
                           GaudiKernel
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           PhysicsAnalysis/TruthParticleID/McParticleAlgs
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
                           PhysicsAnalysis/TruthParticleID/McParticleKernel
@@ -21,15 +22,14 @@ atlas_depends_on_subdirs( PRIVATE
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( McParticleTests
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps StoreGateLib SGtests EventKernel NavFourMom GaudiKernel GeneratorObjects McParticleEvent McParticleKernel McParticleUtils )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps StoreGateLib SGtests EventKernel NavFourMom GaudiKernel GeneratorObjects McParticleEvent McParticleKernel McParticleUtils )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

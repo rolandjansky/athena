@@ -5,7 +5,7 @@
 #include "TrackParticleTruthAssociationTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 #include "ParticleTruth/TrackParticleTruthCollection.h"

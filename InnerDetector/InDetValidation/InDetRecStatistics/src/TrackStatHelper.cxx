@@ -25,7 +25,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "TrkTruthData/TrackTruth.h"
 #include "TrkTruthData/TrackTruthCollection.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 #include <iostream>
 #include <sstream>
 #include <vector>

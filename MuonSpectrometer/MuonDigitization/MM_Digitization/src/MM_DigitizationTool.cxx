@@ -60,7 +60,7 @@
 //Truth
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"

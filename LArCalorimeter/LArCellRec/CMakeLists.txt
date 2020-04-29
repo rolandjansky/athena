@@ -37,11 +37,11 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArCabling
                           LArCalorimeter/LArCOOLConditions
                           Trigger/TrigT1/TrigT1CaloCalibConditions
-                          Trigger/TrigT1/TrigT1CaloCondSvc )
+                          Trigger/TrigT1/TrigT1CaloCondSvc 
+                          Generators/AtlasHepMC )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( TBB )
 
@@ -49,8 +49,8 @@ find_package( TBB )
 atlas_add_component( LArCellRec
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} CaloConditions CaloDetDescrLib CaloEvent CaloIdentifier CaloRecLib CaloUtilsLib AthAllocators AthenaBaseComps AthenaKernel StoreGateLib SGtests AtlasDetDescr Identifier GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCOOLConditions LArSimEvent CaloTriggerToolLib AthenaPoolUtilities xAODEventInfo xAODTrigL1Calo GeneratorObjects LArRecEvent LArCablingLib TrigT1CaloCalibConditions TrigT1CaloCondSvcLib )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${TBB_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${TBB_LIBRARIES} CaloConditions CaloDetDescrLib CaloEvent CaloIdentifier CaloRecLib CaloUtilsLib AthAllocators AthenaBaseComps AthenaKernel StoreGateLib SGtests AtlasDetDescr Identifier GaudiKernel LArIdentifier LArRawEvent LArRecConditions LArCOOLConditions LArSimEvent CaloTriggerToolLib AthenaPoolUtilities xAODEventInfo xAODTrigL1Calo GeneratorObjects LArRecEvent LArCablingLib TrigT1CaloCalibConditions TrigT1CaloCondSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -10,9 +10,7 @@
 #define TRK_TRKTRUTHTRACKS_PRD_TRUTHTRAJECTORY_H 1
 
 
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace Trk {
     

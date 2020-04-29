@@ -23,9 +23,9 @@
 #include "VP1Utils/VP1JobConfigInfo.h"
 #include "VP1Utils/VP1ParticleData.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "TrackRecord/TrackRecordCollection.h"
