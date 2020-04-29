@@ -16,7 +16,7 @@
 /********************************************************************/
 TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   TauRecToolBase(name) {
-  declareProperty("calibrationFile", m_calibrationFile = "EnergyCalibrationLC2012.root");
+  declareProperty("calibrationFile", m_calibrationFile = "");
   declareProperty("doEnergyCorrection", m_doEnergyCorr = false);
   declareProperty("doPtResponse", m_doPtResponse = false);
   declareProperty("countOnlyPileupVertices", m_countOnlyPileupVertices = false);
