@@ -33,8 +33,8 @@ public:
 private:
     /** @brief function used to calculate BDT score */
     float calculateScore(const xAOD::PFO* neutralPFO);
-    
-    Gaudi::Property<std::string> m_weightfile {this, "BDTWeightFile"};
+
+    std::string m_weightfile;    
     std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;
 };
 
