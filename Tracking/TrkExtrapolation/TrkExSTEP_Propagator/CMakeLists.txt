@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
-                          MagneticField/MagFieldInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkMaterialOnTrack

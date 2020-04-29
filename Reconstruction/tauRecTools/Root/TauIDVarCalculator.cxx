@@ -21,7 +21,10 @@ using Gaudi::Units::GeV;
 const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
-  TauRecToolBase(name) {
+  TauRecToolBase(name),
+  m_incShowerSubtr(true)
+{
+  declareProperty("IncShowerSubtr", m_incShowerSubtr);
 }
 
 StatusCode TauIDVarCalculator::initialize()
@@ -122,15 +125,11 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   float eHadAtEMScaleFixed = 0;
   float eHad1AtEMScaleFixed = 0;
 
-  xAOD::JetConstituentVector vec = jetSeed->getConstituents();
-  xAOD::JetConstituentVector::iterator it = vec.begin();
-  xAOD::JetConstituentVector::iterator itE = vec.end();
-  for( ; it!=itE; ++it){
+  // Loop through jets, get links to clusters
+  std::vector<const xAOD::CaloCluster*> clusterList;
+  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr));
 
-    const xAOD::CaloCluster* cl = nullptr;
-    ATH_CHECK(tauRecTools::GetJetConstCluster(it, cl));
-    // Skip if charged PFO
-    if (!cl){ continue; }
+  for( auto cl : clusterList){
     
     // Only take clusters with dR<0.2 w.r.t IntermediateAxis
     if( p4IntAxis.DeltaR(cl->p4(xAOD::CaloCluster::UNCALIBRATED)) > 0.2 ) continue;

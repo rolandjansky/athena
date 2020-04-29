@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASTOOLS_G4FieldManagerToolBase_H
@@ -15,7 +15,11 @@
 #include "G4AtlasInterfaces/IFieldManagerTool.h"
 #include "G4AtlasInterfaces/IG4FieldSvc.h"
 
+// Geant4 includes
+#include "G4Version.hh"
+
 // Forward declarations
+class G4VIntegrationDriver;
 class G4MagIntegratorStepper;
 
 
@@ -42,9 +46,17 @@ class G4FieldManagerToolBase : public extends<AthAlgTool, IFieldManagerTool>
 
   protected:
 
+#if G4VERSION_NUMBER >= 1040
+    /// Common method to construct a driver with a stepper of requested type.
+    G4VIntegrationDriver*
+    createDriverAndStepper(std::string stepperType, G4MagneticField* field) const;
+#endif
+
+#if G4VERSION_NUMBER < 1040
     /// Common method to construct a stepper of requested type.
     G4MagIntegratorStepper*
     getStepper(std::string stepperType, G4MagneticField* field) const;
+#endif
 
     /// Common method to apply configuredfield parameters
     StatusCode setFieldParameters(G4FieldManager* fieldMgr) const;
@@ -70,6 +82,7 @@ class G4FieldManagerToolBase : public extends<AthAlgTool, IFieldManagerTool>
     double m_deltaOneStep;
     double m_deltaIntersection;
     double m_maxStep;
+    double m_minStep;
     /// @}
 
 };

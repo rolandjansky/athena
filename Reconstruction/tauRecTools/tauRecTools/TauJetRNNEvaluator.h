@@ -66,6 +66,8 @@ private:
     Gaudi::Property<std::string> m_output_layer {this, "OutputLayer", "rnnid_output"};
     Gaudi::Property<std::string> m_output_node {this, "OutputNode", "sig_prob"};
 
+    Gaudi::Property<bool> m_incShowerSubtr {this, "IncShowerSubtr", true, "use shower subtracted clusters in calo calculations"};
+
     // Wrappers for lwtnn
     std::unique_ptr<TauJetRNN> m_net_0p; //!
     std::unique_ptr<TauJetRNN> m_net_1p; //!
