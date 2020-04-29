@@ -298,23 +298,18 @@ def iPatFitterCfg(flags, name='iPatFitter', **kwargs):
     kwargs.setdefault("MaterialAllocator",result.popPrivateTools() )
     # if TriggerFlags.MuonSlice.doTrigMuonConfig:
     #     kwargs.setdefault("MaxIterations", 15)
+    acc = MuonCombinedTrackSummaryToolCfg(flags)
+    kwargs.setdefault("TrackSummaryTool", acc.getPrimary() )
+    result.merge(acc)
+
     tool = CompFactory.Trk.iPatFitter(name,**kwargs)
     result.setPrivateTools(tool)
     return result 
 
 def iPatSLFitterCfg(flags, name='iPatSLFitter', **kwargs): 
-    kwargs.setdefault("AggregateMaterial",True)
     kwargs.setdefault("LineFit",True)
-    kwargs.setdefault("FullCombinedFit", True )
-    result = MuidMaterialAllocatorCfg(flags)
-    kwargs.setdefault("MaterialAllocator",result.popPrivateTools() )
     kwargs.setdefault("LineMomentum", flags.Muon.straightLineFitMomentum )
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     kwargs.setdefault("MaxIterations", 15)
-    tool = CompFactory.Trk.iPatFitter(name,**kwargs)
-    result.setPrivateTools(tool)
-    return result
-
+    return iPatFitterCfg(flags, **kwargs)
 
 # track cleaner configured to use the same fitter
 def MuidTrackCleanerCfg(flags, name='MuidTrackCleaner', **kwargs ):
@@ -466,12 +461,12 @@ def MuidSegmentRegionRecoveryToolCfg(flags, name ='MuidSegmentRegionRecoveryTool
     return result
 
 
-def MuidErrorOptimisationToolCfg(flags, name='CombinedMuonTrackBuilderFit', **kwargs ):
+def MuidErrorOptimisationToolCfg(flags, name='MuidErrorOptimisationToolFit', **kwargs ):
     result = MuonCombinedTrackSummaryToolCfg(flags)
     kwargs.setdefault("TrackSummaryTool",  result.popPrivateTools() )
     return result
 
-def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilderFit', **kwargs ):
+def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs ):
     from AthenaCommon.SystemOfUnits import meter
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
     from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
@@ -482,12 +477,21 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilderFit', **kwa
     acc = MuidCaloTrackStateOnSurfaceCfg(flags)
     kwargs.setdefault("CaloTSOS"                      , acc.popPrivateTools() )
     result.merge(acc)
+    acc = MuidTrackCleanerCfg(flags)
+    kwargs.setdefault("Cleaner"                      , acc.popPrivateTools() )
+    result.merge(acc)
+
     if flags.Detector.GeometryCSC:
         acc = CscClusterOnTrackCreatorCfg(flags)
         kwargs.setdefault("CscRotCreator"                 , acc.popPrivateTools() )
         result.merge(acc)
     else:
         kwargs.setdefault("CscRotCreator"                 , "")
+
+    acc = AtlasExtrapolatorCfg(flags)
+    kwargs.setdefault("Extrapolator", acc.getPrimary() )
+    result.merge(acc)
+
     acc = iPatFitterCfg(flags)
     ipatFitter = acc.popPrivateTools() # possibly used again below
     kwargs.setdefault("Fitter"      , ipatFitter )
