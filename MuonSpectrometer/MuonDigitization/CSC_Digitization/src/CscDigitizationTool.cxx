@@ -7,7 +7,7 @@
 // Digitization algorithm for the CSC hits
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
 #include "StoreGate/StoreGate.h"

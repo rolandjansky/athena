@@ -14,9 +14,9 @@
 #include "McParticleEvent/TruthEtIsolationsContainer.h"
 #include "McParticleKernel/ITruthIsolationTool.h"
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "boost/range/iterator_range_core.hpp"
 #include <utility>
 

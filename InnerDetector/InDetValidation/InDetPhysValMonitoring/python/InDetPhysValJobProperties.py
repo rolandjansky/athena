@@ -85,6 +85,11 @@ class doExpertOutput(InDetPhysValFlagsJobProperty) :
     allowedTypes = ['bool']
     StoredValue  = False
 
+class setTruthStrategy(InDetPhysValFlagsJobProperty) :
+    statusOn     = True
+    allowedTypes = ['string']
+    StoredValue  = 'HardScatter'
+
 from InDetRecExample.InDetJobProperties import Enabled
 
 ##-----------------------------------------------------------------------------
@@ -146,7 +151,8 @@ _list_InDetPhysValJobProperties = [
     doValidateTracksInJets,
     validateExtraTrackCollections,
     doPhysValOutput,
-    doExpertOutput
+    doExpertOutput,
+    setTruthStrategy
 ]
 
 for j in _list_InDetPhysValJobProperties:

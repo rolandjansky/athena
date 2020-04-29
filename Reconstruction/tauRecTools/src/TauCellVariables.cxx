@@ -87,7 +87,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     double HadRadius = 0.;
 
     std::vector<double> vCellRingEnergy(8,0.); //size=8, init with 0.
-
+    
     ATH_MSG_VERBOSE("cluster position is eta=" << pTau.eta() << " phi=" << pTau.phi() );
 
     const xAOD::Jet* pJetSeed = (*pTau.jetLink());
@@ -96,21 +96,15 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
       return StatusCode::FAILURE;
     }
 
-    xAOD::JetConstituentVector::const_iterator cItr = pJetSeed->getConstituents().begin();
-    xAOD::JetConstituentVector::const_iterator cItrE = pJetSeed->getConstituents().end();
+    // Loop through jets, get links to clusters
+    std::vector<const xAOD::CaloCluster*> clusterList;
+    ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr));
 
     int numCells = 0;
     std::bitset<200000> cellSeen;
 
-    // loop over all cells of the tau 
-    double cellEta, cellPhi, cellET, cellEnergy;
-    for (; cItr != cItrE; ++cItr) {
-      
-      const xAOD::CaloCluster *cluster = nullptr;
-      ATH_CHECK(tauRecTools::GetJetConstCluster(cItr, cluster));
-      // Skip if charged PFO
-      if (!cluster){ continue; }      
-      
+    // loop through all clusters
+    for (auto cluster : clusterList){
       CaloClusterCellLink::const_iterator firstcell = cluster->getCellLinks()->begin();
       CaloClusterCellLink::const_iterator lastcell = cluster->getCellLinks()->end();
       
@@ -119,7 +113,8 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
     
       //loop over cells and calculate the variables
       for (; firstcell != lastcell; ++firstcell) {
-        ++numCells;
+	double cellEta, cellPhi, cellET, cellEnergy;
+	++numCells;
         
         cell = *firstcell;
         if (cellSeen.test(cell->caloDDE()->calo_hash())) continue;

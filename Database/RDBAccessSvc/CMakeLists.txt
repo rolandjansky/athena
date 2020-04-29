@@ -42,7 +42,7 @@ atlas_add_executable( geomdb2sqlite
 atlas_add_executable( geomdb2oracle
                       replicator/geomdb2oracle.cpp
                       INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${CORAL_LIBRARIES} RDBAccessSvcLib )
+                      LINK_LIBRARIES ${CORAL_LIBRARIES} RDBAccessSvcLib CxxUtils )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

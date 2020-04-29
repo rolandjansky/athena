@@ -26,8 +26,8 @@
 // Forward declarations
 class McEventCollection;
 class TruthEtIsolations;
-namespace HepMC { class GenEvent; }
-namespace HepMC { class GenParticle;  }
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 class TruthIsolationTool : virtual public ITruthIsolationTool,
                                    public AthAlgTool

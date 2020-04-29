@@ -19,10 +19,8 @@
 
 class Jet;
 
-namespace HepMC{
-  class GenParticle;
-  class GenEvent;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 namespace  Analysis{
   class SoftLeptonTruthInfo;

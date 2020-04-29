@@ -60,7 +60,7 @@
 //Truth
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -91,7 +91,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   
   // Services
   m_storeGateService("StoreGateSvc", name),
-  m_magFieldSvc("AtlasFieldSvc",name) ,
   m_mergeSvc(nullptr),
   m_rndmSvc("AtRndmGenSvc", name ),
   m_rndmEngine(nullptr),
@@ -171,7 +170,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   declareInterface<IMuonDigitizationTool>(this);
   
   declareProperty("MCStore",             m_storeGateService);
-  declareProperty("MagFieldSvc",         m_magFieldSvc,        "Magnetic Field Service");
   declareProperty("RndmSvc",             m_rndmSvc,            "Random Number Service used in Muon digitization");
   declareProperty("RndmEngine",          m_rndmEngineName,     "Random engine name");
   
@@ -229,7 +227,6 @@ StatusCode MM_DigitizationTool::initialize() {
 	ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
 	ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName      );
 	ATH_MSG_DEBUG ( "MCStore                " << m_storeGateService    );
-	ATH_MSG_DEBUG ( "MagFieldSvc            " << m_magFieldSvc         );
 	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
 	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
 	ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key());
@@ -258,9 +255,6 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	ATH_CHECK(m_idHelperSvc.retrieve());
 
-	// Magnetic field service
-	ATH_CHECK( m_magFieldSvc.retrieve() );
-
 	// Digit tools
 	ATH_CHECK( m_digitTool.retrieve() );
 
@@ -283,6 +277,8 @@ StatusCode MM_DigitizationTool::initialize() {
     ATH_CHECK(m_outputDigitCollectionKey.initialize());
     ATH_CHECK(m_outputSDO_CollectionKey.initialize());
     ATH_MSG_DEBUG("Output Digits: '"<<m_outputDigitCollectionKey.key()<<"'");
+
+    ATH_CHECK(m_fieldCondObjInputKey.initialize());
 
 	//simulation identifier helper
 	m_muonHelper = MicromegasHitIdHelper::GetHelper();
@@ -952,11 +948,20 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
         if(m_writeOutputFile) m_ntuple->Fill();
         continue;
       }
-      
+
+      MagField::AtlasFieldCache fieldCache;
+      SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+      const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+      if (!fieldCondObj) {
+        ATH_MSG_ERROR("doDigitization: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+        return StatusCode::FAILURE;
+      }
+      fieldCondObj->getInitializedCache(fieldCache);
+
       // Obtain Magnetic Field At Detector Surface
       Amg::Vector3D hitOnSurfaceGlobal = surf.transform()*hitOnSurface;
       Amg::Vector3D magneticField;
-      m_magFieldSvc->getField(&hitOnSurfaceGlobal, &magneticField);
+      fieldCache.getField(hitOnSurfaceGlobal.data(), magneticField.data());
       
       // B-field in local cordinate, X ~ #strip, increasing to outer R, Z ~ global Z but positive to IP
       Amg::Vector3D localMagneticField = surf.transform().inverse()*magneticField

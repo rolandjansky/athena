@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SiliconHVCondAlg.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-
-#include "GaudiKernel/EventIDRange.h"
 
 #include <memory>
 
@@ -61,14 +59,8 @@ StatusCode SCT_SiliconHVCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeHV;
-  if (not readHandleHV.range(rangeHV)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleHV.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << rangeHV);
-
-  EventIDRange rangeW{rangeHV};
+  writeHandle.addDependency(readHandleHV);
+  ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << readHandleHV.getRange());
 
   if (m_useState.value()) {
     // Read Cond Handle (state)
@@ -78,19 +70,8 @@ StatusCode SCT_SiliconHVCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
     }
-    EventIDRange rangeState;
-    if (not readHandleState.range(rangeState)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleState.key());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Input is " << readHandleState.fullKey() << " with the range of " << rangeState);
-
-    // Combined the validity ranges of state and range
-    rangeW = EventIDRange::intersect(rangeState, rangeHV);
-    if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
-      ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
-      return StatusCode::FAILURE;
-    }
+    writeHandle.addDependency(readHandleState);
+    ATH_MSG_INFO("Input is " << readHandleState.fullKey() << " with the range of " << readHandleState.getRange());
   }
   
   // Construct the output Cond Object and fill it in
@@ -101,13 +82,13 @@ StatusCode SCT_SiliconHVCondAlg::execute(const EventContext& ctx) const {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

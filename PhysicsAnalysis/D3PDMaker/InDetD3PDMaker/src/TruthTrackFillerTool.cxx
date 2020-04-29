@@ -7,8 +7,8 @@
 #include "TruthTrackFillerTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 namespace D3PD {
 

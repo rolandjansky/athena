@@ -46,35 +46,7 @@ if InDetFlags.doForwardTracks():
                                                              TrackParticles            = InDetKeys.ResolvedForwardTrackParticles(),
                                                              TrackParticlesTruth       = InDetKeys.ResolvedForwardTrackParticlesTruth())
 
-# ------------------------------------------------------------
-#
-# --- do we write Vertices and TrackParticles for all?
-#
-# ------------------------------------------------------------
-if InDetFlags.AODall():
 
-  if InDetFlags.doiPatRec():
-    #
-    # --- IPatRec post processing
-    #
-    InDetPriVtxPartCreation = ConfiguredPriVtxAndPartCreation (extension                 = "IPat",
-                                                               InputTrackCollection      = InDetKeys.IPatConvertedTracks(),
-                                                               InputTrackCollectionTruth = InDetKeys.IPatConvertedTracksTruth(),
-                                                               VxCandidates              = InDetKeys.IPatPrimaryVertices(),
-                                                               TrackParticles            = InDetKeys.IPatParticles(),
-                                                               TrackParticlesTruth       = InDetKeys.IPatParticlesTruth())
-
-  if InDetFlags.doxKalman():
-    #
-    # --- IPatRec post processing
-    #
-    InDetPriVtxPartCreation = ConfiguredPriVtxAndPartCreation (extension                 = "XKal",
-                                                               InputTrackCollection      = InDetKeys.XKalConvertedTracks(),
-                                                               InputTrackCollectionTruth = InDetKeys.XKalConvertedTracksTruth(),
-                                                               VxCandidates              = InDetKeys.XKalPrimaryVertices(),
-                                                               TrackParticles            = InDetKeys.XKalParticles(),
-                                                               TrackParticlesTruth       = InDetKeys.XKalParticlesTruth())
-          
 # ------------------------------------------------------------
 #
 #  --- now load primary vertex setup with no beamconstraint and in split mode for enhanced monitoring

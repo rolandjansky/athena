@@ -16,10 +16,9 @@
 #include "FastShowerConfigStruct.h"
 
 // Forward declarations
-namespace HepMC {
-  class GenEvent;
-  class IO_GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/IO_GenEvent_fwd.h"
+
 class IFastSimDedicatedSD;
 class ILArG4ShowerLibSvc;
 

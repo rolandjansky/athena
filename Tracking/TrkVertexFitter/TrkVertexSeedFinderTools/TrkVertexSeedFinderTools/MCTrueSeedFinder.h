@@ -12,10 +12,8 @@
 
 class IPartPropSvc;
 
-namespace HepMC {
-class GenEvent;
-class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 namespace Trk
 {

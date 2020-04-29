@@ -11,7 +11,7 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <bitset>
 

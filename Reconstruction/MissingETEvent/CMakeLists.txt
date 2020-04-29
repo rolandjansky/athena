@@ -38,6 +38,6 @@ atlas_add_library( MissingETEvent
 atlas_add_dictionary( MissingETEventDict
                       MissingETEvent/MissingETEventDict.h
                       MissingETEvent/selection.xml
-                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib CaloEvent CaloGeoHelpers AthContainers Navigation EventKernel NavFourMom GaudiKernel CxxUtils TruthHelper MissingETEvent )
 

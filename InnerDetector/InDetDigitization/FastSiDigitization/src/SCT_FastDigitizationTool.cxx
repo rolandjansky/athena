@@ -36,7 +36,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // CLHEP
 #include "CLHEP/Random/RandomEngine.h"

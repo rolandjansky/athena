@@ -19,7 +19,7 @@
 
 
 #include "TH1.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 //FPTracker
 #include "FPTracker/Particle.h"

@@ -2,6 +2,8 @@
 #include "../JetRecAlg.h"
 #include "../JetViewAlg.h"
 #include "../PseudoJetAlgorithm.h"
+#include "../JetTrimming.h"
+
 #include "JetRec/JetToolRunner.h"
 #include "JetRec/JetRecTool.h"
 #include "JetRec/JetDumper.h"
@@ -54,3 +56,4 @@ DECLARE_COMPONENT( JetRecAlg )
 DECLARE_COMPONENT( JetViewAlg )
 DECLARE_COMPONENT( PseudoJetAlgorithm )
 
+DECLARE_COMPONENT( JetTrimming )

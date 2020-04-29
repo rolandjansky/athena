@@ -21,8 +21,8 @@
 
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
