@@ -797,71 +797,11 @@ class IPatPrimaryVertices(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'IPatVxPrimaryCandidate'
 
-class IPatParticles(JobProperty):
-    """StoreGate key for IPatTrackParticles"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'IPatTrackParticleCandidate'
-
-class IPatParticlesTruth(JobProperty):
-    """StoreGate key for IPatTrackParticlesTruth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'IPatTrackParticleTruthCollection'
-
-class IPatConvertedTracks(JobProperty):
-    """StoreGate key for converted IPatRec Tracks"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedIPatTracks'
-
-class IPatConvertedTracksTruth(JobProperty):
-    """StoreGate key for converted IPatRec Tracks truth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedIPatTracksTruth'
-
-class IPatConvertedTracksDetailedTruth(JobProperty):
-    """StoreGate key for converted IPatRec Tracks detailed truth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedIPatTracksDetailedTruth'
-
 class XKalPrimaryVertices(JobProperty):
     """StoreGate key for XKalPrimaryVertices"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'XKalVxPrimaryCandidate'
-
-class XKalParticles(JobProperty):
-    """StoreGate key for XKalTrackParticles"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'XKalTrackParticleCandidate'
-
-class XKalParticlesTruth(JobProperty):
-    """StoreGate key for XKalTrackParticlesTruth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'XKalTrackParticleTruthCollection'
-
-class XKalConvertedTracks(JobProperty):
-    """StoreGate key for converted XKalman Tracks"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedXKalmanTracks'
-
-class XKalConvertedTracksTruth(JobProperty):
-    """StoreGate key for converted XKalman Tracks truth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedXKalmanTracksTruth'
-
-class XKalConvertedTracksDetailedTruth(JobProperty):
-    """StoreGate key for converted XKalman Tracks detailed truth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedXKalmanTracksDetailedTruth'
 
 class V0Candidates(JobProperty):
     """StoreGate key for V0 candidates"""
@@ -1209,17 +1149,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(PrimaryVerticesSplitStream)
 jobproperties.InDetContainerKeys.add_JobProperty(TrackParticles)
 jobproperties.InDetContainerKeys.add_JobProperty(TrackParticlesTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(IPatPrimaryVertices)
-jobproperties.InDetContainerKeys.add_JobProperty(IPatParticles)
-jobproperties.InDetContainerKeys.add_JobProperty(IPatParticlesTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(IPatConvertedTracks)
-jobproperties.InDetContainerKeys.add_JobProperty(IPatConvertedTracksTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(IPatConvertedTracksDetailedTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(XKalPrimaryVertices)
-jobproperties.InDetContainerKeys.add_JobProperty(XKalParticles)
-jobproperties.InDetContainerKeys.add_JobProperty(XKalParticlesTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(XKalConvertedTracks)
-jobproperties.InDetContainerKeys.add_JobProperty(XKalConvertedTracksTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(XKalConvertedTracksDetailedTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(V0Candidates)
 jobproperties.InDetContainerKeys.add_JobProperty(SimpleV0Candidates)
 jobproperties.InDetContainerKeys.add_JobProperty(SecVertices)
