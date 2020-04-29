@@ -168,8 +168,10 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseLowLevelMuonFeatures(const xAOD::Mu
 		for (size_t nSeg=0; nSeg<muon->nMuonSegments();nSeg++) {
 			MSLumiBlockNumberOfSegments  = lumiBlockID;
 			fill(tool, MSLumiBlockNumberOfSegments);
-
 			const xAOD::MuonSegment* muonSegment = muon->muonSegment(nSeg);
+                        if (!muonSegment) {
+                           continue;
+                        }
 			MSLargeSectorR 	= sqrt(muonSegment->x()*muonSegment->x() + muonSegment->y()*muonSegment->y());
 			MSLargeSectorZ	= muonSegment->z();
 			MSSmallSectorR 	= sqrt(muonSegment->x()*muonSegment->x() + muonSegment->y()*muonSegment->y());
@@ -222,6 +224,9 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 			/// Provide Segment and Sector Plots
 			for (size_t nSeg=0; nSeg<muon->nMuonSegments();nSeg++) {
 				const xAOD::MuonSegment* muonSegment = muon->muonSegment(nSeg);
+                                if (!muonSegment) {
+                                   continue;
+                                }
 				CBMuonSector	= muonSegment->sector();
 				CBMuonCIndex	= muonSegment->chamberIndex();
 				fill(tool, CBMuonSector,CBMuonCIndex);
