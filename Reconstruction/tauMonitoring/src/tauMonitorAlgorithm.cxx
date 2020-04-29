@@ -46,7 +46,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     const int lowerEtThreshold = 15;
     const int higherEtThreshold = 75;
 
-
     auto tool = getGroup(m_kinGroupName);
     auto tauEta = Monitored::Scalar<float>("tauEta",0.0);
     auto tauPhi = Monitored::Scalar<float>("tauPhi",0.0);
@@ -75,8 +74,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto nClusters = Monitored::Scalar<int>("nClusters",0.0);
     auto nClustersEt15BDTLoose = Monitored::Scalar<int>("nClustersEt15BDTLoose",0.0);
 
-
-
     auto tauEtBDTLoose = Monitored::Scalar<float>("tauEtBDTLoose",0.0);
     auto tauEtaBDTLoose = Monitored::Scalar<float>("tauEtaBDTLoose",0.0);
     auto tauPhiBDTLoose = Monitored::Scalar<float>("tauPhiBDTLoose",0.0);
@@ -87,12 +84,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto tauPhiBDTMedium = Monitored::Scalar<float>("tauPhiBDTMedium",0.0);
     auto NumTracksBDTMedium = Monitored::Scalar<float>("NumTracksBDTMedium",0.0);
 
-
-
-
-
-
-
     auto LB = Monitored::Scalar<int>("LB",0.0);
 
     auto EMRadius = Monitored::Scalar<float>("EMRadius",0.0);
@@ -101,9 +92,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto stripWidth2 = Monitored::Scalar<float>("stripWidth2",0.0);
     auto nStrip = Monitored::Scalar<float>("nStrip",0.0);
     auto etEMAtEMScale = Monitored::Scalar<float>("etEMAtEMScale",0.0);
-    //auto etEMCalib = Monitored::Scalar<float>("etEMCalib",0.0);
-    //auto etHadCalib= Monitored::Scalar<float>("etHadCalib",0.0);
-
 
     auto etHadAtEMScale = Monitored::Scalar<float>("etHadAtEMScale",0.0);
     auto centFrac = Monitored::Scalar<float>("centFrac",0.0);
@@ -124,11 +112,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto tauBDTLoose = Monitored::Scalar<float>("tauBDTLoose",0.0);
     auto tauBDTMedium = Monitored::Scalar<float>("tauBDTMedium",0.0);
     auto tauBDTTight = Monitored::Scalar<float>("tauBDTTight",0.0);
-
-
-
-
-
 
     auto hadLeakFracFixed = Monitored::Scalar<float>("hadLeakFracFixed",0.0);
     auto PSSFrac = Monitored::Scalar<float>("PSSFrac",0.0);
@@ -216,8 +199,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         nStrip = tau->detail<int>(xAOD::TauJetParameters::nStrip) ;
         etEMAtEMScale = tau->detail<float>(xAOD::TauJetParameters::etEMAtEMScale);
         etHadAtEMScale = tau->detail<float>(xAOD::TauJetParameters::etHadAtEMScale);
-        //etEMCalib  = tau->detail<float>(xAOD::TauJetParameters::etEMCalib) / GeV;
-        //etHadCalib = tau->detail<float>(xAOD::TauJetParameters::etHadCalib) / GeV;
 
         centFrac = tau->detail<float>(xAOD::TauJetParameters::centFrac) ;
         jetSeedEta = tau->etaJetSeed(); 
@@ -239,8 +220,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         tauBDTLoose  =       tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
         tauBDTMedium =       tau->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
         tauBDTTight  =       tau->isTau(xAOD::TauJetParameters::JetBDTSigTight);
-
-
 
         dRmax           =    tau->detail<float>(xAOD::TauJetParameters::dRmax);
         EMPOverTrkSysP  =    tau->detail<float>(xAOD::TauJetParameters::EMPOverTrkSysP);
@@ -418,7 +397,6 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                             etaTrack = perigee.eta();
                             ptTrack = perigee.pT()/GeV;
 
-                            //z0 missing
                             fill(tool
                             ,d0
                             ,z0
