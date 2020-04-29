@@ -49,8 +49,8 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
                               MNBLooseFEBDefStr=""):
 
     # first configure known bad FEBs
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior:
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg():
        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
        cfg=ComponentAccumulator()
        from LArBadChannelTool.LArBadFebsConfig import LArKnownBadFebCfg, LArKnownMNBFebCfg
@@ -105,7 +105,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
          "L1_XE70"
     ]
     doTrigger=False
-    if Configurable.configurableRun3Behavior:
+    if isRun3Cfg():
       if inputFlags.Trigger.doHLT or LArNoisyROMonForceTrigger:
         doTrigger=True
     else:    
@@ -262,7 +262,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
 
     pass
 
-    if Configurable.configurableRun3Behavior:
+    if isRun3Cfg():
        cfg.merge(helper.result())
        return cfg
     

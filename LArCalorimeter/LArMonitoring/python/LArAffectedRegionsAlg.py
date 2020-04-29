@@ -35,8 +35,8 @@ def LArAffectedRegionsConfigCore(helper, algoinstance, inputFlags):
     # Edit properties of a algorithm
     larAffectedRegAlg.AffectedRegionsGroupName=affectedRegGroupName
     isOnline=False
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior :
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg():
        if inputFlags.DQ.Environment == 'online':
           isOnline=True
     else:

@@ -40,8 +40,8 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
     larDigitMonAlg.LArDigitsNslots=nslots
 
     # adding BadChan masker private tool
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior :
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg() :
         from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
         cfg=ComponentAccumulator()
 
@@ -216,7 +216,7 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
     
 
 
-    if Configurable.configurableRun3Behavior :
+    if isRun3Cfg():
         cfg.merge(helper.result())
         return cfg
     else:    
