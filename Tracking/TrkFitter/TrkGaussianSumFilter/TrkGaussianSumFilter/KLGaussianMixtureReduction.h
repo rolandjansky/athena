@@ -44,9 +44,9 @@ constexpr int32_t alignment =32;
 */
 
 struct Component1D{
-  float mean=0.;
-  float cov=0.;
-  float invCov=1e10; 
+  double mean=0.;
+  double cov=0.;
+  double invCov=1e10; 
 };
 
 /**

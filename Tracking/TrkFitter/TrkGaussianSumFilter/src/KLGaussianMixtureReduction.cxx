@@ -294,10 +294,10 @@ recalculateDistances(const componentPtrRestrict componentsIn,
       distances[index] = std::numeric_limits<float>::max();
       continue;
     }
-    const float meanDifference = componentI.mean - componentJ.mean;
-    const float covarianceDifference = componentI.cov - componentJ.cov;
-    const float invertCovDiff = componentI.invCov - componentJ.invCov;
-    const float inverCovSum = componentI.invCov + componentJ.invCov;
+    const double meanDifference = componentI.mean - componentJ.mean;
+    const double covarianceDifference = componentI.cov - componentJ.cov;
+    const double invertCovDiff = componentI.invCov - componentJ.invCov;
+    const double inverCovSum = componentI.invCov + componentJ.invCov;
     distances[index] = covarianceDifference * invertCovDiff +
                        meanDifference * inverCovSum * meanDifference;
     if (distances[index] < minDistance) {
@@ -312,10 +312,10 @@ recalculateDistances(const componentPtrRestrict componentsIn,
       distances[index] = std::numeric_limits<float>::max();
       continue;
     }
-    const float meanDifference = componentI.mean - componentJ.mean;
-    const float covarianceDifference = componentI.cov - componentJ.cov;
-    const float invertCovDiff = componentI.invCov - componentJ.invCov;
-    const float inverCovSum = componentI.invCov + componentJ.invCov;
+    const double meanDifference = componentI.mean - componentJ.mean;
+    const double covarianceDifference = componentI.cov - componentJ.cov;
+    const double invertCovDiff = componentI.invCov - componentJ.invCov;
+    const double inverCovSum = componentI.invCov + componentJ.invCov;
     distances[index] = covarianceDifference * invertCovDiff +
                        meanDifference * inverCovSum * meanDifference;
     if (distances[index] < minDistance) {
@@ -340,12 +340,12 @@ calculateAllDistances(const componentPtrRestrict componentsIn,
   for (int32_t i = 0; i < n; ++i) {
     const int32_t indexConst = (i + 1) * i / 2;
     const Component1D componentI = components[i];
-    for (int j = 0; j < i; ++j) {
+    for (int32_t j = 0; j < i; ++j) {
       const Component1D componentJ = components[j];
-      const float meanDifference = componentI.mean - componentJ.mean;
-      const float covarianceDifference = componentI.cov - componentJ.cov;
-      const float invertCovDiff = componentI.invCov - componentJ.invCov;
-      const float inverCovSum = componentI.invCov + componentJ.invCov;
+      const double  meanDifference = componentI.mean - componentJ.mean;
+      const double covarianceDifference = componentI.cov - componentJ.cov;
+      const double invertCovDiff = componentI.invCov - componentJ.invCov;
+      const double inverCovSum = componentI.invCov + componentJ.invCov;
       distances[indexConst + j] = covarianceDifference * invertCovDiff +
                                   meanDifference * inverCovSum * meanDifference;
     }
