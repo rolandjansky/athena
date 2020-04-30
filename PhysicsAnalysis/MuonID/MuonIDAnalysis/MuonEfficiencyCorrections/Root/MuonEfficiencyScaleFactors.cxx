@@ -131,10 +131,7 @@ namespace CP {
         } else {
             ATH_MSG_INFO("JPsi based low pt SF will start to rock below " << m_lowpt_threshold / 1000. << " GeV!");
         }
-        //if (m_seperateSystBins){
-        //    ATH_MSG_WARNING("The uncorrelation of the systematic bins has been enabled. This feature is depreceated for now. Switch off again");
-        //    m_seperateSystBins = false;
-        //}
+       
         std::set<std::string> decorations{
             sf_decoration() ,
             data_effi_decoration(),
