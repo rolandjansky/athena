@@ -946,6 +946,51 @@ decay_events '''+run)
         mglog.info('LHE file zipped by MadGraph automatically. Nothing to do')
 
 
+def madspin_on_lhe(input_LHE,madspin_card,runArgs=None):
+    """ Run MadSpin on an input LHE file. Takes the process
+    from the LHE file, so you don't need to have a process directory
+    set up in advance. Runs MadSpin and packs the LHE file up appropriately
+    Needs runArgs for the file handling"""
+    if not os.access(input_LHE,os.R_OK):
+        raise RuntimeError('Could not find LHE file '+input_LHE)
+    if not os.access(madspin_card,os.R_OK):
+        raise RuntimeError('Could not find input MadSpin card '+madspin_card)
+    # Get the process out of the input LHE file
+    process = None
+    with open(input_LHE,'r') as input_LHE_file:
+        for line in input_LHE_file:
+            # Check if we've reached the process yet
+            if process is None and not '<MG5ProcCard>' in line:
+                continue
+            # Reached the point; setup
+            if '<MG5ProcCard>' in line:
+                process = ''
+                continue
+            # Watch for XML delimiters
+            if line.strip() in ['<![CDATA[',']]>']:
+                continue
+            # Stop at the end of the process
+            if '</MG5ProcCard>' in line:
+                break
+            # Now we are down to the actual process
+            # Only add the first process to the set
+            if line.startswith('add process'):
+                continue
+            # That's it -- keep the line!
+            process += line.strip()+'\n'
+    mglog.info('Identified process for adding MadSpin:')
+    mglog.info(process)
+    # Set up a new process directory from there
+    process_dir = new_process(process)
+    # Copy the input LHE file into the new area
+    os.mkdir(process_dir+'/Events/'+MADGRAPH_RUN_NAME)
+    shutil.copy(input_LHE,process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe')
+    # Now add MadSpin on top
+    add_madspin(madspin_card=madspin_card,process_dir=process_dir)
+    # Now gather the output for the transform
+    arrange_output(process_dir=process_dir,runArgs=runArgs)
+
+
 def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveProcDir=False,runArgs=None,fixEventWeightsForBridgeMode=False):
     if config_only_check():
         return
