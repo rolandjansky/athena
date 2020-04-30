@@ -181,4 +181,19 @@ inline std::ostream& operator << (std::ostream& os, const IdentifierHash& id)
   return os;
 }
 
+
+// Define a hash functional
+
+namespace std {
+template<>
+struct hash<IdentifierHash>
+{
+  size_t operator()(const IdentifierHash& id) const
+  {
+    return static_cast<size_t>(id.value());
+  }
+};
+}
+
+
 #endif // IDENTIFIER_IDENTIFIERHASH_H
