@@ -49,6 +49,9 @@ class MuonTrackMonitorAlgorithm : public AthMonitorAlgorithm
     StatusCode analyseJPsiCandidates(const xAOD::MuonContainer* Muons, int lumiBlockID) const;
 
     Gaudi::Property< std::vector<std::string> > m_hltchainList{ this, "HLTTriggerList", {"HLT_2mu14", "HLT_mu26_ivarmedium"}, "High-level triggers used" };
+
+    Gaudi::Property< float > m_CBmuons_minPt{ this, "CBmuons_minPt", 20000., "Minimal muon pt used for CB muons" };
+
     Gaudi::Property< float > m_ZBosonSelection_minPt{ this, "ZBosonSelection_minPt", 20000., "Minimal muon pt used for Z analysis" };
     Gaudi::Property< float > m_ZBosonSelection_maxEta{ this, "ZBosonSelection_maxEta", 2.5, "Maximal muon eta used for Z analysis" };
     Gaudi::Property< float > m_ZBosonSelection_trkIsolation{ this, "ZBosonSelection_trkIsolation", 0.2, "Track DeltaR isolation criteria" };

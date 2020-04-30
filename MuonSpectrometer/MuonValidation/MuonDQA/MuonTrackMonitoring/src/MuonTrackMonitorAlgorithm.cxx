@@ -5,19 +5,16 @@
 
 #include "MuonTrackMonitoring/MuonTrackMonitorAlgorithm.h"
 
-//========================================================================================================
 MuonTrackMonitorAlgorithm::MuonTrackMonitorAlgorithm (const std::string& name, ISvcLocator* pSvcLocator)
     :AthMonitorAlgorithm(name,pSvcLocator){}
 
 
-//========================================================================================================
 StatusCode MuonTrackMonitorAlgorithm::initialize()
 {
 	ATH_CHECK(m_MuonContainerKey.initialize());
 	return AthMonitorAlgorithm::initialize();
 }
 
-//========================================================================================================
 StatusCode MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifier, std::vector<const xAOD::Muon*>	&vecMuons) const 
 {
 	/// Declaring all variables that are initialized via Python will be plotted
@@ -111,35 +108,35 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseLowLevelMuonFeatures(const xAOD::Mu
 	using namespace Monitored;
 	/// Declaring all variables that are initialized via Python will be plotted
 	auto 	tool = getGroup("MuonTrackMonitorAlgorithm");
-	auto	MSAuthor 		= Monitored::Scalar<float>("MSAuthor", 0);
-	auto	MSQuality 		= Monitored::Scalar<float>("MSQuality", 0);
-	auto	MSType 			= Monitored::Scalar<float>("MSType", 0);
+	auto	MSAuthor = Monitored::Scalar<float>("MSAuthor", 0);
+	auto	MSQuality = Monitored::Scalar<float>("MSQuality", 0);
+	auto	MSType 	= Monitored::Scalar<float>("MSType", 0);
 	auto	MSLargeSectorR 	= Monitored::Scalar<float>("MSLargeSectorR", 0);
 	auto	MSLargeSectorZ 	= Monitored::Scalar<float>("MSLargeSectorZ", 0);
 	auto	MSSmallSectorR 	= Monitored::Scalar<float>("MSSmallSectorR", 0);
 	auto	MSSmallSectorZ 	= Monitored::Scalar<float>("MSSmallSectorZ", 0);
-	auto	MSEta 			= Monitored::Scalar<float>("MSEta", 0);
-	auto	MSPhi 			= Monitored::Scalar<float>("MSPhi", 0);
-	auto	MSPt 			= Monitored::Scalar<float>("MSPt", 0);
-	auto	NonCBMuonEta 	= Monitored::Scalar<float>("NonCBMuonEta", 0);	
-	auto	NonCBMuonPhi 	= Monitored::Scalar<float>("NonCBMuonPhi", 0);	
-	auto	CBMuonAuthor 	= Monitored::Scalar<float>("CBMuonAuthor", 0);	
-	auto	MSLumiBlockNumberOfMuonTracks 	= Monitored::Scalar<float>("MSLumiBlockNumberOfMuonTracks", 0);
-	auto	MSLumiBlockNumberOfSegments 	= Monitored::Scalar<float>("MSLumiBlockNumberOfSegments", 0);
+	auto	MSEta = Monitored::Scalar<float>("MSEta", 0);
+	auto	MSPhi = Monitored::Scalar<float>("MSPhi", 0);
+	auto	MSPt = Monitored::Scalar<float>("MSPt", 0);
+	auto	NonCBMuonEta = Monitored::Scalar<float>("NonCBMuonEta", 0);	
+	auto	NonCBMuonPhi = Monitored::Scalar<float>("NonCBMuonPhi", 0);	
+	auto	CBMuonAuthor = Monitored::Scalar<float>("CBMuonAuthor", 0);	
+	auto	MSLumiBlockNumberOfMuonTracks = Monitored::Scalar<float>("MSLumiBlockNumberOfMuonTracks", 0);
+	auto	MSLumiBlockNumberOfSegments = Monitored::Scalar<float>("MSLumiBlockNumberOfSegments", 0);
 
 	/// Loop over all muons
 	for(const auto& muon : *Muons) {
-		xAOD::Muon::Quality		muonQuality	=	muon->quality();
-		xAOD::Muon::MuonType	muonType	=	muon->muonType();
-		xAOD::Muon::Author		muonAuthor	=	muon->author();
+		xAOD::Muon::Quality muonQuality	= muon->quality();
+		xAOD::Muon::MuonType muonType =	muon->muonType();
+		xAOD::Muon::Author muonAuthor =	muon->author();
 
 		/// General Muon Control Plots
-		MSAuthor	= muonAuthor;
-		MSQuality	= muonQuality;
-		MSType		= muonType;
-		MSEta		= muon->eta();
-		MSPhi		= muon->phi();
-		MSPt 		= muon->pt();
+		MSAuthor = muonAuthor;
+		MSQuality = muonQuality;
+		MSType = muonType;
+		MSEta = muon->eta();
+		MSPhi = muon->phi();
+		MSPt = muon->pt();
 		MSLumiBlockNumberOfMuonTracks  = lumiBlockID;
 		fill(tool, MSAuthor, MSQuality, MSType, MSEta, MSPhi, MSPt, MSLumiBlockNumberOfMuonTracks);
 
@@ -178,27 +175,27 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 	using namespace Monitored;
 
 	/// Declaring all variables that are initialized via Python will be plotted
-	auto 	tool = getGroup("MuonTrackMonitorAlgorithm");
-	auto	CBMuonSector = Monitored::Scalar<float>("CBMuonSector", 0);	
-	auto	CBMuonCIndex = Monitored::Scalar<float>("CBMuonCIndex", 0);	
-	auto	CBMuonEta1Triggered = Monitored::Scalar<float>("CBMuonEta1Triggered", 0);	
-	auto	CBMuonPhi1Triggered = Monitored::Scalar<float>("CBMuonPhi1Triggered", 0);	
-	auto	CBMuonEta1All = Monitored::Scalar<float>("CBMuonEta1All", 0);	
-	auto	CBMuonPhi1All = Monitored::Scalar<float>("CBMuonPhi1All", 0);	
-	auto	CBMuonLumiBlock = Monitored::Scalar<float>("CBMuonLumiBlock", 0);	
+	auto tool = getGroup("MuonTrackMonitorAlgorithm");
+	auto CBMuonSector = Monitored::Scalar<float>("CBMuonSector", 0);	
+	auto CBMuonCIndex = Monitored::Scalar<float>("CBMuonCIndex", 0);	
+	auto CBMuonEta1Triggered = Monitored::Scalar<float>("CBMuonEta1Triggered", 0);	
+	auto CBMuonPhi1Triggered = Monitored::Scalar<float>("CBMuonPhi1Triggered", 0);	
+	auto CBMuonEta1All = Monitored::Scalar<float>("CBMuonEta1All", 0);	
+	auto CBMuonPhi1All = Monitored::Scalar<float>("CBMuonPhi1All", 0);	
+	auto CBMuonLumiBlock = Monitored::Scalar<float>("CBMuonLumiBlock", 0);	
 
 	/// Select Combined Muons
 	std::vector<const xAOD::Muon*>	vecCombinedMuonsHighPT;
 	std::vector<const xAOD::Muon*>	vecCombinedMuons;
 
 	for(const auto& muon : *Muons) {
-		xAOD::Muon::MuonType	muonType	=	muon->muonType();
+		xAOD::Muon::MuonType muonType = muon->muonType();
 		if (muonType==xAOD::Muon::Combined) {
 			CBMuonLumiBlock = lumiBlockID;
 			fill(tool, CBMuonLumiBlock);
 
 			vecCombinedMuons.push_back(muon);
-			if (muon->pt() > m_ZBosonSelection_minPt) vecCombinedMuonsHighPT.push_back(muon);
+			if (muon->pt() > m_CBmuons_minPt) vecCombinedMuonsHighPT.push_back(muon);
 
 			/// Provide Segment and Sector Plots
 			for (size_t nSeg=0; nSeg<muon->nMuonSegments();nSeg++) {
@@ -206,8 +203,8 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
                                 if (!muonSegment) {
                                    continue;
                                 }
-				CBMuonSector	= muonSegment->sector();
-				CBMuonCIndex	= muonSegment->chamberIndex();
+				CBMuonSector = muonSegment->sector();
+				CBMuonCIndex = muonSegment->chamberIndex();
 				fill(tool, CBMuonSector,CBMuonCIndex);
 			}
 		}
@@ -231,8 +228,8 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 		}
 
 		if (isTriggered) {
-			CBMuonEta1Triggered	= vecCombinedMuonsHighPT[0]->eta();
-			CBMuonPhi1Triggered	= vecCombinedMuonsHighPT[0]->phi();
+			CBMuonEta1Triggered = vecCombinedMuonsHighPT[0]->eta();
+			CBMuonPhi1Triggered = vecCombinedMuonsHighPT[0]->phi();
 			fill(tool, CBMuonEta1Triggered, CBMuonPhi1Triggered);
 		}
 	}
@@ -246,15 +243,15 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseZBosonCandidates(const xAOD::MuonCo
 	using namespace Monitored;
 
 	/// Declaring all variables that are initialized via Python will be plotted
-	auto 	tool = getGroup("MuonTrackMonitorAlgorithm");
-	auto	ZSector = Monitored::Scalar<float>("ZSector", 0);
-	auto	ZChamber = Monitored::Scalar<float>("ZChamber", 0);
-	auto	ZSectorEff = Monitored::Scalar<float>("ZSectorEff", 0);
-	auto	ZChamberEff = Monitored::Scalar<float>("ZChamberEff", 0);
-	auto	ZMass2D = Monitored::Scalar<float>("ZMass2D", 0);
-	auto	ZEta2D = Monitored::Scalar<float>("ZEta2D", 0);
-	auto	ZMass = Monitored::Scalar<float>("ZMass", 0);
-	auto	ZMuonLumiBlock = Monitored::Scalar<float>("ZMuonLumiBlock", 0);	
+	auto tool = getGroup("MuonTrackMonitorAlgorithm");
+	auto ZSector = Monitored::Scalar<float>("ZSector", 0);
+	auto ZChamber = Monitored::Scalar<float>("ZChamber", 0);
+	auto ZSectorEff = Monitored::Scalar<float>("ZSectorEff", 0);
+	auto ZChamberEff = Monitored::Scalar<float>("ZChamberEff", 0);
+	auto ZMass2D = Monitored::Scalar<float>("ZMass2D", 0);
+	auto ZEta2D = Monitored::Scalar<float>("ZEta2D", 0);
+	auto ZMass = Monitored::Scalar<float>("ZMass", 0);
+	auto ZMuonLumiBlock = Monitored::Scalar<float>("ZMuonLumiBlock", 0);	
 
 	std::vector<const xAOD::Muon*>	vecMuons_ZBoson;
 	std::vector<const xAOD::Muon*>	vecMuons_ZBoson_Candidates;
