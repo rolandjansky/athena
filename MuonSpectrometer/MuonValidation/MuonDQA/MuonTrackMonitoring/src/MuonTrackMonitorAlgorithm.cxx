@@ -5,29 +5,9 @@
 
 #include "MuonTrackMonitoring/MuonTrackMonitorAlgorithm.h"
 
-using namespace std;
 //========================================================================================================
 MuonTrackMonitorAlgorithm::MuonTrackMonitorAlgorithm (const std::string& name, ISvcLocator* pSvcLocator)
-	:AthMonitorAlgorithm(name,pSvcLocator)
-{
-	//	Declare the properties
-	declareProperty( "HLTTriggerList", m_hltchainList= {"HLT_2mu14", "HLT_mu26_ivarmedium"});
-	declareProperty("ZBosonSelection_minPt", 		m_ZBosonSelection_minPt = 20000.);
-	declareProperty("ZBosonSelection_maxEta", 		m_ZBosonSelection_maxEta = 2.5);
-	declareProperty("ZBosonSelection_trkIsolation", m_ZBosonSelection_trkIsolation = 0.2);
-	declareProperty("ZBosonSelection_D0Cut", 		m_ZBosonSelection_D0Cut = 100.);
-	declareProperty("ZBosonSelection_Z0Cut", 		m_ZBosonSelection_Z0Cut = 100.);
-	declareProperty("ZBosonSelection_minMass", 		m_ZBosonSelection_minMass = 76000.);
-	declareProperty("ZBosonSelection_maxMass", 		m_ZBosonSelection_maxMass = 106000.);
-
-	declareProperty("JPsiSelection_minPt", 			m_JPsiSelection_minPt = 4000.);
-	declareProperty("JPsiSelection_maxEta", 		m_JPsiSelection_maxEta = 2.5);
-	declareProperty("JPsiSelection_trkIsolation", 	m_JPsiSelection_trkIsolation = 1.0);
-	declareProperty("JPsiSelection_D0Cut", 			m_JPsiSelection_D0Cut = 100.);
-	declareProperty("JPsiSelection_Z0Cut", 			m_JPsiSelection_Z0Cut = 100.);
-	declareProperty("JPsiSelection_minMass", 		m_JPsiSelection_minMass = 2600.);
-	declareProperty("JPsiSelection_maxMass", 		m_JPsiSelection_maxMass = 3600.);
-}
+    :AthMonitorAlgorithm(name,pSvcLocator){}
 
 
 //========================================================================================================
@@ -38,7 +18,7 @@ StatusCode MuonTrackMonitorAlgorithm::initialize()
 }
 
 //========================================================================================================
-StatusCode	MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifier, std::vector<const xAOD::Muon*>	&vecMuons) const 
+StatusCode MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifier, std::vector<const xAOD::Muon*>	&vecMuons) const 
 {
 	/// Declaring all variables that are initialized via Python will be plotted
 	using namespace Monitored;
@@ -62,18 +42,18 @@ StatusCode	MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifie
 
 	/// Loop over all Muons
 	for(unsigned int n=0; n<vecMuons.size(); n++) {
-		const xAOD::Muon*	muon = vecMuons[n];
-		xAOD::Muon::MuonType	muonType	=	muon->muonType();
-		xAOD::Muon::Quality		muonQuality	=	muon->quality();
+		const xAOD::Muon* muon = vecMuons[n];
+		xAOD::Muon::MuonType muonType = muon->muonType();
+		xAOD::Muon::Quality muonQuality	= muon->quality();
 
 		if (muonType==xAOD::Muon::Combined) {
-			const xAOD::TrackParticle *cbtp=0;
-			const xAOD::TrackParticle *idtp=0;
-			const xAOD::TrackParticle *mstp=0;
+			const xAOD::TrackParticle *cbtp = nullptr;
+			const xAOD::TrackParticle *idtp = nullptr;
+			const xAOD::TrackParticle *mstp = nullptr;
 
 			ElementLink<xAOD::TrackParticleContainer> cbtpLink = muon->combinedTrackParticleLink();
 			if (cbtpLink.isValid()) cbtp = *cbtpLink;
-			if (cbtp != NULL) {
+			if (cbtp) {
 				uint8_t hitval_numberOfBLayerHits, hitval_numberOfPixelHits, hitval_numberOfSCTHits, hitval_numberOfTRTHits;
 				//	uint8_t hitval_innerSmallHits, hitval_innerLargeHits, hitval_middleSmallHits, hitval_middleLargeHits, hitval_outerSmallHits, hitval_outerLargeHits;
 				cbtp->summaryValue(hitval_numberOfBLayerHits,	xAOD::SummaryType::numberOfInnermostPixelLayerHits);
@@ -113,7 +93,7 @@ StatusCode	MuonTrackMonitorAlgorithm::FillMuonInformation(std::string sIdentifie
 				ElementLink<xAOD::TrackParticleContainer> mstpLink = muon->muonSpectrometerTrackParticleLink();
 				if (idtpLink.isValid()) idtp = *idtpLink;
 				if (mstpLink.isValid()) mstp = *mstpLink;
-				if ((idtp != NULL) && (mstp != NULL)) {
+				if (idtp && mstp) {
 					MuonDPTIDME 	= (idtp->pt() - mstp->pt()) / idtp->pt();
 					MuonsIDChi2NDF 	= idtp->chiSquared()/idtp->numberDoF();
 					MuonsMEChi2NDF 	= mstp->chiSquared()/mstp->numberDoF();	
@@ -218,7 +198,7 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseCombinedTracks(const xAOD::MuonCont
 			fill(tool, CBMuonLumiBlock);
 
 			vecCombinedMuons.push_back(muon);
-			if (muon->pt()>20000.) vecCombinedMuonsHighPT.push_back(muon);
+			if (muon->pt() > m_ZBosonSelection_minPt) vecCombinedMuonsHighPT.push_back(muon);
 
 			/// Provide Segment and Sector Plots
 			for (size_t nSeg=0; nSeg<muon->nMuonSegments();nSeg++) {
@@ -281,22 +261,22 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseZBosonCandidates(const xAOD::MuonCo
 	
 	/// Select Muons Relevant for Z
 	for(const auto& muon : *Muons) {
-		xAOD::Muon::MuonType	muonType	=	muon->muonType();
+		xAOD::Muon::MuonType muonType = muon->muonType();
 		if (muonType==xAOD::Muon::Combined) {
-			const xAOD::TrackParticle *cbtp=0;
+			const xAOD::TrackParticle *cbtp = nullptr;
 			ElementLink<xAOD::TrackParticleContainer> cbtpLink = muon->combinedTrackParticleLink();
 			if (cbtpLink.isValid()) cbtp = *cbtpLink;
 
 			/// Select Z Boson
-			if (cbtp != NULL) {
+			if (cbtp) {
 				float trkiso  = muon->isolation(xAOD::Iso::ptcone30)/muon->pt();
 				if (muonType==xAOD::Muon::Combined &&
-					cbtp!=NULL &&
+					cbtp &&
 					muon->pt()>m_ZBosonSelection_minPt &&
-					fabs(muon->eta())<m_ZBosonSelection_maxEta &&
+					std::abs(muon->eta())<m_ZBosonSelection_maxEta &&
 					trkiso<m_ZBosonSelection_trkIsolation &&
-					fabs(cbtp->z0())<m_ZBosonSelection_Z0Cut &&
-					fabs(cbtp->d0())<m_ZBosonSelection_D0Cut )
+					std::abs(cbtp->z0())<m_ZBosonSelection_Z0Cut &&
+					std::abs(cbtp->d0())<m_ZBosonSelection_D0Cut )
 						vecMuons_ZBoson_Candidates.push_back(muon);
 			}
 		}
@@ -362,20 +342,20 @@ StatusCode	MuonTrackMonitorAlgorithm::analyseJPsiCandidates(const xAOD::MuonCont
 	for(const auto& muon : *Muons) {
 		xAOD::Muon::MuonType	muonType	=	muon->muonType();
 		if (muonType==xAOD::Muon::Combined) {
-			const xAOD::TrackParticle *cbtp=0;
+			const xAOD::TrackParticle *cbtp = nullptr;
 			ElementLink<xAOD::TrackParticleContainer> cbtpLink = muon->combinedTrackParticleLink();
 			if (cbtpLink.isValid()) cbtp = *cbtpLink;
 
 			/// Do Combined Muon Plots
-			if (cbtp != NULL) {
+			if (cbtp) {
 				float trkiso  = muon->isolation(xAOD::Iso::ptcone30)/muon->pt();
 				if (muonType==xAOD::Muon::Combined &&
-					cbtp!=NULL &&
+					cbtp &&
 					muon->pt()>m_JPsiSelection_minPt &&
-					fabs(muon->eta())<m_JPsiSelection_maxEta &&
+					std::abs(muon->eta())<m_JPsiSelection_maxEta &&
 					trkiso<m_JPsiSelection_trkIsolation &&
-					fabs(cbtp->z0())<m_JPsiSelection_Z0Cut &&
-					fabs(cbtp->d0())<m_JPsiSelection_D0Cut )
+					std::abs(cbtp->z0())<m_JPsiSelection_Z0Cut &&
+					std::abs(cbtp->d0())<m_JPsiSelection_D0Cut )
 						vecMuons_JPsi_Candidates.push_back(muon);
 			}
 		}
@@ -427,11 +407,11 @@ StatusCode MuonTrackMonitorAlgorithm::fillHistograms(const EventContext& ctx) co
 	auto run = Monitored::Scalar<int>("run", 0);
 	run = GetEventInfo(ctx)->runNumber();
 	
-	const xAOD::EventInfo* eventInfo=nullptr;
+	const xAOD::EventInfo* eventInfo = nullptr;
 	ATH_CHECK(evtStore()->retrieve(eventInfo));
 	int lumiBlockID = (int)eventInfo->lumiBlock();
 
-	const xAOD::MuonContainer* Muons=nullptr;
+	const xAOD::MuonContainer* Muons = nullptr;
 	ATH_CHECK(evtStore()->retrieve(Muons, "Muons"));
 
 	ATH_CHECK( analyseLowLevelMuonFeatures(Muons, lumiBlockID) );
