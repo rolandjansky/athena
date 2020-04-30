@@ -9,8 +9,8 @@
 
 #include "GaudiKernel/IPartPropSvc.h"
 
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"

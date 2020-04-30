@@ -14,9 +14,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-namespace HepMC {
-class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace Rec {
 class TrackParticle;

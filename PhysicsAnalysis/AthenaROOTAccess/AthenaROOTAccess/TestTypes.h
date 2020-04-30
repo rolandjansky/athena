@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthenaROOTAccess/TestTypes.h
  * @author scott snyder <snyder@bnl.gov>
@@ -79,7 +78,6 @@ struct H
 };
 
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 struct G
   : virtual public E, virtual public F, public H
 {
@@ -101,27 +99,6 @@ struct G
 
   int g;
 };
-#else
-struct G
-  : virtual public E/*, virtual public F*/, public H
-{
-  G(int x) : D(x), E(x+10)/*, F(x+20)*/, H(x+40), g(x+30) {}
-
-  // Avoid gcc4.8 warning
-  G(const G& other) : D(other), E(other), H(other), g(other.g) {}
-  G(G&& other) : D(other), E(other), H(other), g(other.g) {}
-  G& operator= (const G& other)
-  { if (this != &other) { x = other.x; e = other.e; g = other.g; h = other.h; }
-    return *this;
-  }
-  G& operator= (G&& other)
-  { if (this != &other) { x = other.x; e = other.e; g = other.g; h = other.h; }
-    return *this;
-  }
-
-  int g;
-};
-#endif
 
 
 } // namespace ARATest
@@ -131,11 +108,7 @@ DATAVECTOR_BASE (ARATest::C, ARATest::A);
 
 DATAVECTOR_VIRTBASES1 (ARATest::E, ARATest::D);
 DATAVECTOR_VIRTBASES1 (ARATest::F, ARATest::D);
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 DATAVECTOR_VIRTBASES2 (ARATest::G, ARATest::E, ARATest::F);
-#else
-DATAVECTOR_VIRTBASES1 (ARATest::G, ARATest::E);
-#endif
 
 SG_ADD_BASE (ARATest::G, ARATest::H);
 

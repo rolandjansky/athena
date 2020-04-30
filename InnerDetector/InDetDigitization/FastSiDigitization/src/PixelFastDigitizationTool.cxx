@@ -45,7 +45,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 //Package For New Tracking:
 // Amg includes

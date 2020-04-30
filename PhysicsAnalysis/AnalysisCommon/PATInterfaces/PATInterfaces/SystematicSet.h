@@ -42,11 +42,7 @@ namespace CP
     SystematicSet(const std::vector<SystematicVariation>& systematics);
 
     /// construct with an std::initializer_list
-    #ifndef __CINT__
-    #if __cplusplus >= 201100
     SystematicSet(const std::initializer_list<SystematicVariation>& systematics);
-    #endif
-    #endif
 
   public:
     // Public set-interface methods
@@ -195,13 +191,11 @@ namespace CP
 namespace std
 {
   /// Specialization of std::hash for std::unordered_map
-  #if __cplusplus >= 201100
   template<> struct hash<CP::SystematicSet>
   {
     std::size_t operator()(const CP::SystematicSet& sysSet) const
     { return sysSet.hash(); }
   };
-  #endif
 }
 
 #endif

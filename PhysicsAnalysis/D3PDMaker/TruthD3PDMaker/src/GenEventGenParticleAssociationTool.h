@@ -18,8 +18,8 @@
 
 
 #include "D3PDMakerUtils/MultiAssociationTool.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 
 namespace D3PD {

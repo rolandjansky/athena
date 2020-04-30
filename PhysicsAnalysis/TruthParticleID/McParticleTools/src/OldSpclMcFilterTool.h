@@ -25,7 +25,7 @@ namespace TruthHelper{
      class GenAccessIO;
 }
 
-namespace HepMC { class GenEvent; }
+#include "AtlasHepMC/GenEvent_fwd.h"
 class IMcVtxFilterTool;
 
 class OldSpclMcFilterTool : public TruthParticleFilterBaseTool

@@ -5,7 +5,7 @@
 #include "GenParticlePerigeeFillerTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 
 namespace D3PD {

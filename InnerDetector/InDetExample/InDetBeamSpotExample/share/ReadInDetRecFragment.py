@@ -213,8 +213,6 @@ InDetFlags.preProcessing      = redoPatternRecoAndTracking
 InDetFlags.doPRDFormation        = False                       # those two will be (later) automatically false if
 InDetFlags.doSpacePointFormation = redoPatternRecoAndTracking  # preProcessing is false
 InDetFlags.doNewTracking      = redoPatternRecoAndTracking
-InDetFlags.doiPatRec          = False
-InDetFlags.doxKalman          = False
 InDetFlags.doLowPt            = jobConfig['doLowPt']
 if jobConfig['doRobustReco']:
     try:

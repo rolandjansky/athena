@@ -31,7 +31,7 @@ atlas_add_library( ISF_Geant4Event
                    PUBLIC_HEADERS ISF_Geant4Event
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
+                    ${GEANT4_INCLUDE_DIRS}
                    ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES}
                    ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib
@@ -40,7 +40,7 @@ atlas_add_library( ISF_Geant4Event
 
 #atlas_add_test(SOURCES
 #               INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-#              ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+#               ${EIGEN_INCLUDE_DIRS}
 #               LINK_LIBRARIES
 #              ${CLHEP_LIBRARIES} AtlasHepMCLib
 #               ${EIGEN_LIBRARIES} ISF_Event SimHelpers GeoPrimitives

@@ -21,9 +21,7 @@
 
 class AtlasDetectorID;
 
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
   
 namespace Trk {
     

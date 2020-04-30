@@ -34,8 +34,8 @@
 #include "xAODTruth/TruthParticle.h"
 
 // --- HepMC Includes ---
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 #include <cmath>

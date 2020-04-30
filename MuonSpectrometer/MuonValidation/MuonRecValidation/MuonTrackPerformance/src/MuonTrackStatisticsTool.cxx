@@ -11,7 +11,7 @@
 #include "MuonTrackPerformance/MuonTrackStatisticsTool.h"
 
 #include "TString.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 

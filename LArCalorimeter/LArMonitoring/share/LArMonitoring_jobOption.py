@@ -3,19 +3,24 @@ include.block("LArMonitoring/LArMonitoring_jobOption.py")
 
 #Create the set of flags
 from AthenaMonitoring.DQMonFlags import DQMonFlags
+from AthenaCommon.GlobalFlags import globalflags
 
 #Add colltime algo to sequence
 
 from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
 BunchCrossingCondAlgDefault()
-from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
-topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
+
+if DQMonFlags.monManEnvironment() == 'tier0ESD':
+   from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfigOld
+   topSequence +=LArCollisionTimeMonConfigOld(DQMonFlags)
+   if globalflags.DataSource()=='data':
+      from LArMonitoring.LArAffectedRegionsAlg import LArAffectedRegionsConfigOld
+      topSequence +=LArAffectedRegionsConfigOld(DQMonFlags)
 
 if DQMonFlags.monManEnvironment() == 'tier0Raw':
     from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfigOld
     topSequence += LArNoisyROMonConfigOld(DQMonFlags)
 
-from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource == 'data':
     from LArMonitoring.LArHVCorrMonAlg import LArHVCorrMonConfigOld
     topSequence += LArHVCorrMonConfigOld(DQMonFlags)

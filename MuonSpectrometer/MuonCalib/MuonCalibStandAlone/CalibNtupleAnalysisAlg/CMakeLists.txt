@@ -11,7 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DataQuality/GoodRunsLists
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
                           MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibData
                           MuonSpectrometer/MuonCalib/MuonCalibStandAlone/MdtCalibIOSvc
                           MuonSpectrometer/MuonCalib/MuonCalibStandAlone/MuonCalibStandAloneBase
@@ -41,19 +42,19 @@ atlas_add_library( CalibNtupleAnalysisAlgLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MagFieldInterfaces MdtCalibData GoodRunsListsLib MdtCalibIOSvcLib MuonCalibStandAloneBaseLib MuonIdHelpersLib StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MagFieldElements MagFieldConditions MdtCalibData GoodRunsListsLib MdtCalibIOSvcLib MuonCalibStandAloneBaseLib MuonIdHelpersLib StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} EventInfo MdtCalibFitters MdtCalibRt MuonCalibEventBase MuonCalibITools MuonCalibIdentifier CalibNtupleReader MuonReadoutGeometry )
 
 atlas_add_component( CalibNtupleAnalysisAlg
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GoodRunsListsLib GeoPrimitives GaudiKernel MagFieldInterfaces MdtCalibData MdtCalibIOSvcLib MuonCalibStandAloneBaseLib MuonIdHelpersLib StoreGateLib SGtests EventInfo MdtCalibFitters MdtCalibRt MuonCalibEventBase MuonCalibITools MuonCalibIdentifier CalibNtupleReader MuonReadoutGeometry CalibNtupleAnalysisAlgLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GoodRunsListsLib GeoPrimitives GaudiKernel MagFieldElements MagFieldConditions MdtCalibData MdtCalibIOSvcLib MuonCalibStandAloneBaseLib MuonIdHelpersLib StoreGateLib SGtests EventInfo MdtCalibFitters MdtCalibRt MuonCalibEventBase MuonCalibITools MuonCalibIdentifier CalibNtupleReader MuonReadoutGeometry CalibNtupleAnalysisAlgLib )
 
 atlas_add_dictionary( CalibNtupleAnalysisAlgDict
                       CalibNtupleAnalysisAlg/GeoDraw.h
                       CalibNtupleAnalysisAlg/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GoodRunsListsLib GeoPrimitives GaudiKernel MagFieldInterfaces MdtCalibData MdtCalibIOSvcLib MuonCalibStandAloneBaseLib MuonIdHelpersLib StoreGateLib SGtests EventInfo MdtCalibFitters MdtCalibRt MuonCalibEventBase MuonCalibITools MuonCalibIdentifier CalibNtupleReader MuonReadoutGeometry CalibNtupleAnalysisAlgLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GoodRunsListsLib GeoPrimitives GaudiKernel MagFieldElements MagFieldConditions MdtCalibData MdtCalibIOSvcLib MuonCalibStandAloneBaseLib MuonIdHelpersLib StoreGateLib SGtests EventInfo MdtCalibFitters MdtCalibRt MuonCalibEventBase MuonCalibITools MuonCalibIdentifier CalibNtupleReader MuonReadoutGeometry CalibNtupleAnalysisAlgLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py OST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -40,7 +40,7 @@ Function particleGamma returns the value of gamma factor for Qball particle.
 #include <iostream>
 
 // SB
-#include "HepMC/GenParticle.h" 
+#include "AtlasHepMC/GenParticle.h" 
 //
 
 double particleGamma_PileUp(const MDTSimHit& hit){

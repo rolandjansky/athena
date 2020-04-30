@@ -57,10 +57,10 @@ def MagneticFieldSvcCfg(flags, **kwargs):
       afcArgs.update( UseDCS = False )
       afcArgs.update( UseSoleCurrent = 7730 )
       afcArgs.update( UseToroCurrent = 20400 )
+      afcArgs.update( LockMapCurrents = True )
     else:
       afcArgs.update( UseDCS = True )
       afcArgs.update( UseNewBfieldCache = True )
-    
     if 'UseDCS' in kwargs:
       afcArgs['UseDCS'] = kwargs['UseDCS']
     mag_field_cache_cond_alg = CompFactory.MagField.AtlasFieldCacheCondAlg(**afcArgs) 

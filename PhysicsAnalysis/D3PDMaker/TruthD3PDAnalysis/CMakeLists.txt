@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODMuon
                           Generators/GenAnalysisTools/TruthHelper
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           PhysicsAnalysis/AnalysisCommon/ParticleJetTools
                           PhysicsAnalysis/MCTruthClassifier
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
@@ -30,21 +31,20 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( HepMC )
 find_package( HepPDT )
 
 # Component(s) in the package:
 atlas_add_library( TruthD3PDAnalysisLib
                    src/*.cxx
                    PUBLIC_HEADERS TruthD3PDAnalysis
-                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} 
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel D3PDMakerUtils McParticleKernel StoreGateLib SGtests ParticleJetToolsLib MCTruthClassifierLib MCTruthClassifierLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaKernel EventKernel xAODEgamma xAODJet xAODMuon TruthHelper GeneratorObjects McParticleEvent Particle ParticleTruth TrkParticleBase VxVertex )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} AtlasHepMCLib AthenaKernel EventKernel xAODEgamma xAODJet xAODMuon TruthHelper GeneratorObjects McParticleEvent Particle ParticleTruth TrkParticleBase VxVertex )
 
 atlas_add_component( TruthD3PDAnalysis
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel D3PDMakerUtils McParticleKernel AthenaKernel StoreGateLib SGtests EventKernel xAODEgamma xAODJet xAODMuon TruthHelper GeneratorObjects ParticleJetToolsLib MCTruthClassifierLib McParticleEvent Particle ParticleTruth TrkParticleBase VxVertex TruthD3PDAnalysisLib MCTruthClassifierLib )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel D3PDMakerUtils McParticleKernel AthenaKernel StoreGateLib SGtests EventKernel xAODEgamma xAODJet xAODMuon TruthHelper GeneratorObjects ParticleJetToolsLib MCTruthClassifierLib McParticleEvent Particle ParticleTruth TrkParticleBase VxVertex TruthD3PDAnalysisLib MCTruthClassifierLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

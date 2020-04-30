@@ -23,7 +23,7 @@
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"

@@ -8,8 +8,8 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "TrkToolInterfaces/ITruthTrajectoryBuilder.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrkTruthData/TruthTrajectory.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"

@@ -7,8 +7,8 @@
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetCollection.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsGenNonInteracting.h"

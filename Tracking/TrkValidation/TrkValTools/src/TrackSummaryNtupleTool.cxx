@@ -20,7 +20,7 @@
 #include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
 //Truth
 #include "TrkTruthData/TrackTruth.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 
 // constructor

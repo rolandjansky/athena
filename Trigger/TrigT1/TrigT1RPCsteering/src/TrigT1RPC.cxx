@@ -5,7 +5,7 @@
 #include "TrigT1RPCsteering/TrigT1RPC.h"
 
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 

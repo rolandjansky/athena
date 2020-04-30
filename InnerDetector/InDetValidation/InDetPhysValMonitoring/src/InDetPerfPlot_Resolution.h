@@ -23,7 +23,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetPlotBase.h"
-#include "GetMeanWidth.h"
+#include "InDetPhysValMonitoring/ResolutionHelper.h"
 
 #include "TFitResultPtr.h"
 #include "TFitResult.h"
@@ -69,8 +69,8 @@ private:
    
   std::string m_paramProp[NPARAMS] = { "d0", "z0", "ptqopt", "theta", "phi", "pt", "z0sin" }; 
  
-  IDPVM::GetMeanWidth m_getMeanWidth;
-  IDPVM::GetMeanWidth::methods m_meanWidthMethod;
+  IDPVM::ResolutionHelper m_resolutionHelper;
+  IDPVM::ResolutionHelper::methods m_resolutionMethod;
   
   bool m_primTrk;
   bool m_secdTrk;
@@ -79,17 +79,11 @@ private:
   void initializePlots();
   void finalizePlots();
 
-  void makeResolutions(TH2* h, TH1* h1, TH1* h2, TH1* h3[], bool s);
-  void makeResolutions(TH2* h, TH1* h1, TH1* h2);
 
-  void makeResolutions(TH3* h, TH1* h2[][m_nResHist], TH1* h3[][m_nResHist]);
-  void getMeanWidthResultsModUnits(TH1* p_input_hist, std::vector<float>& p_result,
-				   IDPVM::GetMeanWidth::methods p_method);
   void getTrackParameters(const xAOD::TruthParticle& truthprt);
   void getTrackParameters(const xAOD::TrackParticle& truthprt);
   void getPlotParameters();
   void getPlots();
-  void cloneHistogram(TH1D* h, TH1* hcopy);
 
   float m_trkP[NPARAMS];
   float m_truetrkP[NPARAMS];

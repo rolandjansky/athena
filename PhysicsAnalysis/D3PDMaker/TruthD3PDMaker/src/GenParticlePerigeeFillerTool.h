@@ -6,7 +6,7 @@
 #define TRACKD3PDMAKER_GENPARTICLEPERIGEEFILLERTOOL_H
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 

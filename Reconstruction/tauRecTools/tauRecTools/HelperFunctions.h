@@ -1,4 +1,4 @@
-/*
+#/*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -20,8 +20,8 @@
 namespace tauRecTools
 {
 
-  const StatusCode GetJetConstCluster(xAOD::JetConstituentVector::iterator it, const xAOD::CaloCluster* &cluster);
-  
+  const StatusCode GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted);
+
   xAOD::TauTrack::TrackFlagType isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag);
   bool sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, const ElementLink<xAOD::TauTrackContainer> &l2);
 

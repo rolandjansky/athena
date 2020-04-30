@@ -28,8 +28,8 @@ Modified :
 
 # include "CLHEP/Units/SystemOfUnits.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

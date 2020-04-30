@@ -17,9 +17,7 @@
 //#include "TrkValEvent/GenParticleJet.h"
 #include "GaudiKernel/IAlgTool.h"
 
-namespace HepMC {
-class GenParticle; //!< Truth information
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace Trk {
   class GenParticleJet;

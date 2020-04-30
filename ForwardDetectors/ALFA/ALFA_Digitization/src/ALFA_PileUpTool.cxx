@@ -30,12 +30,12 @@
 #include <functional>
 
 //for truth particles
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Vector/LorentzVector.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 #include "TTree.h"
 

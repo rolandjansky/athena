@@ -15,7 +15,7 @@
 #include <vector>
 #include <utility>
 #include "CLHEP/Geometry/Vector3D.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 namespace Trk {
 

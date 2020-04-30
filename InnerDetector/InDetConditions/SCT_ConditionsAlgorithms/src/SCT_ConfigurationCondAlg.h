@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_CONFIGURATIONCONDALG
@@ -16,6 +16,7 @@
 #include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
 #include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
 // Gaudi includes
@@ -24,7 +25,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Forward declarations
-class EventIDRange;
 class SCT_ID;
 
 class SCT_ConfigurationCondAlg : public AthReentrantAlgorithm 
@@ -42,9 +42,9 @@ class SCT_ConfigurationCondAlg : public AthReentrantAlgorithm
   /** enum for constants*/
   enum {badLink=255, stripsPerChip=128, lastStrip=767};
 
-  StatusCode fillChannelData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeChannel, EventIDRange& rangeMur, EventIDRange& rangeDetEle, const EventContext& ctx) const;
-  StatusCode fillModuleData(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeModule, const EventContext& ctx) const;
-  StatusCode fillLinkStatus(SCT_ConfigurationCondData* writeCdo, EventIDRange& rangeMur, const EventContext& ctx) const;
+  StatusCode fillChannelData(SCT_ConfigurationCondData* writeCdo, SG::WriteCondHandle<SCT_ConfigurationCondData>& writeHandle, const EventContext& ctx) const;
+  StatusCode fillModuleData(SCT_ConfigurationCondData* writeCdo, SG::WriteCondHandle<SCT_ConfigurationCondData>& writeHandle, const EventContext& ctx) const;
+  StatusCode fillLinkStatus(SCT_ConfigurationCondData* writeCdo, SG::WriteCondHandle<SCT_ConfigurationCondData>& writeHandle, const EventContext& ctx) const;
   Identifier getStripId(const unsigned int truncatedSerialNumber, const unsigned int chipNumber, const unsigned int stripNumber,
                         const InDetDD::SiDetectorElementCollection* elements, const EventContext& ctx) const;
 

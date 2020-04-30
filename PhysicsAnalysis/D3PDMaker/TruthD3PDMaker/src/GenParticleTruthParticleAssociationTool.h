@@ -19,7 +19,7 @@
 
 #include "D3PDMakerUtils/SingleAssociationTool.h"
 #include "McParticleEvent/TruthParticle.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"

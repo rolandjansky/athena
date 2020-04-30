@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CSC_Hid2RESrcID.h" 
 #include "MuonRDO/CscRawDataCollection.h"
+#include "MuonIdHelpers/CscIdHelper.h"
 
 #include "eformat/SourceIdentifier.h" 
 
@@ -39,8 +40,8 @@ uint32_t CSC_Hid2RESrcID::getRodID(uint16_t subDetectorId, uint16_t rodId) const
 uint32_t CSC_Hid2RESrcID::getRodID(const Identifier& offlineId) const
 {
 
-  int eta                = m_muonIdHelperTool->cscIdHelper().stationEta(offlineId);
-  int phi                = m_muonIdHelperTool->cscIdHelper().stationPhi(offlineId);
+  int eta                = m_cscIdHelper->stationEta(offlineId);
+  int phi                = m_cscIdHelper->stationPhi(offlineId);
   uint16_t subDetectorId = (eta == -1) ? eformat::MUON_CSC_ENDCAP_C_SIDE : eformat::MUON_CSC_ENDCAP_A_SIDE ;
   uint16_t rodId         = uint16_t (phi-1);
   //if(offlineId >= 0x10 && offlineId <= 0x1F) rodId = 0x10 + 

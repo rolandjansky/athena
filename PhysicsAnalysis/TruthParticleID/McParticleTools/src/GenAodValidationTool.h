@@ -27,9 +27,9 @@
 // Forward declaration
 class IIOHepMcTool;
 class McEventCollection;
-namespace HepMC { class GenEvent; }
-namespace HepMC { class GenVertex; }
-namespace HepMC { class GenParticle; }
+#include "AtlasHepMC/GenParticle_fwd.h"
+#include "AtlasHepMC/GenVertex_fwd.h"
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 class GenAodValidationTool : public TruthParticleValidationBaseTool
 { 

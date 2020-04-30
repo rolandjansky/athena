@@ -23,9 +23,6 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IPropagator.h"
-
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h" //TrackParameters typedef
@@ -572,9 +569,6 @@ namespace Trk {
     /** Random engine */
     CLHEP::HepRandomEngine*               m_randomEngine; 
     std::string                           m_randomEngineName;
-    //
-    ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
-    MagField::IMagFieldSvc*                m_fieldService;
 
       // Read handle for conditions object to get the field cache
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
@@ -587,22 +581,15 @@ namespace Trk {
   inline void STEP_Propagator::getField        (Cache& cache, double* R, double* H) const
   {
 
-      // getFieldZR has been turned off for Step: if(m_solenoid) return m_fieldService->getFieldZR(R,H);
-
-      // MT version uses cache, temporarily keep old version
-      if (cache.m_fieldCache.useNewBfieldCache()) cache.m_fieldCache.getField  (R, H);
-      else                                        m_fieldService->getField  (R, H);
+      // getFieldZR has been turned off for Step: if(m_solenoid) return cache.m_fieldCache.getFieldZR(R,H);
+      cache.m_fieldCache.getField  (R, H);
   }
 
   inline void STEP_Propagator::getFieldGradient(Cache& cache, double* R, double* H, double* dH) const
   {
 
-      // getFieldZR has been turned off for Step: if(m_solenoid) return m_fieldService->getFieldZR(R,H,dH);
-      
-      // MT version uses cache, temporarily keep old version
-      if (cache.m_fieldCache.useNewBfieldCache()) cache.m_fieldCache.getField  (R, H, dH);
-      else                                        m_fieldService->getField  (R, H, dH);
-
+      // getFieldZR has been turned off for Step: if(m_solenoid) return cache.m_fieldCache.getFieldZR(R,H,dH);
+      cache.m_fieldCache.getField  (R, H, dH);
       
   }
 }
