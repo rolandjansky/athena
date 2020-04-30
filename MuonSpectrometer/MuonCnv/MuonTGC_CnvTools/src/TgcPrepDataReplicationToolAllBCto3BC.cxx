@@ -55,7 +55,7 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::initialize()
   }
 
   ATH_CHECK(m_3BCKeys.initialize());
-
+  ATH_CHECK(m_AllBCKey.initialize());
 
   return StatusCode::SUCCESS;
 }
