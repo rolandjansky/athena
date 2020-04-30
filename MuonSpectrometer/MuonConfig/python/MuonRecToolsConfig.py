@@ -190,7 +190,7 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     result.merge(acc)
     kwargs.setdefault("SLFitter", slfitter)
 
-    acc = MCTBFitterCfg(flags, name = "MCTBFitterMaterialFromTrack", GetMaterialFromTrack=True)
+    acc = MCTBFitterCfg(flags, name = "MCTBFitterMaterialFromTrackROBERT", GetMaterialFromTrack=True)
     fitter = acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("Fitter", fitter)
@@ -280,6 +280,8 @@ def MuonChi2TrackFitterCfg(flags, name='MuonChi2TrackFitter', **kwargs):
     measurement_updater = Trk__KalmanUpdator()
     result.addPublicTool(measurement_updater) #FIXME
 
+    print ("HALLO HALLO HALLO")
+    print (measurement_updater)
     kwargs.setdefault("ExtrapolationTool"    , extrapolator)
     kwargs.setdefault("RotCreatorTool"       , rotcreator)
     kwargs.setdefault("MeasurementUpdateTool", measurement_updater)

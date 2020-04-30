@@ -147,16 +147,35 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloCellAssociationToolCfg, ParticleCaloExtensionToolCfg
 
     result = ParticleCaloCellAssociationToolCfg(flags)
-    particle_calo_call_association_tool = result.getPrimary()
-    result.addPublicTool( particle_calo_call_association_tool )
+    particle_calo_cell_association_tool = result.getPrimary()
+    result.addPublicTool( particle_calo_cell_association_tool )
 
     acc = ParticleCaloExtensionToolCfg(flags)
     particle_calo_extension_tool = acc.getPrimary()
-    result.addPublicTool( particle_calo_call_association_tool )
+    result.addPublicTool( particle_calo_cell_association_tool )
     result.merge(acc)
+
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+
+    # workaround as long as public tool is required
+    acc = AtlasExtrapolatorCfg(flags)
+    atlas_extrapolator = acc.popPrivateTools()
+    result.merge(acc)
+    result.addPublicTool(atlas_extrapolator)
+    kwargs = dict()
+    kwargs["Extrapolator"] = atlas_extrapolator
+    acc = MuonCombinedTrackSummaryToolCfg(flags)
+    muon_combined_track_summary_tool = acc.popPrivateTools()
+    result.merge(acc)
+    kwargs["TrackSummaryTool"] = muon_combined_track_summary_tool
+    kwargs["KeepAllPerigee"] = True 
+    kwargs["PerigeeExpression"] = "Origin"
+    track_particle_creator = CompFactory.Trk.TrackParticleCreatorTool(name="MuonCaloParticleCreator",**kwargs)
+    result.addPublicTool(track_particle_creator)
   
-    muonCaloEnergyTool = CompFactory.Rec.MuonCaloEnergyTool(name="MuonCaloEnergy",ParticleCaloExtensionTool = particle_calo_extension_tool,
-                                                 ParticleCaloCellAssociationTool = particle_calo_call_association_tool)
+    muonCaloEnergyTool = CompFactory.Rec.MuonCaloEnergyTool(name="MuonCaloEnergy", ParticleCaloExtensionTool = particle_calo_extension_tool,
+                                                 ParticleCaloCellAssociationTool = particle_calo_cell_association_tool,
+                                                 TrackParticleCreator = track_particle_creator)
 
     useCaloEnergyMeas = True
     if flags.Muon.MuonTrigger:
@@ -206,12 +225,14 @@ def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
     result = CombinedMuonTrackBuilderCfg(flags, name="CombinedMuonTrackBuilder")
     kwargs.setdefault("TrackBuilder", result.popPrivateTools() )
-    if flags.Beam.Type=="cosmics":
-        acc = ExtrapolateMuonToIPToolCfg(flags)
-        extrapolator = acc.popPrivateTools()
-        result.addPublicTool(extrapolator)
-        kwargs.setdefault("TrackExtrapolationTool", extrapolator )
-        result.merge(acc)
+#   Why was this dependent on cosmics? will now always create this 
+#   if flags.Beam.Type=="cosmics":
+    acc = ExtrapolateMuonToIPToolCfg(flags)
+    extrapolator = acc.popPrivateTools()
+    result.addPublicTool(extrapolator)
+    kwargs.setdefault("TrackExtrapolationTool", extrapolator )
+    result.merge(acc)
+#   if cosmics was until here
 
     acc = MuonAmbiProcessorCfg(flags)
     ambiguityprocessor = acc.popPrivateTools()
@@ -523,7 +544,7 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     kwargs.setdefault("Vertex3DSigmaZ"                , 60.*mm)
     kwargs.setdefault("UseCaloTG"                     , True )
 
-    acc = MuonMaterialProviderToolCfg(flags, name="MuonMaterialProviderTool")
+    acc = MuonMaterialProviderToolCfg(flags)
     kwargs.setdefault( "CaloMaterialProvider", acc.getPrimary() )
     result.merge(acc)
  
