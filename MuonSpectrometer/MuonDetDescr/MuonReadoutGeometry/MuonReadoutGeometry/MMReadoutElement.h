@@ -59,7 +59,7 @@ namespace MuonGM {
     bool stripPosition(       const Identifier& id, Amg::Vector2D& pos )  const;
     bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
       
-      double stripLength( const Identifier& id) const;
+    double stripLength( const Identifier& id) const;
 
     /** number of layers in phi/eta projection */
     int numberOfLayers( bool ) const;
@@ -67,6 +67,10 @@ namespace MuonGM {
     /** number of strips per layer */
     int numberOfStrips( const Identifier& layerId )   const;
     int numberOfStrips( int , bool measuresPhi ) const;
+
+    /** Number of missing bottom and top strips (not read out) */
+    int numberOfMissingTopStrips( const Identifier& layerId )   const;
+    int numberOfMissingBottomStrips( const Identifier& layerId )   const;
 
     /** space point position for a given pair of phi and eta identifiers 
 	The LocalPosition is expressed in the reference frame of the phi surface.
@@ -252,6 +256,20 @@ namespace MuonGM {
   inline int MMReadoutElement::numberOfStrips( int lay, bool /*measPhi*/ ) const {
     if (lay>-1 && lay<(int)m_nStrips.size()) return m_nStrips[lay]; 
     else return -1;
+  }
+
+  inline int MMReadoutElement::numberOfMissingTopStrips( const Identifier& id )   const {
+    const MuonChannelDesign* design = getDesign(id);
+    if( !design ) return -1;
+    int nStrips = design->sAngle == 0 ? design->nMissedTopEta : design->nMissedTopStereo;
+    return nStrips;
+  }
+
+  inline int MMReadoutElement::numberOfMissingBottomStrips( const Identifier& id )   const {
+    const MuonChannelDesign* design = getDesign(id);
+    if( !design ) return -1;
+    int nStrips = design->sAngle == 0 ? design->nMissedBottomEta : design->nMissedBottomStereo;
+    return nStrips;
   }
 
   inline bool MMReadoutElement::spacePointPosition( const Identifier& phiId, const Identifier& etaId, Amg::Vector2D& pos ) const {
