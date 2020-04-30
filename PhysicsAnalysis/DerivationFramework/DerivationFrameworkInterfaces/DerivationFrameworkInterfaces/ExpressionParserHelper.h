@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORKINTERFACES_EXPRESSIONPARSERHELPER_H
@@ -34,9 +34,7 @@ namespace DerivationFramework {
       /// Default constructor
       ExpressionParserHelper( ServiceHandle< StoreGateSvc >& evtStore )
          : m_xaodLoader( evtStore ), m_ntupLoader( evtStore ),
-           m_proxyLoader(), m_parser( &m_proxyLoader ) {
-         m_proxyLoader.push_back( &m_xaodLoader );
-         m_proxyLoader.push_back( &m_ntupLoader );
+       m_proxyLoader({&m_xaodLoader, &m_ntupLoader}), m_parser( &m_proxyLoader ) {
       }
 
       /// Return a reference to the expression parser
