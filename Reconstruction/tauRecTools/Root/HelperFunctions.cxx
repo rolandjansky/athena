@@ -4,7 +4,6 @@
 
 // local include(s)
 #include "tauRecTools/HelperFunctions.h"
-#include <AsgTools/MessageCheck.h>
 
 #include <TObjString.h>
 #include <TObjArray.h>
@@ -12,6 +11,10 @@
 #include <TTree.h>
 
 #include <iostream>
+
+namespace tauRecTools {
+  ANA_MSG_SOURCE(msgHelperFunction, "HelperFunction")
+}
 
 xAOD::TauTrack::TrackFlagType tauRecTools::isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag){
   const int flagsize=sizeof(flag)*8;
@@ -194,15 +197,21 @@ float tauRecTools::TRTBDT::GetResponse(){
 
 const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted){
 
-  using namespace asg::msgUserCode;
+  using namespace tauRecTools::msgHelperFunction;
   // If using subtracted clusters, need to store unmodified to check if charged are duplicates
   std::vector<const xAOD::CaloCluster*> dupList;
 
   // Loop over jet constituents
   xAOD::JetConstituentVector jVec = jet->getConstituents();
   for(auto jCon : jVec){
+    ANA_MSG_DEBUG("JetConstituent: ");
+    ANA_MSG_DEBUG("eta: " << jCon->eta() << " phi: " << jCon->phi() << " e: " << jCon->e()); 
     if( jCon->type() == xAOD::Type::CaloCluster ) {
       const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>( jCon->rawConstituent() );
+      ANA_MSG_DEBUG("CaloCluster: ");
+      ANA_MSG_DEBUG("eta: " << cluster->eta() << " phi: " << cluster->phi() << " e: " << cluster->e());
+      ANA_MSG_DEBUG("rawEta: " << cluster->rawEta() << " rawPhi: " << cluster->rawPhi() << " rawE: " << cluster->rawE()); 
+      ANA_MSG_DEBUG("calEta: " << cluster->calEta() << " calPhi: " << cluster->calPhi() << " calE: " << cluster->calE());
       clusterList.push_back(cluster);
     }
     else if( jCon->type() == xAOD::Type::ParticleFlow ) {

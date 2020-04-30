@@ -6,6 +6,7 @@
 #define TAURECTOOLS_HELPERFUNCTIONS_H
 
 #include "MVAUtils/BDT.h"
+#include "AsgMessaging/MessageCheck.h"
 
 #include <vector>
 #include <map>
@@ -19,6 +20,7 @@
 
 namespace tauRecTools
 {
+  ANA_MSG_HEADER(msgHelperFunction)
 
   const StatusCode GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted);
 
