@@ -946,7 +946,7 @@ decay_events '''+run)
         mglog.info('LHE file zipped by MadGraph automatically. Nothing to do')
 
 
-def madspin_on_lhe(input_LHE,madspin_card,runArgs=None):
+def madspin_on_lhe(input_LHE,madspin_card,runArgs=None,keep_original=False):
     """ Run MadSpin on an input LHE file. Takes the process
     from the LHE file, so you don't need to have a process directory
     set up in advance. Runs MadSpin and packs the LHE file up appropriately
@@ -955,40 +955,82 @@ def madspin_on_lhe(input_LHE,madspin_card,runArgs=None):
         raise RuntimeError('Could not find LHE file '+input_LHE)
     if not os.access(madspin_card,os.R_OK):
         raise RuntimeError('Could not find input MadSpin card '+madspin_card)
-    # Get the process out of the input LHE file
-    process = None
-    with open(input_LHE,'r') as input_LHE_file:
-        for line in input_LHE_file:
-            # Check if we've reached the process yet
-            if process is None and not '<MG5ProcCard>' in line:
-                continue
-            # Reached the point; setup
-            if '<MG5ProcCard>' in line:
-                process = ''
-                continue
-            # Watch for XML delimiters
-            if line.strip() in ['<![CDATA[',']]>']:
-                continue
-            # Stop at the end of the process
-            if '</MG5ProcCard>' in line:
-                break
-            # Now we are down to the actual process
-            # Only add the first process to the set
-            if line.startswith('add process'):
-                continue
-            # That's it -- keep the line!
-            process += line.strip()+'\n'
-    mglog.info('Identified process for adding MadSpin:')
-    mglog.info(process)
-    # Set up a new process directory from there
-    process_dir = new_process(process)
-    # Copy the input LHE file into the new area
-    os.mkdir(process_dir+'/Events/'+MADGRAPH_RUN_NAME)
-    shutil.copy(input_LHE,process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/unweighted_events.lhe')
-    # Now add MadSpin on top
-    add_madspin(madspin_card=madspin_card,process_dir=process_dir)
-    # Now gather the output for the transform
-    arrange_output(process_dir=process_dir,runArgs=runArgs)
+    if keep_original:
+        shutil.copy(input_LHE,input_LHE+'.original')
+        mglog.info('Put backup copy of LHE file at '+input_LHE+'.original')
+    # Start writing the card for execution
+    madspin_exec_card = open('madspin_exec_card','w')
+    madspin_exec_card.write('import '+input_LHE+'\n')
+    # Based on the original card
+    input_madspin_card = open(madspin_card,'r')
+    has_launch = False
+    for l in input_madspin_card.readlines():
+        commands = l.split('#')[0].split()
+        # Skip import of a file name that isn't our file
+        if len(commands)>1 and 'import'==commands[0] and not 'model'==commands[1]:
+            continue
+        # Check for a launch command
+        if 'launch' == commands[0]:
+            has_launch = True
+        madspin_exec_card.write(l.strip()+'\n')
+    if not has_launch:
+        madspin_exec_card.write('launch\n')
+    madspin_exec_card.close()
+    input_madspin_card.close()
+    # Now get the madspin executable
+    madpath=os.environ['MADPATH']
+    if not os.access(madpath+'/MadSpin/madspin',os.R_OK):
+        raise RuntimeError('madspin executable not found in '+madpath)
+    mglog.info('Starting madspin at '+str(time.asctime()))
+    generate = subprocess.Popen([madpath+'/MadSpin/madspin','madspin_exec_card'],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
+    (out,err) = generate.communicate()
+    error_check(err)
+    mglog.info('Done with madspin at '+str(time.asctime()))
+    # Should now have a re-zipped LHE file
+    # We now have to do a shortened version of arrange_output below
+    # Clean up in case a link or file was already there
+    if os.path.exists(os.getcwd()+'/events.lhe'):
+        os.remove(os.getcwd()+'/events.lhe')
+
+    mglog.info('Unzipping generated events.')
+    unzip = subprocess.Popen(['gunzip','-f',input_LHE+'.gz'])
+    unzip.wait()
+
+    mglog.info('Putting a copy in place for the transform.')
+    mod_output = open(os.getcwd()+'/events.lhe','w')
+
+    #Removing empty lines in LHE
+    nEmpty=0
+    with open(input_LHE,'r') as fileobject:
+        for line in fileobject:
+            if line.strip():
+                mod_output.write(line)
+            else:
+                nEmpty=nEmpty+1
+    mod_output.close()
+
+    mglog.info('Removed '+str(nEmpty)+' empty lines from LHEF')
+
+    # Actually move over the dataset - this first part is horrible...
+    if runArgs is None:
+        raise RuntimeError('Must provide runArgs to madspin_on_lhe')
+
+    outputDS = runArgs.outputTXTFile if hasattr(runArgs,'outputTXTFile') else 'tmp_LHE_events'
+
+    mglog.info('Moving file over to '+outputDS.split('.tar.gz')[0]+'.events')
+    shutil.move(os.getcwd()+'/events.lhe',outputDS.split('.tar.gz')[0]+'.events')
+
+    mglog.info('Re-zipping into dataset name '+outputDS)
+    rezip = subprocess.Popen(['tar','cvzf',outputDS,outputDS.split('.tar.gz')[0]+'.events'])
+    rezip.wait()
+
+    # shortening the outputDS in the case of an output TXT file
+    if hasattr(runArgs,'outputTXTFile') and runArgs.outputTXTFile is not None:
+        outputDS = outputDS.split('.TXT')[0]
+    # Do some fixing up for them
+    if runArgs is not None:
+        mglog.debug('Setting inputGenerator file to '+outputDS)
+        runArgs.inputGeneratorFile=outputDS
 
 
 def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveProcDir=False,runArgs=None,fixEventWeightsForBridgeMode=False):
@@ -998,9 +1040,6 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
     # NLO is not *really* the question here, we need to know if we should look for weighted or
     #  unweighted events in the output directory.  MadSpin (above) only seems to give weighted
     #  results for now?
-    #isNLO=is_NLO_run(process_dir=process_dir)
-
-
     if len(glob.glob(os.path.join(process_dir, 'Events','*')))<1:
         mglog.error('Process dir '+process_dir+' does not contain events?')
     proc_dir_list = glob.glob(os.path.join(process_dir, 'Events', '*'))
@@ -1198,8 +1237,7 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
             shutil.copy(os.getcwd()+'/events.lhe.copy',os.getcwd()+'/events.lhe')
         mod_output2.close()
 
-    # Actually move over the dataset - this first part is horrible...
-    outputTXTFile = None
+    # Actually move over the dataset
     if runArgs is None:
         raise RuntimeError('Must provide runArgs to arrange_output')
 
@@ -1217,14 +1255,14 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
     rezip.wait()
 
     if not saveProcDir:
-        mglog.info('Blasting away the process directory')
+        mglog.info('Removing the process directory')
         shutil.rmtree(process_dir,ignore_errors=True)
 
         if os.path.isdir('MGC_LHAPDF/'):
             shutil.rmtree('MGC_LHAPDF/',ignore_errors=True)
 
     # shortening the outputDS in the case of an output TXT file
-    if outputTXTFile is not None:
+    if hasattr(runArgs,'outputTXTFile') and runArgs.outputTXTFile is not None:
         outputDS = outputDS.split('.TXT')[0]
     # Do some fixing up for them
     if runArgs is not None:
