@@ -1,9 +1,9 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
 
-doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0() or InDetFlags.doDisplacedSoftPion() ) \
+doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0() or InDetFlags.doDisplacedSoftPion() ) \
                     and InDetFlags.doParticleCreation()
-doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() \
+doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() and not InDetFlags.doR3LargeD0() \
                     and not InDetFlags.doLowPtLargeD0() and not InDetFlags.doDisplacedSoftPion() and InDetFlags.doParticleConversion()
 
 if doCreation:
