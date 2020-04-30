@@ -566,7 +566,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get2DBinnedParameter(floa
     for (unsigned int etaBin_itr = 0; etaBin_itr < m_etaBins.size()-1; etaBin_itr++)
     {
         // if the evaluation point is within the checked bins boundaries, this is the value we want
-        if (etaEvalPoint > m_etaBins.at(etaBin_itr) && etaEvalPoint < m_etaBins.at(etaBin_itr))
+        if (etaEvalPoint > m_etaBins.at(etaBin_itr) && etaEvalPoint < m_etaBins.at(etaBin_itr + 1))
         {
             // we found the according bin, so set to the according value
             etaBin = etaBin_itr;
@@ -585,7 +585,7 @@ const StatusCode ElectronPhotonVariableCorrectionBase::get2DBinnedParameter(floa
     for (unsigned int ptBin_itr = 0; ptBin_itr < m_ptBins.size()-1; ptBin_itr++)
     {
         // if the evaluation point is within the checked bins boundaries, this is the value we want
-        if (ptEvalPoint > m_ptBins.at(ptBin_itr) && ptEvalPoint < m_ptBins.at(ptBin_itr))
+        if (ptEvalPoint > m_ptBins.at(ptBin_itr) && ptEvalPoint < m_ptBins.at(ptBin_itr + 1))
         {
             // we found the according bin, so set to the according value
             ptBin = ptBin_itr;

@@ -36,7 +36,7 @@ namespace H5Utils {
 // Xd writter
 //
 
-  std::vector<size_t> WriterXd::NONE = {};
+  std::vector<size_t> WriterXd::s_NONE = {};
 
   WriterXd::WriterXd(H5::Group& group, const std::string& name,
                      VariableFillers fillers,

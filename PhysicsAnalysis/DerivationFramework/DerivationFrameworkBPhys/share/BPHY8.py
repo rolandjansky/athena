@@ -104,7 +104,9 @@ BPHY8cf.mcNoTrigger       = [300446,300447,300448,300449]
 #====================================================================
 # Data datasets to receive special treatment
 #====================================================================
-BPHY8cf.specDataRuns = [302393,339849,358096]
+# Remember our special runs used during validation
+## BPHY8cf.specDataRuns = [302393,339849,358096]
+BPHY8cf.specDataRuns = []
 #
 # for testing only
 ## BPHY8cf.specDataRuns += [337491]
@@ -112,7 +114,9 @@ BPHY8cf.specDataRuns = [302393,339849,358096]
 #====================================================================
 # MC datasets to receive special treatment
 #====================================================================
-BPHY8cf.specMcChannels = [300307,300404,300405,300426,300430,300438]
+# Remember our special MC datasets used during validation
+## BPHY8cf.specMcChannels = [300307,300404,300405,300426,300430,300438]
+BPHY8cf.specMcChannels = []
 #
 #====================================================================
 # Defaults for BPHY8 configuration
@@ -224,13 +228,18 @@ BPHY8cf.useCalibratedMuons = 3
 # Page revision r17 (as of 2019-11-13)
 # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisWinterMC16#Momentum_corrections
 #
+# Note: (2020-03-31)
+# Now updated to new release 21 recommendations for full run 2 / setup 1
+# Page reivision r37 (as of 2020-03-23)
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16#Momentum_corrections
+#
 # MC
 if BPHY8cf.isSimulation:
 #
 # for MC16a
     if BPHY8cf.mcCampaign == "mc16a":
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2019_05_30"
+        BPHY8cf.McstRelease               = "Recs2020_03_03"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
         BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
@@ -240,7 +249,7 @@ if BPHY8cf.isSimulation:
 # for MC16d
     elif BPHY8cf.mcCampaign == "mc16d":
         BPHY8cf.McstYear                  = "Data17"
-        BPHY8cf.McstRelease               = "Recs2019_05_30"
+        BPHY8cf.McstRelease               = "Recs2020_03_03"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
         BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data17"
@@ -250,7 +259,7 @@ if BPHY8cf.isSimulation:
 # for MC16e
     elif BPHY8cf.mcCampaign == "mc16e":
         BPHY8cf.McstYear                  = "Data18"
-        BPHY8cf.McstRelease               = "Recs2019_05_30"
+        BPHY8cf.McstRelease               = "Recs2020_03_03"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
         BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data18"
@@ -260,7 +269,7 @@ if BPHY8cf.isSimulation:
 # default (like for mc16a)
     else:
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2019_05_30"
+        BPHY8cf.McstRelease               = "Recs2020_03_03"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
         BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
@@ -272,7 +281,7 @@ else:
     # Note: The recommendation page sets McstYear to 'Data16'
     if BPHY8cf.projectTag.startswith("data15"):
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2010_05_30"
+        BPHY8cf.McstRelease               = "Recs2020_03_03"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
         BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
@@ -282,7 +291,7 @@ else:
 # data 16
     if BPHY8cf.projectTag.startswith("data16"):
         BPHY8cf.McstYear                  = "Data16"
-        BPHY8cf.McstRelease               = "Recs2019_05_30"
+        BPHY8cf.McstRelease               = "Recs2020_03_03"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
         BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data16"
@@ -292,7 +301,7 @@ else:
 # data 17
     if BPHY8cf.projectTag.startswith("data17"):
         BPHY8cf.McstYear                  = "Data17"
-        BPHY8cf.McstRelease               = "Recs2019_05_30"
+        BPHY8cf.McstRelease               = "Recs2020_03_03"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
         BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data17"
@@ -302,7 +311,7 @@ else:
 # data 18
     if BPHY8cf.projectTag.startswith("data18"):
         BPHY8cf.McstYear                  = "Data18";
-        BPHY8cf.McstRelease               = "Recs2019_05_30"
+        BPHY8cf.McstRelease               = "Recs2020_03_03"
         BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
         BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_03_02_19_Data18"
@@ -454,12 +463,20 @@ BPHY8cf.IsoDoTrkImpLogChi2Cut = [ 2  , 1  , 0  ]
 #          9   simple extrapolation from track parameters with uncertainties
 #              from track and vertex (sum of 2x2 covariance matrices)
 #        (E.g. 127 means to consider all tracks.)
-BPHY8cf.useIsoTrackTypes    = [ 35, 127, 4194304, 8388608, 134217728]
+BPHY8cf.useIsoTrackTypes    = [ 35, 8388608, 134217728, 127]
 # Working point for TrackVertexAssociationTool (for chi2DefToUse == 5)
 BPHY8cf.IsoTvaWorkingPoint = "Loose"
 # use of speed-optimized algorithm
 BPHY8cf.IsoUseOptimizedAlgo = True
 ## BPHY8cf.IsoUseOptimizedAlgo = False
+#
+# Combinations to keep: save from removal as non-needed branches
+# Tuples: (isolation settings|track types|ID track selection)
+# Note: use an empty list to keep all
+BPHY8cf.IsoIncludes = ['07_LC50d2|35|LoosePt05',            # ACH
+                       '10_LC00d0|134217728|LooSiHi1Pt05',  # BEJ
+                       '10_LC00d0|8388608|LooSiHi1Pt05',    # BGJ
+                       '07_LC50d1|127|LooSiHi1Pt05'       ] # BDI
 
 # Isolation for muons from B candidate -- track selection requirements
 # (Sizes of all lists below need to be identical!)
@@ -553,9 +570,17 @@ BPHY8cf.MuIsoDoTrkImpLogChi2Cut = [ 2  , 1  , 0  ]
 #          9   simple extrapolation from track parameters with uncertainties
 #              from track and vertex (sum of 2x2 covariance matrices)
 #        (E.g. 127 means to consider all tracks.)
-BPHY8cf.useMuIsoTrackTypes    = [ 35, 127, 4194304, 8388608, 134217728]
+BPHY8cf.useMuIsoTrackTypes    = [ 35, 8388608, 134217728, 127]
 # Working point for TrackVertexAssociationTool (for chi2DefToUse == 5)
 BPHY8cf.MuIsoTvaWorkingPoint = "Loose"
+#
+# Combinations to keep: save from removal as non-needed branches
+# Tuples: (isolation settings|track types|ID track selection)
+# Note: use an empty list to keep all
+BPHY8cf.MuIsoIncludes = ['07_LC50d2|35|LoosePt05',            # ACH
+                         '10_LC00d0|134217728|LooSiHi1Pt05',  # BEJ
+                         '10_LC00d0|8388608|LooSiHi1Pt05',    # BGJB
+                         '07_LC50d1|127|LooSiHi1Pt05'       ] # BDI
 
 # Closest track finding -- track selection requirements
 # Set to "Custom" (for strings) or -1. (for numerics) to disable setting
@@ -658,13 +683,13 @@ BPHY8cf.CloseTrackIBLHits      = [    -1     ,     -1        ]
 #  4 : 127: same as option 3 but using the vertex pointers 
 #           for comparing in old setup; including tracks
 #           with broken (NULL) vertex pointers as well
-BPHY8cf.useCloseTrackTypes    = [ 35, 127, 4194304, 8388608, 134217728]
+BPHY8cf.useCloseTrackTypes    = [ 35, 8388608, 134217728]
 # Working point for TrackVertexAssociationTool (for chi2DefToUse == 5)
 BPHY8cf.CloseTrackTvaWorkingPoint = "Loose"
 #
 # Close tracks chi2 related settings
 # (The next five lists need to be exactly of the same length.)
-BPHY8cf.CloseTrackChi2SetName = [ "201516", "f2dc2", 'corc2cnt']
+BPHY8cf.CloseTrackChi2SetName = [ "201516", "f2dc2" ]
 # use corrected chi2 calculation including SV uncertainties
 #   0 : from track perigee (old method, only track uncertainties)
 #   1 : from track perigee with uncertainties from track and vertex
@@ -684,13 +709,20 @@ BPHY8cf.CloseTrackChi2SetName = [ "201516", "f2dc2", 'corc2cnt']
 #   9   simple extrapolation from track parameters with uncertainties
 #       from track and vertex (sum of 2x2 covariance matrices)
 # N.B.: Settings 3, 4 and 5 may be less reasonable here. Do not use.
-BPHY8cf.CloseTrackCorrChi2    = [ 0       , 7      , 2]
+BPHY8cf.CloseTrackCorrChi2    = [ 0       , 7    ]
 # use 3-dimensional information in minimization
-BPHY8cf.CloseTrackMinDCAin3D  = [ True    , True   , True]
+BPHY8cf.CloseTrackMinDCAin3D  = [ True    , True ]
 # maximum chi2 distance of closest track to B vertex
-BPHY8cf.CloseTrackMaxLogChi2  = [ 7.      , 7.     , 7.]
+BPHY8cf.CloseTrackMaxLogChi2  = [ 7.      , 7.   ]
 # maximum chi2 distance of closest track to B vertex for track counting
-BPHY8cf.NCloseTrackMaxLogChi2 = [ 1.      , 2.     , 2.]
+BPHY8cf.NCloseTrackMaxLogChi2 = [ 1.      , 2.   ]
+#
+# Combinations to keep: save from removal as non-needed branches
+# Tuples: (close track chi2 set|track types|ID track selection)
+# Note: use an empty list to keep all
+BPHY8cf.CloseTrackIncludes = ['201516|35|LoosePt05',           # ACK
+                              'f2dc2|134217728|LooSiHi1Pt05',  # BEL
+                              'f2dc2|8388608|LooSiHi1Pt05'   ] # BGL
 
 # track/muon isolation and closest track tools
 # debugging level for track types (output to log)
@@ -2087,13 +2119,58 @@ BPHY8_ExtraVariables += ["%s.vx.vy" % BPHY8cf.TrkPartContName]
 
 # decay candidates 
 # we have to disable vxTrackAtVertex branch since it is not xAOD compatible
+# also remove not needed isolation and close-track branches from DxAOD
+BPHY8_DoVertexTypeStr = ['PV_MIN_Z0_BA']
+BPHY8_IsoBranches     = ['iso', 'iso_Ntracks']
+BPHY8_MuIsoBranches   = ['muiso', 'muiso_Ntracks', 'muiso+muLink']
+BPHY8_CtBranches      = ['ct_DCA', 'ct_DCAError', 'ct_ZCA', 'ct_ZCAError',
+                         'ct_NTracksChi2','ct_CloseTrack+Link']
+from DerivationFrameworkBPhys.BPhysPyHelpers import BPhysFilterBranches
 for BPHY8_name in BPHY8_RecoTools.keys():
     BPHY8_StaticContent += ["xAOD::VertexContainer#%s" %
                             BPHY8_RecoTools[BPHY8_name].OutputVtxContainerName]
     BPHY8_StaticContent += ["xAOD::VertexAuxContainer#%sAux." %
                             BPHY8_RecoTools[BPHY8_name].OutputVtxContainerName]
-    BPHY8_StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" %
-                            BPHY8_RecoTools[BPHY8_name].OutputVtxContainerName]
+    BPHY8_str = "xAOD::VertexAuxContainer#%sAux" % \
+        BPHY8_RecoTools[BPHY8_name].OutputVtxContainerName
+    BPHY8_str += ".-vxTrackAtVertex"
+    # isolation branches
+    BPHY8_cones = ["%02d_LC%02dd%01d" % \
+                   (int(cs*10), int(BPHY8cf.IsoTrkImpLogChi2Max[i]*10),
+                    BPHY8cf.IsoDoTrkImpLogChi2Cut[i])
+                   for i,cs in enumerate(BPHY8cf.IsolationConeSizes)]
+    BPHY8_str += BPhysFilterBranches(BPHY8_name,
+                                     BPHY8_IsoBranches,
+                                     BPHY8cf.IsoIncludes,
+                                     BPHY8_DoVertexTypeStr,
+                                     BPHY8cf.IsoTrackCategoryName,
+                                     BPHY8cf.useIsoTrackTypes,
+                                     BPHY8_cones,
+                                     False)
+    # muon isolation branches
+    BPHY8_cones = ["%02d_LC%02dd%01d" % \
+                   (int(cs*10), int(BPHY8cf.MuIsoTrkImpLogChi2Max[i]*10),
+                    BPHY8cf.MuIsoDoTrkImpLogChi2Cut[i])
+                   for i,cs in enumerate(BPHY8cf.MuIsolationConeSizes)]
+    BPHY8_str += BPhysFilterBranches(BPHY8_name,
+                                     BPHY8_MuIsoBranches,
+                                     BPHY8cf.MuIsoIncludes,
+                                     BPHY8_DoVertexTypeStr,
+                                     BPHY8cf.MuIsoTrackCategoryName,
+                                     BPHY8cf.useMuIsoTrackTypes,
+                                     BPHY8_cones,
+                                     False)
+    # close track branches
+    BPHY8_str += BPhysFilterBranches(BPHY8_name,
+                                     BPHY8_CtBranches,
+                                     BPHY8cf.CloseTrackIncludes,
+                                     BPHY8_DoVertexTypeStr,
+                                     BPHY8cf.CloseTrackCategoryName,
+                                     BPHY8cf.useCloseTrackTypes,
+                                     BPHY8cf.CloseTrackChi2SetName,
+                                     True)
+    print("Branches to be removed: %s" % BPHY8_str)
+    BPHY8_StaticContent += [ BPHY8_str ]
 
 # Truth information for MC only
 if BPHY8cf.isSimulation:

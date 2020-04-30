@@ -323,9 +323,7 @@ namespace CP {
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
         return Form("%s_%.2f_to_%.2f__times_%s_%.2f_to_%.2f",
-        //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
-                //yAxis
                 yAx->GetTitle(), yAx->GetBinLowEdge(y), yAx->GetBinUpEdge(y));
     }
 } // namespace CP

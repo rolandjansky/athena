@@ -3,6 +3,7 @@
 */
 
 #include "JetCalibTools/CalibrationMethods/JetPileupCorrection.h"
+#include "PathResolver/PathResolver.h"
 #include "PUResidual3DCorrection.h"
 
 JetPileupCorrection::JetPileupCorrection()
@@ -112,7 +113,22 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
 
   if(m_do3Dcorrection){
     m_residual3DCorr.reset( new PUCorrection::PU3DCorrectionHelper() ) ;
-    m_residual3DCorr->loadParameters(m_config->GetValue("PU3DCorrection.constants", "pu3DResidualsConstants.root") );
+
+    TString PUCalibFile3D = m_config->GetValue("PU3DCorrection.constants", "pu3DResidualsConstants.root");
+
+    if(m_dev){
+      //Currently hard coded that we remove "JetCalibTools/CalibrationFactors/" from the string in dev mode
+      //Same implementation as in other JetCalibTools classes for now, will be changed everywhere during major overhaul of package for r22
+      PUCalibFile3D.Remove(0,33);
+      PUCalibFile3D.Insert(0,"JetCalibTools/");
+    }
+    else{
+      PUCalibFile3D.Insert(14,m_calibAreaTag);
+    }
+
+    const std::string calibFilePU = PathResolverFindCalibFile(PUCalibFile3D.Data());
+
+    m_residual3DCorr->loadParameters(calibFilePU);
     m_residual3DCorr->m_rhoEnergyScale = m_config->GetValue("PU3DCorrection.rhoEnergyScale", 0.001);
     m_residual3DCorr->m_pTEnergyScale = m_config->GetValue("PU3DCorrection.pTEnergyScale", 0.001);
     ATH_MSG_INFO("Pile-up 3D correction. Configured with :");
@@ -169,6 +185,8 @@ StatusCode JetPileupCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo& jetE
     double pt_calib= m_residual3DCorr->correctedPt(pT_det,  eta_det, jetareaP4.Pt(), rho, mu, NPV ) ;
     double scaleF = pt_calib < 0 ? 0.01*m_GeV/pT_det : pt_calib/pT_det;
     xAOD::JetFourMom_t calibP4 = jetStartP4 * scaleF;
+    jet.setAttribute<int>("PileupCorrected",true);
+    jet.setAttribute<xAOD::JetFourMom_t>("JetPileupScaleMomentum",calibP4);
     jet.setJetP4( calibP4 );
     
   } else if(m_useFull4vectorArea) {

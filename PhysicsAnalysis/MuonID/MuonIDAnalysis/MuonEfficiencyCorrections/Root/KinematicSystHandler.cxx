@@ -15,7 +15,7 @@ namespace CP {
         return mu.pt() / 1.e3;
     }
     float IKinematicSystHandler::AbsEta(const xAOD::Muon &mu) const {
-        return fabs(mu.eta());
+        return std::abs(mu.eta());
     }
     
     IKinematicSystHandler::KinVariable IKinematicSystHandler::GetMuonVariableToUse(const std::string &name) {
@@ -43,18 +43,18 @@ namespace CP {
         CorrectionCode cc_flat = m_flatness->FindBin(mu, bin_flat);
         CorrectionCode cc_eloss = mu.pt() > 200.e3 ? m_loss->FindBin(mu, bin_loss) : cc_flat;
       
-        float eloss_syst = bin_loss < 1 ? 1.e6 : std::fabs( m_loss->GetBinContent(bin_loss) * mu.pt()/1.0e6);
+        float eloss_syst = bin_loss < 1 ? 1.e6 : std::abs( m_loss->GetBinContent(bin_loss) * mu.pt()/1.0e6);
         /// We exceed the limits of the histogram
         if (cc_flat != CorrectionCode::Ok){
             /// The eloss is going to take over now
             if (cc_eloss == CorrectionCode::Ok){ 
                 syst = eloss_syst;
-                eff *= 1 + m_SystWeight * std::fabs(syst);
+                eff *= 1 + m_SystWeight * std::abs(syst);
                 return cc_eloss;
              } else return cc_flat; 
         } else {        
             // The eloss -systematic is valid and smaller than the error from the flatness        
-            float abs_error = std::fabs( m_flatness->GetBinError(bin_flat));
+            float abs_error = std::abs( m_flatness->GetBinError(bin_flat));
             if (cc_eloss == CorrectionCode::Ok && mu.pt() > 200.e3 && (eloss_syst < abs_error || abs_error == 0 || mu.pt() > 500.e3)){
                 syst = eloss_syst;
             // The flatness of the scale-factor is still more precise than the eloss. Assign this as an extra syst
@@ -62,7 +62,7 @@ namespace CP {
                 syst = m_flatness->GetBinContent(bin_flat); 
             }
         }       
-        eff *= 1 + m_SystWeight * std::fabs(syst);
+        eff *= 1 + m_SystWeight * std::abs(syst);
         return cc_flat;
     }
             
@@ -89,7 +89,7 @@ namespace CP {
         if (cc != CorrectionCode::Ok) {
             return cc;
         }
-        Eff *= (1. + m_SystWeight * std::fabs(m_Handler->GetBinContent(binsys)));
+        Eff *= (1. + m_SystWeight * std::abs(m_Handler->GetBinContent(binsys)));
         return CorrectionCode::Ok;   
     }
     //###############################################################
@@ -110,7 +110,7 @@ namespace CP {
         if (cc != CorrectionCode::Ok) {
             return cc;
         }
-        Eff *= (1. + m_SystWeight * fabs(m_Handler->GetBinContent(binsys)) * mu.pt() / 1.0e6);
+        Eff *= (1. + m_SystWeight * std::abs(m_Handler->GetBinContent(binsys)) * mu.pt() / 1.0e6);
         return CorrectionCode::Ok;
     }
     void PrimodialPtSystematic::SetSystematicWeight(float SystWeight) {
@@ -162,10 +162,10 @@ namespace CP {
             std::string LowRange_str = getNextProperty(ObjName);
             std::string HighRange_str = getNextProperty(ObjName);
             if (!LowRange_str.empty()) {
-                lowRange = atof(LowRange_str.c_str()) / pow(10, LowRange_str.size() -1);
+                lowRange = atof(LowRange_str.c_str()) / std::pow(10, LowRange_str.size() -1);
             }
             if (!HighRange_str.empty()) {
-                highRange = atof(HighRange_str.c_str()) / pow(10, LowRange_str.size() -1);
+                highRange = atof(HighRange_str.c_str()) / std::pow(10, LowRange_str.size() -1);
             }
             systPolynomials.insert(std::pair<Ranges, std::unique_ptr<TF1>>(Ranges(lowRange, highRange), std::unique_ptr<TF1>(TF)));
         }

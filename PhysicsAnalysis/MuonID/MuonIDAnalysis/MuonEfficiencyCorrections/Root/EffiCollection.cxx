@@ -148,7 +148,7 @@ namespace CP {
 
     CollectionContainer* EffiCollection::FindContainer(const xAOD::Muon& mu) const {
         if (mu.pt() <  m_ref_tool.lowPtTransition()) {
-            if (fabs(mu.eta()) >= 2.5) {
+            if (std::abs(mu.eta()) >= 2.5) {
                 return m_forward_eff.get();
             }
             if (mu.author() == xAOD::Muon::CaloTag) {
@@ -158,7 +158,7 @@ namespace CP {
         }
         if (mu.author() == xAOD::Muon::CaloTag) {
             return m_calo_eff.get();
-        } else if (fabs(mu.eta()) < 2.5) {
+        } else if (std::abs(mu.eta()) < 2.5) {
             return m_central_eff.get();
         } else {
             return m_forward_eff.get();
