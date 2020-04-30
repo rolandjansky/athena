@@ -2,10 +2,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
-#include <algorithm>
-#include <limits>
 #include "CxxUtils/features.h"
 #include "CxxUtils/vectorize.h"
+#include <algorithm>
+#include <limits>
 
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
@@ -30,7 +30,7 @@ namespace GSFUtils {
  *
  * We also provide a default "scalar" implementation
  *
- * FindMinimumSTL 
+ * FindMinimumSTL
  * One of the issues we have see in that gcc8.3 and clang8 (02/2020)
  * optimise differently the STL version. See also
  * https://its.cern.ch/jira/projects/ATLASRECTS/issues/ATLASRECTS-5244
@@ -44,40 +44,36 @@ namespace GSFUtils {
 /*
  *
  * AVX2 intrinsics used :
- * 
+ *
  * _mm256_set1_epi32
- *  Broadcast 32-bit integer a to all elements of dst. This intrinsic may generate the vpbroadcastd.
- *  https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm256_set1_epi32&expand=4657,4949
+ *  Broadcast 32-bit integer a to all elements of dst. This intrinsic may
+ * generate the vpbroadcastd.
  *
  *  _mm256_setr_epi32
  *  Set packed 32-bit integers in dst with the supplied values in reverse order.
- *  https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm256_setr_epi32&expand=4657,4949,4989
  *
  *  _mm256_load_ps
- *  Load 256-bits (composed of 8 packed single-precision (32-bit) floating-point elements) from memory into dst.
- *  mem_addr must be aligned on a 32-byte boundary or a general-protection exception may be generated.
- *  https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm256_load_ps&expand=4657,4949,4989,3333
+ *  Load 256-bits (composed of 8 packed single-precision (32-bit) floating-point
+ * elements) from memory into dst. mem_addr must be aligned on a 32-byte
+ * boundary or a general-protection exception may be generated.
  *
  *  _mm256_add_epi32
  *  Add packed 32-bit integers in a and b, and store the results in dst.
- *  https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm256_add_epi32&expand=4657,4949,4989,3333,97
  *
  *   _mm256_cmp_ps
- *   Compare packed single-precision (32-bit) floating-point elements in a and b based on the comparison
- *   operand specified by imm8, and store the results in dst.
- *   https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm256_cmp_ps&expand=4657,4949,4989,3333,97,744
+ *   Compare packed single-precision (32-bit) floating-point elements in a and b
+ * based on the comparison operand specified by imm8, and store the results in
+ * dst.
  *
  *   _mm256_min_ps
- *   Compare packed single-precision (32-bit) floating-point elements in a and b, and store packed minimum values in
- * dst.
- *   https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm256_min_ps&expand=4657,4949,4989,3333,97,744,3766
+ *   Compare packed single-precision (32-bit) floating-point elements in a and
+ * b, and store packed minimum values in dst.
  *
  *    _mm256_blendv_epi8
- *    Blend packed 8-bit integers from a and b using mask, and store the results in dst.
- *    https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm256_blendv_epi8&expand=4657,4949,4989,3333,97,744,3766,453
+ *    Blend packed 8-bit integers from a and b using mask, and store the results
+ * in dst.
  */
-__attribute__((target("avx2")))
-int32_t
+__attribute__((target("avx2"))) int32_t
 findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -91,7 +87,8 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
     // increment the indices
     indicesIn = _mm256_add_epi32(indicesIn, increment);
     // Get a mask indicating when an element is less than the ones we have
-    __m256i lt = _mm256_castps_si256(_mm256_cmp_ps(values, minvalues, _CMP_LT_OS));
+    __m256i lt =
+      _mm256_castps_si256(_mm256_cmp_ps(values, minvalues, _CMP_LT_OS));
     // b lend select the indices to update
     minindices = _mm256_blendv_epi8(minindices, indicesIn, lt);
     minvalues = _mm256_min_ps(values, minvalues);
@@ -117,7 +114,6 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
  * SSE
  * SSE2 does not have a blend/select instruction.
  * Instruction describes in
- * https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm_b&expand=431,452&techs=SSE4_1
  * We AND &
  * - a with the NOT of the mask
  * - b with the mask
@@ -138,37 +134,30 @@ static const auto mm_blendv_epi8 = SSE2_mm_blendv_epi8;
  *
  *  _mm_set1_epi32
  *  Broadcast 32-bit integer a to all elements of dst.
- *  https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm_set1_epi32&expand=431,452,426,4946,4946&techs=SSE2
  *
  *  _mm_setr_epi32
- *  Set packed 32-bit integers in dst with the supplied values in reverse order.
  *  https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm_setr_epi32&expand=431,452,426,4946,4946,4988&techs=SSE2
  *
  *  _mm_load_ps
  *  Set packed 32-bit integers in dst with the supplied values in reverse order.
- *  https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm_setr_epi32&expand=431,452,426,4946,4946,4988&techs=SSE2
  *
  *  dst = _mm_add_epi32 (a,b)
  *  Add packed 32-bit integers in a and b, and store the results in dst.
- *  https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=_mm_add_epi32&expand=431,452,426,4946,4946,4988,94&techs=SSE2
  *
  *   dst = _mm_min_ps (a,b)
- *   Compare packed single-precision (32-bit) floating-point elements in a and b, and store packed minimum values in
- * dst.
- *   https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=%2525252520_mm_min_ps&expand=431,452,426,4946,4946,4988,94,3763
+ *   Compare packed single-precision (32-bit) floating-point elements in a and
+ * b, and store packed minimum values in dst.
  *
  *   dst =  _mm_cmplt_ps ( a, b)
- *   Compare packed single-precision (32-bit) floating-point elements in a and b for less-than, and store the results in
- * dst.
- *   https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=%252520_mm_cmplt_ps&expand=431,452,426,4946,4946,4988,94,3763,4988
+ *   Compare packed single-precision (32-bit) floating-point elements in a and b
+ * for less-than, and store the results in dst.
  *
  *    _mm_castps_si128
- *    Cast vector of type __m128 to type __m128i. This intrinsic is only used for compilation and does not generate any
- * instructions, thus it has zero latency.
- *    https://software.intel.com/sites/landingpage/IntrinsicsGuide/#text=%2520_mm_castps_si128&expand=431,452,426,4946,4946,4988,94,3763,4988,617
+ *    Cast vector of type __m128 to type __m128i. This intrinsic is only used
+ * for compilation and does not generate any instructions, thus it has zero
+ * latency.
  */
-__attribute__((target("sse4.2,sse2"))) 
-int32_t
+__attribute__((target("sse4.2,sse2"))) int32_t
 findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
@@ -217,8 +206,7 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
   }
   return minIndex;
 }
-#endif //end of x86_64 versions
-
+#endif // end of x86_64 versions
 
 /* Always fall back to a simple default version with no intrinsics */
 __attribute__((target("default")))
@@ -254,7 +242,7 @@ findMinimumIndexSTL(const floatPtrRestrict distancesIn, const int n)
 
 /*
  * Find the index of the 2 smaller values
- */ 
+ */
 std::pair<int32_t, int32_t>
 findMinimumIndexPair(const floatPtrRestrict distancesIn, const int n)
 {
@@ -279,104 +267,55 @@ findMinimumIndexPair(const floatPtrRestrict distancesIn, const int n)
 
   return std::make_pair(mini, mini2);
 }
-
-void
-resetDistances(floatPtrRestrict distancesIn, const int mini, const int n)
-{
-
-  float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);
-  const int j = mini;
-  const int indexConst = (j + 1) * j / 2;
-  for (int i = 0; i < j; ++i) {
-    distances[indexConst + i] = std::numeric_limits<float>::max();
-  }
-
-  for (int i = j; i < n; ++i) {
-    int index = (i + 1) * i / 2 + j;
-    distances[index] = std::numeric_limits<float>::max();
-  }
-}
-
-void
-calculateAllDistances(floatPtrRestrict qonpIn,
-                      floatPtrRestrict qonpCovIn,
-                      floatPtrRestrict qonpGIn,
-                      floatPtrRestrict distancesIn,
-                      int n)
-{
-
-  float* qonp = (float*)__builtin_assume_aligned(qonpIn, alignment);
-  float* qonpCov = (float*)__builtin_assume_aligned(qonpCovIn, alignment);
-  float* qonpG = (float*)__builtin_assume_aligned(qonpGIn, alignment);
-  float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);
-
-  for (int i = 0; i < n; ++i) {
-    const int indexConst = (i + 1) * i / 2;
-    float qonpi = qonp[i];
-    float qonpCovi = qonpCov[i];
-    float qonpGi = qonpG[i];
-    for (int j = 0; j < i; ++j) {
-      float parametersDifference = qonpi - qonp[j];
-      float covarianceDifference = qonpCovi - qonpCov[j];
-      float G_difference = qonpG[j] - qonpGi;
-      float G_sum = qonpGi + qonpG[j];
-      distances[indexConst + j] =
-        covarianceDifference * G_difference + parametersDifference * G_sum * parametersDifference;
-
-      //\log \frac{\sigma_2}{\sigma_1} + \frac{\sigma_1^2 + (\mu_1 - \mu_2)^2}{2 \sigma_2^2} -
-      //\frac{1}{2}
-    }
-  }
-}
-
-int
-recalculateDistances(floatPtrRestrict qonpIn,
-                     floatPtrRestrict qonpCovIn,
-                     floatPtrRestrict qonpGIn,
+int32_t
+recalculateDistances(const componentPtrRestrict componentsIn,
                      floatPtrRestrict distancesIn,
-                     int mini,
-                     int n)
+                     const int32_t mini,
+                     const int32_t n)
 {
+  const Component1D* components =
+    static_cast<const Component1D*>(__builtin_assume_aligned(componentsIn, alignment));
+  float* distances = static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
 
-  float* qonp = (float*)__builtin_assume_aligned(qonpIn, alignment);
-  float* qonpCov = (float*)__builtin_assume_aligned(qonpCovIn, alignment);
-  float* qonpG = (float*)__builtin_assume_aligned(qonpGIn, alignment);
-  float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);
+  const int32_t j = mini;
+  const int32_t indexConst = (j + 1) * j / 2;
 
-  int j = mini;
-  const int indexConst = (j + 1) * j / 2;
-
-  int minIndex = 0; // The distance will always be 1e30 for this entry;
+  int32_t minIndex = 0;
   float minDistance = std::numeric_limits<float>::max();
 
-  for (int i = 0; i < j; ++i) {
-    if (qonpCov[i] == 0) {
-      distances[indexConst + i] = std::numeric_limits<float>::max();
+  const Component1D componentJ = components[j];
+
+  for (int32_t i = 0; i < j; ++i) {
+    const Component1D componentI = components[i];
+    const int32_t index = indexConst + i;
+    if (componentI.cov == 0) {
+      distances[index] = std::numeric_limits<float>::max();
       continue;
     }
-    float parametersDifference = qonp[i] - qonp[j];
-    float covarianceDifference = qonpCov[i] - qonpCov[j];
-    float G_difference = qonpG[j] - qonpG[i];
-    float G_sum = qonpG[i] + qonpG[j];
-    int index = indexConst + i;
-    distances[index] = covarianceDifference * G_difference + parametersDifference * G_sum * parametersDifference;
+    const float meanDifference = componentI.mean - componentJ.mean;
+    const float covarianceDifference = componentI.cov - componentJ.cov;
+    const float invertCovDiff = componentI.invCov - componentJ.invCov;
+    const float inverCovSum = componentI.invCov + componentJ.invCov;
+    distances[index] = covarianceDifference * invertCovDiff +
+                       meanDifference * inverCovSum * meanDifference;
     if (distances[index] < minDistance) {
       minIndex = index;
       minDistance = distances[index];
     }
   }
-
-  for (int i = j + 1; i < n; ++i) {
-    int index = (i + 1) * i / 2 + j;
-    if (qonpCov[i] == 0) {
+  for (int32_t i = j + 1; i < n; ++i) {
+    const int32_t index = (i + 1) * i / 2 + j;
+    const Component1D componentI = components[i];
+    if (componentI.cov == 0) {
       distances[index] = std::numeric_limits<float>::max();
       continue;
     }
-    float parametersDifference = qonp[i] - qonp[j];
-    float covarianceDifference = qonpCov[i] - qonpCov[j];
-    float G_difference = qonpG[j] - qonpG[i];
-    float G_sum = qonpG[i] + qonpG[j];
-    distances[index] = covarianceDifference * G_difference + parametersDifference * G_sum * parametersDifference;
+    const float meanDifference = componentI.mean - componentJ.mean;
+    const float covarianceDifference = componentI.cov - componentJ.cov;
+    const float invertCovDiff = componentI.invCov - componentJ.invCov;
+    const float inverCovSum = componentI.invCov + componentJ.invCov;
+    distances[index] = covarianceDifference * invertCovDiff +
+                       meanDifference * inverCovSum * meanDifference;
     if (distances[index] < minDistance) {
       minIndex = index;
       minDistance = distances[index];
@@ -384,4 +323,51 @@ recalculateDistances(floatPtrRestrict qonpIn,
   }
   return minIndex;
 }
+
+// Calculate the distances for all pairs
+void
+calculateAllDistances(const componentPtrRestrict componentsIn,
+                      floatPtrRestrict distancesIn,
+                      const int32_t n)
+{
+
+  const Component1D* components =
+  static_cast<const Component1D*>(__builtin_assume_aligned(componentsIn, alignment));
+  float* distances = static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
+
+  for (int32_t i = 0; i < n; ++i) {
+    const int32_t indexConst = (i + 1) * i / 2;
+    const Component1D componentI = components[i];
+    for (int j = 0; j < i; ++j) {
+      const Component1D componentJ = components[j];
+      const float meanDifference = componentI.mean - componentJ.mean;
+      const float covarianceDifference = componentI.cov - componentJ.cov;
+      const float invertCovDiff = componentI.invCov - componentJ.invCov;
+      const float inverCovSum = componentI.invCov + componentJ.invCov;
+      distances[indexConst + j] = covarianceDifference * invertCovDiff +
+                                  meanDifference * inverCovSum * meanDifference;
+    }
+  }
+}
+
+// Reset the distances for a row
+void
+resetDistances(floatPtrRestrict distancesIn,
+               const int32_t mini,
+               const int32_t n)
+{
+
+  float* distances = (float*)__builtin_assume_aligned(distancesIn, alignment);
+  const int32_t j = mini;
+  const int32_t indexConst = (j + 1) * j / 2;
+  for (int32_t i = 0; i < j; ++i) {
+    distances[indexConst + i] = std::numeric_limits<float>::max();
+  }
+
+  for (int32_t i = j; i < n; ++i) {
+    const int32_t index = (i + 1) * i / 2 + j;
+    distances[index] = std::numeric_limits<float>::max();
+  }
+}
+
 } // end namespace GSFUtils
