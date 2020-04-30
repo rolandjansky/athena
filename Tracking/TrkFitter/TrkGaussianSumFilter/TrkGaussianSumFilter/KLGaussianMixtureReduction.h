@@ -65,14 +65,17 @@ struct Component1D{
  *   with size N*(N+1)/2
  *
  *   In the following methods:
- *   qonpIn,qonpCovIn,qonpGIn have size N+1 [0......N]
+ *   componentsIn has size N+1 [0......N]
  *   distancesIn  has size N*(N+1)/2
  *
  *   We also want to map the position in the distance array to the (i,j) of
  *   the elements
  *   0--> (0,0)
- *   1-->(1,0)
+ *   1--> (1,0)
  *   2--> (1,1)
+ *   3--> (2,0)
+ *   e.g the lexicographical storage allocation function is
+ *   Loc( i, j) = i*(i+1)/2 + j 
  */
 struct triangularToIJ{
   int32_t I=-1;
