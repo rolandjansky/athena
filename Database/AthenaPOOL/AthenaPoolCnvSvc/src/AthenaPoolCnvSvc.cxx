@@ -11,22 +11,20 @@
 
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/FileIncident.h"
-#include "GaudiKernel/IChronoStatSvc.h"
+
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/AttribStringParser.h"
 
-#include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/IAthenaSerializeSvc.h"
-#include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaKernel/IMetadataTransition.h"
 #include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
 #include "PersistentDataModel/DataHeader.h"
-#include "PoolSvc/IPoolSvc.h"
+
 
 #include "StorageSvc/DbReflex.h"
 
@@ -1140,34 +1138,9 @@ void AthenaPoolCnvSvc::handle(const Incident& incident) {
 }
 //______________________________________________________________________________
 AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-	::AthCnvSvc(name, pSvcLocator, POOL_StorageType),
-	m_dbType(pool::ROOTTREEINDEX_StorageType),
-	m_lastInputFileName(),
-	m_poolSvc("PoolSvc", name),
-	m_chronoStatSvc("ChronoStatSvc", name),
-	m_clidSvc("ClassIDSvc", name),
-	m_serializeSvc("AthenaRootSerializeSvc", name),
-	m_inputStreamingTool("", this),
-	m_outputStreamingTool(this),
-	m_streamServer(0),
-	m_metadataClient(0),
-	m_domainMaxFileSize(15000000000LL),
-	m_doChronoStat(true) {
-   declareProperty("UseDetailChronoStat", m_useDetailChronoStat = false);
-   declareProperty("PoolContainerPrefix", m_containerPrefixProp = "ROOTTREEINDEX:CollectionTree");
-   declareProperty("TopLevelContainerName", m_containerNameHintProp = "");
-   declareProperty("SubLevelBranchName", m_branchNameHintProp = "<type>/<key>");
-   declareProperty("PoolAttributes", m_poolAttr);
-   declareProperty("InputPoolAttributes", m_inputPoolAttr);
-   declareProperty("OutputPoolFileAllocator", m_streamClientFilesProp);
-   declareProperty("PrintInputAttrPerEvt", m_inputPoolAttrPerEvent);
-   declareProperty("MaxFileSizes", m_maxFileSizes);
-   declareProperty("PersSvcPerOutput", m_persSvcPerOutput = true);
-   declareProperty("SkipFirstChronoCommit", m_skipFirstChronoCommit = false);
-   declareProperty("InputStreamingTool", m_inputStreamingTool);
+	::AthCnvSvc(name, pSvcLocator, POOL_StorageType) {
    declareProperty("OutputStreamingTool", m_outputStreamingTool);
-   declareProperty("OutputMetadataContainer", m_metadataContainerProp);
-}
+  }
 //______________________________________________________________________________
 AthenaPoolCnvSvc::~AthenaPoolCnvSvc() {
 }
