@@ -20,7 +20,7 @@ std::array<float, 3> Run_PUfit(
   for (const xAOD::JGTower* tower : *towers)
     // Conditionally skip negative towers
     if (useNegTowers || tower->et() > 0)
-      grid += SignedKinematics::fromEnergyEtaPhi(
+      grid += SignedKinematics::fromEtEtaPhi(
           tower->et(), tower->eta(), tower->phi() );
 
   // Then calculate mean and variance
