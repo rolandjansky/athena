@@ -52,7 +52,7 @@ def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
     monTool = GenericMonitoringTool("MonTool_topoEgammaBuilder")
     monTool.Histograms = [ defineHistogram('EldeltaEta',type='TH1F', title='#Delta#eta',    path='EXPERT',xbins=80, xmin=-0.01,xmax=0.01),
                            defineHistogram('EldeltaPhi',type='TH1F', title='#Delta#phi',    path='EXPERT',xbins=80, xmin=-0.01, xmax=0.01),
-                           defineHistogram('EleT',      type='TH1F', title='p#_{T} [GeV]',  path='EXPERT',xbins=80, xmin=0., xmax=100),
+                           defineHistogram('EleT',      type='TH1F', title='p#_{T} [GeV]',  path='EXPERT',xbins=80, xmin=0., xmax=100)]
     
     mlog = logging.getLogger("TrigElectronFactories")
     mlog.info('Starting configuration')
