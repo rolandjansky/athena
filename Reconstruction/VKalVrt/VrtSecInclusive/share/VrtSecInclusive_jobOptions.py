@@ -81,8 +81,6 @@ from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
 InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVxFitter",
                                                    Extrapolator        = ToolSvc.AtlasExtrapolator,
                                                    IterationNumber     = 30
-                                                   #MagFieldSvc         = ToolSvc.AtlasMagneticFieldTool,
-                                                   #AtlasMagFieldSvc    = 'dummy'
                                                   )
 ToolSvc +=  InclusiveVxFitterTool;
 InclusiveVxFitterTool.OutputLevel = INFO

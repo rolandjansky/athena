@@ -54,7 +54,8 @@ atlas_install_headers( InDetVKalVxInJetTool )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.txt )
 
-
+#This test is temporarily commented in order not to slow down magnetic field migration to condition data.
+#Will be restored later
 #atlas_add_test( InDetTrkInJetType_test
 #                SOURCES test/InDetTrkInJetType_test.cxx
 #                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}

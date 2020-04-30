@@ -23,8 +23,6 @@ class InDetVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
         SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
                                                   Extrapolator="Trk::Extrapolator/AtlasExtrapolator"
-                                                  #AtlasMagFieldSvc = "AtlasFieldSvc"
-                                                  #Extrapolator = "DefaultVKalPropagator"
                                                  )
         ToolSvc += SVertexFitterTool
         #----------------------
@@ -64,10 +62,6 @@ class AtlasVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         from __main__ import ToolSvc
         mlog = logging.getLogger( 'AtlasVKalVxInJetFinder::__init__ ' )
         mlog.info("entering")
-        #----------------- ATLAS magnetic field
-        from AthenaCommon.AppMgr import ServiceMgr
-        from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
-        ServiceMgr += MagField__AtlasFieldSvc("myAtlasFieldSvc");
         #----------------- ATLAS extrapolator
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         SVAtlasExtrapolator=AtlasExtrapolator()
@@ -94,7 +88,6 @@ class AtlasVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
         SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
                                                   Extrapolator=SVAtlasExtrapolator
-                                                  #AtlasMagFieldSvc = "myAtlasFieldSvc"
                                                  )
         ToolSvc += SVertexFitterTool
         #----------------------

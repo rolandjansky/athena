@@ -45,7 +45,6 @@ namespace Trk{
 //
 //  Setting of parameters
 //
-  //void VKalAtlasMagFld::setAtlasField(MagField::IMagFieldSvc*  pnt )
   void VKalAtlasMagFld::setAtlasField(MagField::AtlasFieldCache * pnt )
   {   
      m_VKalAthenaField = pnt;

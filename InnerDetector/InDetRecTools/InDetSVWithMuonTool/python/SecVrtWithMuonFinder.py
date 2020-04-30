@@ -23,8 +23,6 @@ class SecVrtWithMuonFinder( InDet__InDetSVWithMuonTool ):
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
         MuonVertexFitterTool = Trk__TrkVKalVrtFitter(name="MuonVertexFitterTool",
                                                   Extrapolator="Trk::Extrapolator/AtlasExtrapolator"
-                                                  #AtlasMagFieldSvc = "AtlasFieldSvc"
-                                                  #Extrapolator = "DefaultVKalPropagator"
                                                  )
         ToolSvc += MuonVertexFitterTool
         #----------------------
