@@ -5,13 +5,18 @@
 # art-include: master/Athena
 # art-output: *.root
 # art-output: config.txt
+# art-output: dcube-rdo-truth
+# art-html: dcube-rdo-truth
 
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/*"
 LowPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/*"
-
+inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_fastchain_mc16a_ttbar"
+inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
+dcubeXmlRDO="${inputXmlDir}/dcube_RDO_truth_ATLFASTII.xml"
+dcubeRefRDO="${inputRefDir}/RDO_truth.root"
 
 FastChain_tf.py \
-    --simulator ATLFASTIIF \
+    --simulator ATLFASTII \
     --digiSteeringConf "Split" \
     --useISF True \
     --randomSeed 123 \
@@ -24,8 +29,8 @@ FastChain_tf.py \
     --conditionsTag default:OFLCOND-MC16-SDR-16 \
     --preSimExec 'from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags;TrkDetFlags.TRT_BuildStrawLayers=True;from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.experimentalDigi=["NewMerge"]' \
     --preExec 'EVNTtoRDO:ToolSvc.NewMergeMcEventCollTool.OutputLevel=VERBOSE;' \
-    --postInclude='PyJobTransforms/UseFrontier.py' \
-    --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt");ServiceMgr.MessageSvc.Format = "% F%32W%S%7W%R%T %0W%M"' \
+    --postInclude='PyJobTransforms/UseFrontier.py,DigitizationTests/postInclude.RDO_Plots.py' \
+    --postExec 'from AthenaCommon.ConfigurationShelve import saveToAscii;saveToAscii("config.txt")' \
     --DataRunNumber '284500' \
     --inputHighPtMinbiasHitsFile ${HighPtMinbiasHitsFiles} \
     --inputLowPtMinbiasHitsFile ${LowPtMinbiasHitsFiles} \
@@ -34,17 +39,30 @@ FastChain_tf.py \
     --numberOfLowPtMinBias '44.3839246425' \
     --numberOfCavernBkg 0 \
     --imf False
+
+# Add Reco step?
+
 rc=$?
 echo  "art-result: $rc EVNTtoRDO"
-
 rc2=-9999
+rc3=-9999
+
 if [ ${rc} -eq 0 ]
 then
     # Regression test
     ArtPackage=$1
     ArtJobName=$2
+    echo ArtJobName
+    echo $ArtJobName
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
     rc2=$?
 
+    # Histogram comparison with DCube
+    $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+    -p -x dcube-rdo-truth \
+    -c ${dcubeXmlRDO} -r ${dcubeRefRDO} RDO_truth.root
+    rc3=$?
+
 fi
 echo  "art-result: ${rc2} regression"
+echo  "art-result: ${rc3} dcubeRDO"
