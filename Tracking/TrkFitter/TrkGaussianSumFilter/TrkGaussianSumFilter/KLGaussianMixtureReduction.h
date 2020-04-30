@@ -2,15 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-  KLGaussianMixReduction.h  -  description
-  -------------------------------------------------
-begin                : 26th November 2019
-author               : amorley, Christos
-decription           : Function that help implement a
-"Kullback-Leibler Approach to Gaussian Mixture Reduction"
- *********************************************************************************/
-
+/**
+* @file  KLGaussianMixtureReduction.h
+* @author amorley
+* @author Anastopoulos
+* @date 26th November 2019
+* @brief Function that help implement component merging .
+*/
 #ifndef KLGaussianMixReductionUtils_H
 #define KLGaussianMixReductionUtils_H
 
@@ -21,28 +19,31 @@ decription           : Function that help implement a
 
 namespace GSFUtils {
 
-/*
+/**
  * Alignment used  for SIMD
  */
-
 constexpr int32_t alignment =32;
 
 /**
  * The main pupropse of the utilities here
  * are to facilitate the calculation of the 
- * Kullback-Leible divergence between components
- * of the mixture and the merging of the componets.
+ * divergence between components of the mixture 
+ * and the merging of similar componets.
  *
- * The dissimilarity measure/distance metric 
- * 2*[ D(P1||P2)+ D(P2||P1)]
+ * For a revies of available methods look 
+ * https://arxiv.org/pdf/2001.00727.pdf
  *
- * For 1D Normal distributions with this is given
- * by
+ * Here we opt for formula 10. 
+ * For an 1D Normal distributions this becomes: 
  *
  * (variance1-variance2) (1/variance1 - 1/variance2) - 
  * (mean1-mean2)(1/variance+1/variance)(mean1-mean2)
+ *
+ * We use doubles for the intermediate calculations
+ * but we store the final distances to short in an array
+ * of floats.
+ *
 */
-
 struct Component1D{
   double mean=0.;
   double cov=0.;
@@ -82,7 +83,7 @@ struct triangularToIJ{
   int32_t J=-1;
 };
 
-/*
+/**
  * Some usefull typedefs
  */
 typedef float* ATH_RESTRICT floatPtrRestrict;
@@ -127,13 +128,17 @@ recalculateDistances(const componentPtrRestrict componentsIn,
                      const int32_t mini,
                      const int32_t n);
 
-// Calculate the distances for all pairs
+/** 
+ * Calculate the distances for all component pairs
+ */
 void
 calculateAllDistances(const componentPtrRestrict componentsIn,
                       floatPtrRestrict distancesIn,
                       const int32_t n);
 
-// Reset the distances for a row
+/*
+ * Reset the distances wrt to a mini index
+ */
 void
 resetDistances(floatPtrRestrict distancesIn,
                const int32_t mini,
