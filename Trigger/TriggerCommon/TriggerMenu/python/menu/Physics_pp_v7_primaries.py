@@ -234,6 +234,7 @@ def setupMenu():
 
         # ATR-21242 - with L1 in the name, for validation with MT
         ['xe65_xe110_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_tcpufit_L1XE50',                   'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
     ]
 
