@@ -62,7 +62,7 @@ addTool("MuonRecExample.MuonRecTools.MuonStraightLineExtrapolator", "MuonStraigh
 
 addTool("Trk::KalmanUpdator", "MuonMeasUpdator")
 
-addService("Muon::MuonIdHelperSvc", "MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]), HasMM=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+addService("Muon::MuonIdHelperSvc", "MuonIdHelperSvc", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
 addTool("Muon::MuonIdHelperTool", "MuonIdHelperTool")
 
 addTool("Muon::MuonTrackTruthTool", "MuonTrackTruthTool")
@@ -85,7 +85,7 @@ addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2TrackFitter
 addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2SLTrackFitter", StraightLine=True )
 
 addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentum", "MuonSegmentMomentum" )
-addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentumFromField", "MuonSegmentMomentumFromField", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run() in ["RUN3", "RUN4"]))
+addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentumFromField", "MuonSegmentMomentumFromField")
     
 addTool( "MuonRecExample.MuonRecTools.MuonPhiHitSelector", "MuonPhiHitSelector" )
 

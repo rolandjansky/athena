@@ -182,24 +182,20 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
 # Not bothering with MuonSegmentMatchingToolTight - just pass in TightSegmentMatching=True
 def MuonSegmentMatchingToolCfg(flags, name="MuonSegmentMatchingTool", **kwargs):
     Muon__MuonSegmentMatchingTool=CompFactory.Muon.MuonSegmentMatchingTool
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     
     kwargs.setdefault( "doThetaMatching", flags.Muon.useSegmentMatching)
     kwargs.setdefault( "doPhiMatching", False )
     if flags.Beam.Type == 'cosmics':
         kwargs.setdefault("OverlapMatchAveragePhiHitPullCut",  200.)
-            
+        kwargs.setdefault( "ToroidOn", False ) # Was "not jobproperties.BField.allToroidOn()" but do not have access to Field here.
+
     # There are two tools which this depends on which aren't properties and which weren't defined in old configuration
     # Ignore for now, but FIXME one day
     # m_overlapResolvingTool("Muon::MuonSegmentInOverlapResolvingTool/MuonSegmentInOverlapResolvingTool"),
     # m_pairMatchingTool("Muon::MuonSegmentPairMatchingTool/MuonSegmentPairMatchingTool"),
     # Also, residual pull calculator not yet configured. #FIXME
     
-    result  = MagneticFieldSvcCfg(flags) 
-    magfieldsvc = result.getPrimary()
-    
-    kwargs.setdefault( "MagFieldSvc", magfieldsvc )
-    
+    result = ComponentAccumulator()
     matching = Muon__MuonSegmentMatchingTool(name, **kwargs)
     result.setPrivateTools(matching)
     return result
