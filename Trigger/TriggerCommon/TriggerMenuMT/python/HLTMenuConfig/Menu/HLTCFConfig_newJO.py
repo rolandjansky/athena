@@ -85,7 +85,8 @@ def generateDecisionTree(chains):
             if filterAlg:
                 filterAlg.Input += filter_input
             else:
-                filterAlg = CompFactory.RoRSeqFilter(filterName, Input=filter_input )
+                filter_output = [ CFNaming.filterOutName(filterName, i) for i in filter_input ]
+                filterAlg = CompFactory.RoRSeqFilter(filterName, Input=filter_input, Output=filter_output )
                 filterAcc.addEventAlgo(filterAlg, sequenceName = stepFilterNodeName)
 
             stepReco, stepView = createStepView(chainStep.name)
