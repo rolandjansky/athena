@@ -11,8 +11,6 @@
 #include "LArFEBMonAlg.h"
 
 #include "LArRecEvent/LArEventBitInfo.h"
-#include "LArRawEvent/LArFebHeaderContainer.h"
-#include "LArRawEvent/LArFebErrorSummary.h"
 
 #include "LArRawConditions/LArDSPThresholdsComplete.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -72,6 +70,9 @@ StatusCode LArFEBMonAlg::initialize() {
     ATH_MSG_DEBUG( "Missing FEBs key" << m_BFKey.key() << " initialized" );
   }
 
+  ATH_CHECK( m_hdrContKey.initialize() );
+  ATH_CHECK( m_lArFebErrorSummaryKey.initialize() );
+
   m_histoGroups.reserve(m_SubDetNames.size());
   for (unsigned i=0; i<m_SubDetNames.size(); ++i) {
     std::vector<std::string> part;
@@ -115,22 +116,20 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   
   ATH_MSG_DEBUG( "LArFEBMonAlg Lumi block: "<<lumi_block);
 
-  const LArFebHeaderContainer* hdrCont;
-  const LArFebErrorSummary* lArFebErrorSummary;
-  StatusCode sc = evtStore()->retrieve(hdrCont);
-  if (sc.isFailure() || !hdrCont) {
-    ATH_MSG_WARNING( "No LArFebHeaderContainer found in TDS" ); 
-    return sc;
+  SG::ReadHandle<LArFebHeaderContainer> hdrCont(m_hdrContKey, ctx);
+  SG::ReadHandle<LArFebErrorSummary> lArFebErrorSummary(m_lArFebErrorSummaryKey, ctx);
+  if (!hdrCont.isValid()) {
+    ATH_MSG_ERROR( "No LArFebHeaderContainer found in TDS" ); 
+    return StatusCode::FAILURE;
   }
   
   if (hdrCont->size()==0) {
-    ATH_MSG_WARNING( "Got empty LArFebHeaderContainer. Do nothing" );
+    ATH_MSG_ERROR( "Got empty LArFebHeaderContainer. Do nothing" );
     return StatusCode::FAILURE;
   }
 
-  sc=evtStore()->retrieve( lArFebErrorSummary, "LArFebErrorSummary");
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "No LArFebErrorSummary found in TDS" );
+  if (!lArFebErrorSummary.isValid()) {
+    ATH_MSG_ERROR( "No LArFebErrorSummary found in TDS" );
     return StatusCode::FAILURE;
   }
   
@@ -411,7 +410,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   }
 
    
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
