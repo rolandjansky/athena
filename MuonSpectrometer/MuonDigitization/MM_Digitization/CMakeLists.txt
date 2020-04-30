@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           MagneticField/MagFieldElements
                           MagneticField/MagFieldConditions
+                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
                           MuonSpectrometer/MuonSimEvent
                           Simulation/HitManagement
@@ -23,7 +24,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           Generators/AtlasHepMC
                           MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonSimData
@@ -51,8 +51,8 @@ atlas_add_library( MM_DigitizationLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} 
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement PileUpToolsLib StoreGateLib SGtests MuonIdHelpersLib NSWCalibToolsLib MagFieldElements MagFieldConditions
-                   PRIVATE_LINK_LIBRARIES AtlasHepMCLib GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonSimData AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement PileUpToolsLib StoreGateLib SGtests MuonIdHelpersLib NSWCalibToolsLib MagFieldElements MagFieldConditions MuonReadoutGeometry
+                   PRIVATE_LINK_LIBRARIES AtlasHepMCLib GeneratorObjects MuonAGDDDescription MuonDigitContainer MuonSimData AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
 
 atlas_add_component( MM_Digitization
                      src/components/*.cxx

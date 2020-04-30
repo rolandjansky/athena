@@ -151,6 +151,7 @@ MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitTo
 		digiInput.stripIDLocal(),
 		digiInput.incomingAngleXZ(), //degrees
 		digiInput.incomingAngleYZ(), //degrees
+		digiInput.stripMinID(),
 		digiInput.stripMaxID(),
 		digiInput
 		);
@@ -171,6 +172,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 											const int & stripID,
 											const float & incidentAngleXZ,
 											const float & incidentAngleYZ,
+											const int & stripMinID,
 											const int & stripMaxID,
 											const MM_DigitToolInput & digiInput)
 {
@@ -283,7 +285,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 	float timeresolution = 0.01; //ns
 
-	MM_StripResponse stripResponseObject(m_IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
+	MM_StripResponse stripResponseObject(m_IonizationClusters, timeresolution, m_pitch, stripID, stripMinID, stripMaxID);
 	stripResponseObject.timeOrderElectrons();
 	stripResponseObject.calculateTimeSeries(incidentAngleXZ, digiInput.gasgap());
 	stripResponseObject.simulateCrossTalk( m_crossTalk1,  m_crossTalk2);
