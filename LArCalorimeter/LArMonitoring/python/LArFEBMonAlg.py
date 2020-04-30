@@ -38,8 +38,8 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
     larFEBMonAlg.Streams=lArDQGlobals.defaultStreamNames
 
     isCOMP200=False
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior:
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg():
       if "COMP200" in inputFlags.IOVDb.DatabaseInstance:
          isCOMP200=True
     else:      
@@ -51,7 +51,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        dbString="<db>COOLONL_LAR/CONDBR2</db>"
        persClass="AthenaAttributeList"
        fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
-       if Configurable.configurableRun3Behavior:
+       if isRun3Cfg():
           iovDbSvc=helper.resobj.getService("IOVDbSvc")
           condLoader=helper.resobj.getCondAlgo("CondInputLoader")
        else:   
@@ -68,15 +68,14 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        fld='/LAR/Configuration/DSPThreshold/Thresholds'
        db='LAR_ONL'
        obj='LArDSPThresholdsComplete'
-       if Configurable.configurableRun3Behavior:
+       if isRun3Cfg():
            helper.resobj.addFolderList(inputFlags,[(fld,db,obj)])
        else:
            conddb.addFolder (db, fld, className=obj)
        larFEBMonAlg.Run1DSPThresholdsKey = 'LArDSPThresholds'
 
     # adding LArFebErrorSummary algo
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior :
+    if isRun3Cfg():
         from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
         acc = LArFebErrorSummaryMakerCfg(inputFlags)
         helper.resobj.merge(acc)
@@ -194,7 +193,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
                                   xbins=lArDQGlobals.Samples_Bins, xmin=lArDQGlobals.Samples_Min, xmax=lArDQGlobals.Samples_Max)
 
     isOnline=False
-    if Configurable.configurableRun3Behavior :
+    if isRun3Cfg() :
       if inputFlags.DQ.Environment == 'online':
          isOnline=True
     else:
