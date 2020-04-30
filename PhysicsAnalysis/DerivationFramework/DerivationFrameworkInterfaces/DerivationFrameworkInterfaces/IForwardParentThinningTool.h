@@ -20,10 +20,7 @@
 class IForwardParentThinningTool : virtual public IAlgTool {
   public:
     /// AlgTool interface ID
-    static const InterfaceID& interfaceID() {
-      static const InterfaceID thisID("IForwardParentThinningTool", 1, 0);
-      return thisID;
-    }
+    DeclareInterfaceID(IForwardParentThinningTool, 1, 0);
 
     /// Virtual destructor
     virtual ~IForwardParentThinningTool() {}
