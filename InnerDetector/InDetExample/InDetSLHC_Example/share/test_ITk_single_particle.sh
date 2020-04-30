@@ -11,12 +11,12 @@ echo "Input Parameters"
 particle=$1
 energy=$2
 geometry=$3
-echo 'particle type '$particle' energy '$energy' geometry '${geometry} 
+echo 'MW particle type '$particle' energy '$energy' geometry '${geometry} 
 
 if [ $particle == "muons" ]; then
   particle1="mu"
 elif [ $particle == "electrons" ]; then
-  perticle1="ele"
+  particle1="e"
 fi
 if [ $energy == "1GeV" ]; then
   energy1="Pt1"
@@ -26,6 +26,7 @@ elif [ $energy == "100GeV" ]; then
   energy1="Pt100"
 fi
 
+echo 'MW1 particle type '$particle1' energy '$energy1' geometry '${geometry} 
 
 
 
@@ -97,17 +98,12 @@ dcubecfg_digi_strip=${artdata}/InDetSLHC_Example/dcube/config/ITk_SCT_RDOAnalysi
 dcubecfg_rec=${artdata}/InDetSLHC_Example/dcube/config/ITk_IDPVM.xml
 
 
-if [ ${particle} == "muons" ]; then
-   dcuberef_sim=${artdata}/InDetSLHC_Example/ReferenceHistograms/SiHit_ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
-   dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}_digi.root
-   dcuberef_digi_pixel=${artdata}/InDetSLHC_Example/ReferenceHistograms/PixelRDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
-   dcuberef_digi_strip=${artdata}/InDetSLHC_Example/ReferenceHistograms/SCT_RDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
-else
-   dcuberef_sim=""
-   dcuberef_rec=$artdata/InDetSLHC_Example/ReferenceHistograms/InclinedDuals_electrons_100GeV_physval.root
-   dcuberef_digi_pixel=""
-   dcuberef_digi_strip=""
-fi
+
+dcuberef_sim=${artdata}/InDetSLHC_Example/ReferenceHistograms/SiHit_ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
+dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}_digi.root
+dcuberef_digi_pixel=${artdata}/InDetSLHC_Example/ReferenceHistograms/PixelRDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
+dcuberef_digi_strip=${artdata}/InDetSLHC_Example/ReferenceHistograms/SCT_RDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
+
 
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
 lastref_dir=last_results_${particle}_${energy}
