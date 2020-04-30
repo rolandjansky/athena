@@ -11,7 +11,7 @@ echo "Input Parameters"
 particle=$1
 energy=$2
 geometry=$3
-echo 'MW particle type '$particle' energy '$energy' geometry '${geometry} 
+echo 'Particle type: '$particle', energy: '$energy', geometry: '${geometry} 
 
 if [ $particle == "muons" ]; then
   particle1="mu"
@@ -26,7 +26,7 @@ elif [ $energy == "100GeV" ]; then
   energy1="Pt100"
 fi
 
-echo 'MW1 particle type '$particle1' energy '$energy1' geometry '${geometry} 
+
 
 
 
